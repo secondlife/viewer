@@ -4029,7 +4029,7 @@ void LLVOAvatar::computeUpdatePeriod()
 			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if ( shouldImpostor(4) )
+		else if ( shouldImpostor(4.0) )
 		{ //background avatars are REALLY slow updating impostors
 			mUpdatePeriod = 16;
 		}
@@ -4038,7 +4038,7 @@ void LLVOAvatar::computeUpdatePeriod()
 			// Don't update cloud avatars too often
 			mUpdatePeriod = 8;
 		}
-		else if ( shouldImpostor(3) )
+		else if ( shouldImpostor(3.0) )
 		{ //back 25% of max visible avatars are slow updating impostors
 			mUpdatePeriod = 8;
 		}
@@ -4046,7 +4046,7 @@ void LLVOAvatar::computeUpdatePeriod()
 		{  // stuff in between gets an update period based on pixel area
 			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
 		}
-		else
+		else // shouldImpostor() at some rank in range (1.0-3.0)
 		{
 			//nearby avatars, update the impostors more frequently.
 			mUpdatePeriod = 4;
@@ -10063,7 +10063,7 @@ BOOL LLVOAvatar::updateLOD()
         return FALSE;
     }
     
-	if (!LLPipeline::sImpostorRenderAVVO && isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
+	if (!LLPipeline::sImpostorRender && isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
 	}
@@ -10253,7 +10253,6 @@ void LLVOAvatar::updateImpostors()
 	for (std::vector<LLCharacter*>::iterator iter = instances_copy.begin();
 		iter != instances_copy.end(); ++iter)
 	{
-		// FIXME state spaghetti! Can we just use shouldImpostor() here?
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		if (!avatar->isDead()
 			&& avatar->isVisible()
@@ -10271,17 +10270,20 @@ void LLVOAvatar::updateImpostors()
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	// FIXME this doesn't seem to actually mean that the avatar is currently shown as an impostor, or should be.
-	// un-impostored avs have mUpdatePeriod 1. IMPOSTOR_PERIOD is 2.
-	//return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD));
-	return (isVisuallyMuted() || (sUseImpostors && (mUpdatePeriod >= IMPOSTOR_PERIOD))) ? TRUE : FALSE;
+	return isVisuallyMuted() || (sUseImpostors && (mUpdatePeriod > 1));
 }
 
-BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor)
+BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
 {
-	// FIXME sUseImpostors question
-	//return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
-	return (!isSelf() && (sUseImpostors || isVisuallyMuted()) && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+	if (isSelf())
+	{
+		return false;
+	}
+	if (isVisuallyMuted())
+	{
+		return true;
+	}
+	return sUseImpostors && (mVisibilityRank > (sMaxNonImpostors * rank_factor));
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
@@ -10324,7 +10326,7 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 }
 
 // static
-const U32 LLVOAvatar::IMPOSTORS_OFF = 66; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+const U32 LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER = 66; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
 										   * slider in panel_preferences_graphics1.xml */
 
 // static
@@ -10333,7 +10335,7 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 	U32  oldmax = sMaxNonImpostors;
 	bool oldflg = sUseImpostors;
 	
-	if (IMPOSTORS_OFF <= newMaxNonImpostorsValue)
+	if (NON_IMPOSTORS_MAX_SLIDER <= newMaxNonImpostorsValue)
 	{
 		sMaxNonImpostors = 0;
 	}

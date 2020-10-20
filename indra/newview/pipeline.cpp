@@ -340,7 +340,6 @@ bool	LLPipeline::sRenderGlow = false;
 bool	LLPipeline::sReflectionRender = false;
 bool    LLPipeline::sDistortionRender = false;
 bool	LLPipeline::sImpostorRender = false;
-bool	LLPipeline::sImpostorRenderAVVO = false;
 bool	LLPipeline::sImpostorRenderAlphaDepthPass = false;
 bool	LLPipeline::sUnderWaterRender = false;
 bool	LLPipeline::sTextureBindTest = false;
@@ -3077,7 +3076,7 @@ void LLPipeline::markVisible(LLDrawable *drawablep, LLCamera& camera)
 					{
 						LLVOAvatar* av = vobj->asAvatar();
 						if (av &&
-							((!sImpostorRenderAVVO && av->isImpostor()) //ignore impostor flag during impostor pass
+							((!sImpostorRender && av->isImpostor()) //ignore impostor flag during impostor pass
 							 || av->isInMuteList() 
 							 || (LLVOAvatar::AOA_JELLYDOLL == av->getOverallAppearance() && !av->needsImpostorUpdate()) ))
 						{
@@ -10921,7 +10920,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_MARK_VISIBLE);
 		markVisible(avatar->mDrawable, *viewer_camera);
-		sImpostorRenderAVVO = true;
 
 		LLVOAvatar::attachment_map_t::iterator iter;
 		for (iter = avatar->mAttachmentPoints.begin();
@@ -11161,7 +11159,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	avatar->setImpostorDim(tdim);
 
-	sImpostorRenderAVVO = false;
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
 	sImpostorRender = false;

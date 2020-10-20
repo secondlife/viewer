@@ -315,8 +315,8 @@ public:
 public:
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
-	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
-									 * slider in panel_preferences_graphics1.xml */
+	static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+												* slider in panel_preferences_graphics1.xml */
 	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
 	static F32		sRenderDistance; //distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
@@ -554,7 +554,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	virtual BOOL isImpostor();
-	BOOL 		shouldImpostor(const U32 rank_factor = 1);
+	BOOL 		shouldImpostor(const F32 rank_factor = 1.0);
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;

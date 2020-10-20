@@ -1473,7 +1473,7 @@ void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 {
 	U32 max_non_impostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
 	// for this one, we just need to make zero, which means off, the max value of the slider
-	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::IMPOSTORS_OFF : max_non_impostors;
+	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER : max_non_impostors;
 	gSavedSettings.setU32("IndirectMaxNonImpostors", indirect_max_non_impostors);
 }
 
@@ -1973,7 +1973,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors",true);
 	U32 value = ctrl->getValue().asInteger();
 
-	if (0 == value || LLVOAvatar::IMPOSTORS_OFF <= value)
+	if (0 == value || LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER <= value)
 	{
 		value=0;
 	}

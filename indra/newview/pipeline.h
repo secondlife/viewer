@@ -590,7 +590,6 @@ public:
 	static bool				sReflectionRender;
     static bool				sDistortionRender;
 	static bool				sImpostorRender;
-    static bool				sImpostorRenderAVVO;
 	static bool				sImpostorRenderAlphaDepthPass;
 	static bool				sUnderWaterRender;
 	static bool				sRenderGlow;

@@ -1485,7 +1485,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 				LLVOAvatar* avatarp = (LLVOAvatar*) objparent;
 				if (avatarp->isVisible())
 				{
-					impostor = objparent->isAvatar() && !LLPipeline::sImpostorRenderAVVO && ((LLVOAvatar*) objparent)->isImpostor();
+					impostor = objparent->isAvatar() && !LLPipeline::sImpostorRender && ((LLVOAvatar*) objparent)->isImpostor();
 					loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
 				}
 				else
@@ -1570,7 +1570,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 	if (mDrawable->getVObj())
 	{
 		// Don't update if we are part of impostor, unles it's an impostor pass
-		if (!LLPipeline::sImpostorRenderAVVO && mDrawable->getVObj()->isAttachment())
+		if (!LLPipeline::sImpostorRender && mDrawable->getVObj()->isAttachment())
 		{
 			LLDrawable* parent = mDrawable->getParent();
 			if (parent && parent->getVObj())
