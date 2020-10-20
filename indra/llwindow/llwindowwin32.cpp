@@ -829,16 +829,24 @@ void LLWindowWin32::close()
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 
-	// Make sure we don't leave a blank toolbar button.
-	ShowWindow(mWindowHandle, SW_HIDE);
+    if (IsWindow(mWindowHandle))
+    {
+        // Make sure we don't leave a blank toolbar button.
+        ShowWindow(mWindowHandle, SW_HIDE);
 
-	// This causes WM_DESTROY to be sent *immediately*
-	if (!destroy_window_handler(mWindowHandle))
-	{
-		OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
-			mCallbacks->translateString("MBShutdownErr"),
-			OSMB_OK);
-	}
+        // This causes WM_DESTROY to be sent *immediately*
+        if (!destroy_window_handler(mWindowHandle))
+        {
+            OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
+                mCallbacks->translateString("MBShutdownErr"),
+                OSMB_OK);
+        }
+    }
+    else
+    {
+        // Something killed the window while we were busy destroying gl or handle somehow got broken
+        LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+    }
 
 	mWindowHandle = NULL;
 }
