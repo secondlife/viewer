@@ -2187,16 +2187,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>58868cbca1623e93ee974efcd34bf063</string>
+              <string>d2088a959f3b9aa0b46014cdf3ad6e9c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/69529/670913/llca-202009302013.549857-common-549857.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/69744/673458/llca-202010052010.550026-common-550026.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202009302013.549857</string>
+        <string>202010052010.550026</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
