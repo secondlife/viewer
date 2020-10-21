@@ -347,7 +347,6 @@ bool	LLPipeline::sRenderFrameTest = false;
 bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
-bool    LLPipeline::sMemAllocationThrottled = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 bool	LLPipeline::sRenderingHUDs;
@@ -716,24 +715,6 @@ void LLPipeline::destroyGL()
 }
 
 static LLTrace::BlockTimerStatHandle FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
-
-//static
-void LLPipeline::throttleNewMemoryAllocation(bool disable)
-{
-	if(sMemAllocationThrottled != disable)
-	{
-		sMemAllocationThrottled = disable ;
-
-		if(sMemAllocationThrottled)
-		{
-			//send out notification
-			LLNotification::Params params("LowMemory");
-			LLNotifications::instance().add(params);
-
-			//release some memory.
-		}
-	}
-}
 
 void LLPipeline::requestResizeScreenTexture()
 {

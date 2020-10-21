@@ -413,10 +413,6 @@ public:
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
-	static void throttleNewMemoryAllocation(bool disable);
-
-	
-
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
@@ -598,7 +594,6 @@ public:
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
-	static bool             sMemAllocationThrottled;
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 	static bool				sRenderingHUDs;
