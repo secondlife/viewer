@@ -3148,6 +3148,7 @@ class LLObjectMute : public view_listener_t
 		if (avatar)
 		{
 			avatar->mNeedsImpostorUpdate = TRUE;
+			avatar->mLastImpostorUpdateReason = 9;
 
 			id = avatar->getID();
 

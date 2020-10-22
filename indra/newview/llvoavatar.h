@@ -317,10 +317,10 @@ public:
 	static BOOL		sRenderGroupTitles;
 	static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
 												* slider in panel_preferences_graphics1.xml */
-	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
-	static F32		sRenderDistance; //distance at which avatars will render.
+	static U32		sMaxNonImpostors; // affected by control "RenderAvatarMaxNonImpostors"
+	static bool		sLimitNonImpostors; // use impostors for far away avatars
+	static F32		sRenderDistance; // distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static bool		sUseImpostors; //use impostors for far away avatars, impostors are always on for 'mute' list
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
@@ -565,6 +565,7 @@ public:
 	static void updateImpostors();
 	LLRenderTarget mImpostor;
 	BOOL		mNeedsImpostorUpdate;
+	S32			mLastImpostorUpdateReason;
 	F32SecondsImplicit mLastImpostorUpdateFrameTime;
     const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
 	void		setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }

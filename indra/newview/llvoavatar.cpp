@@ -577,7 +577,8 @@ private:
 //-----------------------------------------------------------------------------
 LLAvatarAppearanceDictionary *LLVOAvatar::sAvatarDictionary = NULL;
 S32 LLVOAvatar::sFreezeCounter = 0;
-U32 LLVOAvatar::sMaxNonImpostors = 12; // overridden based on graphics setting
+U32 LLVOAvatar::sMaxNonImpostors = 12; // Set from RenderAvatarMaxNonImpostors
+bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonImpostors is 0 (unlimited)
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -604,7 +605,6 @@ BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
-bool LLVOAvatar::sUseImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -637,6 +637,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mMeshValid(FALSE),
 	mVisible(FALSE),
 	mLastImpostorUpdateFrameTime(0.f),
+	mLastImpostorUpdateReason(0),
 	mWindFreq(0.f),
 	mRipplePhase( 0.f ),
 	mBelowWater(FALSE),
@@ -704,6 +705,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	setAnimationData("Speed", &mSpeed);
 
 	mNeedsImpostorUpdate = TRUE;
+	mLastImpostorUpdateReason = 0;
 	mNeedsAnimUpdate = TRUE;
 
 	mNeedsExtentUpdate = true;
@@ -1079,6 +1081,7 @@ void LLVOAvatar::resetImpostors()
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		avatar->mImpostor.release();
 		avatar->mNeedsImpostorUpdate = TRUE;
+		avatar->mLastImpostorUpdateReason = 1;
 	}
 }
 
@@ -2836,6 +2839,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
 			{
 				mNeedsImpostorUpdate = TRUE;
+				mLastImpostorUpdateReason = 2;
 			}
 		}
 
@@ -2847,6 +2851,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			if (dist_diff/mImpostorDistance > 0.1f)
 			{
 				mNeedsImpostorUpdate = TRUE;
+				mLastImpostorUpdateReason = 3;
 			}
 			else
 			{
@@ -2859,6 +2864,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				if (diff.getLength3().getF32() > 0.05f)
 				{
 					mNeedsImpostorUpdate = TRUE;
+					mLastImpostorUpdateReason = 4;
 				}
 				else
 				{
@@ -2866,6 +2872,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 					if (diff.getLength3().getF32() > 0.05f)
 					{
 						mNeedsImpostorUpdate = TRUE;
+						mLastImpostorUpdateReason = 5;
 					}
 				}
 			}
@@ -3621,7 +3628,7 @@ bool LLVOAvatar::isVisuallyMuted()
         {
             muted = true;
         }
-		else if (sUseImpostors)
+		else 
 		{
 			muted = isTooComplex();
 		}
@@ -3739,6 +3746,10 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
 		else
 		{
 			debug_line += "-";
+		}
+		if (isImpostor())
+		{
+			debug_line += " Imp" + llformat("%d[%d]:%.1f", mUpdatePeriod, mLastImpostorUpdateReason, ((F32)(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)));
 		}
 
 		addDebugText(debug_line);
@@ -4000,7 +4011,14 @@ void LLVOAvatar::updateFootstepSounds()
 // computeUpdatePeriod()
 // Factored out from updateCharacter()
 // Set new value for mUpdatePeriod based on distance and various other factors.
-//------------------------------------------------------------------------
+//
+// Note 10-2020: it turns out that none of these update period
+// calculations have been having any effect, because
+// mNeedsImpostorUpdate was not being set in updateCharacter(). So
+// it's really open to question whether we want to enable time based updates, and if
+// so, at what rate. Leaving the rates as given would lead to
+// drastically more frequent impostor updates than we've been doing all these years.
+// ------------------------------------------------------------------------
 void LLVOAvatar::computeUpdatePeriod()
 {
 	bool visually_muted = isVisuallyMuted();
@@ -4008,7 +4026,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && isVisible() 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
-        && (sUseImpostors || visually_muted) // FIXME??
+        && (sLimitNonImpostors || visually_muted)
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
 	{
@@ -4016,11 +4034,14 @@ void LLVOAvatar::computeUpdatePeriod()
 		LLVector4a size;
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
+
+		const S32 UPDATE_RATE_SLOW = 64;
+		const S32 UPDATE_RATE_MED = 48;
+		const S32 UPDATE_RATE_FAST = 32;
 		
-		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (visually_muted)
-		{   // visually muted avatars update at every 16 frames
-			mUpdatePeriod = 16;
+		{   // visually muted avatars update at lowest rate
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
 		else if (! shouldImpostor()
 				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
@@ -4031,25 +4052,21 @@ void LLVOAvatar::computeUpdatePeriod()
 		}
 		else if ( shouldImpostor(4.0) )
 		{ //background avatars are REALLY slow updating impostors
-			mUpdatePeriod = 16;
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
 		else if (mLastRezzedStatus <= 0)
 		{
 			// Don't update cloud avatars too often
-			mUpdatePeriod = 8;
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
 		else if ( shouldImpostor(3.0) )
 		{ //back 25% of max visible avatars are slow updating impostors
-			mUpdatePeriod = 8;
+			mUpdatePeriod = UPDATE_RATE_MED;
 		}
-		else if (mImpostorPixelArea <= impostor_area)
-		{  // stuff in between gets an update period based on pixel area
-			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
-		}
-		else // shouldImpostor() at some rank in range (1.0-3.0)
+		else 
 		{
 			//nearby avatars, update the impostors more frequently.
-			mUpdatePeriod = 4;
+			mUpdatePeriod = UPDATE_RATE_FAST;
 		}
 	}
 	else
@@ -4454,11 +4471,29 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	//--------------------------------------------------------------------
 	// The rest should only be done occasionally for far away avatars.
-    // Set mUpdatePeriod and visible based on distance and other criteria.
+    // Set mUpdatePeriod and visible based on distance and other criteria,
+	// and flag for impostor update if needed.
 	//--------------------------------------------------------------------
-    computeUpdatePeriod();
-    bool needs_update = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0;
+	const F32 MAX_IMPOSTOR_INTERVAL = 4.0f;
+	computeUpdatePeriod();
+	bool needs_update_by_frame_count = ((LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0);
+    bool needs_update_by_max_time = ((mLastImpostorUpdateFrameTime-gFrameTimeSeconds)> MAX_IMPOSTOR_INTERVAL);
+	bool needs_update = needs_update_by_frame_count || needs_update_by_max_time;
 
+	if (needs_update && !isSelf())
+	{
+		if (needs_update_by_max_time)
+		{
+			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 11;
+		}
+		else
+		{
+			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 10;
+		}
+	}
+	
 	//--------------------------------------------------------------------
 	// Early out if does not need update and not self
 	// don't early out for your own avatar, as we rely on your animations playing reliably
@@ -4560,8 +4595,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
     if (visible)
     {
-	// System avatar mesh vertices need to be reskinned.
-	mNeedsSkin = TRUE;
+		// System avatar mesh vertices need to be reskinned.
+		mNeedsSkin = TRUE;
     }
 
 	return visible;
@@ -8107,6 +8142,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	{
 		// Fix for jellydoll initially invisible
 		mNeedsImpostorUpdate = TRUE;
+		mLastImpostorUpdateReason = 6;
 	}	
 	return changed;
 }
@@ -10270,7 +10306,7 @@ void LLVOAvatar::updateImpostors()
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	return isVisuallyMuted() || (sUseImpostors && (mUpdatePeriod > 1));
+	return isVisuallyMuted() || (sLimitNonImpostors && (mUpdatePeriod > 1));
 }
 
 BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
@@ -10283,7 +10319,7 @@ BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
 	{
 		return true;
 	}
-	return sUseImpostors && (mVisibilityRank > (sMaxNonImpostors * rank_factor));
+	return sLimitNonImpostors && (mVisibilityRank > sMaxNonImpostors * rank_factor);
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
@@ -10333,7 +10369,7 @@ const U32 LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER = 66; /* Must equal the maximum a
 void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 {
 	U32  oldmax = sMaxNonImpostors;
-	bool oldflg = sUseImpostors;
+	bool oldflg = sLimitNonImpostors;
 	
 	if (NON_IMPOSTORS_MAX_SLIDER <= newMaxNonImpostorsValue)
 	{
@@ -10343,13 +10379,13 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 	{
 		sMaxNonImpostors = newMaxNonImpostorsValue;
 	}
-	// the sUseImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
-	sUseImpostors = (0 != sMaxNonImpostors);
-    if ( oldflg != sUseImpostors )
+	// the sLimitNonImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
+	sLimitNonImpostors = (0 != sMaxNonImpostors);
+    if ( oldflg != sLimitNonImpostors )
     {
         LL_DEBUGS("AvatarRender")
             << "was " << (oldflg ? "use" : "don't use" ) << " impostors (max " << oldmax << "); "
-            << "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
+            << "now " << (sLimitNonImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
             << LL_ENDL;
     }
 }
@@ -10734,6 +10770,7 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
     mNeedsImpostorUpdate = TRUE;
+	mLastImpostorUpdateReason = 7;
 
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
@@ -10815,6 +10852,7 @@ void LLVOAvatar::updateOverallAppearance()
 		if (!isSelf())
 		{
 			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 8;
 		}
 		updateMeshVisibility();
 	}
