@@ -1053,7 +1053,6 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 		
 		if(items)
         {
-            bool has_items = parentp->getItemsCount() > 0;
 			for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items->begin();
 				 item_iter != items->end();
 				 ++item_iter)
@@ -1061,19 +1060,14 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
 				const LLViewerInventoryItem* item = (*item_iter);
                 if (typedViewsFilter(item->getUUID(), item))
                 {
-                    if (has_items)
-                    {
-                        // This can be optimized: we don't need to call getItemByID()
-                        // each time, especially since content is growing, we can just
-                        // iter over copy of mItemMap in some way
-                        LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
-                        buildViewsTree(item->getUUID(), id, item, view_itemp, parentp);
-                    }
-                    else
-                    {
-                        buildViewsTree(item->getUUID(), id, item, NULL, parentp);
-                    }
+
+                    // This can be optimized: we don't need to call getItemByID()
+                    // each time, especially since content is growing, we can just
+                    // iter over copy of mItemMap in some way
+                    LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
+                    buildViewsTree(item->getUUID(), id, item, view_itemp, parentp);
                 }
+
 			}
 		}
 		mInventory->unlockDirectDescendentArrays(id);
