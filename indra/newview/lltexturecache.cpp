@@ -52,7 +52,8 @@ const S32 TEXTURE_CACHE_ENTRY_SIZE = FIRST_PACKET_SIZE;//1024;
 const F32 TEXTURE_CACHE_PURGE_AMOUNT = .20f; // % amount to reduce the cache by when it exceeds its limit
 const F32 TEXTURE_CACHE_LRU_SIZE = .10f; // % amount for LRU list (low overhead to regenerate)
 const S32 TEXTURE_FAST_CACHE_ENTRY_OVERHEAD = sizeof(S32) * 4; //w, h, c, level
-const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = 16 * 16 * 4 + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
+const S32 TEXTURE_FAST_CACHE_DATA_SIZE = 16 * 16 * 4;
+const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = TEXTURE_FAST_CACHE_DATA_SIZE + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
 const F32 TEXTURE_LAZY_PURGE_TIME_LIMIT = .004f; // 4ms. Would be better to autoadjust, but there is a major cache rework in progress.
 
 class LLTextureCacheWorker : public LLWorkerClass
@@ -2065,7 +2066,9 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 		}
 		
 		S32 image_size = head[0] * head[1] * head[2];
-		if(!image_size) //invalid
+        if(image_size <= 0
+           || image_size > TEXTURE_FAST_CACHE_DATA_SIZE
+           || head[3] < 0) //invalid
 		{
 			closeFastCache();
 			return NULL;
@@ -2144,7 +2147,7 @@ bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImage
 
 	S32 i = 0 ;
 	
-	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+	while(((w >> i) * (h >> i) * c) > TEXTURE_FAST_CACHE_DATA_SIZE)
 	{
 		++i ;
 	}
