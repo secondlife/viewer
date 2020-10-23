@@ -235,14 +235,14 @@ public:
 	//--------------------------------------------------------------------
 public:
 	// Convert from baked texture to associated texture; e.g. BAKED_HEAD -> TEX_HEAD_BAKED
-	static ETextureIndex 		bakedToLocalTextureIndex(EBakedTextureIndex t);
+	ETextureIndex 		bakedToLocalTextureIndex(EBakedTextureIndex t);
 
 	// find a baked texture index based on its name
-	static EBakedTextureIndex 	findBakedByRegionName(std::string name);
-	static EBakedTextureIndex 	findBakedByImageName(std::string name);
+	EBakedTextureIndex 	findBakedByRegionName(std::string name);
+	EBakedTextureIndex 	findBakedByImageName(std::string name);
 
 	// Given a texture entry, determine which wearable type owns it.
-	static LLWearableType::EType 		getTEWearableType(ETextureIndex index);
+	LLWearableType::EType 		getTEWearableType(ETextureIndex index);
 
 	static BOOL							isBakedImageId(const LLUUID& id);
 	static EBakedTextureIndex			assetIdToBakedTextureIndex(const LLUUID& id);

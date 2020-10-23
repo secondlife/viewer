@@ -202,7 +202,7 @@ LLAvatarAppearance::LLAvatarAppearance(LLWearableData* wearable_data) :
 		mBakedTextureDatas[i].mIsLoaded = false;
 		mBakedTextureDatas[i].mIsUsed = false;
 		mBakedTextureDatas[i].mMaskTexName = 0;
-		mBakedTextureDatas[i].mTextureIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::bakedToLocalTextureIndex((LLAvatarAppearanceDefines::EBakedTextureIndex)i);
+		mBakedTextureDatas[i].mTextureIndex = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->bakedToLocalTextureIndex((LLAvatarAppearanceDefines::EBakedTextureIndex)i);
 	}
 }
 
@@ -999,7 +999,7 @@ BOOL LLAvatarAppearance::loadAvatar()
 	{
 		LLAvatarXmlInfo::LLAvatarMorphInfo *info = *iter;
 
-		EBakedTextureIndex baked = LLAvatarAppearanceDictionary::findBakedByRegionName(info->mRegion); 
+		EBakedTextureIndex baked = LLAvatarAppearanceDictionary::getInstance()->findBakedByRegionName(info->mRegion);
 		if (baked != BAKED_NUM_INDICES)
 		{
 			LLVisualParam* morph_param;

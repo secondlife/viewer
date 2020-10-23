@@ -606,7 +606,7 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 	// Deep copy of src (copies only those tes that are current, filling in defaults where needed)
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearanceDictionary::getInstance()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = src.find(te);
 			LLUUID image_id;

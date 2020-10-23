@@ -979,7 +979,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
 
 		return type;
 	}
-	return LLAvatarAppearanceDictionary::getTEWearableType(te);
+	return LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(te);
 }
 
 LLTexLayerInterface::ERenderPass LLTexLayerInterface::getRenderPass() const

@@ -339,7 +339,7 @@ U32 LLWearableData::getWearableCount(const LLWearableType::EType type) const
 
 U32 LLWearableData::getWearableCount(const U32 tex_index) const
 {
-	const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
+	const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
 	return getWearableCount(wearable_type);
 }
 
