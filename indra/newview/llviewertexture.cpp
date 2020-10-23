@@ -1541,7 +1541,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		return FALSE;
 	}
 
-    if (mGLTexturep->getHasEplixitFormat())
+    if (mGLTexturep->getHasExplicitFormat())
     {
         LLGLenum format = mGLTexturep->getPrimaryFormat();
         S8 components = mRawImage->getComponents();

@@ -133,7 +133,7 @@ public:
 	S32  getMipBytes(S32 discard_level = -1) const;
 	BOOL getBoundRecently() const;
 	BOOL isJustBound() const;
-	BOOL getHasEplixitFormat() const { return mHasExplicitFormat; }
+	BOOL getHasExplicitFormat() const { return mHasExplicitFormat; }
 	LLGLenum getPrimaryFormat() const { return mFormatPrimary; }
 	LLGLenum getFormatType() const { return mFormatType; }
 
