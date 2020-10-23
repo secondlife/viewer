@@ -248,6 +248,9 @@ void LLPanelProfileClassifieds::callbackDeleteClassified(const LLSD& notificatio
         }
 
         updateButtons();
+
+        BOOL no_data = !mTabContainer->getTabCount();
+        mNoItemsLabel->setVisible(no_data);
     }
 }
 
