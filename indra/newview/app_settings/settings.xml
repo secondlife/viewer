@@ -1371,7 +1371,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>50</integer>
     </map>
     <key>DiskCacheDirName</key>
     <map>
