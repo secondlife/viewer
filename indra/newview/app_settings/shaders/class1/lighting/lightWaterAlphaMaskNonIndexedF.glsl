@@ -43,12 +43,12 @@ void default_lighting_water()
 {
 	vec4 color = texture2D(diffuseMap,vary_texcoord0.xy);
 
-	color.rgb *= vertex_color.rgb;
-
 	if (color.a < minimum_alpha)
 	{
 		discard;
 	}
+
+	color.rgb *= vertex_color.rgb;
 
 	color.rgb = atmosLighting(color.rgb);
 
