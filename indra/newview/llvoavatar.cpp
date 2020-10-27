@@ -2139,7 +2139,15 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 	}
 	else
 	{
+		// Stripped down approximation of
+		// applyParsedAppearanceMessage, but with alternative default
+		// (jellydoll) params
+		setCompositeUpdatesEnabled( FALSE );
+		gPipeline.markGLRebuild(this);
 		applyDefaultParams();
+		setCompositeUpdatesEnabled( TRUE );
+		updateMeshTextures();
+		updateMeshVisibility();
 	}
     updateVisualParams();
 
@@ -4418,6 +4426,37 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 }
 
 //------------------------------------------------------------------------
+// LLVOAvatar::computeNeedsUpdate()
+// 
+// Most of the logic here is to figure out when to periodically update impostors.
+// Non-impostors have mUpdatePeriod == 1 and will need update every frame.
+//------------------------------------------------------------------------
+bool LLVOAvatar::computeNeedsUpdate()
+{
+	const F32 MAX_IMPOSTOR_INTERVAL = 4.0f;
+	computeUpdatePeriod();
+
+	bool needs_update_by_frame_count = ((LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0);
+
+    bool needs_update_by_max_time = ((gFrameTimeSeconds-mLastImpostorUpdateFrameTime)> MAX_IMPOSTOR_INTERVAL);
+	bool needs_update = needs_update_by_frame_count || needs_update_by_max_time;
+
+	if (needs_update && !isSelf())
+	{
+		if (needs_update_by_max_time)
+		{
+			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 11;
+		}
+		else
+		{
+			//mNeedsImpostorUpdate = TRUE;
+			//mLastImpostorUpdateReason = 10;
+		}
+	}
+	return needs_update;
+}
+
 // updateCharacter()
 //
 // This is called for all avatars, so there are 4 possible situations:
@@ -4440,7 +4479,7 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 // simulator.
 //
 //------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+bool LLVOAvatar::updateCharacter(LLAgent &agent)
 {	
 	updateDebugText();
 	
@@ -4452,6 +4491,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	BOOL visible = isVisible();
     bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
 	bool is_attachment = false;
+
 	if (is_control_avatar)
 	{
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
@@ -4474,25 +4514,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
     // Set mUpdatePeriod and visible based on distance and other criteria,
 	// and flag for impostor update if needed.
 	//--------------------------------------------------------------------
-	const F32 MAX_IMPOSTOR_INTERVAL = 4.0f;
-	computeUpdatePeriod();
-	bool needs_update_by_frame_count = ((LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0);
-    bool needs_update_by_max_time = ((mLastImpostorUpdateFrameTime-gFrameTimeSeconds)> MAX_IMPOSTOR_INTERVAL);
-	bool needs_update = needs_update_by_frame_count || needs_update_by_max_time;
-
-	if (needs_update && !isSelf())
-	{
-		if (needs_update_by_max_time)
-		{
-			mNeedsImpostorUpdate = TRUE;
-			mLastImpostorUpdateReason = 11;
-		}
-		else
-		{
-			mNeedsImpostorUpdate = TRUE;
-			mLastImpostorUpdateReason = 10;
-		}
-	}
+	bool needs_update = computeNeedsUpdate();
 	
 	//--------------------------------------------------------------------
 	// Early out if does not need update and not self

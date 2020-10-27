@@ -360,7 +360,38 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 }
 
-BOOL LLControlAvatar::updateCharacter(LLAgent &agent)
+bool LLControlAvatar::computeNeedsUpdate()
+{
+	computeUpdatePeriod();
+
+	// Animesh attachments are a special case. Should have the same update cadence as their attached parent avatar.
+	bool is_attachment = mRootVolp && mRootVolp->isAttachment(); // For attached animated objects
+	if (is_attachment)
+	{
+		LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+		if (attached_av)
+		{
+			// Have to run computeNeedsUpdate() for attached av in
+			// case it hasn't run updateCharacter() already this
+			// frame.  Note this means that the attached av will
+			// run computeNeedsUpdate() multiple times per frame
+			// if it has animesh attachments. Results will be
+			// consistent except for the corner case of exceeding
+			// MAX_IMPOSTOR_INTERVAL in one call but not another,
+			// which should be rare.
+			attached_av->computeNeedsUpdate();
+			mNeedsImpostorUpdate = attached_av->mNeedsImpostorUpdate;
+			if (mNeedsImpostorUpdate)
+			{
+				mLastImpostorUpdateReason = 12;
+			}
+			return mNeedsImpostorUpdate;
+		}
+	}
+	return LLVOAvatar::computeNeedsUpdate();
+}
+
+bool LLControlAvatar::updateCharacter(LLAgent &agent)
 {
     return LLVOAvatar::updateCharacter(agent);
 }

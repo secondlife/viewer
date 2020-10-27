@@ -263,7 +263,8 @@ public:
     void			updateAppearanceMessageDebugText();
 	void 			updateAnimationDebugText();
 	virtual void	updateDebugText();
-	virtual BOOL 	updateCharacter(LLAgent &agent);
+	virtual bool 	computeNeedsUpdate();
+	virtual bool 	updateCharacter(LLAgent &agent);
     void			updateFootstepSounds();
     void			computeUpdatePeriod();
     void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
