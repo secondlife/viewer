@@ -142,6 +142,9 @@ public:
 
 	void 			setItemRemoved(bool script_removed){mScriptRemoved = script_removed;};
 
+    void 			setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
+    LLUUID 			getAssetID() { return mAssetID; }
+
 private:
 	void		onBtnHelp();
 	void		onBtnDynamicHelp();
@@ -188,6 +191,7 @@ private:
 	LLUUID			mAssociatedExperience;
 	BOOL			mScriptRemoved;
 	BOOL			mSaveDialogShown;
+    LLUUID          mAssetID;
 
 	LLScriptEdContainer* mContainer; // parent view
 
