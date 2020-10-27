@@ -1693,8 +1693,11 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
         {
             std::string buffer(mScriptEd->mEditor->getText());
 
+            LLUUID old_asset_id = inv_item->getAssetUUID().isNull() ? mScriptEd->getAssetID() : inv_item->getAssetUUID();
+
             LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mItemUUID, buffer, 
-                [](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
+                [old_asset_id](LLUUID itemId, LLUUID, LLUUID, LLSD response) {
+                    LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
                     LLPreviewLSL::finishedLSLUpload(itemId, response);
                 }));
 
@@ -1742,6 +1745,7 @@ void LLPreviewLSL::onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType t
 			}
 			preview->mScriptEd->setScriptName(script_name);
 			preview->mScriptEd->setEnableEditing(is_modifiable);
+            preview->mScriptEd->setAssetID(asset_uuid);
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
 		else
@@ -1995,6 +1999,7 @@ void LLLiveLSLEditor::onLoadComplete(const LLUUID& asset_id,
 			instance->loadScriptText(asset_id, type);
 			instance->mScriptEd->setEnableEditing(TRUE);
 			instance->mAssetStatus = PREVIEW_ASSET_LOADED;
+            instance->mScriptEd->setAssetID(asset_id);
 		}
 		else
 		{
@@ -2174,6 +2179,7 @@ void LLLiveLSLEditor::finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAs
     if (preview)
     {
         preview->mItem->setAssetUUID(newAssetId);
+        preview->mScriptEd->setAssetID(newAssetId);
 
         // Bytecode save completed
         if (response["compiled"])
@@ -2244,12 +2250,14 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
     if (!url.empty())
     {
         std::string buffer(mScriptEd->mEditor->getText());
+        LLUUID old_asset_id = mScriptEd->getAssetID();
 
         LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLScriptAssetUpload>(mObjectUUID, mItemUUID, 
                 monoChecked() ? LLScriptAssetUpload::MONO : LLScriptAssetUpload::LSL2, 
                 isRunning, mScriptEd->getAssociatedExperience(), buffer, 
-                [isRunning](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) { 
-                    LLLiveLSLEditor::finishLSLUpload(itemId, taskId, newAssetId, response, isRunning);
+                [isRunning, old_asset_id](LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response) { 
+                        LLFileSystem::removeFile(old_asset_id, LLAssetType::AT_LSL_TEXT);
+                        LLLiveLSLEditor::finishLSLUpload(itemId, taskId, newAssetId, response, isRunning);
                 }));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);

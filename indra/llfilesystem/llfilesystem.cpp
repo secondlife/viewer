@@ -99,12 +99,16 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     new_file_id.toString(new_id_str);
     const std::string new_filename =  LLDiskCache::getInstance()->metaDataToFilepath(new_id_str, new_file_type, extra_info);
 
+    // Rename needs the new file to not exist.
+    LLFileSystem::removeFile(new_file_id, new_file_type);
+
     if (std::rename(old_filename.c_str(), new_filename.c_str()))
     {
         // We would like to return FALSE here indicating the operation
         // failed but the original code does not and doing so seems to
         // break a lot of things so we go with the flow...
         //return FALSE;
+        LL_WARNS() << "Failed to rename " << old_file_id << " to " << new_id_str << " reason: "  << strerror(errno) << LL_ENDL;
     }
 
     return TRUE;
