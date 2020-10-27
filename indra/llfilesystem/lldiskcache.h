@@ -83,8 +83,8 @@ class LLDiskCache :
                      */
                     const std::string cache_dir,
                     /**
-                     * The maximum size of the cache in bytes - Defined by
-                     * the setting at 'DiskCacheMaxSizeMB' (* 1024 * 1024)
+                     * The maximum size of the cache in bytes - Based on the
+                     * setting at 'CacheSize' and 'DiskCachePercentOfTotal'
                      */
                     const int max_size_bytes,
                     /**

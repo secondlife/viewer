@@ -1362,16 +1362,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DiskCacheMaxSizeMB</key>
+    <key>DiskCachePercentOfTotal</key>
     <map>
       <key>Comment</key>
-      <string>The maximum number of MB to use for the new disk cache</string>
+      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>F32</string>
       <key>Value</key>
-      <integer>50</integer>
+      <integer>20.0</integer>
     </map>
     <key>DiskCacheDirName</key>
     <map>
