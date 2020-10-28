@@ -1386,7 +1386,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
         return 0;
     }
 
-	if (!unpack_TEField<U8>((U8 *)material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
+	if (cur_ptr >= buffer_end || !unpack_TEField<U8>((U8 *)material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
@@ -1520,7 +1520,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
         return 0;
     }
 
-	if (!unpack_TEField<U8>((U8 *)material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
+	if (cur_ptr >= buffer_end || !unpack_TEField<U8>((U8 *)material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
