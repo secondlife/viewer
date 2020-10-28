@@ -114,6 +114,35 @@ const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // 
 // can't be divided by 2.   See DEV-19108
 const F32	TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
 
+struct material_id_type
+{
+    material_id_type()
+    {
+        memset(m_value, 0, sizeof(m_value));
+    }
+
+    bool operator==(const material_id_type& other) const
+    {
+        return (memcmp(m_value, other.m_value, sizeof(m_value)) == 0);
+    }
+
+    bool operator!=(const material_id_type& other) const
+    {
+        return !operator==(other);
+    }
+
+    bool isNull() const
+    {
+        return (memcmp(m_value, s_null_id, sizeof(m_value)) == 0);
+    }
+
+    U8 m_value[MATERIAL_ID_SIZE]; // server side this is MD5RAW_BYTES
+
+    static const U8 s_null_id[MATERIAL_ID_SIZE];
+};
+
+const U8 material_id_type::s_null_id[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+
 //static 
 // LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
 // TODO -- eliminate this global from the codebase!
@@ -1333,9 +1362,9 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num, LLTEContents& tec)
 {
 	S32 retval = 0;
-   // temp buffer for material ID processing
-   // data will end up in tec.material_id[]	
-   U8 material_data[LLTEContents::MAX_TES*16];
+    // temp buffer for material ID processing
+    // data will end up in tec.material_id[]	
+    material_id_type material_data[LLTEContents::MAX_TES];
 
 	if (block_num < 0)
 	{
@@ -1386,14 +1415,14 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
         return 0;
     }
 
-	if (cur_ptr >= buffer_end || !unpack_TEField<U8>((U8 *)material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
+	if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
 	
 	for (U32 i = 0; i < tec.face_count; i++)
 	{
-		tec.material_ids[i].set(&material_data[i * 16]);
+		tec.material_ids[i].set(&(material_data[i]));
 	}
 	
 	retval = 1;
@@ -1463,7 +1492,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     U8          bump[MAX_TES];
     U8          media_flags[MAX_TES];
     U8          glow[MAX_TES];
-    U8     material_data[MAX_TES * 16];
+    material_id_type material_data[MAX_TES];
     
     memset(scale_s, 0, sizeof(scale_s));
     memset(scale_t, 0, sizeof(scale_t));
@@ -1520,14 +1549,14 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
         return 0;
     }
 
-	if (cur_ptr >= buffer_end || !unpack_TEField<U8>((U8 *)material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
+	if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
 		memset(material_data, 0, sizeof(material_data));
 	}
 
 	for (i = 0; i < face_count; i++)
 	{
-		material_ids[i].set(&material_data[i * 16]);
+		material_ids[i].set(&(material_data[i]));
 	}
 	
 	LLColor4 color;
