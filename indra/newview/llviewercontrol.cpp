@@ -143,6 +143,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
+    if (gPipeline.isInit())
+    {
+        // ALM depends onto atmospheric shaders, state might have changed
+        bool old_state = LLPipeline::sRenderDeferred;
+        LLPipeline::refreshCachedSettings();
+        gPipeline.updateRenderDeferred();
+        if (old_state != LLPipeline::sRenderDeferred)
+        {
+            gPipeline.releaseGLBuffers();
+            gPipeline.createGLBuffers();
+            gPipeline.resetVertexBuffers();
+        }
+    }
+
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
