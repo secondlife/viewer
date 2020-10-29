@@ -1371,7 +1371,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>20.0</integer>
+      <real>20.0</real>
     </map>
     <key>DiskCacheDirName</key>
     <map>
@@ -11569,7 +11569,7 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-    </map> 
+    </map>
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>
@@ -16588,7 +16588,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>        
+      <integer>1</integer>
     </map>
 </map>
 </llsd>
