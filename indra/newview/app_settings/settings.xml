@@ -12641,6 +12641,17 @@
       <key>Value</key>
       <integer>50</integer>
     </map>
+    <key>TextureSaveLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Current location for bulk saving textures to disk</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
       <key>Comment</key>
