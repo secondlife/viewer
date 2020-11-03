@@ -143,13 +143,14 @@ typedef std::vector<LLWearableType::EType> wearables_vec_t;
 // 
 // This holds const data - it is initialized once and the contents never change after that.
 //------------------------------------------------------------------------
-class LLAvatarAppearanceDictionary : public LLSingleton<LLAvatarAppearanceDictionary>
+class LLAvatarAppearanceDictionary
 {
 	//--------------------------------------------------------------------
 	// Constructors and Destructors
 	//--------------------------------------------------------------------
-	LLSINGLETON(LLAvatarAppearanceDictionary);
-	virtual ~LLAvatarAppearanceDictionary();
+public:
+	LLAvatarAppearanceDictionary();
+	~LLAvatarAppearanceDictionary();
 private:
 	void createAssociations();
 	
@@ -235,14 +236,14 @@ public:
 	//--------------------------------------------------------------------
 public:
 	// Convert from baked texture to associated texture; e.g. BAKED_HEAD -> TEX_HEAD_BAKED
-	ETextureIndex 		bakedToLocalTextureIndex(EBakedTextureIndex t);
+	ETextureIndex 		bakedToLocalTextureIndex(EBakedTextureIndex t) const;
 
 	// find a baked texture index based on its name
 	EBakedTextureIndex 	findBakedByRegionName(std::string name);
 	EBakedTextureIndex 	findBakedByImageName(std::string name);
 
 	// Given a texture entry, determine which wearable type owns it.
-	LLWearableType::EType 		getTEWearableType(ETextureIndex index);
+	LLWearableType::EType 		getTEWearableType(ETextureIndex index) const;
 
 	static BOOL							isBakedImageId(const LLUUID& id);
 	static EBakedTextureIndex			assetIdToBakedTextureIndex(const LLUUID& id);

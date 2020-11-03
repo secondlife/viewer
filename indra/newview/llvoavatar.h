@@ -677,9 +677,6 @@ public:
 public:
 	static BOOL 	isIndexLocalTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 	static BOOL 	isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
-private:
-	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
-	static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 
 	//--------------------------------------------------------------------
 	// Messaging

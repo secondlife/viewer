@@ -258,7 +258,7 @@ LLAvatarAppearanceDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
 	}
 }
 
-ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index)
+ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index) const
 {
 	return getBakedTexture(index)->mTextureIndex;
 }
@@ -301,7 +301,7 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::strin
 	return BAKED_NUM_INDICES;
 }
 
-LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index )
+LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index ) const
 {
 	return getTexture(index)->mWearableType;
 }

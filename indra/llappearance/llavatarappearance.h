@@ -255,6 +255,7 @@ public:
 public:
 	virtual void	updateMeshTextures() = 0;
 	virtual void	dirtyMesh() = 0; // Dirty the avatar mesh
+	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
 protected:
 	virtual void	dirtyMesh(S32 priority) = 0; // Dirty the avatar mesh, with priority
 
@@ -262,6 +263,9 @@ protected:
 	typedef std::multimap<std::string, LLPolyMesh*> polymesh_map_t;
 	polymesh_map_t 									mPolyMeshes;
 	avatar_joint_list_t								mMeshLOD;
+
+    // mesh entries and backed textures
+    static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 
 /**                    Meshes
  **                                                                            **
