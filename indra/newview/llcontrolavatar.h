@@ -40,6 +40,10 @@ public:
 	virtual void 			initInstance(); // Called after construction to initialize the class.
 	virtual	~LLControlAvatar();
 
+	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
+	virtual const LLVOAvatar *getAttachedAvatar() const;
+	virtual LLVOAvatar *getAttachedAvatar();
+	
     void getNewConstraintFixups(LLVector3& new_pos_constraint, F32& new_scale_constraint) const;
     void matchVolumeTransform();
     void updateVolumeGeom();

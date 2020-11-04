@@ -761,8 +761,8 @@ std::string LLVOAvatar::avString() const
     }
     else
     {
-	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	return " Avatar '" + getFullname() + "' " + viz_string + " ";
+		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+		return " Avatar '" + getFullname() + "' " + viz_string + " ";
     }
 }
 

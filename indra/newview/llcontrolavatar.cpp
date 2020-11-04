@@ -78,6 +78,24 @@ void LLControlAvatar::initInstance()
     mInitFlags |= 1<<4;
 }
 
+const LLVOAvatar *LLControlAvatar::getAttachedAvatar() const
+{
+	if (mRootVolp && mRootVolp->isAttachment())
+	{
+		return mRootVolp->getAvatarAncestor();
+	}
+	return NULL;
+}
+
+LLVOAvatar *LLControlAvatar::getAttachedAvatar()
+{
+	if (mRootVolp && mRootVolp->isAttachment())
+	{
+		return mRootVolp->getAvatarAncestor();
+	}
+	return NULL;
+}
+
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
 {
 
@@ -165,7 +183,7 @@ void LLControlAvatar::matchVolumeTransform()
 
         if (mRootVolp->isAttachment())
         {
-            LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+            LLVOAvatar *attached_av = getAttachedAvatar();
             if (attached_av)
             {
                 LLViewerJointAttachment *attach = attached_av->getTargetAttachmentPoint(mRootVolp);
@@ -365,28 +383,24 @@ bool LLControlAvatar::computeNeedsUpdate()
 	computeUpdatePeriod();
 
 	// Animesh attachments are a special case. Should have the same update cadence as their attached parent avatar.
-	bool is_attachment = mRootVolp && mRootVolp->isAttachment(); // For attached animated objects
-	if (is_attachment)
+	LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
 	{
-		LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
-		if (attached_av)
+		// Have to run computeNeedsUpdate() for attached av in
+		// case it hasn't run updateCharacter() already this
+		// frame.  Note this means that the attached av will
+		// run computeNeedsUpdate() multiple times per frame
+		// if it has animesh attachments. Results will be
+		// consistent except for the corner case of exceeding
+		// MAX_IMPOSTOR_INTERVAL in one call but not another,
+		// which should be rare.
+		attached_av->computeNeedsUpdate();
+		mNeedsImpostorUpdate = attached_av->mNeedsImpostorUpdate;
+		if (mNeedsImpostorUpdate)
 		{
-			// Have to run computeNeedsUpdate() for attached av in
-			// case it hasn't run updateCharacter() already this
-			// frame.  Note this means that the attached av will
-			// run computeNeedsUpdate() multiple times per frame
-			// if it has animesh attachments. Results will be
-			// consistent except for the corner case of exceeding
-			// MAX_IMPOSTOR_INTERVAL in one call but not another,
-			// which should be rare.
-			attached_av->computeNeedsUpdate();
-			mNeedsImpostorUpdate = attached_av->mNeedsImpostorUpdate;
-			if (mNeedsImpostorUpdate)
-			{
-				mLastImpostorUpdateReason = 12;
-			}
-			return mNeedsImpostorUpdate;
+			mLastImpostorUpdateReason = 12;
 		}
+		return mNeedsImpostorUpdate;
 	}
 	return LLVOAvatar::computeNeedsUpdate();
 }
@@ -665,29 +679,23 @@ std::string LLControlAvatar::getFullname() const
 // virtual
 bool LLControlAvatar::shouldRenderRigged() const
 {
-    if (mRootVolp && mRootVolp->isAttachment())
-    {
-        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
-        if (attached_av)
-        {
-            return attached_av->shouldRenderRigged();
-        }
-    }
+	const LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
+	{
+		return attached_av->shouldRenderRigged();
+	}
     return true;
 }
 
 // virtual
 BOOL LLControlAvatar::isImpostor()
 {
-    if (mRootVolp && mRootVolp->isAttachment())
-    {
-		// Attached animated objects should match state of their attached av.
-        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
-		if (attached_av)
-		{
-			return attached_av->isImpostor();
-		}
-    }
+	// Attached animated objects should match state of their attached av.
+	LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
+	{
+		return attached_av->isImpostor();
+	}
 	return LLVOAvatar::isImpostor();
 }
 

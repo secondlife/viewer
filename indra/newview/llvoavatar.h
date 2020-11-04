@@ -132,6 +132,7 @@ protected:
 public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
+
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
@@ -252,6 +253,11 @@ public:
 
 	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
+
+	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
+	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
+	virtual LLVOAvatar *getAttachedAvatar() { return NULL; }
+
 
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
