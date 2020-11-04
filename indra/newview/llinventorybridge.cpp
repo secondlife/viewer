@@ -1881,6 +1881,7 @@ void LLItemBridge::gotoItem()
 			if (active_panel)
 			{
 				active_panel->setSelection(obj->getLinkedUUID(), TAKE_FOCUS_NO);
+				active_panel->setFocus(TRUE);
 			}
 		}
 
@@ -7229,24 +7230,13 @@ void LLLinkFolderBridge::performAction(LLInventoryModel* model, std::string acti
 	}
 	LLItemBridge::performAction(model,action);
 }
+
 void LLLinkFolderBridge::gotoItem()
 {
-	const LLUUID &cat_uuid = getFolderID();
-	if (!cat_uuid.isNull())
-	{
-		LLFolderViewItem *base_folder = mInventoryPanel.get()->getItemByID(cat_uuid);
-		if (base_folder)
-		{
-			if (LLInventoryModel* model = getInventoryModel())
-			{
-				model->fetchDescendentsOf(cat_uuid);
-			}
-			base_folder->setOpen(TRUE);
-			mRoot->setSelection(base_folder,TRUE);
-			mRoot->scrollToShowSelection();
-		}
-	}
+    LLItemBridge::gotoItem();
+    LLInventoryPanel::getActiveInventoryPanel()->openFolderByID(getFolderID());
 }
+
 const LLUUID &LLLinkFolderBridge::getFolderID() const
 {
 	if (LLViewerInventoryItem *link_item = getItem())

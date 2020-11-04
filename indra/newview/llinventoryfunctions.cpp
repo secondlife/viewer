@@ -737,9 +737,8 @@ void show_item_original(const LLUUID& item_uuid)
 	}
 
 	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	LLSidepanelInventory *sidepanel_inventory =	LLPanelMainInventory::newWindow()->LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
 
-	bool do_reset_inventory_filter = !floater_inventory->isInVisibleChain();
 
 	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
 	if (!active_panel) 
@@ -758,11 +757,7 @@ void show_item_original(const LLUUID& item_uuid)
 		return;
 	}
 	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
-	
-	if(do_reset_inventory_filter)
-	{
-		reset_inventory_filter();
-	}
+	active_panel->setFocus(TRUE);
 }
 
 
@@ -2446,6 +2441,15 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else
     {
+        if (action == "goto")
+        {
+            LLSidepanelInventory *sidepanel_inventory = LLPanelMainInventory::newWindow()->LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+            if (sidepanel_inventory && sidepanel_inventory->getMainInventoryPanel())
+            {
+                model = sidepanel_inventory->getMainInventoryPanel()->getActivePanel()->getModel();
+            }
+        }
+        
         std::set<LLFolderViewItem*>::iterator set_iter;
         for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
         {

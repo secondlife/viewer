@@ -46,6 +46,7 @@ class LLMenuButton;
 class LLMenuGL;
 class LLToggleableMenu;
 class LLFloater;
+class LLFloaterSidePanelContainer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -90,7 +91,7 @@ public:
 
 	void setFocusFilterEditor();
 
-	static void newWindow();
+	static LLFloaterSidePanelContainer* newWindow();
 
 	void toggleFindOptions();
 
