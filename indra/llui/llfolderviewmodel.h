@@ -38,7 +38,6 @@ enum EInventorySortGroup
 	SG_ITEM
 };
 
-class LLFontGL;
 class LLInventoryModel;
 class LLMenuGL;
 class LLUIImage;
@@ -232,25 +231,25 @@ class LLFolderViewModelItemCommon : public LLFolderViewModelItem
 {
 public:
     LLFolderViewModelItemCommon(LLFolderViewModelInterface& root_view_model);
-    virtual ~LLFolderViewModelItemCommon();
+    virtual ~LLFolderViewModelItemCommon() override;
 
-	void requestSort() { mSortVersion = -1; }
-	S32 getSortVersion() { return mSortVersion; }
-	void setSortVersion(S32 version) { mSortVersion = version;}
+	void requestSort() override { mSortVersion = -1; }
+	S32 getSortVersion() override { return mSortVersion; }
+	void setSortVersion(S32 version) override { mSortVersion = version;}
 
-	S32	getLastFilterGeneration() const { return mLastFilterGeneration; }
+	S32	getLastFilterGeneration() const override { return mLastFilterGeneration; }
 	S32	getLastFolderFilterGeneration() const { return mLastFolderFilterGeneration; }
-	S32	getMarkedDirtyGeneration() const { return mMarkedDirtyGeneration; }
-    void dirtyFilter();
-    void dirtyDescendantsFilter();
-	bool hasFilterStringMatch();
-	std::string::size_type getFilterStringOffset();
-	std::string::size_type getFilterStringSize();
+	S32	getMarkedDirtyGeneration() const override { return mMarkedDirtyGeneration; }
+    void dirtyFilter() override;
+    void dirtyDescendantsFilter() override;
+	bool hasFilterStringMatch() override;
+	std::string::size_type getFilterStringOffset() override;
+	std::string::size_type getFilterStringSize() override;
 	
 	typedef std::list<LLFolderViewModelItem*> child_list_t;
 
-    virtual void addChild(LLFolderViewModelItem* child);
-    virtual void removeChild(LLFolderViewModelItem* child);
+    virtual void addChild(LLFolderViewModelItem* child) override;
+    virtual void removeChild(LLFolderViewModelItem* child) override;
 	
     virtual void clearChildren();
 	
@@ -258,16 +257,16 @@ public:
 	child_list_t::const_iterator getChildrenEnd() const { return mChildren.end(); }
 	child_list_t::size_type getChildrenCount() const { return mChildren.size(); }
 	
-    void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0);
-    void setPassedFolderFilter(bool passed, S32 filter_generation);
-    virtual bool potentiallyVisible();
-    virtual bool passedFilter(S32 filter_generation = -1);
-    virtual bool descendantsPassedFilter(S32 filter_generation = -1);
+    void setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset = std::string::npos, std::string::size_type string_size = 0) override;
+    void setPassedFolderFilter(bool passed, S32 filter_generation) override;
+    virtual bool potentiallyVisible() override;
+    virtual bool passedFilter(S32 filter_generation = -1) override;
+    virtual bool descendantsPassedFilter(S32 filter_generation = -1) override;
 
 
 protected:
-	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }
-	virtual bool hasParent() { return mParent != NULL; }
+	virtual void setParent(LLFolderViewModelItem* parent) override { mParent = parent; }
+	virtual bool hasParent() override { return mParent != NULL; }
 
 	S32							mSortVersion;
 	bool						mPassedFilter;
@@ -284,7 +283,7 @@ protected:
 	LLFolderViewModelItem*		mParent;
 	LLFolderViewModelInterface& mRootViewModel;
 
-	void setFolderViewItem(LLFolderViewItem* folder_view_item) { mFolderViewItem = folder_view_item;}
+	void setFolderViewItem(LLFolderViewItem* folder_view_item) override { mFolderViewItem = folder_view_item;}
 	LLFolderViewItem*		mFolderViewItem;
 };
 
@@ -295,17 +294,13 @@ class LLFolderViewModelCommon : public LLFolderViewModelInterface
 public:
     LLFolderViewModelCommon();
 
-    virtual ~LLFolderViewModelCommon() {}
+    virtual ~LLFolderViewModelCommon() override {}
 
-	virtual void requestSortAll()
-	{
-		// sort everything
-		mTargetSortVersion++;
-	}
-	virtual std::string getStatusText();
-	virtual void filter();
+    virtual void requestSortAll() override;
+	virtual std::string getStatusText() override;
+	virtual void filter() override;
 
-	void setFolderView(LLFolderView* folder_view) { mFolderView = folder_view;}
+	void setFolderView(LLFolderView* folder_view) override { mFolderView = folder_view;}
 
 protected:
 	bool needsSort(class LLFolderViewModelItem* item);
@@ -329,7 +324,7 @@ public:
 		mFilter(filter)
 	{}
 
-	virtual ~LLFolderViewModel() 
+	virtual ~LLFolderViewModel() override
 	{
 		delete mSorter;
 		mSorter = NULL;
@@ -347,8 +342,8 @@ public:
 
 	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
 	// this method needs to be overloaded and return the relevant fetch status.
-	virtual bool contentsReady()					{ return true; }
-	virtual bool isFolderComplete(LLFolderViewFolder* folder)					{ return true; }
+	virtual bool contentsReady() override						{ return true; }
+	virtual bool isFolderComplete(LLFolderViewFolder* folder) override { return true; }
 
 	struct ViewModelCompare
 	{
@@ -369,7 +364,7 @@ public:
 		const SortType& mSorter;
 	};
 
-	void sort(LLFolderViewFolder* folder)
+	void sort(LLFolderViewFolder* folder) override
 	{
 		if (needsSort(folder->getViewModelItem()))
 		{
