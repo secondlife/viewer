@@ -29,10 +29,145 @@
 #include "llfolderviewmodel.h"
 #include "lltrans.h"
 
+// LLFolderViewModelItemCommon
+
+LLFolderViewModelItemCommon::LLFolderViewModelItemCommon(LLFolderViewModelInterface& root_view_model)
+    : mSortVersion(-1),
+    mPassedFilter(true),
+    mPassedFolderFilter(true),
+    mStringMatchOffsetFilter(std::string::npos),
+    mStringFilterSize(0),
+    mFolderViewItem(NULL),
+    mLastFilterGeneration(-1),
+    mLastFolderFilterGeneration(-1),
+    mMarkedDirtyGeneration(-1),
+    mMostFilteredDescendantGeneration(-1),
+    mParent(NULL),
+    mRootViewModel(root_view_model)
+{
+    mChildren.clear(); //???
+}
+
 LLFolderViewModelItemCommon::~LLFolderViewModelItemCommon()
 {
     clearChildren();
 }
+
+void LLFolderViewModelItemCommon::dirtyFilter()
+{
+    if (mMarkedDirtyGeneration < 0)
+    {
+        mMarkedDirtyGeneration = mLastFilterGeneration;
+    }
+    mLastFilterGeneration = -1;
+    mLastFolderFilterGeneration = -1;
+
+    // bubble up dirty flag all the way to root
+    if (mParent)
+    {
+        mParent->dirtyFilter();
+    }
+}
+
+void LLFolderViewModelItemCommon::dirtyDescendantsFilter()
+{
+    mMostFilteredDescendantGeneration = -1;
+    if (mParent)
+    {
+        mParent->dirtyDescendantsFilter();
+    }
+}
+
+//virtual
+void LLFolderViewModelItemCommon::addChild(LLFolderViewModelItem* child)
+{
+    // Avoid duplicates: bail out if that child is already present in the list
+    // Note: this happens when models are created before views
+    child_list_t::const_iterator iter;
+    for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+    {
+        if (child == *iter)
+        {
+            return;
+        }
+    }
+    mChildren.push_back(child);
+    child->setParent(this);
+    dirtyFilter();
+    requestSort();
+}
+
+//virtual
+void LLFolderViewModelItemCommon::removeChild(LLFolderViewModelItem* child)
+{
+    mChildren.remove(child);
+    child->setParent(NULL);
+    dirtyDescendantsFilter();
+    dirtyFilter();
+}
+
+//virtual
+void LLFolderViewModelItemCommon::clearChildren()
+{
+    // As this is cleaning the whole list of children wholesale, we do need to delete the pointed objects
+    // This is different and not equivalent to calling removeChild() on each child
+    std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+    mChildren.clear();
+    dirtyDescendantsFilter();
+    dirtyFilter();
+}
+
+void LLFolderViewModelItemCommon::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset /*= std::string::npos*/, std::string::size_type string_size /*= 0*/)
+{
+    mPassedFilter = passed;
+    mLastFilterGeneration = filter_generation;
+    mStringMatchOffsetFilter = string_offset;
+    mStringFilterSize = string_size;
+    mMarkedDirtyGeneration = -1;
+}
+
+void LLFolderViewModelItemCommon::setPassedFolderFilter(bool passed, S32 filter_generation)
+{
+    mPassedFolderFilter = passed;
+    mLastFolderFilterGeneration = filter_generation;
+}
+
+//virtual
+bool LLFolderViewModelItemCommon::potentiallyVisible()
+{
+    return passedFilter() // we've passed the filter
+        || (getLastFilterGeneration() < mRootViewModel.getFilter().getFirstSuccessGeneration()) // or we don't know yet
+        || descendantsPassedFilter();
+}
+
+//virtual
+bool LLFolderViewModelItemCommon::passedFilter(S32 filter_generation /*= -1*/)
+{
+    if (filter_generation < 0)
+    {
+        filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
+    }
+    bool passed_folder_filter = mPassedFolderFilter && (mLastFolderFilterGeneration >= filter_generation);
+    bool passed_filter = mPassedFilter && (mLastFilterGeneration >= filter_generation);
+    return passed_folder_filter && (passed_filter || descendantsPassedFilter(filter_generation));
+}
+
+//virtual
+bool LLFolderViewModelItemCommon::descendantsPassedFilter(S32 filter_generation /*= -1*/)
+{
+    if (filter_generation < 0)
+    {
+        filter_generation = mRootViewModel.getFilter().getFirstSuccessGeneration();
+    }
+    return mMostFilteredDescendantGeneration >= filter_generation;
+}
+
+// LLFolderViewModelCommon
+
+LLFolderViewModelCommon::LLFolderViewModelCommon()
+    : mTargetSortVersion(0),
+    mFolderView(NULL)
+{}
 
 bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 {
