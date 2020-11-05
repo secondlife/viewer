@@ -29,6 +29,11 @@
 #include "llfolderviewmodel.h"
 #include "lltrans.h"
 
+LLFolderViewModelItemCommon::~LLFolderViewModelItemCommon()
+{
+    clearChildren();
+}
+
 bool LLFolderViewModelCommon::needsSort(LLFolderViewModelItem* item)
 {
 	return item->getSortVersion() < mTargetSortVersion;
