@@ -9329,10 +9329,22 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				//initial sky pass (no user clip plane)
 				{ //mask out everything but the sky
 					gPipeline.pushRenderTypeMask();
-					gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
-						LLPipeline::RENDER_TYPE_WL_SKY,
-						LLPipeline::RENDER_TYPE_CLOUDS,
-						LLPipeline::END_RENDER_TYPES);
+
+                    if (reflection_detail >= WATER_REFLECT_MINIMAL)
+                    {
+                        gPipeline.andRenderTypeMask(
+                            LLPipeline::RENDER_TYPE_SKY,
+                            LLPipeline::RENDER_TYPE_WL_SKY,
+                            LLPipeline::RENDER_TYPE_CLOUDS,
+                            LLPipeline::END_RENDER_TYPES);
+                    }
+                    else
+                    {
+                        gPipeline.andRenderTypeMask(
+                            LLPipeline::RENDER_TYPE_SKY,
+                            LLPipeline::RENDER_TYPE_WL_SKY,
+                            LLPipeline::END_RENDER_TYPES);
+                    }
 
                     updateCull(camera, mSky);
                     stateSort(camera, mSky);
