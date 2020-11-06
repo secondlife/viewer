@@ -9284,8 +9284,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
         S32 occlusion = LLPipeline::sUseOcclusion;
 
-			//disable occlusion culling for reflection map for now
-			LLPipeline::sUseOcclusion = 0;
+        //disable occlusion culling for reflection map for now
+        LLPipeline::sUseOcclusion = 0;
 
         if (!camera_is_underwater)
         {   //generate planar reflection map
@@ -9336,7 +9336,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                     updateCull(camera, mSky);
                     stateSort(camera, mSky);
-						renderGeom(camera, TRUE);
+                    renderGeom(camera, TRUE);
 
 					gPipeline.popRenderTypeMask();
 				}
@@ -9369,11 +9369,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLGLDisable cull(GL_CULL_FACE);
                     updateCull(camera, mReflectedObjects, -water_clip, &plane);
                     stateSort(camera, mReflectedObjects);
-							renderGeom(camera);
-						}
+                    renderGeom(camera);
+                }
+
                 gPipeline.popRenderTypeMask();
                 mWaterRef.flush();
-				}
+            }
 
 			glCullFace(GL_BACK);
             gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -9419,12 +9420,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 LLPipeline::sDistortionRender = true;
 
                 LLColor3 col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-			glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
+                glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 
-			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
 			
                 mWaterDis.bindTarget();
-			mWaterDis.getViewport(gGLViewport);
+                mWaterDis.getViewport(gGLViewport);
 			
                 gGL.setColorMask(true, true);
                 mWaterDis.clear();
@@ -9449,19 +9450,19 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 updateCull(camera, mRefractedObjects, water_clip, &plane);
                 stateSort(camera, mRefractedObjects);
-					renderGeom(camera);
+                renderGeom(camera);
 
-					if (LLGLSLShader::sNoFixedFunction)
-					{
-						gUIProgram.bind();
-					}
-					
-					LLWorld::getInstance()->renderPropertyLines();
-					
-					if (LLGLSLShader::sNoFixedFunction)
-					{
-						gUIProgram.unbind();
-					}
+                if (LLGLSLShader::sNoFixedFunction)
+                {
+                    gUIProgram.bind();
+                }
+
+                LLWorld::getInstance()->renderPropertyLines();
+
+                if (LLGLSLShader::sNoFixedFunction)
+                {
+                    gUIProgram.unbind();
+                }
 
                 mWaterDis.flush();
 			}
