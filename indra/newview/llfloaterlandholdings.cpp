@@ -51,6 +51,9 @@
 
 #include "llgroupactions.h"
 
+const std::string LINDEN_HOMES_SKU = "131";
+bool LLFloaterLandHoldings::sHasLindenHome = false;
+
 // protected
 LLFloaterLandHoldings::LLFloaterLandHoldings(const LLSD& key)
 :	LLFloater(key),
@@ -148,10 +151,24 @@ void LLFloaterLandHoldings::refresh()
 void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 {
 	LLFloaterLandHoldings* self = LLFloaterReg::findTypedInstance<LLFloaterLandHoldings>("land_holdings");
-
-	// Is this packet from an old, closed window?
+	S32 count = msg->getNumberOfBlocks("QueryData");
+	std::string land_sku;
+	sHasLindenHome = false;
 	if (!self)
 	{
+		for (S32 i = 0; i < count; i++)
+		{
+			if ( msg->getSizeFast(_PREHASH_QueryData, i, _PREHASH_ProductSKU) > 0 )
+			{
+				msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
+
+				if (LINDEN_HOMES_SKU == land_sku)
+				{
+					sHasLindenHome = true;
+					return;
+				}
+			}
+		}
 		return;
 	}
 
@@ -174,12 +191,9 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 	F32		global_x;
 	F32		global_y;
 	std::string	sim_name;
-	std::string land_sku;
 	std::string land_type;
 	
-	S32 i;
-	S32 count = msg->getNumberOfBlocks("QueryData");
-	for (i = 0; i < count; i++)
+	for (S32 i = 0; i < count; i++)
 	{
 		msg->getUUID("QueryData", "OwnerID", owner_id, i);
 		msg->getString("QueryData", "Name", name, i);
@@ -196,6 +210,10 @@ void LLFloaterLandHoldings::processPlacesReply(LLMessageSystem* msg, void**)
 			msg->getStringFast(	_PREHASH_QueryData, _PREHASH_ProductSKU, land_sku, i);
 			LL_INFOS() << "Land sku: " << land_sku << LL_ENDL;
 			land_type = LLProductInfoRequestManager::instance().getDescriptionForSku(land_sku);
+			if (LINDEN_HOMES_SKU == land_sku)
+			{
+				sHasLindenHome = true;
+			}
 		}
 		else
 		{

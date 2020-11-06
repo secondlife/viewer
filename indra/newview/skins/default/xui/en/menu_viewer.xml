@@ -213,6 +213,15 @@
          name="ManageMyAccount_url"
          parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
       </menu_item_call>
+      <menu_item_call
+           label="[Membership]"
+           name="Membership">
+            <menu_item_call.on_click
+             function="Advanced.ShowURL"
+             parameter="https://secondlife.com/my/account/membership.php"/>
+            <menu_item_call.on_visible
+                 function="Membership.UpdateLabel"/>
+      </menu_item_call>
 
       <menu_item_separator/>
 
@@ -524,12 +533,18 @@
              parameter="region_info" />
         </menu_item_call>
         <menu_item_call
-         label="My land holdings..."
-         name="My Land">
+         label="My Linden Home..."
+         name="Linden Home">
+            <menu_item_call.on_click
+             function="World.LindenHome"/>
+        </menu_item_call>
+        <menu_item_call
+             label="My land holdings..."
+             name="My Land">
             <menu_item_call.on_click
              function="Floater.Show"
              parameter="land_holdings" />
-        </menu_item_call>
+      </menu_item_call>
         <menu_item_call
          label="Buy this land"
          name="Buy Land">

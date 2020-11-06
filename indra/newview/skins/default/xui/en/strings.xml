@@ -3768,6 +3768,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
 
+  <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
+  <string name="lindenhomes_my_home_url">https://land.secondlife.com/en-Us/lindenhomes/my-home.php</string>
+  <string name="membership_url">https://secondlife.com/my/account/membership.php</string>
+
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
   <string name="paid_you_ldollars_gift">[NAME] paid you L$[AMOUNT]: [REASON]</string>
@@ -3958,6 +3962,9 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="PremiumMembership">Premium</string>
   <string name="Premium PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
+
+  <string name="MembershipUpgradeText">Upgrade to Premium</string>
+  <string name="MembershipPremiumText">My Premium membership</string>
 
   <!-- Question strings for delete items notifications -->
   <string name="DeleteItems">Delete selected items?</string>

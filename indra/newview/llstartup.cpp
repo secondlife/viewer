@@ -128,10 +128,12 @@
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
+#include "llparcel.h"
 #include "llpreview.h"
 #include "llpreviewscript.h"
 #include "llproxy.h"
 #include "llproductinforequest.h"
+#include "llqueryflags.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstatview.h"
@@ -2257,6 +2259,14 @@ bool idle_startup()
 		LLPathfindingManager::getInstance()->initSystem();
 
 		gAgentAvatarp->sendHoverHeight();
+
+		// look for parcels we own
+		send_places_query(LLUUID::null,
+			LLUUID::null,
+			"",
+			DFQ_AGENT_OWNED,
+			LLParcel::C_ANY,
+			"");
 
 		return TRUE;
 	}
