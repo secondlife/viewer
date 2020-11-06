@@ -45,6 +45,7 @@
 #include "llfloaterreg.h"
 #include "llfloater.h"
 #include "llgroupmgr.h"
+#include "llstatusbar.h" // to re-request balance
 #include "lltrans.h"
 #include "llnotificationsutil.h"
 #include "lluicolortable.h"
@@ -117,6 +118,7 @@ void LLPanelGroupCreate::refreshCreatedGroup(const LLUUID& group_id)
     params["group_id"] = group_id;
     params["open_tab_name"] = "panel_group_info_sidetray";
     LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+    LLStatusBar::sendMoneyBalanceRequest();
 }
 
 void LLPanelGroupCreate::addMembershipRow(const std::string &name)
