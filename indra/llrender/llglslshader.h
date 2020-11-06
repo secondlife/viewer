@@ -91,7 +91,6 @@ public:
 	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
-	static bool sNoFixedFunction;
 
 	static void initProfile();
 	static void finishProfile(bool emit_report = true);

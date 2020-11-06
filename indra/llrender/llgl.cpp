@@ -1976,12 +1976,10 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 
 void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 {
-	if (!gDebugGL || LLGLSLShader::sNoFixedFunction)
-	{
-		return;
-	}
+	return;
 
-	stop_glerror();
+#if 0 // TODO DJH 11/2020 - entire fxn is no-op after exterminating sNoFixedFunction. Eradicate it!
+    stop_glerror();
 	BOOL error = FALSE;
 
 	GLint active_texture;
@@ -2147,6 +2145,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 			LL_GL_ERRS << "GL client array corruption detected.  " << msg << LL_ENDL;
 		}
 	}
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////
@@ -2154,24 +2153,22 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
-	if (LLGLSLShader::sNoFixedFunction)
-	{ //always ignore state that's deprecated post GL 3.0
-		switch (state)
-		{
-			case GL_ALPHA_TEST:
-			case GL_NORMALIZE:
-			case GL_TEXTURE_GEN_R:
-			case GL_TEXTURE_GEN_S:
-			case GL_TEXTURE_GEN_T:
-			case GL_TEXTURE_GEN_Q:
-			case GL_LIGHTING:
-			case GL_COLOR_MATERIAL:
-			case GL_FOG:
-			case GL_LINE_STIPPLE:
-			case GL_POLYGON_STIPPLE:
-				mState = 0;
-				break;
-		}
+	//always ignore state that's deprecated post GL 3.0
+	switch (state)
+	{
+		case GL_ALPHA_TEST:
+		case GL_NORMALIZE:
+		case GL_TEXTURE_GEN_R:
+		case GL_TEXTURE_GEN_S:
+		case GL_TEXTURE_GEN_T:
+		case GL_TEXTURE_GEN_Q:
+		case GL_LIGHTING:
+		case GL_COLOR_MATERIAL:
+		case GL_FOG:
+		case GL_LINE_STIPPLE:
+		case GL_POLYGON_STIPPLE:
+			mState = 0;
+			break;
 	}
 
 	stop_glerror();
@@ -2722,24 +2719,10 @@ LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 : mAlphaTest(GL_ALPHA_TEST)
 , mCullFace(GL_CULL_FACE)
 , mSquashClip()
-{ 
-    if (!LLGLSLShader::sNoFixedFunction)
-    {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_FOG);
-        glDisable(GL_CLIP_PLANE0);
-    }
-}
+{}
 
 LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox()
-{
-    if (!LLGLSLShader::sNoFixedFunction)
-    {
-        glEnable(GL_LIGHTING);
-        glEnable(GL_FOG);
-        glEnable(GL_CLIP_PLANE0);
-    }
-}
+{}
 
 LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)
 : LLGLSPipelineSkyBox()
