@@ -340,19 +340,16 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
 	LLGLSLShader* shader = NULL;
-	if (LLGLSLShader::sNoFixedFunction)
+	if (LLPipeline::sUnderWaterRender)
 	{
-		if (LLPipeline::sUnderWaterRender)
-		{
-			shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
-		}
-		else
-		{
-			shader = &gObjectSimpleNonIndexedTexGenProgram;
-		}
-
-		shader->bind();
+		shader = &gObjectSimpleNonIndexedTexGenWaterProgram;
 	}
+	else
+	{
+		shader = &gObjectSimpleNonIndexedTexGenProgram;
+	}
+
+	shader->bind();
 
 	stop_glerror();
 

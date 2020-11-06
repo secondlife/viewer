@@ -59,11 +59,10 @@ public:
 	// virtual
 	void setupVertexBuffer(U32 data_mask)
 	{	
-		if (LLGLSLShader::sNoFixedFunction)
-		{ //just use default if shaders are in play
-			LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
-			return;
-		}
+		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
+		return;
+
+#if 0 // TODO DJH 11/2020 - remaining fxn is no-op after exterminating sNoFixedFunction. Eradicate.
 
 		volatile U8* base = useVBOs() ? (U8*) mAlignedOffset : mMappedData;
 
@@ -116,6 +115,7 @@ public:
 		{
 			glVertexPointer(3,GL_FLOAT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], (void*)(base + 0));
 		}
+#endif
 	}
 };
 

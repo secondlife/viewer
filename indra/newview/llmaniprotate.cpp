@@ -154,10 +154,7 @@ void LLManipRotate::render()
 		}
 		else
 		{
-			if (LLGLSLShader::sNoFixedFunction)
-			{
-				gDebugProgram.bind();
-			}
+			gDebugProgram.bind();
 
 			LLGLEnable cull_face(GL_CULL_FACE);
 			LLGLDepthTest gls_depth(GL_FALSE);
@@ -210,10 +207,7 @@ void LLManipRotate::render()
 			}
 			gGL.popMatrix();
 
-			if (LLGLSLShader::sNoFixedFunction)
-			{
-				gUIProgram.bind();
-			}
+			gUIProgram.bind();
 		}
 		
 		gGL.translatef( center.mV[VX], center.mV[VY], center.mV[VZ] );
@@ -231,10 +225,7 @@ void LLManipRotate::render()
 		gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
 
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gDebugProgram.bind();
-		}
+		gDebugProgram.bind();
 
 		if (mManipPart == LL_ROT_Z)
 		{
@@ -352,11 +343,7 @@ void LLManipRotate::render()
 			
 		}
 
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gUIProgram.bind();
-		}
-		
+		gUIProgram.bind();
 	}
 	gGL.popMatrix();
 	gGL.popMatrix();

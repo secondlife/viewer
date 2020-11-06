@@ -458,7 +458,8 @@ void LLViewerShaderMgr::setShaders()
     }
     mMaxAvatarShaderLevel = 0;
 
-    LLGLSLShader::sNoFixedFunction = false;
+    // WTF just jamming fixed values without preserving setting?? 
+    //LLGLSLShader::sNoFixedFunction = false;
     LLVertexBuffer::unbind();
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
@@ -470,7 +471,8 @@ void LLViewerShaderMgr::setShaders()
     bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 
     //using shaders, disable fixed function
-    LLGLSLShader::sNoFixedFunction = true;
+    // WTF just jamming fixed values without preserving setting?? 
+    //LLGLSLShader::sNoFixedFunction = true;
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -716,17 +718,8 @@ void LLViewerShaderMgr::setShaders()
     }
     else
     {
-        LLGLSLShader::sNoFixedFunction = false;
-        gPipeline.mVertexShadersEnabled = FALSE;
-        gPipeline.mVertexShadersLoaded = 0;
-        mShaderLevel[SHADER_LIGHTING] = 0;
-        mShaderLevel[SHADER_INTERFACE] = 0;
-        mShaderLevel[SHADER_ENVIRONMENT] = 0;
-        mShaderLevel[SHADER_WATER] = 0;
-        mShaderLevel[SHADER_OBJECT] = 0;
-        mShaderLevel[SHADER_EFFECT] = 0;
-        mShaderLevel[SHADER_WINDLIGHT] = 0;
-        mShaderLevel[SHADER_AVATAR] = 0;
+        LL_ERRS() << "Failed to load any shaders. Fatal error." << LL_ENDL;
+        llassert(loaded);
     }
     
     if (gViewerWindow)

@@ -1088,10 +1088,7 @@ BOOL	LLPreviewAnimation::render()
 	gGL.pushMatrix();
 	gGL.loadIdentity();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	LLGLSUIDefault def;
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
