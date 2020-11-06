@@ -9353,38 +9353,42 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					gPipeline.popRenderTypeMask();
 				}
 
-                gPipeline.pushRenderTypeMask();
+                if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
+                {
+                    gPipeline.pushRenderTypeMask();
 
-                clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
-                    LLPipeline::RENDER_TYPE_VOIDWATER,
-                    LLPipeline::RENDER_TYPE_GROUND,
-                    LLPipeline::RENDER_TYPE_SKY,
-                    LLPipeline::RENDER_TYPE_CLOUDS,
-                    LLPipeline::END_RENDER_TYPES);
+                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_WATER,
+                        LLPipeline::RENDER_TYPE_VOIDWATER,
+                        LLPipeline::RENDER_TYPE_GROUND,
+                        LLPipeline::RENDER_TYPE_SKY,
+                        LLPipeline::RENDER_TYPE_CLOUDS,
+                        LLPipeline::END_RENDER_TYPES);
 
-                if (reflection_detail > WATER_REFLECT_MINIMAL)
-                { //mask out selected geometry based on reflection detail
-                    if (reflection_detail < WATER_REFLECT_EVERYTHING)
-                    {
-                        clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-                        if (reflection_detail < WATER_REFLECT_AVATARS)
+                    if (reflection_detail > WATER_REFLECT_MINIMAL)
+                    { //mask out selected geometry based on reflection detail
+                        if (reflection_detail < WATER_REFLECT_EVERYTHING)
                         {
-                            clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, LLPipeline::RENDER_TYPE_CONTROL_AV, END_RENDER_TYPES);
-                            if (reflection_detail < WATER_REFLECT_STATIC_OBJECTS)
+                            clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
+                            if (reflection_detail < WATER_REFLECT_AVATARS)
                             {
-                                clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
+                                clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, LLPipeline::RENDER_TYPE_CONTROL_AV, END_RENDER_TYPES);
+                                if (reflection_detail < WATER_REFLECT_STATIC_OBJECTS)
+                                {
+                                    clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
+                                }
                             }
                         }
+
+                        LLGLUserClipPlane clip_plane(plane, mReflectionModelView, saved_projection);
+                        LLGLDisable cull(GL_CULL_FACE);
+                        updateCull(camera, mReflectedObjects, -water_clip, &plane);
+                        stateSort(camera, mReflectedObjects);
+                        renderGeom(camera);
                     }
 
-                    LLGLUserClipPlane clip_plane(plane, mReflectionModelView, saved_projection);
-                    LLGLDisable cull(GL_CULL_FACE);
-                    updateCull(camera, mReflectedObjects, -water_clip, &plane);
-                    stateSort(camera, mReflectedObjects);
-                    renderGeom(camera);
+                    gPipeline.popRenderTypeMask();
                 }
 
-                gPipeline.popRenderTypeMask();
                 mWaterRef.flush();
             }
 
@@ -9460,9 +9464,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     clip_plane.disable();
 				}
 
-                updateCull(camera, mRefractedObjects, water_clip, &plane);
-                stateSort(camera, mRefractedObjects);
-                renderGeom(camera);
+                if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
+                {
+                    updateCull(camera, mRefractedObjects, water_clip, &plane);
+                    stateSort(camera, mRefractedObjects);
+                    renderGeom(camera);
+                }
 
                 if (LLGLSLShader::sNoFixedFunction)
                 {
