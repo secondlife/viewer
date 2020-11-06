@@ -129,6 +129,18 @@
 //
 #define MATERIALS_IN_REFLECTIONS 0
 
+// NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
+enum EWaterReflectionMode
+{
+    WATER_REFLECT_NONE_WATER_OPAQUE         = -2,
+    WATER_REFLECT_NONE_WATER_TRANSPARENT    = -1,
+    WATER_REFLECT_MINIMAL                   =  0,
+    WATER_REFLECT_TERRAIN                   =  1,
+    WATER_REFLECT_STATIC_OBJECTS            =  2,
+    WATER_REFLECT_AVATARS                   =  3,
+    WATER_REFLECT_EVERYTHING                =  4
+};
+
 bool gShiftFrame = false;
 
 //cached settings
@@ -9239,7 +9251,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         glh::matrix4f saved_projection = get_current_projection();
 		glh::matrix4f mat;
 
-        S32 detail = RenderReflectionDetail;
+        S32 reflection_detail  = RenderReflectionDetail;
 
         F32 water_height      = gAgent.getRegion()->getWaterHeight(); 
         F32 camera_height     = camera_in.getOrigin().mV[VZ];
@@ -9338,15 +9350,15 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					LLPipeline::RENDER_TYPE_CLOUDS,
 					LLPipeline::END_RENDER_TYPES);	
 
-				if (detail > 0)
+				if (reflection_detail > WATER_REFLECT_MINIMAL)
 				{ //mask out selected geometry based on reflection detail
-					if (detail < 4)
+					if (reflection_detail < WATER_REFLECT_EVERYTHING)
 					{
 						clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-						if (detail < 3)
+						if (reflection_detail < WATER_REFLECT_AVATARS)
 						{
                             clearRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, LLPipeline::RENDER_TYPE_CONTROL_AV, END_RENDER_TYPES);
-							if (detail < 2)
+							if (reflection_detail < WATER_REFLECT_STATIC_OBJECTS)
 							{
 								clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
 							}
