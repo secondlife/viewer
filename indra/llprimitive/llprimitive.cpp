@@ -114,7 +114,7 @@ const char *SCULPT_DEFAULT_TEXTURE = "be293869-d0d9-0a69-5989-ad27f1946fd4"; // 
 // can't be divided by 2.   See DEV-19108
 const F32	TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
 
-struct material_id_type
+struct material_id_type // originally from llrendermaterialtable
 {
     material_id_type()
     {
@@ -141,7 +141,7 @@ struct material_id_type
     static const U8 s_null_id[MATERIAL_ID_SIZE];
 };
 
-const U8 material_id_type::s_null_id[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+const U8 material_id_type::s_null_id[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
 
 //static 
 // LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
