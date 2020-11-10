@@ -514,6 +514,8 @@ void send_viewer_stats(bool include_preferences)
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
 	system["opengl_version"] = gGLManager.mGLVersionString;
 
+	gGLManager.asLLSD(system["gl"]);
+
 	S32 shader_level = 0;
 	if (LLPipeline::sRenderDeferred)
 	{
