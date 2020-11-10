@@ -132,6 +132,7 @@ protected:
 public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
+
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
@@ -253,6 +254,11 @@ public:
 	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
 
+	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
+	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
+	virtual LLVOAvatar *getAttachedAvatar() { return NULL; }
+
+
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
@@ -263,7 +269,8 @@ public:
     void			updateAppearanceMessageDebugText();
 	void 			updateAnimationDebugText();
 	virtual void	updateDebugText();
-	virtual BOOL 	updateCharacter(LLAgent &agent);
+	virtual bool 	computeNeedsUpdate();
+	virtual bool 	updateCharacter(LLAgent &agent);
     void			updateFootstepSounds();
     void			computeUpdatePeriod();
     void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
@@ -325,12 +332,12 @@ public:
 public:
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
-	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
-									 * slider in panel_preferences_graphics1.xml */
-	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
-	static F32		sRenderDistance; //distance at which avatars will render.
+	static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+												* slider in panel_preferences_graphics1.xml */
+	static U32		sMaxNonImpostors; // affected by control "RenderAvatarMaxNonImpostors"
+	static bool		sLimitNonImpostors; // use impostors for far away avatars
+	static F32		sRenderDistance; // distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static bool		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
@@ -570,7 +577,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	virtual BOOL isImpostor();
-	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
+	BOOL 		shouldImpostor(const F32 rank_factor = 1.0);
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
@@ -581,6 +588,7 @@ public:
 	static void updateImpostors();
 	LLRenderTarget mImpostor;
 	BOOL		mNeedsImpostorUpdate;
+	S32			mLastImpostorUpdateReason;
 	F32SecondsImplicit mLastImpostorUpdateFrameTime;
     const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
 	void		setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }

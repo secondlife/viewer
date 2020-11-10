@@ -573,10 +573,10 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		return;
 	}
-
-	BOOL impostor = avatarp->isImpostor();
-	if (impostor 
-		&& LLVOAvatar::AOA_NORMAL != avatarp->getOverallAppearance())
+	LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
+	BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
+	if (oa == LLVOAvatar::AOA_INVISIBLE ||
+		(impostor && oa == LLVOAvatar::AOA_JELLYDOLL))
 	{
 		// No shadows for jellydolled or invisible avs.
 		return;
@@ -1511,7 +1511,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		return;
 	}
 
-	BOOL impostor = avatarp->isImpostor() && !single_avatar;
+	BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor() && !single_avatar;
 
 	if (( avatarp->isInMuteList() 
 		  || impostor 
@@ -1523,6 +1523,13 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	
 	if (pass == 0 && !impostor && LLPipeline::sUnderWaterRender)
 	{ //don't draw foot shadows under water
+		return;
+	}
+
+	LLVOAvatar *attached_av = avatarp->getAttachedAvatar();
+	if (attached_av && LLVOAvatar::AOA_NORMAL != attached_av->getOverallAppearance())
+	{
+		// Animesh attachment of a jellydolled or invisible parent - don't show
 		return;
 	}
 

@@ -584,7 +584,8 @@ private:
 //-----------------------------------------------------------------------------
 LLAvatarAppearanceDictionary *LLVOAvatar::sAvatarDictionary = NULL;
 S32 LLVOAvatar::sFreezeCounter = 0;
-U32 LLVOAvatar::sMaxNonImpostors = 12; // overridden based on graphics setting
+U32 LLVOAvatar::sMaxNonImpostors = 12; // Set from RenderAvatarMaxNonImpostors
+bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonImpostors is 0 (unlimited)
 F32 LLVOAvatar::sRenderDistance = 256.f;
 S32	LLVOAvatar::sNumVisibleAvatars = 0;
 S32	LLVOAvatar::sNumLODChangesThisFrame = 0;
@@ -611,7 +612,6 @@ BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
-bool LLVOAvatar::sUseImpostors = false; // overwridden by RenderAvatarMaxNonImpostors
 BOOL LLVOAvatar::sJointDebug = FALSE;
 F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
@@ -643,6 +643,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mMeshValid(FALSE),
 	mVisible(FALSE),
 	mLastImpostorUpdateFrameTime(0.f),
+	mLastImpostorUpdateReason(0),
 	mWindFreq(0.f),
 	mRipplePhase( 0.f ),
 	mBelowWater(FALSE),
@@ -711,6 +712,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	setAnimationData("Speed", &mSpeed);
 
 	mNeedsImpostorUpdate = TRUE;
+	mLastImpostorUpdateReason = 0;
 	mNeedsAnimUpdate = TRUE;
 
 	mNeedsExtentUpdate = true;
@@ -766,8 +768,8 @@ std::string LLVOAvatar::avString() const
     }
     else
     {
-	std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-	return " Avatar '" + getFullname() + "' " + viz_string + " ";
+		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
+		return " Avatar '" + getFullname() + "' " + viz_string + " ";
     }
 }
 
@@ -1086,6 +1088,7 @@ void LLVOAvatar::resetImpostors()
 		LLVOAvatar* avatar = (LLVOAvatar*) *iter;
 		avatar->mImpostor.release();
 		avatar->mNeedsImpostorUpdate = TRUE;
+		avatar->mLastImpostorUpdateReason = 1;
 	}
 }
 
@@ -1329,6 +1332,11 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
+	if (getOverallAppearance() != AOA_NORMAL)
+	{
+		// Jellydolls ignore attachments, etc, use only system avatar.
+		box_detail = 1;
+	}
 
     // FIXME the update_min_max function used below assumes there is a
     // known starting point, but in general there isn't. Ideally the
@@ -2138,7 +2146,15 @@ void LLVOAvatar::resetSkeleton(bool reset_animations)
 	}
 	else
 	{
+		// Stripped down approximation of
+		// applyParsedAppearanceMessage, but with alternative default
+		// (jellydoll) params
+		setCompositeUpdatesEnabled( FALSE );
+		gPipeline.markGLRebuild(this);
 		applyDefaultParams();
+		setCompositeUpdatesEnabled( TRUE );
+		updateMeshTextures();
+		updateMeshVisibility();
 	}
     updateVisualParams();
 
@@ -2778,7 +2794,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
-	if (detailed_update || !sUseImpostors)
+	if (detailed_update)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -2838,6 +2854,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			if (angle_diff > F_PI/512.f*distance*mUpdatePeriod)
 			{
 				mNeedsImpostorUpdate = TRUE;
+				mLastImpostorUpdateReason = 2;
 			}
 		}
 
@@ -2849,6 +2866,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 			if (dist_diff/mImpostorDistance > 0.1f)
 			{
 				mNeedsImpostorUpdate = TRUE;
+				mLastImpostorUpdateReason = 3;
 			}
 			else
 			{
@@ -2861,6 +2879,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				if (diff.getLength3().getF32() > 0.05f)
 				{
 					mNeedsImpostorUpdate = TRUE;
+					mLastImpostorUpdateReason = 4;
 				}
 				else
 				{
@@ -2868,6 +2887,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 					if (diff.getLength3().getF32() > 0.05f)
 					{
 						mNeedsImpostorUpdate = TRUE;
+						mLastImpostorUpdateReason = 5;
 					}
 				}
 			}
@@ -3623,7 +3643,7 @@ bool LLVOAvatar::isVisuallyMuted()
         {
             muted = true;
         }
-		else
+		else 
 		{
 			muted = isTooComplex();
 		}
@@ -3742,6 +3762,10 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
 		{
 			debug_line += "-";
 		}
+		if (isImpostor())
+		{
+			debug_line += " Imp" + llformat("%d[%d]:%.1f", mUpdatePeriod, mLastImpostorUpdateReason, ((F32)(gFrameTimeSeconds-mLastImpostorUpdateFrameTime)));
+		}
 
 		addDebugText(debug_line);
 }
@@ -3783,13 +3807,13 @@ LLViewerInventoryItem* recursiveGetObjectInventoryItem(LLViewerObject *vobj, LLU
 
 void LLVOAvatar::updateAnimationDebugText()
 {
-		for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
-			 iter != mMotionController.getActiveMotions().end(); ++iter)
+	for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
+		 iter != mMotionController.getActiveMotions().end(); ++iter)
+	{
+		LLMotion* motionp = *iter;
+		if (motionp->getMinPixelArea() < getPixelArea())
 		{
-			LLMotion* motionp = *iter;
-			if (motionp->getMinPixelArea() < getPixelArea())
-			{
-				std::string output;
+			std::string output;
             std::string motion_name = motionp->getName();
             if (motion_name.empty())
             {
@@ -3806,73 +3830,74 @@ void LLVOAvatar::updateAnimationDebugText()
                 }
             }
             if (motion_name.empty())
+			{
+				std::string name;
+				if (gAgent.isGodlikeWithoutAdminMenuFakery() || isSelf())
 				{
-					std::string name;
-					if (gAgent.isGodlikeWithoutAdminMenuFakery() || isSelf())
+					name = motionp->getID().asString();
+					LLVOAvatar::AnimSourceIterator anim_it = mAnimationSources.begin();
+					for (; anim_it != mAnimationSources.end(); ++anim_it)
 					{
-						name = motionp->getID().asString();
-						LLVOAvatar::AnimSourceIterator anim_it = mAnimationSources.begin();
-						for (; anim_it != mAnimationSources.end(); ++anim_it)
+						if (anim_it->second == motionp->getID())
 						{
-							if (anim_it->second == motionp->getID())
+							LLViewerObject* object = gObjectList.findObject(anim_it->first);
+							if (!object)
 							{
-								LLViewerObject* object = gObjectList.findObject(anim_it->first);
-								if (!object)
+								break;
+							}
+							if (object->isAvatar())
+							{
+								if (mMotionController.mIsSelf)
 								{
-									break;
+									// Searching inventory by asset id is really long
+									// so just mark as inventory
+									// Also item is likely to be named by LLPreviewAnim
+									name += "(inventory)";
 								}
-								if (object->isAvatar())
+							}
+							else
+							{
+								LLViewerInventoryItem* item = NULL;
+								if (!object->isInventoryDirty())
 								{
-									if (mMotionController.mIsSelf)
-									{
-										// Searching inventory by asset id is really long
-										// so just mark as inventory
-										// Also item is likely to be named by LLPreviewAnim
-										name += "(inventory)";
-									}
+									item = object->getInventoryItemByAsset(motionp->getID());
+								}
+								if (item)
+								{
+									name = item->getName();
+								}
+								else if (object->isAttachment())
+								{
+									name += "(att:" + getAttachmentItemName() + ")";
 								}
 								else
 								{
-									LLViewerInventoryItem* item = NULL;
-									if (!object->isInventoryDirty())
-									{
-										item = object->getInventoryItemByAsset(motionp->getID());
-									}
-									if (item)
-									{
-										name = item->getName();
-									}
-									else if (object->isAttachment())
-									{
-										name += "(att:" + getAttachmentItemName() + ")";
-									}
-									else
-									{
-										// in-world object, name or content unknown
-										name += "(in-world)";
-									}
+									// in-world object, name or content unknown
+									name += "(in-world)";
 								}
-								break;
 							}
+							break;
 						}
 					}
-					else
-					{
-						name = LLUUID::null.asString();
-					}
-					output = llformat("%s - %d",
-							  name.c_str(),
-							  (U32)motionp->getPriority());
 				}
 				else
 				{
-					output = llformat("%s - %d",
-                                  motion_name.c_str(),
-							  (U32)motionp->getPriority());
+					name = LLUUID::null.asString();
 				}
-				addDebugText(output);
+				motion_name = name;
 			}
+			std::string motion_tag = "";
+			if (mPlayingAnimations.find(motionp->getID()) != mPlayingAnimations.end())
+			{
+				motion_tag = "*";
+			}
+			output = llformat("%s%s - %d",
+							  motion_name.c_str(),
+							  motion_tag.c_str(),
+							  (U32)motionp->getPriority());
+			addDebugText(output);
 		}
+	}
 }
 
 void LLVOAvatar::updateDebugText()
@@ -4001,7 +4026,14 @@ void LLVOAvatar::updateFootstepSounds()
 // computeUpdatePeriod()
 // Factored out from updateCharacter()
 // Set new value for mUpdatePeriod based on distance and various other factors.
-//------------------------------------------------------------------------
+//
+// Note 10-2020: it turns out that none of these update period
+// calculations have been having any effect, because
+// mNeedsImpostorUpdate was not being set in updateCharacter(). So
+// it's really open to question whether we want to enable time based updates, and if
+// so, at what rate. Leaving the rates as given would lead to
+// drastically more frequent impostor updates than we've been doing all these years.
+// ------------------------------------------------------------------------
 void LLVOAvatar::computeUpdatePeriod()
 {
 	bool visually_muted = isVisuallyMuted();
@@ -4009,7 +4041,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && isVisible() 
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
-        && sUseImpostors
+        && (sLimitNonImpostors || visually_muted)
         && !mNeedsAnimUpdate 
         && !sFreezeCounter)
 	{
@@ -4017,11 +4049,14 @@ void LLVOAvatar::computeUpdatePeriod()
 		LLVector4a size;
 		size.setSub(ext[1],ext[0]);
 		F32 mag = size.getLength3().getF32()*0.5f;
+
+		const S32 UPDATE_RATE_SLOW = 64;
+		const S32 UPDATE_RATE_MED = 48;
+		const S32 UPDATE_RATE_FAST = 32;
 		
-		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
 		if (visually_muted)
-		{   // visually muted avatars update at every 16 frames
-			mUpdatePeriod = 16;
+		{   // visually muted avatars update at lowest rate
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
 		else if (! shouldImpostor()
 				 || mDrawable->mDistanceWRTCamera < 1.f + mag)
@@ -4030,27 +4065,23 @@ void LLVOAvatar::computeUpdatePeriod()
 			// impostor camera near clip plane
 			mUpdatePeriod = 1;
 		}
-		else if ( shouldImpostor(4) )
+		else if ( shouldImpostor(4.0) )
 		{ //background avatars are REALLY slow updating impostors
-			mUpdatePeriod = 16;
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
 		else if (mLastRezzedStatus <= 0)
 		{
 			// Don't update cloud avatars too often
-			mUpdatePeriod = 8;
+			mUpdatePeriod = UPDATE_RATE_SLOW;
 		}
-		else if ( shouldImpostor(3) )
+		else if ( shouldImpostor(3.0) )
 		{ //back 25% of max visible avatars are slow updating impostors
-			mUpdatePeriod = 8;
+			mUpdatePeriod = UPDATE_RATE_MED;
 		}
-		else if (mImpostorPixelArea <= impostor_area)
-		{  // stuff in between gets an update period based on pixel area
-			mUpdatePeriod = llclamp((S32) sqrtf(impostor_area*4.f/mImpostorPixelArea), 2, 8);
-		}
-		else
+		else 
 		{
 			//nearby avatars, update the impostors more frequently.
-			mUpdatePeriod = 4;
+			mUpdatePeriod = UPDATE_RATE_FAST;
 		}
 	}
 	else
@@ -4402,6 +4433,37 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 }
 
 //------------------------------------------------------------------------
+// LLVOAvatar::computeNeedsUpdate()
+// 
+// Most of the logic here is to figure out when to periodically update impostors.
+// Non-impostors have mUpdatePeriod == 1 and will need update every frame.
+//------------------------------------------------------------------------
+bool LLVOAvatar::computeNeedsUpdate()
+{
+	const F32 MAX_IMPOSTOR_INTERVAL = 4.0f;
+	computeUpdatePeriod();
+
+	bool needs_update_by_frame_count = ((LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0);
+
+    bool needs_update_by_max_time = ((gFrameTimeSeconds-mLastImpostorUpdateFrameTime)> MAX_IMPOSTOR_INTERVAL);
+	bool needs_update = needs_update_by_frame_count || needs_update_by_max_time;
+
+	if (needs_update && !isSelf())
+	{
+		if (needs_update_by_max_time)
+		{
+			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 11;
+		}
+		else
+		{
+			//mNeedsImpostorUpdate = TRUE;
+			//mLastImpostorUpdateReason = 10;
+		}
+	}
+	return needs_update;
+}
+
 // updateCharacter()
 //
 // This is called for all avatars, so there are 4 possible situations:
@@ -4424,7 +4486,7 @@ void LLVOAvatar::updateRootPositionAndRotation(LLAgent& agent, F32 speed, bool w
 // simulator.
 //
 //------------------------------------------------------------------------
-BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
+bool LLVOAvatar::updateCharacter(LLAgent &agent)
 {	
 	updateDebugText();
 	
@@ -4436,6 +4498,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	BOOL visible = isVisible();
     bool is_control_avatar = isControlAvatar(); // capture state to simplify tracing
 	bool is_attachment = false;
+
 	if (is_control_avatar)
 	{
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);
@@ -4455,11 +4518,11 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 	//--------------------------------------------------------------------
 	// The rest should only be done occasionally for far away avatars.
-    // Set mUpdatePeriod and visible based on distance and other criteria.
+    // Set mUpdatePeriod and visible based on distance and other criteria,
+	// and flag for impostor update if needed.
 	//--------------------------------------------------------------------
-    computeUpdatePeriod();
-    bool needs_update = (LLDrawable::getCurrentFrame()+mID.mData[0])%mUpdatePeriod == 0;
-
+	bool needs_update = computeNeedsUpdate();
+	
 	//--------------------------------------------------------------------
 	// Early out if does not need update and not self
 	// don't early out for your own avatar, as we rely on your animations playing reliably
@@ -4561,8 +4624,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
     if (visible)
     {
-	// System avatar mesh vertices need to be reskinned.
-	mNeedsSkin = TRUE;
+		// System avatar mesh vertices need to be reskinned.
+		mNeedsSkin = TRUE;
     }
 
 	return visible;
@@ -8139,6 +8202,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 	{
 		// Fix for jellydoll initially invisible
 		mNeedsImpostorUpdate = TRUE;
+		mLastImpostorUpdateReason = 6;
 	}	
 	return changed;
 }
@@ -10095,7 +10159,7 @@ BOOL LLVOAvatar::updateLOD()
         return FALSE;
     }
     
-	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
+	if (!LLPipeline::sImpostorRender && isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
 	}
@@ -10302,12 +10366,20 @@ void LLVOAvatar::updateImpostors()
 // virtual
 BOOL LLVOAvatar::isImpostor()
 {
-	return sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
+	return isVisuallyMuted() || (sLimitNonImpostors && (mUpdatePeriod > 1));
 }
 
-BOOL LLVOAvatar::shouldImpostor(const U32 rank_factor) const
+BOOL LLVOAvatar::shouldImpostor(const F32 rank_factor)
 {
-	return (!isSelf() && sUseImpostors && mVisibilityRank > (sMaxNonImpostors * rank_factor));
+	if (isSelf())
+	{
+		return false;
+	}
+	if (isVisuallyMuted())
+	{
+		return true;
+	}
+	return sLimitNonImpostors && (mVisibilityRank > sMaxNonImpostors * rank_factor);
 }
 
 BOOL LLVOAvatar::needsImpostorUpdate() const
@@ -10350,16 +10422,16 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 }
 
 // static
-const U32 LLVOAvatar::IMPOSTORS_OFF = 66; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+const U32 LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER = 66; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
 										   * slider in panel_preferences_graphics1.xml */
 
 // static
 void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 {
 	U32  oldmax = sMaxNonImpostors;
-	bool oldflg = sUseImpostors;
+	bool oldflg = sLimitNonImpostors;
 	
-	if (IMPOSTORS_OFF <= newMaxNonImpostorsValue)
+	if (NON_IMPOSTORS_MAX_SLIDER <= newMaxNonImpostorsValue)
 	{
 		sMaxNonImpostors = 0;
 	}
@@ -10367,13 +10439,13 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 	{
 		sMaxNonImpostors = newMaxNonImpostorsValue;
 	}
-	// the sUseImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
-	sUseImpostors = (0 != sMaxNonImpostors);
-    if ( oldflg != sUseImpostors )
+	// the sLimitNonImpostors flag depends on whether or not sMaxNonImpostors is set to the no-limit value (0)
+	sLimitNonImpostors = (0 != sMaxNonImpostors);
+    if ( oldflg != sLimitNonImpostors )
     {
         LL_DEBUGS("AvatarRender")
             << "was " << (oldflg ? "use" : "don't use" ) << " impostors (max " << oldmax << "); "
-            << "now " << (sUseImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
+            << "now " << (sLimitNonImpostors ? "use" : "don't use" ) << " impostors (max " << sMaxNonImpostors << "); "
             << LL_ENDL;
     }
 }
@@ -10879,6 +10951,7 @@ void LLVOAvatar::setVisualMuteSettings(VisualMuteSettings set)
 {
     mVisuallyMuteSetting = set;
     mNeedsImpostorUpdate = TRUE;
+	mLastImpostorUpdateReason = 7;
 
     LLRenderMuteList::getInstance()->saveVisualMuteSetting(getID(), S32(set));
 }
@@ -10905,7 +10978,7 @@ void LLVOAvatar::setOverallAppearanceNormal()
 	}
 	mJellyAnims.clear();
 
-	//processAnimationStateChanges();
+	processAnimationStateChanges();
 }
 
 void LLVOAvatar::setOverallAppearanceJellyDoll()
@@ -10960,6 +11033,7 @@ void LLVOAvatar::updateOverallAppearance()
 		if (!isSelf())
 		{
 			mNeedsImpostorUpdate = TRUE;
+			mLastImpostorUpdateReason = 8;
 		}
 		updateMeshVisibility();
 	}
