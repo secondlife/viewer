@@ -1056,13 +1056,14 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	}
 
 	// updating inventory
+    LLWearableType* wearable_type_inst = LLWearableType::getInstance();
 
 	// TODO: Removed check for ensuring that teens don't remove undershirt and underwear. Handle later
 	// note: shirt is the first non-body part wearable item. Update if wearable order changes.
 	// This loop should remove all clothing, but not any body parts
 	for (S32 j = 0; j < (S32)LLWearableType::WT_COUNT; j++)
 	{
-		if (LLWearableType::getAssetType((LLWearableType::EType)j) == LLAssetType::AT_CLOTHING)
+		if (wearable_type_inst->getAssetType((LLWearableType::EType)j) == LLAssetType::AT_CLOTHING)
 		{
 			removeWearable((LLWearableType::EType)j, true, 0);
 		}
@@ -1082,7 +1083,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			new_wearable->setName(new_item->getName());
 			new_wearable->setItemID(new_item->getUUID());
 
-			if (LLWearableType::getAssetType(type) == LLAssetType::AT_BODYPART)
+			if (wearable_type_inst->getAssetType(type) == LLAssetType::AT_BODYPART)
 			{
 				// exactly one wearable per body part
 				setWearable(type,0,new_wearable);
@@ -1169,7 +1170,7 @@ void LLAgentWearables::setWearableItem(LLInventoryItem* new_item, LLViewerWearab
 			if ((old_wearable->getAssetID() == new_wearable->getAssetID()) &&
 				(old_item_id == new_item->getUUID()))
 			{
-				LL_DEBUGS() << "No change to wearable asset and item: " << LLWearableType::getTypeName(type) << LL_ENDL;
+				LL_DEBUGS() << "No change to wearable asset and item: " << LLWearableType::getInstance()->getTypeName(type) << LL_ENDL;
 				return;
 			}
 			
@@ -1601,7 +1602,7 @@ void LLAgentWearables::editWearable(const LLUUID& item_id)
 		return;
 	}
 
-	const BOOL disable_camera_switch = LLWearableType::getDisableCameraSwitch(wearable->getType());
+	const BOOL disable_camera_switch = LLWearableType::getInstance()->getDisableCameraSwitch(wearable->getType());
 	LLPanel* panel = LLFloaterSidePanelContainer::getPanel("appearance");
 	LLSidepanelAppearance::editWearable(wearable, panel, disable_camera_switch);
 }

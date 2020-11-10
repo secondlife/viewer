@@ -204,7 +204,7 @@ void LLSidepanelAppearance::updateToVisibility(const LLSD &new_visibility)
 			// when editing its physics.
 			if (!gAgentCamera.cameraCustomizeAvatar())
 			{
-				LLVOAvatarSelf::onCustomizeStart(LLWearableType::getDisableCameraSwitch(wearable_ptr->getType()));
+				LLVOAvatarSelf::onCustomizeStart(LLWearableType::getInstance()->getDisableCameraSwitch(wearable_ptr->getType()));
 			}
 			if (is_wearable_edit_visible)
 			{

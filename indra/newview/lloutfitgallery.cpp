@@ -893,7 +893,7 @@ void LLOutfitGalleryContextMenu::onOutfitsRemovalConfirmation(const LLSD& notifi
 
 void LLOutfitGalleryContextMenu::onCreate(const LLSD& data)
 {
-    LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+    LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(data.asString());
     if (type == LLWearableType::WT_NONE)
     {
         LL_WARNS() << "Invalid wearable type" << LL_ENDL;

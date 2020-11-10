@@ -1851,7 +1851,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
-		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
+		LLWearableType::EType wearable_type = LLWearableType::getInstance()->typeNameToType(type_name);
 		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
 		{
 			const LLUUID parent_id = bridge ? bridge->getUUID() : LLUUID::null;

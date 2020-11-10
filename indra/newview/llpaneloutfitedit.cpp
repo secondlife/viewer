@@ -97,7 +97,7 @@ std::string LLShopURLDispatcher::resolveURL(LLWearableType::EType wearable_type,
 {
 	const std::string prefix = "MarketplaceURL";
 	const std::string sex_str = (sex == SEX_MALE) ? "Male" : "Female";
-	const std::string type_str = LLWearableType::getTypeName(wearable_type);
+	const std::string type_str = LLWearableType::getInstance()->getTypeName(wearable_type);
 
 	std::string setting_name = prefix;
 
@@ -173,7 +173,7 @@ public:
 private:
 	static void onCreate(const LLSD& param)
 	{
-		LLWearableType::EType type = LLWearableType::typeNameToType(param.asString());
+		LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(param.asString());
 		if (type == LLWearableType::WT_NONE)
 		{
 			LL_WARNS() << "Invalid wearable type" << LL_ENDL;
@@ -188,19 +188,20 @@ private:
 	{
 		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
 		LLView* menu_bp			= gMenuHolder->getChildView("COF.Gear.New_Body_Parts", FALSE);
+		LLWearableType * wearable_type_inst = LLWearableType::getInstance();
 
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
 			LLWearableType::EType type = (LLWearableType::EType) i;
-			const std::string& type_name = LLWearableType::getTypeName(type);
+			const std::string& type_name = wearable_type_inst->getTypeName(type);
 
 			LLMenuItemCallGL::Params p;
 			p.name = type_name;
-			p.label = LLTrans::getString(LLWearableType::getTypeDefaultNewName(type));
+			p.label = LLTrans::getString(wearable_type_inst->getTypeDefaultNewName(type));
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 
-            LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
+			LLView* parent = wearable_type_inst->getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
 			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
 		}
 	}

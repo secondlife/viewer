@@ -1021,7 +1021,7 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	
 		// Try to recover by replacing missing wearable with a new one.
 	LLNotificationsUtil::add("ReplacedMissingWearable");
-	LL_DEBUGS() << "Wearable " << LLWearableType::getTypeLabel(type)
+	LL_DEBUGS() << "Wearable " << LLWearableType::getInstance()->getTypeLabel(type)
 				<< " could not be downloaded.  Replaced inventory item with default wearable." << LL_ENDL;
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 

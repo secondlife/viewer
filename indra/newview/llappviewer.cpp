@@ -775,10 +775,6 @@ bool LLAppViewer::init()
 	// Start of the application
 	//
 
-	// initialize LLWearableType translation bridge.
-	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initParamSingleton(new LLUITranslationBridge());
-
     // initialize the LLSettingsType translation bridge.
     LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
     LLSettingsType::initClass(trans);
@@ -800,8 +796,13 @@ bool LLAppViewer::init()
 	//
 	init_default_trans_args();
 
+    // inits from settings.xml and from strings.xml
 	if (!initConfiguration())
 		return false;
+
+	// initialize LLWearableType translation bridge.
+	// Will immediately use LLTranslationBridge to init LLWearableDictionary
+	LLWearableType::initParamSingleton(trans);
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
 
