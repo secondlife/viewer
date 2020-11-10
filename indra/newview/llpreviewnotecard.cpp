@@ -232,6 +232,7 @@ void LLPreviewNotecard::loadAsset()
 	if (!editor)
 		return;
 
+	bool fail = false;
 
 	if(item)
 	{
@@ -314,7 +315,31 @@ void LLPreviewNotecard::loadAsset()
 			getChildView("Delete")->setEnabled(TRUE);
 		}
 	}
-	else
+    else if (mObjectUUID.notNull() && mItemUUID.notNull())
+    {
+        LLViewerObject* objectp = gObjectList.findObject(mObjectUUID);
+        if (objectp && (objectp->isInventoryPending() || objectp->isInventoryDirty()))
+        {
+            // It's a notecard in object's inventory and we failed to get it because inventory is not up to date.
+            // Subscribe for callback and retry at inventoryChanged()
+            registerVOInventoryListener(objectp, NULL); //removes previous listener
+
+            if (objectp->isInventoryDirty())
+            {
+                objectp->requestInventory();
+            }
+        }
+        else
+        {
+            fail = true;
+        }
+    }
+    else
+    {
+        fail = true;
+    }
+
+	if (fail)
 	{
 		editor->setText(LLStringUtil::null);
 		editor->makePristine();
@@ -598,6 +623,17 @@ void LLPreviewNotecard::syncExternal()
 		writeToFile(tmp_file);
 	}
 }
+
+/*virtual*/
+void LLPreviewNotecard::inventoryChanged(LLViewerObject* object,
+    LLInventoryObject::object_list_t* inventory,
+    S32 serial_num,
+    void* user_data)
+{
+    removeVOInventoryListener();
+    loadAsset();
+}
+
 
 void LLPreviewNotecard::deleteNotecard()
 {
