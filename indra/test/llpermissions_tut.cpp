@@ -406,43 +406,6 @@ namespace tut
 	template<> template<>
 	void permission_object_t::test<20>()
 	{
-		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
-		if(!fp)
-		{
-			LL_ERRS() << "file couldn't be opened\n" << LL_ENDL;
-			return;
-		}
-		LLPermissions perm,perm1;
-		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
-		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
-		LLUUID lastOwner("5e47a0dc-97bf-44e0-8b40-de06718cee9d"); 
-		LLUUID group("9c8eca51-53d5-42a7-bb58-cef070395db8");		
-		perm.init(creator,owner,lastOwner,group);
-		
-		U32 base = PERM_TRANSFER | PERM_COPY;
-		U32 ownerp = PERM_TRANSFER;
-		U32 groupp = PERM_TRANSFER;
-		U32 everyone = PERM_TRANSFER;
-		U32 next = PERM_NONE;
-
-		perm.initMasks(base, ownerp, everyone, groupp, next);
-
-		ensure("Permissions export failed", perm.exportFile(fp));
-		fclose(fp);	
-		fp = LLFile::fopen("linden_file.dat","r+");
-		if(!fp)
-		{
-			LL_ERRS() << "file couldn't be opened\n" << LL_ENDL;
-			return;
-		}
-		ensure("Permissions import failed", perm1.importFile(fp));
-		fclose(fp);
-		ensure_equals("exportFile()/importFile():failed to export and import the data ", perm1, perm);	
-}
-
-	template<> template<>
-	void permission_object_t::test<21>()
-	{
 		LLPermissions perm,perm1;
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
 		LLUUID owner("68edcf47-ccd7-45b8-9f90-1649d7f12806"); 
@@ -467,14 +430,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void permission_object_t::test<22>()
-	{
-		// Deleted LLPermissions::exportFileXML() and LLPermissions::importXML()
-		// because I can't find any non-test code references to it. 2009-05-04 JC
-	}
-
-	template<> template<>
-	void permission_object_t::test<23>()
+	void permission_object_t::test<21>()
 	{
 		LLPermissions perm,perm1;
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
@@ -490,7 +446,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void permission_object_t::test<24>()
+	void permission_object_t::test<22>()
 	{
 		LLPermissions perm,perm1;
 		LLUUID creator("abf0d56b-82e5-47a2-a8ad-74741bb2c29e");	
@@ -513,7 +469,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void permission_object_t::test<25>()
+	void permission_object_t::test<23>()
 	{
 		LLAggregatePermissions AggrPermission;	
 		LLAggregatePermissions AggrPermission1;	

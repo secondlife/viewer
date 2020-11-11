@@ -291,6 +291,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
                                             << " region name " << regionp->getName()
+                                            << " handle " << regionp->getHandle()
                                             << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
 		LL_DEBUGS("AppInit", "Capabilities") << "Capabilities requested: " << capabilityNames << LL_ENDL;
 
@@ -350,9 +351,9 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         log_capabilities(mCapabilities);
 #endif
 
+        LL_DEBUGS("AppInit", "Capabilities", "Teleport") << "received caps for handle " << regionHandle 
+														 << " region name " << regionp->getName() << LL_ENDL;
         regionp->setCapabilitiesReceived(true);
-        LL_DEBUGS("AppInit", "Capabilities") << "received caps for handle " << regionHandle 
-                                             << " region name " << regionp->getName() << LL_ENDL;
 
         if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
         {

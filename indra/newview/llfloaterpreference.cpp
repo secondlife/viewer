@@ -1198,9 +1198,11 @@ void LLFloaterPreference::refreshEnabledState()
 
 	//Deferred/SSAO/Shadows
 	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
+	BOOL transparent_water = LLFeatureManager::getInstance()->isFeatureAvailable("RenderTransparentWater") && gSavedSettings.getBOOL("RenderTransparentWater");
 	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						bumpshiny &&
+						transparent_water &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
 						gSavedSettings.getBOOL("RenderAvatarVP") &&
@@ -1223,7 +1225,10 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     BOOL reflections = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
 	reflections_text->setEnabled(reflections);
-	
+
+    // Transparent Water
+    LLCheckBoxCtrl* transparent_water_ctrl = getChild<LLCheckBoxCtrl>("TransparentWater");
+
 	// Bump & Shiny	
 	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
@@ -1274,6 +1279,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
     
     BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
                         ((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
+                        ((transparent_water_ctrl && transparent_water_ctrl->get()) ? TRUE : FALSE) &&
                         gGLManager.mHasFramebufferObject &&
                         gSavedSettings.getBOOL("RenderAvatarVP") &&
                         (ctrl_wind_light->get()) ? TRUE : FALSE;
