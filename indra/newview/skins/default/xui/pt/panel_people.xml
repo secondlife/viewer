@@ -18,7 +18,7 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 	<string name="no_groups_msg" value="À procura de grupos interessantes? Tente fazer uma [secondlife:///app/search/groups Busca]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Clique duas vezes para abrir o mapa, shift+arraste para a visão pan)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Clique duas vezes para teletransportar, shift+arraste para a visão pan)"/>
-	<string name="GroupCountWithInfo" value="Você pertence a [COUNT] grupos e pode entrar em mais [REMAINING].  [secondlife:/// Quer mais?]"/>
+	<string name="GroupCountWithInfo" value="Você faz parte de [COUNT] grupos e pode participar de mais [REMAINING]. [secondlife:/// Aumente o seu limite]"/>
 	<tab_container name="tabs">
 		<panel label="PROXIMIDADE" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">
@@ -51,7 +51,7 @@ Em busca de alguém para conversar? Procure no [secondlife:///app/worldmap Mapa-
 				<dnd_button name="minus_btn" tool_tip="Sair do grupo selecionado"/>
 			</panel>
 			<text name="groupcount">
-				Você pertence a [COUNT] grupos e pode entrar em mais [REMAINING].
+				Você faz parte de [COUNT] grupos e pode participar de mais [REMAINING].
 			</text>
 		</panel>
 		<panel label="RECENTE" name="recent_panel">

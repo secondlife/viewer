@@ -424,6 +424,8 @@ private:
 	S32 mIndexInTex[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
 	S32 mMDCImplCount;
 
+	bool mResetDebugText;
+
 	LLPointer<LLRiggedVolume> mRiggedVolume;
 
 	// statics

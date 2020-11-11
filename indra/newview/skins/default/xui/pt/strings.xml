@@ -1596,11 +1596,14 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	<string name="MarketplaceUpdating">
 		atualizando...
 	</string>
+	<string name="UploadFeeInfo">
+		A taxa é baseada em seu nível de inscrição. Níveis mais altos possuem taxas mais baixas. [https://secondlife.com/my/account/membership.php? Saiba mais]
+	</string>
 	<string name="Open landmarks">
-		Marcos abertos
+		Marcos em aberto
 	</string>
 	<string name="Unconstrained">
-		Sem limites
+		Ilimitado
 	</string>
 	<string name="no_transfer" value="(não transferível)"/>
 	<string name="no_modify" value="(não modificável)"/>
@@ -4970,6 +4973,9 @@ Visite http://status.secondlifegrid.net para saber se foi detectado um problema 
 	</string>
 	<string name="Chat" value="Bate papo">
 		Bate-papo
+	</string>
+	<string name="BaseMembership">
+		Básico
 	</string>
 	<string name="DeleteItems">
 		Excluir itens selecionados?

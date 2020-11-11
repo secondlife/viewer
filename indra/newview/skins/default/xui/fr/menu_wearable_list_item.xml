@@ -3,6 +3,7 @@
 	<menu_item_call label="Remplacer" name="wear_replace"/>
 	<menu_item_call label="Porter" name="wear_wear"/>
 	<menu_item_call label="Ajouter" name="wear_add"/>
+	<menu_item_call label="Toucher" name="touch" />
 	<menu_item_call label="Enlever / Détacher" name="take_off_or_detach"/>
 	<menu_item_call label="Détacher" name="detach"/>
 	<context_menu label="Attacher à" name="wearable_attach_to"/>

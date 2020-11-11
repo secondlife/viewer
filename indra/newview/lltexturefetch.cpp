@@ -1977,6 +1977,11 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setState(WAIT_ON_WRITE);
 		++mCacheWriteCount;
 		CacheWriteResponder* responder = new CacheWriteResponder(mFetcher, mID);
+        // This call might be under work mutex, but mRawImage is not nessesary safe here.
+        // If something retrieves it via getRequestFinished() and modifies, image won't
+        // be protected by work mutex and won't be safe to use here nor in cache worker.
+        // So make sure users of getRequestFinished() does not attempt to modify image while
+        // fetcher is working
 		mCacheWriteHandle = mFetcher->mTextureCache->writeToCache(mID, cache_priority,
 																  mFormattedImage->getData(), datasize,
 																  mFileSize, mRawImage, mDecodedDiscard, responder);
