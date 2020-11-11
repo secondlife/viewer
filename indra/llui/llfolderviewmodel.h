@@ -336,8 +336,8 @@ public:
 	virtual const SortType& getSorter() const 		 { return *mSorter; }
 	virtual void setSorter(const SortType& sorter) 	 { mSorter = new SortType(sorter); requestSortAll(); }
 
-	virtual FilterType& getFilter() 				 { return *mFilter; }
-	virtual const FilterType& getFilter() const		 { return *mFilter; }
+	virtual FilterType& getFilter() override		 { return *mFilter; }
+	virtual const FilterType& getFilter() const	override { return *mFilter; }
 	virtual void setFilter(const FilterType& filter) { mFilter = new FilterType(filter); }
 
 	// By default, we assume the content is available. If a network fetch mechanism is implemented for the model,
