@@ -130,13 +130,14 @@
 #define MATERIALS_IN_REFLECTIONS 0
 
 // NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
-const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
-const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
-const S32 WATER_REFLECT_MINIMAL                 =  0;
-const S32 WATER_REFLECT_TERRAIN                 =  1;
-const S32 WATER_REFLECT_STATIC_OBJECTS          =  2;
-const S32 WATER_REFLECT_AVATARS                 =  3;
-const S32 WATER_REFLECT_EVERYTHING              =  4;
+// NOTE: Unused consts are commented out since some compilers (on macOS) may complain about unused variables.
+//  const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
+    const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
+    const S32 WATER_REFLECT_MINIMAL                 =  0;
+//  const S32 WATER_REFLECT_TERRAIN                 =  1;
+    const S32 WATER_REFLECT_STATIC_OBJECTS          =  2;
+    const S32 WATER_REFLECT_AVATARS                 =  3;
+    const S32 WATER_REFLECT_EVERYTHING              =  4;
 
 bool gShiftFrame = false;
 
