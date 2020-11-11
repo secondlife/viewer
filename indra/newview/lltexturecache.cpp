@@ -2123,30 +2123,7 @@ bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImage
 		if(w * h *c > 0) //valid
 		{
             // Make a duplicate to keep the original raw image untouched.
-            // Might be good idea to do a copy during writeToCache() call instead of here
-            try
-            {
-#if LL_WINDOWS
-                // Temporary diagnostics for scale/duplicate crash
-                logExceptionDupplicate(raw);
-#else
-                raw = raw->duplicate();
-#endif
-            }
-            catch (...)
-            {
-                removeFromCache(image_id);
-                LL_ERRS() << "Failed to cache image: " << image_id
-                    << " local id: " << id
-                    << " Exception: " << boost::current_exception_diagnostic_information()
-                    << " Image new width: " << w
-                    << " Image new height: " << h
-                    << " Image new components: " << c
-                    << " Image discard difference: " << i
-                    << LL_ENDL;
-
-                return false;
-            }
+            raw = raw->duplicate();
 
 			if (raw->isBufferInvalid())
 			{
