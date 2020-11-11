@@ -105,6 +105,7 @@
 	<menu_item_call label="Giy" name="Wearable And Object Wear"/>
 	<menu label="Şuna Ekle:" name="Attach To"/>
 	<menu label="BÜG&apos;e Ekle" name="Attach To HUD"/>
+	<menu_item_call label="Dokun" name="Attachment Touch" />
 	<menu_item_call label="Düzenle" name="Wearable Edit"/>
 	<menu_item_call label="Ekle" name="Wearable Add"/>
 	<menu_item_call label="Çıkar" name="Take Off"/>

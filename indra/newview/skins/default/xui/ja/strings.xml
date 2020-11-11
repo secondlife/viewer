@@ -1644,11 +1644,14 @@ support@secondlife.com にお問い合わせください。
 	<string name="MarketplaceUpdating">
 		アップデート中...
 	</string>
+	<string name="UploadFeeInfo">
+		料金はサブスクリプションのレベルにより異なります。レベルが高いほど、料金が下がります。[https://secondlife.com/my/account/membership.php? 詳細]
+	</string>
 	<string name="Open landmarks">
-		ランドマークを開く
+		オープン ランドマーク
 	</string>
 	<string name="Unconstrained">
-		非拘束
+		アンコンストレインド（制約なし）
 	</string>
 	<string name="no_transfer" value=" （再販・プレゼント不可）"/>
 	<string name="no_modify" value=" （編集不可）"/>
@@ -5094,6 +5097,15 @@ www.secondlife.com から最新バージョンをダウンロードしてくだ�
 	</string>
 	<string name="Chat" value=" チャット：">
 		チャット
+	</string>
+	<string name="BaseMembership">
+		ベース
+	</string>
+	<string name="PremiumMembership">
+		プレミアム
+	</string>
+	<string name="Premium PlusMembership">
+		プレミアムプラス
 	</string>
 	<string name="DeleteItems">
 		選択したアイテムを削除しますか

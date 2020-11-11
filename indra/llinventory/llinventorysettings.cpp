@@ -33,10 +33,6 @@
 #include "llsingleton.h"
 #include "llinvtranslationbrdg.h"
 
-//=========================================================================
-namespace {
-    LLTranslationBridge::ptr_t sTranslator;
-}
 
 //=========================================================================
 struct SettingsEntry : public LLDictionaryEntry
@@ -49,7 +45,7 @@ struct SettingsEntry : public LLDictionaryEntry
         mLabel(name),
         mIconName(iconName)
     {
-        std::string transdname = sTranslator->getString(mLabel);
+        std::string transdname = LLSettingsType::getInstance()->mTranslator->getString(mLabel);
         if (!transdname.empty())
         {
             mLabel = transdname;
@@ -84,6 +80,16 @@ void LLSettingsDictionary::initSingleton()
 
 //=========================================================================
 
+LLSettingsType::LLSettingsType(LLTranslationBridge::ptr_t &trans)
+{
+    mTranslator = trans;
+}
+
+LLSettingsType::~LLSettingsType()
+{
+    mTranslator.reset();
+}
+
 LLSettingsType::type_e LLSettingsType::fromInventoryFlags(U32 flags)
 {
     return  (LLSettingsType::type_e)(flags & LLInventoryItemFlags::II_FLAGS_SUBTYPE_MASK);
@@ -103,14 +109,4 @@ std::string LLSettingsType::getDefaultName(LLSettingsType::type_e type)
     if (!entry)
         return getDefaultName(ST_INVALID);
     return entry->mDefaultNewName;
-}
-
-void LLSettingsType::initClass(LLTranslationBridge::ptr_t &trans)
-{
-    sTranslator = trans;
-}
-
-void LLSettingsType::cleanupClass()
-{
-    sTranslator.reset();
 }

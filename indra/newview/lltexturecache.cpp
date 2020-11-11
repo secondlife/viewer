@@ -616,6 +616,9 @@ bool LLTextureCacheRemoteWorker::doWrite()
 			if(idx >= 0)
 			{
 				// write to the fast cache.
+                // mRawImage is not entirely safe here since it is a pointer to one owned by cache worker,
+                // it could have been retrieved via getRequestFinished() and then modified.
+                // If writeToFastCache crashes, something is wrong around fetch worker.
 				if(!mCache->writeToFastCache(mID, idx, mRawImage, mRawDiscardLevel))
 				{
 					LL_WARNS() << "writeToFastCache failed" << LL_ENDL;
@@ -2155,8 +2158,8 @@ bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImage
 		h >>= i;
 		if(w * h *c > 0) //valid
 		{
-			//make a duplicate to keep the original raw image untouched.
-
+            // Make a duplicate to keep the original raw image untouched.
+            // Might be good idea to do a copy during writeToCache() call instead of here
             try
             {
 #if LL_WINDOWS
