@@ -200,7 +200,7 @@
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right|bottom"
-         height="580"
+         height="597"
          layout="topleft"
          left="0"
          min_height="300"
@@ -277,23 +277,45 @@
              height="14"
              layout="topleft"
              left="10"
-             name="region_title"
-             text_color="white"
              top_pad="5"
+             width="290"
+             name="parcel_title"
+             text_color="white"
              use_ellipses="true"
-             value="SampleRegion"
-             width="290" />
+             value="SampleParcel" />
             <text
              parse_urls="false"
              follows="left|top|right"
              height="14"
              layout="topleft"
              left="10"
-             name="parcel_title"
-             top_pad="4"
-             use_ellipses="true"
-             value="SampleParcel, Name Long (145, 228, 26)"
-             width="285" />
+             top_pad="5"
+             width="285"
+             name="region_title"
+             text_color="White"
+             use_ellipses="true">
+              Region: [REGIONAMEPOS]
+            </text>
+            <text
+             follows="left|top"
+             height="14"
+             layout="topleft"
+             left="10"
+             name="owner_label"
+             text_color="White"
+             top_pad="2"
+             value="Owner:"
+             width="80" />
+            <text
+             follows="left|top|right"
+             height="14"
+             layout="topleft"
+             left_pad="0"
+             name="parcel_owner"
+             top_delta="0"
+             value="Alex Superduperlongenamenton"
+             use_ellipses="true" 
+             width="200" />
             <expandable_text
              follows="left|top"
              height="50"
@@ -303,27 +325,6 @@
              top_pad="10"
              value="Du waltz die spritz"
              width="285" />
-            <text
-             follows="left|top"
-             height="14"
-             layout="topleft"
-             left="10"
-             name="owner_label"
-             text_color="White"
-             top_pad="0"
-             value="Owner:"
-             width="90" />
-         <!--TODO: HOOK THIS NAME UP WITH AN INSPECTOR  -->
-            <text
-             follows="left|top|right"
-             height="14"
-             layout="topleft"
-             left_pad="1"
-             name="owner_value"
-             top_delta="0"
-             value="Alex Superduperlongenamenton"
-             use_ellipses="true" 
-             width="200" />
             <icon
              follows="top|left"
              height="16"
@@ -331,7 +332,7 @@
              layout="topleft"
              left="10"
              name="maturity_icon"
-             top_delta="0"
+             top_pad="0"
              width="18" />
             <text
              follows="left|top|right"

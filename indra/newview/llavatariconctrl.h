@@ -31,7 +31,6 @@
 
 #include "lliconctrl.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llviewermenu.h"
 
 class LLAvatarName;
 

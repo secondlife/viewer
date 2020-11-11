@@ -38,6 +38,7 @@
 #include "llgesturemgr.h"
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
+#include "llviewermenu.h"
 #include "llvoavatarself.h"
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
@@ -794,7 +795,7 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	// Register handlers common for all wearable types.
 	registrar.add("Wearable.Wear", boost::bind(wear_multiple, ids, true));
 	registrar.add("Wearable.Add", boost::bind(wear_multiple, ids, false));
-	registrar.add("Wearable.Edit", boost::bind(handleMultiple, LLAgentWearables::editWearable, ids));
+	registrar.add("Wearable.Edit", boost::bind(handle_item_edit, selected_id));
 	registrar.add("Wearable.CreateNew", boost::bind(createNewWearable, selected_id));
 	registrar.add("Wearable.ShowOriginal", boost::bind(show_item_original, selected_id));
 	registrar.add("Wearable.TakeOffDetach", 
@@ -809,6 +810,7 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	// Register handlers for attachments.
 	registrar.add("Attachment.Detach", 
 				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids));
+	registrar.add("Attachment.Touch", boost::bind(handle_attachment_touch, selected_id));
 	registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
 	registrar.add("Object.Attach", boost::bind(LLViewerAttachMenu::attachObjects, ids, _2));
 
@@ -838,6 +840,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_already_worn = 0;			// number of items worn of same type as selected items
 	U32 n_links = 0;				// number of links among the selected items
 	U32 n_editable = 0;				// number of editable items among the selected ones
+	U32 n_touchable = 0;            // number of touchable items among the selected ones
 
 	bool can_be_worn = true;
 
@@ -858,11 +861,16 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		const LLWearableType::EType wearable_type = item->getWearableType();
 		const bool is_link = item->getIsLinkType();
 		const bool is_worn = get_is_item_worn(id);
-		const bool is_editable = gAgentWearables.isWearableModifiable(id);
+		const bool is_editable = get_is_item_editable(id);
+		const bool is_touchable = enable_attachment_touch(id);
 		const bool is_already_worn = gAgentWearables.selfHasWearable(wearable_type);
 		if (is_worn)
 		{
 			++n_worn;
+		}
+		if (is_touchable)
+		{
+			++n_touchable;
 		}
 		if (is_editable)
 		{
@@ -893,8 +901,10 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemEnabled(menu, "wear_add",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && can_be_worn);
 	//visible only when one item selected and this item is worn
-	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
-	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
+	setMenuItemVisible(menu, "touch",				!standalone && mask == MASK_ATTACHMENT && n_worn == n_items);
+	setMenuItemEnabled(menu, "touch",				n_touchable && n_worn == 1 && n_items == 1);
+	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART|MASK_ATTACHMENT) && n_worn == n_items);
+	setMenuItemEnabled(menu, "edit",				n_editable && n_worn == 1 && n_items == 1);
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
 	setMenuItemEnabled(menu, "create_new",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "show_original",		!standalone);

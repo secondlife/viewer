@@ -28,11 +28,12 @@
 #define LL_LLCHATITEMSCONTAINERCTRL_H_
 
 #include "llchat.h"
-#include "llchatmsgbox.h"
 #include "llpanel.h"
 #include "llscrollbar.h"
 #include "llviewerchat.h"
 #include "lltoastpanel.h"
+
+class LLChatMsgBox;
 
 typedef enum e_show_item_header
 {

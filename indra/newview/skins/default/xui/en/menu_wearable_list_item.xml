@@ -23,6 +23,18 @@
          function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="touch"
+     on_click.function="Attachment.Touch"
+     />
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit"
+     on_click.function="Wearable.Edit"
+     />
+    <menu_item_call
      label="Take Off / Detach"
      layout="topleft"
      name="take_off_or_detach">
@@ -50,13 +62,6 @@
      name="take_off">
         <on_click
          function="Clothing.TakeOff" />
-    </menu_item_call>
-    <menu_item_call
-     label="Edit"
-     layout="topleft"
-     name="edit">
-        <on_click
-         function="Wearable.Edit" />
     </menu_item_call>
     <menu_item_call
      label="Item Profile"

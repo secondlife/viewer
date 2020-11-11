@@ -154,7 +154,7 @@ F32 LLSnapshotLivePreview::getImageAspect()
 
 void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay)
 {
-	LL_DEBUGS() << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
 
 	// Update snapshot if requested.
 	if (new_snapshot)
@@ -342,7 +342,7 @@ void LLSnapshotLivePreview::draw()
 		}
 		else if (mShineAnimTimer.getStarted())
 		{
-			LL_DEBUGS() << "Drawing shining animation" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Drawing shining animation" << LL_ENDL;
 			F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 
 			// draw "shine" effect
@@ -390,7 +390,7 @@ void LLSnapshotLivePreview::draw()
 		S32 old_image_index = (mCurImageIndex + 1) % 2;
 		if (mViewerImage[old_image_index].notNull() && mFallAnimTimer.getElapsedTimeF32() < FALL_TIME)
 		{
-			LL_DEBUGS() << "Drawing fall animation" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Drawing fall animation" << LL_ENDL;
 			F32 fall_interp = mFallAnimTimer.getElapsedTimeF32() / FALL_TIME;
 			F32 alpha = clamp_rescale(fall_interp, 0.f, 1.f, 0.8f, 0.4f);
 			LLColor4 image_color(1.f, 1.f, 1.f, alpha);
@@ -434,7 +434,7 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 	LLView::reshape(width, height, called_from_parent);
 	if (old_rect.getWidth() != width || old_rect.getHeight() != height)
 	{
-		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
+		LL_DEBUGS("Window", "Snapshot") << "window reshaped, updating thumbnail" << LL_ENDL;
 		if (mViewContainer && mViewContainer->isInVisibleChain())
 		{
 			// We usually resize only on window reshape, so give it a chance to redraw, assign delay
@@ -579,7 +579,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -627,7 +627,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -647,7 +647,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)snapshot_preview;
 	if (previewp->getWidth() == 0 || previewp->getHeight() == 0)
 	{
-		LL_WARNS() << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << LL_ENDL;
+		LL_WARNS("Snapshot") << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << LL_ENDL;
 		return FALSE;
 	}
 
@@ -678,7 +678,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
 		BOOL new_snapshot = gSavedSettings.getBOOL("AutoSnapshot") || previewp->mForceUpdateSnapshot;
-		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
+		LL_DEBUGS("Snapshot") << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
 			new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
 			FALSE, // or if 1st arg is false, whether to produce a new thumbnail image.
@@ -694,7 +694,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// time to produce a snapshot
 	if(!previewp->getSnapshotUpToDate())
     {
-        LL_DEBUGS() << "producing snapshot" << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "producing snapshot" << LL_ENDL;
         if (!previewp->mPreviewImage)
         {
             previewp->mPreviewImage = new LLImageRaw;
@@ -744,7 +744,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->getWindow()->decBusyCount();
         previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = FALSE;
-        LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "done creating snapshot" << LL_ENDL;
     }
     
     if (!previewp->getThumbnailUpToDate())
@@ -835,7 +835,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
         if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
-			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Encoding new image of format J2C" << LL_ENDL;
 			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
             // Copy the preview
 			LLPointer<LLImageRaw> scaled = new LLImageRaw(
@@ -920,13 +920,13 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         
         // Create the new formatted image of the appropriate format.
         LLSnapshotModel::ESnapshotFormat format = getSnapshotFormat();
-        LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "Encoding new image of format " << format << LL_ENDL;
             
         switch (format)
         {
@@ -951,7 +951,7 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
 
 void LLSnapshotLivePreview::setSize(S32 w, S32 h)
 {
-	LL_DEBUGS() << "setSize(" << w << ", " << h << ")" << LL_ENDL;
+    LL_DEBUGS("Snapshot") << "setSize(" << w << ", " << h << ")" << LL_ENDL;
 	setWidth(w);
 	setHeight(h);
 }
@@ -973,7 +973,7 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 
 void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 {
-	LL_DEBUGS() << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
 	// gen a new uuid for this asset
 	LLTransactionID tid;
 	tid.generate();
@@ -996,12 +996,12 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		}
 		else
 		{
-			LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+			LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
 		}
 	}
 
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
-	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
 
 	if (formatted->encode(scaled, 0.0f))
 	{
@@ -1030,7 +1030,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 	else
 	{
 		LLNotificationsUtil::add("ErrorEncodingSnapshot");
-		LL_WARNS() << "Error encoding snapshot" << LL_ENDL;
+		LL_WARNS("Snapshot") << "Error encoding snapshot" << LL_ENDL;
 	}
 
 	add(LLStatViewer::SNAPSHOT, 1);
