@@ -806,6 +806,25 @@ const F32 LLEnvironment::SUN_DELTA_YAW(F_PI);   // 180deg
 const U32 LLEnvironment::DayInstance::NO_ANIMATE_SKY(0x01);
 const U32 LLEnvironment::DayInstance::NO_ANIMATE_WATER(0x02);
 
+std::string env_selection_to_string(LLEnvironment::EnvSelection_t sel)
+{
+#define RTNENUM(E) case LLEnvironment::E: return #E
+    switch (sel){
+        RTNENUM(ENV_EDIT);
+        RTNENUM(ENV_LOCAL);
+        RTNENUM(ENV_PUSH);
+        RTNENUM(ENV_PARCEL);
+        RTNENUM(ENV_REGION);
+        RTNENUM(ENV_DEFAULT);
+        RTNENUM(ENV_END);
+        RTNENUM(ENV_CURRENT);
+        RTNENUM(ENV_NONE);
+    default:
+        return llformat("Unknown(%d)", sel);
+    }
+#undef RTNENUM
+}
+
 
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
@@ -981,7 +1000,7 @@ bool LLEnvironment::canAgentUpdateRegionEnvironment() const
     if (gAgent.isGodlike())
         return true;
 
-    return gAgent.getRegion()->canManageEstate();
+    return gAgent.canManageEstate();
 }
 
 bool LLEnvironment::isExtendedEnvironmentEnabled() const
@@ -1037,7 +1056,8 @@ F32 LLEnvironment::getCamHeight() const
 
 F32 LLEnvironment::getWaterHeight() const
 {
-    return gAgent.getRegion()->getWaterHeight();
+    LLViewerRegion* cur_region = gAgent.getRegion();
+    return cur_region ? cur_region->getWaterHeight() : DEFAULT_WATER_HEIGHT;
 }
 
 bool LLEnvironment::getIsSunUp() const
@@ -1059,6 +1079,7 @@ void LLEnvironment::setSelectedEnvironment(LLEnvironment::EnvSelection_t env, LL
 {
     mSelectedEnvironment = env;
     updateEnvironment(transition, forced);
+    LL_DEBUGS("ENVIRONMENT") << "Setting environment " << env_selection_to_string(env) << " with transition: " << transition << LL_ENDL;
 }
 
 bool LLEnvironment::hasEnvironment(LLEnvironment::EnvSelection_t env)
@@ -1095,10 +1116,12 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getEnvironmentInstance(LLEnviro
 void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsDay::ptr_t &pday, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 env_version)
 {
     if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
-    {   
-        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection." << LL_ENDL;
+    {
+        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return;
     }
+
+    logEnvironment(env, pday, env_version);
 
     DayInstance::ptr_t environment = getEnvironmentInstance(env, true);
 
@@ -1116,7 +1139,7 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 {
     if ((env < ENV_EDIT) || (env >= ENV_DEFAULT))
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to change invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return;
     }
 
@@ -1125,30 +1148,32 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
 
     if (fixed.first)
     {
+        logEnvironment(env, fixed.first, env_version);
         environment->setSky(fixed.first);
         environment->setFlags(DayInstance::NO_ANIMATE_SKY);
     }
     else if (!environment->getSky())
     {
+        LL_DEBUGS("ENVIRONMENT") << "Blank sky for " << env_selection_to_string(env) << ". Reusing environment for sky." << LL_ENDL;
         environment->setSky(mCurrentEnvironment->getSky());
         environment->setFlags(DayInstance::NO_ANIMATE_SKY);
     }
         
     if (fixed.second)
     {
+        logEnvironment(env, fixed.second, env_version);
         environment->setWater(fixed.second);
         environment->setFlags(DayInstance::NO_ANIMATE_WATER);
     }
     else if (!environment->getWater())
     {
+        LL_DEBUGS("ENVIRONMENT") << "Blank water for " << env_selection_to_string(env) << ". Reusing environment for water." << LL_ENDL;
         environment->setWater(mCurrentEnvironment->getWater());
         environment->setFlags(DayInstance::NO_ANIMATE_WATER);
     }
 
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, env_version);
-
-    /*TODO: readjust environment*/
 }
 
 void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version)
@@ -1221,10 +1246,12 @@ void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = asset_id.asString();
+        args["NAME"] = asset_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
+        LL_DEBUGS("ENVIRONMENT") << "Failed to find settings for " << env_selection_to_string(env) << ", asset_id: " << asset_id << LL_ENDL;
         return;
     }
+    LL_DEBUGS("ENVIRONMENT") << "Loaded asset: " << asset_id << LL_ENDL;
 
     setEnvironment(env, settings);
     updateEnvironment(transition);
@@ -1238,19 +1265,48 @@ void LLEnvironment::clearEnvironment(LLEnvironment::EnvSelection_t env)
         return;
     }
 
+    LL_DEBUGS("ENVIRONMENT") << "Cleaning environment " << env_selection_to_string(env) << LL_ENDL;
+
     mEnvironments[env].reset();
 
     if (!mSignalEnvChanged.empty())
         mSignalEnvChanged(env, VERSION_CLEANUP);
+}
 
-    /*TODO: readjust environment*/
+void LLEnvironment::logEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version)
+{
+    LL_DEBUGS("ENVIRONMENT") << "Setting Day environment " << env_selection_to_string(env) << " with version(update type): " << env_version << LL_NEWLINE;
+    // code between LL_DEBUGS and LL_ENDL won't execute unless log is enabled
+    if (settings)
+    {
+        LLUUID asset_id = settings->getAssetId();
+        if (asset_id.notNull())
+        {
+            LL_CONT << "Asset id: " << asset_id << LL_NEWLINE;
+        }
+
+        LLUUID id = settings->getId(); // Not in use?
+        if (id.notNull())
+        {
+            LL_CONT << "Settings id: " << id << LL_NEWLINE;
+        }
+
+        LL_CONT << "Name: " << settings->getName() << LL_NEWLINE
+            << "Type: " << settings->getSettingsType() << LL_NEWLINE
+            << "Flags: " << settings->getFlags(); // Not in use?
+    }
+    else
+    {
+        LL_CONT << "Empty settings!";
+    }
+    LL_CONT << LL_ENDL;
 }
 
 LLSettingsDay::ptr_t LLEnvironment::getEnvironmentDay(LLEnvironment::EnvSelection_t env)
 {
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return LLSettingsDay::ptr_t();
     }
 
@@ -1266,7 +1322,7 @@ LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayLength(EnvSelection_t env
 {
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return LLSettingsDay::Seconds(0);
     }
 
@@ -1282,7 +1338,7 @@ LLSettingsDay::Seconds LLEnvironment::getEnvironmentDayOffset(EnvSelection_t env
 {
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return LLSettingsDay::Seconds(0);
     }
 
@@ -1325,7 +1381,7 @@ LLEnvironment::fixedEnvironment_t LLEnvironment::getEnvironmentFixed(LLEnvironme
 
     if ((env < ENV_EDIT) || (env > ENV_DEFAULT))
     {
-        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection." << LL_ENDL;
+        LL_WARNS("ENVIRONMENT") << "Attempt to retrieve invalid environment selection (" << env_selection_to_string(env) << ")." << LL_ENDL;
         return fixedEnvironment_t();
     }
 
@@ -2361,7 +2417,7 @@ void LLEnvironment::onSetExperienceEnvAssetLoaded(LLUUID experience_id, LLSettin
     if (!settings || status)
     {
         LLSD args;
-        args["DESC"] = experience_id.asString();
+        args["NAME"] = experience_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
         return;
     }
@@ -3332,7 +3388,7 @@ namespace
                 return;
             }
 
-            LL_WARNS("PUSHENV") << "Underlying environment has changed (" << env << ")! Base env is type " << base_env << LL_ENDL;
+            LL_WARNS("PUSHENV", "ENVIRONMENT") << "Underlying environment has changed (" << env << ")! Base env is type " << base_env << LL_ENDL;
 
             LLEnvironment::DayInstance::ptr_t trans = std::make_shared<InjectedTransition>(std::static_pointer_cast<DayInjection>(shared_from_this()),
                 mBaseDayInstance->getSky(), mBaseDayInstance->getWater(), nextbase, LLEnvironment::TRANSITION_DEFAULT);

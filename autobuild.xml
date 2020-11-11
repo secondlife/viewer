@@ -244,9 +244,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>471b0b350955152fd87518575057dfc4</string>
+              <string>322dd6c45c384d454ae14ef127984a4e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60326/566593/bugsplat-1.0.7.542667-darwin64-542667.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65457/612879/bugsplat-1.0.7.546418-darwin64-546418.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -256,9 +256,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>70e8bf46145c4cbae6f93e8b70ba5499</string>
+              <string>010a0e73c0fddaa2316411803fad8e69</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60320/566541/bugsplat-3.6.0.4.542667-windows-542667.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65456/612876/bugsplat-3.6.0.8.546418-windows-546418.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -268,16 +268,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a73696e859fad3f19f835740815a2bd3</string>
+              <string>7e8530762e7b50663708a888c23b8780</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/60321/566542/bugsplat-3.6.0.4.542667-windows64-542667.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65455/612874/bugsplat-3.6.0.8.546418-windows64-546418.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.7.542667</string>
+        <string>3.6.0.8.546418</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e145f8ea99a21712434e0e868d1885dc</string>
+              <string>cc26af2ebfa241891caca829a6e46b88</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62333/588183/dullahan-1.7.0.202006240858_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-544091.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65005/607316/dullahan-1.7.0.202008031101_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fdbbbfc377e28cba664f2b1c54ea6086</string>
+              <string>4e5b9e2fe65d94e30a4f3d831c767199</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62331/588162/dullahan-1.7.0.202006241556_81.3.10_gb223419_chromium-81.0.4044.138-windows-544091.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65004/607304/dullahan-1.7.0.202008031759_81.3.10_gb223419_chromium-81.0.4044.138-windows-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d85a32d905b199534e8feafa34b28e39</string>
+              <string>6f7bf7f915f3d75dbdad08a2d41ca74e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/62332/588168/dullahan-1.7.0.202006241556_81.3.10_gb223419_chromium-81.0.4044.138-windows64-544091.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65003/607308/dullahan-1.7.0.202008031800_81.3.10_gb223419_chromium-81.0.4044.138-windows64-546064.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.202006240858_81.3.10_gb223419_chromium-81.0.4044.138</string>
+        <string>1.7.0.202008031800_81.3.10_gb223419_chromium-81.0.4044.138</string>
       </map>
       <key>elfio</key>
       <map>
@@ -748,9 +748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc4c9122de8bf77f34cfc8227d10a272</string>
+              <string>89c37441a806ed80c0102d380eec6fd0</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59038/554626/fmodstudio-2.00.07.541681-darwin64-541681.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65400/612632/fmodstudio-2.00.11.546392-darwin64-546392.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -760,9 +760,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c491bdc1690f3d920c66be509ccc6ef2</string>
+              <string>5283050c22d31877cd9e0afbe6feb9fc</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59039/554632/fmodstudio-2.00.07.541681-linux-541681.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65398/612630/fmodstudio-2.00.11.546392-linux-546392.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -772,9 +772,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae75cdb1cc9da824c9e270bf97bfdd6c</string>
+              <string>5a3c78f4a77ae6477986e33836725e8b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/54589/506866/fmodstudio-2.00.07.538806-linux64-538806.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65399/612631/fmodstudio-2.00.11.546392-linux64-546392.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -784,9 +784,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7f0294b038eab2d89ecc73bbf08b6d94</string>
+              <string>0f44323b0d03b7d0d8a17eec83e103ce</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59042/554668/fmodstudio-2.00.07.541681-windows-541681.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65401/612647/fmodstudio-2.00.11.546392-windows-546392.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -796,16 +796,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da2e8e2b809d8fe635ee437baa2a7386</string>
+              <string>462d28eacf731a5d36ab031e7071c32a</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/59041/554656/fmodstudio-2.00.07.541681-windows64-541681.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65402/612648/fmodstudio-2.00.11.546392-windows64-546392.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.00.07.541681</string>
+        <string>2.00.11.546392</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -2187,16 +2187,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b677ee43822212f0a27c838dc8bf3623</string>
+              <string>9f4687d7d328b0c13a9e651e805e880a</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/67622/646614/llca-202009010215.548269-common-548269.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/71501/691487/llca-202011010215.551526-common-551526.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202009010215.548269</string>
+        <string>202011010215.551526</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -3495,7 +3497,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
       <key>canonical_repo</key>
       <string>https://bitbucket.org/lindenlab/viewer</string>
       <key>copyright</key>
-      <string>Copyright (c) 2014, Linden Research, Inc.</string>
+      <string>Copyright (c) 2020, Linden Research, Inc.</string>
       <key>description</key>
       <string>Second Life Viewer</string>
       <key>license</key>
