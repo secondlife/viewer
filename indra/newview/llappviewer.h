@@ -257,6 +257,8 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
+	bool onChangeFrameLimit(LLSD const & evt);
+
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
@@ -313,7 +315,10 @@ private:
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
 
-    bool mIsFirstRun;
+        bool mIsFirstRun;
+	U64 mMinMicroSecPerFrame; // frame throttling
+
+
 };
 
 // consts from viewer.h
