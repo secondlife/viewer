@@ -1483,9 +1483,9 @@ bool LLAppViewer::doFrame()
 				display();
 
 				static U64 last_call = 0;
-				if (!gTeleportDisplay || gGLManager.mIsIntel) // SL-10625...throttle early, throttle often with Intel
+				if (!gTeleportDisplay)
 				{
-					// Frame/draw throttling
+					// Frame/draw throttling, controlled by FramePerSecondLimit
 					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
 					if (elapsed_time < mMinMicroSecPerFrame)
 					{
