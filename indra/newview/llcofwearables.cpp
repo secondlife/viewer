@@ -140,9 +140,30 @@ protected:
 	{
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
+		registrar.add("Attachment.Touch", boost::bind(handleMultiple, handle_attachment_touch, mUUIDs));
+		registrar.add("Attachment.Edit", boost::bind(handleMultiple, handle_item_edit, mUUIDs));
 		registrar.add("Attachment.Detach", boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), mUUIDs));
 
+		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+		enable_registrar.add("Attachment.OnEnable", boost::bind(&CofAttachmentContextMenu::onEnable, this, _2));
+
 		return createFromFile("menu_cof_attachment.xml");
+	}
+
+	bool onEnable(const LLSD& userdata)
+	{
+		const std::string event_name = userdata.asString();
+
+		if ("touch" == event_name)
+		{
+			return (1 == mUUIDs.size()) && (enable_attachment_touch(mUUIDs.front()));
+		}
+		else if ("edit" == event_name)
+		{
+			return (1 == mUUIDs.size()) && (get_is_item_editable(mUUIDs.front()));
+		}
+
+		return true;
 	}
 };
 

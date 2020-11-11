@@ -3,6 +3,7 @@
 	<menu_item_call label="Trocar" name="wear_replace"/>
 	<menu_item_call label="Vestir" name="wear_wear"/>
 	<menu_item_call label="Adicionar" name="wear_add"/>
+	<menu_item_call label="Tocar" name="touch" />
 	<menu_item_call label="Tirar / Separar" name="take_off_or_detach"/>
 	<menu_item_call label="Separar" name="detach"/>
 	<context_menu label="Colocar em" name="wearable_attach_to"/>
