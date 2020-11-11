@@ -82,6 +82,7 @@ background_visible="true"
 		layout="topleft"
 		mouse_opaque="false"
 		name="bottom_bar_ls0"
+		animate="false"
 		left="4"
 		orientation="horizontal"
 		top="0"
@@ -150,8 +151,32 @@ background_visible="true"
 				         width="85" />		
 					</layout_panel>
 				</layout_stack>
-			</layout_panel>	
-			
+			</layout_panel>
+				 <!--*********************** Options button ***********************-->
+			<layout_panel
+				follows="bottom|right"
+				height="23"
+				layout="bottomleft"
+				left_pad="0"
+				mouse_opaque="false"
+				visible="false"
+				name="lp_options"
+				auto_resize="false"
+				width="23">
+				<menu_button
+					follows="bottom|right"
+					height="23"
+					image_disabled="ComboButton_UpOff"
+					image_unselected="ComboButton_UpOff"
+					image_selected="ComboButton_UpSelected"
+					layout="topleft"
+					mouse_opaque="false"
+					name="overflow_btn"
+					tool_tip="Show additional options"
+					top="0"
+					left="0"
+					width="23" />
+			</layout_panel>
 			<layout_panel
 			follows="bottom|left|right"
 			height="23"
@@ -159,69 +184,9 @@ background_visible="true"
 			left_pad="0"			
 			mouse_opaque="false"
 			name="lp2"
-		    auto_resize="true"
+			auto_resize="true"
 			width="116">
-			
-		<!--*********************** Edit, Options buttons ***********************-->		
-		
-				<layout_stack
-		     	follows="bottom|left|right"
-				height="23"
-				layout="topleft"
-				mouse_opaque="false"
-				name="bottom_bar_ls3"
-				left="0"
-				orientation="horizontal"
-				top="0"
-				width="113">
-		
-					<layout_panel
-					follows="bottom|left|right"
-					height="23"
-					layout="bottomleft"
-					left_pad="0"
-					mouse_opaque="false"
-					name="edit_btn_lp"
-				    auto_resize="true"
-					width="84">
-						<button
-				         follows="bottom|left|right"
-				         height="23"
-				         label="Edit"
-				         layout="topleft"
-				         left="1"
-						 mouse_opaque="false"
-				         name="edit_btn"
-				         tool_tip="Edit landmark information"
-				         top="0"
-				         width="83" />
-					</layout_panel>
-					
-					<layout_panel
-					follows="bottom|right"
-					height="23"
-					layout="bottomleft"
-					left_pad="0"
-					mouse_opaque="false"
-					name="overflow_btn_lp"
-				    auto_resize="true"
-					width="24">
-						<menu_button
-				         follows="bottom|right"
-				         height="23"
-						 image_disabled="ComboButton_UpOff"
-						 image_unselected="ComboButton_UpOff"
-						 image_selected="ComboButton_UpSelected"
-				         layout="topleft"
-						 mouse_opaque="false"
-				         name="overflow_btn"
-				         tool_tip="Show additional options"
-				         top="0"
-				         left="1"		         
-				         width="23" />			
-					</layout_panel>
-				</layout_stack>
-		
+
 		<!--*********************** Profile button ***********************-->		
 				
 				<layout_stack

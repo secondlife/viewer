@@ -1643,11 +1643,14 @@ support@secondlife.com.
 	<string name="MarketplaceUpdating">
 		обновление...
 	</string>
+	<string name="UploadFeeInfo">
+		Тариф зависит от типа вашей подписки. Тарифы для владельцев расширенных пакетов меньше. [https://secondlife.com/my/account/membership.php? Узнать больше]
+	</string>
 	<string name="Open landmarks">
-		Открыть закладки
+		Открыть сохраненные локации	
 	</string>
 	<string name="Unconstrained">
-		Без ограничения
+		Без ограничений
 	</string>
 	<string name="no_transfer" value="(не передается)"/>
 	<string name="no_modify" value="(не изменяется)"/>
@@ -5090,6 +5093,15 @@ support@secondlife.com.
 	</string>
 	<string name="Chat">
 		Чат
+	</string>
+	<string name="BaseMembership">
+		Базовый
+	</string>
+	<string name="PremiumMembership">
+		Премиум
+	</string>
+	<string name="Premium PlusMembership">
+		Премиум Плюс
 	</string>
 	<string name="DeleteItems">
 		Удалить выбранные объекты?

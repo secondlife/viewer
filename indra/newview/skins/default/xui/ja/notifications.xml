@@ -266,6 +266,10 @@
 		選択した住人から変更権限を取り下げますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		グループ名は [MIN_LEN] ～ [MAX_LEN] 文字である必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		グループを作成できません。
 [MESSAGE]
@@ -367,7 +371,7 @@
 L$ が不足しているのでこのグループに参加することができません。
 	</notification>
 	<notification name="CreateGroupCost">
-		このグループを作るには L$ 100 かかります。
+		このグループ作成にかかる費用：L$[COST]
 一人ではグループにならないので、永久に削除されてしまいます。
 48 時間以内にメンバーを勧誘し、入会してもらってください。
 		<usetemplate canceltext="キャンセル" name="okcancelbuttons" notext="キャンセル" yestext="L$100 でグループを作成"/>
@@ -517,6 +521,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		スナップショットのエンコード化でエラーが出ました！
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		このアイテムをアップロードするためには L$[COST] が必要です。
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		インベントリに写真を保存するには L$[COST] が必要です。L$ を購入するか、代わりに写真をっコンピュータに保存できます。
@@ -1773,11 +1780,14 @@ https://secondlife.com/support/downloads/ からダウンロードしてくだ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		ベースアカウントのグループ制限は [MAX_BASIC]、[https://secondlife.com/premium/ プレミアム] アカウントの
-グループ制限は [MAX_PREMIUM] です。
-アカウントをダウングレードした場合、さらにグループに参加する前に、下の [MAX_BASIC] グループ制限を取得する必要があります。
-
-[https://secondlife.com/my/account/membership.php 今すぐアップグレード!]
+		ベーシック会員の住民は、最大 [MAX_BASIC] グループまで参加することができます。
+プレミアム会員は、最大 [MAX_PREMIUM] まで可能です。[https://secondlife.com/my/account/membership.php? 詳細、またはアップグレード]
+		<usetemplate name="okbutton" yestext="閉じる"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		ベーシック会員の住民は、最大 [MAX_BASIC] グループまで参加することができます。
+プレミアム会員は、最大 [MAX_PREMIUM] まで可能です。プレミアムプラス会員は、最大 [MAX_PREMIUM_PLUS] まで可能です。
+[https://secondlife.com/my/account/membership.php? 詳細、またはアップグレード]
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
 	<notification name="KickUser">
@@ -3347,6 +3357,22 @@ M キーを押して変更します。
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		モデレーターがあなたのボイスをミュートしました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		残念ながら、このセッションのベネフィット情報を得ることができませんでした。通常のプロダクション環境で起こることではありません。サポートまでご連絡ください。このセッションは通常通りに作動しませんので、再スタートをお薦めします
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		合計 L$[COST] で [COUNT] アイテムがアップロードされます。 アップロードを続けますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="アップロード"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		選択したファイルは、まとめてアップロードできません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		選択したファイルのいくつかは、まとめてアップロードできません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">

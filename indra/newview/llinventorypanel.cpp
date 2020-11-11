@@ -146,7 +146,7 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 	mCompletionObserver(NULL),
 	mScroller(NULL),
 	mSortOrderSetting(p.sort_order_setting),
-	mInventory(p.inventory),
+	mInventory(p.inventory), //inventory("", &gInventory)
 	mAcceptsDragAndDrop(p.accepts_drag_and_drop),
 	mAllowMultiSelect(p.allow_multi_select),
 	mAllowDrag(p.allow_drag),
@@ -512,7 +512,18 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 			view_item->destroyView();
 			removeItemID(idp);
 		}
-		view_item = buildNewViews(item_id);
+
+        LLInventoryObject const* objectp = mInventory->getObject(item_id);
+        if (objectp)
+        {
+            // providing NULL directly avoids unnessesary getItemByID calls
+            view_item = buildNewViews(item_id, objectp, NULL);
+        }
+        else
+        {
+            view_item = NULL;
+        }
+
 		viewmodel_item = 
 			static_cast<LLFolderViewModelItemInventory*>(view_item ? view_item->getViewModelItem() : NULL);
 		view_folder = dynamic_cast<LLFolderViewFolder *>(view_item);
@@ -555,7 +566,13 @@ void LLInventoryPanel::itemChanged(const LLUUID& item_id, U32 mask, const LLInve
 		if (model_item && !view_item)
 		{
 			// Add the UI element for this item.
-			buildNewViews(item_id);
+            LLInventoryObject const* objectp = mInventory->getObject(item_id);
+            if (objectp)
+            {
+                // providing NULL directly avoids unnessesary getItemByID calls
+                buildNewViews(item_id, objectp, NULL);
+            }
+
 			// Select any newly created object that has the auto rename at top of folder root set.
 			if(mFolderRoot.get()->getRoot()->needsAutoRename())
 			{
@@ -852,7 +869,7 @@ LLFolderViewItem * LLInventoryPanel::createFolderViewItem(LLInvFVBridge * bridge
 
 LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id)
 {
-    LLInventoryObject const* objectp = gInventory.getObject(id);
+    LLInventoryObject const* objectp = mInventory->getObject(id);
     return buildNewViews(id, objectp);
 }
 
@@ -862,11 +879,43 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
     {
         return NULL;
     }
-    LLFolderViewItem* folder_view_item = getItemByID(id);
+    if (!typedViewsFilter(id, objectp))
+    {
+        // if certain types are not allowed permanently, no reason to create views
+        return NULL;
+    }
 
     const LLUUID &parent_id = objectp->getParentUUID();
-	LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
-  		
+    LLFolderViewItem* folder_view_item = getItemByID(id);
+    LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
+
+    return buildViewsTree(id, parent_id, objectp, folder_view_item, parent_folder);
+}
+
+LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryObject const* objectp, LLFolderViewItem *folder_view_item)
+{
+    if (!objectp)
+    {
+        return NULL;
+    }
+    if (!typedViewsFilter(id, objectp))
+    {
+        // if certain types are not allowed permanently, no reason to create views
+        return NULL;
+    }
+
+    const LLUUID &parent_id = objectp->getParentUUID();
+    LLFolderViewFolder* parent_folder = (LLFolderViewFolder*)getItemByID(parent_id);
+
+    return buildViewsTree(id, parent_id, objectp, folder_view_item, parent_folder);
+}
+
+LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
+                                                  const LLUUID& parent_id,
+                                                  LLInventoryObject const* objectp,
+                                                  LLFolderViewItem *folder_view_item,
+                                                  LLFolderViewFolder *parent_folder)
+{
     // Force the creation of an extra root level folder item if required by the inventory panel (default is "false")
     bool allow_drop = true;
     bool create_root = false;
@@ -887,7 +936,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
   		{
 			if (objectp->getType() <= LLAssetType::AT_NONE)
 			{
-				LL_WARNS() << "LLInventoryPanel::buildNewViews called with invalid objectp->mType : "
+				LL_WARNS() << "LLInventoryPanel::buildViewsTree called with invalid objectp->mType : "
 					<< ((S32)objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
 					<< LL_ENDL;
 				return NULL;
@@ -896,7 +945,7 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
 			if (objectp->getType() >= LLAssetType::AT_COUNT)
   			{
 				// Example: Happens when we add assets of new, not yet supported type to library
-				LL_DEBUGS() << "LLInventoryPanel::buildNewViews called with unknown objectp->mType : "
+				LL_DEBUGS() << "LLInventoryPanel::buildViewsTree called with unknown objectp->mType : "
 				<< ((S32) objectp->getType()) << " name " << objectp->getName() << " UUID " << objectp->getUUID()
 				<< LL_ENDL;
 
@@ -973,26 +1022,52 @@ LLFolderViewItem* LLInventoryPanel::buildNewViews(const LLUUID& id, LLInventoryO
 		LLViewerInventoryCategory::cat_array_t* categories;
 		LLViewerInventoryItem::item_array_t* items;
 		mInventory->lockDirectDescendentArrays(id, categories, items);
-		
+
+        LLFolderViewFolder *parentp = dynamic_cast<LLFolderViewFolder*>(folder_view_item);
+
 		if(categories)
-		{
+        {
+            bool has_folders = parentp->getFoldersCount() > 0;
 			for (LLViewerInventoryCategory::cat_array_t::const_iterator cat_iter = categories->begin();
 				 cat_iter != categories->end();
 				 ++cat_iter)
 			{
 				const LLViewerInventoryCategory* cat = (*cat_iter);
-				buildNewViews(cat->getUUID());
+                if (typedViewsFilter(cat->getUUID(), cat))
+                {
+                    if (has_folders)
+                    {
+                        // This can be optimized: we don't need to call getItemByID()
+                        // each time, especially since content is growing, we can just
+                        // iter over copy of mItemMap in some way
+                        LLFolderViewItem* view_itemp = getItemByID(cat->getUUID());
+                        buildViewsTree(cat->getUUID(), id, cat, view_itemp, parentp);
+                    }
+                    else
+                    {
+                        buildViewsTree(cat->getUUID(), id, cat, NULL, parentp);
+                    }
+                }
 			}
 		}
 		
 		if(items)
-		{
+        {
 			for (LLViewerInventoryItem::item_array_t::const_iterator item_iter = items->begin();
 				 item_iter != items->end();
 				 ++item_iter)
 			{
 				const LLViewerInventoryItem* item = (*item_iter);
-				buildNewViews(item->getUUID());
+                if (typedViewsFilter(item->getUUID(), item))
+                {
+
+                    // This can be optimized: we don't need to call getItemByID()
+                    // each time, especially since content is growing, we can just
+                    // iter over copy of mItemMap in some way
+                    LLFolderViewItem* view_itemp = getItemByID(item->getUUID());
+                    buildViewsTree(item->getUUID(), id, item, view_itemp, parentp);
+                }
+
 			}
 		}
 		mInventory->unlockDirectDescendentArrays(id);
@@ -1789,21 +1864,20 @@ BOOL LLAssetFilteredInventoryPanel::handleDragAndDrop(S32 x, S32 y, MASK mask, B
     return result;
 }
 
-LLFolderViewItem* LLAssetFilteredInventoryPanel::buildNewViews(const LLUUID& id)
+/*virtual*/
+bool LLAssetFilteredInventoryPanel::typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp)
 {
-    LLInventoryObject const* objectp = gInventory.getObject(id);
-
     if (!objectp)
     {
-        return NULL;
+        return false;
     }
 
     if (objectp->getType() != mAssetType && objectp->getType() != LLAssetType::AT_CATEGORY)
     {
-        return NULL;
+        return false;
     }
 
-    return LLInventoryPanel::buildNewViews(id, objectp);
+    return true;
 }
 
 void LLAssetFilteredInventoryPanel::itemChanged(const LLUUID& id, U32 mask, const LLInventoryObject* model_item)

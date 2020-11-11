@@ -596,7 +596,10 @@
     left="420"
     name="TransparentWater"
     top_delta="16"
-    width="300" />
+    width="300">
+    <check_box.commit_callback
+      function="Pref.RenderOptionUpdate" />
+  </check_box>
 
   <check_box
     control_name="RenderObjectBump"

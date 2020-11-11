@@ -59,7 +59,10 @@ void LLViewerParcelAskPlay::initSingleton()
 }
 void LLViewerParcelAskPlay::cleanupSingleton()
 {
-    cancelNotification();
+    if (LLNotifications::instanceExists())
+    {
+        cancelNotification();
+    }
 }
 
 void LLViewerParcelAskPlay::askToPlay(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, ask_callback cb)

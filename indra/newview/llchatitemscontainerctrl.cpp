@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llchatitemscontainerctrl.h"
+#include "llchatmsgbox.h"
 #include "lltextbox.h"
 
 #include "llavataractions.h"
