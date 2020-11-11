@@ -721,6 +721,14 @@
     name="Reflections"
     width="150">
       <combo_box.item
+        label="None; opaque"
+        name="0"
+        value="-2"/>
+      <combo_box.item
+        label="None; transparent"
+        name="0"
+        value="-1"/>
+      <combo_box.item
         label="Minimal"
         name="0"
         value="0"/>
