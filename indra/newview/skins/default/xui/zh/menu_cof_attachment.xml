@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="COF Attachment">
+	<menu_item_call label="觸碰" name="touch_attach" />
+	<menu_item_call label="編輯" name="edit_item" />
 	<menu_item_call label="卸下" name="detach"/>
 </context_menu>

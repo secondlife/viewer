@@ -38,7 +38,6 @@
 #include "lldrawable.h"
 #include "lldrawpoolbump.h"
 #include "llface.h"
-#include "llvolume.h"
 #include "llmeshrepository.h"
 #include "llsky.h"
 #include "llviewercamera.h"

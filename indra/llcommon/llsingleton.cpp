@@ -28,7 +28,7 @@
 #include "llsingleton.h"
 
 #include "llerror.h"
-#include "llerrorcontrol.h"         // LLError::is_available()
+#include "llerrorcontrol.h"
 #include "lldependencies.h"
 #include "llexception.h"
 #include "llcoros.h"
@@ -41,8 +41,6 @@
 namespace {
 void log(LLError::ELevel level,
          const char* p1, const char* p2, const char* p3, const char* p4);
-
-bool oktolog();
 } // anonymous namespace
 
 // Our master list of all LLSingletons is itself an LLSingleton. We used to
@@ -279,8 +277,6 @@ void LLSingletonBase::reset_initializing(list_t::size_type size)
 
 void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, const char* name)
 {
-    if (oktolog())
-    {
         LL_DEBUGS("LLSingleton") << verb << ' ' << demangle(name) << ';';
         if (mList)
         {
@@ -292,7 +288,6 @@ void LLSingletonBase::MasterList::LockedInitializing::log(const char* verb, cons
             }
         }
         LL_ENDL;
-    }
 }
 
 void LLSingletonBase::capture_dependency()
@@ -455,33 +450,11 @@ void LLSingletonBase::deleteAll()
 
 /*---------------------------- Logging helpers -----------------------------*/
 namespace {
-bool oktolog()
-{
-    // See comments in log() below.
-    return LLError::is_available();
-}
 
 void log(LLError::ELevel level,
          const char* p1, const char* p2, const char* p3, const char* p4)
 {
-    // The is_available() test below ensures that we'll stop logging once
-    // LLError has been cleaned up. If we had a similar portable test for
-    // std::cerr, this would be a good place to use it.
-
-    // Check LLError::is_available() because some of LLError's infrastructure
-    // is itself an LLSingleton. If that LLSingleton has not yet been
-    // initialized, trying to log will engage LLSingleton machinery... and
-    // around and around we go.
-    if (LLError::is_available())
-    {
-        LL_VLOGS(level, "LLSingleton") << p1 << p2 << p3 << p4 << LL_ENDL;
-    }
-    else
-    {
-        // Caller may be a test program, or something else whose stderr is
-        // visible to the user.
-        std::cerr << p1 << p2 << p3 << p4 << std::endl;
-    }
+    LL_VLOGS(level, "LLSingleton") << p1 << p2 << p3 << p4 << LL_ENDL;
 }
 
 } // anonymous namespace        

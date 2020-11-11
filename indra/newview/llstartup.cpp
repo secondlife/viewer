@@ -1230,7 +1230,6 @@ bool idle_startup()
 		display_startup();
 		gAgentCamera.init();
 		display_startup();
-		set_underclothes_menu_options();
 		display_startup();
 
 		// Since we connected, save off the settings so the user doesn't have to

@@ -1643,11 +1643,14 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	<string name="MarketplaceUpdating">
 		güncelleniyor...
 	</string>
+	<string name="UploadFeeInfo">
+		Ücret, üyelik seviyene göre belirlenir. Yüksek seviyelere daha düşük ücretler uygulanır. [https://secondlife.com/my/account/membership.php? Daha fazla bilgi al]
+	</string>
 	<string name="Open landmarks">
-		Açık yer imleri
+		Açık alanlar
 	</string>
 	<string name="Unconstrained">
-		Kısıtsız
+		Serbest
 	</string>
 	<string name="no_transfer" value="(aktarım yok)"/>
 	<string name="no_modify" value="(değiştirme yok)"/>
@@ -5091,6 +5094,9 @@ Hizmetle ilişkili bilinen bir sorun olup olmadığını görmek için lütfen h
 	</string>
 	<string name="Chat">
 		Sohbet
+	</string>
+	<string name="BaseMembership">
+		Temel
 	</string>
 	<string name="DeleteItems">
 		Seçili öğeler silinsin mi?

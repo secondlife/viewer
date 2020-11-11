@@ -78,6 +78,7 @@
 #include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+#include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerfoldertype.h"
 #include "llviewerobjectlist.h"
@@ -653,6 +654,50 @@ BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+bool get_is_item_editable(const LLUUID& inv_item_id)
+{
+	if (const LLInventoryItem* inv_item = gInventory.getLinkedItem(inv_item_id))
+	{
+		switch (inv_item->getType())
+		{
+			case LLAssetType::AT_BODYPART:
+			case LLAssetType::AT_CLOTHING:
+				return gAgentWearables.isWearableModifiable(inv_item_id);
+			case LLAssetType::AT_OBJECT:
+				return true;
+			default:
+                return false;;
+		}
+	}
+	return gAgentAvatarp->getWornAttachment(inv_item_id) != nullptr;
+}
+
+void handle_item_edit(const LLUUID& inv_item_id)
+{
+	if (get_is_item_editable(inv_item_id))
+	{
+		if (const LLInventoryItem* inv_item = gInventory.getLinkedItem(inv_item_id))
+		{
+			switch (inv_item->getType())
+			{
+				case LLAssetType::AT_BODYPART:
+				case LLAssetType::AT_CLOTHING:
+					LLAgentWearables::editWearable(inv_item_id);
+					break;
+				case LLAssetType::AT_OBJECT:
+					handle_attachment_edit(inv_item_id);
+					break;
+				default:
+					break;
+			}
+		}
+		else
+		{
+			handle_attachment_edit(inv_item_id);
+		}
+	}
 }
 
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)

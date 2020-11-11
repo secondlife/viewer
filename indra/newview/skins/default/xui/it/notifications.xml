@@ -266,6 +266,10 @@ Vuoi concedere i diritti di modifica ai residenti selezionati?
 		Vuoi revocare i permessi di modifica dati ai residenti selezionati?
 		<usetemplate name="okcancelbuttons" notext="No" yestext="Si"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		Il nome di un gruppo deve essere compreso tra [MIN_LEN] e [MAX_LEN] caratteri.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Non è possibile creare il gruppo.
 [MESSAGE]
@@ -360,7 +364,7 @@ Vuoi continuare?
 Non hai abbastanza L$ per iscriverti a questo gruppo.
 	</notification>
 	<notification name="CreateGroupCost">
-		La creazione di questo gruppo costerà L$ 100.
+		La creazione di questo gruppo ti costerà [COST]L$.
 I gruppi devono avere più di un partecipante, o saranno eliminati definitivamente.
 Invita altri partecipanti entro le prossime 48 ore.
 		<usetemplate canceltext="Annulla" name="okcancelbuttons" notext="Annulla" yestext="Crea un gruppo per L$ 100"/>
@@ -500,6 +504,9 @@ Per collocare il media su una sola faccia, scegli Seleziona faccia, clicca su un
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Errore nella codifica della fotografia.
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Ti serviranno [COST]L$ per caricare questo articolo.
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Hai bisogno di L$ [COST] per salvare una foto nel tuo inventario. Puoi acquistare L$ o salvare la foto sul tuo computer.
@@ -1740,11 +1747,14 @@ Vuoi cancellare quell&apos;elemento?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		Il numero massimo di gruppi per gli account Basic è [MAX_BASIC] e
-per gli account [https://secondlife.com/premium/ Premium] è [MAX_PREMIUM].
-Se hai ridotto il livello del tuo account, dovrai essere iscritto a meno di [MAX_BASIC] gruppi prima di poter iscriverti a un nuovo gruppo.
-
-[https://secondlife.com/my/account/membership.php Passa a un livello superiore oggi stesso!]
+		I residenti con un'iscrizione Base possono aderire fino a [MAX_BASIC] gruppi.
+Le iscrizioni Premium consentono fino a [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Per saperne di più o per l'aggiornamento]
+		<usetemplate name="okbutton" yestext="Chiudi"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		I residenti con un'iscrizione Base possono aderire fino a [MAX_BASIC] gruppi.
+Le iscrizioni Premium consentono fino a [MAX_PREMIUM]. Le iscrizioni Premium Plus 
+consentono fino a [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Per saperne di più o per l'aggiornamento]
 		<usetemplate name="okbutton" yestext="Chiudi"/>
 	</notification>
 	<notification name="KickUser">
@@ -3304,6 +3314,22 @@ Per sicurezza, verranno bloccati per alcuni secondi.
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		La tua voce è stata interrotta dal moderatore.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		Purtroppo non siamo stati in grado di ottenere informazioni utili per questa sessione. Questo non dovrebbe accadere in un normale ambiente di produzione. Si prega di contattare il supporto. Questa sessione non funzionerà correttamente, si consiglia di riavviare.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		Questo caricherà [COUNT] oggetti a un costo totale di [COST]L$. Vuoi continuare con il caricamento?
+		<usetemplate name="okcancelbuttons" notext="Annulla" yestext="Carica"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		I file selezionati non possono essere caricati.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Alcuni dei file selezionati non possono essere caricati.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">

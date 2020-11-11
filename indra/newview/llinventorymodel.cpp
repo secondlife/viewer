@@ -56,6 +56,7 @@
 #include "llcallbacklist.h"
 #include "llvoavatarself.h"
 #include "llgesturemgr.h"
+#include "llsdserialize.h"
 #include "llsdutil.h"
 #include "bufferarray.h"
 #include "bufferstream.h"
@@ -76,8 +77,8 @@ BOOL LLInventoryModel::sFirstTimeInViewer2 = TRUE;
 ///----------------------------------------------------------------------------
 
 //BOOL decompress_file(const char* src_filename, const char* dst_filename);
-static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.inv";
-static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.inv";
+static const char PRODUCTION_CACHE_FORMAT_STRING[] = "%s.inv.llsd";
+static const char GRID_CACHE_FORMAT_STRING[] = "%s.%s.inv.llsd";
 static const char * const LOG_INV("Inventory");
 
 struct InventoryIDPtrLess
@@ -678,17 +679,59 @@ void LLInventoryModel::createNewCategoryCoro(std::string url, LLSD postData, inv
 
     LLUUID categoryId = result["folder_id"].asUUID();
 
-    // Add the category to the internal representation
-    LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
-        result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
-        result["name"].asString(), gAgent.getID());
+    LLViewerInventoryCategory* folderp = gInventory.getCategory(categoryId);
+    if (!folderp)
+    {
+        // Add the category to the internal representation
+        LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
+            result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
+            result["name"].asString(), gAgent.getID());
 
-    cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
-    cat->setDescendentCount(0);
-    LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
-    
-    accountForUpdate(update);
-    updateCategory(cat);
+        LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+        accountForUpdate(update);
+
+        cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
+        cat->setDescendentCount(0);
+        updateCategory(cat);
+    }
+    else
+    {
+        // bulk processing was faster than coroutine (coro request->processBulkUpdateInventory->coro response)
+        // category already exists, but needs an update
+        if (folderp->getVersion() != LLViewerInventoryCategory::VERSION_INITIAL
+            || folderp->getDescendentCount() != LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
+        {
+            LL_WARNS() << "Inventory desync on folder creation. Newly created folder already has descendants or got a version.\n"
+                << "Name: " << folderp->getName()
+                << " Id: " << folderp->getUUID()
+                << " Version: " << folderp->getVersion()
+                << " Descendants: " << folderp->getDescendentCount()
+                << LL_ENDL;
+        }
+        // Recreate category with correct values
+        // Creating it anew just simplifies figuring out needed change-masks
+        // and making all needed updates, see updateCategory
+        LLPointer<LLViewerInventoryCategory> cat = new LLViewerInventoryCategory(categoryId,
+            result["parent_id"].asUUID(), (LLFolderType::EType)result["type"].asInteger(),
+            result["name"].asString(), gAgent.getID());
+
+        if (folderp->getParentUUID() != cat->getParentUUID())
+        {
+            LL_WARNS() << "Inventory desync on folder creation. Newly created folder has wrong parent.\n"
+                << "Name: " << folderp->getName()
+                << " Id: " << folderp->getUUID()
+                << " Expected parent: " << cat->getParentUUID()
+                << " Actual parent: " << folderp->getParentUUID()
+                << LL_ENDL;
+            LLInventoryModel::LLCategoryUpdate update(cat->getParentUUID(), 1);
+            accountForUpdate(update);
+        }
+        // else: Do not update parent, parent is already aware of the change. See processBulkUpdateInventory
+
+        cat->setVersion(LLViewerInventoryCategory::VERSION_INITIAL - 1); // accountForUpdate() will icrease version by 1
+        cat->setDescendentCount(0);
+        updateCategory(cat);
+    }
 
     if (callback)
     {
@@ -903,16 +946,29 @@ U32 LLInventoryModel::updateItem(const LLViewerInventoryItem* item, U32 mask)
 		LLUUID new_parent_id = item->getParentUUID();
 		bool update_parent_on_server = false;
 
-		if (new_parent_id.isNull())
+		if (new_parent_id.isNull() && !LLApp::isExiting())
 		{
-			// item with null parent will end in random location and then in Lost&Found,
-			// either move to default folder as if it is new item or don't move at all
-			LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
-				<< " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
-				<< ". New name: " << item->getName()
-				<< "." << LL_ENDL;
-			new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
-			update_parent_on_server = true;
+            if (old_parent_id.isNull())
+            {
+                // Item with null parent will end in random location and then in Lost&Found,
+                // either move to default folder as if it is new item or don't move at all
+                LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+                                  << " to null folder. Moving to Lost&Found. Old item name: " << old_item->getName()
+                                  << ". New name: " << item->getName()
+                                  << "." << LL_ENDL;
+                new_parent_id = findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND);
+                update_parent_on_server = true;
+            }
+            else
+            {
+                // Probably not the best way to handle this, we might encounter real case of 'lost&found' at some point
+                LL_WARNS(LOG_INV) << "Update attempts to reparent item " << item->getUUID()
+                                  << " to null folder. Old parent not null. Moving to old parent. Old item name: " << old_item->getName()
+                                  << ". New name: " << item->getName()
+                                  << "." << LL_ENDL;
+                new_parent_id = old_parent_id;
+                update_parent_on_server = true;
+            }
 		}
 
 		if(old_parent_id != new_parent_id)
@@ -2648,29 +2704,37 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 {
 	if(filename.empty())
 	{
-		LL_ERRS(LOG_INV) << "Filename is Null!" << LL_ENDL;
+		LL_ERRS(LOG_INV) << "filename is Null!" << LL_ENDL;
 		return false;
 	}
-	LL_INFOS(LOG_INV) << "LLInventoryModel::loadFromFile(" << filename << ")" << LL_ENDL;
-	LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
-	if(!file)
+	LL_INFOS(LOG_INV) << "loading inventory from: (" << filename << ")" << LL_ENDL;
+
+	llifstream file(filename.c_str());
+
+	if (!file.is_open())
 	{
 		LL_INFOS(LOG_INV) << "unable to load inventory from: " << filename << LL_ENDL;
 		return false;
 	}
-	// *NOTE: This buffer size is hard coded into scanf() below.
-	char buffer[MAX_STRING];		/*Flawfinder: ignore*/
-	char keyword[MAX_STRING];		/*Flawfinder: ignore*/
-	char value[MAX_STRING];			/*Flawfinder: ignore*/
-	is_cache_obsolete = true;  		// Obsolete until proven current
-	while(!feof(file) && fgets(buffer, MAX_STRING, file)) 
+
+	is_cache_obsolete = true; // Obsolete until proven current
+
+	std::string line;
+	LLPointer<LLSDParser> parser = new LLSDNotationParser();
+	while (std::getline(file, line)) 
 	{
-		sscanf(buffer, " %126s %126s", keyword, value);	/* Flawfinder: ignore */
-		if(0 == strcmp("inv_cache_version", keyword))
+		LLSD s_item;
+		std::istringstream iss(line);
+		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
 		{
-			S32 version;
-			int succ = sscanf(value,"%d",&version);
-			if ((1 == succ) && (version == sCurrentInvCacheVersion))
+			LL_WARNS(LOG_INV)<< "Parsing inventory cache failed" << LL_ENDL;
+			break;
+		}
+
+		if (s_item.has("inv_cache_version"))
+		{
+			S32 version = s_item["inv_cache_version"].asInteger();
+			if (version == sCurrentInvCacheVersion)
 			{
 				// Cache is up to date
 				is_cache_obsolete = false;
@@ -2678,43 +2742,33 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 			}
 			else
 			{
-				// Cache is out of date
+				LL_WARNS(LOG_INV)<< "Inventory cache is out of date" << LL_ENDL;
 				break;
 			}
 		}
-		else if(0 == strcmp("inv_category", keyword))
+		else if (s_item.has("cat_id"))
 		{
 			if (is_cache_obsolete)
 				break;
-			
+
 			LLPointer<LLViewerInventoryCategory> inv_cat = new LLViewerInventoryCategory(LLUUID::null);
-			if(inv_cat->importFileLocal(file))
+			if(inv_cat->importLLSD(s_item))
 			{
 				categories.push_back(inv_cat);
 			}
-			else
-			{
-				LL_WARNS(LOG_INV) << "loadInventoryFromFile().  Ignoring invalid inventory category: " << inv_cat->getName() << LL_ENDL;
-				//delete inv_cat; // automatic when inv_cat is reassigned or destroyed
-			}
 		}
-		else if(0 == strcmp("inv_item", keyword))
+		else if (s_item.has("item_id"))
 		{
 			if (is_cache_obsolete)
 				break;
 
 			LLPointer<LLViewerInventoryItem> inv_item = new LLViewerInventoryItem;
-			if( inv_item->importFileLocal(file) )
+			if( inv_item->fromLLSD(s_item) )
 			{
-				// *FIX: Need a better solution, this prevents the
-				// application from freezing, but breaks inventory
-				// caching.
 				if(inv_item->getUUID().isNull())
 				{
-					//delete inv_item; // automatic when inv_cat is reassigned or destroyed
 					LL_WARNS(LOG_INV) << "Ignoring inventory with null item id: "
-									  << inv_item->getName() << LL_ENDL;
-						
+						<< inv_item->getName() << LL_ENDL;
 				}
 				else
 				{
@@ -2727,62 +2781,63 @@ bool LLInventoryModel::loadFromFile(const std::string& filename,
 						items.push_back(inv_item);
 					}
 				}
-			}
-			else
-			{
-				LL_WARNS(LOG_INV) << "loadInventoryFromFile().  Ignoring invalid inventory item: " << inv_item->getName() << LL_ENDL;
-				//delete inv_item; // automatic when inv_cat is reassigned or destroyed
-			}
-		}
-		else
-		{
-			LL_WARNS(LOG_INV) << "Unknown token in inventory file '" << keyword << "'"
-							  << LL_ENDL;
+			}	
 		}
 	}
-	fclose(file);
-	if (is_cache_obsolete)
-		return false;
-	return true;
+
+	file.close();
+
+	return !is_cache_obsolete;	
 }
 
 // static
 bool LLInventoryModel::saveToFile(const std::string& filename,
-								  const cat_array_t& categories,
-								  const item_array_t& items)
+	const cat_array_t& categories,
+	const item_array_t& items)
 {
-	if(filename.empty())
+	if (filename.empty())
 	{
 		LL_ERRS(LOG_INV) << "Filename is Null!" << LL_ENDL;
 		return false;
 	}
-	LL_INFOS(LOG_INV) << "LLInventoryModel::saveToFile(" << filename << ")" << LL_ENDL;
-	LLFILE* file = LLFile::fopen(filename, "wb");		/*Flawfinder: ignore*/
-	if(!file)
+
+	LL_INFOS(LOG_INV) << "saving inventory to: (" << filename << ")" << LL_ENDL;
+
+	llofstream fileXML(filename.c_str());
+	if (!fileXML.is_open())
 	{
 		LL_WARNS(LOG_INV) << "unable to save inventory to: " << filename << LL_ENDL;
 		return false;
 	}
 
-	fprintf(file, "\tinv_cache_version\t%d\n",sCurrentInvCacheVersion);
+	LLSD cache_ver;
+	cache_ver["inv_cache_version"] = sCurrentInvCacheVersion;
+
+	fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
+
 	S32 count = categories.size();
+	S32 cat_count = 0;
 	S32 i;
 	for(i = 0; i < count; ++i)
 	{
 		LLViewerInventoryCategory* cat = categories[i];
 		if(cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
-			cat->exportFileLocal(file);
+			fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
+			cat_count++;
 		}
 	}
 
-	count = items.size();
-	for(i = 0; i < count; ++i)
+	S32 it_count = items.size();
+	for(i = 0; i < it_count; ++i)
 	{
-		items[i]->exportFile(file);
+		fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
 	}
 
-	fclose(file);
+	fileXML.close();
+
+	LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
+
 	return true;
 }
 
