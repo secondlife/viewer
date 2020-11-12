@@ -39,6 +39,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "lllandmarkactions.h"
+#include "llparcel.h"
 #include "llslurl.h"
 #include "llviewerinventory.h"
 #include "llviewerparcelmgr.h"
@@ -77,7 +78,7 @@ BOOL LLPanelLandmarkInfo::postBuild()
 	mCreator = getChild<LLTextBox>("creator");
 	mCreated = getChild<LLTextBox>("created");
 
-	mLandmarkTitle = getChild<LLTextBox>("title_value");
+	mLandmarkTitle = getChild<LLLineEditor>("title_value");
 	mLandmarkTitleEditor = getChild<LLLineEditor>("title_editor");
 	mNotesEditor = getChild<LLTextEditor>("notes_editor");
 	mFolderCombo = getChild<LLComboBox>("folder_combo");
@@ -113,6 +114,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 	landmark_info_panel->setVisible(type == LANDMARK);
 
 	getChild<LLTextBox>("folder_label")->setVisible(is_info_type_create_landmark);
+    getChild<LLButton>("edit_btn")->setVisible(!is_info_type_create_landmark);
 	mFolderCombo->setVisible(is_info_type_create_landmark);
 
 	switch(type)
@@ -126,13 +128,10 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			mNotesEditor->setEnabled(TRUE);
 
 			LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
-			std::string name = parcel_mgr->getAgentParcelName();
+			LLParcel* parcel = parcel_mgr->getAgentParcel();
+			std::string name = parcel->getName();
 			LLVector3 agent_pos = gAgent.getPositionAgent();
 			
-			std::string desc;
-			LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_FULL, agent_pos);
-			mNotesEditor->setText(desc);			
-
 			if (name.empty())
 			{
 				S32 region_x = ll_round(agent_pos.mV[VX]);
@@ -147,6 +146,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 				}
 				else
 				{
+					std::string desc;
 					LLAgentUI::buildLocationString(desc, LLAgentUI::LOCATION_FORMAT_NORMAL, agent_pos);
 					region_name = desc;
 				}
@@ -158,6 +158,25 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			{
 				mLandmarkTitleEditor->setText(name);
 			}
+
+            LLUUID owner_id = parcel->getOwnerID();
+            if (owner_id.notNull())
+            {
+                if (parcel->getIsGroupOwned())
+                {
+                    std::string owner_name = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
+                    mParcelOwner->setText(owner_name);
+                }
+                else
+                {
+                    std::string owner_name = LLSLURL("agent", owner_id, "inspect").getSLURLString();
+                    mParcelOwner->setText(owner_name);
+                }
+            }
+            else
+            {
+                mParcelOwner->setText(getString("public"));
+            }
 
 			// Moved landmark creation here from LLPanelLandmarkInfo::processParcelInfo()
 			// because we use only agent's current coordinates instead of waiting for
@@ -209,6 +228,24 @@ void LLPanelLandmarkInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mMaturityRatingIcon->setValue(icon_pg);
 		mMaturityRatingText->setText(LLViewerRegion::accessToString(SIM_ACCESS_PG));
 	}
+
+    if (parcel_data.owner_id.notNull())
+    {
+        if (parcel_data.flags & 0x4) // depends onto DRTSIM-453
+        {
+            std::string owner_name = LLSLURL("group", parcel_data.owner_id, "inspect").getSLURLString();
+            mParcelOwner->setText(owner_name);
+        }
+        else
+        {
+            std::string owner_name = LLSLURL("agent", parcel_data.owner_id, "inspect").getSLURLString();
+            mParcelOwner->setText(owner_name);
+        }
+    }
+    else
+    {
+        mParcelOwner->setText(getString("public"));
+    }
 
 	LLSD info;
 	info["update_verbs"] = true;
@@ -264,7 +301,8 @@ void LLPanelLandmarkInfo::displayItemInfo(const LLInventoryItem* pItem)
 	}
 	else
 	{
-		mOwner->setText(getString("public"));
+		std::string public_str = getString("public");
+		mOwner->setText(public_str);
 	}
 
 	//////////////////
@@ -311,6 +349,7 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 		mNotesEditor->setReadOnly(!enabled);
 		mFolderCombo->setVisible(enabled);
 		getChild<LLTextBox>("folder_label")->setVisible(enabled);
+		getChild<LLButton>("edit_btn")->setVisible(!enabled);
 
 		// HACK: To change the text color in a text editor
 		// when it was enabled/disabled we set the text once again.
@@ -357,7 +396,7 @@ void LLPanelLandmarkInfo::createLandmark(const LLUUID& folder_id)
 		// If no parcel exists use the region name instead.
 		if (name.empty())
 		{
-			name = mRegionName->getText();
+			name = mRegionTitle;
 		}
 	}
 

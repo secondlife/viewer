@@ -1645,11 +1645,14 @@ Falls diese Meldung weiterhin angezeigt wird, wenden Sie sich unter http://suppo
 	<string name="MarketplaceUpdating">
 		Aktualisierung läuft...
 	</string>
+	<string name="UploadFeeInfo">
+		Die Gebühr richtet sich nach deiner Abonnementstufe. Bei höheren Stufen werden niedrigere Gebühren erhoben. [https://secondlife.com/my/account/membership.php? Mehr erfahren]
+	</string>
 	<string name="Open landmarks">
-		Landmarken öffnen
+		Wegweiser öffnen
 	</string>
 	<string name="Unconstrained">
-		Variabel
+		Unbegrenzt
 	</string>
 	<string name="no_transfer" value=" (kein Transferieren)"/>
 	<string name="no_modify" value=" (kein Bearbeiten)"/>
@@ -5095,6 +5098,15 @@ Bitte überprüfen Sie http://status.secondlifegrid.net, um herauszufinden, ob e
 	</string>
 	<string name="Chat" value=" Chat:">
 		Chat
+	</string>
+	<string name="BaseMembership">
+		Basis
+	</string>
+	<string name="PremiumMembership">
+		Premium
+	</string>
+	<string name="Premium PlusMembership">
+		Premium Plus
 	</string>
 	<string name="DeleteItems">
 		Ausgewählte Objekte löschen?

@@ -96,6 +96,7 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
 	virtual BOOL isUpToDate() const { return TRUE; }
 	virtual bool hasChildren() const { return FALSE; }
+    virtual void addChild(LLFolderViewModelItem* child);
 
 	virtual bool potentiallyVisible() { return true; }
 	virtual bool filter( LLFolderViewFilter& filter) { return false; }

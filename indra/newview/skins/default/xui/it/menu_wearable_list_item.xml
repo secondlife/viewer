@@ -3,6 +3,7 @@
 	<menu_item_call label="Sostituisci" name="wear_replace"/>
 	<menu_item_call label="Indossa" name="wear_wear"/>
 	<menu_item_call label="Aggiungi" name="wear_add"/>
+	<menu_item_call label="Tocca" name="touch" />
 	<menu_item_call label="Togli / Stacca" name="take_off_or_detach"/>
 	<menu_item_call label="Stacca" name="detach"/>
 	<context_menu label="Attacca a" name="wearable_attach_to"/>

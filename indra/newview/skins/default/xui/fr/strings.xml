@@ -1646,11 +1646,14 @@ Si vous continuez de recevoir ce message, contactez l’assistance Second Life �
 	<string name="MarketplaceUpdating">
 		mise à jour...
 	</string>
+	<string name="UploadFeeInfo">
+		Les frais dépendent de votre niveau d'abonnement. Les niveaux supérieurs sont soumis à des frais moins élevés. [https://secondlife.com/my/account/membership.php? En savoir plus]
+	</string>
 	<string name="Open landmarks">
-		Ouvrir les repères
+		Points de repère ouverts
 	</string>
 	<string name="Unconstrained">
-		Sans contraintes
+		Sans contrainte
 	</string>
 	<string name="no_transfer" value=" (pas de transfert)"/>
 	<string name="no_modify" value=" (pas de modification)"/>
@@ -5096,6 +5099,15 @@ Veuillez vous reporter à http://status.secondlifegrid.net afin de déterminer s
 	</string>
 	<string name="Chat" value=" Chat :">
 		Chat
+	</string>
+	<string name="BaseMembership">
+		Base
+	</string>
+	<string name="PremiumMembership">
+		Premium
+	</string>
+	<string name="Premium PlusMembership">
+		Premium Plus
 	</string>
 	<string name="DeleteItems">
 		Supprimer les articles sélectionnés ?

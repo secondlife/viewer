@@ -92,6 +92,7 @@ public:
 	void deleteAllRequests();
 
 	// Threads:  T*
+	// keep in mind that if fetcher isn't done, it still might need original raw image
 	bool getRequestFinished(const LLUUID& id, S32& discard_level,
 							LLPointer<LLImageRaw>& raw, LLPointer<LLImageRaw>& aux,
 							LLCore::HttpStatus& last_http_get_status);

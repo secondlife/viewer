@@ -187,6 +187,16 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 
 bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
+	LLRenderTarget::sUseFBO = newvalue.asBoolean();
+	if (gPipeline.isInit())
+	{
+		gPipeline.updateRenderTransparentWater();
+		gPipeline.updateRenderDeferred();
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+		gPipeline.resetVertexBuffers();
+		LLViewerShaderMgr::instance()->setShaders();
+	}
 	LLWorld::getInstance()->updateWaterObjects();
 	return true;
 }

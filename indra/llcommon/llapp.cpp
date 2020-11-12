@@ -180,7 +180,7 @@ LLApp::~LLApp()
 	
 	if(mExceptionHandler != 0) delete mExceptionHandler;
 
-	SUBSYSTEM_CLEANUP(LLCommon);
+	SUBSYSTEM_CLEANUP_DBG(LLCommon);
 }
 
 // static
