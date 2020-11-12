@@ -29,12 +29,14 @@
      label="Touch"
      layout="topleft"
      name="touch"
+     visible="false"
      on_click.function="Attachment.Touch"
      />
     <menu_item_call
      label="Edit"
      layout="topleft"
      name="edit"
+     visible="false"
      on_click.function="Wearable.Edit"
      />
     <menu_item_call
