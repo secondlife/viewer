@@ -55,6 +55,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mTabComparator( NULL )
  , mNoVisibleTabsHelpText(NULL)
  , mNoVisibleTabsOrigString(params.no_visible_tabs_text.initial_value().asString())
+ , mSkipScrollToChild(false)
 {
 	initNoTabsWidget(params.no_matched_tabs_text);
 
@@ -659,7 +660,7 @@ void	LLAccordionCtrl::onScrollPosChangeCallback(S32, LLScrollbar*)
 // virtual
 void LLAccordionCtrl::onUpdateScrollToChild(const LLUICtrl *cntrl)
 {
-    if (mScrollbar && mScrollbar->getVisible())
+    if (mScrollbar && mScrollbar->getVisible() && !mSkipScrollToChild)
     {
         // same as scrollToShowRect
         LLRect rect;

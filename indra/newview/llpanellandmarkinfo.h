@@ -71,7 +71,7 @@ private:
 	LLTextBox*			mOwner;
 	LLTextBox*			mCreator;
 	LLTextBox*			mCreated;
-	LLTextBox*			mLandmarkTitle;
+	LLLineEditor*		mLandmarkTitle;
 	LLLineEditor*		mLandmarkTitleEditor;
 	LLTextEditor*		mNotesEditor;
 	LLComboBox*			mFolderCombo;

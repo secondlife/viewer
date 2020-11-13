@@ -40,8 +40,8 @@
 LLLandmarkList gLandmarkList;
 
 // number is mostly arbitrary, but it should be below DEFAULT_QUEUE_SIZE pool size,
-// which is 4096, to not overfill the pool if user has more than 4K of landmarks,
-// and low number helps with not flooding server with requests
+// which is 4096, to not overfill the pool if user has more than 4K of landmarks
+// and it should leave some space for other potential simultaneous asset request
 const S32 MAX_SIMULTANEOUS_REQUESTS = 512;
 
 
@@ -98,7 +98,11 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 
         if (mRequestedList.size() > MAX_SIMULTANEOUS_REQUESTS)
         {
-            // Postpone download till queu is emptier
+            // Workarounds for corutines pending list size limit:
+            // Postpone download till queue is emptier.
+            // Coroutines have own built in 'pending' list, but unfortunately
+            // it is too small compared to potential amount of landmarks
+            // or assets.
             mWaitList.insert(asset_uuid);
             return NULL;
         }
@@ -179,17 +183,27 @@ void LLLandmarkList::processGetAssetReply(
         // todo: this should clean mLoadedCallbackMap!
 	}
 
-    if (!gLandmarkList.mWaitList.empty())
+    // getAssetData can fire callback immediately, causing
+    // a recursion which is suboptimal for very large wait list.
+    // 'scheduling' indicates that we are inside request and
+    // shouldn't be launching more requests.
+    static bool scheduling = false;
+    if (!scheduling && !gLandmarkList.mWaitList.empty())
     {
-        // start new download from wait list
-        landmark_uuid_list_t::iterator iter = gLandmarkList.mWaitList.begin();
-        LLUUID asset_uuid = *iter;
-        gLandmarkList.mWaitList.erase(iter);
-        gAssetStorage->getAssetData(asset_uuid,
-            LLAssetType::AT_LANDMARK,
-            LLLandmarkList::processGetAssetReply,
-            NULL);
-        gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
+        scheduling = true;
+        while (!gLandmarkList.mWaitList.empty() && gLandmarkList.mRequestedList.size() < MAX_SIMULTANEOUS_REQUESTS)
+        {
+            // start new download from wait list
+            landmark_uuid_list_t::iterator iter = gLandmarkList.mWaitList.begin();
+            LLUUID asset_uuid = *iter;
+            gLandmarkList.mWaitList.erase(iter);
+            gAssetStorage->getAssetData(asset_uuid,
+                LLAssetType::AT_LANDMARK,
+                LLLandmarkList::processGetAssetReply,
+                NULL);
+            gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
+        }
+        scheduling = false;
     }
 }
 

@@ -360,7 +360,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
     }
 
     // The queue should never fill up.
-    LL_ERRS("CoProcMgr") << "Enqueue failed (" << unsigned(pushed) << ")" << LL_ENDL;
+    LL_ERRS("CoProcMgr") << "Enqueue into '" << name << "' failed (" << unsigned(pushed) << ")" << LL_ENDL;
     return {};                      // never executed, pacify the compiler
 }
 

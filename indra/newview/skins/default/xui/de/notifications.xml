@@ -266,6 +266,10 @@ Möchten Sie den ausgewählten Einwohnern Änderungsrechte gewähren?
 		Möchten Sie den ausgewählten Einwohnern die Änderungsrechte entziehen?
 		<usetemplate name="okcancelbuttons" notext="Nein" yestext="Ja"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		Ein Gruppenname muss zwischen [MIN_LEN] und [MAX_LEN] Zeichen lang sein.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Gruppe konnte nicht erstellt werden.
 [MESSAGE]
@@ -366,7 +370,7 @@ Fortfahren?
 Sie haben nicht genug L$, um dieser Gruppe beizutreten.
 	</notification>
 	<notification name="CreateGroupCost">
-		Die Gründung dieser Gruppe kostet 100 L$.
+		Die Erstellung dieser Gruppe kostet L$[COST].
 Gruppen müssen mehr als ein Mitglied haben oder sie werden gelöscht.
 Bitte laden Sie innerhalb von 48 Stunden Mitglieder in Ihre Gruppe ein.
 		<usetemplate canceltext="Abbrechen" name="okcancelbuttons" notext="Abbrechen" yestext="Gruppe für 100 L$ erstellen"/>
@@ -507,6 +511,9 @@ Um Medien nur auf einer Fläche einzufügen, wählen Sie „Oberfläche auswähl
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Fehler beim Erstellen des Fotos!
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Du brauchst L$[COST], um diesen Artikel hochzuladen.
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Es kostet L$[COST], um ein Foto in Ihrem Inventar zu speichern. Sie können entweder L$ kaufen oder das Foto auf Ihrem Computer speichern.
@@ -1753,11 +1760,14 @@ Diese Gruppe verlassen?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		Die Gruppenbegrenzung für Basiskonten ist [MAX_BASIC]; für 
-[https://secondlife.com/premium/ Premium-]Konten ist sie [MAX_PREMIUM].
-Wenn Sie ein Downgrade Ihres Kontos durchgeführt haben, müssen Sie das Gruppenlimit unter [MAX_BASIC] bringen, bevor sich weitere Personen registrieren können.
-
-[https://secondlife.com/my/account/membership.php Noch heute upgraden!]
+		Einwohner mit Basic-Mitgliedschaft können bis zu [MAX_BASIC] Gruppen beitreten.
+Premium-Mitgliedschaften erlauben bis zu [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Mehr Informationen oder Upgrade]
+		<usetemplate name="okbutton" yestext="Schließen"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		Einwohner mit Basic-Mitgliedschaft können bis zu [MAX_BASIC] Gruppen beitreten.
+Premium-Mitgliedschaften erlauben bis zu [MAX_PREMIUM]. Premium-Plus-Mitgliedschaften 
+erlauben bis zu [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Mehr Informationen oder Upgrade]
 		<usetemplate name="okbutton" yestext="Schließen"/>
 	</notification>
 	<notification name="KickUser">
@@ -3318,6 +3328,22 @@ Diese werden für ein paar Sekunden sicherheitshalber gesperrt.
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		Sie wurden vom Moderator stummgeschaltet.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		Leider konnten wir für diese Sitzung keine Informationen zu den Leistungen erhalten. Dies sollte in einer normalen Produktionsumgebung nicht passieren. Kontaktiere bitte den Support. Diese Sitzung wird nicht normal laufen, und wir empfehlen, die Sitzung neu zu starten.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		Dadurch werden [COUNT] Artikel zu einem Gesamtpreis von L$[COST] hochgeladen. Möchtest du mit dem Hochladen fortfahren?
+		<usetemplate name="okcancelbuttons" notext="Abbrechen" yestext="Hochladen"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		Ausgewählte Dateien können nicht per Bulk-Upload hochgeladen werden.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Einige der ausgewählten Dateien können nicht per Bulk-Upload hochgeladen werden.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">

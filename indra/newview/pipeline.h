@@ -409,6 +409,7 @@ public:
 	static bool getRenderHighlights();
 	static void setRenderHighlightTextureChannel(LLRender::eTexIndex channel); // sets which UV setup to display in highlight overlay
 
+	static void updateRenderTransparentWater();
 	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
@@ -578,6 +579,7 @@ public:
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
 	static bool				sDisableShaders; // if true, rendering will be done without shaders
+	static bool				sRenderTransparentWater;
 	static bool				sRenderBump;
 	static bool				sBakeSunlight;
 	static bool				sNoAlpha;
