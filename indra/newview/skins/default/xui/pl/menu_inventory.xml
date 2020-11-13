@@ -85,6 +85,7 @@
 	<menu_item_call label="Załóż" name="Wearable And Object Wear" />
 	<menu label="Dołącz do" name="Attach To" />
 	<menu label="Dołącz do HUD-a" name="Attach To HUD" />
+	<menu_item_call label="Dotknij" name="Attachment Touch" />
 	<menu_item_call label="Edytuj" name="Wearable Edit" />
 	<menu_item_call label="Dodaj/dołącz" name="Wearable Add" />
 	<menu_item_call label="Zdejmij" name="Take Off" />

@@ -34,6 +34,7 @@
 #include "lloutputmonitorctrl.h"
 
 class LLTextBox;
+class LLFloater;
 class LLFloaterIMContainer;
 class LLConversationItem;
 class LLConversationViewSession;

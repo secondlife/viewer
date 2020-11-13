@@ -155,7 +155,7 @@ BEGIN
             VALUE "FileDescription", "Second Life"
             VALUE "FileVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
             VALUE "InternalName", "Second Life"
-            VALUE "LegalCopyright", "Copyright � 2001, Linden Research, Inc."
+            VALUE "LegalCopyright", "Copyright (c) 2020, Linden Research, Inc."
             VALUE "OriginalFilename", "SecondLife.exe"
             VALUE "ProductName", "Second Life"
             VALUE "ProductVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
