@@ -3361,5 +3361,12 @@ U32 LLViewerRegion::getMaxMaterialsPerTransaction() const
 	return max_entries;
 }
 
-
+std::string LLViewerRegion::getSimHostName()
+{
+	if (mSimulatorFeaturesReceived)
+	{
+		return mSimulatorFeatures.has("HostName") ? mSimulatorFeatures["HostName"].asString() : getHost().getHostName();
+	}
+	return std::string("...");
+}
 
