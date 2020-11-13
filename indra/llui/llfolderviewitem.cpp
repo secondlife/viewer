@@ -122,6 +122,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
+    mSuffixNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
 	mIsSelected( FALSE ),
@@ -181,10 +182,24 @@ LLFolderViewItem::~LLFolderViewItem()
 
 BOOL LLFolderViewItem::postBuild()
 {
-	refresh();
+    LLFolderViewModelItem& vmi = *getViewModelItem();
+    // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
+    // it also sets search strings so it requires a filter reset
+    mLabel = vmi.getDisplayName();
+    setToolTip(vmi.getName());
+
+    // Dirty the filter flag of the model from the view (CHUI-849)
+    vmi.dirtyFilter();
+
+    // Don't do full refresh on constructor if it is possible to avoid
+    // it significantly slows down bulk view creation.
+    // Todo: Ideally we need to move getDisplayName() out of constructor as well.
+    // Like: make a logic that will let filter update search string,
+    // while LLFolderViewItem::arrange() updates visual part
+    mSuffixNeedsRefresh = true;
+    mLabelWidthDirty = true;
 	return TRUE;
 }
-
 
 LLFolderView* LLFolderViewItem::getRoot()
 {
@@ -280,24 +295,51 @@ BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 
 void LLFolderViewItem::refresh()
 {
-	LLFolderViewModelItem& vmi = *getViewModelItem();
+    LLFolderViewModelItem& vmi = *getViewModelItem();
 
-	mLabel = vmi.getDisplayName();
+    mLabel = vmi.getDisplayName();
+    setToolTip(vmi.getName());
+    // icons are slightly expensive to get, can be optimized
+    // see LLInventoryIcon::getIcon()
+    mIcon = vmi.getIcon();
+    mIconOpen = vmi.getIconOpen();
+    mIconOverlay = vmi.getIconOverlay();
 
-	setToolTip(vmi.getName());
-	mIcon = vmi.getIcon();
-	mIconOpen = vmi.getIconOpen();
-	mIconOverlay = vmi.getIconOverlay();
+    if (mRoot->useLabelSuffix())
+    {
+        // Very Expensive!
+        // Can do a number of expensive checks, like checking active motions, wearables or friend list
+        mLabelStyle = vmi.getLabelStyle();
+        mLabelSuffix = vmi.getLabelSuffix();
+    }
+
+    // Dirty the filter flag of the model from the view (CHUI-849)
+    vmi.dirtyFilter();
+
+    mLabelWidthDirty = true;
+    mSuffixNeedsRefresh = false;
+}
+
+void LLFolderViewItem::refreshSuffix()
+{
+	LLFolderViewModelItem const* vmi = getViewModelItem();
+
+    // icons are slightly expensive to get, can be optimized
+    // see LLInventoryIcon::getIcon()
+	mIcon = vmi->getIcon();
+    mIconOpen = vmi->getIconOpen();
+    mIconOverlay = vmi->getIconOverlay();
 
 	if (mRoot->useLabelSuffix())
 	{
-		mLabelStyle = vmi.getLabelStyle();
-		mLabelSuffix = vmi.getLabelSuffix();
+        // Very Expensive!
+        // Can do a number of expensive checks, like checking active motions, wearables or friend list
+        mLabelStyle = vmi->getLabelStyle();
+        mLabelSuffix = vmi->getLabelSuffix();
 	}
 
-	mLabelWidthDirty = true;
-    // Dirty the filter flag of the model from the view (CHUI-849)
-	vmi.dirtyFilter();
+    mLabelWidthDirty = true;
+    mSuffixNeedsRefresh = false;
 }
 
 // Utility function for LLFolderView
@@ -348,6 +390,12 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 		: 0;
 	if (mLabelWidthDirty)
 	{
+        if (mSuffixNeedsRefresh)
+        {
+            // Expensive. But despite refreshing label,
+            // it is purely visual, so it is fine to do at our laisure
+            refreshSuffix();
+        }
 		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
 		mLabelWidthDirty = false;
 	}

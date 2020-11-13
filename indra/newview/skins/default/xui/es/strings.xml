@@ -1628,11 +1628,14 @@ Si sigues recibiendo el mismo mensaje, solicita ayuda al personal de asistencia 
 	<string name="MarketplaceUpdating">
 		actualizando...
 	</string>
+	<string name="UploadFeeInfo">
+		Las tasas se basan en tu nivel de suscripción. Niveles más altos tienen tasas más bajas. [https://secondlife.com/my/account/membership.php? Aprende más al respecto]
+	</string>
 	<string name="Open landmarks">
-		Abrir hitos
+		Abrir puntos destacados
 	</string>
 	<string name="Unconstrained">
-		Sin restricciones
+		Sin Restricciones
 	</string>
 	<string name="no_transfer" value="(no transferible)"/>
 	<string name="no_modify" value="(no modificable)"/>

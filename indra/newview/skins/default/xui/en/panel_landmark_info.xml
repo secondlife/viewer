@@ -95,7 +95,7 @@
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"
-         height="630"
+         height="654"
          layout="topleft"
          left="0"
          min_height="300"
@@ -112,35 +112,56 @@
              name="logo"
              top="10"
              width="290" />
+            <!-- texture picker has an empty label section, compensate for it with negative top_pad-->
             <text
              follows="left|top|right"
              font="SansSerifLarge"
              height="14"
              layout="topleft"
              left="10"
-             name="region_title"
+             top_pad="-10"
+             width="280"
+             name="parcel_title"
              text_color="white"
-             top_pad="10"
              use_ellipses="true"
-             value="SampleRegion"
-             width="280" />
+             value="SampleParcel, Name Long" />
             <text
              follows="left|top|right"
              height="14"
              layout="topleft"
              left="10"
-             name="parcel_title"
-             top_pad="10"
+             top_pad="9"
+             width="280"
+             name="region_title"
+             use_ellipses="true">
+              Region: [REGIONAMEPOS]
+            </text>
+            <text
+             follows="left|top"
+             height="15"
+             layout="topleft"
+             left="10"
+             name="parcel_owner_label"
+             top_pad="7"
+             value="Owner:"
+             width="80" />
+            <text
+             follows="left|top|right"
+             height="15"
+             layout="topleft"
+             left_pad="0"
+             name="parcel_owner"
+             top_delta="0"
              use_ellipses="true"
-             value="SampleParcel, Name Long (145, 228, 26)"
-             width="280" />
+             value="TempOwner"
+             width="215" />
             <expandable_text
              follows="left|top|right"
              height="50"
              layout="topleft"
              left="10"
              name="description"
-             top_pad="10"
+             top_pad="7"
              value="Du waltz die spritz"
              width="280" />
             <icon
@@ -163,19 +184,38 @@
              width="268" />
             <panel
              follows="left|top|right"
-             height="55"
+             height="81"
              layout="topleft"
              left="10"
              name="landmark_info_panel"
              top_pad="10"
              width="290">
+                <view_border
+                 bevel_style="none"
+                 follows="top|left"
+                 height="0"
+                 layout="topleft"
+                 left="0"
+                 name="lod_tab_border"
+                 top_pad="5"
+                 width="290" />
+                <text
+                 follows="left|top"
+                 height="15"
+                 layout="topleft"
+                 left="0"
+                 name="this_landmark"
+                 top_pad="8"
+                 width="90">
+                  This landmark:
+                </text>
                 <text
                  follows="left|top"
                  height="15"
                  layout="topleft"
                  left="0"
                  name="owner_label"
-                 top_pad="10"
+                 top_pad="8"
                  value="Owner:"
                  width="90" />
                 <text
@@ -237,9 +277,13 @@
                  top_pad="10"
                  value="Title:"
                  width="290" />
-                <text
+                <line_editor
+                 text_readonly_color="white"
+                 enabled="false"
+                 use_bg_color="true"
+                 bg_color="DkGray0"
                  parse_urls="false"
-                 follows="left|top"
+                 follows="left|top|right"
                  height="22"
                  layout="topleft"
                  left="0"
@@ -269,7 +313,7 @@
                  value="My notes:"
                  width="290" />
                 <text_editor
-                 bg_readonly_color="DkGray2"
+                 bg_readonly_color="DkGray0"
                  follows="all"
                  height="75"
                  layout="topleft"
@@ -300,6 +344,17 @@
                  name="folder_combo"
                  top_pad="5"
                  width="200" />
+                <button
+                 follows="bottom|left|right"
+                 height="23"
+                 label="Edit"
+                 layout="topleft"
+                 left="0"
+                 mouse_opaque="false"
+                 name="edit_btn"
+                 tool_tip="Edit landmark information"
+                 top_pad="-42"
+                 width="100" />
             </panel>
         </panel>
     </scroll_container>

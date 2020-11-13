@@ -109,6 +109,7 @@ protected:
 	LLUUID					mRequestedID;
 	LLVector3				mPosRegion;
 	std::string				mParcelTitle; // used for pick title without coordinates
+	std::string				mRegionTitle;
 	std::string				mCurrentTitle;
 	S32						mScrollingPanelMinHeight;
 	S32						mScrollingPanelWidth;
@@ -120,6 +121,7 @@ protected:
 	LLTextureCtrl*			mSnapshotCtrl;
 	LLTextBox*				mRegionName;
 	LLTextBox*				mParcelName;
+	LLTextBox*				mParcelOwner;
 	LLExpandableTextBox*	mDescEditor;
 	LLIconCtrl*				mMaturityRatingIcon;
 	LLTextBox*				mMaturityRatingText;

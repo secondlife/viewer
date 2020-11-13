@@ -266,6 +266,10 @@ Souhaitez-vous accorder des droits d&apos;édition aux résidents sélectionnés
 		Souhaitez-vous retirer les droits d&apos;édition aux résidents selectionnés ?
 		<usetemplate name="okcancelbuttons" notext="Non" yestext="Oui"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		Un nom de groupe doit être compris entre [MIN_LEN] et [MAX_LEN] caractères.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Impossible de créer le groupe.
 [MESSAGE]
@@ -359,7 +363,7 @@ Souhaitez-vous continuer ?
 Vous n&apos;avez pas suffisamment de L$ pour rejoindre ce groupe.
 	</notification>
 	<notification name="CreateGroupCost">
-		La création de ce groupe coûte 100 L$.
+		La création de ce groupe coûtera L$[COST].
 Les groupes doivent comporter plus d&apos;un membre, sinon ils sont supprimés.
 Veuillez inviter des membres d&apos;ici 48 heures.
 		<usetemplate canceltext="Annuler" name="okcancelbuttons" notext="Annuler" yestext="Créer un groupe pour 100 L$"/>
@@ -499,6 +503,9 @@ Pour ne placer le média que sur une seule face, choisissez Sélectionner une fa
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Erreur d&apos;encodage de la photo.
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Vous avez besoin de L$[COST] pour charger cet élément.
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Il vous faut [COST] L$ pour enregistrer une photo dans votre inventaire. Vous pouvez acheter des L$ ou enregistrer la photo sur votre ordinateur.
@@ -1736,11 +1743,14 @@ Quitter le groupe ?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		Le nombre de groupes maximum est [MAX_BASIC] pour les comptes basiques et
-[MAX_PREMIUM] pour les comptes [https://secondlife.com/premium/ premium].
-Si vous avez rétrogradé votre compte, vous devez réduire votre nombre de groupes pour passer sous le nombre de groupes maximum ([MAX_BASIC]) avant de pouvoir en rejoindre d’autres.
-
-[https://secondlife.com/my/account/membership.php Mettez à niveau dès aujourd’hui !]
+		Les résidents ayant une adhésion de base peuvent s'inscrire à [MAX_BASIC] groupes maximum.
+Les adhésions premium permettent jusqu'à [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? En savoir plus ou actualiser]
+		<usetemplate name="okbutton" yestext="Fermer"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		Les résidents ayant une adhésion de base peuvent s'inscrire à [MAX_BASIC] groupes maximum.
+Les adhésions premium permettent jusqu'à [MAX_PREMIUM]. Les adhésions à Premium Plus permettent 
+jusqu'à [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? En savoir plus ou actualiser]
 		<usetemplate name="okbutton" yestext="Fermer"/>
 	</notification>
 	<notification name="KickUser">
@@ -3302,6 +3312,22 @@ Elles vont être bloquées pendant quelques secondes pour votre sécurité.
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		Le modérateur ignore vos paroles.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		Malheureusement, nous n'avons pas pu obtenir d'informations sur les avantages pour cette session. Cela ne devrait pas se produire dans un environnement de production normal. Veuillez contacter le service d'assistance. Cette session ne fonctionnera pas normalement et nous vous recommandons de recommencer.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		Ceci permettra de charger [COUNT] éléments pour un coût total de L$[COST]. Souhaitez-vous poursuivre le téléchargement ?
+		<usetemplate name="okcancelbuttons" notext="Annuler" yestext="Charger"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		Les fichiers sélectionnés ne peuvent pas être téléchargés en masse.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Certains des fichiers sélectionnés ne peuvent pas être téléchargés en masse.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">
