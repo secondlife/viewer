@@ -417,9 +417,6 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 			cube_map->enable(0);
 			cube_map->setMatrix(0);
 			gGL.getTexUnit(0)->bind(cube_map);
-
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_VERT_ALPHA);
 		}
 	}
 }
@@ -612,11 +609,9 @@ void LLDrawPoolBump::endFullbrightShiny()
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);*/
 
 		shader->unbind();
-		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 	
 	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	diffuse_channel = -1;
 	cube_channel = 0;

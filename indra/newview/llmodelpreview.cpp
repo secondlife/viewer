@@ -1363,6 +1363,8 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
         // decimation requires fixed fxn?  And of course, no comment to explain...  We'll hope it's not actually true.
     bool no_ff = LLGLSLShader::sNoFixedFunction;
     LLGLSLShader::sNoFixedFunction = false;
+
+    // leaving this for now for reference, in case it turns out to be actually needed
 #endif
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
@@ -1700,7 +1702,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
     mResourceCost = calcResourceCost();
 
     LLVertexBuffer::unbind();
-#if 0   // See comment at top of fxn
+#if 0   // DJH See comment at top of fxn
     LLGLSLShader::sNoFixedFunction = no_ff;
 #endif
     if (shader)
