@@ -187,14 +187,16 @@ public:
 	// make sure you want to permanently change the filtering for the bound texture.
 	void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
 
-	void setTextureBlendType(eTextureBlendType type);
-
 	inline void setTextureColorBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_COLOR)
-	{ setTextureCombiner(op, src1, src2, false); }
+	{ // No-op fxn since sNoFixedFxn was eradicated 11/2020
+      // setTextureCombiner(op, src1, src2, false);
+    }
 
 	// NOTE: If *_COLOR enums are passed to src1 or src2, the corresponding *_ALPHA enum will be used instead.
 	inline void setTextureAlphaBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_ALPHA)
-	{ setTextureCombiner(op, src1, src2, true); }
+    { // No-op fxn since sNoFixedFxn was eradicated 11/2020
+      // setTextureCombiner(op, src1, src2, true); 
+    }
 
 	static U32 getInternalType(eTextureType type);
 
@@ -229,7 +231,6 @@ protected:
 	void setAlphaScale(S32 scale);
 	GLint getTextureSource(eTextureBlendSrc src);
 	GLint getTextureSourceType(eTextureBlendSrc src, bool isAlpha = false);
-	void setTextureCombiner(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2, bool isAlpha = false);
 };
 
 class LLLightState

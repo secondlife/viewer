@@ -1341,6 +1341,11 @@ void LLModelPreview::restoreNormals()
 
 void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
+    // libglod used here is ancient (~2004) and makes fixed-fxn GL calls internally
+    // Its use requires we maintain some deprecated FF setup in LLVertexBuffer 
+    // TODO: replace libglod with a modern LOD-generation library (https://github.com/zeux/meshoptimizer ?)
+    //       See SL-14403
+
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
     if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
     {
@@ -1358,12 +1363,6 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
     }
 
     LLVertexBuffer::unbind();
-
-#if 0   // TODO DJH 11/2020  sNoFixedFunction eradication didn't predict this tomfoolery. Unclear why mesh 
-        // decimation requires fixed fxn?  And of course, no comment to explain...  We'll hope it's not actually true.
-    bool no_ff = LLGLSLShader::sNoFixedFunction;
-    LLGLSLShader::sNoFixedFunction = false;
-#endif
 
     LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
     if (shader)
@@ -1483,12 +1482,13 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
             for (U32 i = 0; i < mVertexBuffer[5][mdl].size(); ++i)
             {
                 LLVertexBuffer* buff = mVertexBuffer[5][mdl][i];
-                buff->setBuffer(type_mask & buff->getTypeMask());
-
+                U32 mask_intersected = type_mask & buff->getTypeMask();
+                buff->setBuffer(mask_intersected, true);    // Flag to force legacy fixed-fxn buffer setup, because GLOD library
                 U32 num_indices = mVertexBuffer[5][mdl][i]->getNumIndices();
                 if (num_indices > 2)
                 {
-                    glodInsertElements(mObject[mdl], i, GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, (U8*)mVertexBuffer[5][mdl][i]->getIndicesPointer(), 0, 0.f);
+                    U8* idx_ptr = (U8*)buff->getIndicesPointer();
+                    glodInsertElements(mObject[mdl], i, GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, idx_ptr, 0, 0.f);
                 }
                 tri_count += num_indices / 3;
                 stop_gloderror();
@@ -1612,7 +1612,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
                             << " Vertices: " << sizes[i * 2 + 1]
                             << " Indices: " << sizes[i * 2] << LL_ENDL;
                     }
-                    buff->setBuffer(type_mask);
+                    buff->setBuffer(type_mask, true);   // Flag to force legacy fixed-fxn buffer setup, because GLOD library
                     glodFillElements(mObject[base], names[i], GL_UNSIGNED_SHORT, (U8*)buff->getIndicesPointer());
                     stop_gloderror();
                 }
@@ -1700,9 +1700,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
     mResourceCost = calcResourceCost();
 
     LLVertexBuffer::unbind();
-#if 0   // See comment at top of fxn
-    LLGLSLShader::sNoFixedFunction = no_ff;
-#endif
+
     if (shader)
     {
         shader->bind();

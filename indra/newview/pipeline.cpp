@@ -4331,7 +4331,6 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 	// Do verification of GL state
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 	if (mRenderDebugMask & RENDER_DEBUG_VERIFY)
 	{
 		if (!verify())
@@ -4449,8 +4448,6 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 					{
 						std::string msg = llformat("pass %d", i);
 						LLGLState::checkStates(msg);
-						//LLGLState::checkTextureChannels(msg);
-						//LLGLState::checkClientArrays(msg);
 					}
 				}
 			}
@@ -4546,8 +4543,6 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 	LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
-//	LLGLState::checkTextureChannels();
-//	LLGLState::checkClientArrays();
 }
 
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
@@ -4575,7 +4570,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 
 	U32 cur_type = 0;
 
@@ -10746,7 +10740,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 
 	static LLCullResult result;
 	result.clear();
@@ -11070,7 +11063,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 }
 
 bool LLPipeline::hasRenderBatches(const U32 type) const
