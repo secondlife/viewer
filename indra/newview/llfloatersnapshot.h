@@ -34,6 +34,7 @@
 
 class LLSpinCtrl;
 class LLSnapshotLivePreview;
+class LLToolset;
 
 class LLFloaterSnapshotBase : public LLFloater
 {

@@ -105,6 +105,7 @@
 	<menu_item_call label="Надеть" name="Wearable And Object Wear"/>
 	<menu label="Присоединить к" name="Attach To"/>
 	<menu label="Присоединить к данным в игре" name="Attach To HUD"/>
+	<menu_item_call label="Коснуться" name="Attachment Touch" />
 	<menu_item_call label="Изменить" name="Wearable Edit"/>
 	<menu_item_call label="Добавить" name="Wearable Add"/>
 	<menu_item_call label="Снять" name="Take Off"/>
