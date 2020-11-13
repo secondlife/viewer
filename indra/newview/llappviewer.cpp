@@ -802,10 +802,6 @@ bool LLAppViewer::init()
 	if (!initConfiguration())
 		return false;
 
-	// initialize LLWearableType translation bridge.
-	// Will immediately use LLTranslationBridge to init LLWearableDictionary
-	LLWearableType::initParamSingleton(trans);
-
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
 
 	//set the max heap size.
@@ -868,6 +864,10 @@ bool LLAppViewer::init()
 
 	// Setup LLTrans after LLUI::initClass has been called.
 	initStrings();
+
+    // initialize LLWearableType translation bridge.
+    // Will immediately use LLTranslationBridge to init LLWearableDictionary
+    LLWearableType::initParamSingleton(trans);
 
 	// Setup notifications after LLUI::initClass() has been called.
 	LLNotifications::instance();

@@ -99,7 +99,7 @@ private:
         }
         const LLAssetType::EType mAssetType;
         const std::string mLabel;
-        const std::string mDefaultNewName; //keep mLabel for backward compatibility
+        const std::string mDefaultNewName;
         LLInventoryType::EIconName mIconName;
         BOOL mDisableCameraSwitch;
         BOOL mAllowMultiwear;

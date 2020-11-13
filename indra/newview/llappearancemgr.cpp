@@ -957,7 +957,7 @@ void recovered_item_link_cb(const LLUUID& item_id, LLWearableType::EType type, L
 		// runway skip here?
 	}
 
-	LL_INFOS() << "HP " << holder->index() << " recovered item link for type " << type << LL_ENDL;
+	LL_INFOS("Avatar") << "HP " << holder->index() << " recovered item link for type " << type << LL_ENDL;
 	holder->eraseTypeToLink(type);
 	// Add wearable to FoundData for actual wearing
 	LLViewerInventoryItem *item = gInventory.getItem(item_id);
@@ -1021,8 +1021,8 @@ void LLWearableHoldingPattern::recoverMissingWearable(LLWearableType::EType type
 	
 		// Try to recover by replacing missing wearable with a new one.
 	LLNotificationsUtil::add("ReplacedMissingWearable");
-	LL_DEBUGS() << "Wearable " << LLWearableType::getInstance()->getTypeLabel(type)
-				<< " could not be downloaded.  Replaced inventory item with default wearable." << LL_ENDL;
+	LL_DEBUGS("Avatar") << "Wearable of type '" << LLWearableType::getInstance()->getTypeName(type)
+				<< "' could not be downloaded.  Replaced inventory item with default wearable." << LL_ENDL;
 	LLViewerWearable* wearable = LLWearableList::instance().createNewWearable(type, gAgentAvatarp);
 
 	// Add a new one in the lost and found folder.
