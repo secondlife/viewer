@@ -45,30 +45,42 @@ args = parser.parse_args()
 
 keys = set()
 count = 0
+print "input", args.infilename,"output", args.outfilename
 outf = open(args.outfilename,"w")
 with open(args.infilename,"r") as f:
-    while True:
-        l = f.readline()
-        if not l:
-            break
-        count += 1
-        calls = dict()
-        times = dict()
-        for m in re.finditer( r'<key>(.*?)</key><map><key>Calls</key><integer>(.*?)</integer><key>Time</key><real>(.*?)</real></map>', l ):
-            (key,call,time) = m.groups()
-            if count == 1:
-                keys.add(key)
-            calls[key] = call
-            times[key] = time
+    data = f.read().translate(None,'\r\n ')
+    f.close()
+lines = data.split("<llsd>")
+
+print "got lines", len(lines)
+
+for l in lines:
+    if len(l)==0:
+        continue
+    count += 1
+    calls = dict()
+    times = dict()
+    for m in re.finditer( r'<key>(.*?)</key><map><key>Calls</key><integer>(.*?)</integer><key>Time</key><real>(.*?)</real></map>', l):
+        (key,call,time) = m.groups()
+        #print "got",(key,call,time)
         if count == 1:
-            skeys = list(sorted(keys))
-            cols = [key + " - Times" for key in skeys]
-            cols.extend([key + " - Calls" for key in skeys])
-            print >>outf, ",".join(cols)
-        vals = []
-        vals.extend([times[key] for key in skeys])
-        vals.extend([calls[key] for key in skeys])
-        print >>outf, ",".join(vals)
+            keys.add(key)
+        calls[key] = call
+        times[key] = time
+    if count == 1:
+        skeys = list(sorted(keys))
+        print "key count", len(skeys)
+        cols = [key + " - Times" for key in skeys]
+        cols.extend([key + " - Calls" for key in skeys])
+        print >>outf, ",".join(cols)
+    vals = []
+    vals.extend([times[key] for key in skeys])
+    vals.extend([calls[key] for key in skeys])
+    print >>outf, ",".join(vals)
+    #print ",".join(vals)
+
+print "done,", count, "lines"
+outf.close()
         
     
 

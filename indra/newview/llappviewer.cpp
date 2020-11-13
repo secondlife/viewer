@@ -1321,6 +1321,13 @@ void LLAppViewer::checkMemory()
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
 static LLTrace::BlockTimerStatHandle FTM_SLEEP("Sleep");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_NOT_FG("SleepNotFG");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_RANDOM("SleepRandom");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_PERIODIC_SLOW("SleepPeriodicSlow");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_TEX_THRD("SleepTexThrd");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_IO_PEND("SleepIOPend");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_MESH_REPO("SleepMeshRepo");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_OTHER("SleepOther");
 static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
@@ -1393,44 +1400,41 @@ LLSD getSessionLogData()
 
 void LLAppViewer::doPerFrameStatsLogging()
 {
-    if (LLTrace::BlockTimer::sLog)
+    if (LLTrace::BlockTimer::sLog && LLStartUp::getStartupState() >= STATE_STARTED)
     {
         static bool first_frame = true;
         // Output per-frame performance data
         LL_RECORD_BLOCK_TIME(FTM_FRAME_DATA_LOGGING);
         if (LLTrace::BlockTimer::sArctanLogging)
         {
-            if (LLStartUp::getStartupState() >= STATE_STARTED)
+            LLSD pipeline_sd = getPipelineLogData();
+            if (pipeline_sd.isMap())
             {
-				LLSD pipeline_sd = getPipelineLogData();
-				if (pipeline_sd.isMap())
-				{
-                    LLTrace::BlockTimer::pushLogExtraRecord("Pipeline", pipeline_sd);
-				}
-                LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
-                if (avatar_sd.size()>0)
-                {
-                    LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
-                }
-				LLSD objects_sd = gObjectList.getAllObjectsFrameData();
-				if (objects_sd.size() > 0)
-				{
-                    LLTrace::BlockTimer::pushLogExtraRecord("Objects", objects_sd);
-				}
-                
-                if (first_frame)
-                {
-                    LLSD session_sd = getSessionLogData();
-                    LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
-
-					LLSD viewer_info_sd = getViewerInfo(); 
-                    LLTrace::BlockTimer::pushLogExtraRecord("ViewerInfo", viewer_info_sd);
-
-                    first_frame = false;
-                }                
-
-                LLTrace::BlockTimer::logStatsArctan();
+                LLTrace::BlockTimer::pushLogExtraRecord("Pipeline", pipeline_sd);
             }
+            LLSD avatar_sd = LLVOAvatar::getAllAvatarsFrameData();
+            if (avatar_sd.size()>0)
+            {
+                LLTrace::BlockTimer::pushLogExtraRecord("Avatars", avatar_sd);
+            }
+            LLSD objects_sd = gObjectList.getAllObjectsFrameData();
+            if (objects_sd.size() > 0)
+            {
+                LLTrace::BlockTimer::pushLogExtraRecord("Objects", objects_sd);
+            }
+                
+            if (first_frame)
+            {
+                LLSD session_sd = getSessionLogData();
+                LLTrace::BlockTimer::pushLogExtraRecord("Session", session_sd);
+
+                LLSD viewer_info_sd = getViewerInfo(); 
+                LLTrace::BlockTimer::pushLogExtraRecord("ViewerInfo", viewer_info_sd);
+
+                first_frame = false;
+            }
+
+            LLTrace::BlockTimer::logStatsArctan();
         }
         else
         {
@@ -1486,17 +1490,21 @@ bool LLAppViewer::doFrame()
 
 	LL_RECORD_BLOCK_TIME(FTM_FRAME);
 
+	LL_INFOS() << "Start frame " << getRuntime() << " frame " << LL_ENDL;
     if (LLTrace::get_thread_recorder().notNull())
     {
-	LLTrace::BlockTimer::processTimes();
-	LLTrace::get_frame_recording().nextPeriod();
+		LLTrace::BlockTimer::processTimes();
+		LLTrace::get_frame_recording().nextPeriod();
     }
+	static LLTimer frame_counter;
+	LL_INFOS() << "frame_counter " << frame_counter.getElapsedTimeF32() << LL_ENDL;
+	frame_counter.reset();
 
     doPerFrameStatsLogging();
     
     if (LLTrace::get_thread_recorder().notNull())
     {
-	LLTrace::get_thread_recorder()->pullFromChildren();
+		LLTrace::get_thread_recorder()->pullFromChildren();
     }
 
 	//clear call stack records
@@ -1531,10 +1539,10 @@ bool LLAppViewer::doFrame()
 		//memory leaking simulation
 		if (gSimulateMemLeak)
 		{
-		LLFloaterMemLeak* mem_leak_instance =
-			LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
+			LLFloaterMemLeak* mem_leak_instance =
+				LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
 			if (mem_leak_instance)
-		{
+			{
 				mem_leak_instance->idle();
 			}
 		}
@@ -1616,6 +1624,7 @@ bool LLAppViewer::doFrame()
 			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
 					|| !gFocusMgr.getAppHasFocus())
 			{
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP_NOT_FG);
 				// Sleep if we're not rendering, or the window is minimized.
 				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
 				S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
@@ -1632,6 +1641,7 @@ bool LLAppViewer::doFrame()
 
 			if (mRandomizeFramerate)
 			{
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP_RANDOM);
 				ms_sleep(rand() % 200);
 			}
 
@@ -1639,6 +1649,7 @@ bool LLAppViewer::doFrame()
 				&& (gFrameCount % 10 == 0))
 			{
 				LL_INFOS() << "Periodic slow frame - sleeping 500 ms" << LL_ENDL;
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP_PERIODIC_SLOW);
 				ms_sleep(500);
 			}
 
@@ -1649,7 +1660,10 @@ bool LLAppViewer::doFrame()
 				S32 io_pending = 0;
 				F32 max_time = llmin(gFrameIntervalSeconds.value() *10.f, 1.f);
 
-				work_pending += updateTextureThreads(max_time);
+				{
+					LL_RECORD_BLOCK_TIME(FTM_SLEEP_TEX_THRD);
+					work_pending += updateTextureThreads(max_time);
+				}
 
 				{
 					LL_RECORD_BLOCK_TIME(FTM_VFS);
@@ -1662,6 +1676,7 @@ bool LLAppViewer::doFrame()
 
 				if (io_pending > 1000)
 				{
+					LL_RECORD_BLOCK_TIME(FTM_SLEEP_IO_PEND);
 					ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
 				}
 
@@ -1669,8 +1684,12 @@ bool LLAppViewer::doFrame()
 				total_io_pending += io_pending ;
 
 			}
-			gMeshRepo.update() ;
+			{
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP_MESH_REPO);
+				gMeshRepo.update() ;
+			}
 
+			LL_RECORD_BLOCK_TIME(FTM_SLEEP_OTHER);
 			if(!total_work_pending) //pause texture fetching threads if nothing to process.
 			{
 				LLAppViewer::getTextureCache()->pause();
