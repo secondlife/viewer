@@ -417,9 +417,6 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 			cube_map->enable(0);
 			cube_map->setMatrix(0);
 			gGL.getTexUnit(0)->bind(cube_map);
-
-			gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_VERT_ALPHA);
 		}
 	}
 }
@@ -473,15 +470,6 @@ void LLDrawPoolBump::unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& 
         // MAINT-755
 		cube_map->disable();
 		cube_map->restoreMatrix();
-	}
-
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		gGL.getTexUnit(diffuse_channel)->disable();
-		gGL.getTexUnit(cube_channel)->disable();
-
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 }
 
@@ -621,11 +609,9 @@ void LLDrawPoolBump::endFullbrightShiny()
 		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);*/
 
 		shader->unbind();
-		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 	
 	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	diffuse_channel = -1;
 	cube_channel = 0;
@@ -736,43 +722,9 @@ void LLDrawPoolBump::beginBump(U32 pass)
 	// Optional second pass: emboss bump map
 	stop_glerror();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gObjectBumpProgram.bind();
-	}
-	else
-	{
-		// TEXTURE UNIT 0
-		// Output.rgb = texture at texture coord 0
-		gGL.getTexUnit(0)->activate();
+	gObjectBumpProgram.bind();
 
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
-		// TEXTURE UNIT 1
-		gGL.getTexUnit(1)->activate();
- 
-		gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
-
-		gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD_SIGNED, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_ONE_MINUS_TEX_ALPHA);
-		gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
-		// src	= tex0 + (1 - tex1) - 0.5
-		//		= (bump0/2 + 0.5) + (1 - (bump1/2 + 0.5)) - 0.5
-		//		= (1 + bump0 - bump1) / 2
-
-
-		// Blend: src * dst + dst * src
-		//		= 2 * src * dst
-		//		= 2 * ((1 + bump0 - bump1) / 2) * dst   [0 - 2 * dst]
-		//		= (1 + bump0 - bump1) * dst.rgb
-		//		= dst.rgb + dst.rgb * (bump0 - bump1)
-
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
-	}
-
-	gGL.setSceneBlendType(LLRender::BT_MULT_X2);
+    gGL.setSceneBlendType(LLRender::BT_MULT_X2);
 	stop_glerror();
 }
 
@@ -803,21 +755,7 @@ void LLDrawPoolBump::endBump(U32 pass)
 		return;
 	}
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gObjectBumpProgram.unbind();
-	}
-	else
-	{
-		// Disable texture blending on unit 1
-		gGL.getTexUnit(1)->activate();
-		gGL.getTexUnit(1)->disable();
-		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
-
-		// Disable texture blending on unit 0
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
+	gObjectBumpProgram.unbind();
 	
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
@@ -1522,13 +1460,6 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 			}
 			else
 			{
-				if (!LLGLSLShader::sNoFixedFunction)
-				{
-					gGL.getTexUnit(1)->activate();
-					gGL.matrixMode(LLRender::MM_TEXTURE);
-					gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
-				}
-
 				gGL.getTexUnit(0)->activate();
 				gGL.matrixMode(LLRender::MM_TEXTURE);
 				gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
@@ -1570,12 +1501,6 @@ void LLDrawPoolBump::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL 
 		}
 		else
 		{
-			if (!LLGLSLShader::sNoFixedFunction)
-			{
-				gGL.getTexUnit(1)->activate();
-				gGL.matrixMode(LLRender::MM_TEXTURE);
-				gGL.loadIdentity();
-			}
 			gGL.getTexUnit(0)->activate();
 			gGL.matrixMode(LLRender::MM_TEXTURE);
 		}

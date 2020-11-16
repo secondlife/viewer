@@ -165,7 +165,6 @@ void display_startup()
 
 	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	gGL.color4f(1,1,1,1);
 	if (gViewerWindow)
@@ -706,7 +705,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
 
 		static LLCullResult result;
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
@@ -716,7 +714,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
@@ -732,7 +729,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 			LLGLState::checkStates();
 			LLGLState::checkTextureChannels();
-			LLGLState::checkClientArrays();
 
 			if (!for_snapshot)
 			{
@@ -746,7 +742,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 				LLGLState::checkStates();
 				LLGLState::checkTextureChannels();
-				LLGLState::checkClientArrays();
 
 				glh::matrix4f proj = get_current_projection();
 				glh::matrix4f mod = get_current_modelview();
@@ -765,14 +760,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 				LLGLState::checkStates();
 				LLGLState::checkTextureChannels();
-				LLGLState::checkClientArrays();
 
 			}
 			glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		}
 
 		LLGLState::checkStates();
-		LLGLState::checkClientArrays();
 
 		//if (!for_snapshot)
 		{
@@ -783,7 +776,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		}
 
 		LLGLState::checkStates();
-		LLGLState::checkClientArrays();
 
 		//////////////////////////////////////
 		//
@@ -827,7 +819,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 
 		LLGLState::checkStates();
-		LLGLState::checkClientArrays();
 
 		///////////////////////////////////
 		//
@@ -858,7 +849,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLSceneMonitor::getInstance()->fetchQueryResult();
 		
 		LLGLState::checkStates();
-		LLGLState::checkClientArrays();
 
 		LLPipeline::sUseOcclusion = occlusion;
 
@@ -917,7 +907,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
 
 		LLGLState::checkStates();
-		LLGLState::checkClientArrays();
 
 		stop_glerror();
 
@@ -949,7 +938,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
-			if (gSavedSettings.getBOOL("RenderDepthPrePass") && LLGLSLShader::sNoFixedFunction)
+			if (gSavedSettings.getBOOL("RenderDepthPrePass"))
 			{
 				gGL.setColorMask(false, false);
 
@@ -1434,10 +1423,7 @@ void render_ui_3d()
 
 	stop_glerror();
 	
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	// Coordinate axes
 	if (gSavedSettings.getBOOL("ShowAxes"))
@@ -1477,7 +1463,6 @@ void render_ui_2d()
 	}
 
 	stop_glerror();
-	//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	// render outline for HUD
 	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)
@@ -1568,10 +1553,7 @@ void render_ui_2d()
 
 void render_disconnected_background()
 {
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	gGL.color4f(1,1,1,1);
 	if (!gDisconnectedImagep && gDisconnected)
@@ -1643,11 +1625,7 @@ void render_disconnected_background()
 	}
 	gGL.flush();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
-
+	gUIProgram.unbind();
 }
 
 void display_cleanup()

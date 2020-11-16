@@ -1359,10 +1359,15 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
 
     LLVertexBuffer::unbind();
 
+#if 0   // TODO DJH 11/2020  sNoFixedFunction eradication didn't predict this tomfoolery. Unclear why mesh 
+        // decimation requires fixed fxn?  And of course, no comment to explain...  We'll hope it's not actually true.
     bool no_ff = LLGLSLShader::sNoFixedFunction;
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
     LLGLSLShader::sNoFixedFunction = false;
 
+    // leaving this for now for reference, in case it turns out to be actually needed
+#endif
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
     if (shader)
     {
         shader->unbind();
@@ -1697,7 +1702,9 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
     mResourceCost = calcResourceCost();
 
     LLVertexBuffer::unbind();
+#if 0   // DJH See comment at top of fxn
     LLGLSLShader::sNoFixedFunction = no_ff;
+#endif
     if (shader)
     {
         shader->bind();
@@ -2724,8 +2731,6 @@ BOOL LLModelPreview::render()
     LLMutexLock lock(this);
     mNeedsUpdate = FALSE;
 
-    bool use_shaders = LLGLSLShader::sNoFixedFunction;
-
     bool edges = mViewOption["show_edges"];
     bool joint_overrides = mViewOption["show_joint_overrides"];
     bool joint_positions = mViewOption["show_joint_positions"];
@@ -2743,10 +2748,8 @@ BOOL LLModelPreview::render()
     LLGLDisable fog(GL_FOG);
 
     {
-        if (use_shaders)
-        {
-            gUIProgram.bind();
-        }
+        gUIProgram.bind();
+
         //clear background to grey
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
@@ -2765,10 +2768,7 @@ BOOL LLModelPreview::render()
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.popMatrix();
-        if (use_shaders)
-        {
-            gUIProgram.unbind();
-        }
+        gUIProgram.unbind();
     }
 
     LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -2921,10 +2921,7 @@ BOOL LLModelPreview::render()
         refresh();
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.bind();
-    }
+    gObjectPreviewProgram.bind();
 
     gGL.loadIdentity();
     gPipeline.enableLightsPreview();
@@ -3427,10 +3424,7 @@ BOOL LLModelPreview::render()
         }
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.unbind();
-    }
+    gObjectPreviewProgram.unbind();
 
     gGL.popMatrix();
 
