@@ -1171,14 +1171,18 @@ bool LLAppViewer::init()
 	// Because it's the updater, it MUST persist beyond the lifespan of the
 	// viewer itself.
 	updater.autokill = false;
+	std::string updater_file;
 #if LL_WINDOWS
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
+	updater_file = "SLVersionChecker.exe";
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #elif LL_DARWIN
 	// explicitly run the system Python interpreter on SLVersionChecker.py
 	updater.executable = "python";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
+	updater_file = "SLVersionChecker.py";
+	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file));
 #else
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
+	updater_file = "SLVersionChecker";
+	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #endif
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");
@@ -1191,8 +1195,22 @@ bool LLAppViewer::init()
 	// ForceAddressSize
 	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-		// Run the updater. An exception from launching the updater should bother us.
-		LLLeap::create(updater, true);
+        try
+        {
+            // Run the updater. An exception from launching the updater should bother us.
+            LLLeap::create(updater, true);
+        }
+        catch (...)
+        {
+            LLUIString details = LLNotifications::instance().getGlobalString("LLLeapUpdaterFailure");
+            details.setArg("[UPDATER_APP]", updater_file);
+            OSMessageBox(
+                details.getString(),
+                LLStringUtil::null,
+                OSMB_OK);
+            // pass this exception to crash handler
+            throw;
+        }
 	}
 	else
 	{
