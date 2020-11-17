@@ -48,8 +48,11 @@ count = 0
 print "input", args.infilename,"output", args.outfilename
 outf = open(args.outfilename,"w")
 with open(args.infilename,"r") as f:
-    data = f.read().translate(None,'\r\n ')
+    data = f.read().translate(None,'\r\n')
+    data = re.sub(r'\s{2,}','',data) 
     f.close()
+    #outf.write(data)
+    #sys.exit()
 lines = data.split("<llsd>")
 
 print "got lines", len(lines)

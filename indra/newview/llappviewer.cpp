@@ -632,7 +632,7 @@ public:
 
         LLTrace::BlockTimer::writeHeader(os);
 
-		while (!LLAppViewer::instance()->isQuitting())
+		while (!LLApp::isQuitting())
 		{
 			LLTrace::BlockTimer::writeLog(os);
 			os.flush();
@@ -1328,14 +1328,15 @@ static LLTrace::BlockTimerStatHandle FTM_SLEEP_TEX_THRD("SleepTexThrd");
 static LLTrace::BlockTimerStatHandle FTM_SLEEP_IO_PEND("SleepIOPend");
 static LLTrace::BlockTimerStatHandle FTM_SLEEP_MESH_REPO("SleepMeshRepo");
 static LLTrace::BlockTimerStatHandle FTM_SLEEP_OTHER("SleepOther");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_TEX_FETCH_DEBUG("SleepTexFetchDebug");
 static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
 static LLTrace::BlockTimerStatHandle FTM_FETCH("Image Fetch");
 
-static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
-static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_VFS("Sleep VFS Thread");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP_LFS("Sleep LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
 static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
 static LLTrace::BlockTimerStatHandle FTM_PUMP("Pump");
@@ -1400,7 +1401,7 @@ LLSD getSessionLogData()
 
 void LLAppViewer::doPerFrameStatsLogging()
 {
-    if (LLTrace::BlockTimer::sLog && LLStartUp::getStartupState() >= STATE_STARTED)
+    if (LLTrace::BlockTimer::sLog && LLStartUp::getStartupState() >= STATE_STARTED && !LLApp::isQuitting())
     {
         static bool first_frame = true;
         // Output per-frame performance data
@@ -1666,11 +1667,11 @@ bool LLAppViewer::doFrame()
 				}
 
 				{
-					LL_RECORD_BLOCK_TIME(FTM_VFS);
+					LL_RECORD_BLOCK_TIME(FTM_SLEEP_VFS);
  					io_pending += LLVFSThread::updateClass(1);
 				}
 				{
-					LL_RECORD_BLOCK_TIME(FTM_LFS);
+					LL_RECORD_BLOCK_TIME(FTM_SLEEP_LFS);
  					io_pending += LLLFSThread::updateClass(1);
 				}
 
@@ -1705,6 +1706,7 @@ bool LLAppViewer::doFrame()
 			//texture fetching debugger
 			if(LLTextureFetchDebugger::isEnabled())
 			{
+				LL_RECORD_BLOCK_TIME(FTM_SLEEP_TEX_FETCH_DEBUG);
 				LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
 					LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
 				if(tex_fetch_debugger_instance)
