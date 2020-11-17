@@ -1005,132 +1005,6 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
-	// Load User's bindings
-	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
-#if 1
-    // Legacy support
-    // Remove #if-#endif section half a year after DRTVWR-501 releases.
-    // Mouse actions are part of keybinding file since DRTVWR-501 instead of being stored in
-    // settings.xml. To support legacy viewers that were storing in  settings.xml we need to
-    // transfer old variables to new format.
-    // Also part of backward compatibility is present in LLKeyConflictHandler to modify
-    // legacy variables on changes in new system (to make sure we won't enforce
-    // legacy values again if user dropped to defaults in new system)
-    if (LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion
-        || !gDirUtilp->fileExists(key_bindings_file)) // if file is missing, assume that there were no changes by user yet
-    {
-        // copy mouse actions and voice key changes to new file
-        LL_INFOS("InitInfo") << "Converting legacy mouse bindings to new format" << LL_ENDL;
-        // Load settings from file
-        LLKeyConflictHandler third_person_view(LLKeyConflictHandler::MODE_THIRD_PERSON);
-        LLKeyConflictHandler sitting_view(LLKeyConflictHandler::MODE_SITTING);
-
-        // Since we are only modifying keybindings if personal file doesn't exist yet,
-        // it should be safe to just overwrite the value
-        // If key is already in use somewhere by default, LLKeyConflictHandler should resolve it.
-        BOOL value = gSavedSettings.getBOOL("DoubleClickAutoPilot");
-        third_person_view.registerControl("walk_to",
-                                          0,
-                                          value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-                                          KEY_NONE,
-                                          MASK_NONE,
-                                          value);
-
-        U32 index = value ? 1 : 0; // we can store multiple combinations per action, so if first is in use by doubleclick, go to second
-        value = gSavedSettings.getBOOL("ClickToWalk");
-        third_person_view.registerControl("walk_to",
-                                          index,
-                                          value ? EMouseClickType::CLICK_LEFT : EMouseClickType::CLICK_NONE,
-                                          KEY_NONE,
-                                          MASK_NONE,
-                                          value);
-
-        value = gSavedSettings.getBOOL("DoubleClickTeleport");
-        third_person_view.registerControl("teleport_to",
-                                          0,
-                                          value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-                                          KEY_NONE,
-                                          MASK_NONE,
-                                          value);
-
-        // sitting also supports teleport
-        sitting_view.registerControl("teleport_to",
-            0,
-            value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-            KEY_NONE,
-            MASK_NONE,
-            value);
-
-        std::string key_string = gSavedSettings.getString("PushToTalkButton");
-        EMouseClickType mouse = EMouseClickType::CLICK_NONE;
-        KEY key = KEY_NONE;
-        if (key_string == "MiddleMouse")
-        {
-            mouse = EMouseClickType::CLICK_MIDDLE;
-        }
-        else if (key_string == "MouseButton4")
-        {
-            mouse = EMouseClickType::CLICK_BUTTON4;
-        }
-        else if (key_string == "MouseButton5")
-        {
-            mouse = EMouseClickType::CLICK_BUTTON5;
-        }
-        else
-        {
-            LLKeyboard::keyFromString(key_string, &key);
-        }
-
-        value = gSavedSettings.getBOOL("PushToTalkToggle");
-        std::string control_name = value ? "toggle_voice" : "voice_follow_key";
-        third_person_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-        sitting_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
-        if (third_person_view.hasUnsavedChanges())
-        {
-            // calls loadBindingsXML()
-            third_person_view.saveToSettings();
-        }
-
-        if (sitting_view.hasUnsavedChanges())
-        {
-            // calls loadBindingsXML()
-            sitting_view.saveToSettings();
-        }
-
-        // in case of voice we need to repeat this in other modes
-
-        for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
-        {
-            // edit and first person modes; MODE_SAVED_SETTINGS not in use at the moment
-            if (i != LLKeyConflictHandler::MODE_THIRD_PERSON && i != LLKeyConflictHandler::MODE_SITTING)
-            {
-                LLKeyConflictHandler handler((LLKeyConflictHandler::ESourceMode)i);
-
-                handler.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
-                if (handler.hasUnsavedChanges())
-                {
-                    // calls loadBindingsXML()
-                    handler.saveToSettings();
-                }
-            }
-        }
-    }
-    // since something might have gone wrong or there might have been nothing to save
-    // (and because otherwise following code will have to be encased in else{}),
-    // load everything one last time
-#endif
-	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
-	{
-		// Failed to load custom bindings, try default ones
-		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
-		if (!gViewerInput.loadBindingsXML(key_bindings_file))
-		{
-			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
-		}
-	}
-
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements)
 	{
@@ -1384,6 +1258,9 @@ bool LLAppViewer::init()
 
 	joystick = LLViewerJoystick::getInstance();
 	joystick->setNeedsReset(true);
+
+	// Load User's bindings
+	loadKeyBindings();
 
 	return true;
 }
@@ -4498,6 +4375,134 @@ bool LLAppViewer::initCache()
 void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 {
 	LLDeferredTaskList::instance().addTask(cb);
+}
+
+void LLAppViewer::loadKeyBindings()
+{
+	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
+#if 1
+	// Legacy support
+	// Remove #if-#endif section half a year after DRTVWR-501 releases.
+	// Mouse actions are part of keybinding file since DRTVWR-501 instead of being stored in
+	// settings.xml. To support legacy viewers that were storing in  settings.xml we need to
+	// transfer old variables to new format.
+	// Also part of backward compatibility is present in LLKeyConflictHandler to modify
+	// legacy variables on changes in new system (to make sure we won't enforce
+	// legacy values again if user dropped to defaults in new system)
+	if (LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion
+		|| !gDirUtilp->fileExists(key_bindings_file)) // if file is missing, assume that there were no changes by user yet
+	{
+		// copy mouse actions and voice key changes to new file
+		LL_INFOS("InitInfo") << "Converting legacy mouse bindings to new format" << LL_ENDL;
+		// Load settings from file
+		LLKeyConflictHandler third_person_view(LLKeyConflictHandler::MODE_THIRD_PERSON);
+		LLKeyConflictHandler sitting_view(LLKeyConflictHandler::MODE_SITTING);
+
+		// Since we are only modifying keybindings if personal file doesn't exist yet,
+		// it should be safe to just overwrite the value
+		// If key is already in use somewhere by default, LLKeyConflictHandler should resolve it.
+		BOOL value = gSavedSettings.getBOOL("DoubleClickAutoPilot");
+		third_person_view.registerControl("walk_to",
+			0,
+			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
+			KEY_NONE,
+			MASK_NONE,
+			value);
+
+		U32 index = value ? 1 : 0; // we can store multiple combinations per action, so if first is in use by doubleclick, go to second
+		value = gSavedSettings.getBOOL("ClickToWalk");
+		third_person_view.registerControl("walk_to",
+			index,
+			value ? EMouseClickType::CLICK_LEFT : EMouseClickType::CLICK_NONE,
+			KEY_NONE,
+			MASK_NONE,
+			value);
+
+		value = gSavedSettings.getBOOL("DoubleClickTeleport");
+		third_person_view.registerControl("teleport_to",
+			0,
+			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
+			KEY_NONE,
+			MASK_NONE,
+			value);
+
+		// sitting also supports teleport
+		sitting_view.registerControl("teleport_to",
+			0,
+			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
+			KEY_NONE,
+			MASK_NONE,
+			value);
+
+		std::string key_string = gSavedSettings.getString("PushToTalkButton");
+		EMouseClickType mouse = EMouseClickType::CLICK_NONE;
+		KEY key = KEY_NONE;
+		if (key_string == "MiddleMouse")
+		{
+			mouse = EMouseClickType::CLICK_MIDDLE;
+		}
+		else if (key_string == "MouseButton4")
+		{
+			mouse = EMouseClickType::CLICK_BUTTON4;
+		}
+		else if (key_string == "MouseButton5")
+		{
+			mouse = EMouseClickType::CLICK_BUTTON5;
+		}
+		else
+		{
+			LLKeyboard::keyFromString(key_string, &key);
+		}
+
+		value = gSavedSettings.getBOOL("PushToTalkToggle");
+		std::string control_name = value ? "toggle_voice" : "voice_follow_key";
+		third_person_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
+		sitting_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
+
+		if (third_person_view.hasUnsavedChanges())
+		{
+			// calls loadBindingsXML()
+			third_person_view.saveToSettings();
+		}
+
+		if (sitting_view.hasUnsavedChanges())
+		{
+			// calls loadBindingsXML()
+			sitting_view.saveToSettings();
+		}
+
+		// in case of voice we need to repeat this in other modes
+
+		for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+		{
+			// edit and first person modes; MODE_SAVED_SETTINGS not in use at the moment
+			if (i != LLKeyConflictHandler::MODE_THIRD_PERSON && i != LLKeyConflictHandler::MODE_SITTING)
+			{
+				LLKeyConflictHandler handler((LLKeyConflictHandler::ESourceMode)i);
+
+				handler.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
+
+				if (handler.hasUnsavedChanges())
+				{
+					// calls loadBindingsXML()
+					handler.saveToSettings();
+				}
+			}
+		}
+	}
+	// since something might have gone wrong or there might have been nothing to save
+	// (and because otherwise following code will have to be encased in else{}),
+	// load everything one last time
+#endif
+	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
+	{
+		// Failed to load custom bindings, try default ones
+		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
+		if (!gViewerInput.loadBindingsXML(key_bindings_file))
+		{
+			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
+		}
+	}
 }
 
 void LLAppViewer::purgeCache()
