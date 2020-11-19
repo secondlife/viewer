@@ -703,6 +703,10 @@ void LLPanelOutfitEdit::onListViewFilterCommitted(LLUICtrl* ctrl)
 	S32 curr_filter_type = mListViewFilterCmbBox->getCurrentIndex();
 	if (curr_filter_type < 0) return;
 
+	if (curr_filter_type >= LVIT_SHAPE)
+	{
+		mWearableItemsList->setMenuWearableType(LLWearableType::EType(curr_filter_type - LVIT_SHAPE));
+	}
 	mWearableListManager->setFilterCollector(mListViewItemTypes[curr_filter_type]->collector);
 }
 
