@@ -391,7 +391,9 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 		}
 		if (type == LLFilePicker::FFLOAD_ANIM)
 		{
-			if (filename.rfind(".anim") != std::string::npos)
+			std::string filename_lc(filename);
+			LLStringUtil::toLower(filename_lc);
+			if (filename_lc.rfind(".anim") != std::string::npos)
 			{
 				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
 			}
