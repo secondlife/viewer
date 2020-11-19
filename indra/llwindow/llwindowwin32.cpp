@@ -428,7 +428,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	memset(mCurrentGammaRamp, 0, sizeof(mCurrentGammaRamp));
 	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
 	mCustomGammaSet = FALSE;
-	
+	mWindowHandle = NULL;
+
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
 		mMouseVanish = TRUE;
@@ -1169,7 +1170,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
         << " Height: " << (window_rect.bottom - window_rect.top)
         << " Fullscreen: " << mFullscreen
         << LL_ENDL;
-    if (!destroy_window_handler(mWindowHandle))
+    if (mWindowHandle && !destroy_window_handler(mWindowHandle))
     {
         LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
     }	
@@ -1228,13 +1229,26 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 	LL_INFOS("Window") << "Device context retrieved." << LL_ENDL ;
 
-	if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
-	{
-		close();
-		OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
-			mCallbacks->translateString("MBError"), OSMB_OK);
-		return FALSE;
-	}
+    try
+    {
+        // Looks like ChoosePixelFormat can crash in case of faulty driver
+        if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
+        {
+            LL_WARNS("Window") << "ChoosePixelFormat failed, code: " << GetLastError() << LL_ENDL;
+            OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
+                mCallbacks->translateString("MBError"), OSMB_OK);
+            close();
+            return FALSE;
+        }
+    }
+    catch (...)
+    {
+        LL_WARNS("Window") << "ChoosePixelFormat failed." << LL_ENDL;
+        OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
+            mCallbacks->translateString("MBError"), OSMB_OK);
+        close();
+        return FALSE;
+    }
 
 	LL_INFOS("Window") << "Pixel format chosen." << LL_ENDL ;
 
@@ -1494,7 +1508,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		}
 
         // Destroy The Window
-        if (!destroy_window_handler(mWindowHandle))
+        if (mWindowHandle && !destroy_window_handler(mWindowHandle))
         {
             LL_WARNS("Window") << "Failed to properly close window!" << LL_ENDL;
         }		
