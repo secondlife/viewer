@@ -55,16 +55,19 @@ protected:
 	/*virtual*/ void renderForTimer();
 	/*virtual*/ void packData(LLMessageSystem *mesgsys);
 	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+	/*virtual*/ void update();
+
 private:
 	void setupParticle(const S32 i);
 
 	
-	F32 mKillTime;
-	LLFrameTimer mTimer;
+	F32                        mKillTime;
+	LLFrameTimer               mTimer;
 	LLInterpLinear<LLVector3d> mInterp[NUM_POINTS];
-	LLInterpLinear<F32> mInterpFade[NUM_POINTS];
-	LLInterpLinear<F32> mFadeInterp;
-	LLVector3d	mTargetPos;
+	LLInterpLinear<F32>        mInterpFade[NUM_POINTS];
+	F32                        mScale[NUM_POINTS];
+	LLInterpLinear<F32>        mFadeInterp;
+	LLVector3d                 mTargetPos;
 };
 
 #endif // LL_LLHUDEFFECTBEAM_H

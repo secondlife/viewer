@@ -59,6 +59,7 @@ LLHUDEffectBeam::LLHUDEffectBeam(const U8 type) : LLHUDEffect(type)
 		mInterpFade[i].setEndTime(BEAM_SPACING*NUM_POINTS + BEAM_SPACING*i);
 		mInterpFade[i].setStartVal(1.f);
 		mInterpFade[i].setEndVal(0.f);
+		mScale[i] = 1.0f;
 	}
 
 	// Setup default timeouts and fade animations.
@@ -222,75 +223,33 @@ void LLHUDEffectBeam::setTargetPos(const LLVector3d &pos_global)
 	mTargetObject = NULL;
 }
 
+// This originally was triggered when a user rezs an object via dragging an item from inventory to the ground.
+// Added by LLHUDObject::addHUDEffect() but LLHUDEffectSpiral is now being used instead for LL_HUD_EFFECT_BEAM
 void LLHUDEffectBeam::render()
 {
-	if (!mSourceObject)
+    // *NOTE: This still doesn't render due to a shader not being bound
+	if (mDead)
 	{
-		markDead();
 		return;
 	}
-	if (mSourceObject->isDead())
-	{
-		markDead();
-		return;
-	}
-
-	F32 time = mTimer.getElapsedTimeF32();
-
-	// Kill us if our time is over...
-	if (mKillTime < time)
-	{
-		markDead();
-		return;
-	}
-
-	LLGLSPipelineAlpha gls_pipeline_alpha;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-
-	// Interpolate the global fade alpha
-	mFadeInterp.update(time);
-
-	if (mTargetObject.notNull() && mTargetObject->mDrawable.notNull())
-	{
-		// use viewer object position on freshly created objects
-		if (mTargetObject->mDrawable->getGeneration() == -1)
-		{
-			mTargetPos = mTargetObject->getPositionGlobal();
-		}
-		// otherwise use drawable
-		else
-		{
-			mTargetPos = gAgent.getPosGlobalFromAgent(mTargetObject->mDrawable->getPositionAgent());
-		}
-	}
-
 
 	// Init the color of the particles
 	LLColor4U coloru = mColor;
+	LLGLSPipelineAlpha gls_pipeline_alpha;
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Draw the particles
 	S32 i;
 	for (i = 0; i < NUM_POINTS; i++)
 	{
-		mInterp[i].update(time);
 		if (!mInterp[i].isActive())
 		{
 			continue;
 		}
-		mInterpFade[i].update(time);
 
-		if (mInterp[i].isDone())
-		{
-			// Reinitialize the particle when the particle has finished its animation.
-			setupParticle(i);
-		}
-
-		F32 frac = mInterp[i].getCurFrac();
-		F32 scale = 0.025f + fabs(0.05f*sin(2.f*F_PI*(frac - time)));
-		scale *= mInterpFade[i].getCurVal();
-
-		LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mInterp[i].getCurVal());
+		const F32 scale = mScale[i];
+		const LLVector3& pos_agent = gAgent.getPosAgentFromGlobal(mInterp[i].getCurVal());
 
 		F32 alpha = mFadeInterp.getCurVal()*mColor.mV[3];
 		alpha *= mInterpFade[i].getCurVal();
@@ -298,9 +257,9 @@ void LLHUDEffectBeam::render()
 		gGL.color4ubv(coloru.mV);
 
 		gGL.pushMatrix();
-		gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
-		gGL.scalef(scale, scale, scale);
-		gSphere.render();
+			gGL.translatef(pos_agent.mV[0], pos_agent.mV[1], pos_agent.mV[2]);
+			gGL.scalef(scale, scale, scale);
+			gSphere.render();
 		gGL.popMatrix();
 	}
 }
@@ -345,4 +304,65 @@ void LLHUDEffectBeam::setupParticle(const S32 i)
 	mInterpFade[i].setStartTime(mInterp[i].getStartTime() + BEAM_SPACING*NUM_POINTS - 0.5f*NUM_POINTS*BEAM_SPACING);
 	mInterpFade[i].setEndTime(mInterp[i].getStartTime() + BEAM_SPACING*NUM_POINTS - 0.05f);
 	mInterpFade[i].start();
+}
+
+void LLHUDEffectBeam::update()
+{
+	if (!mSourceObject)
+	{
+		markDead();
+		return;
+	}
+	if (mSourceObject->isDead())
+	{
+		markDead();
+		return;
+	}
+
+	F32 time = mTimer.getElapsedTimeF32();
+
+	// Kill us if our time is over...
+	if (mKillTime < time)
+	{
+		markDead();
+		return;
+	}
+
+	// Interpolate the global fade alpha
+	mFadeInterp.update(time);
+
+	if (mTargetObject.notNull() && mTargetObject->mDrawable.notNull())
+	{
+		// use viewer object position on freshly created objects
+		if (mTargetObject->mDrawable->getGeneration() == -1)
+		{
+			mTargetPos = mTargetObject->getPositionGlobal();
+		}
+		// otherwise use drawable
+		else
+		{
+			mTargetPos = gAgent.getPosGlobalFromAgent(mTargetObject->mDrawable->getPositionAgent());
+		}
+	}
+
+	S32 i;
+	for (i = 0; i < NUM_POINTS; i++)
+	{
+		mInterp[i].update(time);
+		if (!mInterp[i].isActive())
+		{
+			continue;
+		}
+		mInterpFade[i].update(time);
+
+		if (mInterp[i].isDone())
+		{
+			// Reinitialize the particle when the particle has finished its animation.
+			setupParticle(i);
+		}
+
+		F32 frac = mInterp[i].getCurFrac();
+		F32 scale = 0.025f + fabs(0.05f*sin(2.f*F_PI*(frac - time)));
+		mScale[i] = scale * mInterpFade[i].getCurVal();
+	}
 }
