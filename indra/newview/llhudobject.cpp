@@ -158,76 +158,77 @@ LLHUDObject *LLHUDObject::addHUDObject(const U8 type)
 LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 {
 	LLHUDEffect *hud_objectp = NULL;
-	
+	LLHUDEffectSpiral *spiralp = NULL;
+
 	switch (type)
 	{
 	case LL_HUD_EFFECT_BEAM:
-		hud_objectp = new LLHUDEffectSpiral(type);
-		((LLHUDEffectSpiral *)hud_objectp)->setDuration(0.7f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVMag(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVOffset(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setInitialRadius(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFinalRadius(0.2f);
-		((LLHUDEffectSpiral *)hud_objectp)->setSpinRate(10.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFlickerRate(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleBase(0.05f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleVar(0.02f);
-		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
+		spiralp = new LLHUDEffectSpiral(type);
+		spiralp->setDuration(0.7f);
+		spiralp->setVMag(0.f);
+		spiralp->setVOffset(0.f);
+		spiralp->setInitialRadius(0.1f);
+		spiralp->setFinalRadius(0.2f);
+		spiralp->setSpinRate(10.f);
+		spiralp->setFlickerRate(0.f);
+		spiralp->setScaleBase(0.05f);
+		spiralp->setScaleVar(0.02f);
+		spiralp->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_GLOW:
 		// deprecated
 		break;
 	case LL_HUD_EFFECT_POINT:
-		hud_objectp = new LLHUDEffectSpiral(type);
-		((LLHUDEffectSpiral *)hud_objectp)->setDuration(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVMag(1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVOffset(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setInitialRadius(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFinalRadius(1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setSpinRate(10.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFlickerRate(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleBase(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleVar(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
+		spiralp = new LLHUDEffectSpiral(type);
+		spiralp->setDuration(0.5f);
+		spiralp->setVMag(1.f);
+		spiralp->setVOffset(0.f);
+		spiralp->setInitialRadius(0.5f);
+		spiralp->setFinalRadius(1.f);
+		spiralp->setSpinRate(10.f);
+		spiralp->setFlickerRate(0.f);
+		spiralp->setScaleBase(0.1f);
+		spiralp->setScaleVar(0.1f);
+		spiralp->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_SPHERE:
-		hud_objectp = new LLHUDEffectSpiral(type);
-		((LLHUDEffectSpiral *)hud_objectp)->setDuration(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVMag(1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVOffset(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setInitialRadius(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFinalRadius(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setSpinRate(20.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFlickerRate(0.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleBase(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleVar(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
+		spiralp = new LLHUDEffectSpiral(type);
+		spiralp->setDuration(0.5f);
+		spiralp->setVMag(1.f);
+		spiralp->setVOffset(0.f);
+		spiralp->setInitialRadius(0.5f);
+		spiralp->setFinalRadius(0.5f);
+		spiralp->setSpinRate(20.f);
+		spiralp->setFlickerRate(0.f);
+		spiralp->setScaleBase(0.1f);
+		spiralp->setScaleVar(0.1f);
+		spiralp->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_SPIRAL:
-		hud_objectp = new LLHUDEffectSpiral(type);
-		((LLHUDEffectSpiral *)hud_objectp)->setDuration(2.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVMag(-2.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVOffset(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setInitialRadius(1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFinalRadius(0.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setSpinRate(10.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFlickerRate(20.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleBase(0.02f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleVar(0.02f);
-		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
+		spiralp = new LLHUDEffectSpiral(type);
+		spiralp->setDuration(2.f);
+		spiralp->setVMag(-2.f);
+		spiralp->setVOffset(0.5f);
+		spiralp->setInitialRadius(1.f);
+		spiralp->setFinalRadius(0.5f);
+		spiralp->setSpinRate(10.f);
+		spiralp->setFlickerRate(20.f);
+		spiralp->setScaleBase(0.02f);
+		spiralp->setScaleVar(0.02f);
+		spiralp->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_EDIT:
-		hud_objectp = new LLHUDEffectSpiral(type);
-		((LLHUDEffectSpiral *)hud_objectp)->setDuration(2.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVMag(2.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setVOffset(-1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setInitialRadius(1.5f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFinalRadius(1.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setSpinRate(4.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setFlickerRate(200.f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleBase(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setScaleVar(0.1f);
-		((LLHUDEffectSpiral *)hud_objectp)->setColor(LLColor4U(255, 255, 255, 255));
+		spiralp = new LLHUDEffectSpiral(type);
+		spiralp->setDuration(2.f);
+		spiralp->setVMag(2.f);
+		spiralp->setVOffset(-1.f);
+		spiralp->setInitialRadius(1.5f);
+		spiralp->setFinalRadius(1.f);
+		spiralp->setSpinRate(4.f);
+		spiralp->setFlickerRate(200.f);
+		spiralp->setScaleBase(0.1f);
+		spiralp->setScaleVar(0.1f);
+		spiralp->setColor(LLColor4U(255, 255, 255, 255));
 		break;
 	case LL_HUD_EFFECT_LOOKAT:
 		hud_objectp = new LLHUDEffectLookAt(type);
@@ -243,6 +244,11 @@ LLHUDEffect *LLHUDObject::addHUDEffect(const U8 type)
 		break;
 	default:
 		LL_WARNS() << "Unknown type of hud effect:" << (U32) type << LL_ENDL;
+	}
+
+	if (spiralp)
+	{
+		hud_objectp = spiralp;
 	}
 
 	if (hud_objectp)
