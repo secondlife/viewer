@@ -316,10 +316,14 @@ void LLHUDEffectPointAt::setSourceObject(LLViewerObject* objectp)
 
 //-----------------------------------------------------------------------------
 // render()
+// Develop > Avatar > Show Point At
 //-----------------------------------------------------------------------------
 void LLHUDEffectPointAt::render()
 {
-	update();
+	// Removed call to:
+	//     update();
+	// As this is called by LLHUDObject::updateAll()
+
 	if (sDebugPointAt && mTargetType != POINTAT_TARGET_NONE)
 	{
 		LLGLDisable gls_stencil(GL_STENCIL_TEST);
