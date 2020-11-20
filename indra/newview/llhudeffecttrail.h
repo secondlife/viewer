@@ -65,6 +65,7 @@ protected:
 	/*virtual*/ void renderForTimer();
 	/*virtual*/ void packData(LLMessageSystem *mesgsys);
 	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+	/*virtual*/ void update();
 private:
 	/*
 	void setupParticle(const S32 i, const F32 start_time);
