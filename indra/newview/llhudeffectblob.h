@@ -45,6 +45,7 @@ protected:
 
 	/*virtual*/ void render();
 	/*virtual*/ void renderForTimer();
+	/*virtual*/ void update();
 private:
 	S32				mPixelSize;
 	LLFrameTimer	mTimer;

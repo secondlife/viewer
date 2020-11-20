@@ -53,15 +53,13 @@ void LLHUDEffectBlob::markDead()
 
 void LLHUDEffectBlob::render()
 {
-	F32 time = mTimer.getElapsedTimeF32();
-	if (mDuration < time)
+	if (mDead)
 	{
-		markDead();
 		return;
 	}
 
+	F32 time = mTimer.getElapsedTimeF32();
 	LLVector3 pos_agent = gAgent.getPosAgentFromGlobal(mPositionGlobal);
-
 	LLVector3 pixel_up, pixel_right;
 
 	LLViewerCamera::instance().getPixelVectors(pos_agent, pixel_up, pixel_right);
@@ -96,3 +94,12 @@ void LLHUDEffectBlob::renderForTimer()
 {
 }
 
+void LLHUDEffectBlob::update()
+{
+	F32 time = mTimer.getElapsedTimeF32();
+	if (mDuration < time)
+	{
+		markDead();
+		return;
+	}
+}
