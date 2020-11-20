@@ -68,7 +68,6 @@ public:
 	static LLHUDEffect *addHUDEffect(const U8 type);
 	static void updateAll();
 	static void renderAll();
-	static void renderAllForSelect();
 	static void renderAllForTimer();
 
 	// Some objects may need to update when window shape changes
