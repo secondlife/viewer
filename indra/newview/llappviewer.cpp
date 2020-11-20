@@ -1882,8 +1882,6 @@ bool LLAppViewer::cleanup()
 
 	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
 
-	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
-
 	SUBSYSTEM_CLEANUP(LLPostProcess);
 
 	LLTracker::cleanupInstance();
