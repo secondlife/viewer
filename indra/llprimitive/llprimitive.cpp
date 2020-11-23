@@ -118,7 +118,7 @@ struct material_id_type // originally from llrendermaterialtable
 {
     material_id_type()
     {
-        memset(m_value, 0, sizeof(m_value));
+        memset((void*)m_value, 0, sizeof(m_value));
     }
 
     bool operator==(const material_id_type& other) const
@@ -1417,7 +1417,7 @@ S32 LLPrimitive::parseTEMessage(LLMessageSystem* mesgsys, char const* block_name
 
 	if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, tec.face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
-		memset(material_data, 0, sizeof(material_data));
+		memset((void*)material_data, 0, sizeof(material_data));
 	}
 	
 	for (U32 i = 0; i < tec.face_count; i++)
@@ -1480,7 +1480,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
     const U32 MAX_TE_BUFFER = 4096;
     U8 packed_buffer[MAX_TE_BUFFER];
-    memset(packed_buffer, 0, MAX_TE_BUFFER);
+    memset((void*)packed_buffer, 0, MAX_TE_BUFFER);
 
     LLUUID      image_data[MAX_TES];
     LLColor4U   colors[MAX_TES];
@@ -1494,14 +1494,14 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
     U8          glow[MAX_TES];
     material_id_type material_data[MAX_TES];
     
-    memset(scale_s, 0, sizeof(scale_s));
-    memset(scale_t, 0, sizeof(scale_t));
-    memset(offset_s, 0, sizeof(offset_s));
-    memset(offset_t, 0, sizeof(offset_t));
-    memset(image_rot, 0, sizeof(image_rot));
-    memset(bump, 0, sizeof(bump));
-    memset(media_flags, 0, sizeof(media_flags));
-    memset(glow, 0, sizeof(glow));
+    memset((void*)scale_s, 0, sizeof(scale_s));
+    memset((void*)scale_t, 0, sizeof(scale_t));
+    memset((void*)offset_s, 0, sizeof(offset_s));
+    memset((void*)offset_t, 0, sizeof(offset_t));
+    memset((void*)image_rot, 0, sizeof(image_rot));
+    memset((void*)bump, 0, sizeof(bump));
+    memset((void*)media_flags, 0, sizeof(media_flags));
+    memset((void*)glow, 0, sizeof(glow));
 
 	S32 size;
 	U32 face_count = 0;
@@ -1551,7 +1551,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 
 	if (cur_ptr >= buffer_end || !unpack_TEField<material_id_type>(material_data, face_count, cur_ptr, buffer_end, MVT_LLUUID))
 	{
-		memset(material_data, 0, sizeof(material_data));
+		memset((void*)material_data, 0, sizeof(material_data));
 	}
 
 	for (i = 0; i < face_count; i++)
