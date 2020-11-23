@@ -72,14 +72,6 @@
          function="Clothing.TakeOff" />
     </menu_item_call>
     <menu_item_call
-     label="Edit"
-     layout="topleft"
-     visible="false"
-     name="edit">
-        <on_click
-         function="Wearable.Edit" />
-    </menu_item_call>
-    <menu_item_call
      label="Item Profile"
      layout="topleft"
      visible="false"
