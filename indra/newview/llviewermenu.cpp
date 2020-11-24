@@ -7206,7 +7206,7 @@ namespace
 	};
 }
 
-void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
+bool queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 {
 	QueueObjects func(q);
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();
@@ -7228,6 +7228,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 		{
 			LL_ERRS() << "Bad logic." << LL_ENDL;
 		}
+		q->closeFloater();
 	}
 	else
 	{
@@ -7236,6 +7237,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 			LL_WARNS() << "Unexpected script compile failure." << LL_ENDL;
 		}
 	}
+	return !fail;
 }
 
 class LLToolsSelectedScriptAction : public view_listener_t
@@ -7283,8 +7285,10 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		if (queue)
 		{
 			queue->setMono(mono);
-			queue_actions(queue, msg);
-			queue->setTitle(title);
+			if (queue_actions(queue, msg))
+			{
+				queue->setTitle(title);
+			}			
 		}
 		else
 		{
