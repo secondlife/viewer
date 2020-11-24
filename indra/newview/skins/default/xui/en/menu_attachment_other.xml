@@ -173,13 +173,16 @@
           parameter="avatar_render_settings" />
       </menu_item_call>
       </context_menu>
+  <menu_item_separator
+       layout="topleft" name="Impostor seperator"/>
+
   <menu_item_call
      enabled="false"
      label="Block Particle Owner"
      name="Mute Particle">
     <menu_item_call.on_click
      function="Particle.Mute" />
-    <menu_item_call.on_visible
+    <menu_item_call.on_enable
      function="EnableMuteParticle" />
   </menu_item_call>
 </context_menu>

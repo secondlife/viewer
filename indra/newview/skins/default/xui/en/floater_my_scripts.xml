@@ -7,7 +7,7 @@
  layout="topleft"
  name="myscripts"
  save_rect="true"
- title="ATTACHMENT SCRIPTS"
+ title="My Scripts"
  min_width="620"
  width="620">
   <panel
