@@ -55,7 +55,7 @@ public:
 		FADE_OUT,
 	};
 
-	void startInternetStreamWithAutoFade(std::string streamURI);
+	void startInternetStreamWithAutoFade(const std::string &streamURI);
 	void stopInternetStreamWithAutoFade();
 	
 	bool onIdleUpdate();
@@ -65,7 +65,8 @@ public:
 	F32 getFadeVolume();
 	bool getForcedTeleportFade() { return mForcedTeleportFade; };
 	void setForcedTeleportFade(bool fade) { mForcedTeleportFade = fade;} ;
-	void setNextStreamURI(std::string stream) { mNextStreamURI = stream; } ;
+	std::string getNextStreamURI() { return mNextStreamURI; };
+	void setNextStreamURI(const std::string &stream) { mNextStreamURI = stream; } ;
 	void setWasPlaying(bool playing) { mWasPlaying = playing;} ;
 
 private:

@@ -271,7 +271,7 @@ public:
 	//void makeLandmarkAtSelection();
 
 	static void onStartMusicResponse(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, const bool &play);
-	static void optionally_start_music(const std::string &music_url, const S32 &local_id, const LLUUID &region_id);
+	static void optionallyStartMusic(const std::string &music_url, const S32 &local_id, const LLUUID &region_id, bool switched_parcel);
 
 	static void processParcelOverlay(LLMessageSystem *msg, void **user_data);
 	static void processParcelProperties(LLMessageSystem *msg, void **user_data);
