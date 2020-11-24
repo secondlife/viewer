@@ -79,7 +79,7 @@ const U32 LEFT_PAD_PIXELS = 3;
 const U32 LEFT_WIDTH_PIXELS = 15;
 const U32 LEFT_PLAIN_PIXELS = LEFT_PAD_PIXELS + LEFT_WIDTH_PIXELS;
 
-const U32 RIGHT_PAD_PIXELS = 7;
+const U32 RIGHT_PAD_PIXELS = 2;
 const U32 RIGHT_WIDTH_PIXELS = 15;
 const U32 RIGHT_PLAIN_PIXELS = RIGHT_PAD_PIXELS + RIGHT_WIDTH_PIXELS;
 
@@ -95,7 +95,7 @@ const std::string SEPARATOR_NAME("separator");
 const std::string VERTICAL_SEPARATOR_LABEL( "|" );
 
 const std::string LLMenuGL::BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
-const std::string LLMenuGL::BRANCH_SUFFIX( "\xe2\x96\xb8" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
+const std::string LLMenuGL::BRANCH_SUFFIX( "\xE2\x96\xB6" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
 const std::string LLMenuGL::ARROW_UP  ("^^^^^^^");
 const std::string LLMenuGL::ARROW_DOWN("vvvvvvv");
 

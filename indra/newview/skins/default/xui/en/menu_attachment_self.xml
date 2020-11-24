@@ -4,6 +4,17 @@
  name="Attachment Pie">
     <menu_item_call
      enabled="false"
+     label="Touch item"
+     layout="topleft"
+     name="Attachment Object Touch">
+        <menu_item_call.on_click
+         function="Object.Touch" />
+        <menu_item_call.on_enable
+         function="Object.EnableTouch"
+         name="EnableTouch"/>
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
      label="Edit item"
      layout="topleft"
      name="Edit...">
@@ -22,19 +33,8 @@
         <menu_item_call.on_enable
          function="Attachment.EnableDetach" />
     </menu_item_call>
-    <menu_item_call
-     enabled="false"
-     label="Touch item"
-     layout="topleft"
-     name="Attachment Object Touch">
-        <menu_item_call.on_click
-         function="Object.Touch" />
-        <menu_item_call.on_enable
-         function="Object.EnableTouch"
-         name="EnableTouch"/>
-    </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
+  <menu_item_separator
+    layout="topleft" />
 
   <menu_item_call
   label="Outfits..."
@@ -44,7 +44,7 @@
     <menu_item_call.on_enable
      function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>
-  <menu_item_call label="Current outfit..."
+  <menu_item_call label="Edit current outfit..."
 layout="topleft"
 name="Edit Outfit">
     <menu_item_call.on_click
@@ -68,188 +68,6 @@ name="Edit Outfit">
      <menu_item_call.on_enable
       function="Edit.EnableHoverHeight" />
   </menu_item_call>
-  <context_menu
-  label="Take Off"
-  layout="topleft"
-  name="Take Off &gt;">
-    <context_menu
-     label="Clothes"
-     layout="topleft"
-     name="Clothes &gt;">
-      <menu_item_call
-       enabled="false"
-       label="Shirt"
-       layout="topleft"
-       name="Shirt">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="shirt" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="shirt" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Pants"
-       layout="topleft"
-       name="Pants">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="pants" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="pants" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Skirt"
-       layout="topleft"
-       name="Skirt">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="skirt" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="skirt" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Shoes"
-       layout="topleft"
-       name="Shoes">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="shoes" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="shoes" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Socks"
-       layout="topleft"
-       name="Socks">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="socks" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="socks" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Jacket"
-       layout="topleft"
-       name="Jacket">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="jacket" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="jacket" />
-      </menu_item_call>
-      <menu_item_call
-       enabled="false"
-       label="Gloves"
-       layout="topleft"
-       name="Gloves">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="gloves" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="gloves" />
-      </menu_item_call>
-      <menu_item_call
-            enabled="false"
-            label="Undershirt"
-            layout="topleft"
-            name="Self Undershirt">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="undershirt" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="undershirt" />
-      </menu_item_call>
-      <menu_item_call
-        enabled="false"
-        label="Underpants"
-        layout="topleft"
-        name="Self Underpants">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="underpants" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="underpants" />
-      </menu_item_call>
-      <menu_item_call
-        enabled="false"
-        label="Tattoo"
-        layout="topleft"
-        name="Self Tattoo">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="tattoo" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="tattoo" />
-      </menu_item_call>
-      <menu_item_call
-        enabled="false"
-        label="Physics"
-        layout="topleft"
-        name="Self Physics">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="physics" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="physics" />
-      </menu_item_call>
-      <menu_item_call
-        enabled="false"
-        label="Alpha"
-        layout="topleft"
-        name="Self Alpha">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="alpha" />
-        <menu_item_call.on_enable
-         function="Edit.EnableTakeOff"
-         parameter="alpha" />
-      </menu_item_call>
-      <menu_item_separator
-       layout="topleft" />
-      <menu_item_call
-       label="All Clothes"
-       layout="topleft"
-       name="All Clothes">
-        <menu_item_call.on_click
-         function="Edit.TakeOff"
-         parameter="all" />
-      </menu_item_call>
-    </context_menu>
-    <context_menu
-     label="HUD"
-     layout="topleft"
-     name="Detach Self HUD" />
-    <context_menu
-     label="Detach"
-     layout="topleft"
-     name="Detach Self" />
-    <menu_item_call
-     label="Detach All"
-     layout="topleft"
-     name="Detach All">
-      <menu_item_call.on_click
-       function="Self.RemoveAllAttachments"
-       parameter="" />
-      <menu_item_call.on_enable
-       function="Self.EnableRemoveAllAttachments" />
-    </menu_item_call>
-  </context_menu>
   <menu_item_separator/>
   <menu_item_call
     label="Sit / stand"

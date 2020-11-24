@@ -189,14 +189,10 @@ extern LLContextMenu		*gMenuMuteParticle;
 extern LLMenuGL* gAttachSubMenu;
 extern LLMenuGL* gDetachSubMenu;
 extern LLMenuGL* gTakeOffClothes;
-extern LLMenuGL* gDetachAvatarMenu;
-extern LLMenuGL* gDetachHUDAvatarMenu;
 extern LLContextMenu* gAttachScreenPieMenu;
 extern LLContextMenu* gDetachScreenPieMenu;
-extern LLContextMenu* gDetachHUDAttSelfMenu;
 extern LLContextMenu* gAttachPieMenu;
 extern LLContextMenu* gDetachPieMenu;
-extern LLContextMenu* gDetachAttSelfMenu;
 extern LLContextMenu* gAttachBodyPartPieMenus[9];
 extern LLContextMenu* gDetachBodyPartPieMenus[9];
 
