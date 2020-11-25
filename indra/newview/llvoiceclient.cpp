@@ -180,6 +180,7 @@ void LLVoiceClient::terminate()
 {
 	if (mVoiceModule) mVoiceModule->terminate();
 	mVoiceModule = NULL;
+    m_servicePump = NULL;
 }
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()

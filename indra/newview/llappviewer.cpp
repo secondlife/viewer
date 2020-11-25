@@ -1620,6 +1620,7 @@ bool LLAppViewer::doFrame()
 		}
 
 		delete gServicePump;
+		gServicePump = NULL;
 
 		destroyMainloopTimeout();
 
