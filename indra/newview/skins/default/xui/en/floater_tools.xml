@@ -2575,22 +2575,13 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="300"
+             height="325"
              layout="topleft"
              left="10"
              name="contents_inventory"
              top="50"
              width="275" />
-            <button
-             follows="left|bottom"
-             height="23"
-             label="Reset Scripts"
-             layout="topleft"
-             left="10"
-             name="btn_reset_scripts"
-             bottom="-1"
-             width="118" />
-       </panel>
+		</panel>
         </tab_container>
 	<panel
 	 follows="left|top"
