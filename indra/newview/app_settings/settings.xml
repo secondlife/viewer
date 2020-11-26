@@ -15147,7 +15147,7 @@
         <key>Value</key>
             <real>1</real>
         </map>
-    <key>PoolSizeVAssetStorage</key>
+    <key>PoolSizeAssetStorage</key>
         <map>
         <key>Comment</key>
             <string>Coroutine Pool size for AssetStorage requests</string>
