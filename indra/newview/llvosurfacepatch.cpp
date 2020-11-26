@@ -57,9 +57,9 @@ public:
 	};
 
 	// virtual
-	void setupVertexBuffer(U32 data_mask)
+	void setupVertexBuffer(U32 data_mask, bool legacy_glod_FF = false)
 	{	
-		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
+		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3), legacy_glod_FF);
 	}
 };
 
