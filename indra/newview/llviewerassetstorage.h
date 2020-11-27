@@ -94,7 +94,7 @@ protected:
 
     std::string getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype);
 
-    void logAssetStorageInfo();
+    void logAssetStorageInfo() override;
 
     // Asset storage works through coroutines and coroutines have limited queue capacity
     // This class is meant to temporary store requests when fiber's queue is full
