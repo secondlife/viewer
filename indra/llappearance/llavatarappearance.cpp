@@ -171,7 +171,6 @@ LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-LLXmlTree LLAvatarAppearance::sSkeletonXMLTree;
 LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = NULL;
 LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = NULL;
 LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* LLAvatarAppearance::sAvatarDictionary = NULL;
@@ -407,8 +406,9 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
     }
 	
 	std::string skeleton_path;
+	LLXmlTree skeleton_xml_tree;
 	skeleton_path = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,skeleton_file_name);
-	if (!parseSkeletonFile(skeleton_path))
+	if (!parseSkeletonFile(skeleton_path, skeleton_xml_tree))
 	{
 		LL_ERRS() << "Error parsing skeleton file: " << skeleton_path << LL_ENDL;
 	}
@@ -421,7 +421,7 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
 		delete sAvatarSkeletonInfo;
 	}
 	sAvatarSkeletonInfo = new LLAvatarSkeletonInfo;
-	if (!sAvatarSkeletonInfo->parseXml(sSkeletonXMLTree.getRoot()))
+	if (!sAvatarSkeletonInfo->parseXml(skeleton_xml_tree.getRoot()))
 	{
 		LL_ERRS() << "Error parsing skeleton XML file: " << skeleton_path << LL_ENDL;
 	}
@@ -462,7 +462,6 @@ void LLAvatarAppearance::cleanupClass()
 	delete_and_clear(sAvatarXmlInfo);
     delete_and_clear(sAvatarDictionary);
     delete_and_clear(sAvatarSkeletonInfo);
-	sSkeletonXMLTree.cleanup();
 }
 
 using namespace LLAvatarAppearanceDefines;
@@ -584,12 +583,12 @@ void LLAvatarAppearance::computeBodySize()
 //-----------------------------------------------------------------------------
 // parseSkeletonFile()
 //-----------------------------------------------------------------------------
-BOOL LLAvatarAppearance::parseSkeletonFile(const std::string& filename)
+BOOL LLAvatarAppearance::parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree)
 {
 	//-------------------------------------------------------------------------
 	// parse the file
 	//-------------------------------------------------------------------------
-	BOOL parsesuccess = sSkeletonXMLTree.parseFile( filename, FALSE );
+	BOOL parsesuccess = skeleton_xml_tree.parseFile( filename, FALSE );
 
 	if (!parsesuccess)
 	{
@@ -598,7 +597,7 @@ BOOL LLAvatarAppearance::parseSkeletonFile(const std::string& filename)
 	}
 
 	// now sanity check xml file
-	LLXmlTreeNode* root = sSkeletonXMLTree.getRoot();
+	LLXmlTreeNode* root = skeleton_xml_tree.getRoot();
 	if (!root) 
 	{
 		LL_ERRS() << "No root node found in avatar skeleton file: " << filename << LL_ENDL;

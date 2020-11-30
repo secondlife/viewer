@@ -156,7 +156,7 @@ public:
 
 
 protected:
-	static BOOL			parseSkeletonFile(const std::string& filename);
+	static BOOL			parseSkeletonFile(const std::string& filename, LLXmlTree& skeleton_xml_tree);
 	virtual void		buildCharacter();
 	virtual BOOL		loadAvatar();
 
@@ -211,8 +211,6 @@ public:
 	// XML parse tree
 	//--------------------------------------------------------------------
 protected:
-	static LLXmlTree 	sSkeletonXMLTree; // avatar skeleton file
-
 	static LLAvatarSkeletonInfo* 					sAvatarSkeletonInfo;
 	static LLAvatarXmlInfo* 						sAvatarXmlInfo;
 
