@@ -171,7 +171,6 @@ LLAvatarAppearance::LLAvatarXmlInfo::~LLAvatarXmlInfo()
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-LLXmlTree LLAvatarAppearance::sXMLTree;
 LLXmlTree LLAvatarAppearance::sSkeletonXMLTree;
 LLAvatarSkeletonInfo* LLAvatarAppearance::sAvatarSkeletonInfo = NULL;
 LLAvatarAppearance::LLAvatarXmlInfo* LLAvatarAppearance::sAvatarXmlInfo = NULL;
@@ -353,14 +352,15 @@ void LLAvatarAppearance::initClass(const std::string& avatar_file_name_arg, cons
     {
         avatar_file_name = gDirUtilp->getExpandedFilename(LL_PATH_CHARACTER,AVATAR_DEFAULT_CHAR + "_lad.xml");
     }
-	BOOL success = sXMLTree.parseFile( avatar_file_name, FALSE );
+	LLXmlTree xml_tree;
+	BOOL success = xml_tree.parseFile( avatar_file_name, FALSE );
 	if (!success)
 	{
 		LL_ERRS() << "Problem reading avatar configuration file:" << avatar_file_name << LL_ENDL;
 	}
 
 	// now sanity check xml file
-	LLXmlTreeNode* root = sXMLTree.getRoot();
+	LLXmlTreeNode* root = xml_tree.getRoot();
 	if (!root) 
 	{
 		LL_ERRS() << "No root node found in avatar configuration file: " << avatar_file_name << LL_ENDL;
@@ -463,7 +463,6 @@ void LLAvatarAppearance::cleanupClass()
     delete_and_clear(sAvatarDictionary);
     delete_and_clear(sAvatarSkeletonInfo);
 	sSkeletonXMLTree.cleanup();
-	sXMLTree.cleanup();
 }
 
 using namespace LLAvatarAppearanceDefines;

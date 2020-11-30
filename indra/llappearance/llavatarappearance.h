@@ -211,7 +211,6 @@ public:
 	// XML parse tree
 	//--------------------------------------------------------------------
 protected:
-	static LLXmlTree 	sXMLTree; // avatar config file
 	static LLXmlTree 	sSkeletonXMLTree; // avatar skeleton file
 
 	static LLAvatarSkeletonInfo* 					sAvatarSkeletonInfo;
