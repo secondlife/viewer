@@ -142,7 +142,7 @@ public:
 
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
-	static void setupClientArrays(U32 data_mask);
+	static void setupClientArrays(U32 data_mask, bool legacy_glod_FF = false);
 	static void pushPositions(U32 mode, const LLVector4a* pos, U32 count);
 	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
 	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
@@ -204,7 +204,7 @@ protected:
 
 	virtual ~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
+	virtual void setupVertexBuffer(U32 data_mask, bool legacy_glod_FF = false); // pure virtual, called from mapBuffer()
 	void setupVertexArray();
 	
 	void	genBuffer(U32 size);
@@ -232,7 +232,7 @@ public:
 	void bindForFeedback(U32 channel, U32 type, U32 index, U32 count);
 
 	// set for rendering
-	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+	virtual void	setBuffer(U32 data_mask, bool legacy_glod_FF = false); 	// calls  setupVertexBuffer() if data_mask is not 0
 	void flush(); //flush pending data to GL memory
 	// allocate buffer
 	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
