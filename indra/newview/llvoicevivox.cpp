@@ -1001,6 +1001,11 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         // *TODO* Pump a message for wake up.
         llcoro::suspend();
     }
+    
+    if (sShuttingDown)
+    {
+        return false;
+    }
 
     std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");
 
