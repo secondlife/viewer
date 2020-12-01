@@ -996,7 +996,7 @@ void LLFloaterBuyLandUI::draw()
 // virtual
 BOOL LLFloaterBuyLandUI::canClose()
 {
-	bool can_close = (mTransaction ? FALSE : TRUE) && mCurrency.canCancel();
+	bool can_close = (mTransaction ? FALSE : TRUE) && mTransactionType != TransactionBuy;
 	if (!can_close)
 	{
 		// explain to user why they can't do this, see DEV-9605
