@@ -38,6 +38,7 @@
 
 // Linden library includes
 #include "llerror.h"
+#include "llexception.h"
 #include "llfasttimer.h"
 #include "llgl.h"
 #include "llstring.h"
@@ -117,7 +118,7 @@ void show_window_creation_error(const std::string& title)
 	LL_WARNS("Window") << title << LL_ENDL;
 }
 
-HGLRC SafeCreateContext(HDC hdc)
+HGLRC SafeCreateContext(HDC &hdc)
 {
 	__try 
 	{
@@ -127,6 +128,22 @@ HGLRC SafeCreateContext(HDC hdc)
 	{ 
 		return NULL;
 	}
+}
+
+GLuint SafeChoosePixelFormat(HDC &hdc, const PIXELFORMATDESCRIPTOR *ppfd)
+{
+    __try
+    {
+        return ChoosePixelFormat(hdc, ppfd);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        // convert to C++ styled exception
+        // C exception don't allow classes, so it's a regular char array
+        char integer_string[32];
+        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        throw std::exception(integer_string);
+    }
 }
 
 //static
@@ -1234,7 +1251,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
     try
     {
         // Looks like ChoosePixelFormat can crash in case of faulty driver
-        if (!(pixel_format = ChoosePixelFormat(mhDC, &pfd)))
+        if (!(pixel_format = SafeChoosePixelFormat(mhDC, &pfd)))
         {
             LL_WARNS("Window") << "ChoosePixelFormat failed, code: " << GetLastError() << LL_ENDL;
             OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
@@ -1245,7 +1262,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
     }
     catch (...)
     {
-        LL_WARNS("Window") << "ChoosePixelFormat failed." << LL_ENDL;
+        LOG_UNHANDLED_EXCEPTION("ChoosePixelFormat");
         OSMessageBox(mCallbacks->translateString("MBPixelFmtErr"),
             mCallbacks->translateString("MBError"), OSMB_OK);
         close();
