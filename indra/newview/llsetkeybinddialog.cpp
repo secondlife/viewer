@@ -164,14 +164,14 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
 }
 
 // static
-bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask)
+bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask, BOOL down)
 {
     if (sRecordKeys)
     {
         LLSetKeyBindDialog* dialog = LLFloaterReg::getTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD());
         if (dialog && dialog->getVisible())
         {
-            return dialog->recordAndHandleKey(key, mask);
+            return dialog->recordAndHandleKey(key, mask, down);
         }
         else
         {
@@ -182,7 +182,7 @@ bool LLSetKeyBindDialog::recordKey(KEY key, MASK mask)
     return false;
 }
 
-bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask)
+bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
 {
     if ((key == 'Q' && mask == MASK_CONTROL)
         || key == KEY_ESCAPE)
@@ -208,13 +208,35 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask)
         return false;
     }
 
-    if ((mKeyFilterMask & ALLOW_MASKS) == 0
-        && (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT))
+    if (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT)
     {
-        // mask by themself are not allowed
-        return false;
+        // Mask keys get special treatment
+        if (down == TRUE)
+        {
+            // Most keys are handled on 'down' event because menu is handled on 'down'
+            // masks are exceptions to let other keys be handled
+            return false;
+        }
+        if ((mKeyFilterMask & ALLOW_MASKS) == 0)
+        {
+            // Mask by themself are not allowed
+            return false;
+        }
+        // Mask up event often generates things like 'shift key + shift mask', filter it out.
+        if (key == KEY_CONTROL)
+        {
+            mask &= ~MASK_CONTROL;
+        }
+        if (key == KEY_SHIFT)
+        {
+            mask &= ~MASK_SHIFT;
+        }
+        if (key == KEY_ALT)
+        {
+            mask &= ~MASK_ALT;
+        }
     }
-    else if ((mKeyFilterMask & ALLOW_KEYS) == 0)
+    if ((mKeyFilterMask & ALLOW_KEYS) == 0)
     {
         // basic keys not allowed
         return false;
@@ -233,6 +255,9 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask)
     }
 
     setKeyBind(CLICK_NONE, key, mask, pCheckBox->getValue().asBoolean());
+    // Note/Todo: To warranty zero interference we should also consume
+    // an 'up' event if we recorded on 'down', not just close floater
+    // on first recorded combination.
     sRecordKeys = false;
     closeFloater();
     return true;

@@ -2695,6 +2695,13 @@ void LLViewerWindow::draw()
 // Takes a single keyup event, usually when UI is visible
 BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 {
+    if (LLSetKeyBindDialog::recordKey(key, mask, FALSE))
+    {
+        LL_DEBUGS() << "KeyUp handled by LLSetKeyBindDialog" << LL_ENDL;
+        LLViewerEventRecorder::instance().logKeyEvent(key, mask);
+        return TRUE;
+    }
+
     LLFocusableElement* keyboard_focus = gFocusMgr.getKeyboardFocus();
 
     if (keyboard_focus
@@ -2738,8 +2745,9 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// hide tooltips on keypress
 	LLToolTipMgr::instance().blockToolTips();
 
-    // let menus handle navigation keys for navigation
-    if (LLSetKeyBindDialog::recordKey(key, mask))
+    // Menus get handled on key down instead of key up
+    // so keybindings have to be recorded before that
+    if (LLSetKeyBindDialog::recordKey(key, mask, TRUE))
     {
         LL_DEBUGS() << "Key handled by LLSetKeyBindDialog" << LL_ENDL;
         LLViewerEventRecorder::instance().logKeyEvent(key,mask);

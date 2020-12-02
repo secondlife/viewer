@@ -39,7 +39,7 @@ static const U32 ALLOW_MASK_MOUSE = 2;
 static const U32 ALLOW_KEYS = 4; //keyboard
 static const U32 ALLOW_MASK_KEYS = 8;
 static const U32 ALLOW_MASKS = 16;
-static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASK_KEYS;
+static const U32 DEFAULT_KEY_FILTER = ALLOW_MOUSE | ALLOW_MASK_MOUSE | ALLOW_KEYS | ALLOW_MASKS | ALLOW_MASK_KEYS;
 
 
 class LLKeyBindResponderInterface
@@ -68,7 +68,7 @@ public:
 
     // Wrapper around recordAndHandleKey
     // It does not record, it handles, but handleKey function is already in use
-    static bool recordKey(KEY key, MASK mask);
+    static bool recordKey(KEY key, MASK mask, BOOL down);
 
     BOOL handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
     static void onCancel(void* user_data);
@@ -79,7 +79,7 @@ public:
     class Updater;
 
 private:
-    bool recordAndHandleKey(KEY key, MASK mask);
+    bool recordAndHandleKey(KEY key, MASK mask, BOOL down);
     void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;
