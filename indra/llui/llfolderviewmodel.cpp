@@ -52,11 +52,13 @@ LLFolderViewModelItemCommon::~LLFolderViewModelItemCommon()
 {
     // Children don't belong to model, but to LLFolderViewItem, just mark them as having no parent
     std::for_each(mChildren.begin(), mChildren.end(), [](LLFolderViewModelItem* c) {c->setParent(NULL); });
+    mChildren.clear();
 
     // Don't leave dead pointer in parent
     if (mParent)
     {
         mParent->removeChild(this);
+        mParent = NULL;
     }
 }
 
