@@ -609,7 +609,8 @@ bool edit_avatar_move_backward( EKeystate s )
 
 bool stop_moving( EKeystate s )
 {
-	if( KEYSTATE_DOWN != s  ) return true;
+	//it's supposed that 'stop moving' key will be held down for some time
+	if( KEYSTATE_UP == s  ) return true;
 	// stop agent
 	gAgent.setControlFlags(AGENT_CONTROL_STOP);
 
