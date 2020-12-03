@@ -35,27 +35,315 @@ using namespace std;
 #include <Wbemidl.h>
 #endif
 unsigned char static_unique_id[] =  {0,0,0,0,0,0};
+unsigned char static_legacy_id[] =  {0,0,0,0,0,0};
 bool static has_static_unique_id = false;
+bool static has_static_legacy_id = false;
 
 #if	LL_WINDOWS
 
-class LLComInitialize
+class LLWMIMethods
 {
-    HRESULT mHR;
 public:
-    LLComInitialize()
+    LLWMIMethods()
+    :   pLoc(NULL),
+        pSvc(NULL)
     {
-        mHR = CoInitializeEx(0, COINIT_MULTITHREADED);
-        if (FAILED(mHR))
-            LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << hex << mHR << LL_ENDL;
+        initCOMObjects();
     }
 
-    ~LLComInitialize()
+    ~LLWMIMethods()
     {
-        if (SUCCEEDED(mHR))
-            CoUninitialize();
+        if (isInitialized())
+        {
+            cleanCOMObjects();
+        }
     }
+
+    bool isInitialized() { return SUCCEEDED(mHR); }
+    bool getWindowsProductNumber(unsigned char *unique_id, size_t len);
+    bool getDiskDriveSerialNumber(unsigned char *unique_id, size_t len);
+    bool getProcessorSerialNumber(unsigned char *unique_id, size_t len);
+    bool getMotherboardSerialNumber(unsigned char *unique_id, size_t len);
+    bool getComputerSystemProductUUID(unsigned char *unique_id, size_t len);
+    bool getGenericSerialNumber(const BSTR &select, const LPCWSTR &variable, unsigned char *unique_id, size_t len, bool validate_as_uuid = false);
+
+private:
+    void initCOMObjects();
+    void cleanCOMObjects();
+
+    HRESULT mHR;
+    IWbemLocator *pLoc;
+    IWbemServices *pSvc;
 };
+
+
+void LLWMIMethods::initCOMObjects()
+{
+# pragma comment(lib, "wbemuuid.lib")
+    // Step 1: --------------------------------------------------
+    // Initialize COM. ------------------------------------------
+
+    mHR = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(mHR))
+    {
+        LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << hex << mHR << LL_ENDL;
+        return;
+    }
+
+    // Step 2: --------------------------------------------------
+    // Set general COM security levels --------------------------
+    // Note: If you are using Windows 2000, you need to specify -
+    // the default authentication credentials for a user by using
+    // a SOLE_AUTHENTICATION_LIST structure in the pAuthList ----
+    // parameter of CoInitializeSecurity ------------------------
+
+    mHR = CoInitializeSecurity(
+        NULL,
+        -1,                          // COM authentication
+        NULL,                        // Authentication services
+        NULL,                        // Reserved
+        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+        NULL,                        // Authentication info
+        EOAC_NONE,                   // Additional capabilities 
+        NULL                         // Reserved
+    );
+
+    if (FAILED(mHR))
+    {
+        LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x" << hex << mHR << LL_ENDL;
+        CoUninitialize();
+        return;               // Program has failed.
+    }
+
+    // Step 3: ---------------------------------------------------
+    // Obtain the initial locator to WMI -------------------------
+
+    mHR = CoCreateInstance(
+        CLSID_WbemLocator,
+        0,
+        CLSCTX_INPROC_SERVER,
+        IID_IWbemLocator, (LPVOID *)&pLoc);
+
+    if (FAILED(mHR))
+    {
+        LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << mHR << LL_ENDL;
+        CoUninitialize();
+        return;               // Program has failed.
+    }
+
+    // Step 4: -----------------------------------------------------
+    // Connect to WMI through the IWbemLocator::ConnectServer method
+
+    // Connect to the root\cimv2 namespace with
+    // the current user and obtain pointer pSvc
+    // to make IWbemServices calls.
+    mHR = pLoc->ConnectServer(
+        _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
+        NULL,                    // User name. NULL = current user
+        NULL,                    // User password. NULL = current
+        0,                       // Locale. NULL indicates current
+        NULL,                    // Security flags.
+        0,                       // Authority (e.g. Kerberos)
+        0,                       // Context object 
+        &pSvc                    // pointer to IWbemServices proxy
+    );
+
+    if (FAILED(mHR))
+    {
+        LL_WARNS("AppInit") << "Could not connect. Error code = 0x" << hex << mHR << LL_ENDL;
+        pLoc->Release();
+        CoUninitialize();
+        return;               // Program has failed.
+    }
+
+    LL_DEBUGS("AppInit") << "Connected to ROOT\\CIMV2 WMI namespace" << LL_ENDL;
+
+    // Step 5: --------------------------------------------------
+    // Set security levels on the proxy -------------------------
+
+    mHR = CoSetProxyBlanket(
+        pSvc,                        // Indicates the proxy to set
+        RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
+        RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
+        NULL,                        // Server principal name 
+        RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
+        RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
+        NULL,                        // client identity
+        EOAC_NONE                    // proxy capabilities 
+    );
+
+    if (FAILED(mHR))
+    {
+        LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x" << hex << mHR << LL_ENDL;
+        cleanCOMObjects();
+        return;               // Program has failed.
+    }
+}
+
+
+void LLWMIMethods::cleanCOMObjects()
+{
+    pSvc->Release();
+    pLoc->Release();
+    CoUninitialize();
+}
+
+bool LLWMIMethods::getWindowsProductNumber(unsigned char *unique_id, size_t len)
+{
+    // wmic path Win32_ComputerSystemProduct get UUID
+    return getGenericSerialNumber(bstr_t("SELECT * FROM Win32_OperatingSystem"), L"SerialNumber", unique_id, len);
+}
+
+bool LLWMIMethods::getDiskDriveSerialNumber(unsigned char *unique_id, size_t len)
+{
+    // wmic path Win32_DiskDrive get DeviceID,SerialNumber
+    return getGenericSerialNumber(bstr_t("SELECT * FROM Win32_DiskDrive"), L"SerialNumber", unique_id, len);
+}
+
+bool LLWMIMethods::getProcessorSerialNumber(unsigned char *unique_id, size_t len)
+{
+    // wmic path Win32_Processor get DeviceID,ProcessorId
+    return getGenericSerialNumber(bstr_t("SELECT * FROM Win32_Processor"), L"ProcessorId", unique_id, len);
+}
+
+bool LLWMIMethods::getMotherboardSerialNumber(unsigned char *unique_id, size_t len)
+{
+    // wmic path Win32_Processor get DeviceID,ProcessorId
+    return getGenericSerialNumber(bstr_t("SELECT * FROM Win32_BaseBoard"), L"SerialNumber", unique_id, len);
+}
+
+bool LLWMIMethods::getComputerSystemProductUUID(unsigned char *unique_id, size_t len)
+{
+    // UUID from Win32_ComputerSystemProduct is motherboard's uuid and is identical to csproduct's uuid
+    // wmic csproduct get name,identifyingnumber,uuid
+    // wmic path Win32_ComputerSystemProduct get UUID
+    return getGenericSerialNumber(bstr_t("SELECT * FROM Win32_ComputerSystemProduct"), L"UUID", unique_id, len, true);
+}
+
+bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &variable, unsigned char *unique_id, size_t len, bool validate_as_uuid)
+{
+    if (!isInitialized())
+    {
+        return false;
+    }
+
+    HRESULT hres;
+
+    // Step 6: --------------------------------------------------
+    // Use the IWbemServices pointer to make requests of WMI ----
+
+    // For example, get the name of the operating system
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery(
+        bstr_t("WQL"),
+        select,
+        WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+        NULL,
+        &pEnumerator);
+
+    if (FAILED(hres))
+    {
+        LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x" << hex << hres << LL_ENDL;
+        return false;               // Program has failed.
+    }
+
+    // Step 7: -------------------------------------------------
+    // Get the data from the query in step 6 -------------------
+
+    IWbemClassObject *pclsObj = NULL;
+    ULONG uReturn = 0;
+    bool found = false;
+
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1,
+            &pclsObj, &uReturn);
+
+        if (0 == uReturn)
+        {
+            break;
+        }
+
+        VARIANT vtProp;
+
+        // Get the value of the Name property
+        hr = pclsObj->Get(variable, 0, &vtProp, 0, 0);
+        if (FAILED(hr))
+        {
+            LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << hex << hres << LL_ENDL;
+            pclsObj->Release();
+            pclsObj = NULL;
+            continue;
+        }
+
+        // use characters in the returned Serial Number to create a byte array of size len
+        BSTR serialNumber(vtProp.bstrVal);
+        unsigned int serial_size = SysStringLen(serialNumber);
+        if (serial_size < 1) // < len?
+        {
+            VariantClear(&vtProp);
+            pclsObj->Release();
+            pclsObj = NULL;
+            continue;
+        }
+
+        if (validate_as_uuid)
+        {
+            std::wstring ws(serialNumber, serial_size);
+            std::string str(ws.begin(), ws.end());
+
+            if (!LLUUID::validate(str))
+            {
+                VariantClear(&vtProp);
+                pclsObj->Release();
+                pclsObj = NULL;
+                continue;
+            }
+
+            static const LLUUID f_uuid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF");
+            LLUUID id(str);
+
+            if (id.isNull() || id == f_uuid)
+            {
+                // Not unique id
+                VariantClear(&vtProp);
+                pclsObj->Release();
+                pclsObj = NULL;
+                continue;
+            }
+        }
+        LL_INFOS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
+
+        unsigned int j = 0;
+
+        while (j < serial_size && vtProp.bstrVal[j] != 0)
+        {
+            for (unsigned int i = 0; i < len; i++)
+            {
+                if (j >= serial_size || vtProp.bstrVal[j] == 0)
+                    break;
+
+                unique_id[i] = (unsigned int)(unique_id[i] + serialNumber[j]);
+                j++;
+            }
+        }
+        VariantClear(&vtProp);
+
+        pclsObj->Release();
+        pclsObj = NULL;
+        found = true;
+        break;
+    }
+
+    // Cleanup
+    // ========
+
+    if (pEnumerator)
+        pEnumerator->Release();
+
+    return found;
+}
 
 #endif //LL_WINDOWS
 
@@ -69,201 +357,79 @@ S32 LLMachineID::init()
     memset(static_unique_id, 0, len);
     S32 ret_code = 0;
 #if	LL_WINDOWS
-# pragma comment(lib, "wbemuuid.lib")
 
-        // algorithm to detect BIOS serial number found at:
-        // http://msdn.microsoft.com/en-us/library/aa394077%28VS.85%29.aspx
-        // we can't use the MAC address since on Windows 7, the first returned MAC address changes with every reboot.
+    LLWMIMethods comInit;
 
+    if (comInit.getWindowsProductNumber(static_legacy_id, len))
+    {
+        // Bios id can change on windows update, so it is not the best id to use
+        // but since old viewer already use them, we might need this id to decode
+        // passwords
+        has_static_legacy_id = true;
+    }
 
-        HRESULT hres;
+    // Try motherboard/bios id, if it is present it is supposed to be sufficiently
+    // unique (it's used for Win8 activation)
+    if (comInit.getComputerSystemProductUUID(static_unique_id, len))
+    {
+        has_static_unique_id = true;
+        LL_DEBUGS("AppInit") << "Using product uuid as serial" << LL_ENDL;
+    }
 
-        // Step 1: --------------------------------------------------
-        // Initialize COM. ------------------------------------------
+    // Try HDD and CPU ids
+    if (!has_static_unique_id)
+    {
+        unsigned char hdd_id[] = { 0,0,0,0,0,0 };
+        unsigned char cpu_id[] = { 0,0,0,0,0,0 };
+        unsigned char mbrd_id[] = { 0,0,0,0,0,0 };
 
-        LLComInitialize comInit;
-
-        // Step 2: --------------------------------------------------
-        // Set general COM security levels --------------------------
-        // Note: If you are using Windows 2000, you need to specify -
-        // the default authentication credentials for a user by using
-        // a SOLE_AUTHENTICATION_LIST structure in the pAuthList ----
-        // parameter of CoInitializeSecurity ------------------------
-
-        hres =  CoInitializeSecurity(
-            NULL, 
-            -1,                          // COM authentication
-            NULL,                        // Authentication services
-            NULL,                        // Reserved
-            RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-            RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-            NULL,                        // Authentication info
-            EOAC_NONE,                   // Additional capabilities 
-            NULL                         // Reserved
-            );
-
-                          
-        if (FAILED(hres))
+        if (comInit.getDiskDriveSerialNumber(hdd_id, len)
+            && comInit.getProcessorSerialNumber(cpu_id, len)
+            && comInit.getMotherboardSerialNumber(mbrd_id, len))
         {
-            LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x"  << hex << hres << LL_ENDL;
-            return 1;                    // Program has failed.
-        }
-        
-        // Step 3: ---------------------------------------------------
-        // Obtain the initial locator to WMI -------------------------
-
-        IWbemLocator *pLoc = NULL;
-
-        hres = CoCreateInstance(
-            CLSID_WbemLocator,             
-            0, 
-            CLSCTX_INPROC_SERVER, 
-            IID_IWbemLocator, (LPVOID *) &pLoc);
-     
-        if (FAILED(hres))
-        {
-            LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << hres << LL_ENDL;
-            return 1;                 // Program has failed.
-        }
-
-        // Step 4: -----------------------------------------------------
-        // Connect to WMI through the IWbemLocator::ConnectServer method
-
-        IWbemServices *pSvc = NULL;
-    	
-        // Connect to the root\cimv2 namespace with
-        // the current user and obtain pointer pSvc
-        // to make IWbemServices calls.
-        hres = pLoc->ConnectServer(
-             _bstr_t(L"ROOT\\CIMV2"), // Object path of WMI namespace
-             NULL,                    // User name. NULL = current user
-             NULL,                    // User password. NULL = current
-             0,                       // Locale. NULL indicates current
-             NULL,                    // Security flags.
-             0,                       // Authority (e.g. Kerberos)
-             0,                       // Context object 
-             &pSvc                    // pointer to IWbemServices proxy
-             );
-        
-        if (FAILED(hres))
-        {
-            LL_WARNS("AppInit") << "Could not connect. Error code = 0x"  << hex << hres << LL_ENDL;
-            pLoc->Release();     
-            return 1;                // Program has failed.
-        }
-
-        LL_DEBUGS("AppInit") << "Connected to ROOT\\CIMV2 WMI namespace" << LL_ENDL;
-
-
-        // Step 5: --------------------------------------------------
-        // Set security levels on the proxy -------------------------
-
-        hres = CoSetProxyBlanket(
-           pSvc,                        // Indicates the proxy to set
-           RPC_C_AUTHN_WINNT,           // RPC_C_AUTHN_xxx
-           RPC_C_AUTHZ_NONE,            // RPC_C_AUTHZ_xxx
-           NULL,                        // Server principal name 
-           RPC_C_AUTHN_LEVEL_CALL,      // RPC_C_AUTHN_LEVEL_xxx 
-           RPC_C_IMP_LEVEL_IMPERSONATE, // RPC_C_IMP_LEVEL_xxx
-           NULL,                        // client identity
-           EOAC_NONE                    // proxy capabilities 
-        );
-
-        if (FAILED(hres))
-        {
-            LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x"   << hex << hres << LL_ENDL;
-            pSvc->Release();
-            pLoc->Release();     
-            return 1;               // Program has failed.
-        }
-
-        // Step 6: --------------------------------------------------
-        // Use the IWbemServices pointer to make requests of WMI ----
-
-        // For example, get the name of the operating system
-        IEnumWbemClassObject* pEnumerator = NULL;
-        hres = pSvc->ExecQuery(
-            bstr_t("WQL"), 
-            bstr_t("SELECT * FROM Win32_OperatingSystem"),
-            WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
-            NULL,
-            &pEnumerator);
-        
-        if (FAILED(hres))
-        {
-            LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x"  << hex << hres << LL_ENDL;
-            pSvc->Release();
-            pLoc->Release();
-            return 1;               // Program has failed.
-        }
-
-        // Step 7: -------------------------------------------------
-        // Get the data from the query in step 6 -------------------
-     
-        IWbemClassObject *pclsObj = NULL;
-        ULONG uReturn = 0;
-       
-        while (pEnumerator)
-        {
-            HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, 
-                &pclsObj, &uReturn);
-
-            if(0 == uReturn)
+            // Combine HDD, CPU and motherboard ids
+            // By themself they are not sufficiently unique and often contain model
+            // instead of unique number, but should be good enough when combined
+            // Todo: if not sufficiently unique, add hdd's partition id
+            S32 summ = 0;
+            for (S32 i = 0; i < len; i++)
             {
-                break;
+                static_unique_id[i] = hdd_id[i] + cpu_id[i] + mbrd_id[i];
+                summ += static_unique_id[i];
             }
-
-            VARIANT vtProp;
-
-            // Get the value of the Name property
-            hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
-            if (FAILED(hr))
+            if (summ > 0)
             {
-                LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << hex << hres << LL_ENDL;
-                pclsObj->Release();
-                pclsObj = NULL;
-                continue;
+                has_static_unique_id = true;
+                LL_DEBUGS("AppInit") << "Using hdd and cpu ids as serial" << LL_ENDL;
             }
-            LL_INFOS("AppInit") << " Serial Number : " << vtProp.bstrVal << LL_ENDL;
-
-            // use characters in the returned Serial Number to create a byte array of size len
-            BSTR serialNumber ( vtProp.bstrVal);
-            unsigned int serial_size = SysStringLen(serialNumber);
-            unsigned int j = 0;
-
-            while (j < serial_size && vtProp.bstrVal[j] != 0)
-            {
-                for (unsigned int i = 0; i < len; i++)
-                {
-                    if (j >= serial_size || vtProp.bstrVal[j] == 0)
-                        break;
-                    
-                    static_unique_id[i] = (unsigned int)(static_unique_id[i] + serialNumber[j]);
-                    j++;
-                }
-            }
-            VariantClear(&vtProp);
-
-            pclsObj->Release();
-            pclsObj = NULL;
-            break;
         }
+    }
 
-        // Cleanup
-        // ========
-        
-        if (pSvc)
-            pSvc->Release();
-        if (pLoc)
-            pLoc->Release();
-        if (pEnumerator)
-            pEnumerator->Release();
-        ret_code=0;
+    // Fallback to legacy
+    if (!has_static_unique_id)
+    {
+        if (has_static_legacy_id)
+        {
+            memcpy(static_unique_id, &static_legacy_id, len);
+            // Since ids are identical, mark legacy as not present
+            // to not cause retry's in sechandler
+            has_static_legacy_id = false;
+            has_static_unique_id = true;
+            LL_DEBUGS("AppInit") << "Using legacy serial" << LL_ENDL;
+        }
+        else
+        {
+            return 1; // Program has failed.
+        }
+    }
+
+    ret_code=0;
 #else
         unsigned char * staticPtr = (unsigned char *)(&static_unique_id[0]);
         ret_code = LLUUID::getNodeID(staticPtr);
-#endif
         has_static_unique_id = true;
+        has_static_legacy_id = false;
+#endif
 
         LL_INFOS("AppInit") << "UniqueID: 0x";
         // Code between here and LL_ENDL is not executed unless the LL_DEBUGS
@@ -288,6 +454,16 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
     if (has_static_unique_id)
     {
         memcpy ( unique_id, &static_unique_id, len);
+        return 1;
+    }
+    return 0;
+}
+
+S32 LLMachineID::getLegacyID(unsigned char *unique_id, size_t len)
+{
+    if (has_static_legacy_id)
+    {
+        memcpy(unique_id, &static_legacy_id, len);
         return 1;
     }
     return 0;

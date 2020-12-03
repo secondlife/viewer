@@ -1302,8 +1302,8 @@ LLSecAPIBasicHandler::~LLSecAPIBasicHandler()
 	_writeProtectedData();
 }
 
-void LLSecAPIBasicHandler::_readProtectedData()
-{	
+void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_len)
+{
 	// attempt to load the file into our map
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
 	llifstream protected_data_stream(mProtectedDataFilename.c_str(), 
@@ -1314,9 +1314,7 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
 		int decrypted_length;	
-		unsigned char unique_id[MAC_ADDRESS_BYTES];
-        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
-		LLXORCipher cipher(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, id_len);
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
@@ -1365,6 +1363,30 @@ void LLSecAPIBasicHandler::_readProtectedData()
 			LLTHROW(LLProtectedDataException("Config file cannot be decrypted."));
 		}
 	}
+}
+
+void LLSecAPIBasicHandler::_readProtectedData()
+{
+    unsigned char unique_id[MAC_ADDRESS_BYTES];
+    try
+    {
+        // try default id
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+        _readProtectedData(unique_id, sizeof(unique_id));
+    }
+    catch(LLProtectedDataException&)
+    {
+        // try with legacy id, it will return false if it is identical to getUniqueID
+        // or if it is not assigned/not in use
+        if (LLMachineID::getLegacyID(unique_id, sizeof(unique_id)))
+        {
+            _readProtectedData(unique_id, sizeof(unique_id));
+        }
+        else
+        {
+            throw;
+        }
+    }
 }
 
 void LLSecAPIBasicHandler::_writeProtectedData()
