@@ -1527,3 +1527,14 @@ void LLViewerInput::scanMouse()
         }
     }
 }
+
+bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode)
+{
+    S32 size = mMouseBindings[mode].size();
+    for (S32 index = 0; index < size; index++)
+    {
+        if (mouse == mMouseBindings[mode][index].mMouse && mask == mMouseBindings[mode][index].mMask)
+            return true;
+    }
+    return false;
+}

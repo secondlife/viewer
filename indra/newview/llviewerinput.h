@@ -124,6 +124,8 @@ public:
     BOOL            handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
     void            scanMouse();
 
+    bool            isMouseBindUsed(const EMouseClickType mouse, const MASK mask = MASK_NONE, const S32 mode = MODE_THIRD_PERSON);
+
 private:
     bool            scanKey(const std::vector<LLKeyboardBinding> &binding,
                             S32 binding_count,
