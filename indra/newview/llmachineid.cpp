@@ -368,41 +368,11 @@ S32 LLMachineID::init()
         has_static_legacy_id = true;
     }
 
-    // Try motherboard/bios id, if it is present it is supposed to be sufficiently
-    // unique (it's used for Win8 activation)
+    // Try motherboard/bios id, if it is present it is supposed to be sufficiently unique
     if (comInit.getComputerSystemProductUUID(static_unique_id, len))
     {
         has_static_unique_id = true;
-        LL_DEBUGS("AppInit") << "Using product uuid as serial" << LL_ENDL;
-    }
-
-    // Try HDD and CPU ids
-    if (!has_static_unique_id)
-    {
-        unsigned char hdd_id[] = { 0,0,0,0,0,0 };
-        unsigned char cpu_id[] = { 0,0,0,0,0,0 };
-        unsigned char mbrd_id[] = { 0,0,0,0,0,0 };
-
-        if (comInit.getDiskDriveSerialNumber(hdd_id, len)
-            && comInit.getProcessorSerialNumber(cpu_id, len)
-            && comInit.getMotherboardSerialNumber(mbrd_id, len))
-        {
-            // Combine HDD, CPU and motherboard ids
-            // By themself they are not sufficiently unique and often contain model
-            // instead of unique number, but should be good enough when combined
-            // Todo: if not sufficiently unique, add hdd's partition id
-            S32 summ = 0;
-            for (S32 i = 0; i < len; i++)
-            {
-                static_unique_id[i] = hdd_id[i] + cpu_id[i] + mbrd_id[i];
-                summ += static_unique_id[i];
-            }
-            if (summ > 0)
-            {
-                has_static_unique_id = true;
-                LL_DEBUGS("AppInit") << "Using hdd and cpu ids as serial" << LL_ENDL;
-            }
-        }
+        LL_DEBUGS("AppInit") << "Using product uuid as unique id" << LL_ENDL;
     }
 
     // Fallback to legacy
