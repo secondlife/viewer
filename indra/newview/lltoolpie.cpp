@@ -691,7 +691,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 		else if ((!object || !object->isAttachment() || object->getClickAction() != CLICK_ACTION_DISABLED)
-				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch())))
+				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch()))
+				 && (object && !object->isAvatar()))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
