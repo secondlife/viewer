@@ -72,6 +72,7 @@ LLSetKeyBindDialog::LLSetKeyBindDialog(const LLSD& key)
     pParent(NULL),
     mKeyFilterMask(DEFAULT_KEY_FILTER),
     pUpdater(NULL),
+    mLastMaskKey(0),
     mContextConeOpacity(0.f),
     mContextConeInAlpha(0.f),
     mContextConeOutAlpha(0.f),
@@ -211,15 +212,22 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
     if (key == KEY_CONTROL || key == KEY_SHIFT || key == KEY_ALT)
     {
         // Mask keys get special treatment
+        if ((mKeyFilterMask & ALLOW_MASKS) == 0)
+        {
+            // Masks by themself are not allowed
+            return false;
+        }
         if (down == TRUE)
         {
             // Most keys are handled on 'down' event because menu is handled on 'down'
             // masks are exceptions to let other keys be handled
+            mLastMaskKey = key;
             return false;
         }
-        if ((mKeyFilterMask & ALLOW_MASKS) == 0)
+        if (mLastMaskKey != key)
         {
-            // Mask by themself are not allowed
+            // This was mask+key combination that got rejected, don't handle mask's key
+            // Or user did something like: press shift, press ctrl, release shift
             return false;
         }
         // Mask up event often generates things like 'shift key + shift mask', filter it out.
@@ -251,6 +259,7 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
     {
         pDesription->setText(getString("reserved_by_menu"));
         pDesription->setTextArg("[KEYSTR]", LLKeyboard::stringFromAccelerator(mask,key));
+        mLastMaskKey = 0;
         return true;
     }
 

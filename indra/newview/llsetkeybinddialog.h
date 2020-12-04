@@ -87,6 +87,7 @@ private:
 
     U32 mKeyFilterMask;
     Updater *pUpdater;
+    KEY mLastMaskKey;
 
     static bool sRecordKeys; // for convinience and not to check instance each time
 
