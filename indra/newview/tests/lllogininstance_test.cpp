@@ -302,7 +302,7 @@ S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
 	memcpy(unique_id, gMACAddress, len);
 	return 1;
 }
-S32 LLMachineID::getUniqueID(unsigned char *unique_id, size_t len)
+S32 LLMachineID::getLegacyID(unsigned char *unique_id, size_t len)
 {
     return 0;
 }
