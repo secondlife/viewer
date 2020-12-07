@@ -1325,77 +1325,84 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
     LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
-	if (getOverallAppearance() != AOA_NORMAL)
-	{
-		// Jellydolls ignore attachments, etc, use only system avatar.
-		box_detail = 1;
-	}
+    if (getOverallAppearance() != AOA_NORMAL)
+    {
+        if (isControlAvatar())
+        {
+            // Animated objects don't show system avatar but do need to include rigged meshes in their bounding box.
+            box_detail = 3;
+        }
+        else
+        {
+            // Jellydolled avatars ignore attachments, etc, use only system avatar.
+            box_detail = 1;
+        }
+    }
 
     // FIXME the update_min_max function used below assumes there is a
     // known starting point, but in general there isn't. Ideally the
     // box update logic should be modified to handle the no-point-yet
     // case. For most models, starting with the pelvis is safe though.
     LLVector3 zero_pos;
-	LLVector4a pos;
+    LLVector4a pos;
     if (dist_vec(zero_pos, mPelvisp->getWorldPosition())<0.001)
     {
         // Don't use pelvis until av initialized
-	pos.load3(getRenderPosition().mV);
+        pos.load3(getRenderPosition().mV);
     }
     else
     {
         pos.load3(mPelvisp->getWorldPosition().mV);
     }
-	newMin = pos;
-	newMax = pos;
+    newMin = pos;
+    newMax = pos;
 
-	//stretch bounding box by joint positions. Doing this for
-	//control avs, where the polymeshes aren't maintained or
-	//displayed, can give inaccurate boxes due to joints stuck at (0,0,0).
-    if ((box_detail>=1) && !isControlAvatar())
+    if (box_detail>=1 && !isControlAvatar())
     {
-	for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
-	{
-		LLPolyMesh* mesh = i->second;
-		for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
-		{
-			LLVector4a trans;
-			trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
-			update_min_max(newMin, newMax, trans);
-		}
-	}
-
+        //stretch bounding box by joint positions. Doing this for
+        //control avs, where the polymeshes aren't maintained or
+        //displayed, can give inaccurate boxes due to joints stuck at (0,0,0).
+        for (polymesh_map_t::iterator i = mPolyMeshes.begin(); i != mPolyMeshes.end(); ++i)
+        {
+            LLPolyMesh* mesh = i->second;
+            for (S32 joint_num = 0; joint_num < mesh->mJointRenderData.size(); joint_num++)
+            {
+                LLVector4a trans;
+                trans.load3( mesh->mJointRenderData[joint_num]->mWorldMatrix->getTranslation().mV);
+                update_min_max(newMin, newMax, trans);
+            }
+        }
     }
 
-	// Pad bounding box for starting joint, plus polymesh if
-	// applicable. Subsequent calcs should be accurate enough to not
-	// need padding.
-	LLVector4a padding(0.25);
-	newMin.sub(padding);
-	newMax.add(padding);
+    // Pad bounding box for starting joint, plus polymesh if
+    // applicable. Subsequent calcs should be accurate enough to not
+    // need padding.
+    LLVector4a padding(0.25);
+    newMin.sub(padding);
+    newMax.add(padding);
 
 
-	//stretch bounding box by static attachments
+    //stretch bounding box by static attachments
     if (box_detail >= 2)
     {
         float max_attachment_span = get_default_max_prim_scale() * 5.0f;
-	
-	for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
-		 iter != mAttachmentPoints.end();
-		 ++iter)
-	{
-		LLViewerJointAttachment* attachment = iter->second;
+    
+        for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
+             iter != mAttachmentPoints.end();
+             ++iter)
+        {
+            LLViewerJointAttachment* attachment = iter->second;
 
-		if (attachment->getValid())
-		{
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
+            if (attachment->getValid())
+            {
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                     attachment_iter != attachment->mAttachedObjects.end();
+                     ++attachment_iter)
+                {
                     // Don't we need to look at children of attached_object as well?
-                const LLViewerObject* attached_object = attachment_iter->get();
-				if (attached_object && !attached_object->isHUDAttachment())
-				{
+                    const LLViewerObject* attached_object = attachment_iter->get();
+                    if (attached_object && !attached_object->isHUDAttachment())
+                    {
                         const LLVOVolume *vol = dynamic_cast<const LLVOVolume*>(attached_object);
                         if (vol && vol->isAnimatedObject())
                         {
@@ -1417,39 +1424,39 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
                         {
                             continue;
                         }
-					LLDrawable* drawable = attached_object->mDrawable;
-					if (drawable && !drawable->isState(LLDrawable::RIGGED))
-					{
-						LLSpatialBridge* bridge = drawable->getSpatialBridge();
-						if (bridge)
-						{
-							const LLVector4a* ext = bridge->getSpatialExtents();
-							LLVector4a distance;
-							distance.setSub(ext[1], ext[0]);
-							LLVector4a max_span(max_attachment_span);
+                        LLDrawable* drawable = attached_object->mDrawable;
+                        if (drawable && !drawable->isState(LLDrawable::RIGGED))
+                        {
+                            LLSpatialBridge* bridge = drawable->getSpatialBridge();
+                            if (bridge)
+                            {
+                                const LLVector4a* ext = bridge->getSpatialExtents();
+                                LLVector4a distance;
+                                distance.setSub(ext[1], ext[0]);
+                                LLVector4a max_span(max_attachment_span);
 
-							S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
-						
-							// Only add the prim to spatial extents calculations if it isn't a megaprim.
-							// max_attachment_span calculated at the start of the function 
-							// (currently 5 times our max prim size) 
-							if (lt == 0x7)
-							{
-								update_min_max(newMin,newMax,ext[0]);
-								update_min_max(newMin,newMax,ext[1]);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+                                S32 lt = distance.lessThan(max_span).getGatheredBits() & 0x7;
+                        
+                                // Only add the prim to spatial extents calculations if it isn't a megaprim.
+                                // max_attachment_span calculated at the start of the function 
+                                // (currently 5 times our max prim size) 
+                                if (lt == 0x7)
+                                {
+                                    update_min_max(newMin,newMax,ext[0]);
+                                    update_min_max(newMin,newMax,ext[1]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Stretch bounding box by rigged mesh joint boxes
     if (box_detail>=3)
     {
-		updateRiggingInfo();
+        updateRiggingInfo();
         for (S32 joint_num = 0; joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS; joint_num++)
         {
             LLJoint *joint = getJoint(joint_num);
