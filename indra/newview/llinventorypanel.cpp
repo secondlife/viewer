@@ -44,6 +44,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llnotificationsutil.h"
+#include "llpanelmaininventory.h"
 #include "llpreview.h"
 #include "llsidepanelinventory.h"
 #include "llstartup.h"
@@ -1592,7 +1593,7 @@ void LLInventoryPanel::openInventoryPanelAndSetSelection(BOOL auto_open, const L
 
 	bool in_inbox = (gInventory.isObjectDescendentOf(obj_id, gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX)));
 
-	if (main_panel && !in_inbox)
+	if (!in_inbox && (main_panel || !sidepanel_inventory->getMainInventoryPanel()->isRecentItemsPanelSelected()))
 	{
 		sidepanel_inventory->selectAllItemsPanel();
 	}

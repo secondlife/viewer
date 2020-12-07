@@ -792,7 +792,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
             // Show the preview panel for textures and sounds to let
             // user know that the image (or snapshot) arrived intact.
             LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, TRUE, TAKE_FOCUS_NO, (panel == NULL));
+            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, FALSE, TAKE_FOCUS_NO, (panel == NULL));
 
             // restore keyboard focus
             gFocusMgr.setKeyboardFocus(focus);
