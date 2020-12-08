@@ -33,6 +33,9 @@
 using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
+#elif LL_DARWIN
+#include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/IOKitLib.h>
 #endif
 unsigned char static_unique_id[] =  {0,0,0,0,0,0};
 unsigned char static_legacy_id[] =  {0,0,0,0,0,0};
@@ -344,8 +347,51 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
 
     return found;
 }
+#elif LL_DARWIN
+bool getSerialNumber(unsigned char *unique_id, size_t len)
+{
+    CFStringRef serial_cf_str = NULL;
+    io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
+                                                                 IOServiceMatching("IOPlatformExpertDevice"));
+    if (platformExpert)
+    {
+        serial_cf_str = (CFStringRef) IORegistryEntryCreateCFProperty(platformExpert,
+                                                                     CFSTR(kIOPlatformSerialNumberKey),
+                                                                     kCFAllocatorDefault, 0);
+        IOObjectRelease(platformExpert);
+    }
+    
+    if (serial_cf_str)
+    {
+        char buffer[64] = {0};
+        std::string serial_str("");
+        if (CFStringGetCString(serial_cf_str, buffer, 64, kCFStringEncodingUTF8))
+        {
+            serial_str = buffer;
+        }
 
-#endif //LL_WINDOWS
+        S32 serial_size = serial_str.size();
+        
+        if(serial_str.size() > 0)
+        {
+            S32 j = 0;
+            while (j < serial_size)
+            {
+                for (S32 i = 0; i < len; i++)
+                {
+                    if (j >= serial_size)
+                        break;
+
+                    unique_id[i] = (unsigned int)(unique_id[i] + serial_str[j]);
+                    j++;
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+#endif
 
 // get an unique machine id.
 // NOT THREAD SAFE - do before setting up threads.
@@ -394,11 +440,37 @@ S32 LLMachineID::init()
     }
 
     ret_code=0;
-#else
-        unsigned char * staticPtr = (unsigned char *)(&static_unique_id[0]);
-        ret_code = LLUUID::getNodeID(staticPtr);
+#elif LL_DARWIN
+    if (getSerialNumber(static_unique_id, len))
+    {
         has_static_unique_id = true;
-        has_static_legacy_id = false;
+        LL_DEBUGS("AppInit") << "Using Serial number as unique id" << LL_ENDL;
+    }
+
+    {
+        unsigned char * staticPtr = (unsigned char *)(&static_legacy_id[0]);
+        ret_code = LLUUID::getNodeID(staticPtr);
+        has_static_legacy_id = true;
+    }
+
+    // Fallback to legacy
+    if (!has_static_unique_id)
+    {
+        if (has_static_legacy_id)
+        {
+            memcpy(static_unique_id, &static_legacy_id, len);
+            // Since ids are identical, mark legacy as not present
+            // to not cause retry's in sechandler
+            has_static_legacy_id = false;
+            has_static_unique_id = true;
+            LL_DEBUGS("AppInit") << "Using legacy serial" << LL_ENDL;
+        }
+    }
+#else
+    unsigned char * staticPtr = (unsigned char *)(&static_legacy_id[0]);
+    ret_code = LLUUID::getNodeID(staticPtr);
+    has_static_unique_id = true;
+    has_static_legacy_id = false;
 #endif
 
         LL_INFOS("AppInit") << "UniqueID: 0x";
