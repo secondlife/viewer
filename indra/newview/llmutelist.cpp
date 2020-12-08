@@ -428,6 +428,7 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 		}
 		
 		// Must be after erase.
+		notifyObservers();
 		notifyObserversDetailed(localmute);
 	}
 	else
@@ -441,6 +442,7 @@ BOOL LLMuteList::remove(const LLMute& mute, U32 flags)
 			updateRemove(mute);
 			mLegacyMutes.erase(legacy_it);
 			// Must be after erase.
+			notifyObservers();
 			notifyObserversDetailed(mute);
 		}
 	}

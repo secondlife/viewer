@@ -51,7 +51,7 @@ bool LLEnvironmentRequest::initiate(LLEnvironment::environment_apply_fn cb)
 	if (!cur_region->capabilitiesReceived())
 	{
 		LL_INFOS("WindlightCaps") << "Deferring windlight settings request until we've got region caps" << LL_ENDL;
-        cur_region->setCapabilitiesReceivedCallback([cb](LLUUID region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id, cb); });
+        cur_region->setCapabilitiesReceivedCallback([cb](const LLUUID &region_id) { LLEnvironmentRequest::onRegionCapsReceived(region_id, cb); });
 		return false;
 	}
 

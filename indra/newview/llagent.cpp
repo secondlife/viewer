@@ -965,7 +965,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             }
             else
             {
-                regionp->setCapabilitiesReceivedCallback([](LLUUID region_id) {LLAppViewer::instance()->updateNameLookupUrl(); });
+                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id) {LLAppViewer::instance()->updateNameLookupUrl(); });
             }
 		}
 
