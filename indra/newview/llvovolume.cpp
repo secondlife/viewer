@@ -255,6 +255,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
     mRenderComplexity_currentArctan = 0;
 
     mLastRiggingInfoLOD = -1;
+	mResetDebugText = false;
 }
 
 LLVOVolume::~LLVOVolume()
@@ -1416,6 +1417,15 @@ BOOL LLVOVolume::calcLOD()
         {
             std::string debug_object_text = get_debug_object_lod_text(this);
             setDebugText(debug_object_text);
+            mResetDebugText = true;
+        }
+    }
+    else
+    {
+        if (mResetDebugText)
+        {
+            restoreHudText();
+            mResetDebugText = false;
         }
     }
 

@@ -311,10 +311,6 @@ public:
 	void	packMessage(LLMessageSystem* msg) const;
 	void	unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 
-	// Load/save support
-	BOOL	importFile(LLFILE* fp);
-	BOOL	exportFile(LLFILE* fp) const;
-
 	BOOL	importLegacyStream(std::istream& input_stream);
 	BOOL	exportLegacyStream(std::ostream& output_stream) const;
 

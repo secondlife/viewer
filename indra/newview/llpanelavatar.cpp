@@ -44,6 +44,7 @@
 #include "llavatariconctrl.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
+#include "llviewermenu.h" // is_agent_mappable
 #include "llvoiceclient.h"
 #include "lltextbox.h"
 #include "lltrans.h"

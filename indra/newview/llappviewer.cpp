@@ -529,7 +529,8 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	LLIconCtrl* icon;
 
-	if(gAgent.isInGroup(match_id, TRUE))
+	if( match->getMenuName() == "menu_url_group.xml" // See LLUrlEntryGroup constructor
+		|| gAgent.isInGroup(match_id, TRUE)) //This check seems unfiting, urls are either /agent or /group
 	{
 		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
@@ -607,8 +608,9 @@ static void settings_to_globals()
 static void settings_modify()
 {
 	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderDeferred");
+	LLPipeline::sRenderTransparentWater	= gSavedSettings.getBOOL("RenderTransparentWater");
 	LLPipeline::sRenderBump				= gSavedSettings.getBOOL("RenderObjectBump");
-	LLPipeline::sRenderDeferred		= LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
+	LLPipeline::sRenderDeferred		= LLPipeline::sRenderTransparentWater && LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
@@ -786,7 +788,7 @@ bool LLAppViewer::init()
 
     // initialize the LLSettingsType translation bridge.
     LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
-    LLSettingsType::initClass(trans);
+    LLSettingsType::initParamSingleton(trans);
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -1029,12 +1031,26 @@ bool LLAppViewer::init()
 	{
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
+		LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedGLRequirements");
 		OSMessageBox(
-			LLNotifications::instance().getGlobalString("UnsupportedGLRequirements"),
+			details.getString(),
 			LLStringUtil::null,
 			OSMB_OK);
 		return 0;
 	}
+
+    // If we don't have the right shader requirements.
+    if (!gGLManager.mHasShaderObjects
+        || !gGLManager.mHasVertexShader
+        || !gGLManager.mHasFragmentShader)
+    {
+        LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedShaderRequirements");
+        OSMessageBox(
+            details.getString(),
+            LLStringUtil::null,
+            OSMB_OK);
+        return 0;
+    }
 
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())
@@ -1622,8 +1638,10 @@ bool LLAppViewer::doFrame()
 			}
 
 			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
+			// and when not quiting (causes trouble at mac's cleanup stage)
+			if (!LLApp::isExiting()
+				&& ((gViewerWindow && !gViewerWindow->getWindow()->getVisible())
+					|| !gFocusMgr.getAppHasFocus()))
 			{
 				LL_RECORD_BLOCK_TIME(FTM_SLEEP_NOT_FG);
 				// Sleep if we're not rendering, or the window is minimized.
@@ -2280,8 +2298,6 @@ bool LLAppViewer::cleanup()
 
 	LLError::LLCallStacks::cleanup();
 
-	removeMarkerFiles();
-
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
 	// explicit hand-placed calls into the generic mechanism, eventually
@@ -2289,13 +2305,11 @@ bool LLAppViewer::cleanup()
 	// still see above are calls that MUST happen before the generic cleanup
 	// kicks in.
 
-	// The logging subsystem depends on an LLSingleton. Any logging after
-	// LLSingletonBase::deleteAll() won't be recorded.
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
-
 	// This calls every remaining LLSingleton's cleanupSingleton() and
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
+
+    LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
