@@ -112,16 +112,20 @@ def analyze_timers(df):
     df_diff = (df_slow.quantile(0.5)-df_fast.quantile(0.5)).sort_values(ascending=False)[0:30]
     print df_diff 
     rows = list(df_diff.index.values)
-    print rows
     start = rows.index("Frame - Times")
     df_diff_cols = rows[start:start+10]
-    print df_diff_cols
+    print "df_diff_cols", df_diff_cols
+    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], df_diff_cols, [0,very_slow_frame], "df_high_diff_timers_histo.jpg") 
 
-    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], df_diff_cols, [0,very_slow_frame], "df_parallel_histo.jpg") 
+    slow_cols = list(df_slow.mean().sort_values(ascending=False)[0:20].index.values)
+    start = slow_cols.index("Frame - Times")
+    print "slow_cols", slow_cols
+    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], slow_cols[start:start+10], [0,very_slow_frame], "df_slow_frames_histo.jpg") 
     #make_histo(df_slow, df_diff_cols, [0,slow_frame], "df_slow_histo.jpg") 
 
     df_sleep_cols = ["Frame - Times"]
     df_sleep_cols.extend([col for col in list(df.columns) if "Sleep" in col])
+    start = df_sleep_cols.index("Frame - Times")
     make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], df_sleep_cols, [0,slow_frame], "df_sleep_histo.jpg")
 
     for col in df_diff_cols:
