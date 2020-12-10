@@ -774,35 +774,45 @@ void show_item_profile(const LLUUID& item_uuid)
 
 void show_item_original(const LLUUID& item_uuid)
 {
-	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
-	if (!floater_inventory)
-	{
-		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
-		return;
-	}
+    LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+    if (!floater_inventory)
+    {
+        LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
+        return;
+    }
+    LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+    if (sidepanel_inventory)
+    {
+        LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+        if (main_inventory)
+        {
+            main_inventory->resetFilters();
+        }
+        reset_inventory_filter();
 
-	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =	LLPanelMainInventory::newWindow()->LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+        if (!LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("inventory")->isInVisibleChain())
+        {
+            LLFloaterReg::toggleInstanceOrBringToFront("inventory");
+        }
 
-
-	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		//this may happen when there is no floatera and other panel is active in inventory tab
-
-		if	(sidepanel_inventory)
-		{
-			sidepanel_inventory->showInventoryPanel();
-		}
-	}
-	
-	active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		return;
-	}
-	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
-	active_panel->setFocus(TRUE);
+        const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+        if (gInventory.isObjectDescendentOf(gInventory.getLinkedItemID(item_uuid), inbox_id))
+        {
+            if (sidepanel_inventory->getInboxPanel())
+            {
+                sidepanel_inventory->openInbox();
+                sidepanel_inventory->getInboxPanel()->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
+            }
+        }
+        else
+        {
+            sidepanel_inventory->selectAllItemsPanel();
+            if (sidepanel_inventory->getActivePanel())
+            {
+                sidepanel_inventory->getActivePanel()->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
+            }
+        }
+    }
 }
 
 
@@ -2486,15 +2496,6 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     }
     else
     {
-        if (action == "goto")
-        {
-            LLSidepanelInventory *sidepanel_inventory = LLPanelMainInventory::newWindow()->LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
-            if (sidepanel_inventory && sidepanel_inventory->getMainInventoryPanel())
-            {
-                model = sidepanel_inventory->getMainInventoryPanel()->getActivePanel()->getModel();
-            }
-        }
-        
         std::set<LLFolderViewItem*>::iterator set_iter;
         for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
         {

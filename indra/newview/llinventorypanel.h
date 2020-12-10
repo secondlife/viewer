@@ -244,9 +244,7 @@ public:
 	LLFolderViewItem* getItemByID(const LLUUID& id);
 	LLFolderViewFolder* getFolderByID(const LLUUID& id);
 	void setSelectionByID(const LLUUID& obj_id, BOOL take_keyboard_focus);
-	void openFolderByID(const LLUUID& folder_id);
 	void updateSelection();
-	void updateFolderState();
 
 	void setSuppressOpenItemAction(bool supress_open_item) { mSuppressOpenItemAction = supress_open_item; }
 
@@ -262,11 +260,11 @@ protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
 	void onItemsCompletion();			// called when selected items are complete
 
-    LLUUID						mSelectThisID;
-	LLUUID						mOpenFolderID;	
+    LLUUID						mSelectThisID;	
 	LLInventoryModel*			mInventory;
 	LLInventoryObserver*		mInventoryObserver;
 	LLInvPanelComplObserver*	mCompletionObserver;
+	bool						mFocusSelection;
 	bool						mAcceptsDragAndDrop;
 	bool 						mAllowMultiSelect;
 	bool 						mAllowDrag;

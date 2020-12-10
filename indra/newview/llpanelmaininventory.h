@@ -46,7 +46,6 @@ class LLMenuButton;
 class LLMenuGL;
 class LLToggleableMenu;
 class LLFloater;
-class LLFloaterSidePanelContainer;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -91,9 +90,11 @@ public:
 
 	void setFocusFilterEditor();
 
-	static LLFloaterSidePanelContainer* newWindow();
+	static void newWindow();
 
 	void toggleFindOptions();
+
+    void resetFilters();
 
 protected:
 	//
@@ -119,7 +120,6 @@ protected:
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
 	void doCreate(const LLSD& userdata);
-	void resetFilters();
 	void setSortBy(const LLSD& userdata);
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
