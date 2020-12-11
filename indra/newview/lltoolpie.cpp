@@ -465,8 +465,9 @@ BOOL LLToolPie::useClickAction(MASK mask,
 			&& object
 			&& !object->isAttachment() 
 			&& LLPrimitive::isPrimitive(object->getPCode())
-			&& (object->getClickAction() 
-				|| parent->getClickAction());
+				// useClickAction does not handle Touch (0) or Disabled action
+			&& ((object->getClickAction() && object->getClickAction() != CLICK_ACTION_DISABLED)
+				|| (parent->getClickAction() && parent->getClickAction() != CLICK_ACTION_DISABLED));
 
 }
 
@@ -480,13 +481,17 @@ U8 final_click_action(LLViewerObject* obj)
 	if (obj->getClickAction()
 	    || (parent && parent->getClickAction()))
 	{
-		if (obj->getClickAction())
+		U8 object_action = obj->getClickAction();
+		U8 parent_action = parent ? parent->getClickAction() : CLICK_ACTION_TOUCH;
+		if (parent_action == CLICK_ACTION_DISABLED || object_action)
 		{
-			click_action = obj->getClickAction();
+			// CLICK_ACTION_DISABLED ("None" in UI) is intended for child action to
+			// override parents action when assigned to parent or to child
+			click_action = object_action;
 		}
-		else if (parent && parent->getClickAction())
+		else if (parent_action)
 		{
-			click_action = parent->getClickAction();
+			click_action = parent_action;
 		}
 	}
 	return click_action;
@@ -692,7 +697,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 		}
 		else if ((!object || !object->isAttachment() || object->getClickAction() != CLICK_ACTION_DISABLED)
 				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch()))
-				 && (object && !object->isAvatar()))
+				 && (!object || !object->isAvatar()))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
