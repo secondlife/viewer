@@ -34,8 +34,6 @@
 #include "llfasttimer.h"
 #include "lldiskcache.h"
 
-#include <fstream>
-
 const S32 LLFileSystem::READ        = 0x00000001;
 const S32 LLFileSystem::WRITE       = 0x00000002;
 const S32 LLFileSystem::READ_WRITE  = 0x00000003;  // LLFileSystem::READ & LLFileSystem::WRITE
@@ -64,7 +62,7 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
     const std::string extra_info = "";
     const std::string filename = LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
 
-    std::ifstream file(filename, std::ios::binary);
+    llifstream file(filename, std::ios::binary);
     if (file.is_open())
     {
         file.seekg(0, std::ios::end);
@@ -81,7 +79,7 @@ bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType fi
     const std::string extra_info = "";
     const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
 
-    std::remove(filename.c_str());
+    LLFile::remove(filename.c_str());
 
     return true;
 }
@@ -102,7 +100,7 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     // Rename needs the new file to not exist.
     LLFileSystem::removeFile(new_file_id, new_file_type);
 
-    if (std::rename(old_filename.c_str(), new_filename.c_str()))
+    if (LLFile::rename(old_filename, new_filename) != 0)
     {
         // We would like to return FALSE here indicating the operation
         // failed but the original code does not and doing so seems to
@@ -123,7 +121,7 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
     const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
 
     S32 file_size = 0;
-    std::ifstream file(filename, std::ios::binary);
+    llifstream file(filename, std::ios::binary);
     if (file.is_open())
     {
         file.seekg(0, std::ios::end);
@@ -142,7 +140,7 @@ BOOL LLFileSystem::read(U8* buffer, S32 bytes)
     const std::string extra_info = "";
     const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id, mFileType, extra_info);
 
-    std::ifstream file(filename, std::ios::binary);
+    llifstream file(filename, std::ios::binary);
     if (file.is_open())
     {
         file.seekg(mPosition, std::ios::beg);
@@ -197,7 +195,7 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
 
     if (mMode == APPEND)
     {
-        std::ofstream ofs(filename, std::ios::app | std::ios::binary);
+        llofstream ofs(filename, std::ios::app | std::ios::binary);
         if (ofs)
         {
             ofs.write((const char*)buffer, bytes);
@@ -207,7 +205,7 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
     }
     else
     {
-        std::ofstream ofs(filename, std::ios::binary);
+        llofstream ofs(filename, std::ios::binary);
         if (ofs)
         {
             ofs.write((const char*)buffer, bytes);

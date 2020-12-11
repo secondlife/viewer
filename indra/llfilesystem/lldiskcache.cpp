@@ -48,7 +48,7 @@ LLDiskCache::LLDiskCache(const std::string cache_dir,
 {
     mCacheFilenamePrefix = "sl_cache";
 
-    boost::filesystem::create_directory(cache_dir);
+    LLFile::mkdir(cache_dir);
 }
 
 void LLDiskCache::purge()
@@ -63,9 +63,14 @@ void LLDiskCache::purge()
     typedef std::pair<std::time_t, std::pair<uintmax_t, std::string>> file_info_t;
     std::vector<file_info_t> file_info;
 
-    if (boost::filesystem::is_directory(mCacheDir))
+#if LL_WINDOWS
+    std::wstring cache_path(utf8str_to_utf16str(mCacheDir));
+#else
+    std::string cache_path(mCacheDir);
+#endif
+    if (boost::filesystem::is_directory(cache_path))
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(mCacheDir), {}))
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path), {}))
         {
             if (boost::filesystem::is_regular_file(entry))
             {
@@ -201,7 +206,12 @@ const std::string LLDiskCache::metaDataToFilepath(const std::string id,
 void LLDiskCache::updateFileAccessTime(const std::string file_path)
 {
     const std::time_t file_time = std::time(nullptr);
+
+#if LL_WINDOWS
+    boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), file_time);
+#else
     boost::filesystem::last_write_time(file_path, file_time);
+#endif
 }
 
 const std::string LLDiskCache::getCacheInfo()
@@ -227,9 +237,14 @@ void LLDiskCache::clearCache()
      * the component files but it's called infrequently so it's
      * likely just fine
      */
-    if (boost::filesystem::is_directory(mCacheDir))
+#if LL_WINDOWS
+    std::wstring cache_path(utf8str_to_utf16str(mCacheDir));
+#else
+    std::string cache_path(mCacheDir);
+#endif
+    if (boost::filesystem::is_directory(cache_path))
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(mCacheDir), {}))
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path), {}))
         {
             if (boost::filesystem::is_regular_file(entry))
             {
@@ -255,9 +270,14 @@ uintmax_t LLDiskCache::dirFileSize(const std::string dir)
      * so if performance is ever an issue, optimizing this or removing it altogether,
      * is an easy win.
      */
-    if (boost::filesystem::is_directory(dir))
+#if LL_WINDOWS
+    std::wstring dir_path(utf8str_to_utf16str(dir));
+#else
+    std::string dir_path(dir);
+#endif
+    if (boost::filesystem::is_directory(dir_path))
     {
-        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(dir), {}))
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(dir_path), {}))
         {
             if (boost::filesystem::is_regular_file(entry))
             {
