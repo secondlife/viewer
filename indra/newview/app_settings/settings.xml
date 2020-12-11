@@ -1573,10 +1573,11 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>CameraPreset</key>  <!-- deprecated (see SL-12429) -->
+    <key>CameraPreset</key>
+    <!-- deprecated (see SL-12429) -->
     <map>
       <key>Comment</key>
-      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
+      <string>(Deprecated) Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2494,10 +2495,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>DebugShowPrivateMem</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>Show Private Mem Info</string>
+      <string>(Deprecated) Show Private Mem Info</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -5775,7 +5777,7 @@
   <key>LoginSRVPump</key>
   <map>
     <key>Comment</key>
-    <string>Name of the message pump that handles SRV request (deprecated)</string>
+    <string>(Deprecated) Name of the message pump that handles SRV request)</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -6586,10 +6588,11 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Enable the private memory pool management</string>
+      <string>(Deprecated) Enable the private memory pool management</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6597,10 +6600,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
+      <string>(Deprecated) Size of the private memory pool in MB (min. value is 256)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8293,7 +8297,7 @@
     <key>QAModeEventHostPort</key>
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Port on which lleventhost should listen</string>
+      <string>(Deprecated) Port on which lleventhost should listen</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -14027,10 +14031,11 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
+    <key>UseExternalBrowser</key>
+    <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
-      <string>Use default browser when opening web pages instead of in-world browser.</string>
+      <string>(Deprecated) Use default browser when opening web pages instead of in-world browser.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14404,6 +14409,7 @@
       <integer>44125</integer>
     </map>
     <key>VoiceCallsFriendsOnly</key>
+    <!-- deprecated (see SL-12871) -->
     <map>
       <key>Comment</key>
       <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
