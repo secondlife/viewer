@@ -467,7 +467,7 @@ BOOL LLToolPie::useClickAction(MASK mask,
 			&& LLPrimitive::isPrimitive(object->getPCode())
 				// useClickAction does not handle Touch (0) or Disabled action
 			&& ((object->getClickAction() && object->getClickAction() != CLICK_ACTION_DISABLED)
-				|| (parent->getClickAction() && parent->getClickAction() != CLICK_ACTION_DISABLED));
+				|| (parent && parent->getClickAction() && parent->getClickAction() != CLICK_ACTION_DISABLED));
 
 }
 
@@ -478,22 +478,18 @@ U8 final_click_action(LLViewerObject* obj)
 
 	U8 click_action = CLICK_ACTION_TOUCH;
 	LLViewerObject* parent = obj->getRootEdit();
-	if (obj->getClickAction()
-	    || (parent && parent->getClickAction()))
-	{
-		U8 object_action = obj->getClickAction();
-		U8 parent_action = parent ? parent->getClickAction() : CLICK_ACTION_TOUCH;
-		if (parent_action == CLICK_ACTION_DISABLED || object_action)
-		{
-			// CLICK_ACTION_DISABLED ("None" in UI) is intended for child action to
-			// override parents action when assigned to parent or to child
-			click_action = object_action;
-		}
-		else if (parent_action)
-		{
-			click_action = parent_action;
-		}
-	}
+    U8 object_action = obj->getClickAction();
+    U8 parent_action = parent ? parent->getClickAction() : CLICK_ACTION_TOUCH;
+    if (parent_action == CLICK_ACTION_DISABLED || object_action)
+    {
+        // CLICK_ACTION_DISABLED ("None" in UI) is intended for child action to
+        // override parent's action when assigned to parent or to child
+        click_action = object_action;
+    }
+    else if (parent_action)
+    {
+        click_action = parent_action;
+    }
 	return click_action;
 }
 
@@ -886,9 +882,10 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND;
 		bool pos_non_zero = !mPick.mPosGlobal.isExactlyZero();
 		bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-		bool has_click_action = final_click_action(objp);
+		U8 click_action = final_click_action(objp); // deault action: 0 - touch
+		bool has_click_action = (click_action || has_touch_handler) && click_action != CLICK_ACTION_DISABLED;
 
-		if (pos_non_zero && (is_land || (is_in_world && !has_touch_handler && !has_click_action)))
+		if (pos_non_zero && (is_land || (is_in_world && !has_click_action)))
 		{
 			LLVector3d pos = mPick.mPosGlobal;
 			pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
