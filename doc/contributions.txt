@@ -267,6 +267,7 @@ Beth Walcher
 Beq Janus
 	SL-10288
 	SL-13583
+	SL-11300
 Bezilon Kasei
 Biancaluce Robbiani
 	CT-225
