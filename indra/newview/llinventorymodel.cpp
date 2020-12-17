@@ -2286,11 +2286,11 @@ bool LLInventoryModel::loadSkeleton(
 					}
 				}
 
- 				LL_INFOS(LOG_INV) << "Attempted to add " << bad_link_count
-								  << " cached link items without baseobj present. "
-								  << good_link_count << " link items were successfully added. "
-								  << recovered_link_count << " links added in recovery. "
-								  << "The corresponding categories were invalidated." << LL_ENDL;
+ 				LL_DEBUGS(LOG_INV) << "Attempted to add " << bad_link_count
+								   << " cached link items without baseobj present. "
+								   << good_link_count << " link items were successfully added. "
+								   << recovered_link_count << " links added in recovery. "
+								   << "The corresponding categories were invalidated." << LL_ENDL;
 			}
 
 		}
@@ -2316,7 +2316,10 @@ bool LLInventoryModel::loadSkeleton(
 			cat->setVersion(NO_VERSION);
 			LL_DEBUGS(LOG_INV) << "Invalidating category name: " << cat->getName() << " UUID: " << cat->getUUID() << " due to invalid descendents cache" << LL_ENDL;
 		}
-		LL_INFOS(LOG_INV) << "Invalidated " << invalid_categories.size() << " categories due to invalid descendents cache" << LL_ENDL;
+		if (invalid_categories.size() > 0)
+		{
+			LL_DEBUGS(LOG_INV) << "Invalidated " << invalid_categories.size() << " categories due to invalid descendents cache" << LL_ENDL;
+		}
 
 		// At this point, we need to set the known descendents for each
 		// category which successfully cached so that we do not
@@ -3735,24 +3738,6 @@ void LLInventoryModel::dumpInventory() const
 	LL_INFOS() << "\n**********************\nEnd Inventory Dump" << LL_ENDL;
 }
 
-std::string get_full_path(const LLInventoryObject *cat)
-{
-	std::vector<std::string> path_elts;
-	std::map<LLUUID,bool> visited;
-	while (cat != NULL && !visited[cat->getUUID()])
-	{
-		path_elts.push_back(cat->getName());
-		// avoid infinite loop in the unlikely event of a cycle
-		visited[cat->getUUID()] = true;
-		cat = gInventory.getObject(cat->getParentUUID());
-	}
-	std::stringstream s;
-	std::string delim("/");
-	std::reverse(path_elts.begin(), path_elts.end());
-	std::string result = "/" + boost::algorithm::join(path_elts, delim);
-	return result;
-}
-
 // Do various integrity checks on model, logging issues found and
 // returning an overall good/bad flag. 
 LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
@@ -3841,11 +3826,13 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		{
 			version_unknown_count++;
 		}
-		if (mCategoryLock.count(cat_id))
+		auto cat_lock_it = mCategoryLock.find(cat_id);
+		if (cat_lock_it != mCategoryLock.end() && cat_lock_it->second)
 		{
 			cat_lock++;
 		}
-		if (mItemLock.count(cat_id))
+		auto item_lock_it = mItemLock.find(cat_id);
+		if (item_lock_it != mItemLock.end() && item_lock_it->second)
 		{
 			item_lock++;
 		}
@@ -3959,7 +3946,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				ft_counts_under_root[folder_type]++;
 				if (folder_type != LLFolderType::FT_NONE)
 				{
-					LL_DEBUGS("Inventory") << "Under root cat: " << get_full_path(cat) << " folder_type " << folder_type << LL_ENDL;
+					LL_DEBUGS("Inventory") << "Under root cat: " << getFullPath(cat) << " folder_type " << folder_type << LL_ENDL;
 				}
 			}
 			else
@@ -3967,7 +3954,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				ft_counts_elsewhere[folder_type]++;
 				if (folder_type != LLFolderType::FT_NONE)
 				{
-					LL_DEBUGS("Inventory") << "Elsewhere cat: " << get_full_path(cat) << " folder_type " << folder_type << LL_ENDL;
+					LL_DEBUGS("Inventory") << "Elsewhere cat: " << getFullPath(cat) << " folder_type " << folder_type << LL_ENDL;
 				}
 			}
 		}
@@ -4129,11 +4116,11 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	}
 	if (desc_unknown_count != 0)
 	{
-		LL_INFOS() << "Found " << desc_unknown_count << " cats with unknown descendent count" << LL_ENDL; 
+		LL_DEBUGS() << "Found " << desc_unknown_count << " cats with unknown descendent count" << LL_ENDL; 
 	}
 	if (version_unknown_count != 0)
 	{
-		LL_INFOS("Inventory") << "Found " << version_unknown_count << " cats with unknown version" << LL_ENDL;
+		LL_DEBUGS("Inventory") << "Found " << version_unknown_count << " cats with unknown version" << LL_ENDL;
 	}
 
 	// FIXME need to fail login and tell user to retry, contact support if problem persists.
@@ -4144,6 +4131,25 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	validation_info->mWarningCount = warnings;
 
 	return validation_info; 
+}
+
+// Provides a unix-style path from root, like "/My Inventory/Clothing/.../myshirt"
+std::string LLInventoryModel::getFullPath(const LLInventoryObject *obj) const
+{
+	std::vector<std::string> path_elts;
+	std::map<LLUUID,bool> visited;
+	while (obj != NULL && !visited[obj->getUUID()])
+	{
+		path_elts.push_back(obj->getName());
+		// avoid infinite loop in the unlikely event of a cycle
+		visited[obj->getUUID()] = true;
+		obj = getObject(obj->getParentUUID());
+	}
+	std::stringstream s;
+	std::string delim("/");
+	std::reverse(path_elts.begin(), path_elts.end());
+	std::string result = "/" + boost::algorithm::join(path_elts, delim);
+	return result;
 }
 
 ///----------------------------------------------------------------------------

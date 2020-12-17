@@ -671,6 +671,7 @@ private:
 public:
 	void dumpInventory() const;
 	LLPointer<LLInventoryValidationInfo> validate() const;
+	std::string getFullPath(const LLInventoryObject *obj) const;
 
 /**                    Miscellaneous
  **                                                                            **
