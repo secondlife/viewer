@@ -523,11 +523,17 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 		}
 	}
 	
-	if(rv.isNull() && isInventoryUsable() && create_folder)
+	if(rv.isNull() && create_folder && root_id.notNull())
 	{
-		if(root_id.notNull())
+
+		if (isInventoryUsable())
 		{
 			return createNewCategory(root_id, preferred_type, LLStringUtil::null);
+		}
+		else
+		{
+			LL_WARNS("Inventory") << "Can't create requested folder, type " << preferred_type
+								  << " because inventory is not usable" << LL_ENDL;
 		}
 	}
 	return rv;
@@ -593,9 +599,10 @@ LLUUID LLInventoryModel::createNewCategory(const LLUUID& parent_id,
 										   inventory_func_type callback)
 {
 	LLUUID id;
-	if(!isInventoryUsable())
+	if (!isInventoryUsable())
 	{
-		LL_WARNS(LOG_INV) << "Inventory is broken." << LL_ENDL;
+		LL_WARNS(LOG_INV) << "Inventory is not usable; can't create requested category of type "
+						  << preferred_type << LL_ENDL;
 		// FIXME failing but still returning an id?
 		return id;
 	}
@@ -2607,10 +2614,20 @@ void LLInventoryModel::buildParentChildMap()
 				}
 			}
 
-			// 'My Inventory',
-			// root of the agent's inv found.
-			// The inv tree is built.
-			mIsAgentInvUsable = true;
+			LLPointer<LLInventoryValidationInfo> validation_info = validate();
+			if (validation_info->mFatalErrorCount > 0)
+			{
+				// Fatal inventory error. Will not be able to engage in many inventory operations.
+				// This should be followed by an error dialog leading to logout.
+				LL_WARNS("Inventory") << "Fatal errors were found in validate(): unable to initialize inventory! "
+									  << "Will not be able to do normal inventory operations in this session."
+									  << LL_ENDL;
+				mIsAgentInvUsable = false;
+			}
+			else
+			{
+				mIsAgentInvUsable = true;
+			}
 
 			// notifyObservers() has been moved to
 			// llstartup/idle_startup() after this func completes.

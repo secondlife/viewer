@@ -1808,11 +1808,11 @@ bool idle_startup()
 		// gInventory.mIsAgentInvUsable is set to true in the gInventory.buildParentChildMap.
 		gInventory.buildParentChildMap();
 
-		// If inventory is unusable, need to flag this and
-		// bail out. In particular, must not trigger creation of new system
-		// categories.
-		LLPointer<LLInventoryValidationInfo> validation_info = gInventory.validate();
-		// FIXME add handling of unfixable corruption here - need to exit and get support to fix.
+		// If buildParentChildMap succeeded, inventory will now be in
+		// a usable state and gInventory.isInventoryUsable() will be
+		// true.
+
+		// FIXME if inventory is unusable, we need to bail out.
 		
 		gInventory.createCommonSystemCategories();
 
@@ -1857,9 +1857,6 @@ bool idle_startup()
 		display_startup();
 		LLStartUp::setStartupState( STATE_MISC );
 		display_startup();
-
-		// Update status check after various system folders created.
-		validation_info = gInventory.validate();
 
 		return FALSE;
 	}
