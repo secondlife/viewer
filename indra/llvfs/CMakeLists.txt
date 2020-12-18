@@ -4,13 +4,11 @@ project(llvfs)
 
 include(00-Common)
 include(LLCommon)
-include(SQLite)
 include(UnixInstall)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${SQLITE_INCLUDE_DIR}
     )
 
 set(llvfs_SOURCE_FILES
@@ -76,7 +74,6 @@ set(vfs_BOOST_LIBRARIES
 target_link_libraries(llvfs
     ${LLCOMMON_LIBRARIES}
     ${vfs_BOOST_LIBRARIES}
-    ${SQLITE_LIBRARIES}
     )
 
 if (DARWIN)
@@ -107,36 +104,3 @@ if (LL_TESTS)
     LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
     
 endif (LL_TESTS)
-
-### TODO: Move it back inside LL_TESTS block eventually
-    ####################################################################################
-    # LLVFS perf/stress app
-    SET(llvfs_TEST_SOURCE_FILES
-      tests/llvfs_perftest.cpp
-    )
-    add_executable(llvfs_perf_test
-      ${llvfs_TEST_SOURCE_FILES}
-    )
-    set_target_properties(llvfs_perf_test
-      PROPERTIES
-      RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
-    )
-    target_link_libraries(llvfs_perf_test
-      ${LLCOMMON_LIBRARIES}
-      llvfs
-      ${vfs_BOOST_LIBRARIES}
-      ${SQLITE_LIBRARIES}
-    )
-    target_include_directories(
-      llvfs_perf_test
-      PUBLIC
-      ${LIBS_OPEN_DIR}/llvfs
-    )
-    if (WINDOWS)
-      set_target_properties(llvfs_perf_test
-        PROPERTIES
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:CONSOLE"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO"
-        LINK_FLAGS_RELEASE ""
-      )
-    endif (WINDOWS)
