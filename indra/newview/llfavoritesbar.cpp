@@ -1859,9 +1859,17 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 	pref_changed |= mRecreateFavoriteStorage;
 	mRecreateFavoriteStorage = false;
 
+	// Can get called before inventory is done initializing.
+	if (!gInventory.isInventoryUsable())
+	{
+		return FALSE;
+	}
+	
 	LLUUID favorite_folder= gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	if (favorite_folder.isNull())
-			return FALSE;
+	{
+		return FALSE;
+	}
 
 	LLInventoryModel::item_array_t items;
 	LLInventoryModel::cat_array_t cats;

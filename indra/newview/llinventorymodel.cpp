@@ -3765,12 +3765,12 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 
 	if (getRootFolderID().isNull())
 	{
-		LL_WARNS("Inventory") << "no root folder id" << LL_ENDL;
+		LL_WARNS("Inventory") << "Fatal inventory corruption: no root folder id" << LL_ENDL;
 		fatalities++;
 	}
 	if (getLibraryRootFolderID().isNull())
 	{
-		LL_WARNS("Inventory") << "no library root folder id" << LL_ENDL;
+		LL_WARNS("Inventory") << "Fatal inventory corruption: no library root folder id" << LL_ENDL;
 		fatalities++;
 	}
 
@@ -3801,6 +3801,9 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			warnings++;
 			continue;
 		}
+		LLUUID topmost_ancestor_id;
+		// Will leave as null uuid on failure
+		getObjectTopmostAncestor(cat_id, topmost_ancestor_id);
 		if (cat_id != cat->getUUID())
 		{
 			LL_WARNS("Inventory") << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << LL_ENDL;
@@ -3832,12 +3835,17 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		}
 		else if (cats->size() + items->size() != cat->getDescendentCount())
 		{
-			LL_WARNS("Inventory") << "invalid desc count for " << cat_id << " name [" << cat->getName()
-								  << "] parent " << cat->getParentUUID()
-								  << " cached " << cat->getDescendentCount()
-								  << " expected " << cats->size() << "+" << items->size()
-								  << "=" << cats->size() +items->size() << LL_ENDL;
-			warnings++;
+			// In the case of library this is not unexpected, since
+			// different user accounts may be getting the library
+			// contents from different inventory hosts.
+			if (topmost_ancestor_id.isNull() || topmost_ancestor_id != getLibraryRootFolderID())
+			{
+				LL_WARNS("Inventory") << "invalid desc count for " << cat_id << " [" << getFullPath(cat) << "]"
+									  << " cached " << cat->getDescendentCount()
+									  << " expected " << cats->size() << "+" << items->size()
+									  << "=" << cats->size() +items->size() << LL_ENDL;
+				warnings++;
+			}
 		}
 		if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
@@ -4103,7 +4111,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				// Need to create, if allowed.
 				if (is_automatic)
 				{
-					LL_WARNS("Inventory") << "Cannot create system folder of type " << ft << LL_ENDL;
+					LL_WARNS("Inventory") << "Fatal inventory corruption: cannot create system folder of type " << ft << LL_ENDL;
 					fatalities++;
 				}
 				else
@@ -4114,7 +4122,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			}
 			else if (count_under_root > 1)
 			{
-				LL_WARNS("Inventory") << "System folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
+				LL_WARNS("Inventory") << "Fatal inventory corruption: system folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
 				fatalities++;
 			}
 			if (count_elsewhere > 0)
@@ -4141,8 +4149,8 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	}
 
 	// FIXME need to fail login and tell user to retry, contact support if problem persists.
-	bool valid = (fatalities + warnings == 0);
-	LL_INFOS("Inventory") << "Validate done, valid = " << (U32) valid << LL_ENDL;
+	bool valid = (fatalities == 0);
+	LL_INFOS("Inventory") << "Validate done, fatal errors: " << fatalities << ", warnings: " << warnings << ", valid: " << valid << LL_ENDL;
 
 	validation_info->mFatalErrorCount = fatalities;
 	validation_info->mWarningCount = warnings;
