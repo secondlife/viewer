@@ -464,7 +464,9 @@ LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 							"|"
 							"(https://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(:\\d{1,5})?)"
 							"|"
-							"(https://([-\\w\\.]*\\.)?secondlifegrid\\.net(:\\d{1,5})?))"
+							"(https://([-\\w\\.]*\\.)?secondlifegrid\\.net(:\\d{1,5})?)"
+							"|"
+							"(https?://([-\\w\\.]*\\.)?secondlife\\.io(:\\d{1,5})?))"
 							"\\/\\S*",
 		boost::regex::perl|boost::regex::icase);
 	
