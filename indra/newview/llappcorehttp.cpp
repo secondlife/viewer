@@ -253,20 +253,13 @@ void LLAppCoreHttp::init()
 						<< LL_ENDL;
 	}
 
-	// Signal for global pipelining preference from settings
+	// Global pipelining setting
 	static const std::string http_pipelining("HttpPipelining");
 	if (gSavedSettings.controlExists(http_pipelining))
 	{
-		LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(http_pipelining);
-		if (cntrl_ptr.isNull())
-		{
-			LL_WARNS("Init") << "Unable to set signal on global setting '" << http_pipelining
-							 << "'" << LL_ENDL;
-		}
-		else
-		{
-			mPipelinedSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
-		}
+		// Default to true (in ctor) if absent.
+		mPipelined = gSavedSettings.getBOOL(http_pipelining);
+		LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
 	}
 
 	// Register signals for settings and state changes
@@ -355,7 +348,6 @@ void LLAppCoreHttp::cleanup()
 	{
 		mHttpClasses[i].mSettingsSignal.disconnect();
 	}
-	mPipelinedSignal.disconnect();
 	
 	delete mRequest;
 	mRequest = NULL;
@@ -374,21 +366,6 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 {
 	LLCore::HttpStatus status;
 
-	// Global pipelining setting
-	bool pipeline_changed(false);
-	static const std::string http_pipelining("HttpPipelining");
-	if (gSavedSettings.controlExists(http_pipelining))
-	{
-		// Default to true (in ctor) if absent.
-		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
-		if (pipelined != mPipelined)
-		{
-			mPipelined = pipelined;
-			pipeline_changed = true;
-		}
-        LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
-	}
-	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
 		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
@@ -417,7 +394,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 		// Init- or run-time settings.  Must use the queued request API.
 
 		// Pipelining changes
-		if (initial || pipeline_changed)
+		if (initial)
 		{
 			const bool to_pipeline(mPipelined && init_data[i].mPipelined);
 			if (to_pipeline != mHttpClasses[app_policy].mPipelined)
@@ -460,7 +437,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			}
 		}
 
-		if (initial || setting != mHttpClasses[app_policy].mConnLimit || pipeline_changed)
+		if (initial || setting != mHttpClasses[app_policy].mConnLimit)
 		{
 			// Set it and report.  Strategies depend on pipelining:
 			//
