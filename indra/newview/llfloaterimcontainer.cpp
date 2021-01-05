@@ -1822,6 +1822,8 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		{
 			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
 		}
+
+		// Will destroy views and delete models that are not assigned to any views
 		widget->destroyView();
 	}
 	

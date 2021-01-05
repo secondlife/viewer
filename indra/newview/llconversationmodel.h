@@ -165,6 +165,7 @@ public:
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();
+	void deleteParticipantModels(); // do not use while there are existing participant views
 	LLConversationItemParticipant* findParticipant(const LLUUID& participant_id);
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);

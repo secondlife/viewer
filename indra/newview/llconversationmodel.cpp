@@ -349,6 +349,20 @@ void LLConversationItemSession::clearParticipants()
 	mNeedsRefresh = true;
 }
 
+
+void LLConversationItemSession::deleteParticipantModels()
+{
+    // Make sure that no views exist before use and that view-owned items were removed!
+    //
+    // Normally we are not supposed to delete models directly, they should be
+    // owned by views and this action will result in crashes, but LLParticipantList
+    // creates models separately from views (it probably shouldn't) and then those
+    // models wait for idle cycles to be assigned to view.
+    // this code is meant to delete 'waiting' models 
+    std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+    mChildren.clear();
+}
+
 LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
 {
 	// This is *not* a general tree parsing algorithm. It assumes that a session contains only 

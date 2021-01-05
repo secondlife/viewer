@@ -103,6 +103,57 @@ LLConversationViewSession::~LLConversationViewSession()
 	mFlashTimer->unset();
 }
 
+void LLConversationViewSession::destroyView()
+{
+    // Chat can create and parent models(listeners) to session's model before creating
+    // coresponding views, such participant's models normally will wait for idle cycles
+    // but since we are deleting session and won't be processing any more events, make
+    // sure unowned models are removed as well.
+    // Might be good idea to just have an LLPointer list somewhere in LLConversationItemSession
+
+    LLConversationItemSession* vmi = dynamic_cast<LLConversationItemSession*>(getViewModelItem());
+
+    // CONV_SESSION_1_ON_1 stores participants as two models that belong to views independent
+    // from session (nasty! These views are widgets in LLFloaterIMSessionTab, see buildConversationViewParticipant)
+    if (vmi && vmi->getType() != LLConversationItem::CONV_SESSION_1_ON_1)
+    {
+        // Destroy existing views
+        while (!mItems.empty())
+        {
+            LLFolderViewItem *itemp = mItems.back();
+            mItems.pop_back();
+
+            LLFolderViewModelItem* item_vmi = itemp->getViewModelItem();
+            if (item_vmi) // supposed to exist
+            {
+                // unparent to remove from child list
+                vmi->removeChild(item_vmi);
+            }
+            itemp->destroyView();
+        }
+
+        // Not needed in scope of sessions, but just in case
+        while (!mFolders.empty())
+        {
+            LLFolderViewFolder *folderp = mFolders.back();
+            mFolders.pop_back();
+
+            LLFolderViewModelItem* folder_vmi = folderp->getViewModelItem();
+            if (folder_vmi)
+            {
+                vmi->removeChild(folder_vmi);
+            }
+            folderp->destroyView();
+        }
+
+        // Now everything that is left in model(listener) is unowned,
+        // it is safe to remove
+        vmi->deleteParticipantModels();
+    }
+
+    LLFolderViewFolder::destroyView();
+}
+
 void LLConversationViewSession::setFlashState(bool flash_state)
 {
 	if (flash_state && !mFlashStateOn)
