@@ -341,6 +341,9 @@ void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
 
 void LLConversationItemSession::clearParticipants()
 {
+    // clearParticipants function potentially is malfunctioning since it only cleans children of models,
+    // it does nothing to views that own those models (listeners)
+    // probably needs to post some kind of 'remove all participants' event
 	clearChildren();
 	mIsLoaded = false;
 	mNeedsRefresh = true;
