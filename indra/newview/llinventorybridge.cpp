@@ -987,7 +987,7 @@ void LLInvFVBridge::addTrashContextMenuOptions(menuentry_vec_t &items,
 		}
 	}
 	items.push_back(std::string("Purge Item"));
-	if (!isItemRemovable())
+	if (!isItemRemovable() || isPanelActive("Favorite Items"))
 	{
 		disabled_items.push_back(std::string("Purge Item"));
 	}
