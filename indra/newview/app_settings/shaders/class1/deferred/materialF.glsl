@@ -159,6 +159,11 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 col += speccol;
+
+                float cur_glare = max(speccol.r, speccol.g);
+                cur_glare = max(cur_glare, speccol.b);
+                glare = max(glare, speccol.r);
+                glare += max(cur_glare, 0.0);
             }
         }
     }
