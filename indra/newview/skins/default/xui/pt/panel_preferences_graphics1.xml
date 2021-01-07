@@ -33,10 +33,10 @@ rápido
 	</text>
 	<check_box initial_value="true" label="Sempre renderizar amigos" name="AlwaysRenderFriends"/>
 	<button label="Exceções..." name="RenderExceptionsButton"/>
-	<button label="Salvar configurações como predefinição..." name="PrefSaveButton"/>
-	<button label="Carregar predefinição..." name="PrefLoadButton"/>
+	<button label="Salvar configurações como predefinição" name="PrefSaveButton" width="235" left="5"/>
+	<button label="Carregar predefinição" name="PrefLoadButton" width="130" left_pad="8"/>
 	min_val=&quot;0.125&quot;
-	<button label="Excluir predefinição..." name="PrefDeleteButton"/>
-	<button label="Redefinir para configurações recomendadas" left="110" name="Defaults"/>
+	<button label="Excluir predefinição" name="PrefDeleteButton" width="122" left_pad="8"/>
+	<button label="Redefinir para configurações recomendadas" name="Defaults" width="255"/>
 	<button label="Configurações avançadas..." name="AdvancedSettings"/>
 </panel>

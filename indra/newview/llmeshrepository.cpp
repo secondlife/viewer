@@ -99,7 +99,7 @@
 //     locking actions.  In particular, the following operations
 //     on LLMeshRepository are very averse to any stalls:
 //     * loadMesh
-//     * getMeshHeader (For structural details, see:
+//     * search in mMeshHeader (For structural details, see:
 //       http://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format)
 //     * notifyLoadedMeshes
 //     * getSkinInfo
@@ -876,7 +876,7 @@ LLMeshRepoThread::~LLMeshRepoThread()
 void LLMeshRepoThread::run()
 {
 	LLCDResult res = LLConvexDecomposition::initThread();
-	if (res != LLCD_OK)
+	if (res != LLCD_OK && LLConvexDecomposition::isFunctional())
 	{
 		LL_WARNS(LOG_MESH) << "Convex decomposition unable to be loaded.  Expect severe problems." << LL_ENDL;
 	}
@@ -1142,7 +1142,7 @@ void LLMeshRepoThread::run()
 	}
 
 	res = LLConvexDecomposition::quitThread();
-	if (res != LLCD_OK)
+	if (res != LLCD_OK && LLConvexDecomposition::isFunctional())
 	{
 		LL_WARNS(LOG_MESH) << "Convex decomposition unable to be quit." << LL_ENDL;
 	}
@@ -1553,7 +1553,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 				if (!zero)
 				{ //attempt to parse
-					if (physicsShapeReceived(mesh_id, buffer, size))
+					if (physicsShapeReceived(mesh_id, buffer, size) == MESH_OK)
 					{
 						delete[] buffer;
 						return true;
@@ -1647,7 +1647,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 			LLMeshRepository::sCacheBytesRead += bytes;	
 			++LLMeshRepository::sCacheReads;
 			file.read(buffer, bytes);
-			if (headerReceived(mesh_params, buffer, bytes))
+			if (headerReceived(mesh_params, buffer, bytes) == MESH_OK)
 			{
 				// Found mesh in VFS cache
 				return true;
@@ -1794,7 +1794,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 	return retval;
 }
 
-bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size)
 {
 	const LLUUID mesh_id = mesh_params.getSculptID();
 	LLSD header;
@@ -1802,30 +1802,39 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 	U32 header_size = 0;
 	if (data_size > 0)
 	{
-		std::string res_str((char*) data, data_size);
+        std::istringstream stream;
+        try
+        {
+            std::string res_str((char*)data, data_size);
 
-		std::string deprecated_header("<? LLSD/Binary ?>");
+            std::string deprecated_header("<? LLSD/Binary ?>");
 
-		if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
-		{
-			res_str = res_str.substr(deprecated_header.size()+1, data_size);
-			header_size = deprecated_header.size()+1;
-		}
-		data_size = res_str.size();
+            if (res_str.substr(0, deprecated_header.size()) == deprecated_header)
+            {
+                res_str = res_str.substr(deprecated_header.size() + 1, data_size);
+                header_size = deprecated_header.size() + 1;
+            }
+            data_size = res_str.size();
 
-		std::istringstream stream(res_str);
+            stream.str(res_str);
+        }
+        catch (std::bad_alloc&)
+        {
+            // out of memory, we won't be able to process this mesh
+            return MESH_OUT_OF_MEMORY;
+        }
 
 		if (!LLSDSerialize::fromBinary(header, stream, data_size))
 		{
 			LL_WARNS(LOG_MESH) << "Mesh header parse error.  Not a valid mesh asset!  ID:  " << mesh_id
 							   << LL_ENDL;
-			return false;
+			return MESH_PARSE_FAILURE;
 		}
 
 		if (!header.isMap())
 		{
 			LL_WARNS(LOG_MESH) << "Mesh header is invalid for ID: " << mesh_id << LL_ENDL;
-			return false;
+			return MESH_INVALID;
 		}
 
 		if (header.has("version") && header["version"].asInteger() > MAX_MESH_VERSION)
@@ -1871,7 +1880,7 @@ bool LLMeshRepoThread::headerReceived(const LLVolumeParams& mesh_params, U8* dat
 		}
 	}
 
-	return true;
+	return MESH_OK;
 }
 
 EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size)
@@ -1902,6 +1911,12 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
 			{
 				LLMutexLock lock(mMutex);
 				mLoadedQ.push(mesh);
+				// LLPointer is not thread safe, since we added this pointer into
+				// threaded list, make sure counter gets decreased inside mutex lock
+				// and won't affect mLoadedQ processing
+				volume = NULL;
+				// might be good idea to turn mesh into pointer to avoid making a copy
+				mesh.mVolume = NULL;
 			}
 			return MESH_OK;
 		}
@@ -1916,18 +1931,25 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 
 	if (data_size > 0)
 	{
-		std::string res_str((char*) data, data_size);
+        try
+        {
+            std::string res_str((char*)data, data_size);
+            std::istringstream stream(res_str);
 
-		std::istringstream stream(res_str);
-
-		U32 uzip_result = LLUZipHelper::unzip_llsd(skin, stream, data_size);
-		if (uzip_result != LLUZipHelper::ZR_OK)
-		{
-			LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
-							   << " uzip result" << uzip_result
-							   << LL_ENDL;
-			return false;
-		}
+            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, stream, data_size);
+            if (uzip_result != LLUZipHelper::ZR_OK)
+            {
+                LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
+                    << " uzip result" << uzip_result
+                    << LL_ENDL;
+                return false;
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_WARNS(LOG_MESH) << "Out of memory for mesh ID " << mesh_id << " of size: " << data_size << LL_ENDL;
+            return false;
+        }
 	}
 	
 	{
@@ -1949,19 +1971,26 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	LLSD decomp;
 
 	if (data_size > 0)
-	{ 
-		std::string res_str((char*) data, data_size);
+    {
+        try
+        {
+            std::string res_str((char*)data, data_size);
+            std::istringstream stream(res_str);
 
-		std::istringstream stream(res_str);
-
-		U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, stream, data_size);
-		if (uzip_result != LLUZipHelper::ZR_OK)
-		{
-			LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id
-							   << " uzip result: " << uzip_result
-							   << LL_ENDL;
-			return false;
-		}
+            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, stream, data_size);
+            if (uzip_result != LLUZipHelper::ZR_OK)
+            {
+                LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id
+                    << " uzip result: " << uzip_result
+                    << LL_ENDL;
+                return false;
+            }
+        }
+        catch (std::bad_alloc&)
+        {
+            LL_WARNS(LOG_MESH) << "Out of memory for mesh ID " << mesh_id << " of size: " << data_size << LL_ENDL;
+            return false;
+        }
 	}
 	
 	{
@@ -1976,7 +2005,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
 	return true;
 }
 
-bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
+EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size)
 {
 	LLSD physics_shape;
 
@@ -1993,8 +2022,19 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
 		volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
 		LLPointer<LLVolume> volume = new LLVolume(volume_params,0);
-		std::string mesh_string((char*) data, data_size);
-		std::istringstream stream(mesh_string);
+
+        std::istringstream stream;
+        try
+        {
+            std::string mesh_string((char*)data, data_size);
+            stream.str(mesh_string);
+        }
+        catch (std::bad_alloc&)
+        {
+            // out of memory, we won't be able to process this mesh
+            delete d;
+            return MESH_OUT_OF_MEMORY;
+        }
 
 		if (volume->unpackVolumeFaces(stream, data_size))
 		{
@@ -2033,7 +2073,7 @@ bool LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32
 		LLMutexLock lock(mMutex);
 		mDecompositionQ.push_back(d);
 	}
-	return true;
+	return MESH_OK;
 }
 
 LLMeshUploadThread::LLMeshUploadThread(LLMeshUploadThread::instance_list& data, LLVector3& scale, bool upload_textures,
@@ -2829,12 +2869,12 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 			mMutex->unlock();
 			break;
 		}
-		LoadedMesh mesh = mLoadedQ.front();
+		LoadedMesh mesh = mLoadedQ.front(); // make sure nothing else owns volume pointer by this point
 		mLoadedQ.pop();
 		mMutex->unlock();
 		
 		update_metrics = true;
-		if (mesh.mVolume && mesh.mVolume->getNumVolumeFaces() > 0)
+		if (mesh.mVolume->getNumVolumeFaces() > 0)
 		{
 			gMeshRepo.notifyMeshLoaded(mesh.mMeshParams, mesh.mVolume);
 		}
@@ -3142,15 +3182,21 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 									  U8 * data, S32 data_size)
 {
 	LLUUID mesh_id = mMeshParams.getSculptID();
-	bool success = (! MESH_HEADER_PROCESS_FAILED)
-		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-		&& gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+    bool success = (!MESH_HEADER_PROCESS_FAILED)
+        && ((data != NULL) == (data_size > 0)); // if we have data but no size or have size but no data, something is wrong;
 	llassert(success);
+    EMeshProcessingResult res = MESH_UNKNOWN;
+    if (success)
+    {
+        res = gMeshRepo.mThread->headerReceived(mMeshParams, data, data_size);
+        success = (res == MESH_OK);
+    }
 	if (! success)
 	{
 		// *TODO:  Get real reason for parse failure here.  Might we want to retry?
 		LL_WARNS(LOG_MESH) << "Unable to parse mesh header.  ID:  " << mesh_id
-						   << ", Unknown reason.  Not retrying."
+						   << ", Size: " << data_size
+						   << ", Reason: " << res << " Not retrying."
 						   << LL_ENDL;
 
 		// Can't get the header so none of the LODs will be available
@@ -3173,7 +3219,6 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 			header_bytes = (S32)gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
 			header = iter->second;
 		}
-		gMeshRepo.mThread->mHeaderMutex->unlock();
 
 		if (header_bytes > 0
 			&& !header.has("404")
@@ -3194,7 +3239,10 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 			lod_bytes = llmax(lod_bytes, header["skin"]["offset"].asInteger() + header["skin"]["size"].asInteger());
 			lod_bytes = llmax(lod_bytes, header["physics_convex"]["offset"].asInteger() + header["physics_convex"]["size"].asInteger());
 
-			S32 header_bytes = (S32) gMeshRepo.mThread->mMeshHeaderSize[mesh_id];
+            // Do not unlock mutex untill we are done with LLSD.
+            // LLSD is smart and can work like smart pointer, is not thread safe.
+            gMeshRepo.mThread->mHeaderMutex->unlock();
+
 			S32 bytes = lod_bytes + header_bytes; 
 
 		
@@ -3229,6 +3277,8 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 		else
 		{
 			LL_WARNS(LOG_MESH) << "Trying to cache nonexistent mesh, mesh id: " << mesh_id << LL_ENDL;
+
+			gMeshRepo.mThread->mHeaderMutex->unlock();
 
 			// headerReceived() parsed header, but header's data is invalid so none of the LODs will be available
 			LLMutexLock lock(gMeshRepo.mThread->mMutex);
@@ -3430,7 +3480,7 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 {
 	if ((!MESH_PHYS_SHAPE_PROCESS_FAILED)
 		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
-		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size))
+		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size) == MESH_OK)
 	{
 		// good fetch from sim, write to VFS for caching
 		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
@@ -3469,6 +3519,11 @@ void LLMeshRepository::init()
 	mMeshMutex = new LLMutex();
 	
 	LLConvexDecomposition::getInstance()->initSystem();
+
+    if (!LLConvexDecomposition::isFunctional())
+    {
+        LL_INFOS(LOG_MESH) << "Using STUB for LLConvexDecomposition" << LL_ENDL;
+    }
 
 	mDecompThread = new LLPhysicsDecomp();
 	mDecompThread->start();
@@ -4094,42 +4149,42 @@ void LLMeshRepository::buildHull(const LLVolumeParams& params, S32 detail)
 
 bool LLMeshRepository::hasPhysicsShape(const LLUUID& mesh_id)
 {
-	LLSD mesh = mThread->getMeshHeader(mesh_id);
-	if (mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0))
-	{
-		return true;
-	}
+    if (mesh_id.isNull())
+    {
+        return false;
+    }
 
-	LLModel::Decomposition* decomp = getDecomposition(mesh_id);
-	if (decomp && !decomp->mHull.empty())
-	{
-		return true;
-	}
+    if (mThread->hasPhysicsShapeInHeader(mesh_id))
+    {
+        return true;
+    }
 
-	return false;
+    LLModel::Decomposition* decomp = getDecomposition(mesh_id);
+    if (decomp && !decomp->mHull.empty())
+    {
+        return true;
+    }
+
+    return false;
 }
 
-LLSD& LLMeshRepository::getMeshHeader(const LLUUID& mesh_id)
+bool LLMeshRepoThread::hasPhysicsShapeInHeader(const LLUUID& mesh_id)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LLMutexLock lock(mHeaderMutex);
+    if (mMeshHeaderSize[mesh_id] > 0)
+    {
+        mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
+        if (iter != mMeshHeader.end())
+        {
+            LLSD &mesh = iter->second;
+            if (mesh.has("physics_mesh") && mesh["physics_mesh"].has("size") && (mesh["physics_mesh"]["size"].asInteger() > 0))
+            {
+                return true;
+            }
+        }
+    }
 
-	return mThread->getMeshHeader(mesh_id);
-}
-
-LLSD& LLMeshRepoThread::getMeshHeader(const LLUUID& mesh_id)
-{
-	static LLSD dummy_ret;
-	if (mesh_id.notNull())
-	{
-		LLMutexLock lock(mHeaderMutex);
-		mesh_header_map::iterator iter = mMeshHeader.find(mesh_id);
-		if (iter != mMeshHeader.end() && mMeshHeaderSize[mesh_id] > 0)
-		{
-			return iter->second;
-		}
-	}
-
-	return dummy_ret;
+    return false;
 }
 
 

@@ -325,8 +325,15 @@ protected:
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sLinkColor;
 	
-	virtual LLFolderViewItem*	buildNewViews(const LLUUID& id);
-	LLFolderViewItem*			buildNewViews(const LLUUID& id, LLInventoryObject const* objectp);
+	LLFolderViewItem*			buildNewViews(const LLUUID& id);
+    LLFolderViewItem*			buildNewViews(const LLUUID& id,
+                                              LLInventoryObject const* objectp);
+    LLFolderViewItem*			buildNewViews(const LLUUID& id,
+                                              LLInventoryObject const* objectp,
+                                              LLFolderViewItem *target_view);
+    // if certain types are not allowed, no reason to create views
+    virtual bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) { return true; }
+
 	virtual void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item);
 	BOOL				getIsHiddenFolderType(LLFolderType::EType folder_type) const;
 	
@@ -334,8 +341,75 @@ protected:
 	virtual LLFolderViewFolder*	createFolderViewFolder(LLInvFVBridge * bridge, bool allow_drop);
 	virtual LLFolderViewItem*	createFolderViewItem(LLInvFVBridge * bridge);
 private:
+    // buildViewsTree does not include some checks and is meant
+    // for recursive use, use buildNewViews() for first call
+    LLFolderViewItem*			buildViewsTree(const LLUUID& id,
+                                              const LLUUID& parent_id,
+                                              LLInventoryObject const* objectp,
+                                              LLFolderViewItem *target_view,
+                                              LLFolderViewFolder *parent_folder_view);
+
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	bool				mViewsInitialized; // Views have been generated
+};
+
+
+class LLInventoryFavoriteItemsPanel : public LLInventoryPanel
+{
+public:
+    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {};
+
+    void initFromParams(const Params& p);
+    bool isSelectionRemovable() { return false; }
+    void setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
+
+protected:
+    LLInventoryFavoriteItemsPanel(const Params& params);
+    ~LLInventoryFavoriteItemsPanel() { mFolderChangedSignal.disconnect(); }
+    void updateFavoritesRootFolder();
+
+    boost::signals2::connection mFolderChangedSignal;
+    boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
+    friend class LLUICtrlFactory;
+};
+
+/************************************************************************/
+/* Asset Pre-Filtered Inventory Panel related class                     */
+/* Exchanges filter's flexibility for speed of generation and           */
+/* improved performance                                                 */
+/************************************************************************/
+
+class LLAssetFilteredInventoryPanel : public LLInventoryPanel
+{
+public:
+    struct Params
+        : public LLInitParam::Block<Params, LLInventoryPanel::Params>
+    {
+        Mandatory<std::string>	filter_asset_type;
+
+        Params() : filter_asset_type("filter_asset_type") {}
+    };
+
+    void initFromParams(const Params& p);
+protected:
+    LLAssetFilteredInventoryPanel(const Params& p) : LLInventoryPanel(p) {}
+    friend class LLUICtrlFactory;
+public:
+    ~LLAssetFilteredInventoryPanel() {}
+
+    /*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
+        EDragAndDropType cargo_type,
+        void* cargo_data,
+        EAcceptance* accept,
+        std::string& tooltip_msg) override;
+
+protected:
+    /*virtual*/ bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) override;
+    /*virtual*/ void				itemChanged(const LLUUID& item_id, U32 mask, const LLInventoryObject* model_item) override;
+
+private:
+    LLAssetType::EType mAssetType;
 };
 
 #endif // LL_LLINVENTORYPANEL_H

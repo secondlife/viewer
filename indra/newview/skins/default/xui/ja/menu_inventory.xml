@@ -105,6 +105,7 @@
 	<menu_item_call label="装着" name="Wearable And Object Wear"/>
 	<menu label="装着先" name="Attach To"/>
 	<menu label="HUD 装着先" name="Attach To HUD"/>
+	<menu_item_call label="触る" name="Attachment Touch" />
 	<menu_item_call label="編集" name="Wearable Edit"/>
 	<menu_item_call label="追加" name="Wearable Add"/>
 	<menu_item_call label="取り外す" name="Take Off"/>

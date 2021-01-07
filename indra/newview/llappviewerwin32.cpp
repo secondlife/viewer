@@ -139,6 +139,9 @@ namespace
             {
                 // user name, when we have it
                 sBugSplatSender->setDefaultUserName(WCSTR(gAgentAvatarp->getFullname()));
+
+                sBugSplatSender->sendAdditionalFile(
+                    WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "settings_per_account.xml")));
             }
 
             // LL_ERRS message, when there is one
@@ -500,67 +503,75 @@ void LLAppViewerWin32::disableWinErrorReporting()
 }
 
 const S32 MAX_CONSOLE_LINES = 500;
+// Only defined in newer SDKs than we currently use
+#ifndef ENABLE_VIRTUAL_TERMINAL_PROCESSING
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 4
+#endif
 
-static bool create_console()
+namespace {
+
+void set_stream(const char* desc, FILE* fp, DWORD handle_id, const char* name, const char* mode="w");
+
+bool create_console()
 {
-	int h_con_handle;
-	long l_std_handle;
+    // allocate a console for this app
+    const bool isConsoleAllocated = AllocConsole();
 
-	CONSOLE_SCREEN_BUFFER_INFO coninfo;
-	FILE *fp;
+    if (isConsoleAllocated)
+    {
+        // set the screen buffer to be big enough to let us scroll text
+        CONSOLE_SCREEN_BUFFER_INFO coninfo;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
+        coninfo.dwSize.Y = MAX_CONSOLE_LINES;
+        SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
 
-	// allocate a console for this app
-	const bool isConsoleAllocated = AllocConsole();
-
-	// set the screen buffer to be big enough to let us scroll text
-	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
-	coninfo.dwSize.Y = MAX_CONSOLE_LINES;
-	SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
-
-	// redirect unbuffered STDOUT to the console
-	l_std_handle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	if (h_con_handle == -1)
-	{
-		LL_WARNS() << "create_console() failed to open stdout handle" << LL_ENDL;
-	}
-	else
-	{
-		fp = _fdopen( h_con_handle, "w" );
-		*stdout = *fp;
-		setvbuf( stdout, NULL, _IONBF, 0 );
-	}
-
-	// redirect unbuffered STDIN to the console
-	l_std_handle = (long)GetStdHandle(STD_INPUT_HANDLE);
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	if (h_con_handle == -1)
-	{
-		LL_WARNS() << "create_console() failed to open stdin handle" << LL_ENDL;
-	}
-	else
-	{
-		fp = _fdopen( h_con_handle, "r" );
-		*stdin = *fp;
-		setvbuf( stdin, NULL, _IONBF, 0 );
-	}
-
-	// redirect unbuffered STDERR to the console
-	l_std_handle = (long)GetStdHandle(STD_ERROR_HANDLE);
-	h_con_handle = _open_osfhandle(l_std_handle, _O_TEXT);
-	if (h_con_handle == -1)
-	{
-		LL_WARNS() << "create_console() failed to open stderr handle" << LL_ENDL;
-	}
-	else
-	{
-		fp = _fdopen( h_con_handle, "w" );
-		*stderr = *fp;
-		setvbuf( stderr, NULL, _IONBF, 0 );
-	}
+        // redirect unbuffered STDOUT to the console
+        set_stream("stdout", stdout, STD_OUTPUT_HANDLE, "CONOUT$");
+        // redirect unbuffered STDERR to the console
+        set_stream("stderr", stderr, STD_ERROR_HANDLE, "CONOUT$");
+        // redirect unbuffered STDIN to the console
+        // Don't bother: our console is solely for log output. We never read stdin.
+//      set_stream("stdin", stdin, STD_INPUT_HANDLE, "CONIN$", "r");
+    }
 
     return isConsoleAllocated;
 }
+
+void set_stream(const char* desc, FILE* fp, DWORD handle_id, const char* name, const char* mode)
+{
+    // SL-13528: This code used to be based on
+    // http://dslweb.nwnexus.com/~ast/dload/guicon.htm
+    // (referenced in https://stackoverflow.com/a/191880).
+    // But one of the comments on that StackOverflow answer points out that
+    // assigning to *stdout or *stderr "probably doesn't even work with the
+    // Universal CRT that was introduced in 2015," suggesting freopen_s()
+    // instead. Code below is based on https://stackoverflow.com/a/55875595.
+    auto std_handle = GetStdHandle(handle_id);
+    if (std_handle == INVALID_HANDLE_VALUE)
+    {
+        LL_WARNS() << "create_console() failed to get " << desc << " handle" << LL_ENDL;
+    }
+    else
+    {
+        if (mode == std::string("w"))
+        {
+            // Enable color processing on Windows 10 console windows.
+            DWORD dwMode = 0;
+            GetConsoleMode(std_handle, &dwMode);
+            dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(std_handle, dwMode);
+        }
+        // Redirect the passed fp to the console.
+        FILE* ignore;
+        if (freopen_s(&ignore, name, mode, fp) == 0)
+        {
+            // use unbuffered I/O
+            setvbuf( fp, NULL, _IONBF, 0 );
+        }
+    }
+}
+
+} // anonymous namespace
 
 LLAppViewerWin32::LLAppViewerWin32(const char* cmd_line) :
 	mCmdLine(cmd_line),

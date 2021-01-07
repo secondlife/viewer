@@ -454,13 +454,17 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 }
 
 //
-// LLUrlEntrySeconlifeURL Describes *secondlife.com/ *lindenlab.com/ and *tilia-inc.com/ urls to substitute icon 'hand.png' before link
+// LLUrlEntrySeconlifeURL Describes *secondlife.com/ *lindenlab.com/ *secondlifegrid.net/ and *tilia-inc.com/ urls to substitute icon 'hand.png' before link
 //
 LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 {                              
 	mPattern = boost::regex("((http://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com)"
 							"|"
-							"(https://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(:\\d{1,5})?))"
+							"(http://([-\\w\\.]*\\.)?secondlifegrid\\.net)"
+							"|"
+							"(https://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(:\\d{1,5})?)"
+							"|"
+							"(https://([-\\w\\.]*\\.)?secondlifegrid\\.net(:\\d{1,5})?))"
 							"\\/\\S*",
 		boost::regex::perl|boost::regex::icase);
 	
@@ -495,12 +499,14 @@ std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
 }
 
 //
-// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com *lindenlab.com and *tilia-inc.com urls to substitute icon 'hand.png' before link
+// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com *lindenlab.com *secondlifegrid.net and *tilia-inc.com urls to substitute icon 'hand.png' before link
 //
 LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
   {
-	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(?!\\S)",
-		boost::regex::perl|boost::regex::icase);
+	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(?!\\S)"
+							"|"
+							"https?://([-\\w\\.]*\\.)?secondlifegrid\\.net(?!\\S)",
+							boost::regex::perl|boost::regex::icase);
 
 	mIcon = "Hand";
 	mMenuName = "menu_url_http.xml";

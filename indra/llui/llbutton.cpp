@@ -643,7 +643,8 @@ void LLButton::draw()
 	LLColor4 highlighting_color = LLColor4::white;
 	LLColor4 glow_color = LLColor4::white;
 	LLRender::eBlendType glow_type = LLRender::BT_ADD_WITH_ALPHA;
-	LLUIImage* imagep = NULL;
+    LLUIImage* imagep = NULL;
+    LLUIImage* image_glow = NULL;
 
     //  Cancel sticking of color, if the button is pressed,
 	//  or when a flashing of the previously selected button is ended
@@ -710,17 +711,18 @@ void LLButton::draw()
 		imagep = mImageDisabled;
 	}
 
+	image_glow = imagep;
+
 	if (mFlashing)
 	{
-		// if button should flash and we have icon for flashing, use it as image for button
-		if(flash && mImageFlash)
+		if (flash && mImageFlash)
 		{
-			// setting flash to false to avoid its further influence on glow
-			flash = false;
-			imagep = mImageFlash;
+			// if button should flash and we have icon for flashing, use it as image for button
+			image_glow = mImageFlash;
 		}
-		// else use usual flashing via flash_color
-		else if (mFlashingTimer)
+
+		// provide fade-in and fade-out via flash_color
+		if (mFlashingTimer)
 		{
 			LLColor4 flash_color = mFlashBgColor.get();
 			use_glow_effect = TRUE;
@@ -734,6 +736,11 @@ void LLButton::draw()
 			{
                 glow_color = highlighting_color;
 			}
+            else
+            {
+                // will fade from highlight color
+                glow_color = flash_color;
+            }
 		}
 	}
 
@@ -806,7 +813,7 @@ void LLButton::draw()
 			if (mCurGlowStrength > 0.01f)
 			{
 				gGL.setSceneBlendType(glow_type);
-				imagep->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), glow_color % (mCurGlowStrength * alpha));
+				image_glow->drawSolid(0, 0, getRect().getWidth(), getRect().getHeight(), glow_color % (mCurGlowStrength * alpha));
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}
@@ -817,7 +824,7 @@ void LLButton::draw()
 			if (mCurGlowStrength > 0.01f)
 			{
 				gGL.setSceneBlendType(glow_type);
-				imagep->drawSolid(0, y, glow_color % (mCurGlowStrength * alpha));
+				image_glow->drawSolid(0, y, glow_color % (mCurGlowStrength * alpha));
 				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 			}
 		}

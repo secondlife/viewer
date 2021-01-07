@@ -30,8 +30,6 @@
 
 #include "llsingleton.h"
 
-class LLViewerInventoryItem;
-
 //--------------------------------------------------------------------------------
 // LLAttachmentsMgr
 // 

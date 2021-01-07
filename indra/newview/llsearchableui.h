@@ -73,6 +73,7 @@ namespace ll
 
 			virtual ~PanelData();
 
+			void setNotHighlighted();
 			virtual bool hightlightAndHide( LLWString const &aFilter );
 		};
 

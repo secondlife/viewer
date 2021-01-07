@@ -183,6 +183,7 @@ namespace LLError
 		// each error message is passed to each recorder via recordMessage()
 
 	LL_COMMON_API void logToFile(const std::string& filename);
+	LL_COMMON_API void logToStderr();
 	LL_COMMON_API void logToFixedBuffer(LLLineBuffer*);
 		// Utilities to add recorders for logging to a file or a fixed buffer
 		// A second call to the same function will remove the logger added
@@ -202,11 +203,6 @@ namespace LLError
 
 	LL_COMMON_API std::string abbreviateFile(const std::string& filePath);
 	LL_COMMON_API int shouldLogCallCount();
-
-	// Check whether Globals exists. This should only be used by LLSingleton
-	// infrastructure to avoid trying to log when our internal LLSingleton is
-	// unavailable -- circularity ensues.
-	LL_COMMON_API bool is_available();
 };
 
 #endif // LL_LLERRORCONTROL_H

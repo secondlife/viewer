@@ -412,7 +412,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 
 	// Just in case we need to check browser differences in A/B test
 	// builds.
-	std::string channel = LLVersionInfo::getChannel();
+	std::string channel = LLVersionInfo::instance().getChannel();
 
 	// append our magic version number string to the browser user agent id
 	// See the HTTP 1.0 and 1.1 specifications for allowed formats:
@@ -422,7 +422,7 @@ std::string LLViewerMedia::getCurrentUserAgent()
 	// http://www.mozilla.org/build/revised-user-agent-strings.html
 	std::ostringstream codec;
 	codec << "SecondLife/";
-	codec << LLVersionInfo::getVersion();
+	codec << LLVersionInfo::instance().getVersion();
 	codec << " (" << channel << "; " << skin_name << " skin)";
 	LL_INFOS() << codec.str() << LL_ENDL;
 
@@ -1026,7 +1026,7 @@ void LLViewerMedia::setAllMediaPaused(bool val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::getInstance()->play(agent_parcel);
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -1719,22 +1719,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
 		user_data_path_cache += gDirUtilp->getDirDelimiter();
 
-		std::string user_data_path_cookies = gDirUtilp->getOSUserAppDir();
-		user_data_path_cookies += gDirUtilp->getDirDelimiter();
-
 		std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_log.txt");
-
-		// Fix for EXT-5960 - make browser profile specific to user (cache, cookies etc.)
-		// If the linden username returned is blank, that can only mean we are
-		// at the login page displaying login Web page or Web browser test via Develop menu.
-		// In this case we just use whatever gDirUtilp->getOSUserAppDir() gives us (this
-		// is what we always used before this change)
-		std::string linden_user_dir = gDirUtilp->getLindenUserDir();
-		if ( ! linden_user_dir.empty() )
-		{
-			user_data_path_cookies = linden_user_dir;
-			user_data_path_cookies += gDirUtilp->getDirDelimiter();
-		};
 
 		// See if the plugin executable exists
 		llstat s;
@@ -1752,7 +1737,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			media_source->setUserDataPath(user_data_path_cache, user_data_path_cookies, user_data_path_cef_log);
+			media_source->setUserDataPath(user_data_path_cache, gDirUtilp->getUserName(), user_data_path_cef_log);
 			media_source->setLanguageCode(LLUI::getLanguage());
 			media_source->setZoomFactor(zoom_factor);
 

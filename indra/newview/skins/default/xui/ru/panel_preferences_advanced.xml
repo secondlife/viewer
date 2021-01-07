@@ -28,5 +28,5 @@
 	<check_box label="Выбор сетки при входе" name="show_grid_selection_check"/>
 	<check_box label="Показывать расширенное меню" name="show_advanced_menu_check"/>
 	<check_box label="Показать меню разработчика" name="show_develop_menu_check"/>
-	<button label="Стандартные разрешения на создание" name="default_creation_permissions"/>
+	<button label="Стандартные разрешения на создание" name="default_creation_permissions" width="235"/>
 </panel>

@@ -57,6 +57,8 @@ typedef enum e_mesh_processing_result_enum
     MESH_NO_DATA = 1,
     MESH_OUT_OF_MEMORY,
     MESH_HTTP_REQUEST_FAILED,
+    MESH_PARSE_FAILURE,
+    MESH_INVALID,
     MESH_UNKNOWN
 } EMeshProcessingResult;
 
@@ -336,12 +338,12 @@ public:
 
 	bool fetchMeshHeader(const LLVolumeParams& mesh_params, bool can_retry = true);
 	bool fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, bool can_retry = true);
-	bool headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
+	EMeshProcessingResult headerReceived(const LLVolumeParams& mesh_params, U8* data, S32 data_size);
 	EMeshProcessingResult lodReceived(const LLVolumeParams& mesh_params, S32 lod, U8* data, S32 data_size);
 	bool skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
 	bool decompositionReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	bool physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
-	LLSD& getMeshHeader(const LLUUID& mesh_id);
+	EMeshProcessingResult physicsShapeReceived(const LLUUID& mesh_id, U8* data, S32 data_size);
+	bool hasPhysicsShapeInHeader(const LLUUID& mesh_id);
 
 	void notifyLoadedMeshes();
 	S32 getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lod);
@@ -593,9 +595,6 @@ public:
 	
 	bool meshUploadEnabled();
 	bool meshRezEnabled();
-	
-
-	LLSD& getMeshHeader(const LLUUID& mesh_id);
 
 	void uploadModel(std::vector<LLModelInstance>& data, LLVector3& scale, bool upload_textures,
                      bool upload_skin, bool upload_joints, bool lock_scale_if_joint_position,

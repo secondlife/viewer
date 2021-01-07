@@ -426,11 +426,11 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
         LLAssetRequest* tmp = *curiter;
         if (tmp->mUpCallback)
         {
-            tmp->mUpCallback(tmp->getUUID(), tmp->mUserData, error, LL_EXSTAT_NONE);
+            tmp->mUpCallback(tmp->getUUID(), tmp->mUserData, error, LLExtStat::NONE);
         }
         if (tmp->mDownCallback)
         {
-            tmp->mDownCallback(mVFS, tmp->getUUID(), tmp->getType(), tmp->mUserData, error, LL_EXSTAT_NONE);
+            tmp->mDownCallback(mVFS, tmp->getUUID(), tmp->getType(), tmp->mUserData, error, LLExtStat::NONE);
         }
         if (tmp->mInfoCallback)
         {
@@ -465,7 +465,7 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
             // we've already got the file
             if (callback)
             {
-                callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+                callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LLExtStat::VFS_CACHED);
             }
             return true;
         }
@@ -506,7 +506,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_NONE);
+            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::NONE);
         }
         return;
     }
@@ -517,7 +517,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
+            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LLExtStat::NULL_UUID);
         }
         return;
     }
@@ -540,7 +540,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LLExtStat::VFS_CACHED);
         }
 
         LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in VFS" << LL_ENDL;
@@ -694,7 +694,7 @@ void LLAssetStorage::downloadCompleteCallback(
         }
     }
 
-    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, ext_status, result);
+    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, result, ext_status);
 }
 
 void LLAssetStorage::getEstateAsset(
@@ -719,7 +719,7 @@ void LLAssetStorage::getEstateAsset(
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
+            callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LLExtStat::NULL_UUID);
         }
         return;
     }
@@ -741,7 +741,7 @@ void LLAssetStorage::getEstateAsset(
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LLExtStat::VFS_CACHED);
         }
     }
     else
@@ -792,7 +792,7 @@ void LLAssetStorage::getEstateAsset(
             if (callback)
             {
                 add(sFailedDownloadCount, 1);
-                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::NO_UPSTREAM);
             }
         }
     }
@@ -885,7 +885,7 @@ void LLAssetStorage::getInvItemAsset(
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LLExtStat::VFS_CACHED);
         }
     }
     else
@@ -936,7 +936,7 @@ void LLAssetStorage::getInvItemAsset(
             if (callback)
             {
                 add(sFailedDownloadCount, 1);
-                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::NO_UPSTREAM);
             }
         }
     }
@@ -1034,7 +1034,7 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     msg->getBOOLFast(_PREHASH_AssetBlock, _PREHASH_Success, success);
 
     asset_type = (LLAssetType::EType)asset_type_s8;
-    this_ptr->_callUploadCallbacks(uuid, asset_type, success, LL_EXSTAT_NONE);
+    this_ptr->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
 }
 
 void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType asset_type, BOOL success, LLExtStat ext_status )
@@ -1288,12 +1288,12 @@ bool LLAssetStorage::deletePendingRequestImpl(LLAssetStorage::request_list_t* re
         // Run callbacks.
         if (req->mUpCallback)
         {
-            req->mUpCallback(req->getUUID(), req->mUserData, error, LL_EXSTAT_REQUEST_DROPPED);
+            req->mUpCallback(req->getUUID(), req->mUserData, error, LLExtStat::REQUEST_DROPPED);
         }
         if (req->mDownCallback)
         {
             add(sFailedDownloadCount, 1);
-            req->mDownCallback(mVFS, req->getUUID(), req->getType(), req->mUserData, error, LL_EXSTAT_REQUEST_DROPPED);
+            req->mDownCallback(mVFS, req->getUUID(), req->getType(), req->mUserData, error, LLExtStat::REQUEST_DROPPED);
         }
         if (req->mInfoCallback)
         {

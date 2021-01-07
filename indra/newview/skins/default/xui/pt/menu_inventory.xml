@@ -105,6 +105,7 @@
 	<menu_item_call label="Vestir" name="Wearable And Object Wear"/>
 	<menu label="Anexar a" name="Attach To"/>
 	<menu label="Anexar ao HUD" name="Attach To HUD"/>
+	<menu_item_call label="Tocar" name="Attachment Touch" />
 	<menu_item_call label="Editar" name="Wearable Edit"/>
 	<menu_item_call label="Adicionar" name="Wearable Add"/>
 	<menu_item_call label="Tirar" name="Take Off"/>

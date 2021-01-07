@@ -4101,12 +4101,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Body Parts"));
                     items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
-
-                    if (!LLEnvironment::instance().isInventoryEnabled())
-                    {
-                        disabled_items.push_back("New Settings");
-                    }
-
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
@@ -6385,6 +6379,14 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		LLAppearanceMgr::instance().wearItemOnAvatar(mUUID, true, false); // Don't replace if adding.
 	}
+	else if ("touch" == action)
+	{
+		handle_attachment_touch(mUUID);
+	}
+	else if ("edit" == action)
+	{
+		handle_attachment_edit(mUUID);
+	}
 	else if (isRemoveAction(action))
 	{
 		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
@@ -6535,6 +6537,19 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			if( get_is_item_worn( mUUID ) )
 			{
 				items.push_back(std::string("Wearable And Object Separator"));
+
+				items.push_back(std::string("Attachment Touch"));
+				if ( ((flags & FIRST_SELECTED_ITEM) == 0) || !enable_attachment_touch(mUUID) )
+				{
+					disabled_items.push_back(std::string("Attachment Touch"));
+				}
+
+				items.push_back(std::string("Wearable Edit"));
+				if ( ((flags & FIRST_SELECTED_ITEM) == 0) || !get_is_item_editable(mUUID) )
+				{
+					disabled_items.push_back(std::string("Wearable Edit"));
+				}
+
 				items.push_back(std::string("Detach From Yourself"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())

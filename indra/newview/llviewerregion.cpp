@@ -291,6 +291,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         LL_INFOS("AppInit", "Capabilities") << "Requesting seed from " << url 
                                             << " region name " << regionp->getName()
+                                            << " handle " << regionp->getHandle()
                                             << " (attempt #" << mSeedCapAttempts + 1 << ")" << LL_ENDL;
 		LL_DEBUGS("AppInit", "Capabilities") << "Capabilities requested: " << capabilityNames << LL_ENDL;
 
@@ -298,6 +299,11 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
         ++mSeedCapAttempts;
+
+        if (LLApp::isExiting())
+        {
+            return;
+        }
 
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
@@ -345,9 +351,9 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         log_capabilities(mCapabilities);
 #endif
 
+        LL_DEBUGS("AppInit", "Capabilities", "Teleport") << "received caps for handle " << regionHandle 
+														 << " region name " << regionp->getName() << LL_ENDL;
         regionp->setCapabilitiesReceived(true);
-        LL_DEBUGS("AppInit", "Capabilities") << "received caps for handle " << regionHandle 
-                                             << " region name " << regionp->getName() << LL_ENDL;
 
         if (STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
         {
@@ -411,6 +417,11 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
         {
             LL_WARNS("AppInit", "Capabilities") << "HttpStatus error " << LL_ENDL;
             break;  // no retry
+        }
+
+        if (LLApp::isExiting())
+        {
+            break;
         }
 
         regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
@@ -514,6 +525,11 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
         {
             LL_WARNS("AppInit", "SimulatorFeatures") << "HttpStatus error retrying" << LL_ENDL;
             continue;  
+        }
+
+        if (LLApp::isExiting())
+        {
+            break;
         }
 
         // remove the http_result from the llsd
@@ -3168,7 +3184,7 @@ void LLViewerRegion::setCapabilitiesReceived(bool received)
 	{
 		mCapabilitiesReceivedSignal(getRegionID());
 
-		//LLFloaterPermsDefault::sendInitialPerms();
+		LLFloaterPermsDefault::sendInitialPerms();
 
 		// This is a single-shot signal. Forget callbacks to save resources.
 		mCapabilitiesReceivedSignal.disconnect_all_slots();

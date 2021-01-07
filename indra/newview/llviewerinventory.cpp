@@ -81,6 +81,9 @@ static const char * const LOG_INV("Inventory");
 static const char * const LOG_LOCAL("InventoryLocalize");
 static const char * const LOG_NOTECARD("copy_inventory_from_notecard");
 
+static const std::string INV_OWNER_ID("owner_id");
+static const std::string INV_VERSION("version");
+
 #if 1
 // *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
 // temp code in transition
@@ -519,45 +522,11 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::importFile(LLFILE* fp)
-{
-	BOOL rv = LLInventoryItem::importFile(fp);
-	mIsComplete = TRUE;
-	return rv;
-}
-
-// virtual
 BOOL LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
 {
 	BOOL rv = LLInventoryItem::importLegacyStream(input_stream);
 	mIsComplete = TRUE;
 	return rv;
-}
-
-bool LLViewerInventoryItem::importFileLocal(LLFILE* fp)
-{
-	// TODO: convert all functions that return BOOL to return bool
-	bool rv = (LLInventoryItem::importFile(fp) ? true : false);
-	mIsComplete = false;
-	return rv;
-}
-
-bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
-{
-	std::string uuid_str;
-	fprintf(fp, "\tinv_item\t0\n\t{\n");
-	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\titem_id\t%s\n", uuid_str.c_str());
-	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
-	mPermissions.exportFile(fp);
-	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(!inv_type_str.empty()) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str.c_str());
-	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
-	fprintf(fp, "\t\tcreation_date\t%d\n", (S32) mCreationDate);
-	fprintf(fp,"\t}\n");
-	return true;
 }
 
 void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
@@ -720,90 +689,26 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
 	return descendents_actual;
 }
 
-bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
+LLSD LLViewerInventoryCategory::exportLLSD() const
 {
-	// *NOTE: This buffer size is hard coded into scanf() below.
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	char keyword[MAX_STRING];		/* Flawfinder: ignore */
-	char valuestr[MAX_STRING];		/* Flawfinder: ignore */
+	LLSD cat_data = LLInventoryCategory::exportLLSD();
+	cat_data[INV_OWNER_ID] = mOwnerID;
+	cat_data[INV_VERSION] = mVersion;
 
-	keyword[0] = '\0';
-	valuestr[0] = '\0';
-	while(!feof(fp))
-	{
-		if (fgets(buffer, MAX_STRING, fp) == NULL)
-		{
-			buffer[0] = '\0';
-		}
-		
-		sscanf(	/* Flawfinder: ignore */
-			buffer, " %254s %254s", keyword, valuestr); 
-		if(0 == strcmp("{",keyword))
-		{
-			continue;
-		}
-		if(0 == strcmp("}", keyword))
-		{
-			break;
-		}
-		else if(0 == strcmp("cat_id", keyword))
-		{
-			mUUID.set(valuestr);
-		}
-		else if(0 == strcmp("parent_id", keyword))
-		{
-			mParentUUID.set(valuestr);
-		}
-		else if(0 == strcmp("type", keyword))
-		{
-			mType = LLAssetType::lookup(valuestr);
-		}
-		else if(0 == strcmp("pref_type", keyword))
-		{
-			mPreferredType = LLFolderType::lookup(valuestr);
-		}
-		else if(0 == strcmp("name", keyword))
-		{
-			//strcpy(valuestr, buffer + strlen(keyword) + 3);
-			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(	/* Flawfinder: ignore */
-				buffer, " %254s %254[^|]", keyword, valuestr);
-			mName.assign(valuestr);
-			LLStringUtil::replaceNonstandardASCII(mName, ' ');
-			LLStringUtil::replaceChar(mName, '|', ' ');
-		}
-		else if(0 == strcmp("owner_id", keyword))
-		{
-			mOwnerID.set(valuestr);
-		}
-		else if(0 == strcmp("version", keyword))
-		{
-			sscanf(valuestr, "%d", &mVersion);
-		}
-		else
-		{
-			LL_WARNS(LOG_INV) << "unknown keyword '" << keyword
-							  << "' in inventory import category "  << mUUID << LL_ENDL;
-		}
-	}
-	return true;
+	return cat_data;
 }
 
-bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
+bool LLViewerInventoryCategory::importLLSD(const LLSD& cat_data)
 {
-	std::string uuid_str;
-	fprintf(fp, "\tinv_category\t0\n\t{\n");
-	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str.c_str());
-	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
-	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	fprintf(fp, "\t\tpref_type\t%s\n", LLFolderType::lookup(mPreferredType).c_str());
-	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
-	mOwnerID.toString(uuid_str);
-	fprintf(fp, "\t\towner_id\t%s\n", uuid_str.c_str());
-	fprintf(fp, "\t\tversion\t%d\n", mVersion);
-	fprintf(fp,"\t}\n");
+	LLInventoryCategory::importLLSD(cat_data);
+	if (cat_data.has(INV_OWNER_ID))
+	{
+		mOwnerID = cat_data[INV_OWNER_ID].asUUID();
+	}
+	if (cat_data.has(INV_VERSION))
+	{
+		setVersion(cat_data[INV_VERSION].asInteger());
+	}
 	return true;
 }
 

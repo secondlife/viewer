@@ -92,6 +92,23 @@ LLConversationItem::~LLConversationItem()
 	}
 }
 
+//virtual
+void LLConversationItem::addChild(LLFolderViewModelItem* child)
+{
+    // Avoid duplicates: bail out if that child is already present in the list
+    // Note: this happens when models are created and 'parented' before views
+    // This is performance unfriendly, but conversation can addToFolder multiple times
+    child_list_t::const_iterator iter;
+    for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+    {
+        if (child == *iter)
+        {
+            return;
+        }
+    }
+    LLFolderViewModelItemCommon::addChild(child);
+}
+
 void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant)
 {
 	LLUUID session_id = (session ? session->getUUID() : LLUUID());

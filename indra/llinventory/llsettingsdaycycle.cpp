@@ -41,8 +41,8 @@
 //=========================================================================
 namespace
 {
-    LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
-    LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
+    LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment Day");
+    LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment Day");
 
     template<typename T>
     inline T get_wrapping_distance(T begin, T end)

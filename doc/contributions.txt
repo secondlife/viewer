@@ -223,6 +223,9 @@ Ansariel Hiller
 	MAINT-8723
 	SL-10385
 	SL-10891
+	SL-13364
+	SL-13858
+	SL-13697
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -258,9 +261,12 @@ Beansy Twine
 Benja Kepler
 	VWR-746
 Benjamin Bigdipper
-Beq Janus
-    SL-13607
 Beth Walcher
+Beq Janus
+	BUG-227094
+	SL-10288
+	SL-13583
+	SL-13607
 Bezilon Kasei
 Biancaluce Robbiani
 	CT-225
@@ -831,6 +837,9 @@ Khyota Wulluf
 Kimar Coba
 Kithrak Kirkorian
 Kitty Barnett
+	BUG-228664
+	BUG-228665
+	BUG-228719
 	VWR-19699
 	STORM-288
 	STORM-799
@@ -1088,6 +1097,8 @@ Nicky Dasmijn
 	SL-10293
 	SL-11061
     SL-11072
+	SL-13141
+	SL-13642
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1301,6 +1312,7 @@ Shyotl Kuhr
 	MAINT-2334
 	MAINT-6913
 	STORM-2143
+	SL-11625
 Siana Gearz
 	STORM-960
 	STORM-1088
@@ -1340,6 +1352,7 @@ Sovereign Engineer
     MAINT-7343
     SL-11079
     OPEN-343
+	SL-11625
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1445,6 +1458,8 @@ Thickbrick Sleaford
 	STORM-956
 	STORM-1147
 	STORM-1325
+Thoys Pan
+	SL-12396
 Thraxis Epsilon
 	SVC-371
 	VWR-383

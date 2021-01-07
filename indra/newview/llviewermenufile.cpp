@@ -552,7 +552,7 @@ class LLFileUploadModel : public view_listener_t
 		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
 		if (fmp && !fmp->isModelLoading())
 		{
-			fmp->loadModel(3);
+			fmp->loadHighLodModel();
 		}
 		
 		return TRUE;
@@ -683,10 +683,16 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		S32 width = gViewerWindow->getWindowWidthRaw();
 		S32 height = gViewerWindow->getWindowHeightRaw();
 
+		bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
+		bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
+
 		if (gSavedSettings.getBOOL("HighResSnapshot"))
 		{
 			width *= 2;
 			height *= 2;
+			// not compatible wirh UI/HUD
+			render_ui = false;
+			render_hud = false;
 		}
 
 		if (gViewerWindow->rawSnapshot(raw,
@@ -694,7 +700,8 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   height,
 									   TRUE,
 									   FALSE,
-									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
+									   render_ui,
+									   render_hud,
 									   FALSE))
 		{
 			LLPointer<LLImageFormatted> formatted;

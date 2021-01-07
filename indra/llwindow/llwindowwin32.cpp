@@ -714,6 +714,7 @@ LLWindowWin32::~LLWindowWin32()
 
 void LLWindowWin32::show()
 {
+    LL_DEBUGS("Window") << "Setting window to show" << LL_ENDL;
 	ShowWindow(mWindowHandle, SW_SHOW);
 	SetForegroundWindow(mWindowHandle);
 	SetFocus(mWindowHandle);
@@ -783,9 +784,6 @@ void LLWindowWin32::close()
 		resetDisplayResolution();
 	}
 
-	// Don't process events in our mainWindowProc any longer.
-	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, NULL);
-
 	// Make sure cursor is visible and we haven't mangled the clipping state.
 	showCursor();
 	setMouseClipping(FALSE);
@@ -831,16 +829,24 @@ void LLWindowWin32::close()
 
 	LL_DEBUGS("Window") << "Destroying Window" << LL_ENDL;
 
-	// Make sure we don't leave a blank toolbar button.
-	ShowWindow(mWindowHandle, SW_HIDE);
+    if (IsWindow(mWindowHandle))
+    {
+        // Make sure we don't leave a blank toolbar button.
+        ShowWindow(mWindowHandle, SW_HIDE);
 
-	// This causes WM_DESTROY to be sent *immediately*
-	if (!destroy_window_handler(mWindowHandle))
-	{
-		OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
-			mCallbacks->translateString("MBShutdownErr"),
-			OSMB_OK);
-	}
+        // This causes WM_DESTROY to be sent *immediately*
+        if (!destroy_window_handler(mWindowHandle))
+        {
+            OSMessageBox(mCallbacks->translateString("MBDestroyWinFailed"),
+                mCallbacks->translateString("MBShutdownErr"),
+                OSMB_OK);
+        }
+    }
+    else
+    {
+        // Something killed the window while we were busy destroying gl or handle somehow got broken
+        LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
+    }
 
 	mWindowHandle = NULL;
 }
@@ -1126,7 +1132,16 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	mPostQuit = FALSE;
 
 	// create window
-	DestroyWindow(mWindowHandle);
+    LL_DEBUGS("Window") << "Creating window with X: " << window_rect.left
+        << " Y: " << window_rect.top
+        << " Width: " << (window_rect.right - window_rect.left)
+        << " Height: " << (window_rect.bottom - window_rect.top)
+        << " Fullscreen: " << mFullscreen
+        << LL_ENDL;
+    if (!destroy_window_handler(mWindowHandle))
+    {
+        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
+    }	
 	mWindowHandle = CreateWindowEx(dw_ex_style,
 		mWindowClassName,
 		mWindowTitle,
@@ -1446,8 +1461,12 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			ReleaseDC (mWindowHandle, mhDC);						// Release The Device Context
 			mhDC = 0;											// Zero The Device Context
 		}
-		DestroyWindow (mWindowHandle);									// Destroy The Window
-		
+
+        // Destroy The Window
+        if (!destroy_window_handler(mWindowHandle))
+        {
+            LL_WARNS("Window") << "Failed to properly close window!" << LL_ENDL;
+        }		
 
 		mWindowHandle = CreateWindowEx(dw_ex_style,
 			mWindowClassName,
@@ -1941,6 +1960,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 	LLWindowWin32 *window_imp = (LLWindowWin32 *)GetWindowLongPtr( h_wnd, GWLP_USERDATA );
 
+	bool debug_window_proc = gDebugWindowProc || debugLoggingEnabled("Window");
+
 
 	if (NULL != window_imp)
 	{
@@ -1983,9 +2004,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_DEVICECHANGE:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_DEVICECHANGE");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
-				LL_INFOS() << "  WM_DEVICECHANGE: wParam=" << w_param 
+				LL_INFOS("Window") << "  WM_DEVICECHANGE: wParam=" << w_param 
 						<< "; lParam=" << l_param << LL_ENDL;
 			}
 			if (w_param == DBT_DEVNODES_CHANGED || w_param == DBT_DEVICEARRIVAL)
@@ -2041,7 +2062,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				BOOL activating = (BOOL) w_param;
 				BOOL minimized = window_imp->getMinimized();
 
-				if (gDebugWindowProc)
+				if (debug_window_proc)
 				{
 					LL_INFOS("Window") << "WINDOWPROC ActivateApp "
 						<< " activating " << S32(activating)
@@ -2092,7 +2113,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				// JC - I'm not sure why, but if we don't report that we handled the 
 				// WM_ACTIVATE message, the WM_ACTIVATEAPP messages don't work 
 				// properly when we run fullscreen.
-				if (gDebugWindowProc)
+				if (debug_window_proc)
 				{
 					LL_INFOS("Window") << "WINDOWPROC Activate "
 						<< " activating " << S32(activating) 
@@ -2164,7 +2185,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYDOWN");
 			{
-				if (gDebugWindowProc)
+				if (debug_window_proc)
 				{
 					LL_INFOS("Window") << "Debug WindowProc WM_KEYDOWN "
 						<< " key " << S32(w_param) 
@@ -2190,7 +2211,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_KEYUP");
 			LL_RECORD_BLOCK_TIME(FTM_KEYHANDLER);
 
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS("Window") << "Debug WindowProc WM_KEYUP "
 					<< " key " << S32(w_param) 
@@ -2206,9 +2227,9 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		}
 		case WM_IME_SETCONTEXT:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_SETCONTEXT");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
-				LL_INFOS() << "WM_IME_SETCONTEXT" << LL_ENDL;
+				LL_INFOS("Window") << "WM_IME_SETCONTEXT" << LL_ENDL;
 			}
 			if (LLWinImm::isAvailable() && window_imp->mPreeditor)
 			{
@@ -2219,7 +2240,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_IME_STARTCOMPOSITION:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_STARTCOMPOSITION");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS() << "WM_IME_STARTCOMPOSITION" << LL_ENDL;
 			}
@@ -2232,7 +2253,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_IME_ENDCOMPOSITION:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_ENDCOMPOSITION");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS() << "WM_IME_ENDCOMPOSITION" << LL_ENDL;
 			}
@@ -2244,7 +2265,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_IME_COMPOSITION:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_COMPOSITION");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS() << "WM_IME_COMPOSITION" << LL_ENDL;
 			}
@@ -2257,7 +2278,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 		case WM_IME_REQUEST:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_IME_REQUEST");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS() << "WM_IME_REQUEST" << LL_ENDL;
 			}
@@ -2288,7 +2309,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			// characters.  We just need to take care of surrogate pairs sent as two WM_CHAR's
 			// by ourselves.  It is not that tough.  -- Alissa Sabre @ SL
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_CHAR");
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS("Window") << "Debug WindowProc WM_CHAR "
 					<< " key " << S32(w_param) 
@@ -2731,7 +2752,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 				S32 width = S32( LOWORD(l_param) );
 				S32 height = S32( HIWORD(l_param) );
 
-				if (gDebugWindowProc)
+				if (debug_window_proc)
 				{
 					BOOL maximized = ( w_param == SIZE_MAXIMIZED );
 					BOOL restored  = ( w_param == SIZE_RESTORED );
@@ -2806,7 +2827,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			}
 
 		case WM_SETFOCUS:
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS("Window") << "WINDOWPROC SetFocus" << LL_ENDL;
 			}
@@ -2815,7 +2836,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			return 0;
 
 		case WM_KILLFOCUS:
-			if (gDebugWindowProc)
+			if (debug_window_proc)
 			{
 				LL_INFOS("Window") << "WINDOWPROC KillFocus" << LL_ENDL;
 			}
@@ -2847,7 +2868,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 			break;
 		default:
 			{
-				if (gDebugWindowProc)
+				if (debug_window_proc)
 				{
 					LL_INFOS("Window") << "Unhandled windows message code: " << U32(u_msg) << LL_ENDL;
 				}
@@ -2857,7 +2878,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
 	window_imp->mCallbacks->handlePauseWatchdog(window_imp);	
 	}
-
+    else
+    {
+        // (NULL == window_imp)
+        LL_DEBUGS("Window") << "No window implementation to handle message with, message code: " << U32(u_msg) << LL_ENDL;
+    }
 
 	// pass unhandled messages down to Windows
 	return DefWindowProc(h_wnd, u_msg, w_param, l_param);
@@ -3384,7 +3409,10 @@ void LLSplashScreenWin32::hideImpl()
 {
 	if (mWindow)
 	{
-		DestroyWindow(mWindow);
+        if (!destroy_window_handler(mWindow))
+        {
+            LL_WARNS("Window") << "Failed to properly close splash screen window!" << LL_ENDL;
+        }
 		mWindow = NULL; 
 	}
 }

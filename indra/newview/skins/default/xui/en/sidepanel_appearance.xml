@@ -32,7 +32,7 @@ width="333">
    top="5"
    follows="left|top|right"
    layout="topleft"
-   width="303"
+   width="307"
    height="33"
    name="panel_currentlook"
    >
@@ -118,14 +118,14 @@ width="333">
    name="Filter"
    search_button_visible="true"
    top_pad="10"
-   width="303" />
+   width="307" />
    <panel
    class="panel_outfits_inventory"
    filename="panel_outfits_inventory.xml"
    name="panel_outfits_inventory"
    height="493"
    min_height="410"
-   width="320"
+   width="325"
    visible="false"
    left="0"
    tab_group="1"

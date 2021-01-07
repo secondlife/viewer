@@ -64,6 +64,7 @@
 #include "llstring.h"
 #include "llurlaction.h"
 #include "llviewercontrol.h"
+#include "llviewermenu.h"
 #include "llviewerobjectlist.h"
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
@@ -1085,7 +1086,8 @@ LLView* LLChatHistory::getSeparator()
 LLView* LLChatHistory::getHeader(const LLChat& chat,const LLStyle::Params& style_params, const LLSD& args)
 {
 	LLChatHistoryHeader* header = LLChatHistoryHeader::createInstance(mMessageHeaderFilename);
-	header->setup(chat, style_params, args);
+    if (header)
+        header->setup(chat, style_params, args);
 	return header;
 }
 
@@ -1298,6 +1300,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
 			p.bottom_pad = mBottomSeparatorPad;
+            if (!view)
+            {
+                // Might be wiser to make this LL_ERRS, getSeparator() should work in case of correct instalation.
+                LL_WARNS() << "Failed to create separator from " << mMessageSeparatorFilename << ": can't append to history" << LL_ENDL;
+                return;
+            }
 		}
 		else
 		{
@@ -1306,7 +1314,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				p.top_pad = 0;
 			else
 				p.top_pad = mTopHeaderPad;
-			p.bottom_pad = mBottomHeaderPad;
+            p.bottom_pad = mBottomHeaderPad;
+            if (!view)
+            {
+                LL_WARNS() << "Failed to create header from " << mMessageHeaderFilename << ": can't append to history" << LL_ENDL;
+                return;
+            }
 			
 		}
 		p.view = view;
@@ -1344,10 +1357,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// We don't want multiple friendship offers to appear, this code checks if there are previous offers
 				// by iterating though all panels.
 				// Note: it might be better to simply add a "pending offer" flag somewhere
-				for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-					, tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+				for (auto& panel : LLToastNotifyPanel::instance_snapshot())
 				{
-					LLToastNotifyPanel& panel = *ti;
 					LLIMToastNotifyPanel * imtoastp = dynamic_cast<LLIMToastNotifyPanel *>(&panel);
 					const std::string& notification_name = panel.getNotificationName();
 					if (notification_name == "OfferFriendship"

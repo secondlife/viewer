@@ -450,7 +450,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
         || (dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id));
     BOOL is_owned_by_me = FALSE;
     BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
-    BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
+    BOOL accept_im_from_only_friend = gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly");
     BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
         LLMuteList::getInstance()->isLinden(name);
 
@@ -1164,7 +1164,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             {
                 return;
             }
-            else if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL))
+            else if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL))
             {
                 return;
             }
@@ -1404,10 +1404,8 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
             payload["sender"] = sender.getIPandPort();
 
             bool add_notification = true;
-            for (LLToastNotifyPanel::instance_iter ti(LLToastNotifyPanel::beginInstances())
-                , tend(LLToastNotifyPanel::endInstances()); ti != tend; ++ti)
+            for (auto& panel : LLToastNotifyPanel::instance_snapshot())
             {
-                LLToastNotifyPanel& panel = *ti;
                 const std::string& notification_name = panel.getNotificationName();
                 if (notification_name == "OfferFriendship" && panel.isControlPanelEnabled())
                 {
@@ -1618,6 +1616,7 @@ void LLIMProcessing::requestOfflineMessagesCoro(std::string url)
         {
             from_group = message_data["from_group"].asString() == "Y";
         }
+
 
         LLIMProcessing::processNewMessage(
             message_data["from_agent_id"].asUUID(),

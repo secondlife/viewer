@@ -266,6 +266,10 @@ Seçili Sakinlere değişiklik yapma hakkı vermek istiyor musunuz?
 		Seçili Sakinlerin değişiklik yapma hakkını iptal etmek istiyor musunuz?
 		<usetemplate name="okcancelbuttons" notext="Hayır" yestext="Evet"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		Bir grup adı [MIN_LEN] ile [MAX_LEN] karakter olmalıdır.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Grup oluşturulamıyor.
 [MESSAGE]
@@ -360,7 +364,7 @@ Devam etmek istiyor musunuz?
 Bu gruba katılmak için yeterli L$&apos;na sahip değilsiniz.
 	</notification>
 	<notification name="CreateGroupCost">
-		Bu grubu oluşturmanın maliyeti: L$ 100.
+		Bu grubu oluşturmak L$[COST]'dır.
 Grupların birden fazla üyeye sahip olması gereklidir, aksi takdirde grup kalıcı olarak silinir.
 Lütfen 48 saat içinde diğer üyeleri davet edin.
 		<usetemplate canceltext="İptal" name="okcancelbuttons" notext="İptal" yestext="L$ 100 ödeyerek grubu oluştur"/>
@@ -500,6 +504,9 @@ Ortamı sadece bir yüze yerleştirmek için, Yüz Seç&apos;i seçin ve ardınd
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Anlık görüntü kodlanırken hata oluştu.
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Bu nesneyi yüklemek için L$[COST] ' a ihtiyacınız var.
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Envanterinize bir fotoğraf kaydedebilmek için [COST] L$ paraya ihtiyacınız var. L$ satın alabilir veya bunun yerine fotoğrafı bilgisayarınıza kaydedebilirsiniz.
@@ -1739,11 +1746,14 @@ Gruptan ayrılmak istiyor musunuz?
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		Temel hesaplar için grup limiti [MAX_BASIC], [https://secondlife.com/premium/ özel] hesaplar 
-içinse [MAX_PREMIUM] olarak belirlenmiştir.
-Hesabınızı indirgediyseniz, daha fazla gruba katılmak için önce grup sayınızı [MAX_BASIC] grubun altına düşürmelisiniz.
-
-[https://secondlife.com/my/account/membership.php Şimdi yükselt!]
+		Temel üyelikler [MAX_BASIC]'a kadar katılım sağlayabilir.
+Premium üyelikler [MAX_PREMIUM] 'a kadar izinlidir. [https://secondlife.com/my/account/membership.php? Daha fazla bilgi alın ya da üyeiliğinizi yükseltin]
+		<usetemplate name="okbutton" yestext="Kapat"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		Temel üyelik sahibi yerleşimciler [MAX_BASIC]'a kadar olan gruplara katılabilir.
+Premium üyeler [MAX_PREMIUM] 'a kadar izinlidir. Premium Plus üyeler [MAX_PREMIUM_PLUS] 'a kadar izinlidir. 
+[https://secondlife.com/my/account/membership.php? Daha fazla bilgi alın ya da üyeiliğinizi yükseltin]
 		<usetemplate name="okbutton" yestext="Kapat"/>
 	</notification>
 	<notification name="KickUser">
@@ -3301,6 +3311,22 @@ Güvenliğiniz için birkaç saniye engellenecek.
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		Sesli sohbetiniz moderatör tarafından engellendi.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		Maalesef, bu oturumun avantajlarıyla ilgili bilgilere ulaşamıyoruz. Normal prodüksiyon ortamında yaşanmaması gereken bir durumdur. Lütfen destek ekibiyle iletişime geçin. Bu oturum normal bir şekilde çalışmayacaktır, yeniden başlatmanızı öneririz.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		Bu, toplam tutarı L$[COST] olan [COUNT] nesne yükleyecektir. Bu yüklemeye devam etmek istiyor musunuz?
+		<usetemplate name="okcancelbuttons" notext="İptal" yestext="Karşıya Yükle"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		Seçili dosyalar aynı anda yüklenemez.
+		<usetemplate name="okbutton" yestext="Tamam"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Seçili bazı dosyalar aynı anda yüklenemez.
 		<usetemplate name="okbutton" yestext="Tamam"/>
 	</notification>
 	<notification name="UploadCostConfirmation">

@@ -404,6 +404,7 @@ public:
 	virtual void			setText(const LLStringExplicit &utf8str , const LLStyle::Params& input_params = LLStyle::Params()); // uses default style
 	virtual std::string		getText() const;
 	void					setMaxTextLength(S32 length) { mMaxTextByteLength = length; }
+	S32						getMaxTextLength() { return mMaxTextByteLength; }
 
 	// wide-char versions
 	void					setWText(const LLWString& text);
@@ -432,6 +433,7 @@ public:
 
 	S32						getLength() const { return getWText().length(); }
 	S32						getLineCount() const { return mLineInfoList.size(); }
+	S32						removeFirstLine(); // returns removed length
 
 	void					addDocumentChild(LLView* view);
 	void					removeDocumentChild(LLView* view);

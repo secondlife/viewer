@@ -28,9 +28,8 @@
 
 #include "_refcounted.h"
 
-#include "test_allocator.h"
-
-#if 0 // disable all of this because it's hanging win64 builds?
+// disable all of this because it's hanging win64 builds?
+#if ! (LL_WINDOWS && ADDRESS_SIZE == 64)
 using namespace LLCoreInt;
 
 namespace tut
@@ -39,7 +38,6 @@ namespace tut
 	{
 		// the test objects inherit from this so the member functions and variables
 		// can be referenced directly inside of the test functions.
-		size_t mMemTotal;
 	};
 
 	typedef test_group<RefCountedTestData> RefCountedTestGroupType;
@@ -51,27 +49,18 @@ namespace tut
 	{
 		set_test_name("RefCounted construction with implicit count");
 
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
-
 		// create a new ref counted object with an implicit reference
 		RefCounted * rc = new RefCounted(true);
 		ensure(rc->getRefCount() == 1);
 
 		// release the implicit reference, causing the object to be released
 		rc->release();
-
-		// make sure we didn't leak any memory
-		ensure(mMemTotal == GetMemTotal());
 	}
 
 	template <> template <>
 	void RefCountedTestObjectType::test<2>()
 	{
 		set_test_name("RefCounted construction without implicit count");
-
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
 
 		// create a new ref counted object with an implicit reference
 		RefCounted * rc = new RefCounted(false);
@@ -83,17 +72,12 @@ namespace tut
 
 		// release the implicit reference, causing the object to be released
 		rc->release();
-
-		ensure(mMemTotal == GetMemTotal());
 	}
 
 	template <> template <>
 	void RefCountedTestObjectType::test<3>()
 	{
 		set_test_name("RefCounted addRef and release");
-
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
 
 		RefCounted * rc = new RefCounted(false);
 
@@ -108,18 +92,12 @@ namespace tut
 		{
 			rc->release();
 		}
-
-		// make sure we didn't leak any memory
-		ensure(mMemTotal == GetMemTotal());
 	}
 
 	template <> template <>
 	void RefCountedTestObjectType::test<4>()
 	{
 		set_test_name("RefCounted isLastRef check");
-
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
 
 		RefCounted * rc = new RefCounted(true);
 
@@ -128,18 +106,12 @@ namespace tut
 
 		// release it to clean up memory
 		rc->release();
-
-		// make sure we didn't leak any memory
-		ensure(mMemTotal == GetMemTotal());
 	}
 
 	template <> template <>
 	void RefCountedTestObjectType::test<5>()
 	{
 		set_test_name("RefCounted noRef check");
-
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
 
 		RefCounted * rc = new RefCounted(false);
 
@@ -148,10 +120,7 @@ namespace tut
 
 		// with only one reference, isLastRef should be true
 		ensure(rc->getRefCount() == RefCounted::NOT_REF_COUNTED);
-
-		// allow this memory leak, but check that we're leaking a known amount
-		ensure(mMemTotal == (GetMemTotal() - sizeof(RefCounted)));
 	}
 }
-#endif  // if 0
+#endif  // disabling on Win64
 #endif	// TEST_LLCOREINT_REF_COUNTED_H_

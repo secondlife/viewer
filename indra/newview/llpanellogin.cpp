@@ -41,7 +41,6 @@
 #include "llcommandhandler.h"		// for secondlife:///app/login/
 #include "llcombobox.h"
 #include "llviewercontrol.h"
-#include "llfloaterpreference.h"
 #include "llfocusmgr.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
@@ -338,10 +337,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLButton* def_btn = getChild<LLButton>("connect_btn");
 	setDefaultBtn(def_btn);
 
-	std::string channel = LLVersionInfo::getChannel();
+	std::string channel = LLVersionInfo::instance().getChannel();
 	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::getShortVersion().c_str(),
-								   LLVersionInfo::getBuild());
+								   LLVersionInfo::instance().getShortVersion().c_str(),
+								   LLVersionInfo::instance().getBuild());
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
@@ -456,6 +455,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		}
 		break;
 	}
+	if (combo->getValue().asString().empty())
+	{
+		combo->selectFirstItem();
+	}
 }
 
 LLPanelLogin::~LLPanelLogin()
@@ -560,7 +563,7 @@ void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remem
     {
         sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
         LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
-        remember_password->setValue(remember_psswrd);
+        remember_password->setValue(remember_user && remember_psswrd);
         remember_password->setEnabled(remember_user);
         sInstance->populateUserList(credential);
     }
@@ -684,7 +687,6 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		
 		if (LLPanelLogin::sInstance->mPasswordModified)
 		{
-			authenticator = LLSD::emptyMap();
 			// password is plaintext
 			authenticator["type"] = CRED_AUTHENTICATOR_TYPE_CLEAR;
 			authenticator["secret"] = password;
@@ -695,6 +697,15 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
             if (credential.notNull())
             {
                 authenticator = credential->getAuthenticator();
+                if (authenticator.emptyMap())
+                {
+                    // Likely caused by user trying to log in to non-system grid
+                    // with unsupported name format, just retry
+                    LL_WARNS() << "Authenticator failed to load for: " << username << LL_ENDL;
+                    // password is plaintext
+                    authenticator["type"] = CRED_AUTHENTICATOR_TYPE_CLEAR;
+                    authenticator["secret"] = password;
+                }
             }
         }
 	}
@@ -943,9 +954,9 @@ void LLPanelLogin::loadLoginPage()
 
 	// Channel and Version
 	params["version"] = llformat("%s (%d)",
-								 LLVersionInfo::getShortVersion().c_str(),
-								 LLVersionInfo::getBuild());
-	params["channel"] = LLVersionInfo::getChannel();
+								 LLVersionInfo::instance().getShortVersion().c_str(),
+								 LLVersionInfo::instance().getBuild());
+	params["channel"] = LLVersionInfo::instance().getChannel();
 
 	// Grid
 	params["grid"] = LLGridManager::getInstance()->getGridId();
@@ -1134,7 +1145,11 @@ void LLPanelLogin::onRememberUserCheck(void*)
             remember_name->setValue(true);
             LLNotificationsUtil::add("LoginCantRemoveUsername");
         }
-        remember_psswrd->setEnabled(remember);
+        if (!remember)
+        {
+            remember_psswrd->setValue(false);
+        }
+        remember_psswrd->setEnabled(remember);        
     }
 }
 
@@ -1330,13 +1345,13 @@ void LLPanelLogin::onSelectServer()
 		{
 			std::string location = location_combo->getValue().asString();
 			LLSLURL slurl(location); // generata a slurl from the location combo contents
-			if (   slurl.getType() == LLSLURL::LOCATION
-				&& slurl.getGrid() != LLGridManager::getInstance()->getGrid()
-				)
+			if (location.empty()
+				|| (slurl.getType() == LLSLURL::LOCATION
+				    && slurl.getGrid() != LLGridManager::getInstance()->getGrid())
+				   )
 			{
 				// the grid specified by the location is not this one, so clear the combo
 				location_combo->setCurrentByIndex(0); // last location on the new grid
-				location_combo->setTextEntry(LLStringUtil::null);
 			}
 		}			
 		break;

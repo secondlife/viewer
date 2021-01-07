@@ -83,39 +83,39 @@ namespace tut
 	void versioninfo_object_t::test<1>()
 	{   
 		std::cout << "What we parsed from CMake: " << LL_VIEWER_VERSION_BUILD << std::endl;
-		std::cout << "What we get from llversioninfo: " << LLVersionInfo::getBuild() << std::endl;
+		std::cout << "What we get from llversioninfo: " << LLVersionInfo::instance().getBuild() << std::endl;
 		ensure_equals("Major version", 
-					  LLVersionInfo::getMajor(), 
+					  LLVersionInfo::instance().getMajor(), 
 					  LL_VIEWER_VERSION_MAJOR);
 		ensure_equals("Minor version", 
-					  LLVersionInfo::getMinor(), 
+					  LLVersionInfo::instance().getMinor(), 
 					  LL_VIEWER_VERSION_MINOR);
 		ensure_equals("Patch version", 
-					  LLVersionInfo::getPatch(), 
+					  LLVersionInfo::instance().getPatch(), 
 					  LL_VIEWER_VERSION_PATCH);
 		ensure_equals("Build version", 
-					  LLVersionInfo::getBuild(), 
+					  LLVersionInfo::instance().getBuild(), 
 					  LL_VIEWER_VERSION_BUILD);
 		ensure_equals("Channel version", 
-					  LLVersionInfo::getChannel(), 
+					  LLVersionInfo::instance().getChannel(), 
 					  ll_viewer_channel);
 		ensure_equals("Version String", 
-					  LLVersionInfo::getVersion(), 
+					  LLVersionInfo::instance().getVersion(), 
 					  mVersion);
 		ensure_equals("Short Version String", 
-					  LLVersionInfo::getShortVersion(), 
+					  LLVersionInfo::instance().getShortVersion(), 
 					  mShortVersion);
 		ensure_equals("Version and channel String", 
-					  LLVersionInfo::getChannelAndVersion(), 
+					  LLVersionInfo::instance().getChannelAndVersion(), 
 					  mVersionAndChannel);
 
-		LLVersionInfo::resetChannel(mResetChannel);
+		LLVersionInfo::instance().resetChannel(mResetChannel);
 		ensure_equals("Reset channel version", 
-					  LLVersionInfo::getChannel(), 
+					  LLVersionInfo::instance().getChannel(), 
 					  mResetChannel);
 
 		ensure_equals("Reset Version and channel String", 
-					  LLVersionInfo::getChannelAndVersion(), 
+					  LLVersionInfo::instance().getChannelAndVersion(), 
 					  mResetVersionAndChannel);
 	}
 }

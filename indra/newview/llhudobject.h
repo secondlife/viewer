@@ -102,7 +102,7 @@ protected:
 	static void sortObjects();
 
 	LLHUDObject(const U8 type);
-	~LLHUDObject();
+	virtual ~LLHUDObject();
 
 	virtual void render() = 0;
 	virtual void renderForTimer() {};

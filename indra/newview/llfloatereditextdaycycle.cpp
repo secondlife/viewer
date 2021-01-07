@@ -1498,7 +1498,7 @@ void LLFloaterEditExtDayCycle::onAssetLoaded(LLUUID asset_id, LLSettingsBase::pt
     if (!settings || status)
     {
         LLSD args;
-        args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : "Unknown";
+        args["NAME"] = (mInventoryItem) ? mInventoryItem->getName() : asset_id.asString();
         LLNotificationsUtil::add("FailedToFindSettings", args);
         closeFloater();
         return;

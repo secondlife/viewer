@@ -131,13 +131,7 @@ public:
 	virtual void packMessage(LLMessageSystem* msg) const;
 	virtual BOOL unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);
 	virtual BOOL unpackMessage(const LLSD& item);
-	virtual BOOL importFile(LLFILE* fp);
 	virtual BOOL importLegacyStream(std::istream& input_stream);
-
-	// file handling on the viewer. These are not meant for anything
-	// other than cacheing.
-	bool exportFileLocal(LLFILE* fp) const;
-	bool importFileLocal(LLFILE* fp);
 
 	// new methods
 	BOOL isFinished() const { return mIsComplete; }
@@ -226,10 +220,9 @@ public:
 	// How many descendents do we currently have information for in the InventoryModel?
 	S32 getViewerDescendentCount() const;
 
-	// file handling on the viewer. These are not meant for anything
-	// other than caching.
-	bool exportFileLocal(LLFILE* fp) const;
-	bool importFileLocal(LLFILE* fp);
+	LLSD exportLLSD() const;
+	bool importLLSD(const LLSD& cat_data);
+
 	void determineFolderType();
 	void changeType(LLFolderType::EType new_folder_type);
 	virtual void unpackMessage(LLMessageSystem* msg, const char* block, S32 block_num = 0);

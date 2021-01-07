@@ -1343,6 +1343,18 @@ You must agree to the Second Life Terms and Conditions, Privacy Policy, and Term
 
   <notification
    icon="alertmodal.tga"
+   name="CouldNotBuyCurrency"
+   type="alertmodal">
+[TITLE]
+[MESSAGE]
+   <tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="CouldNotPutOnOutfit"
    type="alertmodal">
 Could not put on outfit.
@@ -3174,7 +3186,7 @@ Do you want to remove multiple friends from your Friends list?
    type="alertmodal">
 Are you sure you want to delete all scripted objects owned by
 ** [AVATAR_NAME] **
-on all others land in this sim?
+on all others land in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3188,7 +3200,7 @@ on all others land in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL scripted objects owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3202,7 +3214,7 @@ on ALL LAND in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL objects (scripted or not) owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3674,6 +3686,17 @@ Please choose the male or female avatar. You can change your mind later.
 		type="alertmodal">
 Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
   <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateErrorShort"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -7204,12 +7227,14 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
-   type="notify">
+   type="alertmodal">
    <tag>fail</tag>
     The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+   <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -9543,6 +9568,12 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
+  <global name="UnsupportedShaderRequirements">
+You do not appear to meet the hardware requirements for [APP_NAME]. [APP_NAME] requires OpenGL 2.0 or later shader support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
+
+If you continue to have problems, please visit the [SUPPORT_SITE].
+  </global>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
@@ -10265,7 +10296,7 @@ Unable to add script!
    name="AssetServerTimeoutObjReturn"
    type="notify">
    <tag>fail</tag>
-Asset server didn't respond in a timely fashion.  Object returned to sim.
+Asset server didn't respond in a timely fashion.  Object returned to the region.
   </notification>
 
   <notification

@@ -59,7 +59,10 @@ void LLViewerParcelAskPlay::initSingleton()
 }
 void LLViewerParcelAskPlay::cleanupSingleton()
 {
-    cancelNotification();
+    if (LLNotifications::instanceExists())
+    {
+        cancelNotification();
+    }
 }
 
 void LLViewerParcelAskPlay::askToPlay(const LLUUID &region_id, const S32 &parcel_id, const std::string &url, ask_callback cb)
@@ -78,6 +81,8 @@ void LLViewerParcelAskPlay::askToPlay(const LLUUID &region_id, const S32 &parcel
     default:
         {
             // create or re-create notification
+            // Note: will create and immediately cancel one notification if region has both media and music
+            // since ask play does not distinguish media from music and media can be used as music
             cancelNotification();
 
             if (LLStartUp::getStartupState() > STATE_PRECACHE)
