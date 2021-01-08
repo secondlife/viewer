@@ -205,12 +205,46 @@ const std::string LLDiskCache::metaDataToFilepath(const std::string id,
 
 void LLDiskCache::updateFileAccessTime(const std::string file_path)
 {
-    const std::time_t file_time = std::time(nullptr);
+    /**
+     * Threshold in time_t units that is used to decide if the last access time
+     * time of the file is updated or not. Added as a precaution for the concern
+     * outlined in SL-14582  about frequent writes on older SSDs reducing their
+     * lifespan. I think this is the right place for the threshold value - rather
+     * than it being a pref - do comment on that Jira if you disagree...
+     *
+     * Let's start with 1 hour in time_t units and see how that unfolds
+     */
+    const std::time_t time_threshold = 1 * 60 * 60;
+
+    // current time
+    const std::time_t cur_time = std::time(nullptr);
 
 #if LL_WINDOWS
-    boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), file_time);
+    // file last write time
+    const std::time_t last_write_time = boost::filesystem::last_write_time(utf8str_to_utf16str(file_path));
+
+    // delta between cur time and last time the file was written
+    const std::time_t delta_time = cur_time - last_write_time;
+
+    // we only write the new value if the time in time_threshold has elapsed
+    // before the last one
+    if (delta_time > time_threshold)
+    {
+        boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), cur_time);
+    }
 #else
-    boost::filesystem::last_write_time(file_path, file_time);
+    // file last write time
+    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path);
+
+    // delta between cur time and last time the file was written
+    const std::time_t delta_time = cur_time - last_write_time;
+
+    // we only write the new value if the time in time_threshold has elapsed
+    // before the last one
+    if (delta_time > time_threshold)
+    {
+        boost::filesystem::last_write_time(file_path, cur_time);
+    }
 #endif
 }
 
