@@ -3394,7 +3394,7 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_BUGSPLAT
 	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
     //Not ideal but sufficient for good reporting.
@@ -3896,10 +3896,13 @@ void LLAppViewer::removeMarkerFiles()
 
 void LLAppViewer::removeDumpDir()
 {
-    //Call this routine only on clean exit.  Crash reporter will clean up
-    //its locking table for us.
-    std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    gDirUtilp->deleteDirAndContents(dump_dir);
+    if (gDirUtilp->dumpDirExists())
+    {
+        //Call this routine only on clean exit.  Crash reporter will clean up
+        //its locking table for us.
+        std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+        gDirUtilp->deleteDirAndContents(dump_dir);
+    }
 }
 
 void LLAppViewer::forceQuit()

@@ -340,6 +340,11 @@ const std::string &LLDir::getDumpDir() const
 	return LLDir::sDumpDir;
 }
 
+bool LLDir::dumpDirExists() const
+{
+    return !sDumpDir.empty();
+}
+
 const std::string &LLDir::getPerAccountChatLogsDir() const
 {
 	return mPerAccountChatLogsDir;
