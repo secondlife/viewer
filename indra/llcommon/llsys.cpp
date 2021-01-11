@@ -43,12 +43,12 @@
 #include "llerrorcontrol.h"
 #include "llevents.h"
 #include "llformat.h"
+#include "llregex.h"
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
@@ -110,39 +110,6 @@ static const F32 MEM_INFO_THROTTLE = 20;
 // If we only triggered FrameWatcher logging when the session framerate
 // dropped below the login framerate, we'd have very little additional data.
 static const F32 MEM_INFO_WINDOW = 10*60;
-
-// Wrap boost::regex_match() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_match_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_match(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
-// Wrap boost::regex_search() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_search_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_search(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
 
 LLOSInfo::LLOSInfo() :
 	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
@@ -387,7 +354,7 @@ LLOSInfo::LLOSInfo() :
 	boost::smatch matched;
 
 	std::string glibc_version(gnu_get_libc_version());
-	if ( regex_match_no_exc(glibc_version, matched, os_version_parse) )
+	if ( ll_regex_match(glibc_version, matched, os_version_parse) )
 	{
 		LL_INFOS("AppInit") << "Using glibc version '" << glibc_version << "' as OS version" << LL_ENDL;
 	
@@ -1116,7 +1083,7 @@ LLSD LLMemoryInfo::loadStatsMap()
 		while (std::getline(meminfo, line))
 		{
 			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
-			if (regex_match_no_exc(line, matched, stat_rx))
+			if (ll_regex_match(line, matched, stat_rx))
 			{
 				// e.g. "MemTotal:		4108424 kB"
 				LLSD::String key(matched[1].first, matched[1].second);

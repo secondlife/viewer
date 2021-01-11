@@ -36,13 +36,14 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryfunctions.h"
 #include "llmarketplacefunctions.h"
+#include "llregex.h"
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
 #include "llviewerfoldertype.h"
 #include "llradiogroup.h"
 #include "llstartup.h"
-#include <boost/regex.hpp>
+
 // linden library includes
 #include "llclipboard.h"
 #include "lltrans.h"
@@ -800,7 +801,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			boost::regex mPattern = boost::regex("\"\\s*([^<]*)?\\s*\"",
 				boost::regex::perl | boost::regex::icase);
 			boost::match_results<std::string::const_iterator> matches;
-			mExactToken = (boost::regex_match(filter_sub_string_new, matches, mPattern) && matches[1].matched)
+			mExactToken = (ll_regex_match(filter_sub_string_new, matches, mPattern) && matches[1].matched)
 				? matches[1]
 				: LLStringUtil::null;
 			if ((old_token.empty() && !mExactToken.empty()) 

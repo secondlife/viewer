@@ -35,6 +35,7 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llregex.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
 #include "message.h"
@@ -1388,7 +1389,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 	// Grep icon info between <icon>...</icon> tags
 	// matches[1] contains the icon name/path
 	boost::match_results<std::string::const_iterator> matches;
-	mIcon = (boost::regex_match(url, matches, mPattern) && matches[1].matched)
+	mIcon = (ll_regex_match(url, matches, mPattern) && matches[1].matched)
 		? matches[1]
 		: LLStringUtil::null;
 	LLStringUtil::trim(mIcon);

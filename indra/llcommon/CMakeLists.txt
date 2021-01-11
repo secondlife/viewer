@@ -207,9 +207,9 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregex.h
     llregistry.h
     llrun.h
-    llrefcount.h
     llsafehandle.h
     llsd.h
     llsdjson.h

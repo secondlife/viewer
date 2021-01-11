@@ -41,8 +41,8 @@
 #include "llcombobox.h"
 #include "llviewercontrol.h"
 #include "llfloater.h"
+#include "llregex.h"
 #include "lltrans.h"
-#include <boost/regex.hpp>
 
 #define BTN_FIND		"find"
 #define BTN_OK			"ok_btn"
@@ -116,7 +116,7 @@ void LLPanelExperiencePicker::onBtnFind()
 	boost::cmatch what;
 	std::string text = getChild<LLUICtrl>(TEXT_EDIT)->getValue().asString();
 	const boost::regex expression("secondlife:///app/experience/[\\da-f-]+/profile");
-	if (boost::regex_match(text.c_str(), what, expression))
+	if (ll_regex_match(text.c_str(), what, expression))
 	{
 		LLURI uri(text);
 		LLSD path_array = uri.pathArray();
