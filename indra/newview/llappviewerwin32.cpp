@@ -118,16 +118,20 @@ namespace
     {
         if (nCode == MDSCB_EXCEPTIONCODE)
         {
-            // send the main viewer log file
-            // widen to wstring, convert to __wchar_t, then pass c_str()
-            sBugSplatSender->sendAdditionalFile(
-                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+            // second instance does not have own log files
+            if (!LLAppViewer::instance()->isSecondInstance())
+            {
+                // send the main viewer log file
+                // widen to wstring, convert to __wchar_t, then pass c_str()
+                sBugSplatSender->sendAdditionalFile(
+                    WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+
+                sBugSplatSender->sendAdditionalFile(
+                    WCSTR(*LLAppViewer::instance()->getStaticDebugFile()));
+            }
 
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
-
-            sBugSplatSender->sendAdditionalFile(
-                WCSTR(*LLAppViewer::instance()->getStaticDebugFile()));
 
             // We don't have an email address for any user. Hijack this
             // metadata field for the platform identifier.
