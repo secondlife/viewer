@@ -133,6 +133,7 @@
 #include <boost/algorithm/string.hpp>
 #include "llcleanup.h"
 #include "llviewershadermgr.h"
+#include "llthreadsafeworkerpool.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -321,6 +322,10 @@ void handle_debug_avatar_textures(void*);
 void handle_grab_baked_texture(void*);
 BOOL enable_grab_baked_texture(void*);
 void handle_dump_region_object_cache(void*);
+
+// testing items for thread safe worker queue
+void simulate_cache_asynchronous_read_access(void*);
+void simulate_cache_asynchronous_write_access(void*);
 
 BOOL enable_save_into_task_inventory(void*);
 
@@ -1364,7 +1369,26 @@ class LLAdvancedCheckDebugClicks : public view_listener_t
 	}
 };
 
+///////////////////////////////////////
+// Tests for Thread safe worker pool //
+///////////////////////////////////////
+class LLSimulateCacheAsynchronousReadAccess : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_asynchronous_read_access(NULL);
+        return true;
+    }
+};
 
+class LLSimulateCacheAsynchronousWriteAccess : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        simulate_cache_asynchronous_write_access(NULL);
+        return true;
+    }
+};
 
 /////////////////
 // DEBUG VIEWS //
@@ -3715,6 +3739,60 @@ class LLSelfStandUp : public view_listener_t
 		return true;
 	}
 };
+
+void simulate_cache_asynchronous_read_access(void*)
+{
+    LL_INFOS() << "Simulating cache asynchronous READ..." << LL_ENDL;
+
+    llThreadSafeWorkerPool::request_callback_t cb([](llThreadSafeWorkerPool::request_payload_t payload, std::string filename, bool)
+    {
+        LL_INFOS() << "Reading from " << filename << LL_ENDL;
+
+        if (!payload)
+        {
+            LL_INFOS() << "Payload is empty" << LL_ENDL;
+        }
+        else
+        {
+            const std::string payload_str((char*)payload->data(), payload->size());
+            LL_INFOS() << "Payload size is " << payload->size() << " and contains " << payload_str << LL_ENDL;
+        }
+    });
+
+    const std::string filename = "read_async.payload";
+
+    const unsigned long pos = 0;
+    const unsigned long bytes = 0; // read whole file
+
+    llThreadSafeWorkerPool::instance().addReadRequest(filename, LLAssetType::AT_UNKNOWN, pos, bytes, cb);
+}
+
+void simulate_cache_asynchronous_write_access(void*)
+{
+    LL_INFOS() << "Simulating cache asynchronous WRITE..." << LL_ENDL;
+
+    llThreadSafeWorkerPool::request_callback_t cb([](llThreadSafeWorkerPool::request_payload_t, std::string filename, bool result)
+    {
+        LL_INFOS() << "Reading from " << filename << LL_ENDL;
+
+        if (result)
+        {
+            LL_INFOS() << "File written successfully" << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "Unable to write file" << LL_ENDL;
+        }
+    });
+
+    const std::string filename = "write_async.payload";
+    const U32 filesize = 24;
+    llThreadSafeWorkerPool::request_payload_t file_contents = std::make_shared<std::vector<U8>>(filesize);
+    memset(file_contents->data(), 'Z', file_contents->size());
+
+    const bool append = false;
+    llThreadSafeWorkerPool::instance().addWriteRequest(filename, LLAssetType::AT_UNKNOWN, file_contents, cb, append);
+}
 
 bool enable_standup_self()
 {
@@ -9108,6 +9186,8 @@ void initialize_menus()
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
 	view_listener_t::addMenu(new LLAdvancedDumpRegionObjectCache(), "Advanced.DumpRegionObjectCache");
+    view_listener_t::addMenu(new LLSimulateCacheAsynchronousReadAccess(), "Advanced.SimulateCacheAsynchronousReadAccess");
+    view_listener_t::addMenu(new LLSimulateCacheAsynchronousWriteAccess(), "Advanced.SimulateCacheAsynchronousWriteAccess");
 
 	// Advanced > UI
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
