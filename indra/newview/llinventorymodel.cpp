@@ -1659,9 +1659,18 @@ void LLInventoryModel::notifyObservers()
 		iter = mObservers.upper_bound(observer); 
 	}
 
-	mModifyMask = LLInventoryObserver::NONE;
+	// If there were any changes that arrived during notifyObservers,
+	// shedule them for next loop
+	mModifyMask = mModifyMaskBacklog;
 	mChangedItemIDs.clear();
+	mChangedItemIDs.insert(mChangedItemIDsBacklog.begin(), mChangedItemIDsBacklog.end());
 	mAddedItemIDs.clear();
+	mAddedItemIDs.insert(mAddedItemIDsBacklog.begin(), mAddedItemIDsBacklog.end());
+
+	mModifyMaskBacklog = LLInventoryObserver::NONE;
+	mChangedItemIDsBacklog.clear();
+	mAddedItemIDsBacklog.clear();
+
 	mIsNotifyObservers = FALSE;
 }
 
@@ -1673,8 +1682,10 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	{
 		// Something marked an item for change within a call to notifyObservers
 		// (which is in the process of processing the list of items marked for change).
-		// This means the change may fail to be processed.
-		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers!  Change will likely be lost." << LL_ENDL;
+		// This means the change will have to be processed later.
+		// It's preferable for this not to happen, but it's not an issue unless code
+		// specifically wants to notifyObservers immediately (changes won't happen untill later)
+		LL_INFOS(LOG_INV) << "Adding changed mask within notify observers! Change's processing will be performed on idle." << LL_ENDL;
 		LLViewerInventoryItem *item = getItem(referent);
 		if (item)
 		{
@@ -1689,17 +1700,40 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 			}
 		}
 	}
-	
-	mModifyMask |= mask;
+
+    if (mIsNotifyObservers)
+    {
+        mModifyMaskBacklog |= mask;
+    }
+    else
+    {
+        mModifyMask |= mask;
+    }
+
 	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
-		mChangedItemIDs.insert(referent);
+        if (mIsNotifyObservers)
+        {
+            mChangedItemIDsBacklog.insert(referent);
+        }
+        else
+        {
+            mChangedItemIDs.insert(referent);
+        }
+
         update_marketplace_category(referent, false);
 
-		if (mask & LLInventoryObserver::ADD)
-		{
-			mAddedItemIDs.insert(referent);
-		}
+        if (mask & LLInventoryObserver::ADD)
+        {
+            if (mIsNotifyObservers)
+            {
+                mAddedItemIDsBacklog.insert(referent);
+            }
+            else
+            {
+                mAddedItemIDs.insert(referent);
+            }
+        }
 	
 		// Update all linked items.  Starting with just LABEL because I'm
 		// not sure what else might need to be accounted for this.
