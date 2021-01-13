@@ -73,7 +73,15 @@ uniform float ice_level;
 
 vec3 rainbow(float d)
 {
-    d         = clamp(d, -1.0, 0.0);
+    // d is the dot product of view and sun directions, so ranging -1.0..1.0
+    // 'interesting' values of d are the range -0.75..-0.825, when view is nearly opposite of sun vec
+    // Rainbox texture mode is GL_REPEAT, so tc of -.75 is equiv to 0.25, -0.825 equiv to 0.175.
+
+    // SL-13629 Rainbow texture has colors within the correct .175...250 range, but order is inverted.
+    // Rather than replace the texture, we mirror and translate the y tc to keep the colors within the
+    // interesting range, but in reversed order:  i.e. d = (1 - d) - 1.575
+    d = clamp(-0.575 - d, 0.0, 1.0);
+
     float rad = (droplet_radius - 5.0f) / 1024.0f;
     return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
 }
