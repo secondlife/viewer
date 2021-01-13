@@ -395,7 +395,7 @@ bool LLSettingsBase::validate()
 
 LLSD LLSettingsBase::settingValidation(LLSD &settings, validation_list_t &validations, bool partial)
 {
-    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, 63));
+    static Validator  validateName(SETTING_NAME, false, LLSD::TypeString, boost::bind(&Validator::verifyStringLength, _1, _2, 63));
     static Validator  validateId(SETTING_ID, false, LLSD::TypeUUID);
     static Validator  validateHash(SETTING_HASH, false, LLSD::TypeInteger);
     static Validator  validateType(SETTING_TYPE, false, LLSD::TypeString);
@@ -534,7 +534,7 @@ bool LLSettingsBase::Validator::verify(LLSD &data, U32 flags)
         return false;
     }
 
-    if (!mVerify.empty() && !mVerify(data[mName]))
+    if (!mVerify.empty() && !mVerify(data[mName], flags))
     {
         LL_WARNS("SETTINGS") << "Setting '" << mName << "' fails validation." << LL_ENDL;
         return false;
@@ -543,17 +543,17 @@ bool LLSettingsBase::Validator::verify(LLSD &data, U32 flags)
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyColor(LLSD &value)
+bool LLSettingsBase::Validator::verifyColor(LLSD &value, U32)
 {
     return (value.size() == 3 || value.size() == 4);
 }
 
-bool LLSettingsBase::Validator::verifyVector(LLSD &value, S32 length)
+bool LLSettingsBase::Validator::verifyVector(LLSD &value, U32, S32 length)
 {
     return (value.size() == length);
 }
 
-bool LLSettingsBase::Validator::verifyVectorNormalized(LLSD &value, S32 length)
+bool LLSettingsBase::Validator::verifyVectorNormalized(LLSD &value, U32, S32 length)
 {
     if (value.size() != length)
         return false;
@@ -596,7 +596,7 @@ bool LLSettingsBase::Validator::verifyVectorNormalized(LLSD &value, S32 length)
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyVectorMinMax(LLSD &value, LLSD minvals, LLSD maxvals)
+bool LLSettingsBase::Validator::verifyVectorMinMax(LLSD &value, U32, LLSD minvals, LLSD maxvals)
 {
     for (S32 index = 0; index < value.size(); ++index)
     {
@@ -619,12 +619,12 @@ bool LLSettingsBase::Validator::verifyVectorMinMax(LLSD &value, LLSD minvals, LL
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyQuaternion(LLSD &value)
+bool LLSettingsBase::Validator::verifyQuaternion(LLSD &value, U32)
 {
     return (value.size() == 4);
 }
 
-bool LLSettingsBase::Validator::verifyQuaternionNormal(LLSD &value)
+bool LLSettingsBase::Validator::verifyQuaternionNormal(LLSD &value, U32)
 {
     if (value.size() != 4)
         return false;
@@ -642,7 +642,7 @@ bool LLSettingsBase::Validator::verifyQuaternionNormal(LLSD &value)
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyFloatRange(LLSD &value, LLSD range)
+bool LLSettingsBase::Validator::verifyFloatRange(LLSD &value, U32, LLSD range)
 {
     F64 real = value.asReal();
 
@@ -655,7 +655,7 @@ bool LLSettingsBase::Validator::verifyFloatRange(LLSD &value, LLSD range)
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
+bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, U32, LLSD range)
 {
     S32 ival = value.asInteger();
 
@@ -668,7 +668,7 @@ bool LLSettingsBase::Validator::verifyIntegerRange(LLSD &value, LLSD range)
     return true;
 }
 
-bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, S32 length)
+bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, U32, S32 length)
 {
     std::string sval = value.asString();
 

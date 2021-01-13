@@ -460,7 +460,7 @@ void LLSettingsDay::blend(const LLSettingsBase::ptr_t &other, F64 mix)
 
 namespace
 {
-    bool validateDayCycleTrack(LLSD &value)
+    bool validateDayCycleTrack(LLSD &value, U32 flags)
     {
         // Trim extra tracks.
         while (value.size() > LLSettingsDay::TRACK_MAX)
@@ -531,7 +531,7 @@ namespace
         return true;
     }
 
-    bool validateDayCycleFrames(LLSD &value)
+    bool validateDayCycleFrames(LLSD &value, U32 flags)
     {
         bool hasSky(false);
         bool hasWater(false);
@@ -544,7 +544,7 @@ namespace
             if (ftype == "sky")
             {
                 LLSettingsSky::validation_list_t valid_sky = LLSettingsSky::validationList();
-                LLSD res_sky = LLSettingsBase::settingValidation(frame, valid_sky);
+                LLSD res_sky = LLSettingsBase::settingValidation(frame, valid_sky, flags);
                 
                 if (res_sky["success"].asInteger() == 0)
                 {
@@ -557,7 +557,7 @@ namespace
             else if (ftype == "water")
             {
                 LLSettingsWater::validation_list_t valid_h2o = LLSettingsWater::validationList();
-                LLSD res_h2o = LLSettingsBase::settingValidation(frame, valid_h2o);
+                LLSD res_h2o = LLSettingsBase::settingValidation(frame, valid_h2o, flags);
                 if (res_h2o["success"].asInteger() == 0)
                 {
                     LL_WARNS("SETTINGS") << "Water setting named '" << (*itf).first << "' validation failed!: " << res_h2o << LL_ENDL;
@@ -573,18 +573,20 @@ namespace
             }
         }
 
-        if (!hasSky)
+        if ((flags & LLSettingsBase::Validator::VALIDATION_PARTIAL) == 0)
         {
-            LL_WARNS("SETTINGS") << "No skies defined." << LL_ENDL;
-            return false;
-        }
+            if (!hasSky)
+            {
+                LL_WARNS("SETTINGS") << "No skies defined." << LL_ENDL;
+                return false;
+            }
 
-        if (!hasWater)
-        {
-            LL_WARNS("SETTINGS") << "No waters defined." << LL_ENDL;
-            return false;
+            if (!hasWater)
+            {
+                LL_WARNS("SETTINGS") << "No waters defined." << LL_ENDL;
+                return false;
+            }
         }
-
         return true;
     }
 }
