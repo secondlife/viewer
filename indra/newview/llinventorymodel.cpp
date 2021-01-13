@@ -2660,6 +2660,8 @@ void LLInventoryModel::createCommonSystemCategories()
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
     gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS, true);
 }
 
