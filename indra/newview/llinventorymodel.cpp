@@ -1685,7 +1685,7 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 		// This means the change will have to be processed later.
 		// It's preferable for this not to happen, but it's not an issue unless code
 		// specifically wants to notifyObservers immediately (changes won't happen untill later)
-		LL_INFOS(LOG_INV) << "Adding changed mask within notify observers! Change's processing will be performed on idle." << LL_ENDL;
+		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers! Change's processing will be performed on idle." << LL_ENDL;
 		LLViewerInventoryItem *item = getItem(referent);
 		if (item)
 		{
