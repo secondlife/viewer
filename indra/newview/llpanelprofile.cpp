@@ -63,6 +63,7 @@
 #include "llpanelprofilepicks.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
+#include "llviewermenu.h" //is_agent_mappable
 #include "llvoiceclient.h"
 #include "llweb.h"
 

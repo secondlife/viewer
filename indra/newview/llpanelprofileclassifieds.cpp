@@ -37,6 +37,7 @@
 #include "llcorehttputil.h"
 #include "lldispatcher.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "lliconctrl.h"
 #include "lllineeditor.h"
@@ -70,13 +71,16 @@ LLPanelProfileClassified::panel_list_t LLPanelProfileClassified::sAllPanels;
 static LLPanelInjector<LLPanelProfileClassifieds> t_panel_profile_classifieds("panel_profile_classifieds");
 static LLPanelInjector<LLPanelProfileClassified> t_panel_profile_classified("panel_profile_classified");
 
-class LLClassifiedHandler : public LLCommandHandler
+class LLClassifiedHandler : public LLCommandHandler, public LLAvatarPropertiesObserver
 {
 public:
     // throttle calls from untrusted browsers
     LLClassifiedHandler() : LLCommandHandler("classified", UNTRUSTED_THROTTLE) {}
-
-    bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	
+	std::set<LLUUID> mClassifiedIds;
+	std::string mRequestVerb;
+    
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
     {
         if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableClassifieds"))
         {
@@ -109,7 +113,10 @@ public:
         const std::string verb = params[1].asString();
         if (verb == "about")
         {
-            LLAvatarActions::showClassified(gAgent.getID(), classified_id, false);
+            mRequestVerb = verb;
+            mClassifiedIds.insert(classified_id);
+            LLAvatarPropertiesProcessor::getInstance()->addObserver(LLUUID(), this);
+            LLAvatarPropertiesProcessor::getInstance()->sendClassifiedInfoRequest(classified_id);
             return true;
         }
         else if (verb == "edit")
@@ -119,6 +126,53 @@ public:
         }
 
         return false;
+    }
+
+    void openClassified(LLAvatarClassifiedInfo* c_info)
+    {
+        if (mRequestVerb == "about")
+        {
+            if (c_info->creator_id == gAgent.getID())
+            {
+                LLAvatarActions::showClassified(gAgent.getID(), c_info->classified_id, false);
+            }
+            else
+            {
+                LLSD params;
+                params["id"] = c_info->creator_id;
+                params["open_tab_name"] = "panel_picks";
+                params["show_tab_panel"] = "classified_details";
+                params["classified_id"] = c_info->classified_id;
+                params["classified_creator_id"] = c_info->creator_id;
+                params["classified_snapshot_id"] = c_info->snapshot_id;
+                params["classified_name"] = c_info->name;
+                params["classified_desc"] = c_info->description;
+                params["from_search"] = true;
+                LLFloaterSidePanelContainer::showPanel("picks", params);
+            }
+        }
+    }
+
+    void processProperties(void* data, EAvatarProcessorType type)
+    {
+        if (APT_CLASSIFIED_INFO != type)
+        {
+            return;
+        }
+
+        // is this the classified that we asked for?
+        LLAvatarClassifiedInfo* c_info = static_cast<LLAvatarClassifiedInfo*>(data);
+        if (!c_info || mClassifiedIds.find(c_info->classified_id) == mClassifiedIds.end())
+        {
+            return;
+        }
+
+        // open the detail side tray for this classified
+        openClassified(c_info);
+
+        // remove our observer now that we're done
+        mClassifiedIds.erase(c_info->classified_id);
+        LLAvatarPropertiesProcessor::getInstance()->removeObserver(LLUUID(), this);
     }
 };
 LLClassifiedHandler gClassifiedHandler;
