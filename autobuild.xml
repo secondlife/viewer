@@ -3128,9 +3128,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d463360491b6b5cb7a57cd67a90ececb</string>
+              <string>e9c36803b32f1750490e159b58cc217c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54838/510050/uriparser-0.8.0.1-darwin64-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75707/723304/uriparser-0.9.4-darwin64-555093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3164,9 +3164,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57a88be57694de6cf9f516125af2c4c9</string>
+              <string>aa90a3cf93cc7675bb8177b218de743e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54963/511746/uriparser-0.8.0.1-windows-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75708/723315/uriparser-0.9.4-windows-555093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3176,16 +3176,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f39cc91f2a5dad13790ec18269844ae4</string>
+              <string>223077dd896ae94f212db3a163b7442d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54962/511739/uriparser-0.8.0.1-windows64-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75709/723316/uriparser-0.9.4-windows64-555093.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.8.0.1</string>
+        <string>0.9.4</string>
       </map>
       <key>viewer-manager</key>
       <map>

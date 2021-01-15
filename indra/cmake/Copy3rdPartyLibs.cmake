@@ -61,6 +61,7 @@ if(WINDOWS)
         nghttp2.dll
         glod.dll
         libhunspell.dll
+        uriparser.dll
         )
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
@@ -165,6 +166,7 @@ elseif(DARWIN)
         libnghttp2.dylib
         libnghttp2.14.dylib
         libnghttp2.14.19.0.dylib
+        liburiparser.dylib
        )
 
     if (FMODSTUDIO)
