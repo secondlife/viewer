@@ -1036,7 +1036,7 @@ class DarwinManifest(ViewerManifest):
                                 # libnghttp2.major.dylib, which is a symlink to
                                 # libnghttp2.version.dylib. Get all of them.
                                 "libnghttp2.*dylib",
-                                "liburiparser.dylib",
+                                "liburiparser.*dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
