@@ -163,26 +163,37 @@ S32 LLUriParser::normalize()
 	mNormalizedTmp = mTmpScheme;
 	if (!mRes)
 	{
-		mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
+        // Uriparser is 3p software we can not directly fix.
+        // On winodws this probably requires SEH handling, but all
+        // crashes so far were on MAC in scope of uriNormalizeSyntaxExA.
+        try
+        {
+            mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
 
-		if (!mRes)
-		{
-			S32 chars_required;
-			mRes = uriToStringCharsRequiredA(&mUri, &chars_required);
+            if (!mRes)
+            {
+                S32 chars_required;
+                mRes = uriToStringCharsRequiredA(&mUri, &chars_required);
 
-			if (!mRes)
-			{
-				chars_required++;
-				std::vector<char> label_buf(chars_required);
-				mRes = uriToStringA(&label_buf[0], &mUri, chars_required, NULL);
+                if (!mRes)
+                {
+                    chars_required++;
+                    std::vector<char> label_buf(chars_required);
+                    mRes = uriToStringA(&label_buf[0], &mUri, chars_required, NULL);
 
-				if (!mRes)
-				{
-					mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
-					mTmpScheme = false;
-				}
-			}
-		}
+                    if (!mRes)
+                    {
+                        mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
+                        mTmpScheme = false;
+                    }
+                }
+            }
+        }
+        catch (...)
+        {
+            // At this point mNormalizedUri should contain http+unmodified input string.
+            LL_WARNS() << "Uriparser crashed processing: " << mNormalizedUri << LL_ENDL;
+        }
 	}
 
 	if(mTmpScheme)
