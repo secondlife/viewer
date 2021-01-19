@@ -43,7 +43,8 @@ def read_input(infilename):
 def cleanup_data(df, discard_start):
     # drop non-timer columns
     non_timers = [col for col in df.columns if "Times" not in col]
-    df.drop(labels=non_timers,axis=1,inplace=True)
+    junk_timers = ["Total - Times", "root - Times"]
+    df.drop(labels=non_timers + junk_timers,axis=1,inplace=True)
     tkey = "Frame - Times"
     ekey = "elapsed"
     df[ekey] = df[tkey].cumsum();
@@ -53,6 +54,9 @@ def cleanup_data(df, discard_start):
         df = df[df[ekey] > discard_start]
     else:
         print "total_elapsed", total_elapsed, "is less than cutoff value", discard_start, "not pruned"
+    # convert all times to ms
+    for col in df.columns:
+        df[col] *= 1000
     return df
 
 def make_histo(df, cols, val_range, image_name):
@@ -70,14 +74,21 @@ def make_histo(df, cols, val_range, image_name):
 def make_parallel_histo(dfs, df_names, cols, val_range, image_name):
     tkey = "Frame - Times"
     num_plots = len(cols) * len(dfs)
+    num_subplots_per = len(dfs)
     fig = plt.figure(figsize=(6, 2*num_plots))
-    fig.subplots_adjust(hspace=0.5)
+    fig.subplots_adjust(hspace=1.0)
     for i, col in enumerate(cols):
         for j, df in enumerate(dfs):
             print i, j, col, df[col].mean()
-            ax = fig.add_subplot(num_plots,1,3*i+j+1)
+            mean_time = df[col].mean()
+            std_time = df[col].std()
+            ax = fig.add_subplot(num_plots,1,num_subplots_per*i+j+1)
             ax.hist(df[col],100,range=val_range,density=True)
             ax.set_title(col + "(" + df_names[j] + ")")
+            ax.set_xlabel('time (ms)')
+            ax.set_ylabel('freq')
+            ax.axvline(mean_time,label="mean",color="red")
+            #ax.axvspan(mean_time - std_time, mean_time + std_time, 0.3, 0.7, color="red", fill=False)
     fig.savefig(image_name)
     
 def analyze_timers(df):
@@ -96,6 +107,7 @@ def analyze_timers(df):
     print "\nTop timers for fast frames:"
     print df_fast.mean().sort_values(ascending=False)[0:30]
     df_slow = df[df[tkey]>=slow_frame]
+    df_very_slow = df[df[tkey]>=very_slow_frame]
     print "\nTop timers for slow frames:"
     print df_slow.mean().sort_values(ascending=False)[0:30]
 
@@ -115,21 +127,22 @@ def analyze_timers(df):
     start = rows.index("Frame - Times")
     df_diff_cols = rows[start:start+10]
     print "df_diff_cols", df_diff_cols
-    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], df_diff_cols, [0,very_slow_frame], "df_high_diff_timers_histo.jpg") 
+    speed_bucket_labels = ["fastest 5%", "all", "slowest 5%", "slowest 1%"] 
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_diff_cols, [0,very_slow_frame], "df_high_diff_timers_histo.jpg") 
 
     slow_cols = list(df_slow.mean().sort_values(ascending=False)[0:20].index.values)
     start = slow_cols.index("Frame - Times")
     print "slow_cols", slow_cols
-    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], slow_cols[start:start+10], [0,very_slow_frame], "df_slow_frames_histo.jpg") 
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, slow_cols[start:start+10], [0,very_slow_frame], "df_slow_frames_histo.jpg") 
     #make_histo(df_slow, df_diff_cols, [0,slow_frame], "df_slow_histo.jpg") 
 
     df_sleep_cols = ["Frame - Times"]
     df_sleep_cols.extend([col for col in list(df.columns) if "Sleep" in col])
     start = df_sleep_cols.index("Frame - Times")
-    make_parallel_histo([df_fast,df,df_slow], ["FAST", "ALL", "SLOW"], df_sleep_cols, [0,slow_frame], "df_sleep_histo.jpg")
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_sleep_cols, [0,slow_frame], "df_sleep_histo.jpg")
 
     for col in df_diff_cols:
-        print "Stats: col", col, "count", len(df[col].values), "mean", df[col].mean(), \
+        print "Stats: col", col, "count", len(df[col].values), "mean", df[col].mean(), "std", df[col].std(), \
             "5%", df[col].quantile(0.05), "median", df[col].quantile(0.5), "95%", df[col].quantile(0.95),"99.9%",df[col].quantile(0.999) 
 
 parser = argparse.ArgumentParser(description="analyze viewer performance files")
