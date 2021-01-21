@@ -131,7 +131,7 @@ void setupInputWindow(NSWindowRef window, GLViewRef view);
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
 bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask);
-bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask);
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character);
 void callResetKeys();
 bool callUnicodeCallback(wchar_t character, unsigned int mask);
 void callRightMouseDown(float *pos, unsigned int mask);
