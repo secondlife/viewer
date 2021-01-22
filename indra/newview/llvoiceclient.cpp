@@ -181,6 +181,12 @@ void LLVoiceClient::terminate()
 	if (mVoiceModule) mVoiceModule->terminate();
 	mVoiceModule = NULL;
     m_servicePump = NULL;
+
+    // Shutdown speaker volume storage before LLSingletonBase::deleteAll() does it
+    if (LLSpeakerVolumeStorage::instanceExists())
+    {
+        LLSpeakerVolumeStorage::deleteSingleton();
+    }
 }
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()
