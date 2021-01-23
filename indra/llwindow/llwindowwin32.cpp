@@ -1476,6 +1476,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 
 		S32   swap_method = 0;
 		S32   cur_format  = 0;
+const	S32   max_format  = (S32)num_formats - 1;
 		GLint swap_query  = WGL_SWAP_METHOD_ARB;
 
 		// SL-14705 Fix name tags showing in front of objects with AMD GPUs.
@@ -1488,7 +1489,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 			{
 				break;
 			}
-			else if (cur_format >= (S32)(num_formats - 1))
+			else if (cur_format >= max_format)
 			{
 				cur_format = 0;
 				break;
