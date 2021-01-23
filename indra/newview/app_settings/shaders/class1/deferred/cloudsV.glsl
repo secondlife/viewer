@@ -166,6 +166,7 @@ void main()
         (blue_horizon * blue_weight * (sunlight + tmpAmbient) + (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient));
 
 	// CLOUDS
+    sunlight = sunlight_color;  // SL-14707 reset color -- Clouds are unusually dim in EEP
     off_axis = 1.0 / max(1e-6, lightnorm.y * 2.);
     sunlight *= exp(-light_atten * off_axis);
 
