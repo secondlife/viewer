@@ -56,16 +56,21 @@ class LLMessageSystem;
 class LLInventoryCollectFunctor;
 
 ///----------------------------------------------------------------------------
-/// LLInventoryValidationInfo
+/// LLInventoryValidationInfo 
 ///----------------------------------------------------------------------------
 class LLInventoryValidationInfo: public LLRefCount
 {
 public:
 	LLInventoryValidationInfo();
 	void toOstream(std::ostream& os) const;
+	void asLLSD(LLSD& sd) const;
+	
 
 	S32 mFatalErrorCount;
 	S32 mWarningCount;
+	bool mInitialized;
+	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
+	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
 };
 std::ostream& operator<<(std::ostream& s, const LLInventoryValidationInfo& v);
 
@@ -671,6 +676,7 @@ private:
 public:
 	void dumpInventory() const;
 	LLPointer<LLInventoryValidationInfo> validate() const;
+	LLPointer<LLInventoryValidationInfo> mValidationInfo;
 	std::string getFullPath(const LLInventoryObject *obj) const;
 
 /**                    Miscellaneous

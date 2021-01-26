@@ -62,6 +62,7 @@
 #include "llsdserialize.h"
 #include "llcorehttputil.h"
 #include "llvoicevivox.h"
+#include "llinventorymodel.h"
 
 namespace LLStatViewer
 {
@@ -572,6 +573,11 @@ void send_stats()
 	fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
 	fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
 	fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
+
+	LLSD &inventory = body["inventory"];
+	inventory["usable"] = gInventory.isInventoryUsable();
+	LLSD& validation_info = inventory["validation_info"];
+	gInventory.mValidationInfo->asLLSD(validation_info);
 
 	body["stats"]["voice"] = LLVoiceVivoxStats::getInstance()->read();
 

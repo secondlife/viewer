@@ -27,6 +27,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include <typeinfo>
+#include <random>
 
 #include "llinventorymodel.h"
 
@@ -136,7 +137,8 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 ///----------------------------------------------------------------------------
 LLInventoryValidationInfo::LLInventoryValidationInfo():
 	mFatalErrorCount(0),
-	mWarningCount(0)
+	mWarningCount(0),
+	mInitialized(false)
 {
 }
 
@@ -145,12 +147,38 @@ void LLInventoryValidationInfo::toOstream(std::ostream& os) const
 	os << "mFatalErrorCount " << mFatalErrorCount << " mWarningCount " << mWarningCount;
 }
 
+
 std::ostream& operator<<(std::ostream& os, const LLInventoryValidationInfo& v)
 {
 	v.toOstream(os);
 	return os;
 }
 
+void LLInventoryValidationInfo::asLLSD(LLSD& sd) const
+{
+	sd["fatal_error_count"] = mFatalErrorCount;
+	sd["warning_count"] = mWarningCount;
+	sd["initialized"] = mInitialized;
+	sd["missing_system_folders_count"] = LLSD::Integer(mMissingRequiredSystemFolders.size());
+	if (mMissingRequiredSystemFolders.size()>0)
+	{
+		sd["missing_system_folders"] = LLSD::emptyArray();
+		for(auto ft: mMissingRequiredSystemFolders)
+		{
+			sd["missing_system_folders"].append(LLFolderType::lookup(ft)); 
+		}
+	}
+	sd["duplicate_system_folders_count"] = LLSD::Integer(mDuplicateRequiredSystemFolders.size());
+	if (mDuplicateRequiredSystemFolders.size()>0)
+	{
+		sd["duplicate_system_folders"] = LLSD::emptyArray();
+		for(auto ft: mDuplicateRequiredSystemFolders)
+		{
+			sd["duplicate_system_folders"].append(LLFolderType::lookup(ft));
+		}
+	}
+	
+}
 
 ///----------------------------------------------------------------------------
 /// Class LLInventoryModel
@@ -184,7 +212,8 @@ LLInventoryModel::LLInventoryModel()
 	mHttpPriorityFG(0),
 	mHttpPriorityBG(0),
 	mCategoryLock(),
-	mItemLock()
+	mItemLock(),
+	mValidationInfo(new LLInventoryValidationInfo)
 {}
 
 
@@ -2628,6 +2657,8 @@ void LLInventoryModel::buildParentChildMap()
 			{
 				mIsAgentInvUsable = true;
 			}
+			validation_info->mInitialized = true;
+			mValidationInfo = validation_info;
 
 			// notifyObservers() has been moved to
 			// llstartup/idle_startup() after this func completes.
@@ -4092,6 +4123,10 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	{
 		LL_DEBUGS("Inventory") << "Folder type " << fit->first << " count " << fit->second << " elsewhere" << LL_ENDL;
 	}
+
+	static LLCachedControl<bool> fake_system_folder_issues(gSavedSettings, "QAModeFakeSystemFolderIssues", false);
+	static std::default_random_engine e{};
+    static std::uniform_int_distribution<> distrib(0, 1);
 	for (S32 ft=LLFolderType::FT_TEXTURE; ft<LLFolderType::FT_COUNT; ft++)
 	{
 		LLFolderType::EType folder_type = static_cast<LLFolderType::EType>(ft);
@@ -4103,6 +4138,12 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		bool is_singleton = LLFolderType::lookupIsSingletonType(folder_type);
 		S32 count_under_root = ft_counts_under_root[folder_type];
 		S32 count_elsewhere = ft_counts_elsewhere[folder_type];
+		if (fake_system_folder_issues)
+		{
+			// Force all counts to be either 0 or 2, thus flagged as an error.
+			count_under_root = 2*distrib(e); 
+			count_elsewhere = 2*distrib(e);
+		}
 		if (is_singleton)
 		{
 			if (count_under_root==0)
@@ -4113,6 +4154,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				{
 					LL_WARNS("Inventory") << "Fatal inventory corruption: cannot create system folder of type " << ft << LL_ENDL;
 					fatalities++;
+					validation_info->mMissingRequiredSystemFolders.insert(LLFolderType::EType(ft));
 				}
 				else
 				{
@@ -4123,6 +4165,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			else if (count_under_root > 1)
 			{
 				LL_WARNS("Inventory") << "Fatal inventory corruption: system folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
+				validation_info->mDuplicateRequiredSystemFolders.insert(LLFolderType::EType(ft));
 				fatalities++;
 			}
 			if (count_elsewhere > 0)
