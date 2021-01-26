@@ -15,22 +15,22 @@
    top="6"
    left="10"
    height="23"
-   width="140"
+   width="232"
    name="key_mode">
     <combo_box.item
-     label="Third Person "
+     label="When in third person"
      name="third_person"
      value="1"/>
     <combo_box.item
-     label="First Person (Mouselook)"
+     label="When in first person mode (Mouselook)"
      name="first_person"
      value="0"/>
     <combo_box.item
-     label="Edit Avatar"
+     label="When editing avatar"
      name="edit_avatar"
      value="2"/>
     <combo_box.item
-     label="Sitting"
+     label="When sitting"
      name="sitting"
      value="3"/>
   </combo_box>
