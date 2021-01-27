@@ -622,8 +622,7 @@
           <menu_item_separator />
           <menu_item_check
              label="Advanced Menu"
-             name="Show Advanced Menu"
-             shortcut="control|alt|shift|D">
+             name="Show Advanced Menu">
             <on_check
                function="CheckControl"
                parameter="UseDebugMenus" />
@@ -2001,20 +2000,6 @@ function="World.EnvPreset"
          name="Shortcuts"
          tear_off="true"
          visible="false">
-            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
-            <menu_item_check
-               label="Show Advanced Menu - legacy shortcut"
-               name="Show Advanced Menu - legacy shortcut"
-               shortcut="control|alt|D">
-              <on_check
-                 function="CheckControl"
-                 parameter="UseDebugMenus" />
-              <on_click
-                 function="ToggleControl"
-                 parameter="UseDebugMenus" />
-            </menu_item_check>
-
-            <menu_item_separator/>
 
             <menu_item_call
              label="Close Window"
