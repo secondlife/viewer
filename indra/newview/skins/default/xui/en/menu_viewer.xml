@@ -3625,7 +3625,7 @@ function="World.EnvPreset"
             <menu_item_call
              label="Debug Avatar Textures"
              name="Debug Avatar Textures"
-             shortcut="control|alt|shift|A">
+             shortcut="control|alt|shift|K">
                 <menu_item_call.on_click
                  function="Advanced.DebugAvatarTextures" />
             </menu_item_call>
