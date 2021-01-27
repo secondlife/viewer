@@ -1678,7 +1678,11 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		if (!isSecondInstance())
+		{
+			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		}
+		LLSceneMonitor::deleteSingleton();
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block

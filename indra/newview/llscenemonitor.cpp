@@ -531,157 +531,163 @@ void LLSceneMonitor::dumpToFile(std::string file_name)
 	if (!hasResults()) return;
 
 	LL_INFOS("SceneMonitor") << "Saving scene load stats to " << file_name << LL_ENDL; 
-
-	llofstream os(file_name.c_str());
-
-	os << std::setprecision(10);
-
-	PeriodicRecording& scene_load_recording = mSceneLoadRecording.getResults();
-	const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
-
-	F64Seconds frame_time;
-
-	os << "Stat";
-	for (S32 frame = 1; frame <= frame_count; frame++)
+	try
 	{
-		frame_time += scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
-		os << ", " << frame_time.value();
-	}
-	os << '\n';
+		llofstream os(file_name.c_str());
 
-	os << "Sample period(s)";
-	for (S32 frame = 1; frame <= frame_count; frame++)
-	{
-		frame_time = scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
-		os << ", " << frame_time.value();
-	}
-	os << '\n';
+		os << std::setprecision(10);
 
+		PeriodicRecording& scene_load_recording = mSceneLoadRecording.getResults();
+		const U32 frame_count = scene_load_recording.getNumRecordedPeriods();
 
-	typedef StatType<CountAccumulator> trace_count;
-	for (auto& it : trace_count::instance_snapshot())
-	{
-		std::ostringstream row;
-		row << std::setprecision(10);
+		F64Seconds frame_time;
 
-		row << it.getName();
-
-		const char* unit_label = it.getUnitLabel();
-		if(unit_label[0])
-		{
-			row << "(" << unit_label << ")";
-		}
-
-		S32 samples = 0;
-
+		os << "Stat";
 		for (S32 frame = 1; frame <= frame_count; frame++)
 		{
-			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
-			samples += recording.getSampleCount(it);
-			row << ", " << recording.getSum(it);
+			frame_time += scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
+			os << ", " << frame_time.value();
 		}
-
-		row << '\n';
-
-		if (samples > 0)
-		{
-			os << row.str();
-		}
-	}
-
-	typedef StatType<EventAccumulator> trace_event;
-
-	for (auto& it : trace_event::instance_snapshot())
-	{
-		std::ostringstream row;
-		row << std::setprecision(10);
-		row << it.getName();
-
-		const char* unit_label = it.getUnitLabel();
-		if(unit_label[0])
-		{
-			row << "(" << unit_label << ")";
-		}
-
-		S32 samples = 0;
-
-		for (S32 frame = 1; frame <= frame_count; frame++)
-		{
-			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
-			samples += recording.getSampleCount(it);
-			F64 mean = recording.getMean(it);
-			if (llisnan(mean))
-			{
-				row << ", n/a";
-			}
-			else
-			{
-				row << ", " << mean;
-			}
-		}
-
-		row << '\n';
-
-		if (samples > 0)
-		{
-			os << row.str();
-		}
-	}
-
-	typedef StatType<SampleAccumulator> trace_sample;
-
-	for (auto& it : trace_sample::instance_snapshot())
-	{
-		std::ostringstream row;
-		row << std::setprecision(10);
-		row << it.getName();
-
-		const char* unit_label = it.getUnitLabel();
-		if(unit_label[0])
-		{
-			row << "(" << unit_label << ")";
-		}
-
-		S32 samples = 0;
-
-		for (S32 frame = 1; frame <= frame_count; frame++)
-		{
-			Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
-			samples += recording.getSampleCount(it);
-			F64 mean = recording.getMean(it);
-			if (llisnan(mean))
-			{
-				row << ", n/a";
-			}
-			else
-			{
-				row << ", " << mean;
-			}
-		}
-
-		row << '\n'; 
-
-		if (samples > 0)
-		{
-			os << row.str();
-		}
-	}
-
-	typedef StatType<MemAccumulator> trace_mem;
-	for (auto& it : trace_mem::instance_snapshot())
-	{
-		os << it.getName() << "(KiB)";
-
-		for (S32 frame = 1; frame <= frame_count; frame++)
-		{
-			os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(it).valueInUnits<LLUnits::Kilobytes>();
-		}
-
 		os << '\n';
-	}
 
-	os.flush();
-	os.close();
+		os << "Sample period(s)";
+		for (S32 frame = 1; frame <= frame_count; frame++)
+		{
+			frame_time = scene_load_recording.getPrevRecording(frame_count - frame).getDuration();
+			os << ", " << frame_time.value();
+		}
+		os << '\n';
+
+
+		typedef StatType<CountAccumulator> trace_count;
+		for (auto& it : trace_count::instance_snapshot())
+		{
+			std::ostringstream row;
+			row << std::setprecision(10);
+
+			row << it.getName();
+
+			const char* unit_label = it.getUnitLabel();
+			if (unit_label[0])
+			{
+				row << "(" << unit_label << ")";
+			}
+
+			S32 samples = 0;
+
+			for (S32 frame = 1; frame <= frame_count; frame++)
+			{
+				Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+				samples += recording.getSampleCount(it);
+				row << ", " << recording.getSum(it);
+			}
+
+			row << '\n';
+
+			if (samples > 0)
+			{
+				os << row.str();
+			}
+		}
+
+		typedef StatType<EventAccumulator> trace_event;
+
+		for (auto& it : trace_event::instance_snapshot())
+		{
+			std::ostringstream row;
+			row << std::setprecision(10);
+			row << it.getName();
+
+			const char* unit_label = it.getUnitLabel();
+			if (unit_label[0])
+			{
+				row << "(" << unit_label << ")";
+			}
+
+			S32 samples = 0;
+
+			for (S32 frame = 1; frame <= frame_count; frame++)
+			{
+				Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+				samples += recording.getSampleCount(it);
+				F64 mean = recording.getMean(it);
+				if (llisnan(mean))
+				{
+					row << ", n/a";
+				}
+				else
+				{
+					row << ", " << mean;
+				}
+			}
+
+			row << '\n';
+
+			if (samples > 0)
+			{
+				os << row.str();
+			}
+		}
+
+		typedef StatType<SampleAccumulator> trace_sample;
+
+		for (auto& it : trace_sample::instance_snapshot())
+		{
+			std::ostringstream row;
+			row << std::setprecision(10);
+			row << it.getName();
+
+			const char* unit_label = it.getUnitLabel();
+			if (unit_label[0])
+			{
+				row << "(" << unit_label << ")";
+			}
+
+			S32 samples = 0;
+
+			for (S32 frame = 1; frame <= frame_count; frame++)
+			{
+				Recording& recording = scene_load_recording.getPrevRecording(frame_count - frame);
+				samples += recording.getSampleCount(it);
+				F64 mean = recording.getMean(it);
+				if (llisnan(mean))
+				{
+					row << ", n/a";
+				}
+				else
+				{
+					row << ", " << mean;
+				}
+			}
+
+			row << '\n';
+
+			if (samples > 0)
+			{
+				os << row.str();
+			}
+		}
+
+		typedef StatType<MemAccumulator> trace_mem;
+		for (auto& it : trace_mem::instance_snapshot())
+		{
+			os << it.getName() << "(KiB)";
+
+			for (S32 frame = 1; frame <= frame_count; frame++)
+			{
+				os << ", " << scene_load_recording.getPrevRecording(frame_count - frame).getMax(it).valueInUnits<LLUnits::Kilobytes>();
+			}
+
+			os << '\n';
+		}
+
+		os.flush();
+		os.close();
+	}
+	catch (const std::ios_base::failure &e)
+	{
+		LL_WARNS() << "Unable to dump scene monitor results: " << e.what() << LL_ENDL;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------------
