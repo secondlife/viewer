@@ -35,6 +35,8 @@ buildscripts_shared_more_NAMEs="build_secrets build_variables"
 # should use a viewer_channel that begins with "Second Life"
 ################################################################
 viewer_channel = "Second Life Test"
+PreferredToolArchitecture = "x64"
+
 
 ################################################################
 # Special packaging parameters.
