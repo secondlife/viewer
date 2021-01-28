@@ -9091,7 +9091,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.03</real>
+    <real>0.1</real>
   </map>
   <key>RenderDebugPipeline</key>
     <map>
