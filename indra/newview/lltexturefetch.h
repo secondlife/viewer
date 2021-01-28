@@ -385,9 +385,9 @@ private:
 
 	// Cumulative stats on the states/requests issued by
 	// textures running through here.
-	U32 mTotalCacheReadCount;											// Mfq
-	U32 mTotalCacheWriteCount;											// Mfq
-	U32 mTotalResourceWaitCount;										// Mfq
+	LLAtomicU32 mTotalCacheReadCount;
+	LLAtomicU32 mTotalCacheWriteCount;
+	LLAtomicU32 mTotalResourceWaitCount;
 	
 public:
 	// A probabilistically-correct indicator that the current

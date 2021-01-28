@@ -33,10 +33,13 @@
 #include "lluuid.h"
 
 #include "llworkerthread.h"
+#include <boost/thread.hpp>
 
 class LLImageFormatted;
 class LLTextureCacheWorker;
 class LLImageRaw;
+
+typedef boost::shared_mutex shared_mutex;
 
 class LLTextureCache : public LLWorkerThread
 {
@@ -176,6 +179,7 @@ private:
 	U32 openAndReadEntries(std::vector<Entry>& entries);
 	void writeEntriesAndClose(const std::vector<Entry>& entries);
 	void readEntryFromHeaderImmediately(S32& idx, Entry& entry) ;
+	S32 readEntryFromHeaderImmediatelyShared(S32& idx, Entry& entry) ;
 	void writeEntryToHeaderImmediately(S32& idx, Entry& entry, bool write_header = false) ;
 	void removeEntry(S32 idx, Entry& entry, std::string& filename);
 	void removeCachedTexture(const LLUUID& id) ;
@@ -183,8 +187,6 @@ private:
 	S32 setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize);
 	void writeUpdatedEntries() ;
 	void updatedHeaderEntriesFile() ;
-	void lockHeaders() { mHeaderMutex.lock(); }
-	void unlockHeaders() { mHeaderMutex.unlock(); }
 	
 	void openFastCache(bool first_time = false);
 	void closeFastCache(bool forced = false);
@@ -193,11 +195,13 @@ private:
 private:
 	// Internal
 	LLMutex mWorkersMutex;
-	LLMutex mHeaderMutex;
 	LLMutex mListMutex;
 	LLMutex mFastCacheMutex;
 	LLAPRFile* mHeaderAPRFile;
 	LLVolatileAPRPool* mFastCachePoolp;
+
+	shared_mutex mHeaderMutex;
+	LLMutex mLRUMutex;
 
 	// mLocalAPRFilePoolp is not thread safe and is meant only for workers
 	// howhever mHeaderEntriesFileName is accessed not from workers' threads

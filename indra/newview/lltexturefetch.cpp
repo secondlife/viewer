@@ -3873,12 +3873,10 @@ int LLTextureFetch::getHttpWaitersCount()
 // Threads:  T*
 void LLTextureFetch::updateStateStats(U32 cache_read, U32 cache_write, U32 res_wait)
 {
-	LLMutexLock lock(&mQueueMutex);										// +Mfq
-
 	mTotalCacheReadCount += cache_read;
 	mTotalCacheWriteCount += cache_write;
 	mTotalResourceWaitCount += res_wait;
-}																		// -Mfq
+}
 
 
 // Threads:  T*
@@ -3887,11 +3885,10 @@ void LLTextureFetch::getStateStats(U32 * cache_read, U32 * cache_write, U32 * re
 	U32 ret1(0U), ret2(0U), ret3(0U);
 	
 	{
-		LLMutexLock lock(&mQueueMutex);									// +Mfq
 		ret1 = mTotalCacheReadCount;
 		ret2 = mTotalCacheWriteCount;
 		ret3 = mTotalResourceWaitCount;
-	}																	// -Mfq
+	}
 	
 	*cache_read = ret1;
 	*cache_write = ret2;
