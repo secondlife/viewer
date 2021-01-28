@@ -361,6 +361,8 @@ public:
 	 */
 	virtual void apply();
 
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+
 protected:
 	/**
 	 * Fills rights data for friends.
@@ -374,11 +376,17 @@ protected:
 	void enableCheckboxes(bool enable);
 
 	void applyRights();
+    void updateWarning();
 
     LLCheckBoxCtrl*     mOnlineStatus;
 	LLCheckBoxCtrl*     mMapRights;
 	LLCheckBoxCtrl*     mEditObjectRights;
 	LLTextEditor*       mNotesEditor;
+    LLTextBox*          mCharacterLimitWarning;
+
+    std::string			mURLWebProfile;
+
+    boost::signals2::connection	mAvatarNameCacheConnection;
 };
 
 

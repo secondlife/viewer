@@ -9,6 +9,14 @@
  follows="all"
  layout="topleft"
 >
+    <!--these strings will be combined into one with different styles-->
+    <string name="header_symbol_limit">
+Warning: Your notes contain more than 1000 characters.
+    </string>
+    <string name="body_symbol_limit">
+Only first 1000 characters are shown here. If you edit your notes and click OK, the extra characters will be lost. To preserve the extra characters, you must edit it [[PROFILE_URL] on the web]
+    </string>
+
     <loading_indicator
      name="progress_indicator"
      top="3"
@@ -36,16 +44,27 @@
      top_pad="4"
      left="6"
      right="-6"
-     height="335"
+     height="311"
      follows="all"
      layout="topleft"
      max_length="1000"
      word_wrap="true"
     />
     <text
+     layout="topleft"
+     follows="left|bottom|right"
+     top_pad="2"
+     left="6"
+     right="-6"
+     height ="28"
+     name="character_limit_warning"
+     word_wrap="true">
+      Placeholder: Your notes contain more than 1000 characters. Only first 1000 characters are shown here. If you edit your notes and click OK, the extra characters will be lost. To preserve the extra characters, you must edit it [https://my.secondlife.com/settings/profile on the web]
+    </text>
+    <text
      name="status_message2"
      value="Allow this avatar to:"
-     top_pad="8"
+     top_pad="11"
      left="6"
      right="-6"
      height="16"
@@ -57,6 +76,7 @@
      name="status_check"
      label="See when I am online"
      enabled="false"
+     top_pad="0"
      left="10"
      height="16"
      width="293"
