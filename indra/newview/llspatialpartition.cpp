@@ -2274,10 +2274,13 @@ void renderNormals(LLDrawable *drawablep)
         // one forward scale will be re-applied via the MVP in the vertex shader)
 
         LLVector3  scale_v3 = vol->getScale();
+        float      scale_len = scale_v3.length();
         LLVector4a obj_scale(scale_v3.mV[VX], scale_v3.mV[VY], scale_v3.mV[VZ]);
         obj_scale.normalize3();
 
-        float draw_length = gSavedSettings.getF32("RenderDebugNormalScale");
+        // Normals &tangent line segments get scaled along with the object. Divide by scale length
+        // to keep the as-viewed lengths (relatively) constant with the debug setting length
+        float draw_length = gSavedSettings.getF32("RenderDebugNormalScale") / scale_len;
 
         // Create inverse-scale vector for normals
         LLVector4a inv_scale(1.0 / scale_v3.mV[VX], 1.0 / scale_v3.mV[VY], 1.0 / scale_v3.mV[VZ]);
@@ -2303,12 +2306,7 @@ void renderNormals(LLDrawable *drawablep)
                 n.setMul(face.mNormals[j], 1.0);
                 n.mul(inv_scale);  // Pre-scale normal, so it's left with an inverse-transpose xform after MVP
                 n.normalize3fast();
-
-                // Since we send 2 vertices instead of a vertex and a vector, the drawn normal length ends up
-                // getting stretched along with the object. To minimize that effect (imperfectly), reduce its
-                // length by a dot factor with the dominant scale direction.
-                float mvp_scale_factor = 0.95 * abs(n.dot3(obj_scale).getF32());
-                n.mul((1.0 - mvp_scale_factor) * draw_length);
+                n.mul(draw_length);
                 p.setAdd(face.mPositions[j], n);
 
                 gGL.vertex3fv(face.mPositions[j].getF32ptr());
@@ -2328,12 +2326,7 @@ void renderNormals(LLDrawable *drawablep)
 
                     t.setMul(face.mTangents[j], 1.0f);
                     t.normalize3fast();
-
-                    // Since we send 2 vertices instead of a vertex and a vector, the drawn tangent length ends up
-                    // getting stretched along with the object. To minimize that effect (imperfectly), reduce its
-                    // length by a dot factor with the dominant scale direction.
-                    float mvp_scale_factor = 0.95 * abs(t.dot3(obj_scale).getF32());
-                    t.mul((1.0 - mvp_scale_factor) * draw_length);
+                    t.mul(draw_length);
                     p.setAdd(face.mPositions[j], t);
 
                     gGL.vertex3fv(face.mPositions[j].getF32ptr());
