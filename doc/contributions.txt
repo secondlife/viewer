@@ -1355,6 +1355,7 @@ Sovereign Engineer
     OPEN-343
 	SL-11625
 	SL-14705
+	SL-14706
 	SL-14707
 SpacedOut Frye
 	VWR-34
