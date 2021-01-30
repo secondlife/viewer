@@ -3690,7 +3690,8 @@ void LLInventoryModel::dumpInventory() const
 		const LLViewerInventoryItem* item = iit->second;
 		if(item)
 		{
-			LL_INFOS() << "  " << item->getUUID() << " "
+            std::string u = item->getAssetUUID().asString();
+			LL_INFOS() << "  " << "U: " << u << "  getUUID: " << item->getUUID() << " "
 					<< item->getName() << LL_ENDL;
 		}
 		else
