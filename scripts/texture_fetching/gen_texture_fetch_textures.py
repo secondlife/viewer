@@ -35,9 +35,9 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-num_textures = 100
-saturation = 80
-luminance = 80
+num_textures = 400
+saturation = 90
+luminance = 50
 
 # Overkill perhaps but use a decent font so we can resize it
 # vs the one built into PIL
@@ -84,6 +84,10 @@ def write_line(img, line, font_path, max_height, y, col, small_font=False):
 for t in range(num_textures):
     texture_width = randint(100, 800)
     texture_height = randint(100, 800)
+    
+    # override for now - looks better on a cube when width == height
+    texture_height = texture_width
+
     num_squares_x = randint(4, 24)
     num_squares_y = int(texture_height * num_squares_x / texture_width)
 
@@ -93,8 +97,8 @@ for t in range(num_textures):
     # use the same saturation and luminence - just change the hue of
     # each color. TODO: find a way to make the colors more complimentary
     # vs just both random - too often get very similar colors
-    color1 = "hsl(%d, %d%%, %d%%)" % (randint(0, 256), saturation, luminance)
-    color2 = "hsl(%d, %d%%, %d%%)" % (randint(0, 256), saturation, luminance)
+    color1 = "hsl(%d, %d%%, %d%%)" % (randint(0, 128), saturation, luminance)
+    color2 = "hsl(%d, %d%%, %d%%)" % (randint(128, 255), saturation, luminance)
 
     for y in range(num_squares_y):
         for x in range(num_squares_x):
@@ -113,12 +117,12 @@ for t in range(num_textures):
             )
 
     texture_num_str = format(t, '03')
-    line = "Texture # %s" % (texture_num_str)
+    line = "Random Texture # %s" % (texture_num_str)
     write_line(image, line, get_font_path(), texture_height / 2, texture_height * 1 / 4, 'black', False )
 
     line = "%d x %d" % (texture_width, texture_height)
     write_line(image, line, get_font_path(), texture_height / 2, texture_height * 3 / 4, 'black', True )
 
     # image.show()
-    filename = "tf_texture_%s.png" % (texture_num_str) 
+    filename = "generated_texture_%s.png" % (texture_num_str) 
     image.save(filename, "PNG")
