@@ -1481,4 +1481,43 @@ void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_de
     callObservers(experience_details[LLExperienceCache::EXPERIENCE_ID].asString(), name, LLStringUtil::null);
 }
 
+//
+// LLUrlEntryEmail Describes an IPv6 address
+//
+LLUrlEntryIPv6::LLUrlEntryIPv6()
+	: LLUrlEntryBase()
+{
+	mHostPath = "https?://\\[([a-f0-9:]+:+)+[a-f0-9]+]";
+	mPattern = boost::regex(mHostPath + "(:\\d{1,5})?(/\\S*)?",
+		boost::regex::perl | boost::regex::icase);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
 
+std::string LLUrlEntryIPv6::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	boost::regex regex = boost::regex(mHostPath, boost::regex::perl | boost::regex::icase);
+	boost::match_results<std::string::const_iterator> matches;
+
+	if (boost::regex_search(url, matches, regex))
+	{
+		return  url.substr(0, matches[0].length());
+	}
+	else
+	{
+		return url;
+	}
+}
+
+std::string LLUrlEntryIPv6::getQuery(const std::string &url) const
+{
+	boost::regex regex = boost::regex(mHostPath, boost::regex::perl | boost::regex::icase);
+	boost::match_results<std::string::const_iterator> matches;
+
+	return boost::regex_replace(url, regex, "");
+}
+
+std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
+{
+	return string;
+}
