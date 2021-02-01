@@ -45,6 +45,7 @@ bool font_desc_init_from_xml(LLXMLNodePtr node, LLFontDescriptor& desc);
 bool init_from_xml(LLFontRegistry* registry, LLXMLNodePtr node);
 
 const std::string MACOSX_FONT_PATH_LIBRARY = "/Library/Fonts/";
+const std::string MACOSX_FONT_SUPPLEMENTAL = "Supplemental/";
 
 LLFontDescriptor::LLFontDescriptor():
 	mStyle(0)
@@ -473,6 +474,8 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		font_paths.push_back(sys_path + *file_name_it);
 #if LL_DARWIN
 		font_paths.push_back(MACOSX_FONT_PATH_LIBRARY + *file_name_it);
+		font_paths.push_back(MACOSX_FONT_PATH_LIBRARY + MACOSX_FONT_SUPPLEMENTAL + *file_name_it);
+		font_paths.push_back(sys_path +  MACOSX_FONT_SUPPLEMENTAL + *file_name_it);
 #endif
 		
 		bool is_ft_collection = (std::find(ft_collection_list.begin(), ft_collection_list.end(), *file_name_it) != ft_collection_list.end());
