@@ -1957,7 +1957,7 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 }
 
 // Moved from LLWearableList::ContextMenu for wider utility.
-bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids)
+bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids) const
 {
 	// TODO: investigate wearables may not be loaded at this point EXT-8231
 
@@ -1967,7 +1967,7 @@ bool LLAppearanceMgr::canAddWearables(const uuid_vec_t& item_ids)
 	// Count given clothes (by wearable type) and objects.
 	for (uuid_vec_t::const_iterator it = item_ids.begin(); it != item_ids.end(); ++it)
 	{
-		LLViewerInventoryItem* item = gInventory.getItem(*it);
+		const LLViewerInventoryItem* item = gInventory.getItem(*it);
 		if (!item)
 		{
 			return false;

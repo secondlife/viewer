@@ -312,10 +312,14 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 	}
 }
 
-void LLOutputMonitorCtrl::onChange()
+void LLOutputMonitorCtrl::onChangeDetailed(const LLMute& mute)
 {
-	// check only blocking on voice. EXT-3542
-	mIsMuted = LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat);
+    if (mute.mID == mSpeakerId)
+    {
+        // Check only blocking on voice.
+        // Logic goes in reverse, if flag is set, action is allowed
+        mIsMuted = !(LLMute::flagVoiceChat & mute.mFlags);
+    }
 }
 
 // virtual

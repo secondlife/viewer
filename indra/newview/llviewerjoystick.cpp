@@ -36,9 +36,18 @@
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
 #include "llviewermenu.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+// Require DirectInput version 8
+#define DIRECTINPUT_VERSION 0x0800
+
+#include <dinput.h>
+#endif
 
 
 // ----------------------------------------------------------------------------
@@ -61,6 +70,7 @@ F32  LLViewerJoystick::sDelta[] = {0,0,0,0,0,0,0};
 // values in the [-3000, 3000] range.
 #define MAX_SPACENAVIGATOR_INPUT  3000.0f
 #define MAX_JOYSTICK_INPUT_VALUE  MAX_SPACENAVIGATOR_INPUT
+
 
 #if LIB_NDOF
 std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
@@ -99,6 +109,126 @@ std::ostream& operator<<(std::ostream& out, NDOF_Device* ptr)
 }
 #endif // LIB_NDOF
 
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+// this should reflect ndof and set axises, see ndofdev_win.cpp from ndof package
+BOOL CALLBACK EnumObjectsCallback(const DIDEVICEOBJECTINSTANCE* inst, VOID* user_data)
+{
+    if (inst->dwType & DIDFT_AXIS)
+    {
+        LPDIRECTINPUTDEVICE8 device = *((LPDIRECTINPUTDEVICE8 *)user_data);
+        DIPROPRANGE diprg;
+        diprg.diph.dwSize = sizeof(DIPROPRANGE);
+        diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+        diprg.diph.dwHow = DIPH_BYID;
+        diprg.diph.dwObj = inst->dwType; // specify the enumerated axis
+
+        // Set the range for the axis
+        diprg.lMin = (long)-MAX_JOYSTICK_INPUT_VALUE;
+        diprg.lMax = (long)+MAX_JOYSTICK_INPUT_VALUE;
+        HRESULT hr = device->SetProperty(DIPROP_RANGE, &diprg.diph);
+
+        if (FAILED(hr))
+        {
+            return DIENUM_STOP;
+        }
+    }
+
+    return DIENUM_CONTINUE;
+}
+
+BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVOID pvRef)
+{
+    // Note: If a single device can function as more than one DirectInput
+    // device type, it is enumerated as each device type that it supports.
+    // Capable of detecting devices like Oculus Rift
+    if (device_instance_ptr)
+    {
+        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+
+        LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
+
+        bool init_device = false;
+        if (guid.isBinary())
+        {
+            std::vector<U8> bin_bucket = guid.asBinary();
+            init_device = memcmp(&bin_bucket[0], &device_instance_ptr->guidInstance, sizeof(GUID)) == 0;
+        }
+        else
+        {
+            // It might be better to init space navigator here, but if system doesn't has one,
+            // ndof will pick a random device, it is simpler to pick first device now to have an id
+            init_device = true;
+        }
+
+        if (init_device)
+        {
+            LL_DEBUGS("Joystick") << "Found and attempting to use device: " << product_name << LL_ENDL;
+            LPDIRECTINPUT8       di8_interface = *((LPDIRECTINPUT8 *)gViewerWindow->getWindow()->getDirectInput8());
+            LPDIRECTINPUTDEVICE8 device = NULL;
+
+            HRESULT status = di8_interface->CreateDevice(
+                device_instance_ptr->guidInstance, // REFGUID rguid,
+                &device,                           // LPDIRECTINPUTDEVICE * lplpDirectInputDevice,
+                NULL                               // LPUNKNOWN pUnkOuter
+                );
+
+            if (status == DI_OK)
+            {
+                // prerequisite for aquire()
+                LL_DEBUGS("Joystick") << "Device created" << LL_ENDL;
+                status = device->SetDataFormat(&c_dfDIJoystick); // c_dfDIJoystick2
+            }
+
+            if (status == DI_OK)
+            {
+                // set properties
+                LL_DEBUGS("Joystick") << "Format set" << LL_ENDL;
+                status = device->EnumObjects(EnumObjectsCallback, &device, DIDFT_ALL);
+            }
+
+            if (status == DI_OK)
+            {
+                LL_DEBUGS("Joystick") << "Properties updated" << LL_ENDL;
+
+                S32 size = sizeof(GUID);
+                LLSD::Binary data; //just an std::vector
+                data.resize(size);
+                memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
+                LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data));
+                return DIENUM_STOP;
+            }
+        }
+        else
+        {
+            LL_DEBUGS("Joystick") << "Found device: " << product_name << LL_ENDL;
+        }
+    }
+    return DIENUM_CONTINUE;
+}
+
+// Windows guids
+// This is GUID2 so teoretically it can be memcpy copied into LLUUID
+void guid_from_string(GUID &guid, const std::string &input)
+{
+    CLSIDFromString(utf8str_to_utf16str(input).c_str(), &guid);
+}
+
+std::string string_from_guid(const GUID &guid)
+{
+    OLECHAR* guidString; //wchat
+    StringFromCLSID(guid, &guidString);
+
+    // use guidString...
+
+    std::string res = utf16str_to_utf8str(llutf16string(guidString));
+    // ensure memory is freed
+    ::CoTaskMemFree(guidString);
+
+    return res;
+}
+#endif
+
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::updateEnabled(bool autoenable)
 {
@@ -108,7 +238,8 @@ void LLViewerJoystick::updateEnabled(bool autoenable)
 	}
 	else
 	{
-		if (isLikeSpaceNavigator() && autoenable)
+		// autoenable if user specifically chose this device
+		if (autoenable && (isLikeSpaceNavigator() || isDeviceUUIDSet())) 
 		{
 			gSavedSettings.setBOOL("JoystickEnabled", TRUE );
 		}
@@ -144,7 +275,7 @@ NDOF_HotPlugResult LLViewerJoystick::HotPlugAddCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mDriverState == JDS_UNINITIALIZED)
 	{
-		LL_INFOS("joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
+		LL_INFOS("Joystick") << "HotPlugAddCallback: will use device:" << LL_ENDL;
 		ndof_dump(stderr, dev);
 		joystick->mNdofDev = dev;
 		joystick->mDriverState = JDS_INITIALIZED;
@@ -162,7 +293,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 	LLViewerJoystick* joystick(LLViewerJoystick::getInstance());
 	if (joystick->mNdofDev == dev)
 	{
-		LL_INFOS("joystick") << "HotPlugRemovalCallback: joystick->mNdofDev=" 
+        LL_INFOS("Joystick") << "HotPlugRemovalCallback: joystick->mNdofDev="
 				<< joystick->mNdofDev << "; removed device:" << LL_ENDL;
 		ndof_dump(stderr, dev);
 		joystick->mDriverState = JDS_UNINITIALIZED;
@@ -189,6 +320,8 @@ LLViewerJoystick::LLViewerJoystick()
 
 	// factor in bandwidth? bandwidth = gViewerStats->mKBitStat
 	mPerfScale = 4000.f / gSysCPU.getMHz(); // hmm.  why?
+
+    mLastDeviceUUID = LLSD::Integer(1);
 }
 
 // -----------------------------------------------------------------------------
@@ -207,12 +340,14 @@ void LLViewerJoystick::init(bool autoenable)
 	static bool libinit = false;
 	mDriverState = JDS_INITIALIZING;
 
+    loadDeviceIdFromSettings();
+
 	if (libinit == false)
 	{
 		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
 						 HotPlugRemovalCallback, 
-						 NULL))
+						 gViewerWindow->getWindow()->getDirectInput8()))
 		{
 			mDriverState = JDS_UNINITIALIZED;
 		}
@@ -229,39 +364,33 @@ void LLViewerJoystick::init(bool autoenable)
 	if (libinit)
 	{
 		if (mNdofDev)
-		{
-			LL_DEBUGS("joystick") << "ndof_create() returned: " << mNdofDev << LL_ENDL;
-			// Different joysticks will return different ranges of raw values.
-			// Since we want to handle every device in the same uniform way, 
-			// we initialize the mNdofDev struct and we set the range 
-			// of values we would like to receive. 
-			// 
-			// HACK: On Windows, libndofdev passes our range to DI with a 
-			// SetProperty call. This works but with one notable exception, the
-			// SpaceNavigator, who doesn't seem to care about the SetProperty
-			// call. In theory, we should handle this case inside libndofdev. 
-			// However, the range we're setting here is arbitrary anyway, 
-			// so let's just use the SpaceNavigator range for our purposes. 
-			mNdofDev->axes_min = (long)-MAX_JOYSTICK_INPUT_VALUE;
-			mNdofDev->axes_max = (long)+MAX_JOYSTICK_INPUT_VALUE;
+        {
+            // di8_devices_callback callback is immediate and happens in scope of getInputDevices()
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+            // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
+            U32 device_type = DI8DEVCLASS_GAMECTRL;
+            void* callback = &di8_devices_callback;
+#else
+            // MAC doesn't support device search yet
+            // On MAC there is an ndof_idsearch and it is possible to specify product
+            // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+            U32 device_type = 0;
+            void* callback = NULL;
+#endif
+            if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
+            {
+                LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+                // Failed to gather devices from windows, init first suitable one
+                mLastDeviceUUID = LLSD();
+                void *preffered_device = NULL;
+                initDevice(preffered_device);
+            }
 
-			// libndofdev could be used to return deltas.  Here we choose to
-			// just have the absolute values instead.
-			mNdofDev->absolute = 1;
-
-			LL_DEBUGS("joystick") << "ndof_init_first() received: " << mNdofDev << LL_ENDL;
-			// init & use the first suitable NDOF device found on the USB chain
-			if (ndof_init_first(mNdofDev, NULL))
-			{
-				mDriverState = JDS_UNINITIALIZED;
-				LL_WARNS("joystick") << "ndof_init_first FAILED" << LL_ENDL;
-				ndof_dump_list(stderr);
-			}
-			else
-			{
-				mDriverState = JDS_INITIALIZED;
-			}
-			LL_DEBUGS("joystick") << "ndof_init_first() left: " << mNdofDev << LL_ENDL;
+            if (mDriverState == JDS_INITIALIZING)
+            {
+                LL_INFOS("Joystick") << "Found no matching joystick devices." << LL_ENDL;
+                mDriverState = JDS_UNINITIALIZED;
+            }
 		}
 		else
 		{
@@ -300,8 +429,89 @@ void LLViewerJoystick::init(bool autoenable)
 		// No device connected, don't change any settings
 	}
 
-	LL_INFOS("joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
+	LL_INFOS("Joystick") << "ndof: mDriverState=" << mDriverState << "; mNdofDev=" 
 			<< mNdofDev << "; libinit=" << libinit << LL_ENDL;
+#endif
+}
+
+void LLViewerJoystick::initDevice(LLSD &guid)
+{
+#if LIB_NDOF
+    mLastDeviceUUID = guid;
+
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // space navigator is marked as DI8DEVCLASS_GAMECTRL in ndof lib
+    U32 device_type = DI8DEVCLASS_GAMECTRL;
+    void* callback = &di8_devices_callback;
+#else
+    // MAC doesn't support device search yet
+    // On MAC there is an ndof_idsearch and it is possible to specify product
+    // and manufacturer in NDOF_Device for ndof_init_first to pick specific one
+    U32 device_type = 0;
+    void* callback = NULL;
+#endif
+
+    mDriverState = JDS_INITIALIZING; 
+    if (!gViewerWindow->getWindow()->getInputDevices(device_type, callback, NULL))
+    {
+        LL_INFOS("Joystick") << "Failed to gather devices from window. Falling back to ndof's init" << LL_ENDL;
+        // Failed to gather devices from windows, init first suitable one
+        void *preffered_device = NULL;
+        mLastDeviceUUID = LLSD();
+        initDevice(preffered_device);
+    }
+
+    if (mDriverState == JDS_INITIALIZING)
+    {
+        LL_INFOS("Joystick") << "Found no matching joystick devices." << LL_ENDL;
+        mDriverState = JDS_UNINITIALIZED;
+    }
+#endif
+}
+
+void LLViewerJoystick::initDevice(void * preffered_device /*LPDIRECTINPUTDEVICE8*/, std::string &name, LLSD &guid)
+{
+#if LIB_NDOF
+    mLastDeviceUUID = guid;
+
+    strncpy(mNdofDev->product, name.c_str(), sizeof(mNdofDev->product));
+    mNdofDev->manufacturer[0] = '\0';
+
+    initDevice(preffered_device);
+#endif
+}
+
+void LLViewerJoystick::initDevice(void * preffered_device /* LPDIRECTINPUTDEVICE8* */)
+{
+#if LIB_NDOF
+    // Different joysticks will return different ranges of raw values.
+    // Since we want to handle every device in the same uniform way, 
+    // we initialize the mNdofDev struct and we set the range 
+    // of values we would like to receive. 
+    // 
+    // HACK: On Windows, libndofdev passes our range to DI with a 
+    // SetProperty call. This works but with one notable exception, the
+    // SpaceNavigator, who doesn't seem to care about the SetProperty
+    // call. In theory, we should handle this case inside libndofdev. 
+    // However, the range we're setting here is arbitrary anyway, 
+    // so let's just use the SpaceNavigator range for our purposes. 
+    mNdofDev->axes_min = (long)-MAX_JOYSTICK_INPUT_VALUE;
+    mNdofDev->axes_max = (long)+MAX_JOYSTICK_INPUT_VALUE;
+
+    // libndofdev could be used to return deltas.  Here we choose to
+    // just have the absolute values instead.
+    mNdofDev->absolute = 1;
+    // init & use the first suitable NDOF device found on the USB chain
+    // On windows preffered_device needs to be a pointer to LPDIRECTINPUTDEVICE8
+    if (ndof_init_first(mNdofDev, preffered_device))
+    {
+        mDriverState = JDS_UNINITIALIZED;
+        LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
+    }
+    else
+    {
+        mDriverState = JDS_INITIALIZED;
+    }
 #endif
 }
 
@@ -314,7 +524,7 @@ void LLViewerJoystick::terminate()
         ndof_libcleanup(); // frees alocated memory in mNdofDev
         mDriverState = JDS_UNINITIALIZED;
         mNdofDev = NULL;
-        LL_INFOS("joystick") << "Terminated connection with NDOF device." << LL_ENDL;
+        LL_INFOS("Joystick") << "Terminated connection with NDOF device." << LL_ENDL;
     }
 #endif
 }
@@ -1105,6 +1315,74 @@ void LLViewerJoystick::scanJoystick()
 }
 
 // -----------------------------------------------------------------------------
+bool LLViewerJoystick::isDeviceUUIDSet()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // for ease of comparison and to dial less with platform specific variables, we store id as LLSD binary
+    return mLastDeviceUUID.isBinary();
+#else
+    return false;
+#endif
+}
+
+LLSD LLViewerJoystick::getDeviceUUID()
+{
+    return mLastDeviceUUID;
+}
+
+std::string LLViewerJoystick::getDeviceUUIDString()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // Might be simpler to just convert _GUID into string everywhere, store and compare as string
+    if (mLastDeviceUUID.isBinary())
+    {
+        S32 size = sizeof(GUID);
+        LLSD::Binary data = mLastDeviceUUID.asBinary();
+        GUID guid;
+        memcpy(&guid, &data[0], size);
+        return string_from_guid(guid);
+    }
+    else
+    {
+        return std::string();
+    }
+#else
+    return std::string();
+    // return mLastDeviceUUID;
+#endif
+}
+
+void LLViewerJoystick::loadDeviceIdFromSettings()
+{
+#if LL_WINDOWS && !LL_MESA_HEADLESS
+    // We can't save binary data to gSavedSettings, somebody editing the file will corrupt it,
+    // so _GUID data gets converted to string (we probably can convert it to LLUUID with memcpy)
+    // and here we need to convert it back to binary from string
+    std::string device_string = gSavedSettings.getString("JoystickDeviceUUID");
+    if (device_string.empty())
+    {
+        mLastDeviceUUID = LLSD();
+    }
+    else
+    {
+        LL_DEBUGS("Joystick") << "Looking for device by id: " << device_string << LL_ENDL;
+        GUID guid;
+        guid_from_string(guid, device_string);
+        S32 size = sizeof(GUID);
+        LLSD::Binary data; //just an std::vector
+        data.resize(size);
+        memcpy(&data[0], &guid /*POD _GUID*/, size);
+        // We store this data in LLSD since LLSD is versatile and will be able to handle both GUID2
+        // and any data MAC will need for device selection
+        mLastDeviceUUID = LLSD(data);
+    }
+#else
+    mLastDeviceUUID = LLSD();
+    //mLastDeviceUUID = gSavedSettings.getLLSD("JoystickDeviceUUID");
+#endif
+}
+
+// -----------------------------------------------------------------------------
 std::string LLViewerJoystick::getDescription()
 {
 	std::string res;
@@ -1145,7 +1423,7 @@ void LLViewerJoystick::setSNDefaults()
 #endif
 
 	//gViewerWindow->alertXml("CacheWillClear");
-	LL_INFOS("joystick") << "restoring SpaceNavigator defaults..." << LL_ENDL;
+	LL_INFOS("Joystick") << "restoring SpaceNavigator defaults..." << LL_ENDL;
 
 	gSavedSettings.setS32("JoystickAxis0", 1); // z (at)
 	gSavedSettings.setS32("JoystickAxis1", 0); // x (slide)
