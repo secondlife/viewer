@@ -903,4 +903,38 @@ namespace tut
 				  "and even no www something lindenlab.com",
 				  "");
 	}
+
+	template<> template<>
+	void object::test<16>()
+	{
+		//
+		// test LLUrlEntryIPv6
+		//
+		LLUrlEntryIPv6 url;
+
+		// Regex tests.
+		testRegex("match urls with a protocol", url,
+			"this url should match http://[::1]",
+			"http://[::1]");
+
+		testRegex("match urls with a protocol and query", url,
+			"this url should match http://[::1]/file.mp3",
+			"http://[::1]/file.mp3");
+
+		testRegex("match urls with a protocol", url,
+			"this url should match http://[2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d]",
+			"http://[2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d]");
+
+		testRegex("match urls with port", url,
+			"let's specify some port http://[2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d]:8080",
+			"http://[2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d]:8080");
+
+		testRegex("don't match urls w/o protocol", url,
+			"looks like an url something [2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d] but no https prefix",
+			"");
+
+		testRegex("don't match incorrect urls", url,
+			"http://[ 2001:0db8:11a3:09d7:1f34:8a2e:07a0:765d ]",
+			"");
+	}
 }
