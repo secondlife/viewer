@@ -316,24 +316,25 @@ bool LLResourceUploadInfo::findAssetTypeOfExtension(const std::string& exten, LL
 bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload)
 {
 	bool succ = false;
-
-    codec = LLImageBase::getCodecFromExtension(exten);
+	std::string exten_lc(exten);
+	LLStringUtil::toLower(exten_lc);
+	codec = LLImageBase::getCodecFromExtension(exten_lc);
 	if (codec != IMG_CODEC_INVALID)
 	{
 		asset_type = LLAssetType::AT_TEXTURE; 
 		succ = true;
 	}
-	else if (exten == "wav")
+	else if (exten_lc == "wav")
 	{
 		asset_type = LLAssetType::AT_SOUND; 
 		succ = true;
 	}
-	else if (exten == "anim")
+	else if (exten_lc == "anim")
 	{
 		asset_type = LLAssetType::AT_ANIMATION; 
 		succ = true;
 	}
-	else if (!bulk_upload && (exten == "bvh"))
+	else if (!bulk_upload && (exten_lc == "bvh"))
 	{
 		asset_type = LLAssetType::AT_ANIMATION;
 		succ = true;

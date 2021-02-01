@@ -285,7 +285,7 @@ public:
 	typedef std::list<LLFolderViewModelItem*> child_list_t;
 
 	virtual void addChild(LLFolderViewModelItem* child) 
-	{
+	{ 
 		mChildren.push_back(child);
 		child->setParent(this); 
 		dirtyFilter();

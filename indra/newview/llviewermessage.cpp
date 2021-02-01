@@ -5736,8 +5736,9 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	// so we'll reuse the same namespace for both throttle types.
 	std::string throttle_name = owner_name;
 	std::string self_name;
-	LLAgentUI::buildFullname( self_name );
-	if( owner_name == self_name )
+	LLAgentUI::buildFullname( self_name ); // does not include ' Resident'
+	std::string clean_owner_name = LLCacheName::cleanFullName(owner_name); // removes ' Resident'
+	if( clean_owner_name == self_name )
 	{
 		throttle_name = taskid.getString();
 	}
@@ -5772,7 +5773,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 count = 0;
 		LLSD args;
 		args["OBJECTNAME"] = object_name;
-		args["NAME"] = LLCacheName::cleanFullName(owner_name);
+		args["NAME"] = clean_owner_name;
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission

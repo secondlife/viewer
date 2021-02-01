@@ -972,13 +972,45 @@ void LLPanelPermissions::refresh()
 	getChildView("clickaction")->setEnabled(is_perm_modify && is_nonpermanent_enforced && all_volume);
 }
 
+// Shorten name if it doesn't fit into max_pixels of two lines
+void shorten_name(std::string &name, const LLStyle::Params& style_params, S32 max_pixels)
+{
+    const LLFontGL* font = style_params.font();
+
+    LLWString wline = utf8str_to_wstring(name);
+    // panel supports two lines long names
+    S32 segment_length = font->maxDrawableChars(wline.c_str(), max_pixels, wline.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+    if (segment_length == wline.length())
+    {
+        // no work needed
+        return;
+    }
+
+    S32 first_line_length = segment_length;
+    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), max_pixels, wline.length(), LLFontGL::ANYWHERE);
+    if (segment_length + first_line_length == wline.length())
+    {
+        // no work needed
+        return;
+    }
+
+    // name does not fit, cut it, add ...
+    const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
+    S32 elipses_width = font->getWidthF32(dots_pad.c_str());
+    segment_length = font->maxDrawableChars(wline.substr(first_line_length).c_str(), max_pixels - elipses_width, wline.length(), LLFontGL::ANYWHERE);
+
+    name = name.substr(0, segment_length + first_line_length) + std::string("...");
+}
+
 void LLPanelPermissions::updateOwnerName(const LLUUID& owner_id, const LLAvatarName& owner_name, const LLStyle::Params& style_params)
 {
 	if (mOwnerCacheConnection.connected())
 	{
 		mOwnerCacheConnection.disconnect();
 	}
-	mLabelOwnerName->setText(owner_name.getCompleteName(), style_params);
+	std::string name = owner_name.getCompleteName();
+	shorten_name(name, style_params, mLabelOwnerName->getLocalRect().getWidth());
+	mLabelOwnerName->setText(name, style_params);
 }
 
 void LLPanelPermissions::updateCreatorName(const LLUUID& creator_id, const LLAvatarName& creator_name, const LLStyle::Params& style_params)
@@ -987,7 +1019,9 @@ void LLPanelPermissions::updateCreatorName(const LLUUID& creator_id, const LLAva
 	{
 		mCreatorCacheConnection.disconnect();
 	}
-	mLabelCreatorName->setText(creator_name.getCompleteName(), style_params);
+	std::string name = creator_name.getCompleteName();
+	shorten_name(name, style_params, mLabelCreatorName->getLocalRect().getWidth());
+	mLabelCreatorName->setText(name, style_params);
 }
 
 // static
