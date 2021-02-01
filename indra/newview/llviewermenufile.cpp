@@ -391,7 +391,9 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 		}
 		if (type == LLFilePicker::FFLOAD_ANIM)
 		{
-			if (filename.rfind(".anim") != std::string::npos)
+			std::string filename_lc(filename);
+			LLStringUtil::toLower(filename_lc);
+			if (filename_lc.rfind(".anim") != std::string::npos)
 			{
 				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
 			}
@@ -686,11 +688,12 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
 		bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
 
-		if (gSavedSettings.getBOOL("HighResSnapshot"))
+		BOOL high_res = gSavedSettings.getBOOL("HighResSnapshot");
+		if (high_res)
 		{
 			width *= 2;
 			height *= 2;
-			// not compatible wirh UI/HUD
+			// not compatible with UI/HUD
 			render_ui = false;
 			render_hud = false;
 		}
@@ -702,7 +705,9 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   FALSE,
 									   render_ui,
 									   render_hud,
-									   FALSE))
+									   FALSE,
+									   LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+									   high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
 		{
 			LLPointer<LLImageFormatted> formatted;
             LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
