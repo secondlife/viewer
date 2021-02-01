@@ -49,10 +49,6 @@ void main()
     vec4 sunDiscB = texture2D(altDiffuseMap, vary_texcoord0.xy);
     vec4 c     = mix(sunDiscA, sunDiscB, blend_factor);
 
-    c.rgb = srgb_to_linear(c.rgb);
-    c.rgb = clamp(c.rgb, vec3(0), vec3(1));
-    c.rgb = pow(c.rgb, vec3(0.7f));
-
     //c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
 
