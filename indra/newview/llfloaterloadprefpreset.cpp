@@ -58,9 +58,17 @@ BOOL LLFloaterLoadPrefPreset::postBuild()
 void LLFloaterLoadPrefPreset::onOpen(const LLSD& key)
 {
 	mSubdirectory = key.asString();
-	std::string floater_title = getString(std::string("title_") + mSubdirectory);
-
-	setTitle(floater_title);
+    std::string title_type = std::string("title_") + mSubdirectory;
+    if (hasString(title_type))
+    {
+        std::string floater_title = getString(title_type);
+        setTitle(floater_title);
+    }
+    else
+    {
+        LL_WARNS() << title_type << " not found" << LL_ENDL;
+        setTitle(title_type);
+    }
 
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 

@@ -695,6 +695,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	LL_RECORD_BLOCK_TIME(FTM_VOLUME_TEXTURES);
 	// Update the pixel area of all faces
 
+    if (mDrawable.isNull())
+    {
+        return;
+    }
+
 	if(!forced)
 	{
 		if(!isVisible())

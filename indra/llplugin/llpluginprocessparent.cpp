@@ -152,8 +152,18 @@ void LLPluginProcessParent::shutdown()
     mapInstances_t::iterator it;
     for (it = sInstances.begin(); it != sInstances.end(); ++it)
     {
-        (*it).second->setState(STATE_GOODBYE);
-        (*it).second->idle();
+        EState state = (*it).second->mState;
+        if (state != STATE_CLEANUP
+            || state != STATE_EXITING
+            || state != STATE_DONE
+            || state != STATE_ERROR)
+        {
+            (*it).second->setState(STATE_GOODBYE);
+        }
+        if (state != STATE_DONE)
+        {
+            (*it).second->idle();
+        }
     }
     sInstances.clear();
 }

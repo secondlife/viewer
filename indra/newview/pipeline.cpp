@@ -6562,7 +6562,7 @@ void LLPipeline::enableLightsDynamic()
 		{
 			gPipeline.enableLightsAvatar();
 		}
-		else if (gAgentAvatarp->mSpecialRenderMode >= 1)  // anim preview
+		else if (gAgentAvatarp->mSpecialRenderMode == 2)  // anim preview
 		{
 			gPipeline.enableLightsAvatarEdit(LLColor4(0.7f, 0.6f, 0.3f, 1.f));
 		}

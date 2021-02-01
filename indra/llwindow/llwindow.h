@@ -171,6 +171,9 @@ public:
 
 	static std::vector<std::string> getDisplaysResolutionList();
 
+    // windows only DirectInput8 for joysticks
+    virtual void* getDirectInput8() { return NULL; };
+    virtual bool getInputDevices(U32 device_type_filter, void * devices_callback, void* userdata) { return false; };
 protected:
 	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);
 	virtual ~LLWindow();
