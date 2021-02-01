@@ -2442,16 +2442,19 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		bool open_multi_preview = true;
 
-		for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+		if ("open" == action)
 		{
-			LLFolderViewItem* folder_item = *set_iter;
-			if (folder_item)
+			for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
 			{
-				LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(folder_item->getViewModelItem());
-				if (!bridge || !bridge->isMultiPreviewAllowed())
+				LLFolderViewItem* folder_item = *set_iter;
+				if (folder_item)
 				{
-					open_multi_preview = false;
-					break;
+					LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(folder_item->getViewModelItem());
+					if (!bridge || !bridge->isMultiPreviewAllowed())
+					{
+						open_multi_preview = false;
+						break;
+					}
 				}
 			}
 		}

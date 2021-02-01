@@ -5241,9 +5241,9 @@ public:
 					LLVCacheTriangleData* tri = *iter;
 					if (tri->mActive)
 					{
-						tri->mScore = tri->mVertex[0]->mScore;
-						tri->mScore += tri->mVertex[1]->mScore;
-						tri->mScore += tri->mVertex[2]->mScore;
+						tri->mScore = tri->mVertex[0] ? tri->mVertex[0]->mScore : 0;
+						tri->mScore += tri->mVertex[1] ? tri->mVertex[1]->mScore : 0;
+						tri->mScore += tri->mVertex[2] ? tri->mVertex[2]->mScore : 0;
 
 						if (!mBestTriangle || mBestTriangle->mScore < tri->mScore)
 						{

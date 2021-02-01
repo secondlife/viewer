@@ -244,9 +244,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>322dd6c45c384d454ae14ef127984a4e</string>
+              <string>ae90d19cdcddf539f6d0b41cab12f918</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65457/612879/bugsplat-1.0.7.546418-darwin64-546418.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72773/702861/bugsplat-1.0.7.552580-darwin64-552580.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -256,9 +256,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>010a0e73c0fddaa2316411803fad8e69</string>
+              <string>f5936eceb6a33ff0f1cc31996a40f29c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65456/612876/bugsplat-3.6.0.8.546418-windows-546418.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72774/702905/bugsplat-3.6.0.8.552580-windows-552580.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -268,16 +268,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7e8530762e7b50663708a888c23b8780</string>
+              <string>9cd940754e53e0670030b3da5ba8f373</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65455/612874/bugsplat-3.6.0.8.546418-windows64-546418.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72775/702906/bugsplat-3.6.0.8.552580-windows64-552580.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.6.0.8.546418</string>
+        <string>3.6.0.8.552580</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -2187,18 +2187,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f4687d7d328b0c13a9e651e805e880a</string>
+              <string>c541838a933e0714a954e9ef6c89345d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/71501/691487/llca-202011010215.551526-common-551526.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/73387/708088/llca-202012011600.553112-common-553112.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>202011010215.551526</string>
+        <string>202012011600.553112</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>

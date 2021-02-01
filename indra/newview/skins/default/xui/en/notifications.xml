@@ -9595,6 +9595,10 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
   <global name="UnsupportedRAM">
 - Your system memory does not meet the minimum requirements.
   </global>
+  
+  <global name="LLLeapUpdaterFailure">
+Failed to launch updater service [UPDATER_APP]. Please verify the viewer is installed correctly and has the necessary permissions to run. If you continue to experience issues, please visit the [SUPPORT_SITE].
+  </global>
 
 <!-- these are alert strings from server. the name needs to match entire the server string, and needs to be changed
 	whenever the server string changes -->

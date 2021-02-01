@@ -42,6 +42,7 @@ class LLAvatarNameCache : public LLSingleton<LLAvatarNameCache>
 	~LLAvatarNameCache();
 public:
 	typedef boost::signals2::signal<void (void)> use_display_name_signal_t;
+	typedef boost::function<void (const LLUUID id, const LLAvatarName& av_name)> account_name_changed_callback_t;
 
 	// Import/export the name cache to file.
 	bool importFile(std::istream& istr);
@@ -103,6 +104,8 @@ public:
 
 	void addUseDisplayNamesCallback(const use_display_name_signal_t::slot_type& cb);
 
+    void setAccountNameChangedCallback(const account_name_changed_callback_t& cb) { mAccountNameChangedCallback = cb; }
+
 private:
     // Handle name response off network.
     void processName(const LLUUID& agent_id,
@@ -141,6 +144,7 @@ private:
 private:
 
     use_display_name_signal_t mUseDisplayNamesSignal;
+    account_name_changed_callback_t mAccountNameChangedCallback;
 
     // Cache starts in a paused state until we can determine if the
     // current region supports display names.
