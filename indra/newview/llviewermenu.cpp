@@ -4145,7 +4145,7 @@ void handle_reset_view()
 		// switching to outfit selector should automagically save any currently edited wearable
 		LLFloaterSidePanelContainer::showPanel("appearance", LLSD().with("type", "my_outfits"));
 	}
-	
+	gAgentCamera.setFocusOnAvatar(TRUE, FALSE, FALSE);
 	reset_view_final( TRUE );
 	LLFloaterCamera::resetCameraMode();
 }
@@ -7899,7 +7899,7 @@ void handle_grab_baked_texture(void* data)
 	if(folder_id.notNull())
 	{
 		std::string name;
-		name = "Baked " + LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_tex_index)->mNameCapitalized + " Texture";
+		name = "Baked " + LLAvatarAppearance::getDictionary()->getBakedTexture(baked_tex_index)->mNameCapitalized + " Texture";
 
 		LLUUID item_id;
 		item_id.generate();

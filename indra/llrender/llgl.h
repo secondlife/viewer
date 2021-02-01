@@ -165,6 +165,8 @@ public:
 	void printGLInfoString();
 	void getGLInfo(LLSD& info);
 
+	void asLLSD(LLSD& info);
+
 	// In ALL CAPS
 	std::string mGLVendor;
 	std::string mGLVendorShort;
