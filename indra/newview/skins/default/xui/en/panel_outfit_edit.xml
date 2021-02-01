@@ -321,6 +321,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
                     name="folder_view"
                     top_pad="0"
                     width="313"
+                    preinitialize_views="false"
                     visible="false"/>
             <panel name="filtered_wearables_panel"
                     background_opaque="true"

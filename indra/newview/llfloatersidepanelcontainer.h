@@ -62,6 +62,8 @@ public:
 	static void showPanel(const std::string& floater_name, const std::string& panel_name, const LLSD& key);
 	
 	static LLPanel* getPanel(const std::string& floater_name, const std::string& panel_name = sMainPanelName);
+
+	static LLPanel* findPanel(const std::string& floater_name, const std::string& panel_name = sMainPanelName);
 	
 	/**
 	 * Gets the panel of given type T (doesn't show it or do anything else with it).
