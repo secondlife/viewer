@@ -296,7 +296,6 @@ LLLocationInputCtrl::LLLocationInputCtrl(const LLLocationInputCtrl::Params& p)
 	LLButton::Params maturity_button = p.maturity_button;
 	mMaturityButton = LLUICtrlFactory::create<LLButton>(maturity_button);
 	addChild(mMaturityButton);
-	mMaturityButton->setClickedCallback(boost::bind(&LLLocationInputCtrl::onMaturityButtonClicked, this));
 
 	LLButton::Params for_sale_button = p.for_sale_button;
 	for_sale_button.tool_tip = LLTrans::getString("LocationCtrlForSaleTooltip");
@@ -661,11 +660,6 @@ void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 void LLLocationInputCtrl::onAgentParcelChange()
 {
 	refresh();
-}
-
-void LLLocationInputCtrl::onMaturityButtonClicked()
-{
-	LLUI::getInstance()->mHelpImpl->showTopic(mMaturityHelpTopic);
 }
 
 void LLLocationInputCtrl::onRegionBoundaryCrossed()

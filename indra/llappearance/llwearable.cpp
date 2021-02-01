@@ -183,7 +183,7 @@ void LLWearable::createVisualParams(LLAvatarAppearance *avatarp)
 void LLWearable::createLayers(S32 te, LLAvatarAppearance *avatarp)
 {
 	LLTexLayerSet *layer_set = NULL;
-	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)te);
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture((ETextureIndex)te);
 	if (texture_dict && texture_dict->mIsUsedByBakedTexture)
 	{
 		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -606,7 +606,7 @@ void LLWearable::syncImages(te_map_t &src, te_map_t &dst)
 	// Deep copy of src (copies only those tes that are current, filling in defaults where needed)
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = src.find(te);
 			LLUUID image_id;
