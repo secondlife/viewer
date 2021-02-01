@@ -965,6 +965,80 @@ std::string LLGLManager::getRawGLString()
 	return gl_string;
 }
 
+void LLGLManager::asLLSD(LLSD& info)
+{
+	// Currently these are duplicates of fields in "system".
+	info["gpu_vendor"] = mGLVendorShort;
+	info["gpu_version"] = mDriverVersionVendorString;
+	info["opengl_version"] = mGLVersionString;
+
+	info["vram"] = mVRAM;
+
+	// Extensions used by everyone
+	info["has_multitexture"] = mHasMultitexture;
+	info["has_ati_mem_info"] = mHasATIMemInfo;
+	info["has_nvx_mem_info"] = mHasNVXMemInfo;
+	info["num_texture_units"] = mNumTextureUnits;
+	info["has_mip_map_generation"] = mHasMipMapGeneration;
+	info["has_compressed_textures"] = mHasCompressedTextures;
+	info["has_framebuffer_object"] = mHasFramebufferObject;
+	info["max_samples"] = mMaxSamples;
+	info["has_blend_func_separate"] = mHasBlendFuncSeparate;
+
+	// ARB Extensions
+	info["has_vertex_buffer_object"] = mHasVertexBufferObject;
+	info["has_vertex_array_object"] = mHasVertexArrayObject;
+	info["has_sync"] = mHasSync;
+	info["has_map_buffer_range"] = mHasMapBufferRange;
+	info["has_flush_buffer_range"] = mHasFlushBufferRange;
+	info["has_pbuffer"] = mHasPBuffer;
+	info["has_shader_objects"] = mHasShaderObjects;
+	info["has_vertex_shader"] = mHasVertexShader;
+	info["has_fragment_shader"] = mHasFragmentShader;
+	info["num_texture_image_units"] =  mNumTextureImageUnits;
+	info["has_occlusion_query"] = mHasOcclusionQuery;
+	info["has_timer_query"] = mHasTimerQuery;
+	info["has_occlusion_query2"] = mHasOcclusionQuery2;
+	info["has_point_parameters"] = mHasPointParameters;
+	info["has_draw_buffers"] = mHasDrawBuffers;
+	info["has_depth_clamp"] = mHasDepthClamp;
+	info["has_texture_rectangle"] = mHasTextureRectangle;
+	info["has_texture_multisample"] = mHasTextureMultisample;
+	info["has_transform_feedback"] = mHasTransformFeedback;
+	info["max_sample_mask_words"] = mMaxSampleMaskWords;
+	info["max_color_texture_samples"] = mMaxColorTextureSamples;
+	info["max_depth_texture_samples"] = mMaxDepthTextureSamples;
+	info["max_integer_samples"] = mMaxIntegerSamples;
+
+	// Other extensions.
+	info["has_anisotropic"] = mHasAnisotropic;
+	info["has_arb_env_combine"] = mHasARBEnvCombine;
+	info["has_cube_map"] = mHasCubeMap;
+	info["has_debug_output"] = mHasDebugOutput;
+	info["has_srgb_texture"] = mHassRGBTexture;
+	info["has_srgb_framebuffer"] = mHassRGBFramebuffer;
+    info["has_texture_srgb_decode"] = mHasTexturesRGBDecode;
+
+	// Vendor-specific extensions
+	info["is_ati"] = mIsATI;
+	info["is_nvidia"] = mIsNVIDIA;
+	info["is_intel"] = mIsIntel;
+	info["is_gf2or4mx"] = mIsGF2or4MX;
+	info["is_gf3"] = mIsGF3;
+	info["is_gf_gfx"] = mIsGFFX;
+	info["ati_offset_vertical_lines"] = mATIOffsetVerticalLines;
+	info["ati_old_driver"] = mATIOldDriver;
+
+	// Other fields
+	info["has_requirements"] = mHasRequirements;
+	info["has_separate_specular_color"] = mHasSeparateSpecularColor;
+	info["debug_gpu"] = mDebugGPU;
+	info["max_vertex_range"] = mGLMaxVertexRange;
+	info["max_index_range"] = mGLMaxIndexRange;
+	info["max_texture_size"] = mGLMaxTextureSize;
+	info["gl_renderer"] = mGLRenderer;
+}
+
 void LLGLManager::shutdownGL()
 {
 	if (mInited)

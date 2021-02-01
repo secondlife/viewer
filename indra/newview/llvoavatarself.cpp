@@ -1079,8 +1079,8 @@ void LLVOAvatarSelf::updateAttachmentVisibility(U32 camera_mode)
 //-----------------------------------------------------------------------------
 void LLVOAvatarSelf::wearableUpdated(LLWearableType::EType type)
 {
-	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = baked_iter->second;
@@ -1277,7 +1277,7 @@ BOOL LLVOAvatarSelf::detachAttachmentIntoInventory(const LLUUID &item_id)
 
 U32 LLVOAvatarSelf::getNumWearables(LLAvatarAppearanceDefines::ETextureIndex i) const
 {
-	LLWearableType::EType type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(i);
+	LLWearableType::EType type = sAvatarDictionary->getTEWearableType(i);
 	return gAgentWearables.getWearableCount(type);
 }
 
@@ -1388,8 +1388,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 {
 	/* if (layerset == mBakedTextureDatas[BAKED_HEAD].mTexLayerSet)
 	   return getLocalDiscardLevel(TEX_HEAD_BODYPAINT) >= 0; */
-	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const EBakedTextureIndex baked_index = baked_iter->first;
@@ -1402,7 +1402,7 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
@@ -1432,13 +1432,13 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 	{
 		if (layerset == mBakedTextureDatas[i].mTexLayerSet)
 		{
-			const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+			const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = sAvatarDictionary->getBakedTexture((EBakedTextureIndex)i);
 			for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 				 local_tex_iter != baked_dict->mLocalTextures.end();
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 				{
@@ -1465,13 +1465,13 @@ BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = sAvatarDictionary->getBakedTexture((EBakedTextureIndex)i);
 		for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 			 local_tex_iter != baked_dict->mLocalTextures.end();
 			 ++local_tex_iter)
 		{
 			const ETextureIndex tex_index = *local_tex_iter;
-			const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+			const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
@@ -1493,7 +1493,7 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex t
 	BOOL isDefined = TRUE;
 	if (isIndexLocalTexture(type))
 	{
-		const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(type);
+		const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(type);
 		const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 		if (index >= wearable_count)
 		{
@@ -1710,7 +1710,7 @@ void LLVOAvatarSelf::setLocalTexture(ETextureIndex type, LLViewerTexture* src_te
 			LL_ERRS() << "Tried to set local texture with invalid type: (" << (U32) type << ", " << index << ")" << LL_ENDL;
 			return;
 		}
-		LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(type);
+		LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(type);
 		if (!gAgentWearables.getViewerWearable(wearable_type,index))
 		{
 			// no wearable is loaded, cannot set the texture.
@@ -1787,8 +1787,8 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 	/* ETextureIndex baked_equiv[] = {
 	   TEX_UPPER_BAKED,
 	   if (isTextureDefined(baked_equiv[i])) */
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = sAvatarDictionary->getTextures().begin();
+		 iter != sAvatarDictionary->getTextures().end();
 		 ++iter)
 	{
 		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
@@ -1796,7 +1796,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 			continue;
 
 		const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
-		const ETextureIndex baked_equiv = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index)->mTextureIndex;
+		const ETextureIndex baked_equiv = sAvatarDictionary->getBakedTexture(baked_index)->mTextureIndex;
 
 		const std::string &name = texture_dict->mName;
 		const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(iter->first, 0);
@@ -2031,8 +2031,8 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 {
 	std::ostringstream outbuf;
 	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter =
-			 LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+			 sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const EBakedTextureIndex baked_index = baked_iter->first;
@@ -2045,9 +2045,9 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const std::string tex_name = LLAvatarAppearanceDictionary::getInstance()->getTexture(tex_index)->mName;
+				const std::string tex_name = sAvatarDictionary->getTexture(tex_index)->mName;
 				outbuf << "  tex_index " << (S32) tex_index << " name " << tex_name << "\n";
-				const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				if (wearable_count > 0)
 				{
@@ -2091,8 +2091,8 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 void LLVOAvatarSelf::dumpAllTextures() const
 {
 	std::string vd_text = "Local textures per baked index and wearable:\n";
-	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
@@ -2113,8 +2113,8 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTe
 
 	/* if (layerset == mBakedTextureDatas[BAKED_HEAD].mTexLayerSet)
 	   return getLocalDiscardLevel(TEX_HEAD_BODYPAINT) >= 0; */
-	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const EBakedTextureIndex baked_index = baked_iter->first;
@@ -2127,7 +2127,7 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTe
 				 ++local_tex_iter)
 			{
 				const ETextureIndex tex_index = *local_tex_iter;
-				const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+				const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				if (wearable_count > 0)
 				{
@@ -2154,14 +2154,14 @@ const std::string LLVOAvatarSelf::debugDumpAllLocalTextureDataInfo() const
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
 	{
-		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)i);
+		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = sAvatarDictionary->getBakedTexture((EBakedTextureIndex)i);
 		BOOL is_texture_final = TRUE;
 		for (texture_vec_t::const_iterator local_tex_iter = baked_dict->mLocalTextures.begin();
 			 local_tex_iter != baked_dict->mLocalTextures.end();
 			 ++local_tex_iter)
 		{
 			const ETextureIndex tex_index = *local_tex_iter;
-			const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(tex_index);
+			const LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(tex_index);
 			const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 			for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 			{
@@ -2341,7 +2341,7 @@ const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) c
 {
 	if (canGrabBakedTexture(baked_index))
 	{
-		ETextureIndex tex_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(baked_index);
+		ETextureIndex tex_index = sAvatarDictionary->bakedToLocalTextureIndex(baked_index);
 		if (tex_index == TEX_NUM_INDICES)
 		{
 			return LLUUID::null;
@@ -2353,7 +2353,7 @@ const LLUUID& LLVOAvatarSelf::grabBakedTexture(EBakedTextureIndex baked_index) c
 
 BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 {
-	ETextureIndex tex_index = LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(baked_index);
+	ETextureIndex tex_index = sAvatarDictionary->bakedToLocalTextureIndex(baked_index);
 	if (tex_index == TEX_NUM_INDICES)
 	{
 		return FALSE;
@@ -2372,13 +2372,13 @@ BOOL LLVOAvatarSelf::canGrabBakedTexture(EBakedTextureIndex baked_index) const
 	// baked texture.  We don't want people copying people's
 	// work via baked textures.
 
-	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index);
+	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = sAvatarDictionary->getBakedTexture(baked_index);
 	for (texture_vec_t::const_iterator iter = baked_dict->mLocalTextures.begin();
 		 iter != baked_dict->mLocalTextures.end();
 		 ++iter)
 	{
 		const ETextureIndex t_index = (*iter);
-		LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType(t_index);
+		LLWearableType::EType wearable_type = sAvatarDictionary->getTEWearableType(t_index);
 		U32 count = gAgentWearables.getWearableCount(wearable_type);
 		LL_DEBUGS() << "Checking index " << (U32) t_index << " count: " << count << LL_ENDL;
 		
@@ -2466,7 +2466,7 @@ void LLVOAvatarSelf::addLocalTextureStats( ETextureIndex type, LLViewerFetchedTe
 
 LLLocalTextureObject* LLVOAvatarSelf::getLocalTextureObject(LLAvatarAppearanceDefines::ETextureIndex i, U32 wearable_index) const
 {
-	LLWearableType::EType type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType(i);
+	LLWearableType::EType type = sAvatarDictionary->getTEWearableType(i);
 	LLViewerWearable* wearable = gAgentWearables.getViewerWearable(type, wearable_index);
 	if (wearable)
 	{
@@ -2540,8 +2540,8 @@ void LLVOAvatarSelf::outputRezDiagnostics() const
 		LL_DEBUGS("Avatar") << "\t\t (" << i << ") \t" << (S32)mDebugBakedTextureTimes[i][0] << " / " << (S32)mDebugBakedTextureTimes[i][1] << LL_ENDL;
 	}
 
-	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = sAvatarDictionary->getBakedTextures().begin();
+		 baked_iter != sAvatarDictionary->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
@@ -2607,7 +2607,7 @@ void LLVOAvatarSelf::requestLayerSetUpdate(ETextureIndex index )
 		case LOCTEX_UPPER_SHIRT:
 			if( mUpperBodyLayerSet )
 				mUpperBodyLayerSet->requestUpdate(); */
-	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = sAvatarDictionary->getTexture(index);
 	if (!texture_dict)
 		return;
 	if (!texture_dict->mIsLocalTexture || !texture_dict->mIsUsedByBakedTexture)
@@ -2625,7 +2625,7 @@ LLViewerTexLayerSet* LLVOAvatarSelf::getLayerSet(ETextureIndex index) const
                case TEX_HEAD_BAKED:
                case TEX_HEAD_BODYPAINT:
                        return mHeadLayerSet; */
-       const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+       const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = sAvatarDictionary->getTexture(index);
        if (texture_dict && texture_dict->mIsUsedByBakedTexture)
        {
                const EBakedTextureIndex baked_index = texture_dict->mBakedTextureIndex;
@@ -2711,8 +2711,8 @@ bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
 {
 	LLUUID texture_id[TEX_NUM_INDICES];
 	// pack away current TEs to make sure we don't send them out
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = sAvatarDictionary->getTextures().begin();
+		 iter != sAvatarDictionary->getTextures().end();
 		 ++iter)
 	{
 		const ETextureIndex index = iter->first;
@@ -2728,8 +2728,8 @@ bool LLVOAvatarSelf::sendAppearanceMessage(LLMessageSystem *mesgsys) const
 	bool success = packTEMessage(mesgsys);
 
 	// unpack TEs to make sure we don't re-trigger a bake
-	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+	for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = sAvatarDictionary->getTextures().begin();
+		 iter != sAvatarDictionary->getTextures().end();
 		 ++iter)
 	{
 		const ETextureIndex index = iter->first;
