@@ -260,6 +260,9 @@ class ViewerManifest(LLManifest):
             app_suffix=self.channel_variant()
         return CHANNEL_VENDOR_BASE + ' ' + app_suffix
 
+    def exec_name(self):
+        return "SecondLifeViewer"
+
     def app_name_oneword(self):
         return ''.join(self.app_name().split())
     
@@ -419,10 +422,9 @@ class WindowsManifest(ViewerManifest):
     build_data_json_platform = 'win'
 
     def final_exe(self):
-        return self.app_name_oneword()+".exe"
+        return self.exec_name()+".exe"
 
     def finish_build_data_dict(self, build_data_dict):
-        #MAINT-7294: Windows exe names depend on channel name, so write that in also
         build_data_dict['Executable'] = self.final_exe()
         build_data_dict['AppName']    = self.app_name()
         return build_data_dict

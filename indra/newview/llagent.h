@@ -254,6 +254,8 @@ public:
 	boost::signals2::connection     addParcelChangedCallback(parcel_changed_callback_t);
 
 private:
+	static void capabilityReceivedCallback(const LLUUID &region_id);
+
 	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 	parcel_changed_signal_t		mParcelChangedSignal;
 
