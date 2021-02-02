@@ -1337,8 +1337,10 @@ void LLPanelLogin::onSelectServer()
 	switch (index)
 	{
 	case 0: // last location
+        LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_LAST));
+        break;
 	case 1: // home location
-		// do nothing - these are grid-agnostic locations
+        LLStartUp::setStartSLURL(LLSLURL(LLSLURL::SIM_LOCATION_HOME));
 		break;
 		
 	default:

@@ -145,10 +145,6 @@
       name="Help"
       width="112">
       <menu_item_call
-        label="Help..."
-        layout="topleft"
-        name="Help..." />
-      <menu_item_call
         label="Keyword Help..."
         layout="topleft"
         name="Keyword Help..." />

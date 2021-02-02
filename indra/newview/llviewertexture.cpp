@@ -1544,6 +1544,26 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		return FALSE;
 	}
 
+    if (mGLTexturep->getHasExplicitFormat())
+    {
+        LLGLenum format = mGLTexturep->getPrimaryFormat();
+        S8 components = mRawImage->getComponents();
+        if ((format == GL_RGBA && components < 4)
+            || (format == GL_RGB && components < 3))
+        {
+            LL_WARNS() << "Can't create a texture " << mID << ": invalid image format " << std::hex << format << " vs components " << (U32)components << LL_ENDL;
+            // Was expecting specific format but raw texture has insufficient components for
+            // such format, using such texture will result in crash or will display wrongly
+            // if we change format. Texture might be corrupted server side, so just set as
+            // missing and clear cashed texture (do not cause reload loop, will retry&recover
+            // during new session)
+            setIsMissingAsset();
+            destroyRawImage();
+            LLAppViewer::getTextureCache()->removeFromCache(mID);
+            return FALSE;
+        }
+    }
+
 	res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
 
 	notifyAboutCreatingTexture();
