@@ -60,6 +60,7 @@
 #include "llviewernetwork.h"
 #include "llmeshrepository.h" //for LLMeshRepository::sBytesReceived
 #include "llsdserialize.h"
+#include "llsdutil.h"
 #include "llcorehttputil.h"
 #include "llvoicevivox.h"
 
@@ -425,7 +426,7 @@ void update_statistics()
  * If you move stats around here, make the corresponding changes in
  * those locations, too.
  */
-void send_stats()
+void send_viewer_stats(bool include_preferences)
 {
 	// IW 9/23/02 I elected not to move this into LLViewerStats
 	// because it depends on too many viewer.cpp globals.
@@ -513,6 +514,8 @@ void send_stats()
 	system["gpu_version"] = gGLManager.mDriverVersionVendorString;
 	system["opengl_version"] = gGLManager.mGLVersionString;
 
+	gGLManager.asLLSD(system["gl"]);
+
 	S32 shader_level = 0;
 	if (LLPipeline::sRenderDeferred)
 	{
@@ -572,6 +575,7 @@ void send_stats()
 	fail["failed_resends"] = (S32) gMessageSystem->mFailedResendPackets;
 	fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
 	fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
+	fail["missing_updater"] = (S32) LLAppViewer::instance()->isUpdaterMissing();
 
 	body["stats"]["voice"] = LLVoiceVivoxStats::getInstance()->read();
 
@@ -617,10 +621,25 @@ void send_stats()
 
 	body["DisplayNamesEnabled"] = gSavedSettings.getBOOL("UseDisplayNames");
 	body["DisplayNamesShowUsername"] = gSavedSettings.getBOOL("NameTagShowUsernames");
-	
+
+	// Preferences
+	if (include_preferences)
+	{
+		bool diffs_only = true; // only log preferences that differ from default
+		body["preferences"]["settings"] = gSavedSettings.asLLSD(diffs_only);
+		body["preferences"]["settings_per_account"] = gSavedPerAccountSettings.asLLSD(diffs_only);
+	}
+
 	body["MinimalSkin"] = false;
 
+
 	LL_INFOS("LogViewerStatsPacket") << "Sending viewer statistics: " << body << LL_ENDL;
+	if (debugLoggingEnabled("LogViewerStatsPacket"))
+	{
+		std::string filename("viewer_stats_packet.xml");
+		llofstream of(filename.c_str());
+		LLSDSerialize::toPrettyXML(body,of);
+	}
 
 	// The session ID token must never appear in logs
 	body["session_id"] = gAgentSessionID;

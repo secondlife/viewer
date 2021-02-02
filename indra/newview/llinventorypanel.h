@@ -108,6 +108,10 @@ public:
 		Optional<LLFolderViewFolder::Params> folder;
 		Optional<LLFolderViewItem::Params>	 item;
 
+        // All item and folder views will be initialized on init if true (default)
+        // Will initialize on visibility change otherwise.
+        Optional<bool>						preinitialize_views;
+
 		Params()
 		:	sort_order_setting("sort_order_setting"),
 			inventory("", &gInventory),
@@ -126,7 +130,8 @@ public:
 			accepts_drag_and_drop("accepts_drag_and_drop"),
 			folder_view("folder_view"),
 			folder("folder"),
-			item("item")
+			item("item"),
+			preinitialize_views("preinitialize_views", true)
 		{}
 	};
 
@@ -154,6 +159,7 @@ public:
 	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
 	// LLView methods
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
 	void draw();
 	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
 	BOOL handleHover(S32 x, S32 y, MASK mask);
@@ -313,7 +319,7 @@ public:
 	void addHideFolderType(LLFolderType::EType folder_type);
 
 public:
-	BOOL getIsViewsInitialized() const { return mViewsInitialized; }
+	bool getViewsInitialized() const { return mViewsInitialized == VIEWS_INITIALIZED; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
 	void 				initializeViews();
@@ -349,8 +355,15 @@ private:
                                               LLFolderViewItem *target_view,
                                               LLFolderViewFolder *parent_folder_view);
 
-	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
-	bool				mViewsInitialized; // Views have been generated
+    typedef enum e_views_initialization_state
+    {
+        VIEWS_UNINITIALIZED = 0,
+        VIEWS_INITIALIZING,
+        VIEWS_INITIALIZED,
+    } EViewsInitializationState;
+
+	bool						mBuildViewsOnInit;
+    EViewsInitializationState	mViewsInitialized; // Whether views have been generated
 };
 
 

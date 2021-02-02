@@ -763,14 +763,20 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 		}
 	}
 
+	bool header_changed_width = false;
 	// expand last column header we encountered to full list width
 	if (last_header)
 	{
+		S32 old_width = last_header->getColumn()->getWidth();
 		S32 new_width = llmax(0, mItemListRect.mRight - last_header->getRect().mLeft);
 		last_header->reshape(new_width, last_header->getRect().getHeight());
 		last_header->setVisible(mDisplayColumnHeaders && new_width > 0);
-		last_header->getColumn()->setWidth(new_width);
-	}
+        if (old_width != new_width)
+        {
+            last_header->getColumn()->setWidth(new_width);
+            header_changed_width = true;
+        }
+    }
 
 	// propagate column widths to individual cells
 	if (columns_changed_width || force_update)
@@ -789,6 +795,20 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 			}
 		}
 	}
+    else if (header_changed_width)
+    {
+        item_list::iterator iter;
+        S32 index = last_header->getColumn()->mIndex; // Not always identical to last column!
+        for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+        {
+            LLScrollListItem *itemp = *iter;
+            LLScrollListCell* cell = itemp->getColumn(index);
+            if (cell)
+            {
+                cell->setWidth(last_header->getColumn()->getWidth());
+            }
+        }
+    }
 }
 
 void LLScrollListCtrl::setHeadingHeight(S32 heading_height)
@@ -1381,18 +1401,34 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getEnabled() && (item->getValue().asString() == value.asString()))
+		if (item->getEnabled())
 		{
-			if (selected)
-			{
-				selectItem(item);
-			}
-			else
-			{
-				deselectItem(item);
-			}
-			found = TRUE;
-			break;
+            if (value.isBinary())
+            {
+                if (item->getValue().isBinary())
+                {
+                    LLSD::Binary data1 = value.asBinary();
+                    LLSD::Binary data2 = item->getValue().asBinary();
+                    found = std::equal(data1.begin(), data1.end(), data2.begin()) ? TRUE : FALSE;
+                }
+            }
+            else
+            {
+                found = item->getValue().asString() == value.asString() ? TRUE : FALSE;
+            }
+
+            if (found)
+            {
+                if (selected)
+                {
+                    selectItem(item);
+                }
+                else
+                {
+                    deselectItem(item);
+                }
+                break;
+            }
 		}
 	}
 
