@@ -653,6 +653,7 @@ public:
 	void            restartFailedTeleportRequest();
 	void            clearTeleportRequest();
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
+	void            sheduleTeleportIM();
 
 private:
 
@@ -667,6 +668,7 @@ private:
 	LLTeleportRequestPtr        mTeleportCanceled;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
+	boost::signals2::connection	mParcelMgrConnection;
 
 	bool            mIsMaturityRatingChangingDuringTeleport;
 	U8              mMaturityRatingChange;
@@ -685,6 +687,7 @@ private:
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
 
+    static void     onParcelReadyAfterTeleport();
     static void     onCapabilitiesReceivedAfterTeleport();
 
 	//--------------------------------------------------------------------

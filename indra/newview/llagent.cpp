@@ -519,6 +519,10 @@ void LLAgent::cleanup()
 	{
 		mTeleportFailedSlot.disconnect();
 	}
+    if (mParcelMgrConnection.connected())
+    {
+        mParcelMgrConnection.disconnect();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -3934,12 +3938,22 @@ void LLAgent::clearTeleportRequest()
         LLVoiceClient::getInstance()->setHidden(FALSE);
     }
 	mTeleportRequest.reset();
+    if (mParcelMgrConnection.connected())
+    {
+        mParcelMgrConnection.disconnect();
+    }
 }
 
 void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
 {
 	mIsMaturityRatingChangingDuringTeleport = true;
 	mMaturityRatingChange = pMaturityRatingChange;
+}
+
+void LLAgent::sheduleTeleportIM()
+{
+    // is supposed to be called during teleport so we are still waiting for parcel
+    mParcelMgrConnection = addParcelChangedCallback(onParcelReadyAfterTeleport);
 }
 
 bool LLAgent::hasPendingTeleportRequest()
@@ -4051,6 +4065,52 @@ void LLAgent::handleTeleportFailed()
 		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}
+
+    if (mParcelMgrConnection.connected())
+    {
+        mParcelMgrConnection.disconnect();
+    }
+}
+
+/*static*/
+void LLAgent::onParcelReadyAfterTeleport()
+{
+    LLViewerRegion* agent_region = gAgent.getRegion();
+    LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+    if (!agent_region || !agent_parcel)
+    {
+        return;
+    }
+
+    LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+    if (nearby_chat)
+    {
+        std::string location_name;
+        LLAgentUI::ELocationFormat format = LLAgentUI::LOCATION_FORMAT_NO_MATURITY;
+
+        // Might be better to provide slurl to chat
+        if (!LLAgentUI::buildLocationString(location_name, format))
+        {
+            location_name = "Teleport to new region"; // Shouldn't happen
+        }
+
+        LLChat chat;
+        chat.mFromName = location_name;
+        chat.mMuted = FALSE;
+        chat.mFromID = LLUUID::null;
+        chat.mSourceType = CHAT_SOURCE_TELEPORT;
+        chat.mChatStyle = CHAT_STYLE_TELEPORT_SEP;
+        chat.mText = "";
+
+        LLSD args;
+        args["do_not_log"] = TRUE;
+        nearby_chat->addMessage(chat, true, args);
+    }
+
+    if (gAgent.mParcelMgrConnection.connected())
+    {
+        gAgent.mParcelMgrConnection.disconnect();
+    }
 }
 
 /*static*/
