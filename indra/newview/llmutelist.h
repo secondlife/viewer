@@ -73,6 +73,7 @@ class LLMuteList : public LLSingleton<LLMuteList>
 {
 	LLSINGLETON(LLMuteList);
 	~LLMuteList();
+	/*virtual*/ void cleanupSingleton();
 public:
 	// reasons for auto-unmuting a resident
 	enum EAutoReason 
@@ -131,6 +132,7 @@ private:
 	static void processUseCachedMuteList(LLMessageSystem* msg, void**);
 
 	static void onFileMuteList(void** user_data, S32 code, LLExtStat ext_status);
+	void onAccountNameChanged(const LLUUID& id, const std::string& username);
 
 private:
 	struct compare_by_name
@@ -155,7 +157,9 @@ private:
 	};
 	typedef std::set<LLMute, compare_by_id> mute_set_t;
 	mute_set_t mMutes;
-	
+	typedef std::map<LLUUID, std::string> pending_names_t;
+	pending_names_t mPendingAgentNameUpdates;
+
 	typedef std::set<std::string> string_set_t;
 	string_set_t mLegacyMutes;
 	
