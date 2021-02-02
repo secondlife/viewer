@@ -5058,7 +5058,9 @@ Do you wish to proceed?
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5145,7 +5147,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    name="TeleportEntryAccessBlocked"
    type="alertmodal">
     <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5294,6 +5298,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandClaimAccessBlocked"
    type="alertmodal">
     The land you're trying to claim has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -5363,6 +5369,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandBuyAccessBlocked"
    type="alertmodal">
     The land you're trying to buy has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -7231,8 +7239,10 @@ You can only claim public land in the Region you&apos;re in.
    name="RegionTPAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
-   <usetemplate
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
+    <usetemplate
       name="okbutton"
       yestext="OK"/>
   </notification>
