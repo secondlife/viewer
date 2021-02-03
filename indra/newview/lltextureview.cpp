@@ -423,8 +423,8 @@ void LLAvatarTexBar::draw()
 	LLColor4 color;
 	
 	U32 line_num = 1;
-	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearance::getDictionary()->getBakedTextures().begin();
+		 baked_iter != LLAvatarAppearance::getDictionary()->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;

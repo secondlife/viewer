@@ -728,8 +728,8 @@ BOOL LLTexLayerInfo::parseXml(LLXmlTreeNode* node)
 			/* if ("upper_shirt" == local_texture_name)
 				mLocalTexture = TEX_UPPER_SHIRT; */
 			mLocalTexture = TEX_NUM_INDICES;
-			for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-				 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+			for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearance::getDictionary()->getTextures().begin();
+				 iter != LLAvatarAppearance::getDictionary()->getTextures().end();
 				 iter++)
 			{
 				const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
@@ -979,7 +979,7 @@ LLWearableType::EType LLTexLayerInterface::getWearableType() const
 
 		return type;
 	}
-	return LLAvatarAppearanceDictionary::getTEWearableType(te);
+	return LLAvatarAppearance::getDictionary()->getTEWearableType(te);
 }
 
 LLTexLayerInterface::ERenderPass LLTexLayerInterface::getRenderPass() const
