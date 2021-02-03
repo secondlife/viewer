@@ -276,7 +276,7 @@ F32 LLObjectCostManagerImpl::getRenderCostAvatar(U32 version, const LLVOAvatar *
 	for (U8 baked_index = 0; baked_index <= LLAvatarAppearanceDefines::BAKED_HAIR; baked_index++)
 	{
 		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
-			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+			= LLAvatarAppearance::getDictionary()->getBakedTexture((EBakedTextureIndex)baked_index);
 		ETextureIndex tex_index = baked_dict->mTextureIndex;
 		if ((tex_index != TEX_SKIRT_BAKED) || (av->isWearingWearableType(LLWearableType::WT_SKIRT)))
 		{

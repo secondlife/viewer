@@ -10768,7 +10768,7 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 	for (U8 baked_index = 0; baked_index <= BAKED_HAIR; baked_index++)
 	{
 		const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
-			= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+			= LLAvatarAppearance::getDictionary()->getBakedTexture((EBakedTextureIndex)baked_index);
 		ETextureIndex tex_index = baked_dict->mTextureIndex;
 		if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
 		{
@@ -10829,8 +10829,8 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 		}
 
 		// print any avatar textures we didn't already know about
-		for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-			 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearance::getDictionary()->getTextures().begin();
+			 iter != LLAvatarAppearance::getDictionary()->getTextures().end();
 			 ++iter)
 		{
 			const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
