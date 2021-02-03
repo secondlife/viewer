@@ -146,7 +146,6 @@ public:
     LLUUID 			getAssetID() { return mAssetID; }
 
 private:
-	void		onBtnHelp();
 	void		onBtnDynamicHelp();
 	void		onBtnUndoChanges();
 

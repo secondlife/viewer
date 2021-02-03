@@ -258,19 +258,17 @@ LLAvatarAppearanceDictionary::BakedEntry::BakedEntry(ETextureIndex tex_index,
 	}
 }
 
-// static
-ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index)
+ETextureIndex LLAvatarAppearanceDictionary::bakedToLocalTextureIndex(EBakedTextureIndex index) const
 {
-	return LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(index)->mTextureIndex;
+	return getBakedTexture(index)->mTextureIndex;
 }
 
-// static
 EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::string name)
 {
 	U8 index = 0;
 	while (index < BAKED_NUM_INDICES)
 	{
-		const BakedEntry *be = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex) index);
+		const BakedEntry *be = getBakedTexture((EBakedTextureIndex) index);
 		if (be && be->mName.compare(name) == 0)
 		{
 			// baked texture found
@@ -282,16 +280,15 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByRegionName(std::stri
 	return BAKED_NUM_INDICES;
 }
 
-// static 
 EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::string name)
 {
 	U8 index = 0;
 	while (index < BAKED_NUM_INDICES)
 	{
-		const BakedEntry *be = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex) index);
+		const BakedEntry *be = getBakedTexture((EBakedTextureIndex) index);
 		if (be)
 		{
-			const TextureEntry *te = LLAvatarAppearanceDictionary::getInstance()->getTexture(be->mTextureIndex);
+			const TextureEntry *te = getTexture(be->mTextureIndex);
 			if (te && te->mDefaultImageName.compare(name) == 0)
 			{
 				// baked texture found
@@ -304,10 +301,9 @@ EBakedTextureIndex LLAvatarAppearanceDictionary::findBakedByImageName(std::strin
 	return BAKED_NUM_INDICES;
 }
 
-// static
-LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index )
+LLWearableType::EType LLAvatarAppearanceDictionary::getTEWearableType(ETextureIndex index ) const
 {
-	return getInstance()->getTexture(index)->mWearableType;
+	return getTexture(index)->mWearableType;
 }
 
 // static

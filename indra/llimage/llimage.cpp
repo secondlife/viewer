@@ -583,29 +583,39 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 // LLImage
 //---------------------------------------------------------------------------
 
-LLImage::LLImage(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
+//static
+std::string LLImage::sLastErrorMessage;
+LLMutex* LLImage::sMutex = NULL;
+bool LLImage::sUseNewByteRange = false;
+S32  LLImage::sMinimalReverseByteRangePercent = 75;
+
+//static
+void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
 {
-    mMutex = new LLMutex();
-    mUseNewByteRange = use_new_byte_range;
-    mMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
+	sUseNewByteRange = use_new_byte_range;
+    sMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
+	sMutex = new LLMutex();
 }
 
-LLImage::~LLImage()
+//static
+void LLImage::cleanupClass()
 {
-    delete mMutex;
-    mMutex = NULL;
+	delete sMutex;
+	sMutex = NULL;
 }
 
-const std::string& LLImage::getLastErrorMessage()
+//static
+const std::string& LLImage::getLastError()
 {
 	static const std::string noerr("No Error");
-	return mLastErrorMessage.empty() ? noerr : mLastErrorMessage;
+	return sLastErrorMessage.empty() ? noerr : sLastErrorMessage;
 }
 
-void LLImage::setLastErrorMessage(const std::string& message)
+//static
+void LLImage::setLastError(const std::string& message)
 {
-	LLMutexLock m(mMutex);
-	mLastErrorMessage = message;
+	LLMutexLock m(sMutex);
+	sLastErrorMessage = message;
 }
 
 //---------------------------------------------------------------------------

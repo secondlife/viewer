@@ -339,7 +339,7 @@ U32 LLWearableData::getWearableCount(const LLWearableType::EType type) const
 
 U32 LLWearableData::getWearableCount(const U32 tex_index) const
 {
-	const LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
+	const LLWearableType::EType wearable_type = LLAvatarAppearance::getDictionary()->getTEWearableType((LLAvatarAppearanceDefines::ETextureIndex)tex_index);
 	return getWearableCount(wearable_type);
 }
 
@@ -349,7 +349,7 @@ LLUUID LLWearableData::computeBakedTextureHash(LLAvatarAppearanceDefines::EBaked
 	LLUUID hash_id;
 	bool hash_computed = false;
 	LLMD5 hash;
-	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture(baked_index);
+	const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearance::getDictionary()->getBakedTexture(baked_index);
 
 	for (U8 i=0; i < baked_dict->mWearables.size(); i++)
 	{
