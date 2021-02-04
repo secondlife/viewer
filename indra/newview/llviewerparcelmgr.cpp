@@ -1715,9 +1715,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			// Let interesting parties know about agent parcel change.
 			LLViewerParcelMgr* instance = LLViewerParcelMgr::getInstance();
 
-			// Notify anything that wants to know when the agent changes parcels
-			gAgent.changeParcels();
-
 			if (instance->mTeleportInProgress)
 			{
 				instance->mTeleportInProgress = FALSE;
@@ -1733,6 +1730,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 			}
             parcel->setParcelEnvironmentVersion(parcel_environment_version);
             LL_DEBUGS("ENVIRONMENT") << "Parcel environment version is " << parcel->getParcelEnvironmentVersion() << LL_ENDL;
+
             // Notify anything that wants to know when the agent changes parcels
             gAgent.changeParcels();
             instance->mTeleportInProgress = FALSE;
