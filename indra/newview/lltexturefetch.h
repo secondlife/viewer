@@ -648,7 +648,7 @@ public:
 	LLTextureFetchTester();
 	~LLTextureFetchTester();
 
-	void updateStats(const std::map<S32, F32> states_timers, const F32 fetch_time);
+	void updateStats(const std::map<S32, F32> states_timers, const F32 fetch_time, const S32 file_size);
 
 protected:
 	/*virtual*/ void outputTestRecord(LLSD* sd);
@@ -656,6 +656,7 @@ protected:
 private:
 
 	F32 mTextureFetchTime;
+	S32 mFileSize;
 
 	std::map<S32, F32> mStateTimersMap;
 };

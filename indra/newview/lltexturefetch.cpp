@@ -75,7 +75,6 @@ LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexFetchLatency("texture_
 
 LLTextureFetchTester* LLTextureFetch::sTesterp = NULL ;
 const std::string sTesterName("TextureFetchTester");
-const S32 TESTER_MIN_FETCHING_TIME = 2;
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2995,6 +2994,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			F32 fetch_time;
 			F32 cache_read_time;
 			F32 cache_write_time;
+			S32 file_size;
 			std::map<S32, F32> state_timers;;
 			worker->lockWorkMutex();									// +Mw
 			last_http_get_status = worker->mGetStatus;
@@ -3006,6 +3006,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			fetch_time = worker->mFetchTime;
 			cache_read_time = worker->mCacheReadTime;
 			cache_write_time = worker->mCacheWriteTime;
+			file_size = worker->mFileSize;
             worker->mCacheReadTimer.reset();
             worker->mDecodeTimer.reset();
 			worker->mCacheWriteTimer.reset();
@@ -3021,14 +3022,15 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			sample(sCacheReadLatency, cache_read_time);
 			sample(sCacheWriteLatency, cache_write_time);
 			
-			if (fetch_time > TESTER_MIN_FETCHING_TIME)
+			static LLCachedControl<F32> min_time_to_log(gSavedSettings, "TextureFetchMinTimeToLog", 2.f);
+			if (fetch_time > min_time_to_log)
 			{
 				//LL_INFOS() << "fetch_time: " << fetch_time << " cache_read_time: " << cache_read_time << " decode_time: " << decode_time << " cache_write_time: " << cache_write_time << LL_ENDL;
 
 				LLTextureFetchTester* tester = (LLTextureFetchTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 				if (tester)
 				{
-					tester->updateStats(state_timers, fetch_time) ;
+					tester->updateStats(state_timers, fetch_time, file_size) ;
 				}
 			}
 		}
@@ -5180,6 +5182,7 @@ LLTextureFetchTester::LLTextureFetchTester() : LLMetricPerformanceTesterBasic(sT
 	}
 
 	mTextureFetchTime = 0;
+	mFileSize = 0;
 }
 
 LLTextureFetchTester::~LLTextureFetchTester()
@@ -5194,6 +5197,7 @@ void LLTextureFetchTester::outputTestRecord(LLSD *sd)
 	std::string currentLabel = getCurrentLabelName();
 
 	(*sd)[currentLabel]["Texture Fetch Time"]	= (LLSD::Real)mTextureFetchTime;
+	(*sd)[currentLabel]["File Size"]			= (LLSD::Integer)mFileSize;
 
 	for (S32 i = LLTextureFetchWorker::INIT; i<=LLTextureFetchWorker::WAIT_ON_WRITE; i++)
 	{
@@ -5202,10 +5206,11 @@ void LLTextureFetchTester::outputTestRecord(LLSD *sd)
 	}
 }
 
-void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, const F32 fetch_time)
+void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, const F32 fetch_time, const S32 file_size)
 {
 	mTextureFetchTime = fetch_time;
 	mStateTimersMap = state_timers;
+	mFileSize = file_size;
 
 	outputTestResults();
 }
