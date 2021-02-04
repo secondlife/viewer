@@ -668,9 +668,9 @@ private:
 	LLTeleportRequestPtr        mTeleportCanceled;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
-	boost::signals2::connection	mParcelMgrConnection;
 
 	bool            mIsMaturityRatingChangingDuringTeleport;
+	bool            mTPNeedsNeabyChatSeparator;
 	U8              mMaturityRatingChange;
 
 	bool            hasPendingTeleportRequest();
@@ -687,7 +687,7 @@ private:
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
 
-    static void     onParcelReadyAfterTeleport();
+    static void     addTPNearbyChatSeparator();
     static void     onCapabilitiesReceivedAfterTeleport();
 
 	//--------------------------------------------------------------------

@@ -739,6 +739,7 @@ public:
 				break;
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
+				break;
 			case CHAT_SOURCE_TELEPORT:
 				icon->setValue(LLSD("Command_Destinations_Icon"));
 				break;
