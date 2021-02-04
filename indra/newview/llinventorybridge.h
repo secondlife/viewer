@@ -760,7 +760,7 @@ class LLFolderViewGroupedItemBridge: public LLFolderViewGroupedItemModel
 public:
     LLFolderViewGroupedItemBridge();
     virtual void groupFilterContextMenu(folder_view_item_deque& selected_items, LLMenuGL& menu);
-    bool canWearSelected(uuid_vec_t item_ids);
+    bool canWearSelected(const uuid_vec_t& item_ids) const;
 };
 
 #endif // LL_LLINVENTORYBRIDGE_H

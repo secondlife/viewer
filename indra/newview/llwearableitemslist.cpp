@@ -640,6 +640,7 @@ LLWearableItemsList::LLWearableItemsList(const LLWearableItemsList::Params& p)
 :	LLInventoryItemsList(p)
 {
 	setSortOrder(E_SORT_BY_TYPE_LAYER, false);
+	mMenuWearableType = LLWearableType::WT_NONE;
 	mIsStandalone = p.standalone;
 	if (mIsStandalone)
 	{
@@ -731,10 +732,15 @@ void LLWearableItemsList::onRightClick(S32 x, S32 y)
 	getSelectedUUIDs(selected_uuids);
 	if (selected_uuids.empty())
 	{
-		return;
+		if ((mMenuWearableType != LLWearableType::WT_NONE) && (size() == 0))
+		{
+			ContextMenu::instance().show(this, mMenuWearableType, x, y);
+		}
 	}
-
-	ContextMenu::instance().show(this, selected_uuids, x, y);
+	else
+	{
+		ContextMenu::instance().show(this, selected_uuids, x, y);
+	}
 }
 
 void LLWearableItemsList::setSortOrder(ESortOrder sort_order, bool sort_now)
@@ -782,6 +788,46 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, const uuid_ve
 {
 	mParent = dynamic_cast<LLWearableItemsList*>(spawning_view);
 	LLListContextMenu::show(spawning_view, uuids, x, y);
+	mParent = NULL; // to avoid dereferencing an invalid pointer
+}
+
+void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableType::EType w_type, S32 x, S32 y)
+{
+	mParent = dynamic_cast<LLWearableItemsList*>(spawning_view);
+	LLContextMenu* menup = mMenuHandle.get();
+	if (menup)
+	{
+		//preventing parent (menu holder) from deleting already "dead" context menus on exit
+		LLView* parent = menup->getParent();
+		if (parent)
+		{
+			parent->removeChild(menup);
+		}
+		delete menup;
+		mUUIDs.clear();
+	}
+
+	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+    registrar.add("Wearable.CreateNew", boost::bind(createNewWearableByType, w_type));
+	menup = createFromFile("menu_wearable_list_item.xml");
+	if (!menup)
+	{
+		LL_WARNS() << "Context menu creation failed" << LL_ENDL;
+		return;
+	}
+	setMenuItemVisible(menup, "create_new", true);
+	setMenuItemEnabled(menup, "create_new", true);
+	setMenuItemVisible(menup, "wearable_attach_to", false);
+	setMenuItemVisible(menup, "wearable_attach_to_hud", false);
+
+	std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
+	LLMenuItemGL* menu_item = menup->getChild<LLMenuItemGL>("create_new");
+	menu_item->setLabel(new_label);
+
+	mMenuHandle = menup->getHandle();
+	menup->show(x, y);
+	LLMenuGL::showPopup(spawning_view, menup, x, y);
+
 	mParent = NULL; // to avoid dereferencing an invalid pointer
 }
 
@@ -1012,6 +1058,12 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 	if (!item || !item->isWearableType()) return;
 
 	LLAgentWearables::createWearable(item->getWearableType(), true);
+}
+
+// static
+void LLWearableItemsList::ContextMenu::createNewWearableByType(LLWearableType::EType type)
+{
+	LLAgentWearables::createWearable(type, true);
 }
 
 // EOF
