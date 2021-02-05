@@ -13,6 +13,9 @@
         <on_click
          function="Places.LandmarksGear.Add.Action"
          parameter="add_landmark" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="add_landmark" />
     </menu_item_call>
     <menu_item_call
      label="Add Folder"

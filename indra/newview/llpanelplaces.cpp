@@ -388,7 +388,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			// Update the buttons at the bottom of the panel
 			updateVerbs();
 		}
-		else
+		else // "create_landmark"
 		{
 			mFilterEditor->clear();
 			onFilterEdit("", false);

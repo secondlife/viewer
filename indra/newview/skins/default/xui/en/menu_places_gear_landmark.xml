@@ -18,7 +18,18 @@
          parameter="teleport" />
     </menu_item_call>
     <menu_item_call
-     label="More Information"
+     label="Share"
+     layout="topleft"
+     name="share">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="share" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="share" />
+    </menu_item_call>
+    <menu_item_call
+     label="View/Edit Landmark"
      layout="topleft"
      name="more_info">
         <on_click
@@ -39,26 +50,27 @@
          function="Places.LandmarksGear.Enable"
          parameter="show_on_map" />
     </menu_item_call>
-    <menu_item_separator
-     layout="topleft" />
     <menu_item_call
-     label="Add Landmark"
+     label="Copy SLurl"
      layout="topleft"
-     name="add_landmark">
+     name="copy_slurl">
         <on_click
-         function="Places.LandmarksGear.Add.Action"
-         parameter="add_landmark" />
-    </menu_item_call>
-    <menu_item_call
-     label="Add Folder"
-     layout="topleft"
-     name="add_folder">
-        <on_click
-         function="Places.LandmarksGear.Add.Action"
-         parameter="category" />
+         function="Places.LandmarksGear.CopyPaste.Action"
+         parameter="copy_slurl" />
         <on_enable
          function="Places.LandmarksGear.Enable"
-         parameter="category" />
+         parameter="copy_slurl" />
+    </menu_item_call> 
+    <menu_item_call
+     label="Create Pick"
+     layout="topleft"
+     name="create_pick">
+        <on_click
+         function="Places.LandmarksGear.Custom.Action"
+         parameter="create_pick" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="create_pick" />
     </menu_item_call>
     <menu_item_call
      label="Restore Item"
@@ -82,23 +94,12 @@
          parameter="cut" />
     </menu_item_call>
     <menu_item_call
-     label="Copy Landmark"
+     label="Copy"
      layout="topleft"
      name="copy_landmark">
         <on_click
          function="Places.LandmarksGear.CopyPaste.Action"
          parameter="copy" />
-    </menu_item_call>
-    <menu_item_call
-     label="Copy SLurl"
-     layout="topleft"
-     name="copy_slurl">
-        <on_click
-         function="Places.LandmarksGear.CopyPaste.Action"
-         parameter="copy_slurl" />
-        <on_enable
-         function="Places.LandmarksGear.Enable"
-         parameter="copy_slurl" />
     </menu_item_call>
     <menu_item_call
      label="Paste"
@@ -171,15 +172,4 @@
          function="Places.LandmarksGear.Enable"
          parameter="sort_by_date" />
     </menu_item_check>
-    <menu_item_call
-     label="Create Pick"
-     layout="topleft"
-     name="create_pick">
-        <on_click
-         function="Places.LandmarksGear.Custom.Action"
-         parameter="create_pick" />
-        <on_enable
-         function="Places.LandmarksGear.Enable"
-         parameter="create_pick" />
-    </menu_item_call>
 </toggleable_menu>
