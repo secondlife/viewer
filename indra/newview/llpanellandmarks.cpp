@@ -785,7 +785,14 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		}
 		else
 		{
-			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+            LLSD args;
+            args["type"] = "create_landmark";
+            if (view_model->getInventoryType()
+                == LLInventoryType::IT_CATEGORY)
+            {
+                args["dest_folder"] = view_model->getUUID();
+            }
+			LLFloaterSidePanelContainer::showPanel("places", args);
 		}
 	} 
 	else if ("category" == command_name)

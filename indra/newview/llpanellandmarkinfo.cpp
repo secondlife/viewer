@@ -107,6 +107,18 @@ void LLPanelLandmarkInfo::resetLocation()
 // virtual
 void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 {
+    LLUUID dest_folder;
+    setInfoType(type, dest_folder);
+}
+
+// Sets CREATE_LANDMARK infotype and creates landmark at desired folder
+void LLPanelLandmarkInfo::setInfoAndCreateLandmark(const LLUUID& fodler_id)
+{
+    setInfoType(CREATE_LANDMARK, fodler_id);
+}
+
+void LLPanelLandmarkInfo::setInfoType(EInfoType type, const LLUUID &folder_id)
+{
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
 	bool is_info_type_create_landmark = type == CREATE_LANDMARK;
@@ -183,7 +195,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			// remote parcel request to complete.
 			if (!LLLandmarkActions::landmarkAlreadyExists())
 			{
-				createLandmark(LLUUID());
+				createLandmark(folder_id);
 			}
 		}
 		break;

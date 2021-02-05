@@ -409,7 +409,8 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			}
 			else if (mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE)
 			{
-				mLandmarkInfo->setInfoType(LLPanelPlaceInfo::CREATE_LANDMARK);
+				LLUUID dest_folder = key["dest_folder"];
+				mLandmarkInfo->setInfoAndCreateLandmark(dest_folder);
 
 				if (key.has("x") && key.has("y") && key.has("z"))
 				{
