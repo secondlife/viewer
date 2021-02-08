@@ -107,6 +107,13 @@ public:
 	 */
 	void					goToItem(S32 idx);
 
+    /**
+     * Show specific item on map.
+     *
+     * The item is specified by its index (starting from 0).
+     */
+    void					showItemOnMap(S32 idx);
+
 private:
 
 	void load();

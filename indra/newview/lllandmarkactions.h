@@ -72,12 +72,6 @@ public:
 	 */
 	static LLViewerInventoryItem* findLandmarkForAgentPos();
 
-
-	/**
-	 * @brief Checks whether agent has rights to create landmark for current parcel.
-	 */
-	static bool canCreateLandmarkHere();
-
 	/**
 	 * @brief Creates landmark for current parcel.
 	 */

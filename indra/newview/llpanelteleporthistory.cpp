@@ -396,9 +396,7 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 	// (N.B. callbacks don't take const refs as mID is local scope)
 	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
 
-	registrar.add("TeleportHistory.Teleport",	boost::bind(&LLTeleportHistoryPanel::ContextMenu::onTeleport, this));
-	registrar.add("TeleportHistory.MoreInformation",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onInfo, this));
-	registrar.add("TeleportHistory.CopyToClipboard",boost::bind(&LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard, this));
+	registrar.add("TeleportHistory.Action", boost::bind(&LLTeleportHistoryPanel::ContextMenu::onUserAction, this, _2));
 
 	// create the context menu from the XUI
 	llassert(LLMenuGL::sMenuContainer != NULL);
@@ -406,14 +404,27 @@ LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
 		"menu_teleport_history_item.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
 }
 
-void LLTeleportHistoryPanel::ContextMenu::onTeleport()
+void LLTeleportHistoryPanel::ContextMenu::onUserAction(const LLSD& userdata)
 {
-	confirmTeleport(mIndex);
-}
-
-void LLTeleportHistoryPanel::ContextMenu::onInfo()
-{
-	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
+    std::string command_name = userdata.asString();
+    if ("teleport" == command_name)
+    {
+        confirmTeleport(mIndex);
+    }
+    else if ("view" == command_name)
+    {
+        LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
+    }
+    else if ("show_on_map" == command_name)
+    {
+        LLTeleportHistoryStorage::getInstance()->showItemOnMap(mIndex);
+    }
+    else if ("copy_slurl" == command_name)
+    {
+        LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[mIndex].mGlobalPos;
+        LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
+            boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1));
+    }
 }
 
 //static
@@ -425,13 +436,6 @@ void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& sl
 	args["SLURL"] = slurl;
 
 	LLNotificationsUtil::add("CopySLURL", args);
-}
-
-void LLTeleportHistoryPanel::ContextMenu::onCopyToClipboard()
-{
-	LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[mIndex].mGlobalPos;
-	LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
-		boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1));
 }
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
