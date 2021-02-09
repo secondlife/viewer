@@ -128,6 +128,7 @@ LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *
       mCountSucceeded(0),
       mTotalBytesFetched(0)
 {
+    LLCoprocedureManager::instance().initializePool(VIEWER_ASSET_STORAGE_CORO_POOL);
 }
 
 LLViewerAssetStorage::~LLViewerAssetStorage()

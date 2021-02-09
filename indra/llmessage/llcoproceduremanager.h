@@ -79,6 +79,8 @@ public:
 
     void close();
     void close(const std::string &pool);
+
+    void initializePool(const std::string &poolName);
     
 private:
 
@@ -86,8 +88,6 @@ private:
     typedef std::map<std::string, poolPtr_t> poolMap_t;
 
     poolMap_t mPoolMap;
-
-    poolPtr_t initializePool(const std::string &poolName);
 
     SettingQuery_t mPropertyQueryFn;
     SettingUpdate_t mPropertyDefineFn;

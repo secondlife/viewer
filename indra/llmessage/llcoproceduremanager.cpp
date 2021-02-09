@@ -138,7 +138,7 @@ LLCoprocedureManager::~LLCoprocedureManager()
     close();
 }
 
-LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::string &poolName)
+void LLCoprocedureManager::initializePool(const std::string &poolName)
 {
     // Attempt to look up a pool size in the configuration.  If found use that
     std::string keyName = "PoolSize" + poolName;
@@ -171,8 +171,6 @@ LLCoprocedureManager::poolPtr_t LLCoprocedureManager::initializePool(const std::
 
     bool inserted = mPoolMap.emplace(poolName, pool).second;
     LL_ERRS_IF(!inserted, "CoprocedureManager") << "Unable to add pool named \"" << poolName << "\" to map. FATAL!" << LL_ENDL;
-
-    return pool;
 }
 
 //-------------------------------------------------------------------------
@@ -182,20 +180,28 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
     // not exist, create it.
     poolMap_t::iterator it = mPoolMap.find(pool);
 
-    poolPtr_t targetPool = (it != mPoolMap.end()) ? it->second : initializePool(pool);
+    if (it == mPoolMap.end())
+    {
+        // initializing pools in enqueueCoprocedure is not thread safe,
+        // at the moment pools need to be initialized manually
+        LL_ERRS() << "Uninitialized pool " << name << LL_ENDL;
+    }
 
+    poolPtr_t targetPool = it->second;
     return targetPool->enqueueCoprocedure(name, proc);
 }
 
 void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpdate_t updatefn)
 {
     // functions to discover and store the pool sizes
+    // Might be a better idea to make an initializePool(name, size) to init everything externally
     mPropertyQueryFn = queryfn;
     mPropertyDefineFn = updatefn;
 
-    // workaround until we get mutex into initializePool
-    initializePool("VAssetStorage");
     initializePool("Upload");
+    initializePool("AIS"); // it might be better to have some kind of on-demand initialization for AIS
+    // "ExpCache" pool gets initialized in LLExperienceCache
+    // asset storage pool gets initialized in LLViewerAssetStorage
 }
 
 //-------------------------------------------------------------------------

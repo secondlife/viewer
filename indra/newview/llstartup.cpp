@@ -1818,9 +1818,6 @@ bool idle_startup()
 		
 		display_startup();
 
-		//all categories loaded. lets create "My Favorites" category
-		gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
-
 		// set up callbacks
 		LL_INFOS() << "Registering Callbacks" << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
