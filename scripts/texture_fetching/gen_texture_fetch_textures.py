@@ -29,15 +29,63 @@ $/LicenseInfo$
 """
 import os
 import sys
+import argparse
+import math
 from random import seed
 from random import randint
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 
-num_textures = 400
+parser = argparse.ArgumentParser(
+    description="Generates random textures and saves them as JPEG files."
+)
+
+parser.add_argument(
+    "-n --num_textures",
+    nargs=1,
+    type=int,
+    required=True,
+    help="Number of textures to generate",
+    dest="num_textures",
+)
+
+parser.add_argument(
+    "-min --min_size",
+    nargs=1,
+    type=int,
+    required=True,
+    help="Minimum dimensions of the texture",
+    dest="min_size",
+)
+
+parser.add_argument(
+    "-max --max_size",
+    nargs=1,
+    type=int,
+    required=True,
+    help="Maximum dimensions of the texture",
+    dest="max_size",
+)
+
+parser.add_argument(
+    "-f --first_num",
+    nargs=1,
+    type=int,
+    required=True,
+    help="First number to use in texture filename",
+    dest="first_num",
+)
+
+args = parser.parse_args()
+
 saturation = 90
 luminance = 50
+
+# calculate how much padding we need for this number range
+max_index = args.num_textures[0] + args.first_num[0]
+num_padding_digits = int(round(math.log10(max_index) + 0.5, 0))
+num_padding_str = "0%d" % num_padding_digits
 
 # Overkill perhaps but use a decent font so we can resize it
 # vs the one built into PIL
@@ -45,13 +93,12 @@ def get_font_path():
     macos_font_path = "/Library/Fonts/Arial Unicode.ttf"
     if os.path.isfile(macos_font_path) == True:
         return macos_font_path
-
     windows_font_path = "/Windows/fonts/arial.ttf"
     if os.path.isfile(windows_font_path) == True:
         return windows_font_path
-
     default_path = ""
     return default_path
+
 
 # Write a line of text that is scaled to fit horizontally.  We allow
 # the writing of a "Small" version - consider it a second level heading
@@ -66,7 +113,6 @@ def write_line(img, line, font_path, max_height, y, col, small_font=False):
     if small_font == True:
         target_w = (img.size[0] - padding) / 2.0
         target_h = max_height
-
     max_font_size = 160
     min_font_size = 8
     for fs in range(max_font_size, min_font_size, -2):
@@ -74,20 +120,21 @@ def write_line(img, line, font_path, max_height, y, col, small_font=False):
         text_w, text_h = draw.textsize(line, font=font)
         if text_w < target_w and text_h < target_h:
             break
-
     draw.text(
         ((img.size[0] - text_w) / 2, y - text_h / 2), line, col, font=font
     )
 
+
 # actually write out the textures - we might consider making all
 # these values command line parameters one day.
-for t in range(num_textures):
-    texture_width = randint(100, 800)
-    texture_height = randint(100, 800)
-    
+for t in range(args.num_textures[0]):
+    texture_width = randint(args.min_size[0], args.max_size[0])
+    texture_height = randint(args.min_size[0], args.max_size[0])
+
     # override for now - looks better on a cube when width == height
     texture_height = texture_width
 
+    # todo - make a parameter??
     num_squares_x = randint(4, 24)
     num_squares_y = int(texture_height * num_squares_x / texture_width)
 
@@ -97,8 +144,8 @@ for t in range(num_textures):
     # use the same saturation and luminence - just change the hue of
     # each color. TODO: find a way to make the colors more complimentary
     # vs just both random - too often get very similar colors
-    color1 = "hsl(%d, %d%%, %d%%)" % (randint(0, 128), saturation, luminance)
-    color2 = "hsl(%d, %d%%, %d%%)" % (randint(128, 255), saturation, luminance)
+    color1 = "hsl(%d, %d%%, %d%%)" % (randint(0, 120), saturation, luminance)
+    color2 = "hsl(%d, %d%%, %d%%)" % (randint(135, 255), saturation, luminance)
 
     for y in range(num_squares_y):
         for x in range(num_squares_x):
@@ -116,13 +163,31 @@ for t in range(num_textures):
                 color1 if (x + y) % 2 == 0 else color2,
             )
 
-    texture_num_str = format(t, '03')
+    image_number = args.first_num[0] + t
+    texture_num_str = format(image_number, num_padding_str)
     line = "Random Texture # %s" % (texture_num_str)
-    write_line(image, line, get_font_path(), texture_height / 2, texture_height * 1 / 4, 'black', False )
+    write_line(
+        image,
+        line,
+        get_font_path(),
+        texture_height / 2,
+        texture_height * 1 / 4,
+        "black",
+        False,
+    )
 
     line = "%d x %d" % (texture_width, texture_height)
-    write_line(image, line, get_font_path(), texture_height / 2, texture_height * 3 / 4, 'black', True )
+    write_line(
+        image,
+        line,
+        get_font_path(),
+        texture_height / 2,
+        texture_height * 3 / 4,
+        "black",
+        True,
+    )
 
     # image.show()
-    filename = "generated_texture_%s.png" % (texture_num_str) 
-    image.save(filename, "PNG")
+    filename = "generated_texture_%s.jpg" % (texture_num_str)
+    image.save(filename, "JPEG")
+    print "Writing texture: ", filename
