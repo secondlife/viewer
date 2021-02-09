@@ -1044,8 +1044,12 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			// ... but except Received folder
 			return !isReceivedFolderSelected();
 		}
+		if (mCurrentSelectedList == mLibraryInventoryPanel)
+		{
+			return false;
+		}
 		//"Add a folder" is enabled by default (case when My Landmarks is empty)
-		else return true;
+		return true;
 	}
 	else if("create_pick" == command_name)
 	{
@@ -1063,6 +1067,10 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
     {
         bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
         if (!is_single_selection)
+        {
+            return false;
+        }
+        if (mCurrentSelectedList == mLibraryInventoryPanel)
         {
             return false;
         }
