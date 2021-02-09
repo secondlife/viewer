@@ -2380,6 +2380,15 @@ void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
         return;
 
     mCurrentTrack = trackno;
+
+    LLViewerRegion* cur_region = gAgent.getRegion();
+    if (!cur_region || !cur_region->capabilitiesReceived())
+    {
+        // Environment not ready, environment will be updated later, don't cause 'blend' yet.
+        // But keep mCurrentTrack updated in case we won't get new altitudes for some reason
+        return;
+    }
+
     for (S32 env = ENV_LOCAL; env < ENV_DEFAULT; ++env)
     {
         if (mEnvironments[env])
