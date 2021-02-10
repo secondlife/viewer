@@ -58,6 +58,7 @@
 #include "llevents.h"
 #include "llappviewer.h"
 #include "llsdserialize.h"
+#include "lltrans.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
@@ -364,16 +365,21 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
                                 << LL_ENDL;
             login_version = vvm_version;
         }
-        if (relnotes.empty())
+        if (relnotes.empty() || relnotes.find("://") == std::string::npos)
         {
-            // I thought this would be available in strings.xml or some such
-            relnotes = "https://secondlife.com/support/downloads/";
+            relnotes = LLTrans::getString("RELEASE_NOTES_BASE_URL");
+            if (!LLStringUtil::endsWith(relnotes, "/"))
+                relnotes += "/";
+            relnotes += LLURI::escape(login_version) + ".html";
         }
 
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
-        LLSD args(LLSDMap("VERSION", login_version)("URL", relnotes));
+        LLSD args;
+        args["VERSION"] = login_version;
+        args["URL"] = relnotes;
+
         if (updater.isUndefined())
         {
             // If the updater failed to shake hands, better advise the user to
