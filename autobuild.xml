@@ -748,9 +748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2995f0347fb20ae00a907c42ea5b4610</string>
+              <string>d5528538e67c710387ae0c061a90cb23</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76852/730658/fmodstudio-2.01.07.555876-darwin64-555876.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76868/730756/fmodstudio-2.01.07.555883-darwin64-555883.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -784,9 +784,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2d07717252e41f93afa4d6e5a4fee82</string>
+              <string>a2bb6eaf51f933993b26a5fe7503a761</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76854/730670/fmodstudio-2.01.07.555876-windows-555876.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76869/730763/fmodstudio-2.01.07.555883-windows-555883.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -796,16 +796,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>88c9e27c6b69e1833dadf4f23686f34a</string>
+              <string>138d07dd516a9ad5b9787192fe6134dd</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76853/730669/fmodstudio-2.01.07.555876-windows64-555876.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76867/730751/fmodstudio-2.01.07.555883-windows64-555883.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.01.07.555876</string>
+        <string>2.01.07.555883</string>
       </map>
       <key>fontconfig</key>
       <map>
