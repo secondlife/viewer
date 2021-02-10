@@ -3684,19 +3684,18 @@ void LLInventoryModel::dumpInventory() const
 			LL_INFOS() << "  NULL!" << LL_ENDL;
 		}
 	}	
-	LL_INFOS() << "mItemMap[] contains " << mItemMap.size() << " items." << LL_ENDL;
+	LL_INFOS() << "mItemMap[] contains " << mItemMap.size() << " textures." << LL_ENDL;
 	for(item_map_t::const_iterator iit = mItemMap.begin(); iit != mItemMap.end(); ++iit)
 	{
 		const LLViewerInventoryItem* item = iit->second;
 		if(item)
 		{
-            std::string u = item->getAssetUUID().asString();
-			LL_INFOS() << "  " << "U: " << u << "  getUUID: " << item->getUUID() << " "
-					<< item->getName() << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS() << "  NULL!" << LL_ENDL;
+            LLInventoryType::EType inv_type = item->getInventoryType();
+            if (inv_type == LLInventoryType::IT_TEXTURE)
+            {
+                std::string texture_id = item->getAssetUUID().asString();
+                LL_INFOS() << "@ texture: name " << item->getName() << " -- uuid: " << texture_id << LL_ENDL;
+            }
 		}
 	}
 	LL_INFOS() << "\n**********************\nEnd Inventory Dump" << LL_ENDL;
