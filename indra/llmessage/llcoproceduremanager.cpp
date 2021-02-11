@@ -184,7 +184,7 @@ LLUUID LLCoprocedureManager::enqueueCoprocedure(const std::string &pool, const s
     {
         // initializing pools in enqueueCoprocedure is not thread safe,
         // at the moment pools need to be initialized manually
-        LL_ERRS() << "Uninitialized pool " << name << LL_ENDL;
+        LL_ERRS() << "Uninitialized pool " << pool << LL_ENDL;
     }
 
     poolPtr_t targetPool = it->second;
