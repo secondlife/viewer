@@ -35,14 +35,23 @@ LLUIUsage::~LLUIUsage()
 {
 }
 
+// static
+std::string LLUIUsage::sanitized(const std::string& s)
+{
+	// ViewerStats db doesn't like "." in keys
+	std::string result(s);
+	std::replace(result.begin(), result.end(), '.', '_');
+	return result;
+}
+
 void LLUIUsage::logFloater(const std::string& floater)
 {
-	mFloaterCounts[floater]++;
+	mFloaterCounts[sanitized(floater)]++;
 }
 
 void LLUIUsage::logCommand(const std::string& command)
 {
-	mCommandCounts[command]++;
+	mCommandCounts[sanitized(command)]++;
 }
 
 LLSD LLUIUsage::asLLSD() const

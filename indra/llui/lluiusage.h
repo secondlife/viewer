@@ -38,6 +38,7 @@ public:
 	LLSINGLETON(LLUIUsage);
 	~LLUIUsage();
 public:
+	static std::string sanitized(const std::string& s);
 	void logFloater(const std::string& floater);
 	void logCommand(const std::string& command);
 	LLSD asLLSD() const;
