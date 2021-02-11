@@ -32,6 +32,7 @@
 #include "llfloater.h"
 #include "llmultifloater.h"
 #include "llfloaterreglistener.h"
+#include "lluiusage.h"
 
 //*******************************************************
 
@@ -243,6 +244,8 @@ LLFloaterReg::const_instance_list_t& LLFloaterReg::getFloaterList(const std::str
 //static
 LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus) 
 {
+	LL_DEBUGS("UIUsage") << "floater showInstance " << name << LL_ENDL;
+	LLUIUsage::instance().logFloater(name);
 	if( sBlockShowFloaters
 			// see EXT-7090
 			&& sAlwaysShowableList.find(name) == sAlwaysShowableList.end())
@@ -273,6 +276,9 @@ bool LLFloaterReg::hideInstance(const std::string& name, const LLSD& key)
 // returns true if the instance is visible when completed
 bool LLFloaterReg::toggleInstance(const std::string& name, const LLSD& key)
 {
+	LL_DEBUGS("UIUsage") << "floater toggleInstance " << name << LL_ENDL;
+	LLUIUsage::instance().logFloater(name);
+
 	LLFloater* instance = findInstance(name, key); 
 	if (LLFloater::isShown(instance))
 	{
@@ -473,6 +479,8 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 	LLFloater* instance = getInstance(name, key); 
 	
 
+	LL_DEBUGS("UIUsage") << "floater toggleInstanceOrBringToFront " << name << LL_ENDL;
+	LLUIUsage::instance().logFloater(name);
 	if (!instance)
 	{
 		LL_DEBUGS() << "Unable to get instance of floater '" << name << "'" << LL_ENDL;
