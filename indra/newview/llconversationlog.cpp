@@ -398,7 +398,7 @@ void LLConversationLog::deleteBackupLogs()
 	}
 }
 
-void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::string &expected_filename)
+void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::string &expected_filename, const std::string &new_session_name)
 {
     conversations_vec_t::iterator conv_it = mConversations.begin();
     for (; conv_it != mConversations.end(); ++conv_it)
@@ -409,6 +409,7 @@ void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::stri
             {
                 LLLogChat::renameLogFile(conv_it->getHistoryFileName(), expected_filename);
                 conv_it->updateHistoryFileName(expected_filename);
+                conv_it->setConversationName(new_session_name);
             }
             break;
         }

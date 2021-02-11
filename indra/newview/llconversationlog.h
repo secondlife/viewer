@@ -140,7 +140,7 @@ public:
 	 */
 	void cache();
     // will check if current name is edentical with the one on disk and will rename the one on disk if it isn't
-	void verifyFilename(const LLUUID& session_id, const std::string &expected_filename);
+	void verifyFilename(const LLUUID& session_id, const std::string &expected_filename, const std::string &new_session_name);
 	bool moveLog(const std::string &originDirectory, const std::string &targetDirectory);
 	void getListOfBackupLogs(std::vector<std::string>& list_of_backup_logs);
 	void deleteBackupLogs();
