@@ -348,6 +348,52 @@ LLQuaternion LLVirtualTrackball::getRotation() const
 	return mValue;
 }
 
+// static
+void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+{
+    // LLQuaternion has own function to get azimuth, but it doesn't appear to return correct values (meant for 2d?)
+    const LLVector3 VectorZero(10000.0f, 0.0f, 0.0f);
+    LLVector3 point = VectorZero * quat;
+
+    if (!is_approx_zero(point.mV[VX]) || !is_approx_zero(point.mV[VY]))
+    {
+        azimuth = atan2f(point.mV[VX], point.mV[VY]);
+    }
+    else
+    {
+        azimuth = 0;
+    }
+
+    azimuth -= F_PI_BY_TWO;
+
+    if (azimuth < 0)
+    {
+        azimuth += F_PI * 2;
+    }
+
+    if (abs(point.mV[VY]) > abs(point.mV[VX]) && !is_approx_zero(point.mV[VY])) // to avoid precision drop
+    {
+        elevation = atanl((F64)point.mV[VZ] / (F64)abs(point.mV[VY]));
+    }
+    else if (!is_approx_zero(point.mV[VX]))
+    {
+        elevation = atanl((F64)point.mV[VZ] / (F64)abs(point.mV[VX]));
+    }
+    else
+    {
+        // both VX and VY are near zero, VZ should be high
+        elevation = point.mV[VZ] > 0 ? F_PI_BY_TWO : -F_PI_BY_TWO;
+    }
+}
+
+// static
+void LLVirtualTrackball::getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+{
+    getAzimuthAndElevation(quat, azimuth, elevation);
+    azimuth *= RAD_TO_DEG;
+    elevation *= RAD_TO_DEG;
+}
+
 BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())

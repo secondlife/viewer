@@ -96,6 +96,9 @@ public:
     void            setRotation(const LLQuaternion &value);
     LLQuaternion    getRotation() const;
 
+    static void             getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
+    static void             getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation);
+
 protected:
     friend class LLUICtrlFactory;
     LLVirtualTrackball(const Params&);

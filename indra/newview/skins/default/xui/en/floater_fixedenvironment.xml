@@ -89,7 +89,7 @@
                 follows="left|top|right|bottom"
                 auto_resize="false"
                 user_resize="false"
-                height="40"
+                height="35"
                 visible="true">
             <layout_stack
                     follows="bottom|left|right"
