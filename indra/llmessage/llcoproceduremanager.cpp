@@ -140,11 +140,22 @@ LLCoprocedureManager::~LLCoprocedureManager()
 
 void LLCoprocedureManager::initializePool(const std::string &poolName)
 {
+    poolMap_t::iterator it = mPoolMap.find(poolName);
+
+    if (it != mPoolMap.end())
+    {
+        // Pools are not supposed to be initialized twice
+        // Todo: ideally restrict init to STATE_FIRST
+        LL_ERRS() << "Pool is already present " << poolName << LL_ENDL;
+        return;
+    }
+
     // Attempt to look up a pool size in the configuration.  If found use that
     std::string keyName = "PoolSize" + poolName;
     int size = 0;
 
     LL_ERRS_IF(poolName.empty(), "CoprocedureManager") << "Poolname must not be empty" << LL_ENDL;
+    LL_INFOS("CoprocedureManager") << "Initializing pool " << poolName << LL_ENDL;
 
     if (mPropertyQueryFn)
     {
