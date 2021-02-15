@@ -1466,6 +1466,12 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 	LLPointer<LLViewerInventoryCategory> cat = gInventory.getCategory(id);
 	if (cat.notNull())
 	{
+		const LLUUID fav_id = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_FAVORITE);
+		if ((id == fav_id) || gInventory.isObjectDescendentOf(fav_id, id))
+		{
+			gSavedPerAccountSettings.setString("FavoritesFolder", "");
+		}
+
 		if (LLClipboard::instance().hasContents())
 		{
 			// Remove items from clipboard or it will remain active even if there is nothing to paste/copy
