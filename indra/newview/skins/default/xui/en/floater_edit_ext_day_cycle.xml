@@ -616,7 +616,7 @@
                     follows="top|left"
                     height="23"
                     label="Save"
-                    left="5"
+                    left="200"
                     top_pad="0"
                     name="save_btn"
                     width="156" />
