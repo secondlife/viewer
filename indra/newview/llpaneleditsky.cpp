@@ -625,7 +625,7 @@ void LLPanelSettingsSkySunMoonTab::onSunAzimElevChanged()
 {
     F32 azimuth = getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal();
     F32 elevation = getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal();
-    LLQuaternion quat = mSkySettings->getSunRotation();
+    LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
     elevation *= DEG_TO_RAD;
@@ -687,7 +687,7 @@ void LLPanelSettingsSkySunMoonTab::onMoonAzimElevChanged()
 {
     F32 azimuth = getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal();
     F32 elevation = getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal();
-    LLQuaternion quat = mSkySettings->getMoonRotation();
+    LLQuaternion quat;
 
     azimuth *= DEG_TO_RAD;
     elevation *= DEG_TO_RAD;

@@ -352,7 +352,6 @@ LLQuaternion LLVirtualTrackball::getRotation() const
 void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
 {
     // LLQuaternion has own function to get azimuth, but it doesn't appear to return correct values (meant for 2d?)
-    const LLVector3 VectorZero(10000.0f, 0.0f, 0.0f);
     LLVector3 point = VectorZero * quat;
 
     if (!is_approx_zero(point.mV[VX]) || !is_approx_zero(point.mV[VY]))
@@ -371,19 +370,7 @@ void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &a
         azimuth += F_PI * 2;
     }
 
-    if (abs(point.mV[VY]) > abs(point.mV[VX]) && !is_approx_zero(point.mV[VY])) // to avoid precision drop
-    {
-        elevation = atanl((F64)point.mV[VZ] / (F64)abs(point.mV[VY]));
-    }
-    else if (!is_approx_zero(point.mV[VX]))
-    {
-        elevation = atanl((F64)point.mV[VZ] / (F64)abs(point.mV[VX]));
-    }
-    else
-    {
-        // both VX and VY are near zero, VZ should be high
-        elevation = point.mV[VZ] > 0 ? F_PI_BY_TWO : -F_PI_BY_TWO;
-    }
+    elevation = asin(point.mV[VZ]); // because VectorZero is '1'
 }
 
 // static
