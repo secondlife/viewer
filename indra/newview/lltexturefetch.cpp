@@ -591,8 +591,7 @@ private:
     F32 mDecodeTime;    // time for decode only
 	F32 mCacheWriteTime;
     F32 mFetchTime;     // total time from req to finished fetch
-	std::map<S32, std::string> mStateTimersMap;
-	S32 mInitCount;
+	std::map<S32, F32> mStateTimersMap;
 	F32 mSkippedStatesTime;
 	LLTextureCache::handle_t    mCacheReadHandle,
 								mCacheWriteHandle;
@@ -896,7 +895,7 @@ const char* sStateDescs[] = {
 };
 
 const std::set<S32> LOGGED_STATES = { LLTextureFetchWorker::LOAD_FROM_TEXTURE_CACHE, LLTextureFetchWorker::LOAD_FROM_NETWORK, LLTextureFetchWorker::LOAD_FROM_SIMULATOR, 
-										LLTextureFetchWorker::WAIT_HTTP_REQ, LLTextureFetchWorker::DONE, LLTextureFetchWorker::DECODE_IMAGE_UPDATE, LLTextureFetchWorker::WAIT_ON_WRITE };
+										LLTextureFetchWorker::WAIT_HTTP_REQ, LLTextureFetchWorker::DECODE_IMAGE_UPDATE, LLTextureFetchWorker::WAIT_ON_WRITE };
 
 // static
 volatile bool LLTextureFetch::svMetricsDataBreak(true);	// Start with a data break
@@ -938,7 +937,6 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mRequestedOffset(0),
 	  mDesiredSize(TEXTURE_CACHE_ENTRY_SIZE),
 	  mFileSize(0),
-	  mInitCount(0),
 	  mSkippedStatesTime(0),
 	  mCachedSize(0),
 	  mLoaded(FALSE),
@@ -1201,6 +1199,12 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	if (mState == INIT)
 	{		
 		mStateTimer.reset();
+		mFetchTimer.reset();
+		for(auto i : LOGGED_STATES) 
+		{
+			mStateTimersMap[i] = 0;
+		}
+		mSkippedStatesTime = 0;
 		mRawImage = NULL ;
 		mRequestedDiscard = -1;
 		mLoadedDiscard = -1;
@@ -1213,7 +1217,6 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		mSentRequest = UNSENT;
 		mDecoded  = FALSE;
 		mWritten  = FALSE;
-		mInitCount++;
 		if (mHttpBufferArray)
 		{
 			mHttpBufferArray->release();
@@ -3003,8 +3006,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			F32 cache_read_time;
 			F32 cache_write_time;
 			S32 file_size;
-			S32 init_count;
-			std::map<S32, std::string> logged_state_timers;
+			std::map<S32, F32> logged_state_timers;
 			F32 skipped_states_time;
 			worker->lockWorkMutex();									// +Mw
 			last_http_get_status = worker->mGetStatus;
@@ -3024,7 +3026,6 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 			logged_state_timers = worker->mStateTimersMap;
 			skipped_states_time = worker->mSkippedStatesTime;
 			worker->mStateTimer.reset();
-			init_count  = worker->mInitCount;
 			res = true;
 			LL_DEBUGS(LOG_TXT) << id << ": Request Finished. State: " << worker->mState << " Discard: " << discard_level << LL_ENDL;
 			worker->unlockWorkMutex();									// -Mw
@@ -3042,7 +3043,7 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 				LLTextureFetchTester* tester = (LLTextureFetchTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 				if (tester)
 				{
-					tester->updateStats(logged_state_timers, fetch_time, skipped_states_time, file_size, init_count) ;
+					tester->updateStats(logged_state_timers, fetch_time, skipped_states_time, file_size) ;
 				}
 			}
 		}
@@ -3531,13 +3532,16 @@ void LLTextureFetchWorker::setState(e_state new_state)
 	}
 	
 	F32 d_time = mStateTimer.getElapsedTimeF32();
-	if(LOGGED_STATES.count(mState))
+	if (d_time >= 0.0001F)
 	{
-		mStateTimersMap[mState] = mInitCount > 1 ? mStateTimersMap[mState] + " " + llformat("%.6f", d_time) : llformat("%.6f", d_time);
-	}
-	else
-	{
-		mSkippedStatesTime += d_time;
+		if (LOGGED_STATES.count(mState))
+		{
+			mStateTimersMap[mState] = d_time;
+		}
+		else
+		{
+			mSkippedStatesTime += d_time;
+		}
 	}
 	
 	mStateTimer.reset();
@@ -5200,7 +5204,6 @@ LLTextureFetchTester::LLTextureFetchTester() : LLMetricPerformanceTesterBasic(sT
 	mTextureFetchTime = 0;
 	mSkippedStatesTime = 0;
 	mFileSize = 0;
-	mInitCount = 0;
 }
 
 LLTextureFetchTester::~LLTextureFetchTester()
@@ -5216,7 +5219,6 @@ void LLTextureFetchTester::outputTestRecord(LLSD *sd)
 
 	(*sd)[currentLabel]["Texture Fetch Time"]	= (LLSD::Real)mTextureFetchTime;
 	(*sd)[currentLabel]["File Size"]			= (LLSD::Integer)mFileSize;
-	(*sd)[currentLabel]["Init Count"]			= (LLSD::Integer)mInitCount;
 	(*sd)[currentLabel]["Skipped States Time"]	= (LLSD::String)llformat("%.6f", mSkippedStatesTime);
 
 	for(auto i : LOGGED_STATES) 
@@ -5225,12 +5227,11 @@ void LLTextureFetchTester::outputTestRecord(LLSD *sd)
 	}
 }
 
-void LLTextureFetchTester::updateStats(const std::map<S32, std::string> state_timers, const F32 fetch_time, const F32 skipped_states_time, const S32 file_size, const S32 init_count)
+void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, const F32 fetch_time, const F32 skipped_states_time, const S32 file_size)
 {
 	mTextureFetchTime = fetch_time;
 	mStateTimersMap = state_timers;
 	mFileSize = file_size;
-	mInitCount = init_count;
 	mSkippedStatesTime = skipped_states_time;
 	outputTestResults();
 }
