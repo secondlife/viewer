@@ -48,12 +48,12 @@
 //  Actual texture body files
 
 //note: there is no good to define 1024 for TEXTURE_CACHE_ENTRY_SIZE while FIRST_PACKET_SIZE is 600 on sim side.
-const S32 TEXTURE_CACHE_ENTRY_SIZE = FIRST_PACKET_SIZE;//1024;
+const S32 TEXTURE_CACHE_ENTRY_SIZE = 4096; // disk's sector size is 4096
 const F32 TEXTURE_CACHE_PURGE_AMOUNT = .20f; // % amount to reduce the cache by when it exceeds its limit
 const F32 TEXTURE_CACHE_LRU_SIZE = .10f; // % amount for LRU list (low overhead to regenerate)
 const S32 TEXTURE_FAST_CACHE_ENTRY_OVERHEAD = sizeof(S32) * 4; //w, h, c, level
-const S32 TEXTURE_FAST_CACHE_DATA_SIZE = 16 * 16 * 4;
-const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = TEXTURE_FAST_CACHE_DATA_SIZE + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
+const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = 4096; // disk's sector size is 4096
+const S32 TEXTURE_FAST_CACHE_DATA_SIZE = TEXTURE_FAST_CACHE_ENTRY_SIZE - TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
 const F32 TEXTURE_LAZY_PURGE_TIME_LIMIT = .004f; // 4ms. Would be better to autoadjust, but there is a major cache rework in progress.
 
 class LLTextureCacheWorker : public LLWorkerClass
@@ -982,7 +982,7 @@ BOOL LLTextureCache::isInLocal(const LLUUID& id)
 //////////////////////////////////////////////////////////////////////////////
 
 //static
-F32 LLTextureCache::sHeaderCacheVersion = 1.71f;
+F32 LLTextureCache::sHeaderCacheVersion = 1.72f;
 U32 LLTextureCache::sCacheMaxEntries = 1024 * 1024; //~1 million textures.
 S64 LLTextureCache::sCacheMaxTexturesSize = 0; // no limit
 std::string LLTextureCache::sHeaderCacheEncoderVersion = LLImageJ2C::getEngineInfo();
