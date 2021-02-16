@@ -370,7 +370,10 @@ void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &a
         azimuth += F_PI * 2;
     }
 
-    elevation = asin(point.mV[VZ]); // because VectorZero is '1'
+    // while vector is '1', F32 is not sufficiently precise and we can get
+    // values like 1.0000012 which will result in -90deg angle instead of 90deg
+    F32 z = llclamp(point.mV[VZ], -1.f, 1.f);
+    elevation = asin(z); // because VectorZero's length is '1'
 }
 
 // static
@@ -441,6 +444,10 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
             az_quat.setAngleAxis(azimuth, 0, 0, 1);
             mValue *= az_quat;
         }
+
+        // we are doing a lot of F32 mathematical operations with loss of precision,
+        // re-normalize to compensate
+        mValue.normalize();
 
         mPrevX = x;
         mPrevY = y;
