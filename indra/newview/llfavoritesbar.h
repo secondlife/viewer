@@ -91,6 +91,7 @@ protected:
 
 	bool enableSelected(const LLSD& userdata);
 	void doToSelected(const LLSD& userdata);
+	static bool onRenameCommit(const LLSD& notification, const LLSD& response);
 	BOOL isClipboardPasteable() const;
 	void pasteFromClipboard() const;
 	

@@ -36,6 +36,17 @@
          function="Favorites.DoToSelected"
          parameter="copy_slurl" />
     </menu_item_call>
+    <menu_item_call
+     label="Create Pick"
+     layout="topleft"
+     name="create_pick">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="create_pick" />
+        <menu_item_call.on_enable
+         function="Favorites.EnableSelected"
+         parameter="create_pick" />
+    </menu_item_call>
 
     <menu_item_separator
      layout="topleft" />
@@ -59,10 +70,14 @@
          function="Favorites.EnableSelected"
          parameter="can_paste" />
     </menu_item_call>
-
-    <menu_item_separator
-     layout="topleft" />
-
+    <menu_item_call
+     label="Rename"
+     layout="topleft"
+     name="rename">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="rename" />
+    </menu_item_call>
     <menu_item_call
      label="Delete"
      layout="topleft"

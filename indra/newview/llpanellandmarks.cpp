@@ -512,14 +512,20 @@ void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 {
 	//this function will be called after user will try to create a pick for selected landmark.
 	// We have to make request to sever to get parcel_id and snaption_id. 
-	if(isLandmarkSelected())
+	if(mCreatePickItemId.notNull())
 	{
-		LLFolderViewModelItemInventory* cur_item = getCurSelectedViewModelItem();
-		if (!cur_item) return;
-		LLUUID id = cur_item->getUUID();
-		LLInventoryItem* inv_item = mCurrentSelectedList->getModel()->getItem(id);
-		doActionOnCurSelectedLandmark(boost::bind(
-				&LLLandmarksPanel::doProcessParcelInfo, this, _1, getCurSelectedItem(), inv_item, parcel_data));
+		LLInventoryItem* inv_item = gInventory.getItem(mCreatePickItemId);
+
+        if (inv_item && inv_item->getInventoryType() == LLInventoryType::IT_LANDMARK)
+        {
+            // we are processing response for doCreatePick, landmark should be already loaded
+            LLLandmark* landmark = LLLandmarkActions::getLandmark(inv_item->getUUID());
+            if (landmark)
+            {
+                doProcessParcelInfo(landmark, inv_item, parcel_data);
+            }
+        }
+        mCreatePickItemId.setNull();
 	}
 }
 
@@ -1124,7 +1130,11 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	}
 	else if ("create_pick" == command_name)
 	{
-		doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1));
+        LLFolderViewModelItemInventory* cur_item = getCurSelectedViewModelItem();
+        if (cur_item)
+        {
+            doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doCreatePick, this, _1, cur_item->getUUID()));
+        }
 	}
     else if ("share" == command_name && mCurrentSelectedList)
     {
@@ -1344,7 +1354,6 @@ void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 }
 
 void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
-										   LLFolderViewItem* cur_item,
 										   LLInventoryItem* inv_item,
 										   const LLParcelData& parcel_data)
 {
@@ -1373,7 +1382,7 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 
 	LLPickData data;
 	data.pos_global = landmark_global_pos;
-	data.name = cur_item->getName();
+	data.name = inv_item->getName();
 	data.desc = inv_item->getDescription();
 	data.snapshot_id = parcel_data.snapshot_id;
 	data.parcel_id = parcel_data.parcel_id;
@@ -1393,10 +1402,12 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 					panel_pick, panel_places,params));
 }
 
-void LLLandmarksPanel::doCreatePick(LLLandmark* landmark)
+void LLLandmarksPanel::doCreatePick(LLLandmark* landmark, const LLUUID &item_id)
 {
 	LLViewerRegion* region = gAgent.getRegion();
 	if (!region) return;
+
+    mCreatePickItemId = item_id;
 
 	LLGlobalVec pos_global;
 	LLUUID region_id;

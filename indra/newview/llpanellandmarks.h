@@ -82,6 +82,8 @@ public:
 
 	void updateMenuVisibility(LLUICtrl* menu);
 
+	void doCreatePick(LLLandmark* landmark, const LLUUID &item_id );
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -160,10 +162,8 @@ private:
 	 */
 	void doShowOnMap(LLLandmark* landmark);
 	void doProcessParcelInfo(LLLandmark* landmark,
-							 LLFolderViewItem* cur_item,
 							 LLInventoryItem* inv_item,
 							 const LLParcelData& parcel_data);
-	void doCreatePick(LLLandmark* landmark);
 
 private:
 	LLPlacesInventoryPanel*		mFavoritesInventoryPanel;
@@ -183,6 +183,8 @@ private:
 	accordion_tabs_t			mAccordionTabs;
 
 	LLAccordionCtrlTab*			mMyLandmarksAccordionTab;
+
+    LLUUID                      mCreatePickItemId; // item we requested a pick for
 };
 
 #endif //LL_LLPANELLANDMARKS_H

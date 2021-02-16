@@ -38,6 +38,7 @@
 #include "lltooltip.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llavatarnamecache.h"
 #include "llclipboard.h"
 #include "llinventorybridge.h"
@@ -1194,6 +1195,10 @@ bool LLFavoritesBarCtrl::enableSelected(const LLSD& userdata)
     {
         return isClipboardPasteable();
     }
+    else if (param == "create_pick")
+    {
+        return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
+    }
 
     return false;
 }
@@ -1242,6 +1247,13 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 			LLFloaterReg::showInstance("world_map", "center");
 		}
 	}
+    else if (action == "create_pick")
+    {
+        LLSD args;
+        args["type"] = "create_pick";
+        args["item_id"] = item->getUUID();
+        LLFloaterSidePanelContainer::showPanel("places", args);
+    }
 	else if (action == "cut")
 	{
 	}
@@ -1257,6 +1269,16 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	{
 		gInventory.removeItem(mSelectedItemID);
 	}
+    else if (action == "rename")
+    {
+        LLSD args;
+        args["NAME"] = item->getName();
+
+        LLSD payload;
+        payload["id"] = mSelectedItemID;
+
+        LLNotificationsUtil::add("RenameLandmark", args, payload, boost::bind(onRenameCommit, _1, _2));
+    }
 
 	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
 	// See EXT-4217 and STORM-207.
@@ -1267,6 +1289,28 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 		showDropDownMenu();
 		menu->resetScrollPositionOnShow(true);
 	}
+}
+
+bool LLFavoritesBarCtrl::onRenameCommit(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        LLUUID id = notification["payload"]["id"].asUUID();
+        LLInventoryItem *item = gInventory.getItem(id);
+        std::string landmark_name = response["new_name"].asString();
+        LLStringUtil::trim(landmark_name);
+
+        if (!landmark_name.empty() && item && item->getName() != landmark_name)
+        {
+            LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+            new_item->rename(landmark_name);
+            new_item->updateServer(FALSE);
+            gInventory.updateItem(new_item);
+        }
+    }
+
+    return false;
 }
 
 BOOL LLFavoritesBarCtrl::isClipboardPasteable() const

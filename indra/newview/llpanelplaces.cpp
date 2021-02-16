@@ -79,6 +79,7 @@
 static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE			= "agent";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
+static const std::string CREATE_PICK_TYPE			= "create_pick";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
 static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
@@ -388,6 +389,21 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			// Update the buttons at the bottom of the panel
 			updateVerbs();
 		}
+        else if (key_type == CREATE_PICK_TYPE)
+        {
+            LLUUID item_id = key["item_id"];
+
+            LLLandmarksPanel* landmarks_panel =
+                dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
+            if (landmarks_panel && item_id.notNull())
+            {
+                LLLandmark* landmark = LLLandmarkActions::getLandmark(item_id, boost::bind(&LLLandmarksPanel::doCreatePick, landmarks_panel, _1, item_id));
+                if (landmark)
+                {
+                    landmarks_panel->doCreatePick(landmark, item_id);
+                }
+            }
+        }
 		else // "create_landmark"
 		{
 			mFilterEditor->clear();
