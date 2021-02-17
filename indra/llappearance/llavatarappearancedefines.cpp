@@ -30,7 +30,6 @@
 
 const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_WIDTH = 1024;
 const S32 LLAvatarAppearanceDefines::SCRATCH_TEX_HEIGHT = 1024;
-const S32 LLAvatarAppearanceDefines::IMPOSTOR_PERIOD = 2;
 
 using namespace LLAvatarAppearanceDefines;
 
