@@ -136,7 +136,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 	{
 		mOwnerAvatarp = find_avatar(mOwnerUUID);
 	}
-	if (mOwnerAvatarp.notNull() && LLVOAvatar::AV_DO_NOT_RENDER == mOwnerAvatarp->getVisualMuteSettings())
+	if (mOwnerAvatarp.notNull() && LLVOAvatar::AOA_NORMAL != mOwnerAvatarp->getOverallAppearance())
 	{
 		return;
 	}
