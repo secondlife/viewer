@@ -79,15 +79,32 @@ def compare_trees(file_trees):
     print "Summary:"
     print summary
                 
-
+def dump_appearance_params(tree):
+    vals = []
+    for e in tree.getroot().iter():
+        if e.tag == "param":
+            g = int(e.get("group"))
+            if g in [0,3]:
+                vals.append("{" + e.get("id") + "," +e.get("u8") + "}")
+                #print e.get("id"), e.get("name"), e.get("group"), e.get("u8")
+    if len(vals)==253:
+        print ", ".join(vals)
+        
+    
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="compare avatar XML archetype files")
     parser.add_argument("--verbose", help="verbose flag", action="store_true")
+    parser.add_argument("--compare", help="compare flag", action="store_true")
+    parser.add_argument("--appearance_params", help="compare flag", action="store_true")
     parser.add_argument("files", nargs="+", help="name of one or more archtype files")
     args = parser.parse_args()
 
 
     print "files",args.files
     file_trees = [etree.parse(filename) for filename in args.files]
-    compare_trees(file_trees)
+    print args
+    if args.compare:
+        compare_trees(file_trees)
+    if args.appearance_params:
+        dump_appearance_params(file_trees[0])
