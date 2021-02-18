@@ -785,11 +785,11 @@ namespace
 }
 
 //=========================================================================
-const F32Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
-const F32Seconds LLEnvironment::TRANSITION_FAST(1.0f);
-const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
-const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
-const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
+const F64Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
+const F64Seconds LLEnvironment::TRANSITION_FAST(1.0f);
+const F64Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
+const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
+const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
@@ -1217,20 +1217,25 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
 void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version)
 {
-    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, env_version);
 }
 
+void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsBase::Seconds transition, S32 env_version)
+{
+    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, transition, env_version);
+}
 
 void LLEnvironment::setEnvironment(EnvSelection_t env,
                                    const LLUUID &assetId,
                                    LLSettingsDay::Seconds daylength,
                                    LLSettingsDay::Seconds dayoffset,
+                                   LLSettingsBase::Seconds transition,
                                    S32 env_version)
 {
     LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env, daylength, dayoffset, env_version](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+        [this, env, daylength, dayoffset, env_version, transition](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
-            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, TRANSITION_DEFAULT, status, env_version);
+            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, transition, status, env_version);
         });
 }
 
@@ -1685,7 +1690,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         if (!envinfo->mDayCycle)
         {
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
@@ -1693,7 +1698,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         {
             LL_WARNS("ENVIRONMENT") << "Invalid day cycle for region" << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else
