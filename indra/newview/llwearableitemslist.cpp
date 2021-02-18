@@ -820,7 +820,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, LLWearableTyp
 	setMenuItemVisible(menup, "wearable_attach_to", false);
 	setMenuItemVisible(menup, "wearable_attach_to_hud", false);
 
-	std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getTypeName(w_type));
+	std::string new_label = LLTrans::getString("create_new_" + LLWearableType::getInstance()->getTypeName(w_type));
 	LLMenuItemGL* menu_item = menup->getChild<LLMenuItemGL>("create_new");
 	menu_item->setLabel(new_label);
 
