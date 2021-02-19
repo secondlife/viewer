@@ -319,6 +319,18 @@
   </button>
   <button
    follows="left|top"
+   height="22"
+   label="Reset Fetching Time"
+   layout="topleft"
+   left_pad="175"
+   name="reset_time_btn"
+   top_delta="0"
+   width="120">
+    <button.commit_callback
+		function="TexFetchDebugger.ResetFetchTime" />
+  </button>
+  <button
+   follows="left|top"
    height="20"
    label="Cache Read"
    layout="topleft"

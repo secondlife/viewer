@@ -137,6 +137,15 @@
                     tick_spacing="100"
                     show_history="true"
                     show_bar="false"/>
+          <stat_bar name="texture_fetch_time"
+                    label="Cache Fetch Time"
+                    orientation="horizontal"
+                    unit_label="sec"
+                    stat="texture_fetch_time"
+                    bar_max="1000.f"
+                    tick_spacing="100"
+                    show_history="true"
+                    show_bar="false"/>
           <stat_bar name="numimagesstat"
                     label="Count"
                     orientation="horizontal"

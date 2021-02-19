@@ -38,6 +38,7 @@
 #include "llappviewer.h"
 #include "lltexturefetch.h"
 #include "llviewercontrol.h"
+#include "llviewerassetstats.h" //gTextureTimer
 
 LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	: LLFloater(key),
@@ -50,6 +51,7 @@ LLFloaterTextureFetchDebugger::LLFloaterTextureFetchDebugger(const LLSD& key)
 	mCommitCallbackRegistrar.add("TexFetchDebugger.Start",	boost::bind(&LLFloaterTextureFetchDebugger::onClickStart, this));
 	mCommitCallbackRegistrar.add("TexFetchDebugger.Clear",	boost::bind(&LLFloaterTextureFetchDebugger::onClickClear, this));
 	mCommitCallbackRegistrar.add("TexFetchDebugger.Close",	boost::bind(&LLFloaterTextureFetchDebugger::onClickClose, this));
+	mCommitCallbackRegistrar.add("TexFetchDebugger.ResetFetchTime",	boost::bind(&LLFloaterTextureFetchDebugger::onClickResetFetchTime, this));
 
 	mCommitCallbackRegistrar.add("TexFetchDebugger.CacheRead",	boost::bind(&LLFloaterTextureFetchDebugger::onClickCacheRead, this));
 	mCommitCallbackRegistrar.add("TexFetchDebugger.CacheWrite",	boost::bind(&LLFloaterTextureFetchDebugger::onClickCacheWrite, this));
@@ -226,6 +228,12 @@ void LLFloaterTextureFetchDebugger::onClickClose()
 	mDebugger->setStopDebug();
 
 	delete this;
+}
+
+void LLFloaterTextureFetchDebugger::onClickResetFetchTime()
+{
+	gTextureTimer.start();
+	gTextureTimer.pause();
 }
 
 void LLFloaterTextureFetchDebugger::onClickClear()

@@ -1402,6 +1402,28 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	return max_texmem;
 }
 
+bool LLViewerTextureList::isPrioRequestsFetched()
+{
+	static LLCachedControl<F32> prio_threshold(gSavedSettings, "TextureFetchUpdatePriorityThreshold", 0.0f);
+	static LLCachedControl<F32> fetching_textures_threshold(gSavedSettings, "TextureListFetchingThreshold", 0.97f);
+	S32 fetching_tex_count = 0;
+	for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
+		iter != gTextureList.mImageList.end(); )
+	{
+		LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+		if (imagep->getDecodePriority() > prio_threshold)
+		{
+			if (imagep->hasFetcher() || imagep->isFetching())
+			{
+				fetching_tex_count++;
+			}
+		}
+	}
+	F32 fetching_ratio = (F32)fetching_tex_count / (F32)gTextureList.mImageList.size();
+
+	return fetching_ratio <= (1 - fetching_textures_threshold);
+}
+
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
 const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
 void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
