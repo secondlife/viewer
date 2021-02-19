@@ -44,6 +44,7 @@ public:
 	void onClickStart();
 	void onClickClear();
 	void onClickClose();
+	void onClickResetFetchTime();
 
 	void onClickCacheRead();
 	void onClickCacheWrite();
