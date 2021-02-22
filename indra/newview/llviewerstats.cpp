@@ -388,17 +388,6 @@ void update_statistics()
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
-	if (gTextureList.isPrioRequestsFetched())
-	{
-		gTextureTimer.pause();
-	}
-	else
-	{		
-		gTextureTimer.unpause();
-	}
-
-	record(LLStatViewer::TEXTURE_FETCH_TIME, gTextureTimer.getElapsedTimeF32());
-
 	sample(LLStatViewer::VISIBLE_AVATARS, LLVOAvatar::sNumVisibleAvatars);
 	LLWorld::getInstance()->updateNetStats();
 	LLWorld::getInstance()->requestCacheMisses();
@@ -420,6 +409,19 @@ void update_statistics()
 	}
 }
 
+void update_texture_time()
+{
+	if (gTextureList.isPrioRequestsFetched())
+	{
+		gTextureTimer.pause();
+	}
+	else
+	{		
+		gTextureTimer.unpause();
+	}
+
+	record(LLStatViewer::TEXTURE_FETCH_TIME, gTextureTimer.getElapsedTimeF32());
+}
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *
