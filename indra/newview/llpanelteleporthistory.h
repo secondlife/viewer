@@ -43,36 +43,26 @@ class LLMenuButton;
 class LLTeleportHistoryPanel : public LLPanelPlacesTab
 {
 public:
-	// *TODO: derive from LLListContextMenu?
-	class ContextMenu
-	{
-	public:
-		ContextMenu();
-		void show(LLView* spawning_view, S32 index, S32 x, S32 y);
-
-	private:
-		LLContextMenu* createMenu();
-		void onUserAction(const LLSD& userdata);
-
-		static void gotSLURLCallback(const std::string& slurl);
-
-		LLContextMenu* mMenu;
-		S32 mIndex;
-	};
-
 	LLTeleportHistoryPanel();
 	virtual ~LLTeleportHistoryPanel();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
+    BOOL postBuild() override;
+    void draw() override;
 
-	/*virtual*/ void onSearchEdit(const std::string& string);
-	/*virtual*/ void onShowOnMap();
-	/*virtual*/ void onShowProfile();
-	/*virtual*/ void onTeleport();
-	///*virtual*/ void onCopySLURL();
-	/*virtual*/ void updateVerbs();
-	/*virtual*/ bool isSingleItemSelected();
+    void onSearchEdit(const std::string& string) override;
+    void onShowOnMap() override;
+    void onShowProfile() override;
+    void onTeleport() override;
+    ///*virtual*/ void onCopySLURL();
+    void onRemoveSelected() override {};
+    void updateVerbs() override;
+    bool isSingleItemSelected() override;
+
+    LLToggleableMenu* getSelectionMenu() override;
+    LLToggleableMenu* getSortingMenu() override;
+    LLToggleableMenu* getCreateMenu() override;
+
+    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override { return false; }
 
 private:
 
@@ -93,6 +83,8 @@ private:
 	void showTeleportHistory();
 	void handleItemSelect(LLFlatListView* );
 	LLFlatListView* getFlatListViewFromTab(LLAccordionCtrlTab *);
+	static void gotSLURLCallback(const std::string& slurl);
+	void onGearMenuAction(const LLSD& userdata);
 	bool isActionEnabled(const LLSD& userdata) const;
 
 	void setAccordionCollapsedByUser(LLUICtrl* acc_tab, bool collapsed);
@@ -113,10 +105,10 @@ private:
 	typedef std::vector<LLAccordionCtrlTab*> item_containers_t;
 	item_containers_t mItemContainers;
 
-	ContextMenu mContextMenu;
 	LLContextMenu*			mAccordionTabMenu;
-	LLHandle<LLView>		mGearMenuHandle;
-	LLMenuButton*			mMenuGearButton;
+
+    LLToggleableMenu*			mGearItemMenu;
+    LLToggleableMenu*			mSortingMenu;
 
 	boost::signals2::connection mTeleportHistoryChangedConnection;
 };

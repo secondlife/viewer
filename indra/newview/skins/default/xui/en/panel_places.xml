@@ -17,19 +17,121 @@ background_visible="true"
     <string
      name="teleport_history_tab_title"
      value="TELEPORT HISTORY" />
-    <filter_editor
-     text_pad_left="10"
-     follows="left|top|right"
-     font="SansSerifSmall"
-     height="23"
-     layout="topleft"
-     left="10"
-     label="Filter My Places"
-     max_length_chars="300"
-     name="Filter"
-     tab_group="1"
-     top="3"
-     width="303" />
+    <layout_stack
+      animate="false"
+      border_size="0"
+      follows="left|top|right"
+      height="25"
+      layout="topleft"
+      orientation="horizontal"
+      top_pad="1"
+      left="0"
+      name="bottom_panel"
+      width="320">
+      <layout_panel
+        auto_resize="true"
+        height="25"
+        layout="topleft"
+        name="filter_panel"
+        width="193">
+        <filter_editor
+          text_pad_left="10"
+          follows="left|top|right"
+          font="SansSerifSmall"
+          height="23"
+          layout="topleft"
+          left="10"
+          label="Filter My Places"
+          max_length_chars="300"
+          name="Filter"
+          tab_group="1"
+          top="3"
+          width="181" />
+      </layout_panel>
+      <layout_panel
+        auto_resize="false"
+        height="25"
+        layout="topleft"
+        name="options_gear_btn_panel"
+        width="32">
+        <menu_button
+          follows="bottom|left"
+          tool_tip="Show options"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="OptionsMenu_Off"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          menu_position="bottomleft"
+          layout="topleft"
+          left="0"
+          name="options_gear_btn"
+          top="0"
+          width="31" />
+      </layout_panel>
+      <layout_panel
+        auto_resize="false"
+        height="25"
+        layout="topleft"
+        name="options_sort_btn_panel"
+        width="32">
+        <menu_button
+          follows="bottom|left"
+          tool_tip="Show sorting options"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="Conv_toolbar_sort"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          menu_position="bottomleft"
+          layout="topleft"
+          left="0"
+          name="sorting_menu_btn"
+          top="0"
+          width="31" />
+      </layout_panel>
+      <layout_panel
+        auto_resize="false"
+        height="25"
+        layout="topleft"
+        name="add_btn_panel"
+        width="32">
+        <menu_button
+          follows="bottom|left"
+          height="25"
+          image_hover_unselected="Toolbar_Middle_Over"
+          image_overlay="AddItem_Off"
+          image_selected="Toolbar_Middle_Selected"
+          image_unselected="Toolbar_Middle_Off"
+          menu_position="bottomleft"
+          layout="topleft"
+          left="0"
+          name="add_menu_btn"
+          tool_tip="Add new landmark or folder"
+          top="0"
+          width="31" />
+      </layout_panel>
+      <layout_panel
+        auto_resize="false"
+        height="25"
+        layout="topleft"
+        name="trash_btn_panel"
+        width="31">
+        <dnd_button
+          follows="bottom|left"
+          height="25"
+          image_hover_unselected="Toolbar_Right_Over"
+          image_overlay="TrashItem_Off"
+          image_selected="Toolbar_Right_Selected"
+          image_unselected="Toolbar_Right_Off"
+          left="0"
+          layout="topleft"
+          name="trash_btn"
+          tool_tip="Remove selected landmark or folder"
+          top="0"
+          width="31"/>
+      </layout_panel>
+    </layout_stack>
     <tab_container
      follows="all"
      halign="center"
@@ -265,6 +367,7 @@ background_visible="true"
 		
 		<layout_stack
      	follows="bottom|left|right"
+      animate="false"
 		height="23"
 		layout="topleft"
 		mouse_opaque="false"

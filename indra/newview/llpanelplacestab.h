@@ -30,6 +30,7 @@
 #include "llpanel.h"
 
 class LLPanelPlaces;
+class LLToggleableMenu;
 
 class LLPanelPlacesTab : public LLPanel
 {
@@ -42,7 +43,18 @@ public:
 	virtual void onShowOnMap() = 0;
 	virtual void onShowProfile() = 0;
 	virtual void onTeleport() = 0;
+	virtual void onRemoveSelected() = 0;
 	virtual bool isSingleItemSelected() = 0;
+
+    // returns menu for current selection
+    virtual LLToggleableMenu* getSelectionMenu() = 0;
+    virtual LLToggleableMenu* getSortingMenu() = 0;
+    virtual LLToggleableMenu* getCreateMenu() = 0;
+
+    /**
+    * Processes drag-n-drop of the Landmarks and folders into trash button.
+    */
+    virtual bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) = 0;
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 

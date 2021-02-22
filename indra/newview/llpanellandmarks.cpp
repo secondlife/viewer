@@ -42,7 +42,6 @@
 #include "llagentui.h"
 #include "llavataractions.h"
 #include "llcallbacklist.h"
-#include "lldndbutton.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llfolderviewitem.h"
@@ -60,12 +59,6 @@
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLLandmarksPanel> t_landmarks("panel_landmarks");
-
-static const std::string OPTIONS_BUTTON_NAME = "options_gear_btn";
-static const std::string ADD_BUTTON_NAME = "add_btn";
-static const std::string ADD_FOLDER_BUTTON_NAME = "add_folder_btn";
-static const std::string TRASH_BUTTON_NAME = "trash_btn";
-
 
 // helper functions
 static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string);
@@ -196,10 +189,10 @@ LLLandmarksPanel::LLLandmarksPanel()
 	,	mMyInventoryPanel(NULL)
 	,	mLibraryInventoryPanel(NULL)
 	,	mCurrentSelectedList(NULL)
-	,	mListCommands(NULL)
-	,	mGearButton(NULL)
 	,	mGearFolderMenu(NULL)
 	,	mGearLandmarkMenu(NULL)
+	,	mSortingMenu(NULL)
+	,	mAddMenu(NULL)
 {
 	mInventoryObserver = new LLLandmarksPanelObserver(this);
 	gInventory.addObserver(mInventoryObserver);
@@ -304,6 +297,12 @@ void LLLandmarksPanel::onTeleport()
 	}
 }
 
+/*virtual*/
+void LLLandmarksPanel::onRemoveSelected()
+{
+    onClipboardAction("delete");
+}
+
 // virtual
 bool LLLandmarksPanel::isSingleItemSelected()
 {
@@ -323,6 +322,37 @@ bool LLLandmarksPanel::isSingleItemSelected()
 }
 
 // virtual
+LLToggleableMenu* LLLandmarksPanel::getSelectionMenu()
+{
+    LLToggleableMenu* menu = mGearFolderMenu;
+
+    if (mCurrentSelectedList)
+    {
+        LLFolderViewModelItemInventory* listenerp = getCurSelectedViewModelItem();
+        if (!listenerp)
+            return menu;
+
+        if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
+        {
+            menu = mGearLandmarkMenu;
+        }
+    }
+    return menu;
+}
+
+// virtual
+LLToggleableMenu* LLLandmarksPanel::getSortingMenu()
+{
+    return mSortingMenu;
+}
+
+// virtual
+LLToggleableMenu* LLLandmarksPanel::getCreateMenu()
+{
+    return mAddMenu;
+}
+
+// virtual
 void LLLandmarksPanel::updateVerbs()
 {
 	if (!isTabVisible()) 
@@ -336,8 +366,6 @@ void LLLandmarksPanel::updateVerbs()
 	// TODO: mantipov: Uncomment when mShareBtn is supported
 	// Share button should be enabled when neither a folder nor a landmark is selected
 	//mShareBtn->setEnabled(NULL != current_item);
-
-	updateListCommands();
 }
 
 void LLLandmarksPanel::onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -668,40 +696,29 @@ void LLLandmarksPanel::deselectOtherThan(const LLPlacesInventoryPanel* inventory
 	if (inventory_list != mFavoritesInventoryPanel)
 	{
 		mFavoritesInventoryPanel->clearSelection();
+		mFavoritesInventoryPanel->getRootFolder()->clearSelection();
 	}
 
 	if (inventory_list != mLandmarksInventoryPanel)
 	{
 		mLandmarksInventoryPanel->clearSelection();
+		mLandmarksInventoryPanel->getRootFolder()->clearSelection();
 	}
 	if (inventory_list != mMyInventoryPanel)
 	{
 		mMyInventoryPanel->clearSelection();
+		mMyInventoryPanel->getRootFolder()->clearSelection();
 	}
 	if (inventory_list != mLibraryInventoryPanel)
 	{
 		mLibraryInventoryPanel->clearSelection();
+		mLibraryInventoryPanel->getRootFolder()->clearSelection();
 	}
 }
 
 // List Commands Handlers
 void LLLandmarksPanel::initListCommandsHandlers()
 {
-	mListCommands = getChild<LLPanel>("bottom_panel");
-
-	mGearButton = getChild<LLMenuButton>(OPTIONS_BUTTON_NAME);
-	mGearButton->setMouseDownCallback(boost::bind(&LLLandmarksPanel::onActionsButtonClick, this));
-
-	mListCommands->childSetAction(TRASH_BUTTON_NAME, boost::bind(&LLLandmarksPanel::onTrashButtonClick, this));
-
-	LLDragAndDropButton* trash_btn = mListCommands->getChild<LLDragAndDropButton>(TRASH_BUTTON_NAME);
-	trash_btn->setDragAndDropHandler(boost::bind(&LLLandmarksPanel::handleDragAndDropToTrash, this
-			,	_4 // BOOL drop
-			,	_5 // EDragAndDropType cargo_type
-			,	_6 // void* cargo_data
-			,	_7 // EAcceptance* accept
-			));
-
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Add.Action", boost::bind(&LLLandmarksPanel::onAddAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.CopyPaste.Action", boost::bind(&LLLandmarksPanel::onClipboardAction, this, _2));
 	mCommitCallbackRegistrar.add("Places.LandmarksGear.Custom.Action", boost::bind(&LLLandmarksPanel::onCustomAction, this, _2));
@@ -710,65 +727,20 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mEnableCallbackRegistrar.add("Places.LandmarksGear.Enable", boost::bind(&LLLandmarksPanel::isActionEnabled, this, _2));
 	mGearLandmarkMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_landmark.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mGearFolderMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_folder.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mMenuAdd = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mSortingMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_sorting.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	mAddMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
 	mGearLandmarkMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
 	mGearFolderMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
 
-	mListCommands->childSetAction(ADD_BUTTON_NAME, boost::bind(&LLLandmarksPanel::showActionMenu, this, mMenuAdd, ADD_BUTTON_NAME));
-}
-
-
-void LLLandmarksPanel::updateListCommands()
-{
-	bool add_folder_enabled = isActionEnabled("category");
-	bool trash_enabled = isActionEnabled("delete") && (isFolderSelected() || isLandmarkSelected());
-
-	// keep Options & Add Landmark buttons always enabled
-	mListCommands->getChildView(ADD_FOLDER_BUTTON_NAME)->setEnabled(add_folder_enabled);
-	mListCommands->getChildView(TRASH_BUTTON_NAME)->setEnabled(trash_enabled);
+	// show menus even if all items are disabled
+	mGearLandmarkMenu->setAlwaysShowMenu(TRUE);
+	mGearFolderMenu->setAlwaysShowMenu(TRUE);
 }
 
 void LLLandmarksPanel::updateMenuVisibility(LLUICtrl* menu)
 {
 	onMenuVisibilityChange(menu, LLSD().with("visibility", true));
-}
-
-void LLLandmarksPanel::onActionsButtonClick()
-{
-	LLToggleableMenu* menu = mGearFolderMenu;
-
-	if(mCurrentSelectedList)
-	{
-		LLFolderViewModelItemInventory* listenerp = getCurSelectedViewModelItem();
-		if(!listenerp)
-			return;
-
-		if (listenerp->getInventoryType() == LLInventoryType::IT_LANDMARK)
-		{
-			menu = mGearLandmarkMenu;
-		}
-	}
-
-	mGearButton->setMenu(menu);
-}
-
-void LLLandmarksPanel::showActionMenu(LLMenuGL* menu, std::string spawning_view_name)
-{
-	if (menu)
-	{
-		menu->buildDrawLabels();
-		menu->updateParent(LLMenuGL::sMenuContainer);
-		menu->arrangeAndClear();
-
-		LLView* spawning_view = getChild<LLView>(spawning_view_name);
-
-		S32 menu_x, menu_y;
-		//show menu in co-ordinates of panel
-		spawning_view->localPointToOtherView(0, spawning_view->getRect().getHeight(), &menu_x, &menu_y, this);
-		menu_y += menu->getRect().getHeight();
-		LLMenuGL::showPopup(this, menu, menu_x, menu_y);
-	}
 }
 
 void LLLandmarksPanel::onTrashButtonClick() const
@@ -782,7 +754,8 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 	LLFolderViewItem* item = getCurSelectedItem();
 
 	std::string command_name = userdata.asString();
-	if("add_landmark" == command_name)
+	if("add_landmark" == command_name
+        || "add_landmark_root" == command_name)
 	{
 		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 		if(landmark)
@@ -793,8 +766,8 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 		{
             LLSD args;
             args["type"] = "create_landmark";
-            if (view_model->getInventoryType()
-                == LLInventoryType::IT_CATEGORY)
+            if ("add_landmark" == command_name
+                && view_model->getInventoryType() == LLInventoryType::IT_CATEGORY)
             {
                 args["dest_folder"] = view_model->getUUID();
             }
@@ -837,6 +810,17 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
 			}
 		}
 	}
+    else if ("category_root" == command_name)
+    {
+        //in case My Landmarks tab is completely empty (thus cannot be determined as being selected)
+        menu_create_inventory_item(mLandmarksInventoryPanel, NULL, LLSD("category"),
+            gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
+
+        if (mMyLandmarksAccordionTab)
+        {
+            mMyLandmarksAccordionTab->changeOpenClose(false);
+        }
+    }
 }
 
 void LLLandmarksPanel::onClipboardAction(const LLSD& userdata) const
@@ -1031,9 +1015,9 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 			// Disable "Show on Map" if landmark loading is in progress.
 			return !gLandmarkList.isAssetInLoadedCallbackMap(asset_uuid);
-	}
-	else if ("rename" == command_name)
-	{
+		}
+		else if ("rename" == command_name)
+		{
 			LLFolderViewItem* selected_item = getCurSelectedItem();
 			if (!selected_item) return false;
 
@@ -1042,6 +1026,11 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 
 		return true;
 	}
+    if ("category_root" == command_name)
+    {
+        // Landmarks Accordion
+        return true;
+    }
 	else if("category" == command_name)
 	{
 		// we can add folder only in Landmarks Accordion
@@ -1085,6 +1074,16 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
         {
             return false;
         }
+        LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+        if (landmark)
+        {
+            //already exists
+            return false;
+        }
+        return true;
+    }
+    else if ("add_landmark_root" == command_name)
+    {
         LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
         if (landmark)
         {

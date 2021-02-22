@@ -52,13 +52,23 @@ public:
 	LLLandmarksPanel();
 	virtual ~LLLandmarksPanel();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onSearchEdit(const std::string& string);
-	/*virtual*/ void onShowOnMap();
-	/*virtual*/ void onShowProfile();
-	/*virtual*/ void onTeleport();
-	/*virtual*/ void updateVerbs();
-	/*virtual*/ bool isSingleItemSelected();
+	BOOL postBuild() override;
+	void onSearchEdit(const std::string& string) override;
+	void onShowOnMap() override;
+	void onShowProfile() override;
+	void onTeleport() override;
+	void onRemoveSelected() override;
+	void updateVerbs() override;
+	bool isSingleItemSelected() override;
+
+    LLToggleableMenu* getSelectionMenu() override;
+    LLToggleableMenu* getSortingMenu() override;
+    LLToggleableMenu* getCreateMenu() override;
+
+    /**
+     * Processes drag-n-drop of the Landmarks and folders into trash button.
+     */
+    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override;
 
 	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
@@ -108,9 +118,9 @@ protected:
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
 	//LLRemoteParcelInfoObserver interface
-	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
-	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
+	void processParcelInfo(const LLParcelData& parcel_data) override;
+	void setParcelID(const LLUUID& parcel_id) override;
+	void setErrorStatus(S32 status, const std::string& reason) override;
 	
 private:
 	void initFavoritesInventoryPanel();
@@ -124,9 +134,6 @@ private:
 
 	// List Commands Handlers
 	void initListCommandsHandlers();
-	void updateListCommands();
-	void onActionsButtonClick();
-	void showActionMenu(LLMenuGL* menu, std::string spawning_view_name);
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;
@@ -153,11 +160,6 @@ private:
 	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
 
 	/**
-	 * Processes drag-n-drop of the Landmarks and folders into trash button.
-	 */
-	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept);
-
-	/**
 	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.
 	 */
 	void doShowOnMap(LLLandmark* landmark);
@@ -170,14 +172,12 @@ private:
 	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
 	LLPlacesInventoryPanel*		mMyInventoryPanel;
 	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
-	LLMenuButton*				mGearButton;
 	LLToggleableMenu*			mGearLandmarkMenu;
 	LLToggleableMenu*			mGearFolderMenu;
-	LLMenuGL*					mMenuAdd;
+	LLToggleableMenu*			mSortingMenu;
+	LLToggleableMenu*			mAddMenu;
 	LLPlacesInventoryPanel*		mCurrentSelectedList;
 	LLInventoryObserver*		mInventoryObserver;
-
-	LLPanel*					mListCommands;
 	
 	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
 	accordion_tabs_t			mAccordionTabs;

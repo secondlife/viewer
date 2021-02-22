@@ -56,7 +56,7 @@ static const std::string COLLAPSED_BY_USER = "collapsed_by_user";
 class LLTeleportHistoryFlatItem : public LLPanel
 {
 public:
-	LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name,
+	LLTeleportHistoryFlatItem(S32 index, LLToggleableMenu *menu, const std::string &region_name,
 										 	 LLDate date, const std::string &hl);
 	virtual ~LLTeleportHistoryFlatItem();
 
@@ -86,12 +86,13 @@ public:
 
 private:
 	void onProfileBtnClick();
+    void showMenu(S32 x, S32 y);
 
 	LLButton* mProfileBtn;
 	LLTextBox* mTitle;
 	LLTextBox* mTimeTextBox;
 	
-	LLTeleportHistoryPanel::ContextMenu *mContextMenu;
+	LLToggleableMenu *mMenu;
 
 	S32 mIndex;
 	std::string mRegionName;
@@ -112,7 +113,7 @@ protected:
 
 public:
 	LLTeleportHistoryFlatItem* getFlatItemForPersistentItem (
-		LLTeleportHistoryPanel::ContextMenu *context_menu,
+		LLToggleableMenu *menu,
 		const LLTeleportHistoryPersistentItem& persistent_item,
 		const S32 cur_item_index,
 		const std::string &hl);
@@ -130,16 +131,16 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLTeleportHistoryPanel::ContextMenu *context_menu, const std::string &region_name,
+LLTeleportHistoryFlatItem::LLTeleportHistoryFlatItem(S32 index, LLToggleableMenu *menu, const std::string &region_name,
 																LLDate date, const std::string &hl)
 :	LLPanel(),
 	mIndex(index),
-	mContextMenu(context_menu),
+	mMenu(menu),
 	mRegionName(region_name),
 	mDate(date),
 	mHighlight(hl)
 {
-	buildFromFile( "panel_teleport_history_item.xml");
+	buildFromFile("panel_teleport_history_item.xml");
 }
 
 LLTeleportHistoryFlatItem::~LLTeleportHistoryFlatItem()
@@ -266,10 +267,9 @@ void LLTeleportHistoryFlatItem::onMouseLeave(S32 x, S32 y, MASK mask)
 // virtual
 BOOL LLTeleportHistoryFlatItem::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mContextMenu)
-		mContextMenu->show(this, mIndex, x, y);
-
-	return LLPanel::handleRightMouseDown(x, y, mask);
+    LLPanel::handleRightMouseDown(x, y, mask);
+	showMenu(x, y);
+    return TRUE;
 }
 
 void LLTeleportHistoryFlatItem::showPlaceInfoPanel(S32 index)
@@ -286,13 +286,23 @@ void LLTeleportHistoryFlatItem::onProfileBtnClick()
 	LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
 }
 
+void LLTeleportHistoryFlatItem::showMenu(S32 x, S32 y)
+{
+    mMenu->setButtonRect(this);
+    mMenu->buildDrawLabels();
+    mMenu->arrangeAndClear();
+    mMenu->updateParent(LLMenuGL::sMenuContainer);
+
+    LLMenuGL::showPopup(this, mMenu, x, y);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 LLTeleportHistoryFlatItem*
 LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
-	LLTeleportHistoryPanel::ContextMenu *context_menu,
+	LLToggleableMenu *menu,
 	const LLTeleportHistoryPersistentItem& persistent_item,
 	const S32 cur_item_index,
 	const std::string &hl)
@@ -321,7 +331,7 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 	if ( !item )
 	{
 		item = new LLTeleportHistoryFlatItem(cur_item_index,
-											 context_menu,
+											 menu,
 											 persistent_item.mTitle,
 											 persistent_item.mDate,
 											 hl);
@@ -365,78 +375,6 @@ void LLTeleportHistoryFlatItemStorage::purge()
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-LLTeleportHistoryPanel::ContextMenu::ContextMenu() :
-	mMenu(NULL), mIndex(0)
-{
-}
-
-void LLTeleportHistoryPanel::ContextMenu::show(LLView* spawning_view, S32 index, S32 x, S32 y)
-{
-	if (mMenu)
-	{
-		//preventing parent (menu holder) from deleting already "dead" context menus on exit
-		LLView* parent = mMenu->getParent();
-		if (parent)
-		{
-			parent->removeChild(mMenu);
-		}
-		delete mMenu;
-	}
-
-	mIndex = index;
-	mMenu = createMenu();
-
-	mMenu->show(x, y);
-	LLMenuGL::showPopup(spawning_view, mMenu, x, y);
-}
-
-LLContextMenu* LLTeleportHistoryPanel::ContextMenu::createMenu()
-{
-	// set up the callbacks for all of the avatar menu items
-	// (N.B. callbacks don't take const refs as mID is local scope)
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-	registrar.add("TeleportHistory.Action", boost::bind(&LLTeleportHistoryPanel::ContextMenu::onUserAction, this, _2));
-
-	// create the context menu from the XUI
-	llassert(LLMenuGL::sMenuContainer != NULL);
-	return LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>(
-		"menu_teleport_history_item.xml", LLMenuGL::sMenuContainer, LLViewerMenuHolderGL::child_registry_t::instance());
-}
-
-void LLTeleportHistoryPanel::ContextMenu::onUserAction(const LLSD& userdata)
-{
-    std::string command_name = userdata.asString();
-    if ("teleport" == command_name)
-    {
-        confirmTeleport(mIndex);
-    }
-    else if ("view" == command_name)
-    {
-        LLTeleportHistoryFlatItem::showPlaceInfoPanel(mIndex);
-    }
-    else if ("show_on_map" == command_name)
-    {
-        LLTeleportHistoryStorage::getInstance()->showItemOnMap(mIndex);
-    }
-    else if ("copy_slurl" == command_name)
-    {
-        LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[mIndex].mGlobalPos;
-        LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
-            boost::bind(&LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback, _1));
-    }
-}
-
-//static
-void LLTeleportHistoryPanel::ContextMenu::gotSLURLCallback(const std::string& slurl)
-{
-	LLClipboard::instance().copyToClipboard(utf8str_to_wstring(slurl),0,slurl.size());
-
-	LLSD args;
-	args["SLURL"] = slurl;
-
-	LLNotificationsUtil::add("CopySLURL", args);
-}
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLTeleportHistoryPanel> t_teleport_history("panel_teleport_history");
@@ -450,7 +388,8 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 		mAccordionTabMenu(NULL),
 		mLastSelectedFlatlList(NULL),
 		mLastSelectedItemIndex(-1),
-		mMenuGearButton(NULL)
+		mGearItemMenu(NULL),
+		mSortingMenu(NULL)
 {
 	buildFromFile( "panel_teleport_history.xml");
 }
@@ -458,12 +397,19 @@ LLTeleportHistoryPanel::LLTeleportHistoryPanel()
 LLTeleportHistoryPanel::~LLTeleportHistoryPanel()
 {
 	LLTeleportHistoryFlatItemStorage::instance().purge();
-	if (mGearMenuHandle.get()) mGearMenuHandle.get()->die();
 	mTeleportHistoryChangedConnection.disconnect();
 }
 
 BOOL LLTeleportHistoryPanel::postBuild()
 {
+    mCommitCallbackRegistrar.add("TeleportHistory.GearMenu.Action", boost::bind(&LLTeleportHistoryPanel::onGearMenuAction, this, _2));
+    mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
+
+    // init menus before list, since menus are passed to list
+    mGearItemMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_item.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+    mGearItemMenu->setAlwaysShowMenu(TRUE); // all items can be disabled if nothing is selected, show anyway
+    mSortingMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+
 	mTeleportHistory = LLTeleportHistoryStorage::getInstance();
 	if (mTeleportHistory)
 	{
@@ -513,22 +459,6 @@ BOOL LLTeleportHistoryPanel::postBuild()
 			tab->setDisplayChildren(true);
 			setAccordionCollapsedByUser(tab, false);
 		}
-	}
-
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-
-	registrar.add("TeleportHistory.ExpandAllFolders",  boost::bind(&LLTeleportHistoryPanel::onExpandAllFolders,  this));
-	registrar.add("TeleportHistory.CollapseAllFolders",  boost::bind(&LLTeleportHistoryPanel::onCollapseAllFolders,  this));
-	registrar.add("TeleportHistory.ClearTeleportHistory",  boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistory,  this));
-	mEnableCallbackRegistrar.add("TeleportHistory.GearMenu.Enable", boost::bind(&LLTeleportHistoryPanel::isActionEnabled, this, _2));
-
-	mMenuGearButton = getChild<LLMenuButton>("gear_btn");
-
-	LLToggleableMenu* gear_menu  = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_teleport_history_gear.xml",  gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());;
-	if(gear_menu)
-	{
-		mGearMenuHandle  = gear_menu->getHandle();
-		mMenuGearButton->setMenu(gear_menu);
 	}
 
 	return TRUE;
@@ -647,6 +577,24 @@ void LLTeleportHistoryPanel::updateVerbs()
 	mTeleportBtn->setEnabled(NULL != itemp);
 	mShowProfile->setEnabled(NULL != itemp);
 	mShowOnMapBtn->setEnabled(NULL != itemp);
+}
+
+// virtual
+LLToggleableMenu* LLTeleportHistoryPanel::getSelectionMenu()
+{
+    return mGearItemMenu;
+}
+
+// virtual
+LLToggleableMenu* LLTeleportHistoryPanel::getSortingMenu()
+{
+    return mSortingMenu;
+}
+
+// virtual
+LLToggleableMenu* LLTeleportHistoryPanel::getCreateMenu()
+{
+    return NULL;
 }
 
 void LLTeleportHistoryPanel::getNextTab(const LLDate& item_date, S32& tab_idx, LLDate& tab_date)
@@ -782,7 +730,7 @@ void LLTeleportHistoryPanel::refresh()
 		{
 			LLTeleportHistoryFlatItem* item =
 				LLTeleportHistoryFlatItemStorage::instance()
-				.getFlatItemForPersistentItem(&mContextMenu,
+				.getFlatItemForPersistentItem(mGearItemMenu,
 											  items[mCurrentItem],
 											  mCurrentItem,
 											  filter_string);
@@ -851,7 +799,7 @@ void LLTeleportHistoryPanel::replaceItem(S32 removed_index)
 
 	const LLTeleportHistoryStorage::slurl_list_t& history_items = mTeleportHistory->getItems();
 	LLTeleportHistoryFlatItem* item = LLTeleportHistoryFlatItemStorage::instance()
-		.getFlatItemForPersistentItem(&mContextMenu,
+		.getFlatItemForPersistentItem(mGearItemMenu,
 									  history_items[history_items.size() - 1], // Most recent item, it was added instead of removed
 									  history_items.size(), // index will be decremented inside loop below
 									  sFilterSubString);
@@ -1023,38 +971,6 @@ void LLTeleportHistoryPanel::onAccordionTabClose(LLAccordionCtrlTab *tab)
 	mHistoryAccordion->arrange();
 }
 
-void LLTeleportHistoryPanel::onExpandAllFolders()
-{
-	S32 tabs_cnt = mItemContainers.size();
-
-	for (S32 n = 0; n < tabs_cnt; n++)
-	{
-		mItemContainers.at(n)->setDisplayChildren(true);
-	}
-	mHistoryAccordion->arrange();
-}
-
-void LLTeleportHistoryPanel::onCollapseAllFolders()
-{
-	S32 tabs_cnt = mItemContainers.size();
-
-	for (S32 n = 0; n < tabs_cnt; n++)
-	{
-		mItemContainers.at(n)->setDisplayChildren(false);
-	}
-	mHistoryAccordion->arrange();
-
-	if (mLastSelectedFlatlList)
-	{
-		mLastSelectedFlatlList->resetSelection();
-	}
-}
-
-void LLTeleportHistoryPanel::onClearTeleportHistory()
-{
-	LLNotificationsUtil::add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
-}
-
 bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response)
 {
 
@@ -1086,45 +1002,141 @@ LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTa
 	return NULL;
 }
 
+void LLTeleportHistoryPanel::gotSLURLCallback(const std::string& slurl)
+{
+    LLClipboard::instance().copyToClipboard(utf8str_to_wstring(slurl), 0, slurl.size());
+
+    LLSD args;
+    args["SLURL"] = slurl;
+
+    LLNotificationsUtil::add("CopySLURL", args);
+}
+
+void LLTeleportHistoryPanel::onGearMenuAction(const LLSD& userdata)
+{
+    std::string command_name = userdata.asString();
+
+    if ("expand_all" == command_name)
+    {
+        S32 tabs_cnt = mItemContainers.size();
+
+        for (S32 n = 0; n < tabs_cnt; n++)
+        {
+            mItemContainers.at(n)->setDisplayChildren(true);
+        }
+        mHistoryAccordion->arrange();
+    }
+    else if ("collapse_all" == command_name)
+    {
+        S32 tabs_cnt = mItemContainers.size();
+
+        for (S32 n = 0; n < tabs_cnt; n++)
+        {
+            mItemContainers.at(n)->setDisplayChildren(false);
+        }
+        mHistoryAccordion->arrange();
+
+        if (mLastSelectedFlatlList)
+        {
+            mLastSelectedFlatlList->resetSelection();
+        }
+    }
+    else if ("clear_history" == command_name)
+    {
+        LLNotificationsUtil::add("ConfirmClearTeleportHistory", LLSD(), LLSD(), boost::bind(&LLTeleportHistoryPanel::onClearTeleportHistoryDialog, this, _1, _2));
+    }
+
+    S32 index = -1;
+    if (mLastSelectedFlatlList)
+    {
+        LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
+        if (itemp)
+        {
+            index = itemp->getIndex();
+        }
+    }
+
+    if ("teleport" == command_name)
+    {
+        confirmTeleport(index);
+    }
+    else if ("view" == command_name)
+    {
+        LLTeleportHistoryFlatItem::showPlaceInfoPanel(index);
+    }
+    else if ("show_on_map" == command_name)
+    {
+        LLTeleportHistoryStorage::getInstance()->showItemOnMap(index);
+    }
+    else if ("copy_slurl" == command_name)
+    {
+        LLVector3d globalPos = LLTeleportHistoryStorage::getInstance()->getItems()[index].mGlobalPos;
+        LLLandmarkActions::getSLURLfromPosGlobal(globalPos,
+            boost::bind(&LLTeleportHistoryPanel::gotSLURLCallback, _1));
+    }
+}
+
 bool LLTeleportHistoryPanel::isActionEnabled(const LLSD& userdata) const
 {
-	S32 tabs_cnt = mItemContainers.size();
+    std::string command_name = userdata.asString();
 
-	bool has_expanded_tabs = false;
-	bool has_collapsed_tabs = false;
+    if (command_name == "collapse_all"
+        || command_name == "expand_all")
+    {
+        S32 tabs_cnt = mItemContainers.size();
 
-	for (S32 n = 0; n < tabs_cnt; n++)
-	{
-		LLAccordionCtrlTab* tab = mItemContainers.at(n);
-		if (!tab->getVisible())
-			continue;
+        bool has_expanded_tabs = false;
+        bool has_collapsed_tabs = false;
 
-		if (tab->getDisplayChildren())
-		{
-			has_expanded_tabs = true;
-		}
-		else
-		{
-			has_collapsed_tabs = true;
-		}
+        for (S32 n = 0; n < tabs_cnt; n++)
+        {
+            LLAccordionCtrlTab* tab = mItemContainers.at(n);
+            if (!tab->getVisible())
+                continue;
 
-		if (has_expanded_tabs && has_collapsed_tabs)
-		{
-			break;
-		}
-	}
+            if (tab->getDisplayChildren())
+            {
+                has_expanded_tabs = true;
+            }
+            else
+            {
+                has_collapsed_tabs = true;
+            }
 
-	std::string command_name = userdata.asString();
+            if (has_expanded_tabs && has_collapsed_tabs)
+            {
+                break;
+            }
+        }
 
-	if (has_expanded_tabs && command_name == "collapse_all")
-	{
-		return true;
-	}
+        if (command_name == "collapse_all")
+        {
+            return has_expanded_tabs;
+        }
 
-	if (has_collapsed_tabs && command_name ==  "expand_all")
-	{
-		return true;
-	}
+        if (command_name == "expand_all")
+        {
+            return has_collapsed_tabs;
+        }
+    }
+
+    if (command_name == "clear_history")
+    {
+        return mTeleportHistory->getItems().size() > 0;
+    }
+    
+    if ("teleport" == command_name
+        || "view" == command_name
+        || "show_on_map" == command_name
+        || "copy_slurl" == command_name)
+    {
+        if (!mLastSelectedFlatlList)
+        {
+            return false;
+        }
+        LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
+        return itemp != NULL;
+    }
 
 	return false;
 }
