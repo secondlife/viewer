@@ -1262,9 +1262,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f9831360ced94943ab9dfb3fbf5256d3</string>
+              <string>e280519baadf8369b4d7d1cd00506b49</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64101/601290/googlemock-1.7.0.545363-darwin64-545363.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77465/734807/googlemock-1.7.0.556304-darwin64-556304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1298,9 +1298,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8149e46b4f7abb3ac284415cfe1366e1</string>
+              <string>d4d5b681cb2d0a214bba2ad54a36dea9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64102/601296/googlemock-1.7.0.545363-windows-545363.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77466/734805/googlemock-1.7.0.556304-windows-556304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1310,16 +1310,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3851eba809ead2810d702041569d36d</string>
+              <string>5dfc8cc3160a6954757cebdeaaa30376</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64100/601284/googlemock-1.7.0.545363-windows64-545363.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77467/734815/googlemock-1.7.0.556304-windows64-556304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.545363</string>
+        <string>1.7.0.556304</string>
       </map>
       <key>gstreamer</key>
       <map>
