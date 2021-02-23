@@ -308,9 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02e6a8207dcdaf243dcb6da19b8c3534</string>
+              <string>3250ad7a5e12e8656b0aa4701b38ad3a</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64099/601302/colladadom-2.3.545362-darwin64-545362.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77469/734822/colladadom-2.3.556305-darwin64-556305.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -344,9 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8a02a10fc69c8f504dc5335644db184a</string>
+              <string>20b8a8395bbd8e86f48c75bf8fc2e642</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64104/601313/colladadom-2.3.545362-windows-545362.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77468/734828/colladadom-2.3.556305-windows-556305.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -356,16 +356,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>742180324fca7ab92b6a61a36aab4f9d</string>
+              <string>bc88fdd32fd7d005c7dfc58c82260a29</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/64103/601314/colladadom-2.3.545362-windows64-545362.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77470/734834/colladadom-2.3.556305-windows64-556305.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.545362</string>
+        <string>2.3.556305</string>
       </map>
       <key>curl</key>
       <map>
