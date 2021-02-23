@@ -4115,7 +4115,11 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
 
-                    if (!LLFolderType::lookupIsProtectedType(getPreferredType()) && !isParentSystemFolder(model, mUUID))
+                    if (model->findUserDefinedCategoryUUIDForType(LLFolderType::FT_FAVORITE) == mUUID)
+                    {
+                        items.push_back(std::string("Reset Favorites folder"));
+                    }
+                    else if (!LLFolderType::lookupIsProtectedType(getPreferredType()) && !isParentSystemFolder(model, mUUID))
                     {
                         items.push_back(std::string("Set Favorites folder"));
                     }

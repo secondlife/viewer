@@ -221,6 +221,7 @@ public:
 	bool beginIMSession();
 	void fileUploadLocation(const LLSD& userdata);
 	void setFavoritesFolder(const LLSD& userdata);
+	void resetFavoritesFolder(const LLSD& userdata);
 	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
