@@ -611,6 +611,12 @@ class WindowsManifest(ViewerManifest):
                 self.path("msvcp140.dll")
                 self.path("vcruntime140.dll")
 
+            # as of CEF 88, this (apparently software rendering support)
+            # folder is required - likely a Chromium bug - but including
+            # for now until the root cause is found - it's tiny
+            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+                self.path("swiftshader/")
+
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
                 self.path("cef.pak")
