@@ -97,7 +97,6 @@ private:
 	bool onOverflowMenuItemEnable(const LLSD& param);
 	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
 	void onBackButtonClicked();
-	void onProfileButtonClicked();
     void onGearMenuClick();
     void onSortingMenuClick();
     void onAddMenuClick();
@@ -134,7 +133,6 @@ private:
 	LLButton*					mCancelBtn;
 	LLButton*					mCloseBtn;
 	LLMenuButton*				mOverflowBtn;
-	LLButton*					mPlaceInfoBtn;
 
     // Top menu
     LLMenuButton*				mGearMenuButton;

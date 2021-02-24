@@ -58,7 +58,6 @@ public:
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 
-	void setPanelPlacesButtons(LLPanelPlaces* panel);
 	void onRegionResponse(const LLVector3d& landmark_global_pos,
 										U64 region_handle,
 										const std::string& url,
@@ -69,10 +68,6 @@ public:
 	void setFilterSubString(const std::string& string) { sFilterSubString = string; }
 
 protected:
-	LLButton*				mTeleportBtn;
-	LLButton*				mShowOnMapBtn;
-	LLButton*				mShowProfile;
-
 	// Search string for filtering landmarks and teleport history locations
 	static std::string		sFilterSubString;
 };

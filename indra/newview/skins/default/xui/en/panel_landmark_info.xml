@@ -67,7 +67,7 @@
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
-     top="4"
+     top="2"
      width="30"
      use_draw_context_alpha="false" />
     <text
@@ -78,20 +78,20 @@
      left_pad="7"
      name="title"
      text_color="LtGray"
-     top="3"
+     top="2"
      use_ellipses="true"
      value="Place Profile"
      width="280" />
     <scroll_container
      color="DkGray2"
      follows="all"
-     height="532"
+     height="534"
      layout="topleft"
      left="9"
      name="place_scroll"
      opaque="true"
-     top_pad="10"
-     width="331">
+     top_pad="9"
+     width="324">
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"

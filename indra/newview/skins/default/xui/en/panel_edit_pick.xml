@@ -26,7 +26,7 @@
      name="back_btn"
      left="10"
      tab_stop="false"
-     top="2"
+     top="4"
      width="30"
      use_draw_context_alpha="false" />
    <text
@@ -39,17 +39,17 @@
      left_pad="4"
      name="title"
      text_color="LtGray"
-     top="2"
+     top="4"
      width="250">
         Edit Pick
     </text>
    <scroll_container
      color="DkGray2"
      follows="all"
-     height="502"
+     height="501"
      layout="topleft"
      left="8"
-     top_pad="10"
+     top_pad="9"
      name="profile_scroll"
      opaque="true"
      width="312">

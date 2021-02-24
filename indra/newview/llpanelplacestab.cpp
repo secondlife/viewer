@@ -47,13 +47,6 @@ bool LLPanelPlacesTab::isTabVisible()
 	return true;
 }
 
-void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)
-{
-	mTeleportBtn = panel->getChild<LLButton>("teleport_btn");
-	mShowOnMapBtn = panel->getChild<LLButton>("map_btn");
-	mShowProfile = panel->getChild<LLButton>("profile_btn");
-}
-
 void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,
 										U64 region_handle,
 										const std::string& url,

@@ -268,11 +268,6 @@ void LLLandmarksPanel::onShowOnMap()
 		return;
 	}
 
-	// Disable the "Map" button because loading landmark can take some time.
-	// During this time the button is useless. It will be enabled on callback finish
-	// or upon switching to other item.
-	mShowOnMapBtn->setEnabled(FALSE);
-
 	doActionOnCurSelectedLandmark(boost::bind(&LLLandmarksPanel::doShowOnMap, this, _1));
 }
 
@@ -357,15 +352,6 @@ void LLLandmarksPanel::updateVerbs()
 {
 	if (!isTabVisible()) 
 		return;
-
-	bool landmark_selected = isLandmarkSelected();
-	mTeleportBtn->setEnabled(landmark_selected && isActionEnabled("teleport"));
-	mShowProfile->setEnabled(landmark_selected && isActionEnabled("more_info"));
-	mShowOnMapBtn->setEnabled(landmark_selected && isActionEnabled("show_on_map"));
-
-	// TODO: mantipov: Uncomment when mShareBtn is supported
-	// Share button should be enabled when neither a folder nor a landmark is selected
-	//mShareBtn->setEnabled(NULL != current_item);
 }
 
 void LLLandmarksPanel::onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -1348,7 +1334,6 @@ void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 
-	mShowOnMapBtn->setEnabled(TRUE);
 	mGearLandmarkMenu->setItemEnabled("show_on_map", TRUE);
 }
 

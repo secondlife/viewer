@@ -566,17 +566,8 @@ void LLTeleportHistoryPanel::updateVerbs()
 
 	if (!mLastSelectedFlatlList)
 	{
-		mTeleportBtn->setEnabled(false);
-		mShowProfile->setEnabled(false);
-		mShowOnMapBtn->setEnabled(false);
 		return;
 	}
-
-	LLTeleportHistoryFlatItem* itemp = dynamic_cast<LLTeleportHistoryFlatItem *> (mLastSelectedFlatlList->getSelectedItem());
-
-	mTeleportBtn->setEnabled(NULL != itemp);
-	mShowProfile->setEnabled(NULL != itemp);
-	mShowOnMapBtn->setEnabled(NULL != itemp);
 }
 
 // virtual

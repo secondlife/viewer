@@ -295,9 +295,6 @@ BOOL LLPanelPlaces::postBuild()
 	mOverflowBtn = getChild<LLMenuButton>("overflow_btn");
 	mOverflowBtn->setMouseDownCallback(boost::bind(&LLPanelPlaces::onOverflowButtonClicked, this));
 
-	mPlaceInfoBtn = getChild<LLButton>("profile_btn");
-	mPlaceInfoBtn->setClickedCallback(boost::bind(&LLPanelPlaces::onProfileButtonClicked, this));
-
     mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
     mGearMenuButton->setMouseDownCallback(boost::bind(&LLPanelPlaces::onGearMenuClick, this));
 
@@ -933,14 +930,6 @@ void LLPanelPlaces::onOverflowButtonClicked()
 	mOverflowBtn->setMenu(menu, LLMenuButton::MP_TOP_RIGHT);
 }
 
-void LLPanelPlaces::onProfileButtonClicked()
-{
-	if (!mActivePanel)
-		return;
-
-	mActivePanel->onShowProfile();
-}
-
 bool LLPanelPlaces::onOverflowMenuItemEnable(const LLSD& param)
 {
 	std::string value = param.asString();
@@ -1211,8 +1200,6 @@ void LLPanelPlaces::createTabs()
 	LLLandmarksPanel* landmarks_panel = new LLLandmarksPanel();
 	if (landmarks_panel)
 	{
-		landmarks_panel->setPanelPlacesButtons(this);
-
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(landmarks_panel).
@@ -1223,8 +1210,6 @@ void LLPanelPlaces::createTabs()
 	LLTeleportHistoryPanel* teleport_history_panel = new LLTeleportHistoryPanel();
 	if (teleport_history_panel)
 	{
-		teleport_history_panel->setPanelPlacesButtons(this);
-
 		mTabContainer->addTabPanel(
 			LLTabContainer::TabPanelParams().
 			panel(teleport_history_panel).
@@ -1312,14 +1297,11 @@ void LLPanelPlaces::updateVerbs()
 	mSaveBtn->setVisible(isLandmarkEditModeOn);
 	mCancelBtn->setVisible(isLandmarkEditModeOn);
 	mCloseBtn->setVisible(is_create_landmark_visible && !isLandmarkEditModeOn);
-	mPlaceInfoBtn->setVisible(!is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn && !is_pick_panel_visible);
 
 	bool show_options_btn = is_place_info_visible && !is_create_landmark_visible && !isLandmarkEditModeOn;
 	mOverflowBtn->setVisible(show_options_btn);
 	getChild<LLLayoutPanel>("lp_options")->setVisible(show_options_btn);
 	getChild<LLLayoutPanel>("lp2")->setVisible(!show_options_btn);
-
-	mPlaceInfoBtn->setEnabled(!is_create_landmark_visible && !isLandmarkEditModeOn && have_3d_pos);
 
 	if (is_place_info_visible)
 	{
