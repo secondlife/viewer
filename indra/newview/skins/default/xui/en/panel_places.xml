@@ -11,12 +11,29 @@ background_visible="true"
  top="0"
  left="0"
  width="333">
-    <string
-     name="landmarks_tab_title"
-     value="MY LANDMARKS" />
-    <string
-     name="teleport_history_tab_title"
-     value="TELEPORT HISTORY" />
+  <string
+   name="landmarks_tab_title"
+   value="MY LANDMARKS" />
+  <string
+   name="teleport_history_tab_title"
+   value="PLACES VISITED" />
+  <layout_stack
+    animate="false"
+    border_size="0"
+    follows="all"
+    height="564"
+    layout="topleft"
+    orientation="vertical"
+    top="1"
+    left="0"
+    name="places_layout_panel"
+    width="333">
+    <layout_panel
+      auto_resize="true"
+      height="538"
+      layout="topleft"
+      name="main_panel"
+      width="333">
     <layout_stack
       animate="false"
       border_size="0"
@@ -24,9 +41,9 @@ background_visible="true"
       height="25"
       layout="topleft"
       orientation="horizontal"
-      top_pad="1"
+      top="0"
       left="0"
-      name="bottom_panel"
+      name="top_menu_panel"
       width="320">
       <layout_panel
         auto_resize="true"
@@ -134,9 +151,9 @@ background_visible="true"
     </layout_stack>
     <tab_container
      follows="all"
-     halign="center"
-     height="503"
      layout="topleft"
+     halign="center"
+     height="504"
      left="6"
      name="Places Tabs"
      tab_min_width="80"
@@ -144,40 +161,50 @@ background_visible="true"
      tab_height="30"
      tab_group="2"
      tab_position="top"
-     top_pad="10"
-     width="315" />
+     top_pad="9"
+     width="318"
+     visible="true"/>
     <panel
      class="panel_place_profile"
      filename="panel_place_profile.xml"
      follows="all"
-     height="533"
      layout="topleft"
+     height="533"
      left="0"
+     top="4"
      help_topic="place_profile"
      name="panel_place_profile"
-     top="5"
      visible="false"
-     width="315" />
+     width="318" />
     <panel
      class="panel_landmark_info"
      filename="panel_landmark_info.xml"
      follows="all"
-     height="533"
      layout="topleft"
+     height="533"
      left="0"
+     top="4"
      help_topic="landmark"
      name="panel_landmark_info"
-     top="5"
      visible="false"
-     width="315" />
+     width="318" />
+    </layout_panel>
+
+    <!--*********************** Button wrappers ***********************-->
+    <layout_panel
+     auto_resize="false"
+     layout="topleft"
+     height="25"
+     name="button_layout_panel">
     <panel
      follows="bottom|left|right"
      height="23"
      layout="topleft"
      left="4"
+     top="2"
      name="button_panel"
-     width="315">
-     
+     width="318">
+    
        <layout_stack
      	follows="bottom|left|right"
 		height="23"
@@ -422,4 +449,6 @@ background_visible="true"
 			</layout_panel>		
 		</layout_stack>
     </panel>
+    </layout_panel>
+  </layout_stack>
 </panel>

@@ -196,7 +196,7 @@
      name="place_scroll"
      opaque="true"
      top_pad="10"
-     width="310">
+     width="331">
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right|bottom"

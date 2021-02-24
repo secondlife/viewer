@@ -345,6 +345,10 @@ BOOL LLPanelPlaces::postBuild()
 		mTabContainer->setCommitCallback(boost::bind(&LLPanelPlaces::onTabSelected, this));
 	}
 
+    mButtonsContainer = getChild<LLPanel>("button_layout_panel");
+    mButtonsContainer->setVisible(FALSE);
+    mFilterContainer = getChild<LLLayoutStack>("top_menu_panel");
+
 	mFilterEditor = getChild<LLFilterEditor>("Filter");
 	if (mFilterEditor)
 	{
@@ -1085,8 +1089,9 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 	if (!mPlaceProfile || !mLandmarkInfo)
 		return;
 
-	mFilterEditor->setVisible(!visible);
 	mTabContainer->setVisible(!visible);
+	mButtonsContainer->setVisible(visible);
+	mFilterContainer->setVisible(!visible);
 
 	if (mPlaceInfoType == AGENT_INFO_TYPE ||
 		mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
@@ -1101,10 +1106,6 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 			// Do not reset location info until mResetInfoTimer has expired
 			// to avoid text blinking.
 			mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
-
-			LLRect rect = getRect();
-			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-			mPlaceProfile->reshape(new_rect.getWidth(), new_rect.getHeight());
 
 			mLandmarkInfo->setVisible(FALSE);
 		}
@@ -1126,10 +1127,6 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		if (visible)
 		{
 			mLandmarkInfo->resetLocation();
-
-			LLRect rect = getRect();
-			LLRect new_rect = LLRect(rect.mLeft, rect.mTop, rect.mRight, mTabContainer->getRect().mBottom);
-			mLandmarkInfo->reshape(new_rect.getWidth(), new_rect.getHeight());
 		}
 		else
 		{

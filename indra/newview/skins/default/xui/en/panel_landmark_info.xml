@@ -91,7 +91,7 @@
      name="place_scroll"
      opaque="true"
      top_pad="10"
-     width="310">
+     width="331">
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"
@@ -282,7 +282,6 @@
                  enabled="false"
                  use_bg_color="true"
                  bg_color="DkGray0"
-                 parse_urls="false"
                  follows="left|top|right"
                  height="22"
                  layout="topleft"
@@ -290,7 +289,6 @@
                  name="title_value"
                  text_color="white"
                  top_pad="5"
-                 use_ellipses="true"
                  width="290" /> 
                 <line_editor
                  follows="left|top|right"

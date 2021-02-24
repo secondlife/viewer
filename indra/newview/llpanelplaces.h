@@ -48,6 +48,7 @@ class LLRemoteParcelInfoObserver;
 class LLTabContainer;
 class LLToggleableMenu;
 class LLMenuButton;
+class LLLayoutStack;
 
 typedef std::pair<LLUUID, std::string>	folder_pair_t;
 
@@ -117,6 +118,8 @@ private:
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
+	LLPanel*					mButtonsContainer;
+	LLLayoutStack*				mFilterContainer;
 	LLPanelPlaceProfile*		mPlaceProfile;
 	LLPanelLandmarkInfo*		mLandmarkInfo;
 
