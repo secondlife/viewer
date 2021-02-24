@@ -76,7 +76,7 @@ private:
 	void onClearTeleportHistory();
 	bool onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response);
 
-	void refresh();
+	void refresh() override;
 	void getNextTab(const LLDate& item_date, S32& curr_tab, LLDate& tab_date);
 	void onTeleportHistoryChange(S32 removed_index);
 	void replaceItem(S32 removed_index);
