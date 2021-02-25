@@ -1362,7 +1362,7 @@
          top_pad="9"
          left="6"
          width="70"
-         label="Enable detailed logging"
+         label="Enable detailed logging (can be very slow)"
          name="verbose_logging"/>
       </panel>
     </tab_container>
