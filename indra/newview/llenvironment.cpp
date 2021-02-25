@@ -1217,33 +1217,24 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
 void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version)
 {
-    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, env_version);
-}
-
-void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsBase::Seconds transition, S32 env_version)
-{
-    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, transition, env_version);
+    setEnvironment(env, assetId, TRANSITION_DEFAULT, env_version);
 }
 
 void LLEnvironment::setEnvironment(EnvSelection_t env,
                                    const LLUUID &assetId,
-                                   LLSettingsDay::Seconds daylength,
-                                   LLSettingsDay::Seconds dayoffset,
                                    LLSettingsBase::Seconds transition,
                                    S32 env_version)
 {
     LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env, daylength, dayoffset, env_version, transition](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+        [this, env, env_version, transition](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
-            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, transition, status, env_version);
+            onSetEnvAssetLoaded(env, asset_id, settings, transition, status, env_version);
         });
 }
 
 void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
                                         LLUUID asset_id,
                                         LLSettingsBase::ptr_t settings,
-                                        LLSettingsDay::Seconds daylength,
-                                        LLSettingsDay::Seconds dayoffset,
                                         LLSettingsBase::Seconds transition,
                                         S32 status,
                                         S32 env_version)
@@ -1690,7 +1681,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         if (!envinfo->mDayCycle)
         {
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
@@ -1698,7 +1689,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         {
             LL_WARNS("ENVIRONMENT") << "Invalid day cycle for region" << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, TRANSITION_DEFAULT, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else
@@ -2944,17 +2935,15 @@ bool LLEnvironment::loadFromSettings()
 
     if (env_data.has("day_id"))
     {
-        LLSettingsDay::Seconds length = LLSettingsDay::Seconds(env_data["day_length"].asInteger());
-        LLSettingsDay::Seconds offset = LLSettingsDay::Seconds(env_data["day_offset"].asInteger());
         LLUUID assetId = env_data["day_id"].asUUID();
 
         LLSettingsVOBase::getSettingsAsset(assetId,
-            [this, length, offset, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+            [this, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
             // Day should be always applied first,
             // otherwise it will override sky or water that was set earlier
             // so wait for asset to load before applying sky/water
-            onSetEnvAssetLoaded(ENV_LOCAL, asset_id, settings, length, offset, TRANSITION_DEFAULT, status, NO_VERSION);
+            onSetEnvAssetLoaded(ENV_LOCAL, asset_id, settings, TRANSITION_DEFAULT, status, NO_VERSION);
             bool valid = false, has_assets = false;
             loadSkyWaterFromSettings(env_data, valid, has_assets);
             if (!has_assets && valid)
