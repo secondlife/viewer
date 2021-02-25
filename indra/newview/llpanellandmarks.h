@@ -82,6 +82,8 @@ public:
 
 	void updateMenuVisibility(LLUICtrl* menu);
 
+	void resetSelection();
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
@@ -104,6 +106,7 @@ protected:
 											   BOOL take_keyboard_focus) const;
 
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
+
 
 	//LLRemoteParcelInfoObserver interface
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
