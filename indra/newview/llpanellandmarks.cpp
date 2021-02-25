@@ -60,6 +60,8 @@
 // Not yet implemented; need to remove buildPanel() from constructor when we switch
 //static LLRegisterPanelClassWrapper<LLLandmarksPanel> t_landmarks("panel_landmarks");
 
+static const std::string TAB_FAVORITES = "tab_favorites";
+
 // helper functions
 static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string);
 static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list);
@@ -398,7 +400,7 @@ void LLLandmarksPanel::updateShowFolderState()
 
 void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus)
 {
-	if (selectItemInAccordionTab(mFavoritesInventoryPanel, "tab_favorites", obj_id, take_keyboard_focus))
+	if (selectItemInAccordionTab(mFavoritesInventoryPanel, TAB_FAVORITES, obj_id, take_keyboard_focus))
 	{
 		return;
 	}
@@ -521,6 +523,12 @@ void LLLandmarksPanel::updateSortOrder(LLInventoryPanel* panel, bool byDate)
 	}
 }
 
+void LLLandmarksPanel::resetSelection()
+{
+	getChild<LLAccordionCtrlTab>(TAB_FAVORITES)->setDisplayChildren(true);
+	getChild<LLAccordionCtrlTab>(TAB_FAVORITES)->showAndFocusHeader();
+}
+
 // virtual
 void LLLandmarksPanel::processParcelInfo(const LLParcelData& parcel_data)
 {
@@ -571,7 +579,7 @@ void LLLandmarksPanel::initFavoritesInventoryPanel()
 	initLandmarksPanel(mFavoritesInventoryPanel);
 	mFavoritesInventoryPanel->getFilter().setEmptyLookupMessage("FavoritesNoMatchingItems");
 
-	initAccordion("tab_favorites", mFavoritesInventoryPanel, true);
+	initAccordion(TAB_FAVORITES, mFavoritesInventoryPanel, true);
 }
 
 void LLLandmarksPanel::initLandmarksInventoryPanel()

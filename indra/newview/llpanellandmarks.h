@@ -94,6 +94,8 @@ public:
 
 	void doCreatePick(LLLandmark* landmark, const LLUUID &item_id );
 
+	void resetSelection();
+
 protected:
 	/**
 	 * @return true - if current selected panel is not null and selected item is a landmark
