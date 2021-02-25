@@ -151,7 +151,7 @@
 	         layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="237"
+           min_width="185"
            name="favorites_layout_panel"
            width="320">
            <icon
@@ -163,32 +163,18 @@
              name="resize_handle"
              top="4"
              width="5" />
-           <button
-             height="16"
-             width="16"
-             layout="topleft"
-             mouse_opaque="true"
-             follows="left|top"
-             name="landmarks_btn"
-             tool_tip="My Landmarks"
-             top="9"
-             left_pad="10"
-             image_selected="Icon_Gear"
-             image_pressed="Icon_Gear"
-             image_unselected="Icon_Gear"
-             is_toggle="true">
-           </button>
+
            <favorites_bar
              follows="left|right|top"
              font="SansSerifSmall"
              height="20"
              layout="topleft"
-             left_pad="0"
+             left="0"
              top="4"
              name="favorite"
              image_drag_indication="Accordion_ArrowOpened_Off"
              tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
-             width="268">
+             width="320">
             <label
              follows="left|top"
              height="13"
@@ -199,8 +185,8 @@
              tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
              top="13"
 	     valign="bottom"
-             width="205">
-              Your saved locations will appear here.
+             width="102">
+              Favorites Bar
             </label>
               <!-- More button actually is a text box. -->
               <more_button

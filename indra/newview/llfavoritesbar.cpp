@@ -847,7 +847,7 @@ void LLFavoritesBarCtrl::updateButtons(bool force_update)
 		int j = first_changed_item_index;
 		for (; j < mItems.size(); j++)
 		{
-			last_new_button = createButton(mItems[j], button_params, j == 0? last_right_edge + 4 : last_right_edge);
+			last_new_button = createButton(mItems[j], button_params, last_right_edge);
 			if (!last_new_button)
 			{
 				break;
