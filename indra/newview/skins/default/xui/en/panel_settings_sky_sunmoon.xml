@@ -226,14 +226,14 @@
                     
             <check_box
                     control_name="sunbeacon"
+                    follows="left|top"
+                    layout="topleft"
                     width="60"
                     height="16"
                     label="Show Beacon"
-                    layout="topleft"
-                    name="sunbeacon" 
-                    right="-50"
-                    bottom="-10"
-                    follows="bottom|right"/>
+                    name="sunbeacon"
+                    top_pad="5"
+                    left_delta="-8"/>
                     
         </layout_panel>
         <layout_panel
@@ -395,14 +395,14 @@
                     can_edit_text="true"/>
                   <check_box
                         control_name="moonbeacon"
+                        follows="left|top"
+                        layout="topleft"
                         width="60"
                         height="16"
                         label="Show Beacon"
-                        layout="topleft"
                         name="moonbeacon" 
-                        right="-50"
-                        bottom="-10"
-                        follows="bottom|right"/>
+                        top_pad="5"
+                        left_delta="-8"/>
                             
                 </layout_panel>
             </layout_stack>
