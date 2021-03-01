@@ -249,8 +249,8 @@ BOOL LLConversationViewSession::postBuild()
 		}
 		case LLConversationItem::CONV_SESSION_NEARBY:
 		{
-			LLIconCtrl* icon = mItemPanel->getChild<LLIconCtrl>("nearby_chat_icon");
-			icon->setVisible(true);
+			mItemPanel->getChild<LLLayoutPanel>("session_icon_panel")->setVisible(false);
+		
 			mSpeakingIndicator->setSpeakerId(gAgentID, LLUUID::null, true);
 			mIsInActiveVoiceChannel = true;
 			if(LLVoiceClient::instanceExists())

@@ -6,45 +6,41 @@
  name="conversation_list_item"
  mouse_opaque="false"
  width="120">
-    <avatar_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Person"
-     layout="topleft"
-     left="9"
-     top="2"
-     visible="false"
-     width="20" />
-    <group_icon
-     follows="top|left"
-     height="20"
-     default_icon_name="Generic_Group"
-     layout="topleft"
-     left="9"
-     top="2"
-     visible="false"
-     width="20" />
-    <icon
-     follows="top|left"
-     height="20"
-     image_name="Nearby_chat_icon"
-     layout="topleft"
-     left="10"
-     name="nearby_chat_icon"
-     top="3"
-     visible="false"
-     width="20"/>
+
     <layout_stack
      animate="false"
      follows="all"
      height="24"
      layout="topleft"
-     left="30"
+     left="9"
      mouse_opaque="false"
      name="conversation_item_stack"
      orientation="horizontal"
      top="0"
-     width="90">
+     width="109">
+      <layout_panel
+        auto_resize="false"
+        name="session_icon_panel"
+        width="24">
+        <avatar_icon
+         follows="top|left"
+         height="20"
+         default_icon_name="Generic_Person"
+         layout="topleft"
+         left="0"
+         top="2"
+         visible="false"
+         width="20" />
+        <group_icon
+         follows="top|left"
+         height="20"
+         default_icon_name="Generic_Group"
+         layout="topleft"
+         left="0"
+         top="2"
+         visible="false"
+         width="20" />
+        </layout_panel>
         <layout_panel
          auto_resize="false"
          user_resize="false"        
