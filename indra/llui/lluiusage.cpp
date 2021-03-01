@@ -47,11 +47,19 @@ std::string LLUIUsage::sanitized(const std::string& s)
 void LLUIUsage::logFloater(const std::string& floater)
 {
 	mFloaterCounts[sanitized(floater)]++;
+	LL_DEBUGS("UIUsage") << "floater " << floater << LL_ENDL;
 }
 
 void LLUIUsage::logCommand(const std::string& command)
 {
 	mCommandCounts[sanitized(command)]++;
+	LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
+}
+
+void LLUIUsage::logWidget(const std::string& w)
+{
+	mWidgetCounts[sanitized(w)]++;
+	LL_DEBUGS("UIUsage") << "widget " << w << LL_ENDL;
 }
 
 LLSD LLUIUsage::asLLSD() const
@@ -64,6 +72,10 @@ LLSD LLUIUsage::asLLSD() const
 	for (auto const& it : mCommandCounts)
 	{
 		result["commands"][it.first] = LLSD::Integer(it.second);
+	}
+	for (auto const& it : mWidgetCounts)
+	{
+		result["widgets"][it.first] = LLSD::Integer(it.second);
 	}
 	return result;
 }

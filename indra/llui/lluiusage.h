@@ -41,10 +41,12 @@ public:
 	static std::string sanitized(const std::string& s);
 	void logFloater(const std::string& floater);
 	void logCommand(const std::string& command);
+	void logWidget(const std::string& w);
 	LLSD asLLSD() const;
 private:
 	std::map<std::string,U32> mFloaterCounts;
 	std::map<std::string,U32> mCommandCounts;
+	std::map<std::string,U32> mWidgetCounts;
 };
 
 #endif // LLUIUIUSAGE.h
