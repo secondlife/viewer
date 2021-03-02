@@ -33,7 +33,6 @@
 #include "llfloaterreg.h"
 #include "llmemory.h"
 #include "lltimer.h"
-#include "llvfile.h"
 
 #include "llappviewer.h"
 
@@ -146,7 +145,6 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
-							PENDING_VFS_OPERATIONS("vfspendingoperations"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
 
@@ -384,7 +382,6 @@ void update_statistics()
 	F64Bits layer_bits = gVLManager.getLandBits() + gVLManager.getWindBits() + gVLManager.getCloudBits();
 	add(LLStatViewer::LAYERS_NETWORK_DATA_RECEIVED, layer_bits);
 	add(LLStatViewer::OBJECT_NETWORK_DATA_RECEIVED, gObjectData);
-	sample(LLStatViewer::PENDING_VFS_OPERATIONS, LLVFile::getVFSThread()->getPending());
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
