@@ -57,7 +57,7 @@
 
 #include "llinventorymodel.h"
 #include "llassetstorage.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "lldrawpoolwater.h"
 
 #include <boost/algorithm/string/replace.hpp>
@@ -292,18 +292,18 @@ void LLSettingsVOBase::onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, L
 void LLSettingsVOBase::getSettingsAsset(const LLUUID &assetId, LLSettingsVOBase::asset_download_fn callback)
 {
     gAssetStorage->getAssetData(assetId, LLAssetType::AT_SETTINGS,
-        [callback](LLVFS *vfs, const LLUUID &asset_id, LLAssetType::EType, void *, S32 status, LLExtStat ext_status) 
-            { onAssetDownloadComplete(vfs, asset_id, status, ext_status, callback); },
+        [callback](const LLUUID &asset_id, LLAssetType::EType, void *, S32 status, LLExtStat ext_status) 
+            { onAssetDownloadComplete(asset_id, status, ext_status, callback); },
         nullptr, true);
 
 }
 
-void LLSettingsVOBase::onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_id, S32 status, LLExtStat ext_status, LLSettingsVOBase::asset_download_fn callback)
+void LLSettingsVOBase::onAssetDownloadComplete(const LLUUID &asset_id, S32 status, LLExtStat ext_status, LLSettingsVOBase::asset_download_fn callback)
 {
     LLSettingsBase::ptr_t settings;
     if (!status)
     {
-        LLVFile file(vfs, asset_id, LLAssetType::AT_SETTINGS, LLVFile::READ);
+        LLFileSystem file(asset_id, LLAssetType::AT_SETTINGS, LLFileSystem::READ);
         S32 size = file.getSize();
 
         std::string buffer(size + 1, '\0');
