@@ -30,7 +30,7 @@
 #include "lltransfermanager.h"
 #include "llassetstorage.h"
 
-class LLVFile;
+class LLFileSystem;
 
 class LLTransferSourceParamsAsset : public LLTransferSourceParams
 {
@@ -56,7 +56,7 @@ public:
 	LLTransferSourceAsset(const LLUUID &request_id, const F32 priority);
 	virtual ~LLTransferSourceAsset();
 
-	static void responderCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
+	static void responderCallback(const LLUUID& uuid, LLAssetType::EType type,
 								  void *user_data, S32 result, LLExtStat ext_status );
 protected:
 	/*virtual*/ void initTransfer();
