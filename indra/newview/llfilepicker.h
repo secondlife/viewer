@@ -136,7 +136,7 @@ public:
 
 	S32 getFileCount() const { return (S32)mFiles.size(); }
 
-	// See llvfs/lldir.h : getBaseFileName and getDirName to extract base or directory names
+	// see lldir.h : getBaseFileName and getDirName to extract base or directory names
 	
 	// clear any lists of buffers or whatever, and make sure the file
 	// picker isn't locked.

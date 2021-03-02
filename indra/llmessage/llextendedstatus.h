@@ -1,7 +1,7 @@
 /** 
  * @file llextendedstatus.h
  * @date   August 2007
- * @brief extended status codes for curl/vfs/resident asset storage and delivery
+ * @brief extended status codes for curl/resident asset storage and delivery
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -32,9 +32,9 @@ enum class LLExtStat: uint32_t
 {
 	// Status provider groups - Top bits indicate which status type it is
 	// Zero is common status code (next section)
-	CURL_RESULT	= 1UL<<30, // serviced by curl - use 1L if we really implement the below
-	RES_RESULT	= 2UL<<30, // serviced by resident copy
-	VFS_RESULT	= 3UL<<30, // serviced by vfs
+	CURL_RESULT	 = 1UL<<30, // serviced by curl - use 1L if we really implement the below
+	RES_RESULT	 = 2UL<<30, // serviced by resident copy
+	CACHE_RESULT = 3UL<<30, // serviced by cache
 
 
 	// Common Status Codes
@@ -54,9 +54,9 @@ enum class LLExtStat: uint32_t
 	// Memory-Resident status codes:
 	// None at present
 
-	// VFS status codes:
-	VFS_CACHED	= VFS_RESULT | 0x0001,
-	VFS_CORRUPT	= VFS_RESULT | 0x0002,
+	// CACHE status codes:
+	CACHE_CACHED	= CACHE_RESULT | 0x0001,
+	CACHE_CORRUPT	= CACHE_RESULT | 0x0002,
 };
 
 
