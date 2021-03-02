@@ -197,7 +197,7 @@ private:
     std::string         mContents;
     invnUploadFinish_f  mInvnFinishFn;
     taskUploadFinish_f  mTaskFinishFn;
-    bool                mStoredToVFS;
+    bool                mStoredToCache;
 };
 
 //-------------------------------------------------------------------------

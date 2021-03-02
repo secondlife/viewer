@@ -56,9 +56,9 @@ const S32 LL_DEFAULT_MAX_HARD_LIMIT_SIMULTANEOUS_XFERS = 500;
 
 ///////////////////////////////////////////////////////////
 
-LLXferManager::LLXferManager (LLVFS *vfs)
+LLXferManager::LLXferManager ()
 {
-	init(vfs);
+	init();
 }
 
 ///////////////////////////////////////////////////////////
@@ -70,15 +70,13 @@ LLXferManager::~LLXferManager ()
 
 ///////////////////////////////////////////////////////////
 
-void LLXferManager::init (LLVFS *vfs)
+void LLXferManager::init()
 {
 	cleanup();
 
 	setMaxOutgoingXfersPerCircuit(LL_DEFAULT_MAX_SIMULTANEOUS_XFERS);
 	setHardLimitOutgoingXfersPerCircuit(LL_DEFAULT_MAX_HARD_LIMIT_SIMULTANEOUS_XFERS);
 	setMaxIncomingXfers(LL_DEFAULT_MAX_REQUEST_FIFO_XFERS);
-
-	mVFS = vfs;
 
 	// Turn on or off ack throttling
 	mUseAckThrottling = FALSE;
@@ -462,7 +460,7 @@ U64 LLXferManager::requestFile(const std::string& local_filename,
 
 void LLXferManager::requestVFile(const LLUUID& local_id,
 								 const LLUUID& remote_id,
-								 LLAssetType::EType type, LLVFS* vfs,
+								 LLAssetType::EType type,
 								 const LLHost& remote_host,
 								 void (*callback)(void**,S32,LLExtStat),
 								 void** user_data,
@@ -508,7 +506,6 @@ void LLXferManager::requestVFile(const LLUUID& local_id,
 
 		addToList(xfer_p, mReceiveList, is_priority);
 		((LLXfer_VFile *)xfer_p)->initializeRequest(getNextID(),
-			vfs,
 			local_id,
 			remote_id,
 			type,
@@ -784,33 +781,17 @@ void LLXferManager::processFileRequest (LLMessageSystem *mesgsys, void ** /*user
 	LLXfer *xferp;
 
 	if (uuid != LLUUID::null)
-	{	// Request for an asset - use a VFS file
+	{	// Request for an asset - use a cache file
 		if(NULL == LLAssetType::lookup(type))
 		{
 			LL_WARNS("Xfer") << "Invalid type for xfer request: " << uuid << ":"
 					<< type_s16 << " to " << mesgsys->getSender() << LL_ENDL;
 			return;
 		}
-			
-		if (! mVFS)
-		{
-			LL_WARNS("Xfer") << "Attempt to send VFile w/o available VFS" << LL_ENDL;
-			return;
-		}
-
-		/* Present in fireengine, not used by viewer
-		if (!validateVFileForTransfer(uuid.asString()))
-		{
-			// it is up to the app sending the file to mark it for expected 
-			// transfer before the request arrives or it will be dropped
-			LL_WARNS("Xfer") << "SECURITY: Unapproved VFile '" << uuid << "'" << LL_ENDL;
-			return;
-		}
-		*/
 
 		LL_INFOS("Xfer") << "starting vfile transfer: " << uuid << "," << LLAssetType::lookup(type) << " to " << mesgsys->getSender() << LL_ENDL;
 
-		xferp = (LLXfer *)new LLXfer_VFile(mVFS, uuid, type);
+		xferp = (LLXfer *)new LLXfer_VFile(uuid, type);
 		if (xferp)
 		{
 			mSendList.push_front(xferp);
@@ -1273,9 +1254,9 @@ void LLXferManager::addToList(LLXfer* xferp, xfer_list_t & xfer_list, BOOL is_pr
 LLXferManager *gXferManager = NULL;
 
 
-void start_xfer_manager(LLVFS *vfs)
+void start_xfer_manager()
 {
-	gXferManager = new LLXferManager(vfs);
+	gXferManager = new LLXferManager();
 }
 
 void cleanup_xfer_manager()

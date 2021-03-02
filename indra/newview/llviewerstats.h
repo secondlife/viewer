@@ -186,7 +186,6 @@ extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
 										VISIBLE_AVATARS,
 										SHADER_OBJECTS,
 										DRAW_DISTANCE,
-										PENDING_VFS_OPERATIONS,
 										WINDOW_WIDTH,
 										WINDOW_HEIGHT;
 
