@@ -32,7 +32,6 @@
 #include "lldir.h" 
 #include "llsd.h"  
 #include "llfile.h"
-#include "llvfile.h"
 #include "lldate.h"
 #include "llsdserialize.h"
 #include "llkeyboard.h"
