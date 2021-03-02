@@ -82,7 +82,6 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewerhelp.h"
-#include "llvfs.h"
 #include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
 #include "message.h"
@@ -268,7 +267,7 @@ bool login_alert_status(const LLSD& notification, const LLSD& response);
 void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
 void register_viewer_callbacks(LLMessageSystem* msg);
-void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32);
+void asset_callback_nothing(const LLUUID&, LLAssetType::EType, void*, S32);
 bool callback_choose_gender(const LLSD& notification, const LLSD& response);
 void init_start_screen(S32 location_id);
 void release_start_screen();
@@ -580,7 +579,7 @@ bool idle_startup()
 			// start the xfer system. by default, choke the downloads
 			// a lot...
 			const S32 VIEWER_MAX_XFER = 3;
-			start_xfer_manager(gVFS);
+			start_xfer_manager();
 			gXferManager->setMaxIncomingXfers(VIEWER_MAX_XFER);
 			F32 xfer_throttle_bps = gSavedSettings.getF32("XferThrottle");
 			if (xfer_throttle_bps > 1.f)
@@ -588,7 +587,7 @@ bool idle_startup()
 				gXferManager->setUseAckThrottling(TRUE);
 				gXferManager->setAckThrottleBPS(xfer_throttle_bps);
 			}
-			gAssetStorage = new LLViewerAssetStorage(msg, gXferManager, gVFS, gStaticVFS);
+			gAssetStorage = new LLViewerAssetStorage(msg, gXferManager);
 
 
 			F32 dropPercent = gSavedSettings.getF32("PacketDropPercentage");
@@ -1003,13 +1002,6 @@ bool idle_startup()
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
 
 		gViewerWindow->revealIntroPanel();
-
-		// Poke the VFS, which could potentially block for a while if
-		// Windows XP is acting up
-		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache"), LLStringUtil::null);
-		display_startup();
-
-		gVFS->pokeFiles();
 
 		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 
@@ -2592,7 +2584,7 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_FeatureDisabled, process_feature_disabled_message);
 }
 
-void asset_callback_nothing(LLVFS*, const LLUUID&, LLAssetType::EType, void*, S32)
+void asset_callback_nothing(const LLUUID&, LLAssetType::EType, void*, S32)
 {
 	// nothing
 }

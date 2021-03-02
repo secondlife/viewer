@@ -113,7 +113,7 @@ protected:
 	void		onBtnOK(const LLSD& userdata);
 	void		onBtnCancel(const LLSD& userdata);
 
-	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
+	void		onClickClearCache();			// Clear viewer texture cache, file cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
 	void		onLanguageChange();
 	void		onNotificationsChange(const std::string& OptionName);

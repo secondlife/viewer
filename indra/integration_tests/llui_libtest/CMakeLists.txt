@@ -16,7 +16,7 @@ include(LLMessage)
 include(LLRender)
 include(LLWindow)
 include(LLUI)
-include(LLVFS)        # ugh, needed for LLDir
+include(LLFileSystem)
 include(LLXML)
 include(Hunspell)
 include(Linking)
@@ -29,7 +29,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLUI_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LIBS_PREBUILD_DIR}/include/hunspell

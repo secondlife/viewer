@@ -198,10 +198,6 @@
                     stat="messagedataout"
                     decimal_digits="1"
                     show_history="false"/>
-          <stat_bar name="vfspendingoperations"
-                    label="VFS Pending Operations"
-                    stat="vfspendingoperations"
-                    unit_label="Ops."/>
         </stat_view>
       </stat_view>
 
