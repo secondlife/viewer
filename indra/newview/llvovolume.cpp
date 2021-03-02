@@ -88,7 +88,7 @@
 #include "llavatarappearancedefines.h"
 #include "llobjectcostmanager.h"
 
-// ARC remove before release
+// FIXME ARC remove before release
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #ifdef MSVC
 #pragma optimize("", off)

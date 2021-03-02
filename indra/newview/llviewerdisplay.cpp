@@ -250,6 +250,7 @@ static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UNBIND("Texture Unbind");
 static LLTrace::BlockTimerStatHandle FTM_TELEPORT_DISPLAY("Teleport Display");
 static LLTrace::BlockTimerStatHandle FTM_EEP_UPDATE("Env Update");
 
+// FIXME ARC remove?
 #if 0
 static LLTrace::BlockTimerStatHandle FTM_SANITY_PARENT("SanityParent");
 static LLTrace::BlockTimerStatHandle FTM_SANITY_CHILD_A("SanityChildA");

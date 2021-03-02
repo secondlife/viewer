@@ -284,7 +284,7 @@ block_timer_tree_df_post_iterator_t end_block_timer_tree_df_post();
 block_timer_tree_bf_iterator_t begin_block_timer_tree_bf(BlockTimerStatHandle& id);
 block_timer_tree_bf_iterator_t end_block_timer_tree_bf();
 
-// FIXME temporarily un-inlined and moved to llfasttimer.cpp
+// FIXME ARC temporarily un-inlined and moved to llfasttimer.cpp
 #if 0
 LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 {

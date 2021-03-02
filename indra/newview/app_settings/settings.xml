@@ -6644,17 +6644,6 @@
       <key>Value</key>
       <integer>512</integer>
     </map>
-    <key>MemProfiling</key>
-    <map>
-      <key>Comment</key>
-      <string>You want to use tcmalloc's memory profiling options.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
@@ -12720,17 +12709,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>3000.0</real>
-    </map>
-    <key>UpdaterMaximumBandwidth</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum allowable downstream bandwidth for updater service (kilo bits per second)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>500.0</real>
     </map>
     <key>ToolTipDelay</key>
     <map>

@@ -634,6 +634,8 @@ public:
 
         LLTrace::BlockTimer::writeHeader(os);
 
+
+		// FIXME ARC - why not use LLAppViewer::instance() as in main branch?
 		while (!LLApp::isQuitting())
 		{
 			LLTrace::BlockTimer::writeLog(os);
@@ -830,8 +832,6 @@ bool LLAppViewer::init()
 		// much on successful startup!
 		LLError::setFatalFunction(boost::bind(fast_exit, rc));
 	}
-
-    mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
 
 	// Initialize the non-LLCurl libcurl library.  Should be called
 	// before consumers (LLTextureFetch).
@@ -1398,6 +1398,7 @@ LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
 LLUUID g_unique_session_id;
 
+// FIXME ARC - document
 LLSD getPipelineLogData()
 {
     LLSD pipeline_sd;
@@ -1784,6 +1785,7 @@ bool LLAppViewer::doFrame()
 			pingMainloopTimeout("Main:End");
 		}
 	}
+	// FIXME ARC - new memory error handling, need to review
 	catch (const LLContinueError&)
 	{
 		LOG_UNHANDLED_EXCEPTION("");

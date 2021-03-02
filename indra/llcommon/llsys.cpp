@@ -953,6 +953,8 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("Total Virtual KB",   state.ullTotalVirtual/div);
 	stats.add("Avail Virtual KB",   state.ullAvailVirtual/div);
 
+	// FIXME ARC move to separate commit
+
 	// SL-12122 - Call to GetPerformanceInfo() was removed here. Took
 	// on order of 10 ms, causing unacceptable frame time spike every
 	// second, and results were never used. If this is needed in the
