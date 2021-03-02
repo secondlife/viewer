@@ -32,7 +32,6 @@
 					<stat_bar label="Layers" name="layerskbitstat"/>
 					<stat_bar label="Actual In" name="actualinkbitstat"/>
 					<stat_bar label="Actual Out" name="actualoutkbitstat"/>
-					<stat_bar label="VFS Pending Ops" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulator" name="sim">

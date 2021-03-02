@@ -32,7 +32,7 @@
 #include "message.h"
 #include "lldatapacker.h"
 #include "lldir.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 
 LLTransferSourceAsset::LLTransferSourceAsset(const LLUUID &request_id, const F32 priority) :
 	LLTransferSource(LLTST_ASSET, request_id, priority),
@@ -99,7 +99,7 @@ LLTSCode LLTransferSourceAsset::dataCallback(const S32 packet_id,
 		return LLTS_SKIP;
 	}
 
-	LLVFile vf(gAssetStorage->mVFS, mParams.getAssetID(), mParams.getAssetType(), LLVFile::READ);
+	LLFileSystem vf(mParams.getAssetID(), mParams.getAssetType(), LLFileSystem::READ);
 
 	if (!vf.getSize())
 	{
@@ -171,7 +171,7 @@ BOOL LLTransferSourceAsset::unpackParams(LLDataPacker &dp)
 }
 
 
-void LLTransferSourceAsset::responderCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
+void LLTransferSourceAsset::responderCallback(const LLUUID& uuid, LLAssetType::EType type,
 											  void *user_data, S32 result, LLExtStat ext_status )
 {
 	LLUUID *tidp = ((LLUUID*) user_data);
@@ -198,7 +198,7 @@ void LLTransferSourceAsset::responderCallback(LLVFS *vfs, const LLUUID& uuid, LL
 	if (LL_ERR_NOERR == result)
 	{
 		// Everything's OK.
-		LLVFile vf(gAssetStorage->mVFS, uuid, type, LLVFile::READ);
+		LLFileSystem vf(uuid, type, LLFileSystem::READ);
 		tsap->mSize = vf.getSize();
 		status = LLTS_OK;
 	}

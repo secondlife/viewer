@@ -69,7 +69,6 @@ class ViewerManifest(LLManifest):
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
                 self.path("*.xml")
-                self.path("*.db2")
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
