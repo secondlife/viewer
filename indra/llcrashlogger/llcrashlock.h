@@ -1,5 +1,5 @@
 /** 
- * @file llpidlock.h
+ * @file llcrashlock.h
  * @brief Maintainence of disk locking files for crash reporting
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
