@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4e5b9e2fe65d94e30a4f3d831c767199</string>
+              <string>6cb70830d145147a3286aaa80b09a21e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65004/607304/dullahan-1.7.0.202008031759_81.3.10_gb223419_chromium-81.0.4044.138-windows-546064.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77816/736910/dullahan-1.10.0.202103031657_89.0.5_gc1f90d8_chromium-89.0.4389.40-windows-556509.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9e12e974d00d6f45b2cbb891fa8a4747</string>
+              <string>68429cb4095468255737e78d1d4a0a5e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77546/735174/dullahan-1.9.1.202102242217_88.2.8_ge484012_chromium-88.0.4324.150-windows64-556355.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77815/736914/dullahan-1.10.0.202103031657_89.0.5_gc1f90d8_chromium-89.0.4389.40-windows64-556509.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.9.1.202102242217_88.2.8_ge484012_chromium-88.0.4324.150</string>
+        <string>1.10.0.202103031657_89.0.5_gc1f90d8_chromium-89.0.4389.40</string>
       </map>
       <key>elfio</key>
       <map>
