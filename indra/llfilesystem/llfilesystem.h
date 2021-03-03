@@ -54,7 +54,7 @@ class LLFileSystem
         BOOL remove();
 
         static bool getExists(const LLUUID& file_id, const LLAssetType::EType file_type);
-        static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type);
+        static bool removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error = 0);
         static bool renameFile(const LLUUID& old_file_id, const LLAssetType::EType old_file_type,
                                const LLUUID& new_file_id, const LLAssetType::EType new_file_type);
         static S32 getFileSize(const LLUUID& file_id, const LLAssetType::EType file_type);
