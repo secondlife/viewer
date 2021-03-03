@@ -29,7 +29,6 @@
 					<stat_bar label="Katmanlar" name="layersdatareceived"/>
 					<stat_bar label="Gerçekte Gelen" name="messagedatain"/>
 					<stat_bar label="Gerçekte Giden" name="messagedataout"/>
-					<stat_bar label="VFS Bekleyen İşlemler" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simülatör" name="sim">
