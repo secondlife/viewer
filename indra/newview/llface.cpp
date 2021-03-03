@@ -2635,7 +2635,7 @@ S32 LLFace::pushVertices(const U16* index_array) const
 {
 	if (mIndicesCount)
 	{
-		U32 render_geom_mode = LLRender::TRIANGLES;
+		LLRender::eGeomModes render_geom_mode = LLRender::TRIANGLES;
 		if (mDrawInfo)
 		{
 			render_geom_mode = mDrawInfo->mDrawMode;

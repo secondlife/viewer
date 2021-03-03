@@ -157,7 +157,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
 		mShader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, params.mFullbright ? 1.f : 0.f);
 
-		pushBatch(params, mask, type, TRUE);
+		pushBatch(params, mask, TRUE);
 	}
 }
 

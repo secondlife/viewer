@@ -392,7 +392,7 @@ void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL t
 	{
 		LLDrawInfo *pparams = *k;
 		if (pparams) {
-			pushBatch(*pparams, mask, type, texture);
+			pushBatch(*pparams, mask, texture);
 		}
 	}
 }

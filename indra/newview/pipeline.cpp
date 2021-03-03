@@ -4816,7 +4816,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 	gGL.loadMatrix(gGLModelView);
 }
 
-void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_geom_mode)
+void LLPipeline::addTrianglesDrawn(S32 index_count, LLRender::eGeomModes render_geom_mode)
 {
 	assertInitialized();
 	S32 count = 0;

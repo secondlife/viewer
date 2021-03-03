@@ -338,7 +338,7 @@ public:
 	LLCullResult::sg_iterator endAlphaGroups();
 	
 
-	void addTrianglesDrawn(S32 index_count, U32 render_geom_mode /* = LLRender::TRIANGLES*/);
+	void addTrianglesDrawn(S32 index_count, LLRender::eGeomModes render_geom_mode /* = LLRender::TRIANGLES*/);
 
 	bool hasRenderDebugFeatureMask(const U32 mask) const	{ return bool(mRenderDebugFeatureMask & mask); }
 	bool hasRenderDebugMask(const U64 mask) const			{ return bool(mRenderDebugMask & mask); }

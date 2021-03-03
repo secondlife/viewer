@@ -103,7 +103,7 @@ public:
 	LLSpatialGroup* mGroup;
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
-	U32 mDrawMode;
+	LLRender::eGeomModes mDrawMode;
 	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
 	LLMaterialID mMaterialID;
 	U32 mShaderMask;

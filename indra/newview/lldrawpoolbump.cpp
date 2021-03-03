@@ -883,7 +883,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 
 		gDeferredBumpProgram.setMinimumAlpha(params.mAlphaMaskCutoff);
 		LLDrawPoolBump::bindBumpMap(params, bump_channel);
-		pushBatch(params, mask, LLPipeline::RENDER_TYPE_PASS_BUMP, TRUE);
+		pushBatch(params, mask, TRUE);
 	}
 }
 
@@ -1490,7 +1490,7 @@ void LLDrawPoolBump::renderBump(U32 type, U32 mask)
 
 		if (LLDrawPoolBump::bindBumpMap(params))
 		{
-			pushBatch(params, mask, type, FALSE);
+			pushBatch(params, mask, FALSE);
 		}
 	}
 }
