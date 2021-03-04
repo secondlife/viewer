@@ -291,7 +291,7 @@ void LLViewerAssetStorage::storeAssetData(
         legacy->mUpCallback = callback;
         legacy->mUserData = user_data;
 
-        LLFileSystem file(asset_id, asset_type, LLFileSystem::WRITE);
+        LLFileSystem file(asset_id, asset_type, LLFileSystem::APPEND);
 
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
