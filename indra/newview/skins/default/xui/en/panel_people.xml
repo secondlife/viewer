@@ -12,7 +12,7 @@
  width="333">
     <string
      name="no_recent_people"
-     value="No recent people. Looking for people to hang out with? Try [secondlife:///app/search/people Search] or the [secondlife:///app/worldmap World Map]." />
+     value="No recent people." />
     <string
      name="no_filtered_recent_people"
      value="Didn't find what you're looking for? Try [secondlife:///app/search/people/[SEARCH_TERM] Search]." />
@@ -30,8 +30,13 @@
      value="No friends" />
     <string
      name="no_friends_msg">
-         Find friends using [secondlife:///app/search/people Search] or right-click on a Resident to add them as a friend.
-Looking for people to hang out with? Try the [secondlife:///app/worldmap World Map].
+      To add someone as a friend, right-click on their avatar or their name.
+
+Looking for places with more people?
+
+[secondlife:///app/floater/destinations Destination Guide] has locations chosen by Second Life staff.
+
+[secondlife:///app/search/people Search] lets you search all of Second Life for certain keywords.
     </string>
     <string
      name="no_filtered_friends_msg">
@@ -45,8 +50,11 @@ Looking for people to hang out with? Try the [secondlife:///app/worldmap World M
      name="no_filtered_groups_msg"
      value="Didn't find what you're looking for? Try [secondlife:///app/search/groups/[SEARCH_TERM] Search]." />
     <string
-     name="no_groups_msg"
-     value="Looking for Groups to join? Try [secondlife:///app/search/groups Search]." />
+     name="no_groups_msg">
+You are not a member of any groups.
+
+Learn about [https://community.secondlife.com/knowledgebase/joining-and-participating-in-groups-r51/ groups in Second Life.]
+  </string>
 	<string
 	 name="MiniMapToolTipMsg"
 	 value="[REGION](Double-click to open Map, shift-drag to pan)"/>
