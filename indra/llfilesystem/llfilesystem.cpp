@@ -72,14 +72,14 @@ bool LLFileSystem::getExists(const LLUUID& file_id, const LLAssetType::EType fil
 }
 
 // static
-bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type, int suppress_error /*= 0*/)
+bool LLFileSystem::removeFile(const LLUUID& file_id, const LLAssetType::EType file_type)
 {
     std::string id_str;
     file_id.toString(id_str);
     const std::string extra_info = "";
     const std::string filename =  LLDiskCache::getInstance()->metaDataToFilepath(id_str, file_type, extra_info);
 
-    LLFile::remove(filename.c_str(), suppress_error);
+    LLFile::remove(filename.c_str());
 
     return true;
 }
@@ -98,7 +98,7 @@ bool LLFileSystem::renameFile(const LLUUID& old_file_id, const LLAssetType::ETyp
     const std::string new_filename =  LLDiskCache::getInstance()->metaDataToFilepath(new_id_str, new_file_type, extra_info);
 
     // Rename needs the new file to not exist.
-    LLFileSystem::removeFile(new_file_id, new_file_type, ENOENT);
+    LLFileSystem::removeFile(new_file_id, new_file_type);
 
     if (LLFile::rename(old_filename, new_filename) != 0)
     {
