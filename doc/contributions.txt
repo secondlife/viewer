@@ -227,7 +227,6 @@ Ansariel Hiller
 	SL-13858
 	SL-13697
 	SL-14939
-	SL-14940
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
