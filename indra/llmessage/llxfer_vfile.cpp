@@ -30,8 +30,7 @@
 #include "lluuid.h"
 #include "llerror.h"
 #include "llmath.h"
-#include "llvfile.h"
-#include "llvfs.h"
+#include "llfilesystem.h"
 #include "lldir.h"
 
 // size of chunks read from/written to disk
@@ -42,13 +41,13 @@ const U32 LL_MAX_XFER_FILE_BUFFER = 65536;
 LLXfer_VFile::LLXfer_VFile ()
 : LLXfer(-1)
 {
-	init(NULL, LLUUID::null, LLAssetType::AT_NONE);
+	init(LLUUID::null, LLAssetType::AT_NONE);
 }
 
-LLXfer_VFile::LLXfer_VFile (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type)
+LLXfer_VFile::LLXfer_VFile (const LLUUID &local_id, LLAssetType::EType type)
 : LLXfer(-1)
 {
-	init(vfs, local_id, type);
+	init(local_id, type);
 }
 
 ///////////////////////////////////////////////////////////
@@ -60,10 +59,8 @@ LLXfer_VFile::~LLXfer_VFile ()
 
 ///////////////////////////////////////////////////////////
 
-void LLXfer_VFile::init (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type)
+void LLXfer_VFile::init (const LLUUID &local_id, LLAssetType::EType type)
 {
-
-	mVFS = vfs;
 	mLocalID = local_id;
 	mType = type;
 
@@ -82,14 +79,14 @@ void LLXfer_VFile::cleanup ()
 	if (mTempID.notNull() &&
 		mDeleteTempFile)
 	{
-		if (mVFS->getExists(mTempID, mType))
+		if (LLFileSystem::getExists(mTempID, mType))
 		{
-			LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
+			LLFileSystem file(mTempID, mType, LLFileSystem::WRITE);
 			file.remove();
 		}
 		else
 		{
-			LL_WARNS("Xfer") << "LLXfer_VFile::cleanup() can't open to delete VFS file " << mTempID << "." << LLAssetType::lookup(mType)		
+			LL_WARNS("Xfer") << "LLXfer_VFile::cleanup() can't open to delete cache file " << mTempID << "." << LLAssetType::lookup(mType)		
 				<< ", mRemoteID is " << mRemoteID << LL_ENDL;
 		}
 	}
@@ -103,7 +100,6 @@ void LLXfer_VFile::cleanup ()
 ///////////////////////////////////////////////////////////
 
 S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
-									LLVFS* vfs,
 									const LLUUID& local_id,
 									const LLUUID& remote_id,
 									LLAssetType::EType type,
@@ -115,7 +111,6 @@ S32 LLXfer_VFile::initializeRequest(U64 xfer_id,
 	
 	mRemoteHost = remote_host;
 
-	mVFS = vfs;
 	mLocalID = local_id;
 	mRemoteID = remote_id;
 	mType = type;
@@ -192,13 +187,13 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 	
 	delete mVFile;
 	mVFile = NULL;
-	if(mVFS->getExists(mLocalID, mType))
+	if(LLFileSystem::getExists(mLocalID, mType))
 	{
-		mVFile = new LLVFile(mVFS, mLocalID, mType, LLVFile::READ);
+		mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
 
 		if (mVFile->getSize() <= 0)
 		{
-			LL_WARNS("Xfer") << "LLXfer_VFile::startSend() VFS file " << mLocalID << "." << LLAssetType::lookup(mType)		
+			LL_WARNS("Xfer") << "LLXfer_VFile::startSend() cache file " << mLocalID << "." << LLAssetType::lookup(mType)		
 				<< " has unexpected file size of " << mVFile->getSize() << LL_ENDL;
 			delete mVFile;
 			mVFile = NULL;
@@ -214,7 +209,7 @@ S32 LLXfer_VFile::startSend (U64 xfer_id, const LLHost &remote_host)
 	}
 	else
 	{
-		LL_WARNS("Xfer") << "LLXfer_VFile::startSend() can't read VFS file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+		LL_WARNS("Xfer") << "LLXfer_VFile::startSend() can't read cache file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
 		retval = LL_ERR_FILE_NOT_FOUND;
 	}
 
@@ -240,13 +235,13 @@ S32 LLXfer_VFile::reopenFileHandle()
 
 	if (mVFile == NULL)
 	{
-		if (mVFS->getExists(mLocalID, mType))
+		if (LLFileSystem::getExists(mLocalID, mType))
 		{
-			mVFile = new LLVFile(mVFS, mLocalID, mType, LLVFile::READ);
+			mVFile = new LLFileSystem(mLocalID, mType, LLFileSystem::READ);
 		}
 		else
 		{
-			LL_WARNS("Xfer") << "LLXfer_VFile::reopenFileHandle() can't read VFS file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+			LL_WARNS("Xfer") << "LLXfer_VFile::reopenFileHandle() can't read cache file " << mLocalID << "." << LLAssetType::lookup(mType) << LL_ENDL;
 			retval = LL_ERR_FILE_NOT_FOUND;
 		}
 	}
@@ -265,8 +260,7 @@ void LLXfer_VFile::setXferSize (S32 xfer_size)
 	// It would be nice if LLXFers could tell which end of the pipe they were
 	if (! mVFile)
 	{
-		LLVFile file(mVFS, mTempID, mType, LLVFile::APPEND);
-		file.setMaxSize(xfer_size);
+		LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
 	}
 }
 
@@ -320,7 +314,7 @@ S32 LLXfer_VFile::flush()
 	S32 retval = 0;
 	if (mBufferLength)
 	{
-		LLVFile file(mVFS, mTempID, mType, LLVFile::APPEND);
+		LLFileSystem file(mTempID, mType, LLFileSystem::APPEND);
 
 		file.write((U8*)mBuffer, mBufferLength);
 			
@@ -340,22 +334,15 @@ S32 LLXfer_VFile::processEOF()
 
 	if (!mCallbackResult)
 	{
-		if (mVFS->getExists(mTempID, mType))
+		if (LLFileSystem::getExists(mTempID, mType))
 		{
-			LLVFile file(mVFS, mTempID, mType, LLVFile::WRITE);
+			LLFileSystem file(mTempID, mType, LLFileSystem::WRITE);
 			if (!file.rename(mLocalID, mType))
 			{
-				LL_WARNS("Xfer") << "VFS rename of temp file failed: unable to rename " << mTempID << " to " << mLocalID << LL_ENDL;
+				LL_WARNS("Xfer") << "Cache rename of temp file failed: unable to rename " << mTempID << " to " << mLocalID << LL_ENDL;
 			}
 			else
-			{					
-				#ifdef VFS_SPAM
-				// Debugging spam
-				LL_INFOS("Xfer") << "VFS rename of temp file done: renamed " << mTempID << " to " << mLocalID 
-					<< " LLVFile size is " << file.getSize()
-					<< LL_ENDL;
-				#endif				
-				
+			{									
 				// Rename worked: the original file is gone.   Clear mDeleteTempFile
 				// so we don't attempt to delete the file in cleanup()
 				mDeleteTempFile = FALSE;
@@ -363,7 +350,7 @@ S32 LLXfer_VFile::processEOF()
 		}
 		else
 		{
-			LL_WARNS("Xfer") << "LLXfer_VFile::processEOF() can't open for renaming VFS file " << mTempID << "." << LLAssetType::lookup(mType) << LL_ENDL;
+			LL_WARNS("Xfer") << "LLXfer_VFile::processEOF() can't open for renaming cache file " << mTempID << "." << LLAssetType::lookup(mType) << LL_ENDL;
 		}
 	}
 
