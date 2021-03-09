@@ -28,8 +28,7 @@
 
 #include "llviewerassetstorage.h"
 
-#include "llvfile.h"
-#include "llvfs.h"
+#include "llfilesystem.h"
 #include "message.h"
 
 #include "llagent.h"
@@ -104,10 +103,8 @@ public:
 ///----------------------------------------------------------------------------
 
 // Unused?
-LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-                                           LLVFS *vfs, LLVFS *static_vfs, 
-                                           const LLHost &upstream_host)
-    : LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host),
+LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host)
+    : LLAssetStorage(msg, xfer, upstream_host),
       mAssetCoroCount(0),
       mCountRequests(0),
       mCountStarted(0),
@@ -117,10 +114,8 @@ LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *
 {
 }
 
-
-LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-                                           LLVFS *vfs, LLVFS *static_vfs)
-    : LLAssetStorage(msg, xfer, vfs, static_vfs),
+LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer)
+    : LLAssetStorage(msg, xfer),
       mAssetCoroCount(0),
       mCountRequests(0),
       mCountStarted(0),
@@ -157,13 +152,13 @@ void LLViewerAssetStorage::storeAssetData(
     
     if (mUpstreamHost.isOk())
     {
-        if (mVFS->getExists(asset_id, asset_type))
+        if (LLFileSystem::getExists(asset_id, asset_type))
         {
             // Pack data into this packet if we can fit it.
             U8 buffer[MTUBYTES];
             buffer[0] = 0;
 
-            LLVFile vfile(mVFS, asset_id, asset_type, LLVFile::READ);
+            LLFileSystem vfile(asset_id, asset_type, LLFileSystem::READ);
             S32 asset_size = vfile.getSize();
 
             LLAssetRequest *req = new LLAssetRequest(asset_id, asset_type);
@@ -172,22 +167,20 @@ void LLViewerAssetStorage::storeAssetData(
 
             if (asset_size < 1)
             {
-                // This can happen if there's a bug in our code or if the VFS has been corrupted.
-                LL_WARNS("AssetStorage") << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the VFS, but it's not! " << asset_id << LL_ENDL;
-                // LLAssetStorage metric: Zero size VFS
-                reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+                // This can happen if there's a bug in our code or if the cache has been corrupted.
+                LL_WARNS("AssetStorage") << "LLViewerAssetStorage::storeAssetData()  Data _should_ already be in the cache, but it's not! " << asset_id << LL_ENDL;
 
                 delete req;
                 if (callback)
                 {
-                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::VFS_CORRUPT);
+                    callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::CACHE_CORRUPT);
                 }
                 return;
             }
             else
             {
                 // LLAssetStorage metric: Successful Request
-                S32 size = mVFS->getSize(asset_id, asset_type);
+                S32 size = LLFileSystem::getFileSize(asset_id, asset_type);
                 const char *message = "Added to upload queue";
                 reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, size, MR_OKAY, __FILE__, __LINE__, message );
 
@@ -201,7 +194,7 @@ void LLViewerAssetStorage::storeAssetData(
                 }
             }
 
-            // Read the data from the VFS if it'll fit in this packet.
+            // Read the data from the cache if it'll fit in this packet.
             if (asset_size + 100 < MTUBYTES)
             {
                 BOOL res = vfile.read(buffer, asset_size);      /* Flawfinder: ignore */
@@ -214,14 +207,11 @@ void LLViewerAssetStorage::storeAssetData(
                 }
                 else
                 {
-                    LL_WARNS("AssetStorage") << "Probable corruption in VFS file, aborting store asset data" << LL_ENDL;
-
-                    // LLAssetStorage metric: VFS corrupt - bogus size
-                    reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, asset_size, MR_VFS_CORRUPTION, __FILE__, __LINE__, "VFS corruption" );
+                    LL_WARNS("AssetStorage") << "Probable corruption in cache file, aborting store asset data" << LL_ENDL;
 
                     if (callback)
                     {
-                        callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::VFS_CORRUPT);
+                        callback(asset_id, user_data, LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::CACHE_CORRUPT);
                     }
                     return;
                 }
@@ -244,8 +234,7 @@ void LLViewerAssetStorage::storeAssetData(
         else
         {
             LL_WARNS("AssetStorage") << "AssetStorage: attempt to upload non-existent vfile " << asset_id << ":" << LLAssetType::lookup(asset_type) << LL_ENDL;
-            // LLAssetStorage metric: Zero size VFS
-            reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (VFS - can't tell which)" );
+            reportMetric( asset_id, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_ZERO_SIZE, __FILE__, __LINE__, "The file didn't exist or was zero length (cache - can't tell which)" );
             if (callback)
             {
                 callback(asset_id, user_data,  LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE, LLExtStat::NONEXISTENT_FILE);
@@ -278,7 +267,6 @@ void LLViewerAssetStorage::storeAssetData(
     if(filename.empty())
     {
         // LLAssetStorage metric: no filename
-        reportMetric( LLUUID::null, asset_type, LLStringUtil::null, LLUUID::null, 0, MR_VFS_CORRUPTION, __FILE__, __LINE__, "Filename missing" );
         LL_ERRS() << "No filename specified" << LL_ENDL;
         return;
     }
@@ -303,9 +291,7 @@ void LLViewerAssetStorage::storeAssetData(
         legacy->mUpCallback = callback;
         legacy->mUserData = user_data;
 
-        LLVFile file(mVFS, asset_id, asset_type, LLVFile::WRITE);
-
-        file.setMaxSize(size);
+        LLFileSystem file(asset_id, asset_type, LLFileSystem::APPEND);
 
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
@@ -539,21 +525,20 @@ void LLViewerAssetStorage::assetRequestCoro(
 			// case.
             LLUUID temp_id;
             temp_id.generate();
-            LLVFile vf(gAssetStorage->mVFS, temp_id, atype, LLVFile::WRITE);
-            vf.setMaxSize(size);
+            LLFileSystem vf(temp_id, atype, LLFileSystem::WRITE);
             req->mBytesFetched = size;
             if (!vf.write(raw.data(),size))
             {
                 // TODO asset-http: handle error
                 LL_WARNS("ViewerAsset") << "Failure in vf.write()" << LL_ENDL;
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
-                ext_status = LLExtStat::VFS_CORRUPT;
+                ext_status = LLExtStat::CACHE_CORRUPT;
             }
             else if (!vf.rename(uuid, atype))
             {
                 LL_WARNS("ViewerAsset") << "rename failed" << LL_ENDL;
                 result_code = LL_ERR_ASSET_REQUEST_FAILED;
-                ext_status = LLExtStat::VFS_CORRUPT;
+                ext_status = LLExtStat::CACHE_CORRUPT;
             }
             else
             {
