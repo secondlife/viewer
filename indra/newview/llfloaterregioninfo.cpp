@@ -36,7 +36,7 @@
 #include "llglheaders.h"
 #include "llregionflags.h"
 #include "llstl.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 #include "llxfermanager.h"
 #include "indra_constants.h"
 #include "message.h"
@@ -2229,9 +2229,10 @@ void LLPanelEstateCovenant::loadInvItem(LLInventoryItem *itemp)
 }
 
 // static
-void LLPanelEstateCovenant::onLoadComplete(const LLUUID& asset_uuid,
-									       LLAssetType::EType type,
-									       void* user_data, S32 status, LLExtStat ext_status)
+void LLPanelEstateCovenant::onLoadComplete(LLVFS *vfs,
+									   const LLUUID& asset_uuid,
+									   LLAssetType::EType type,
+									   void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_INFOS() << "LLPanelEstateCovenant::onLoadComplete()" << LL_ENDL;
 	LLPanelEstateCovenant* panelp = (LLPanelEstateCovenant*)user_data;
@@ -2239,7 +2240,7 @@ void LLPanelEstateCovenant::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if(0 == status)
 		{
-			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
 
 			S32 file_length = file.getSize();
 
