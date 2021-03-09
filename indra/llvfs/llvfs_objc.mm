@@ -1,10 +1,10 @@
 /** 
- * @file lldir_utils_objc.mm
+ * @file llvfs_objc.cpp
  * @brief Cocoa implementation of directory utilities for Mac OS X
  *
- * $LicenseInfo:firstyear=2020&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2020, Linden Research, Inc.
+ * Copyright (C) 2010, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,7 +27,7 @@
 
 //WARNING:  This file CANNOT use standard linden includes due to conflicts between definitions of BOOL
 
-#include "lldir_utils_objc.h"
+#include "llvfs_objc.h"
 #import <Cocoa/Cocoa.h>
 
 std::string* getSystemTempFolder()

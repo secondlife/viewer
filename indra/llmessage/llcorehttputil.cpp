@@ -37,7 +37,7 @@
 #include "llsdserialize.h"
 #include "reader.h" // JSON
 #include "writer.h" // JSON
-#include "llfilesystem.h"
+#include "llvfile.h"
 
 #include "message.h" // for getting the port
 
@@ -784,7 +784,7 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
     // scoping for our streams so that they go away when we no longer need them.
     {
         LLCore::BufferArrayStream outs(fileData.get());
-        LLFileSystem vfile(assetId, assetType, LLFileSystem::READ);
+        LLVFile vfile(gVFS, assetId, assetType, LLVFile::READ);
 
         S32 fileSize = vfile.getSize();
         U8* fileBuffer;

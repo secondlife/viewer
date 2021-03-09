@@ -30,7 +30,7 @@
 
 #include "lldatapacker.h"
 #include "llerror.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 
 //static
 void LLTransferTargetVFile::updateQueue(bool shutdown)
@@ -138,9 +138,10 @@ LLTSCode LLTransferTargetVFile::dataCallback(const S32 packet_id, U8 *in_datap, 
 	//LL_INFOS() << "LLTransferTargetFile::dataCallback" << LL_ENDL;
 	//LL_INFOS() << "Packet: " << packet_id << LL_ENDL;
 
-	LLFileSystem vf(mTempID, mParams.getAssetType(), LLFileSystem::APPEND);
+	LLVFile vf(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::APPEND);
 	if (mNeedsCreate)
 	{
+		vf.setMaxSize(mSize);
 		mNeedsCreate = FALSE;
 	}
 
@@ -175,7 +176,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	  case LLTS_DONE:
 		if (!mNeedsCreate)
 		{
-			LLFileSystem file(mTempID, mParams.getAssetType(), LLFileSystem::WRITE);
+			LLVFile file(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::WRITE);
 			if (!file.rename(mParams.getAssetID(), mParams.getAssetType()))
 			{
 				LL_ERRS() << "LLTransferTargetVFile: rename failed" << LL_ENDL;
@@ -194,7 +195,7 @@ void LLTransferTargetVFile::completionCallback(const LLTSCode status)
 	  {
 		  // We're aborting this transfer, we don't want to keep this file.
 		  LL_WARNS() << "Aborting vfile transfer for " << mParams.getAssetID() << LL_ENDL;
-		  LLFileSystem vf(mTempID, mParams.getAssetType(), LLFileSystem::APPEND);
+		  LLVFile vf(gAssetStorage->mVFS, mTempID, mParams.getAssetType(), LLVFile::APPEND);
 		  vf.remove();
 	  }
 	  break;
