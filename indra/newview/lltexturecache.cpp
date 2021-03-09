@@ -55,7 +55,6 @@ const S32 TEXTURE_FAST_CACHE_ENTRY_OVERHEAD = sizeof(S32) * 4; //w, h, c, level
 const S32 TEXTURE_FAST_CACHE_DATA_SIZE = 16 * 16 * 4;
 const S32 TEXTURE_FAST_CACHE_ENTRY_SIZE = TEXTURE_FAST_CACHE_DATA_SIZE + TEXTURE_FAST_CACHE_ENTRY_OVERHEAD;
 const F32 TEXTURE_LAZY_PURGE_TIME_LIMIT = .004f; // 4ms. Would be better to autoadjust, but there is a major cache rework in progress.
-const F32 TEXTURE_PRUNING_MAX_TIME = 15.f;
 
 class LLTextureCacheWorker : public LLWorkerClass
 {
@@ -1552,6 +1551,7 @@ void LLTextureCache::readHeaderCache()
 			if (num_entries - empty_entries > sCacheMaxEntries)
 			{
 				// Special case: cache size was reduced, need to remove entries
+				// Note: After we prune entries, we will call this again and create the LRU
 				U32 entries_to_purge = (num_entries - empty_entries) - sCacheMaxEntries;
 				LL_INFOS() << "Texture Cache Entries: " << num_entries << " Max: " << sCacheMaxEntries << " Empty: " << empty_entries << " Purging: " << entries_to_purge << LL_ENDL;
 				// We can exit the following loop with the given condition, since if we'd reach the end of the lru set we'd have:
@@ -1564,7 +1564,7 @@ void LLTextureCache::readHeaderCache()
 					++iter;
 				}
 			}
-
+			else
 			{
 				S32 lru_entries = (S32)((F32)sCacheMaxEntries * TEXTURE_CACHE_LRU_SIZE);
 				for (std::set<lru_data_t>::iterator iter = lru.begin(); iter != lru.end(); ++iter)
@@ -1578,19 +1578,30 @@ void LLTextureCache::readHeaderCache()
 			
 			if (purge_list.size() > 0)
 			{
-				LLTimer timer;
 				for (std::set<U32>::iterator iter = purge_list.begin(); iter != purge_list.end(); ++iter)
 				{
 					std::string tex_filename = getTextureFileName(entries[*iter].mID);
 					removeEntry((S32)*iter, entries[*iter], tex_filename);
-
-					//make sure that pruning entries doesn't take too much time
-					if (timer.getElapsedTimeF32() > TEXTURE_PRUNING_MAX_TIME)
+				}
+				// If we removed any entries, we need to rebuild the entries list,
+				// write the header, and call this again
+				std::vector<Entry> new_entries;
+				for (U32 i=0; i<num_entries; i++)
+				{
+					const Entry& entry = entries[i];
+					if (entry.mImageSize > 0)
 					{
-						break;
+						new_entries.push_back(entry);
 					}
 				}
-				writeEntriesAndClose(entries);
+                mFreeList.clear(); // recreating list, no longer valid.
+				llassert_always(new_entries.size() <= sCacheMaxEntries);
+				mHeaderEntriesInfo.mEntries = new_entries.size();
+				writeEntriesHeader();
+				writeEntriesAndClose(new_entries);
+				mHeaderMutex.unlock(); // unlock the mutex before calling again
+				readHeaderCache(); // repeat with new entries file
+				mHeaderMutex.lock();
 			}
 			else
 			{
@@ -1713,7 +1724,7 @@ void LLTextureCache::purgeTexturesLazy(F32 time_limit_sec)
 		}
 
 		S64 cache_size = mTexturesSizeTotal;
-		S64 purged_cache_size = (llmax(cache_size, sCacheMaxTexturesSize) * (S64)((1.f - TEXTURE_CACHE_PURGE_AMOUNT) * 100)) / 100;
+		S64 purged_cache_size = (sCacheMaxTexturesSize * (S64)((1.f - TEXTURE_CACHE_PURGE_AMOUNT) * 100)) / 100;
 		for (time_idx_set_t::iterator iter = time_idx_set.begin();
 			iter != time_idx_set.end(); ++iter)
 		{
@@ -1809,26 +1820,21 @@ void LLTextureCache::purgeTextures(bool validate)
 	}
 
 	S64 cache_size = mTexturesSizeTotal;
-	S64 purged_cache_size = (llmax(cache_size, sCacheMaxTexturesSize) * (S64)((1.f - TEXTURE_CACHE_PURGE_AMOUNT) * 100)) / 100;
+	S64 purged_cache_size = (sCacheMaxTexturesSize * (S64)((1.f-TEXTURE_CACHE_PURGE_AMOUNT)*100)) / 100;
 	S32 purge_count = 0;
 	for (time_idx_set_t::iterator iter = time_idx_set.begin();
 		 iter != time_idx_set.end(); ++iter)
 	{
 		S32 idx = iter->second;
 		bool purge_entry = false;		
-
-		if (cache_size >= purged_cache_size)
-		{
-			purge_entry = true;
-		}
-		else if (validate)
+        if (validate)
 		{
 			// make sure file exists and is the correct size
 			U32 uuididx = entries[idx].mID.mData[0];
 			if (uuididx == validate_idx)
 			{
-				std::string filename = getTextureFileName(entries[idx].mID);
-				LL_DEBUGS("TextureCache") << "Validating: " << filename << "Size: " << entries[idx].mBodySize << LL_ENDL;
+                std::string filename = getTextureFileName(entries[idx].mID);
+ 				LL_DEBUGS("TextureCache") << "Validating: " << filename << "Size: " << entries[idx].mBodySize << LL_ENDL;
 				// mHeaderAPRFilePoolp because this is under header mutex in main thread
 				S32 bodysize = LLAPRFile::size(filename, mHeaderAPRFilePoolp);
 				if (bodysize != entries[idx].mBodySize)
@@ -1837,6 +1843,10 @@ void LLTextureCache::purgeTextures(bool validate)
 					purge_entry = true;
 				}
 			}
+		}
+		else if (cache_size >= purged_cache_size)
+		{
+			purge_entry = true;
 		}
 		else
 		{

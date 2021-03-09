@@ -15,6 +15,9 @@
 	<string name="StartupInitializingTextureCache">
 		Inicjowanie bufora danych tekstur...
 	</string>
+	<string name="StartupInitializingVFS">
+		Inicjowanie wirtualnego systemu plików...
+	</string>
 	<string name="StartupRequireDriverUpdate">
 		Nie można zainicjować grafiki. Zaktualizuj sterowniki!
 	</string>
