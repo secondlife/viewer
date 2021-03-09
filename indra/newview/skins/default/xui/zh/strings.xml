@@ -31,6 +31,9 @@
 	<string name="StartupInitializingTextureCache">
 		正在初始化材質快取...
 	</string>
+	<string name="StartupInitializingVFS">
+		VFS 初始化中...
+	</string>
 	<string name="StartupRequireDriverUpdate">
 		顯像初始化失敗。 請更新你的顯像卡驅動程式！
 	</string>
@@ -71,6 +74,7 @@
 呈像品質：[RENDER_QUALITY]
 進階照明模型：[GPU_SHADERS]
 材質記憶體：[TEXTURE_MEMORY]MB
+VFS（快取）建立時間：[VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 		HiDPI顯示模式：[HIDPI]

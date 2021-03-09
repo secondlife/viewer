@@ -55,6 +55,7 @@ class LLRadioGroup;
 class LLSliderCtrl;
 class LLSpinCtrl;
 class LLTextBox;
+class LLVFS;
 
 class LLPanelRegionGeneralInfo;
 class LLPanelRegionDebugInfo;
@@ -356,7 +357,8 @@ public:
 	static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
 	void sendChangeCovenantID(const LLUUID &asset_id);
 	void loadInvItem(LLInventoryItem *itemp);
-	static void onLoadComplete(const LLUUID& asset_uuid,
+	static void onLoadComplete(LLVFS *vfs,
+							   const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
