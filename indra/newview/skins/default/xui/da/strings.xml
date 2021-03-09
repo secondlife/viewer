@@ -22,6 +22,9 @@
 	<string name="StartupInitializingTextureCache">
 		Initialiserer tekstur cache...
 	</string>
+	<string name="StartupInitializingVFS">
+		Initialiserer VFS...
+	</string>
 	<string name="ProgressRestoring">
 		Gendanner...
 	</string>
