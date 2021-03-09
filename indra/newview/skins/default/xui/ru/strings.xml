@@ -31,6 +31,9 @@
 	<string name="StartupInitializingTextureCache">
 		Инициализация кэша текстур...
 	</string>
+	<string name="StartupInitializingVFS">
+		Инициализация виртуальной файловой системы...
+	</string>
 	<string name="StartupRequireDriverUpdate">
 		Ошибка инициализации графики. Обновите графический драйвер!
 	</string>
@@ -71,6 +74,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 Качество визуализации: [RENDER_QUALITY]
 Расширенная модель освещения: [GPU_SHADERS]
 Память текстур: [TEXTURE_MEMORY] МБ
+Время создания VFS (кэш): [VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 		Режим отображения HiDPI: [HIDPI]

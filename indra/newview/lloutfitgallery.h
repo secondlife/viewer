@@ -38,6 +38,7 @@
 
 #include <vector>
 
+class LLVFS;
 class LLOutfitGallery;
 class LLOutfitGalleryItem;
 class LLOutfitListGearMenuBase;
