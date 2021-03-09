@@ -207,6 +207,12 @@
                     tick_spacing="128.f"
                     precision="1"
                     show_bar="false"/>
+			    <stat_bar name="vfspendingoperations"
+                    label="VFS Pending Operations"
+                    orientation="horizontal"
+                    stat="vfspendingoperations"
+                    unit_label=" Ops."
+                    show_bar="false"/>
 			  </stat_view>
 		  </stat_view>
 <!--Sim Stats-->
