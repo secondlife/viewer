@@ -50,6 +50,15 @@ const F32 DEFAULT_MIN_DISTANCE = 2.0f;
 #define MAX_CHANNELS 30
 #define MAX_BUFFERS 40	// Some extra for preloading, maybe?
 
+// This define is intended to allow us to switch from os based wav
+// file loading to vfs based wav file loading. The problem is that I
+// am unconvinced that the LLWaveFile works for loading sounds from
+// memory. So, until that is fixed up, changed, whatever, this remains
+// undefined.
+//#define USE_WAV_VFILE
+
+class LLVFS;
+
 class LLAudioSource;
 class LLAudioData;
 class LLAudioChannel;
@@ -58,9 +67,11 @@ class LLAudioBuffer;
 class LLStreamingAudioInterface;
 struct SoundData;
 
+
 //
 //  LLAudioEngine definition
 //
+
 class LLAudioEngine 
 {
 	friend class LLAudioChannelOpenAL; // bleh. channel needs some listener methods.
@@ -171,7 +182,7 @@ public:
 
 	// Asset callback when we're retrieved a sound from the asset server.
 	void startNextTransfer();
-	static void assetCallback(const LLUUID &uuid, LLAssetType::EType type, void *user_data, S32 result_code, LLExtStat ext_status);
+	static void assetCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, void *user_data, S32 result_code, LLExtStat ext_status);
 
 	friend class LLPipeline; // For debugging
 public:

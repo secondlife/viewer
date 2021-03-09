@@ -40,6 +40,7 @@ class LLMultiGesture;
 class LLGestureListener;
 class LLGestureStep;
 class LLUUID;
+class LLVFS;
 
 class LLGestureManagerObserver
 {
@@ -153,13 +154,15 @@ protected:
 	void done();
 
 	// Used by loadGesture
-	static void onLoadComplete(const LLUUID& asset_uuid,
-					           LLAssetType::EType type,
-						       void* user_data, S32 status, LLExtStat ext_status);
+	static void onLoadComplete(LLVFS *vfs,
+						   const LLUUID& asset_uuid,
+						   LLAssetType::EType type,
+						   void* user_data, S32 status, LLExtStat ext_status);
 
 	// Used by playGesture to load an asset file
 	// required to play a gesture step
-	static void onAssetLoadComplete(const LLUUID& asset_uuid,
+	static void onAssetLoadComplete(LLVFS *vfs,
+									const LLUUID& asset_uuid,
 									LLAssetType::EType type,
 									void* user_data, S32 status, LLExtStat ext_status);
 

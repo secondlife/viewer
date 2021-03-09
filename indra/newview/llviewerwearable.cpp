@@ -107,6 +107,7 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
 		// Shouldn't really log the asset id for security reasons, but
 		// we need it in this case.
 		LL_WARNS() << "Bad Wearable asset header: " << mAssetID << LL_ENDL;
+		//gVFS->dumpMap();
 		return result;
 	}
 

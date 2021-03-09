@@ -29,6 +29,7 @@
 					<stat_bar name="layersdatareceived" label="Warstwy" />
 					<stat_bar name="messagedatain" label="Aktualna il. wchodząca" />
 					<stat_bar name="messagedataout" label="Aktualna il. wychodząca" />
+					<stat_bar name="vfspendingoperations" label="Operacje oczekujące VFS" unit_label=" op." />
 				</stat_view>
 			</stat_view>
 			<stat_view name="sim" label="Symulator">

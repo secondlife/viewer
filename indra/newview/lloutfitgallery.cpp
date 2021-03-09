@@ -32,7 +32,7 @@
 
 // llcommon
 #include "llcommonutils.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 
 #include "llaccordionctrltab.h"
 #include "llappearancemgr.h"
