@@ -49,7 +49,7 @@
 #include "llsdutil_math.h"
 #include "llsdserialize.h"
 #include "llthread.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 #include "llviewercontrol.h"
 #include "llviewerinventory.h"
 #include "llviewermenufile.h"
@@ -294,6 +294,8 @@
 //   * Header parse failures come without much explanation.  Elaborate.
 //   * Work queue for uploads?  Any need for this or is the current scheme good
 //     enough?
+//   * Various temp buffers used in VFS I/O might be allocated once or even
+//     statically.  Look for some wins here.
 //   * Move data structures holding mesh data used by main thread into main-
 //     thread-only access so that no locking is needed.  May require duplication
 //     of some data so that worker thread has a minimal data set to guide
@@ -1334,8 +1336,8 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
-			//check cache for mesh skin info
-			LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
+			//check VFS for mesh skin info
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -1368,7 +1370,7 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 				delete[] buffer;
 			}
 
-			//reading from cache failed for whatever reason, fetch from sim
+			//reading from VFS failed for whatever reason, fetch from sim
 			std::string http_url;
 			constructUrl(mesh_id, &http_url);
 
@@ -1430,8 +1432,8 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
-			//check cache for mesh skin info
-			LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
+			//check VFS for mesh skin info
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -1465,7 +1467,7 @@ bool LLMeshRepoThread::fetchMeshDecomposition(const LLUUID& mesh_id)
 				delete[] buffer;
 			}
 
-			//reading from cache failed for whatever reason, fetch from sim
+			//reading from VFS failed for whatever reason, fetch from sim
 			std::string http_url;
 			constructUrl(mesh_id, &http_url);
 			
@@ -1527,8 +1529,8 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
-			//check cache for mesh physics shape info
-			LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
+			//check VFS for mesh physics shape info
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				LLMeshRepository::sCacheBytesRead += size;
@@ -1561,7 +1563,7 @@ bool LLMeshRepoThread::fetchMeshPhysicsShape(const LLUUID& mesh_id)
 				delete[] buffer;
 			}
 
-			//reading from cache failed for whatever reason, fetch from sim
+			//reading from VFS failed for whatever reason, fetch from sim
 			std::string http_url;
 			constructUrl(mesh_id, &http_url);
 			
@@ -1632,8 +1634,8 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 	++LLMeshRepository::sMeshRequestCount;
 
 	{
-		//look for mesh in asset in cache
-		LLFileSystem file(mesh_params.getSculptID(), LLAssetType::AT_MESH);
+		//look for mesh in asset in vfs
+		LLVFile file(gVFS, mesh_params.getSculptID(), LLAssetType::AT_MESH);
 			
 		S32 size = file.getSize();
 
@@ -1647,7 +1649,7 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 			file.read(buffer, bytes);
 			if (headerReceived(mesh_params, buffer, bytes) == MESH_OK)
 			{
-				// Found mesh in cache
+				// Found mesh in VFS cache
 				return true;
 			}
 		}
@@ -1711,8 +1713,8 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 		if (version <= MAX_MESH_VERSION && offset >= 0 && size > 0)
 		{
 
-			//check cache for mesh asset
-			LLFileSystem file(mesh_id, LLAssetType::AT_MESH);
+			//check VFS for mesh asset
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH);
 			if (file.getSize() >= offset+size)
 			{
 				U8* buffer = new(std::nothrow) U8[size];
@@ -1747,7 +1749,7 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				delete[] buffer;
 			}
 
-			//reading from cache failed for whatever reason, fetch from sim
+			//reading from VFS failed for whatever reason, fetch from sim
 			std::string http_url;
 			constructUrl(mesh_id, &http_url);
 			
@@ -3206,7 +3208,7 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 	}
 	else if (data && data_size > 0)
 	{
-		// header was successfully retrieved from sim and parsed and is in cache
+		// header was successfully retrieved from sim and parsed, cache in vfs
 		S32 header_bytes = 0;
 		LLSD header;
 
@@ -3245,16 +3247,31 @@ void LLMeshHeaderHandler::processData(LLCore::BufferArray * /* body */, S32 /* b
 
 		
 			// It's possible for the remote asset to have more data than is needed for the local cache
-			// only allocate as much space in the cache as is needed for the local cache
+			// only allocate as much space in the VFS as is needed for the local cache
 			data_size = llmin(data_size, bytes);
 
-			LLFileSystem file(mesh_id, LLAssetType::AT_MESH, LLFileSystem::WRITE);
-			if (file.getMaxSize() >= bytes)
+			LLVFile file(gVFS, mesh_id, LLAssetType::AT_MESH, LLVFile::WRITE);
+			if (file.getMaxSize() >= bytes || file.setMaxSize(bytes))
 			{
 				LLMeshRepository::sCacheBytesWritten += data_size;
 				++LLMeshRepository::sCacheWrites;
 
 				file.write(data, data_size);
+			
+				// zero out the rest of the file 
+				U8 block[MESH_HEADER_SIZE];
+				memset(block, 0, sizeof(block));
+
+				while (bytes-file.tell() > sizeof(block))
+				{
+					file.write(block, sizeof(block));
+				}
+
+				S32 remaining = bytes-file.tell();
+				if (remaining > 0)
+				{
+					file.write(block, remaining);
+				}
 			}
 		}
 		else
@@ -3306,8 +3323,8 @@ void LLMeshLODHandler::processData(LLCore::BufferArray * /* body */, S32 /* body
 		EMeshProcessingResult result = gMeshRepo.mThread->lodReceived(mMeshParams, mLOD, data, data_size);
 		if (result == MESH_OK)
 		{
-			// good fetch from sim, write to cache
-			LLFileSystem file(mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLFileSystem::WRITE);
+			// good fetch from sim, write to VFS for caching
+			LLVFile file(gVFS, mMeshParams.getSculptID(), LLAssetType::AT_MESH, LLVFile::WRITE);
 
 			S32 offset = mOffset;
 			S32 size = mRequestedBytes;
@@ -3370,8 +3387,8 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
 		&& gMeshRepo.mThread->skinInfoReceived(mMeshID, data, data_size))
 	{
-		// good fetch from sim, write to cache
-		LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::WRITE);
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;
@@ -3418,8 +3435,8 @@ void LLMeshDecompositionHandler::processData(LLCore::BufferArray * /* body */, S
 		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
 		&& gMeshRepo.mThread->decompositionReceived(mMeshID, data, data_size))
 	{
-		// good fetch from sim, write to cache
-		LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::WRITE);
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;
@@ -3465,8 +3482,8 @@ void LLMeshPhysicsShapeHandler::processData(LLCore::BufferArray * /* body */, S3
 		&& ((data != NULL) == (data_size > 0)) // if we have data but no size or have size but no data, something is wrong
 		&& gMeshRepo.mThread->physicsShapeReceived(mMeshID, data, data_size) == MESH_OK)
 	{
-		// good fetch from sim, write to cache for caching
-		LLFileSystem file(mMeshID, LLAssetType::AT_MESH, LLFileSystem::WRITE);
+		// good fetch from sim, write to VFS for caching
+		LLVFile file(gVFS, mMeshID, LLAssetType::AT_MESH, LLVFile::WRITE);
 
 		S32 offset = mOffset;
 		S32 size = mRequestedBytes;

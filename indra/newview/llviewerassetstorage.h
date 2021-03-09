@@ -30,16 +30,18 @@
 #include "llassetstorage.h"
 #include "llcorehttputil.h"
 
-class LLFileSystem;
+class LLVFile;
 
 class LLViewerAssetRequest;
 
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
+	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
+				   LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host);
 
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
+	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
+				   LLVFS *vfs, LLVFS *static_vfs);
 
 	~LLViewerAssetStorage();
 

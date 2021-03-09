@@ -33,7 +33,7 @@
 
 #include "llappviewer.h"
 #include "llagent.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 #include "llviewerstats.h"
 
 // Globals
@@ -120,6 +120,7 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 
 // static
 void LLLandmarkList::processGetAssetReply(
+	LLVFS *vfs,
 	const LLUUID& uuid,
 	LLAssetType::EType type,
 	void* user_data,
@@ -128,7 +129,7 @@ void LLLandmarkList::processGetAssetReply(
 {
 	if( status == 0 )
 	{
-		LLFileSystem file(uuid, type);
+		LLVFile file(vfs, uuid, type);
 		S32 file_length = file.getSize();
 
 		std::vector<char> buffer(file_length + 1);

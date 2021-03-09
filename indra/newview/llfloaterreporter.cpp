@@ -44,7 +44,8 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
+#include "llvfs.h"
 #include "mean_collision_data.h"
 #include "message.h"
 #include "v3math.h"
@@ -898,9 +899,12 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	mResourceDatap->mAssetInfo.setName("screenshot_name");
 	mResourceDatap->mAssetInfo.setDescription("screenshot_descr");
 
-	// store in cache
-    LLFileSystem j2c_file(mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType, LLFileSystem::WRITE);
-    j2c_file.write(upload_data->getData(), upload_data->getDataSize());
+	// store in VFS
+	LLVFile::writeFile(upload_data->getData(), 
+						upload_data->getDataSize(), 
+						gVFS, 
+						mResourceDatap->mAssetInfo.mUuid, 
+						mResourceDatap->mAssetInfo.mType);
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
