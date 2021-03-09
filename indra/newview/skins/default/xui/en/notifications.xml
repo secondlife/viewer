@@ -10005,6 +10005,15 @@ Removal of the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; from the simulat
 Cannot save your selection because you do not have permission to modify the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoTransNoSaveToContents"
+   type="notify">
+    <tag>fail</tag>
+    Cannot save &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; to object contents because you do not have permission to transfer the object's ownership.
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="NoCopyNoSaveSelection"
