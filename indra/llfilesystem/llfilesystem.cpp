@@ -200,9 +200,36 @@ BOOL LLFileSystem::write(const U8* buffer, S32 bytes)
         {
             ofs.write((const char*)buffer, bytes);
 
+            mPosition = ofs.tellp(); // <FS:Ansariel> Fix asset caching
+
             success = TRUE;
         }
     }
+    // <FS:Ansariel> Fix asset caching
+    else if (mMode == READ_WRITE)
+    {
+        // Don't truncate if file already exists
+        llofstream ofs(filename, std::ios::in | std::ios::binary);
+        if (ofs)
+        {
+            ofs.seekp(mPosition, std::ios::beg);
+            ofs.write((const char*)buffer, bytes);
+            mPosition += bytes;
+            success = TRUE;
+        }
+        else
+        {
+            // File doesn't exist - open in write mode
+            ofs.open(filename, std::ios::binary);
+            if (ofs.is_open())
+            {
+                ofs.write((const char*)buffer, bytes);
+                mPosition += bytes;
+                success = TRUE;
+            }
+        }
+    }
+    // </FS:Ansariel>
     else
     {
         llofstream ofs(filename, std::ios::binary);

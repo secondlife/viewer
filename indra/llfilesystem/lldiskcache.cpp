@@ -192,8 +192,8 @@ const std::string LLDiskCache::metaDataToFilepath(const std::string id,
     file_path << id;
     file_path << "_";
     file_path << (extra_info.empty() ? "0" : extra_info);
-    //file_path << "_";
-    //file_path << assetTypeToString(at); // see  SL-14210 Prune descriptive tag from new cache filenames
+    file_path << "_";
+    file_path << assetTypeToString(at); // see  SL-14210 Prune descriptive tag from new cache filenames
                                           // for details of why it was removed. Note that if you put it
                                           // back or change the format of the filename, the cache files
                                           // files will be invalidated (and perhaps, more importantly,
