@@ -26,6 +26,7 @@
 
 #include "linden_common.h"
 #include "lluiusage.h"
+#include <boost/algorithm/string.hpp>
 
 LLUIUsage::LLUIUsage()
 {
@@ -41,7 +42,37 @@ std::string LLUIUsage::sanitized(const std::string& s)
 	// ViewerStats db doesn't like "." in keys
 	std::string result(s);
 	std::replace(result.begin(), result.end(), '.', '_');
+	std::replace(result.begin(), result.end(), ' ', '_');
 	return result;
+}
+
+void LLUIUsage::setLLSDNested(LLSD& sd, const std::string& path, S32 max_elts, S32 val) const
+{
+	std::vector<std::string> fields;
+	boost::split(fields, path, boost::is_any_of("/"));
+	auto first_pos = std::max(fields.begin(), fields.end() - max_elts);
+	auto end_pos = fields.end();
+	std::vector<std::string> last_fields(first_pos,end_pos);
+
+	// Code below is just to accomplish the equivalent of
+	//   sd[last_fields[0]][last_fields[1]] = LLSD::Integer(val);
+	// for an arbitrary number of fields.
+	LLSD* fsd = &sd;
+	for (auto it=last_fields.begin(); it!=last_fields.end(); ++it)
+	{
+		if (it == last_fields.end()-1)
+		{
+			(*fsd)[*it] = LLSD::Integer(val);
+		}
+		else
+		{
+			if (!(*fsd)[*it].isMap())
+			{
+				(*fsd)[*it] = LLSD::emptyMap();
+			}
+			fsd = &(*fsd)[*it];
+		}
+	}
 }
 
 void LLUIUsage::logFloater(const std::string& floater)
@@ -75,7 +106,7 @@ LLSD LLUIUsage::asLLSD() const
 	}
 	for (auto const& it : mWidgetCounts)
 	{
-		result["widgets"][it.first] = LLSD::Integer(it.second);
+		setLLSDNested(result["widgets"], it.first, 2, it.second);
 	}
 	return result;
 }

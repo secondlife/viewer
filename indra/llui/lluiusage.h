@@ -39,6 +39,7 @@ public:
 	~LLUIUsage();
 public:
 	static std::string sanitized(const std::string& s);
+	void setLLSDNested(LLSD& sd, const std::string& path, S32 max_elts, S32 val) const;
 	void logFloater(const std::string& floater);
 	void logCommand(const std::string& command);
 	void logWidget(const std::string& w);
