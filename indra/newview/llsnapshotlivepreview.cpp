@@ -31,7 +31,6 @@
 #include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentui.h"
-#include "llfilesystem.h"
 #include "llcombobox.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
@@ -51,6 +50,8 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llviewerstats.h"
+#include "llvfile.h"
+#include "llvfs.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include <boost/filesystem.hpp>
@@ -1005,8 +1006,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 
 	if (formatted->encode(scaled, 0.0f))
 	{
-        LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
-        fmt_file.write(formatted->getData(), formatted->getDataSize());
+		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
 		std::string pos_string;
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;

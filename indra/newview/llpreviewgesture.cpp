@@ -30,7 +30,7 @@
 #include "llagent.h"
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
-#include "llappviewer.h"
+#include "llappviewer.h"			// gVFS
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"
@@ -47,7 +47,7 @@
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "lltrans.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -841,9 +841,10 @@ void LLPreviewGesture::loadAsset()
 
 
 // static
-void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
-									  LLAssetType::EType type,
-									  void* user_data, S32 status, LLExtStat ext_status)
+void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
+									   const LLUUID& asset_uuid,
+									   LLAssetType::EType type,
+									   void* user_data, S32 status, LLExtStat ext_status)
 {
 	LLUUID* item_idp = (LLUUID*)user_data;
 
@@ -852,7 +853,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if (0 == status)
 		{
-			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
 			S32 size = file.getSize();
 
 			std::vector<char> buffer(size+1);
@@ -1137,9 +1138,10 @@ void LLPreviewGesture::saveIfNeeded()
             tid.generate();
             assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-            LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
+            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
 
             S32 size = dp.getCurrentSize();
+            file.setMaxSize(size);
             file.write((U8*)buffer, size);
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");

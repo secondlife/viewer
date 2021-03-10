@@ -31,6 +31,9 @@
 	<string name="StartupInitializingTextureCache">
 		Initialisation du cache des textures...
 	</string>
+	<string name="StartupInitializingVFS">
+		Initialisation VFS...
+	</string>
 	<string name="StartupRequireDriverUpdate">
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
@@ -71,6 +74,7 @@ Facteur LOD (niveau de détail) : [LOD_FACTOR]
 Qualité de rendu : [RENDER_QUALITY]
 Modèle d’éclairage avancé : [GPU_SHADERS]
 Mémoire textures : [TEXTURE_MEMORY] Mo
+Heure de création VFS (cache) : [VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 		Mode d&apos;affichage HiDPI : [HIDPI]
