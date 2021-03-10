@@ -29,6 +29,7 @@
 					<stat_bar label="Couches" name="layersdatareceived"/>
 					<stat_bar label="Arrivés" name="messagedatain"/>
 					<stat_bar label="Sortis" name="messagedataout"/>
+					<stat_bar label="Opérations VFS en attente" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulateur" name="sim">

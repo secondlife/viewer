@@ -54,7 +54,7 @@ class LLTexturePipelineTester ;
 
 typedef	void	(*loaded_callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
-class LLFileSystem;
+class LLVFile;
 class LLMessageSystem;
 class LLViewerMediaImpl ;
 class LLVOVolume ;
