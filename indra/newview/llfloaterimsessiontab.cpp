@@ -492,7 +492,10 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		addConversationViewParticipant(participant_model);
+        if (participant_model)
+        {
+            addConversationViewParticipant(participant_model);
+        }
 		current_participant_model++;
 	}
 }

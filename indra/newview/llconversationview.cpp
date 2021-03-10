@@ -617,10 +617,13 @@ void LLConversationViewParticipant::refresh()
 {
 	// Refresh the participant view from its model data
 	LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(getViewModelItem());
-	participant_model->resetRefresh();
-	
-	// *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
-	mSpeakingIndicator->setIsModeratorMuted(participant_model->isModeratorMuted());
+    if (participant_model)
+    {
+        participant_model->resetRefresh();
+
+        // *TODO: We should also do something with vmi->isModerator() to echo that state in the UI somewhat
+        mSpeakingIndicator->setIsModeratorMuted(participant_model->isModeratorMuted());
+    }
 
 	// Do the regular upstream refresh
 	LLFolderViewItem::refresh();
