@@ -75,16 +75,22 @@ void LLUIUsage::setLLSDNested(LLSD& sd, const std::string& path, S32 max_elts, S
 	}
 }
 
+void LLUIUsage::logCommand(const std::string& command)
+{
+	mCommandCounts[sanitized(command)]++;
+	LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
+}
+
 void LLUIUsage::logFloater(const std::string& floater)
 {
 	mFloaterCounts[sanitized(floater)]++;
 	LL_DEBUGS("UIUsage") << "floater " << floater << LL_ENDL;
 }
 
-void LLUIUsage::logCommand(const std::string& command)
+void LLUIUsage::logPanel(const std::string& p)
 {
-	mCommandCounts[sanitized(command)]++;
-	LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
+	mPanelCounts[sanitized(p)]++;
+	LL_DEBUGS("UIUsage") << "panel " << p << LL_ENDL;
 }
 
 void LLUIUsage::logWidget(const std::string& w)
@@ -104,10 +110,25 @@ LLSD LLUIUsage::asLLSD() const
 	{
 		result["commands"][it.first] = LLSD::Integer(it.second);
 	}
+	for (auto const& it : mPanelCounts)
+	{
+		result["panels"][it.first] = LLSD::Integer(it.second);
+	}
 	for (auto const& it : mWidgetCounts)
 	{
 		setLLSDNested(result["widgets"], it.first, 2, it.second);
 	}
 	return result;
+}
+
+// Clear up some junk content generated during initial login/UI initialization
+void LLUIUsage::clear()
+{
+
+	LL_DEBUGS("UIUsage") << "clear" << LL_ENDL;
+	mCommandCounts.clear();
+	mFloaterCounts.clear();
+	mPanelCounts.clear();
+	mWidgetCounts.clear();
 }
 

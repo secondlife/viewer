@@ -40,13 +40,16 @@ public:
 public:
 	static std::string sanitized(const std::string& s);
 	void setLLSDNested(LLSD& sd, const std::string& path, S32 max_elts, S32 val) const;
-	void logFloater(const std::string& floater);
 	void logCommand(const std::string& command);
+	void logFloater(const std::string& floater);
+	void logPanel(const std::string& p);
 	void logWidget(const std::string& w);
 	LLSD asLLSD() const;
+	void clear();
 private:
-	std::map<std::string,U32> mFloaterCounts;
 	std::map<std::string,U32> mCommandCounts;
+	std::map<std::string,U32> mFloaterCounts;
+	std::map<std::string,U32> mPanelCounts;
 	std::map<std::string,U32> mWidgetCounts;
 };
 
