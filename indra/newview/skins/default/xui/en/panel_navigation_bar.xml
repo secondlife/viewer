@@ -151,32 +151,31 @@
 	         layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="242"
+           min_width="254"
            name="favorites_layout_panel"
-           width="320">
+           width="342">
            <icon
              follows="top|left"
              height="25"
              image_name="ChatBarHandle"
              layout="topleft"
-             left="-323"
+             left="-345"
              name="resize_handle"
              top="4"
              width="5" />
            <button
-             height="16"
-             width="16"
+             height="23"
+             width="32"
              layout="topleft"
              mouse_opaque="true"
              follows="left|top"
              name="landmarks_btn"
              tool_tip="My Landmarks"
-             top="9"
-             left_pad="10"
-             image_selected="Icon_Gear"
-             image_pressed="Icon_Gear"
-             image_unselected="Icon_Gear"
-             is_toggle="true">
+             top_delta="1"
+             left_pad="8"
+             scale_image="false"
+             image_overlay="Landmarks_overlay"
+             image_hover_unselected="PushButton_Over">
            </button>
            <favorites_bar
              follows="left|right|top"
