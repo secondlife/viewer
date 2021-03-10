@@ -205,8 +205,9 @@ static std::string get_texture_list_name()
 
 void LLViewerTextureList::doPrefetchImages()
 {
-	gTextureTimer.reset();
-	
+	gTextureTimer.start();
+	gTextureTimer.pause();
+
 	if (LLAppViewer::instance()->getPurgeCache())
 	{
 		// cache was purged, no point
