@@ -2438,6 +2438,18 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorSoftwareException" />
             </menu_item_call>
             <menu_item_call
+             label="Force a Crash in a Coroutine"
+             name="Force a Crash in a Coroutine">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorCoroutineCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Thread"
+             name="Force a Crash in a Thread">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorThreadCrash" />
+            </menu_item_call>
+            <menu_item_call
              label="Force Disconnect Viewer"
              name="Force Disconnect Viewer">
                 <menu_item_call.on_click

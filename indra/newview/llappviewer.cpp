@@ -5549,6 +5549,33 @@ void LLAppViewer::forceErrorDriverCrash()
 	glDeleteTextures(1, NULL);
 }
 
+void LLAppViewer::forceErrorCoroutineCrash()
+{
+    LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
+    LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw std::exception("A deliberate crash from LLCoros"); });
+}
+
+void LLAppViewer::forceErrorThreadCrash()
+{
+    class LLCrashTestThread : public LLThread
+    {
+    public:
+
+        LLCrashTestThread() : LLThread("Crash logging test thread")
+        {
+        }
+
+        void run()
+        {
+            LL_ERRS() << "This is a deliberate llerror in thread" << LL_ENDL;
+        }
+    };
+
+    LL_WARNS() << "This is a deliberate crash in a thread" << LL_ENDL;
+    LLCrashTestThread *thread = new LLCrashTestThread();
+    thread->start();
+}
+
 void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 {
 	if(!mMainloopTimeout)

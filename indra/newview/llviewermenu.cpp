@@ -286,6 +286,8 @@ void force_error_bad_memory_access(void *);
 void force_error_infinite_loop(void *);
 void force_error_software_exception(void *);
 void force_error_driver_crash(void *);
+void force_error_coroutine_crash(void *);
+void force_error_thread_crash(void *);
 
 void handle_force_delete(void*);
 void print_object_info(void*);
@@ -2361,6 +2363,24 @@ class LLAdvancedForceErrorDriverCrash : public view_listener_t
 		force_error_driver_crash(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorCoroutineCrash : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_coroutine_crash(NULL);
+        return true;
+    }
+};
+
+class LLAdvancedForceErrorThreadCrash : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_thread_crash(NULL);
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorDisconnectViewer : public view_listener_t
@@ -8035,6 +8055,16 @@ void force_error_driver_crash(void *)
     LLAppViewer::instance()->forceErrorDriverCrash();
 }
 
+void force_error_coroutine_crash(void *)
+{
+    LLAppViewer::instance()->forceErrorCoroutineCrash();
+}
+
+void force_error_thread_crash(void *)
+{
+    LLAppViewer::instance()->forceErrorThreadCrash();
+}
+
 class LLToolsUseSelectionForGrid : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -9202,6 +9232,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
+    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
+    view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
 
 	// Advanced (toplevel)
