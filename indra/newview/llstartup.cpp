@@ -142,6 +142,7 @@
 #include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llui.h"
+#include "lluiusage.h"
 #include "llurldispatcher.h"
 #include "llurlentry.h"
 #include "llslurl.h"
@@ -2264,6 +2265,8 @@ bool idle_startup()
 		LLPathfindingManager::getInstance()->initSystem();
 
 		gAgentAvatarp->sendHoverHeight();
+
+		LLUIUsage::instance().clear();
 
 		return TRUE;
 	}

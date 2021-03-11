@@ -116,7 +116,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/algorithm/string/split.hpp> //
 #include <boost/foreach.hpp>
 
 #include "llnotificationmanager.h" //
