@@ -46,23 +46,33 @@ std::string LLUIUsage::sanitized(const std::string& s)
 	return result;
 }
 
-void LLUIUsage::setLLSDNested(LLSD& sd, const std::string& path, S32 max_elts, S32 val) const
+// static
+void LLUIUsage::setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, const LLSD& val)
 {
+	// Keep the last max_elts components of the specified path
 	std::vector<std::string> fields;
 	boost::split(fields, path, boost::is_any_of("/"));
 	auto first_pos = std::max(fields.begin(), fields.end() - max_elts);
 	auto end_pos = fields.end();
 	std::vector<std::string> last_fields(first_pos,end_pos);
 
-	// Code below is just to accomplish the equivalent of
-	//   sd[last_fields[0]][last_fields[1]] = LLSD::Integer(val);
-	// for an arbitrary number of fields.
+	setLLSDNested(sd, last_fields, val);
+}
+
+// setLLSDNested
+// Accomplish the equivalent of 
+//   sd[fields[0]][fields[1]]... = val;
+// for an arbitrary number of fields.
+// 
+// static
+void LLUIUsage::setLLSDNested(LLSD& sd, const std::vector<std::string>& fields, const LLSD& val)
+{
 	LLSD* fsd = &sd;
-	for (auto it=last_fields.begin(); it!=last_fields.end(); ++it)
+	for (auto it=fields.begin(); it!=fields.end(); ++it)
 	{
-		if (it == last_fields.end()-1)
+		if (it == fields.end()-1)
 		{
-			(*fsd)[*it] = LLSD::Integer(val);
+			(*fsd)[*it] = val;
 		}
 		else
 		{
@@ -116,7 +126,7 @@ LLSD LLUIUsage::asLLSD() const
 	}
 	for (auto const& it : mWidgetCounts)
 	{
-		setLLSDNested(result["widgets"], it.first, 2, it.second);
+		setLLSDPath(result["widgets"], it.first, 2, LLSD::Integer(it.second));
 	}
 	return result;
 }
