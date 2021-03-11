@@ -429,7 +429,7 @@ void LLUICtrl::onCommit()
 		{
 			LL_DEBUGS("UIUsage") << "calling commit function " << mFunctionName << LL_ENDL;
 			LLUIUsage::instance().logCommand(mFunctionName);
-			LLUIUsage::instance().logWidget(getPathname());
+			LLUIUsage::instance().logControl(getPathname());
 		}
 		else
 		{

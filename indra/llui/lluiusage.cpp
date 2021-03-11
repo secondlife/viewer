@@ -39,7 +39,7 @@ LLUIUsage::~LLUIUsage()
 // static
 std::string LLUIUsage::sanitized(const std::string& s)
 {
-	// ViewerStats db doesn't like "." in keys
+	// Remove characters that make the ViewerStats db unhappy
 	std::string result(s);
 	std::replace(result.begin(), result.end(), '.', '_');
 	std::replace(result.begin(), result.end(), ' ', '_');
@@ -59,10 +59,11 @@ void LLUIUsage::setLLSDPath(LLSD& sd, const std::string& path, S32 max_elts, con
 	setLLSDNested(sd, last_fields, val);
 }
 
-// setLLSDNested
+// setLLSDNested()
 // Accomplish the equivalent of 
 //   sd[fields[0]][fields[1]]... = val;
 // for an arbitrary number of fields.
+// This might be useful as an LLSD utility function; is not specific to LLUIUsage
 // 
 // static
 void LLUIUsage::setLLSDNested(LLSD& sd, const std::vector<std::string>& fields, const LLSD& val)
@@ -91,6 +92,13 @@ void LLUIUsage::logCommand(const std::string& command)
 	LL_DEBUGS("UIUsage") << "command " << command << LL_ENDL;
 }
 
+void LLUIUsage::logControl(const std::string& control)
+{
+	mControlCounts[sanitized(control)]++;
+	LL_DEBUGS("UIUsage") << "control " << control << LL_ENDL;
+}
+
+
 void LLUIUsage::logFloater(const std::string& floater)
 {
 	mFloaterCounts[sanitized(floater)]++;
@@ -103,30 +111,24 @@ void LLUIUsage::logPanel(const std::string& p)
 	LL_DEBUGS("UIUsage") << "panel " << p << LL_ENDL;
 }
 
-void LLUIUsage::logWidget(const std::string& w)
-{
-	mWidgetCounts[sanitized(w)]++;
-	LL_DEBUGS("UIUsage") << "widget " << w << LL_ENDL;
-}
-
 LLSD LLUIUsage::asLLSD() const
 {
 	LLSD result;
-	for (auto const& it : mFloaterCounts)
-	{
-		result["floaters"][it.first] = LLSD::Integer(it.second);
-	}
 	for (auto const& it : mCommandCounts)
 	{
 		result["commands"][it.first] = LLSD::Integer(it.second);
 	}
+	for (auto const& it : mControlCounts)
+	{
+		setLLSDPath(result["controls"], it.first, 2, LLSD::Integer(it.second));
+	}
+	for (auto const& it : mFloaterCounts)
+	{
+		result["floaters"][it.first] = LLSD::Integer(it.second);
+	}
 	for (auto const& it : mPanelCounts)
 	{
 		result["panels"][it.first] = LLSD::Integer(it.second);
-	}
-	for (auto const& it : mWidgetCounts)
-	{
-		setLLSDPath(result["widgets"], it.first, 2, LLSD::Integer(it.second));
 	}
 	return result;
 }
@@ -137,8 +139,8 @@ void LLUIUsage::clear()
 
 	LL_DEBUGS("UIUsage") << "clear" << LL_ENDL;
 	mCommandCounts.clear();
+	mControlCounts.clear();
 	mFloaterCounts.clear();
 	mPanelCounts.clear();
-	mWidgetCounts.clear();
 }
 
