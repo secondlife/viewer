@@ -290,11 +290,12 @@ public:
 
 private:
     std::string generateDistinctName(const std::string& prefix) const;
+#if LL_WINDOWS
+    void winlevel(const std::string& name, const callable_t& callable);
+#endif
+    void toplevelTryWrapper(const std::string& name, const callable_t& callable);
     void toplevel(std::string name, callable_t callable);
     struct CoroData;
-#if LL_WINDOWS
-    static void winlevel(const callable_t& callable);
-#endif
     static CoroData& get_CoroData(const std::string& caller);
 
     S32 mStackSize;
