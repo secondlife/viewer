@@ -2520,6 +2520,10 @@ if (LL_TESTS)
     ${BOOST_CONTEXT_LIBRARY}
   )
 
+  LL_ADD_INTEGRATION_TEST(cppfeatures
+    ""
+    "${test_libs}"
+    )
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
