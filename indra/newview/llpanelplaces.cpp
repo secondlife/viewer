@@ -1119,8 +1119,16 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 		}
 		else
 		{
-			LLLandmarksPanel* landmarks_panel =
-					dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName("Landmarks"));
+			std::string tab_panel_name("Landmarks");
+			if (mItem.notNull())
+			{
+				if (gInventory.isObjectDescendentOf(mItem->getUUID(), gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE)))
+				{
+					tab_panel_name = "Favorites";
+				}
+			}
+			
+			LLLandmarksPanel* landmarks_panel = dynamic_cast<LLLandmarksPanel*>(mTabContainer->getPanelByName(tab_panel_name));
 			if (landmarks_panel)
 			{
 				// If a landmark info is being closed we open the landmarks tab
@@ -1200,6 +1208,16 @@ void LLPanelPlaces::createTabs()
 {
 	if (!(gInventory.isInventoryUsable() && LLTeleportHistory::getInstance() && !mTabsCreated))
 		return;
+
+	LLFavoritesPanel* favorites_panel = new LLFavoritesPanel();
+	if (favorites_panel)
+	{
+		mTabContainer->addTabPanel(
+			LLTabContainer::TabPanelParams().
+			panel(favorites_panel).
+			label(getString("favorites_tab_title")).
+			insert_at(LLTabContainer::END));
+	}
 
 	LLLandmarksPanel* landmarks_panel = new LLLandmarksPanel();
 	if (landmarks_panel)

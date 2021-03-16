@@ -50,6 +50,7 @@ class LLLandmarksPanel : public LLPanelPlacesTab, LLRemoteParcelInfoObserver
 {
 public:
 	LLLandmarksPanel();
+	LLLandmarksPanel(bool is_landmark_panel);
 	virtual ~LLLandmarksPanel();
 
 	BOOL postBuild() override;
@@ -70,25 +71,15 @@ public:
      */
     bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) override;
 
-	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	void onSelectorButtonClicked();
 	void setCurrentSelectedList(LLPlacesInventoryPanel* inventory_list)
 	{
 		mCurrentSelectedList = inventory_list;
 	}
 
 	/**
-	 * 	Update filter ShowFolderState setting to show empty folder message
-	 *  if Landmarks inventory folder is empty.
-	 */
-	void updateShowFolderState();
-
-	/**
 	 * Selects item with "obj_id" in one of accordion tabs.
 	 */
 	void setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus);
-
-	LLPlacesInventoryPanel* getLibraryInventoryPanel() { return mLibraryInventoryPanel; }
 
 	void updateMenuVisibility(LLUICtrl* menu);
 
@@ -102,20 +93,9 @@ protected:
 	 */
 	bool isLandmarkSelected() const;
 	bool isFolderSelected() const;
-	bool isReceivedFolderSelected() const;
 	void doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb);
 	LLFolderViewItem* getCurSelectedItem() const;
 	LLFolderViewModelItemInventory* getCurSelectedViewModelItem() const;
-
-	/**
-	 * Selects item with "obj_id" in "inventory_list" and scrolls accordion
-	 * scrollbar to show the item.
-	 * Returns pointer to the item if it is found in "inventory_list", otherwise NULL.
-	 */
-	LLFolderViewItem* selectItemInAccordionTab(LLPlacesInventoryPanel* inventory_list,
-											   const std::string& tab_name,
-											   const LLUUID& obj_id,
-											   BOOL take_keyboard_focus) const;
 
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
@@ -123,19 +103,16 @@ protected:
 	void processParcelInfo(const LLParcelData& parcel_data) override;
 	void setParcelID(const LLUUID& parcel_id) override;
 	void setErrorStatus(S32 status, const std::string& reason) override;
-	
-private:
-	void initFavoritesInventoryPanel();
-	void initLandmarksInventoryPanel();
-	void initMyInventoryPanel();
-	void initLibraryInventoryPanel();
-	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
-	LLAccordionCtrlTab* initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list, bool expand_tab);
-	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
-	void deselectOtherThan(const LLPlacesInventoryPanel* inventory_list);
 
 	// List Commands Handlers
 	void initListCommandsHandlers();
+	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
+
+	LLPlacesInventoryPanel*		mCurrentSelectedList;
+	
+private:
+	void initLandmarksInventoryPanel();
+
 	void onTrashButtonClick() const;
 	void onAddAction(const LLSD& command_name) const;
 	void onClipboardAction(const LLSD& command_name) const;
@@ -170,23 +147,25 @@ private:
 							 const LLParcelData& parcel_data);
 
 private:
-	LLPlacesInventoryPanel*		mFavoritesInventoryPanel;
 	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
-	LLPlacesInventoryPanel*		mMyInventoryPanel;
-	LLPlacesInventoryPanel*		mLibraryInventoryPanel;
 	LLToggleableMenu*			mGearLandmarkMenu;
 	LLToggleableMenu*			mGearFolderMenu;
 	LLToggleableMenu*			mSortingMenu;
 	LLToggleableMenu*			mAddMenu;
-	LLPlacesInventoryPanel*		mCurrentSelectedList;
-	LLInventoryObserver*		mInventoryObserver;
+
+	bool						isLandmarksPanel;
 	
-	typedef	std::vector<LLAccordionCtrlTab*> accordion_tabs_t;
-	accordion_tabs_t			mAccordionTabs;
-
-	LLAccordionCtrlTab*			mMyLandmarksAccordionTab;
-
     LLUUID                      mCreatePickItemId; // item we requested a pick for
+};
+
+
+class LLFavoritesPanel : public LLLandmarksPanel
+{
+public:
+	LLFavoritesPanel();
+
+	BOOL postBuild() override;
+	void initFavoritesInventoryPanel();
 };
 
 #endif //LL_LLPANELLANDMARKS_H

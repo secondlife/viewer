@@ -13,10 +13,13 @@ background_visible="true"
  width="333">
   <string
    name="landmarks_tab_title"
-   value="MY LANDMARKS" />
+   value="LANDMARKS" />
   <string
    name="teleport_history_tab_title"
-   value="PLACES VISITED" />
+   value="VISITED" />
+  <string
+   name="favorites_tab_title"
+   value="FAVORITES" />
   <layout_stack
     animate="false"
     border_size="0"

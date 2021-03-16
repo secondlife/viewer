@@ -39,5 +39,8 @@
         <on_click
          function="Places.LandmarksGear.Folding.Action"
          parameter="sort_by_date" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="sort_by_date" />
     </menu_item_check>
 </toggleable_menu>
