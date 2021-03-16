@@ -347,28 +347,6 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
-{
-#if defined LL_BUGSPLAT
-    LL_DEBUGS("InitOSX", "Bugsplat") << "using BugSplat crash logger" << LL_ENDL;
-#elif LL_SEND_CRASH_REPORTS
-    LL_DEBUGS("InitOSX") << "Initializing legacy crash logger" << LL_ENDL;
-	std::string command_str = "mac-crash-logger.app";
-    
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    std::string appname = gDirUtilp->getExecutableFilename();
-    std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
-    std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
-    LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str()
-               << " " << logdir << " " << appname << LL_ENDL;
-    launchApplication(&command_str, &args);
-#else
-    LL_DEBUGS("InitOSX") << "No crash logger enabled" << LL_ENDL;    
-#endif // ! LL_BUGSPLAT
-}
-
 std::string LLAppViewerMacOSX::generateSerialNumber()
 {
 	char serial_md5[MD5HEX_STR_SIZE];		// Flawfinder: ignore
