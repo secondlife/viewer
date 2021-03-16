@@ -230,7 +230,6 @@ extern S32 gStartImageHeight;
 static bool gGotUseCircuitCodeAck = false;
 static std::string sInitialOutfit;
 static std::string sInitialOutfitGender;	// "male" or "female"
-static boost::signals2::connection sWearablesLoadedCon;
 
 static bool gUseCircuitCallbackCalled = false;
 
@@ -2702,11 +2701,6 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 	}
 	else
 	{
-		// FIXME SH-3860 - this creates a race condition, where COF
-		// changes (base outfit link added) after appearance update
-		// request has been submitted.
-		sWearablesLoadedCon = gAgentWearables.addLoadedCallback(LLStartUp::saveInitialOutfit);
-
 		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
@@ -2718,23 +2712,6 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	gAgent.setOutfitChosen(TRUE);
 	gAgentWearables.sendDummyAgentWearablesUpdate();
-}
-
-//static
-void LLStartUp::saveInitialOutfit()
-{
-	if (sInitialOutfit.empty()) {
-		LL_DEBUGS() << "sInitialOutfit is empty" << LL_ENDL;
-		return;
-	}
-	
-	if (sWearablesLoadedCon.connected())
-	{
-		LL_DEBUGS("Avatar") << "sWearablesLoadedCon is connected, disconnecting" << LL_ENDL;
-		sWearablesLoadedCon.disconnect();
-	}
-	LL_DEBUGS("Avatar") << "calling makeNewOutfitLinks( \"" << sInitialOutfit << "\" )" << LL_ENDL;
-	LLAppearanceMgr::getInstance()->makeNewOutfitLinks(sInitialOutfit,false);
 }
 
 std::string& LLStartUp::getInitialOutfitName()
