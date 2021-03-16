@@ -51,7 +51,6 @@ protected:
 
 	virtual bool beingDebugged();
 	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze); 
 
 	virtual bool sendURLToOtherInstance(const std::string& url);
 
