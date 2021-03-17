@@ -437,10 +437,6 @@ void LLApp::setupErrorHandling(bool second_instance)
 	}
 	#endif // ! LL_RELEASE_FOR_DOWNLOAD
 
-	if(installHandler && (mExceptionHandler == 0))
-	{
-		mExceptionHandler = new google_breakpad::ExceptionHandler(mDumpPath, 0, &unix_post_minidump_callback, 0, true, 0);
-	}
 #elif LL_LINUX
 	if(installHandler && (mExceptionHandler == 0))
 	{

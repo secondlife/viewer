@@ -157,7 +157,6 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexception_handler.dylib
         ${EXPAT_COPY}
         libGLOD.dylib
         libhunspell-1.3.0.dylib
