@@ -247,5 +247,94 @@ void cpp_features_test_object_t::test<7>()
 	ensure("default copy d3", d.val()==d3.val());
 }
 
+// initialize class members inline
+//
+// https://en.cppreference.com/w/cpp/language/data_members#Member_initialization
+//
+// Default class member values can be set where they are declared, using either brackets or =
+
+// It is preferred to skip creating a constructor if all the work can be done by inline initialization:
+// http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines.html#c45-dont-define-a-default-constructor-that-only-initializes-data-members-use-in-class-member-initializers-instead
+//
+class InitInline
+{
+public:
+	S32 mFoo{10};
+};
+
+class InitInlineWithConstructor
+{
+public:
+	// Here mFoo is not specified, so you will get the default value of 10.
+	// mBar is specified, so 25 will override the default value.
+	InitInlineWithConstructor():
+		mBar(25)
+	{}
+
+	// Default values set using two different styles, same effect.
+	S32 mFoo{10};
+	S32 mBar = 20;
+};
+
+template<> template<>
+void cpp_features_test_object_t::test<8>()
+{
+	InitInline ii;
+	ensure("init member inline 1", ii.mFoo==10);
+
+	InitInlineWithConstructor iici;
+	ensure("init member inline 2", iici.mFoo=10);
+	ensure("init member inline 3", iici.mBar==25);
+}
+
+// constexpr
+//
+// https://en.cppreference.com/w/cpp/language/constexpr
+//
+// Various things can be computed at compile time, and flagged as constexpr.
+constexpr S32 compute2() { return 2; }
+
+constexpr S32 ce_factorial(S32 n)
+{
+	if (n<=0)
+	{
+		return 1;
+	}
+	else
+	{
+		return n*ce_factorial(n-1);
+	}
+}
+
+template<> template<>
+void cpp_features_test_object_t::test<9>()
+{
+	S32 val = compute2();
+	ensure("constexpr 1", val==2);
+
+	// Compile-time factorial. You used to need complex templates to do something this useless.
+	S32 fac5 = ce_factorial(5);
+	ensure("constexpr 2", fac5==120);
+}
+
+// static assert
+//
+// https://en.cppreference.com/w/cpp/language/static_assert
+//
+// You can add asserts to be checked at compile time. The thing to be checked must be a constexpr.
+// There are two forms:
+// * static_assert(expr);
+// * static_assert(expr, message);
+//
+// Currently only the 2-parameter form works on windows. The 1-parameter form needs a flag we don't set.
+
+template<> template<>
+void cpp_features_test_object_t::test<10>()
+{
+	// static_assert(ce_factorial(6)==720); No, needs a flag we don't currently set.
+	static_assert(ce_factorial(6)==720, "bad factorial"); // OK
+}
+
+
 
 } // namespace tut
