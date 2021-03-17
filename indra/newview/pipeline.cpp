@@ -6387,21 +6387,19 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
                 continue;
             }
 
-			LLVector3 light_pos(light->getRenderPosition());
-			LLVector4 light_pos_gl(light_pos, 1.0f);
-	
-			F32 light_radius = llmax(light->getLightRadius(), 0.001f);
-            F32 size = light_radius * (sRenderDeferred ? 1.5f : 1.0f);
+            LLVector3 light_pos(light->getRenderPosition());
+            LLVector4 light_pos_gl(light_pos, 1.0f);
 
-            if (size <= 0.001f)
+            F32 adjusted_radius = light->getLightRadius() * (sRenderDeferred ? 1.5f : 1.0f);
+            if (adjusted_radius <= 0.001f)
             {
                 continue;
             }
 
-			F32 x = (3.f * (1.f + (light->getLightFalloff() * 2.0f))); // why this magic?  probably trying to match a historic behavior.
-			F32 linatten = x / (light_radius); // % of brightness at radius
+            F32 x = (3.f * (1.f + (light->getLightFalloff() * 2.0f)));  // why this magic?  probably trying to match a historic behavior.
+            F32 linatten = x / adjusted_radius;                         // % of brightness at radius
 
-			mHWLightColors[cur_light] = light_color;
+            mHWLightColors[cur_light] = light_color;
 			LLLightState* light_state = gGL.getLight(cur_light);
 			
 			light_state->setPosition(light_pos_gl);
@@ -6410,7 +6408,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			light_state->setConstantAttenuation(0.f);
 			if (sRenderDeferred)
 			{
-				light_state->setLinearAttenuation(size);
+				light_state->setLinearAttenuation(linatten);
 				light_state->setQuadraticAttenuation(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF) + 1.f); // get falloff to match for forward deferred rendering lights
 			}
 			else
