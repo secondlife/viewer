@@ -122,6 +122,124 @@ void cpp_features_test_object_t::test<3>()
 	ensure("for C-array", sum==31);
 }
 
+// override specifier
+//
+// https://en.cppreference.com/w/cpp/language/override
+//
+// Specify that a particular class function is an override of a virtual function.
+// Benefits:
+// * Makes code somewhat easier to read by showing intent.
+// * Prevents mistakes where you think something is an override but it doesn't actually match the declaration in the parent class.
+// Drawbacks:
+// * Some compilers require that any class using override must use it consistently for all functions. 
+//   This makes switching a class to use override a lot more work. 
 
+class Foo
+{
+public:
+	virtual bool is_happy() const = 0;
+};
 
+class Bar: public Foo
+{
+public:
+	bool is_happy() const override { return true; } 
+	// Override would fail: non-const declaration doesn't match parent 
+	// bool is_happy() override { return true; } 
+	// Override would fail: wrong name
+	// bool is_happx() override { return true; } 
+};
+
+template<> template<>
+void cpp_features_test_object_t::test<4>()
+{
+	Bar b;
+	ensure("override", b.is_happy());
 }
+
+// final
+//
+// https://en.cppreference.com/w/cpp/language/final: "Specifies that a
+// virtual function cannot be overridden in a derived class or that a
+// class cannot be inherited from."
+
+class Vehicle
+{
+public:
+	virtual bool has_wheels() const = 0;
+};
+
+class WheeledVehicle: public Vehicle
+{
+public:
+	virtual bool has_wheels() const final override { return true; }
+};
+
+class Bicycle: public WheeledVehicle
+{
+public:
+	// Error: can't override final version in WheeledVehicle 
+	// virtual bool has_wheels() override const { return true; }
+};
+
+template<> template<>
+void cpp_features_test_object_t::test<5>()
+{
+	Bicycle bi;
+	ensure("final", bi.has_wheels());
+}
+
+// deleted function declaration
+//
+// https://en.cppreference.com/w/cpp/language/function#Deleted_functions
+//
+// Typical case: copy constructor doesn't make sense for a particular class, so you want to make
+// sure the no one tries to copy-construct an instance of the class, and that the
+// compiler won't generate a copy constructor for  you automatically.
+// Traditional fix is to declare a
+// copy constructor but never implement it, giving you a link-time error if anyone tries to use it.
+// Now you can explicitly declare a function to be deleted, which has at least two advantages over
+// the old way:
+// * Makes the intention clear
+// * Creates an error sooner, at compile time
+
+class DoNotCopy
+{
+public:
+	DoNotCopy() {}
+	DoNotCopy(const DoNotCopy& ref) = delete;
+};
+
+template<> template<>
+void cpp_features_test_object_t::test<6>()
+{
+	DoNotCopy nc; // OK, default constructor
+	//DoNotCopy nc2(nc); // No, can't copy
+	//DoNotCopy nc3 = nc; // No, this also calls copy constructor (even though it looks like an assignment)
+}
+
+// defaulted function declaration
+//
+// https://en.cppreference.com/w/cpp/language/function#Function_definition
+//
+// What about the complementary case to the deleted function declaration, where you want a copy constructor
+// and are happy with the default implementation the compiler will make (memberwise copy).
+// Now you can explicitly declare that too.
+// Usage: I guess it makes the intent clearer, but otherwise not obviously useful.
+class DefaultCopyOK
+{
+public:
+	DefaultCopyOK() {}
+	DefaultCopyOK(const DefaultCopyOK&) = default;
+};
+
+template<> template<>
+void cpp_features_test_object_t::test<7>()
+{
+	DefaultCopyOK d; // OK
+	DefaultCopyOK d2(d); // OK
+	DefaultCopyOK d3 = d; // OK
+}
+
+
+} // namespace tut
