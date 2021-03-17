@@ -229,8 +229,11 @@ void cpp_features_test_object_t::test<6>()
 class DefaultCopyOK
 {
 public:
-	DefaultCopyOK() {}
+	DefaultCopyOK(): mVal(123) {}
 	DefaultCopyOK(const DefaultCopyOK&) = default;
+	S32 val() const { return mVal; }
+private:
+	S32 mVal;
 };
 
 template<> template<>
@@ -239,6 +242,9 @@ void cpp_features_test_object_t::test<7>()
 	DefaultCopyOK d; // OK
 	DefaultCopyOK d2(d); // OK
 	DefaultCopyOK d3 = d; // OK
+	ensure("default copy d", d.val()==123);
+	ensure("default copy d2", d.val()==d2.val());
+	ensure("default copy d3", d.val()==d3.val());
 }
 
 
