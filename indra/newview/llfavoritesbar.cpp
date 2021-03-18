@@ -402,6 +402,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mMoreTextBox = LLUICtrlFactory::create<LLTextBox> (more_button_params);
 	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
 	addChild(mMoreTextBox);
+	LLRect rect = mMoreTextBox->getRect();
+	mMoreTextBox->setRect(LLRect(rect.mLeft - rect.getWidth(), rect.mTop, rect.mRight, rect.mBottom));
 
 	mDropDownItemsCount = 0;
 
