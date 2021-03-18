@@ -879,13 +879,12 @@ boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_cal
 }
 
 // static
-void LLAgent::capabilityReceivedCallback(const LLUUID &region_id)
+void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion *regionp)
 {
-    LLViewerRegion* region = gAgent.getRegion();
-    if (region && region->getRegionID() == region_id)
+    if (regionp && regionp->getRegionID() == region_id)
     {
-        region->requestSimulatorFeatures();
-        LLAppViewer::instance()->updateNameLookupUrl();
+        regionp->requestSimulatorFeatures();
+        LLAppViewer::instance()->updateNameLookupUrl(regionp);
     }
 }
 
@@ -936,7 +935,7 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             if (regionp->capabilitiesReceived())
             {
                 regionp->requestSimulatorFeatures();
-                LLAppViewer::instance()->updateNameLookupUrl();
+                LLAppViewer::instance()->updateNameLookupUrl(regionp);
             }
             else
             {
@@ -962,11 +961,11 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
             if (regionp->capabilitiesReceived())
             {
-                LLAppViewer::instance()->updateNameLookupUrl();
+                LLAppViewer::instance()->updateNameLookupUrl(regionp);
             }
             else
             {
-                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id) {LLAppViewer::instance()->updateNameLookupUrl(); });
+                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp) {LLAppViewer::instance()->updateNameLookupUrl(regionp); });
             }
 		}
 

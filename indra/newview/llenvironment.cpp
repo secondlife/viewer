@@ -1029,7 +1029,7 @@ void LLEnvironment::onRegionChange()
     }
     if (!cur_region->capabilitiesReceived())
     {
-        cur_region->setCapabilitiesReceivedCallback([](const LLUUID &region_id) {  LLEnvironment::instance().requestRegion(); });
+        cur_region->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp) {  LLEnvironment::instance().requestRegion(); });
         return;
     }
     requestRegion();

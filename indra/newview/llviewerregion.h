@@ -94,7 +94,7 @@ public:
 		NUM_PARTITIONS
 	} eObjectPartitions;
 
-	typedef boost::signals2::signal<void(const LLUUID& region_id)> caps_received_signal_t;
+	typedef boost::signals2::signal<void(const LLUUID& region_id, LLViewerRegion* regionp)> caps_received_signal_t;
 
 	LLViewerRegion(const U64 &handle,
 				   const LLHost &host,

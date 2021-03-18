@@ -5226,10 +5226,9 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
-void LLAppViewer::updateNameLookupUrl()
+void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 {
-    LLViewerRegion* region = gAgent.getRegion();
-    if (!region || !region->capabilitiesReceived())
+    if (!regionp || !regionp->capabilitiesReceived())
     {
         return;
     }
@@ -5238,7 +5237,7 @@ void LLAppViewer::updateNameLookupUrl()
     bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
     std::string name_lookup_url;
     name_lookup_url.reserve(128); // avoid a memory allocation below
-    name_lookup_url = region->getCapability("GetDisplayNames");
+    name_lookup_url = regionp->getCapability("GetDisplayNames");
     bool have_capability = !name_lookup_url.empty();
     if (have_capability)
     {
