@@ -387,7 +387,7 @@ public:
 
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.
-	virtual void extractItem( LLFolderViewItem* item );
+	virtual void extractItem( LLFolderViewItem* item);
 
 	// This function is called by a child that needs to be resorted.
 	void resort(LLFolderViewItem* item);

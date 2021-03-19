@@ -1608,7 +1608,7 @@ void LLFolderViewFolder::destroyView()
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.
-void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
+void LLFolderViewFolder::extractItem( LLFolderViewItem* item)
 {
 	if (item->isSelected())
 		getRoot()->clearSelection();
@@ -1631,7 +1631,13 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		mItems.erase(it);
 	}
 	//item has been removed, need to update filter
-	getViewModelItem()->removeChild(item->getViewModelItem());
+    LLFolderViewModelItem* parent_model = getViewModelItem();
+    LLFolderViewModelItem* child_model = item->getViewModelItem();
+    if (child_model->getParent() == parent_model)
+    {
+        // in some cases model does not belong to parent view, is shared between views
+        parent_model->removeChild(child_model);
+    }
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
 	removeChild(item);

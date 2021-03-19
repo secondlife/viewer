@@ -218,7 +218,8 @@ public:
 	virtual S32 getSortVersion() = 0;
 	virtual void setSortVersion(S32 version) = 0;
 	virtual void setParent(LLFolderViewModelItem* parent) = 0;
-	virtual bool hasParent() = 0;
+    virtual LLFolderViewModelItem* getParent() const = 0;
+	virtual bool hasParent() const = 0;
 
 protected:
 
@@ -358,7 +359,8 @@ public:
 
 protected:
 	virtual void setParent(LLFolderViewModelItem* parent) { mParent = parent; }
-	virtual bool hasParent() { return mParent != NULL; }
+    virtual LLFolderViewModelItem* getParent() const { return mParent; }
+	virtual bool hasParent() const { return mParent != NULL; }
 
 	S32							mSortVersion;
 	bool						mPassedFilter;
