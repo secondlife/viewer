@@ -532,7 +532,7 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
 	if (widget)
 	{
-		mConversationsRoot->extractItem(widget);
+		mConversationsRoot->extractItem(widget, false);
 		delete widget;
 	}
 	mConversationsWidgets.erase(participant_id);
