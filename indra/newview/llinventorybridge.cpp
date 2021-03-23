@@ -3437,9 +3437,22 @@ void LLFolderBridge::copyOutfitToClipboard()
 void LLFolderBridge::openItem()
 {
 	LL_DEBUGS() << "LLFolderBridge::openItem()" << LL_ENDL;
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
-	if(mUUID.isNull()) return;
+
+    LLInventoryPanel* panel = mInventoryPanel.get();
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel* model = getInventoryModel();
+    if (!model)
+    {
+        return;
+    }
+    if (mUUID.isNull())
+    {
+        return;
+    }
+    panel->onFolderOpening(mUUID);
 	bool fetching_inventory = model->fetchDescendentsOf(mUUID);
 	// Only change folder type if we have the folder contents.
 	if (!fetching_inventory)

@@ -116,7 +116,6 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	bool						mHasVisibleChildren,
-								mIsFolderComplete, // indicates that some children were not loaded/added yet
 								mIsCurSelection,
 								mDragAndDropTarget,
 								mIsMouseOverTitle,
@@ -219,7 +218,10 @@ public:
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
 
 	// true if object can't have children
-	BOOL isFolderComplete() { return mIsFolderComplete; }
+	virtual bool isFolderComplete() { return true; }
+    // true if object can't have children
+    virtual bool areChildrenInited() { return true; }
+    virtual void setChildrenInited(bool inited) { }
 
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.
@@ -334,6 +336,8 @@ protected:
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
 	bool		mNeedsSort;
+	bool		mIsFolderComplete; // indicates that some children were not loaded/added yet
+	bool		mAreChildrenInited; // indicates that no children were initialized
 
 public:
 	typedef enum e_recurse_type
@@ -384,6 +388,13 @@ public:
 
 	// destroys this folder, and all children
 	virtual void destroyView();
+
+    // whether known children are fully loaded (arrange sets to true)
+    virtual bool isFolderComplete() { return mIsFolderComplete; }
+
+    // whether known children are fully built
+    virtual bool areChildrenInited() { return mAreChildrenInited; }
+    virtual void setChildrenInited(bool inited) { mAreChildrenInited = inited; }
 
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.

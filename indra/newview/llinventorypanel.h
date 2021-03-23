@@ -171,6 +171,7 @@ public:
 	// LLUICtrl methods
 	 /*virtual*/ void onFocusLost();
 	 /*virtual*/ void onFocusReceived();
+     void onFolderOpening(const LLUUID &id);
 
 	// LLBadgeHolder methods
 	bool addBadge(LLBadge * badge);
@@ -317,12 +318,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void addHideFolderType(LLFolderType::EType folder_type);
-
-public:
-	bool getViewsInitialized() const { return mViewsInitialized == VIEWS_INITIALIZED; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
-	void 				initializeViews();
+	void 				initializeViews(F64 max_time);
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
@@ -330,13 +328,19 @@ protected:
 	static LLUIColor			sDefaultHighlightColor;
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sLinkColor;
-	
+
+    // All buildNewViews() expect time limit mBuildViewsEndTime to be set
 	LLFolderViewItem*			buildNewViews(const LLUUID& id);
     LLFolderViewItem*			buildNewViews(const LLUUID& id,
                                               LLInventoryObject const* objectp);
     LLFolderViewItem*			buildNewViews(const LLUUID& id,
                                               LLInventoryObject const* objectp,
                                               LLFolderViewItem *target_view);
+
+    LLFolderViewItem*			buildNewViewsWithTimeLimit(const LLUUID& id,
+                                                           LLInventoryObject const* objectp,
+                                                           LLFolderViewItem *folder_view_item,
+                                                           F64 max_time);
     // if certain types are not allowed, no reason to create views
     virtual bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) { return true; }
 
@@ -359,11 +363,14 @@ private:
     {
         VIEWS_UNINITIALIZED = 0,
         VIEWS_INITIALIZING,
+        VIEWS_BUILDING, // Root folder exists
         VIEWS_INITIALIZED,
     } EViewsInitializationState;
 
 	bool						mBuildViewsOnInit;
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
+    F64							mBuildViewsEndTime; // Stop building views past this timestamp
+    std::deque<LLUUID>			mBuildViewsQueue;
 };
 
 

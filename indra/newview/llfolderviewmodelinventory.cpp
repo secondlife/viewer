@@ -66,7 +66,7 @@ void LLFolderViewModelInventory::sort( LLFolderViewFolder* folder )
 {
 	LL_RECORD_BLOCK_TIME(FTM_INVENTORY_SORT);
 
-	if (!needsSort(folder->getViewModelItem())) return;
+	if (!folder->areChildrenInited() || !needsSort(folder->getViewModelItem())) return;
 
 	LLFolderViewModelItemInventory* modelp =   static_cast<LLFolderViewModelItemInventory*>(folder->getViewModelItem());
 	if (modelp->getUUID().isNull()) return;

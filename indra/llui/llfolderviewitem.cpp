@@ -132,7 +132,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mCutGeneration(0),
 	mLabelStyle( LLFontGL::NORMAL ),
 	mHasVisibleChildren(FALSE),
-	mIsFolderComplete(true),
     mLocalIndentation(p.folder_indentation),
 	mIndentation(0),
 	mItemHeight(p.item_height),
@@ -1002,11 +1001,11 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
 	mCurHeight(0.f),
 	mTargetHeight(0.f),
 	mAutoOpenCountdown(0.f),
+	mIsFolderComplete(false), // folder might have children that are not loaded yet.
+	mAreChildrenInited(false), // folder might have children that are not built yet.
 	mLastArrangeGeneration( -1 ),
 	mLastCalculatedWidth(0)
 {
-	// folder might have children that are not loaded yet. Mark it as incomplete until chance to check it.
-	mIsFolderComplete = false;
 }
 
 void LLFolderViewFolder::updateLabelRotation()
@@ -1062,13 +1061,16 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
 	// Sort before laying out contents
     // Note that we sort from the root (CHUI-849)
-	getRoot()->getFolderViewModel()->sort(this);
+    if (mAreChildrenInited)
+    {
+        getRoot()->getFolderViewModel()->sort(this);
+    }
 
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 	
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
-	if (getViewModelItem()->descendantsPassedFilter())
+	if (mAreChildrenInited && getViewModelItem()->descendantsPassedFilter())
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -1094,7 +1096,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
 		mHasVisibleChildren = found;
 	}
-	if (!mIsFolderComplete)
+	if (!mIsFolderComplete && mAreChildrenInited)
 	{
 		mIsFolderComplete = getFolderViewModel()->isFolderComplete(this);
 	}
