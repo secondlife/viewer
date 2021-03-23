@@ -773,34 +773,6 @@ void LLPanelPlaces::onEditButtonClicked()
 	updateVerbs();
 }
 
-class LLUpdateLandmarkParent : public LLInventoryCallback
-{
-public:
-    LLUpdateLandmarkParent(LLPointer<LLViewerInventoryItem> item, LLUUID new_parent) :
-        mItem(item),
-        mNewParentId(new_parent)
-    {};
-    /* virtual */ void fire(const LLUUID& inv_item_id)
-    {
-        LLInventoryModel::update_list_t update;
-        LLInventoryModel::LLCategoryUpdate old_folder(mItem->getParentUUID(), -1);
-        update.push_back(old_folder);
-        LLInventoryModel::LLCategoryUpdate new_folder(mNewParentId, 1);
-        update.push_back(new_folder);
-        gInventory.accountForUpdate(update);
-
-        mItem->setParent(mNewParentId);
-        mItem->updateParentOnServer(FALSE);
-
-        gInventory.updateItem(mItem);
-        gInventory.notifyObservers();
-    }
-
-private:
-    LLPointer<LLViewerInventoryItem> mItem;
-    LLUUID mNewParentId;
-};
-
 void LLPanelPlaces::onSaveButtonClicked()
 {
 	if (!mLandmarkInfo || mItem.isNull())

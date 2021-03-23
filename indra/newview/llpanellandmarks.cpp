@@ -500,7 +500,7 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
             {
                 args["dest_folder"] = view_model->getUUID();
             }
-			LLFloaterSidePanelContainer::showPanel("places", args);
+			LLFloaterReg::showInstance("add_landmark", args);
 		}
 	} 
 	else if ("category" == command_name)

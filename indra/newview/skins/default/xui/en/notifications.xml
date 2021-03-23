@@ -2320,6 +2320,29 @@ You cannot create a landmark here because the owner of the land doesn&apos;t all
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ label="Create folder"
+ name="CreateLandmarkFolder"
+ type="alertmodal">
+    <unique/>
+    Choose a name for the folder:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotRecompileSelectObjectsNoScripts"
    type="alertmodal">

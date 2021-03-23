@@ -233,6 +233,7 @@ set(viewer_SOURCE_FILES
     llfloatercolorpicker.cpp
     llfloaterconversationlog.cpp
     llfloaterconversationpreview.cpp
+    llfloatercreatelandmark.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
     llfloatereditextdaycycle.cpp
@@ -865,6 +866,7 @@ set(viewer_HEADER_FILES
     llfloatercolorpicker.h
     llfloaterconversationlog.h
     llfloaterconversationpreview.h
+    llfloatercreatelandmark.h
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditextdaycycle.h

@@ -28,6 +28,7 @@
 #define LL_LLPANELLANDMARKINFO_H
 
 #include "llpanelplaceinfo.h"
+#include "llinventorymodel.h"
 
 class LLComboBox;
 class LLLineEditor;
@@ -63,7 +64,9 @@ public:
 	// Select current landmark folder in combobox.
 	BOOL setLandmarkFolder(const LLUUID& id);
 
+	typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
+	static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 private:
     // Create a landmark for the current location
@@ -85,4 +88,17 @@ private:
 	LLComboBox*			mFolderCombo;
 };
 
+class LLUpdateLandmarkParent : public LLInventoryCallback
+{
+public:
+	LLUpdateLandmarkParent(LLPointer<LLViewerInventoryItem> item, LLUUID new_parent) :
+		mItem(item),
+		mNewParentId(new_parent)
+	{};
+	/* virtual */ void fire(const LLUUID& inv_item_id);
+
+private:
+	LLPointer<LLViewerInventoryItem> mItem;
+	LLUUID mNewParentId;
+};
 #endif // LL_LLPANELLANDMARKINFO_H

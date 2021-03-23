@@ -6042,7 +6042,7 @@ class LLWorldCreateLandmark : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+		LLFloaterReg::showInstance("add_landmark");
 
 		return true;
 	}

@@ -291,7 +291,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setText(edit_text_contents);
 
 			std::string notif_name = mNotification->getName();
-			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name))
+			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name) || ("CreateLandmarkFolder" == notif_name))
 			{
 				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
 			}

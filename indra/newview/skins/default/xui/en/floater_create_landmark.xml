@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="false"
+ show_title="false"
+ can_minimize="false"
+ can_close="false"
+ height="305"
+ layout="topleft"
+ name="create_landmark"
+ width="330">
+  <string name="favorites_bar">
+    Favorites bar
+  </string>
+    <text
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="20"
+     name="title_label"
+     top="5"
+     font="SansSerifLargeBold"
+     value="Landmark added"
+     width="290" />
+    <text
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     left="20"
+     name="name_label"
+     top_pad="10"
+     value="Name"
+     width="290" />
+    <line_editor
+     follows="left|top"
+     height="22"
+     layout="topleft"
+     max_length_bytes="63"
+     name="title_editor"
+     prevalidate_callback="ascii"
+     text_readonly_color="white"
+     top_pad="5"
+     width="290" />
+    <text
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     name="folder_label"
+     top_pad="10"
+     value="Landmark location:"
+     width="290" />
+    <combo_box
+     follows="bottom|left"
+     height="23"
+     layout="topleft"
+     name="folder_combo"
+     top_pad="2"
+     width="290" />
+    <text
+     follows="left|top"
+     layout="topleft"
+     top_pad="6"
+     left="20"
+     name="new_folder_textbox"
+     height="20"
+     parse_urls="true"
+     skip_link_underline="true"
+     wrap="true">
+        [secondlife:/// Create new folder]
+    </text>
+    <text
+     follows="left|top"
+     height="15"
+     layout="topleft"
+     name="notes_label"
+     top_pad="10"
+     value="My notes"
+     width="290" />
+    <text_editor
+     bg_readonly_color="DkGray0"
+     follows="all"
+     height="75"
+     layout="topleft"
+     max_length="127"
+     name="notes_editor"
+     spellcheck="true"
+     text_readonly_color="white"
+     text_type="ascii_with_newline"
+     top_pad="5"
+     width="290"
+     wrap="true" />
+    <button
+     follows="bottom|left|right"
+     height="23"
+     label="OK"
+     layout="topleft"
+     mouse_opaque="false"
+     name="ok_btn"
+     top_pad="10"
+     left="19"
+     width="140" />
+    <button
+     follows="bottom|left|right"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="12"
+     mouse_opaque="false"
+     name="cancel_btn"
+     width="140" />
+</floater>
