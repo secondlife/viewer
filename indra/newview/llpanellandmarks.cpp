@@ -61,7 +61,6 @@
 
 // helper functions
 static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::string& string);
-static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list);
 static void collapse_all_folders(LLFolderView* root_folder);
 static void expand_all_folders(LLFolderView* root_folder);
 static bool has_expanded_folders(LLFolderView* root_folder);
@@ -1100,17 +1099,6 @@ static void filter_list(LLPlacesInventoryPanel* inventory_list, const std::strin
 
 	// Set new filter string
 	inventory_list->setFilterSubString(string);
-}
-
-static bool category_has_descendents(LLPlacesInventoryPanel* inventory_list)
-{
-	LLViewerInventoryCategory* category = gInventory.getCategory(inventory_list->getRootFolderID());
-	if (category)
-	{
-		return category->getDescendentCount() > 0;
-	}
-
-	return false;
 }
 
 static void collapse_all_folders(LLFolderView* root_folder)
