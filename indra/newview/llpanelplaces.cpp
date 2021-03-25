@@ -430,9 +430,14 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			{
 				mLandmarkInfo->setInfoType(LLPanelPlaceInfo::LANDMARK);
 
-				LLInventoryItem* item = gInventory.getItem(key["id"].asUUID());
+				LLUUID id = key["id"].asUUID();
+				LLInventoryItem* item = gInventory.getItem(id);
 				if (!item)
 					return;
+
+                BOOL is_editable = gInventory.isObjectDescendentOf(id, gInventory.getRootFolderID())
+                                   && item->getPermissions().allowModifyBy(gAgent.getID());
+                mLandmarkInfo->setCanEdit(is_editable);
 
 				setItem(item);
 			}

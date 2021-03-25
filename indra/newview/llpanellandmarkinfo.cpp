@@ -360,6 +360,11 @@ void LLPanelLandmarkInfo::toggleLandmarkEditMode(BOOL enabled)
 	setFocus(TRUE);
 }
 
+void LLPanelLandmarkInfo::setCanEdit(BOOL enabled)
+{
+    getChild<LLButton>("edit_btn")->setEnabled(enabled);
+}
+
 const std::string& LLPanelLandmarkInfo::getLandmarkTitle() const
 {
 	return mLandmarkTitleEditor->getText();
