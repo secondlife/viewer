@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
   legacy_header_height="18"
-  can_resize="true"
-  can_minimize="true" 
+  can_resize="false"
+  can_minimize="false"
+  can_close="false" 
   height="775"
   layout="topleft"
-  min_height="360"
-  left="10000"
-  top="10" 
+  top="0" 
   min_width="335"
   name="floater_how_to"
-  help_topic="how_to"
   single_instance="true"
   save_rect="true"
-  title="HOW TO"
+  title="WELCOME ISLAND GUIDEBOOK"
   width="780"
   filename="floater_web_content.xml"/>
