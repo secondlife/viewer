@@ -1647,6 +1647,10 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 			file.read(buffer, bytes);
 			if (headerReceived(mesh_params, buffer, bytes) == MESH_OK)
 			{
+				std::string mid;
+				mesh_params.getSculptID().toString(mid);
+				LL_INFOS(LOG_MESH) << "Mesh/Cache: Mesh header for ID " << mid << " - was retrieved from the cache." << LL_ENDL;
+
 				// Found mesh in cache
 				return true;
 			}
@@ -1658,8 +1662,13 @@ bool LLMeshRepoThread::fetchMeshHeader(const LLVolumeParams& mesh_params, bool c
 	std::string http_url;
 	constructUrl(mesh_params.getSculptID(), &http_url);
 	
+
 	if (!http_url.empty())
 	{
+		std::string mid;
+		mesh_params.getSculptID().toString(mid);
+		LL_INFOS(LOG_MESH) << "Mesh/Cache: Mesh header for ID " << mid << " - was retrieved from the simulator." << LL_ENDL;
+
 		//grab first 4KB if we're going to bother with a fetch.  Cache will prevent future fetches if a full mesh fits
 		//within the first 4KB
 		//NOTE -- this will break of headers ever exceed 4KB		
@@ -1740,6 +1749,11 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 					if (lodReceived(mesh_params, lod, buffer, size) == MESH_OK)
 					{
 						delete[] buffer;
+
+						std::string mid;
+						mesh_id.toString(mid);
+						LL_INFOS(LOG_MESH) << "Mesh/Cache: Mesh body for ID " << mid << " - was retrieved from the cache." << LL_ENDL;
+
 						return true;
 					}
 				}
@@ -1750,9 +1764,13 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 			//reading from cache failed for whatever reason, fetch from sim
 			std::string http_url;
 			constructUrl(mesh_id, &http_url);
-			
+
 			if (!http_url.empty())
 			{
+				std::string mid;
+				mesh_id.toString(mid);
+				LL_INFOS(LOG_MESH) << "Mesh/Cache: Mesh body for ID " << mid << " - was retrieved from the simulator." << LL_ENDL;
+
                 LLMeshHandlerBase::ptr_t handler(new LLMeshLODHandler(mesh_params, lod, offset, size));
 				LLCore::HttpHandle handle = getByteRange(http_url, offset, size, handler);
 				if (LLCORE_HTTP_HANDLE_INVALID == handle)
