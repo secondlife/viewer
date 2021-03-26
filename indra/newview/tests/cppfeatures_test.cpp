@@ -335,6 +335,49 @@ void cpp_features_test_object_t::test<10>()
 	static_assert(ce_factorial(6)==720, "bad factorial"); // OK
 }
 
+// type aliases
+//
+// https://en.cppreference.com/w/cpp/language/type_alias
+// 
+// You can use the "using" statement to create simpler templates that
+// are aliases for more complex ones. "Template typedef"
 
+// This makes stringmap<T> an alias for std::map<std::string, T>
+template<typename T>
+using stringmap = std::map<std::string, T>;
+
+template<> template<>
+void cpp_features_test_object_t::test<11>()
+{
+	stringmap<S32> name_counts{ {"alice", 3}, {"bob", 2} };
+	ensure("type alias", name_counts["bob"]==2);
+}
+
+
+// nullptr
+
+// enums
+
+// std::unique_ptr and make_unique
+
+// std::shared_ptr and make_shared
+
+// lambdas
+
+// perfect forwarding
+
+// variadic templates
+
+// std::thread
+
+// std::mutex
+
+// thread_local
+
+// rvalue reference &&
+
+// move semantics
+
+// std::move
 
 } // namespace tut
