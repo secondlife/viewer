@@ -59,7 +59,9 @@
 #include "boost/foreach.hpp"
 
 
-const S32 EVENTS_PER_IDLE_LOOP = 100;
+const S32 EVENTS_PER_IDLE_LOOP_CURRENT_SESSION = 80;
+const S32 EVENTS_PER_IDLE_LOOP_BACKGROUND = 40;
+const F32 EVENTS_PER_IDLE_LOOP_MIN_PERCENTAGE = 0.01f; // process a minimum of 1% of total events per frame
 
 //
 // LLFloaterIMContainer
@@ -416,8 +418,11 @@ void LLFloaterIMContainer::processParticipantsStyleUpdate()
 		while (current_participant_model != end_participant_model)
 		{
 			LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
-			// Get the avatar name for this participant id from the cache and update the model
-			participant_model->updateName();
+            if (participant_model)
+            {
+                // Get the avatar name for this participant id from the cache and update the model
+                participant_model->updateName();
+            }
 			// Next participant
 			current_participant_model++;
 		}
@@ -464,8 +469,11 @@ void LLFloaterIMContainer::idleUpdate()
                 while (current_participant_model != end_participant_model)
                 {
                     LLConversationItemParticipant* participant_model = dynamic_cast<LLConversationItemParticipant*>(*current_participant_model);
-                    participant_model->setModeratorOptionsVisible(is_moderator);
-                    participant_model->setGroupBanVisible(can_ban && participant_model->getUUID() != gAgentID);
+                    if (participant_model)
+                    {
+                        participant_model->setModeratorOptionsVisible(is_moderator);
+                        participant_model->setGroupBanVisible(can_ban && participant_model->getUUID() != gAgentID);
+                    }
 
                     current_participant_model++;
                 }
@@ -498,20 +506,49 @@ void LLFloaterIMContainer::idleUpdate()
 
 void LLFloaterIMContainer::idleProcessEvents()
 {
-	if (!mConversationEventQueue.empty())
-	{
-		S32 events_to_handle = llmin((S32)mConversationEventQueue.size(), EVENTS_PER_IDLE_LOOP);
-		for (S32 i = 0; i < events_to_handle; i++)
-		{
-			handleConversationModelEvent(mConversationEventQueue.back());
-			mConversationEventQueue.pop_back();
-		}
-	}
+    LLUUID current_session_id = getSelectedSession();
+    conversations_items_deque::iterator iter = mConversationEventQueue.begin();
+    conversations_items_deque::iterator end = mConversationEventQueue.end();
+    while (iter != end)
+    {
+        std::deque<LLSD> &events = iter->second;
+        if (!events.empty())
+        {
+            S32 events_to_handle;
+            S32 query_size = (S32)events.size();
+            if (current_session_id == iter->first)
+            {
+                events_to_handle = EVENTS_PER_IDLE_LOOP_CURRENT_SESSION;
+            }
+            else
+            {
+                events_to_handle = EVENTS_PER_IDLE_LOOP_BACKGROUND;
+            }
+
+            if (events_to_handle <= query_size)
+            {
+                // Some groups can be very large and can generate huge amount of updates, scale processing up to keep up
+                events_to_handle = llmax(events_to_handle, (S32)(query_size * EVENTS_PER_IDLE_LOOP_MIN_PERCENTAGE));
+            }
+            else
+            {
+                events_to_handle = query_size;
+            }
+
+            for (S32 i = 0; i < events_to_handle; i++)
+            {
+                handleConversationModelEvent(events.back());
+                events.pop_back();
+            }
+        }
+        iter++;
+    }
 }
 
 bool LLFloaterIMContainer::onConversationModelEvent(const LLSD& event)
 {
-	mConversationEventQueue.push_front(event);
+	LLUUID id = event.get("session_uuid").asUUID();
+	mConversationEventQueue[id].push_front(event);
 	return true;
 }
 
@@ -1822,6 +1859,8 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	// Suppress the conversation items and widgets from their respective maps
 	mConversationsItems.erase(uuid);
 	mConversationsWidgets.erase(uuid);
+	// Clear event query (otherwise reopening session in some way can bombard session with stale data)
+	mConversationEventQueue.erase(uuid);
 	
 	// Don't let the focus fall IW, select and refocus on the first conversation in the list
 	if (change_focus)

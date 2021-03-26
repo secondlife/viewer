@@ -355,7 +355,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
-		if (participant->hasSameValue(participant_id))
+		if (participant && participant->hasSameValue(participant_id))
 		{
 			break;
 		}
@@ -466,7 +466,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
 		F64 participant_time;
-		if (participant->getTime(participant_time))
+		if (participant && participant->getTime(participant_time))
 		{
 			has_time = true;
 			most_recent_time = llmax(most_recent_time,participant_time);
