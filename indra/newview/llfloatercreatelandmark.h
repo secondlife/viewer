@@ -66,7 +66,6 @@ private:
 	LLLineEditor*	mLandmarkTitleEditor;
 	LLTextEditor*	mNotesEditor;
 	LLUUID			mLandmarksID;
-	LLUUID			mItemID;
 
 	LLLandmarksInventoryObserver*	mInventoryObserver;
 	LLPointer<LLInventoryItem>		mItem;
