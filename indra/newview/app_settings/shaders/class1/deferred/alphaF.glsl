@@ -86,6 +86,14 @@ float getAmbientClamp();
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
+    // SL-14895 inverted attenuation work-around
+    // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
+    // that previous value now that the inversion is corrected, we reverse the calculations in LLPipeline::setupHWLights()
+    // to recover the `adjusted_radius` value previously being sent as la.
+    float falloff_factor = (12.0 * fa) - 9.0;
+    float inverted_la = falloff_factor / la;
+    // Yes, it makes me want to cry as well. DJH
+    
     vec3 col = vec3(0);
 
 	//get light vector
@@ -95,7 +103,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 	float dist = length(lv);
 	float da = 1.0;
 
-    /*if (dist > la)
+    /*if (dist > inverted_la)
     {
         return col;
     }
@@ -113,9 +121,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         return col;
     }*/
 
-	if (dist > 0.0 && la > 0.0)
+	if (dist > 0.0 && inverted_la > 0.0)
 	{
-        dist /= la;
+        dist /= inverted_la;
 
 		//normalize light vector
 		lv = normalize(lv);
