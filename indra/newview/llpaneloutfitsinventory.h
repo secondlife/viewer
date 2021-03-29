@@ -59,6 +59,8 @@ public:
 
 	static LLPanelOutfitsInventory* findInstance();
 
+	void openApearanceTab(const std::string& tab_name);
+
 protected:
 	void updateVerbs();
 

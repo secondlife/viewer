@@ -37,39 +37,47 @@
      layout="topleft" />
 
   <menu_item_call
-  label="Outfits..."
+  label="Now wearing..."
+  name="NowWearing">
+    <menu_item_call.on_click
+     function="NowWearing" />
+    <menu_item_call.on_enable
+     function="Edit.EnableCustomizeAvatar" />
+  </menu_item_call>
+  <menu_item_call
+  label="My Outfits..."
   name="Change Outfit">
     <menu_item_call.on_click
      function="CustomizeAvatar" />
     <menu_item_call.on_enable
      function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>
-  <menu_item_call label="Current outfit..."
-layout="topleft"
-name="Edit Outfit">
+  <menu_item_call label="Hover height..."
+     layout="topleft"
+     name="Hover Height">
     <menu_item_call.on_click
-     function="EditOutfit" />
+     function="HoverHeight" />
     <menu_item_call.on_enable
-     function="Edit.EnableCustomizeAvatar" />
+     function="Edit.EnableHoverHeight" />
   </menu_item_call>
   <menu_item_call label="Shape..."
     layout="topleft"
-    name="Edit My Shape">
+    name="Edit Shape">
     <menu_item_call.on_click
      function="EditShape" />
     <menu_item_call.on_enable
      function="Edit.EnableEditShape" />
   </menu_item_call>
-  <menu_item_call label="Hover height..."
-     layout="topleft"
-     name="Hover Height">
-     <menu_item_call.on_click
-      function="HoverHeight" />
-     <menu_item_call.on_enable
-      function="Edit.EnableHoverHeight" />
+  <menu_item_call label="Edit outfit parts..."
+    layout="topleft"
+    name="Edit Outfit">
+    <menu_item_call.on_click
+     function="EditOutfit" />
+    <menu_item_call.on_enable
+     function="Edit.EnableCustomizeAvatar" />
   </menu_item_call>
   <context_menu
-  label="Take Off"
+  label="Take off"
   layout="topleft"
   name="Take Off &gt;">
     <context_menu

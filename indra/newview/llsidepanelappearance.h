@@ -56,7 +56,8 @@ public:
 	void fetchInventory();
 	void inventoryFetched();
 
-	void showOutfitsInventoryPanel();
+    void showOutfitsInventoryPanel(); // last selected
+	void showOutfitsInventoryPanel(const std::string& tab_name);
 	void showOutfitEditPanel();
 	void showWearableEditPanel(LLViewerWearable *wearable = NULL, BOOL disable_camera_switch = FALSE);
 	void setWearablesLoading(bool val);
@@ -72,7 +73,7 @@ private:
 	void onOpenOutfitButtonClicked();
 	void onEditAppearanceButtonClicked();
 
-	void toggleMyOutfitsPanel(BOOL visible);
+	void toggleMyOutfitsPanel(BOOL visible, const std::string& tab_name);
 	void toggleOutfitEditPanel(BOOL visible, BOOL disable_camera_switch = FALSE);
 	void toggleWearableEditPanel(BOOL visible, LLViewerWearable* wearable = NULL, BOOL disable_camera_switch = FALSE);
 

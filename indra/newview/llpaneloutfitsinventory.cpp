@@ -249,6 +249,12 @@ LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 	return dynamic_cast<LLPanelOutfitsInventory*>(LLFloaterSidePanelContainer::getPanel("appearance", "panel_outfits_inventory"));
 }
 
+void LLPanelOutfitsInventory::openApearanceTab(const std::string& tab_name)
+{
+    if (!mAppearanceTabs) return;
+    mAppearanceTabs->selectTabByName(tab_name);
+}
+
 //////////////////////////////////////////////////////////////////////////////////
 // List Commands                                                                //
 
