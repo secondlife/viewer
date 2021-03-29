@@ -40,7 +40,6 @@
 #include "lloutfitgallery.h"
 #include "lloutfitslist.h"
 #include "llpanelwearing.h"
-#include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
 #include "llviewercontrol.h"
 #include "llviewerfoldertype.h"
@@ -48,6 +47,9 @@
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
 static const std::string OUTFIT_GALLERY_TAB_NAME = "outfit_gallery_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
+
+static const std::string SAVE_AS_BTN("save_as_btn");
+static const std::string SAVE_BTN("save_btn");
 
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
 
@@ -90,8 +92,9 @@ BOOL LLPanelOutfitsInventory::postBuild()
 	{
 		LLInventoryModelBackgroundFetch::instance().start(outfits_cat);
 	}
-	
-	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this, true));
+
+	getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, false));
+	getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::saveOutfit, this, true));
 
 	return TRUE;
 }
@@ -269,7 +272,7 @@ void LLPanelOutfitsInventory::updateListCommands()
 	mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
 	wear_btn->setEnabled(wear_enabled);
 	wear_btn->setVisible(wear_visible);
-	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
+	getChild<LLButton>(SAVE_BTN)->setEnabled(make_outfit_enabled);
 	wear_btn->setToolTip(getString((!isOutfitsGalleryPanelActive() && mMyOutfitsPanel->hasItemSelected()) ? "wear_items_tooltip" : "wear_outfit_tooltip"));
 }
 
@@ -367,4 +370,16 @@ LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 	LLSidepanelAppearance* panel_appearance =
 		dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	return panel_appearance;
+}
+
+void LLPanelOutfitsInventory::saveOutfit(bool as_new)
+{
+	if (!as_new && LLAppearanceMgr::getInstance()->updateBaseOutfit())
+	{
+		// we don't need to ask for an outfit name, and updateBaseOutfit() successfully saved.
+		// If updateBaseOutfit fails, ask for an outfit name anyways
+		return;
+	}
+
+	onSave();
 }
