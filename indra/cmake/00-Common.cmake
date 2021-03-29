@@ -72,10 +72,10 @@ if (WINDOWS)
   endif()
 
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /openmp /Zo"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
+      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /openmp /Zo"
       CACHE STRING "C++ compiler release options" FORCE)
   # zlib has assembly-language object files incompatible with SAFESEH
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
