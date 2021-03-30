@@ -31,8 +31,9 @@ import numpy as np
 import pandas as pd
 import json
 from collections import Counter, defaultdict
+from llbase import llsd
 
-def show_stats_by_key(recs,indices):
+def show_stats_by_key(recs,indices,settings_sd = None):
     cnt = Counter()
     per_key_cnt = defaultdict(Counter)
     for r in recs:
@@ -51,7 +52,7 @@ def show_stats_by_key(recs,indices):
             print "err", e
             print "d", d, "k", k, "v", v
             raise
-    mc = cnt.most_common(100)
+    mc = cnt.most_common()
     print "========================="
     keyprefix = ""
     if len(indices)>0:
@@ -59,10 +60,30 @@ def show_stats_by_key(recs,indices):
     for i,m in enumerate(mc):
         k = m[0]
         bigc = m[1]
+        unset_cnt = len(recs) - bigc
         kmc = per_key_cnt[k].most_common(5)
         print i, keyprefix+str(k), bigc
+        if settings_sd is not None and k in settings_sd and "Value" in settings_sd[k]:
+            print "    ", "default",settings_sd[k]["Value"],"count",unset_cnt
         for v in kmc:
             print "    ", "value",v[0],"count",v[1]
+    if settings_sd is not None:
+        print "Total keys in settings", len(settings_sd.keys())
+        unused_keys = list(set(settings_sd.keys()) - set(cnt.keys()))
+        print "\nUnused_keys", len(unused_keys)
+        print   "======================"
+        print "\n".join(sorted(unused_keys))
+        unrec_keys = list(set(cnt.keys()) - set(settings_sd.keys()))
+        print "\nUnrecognized keys", len(unrec_keys)
+        print   "======================"
+        print "\n".join(sorted(unrec_keys))
+
+def parse_settings_xml():
+    # assume we're in scripts/metrics
+    fname = "../../indra/newview/app_settings/settings.xml"
+    with open(fname,"r") as f:
+        contents = f.read()
+        return llsd.parse_xml(contents)
 
 if __name__ == "__main__":
 
@@ -85,7 +106,10 @@ if __name__ == "__main__":
         show_stats_by_key(recs,[])
         show_stats_by_key(recs,["agent"])
         if args.preferences:
-            show_stats_by_key(recs,["preferences","settings"])
+            settings_sd = parse_settings_xml()
+            #for skey,svals in settings_sd.items(): 
+            #    print skey, "=>", svals
+            show_stats_by_key(recs,["preferences","settings"],settings_sd)
             
 
         
