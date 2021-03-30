@@ -9580,6 +9580,12 @@ You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_
 If you continue to have problems, please visit the [SUPPORT_SITE].
   </global>
 
+  <global name="UnsupportedIntelDriver">
+The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
+
+Do you want to check the Intel driver website?
+  </global>
+
   <global name="UnsupportedCPUAmount">
 796
   </global>
