@@ -1281,6 +1281,10 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 
         LLNotificationsUtil::add("RenameLandmark", args, payload, boost::bind(onRenameCommit, _1, _2));
     }
+	else if (action == "move_to_landmarks")
+	{
+		change_item_parent(mSelectedItemID, gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
+	}
 
 	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
 	// See EXT-4217 and STORM-207.

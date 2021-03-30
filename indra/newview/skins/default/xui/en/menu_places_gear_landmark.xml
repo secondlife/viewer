@@ -40,6 +40,28 @@
          parameter="more_info" />
     </menu_item_call>
     <menu_item_call
+       label="Move to Landmarks"
+       layout="topleft"
+       name="Move to Landmarks">
+      <menu_item_call.on_click
+       function="Places.LandmarksGear.Custom.Action"
+       parameter="move_to_landmarks" />
+      <menu_item_call.on_visible
+       function="Places.LandmarksGear.Enable"
+       parameter="move_to_landmarks" />
+    </menu_item_call>
+    <menu_item_call
+       label="Move to Favorites"
+       layout="topleft"
+       name="Move to Favorites">
+      <menu_item_call.on_click
+       function="Places.LandmarksGear.Custom.Action"
+       parameter="move_to_favorites" />
+      <menu_item_call.on_visible
+       function="Places.LandmarksGear.Enable"
+       parameter="move_to_favorites" />
+    </menu_item_call>
+    <menu_item_call
      label="Show on Map"
      layout="topleft"
      name="show_on_map">

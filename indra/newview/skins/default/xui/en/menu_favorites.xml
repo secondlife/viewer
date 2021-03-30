@@ -21,6 +21,14 @@
          parameter="about" />
     </menu_item_call>
     <menu_item_call
+     label="Move to Landmarks"
+     layout="topleft"
+     name="Move to Landmarks">
+        <menu_item_call.on_click
+         function="Favorites.DoToSelected"
+         parameter="move_to_landmarks" />
+    </menu_item_call>
+    <menu_item_call
      label="Show on Map"
      layout="topleft"
      name="Show On Map">

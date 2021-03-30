@@ -1847,6 +1847,26 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     return result && !has_bad_items;
 }
 
+void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id)
+{
+	LLInventoryItem* inv_item = gInventory.getItem(item_id);
+	if (inv_item)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(inv_item->getParentUUID(), -1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(FALSE);
+		gInventory.updateItem(new_item);
+		gInventory.notifyObservers();
+	}
+}
+
 ///----------------------------------------------------------------------------
 /// LLInventoryCollectFunctor implementations
 ///----------------------------------------------------------------------------

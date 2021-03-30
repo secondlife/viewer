@@ -615,6 +615,8 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 		? mCurrentSelectedList->getRootFolder() 
 		: NULL;
 
+	bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
+
 	if ("collapse_all" == command_name)
 	{
 		return has_expanded_folders(mCurrentSelectedList->getRootFolder());
@@ -669,7 +671,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 			)
 	{
 		// disable some commands for multi-selection. EXT-1757
-		bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
 		if (!is_single_selection)
 		{
 			return false;
@@ -718,7 +719,6 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
 	}
     else if ("add_landmark" == command_name)
     {
-        bool is_single_selection = root_folder_view && root_folder_view->getSelectedCount() == 1;
         if (!is_single_selection)
         {
             return false;
@@ -759,6 +759,36 @@ bool LLLandmarksPanel::isActionEnabled(const LLSD& userdata) const
         }
         return true;
     }
+	else if (command_name == "move_to_landmarks" || command_name == "move_to_favorites")
+	{
+		LLFolderViewModelItemInventory* cur_item_model = getCurSelectedViewModelItem();
+		if (cur_item_model)
+		{
+			LLFolderType::EType folder_type = command_name == "move_to_landmarks" ? LLFolderType::FT_FAVORITE : LLFolderType::FT_LANDMARK;
+			if (!gInventory.isObjectDescendentOf(cur_item_model->getUUID(), gInventory.findCategoryUUIDForType(folder_type)))
+			{
+				return false;
+			}
+
+			if (root_folder_view)
+			{
+				std::set<LLFolderViewItem*> selected_uuids = root_folder_view->getSelectionList();
+				for (std::set<LLFolderViewItem*>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+				{
+					LLFolderViewItem* item = *iter;
+					if (!item) return false;
+
+					cur_item_model = static_cast<LLFolderViewModelItemInventory*>(item->getViewModelItem());
+					if (!cur_item_model || cur_item_model->getInventoryType() != LLInventoryType::IT_LANDMARK)
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
 	else
 	{
 		LL_WARNS() << "Unprocessed command has come: " << command_name << LL_ENDL;
@@ -797,6 +827,28 @@ void LLLandmarksPanel::onCustomAction(const LLSD& userdata)
 	else if ("restore" == command_name && mCurrentSelectedList)
 	{
 		mCurrentSelectedList->doToSelected(userdata);
+	}
+	else if (command_name == "move_to_landmarks" || command_name == "move_to_favorites")
+	{
+		LLFolderView* root_folder_view = mCurrentSelectedList ? mCurrentSelectedList->getRootFolder() : NULL;
+		if (root_folder_view)
+		{
+			LLFolderType::EType folder_type = command_name == "move_to_landmarks" ? LLFolderType::FT_LANDMARK : LLFolderType::FT_FAVORITE;
+			std::set<LLFolderViewItem*> selected_uuids = root_folder_view->getSelectionList();
+			for (std::set<LLFolderViewItem*>::const_iterator iter = selected_uuids.begin(); iter != selected_uuids.end(); ++iter)
+			{
+				LLFolderViewItem* item = *iter;
+				if (item)
+				{
+					LLFolderViewModelItemInventory* item_model = static_cast<LLFolderViewModelItemInventory*>(item->getViewModelItem());
+					if (item_model)
+					{
+						change_item_parent(item_model->getUUID(), gInventory.findCategoryUUIDForType(folder_type));
+					}
+				}
+			}
+		}
+
 	}
 }
 
