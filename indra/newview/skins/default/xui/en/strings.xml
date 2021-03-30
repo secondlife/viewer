@@ -4126,7 +4126,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
-  <string name="Command_HowTo_Label">How to</string>
+  <string name="Command_HowTo_Label">Guidebook</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
