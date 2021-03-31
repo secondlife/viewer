@@ -916,6 +916,10 @@ public:
 	void update(const LLNotificationPtr pNotif);
 
 	LLNotificationPtr find(LLUUID uuid);
+	
+	typedef boost::function<void (LLNotificationPtr)> NotificationProcess;
+	
+	void forEachNotification(NotificationProcess process);
 
 	// This is all stuff for managing the templates
 	// take your template out

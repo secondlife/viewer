@@ -1784,6 +1784,11 @@ LLNotificationPtr LLNotifications::find(LLUUID uuid)
 	}
 }
 
+void LLNotifications::forEachNotification(NotificationProcess process)
+{
+	std::for_each(mItems.begin(), mItems.end(), process);
+}
+
 std::string LLNotifications::getGlobalString(const std::string& key) const
 {
 	GlobalStringMap::const_iterator it = mGlobalStrings.find(key);
