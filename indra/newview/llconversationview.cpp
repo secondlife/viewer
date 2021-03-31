@@ -108,8 +108,7 @@ void LLConversationViewSession::destroyView()
     // Chat can create and parent models(listeners) to session's model before creating
     // coresponding views, such participant's models normally will wait for idle cycles
     // but since we are deleting session and won't be processing any more events, make
-    // sure unowned models are removed as well.
-    // Might be good idea to just have an LLPointer list somewhere in LLConversationItemSession
+    // sure unowned LLConversationItemParticipant models are removed as well.
 
     LLConversationItemSession* vmi = dynamic_cast<LLConversationItemSession*>(getViewModelItem());
 
@@ -146,9 +145,9 @@ void LLConversationViewSession::destroyView()
             folderp->destroyView();
         }
 
-        // Now everything that is left in model(listener) is unowned,
-        // it is safe to remove
-        vmi->deleteParticipantModels();
+        // Now everything that is left in model(listener) is not owned by views,
+        // only by sessions, deparent so it won't point to soon to be dead model
+        vmi->clearAndDeparentModels();
     }
 
     LLFolderViewFolder::destroyView();
