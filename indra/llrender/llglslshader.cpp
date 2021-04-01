@@ -396,10 +396,18 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     mLightHash = 0xFFFFFFFF;
 
     llassert_always(!mShaderFiles.empty());
-    BOOL success = TRUE;
 
     // Create program
     mProgramObject = glCreateProgramObjectARB();
+    if (mProgramObject == 0)
+    {
+        // Shouldn't happen if shader related extensions, like ARB_vertex_shader, exist.
+        LL_SHADER_LOADING_WARNS() << "Failed to create handle for shader: " << mName << LL_ENDL;
+        unloadInternal();
+        return FALSE;
+    }
+
+    BOOL success = TRUE;
     
 #if LL_DARWIN
     // work-around missing mix(vec3,vec3,bvec3)
