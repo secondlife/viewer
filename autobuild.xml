@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cc26af2ebfa241891caca829a6e46b88</string>
+              <string>856ba0e5b7be4bf683cf2849bce845e0</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/65005/607316/dullahan-1.7.0.202008031101_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-546064.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/72458/699860/dullahan-1.7.0.202011160759_81.3.10_gb223419_chromium-81.0.4044.138-darwin64-552313.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>

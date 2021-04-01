@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="move_actions"
+     value="">
+        <columns
+         type="icontext"
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         label="Move Actions"
+         name="lst_action"
+         value="Move_Walk_Off" />
+    </rows>
+    <rows
+     name="walk_to"
+     value="walk_to">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Walk to location mouse cursor points to"
+         value="Walk to" />
+    </rows>
+    <rows
+     name="teleport_to"
+     value="teleport_to">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Teleport to location mouse cursor points to, but not all locations allow direct teleportation so you might be teleported closer to destination instead"
+         value="Teleport to" />
+    </rows>
+    <rows
+     name="push_forward"
+     value="push_forward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Move Forward" />
+    </rows>
+    <rows
+     name="push_backward"
+     value="push_backward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Move Backward" />
+    </rows>
+    <rows
+     name="turn_left"
+     value="turn_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Left" />
+    </rows>
+    <rows
+     name="turn_right"
+     value="turn_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Right" />
+    </rows>
+    <rows
+     name="slide_left"
+     value="slide_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Strafe left" />
+    </rows>
+    <rows
+     name="slide_right"
+     value="slide_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Strafe right" />
+    </rows>
+    <rows
+     name="jump"
+     value="jump">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Jump/Up" />
+    </rows>
+    <rows
+     name="push_down"
+     value="push_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Down" />
+    </rows>
+    <rows
+     name="run_forward"
+     value="run_forward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Run Forward" />
+    </rows>
+    <rows
+     name="run_backward"
+     value="run_backward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Run Backward" />
+    </rows>
+    <rows
+     name="run_left"
+     value="run_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Run Left" />
+    </rows>
+    <rows
+     name="run_right"
+     value="run_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Run Right" />
+    </rows>
+    <rows
+     name="toggle_run"
+     value="toggle_run">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Toggle Run" />
+    </rows>
+    <rows
+     name="toggle_fly"
+     value="toggle_fly">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Fly/Stop flying" />
+    </rows>
+    <rows
+     name="toggle_sit"
+     value="toggle_sit">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Sit/Stand" />
+    </rows>
+    <rows
+     name="stop_moving"
+     value="stop_moving">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Stop Moving" />
+    </rows>
+</contents>
