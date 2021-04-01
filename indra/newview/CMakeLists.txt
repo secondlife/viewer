@@ -377,6 +377,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    llkeyconflict.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
@@ -558,6 +559,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llsetkeybinddialog.cpp
     llsettingspicker.cpp
     llsettingsvo.cpp
     llshareavatarhandler.cpp
@@ -663,7 +665,7 @@ set(viewer_SOURCE_FILES
     llviewerjointattachment.cpp
     llviewerjointmesh.cpp
     llviewerjoystick.cpp
-    llviewerkeyboard.cpp
+    llviewerinput.cpp
     llviewerlayer.cpp
     llviewermedia.cpp
     llviewermedia_streamingaudio.cpp
@@ -1011,6 +1013,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    llkeyconflict.h
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
@@ -1182,6 +1185,7 @@ set(viewer_HEADER_FILES
     llsecapi.h
     llsechandler_basic.h
     llselectmgr.h
+    llsetkeybinddialog.h
     llsettingspicker.h
     llsettingsvo.h
     llsidepanelappearance.h
@@ -1289,7 +1293,7 @@ set(viewer_HEADER_FILES
     llviewerjointattachment.h
     llviewerjointmesh.h
     llviewerjoystick.h
-    llviewerkeyboard.h
+    llviewerinput.h
     llviewerlayer.h
     llviewermedia.h
     llviewermediafocus.h
@@ -1666,7 +1670,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
-    app_settings/keys.xml
+    app_settings/key_bindings.xml
     app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml

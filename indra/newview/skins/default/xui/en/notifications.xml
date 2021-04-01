@@ -11467,6 +11467,19 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      notext="Cancel"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="PreferenceControlsDefaults"
+   type="alertmodal">
+    Do you want to restore default values for controls?
+    <tag>confirm</tag>
+    <usetemplate
+       canceltext="Cancel"
+       name="yesnocancelbuttons"
+       notext="Current mode"
+       yestext="All modes"/>
+  </notification>
     
   <notification
    icon="alertmodal.tga"
