@@ -50,6 +50,10 @@ LLScrollListCell* LLScrollListCell::create(const LLScrollListCell::Params& cell_
 	{
 		cell = new LLScrollListDate(cell_p);
 	}
+	else if (cell_p.type() == "icontext")
+	{
+		cell = new LLScrollListIconText(cell_p);
+	}
 	else	// default is "text"
 	{
 		cell = new LLScrollListText(cell_p);
@@ -168,7 +172,7 @@ U32 LLScrollListText::sCount = 0;
 
 LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
 :	LLScrollListCell(p),
-	mText(p.value().asString()),
+	mText(p.label.isProvided() ? p.label() : p.value().asString()),
 	mFont(p.font),
 	mColor(p.color),
 	mUseColor(p.color.isProvided()),
@@ -192,7 +196,7 @@ LLScrollListText::LLScrollListText(const LLScrollListCell::Params& p)
 void LLScrollListText::highlightText(S32 offset, S32 num_chars)
 {
 	mHighlightOffset = offset;
-	mHighlightCount = num_chars;
+	mHighlightCount = llmax(0, num_chars);
 }
 
 //virtual 
@@ -292,11 +296,12 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 
 	if (mHighlightCount > 0)
 	{
+		// Highlight text
 		S32 left = 0;
 		switch(mFontAlignment)
 		{
 		case LLFontGL::LEFT:
-			left = mFont->getWidth(mText.getString(), 0, mHighlightOffset);
+			left = mFont->getWidth(mText.getString(), 1, mHighlightOffset);
 			break;
 		case LLFontGL::RIGHT:
 			left = getWidth() - mFont->getWidth(mText.getString(), mHighlightOffset, S32_MAX);
@@ -319,7 +324,7 @@ void LLScrollListText::draw(const LLColor4& color, const LLColor4& highlight_col
 	switch(mFontAlignment)
 	{
 	case LLFontGL::LEFT:
-		start_x = 0.f;
+		start_x = 1.f;
 		break;
 	case LLFontGL::RIGHT:
 		start_x = (F32)getWidth();
@@ -435,3 +440,139 @@ const LLSD LLScrollListDate::getValue() const
 {
 	return mDate;
 }
+
+//
+// LLScrollListIconText
+//
+LLScrollListIconText::LLScrollListIconText(const LLScrollListCell::Params& p)
+    : LLScrollListText(p),
+    mIcon(p.value().isUUID() ? LLUI::getUIImageByID(p.value().asUUID()) : LLUI::getUIImage(p.value().asString())),
+    mPad(4)
+{
+    mTextWidth = getWidth() - mPad /*padding*/ - mFont->getLineHeight();
+}
+
+LLScrollListIconText::~LLScrollListIconText()
+{
+}
+
+const LLSD LLScrollListIconText::getValue() const
+{
+    if (mIcon.isNull())
+    {
+        return LLStringUtil::null;
+    }
+    return mIcon->getName();
+}
+
+void LLScrollListIconText::setValue(const LLSD& value)
+{
+    if (value.isUUID())
+    {
+        // don't use default image specified by LLUUID::null, use no image in that case
+        LLUUID image_id = value.asUUID();
+        mIcon = image_id.notNull() ? LLUI::getUIImageByID(image_id) : LLUIImagePtr(NULL);
+    }
+    else
+    {
+        std::string value_string = value.asString();
+        if (LLUUID::validate(value_string))
+        {
+            setValue(LLUUID(value_string));
+        }
+        else if (!value_string.empty())
+        {
+            mIcon = LLUI::getUIImage(value.asString());
+        }
+        else
+        {
+            mIcon = NULL;
+        }
+    }
+}
+
+void LLScrollListIconText::setWidth(S32 width)
+{
+    LLScrollListCell::setWidth(width);
+    // Assume that iamge height and width is identical to font height and width
+    mTextWidth = width - mPad /*padding*/ - mFont->getLineHeight();
+}
+
+
+void LLScrollListIconText::draw(const LLColor4& color, const LLColor4& highlight_color)	 const
+{
+    LLColor4 display_color;
+    if (mUseColor)
+    {
+        display_color = mColor;
+    }
+    else
+    {
+        display_color = color;
+    }
+
+    S32 icon_height = mFont->getLineHeight();
+    S32 icon_space = mIcon ? (icon_height + mPad) : 0;
+
+    if (mHighlightCount > 0)
+    {
+        S32 left = 0;
+        switch (mFontAlignment)
+        {
+        case LLFontGL::LEFT:
+            left = mFont->getWidth(mText.getString(), icon_space + 1, mHighlightOffset);
+            break;
+        case LLFontGL::RIGHT:
+            left = getWidth() - mFont->getWidth(mText.getString(), mHighlightOffset, S32_MAX) - icon_space;
+            break;
+        case LLFontGL::HCENTER:
+            left = (getWidth() - mFont->getWidth(mText.getString()) - icon_space) / 2;
+            break;
+        }
+        LLRect highlight_rect(left - 2,
+            mFont->getLineHeight() + 1,
+            left + mFont->getWidth(mText.getString(), mHighlightOffset, mHighlightCount) + 1,
+            1);
+        mRoundedRectImage->draw(highlight_rect, highlight_color);
+    }
+
+    // Try to draw the entire string
+    F32 right_x;
+    U32 string_chars = mText.length();
+    F32 start_text_x = 0.f;
+    S32 start_icon_x = 0;
+    switch (mFontAlignment)
+    {
+    case LLFontGL::LEFT:
+        start_text_x = icon_space + 1;
+        start_icon_x = 1;
+        break;
+    case LLFontGL::RIGHT:
+        start_text_x = (F32)getWidth();
+        start_icon_x = getWidth() - mFont->getWidth(mText.getString()) - icon_space;
+        break;
+    case LLFontGL::HCENTER:
+        F32 center = (F32)getWidth()* 0.5f;
+        start_text_x = center + ((F32)icon_space * 0.5f);
+        start_icon_x = center - (((F32)icon_space + mFont->getWidth(mText.getString())) * 0.5f);
+        break;
+    }
+    mFont->render(mText.getWString(), 0,
+        start_text_x, 0.f,
+        display_color,
+        mFontAlignment,
+        LLFontGL::BOTTOM,
+        0,
+        LLFontGL::NO_SHADOW,
+        string_chars,
+        getTextWidth(),
+        &right_x,
+        TRUE);
+
+    if (mIcon)
+    {
+        mIcon->draw(start_icon_x, 0, icon_height, icon_height, mColor);
+    }
+}
+
+

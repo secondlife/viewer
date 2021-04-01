@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="camera_actions"
+     value="">
+        <columns
+         type="icontext"
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         label="Camera"
+         name="lst_action"
+         value="Cam_FreeCam_Off" />
+    </rows>
+    <rows
+     name="look_up"
+     value="look_up">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Look Up" />
+    </rows>
+    <rows
+     name="look_down"
+     value="look_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Look Down" />
+    </rows>
+    <rows
+     name="move_forward"
+     value="move_forward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Forward" />
+    </rows>
+    <rows
+     name="move_backward"
+     value="move_backward">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Backward" />
+    </rows>
+    <rows
+     name="move_forward_fast"
+     value="move_forward_fast">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Forward Fast" />
+    </rows>
+    <rows
+     name="move_backward_fast"
+     value="move_backward_fast">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Backward Fast" />
+    </rows>
+    <rows
+     name="spin_over"
+     value="spin_over">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Spin Over" />
+    </rows>
+    <rows
+     name="spin_under"
+     value="spin_under">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Spin Under" />
+    </rows>
+    <rows
+     name="pan_up"
+     value="pan_up">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan Up" />
+    </rows>
+    <rows
+     name="pan_down"
+     value="pan_down">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan Down" />
+    </rows>
+    <rows
+     name="pan_left"
+     value="pan_left">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan Left" />
+    </rows>
+    <rows
+     name="pan_right"
+     value="pan_right">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan Right" />
+    </rows>
+    <rows
+     name="pan_in"
+     value="pan_in">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan In" />
+    </rows>
+    <rows
+     name="pan_out"
+     value="pan_out">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Pan Out" />
+    </rows>
+    <rows
+     name="spin_around_ccw"
+     value="spin_around_ccw">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Camera spin around counterclockwise"
+         value="Counterclockwise" />
+    </rows>
+    <rows
+     name="spin_around_cw"
+     value="spin_around_cw">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Camera spin around clockwise"
+         value="Clockwise" />
+    </rows>
+    <rows
+     name="move_forward_sitting"
+     value="move_forward_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Forward Sitting" />
+    </rows>
+    <rows
+     name="move_backward_sitting"
+     value="move_backward_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Backward Sitting" />
+    </rows>
+    <rows
+     name="spin_over_sitting"
+     value="spin_over_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Spin Over Sitting" />
+    </rows>
+    <rows
+     name="spin_under_sitting"
+     value="spin_under_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Camera Spin Under Sitting" />
+    </rows>
+    <rows
+     name="spin_around_ccw_sitting"
+     value="spin_around_ccw_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Camera spin around counterclockwise sitting"
+         value="Counterclockwise Sitting" />
+    </rows>
+    <rows
+     name="spin_around_cw_sitting"
+     value="spin_around_cw_sitting">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         tool_tip="Camera spin around clockwise sitting"
+         value="Clockwise Sitting" />
+    </rows>
+</contents>
