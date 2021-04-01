@@ -54,6 +54,18 @@ class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler,
 	public LLCtrlListInterface, public LLCtrlScrollInterface
 {
 public:
+    typedef enum e_selection_type
+    {
+        ROW, // default
+        CELL, // does not support multi-selection
+        HEADER, // when pointing to cells in column 0 will highlight whole row, otherwise cell, no multi-select
+    } ESelectionType;
+
+    struct SelectionTypeNames : public LLInitParam::TypeValuesHelper<LLScrollListCtrl::ESelectionType, SelectionTypeNames>
+    {
+        static void declareValues();
+    };
+
 	struct Contents : public LLInitParam::Block<Contents>
 	{
 		Multiple<LLScrollListColumn::Params>	columns;
@@ -100,6 +112,8 @@ public:
 						commit_on_selection_change,
 						mouse_wheel_opaque;
 
+		Optional<ESelectionType, SelectionTypeNames> selection_type;
+
 		// display flags
 		Optional<bool>	has_border,
 						draw_heading,
@@ -116,7 +130,8 @@ public:
 		// sort and search behavior
 		Optional<S32>	search_column,
 						sort_column;
-		Optional<bool>	sort_ascending;
+		Optional<bool>	sort_ascending,
+						can_sort; // whether user is allowed to sort
 
 		// colors
 		Optional<LLUIColor>	fg_unselected_color,
@@ -433,7 +448,7 @@ private:
 	void            updateLineHeightInsert(LLScrollListItem* item);
 	void			reportInvalidInput();
 	BOOL			isRepeatedChars(const LLWString& string) const;
-	void			selectItem(LLScrollListItem* itemp, BOOL single_select = TRUE);
+	void			selectItem(LLScrollListItem* itemp, S32 cell, BOOL single_select = TRUE);
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
@@ -458,9 +473,11 @@ private:
 	bool			mCommitOnKeyboardMovement;
 	bool			mCommitOnSelectionChange;
 	bool			mSelectionChanged;
+	ESelectionType	mSelectionType;
 	bool			mNeedsScroll;
 	bool			mMouseWheelOpaque;
 	bool			mCanSelect;
+    bool			mCanSort;		// Whether user is allowed to sort
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;

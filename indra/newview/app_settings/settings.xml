@@ -3542,7 +3542,7 @@
     <key>DoubleClickAutoPilot</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click auto pilot</string>
+      <string>(Obsolete)Enable double-click auto pilot</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3550,10 +3550,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DoubleClickTeleport</key>
+    <key>DoubleClickTeleport</key> 
     <map>
       <key>Comment</key>
-      <string>Enable double-click to teleport where allowed</string>
+      <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8282,7 +8282,7 @@
     <key>PushToTalkButton</key>
     <map>
       <key>Comment</key>
-      <string>Which button or keyboard key is used for push-to-talk</string>
+      <string>(Obsolete)Which button or keyboard key is used for push-to-talk</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -15554,7 +15554,7 @@
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
-      <string>Click in world to walk to location</string>
+      <string>(obsolete)Click in world to walk to location</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

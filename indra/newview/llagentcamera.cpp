@@ -2702,10 +2702,19 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate, BOOL re
 			LLVector3 at_axis;
 			if (!isAgentAvatarValid() || !gAgentAvatarp->getParent())
 			{
-				at_axis = LLViewerCamera::getInstance()->getAtAxis();
-				at_axis.mV[VZ] = 0.f;
-				at_axis.normalize();
-				gAgent.resetAxes(at_axis);
+                // In case of front view rotate agent to look into direction opposite to camera
+                // In case of rear view rotate agent into diraction same as camera, e t c
+                LLVector3 vect = getCameraOffsetInitial();
+                F32 rotxy = F32(atan2(vect.mV[VY], vect.mV[VX]));
+
+                LLCoordFrame frameCamera = *((LLCoordFrame*)LLViewerCamera::getInstance());
+                // front view angle rotxy is zero, rear view rotxy angle is 180, compensate
+                frameCamera.yaw((180 * DEG_TO_RAD) - rotxy);
+                at_axis = frameCamera.getAtAxis();
+                at_axis.mV[VZ] = 0.f;
+                at_axis.normalize();
+                gAgent.resetAxes(at_axis);
+                gAgent.yaw(0);
 			}
 		}
 	}
