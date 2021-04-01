@@ -56,10 +56,10 @@
       </menu_item_call>
       <menu_item_call
        label="Places..."
-       name="Places">
+       name="Places"
+       shortcut="control|L">
         <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="places" />
+         function="Tools.Link"/>
       </menu_item_call>
       <menu_item_call
        label="Picks..."
@@ -84,10 +84,23 @@
       <menu_item_separator/>
       <menu_item_call
        label="Camera Controls..."
-       name="Camera Controls">
+       name="Camera Controls"
+       shortcut="control|K">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
+      </menu_item_call>
+      <menu_item_call
+       label="Hover Height"
+       name="HoverHeight"
+       shortcut="alt|control|H"
+       use_mac_ctrl="true"
+       visible="false">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="edit_hover_height"/>
+        <menu_item_call.on_enable
+         function="Edit.EnableHoverHeight"/>
       </menu_item_call>
       <menu
        create_jump_keys="true"
@@ -149,7 +162,9 @@
         </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
-         name="Stop Animating My Avatar">
+         name="Stop Animating My Avatar"
+         allow_key_repeat="true"
+         shortcut="alt|shift|A">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
@@ -457,7 +472,8 @@
         </menu_item_check>
         <menu_item_call
              label="Events"
-             name="Events">
+             name="Events"
+             shortcut="control|E">
             <menu_item_call.on_click
              function="Advanced.ShowURL"
              parameter="https://secondlife.com/my/community/events"/>
@@ -605,8 +621,7 @@
           <menu_item_separator />
           <menu_item_check
              label="Advanced Menu"
-             name="Show Advanced Menu"
-             shortcut="control|alt|shift|D">
+             name="Show Advanced Menu">
             <on_check
                function="CheckControl"
                parameter="UseDebugMenus" />
@@ -646,7 +661,8 @@
          tear_off="true">
             <menu_item_check
              label="Sunrise"
-             name="Sunrise">
+             name="Sunrise"
+             shortcut="control|shift|O">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunrise" />
@@ -678,7 +694,8 @@
             </menu_item_check>
             <menu_item_check
              label="Midnight"
-             name="Midnight">
+             name="Midnight"
+             shortcut="control|shift|Z">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
@@ -1316,7 +1333,8 @@ function="World.EnvPreset"
             <menu_item_call
            label="Model..."
            layout="topleft"
-           name="Upload Model">
+           name="Upload Model"
+           shortcut="alt|control|U">
             <menu_item_call.on_click
              function="File.UploadModel"
              parameter="" />
@@ -1981,20 +1999,6 @@ function="World.EnvPreset"
          name="Shortcuts"
          tear_off="true"
          visible="false">
-            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
-            <menu_item_check
-               label="Show Advanced Menu - legacy shortcut"
-               name="Show Advanced Menu - legacy shortcut"
-               shortcut="control|alt|D">
-              <on_check
-                 function="CheckControl"
-                 parameter="UseDebugMenus" />
-              <on_click
-                 function="ToggleControl"
-                 parameter="UseDebugMenus" />
-            </menu_item_check>
-
-            <menu_item_separator/>
 
             <menu_item_call
              label="Close Window"
@@ -3620,7 +3624,7 @@ function="World.EnvPreset"
             <menu_item_call
              label="Debug Avatar Textures"
              name="Debug Avatar Textures"
-             shortcut="control|alt|shift|A">
+             shortcut="control|alt|shift|K">
                 <menu_item_call.on_click
                  function="Advanced.DebugAvatarTextures" />
             </menu_item_call>
