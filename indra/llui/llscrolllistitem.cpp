@@ -40,6 +40,8 @@
 LLScrollListItem::LLScrollListItem( const Params& p )
 :	mSelected(FALSE),
 	mHighlighted(FALSE),
+	mHoverIndex(-1),
+	mSelectedIndex(-1),
 	mEnabled(p.enabled),
 	mUserdata(p.userdata),
 	mItemValue(p.value)
@@ -51,6 +53,28 @@ LLScrollListItem::~LLScrollListItem()
 {
 	std::for_each(mColumns.begin(), mColumns.end(), DeletePointer());
 	mColumns.clear();
+}
+
+void LLScrollListItem::setSelected(BOOL b)
+{
+    mSelected = b;
+    mSelectedIndex = -1;
+}
+
+void LLScrollListItem::setHighlighted(BOOL b)
+{
+    mHighlighted = b;
+    mHoverIndex = -1;
+}
+
+void LLScrollListItem::setHoverCell(S32 cell)
+{
+    mHoverIndex = cell;
+}
+
+void LLScrollListItem::setSelectedCell(S32 cell)
+{
+    mSelectedIndex = cell;
 }
 
 void LLScrollListItem::addColumn(const LLScrollListCell::Params& p)
@@ -120,12 +144,21 @@ std::string LLScrollListItem::getContentsCSV() const
 }
 
 
-void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& bg_color, const LLColor4& highlight_color, S32 column_padding)
+void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const LLColor4& hover_color, const LLColor4& select_color, const LLColor4& highlight_color, S32 column_padding)
 {
 	// draw background rect
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLRect bg_rect = rect;
-	gl_rect_2d( bg_rect, bg_color );
+    if (mSelectedIndex < 0 && getSelected())
+    {
+        // Whole item is highlighted/selected
+        gl_rect_2d(bg_rect, select_color);
+    }
+    else if (mHoverIndex < 0)
+    {
+        // Whole item is highlighted/selected
+        gl_rect_2d(bg_rect, hover_color);
+    }
 
 	S32 cur_x = rect.mLeft;
 	S32 num_cols = getNumColumns();
@@ -140,6 +173,25 @@ void LLScrollListItem::draw(const LLRect& rect, const LLColor4& fg_color, const 
 		LLUI::pushMatrix();
 		{
 			LLUI::translate((F32) cur_x, (F32) rect.mBottom);
+
+            if (mSelectedIndex == cur_col)
+            {
+                // select specific cell
+                LLRect highlight_rect(0,
+                    cell->getHeight(),
+                    cell->getWidth(),
+                    0);
+                gl_rect_2d(highlight_rect, select_color);
+            }
+            else if (mHoverIndex == cur_col)
+            {
+                // highlight specific cell
+                LLRect highlight_rect(0,
+                    cell->getHeight(),
+                    cell->getWidth() ,
+                    0);
+                gl_rect_2d(highlight_rect, hover_color);
+            }
 
 			cell->draw( fg_color, highlight_color );
 		}
