@@ -103,6 +103,8 @@ protected:
 	LLScrollListItem* addStep(const enum EStepType step_type);
 	
 	void onVisibilityChanged ( const LLSD& new_visibility );
+
+	void onCommitKeyorModifier();
 	
 	static std::string getLabel(std::vector<std::string> labels);
 	static void updateLabel(LLScrollListItem* item);
