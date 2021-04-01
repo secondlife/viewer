@@ -70,17 +70,28 @@ def show_stats_by_key(recs,indices,settings_sd = None):
     if settings_sd is not None:
         print "Total keys in settings", len(settings_sd.keys())
         unused_keys = list(set(settings_sd.keys()) - set(cnt.keys()))
-        print "\nUnused_keys", len(unused_keys)
+        unused_keys_non_str = [k for k in unused_keys if settings_sd[k]["Type"] != "String"]
+        unused_keys_str = [k for k in unused_keys if settings_sd[k]["Type"] == "String"]
+
+        # Things that no one in the sample has set to a non-default value. Possible candidates for removal.
+        print "\nUnused_keys_non_str", len(unused_keys_non_str)
         print   "======================"
-        print "\n".join(sorted(unused_keys))
+        print "\n".join(sorted(unused_keys_non_str))
+
+        # Strings are not currently logged, so we have no info on usage.
+        print "\nString keys (usage unknown)", len(unused_keys_str)
+        print   "======================"
+        print "\n".join(sorted(unused_keys_str))
+
+        # Things that someone has set but that aren't recognized settings.
         unrec_keys = list(set(cnt.keys()) - set(settings_sd.keys()))
         print "\nUnrecognized keys", len(unrec_keys)
         print   "======================"
         print "\n".join(sorted(unrec_keys))
 
-def parse_settings_xml():
+def parse_settings_xml(fname):
     # assume we're in scripts/metrics
-    fname = "../../indra/newview/app_settings/settings.xml"
+    fname = "../../indra/newview/app_settings/" + fname
     with open(fname,"r") as f:
         contents = f.read()
         return llsd.parse_xml(contents)
@@ -106,11 +117,16 @@ if __name__ == "__main__":
         show_stats_by_key(recs,[])
         show_stats_by_key(recs,["agent"])
         if args.preferences:
-            settings_sd = parse_settings_xml()
+            print "\nSETTINGS.XML"
+            settings_sd = parse_settings_xml("settings.xml")
             #for skey,svals in settings_sd.items(): 
             #    print skey, "=>", svals
             show_stats_by_key(recs,["preferences","settings"],settings_sd)
-            
+            print
+
+            print "\nSETTINGS_PER_ACCOUNT.XML"
+            settings_pa_sd = parse_settings_xml("settings_per_account.xml")
+            show_stats_by_key(recs,["preferences","settings_per_account"],settings_pa_sd)
 
         
     
