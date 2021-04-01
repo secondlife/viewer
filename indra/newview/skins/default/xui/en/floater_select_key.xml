@@ -4,10 +4,27 @@
  border="false"
  can_close="false"
  can_minimize="false"
- height="90"
+ height="116"
  layout="topleft"
  name="modal container"
- width="240">
+ width="272">
+  <floater.string
+   name="keyboard">
+    Keyboard
+  </floater.string>
+  <floater.string
+   name="mouse">
+    Mouse Buttons
+  </floater.string>
+  <floater.string
+   name="basic_description">
+Press a key to set your trigger.
+Allowed input: [INPUT].
+  </floater.string>
+  <floater.string
+   name="reserved_by_menu">
+Combination [KEYSTR] is reserved by menu.
+  </floater.string>
     <text
      type="string"
      halign="center"
@@ -16,19 +33,47 @@
      height="30"
      layout="topleft"
      left="30"
-     name="Save item as:"
+     name="descritption"
      top="25"
      word_wrap="true"
-     width="180">
-        Press a key to set your Speak button trigger.
+     width="212">
+Press a key to set your trigger.
+Allowed input: [INPUT].
     </text>
+    <check_box
+     follows="top|left"
+     height="20"
+     initial_value="false"
+     label="Apply to all"
+     layout="topleft"
+     left="90"
+     name="apply_all"
+     tool_tip="Viewer uses different control combinations depending on what you are doing in world, setting this will apply your change to all combinations"
+     top_pad="8"
+     width="160" />
+  
+    <button
+     height="23"
+     label="Set Empty"
+     layout="topleft"
+     left="8"
+     name="SetEmpty"
+     top_pad="6"
+     width="80" />
+    <button
+     height="23"
+     label="Default"
+     layout="topleft"
+     left_pad="8"
+     name="Default"
+     top_delta="0"
+     width="80" />
     <button
      height="23"
      label="Cancel"
-     label_selected="Cancel"
      layout="topleft"
-     right="-10"
+     left_pad="8"
      name="Cancel"
-     top_pad="8"
-     width="100" />
+     top_delta="0"
+     width="80" />
 </floater>
