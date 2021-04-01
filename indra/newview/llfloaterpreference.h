@@ -37,13 +37,17 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
 #include "llsearcheditor.h"
+#include "llsetkeybinddialog.h"
+#include "llkeyconflict.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDebug;
 class LLMessageSystem;
+class LLComboBox;
 class LLScrollListCtrl;
+class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
@@ -102,6 +106,8 @@ public:
 	void selectPrivacyPanel();
 	void selectChatPanel();
 	void getControlNames(std::vector<std::string>& names);
+	// updates click/double-click action controls depending on values from settings.xml
+	void updateClickActionViews();
 
 protected:	
 	void		onBtnOK(const LLSD& userdata);
@@ -129,9 +135,7 @@ protected:
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();
-	// updates click/double-click action settings depending on controls values
-	void updateClickActionSettings();
-	// updates click/double-click action controls depending on values from settings.xml
+	// updates click/double-click action keybindngs depending on view values
 	void updateClickActionControls();
 
 public:
@@ -146,10 +150,6 @@ public:
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
-	void onClickSetKey();
-	void setKey(KEY key);
-	void setMouse(LLMouseHandler::EClickType click);
-	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
@@ -204,7 +204,6 @@ private:
 
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
-	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
 	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
@@ -292,6 +291,60 @@ protected:
 private:
 	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
+};
+
+class LLPanelPreferenceControls : public LLPanelPreference, public LLKeyBindResponderInterface
+{
+	LOG_CLASS(LLPanelPreferenceControls);
+public:
+	LLPanelPreferenceControls();
+	virtual ~LLPanelPreferenceControls();
+
+	BOOL postBuild();
+
+	void apply();
+	void cancel();
+	void saveSettings();
+	void resetDirtyChilds();
+
+	void onListCommit();
+	void onModeCommit();
+	void onRestoreDefaultsBtn();
+	void onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response);
+
+    // Bypass to let Move & view read values without need to create own key binding handler
+    // Todo: consider a better way to share access to keybindings
+    bool canKeyBindHandle(const std::string &control, EMouseClickType click, KEY key, MASK mask);
+    // Bypasses to let Move & view modify values without need to create own key binding handler
+    void setKeyBind(const std::string &control, EMouseClickType click, KEY key, MASK mask, bool set /*set or reset*/ );
+    void updateAndApply();
+
+    // from interface
+	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
+    /*virtual*/ void onDefaultKeyBind(bool all_modes);
+    /*virtual*/ void onCancelKeyBind();
+
+private:
+	// reloads settings, discards current changes, updates table
+	void regenerateControls();
+
+	// These fuctions do not clean previous content
+	bool addControlTableColumns(const std::string &filename);
+	bool addControlTableRows(const std::string &filename);
+	void addControlTableSeparator();
+
+	// Cleans content and then adds content from xml files according to current mEditingMode
+    void populateControlTable();
+
+    // Updates keybindings from storage to table
+    void updateTable();
+
+	LLScrollListCtrl* pControlsTable;
+	LLComboBox *pKeyModeBox;
+	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
+	std::string mEditingControl;
+	S32 mEditingColumn;
+	S32 mEditingMode;
 };
 
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
