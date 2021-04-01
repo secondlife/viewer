@@ -353,10 +353,11 @@ void cpp_features_test_object_t::test<11>()
 	ensure("type alias", name_counts["bob"]==2);
 }
 
+// Other possibilities:
 
 // nullptr
 
-// enums
+// class enums
 
 // std::unique_ptr and make_unique
 
@@ -379,5 +380,7 @@ void cpp_features_test_object_t::test<11>()
 // move semantics
 
 // std::move
+
+// string_view
 
 } // namespace tut
