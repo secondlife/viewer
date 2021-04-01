@@ -175,8 +175,9 @@ public:
 	void			initWorldUI();
 	void			setUIVisibility(bool);
 	bool			getUIVisibility();
+	void			handlePieMenu(S32 x, S32 y, MASK mask);
 
-	BOOL handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+	BOOL handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK mask, EMouseClickType clicktype, BOOL down);
 
 	//
 	// LLWindowCallback interface implementation
