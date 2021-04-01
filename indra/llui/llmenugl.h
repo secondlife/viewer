@@ -42,6 +42,13 @@
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
 
+class LLMenuKeyboardBinding
+{
+public:
+    KEY				mKey;
+    MASK			mMask;
+};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuItemGL
 //
@@ -91,6 +98,7 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ LLSD getValue() const;
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLColor4 getHighlightBgColor() { return mHighlightBackground.get(); }
@@ -109,7 +117,7 @@ public:
 	virtual void setBriefItem(BOOL brief);
 	virtual BOOL isBriefItem() const;
 
-	virtual BOOL addToAcceleratorList(std::list<LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp);
 	void setAllowKeyRepeat(BOOL allow) { mAllowKeyRepeat = allow; }
 	BOOL getAllowKeyRepeat() const { return mAllowKeyRepeat; }
 
@@ -436,7 +444,8 @@ public:
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
-
+	
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLMenuGL* findChildMenuByName(const std::string& name, BOOL recurse) const;
@@ -628,10 +637,11 @@ public:
 	
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	// check if we've used these accelerators already
-	virtual BOOL addToAcceleratorList(std::list <LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp);
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -797,7 +807,7 @@ private:
 
 	void checkMenuTrigger();
 
-	std::list <LLKeyBinding*>	mAccelerators;
+	std::list <LLMenuKeyboardBinding*>	mAccelerators;
 	BOOL						mAltKeyTrigger;
 };
 
