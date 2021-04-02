@@ -82,6 +82,7 @@ public:
 	}
 
 	bool isByDate() const { return mByDate; }
+	bool isFoldersByName() const { return (!mByDate || mFoldersByName) && !mFoldersByWeight; }
 	U32 getSortOrder() const { return mSortOrder; }
 	void toParams(Params& p) { p.order(mSortOrder);}
 	void fromParams(Params& p) 

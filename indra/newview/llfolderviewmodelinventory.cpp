@@ -140,15 +140,20 @@ void LLFolderViewModelItemInventory::requestSort()
 	{
 		folderp->requestArrange();
 	}
-	if (static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter().isByDate())
-	{
-		// sort by date potentially affects parent folders which use a date
-		// derived from newest item in them
-		if (mParent)
-		{
-			mParent->requestSort();
-		}
-	}
+    LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
+
+    if (sorter.isByDate())
+    {
+        // Sort by date potentially affects parent folders which use a date
+        // derived from newest item in them
+        //
+        // if this is an item, parent needs to be resorted (this case shouldn't happen)
+        // if this is a folder, check sort rules for folder first
+        if (mParent && (!folderp || !sorter.isFoldersByName()))
+        {
+            mParent->requestSort();
+        }
+    }
 }
 
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
