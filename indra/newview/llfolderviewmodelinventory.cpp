@@ -132,6 +132,16 @@ bool LLFolderViewModelInventory::isFolderComplete(LLFolderViewFolder* folder)
 	return false;
 }
 
+//virtual
+void LLFolderViewModelItemInventory::addChild(LLFolderViewModelItem* child)
+{
+    LLFolderViewModelItemInventory* model_child = static_cast<LLFolderViewModelItemInventory*>(child);
+    mLastAddedChildCreationDate = model_child->getCreationDate();
+
+    // this will requestSort()
+    LLFolderViewModelItemCommon::addChild(child);
+}
+
 void LLFolderViewModelItemInventory::requestSort()
 {
 	LLFolderViewModelItemCommon::requestSort();
@@ -142,18 +152,29 @@ void LLFolderViewModelItemInventory::requestSort()
 	}
     LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
 
-    if (sorter.isByDate())
+    // Sort by date potentially affects parent folders which use a date
+    // derived from newest item in them
+    if (sorter.isByDate() && mParent)
     {
-        // Sort by date potentially affects parent folders which use a date
-        // derived from newest item in them
-        //
-        // if this is an item, parent needs to be resorted (this case shouldn't happen)
-        // if this is a folder, check sort rules for folder first
-        if (mParent && (!folderp || !sorter.isFoldersByName()))
+        // If this is an item, parent needs to be resorted
+        // This case shouldn't happen, unless someone calls item->requestSort()
+        if (!folderp)
         {
             mParent->requestSort();
         }
+        // if this is a folder, check sort rules for folder first
+        else if (sorter.isFoldersByDate())
+        {
+            if (mLastAddedChildCreationDate == -1  // nothing was added, some other reason for resort
+                || mLastAddedChildCreationDate > getCreationDate()) // newer child
+            {
+                LLFolderViewModelItemInventory* model_parent = static_cast<LLFolderViewModelItemInventory*>(mParent);
+                model_parent->mLastAddedChildCreationDate = mLastAddedChildCreationDate;
+                mParent->requestSort();
+            }
+        }
     }
+    mLastAddedChildCreationDate = -1;
 }
 
 void LLFolderViewModelItemInventory::setPassedFilter(bool passed, S32 filter_generation, std::string::size_type string_offset, std::string::size_type string_size)
@@ -392,6 +413,7 @@ bool LLInventorySort::operator()(const LLFolderViewModelItemInventory* const& a,
 
 LLFolderViewModelItemInventory::LLFolderViewModelItemInventory( class LLFolderViewModelInventory& root_view_model ) :
     LLFolderViewModelItemCommon(root_view_model),
-    mPrevPassedAllFilters(false)
+    mPrevPassedAllFilters(false),
+    mLastAddedChildCreationDate(-1)
 {
 }

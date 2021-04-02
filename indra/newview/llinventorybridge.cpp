@@ -1905,7 +1905,8 @@ void LLItemBridge::buildDisplayName() const
 	LLStringUtil::toUpper(mSearchableName);
 	
 	//Name set, so trigger a sort
-	if(mParent)
+    LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
+	if(mParent && !sorter.isByDate())
 	{
 		mParent->requestSort();
 	}
@@ -2204,7 +2205,8 @@ void LLFolderBridge::buildDisplayName() const
 	LLStringUtil::toUpper(mSearchableName);
 
     //Name set, so trigger a sort
-    if(mParent)
+    LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
+    if(mParent && sorter.isFoldersByName())
     {
         mParent->requestSort();
     }
