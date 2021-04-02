@@ -2501,7 +2501,15 @@ void LLAgentCamera::setFocusGlobal(const LLPickInfo& pick)
 	{
 		// focus on object plus designated offset
 		// which may or may not be same as pick.mPosGlobal
+		// except for rigged items to prevent wrong focus position
+		if (objectp->isRiggedMesh())
+		{
+			setFocusGlobal(pick.mPosGlobal, pick.mObjectID);
+		}
+		else
+		{
 		setFocusGlobal(objectp->getPositionGlobal() + LLVector3d(pick.mObjectOffset), pick.mObjectID);
+	}
 	}
 	else
 	{
