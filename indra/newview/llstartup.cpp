@@ -1417,7 +1417,10 @@ bool idle_startup()
 
 		// update the voice settings *after* gCacheName initialization
 		// so that we can construct voice UI that relies on the name cache
-		LLVoiceClient::getInstance()->updateSettings();
+		if (LLVoiceClient::instanceExists())
+		{
+			LLVoiceClient::getInstance()->updateSettings();
+		}
 		display_startup();
 
 		// create a container's instance for start a controlling conversation windows

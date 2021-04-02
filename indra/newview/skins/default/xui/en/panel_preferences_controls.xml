@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<panel
+ border="true"
+ follows="all"
+ height="408"
+ label="Controls"
+ layout="topleft"
+ left="102"
+ name="controls"
+ top="1"
+ width="517">
+  <combo_box
+   follows="top|left"
+   layout="topleft"
+   top="6"
+   left="10"
+   height="23"
+   width="232"
+   name="key_mode">
+    <combo_box.item
+     label="When in third person"
+     name="third_person"
+     value="1"/>
+    <combo_box.item
+     label="When in first person mode (Mouselook)"
+     name="first_person"
+     value="0"/>
+    <combo_box.item
+     label="When editing avatar"
+     name="edit_avatar"
+     value="2"/>
+    <combo_box.item
+     label="When sitting"
+     name="sitting"
+     value="3"/>
+  </combo_box>
+
+  <button
+   follows="top|left"
+   layout="topleft"
+   top="6"
+   right="-10"
+   height="23"
+   width="140"
+   label="Restore Defaults"
+   tool_tip="Restores default values for all control modes."
+   name="restore_defaults"/>
+
+  <scroll_list
+   draw_heading="true"
+   follows="all"
+   layout="topleft"
+   column_padding="0"
+   selection_type="header"
+   top="31"
+   left="3"
+   bottom="-3"
+   right="-3"
+   can_sort="false"
+   multi_select="false"
+   name="controls_list"
+   fg_disable_color="ScrollUnselectedColor"/>
+</panel>
