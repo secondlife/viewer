@@ -658,9 +658,10 @@ bool LLToolPie::teleportToClickedLocation()
     bool is_land = mHoverPick.mPickType == LLPickInfo::PICK_LAND;
     bool pos_non_zero = !mHoverPick.mPosGlobal.isExactlyZero();
     bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-    bool has_click_action = final_click_action(objp);
+    U8 click_action = final_click_action(objp); // default action: 0 - touch
+    bool has_click_action = (click_action || has_touch_handler) && click_action != CLICK_ACTION_DISABLED;
 
-    if (pos_non_zero && (is_land || (is_in_world && !has_touch_handler && !has_click_action)))
+    if (pos_non_zero && (is_land || (is_in_world && !has_click_action)))
     {
         LLVector3d pos = mHoverPick.mPosGlobal;
         pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
@@ -877,60 +878,6 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 		return FALSE;
 	}
 	mDoubleClickTimer.stop();
-
-	if (gSavedSettings.getBOOL("DoubleClickAutoPilot"))
-	{
-        // We may be doing double click to walk, but we don't want to use a target on
-        // a transparent object because the user thought they were clicking on
-        // whatever they were seeing through it, so recompute what was clicked on
-        // ignoring transparent objects
-        LLPickInfo savedPick = mPick;
-        mPick = gViewerWindow->pickImmediate(savedPick.mMousePt.mX, savedPick.mMousePt.mY,
-                                             FALSE /* ignore transparent */,
-                                             FALSE /* ignore rigged */,
-                                             FALSE /* ignore particles */);
-
-        if(mPick.mPickType == LLPickInfo::PICK_OBJECT)
-        {
-            if (mPick.getObject() && mPick.getObject()->isHUDAttachment())
-            {
-                mPick = savedPick;
-                return FALSE;
-            }
-        }
-
-		if ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
-			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
-		{
-			walkToClickedLocation();
-			return TRUE;
-		}
-        else
-        {
-            // restore the original pick for any other purpose
-            mPick = savedPick;
-        }
-	}
-	else if (gSavedSettings.getBOOL("DoubleClickTeleport"))
-	{
-		LLViewerObject* objp = mPick.getObject();
-		LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
-
-		bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment();
-		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND;
-		bool pos_non_zero = !mPick.mPosGlobal.isExactlyZero();
-		bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-		U8 click_action = final_click_action(objp); // deault action: 0 - touch
-		bool has_click_action = (click_action || has_touch_handler) && click_action != CLICK_ACTION_DISABLED;
-
-		if (pos_non_zero && (is_land || (is_in_world && !has_click_action)))
-		{
-			LLVector3d pos = mPick.mPosGlobal;
-			pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
-			gAgent.teleportViaLocationLookAt(pos);
-			return TRUE;
-		}
-	}
 
 	return FALSE;
 }
