@@ -259,6 +259,15 @@
     <combo_box.commit_callback
      function="Pref.ClickActionChange"/>
   </combo_box>
+  <check_box
+   control_name="EnableCollisionSounds"
+   height="20"
+   label="Play sound on collisions"
+   layout="topleft"
+   left="83"
+   name="sound_on_collisions"
+   top_pad="10"
+   width="200" />
   <button
    height="23"
    label="Other Devices"

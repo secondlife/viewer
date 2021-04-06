@@ -38,6 +38,7 @@
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
 #include "lllslconstants.h"
+#include "llmaterialtable.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -3853,6 +3854,11 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 		
 	// Don't play sounds from gestures if they are not enabled.
 	if (object_id == owner_id && !gSavedSettings.getBOOL("EnableGestureSounds"))
+	{
+		return;
+	}
+
+	if (LLMaterialTable::basic.isCollisionSound(sound_id) && !gSavedSettings.getBOOL("EnableCollisionSounds"))
 	{
 		return;
 	}

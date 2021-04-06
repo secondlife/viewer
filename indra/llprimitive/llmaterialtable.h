@@ -128,6 +128,8 @@ public:
 	F32 getDamageMod(U8 mcode);
 	F32 getEPMod(U8 mcode);
 
+	bool isCollisionSound(const LLUUID &uuid);
+
 	LLUUID getCollisionSoundUUID(U8 mcode, U8 mcode2); 
 	LLUUID getSlidingSoundUUID(U8 mcode, U8 mcode2); 
 	LLUUID getRollingSoundUUID(U8 mcode, U8 mcode2); 
