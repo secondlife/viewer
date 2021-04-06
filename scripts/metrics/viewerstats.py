@@ -32,8 +32,11 @@ import pandas as pd
 import json
 from collections import Counter, defaultdict
 from llbase import llsd
+import io
+import re
 
 def show_stats_by_key(recs,indices,settings_sd = None):
+    result = ()
     cnt = Counter()
     per_key_cnt = defaultdict(Counter)
     for r in recs:
@@ -89,6 +92,9 @@ def show_stats_by_key(recs,indices,settings_sd = None):
         print   "======================"
         print "\n".join(sorted(unrec_keys))
 
+        result = (settings_sd.keys(), unused_keys_str, unused_keys_non_str, unrec_keys)
+    return result
+
 def parse_settings_xml(fname):
     # assume we're in scripts/metrics
     fname = "../../indra/newview/app_settings/" + fname
@@ -96,11 +102,40 @@ def parse_settings_xml(fname):
         contents = f.read()
         return llsd.parse_xml(contents)
 
+def read_settings_xml(fname):
+    # assume we're in scripts/metrics
+    fname = "../../indra/newview/app_settings/" + fname
+    contents = None
+    with open(fname,"r") as f:
+        contents = f.read()
+    return contents
+
+def write_settings_xml(fname, contents):
+    # assume we're in scripts/metrics
+    fname = "../../indra/newview/app_settings/" + fname
+    with open(fname,"w") as f:
+        f.write(llsd.format_pretty_xml(contents))
+        f.close()
+
+def write_raw_settings_xml(fname, string):
+    # assume we're in scripts/metrics
+    fname = "../../indra/newview/app_settings/" + fname
+    with io.open(fname,"w", newline='\n') as f:
+        f.write(string.decode('latin1'))
+        f.close()
+
+def remove_settings(string, to_remove):
+    for r in to_remove:
+        subs_str = r"<key>" + r + r"<.*?</map>"
+        string = re.sub(subs_str,"",string,flags=re.S|re.DOTALL)
+    return string
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="process tab-separated table containing viewerstats logs")
     parser.add_argument("--verbose", action="store_true",help="verbose flag")
     parser.add_argument("--preferences", action="store_true", help="analyze preference info")
+    parser.add_argument("--remove_unused", action="store_true", help="remove unused preferences")
     parser.add_argument("--column", help="name of column containing viewerstats info")
     parser.add_argument("infiles", nargs="+", help="name of .tsv files to process")
     args = parser.parse_args()
@@ -121,12 +156,30 @@ if __name__ == "__main__":
             settings_sd = parse_settings_xml("settings.xml")
             #for skey,svals in settings_sd.items(): 
             #    print skey, "=>", svals
-            show_stats_by_key(recs,["preferences","settings"],settings_sd)
+            (all_str,_,_,_) = show_stats_by_key(recs,["preferences","settings"],settings_sd)
             print
 
             print "\nSETTINGS_PER_ACCOUNT.XML"
             settings_pa_sd = parse_settings_xml("settings_per_account.xml")
             show_stats_by_key(recs,["preferences","settings_per_account"],settings_pa_sd)
+
+            if args.remove_unused:
+                # quotestrings created by
+                # % find . -name '*.cpp' -o -name '*.hpp' -o -name '*.h' -o -name '*cmd_line.xml'  | xargs grep -ohP '[\">][a-zA-Z0-9]*[\"<]' | sort | uniq > ../scripts/metrics/quotestrings.out
+                with open("quotestrings.out", "r") as f:
+                    used_strings = f.readlines()
+                    used_strings = [u[1:-2] for u in used_strings]
+                    #print "\n".join(used_strings)
+                    unref_strings = list(set(all_str)-set(used_strings))
+                    print "\nUNREF_IN_CODE " + str(len(unref_strings)) + "\n"
+                    print "\n".join(unref_strings)
+                    settings_str = read_settings_xml("settings.xml")
+                    # Do this via direct string munging to generate minimal changeset
+                    settings_edited = remove_settings(settings_str,unref_strings)
+                    write_raw_settings_xml("settings.xml",settings_edited)
+                    
+
+
 
         
     
