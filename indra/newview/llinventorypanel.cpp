@@ -256,6 +256,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 		// Determine the root folder in case specified, and
 		// build the views starting with that folder.
         LLFolderView* folder_view = createFolderRoot(root_id);
+        folder_view->setChildrenInited(true); // assume that root folder's children are loaded, most of the time we do not load it the normal way
 		mFolderRoot = folder_view->getHandle();
 	
 		addItemID(root_id, mFolderRoot.get());
@@ -1102,6 +1103,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
             if (create_root)
             {
                 folder_view_item->setOpen(TRUE);
+                parent_folder->setChildrenInited(true);
             }
         }
 	}
@@ -1128,12 +1130,13 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                     // run it again for the sake of creating children
                     mBuildViewsQueue.push_back(id);
                 }
-                else if (folder_view_item)
+                else
                 {
+                    create_children = true;
                     folder_view_item->setChildrenInited(true);
                 }
                 break;
-                }
+            }
             case BUILD_NO_CHILDREN:
             {
                 create_children = false;
@@ -1147,6 +1150,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
                 // Note: Might be better idea to do 'depth' instead,
                 // It also will help to prioritize root folder's content
                 create_children = true;
+                folder_view_item->setChildrenInited(true);
                 break;
             }
             case BUILD_NO_LIMIT:
@@ -1154,6 +1158,7 @@ LLFolderViewItem* LLInventoryPanel::buildViewsTree(const LLUUID& id,
             {
                 // keep working till everything exists
                 create_children = true;
+                folder_view_item->setChildrenInited(true);
             }
         }
     }
