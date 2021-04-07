@@ -214,8 +214,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>AppearanceCameraMovement</key>
+        <key>AppearanceCameraMovement</key>
     <map>
       <key>Comment</key>
       <string>When entering appearance editing mode, camera zooms in on currently selected portion of avatar</string>
@@ -259,8 +258,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>AuctionShowFence</key>
+        <key>AuctionShowFence</key>
     <map>
       <key>Comment</key>
       <string>When auctioning land, include parcel boundary marker in snapshot</string>
@@ -458,8 +456,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>AutoLogin</key>
+        <key>AutoLogin</key>
     <map>
       <key>Comment</key>
       <string>Login automatically using last username/password combination</string>
@@ -470,8 +467,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>AutoPilotLocksCamera</key>
+        <key>AutoPilotLocksCamera</key>
     <map>
       <key>Comment</key>
       <string>Keep camera position locked when avatar walks to selected position</string>
@@ -647,8 +643,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    
-    <key>AvatarFeathering</key>
+        <key>AvatarFeathering</key>
     <map>
       <key>Comment</key>
       <string>Avatar feathering (less is softer)</string>
@@ -659,9 +654,7 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    
-    
-    <key>AvatarPickerURL</key>
+            <key>AvatarPickerURL</key>
     <map>
       <key>Comment</key>
       <string>Avatar picker contents</string>
@@ -760,8 +753,7 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    
-    <key>BrowserHomePage</key>
+        <key>BrowserHomePage</key>
     <map>
       <key>Comment</key>
       <string>[NOT USED]</string>
@@ -838,8 +830,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>BrowserProxyPort</key>
+        <key>BrowserProxyPort</key>
     <map>
       <key>Comment</key>
       <string>Port for Web Proxy</string>
@@ -850,8 +841,7 @@
       <key>Value</key>
       <integer>3128</integer>
     </map>
-    
-    <key>Socks5ProxyEnabled</key>
+        <key>Socks5ProxyEnabled</key>
     <map>
       <key>Comment</key>
       <string>Use Socks5 Proxy</string>
@@ -1313,8 +1303,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>CameraAngle</key>
+        <key>CameraAngle</key>
     <map>
       <key>Comment</key>
       <string>Camera field of view angle (Radians)</string>
@@ -1471,7 +1460,6 @@
       <real>1.0</real>
     </map>
     
-
   <key>CameraFocusTransitionTime</key>
   <map>
     <key>Comment</key>
@@ -1554,8 +1542,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>LetterKeysFocusChatBar</key>
+        <key>LetterKeysFocusChatBar</key>
     <map>
       <key>Comment</key>
       <string>When printable characters keys (possibly with Shift held) are pressed, the chatbar takes focus</string>
@@ -1599,8 +1586,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>ChatLoadGroupMaxMembers</key>
+        <key>ChatLoadGroupMaxMembers</key>
     <map>
         <key>Comment</key>
         <string>Max number of active members we'll show up for an unresponsive group</string>
@@ -1611,8 +1597,7 @@
         <key>Value</key>
         <integer>100</integer>
     </map>
-    
-    <key>ChatOnlineNotification</key>
+        <key>ChatOnlineNotification</key>
     <map>
       <key>Comment</key>
       <string>Provide notifications for when friend log on and off of SL</string>
@@ -1634,8 +1619,7 @@
       <key>Value</key>
       <real>20.0</real>
     </map>
-    
-    <key>CheesyBeacon</key>
+        <key>CheesyBeacon</key>
     <map>
       <key>Comment</key>
       <string>Enable cheesy beacon effects</string>
@@ -1879,8 +1863,7 @@
       <key>Value</key>
       <integer>40</integer>
     </map>
-    
-    <key>CookiesEnabled</key>
+        <key>CookiesEnabled</key>
     <map>
       <key>Comment</key>
       <string>Accept cookies from Web sites?</string>
@@ -1913,8 +1896,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>CoroutineStackSize</key>
+        <key>CoroutineStackSize</key>
     <map>
       <key>Comment</key>
       <string>Size (in bytes) for each coroutine stack</string>
@@ -1980,10 +1962,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  
-  
-  
-    <key>Cursor3D</key>
+          <key>Cursor3D</key>
     <map>
       <key>Comment</key>
       <string>Treat Joystick values as absolute positions (not deltas).</string>
@@ -2005,8 +1984,7 @@
       <key>Value</key>
       <string></string>
     </map>
-    
-  <key>DebugAnimatedObjects</key>
+      <key>DebugAnimatedObjects</key>
   <map>
     <key>Comment</key>
     <string>Show info related to animated objects</string>
@@ -2204,8 +2182,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>DebugPermissions</key>
+        <key>DebugPermissions</key>
     <map>
       <key>Comment</key>
       <string>Log permissions for selected inventory items</string>
@@ -2271,8 +2248,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>DebugShowRenderInfo</key>
+        <key>DebugShowRenderInfo</key>
     <map>
       <key>Comment</key>
       <string>Show stats about current scene</string>
@@ -2338,62 +2314,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <key>DebugViews</key>
+                                                                                                                                                                                                                            <key>DebugViews</key>
     <map>
       <key>Comment</key>
       <string>Display debugging info for views.</string>
@@ -2492,8 +2413,7 @@
       <key>Value</key>
       <string>89556747-24cb-43ed-920b-47caed15465f</string>
     </map>
-    
-    <key>DestinationGuideURL</key>
+        <key>DestinationGuideURL</key>
     <map>
       <key>Comment</key>
       <string>Destination guide contents</string>
@@ -2603,14 +2523,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    
-    
-    
-    
-    
-    <key>DisplayTimecode</key>
+                                <key>DisplayTimecode</key>
     <map>
       <key>Comment</key>
       <string>Display timecode on screen</string>
@@ -2742,9 +2655,7 @@
       <key>Value</key>
       <integer>5</integer>
     </map>
-    
-    
-    <key>DumpVFSCaches</key>
+            <key>DumpVFSCaches</key>
     <map>
       <key>Comment</key>
       <string>Dump VFS caches on startup.</string>
@@ -2788,8 +2699,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>MinObjectsForUnlinkConfirm</key>
+        <key>MinObjectsForUnlinkConfirm</key>
     <map>
       <key>Comment</key>
       <string>Minimum amount of objects in linkset for showing confirmation dialog</string>
@@ -2877,10 +2787,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    
-    <key>EventURL</key>
+                <key>EventURL</key>
     <map>
       <key>Comment</key>
       <string>URL for Event website, displayed in the event floater</string>
@@ -2902,8 +2809,7 @@
       <key>Value</key>
       <string>1</string>
     </map>
-	
-    <key>FPSLogFrequency</key>
+	    <key>FPSLogFrequency</key>
         <map>
         <key>Comment</key>
         <string>Seconds between display of FPS in log (0 for never)</string>
@@ -2947,12 +2853,7 @@
         <key>Value</key>
         <real>300.0</real>
     </map>
-    
-    
-    
-    
-    
-    <key>FirstName</key>
+                        <key>FirstName</key>
     <map>
       <key>Comment</key>
       <string>Login first name</string>
@@ -3029,20 +2930,8 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-    
-    
-    <key>FlycamAxisDeadZone0</key>
+                                        
+            <key>FlycamAxisDeadZone0</key>
     <map>
       <key>Comment</key>
       <string>Flycam axis 0 dead zone.</string>
@@ -3218,8 +3107,7 @@
       <key>Value</key>
       <real>16.0</real>
     </map>
-    
-    <key>FlyingAtExit</key>
+        <key>FlyingAtExit</key>
     <map>
       <key>Comment</key>
       <string>Was flying when last logged out, so fly when logging in</string>
@@ -3245,10 +3133,7 @@
         <real>1.0</real>
       </array>
     </map>
-    
-    
-    
-    <key>AvatarSitRotation</key>
+                <key>AvatarSitRotation</key>
     <map>
       <key>Comment</key>
       <string>Avatar real sitting rotation used in preset</string>
@@ -3356,8 +3241,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>FreezeTime</key>
+        <key>FreezeTime</key>
     <map>
       <key>Comment</key>
       <string />
@@ -3390,8 +3274,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>GridCrossSections</key>
+        <key>GridCrossSections</key>
     <map>
       <key>Comment</key>
       <string>Highlight cross sections of prims with grid manipulation plane.</string>
@@ -3468,9 +3351,7 @@
       <key>Value</key>
       <integer>32</integer>
     </map>
-    
-    
-    <key>HelpURLFormat</key>
+            <key>HelpURLFormat</key>
     <map>
       <key>Comment</key>
       <string>URL pattern for help page; arguments will be encoded; see llviewerhelp.cpp:buildHelpURL for arguments</string>
@@ -3547,8 +3428,7 @@
       <key>Value</key>
       <string />
     </map>
-    
-    <key>HttpPipelining</key>
+        <key>HttpPipelining</key>
     <map>
       <key>Comment</key>
       <string>If true, viewer will attempt to pipeline HTTP requests.</string>
@@ -3592,8 +3472,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-     
-    <key>IgnoreFOVZoomForLODs</key>
+         <key>IgnoreFOVZoomForLODs</key>
     <map>
       <key>Comment</key>
       <string>Ignore zoom effect(CTRL+0) when calculating lods.</string>
@@ -3692,8 +3571,7 @@
       <key>Value</key>
       <string>default</string>
     </map>
-    
-    <key>InventoryDebugSimulateOpFailureRate</key>
+        <key>InventoryDebugSimulateOpFailureRate</key>
     <map>
       <key>Comment</key>
         <string>Rate at which we simulate failures of copy/link requests in some operations</string>
@@ -3748,8 +3626,7 @@
 		<key>Value</key>
 		<integer>1</integer>
 	</map>
-    
-	<key>InventoryOutboxLogging</key>
+    	<key>InventoryOutboxLogging</key>
 	<map>
 		<key>Comment</key>
 		<string>Enable debug output associated with the Merchant Outbox.</string>
@@ -4079,8 +3956,7 @@
       <key>Value</key>
         <real>2.0</real>
     </map>
-    
-    <key>LeapCommand</key>
+        <key>LeapCommand</key>
     <map>
       <key>Comment</key>
       <string>Zero or more command lines to run LLSD Event API Plugin programs.</string>
@@ -4212,8 +4088,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>LastName</key>
+        <key>LastName</key>
     <map>
       <key>Comment</key>
       <string>Login last name</string>
@@ -4269,16 +4144,7 @@
       <string>0.0.0</string>
     </map>
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <key>LimitDragDistance</key>
+                                        <key>LimitDragDistance</key>
     <map>
       <key>Comment</key>
       <string>Limit translation of object via translate tool</string>
@@ -4433,8 +4299,7 @@
     <key>Value</key>
     <real>40.0</real>
   </map>
-  
-  <key>LogMessages</key>
+    <key>LogMessages</key>
     <map>
       <key>Comment</key>
       <string>Log network traffic</string>
@@ -4533,8 +4398,7 @@
       <key>Value</key>
       <real>60.0</real>
     </map>
-    
-    <key>MapScale</key>
+        <key>MapScale</key>
     <map>
       <key>Comment</key>
       <string>World map zoom level (pixels per region)</string>
@@ -4633,8 +4497,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-	<key>MarketplaceListingsLogging</key>
+    	<key>MarketplaceListingsLogging</key>
 	<map>
 		<key>Comment</key>
 		<string>Enable debug output associated with the Marketplace Listings (SLM) API.</string>
@@ -5118,8 +4981,7 @@
     <key>Value</key>
     <real>3.0</real>
   </map>
-  
-  <key>MediaOnAPrimUI</key>
+    <key>MediaOnAPrimUI</key>
   <map>
     <key>Comment</key>
     <string>Whether or not to show the "link sharing" UI</string>
@@ -5207,9 +5069,7 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    
-    
-    <key>MenuAccessKeyTime</key>
+            <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
       <string>Time (seconds) in which the menu key must be tapped to move focus to the menu bar</string>
@@ -5242,8 +5102,7 @@
       <key>Value</key>
       <integer>410</integer>
     </map>
-    
-  <key>MeshEnabled</key>
+      <key>MeshEnabled</key>
   <map>
     <key>Comment</key>
     <string>Expose UI for mesh functionality (may require restart to take effect).</string>
@@ -5485,8 +5344,7 @@
       <key>Value</key>
       <integer>1000</integer>
     </map>
-	
-    <key>NearMeRange</key>
+	    <key>NearMeRange</key>
     <map>
       <key>Comment</key>
       <string>Search radius for nearby avatars</string>
@@ -5629,8 +5487,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>NotifyBoxWidth</key>
+        <key>NotifyBoxWidth</key>
     <map>
       <key>Comment</key>
       <string>Width of notification messages</string>
@@ -5851,8 +5708,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    
-    <key>NotifyMoneyChange</key>
+        <key>NotifyMoneyChange</key>
     <map>
       <key>Comment</key>
       <string>Pop up notifications for all L$ transactions</string>
@@ -5885,8 +5741,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>NumSessions</key>
+        <key>NumSessions</key>
     <map>
       <key>Comment</key>
       <string>Number of successful logins to Second Life</string>
@@ -5974,9 +5829,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    <key>OpenDebugStatSimTime</key>
+            <key>OpenDebugStatSimTime</key>
     <map>
       <key>Comment</key>
       <string>Expand Simulator Time performance stats display</string>
@@ -6145,8 +5998,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>PickerContextOpacity</key>
+        <key>PickerContextOpacity</key>
     <map>
       <key>Comment</key>
       <string>Controls overall opacity of context frustrum connecting color and texture pickers with their swatches</string>
@@ -6157,10 +6009,7 @@
       <key>Value</key>
       <real>0.34999999404</real>
     </map>
-    
-    
-    
-    <key>PingInterpolate</key>
+                <key>PingInterpolate</key>
     <map>
       <key>Comment</key>
       <string>Extrapolate object position along velocity vector based on ping delay</string>
@@ -6858,8 +6707,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>LandBrushForce</key>
+        <key>LandBrushForce</key>
         <map>
         <key>Comment</key>
             <string>Multiplier for land modification brush force.</string>
@@ -6870,8 +6718,7 @@
         <key>Value</key>
             <real>1.0</real>
         </map>
-    
-    <key>WebContentWindowLimit</key>
+        <key>WebContentWindowLimit</key>
     <map>
       <key>Comment</key>
       <string>Maximum number of web browser windows that can be open at once in the Web content floater (0 for no limit)</string>
@@ -7116,8 +6963,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>RenderAttachedLights</key>
+        <key>RenderAttachedLights</key>
         <map>
         <key>Comment</key>
             <string>Render lighted prims that are attached to avatars</string>
@@ -7150,8 +6996,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-  
-  <key>RenderAvatarCloth</key>
+    <key>RenderAvatarCloth</key>
     <map>
       <key>Comment</key>
       <string>Controls if avatars use wavy cloth</string>
@@ -7243,8 +7088,7 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    
-    <key>RenderAvatarPhysicsLODFactor</key>
+        <key>RenderAvatarPhysicsLODFactor</key>
     <map>
       <key>Comment</key>
       <string>Controls level of detail of avatar physics (such as breast physics).</string>
@@ -7387,8 +7231,7 @@
       <real>24.0</real>
     </array>
   </map>
-  
-  <key>RenderShadowSlopeThreshold</key>
+    <key>RenderShadowSlopeThreshold</key>
   <map>
     <key>Comment</key>
     <string>Cutoff slope value for points to affect perspective shadow generation</string>
@@ -7399,8 +7242,7 @@
     <key>Value</key>
     <real>0.0</real>
   </map>
-  
-  <key>RenderSSAOScale</key>
+    <key>RenderSSAOScale</key>
   <map>
     <key>Comment</key>
     <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
@@ -7448,8 +7290,7 @@
       <real>0.00</real>
     </array>
   </map>
-  
-  <key>RenderNormalMapScale</key>
+    <key>RenderNormalMapScale</key>
   <map>
     <key>Comment</key>
     <string>Scaler applied to height map when generating normal maps</string>
@@ -7471,8 +7312,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>RenderDebugGL</key>
+        <key>RenderDebugGL</key>
     <map>
       <key>Comment</key>
       <string>Enable strict GL debugging.</string>
@@ -7576,7 +7416,6 @@
   </map>
 
   
-
   <key>RenderEdgeDepthCutoff</key>
   <map>
     <key>Comment</key>
@@ -7873,7 +7712,6 @@
   </map>
 
   
-
   <key>RenderSpecularResX</key>
   <map>
     <key>Comment</key>
@@ -8042,8 +7880,7 @@
     <key>Value</key>
     <real>1.4</real>
   </map>
-  
-  <key>RenderShadowBlurDistFactor</key>
+    <key>RenderShadowBlurDistFactor</key>
   <map>
     <key>Comment</key>
     <string>Distance scaler for shadow blur.</string>
@@ -8559,8 +8396,7 @@
       <integer>2</integer>
     </map>
 
-    
-    <key>RenderResolutionDivisor</key>
+        <key>RenderResolutionDivisor</key>
     <map>
       <key>Comment</key>
       <string>Divisor for rendering 3D scene at reduced resolution.</string>
@@ -8582,9 +8418,7 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-    
-    
-    <key>RenderSunDynamicRange</key>
+            <key>RenderSunDynamicRange</key>
     <map>
       <key>Comment</key>
       <string>Defines what percent brighter the sun is than local point lights (1.0 = 100% brighter. Value should not be less than 0. ).</string>
@@ -8738,8 +8572,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-  <key>RenderAutoMuteByteLimit</key>
+      <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
     <string>If avatar attachment size exceed this value (in bytes) attachment will not be rendered. Excludes attachments worn by own avatar.</string>
@@ -8763,8 +8596,7 @@
     <key>Value</key>
     <integer>12</integer>
   </map>
-  
-  <key>ShowMyComplexityChanges</key>
+    <key>ShowMyComplexityChanges</key>
   <map>
     <key>Comment</key>
     <string>How long to show notices about avatar complexity (set to zero to disable those notices)</string>
@@ -8866,8 +8698,7 @@
     <key>Value</key>
     <real>1000.0</real>
   </map>
-  
-  <key>RenderAutoHideSurfaceAreaLimit</key>
+    <key>RenderAutoHideSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
     <string>Maximum surface area of a set of proximal objects inworld before automatically hiding geometry to prevent system overload.</string>
@@ -9144,9 +8975,7 @@
     <key>Value</key>
     <boolean>1</boolean>
   </map>
-  
-   
-  <key>SafeMode</key>
+       <key>SafeMode</key>
     <map>
       <key>Comment</key>
       <string>Reset preferences, run in safe mode.</string>
@@ -9333,8 +9162,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>SelectMovableOnly</key>
+        <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
       <string>Select only objects you can move</string>
@@ -9433,8 +9261,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    
-    <key>ShowAllObjectHoverTip</key>
+        <key>ShowAllObjectHoverTip</key>
     <map>
       <key>Comment</key>
       <string>Show descriptive tooltip when mouse hovers over non-interactive and interactive objects.</string>
@@ -9511,8 +9338,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
-  <key>NavBarShowCoordinates</key>
+    <key>NavBarShowCoordinates</key>
     <map>
       <key>Comment</key>
       <string>Show coordinates in navigation bar</string>
@@ -9534,8 +9360,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>ShowCrosshairs</key>
+        <key>ShowCrosshairs</key>
     <map>
       <key>Comment</key>
       <string>Display crosshairs when in mouselook mode</string>
@@ -9557,8 +9382,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>ShowEventRecorderMenuItems</key>
+        <key>ShowEventRecorderMenuItems</key>
     <map>
       <key>Comment</key>
       <string>Whether or not Event Recorder menu choices - Start / Stop event recording should appear in the (currently) Develop menu</string>
@@ -9899,17 +9723,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <key>ShowMatureEvents</key>
+                                            <key>ShowMatureEvents</key>
     <map>
       <key>Comment</key>
       <string>Display results of find events that are flagged as moderate</string>
@@ -9935,14 +9749,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    
-    
-    
-    
-    
-    
-    <key>ShowNewInventory</key>
+                                <key>ShowNewInventory</key>
     <map>
       <key>Comment</key>
       <string>Automatically views new notecards/textures/landmarks</string>
@@ -9997,8 +9804,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>ShowPropertyLines</key>
+        <key>ShowPropertyLines</key>
     <map>
       <key>Comment</key>
       <string>Show line overlay demarking property boundaries</string>
@@ -10053,8 +9859,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-	<key>ShowTutorial</key>
+    	<key>ShowTutorial</key>
 	<map>
 		<key>Comment</key>
 		<string>Show tutorial window on login</string>
@@ -10264,8 +10069,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>StatsNumRuns</key>
+        <key>StatsNumRuns</key>
     <map>
       <key>Comment</key>
       <string>Loop autopilot playback this number of times</string>
@@ -10309,9 +10113,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    
-    <key>SystemLanguage</key>
+            <key>SystemLanguage</key>
     <map>
       <key>Comment</key>
       <string>Language indicated by system settings (for UI)</string>
@@ -10597,9 +10399,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    <key>TextureReverseByteRange</key>
+            <key>TextureReverseByteRange</key>
     <map>
       <key>Comment</key>
       <string>Minimal percent of the optimal byte range allowed to render a given discard level</string>
@@ -10621,8 +10421,7 @@
       <key>Value</key>
       <real>3000.0</real>
     </map>
-    
-    <key>ToolTipDelay</key>
+        <key>ToolTipDelay</key>
     <map>
       <key>Comment</key>
       <string>Seconds before displaying tooltip when mouse stops over UI element</string>
@@ -10809,9 +10608,7 @@
       <key>Value</key>
       <integer>6</integer>
     </map>
-    
-    
-    <key>UICheckboxctrlHPad</key>
+            <key>UICheckboxctrlHPad</key>
     <map>
       <key>Comment</key>
       <string>UI Checkbox Control Horizontal Pad</string>
@@ -10888,9 +10685,7 @@
       <key>Value</key>
       <integer>16</integer>
     </map>
-    
-    
-    <key>UIFloaterTitleVPad</key>
+            <key>UIFloaterTitleVPad</key>
     <map>
       <key>Comment</key>
       <string>Distance from top of floater to top of title string, pixels</string>
@@ -11088,8 +10883,7 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    
-    <key>UIMinimizedWidth</key>
+        <key>UIMinimizedWidth</key>
     <map>
       <key>Comment</key>
       <string>Size of UI floater minimized width</string>
@@ -11243,8 +11037,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    
-    <key>UIScrollbarSize</key>
+        <key>UIScrollbarSize</key>
     <map>
       <key>Comment</key>
       <string>UI scrollbar size</string>
@@ -11563,8 +11356,7 @@
       <key>Value</key>
       <integer>16</integer>
     </map>
-    
-    <key>UISpinctrlSpacing</key>
+        <key>UISpinctrlSpacing</key>
     <map>
       <key>Comment</key>
       <string>UI spin control spacing</string>
@@ -11685,10 +11477,7 @@
       <key>Value</key>
       <integer>3</integer>
     </map>
-    
-    
-    
-    <key>UpdaterWillingToTest</key>
+                <key>UpdaterWillingToTest</key>
     <map>
       <key>Comment</key>
       <string>Whether or not the updater should offer test candidate upgrades.</string>
@@ -11765,8 +11554,7 @@
       <key>Value</key>
       <real>5.0</real>
     </map>
-    
-    <key>UseDebugMenus</key>
+        <key>UseDebugMenus</key>
     <map>
       <key>Comment</key>
       <string>Turns on "Debug" menu</string>
@@ -11810,8 +11598,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>EnvironmentPersistAcrossLogin</key>
+        <key>EnvironmentPersistAcrossLogin</key>
     <map>
       <key>Comment</key>
       <string>Keep Environment settings consistent across sessions</string>
@@ -11822,11 +11609,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    
-    
-    
-    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
+                    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
       <string>Use default browser when opening web pages instead of in-world browser.</string>
@@ -11903,8 +11686,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    <key>sourceid</key>
+        <key>sourceid</key>
     <map>
       <key>Comment</key>
       <string>Identify referring agency to Linden web servers</string>
@@ -11981,8 +11763,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>UserConnectionPort</key>
+        <key>UserConnectionPort</key>
     <map>
       <key>Comment</key>
       <string>Port that this client transmits on.</string>
@@ -12259,15 +12040,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
-    
-    
-    
-    
-    
-    
-    
-    <key>VoiceInputAudioDevice</key>
+                                    <key>VoiceInputAudioDevice</key>
     <map>
       <key>Comment</key>
       <string>Audio input device to use for voice</string>
@@ -12278,8 +12051,7 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    
-    <key>VoiceOutputAudioDevice</key>
+        <key>VoiceOutputAudioDevice</key>
     <map>
       <key>Comment</key>
       <string>Audio output device to use for voice</string>
@@ -12290,9 +12062,7 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    
-    
-    <key>WarningsAsChat</key>
+            <key>WarningsAsChat</key>
     <map>
       <key>Comment</key>
       <string>Display warning messages in chat history</string>
@@ -12545,9 +12315,7 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
-    
-    
-    <key>ZoomDirect</key>
+            <key>ZoomDirect</key>
     <map>
       <key>Comment</key>
       <string>Map Joystick zoom axis directly to camera zoom.</string>
@@ -12778,18 +12546,13 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    
-    
-
+            
     <!-- Settings below are for back compatibility only.
     They are not used in current viewer anymore. But they can't be removed to avoid
     influence on previous versions of the viewer in case of settings are not used or default value
     should be changed. See also EXT-6661. -->
     <!-- 1.23 settings -->
-    
-    
-    <key>max_texture_dimension_X</key>
+            <key>max_texture_dimension_X</key>
     <map>
       <key>Comment</key>
       <string>Maximum texture width for user uploaded textures</string>
@@ -12960,8 +12723,7 @@
       <key>Value</key>
       <string />
     </map>
-    
-    <key>AvatarInspectorTooltipDelay</key>
+        <key>AvatarInspectorTooltipDelay</key>
     <map>
       <key>Comment</key>
       <string>Seconds before displaying avatar inspector tooltip</string>
@@ -13126,8 +12888,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
-    <key>ClickToWalk</key>
+        <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
       <string>(obsolete)Click in world to walk to location</string>
@@ -13171,8 +12932,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-     
-     <key>WebProfileFloaterRect</key>
+          <key>WebProfileFloaterRect</key>
     <map>
       <key>Comment</key>
       <string>Web profile floater dimensions</string>
@@ -13975,9 +13735,7 @@
     <key>Value</key>
     <integer>7000</integer>
   </map>
-  
-  
-  <key>WearFolderLimit</key>
+      <key>WearFolderLimit</key>
   <map>
     <key>Comment</key>
     <string>Limits number of items in the folder that can be replaced/added to current outfit</string>
