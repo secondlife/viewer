@@ -619,74 +619,11 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
         }
     }
 
-#if 1
-    // Legacy support
-    // Remove #if-#endif section half a year after DRTVWR-501 releases.
-    // Update legacy settings in settings.xml
-    // We only care for third person view since legacy settings can't store
-    // more than one mode.
-    // We are saving this even if we are in temporary mode - preferences
-    // will restore values on cancel
-    if (mLoadMode == MODE_THIRD_PERSON && mHasUnsavedChanges)
-    {
-        bool value = canHandleMouse("walk_to", CLICK_DOUBLELEFT, MASK_NONE);
-        gSavedSettings.setBOOL("DoubleClickAutoPilot", value);
-
-        value = canHandleMouse("walk_to", CLICK_LEFT, MASK_NONE);
-        gSavedSettings.setBOOL("ClickToWalk", value);
-
-        // new method can save both toggle and push-to-talk values simultaneously,
-        // but legacy one can save only one. It also doesn't support mask.
-        LLKeyData data = getControl("toggle_voice", 0);
-        bool can_toggle = !data.isEmpty();
-        if (!can_toggle)
-        {
-            data = getControl("voice_follow_key", 0);
-        }
-
-        gSavedSettings.setBOOL("PushToTalkToggle", can_toggle);
-        if (data.isEmpty())
-        {
-            // legacy viewer has a bug that might crash it if NONE value is assigned.
-            // just reset to default
-            gSavedSettings.getControl("PushToTalkButton")->resetToDefault(false);
-        }
-        else
-        {
-            if (data.mKey != KEY_NONE)
-            {
-                gSavedSettings.setString("PushToTalkButton", LLKeyboard::stringFromKey(data.mKey));
-            }
-            else
-            {
-                std::string ctrl_value;
-                switch (data.mMouse)
-                {
-                case CLICK_MIDDLE:
-                    ctrl_value = "MiddleMouse";
-                    break;
-                case CLICK_BUTTON4:
-                    ctrl_value = "MouseButton4";
-                    break;
-                case CLICK_BUTTON5:
-                    ctrl_value = "MouseButton5";
-                    break;
-                default:
-                    ctrl_value = "MiddleMouse";
-                    break;
-                }
-                gSavedSettings.setString("PushToTalkButton", ctrl_value);
-            }
-        }
-    }
-#endif
-
     if (mLoadMode == MODE_THIRD_PERSON && mHasUnsavedChanges)
     {
         // Map floater should react to doubleclick if doubleclick for teleport is set
-        // Todo: Seems conterintuitive for map floater to share inworld controls
-        // after these changes release, discuss with UI UX engineer if this should just
-        // be set to 1 by default (before release this also doubles as legacy support)
+        // Todo: Seems conterintuitive for map floater to share inworld controls,
+        // discuss with UI UX engineer if this should just be set to 1 by default
         bool value = canHandleMouse("teleport_to", CLICK_DOUBLELEFT, MASK_NONE);
         gSavedSettings.setBOOL("DoubleClickTeleport", value);
     }
