@@ -129,6 +129,9 @@ public:
 	// motions must report their priority level
 	virtual LLJoint::JointPriority getPriority() = 0;
 
+	// amount of affected joints
+	virtual S32 getNumJointMotions() { return 0; };
+
 	// motions must report their blend type
 	virtual LLMotionBlendType getBlendType() = 0;
 

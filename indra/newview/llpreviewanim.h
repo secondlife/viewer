@@ -30,6 +30,9 @@
 #include "llpreview.h"
 #include "llcharacter.h"
 
+class LLMotion;
+class LLTextBox;
+
 class LLPreviewAnim : public LLPreview
 {
 public:
@@ -40,11 +43,14 @@ public:
 	void draw();
 	void cleanup();
 	void play(const LLSD& param);
-	
+	void showAdvanced();
+
 protected:
 	
 	LLUUID	mItemID;
 	bool	mDidStart;
+	LLMotion* pMotion;
+	LLTextBox* pAdvancedStatsTextBox;
 };
 
 #endif  // LL_LLPREVIEWANIM_H
