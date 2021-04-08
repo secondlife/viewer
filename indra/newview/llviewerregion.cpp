@@ -82,6 +82,8 @@
 #include "llcallstack.h"
 #include "llsettingsdaycycle.h"
 
+#include <boost/regex.hpp>
+
 #ifdef LL_WINDOWS
 	#pragma warning(disable:4355)
 #endif
@@ -143,15 +145,22 @@ public:
            
         // build a secondlife://{PLACE} SLurl from this SLapp
         std::string url = "secondlife://";
+		boost::regex name_rx("[A-Za-z0-9]+");
+		boost::regex coord_rx("[0-9]+");
         for (int i = 0; i < num_params; i++)
         {
             if (i > 0)
             {
                 url += "/";
             }
+			if (!boost::regex_match(params[i].asString(), i > 0 ? coord_rx : name_rx))
+			{
+				return false;
+			}
+
             url += params[i].asString();
         }
-           
+
         // Process the SLapp as if it was a secondlife://{PLACE} SLurl
         LLURLDispatcher::dispatch(url, "clicked", web, true);
         return true;
