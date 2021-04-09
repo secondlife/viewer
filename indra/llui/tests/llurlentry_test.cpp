@@ -739,11 +739,6 @@ namespace tut
 				  "XXX secondlife:///app/region/Burning%20Life%20(Hyper)/27/210/30 XXX",
 				  "secondlife:///app/region/Burning%20Life%20(Hyper)/27/210/30");
 
-		// DEV-35459: SLURLs and teleport Links not parsed properly
-		testRegex("Region with quote", url,
-				  "XXX secondlife:///app/region/A'ksha%20Oasis/41/166/701 XXX",
-			          "secondlife:///app/region/A%27ksha%20Oasis/41/166/701");
-
 		// Rendering tests.
 		testLabel("Render /app/region/Ahern/50/50/50/", url,
 			"secondlife:///app/region/Ahern/50/50/50/",

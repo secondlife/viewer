@@ -145,7 +145,7 @@ public:
            
         // build a secondlife://{PLACE} SLurl from this SLapp
         std::string url = "secondlife://";
-		boost::regex name_rx("[A-Za-z0-9]+");
+		boost::regex name_rx("[A-Za-z0-9()_%]+");
 		boost::regex coord_rx("[0-9]+");
         for (int i = 0; i < num_params; i++)
         {
