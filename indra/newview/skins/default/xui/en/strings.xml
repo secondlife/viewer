@@ -17,6 +17,7 @@
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
+	<string name="StartupInitializingVFS">Initializing VFS...</string>
 	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!-- about dialog/support string-->
@@ -55,9 +56,9 @@ LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
-Disk cache: [DISK_CACHE_INFO]
+VFS (cache) creation time: [VFS_TIME]
 	</string>
-  <string name="AboutOSXHiDPI">
+	<string name="AboutOSXHiDPI">
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
@@ -4088,6 +4089,15 @@ Try enclosing path to the editor with double quotes.
   <string name="Y">Y</string>
   <string name="Z">Z</string>
   <!-- Key names end -->
+
+  <!-- Mouse button names (short) begin -->
+  <string name="LMB">LMB</string>
+  <string name="MMB">MMB</string>
+  <string name="RMB">RMB</string>
+  <string name="MB4">MB4</string>
+  <string name="MB5">MB5</string>
+  <string name="Double LMB">Double LMB</string>
+  <!-- Mouse button names end -->
 
   <!-- llviewerwindow -->
   <string name="BeaconParticle">Viewing particle beacons (blue)</string>

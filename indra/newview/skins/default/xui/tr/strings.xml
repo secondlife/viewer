@@ -31,6 +31,9 @@
 	<string name="StartupInitializingTextureCache">
 		Doku önbelleği başlatılıyor...
 	</string>
+	<string name="StartupInitializingVFS">
+		VFS Başlatılıyor...
+	</string>
 	<string name="StartupRequireDriverUpdate">
 		Grafik başlatma başarılamadı. Lütfen grafik sürücünüzü güncelleştirin!
 	</string>
@@ -71,6 +74,7 @@ LOD faktörü: [LOD_FACTOR]
 İşleme kalitesi: [RENDER_QUALITY]
 Gelişmiş Aydınlatma Modeli: [GPU_SHADERS]
 Doku belleği: [TEXTURE_MEMORY]MB
+VFS (önbellek) oluşturma saati: [VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 		HiDPI görüntü modu: [HIDPI]

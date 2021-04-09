@@ -39,6 +39,7 @@ class LLScrollListCtrl;
 class LLScrollListItem;
 class LLButton;
 class LLRadioGroup;
+class LLVFS;
 
 class LLPreviewGesture : public LLPreview
 {
@@ -79,7 +80,8 @@ protected:
 
 	void loadAsset();
 
-	static void onLoadComplete(const LLUUID& asset_uuid,
+	static void onLoadComplete(LLVFS *vfs,
+							   const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
@@ -101,6 +103,8 @@ protected:
 	LLScrollListItem* addStep(const enum EStepType step_type);
 	
 	void onVisibilityChanged ( const LLSD& new_visibility );
+
+	void onCommitKeyorModifier();
 	
 	static std::string getLabel(std::vector<std::string> labels);
 	static void updateLabel(LLScrollListItem* item);

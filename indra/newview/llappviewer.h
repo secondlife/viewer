@@ -1,6 +1,5 @@
 /** 
  * @mainpage
- * @mainpage
  *
  * This is the sources for the Second Life Viewer;
  * information on the open source project is at 
@@ -84,7 +83,7 @@ public:
 
 	// Application control
     void doPerFrameStatsLogging();
-	void flushLFSIO(); // waits for lfs transfers to complete
+	void flushVFSIO(); // waits for vfs transfers to complete
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
 	void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
@@ -197,6 +196,8 @@ public:
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
 	S32  updateTextureThreads(F32 max_time);
+
+	void loadKeyBindings();
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
@@ -382,6 +383,12 @@ extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern bool		gUseWireframe;
 extern bool		gInitialDeferredModeForWireframe;
+
+// VFS globals - gVFS is for general use
+// gStaticVFS is read-only and is shipped w/ the viewer
+// it has pre-cache data like the UI .TGAs
+class LLVFS;
+extern LLVFS	*gStaticVFS;
 
 extern LLMemoryInfo gSysMemory;
 extern U64Bytes gMemoryAllocated;

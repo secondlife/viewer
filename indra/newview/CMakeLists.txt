@@ -39,7 +39,7 @@ include(LLPlugin)
 include(LLPrimitive)
 include(LLRender)
 include(LLUI)
-include(LLFileSystem)
+include(LLVFS)
 include(LLWindow)
 include(LLXML)
 include(NDOF)
@@ -84,7 +84,7 @@ include_directories(
     ${LLPRIMITIVE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLUI_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
+    ${LLVFS_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LLLOGIN_INCLUDE_DIRS}
@@ -375,6 +375,7 @@ set(viewer_SOURCE_FILES
     llinventoryobserver.cpp
     llinventorypanel.cpp
     lljoystickbutton.cpp
+    llkeyconflict.cpp
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
@@ -557,6 +558,7 @@ set(viewer_SOURCE_FILES
     llsecapi.cpp
     llsechandler_basic.cpp
     llselectmgr.cpp
+    llsetkeybinddialog.cpp
     llsettingspicker.cpp
     llsettingsvo.cpp
     llshareavatarhandler.cpp
@@ -662,7 +664,7 @@ set(viewer_SOURCE_FILES
     llviewerjointattachment.cpp
     llviewerjointmesh.cpp
     llviewerjoystick.cpp
-    llviewerkeyboard.cpp
+    llviewerinput.cpp
     llviewerlayer.cpp
     llviewermedia.cpp
     llviewermedia_streamingaudio.cpp
@@ -1008,6 +1010,7 @@ set(viewer_HEADER_FILES
     llinventoryobserver.h
     llinventorypanel.h
     lljoystickbutton.h
+    llkeyconflict.h
     lllandmarkactions.h
     lllandmarklist.h
     lllightconstants.h
@@ -1180,6 +1183,7 @@ set(viewer_HEADER_FILES
     llsecapi.h
     llsechandler_basic.h
     llselectmgr.h
+    llsetkeybinddialog.h
     llsettingspicker.h
     llsettingsvo.h
     llsidepanelappearance.h
@@ -1287,7 +1291,7 @@ set(viewer_HEADER_FILES
     llviewerjointattachment.h
     llviewerjointmesh.h
     llviewerjoystick.h
-    llviewerkeyboard.h
+    llviewerinput.h
     llviewerlayer.h
     llviewermedia.h
     llviewermediafocus.h
@@ -1664,7 +1668,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/grass.xml
     app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
-    app_settings/keys.xml
+    app_settings/key_bindings.xml
     app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/low_graphics.xml
@@ -2018,7 +2022,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLRENDER_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${LLUI_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
@@ -2494,7 +2498,7 @@ if (LL_TESTS)
   set(test_libs
     ${LLMESSAGE_LIBRARIES}
     ${WINDOWS_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${GOOGLEMOCK_LIBRARIES}
@@ -2509,7 +2513,7 @@ if (LL_TESTS)
 
   set(test_libs
     ${WINDOWS_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
+    ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}

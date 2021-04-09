@@ -30,7 +30,7 @@
 #include "llagent.h"
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
-#include "llappviewer.h"
+#include "llappviewer.h"			// gVFS
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"
@@ -47,7 +47,7 @@
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "lltrans.h"
-#include "llfilesystem.h"
+#include "llvfile.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -373,11 +373,11 @@ BOOL LLPreviewGesture::postBuild()
 	mReplaceEditor = edit;
 
 	combo = getChild<LLComboBox>( "modifier_combo");
-	combo->setCommitCallback(onCommitSetDirty, this);
+	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
 	mModifierCombo = combo;
 
 	combo = getChild<LLComboBox>( "key_combo");
-	combo->setCommitCallback(onCommitSetDirty, this);
+	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
 	mKeyCombo = combo;
 
 	list = getChild<LLScrollListCtrl>("library_list");
@@ -841,9 +841,10 @@ void LLPreviewGesture::loadAsset()
 
 
 // static
-void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
-									  LLAssetType::EType type,
-									  void* user_data, S32 status, LLExtStat ext_status)
+void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
+									   const LLUUID& asset_uuid,
+									   LLAssetType::EType type,
+									   void* user_data, S32 status, LLExtStat ext_status)
 {
 	LLUUID* item_idp = (LLUUID*)user_data;
 
@@ -852,7 +853,7 @@ void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
 	{
 		if (0 == status)
 		{
-			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
 			S32 size = file.getSize();
 
 			std::vector<char> buffer(size+1);
@@ -936,11 +937,15 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 		break;
 	}
 
+	mModifierCombo->setEnabledByValue(CTRL_LABEL, gesture->mKey != KEY_F10);
+
 	mKeyCombo->setCurrentByIndex(0);
 	if (gesture->mKey != KEY_NONE)
 	{
 		mKeyCombo->setSimple(LLKeyboard::stringFromKey(gesture->mKey));
 	}
+
+	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
 
 	// Make UI steps for each gesture step
 	S32 i;
@@ -1137,9 +1142,10 @@ void LLPreviewGesture::saveIfNeeded()
             tid.generate();
             assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-            LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
+            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
 
             S32 size = dp.getCurrentSize();
+            file.setMaxSize(size);
             file.write((U8*)buffer, size);
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
@@ -1335,6 +1341,17 @@ LLMultiGesture* LLPreviewGesture::createGesture()
 	return gesture;
 }
 
+
+void LLPreviewGesture::onCommitKeyorModifier()
+{
+	// SL-14139: ctrl-F10 is currently used to access top menu,
+	// so don't allow to bound gestures to this combination.
+
+	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), mModifierCombo->getSimple() != CTRL_LABEL);
+	mModifierCombo->setEnabledByValue(CTRL_LABEL, mKeyCombo->getSimple() != LLKeyboard::stringFromKey(KEY_F10));
+	mDirty = TRUE;
+	refresh();
+}
 
 // static
 void LLPreviewGesture::updateLabel(LLScrollListItem* item)
