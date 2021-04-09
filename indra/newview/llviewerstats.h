@@ -31,7 +31,6 @@
 #include "lltracerecording.h"
 #include "lltrace.h"
 #include "llstatsaccumulator.h"
-#include "lldrawpool.h"
 
 enum ESimStatID
 {
