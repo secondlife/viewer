@@ -734,11 +734,14 @@ void LLVolumeImplFlexible::preRebuild()
 void LLVolumeImplFlexible::doFlexibleRebuild(bool rebuild_volume)
 {
 	LLVolume* volume = mVO->getVolume();
-	if(rebuild_volume)
-	{
-		volume->setDirty();
-	}
-	volume->regen();
+    if (volume)
+    {
+        if (rebuild_volume)
+        {
+            volume->setDirty();
+        }
+        volume->regen();
+    }
 	
 	mUpdated = TRUE;
 }
