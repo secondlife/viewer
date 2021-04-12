@@ -78,7 +78,7 @@ LLGLSLShader			gTransformTangentProgram;
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader	gOcclusionCubeProgram;
-LLGLSLShader	gCustomAlphaProgram;
+LLGLSLShader	gCustomAlphaProgram; // SL-14113 This used to be used for the stars with Atmospheric Shaders: OFF
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
@@ -148,6 +148,8 @@ LLGLSLShader		gSkinnedObjectFullbrightShinyWaterProgram;
 LLGLSLShader		gSkinnedObjectShinySimpleWaterProgram;
 
 //environment shaders
+LLGLSLShader		gMoonProgram;
+LLGLSLShader		gStarsProgram;
 LLGLSLShader		gTerrainProgram;
 LLGLSLShader		gTerrainWaterProgram;
 LLGLSLShader		gWaterProgram;
@@ -819,6 +821,9 @@ void LLViewerShaderMgr::unloadShaders()
 	gWaterProgram.unload();
     gWaterEdgeProgram.unload();
 	gUnderWaterProgram.unload();
+
+	gMoonProgram.unload();
+	gStarsProgram.unload();
 	gTerrainProgram.unload();
 	gTerrainWaterProgram.unload();
 	gGlowProgram.unload();
@@ -1049,6 +1054,32 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
         gTerrainProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
         success = gTerrainProgram.createShader(NULL, NULL);
 		llassert(success);
+	}
+
+	if (success)
+	{
+		gStarsProgram.mName = "Environment Stars Shader";
+		gStarsProgram.mShaderFiles.clear();
+		gStarsProgram.mShaderFiles.push_back(make_pair("environment/starsV.glsl", GL_VERTEX_SHADER_ARB));
+		gStarsProgram.mShaderFiles.push_back(make_pair("environment/starsF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gStarsProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
+		success = gStarsProgram.createShader(NULL, NULL);
+		llassert(success);
+	}
+
+	if (success)
+	{
+		gMoonProgram.mName = "Environment Moon Shader";
+		gMoonProgram.mShaderFiles.clear();
+		gMoonProgram.mShaderFiles.push_back(make_pair("environment/moonV.glsl", GL_VERTEX_SHADER_ARB));
+		gMoonProgram.mShaderFiles.push_back(make_pair("environment/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gMoonProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
+		success = gMoonProgram.createShader(NULL, NULL);
+		if (success)
+		{
+			gMoonProgram.bind();
+			gMoonProgram.uniform1i(sTex0, 0);
+		}
 	}
 
 	if (!success)

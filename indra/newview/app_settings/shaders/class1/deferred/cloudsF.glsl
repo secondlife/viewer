@@ -126,6 +126,6 @@ void main()
     frag_data[1] = vec4(0.0,0.0,0.0,0.0);
     frag_data[2] = vec4(0,0,0,1);
 
-    gl_FragDepth = 0.99995f;
+    gl_FragDepth = 0.999985; // SL-14113 Stars and Clouds need same depth
 }
 
