@@ -96,7 +96,7 @@ BOOL LLSetKeyBindDialog::postBuild()
     getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
 
     pCheckBox = getChild<LLCheckBoxCtrl>("apply_all");
-    pDesription = getChild<LLTextBase>("descritption");
+    pDescription = getChild<LLTextBase>("description");
 
     gFocusMgr.setKeystrokesOnly(TRUE);
 
@@ -160,8 +160,8 @@ void LLSetKeyBindDialog::setParent(LLKeyBindResponderInterface* parent, LLView* 
         }
         input += getString("keyboard");
     }
-    pDesription->setText(getString("basic_description"));
-    pDesription->setTextArg("[INPUT]", input);
+    pDescription->setText(getString("basic_description"));
+    pDescription->setTextArg("[INPUT]", input);
 }
 
 // static
@@ -257,8 +257,8 @@ bool LLSetKeyBindDialog::recordAndHandleKey(KEY key, MASK mask, BOOL down)
 
     if (LLKeyConflictHandler::isReservedByMenu(key, mask))
     {
-        pDesription->setText(getString("reserved_by_menu"));
-        pDesription->setTextArg("[KEYSTR]", LLKeyboard::stringFromAccelerator(mask,key));
+        pDescription->setText(getString("reserved_by_menu"));
+        pDescription->setTextArg("[KEYSTR]", LLKeyboard::stringFromAccelerator(mask,key));
         mLastMaskKey = 0;
         return true;
     }
