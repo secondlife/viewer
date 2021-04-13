@@ -129,7 +129,7 @@ void main()
     frag_color = vec4(color.rgb, alpha1);
 
     // SL-14113 Moon Haze -- When the camera is underwater fix clouds clipping into moon
-    // camera above water: class1\defered\cloudsF.glsl
+    // camera above water: class1\deferred\cloudsF.glsl
     // camera below water: class2\windlight\coudsV.glsl
     // See: starsV.glsl, cloudsV.glsl, moonF.glsl
     gl_FragDepth = 0.999985;
