@@ -52,7 +52,7 @@ float twinkle(){
 void main() 
 {
 	// camera above water: class1\deferred\starsF.glsl
-	// camera below water: starsF.glsl
+	// camera below water: class1\environment\starsF.glsl
     vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
     vec4 col = mix(col_b, col_a, blend_factor);
