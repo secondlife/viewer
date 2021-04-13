@@ -123,7 +123,7 @@ void LLDrawPoolSky::renderSkyFace(U8 index)
 		return;
 	}
 
-    if (index < 6) // sky tex...interp
+    if (index < LLVOSky::FACE_SUN) // sky tex...interp
     {
         llassert(mSkyTex);
 	    mSkyTex[index].bindTexture(true); // bind the current tex
