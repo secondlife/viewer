@@ -580,9 +580,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8bb2a8171183cf5706e8b6e2588988c</string>
+              <string>a0dd76112ade26f5bcc47b801ca28d5f</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/79522/752376/dullahan-1.10.0.202104012011_89.0.12_g2b76680_chromium-89.0.4389.90-darwin64-557788.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80065/756313/dullahan-1.10.0.202104131525_89.0.17_ge7bbb1d_chromium-89.0.4389.114-darwin64-558200.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -592,9 +592,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6bbcbc01529da36c093c5800c777728f</string>
+              <string>520bafbf2d7f660297390d46632cce89</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/79515/752323/dullahan-1.10.0.202104011942_89.0.5_gc1f90d8_chromium-89.0.4389.40-windows-557788.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80066/756326/dullahan-1.10.0.202104131537_89.0.17_ge7bbb1d_chromium-89.0.4389.114-windows-558200.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -604,16 +604,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e9db2509e8d080f35569f6c8cb4810df</string>
+              <string>37d579ff1f13b2a07b696e09cddc486d</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/79514/752327/dullahan-1.10.0.202104011942_89.0.5_gc1f90d8_chromium-89.0.4389.40-windows64-557788.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80067/756330/dullahan-1.10.0.202104131537_89.0.17_ge7bbb1d_chromium-89.0.4389.114-windows64-558200.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.10.0.202104011942_89.0.5_gc1f90d8_chromium-89.0.4389.40</string>
+        <string>1.10.0.202104131537_89.0.17_ge7bbb1d_chromium-89.0.4389.114</string>
       </map>
       <key>elfio</key>
       <map>
