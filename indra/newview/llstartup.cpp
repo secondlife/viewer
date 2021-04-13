@@ -1668,8 +1668,20 @@ bool idle_startup()
 	if (STATE_INVENTORY_SEND == LLStartUp::getStartupState())
 	{
 		display_startup();
+
+        // request mute list
+        LL_INFOS() << "Requesting Mute List" << LL_ENDL;
+        LLMuteList::getInstance()->requestFromServer(gAgent.getID());
+
+        // Get L$ and ownership credit information
+        LL_INFOS() << "Requesting Money Balance" << LL_ENDL;
+        LLStatusBar::sendMoneyBalanceRequest();
+
+        display_startup();
+
 		// Inform simulator of our language preference
 		LLAgentLanguage::update();
+
 		display_startup();
 		// unpack thin inventory
 		LLSD response = LLLoginInstance::getInstance()->getResponse();
@@ -1836,14 +1848,6 @@ bool idle_startup()
 		LLLandmark::registerCallbacks(msg);
 		display_startup();
 
-		// request mute list
-		LL_INFOS() << "Requesting Mute List" << LL_ENDL;
-		LLMuteList::getInstance()->requestFromServer(gAgent.getID());
-		display_startup();
-		// Get L$ and ownership credit information
-		LL_INFOS() << "Requesting Money Balance" << LL_ENDL;
-		LLStatusBar::sendMoneyBalanceRequest();
-		display_startup();
 		// request all group information
 		LL_INFOS() << "Requesting Agent Data" << LL_ENDL;
 		gAgent.sendAgentDataUpdateRequest();
