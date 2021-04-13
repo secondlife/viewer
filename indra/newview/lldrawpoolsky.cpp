@@ -116,17 +116,17 @@ void LLDrawPoolSky::render(S32 pass)
 
 void LLDrawPoolSky::renderSkyFace(U8 index)
 {
-	LLFace* face = mDrawFace[index];
+    LLFace* face = mDrawFace[index];
 
-	if (!face || !face->getGeomCount())
-	{
-		return;
-	}
+    if (!face || !face->getGeomCount())
+    {
+        return;
+    }
 
     if (index < LLVOSky::FACE_SUN) // sky tex...interp
     {
         llassert(mSkyTex);
-	    mSkyTex[index].bindTexture(true); // bind the current tex
+        mSkyTex[index].bindTexture(true); // bind the current tex
 
         face->renderIndexed();
     }
