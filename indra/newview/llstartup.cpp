@@ -1905,9 +1905,14 @@ bool idle_startup()
 			// on with this install.
 			gSavedSettings.setBOOL("ShowStartLocation", TRUE);
 
-			// Open Conversation floater on first login.
-			LLFloaterReg::toggleInstanceOrBringToFront("im_container");
+            LLFloaterWebContent::Params p;
+            std::string url = gSavedSettings.getString("GuidebookURL");
+            p.url = LLWeb::expandURLSubstitutions(url, LLSD());
+            p.show_chrome = false;
+            p.show_page_title = false;
+            p.preferred_media_size = LLRect(0, 500, 300, 0);
 
+            LLFloaterReg::toggleInstanceOrBringToFront("how_to", p);
 		}
 
 		display_startup();
