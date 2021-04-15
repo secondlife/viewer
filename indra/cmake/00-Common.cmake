@@ -42,8 +42,8 @@ if(NON_RELEASE_CRASH_REPORTING)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLL_SEND_CRASH_REPORTS=1")
 endif()  
 
-# Don't bother with a MinSizeRel build.
-set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release;Debug" CACHE STRING
+# Don't bother with MinSizeRel or Debug builds.
+set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING
     "Supported build types." FORCE)
 
 
@@ -70,13 +70,18 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
+  
+  # Preserve first-pass-through versions (ie no FORCE overwrite). Prevents recursive addition of /Zo (04/2021)
+  set(OG_CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} CACHE STRING "OG_CXX_FLAGS_RELEASE")
+  set(OG_CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} CACHE STRING "OG_CXX_FLAGS_RELWITHDEBINFO")
 
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
+      "${OG_CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
+      "${OG_CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
       CACHE STRING "C++ compiler release options" FORCE)
+	  
   # zlib has assembly-language object files incompatible with SAFESEH
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
 
