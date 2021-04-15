@@ -1172,7 +1172,16 @@ bool LLAppViewer::init()
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");
 	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    {
+        // Befor first login, treat this as 'manual' updates,
+        // updater won't install anything, but required updates
+        updater.args.add("0");
+    }
+    else
+    {
+        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    }
 	// channel
 	updater.args.add(LLVersionInfo::instance().getChannel());
 	// testok
