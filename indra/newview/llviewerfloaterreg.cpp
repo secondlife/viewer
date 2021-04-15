@@ -76,6 +76,7 @@
 #include "llfloatergroups.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterhoverheight.h"
+#include "llfloaterhowto.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
 #include "llfloaterimsession.h"
@@ -362,7 +363,7 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("search", "floater_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSearch>);
 	LLFloaterReg::add("my_profile", "floater_my_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("profile", "floater_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
-	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHowTo>);
 
 	LLFloaterReg::add("big_preview", "floater_big_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBigPreview>);
 	
