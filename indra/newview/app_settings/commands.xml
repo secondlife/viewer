@@ -88,8 +88,10 @@
            icon="Command_HowTo_Icon"
            label_ref="Command_HowTo_Label"
            tooltip_ref="Command_HowTo_Tooltip"
-           execute_function="Help.ToggleHowTo"
-           is_running_function="Help.HowToVisible"
+           execute_function="Floater.ToggleOrBringToFront"
+           execute_parameters="how_to"
+           is_running_function="Floater.IsOpen"
+           is_running_parameters="how_to"
            />
   <command name="inventory"
            available_in_toybox="true"

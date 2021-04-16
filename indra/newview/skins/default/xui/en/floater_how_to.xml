@@ -10,6 +10,7 @@
   min_width="335"
   name="floater_how_to"
   single_instance="true"
+  save_visibility="true"
   save_rect="true"
   title="WELCOME ISLAND GUIDEBOOK"
   width="780"

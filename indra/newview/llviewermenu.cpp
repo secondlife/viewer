@@ -5000,13 +5000,6 @@ bool tools_visible_take_object()
 	return !is_selection_buy_not_take();
 }
 
-bool enable_how_to_visible(const LLSD& param)
-{
-	LLFloaterWebContent::Params p;
-	p.target = "__help_how_to";
-	return LLFloaterReg::instanceVisible("how_to", p);
-}
-
 class LLToolsEnableBuyOrTake : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -9103,7 +9096,6 @@ void initialize_menus()
 	// Help menu
 	// most items use the ShowFloater method
 	view_listener_t::addMenu(new LLToggleHowTo(), "Help.ToggleHowTo");
-	enable.add("Help.HowToVisible", boost::bind(&enable_how_to_visible, _2));
 
 	// Advanced menu
 	view_listener_t::addMenu(new LLAdvancedToggleConsole(), "Advanced.ToggleConsole");
