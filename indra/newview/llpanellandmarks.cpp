@@ -499,6 +499,12 @@ void LLLandmarksPanel::onAddAction(const LLSD& userdata) const
             {
                 args["dest_folder"] = view_model->getUUID();
             }
+            if ("add_landmark_root" == command_name
+                && mCurrentSelectedList == mLandmarksInventoryPanel)
+            {
+                args["dest_folder"] = mLandmarksInventoryPanel->getRootFolderID();
+            }
+            // else will end up in favorites
 			LLFloaterReg::showInstance("add_landmark", args);
 		}
 	} 
