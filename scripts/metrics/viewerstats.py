@@ -38,6 +38,7 @@ import os
 import sys
 import snowflake.connector
 import json
+from datetime import datetime
 
 def show_stats_by_key(recs,indices,settings_sd = None):
     result = ()
@@ -204,6 +205,8 @@ def get_records(options):
         
 if __name__ == "__main__":
 
+    today = datetime.today().strftime('%Y-%m-%d')
+
     parser = argparse.ArgumentParser(description="process tab-separated table containing viewerstats logs")
     parser.add_argument("--verbose", action="store_true",help="verbose flag")
     parser.add_argument("--preferences", action="store_true", help="analyze preference info")
@@ -212,7 +215,7 @@ if __name__ == "__main__":
     parser.add_argument("--column", help="name of column containing viewerstats info")
     parser.add_argument("--infiles", default=[], nargs="+", help="name of .tsv files to process")
     parser.add_argument("--use_query", action="store_true", help="use snowflake connector to get data")
-    parser.add_argument("--query_date", default="2021-04-20", help="for snowflake query, date as YYYY-MM-DD")
+    parser.add_argument("--query_date", default=today, help="for snowflake query, date as YYYY-MM-DD")
     parser.add_argument("--query_max", default=1000, type=int, help="number of records to fetch in query")
 
     options = parser.parse_args()
