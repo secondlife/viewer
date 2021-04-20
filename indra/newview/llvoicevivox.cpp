@@ -683,7 +683,14 @@ void LLVivoxVoiceClient::voiceControlCoro()
         bool success = startAndConnectSession();
         if (success)
         {
-            if (mTuningMode)
+			// disable the automatic VAD and explicitly set the VAD variables ourselves
+			// see SL-15072 for more details
+			unsigned int vad_hangover = 2001;
+			unsigned int vad_noise_floor = 577;
+			unsigned int vad_sensitivity = 44;
+			setupVADParams(vad_hangover, vad_noise_floor, vad_sensitivity);
+			
+			if (mTuningMode)
             {
                 performMicTuning();
             }
@@ -1882,13 +1889,6 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     notifyParticipantObservers();
     notifyVoiceFontObservers();
-
-	// disable the automatic VAD and explicitly set the VAD variables ourselves
-	// see SL-15072 for more details
-	unsigned int vad_hangover = 2001;
-	unsigned int vad_noise_floor = 577;
-	unsigned int vad_sensitivity = 44;
-	setupVADParams(vad_hangover, vad_noise_floor, vad_sensitivity);
 
     LLSD timeoutEvent(LLSDMap("timeout", LLSD::Boolean(true)));
 
@@ -7628,11 +7628,13 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		}
 		else if (!stricmp(actionCstr, "Aux.SetVadProperties.1"))
 		{
-			std::cout << "@@@----" << std::endl;
+			// temporary for debugging- will eventually remove entirely or replace with a 
+			// toast message to alert the user that it was set
+			std::cout << "@@@" << std::endl;
 			std::cout << "    Response for Aux.SetVadProperties.1 was" << std::endl;
-			std::cout << "      statusCode: " << statusCode << std::endl;
-			std::cout << "    statusString: " << statusString << std::endl;
-			std::cout << "----@@@" << std::endl;
+			std::cout << "          statusCode: " << statusCode << std::endl;
+			std::cout << "        statusString: " << statusString << std::endl;
+			std::cout << "@@@" << std::endl;
 		}
 		/*
 		 else if (!stricmp(actionCstr, "Account.ChannelGetList.1"))
