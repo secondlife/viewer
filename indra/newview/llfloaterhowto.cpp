@@ -33,6 +33,9 @@
 #include "llweb.h"
 
 
+const S32 STACK_WIDTH = 300;
+const S32 STACK_HEIGHT = 505; // content will be 500
+
 LLFloaterHowTo::LLFloaterHowTo(const Params& key) :
     LLFloaterWebContent(key)
 {
@@ -49,15 +52,19 @@ BOOL LLFloaterHowTo::postBuild()
 void LLFloaterHowTo::onOpen(const LLSD& key)
 {
     LLFloaterWebContent::Params p(key);
-    if (!p.url.isProvided() || p.url.getValue().empty())
-    {
-        std::string url = gSavedSettings.getString("GuidebookURL");
-        p.url = LLWeb::expandURLSubstitutions(url, LLSD());
-        p.show_chrome = false;
-        p.preferred_media_size = LLRect(0, 500, 300, 0);
-    }
+    std::string url = gSavedSettings.getString("GuidebookURL");
+    p.url = LLWeb::expandURLSubstitutions(url, LLSD());
+    p.show_chrome = false;
 
     LLFloaterWebContent::onOpen(p);
+
+    // Elements from LLFloaterWebContent did not pick up restored size (save_rect) of LLFloaterHowTo
+    // set the stack size and position (alternative to preferred_media_size)
+    LLLayoutStack *stack = getChild<LLLayoutStack>("stack1");
+    LLRect stack_rect = stack->getRect();
+    stack->reshape(STACK_WIDTH, STACK_HEIGHT);
+    stack->setOrigin(stack_rect.mLeft, stack_rect.mTop - STACK_HEIGHT);
+    stack->updateLayout();
 }
 
 LLFloaterHowTo* LLFloaterHowTo::getInstance()
