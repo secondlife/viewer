@@ -446,6 +446,8 @@ protected:
 	// local audio updates, mic mute, speaker mute, mic volume and speaker volumes
 	void sendLocalAudioUpdates();
 
+	// disable auto-VAD and configure VAD parameters explicitly
+    void LLVivoxVoiceClient::setupVADParams(unsigned int vad_hangover, unsigned int vad_noise_floor, unsigned int vad_sensitivity);
 
 	/////////////////////////////
 	// Response/Event handlers
