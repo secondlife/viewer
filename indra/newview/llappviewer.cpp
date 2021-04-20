@@ -90,7 +90,6 @@
 #include "llsdutil_math.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
-#include "lltelemetry.h"
 #include "llvector4a.h"
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
@@ -1626,8 +1625,6 @@ bool LLAppViewer::doFrame()
 
 		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
-
-    LLPROFILE_UPDATE();
 
 	return ! LLApp::isRunning();
 }
