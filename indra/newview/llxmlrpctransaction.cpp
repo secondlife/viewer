@@ -499,10 +499,10 @@ void LLXMLRPCTransaction::Impl::setHttpStatus(const LLCore::HttpStatus &status)
 		break;
 
 	case CURLE_SSL_PEER_CERTIFICATE:
-    // same value as CURLE_SSL_CACERT:
 		message = LLTrans::getString("ssl_peer_certificate");
 		break;
 
+	case CURLE_SSL_CACERT:
 	case CURLE_SSL_CONNECT_ERROR:		
 		message = LLTrans::getString("ssl_connect_error");
 		break;
