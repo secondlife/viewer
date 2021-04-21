@@ -216,6 +216,7 @@
 
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
+#include "llwindowwin32.h" // For AltGr handling
 #endif
 
 //
@@ -2766,9 +2767,11 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
         // of character handling.
         // Alt Gr can be additionally modified by Shift
         const MASK alt_gr = MASK_CONTROL | MASK_ALT;
+        LLWindowWin32 *window = static_cast<LLWindowWin32*>(mWindow);
+        U32 raw_key = window->getRawWParam();
         if ((mask & alt_gr) != 0
-            && key >= 0x30
-            && key <= 0x5A
+            && ((raw_key >= 0x30 && raw_key <= 0x5A) //0-9, plus normal chartacters
+                || (raw_key >= 0xBA && raw_key <= 0xE4)) // Misc/OEM characters that can be covered by AltGr, ex: -, =, ~
             && (GetKeyState(VK_RMENU) & 0x8000) != 0
             && (GetKeyState(VK_RCONTROL) & 0x8000) == 0) // ensure right control is not pressed, only left one
         {

@@ -119,6 +119,9 @@ public:
 
     /*virtual*/ void* getDirectInput8();
     /*virtual*/ bool getInputDevices(U32 device_type_filter, void * di8_devices_callback, void* userdata);
+
+    U32 getRawWParam() { return mRawWParam; }
+
 protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 
