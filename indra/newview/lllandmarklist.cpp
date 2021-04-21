@@ -221,21 +221,15 @@ void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
 {
 	LLLandmark* landmark = getAsset(landmark_id);
 
-	if (!landmark)
-	{
-		LL_WARNS() << "Got region handle but the landmark not found." << LL_ENDL;
-		return;
-	}
-
 	// Calculate landmark global position.
 	// This should succeed since the region handle is available.
 	LLVector3d pos;
-	if (!landmark->getGlobalPos(pos))
+	if (landmark && !landmark->getGlobalPos(pos))
 	{
-		LL_WARNS() << "Got region handle but the landmark global position is still unknown." << LL_ENDL;
-		return;
+		LL_WARNS() << "Got region handle but the landmark " << landmark_id << " global position is still unknown." << LL_ENDL;
 	}
 
+    // Call this even if no landmark exists to clean mLoadedCallbackMap
 	makeCallbacks(landmark_id);
 }
 
@@ -245,7 +239,7 @@ void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
 
 	if (!landmark)
 	{
-		LL_WARNS() << "Landmark to make callbacks for not found." << LL_ENDL;
+		LL_WARNS() << "Landmark " << landmark_id << " to make callbacks for not found." << LL_ENDL;
 	}
 
 	// make all the callbacks here.
