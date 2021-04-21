@@ -138,35 +138,6 @@ bool isMarketplaceSendAction(const std::string& action)
 	return ("send_to_marketplace" == action);
 }
 
-bool isPanelActive(const std::string& panel_name)
-{
-    LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-    return (active_panel && (active_panel->getName() == panel_name));
-}
-
-bool isParentSystemFolder(const LLInventoryModel* model, const LLUUID& folder_id)
-{
-    if (!model || folder_id.isNull()) return false;
-
-    LLViewerInventoryCategory* cat = model->getCategory(folder_id);
-    if (cat)
-    {
-        if (cat->getPreferredType() == LLFolderType::FT_ROOT_INVENTORY)
-        {
-            return false;
-        }
-        if (LLFolderType::lookupIsProtectedType(cat->getPreferredType()))
-        {
-            return true;
-        }
-        else
-        {
-            return isParentSystemFolder(model, cat->getParentUUID());
-        }
-    }
-    return false;
-}
-
 // Used by LLFolderBridge as callback for directory fetching recursion
 class LLRightClickInventoryFetchDescendentsObserver : public LLInventoryFetchDescendentsObserver
 {
@@ -917,7 +888,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		disabled_items.push_back(std::string("Properties"));
 	}
 
-	if (!isPanelActive("All Items"))
+	LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+	if (active_panel && (active_panel->getName() != "All Items"))
 	{
 		items.push_back(std::string("Show in Main Panel"));
 	}
@@ -1008,7 +980,7 @@ void LLInvFVBridge::addDeleteContextMenuOptions(menuentry_vec_t &items,
 
 	items.push_back(std::string("Delete"));
 
-	if (!isItemRemovable() || isPanelActive("Favorite Items"))
+	if (!isItemRemovable())
 	{
 		disabled_items.push_back(std::string("Delete"));
 	}
@@ -4021,7 +3993,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
-		disabled_items.push_back(std::string("Set Favorites folder"));
 	}
 	if (favorites == mUUID)
 	{
@@ -4049,7 +4020,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
-		disabled_items.push_back(std::string("Set Favorites folder"));
     }
     if (marketplace_listings_id == mUUID)
     {
@@ -4058,14 +4028,14 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
         disabled_items.push_back(std::string("Cut"));
         disabled_items.push_back(std::string("Delete"));
     }
-
-	if (isPanelActive("Favorite Items"))
-	{
-		disabled_items.push_back(std::string("Delete"));
-	}
 	if(trash_id == mUUID)
 	{
-		bool is_recent_panel = isPanelActive("Recent Items");
+		bool is_recent_panel = false;
+		LLInventoryPanel *active_panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
+		if (active_panel && (active_panel->getName() == "Recent Items"))
+		{
+			is_recent_panel = true;
+		}
 
 		// This is the trash.
 		items.push_back(std::string("Empty Trash"));
@@ -4115,14 +4085,6 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
 
-                    if (model->findUserDefinedCategoryUUIDForType(LLFolderType::FT_FAVORITE) == mUUID)
-                    {
-                        items.push_back(std::string("Reset Favorites folder"));
-                    }
-                    else if (!LLFolderType::lookupIsProtectedType(getPreferredType()) && !isParentSystemFolder(model, mUUID))
-                    {
-                        items.push_back(std::string("Set Favorites folder"));
-                    }
                     if (!LLEnvironment::instance().isInventoryEnabled())
                     {
                         disabled_items.push_back("New Settings");

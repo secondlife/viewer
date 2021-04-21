@@ -190,16 +190,6 @@ BOOL LLPanelMainInventory::postBuild()
 		worn_filter.markDefault();
 		mWornItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mWornItemsPanel, _1, _2));
 	}
-
-	mFavoriteItemsPanel = getChild<LLInventoryFavoriteItemsPanel>("Favorite Items");
-	if (mFavoriteItemsPanel)
-	{
-		LLInventoryFilter& recent_filter = mFavoriteItemsPanel->getFilter();
-		recent_filter.setEmptyLookupMessage("InventoryFavoritItemsNotSelected");
-		recent_filter.markDefault();
-		mFavoriteItemsPanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mFavoriteItemsPanel, _1, _2));
-	}
-
 	mSearchTypeCombo  = getChild<LLComboBox>("search_type");
 	if(mSearchTypeCombo)
 	{
@@ -1449,7 +1439,7 @@ BOOL LLPanelMainInventory::isActionEnabled(const LLSD& userdata)
 	}
 	if (command_name == "delete")
 	{
-		return getActivePanel()->isSelectionRemovable() && (getActivePanel() != mFavoriteItemsPanel);
+		return getActivePanel()->isSelectionRemovable();
 	}
 	if (command_name == "save_texture")
 	{

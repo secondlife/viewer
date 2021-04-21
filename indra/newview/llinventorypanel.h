@@ -220,8 +220,6 @@ public:
 	void doCreate(const LLSD& userdata);
 	bool beginIMSession();
 	void fileUploadLocation(const LLSD& userdata);
-	void setFavoritesFolder(const LLSD& userdata);
-	void resetFavoritesFolder(const LLSD& userdata);
 	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
@@ -367,27 +365,6 @@ private:
 
 	bool						mBuildViewsOnInit;
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
-};
-
-
-class LLInventoryFavoriteItemsPanel : public LLInventoryPanel
-{
-public:
-    struct Params : public LLInitParam::Block<Params, LLInventoryPanel::Params>
-    {};
-
-    void initFromParams(const Params& p);
-    bool isSelectionRemovable() { return false; }
-    void setSelectCallback(const boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
-
-protected:
-    LLInventoryFavoriteItemsPanel(const Params& params);
-    ~LLInventoryFavoriteItemsPanel() { mFolderChangedSignal.disconnect(); }
-    void updateFavoritesRootFolder();
-
-    boost::signals2::connection mFolderChangedSignal;
-    boost::function<void(const std::deque<LLFolderViewItem*>& items, BOOL user_action)> mSelectionCallback;
-    friend class LLUICtrlFactory;
 };
 
 /************************************************************************/

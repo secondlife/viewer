@@ -393,20 +393,6 @@
          parameter="model" />
       </menu_item_call>
     </menu>
-      <menu_item_call
-       label="Use as Favorites folder"
-       layout="topleft"
-       name="Set Favorites folder">
-        <menu_item_call.on_click
-         function="Inventory.SetFavoritesFolder"/>
-      </menu_item_call>
-      <menu_item_call
-       label="Reset Favorites folder"
-       layout="topleft"
-       name="Reset Favorites folder">
-          <menu_item_call.on_click
-           function="Inventory.ResetFavoritesFolder"/>
-      </menu_item_call>
     <menu
      label="Change Type"
      layout="topleft"

@@ -127,32 +127,20 @@
      name="Recent Items"
      show_item_link_overlays="true"
      width="290" />
-    <inventory_panel
-     name="Worn Items"
-     label="WORN"
-     show_empty_message="false"
-     follows="all"
-     layout="topleft"
-     width="290"
-     bg_opaque_color="DkGray2"
-     bg_alpha_color="DkGray2"
-     background_visible="true"
-     border="false"
-     bevel_style="none"
-     scroll.reserve_scroll_corner="false"/>
-    <favorites_inventory_panel
-     name="Favorite Items"
-     label="FAVORITES"
-     show_empty_message="false"
-     follows="all"
-     layout="topleft"
-     width="290"
-     bg_opaque_color="DkGray2"
-     bg_alpha_color="DkGray2"
-     background_visible="true"
-     border="false"
-     bevel_style="none"
-     scroll.reserve_scroll_corner="false"/>
+       <inventory_panel
+      name="Worn Items"
+      label="WORN"
+      show_empty_message="false"
+      follows="all"
+      layout="topleft"
+      width="290"
+      bg_opaque_color="DkGray2"
+      bg_alpha_color="DkGray2"
+      background_visible="true"
+      border="false"
+      bevel_style="none"
+      scroll.reserve_scroll_corner="false">
+  </inventory_panel>
   </tab_container>
   <layout_stack
    animate="false"
