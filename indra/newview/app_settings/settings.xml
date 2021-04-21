@@ -14425,7 +14425,43 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
-    <key>VoiceCallsFriendsOnly</key>
+
+
+  <key>VivoxVadHangover</key>
+  <map>
+    <key>Comment</key>
+    <string>The time (in milliseconds) that it takes or the VAD to switch back to silence from speech mode after the last speech frame has been detected</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2000</integer>
+  </map>
+  <key>VivoxVadNoiseFloor</key>
+  <map>
+    <key>Comment</key>
+    <string>A dimensionless value between 0 and 20000 (default 576) that controls the maximum level at which the noise floor may be set at by the VAD's noise tracking</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>576</integer>
+  </map>
+  <key>VivoxVadSensitivity</key>
+  <map>
+    <key>Comment</key>
+    <string>
+      A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>40</integer>
+  </map>
+  <key>VoiceCallsFriendsOnly</key>
     <map>
       <key>Comment</key>
       <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
