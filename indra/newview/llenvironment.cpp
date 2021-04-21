@@ -1992,6 +1992,10 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     {
         LL_WARNS("ENVIRONMENT") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
     }
+    else if (LLApp::isExiting())
+    {
+        return;
+    }
     else
     {
         LLSD environment = result[KEY_ENVIRONMENT];
@@ -2081,6 +2085,10 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
     }
+    else if (LLApp::isExiting())
+    {
+        return;
+    }
     else
     {
         LLSD environment = result[KEY_ENVIRONMENT];
@@ -2142,6 +2150,10 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
+    }
+    else if (LLApp::isExiting())
+    {
+        return;
     }
     else
     {
