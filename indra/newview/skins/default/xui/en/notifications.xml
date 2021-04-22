@@ -8710,7 +8710,7 @@ This upload will cost L$[PRICE], do you wish to continue with the upload?
    icon="alertmodal.tga"
    name="ConfirmClearTeleportHistory"
    type="alertmodal">
-Are you sure you want to delete your teleport history?
+This will delete the entire list of places you have visited, and cannot be undone. Continue?
   <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
