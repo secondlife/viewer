@@ -243,11 +243,11 @@ bool LLAppViewerMacOSX::init()
 	bool success = LLAppViewer::init();
     
 #if LL_SEND_CRASH_REPORTS
-    if (success)
+    /*if (success)
     {
         LLAppViewer* pApp = LLAppViewer::instance();
         pApp->initCrashReporting();
-    }
+    }*/
 #endif
     
     return success;

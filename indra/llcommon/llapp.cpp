@@ -388,7 +388,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 #if defined(LL_BUGSPLAT)
 	// Don't install our own signal handlers -- BugSplat needs to hook them,
 	// or it's completely ineffectual.
-	bool installHandler = false;
+	//bool installHandler = false;
 
 #else // ! LL_BUGSPLAT
 	//
@@ -400,7 +400,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 	setup_signals();
 
 	// Add google breakpad exception handler configured for Darwin/Linux.
-	bool installHandler = true;
+	//bool installHandler = true;
 #endif // ! LL_BUGSPLAT
 
 #if LL_DARWIN
@@ -427,13 +427,13 @@ void LLApp::setupErrorHandling(bool second_instance)
 	{
 		// P_TRACED flag is set, so this process is being debugged; do not install
 		// the handler
-		if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
+		//if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
 	}
 	else
 	{
 		// Failed to discover if the process is being debugged; default to
 		// installing the handler.
-		installHandler = true;
+		//installHandler = true;
 	}
 	#endif // ! LL_RELEASE_FOR_DOWNLOAD
 
