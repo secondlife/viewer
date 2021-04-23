@@ -1293,9 +1293,13 @@ class DarwinManifest(ViewerManifest):
                     signed=False
                     sign_attempts=3
                     sign_retry_wait=15
+                    libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
+                    cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
                     while (not signed) and (sign_attempts > 0):
                         try:
                             sign_attempts-=1;
+                            self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
                             self.run_command(
                                 # Note: See blurb above about names of keychains
                                ['codesign', '--verbose', '--deep', '--force',
