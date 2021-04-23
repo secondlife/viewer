@@ -1229,6 +1229,9 @@ void LLPanelPlaces::createTabs()
 
         // favorites and inventory can remove items, history can clear history
         childSetVisible("trash_btn_panel", TRUE);
+
+        mActivePanel->setRemoveBtn(mRemoveSelectedBtn);
+		mActivePanel->updateVerbs();
     }
 
 	mTabsCreated = true;

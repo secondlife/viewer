@@ -67,9 +67,12 @@ public:
 	const std::string& getFilterSubString() { return sFilterSubString; }
 	void setFilterSubString(const std::string& string) { sFilterSubString = string; }
 
+	void setRemoveBtn(LLButton* trash_btn) { sRemoveBtn = trash_btn; }
+
 protected:
 	// Search string for filtering landmarks and teleport history locations
 	static std::string		sFilterSubString;
+	static LLButton*		sRemoveBtn;
 };
 
 #endif //LL_LLPANELPLACESTAB_H

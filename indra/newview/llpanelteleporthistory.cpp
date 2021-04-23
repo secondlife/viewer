@@ -570,9 +570,9 @@ void LLTeleportHistoryPanel::updateVerbs()
 	if (!isTabVisible())
 		return;
 
-	if (!mLastSelectedFlatlList)
+	if (sRemoveBtn)
 	{
-		return;
+		sRemoveBtn->setEnabled(true);
 	}
 }
 

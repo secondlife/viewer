@@ -285,6 +285,10 @@ LLToggleableMenu* LLLandmarksPanel::getCreateMenu()
 
 void LLLandmarksPanel::updateVerbs()
 {
+	if (sRemoveBtn)
+	{
+		sRemoveBtn->setEnabled(isActionEnabled("delete") && (isFolderSelected() || isLandmarkSelected()));
+	}
 }
 
 void LLLandmarksPanel::setItemSelected(const LLUUID& obj_id, BOOL take_keyboard_focus)
@@ -425,6 +429,7 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 {
 	inventory_list->getFilter().setEmptyLookupMessage("PlacesNoMatchingItems");
 	inventory_list->setFilterTypes(0x1 << LLInventoryType::IT_LANDMARK);
+	inventory_list->setSelectCallback(boost::bind(&LLLandmarksPanel::updateVerbs, this));
 
 	inventory_list->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
 	bool sorting_order = gSavedSettings.getBOOL("LandmarksSortedByDate");
@@ -1032,6 +1037,7 @@ bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType carg
 		break;
 	}
 
+	updateVerbs();
 	return true;
 }
 

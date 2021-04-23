@@ -38,6 +38,7 @@
 #include "llworldmap.h"
 
 std::string LLPanelPlacesTab::sFilterSubString = LLStringUtil::null;
+LLButton* LLPanelPlacesTab::sRemoveBtn = NULL;
 
 bool LLPanelPlacesTab::isTabVisible()
 {
