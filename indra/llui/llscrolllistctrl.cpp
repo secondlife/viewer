@@ -743,12 +743,12 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 	LLScrollColumnHeader* last_header = NULL;
 	for (column_ordered_it = mColumnsIndexed.begin(); column_ordered_it != mColumnsIndexed.end(); ++column_ordered_it)
 	{
-		if ((*column_ordered_it)->getWidth() < 0)
+		LLScrollListColumn* column = *column_ordered_it;
+		if (!column || column->getWidth() < 0)
 		{
 			// skip hidden columns
 			continue;
 		}
-		LLScrollListColumn* column = *column_ordered_it;
 		
 		if (column->mHeader)
 		{
