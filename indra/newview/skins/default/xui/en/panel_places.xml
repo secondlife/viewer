@@ -20,6 +20,12 @@ background_visible="true"
   <string
    name="favorites_tab_title"
    value="FAVORITES" />
+  <string
+   name="tooltip_trash_items"
+   value="Remove selected landmark or folder" />
+  <string
+   name="tooltip_trash_history"
+   value="Delete list of visited places" />
   <layout_stack
     animate="false"
     border_size="0"
@@ -146,7 +152,6 @@ background_visible="true"
           left="0"
           layout="topleft"
           name="trash_btn"
-          tool_tip="Remove selected landmark or folder"
           top="0"
           width="31"/>
       </layout_panel>

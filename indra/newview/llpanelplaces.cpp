@@ -659,6 +659,15 @@ void LLPanelPlaces::onTabSelected()
 
     // favorites and inventory can remove items, history can clear history
     childSetVisible("trash_btn_panel", TRUE);
+
+    if (supports_create)
+    {
+        mRemoveSelectedBtn->setToolTip(getString("tooltip_trash_items"));
+    }
+    else
+    {
+        mRemoveSelectedBtn->setToolTip(getString("tooltip_trash_history"));
+    }
 }
 
 void LLPanelPlaces::onTeleportButtonClicked()
@@ -1229,6 +1238,15 @@ void LLPanelPlaces::createTabs()
 
         // favorites and inventory can remove items, history can clear history
         childSetVisible("trash_btn_panel", TRUE);
+
+        if (supports_create)
+        {
+            mRemoveSelectedBtn->setToolTip(getString("tooltip_trash_items"));
+        }
+        else
+        {
+            mRemoveSelectedBtn->setToolTip(getString("tooltip_trash_history"));
+        }
 
         mActivePanel->setRemoveBtn(mRemoveSelectedBtn);
 		mActivePanel->updateVerbs();
