@@ -385,69 +385,15 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 #else  // ! LL_WINDOWS
 
-#if defined(LL_BUGSPLAT)
-	// Don't install our own signal handlers -- BugSplat needs to hook them,
-	// or it's completely ineffectual.
-	//bool installHandler = false;
-
-#else // ! LL_BUGSPLAT
-	//
-	// Start up signal handling.
-	//
-	// There are two different classes of signals.  Synchronous signals are delivered to a specific
-	// thread, asynchronous signals can be delivered to any thread (in theory)
-	//
-	setup_signals();
-
-	// Add google breakpad exception handler configured for Darwin/Linux.
-	//bool installHandler = true;
+#if ! defined(LL_BUGSPLAT)
+    //
+    // Start up signal handling.
+    //
+    // There are two different classes of signals.  Synchronous signals are delivered to a specific
+    // thread, asynchronous signals can be delivered to any thread (in theory)
+    //
+    setup_signals();
 #endif // ! LL_BUGSPLAT
-
-#if LL_DARWIN
-	// For the special case of Darwin, we do not want to install the handler if
-	// the process is being debugged as the app will exit with value ABRT (6) if
-	// we do.  Unfortunately, the code below which performs that test relies on
-	// the structure kinfo_proc which has been tagged by apple as an unstable
-	// API.  We disable this test for shipping versions to avoid conflicts with
-	// future releases of Darwin.  This test is really only needed for developers
-	// starting the app from a debugger anyway.
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
-    int mib[4];
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PID;
-	mib[3] = getpid();
-	
-	struct kinfo_proc info;
-	memset(&info, 0, sizeof(info));
-	
-	size_t size = sizeof(info);
-	int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-	if((result == 0) || (errno == ENOMEM))
-	{
-		// P_TRACED flag is set, so this process is being debugged; do not install
-		// the handler
-		//if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
-	}
-	else
-	{
-		// Failed to discover if the process is being debugged; default to
-		// installing the handler.
-		//installHandler = true;
-	}
-	#endif // ! LL_RELEASE_FOR_DOWNLOAD
-
-#elif LL_LINUX
-	if(installHandler && (mExceptionHandler == 0))
-	{
-		if (mDumpPath.empty())
-		{
-			mDumpPath = "/tmp";
-		}
-		google_breakpad::MinidumpDescriptor desc(mDumpPath);
-	    mExceptionHandler = new google_breakpad::ExceptionHandler(desc, NULL, unix_minidump_callback, NULL, true, -1);
-	}
-#endif // LL_LINUX
 
 #endif // ! LL_WINDOWS
 	startErrorThread();

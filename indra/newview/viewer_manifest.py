@@ -1058,21 +1058,15 @@ class DarwinManifest(ViewerManifest):
 
                 # our apps
                 executable_path = {}
-                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
-                                         ):
-                    self.path2basename(os.path.join(os.pardir,
-                                                    app_bld_dir, self.args['configuration']),
-                                       app)
-                    executable_path[app] = \
-                        self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
+                self.path2basename(os.path.join(os.pardir, os.path.join("llplugin", "slplugin"), self.args['configuration']), "SLPlugin.app")
+                executable_path["SLPlugin.app"] = \
+                    self.dst_path_of(os.path.join("SLPlugin.app", "Contents", "MacOS"))
 
-                    # our apps dependencies on shared libs
-                    # for each app, for each dylib we collected in dylibs,
-                    # create a symlink to the real copy of the dylib.
-                    with self.prefix(dst=os.path.join(app, "Contents", "Resources")):
-                        for libfile in dylibs:
+                # our apps dependencies on shared libs
+                # for each app, for each dylib we collected in dylibs,
+                # create a symlink to the real copy of the dylib.
+                with self.prefix(dst=os.path.join("SLPlugin.app", "Contents", "Resources")):
+                    for libfile in dylibs:
                             self.relsymlinkf(os.path.join(libfile_parent, libfile))
 
                 # Dullahan helper apps go inside SLPlugin.app
