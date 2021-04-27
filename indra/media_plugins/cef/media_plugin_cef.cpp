@@ -434,7 +434,9 @@ void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
         //case dullahan::CT_VERTICALTEXT:
         //case dullahan::CT_CELL:
         //case dullahan::CT_CONTEXTMENU:
-        //case dullahan::CT_ALIAS:
+        case dullahan::CT_ALIAS:
+            name = "tool_media_open";
+            break;
         case dullahan::CT_PROGRESS:
             name = "working";
             break;
