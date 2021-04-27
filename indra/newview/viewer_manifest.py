@@ -1290,12 +1290,14 @@ class DarwinManifest(ViewerManifest):
                     libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
                     cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
                     slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
+                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet.so"
                     while (not signed) and (sign_attempts > 0):
                         try:
                             sign_attempts-=1
                             # Note: See blurb above about names of keychains
                             self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
                             self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
                             self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
                             signed=True # if no exception was raised, the codesign worked
