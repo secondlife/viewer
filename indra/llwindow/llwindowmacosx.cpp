@@ -1422,6 +1422,7 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_SIZENESW:						return "UI_CURSOR_SIZENESW";
 		case UI_CURSOR_SIZEWE:							return "UI_CURSOR_SIZEWE";
 		case UI_CURSOR_SIZENS:							return "UI_CURSOR_SIZENS";
+		case UI_CURSOR_SIZEALL:							return "UI_CURSOR_SIZEALL";
 		case UI_CURSOR_NO:								return "UI_CURSOR_NO";
 		case UI_CURSOR_WORKING:							return "UI_CURSOR_WORKING";
 		case UI_CURSOR_TOOLGRAB:						return "UI_CURSOR_TOOLGRAB";
@@ -1441,6 +1442,7 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_TOOLCAMERA:						return "UI_CURSOR_TOOLCAMERA";
 		case UI_CURSOR_TOOLPAN:							return "UI_CURSOR_TOOLPAN";
 		case UI_CURSOR_TOOLZOOMIN:						return "UI_CURSOR_TOOLZOOMIN";
+		case UI_CURSOR_TOOLZOOMOUT:						return "UI_CURSOR_TOOLZOOMOUT";
 		case UI_CURSOR_TOOLPICKOBJECT3:					return "UI_CURSOR_TOOLPICKOBJECT3";
 		case UI_CURSOR_TOOLPLAY:						return "UI_CURSOR_TOOLPLAY";
 		case UI_CURSOR_TOOLPAUSE:						return "UI_CURSOR_TOOLPAUSE";

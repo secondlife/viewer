@@ -3193,58 +3193,7 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << plugin->getCursorName() << LL_ENDL;
 
 			std::string cursor = plugin->getCursorName();
-
-            static const std::map<std::string, ECursorType> cursor_name_to_enum
-            {
-                {std::string("arrow"), UI_CURSOR_ARROW},
-                {std::string("wait"), UI_CURSOR_WAIT},
-                {std::string("hand"), UI_CURSOR_HAND},
-                {std::string("ibeam"), UI_CURSOR_IBEAM},
-                {std::string("cross"), UI_CURSOR_CROSS},
-                {std::string("split_nwse"), UI_CURSOR_SIZENWSE},
-                {std::string("split_nesw"), UI_CURSOR_SIZENESW},
-                {std::string("split_we"), UI_CURSOR_SIZEWE},
-                {std::string("split_ns"), UI_CURSOR_SIZENS},
-                {std::string("cursor_no"), UI_CURSOR_NO},
-                {std::string("working"), UI_CURSOR_WORKING},
-                {std::string("tool_grab"), UI_CURSOR_TOOLGRAB},
-                {std::string("tool_land"), UI_CURSOR_TOOLLAND},
-                {std::string("tool_focus"), UI_CURSOR_TOOLFOCUS},
-                {std::string("tool_create"), UI_CURSOR_TOOLCREATE},
-                {std::string("arrow_drag"), UI_CURSOR_ARROWDRAG},
-                {std::string("arrow_copy"), UI_CURSOR_ARROWCOPY},
-                {std::string("arrow_drag_multi"), UI_CURSOR_ARROWDRAGMULTI},
-                {std::string("arrow_copy_multi"), UI_CURSOR_ARROWCOPYMULTI},
-                {std::string("cursor_no_locked"), UI_CURSOR_NOLOCKED},
-                {std::string("arrow_locked"), UI_CURSOR_ARROWLOCKED},
-                {std::string("grab_locked"), UI_CURSOR_GRABLOCKED},
-                {std::string("tool_translate"), UI_CURSOR_TOOLTRANSLATE},
-                {std::string("tool_rotate"), UI_CURSOR_TOOLROTATE},
-                {std::string("tool_scale"), UI_CURSOR_TOOLSCALE},
-                {std::string("tool_camera"), UI_CURSOR_TOOLCAMERA},
-                {std::string("tool_pan"), UI_CURSOR_TOOLPAN},
-                {std::string("tool_zoomin"), UI_CURSOR_TOOLZOOMIN},
-                {std::string("tool_pick_object3"), UI_CURSOR_TOOLPICKOBJECT3},
-                {std::string("tool_play"), UI_CURSOR_TOOLPLAY},
-                {std::string("tool_pause"), UI_CURSOR_TOOLPAUSE},
-                {std::string("tool_media_open"), UI_CURSOR_TOOLMEDIAOPEN},
-                {std::string("tool_pipette"), UI_CURSOR_PIPETTE},
-                {std::string("tool_sit"), UI_CURSOR_TOOLSIT},
-                {std::string("tool_buy"), UI_CURSOR_TOOLBUY},
-                {std::string("tool_open"), UI_CURSOR_TOOLOPEN},
-                {std::string("tool_pathfinding"), UI_CURSOR_TOOLPATHFINDING},
-            };
-
-            std::map<std::string, ECursorType>::const_iterator iter = cursor_name_to_enum.find(cursor);
-            if (iter != cursor_name_to_enum.end())
-            {
-                mLastSetCursor = iter->second;
-            }
-            else
-            {
-                // for anything else, default to the arrow
-                mLastSetCursor = UI_CURSOR_ARROW;
-            }
+			mLastSetCursor = getCursorFromString(cursor);
 		}
 		break;
 
