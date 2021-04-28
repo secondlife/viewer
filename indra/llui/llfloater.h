@@ -172,6 +172,9 @@ public:
 		Optional<S32>			header_height,
 								legacy_header_height; // HACK see initFromXML()
 
+		Optional<F32>			rel_x,
+								rel_y;
+
 		// Images for top-right controls
 		Optional<LLUIImage*>	close_image,
 								restore_image,
@@ -521,6 +524,9 @@ private:
 	BOOL			mHasBeenDraggedWhileMinimized;
 	S32				mPreviousMinimizedBottom;
 	S32				mPreviousMinimizedLeft;
+
+	F32				mDefaultRelativeX;
+	F32				mDefaultRelativeY;
 };
 
 
