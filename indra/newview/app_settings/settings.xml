@@ -12509,6 +12509,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>TextureFetchMinTimeToLog</key>
+    <map>
+      <key>Comment</key>
+      <string>If texture fetching time exceeds this value, texture fetch tester will log info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
+    </map>
   <key>TextureFetchFakeFailureRate</key>
   <map>
     <key>Comment</key>
