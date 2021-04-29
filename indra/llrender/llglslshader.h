@@ -67,11 +67,10 @@ public:
 class LLGLSLShader
 {
 public:
-    // NOTE:Keep gShaderConsts and LLGLSLShader::ShaderConsts_e in sync!
+    // NOTE: Keep gShaderConsts and LLGLSLShader::ShaderConsts_e in sync!
     enum eShaderConsts
     {
-          SHADER_CONST_CLOUD_DEPTH
-        , SHADER_CONST_MOON_DEPTH
+          SHADER_CONST_CLOUD_MOON_DEPTH
         , SHADER_CONST_STAR_DEPTH
         , NUM_SHADER_CONSTS
     };
