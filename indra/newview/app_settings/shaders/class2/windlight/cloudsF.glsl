@@ -132,6 +132,6 @@ void main()
     // camera above water: class1\deferred\cloudsF.glsl
     // camera below water: class2\windlight\coudsV.glsl
     // See: starsV.glsl, cloudsV.glsl, moonF.glsl
-    gl_FragDepth = LL_SHADER_CONST_CLOUD_DEPTH;
+    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH;
 }
 

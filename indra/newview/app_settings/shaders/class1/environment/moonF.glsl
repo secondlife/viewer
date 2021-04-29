@@ -47,5 +47,5 @@ void main()
         discard;
 
     frag_color = color;
-    gl_FragDepth = LL_SHADER_CONST_MOON_DEPTH; // SL-14113 Moon is infront of stars
+    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH; // SL-14113 Moon is infront of stars
 }

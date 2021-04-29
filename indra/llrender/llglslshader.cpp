@@ -62,20 +62,18 @@ U32 LLGLSLShader::sTotalDrawCalls = 0;
 LLGLSLShader    gUIProgram;
 LLGLSLShader    gSolidColorProgram;
 
-// NOTE:Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
+// NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
 const std::string gShaderConstsKey[ LLGLSLShader::NUM_SHADER_CONSTS ] =
 {
-	  "LL_SHADER_CONST_CLOUD_DEPTH"
-	, "LL_SHADER_CONST_MOON_DEPTH"
+	  "LL_SHADER_CONST_CLOUD_MOON_DEPTH"
 	, "LL_SHADER_CONST_STAR_DEPTH"
 };
 
-// NOTE:Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
+// NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
 const std::string gShaderConstsVal[ LLGLSLShader::NUM_SHADER_CONSTS ] =
 {
-	  "0.999985" // SHADER_CONST_CLOUD_DEPTH // SL-14113
-	, "0.999985" // SHADER_CONST_MOON_DEPTH  // SL-14113
-	, "0.999995" // SHADER_CONST_STAR_DEPTH  // SL-14113
+	  "0.999985" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
+	, "0.999995" // SHADER_CONST_STAR_DEPTH       // SL-14113
 };
 
 
