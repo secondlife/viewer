@@ -519,7 +519,7 @@ public:
 	void createJumpKeys();
 
 	// Show popup at a specific location, in the spawn_view's coordinate frame
-	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y);
+	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S32 mouse_x = 0, S32 mouse_y = 0);
 
 	// Whether to drop shadow menu bar 
 	void setDropShadowed( const BOOL shadowed );

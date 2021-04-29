@@ -229,6 +229,7 @@ Ansariel Hiller
 	SL-14939
 	SL-14940
 	SL-14941
+	SL-3136
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -266,10 +267,10 @@ Benja Kepler
 Benjamin Bigdipper
 Beq Janus
 	BUG-227094
-Beth Walcher
-Beq Janus
 	SL-10288
 	SL-13583
+	SL-14766
+Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
 	CT-225

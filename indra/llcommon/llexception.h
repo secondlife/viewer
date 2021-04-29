@@ -102,4 +102,14 @@ void crash_on_unhandled_exception_(const char*, int, const char*, const std::str
      log_unhandled_exception_(__FILE__, __LINE__, BOOST_CURRENT_FUNCTION, CONTEXT)
 void log_unhandled_exception_(const char*, int, const char*, const std::string&);
 
+
+#if LL_WINDOWS
+
+// SEH exception filtering for use in __try __except
+// Separates C++ exceptions from C SEH exceptions
+// Todo: might be good idea to do some kind of seh_to_msc_wrapper(function, ARGS&&);
+U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop);
+
+#endif //LL_WINDOWS
+
 #endif /* ! defined(LL_LLEXCEPTION_H) */
