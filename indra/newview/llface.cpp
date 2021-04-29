@@ -1074,6 +1074,13 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
     F32 map_rot = 0.f, map_scaleS = 0.f, map_scaleT = 0.f, map_offsS = 0.f, map_offsT = 0.f;
 
+    LLMaterial* mat = orig_tep->getMaterialParams();
+    if (!mat && map != LLRender::DIFFUSE_MAP)
+    {
+        LL_WARNS_ONCE("llface") << "Face is set to use specular or normal map but has no material, defaulting to diffuse" << LL_ENDL;
+        map = LLRender::DIFFUSE_MAP;
+    }
+
     switch (map)
     {
     case LLRender::DIFFUSE_MAP:
@@ -1084,26 +1091,26 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
         map_offsT = orig_tep->mOffsetT;
         break;
     case LLRender::NORMAL_MAP:
-        if (orig_tep->getMaterialParams()->getNormalID().isNull())
+        if (mat->getNormalID().isNull())
         {
             return false;
         }
-        map_rot = orig_tep->getMaterialParams()->getNormalRotation();
-        map_scaleS = orig_tep->getMaterialParams()->getNormalRepeatX();
-        map_scaleT = orig_tep->getMaterialParams()->getNormalRepeatY();
-        map_offsS = orig_tep->getMaterialParams()->getNormalOffsetX();
-        map_offsT = orig_tep->getMaterialParams()->getNormalOffsetY();
+        map_rot = mat->getNormalRotation();
+        map_scaleS = mat->getNormalRepeatX();
+        map_scaleT = mat->getNormalRepeatY();
+        map_offsS = mat->getNormalOffsetX();
+        map_offsT = mat->getNormalOffsetY();
         break;
     case LLRender::SPECULAR_MAP:
-        if (orig_tep->getMaterialParams()->getSpecularID().isNull())
+        if (mat->getSpecularID().isNull())
         {
             return false;
         }
-        map_rot = orig_tep->getMaterialParams()->getSpecularRotation();
-        map_scaleS = orig_tep->getMaterialParams()->getSpecularRepeatX();
-        map_scaleT = orig_tep->getMaterialParams()->getSpecularRepeatY();
-        map_offsS = orig_tep->getMaterialParams()->getSpecularOffsetX();
-        map_offsT = orig_tep->getMaterialParams()->getSpecularOffsetY();
+        map_rot = mat->getSpecularRotation();
+        map_scaleS = mat->getSpecularRepeatX();
+        map_scaleT = mat->getSpecularRepeatY();
+        map_offsS = mat->getSpecularOffsetX();
+        map_offsT = mat->getSpecularOffsetY();
         break;
     default: /*make compiler happy*/
         break;
