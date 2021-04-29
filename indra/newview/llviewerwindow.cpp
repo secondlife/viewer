@@ -2432,7 +2432,6 @@ void LLViewerWindow::shutdownGL()
 LLViewerWindow::~LLViewerWindow()
 {
 	LL_INFOS() << "Destroying Window" << LL_ENDL;
-	gDebugWindowProc = TRUE; // event catching, disable once we figure out cause for exit crashes
 	destroyWindow();
 
 	delete mDebugText;
@@ -2523,6 +2522,11 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		// round up when converting coordinates to make sure there are no gaps at edge of window
 		LLView::sForceReshape = display_scale_changed;
 		mRootView->reshape(llceil((F32)width / mDisplayScale.mV[VX]), llceil((F32)height / mDisplayScale.mV[VY]));
+        if (display_scale_changed)
+        {
+            // Needs only a 'scale change' update, everything else gets handled by LLLayoutStack::updateClass()
+            LLPanelLogin::reshapePanel();
+        }
 		LLView::sForceReshape = FALSE;
 
 		// clear font width caches

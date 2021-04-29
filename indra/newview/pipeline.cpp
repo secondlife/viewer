@@ -1668,7 +1668,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 
 	if (alpha && mat)
 	{
-		switch (mat->getDiffuseAlphaMode())
+		switch (mat->getDiffuseAlphaModeRender())
 		{
 			case 1:
 				alpha = true; // Material's alpha mode is set to blend.  Toss it into the alpha draw pool.

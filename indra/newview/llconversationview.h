@@ -36,6 +36,7 @@
 class LLTextBox;
 class LLFloater;
 class LLFloaterIMContainer;
+class LLConversationItem;
 class LLConversationViewSession;
 class LLConversationViewParticipant;
 
@@ -66,6 +67,8 @@ protected:
 public:
 	virtual ~LLConversationViewSession();
 
+	/*virtual*/ void destroyView();
+
 	/*virtual*/ BOOL postBuild();
 	/*virtual*/ void draw();
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
@@ -92,6 +95,8 @@ public:
 
 	LLFloater* getSessionFloater();
 	bool isInActiveVoiceChannel() { return mIsInActiveVoiceChannel; }
+
+	bool highlightFriendTitle(LLConversationItem* vmi);
 
 private:
 
