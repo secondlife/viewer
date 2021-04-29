@@ -204,6 +204,7 @@ public:
 	virtual bool hasChildren() const = 0;
 	virtual void addChild(LLFolderViewModelItem* child) = 0;
 	virtual void removeChild(LLFolderViewModelItem* child) = 0;
+	virtual void clearChildren() = 0;
 
 	// This method will be called to determine if a drop can be
 	// performed, and will set drop to TRUE if a drop is
@@ -301,9 +302,8 @@ public:
 	
 	virtual void clearChildren()
 	{
-		// As this is cleaning the whole list of children wholesale, we do need to delete the pointed objects
-		// This is different and not equivalent to calling removeChild() on each child
-		std::for_each(mChildren.begin(), mChildren.end(), DeletePointer());
+		// We are working with models that belong to views as LLPointers, clean the list, let poiters handle the rest
+		std::for_each(mChildren.begin(), mChildren.end(), [](LLFolderViewModelItem* c) {c->setParent(NULL); });
 		mChildren.clear();
 		dirtyDescendantsFilter();
 		dirtyFilter();
