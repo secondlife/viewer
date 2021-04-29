@@ -391,7 +391,7 @@ LLVivoxVoiceClient::~LLVivoxVoiceClient()
 void LLVivoxVoiceClient::init(LLPumpIO *pump)
 {
 	// constructor will set up LLVoiceClient::getInstance()
-	LLVivoxVoiceClient::getInstance()->mPump = pump;
+	mPump = pump;
 
 //     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
 //         boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
@@ -419,6 +419,7 @@ void LLVivoxVoiceClient::terminate()
 	}
 
     sShuttingDown = true;
+    mPump = NULL;
 }
 
 //---------------------------------------------------
@@ -963,9 +964,14 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
 
-    while (!mPump)
-    {   // Can't do this until we have the pump available.
+    while (!mPump && !sShuttingDown)
+    {   // Can't use the pump until we have it available.
         llcoro::suspend();
+    }
+
+    if (sShuttingDown)
+    {
+        return false;
     }
     
     // MBW -- Note to self: pumps and pipes examples in
@@ -979,7 +985,9 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
     readChain.push_back(LLIOPipe::ptr_t(new LLIOSocketReader(mSocket)));
     readChain.push_back(LLIOPipe::ptr_t(new LLVivoxProtocolParser()));
 
+
     mPump->addChain(readChain, NEVER_CHAIN_EXPIRY_SECS);
+
 
     //---------------------------------------------------------------------
     llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
@@ -1002,6 +1010,11 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         LL_DEBUGS("Voice") << "no capabilities for voice provisioning; waiting " << LL_ENDL;
         // *TODO* Pump a message for wake up.
         llcoro::suspend();
+    }
+    
+    if (sShuttingDown)
+    {
+        return false;
     }
 
     std::string url = gAgent.getRegionCapability("ProvisionVoiceAccountRequest");

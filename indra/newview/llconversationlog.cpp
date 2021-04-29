@@ -398,6 +398,24 @@ void LLConversationLog::deleteBackupLogs()
 	}
 }
 
+void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::string &expected_filename, const std::string &new_session_name)
+{
+    conversations_vec_t::iterator conv_it = mConversations.begin();
+    for (; conv_it != mConversations.end(); ++conv_it)
+    {
+        if (conv_it->getSessionID() == session_id)
+        {
+            if (conv_it->getHistoryFileName() != expected_filename)
+            {
+                LLLogChat::renameLogFile(conv_it->getHistoryFileName(), expected_filename);
+                conv_it->updateHistoryFileName(expected_filename);
+                conv_it->setConversationName(new_session_name);
+            }
+            break;
+        }
+    }
+}
+
 bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
 {
 
@@ -518,7 +536,9 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	}
 	bool purge_required = false;
 
-	char buffer[MAX_STRING];
+	static constexpr int UTF_BUFFER{ 1024 }; // long enough to handle the most extreme Unicode nonsense and some to spare
+
+	char buffer[UTF_BUFFER];
 	char conv_name_buffer[MAX_STRING];
 	char part_id_buffer[MAX_STRING];
 	char conv_id_buffer[MAX_STRING];
@@ -529,11 +549,14 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	// before CHUI-348 it was a flag of conversation voice state
 	int prereserved_unused;
 
-	while (!feof(fp) && fgets(buffer, MAX_STRING, fp))
+	memset(buffer, '\0', UTF_BUFFER);
+	while (!feof(fp) && fgets(buffer, UTF_BUFFER, fp))
 	{
-		conv_name_buffer[0] = '\0';
-		part_id_buffer[0]	= '\0';
-		conv_id_buffer[0]	= '\0';
+        // force blank for added safety
+        memset(conv_name_buffer, '\0', MAX_STRING);
+        memset(part_id_buffer, '\0', MAX_STRING);
+        memset(conv_id_buffer, '\0', MAX_STRING);
+        memset(history_file_name, '\0', MAX_STRING);
 
 		sscanf(buffer, "[%lld] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
@@ -570,6 +593,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		}
 
 		mConversations.push_back(conversation);
+		memset(buffer, '\0', UTF_BUFFER);
 	}
 	fclose(fp);
 
