@@ -297,6 +297,7 @@ public:
 	 * Writes notification message to IM  p2p session.
 	 */
 	static void logToIMP2P(const LLNotificationPtr& notification, bool to_file_only = false);
+	static void logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only = false);
 
 	/**
 	 * Writes group notice notification message to IM  group session.

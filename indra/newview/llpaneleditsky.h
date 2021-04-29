@@ -29,7 +29,7 @@
 
 #include "llpanel.h"
 #include "llsettingssky.h"
-#include "llfloaterfixedenvironment.h"
+#include "llfloatereditenvironmentbase.h"
 
 //=========================================================================
 class LLSlider;

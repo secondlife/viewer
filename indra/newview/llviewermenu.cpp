@@ -5426,7 +5426,7 @@ class LLToolsSelectNextPartFace : public view_listener_t
                         new_te = to_select->getNumTEs() - 1;
                     }
                 }
-                LLSelectMgr::getInstance()->addAsIndividual(to_select, new_te, FALSE);
+                LLSelectMgr::getInstance()->selectObjectOnly(to_select, new_te);
             }
             else
             {

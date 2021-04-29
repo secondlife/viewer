@@ -97,6 +97,8 @@ protected:
 	
 	void showDropDownMenu();
 
+	void onMoreTextBoxClicked();
+
 	LLHandle<LLView> mOverflowMenuHandle;
 	LLHandle<LLView> mContextMenuHandle;
 
@@ -163,6 +165,9 @@ private:
 	LLInventoryModel::item_array_t mItems;
 
 	BOOL mTabsHighlightEnabled;
+
+	S32 mMouseX;
+	S32 mMouseY;
 
 	boost::signals2::connection mEndDragConnection;
 };
