@@ -1078,7 +1078,6 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
         gMoonProgram.addConstant( LLGLSLShader::SHADER_CONST_MOON_DEPTH ); // SL-14113
 		success = gMoonProgram.createShader(NULL, NULL);
 		if (success)
-
 		{
 			gMoonProgram.bind();
 			gMoonProgram.uniform1i(sTex0, 0);
