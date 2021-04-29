@@ -107,11 +107,13 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
             return NULL;
         }
 
+        mRequestedList[asset_uuid] = gFrameTimeSeconds;
+
+        // Note that getAssetData can callback immediately and cleans mRequestedList
 		gAssetStorage->getAssetData(asset_uuid,
 									LLAssetType::AT_LANDMARK,
 									LLLandmarkList::processGetAssetReply,
 									NULL);
-		mRequestedList[asset_uuid] = gFrameTimeSeconds;
 	}
 	return NULL;
 }
@@ -194,11 +196,15 @@ void LLLandmarkList::processGetAssetReply(
             landmark_uuid_list_t::iterator iter = gLandmarkList.mWaitList.begin();
             LLUUID asset_uuid = *iter;
             gLandmarkList.mWaitList.erase(iter);
+
+            // add to mRequestedList before calling getAssetData()
+            gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
+
+            // Note that getAssetData can callback immediately and cleans mRequestedList
             gAssetStorage->getAssetData(asset_uuid,
                 LLAssetType::AT_LANDMARK,
                 LLLandmarkList::processGetAssetReply,
                 NULL);
-            gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
         }
         scheduling = false;
     }

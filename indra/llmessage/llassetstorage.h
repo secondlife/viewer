@@ -262,7 +262,7 @@ public:
 
     virtual void logAssetStorageInfo() = 0;
     
-	void checkForTimeouts();
+	virtual void checkForTimeouts();
 
 	void getEstateAsset(const LLHost &object_sim, const LLUUID &agent_id, const LLUUID &session_id,
 									const LLUUID &asset_id, LLAssetType::EType atype, EstateAssetType etype,
