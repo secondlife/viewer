@@ -474,7 +474,7 @@ protected:
 	/////////////////////////////
 	// VAD changes
 	// disable auto-VAD and configure VAD parameters explicitly
-	void setupVADParams(unsigned int vad_hangover, unsigned int vad_noise_floor, unsigned int vad_sensitivity);
+	void setupVADParams(unsigned int vad_auto, unsigned int vad_hangover, unsigned int vad_noise_floor, unsigned int vad_sensitivity);
 	void onVADSettingsChange();
 
 	/////////////////////////////

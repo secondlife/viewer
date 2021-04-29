@@ -14426,7 +14426,17 @@
       <integer>44125</integer>
     </map>
 
-
+  <key>VivoxVadAuto</key>
+  <map>
+    <key>Comment</key>
+    <string>A flag indicating if the automatic VAD is enabled (1) or disabled (0). The individual settings are ignored if the auto-mode is enabled</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>VivoxVadHangover</key>
   <map>
     <key>Comment</key>
