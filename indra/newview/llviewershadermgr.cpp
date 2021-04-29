@@ -1063,6 +1063,7 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 		gStarsProgram.mShaderFiles.push_back(make_pair("environment/starsV.glsl", GL_VERTEX_SHADER_ARB));
 		gStarsProgram.mShaderFiles.push_back(make_pair("environment/starsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gStarsProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
+        gStarsProgram.addConstant( LLGLSLShader::SHADER_CONST_STAR_DEPTH ); // SL-14113
 		success = gStarsProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
@@ -1074,8 +1075,10 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 		gMoonProgram.mShaderFiles.push_back(make_pair("environment/moonV.glsl", GL_VERTEX_SHADER_ARB));
 		gMoonProgram.mShaderFiles.push_back(make_pair("environment/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gMoonProgram.mShaderLevel = mShaderLevel[SHADER_ENVIRONMENT];
+        gMoonProgram.addConstant( LLGLSLShader::SHADER_CONST_MOON_DEPTH ); // SL-14113
 		success = gMoonProgram.createShader(NULL, NULL);
 		if (success)
+
 		{
 			gMoonProgram.bind();
 			gMoonProgram.uniform1i(sTex0, 0);
@@ -2750,6 +2753,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredWLCloudProgram.mShaderFiles.push_back(make_pair("deferred/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gDeferredWLCloudProgram.addConstant( LLGLSLShader::SHADER_CONST_CLOUD_DEPTH ); // SL-14113
 		success = gDeferredWLCloudProgram.createShader(NULL, NULL);
 		llassert(success);
 	}
@@ -2789,6 +2793,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredWLMoonProgram.mShaderFiles.push_back(make_pair("deferred/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDeferredWLMoonProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gDeferredWLMoonProgram.addConstant( LLGLSLShader::SHADER_CONST_MOON_DEPTH ); // SL-14113
  	 	success = gDeferredWLMoonProgram.createShader(NULL, NULL);
         llassert(success);
  	}
@@ -2801,6 +2806,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredStarProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gDeferredStarProgram.addConstant( LLGLSLShader::SHADER_CONST_STAR_DEPTH ); // SL-14113
 		success = gDeferredStarProgram.createShader(NULL, NULL);
         llassert(success);
 	}
@@ -4157,6 +4163,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gWLCloudProgram.mShaderFiles.push_back(make_pair("windlight/cloudsF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLCloudProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
         gWLCloudProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gWLCloudProgram.addConstant( LLGLSLShader::SHADER_CONST_CLOUD_DEPTH ); // SL-14113
         success = gWLCloudProgram.createShader(NULL, NULL);
     }
 
@@ -4193,6 +4200,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gWLMoonProgram.mShaderFiles.push_back(make_pair("windlight/moonF.glsl", GL_FRAGMENT_SHADER_ARB));
         gWLMoonProgram.mShaderLevel = mShaderLevel[SHADER_WINDLIGHT];
         gWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
+        gWLMoonProgram.addConstant( LLGLSLShader::SHADER_CONST_MOON_DEPTH ); // SL-14113
         success = gWLMoonProgram.createShader(NULL, NULL);
     }
 

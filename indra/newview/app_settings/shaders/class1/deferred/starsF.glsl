@@ -67,6 +67,6 @@ void main()
     frag_data[1] = vec4(0.0f);
     frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
 
-    gl_FragDepth = 0.999995f; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
+    gl_FragDepth = LL_SHADER_CONST_STAR_DEPTH; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
 }
 

@@ -47,5 +47,5 @@ void main()
     color.a *= max(custom_alpha, vertex_color.a);
 
     frag_color = color;
-    gl_FragDepth = 0.999995f; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
+    gl_FragDepth = LL_SHADER_CONST_STAR_DEPTH; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
 }

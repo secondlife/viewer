@@ -67,6 +67,14 @@ public:
 class LLGLSLShader
 {
 public:
+    // NOTE:Keep gShaderConsts and LLGLSLShader::ShaderConsts_e in sync!
+    enum eShaderConsts
+    {
+          SHADER_CONST_CLOUD_DEPTH
+        , SHADER_CONST_MOON_DEPTH
+        , SHADER_CONST_STAR_DEPTH
+        , NUM_SHADER_CONSTS
+    };
 
 	enum 
 	{
@@ -149,7 +157,9 @@ public:
     void clearPermutations();
 	void addPermutation(std::string name, std::string value);
 	void removePermutation(std::string name);
-	
+
+    void addConstant( const LLGLSLShader::eShaderConsts shader_const );
+
 	//enable/disable texture channel for specified uniform
 	//if given texture uniform is active in the shader, 
 	//the corresponding channel will be active upon return
