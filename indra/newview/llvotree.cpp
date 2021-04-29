@@ -45,6 +45,8 @@
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
+#include "llvolumemgr.h"
+#include "llvovolume.h"
 #include "llworld.h"
 #include "noise.h"
 #include "pipeline.h"
@@ -85,6 +87,9 @@ LLVOTree::LLVOTree(const LLUUID &id, const LLPCode pcode, LLViewerRegion *region
 	mFrameCount = 0;
 	mWind = mRegionp->mWind.getVelocity(getPositionRegion());
 	mTrunkLOD = 0;
+
+	// if assert triggers, idleUpdate() needs to be revised and adjusted to new LOD levels
+	llassert(sMAX_NUM_TREE_LOD_LEVELS == LLVolumeLODGroup::NUM_LODS);
 }
 
 
@@ -347,8 +352,11 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}
 	
-	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ;
+	S32 trunk_LOD = sMAX_NUM_TREE_LOD_LEVELS ; // disabled
 	F32 app_angle = getAppAngle()*LLVOTree::sTreeFactor;
+	F32 distance = mDrawable->mDistanceWRTCamera * LLVOVolume::sDistanceFactor * (F_PI / 3.f);
+	F32 diameter = getScale().length(); // trees have very broken scale, but length rougtly outlines proper diameter
+	F32 sz = mBillboardScale * mBillboardRatio * diameter;
 
 	for (S32 j = 0; j < sMAX_NUM_TREE_LOD_LEVELS; j++)
 	{
@@ -357,7 +365,14 @@ void LLVOTree::idleUpdate(LLAgent &agent, const F64 &time)
 			trunk_LOD = j;
 			break;
 		}
-	} 
+	}
+
+    F32 tan_angle = (LLVOTree::sTreeFactor * 64 * sz) / distance;
+    S32 cur_detail = LLVolumeLODGroup::getDetailFromTan(ll_round(tan_angle, 0.01f)); // larger value, better quality
+
+    // for trunk_LOD lower value means better quality, but both trunk_LOD and cur_detail have 4 levels
+    trunk_LOD = llmax(trunk_LOD, LLVolumeLODGroup::NUM_LODS - cur_detail - 1);
+    trunk_LOD = llmin(trunk_LOD, sMAX_NUM_TREE_LOD_LEVELS);
 
 	if (mReferenceBuffer.isNull())
 	{
@@ -408,8 +423,9 @@ void LLVOTree::setPixelAreaAndAngle(LLAgent &agent)
 	LLVector3 lookAt = center - viewer_pos_agent;
 	F32 dist = lookAt.normVec() ;	
 	F32 cos_angle_to_view_dir = lookAt * LLViewerCamera::getInstance()->getXAxis() ;	
-	
-	F32 range = dist - getMinScale()/2;
+	F32 radius = getScale().length()*0.5f;
+	F32 range = dist - radius;
+
 	if (range < F_ALMOST_ZERO || isHUDAttachment())		// range == zero
 	{
 		mAppAngle = 180.f;
