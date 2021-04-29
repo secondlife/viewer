@@ -72,8 +72,8 @@ const std::string gShaderConstsKey[ LLGLSLShader::NUM_SHADER_CONSTS ] =
 // NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
 const std::string gShaderConstsVal[ LLGLSLShader::NUM_SHADER_CONSTS ] =
 {
-	  "0.999985" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
-	, "0.999995" // SHADER_CONST_STAR_DEPTH       // SL-14113
+	  "0.99998" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
+	, "0.99999" // SHADER_CONST_STAR_DEPTH       // SL-14113
 };
 
 
