@@ -4856,6 +4856,10 @@ void LLAppViewer::idle()
 	//
 	// Special case idle if still starting up
 	//
+	if (LLStartUp::getStartupState() >= STATE_WORLD_INIT)
+	{
+		update_texture_time();
+	}
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// Skip rest if idle startup returns false (essentially, no world yet)

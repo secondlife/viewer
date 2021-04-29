@@ -205,6 +205,9 @@ static std::string get_texture_list_name()
 
 void LLViewerTextureList::doPrefetchImages()
 {
+	gTextureTimer.start();
+	gTextureTimer.pause();
+
 	if (LLAppViewer::instance()->getPurgeCache())
 	{
 		// cache was purged, no point
@@ -1400,6 +1403,33 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
 	
 	return max_texmem;
+}
+
+bool LLViewerTextureList::isPrioRequestsFetched()
+{
+	static LLCachedControl<F32> prio_threshold(gSavedSettings, "TextureFetchUpdatePriorityThreshold", 0.0f);
+	static LLCachedControl<F32> fetching_textures_threshold(gSavedSettings, "TextureListFetchingThreshold", 0.97f);
+	S32 fetching_tex_count = 0;
+	S32 tex_count_threshold = gTextureList.mImageList.size() * (1 - fetching_textures_threshold);
+
+	for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
+		iter != gTextureList.mImageList.end(); )
+	{
+		LLPointer<LLViewerFetchedTexture> imagep = *iter++;
+		if (imagep->getDecodePriority() > prio_threshold)
+		{
+			if (imagep->hasFetcher() || imagep->isFetching())
+			{
+				fetching_tex_count++;
+				if (fetching_tex_count >= tex_count_threshold)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
 }
 
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);

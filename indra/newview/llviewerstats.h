@@ -295,6 +295,7 @@ static const F32 SEND_STATS_PERIOD = 300.0f;
 // The following are from (older?) statistics code found in appviewer.
 void update_statistics();
 void send_viewer_stats(bool include_preferences);
+void update_texture_time();
 
 extern LLFrameTimer gTextureTimer;
 extern U32Bytes	gTotalTextureData;

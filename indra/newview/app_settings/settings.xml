@@ -12608,6 +12608,17 @@
       <key>Value</key>
       <integer>32</integer>
     </map>
+    <key>TextureListFetchingThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>If the ratio between fetched and all textures in the list is greater than this threshold, which we assume that almost all textures are fetched</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.97</real>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>
