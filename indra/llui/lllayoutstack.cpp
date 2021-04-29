@@ -166,7 +166,7 @@ void LLLayoutPanel::setVisible( BOOL visible )
 
 void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= TRUE*/ )
 {
-	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
+	if (width == getRect().getWidth() && height == getRect().getHeight() && !LLView::sForceReshape) return;
 
 	if (!mIgnoreReshape && mAutoResize == false)
 	{

@@ -309,12 +309,15 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 
 	
 	LLIconCtrl* icon = 0;
+	bool is_in_group = gAgent.isInGroup(session_id, TRUE);
+	LLUUID icon_id;
 
-	if(gAgent.isInGroup(session_id, TRUE))
+	if (is_in_group)
 	{
 		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = session_id;
 		icon = LLUICtrlFactory::instance().create<LLGroupIconCtrl>(icon_params);
+		icon_id = session_id;
 
 		mSessions[session_id] = floaterp;
 		floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
@@ -326,9 +329,16 @@ void LLFloaterIMContainer::addFloater(LLFloater* floaterp,
 		LLAvatarIconCtrl::Params icon_params;
 		icon_params.avatar_id = avatar_id;
 		icon = LLUICtrlFactory::instance().create<LLAvatarIconCtrl>(icon_params);
+		icon_id = avatar_id;
 
 		mSessions[session_id] = floaterp;
 		floaterp->mCloseSignal.connect(boost::bind(&LLFloaterIMContainer::onCloseFloater, this, session_id));
+	}
+
+	LLFloaterIMSessionTab* floater = LLFloaterIMSessionTab::getConversation(session_id);
+	if (floater)
+	{
+		floater->updateChatIcon(icon_id);
 	}
 
 	// forced resize of the floater
@@ -1816,6 +1826,8 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 		{
 			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
 		}
+
+		// Will destroy views and delete models that are not assigned to any views
 		widget->destroyView();
 	}
 	

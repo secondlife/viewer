@@ -94,6 +94,7 @@ public:
 
 	static std::string timestamp(bool withdate = false);
 	static std::string makeLogFileName(std::string(filename));
+	static void renameLogFile(const std::string& old_filename, const std::string& new_filename);
 	/**
 	*Add functions to get old and non date stamped file names when needed
 	*/
