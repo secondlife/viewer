@@ -1,9 +1,9 @@
 /** 
- * @file starsF.glsl
+ * @file class1/environment/starsF.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2021, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,50 +23,29 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
-
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_color;
 #else
-#define frag_data gl_FragData
+#define frag_color gl_FragColor
 #endif
+
+uniform sampler2D diffuseMap;
+
+uniform float custom_alpha;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-VARYING vec2 screenpos;
-
-uniform sampler2D diffuseMap;
-uniform sampler2D altDiffuseMap;
-uniform float blend_factor;
-uniform float custom_alpha;
-uniform float time;
-
-float twinkle(){
-    float d = fract(screenpos.x + screenpos.y);
-    return abs(d);
-}
 
 // See:
 // ALM off: class1/environment/starsF.glsl
 // ALM on : class1/deferred/starsF.glsl
 void main() 
 {
-	// camera above water: class1\deferred\starsF.glsl
-	// camera below water: class1\environment\starsF.glsl
-    vec4 col_a = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col_b = texture2D(diffuseMap, vary_texcoord0.xy);
-    vec4 col = mix(col_b, col_a, blend_factor);
-    col.rgb *= vertex_color.rgb;
- 
-    float factor = smoothstep(0.0f, 0.9f, custom_alpha);
+    vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+    color.rgb = pow(color.rgb, vec3(0.45));
+    color.rgb *= vertex_color.rgb;
+    color.a *= max(custom_alpha, vertex_color.a);
 
-    col.a = (col.a * factor) * 32.0f;
-    col.a *= twinkle();
-
-    frag_data[0] = col;
-    frag_data[1] = vec4(0.0f);
-    frag_data[2] = vec4(0.0, 1.0, 0.0, 1.0);
-
+    frag_color = color;
     gl_FragDepth = LL_SHADER_CONST_STAR_DEPTH; // SL-14113 Moon Haze -- Stars need to depth test behind the moon
 }
-

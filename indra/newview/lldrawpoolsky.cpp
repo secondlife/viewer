@@ -116,27 +116,46 @@ void LLDrawPoolSky::render(S32 pass)
 
 void LLDrawPoolSky::renderSkyFace(U8 index)
 {
-	LLFace* face = mDrawFace[index];
+    LLFace* face = mDrawFace[index];
 
-	if (!face || !face->getGeomCount())
-	{
-		return;
-	}
+    if (!face || !face->getGeomCount())
+    {
+        return;
+    }
 
-    if (index < 6) // sky tex...interp
+    if (index < LLVOSky::FACE_SUN) // sky tex...interp
     {
         llassert(mSkyTex);
-	    mSkyTex[index].bindTexture(true); // bind the current tex
+        mSkyTex[index].bindTexture(true); // bind the current tex
 
         face->renderIndexed();
     }
+    else // Moon
+    if (index == LLVOSky::FACE_MOON)
+    {
+        LLGLSPipelineDepthTestSkyBox gls_skybox(true, true); // SL-14113 Write depth for moon so stars can test if behind it
+
+        LLGLEnable blend(GL_BLEND);
+
+        // if (LLGLSLShader::sNoFixedFunction) // TODO: Necessary? is this always true? We already bailed on gPipeline.canUseWindLightShaders ... above
+        LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
+        if (tex)
+        {
+            gMoonProgram.bind(); // SL-14113 was gOneTextureNoColorProgram
+            gGL.getTexUnit(0)->bind(tex, true);
+            face->renderIndexed();
+        }
+    }
     else // heavenly body faces, no interp...
     {
+        LLGLSPipelineDepthTestSkyBox gls_skybox(true, false); // reset to previous
+
         LLGLEnable blend(GL_BLEND);
 
         LLViewerTexture* tex = face->getTexture(LLRender::DIFFUSE_MAP);
         if (tex)
         {
+            gOneTextureNoColorProgram.bind();
             gGL.getTexUnit(0)->bind(tex, true);
             face->renderIndexed();
         }

@@ -62,6 +62,21 @@ U32 LLGLSLShader::sTotalDrawCalls = 0;
 LLGLSLShader    gUIProgram;
 LLGLSLShader    gSolidColorProgram;
 
+// NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
+const std::string gShaderConstsKey[ LLGLSLShader::NUM_SHADER_CONSTS ] =
+{
+	  "LL_SHADER_CONST_CLOUD_MOON_DEPTH"
+	, "LL_SHADER_CONST_STAR_DEPTH"
+};
+
+// NOTE: Keep gShaderConsts* and LLGLSLShader::ShaderConsts_e in sync!
+const std::string gShaderConstsVal[ LLGLSLShader::NUM_SHADER_CONSTS ] =
+{
+	  "0.99998" // SHADER_CONST_CLOUD_MOON_DEPTH // SL-14113
+	, "0.99999" // SHADER_CONST_STAR_DEPTH       // SL-14113
+};
+
+
 BOOL shouldChange(const LLVector4& v1, const LLVector4& v2)
 {
     return v1 != v2;
@@ -753,6 +768,11 @@ void LLGLSLShader::clearPermutations()
 void LLGLSLShader::addPermutation(std::string name, std::string value)
 {
     mDefines[name] = value;
+}
+
+void LLGLSLShader::addConstant( const LLGLSLShader::eShaderConsts shader_const )
+{
+    addPermutation( gShaderConstsKey[ shader_const ], gShaderConstsVal[ shader_const ] );
 }
 
 void LLGLSLShader::removePermutation(std::string name)

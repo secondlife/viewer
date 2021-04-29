@@ -1,9 +1,9 @@
 /** 
- * @file class1\wl\moonF.glsl
+ * @file class1/environment/moonF.glsl
  *
- * $LicenseInfo:firstyear=2005&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2005, 2020 Linden Research, Inc.
+ * Copyright (C) 2021, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,10 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#extension GL_ARB_texture_rectangle : enable
-
-/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -33,41 +29,23 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform vec4 color;
-uniform vec4 sunlight_color;
-uniform vec4 moonlight_color;
-uniform vec3 moon_dir;
-uniform float moon_brightness;
-uniform sampler2D diffuseMap;
+uniform sampler2D tex0;
 
 VARYING vec2 vary_texcoord0;
 
-vec3 scaleSoftClip(vec3 light);
-
+// See:
+// AS  off: class1/environment/moonF.glsl
+// ALM off: class1/windlight/moonF.glsl
+// ALM on : class1/deferred/moonF.glsl
 void main() 
 {
-    // Restore Pre-EEP alpha fade moon near horizon
-    float fade = 1.0;
-    if( moon_dir.z > 0 )
-        fade = clamp( moon_dir.z*moon_dir.z*4.0, 0.0, 1.0 );
-
-    vec4 c     = texture2D(diffuseMap, vary_texcoord0.xy);
+    vec4 color = texture2D(tex0, vary_texcoord0.xy);
 
     // SL-14113 Don't write to depth; prevent moon's quad from hiding stars which should be visible
     // Moon texture has transparent pixels <0x55,0x55,0x55,0x00>
-    if (c.a <= 2./255.) // 0.00784
+    if (color.a <= 2./255.) // 0.00784
         discard;
 
-//       c.rgb = pow(c.rgb, vec3(0.7f)); // can't use "srgb_to_linear(color.rgb)" as that is a deferred only function
-         c.rgb *= moonlight_color.rgb;
-         c.rgb *= moon_brightness;
-
-         c.rgb *= fade;
-         c.a   *= fade;
-
-         c.rgb  = scaleSoftClip(c.rgb);
-
-    frag_color = vec4(c.rgb, c.a);
-    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH; // SL-14113
+    frag_color = color;
+    gl_FragDepth = LL_SHADER_CONST_CLOUD_MOON_DEPTH; // SL-14113 Moon is infront of stars
 }
-
