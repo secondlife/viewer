@@ -32,6 +32,7 @@
 #include <boost/signals2.hpp>
 
 #include "llenvironment.h"
+#include "llfloatereditenvironmentbase.h"
 
 class LLCheckBoxCtrl;
 class LLComboBox;
@@ -50,14 +51,13 @@ typedef std::shared_ptr<LLSettingsBase> LLSettingsBasePtr_t;
 /**
  * Floater for creating or editing a day cycle.
  */
-class LLFloaterEditExtDayCycle : public LLFloater
+class LLFloaterEditExtDayCycle : public LLFloaterEditEnvironmentBase
 {
 	LOG_CLASS(LLFloaterEditExtDayCycle);
 
     friend class LLDaySettingCopiedCallback;
 
 public:
-    static const std::string    KEY_INVENTORY_ID;
     static const std::string    KEY_EDIT_CONTEXT;
     static const std::string    KEY_DAY_LENGTH;
     static const std::string    KEY_CANMOD;
@@ -82,8 +82,8 @@ public:
     virtual BOOL                postBuild() override;
     virtual void                onOpen(const LLSD& key) override;
     virtual void                onClose(bool app_quitting) override;
-    virtual void                onFocusReceived() override;
-    virtual void                onFocusLost() override;
+    //virtual void                onFocusReceived() override;
+    //virtual void                onFocusLost() override;
     virtual void                onVisibilityChange(BOOL new_visibility) override;
 
     connection_t                setEditCommitSignal(edit_commit_signal_t::slot_type cb);
@@ -97,10 +97,13 @@ public:
     LLUUID                      getEditingAssetId() { return mEditDay ? mEditDay->getAssetId() : LLUUID::null; }
     LLUUID                      getEditingInventoryId() { return mInventoryId; }
 
+    virtual LLSettingsBase::ptr_t getEditSettings()   const override { return mEditDay; }
+
 
     BOOL			            handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
 
-    BOOL                        isDirty() const override { return getIsDirty(); } 
+protected:
+    virtual void                setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;
 
 private:
     typedef std::function<void()> on_confirm_fn;
@@ -108,8 +111,8 @@ private:
 
 	// flyout response/click
 	void                        onButtonApply(LLUICtrl *ctrl, const LLSD &data);
-    virtual void                onClickCloseBtn(bool app_quitting = false) override;
-    void                        onButtonImport();
+    //virtual void                onClickCloseBtn(bool app_quitting = false) override;
+    //void                        onButtonImport();
     void                        onButtonLoadFrame();
     void                        onAddFrame();
 	void                        onRemoveFrame();
@@ -119,7 +122,6 @@ private:
 	void                        onCommitName(class LLLineEditor* caller, void* user_data);
 	void                        onTrackSelectionCallback(const LLSD& user_data);
 	void                        onPlayActionCallback(const LLSD& user_data);
-	void                        onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsDay::ptr_t &day);
 	// time slider clicked
 	void                        onTimeSliderCallback();
 	// a frame moved or frame selection changed
@@ -127,10 +129,6 @@ private:
     void                        onFrameSliderDoubleClick(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseDown(S32 x, S32 y, MASK mask);
     void                        onFrameSliderMouseUp(S32 x, S32 y, MASK mask);
-
-    void                        onPanelDirtyFlagChanged(bool);
-
-    void                        checkAndConfirmSettingsLoss(on_confirm_fn cb);
 
     void                        cloneTrack(U32 source_index, U32 dest_index);
     void                        cloneTrack(const LLSettingsDay::ptr_t &source_day, U32 source_index, U32 dest_index);
@@ -148,25 +146,21 @@ private:
     void                        removeCurrentSliderFrame();
     void                        removeSliderFrame(F32 frame);
 
-    void                        loadInventoryItem(const LLUUID  &inventoryId, bool can_trans = true);
-    void                        onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status);
-
-    void                        doImportFromDisk();
+    virtual void                doImportFromDisk() override;
     void                        loadSettingFromFile(const std::vector<std::string>& filenames);
-    void                        doApplyCreateNewInventory(const LLSettingsDay::ptr_t &day, std::string settings_name);
-    void                        doApplyUpdateInventory(const LLSettingsDay::ptr_t &day);
-    void                        doApplyEnvironment(const std::string &where, const LLSettingsDay::ptr_t &day);
     void                        doApplyCommit(LLSettingsDay::ptr_t day);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                        onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                        onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
+
     void                        doOpenTrackFloater(const LLSD &args);
     void                        doCloseTrackFloater(bool quitting = false);
+    virtual LLFloaterSettingsPicker* getSettingsPicker() override;
     void                        onPickerCommitTrackId(U32 track_id);
 
     void                        doOpenInventoryFloater(LLSettingsType::type_e type, LLUUID curritem);
-    void                        doCloseInventoryFloater(bool quitting = false);
+    //void                        doCloseInventoryFloater(bool quitting = false);
     void                        onPickerCommitSetting(LLUUID item_id, S32 track);
     void                        onAssetLoadedForInsertion(LLUUID item_id,
                                                           LLUUID asset_id,
@@ -176,11 +170,7 @@ private:
                                                           S32 dest_track,
                                                           LLSettingsBase::TrackPosition dest_frame);
 
-    bool                        canUseInventory() const;
-    bool                        canApplyRegion() const;
-    bool                        canApplyParcel() const;
-
-    void                        updateEditEnvironment();
+    virtual void                updateEditEnvironment() override;
     void                        synchronizeTabs();
     void                        reblendSettings();
 
@@ -193,7 +183,7 @@ private:
 
     bool                        getIsDirty() const  { return mIsDirty; }
     void                        setDirtyFlag()      { mIsDirty = true; }
-    virtual void                clearDirtyFlag();
+    virtual void                clearDirtyFlag() override;
 
     bool                        isRemovingFrameAllowed();
     bool                        isAddingFrameAllowed();
@@ -218,11 +208,8 @@ private:
     LLView*                     mSkyTabLayoutContainer;
     LLView*                     mWaterTabLayoutContainer;
     LLTextBox*                  mCurrentTimeLabel;
-    LLUUID                      mInventoryId;
-    LLInventoryItem *           mInventoryItem;
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
 
-    LLHandle<LLFloater>         mInventoryFloater;
     LLHandle<LLFloater>         mTrackFloater;
 
     LLTrackBlenderLoopingManual::ptr_t  mSkyBlender;
@@ -236,11 +223,6 @@ private:
     LLFrameTimer                mPlayTimer;
     F32                         mPlayStartFrame; // an env frame
     bool                        mIsPlaying;
-    bool                        mIsDirty;
-    bool                        mCanCopy;
-    bool                        mCanMod;
-    bool                        mCanTrans;
-    bool                        mCanSave;
 
     edit_commit_signal_t        mCommitSignal;
 

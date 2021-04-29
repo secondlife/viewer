@@ -263,6 +263,18 @@ std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 #endif
 }
 
+// static
+std::vector<std::string> LLWindow::getDisplaysResolutionList()
+{
+#if LL_WINDOWS
+	return LLWindowWin32::getDisplaysResolutionList();
+#elif LL_DARWIN
+	return LLWindowMacOSX::getDisplaysResolutionList();
+#else
+	return std::vector<std::string>();
+#endif
+}
+
 #define UTF16_IS_HIGH_SURROGATE(U) ((U16)((U) - 0xD800) < 0x0400)
 #define UTF16_IS_LOW_SURROGATE(U)  ((U16)((U) - 0xDC00) < 0x0400)
 #define UTF16_SURROGATE_PAIR_TO_UTF32(H,L) (((H) << 10) + (L) - (0xD800 << 10) - 0xDC00 + 0x00010000)

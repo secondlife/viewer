@@ -736,7 +736,10 @@ void LLScriptEdCore::updateDynamicHelp(BOOL immediate)
 		}
 		if (immediate || (mLiveHelpTimer.getStarted() && mLiveHelpTimer.getElapsedTimeF32() > LIVE_HELP_REFRESH_TIME))
 		{
-			std::string help_string = mEditor->getText().substr(segment->getStart(), segment->getEnd() - segment->getStart());
+			// Use Wtext since segment's start/end are made for wstring and will
+			// result in a shift for case of multi-byte symbols inside std::string.
+			LLWString segment_text = mEditor->getWText().substr(segment->getStart(), segment->getEnd() - segment->getStart());
+			std::string help_string = wstring_to_utf8str(segment_text);
 			setHelpPage(help_string);
 			mLiveHelpTimer.stop();
 		}

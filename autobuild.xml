@@ -3128,9 +3128,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d463360491b6b5cb7a57cd67a90ececb</string>
+              <string>60f008c5fd31641ad4e61ac751ce15d1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54838/510050/uriparser-0.8.0.1-darwin64-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75748/723495/uriparser-0.9.4-darwin64-555117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3164,9 +3164,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>57a88be57694de6cf9f516125af2c4c9</string>
+              <string>00aff37a6f5e1fe08456702d28706cf6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54963/511746/uriparser-0.8.0.1-windows-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75751/723507/uriparser-0.9.4-windows-555117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3176,16 +3176,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f39cc91f2a5dad13790ec18269844ae4</string>
+              <string>ff27a91f3941c7bef5e1613a064cb048</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54962/511739/uriparser-0.8.0.1-windows64-538968.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75750/723506/uriparser-0.9.4-windows64-555117.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.8.0.1</string>
+        <string>0.9.4</string>
       </map>
       <key>viewer-manager</key>
       <map>
@@ -3206,9 +3206,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5ab9d9d7482e48cd76f4bf391900a8c</string>
+              <string>6989053898b8e81e904e75553e378820</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/43369/385585/viewer_manager-2.0.531000-darwin64-531000.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77523/735051/viewer_manager-2.0.556340-darwin64-556340.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3230,9 +3230,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6b10d7407686d9e12e63576256581e3e</string>
+              <string>3446c1e54bb32542677caad0ec0d42ac</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/43370/385592/viewer_manager-2.0.531000-windows-531000.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/77525/735058/viewer_manager-2.0.556340-windows-556340.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3243,7 +3243,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>2.0.531000</string>
+        <string>2.0.556340</string>
       </map>
       <key>vlc-bin</key>
       <map>

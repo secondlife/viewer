@@ -91,6 +91,9 @@ private:
 
     SettingQuery_t mPropertyQueryFn;
     SettingUpdate_t mPropertyDefineFn;
+
+public:
+    static const U32 DEFAULT_QUEUE_SIZE;
 };
 
 #endif

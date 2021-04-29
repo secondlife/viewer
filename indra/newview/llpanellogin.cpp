@@ -548,6 +548,16 @@ void LLPanelLogin::show(const LLRect &rect,
 }
 
 //static
+void LLPanelLogin::reshapePanel()
+{
+    if (sInstance)
+    {
+        LLRect rect = sInstance->getRect();
+        sInstance->reshape(rect.getWidth(), rect.getHeight());
+    }
+}
+
+//static
 void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remember_user, bool remember_psswrd)
 {
     if (!sInstance)

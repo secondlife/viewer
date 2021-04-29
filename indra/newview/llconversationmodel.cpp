@@ -341,9 +341,34 @@ void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
 
 void LLConversationItemSession::clearParticipants()
 {
+    // clearParticipants function potentially is malfunctioning since it only cleans children of models,
+    // it does nothing to views that own those models (listeners)
+    // probably needs to post some kind of 'remove all participants' event
 	clearChildren();
 	mIsLoaded = false;
 	mNeedsRefresh = true;
+}
+
+
+void LLConversationItemSession::clearAndDeparentModels()
+{
+    std::for_each(mChildren.begin(), mChildren.end(),
+        [](LLFolderViewModelItem* c)
+        {
+            if (c->getNumRefs() == 0)
+            {
+                // LLConversationItemParticipant can be created but not assigned to any view,
+                // it was waiting for an "add_participant" event to be processed
+                delete c;
+            }
+            else
+            {
+                // Model is still assigned to some view/widget
+                c->setParent(NULL);
+            }
+        }
+    );
+    mChildren.clear();
 }
 
 LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
