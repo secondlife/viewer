@@ -180,7 +180,7 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterFixedEnvironment::syncronizeTabs()
