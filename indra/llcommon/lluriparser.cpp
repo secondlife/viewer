@@ -29,10 +29,13 @@
 #include "linden_common.h"
 #include "lluriparser.h"
 
+#if LL_DARWIN
+#include <signal.h>
+#include <setjmp.h>
+#endif
+
 LLUriParser::LLUriParser(const std::string& u) : mTmpScheme(false), mNormalizedTmp(false), mRes(0)
 {
-	mState.uri = &mUri;
-
 	if (u.find("://") == std::string::npos)
 	{
 		mNormalizedUri = "http://";
@@ -51,7 +54,7 @@ LLUriParser::~LLUriParser()
 
 S32 LLUriParser::parse()
 {
-	mRes = uriParseUriA(&mState, mNormalizedUri.c_str());
+	mRes = uriParseSingleUriA(&mUri, mNormalizedUri.c_str(), NULL);
 	return mRes;
 }
 
@@ -158,31 +161,69 @@ void LLUriParser::extractParts()
 	}
 }
 
+#if LL_DARWIN
+typedef void(*sighandler_t)(int);
+jmp_buf return_to_normalize;
+void uri_signal_handler(int signal)
+{
+    // Apparently signal handler throwing an exception doesn't work.
+    // This is ugly and unsafe due to not unwinding content of uriparser library,
+    // but unless we have a way to catch this as NSexception, jump appears to be the only option.
+    longjmp(return_to_normalize, 1 /*setjmp will return this value*/);
+}
+#endif
+
 S32 LLUriParser::normalize()
 {
 	mNormalizedTmp = mTmpScheme;
 	if (!mRes)
 	{
-		mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
+#if LL_DARWIN
+        sighandler_t last_handler;
+        last_handler = signal(SIGILL, &uri_signal_handler);		// illegal instruction
+        if (setjmp(return_to_normalize))
+        {
+            // Issue: external library crashed via signal
+            // If you encountered this, please try to figure out what's wrong:
+            // 1. Verify that library's input is 'sane'
+            // 2. Check if we have an NSexception to work with (unlikely)
+            // 3. See if passing same string causes exception to repeat
+            //
+            // Crash happens at uriNormalizeSyntaxExA
+            // Warning!!! This does not properly unwind stack,
+            // if this can be handled by NSexception, it needs to be remade
+            llassert(0);
 
-		if (!mRes)
-		{
-			S32 chars_required;
-			mRes = uriToStringCharsRequiredA(&mUri, &chars_required);
+            LL_WARNS() << "Uriparser crashed with SIGILL, while processing: " << mNormalizedUri << LL_ENDL;
+            signal(SIGILL, last_handler);
+            return 1;
+        }
+#endif
 
-			if (!mRes)
-			{
-				chars_required++;
-				std::vector<char> label_buf(chars_required);
-				mRes = uriToStringA(&label_buf[0], &mUri, chars_required, NULL);
+        mRes = uriNormalizeSyntaxExA(&mUri, URI_NORMALIZE_SCHEME | URI_NORMALIZE_HOST);
 
-				if (!mRes)
-				{
-					mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
-					mTmpScheme = false;
-				}
-			}
-		}
+#if LL_DARWIN
+        signal(SIGILL, last_handler);
+#endif
+
+        if (!mRes)
+        {
+            S32 chars_required;
+            mRes = uriToStringCharsRequiredA(&mUri, &chars_required);
+
+            if (!mRes)
+            {
+                chars_required++;
+                std::vector<char> label_buf(chars_required);
+                mRes = uriToStringA(&label_buf[0], &mUri, chars_required, NULL);
+
+                if (!mRes)
+                {
+                    mNormalizedUri = &label_buf[mTmpScheme ? 7 : 0];
+                    mTmpScheme = false;
+                }
+            }
+        }
 	}
 
 	if(mTmpScheme)

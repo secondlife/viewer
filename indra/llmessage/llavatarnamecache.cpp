@@ -145,10 +145,10 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
     }
 
     LLSD httpResults;
+    bool success = true;
 
     try
     {
-        bool success = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", sHttpPolicy);
         LLSD results = httpAdapter.getAndSuspend(sHttpRequest, url);
@@ -163,35 +163,47 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
         else
         {
             httpResults = results["http_result"];
-            success = httpResults["success"].asBoolean();
+            if (!httpResults.isMap())
+            {
+                success = false;
+                LL_WARNS("AvNameCache") << " Invalid http_result returned from LLCoreHttpUtil::HttpCoroHandler." << LL_ENDL;
+            }
+            else
+            {
+                success = httpResults["success"].asBoolean();
+                if (!success)
+                {
+                    LL_WARNS("AvNameCache") << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                        << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                }
+            }
+        }
+
+        if (LLAvatarNameCache::instanceExists())
+        {
             if (!success)
-            {
-                LL_WARNS("AvNameCache") << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
-                    << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+            {   // on any sort of failure add dummy records for any agent IDs 
+                // in this request that we do not have cached already
+                std::vector<LLUUID>::const_iterator it = agentIds.begin();
+                for (; it != agentIds.end(); ++it)
+                {
+                    const LLUUID& agent_id = *it;
+                    LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
+                }
+                return;
             }
+
+            LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(results, httpResults);
         }
-
-        if (!success)
-        {   // on any sort of failure add dummy records for any agent IDs 
-            // in this request that we do not have cached already
-            std::vector<LLUUID>::const_iterator it = agentIds.begin();
-            for ( ; it != agentIds.end(); ++it)
-            {
-                const LLUUID& agent_id = *it;
-                LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
-            }
-            return;
-        }
-
-        LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(results, httpResults);
-
     }
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::getName()
-                                          << "('" << url << "', " << agentIds.size()
-                                          << " http result: " << httpResults.asString()
-                                          << " Agent Ids)"));
+                                          << "('" << url << "', "
+                                          << agentIds.size() << "Agent Ids,"
+                                          << " http result: " << S32(success)
+                                          << " has response: " << S32(httpResults.size())
+                                          << ")"));
         throw;
     }
 }
