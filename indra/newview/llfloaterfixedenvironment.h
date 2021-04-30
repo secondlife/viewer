@@ -27,7 +27,7 @@
 #ifndef LL_FLOATERFIXEDENVIRONMENT_H
 #define LL_FLOATERFIXEDENVIRONMENT_H
 
-#include "llfloater.h"
+#include "llfloatereditenvironmentbase.h"
 #include "llsettingsbase.h"
 #include "llflyoutcombobtn.h"
 #include "llinventory.h"
@@ -43,15 +43,10 @@ class LLFixedSettingCopiedCallback;
 /**
  * Floater container for creating and editing fixed environment settings.
  */
-class LLFloaterFixedEnvironment : public LLFloater
+class LLFloaterFixedEnvironment : public LLFloaterEditEnvironmentBase
 {
     LOG_CLASS(LLFloaterFixedEnvironment);
-
-    friend class LLFixedSettingCopiedCallback;
-
 public:
-    static const std::string    KEY_INVENTORY_ID;
-
                             LLFloaterFixedEnvironment(const LLSD &key);
                             ~LLFloaterFixedEnvironment();
 
@@ -59,64 +54,35 @@ public:
     virtual void            onOpen(const LLSD& key)     override;
     virtual void            onClose(bool app_quitting)  override;
 
-    virtual void            onFocusReceived()           override;
-    virtual void            onFocusLost()               override;
-
     void                    setEditSettings(const LLSettingsBase::ptr_t &settings)  { mSettings = settings; clearDirtyFlag(); syncronizeTabs(); refresh(); }
-    LLSettingsBase::ptr_t   getEditSettings()   const                           { return mSettings; }
-
-    virtual BOOL            isDirty() const override            { return getIsDirty(); }
+    virtual LLSettingsBase::ptr_t getEditSettings()   const override                { return mSettings; }
 
 protected:
     typedef std::function<void()> on_confirm_fn;
 
-    virtual void            updateEditEnvironment() = 0;
     virtual void            refresh()                   override;
+    void                    setEditSettingsAndUpdate(const LLSettingsBase::ptr_t &settings) override;
     virtual void            syncronizeTabs();
 
-    LLFloaterSettingsPicker *getSettingsPicker();
-
-    void                    loadInventoryItem(const LLUUID  &inventoryId, bool can_trans = true);
-
-    void                    checkAndConfirmSettingsLoss(on_confirm_fn cb);
+    virtual LLFloaterSettingsPicker *getSettingsPicker() override;
 
     LLTabContainer *        mTab;
     LLLineEditor *          mTxtName;
 
     LLSettingsBase::ptr_t   mSettings;
 
-    virtual void            doImportFromDisk() = 0;
-    virtual void            doApplyCreateNewInventory(std::string settings_name, const LLSettingsBase::ptr_t &settings);
-    virtual void            doApplyUpdateInventory(const LLSettingsBase::ptr_t &settings);
-    virtual void            doApplyEnvironment(const std::string &where, const LLSettingsBase::ptr_t &settings);
-    void                    doCloseInventoryFloater(bool quitting = false);
-
-    bool                    canUseInventory() const;
-    bool                    canApplyRegion() const;
-    bool                    canApplyParcel() const;
-
     LLFlyoutComboBtnCtrl *      mFlyoutControl;
-
-    LLUUID                  mInventoryId;
-    LLInventoryItem *       mInventoryItem;
-    LLHandle<LLFloater>     mInventoryFloater;
-    bool                    mCanCopy;
-    bool                    mCanMod;
-    bool                    mCanTrans;
 
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id);
     void                    onInventoryCreated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
     void                    onInventoryUpdated(LLUUID asset_id, LLUUID inventory_id, LLSD results);
 
-    bool                    getIsDirty() const  { return mIsDirty; }
-    void                    setDirtyFlag()      { mIsDirty = true; }
-    virtual void            clearDirtyFlag();
+    virtual void            clearDirtyFlag() override;
+    void                    updatePermissionFlags();
 
     void                    doSelectFromInventory();
-    void                    onPanelDirtyFlagChanged(bool);
 
     virtual void            onClickCloseBtn(bool app_quitting = false) override;
-    void                    onSaveAsCommit(const LLSD& notification, const LLSD& response, const LLSettingsBase::ptr_t &settings);
 
 private:
     void                    onNameChanged(const std::string &name);
@@ -126,9 +92,6 @@ private:
     void                    onButtonLoad();
 
     void                    onPickerCommitSetting(LLUUID item_id);
-    void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
-
-    bool                    mIsDirty;
 };
 
 class LLFloaterFixedEnvironmentWater : public LLFloaterFixedEnvironment
@@ -170,38 +133,6 @@ protected:
     void                    loadSkySettingFromFile(const std::vector<std::string>& filenames);
 
 private:
-};
-
-class LLSettingsEditPanel : public LLPanel
-{
-public:
-    virtual void setSettings(const LLSettingsBase::ptr_t &) = 0;
-
-    typedef boost::signals2::signal<void(LLPanel *, bool)> on_dirty_charged_sg;
-    typedef boost::signals2::connection connection_t;
-
-    inline bool         getIsDirty() const      { return mIsDirty; }
-    inline void         setIsDirty()            { mIsDirty = true; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
-    inline void         clearIsDirty()          { mIsDirty = false; if (!mOnDirtyChanged.empty()) mOnDirtyChanged(this, mIsDirty); }
-
-    inline bool        getCanChangeSettings() const    { return mCanEdit; }
-    inline void        setCanChangeSettings(bool flag) { mCanEdit = flag; }
-
-    inline connection_t setOnDirtyFlagChanged(on_dirty_charged_sg::slot_type cb)    { return mOnDirtyChanged.connect(cb); }
-
-
-protected:
-    LLSettingsEditPanel() :
-        LLPanel(),
-        mIsDirty(false),
-        mOnDirtyChanged()
-    {}
-
-private:
-    bool                mIsDirty;
-    bool                mCanEdit;
-    
-    on_dirty_charged_sg mOnDirtyChanged;
 };
 
 #endif // LL_FLOATERFIXEDENVIRONMENT_H

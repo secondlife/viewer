@@ -2129,7 +2129,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
             if (mat)
             {                
-                switch (LLMaterial::eDiffuseAlphaMode(mat->getDiffuseAlphaMode()))
+                switch (LLMaterial::eDiffuseAlphaMode(mat->getDiffuseAlphaModeRender()))
                 {
                     case LLMaterial::DIFFUSE_ALPHA_MODE_MASK:
                     {
@@ -2267,7 +2267,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0], col.mV[1], col.mV[2], spec);
 				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env);
 
-				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+				if (mat->getDiffuseAlphaModeRender() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 				{
                     F32 cutoff = mat->getAlphaMaskCutoff()/255.f;
 					sVertexProgram->setMinimumAlpha(cutoff);

@@ -165,13 +165,13 @@ BOOL LLTextBox::setTextArg( const std::string& key, const LLStringExplicit& text
 }
 
 
-void LLTextBox::reshapeToFitText()
+void LLTextBox::reshapeToFitText(BOOL called_from_parent)
 {
 	reflow();
 
 	S32 width = getTextPixelWidth();
 	S32 height = getTextPixelHeight();
-	reshape( width + 2 * mHPad, height + 2 * mVPad, FALSE );
+	reshape( width + 2 * mHPad, height + 2 * mVPad, called_from_parent );
 }
 
 

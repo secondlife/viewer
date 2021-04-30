@@ -187,10 +187,32 @@ void LLCheckBoxCtrl::clear()
 
 void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	S32 label_top = mLabel->getRect().mTop;
-	mLabel->reshapeToFitText();
+    LLRect rect = getRect();
+    S32 delta_width = width - rect.getWidth();
+    S32 delta_height = height - rect.getHeight();
 
-	LLRect label_rect = mLabel->getRect();
+    if (delta_width || delta_height)
+    {
+        // adjust our rectangle
+        rect.mRight = getRect().mLeft + width;
+        rect.mTop = getRect().mBottom + height;
+        setRect(rect);
+    }
+
+    // reshapeToFitText reshapes label to minimal size according to last bounding box
+    // it will work fine in case of decrease of space, but if we get more space or text
+    // becomes longer, label will fail to grow so reinit label's dimentions.
+    
+    static LLUICachedControl<S32> llcheckboxctrl_hpad("UICheckboxctrlHPad", 0);
+    LLRect label_rect = mLabel->getRect();
+    S32 new_width = getRect().getWidth() - label_rect.mLeft - llcheckboxctrl_hpad;
+    label_rect.mRight = label_rect.mLeft + new_width;
+    mLabel->setRect(label_rect);
+
+	S32 label_top = label_rect.mTop;
+	mLabel->reshapeToFitText(TRUE);
+
+    label_rect = mLabel->getRect();
 	if (label_top != label_rect.mTop && mWordWrap == WRAP_DOWN)
 	{
 		// reshapeToFitText uses LLView::reshape() which always reshapes
@@ -210,6 +232,8 @@ void LLCheckBoxCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 		llmax(btn_rect.getWidth(), label_rect.mRight - btn_rect.mLeft),
 		llmax(label_rect.mTop - btn_rect.mBottom, btn_rect.getHeight()));
 	mButton->setShape(btn_rect);
+
+    updateBoundingRect();
 }
 
 //virtual

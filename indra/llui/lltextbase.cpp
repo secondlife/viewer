@@ -1185,7 +1185,7 @@ BOOL LLTextBase::handleToolTip(S32 x, S32 y, MASK mask)
 
 void LLTextBase::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
-	if (width != getRect().getWidth() || height != getRect().getHeight())
+	if (width != getRect().getWidth() || height != getRect().getHeight() || LLView::sForceReshape)
 	{
 		bool scrolled_to_bottom = mScroller ? mScroller->isAtBottom() : false;
 
