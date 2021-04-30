@@ -28,6 +28,8 @@
 
 #include "llmaterial.h"
 
+#include "../llrender/llglheaders.h"
+
 /**
  * Materials cap parameters
  */
@@ -105,6 +107,8 @@ LLMaterial::LLMaterial()
     , mSpecularLightExponent(LLMaterial::DEFAULT_SPECULAR_LIGHT_EXPONENT)
     , mEnvironmentIntensity(LLMaterial::DEFAULT_ENV_INTENSITY)
     , mDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+    , mDiffuseFormatPrimary(GL_RGBA)
+    , mDiffuseBaked(false)
     , mAlphaMaskCutoff(0)
 {
 }
@@ -311,6 +315,20 @@ void LLMaterial::setEnvironmentIntensity(U8 intensity)
     mEnvironmentIntensity = intensity;
 }
 
+U8 LLMaterial::getDiffuseAlphaModeRender() const
+{
+    if (mDiffuseBaked
+        || mDiffuseFormatPrimary == GL_RGBA
+        || mDiffuseFormatPrimary == GL_ALPHA)
+    {
+        return mDiffuseAlphaMode;
+    }
+    else
+    {
+        return DIFFUSE_ALPHA_MODE_NONE;
+    }
+}
+
 U8 LLMaterial::getDiffuseAlphaMode() const
 {
     return mDiffuseAlphaMode;
@@ -319,6 +337,26 @@ U8 LLMaterial::getDiffuseAlphaMode() const
 void LLMaterial::setDiffuseAlphaMode(U8 alpha_mode)
 {
     mDiffuseAlphaMode = alpha_mode;
+}
+
+U32 LLMaterial::getDiffuseFormatPrimary() const
+{
+    return mDiffuseFormatPrimary;
+}
+
+void LLMaterial::setDiffuseFormatPrimary(U32 format_primary)
+{
+    mDiffuseFormatPrimary = format_primary;
+}
+
+bool LLMaterial::getIsDiffuseBaked() const
+{
+    return mDiffuseBaked;
+}
+
+void LLMaterial::setDiffuseBaked(bool baked)
+{
+    mDiffuseBaked = baked;
 }
 
 U8 LLMaterial::getAlphaMaskCutoff() const
@@ -437,7 +475,7 @@ U32 LLMaterial::getShaderMask(U32 alpha_mode)
     }
     else
     {
-        ret = getDiffuseAlphaMode();
+        ret = getDiffuseAlphaModeRender();
     }
 
     llassert(ret < SHADER_COUNT);

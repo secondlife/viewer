@@ -4880,22 +4880,78 @@ void LLViewerObject::refreshBakeTexture()
 	}
 }
 
+void LLViewerObject::updateDiffuseMatParams(const U8 te, LLMaterial* mat, LLViewerTexture *imagep, bool baked_texture)
+{
+    // Objects getting non-alpha texture and alpha mask can result in graphical bugs, like white or red alphas.
+    // To resolve the issue this function provides image format to material and based on format material's
+    // getDiffuseAlphaModeRender() function will decide what value to provide to render
+    //
+    // Unfortunately LLMaterial has no access to diffuse image, so we have to set this data in LLViewerObject
+    // regardles of object being used/seen or frequency of image-updates.
+    mat->setDiffuseBaked(baked_texture);
+
+    if (!baked_texture)
+    {
+        if (imagep->isMissingAsset())
+        {
+            mat->setDiffuseFormatPrimary(0);
+        }
+        else if (0 == imagep->getPrimaryFormat())
+        {
+            // We don't have information about this texture, wait for it
+            mWaitingTextureInfo.insert(uuid_material_mmap_t::value_type(imagep->getID(), material_info(LLRender::DIFFUSE_MAP, te)));
+            // Temporary assume RGBA image
+            mat->setDiffuseFormatPrimary(GL_RGBA);
+        }
+        else
+        {
+            mat->setDiffuseFormatPrimary(imagep->getPrimaryFormat());
+        }
+    }
+}
+
+S32 LLViewerObject::setDiffuseImageAndParams(const U8 te, LLViewerTexture *imagep)
+{
+    LLUUID new_id = imagep->getID();
+    S32 retval = LLPrimitive::setTETexture(te, new_id);
+
+    LLTextureEntry* tep = getTE(te);
+    LLUUID old_image_id = tep->getID();
+
+    LLViewerTexture* baked_texture = getBakedTextureForMagicId(new_id);
+    mTEImages[te] = baked_texture ? baked_texture : imagep;
+    updateAvatarMeshVisibility(new_id, old_image_id);
+
+    LLMaterial* mat = tep->getMaterialParams();
+    if (mat)
+    {
+        // Don't update format from texture (and don't shedule one) if material has no alpha mode set,
+        // just assume RGBA format, format will get updated with setTEMaterialParams call if mode changes
+        if (mat->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+        {
+            bool baked = baked_texture != NULL;
+            updateDiffuseMatParams(te, mat, imagep, baked);
+        }
+        else
+        {
+            mat->setDiffuseFormatPrimary(GL_RGBA);
+        }
+    }
+
+    setChanged(TEXTURE);
+    if (mDrawable.notNull())
+    {
+        gPipeline.markTextured(mDrawable);
+    }
+
+    return retval;
+}
+
 void LLViewerObject::setTEImage(const U8 te, LLViewerTexture *imagep)
 {
 	if (mTEImages[te] != imagep)
 	{
-		LLUUID old_image_id = getTE(te) ? getTE(te)->getID() : LLUUID::null;
-		
-		LLPrimitive::setTETexture(te, imagep->getID());
-
-		LLViewerTexture* baked_texture = getBakedTextureForMagicId(imagep->getID());
-		mTEImages[te] = baked_texture ? baked_texture : imagep;
-		updateAvatarMeshVisibility(imagep->getID(), old_image_id);
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
-		}
+        setDiffuseImageAndParams(te, imagep);
 	}
 }
 
@@ -4907,15 +4963,7 @@ S32 LLViewerObject::setTETextureCore(const U8 te, LLViewerTexture *image)
 	if (uuid != getTE(te)->getID() ||
 		uuid == LLUUID::null)
 	{
-		retval = LLPrimitive::setTETexture(te, uuid);
-		LLViewerTexture* baked_texture = getBakedTextureForMagicId(uuid);
-		mTEImages[te] = baked_texture ? baked_texture : image;
-		updateAvatarMeshVisibility(uuid,old_image_id);
-		setChanged(TEXTURE);
-		if (mDrawable.notNull())
-		{
-			gPipeline.markTextured(mDrawable);
-		}
+		retval = setDiffuseImageAndParams(te, image);
 	}
 	return retval;
 }
@@ -5210,6 +5258,29 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 		return 0;
 	}
 
+    if (pMaterialParams.notNull()
+        && pMaterialParams->getDiffuseAlphaMode() != LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+    {
+        // Don't update if no alpha is set. If alpha changes, this function will run again,
+        // no point in sheduling additional texture callbacks (in updateDiffuseMatParams)
+        LLTextureEntry* tex_entry = getTE(te);
+        bool is_baked = tex_entry && LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(tex_entry->getID());
+
+        LLViewerTexture *img_diffuse = getTEImage(te);
+        llassert(NULL != img_diffuse);
+
+        if (NULL != img_diffuse)
+        {
+            // Will modify alpha mask provided to renderer to fit image
+            updateDiffuseMatParams(te, pMaterialParams.get(), img_diffuse, is_baked);
+        }
+        else
+        {
+            LLMaterial *mat = pMaterialParams.get(); // to avoid const
+            mat->setDiffuseFormatPrimary(0);
+        }
+    }
+
 	retval = LLPrimitive::setTEMaterialParams(te, pMaterialParams);
 	LL_DEBUGS("Material") << "Changing material params for te " << (S32)te
 							<< ", object " << mID
@@ -5220,6 +5291,84 @@ S32 LLViewerObject::setTEMaterialParams(const U8 te, const LLMaterialPtr pMateri
 
 	refreshMaterials();
 	return retval;
+}
+
+bool LLViewerObject::notifyAboutCreatingTexture(LLViewerTexture *texture)
+{
+    // Confirmation about texture creation, check wait-list
+    // and make changes, or return false
+
+    std::pair<uuid_material_mmap_t::iterator, uuid_material_mmap_t::iterator> range = mWaitingTextureInfo.equal_range(texture->getID());
+
+    bool refresh_materials = false;
+
+    // RGB textures without alpha channels won't work right with alpha,
+    // we provide format to material for material to decide when to drop alpha
+    for (uuid_material_mmap_t::iterator range_it = range.first; range_it != range.second; ++range_it)
+    {
+        LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
+        if (cur_material.notNull()
+            && LLRender::DIFFUSE_MAP == range_it->second.map)
+        {
+            U32 format = texture->getPrimaryFormat();
+            if (format != cur_material->getDiffuseFormatPrimary())
+            {
+                cur_material->setDiffuseFormatPrimary(format);
+                refresh_materials = true;
+            }
+        }
+    } //for
+
+    if (refresh_materials)
+    {
+        LLViewerObject::refreshMaterials();
+    }
+
+    //clear wait-list
+    mWaitingTextureInfo.erase(range.first, range.second);
+
+    return refresh_materials;
+}
+
+bool LLViewerObject::notifyAboutMissingAsset(LLViewerTexture *texture)
+{
+    // When waiting information about texture it turned out to be missing.
+    // Confirm the state, update values accordingly
+    std::pair<uuid_material_mmap_t::iterator, uuid_material_mmap_t::iterator> range = mWaitingTextureInfo.equal_range(texture->getID());
+    if (range.first == range.second) return false;
+
+    bool refresh_materials = false;
+
+    for (uuid_material_mmap_t::iterator range_it = range.first; range_it != range.second; ++range_it)
+    {
+        LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
+        if (cur_material.isNull())
+            continue;
+
+        if (range_it->second.map == LLRender::DIFFUSE_MAP)
+        {
+            LLMaterialPtr cur_material = getTEMaterialParams(range_it->second.te);
+            if (cur_material.notNull()
+                && LLRender::DIFFUSE_MAP == range_it->second.map)
+            {
+                if (0 != cur_material->getDiffuseFormatPrimary())
+                {
+                    cur_material->setDiffuseFormatPrimary(0);
+                    refresh_materials = true;
+                }
+            }
+        }
+    } //for
+
+    if (refresh_materials)
+    {
+        LLViewerObject::refreshMaterials();
+    }
+
+    //clear wait-list
+    mWaitingTextureInfo.erase(range.first, range.second);
+
+    return refresh_materials;
 }
 
 void LLViewerObject::refreshMaterials()

@@ -41,6 +41,7 @@
 #include "../test/lltut.h"
 #include "llevents.h"
 #include "llnotificationsutil.h"
+#include "lltrans.h"
 
 #if defined(LL_WINDOWS)
 #pragma warning(disable: 4355)      // using 'this' in base-class ctor initializer expr
@@ -77,6 +78,11 @@ void LLViewerWindow::setShowProgress(BOOL show) {}
 LLProgressView * LLViewerWindow::getProgressView(void) const { return 0; }
 
 LLViewerWindow* gViewerWindow;
+
+std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::format_map_t& args, bool def_string)
+{
+    return std::string("test_trans");
+}
 	
 class LLLogin::Impl
 {

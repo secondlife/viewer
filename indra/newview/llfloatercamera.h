@@ -69,10 +69,6 @@ public:
 	/*switch to one of the camera presets (front, rear, side)*/
 	static void switchToPreset(const std::string& name);
 
-	/* move to CAMERA_CTRL_MODE_PRESETS from CAMERA_CTRL_MODE_FREE_CAMERA if we are on presets panel and
-	   are not in free camera mode*/
-	void fromFreeToPresets();
-
 	virtual void onOpen(const LLSD& key);
 	virtual void onClose(bool app_quitting);
 

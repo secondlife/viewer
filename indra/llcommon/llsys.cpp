@@ -55,6 +55,7 @@
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_float.hpp>
+#include "llfasttimer.h"
 
 using namespace llsd;
 
@@ -892,8 +893,12 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	return *this;
 }
 
+static LLTrace::BlockTimerStatHandle FTM_MEMINFO_LOAD_STATS("MemInfo Load Stats");
+
 LLSD LLMemoryInfo::loadStatsMap()
 {
+	LL_RECORD_BLOCK_TIME(FTM_MEMINFO_LOAD_STATS);
+
 	// This implementation is derived from stream() code (as of 2011-06-29).
 	Stats stats;
 
@@ -915,24 +920,11 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("Total Virtual KB",   state.ullTotalVirtual/div);
 	stats.add("Avail Virtual KB",   state.ullAvailVirtual/div);
 
-	PERFORMANCE_INFORMATION perf;
-	perf.cb = sizeof(perf);
-	GetPerformanceInfo(&perf, sizeof(perf));
-
-	SIZE_T pagekb(perf.PageSize/1024);
-	stats.add("CommitTotal KB",     perf.CommitTotal * pagekb);
-	stats.add("CommitLimit KB",     perf.CommitLimit * pagekb);
-	stats.add("CommitPeak KB",      perf.CommitPeak * pagekb);
-	stats.add("PhysicalTotal KB",   perf.PhysicalTotal * pagekb);
-	stats.add("PhysicalAvail KB",   perf.PhysicalAvailable * pagekb);
-	stats.add("SystemCache KB",     perf.SystemCache * pagekb);
-	stats.add("KernelTotal KB",     perf.KernelTotal * pagekb);
-	stats.add("KernelPaged KB",     perf.KernelPaged * pagekb);
-	stats.add("KernelNonpaged KB",  perf.KernelNonpaged * pagekb);
-	stats.add("PageSize KB",        pagekb);
-	stats.add("HandleCount",        perf.HandleCount);
-	stats.add("ProcessCount",       perf.ProcessCount);
-	stats.add("ThreadCount",        perf.ThreadCount);
+	// SL-12122 - Call to GetPerformanceInfo() was removed here. Took
+	// on order of 10 ms, causing unacceptable frame time spike every
+	// second, and results were never used. If this is needed in the
+	// future, must find a way to avoid frame time impact (e.g. move
+	// to another thread, call much less often).
 
 	PROCESS_MEMORY_COUNTERS_EX pmem;
 	pmem.cb = sizeof(pmem);

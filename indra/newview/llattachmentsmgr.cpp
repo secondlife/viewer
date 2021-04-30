@@ -248,6 +248,7 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
         {
             if (isAgentAvatarValid() &&
                 gAgentAvatarp->isWearingAttachment(*it) &&
+                !gAgentAvatarp->getWornAttachment(*it)->isTempAttachment() && // Don't link temp attachments in COF!
                 !LLAppearanceMgr::instance().isLinkedInCOF(*it))
             {
                 LLUUID item_id = *it;

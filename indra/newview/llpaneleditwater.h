@@ -30,7 +30,7 @@
 #include "llpanel.h"
 #include "llsettingswater.h"
 
-#include "llfloaterfixedenvironment.h"
+#include "llfloatereditenvironmentbase.h"
 
 //=========================================================================
 class LLSlider;
