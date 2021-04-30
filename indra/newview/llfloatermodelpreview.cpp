@@ -1718,9 +1718,20 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 {
 	mModelPreview->updateLodControls(lod);
-	refresh();
 
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+
+    if (lod_source_combo->getCurrentIndex() == LLModelPreview::LOD_FROM_FILE
+        && mModelPreview->mLODFile[lod].empty())
+    {
+        // File wasn't selected, so nothing to do yet, refreshing
+        // hovewer will cause a small freeze with large meshes
+        // Might be good idea to open filepicker here
+        return;
+    }
+
+	refresh();
+
 	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);
