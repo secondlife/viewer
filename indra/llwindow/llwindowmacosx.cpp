@@ -41,6 +41,7 @@
 #include <OpenGL/OpenGL.h>
 #include <Carbon/Carbon.h>
 #include <CoreServices/CoreServices.h>
+#include <CoreGraphics/CGDisplayConfiguration.h>
 
 extern BOOL gDebugWindowProc;
 BOOL gHiDPISupport = TRUE;
@@ -1911,6 +1912,35 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 void LLWindowMacOSX::interruptLanguageTextInput()
 {
 	commitCurrentPreedit(mGLView);
+}
+
+std::vector<std::string> LLWindowMacOSX::getDisplaysResolutionList()
+{
+	std::vector<std::string> resolution_list;
+	
+	CGDirectDisplayID display_ids[10];
+	uint32_t found_displays = 0;
+	CGError err = CGGetActiveDisplayList(10, display_ids, &found_displays);
+	
+	if (kCGErrorSuccess != err)
+	{
+		LL_WARNS() << "Couldn't get a list of active displays" << LL_ENDL;
+		return std::vector<std::string>();
+	}
+	
+	for (uint32_t i = 0; i < found_displays; i++)
+	{
+		S32 monitor_width = CGDisplayPixelsWide(display_ids[i]);
+		S32 monitor_height = CGDisplayPixelsHigh(display_ids[i]);
+		
+		std::ostringstream sstream;
+		sstream << monitor_width << "x" << monitor_height;;
+		std::string res = sstream.str();
+		
+		resolution_list.push_back(res);
+	}
+	
+	return resolution_list;
 }
 
 //static

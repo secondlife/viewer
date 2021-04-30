@@ -47,7 +47,7 @@ static const std::map<std::string, U32> DefaultPoolSizes{
 };
 
 static const U32 DEFAULT_POOL_SIZE = 5;
-static const U32 DEFAULT_QUEUE_SIZE = 4096;
+const U32 LLCoprocedureManager::DEFAULT_QUEUE_SIZE = 4096;
 
 //=========================================================================
 class LLCoprocedurePool: private boost::noncopyable
@@ -194,7 +194,7 @@ void LLCoprocedureManager::setPropertyMethods(SettingQuery_t queryfn, SettingUpd
     mPropertyDefineFn = updatefn;
 
     // workaround until we get mutex into initializePool
-    initializePool("VAssetStorage");
+    initializePool("AssetStorage");
     initializePool("Upload");
 }
 
@@ -281,7 +281,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPoolSize(size),
     mActiveCoprocsCount(0),
     mPending(0),
-    mPendingCoprocs(boost::make_shared<CoprocQueue_t>(DEFAULT_QUEUE_SIZE)),
+    mPendingCoprocs(boost::make_shared<CoprocQueue_t>(LLCoprocedureManager::DEFAULT_QUEUE_SIZE)),
     mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
     mCoroMapping()
 {
@@ -332,7 +332,7 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
         mCoroMapping.insert(CoroAdapterMap_t::value_type(pooledCoro, httpAdapter));
     }
 
-    LL_INFOS("CoProcMgr") << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items, queue max " << DEFAULT_QUEUE_SIZE << LL_ENDL;
+    LL_INFOS("CoProcMgr") << "Created coprocedure pool named \"" << mPoolName << "\" with " << size << " items, queue max " << LLCoprocedureManager::DEFAULT_QUEUE_SIZE << LL_ENDL;
 }
 
 LLCoprocedurePool::~LLCoprocedurePool() 

@@ -45,7 +45,7 @@ public:
 
 	~LLViewerAssetStorage();
 
-	virtual void storeAssetData(
+	void storeAssetData(
 		const LLTransactionID& tid,
 		LLAssetType::EType atype,
 		LLStoreAssetCallback callback,
@@ -54,9 +54,9 @@ public:
 		bool is_priority = false,
 		bool store_local = false,
 		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
-	
-	virtual void storeAssetData(
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+
+	void storeAssetData(
 		const std::string& filename,
 		const LLTransactionID& tid,
 		LLAssetType::EType type,
@@ -65,16 +65,17 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+
+    void checkForTimeouts() override;
 
 protected:
-	// virtual
 	void _queueDataRequest(const LLUUID& uuid,
 						   LLAssetType::EType type,
                            LLGetAssetCallback callback,
 						   void *user_data,
 						   BOOL duplicate,
-						   BOOL is_priority);
+						   BOOL is_priority) override;
 
     void queueRequestHttp(const LLUUID& uuid,
                           LLAssetType::EType type,
@@ -93,8 +94,35 @@ protected:
 
     std::string getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype);
 
-    void logAssetStorageInfo();
-    
+    void logAssetStorageInfo() override;
+
+    // Asset storage works through coroutines and coroutines have limited queue capacity
+    // This class is meant to temporary store requests when fiber's queue is full
+    class CoroWaitList
+    {
+    public:
+        CoroWaitList(LLViewerAssetRequest *req,
+            const LLUUID& uuid,
+            LLAssetType::EType atype,
+            LLGetAssetCallback &callback,
+            void *user_data)
+          : mRequest(req),
+            mId(uuid),
+            mType(atype),
+            mCallback(callback),
+            mUserData(user_data)
+        {
+        }
+
+        LLViewerAssetRequest* mRequest;
+        LLUUID mId;
+        LLAssetType::EType mType;
+        LLGetAssetCallback mCallback;
+        void *mUserData;
+    };
+    typedef std::list<CoroWaitList> wait_list_t;
+    wait_list_t mCoroWaitList;
+
     std::string mViewerAssetUrl;
     S32 mAssetCoroCount;
     S32 mCountRequests;

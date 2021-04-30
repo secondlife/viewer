@@ -1172,7 +1172,16 @@ bool LLAppViewer::init()
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");
 	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    {
+        // Befor first login, treat this as 'manual' updates,
+        // updater won't install anything, but required updates
+        updater.args.add("0");
+    }
+    else
+    {
+        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    }
 	// channel
 	updater.args.add(LLVersionInfo::instance().getChannel());
 	// testok
@@ -1654,6 +1663,7 @@ bool LLAppViewer::doFrame()
 		}
 
 		delete gServicePump;
+		gServicePump = NULL;
 
 		destroyMainloopTimeout();
 
@@ -1711,7 +1721,11 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		if (!isSecondInstance())
+		{
+			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		}
+		LLSceneMonitor::deleteSingleton();
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
@@ -3504,6 +3518,12 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
+
+	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+	for (auto res_iter : resolutions)
+	{
+		gDebugInfo["DisplayInfo"].append(res_iter);
+	}
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }

@@ -388,7 +388,7 @@ LLSingletonBase::vec_t LLSingletonBase::dep_sort()
     // extracts just the first (key) element from each sorted_iterator, then
     // uses vec_t's range constructor... but frankly this is more
     // straightforward, as long as we remember the above reserve() call!
-    for (const SingletonDeps::sorted_iterator::value_type& pair : sdeps.sort())
+    for (const SingletonDeps::sorted_iterator::value_type pair : sdeps.sort())
     {
         ret.push_back(pair.first);
     }

@@ -969,6 +969,9 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 			// Incoming P2P sessions include a name that we can use to build a history file name
 			mHistoryFileName = LLCacheName::buildUsername(mName);
 		}
+
+        // user's account name can change, but filenames and session names are account name based
+        LLConversationLog::getInstance()->verifyFilename(mSessionID, mHistoryFileName, av_name.getCompleteName());
 	}
 	else if (isGroupChat())
 	{

@@ -24,11 +24,14 @@
 // `_GNU_SOURCE` macro or `BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED` if
 // _Unwind_Backtrace is available without `_GNU_SOURCE`."
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
+
 #if LL_WINDOWS
 // On Windows, header-only implementation causes macro collisions -- use
 // prebuilt library
 #define BOOST_STACKTRACE_LINK
+#include <excpt.h>
 #endif // LL_WINDOWS
+
 #include <boost/stacktrace.hpp>
 // other Linden headers
 #include "llerror.h"
@@ -85,3 +88,25 @@ void annotate_exception_(boost::exception& exc)
     // Anyway, which of us is really going to examine more than 100 frames?
     exc << errinfo_stacktrace(boost::stacktrace::stacktrace(1, 100));
 }
+
+#if LL_WINDOWS
+
+// For windows SEH exception handling we sometimes need a filter that will
+// separate C++ exceptions from C SEH exceptions
+static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
+{
+    if (code == STATUS_MSC_EXCEPTION)
+    {
+        // C++ exception, go on
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else
+    {
+        // handle it
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+}
+
+#endif //LL_WINDOWS
