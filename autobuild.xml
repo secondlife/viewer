@@ -3038,9 +3038,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>60f008c5fd31641ad4e61ac751ce15d1</string>
+              <string>c42575ac8997de979eadb082c33a578e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75748/723495/uriparser-0.9.4-darwin64-555117.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/81322/765512/uriparser-0.9.4-darwin64-559132.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3074,9 +3074,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>00aff37a6f5e1fe08456702d28706cf6</string>
+              <string>901b1063556fc6b2575e745eef2bf744</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75751/723507/uriparser-0.9.4-windows-555117.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/81323/765528/uriparser-0.9.4-windows-559132.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3086,9 +3086,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ff27a91f3941c7bef5e1613a064cb048</string>
+              <string>962c01d553f286c430102998129fb0d6</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/75750/723506/uriparser-0.9.4-windows64-555117.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/81324/765527/uriparser-0.9.4-windows64-559132.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
