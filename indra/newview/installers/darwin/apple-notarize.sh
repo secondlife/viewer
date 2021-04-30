@@ -30,12 +30,15 @@ if [ -f "$CONFIG_FILE" ]; then
                         --username $USERNAME \
                         --password $PASSWORD
 
+            #remove temporary file
+            rm "$zip_file"
+
             if [["$status" == "success"]]; then
                 xcrun stapler staple "$app_file"
+            elif [["$status" == "invalid"]]; then
+                exit 1
             fi
         fi
-        #remove temporary file
-        rm "$zip_file"
     fi
 fi
 

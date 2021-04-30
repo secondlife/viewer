@@ -1294,7 +1294,7 @@ class DarwinManifest(ViewerManifest):
                     libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
                     cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
                     slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
-                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet.so"
+                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet/_greenlet.so"
                     while (not signed) and (sign_attempts > 0):
                         try:
                             sign_attempts-=1
