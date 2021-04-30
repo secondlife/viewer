@@ -56,10 +56,6 @@
 #include "stringize.h"
 #include "llexception.h"
 
-#if LL_WINDOWS
-#include <excpt.h>
-#endif
-
 // static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
@@ -253,29 +249,13 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
 
 #if LL_WINDOWS
 
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
-
-U32 exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
-{
-    if (code == STATUS_MSC_EXCEPTION)
-    {
-        // C++ exception, go on
-        return EXCEPTION_CONTINUE_SEARCH;
-    }
-    else
-    {
-        // handle it
-        return EXCEPTION_EXECUTE_HANDLER;
-    }
-}
-
 void LLCoros::winlevel(const callable_t& callable)
 {
     __try
     {
         callable();
     }
-    __except (exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
         // convert to C++ styled exception
         // Note: it might be better to use _se_set_translator

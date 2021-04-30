@@ -60,7 +60,7 @@ public:
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	void			setClickedCallback( boost::function<void (void*)> cb, void* userdata = NULL );
 
-	void			reshapeToFitText();
+	void			reshapeToFitText(BOOL called_from_parent = FALSE);
 
 	S32				getTextPixelWidth();
 	S32				getTextPixelHeight();
