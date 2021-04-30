@@ -2939,6 +2939,17 @@ Darn. You have been logged out of [SECOND_LIFE].
 
   <notification
    icon="alertmodal.tga"
+   name="InventoryUnusable"
+   type="alertmodal">
+There is a problem with your inventory. First, try logging out and logging in again. If you see this message again, contact Support and ask them to correct the problem.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Log out"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OnlyOfficerCanBuyLand"
    type="alertmodal">
 Unable to buy land for the group:

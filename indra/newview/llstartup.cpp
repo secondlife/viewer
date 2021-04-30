@@ -308,6 +308,13 @@ void update_texture_fetch()
 	gTextureList.updateImages(0.10f);
 }
 
+bool finish_force_quit(const LLSD& notification, const LLSD& response)
+{
+	LLAppViewer::instance()->forceQuit();
+	return false;
+}
+
+
 void set_flags_and_update_appearance()
 {
 	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(true);
@@ -1816,7 +1823,11 @@ bool idle_startup()
 		// a usable state and gInventory.isInventoryUsable() will be
 		// true.
 
-		// FIXME if inventory is unusable, we need to bail out.
+		// if inventory is unusable, we need to bail out.
+		if (!gInventory.isInventoryUsable())
+		{
+			LLNotificationsUtil::add("InventoryUnusable", LLSD(), LLSD(), &finish_force_quit );
+		}
 		
 		gInventory.createCommonSystemCategories();
 
@@ -2155,7 +2166,10 @@ bool idle_startup()
 
 		if (gAgent.isOutfitChosen() && (wearables_time > max_wearables_time))
 		{
-			LLNotificationsUtil::add("ClothingLoading");
+			if (gInventory.isInventoryUsable())
+			{
+				LLNotificationsUtil::add("ClothingLoading");
+			}			
 			record(LLStatViewer::LOADING_WEARABLES_LONG_DELAY, wearables_time);
 			LLStartUp::setStartupState( STATE_CLEANUP );
 		}
