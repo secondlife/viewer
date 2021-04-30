@@ -2039,7 +2039,8 @@ LLVector3d LLAgentCamera::getFocusOffsetInitial()
 F32 LLAgentCamera::getCameraMaxZoomDistance()
 {
     // SL-14706 / SL-14885 TPV have relaxed camera constraints allowing you to mousewheeel zoom WAY out.
-    if (gSavedSettings.getBOOL("DisableCameraConstraints"))
+    static LLCachedControl<bool> s_disable_camera_constraints(gSavedSettings, "DisableCameraConstraints", false);
+    if (s_disable_camera_constraints)
     {
         return (F32)INT_MAX;
     }
