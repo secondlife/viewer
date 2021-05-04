@@ -115,7 +115,7 @@ class LLModelPreview : public LLViewerDynamicTexture, public LLMutex
 {
     LOG_CLASS(LLModelPreview);
 
-    typedef boost::signals2::signal<void(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)> details_signal_t;
+    typedef boost::signals2::signal<void(F32 x, F32 y, F32 z)> details_signal_t;
     typedef boost::signals2::signal<void(void)> model_loaded_signal_t;
     typedef boost::signals2::signal<void(bool)> model_updated_signal_t;
 
@@ -158,7 +158,7 @@ public:
     void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
     void generateNormals();
     void restoreNormals();
-    U32 calcResourceCost();
+    void updateDimentionsAndOffsets();
     void rebuildUploadData();
     void saveUploadData(bool save_skinweights, bool save_joint_positions, bool lock_scale_if_joint_position);
     void saveUploadData(const std::string& filename, bool save_skinweights, bool save_joint_positions, bool lock_scale_if_joint_position);
@@ -239,7 +239,6 @@ protected:
     LLVector3	mPreviewScale;
     S32			mPreviewLOD;
     S32			mPhysicsSearchLOD;
-    U32			mResourceCost;
     std::string mLODFile[LLModel::NUM_LODS];
     bool		mLoading;
     U32			mLoadState;
