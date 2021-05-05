@@ -52,8 +52,11 @@ BOOL LLFloaterHowTo::postBuild()
 void LLFloaterHowTo::onOpen(const LLSD& key)
 {
     LLFloaterWebContent::Params p(key);
-    std::string url = gSavedSettings.getString("GuidebookURL");
-    p.url = LLWeb::expandURLSubstitutions(url, LLSD());
+    if (!p.url.isProvided() || p.url.getValue().empty())
+    {
+        std::string url = gSavedSettings.getString("GuidebookURL");
+        p.url = LLWeb::expandURLSubstitutions(url, LLSD());
+    }
     p.show_chrome = false;
 
     LLFloaterWebContent::onOpen(p);

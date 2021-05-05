@@ -638,6 +638,7 @@ set(viewer_SOURCE_FILES
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
+    llurlfloaterdispatchhandler.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
@@ -1269,6 +1270,7 @@ set(viewer_HEADER_FILES
     llurl.h
     llurldispatcher.h
     llurldispatcherlistener.h
+    llurlfloaterdispatchhandler.h
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h

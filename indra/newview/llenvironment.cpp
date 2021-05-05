@@ -327,7 +327,7 @@ namespace
                 std::istringstream llsdData(llsdRaw);
                 if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
                 {
-                    LL_WARNS() << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+                    LL_WARNS() << "LLEnvironmentPushDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
                 }
             }
 
