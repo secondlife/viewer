@@ -144,9 +144,10 @@ void LLVBOPool::deleteBuffer(U32 name)
 
 
 LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
-: mUsage(vboUsage), mType(vboType)
+: mUsage(vboUsage), mType(vboType), mMissCountDirty(true)
 {
-	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
+    mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
+    mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
 	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
 
@@ -173,7 +174,8 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
 		{ //record this miss
 			mMissCount[i]++;	
-		}
+            mMissCountDirty = true;  // signal to ::seedPool()
+        }
 
 		if (mType == GL_ARRAY_BUFFER_ARB)
 		{
@@ -226,6 +228,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 				sIndexBytesPooled += size;
 			}
 			mFreeList[i].push_back(rec);
+            mMissCountDirty = true;  // signal to ::seedPool()
 		}
 	}
 	else
@@ -243,6 +246,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 
 		mFreeList[i].pop_front();
+        mMissCountDirty = true;  // signal to ::seedPool()
 	}
 
 	return ret;
@@ -267,26 +271,25 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 
 void LLVBOPool::seedPool()
 {
-	U32 dummy_name = 0;
+    if (mMissCountDirty)
+    {
+        U32 dummy_name = 0;
 
-	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
-	{
-		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
-	}
+        for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
+        {
+            if (mMissCount[i] > mFreeList[i].size())
+            {
+                U32 size = i * LL_VBO_BLOCK_SIZE;
 
-	for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
-	{
-		if (mMissCount[i] > mFreeList[i].size())
-		{ 
-			U32 size = i*LL_VBO_BLOCK_SIZE;
-		
-			S32 count = mMissCount[i] - mFreeList[i].size();
-			for (U32 j = 0; j < count; ++j)
-			{
-				allocate(dummy_name, size, true);
-			}
-		}
-	}
+                S32 count = mMissCount[i] - mFreeList[i].size();
+                for (U32 j = 0; j < count; ++j)
+                {
+                    allocate(dummy_name, size, true);
+                }
+            }
+        }
+        mMissCountDirty = false;
+    }
 }
 
 
