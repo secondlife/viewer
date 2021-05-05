@@ -74,10 +74,12 @@ U32 vbo_block_size(U32 size)
 
 U32 vbo_block_index(U32 size)
 {
-	return vbo_block_size(size)/LL_VBO_BLOCK_SIZE;
+    U32 blocks = vbo_block_size(size)/LL_VBO_BLOCK_SIZE;   // block count reqd
+    llassert(blocks > 0);
+    return blocks - 1;  // Adj index, i.e. single-block allocations are at index 0, etc
 }
 
-const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
+const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE) + 1;
 
 
 //============================================================================
@@ -118,6 +120,97 @@ bool LLVertexBuffer::sUseStreamDraw = true;
 bool LLVertexBuffer::sUseVAO = false;
 bool LLVertexBuffer::sPreferStreamDraw = false;
 
+// DEBUG, temporary
+#include<unordered_map>
+
+typedef struct
+{
+    U32     allocated_size;
+    void*   memptr;
+} glbufmem;
+
+static std::unordered_map<U32, glbufmem> buf_list;
+
+void add_buf(U32 name, U32 size, void* ptr)
+{
+    LL_WARNS("VBO_ACCOUNTING") << "ADD add_buf GLname " << name << ", size " << size << ", ptr " << ptr << LL_ENDL;
+
+    if (0 < buf_list.count(name))
+    {
+        if (buf_list[name].allocated_size > 0)
+        {
+            U32 a = buf_list[name].allocated_size;
+            LL_WARNS("VBO_ACC_ERROR") << "add_buf error, adding duplicate GLname " << name << ", size " << size << ", allocated " << a << LL_ENDL;
+        }
+    }
+
+    buf_list[name].allocated_size = size;
+    buf_list[name].memptr = ptr;
+}
+
+U32 find_buf_size(U32 name)
+{
+    if (buf_list.count(name) > 0) return buf_list[name].allocated_size;
+    return 0;
+}
+
+bool clear_buf(U32 name, U32 size, void* ptr)
+{
+    LL_WARNS("VBO_ACCOUNTING") << "DEL clear_buf GLname " << name << ", size " << size << ", ptr " << ptr << LL_ENDL;
+
+    if (0 == buf_list.count(name))
+    {
+        LL_WARNS("VBO_ACC_ERROR") << "clear_buf error, attempt to remove unknown GLname " << name << ", size " << size << LL_ENDL;
+        return false;
+    }
+
+    if (buf_list[name].allocated_size == 0)
+    {
+        LL_WARNS("VBO_ACC_ERROR") << "clear_buf error, attempt to remove empty GLname " << name << ", size " << size << LL_ENDL;
+        return false;
+    }
+
+    if (buf_list[name].allocated_size != size)
+    {
+        U32 a = buf_list[name].allocated_size;
+        LL_WARNS("VBO_ACC_ERROR") << "clear_buf error, size mismatch " << name << ", size " << size << ", allocated " << a << LL_ENDL;
+        buf_list[name].allocated_size = 0;
+        buf_list[name].memptr = nullptr;
+        return false;
+    }
+
+    if (buf_list[name].memptr != ptr)
+    {
+        void* p = buf_list[name].memptr;
+        LL_WARNS("VBO_ACC_ERROR") << "clear_buf error, ptr mismatch " << name << ", ptr " << ptr << ", saved ptr " << p << LL_ENDL;
+        buf_list[name].allocated_size = 0;
+        buf_list[name].memptr = nullptr;
+        return false;
+    }
+
+    buf_list[name].allocated_size = 0;
+    buf_list[name].memptr = nullptr;
+    return true;
+}
+
+#if 0
+ // Find the GLname in the freelist
+for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
+{
+    for (auto &r : mFreeList[i])
+    {
+        if (r.mGLName == name)
+        {
+            LL_WARNS() << "Release size " << size << ", found Name " << name << " in bucket " << i << LL_ENDL;
+        }
+    }
+}
+
+// Remove the buffer record from the free record list, by GLname
+U32 i = vbo_block_index(size);
+mFreeList[i].remove_if([name](Record r) {return (name == r.mGLName); });
+i++;
+#endif
 
 U32 LLVBOPool::genBuffer()
 {
@@ -230,6 +323,8 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			mFreeList[i].push_back(rec);
             mMissCountDirty = true;  // signal to ::seedPool()
 		}
+
+        add_buf(name, size, (void*)ret);
 	}
 	else
 	{
@@ -267,6 +362,8 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	{
 		LLVertexBuffer::sAllocatedIndexBytes -= size;
 	}
+
+    clear_buf(name, size, (void*)buffer);
 }
 
 void LLVBOPool::seedPool()
@@ -274,19 +371,19 @@ void LLVBOPool::seedPool()
     if (mMissCountDirty)
     {
         U32 dummy_name = 0;
+        U32 size = LL_VBO_BLOCK_SIZE;
 
         for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
         {
             if (mMissCount[i] > mFreeList[i].size())
             {
-                U32 size = i * LL_VBO_BLOCK_SIZE;
-
                 S32 count = mMissCount[i] - mFreeList[i].size();
                 for (U32 j = 0; j < count; ++j)
                 {
                     allocate(dummy_name, size, true);
                 }
             }
+            size += LL_VBO_BLOCK_SIZE;
         }
         mMissCountDirty = false;
     }
@@ -312,6 +409,8 @@ void LLVBOPool::cleanup()
 			{
 				ll_aligned_free<64>((void*) r.mClientData);
 			}
+
+            clear_buf(r.mGLName, size, (void*)r.mClientData);
 
 			l.pop_front();
 
