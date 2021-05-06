@@ -768,7 +768,12 @@ protected:
 	void unpackParticleSource(LLDataPacker &dp, const LLUUID& owner_id, bool legacy);
 	void deleteParticleSource();
 	void setParticleSource(const LLPartSysData& particle_parameters, const LLUUID& owner_id);
-	
+
+    // Helper function to modify alpha mask provided to render according to image (ex: RGB image will drop alpha mask)
+    void updateDiffuseMatParams(const U8 te, LLMaterial* mat, LLViewerTexture *imagep, bool baked_texture);
+    // Shared part of code from setTEImage and setTETextureCore
+    S32 setDiffuseImageAndParams(const U8 te, LLViewerTexture *imagep);
+
 private:
 	void setNameValueList(const std::string& list);		// clears nv pairs and then individually adds \n separated NV pairs from \0 terminated string
 	void deleteTEImages(); // correctly deletes list of images
@@ -901,10 +906,27 @@ public:
 
     LLJointRiggingInfoTab mJointRiggingInfoTab;
 
+    bool notifyAboutCreatingTexture(LLViewerTexture *texture);
+    bool notifyAboutMissingAsset(LLViewerTexture *texture);
+
 private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
 	EObjectUpdateType	mLastUpdateType;
 	BOOL	mLastUpdateCached;
+
+    struct material_info
+    {
+        LLRender::eTexIndex map;
+        U8 te;
+
+        material_info(LLRender::eTexIndex map_, U8 te_)
+            : map(map_)
+            , te(te_)
+        {}
+    };
+
+    typedef std::multimap<LLUUID, material_info> uuid_material_mmap_t;
+    uuid_material_mmap_t mWaitingTextureInfo;
 };
 
 ///////////////////
