@@ -32,8 +32,11 @@
 class LLUrlFloaterDispatchHandler : public LLDispatchHandler
 {
 public:
+    LOG_CLASS(LLUrlFloaterDispatchHandler);
+
     LLUrlFloaterDispatchHandler();
     virtual ~LLUrlFloaterDispatchHandler();
+
     virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override;
 
     static void registerInDispatcher();

@@ -61,13 +61,16 @@ void LLFloaterHowTo::onOpen(const LLSD& key)
 
     LLFloaterWebContent::onOpen(p);
 
-    // Elements from LLFloaterWebContent did not pick up restored size (save_rect) of LLFloaterHowTo
-    // set the stack size and position (alternative to preferred_media_size)
-    LLLayoutStack *stack = getChild<LLLayoutStack>("stack1");
-    LLRect stack_rect = stack->getRect();
-    stack->reshape(STACK_WIDTH, STACK_HEIGHT);
-    stack->setOrigin(stack_rect.mLeft, stack_rect.mTop - STACK_HEIGHT);
-    stack->updateLayout();
+    if (p.preferred_media_size().isEmpty())
+    {
+        // Elements from LLFloaterWebContent did not pick up restored size (save_rect) of LLFloaterHowTo
+        // set the stack size and position (alternative to preferred_media_size)
+        LLLayoutStack *stack = getChild<LLLayoutStack>("stack1");
+        LLRect stack_rect = stack->getRect();
+        stack->reshape(STACK_WIDTH, STACK_HEIGHT);
+        stack->setOrigin(stack_rect.mLeft, stack_rect.mTop - STACK_HEIGHT);
+        stack->updateLayout();
+    }
 }
 
 LLFloaterHowTo* LLFloaterHowTo::getInstance()

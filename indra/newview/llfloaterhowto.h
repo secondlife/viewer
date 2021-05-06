@@ -36,6 +36,9 @@ class LLFloaterHowTo :
     public LLFloaterWebContent
 {
 public:
+    LOG_CLASS(LLFloaterHowTo);
+
+    typedef LLFloaterWebContent::Params Params;
 
     LLFloaterHowTo(const Params& key);
 
