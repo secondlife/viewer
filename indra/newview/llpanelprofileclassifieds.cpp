@@ -47,6 +47,7 @@
 #include "llparcel.h"
 #include "llregistry.h"
 #include "llscrollcontainer.h"
+#include "llstartup.h"
 #include "llstatusbar.h"
 #include "lltabcontainer.h"
 #include "lltexteditor.h"
@@ -82,6 +83,11 @@ public:
     
 	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
     {
+        if (LLStartUp::getStartupState() < STATE_STARTED)
+        {
+            return true;
+        }
+
         if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableClassifieds"))
         {
             LLNotificationsUtil::add("NoClassifieds", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
