@@ -276,7 +276,7 @@ private:
 	
 	LLUUID mCOFImageID;
 
-	std::auto_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
+	std::unique_ptr<LLOutfitUnLockTimer> mUnlockOutfitTimer;
 
 	// Set of temp attachment UUIDs that should be removed
 	typedef std::set<LLUUID> doomed_temp_attachments_t;

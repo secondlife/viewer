@@ -65,7 +65,7 @@ protected:
 private:
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;
-	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
+	std::unique_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels                                                                   //
