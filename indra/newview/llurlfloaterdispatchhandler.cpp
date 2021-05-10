@@ -46,6 +46,24 @@ const std::string KEY_FLOATER("floater_title");
 const std::string KEY_URL("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
+// Supported floaters
+const std::string FLOATER_GUIDEBOOK("guidebook"); // alias for how_to
+const std::string FLOATER_HOW_TO("how_to");
+const std::string FLOATER_WEB_CONTENT("web_content");
+
+// Web content universal argument
+const std::string KEY_TRUSTED_CONTENT("trusted_content");
+
+// Guidebook specific arguments
+const std::string KEY_WIDTH("width");
+const std::string KEY_HEGHT("height");
+const std::string KEY_CAN_CLOSE("can_close");
+
+// web_content specific arguments
+const std::string KEY_SHOW_PAGE_TITLE("show_page_title");
+const std::string KEY_ALLOW_ADRESS_ENTRY("allow_address_entry"); // It is not recomended to set this to true if trusted content is allowed
+
+
 LLUrlFloaterDispatchHandler LLUrlFloaterDispatchHandler::sUrlDispatchhandler;
 
 LLUrlFloaterDispatchHandler::LLUrlFloaterDispatchHandler()
@@ -118,17 +136,17 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     LLFloaterWebContent::Params params;
     params.url = url;
 
-    if (floater == "guidebook" || floater == "how_to")
+    if (floater == FLOATER_GUIDEBOOK || floater == FLOATER_HOW_TO)
     {
         if (command_params.isMap()) // by default is undefines
         {
-            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"].asBoolean() : false;
+            params.trusted_content = command_params.has(KEY_TRUSTED_CONTENT) ? command_params[KEY_TRUSTED_CONTENT].asBoolean() : false;
 
             // Script's side argument list can't include other lists, neither
             // there is a LLRect type, so expect just width and height
-            if (command_params.has("width") && command_params.has("height"))
+            if (command_params.has(KEY_WIDTH) && command_params.has(KEY_HEGHT))
             {
-                LLRect rect(0, command_params["height"].asInteger(), command_params["width"].asInteger(), 0);
+                LLRect rect(0, command_params[KEY_HEGHT].asInteger(), command_params[KEY_WIDTH].asInteger(), 0);
                 params.preferred_media_size.setValue(rect);
             }
         }
@@ -144,14 +162,20 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         }
 
         LLFloaterReg::toggleInstanceOrBringToFront("how_to", params);
+        
+        if (command_params.isMap() && command_params.has(KEY_CAN_CLOSE))
+        {
+            LLFloater* instance = LLFloaterReg::findInstance("how_to");
+            instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());
+        }
     }
-    else if (floater == "web_content")
+    else if (floater == FLOATER_WEB_CONTENT)
     {
         if (command_params.isMap()) // by default is undefines, might be better idea to init params from command_params
         {
-            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"].asBoolean() : false;
-            params.show_page_title = command_params.has("show_page_title") ? command_params["show_page_title"].asBoolean() : true;
-            params.allow_address_entry = command_params.has("allow_address_entry") ? command_params["allow_address_entry"].asBoolean() : true;
+            params.trusted_content = command_params.has(KEY_TRUSTED_CONTENT) ? command_params[KEY_TRUSTED_CONTENT].asBoolean() : false;
+            params.show_page_title = command_params.has(KEY_SHOW_PAGE_TITLE) ? command_params[KEY_SHOW_PAGE_TITLE].asBoolean() : true;
+            params.allow_address_entry = command_params.has(KEY_ALLOW_ADRESS_ENTRY) ? command_params[KEY_ALLOW_ADRESS_ENTRY].asBoolean() : true;
         }
         LLFloaterReg::showInstance("web_content", params);
     }
