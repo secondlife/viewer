@@ -51,6 +51,12 @@ BOOL LLFloaterHowTo::postBuild()
 
 void LLFloaterHowTo::onOpen(const LLSD& key)
 {
+    // LLFloaterHowTo is intended to be opened as a location specific guidebook
+    // with custom titles, reset the title, LLUrlFloaterDispatchHandler will
+    // set needed one later
+    // todo: make title into general parameter for LLFloaterWebContent
+    setTitle(getString("default_tittle"));
+
     LLFloaterWebContent::Params p(key);
     if (!p.url.isProvided() || p.url.getValue().empty())
     {
