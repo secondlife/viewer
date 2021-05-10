@@ -52,8 +52,8 @@ const std::string KEY_URI("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
 // Supported floaters, for now it's exact matching, later it might get extended
-const std::string FLOATER_GUIDEBOOK("secondlife://guidebook"); // translates to "how_to"
-const std::string FLOATER_WEB_CONTENT("secondlife://browser"); // translates to "web_content"
+const std::string FLOATER_GUIDEBOOK("secondlife:///guidebook"); // translates to "how_to"
+const std::string FLOATER_WEB_CONTENT("secondlife:///browser"); // translates to "web_content"
 
 // Web content universal arguments
 const std::string KEY_TRUSTED_CONTENT("trusted_content");

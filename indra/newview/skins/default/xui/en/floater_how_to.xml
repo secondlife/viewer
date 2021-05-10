@@ -3,7 +3,7 @@
   legacy_header_height="18"
   can_resize="false"
   can_minimize="false"
-  can_close="false" 
+  can_close="false"
   height="525"
   layout="topleft"
   name="floater_how_to"
@@ -14,4 +14,9 @@
   width="310"
   rel_x="-0.469309"
   rel_y="-0.011166"
-  filename="floater_web_content.xml"/>
+  filename="floater_web_content.xml">
+  <floater.string
+    name="default_tittle">
+WELCOME ISLAND GUIDEBOOK
+  </floater.string>
+</floater>
