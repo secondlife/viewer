@@ -92,16 +92,16 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         LLSD &action_data = message[KEY_DATA];
         if (action_data.isMap())
         {
-            floater = action_data[KEY_FLOATER];
+            floater = action_data[KEY_FLOATER].asString();
             command_params = action_data[KEY_PARAMS];
-            url = action_data[KEY_URL];
+            url = action_data[KEY_URL].asString();
         }
     }
     else if (message.has(KEY_FLOATER))
     {
-        floater = message[KEY_FLOATER];
+        floater = message[KEY_FLOATER].asString();
         command_params = message[KEY_PARAMS];
-        url = message[KEY_URL];
+        url = message[KEY_URL].asString();
     }
     else
     {
@@ -122,7 +122,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     {
         if (command_params.isMap()) // by default is undefines
         {
-            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"] : false;
+            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"].asBoolean() : false;
 
             // Script's side argument list can't include other lists, neither
             // there is a LLRect type, so expect just width and height
@@ -149,9 +149,9 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     {
         if (command_params.isMap()) // by default is undefines, might be better idea to init params from command_params
         {
-            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"] : false;
-            params.show_page_title = command_params.has("show_page_title") ? command_params["show_page_title"] : true;
-            params.allow_address_entry = command_params.has("allow_address_entry") ? command_params["allow_address_entry"] : true;
+            params.trusted_content = command_params.has("trusted_content") ? command_params["trusted_content"].asBoolean() : false;
+            params.show_page_title = command_params.has("show_page_title") ? command_params["show_page_title"].asBoolean() : true;
+            params.allow_address_entry = command_params.has("allow_address_entry") ? command_params["allow_address_entry"].asBoolean() : true;
         }
         LLFloaterReg::showInstance("web_content", params);
     }
