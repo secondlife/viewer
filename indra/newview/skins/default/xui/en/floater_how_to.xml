@@ -14,9 +14,4 @@
   width="310"
   rel_x="-0.469309"
   rel_y="-0.011166"
-  filename="floater_web_content.xml">
-  <floater.string
-    name="default_tittle">
-WELCOME ISLAND GUIDEBOOK
-  </floater.string>
-</floater>
+  filename="floater_web_content.xml"/>
