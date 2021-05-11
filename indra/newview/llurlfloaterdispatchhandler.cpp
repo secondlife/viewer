@@ -52,8 +52,8 @@ const std::string KEY_URI("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
 // Supported floaters, for now it's exact matching, later it might get extended
-const std::string FLOATER_GUIDEBOOK("secondlife://guidebook"); // translates to "how_to"
-const std::string FLOATER_WEB_CONTENT("secondlife://browser"); // translates to "web_content"
+const std::string FLOATER_GUIDEBOOK("guidebook"); // translates to "how_to"
+const std::string FLOATER_WEB_CONTENT("browser"); // translates to "web_content"
 
 // Web content universal arguments
 const std::string KEY_TRUSTED_CONTENT("trusted_content");
@@ -67,10 +67,6 @@ const std::string KEY_CAN_CLOSE("can_close");
 // web_content specific arguments
 const std::string KEY_SHOW_PAGE_TITLE("show_page_title");
 const std::string KEY_ALLOW_ADRESS_ENTRY("allow_address_entry"); // It is not recomended to set this to true if trusted content is allowed
-
-// expected format secondlife:///floater_alias
-// intended to be extended to: secondlife:///floater_alias/instance_id
-const boost::regex expression("secondlife:///[^ \n]{1,256}");
 
 
 LLUrlFloaterDispatchHandler LLUrlFloaterDispatchHandler::sUrlDispatchhandler;
@@ -112,7 +108,8 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
 
     std::string floater_title;
     LLSD command_params;
-    std::string floater_uri;
+    std::string raw_uri;
+    std::string floater_identifier;
 
     if (message.has(KEY_ACTION) && message[KEY_ACTION].asString() == VALUE_OPEN_URL)
     {
@@ -121,14 +118,14 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         {
             floater_title = action_data[KEY_FLOATER_TITLE].asString();
             command_params = action_data[KEY_PARAMS];
-            floater_uri = action_data[KEY_URI].asString();
+            raw_uri = action_data[KEY_URI].asString();
         }
     }
     else if (message.has(KEY_FLOATER_TITLE))
     {
         floater_title = message[KEY_FLOATER_TITLE].asString();
         command_params = message[KEY_PARAMS];
-        floater_uri = message[KEY_URI].asString();
+        raw_uri = message[KEY_URI].asString();
     }
     else
     {
@@ -136,16 +133,31 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         return false;
     }
 
-    if (floater_uri.find(":///") == std::string::npos)
+    if (raw_uri.find(":///") == std::string::npos)
     {
         // try unescaping
-        floater_uri = LLURI::unescape(floater_uri);
+        raw_uri = LLURI::unescape(raw_uri);
     }
 
-    boost::cmatch what;
-    if (!boost::regex_match(floater_uri.c_str(), what, expression))
+    LLURI floater_uri(raw_uri);
+    if (floater_uri.scheme().empty() || floater_uri.scheme() != "secondlife")
     {
-        LL_WARNS("URLFloater") << "Received " << MESSAGE_URL_FLOATER << " with invalid uri: " << floater_uri << LL_ENDL;
+        LL_WARNS("URLFloater") << "Received " << raw_uri << " with unexpected scheme in uri: " << floater_uri << LL_ENDL;
+        return false;
+    }
+
+    LLSD path_array = floater_uri.pathArray();
+    S32 path_parts = path_array.size();
+    if (path_parts == 0)
+    {
+        LL_WARNS("URLFloater") << "received an empty uri: " << floater_uri << LL_ENDL;
+        return false;
+    }
+
+    floater_identifier = path_array[0];
+    if (floater_identifier.size() < 3)
+    {
+        LL_WARNS("URLFloater") << "received invalid flaoter indentifier: " << floater_identifier << LL_ENDL;
         return false;
     }
 
@@ -162,7 +174,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         }
     }
 
-    if (floater_uri == FLOATER_GUIDEBOOK)
+    if (floater_identifier == FLOATER_GUIDEBOOK)
     {
         if (command_params.isMap()) // by default is undefines
         {
@@ -196,7 +208,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
             instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());
         }
     }
-    else if (floater_uri == FLOATER_WEB_CONTENT)
+    else if (floater_identifier == FLOATER_WEB_CONTENT)
     {
         if (command_params.has(KEY_URL))
         {
@@ -212,21 +224,15 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     }
     else
     {
-        LLSD path_array = LLURI(floater_uri).pathArray();
-        S32 path_parts = path_array.size();
-        if (path_parts == 0)
-        {
-            LL_INFOS("URLFloater") << "received an empty uri: " << floater_uri << LL_ENDL;
-        }
-        else if (LLFloaterReg::isRegistered(path_array[0]))
+        if (LLFloaterReg::isRegistered(floater_identifier))
         {
             // A valid floater
-            LL_INFOS("URLFloater") << "Floater " << path_array[0] << " is not supported by llopenfloater or URLFloater" << LL_ENDL;
+            LL_INFOS("URLFloater") << "Floater " << floater_identifier << " is not supported by llopenfloater or URLFloater" << LL_ENDL;
         }
         else
         {
             // A valid message, but no such flaoter
-            LL_WARNS("URLFloater") << "Recieved a command to open unknown floater: " << floater_uri << LL_ENDL;
+            LL_WARNS("URLFloater") << "Recieved a command to open unknown floater: " << raw_uri << LL_ENDL;
         }
     }
 
