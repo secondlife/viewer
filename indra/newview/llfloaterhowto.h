@@ -42,12 +42,14 @@ public:
 
     LLFloaterHowTo(const Params& key);
 
-    /*virtual*/ void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
     static LLFloaterHowTo* getInstance();
 
+    bool matchesKey(const LLSD& key) override { return true; /*single instance*/ };
+
 private:
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 };
 
 #endif  // LL_LLFLOATERHOWTO_H
