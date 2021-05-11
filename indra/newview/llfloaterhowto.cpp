@@ -83,3 +83,16 @@ LLFloaterHowTo* LLFloaterHowTo::getInstance()
 {
     return LLFloaterReg::getTypedInstance<LLFloaterHowTo>("how_to");
 }
+
+BOOL LLFloaterHowTo::handleKeyHere(KEY key, MASK mask)
+{
+	BOOL handled = FALSE;
+
+	if (KEY_F1 == key )
+	{
+		closeFloater();
+		handled = TRUE;
+	}
+
+	return handled;
+}

@@ -44,6 +44,8 @@ public:
 
     void onOpen(const LLSD& key) override;
 
+    virtual BOOL handleKeyHere(KEY key, MASK mask);
+
     static LLFloaterHowTo* getInstance();
 
     bool matchesKey(const LLSD& key) override { return true; /*single instance*/ };
