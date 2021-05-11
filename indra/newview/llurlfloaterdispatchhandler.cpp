@@ -36,13 +36,16 @@
 #include "llviewergenericmessage.h"
 #include "llweb.h"
 
+// Example:
+// llOpenFloater("guidebook", "http://page.com", []);
+
 // values specified by server side's dispatcher
 // for llopenfloater
 const std::string MESSAGE_URL_FLOATER("URLFloater");
 const std::string KEY_ACTION("action"); // "action" will be the string constant "OpenURL"
 const std::string VALUE_OPEN_URL("OpenURL");
 const std::string KEY_DATA("action_data");
-const std::string KEY_FLOATER("floater_title");
+const std::string KEY_FLOATER("floater_title"); // name of the floater, not title
 const std::string KEY_URL("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
@@ -58,6 +61,7 @@ const std::string KEY_TRUSTED_CONTENT("trusted_content");
 const std::string KEY_WIDTH("width");
 const std::string KEY_HEGHT("height");
 const std::string KEY_CAN_CLOSE("can_close");
+const std::string KEY_TITLE("title");
 
 // web_content specific arguments
 const std::string KEY_SHOW_PAGE_TITLE("show_page_title");
@@ -163,10 +167,17 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
 
         LLFloaterReg::toggleInstanceOrBringToFront("how_to", params);
         
-        if (command_params.isMap() && command_params.has(KEY_CAN_CLOSE))
+        if (command_params.isMap())
         {
             LLFloater* instance = LLFloaterReg::findInstance("how_to");
-            instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());
+            if (command_params.has(KEY_CAN_CLOSE))
+            {
+                instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());
+            }
+            if (command_params.has(KEY_TITLE))
+            {
+                instance->setTitle(command_params[KEY_TITLE].asString());
+            }
         }
     }
     else if (floater == FLOATER_WEB_CONTENT)
