@@ -86,7 +86,7 @@ class LLDiskCache :
                      * The maximum size of the cache in bytes - Based on the
                      * setting at 'CacheSize' and 'DiskCachePercentOfTotal'
                      */
-                    const int max_size_bytes,
+                    const uintmax_t max_size_bytes,
                     /**
                      * A flag that enables extra cache debugging so that
                      * if there are bugs, we can ask uses to enable this

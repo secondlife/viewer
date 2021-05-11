@@ -40,7 +40,7 @@
 #include "lldiskcache.h"
 
 LLDiskCache::LLDiskCache(const std::string cache_dir,
-                         const int max_size_bytes,
+                         const uintmax_t max_size_bytes,
                          const bool enable_cache_debug_info) :
     mCacheDir(cache_dir),
     mMaxSizeBytes(max_size_bytes),
