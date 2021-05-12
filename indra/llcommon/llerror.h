@@ -29,7 +29,9 @@
 #define LL_LLERROR_H
 
 #include <sstream>
+#include <string>
 #include <typeinfo>
+#include <vector>
 
 #include "stdtypes.h"
 
@@ -198,7 +200,6 @@ namespace LLError
 	{
 	public:
 		static bool shouldLog(CallSite&);
-		static void flush(const std::ostringstream& out, char* message);
 		static void flush(const std::ostringstream&, const CallSite&);
 		static std::string demangle(const char* mangled);
 		/// classname<TYPE>()
@@ -280,11 +281,8 @@ namespace LLError
     class LL_COMMON_API LLCallStacks
     {
     private:
-        static char**  sBuffer ;
-        static S32     sIndex ;
-
-        static void allocateStackBuffer();
-        static void freeStackBuffer();
+        typedef std::vector<std::string> StringVector;
+        static StringVector sBuffer ;
               
     public:   
         static void push(const char* function, const int line) ;

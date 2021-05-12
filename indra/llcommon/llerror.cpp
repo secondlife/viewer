@@ -1352,25 +1352,6 @@ namespace LLError
 	}
 
 
-	void Log::flush(const std::ostringstream& out, char* message)
-	{
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-		if (!lock.isLocked())
-		{
-			return;
-		}
-
-		if(strlen(out.str().c_str()) < 128)
-		{
-			strcpy(message, out.str().c_str());
-		}
-		else
-		{
-			strncpy(message, out.str().c_str(), 127);
-			message[127] = '\0' ;
-		}
-	}
-
 	void Log::flush(const std::ostringstream& out, const CallSite& site)
 	{
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
@@ -1496,33 +1477,7 @@ namespace LLError
 
 namespace LLError
 {     
-	char** LLCallStacks::sBuffer = NULL ;
-	S32    LLCallStacks::sIndex  = 0 ;
-
-	//static
-    void LLCallStacks::allocateStackBuffer()
-    {
-        if(sBuffer == NULL)
-        {
-            sBuffer = new char*[512] ;
-            sBuffer[0] = new char[512 * 128] ;
-            for(S32 i = 1 ; i < 512 ; i++)
-            {
-                sBuffer[i] = sBuffer[i-1] + 128 ;
-            }
-            sIndex = 0 ;
-        }
-    }
-
-    void LLCallStacks::freeStackBuffer()
-    {
-        if(sBuffer != NULL)
-        {
-            delete [] sBuffer[0] ;
-            delete [] sBuffer ;
-            sBuffer = NULL ;
-        }
-    }
+    LLCallStacks::StringVector LLCallStacks::sBuffer ;
 
     //static
     void LLCallStacks::push(const char* function, const int line)
@@ -1533,21 +1488,14 @@ namespace LLError
             return;
         }
 
-        if(sBuffer == NULL)
-        {
-            allocateStackBuffer();
-        }
-
-        if(sIndex > 511)
+        if(sBuffer.size() > 511)
         {
             clear() ;
         }
 
-        strcpy(sBuffer[sIndex], function) ;
-        sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
-        sIndex++ ;
-
-        return ;
+        std::ostringstream out;
+        insert(out, function, line);
+        sBuffer.push_back(out.str());
     }
 
     //static
@@ -1565,17 +1513,12 @@ namespace LLError
             return;
         }
 
-        if(sBuffer == NULL)
-        {
-            allocateStackBuffer();
-        }
-
-        if(sIndex > 511)
+        if(sBuffer.size() > 511)
         {
             clear() ;
         }
 
-        LLError::Log::flush(out, sBuffer[sIndex++]) ;
+        sBuffer.push_back(out.str());
     }
 
     //static
@@ -1587,33 +1530,30 @@ namespace LLError
             return;
         }
 
-        if(sIndex > 0)
+        if(! sBuffer.empty())
         {
             LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-            while(sIndex > 0)
+            for (StringVector::const_reverse_iterator ri(sBuffer.rbegin()), re(sBuffer.rend());
+                 ri != re; ++ri)
             {                  
-                sIndex-- ;
-                LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
+                LL_INFOS() << (*ri) << LL_ENDL;
             }
             LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
         }
 
-        if(sBuffer != NULL)
-        {
-            freeStackBuffer();
-        }
+        cleanup();
     }
 
     //static
     void LLCallStacks::clear()
     {
-        sIndex = 0 ;
+        sBuffer.clear();
     }
 
     //static
     void LLCallStacks::cleanup()
     {
-        freeStackBuffer();
+        clear();
     }
 
     std::ostream& operator<<(std::ostream& out, const LLStacktrace&)
