@@ -75,18 +75,7 @@
 
 #include <fstream>
 
-LLError::ErrFatalHookResult wouldHaveCrashed(const std::string& message)
-{
-#if LL_MSVC
-#pragma warning (push)
-#pragma warning (disable : 4702) // warning C4702: unreachable code
-#endif
-	tut::fail("fatal error message: " + message);
-    return LLError::ERR_DO_NOT_CRASH;
-#if LL_MSVC
-#pragma warning (pop)
-#endif
-}
+void wouldHaveCrashed(const std::string& message);
 
 namespace tut
 {
@@ -157,7 +146,7 @@ public:
 		mOldSettings(LLError::saveAndResetSettings()),
 		mRecorder(new RecordToTempFile(pool))
 	{
-		LLError::setFatalHook(wouldHaveCrashed);
+		LLError::setFatalFunction(wouldHaveCrashed);
 		LLError::setDefaultLevel(level);
 		LLError::addRecorder(mRecorder);
 	}
@@ -523,6 +512,11 @@ void stream_groups(std::ostream& s, const char* app)
 	}
 }
 
+void wouldHaveCrashed(const std::string& message)
+{
+	tut::fail("llerrs message: " + message);
+}
+
 static LLTrace::ThreadRecorder* sMasterThreadRecorder = NULL;
 
 int main(int argc, char **argv)
@@ -632,7 +626,7 @@ int main(int argc, char **argv)
 			replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
 		}
 	}
-	LLError::setFatalHook(wouldHaveCrashed);
+	LLError::setFatalFunction(wouldHaveCrashed);
 	std::string test_app_name(argv[0]);
 	std::string test_log = test_app_name + ".log";
 	LLFile::remove(test_log);

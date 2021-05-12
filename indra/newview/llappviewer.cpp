@@ -2298,10 +2298,6 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	{
 		LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
 	}
-
-    // TBD - temporary location for fatal hook (should be above, but for now it logs...)
-    LL_DEBUGS("FatalHook") << "initial setting of default fatalhook" << LL_ENDL;
-    LLError::setFatalHook(fatalErrorHook);
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
@@ -2998,16 +2994,15 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
-    LL_INFOS("AppInit") << "watchdog"
-                        << (use_watchdog ? " " : " NOT ")
-                        << "enabled"
-                        << " (setting = " << watchdog_enabled_setting << ")"
-                        << LL_ENDL;
+	LL_INFOS("AppInit") << "watchdog"
+						<< (use_watchdog ? " " : " NOT ")
+						<< "enabled"
+						<< " (setting = " << watchdog_enabled_setting << ")"
+						<< LL_ENDL;
 
 	if (use_watchdog)
 	{
-		LLWatchdog::getInstance()->init(
-			[](){ LL_ERRS() << "Watchdog killer event" << LL_ENDL; });
+		LLWatchdog::getInstance()->init();
 	}
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
@@ -3441,8 +3436,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 
-	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
-	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
+	gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
+	gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
 	gDebugInfo["OSInfo"] = LLOSInfo::instance().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
@@ -3461,11 +3456,11 @@ void LLAppViewer::writeSystemInfo()
 	// and can read this value from the debug_info.log.
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
-	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
 #else // LL_BUGSPLAT
 	// "CrashNotHandled" is obsolete; it used (not very successsfully)
     // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
-	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(false);
 #endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
@@ -3497,7 +3492,7 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
-	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
+	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 
@@ -3627,7 +3622,7 @@ void LLAppViewer::handleViewerCrash()
 
 	// The crash is being handled here so set this value to false.
 	// Otherwise the crash logger will think this crash was a freeze.
-	gDebugInfo["Dynamic"]["CrashNotHandled"] = (LLSD::Boolean)false;
+	gDebugInfo["Dynamic"]["CrashNotHandled"] = LLSD::Boolean(false);
 
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
