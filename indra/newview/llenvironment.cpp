@@ -611,6 +611,7 @@ namespace
             specialSet.insert(SETTING_CLOUD_TEXTUREID);
             specialSet.insert(SETTING_MOON_TEXTUREID);
             specialSet.insert(SETTING_SUN_TEXTUREID);
+            specialSet.insert(SETTING_CLOUD_SHADOW); // due to being part of skips
         }
         return specialSet;
     }
@@ -651,6 +652,7 @@ namespace
     template<>
     void LLSettingsInjected<LLSettingsVOSky>::updateSpecial(const typename LLSettingsInjected<LLSettingsVOSky>::Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix)
     {
+        bool is_texture = true;
         if (injection->mKeyName == SETTING_SUN_TEXTUREID)
         {
             mNextSunTextureId = injection->mValue.asUUID();
@@ -675,9 +677,29 @@ namespace
         {
             mNextHaloTextureId = injection->mValue.asUUID();
         }
+        else if (injection->mKeyName == LLSettingsSky::SETTING_CLOUD_SHADOW)
+        {
+            // Special case due to being texture dependent and part of skips
+            is_texture = false;
+            if (!injection->mBlendIn)
+                mix = 1.0 - mix;
+            stringset_t dummy;
+            LLUUID cloud_noise_id = getCloudNoiseTextureId();
+            F64 value = this->mSettings[injection->mKeyName].asReal();
+            if (this->getCloudNoiseTextureId().isNull())
+            {
+                value = 0; // there was no texture so start from zero coverage
+            }
+            // Ideally we need to check for texture in injection, but
+            // in this case user is setting value explicitly, potentially
+            // with different transitions, don't ignore it
+            F64 result = lerp(value, injection->mValue.asReal(), mix);
+            injection->mLastValue = LLSD::Real(result);
+            this->mSettings[injection->mKeyName] = injection->mLastValue;
+        }
 
         // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
-        if (getBlendFactor() < mix)
+        if (is_texture && getBlendFactor() < mix)
         {
             setBlendFactor(mix);
         }
