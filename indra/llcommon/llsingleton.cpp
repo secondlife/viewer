@@ -486,20 +486,7 @@ void LLSingletonBase::logerrs(std::initializer_list<std::string_view> args)
     log(LLError::LEVEL_ERROR, args);
     // The other important side effect of LL_ERRS() is
     // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
-    std::ostringstream out;
-    for (auto arg : args)
-    {
-        out << arg;
-    }
-    auto crash = LLError::getFatalFunction();
-    if (crash)
-    {
-        crash(out.str());
-    }
-    else
-    {
-        LLError::crashAndLoop(out.str());
-    }
+    LLERROR_CRASH;
 }
 
 std::string LLSingletonBase::demangle(const char* mangled)

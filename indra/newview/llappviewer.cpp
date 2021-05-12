@@ -760,17 +760,6 @@ public:
 	}
 };
 
-namespace {
-// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
-// this little helper function.
-void fast_exit(int rc)
-{
-	_exit(rc);
-}
-
-
-}
-
 
 bool LLAppViewer::init()
 {
@@ -822,9 +811,9 @@ bool LLAppViewer::init()
 	if (rc >= 0)
 	{
 		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
-		// fast_exit() rather than exit() because normal cleanup depends too
+		// _exit() rather than exit() because normal cleanup depends too
 		// much on successful startup!
-		LLError::setFatalFunction(boost::bind(fast_exit, rc));
+		LLError::setFatalFunction([rc](const std::string&){ _exit(rc); });
 	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
@@ -2185,28 +2174,6 @@ bool LLAppViewer::cleanup()
 	return true;
 }
 
-// A callback for LL_ERRS() to call during the watchdog error.
-void watchdog_llerrs_callback(const std::string &error_string)
-{
-	gLLErrorActivated = true;
-
-	gDebugInfo["FatalMessage"] = error_string;
-	LLAppViewer::instance()->writeDebugInfo();
-
-#ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
-#else
-	raise(SIGQUIT);
-#endif
-}
-
-// A callback for the watchdog to call.
-void watchdog_killer_callback()
-{
-	LLError::setFatalFunction(watchdog_llerrs_callback);
-	LL_ERRS() << "Watchdog killer event" << LL_ENDL;
-}
-
 bool LLAppViewer::initThreads()
 {
 	static const bool enable_threads = true;
@@ -2241,24 +2208,23 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-void errorCallback(const std::string &error_string)
+void errorCallback(LLError::ELevel level, const std::string &error_string)
 {
+    if (level == LLError::LEVEL_ERROR)
+    {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-	//Set the ErrorActivated global so we know to create a marker file
-	gLLErrorActivated = true;
+        //Set the ErrorActivated global so we know to create a marker file
+        gLLErrorActivated = true;
 
-	gDebugInfo["FatalMessage"] = error_string;
-	// We're not already crashing -- we simply *intend* to crash. Since we
-	// haven't actually trashed anything yet, we can afford to write the whole
-	// static info file.
-	LLAppViewer::instance()->writeDebugInfo();
-
-#ifndef SHADER_CRASH_NONFATAL
-	LLError::crashAndLoop(error_string);
-#endif
+        gDebugInfo["FatalMessage"] = error_string;
+        // We're not already crashing -- we simply *intend* to crash. Since we
+        // haven't actually trashed anything yet, we can afford to write the whole
+        // static info file.
+        LLAppViewer::instance()->writeDebugInfo();
+    }
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
@@ -2269,7 +2235,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalFunction(errorCallback);
+	LLError::addGenericRecorder(&errorCallback);
 	//LLError::setTimeFunction(getRuntime);
 
 	// Remove the last ".old" log file.
@@ -3030,7 +2996,8 @@ bool LLAppViewer::initWindow()
 
 	if (use_watchdog)
 	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+		LLWatchdog::getInstance()->init(
+			[](){ LL_ERRS() << "Watchdog killer event" << LL_ENDL; });
 	}
 	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 

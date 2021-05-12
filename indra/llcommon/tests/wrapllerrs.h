@@ -44,10 +44,6 @@
 #include <list>
 #include <string>
 
-// statically reference the function in test.cpp... it's short, we could
-// replicate, but better to reuse
-extern void wouldHaveCrashed(const std::string& message);
-
 struct WrapLLErrs
 {
     WrapLLErrs():
@@ -59,7 +55,8 @@ struct WrapLLErrs
         mPriorFatal(LLError::getFatalFunction())
     {
         // Make LL_ERRS call our own operator() method
-        LLError::setFatalFunction(boost::bind(&WrapLLErrs::operator(), this, _1));
+        LLError::setFatalFunction(
+            [this](const std::string& message){ (*this)(message); });
     }
 
     ~WrapLLErrs()
@@ -199,11 +196,13 @@ public:
         // with that output. If it turns out that saveAndResetSettings() has
         // some bad effect, give up and just let the DEBUG level log messages
         // display.
-		: boost::noncopyable(),
+        : boost::noncopyable(),
+        mFatalFunction(LLError::getFatalFunction()),
         mOldSettings(LLError::saveAndResetSettings()),
-		mRecorder(new CaptureLogRecorder())
+        mRecorder(new CaptureLogRecorder())
     {
-        LLError::setFatalFunction(wouldHaveCrashed);
+        // reinstate the FatalFunction we just reset
+        LLError::setFatalFunction(mFatalFunction);
         LLError::setDefaultLevel(level);
         LLError::addRecorder(mRecorder);
     }
@@ -219,17 +218,18 @@ public:
     /// for the sought string.
     std::string messageWith(const std::string& search, bool required=true)
     {
-		return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->messageWith(search, required);
+        return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->messageWith(search, required);
     }
 
     std::ostream& streamto(std::ostream& out) const
     {
-		return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
+        return boost::dynamic_pointer_cast<CaptureLogRecorder>(mRecorder)->streamto(out);
     }
 
 private:
+    LLError::FatalFunction mFatalFunction;
     LLError::SettingsStoragePtr mOldSettings;
-	LLError::RecorderPtr mRecorder;
+    LLError::RecorderPtr mRecorder;
 };
 
 #endif /* ! defined(LL_WRAPLLERRS_H) */

@@ -382,11 +382,23 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 
 #define LL_NEWLINE '\n'
 
-#define LL_ENDL                               \
-			LLError::End();                   \
-			LLError::Log::flush(_out, _site); \
-		}                                     \
-	} while(0)
+// Use this only in LL_ERRS or in a place that LL_ERRS may not be used
+#define LLERROR_CRASH         \
+{                             \
+    int* make_me_crash = NULL;\
+    *make_me_crash = 0;       \
+    exit(*make_me_crash);     \
+}
+
+#define LL_ENDL                                         \
+            LLError::End();                             \
+            LLError::Log::flush(_out, _site);           \
+            if (_site.mLevel == LLError::LEVEL_ERROR)   \
+            {                                           \
+                LLERROR_CRASH                           \
+            }                                           \
+        }                                               \
+    } while(0)
 
 // NEW Macros for debugging, allow the passing of a string tag
 

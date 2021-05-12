@@ -549,7 +549,7 @@ namespace LLError
 		mFileLevelMap(),
 		mTagLevelMap(),
 		mUniqueLogMessages(),
-		mCrashFunction(NULL),
+		mCrashFunction([](const std::string&){}),
 		mTimeFunction(NULL),
 		mRecorders(),
 		mShouldLogCallCounter(0)
@@ -728,7 +728,6 @@ namespace
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		LLError::setAlwaysFlush(true);
 		LLError::setEnabledLogTypesMask(0xFFFFFFFF);
-		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
 		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
@@ -1436,7 +1435,7 @@ namespace LLError
 
 		if (site.mPrintOnce)
 		{
-            std::ostringstream message_stream;
+			std::ostringstream message_stream;
 
 			std::map<std::string, unsigned int>::iterator messageIter = s->mUniqueLogMessages.find(message);
 			if (messageIter != s->mUniqueLogMessages.end())
@@ -1457,8 +1456,8 @@ namespace LLError
 				message_stream << "ONCE: ";
 				s->mUniqueLogMessages[message] = 1;
 			}
-            message_stream << message;
-            message = message_stream.str();
+			message_stream << message;
+			message = message_stream.str();
 		}
 		
 		writeToRecorders(site, message);
@@ -1466,10 +1465,7 @@ namespace LLError
 		if (site.mLevel == LEVEL_ERROR)
 		{
 			g->mFatalMessage = message;
-			if (s->mCrashFunction)
-			{
-				s->mCrashFunction(message);
-			}
+			s->mCrashFunction(message);
 		}
 	}
 }
@@ -1532,29 +1528,6 @@ namespace LLError
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 		return s->mShouldLogCallCounter;
 	}
-
-#if LL_WINDOWS
-		// VC80 was optimizing the error away.
-		#pragma optimize("", off)
-#endif
-	void crashAndLoop(const std::string& message)
-	{
-		// Now, we go kaboom!
-		int* make_me_crash = NULL;
-
-		*make_me_crash = 0;
-
-		while(true)
-		{
-			// Loop forever, in case the crash didn't work?
-		}
-		
-		// this is an attempt to let Coverity and other semantic scanners know that this function won't be returning ever.
-		exit(EXIT_FAILURE);
-	}
-#if LL_WINDOWS
-		#pragma optimize("", on)
-#endif
 
 	std::string utcTime()
 	{
