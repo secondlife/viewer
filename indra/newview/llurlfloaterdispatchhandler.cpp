@@ -54,6 +54,7 @@ const std::string FLOATER_GUIDEBOOK("guidebook"); // alias for how_to
 const std::string FLOATER_HOW_TO("how_to");
 const std::string FLOATER_WEB_CONTENT("web_content");
 
+// All arguments are palceholders! Server side will need to add validation first.
 // Web content universal argument
 const std::string KEY_TRUSTED_CONTENT("trusted_content");
 
@@ -105,6 +106,8 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         }
     }
 
+    // At the moment command_params is a placeholder and code treats it as map
+    // Once server side adds argument validation this will be either a map or an array
     std::string floater;
     LLSD command_params;
     std::string url;

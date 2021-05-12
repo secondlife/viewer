@@ -510,7 +510,12 @@ void LLFloater::destroy()
 // virtual
 LLFloater::~LLFloater()
 {
-	LLFloaterReg::removeInstance(mInstanceName, mKey);
+    if (!isDead())
+    {
+        // If it's dead, instance is supposed to be already removed, and
+        // in case of single instance we can remove new one by accident
+        LLFloaterReg::removeInstance(mInstanceName, mKey);
+    }
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
