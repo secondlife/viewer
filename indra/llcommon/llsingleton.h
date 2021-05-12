@@ -27,14 +27,15 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_set.hpp>
+#include <initializer_list>
 #include <list>
-#include <vector>
+#include <string_view>
 #include <typeinfo>
+#include <vector>
 #include "mutex.h"
 #include "lockstatic.h"
 #include "llthread.h"               // on_main_thread()
 #include "llmainthreadtask.h"
-#include <initializer_list>
 
 class LLSingletonBase: private boost::noncopyable
 {
