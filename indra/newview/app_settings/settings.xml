@@ -1362,7 +1362,7 @@
       <key>Value</key>
       <integer>23</integer>
     </map>
-    <key>EnableCacheDebugInfo</key>
+    <key>EnableDiskCacheDebugInfo</key>
     <map>
       <key>Comment</key>
       <string>When set, display additional cache debugging information</string>

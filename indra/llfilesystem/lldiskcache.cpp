@@ -335,3 +335,25 @@ uintmax_t LLDiskCache::dirFileSize(const std::string dir)
 
     return total_file_size;
 }
+
+LLPurgeDiskCacheThread::LLPurgeDiskCacheThread() :
+    LLThread("PurgeDiskCacheThread", nullptr)
+{
+}
+
+void LLPurgeDiskCacheThread::run()
+{
+    constexpr F64 CHECK_INTERVAL = 60;
+    mTimer.setTimerExpirySec(CHECK_INTERVAL);
+    mTimer.start();
+
+    do
+    {
+        if (mTimer.checkExpirationAndReset(CHECK_INTERVAL))
+        {
+            LLDiskCache::instance().purge();
+        }
+
+        ms_sleep(100);
+    } while (!isQuitting());
+}

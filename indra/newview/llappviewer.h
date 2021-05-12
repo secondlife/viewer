@@ -58,6 +58,7 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLViewerJoystick;
+class LLPurgeDiskCacheThread;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
@@ -117,6 +118,7 @@ public:
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
 	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
+	static LLPurgeDiskCacheThread* getPurgeDiskCacheThread() { return sPurgeDiskCacheThread; }
 
 	static U32 getTextureCacheVersion() ;
 	static U32 getObjectCacheVersion() ;
@@ -284,6 +286,7 @@ private:
 	static LLTextureCache* sTextureCache; 
 	static LLImageDecodeThread* sImageDecodeThread; 
 	static LLTextureFetch* sTextureFetch;
+	static LLPurgeDiskCacheThread* sPurgeDiskCacheThread;
 
 	S32 mNumSessions;
 

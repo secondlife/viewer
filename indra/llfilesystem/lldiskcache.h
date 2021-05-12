@@ -180,4 +180,15 @@ class LLDiskCache :
         bool mEnableCacheDebugInfo;
 };
 
+class LLPurgeDiskCacheThread : public LLThread
+{
+public:
+    LLPurgeDiskCacheThread();
+
+protected:
+    void run() override;
+
+private:
+    LLTimer mTimer;
+};
 #endif // _LLDISKCACHE
