@@ -442,8 +442,6 @@ namespace
     protected:
 		Globals();
 	public:
-		std::ostringstream messageStream;
-		bool messageStreamInUse;
 		std::string mFatalMessage;
 
 		void addCallSite(LLError::CallSite&);
@@ -453,12 +451,7 @@ namespace
 		CallSiteVector callSites;
 	};
 
-	Globals::Globals()
-		: messageStream(),
-		messageStreamInUse(false),
-		callSites()
-	{
-	}
+	Globals::Globals() {}
 
     Globals* Globals::getInstance()
     {
@@ -1359,25 +1352,7 @@ namespace LLError
 	}
 
 
-	std::ostringstream* Log::out()
-	{
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-
-		if (lock.isLocked())
-		{
-			Globals* g = Globals::getInstance();
-
-			if (!g->messageStreamInUse)
-			{
-				g->messageStreamInUse = true;
-				return &g->messageStream;
-			}
-		}
-
-		return new std::ostringstream;
-	}
-
-	void Log::flush(std::ostringstream* out, char* message)
+	void Log::flush(const std::ostringstream& out, char* message)
 	{
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
@@ -1385,31 +1360,18 @@ namespace LLError
 			return;
 		}
 
-		if(strlen(out->str().c_str()) < 128)
+		if(strlen(out.str().c_str()) < 128)
 		{
-			strcpy(message, out->str().c_str());
+			strcpy(message, out.str().c_str());
 		}
 		else
 		{
-			strncpy(message, out->str().c_str(), 127);
+			strncpy(message, out.str().c_str(), 127);
 			message[127] = '\0' ;
 		}
-
-		Globals* g = Globals::getInstance();
-		if (out == &g->messageStream)
-		{
-			g->messageStream.clear();
-			g->messageStream.str("");
-			g->messageStreamInUse = false;
-		}
-		else
-		{
-			delete out;
-		}
-		return ;
 	}
 
-	void Log::flush(std::ostringstream* out, const CallSite& site)
+	void Log::flush(const std::ostringstream& out, const CallSite& site)
 	{
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
@@ -1420,18 +1382,7 @@ namespace LLError
 		Globals* g = Globals::getInstance();
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 
-		std::string message = out->str();
-		if (out == &g->messageStream)
-		{
-			g->messageStream.clear();
-			g->messageStream.str("");
-			g->messageStreamInUse = false;
-		}
-		else
-		{
-			delete out;
-		}
-
+		std::string message = out.str();
 
 		if (site.mPrintOnce)
 		{
@@ -1600,15 +1551,13 @@ namespace LLError
     }
 
     //static
-    std::ostringstream* LLCallStacks::insert(const char* function, const int line)
+    void LLCallStacks::insert(std::ostream& out, const char* function, const int line)
     {
-        std::ostringstream* _out = LLError::Log::out();
-        *_out << function << " line " << line << " " ;
-        return _out ;
+        out << function << " line " << line << " " ;
     }
 
     //static
-    void LLCallStacks::end(std::ostringstream* _out)
+    void LLCallStacks::end(const std::ostringstream& out)
     {
         LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
         if (!lock.isLocked())
@@ -1626,7 +1575,7 @@ namespace LLError
             clear() ;
         }
 
-        LLError::Log::flush(_out, sBuffer[sIndex++]) ;
+        LLError::Log::flush(out, sBuffer[sIndex++]) ;
     }
 
     //static
