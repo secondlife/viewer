@@ -4,6 +4,7 @@ project(llcommon)
 
 include(00-Common)
 include(LLCommon)
+include(bugsplat)
 include(Linking)
 include(Boost)
 include(LLSharedLibs)
@@ -260,10 +261,10 @@ set(llcommon_HEADER_FILES
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if (BUGSPLAT_DB)
-  set_source_files_properties(llapp.cpp
-    PROPERTIES COMPILE_DEFINITIONS "LL_BUGSPLAT")
-endif (BUGSPLAT_DB)
+if (USE_BUGSPLAT)
+  set_source_files_properties(${llcommon_SOURCE_FILES}
+    PROPERTIES COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+endif (USE_BUGSPLAT)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 

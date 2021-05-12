@@ -728,14 +728,14 @@ LLAppViewer::LLAppViewer()
 	// from the previous viewer run between this constructor call and the
 	// init() call, which will overwrite the static_debug_info.log file for
 	// THIS run. So setDebugFileNames() early.
-#if LL_BUGSPLAT
+#   ifdef LL_BUGSPLAT
 	// MAINT-8917: don't create a dump directory just for the
 	// static_debug_info.log file
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-#else // ! LL_BUGSPLAT
+#   else // ! LL_BUGSPLAT
 	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-#endif // ! LL_BUGSPLAT
+#   endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
 	setMiniDumpDir(logdir);
 	setDebugFileNames(logdir);
@@ -2298,6 +2298,10 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	{
 		LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
 	}
+
+    // TBD - temporary location for fatal hook (should be above, but for now it logs...)
+    LL_DEBUGS("FatalHook") << "initial setting of default fatalhook" << LL_ENDL;
+    LLError::setFatalHook(fatalErrorHook);
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
@@ -2994,12 +2998,17 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
+    LL_INFOS("AppInit") << "watchdog"
+                        << (use_watchdog ? " " : " NOT ")
+                        << "enabled"
+                        << " (setting = " << watchdog_enabled_setting << ")"
+                        << LL_ENDL;
+
 	if (use_watchdog)
 	{
 		LLWatchdog::getInstance()->init(
 			[](){ LL_ERRS() << "Watchdog killer event" << LL_ENDL; });
 	}
-	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 
@@ -3446,12 +3455,18 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
 #endif
 
+#ifndef LL_BUGSPLAT
 	// "CrashNotHandled" is set here, while things are running well,
 	// in case of a freeze. If there is a freeze, the crash logger will be launched
 	// and can read this value from the debug_info.log.
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
 	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+#else // LL_BUGSPLAT
+	// "CrashNotHandled" is obsolete; it used (not very successsfully)
+    // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
+	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)false;
+#endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
 	// that the crash report will go to the proper location in the case of a
@@ -3685,6 +3700,8 @@ void LLAppViewer::handleViewerCrash()
 
 	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
 
+	gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
+
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
 }
@@ -3783,9 +3800,8 @@ void LLAppViewer::processMarkerFiles()
 		else if (marker_is_same_version)
 		{
 			// the file existed, is ours, and matched our version, so we can report on what it says
-			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec FROZE" << LL_ENDL;
-			gLastExecEvent = LAST_EXEC_FROZE;
-
+			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
+			gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 		}
 		else
 		{
@@ -5695,11 +5711,6 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
-//	if(!restoreErrorTrap())
-//	{
-//		LL_WARNS() << "!!!!!!!!!!!!! Its an error trap!!!!" << state << LL_ENDL;
-//	}
-
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)

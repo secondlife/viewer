@@ -11,6 +11,7 @@ include(LLKDU)
 include(LLImageJ2COJ)
 include(ZLIB)
 include(LLAddBuildTest)
+include(bugsplat)
 include(Tut)
 
 include_directories(
