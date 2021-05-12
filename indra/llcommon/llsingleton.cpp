@@ -38,10 +38,6 @@
 #include <sstream>
 #include <stdexcept>
 
-namespace {
-void log(LLError::ELevel level, std::initializer_list<std::string_view>);
-} // anonymous namespace
-
 // Our master list of all LLSingletons is itself an LLSingleton. We used to
 // store it in a function-local static, but that could get destroyed before
 // the last of the LLSingletons -- and ~LLSingletonBase() definitely wants to
@@ -450,43 +446,40 @@ void LLSingletonBase::deleteAll()
 /*---------------------------- Logging helpers -----------------------------*/
 namespace {
 
-void log(LLError::ELevel level, std::initializer_list<std::string_view> args)
+std::ostream& operator<<(std::ostream& out, const LLSingletonBase::string_params& args)
 {
-    LL_VLOGS(level, "LLSingleton");
-        for (auto arg : args)
-        {
-            LL_CONT << arg;
-        }
-    LL_ENDL;
+    // However many args there are in args, stream each of them to 'out'.
+    for (auto arg : args)
+    {
+        out << arg;
+    }
+    return out;
 }
 
 } // anonymous namespace        
 
 //static
-void LLSingletonBase::logwarns(std::initializer_list<std::string_view> args)
+void LLSingletonBase::logwarns(const string_params& args)
 {
-    log(LLError::LEVEL_WARN, args);
+    LL_WARNS("LLSingleton") << args << LL_ENDL;
 }
 
 //static
-void LLSingletonBase::loginfos(std::initializer_list<std::string_view> args)
+void LLSingletonBase::loginfos(const string_params& args)
 {
-    log(LLError::LEVEL_INFO, args);
+    LL_INFOS("LLSingleton") << args << LL_ENDL;
 }
 
 //static
-void LLSingletonBase::logdebugs(std::initializer_list<std::string_view> args)
+void LLSingletonBase::logdebugs(const string_params& args)
 {
-    log(LLError::LEVEL_DEBUG, args);
+    LL_DEBUGS("LLSingleton") << args << LL_ENDL;
 }
 
 //static
-void LLSingletonBase::logerrs(std::initializer_list<std::string_view> args)
+void LLSingletonBase::logerrs(const string_params& args)
 {
-    log(LLError::LEVEL_ERROR, args);
-    // The other important side effect of LL_ERRS() is
-    // https://www.youtube.com/watch?v=OMG7paGJqhQ (emphasis on OMG)
-    LLERROR_CRASH;
+    LL_ERRS("LLSingleton") << args << LL_ENDL;
 }
 
 std::string LLSingletonBase::demangle(const char* mangled)

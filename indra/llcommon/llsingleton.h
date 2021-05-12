@@ -112,10 +112,13 @@ protected:
     void capture_dependency();
 
     // delegate logging calls to llsingleton.cpp
-    static void logerrs  (std::initializer_list<std::string_view>);
-    static void logwarns (std::initializer_list<std::string_view>);
-    static void loginfos (std::initializer_list<std::string_view>);
-    static void logdebugs(std::initializer_list<std::string_view>);
+public:
+    typedef std::initializer_list<std::string_view> string_params;
+protected:
+    static void logerrs  (const string_params&);
+    static void logwarns (const string_params&);
+    static void loginfos (const string_params&);
+    static void logdebugs(const string_params&);
     static std::string demangle(const char* mangled);
     // these classname() declarations restate template functions declared in
     // llerror.h because we avoid #including that here
