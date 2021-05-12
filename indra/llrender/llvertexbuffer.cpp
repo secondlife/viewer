@@ -68,16 +68,18 @@ const U32 LL_VBO_POOL_MAX_SEED_SIZE = 256*1024;
 
 U32 vbo_block_size(U32 size)
 { //what block size will fit size?
-	U32 mod = size % LL_VBO_BLOCK_SIZE;
-	return mod == 0 ? size : size + (LL_VBO_BLOCK_SIZE-mod);
+    U32 mod = size % LL_VBO_BLOCK_SIZE;
+    return mod == 0 ? size : size + (LL_VBO_BLOCK_SIZE-mod);
 }
 
 U32 vbo_block_index(U32 size)
 {
-	return vbo_block_size(size)/LL_VBO_BLOCK_SIZE;
+    U32 blocks = vbo_block_size(size)/LL_VBO_BLOCK_SIZE;   // block count reqd
+    llassert(blocks > 0);
+    return blocks - 1;  // Adj index, i.e. single-block allocations are at index 0, etc
 }
 
-const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
+const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE) + 1;
 
 
 //============================================================================
@@ -118,7 +120,6 @@ bool LLVertexBuffer::sUseStreamDraw = true;
 bool LLVertexBuffer::sUseVAO = false;
 bool LLVertexBuffer::sPreferStreamDraw = false;
 
-
 U32 LLVBOPool::genBuffer()
 {
 	U32 ret = 0;
@@ -144,108 +145,112 @@ void LLVBOPool::deleteBuffer(U32 name)
 
 
 LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
-: mUsage(vboUsage), mType(vboType)
+: mUsage(vboUsage), mType(vboType), mMissCountDirty(true)
 {
-	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
+    mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
+    mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
 	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
 
-volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
+volatile U8 *LLVBOPool::allocate(U32 &name, U32 size, bool for_seed)
 {
-	llassert(vbo_block_size(size) == size);
-	
-	volatile U8* ret = NULL;
+    llassert(vbo_block_size(size) == size);
 
-	U32 i = vbo_block_index(size);
+    volatile U8 *ret = NULL;
 
-	if (mFreeList.size() <= i)
-	{
-		mFreeList.resize(i+1);
-	}
+    U32 i = vbo_block_index(size);
 
-	if (mFreeList[i].empty() || for_seed)
-	{
-		//make a new buffer
-		name = genBuffer();
-		
-		glBindBufferARB(mType, name);
+    if (mFreeList.size() <= i)
+    {
+        mFreeList.resize(i + 1);
+    }
 
-		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
-		{ //record this miss
-			mMissCount[i]++;	
-		}
+    if (mFreeList[i].empty() || for_seed)
+    {
+        // make a new buffer
+        name = genBuffer();
 
-		if (mType == GL_ARRAY_BUFFER_ARB)
-		{
-			LLVertexBuffer::sAllocatedBytes += size;
-		}
-		else
-		{
-			LLVertexBuffer::sAllocatedIndexBytes += size;
-		}
+        glBindBufferARB(mType, name);
 
-		if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
-		{
-			glBufferDataARB(mType, size, 0, mUsage);
-			if (mUsage != GL_DYNAMIC_COPY_ARB)
-			{ //data will be provided by application
-				ret = (U8*) ll_aligned_malloc<64>(size);
-				if (!ret)
-				{
-					LL_ERRS() << "Failed to allocate "<< size << " bytes for LLVBOPool buffer " << name <<"." << LL_NEWLINE
-							  << "Free list size: " << mFreeList.size() // this happens if we are out of memory so a solution might be to clear some from freelist
-							  << " Allocated Bytes: " << LLVertexBuffer::sAllocatedBytes
-							  << " Allocated Index Bytes: " << LLVertexBuffer::sAllocatedIndexBytes
-							  << " Pooled Bytes: " << sBytesPooled
-							  << " Pooled Index Bytes: " << sIndexBytesPooled
-							  << LL_ENDL;
-				}
-			}
-		}
-		else
-		{ //always use a true hint of static draw when allocating non-client-backed buffers
-			glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
-		}
+        if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
+        {  // record this miss
+            mMissCount[i]++;
+            mMissCountDirty = true;  // signal to ::seedPool()
+        }
 
-		glBindBufferARB(mType, 0);
+        if (mType == GL_ARRAY_BUFFER_ARB)
+        {
+            LLVertexBuffer::sAllocatedBytes += size;
+        }
+        else
+        {
+            LLVertexBuffer::sAllocatedIndexBytes += size;
+        }
 
-		if (for_seed)
-		{ //put into pool for future use
-			llassert(mFreeList.size() > i);
+        if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
+        {
+            glBufferDataARB(mType, size, 0, mUsage);
+            if (mUsage != GL_DYNAMIC_COPY_ARB)
+            {  // data will be provided by application
+                ret = (U8 *) ll_aligned_malloc<64>(size);
+                if (!ret)
+                {
+                    LL_ERRS()
+                        << "Failed to allocate " << size << " bytes for LLVBOPool buffer " << name << "." << LL_NEWLINE
+                        << "Free list size: "
+                        << mFreeList.size()  // this happens if we are out of memory so a solution might be to clear some from freelist
+                        << " Allocated Bytes: " << LLVertexBuffer::sAllocatedBytes
+                        << " Allocated Index Bytes: " << LLVertexBuffer::sAllocatedIndexBytes << " Pooled Bytes: " << sBytesPooled
+                        << " Pooled Index Bytes: " << sIndexBytesPooled << LL_ENDL;
+                }
+            }
+        }
+        else
+        {  // always use a true hint of static draw when allocating non-client-backed buffers
+            glBufferDataARB(mType, size, 0, GL_STATIC_DRAW_ARB);
+        }
 
-			Record rec;
-			rec.mGLName = name;
-			rec.mClientData = ret;
-	
-			if (mType == GL_ARRAY_BUFFER_ARB)
-			{
-				sBytesPooled += size;
-			}
-			else
-			{
-				sIndexBytesPooled += size;
-			}
-			mFreeList[i].push_back(rec);
-		}
-	}
-	else
-	{
-		name = mFreeList[i].front().mGLName;
-		ret = mFreeList[i].front().mClientData;
+        glBindBufferARB(mType, 0);
 
-		if (mType == GL_ARRAY_BUFFER_ARB)
-		{
-			sBytesPooled -= size;
-		}
-		else
-		{
-			sIndexBytesPooled -= size;
-		}
+        if (for_seed)
+        {  // put into pool for future use
+            llassert(mFreeList.size() > i);
 
-		mFreeList[i].pop_front();
-	}
+            Record rec;
+            rec.mGLName     = name;
+            rec.mClientData = ret;
 
-	return ret;
+            if (mType == GL_ARRAY_BUFFER_ARB)
+            {
+                sBytesPooled += size;
+            }
+            else
+            {
+                sIndexBytesPooled += size;
+            }
+            mFreeList[i].push_back(rec);
+            mMissCountDirty = true;  // signal to ::seedPool()
+        }
+    }
+    else
+    {
+        name = mFreeList[i].front().mGLName;
+        ret  = mFreeList[i].front().mClientData;
+
+        if (mType == GL_ARRAY_BUFFER_ARB)
+        {
+            sBytesPooled -= size;
+        }
+        else
+        {
+            sIndexBytesPooled -= size;
+        }
+
+        mFreeList[i].pop_front();
+        mMissCountDirty = true;  // signal to ::seedPool()
+    }
+
+    return ret;
 }
 
 void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
@@ -267,29 +272,26 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 
 void LLVBOPool::seedPool()
 {
-	U32 dummy_name = 0;
+    if (mMissCountDirty)
+    {
+        U32 dummy_name = 0;
+        U32 size       = LL_VBO_BLOCK_SIZE;
 
-	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
-	{
-		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
-	}
-
-	for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
-	{
-		if (mMissCount[i] > mFreeList[i].size())
-		{ 
-			U32 size = i*LL_VBO_BLOCK_SIZE;
-		
-			S32 count = mMissCount[i] - mFreeList[i].size();
-			for (U32 j = 0; j < count; ++j)
-			{
-				allocate(dummy_name, size, true);
-			}
-		}
-	}
+        for (U32 i = 0; i < LL_VBO_POOL_SEED_COUNT; i++)
+        {
+            if (mMissCount[i] > mFreeList[i].size())
+            {
+                S32 count = mMissCount[i] - mFreeList[i].size();
+                for (U32 j = 0; j < count; ++j)
+                {
+                    allocate(dummy_name, size, true);
+                }
+            }
+            size += LL_VBO_BLOCK_SIZE;
+        }
+        mMissCountDirty = false;
+    }
 }
-
-
 
 void LLVBOPool::cleanup()
 {
@@ -917,6 +919,11 @@ void LLVertexBuffer::cleanupClass()
 	sStreamVBOPool.cleanup();
 	sDynamicVBOPool.cleanup();
 	sDynamicCopyVBOPool.cleanup();
+
+    llassert(0 == LLVBOPool::sBytesPooled);
+    llassert(0 == LLVBOPool::sIndexBytesPooled);
+    llassert(0 == sAllocatedBytes);
+    llassert(0 == sAllocatedIndexBytes);
 }
 
 //----------------------------------------------------------------------------
