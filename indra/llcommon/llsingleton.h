@@ -29,7 +29,6 @@
 #include <boost/unordered_set.hpp>
 #include <initializer_list>
 #include <list>
-#include <string_view>
 #include <typeinfo>
 #include <vector>
 #include "mutex.h"
@@ -114,7 +113,7 @@ protected:
 
     // delegate logging calls to llsingleton.cpp
 public:
-    typedef std::initializer_list<std::string_view> string_params;
+    typedef std::initializer_list<const std::string> string_params;
 protected:
     static void logerrs  (const string_params&);
     static void logwarns (const string_params&);
