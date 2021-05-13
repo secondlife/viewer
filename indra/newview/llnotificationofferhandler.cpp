@@ -68,7 +68,7 @@ void LLOfferHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLOfferHandler::processNotification(const LLNotificationPtr& notification)
+bool LLOfferHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
 	if(mChannel.isDead())
 	{

@@ -60,7 +60,7 @@ void LLIMHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLIMHandler::processNotification(const LLNotificationPtr& notification)
+bool LLIMHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
     if(notification->isDND())
     {

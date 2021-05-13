@@ -62,7 +62,7 @@ void LLGroupHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLGroupHandler::processNotification(const LLNotificationPtr& notification)
+bool LLGroupHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
 	if(mChannel.isDead())
 	{

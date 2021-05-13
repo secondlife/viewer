@@ -150,7 +150,7 @@ void LLPersistentNotificationStorage::loadNotifications()
 		LLNotificationResponderPtr responder(createResponder(notification_params["name"], notification_params["responder"]));
 		notification->setResponseFunctor(responder);
 
-		instance.add(notification);
+		instance.load(notification);
 
 		// hide script floaters so they don't confuse the user and don't overlap startup toast
 		LLScriptFloaterManager::getInstance()->setFloaterVisible(notification->getID(), false);

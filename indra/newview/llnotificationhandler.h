@@ -96,10 +96,10 @@ public:
 	// base interface functions
 	virtual void onAdd(LLNotificationPtr p) { processNotification(p); }
 	virtual void onChange(LLNotificationPtr p) { processNotification(p); }
-	virtual void onLoad(LLNotificationPtr p) { processNotification(p); }
+	virtual void onLoad(LLNotificationPtr p) { processNotification(p, false); }
 	virtual void onDelete(LLNotificationPtr p) { if (mChannel.get()) mChannel.get()->removeToastByNotificationID(p->getID());}
 
-	virtual bool processNotification(const LLNotificationPtr& notify) = 0;
+	virtual bool processNotification(const LLNotificationPtr& notify, bool should_log = true) = 0;
 };
 
 class LLSystemNotificationHandler : public LLNotificationHandler
@@ -136,7 +136,7 @@ class LLIMHandler : public LLCommunicationNotificationHandler
 public:
 	LLIMHandler();
 	virtual ~LLIMHandler();
-	bool processNotification(const LLNotificationPtr& p);
+	bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel();
@@ -152,7 +152,7 @@ public:
 	LLTipHandler();
 	virtual ~LLTipHandler();
 
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel();
@@ -170,7 +170,7 @@ public:
 
 	virtual void onDelete(LLNotificationPtr p);
 	virtual void onChange(LLNotificationPtr p);
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 	virtual void addToastWithNotification(const LLNotificationPtr& p);
 
 protected:
@@ -188,7 +188,7 @@ public:
 	LLGroupHandler();
 	virtual ~LLGroupHandler();
 	
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel();
@@ -204,7 +204,7 @@ public:
 	virtual ~LLAlertHandler();
 
 	virtual void onChange(LLNotificationPtr p);
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel();
@@ -220,7 +220,7 @@ public:
 	virtual ~LLViewerAlertHandler() {};
 
 	virtual void onDelete(LLNotificationPtr p) {};
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel() {};
@@ -238,7 +238,7 @@ public:
 
 	virtual void onChange(LLNotificationPtr p);
 	virtual void onDelete(LLNotificationPtr notification);
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel();
@@ -256,7 +256,7 @@ public:
 	virtual void onAdd(LLNotificationPtr p);
 	virtual void onLoad(LLNotificationPtr p);
 	virtual void onDelete(LLNotificationPtr p);
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel() {};
@@ -271,7 +271,7 @@ public:
 	LLBrowserNotification();
 	virtual ~LLBrowserNotification() {}
 
-	virtual bool processNotification(const LLNotificationPtr& p);
+	virtual bool processNotification(const LLNotificationPtr& p, bool should_log = true);
 
 protected:
 	virtual void initChannel() {};
