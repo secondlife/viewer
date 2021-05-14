@@ -2076,17 +2076,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>BrowserPluginsEnabled</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable Web plugins in the built-in Web browser?</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>ChatBarCustomWidth</key>
     <map>
       <key>Comment</key>

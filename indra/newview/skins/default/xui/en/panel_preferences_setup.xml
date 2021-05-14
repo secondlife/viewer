@@ -148,20 +148,6 @@
   </radio_group>
 
   <check_box
-    top_delta="2"
-    enabled="true"
-    follows="left|top"
-    height="18"
-    initial_value="true"
-    control_name="BrowserPluginsEnabled"
-    label="Enable plugins"
-    left_delta="20"
-    mouse_opaque="true"
-    name="browser_plugins_enabled"
-    radio_style="false"
-    width="400"
-    top_pad="5"/>
-  <check_box
     top_delta="4"
     enabled="true"
     follows="left|top"

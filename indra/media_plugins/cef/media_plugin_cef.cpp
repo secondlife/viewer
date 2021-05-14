@@ -547,7 +547,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.disable_network_service = mDisableNetworkService;
 				settings.use_mock_keychain = mUseMockKeyChain;
 #endif
-				settings.flash_enabled = mPluginsEnabled;
+				// SL-14897 Disable Flash support in the embedded browser
+				//settings.flash_enabled = mPluginsEnabled;
+				settings.flash_enabled = false;
+
 				settings.flip_mouse_y = false;
 				settings.flip_pixels_y = true;
 				settings.frame_rate = 60;
@@ -556,8 +559,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.initial_width = 1024;
 				settings.java_enabled = false;
 				settings.javascript_enabled = mJavascriptEnabled;
-				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
-				settings.plugins_enabled = mPluginsEnabled;
+				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granularity/query UI
+				
+				// SL-14897 Disable Flash support in the embedded browser
+				//settings.plugins_enabled = mPluginsEnabled;
+				settings.plugins_enabled = false;
+
 				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 				settings.webgl_enabled = true;
 				settings.log_file = mCefLogFile;
