@@ -530,7 +530,7 @@ namespace tut
         result.ensure();
     }
 
-    struct TestLargeMessage: public std::binary_function<size_t, size_t, bool>
+    struct TestLargeMessage
     {
         TestLargeMessage(const std::string& PYTHON_, const std::string& reader_module_,
                          const std::string& test_name_):
