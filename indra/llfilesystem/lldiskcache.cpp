@@ -51,6 +51,8 @@ LLDiskCache::LLDiskCache(const std::string cache_dir,
     LLFile::mkdir(cache_dir);
 }
 
+// WARNING: purge() is called by LLPurgeDiskCacheThread. As such it must
+// NOT touch any LLDiskCache data without introducing and locking a mutex!
 void LLDiskCache::purge()
 {
     if (mEnableCacheDebugInfo)

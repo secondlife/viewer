@@ -118,6 +118,9 @@ class LLDiskCache :
         /**
          * Purge the oldest items in the cache so that the combined size of all files
          * is no bigger than mMaxSizeBytes.
+         *
+         * WARNING: purge() is called by LLPurgeDiskCacheThread. As such it must
+         * NOT touch any LLDiskCache data without introducing and locking a mutex!
          */
         void purge();
 
