@@ -53,6 +53,32 @@ LLDiskCache::LLDiskCache(const std::string cache_dir,
 
 // WARNING: purge() is called by LLPurgeDiskCacheThread. As such it must
 // NOT touch any LLDiskCache data without introducing and locking a mutex!
+
+// Interaction through the filesystem itself should be safe. Let’s say thread
+// A is accessing the cache file for reading/writing and thread B is trimming
+// the cache. Let’s also assume using llifstream to open a file and
+// boost::filesystem::remove are not atomic (which will be pretty much the
+// case).
+
+// Now, A is trying to open the file using llifstream ctor. It does some
+// checks if the file exists and whatever else it might be doing, but has not
+// issued the call to the OS to actually open the file yet. Now B tries to
+// delete the file: If the file has been already marked as in use by the OS,
+// deleting the file will fail and B will continue with the next file. A can
+// safely continue opening the file. If the file has not yet been marked as in
+// use, B will delete the file. Now A actually wants to open it, operation
+// will fail, subsequent check via llifstream.is_open will fail, asset will
+// have to be re-requested. (Assuming here the viewer will actually handle
+// this situation properly, that can also happen if there is a file containing
+// garbage.)
+
+// Other situation: B is trimming the cache and A wants to read a file that is
+// about to get deleted. boost::filesystem::remove does whatever it is doing
+// before actually deleting the file. If A opens the file before the file is
+// actually gone, the OS call from B to delete the file will fail since the OS
+// will prevent this. B continues with the next file. If the file is already
+// gone before A finally gets to open it, this operation will fail and the
+// asset will have to be re-requested.
 void LLDiskCache::purge()
 {
     if (mEnableCacheDebugInfo)

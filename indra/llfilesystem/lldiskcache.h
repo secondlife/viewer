@@ -121,6 +121,10 @@ class LLDiskCache :
          *
          * WARNING: purge() is called by LLPurgeDiskCacheThread. As such it must
          * NOT touch any LLDiskCache data without introducing and locking a mutex!
+         *
+         * Purging the disk cache involves nontrivial work on the viewer's
+         * filesystem. If called on the main thread, this causes a noticeable
+         * freeze.
          */
         void purge();
 
