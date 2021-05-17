@@ -194,8 +194,5 @@ public:
 
 protected:
     void run() override;
-
-private:
-    LLTimer mTimer;
 };
 #endif // _LLDISKCACHE

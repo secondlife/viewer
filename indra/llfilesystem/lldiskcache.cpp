@@ -31,6 +31,7 @@
  */
 
 #include "linden_common.h"
+#include "llapp.h"
 #include "llassettype.h"
 #include "lldir.h"
 #include <boost/filesystem.hpp>
@@ -371,17 +372,10 @@ LLPurgeDiskCacheThread::LLPurgeDiskCacheThread() :
 
 void LLPurgeDiskCacheThread::run()
 {
-    constexpr F64 CHECK_INTERVAL = 60;
-    mTimer.setTimerExpirySec(CHECK_INTERVAL);
-    mTimer.start();
+    constexpr long CHECK_INTERVAL = 60;
 
-    do
+    while (LLApp::instance()->sleep(std::chrono::seconds(CHECK_INTERVAL)))
     {
-        if (mTimer.checkExpirationAndReset(CHECK_INTERVAL))
-        {
-            LLDiskCache::instance().purge();
-        }
-
-        ms_sleep(100);
-    } while (!isQuitting());
+        LLDiskCache::instance().purge();
+    }
 }
