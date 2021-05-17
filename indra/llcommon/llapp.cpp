@@ -113,7 +113,8 @@ BOOL LLApp::sDisableCrashlogger = FALSE;
 BOOL LLApp::sLogInSignal = FALSE;
 
 // static
-LLApp::EAppStatus LLApp::sStatus = LLApp::APP_STATUS_STOPPED; // Keeps track of application status
+// Keeps track of application status
+LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
 LLAppErrorHandler LLApp::sErrorHandler = NULL;
 BOOL LLApp::sErrorThreadRunning = FALSE;
 
@@ -579,7 +580,8 @@ static std::map<LLApp::EAppStatus, const char*> statusDesc
 // static
 void LLApp::setStatus(EAppStatus status)
 {
-    sStatus = status;
+    // notify everyone waiting on sStatus any time its value changes
+    sStatus.set_all(status);
 
     // This can also happen very late in the application lifecycle -- don't
     // resurrect a deleted LLSingleton
@@ -607,6 +609,12 @@ void LLApp::setError()
 {
 	// set app status to ERROR so that the LLErrorThread notices
 	setStatus(APP_STATUS_ERROR);
+}
+
+// static
+bool LLApp::sleep(F32Milliseconds duration)
+{
+    return ! sStatus.wait_for_unequal(duration, APP_STATUS_RUNNING);
 }
 
 void LLApp::setMiniDumpDir(const std::string &path)
@@ -668,28 +676,28 @@ void LLApp::setStopped()
 // static
 bool LLApp::isStopped()
 {
-	return (APP_STATUS_STOPPED == sStatus);
+	return (APP_STATUS_STOPPED == sStatus.get());
 }
 
 
 // static
 bool LLApp::isRunning()
 {
-	return (APP_STATUS_RUNNING == sStatus);
+	return (APP_STATUS_RUNNING == sStatus.get());
 }
 
 
 // static
 bool LLApp::isError()
 {
-	return (APP_STATUS_ERROR == sStatus);
+	return (APP_STATUS_ERROR == sStatus.get());
 }
 
 
 // static
 bool LLApp::isQuitting()
 {
-	return (APP_STATUS_QUITTING == sStatus);
+	return (APP_STATUS_QUITTING == sStatus.get());
 }
 
 // static

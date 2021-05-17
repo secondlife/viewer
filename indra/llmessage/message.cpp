@@ -46,6 +46,7 @@
 #include "apr_poll.h"
 
 // linden library headers
+#include "llapp.h"
 #include "indra_constants.h"
 #include "lldir.h"
 #include "llerror.h"
