@@ -105,7 +105,8 @@ public:
 		mMatrix[3].setAdd(a.mMatrix[3],d3);
 	}
 
-	inline void rotate(const LLVector4a& v, LLVector4a& res)
+    // NOTE: This does NOT set res.w -- see rotate4() if you need w set.
+	inline void rotate(const LLVector4a& v, LLVector4a& res) const
 	{
 		LLVector4a y,z;
 
