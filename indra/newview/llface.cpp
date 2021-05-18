@@ -1677,58 +1677,63 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a bump_t_primary_light_ray(0.f, 0.f, 0.f);
 
 			LLQuaternion bump_quat;
-			if (mDrawablep->isActive())
-			{
-				bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
-			}
-		
-			if (bump_code)
-			{
-				mVObjp->getVolume()->genTangents(f);
-				F32 offset_multiple; 
-				switch( bump_code )
-				{
-					case BE_NO_BUMP:
-					offset_multiple = 0.f;
-					break;
-					case BE_BRIGHTNESS:
-					case BE_DARKNESS:
-					if( mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
-					{
-						// Offset by approximately one texel
-						S32 cur_discard = mTexture[LLRender::DIFFUSE_MAP]->getDiscardLevel();
-						S32 max_size = llmax( mTexture[LLRender::DIFFUSE_MAP]->getWidth(), mTexture[LLRender::DIFFUSE_MAP]->getHeight() );
-						max_size <<= cur_discard;
-						const F32 ARTIFICIAL_OFFSET = 2.f;
-						offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
-					}
-					else
-					{
-						offset_multiple = 1.f/256;
-					}
-					break;
 
-					default:  // Standard bumpmap textures.  Assumed to be 256x256
-					offset_multiple = 1.f / 256;
-					break;
-				}
+            // NOTE: This will invert the normalmap based on camera distance in deferred so skipped
+            if (!LLPipeline::sRenderDeferred)
+            {
+                if (mDrawablep->isActive())
+                {
+                    bump_quat = LLQuaternion(mDrawablep->getRenderMatrix());
+                }
 
-				F32 s_scale = 1.f;
-				F32 t_scale = 1.f;
-				if( tep )
-				{
-					tep->getScale( &s_scale, &t_scale );
-				}
-				// Use the nudged south when coming from above sun angle, such
-				// that emboss mapping always shows up on the upward faces of cubes when 
-				// it's noon (since a lot of builders build with the sun forced to noon).
-				LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-				LLVector3   moon_ray = gSky.mVOSkyp->getMoon().getDirection();
-				LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
+                if (bump_code)
+                {
+                    mVObjp->getVolume()->genTangents(f);
+                    F32 offset_multiple;
+                    switch( bump_code )
+                    {
+                        case BE_NO_BUMP:
+                            offset_multiple = 0.f;
+                            break;
+                        case BE_BRIGHTNESS:
+                        case BE_DARKNESS:
+                            if( mTexture[LLRender::DIFFUSE_MAP].notNull() && mTexture[LLRender::DIFFUSE_MAP]->hasGLTexture())
+                            {
+                                // Offset by approximately one texel
+                                S32 cur_discard = mTexture[LLRender::DIFFUSE_MAP]->getDiscardLevel();
+                                S32 max_size = llmax( mTexture[LLRender::DIFFUSE_MAP]->getWidth(), mTexture[LLRender::DIFFUSE_MAP]->getHeight() );
+                                max_size <<= cur_discard;
+                                const F32 ARTIFICIAL_OFFSET = 2.f;
+                                offset_multiple = ARTIFICIAL_OFFSET / (F32)max_size;
+                            }
+                            else
+                            {
+                                offset_multiple = 1.f/256;
+                            }
+                            break;
 
-				bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
-				bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
-			}
+                        default:  // Standard bumpmap textures.  Assumed to be 256x256
+                            offset_multiple = 1.f / 256;
+                            break;
+                    }
+
+                    F32 s_scale = 1.f;
+                    F32 t_scale = 1.f;
+                    if( tep )
+                    {
+                        tep->getScale( &s_scale, &t_scale );
+                    }
+                    // Use the nudged south when coming from above sun angle, such
+                    // that emboss mapping always shows up on the upward faces of cubes when
+                    // it's noon (since a lot of builders build with the sun forced to noon).
+                    LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
+                    LLVector3   moon_ray = gSky.mVOSkyp->getMoon().getDirection();
+                    LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
+
+                    bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
+                    bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
+                }
+            }
 
 			U8 texgen = getTextureEntry()->getTexGen();
 			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
@@ -1905,9 +1910,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 				std::vector<LLVector2> bump_tc;
 		
-				if (mat && !mat->getNormalID().isNull())
+				if (!LLPipeline::sRenderDeferred && mat && !mat->getNormalID().isNull())
 				{ //writing out normal and specular texture coordinates, not bump offsets
-					do_bump = false;
+						bump_tc.reserve(num_vertices);
 				}
 
 				LLStrider<LLVector2> dst;
@@ -2006,7 +2011,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					mVertexBuffer->flush();
 				}
 
-				if (!mat && do_bump)
+				if (!LLPipeline::sRenderDeferred && !mat && do_bump)
 				{
 					mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount, map_range);
 		
