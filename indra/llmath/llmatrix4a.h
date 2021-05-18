@@ -121,6 +121,26 @@ public:
 		res.add(z);
 	}
 
+    // NOTE: This also sets res.w -- see rotate() if you don't need w set.
+    inline void rotate4(const LLVector4a& v, LLVector4a& res) const
+    {
+        LLVector4a x,y,z,w;
+
+        x.splat<0>(v);
+        y.splat<1>(v);
+        z.splat<2>(v);
+        w.splat<3>(v);
+
+        x.mul(mMatrix[0]);
+        y.mul(mMatrix[1]);
+        z.mul(mMatrix[2]);
+        w.mul(mMatrix[3]);
+
+        x.add(y);
+        z.add(w);
+        res.setAdd(x,z);
+    }
+
 	inline void affineTransformSSE(const LLVector4a& v, LLVector4a& res) const
 	{
 		LLVector4a x,y,z;
