@@ -1378,6 +1378,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	const LLTextureEntry *tep = mVObjp->getTE(f);
 	const U8 bump_code = tep ? tep->getBumpmap() : 0;
 
+    // Legacy bumpmaps may not always have correct tangents in deferred
+	if ( bump_code && rebuild_tcoord && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TANGENT) )
+	{
+		LLMaterial* mat = tep->getMaterialParams().get();
+		if(!mat || mat->getNormalID().isNull())
+			rebuild_tangent = true;
+	}
+
 	BOOL is_static = mDrawablep->isStatic();
 	BOOL is_global = is_static;
 
