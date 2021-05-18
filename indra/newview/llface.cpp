@@ -1478,7 +1478,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	
 	LLMatrix4a mat_normal;
 	mat_normal.loadu(mat_norm_in);
-	
+
+	LLMatrix4a mat_tan;
+	mat_tan.loadu(mat_vert_in); // SL-5346
+
 	F32 r = 0, os = 0, ot = 0, ms = 0, mt = 0, cos_ang = 0, sin_ang = 0;
 	bool do_xform = false;
 	if (rebuild_tcoord)
@@ -2029,8 +2032,9 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						LLVector4a t;
 						tangent_to_object.rotate(binormal_dir, t);
 						LLVector4a binormal;
-						mat_normal.rotate(t, binormal);
-						
+
+						mat_tan.rotate(t, binormal); // SL-5346
+
 						//VECTORIZE THIS
 						if (mDrawablep->isActive())
 						{
@@ -2192,18 +2196,33 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mask.clear();
 			mask.setElement<3>();
 
-			LLVector4a* src = vf.mTangents;
-			LLVector4a* end = vf.mTangents+num_vertices;
+			LLVector4a* src_tangents = vf.mTangents;
+			LLVector4a* end_tangents = vf.mTangents+num_vertices;
 
-			while (src < end)
+			LLVector4a*       src_normals = vf.mNormals;
+			LLVector4a*       end_normals = vf.mNormals+num_vertices;
+			const LLMaterial* material    = tep->getMaterialParams().get();
+			const bool        material_has_rotation = material && material->getNormalID().notNull();
+			const F32 rot = material_has_rotation
+			              ? RAD_TO_DEG * material->getNormalRotation()
+			              : RAD_TO_DEG * r;
+
+			while (src_tangents < end_tangents)
 			{
-				LLVector4a tangent_out;
-				mat_normal.rotate(*src, tangent_out);
+				LLVector4a tangent_out = *src_tangents;
+				if (src_normals && (src_normals < end_normals))
+				{
+					LLMatrix4a mat_tangent;
+					mat_tangent.makeRotation( rot, *src_normals );
+					mat_tangent.rotate4(tangent_out, tangent_out);
+					src_normals++;
+				}
+				mat_tan.rotate4(tangent_out, tangent_out);
 				tangent_out.normalize3fast();
-				tangent_out.setSelectWithMask(mask, *src, tangent_out);
+				tangent_out.setSelectWithMask(mask, *src_tangents, tangent_out);
 				tangent_out.store4a(tangents);
 				
-				src++;
+				src_tangents++;
 				tangents += 4;
 			}
 
