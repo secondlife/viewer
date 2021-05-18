@@ -372,9 +372,9 @@ LLPurgeDiskCacheThread::LLPurgeDiskCacheThread() :
 
 void LLPurgeDiskCacheThread::run()
 {
-    constexpr long CHECK_INTERVAL = 60;
+    constexpr std::chrono::seconds CHECK_INTERVAL{60};
 
-    while (LLApp::instance()->sleep(std::chrono::seconds(CHECK_INTERVAL)))
+    while (LLApp::instance()->sleep(CHECK_INTERVAL))
     {
         LLDiskCache::instance().purge();
     }
