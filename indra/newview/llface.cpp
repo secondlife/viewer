@@ -1966,44 +1966,45 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					}
 					
 
-				for (S32 i = 0; i < num_vertices; i++)
-				{	
-					LLVector2 tc(vf.mTexCoords[i]);
-			
-					LLVector4a& norm = vf.mNormals[i];
-				
-					LLVector4a& center = *(vf.mCenter);
-		   
-					if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+					for (S32 i = 0; i < num_vertices; i++)
 					{
-						LLVector4a vec = vf.mPositions[i];
+						LLVector2 tc(vf.mTexCoords[i]);
+
+						LLVector4a& norm = vf.mNormals[i];
 				
-						vec.mul(scalea);
+						LLVector4a& center = *(vf.mCenter);
+
+						if (texgen != LLTextureEntry::TEX_GEN_DEFAULT)
+						{
+							LLVector4a vec = vf.mPositions[i];
+
+							vec.mul(scalea);
 
 							if (texgen == LLTextureEntry::TEX_GEN_PLANAR)
-						{
+							{
 								planarProjection(tc, norm, center, vec);
-						}		
-					}
+							}
+						}
 
-					if (tex_mode && mTextureMatrix)
-					{
-						LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
-						tmp = tmp * *mTextureMatrix;
-						tc.mV[0] = tmp.mV[0];
-						tc.mV[1] = tmp.mV[1];
-					}
-					else
-					{
-						xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
-					}
+						if (tex_mode && mTextureMatrix)
+						{
+							LLVector3 tmp(tc.mV[0], tc.mV[1], 0.f);
+							tmp = tmp * *mTextureMatrix;
+							tc.mV[0] = tmp.mV[0];
+							tc.mV[1] = tmp.mV[1];
+						}
+						else
+						{
+							xform(tc, cos_ang, sin_ang, os, ot, ms, mt);
+						}
 
 						*dst++ = tc;
-					if (do_bump)
-					{
-						bump_tc.push_back(tc);
+
+						if (!LLPipeline::sRenderDeferred && !mat && do_bump)
+						{
+							bump_tc.push_back(tc);
+						}
 					}
-				}
 				}
 
 				if (map_range)
