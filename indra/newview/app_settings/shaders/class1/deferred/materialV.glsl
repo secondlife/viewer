@@ -107,31 +107,34 @@ void main()
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
 #endif
 
+// 4 permutations for HAS_SKIN and HAS_NORMAL_MAP
 #ifdef HAS_SKIN
-	vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
-#ifdef HAS_NORMAL_MAP
-	vec3 t = normalize((mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz);
-	vec3 b = cross(n, t)*tangent.w;
-	
-	vary_mat0 = vec3(t.x, b.x, n.x);
-	vary_mat1 = vec3(t.y, b.y, n.y);
-	vary_mat2 = vec3(t.z, b.z, n.z);
-#else //HAS_NORMAL_MAP
-vary_normal  = n;
-#endif //HAS_NORMAL_MAP
+    #ifdef HAS_NORMAL_MAP
+        vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+        vec3 t = normalize((mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz);
+        vec3 b = normalize(cross(n, t))*tangent.w;
+
+        vary_mat0 = vec3(t.x, b.x, n.x);
+        vary_mat1 = vec3(t.y, b.y, n.y);
+        vary_mat2 = vec3(t.z, b.z, n.z);
+    #else //HAS_NORMAL_MAP
+        vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+        vary_normal  = n;
+    #endif //HAS_NORMAL_MAP
 #else //HAS_SKIN
-	vec3 n = normalize(normal_matrix * normal);
-#ifdef HAS_NORMAL_MAP
-	vec3 t = normalize(normal_matrix * tangent.xyz);
-	vec3 b = cross(n,t)*tangent.w;
-	//vec3 t = cross(b,n) * binormal.w;
-	
-	vary_mat0 = vec3(t.x, b.x, n.x);
-	vary_mat1 = vec3(t.y, b.y, n.y);
-	vary_mat2 = vec3(t.z, b.z, n.z);
-#else //HAS_NORMAL_MAP
-	vary_normal = n;
-#endif //HAS_NORMAL_MAP
+    #ifdef HAS_NORMAL_MAP
+        vec3 n = normalize(normal_matrix * normal);
+        vec3 t = normalize(normal_matrix * tangent.xyz);   // ProjbA = Project a,b =     dot(a,b)*b
+             t = normalize(t - dot(t,n)*n);                // <-----<< Reject  a,b = a - dot(a,b)*b
+        vec3 b = normalize(cross(n,t)) * tangent.w;
+
+        vary_mat0 = vec3(t.x, b.x, n.x);
+        vary_mat1 = vec3(t.y, b.y, n.y);
+        vary_mat2 = vec3(t.z, b.z, n.z);
+    #else //HAS_NORMAL_MAP
+        vec3 n = normalize(normal_matrix * normal);
+        vary_normal = n;
+    #endif //HAS_NORMAL_MAP
 #endif //HAS_SKIN
 	
 	vertex_color = diffuse_color;
