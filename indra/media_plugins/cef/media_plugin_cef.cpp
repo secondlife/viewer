@@ -73,6 +73,7 @@ private:
 	void onCursorChangedCallback(dullahan::ECursorType type);
 	const std::vector<std::string> onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, const std::string dialog_accept_filter, bool& use_default);
 	bool onJSDialogCallback(const std::string origin_url, const std::string message_text, const std::string default_prompt_text);
+	bool onJSBeforeUnloadCallback();
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -377,6 +378,14 @@ bool MediaPluginCEF::onJSDialogCallback(const std::string origin_url, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+bool MediaPluginCEF::onJSBeforeUnloadCallback()
+{
+	// return true indicates we suppress the JavaScript UI entirely
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 {
 	std::string name = "";
@@ -523,6 +532,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
 				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 				mCEFLib->setOnJSDialogCallback(std::bind(&MediaPluginCEF::onJSDialogCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+				mCEFLib->setOnJSBeforeUnloadCallback(std::bind(&MediaPluginCEF::onJSBeforeUnloadCallback, this));
 				
 				dullahan::dullahan_settings settings;
 #if LL_WINDOWS
