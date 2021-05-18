@@ -7368,8 +7368,8 @@ void CalculateTangentArray(const U32 vertexCount, const LLVector4a *vertex, cons
         const LLVector2 *texcoord, const U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
-	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
-	// new(tan1) LLVector4a;
+    LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
+    // new(tan1) LLVector4a;
 
     LLVector4a* tan2 = tan1 + vertexCount;
 
@@ -7393,77 +7393,76 @@ void CalculateTangentArray(const U32 vertexCount, const LLVector4a *vertex, cons
         const LLVector2& w2 = texcoord[i2];
         const LLVector2& w3 = texcoord[i3];
         
-		const F32* v1ptr = v1.getF32ptr();
-		const F32* v2ptr = v2.getF32ptr();
-		const F32* v3ptr = v3.getF32ptr();
-		
-        float x1 = v2ptr[0] - v1ptr[0];
-        float x2 = v3ptr[0] - v1ptr[0];
-        float y1 = v2ptr[1] - v1ptr[1];
-        float y2 = v3ptr[1] - v1ptr[1];
-        float z1 = v2ptr[2] - v1ptr[2];
-        float z2 = v3ptr[2] - v1ptr[2];
-        
-        float s1 = w2.mV[0] - w1.mV[0];
-        float s2 = w3.mV[0] - w1.mV[0];
-        float t1 = w2.mV[1] - w1.mV[1];
-        float t2 = w3.mV[1] - w1.mV[1];
-        
-		F32 rd = s1*t2-s2*t1;
+        const F32* v1ptr = v1.getF32ptr();
+        const F32* v2ptr = v2.getF32ptr();
+        const F32* v3ptr = v3.getF32ptr();
 
-		float r = ((rd*rd) > FLT_EPSILON) ? (1.0f / rd)
-													 : ((rd > 0.0f) ? 1024.f : -1024.f); //some made up large ratio for division by zero
-
-		llassert(llfinite(r));
-		llassert(!llisnan(r));
-
-		LLVector4a sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
-				(t2 * z1 - t1 * z2) * r);
-		LLVector4a tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
-				(s1 * z2 - s2 * z1) * r);
+        const float x1 = v2ptr[0] - v1ptr[0];
+        const float x2 = v3ptr[0] - v1ptr[0];
+        const float y1 = v2ptr[1] - v1ptr[1];
+        const float y2 = v3ptr[1] - v1ptr[1];
+        const float z1 = v2ptr[2] - v1ptr[2];
+        const float z2 = v3ptr[2] - v1ptr[2];
         
-		tan1[i1].add(sdir);
-		tan1[i2].add(sdir);
-		tan1[i3].add(sdir);
-        
-		tan2[i1].add(tdir);
-		tan2[i2].add(tdir);
-		tan2[i3].add(tdir);
+        const float s1 = w2.mV[0] - w1.mV[0];
+        const float s2 = w3.mV[0] - w1.mV[0];
+        const float t1 = w2.mV[1] - w1.mV[1];
+        const float t2 = w3.mV[1] - w1.mV[1];
+
+        F32 rd = s1*t2-s2*t1;
+
+        float r = ((rd*rd) > FLT_EPSILON)
+                ? (1.0f / rd)
+                : ((rd > 0.0f)
+                    ? +1024.f
+                    : -1024.f); //some made up large ratio for division by zero
+
+        llassert(llfinite(r));
+        llassert(!llisnan(r));
+
+        LLVector4a sdir((t2*x1 - t1*x2) * r, (t2*y1 - t1*y2) * r, (t2*z1 - t1*z2) * r);
+        LLVector4a tdir((s1*x2 - s2*x1) * r, (s1*y2 - s2*y1) * r, (s1*z2 - s2*z1) * r);
+
+        tan1[i1].add(sdir);
+        tan1[i2].add(sdir);
+        tan1[i3].add(sdir);
+
+        tan2[i1].add(tdir);
+        tan2[i2].add(tdir);
+        tan2[i3].add(tdir);
     }
-    
+
     for (U32 a = 0; a < vertexCount; a++)
     {
         LLVector4a n = normal[a];
 
-		const LLVector4a& t = tan1[a];
+        const LLVector4a& t = tan1[a];
 
-		LLVector4a ncrosst;
-		ncrosst.setCross3(n,t);
+        LLVector4a ncrosst;
+        ncrosst.setCross3(n,t);
 
         // Gram-Schmidt orthogonalize
         n.mul(n.dot3(t).getF32());
 
-		LLVector4a tsubn;
-		tsubn.setSub(t,n);
+        LLVector4a tsubn;
+        tsubn.setSub(t,n);
 
-		if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
-		{
-			tsubn.normalize3fast();
-		
-			// Calculate handedness
-			F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
-		
-			tsubn.getF32ptr()[3] = handedness;
+        if (tsubn.dot3(tsubn).getF32() > F_APPROXIMATELY_ZERO)
+        {
+            tsubn.normalize3fast();
 
-			tangent[a] = tsubn;
-		}
-		else
-		{ //degenerate, make up a value
-			tangent[a].set(0,0,1,1);
-		}
+            // Calculate handedness
+            F32 handedness = ncrosst.dot3(tan2[a]).getF32() < 0.f ? -1.f : 1.f;
+
+            tsubn.getF32ptr()[3] = handedness;
+
+            tangent[a] = tsubn;
+        }
+        else
+        { //degenerate, make up a value
+            tangent[a].set(0,0,1,1);
+        }
     }
-    
-	ll_aligned_free_16(tan1);
+
+    ll_aligned_free_16(tan1);
 }
-
-
