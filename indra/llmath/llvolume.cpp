@@ -90,6 +90,9 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 BOOL gDebugGL = FALSE;
 
+void CalculateTangentArray(const U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
+        const LLVector2 *texcoord, const U32 triangleCount, const U16* index_array, LLVector4a *tangent);
+
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -6282,9 +6285,6 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 	return TRUE;
 }
 
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
-        const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
-
 void LLVolumeFace::createTangents()
 {
 	if (!mTangents)
@@ -6971,8 +6971,8 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 }
 
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
-void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
-        const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
+void CalculateTangentArray(const U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
+        const LLVector2 *texcoord, const U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
