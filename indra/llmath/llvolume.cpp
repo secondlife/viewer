@@ -6970,6 +6970,399 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	return TRUE;
 }
 
+/*
+    There are minor visual differences depending if you are reading the 2001, 2012 or 2019 versions.
+    The 2001 and 2012 versions are almost identical.  (2001 was online, 2012 is in book form.)
+
+    a) The tangent calculation at first glance appears to be slightly different:
+
+        // 2001
+            // Gram-Schmidt orthogonalize
+            tangent[a] = (t - n * Dot(n, t)).Normalize();
+
+            // Calculate handedness
+            tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+
+        // 2012
+            // Gram-Schmidt orthogonalize.
+            tangent[a] = (t - n * Dot(n, t)).Normalize();
+
+            // Calculate handedness.
+            tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+
+        // 2019
+            tangentArray[i].xyz() = Normalize(Reject(t, n));
+            tangentArray[i].w = (Dot(Cross(t, b), n) > 0.0F) ? 1.0F : -1.0F;
+
+        NOTE: Reject() is the opposite side of the triangle when vector a is projected onto vector b:
+        Foundations of Game Engine Development, Volume 1:Mathematics
+        Section 1.6, Listing 1.8, Page 35
+
+            project a,b =     b*dot(a,b) / dot(b,b)
+            reject  a,b = a - b*dot(a,b) / dot(b,b)
+
+
+
+    b) The function argument order changed slightly in 2019.  (This has no impact on correctness nor performance.)
+       Also, variable names that are arrays are now specified.
+
+       * 2001 and 2012 has vertexCount first
+       * 2019 has triangleCount as first
+
+        // Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
+        // Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
+        void CalculateTangentArray(
+                  long      vertexCount,
+            const Point3D  *vertex,
+            const Vector3D *normal,
+            const Point2D  *texcoord,
+                  long      triangleCount,
+            const Triangle *triangle,
+                  Vector4D *tangent
+        );
+
+        // Mathematics for 3D Game Programming and Computer Graphics, 3rd Edition, 2012
+        // Page 184, Listing 7.1, Section 7.8 (3rd Edition)
+        // Section 7.8 (2nd Edition)
+        // Mathematics%20for%203D%20Game%20Programming%20and%20Computer%20Graphics,%20Third%20Edition.pdf
+        void CalculateTangentArray(
+                  long     vertexCount,
+            const Point3D *vertex,
+            const Vector3D *normal,
+            const Point2D *texcoord,
+                  long      triangleCount,
+            const Triangle *triangle,
+                  Vector4D *tangent
+        );
+
+    // Game Engine Development, Volume 2: Rendering, 2nd printing, 2019
+    // Page 114, Listing 74
+    // http://foundationsofgameenginedev.com/FGED2-code.cpp
+        void CalculateTangents(
+                  int       triangleCount,
+            const Triangle *triangleArray,
+                  int       vertexCount,
+            const Point3D  *vertexArray,
+            const Vector3D *normalArray,
+            const Point2D  *texcoordArray,
+                  Vector4D *tangentArray
+        );
+
+    Miscellaneous notes:
+
+    * The array sizes for vertexCount and triangleCount are not specified as const but they
+      can safely be specfied as const.
+
+    * The 2001, and 2012 version can have vertexCount*2 factored out for allocation & initialization.
+
+        // Original 2001/2012
+            Vector3D *tan1 = new Vector3D[vertexCount * 2];
+            Vector3D *tan2 = tan1 + vertexCount;
+            ZeroMemory(tan1, vertexCount * sizeof(Vector3D) * 2);
+
+        // Cleaned up
+            const int size = vertexCount * 2;
+            Vector3D *tan1 = new Vector3D[size];
+            Vector3D *tan2 = tan1 + vertexCount;
+            ZeroMemory(tan1, sizeof(Vector3D) * size);
+
+    * The s1,t1 and s2,t2 order could be swapped to make it clearer that they are vectors in texture space.
+
+        // Original 2001/2012
+            const Point2D& w1 = texcoords[i1];
+            const Point2D& w2 = texcoords[i2];
+            const Point2D& w3 = texcoords[i3];
+
+            float s1 = w2.x - w1.x;
+            float s2 = w3.x - w1.x;
+            float t1 = w2.y - w1.y;
+            float t2 = w3.y - w1.y;
+
+        // Cleaned up
+            const Point2D& w1 = texcoords[i1];
+            const Point2D& w2 = texcoords[i2];
+            const Point2D& w3 = texcoords[i3];
+
+            float s1 = w2.x - w1.x;
+            float t1 = w2.y - w1.y;
+
+            float s2 = w3.x - w1.x;
+            float t2 = w3.y - w1.y;
+
+    * The generic names w1, w2, w3 doesn't convey these are points in texture space.
+
+    * The 2019 switches variable names from s1,t1 and s2,t2 to x1,y1.
+      This is unfortunate as s,t commonly refers to texture space while
+      x,y usually refer to spatial positions in world space.
+
+    * The s,t texture coordinate direction vectors are written in explicit form
+      instead of using a simpler vector subtraction:
+
+        // Original 2001/2012
+            float s1 = w2.x - w1.x;
+            float s2 = w3.x - w1.x;
+            float t1 = w2.y - w1.y;
+            float t2 = w3.y - w1.y;
+
+            float r = 1.0F / (s1 * t2 - s2 * t1);
+
+        // Cleaned up
+            const Point2D& uv1 = texcoords[i1];
+            const Point2D& uv2 = texcoords[i2];
+            const Point2D& uv3 = texcoords[i3];
+
+            const Vector2D s = (texcoords[1] - texcoords[0]);
+            const Vector2D t = (texcoords[2] - texcoords[0]);
+
+            float r = 1.0F / (s.x*t.y - s.y*t.x);
+
+    * division by zero isn't handled
+
+        // Original 2001/2012
+            float r = 1.0F / (s1 * t2 - s2 * t1);
+
+        // Cleaned up
+            const F32 r   = (s.x*t.y - s.y*t.x); // determinant
+            const F32 oor = (r >= FLT_EPSILON)
+                          ? 1.0f / r
+                          : 1.0f;                // could be any large number
+
+    * sdir and tdir have bad formatting (lack of symmetry) making it hard to read:
+
+        // Original 2001/2012
+            Vector3D sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+                (t2 * z1 - t1 * z2) * r);
+            Vector3D tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+                (s1 * z2 - s2 * z1) * r);
+
+        // Cleaned up
+            Vector3D sdir(
+                (t2*x1 - t1*x2) * r,
+                (t2*y1 - t1*y2) * r,
+                (t2*z1 - t1*z2) * r);
+            Vector3D tdir(
+                (s1*x2 - s2*x1) * r,
+                (s1*y2 - s2*y1) * r,
+                (s1*z2 - s2*z1) * r);
+
+    * sdir and tdir can have the 1/r factored out
+
+        // Original 2001/2012
+            Vector3D sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+                (t2 * z1 - t1 * z2) * r);
+            Vector3D tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+                (s1 * z2 - s2 * z1) * r);
+
+        // Cleaned up
+            Vector3D sdir( t2*x1 - t1*x2, t2*y1 - t1*y2, t2*z1 - t1*z2);
+            Vector3D tdir( s1*x2 - s2*x1, s1*y2 - s2*y1, s1*z2 - s2*z1);
+            sdir *= r;
+            tdir *= r;
+
+    * sdir and tdir in the 2001/2012 version can be simplied. The 2019 version does this:
+
+        Vector3D t = (e1*uv2.y - e2*uv1.y) * r;
+        Vector3D b = (e2*uv1.x - e1*uv2.x) * r;
+
+
+// Original source 2001
+// NOTE: CalculateTangentArray() has been renamed CalculateTangentArray_2001() so it can be compared against other versions.
+
+#include "Vector4D.h"
+
+struct Triangle
+{
+    unsigned short index[3];
+};
+
+void CalculateTangentArray_2001(long vertexCount, const Point3D *vertex, const Vector3D *normal,
+        const Point2D *texcoord, long triangleCount, const Triangle *triangle, Vector4D *tangent)
+{
+    Vector3D *tan1 = new Vector3D[vertexCount * 2];
+    Vector3D *tan2 = tan1 + vertexCount;
+    ZeroMemory(tan1, vertexCount * sizeof(Vector3D) * 2);
+
+    for (long a = 0; a < triangleCount; a++ )
+    {
+        long i1 = triangle->index[0];
+        long i2 = triangle->index[1];
+        kibg i3 = triangle->index[2];
+
+        const Point3D& v1 = vertex[i1];
+        const Point3D& v2 = vertex[i2];
+        const Point3D& v3 = vertex[i3];
+
+        const Point2D& w1 = texcoord[i1];
+        const Point2D& w2 = texcoord[i2];
+        const Point2D& w3 = texcoord[i3];
+
+        float x1 = v2.x - v1.x;
+        float x2 = v3.x - v1.x;
+        float y1 = v2.y - v1.y;
+        float y2 = v3.y - v1.y;
+        float z1 = v2.z - v1.z;
+        float z2 = v3.z - v1.z;
+
+        float s1 = w2.x - w1.x;
+        float s2 = w3.x - w1.x;
+        float t1 = w2.y - w1.y;
+        float t2 = w3.y - w1.y;
+
+        float r = 1.0F / (s1 * t2 - s2 * t1);
+        Vector3D sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+                (t2 * z1 - t1 * z2) * r);
+        Vector3D tdir((s1 * x2 - s2 * x1) * r,(s1 * y2 - s2 * y1) * r,
+                (s1 * z2 - s2 * z1) * r);
+
+         tan1[i1] += sdir;
+         tan1[i2] += sdir;
+         tan1[i3] += sdir;
+
+         tan2[i1] += tdir;
+         tan2[i2] += tdir;
+         tan2[i3] += tdir;
+
+         triangle++;
+     }
+
+    for (long a = 0; a < vertexCount; a++)
+    {
+        const Vector3D& n = normal[a];
+        const Vector3D& t = tan1[a];
+
+        // Gram-Schmidt orthogonalize
+        tangent[a] = (t - n * Dot(n, t)).Normalize();
+
+        // Calculate handedness
+        tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+    }
+
+    delete[] tan1;
+}
+
+// Original source 2012
+// NOTE: CalculateTangentArray() has been renamed CalculateTangentArray_2012() so it can be compared against other versions.
+
+void CalculateTangentArray_2012(long vertexCount, const Point3D *vertex,
+    const Vector3D *normal, const Point2D *texcoord, long triangleCount,
+    const Triangle *triangle, Vector4D *tangent)
+{
+    Vector3D *tan1 = new Vector3D[vertexCount * 2];
+    Vector3D *tan2 = tan1 + vertexCount;
+    ZeroMemory(tan1, vertexCount * sizeof(Vector3D) * 2);
+
+    for (long a = 0; a < triangleCount; a++)
+    {
+        long i1 = triangle->index[0];
+        long i2 = triangle->index[1];1
+        long i3 = triangle->index[2];
+
+        const Point3D& v1 = vertex[i1];
+        const Point3D& v2 = vertex[i2];
+        const Point3D& v3 = vertex[i3];
+        const Point2D& w1 = texcoord[i1];
+        const Point2D& w2 = texcoord[i2];
+        const Point2D& w3 = texcoord[i3];
+
+        float x1 = v2.x - v1.x;
+        float x2 = v3.x - v1.x;
+        float y1 = v2.y - v1.y;
+        float y2 = v3.y - v1.y;
+        float z1 = v2.z - v1.z;
+        float z2 = v3.z - v1.z;
+
+        float s1 = w2.x - w1.x;
+        float s2 = w3.x - w1.x;
+        float t1 = w2.y - w1.y;
+        float t2 = w3.y - w1.y;
+
+        float r = 1.0F / (s1 * t2 - s2 * t1);
+        Vector3D sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r,
+            (t2 * z1 - t1 * z2) * r);
+        Vector3D tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r,
+            (s1 * z2 - s2 * z1) * r);
+        tan1[i1] += sdir;
+        tan1[i2] += sdir;
+        tan1[i3] += sdir;
+        tan2[i1] += tdir;
+        tan2[i2] += tdir;
+        tan2[i3] += tdir;
+        triangle++;
+    }
+
+    for (long a = 0; a < vertexCount; a++)
+    {
+        const Vector3D& n = normal[a];
+        const Vector3D& t = tan1[a];
+
+        // Gram-Schmidt orthogonalize.
+        tangent[a] = (t - n * Dot(n, t)).Normalize();
+
+        // Calculate handedness.
+        tangent[a].w = (Dot(Cross(n, t), tan2[a]) < 0.0F) ? -1.0F : 1.0F;
+    }
+
+    delete[] tan1;
+}
+
+// Original source 2019:
+
+void CalculateTangents(int32 triangleCount, const Triangle *triangleArray,
+    int32 vertexCount, const Point3D *vertexArray, const Vector3D *normalArray,
+    const Point2D *texcoordArray, Vector4D *tangentArray)
+{
+    // Allocate temporary storage for tangents and bitangents and initialize to zeros.
+    Vector3D *tangent = new Vector3D[vertexCount * 2];
+    Vector3D *bitangent = tangent + vertexCount;
+    for (int32 i = 0; i < vertexCount; i++)
+    {
+        tangent[i].Set(0.0F, 0.0F, 0.0F);
+        bitangent[i].Set(0.0F, 0.0F, 0.0F);
+    }
+
+    // Calculate tangent and bitangent for each triangle and add to all three vertices.
+    for (int32 k = 0; k < triangleCount; k++)
+    {
+        int32 i0 = triangleArray[k].index[0];
+        int32 i1 = triangleArray[k].index[1];
+        int32 i2 = triangleArray[k].index[2];
+        const Point3D& p0 = vertexArray[i0];
+        const Point3D& p1 = vertexArray[i1];
+        const Point3D& p2 = vertexArray[i2];
+        const Point2D& w0 = texcoordArray[i0];
+        const Point2D& w1 = texcoordArray[i1];
+        const Point2D& w2 = texcoordArray[i2];
+
+        Vector3D e1 = p1 - p0, e2 = p2 - p0;
+        float x1 = w1.x - w0.x, x2 = w2.x - w0.x;
+        float y1 = w1.y - w0.y, y2 = w2.y - w0.y;
+
+        float r = 1.0F / (x1 * y2 - x2 * y1);
+        Vector3D t = (e1 * y2 - e2 * y1) * r;
+        Vector3D b = (e2 * x1 - e1 * x2) * r;
+
+        tangent[i0] += t;
+        tangent[i1] += t;
+        tangent[i2] += t;
+        bitangent[i0] += b;
+        bitangent[i1] += b;
+        bitangent[i2] += b;
+    }
+
+    // Orthonormalize each tangent and calculate the handedness.
+    for (int32 i = 0; i < vertexCount; i++)
+    {
+        const Vector3D& t = tangent[i];
+        const Vector3D& b = bitangent[i];
+        const Vector3D& n = normalArray[i];
+        tangentArray[i].xyz() = Normalize(Reject(t, n));
+        tangentArray[i].w = (Dot(Cross(t, b), n) > 0.0F) ? 1.0F : -1.0F;
+    }
+
+    delete[] tangent;
+}
+
+*/
 //adapted from Lengyel, Eric. "Computing Tangent Space Basis Vectors for an Arbitrary Mesh". Terathon Software 3D Graphics Library, 2001. http://www.terathon.com/code/tangent.html
 void CalculateTangentArray(const U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, const U32 triangleCount, const U16* index_array, LLVector4a *tangent)
