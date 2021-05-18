@@ -171,6 +171,36 @@ public:
     {
         affineTransformSSE(v,res);
     }
+
+    inline void makeRotation(const F32& angle, const LLVector4a& axis)
+    {
+        const F32 r = angle * DEG_TO_RAD;
+        const F32 c = cosf(r);
+        const F32 s = sinf(r);
+        const F32 i = 1.f - c;
+
+        const LLVector4a add1( c         , s*axis[VZ],-s*axis[VY] );	// 1, z,-y
+        const LLVector4a add2(-s*axis[VZ], c         , s*axis[VX] );	//-z, 1, x
+        const LLVector4a add3( s*axis[VY],-s*axis[VX], c          );	// y,-x, 1
+
+        LLVector4a axis_x;
+        LLVector4a axis_y;
+        LLVector4a axis_z;
+        axis_x.splat<0>(axis);
+        axis_y.splat<1>(axis);
+        axis_z.splat<2>(axis);
+
+        LLVector4a c_axis;
+        c_axis.setMul(axis,i);
+
+        mMatrix[0].setMul(c_axis, axis_x);
+        mMatrix[0].add(add1);
+        mMatrix[1].setMul(c_axis, axis_y);
+        mMatrix[1].add(add2);
+        mMatrix[2].setMul(c_axis, axis_z);
+        mMatrix[2].add(add3);
+        mMatrix[3].set(0,0,0,1.f);
+    }
 };
 
 inline LLVector4a rowMul(const LLVector4a &row, const LLMatrix4a &mat)
