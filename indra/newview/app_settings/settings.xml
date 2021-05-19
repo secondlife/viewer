@@ -14449,8 +14449,7 @@
   <key>VivoxVadSensitivity</key>
   <map>
     <key>Comment</key>
-    <string>
-      A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
+    <string>A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
