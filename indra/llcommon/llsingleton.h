@@ -27,9 +27,10 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_set.hpp>
+#include <initializer_list>
 #include <list>
-#include <vector>
 #include <typeinfo>
+#include <vector>
 #include "mutex.h"
 #include "lockstatic.h"
 #include "llthread.h"               // on_main_thread()
@@ -111,14 +112,13 @@ protected:
     void capture_dependency();
 
     // delegate logging calls to llsingleton.cpp
-    static void logerrs(const char* p1, const char* p2="",
-                        const char* p3="", const char* p4="");
-    static void logwarns(const char* p1, const char* p2="",
-                         const char* p3="", const char* p4="");
-    static void loginfos(const char* p1, const char* p2="",
-                         const char* p3="", const char* p4="");
-    static void logdebugs(const char* p1, const char* p2="",
-                          const char* p3="", const char* p4="");
+public:
+    typedef std::initializer_list<const std::string> string_params;
+protected:
+    static void logerrs  (const string_params&);
+    static void logwarns (const string_params&);
+    static void loginfos (const string_params&);
+    static void logdebugs(const string_params&);
     static std::string demangle(const char* mangled);
     // these classname() declarations restate template functions declared in
     // llerror.h because we avoid #including that here
@@ -327,8 +327,8 @@ private:
             // init stack to its previous size BEFORE logging so log-machinery
             // LLSingletons don't record a dependency on DERIVED_TYPE!
             LLSingleton_manage_master<DERIVED_TYPE>().reset_initializing(prev_size);
-            logwarns("Error constructing ", classname<DERIVED_TYPE>().c_str(),
-                     ": ", err.what());
+            logwarns({"Error constructing ", classname<DERIVED_TYPE>(),
+                     ": ", err.what()});
             // There isn't a separate EInitState value meaning "we attempted
             // to construct this LLSingleton subclass but could not," so use
             // DELETED. That seems slightly more appropriate than UNINITIALIZED.
@@ -356,8 +356,8 @@ private:
             // BEFORE logging, so log-machinery LLSingletons don't record a
             // dependency on DERIVED_TYPE!
             pop_initializing(lk->mInstance);
-            logwarns("Error in ", classname<DERIVED_TYPE>().c_str(),
-                     "::initSingleton(): ", err.what());
+            logwarns({"Error in ", classname<DERIVED_TYPE>(),
+                     "::initSingleton(): ", err.what()});
             // Get rid of the instance entirely. This call depends on our
             // recursive_mutex. We could have a deleteSingleton(LockStatic&)
             // overload and pass lk, but we don't strictly need it.
@@ -506,9 +506,9 @@ public:
             case CONSTRUCTING:
                 // here if DERIVED_TYPE's constructor (directly or indirectly)
                 // calls DERIVED_TYPE::getInstance()
-                logerrs("Tried to access singleton ",
-                        classname<DERIVED_TYPE>().c_str(),
-                        " from singleton constructor!");
+                logerrs({"Tried to access singleton ",
+                        classname<DERIVED_TYPE>(),
+                        " from singleton constructor!"});
                 return nullptr;
 
             case INITIALIZING:
@@ -523,9 +523,9 @@ public:
 
             case DELETED:
                 // called after deleteSingleton()
-                logwarns("Trying to access deleted singleton ",
-                         classname<DERIVED_TYPE>().c_str(),
-                         " -- creating new instance");
+                logwarns({"Trying to access deleted singleton ",
+                         classname<DERIVED_TYPE>(),
+                         " -- creating new instance"});
                 // fall through
             case UNINITIALIZED:
             case QUEUED:
@@ -552,8 +552,8 @@ public:
         } // unlock 'lk'
 
         // Per the comment block above, dispatch to the main thread.
-        loginfos(classname<DERIVED_TYPE>().c_str(),
-                 "::getInstance() dispatching to main thread");
+        loginfos({classname<DERIVED_TYPE>(),
+                 "::getInstance() dispatching to main thread"});
         auto instance = LLMainThreadTask::dispatch(
             [](){
                 // VERY IMPORTANT to call getInstance() on the main thread,
@@ -563,16 +563,16 @@ public:
                 // the main thread processes them, only the FIRST such request
                 // actually constructs the instance -- every subsequent one
                 // simply returns the existing instance.
-                loginfos(classname<DERIVED_TYPE>().c_str(),
-                         "::getInstance() on main thread");
+                loginfos({classname<DERIVED_TYPE>(),
+                         "::getInstance() on main thread"});
                 return getInstance();
             });
         // record the dependency chain tracked on THIS thread, not the main
         // thread (consider a getInstance() overload with a tag param that
         // suppresses dep tracking when dispatched to the main thread)
         capture_dependency(instance);
-        loginfos(classname<DERIVED_TYPE>().c_str(),
-                 "::getInstance() returning on requesting thread");
+        loginfos({classname<DERIVED_TYPE>(),
+                 "::getInstance() returning on requesting thread"});
         return instance;
     }
 
@@ -641,16 +641,16 @@ private:
         // For organizational purposes this function shouldn't be called twice
         if (lk->mInitState != super::UNINITIALIZED)
         {
-            super::logerrs("Tried to initialize singleton ",
-                           super::template classname<DERIVED_TYPE>().c_str(),
-                           " twice!");
+            super::logerrs({"Tried to initialize singleton ",
+                           super::template classname<DERIVED_TYPE>(),
+                           " twice!"});
             return nullptr;
         }
         else if (on_main_thread())
         {
             // on the main thread, simply construct instance while holding lock
-            super::logdebugs(super::template classname<DERIVED_TYPE>().c_str(),
-                             "::initParamSingleton()");
+            super::logdebugs({super::template classname<DERIVED_TYPE>(),
+                             "::initParamSingleton()"});
             super::constructSingleton(lk, std::forward<Args>(args)...);
             return lk->mInstance;
         }
@@ -662,8 +662,8 @@ private:
             lk->mInitState = super::QUEUED;
             // very important to unlock here so main thread can actually process
             lk.unlock();
-            super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
-                            "::initParamSingleton() dispatching to main thread");
+            super::loginfos({super::template classname<DERIVED_TYPE>(),
+                            "::initParamSingleton() dispatching to main thread"});
             // Normally it would be the height of folly to reference-bind
             // 'args' into a lambda to be executed on some other thread! By
             // the time that thread executed the lambda, the references would
@@ -674,12 +674,12 @@ private:
             // references.
             auto instance = LLMainThreadTask::dispatch(
                 [&](){
-                    super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
-                                    "::initParamSingleton() on main thread");
+                    super::loginfos({super::template classname<DERIVED_TYPE>(),
+                                    "::initParamSingleton() on main thread"});
                     return initParamSingleton_(std::forward<Args>(args)...);
                 });
-            super::loginfos(super::template classname<DERIVED_TYPE>().c_str(),
-                            "::initParamSingleton() returning on requesting thread");
+            super::loginfos({super::template classname<DERIVED_TYPE>(),
+                            "::initParamSingleton() returning on requesting thread"});
             return instance;
         }
     }
@@ -707,14 +707,14 @@ public:
         {
         case super::UNINITIALIZED:
         case super::QUEUED:
-            super::logerrs("Uninitialized param singleton ",
-                           super::template classname<DERIVED_TYPE>().c_str());
+            super::logerrs({"Uninitialized param singleton ",
+                           super::template classname<DERIVED_TYPE>()});
             break;
 
         case super::CONSTRUCTING:
-            super::logerrs("Tried to access param singleton ",
-                           super::template classname<DERIVED_TYPE>().c_str(),
-                           " from singleton constructor!");
+            super::logerrs({"Tried to access param singleton ",
+                           super::template classname<DERIVED_TYPE>(),
+                           " from singleton constructor!"});
             break;
 
         case super::INITIALIZING:
@@ -726,8 +726,8 @@ public:
             return lk->mInstance;
 
         case super::DELETED:
-            super::logerrs("Trying to access deleted param singleton ",
-                           super::template classname<DERIVED_TYPE>().c_str());
+            super::logerrs({"Trying to access deleted param singleton ",
+                           super::template classname<DERIVED_TYPE>()});
             break;
         }
 

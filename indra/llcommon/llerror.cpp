@@ -442,8 +442,6 @@ namespace
     protected:
 		Globals();
 	public:
-		std::ostringstream messageStream;
-		bool messageStreamInUse;
 		std::string mFatalMessage;
 
 		void addCallSite(LLError::CallSite&);
@@ -453,12 +451,7 @@ namespace
 		CallSiteVector callSites;
 	};
 
-	Globals::Globals()
-		: messageStream(),
-		messageStreamInUse(false),
-		callSites()
-	{
-	}
+	Globals::Globals() {}
 
     Globals* Globals::getInstance()
     {
@@ -549,7 +542,7 @@ namespace LLError
 		mFileLevelMap(),
 		mTagLevelMap(),
 		mUniqueLogMessages(),
-		mCrashFunction(NULL),
+		mCrashFunction([](const std::string&){}),
 		mTimeFunction(NULL),
 		mRecorders(),
 		mShouldLogCallCounter(0)
@@ -728,7 +721,6 @@ namespace
 		LLError::setDefaultLevel(LLError::LEVEL_INFO);
 		LLError::setAlwaysFlush(true);
 		LLError::setEnabledLogTypesMask(0xFFFFFFFF);
-		LLError::setFatalFunction(LLError::crashAndLoop);
 		LLError::setTimeFunction(LLError::utcTime);
 
 		// log_to_stderr is only false in the unit and integration tests to keep builds quieter
@@ -1360,57 +1352,7 @@ namespace LLError
 	}
 
 
-	std::ostringstream* Log::out()
-	{
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-
-		if (lock.isLocked())
-		{
-			Globals* g = Globals::getInstance();
-
-			if (!g->messageStreamInUse)
-			{
-				g->messageStreamInUse = true;
-				return &g->messageStream;
-			}
-		}
-
-		return new std::ostringstream;
-	}
-
-	void Log::flush(std::ostringstream* out, char* message)
-	{
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-		if (!lock.isLocked())
-		{
-			return;
-		}
-
-		if(strlen(out->str().c_str()) < 128)
-		{
-			strcpy(message, out->str().c_str());
-		}
-		else
-		{
-			strncpy(message, out->str().c_str(), 127);
-			message[127] = '\0' ;
-		}
-
-		Globals* g = Globals::getInstance();
-		if (out == &g->messageStream)
-		{
-			g->messageStream.clear();
-			g->messageStream.str("");
-			g->messageStreamInUse = false;
-		}
-		else
-		{
-			delete out;
-		}
-		return ;
-	}
-
-	void Log::flush(std::ostringstream* out, const CallSite& site)
+	void Log::flush(const std::ostringstream& out, const CallSite& site)
 	{
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
@@ -1421,22 +1363,11 @@ namespace LLError
 		Globals* g = Globals::getInstance();
 		SettingsConfigPtr s = Settings::getInstance()->getSettingsConfig();
 
-		std::string message = out->str();
-		if (out == &g->messageStream)
-		{
-			g->messageStream.clear();
-			g->messageStream.str("");
-			g->messageStreamInUse = false;
-		}
-		else
-		{
-			delete out;
-		}
-
+		std::string message = out.str();
 
 		if (site.mPrintOnce)
 		{
-            std::ostringstream message_stream;
+			std::ostringstream message_stream;
 
 			std::map<std::string, unsigned int>::iterator messageIter = s->mUniqueLogMessages.find(message);
 			if (messageIter != s->mUniqueLogMessages.end())
@@ -1457,8 +1388,8 @@ namespace LLError
 				message_stream << "ONCE: ";
 				s->mUniqueLogMessages[message] = 1;
 			}
-            message_stream << message;
-            message = message_stream.str();
+			message_stream << message;
+			message = message_stream.str();
 		}
 		
 		writeToRecorders(site, message);
@@ -1466,10 +1397,7 @@ namespace LLError
 		if (site.mLevel == LEVEL_ERROR)
 		{
 			g->mFatalMessage = message;
-			if (s->mCrashFunction)
-			{
-				s->mCrashFunction(message);
-			}
+			s->mCrashFunction(message);
 		}
 	}
 }
@@ -1533,29 +1461,6 @@ namespace LLError
 		return s->mShouldLogCallCounter;
 	}
 
-#if LL_WINDOWS
-		// VC80 was optimizing the error away.
-		#pragma optimize("", off)
-#endif
-	void crashAndLoop(const std::string& message)
-	{
-		// Now, we go kaboom!
-		int* make_me_crash = NULL;
-
-		*make_me_crash = 0;
-
-		while(true)
-		{
-			// Loop forever, in case the crash didn't work?
-		}
-		
-		// this is an attempt to let Coverity and other semantic scanners know that this function won't be returning ever.
-		exit(EXIT_FAILURE);
-	}
-#if LL_WINDOWS
-		#pragma optimize("", on)
-#endif
-
 	std::string utcTime()
 	{
 		time_t now = time(NULL);
@@ -1572,33 +1477,7 @@ namespace LLError
 
 namespace LLError
 {     
-	char** LLCallStacks::sBuffer = NULL ;
-	S32    LLCallStacks::sIndex  = 0 ;
-
-	//static
-    void LLCallStacks::allocateStackBuffer()
-    {
-        if(sBuffer == NULL)
-        {
-            sBuffer = new char*[512] ;
-            sBuffer[0] = new char[512 * 128] ;
-            for(S32 i = 1 ; i < 512 ; i++)
-            {
-                sBuffer[i] = sBuffer[i-1] + 128 ;
-            }
-            sIndex = 0 ;
-        }
-    }
-
-    void LLCallStacks::freeStackBuffer()
-    {
-        if(sBuffer != NULL)
-        {
-            delete [] sBuffer[0] ;
-            delete [] sBuffer ;
-            sBuffer = NULL ;
-        }
-    }
+    LLCallStacks::StringVector LLCallStacks::sBuffer ;
 
     //static
     void LLCallStacks::push(const char* function, const int line)
@@ -1609,33 +1488,24 @@ namespace LLError
             return;
         }
 
-        if(sBuffer == NULL)
-        {
-            allocateStackBuffer();
-        }
-
-        if(sIndex > 511)
+        if(sBuffer.size() > 511)
         {
             clear() ;
         }
 
-        strcpy(sBuffer[sIndex], function) ;
-        sprintf(sBuffer[sIndex] + strlen(function), " line: %d ", line) ;
-        sIndex++ ;
-
-        return ;
+        std::ostringstream out;
+        insert(out, function, line);
+        sBuffer.push_back(out.str());
     }
 
     //static
-    std::ostringstream* LLCallStacks::insert(const char* function, const int line)
+    void LLCallStacks::insert(std::ostream& out, const char* function, const int line)
     {
-        std::ostringstream* _out = LLError::Log::out();
-        *_out << function << " line " << line << " " ;
-        return _out ;
+        out << function << " line " << line << " " ;
     }
 
     //static
-    void LLCallStacks::end(std::ostringstream* _out)
+    void LLCallStacks::end(const std::ostringstream& out)
     {
         LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
         if (!lock.isLocked())
@@ -1643,17 +1513,12 @@ namespace LLError
             return;
         }
 
-        if(sBuffer == NULL)
-        {
-            allocateStackBuffer();
-        }
-
-        if(sIndex > 511)
+        if(sBuffer.size() > 511)
         {
             clear() ;
         }
 
-        LLError::Log::flush(_out, sBuffer[sIndex++]) ;
+        sBuffer.push_back(out.str());
     }
 
     //static
@@ -1665,33 +1530,30 @@ namespace LLError
             return;
         }
 
-        if(sIndex > 0)
+        if(! sBuffer.empty())
         {
             LL_INFOS() << " ************* PRINT OUT LL CALL STACKS ************* " << LL_ENDL;
-            while(sIndex > 0)
+            for (StringVector::const_reverse_iterator ri(sBuffer.rbegin()), re(sBuffer.rend());
+                 ri != re; ++ri)
             {                  
-                sIndex-- ;
-                LL_INFOS() << sBuffer[sIndex] << LL_ENDL;
+                LL_INFOS() << (*ri) << LL_ENDL;
             }
             LL_INFOS() << " *************** END OF LL CALL STACKS *************** " << LL_ENDL;
         }
 
-        if(sBuffer != NULL)
-        {
-            freeStackBuffer();
-        }
+        cleanup();
     }
 
     //static
     void LLCallStacks::clear()
     {
-        sIndex = 0 ;
+        sBuffer.clear();
     }
 
     //static
     void LLCallStacks::cleanup()
     {
-        freeStackBuffer();
+        clear();
     }
 
     std::ostream& operator<<(std::ostream& out, const LLStacktrace&)

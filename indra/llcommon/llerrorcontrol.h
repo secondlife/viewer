@@ -94,14 +94,16 @@ namespace LLError
 	*/
 
 	typedef boost::function<void(const std::string&)> FatalFunction;
-	LL_COMMON_API void crashAndLoop(const std::string& message);
-		// Default fatal function: access null pointer and loops forever
 
 	LL_COMMON_API void setFatalFunction(const FatalFunction&);
-		// The fatal function will be called when an message of LEVEL_ERROR
+		// The fatal function will be called after an message of LEVEL_ERROR
 		// is logged.  Note: supressing a LEVEL_ERROR message from being logged
 		// (by, for example, setting a class level to LEVEL_NONE), will keep
-		// the that message from causing the fatal funciton to be invoked.
+		// that message from causing the fatal function to be invoked.
+		// The passed FatalFunction will be the LAST log function called
+		// before LL_ERRS crashes its caller. A FatalFunction can throw an
+		// exception, or call exit(), to bypass the crash. It MUST disrupt the
+		// flow of control because no caller expects LL_ERRS to return.
 
 	LL_COMMON_API FatalFunction getFatalFunction();
 		// Retrieve the previously-set FatalFunction
@@ -147,14 +149,14 @@ namespace LLError
 		virtual void recordMessage(LLError::ELevel, const std::string& message) = 0;
 			// use the level for better display, not for filtering
 
-        virtual bool enabled() { return true; }
+		virtual bool enabled() { return true; }
 
 		bool wantsTime();
 		bool wantsTags();
 		bool wantsLevel();
 		bool wantsLocation(); 
 		bool wantsFunctionName();
-        bool wantsMultiline();
+		bool wantsMultiline();
 
 		void showTime(bool show);
 		void showTags(bool show);
@@ -165,14 +167,34 @@ namespace LLError
 
 	protected:
 		bool mWantsTime;
-        bool mWantsTags;
-        bool mWantsLevel;
-        bool mWantsLocation;
-        bool mWantsFunctionName;
-        bool mWantsMultiline;
+		bool mWantsTags;
+		bool mWantsLevel;
+		bool mWantsLocation;
+		bool mWantsFunctionName;
+		bool mWantsMultiline;
 	};
 
 	typedef boost::shared_ptr<Recorder> RecorderPtr;
+
+    /**
+     * Instantiate GenericRecorder with a callable(level, message) to get
+     * control on every log message without having to code an explicit
+     * Recorder subclass.
+     */
+    template <typename CALLABLE>
+    class GenericRecorder: public Recorder
+    {
+    public:
+        GenericRecorder(const CALLABLE& callable):
+            mCallable(callable)
+        {}
+        void recordMessage(LLError::ELevel level, const std::string& message) override
+        {
+            mCallable(level, message);
+        }
+    private:
+        CALLABLE mCallable;
+    };
 
 	/**
 	 * @NOTE: addRecorder() and removeRecorder() uses the boost::shared_ptr to allow for shared ownership
@@ -181,6 +203,19 @@ namespace LLError
 	LL_COMMON_API void addRecorder(RecorderPtr);
 	LL_COMMON_API void removeRecorder(RecorderPtr);
 		// each error message is passed to each recorder via recordMessage()
+	/**
+	 * Call addGenericRecorder() with a callable(level, message) to get
+	 * control on every log message without having to code an explicit
+	 * Recorder subclass. Save the returned RecorderPtr if you later want to
+	 * call removeRecorder().
+	 */
+	template <typename CALLABLE>
+	RecorderPtr addGenericRecorder(const CALLABLE& callable)
+	{
+		RecorderPtr ptr{ new GenericRecorder<CALLABLE>(callable) };
+		addRecorder(ptr);
+		return ptr;
+	}
 
 	LL_COMMON_API void logToFile(const std::string& filename);
 	LL_COMMON_API void logToStderr();

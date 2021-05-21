@@ -2,6 +2,7 @@
 include(00-Common)
 include(LLTestCommand)
 include(GoogleMock)
+include(bugsplat)
 include(Tut)
 
 #*****************************************************************************
@@ -21,7 +22,6 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   # WARNING: do NOT modify this code without working with poppy -
   # there is another branch that will conflict heavily with any changes here.
 INCLUDE(GoogleMock)
-
 
   IF(LL_TEST_VERBOSE)
     MESSAGE("LL_ADD_PROJECT_UNIT_TESTS UNITTEST_PROJECT_${project} sources: ${sources}")
@@ -87,6 +87,12 @@ INCLUDE(GoogleMock)
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_SOURCE_FILES ${${name}_test_SOURCE_FILES}")
     ENDIF(LL_TEST_VERBOSE)
+
+    if (USE_BUGSPLAT)
+      SET_PROPERTY(SOURCE ${${name}_test_SOURCE_FILES}
+          APPEND PROPERTY COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+    endif (USE_BUGSPLAT)
+
     # Headers
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_HEADER_FILES ${source} LL_TEST_ADDITIONAL_HEADER_FILES)
     SET(${name}_test_HEADER_FILES ${name}.h ${${name}_test_additional_HEADER_FILES})
@@ -223,6 +229,11 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   if(USESYSTEMLIBS)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
   endif(USESYSTEMLIBS)
+
+  if (USE_BUGSPLAT)
+      SET_PROPERTY(SOURCE ${source_files}
+          APPEND PROPERTY COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+  endif (USE_BUGSPLAT)
 
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
   # Any changes made here should be replicated there.

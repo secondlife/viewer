@@ -83,9 +83,7 @@ public:
 	void add(LLWatchdogEntry* e);
 	void remove(LLWatchdogEntry* e);
 
-	typedef boost::function<void (void)> killer_event_callback;
-
-	void init(killer_event_callback func = NULL);
+	void init();
 	void run();
 	void cleanup();
     
@@ -98,8 +96,6 @@ private:
 	LLMutex* mSuspectsAccessMutex;
 	LLWatchdogTimerThread* mTimer;
 	U64 mLastClockCount;
-
-	killer_event_callback mKillerCallback;
 };
 
 #endif // LL_LLTHREADWATCHDOG_H

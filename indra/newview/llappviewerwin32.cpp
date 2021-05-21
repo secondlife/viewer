@@ -177,7 +177,7 @@ static void exceptionTerminateHandler()
     long *null_ptr;
     null_ptr = 0;
     *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
-	//LLAppViewer::handleViewerCrash();
+
 	// we've probably been killed-off before now, but...
 	gOldTerminateHandler(); // call old terminate() handler
 }
@@ -364,10 +364,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
-#if LL_SEND_CRASH_REPORTS 
-	// ::SetUnhandledExceptionFilter(catchallCrashHandler); 
-#endif
 
 	// Set a debug info flag to indicate if multiple instances are running.
 	bool found_other_instance = !create_app_mutex();
@@ -847,8 +843,7 @@ bool LLAppViewerWin32::beingDebugged()
 
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
-	return true;
-	//return LLWinDebug::checkExceptionHandler();
+	return true; // we don't check for handler collisions on windows, so just say they're ok
 }
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)

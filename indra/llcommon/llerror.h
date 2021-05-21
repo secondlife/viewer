@@ -29,7 +29,9 @@
 #define LL_LLERROR_H
 
 #include <sstream>
+#include <string>
 #include <typeinfo>
+#include <vector>
 
 #include "stdtypes.h"
 
@@ -198,9 +200,7 @@ namespace LLError
 	{
 	public:
 		static bool shouldLog(CallSite&);
-		static std::ostringstream* out();
-		static void flush(std::ostringstream* out, char* message);
-		static void flush(std::ostringstream*, const CallSite&);
+		static void flush(const std::ostringstream&, const CallSite&);
 		static std::string demangle(const char* mangled);
 		/// classname<TYPE>()
 		template <typename T>
@@ -281,18 +281,15 @@ namespace LLError
     class LL_COMMON_API LLCallStacks
     {
     private:
-        static char**  sBuffer ;
-        static S32     sIndex ;
-
-        static void allocateStackBuffer();
-        static void freeStackBuffer();
+        typedef std::vector<std::string> StringVector;
+        static StringVector sBuffer ;
               
     public:   
         static void push(const char* function, const int line) ;
-        static std::ostringstream* insert(const char* function, const int line) ;
+        static void insert(std::ostream& out, const char* function, const int line) ;
         static void print() ;
         static void clear() ;
-        static void end(std::ostringstream* _out) ;
+        static void end(const std::ostringstream& out) ;
         static void cleanup();
     };
 
@@ -306,10 +303,11 @@ namespace LLError
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
 #define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
 
-#define llcallstacks                                                                      \
-	{                                                                                     \
-       std::ostringstream* _out = LLError::LLCallStacks::insert(__FUNCTION__, __LINE__) ; \
-       (*_out)
+#define llcallstacks                                                    \
+	{                                                                   \
+		std::ostringstream _out;                                        \
+		LLError::LLCallStacks::insert(_out, __FUNCTION__, __LINE__) ;   \
+		_out
 
 #define llcallstacksendl                   \
 		LLError::End();                    \
@@ -355,11 +353,11 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		static LLError::CallSite _site(lllog_site_args_(level, once, tags)); \
 		lllog_test_()
 
-#define lllog_test_()                                       \
-		if (LL_UNLIKELY(_site.shouldLog()))                 \
-		{                                                   \
-			std::ostringstream* _out = LLError::Log::out(); \
-			(*_out)
+#define lllog_test_()                           \
+		if (LL_UNLIKELY(_site.shouldLog()))     \
+		{                                       \
+			std::ostringstream _out;            \
+			_out
 
 #define lllog_site_args_(level, once, tags)                 \
 	level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG),    \
@@ -378,15 +376,27 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 //	LL_CONT << " for " << t << " seconds" << LL_ENDL;
 //	
 //Such computation is done iff the message will be logged.
-#define LL_CONT	(*_out)
+#define LL_CONT	_out
 
 #define LL_NEWLINE '\n'
 
-#define LL_ENDL                               \
-			LLError::End();                   \
-			LLError::Log::flush(_out, _site); \
-		}                                     \
-	} while(0)
+// Use this only in LL_ERRS or in a place that LL_ERRS may not be used
+#define LLERROR_CRASH         \
+{                             \
+    int* make_me_crash = NULL;\
+    *make_me_crash = 0;       \
+    exit(*make_me_crash);     \
+}
+
+#define LL_ENDL                                         \
+            LLError::End();                             \
+            LLError::Log::flush(_out, _site);           \
+            if (_site.mLevel == LLError::LEVEL_ERROR)   \
+            {                                           \
+                LLERROR_CRASH                           \
+            }                                           \
+        }                                               \
+    } while(0)
 
 // NEW Macros for debugging, allow the passing of a string tag
 
