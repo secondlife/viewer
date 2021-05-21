@@ -56,7 +56,6 @@ void HttpReplyQueue::addOp(const HttpReplyQueue::opPtr_t &op)
 
 		mQueue.push_back(op);
 	}
-	mQueueCV.notify_all();
 }
 
 

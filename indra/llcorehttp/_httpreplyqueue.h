@@ -98,7 +98,6 @@ protected:
 
 	OpContainer							mQueue;
 	LLCoreInt::HttpMutex				mQueueMutex;
-	LLCoreInt::HttpConditionVariable	mQueueCV;
 	
 }; // end class HttpReplyQueue
 

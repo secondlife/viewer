@@ -546,7 +546,7 @@ void LLViewerAssetStorage::assetRequestCoro(
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts);
 
-    if (LLApp::isQuitting() || !gAssetStorage)
+    if (LLApp::isExiting() || !gAssetStorage)
     {
         // Bail out if result arrives after shutdown has been started.
         return;
