@@ -87,7 +87,11 @@ HttpService::~HttpService()
 		// is a bit tricky.
 		if (mRequestQueue)
 		{
-			mRequestQueue->stopQueue();
+            if (mRequestQueue->stopQueue())
+            {
+                // Give mRequestQueue a chance to finish
+                ms_sleep(10);
+            }
 		}
 		
 		if (mThread)

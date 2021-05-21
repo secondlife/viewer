@@ -1111,7 +1111,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         }
     }
     
-    if (mGalleryCreated && !LLApp::isQuitting())
+    if (mGalleryCreated && !LLApp::isExiting())
     {
         reArrangeRows();
     }
