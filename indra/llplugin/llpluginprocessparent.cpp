@@ -320,8 +320,9 @@ void LLPluginProcessParent::idle(void)
 	do
 	{
 		// process queued messages
-		mIncomingQueueMutex.lock();
-		while(!mIncomingQueue.empty())
+        // Inside main thread, it is preferable not to block it on mutex.
+		bool locked = mIncomingQueueMutex.trylock();
+		while(locked && !mIncomingQueue.empty())
 		{
 			LLPluginMessage message = mIncomingQueue.front();
 			mIncomingQueue.pop();
@@ -329,10 +330,13 @@ void LLPluginProcessParent::idle(void)
 				
 			receiveMessage(message);
 			
-			mIncomingQueueMutex.lock();
+			locked = mIncomingQueueMutex.trylock();
 		}
 
-		mIncomingQueueMutex.unlock();
+        if (locked)
+        {
+            mIncomingQueueMutex.unlock();
+        }
 		
 		// Give time to network processing
 		if(mMessagePipe)
