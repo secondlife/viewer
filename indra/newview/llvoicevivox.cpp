@@ -1759,7 +1759,7 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         if (sShuttingDown)
         {
-            logoutOfVivox(true);
+            logoutOfVivox(false);
             return false;
         }
 
@@ -1851,9 +1851,9 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         mIsProcessingChannels = false;
 
-        logoutOfVivox(true);
+        logoutOfVivox(!sShuttingDown /*bool wait*/);
 
-        if (mRelogRequested)
+        if (mRelogRequested && !sShuttingDown)
         {
             LL_DEBUGS("Voice") << "Relog Requested, restarting provisioning" << LL_ENDL;
             if (!provisionVoiceAccount())
