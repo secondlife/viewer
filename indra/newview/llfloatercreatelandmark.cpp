@@ -231,7 +231,11 @@ void LLFloaterCreateLandmark::folderCreatedCallback(LLUUID folder_id)
 void LLFloaterCreateLandmark::onSaveClicked()
 {
 	if (mItem.isNull())
+	{
+		closeFloater();
 		return;
+	}
+		
 
 	std::string current_title_value = mLandmarkTitleEditor->getText();
 	std::string item_title_value = mItem->getName();
@@ -282,8 +286,11 @@ void LLFloaterCreateLandmark::onSaveClicked()
 
 void LLFloaterCreateLandmark::onCancelClicked()
 {
-	LLUUID item_id = mItem->getUUID();
-	remove_inventory_item(item_id, NULL);
+	if (!mItem.isNull())
+	{
+		LLUUID item_id = mItem->getUUID();
+		remove_inventory_item(item_id, NULL);
+	}
 	closeFloater();
 }
 
