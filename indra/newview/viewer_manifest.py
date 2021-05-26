@@ -553,9 +553,13 @@ class WindowsManifest(ViewerManifest):
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
             
-            # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
+            # OpenSSL
+            if (self.address_size == 64):
+                self.path("libcrypto-1_1-x64.dll")
+                self.path("libssl-1_1-x64.dll")
+            else:
+                self.path("libcrypto-1_1.dll")
+                self.path("libssl-1_1.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
