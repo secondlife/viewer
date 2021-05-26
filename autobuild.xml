@@ -398,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52fc837a5840f5e6991842cf2f73a9d7</string>
+              <string>13f74f43a6363ec998569f731fd869c5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80409/758717/curl-7.54.1.558452-darwin64-558452.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82637/774617/curl-7.54.1.560191-darwin64-560191.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -434,11 +434,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8de0af7c8168406bf18bdcd5bc44e40e</string>
+              <string>0df99bd685dc3561ca8ea347b2921987</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80411/758714/curl-7.54.1.558452-windows-558452.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82639/774610/curl-7.54.1.560191-windows-560191.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -448,16 +448,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc633acdbd3595db4f904e68e48b4744</string>
+              <string>50db2a9e6b74ec4b0c38b1ea8f135735</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80410/758715/curl-7.54.1.558452-windows64-558452.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82638/774608/curl-7.54.1.560191-windows64-560191.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.54.1.558452</string>
+        <string>7.54.1.560191</string>
       </map>
       <key>db</key>
       <map>
@@ -2738,9 +2738,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>166aa05b379b13156de5821252040498</string>
+              <string>5503e4928bcdb0a29685b3242c4a409b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/78582/743936/openssl-1.0.2l.557043-darwin64-557043.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82619/774464/openssl-1.1.1l.560177-darwin64-560177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2774,9 +2774,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68aae05216c035283c79aad6dd88d8da</string>
+              <string>d2153f20dc2d35c609b876a9f019a748</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/78590/743992/openssl-1.0.2l.557043-windows-557043.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82623/774521/openssl-1.1.1l.560177-windows-560177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2786,16 +2786,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2576a386559cefb654154d8f0de6337</string>
+              <string>f40b8622ba38084b0962e273988d748f</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/78588/743976/openssl-1.0.2l.557043-windows64-557043.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82624/774520/openssl-1.1.1l.560177-windows64-560177.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.2l.557043</string>
+        <string>1.1.1l.560177</string>
       </map>
       <key>pcre</key>
       <map>
