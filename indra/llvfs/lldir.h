@@ -179,6 +179,8 @@ class LLDir
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
 
+    static std::string getDumpLogsDirPath(const std::string &file_name = "");
+
 	// For producing safe download file names from potentially unsafe ones
 	static std::string getScrubbedFileName(const std::string uncleanFileName);
 	static std::string getForbiddenFileChars();

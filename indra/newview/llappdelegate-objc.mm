@@ -299,6 +299,12 @@ struct AttachmentInfo
         AttachmentInfo(metadata.staticDebugPathname,  "text/xml")
     };
 
+    secondLogPath = metadata.secondLogFilePathname;
+    if(!secondLogPath.empty())
+    {
+        info.push_back(AttachmentInfo(secondLogPath,  "text/xml"));
+    }
+
     // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
     // the fact that BugsplatMac only notices a crash during the viewer run
     // following the crash. Replace .old with .log to reduce confusion.
@@ -333,6 +339,12 @@ struct AttachmentInfo
 - (void)bugsplatStartupManagerDidFinishSendingCrashReport:(BugsplatStartupManager *)bugsplatStartupManager
 {
     infos("Sent crash report to BugSplat");
+
+    if(!secondLogPath.empty())
+    {
+        boost::filesystem::remove(secondLogPath);
+    }
+    clearDumpLogsDir();
 }
 
 - (void)bugsplatStartupManager:(BugsplatStartupManager *)bugsplatStartupManager didFailWithError:(NSError *)error

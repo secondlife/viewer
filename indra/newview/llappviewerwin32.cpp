@@ -121,7 +121,7 @@ namespace
             // send the main viewer log file
             // widen to wstring, convert to __wchar_t, then pass c_str()
             sBugSplatSender->sendAdditionalFile(
-                WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
+                WCSTR(LLError::logFileName()));
 
             sBugSplatSender->sendAdditionalFile(
                 WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "settings.xml")));
