@@ -53,13 +53,6 @@ LLPreviewAnim::LLPreviewAnim(const LLSD& key)
 // virtual
 BOOL LLPreviewAnim::postBuild()
 {
-	const LLInventoryItem* item = getItem();
-	if(item)
-	{
-		pMotion = gAgentAvatarp->createMotion(item->getAssetUUID()); // preload the animation
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-	}
-
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
 	getChild<LLTextBox>("adv_trigger")->setClickedCallback(boost::bind(&LLPreviewAnim::showAdvanced, this));
@@ -73,7 +66,6 @@ BOOL LLPreviewAnim::postBuild()
 	return LLPreview::postBuild();
 }
 
-// static
 // llinventorybridge also calls into here
 void LLPreviewAnim::play(const LLSD& param)
 {
@@ -171,6 +163,20 @@ void LLPreviewAnim::draw()
 }
 
 // virtual
+void LLPreviewAnim::refreshFromItem()
+{
+    const LLInventoryItem* item = getItem();
+    if (!item)
+    {
+        return;
+    }
+
+    // Preload motion
+    pMotion = gAgentAvatarp->createMotion(item->getAssetUUID());
+
+    LLPreview::refreshFromItem();
+}
+
 void LLPreviewAnim::cleanup()
 {
 	this->mItemID = LLUUID::null;

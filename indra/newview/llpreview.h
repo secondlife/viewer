@@ -104,7 +104,7 @@ public:
 
 	// llview
 	/*virtual*/ void draw();
-	void refreshFromItem();
+	virtual void refreshFromItem();
 
 	// We can't modify Item or description in preview if either in-world Object
 	// or Item  itself is unmodifiable
