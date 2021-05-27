@@ -2468,6 +2468,7 @@ BOOL LLPanelLandAccess::postBuild()
 	{
 		mListBanned->sortByColumnIndex(0, TRUE); // ascending
 		mListBanned->setContextMenu(LLScrollListCtrl::MENU_AVATAR);
+		mListBanned->setAlternateSort();
 	}
 
 	return TRUE;
@@ -2570,11 +2571,12 @@ void LLPanelLandAccess::refresh()
 			{
 				const LLAccessEntry& entry = (*cit).second;
 				std::string duration;
+				S32 seconds = -1;
 				if (entry.mTime != 0)
 				{
 					LLStringUtil::format_map_t args;
 					S32 now = time(NULL);
-					S32 seconds = entry.mTime - now;					
+					seconds = entry.mTime - now;					
 					if (seconds < 0) seconds = 0;
 
 					if (seconds >= 7200)
@@ -2611,6 +2613,7 @@ void LLPanelLandAccess::refresh()
 				columns[0]["column"] = "name"; // to be populated later
 				columns[1]["column"] = "duration";
 				columns[1]["value"] = duration;
+				columns[1]["alt_value"] = entry.mTime != 0 ? std::to_string(seconds) : "Always";
 				mListBanned->addElement(item);
 			}
 			mListBanned->sortByName(TRUE);

@@ -44,7 +44,8 @@ LLScrollListItem::LLScrollListItem( const Params& p )
 	mSelectedIndex(-1),
 	mEnabled(p.enabled),
 	mUserdata(p.userdata),
-	mItemValue(p.value)
+	mItemValue(p.value),
+	mItemAltValue(p.alt_value)
 {
 }
 
