@@ -27,9 +27,8 @@
 
 // Many classes just store a single LLNotificationPtr
 // and llnotifications.h is very large, so define this ligher header.
-#include <boost/shared_ptr.hpp>
 
 class LLNotification;
-typedef boost::shared_ptr<LLNotification> LLNotificationPtr;
+typedef std::shared_ptr<LLNotification> LLNotificationPtr;
 
 #endif

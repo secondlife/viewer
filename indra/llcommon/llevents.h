@@ -49,7 +49,6 @@
 #endif
 
 #include <boost/bind.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
 #include <boost/visit_each.hpp>
