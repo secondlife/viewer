@@ -1036,9 +1036,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>650e836255b6c2ecb93d3f1f7220051c</string>
+              <string>dce3f3c01fddb400cb143c3283fe9259</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55011/511905/glh_linear-0.0.0-common-538981.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/82754/775367/glh_linear-0.0.0-common-560278.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
