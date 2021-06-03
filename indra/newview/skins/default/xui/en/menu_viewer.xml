@@ -542,7 +542,7 @@
          label="My land holdings..."
          name="My Land">
             <menu_item_call.on_click
-             function="Floater.Show"
+             function="Floater.ShowOrBringToFront"
              parameter="land_holdings" />
         </menu_item_call>
         <menu_item_call
