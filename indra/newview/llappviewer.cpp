@@ -1194,6 +1194,7 @@ bool LLAppViewer::init()
 	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #elif LL_DARWIN
 	// explicitly run the system Python interpreter on SLVersionChecker.py
+	// Keep using python2 until SLVersionChecker is converted to python3.
 	updater.executable = "python";
 	updater_file = "SLVersionChecker.py";
 	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file));

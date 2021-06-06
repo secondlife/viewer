@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 ## 
 ## $LicenseInfo:firstyear=2011&license=viewerlgpl$
 ## Second Life Viewer Source Code
@@ -27,7 +27,7 @@ import glob
 
 def delete_file_types(path, filetypes):
     if os.path.exists(path):
-        print 'Cleaning: ' + path
+        print('Cleaning: ' + path)
         orig_dir = os.getcwd();
         os.chdir(path)
         filelist = []

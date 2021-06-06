@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 
 This script scans the SL codebase for translation-related strings.
@@ -25,7 +25,7 @@ Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
 
-from __future__ import print_function
+
 
 import xml.etree.ElementTree as ET
 import argparse
@@ -75,10 +75,10 @@ translate_attribs = [
 ]
 
 def codify_for_print(val):
-    if isinstance(val, unicode):
+    if isinstance(val, str):
         return val.encode("utf-8")
     else:
-        return unicode(val, 'utf-8').encode("utf-8")
+        return str(val, 'utf-8').encode("utf-8")
 
 # Returns a dict of { name => xml_node }
 def read_xml_elements(blob):
@@ -186,7 +186,7 @@ def make_translation_table(mod_tree, base_tree, lang, args):
         transl_dict = read_xml_elements(transl_blob)
 
         rows = 0
-        for name in mod_dict.keys():
+        for name in list(mod_dict.keys()):
             if not name in base_dict or mod_dict[name].text != base_dict[name].text or (args.missing and not name in transl_dict):
                 elt = mod_dict[name]
                 val = elt.text
@@ -307,7 +307,7 @@ def save_translation_file(per_lang_data, aux_data, outfile):
         print("Added", num_translations, "rows for language", lang)
 
     # Reference info, not for translation
-    for aux, data in aux_data.items():
+    for aux, data in list(aux_data.items()):
         df = pd.DataFrame(data, columns = ["Key", "Value"]) 
         df.to_excel(writer, index=False, sheet_name=aux)
         worksheet = writer.sheets[aux]

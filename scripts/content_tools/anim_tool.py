@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 """\
 @file   anim_tool.py
 @author Brad Payne, Nat Goodspeed
@@ -39,7 +39,7 @@ $/LicenseInfo$
 import math
 import os
 import random
-from cStringIO import StringIO
+from io import StringIO
 import struct
 import sys
 from xml.etree import ElementTree
@@ -179,7 +179,7 @@ class RotKey(object):
         return this
 
     def dump(self, f):
-        print >>f, "    rot_key: t %.3f" % self.time,"st",self.time_short,"rot",",".join("%.3f" % f for f in self.rotation)
+        print("    rot_key: t %.3f" % self.time,"st",self.time_short,"rot",",".join("%.3f" % f for f in self.rotation), file=f)
 
     def pack(self, fp):
         fp.pack("<H",self.time_short)
@@ -215,7 +215,7 @@ class PosKey(object):
         return this
 
     def dump(self, f):
-        print >>f, "    pos_key: t %.3f" % self.time,"pos ",",".join("%.3f" % f for f in self.position)
+        print("    pos_key: t %.3f" % self.time,"pos ",",".join("%.3f" % f for f in self.position), file=f)
         
     def pack(self, fp):
         fp.pack("<H",self.time_short)
@@ -247,18 +247,18 @@ class Constraint(object):
                 self.ease_out_start, self.ease_out_stop)
 
     def dump(self, f):
-        print >>f, "  constraint:"
-        print >>f, "    chain_length",self.chain_length
-        print >>f, "    constraint_type",self.constraint_type
-        print >>f, "    source_volume",self.source_volume
-        print >>f, "    source_offset",self.source_offset
-        print >>f, "    target_volume",self.target_volume
-        print >>f, "    target_offset",self.target_offset
-        print >>f, "    target_dir",self.target_dir
-        print >>f, "    ease_in_start",self.ease_in_start
-        print >>f, "    ease_in_stop",self.ease_in_stop
-        print >>f, "    ease_out_start",self.ease_out_start
-        print >>f, "    ease_out_stop",self.ease_out_stop
+        print("  constraint:", file=f)
+        print("    chain_length",self.chain_length, file=f)
+        print("    constraint_type",self.constraint_type, file=f)
+        print("    source_volume",self.source_volume, file=f)
+        print("    source_offset",self.source_offset, file=f)
+        print("    target_volume",self.target_volume, file=f)
+        print("    target_offset",self.target_offset, file=f)
+        print("    target_dir",self.target_dir, file=f)
+        print("    ease_in_start",self.ease_in_start, file=f)
+        print("    ease_in_stop",self.ease_in_stop, file=f)
+        print("    ease_out_start",self.ease_out_start, file=f)
+        print("    ease_out_stop",self.ease_out_stop, file=f)
         
 class Constraints(object):
     @staticmethod
@@ -266,7 +266,7 @@ class Constraints(object):
         this = Constraints()
         (num_constraints, ) = fup.unpack("<i")
         this.constraints = [Constraint.unpack(duration, fup)
-                            for i in xrange(num_constraints)]
+                            for i in range(num_constraints)]
         return this
 
     def pack(self, fp):
@@ -275,7 +275,7 @@ class Constraints(object):
             c.pack(fp)
 
     def dump(self, f):
-        print >>f, "constraints:",len(self.constraints)
+        print("constraints:",len(self.constraints), file=f)
         for c in self.constraints:
             c.dump(f)
 
@@ -296,7 +296,7 @@ class PositionCurve(object):
         this = PositionCurve()
         (num_pos_keys, ) = fup.unpack("<i")
         this.keys = [PosKey.unpack(duration, fup)
-                     for k in xrange(num_pos_keys)]
+                     for k in range(num_pos_keys)]
         return this
 
     def pack(self, fp):
@@ -305,8 +305,8 @@ class PositionCurve(object):
             k.pack(fp)
 
     def dump(self, f):
-        print >>f, "  position_curve:"
-        print >>f, "    num_pos_keys", len(self.keys)
+        print("  position_curve:", file=f)
+        print("    num_pos_keys", len(self.keys), file=f)
         for k in self.keys:
             k.dump(f)
 
@@ -327,7 +327,7 @@ class RotationCurve(object):
         this = RotationCurve()
         (num_rot_keys, ) = fup.unpack("<i")
         this.keys = [RotKey.unpack(duration, fup)
-                     for k in xrange(num_rot_keys)]
+                     for k in range(num_rot_keys)]
         return this
 
     def pack(self, fp):
@@ -336,8 +336,8 @@ class RotationCurve(object):
             k.pack(fp)
 
     def dump(self, f):
-        print >>f, "  rotation_curve:"
-        print >>f, "    num_rot_keys", len(self.keys)
+        print("  rotation_curve:", file=f)
+        print("    num_rot_keys", len(self.keys), file=f)
         for k in self.keys:
             k.dump(f)
             
@@ -364,9 +364,9 @@ class JointInfo(object):
         self.position_curve.pack(fp)
 
     def dump(self, f):
-        print >>f, "joint:"
-        print >>f, "  joint_name:",self.joint_name
-        print >>f, "  joint_priority:",self.joint_priority
+        print("joint:", file=f)
+        print("  joint_name:",self.joint_name, file=f)
+        print("  joint_priority:",self.joint_priority, file=f)
         self.rotation_curve.dump(f)
         self.position_curve.dump(f)
 
@@ -440,10 +440,10 @@ class Anim(object):
             fup.unpack("@ffiffII")
         
         self.joints = [JointInfo.unpack(self.duration, fup)
-                       for j in xrange(num_joints)]
+                       for j in range(num_joints)]
         if self.verbose:
             for joint_info in self.joints:
-                print "unpacked joint",joint_info.joint_name
+                print("unpacked joint",joint_info.joint_name)
         self.constraints = Constraints.unpack(self.duration, fup)
         self.buffer = fup.buffer
         
@@ -461,17 +461,17 @@ class Anim(object):
             f = sys.stdout
         else:
             f = open(filename,"w")
-        print >>f, "versions: ", self.version, self.sub_version
-        print >>f, "base_priority: ", self.base_priority
-        print >>f, "duration: ", self.duration
-        print >>f, "emote_name: ", self.emote_name
-        print >>f, "loop_in_point: ", self.loop_in_point
-        print >>f, "loop_out_point: ", self.loop_out_point
-        print >>f, "loop: ", self.loop
-        print >>f, "ease_in_duration: ", self.ease_in_duration
-        print >>f, "ease_out_duration: ", self.ease_out_duration
-        print >>f, "hand_pose", self.hand_pose
-        print >>f, "num_joints", len(self.joints)
+        print("versions: ", self.version, self.sub_version, file=f)
+        print("base_priority: ", self.base_priority, file=f)
+        print("duration: ", self.duration, file=f)
+        print("emote_name: ", self.emote_name, file=f)
+        print("loop_in_point: ", self.loop_in_point, file=f)
+        print("loop_out_point: ", self.loop_out_point, file=f)
+        print("loop: ", self.loop, file=f)
+        print("ease_in_duration: ", self.ease_in_duration, file=f)
+        print("ease_out_duration: ", self.ease_out_duration, file=f)
+        print("hand_pose", self.hand_pose, file=f)
+        print("num_joints", len(self.joints), file=f)
         for j in self.joints:
             j.dump(f)
         self.constraints.dump(f)
@@ -482,7 +482,7 @@ class Anim(object):
         fp.write(filename)
 
     def write_src_data(self, filename):
-        print "write file",filename
+        print("write file",filename)
         with open(filename,"wb") as f:
             f.write(self.buffer)
 
@@ -501,11 +501,11 @@ class Anim(object):
         j = self.find_joint(name)
         if j:
             if self.verbose:
-                print "removing joint", name
+                print("removing joint", name)
             self.joints.remove(j)
         else:
             if self.verbose:
-                print "joint not found to remove", name
+                print("joint not found to remove", name)
 
     def summary(self):
         nj = len(self.joints)
@@ -513,13 +513,13 @@ class Anim(object):
         nstatic = len([j for j in self.joints
                        if j.rotation_curve.is_static()
                        and j.position_curve.is_static()])
-        print "summary: %d joints, non-zero priority %d, static %d" % (nj, nz, nstatic)
+        print("summary: %d joints, non-zero priority %d, static %d" % (nj, nz, nstatic))
 
     def add_pos(self, joint_names, positions):
         js = [joint for joint in self.joints if joint.joint_name in joint_names]
         for j in js:
             if self.verbose:
-                print "adding positions",j.joint_name,positions
+                print("adding positions",j.joint_name,positions)
             j.joint_priority = 4
             j.position_curve.keys = [PosKey(self.duration * i / (len(positions) - 1),
                                             self.duration,
@@ -529,7 +529,7 @@ class Anim(object):
     def add_rot(self, joint_names, rotations):
         js = [joint for joint in self.joints if joint.joint_name in joint_names]
         for j in js:
-            print "adding rotations",j.joint_name
+            print("adding rotations",j.joint_name)
             j.joint_priority = 4
             j.rotation_curve.keys = [RotKey(self.duration * i / (len(rotations) - 1),
                                             self.duration,
@@ -539,8 +539,8 @@ class Anim(object):
 def twistify(anim, joint_names, rot1, rot2):
     js = [joint for joint in anim.joints if joint.joint_name in joint_names]
     for j in js:
-        print "twisting",j.joint_name
-        print len(j.rotation_curve.keys)
+        print("twisting",j.joint_name)
+        print(len(j.rotation_curve.keys))
         j.joint_priority = 4
         # Set the joint(s) to rot1 at time 0, rot2 at the full duration.
         j.rotation_curve.keys = [
@@ -563,7 +563,7 @@ def get_joint_by_name(tree,name):
     if len(matches)==1:
         return matches[0]
     elif len(matches)>1:
-        print "multiple matches for name",name
+        print("multiple matches for name",name)
         return None
     else:
         return None
@@ -577,7 +577,7 @@ def get_elt_pos(elt):
         return (0.0, 0.0, 0.0)
 
 def resolve_joints(names, skel_tree, lad_tree, no_hud=False):
-    print "resolve joints, no_hud is",no_hud
+    print("resolve joints, no_hud is",no_hud)
     if skel_tree and lad_tree:
         all_elts = [elt for elt in skel_tree.getroot().iter()]
         all_elts.extend([elt for elt in lad_tree.getroot().iter()])
@@ -641,12 +641,12 @@ def main(*argv):
     parser.add_argument("outfilename", nargs="?", help="name of a .anim file to output")
     args = parser.parse_args(argv)
 
-    print "anim_tool.py: " + " ".join(argv)
-    print "dump is", args.dump
-    print "infilename",args.infilename,"outfilename",args.outfilename
-    print "rot",args.rot
-    print "pos",args.pos
-    print "joints",args.joints
+    print("anim_tool.py: " + " ".join(argv))
+    print("dump is", args.dump)
+    print("infilename",args.infilename,"outfilename",args.outfilename)
+    print("rot",args.rot)
+    print("pos",args.pos)
+    print("joints",args.joints)
 
     anim = Anim(args.infilename, args.verbose)
     skel_tree = None
@@ -663,7 +663,7 @@ def main(*argv):
     if args.joints:
         joints = resolve_joints(args.joints, skel_tree, lad_tree, args.no_hud)
         if args.verbose:
-            print "joints resolved to",joints
+            print("joints resolved to",joints)
         for name in joints:
             anim.add_joint(name,0)
     if args.delete_joints:
@@ -677,8 +677,8 @@ def main(*argv):
         # pick a random sequence of positions for each joint specified
         for joint in joints:
             # generate a list of rand_pos triples
-            pos_array = [tuple(random.uniform(-1,1) for i in xrange(3))
-                         for j in xrange(args.rand_pos)]
+            pos_array = [tuple(random.uniform(-1,1) for i in range(3))
+                         for j in range(args.rand_pos)]
             # close the loop by cycling back to the first entry
             pos_array.append(pos_array[0])
             anim.add_pos([joint], pos_array)
@@ -688,26 +688,26 @@ def main(*argv):
             if elt is not None:
                 anim.add_pos([joint], 2*[get_elt_pos(elt)])
             else:
-                print "no elt or no pos data for",joint
+                print("no elt or no pos data for",joint)
     if args.set_version:
         anim.version, anim.sub_version = args.set_version
     if args.base_priority is not None:
-        print "set base priority",args.base_priority
+        print("set base priority",args.base_priority)
         anim.base_priority = args.base_priority
     # --joint_priority sets priority for ALL joints, not just the explicitly-
     # specified ones
     if args.joint_priority is not None:
-        print "set joint priority",args.joint_priority
+        print("set joint priority",args.joint_priority)
         for joint in anim.joints:
             joint.joint_priority = args.joint_priority
     if args.duration is not None:
-        print "set duration",args.duration
+        print("set duration",args.duration)
         anim.duration = args.duration
     if args.loop_in is not None:
-        print "set loop_in",args.loop_in
+        print("set loop_in",args.loop_in)
         anim.loop_in_point = args.loop_in
     if args.loop_out is not None:
-        print "set loop_out",args.loop_out
+        print("set loop_out",args.loop_out)
         anim.loop_out_point = args.loop_out
     if args.dump:
         anim.dump("-")
