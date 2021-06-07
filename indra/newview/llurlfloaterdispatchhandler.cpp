@@ -145,6 +145,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
 
     if (floater == FLOATER_GUIDEBOOK || floater == FLOATER_HOW_TO)
     {
+        LL_DEBUGS("URLFloater") << "Opening how_to floater with parameters: " << message << LL_ENDL;
         if (command_params.isMap()) // by default is undefines
         {
             params.trusted_content = command_params.has(KEY_TRUSTED_CONTENT) ? command_params[KEY_TRUSTED_CONTENT].asBoolean() : false;
@@ -185,6 +186,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     }
     else if (floater == FLOATER_WEB_CONTENT)
     {
+        LL_DEBUGS("URLFloater") << "Opening web_content floater with parameters: " << message << LL_ENDL;
         if (command_params.isMap()) // by default is undefines, might be better idea to init params from command_params
         {
             params.trusted_content = command_params.has(KEY_TRUSTED_CONTENT) ? command_params[KEY_TRUSTED_CONTENT].asBoolean() : false;
@@ -195,6 +197,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
     }
     else
     {
+        LL_DEBUGS("URLFloater") << "Unknow floater with parameters: " << message << LL_ENDL;
         if (LLFloaterReg::isRegistered(floater))
         {
             // A valid floater
