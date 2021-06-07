@@ -56,13 +56,6 @@ LLViewerDynamicTexture::LLViewerDynamicTexture(S32 width, S32 height, S32 compon
 {
 	llassert((1 <= components) && (components <= 4));
 
-	if(gGLManager.mDebugGPU)
-	{
-		if(components == 3)
-		{
-			mComponents = 4 ; //convert to 32bits.
-		}
-	}
 	generateGLTexture();
 
 	llassert( 0 <= order && order < ORDER_COUNT );
@@ -211,7 +204,7 @@ void LLViewerDynamicTexture::postRender(BOOL success)
 BOOL LLViewerDynamicTexture::updateAllInstances()
 {
 	sNumRenders = 0;
-	if (gGLManager.mIsDisabled || LLPipeline::sMemAllocationThrottled)
+	if (gGLManager.mIsDisabled)
 	{
 		return TRUE;
 	}

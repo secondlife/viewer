@@ -51,13 +51,13 @@ extern "C" {
 # include "fontconfig/fontconfig.h"
 }
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 // not necessarily available on random SDL platforms, so #if LL_LINUX
 // for execv(), waitpid(), fork()
 # include <unistd.h>
 # include <sys/types.h>
 # include <sys/wait.h>
-#endif // LL_LINUX || LL_SOLARIS
+#endif // LL_LINUX
 
 extern BOOL gDebugWindowProc;
 
@@ -323,12 +323,6 @@ static int x11_detect_VRAM_kb_fp(FILE *fp, const char *prefix_str)
 
 static int x11_detect_VRAM_kb()
 {
-#if LL_SOLARIS && defined(__sparc)
-      //  NOTE: there's no Xorg server on SPARC so just return 0
-      //        and allow SDL to attempt to get the amount of VRAM
-      return(0);
-#else
-
 	std::string x_log_location("/var/log/");
 	std::string fname;
 	int rtn = 0; // 'could not detect'
@@ -409,7 +403,6 @@ static int x11_detect_VRAM_kb()
 		}
 	}
 	return rtn;
-#endif // LL_SOLARIS
 }
 #endif // LL_X11
 
@@ -484,27 +477,10 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,  8);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-#if !LL_SOLARIS
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (bits <= 16) ? 16 : 24);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, (bits <= 16) ? 16 : 24);
 	// We need stencil support for a few (minor) things.
 	if (!getenv("LL_GL_NO_STENCIL"))
 		SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-#else
-	// NOTE- use smaller Z-buffer to enable more graphics cards
-        //     - This should not affect better GPUs and has been proven
-        //	 to provide 24-bit z-buffers when available.
-	//
-        // As the API states: 
-	//
-        // GLX_DEPTH_SIZE    Must be followed by a nonnegative
-        //                   minimum size specification.  If this
-        //                   value is zero, visuals with no depth
-        //                   buffer are preferred.  Otherwise, the
-        //                   largest available depth buffer of at
-        //                   least the minimum size is preferred.
-
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-#endif
         SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, (bits <= 16) ? 1 : 8);
 
         // *FIX: try to toggle vsync here?
@@ -682,25 +658,13 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 	// fixme: actually, it's REALLY important for picking that we get at
 	// least 8 bits each of red,green,blue.  Alpha we can be a bit more
 	// relaxed about if we have to.
-#if LL_SOLARIS && defined(__sparc)
-//  again the __sparc required because Xsun support, 32bit are very pricey on SPARC
-	if(colorBits < 24)		//HACK:  on SPARC allow 24-bit color
-#else
 	if (colorBits < 32)
-#endif
 	{
 		close();
 		setupFailure(
-#if LL_SOLARIS && defined(__sparc)
-			"Second Life requires at least 24-bit color on SPARC to run in a window.\n"
-			"Please use fbconfig to set your default color depth to 24 bits.\n"
-			"You may also need to adjust the X11 setting in SMF.  To do so use\n"
-			"  'svccfg -s svc:/application/x11/x11-server setprop options/default_depth=24'\n"
-#else
 			"Second Life requires True Color (32-bit) to run in a window.\n"
 			"Please go to Control Panels -> Display -> Settings and\n"
 			"set the screen to 32-bit color.\n"
-#endif
 			"Alternately, if you choose to run fullscreen, Second Life\n"
 			"will automatically adjust the screen each time it runs.",
 			"Error",
@@ -2503,7 +2467,7 @@ BOOL LLWindowSDL::dialogColorPicker( F32 *r, F32 *g, F32 *b)
 }
 #endif // LL_GTK
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 // extracted from spawnWebBrowser for clarity and to eliminate
 //  compiler confusion regarding close(int fd) vs. LLWindow::close()
 void exec_cmd(const std::string& cmd, const std::string& arg)
@@ -2559,7 +2523,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 
 	LL_INFOS() << "spawn_web_browser: " << escaped_url << LL_ENDL;
 	
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 # if LL_X11
 	if (mSDL_Display)
 	{
@@ -2578,7 +2542,7 @@ void LLWindowSDL::spawnWebBrowser(const std::string& escaped_url, bool async)
 	cmd += "launch_url.sh";
 	arg = escaped_url;
 	exec_cmd(cmd, arg);
-#endif // LL_LINUX || LL_SOLARIS
+#endif // LL_LINUX
 
 	LL_INFOS() << "spawn_web_browser returning." << LL_ENDL;
 }

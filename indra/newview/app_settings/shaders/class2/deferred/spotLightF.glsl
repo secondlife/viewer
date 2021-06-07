@@ -189,7 +189,7 @@ void main()
 	lv = normalize(lv);
 	float da = dot(norm, lv);
 		
-	vec3 diff_tex = srgb_to_linear(texture2DRect(diffuseRect, frag.xy).rgb);
+	vec3 diff_tex = texture2DRect(diffuseRect, frag.xy).rgb;
 	vec4 spec = texture2DRect(specularRect, frag.xy);
 	vec3 dlit = vec3(0, 0, 0);
 
