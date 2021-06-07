@@ -56,8 +56,23 @@ vec3 GetSkyLuminanceToPoint(vec3 camPos, vec3 pos, float shadow_length, vec3 dir
 vec3 ColorFromRadiance(vec3 radiance);
 vec3 rainbow(float d)
 {
-   float rad = (droplet_radius - 5.0f) / 1024.0f;
-   return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
+    // d is the dot product of view and sun directions, so ranging -1.0..1.0
+    // 'interesting' values of d are the range -0.75..-0.825, when view is nearly opposite of sun vec
+    // Rainbox texture mode is GL_REPEAT, so tc of -.75 is equiv to 0.25, -0.825 equiv to 0.175.
+
+    // SL-13629 Rainbow texture has colors within the correct .175...250 range, but order is inverted.
+    // Rather than replace the texture, we mirror and translate the y tc to keep the colors within the
+    // interesting range, but in reversed order:  i.e. d = (1 - d) - 1.575
+    d = clamp(-0.575 - d, 0.0, 1.0);
+
+    // With the colors in the lower 1/4 of the texture, inverting the coords leaves most of it inaccessible.
+    // So, we can stretch the texcoord above the colors (ie > 0.25) to fill the entire remaining coordinate
+    // space. This improves gradation, reduces banding within the rainbow interior. (1-0.25) / (0.425/0.25) = 4.2857
+    float interior_coord = max(0.0, d - 0.25) * 4.2857;
+    d = clamp(d, 0.0, 0.25) + interior_coord;
+
+    float rad = (droplet_radius - 5.0f) / 1024.0f;
+    return pow(texture2D(rainbow_map, vec2(rad, d)).rgb, vec3(1.8)) * moisture_level;
 }
 
 vec3 halo22(float d)

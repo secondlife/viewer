@@ -143,8 +143,10 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 	//----------------------------------------------------------------
 	for (LLJoint* j : mChildren)
 	{
-		LLAvatarJoint* joint = dynamic_cast<LLAvatarJoint*>(j);
-		F32 jointLOD = joint ? joint->getLOD() : 0;
+		// LLViewerJoint is derived from LLAvatarJoint,
+		// all children of LLAvatarJoint are assumed to be LLAvatarJoint
+		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(j);
+		F32 jointLOD = joint->getLOD();
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{
 			triangle_count += joint->render( pixelArea, TRUE, is_dummy );

@@ -36,221 +36,223 @@ public:
 	LLShaderMgr();
 	virtual ~LLShaderMgr();
 
-	typedef enum
-	{
-		MODELVIEW_MATRIX = 0,
-		PROJECTION_MATRIX,
-		INVERSE_PROJECTION_MATRIX,
-		MODELVIEW_PROJECTION_MATRIX,
-        INVERSE_MODELVIEW_MATRIX,
-		NORMAL_MATRIX,
-		TEXTURE_MATRIX0,
-		TEXTURE_MATRIX1,
-		TEXTURE_MATRIX2,
-		TEXTURE_MATRIX3,
-		OBJECT_PLANE_S,
-		OBJECT_PLANE_T,
-		VIEWPORT,
-		LIGHT_POSITION,
-		LIGHT_DIRECTION,
-		LIGHT_ATTENUATION,
-		LIGHT_DIFFUSE,
-		LIGHT_AMBIENT,
-		MULTI_LIGHT_COUNT,
-		MULTI_LIGHT,
-		MULTI_LIGHT_COL,
-		MULTI_LIGHT_FAR_Z,
-		PROJECTOR_MATRIX,
-		PROJECTOR_NEAR,
-		PROJECTOR_P,
-		PROJECTOR_N,
-		PROJECTOR_ORIGIN,
-		PROJECTOR_RANGE,
-		PROJECTOR_AMBIANCE,
-		PROJECTOR_SHADOW_INDEX,
-		PROJECTOR_SHADOW_FADE,
-		PROJECTOR_FOCUS,
-		PROJECTOR_LOD,
-		PROJECTOR_AMBIENT_LOD,
-		DIFFUSE_COLOR,
-		DIFFUSE_MAP,
-        ALTERNATE_DIFFUSE_MAP,
-		SPECULAR_MAP,
-		BUMP_MAP,
-        BUMP_MAP2,
-		ENVIRONMENT_MAP,
-		CLOUD_NOISE_MAP,
-        CLOUD_NOISE_MAP_NEXT,
-		FULLBRIGHT,
-		LIGHTNORM,
-		SUNLIGHT_COLOR,
-		AMBIENT,
-		BLUE_HORIZON,
-		BLUE_DENSITY,
-		HAZE_HORIZON,
-		HAZE_DENSITY,
-		CLOUD_SHADOW,
-		DENSITY_MULTIPLIER,
-		DISTANCE_MULTIPLIER,
-		MAX_Y,
-		GLOW,
-		CLOUD_COLOR,
-		CLOUD_POS_DENSITY1,
-		CLOUD_POS_DENSITY2,
-		CLOUD_SCALE,
-		GAMMA,
-		SCENE_LIGHT_STRENGTH,
-		LIGHT_CENTER,
-		LIGHT_SIZE,
-		LIGHT_FALLOFF,
-		BOX_CENTER,
-		BOX_SIZE,
+    // clang-format off
+    typedef enum
+    {                                       // Shader uniform name, set in LLShaderMgr::initAttribsAndUniforms()
+        MODELVIEW_MATRIX = 0,               //  "modelview_matrix"
+        PROJECTION_MATRIX,                  //  "projection_matrix"
+        INVERSE_PROJECTION_MATRIX,          //  "inv_proj"
+        MODELVIEW_PROJECTION_MATRIX,        //  "modelview_projection_matrix"
+        INVERSE_MODELVIEW_MATRIX,           //  "inv_modelview"
+        NORMAL_MATRIX,                      //  "normal_matrix"
+        TEXTURE_MATRIX0,                    //  "texture_matrix0"
+        TEXTURE_MATRIX1,                    //  "texture_matrix1"
+        TEXTURE_MATRIX2,                    //  "texture_matrix2"
+        TEXTURE_MATRIX3,                    //  "texture_matrix3"
+        OBJECT_PLANE_S,                     //  "object_plane_s"
+        OBJECT_PLANE_T,                     //  "object_plane_t"
+        VIEWPORT,                           //  "viewport"
+        LIGHT_POSITION,                     //  "light_position"
+        LIGHT_DIRECTION,                    //  "light_direction"
+        LIGHT_ATTENUATION,                  //  "light_attenuation"
+        LIGHT_DIFFUSE,                      //  "light_diffuse"
+        LIGHT_AMBIENT,                      //  "light_ambient"
+        MULTI_LIGHT_COUNT,                  //  "light_count"
+        MULTI_LIGHT,                        //  "light"
+        MULTI_LIGHT_COL,                    //  "light_col"
+        MULTI_LIGHT_FAR_Z,                  //  "far_z"
+        PROJECTOR_MATRIX,                   //  "proj_mat"
+        PROJECTOR_NEAR,                     //  "proj_near"
+        PROJECTOR_P,                        //  "proj_p"
+        PROJECTOR_N,                        //  "proj_n"
+        PROJECTOR_ORIGIN,                   //  "proj_origin"
+        PROJECTOR_RANGE,                    //  "proj_range"
+        PROJECTOR_AMBIANCE,                 //  "proj_ambiance"
+        PROJECTOR_SHADOW_INDEX,             //  "proj_shadow_idx"
+        PROJECTOR_SHADOW_FADE,              //  "shadow_fade"
+        PROJECTOR_FOCUS,                    //  "proj_focus"
+        PROJECTOR_LOD,                      //  "proj_lod"
+        PROJECTOR_AMBIENT_LOD,              //  "proj_ambient_lod"
+        DIFFUSE_COLOR,                      //  "color"
+        DIFFUSE_MAP,                        //  "diffuseMap"
+        ALTERNATE_DIFFUSE_MAP,              //  "altDiffuseMap"
+        SPECULAR_MAP,                       //  "specularMap"
+        BUMP_MAP,                           //  "bumpMap"
+        BUMP_MAP2,                          //  "bumpMap2"
+        ENVIRONMENT_MAP,                    //  "environmentMap"
+        CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
+        CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
+        FULLBRIGHT,                         //  "fullbright"
+        LIGHTNORM,                          //  "lightnorm"
+        SUNLIGHT_COLOR,                     //  "sunlight_color"
+        AMBIENT,                            //  "ambient_color"
+        BLUE_HORIZON,                       //  "blue_horizon"
+        BLUE_DENSITY,                       //  "blue_density"
+        HAZE_HORIZON,                       //  "haze_horizon"
+        HAZE_DENSITY,                       //  "haze_density"
+        CLOUD_SHADOW,                       //  "cloud_shadow"
+        DENSITY_MULTIPLIER,                 //  "density_multiplier"
+        DISTANCE_MULTIPLIER,                //  "distance_multiplier"
+        MAX_Y,                              //  "max_y"
+        GLOW,                               //  "glow"
+        CLOUD_COLOR,                        //  "cloud_color"
+        CLOUD_POS_DENSITY1,                 //  "cloud_pos_density1"
+        CLOUD_POS_DENSITY2,                 //  "cloud_pos_density2"
+        CLOUD_SCALE,                        //  "cloud_scale"
+        GAMMA,                              //  "gamma"
+        SCENE_LIGHT_STRENGTH,               //  "scene_light_strength"
+        LIGHT_CENTER,                       //  "center"
+        LIGHT_SIZE,                         //  "size"
+        LIGHT_FALLOFF,                      //  "falloff"
+        BOX_CENTER,                         //  "box_center"
+        BOX_SIZE,                           //  "box_size"
 
-		GLOW_MIN_LUMINANCE,
-		GLOW_MAX_EXTRACT_ALPHA,
-		GLOW_LUM_WEIGHTS,
-		GLOW_WARMTH_WEIGHTS,
-		GLOW_WARMTH_AMOUNT,
-		GLOW_STRENGTH,
-		GLOW_DELTA,
+        GLOW_MIN_LUMINANCE,                 //  "minLuminance"
+        GLOW_MAX_EXTRACT_ALPHA,             //  "maxExtractAlpha"
+        GLOW_LUM_WEIGHTS,                   //  "lumWeights"
+        GLOW_WARMTH_WEIGHTS,                //  "warmthWeights"
+        GLOW_WARMTH_AMOUNT,                 //  "warmthAmount"
+        GLOW_STRENGTH,                      //  "glowStrength"
+        GLOW_DELTA,                         //  "glowDelta"
 
-		MINIMUM_ALPHA,
-		EMISSIVE_BRIGHTNESS,
+        MINIMUM_ALPHA,                      //  "minimum_alpha"
+        EMISSIVE_BRIGHTNESS,                //  "emissive_brightness"
 
-		DEFERRED_SHADOW_MATRIX,
-		DEFERRED_ENV_MAT,
-		DEFERRED_SHADOW_CLIP,
-		DEFERRED_SUN_WASH,
-		DEFERRED_SHADOW_NOISE,
-		DEFERRED_BLUR_SIZE,
-		DEFERRED_SSAO_RADIUS,
-		DEFERRED_SSAO_MAX_RADIUS,
-		DEFERRED_SSAO_FACTOR,
-		DEFERRED_SSAO_FACTOR_INV,
-		DEFERRED_SSAO_EFFECT_MAT,
-		DEFERRED_SCREEN_RES,
-		DEFERRED_NEAR_CLIP,
-		DEFERRED_SHADOW_OFFSET,
-		DEFERRED_SHADOW_BIAS,
-		DEFERRED_SPOT_SHADOW_BIAS,
-		DEFERRED_SPOT_SHADOW_OFFSET,
-		DEFERRED_SUN_DIR,
-        DEFERRED_MOON_DIR,
-		DEFERRED_SHADOW_RES,
-		DEFERRED_PROJ_SHADOW_RES,
-		DEFERRED_DEPTH_CUTOFF,
-		DEFERRED_NORM_CUTOFF,
-		DEFERRED_SHADOW_TARGET_WIDTH,
+        DEFERRED_SHADOW_MATRIX,             //  "shadow_matrix"
+        DEFERRED_ENV_MAT,                   //  "env_mat"
+        DEFERRED_SHADOW_CLIP,               //  "shadow_clip"
+        DEFERRED_SUN_WASH,                  //  "sun_wash"
+        DEFERRED_SHADOW_NOISE,              //  "shadow_noise"
+        DEFERRED_BLUR_SIZE,                 //  "blur_size"
+        DEFERRED_SSAO_RADIUS,               //  "ssao_radius"
+        DEFERRED_SSAO_MAX_RADIUS,           //  "ssao_max_radius"
+        DEFERRED_SSAO_FACTOR,               //  "ssao_factor"
+        DEFERRED_SSAO_FACTOR_INV,           //  "ssao_factor_inv"
+        DEFERRED_SSAO_EFFECT_MAT,           //  "ssao_effect_mat"
+        DEFERRED_SCREEN_RES,                //  "screen_res"
+        DEFERRED_NEAR_CLIP,                 //  "near_clip"
+        DEFERRED_SHADOW_OFFSET,             //  "shadow_offset"
+        DEFERRED_SHADOW_BIAS,               //  "shadow_bias"
+        DEFERRED_SPOT_SHADOW_BIAS,          //  "spot_shadow_bias"
+        DEFERRED_SPOT_SHADOW_OFFSET,        //  "spot_shadow_offset"
+        DEFERRED_SUN_DIR,                   //  "sun_dir"
+        DEFERRED_MOON_DIR,                  //  "moon_dir"
+        DEFERRED_SHADOW_RES,                //  "shadow_res"
+        DEFERRED_PROJ_SHADOW_RES,           //  "proj_shadow_res"
+        DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
+        DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
+        DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
 
-		FXAA_TC_SCALE,
-		FXAA_RCP_SCREEN_RES,
-		FXAA_RCP_FRAME_OPT,
-		FXAA_RCP_FRAME_OPT2,
+        FXAA_TC_SCALE,                      //  "tc_scale"
+        FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
+        FXAA_RCP_FRAME_OPT,                 //  "rcp_frame_opt"
+        FXAA_RCP_FRAME_OPT2,                //  "rcp_frame_opt2"
 
-		DOF_FOCAL_DISTANCE,
-		DOF_BLUR_CONSTANT,
-		DOF_TAN_PIXEL_ANGLE,
-		DOF_MAGNIFICATION,
-		DOF_MAX_COF,
-		DOF_RES_SCALE,
-		DOF_WIDTH,
-		DOF_HEIGHT,
+        DOF_FOCAL_DISTANCE,                 //  "focal_distance"
+        DOF_BLUR_CONSTANT,                  //  "blur_constant"
+        DOF_TAN_PIXEL_ANGLE,                //  "tan_pixel_angle"
+        DOF_MAGNIFICATION,                  //  "magnification"
+        DOF_MAX_COF,                        //  "max_cof"
+        DOF_RES_SCALE,                      //  "res_scale"
+        DOF_WIDTH,                          //  "dof_width"
+        DOF_HEIGHT,                         //  "dof_height"
 
-		DEFERRED_DEPTH,
-		DEFERRED_SHADOW0,
-		DEFERRED_SHADOW1,
-		DEFERRED_SHADOW2,
-		DEFERRED_SHADOW3,
-		DEFERRED_SHADOW4,
-		DEFERRED_SHADOW5,
-		DEFERRED_NORMAL,
-		DEFERRED_POSITION,
-		DEFERRED_DIFFUSE,
-		DEFERRED_SPECULAR,
-		DEFERRED_NOISE,
-		DEFERRED_LIGHTFUNC,
-		DEFERRED_LIGHT,
-		DEFERRED_BLOOM,
-		DEFERRED_PROJECTION,
-		DEFERRED_NORM_MATRIX,
-		TEXTURE_GAMMA,		
-		SPECULAR_COLOR,
-		ENVIRONMENT_INTENSITY,
-		
-		AVATAR_MATRIX,
-		AVATAR_TRANSLATION,
+        DEFERRED_DEPTH,                     //  "depthMap"
+        DEFERRED_SHADOW0,                   //  "shadowMap0"
+        DEFERRED_SHADOW1,                   //  "shadowMap1"
+        DEFERRED_SHADOW2,                   //  "shadowMap2"
+        DEFERRED_SHADOW3,                   //  "shadowMap3"
+        DEFERRED_SHADOW4,                   //  "shadowMap4"
+        DEFERRED_SHADOW5,                   //  "shadowMap5"
+        DEFERRED_NORMAL,                    //  "normalMap"
+        DEFERRED_POSITION,                  //  "positionMap"
+        DEFERRED_DIFFUSE,                   //  "diffuseRect"
+        DEFERRED_SPECULAR,                  //  "specularRect"
+        DEFERRED_NOISE,                     //  "noiseMap"
+        DEFERRED_LIGHTFUNC,                 //  "lightFunc"
+        DEFERRED_LIGHT,                     //  "lightMap"
+        DEFERRED_BLOOM,                     //  "bloomMap"
+        DEFERRED_PROJECTION,                //  "projectionMap"
+        DEFERRED_NORM_MATRIX,               //  "norm_mat"
+        TEXTURE_GAMMA,                      //  "texture_gamma"
+        SPECULAR_COLOR,                     //  "specular_color"
+        ENVIRONMENT_INTENSITY,              //  "env_intensity"
 
-		WATER_SCREENTEX,
-		WATER_SCREENDEPTH,
-		WATER_REFTEX,
-		WATER_EYEVEC,
-		WATER_TIME,
-		WATER_WAVE_DIR1,
-		WATER_WAVE_DIR2,
-		WATER_LIGHT_DIR,
-		WATER_SPECULAR,
-		WATER_SPECULAR_EXP,
-		WATER_FOGCOLOR,
-		WATER_FOGDENSITY,
-		WATER_FOGKS,
-		WATER_REFSCALE,
-		WATER_WATERHEIGHT,
-		WATER_WATERPLANE,
-		WATER_NORM_SCALE,
-		WATER_FRESNEL_SCALE,
-		WATER_FRESNEL_OFFSET,
-		WATER_BLUR_MULTIPLIER,
-		WATER_SUN_ANGLE,
-		WATER_SCALED_ANGLE,
-		WATER_SUN_ANGLE2,
-		
-		WL_CAMPOSLOCAL,
+        AVATAR_MATRIX,                      //  "matrixPalette"
+        AVATAR_TRANSLATION,                 //  "translationPalette"
 
-		AVATAR_WIND,
-		AVATAR_SINWAVE,
-		AVATAR_GRAVITY,
+        WATER_SCREENTEX,                    //  "screenTex"
+        WATER_SCREENDEPTH,                  //  "screenDepth"
+        WATER_REFTEX,                       //  "refTex"
+        WATER_EYEVEC,                       //  "eyeVec"
+        WATER_TIME,                         //  "time"
+        WATER_WAVE_DIR1,                    //  "waveDir1"
+        WATER_WAVE_DIR2,                    //  "waveDir2"
+        WATER_LIGHT_DIR,                    //  "lightDir"
+        WATER_SPECULAR,                     //  "specular"
+        WATER_SPECULAR_EXP,                 //  "lightExp"
+        WATER_FOGCOLOR,                     //  "waterFogColor"
+        WATER_FOGDENSITY,                   //  "waterFogDensity"
+        WATER_FOGKS,                        //  "waterFogKS"
+        WATER_REFSCALE,                     //  "refScale"
+        WATER_WATERHEIGHT,                  //  "waterHeight"
+        WATER_WATERPLANE,                   //  "waterPlane"
+        WATER_NORM_SCALE,                   //  "normScale"
+        WATER_FRESNEL_SCALE,                //  "fresnelScale"
+        WATER_FRESNEL_OFFSET,               //  "fresnelOffset"
+        WATER_BLUR_MULTIPLIER,              //  "blurMultiplier"
+        WATER_SUN_ANGLE,                    //  "sunAngle"
+        WATER_SCALED_ANGLE,                 //  "scaledAngle"
+        WATER_SUN_ANGLE2,                   //  "sunAngle2"
 
-		TERRAIN_DETAIL0,
-		TERRAIN_DETAIL1,
-		TERRAIN_DETAIL2,
-		TERRAIN_DETAIL3,
-		TERRAIN_ALPHARAMP,
-		
-		SHINY_ORIGIN,
-        DISPLAY_GAMMA,
+        WL_CAMPOSLOCAL,                     //  "camPosLocal"
 
-        INSCATTER_RT,
-        SUN_SIZE,
-        FOG_COLOR,
+        AVATAR_WIND,                        //  "gWindDir"
+        AVATAR_SINWAVE,                     //  "gSinWaveParams"
+        AVATAR_GRAVITY,                     //  "gGravity"
+
+        TERRAIN_DETAIL0,                    //  "detail_0"
+        TERRAIN_DETAIL1,                    //  "detail_1"
+        TERRAIN_DETAIL2,                    //  "detail_2"
+        TERRAIN_DETAIL3,                    //  "detail_3"
+        TERRAIN_ALPHARAMP,                  //  "alpha_ramp"
+
+        SHINY_ORIGIN,                       //  "origin"
+        DISPLAY_GAMMA,                      //  "display_gamma"
+
+        INSCATTER_RT,                       //  "inscatter"
+        SUN_SIZE,                           //  "sun_size"
+        FOG_COLOR,                          //  "fog_color"
 
         // precomputed textures
-        TRANSMITTANCE_TEX,
-        SCATTER_TEX,
-        SINGLE_MIE_SCATTER_TEX,
-        ILLUMINANCE_TEX,
-        BLEND_FACTOR,
+        TRANSMITTANCE_TEX,                  //  "transmittance_texture"
+        SCATTER_TEX,                        //  "scattering_texture"
+        SINGLE_MIE_SCATTER_TEX,             //  "single_mie_scattering_texture"
+        ILLUMINANCE_TEX,                    //  "irradiance_texture"
+        BLEND_FACTOR,                       //  "blend_factor"
 
-        NO_ATMO,
-        MOISTURE_LEVEL,
-        DROPLET_RADIUS,
-        ICE_LEVEL,
-        RAINBOW_MAP,
-        HALO_MAP,
+        NO_ATMO,                            //  "no_atmo"
+        MOISTURE_LEVEL,                     //  "moisture_level"
+        DROPLET_RADIUS,                     //  "droplet_radius"
+        ICE_LEVEL,                          //  "ice_level"
+        RAINBOW_MAP,                        //  "rainbow_map"
+        HALO_MAP,                           //  "halo_map"
 
-        MOON_BRIGHTNESS,
+        MOON_BRIGHTNESS,                    //  "moon_brightness"
 
-        CLOUD_VARIANCE,
+        CLOUD_VARIANCE,                     //  "cloud_variance"
 
-        SH_INPUT_L1R,
-        SH_INPUT_L1G,
-        SH_INPUT_L1B,
+        SH_INPUT_L1R,                       //  "sh_input_r"
+        SH_INPUT_L1G,                       //  "sh_input_g"
+        SH_INPUT_L1B,                       //  "sh_input_b"
 
-        SUN_MOON_GLOW_FACTOR,
-        WATER_EDGE_FACTOR,
-        SUN_UP_FACTOR,
-        MOONLIGHT_COLOR,
-		END_RESERVED_UNIFORMS
-	} eGLSLReservedUniforms;
+        SUN_MOON_GLOW_FACTOR,               //  "sun_moon_glow_factor"
+        WATER_EDGE_FACTOR,                  //  "water_edge"
+        SUN_UP_FACTOR,                      //  "sun_up_factor"
+        MOONLIGHT_COLOR,                    //  "moonlight_color"
+        END_RESERVED_UNIFORMS
+    } eGLSLReservedUniforms;
+    // clang-format on
 
 	// singleton pattern implementation
 	static LLShaderMgr * instance();
