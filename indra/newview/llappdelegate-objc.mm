@@ -134,6 +134,7 @@
 		// called again. Since it returned false, do not yet cancel
 		// frameTimer.
 		handleQuit();
+		[[NSApplication sharedApplication] stopModal];
 		return NSTerminateCancel;
 	} else {
 		// pumpMainLoop() returned true: it's done. Okay, done with frameTimer.

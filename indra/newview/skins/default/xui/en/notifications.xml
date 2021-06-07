@@ -4039,6 +4039,8 @@ Finished download of raw terrain file to:
 [DOWNLOAD_PATH].
   </notification>
 
+  <!-- RequiredUpdate does not display release notes URL because we don't get
+       that from login.cgi's login failure message. -->
   <notification
    icon="alertmodal.tga"
    name="RequiredUpdate"
@@ -4056,6 +4058,8 @@ Please download from https://secondlife.com/support/downloads/
    name="PauseForUpdate"
    type="alertmodal">
 Version [VERSION] is required for login.
+Release notes: [URL]
+
 Click OK to download and install.
     <tag>confirm</tag>
     <usetemplate
@@ -4068,6 +4072,8 @@ Click OK to download and install.
    name="OptionalUpdateReady"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
+Release notes: [URL]
+
 Click OK to install.
     <tag>confirm</tag>
     <usetemplate
@@ -4080,6 +4086,8 @@ Click OK to install.
    name="PromptOptionalUpdate"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
+Release notes: [URL]
+
 Proceed?
     <tag>confirm</tag>
     <usetemplate
@@ -9601,6 +9609,12 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
 If you continue to have problems, please visit the [SUPPORT_SITE].
+  </global>
+
+  <global name="UnsupportedIntelDriver">
+The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
+
+Do you want to check the Intel driver website?
   </global>
 
   <global name="UnsupportedCPUAmount">

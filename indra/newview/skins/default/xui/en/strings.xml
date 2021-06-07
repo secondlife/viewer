@@ -2299,6 +2299,7 @@ For AI Character: Get the closest navigable point to the point provided.
 	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>
 	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
 	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
+	<string name="MarketplaceNoListing">You have no listings yet.</string>
 	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
 	<string name="InventoryInboxNoItems">Your Marketplace purchases will appear here. You may then drag them into your inventory to use them.</string>
@@ -3693,10 +3694,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   Also there are some other places where "generic" is used.
   So, let add string with name="generic" with the same value as "generic_request_error" -->
   <string name="generic">
-    Error making request, please try again later.
+    Please close and reopen the conversation, or relog and try again.
   </string>
   <string name="generic_request_error">
-    Error making request, please try again later.
+    Please close and reopen the conversation, or relog and try again.
   </string>
   <string name="insufficient_perms_error">
     You do not have sufficient permissions.

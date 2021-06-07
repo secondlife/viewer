@@ -32,6 +32,8 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llavataractions.h"
+#include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
 #include "llchiclet.h"
@@ -45,6 +47,9 @@
 #include "llfloaterimnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 1.0f;
+const std::string ICN_GROUP("group_chat_icon");
+const std::string ICN_NEARBY("nearby_chat_icon");
+const std::string ICN_AVATAR("avatar_icon");
 
 void cb_group_do_nothing()
 {
@@ -492,7 +497,10 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		addConversationViewParticipant(participant_model);
+        if (participant_model)
+        {
+            addConversationViewParticipant(participant_model);
+        }
 		current_participant_model++;
 	}
 }
@@ -529,8 +537,7 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
 	if (widget)
 	{
-		mConversationsRoot->extractItem(widget);
-		delete widget;
+		widget->destroyView();
 	}
 	mConversationsWidgets.erase(participant_id);
 }
@@ -698,6 +705,39 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
 {
 	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
+}
+
+void LLFloaterIMSessionTab::updateChatIcon(const LLUUID& id)
+{
+	if (mSession)
+	{
+		if (mSession->isP2PSessionType())
+		{
+			LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>(ICN_AVATAR);
+			icon->setVisible(true);
+			icon->setValue(id);
+		}
+		if (mSession->isAdHocSessionType())
+		{
+			LLGroupIconCtrl* icon = getChild<LLGroupIconCtrl>(ICN_GROUP);
+			icon->setVisible(true);
+		}
+		if (mSession->isGroupSessionType())
+		{
+			LLGroupIconCtrl* icon = getChild<LLGroupIconCtrl>(ICN_GROUP);
+			icon->setVisible(true);
+			icon->setValue(id);
+		}
+	}
+	else
+	{
+		if (mIsNearbyChat)
+		{
+			LLIconCtrl* icon = getChild<LLIconCtrl>(ICN_NEARBY);
+			icon->setVisible(true);
+		}
+	}
+
 }
 
 void LLFloaterIMSessionTab::hideAllStandardButtons()

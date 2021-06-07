@@ -176,6 +176,7 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llfasttimerview.h"
+#include "lltelemetry.h"
 #include "llfloatermap.h"
 #include "llweb.h"
 #include "llvoiceclient.h"
@@ -527,6 +528,8 @@ bool idle_startup()
 			}
 
 			#if LL_WINDOWS
+                LLPROFILE_STARTUP();
+
 				// On the windows dev builds, unpackaged, the message.xml file will 
 				// be located in indra/build-vc**/newview/<config>/app_settings.
 				std::string message_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message.xml");
@@ -3540,11 +3543,6 @@ bool process_login_success_response()
 	}
 
 	// Request the map server url
-	// Non-agni grids have a different default location.
-	if (!LLGridManager::getInstance()->isInProductionGrid())
-	{
-		gSavedSettings.setString("MapServerURL", "http://test.map.secondlife.com.s3.amazonaws.com/");
-	}
 	std::string map_server_url = response["map-server-url"];
 	if(!map_server_url.empty())
 	{

@@ -49,7 +49,8 @@
 #include "lltrans.h"
 
 LLFloaterBuy::LLFloaterBuy(const LLSD& key)
-:	LLFloater(key)
+:	LLFloater(key),
+	mSelectionUpdateSlot()
 {
 }
 
@@ -179,12 +180,19 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	floater->getChild<LLUICtrl>("buy_text")->setTextArg("[AMOUNT]", llformat("%d", sale_info.getSalePrice()));
 	floater->getChild<LLUICtrl>("buy_name_text")->setTextArg("[NAME]", owner_name);
 
+	floater->showViews(true);
+
 	// Must do this after the floater is created, because
 	// sometimes the inventory is already there and 
 	// the callback is called immediately.
 	LLViewerObject* obj = selection->getFirstRootObject();
 	floater->registerVOInventoryListener(obj,NULL);
 	floater->requestVOInventory();
+
+	if (!floater->mSelectionUpdateSlot.connected())
+	{
+		floater->mSelectionUpdateSlot = LLSelectMgr::getInstance()->mUpdateSignal.connect(boost::bind(&LLFloaterBuy::onSelectionChanged, floater));
+	}
 }
 
 void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
@@ -280,6 +288,30 @@ void LLFloaterBuy::inventoryChanged(LLViewerObject* obj,
 	removeVOInventoryListener();
 }
 
+void LLFloaterBuy::onSelectionChanged()
+{
+	
+	if (LLSelectMgr::getInstance()->getEditSelection()->getRootObjectCount() == 0)
+	{
+		removeVOInventoryListener();
+		closeFloater();
+	}
+	else if (LLSelectMgr::getInstance()->getEditSelection()->getRootObjectCount() > 1)
+	{
+		removeVOInventoryListener();
+		showViews(false);
+		reset();
+		setTitle(getString("mupliple_selected"));
+	}
+}
+
+void LLFloaterBuy::showViews(bool show)
+{
+	getChild<LLUICtrl>("buy_btn")->setEnabled(show);
+	getChild<LLUICtrl>("buy_text")->setVisible(show);
+	getChild<LLUICtrl>("buy_name_text")->setVisible(show);
+}
+
 void LLFloaterBuy::onClickBuy()
 {
 	// Put the items where we put new folders.
@@ -303,5 +335,10 @@ void LLFloaterBuy::onClickCancel()
 // virtual
 void LLFloaterBuy::onClose(bool app_quitting)
 {
+	if (mSelectionUpdateSlot.connected())
+	{
+		mSelectionUpdateSlot.disconnect();
+	}
+
 	mObjectSelection.clear();
 }

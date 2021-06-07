@@ -5935,7 +5935,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+      <string>https://map.secondlife.com/</string>
     </map>
     <key>CurrentMapServerURL</key>
     <map>
@@ -6586,7 +6586,7 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>MemoryFailurePreventionEnabled</key>
+  <key>MemoryFailurePreventionEnabled</key> <!-- deprecated, only used for obsolete-in-2020 Intel 965 Express GPU -->
   <map>
     <key>Comment</key>
     <string>If set, the viewer will quit to avoid crash when memory failure happens</string>
@@ -9113,7 +9113,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.03</real>
+    <real>0.1</real>
   </map>
   <key>RenderDebugPipeline</key>
     <map>
@@ -15169,7 +15169,7 @@
         <key>Value</key>
             <real>1</real>
         </map>
-    <key>PoolSizeVAssetStorage</key>
+    <key>PoolSizeAssetStorage</key>
         <map>
         <key>Comment</key>
             <string>Coroutine Pool size for AssetStorage requests</string>

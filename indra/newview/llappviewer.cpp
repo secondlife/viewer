@@ -90,6 +90,7 @@
 #include "llsdutil_math.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+#include "lltelemetry.h"
 #include "llvector4a.h"
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
@@ -256,9 +257,9 @@
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
-#if (LL_LINUX || LL_SOLARIS) && LL_GTK
+#if LL_LINUX && LL_GTK
 #include "glib.h"
-#endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
+#endif // (LL_LINUX) && LL_GTK
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -1098,6 +1099,46 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_WINDOWS && ADDRESS_SIZE == 64
+    if (gGLManager.mIsIntel)
+    {
+        // Check intel driver's version
+        // Ex: "3.1.0 - Build 8.15.10.2559";
+        std::string version = ll_safe_string((const char *)glGetString(GL_VERSION));
+
+        const boost::regex is_intel_string("[0-9].[0-9].[0-9] - Build [0-9]{1,2}.[0-9]{2}.[0-9]{2}.[0-9]{4}");
+
+        if (boost::regex_search(version, is_intel_string))
+        {
+            // Valid string, extract driver version
+            std::size_t found = version.find("Build ");
+            std::string driver = version.substr(found + 6);
+            S32 v1, v2, v3, v4;
+            S32 count = sscanf(driver.c_str(), "%d.%d.%d.%d", &v1, &v2, &v3, &v4);
+            if (count > 0 && v1 <= 10)
+            {
+                LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
+                LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
+                std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
+                details.setArg("[VERSION]", driver);
+                details.setArg("[GPUNAME]", gpu_name);
+                S32 button = OSMessageBox(details.getString(),
+                                          LLStringUtil::null,
+                                          OSMB_YESNO);
+                if (OSBTN_YES == button && gViewerWindow)
+                {
+                    std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
+                    if (gViewerWindow->getWindow())
+                    {
+                        gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                    }
+                }
+            }
+        }
+    }
+#endif
+
+    // Obsolete? mExpectedGLVersion is always zero
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
@@ -1172,7 +1213,16 @@ bool LLAppViewer::init()
 	// add LEAP mode command-line argument to whichever of these we selected
 	updater.args.add("leap");
 	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    {
+        // Befor first login, treat this as 'manual' updates,
+        // updater won't install anything, but required updates
+        updater.args.add("0");
+    }
+    else
+    {
+        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+    }
 	// channel
 	updater.args.add(LLVersionInfo::instance().getChannel());
 	// testok
@@ -1313,39 +1363,8 @@ void LLAppViewer::initMaxHeapSize()
 
 	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
 	F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
-	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemoryFailurePreventionEnabled") ;
 
-	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
-}
-
-void LLAppViewer::checkMemory()
-{
-	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
-	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-
-	if(!gGLManager.mDebugGPU)
-	{
-		return ;
-	}
-
-	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
-	{
-		return ;
-	}
-	mMemCheckTimer.reset() ;
-
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
-
-	bool is_low = LLMemory::isMemoryPoolLow() ;
-
-	LLPipeline::throttleNewMemoryAllocation(is_low) ;
-
-	if(is_low)
-	{
-		LLMemory::logMemoryInfo() ;
-	}
+	LLMemory::initMaxHeapSizeGB(max_heap_size_gb);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
@@ -1423,9 +1442,6 @@ bool LLAppViewer::doFrame()
 
 	//clear call stack records
 	LL_CLEAR_CALLSTACKS();
-
-	//check memory availability information
-	checkMemory() ;
 
 	{
 		pingMainloopTimeout("Main:MiscNativeWindowEvents");
@@ -1654,11 +1670,14 @@ bool LLAppViewer::doFrame()
 		}
 
 		delete gServicePump;
+		gServicePump = NULL;
 
 		destroyMainloopTimeout();
 
 		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
+
+    LLPROFILE_UPDATE();
 
 	return ! LLApp::isRunning();
 }
@@ -1711,7 +1730,11 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		if (!isSecondInstance())
+		{
+			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		}
+		LLSceneMonitor::deleteSingleton();
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
@@ -3504,6 +3527,12 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
+
+	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+	for (auto res_iter : resolutions)
+	{
+		gDebugInfo["DisplayInfo"].append(res_iter);
+	}
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }

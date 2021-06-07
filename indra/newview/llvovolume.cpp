@@ -2337,8 +2337,7 @@ bool LLVOVolume::notifyAboutCreatingTexture(LLViewerTexture *texture)
 	//setup new materials
 	for(map_te_material::const_iterator it = new_material.begin(), end = new_material.end(); it != end; ++it)
 	{
-		// These are placeholder materials, they shouldn't be sent to server
-		LLMaterialMgr::getInstance()->setLocalMaterial(getRegion()->getRegionID(), it->second);
+		LLMaterialMgr::getInstance()->put(getID(), it->first, *it->second);
 		LLViewerObject::setTEMaterialParams(it->first, it->second);
 	}
 
