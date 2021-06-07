@@ -27,11 +27,6 @@
 #ifndef LL_LLDIR_H
 #define LL_LLDIR_H
 
-#if LL_SOLARIS
-#include <sys/param.h>
-#define MAX_PATH MAXPATHLEN
-#endif
-
 // these numbers are read from settings_files.xml, so we need to be explicit
 typedef enum ELLPath
 {

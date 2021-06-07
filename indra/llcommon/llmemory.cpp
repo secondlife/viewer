@@ -35,7 +35,7 @@
 # include <sys/types.h>
 # include <mach/task.h>
 # include <mach/mach_init.h>
-#elif LL_LINUX || LL_SOLARIS
+#elif LL_LINUX
 # include <unistd.h>
 #endif
 
@@ -55,7 +55,6 @@ static LLTrace::SampleStatHandle<F64Megabytes> sVirtualMem("virtual_mem", "virtu
 U32Kilobytes LLMemory::sAllocatedMemInKB(0);
 U32Kilobytes LLMemory::sAllocatedPageSizeInKB(0);
 U32Kilobytes LLMemory::sMaxHeapSizeInKB(U32_MAX);
-BOOL LLMemory::sEnableMemoryFailurePrevention = FALSE;
 
 void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
 {
@@ -75,10 +74,9 @@ void ll_assert_aligned_func(uintptr_t ptr,U32 alignment)
 }
 
 //static 
-void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure)
+void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size)
 {
 	sMaxHeapSizeInKB = U32Kilobytes::convert(max_heap_size);
-	sEnableMemoryFailurePrevention = prevent_heap_failure ;
 }
 
 //static 
@@ -156,56 +154,6 @@ void LLMemory::logMemoryInfo(BOOL update)
 	LL_INFOS() << "Current allocated page size (KB): " << sAllocatedPageSizeInKB << LL_ENDL ;
 	LL_INFOS() << "Current available physical memory(KB): " << sAvailPhysicalMemInKB << LL_ENDL ;
 	LL_INFOS() << "Current max usable memory(KB): " << sMaxPhysicalMemInKB << LL_ENDL ;
-}
-
-//return 0: everything is normal;
-//return 1: the memory pool is low, but not in danger;
-//return -1: the memory pool is in danger, is about to crash.
-//static 
-bool LLMemory::isMemoryPoolLow()
-{
-	static const U32Megabytes LOW_MEMORY_POOL_THRESHOLD(64);
-	const static U32Megabytes MAX_SIZE_CHECKED_MEMORY_BLOCK(64);
-	static void* last_reserved_address = NULL ;
-
-	if(!sEnableMemoryFailurePrevention)
-	{
-		return false ; //no memory failure prevention.
-	}
-
-	if(sAvailPhysicalMemInKB < (LOW_MEMORY_POOL_THRESHOLD / 4)) //out of physical memory
-	{
-		return true ;
-	}
-
-	if(sAllocatedPageSizeInKB + (LOW_MEMORY_POOL_THRESHOLD / 4) > sMaxHeapSizeInKB) //out of virtual address space.
-	{
-		return true ;
-	}
-
-	bool is_low = (S32)(sAvailPhysicalMemInKB < LOW_MEMORY_POOL_THRESHOLD 
-						|| sAllocatedPageSizeInKB + LOW_MEMORY_POOL_THRESHOLD > sMaxHeapSizeInKB) ;
-
-	//check the virtual address space fragmentation
-	if(!is_low)
-	{
-		if(!last_reserved_address)
-		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
-		}
-		else
-		{
-			last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
-			if(!last_reserved_address) //failed, try once more
-			{
-				last_reserved_address = LLMemory::tryToAlloc(last_reserved_address, MAX_SIZE_CHECKED_MEMORY_BLOCK.value()) ;
-			}
-		}
-
-		is_low = !last_reserved_address ; //allocation failed
-	}
-
-	return is_low ;
 }
 
 //static 
@@ -307,35 +255,6 @@ U64 LLMemory::getCurrentRSS()
 	fclose(fp);
 
 	return rss;
-}
-
-#elif LL_SOLARIS
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#define _STRUCTURED_PROC 1
-#include <sys/procfs.h>
-
-U64 LLMemory::getCurrentRSS()
-{
-	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
-
-	sprintf(path, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(path, O_RDONLY)) == -1){
-		LL_WARNS() << "LLmemory::getCurrentRSS() unable to open " << path << ". Returning 0 RSS!" << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "LLmemory::getCurrentRSS() Unable to read from " << path << ". Returning 0 RSS!" << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	return((U64)proc_psinfo.pr_rssize * 1024);
 }
 
 #else
