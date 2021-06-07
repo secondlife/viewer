@@ -587,6 +587,7 @@ set(viewer_SOURCE_FILES
     llsyntaxid.cpp
     llsyswellitem.cpp
     llsyswellwindow.cpp
+    lltelemetry.cpp
     llteleporthistory.cpp
     llteleporthistorystorage.cpp
     lltextureatlas.cpp

@@ -295,9 +295,6 @@ const std::string LLLocale::SYSTEM_LOCALE("English_United States.1252");
 #elif LL_DARWIN
 const std::string LLLocale::USER_LOCALE("en_US.iso8859-1");// = LLStringUtil::null;
 const std::string LLLocale::SYSTEM_LOCALE("en_US.iso8859-1");
-#elif LL_SOLARIS
-const std::string LLLocale::USER_LOCALE("en_US.ISO8859-1");
-const std::string LLLocale::SYSTEM_LOCALE("C");
 #else // LL_LINUX likes this
 const std::string LLLocale::USER_LOCALE("en_US.utf8");
 const std::string LLLocale::SYSTEM_LOCALE("C");

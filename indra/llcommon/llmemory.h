@@ -344,10 +344,9 @@ public:
 	// Return value is zero if not known.
 	static U64 getCurrentRSS();
 	static void* tryToAlloc(void* address, U32 size);
-	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
+	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size);
 	static void updateMemoryInfo() ;
 	static void logMemoryInfo(BOOL update = FALSE);
-	static bool isMemoryPoolLow();
 
 	static U32Kilobytes getAvailableMemKB() ;
 	static U32Kilobytes getMaxMemKB() ;
@@ -359,7 +358,6 @@ private:
 	static U32Kilobytes sAllocatedPageSizeInKB ;
 
 	static U32Kilobytes sMaxHeapSizeInKB;
-	static BOOL sEnableMemoryFailurePrevention;
 };
 
 // LLRefCount moved to llrefcount.h
