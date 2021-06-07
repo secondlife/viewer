@@ -871,10 +871,10 @@ void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
         }
     }
     else
-#endif
     {
         glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
     }
+#endif
 }
 
 LLLightState::LLLightState(S32 index)

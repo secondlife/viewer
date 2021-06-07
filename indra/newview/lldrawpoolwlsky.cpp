@@ -226,7 +226,7 @@ void LLDrawPoolWLSky::renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightL
     }
 }
 
-void LLDrawPoolWLSky::renderStars(void) const
+void LLDrawPoolWLSky::renderStars(const LLVector3& camPosLocal) const
 {
     LLGLSPipelineBlendSkyBox gls_skybox(true, false);
 	
@@ -266,6 +266,7 @@ void LLDrawPoolWLSky::renderStars(void) const
     }
 
 	gGL.pushMatrix();
+	gGL.translatef(camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
 	if (LLGLSLShader::sNoFixedFunction)
 	{
@@ -296,7 +297,7 @@ void LLDrawPoolWLSky::renderStars(void) const
 	}
 }
 
-void LLDrawPoolWLSky::renderStarsDeferred(void) const
+void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
 {
 	LLGLSPipelineBlendSkyBox gls_sky(true, false);
 
@@ -337,6 +338,8 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
         gGL.getTexUnit(1)->bind(tex_b);
     }
 
+	gGL.pushMatrix();
+	gGL.translatef(camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
     gDeferredStarProgram.uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
     if (LLPipeline::sReflectionRender)
@@ -355,6 +358,8 @@ void LLDrawPoolWLSky::renderStarsDeferred(void) const
     gGL.getTexUnit(1)->unbind(LLTexUnit::TT_TEXTURE);
 
     gDeferredStarProgram.unbind();
+
+	gGL.popMatrix();
 }
 
 void LLDrawPoolWLSky::renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const
@@ -601,7 +606,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
     if (gPipeline.canUseWindLightShaders())
     {
         renderSkyHazeDeferred(origin, camHeightLocal);
-        renderStarsDeferred();
+        renderStarsDeferred(origin);
         renderHeavenlyBodies();
         renderSkyCloudsDeferred(origin, camHeightLocal, cloud_shader);
     }
@@ -620,7 +625,7 @@ void LLDrawPoolWLSky::render(S32 pass)
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();
     
 	renderSkyHaze(origin, camHeightLocal);    
-    renderStars();
+    renderStars(origin);
     renderHeavenlyBodies();	
 	renderSkyClouds(origin, camHeightLocal, cloud_shader);
 
