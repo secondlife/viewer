@@ -151,7 +151,7 @@ LLMatrix4 gGLObliqueProjectionInverse;
 
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
-#if (LL_WINDOWS || LL_LINUX || LL_SOLARIS)  && !LL_MESA_HEADLESS
+#if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
 // ATI prototypes
 
 #if LL_WINDOWS
@@ -328,7 +328,7 @@ PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
 #endif
 
 // vertex shader prototypes
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 PFNGLVERTEXATTRIB1DARBPROC glVertexAttrib1dARB = NULL;
 PFNGLVERTEXATTRIB1DVARBPROC glVertexAttrib1dvARB = NULL;
 PFNGLVERTEXATTRIB1FARBPROC glVertexAttrib1fARB = NULL;
@@ -347,7 +347,7 @@ PFNGLVERTEXATTRIB3FARBPROC glVertexAttrib3fARB = NULL;
 PFNGLVERTEXATTRIB3FVARBPROC glVertexAttrib3fvARB = NULL;
 PFNGLVERTEXATTRIB3SARBPROC glVertexAttrib3sARB = NULL;
 PFNGLVERTEXATTRIB3SVARBPROC glVertexAttrib3svARB = NULL;
-#endif // LL_LINUX || LL_SOLARIS
+#endif // LL_LINUX
 PFNGLVERTEXATTRIB4NBVARBPROC glVertexAttrib4nbvARB = NULL;
 PFNGLVERTEXATTRIB4NIVARBPROC glVertexAttrib4nivARB = NULL;
 PFNGLVERTEXATTRIB4NSVARBPROC glVertexAttrib4nsvARB = NULL;
@@ -355,7 +355,7 @@ PFNGLVERTEXATTRIB4NUBARBPROC glVertexAttrib4nubARB = NULL;
 PFNGLVERTEXATTRIB4NUBVARBPROC glVertexAttrib4nubvARB = NULL;
 PFNGLVERTEXATTRIB4NUIVARBPROC glVertexAttrib4nuivARB = NULL;
 PFNGLVERTEXATTRIB4NUSVARBPROC glVertexAttrib4nusvARB = NULL;
-#if LL_LINUX  || LL_SOLARIS
+#if LL_LINUX
 PFNGLVERTEXATTRIB4BVARBPROC glVertexAttrib4bvARB = NULL;
 PFNGLVERTEXATTRIB4DARBPROC glVertexAttrib4dARB = NULL;
 PFNGLVERTEXATTRIB4DVARBPROC glVertexAttrib4dvARB = NULL;
@@ -393,7 +393,7 @@ PFNGLGETVERTEXATTRIBFVARBPROC glGetVertexAttribfvARB = NULL;
 PFNGLGETVERTEXATTRIBIVARBPROC glGetVertexAttribivARB = NULL;
 PFNGLGETVERTEXATTRIBPOINTERVARBPROC glGetVertexAttribPointervARB = NULL;
 PFNGLISPROGRAMARBPROC glIsProgramARB = NULL;
-#endif // LL_LINUX || LL_SOLARIS
+#endif // LL_LINUX
 PFNGLBINDATTRIBLOCATIONARBPROC glBindAttribLocationARB = NULL;
 PFNGLGETACTIVEATTRIBARBPROC glGetActiveAttribARB = NULL;
 PFNGLGETATTRIBLOCATIONARBPROC glGetAttribLocationARB = NULL;
@@ -470,8 +470,6 @@ LLGLManager::LLGLManager() :
 	mHasRequirements(TRUE),
 
 	mHasSeparateSpecularColor(FALSE),
-
-	mDebugGPU(FALSE),
 
 	mDriverVersionMajor(1),
 	mDriverVersionMinor(0),
@@ -854,26 +852,11 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 	
-	setToDebugGPU();
-
-	stop_glerror();
-
 	initGLStates();
 
 	stop_glerror();
 
 	return true;
-}
-
-void LLGLManager::setToDebugGPU()
-{
-	//"MOBILE INTEL(R) 965 EXPRESS CHIP", 
-	if (mGLRenderer.find("INTEL") != std::string::npos && mGLRenderer.find("965") != std::string::npos)
-	{
-		mDebugGPU = TRUE ;
-	}
-
-	return ;
 }
 
 void LLGLManager::getGLInfo(LLSD& info)
@@ -1032,7 +1015,6 @@ void LLGLManager::asLLSD(LLSD& info)
 	// Other fields
 	info["has_requirements"] = mHasRequirements;
 	info["has_separate_specular_color"] = mHasSeparateSpecularColor;
-	info["debug_gpu"] = mDebugGPU;
 	info["max_vertex_range"] = mGLMaxVertexRange;
 	info["max_index_range"] = mGLMaxIndexRange;
 	info["max_texture_size"] = mGLMaxTextureSize;
@@ -1167,7 +1149,7 @@ void LLGLManager::initExtensions()
 	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
 #endif
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 	LL_INFOS() << "initExtensions() checking shell variables to adjust features..." << LL_ENDL;
 	// Our extension support for the Linux Client is very young with some
 	// potential driver gotchas, so offer a semi-secret way to turn it off.
@@ -1237,7 +1219,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'u')) mHasDepthClamp = FALSE;
 		
 	}
-#endif // LL_LINUX || LL_SOLARIS
+#endif // LL_LINUX
 	
 	if (!mHasMultitexture)
 	{
@@ -1315,7 +1297,7 @@ void LLGLManager::initExtensions()
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);
 	glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*) &mGLMaxTextureSize);
 
-#if (LL_WINDOWS || LL_LINUX || LL_SOLARIS) && !LL_MESA_HEADLESS
+#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
 	LL_DEBUGS("RenderInit") << "GL Probe: Getting symbols" << LL_ENDL;
 	if (mHasVertexBufferObject)
 	{
@@ -1414,7 +1396,7 @@ void LLGLManager::initExtensions()
 		glDebugMessageCallbackARB = (PFNGLDEBUGMESSAGECALLBACKARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDebugMessageCallbackARB");
 		glGetDebugMessageLogARB = (PFNGLGETDEBUGMESSAGELOGARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetDebugMessageLogARB");
 	}
-#if (!LL_LINUX && !LL_SOLARIS) || LL_LINUX_NV_GL_HEADERS
+#if (!LL_LINUX) || LL_LINUX_NV_GL_HEADERS
 	// This is expected to be a static symbol on Linux GL implementations, except if we use the nvidia headers - bah
 	glDrawRangeElements = (PFNGLDRAWRANGEELEMENTSPROC)GLH_EXT_GET_PROC_ADDRESS("glDrawRangeElements");
 	if (!glDrawRangeElements)
@@ -2775,8 +2757,9 @@ LLGLSPipelineBlendSkyBox::LLGLSPipelineBlendSkyBox(bool depth_test, bool depth_w
 
 #if LL_WINDOWS
 // Expose desired use of high-performance graphics processor to Optimus driver and to AMD driver
+// https://docs.nvidia.com/gameworks/content/technologies/desktop/optimus.htm
 extern "C" 
-{
+{ 
     __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
