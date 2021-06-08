@@ -28,6 +28,7 @@ set(cmake_SOURCE_FILES
     FindAutobuild.cmake
     FindBerkeleyDB.cmake
     FindGLH.cmake
+    FindGoogleBreakpad.cmake
     FindHUNSPELL.cmake
     FindJsonCpp.cmake
     FindNDOF.cmake
@@ -42,6 +43,7 @@ set(cmake_SOURCE_FILES
     GLH.cmake
     GLOD.cmake
 ##  GStreamer010Plugin.cmake
+    GoogleBreakpad.cmake
     GoogleMock.cmake
     Havok.cmake
     Hunspell.cmake

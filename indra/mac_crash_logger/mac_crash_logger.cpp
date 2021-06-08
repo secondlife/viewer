@@ -1,8 +1,8 @@
-/**
- * @file llappviewermacosx.h
- * @brief The LLAppViewerMacOSX class declaration
+/** 
+ * @file mac_crash_logger.cpp
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,32 +22,37 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
+#include "linden_common.h"
+#include "llcrashloggermac.h"
+#include "indra_constants.h"
+#include "llpidlock.h"
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
-
-class LLAppViewerMacOSX : public LLAppViewer
+#include <iostream>
+    
+int main(int argc, char **argv)
 {
-public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
+	LLCrashLoggerMac app;
+	app.parseCommandOptions(argc, argv);
 
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
+    LLSD options = LLApp::instance()->getOptionData(
+                        LLApp::PRIORITY_COMMAND_LINE);
+    
+	if (! app.init())
+	{
+		LL_WARNS() << "Unable to initialize application." << LL_ENDL;
+		return 1;
+	}
 
-protected:
-	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
+    if (app.getCrashBehavior() != CRASH_BEHAVIOR_ALWAYS_SEND)
+    {
+//        return NSApplicationMain(argc, (const char **)argv);
+    }
+	app.frame();
+	app.cleanup();
 
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
-};
-
-#endif // LL_LLAPPVIEWERMACOSX_H
+	LL_INFOS() << "Crash reporter finished normally." << LL_ENDL;
+    
+	return 0;
+}

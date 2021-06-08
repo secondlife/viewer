@@ -1,8 +1,8 @@
-/**
- * @file llappviewermacosx.h
- * @brief The LLAppViewerMacOSX class declaration
+/** 
+ * @file llcrashloggermac.h
+ * @brief Mac OSX crash logger definition
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,32 +22,24 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
+#ifndef LLCRASHLOGGERMAC_H
+#define LLCRASHLOGGERMAC_H
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
+#include "linden_common.h"
+#include "llcrashlogger.h"
+#include "llstring.h"
 
-class LLAppViewerMacOSX : public LLAppViewer
+class LLCrashLoggerMac : public LLCrashLogger
 {
 public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
-
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
-
-protected:
-	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
-
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
+	LLCrashLoggerMac(void);
+	~LLCrashLoggerMac(void);
+	virtual bool init();
+	virtual bool frame();
+	virtual bool cleanup();
+	virtual void gatherPlatformSpecificFiles();
 };
 
-#endif // LL_LLAPPVIEWERMACOSX_H
+#endif

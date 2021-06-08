@@ -1,8 +1,8 @@
-/**
- * @file llappviewermacosx.h
- * @brief The LLAppViewerMacOSX class declaration
+/** 
+ * @file llcrashloggermacdelegate.mm
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,32 +22,54 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
+/*
+#import "llcrashloggermacdelegate.h"
+#include <iostream>
 
-class LLAppViewerMacOSX : public LLAppViewer
+extern std::string gUserNotes;
+extern bool gSendReport;
+extern bool gRememberChoice;
+
+@implementation LLCrashLoggerMacDelegate
+
+- (void)setWindow:(NSWindow *)window
 {
-public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
+    _window = window;
+}
 
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
+- (NSWindow *)window
+{
+    return _window;
+}
 
-protected:
-	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
+- (void)dealloc
+{
+    [super dealloc];
+}
 
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
-};
+std::string* NSToString( NSString *ns_str )
+{
+    return ( new std::string([ns_str UTF8String]) );
+}
 
-#endif // LL_LLAPPVIEWERMACOSX_H
+- (IBAction)remember:(id)sender
+{
+    gRememberChoice = [rememberCheck state];
+}
+
+- (IBAction)send:(id)sender
+{
+    std::string* user_input = NSToString([crashText stringValue]);
+    gUserNotes = *user_input;
+    gSendReport = true;
+}
+
+- (IBAction)cancel:(id)sender
+{
+    [ _window close];
+}
+@end
+*/

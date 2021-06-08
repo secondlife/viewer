@@ -1,8 +1,8 @@
-/**
- * @file llappviewermacosx.h
- * @brief The LLAppViewerMacOSX class declaration
+/** 
+ * @file win_crash_logger.h
+ * @brief Windows crash logger project includes
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,32 +22,17 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
+#if !defined(AFX_WIN_CRASH_LOGGER_H__79802F4B_7C37_4F63_A2BB_0768788C3A27__INCLUDED_)
+#define AFX_WIN_CRASH_LOGGER_H__79802F4B_7C37_4F63_A2BB_0768788C3A27__INCLUDED_
 
-class LLAppViewerMacOSX : public LLAppViewer
-{
-public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
 
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
+#include "resource.h"
 
-protected:
-	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
 
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
-};
-
-#endif // LL_LLAPPVIEWERMACOSX_H
+#endif // !defined(AFX_WIN_CRASH_LOGGER_H__79802F4B_7C37_4F63_A2BB_0768788C3A27__INCLUDED_)

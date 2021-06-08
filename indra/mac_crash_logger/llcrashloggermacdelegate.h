@@ -1,8 +1,8 @@
-/**
- * @file llappviewermacosx.h
- * @brief The LLAppViewerMacOSX class declaration
+/** 
+ * @file llcrashloggermacdelegate.h
+ * @brief Mac OSX crash logger implementation
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -22,32 +22,31 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
- */ 
+ */
 
-#ifndef LL_LLAPPVIEWERMACOSX_H
-#define LL_LLAPPVIEWERMACOSX_H
+/*
+#import <Cocoa/Cocoa.h>
 
-#ifndef LL_LLAPPVIEWER_H
-#include "llappviewer.h"
-#endif
-
-class LLAppViewerMacOSX : public LLAppViewer
+@interface LLCrashLoggerMacDelegate : NSObject <NSApplicationDelegate>
 {
-public:
-	LLAppViewerMacOSX();
-	virtual ~LLAppViewerMacOSX();
+    IBOutlet NSTextField *crashText;
+    IBOutlet NSButton *rememberCheck;
+    
+    NSWindow *_window;
+    bool mRemember;
 
-	//
-	// Main application logic
-	//
-	virtual bool init();			// Override to do application initialization
+}
 
-protected:
-	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
+- (void)setWindow:(NSWindow *)newWindow;
+- (NSWindow *)window;
 
-	std::string generateSerialNumber();
-	virtual bool initParseCommandLine(LLCommandLineParser& clp);
-};
+- (IBAction)remember:(id)sender;
+- (IBAction)send:(id)sender;
+- (IBAction)cancel:(id)sender;
 
-#endif // LL_LLAPPVIEWERMACOSX_H
+@property (assign) IBOutlet NSWindow *window;
+
+@end
+*/
+
+
