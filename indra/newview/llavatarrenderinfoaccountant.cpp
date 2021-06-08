@@ -345,6 +345,8 @@ void LLAvatarRenderInfoAccountant::idle()
 				&& regionp->capabilitiesReceived())
 			{
 				// each of these is further governed by and resets its own timer
+                // Note: We can have multiple regions, each launches up to two coroutines,
+                // it likely is expensive
 				sendRenderInfoToRegion(regionp);
 				getRenderInfoFromRegion(regionp);
 			}
