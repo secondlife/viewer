@@ -75,7 +75,7 @@ void LLFloaterHowTo::onOpen(const LLSD& key)
 
 LLFloaterHowTo* LLFloaterHowTo::getInstance()
 {
-    return LLFloaterReg::getTypedInstance<LLFloaterHowTo>("how_to");
+    return LLFloaterReg::getTypedInstance<LLFloaterHowTo>("guidebook");
 }
 
 BOOL LLFloaterHowTo::handleKeyHere(KEY key, MASK mask)

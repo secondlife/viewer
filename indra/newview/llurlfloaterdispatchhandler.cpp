@@ -50,8 +50,8 @@ const std::string KEY_URL("floater_url");
 const std::string KEY_PARAMS("floater_params");
 
 // Supported floaters
-const std::string FLOATER_GUIDEBOOK("guidebook"); // alias for how_to
-const std::string FLOATER_HOW_TO("how_to");
+const std::string FLOATER_GUIDEBOOK("guidebook");
+const std::string FLOATER_HOW_TO("how_to"); // alias for guidebook
 const std::string FLOATER_WEB_CONTENT("web_content");
 
 // All arguments are palceholders! Server side will need to add validation first.
@@ -163,17 +163,17 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         // only one instance of guidebook can exist at a time, so if this command arrives,
         // we need to close previous guidebook then reopen it.
 
-        LLFloater* instance = LLFloaterReg::findInstance("how_to");
+        LLFloater* instance = LLFloaterReg::findInstance("guidebook");
         if (instance)
         {
             instance->closeHostedFloater();
         }
 
-        LLFloaterReg::toggleInstanceOrBringToFront("how_to", params);
+        LLFloaterReg::toggleInstanceOrBringToFront("guidebook", params);
         
         if (command_params.isMap())
         {
-            LLFloater* instance = LLFloaterReg::findInstance("how_to");
+            LLFloater* instance = LLFloaterReg::findInstance("guidebook");
             if (command_params.has(KEY_CAN_CLOSE))
             {
                 instance->setCanClose(command_params[KEY_CAN_CLOSE].asBoolean());

@@ -89,9 +89,9 @@
            label_ref="Command_HowTo_Label"
            tooltip_ref="Command_HowTo_Tooltip"
            execute_function="Floater.ToggleOrBringToFront"
-           execute_parameters="how_to"
+           execute_parameters="guidebook"
            is_running_function="Floater.IsOpen"
-           is_running_parameters="how_to"
+           is_running_parameters="guidebook"
            />
   <command name="inventory"
            available_in_toybox="true"

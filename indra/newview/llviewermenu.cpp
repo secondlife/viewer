@@ -7739,7 +7739,7 @@ class LLToggleHowTo : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::toggleInstanceOrBringToFront("how_to");
+		LLFloaterReg::toggleInstanceOrBringToFront("guidebook");
 		return true;
 	}
 };
