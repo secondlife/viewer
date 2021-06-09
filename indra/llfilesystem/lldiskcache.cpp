@@ -253,9 +253,15 @@ void LLDiskCache::updateFileAccessTime(const std::string file_path)
     // current time
     const std::time_t cur_time = std::time(nullptr);
 
+    boost::system::error_code ec;
 #if LL_WINDOWS
     // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(utf8str_to_utf16str(file_path));
+    const std::time_t last_write_time = boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), ec);
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        return;
+    }
 
     // delta between cur time and last time the file was written
     const std::time_t delta_time = cur_time - last_write_time;
@@ -264,11 +270,16 @@ void LLDiskCache::updateFileAccessTime(const std::string file_path)
     // before the last one
     if (delta_time > time_threshold)
     {
-        boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), cur_time);
+        boost::filesystem::last_write_time(utf8str_to_utf16str(file_path), cur_time, ec);
     }
 #else
     // file last write time
-    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path);
+    const std::time_t last_write_time = boost::filesystem::last_write_time(file_path, ec);
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to read last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+        return;
+    }
 
     // delta between cur time and last time the file was written
     const std::time_t delta_time = cur_time - last_write_time;
@@ -277,9 +288,14 @@ void LLDiskCache::updateFileAccessTime(const std::string file_path)
     // before the last one
     if (delta_time > time_threshold)
     {
-        boost::filesystem::last_write_time(file_path, cur_time);
+        boost::filesystem::last_write_time(file_path, cur_time, ec);
     }
 #endif
+
+    if (ec.failed())
+    {
+        LL_WARNS() << "Failed to update last write time for cache file " << file_path << ": " << ec.message() << LL_ENDL;
+    }
 }
 
 const std::string LLDiskCache::getCacheInfo()
