@@ -22,7 +22,7 @@
     <string
      name="CaptionTextAcctInfo"
     >
-       [ACCTTYPE]
+Acount: [ACCTTYPE]
 [PAYMENTINFO]
     </string>
     <string
@@ -88,80 +88,10 @@
      layout="topleft"
      visible="false"
     />
-    <text
-     name="name_label"
-     value="Name:"
-     top="8"
-     left="6"
-     height="20"
-     width="55"
-     follows="left|top"
-     layout="topleft"
-     halign="right"
-    />
-    <button
-     name="set_name"
-     label="Name:"
-     tool_tip="Set Display Name"
-     enabled="false"
-     top_delta="0"
-     left_delta="0"
-     height="20"
-     width="55"
-     follows="top|left"
-     layout="topleft"
-     visible="false"
-    />
-    <panel
-     name="name_holder"
-     top_delta="0"
-     left_pad="4"
-     right="-5"
-     height="20"
-     follows="left|top|right"
-     layout="topleft"
-     allow_scroll="false"
-     bg_visible="false"
-     border_visible="false">
-      <text_editor
-       name="complete_name"
-       value="(loading...)"
-       enabled="false"
-       top="0"
-       left="0"
-       right="-1"
-       height="20"
-       follows="left|top|right"
-       layout="topleft"
-       allow_scroll="false"
-       bg_visible="false"
-       border_visible="true"
-       h_pad="1"
-       v_pad="4"
-       max_length="254"
-      />
-      <!--mouse_opaque="true"-->
-      <menu_button
-       name="copy_btn"
-       tool_tip="Copy options"
-       height="16"
-       right="-2"
-       top="2"
-       width="16"
-       image_selected="Copy"
-       image_unselected="Copy"
-       image_hover_selected="CopyBright"
-       image_hover_unselected="CopyBright"
-       hover_glow_amount="0.33"
-       chrome="true"
-       tab_stop="false"
-       follows="top|right"
-       layout="topleft" />
-    </panel>
     <layout_stack
      name="imagepositioner"
-     top_pad="6"
-     left_delta="0"
+     top="8"
+     left="6"
      right="-1"
      height="158"
      follows="top|left|right"
@@ -178,6 +108,7 @@
          user_resize="false"
         >
             <!-- 23 pixels (BTN_HEIGHT_SMALL) are reserved by label field of texture and shouldn't be visible-->
+            <!-- Todo: should become non clickable?-->
             <texture_picker
              name="2nd_life_pic"
              top="0"
@@ -195,13 +126,68 @@
          name="label_stack"
          follows="all"
          layout="topleft"
+         width="200"
          auto_resize="true"
          user_resize="false"
         >
             <text
+             name="display_name"
+             value="(loading...)"
+             top="1"
+             left="4"
+             right="-6"
+             height="18"
+             follows="top|left|right"
+             layout="topleft"
+             font="SansSerifLarge"
+            />
+            <text
+             name="agent_name"
+             value=""
+             top_pad="2"
+             left="4"
+             right="-6"
+             height="16"
+             follows="top|left|right"
+             layout="topleft"
+            />
+            <text
+             name="register_date"
+             value=""
+             top_pad="2"
+             left="4"
+             right="-6"
+             height="16"
+             follows="top|left|right"
+             layout="topleft"
+             />
+            <!-- Todo: url either from code or format like payment info?-->
+            <text
+             name="partner_text"
+             value=""
+             top_pad="2"
+             left="4"
+             right="-6"
+             height="16"
+             follows="top|left|right"
+             layout="topleft"
+             />
+            <!-- Populates with CaptionTextAcctInfo-->
+            <text
+             name="acc_status_text"
+             top_pad="2"
+             left="4"
+             right="-6"
+             height="44"
+             follows="top|left|right"
+             layout="topleft"
+             allow_scroll="false"
+             word_wrap="true"
+             />
+            <text
              name="status"
              value="Status Unknown"
-             top="1"
+             top_pad="2"
              left="4"
              right="-6"
              height="16"
@@ -210,133 +196,90 @@
              halign="center"
              text_color="LtGray_50"
              />
-            <text
-             name="label"
-             value="Second Life Birthdate:"
+            <menu_button
+             name="copy_btn"
+             tool_tip="Copy options"
              top_pad="2"
-             right="-6"
-             height="16"
+             left="4"
+             width="120"
+             label="Actions"
+             halign="left"
+             hover_glow_amount="0.33"
+             image_unselected="DropDown_Off"
+             image_selected="DropDown_On"
+             image_pressed="DropDown_Press"
+             image_pressed_selected="DropDown_Press"
+             image_disabled="DropDown_Disabled"
              follows="top|left"
-             layout="topleft"
-             />
-            <text_editor
-             name="register_date"
-             value="(loading...)"
-             top_pad="0"
-             left_delta="2"
-             right="-6"
-             height="16"
-             follows="top|left|right"
-             layout="topleft"
-             allow_scroll="false"
-             bg_visible="false"
-             border_visible="true"
-             h_pad="2"
-             max_length="254"
-             read_only="true"
-             translate="false"
-             v_pad="2"
-             word_wrap="true"
-             />
-            <text
-             name="label2"
-             value="Account:"
-             top_pad="5"
-             left_delta="-2"
-             right="-6"
-             height="16"
-             follows="top|left"
-             layout="topleft"
-             />
-            <text_editor
-             name="acc_status_text"
-             top_pad="0"
-             left_delta="2"
-             right="-6"
-             height="44"
-             follows="top|left|right"
-             layout="topleft"
-             allow_scroll="false"
-             bg_visible="false"
-             border_visible="true"
-             h_pad="2"
-             read_only="true"
-             translate="false"
-             v_pad="2"
-             word_wrap="true"
-             />
-            <text
-             name="partner_label"
-             value="Partner:"
-             top_pad="5"
-             left_delta="-2"
-             right="-6"
-             height="16"
-             follows="top|left"
-             layout="topleft"
-             />
-            <text_editor
-             name="partner_text"
-             top_pad="0"
-             left_delta="0"
-             right="-6"
-             height="20"
-             follows="top|left|right"
-             layout="topleft"
-             allow_scroll="false"
-             bg_visible="false"
-             border_visible="true"
-             parse_urls="true"
-             h_pad="1"
-             read_only="true"
-             translate="false"
-             v_pad="4"
-             max_length="254"
-             />
+             layout="topleft" />
+        </layout_panel>
+        <layout_panel
+         name="owner_button_stack"
+         follows="all"
+         layout="topleft"
+         width="12"
+         auto_resize="false"
+         user_resize="false"
+        >
+          <button
+           name="edit_display_name"
+           label="Edit Display Name"
+           top="1"
+           left="0"
+           height="20"
+           width="55"
+           follows="top|left"
+           layout="topleft"
+          />
+          <button
+           name="edit_partner"
+           label="Edit partner"
+           top_pad="5"
+           left_delta="0"
+           height="20"
+           width="55"
+           follows="top|left"
+           layout="topleft"
+          />
+          <button
+           name="change_photo"
+           label="Edit partner"
+           top_pad="5"
+           left_delta="0"
+           height="20"
+           width="55"
+           follows="top|left"
+           layout="topleft"
+          />
+          <button
+           name="remove_photo"
+           label="Edit partner"
+           top_pad="5"
+           left_delta="0"
+           height="20"
+           width="55"
+           follows="top|left"
+           layout="topleft"
+          />
+        </layout_panel>
+        <layout_panel
+         name="permissions_button_stack"
+         follows="all"
+         layout="topleft"
+         width="8"
+         auto_resize="false"
+         user_resize="false"
+        >
+          <!-- Todo: This needs to contain clickable icons, icons not avaliable yet -->
         </layout_panel>
     </layout_stack>
-    <text
-     name="Groups:"
-     value="Groups:"
-     top_pad="7"
-     left="6"
-     height="16"
-     width="55"
-     follows="left|top"
-     layout="topleft"
-     halign="right"
-    />
-    <button
-     name="group_invite"
-     label="+"
-     tool_tip="Invite to Group"
-     top_delta="20"
-     left="40"
-     height="20"
-     width="20"
-     follows="left|top"
-     layout="topleft"
-     label_selected="+"
-    />
-    <group_list
-     name="group_list"
-     top_delta="-20"
-     left="66"
-     right="-7"
-     height="82"
-     follows="left|top|right"
-     layout="topleft"
-     border_visible="true"
-     color="ScrollBgWriteableColor"
-     for_agent="false"
-    />
 
     <layout_stack
-     name="aboutpositioner"
+     name="about_positioner"
      top_pad="7"
      left="6"
      right="-6"
-     height="130"
+     height="290"
      follows="all"
      layout="topleft"
      orientation="vertical"
@@ -349,24 +292,13 @@
        height="105"
        auto_resize="true"
        user_resize="false">
-        <text
-         name="About:"
-         value="About:"
-         top="1"
-         left="0"
-         height="16"
-         width="55"
-         follows="left|top"
-         layout="topleft"
-         halign="right"
-        />
         <text_editor
          name="sl_description_edit"
          trusted_content="false"
          always_show_icons="true"
          enabled="false"
          top="0"
-         left="60"
+         left="6"
          right="-1"
          bottom="-1"
          follows="all"
@@ -381,7 +313,179 @@
         />
       </layout_panel>
       <layout_panel
-       name="give_stack"
+       name="about_edit_stack"
+       follows="all"
+       layout="topleft"
+       left="0"
+       height="22"
+       auto_resize="false"
+       user_resize="false">
+        <button
+         name="about_discard"
+         label="Discard changes"
+         top="1"
+         right="-1"
+         height="20"
+         width="120"
+         follows="top|right"
+         layout="topleft"
+          />
+        <button
+         name="about_save"
+         label="Save"
+         top="1"
+         right="-125"
+         height="20"
+         width="120"
+         follows="top|right"
+         layout="topleft"
+          />
+      </layout_panel>
+      <layout_panel
+       name="interests_group_stack"
+       follows="all"
+       layout="topleft"
+       left="0"
+       height="110"
+       auto_resize="true"
+       user_resize="false">
+        <text
+         name="interests_label"
+         value="Interests"
+         top="7"
+         left="6"
+         height="16"
+         width="170"
+         follows="left|top"
+         layout="topleft"
+        />
+        <button
+         name="delete_interest_btn"
+         tool_tip="Delete selected interest"
+         height="16"
+         left="180"
+         top_delta="0"
+         width="16"
+         image_selected="TrashItem_Press"
+         image_unselected="TrashItem_Off"
+         image_disabled="TrashItem_Disabled"
+         follows="left|top"
+         layout="topleft" />
+        <scroll_list
+         name="interest_list"
+         top_pad="4"
+         left="6"
+         height="83"
+         width="190"
+         follows="left|top|bottom"
+         layout="topleft"
+         border_visible="true"
+         color="ScrollBgWriteableColor"
+         for_agent="false"
+        />
+        <text
+         name="groups_list_label"
+         value="Groups memberships"
+         top="7"
+         left_pad="16"
+         height="16"
+         width="180"
+         follows="left|top"
+         layout="topleft"
+        />
+        <group_list
+         name="group_list"
+         top_pad="4"
+         left_delta="0"
+         right="-7"
+         height="83"
+         follows="left|top|right|bottom"
+         layout="topleft"
+         border_visible="true"
+         color="ScrollBgWriteableColor"
+         for_agent="false"
+        />
+        <text
+         name="membership_label"
+         value="My groups memberships"
+         top="7"
+         left_delta="0"
+         height="16"
+         width="180"
+         follows="left|top"
+         layout="topleft"
+        />
+        <combo_box
+         allow_text_entry="false"
+         height="22"
+         left_delta="0"
+         top_pad="3"
+         width="180"
+         follows="left|top"
+         layout="topleft"
+         name="membership_display">
+          <combo_box.item
+           label="Everyone can see"
+           name="item1" />
+        </combo_box>
+        <text
+         name="profile_search_label"
+         value="Show my profile in search"
+         top_pad="17"
+         left_delta="0"
+         height="16"
+         width="180"
+         follows="left|top"
+         layout="topleft"
+        />
+        <combo_box
+         allow_text_entry="false"
+         height="22"
+         left_delta="0"
+         top_pad="3"
+         width="180"
+         follows="left|top"
+         layout="topleft"
+         name="search_display">
+          <combo_box.item
+           label="Show"
+           name="item1" />
+        </combo_box>
+      </layout_panel>
+      <layout_panel
+       name="interests_edit_stack"
+       follows="all"
+       layout="topleft"
+       left="0"
+       height="20"
+       auto_resize="false"
+       user_resize="false">
+        <line_editor
+            border_style="line"
+            border_thickness="1"
+            left="6"
+            height="23"
+            top="1"
+            width="113"
+            follows="top|left"
+            layout="topleft"
+            name="log_path_string"
+            font="SansSerif"
+            max_length_bytes="256">
+        </line_editor>
+        <button
+         name="add_interest"
+         label="Add"
+         top="1"
+         left_pad="7"
+         height="20"
+         width="70"
+         follows="top|left"
+         layout="topleft"
+          />
+      </layout_panel>
+      <layout_panel
+       name="give_stack_to_remove"
        follows="left|bottom"
        layout="topleft"
        left="0"
@@ -424,129 +528,7 @@
         </text>
       </layout_panel>
     </layout_stack>
-    <layout_stack
-     name="buttonstack"
-     bottom="-3"
-     left="6"
-     right="-6"
-     height="44"
-     follows="left|bottom|right"
-     layout="topleft"
-     orientation="horizontal"
-    >
-        <layout_panel
-         name="left_buttonstack"
-         left="2"
-         right="-2"
-         height="42"
-         follows="all"
-         layout="topleft"
-         user_resize="false"
-        >
-            <button
-             name="show_on_map_btn"
-             label="Find on Map"
-             tool_tip="Locate the Resident on the map"
-             top="2"
-             left="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-             label_selected="Find on Map"
-            />
-            <button
-             name="pay"
-             label="Pay"
-             tool_tip="Pay money to the Resident"
-             top_pad="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-             label_selected="Pay"
-            />
-        </layout_panel>
-        <layout_panel
-         name="middle_buttonstack"
-         left="2"
-         right="-2"
-         follows="all"
-         layout="topleft"
-         user_resize="false"
-        >
-            <button
-             name="teleport"
-             label="Offer Teleport"
-             tool_tip="Offer a teleport to the Resident"
-             top="2"
-             left="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-             label_selected="Offer Teleport"
-            />
-            <button
-             name="im"
-             label="Instant Message"
-             tool_tip="Open instant message session"
-             top_pad="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-             label_selected="Instant Message"
-            />
-        </layout_panel>
-        <layout_panel
-         name="right_buttonstack"
-         left="2"
-         right="-2"
-         follows="all"
-         layout="topleft"
-         user_resize="false"
-        >
-            <button
-             name="add_friend"
-             label="Add Friend"
-             tool_tip="Offer friendship to the Resident"
-             top="2"
-             left="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-             label_selected="Add Friend"
-            />
-            <button
-             name="block"
-             label="Block"
-             tool_tip="Block this Resident"
-             top_pad="2"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-            />
-            <button
-             name="unblock"
-             label="Unblock"
-             tool_tip="Unblock this Resident"
-             top_delta="0"
-             height="20"
-             follows="left|top|right"
-             layout="topleft"
-            />
-        </layout_panel>
-    </layout_stack>
-    <check_box
-     name="show_in_search_checkbox"
-     label="Show in search"
-     tool_tip="Let people see you in search results"
-     enabled="false"
-     bottom="-30"
-     left="60"
-     height="16"
-     width="130"
-     follows="left|bottom"
-     layout="topleft"
-     visible="false"
-    />
+  
     <profile_drop_target
      name="drop_target"
      top="0"
