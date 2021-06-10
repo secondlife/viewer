@@ -51,7 +51,6 @@ void main()
 // SL-9806 stars poke through
 //    c.a *= sun_fade;
 
-    c.rgb = pow(c.rgb, vec3(0.7f));
     c.rgb = fullbrightAtmosTransport(c.rgb);
     c.rgb = fullbrightScaleSoftClip(c.rgb);
     frag_color = c;
