@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="left|top"
+ height="490"
+ width="580"
+ name="panel_performance_huds"
+ layout="topleft"
+ left="0"
+ top="0">
+  <button
+    height="16"
+    width="16"
+    layout="topleft"
+    mouse_opaque="true"
+    follows="left|top"
+    name="back_btn"
+    top="10"
+    image_selected="Arrow_Left_Off"
+    image_pressed="Arrow_Left_Off"
+    image_unselected="Arrow_Left_Off"
+    left="15"
+    is_toggle="true">
+  </button>
+  <text
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   left_pad="3"
+   top="13"
+   name="back_lbl"
+   width="40">
+    Back
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLarge"
+   text_color="PerformanceMid"
+   height="20"
+   layout="topleft"
+   left="20"
+   top_pad="10"
+   name="huds_title"
+   width="120">
+    HUDs displayed: 
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLargeBold"
+   text_color="PerformanceMid"
+   height="20"
+   layout="topleft"
+   left_pad="3"
+   name="huds_value"
+   width="70">
+    7
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="5"
+   left="20"
+   name="huds_desc1"
+   width="540">
+    If there are any you don't need, detaching them may improve graphics speed.
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="3"
+   left="20"
+   name="huds_desc2"
+   width="540">
+    Note: Using a HUD's minimize button does not save memory. 
+  </text>
+  <name_list
+    column_padding="0"
+    draw_stripes="true"
+    height="220"
+    follows="left|top"
+    layout="topleft"
+    name="hud_list"
+    top_pad="10"
+    width="540">
+        <name_list.columns
+         label=""
+         name="complex_visual"
+         width="90" />
+        <name_list.columns
+         label=""
+         name="complex_value"
+         width="40" />
+        <name_list.columns
+         label=""
+         name="name"/>
+  </name_list>
+  <button
+   follows="left|top"
+   height="19"
+   label="Refresh List"
+   layout="topleft"
+   name="refresh_list_btn"
+   top_pad="20"
+   width="100" />
+</panel>
+

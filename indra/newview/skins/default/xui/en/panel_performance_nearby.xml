@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ bevel_style="none"
+ follows="left|top"
+ height="490"
+ width="580"
+ name="panel_performance_nearby"
+ layout="topleft"
+ left="0"
+ top="0">
+  <button
+    height="16"
+    width="16"
+    layout="topleft"
+    mouse_opaque="true"
+    follows="left|top"
+    name="back_btn"
+    top="10"
+    image_selected="Arrow_Left_Off"
+    image_pressed="Arrow_Left_Off"
+    image_unselected="Arrow_Left_Off"
+    left="15"
+    is_toggle="true">
+  </button>
+  <text
+   follows="left|top"
+   height="20"
+   layout="topleft"
+   left_pad="3"
+   top="13"
+   name="back_lbl"
+   width="40">
+    Back
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLarge"
+   text_color="PerformanceMid"
+   height="20"
+   layout="topleft"
+   left="20"
+   top_pad="10"
+   name="av_nearby_title"
+   width="215">
+    Avatars within draw distance:
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifLargeBold"
+   text_color="PerformanceMid"
+   height="20"
+   layout="topleft"
+   left_pad="3"
+   name="av_nearby_value"
+   width="150">
+    42 (very high)
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="5"
+   name="av_nearby_desc"
+   width="580">
+    Some avatars nearby are slow to display. Choosing complexity limit may help graphics speed.
+  </text>
+  <slider
+    control_name="IndirectMaxComplexity"
+    tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"
+    follows="left|top"
+    height="16"
+    initial_value="101"
+    increment="1"
+    label="Avatar Maximum Complexity:"
+    label_width="165"
+    layout="topleft"
+    min_val="1"
+    max_val="101"
+    name="IndirectMaxComplexity"
+    show_text="false"
+    top_pad="10"
+    width="300">
+    <slider.commit_callback
+      function="Pref.UpdateIndirectMaxComplexity"
+      parameter="IndirectMaxComlexityText" />
+  </slider>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    top_delta="0"
+    left_delta="304"
+    text_readonly_color="LabelDisabledColor"
+    name="IndirectMaxComplexityText"
+    width="65">
+    0
+  </text>
+  <name_list
+    column_padding="0"
+    draw_stripes="true"
+    height="220"
+    left="20"
+    follows="left|top"
+    layout="topleft"
+    sort_column="complex_value"
+    name="nearby_list"
+    name_column="name"
+    top_pad="10"
+    width="540">
+        <name_list.columns
+         label=""
+         name="complex_visual"
+         width="90" />
+        <name_list.columns
+         label=""
+         name="complex_value"
+         width="40" />
+        <name_list.columns
+         label=""
+         name="name"/>
+  </name_list>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="10"
+   name="av_nearby_desc2"
+   width="580">
+     You can also right-click on an avatar to control display.
+  </text>
+  <button
+    height="23"
+    label="Exceptions..."
+    layout="topleft"
+    left="460"
+    top_delta="2"
+    name="exceptions_btn"
+    width="100">
+  </button>
+  <check_box
+    control_name="AlwaysRenderFriends"
+    height="16"
+    initial_value="true"
+    label="Always display friends"
+    layout="topleft"
+    name="display_friends"
+    top_pad="3"
+    left="18"
+    width="256">
+  </check_box>
+
+ 
+</panel>

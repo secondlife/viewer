@@ -298,6 +298,8 @@ void LLHUDRenderNotifier::updateNotificationHUD(hud_complexity_list_t complexity
         return;
     }
 
+    mHUDComplexityList = complexity;
+
     // TODO:
     // Find a way to show message with list of issues, but without making it too large
     // and intrusive.

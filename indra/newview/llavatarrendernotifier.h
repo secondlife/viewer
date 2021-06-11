@@ -121,6 +121,8 @@ public:
     void updateNotificationHUD(hud_complexity_list_t complexity);
     bool isNotificationVisible();
 
+    hud_complexity_list_t getHUDComplexityList() { return mHUDComplexityList; }
+
 private:
     enum EWarnLevel
     {
@@ -141,6 +143,7 @@ private:
     EWarnLevel mReportedHUDWarning;
     LLHUDComplexity mLatestHUDComplexity;
     LLFrameTimer mHUDPopUpDelayTimer;
+    hud_complexity_list_t mHUDComplexityList;
 };
 
 #endif /* ! defined(LL_llavatarrendernotifier_H) */
