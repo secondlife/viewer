@@ -184,10 +184,10 @@ namespace llsd
  *   - Anything else is an error.
  *
  * By implication, if path.isUndefined() or otherwise equivalent to an empty
- * LLSD::Array, drill() returns 'blob' as is.
+ * LLSD::Array, drill[_ref]() returns 'blob' as is.
  */
 LLSD  drill(const LLSD& blob, const LLSD& path);
-LLSD& drill(      LLSD& blob, const LLSD& path);
+LLSD& drill_ref(  LLSD& blob, const LLSD& path);
 
 }
 
