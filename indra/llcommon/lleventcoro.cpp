@@ -101,7 +101,7 @@ void storeToLLSDPath(LLSD& dest, const LLSD& path, const LLSD& value)
     }
 
     // Drill down to where we should store 'value'.
-    llsd::drill(dest, path) = value;
+    llsd::drill_ref(dest, path) = value;
 }
 
 } // anonymous
