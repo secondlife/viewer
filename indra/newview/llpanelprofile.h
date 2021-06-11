@@ -196,7 +196,8 @@ private:
 	LLButton*			mShowOnMapButton;
 	LLButton*			mBlockButton;
 	LLButton*			mUnblockButton;
-    LLUICtrl*           mNameLabel;
+    LLUICtrl*           mDisplayNameLabel;
+    LLUICtrl*           mAgentNameLabel;
 	LLButton*			mDisplayNameButton;
 	LLButton*			mAddFriendButton;
 	LLButton*			mGroupInviteButton;

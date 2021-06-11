@@ -264,7 +264,8 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mShowOnMapButton        = getChild<LLButton>("show_on_map_btn");
     mBlockButton            = getChild<LLButton>("block");
     mUnblockButton          = getChild<LLButton>("unblock");
-    mNameLabel              = getChild<LLUICtrl>("name_label");
+    mDisplayNameLabel       = getChild<LLUICtrl>("display_name");
+    mAgentNameLabel         = getChild<LLUICtrl>("agent_name");
     mDisplayNameButton      = getChild<LLButton>("set_name");
     mAddFriendButton        = getChild<LLButton>("add_friend");
     mGroupInviteButton      = getChild<LLButton>("group_invite");
@@ -327,21 +328,28 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     mSecondLifePic->setOpenTexPreview(!own_profile);
 
-    if (own_profile && !getEmbedded())
+    if (own_profile)
     {
-        // Group list control cannot toggle ForAgent loading
-        // Less than ideal, but viewing own profile via search is edge case
-        mGroupList->enableForAgent(false);
-    }
-
-    if (own_profile && !getEmbedded() )
-    {
-        mNameLabel->setVisible(FALSE);
         mDisplayNameButton->setVisible(TRUE);
         mDisplayNameButton->setEnabled(TRUE);
     }
 
-    mDescriptionEdit->setParseHTML(!own_profile && !getEmbedded());
+    // Show or hide layout elements
+    getChild<LLUICtrl>("owner_button_stack")->setVisible(own_profile);
+    getChild<LLUICtrl>("permissions_button_stack")->setVisible(!own_profile);
+    getChild<LLUICtrl>("about_edit_stack")->setVisible(own_profile);
+    getChild<LLUICtrl>("interests_edit_stack")->setVisible(own_profile);
+
+    // Show or hide specific elements
+    mGroupList->setVisible(!own_profile);
+    getChild<LLUICtrl>("groups_list_label")->setVisible(!own_profile);
+    getChild<LLUICtrl>("delete_interest_btn")->setVisible(own_profile);
+    getChild<LLUICtrl>("membership_label")->setVisible(own_profile);
+    getChild<LLUICtrl>("membership_display")->setVisible(own_profile);
+    getChild<LLUICtrl>("profile_search_label")->setVisible(own_profile);
+    getChild<LLUICtrl>("search_display")->setVisible(own_profile);
+
+    //mDescriptionEdit->setParseHTML(!own_profile);
 
     LLProfileDropTarget* drop_target = getChild<LLProfileDropTarget>("drop_target");
     drop_target->setVisible(!own_profile);
@@ -374,7 +382,7 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
 void LLPanelProfileSecondLife::updateData()
 {
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull() && !(getSelfProfile() && !getEmbedded()))
+    if (!getIsLoading() && avatar_id.notNull() && !getSelfProfile())
     {
         setIsLoading();
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarGroupsRequest(avatar_id);
@@ -406,7 +414,8 @@ void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorTyp
 void LLPanelProfileSecondLife::resetData()
 {
     resetLoading();
-    getChild<LLUICtrl>("complete_name")->setValue(LLStringUtil::null);
+    mDisplayNameLabel->setValue(LLStringUtil::null);
+    mAgentNameLabel->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("register_date")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("acc_status_text")->setValue(LLStringUtil::null);
     getChild<LLUICtrl>("partner_text")->setValue(LLStringUtil::null);
@@ -447,7 +456,7 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
 void LLPanelProfileSecondLife::processGroupProperties(const LLAvatarGroups* avatar_groups)
 {
     //KC: the group_list ctrl can handle all this for us on our own profile
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         return;
     }
@@ -478,7 +487,8 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
 {
     mAvatarNameCacheConnection.disconnect();
 
-    getChild<LLUICtrl>("complete_name")->setValue( av_name.getCompleteName() );
+    mDisplayNameLabel->setValue(av_name.getDisplayName());
+    mAgentNameLabel->setValue(av_name.getAccountName());
     mCopyMenuButton->setVisible(TRUE);
 }
 
@@ -526,15 +536,21 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
 {
-    LLTextEditor* partner_text = getChild<LLTextEditor>("partner_text");
+    std::string partner_string;
     if (avatar_data->partner_id.notNull())
     {
-        partner_text->setText(LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString());
+        std::string url = LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString();
+        LLStringUtil::format_map_t args;
+        args["[PARTNER]"] = url;
+        partner_string = getString("partner_slurl_text", args);
     }
     else
     {
-        partner_text->setText(getString("no_partner_text"));
+        partner_string = getString("partner_no_text");
     }
+
+    getChild<LLUICtrl>("partner_text")->setValue(partner_string);
+
 }
 
 void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data)
@@ -714,7 +730,7 @@ void LLPanelProfileSecondLife::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mShowInSearchCheckbox->setVisible(TRUE);
         mShowInSearchCheckbox->setEnabled(TRUE);
@@ -1128,7 +1144,7 @@ void LLPanelProfileInterests::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mWantToEditor->setEnabled(TRUE);
         mSkillsEditor->setEnabled(TRUE);
@@ -1224,7 +1240,7 @@ void LLPanelProfileFirstLife::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mDescriptionEdit->setEnabled(TRUE);
         mPicture->setEnabled(TRUE);
@@ -1543,8 +1559,8 @@ void LLPanelProfile::onTabChange()
 
 void LLPanelProfile::updateBtnsVisibility()
 {
-    getChild<LLUICtrl>("ok_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
-    getChild<LLUICtrl>("cancel_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
+    getChild<LLUICtrl>("ok_btn")->setVisible((getSelfProfile() || isNotesTabSelected()));
+    getChild<LLUICtrl>("cancel_btn")->setVisible((getSelfProfile() || isNotesTabSelected()));
 }
 
 void LLPanelProfile::onOpen(const LLSD& key)
@@ -1575,14 +1591,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
     mPanelClassifieds->onOpen(avatar_id);
     mPanelFirstlife->onOpen(avatar_id);
     mPanelNotes->onOpen(avatar_id);
-
-    mPanelSecondlife->setEmbedded(getEmbedded());
-    mPanelWeb->setEmbedded(getEmbedded());
-    mPanelInterests->setEmbedded(getEmbedded());
-    mPanelPicks->setEmbedded(getEmbedded());
-    mPanelClassifieds->setEmbedded(getEmbedded());
-    mPanelFirstlife->setEmbedded(getEmbedded());
-    mPanelNotes->setEmbedded(getEmbedded());
 
     // Always request the base profile info
     resetLoading();

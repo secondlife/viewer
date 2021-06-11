@@ -117,8 +117,6 @@ public:
 
     /*virtual*/ ~LLPanelProfileTab();
 
-    void setEmbedded(bool embedded) { mEmbedded = embedded; }
-
 protected:
 
     LLPanelProfileTab();
@@ -132,8 +130,6 @@ protected:
     void setIsLoading() { mLoading = true; }
     bool getIsLoaded() { return mLoaded; }
     void resetLoading() { mLoading = false; mLoaded = false; }
-
-    const bool getEmbedded() const { return mEmbedded; }
 
     const bool getSelfProfile() const { return mSelfProfile; }
 

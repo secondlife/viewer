@@ -207,7 +207,7 @@ void LLPanelProfileClassifieds::onOpen(const LLSD& key)
 
     resetData();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setVisible(TRUE);
         mNewButton->setEnabled(FALSE);
@@ -388,7 +388,7 @@ void LLPanelProfileClassifieds::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setEnabled(canAddNewClassified());
         mDeleteButton->setEnabled(canDeleteClassified());

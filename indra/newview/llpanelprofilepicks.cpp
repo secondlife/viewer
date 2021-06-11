@@ -135,7 +135,7 @@ void LLPanelProfilePicks::onOpen(const LLSD& key)
 
     resetData();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setVisible(TRUE);
         mNewButton->setEnabled(FALSE);
@@ -313,7 +313,7 @@ void LLPanelProfilePicks::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setEnabled(canAddNewPick());
         mDeleteButton->setEnabled(canDeletePick());
@@ -445,7 +445,7 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
 
     resetDirty();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mPickName->setEnabled(TRUE);
         mPickDescription->setEnabled(TRUE);
@@ -513,7 +513,7 @@ void LLPanelProfilePick::processProperties(void* data, EAvatarProcessorType type
     mPickDescription->setParseHTML(true);
     mParcelId = pick_info->parcel_id;
     setSnapshotId(pick_info->snapshot_id);
-    if (!getSelfProfile() || getEmbedded())
+    if (!getSelfProfile())
     {
         mSnapshotCtrl->setEnabled(FALSE);
     }
