@@ -105,7 +105,10 @@ void LLManipRotate::handleSelect()
 {
 	// *FIX: put this in mouseDown?
 	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
-	gFloaterTools->setStatusText("rotate");
+    if (gFloaterTools)
+    {
+        gFloaterTools->setStatusText("rotate");
+    }
 	LLManip::handleSelect();
 }
 
