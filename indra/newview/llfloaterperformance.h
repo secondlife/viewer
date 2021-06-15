@@ -52,6 +52,9 @@ private:
     void onClickRecommended();
     void onClickExceptions();
 
+    void updateMaxComplexity();
+    void updateComplexityText();
+
     LLPanel* mMainPanel;
     LLPanel* mTroubleshootingPanel;
     LLPanel* mNearbyPanel;
@@ -60,6 +63,8 @@ private:
     LLPanel* mPreferencesPanel;
     LLNameListCtrl* mHUDList;
     LLNameListCtrl* mNearbyList;
+
+    boost::signals2::connection	mComplexityChangedSignal;
 };
 
 #endif // LL_LLFLOATERPERFORMANCE_H

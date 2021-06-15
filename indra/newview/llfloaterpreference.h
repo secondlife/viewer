@@ -109,9 +109,10 @@ public:
 	// updates click/double-click action controls depending on values from settings.xml
 	void updateClickActionViews();
 
+    void		onBtnOK(const LLSD& userdata);
+    void		onBtnCancel(const LLSD& userdata);
+
 protected:	
-	void		onBtnOK(const LLSD& userdata);
-	void		onBtnCancel(const LLSD& userdata);
 
 	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
@@ -345,32 +346,6 @@ private:
 	std::string mEditingControl;
 	S32 mEditingColumn;
 	S32 mEditingMode;
-};
-
-class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
-{
-  public: 
-	LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
-	~LLFloaterPreferenceGraphicsAdvanced();
-	/*virtual*/ BOOL postBuild();
-	void onOpen(const LLSD& key);
-	void onClickCloseBtn(bool app_quitting);
-	void disableUnavailableSettings();
-	void refreshEnabledGraphics();
-	void refreshEnabledState();
-	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
-	void updateMaxNonImpostors();
-	void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
-	void updateMaxComplexity();
-	void setMaxComplexityText(U32 value, LLTextBox* text_box);
-	static void setIndirectControls();
-	static void setIndirectMaxNonImpostors();
-	static void setIndirectMaxArc();
-	void refresh();
-	// callback for when client modifies a render option
-	void onRenderOptionEnable();
-    void onAdvancedAtmosphericsEnable();
-	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
 
 class LLAvatarComplexityControls

@@ -106,6 +106,7 @@
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
+#include "llfloaterpreferencesgraphicsadvanced.h"
 #include "llfloaterpreferenceviewadvanced.h"
 #include "llfloaterpreviewtrash.h"
 #include "llfloaterproperties.h"

@@ -27,11 +27,15 @@
 #include "llfloaterperformance.h"
 
 #include "llappearancemgr.h"
+#include "llavataractions.h"
 #include "llavatarrendernotifier.h"
 #include "llfeaturemanager.h"
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
+#include "llfloaterpreference.h" // LLAvatarComplexityControls
+#include "llsliderctrl.h"
 #include "lltextbox.h"
+#include "lltrans.h"
 #include "llvoavatar.h"
 
 
@@ -43,6 +47,7 @@ LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 
 LLFloaterPerformance::~LLFloaterPerformance()
 {
+    mComplexityChangedSignal.disconnect();
 }
 
 BOOL LLFloaterPerformance::postBuild()
@@ -79,7 +84,11 @@ BOOL LLFloaterPerformance::postBuild()
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
- 
+
+    updateComplexityText();
+    mComplexityChangedSignal = gSavedSettings.getControl("IndirectMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateComplexityText, this));
+    mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxComplexity, this));
+
     return TRUE;
 }
 
@@ -151,6 +160,7 @@ void LLFloaterPerformance::populateHUDList()
 
         mHUDList->addElement(item);
     }
+    mHUDList->sortByColumnIndex(1, FALSE);
 
     mHUDsPanel->getChild<LLTextBox>("huds_value")->setValue(std::to_string(complexity_list.size()));
 }
@@ -185,10 +195,19 @@ void LLFloaterPerformance::populateNearbyList()
             row[2]["value"] = avatar->getFullname();
             row[2]["font"]["name"] = "SANSSERIF";
 
-            mNearbyList->addElement(item);
+            LLScrollListItem* av_item = mNearbyList->addElement(item);
+            if(av_item && LLAvatarActions::isFriend(avatar->getID()))
+            {
+                LLScrollListText* name_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(2));
+                if (name_text)
+                {
+                    name_text->setColor(LLUIColorTable::instance().getColor("ConversationFriendColor"));
+                }
+            }
         }
         char_iter++;
     }
+    mNearbyList->sortByColumnIndex(1, FALSE);
 
 }
 
@@ -211,6 +230,19 @@ void LLFloaterPerformance::onClickAdvanced()
 void LLFloaterPerformance::onClickExceptions()
 {
     LLFloaterReg::showInstance("avatar_render_settings");
+}
+
+void LLFloaterPerformance::updateMaxComplexity()
+{
+    LLAvatarComplexityControls::updateMax(
+        mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
+
+void LLFloaterPerformance::updateComplexityText()
+{
+    LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
+        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText", true));
 }
 
 // EOF

@@ -83,9 +83,6 @@
     show_text="false"
     top_pad="10"
     width="300">
-    <slider.commit_callback
-      function="Pref.UpdateIndirectMaxComplexity"
-      parameter="IndirectMaxComlexityText" />
   </slider>
   <text
     type="string"
