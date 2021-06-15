@@ -1194,6 +1194,11 @@ public:
 
 	virtual void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
 	{
+        if (LLApp::isExiting())
+        {
+            return;
+        }
+
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
 			!input["body"].has("seed-capability"))
