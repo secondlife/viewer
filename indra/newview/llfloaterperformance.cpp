@@ -37,17 +37,22 @@
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llvoavatar.h"
+#include "llvoavatarself.h" 
+
+const F32 REFRESH_INTERVAL = 1.0f;
+const S32 COMPLEXITY_THRESHOLD_1 = 100000;
 
 
 LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
-    : LLFloater(key)
+:   LLFloater(key),
+    mUpdateTimer(new LLTimer())
 {
-
 }
 
 LLFloaterPerformance::~LLFloaterPerformance()
 {
     mComplexityChangedSignal.disconnect();
+    delete mUpdateTimer;
 }
 
 BOOL LLFloaterPerformance::postBuild()
@@ -55,32 +60,34 @@ BOOL LLFloaterPerformance::postBuild()
     mMainPanel = getChild<LLPanel>("panel_performance_main");
     mTroubleshootingPanel = getChild<LLPanel>("panel_performance_troubleshooting");
     mNearbyPanel = getChild<LLPanel>("panel_performance_nearby");
-    mScriptsPanel = getChild<LLPanel>("panel_performance_scripts");
-    mPreferencesPanel = getChild<LLPanel>("panel_performance_preferences");
+    mComplexityPanel = getChild<LLPanel>("panel_performance_complexity");
+    mSettingsPanel = getChild<LLPanel>("panel_performance_preferences");
     mHUDsPanel = getChild<LLPanel>("panel_performance_huds");
 
     getChild<LLPanel>("troubleshooting_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mTroubleshootingPanel));
     getChild<LLPanel>("nearby_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
-    getChild<LLPanel>("scripts_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mScriptsPanel));
-    getChild<LLPanel>("preferences_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mPreferencesPanel));
+    getChild<LLPanel>("complexity_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mComplexityPanel));
+    getChild<LLPanel>("settings_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
     getChild<LLPanel>("huds_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mHUDsPanel));
 
     initBackBtn(mTroubleshootingPanel);
     initBackBtn(mNearbyPanel);
-    initBackBtn(mScriptsPanel);
-    initBackBtn(mPreferencesPanel);
+    initBackBtn(mComplexityPanel);
+    initBackBtn(mSettingsPanel);
     initBackBtn(mHUDsPanel);
 
-
-    mHUDsPanel->getChild<LLButton>("refresh_list_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::populateHUDList, this));
- 
     mHUDList = mHUDsPanel->getChild<LLNameListCtrl>("hud_list");
     mHUDList->setNameListType(LLNameListCtrl::SPECIAL);
     mHUDList->setHoverIconName("StopReload_Off");
     mHUDList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
 
-    mPreferencesPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
-    mPreferencesPanel->getChild<LLButton>("defaults_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickRecommended, this));
+    mObjectList = mComplexityPanel->getChild<LLNameListCtrl>("obj_list");
+    mObjectList->setNameListType(LLNameListCtrl::SPECIAL);
+    mObjectList->setHoverIconName("StopReload_Off");
+    mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
+
+    mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
+    mSettingsPanel->getChild<LLButton>("defaults_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickRecommended, this));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
@@ -88,6 +95,8 @@ BOOL LLFloaterPerformance::postBuild()
     updateComplexityText();
     mComplexityChangedSignal = gSavedSettings.getControl("IndirectMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateComplexityText, this));
     mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxComplexity, this));
+
+    LLAvatarComplexityControls::setIndirectMaxArc();
 
     return TRUE;
 }
@@ -107,13 +116,43 @@ void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
     }
 }
 
+void LLFloaterPerformance::draw()
+{
+    if (mUpdateTimer->hasExpired())
+    {
+        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS)));
+        if (mMainPanel->getVisible())
+        {
+            mMainPanel->getChild<LLTextBox>("huds_value")->setValue(LLHUDRenderNotifier::getInstance()->getHUDsCount());
+            mMainPanel->getChild<LLTextBox>("complexity_value")->setValue((S32)gAgentAvatarp->getVisualComplexity());
+            updateNearbyComplexityDesc();
+        }
+        else if (mHUDsPanel->getVisible())
+        {
+            populateHUDList();
+        }
+        else if (mNearbyPanel->getVisible())
+        {
+            populateNearbyList();
+            updateNearbyComplexityDesc();
+        }
+        else if (mComplexityPanel->getVisible())
+        {
+            populateObjectList();
+        }
+
+        mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
+    }
+    LLFloater::draw();
+}
+
 void LLFloaterPerformance::showMainPanel()
 {
     mTroubleshootingPanel->setVisible(FALSE);
     mNearbyPanel->setVisible(FALSE);
-    mScriptsPanel->setVisible(FALSE);
+    mComplexityPanel->setVisible(FALSE);
     mHUDsPanel->setVisible(FALSE);
-    mPreferencesPanel->setVisible(FALSE);
+    mSettingsPanel->setVisible(FALSE);
     mMainPanel->setVisible(TRUE);
 }
 
@@ -165,16 +204,55 @@ void LLFloaterPerformance::populateHUDList()
     mHUDsPanel->getChild<LLTextBox>("huds_value")->setValue(std::to_string(complexity_list.size()));
 }
 
+void LLFloaterPerformance::populateObjectList()
+{
+    mObjectList->clearRows();
+    mObjectList->updateColumns(true);
+
+    object_complexity_list_t complexity_list = LLAvatarRenderNotifier::getInstance()->getObjectComplexityList();
+
+    object_complexity_list_t::iterator iter = complexity_list.begin();
+    object_complexity_list_t::iterator end = complexity_list.end();
+
+    for (; iter != end; ++iter)
+    {
+        LLObjectComplexity object_complexity = *iter;        
+
+        LLSD item;
+        item["special_id"] = object_complexity.objectId;
+        item["target"] = LLNameListCtrl::SPECIAL;
+        LLSD& row = item["columns"];
+        row[0]["column"] = "complex_visual";
+        row[0]["type"] = "text";
+        row[0]["value"] = "*";
+
+        row[1]["column"] = "complex_value";
+        row[1]["type"] = "text";
+        row[1]["value"] = std::to_string(object_complexity.objectCost);
+        row[1]["font"]["name"] = "SANSSERIF";
+
+        row[2]["column"] = "name";
+        row[2]["type"] = "text";
+        row[2]["value"] = object_complexity.objectName;
+        row[2]["font"]["name"] = "SANSSERIF";
+
+        mObjectList->addElement(item);
+    }
+    mObjectList->sortByColumnIndex(1, FALSE);
+}
+
 void LLFloaterPerformance::populateNearbyList()
 {
     mNearbyList->clearRows();
     mNearbyList->updateColumns(true);
 
+    S32 avatars = 0;
+
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
+        if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
         {
             avatar->calculateUpdateRenderComplexity(); 
 
@@ -204,17 +282,38 @@ void LLFloaterPerformance::populateNearbyList()
                     name_text->setColor(LLUIColorTable::instance().getColor("ConversationFriendColor"));
                 }
             }
+            avatars++;
         }
         char_iter++;
     }
-    mNearbyList->sortByColumnIndex(1, FALSE);
+    mNearbyList->sortByColumnIndex(1, FALSE); 
+}
 
+void LLFloaterPerformance::updateNearbyComplexityDesc()
+{
+    S32 max_complexity = 0;
+    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
+    while (char_iter != LLCharacter::sInstances.end())
+    {
+        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
+        if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
+        {
+            max_complexity = llmax(max_complexity, (S32)avatar->getVisualComplexity());
+        }
+        char_iter++;
+    }
+    std::string desc = getString(max_complexity > COMPLEXITY_THRESHOLD_1 ? "very_high" : "medium");
+   
+    if (mMainPanel->getVisible())
+    {
+        mMainPanel->getChild<LLTextBox>("avatars_nearby_value")->setValue(desc);
+    }
+    mNearbyPanel->getChild<LLTextBox>("av_nearby_value")->setValue(desc);
 }
 
 void LLFloaterPerformance::detachItem(const LLUUID& item_id)
 {
     LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
-    mHUDList->removeNameItem(item_id);
 }
 
 void LLFloaterPerformance::onClickRecommended()

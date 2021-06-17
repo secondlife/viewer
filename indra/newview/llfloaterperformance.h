@@ -37,6 +37,7 @@ public:
     virtual ~LLFloaterPerformance();
 
     /*virtual*/ BOOL postBuild();
+    /*virtual*/ void draw();
 
     void showSelectedPanel(LLPanel* selected_panel);
     void showMainPanel();
@@ -46,6 +47,7 @@ public:
 private:
     void initBackBtn(LLPanel* panel);
     void populateHUDList();
+    void populateObjectList();
     void populateNearbyList();
 
     void onClickAdvanced();
@@ -55,14 +57,19 @@ private:
     void updateMaxComplexity();
     void updateComplexityText();
 
+    void updateNearbyComplexityDesc();
+
     LLPanel* mMainPanel;
     LLPanel* mTroubleshootingPanel;
     LLPanel* mNearbyPanel;
-    LLPanel* mScriptsPanel;
+    LLPanel* mComplexityPanel;
     LLPanel* mHUDsPanel;
-    LLPanel* mPreferencesPanel;
+    LLPanel* mSettingsPanel;
     LLNameListCtrl* mHUDList;
+    LLNameListCtrl* mObjectList;
     LLNameListCtrl* mNearbyList;
+
+    LLTimer* mUpdateTimer;
 
     boost::signals2::connection	mComplexityChangedSignal;
 };

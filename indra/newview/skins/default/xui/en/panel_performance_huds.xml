@@ -15,7 +15,7 @@
     mouse_opaque="true"
     follows="left|top"
     name="back_btn"
-    top="10"
+    top="7"
     image_selected="Arrow_Left_Off"
     image_pressed="Arrow_Left_Off"
     image_unselected="Arrow_Left_Off"
@@ -27,7 +27,7 @@
    height="20"
    layout="topleft"
    left_pad="3"
-   top="13"
+   top="10"
    name="back_lbl"
    width="40">
     Back
@@ -35,14 +35,14 @@
   <text
    follows="left|top"
    font="SansSerifLarge"
-   text_color="PerformanceMid"
+   text_color="White"
    height="20"
    layout="topleft"
    left="20"
    top_pad="10"
    name="huds_title"
-   width="120">
-    HUDs displayed: 
+   width="135">
+    Your current HUDs: 
   </text>
   <text
    follows="left|top"
@@ -65,7 +65,7 @@
    left="20"
    name="huds_desc1"
    width="540">
-    If there are any you don't need, detaching them may improve graphics speed.
+    Detaching HUDs you aren't using us always a good idea, but especially in a complex location.
   </text>
   <text
    follows="left|top"
@@ -100,13 +100,5 @@
          label=""
          name="name"/>
   </name_list>
-  <button
-   follows="left|top"
-   height="19"
-   label="Refresh List"
-   layout="topleft"
-   name="refresh_list_btn"
-   top_pad="20"
-   width="100" />
 </panel>
 

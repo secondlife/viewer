@@ -10533,7 +10533,8 @@ void LLVOAvatar::accountRenderComplexityForObject(
     const F32 max_attachment_complexity,
     LLVOVolume::texture_cost_t& textures,
     U32& cost,
-    hud_complexity_list_t& hud_complexity_list)
+    hud_complexity_list_t& hud_complexity_list,
+    object_complexity_list_t& object_complexity_list)
 {
     if (attached_object && !attached_object->isHUDAttachment())
 		{
@@ -10552,12 +10553,12 @@ void LLVOAvatar::accountRenderComplexityForObject(
                             F32 attachment_volume_cost = 0;
                             F32 attachment_texture_cost = 0;
                             F32 attachment_children_cost = 0;
-                const F32 animated_object_attachment_surcharge = 1000;
+                            const F32 animated_object_attachment_surcharge = 1000;
 
-                if (attached_object->isAnimatedObject())
-                {
-                    attachment_volume_cost += animated_object_attachment_surcharge;
-                }
+                            if (attached_object->isAnimatedObject())
+                            {
+                                attachment_volume_cost += animated_object_attachment_surcharge;
+                            }
 							attachment_volume_cost += volume->getRenderCost(textures);
 
 							const_child_list_t children = volume->getChildren();
@@ -10590,6 +10591,15 @@ void LLVOAvatar::accountRenderComplexityForObject(
                                                    << LL_ENDL;
                             // Limit attachment complexity to avoid signed integer flipping of the wearer's ACI
                             cost += (U32)llclamp(attachment_total_cost, MIN_ATTACHMENT_COMPLEXITY, max_attachment_complexity);
+
+                            if (isSelf())
+                            {
+                                LLObjectComplexity object_complexity;
+                                object_complexity.objectName = attached_object->getAttachmentItemName();
+                                object_complexity.objectId = attached_object->getAttachmentItemID();
+                                object_complexity.objectCost = attachment_total_cost;
+                                object_complexity_list.push_back(object_complexity);
+                            }
 						}
 					}
 				}
@@ -10676,6 +10686,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 		hud_complexity_list_t hud_complexity_list;
+        object_complexity_list_t object_complexity_list;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
@@ -10706,7 +10717,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
             if (volp && !volp->isAttachment())
             {
                 accountRenderComplexityForObject(volp, max_attachment_complexity,
-                                                 textures, cost, hud_complexity_list);
+                                                 textures, cost, hud_complexity_list, object_complexity_list);
             }
         }
 
@@ -10722,7 +10733,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 			{
                 const LLViewerObject* attached_object = attachment_iter->get();
                 accountRenderComplexityForObject(attached_object, max_attachment_complexity,
-                                                 textures, cost, hud_complexity_list);
+                                                 textures, cost, hud_complexity_list, object_complexity_list);
 			}
 		}
 
@@ -10782,12 +10793,12 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		mVisualComplexity = cost;
 		mVisualComplexityStale = false;
 
-        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
-
-        if (isSelf() && show_my_complexity_changes)
+        if (isSelf())
         {
             // Avatar complexity
             LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
+
+            LLAvatarRenderNotifier::getInstance()->setObjectComplexityList(object_complexity_list);
 
             // HUD complexity
             LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);

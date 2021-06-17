@@ -15,7 +15,7 @@
     mouse_opaque="true"
     follows="left|top"
     name="back_btn"
-    top="10"
+    top="7"
     image_selected="Arrow_Left_Off"
     image_pressed="Arrow_Left_Off"
     image_unselected="Arrow_Left_Off"
@@ -27,7 +27,7 @@
    height="20"
    layout="topleft"
    left_pad="3"
-   top="13"
+   top="10"
    name="back_lbl"
    width="40">
     Back
@@ -35,14 +35,14 @@
   <text
    follows="left|top"
    font="SansSerifLarge"
-   text_color="PerformanceMid"
+   text_color="White"
    height="20"
    layout="topleft"
    left="20"
    top_pad="10"
    name="av_nearby_title"
-   width="215">
-    Avatars within draw distance:
+   width="205">
+    Nearby avatar complexity is
   </text>
   <text
    follows="left|top"
@@ -53,7 +53,7 @@
    left_pad="3"
    name="av_nearby_value"
    width="150">
-    42 (very high)
+    very high
   </text>
   <text
    follows="left|top"
@@ -65,7 +65,7 @@
    top_pad="5"
    name="av_nearby_desc"
    width="580">
-    Some avatars nearby are slow to display. Choosing complexity limit may help graphics speed.
+    Some avatars nearby are slow to display. Choosing a complexity limit may help graphics speed.
   </text>
   <slider
     control_name="IndirectMaxComplexity"
@@ -74,7 +74,8 @@
     height="16"
     initial_value="101"
     increment="1"
-    label="Avatar Maximum Complexity:"
+    label="Maximum avatar complexity"
+    text_color="White"
     label_width="165"
     layout="topleft"
     min_val="1"
@@ -82,6 +83,7 @@
     name="IndirectMaxComplexity"
     show_text="false"
     top_pad="10"
+    left="40"
     width="300">
   </slider>
   <text
@@ -92,7 +94,7 @@
     layout="topleft"
     top_delta="0"
     left_delta="304"
-    text_readonly_color="LabelDisabledColor"
+    text_color="White"
     name="IndirectMaxComplexityText"
     width="65">
     0
@@ -116,7 +118,7 @@
         <name_list.columns
          label=""
          name="complex_value"
-         width="40" />
+         width="50" />
         <name_list.columns
          label=""
          name="name"/>
@@ -131,7 +133,7 @@
    top_pad="10"
    name="av_nearby_desc2"
    width="580">
-     You can also right-click on an avatar to control display.
+     You can also right-click on an avatar in-world to control display.
   </text>
   <button
     height="23"
@@ -147,6 +149,7 @@
     height="16"
     initial_value="true"
     label="Always display friends"
+    label_text.text_color="White"
     layout="topleft"
     name="display_friends"
     top_pad="3"

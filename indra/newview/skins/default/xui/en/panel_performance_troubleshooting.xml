@@ -15,7 +15,7 @@
     mouse_opaque="true"
     follows="left|top"
     name="back_btn"
-    top="10"
+    top="7"
     image_selected="Arrow_Left_Off"
     image_pressed="Arrow_Left_Off"
     image_unselected="Arrow_Left_Off"
@@ -27,7 +27,7 @@
    height="20"
    layout="topleft"
    left_pad="3"
-   top="13"
+   top="10"
    name="back_lbl"
    width="40">
     Back

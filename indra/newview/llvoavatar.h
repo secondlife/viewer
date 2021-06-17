@@ -299,7 +299,8 @@ public:
                                                      const F32 max_attachment_complexity,
                                                      LLVOVolume::texture_cost_t& textures,
                                                      U32& cost,
-                                                     hud_complexity_list_t& hud_complexity_list);
+                                                     hud_complexity_list_t& hud_complexity_list,
+                                                     object_complexity_list_t& object_complexity_list);
 	void			calculateUpdateRenderComplexity();
 	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	void			updateVisualComplexity();
