@@ -63,18 +63,21 @@ BOOL LLFloaterPerformance::postBuild()
     mComplexityPanel = getChild<LLPanel>("panel_performance_complexity");
     mSettingsPanel = getChild<LLPanel>("panel_performance_preferences");
     mHUDsPanel = getChild<LLPanel>("panel_performance_huds");
+    mPresetsPanel = getChild<LLPanel>("panel_performance_presets");
 
     getChild<LLPanel>("troubleshooting_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mTroubleshootingPanel));
     getChild<LLPanel>("nearby_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
     getChild<LLPanel>("complexity_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mComplexityPanel));
     getChild<LLPanel>("settings_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
     getChild<LLPanel>("huds_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mHUDsPanel));
+    getChild<LLPanel>("presets_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mPresetsPanel));
 
     initBackBtn(mTroubleshootingPanel);
     initBackBtn(mNearbyPanel);
     initBackBtn(mComplexityPanel);
     initBackBtn(mSettingsPanel);
     initBackBtn(mHUDsPanel);
+    initBackBtn(mPresetsPanel);
 
     mHUDList = mHUDsPanel->getChild<LLNameListCtrl>("hud_list");
     mHUDList->setNameListType(LLNameListCtrl::SPECIAL);
@@ -87,10 +90,12 @@ BOOL LLFloaterPerformance::postBuild()
     mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
 
     mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
-    mSettingsPanel->getChild<LLButton>("defaults_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickRecommended, this));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
+
+    mPresetsPanel->getChild<LLTextBox>("avatars_nearby_link")->setURLClickedCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
+    mPresetsPanel->getChild<LLTextBox>("settings_link")->setURLClickedCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
 
     updateComplexityText();
     mComplexityChangedSignal = gSavedSettings.getControl("IndirectMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateComplexityText, this));
@@ -103,8 +108,9 @@ BOOL LLFloaterPerformance::postBuild()
 
 void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
 {
-    selected_panel->setVisible(TRUE);
+    hidePanels();
     mMainPanel->setVisible(FALSE);
+    selected_panel->setVisible(TRUE);
 
     if (mHUDsPanel == selected_panel)
     {
@@ -148,12 +154,18 @@ void LLFloaterPerformance::draw()
 
 void LLFloaterPerformance::showMainPanel()
 {
+    hidePanels();
+    mMainPanel->setVisible(TRUE);
+}
+
+void LLFloaterPerformance::hidePanels()
+{
     mTroubleshootingPanel->setVisible(FALSE);
     mNearbyPanel->setVisible(FALSE);
     mComplexityPanel->setVisible(FALSE);
     mHUDsPanel->setVisible(FALSE);
     mSettingsPanel->setVisible(FALSE);
-    mMainPanel->setVisible(TRUE);
+    mPresetsPanel->setVisible(FALSE);
 }
 
 void LLFloaterPerformance::initBackBtn(LLPanel* panel)
@@ -247,6 +259,7 @@ void LLFloaterPerformance::populateNearbyList()
     mNearbyList->updateColumns(true);
 
     S32 avatars = 0;
+    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
 
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
@@ -274,12 +287,21 @@ void LLFloaterPerformance::populateNearbyList()
             row[2]["font"]["name"] = "SANSSERIF";
 
             LLScrollListItem* av_item = mNearbyList->addElement(item);
-            if(av_item && LLAvatarActions::isFriend(avatar->getID()))
+            if(av_item)
             {
                 LLScrollListText* name_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(2));
                 if (name_text)
                 {
-                    name_text->setColor(LLUIColorTable::instance().getColor("ConversationFriendColor"));
+                    std::string color = "white";
+                    if (avatar->getVisualComplexity() > max_render_cost)
+                    {
+                        color = "LabelDisabledColor";
+                    }
+                    else if (LLAvatarActions::isFriend(avatar->getID()))
+                    {
+                        color = "ConversationFriendColor";
+                    }
+                    name_text->setColor(LLUIColorTable::instance().getColor(color));
                 }
             }
             avatars++;
@@ -291,6 +313,7 @@ void LLFloaterPerformance::populateNearbyList()
 
 void LLFloaterPerformance::updateNearbyComplexityDesc()
 {
+    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0); 
     S32 max_complexity = 0;
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
@@ -302,7 +325,7 @@ void LLFloaterPerformance::updateNearbyComplexityDesc()
         }
         char_iter++;
     }
-    std::string desc = getString(max_complexity > COMPLEXITY_THRESHOLD_1 ? "very_high" : "medium");
+    std::string desc = getString(max_complexity > llmin((S32)max_render_cost, COMPLEXITY_THRESHOLD_1) ? "very_high" : "medium");
    
     if (mMainPanel->getVisible())
     {
@@ -316,13 +339,13 @@ void LLFloaterPerformance::detachItem(const LLUUID& item_id)
     LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
 }
 
-void LLFloaterPerformance::onClickRecommended()
-{
-    LLFeatureManager::getInstance()->applyRecommendedSettings();
-}
-
 void LLFloaterPerformance::onClickAdvanced()
 {
+    LLFloaterPreference* instance = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+    if (instance)
+    {
+        instance->saveSettings();
+    }
     LLFloaterReg::showInstance("prefs_graphics_advanced");
 }
 

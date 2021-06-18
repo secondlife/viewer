@@ -46,7 +46,7 @@
   </text>
   <text
    follows="left|top"
-   font="SansSerifLargeBold"
+   font="SansSerifLarge"
    text_color="PerformanceMid"
    height="20"
    layout="topleft"

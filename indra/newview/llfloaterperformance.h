@@ -41,6 +41,7 @@ public:
 
     void showSelectedPanel(LLPanel* selected_panel);
     void showMainPanel();
+    void hidePanels();
 
     void detachItem(const LLUUID& item_id);
 
@@ -51,7 +52,6 @@ private:
     void populateNearbyList();
 
     void onClickAdvanced();
-    void onClickRecommended();
     void onClickExceptions();
 
     void updateMaxComplexity();
@@ -65,6 +65,7 @@ private:
     LLPanel* mComplexityPanel;
     LLPanel* mHUDsPanel;
     LLPanel* mSettingsPanel;
+    LLPanel* mPresetsPanel;
     LLNameListCtrl* mHUDList;
     LLNameListCtrl* mObjectList;
     LLNameListCtrl* mNearbyList;

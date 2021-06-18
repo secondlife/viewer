@@ -194,7 +194,7 @@
        text_color="PerformanceMid"
        height="20"
        layout="topleft"
-       left_pad="5"
+       left_pad="2"
        name="avatars_nearby_value"
        width="100">
           very high
@@ -382,6 +382,14 @@
        right="-20"/>
     </panel>
   </panel>
+  <panel
+    filename="panel_performance_presets.xml"
+    follows="all"
+    layout="topleft"
+    left="0"
+    name="panel_performance_presets"
+    visible="false"
+    top="55" />
   <panel
     filename="panel_performance_troubleshooting.xml"
     follows="all"

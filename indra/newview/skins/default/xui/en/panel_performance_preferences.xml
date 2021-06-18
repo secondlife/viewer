@@ -2,7 +2,7 @@
 <panel
  bevel_style="none"
  follows="left|top"
- height="490"
+ height="510"
  width="580"
  name="panel_performance_preferences"
  layout="topleft"
@@ -35,37 +35,33 @@
   <text
    follows="left|top"
    font="SansSerifLarge"
-   text_color="PerformanceMid"
+   text_color="white"
    height="20"
    layout="topleft"
    left="20"
    top_pad="10"
-   name="preferences_title"
+   name="settings_title"
    width="300">
-    This location is very complex
+    Individual settings
   </text>
+  <view_border
+    bevel_style="in"
+    height="0"
+    layout="topleft"
+    name="border1"
+    top_pad="8"
+    width="540"/>
   <text
    follows="left|top"
    font="SansSerifSmall"
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="5"
-   name="preferences_desc"
-   width="580">
-    While you are here, you may want to reduce graphics quality or draw distance.
-  </text>
-
-  <text
-   follows="left|top"
-   font="SansSerifSmall"
-   text_color="White"
-   height="18"
-   layout="topleft"
-   top_pad="35"
+   top_pad="20"
    name="quality_lbl"
    width="100">
     Graphics quality
+shortcuts
   </text>
   <text
    follows="left|top"
@@ -111,43 +107,31 @@
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="40"
-   left="20"
-   name="enhancements_lbl"
-   width="100">
-    Enhancements
+   top_pad="15"
+   left="160"
+   name="quality_desc"
+   width="380">
+    Choosing a shortcut will reset all manual changes you have made.
   </text>
-  <check_box
-    control_name="WindLightUseAtmosShaders"
-    height="16"
-    initial_value="true"
-    label="Atmospheric shaders"
+  <view_border
+    bevel_style="in"
+    height="0"
     layout="topleft"
-    name="atmospheric_shaders"
-    left_pad="37"
-    width="280">
-  </check_box>
-  <check_box
-    control_name="RenderDeferred"
-    height="16"
-    initial_value="true"
-    label="Advanced Lighting Model"
-    layout="topleft"
-    name="advanced_lighting_model"
-    top_delta="24"
-    width="256">
-  </check_box>
+    name="border2"
+    top_pad="15"
+    left="20"
+    width="540"/>
   <text
    follows="left|top"
    font="SansSerifSmall"
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="40"
+   top_pad="20"
    left="20"
    name="distance_lbl"
    width="100">
-    Draw distance
+    Visibility distance
   </text>
   <text
    follows="left|top"
@@ -205,11 +189,11 @@
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="20"
+   top_pad="15"
    left="160"
    name="distance_desc1"
-   width="100">
-    Regions are 256 m x 256 m.
+   width="350">
+    To zoom out and see long distances, increase the distance.
   </text>
   <text
    follows="left|top"
@@ -220,8 +204,28 @@
    top_pad="5"
    left="160"
    name="distance_desc2"
-   width="400">
-    To zoom out and see long distances, increase the draw distance.
+   width="350">
+    If you are indoors, decrease the distance to improve speed.
+  </text>
+  <view_border
+    bevel_style="in"
+    height="0"
+    layout="topleft"
+    name="border3"
+    top_pad="15"
+    left="20"
+    width="540"/>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="20"
+   left="20"
+   name="enhancements_lbl"
+   width="100">
+    Enhancements
   </text>
   <text
    follows="left|top"
@@ -229,29 +233,154 @@
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="5"
+   top_delta="0"
    left="160"
-   name="distance_desc3"
-   width="400">
-    If you are socializing in a small area, decrease the draw distance.
+   name="enhancements_desc"
+   width="350">
+    Each enhancement improves realism but can reduce speed.
   </text>
-  <button
-    follows="top|left"
-    height="23"
-    label="Reset to recommended settings"
+  <check_box
+    control_name="WindLightUseAtmosShaders"
+    height="16"
+    initial_value="true"
+    label="Atmospheric shaders"
     layout="topleft"
-    left="20"
-    name="defaults_btn"
-    top_delta="50"
-    width="210">
-  </button>
-  <button
-    follows="top|left"
-    height="23"
-    label="Advanced Settings..."
+    name="atmospheric_shaders"
+    top_pad="5"
+    left="157"
+    width="280">
+  </check_box>
+  <check_box
+    control_name="RenderDeferred"
+    height="16"
+    initial_value="true"
+    label="Advanced Lighting"
     layout="topleft"
-    left_pad="10"
-    name="advanced_btn"
+    name="advanced_lighting_model"
+    top_delta="24"
+    width="280">
+  </check_box>
+  <check_box
+    control_name="RenderTransparentWater"
+    height="16"
+    initial_value="true"
+    label="Transparent Water"
+    layout="topleft"
+    name="TransparentWater"
+    top_delta="24"
+    width="280">
+  </check_box>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    name="ReflectionsText"
+    text_readonly_color="LabelDisabledColor"
+    top_pad="16"
+    left="160"
+    width="128">
+    Water Reflections:
+  </text>
+  <combo_box
+    control_name="RenderReflectionDetail"
+    height="18"
+    layout="topleft"
+    left_delta="150"
     top_delta="0"
+    name="Reflections"
+    width="150">
+    <combo_box.item
+      label="None; opaque"
+      name="0"
+      value="-2"/>
+    <combo_box.item
+      label="None; transparent"
+      name="0"
+      value="-1"/>
+    <combo_box.item
+      label="Minimal"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="Terrain and trees"
+      name="1"
+      value="1"/>
+    <combo_box.item
+      label="All static objects"
+      name="2"
+      value="2"/>
+    <combo_box.item
+      label="All avatars and objects"
+      name="3"
+      value="3"/>
+    <combo_box.item
+      label="Everything"
+      name="4"
+      value="4"/>
+  </combo_box>
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="160"
+    name="RenderShadowDetailText"
+    text_readonly_color="LabelDisabledColor"
+    top_pad="10"
+    width="128">
+    Shadows:
+  </text>
+  <combo_box
+   control_name="RenderShadowDetail"
+   height="18"
+   layout="topleft"
+   left_delta="150"
+   top_delta="0"
+   name="ShadowDetail"
+   width="150">
+    <combo_box.item
+      label="None"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="Sun/Moon"
+      name="1"
+      value="1"/>
+    <combo_box.item
+      label="Sun/Moon + Projectors"
+      name="2"
+      value="2"/>
+  </combo_box>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   top_pad="8"
+   left="160"
+   skip_link_underline="true"
+   name="settings_help"
+   width="350">
+    [secondlife:/// What do these settings mean?]
+  </text>
+  <view_border
+    bevel_style="in"
+    height="0"
+    layout="topleft"
+    name="border3"
+    top_pad="10"
+    left="20"
+    width="540"/>
+  <button
+    follows="top|left"
+    height="23"
+    label="Open Advanced Settings"
+    layout="topleft"
+    left="160"
+    name="advanced_btn"
+    top_pad="12"
     width="200"/>
 </panel>
