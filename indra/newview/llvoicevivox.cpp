@@ -1583,6 +1583,12 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     {
         result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, SESSION_JOIN_TIMEOUT, timeoutResult);
 
+        if (sShuttingDown)
+        {
+            mIsJoiningSession = false;
+            return false;
+        }
+
         LL_INFOS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
@@ -1821,7 +1827,7 @@ bool LLVivoxVoiceClient::waitForChannel()
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info
                 // if we have the cap, we move to the appropriate state
-                requestParcelVoiceInfo();
+                requestParcelVoiceInfo(); //suspends for http reply
             }
             else if (sessionNeedsRelog(mNextAudioSession))
             {
@@ -1833,7 +1839,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 sessionStatePtr_t joinSession = mNextAudioSession;
                 mNextAudioSession.reset();
-                if (!runSession(joinSession))
+                if (!runSession(joinSession)) //suspends
                 {
                     LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
                     break;
@@ -1848,7 +1854,7 @@ bool LLVivoxVoiceClient::waitForChannel()
                 }
             }
 
-            if (!mNextAudioSession)
+            if (!mNextAudioSession && !sShuttingDown)
             {
                 llcoro::suspendUntilTimeout(1.0);
             }
@@ -1921,7 +1927,12 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     while (mVoiceEnabled && isGatewayRunning() && !mSessionTerminateRequested && !mTuningMode)
     {
-        sendCaptureAndRenderDevices();
+        sendCaptureAndRenderDevices(); // suspends
+        if (mSessionTerminateRequested)
+        {
+            break;
+        }
+
         if (mAudioSession && mAudioSession->mParticipantsChanged)
         {
             mAudioSession->mParticipantsChanged = false;
