@@ -698,7 +698,7 @@ void LLVivoxVoiceClient::voiceControlCoro()
 			gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
 			gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
 
-			if (mTuningMode)
+			if (mTuningMode && !sShuttingDown)
             {
                 performMicTuning();
             }
@@ -1272,8 +1272,11 @@ bool LLVivoxVoiceClient::loginToVivox()
 
                 // tell the user there is a problem
                 LL_WARNS("Voice") << "login " << loginresp << " will retry login in " << timeout << " seconds." << LL_ENDL;
-                    
-                llcoro::suspendUntilTimeout(timeout);
+                
+                if (!sShuttingDown)
+                {
+                    llcoro::suspendUntilTimeout(timeout);
+                }
             }
             else if (loginresp == "failed")
             {
@@ -2159,7 +2162,7 @@ bool LLVivoxVoiceClient::performMicTuning()
     mIsInTuningMode = true;
     llcoro::suspend();
 
-    while (mTuningMode)
+    while (mTuningMode && !sShuttingDown)
     {
 
         if (mCaptureDeviceDirty || mRenderDeviceDirty)
@@ -2195,9 +2198,12 @@ bool LLVivoxVoiceClient::performMicTuning()
         tuningCaptureStartSendMessage(1);  // 1-loop, zero, don't loop
 
         //---------------------------------------------------------------------
-        llcoro::suspend();
+        if (!sShuttingDown)
+        {
+            llcoro::suspend();
+        }
 
-        while (mTuningMode && !mCaptureDeviceDirty && !mRenderDeviceDirty)
+        while (mTuningMode && !mCaptureDeviceDirty && !mRenderDeviceDirty && !sShuttingDown)
         {
             // process mic/speaker volume changes
             if (mTuningMicVolumeDirty || mTuningSpeakerVolumeDirty)
@@ -2237,7 +2243,7 @@ bool LLVivoxVoiceClient::performMicTuning()
 
         // transition out of mic tuning
         tuningCaptureStopSendMessage();
-        if (mCaptureDeviceDirty || mRenderDeviceDirty)
+        if ((mCaptureDeviceDirty || mRenderDeviceDirty) && !sShuttingDown)
         {
             llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
         }
