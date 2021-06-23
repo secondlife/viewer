@@ -703,7 +703,10 @@ void LLVivoxVoiceClient::voiceControlCoro()
                 performMicTuning();
             }
 
-            waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
+            if (!sShuttingDown)
+            {
+                waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
+            }
     
             LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;            
             endAndDisconnectSession();
@@ -1045,7 +1048,14 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         {
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
             LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds." << LL_ENDL;
-            llcoro::suspendUntilTimeout(timeout);
+            if (sShuttingDown)
+            {
+                return false;
+            }
+            else
+            {
+                llcoro::suspendUntilTimeout(timeout);
+            }
         }
         else if (!status)
         {
@@ -1275,6 +1285,8 @@ bool LLVivoxVoiceClient::loginToVivox()
                 
                 if (!sShuttingDown)
                 {
+                    // Todo: this is way to long, viewer can get stuck waiting during shutdown
+                    // either make it listen to pump or split in smaller waits with checks for shutdown
                     llcoro::suspendUntilTimeout(timeout);
                 }
             }
