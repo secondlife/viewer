@@ -28,6 +28,7 @@
 
 #include "llfloater.h"
 
+class LLCharacter;
 class LLNameListCtrl;
 
 class LLFloaterPerformance : public LLFloater
@@ -57,6 +58,7 @@ private:
     void updateMaxComplexity();
     void updateComplexityText();
 
+    void getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs);
     void updateNearbyComplexityDesc();
 
     LLPanel* mMainPanel;
@@ -71,6 +73,8 @@ private:
     LLNameListCtrl* mNearbyList;
 
     LLTimer* mUpdateTimer;
+
+    S32 mNearbyMaxComplexity;
 
     boost::signals2::connection	mComplexityChangedSignal;
 };

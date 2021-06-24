@@ -26,13 +26,15 @@
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterperformance.h"
 
+#include "llagent.h"
+#include "llagentcamera.h"
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llavatarrendernotifier.h"
 #include "llfeaturemanager.h"
+#include "llfloaterpreference.h" // LLAvatarComplexityControls
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
-#include "llfloaterpreference.h" // LLAvatarComplexityControls
 #include "llsliderctrl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
@@ -40,12 +42,16 @@
 #include "llvoavatarself.h" 
 
 const F32 REFRESH_INTERVAL = 1.0f;
-const S32 COMPLEXITY_THRESHOLD_1 = 100000;
-
+const S32 COMPLEXITY_THRESHOLD_HIGH = 100000;
+const S32 COMPLEXITY_THRESHOLD_MEDIUM = 30000;
+const S32 BAR_LEFT_PAD = 2;
+const S32 BAR_RIGHT_PAD = 5;
+const S32 BAR_BOTTOM_PAD = 9;
 
 LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 :   LLFloater(key),
-    mUpdateTimer(new LLTimer())
+    mUpdateTimer(new LLTimer()),
+    mNearbyMaxComplexity(0)
 {
 }
 
@@ -120,6 +126,10 @@ void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
     {
         populateNearbyList();
     }
+    else if (mComplexityPanel == selected_panel)
+    {
+        populateObjectList();
+    }
 }
 
 void LLFloaterPerformance::draw()
@@ -179,6 +189,7 @@ void LLFloaterPerformance::initBackBtn(LLPanel* panel)
 
 void LLFloaterPerformance::populateHUDList()
 {
+    S32 prev_pos = mHUDList->getScrollPos();
     mHUDList->clearRows();
     mHUDList->updateColumns(true);
 
@@ -186,8 +197,14 @@ void LLFloaterPerformance::populateHUDList()
 
     hud_complexity_list_t::iterator iter = complexity_list.begin();
     hud_complexity_list_t::iterator end = complexity_list.end();
-   
+
+    U32 max_complexity = 0;
     for (; iter != end; ++iter)
+    {
+        max_complexity = llmax(max_complexity, (*iter).objectsCost);
+    }
+   
+    for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLHUDComplexity hud_object_complexity = *iter;        
 
@@ -196,8 +213,12 @@ void LLFloaterPerformance::populateHUDList()
         item["target"] = LLNameListCtrl::SPECIAL;
         LLSD& row = item["columns"];
         row[0]["column"] = "complex_visual";
-        row[0]["type"] = "text";
-        row[0]["value"] = "*";
+        row[0]["type"] = "image";
+        LLSD& value = row[0]["value"];
+        value["ratio"] = (F32)hud_object_complexity.objectsCost / max_complexity;
+        value["bottom"] = BAR_BOTTOM_PAD;
+        value["left_pad"] = BAR_LEFT_PAD;
+        value["right_pad"] = BAR_RIGHT_PAD;
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
@@ -212,12 +233,14 @@ void LLFloaterPerformance::populateHUDList()
         mHUDList->addElement(item);
     }
     mHUDList->sortByColumnIndex(1, FALSE);
+    mHUDList->setScrollPos(prev_pos);
 
     mHUDsPanel->getChild<LLTextBox>("huds_value")->setValue(std::to_string(complexity_list.size()));
 }
 
 void LLFloaterPerformance::populateObjectList()
 {
+    S32 prev_pos = mObjectList->getScrollPos();
     mObjectList->clearRows();
     mObjectList->updateColumns(true);
 
@@ -226,7 +249,13 @@ void LLFloaterPerformance::populateObjectList()
     object_complexity_list_t::iterator iter = complexity_list.begin();
     object_complexity_list_t::iterator end = complexity_list.end();
 
+    U32 max_complexity = 0;
     for (; iter != end; ++iter)
+    {
+        max_complexity = llmax(max_complexity, (*iter).objectCost);
+    }
+
+    for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLObjectComplexity object_complexity = *iter;        
 
@@ -235,8 +264,12 @@ void LLFloaterPerformance::populateObjectList()
         item["target"] = LLNameListCtrl::SPECIAL;
         LLSD& row = item["columns"];
         row[0]["column"] = "complex_visual";
-        row[0]["type"] = "text";
-        row[0]["value"] = "*";
+        row[0]["type"] = "image";
+        LLSD& value = row[0]["value"];
+        value["ratio"] = (F32)object_complexity.objectCost / max_complexity;
+        value["bottom"] = BAR_BOTTOM_PAD;
+        value["left_pad"] = BAR_LEFT_PAD;
+        value["right_pad"] = BAR_RIGHT_PAD;
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
@@ -251,30 +284,35 @@ void LLFloaterPerformance::populateObjectList()
         mObjectList->addElement(item);
     }
     mObjectList->sortByColumnIndex(1, FALSE);
+    mObjectList->setScrollPos(prev_pos);
 }
 
 void LLFloaterPerformance::populateNearbyList()
 {
+    S32 prev_pos = mNearbyList->getScrollPos();
     mNearbyList->clearRows();
     mNearbyList->updateColumns(true);
 
-    S32 avatars = 0;
     static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+    std::vector<LLCharacter*> valid_nearby_avs;
+    getNearbyAvatars(valid_nearby_avs);
 
-    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
-    while (char_iter != LLCharacter::sInstances.end())
+    std::vector<LLCharacter*>::iterator char_iter = valid_nearby_avs.begin();
+    while (char_iter != valid_nearby_avs.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
+        if (avatar)
         {
-            avatar->calculateUpdateRenderComplexity(); 
-
             LLSD item;
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
             row[0]["column"] = "complex_visual";
-            row[0]["type"] = "text";
-            row[0]["value"] = "*";
+            row[0]["type"] = "image";
+            LLSD& value = row[0]["value"];
+            value["ratio"] = (F32)avatar->getVisualComplexity() / mNearbyMaxComplexity;
+            value["bottom"] = BAR_BOTTOM_PAD;
+            value["left_pad"] = BAR_LEFT_PAD;
+            value["right_pad"] = BAR_RIGHT_PAD;
 
             row[1]["column"] = "complex_value";
             row[1]["type"] = "text";
@@ -296,6 +334,11 @@ void LLFloaterPerformance::populateNearbyList()
                     if (avatar->getVisualComplexity() > max_render_cost)
                     {
                         color = "LabelDisabledColor";
+                        LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
+                        if (bar)
+                        {
+                            bar->setColor(LLUIColorTable::instance().getColor(color));
+                        }
                     }
                     else if (LLAvatarActions::isFriend(avatar->getID()))
                     {
@@ -304,28 +347,55 @@ void LLFloaterPerformance::populateNearbyList()
                     name_text->setColor(LLUIColorTable::instance().getColor(color));
                 }
             }
-            avatars++;
         }
         char_iter++;
     }
-    mNearbyList->sortByColumnIndex(1, FALSE); 
+    mNearbyList->sortByColumnIndex(1, FALSE);
+    mNearbyList->setScrollPos(prev_pos);
 }
 
-void LLFloaterPerformance::updateNearbyComplexityDesc()
+void LLFloaterPerformance::getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs)
 {
-    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0); 
-    S32 max_complexity = 0;
+    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+    F32 radius = render_far_clip * render_far_clip;
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
         if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
         {
-            max_complexity = llmax(max_complexity, (S32)avatar->getVisualComplexity());
+            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
+                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
+            {
+                char_iter++;
+                continue;
+            }
+            avatar->calculateUpdateRenderComplexity();
+            mNearbyMaxComplexity = llmax(mNearbyMaxComplexity, (S32)avatar->getVisualComplexity());
+            valid_nearby_avs.push_back(*char_iter);
         }
         char_iter++;
     }
-    std::string desc = getString(max_complexity > llmin((S32)max_render_cost, COMPLEXITY_THRESHOLD_1) ? "very_high" : "medium");
+}
+
+void LLFloaterPerformance::updateNearbyComplexityDesc()
+{
+    std::string desc = getString("low");
+
+    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+    if (mMainPanel->getVisible())
+    {
+        std::vector<LLCharacter*> valid_nearby_avs;
+        getNearbyAvatars(valid_nearby_avs);
+    }
+    if (mNearbyMaxComplexity > COMPLEXITY_THRESHOLD_HIGH)
+    {
+        desc = getString("very_high");
+    }
+    else if (mNearbyMaxComplexity > COMPLEXITY_THRESHOLD_MEDIUM)
+    {
+        desc = getString("medium");
+    }
    
     if (mMainPanel->getVisible())
     {

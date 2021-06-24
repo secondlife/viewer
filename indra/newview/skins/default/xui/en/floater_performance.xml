@@ -12,6 +12,9 @@
   <string
      name="medium"
      value="medium"/>
+  <string
+    name="low"
+    value="low"/>
   <panel
    bevel_style="none"
    follows="left|top"
