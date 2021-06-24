@@ -121,6 +121,11 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 				data.mURLExternal = mNotification->getURLOpenExternally();
 			}
 
+			if((*it).has("width"))
+			{
+				data.mWidth = (*it)["width"].asInteger();
+			}
+
 			mButtonData.push_back(data);
 			option_index++;
 		}
@@ -159,15 +164,29 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 	// Calc total width of buttons
 	S32 button_width = 0;
 	S32 sp = font->getWidth(std::string("OO"));
+	S32 btn_total_width = 0;
+	S32 default_size_btns = 0;
 	for( S32 i = 0; i < num_options; i++ )
-	{
+	{				
 		S32 w = S32(font->getWidth( options[i].second ) + 0.99f) + sp + 2 * LLBUTTON_H_PAD;
-		button_width = llmax( w, button_width );
+		if (mButtonData[i].mWidth > w)
+		{
+			btn_total_width += mButtonData[i].mWidth;
+		}
+		else
+		{
+			button_width = llmax(w, button_width);
+			default_size_btns++;
+		}
 	}
-	S32 btn_total_width = button_width;
+
 	if( num_options > 1 )
 	{
-		btn_total_width = (num_options * button_width) + ((num_options - 1) * BTN_HPAD);
+		btn_total_width = btn_total_width + (button_width * default_size_btns) + ((num_options - 1) * BTN_HPAD);
+	}
+	else
+	{
+		btn_total_width = llmax(btn_total_width, button_width);
 	}
 
 	// Message: create text box using raw string, as text has been structure deliberately
@@ -272,7 +291,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 			mLineEditor->setText(edit_text_contents);
 
 			std::string notif_name = mNotification->getName();
-			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name))
+			if (("SaveOutfitAs" == notif_name) || ("SaveSettingAs" == notif_name) || ("CreateLandmarkFolder" == notif_name))
 			{
 				mLineEditor->setPrevalidate(&LLTextValidate::validateASCII);
 			}
@@ -333,7 +352,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 		if(btn)
 		{
 			btn->setName(options[i].first);
-			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, button_width, BTN_HEIGHT ));
+			btn->setRect(button_rect.setOriginAndSize( button_left, VPAD, (mButtonData[i].mWidth == 0) ? button_width : mButtonData[i].mWidth, BTN_HEIGHT ));
 			btn->setLabel(options[i].second);
 			btn->setFont(font);
 
@@ -348,7 +367,7 @@ LLToastAlertPanel::LLToastAlertPanel( LLNotificationPtr notification, bool modal
 				btn->setFocus(TRUE);
 			}
 		}
-		button_left += button_width + BTN_HPAD;
+		button_left += ((mButtonData[i].mWidth == 0) ? button_width : mButtonData[i].mWidth) + BTN_HPAD;
 	}
 
 	setCheckBoxes(HPAD, VPAD);

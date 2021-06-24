@@ -283,6 +283,9 @@ public:
 
 	void			resetContextMenu() { setContextMenu(NULL); };
 
+	void			setBgImage(LLPointer<LLUIImage> image) { mBgImage = image; }
+	void			setBgImageFocused(LLPointer<LLUIImage> image) { mBgImageFocused = image; }
+
 private:
 	// private helper methods
 
