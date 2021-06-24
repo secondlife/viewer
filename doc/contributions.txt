@@ -360,6 +360,8 @@ Chaser Zaks
     BUG-227485
 Cherry Cheevers
 ChickyBabes Zuzu
+Chorazin Allen
+    BUG-229753
 Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
