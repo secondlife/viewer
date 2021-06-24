@@ -1024,18 +1024,6 @@ The group no longer has open enrollment.
 
   <notification
    icon="alertmodal.tga"
-   name="JoinGroupSuccess"
-   type="alertmodal">
-You have been added to the group
-    <tag>group_id</tag>
-    <tag>success</tag>
-    <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-  
-  <notification
-   icon="alertmodal.tga"
    name="JoinGroupInsufficientFunds"
    type="alertmodal">
 Unable to transfer the required L$ [membership_fee] membership fee.
@@ -2332,6 +2320,29 @@ You cannot create a landmark here because the owner of the land doesn&apos;t all
   </notification>
 
   <notification
+ icon="alertmodal.tga"
+ label="Create folder"
+ name="CreateLandmarkFolder"
+ type="alertmodal">
+    <unique/>
+    Choose a name for the folder:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="CannotRecompileSelectObjectsNoScripts"
    type="alertmodal">
@@ -2443,9 +2454,8 @@ Teleport failed.
    icon="alertmodal.tga"
    name="invalid_tport"
    type="alertmodal">
-Problem encountered processing your teleport request. You may need to log back in before you can teleport.
-If you continue to get this message, please check the [SUPPORT_SITE].
-  <tag>fail</tag>
+Teleport attempts are limited to 6 per minute. If you are having trouble, wait one minute and try teleporting again. If the problem persists, log out and log in again.
+    <tag>fail</tag>
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -3153,7 +3163,30 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
        text="Cancel"/>
     </form>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   label="Rename Landmark"
+   name="RenameLandmark"
+   type="alertmodal">
+    Choose a new name for [NAME]
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="RemoveFromFriends"
@@ -4257,13 +4290,6 @@ Leave Group?
      yestext="OK"/>
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="GroupDepart"
-   type="notify">
-You have left the group &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
-    <tag>group</tag>
-  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -5066,7 +5092,9 @@ Do you wish to proceed?
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5153,7 +5181,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    name="TeleportEntryAccessBlocked"
    type="alertmodal">
     <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5302,6 +5332,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandClaimAccessBlocked"
    type="alertmodal">
     The land you're trying to claim has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -5371,6 +5403,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandBuyAccessBlocked"
    type="alertmodal">
     The land you're trying to buy has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -7239,8 +7273,10 @@ You can only claim public land in the Region you&apos;re in.
    name="RegionTPAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
-   <usetemplate
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
+    <usetemplate
       name="okbutton"
       yestext="OK"/>
   </notification>
@@ -8682,7 +8718,7 @@ This upload will cost L$[PRICE], do you wish to continue with the upload?
    icon="alertmodal.tga"
    name="ConfirmClearTeleportHistory"
    type="alertmodal">
-Are you sure you want to delete your teleport history?
+This will delete the entire list of places you have visited, and cannot be undone. Continue?
   <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -11513,7 +11549,28 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      name="okbutton"
      yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="AddPaymentMethod"
+   type="alertmodal">
+On the following page, choose a L$ amount
+and click a place Order button. You will be
+able to add a payment method at checkout.
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       width="120"
+       name="Continue"
+       text="Continue"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
   
   <notification
    icon="alert.tga"
