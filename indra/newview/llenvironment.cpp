@@ -327,7 +327,7 @@ namespace
                 std::istringstream llsdData(llsdRaw);
                 if (!LLSDSerialize::deserialize(message, llsdData, llsdRaw.length()))
                 {
-                    LL_WARNS() << "LLExperienceLogDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
+                    LL_WARNS() << "LLEnvironmentPushDispatchHandler: Attempted to read parameter data into LLSD but failed:" << llsdRaw << LL_ENDL;
                 }
             }
 
@@ -785,11 +785,11 @@ namespace
 }
 
 //=========================================================================
-const F32Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
-const F32Seconds LLEnvironment::TRANSITION_FAST(1.0f);
-const F32Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
-const F32Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
-const F32Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
+const F64Seconds LLEnvironment::TRANSITION_INSTANT(0.0f);
+const F64Seconds LLEnvironment::TRANSITION_FAST(1.0f);
+const F64Seconds LLEnvironment::TRANSITION_DEFAULT(5.0f);
+const F64Seconds LLEnvironment::TRANSITION_SLOW(10.0f);
+const F64Seconds LLEnvironment::TRANSITION_ALTITUDE(5.0f);
 
 const LLUUID LLEnvironment::KNOWN_SKY_SUNRISE("01e41537-ff51-2f1f-8ef7-17e4df760bfb");
 const LLUUID LLEnvironment::KNOWN_SKY_MIDDAY("6c83e853-e7f8-cad7-8ee6-5f31c453721c");
@@ -1217,28 +1217,24 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
 
 void LLEnvironment::setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version)
 {
-    setEnvironment(env, assetId, LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET);
+    setEnvironment(env, assetId, TRANSITION_DEFAULT, env_version);
 }
-
 
 void LLEnvironment::setEnvironment(EnvSelection_t env,
                                    const LLUUID &assetId,
-                                   LLSettingsDay::Seconds daylength,
-                                   LLSettingsDay::Seconds dayoffset,
+                                   LLSettingsBase::Seconds transition,
                                    S32 env_version)
 {
     LLSettingsVOBase::getSettingsAsset(assetId,
-        [this, env, daylength, dayoffset, env_version](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+        [this, env, env_version, transition](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
-            onSetEnvAssetLoaded(env, asset_id, settings, daylength, dayoffset, TRANSITION_DEFAULT, status, env_version);
+            onSetEnvAssetLoaded(env, asset_id, settings, transition, status, env_version);
         });
 }
 
 void LLEnvironment::onSetEnvAssetLoaded(EnvSelection_t env,
                                         LLUUID asset_id,
                                         LLSettingsBase::ptr_t settings,
-                                        LLSettingsDay::Seconds daylength,
-                                        LLSettingsDay::Seconds dayoffset,
                                         LLSettingsBase::Seconds transition,
                                         S32 status,
                                         S32 env_version)
@@ -1685,7 +1681,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         if (!envinfo->mDayCycle)
         {
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else if (envinfo->mDayCycle->isTrackEmpty(LLSettingsDay::TRACK_WATER)
@@ -1693,7 +1689,7 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         {
             LL_WARNS("ENVIRONMENT") << "Invalid day cycle for region" << LL_ENDL;
             clearEnvironment(ENV_PARCEL);
-            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), LLSettingsDay::DEFAULT_DAYLENGTH, LLSettingsDay::DEFAULT_DAYOFFSET, envinfo->mEnvVersion);
+            setEnvironment(ENV_REGION, LLSettingsDay::GetDefaultAssetId(), TRANSITION_DEFAULT, envinfo->mEnvVersion);
             updateEnvironment();
         }
         else
@@ -2939,17 +2935,15 @@ bool LLEnvironment::loadFromSettings()
 
     if (env_data.has("day_id"))
     {
-        LLSettingsDay::Seconds length = LLSettingsDay::Seconds(env_data["day_length"].asInteger());
-        LLSettingsDay::Seconds offset = LLSettingsDay::Seconds(env_data["day_offset"].asInteger());
         LLUUID assetId = env_data["day_id"].asUUID();
 
         LLSettingsVOBase::getSettingsAsset(assetId,
-            [this, length, offset, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
+            [this, env_data](LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, LLExtStat)
         {
             // Day should be always applied first,
             // otherwise it will override sky or water that was set earlier
             // so wait for asset to load before applying sky/water
-            onSetEnvAssetLoaded(ENV_LOCAL, asset_id, settings, length, offset, TRANSITION_DEFAULT, status, NO_VERSION);
+            onSetEnvAssetLoaded(ENV_LOCAL, asset_id, settings, TRANSITION_DEFAULT, status, NO_VERSION);
             bool valid = false, has_assets = false;
             loadSkyWaterFromSettings(env_data, valid, has_assets);
             if (!has_assets && valid)

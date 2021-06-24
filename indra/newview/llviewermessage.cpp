@@ -116,7 +116,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/algorithm/string/split.hpp> //
 #include <boost/foreach.hpp>
 
 #include "llnotificationmanager.h" //
@@ -778,7 +777,6 @@ void response_group_invitation_coro(std::string url, LLUUID group_id, bool notif
             LL_DEBUGS("GroupInvite") << "Successfully sent response to group " << group_id << " invitation" << LL_ENDL;
             if (notify_and_update)
             {
-                LLNotificationsUtil::add("JoinGroupSuccess");
                 gAgent.sendAgentDataUpdateRequest();
 
                 LLGroupMgr::getInstance()->clearGroupData(group_id);
@@ -5058,6 +5056,15 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		// notification was specified using the new mechanism, so we can just handle it here
 		std::string notificationID;
 		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);
+
+		//SL-13824 skip notification when both joining a group and leaving a group
+		//remove this after server stops sending these messages  
+		if (notificationID == "JoinGroupSuccess" ||
+			notificationID == "GroupDepart")
+		{
+			return true;
+		}
+
 		if (!LLNotifications::getInstance()->templateExists(notificationID))
 		{
 			return false;

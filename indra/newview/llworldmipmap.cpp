@@ -190,6 +190,8 @@ LLPointer<LLViewerFetchedTexture> LLWorldMipmap::loadObjectsTile(U32 grid_x, U32
 	//LL_INFOS("WorldMap") << "LLWorldMipmap::loadObjectsTile(), URL = " << imageurl << LL_ENDL;
 
 	LLPointer<LLViewerFetchedTexture> img = LLViewerTextureManager::getFetchedTextureFromUrl(imageurl, FTT_MAP_TILE, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+	LL_INFOS("MAPURL") << "fetching map tile from " << imageurl << LL_ENDL;
+
 	img->setBoostLevel(LLGLTexture::BOOST_MAP);
 
 	// Return the smart pointer

@@ -387,9 +387,9 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
             if (mIsScriptDialog)
             {
                 // we are using default width for script buttons so we can determinate button_rows
-                //to get a number of rows we divide the required width of the buttons to button_panel_width
-                S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
-                //S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
+                // to get a number of rows we divide the required width of the buttons to button_panel_width
+                // buttons.size() is reduced by -2 due to presence of ignore button which is calculated independently a bit lower
+                S32 button_rows = llceil(F32(buttons.size() - 2) * (BUTTON_WIDTH + h_pad) / (button_panel_width + h_pad));
                 //reserve one row for the ignore_btn
                 button_rows++;
                 //calculate required panel height for scripdialog notification.
