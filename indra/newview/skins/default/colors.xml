@@ -854,6 +854,9 @@
     name="ColorSwatchBorderColor"
     value="0.45098 0.517647 0.607843 1"/>
     <color
+     name="ChatTeleportSeparatorColor"
+     reference="Black" />
+    <color
      name="ChatTimestampColor"
      reference="White" />
     <color
@@ -963,4 +966,7 @@
   <color
     name="OutfitGalleryItemUnselected"
     value="0.4 0.4 0.4 1" />
+  <color
+    name="AddPaymentPanel"
+    value="0.27 0.27 0.27 1" />
 </colors>

@@ -661,6 +661,7 @@ BOOL LLPanelPeople::postBuild()
 	mRecentList->setShowIcons("RecentListShowIcons");
 
 	mGroupList = getChild<LLGroupList>("group_list");
+	mGroupList->setNoItemsCommentText(getString("no_groups_msg"));
 	mGroupList->setNoItemsMsg(getString("no_groups_msg"));
 	mGroupList->setNoFilteredItemsMsg(getString("no_filtered_groups_msg"));
 

@@ -52,11 +52,11 @@ class LLEnvironment : public LLSingleton<LLEnvironment>
     LOG_CLASS(LLEnvironment);
 
 public:
-    static const F32Seconds     TRANSITION_INSTANT;
-    static const F32Seconds     TRANSITION_FAST;
-    static const F32Seconds     TRANSITION_DEFAULT;
-    static const F32Seconds     TRANSITION_SLOW;
-    static const F32Seconds     TRANSITION_ALTITUDE;
+    static const F64Seconds     TRANSITION_INSTANT;
+    static const F64Seconds     TRANSITION_FAST;
+    static const F64Seconds     TRANSITION_DEFAULT;
+    static const F64Seconds     TRANSITION_SLOW;
+    static const F64Seconds     TRANSITION_ALTITUDE;
 
     static const LLUUID         KNOWN_SKY_SUNRISE;
     static const LLUUID         KNOWN_SKY_MIDDAY;
@@ -144,8 +144,8 @@ public:
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixed, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(fixed, LLSettingsWater::ptr_t()), env_version); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsWater::ptr_t & fixed, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(LLSettingsSky::ptr_t(), fixed), env_version); }
     void                        setEnvironment(EnvSelection_t env, const LLSettingsSky::ptr_t & fixeds, const LLSettingsWater::ptr_t & fixedw, S32 env_version = NO_VERSION) { setEnvironment(env, fixedEnvironment_t(fixeds, fixedw), env_version); }
-    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, S32 env_version = NO_VERSION);
-    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version = NO_VERSION);
+    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, S32 env_version);
+    void                        setEnvironment(EnvSelection_t env, const LLUUID &assetId, LLSettingsBase::Seconds transition = TRANSITION_DEFAULT, S32 env_version = NO_VERSION);
 
     void                        setSharedEnvironment();
     void                        clearEnvironment(EnvSelection_t env);
@@ -434,7 +434,7 @@ private:
 
     void                        onAgentPositionHasChanged(const LLVector3 &localpos);
 
-    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsDay::Seconds daylength, LLSettingsDay::Seconds dayoffset, LLSettingsBase::Seconds transition, S32 status, S32 env_version);
+    void                        onSetEnvAssetLoaded(EnvSelection_t env, LLUUID asset_id, LLSettingsBase::ptr_t settings, LLSettingsBase::Seconds transition, S32 status, S32 env_version);
     void                        onUpdateParcelAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settings, S32 status, S32 parcel_id, S32 day_length, S32 day_offset, altitudes_vect_t altitudes);
 
     void                        handleEnvironmentPushClear(LLUUID experience_id, LLSD &message, F32 transition);
