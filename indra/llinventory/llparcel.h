@@ -295,7 +295,6 @@ public:
 	void	setAllowTerraform(BOOL b){setParcelFlag(PF_ALLOW_TERRAFORM, b); }
 	void	setAllowDamage(BOOL b)	{ setParcelFlag(PF_ALLOW_DAMAGE, b); }
 	void	setAllowFly(BOOL b)		{ setParcelFlag(PF_ALLOW_FLY, b); }
-	void	setAllowLandmark(BOOL b){ setParcelFlag(PF_ALLOW_LANDMARK, b); }
 	void	setAllowGroupScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_GROUP_SCRIPTS, b); }
 	void	setAllowOtherScripts(BOOL b)	{ setParcelFlag(PF_ALLOW_OTHER_SCRIPTS, b); }
 	void	setAllowDeedToGroup(BOOL b) { setParcelFlag(PF_ALLOW_DEED_TO_GROUP, b); }
@@ -475,11 +474,6 @@ public:
 
 	BOOL	getAllowFly() const
 					{ return (mParcelFlags & PF_ALLOW_FLY) ? TRUE : FALSE; }
-
-	// Remove permission restrictions for creating landmarks.
-	// We should eventually remove this flag completely.
-	BOOL	getAllowLandmark() const
-					{ return TRUE; }
 
 	BOOL	getAllowGroupScripts() const
 					{ return (mParcelFlags & PF_ALLOW_GROUP_SCRIPTS) ? TRUE : FALSE; }

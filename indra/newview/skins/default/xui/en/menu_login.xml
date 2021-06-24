@@ -57,19 +57,12 @@
      tear_off="true"
      name="Help">
         <menu_item_call
-         label="How to..."
+         label="Guidebook"
          name="How To"
          shortcut="F1">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
-        </menu_item_call>
-        <menu_item_call
-           label="Quickstart"
-           name="Quickstart">
-            <menu_item_call.on_click
-            function="Advanced.ShowURL"
-            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Quickstart/ta-p/1087919"/>
         </menu_item_call>
 		<menu_item_separator/>
         <menu_item_call
