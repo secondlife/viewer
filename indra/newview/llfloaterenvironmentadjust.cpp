@@ -53,11 +53,15 @@ namespace
     const std::string FIELD_SKY_CLOUD_SCALE("cloud_scale");
     const std::string FIELD_SKY_SCENE_GAMMA("scene_gamma");
     const std::string FIELD_SKY_SUN_ROTATION("sun_rotation");
+    const std::string FIELD_SKY_SUN_AZIMUTH("sun_azimuth");
+    const std::string FIELD_SKY_SUN_ELEVATION("sun_elevation");
     const std::string FIELD_SKY_SUN_SCALE("sun_scale");
     const std::string FIELD_SKY_GLOW_FOCUS("glow_focus");
     const std::string FIELD_SKY_GLOW_SIZE("glow_size");
     const std::string FIELD_SKY_STAR_BRIGHTNESS("star_brightness");
     const std::string FIELD_SKY_MOON_ROTATION("moon_rotation");
+    const std::string FIELD_SKY_MOON_AZIMUTH("moon_azimuth");
+    const std::string FIELD_SKY_MOON_ELEVATION("moon_elevation");
     const std::string BTN_RESET("btn_reset");
 
     const F32 SLIDER_SCALE_SUN_AMBIENT(3.0f);
@@ -96,9 +100,13 @@ BOOL LLFloaterEnvironmentAdjust::postBuild()
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onGlowChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onStarBrightnessChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_SUN_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunRotationChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunAzimElevChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunAzimElevChanged(); });
     getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onSunScaleChanged(); });
 
     getChild<LLUICtrl>(FIELD_SKY_MOON_ROTATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonRotationChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
+    getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onMoonAzimElevChanged(); });
     getChild<LLUICtrl>(BTN_RESET)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onButtonReset(); });
 
     getChild<LLTextureCtrl>(FIELD_SKY_CLOUD_MAP)->setCommitCallback([this](LLUICtrl *, const LLSD &) { onCloudMapChanged(); });
@@ -169,10 +177,25 @@ void LLFloaterEnvironmentAdjust::refresh()
     getChild<LLUICtrl>(FIELD_SKY_GLOW_SIZE)->setValue(2.0 - (glow.mV[0] / SLIDER_SCALE_GLOW_R));
     getChild<LLUICtrl>(FIELD_SKY_GLOW_FOCUS)->setValue(glow.mV[2] / SLIDER_SCALE_GLOW_B);
     getChild<LLUICtrl>(FIELD_SKY_STAR_BRIGHTNESS)->setValue(mLiveSky->getStarBrightness());
-    getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(mLiveSky->getSunRotation());
     getChild<LLUICtrl>(FIELD_SKY_SUN_SCALE)->setValue(mLiveSky->getSunScale());
-    getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(mLiveSky->getMoonRotation());
 
+    // Sun rotation
+    LLQuaternion quat = mLiveSky->getSunRotation();
+    F32 azimuth;
+    F32 elevation;
+    LLVirtualTrackball::getAzimuthAndElevationDeg(quat, azimuth, elevation);
+
+    getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->setValue(azimuth);
+    getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->setValue(elevation);
+    getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(quat);
+
+    // Moon rotation
+    quat = mLiveSky->getMoonRotation();
+    LLVirtualTrackball::getAzimuthAndElevationDeg(quat, azimuth, elevation);
+
+    getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setValue(azimuth);
+    getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setValue(elevation);
+    getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(quat);
 }
 
 
@@ -325,10 +348,45 @@ void LLFloaterEnvironmentAdjust::onStarBrightnessChanged()
 
 void LLFloaterEnvironmentAdjust::onSunRotationChanged()
 {
-    if (!mLiveSky)
-        return;
-    mLiveSky->setSunRotation(getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->getRotation());
-    mLiveSky->update();
+    LLQuaternion quat = getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->getRotation();
+    F32 azimuth;
+    F32 elevation;
+    LLVirtualTrackball::getAzimuthAndElevationDeg(quat, azimuth, elevation);
+    getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->setValue(azimuth);
+    getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->setValue(elevation);
+    if (mLiveSky)
+    {
+        mLiveSky->setSunRotation(quat);
+        mLiveSky->update();
+    }
+}
+
+void LLFloaterEnvironmentAdjust::onSunAzimElevChanged()
+{
+    F32 azimuth = getChild<LLUICtrl>(FIELD_SKY_SUN_AZIMUTH)->getValue().asReal();
+    F32 elevation = getChild<LLUICtrl>(FIELD_SKY_SUN_ELEVATION)->getValue().asReal();
+    LLQuaternion quat;
+
+    azimuth *= DEG_TO_RAD;
+    elevation *= DEG_TO_RAD;
+
+    if (is_approx_zero(elevation))
+    {
+        elevation = F_APPROXIMATELY_ZERO;
+    }
+
+    quat.setAngleAxis(-elevation, 0, 1, 0);
+    LLQuaternion az_quat;
+    az_quat.setAngleAxis(F_TWO_PI - azimuth, 0, 0, 1);
+    quat *= az_quat;
+
+    getChild<LLVirtualTrackball>(FIELD_SKY_SUN_ROTATION)->setRotation(quat);
+
+    if (mLiveSky)
+    {
+        mLiveSky->setSunRotation(quat);
+        mLiveSky->update();
+    }
 }
 
 void LLFloaterEnvironmentAdjust::onSunScaleChanged()
@@ -341,10 +399,45 @@ void LLFloaterEnvironmentAdjust::onSunScaleChanged()
 
 void LLFloaterEnvironmentAdjust::onMoonRotationChanged()
 {
-    if (!mLiveSky)
-        return;
-    mLiveSky->setMoonRotation(getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->getRotation());
-    mLiveSky->update();
+    LLQuaternion quat = getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->getRotation();
+    F32 azimuth;
+    F32 elevation;
+    LLVirtualTrackball::getAzimuthAndElevationDeg(quat, azimuth, elevation);
+    getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->setValue(azimuth);
+    getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->setValue(elevation);
+    if (mLiveSky)
+    {
+        mLiveSky->setMoonRotation(quat);
+        mLiveSky->update();
+    }
+}
+
+void LLFloaterEnvironmentAdjust::onMoonAzimElevChanged()
+{
+    F32 azimuth = getChild<LLUICtrl>(FIELD_SKY_MOON_AZIMUTH)->getValue().asReal();
+    F32 elevation = getChild<LLUICtrl>(FIELD_SKY_MOON_ELEVATION)->getValue().asReal();
+    LLQuaternion quat;
+
+    azimuth *= DEG_TO_RAD;
+    elevation *= DEG_TO_RAD;
+
+    if (is_approx_zero(elevation))
+    {
+        elevation = F_APPROXIMATELY_ZERO;
+    }
+
+    quat.setAngleAxis(-elevation, 0, 1, 0);
+    LLQuaternion az_quat;
+    az_quat.setAngleAxis(F_TWO_PI - azimuth, 0, 0, 1);
+    quat *= az_quat;
+
+    getChild<LLVirtualTrackball>(FIELD_SKY_MOON_ROTATION)->setRotation(quat);
+
+    if (mLiveSky)
+    {
+        mLiveSky->setMoonRotation(quat);
+        mLiveSky->update();
+    }
 }
 
 void LLFloaterEnvironmentAdjust::onCloudMapChanged()

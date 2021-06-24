@@ -45,6 +45,10 @@ with the same filename but different name
   <texture name="AddItem_Off" file_name="icons/AddItem_Off.png" preload="false" />
   <texture name="AddItem_Press" file_name="icons/AddItem_Press.png" preload="false" />
 
+  <texture name="add_payment_image_center"  file_name="windows/add_payment_image_center.png" preload="true" />
+  <texture name="add_payment_image_left"  file_name="windows/add_payment_image_left.png" preload="true" />
+  <texture name="add_payment_image_right"  file_name="windows/add_payment_image_right.png" preload="true" />
+
   <texture name="Arrow_Left_Off" file_name="navbar/Arrow_Left_Off.png" preload="true" />
   <texture name="Arrow_Right_Off" file_name="navbar/Arrow_Right_Off.png" preload="true" />
 
@@ -333,7 +337,11 @@ with the same filename but different name
   <texture name="Inv_Unknown" file_name="icons/Inv_UnknownObject.png" preload="false" />
   <texture name="Inv_VersionFolderClosed" file_name="icons/Inv_VersionFolderClosed.png" preload="false" />
   <texture name="Inv_VersionFolderOpen" file_name="icons/Inv_VersionFolderOpen.png" preload="false" />
-  
+
+  <texture name="Inv_Toolbar_SearchVisibility" file_name="icons/Inv_Toolbar_SearchVisibility.png" preload="false" />
+
+  <texture name="Landmarks_overlay" file_name="navbar/Landmarks.png" preload="false" />
+
   <texture name="Linden_Dollar_Alert" file_name="widgets/Linden_Dollar_Alert.png"/>
   <texture name="Linden_Dollar_Background" file_name="widgets/Linden_Dollar_Background.png"/>
 
@@ -649,6 +657,7 @@ with the same filename but different name
   <texture name="TextField_Search_Off" file_name="widgets/TextField_Search_Off.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
   <texture name="TextField_Disabled" file_name="widgets/TextField_Disabled.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
   <texture name="TextField_Active" file_name="widgets/TextField_Active.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+  <texture name="TextField_Search_Highlight" file_name="widgets/TextField_Search_Highlight.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 
 
   <texture name="Toast_CloseBtn" file_name="windows/Toast_CloseBtn.png" preload="true" />
