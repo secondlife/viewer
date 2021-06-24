@@ -683,12 +683,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("libvlccore.dll")
                 self.path("plugins/")
 
-        if not self.args.get('bugsplat'): # don't include the win_crash_logger if we are using BugSplat
-            # pull in the crash logger from other projects
-            # tag:"crash-logger" here as a cue to the exporter
-            self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
-                      dst="win_crash_logger.exe")
-
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
 

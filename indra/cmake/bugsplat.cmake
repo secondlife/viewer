@@ -1,5 +1,10 @@
 if (INSTALL_PROPRIETARY)
-    set(USE_BUGSPLAT ON  CACHE BOOL "Use the BugSplat crash reporting system")
+    # Note that viewer_manifest.py makes decision based on BUGSPLAT_DB and not USE_BUGSPLAT
+    if (BUGSPLAT_DB)
+        set(USE_BUGSPLAT ON  CACHE BOOL "Use the BugSplat crash reporting system")
+    else (BUGSPLAT_DB)
+        set(USE_BUGSPLAT OFF CACHE BOOL "Use the BugSplat crash reporting system")
+    endif (BUGSPLAT_DB)
 else (INSTALL_PROPRIETARY)
     set(USE_BUGSPLAT OFF CACHE BOOL "Use the BugSplat crash reporting system")
 endif (INSTALL_PROPRIETARY)
