@@ -57,6 +57,8 @@ public:
 
 	static void onGrantList(void* data);
 
+	static bool sHasLindenHome;
+
 protected:
 	void refreshAggregates();
 

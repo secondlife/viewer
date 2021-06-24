@@ -44,6 +44,7 @@
 
 // newview includes
 #include "llagent.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryobserver.h"
 #include "lllandmarkactions.h"
@@ -653,7 +654,7 @@ void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 	}
 	else
 	{
-		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+		LLFloaterReg::showInstance("add_landmark");
 	}
 }
 
@@ -1126,7 +1127,7 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 		
 		if(!landmark)
 		{
-			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+			LLFloaterReg::showInstance("add_landmark");
 		}
 		else
 		{

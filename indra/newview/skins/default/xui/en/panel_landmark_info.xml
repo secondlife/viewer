@@ -67,7 +67,7 @@
      name="back_btn"
      tool_tip="Back"
      tab_stop="false"
-     top="4"
+     top="2"
      width="30"
      use_draw_context_alpha="false" />
     <text
@@ -78,20 +78,20 @@
      left_pad="7"
      name="title"
      text_color="LtGray"
-     top="3"
+     top="2"
      use_ellipses="true"
      value="Place Profile"
      width="280" />
     <scroll_container
      color="DkGray2"
      follows="all"
-     height="532"
+     height="534"
      layout="topleft"
      left="9"
      name="place_scroll"
      opaque="true"
-     top_pad="10"
-     width="310">
+     top_pad="9"
+     width="324">
         <panel
          bg_alpha_color="DkGray2"
          follows="left|top|right"
@@ -282,7 +282,6 @@
                  enabled="false"
                  use_bg_color="true"
                  bg_color="DkGray0"
-                 parse_urls="false"
                  follows="left|top|right"
                  height="22"
                  layout="topleft"
@@ -290,8 +289,18 @@
                  name="title_value"
                  text_color="white"
                  top_pad="5"
-                 use_ellipses="true"
-                 width="290" /> 
+                 width="200" /> 
+                <button
+                 follows="top|right"
+                 height="24"
+                 label="Edit"
+                 layout="topleft"
+                 left_pad="8"
+                 mouse_opaque="false"
+                 name="edit_btn"
+                 tool_tip="Edit landmark information"
+                 top_delta="-1"
+                 width="83" />
                 <line_editor
                  follows="left|top|right"
                  height="22"
@@ -301,8 +310,8 @@
                  name="title_editor"
                  prevalidate_callback="ascii"
                  text_readonly_color="white"
-                 top_delta="0"
-                 width="290" />
+                 top_delta="1"
+                 width="290"/>
                 <text
                  follows="left|top"
                  height="15"
@@ -344,17 +353,6 @@
                  name="folder_combo"
                  top_pad="5"
                  width="200" />
-                <button
-                 follows="bottom|left|right"
-                 height="23"
-                 label="Edit"
-                 layout="topleft"
-                 left="0"
-                 mouse_opaque="false"
-                 name="edit_btn"
-                 tool_tip="Edit landmark information"
-                 top_pad="-42"
-                 width="100" />
             </panel>
         </panel>
     </scroll_container>
