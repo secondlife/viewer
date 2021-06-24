@@ -92,6 +92,8 @@ S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 S32 compute_stock_count(LLUUID cat_uuid, bool force_count = false);
 
+void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id);
+
 /**                    Miscellaneous global functions
  **                                                                            **
  *******************************************************************************/

@@ -124,9 +124,11 @@ private:
     void                    onGlowChanged();
     void                    onStarBrightnessChanged();
     void                    onSunRotationChanged();
+    void                    onSunAzimElevChanged();
     void                    onSunScaleChanged();
     void                    onSunImageChanged();
     void                    onMoonRotationChanged();
+    void                    onMoonAzimElevChanged();
     void                    onMoonScaleChanged();
     void                    onMoonBrightnessChanged();
     void                    onMoonImageChanged();

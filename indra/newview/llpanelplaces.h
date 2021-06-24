@@ -48,6 +48,7 @@ class LLRemoteParcelInfoObserver;
 class LLTabContainer;
 class LLToggleableMenu;
 class LLMenuButton;
+class LLLayoutStack;
 
 typedef std::pair<LLUUID, std::string>	folder_pair_t;
 
@@ -96,7 +97,12 @@ private:
 	bool onOverflowMenuItemEnable(const LLSD& param);
 	void onCreateLandmarkButtonClicked(const LLUUID& folder_id);
 	void onBackButtonClicked();
-	void onProfileButtonClicked();
+    void onGearMenuClick();
+    void onSortingMenuClick();
+    void onAddMenuClick();
+    void onRemoveButtonClicked();
+    bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept);
+
 
 	void toggleMediaPanel();
 	void togglePickPanel(BOOL visible);
@@ -111,6 +117,8 @@ private:
 	LLFilterEditor*				mFilterEditor;
 	LLPanelPlacesTab*			mActivePanel;
 	LLTabContainer*				mTabContainer;
+	LLPanel*					mButtonsContainer;
+	LLLayoutStack*				mFilterContainer;
 	LLPanelPlaceProfile*		mPlaceProfile;
 	LLPanelLandmarkInfo*		mLandmarkInfo;
 
@@ -125,7 +133,12 @@ private:
 	LLButton*					mCancelBtn;
 	LLButton*					mCloseBtn;
 	LLMenuButton*				mOverflowBtn;
-	LLButton*					mPlaceInfoBtn;
+
+    // Top menu
+    LLMenuButton*				mGearMenuButton;
+    LLMenuButton*				mSortingMenuButton;
+    LLMenuButton*				mAddMenuButton;
+    LLButton*					mRemoveSelectedBtn;
 
 	LLPlacesInventoryObserver*	mInventoryObserver;
 	LLPlacesParcelObserver*		mParcelObserver;
