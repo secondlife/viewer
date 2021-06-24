@@ -2296,9 +2296,9 @@ For AI Character: Get the closest navigable point to the point provided.
 
 	<!-- inventory -->
 	<string name="InventoryNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search].</string>
-	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>
-	<string name="PlacesNoMatchingItems">Didn't find what you're looking for? Try [secondlife:///app/search/places/[SEARCH_TERM] Search].</string>
-	<string name="FavoritesNoMatchingItems">Drag a landmark here to add it to your favorites.</string>
+	<string name="InventoryNoMatchingRecentItems">Didn't find what you're looking for? Try [secondlife:///app/inventory/filters Show filters].</string>	
+	<string name="PlacesNoMatchingItems">To add a place to your landmarks, click the star to the right of the location name.</string>
+	<string name="FavoritesNoMatchingItems">To add a place to your favorites bar, click the star to the right of the location name.</string>
 	<string name="MarketplaceNoListing">You have no listings yet.</string>
 	<string name="MarketplaceNoMatchingItems">No items found. Check the spelling of your search string and try again.</string>
 	<string name="InventoryNoTexture">You do not have a copy of this texture in your inventory</string>
@@ -2418,6 +2418,7 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="Scripts"       value=" Scripts," />
 	<string name="Sounds"        value=" Sounds," />
 	<string name="Textures"      value=" Textures," />
+	<string name="Settings"      value=" Settings," />
 	<string name="Snapshots"     value=" Snapshots," />
 	<string name="No Filters"    value="No " />
 	<string name="Since Logoff"  value=" - Since Logoff" />
@@ -2835,7 +2836,6 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="AcquiredItems">Acquired Items</string>
 	<string name="Cancel">Cancel</string>
 	<string name="UploadingCosts">Uploading [NAME] costs L$ [AMOUNT]</string>
-	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
 		Unknown file extension .%s
 Expected .wav, .tga, .bmp, .jpg, .jpeg, or .anim
@@ -3759,6 +3759,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="unread_chat_multiple">
     [SOURCES] have said something new
   </string>
+  <string name="teleport_preamble_compact_chat">
+    You are now at
+  </string>
 	<string name="session_initialization_timed_out_error">
 		The session initialization is timed out
 	</string>
@@ -3767,6 +3770,10 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <string name="voice_morphing_url">https://secondlife.com/destination/voice-island</string>
   <string name="premium_voice_morphing_url">https://secondlife.com/destination/voice-morphing-premium</string>
+
+  <string name="lindenhomes_get_home_url">https://secondlife.com/land/lindenhomes/member.php</string>
+  <string name="lindenhomes_my_home_url">https://land.secondlife.com/en-Us/lindenhomes/my-home.php</string>
+  <string name="membership_url">https://secondlife.com/my/account/membership.php</string>
 
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
@@ -3791,11 +3798,12 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="to upload">to upload</string>
   <string name="to publish a classified ad">to publish a classified ad</string>
 
-  <string name="giving">Giving L$ [AMOUNT]</string>
   <string name="uploading_costs">Uploading costs L$ [AMOUNT]</string>
   <string name="this_costs">This costs L$ [AMOUNT]</string>
-  <string name="buying_selected_land">Buying selected land for L$ [AMOUNT]</string>
-  <string name="this_object_costs">This object costs L$ [AMOUNT]</string>
+  
+  <string name="buying_selected_land">This land costs</string>
+  <string name="this_object_costs">This item costs</string>
+  <string name="giving">You want to give</string>
 
   <string name="group_role_everyone">Everyone</string>
   <string name="group_role_officers">Officers</string>
@@ -3958,6 +3966,9 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <string name="Premium PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
+  <string name="MembershipUpgradeText">Upgrade to Premium</string>
+  <string name="MembershipPremiumText">My Premium membership</string>
+
   <!-- Question strings for delete items notifications -->
   <string name="DeleteItems">Delete selected items?</string>
   <string name="DeleteItem">Delete selected item?</string>
@@ -4114,8 +4125,8 @@ Try enclosing path to the editor with double quotes.
   <!-- commands -->
 
   <string name="Command_AboutLand_Label">About land</string>
-  <string name="Command_Appearance_Label">Appearance</string>
-  <string name="Command_Avatar_Label">Avatar</string>
+  <string name="Command_Appearance_Label">Outfits</string>
+  <string name="Command_Avatar_Label">Complete avatars</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
   <string name="Command_Conversations_Label">Conversations</string>
@@ -4124,7 +4135,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Environments_Label">My Environments</string>
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_Grid_Status_Label">Grid status</string>
-  <string name="Command_HowTo_Label">How to</string>
+  <string name="Command_HowTo_Label">Guidebook</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
