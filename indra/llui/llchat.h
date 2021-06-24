@@ -37,7 +37,8 @@ typedef enum e_chat_source_type
 	CHAT_SOURCE_SYSTEM = 0,
 	CHAT_SOURCE_AGENT = 1,
 	CHAT_SOURCE_OBJECT = 2,
-	CHAT_SOURCE_UNKNOWN = 3
+	CHAT_SOURCE_TELEPORT = 3,
+	CHAT_SOURCE_UNKNOWN = 4
 } EChatSourceType;
 
 typedef enum e_chat_type
@@ -64,7 +65,8 @@ typedef enum e_chat_style
 {
 	CHAT_STYLE_NORMAL,
 	CHAT_STYLE_IRC,
-	CHAT_STYLE_HISTORY
+	CHAT_STYLE_HISTORY,
+	CHAT_STYLE_TELEPORT_SEP
 }EChatStyle;
 
 // A piece of chat

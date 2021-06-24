@@ -52,7 +52,6 @@
 typedef std::pair<LLUUID, std::string> folder_pair_t;
 
 static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right);
-static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 static LLPanelInjector<LLPanelLandmarkInfo> t_landmark_info("panel_landmark_info");
 
@@ -106,6 +105,18 @@ void LLPanelLandmarkInfo::resetLocation()
 
 // virtual
 void LLPanelLandmarkInfo::setInfoType(EInfoType type)
+{
+    LLUUID dest_folder;
+    setInfoType(type, dest_folder);
+}
+
+// Sets CREATE_LANDMARK infotype and creates landmark at desired folder
+void LLPanelLandmarkInfo::setInfoAndCreateLandmark(const LLUUID& fodler_id)
+{
+    setInfoType(CREATE_LANDMARK, fodler_id);
+}
+
+void LLPanelLandmarkInfo::setInfoType(EInfoType type, const LLUUID &folder_id)
 {
 	LLPanel* landmark_info_panel = getChild<LLPanel>("landmark_info_panel");
 
@@ -183,7 +194,7 @@ void LLPanelLandmarkInfo::setInfoType(EInfoType type)
 			// remote parcel request to complete.
 			if (!LLLandmarkActions::landmarkAlreadyExists())
 			{
-				createLandmark(LLUUID());
+				createLandmark(folder_id);
 			}
 		}
 		break;
@@ -504,7 +515,7 @@ static bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
 	return left.second < right.second;
 }
 
-static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
+void LLPanelLandmarkInfo::collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 {
 	LLUUID landmarks_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK);
 
@@ -517,16 +528,20 @@ static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats)
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
 		is_category);
+}
 
-	// Add the "My Favorites" category.
-	LLUUID favorites_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
-	LLViewerInventoryCategory* favorites_cat = gInventory.getCategory(favorites_id);
-	if (!favorites_cat)
-	{
-		LL_WARNS() << "Cannot find the favorites folder" << LL_ENDL;
-	}
-	else
-	{
-		cats.push_back(favorites_cat);
-	}
+/* virtual */ void LLUpdateLandmarkParent::fire(const LLUUID& inv_item_id)
+{
+	LLInventoryModel::update_list_t update;
+	LLInventoryModel::LLCategoryUpdate old_folder(mItem->getParentUUID(), -1);
+	update.push_back(old_folder);
+	LLInventoryModel::LLCategoryUpdate new_folder(mNewParentId, 1);
+	update.push_back(new_folder);
+	gInventory.accountForUpdate(update);
+
+	mItem->setParent(mNewParentId);
+	mItem->updateParentOnServer(FALSE);
+
+	gInventory.updateItem(mItem);
+	gInventory.notifyObservers();
 }

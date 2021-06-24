@@ -2,8 +2,7 @@
 <teleport_messages>
 	<message_set name="errors">
 		<message name="invalid_tport">
-			Problem encountered processing your teleport request. You may need to log back in before you can teleport.
-If you continue to get this message, please check the [SUPPORT_SITE].
+			Teleport attempts are limited to 6 per minute. If you are having trouble, wait one minute and try teleporting again. If the problem persists, log out and log in again.
 		</message>
 		<message name="invalid_region_handoff">
 			Problem encountered processing your region crossing. You may need to log back in before you can cross regions.

@@ -128,7 +128,7 @@ void LLFloaterFixedEnvironment::onOpen(const LLSD& key)
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
-    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_FAST);
+    LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_EDIT, LLEnvironment::TRANSITION_INSTANT);
 
 }
 
@@ -180,7 +180,7 @@ void LLFloaterFixedEnvironment::setEditSettingsAndUpdate(const LLSettingsBase::p
     updateEditEnvironment();
     syncronizeTabs();
     refresh();
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT);
 }
 
 void LLFloaterFixedEnvironment::syncronizeTabs()
@@ -460,7 +460,7 @@ void LLFloaterFixedEnvironmentWater::loadWaterSettingFromFile(const std::vector<
     setDirtyFlag();
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacywater);
     setEditSettings(legacywater);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT, true);
 }
 
 //=========================================================================
@@ -548,7 +548,7 @@ void LLFloaterFixedEnvironmentSky::loadSkySettingFromFile(const std::vector<std:
     setDirtyFlag();
     LLEnvironment::instance().setEnvironment(LLEnvironment::ENV_EDIT, legacysky);
     setEditSettings(legacysky);
-    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_FAST, true);
+    LLEnvironment::instance().updateEnvironment(LLEnvironment::TRANSITION_INSTANT, true);
 }
 
 //=========================================================================

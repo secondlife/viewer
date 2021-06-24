@@ -26,6 +26,7 @@
 
 #include "llfloater.h"
 #include "llmediactrl.h"
+#include "llfloaterreg.h"
 
 // register with dispatch via global object
 LLFloaterHandler gFloaterHandler;
@@ -50,9 +51,15 @@ LLFloater* get_parent_floater(LLView* view)
 
 bool LLFloaterHandler::handle(const LLSD &params, const LLSD &query_map, LLMediaCtrl *web)
 {
-	if (params.size() < 2) return false;
+	if (params.size() < 1) return false;
 	LLFloater* floater = NULL;
 	// *TODO: implement floater lookup by name
+
+	if (params[0].asString() == "destinations")
+	{
+		LLFloaterReg::toggleInstanceOrBringToFront("destinations");
+		return true;
+	}
 	if (params[0].asString() == "self")
 	{
 		if (web)
