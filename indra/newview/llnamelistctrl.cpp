@@ -464,6 +464,34 @@ LLScrollListItem* LLNameListCtrl::getNameItemByAgentId(const LLUUID& agent_id)
 	return NULL;
 }
 
+void LLNameListCtrl::selectItemBySpecialId(const LLUUID& special_id)
+{
+    if (special_id.isNull())
+    {
+        return;
+    }
+
+    for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
+    {
+        LLNameListItem* item = dynamic_cast<LLNameListItem*>(*it);
+        if (item && item->getSpecialID() == special_id)
+        {
+            item->setSelected(TRUE);
+            break;
+        }
+    }
+}
+
+LLUUID LLNameListCtrl::getSelectedSpecialId()
+{
+    LLNameListItem* item = dynamic_cast<LLNameListItem*>(getFirstSelected());
+    if(item)
+    {
+        return item->getSpecialID();
+    }
+    return LLUUID();
+}
+
 void LLNameListCtrl::onAvatarNameCache(const LLUUID& agent_id,
 									   const LLAvatarName& av_name,
 									   std::string suffix,

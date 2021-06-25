@@ -967,10 +967,7 @@
     name="OutfitGalleryItemUnselected"
     value="0.4 0.4 0.4 1" />
   <color
-    name="AddPaymentPanel"
-    value="0.27 0.27 0.27 1" />
-  <color
-    name="PerformanceFloaterGray"
+    name="PanelGray"
     value="0.27 0.27 0.27 1" />
   <color
     name="PerformanceMid"

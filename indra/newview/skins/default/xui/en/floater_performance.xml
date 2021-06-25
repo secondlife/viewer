@@ -75,7 +75,7 @@
    left="0"   
    top="60">
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"
@@ -122,7 +122,7 @@
        right="-20"/>
     </panel>
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"
@@ -168,7 +168,7 @@
          right="-20"/>
       </panel>
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"
@@ -225,7 +225,7 @@
        right="-20"/>
     </panel>
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"
@@ -282,7 +282,7 @@
        right="-20"/>
     </panel>
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"
@@ -339,7 +339,7 @@
        right="-20"/>
     </panel>
     <panel
-     bg_alpha_color="PerformanceFloaterGray"
+     bg_alpha_color="PanelGray"
      background_visible="true"
      background_opaque="false"
      border="true"

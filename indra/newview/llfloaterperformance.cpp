@@ -190,6 +190,7 @@ void LLFloaterPerformance::initBackBtn(LLPanel* panel)
 void LLFloaterPerformance::populateHUDList()
 {
     S32 prev_pos = mHUDList->getScrollPos();
+    LLUUID prev_selected_id = mHUDList->getSelectedSpecialId();
     mHUDList->clearRows();
     mHUDList->updateColumns(true);
 
@@ -213,7 +214,7 @@ void LLFloaterPerformance::populateHUDList()
         item["target"] = LLNameListCtrl::SPECIAL;
         LLSD& row = item["columns"];
         row[0]["column"] = "complex_visual";
-        row[0]["type"] = "image";
+        row[0]["type"] = "bar";
         LLSD& value = row[0]["value"];
         value["ratio"] = (F32)hud_object_complexity.objectsCost / max_complexity;
         value["bottom"] = BAR_BOTTOM_PAD;
@@ -234,6 +235,7 @@ void LLFloaterPerformance::populateHUDList()
     }
     mHUDList->sortByColumnIndex(1, FALSE);
     mHUDList->setScrollPos(prev_pos);
+    mHUDList->selectItemBySpecialId(prev_selected_id);
 
     mHUDsPanel->getChild<LLTextBox>("huds_value")->setValue(std::to_string(complexity_list.size()));
 }
@@ -241,6 +243,7 @@ void LLFloaterPerformance::populateHUDList()
 void LLFloaterPerformance::populateObjectList()
 {
     S32 prev_pos = mObjectList->getScrollPos();
+    LLUUID prev_selected_id = mObjectList->getSelectedSpecialId();
     mObjectList->clearRows();
     mObjectList->updateColumns(true);
 
@@ -264,7 +267,7 @@ void LLFloaterPerformance::populateObjectList()
         item["target"] = LLNameListCtrl::SPECIAL;
         LLSD& row = item["columns"];
         row[0]["column"] = "complex_visual";
-        row[0]["type"] = "image";
+        row[0]["type"] = "bar";
         LLSD& value = row[0]["value"];
         value["ratio"] = (F32)object_complexity.objectCost / max_complexity;
         value["bottom"] = BAR_BOTTOM_PAD;
@@ -285,11 +288,13 @@ void LLFloaterPerformance::populateObjectList()
     }
     mObjectList->sortByColumnIndex(1, FALSE);
     mObjectList->setScrollPos(prev_pos);
+    mObjectList->selectItemBySpecialId(prev_selected_id);
 }
 
 void LLFloaterPerformance::populateNearbyList()
 {
     S32 prev_pos = mNearbyList->getScrollPos();
+    LLUUID prev_selected_id = mNearbyList->getStringUUIDSelectedItem();
     mNearbyList->clearRows();
     mNearbyList->updateColumns(true);
 
@@ -307,7 +312,7 @@ void LLFloaterPerformance::populateNearbyList()
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
             row[0]["column"] = "complex_visual";
-            row[0]["type"] = "image";
+            row[0]["type"] = "bar";
             LLSD& value = row[0]["value"];
             value["ratio"] = (F32)avatar->getVisualComplexity() / mNearbyMaxComplexity;
             value["bottom"] = BAR_BOTTOM_PAD;
@@ -331,7 +336,7 @@ void LLFloaterPerformance::populateNearbyList()
                 if (name_text)
                 {
                     std::string color = "white";
-                    if (avatar->getVisualComplexity() > max_render_cost)
+                    if ((max_render_cost != 0) && (avatar->getVisualComplexity() > max_render_cost))
                     {
                         color = "LabelDisabledColor";
                         LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
@@ -352,6 +357,7 @@ void LLFloaterPerformance::populateNearbyList()
     }
     mNearbyList->sortByColumnIndex(1, FALSE);
     mNearbyList->setScrollPos(prev_pos);
+    mNearbyList->selectByID(prev_selected_id);
 }
 
 void LLFloaterPerformance::getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs)

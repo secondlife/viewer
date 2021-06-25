@@ -54,7 +54,7 @@ LLScrollListCell* LLScrollListCell::create(const LLScrollListCell::Params& cell_
 	{
 		cell = new LLScrollListIconText(cell_p);
 	}
-    else if (cell_p.type() == "image")
+    else if (cell_p.type() == "bar")
     {
         cell = new LLScrollListBar(cell_p);
     }
