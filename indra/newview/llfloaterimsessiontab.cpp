@@ -518,9 +518,12 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
 	
 	// If not already present, create the participant view and attach it to the root, otherwise, just refresh it
-	if (widget && update_view)
+	if (widget)
 	{
-		updateConversationViewParticipant(uuid); // overkill?
+        if (update_view)
+        {
+            updateConversationViewParticipant(uuid); // overkill?
+        }
 	}
 	else
 	{
