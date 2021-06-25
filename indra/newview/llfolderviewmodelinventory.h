@@ -45,6 +45,7 @@ public:
 	virtual LLFolderType::EType getPreferredType() const = 0;
 	virtual void showProperties(void) = 0;
 	virtual BOOL isItemInTrash( void) const { return FALSE; } // TODO: make   into pure virtual.
+	virtual BOOL isAgentInventory() const { return FALSE; }
 	virtual BOOL isUpToDate() const = 0;
 	virtual bool hasChildren() const = 0;
 	virtual LLInventoryType::EType getInventoryType() const = 0;

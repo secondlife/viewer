@@ -209,6 +209,7 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
+    llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
     llfloateravatar.cpp
@@ -232,6 +233,7 @@ set(viewer_SOURCE_FILES
     llfloatercolorpicker.cpp
     llfloaterconversationlog.cpp
     llfloaterconversationpreview.cpp
+    llfloatercreatelandmark.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
     llfloatereditenvironmentbase.cpp
@@ -254,6 +256,7 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhelpbrowser.cpp
     llfloaterhoverheight.cpp
+    llfloaterhowto.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimsessiontab.cpp
@@ -638,6 +641,7 @@ set(viewer_SOURCE_FILES
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
+    llurlfloaterdispatchhandler.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
@@ -846,6 +850,7 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloaterabout.h
     llfloaterbvhpreview.h
+    llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
     llfloateravatar.h
@@ -869,6 +874,7 @@ set(viewer_HEADER_FILES
     llfloatercolorpicker.h
     llfloaterconversationlog.h
     llfloaterconversationpreview.h
+    llfloatercreatelandmark.h
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditenvironmentbase.h
@@ -891,6 +897,7 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhelpbrowser.h
     llfloaterhoverheight.h
+    llfloaterhowto.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimnearbychat.h
@@ -1268,6 +1275,7 @@ set(viewer_HEADER_FILES
     llurl.h
     llurldispatcher.h
     llurldispatcherlistener.h
+    llurlfloaterdispatchhandler.h
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h
