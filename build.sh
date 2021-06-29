@@ -280,6 +280,12 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 
 initialize_version # provided by buildscripts build.sh; sets version id
 
+# install the git-hooks dependencies
+pip_install -r "$git_hooks_checkout/requirements.txt"
+# validate the branch we're about to build
+python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
+    fatal "coding policy check failed"
+
 # Now run the build
 succeeded=true
 last_built_variant=
