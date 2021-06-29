@@ -746,9 +746,6 @@ LLSD LLFloaterReporter::gatherReport()
 	const char* platform = "Mac";
 #elif LL_LINUX
 	const char* platform = "Lnx";
-#elif LL_SOLARIS
-	const char* platform = "Sol";
-	const char* short_platform = "O:S";
 #else
 	const char* platform = "???";
 #endif

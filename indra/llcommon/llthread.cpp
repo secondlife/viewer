@@ -36,7 +36,7 @@
 #include "lltracethreadrecorder.h"
 #include "llexception.h"
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include <sched.h>
 #endif
 

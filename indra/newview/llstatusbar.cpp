@@ -416,7 +416,20 @@ void LLStatusBar::sendMoneyBalanceRequest()
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_MoneyData);
 	msg->addUUIDFast(_PREHASH_TransactionID, LLUUID::null );
-	gAgent.sendReliableMessage();
+
+    if (gDisconnected)
+    {
+        LL_DEBUGS() << "Trying to send message when disconnected, skipping balance request!" << LL_ENDL;
+        return;
+    }
+    if (!gAgent.getRegion())
+    {
+        LL_DEBUGS() << "LLAgent::sendReliableMessage No region for agent yet, skipping balance request!" << LL_ENDL;
+        return;
+    }
+    // Double amount of retries due to this request initially happening during busy stage
+    // Ideally this should be turned into a capability
+    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, TRUE, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
 }
 
 

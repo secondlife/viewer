@@ -314,6 +314,99 @@ RecordToChatConsole::RecordToChatConsole():
 
 ////////////////////////////////////////////////////////////////////////////
 //
+// Print Utility
+//
+
+// Convert a normalized float (-1.0 <= x <= +1.0) to a fixed 1.4 format string:
+//
+//    s#.####
+//
+// Where:
+//    s  sign character; space if x is positiv, minus if negative
+//    #  decimal digits
+//
+// This is similar to printf("%+.4f") except positive numbers are NOT cluttered with a leading '+' sign.
+// NOTE: This does NOT null terminate the output
+void normalized_float_to_string(const float x, char *out_str)
+{
+    static const unsigned char DECIMAL_BCD2[] =
+    {
+        0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,
+        0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19,
+        0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
+        0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39,
+        0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47, 0x48, 0x49,
+        0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59,
+        0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69,
+        0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77, 0x78, 0x79,
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87, 0x88, 0x89,
+        0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97, 0x98, 0x99
+    };
+
+    int neg = (x < 0);
+    int rem = neg
+            ? (int)(x * -10000.)
+            : (int)(x *  10000.);
+
+    int d10 = rem % 100; rem /= 100;
+    int d32 = rem % 100; rem /= 100;
+
+    out_str[6] = '0' + ((DECIMAL_BCD2[ d10 ] >> 0) & 0xF);
+    out_str[5] = '0' + ((DECIMAL_BCD2[ d10 ] >> 4) & 0xF);
+    out_str[4] = '0' + ((DECIMAL_BCD2[ d32 ] >> 0) & 0xF);
+    out_str[3] = '0' + ((DECIMAL_BCD2[ d32 ] >> 4) & 0xF);
+    out_str[2] = '.';
+    out_str[1] = '0' + (rem & 1);
+    out_str[0] = " -"[neg]; // Could always show '+' for positive but this clutters up the common case
+}
+
+// normalized float
+//    printf("%-.4f    %-.4f    %-.4f")
+// Params:
+//   float  &matrix_row[4]
+//   int    matrix_cell_index
+//   string out_buffer (size 32)
+// Note: The buffer is assumed to be pre-filled with spaces
+#define MATRIX_ROW_N32_TO_STR(matrix_row, i, out_buffer)          \
+    normalized_float_to_string(matrix_row[i+0], out_buffer +  0); \
+    normalized_float_to_string(matrix_row[i+1], out_buffer + 11); \
+    normalized_float_to_string(matrix_row[i+2], out_buffer + 22); \
+    out_buffer[31] = 0;
+
+
+// regular float
+//    sprintf(buffer, "%-8.2f  %-8.2f  %-8.2f", matrix_row[i+0], matrix_row[i+1], matrix_row[i+2]);
+// Params:
+//   float  &matrix_row[4]
+//   int    matrix_cell_index
+//   char   out_buffer[32]
+// Note: The buffer is assumed to be pre-filled with spaces
+#define MATRIX_ROW_F32_TO_STR(matrix_row, i, out_buffer) {                       \
+    static const char *format[3] = {                                             \
+        "%-8.2f"  ,  /* 0 */                                                     \
+        ">  99K  ",  /* 1 */                                                     \
+        "< -99K  "   /* 2 */                                                     \
+    };                                                                           \
+                                                                                 \
+    F32 temp_0 = matrix_row[i+0];                                                \
+    F32 temp_1 = matrix_row[i+1];                                                \
+    F32 temp_2 = matrix_row[i+2];                                                \
+                                                                                 \
+    U8 flag_0 = (((U8)(temp_0 < -99999.99)) << 1) | ((U8)(temp_0 > 99999.99));   \
+    U8 flag_1 = (((U8)(temp_1 < -99999.99)) << 1) | ((U8)(temp_1 > 99999.99));   \
+    U8 flag_2 = (((U8)(temp_2 < -99999.99)) << 1) | ((U8)(temp_2 > 99999.99));   \
+                                                                                 \
+    if (temp_0 < 0.f) out_buffer[ 0] = '-';                                      \
+    if (temp_1 < 0.f) out_buffer[11] = '-';                                      \
+    if (temp_2 < 0.f) out_buffer[22] = '-';                                      \
+                                                                                 \
+    sprintf(out_buffer+ 1,format[flag_0],fabsf(temp_0)); out_buffer[ 1+8] = ' '; \
+    sprintf(out_buffer+12,format[flag_1],fabsf(temp_1)); out_buffer[12+8] = ' '; \
+    sprintf(out_buffer+23,format[flag_2],fabsf(temp_2)); out_buffer[23+8] =  0 ; \
+}
+
+////////////////////////////////////////////////////////////////////////////
+//
 // LLDebugText
 //
 
@@ -334,7 +427,11 @@ private:
 	typedef std::vector<Line> line_list_t;
 	line_list_t mLineList;
 	LLColor4 mTextColor;
-	
+
+	LLColor4 mBackColor;
+	LLRect mBackRectCamera1;
+	LLRect mBackRectCamera2;
+
 	void addText(S32 x, S32 y, const std::string &text) 
 	{
 		mLineList.push_back(Line(text, x, y));
@@ -376,10 +473,21 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		S32 x_right = mWindow->getWorldViewWidthScaled();
+		S32 xpos = x_right - 400;
 		xpos = llmax(xpos, 0);
 		S32 ypos = 64;
 		const S32 y_inc = 20;
+
+		// Camera matrix text is hard to see again a white background
+		// Add a dark background underneath the matrices for readability (contrast)
+		mBackRectCamera1.mLeft   = xpos;
+		mBackRectCamera1.mRight  = x_right;
+		mBackRectCamera1.mTop    = -1;
+		mBackRectCamera1.mBottom = -1;
+		mBackRectCamera2 = mBackRectCamera1;
+
+		mBackColor = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );
 
 		clearText();
 		
@@ -716,48 +824,45 @@ public:
 		}
 		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
 		{
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14], gGLProjection[15]));
-			ypos += y_inc;
+			char camera_lines[8][32];
+			memset(camera_lines, ' ', sizeof(camera_lines));
 
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[8], gGLProjection[9], gGLProjection[10], gGLProjection[11]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[4], gGLProjection[5], gGLProjection[6], gGLProjection[7]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[0], gGLProjection[1], gGLProjection[2], gGLProjection[3]));
-			ypos += y_inc;
+			// Projection last column is always <0,0,-1.0001,0>
+			// Projection last row is always <0,0,-0.2>
+			mBackRectCamera1.mBottom = ypos - y_inc + 2;
+			MATRIX_ROW_N32_TO_STR(gGLProjection, 12,camera_lines[7]); addText(xpos, ypos, std::string(camera_lines[7])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  8,camera_lines[6]); addText(xpos, ypos, std::string(camera_lines[6])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  4,camera_lines[5]); addText(xpos, ypos, std::string(camera_lines[5])); ypos += y_inc; mBackRectCamera1.mTop    = ypos + 2;
+			MATRIX_ROW_N32_TO_STR(gGLProjection,  0,camera_lines[4]); addText(xpos, ypos, std::string(camera_lines[4])); ypos += y_inc; mBackRectCamera2.mBottom = ypos + 2;
 
 			addText(xpos, ypos, "Projection Matrix");
 			ypos += y_inc;
 
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[12], gGLModelView[13], gGLModelView[14], gGLModelView[15]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[8], gGLModelView[9], gGLModelView[10], gGLModelView[11]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[4], gGLModelView[5], gGLModelView[6], gGLModelView[7]));
-			ypos += y_inc;
-
-			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLModelView[0], gGLModelView[1], gGLModelView[2], gGLModelView[3]));
-			ypos += y_inc;
+			// View last column is always <0,0,0,1>
+			MATRIX_ROW_F32_TO_STR(gGLModelView, 12,camera_lines[3]); addText(xpos, ypos, std::string(camera_lines[3])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  8,camera_lines[2]); addText(xpos, ypos, std::string(camera_lines[2])); ypos += y_inc;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  4,camera_lines[1]); addText(xpos, ypos, std::string(camera_lines[1])); ypos += y_inc; mBackRectCamera2.mTop = ypos + 2;
+			MATRIX_ROW_N32_TO_STR(gGLModelView,  0,camera_lines[0]); addText(xpos, ypos, std::string(camera_lines[0])); ypos += y_inc;
 
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
 		}
 		// disable use of glReadPixels which messes up nVidia nSight graphics debugging
-		if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
-		{
-			U8 color[4];
-			LLCoordGL coord = gViewerWindow->getCurrentMouse();
-			glReadPixels(coord.mX, coord.mY, 1,1,GL_RGBA, GL_UNSIGNED_BYTE, color);
-			addText(xpos, ypos, llformat("%d %d %d %d", color[0], color[1], color[2], color[3]));
-			ypos += y_inc;
-		}
+        if (gSavedSettings.getBOOL("DebugShowColor") && !LLRender::sNsightDebugSupport)
+        {
+            U8 color[4];
+            LLCoordGL coord = gViewerWindow->getCurrentMouse();
 
-		// only display these messages if we are actually rendering beacons at this moment
+            // Convert x,y to raw pixel coords
+            S32 x_raw = llround(coord.mX * gViewerWindow->getWindowWidthRaw() / (F32) gViewerWindow->getWindowWidthScaled());
+            S32 y_raw = llround(coord.mY * gViewerWindow->getWindowHeightRaw() / (F32) gViewerWindow->getWindowHeightScaled());
+            
+            glReadPixels(x_raw, y_raw, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, color);
+            addText(xpos, ypos, llformat("Pixel <%1d, %1d> R:%1d G:%1d B:%1d A:%1d", x_raw, y_raw, color[0], color[1], color[2], color[3]));
+            ypos += y_inc;
+        }
+
+        // only display these messages if we are actually rendering beacons at this moment
 		if (LLPipeline::getRenderBeacons() && LLFloaterReg::instanceVisible("beacons"))
 		{
 			if (LLPipeline::getRenderMOAPBeacons())
@@ -884,6 +989,18 @@ public:
 	void draw()
 	{
 		LL_RECORD_BLOCK_TIME(FTM_DISPLAY_DEBUG_TEXT);
+
+		// Camera matrix text is hard to see again a white background
+		// Add a dark background underneath the matrices for readability (contrast)
+		if (mBackRectCamera1.mTop >= 0)
+		{
+			mBackColor.setAlpha( 0.75f );
+			gl_rect_2d(mBackRectCamera1, mBackColor, true);
+
+			mBackColor.setAlpha( 0.66f );
+			gl_rect_2d(mBackRectCamera2, mBackColor, true);
+		}
+
 		for (line_list_t::iterator iter = mLineList.begin();
 			 iter != mLineList.end(); ++iter)
 		{
@@ -892,7 +1009,6 @@ public:
 											 LLFontGL::LEFT, LLFontGL::TOP,
 											 LLFontGL::NORMAL, LLFontGL::NO_SHADOW, S32_MAX, S32_MAX, NULL, FALSE);
 		}
-		mLineList.clear();
 	}
 
 };
@@ -1800,8 +1916,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		ms_sleep(5000) ; //wait for 5 seconds.
 
 		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
-#if LL_LINUX || LL_SOLARIS
-		LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
+#if LL_LINUX
+		LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt for further information."
 				<< LL_ENDL;
 #else
 		LL_WARNS("Window") << "Unable to create window, be sure screen is set at 32-bit color in Control Panels->Display->Settings"
@@ -4735,10 +4851,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		return FALSE;
 	}
 	//check if there is enough memory for the snapshot image
-	if(LLPipeline::sMemAllocationThrottled)
-	{
-		return FALSE ; //snapshot taking is disabled due to memory restriction.
-	}
 	if(image_width * image_height > (1 << 22)) //if snapshot image is larger than 2K by 2K
 	{
 		if(!LLMemory::tryToAlloc(NULL, image_width * image_height * 3))

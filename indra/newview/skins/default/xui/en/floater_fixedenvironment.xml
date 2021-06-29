@@ -89,7 +89,7 @@
                 follows="left|top|right|bottom"
                 auto_resize="false"
                 user_resize="false"
-                height="40"
+                height="29"
                 visible="true">
             <layout_stack
                     follows="bottom|left|right"
@@ -97,7 +97,7 @@
                     layout="topleft"
                     mouse_opaque="false"
                     name="button_bar_ls"
-                    left="0"
+                    left="212"
                     orientation="horizontal"
                     top="0"
                     width="313">

@@ -26,9 +26,9 @@
 /*[EXTRA_CODE_HERE]*/ 
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_color;
 #else
-#define frag_data gl_FragData
+#define frag_color gl_FragColor
 #endif
 
 /////////////////////////////////////////////////////////////////////////
@@ -126,8 +126,6 @@ void main()
     color.rgb = scaleSoftClip(color.rgb);
 
     /// Gamma correct for WL (soft clip effect).
-    frag_data[0] = vec4(color.rgb, alpha1);
-    frag_data[1] = vec4(0.0,0.0,0.0,0.0);
-    frag_data[2] = vec4(0,0,0,1);
+    frag_color = vec4(color.rgb, alpha1);
 }
 

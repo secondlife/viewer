@@ -57,7 +57,7 @@ typedef unsigned __int64		U64;
 #else
 typedef long long int			S64;
 typedef long long unsigned int		U64;
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 #define S64L(a)				(a##LL)
 #define U64L(a)				(a##ULL)
 #endif

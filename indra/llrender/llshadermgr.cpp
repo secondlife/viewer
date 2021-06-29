@@ -611,13 +611,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 #endif
 
 	GLenum error = GL_NO_ERROR;
-	if (gDebugGL)
+
+	error = glGetError();
+	if (error != GL_NO_ERROR)
 	{
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-		{
-			LL_SHADER_LOADING_WARNS() << "GL ERROR entering loadShaderFile(): " << error << LL_ENDL;
-		}
+		LL_SHADER_LOADING_WARNS() << "GL ERROR entering loadShaderFile(): " << error << " for file: " << filename << LL_ENDL;
 	}
 	
 	if (filename.empty()) 
@@ -966,55 +964,45 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//create shader object
 	GLhandleARB ret = glCreateShaderObjectARB(type);
-	if (gDebugGL)
+
+	error = glGetError();
+	if (error != GL_NO_ERROR)
 	{
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-		{
-			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << LL_ENDL;
-		}
+		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
-	
+
 	//load source
 	glShaderSourceARB(ret, shader_code_count, (const GLcharARB**) shader_code_text, NULL);
 
-	if (gDebugGL)
+	error = glGetError();
+	if (error != GL_NO_ERROR)
 	{
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-		{
-			LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << LL_ENDL;
-		}
+		LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
 
 	//compile source
 	glCompileShaderARB(ret);
 
-	if (gDebugGL)
+	error = glGetError();
+	if (error != GL_NO_ERROR)
 	{
-		error = glGetError();
-		if (error != GL_NO_ERROR)
-		{
-			LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << LL_ENDL;
-		}
+		LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
-		
+
 	if (error == GL_NO_ERROR)
 	{
 		//check for errors
 		GLint success = GL_TRUE;
 		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
-		if (gDebugGL || success == GL_FALSE)
+
+		error = glGetError();
+		if (error != GL_NO_ERROR || success == GL_FALSE) 
 		{
-			error = glGetError();
-			if (error != GL_NO_ERROR || success == GL_FALSE) 
-			{
-				//an error occured, print log
-				LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
-				dumpObjectLog(ret, TRUE, open_file_name);
-                dumpShaderSource(shader_code_count, shader_code_text);
-				ret = 0;
-			}
+			//an error occured, print log
+			LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
+			dumpObjectLog(ret, TRUE, open_file_name);
+			dumpShaderSource(shader_code_count, shader_code_text);
+			ret = 0;
 		}
 	}
 	else

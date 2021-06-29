@@ -155,9 +155,8 @@ public:
 	//get the size of a buffer with the given typemask and vertex count
 	//fill offsets with the offset of each vertex component array into the buffer
 	// indexed by the following enum
-	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);		
+	static S32 calcOffsets(const U32& typemask, S32* offsets, S32 num_vertices);
 
-	
 	//WARNING -- when updating these enums you MUST 
 	// 1 - update LLVertexBuffer::sTypeSize
 	// 2 - add a strider accessor
@@ -165,24 +164,28 @@ public:
 	// 4 - modify LLVertexBuffer::setupClientArray
 	// 5 - modify LLViewerShaderMgr::mReservedAttribs
 	// 6 - update LLVertexBuffer::setupVertexArray
-	enum {
-		TYPE_VERTEX = 0,
-		TYPE_NORMAL,
-		TYPE_TEXCOORD0,
-		TYPE_TEXCOORD1,
-		TYPE_TEXCOORD2,
-		TYPE_TEXCOORD3,
-		TYPE_COLOR,
-		TYPE_EMISSIVE,
-		TYPE_TANGENT,
-		TYPE_WEIGHT,
-		TYPE_WEIGHT4,
-		TYPE_CLOTHWEIGHT,
-		TYPE_TEXTURE_INDEX,
-		TYPE_MAX,   // TYPE_MAX is the size/boundary marker for attributes that go in the vertex buffer
-		TYPE_INDEX,	// TYPE_INDEX is beyond _MAX because it lives in a separate (index) buffer	
-	};
-	enum {
+
+    // clang-format off
+    enum {                      // Shader attribute name, set in LLShaderMgr::initAttribsAndUniforms()
+        TYPE_VERTEX = 0,        //  "position"
+        TYPE_NORMAL,            //  "normal"
+        TYPE_TEXCOORD0,         //  "texcoord0"
+        TYPE_TEXCOORD1,         //  "texcoord1"
+        TYPE_TEXCOORD2,         //  "texcoord2"
+        TYPE_TEXCOORD3,         //  "texcoord3"
+        TYPE_COLOR,             //  "diffuse_color"
+        TYPE_EMISSIVE,          //  "emissive"
+        TYPE_TANGENT,           //  "tangent"
+        TYPE_WEIGHT,            //  "weight"
+        TYPE_WEIGHT4,           //  "weight4"
+        TYPE_CLOTHWEIGHT,       //  "clothing"
+        TYPE_TEXTURE_INDEX,     //  "texture_index"
+        TYPE_MAX,   // TYPE_MAX is the size/boundary marker for attributes that go in the vertex buffer
+        TYPE_INDEX,	// TYPE_INDEX is beyond _MAX because it lives in a separate (index) buffer	
+    };
+    // clang-format on
+
+    enum {
 		MAP_VERTEX = (1<<TYPE_VERTEX),
 		MAP_NORMAL = (1<<TYPE_NORMAL),
 		MAP_TEXCOORD0 = (1<<TYPE_TEXCOORD0),

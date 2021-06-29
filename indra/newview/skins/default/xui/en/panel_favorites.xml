@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+   name="Favorites"
+   layout="topleft" 
+   left="0"
+   border="false"
+   background_visible="true"
+   bg_alpha_color="DkGray"
+   follows="all">
+    <places_inventory_panel
+      allow_multi_select="true"
+      border="false"
+      top="1"
+      left="3"
+      bottom="0"
+      follows="all"
+      right="-3"
+      mouse_opaque="true"
+      name="favorites_list"
+      folder_view.use_ellipses="true"
+      start_folder.name="Favorites"/>        
+</panel>
