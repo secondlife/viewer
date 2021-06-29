@@ -306,7 +306,7 @@ void LLFloaterPerformance::populateNearbyList()
     while (char_iter != valid_nearby_avs.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar)
+        if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
         {
             LLSD item;
             item["id"] = avatar->getID();
@@ -336,7 +336,7 @@ void LLFloaterPerformance::populateNearbyList()
                 if (name_text)
                 {
                     std::string color = "white";
-                    if ((max_render_cost != 0) && (avatar->getVisualComplexity() > max_render_cost))
+                    if (LLVOAvatar::AOA_JELLYDOLL == avatar->getOverallAppearance())
                     {
                         color = "LabelDisabledColor";
                         LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
@@ -345,9 +345,9 @@ void LLFloaterPerformance::populateNearbyList()
                             bar->setColor(LLUIColorTable::instance().getColor(color));
                         }
                     }
-                    else if (LLAvatarActions::isFriend(avatar->getID()))
+                    else if (LLVOAvatar::AOA_NORMAL == avatar->getOverallAppearance())
                     {
-                        color = "ConversationFriendColor";
+                        color =  LLAvatarActions::isFriend(avatar->getID()) ? "ConversationFriendColor" : "white";
                     }
                     name_text->setColor(LLUIColorTable::instance().getColor(color));
                 }

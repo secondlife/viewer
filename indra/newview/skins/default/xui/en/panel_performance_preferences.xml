@@ -2,7 +2,7 @@
 <panel
  bevel_style="none"
  follows="left|top"
- height="510"
+ height="520"
  width="580"
  name="panel_performance_preferences"
  layout="topleft"
@@ -57,7 +57,7 @@
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="20"
+   top_pad="30"
    name="quality_lbl"
    width="100">
     Graphics quality
@@ -74,21 +74,60 @@ shortcuts
    width="40">
     Fastest
   </text>
-  <slider
-    control_name="RenderQualityPerformance"
-    decimal_digits="0"
-    follows="left|top"
-    height="16"
-    increment="1"
-    initial_value="0"
-    layout="topleft"
-    left_pad="5"
-    max_val="6"
-    name="graphics_quality"
-    show_text="false"
-    top_delta="-1"
-    width="275">
-  </slider>
+  <radio_group
+   control_name="RenderQualityPerformance"
+   follows="top|left"
+   draw_border="false"
+   height="25"
+   layout="topleft"
+   left_pad="5"
+   name="graphics_quality"
+   top_delta="0"
+   width="243">
+    <radio_item
+     height="16"
+     layout="topleft"
+     left="3"
+     name="0"
+     top="0"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="1"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="2"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="3"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="4"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="5"
+     width="7" />
+    <radio_item
+     height="16"
+     layout="topleft"
+     left_pad="30"
+     name="6"
+     width="7" />
+  </radio_group>
   <text
    follows="left|top"
    font="SansSerifSmall"
@@ -383,4 +422,75 @@ shortcuts
     name="advanced_btn"
     top_pad="12"
     width="200"/>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   top="78"
+   left="213"
+   name="1_lbl"
+   width="7">
+    1
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="31"
+   name="2_lbl"
+   width="7">
+    2
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="30"
+   name="3_lbl"
+   width="7">
+    3
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="30"
+   name="4_lbl"
+   width="7">
+    4
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="30"
+   name="5_lbl"
+   width="7">
+    5
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="30"
+   name="6_lbl"
+   width="7">
+      6
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   height="18"
+   layout="topleft"
+   left_pad="30"
+   name="7_lbl"
+   width="7">
+    7
+  </text>
 </panel>
