@@ -281,7 +281,7 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 initialize_version # provided by buildscripts build.sh; sets version id
 
 # install the git-hooks dependencies
-pip install -r "$git_hooks_checkout/requirements.txt" || \
+pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
     fatal "pip install git-hooks failed"
 # validate the branch we're about to build
 python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
