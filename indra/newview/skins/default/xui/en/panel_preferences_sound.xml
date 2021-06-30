@@ -386,7 +386,7 @@
      left="25"
      name="voice_chat_settings"
      width="200"
-     top_pad="7">
+     top_pad="16">
 	  Voice Chat Settings
     </text>
     <text
