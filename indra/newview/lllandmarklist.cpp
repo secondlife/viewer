@@ -74,6 +74,16 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 		{
 			return NULL;
 		}
+
+        if (cb)
+        {
+            // Multiple different sources can request same landmark,
+            // mLoadedCallbackMap is a multimap that allows multiple pairs with same key
+            // Todo: this might need to be improved to not hold identical callbacks multiple times
+            loaded_callback_map_t::value_type vt(asset_uuid, cb);
+            mLoadedCallbackMap.insert(vt);
+        }
+
 	    if ( mWaitList.find(asset_uuid) != mWaitList.end() )
 		{
             // Landmark is sheduled for download, but not requested yet
@@ -88,12 +98,6 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 			{
 				return NULL;
 			}
-		}
-		
-		if (cb)
-		{
-			loaded_callback_map_t::value_type vt(asset_uuid, cb);
-			mLoadedCallbackMap.insert(vt);
 		}
 
         if (mRequestedList.size() > MAX_SIMULTANEOUS_REQUESTS)
