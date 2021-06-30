@@ -143,7 +143,7 @@ void LLFloaterCreateLandmark::setLandmarkInfo(const LLUUID &folder_id)
 		mLandmarkTitleEditor->setText(name);
 	}
 
-	LLLandmarkActions::createLandmarkHere(name, "", folder_id.notNull() ? folder_id : gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE));
+	LLLandmarkActions::createLandmarkHere(name, "", folder_id.notNull() ? folder_id : mLandmarksID);
 }
 
 bool cmp_folders(const folder_pair_t& left, const folder_pair_t& right)
@@ -202,6 +202,10 @@ void LLFloaterCreateLandmark::populateFoldersList(const LLUUID &folder_id)
 	{
 		mFolderCombo->setCurrentByID(folder_id);
 	}
+    else
+    {
+        mFolderCombo->setCurrentByID(mLandmarksID);
+    }
 }
 
 void LLFloaterCreateLandmark::onCreateFolderClicked()
