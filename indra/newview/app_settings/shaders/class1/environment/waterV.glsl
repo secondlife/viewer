@@ -68,7 +68,7 @@ void main()
 	d *= d;
 		
 	oPosition = vec4(position, 1.0);
-	oPosition.z = mix(oPosition.z, max(eyeVec.z*0.75, 0.0), d);
+//	oPosition.z = mix(oPosition.z, max(eyeVec.z*0.75, 0.0), d); // SL-11589 remove "U" shaped horizon
 	oPosition = modelViewProj * oPosition;
 	
 	refCoord.xyz = oPosition.xyz + vec3(0,0,0.2);
