@@ -63,7 +63,7 @@ public:
 	void 				openToSave();
 
 	void				saveTextureToFile(const std::vector<std::string>& filenames);
-    void                saveMultipleToFile();
+    void                saveMultipleToFile(const std::string& file_name = "");
 	
 	static void			onSaveAsBtn(void* data);
 

@@ -5497,7 +5497,7 @@ void LLTextureBridge::performAction(LLInventoryModel* model, std::string action)
             LLPreviewTexture* preview_texture = LLFloaterReg::getTypedInstance<LLPreviewTexture>("preview_texture", mUUID);
             if (preview_texture)
             {
-                preview_texture->saveMultipleToFile();
+                preview_texture->saveMultipleToFile(mFileName);
             }
         }
         else

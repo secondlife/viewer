@@ -2558,13 +2558,22 @@ void LLInventoryAction::saveMultipleTextures(const std::vector<std::string>& fil
 
     LLFloater::setFloaterHost(multi_previewp);
 
+    std::map<std::string, S32> tex_names_map;
     std::set<LLFolderViewItem*>::iterator set_iter;
+   
     for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
     {
         LLFolderViewItem* folder_item = *set_iter;
         if(!folder_item) continue;
-        LLInvFVBridge* bridge = (LLInvFVBridge*)folder_item->getViewModelItem();
+        LLTextureBridge* bridge = (LLTextureBridge*)folder_item->getViewModelItem();
         if(!bridge) continue;
+
+        std::string tex_name = bridge->getName();
+        if(!tex_names_map.insert(std::pair<std::string, S32>(tex_name, 0)).second) 
+        { 
+            tex_names_map[tex_name]++;
+            bridge->setFileName(tex_name + llformat("_%.3d", tex_names_map[tex_name]));            
+        }
         bridge->performAction(model, "save_selected_as");
     }
 
