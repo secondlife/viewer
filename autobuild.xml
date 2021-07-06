@@ -2394,6 +2394,62 @@
         <key>version</key>
         <string>7.11.1.297294</string>
       </map>
+      <key>meshoptimizer</key>
+      <map>
+        <key>canonical_repo</key>
+        <string>https://bitbucket.org/lindenlab/3p-meshoptimizer</string>
+        <key>copyright</key>
+        <string>Copyright (c) 2016-2021 Arseny Kapoulkine</string>
+        <key>description</key>
+        <string>Meshoptimizer. Mesh optimization library.</string>
+        <key>license</key>
+        <string>meshoptimizer</string>
+        <key>license_file</key>
+        <string>LICENSES/meshoptimizer.txt</string>
+        <key>name</key>
+        <string>meshoptimizer</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>1d979dc9e0392aa8298f17a7104c8e8c</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83991/783527/meshoptimizer-0.16.561213-darwin64-561213.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>273dd2587b55a1efd108996d9b451b7e</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83995/783559/meshoptimizer-0.16.561213-windows-561213.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4cfe23766c1d71dd80cd61874d1032fe</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83996/783560/meshoptimizer-0.16.561213-windows64-561213.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.16.561213</string>
+      </map>
       <key>nghttp2</key>
       <map>
         <key>copyright</key>
