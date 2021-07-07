@@ -41,6 +41,7 @@
 #include "lliconctrl.h"
 #include "llmatrix4a.h"
 #include "llmeshrepository.h"
+#include "llmeshoptimizer.h"
 #include "llrender.h"
 #include "llsdutil_math.h"
 #include "llskinningutil.h"
@@ -1339,7 +1340,7 @@ void LLModelPreview::restoreNormals()
     updateStatusMessages();
 }
 
-void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
+void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
     if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
@@ -1424,7 +1425,7 @@ void LLModelPreview::genLODs(S32 which_lod, U32 decimation, bool enforce_tri_lim
         mRequestedLoDMode[which_lod] = lod_mode;
     }
 
-    if (lod_mode == 0)
+    if (lod_mode == LIMIT_TRIANGLES)
     {
         lod_mode = GLOD_TRIANGLE_BUDGET;
 
@@ -2957,7 +2958,7 @@ BOOL LLModelPreview::render()
     {
         genBuffers(-1, skin_weight);
         //genBuffers(3);
-        //genLODs();
+        //genGlodLODs();
     }
 
     if (!mModel[mPreviewLOD].empty())
@@ -3544,7 +3545,7 @@ bool LLModelPreview::lodQueryCallback()
         {
             S32 lod = preview->mLodsQuery.back();
             preview->mLodsQuery.pop_back();
-            preview->genLODs(lod);
+            preview->genGlodLODs(lod);
 
             if (preview->mLookUpLodFiles && (lod == LLModel::LOD_HIGH))
             {
@@ -3559,12 +3560,202 @@ bool LLModelPreview::lodQueryCallback()
     return true;
 }
 
-void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
+void LLModelPreview::onLODGenerateParamCommit(S32 lod, bool enforce_tri_limit)
 {
     if (!mLODFrozen)
     {
-        genLODs(lod, 3, enforce_tri_limit);
+        genGlodLODs(lod, 3, enforce_tri_limit);
         refresh();
     }
+}
+
+void LLModelPreview::onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_limit)
+{
+    if (mLODFrozen)
+    {
+        return;
+    }
+
+    // Allow LoD from -1 to LLModel::LOD_PHYSICS
+    if (lod < -1 || lod > LLModel::NUM_LODS - 1)
+    {
+        std::ostringstream out;
+        out << "Invalid level of detail: " << lod;
+        LL_WARNS() << out.str() << LL_ENDL;
+        LLFloaterModelPreview::addStringToLog(out, false);
+        assert(lod >= -1 && lod < LLModel::NUM_LODS);
+        return;
+    }
+
+    if (mBaseModel.empty())
+    {
+        return;
+    }
+
+
+    U32 triangle_count = 0;
+    U32 instanced_triangle_count = 0;
+
+    //get the triangle count for the whole scene
+    for (LLModelLoader::scene::iterator iter = mBaseScene.begin(), endIter = mBaseScene.end(); iter != endIter; ++iter)
+    {
+        for (LLModelLoader::model_instance_list::iterator instance = iter->second.begin(), end_instance = iter->second.end(); instance != end_instance; ++instance)
+        {
+            LLModel* mdl = instance->mModel;
+            if (mdl)
+            {
+                instanced_triangle_count += mdl->getNumTriangles();
+            }
+        }
+    }
+
+    //get the triangle count for the non-instanced set of models
+    for (U32 i = 0; i < mBaseModel.size(); ++i)
+    {
+        triangle_count += mBaseModel[i]->getNumTriangles();
+    }
+
+    //get ratio of uninstanced triangles to instanced triangles
+    F32 triangle_ratio = (F32)triangle_count / (F32)instanced_triangle_count;
+    U32 base_triangle_count = triangle_count;
+    U32 lod_mode = 0;
+    F32 lod_error_threshold = 0;
+
+
+    // Urgh...
+    // TODO: add interface to mFMP to get error treshold or let mFMP write one into LLModelPreview
+    // We should not be accesing views from other class!
+    LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[lod]);
+    if (iface)
+    {
+        lod_mode = iface->getFirstSelectedIndex();
+    }
+
+    lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[lod]).asReal();
+
+    if (lod != -1)
+    {
+        mRequestedLoDMode[lod] = lod_mode;
+    }
+
+    S32 limit = -1;
+    if (lod_mode == LIMIT_TRIANGLES)
+    {
+        limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[lod]).asInteger();
+        //convert from "scene wide" to "non-instanced" triangle limit
+        limit = (S32)((F32)limit*triangle_ratio);
+    }
+
+    // Glod regenerates vertex buffer at this stage
+
+    // Build models
+
+    S32 start = LLModel::LOD_HIGH;
+    S32 end = 0;
+    S32 decimation = 3;
+
+    if (lod != -1)
+    {
+        start  = lod;
+        end = lod;
+    }
+
+    mMaxTriangleLimit = base_triangle_count;
+
+    for (S32 lod = start; lod >= end; --lod)
+    {
+        if (lod == -1)
+        {
+            if (lod < start)
+            {
+                triangle_count /= decimation;
+            }
+        }
+        else
+        {
+            if (enforce_tri_limit)
+            {
+                triangle_count = limit;
+            }
+            else
+            {
+                for (S32 j = LLModel::LOD_HIGH; j > lod; --j)
+                {
+                    triangle_count /= decimation;
+                }
+            }
+        }
+
+        mModel[lod].clear();
+        mModel[lod].resize(mBaseModel.size());
+        mVertexBuffer[lod].clear();
+
+        mRequestedTriangleCount[lod] = (S32)((F32)triangle_count / triangle_ratio);
+        mRequestedErrorThreshold[lod] = lod_error_threshold;
+
+        for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
+        {
+            LLModel* base = mBaseModel[mdl_idx];
+            
+            LLVolumeParams volume_params;
+            volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+            mModel[lod][mdl_idx] = new LLModel(volume_params, 0.f);
+
+            std::string name = base->mLabel + getLodSuffix(lod);
+
+            mModel[lod][mdl_idx]->mLabel = name;
+            mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
+            //mModel[lod][mdl_idx]->setNumVolumeFaces(   );
+
+            LLModel* target_model = mModel[lod][mdl_idx];
+
+
+            //
+            LLMeshOptimizer::simplifyModel(/*Some params*/);
+
+            //blind copy skin weights and just take closest skin weight to point on
+            //decimated mesh for now (auto-generating LODs with skin weights is still a bit
+            //of an open problem).
+            target_model->mPosition = base->mPosition;
+            target_model->mSkinWeights = base->mSkinWeights;
+            target_model->mSkinInfo = base->mSkinInfo;
+            //copy material list
+            target_model->mMaterialList = base->mMaterialList;
+
+            if (!validate_model(target_model))
+            {
+                LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
+            }
+        }
+
+        //rebuild scene based on mBaseScene
+        mScene[lod].clear();
+        mScene[lod] = mBaseScene;
+
+        for (U32 i = 0; i < mBaseModel.size(); ++i)
+        {
+            LLModel* mdl = mBaseModel[i];
+            LLModel* target = mModel[lod][i];
+            if (target)
+            {
+                for (LLModelLoader::scene::iterator iter = mScene[lod].begin(); iter != mScene[lod].end(); ++iter)
+                {
+                    for (U32 j = 0; j < iter->second.size(); ++j)
+                    {
+                        if (iter->second[j].mModel == mdl)
+                        {
+                            iter->second[j].mModel = target;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    mResourceCost = calcResourceCost();
+
+
+    LLMeshOptimizer::simplifyModel();
+    refresh();
 }
 

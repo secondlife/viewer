@@ -125,8 +125,15 @@ public:
     {
         LOD_FROM_FILE = 0,
         GENERATE,
+        MESH_OPTIMIZER,
         USE_LOD_ABOVE,
     } eLoDMode;
+
+    typedef enum
+    {
+        LIMIT_TRIANGLES = 0,
+        LIMIT_ERROR_TRESHOLD,
+    } eLoDLimit;
 
 public:
     // Todo: model preview shouldn't need floater dependency, it
@@ -155,7 +162,7 @@ public:
     void loadModelCallback(S32 lod);
     bool lodsReady() { return !mGenLOD && mLodsQuery.empty(); }
     void queryLODs() { mGenLOD = true; };
-    void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
+    void genGlodLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
     void generateNormals();
     void restoreNormals();
     U32 calcResourceCost();
@@ -166,7 +173,8 @@ public:
     void updateStatusMessages();
     void updateLodControls(S32 lod);
     void clearGLODGroup();
-    void onLODParamCommit(S32 lod, bool enforce_tri_limit);
+    void onLODGenerateParamCommit(S32 lod, bool enforce_tri_limit);
+    void onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_limit);
     void addEmptyFace(LLModel* pTarget);
 
     const bool getModelPivot(void) const { return mHasPivot; }

@@ -26,18 +26,24 @@
 
 #include "llmeshoptimizer.h"
 
-#include "linden_common.h"
-
 #include "meshoptimizer.h"
-#include "llmath.h"
 
 
 LLMeshOptimizer::LLMeshOptimizer()
 {
-
+    // Todo: Looks like for memory management, we can add allocator and deallocator callbacks
+    // Should be one time
+    // meshopt_setAllocator(allocate, deallocate);
 }
 
 LLMeshOptimizer::~LLMeshOptimizer()
 {
 
+}
+
+//static
+U32 LLMeshOptimizer::simplifyModel()
+{
+    LL_WARNS() << "NOT IMPLEMENTED" << LL_ENDL;
+    return 0;
 }

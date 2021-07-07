@@ -722,7 +722,20 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
-	mModelPreview->onLODParamCommit(lod, enforce_tri_limit);
+    LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+    S32 mode = lod_source_combo->getCurrentIndex();
+    switch (mode)
+    {
+    case LLModelPreview::GENERATE:
+        mModelPreview->onLODGenerateParamCommit(lod, enforce_tri_limit);
+        break;
+    case LLModelPreview::MESH_OPTIMIZER:
+        mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit);
+        break;
+    default:
+        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
+        break;
+    }
 
 	//refresh LoDs that reference this one
 	for (S32 i = lod - 1; i >= 0; --i)
@@ -1721,7 +1734,9 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 	refresh();
 
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
-	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
+    S32 index = lod_source_combo->getCurrentIndex();
+	if (index == LLModelPreview::GENERATE
+        || index == LLModelPreview::MESH_OPTIMIZER)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);
 	}

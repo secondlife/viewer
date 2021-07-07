@@ -26,11 +26,16 @@
 #ifndef LLMESHOPTIMIZER_H
 #define LLMESHOPTIMIZER_H
 
+#include "linden_common.h"
+
 class LLMeshOptimizer
 {
 public:
     LLMeshOptimizer();
     ~LLMeshOptimizer();
+
+    // returns state
+    static U32 simplifyModel();
 private:
 };
 

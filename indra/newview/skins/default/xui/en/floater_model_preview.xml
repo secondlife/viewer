@@ -176,6 +176,10 @@
                  name="Generate"
                  label="Generate"
                  value="Generate" />
+                <item
+                 name="MeshOpt"
+                 label="MeshOpt"
+                 value="MeshOpt" />
             </combo_box>
             <line_editor
              follows="left|top"
@@ -305,6 +309,10 @@
                  name="Generate"
                  label="Generate"
                  value="Generate" />
+                <item
+                 name="MeshOpt"
+                 label="MeshOpt"
+                 value="MeshOpt" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -439,6 +447,10 @@
                  label="Generate"
                  value="Generate" />
                 <item
+                 name="MeshOpt"
+                 label="MeshOpt"
+                 value="MeshOpt" />
+                <item
                  name="Use LoD above"
                  label="Use LoD above"
                  value="Use LoD above" />
@@ -571,6 +583,10 @@
                  name="Generate"
                  label="Generate"
                  value="Generate" />
+                <item
+                 name="MeshOpt"
+                 label="MeshOpt"
+                 value="MeshOpt" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
