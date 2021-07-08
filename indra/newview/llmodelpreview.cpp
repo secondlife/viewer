@@ -3705,13 +3705,33 @@ void LLModelPreview::onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_lim
 
             mModel[lod][mdl_idx]->mLabel = name;
             mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
-            //mModel[lod][mdl_idx]->setNumVolumeFaces(   );
+            mModel[lod][mdl_idx]->setNumVolumeFaces(base->getNumVolumeFaces());
 
             LLModel* target_model = mModel[lod][mdl_idx];
 
+            // Run meshoptimizer for each face
+            for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+            {
+                const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                S32 num_indices = face.mNumIndices;
+                std::vector<U16> output(num_indices); //todo: do not allocate per each face, add one large buffer somewhere
 
-            //
-            LLMeshOptimizer::simplifyModel(/*Some params*/);
+                // todo: run generateShadowIndexBuffer, at some stage, potentially inside simplify
+
+                F32 error_code = 0;
+                LLMeshOptimizer::simplify(&output[0],
+                                          &face.mIndices[0],
+                                          num_indices,
+                                          &face.mPositions[0],
+                                          face.mNumVertices,
+                                          triangle_count * 3, //todo: indices limit, not triangles limit*3
+                                          lod_error_threshold,
+                                          &error_code);
+
+                // todo: copy result into face
+            }
+
+            LL_WARNS() << "WORK IN PROGRESS" << LL_ENDL;
 
             //blind copy skin weights and just take closest skin weight to point on
             //decimated mesh for now (auto-generating LODs with skin weights is still a bit
@@ -3755,7 +3775,6 @@ void LLModelPreview::onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_lim
     mResourceCost = calcResourceCost();
 
 
-    LLMeshOptimizer::simplifyModel();
     refresh();
 }
 

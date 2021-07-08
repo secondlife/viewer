@@ -28,7 +28,6 @@
 
 #include "meshoptimizer.h"
 
-
 LLMeshOptimizer::LLMeshOptimizer()
 {
     // Todo: Looks like for memory management, we can add allocator and deallocator callbacks
@@ -38,12 +37,27 @@ LLMeshOptimizer::LLMeshOptimizer()
 
 LLMeshOptimizer::~LLMeshOptimizer()
 {
-
 }
 
 //static
-U32 LLMeshOptimizer::simplifyModel()
+U64 LLMeshOptimizer::simplify(U16 *destination,
+                              const U16 *indices,
+                              U64 index_count,
+                              const LLVector4a *vertex_positions,
+                              U64 vertex_count,
+                              U64 target_index_count,
+                              F32 target_error,
+                              F32* result_error
+    )
 {
-    LL_WARNS() << "NOT IMPLEMENTED" << LL_ENDL;
-    return 0;
+    return meshopt_simplify<unsigned short>(destination,
+                                 indices,
+                                 index_count,
+                                 (const float*)vertex_positions, // verify that it is correct to convert to float
+                                 vertex_count,
+                                 sizeof(LLVector4a), // should be either 0 or 4
+                                 target_index_count,
+                                 target_error,
+                                 result_error
+                                 );
 }

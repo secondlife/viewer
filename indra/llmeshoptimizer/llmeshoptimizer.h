@@ -28,6 +28,8 @@
 
 #include "linden_common.h"
 
+#include "llmath.h"
+
 class LLMeshOptimizer
 {
 public:
@@ -35,7 +37,15 @@ public:
     ~LLMeshOptimizer();
 
     // returns state
-    static U32 simplifyModel();
+    static U64 simplify(
+        U16 *destination,
+        const U16 *indices,
+        U64 index_count,
+        const LLVector4a *vertex_positions,
+        U64 vertex_count,
+        U64 target_index_count,
+        F32 target_error,
+        F32* result_error);
 private:
 };
 
