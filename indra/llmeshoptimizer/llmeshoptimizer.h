@@ -36,7 +36,8 @@ public:
     LLMeshOptimizer();
     ~LLMeshOptimizer();
 
-    // returns state
+    // returns amount of indices in destiantion
+    // result_error returns how far from original the model is in % if not NULL
     static U64 simplify(
         U16 *destination,
         const U16 *indices,
