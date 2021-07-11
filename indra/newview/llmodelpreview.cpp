@@ -1342,6 +1342,7 @@ void LLModelPreview::restoreNormals()
 
 void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
 {
+    LL_INFOS() << "Generating lod " << which_lod << " using glod" << LL_ENDL;
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
     if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
     {
@@ -1699,6 +1700,239 @@ void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri
 
     LLVertexBuffer::unbind();
     LLGLSLShader::sNoFixedFunction = no_ff;
+    if (shader)
+    {
+        shader->bind();
+    }
+}
+
+void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
+{
+    LL_INFOS() << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
+    // Allow LoD from -1 to LLModel::LOD_PHYSICS
+    if (which_lod < -1 || which_lod > LLModel::NUM_LODS - 1)
+    {
+        std::ostringstream out;
+        out << "Invalid level of detail: " << which_lod;
+        LL_WARNS() << out.str() << LL_ENDL;
+        LLFloaterModelPreview::addStringToLog(out, false);
+        assert(lod >= -1 && lod < LLModel::NUM_LODS);
+        return;
+    }
+
+    if (mBaseModel.empty())
+    {
+        return;
+    }
+
+    //get the triangle count for all base models
+    S32 base_triangle_count = 0;
+    for (S32 i = 0; i < mBaseModel.size(); ++i)
+    {
+        base_triangle_count += mBaseModel[i]->getNumTriangles();
+    }
+
+    // Urgh...
+    // TODO: add interface to mFMP to get error treshold or let mFMP write one into LLModelPreview
+    // We should not be accesing views from other class!
+    U32 lod_mode = LIMIT_TRIANGLES;
+    F32 indices_ratio = 0;
+    F32 triangle_limit = 0;
+    F32 lod_error_threshold = 1; //100%
+
+    // If requesting a single lod
+    if (which_lod > -1 && which_lod < NUM_LOD)
+    {
+        LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[which_lod]);
+        if (iface)
+        {
+            lod_mode = iface->getFirstSelectedIndex();
+        }
+
+        if (lod_mode == LIMIT_TRIANGLES)
+        {
+            if (!enforce_tri_limit)
+            {
+                triangle_limit = base_triangle_count;
+                // reset to default value for this lod
+                F32 pw = pow((F32)decimation, (F32)(LLModel::LOD_HIGH - which_lod));
+
+                triangle_limit /= pw; //indices_ratio can be 1/pw
+            }
+            else
+            {
+
+                // UI spacifies limit for all models of single lod
+                triangle_limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[which_lod]).asInteger();
+
+            }
+            // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
+            indices_ratio = (F32)triangle_limit / (F32)base_triangle_count;
+        }
+        else
+        {
+            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
+        }
+    }
+    else
+    {
+        // we are genrating all lods and each lod will get own indices_ratio
+        indices_ratio = 1;
+        triangle_limit = base_triangle_count;
+    }
+
+    mMaxTriangleLimit = base_triangle_count;
+
+    // TODO: Glod regenerates vertex buffer at this stage
+    // check why, it might be needed to regenerate buffer as well
+
+    // Build models
+
+    S32 start = LLModel::LOD_HIGH;
+    S32 end = 0;
+
+    if (which_lod != -1)
+    {
+        start = which_lod;
+        end = which_lod;
+    }
+
+    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
+    if (shader)
+    {
+        shader->unbind();
+    }
+
+    for (S32 lod = start; lod >= end; --lod)
+    {
+        if (which_lod == -1)
+        {
+            // we are genrating all lods and each lod gets own indices_ratio
+            if (lod < start)
+            {
+                indices_ratio /= decimation;
+                triangle_limit /= decimation;
+            }
+        }
+
+        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedErrorThreshold[lod] = lod_error_threshold;
+        mRequestedLoDMode[lod] = lod_mode;
+
+        mModel[lod].clear();
+        mModel[lod].resize(mBaseModel.size());
+        mVertexBuffer[lod].clear();
+
+
+        for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
+        {
+            LLModel* base = mBaseModel[mdl_idx];
+
+            LLVolumeParams volume_params;
+            volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
+            mModel[lod][mdl_idx] = new LLModel(volume_params, 0.f);
+
+            std::string name = base->mLabel + getLodSuffix(lod);
+
+            mModel[lod][mdl_idx]->mLabel = name;
+            mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
+            mModel[lod][mdl_idx]->setNumVolumeFaces(base->getNumVolumeFaces());
+
+            LLModel* target_model = mModel[lod][mdl_idx];
+
+            // Run meshoptimizer for each face
+            for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+            {
+                const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                S32 num_indices = face.mNumIndices;
+                std::vector<U16> output(num_indices); //todo: do not allocate per each face, add one large buffer somewhere
+
+                // todo: run generateShadowIndexBuffer, at some stage, potentially inside simplify
+
+                F32 target_indices = llmax((F32)3, num_indices * indices_ratio); // leave at least one triangle
+                F32 result_code = 0; // how far from original the model is
+                S32 new_indices = LLMeshOptimizer::simplify(&output[0],
+                    face.mIndices,
+                    num_indices,
+                    &face.mPositions[0],
+                    face.mNumVertices,
+                    target_indices,
+                    lod_error_threshold,
+                    &result_code);
+
+                if (result_code < 0)
+                {
+                    LL_WARNS() << "Negative result from meshoptimizer" << LL_ENDL;
+                }
+
+                LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+
+                // Copy old values
+                // todo: no point copying faces?
+                new_face = face;
+
+                if (new_indices == 0)
+                {
+                    LL_WARNS() << "No indices generated for face " << face_idx
+                               << " of model " << target_model->mLabel
+                               << " target Indices: " << target_indices
+                               << " original count: "  << num_indices << LL_ENDL;
+                }
+                else
+                {
+                    // Assign new values
+                    S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
+                    LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)(&output[0]), idx_size);
+                    new_face.mNumIndices = new_indices;
+
+                    // clear unused values
+                    new_face.optimize();
+                }
+            }
+
+            //blind copy skin weights and just take closest skin weight to point on
+            //decimated mesh for now (auto-generating LODs with skin weights is still a bit
+            //of an open problem).
+            target_model->mPosition = base->mPosition;
+            target_model->mSkinWeights = base->mSkinWeights;
+            target_model->mSkinInfo = base->mSkinInfo;
+
+            //copy material list
+            target_model->mMaterialList = base->mMaterialList;
+
+            if (!validate_model(target_model))
+            {
+                LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
+            }
+        }
+
+        //rebuild scene based on mBaseScene
+        mScene[lod].clear();
+        mScene[lod] = mBaseScene;
+
+        for (U32 i = 0; i < mBaseModel.size(); ++i)
+        {
+            LLModel* mdl = mBaseModel[i];
+            LLModel* target = mModel[lod][i];
+            if (target)
+            {
+                for (LLModelLoader::scene::iterator iter = mScene[lod].begin(); iter != mScene[lod].end(); ++iter)
+                {
+                    for (U32 j = 0; j < iter->second.size(); ++j)
+                    {
+                        if (iter->second[j].mModel == mdl)
+                        {
+                            iter->second[j].mModel = target;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    mResourceCost = calcResourceCost();
+
+    LLVertexBuffer::unbind();
     if (shader)
     {
         shader->bind();
@@ -3545,7 +3779,7 @@ bool LLModelPreview::lodQueryCallback()
         {
             S32 lod = preview->mLodsQuery.back();
             preview->mLodsQuery.pop_back();
-            preview->genGlodLODs(lod);
+            preview->genMeshOptimizerLODs(lod);
 
             if (preview->mLookUpLodFiles && (lod == LLModel::LOD_HIGH))
             {
@@ -3571,228 +3805,10 @@ void LLModelPreview::onLODGenerateParamCommit(S32 lod, bool enforce_tri_limit)
 
 void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit)
 {
-    if (mLODFrozen)
+    if (!mLODFrozen)
     {
-        return;
+        genMeshOptimizerLODs(requested_lod, 3, enforce_tri_limit);
+        refresh();
     }
-
-    // Allow LoD from -1 to LLModel::LOD_PHYSICS
-    if (requested_lod < -1 || requested_lod > LLModel::NUM_LODS - 1)
-    {
-        std::ostringstream out;
-        out << "Invalid level of detail: " << requested_lod;
-        LL_WARNS() << out.str() << LL_ENDL;
-        LLFloaterModelPreview::addStringToLog(out, false);
-        assert(lod >= -1 && lod < LLModel::NUM_LODS);
-        return;
-    }
-
-    if (mBaseModel.empty())
-    {
-        return;
-    }
-
-    //get the triangle count for all base models
-    S32 base_triangle_count = 0;
-    for (S32 i = 0; i < mBaseModel.size(); ++i)
-    {
-        base_triangle_count += mBaseModel[i]->getNumTriangles();
-    }
-
-    // Urgh...
-    // TODO: add interface to mFMP to get error treshold or let mFMP write one into LLModelPreview
-    // We should not be accesing views from other class!
-    U32 lod_mode = LIMIT_TRIANGLES;
-    F32 indices_ratio = 0;
-    F32 triangle_limit = 0;
-    F32 lod_error_threshold = 100;
-    F32 decimation = 3.f;
-
-    // If requesting a single lod
-    if (requested_lod > -1 && requested_lod < NUM_LOD)
-    {
-        LLCtrlSelectionInterface* iface = mFMP->childGetSelectionInterface("lod_mode_" + lod_name[requested_lod]);
-        if (iface)
-        {
-            lod_mode = iface->getFirstSelectedIndex();
-        }
-
-        if (lod_mode == LIMIT_TRIANGLES)
-        {
-            if (!enforce_tri_limit && lod_mode == LIMIT_TRIANGLES)
-            {
-                triangle_limit = base_triangle_count;
-                // reset to default value for this lod
-                for (S32 j = LLModel::LOD_HIGH; j > requested_lod; --j)
-                {
-                    triangle_limit /= decimation;
-                    indices_ratio /= decimation;
-                }
-            }
-            else
-            {
-                // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to ratio
-
-                // UI spacifies limit for all models of single lod
-                triangle_limit = mFMP->childGetValue("lod_triangle_limit_" + lod_name[requested_lod]).asInteger();
-
-                // calculate aproximate ratio
-                indices_ratio = (F32)triangle_limit / (F32)base_triangle_count;
-            }
-        }
-        else
-        {
-            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[requested_lod]).asReal();
-        }
-    }
-    else
-    {
-        // we are genrating all lods and each lod will get own indices_ratio
-        indices_ratio = 1;
-        triangle_limit = base_triangle_count;
-    }
-
-    mMaxTriangleLimit = base_triangle_count;
-
-    // TODO: Glod regenerates vertex buffer at this stage
-    // check why, it might be needed to regenerate buffer as well
-
-    // Build models
-
-    S32 start = LLModel::LOD_HIGH;
-    S32 end = 0;
-
-    if (requested_lod != -1)
-    {
-        start  = requested_lod;
-        end = requested_lod;
-    }
-
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-    if (shader)
-    {
-        shader->unbind();
-    }
-
-    for (S32 lod = start; lod >= end; --lod)
-    {
-        if (requested_lod == -1)
-        {
-            // we are genrating all lods and each lod gets own indices_ratio
-            if (lod < start)
-            {
-                indices_ratio /= decimation;
-                triangle_limit /= decimation;
-            }
-        }
-
-        mRequestedTriangleCount[lod] = triangle_limit;
-        mRequestedErrorThreshold[lod] = lod_error_threshold;
-        mRequestedLoDMode[requested_lod] = lod_mode;
-
-        mModel[lod].clear();
-        mModel[lod].resize(mBaseModel.size());
-        mVertexBuffer[lod].clear();
-
-
-        for (U32 mdl_idx = 0; mdl_idx < mBaseModel.size(); ++mdl_idx)
-        {
-            LLModel* base = mBaseModel[mdl_idx];
-            
-            LLVolumeParams volume_params;
-            volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-            mModel[lod][mdl_idx] = new LLModel(volume_params, 0.f);
-
-            std::string name = base->mLabel + getLodSuffix(lod);
-
-            mModel[lod][mdl_idx]->mLabel = name;
-            mModel[lod][mdl_idx]->mSubmodelID = base->mSubmodelID;
-            mModel[lod][mdl_idx]->setNumVolumeFaces(base->getNumVolumeFaces());
-
-            LLModel* target_model = mModel[lod][mdl_idx];
-
-            // Run meshoptimizer for each face
-            for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-            {
-                const LLVolumeFace &face = base->getVolumeFace(face_idx);
-                S32 num_indices = face.mNumIndices;
-                std::vector<U16> output(num_indices); //todo: do not allocate per each face, add one large buffer somewhere
-
-                // todo: run generateShadowIndexBuffer, at some stage, potentially inside simplify
-
-                F32 result_code = 0; // how far from original the model is
-                S32 new_indices = LLMeshOptimizer::simplify(&output[0],
-                                                            face.mIndices,
-                                                            num_indices,
-                                                            &face.mPositions[0],
-                                                            face.mNumVertices,
-                                                            num_indices * indices_ratio,
-                                                            lod_error_threshold,
-                                                            &result_code);
-
-                LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
-
-                // Copy old values
-                // todo: no point copying faces?
-                new_face = face;
-
-                // Assign new values
-                S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-                LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)(&output[0]), idx_size);
-                new_face.mNumIndices = new_indices;
-
-                // clear unused values
-                new_face.optimize();
-            }
-
-            //blind copy skin weights and just take closest skin weight to point on
-            //decimated mesh for now (auto-generating LODs with skin weights is still a bit
-            //of an open problem).
-            target_model->mPosition = base->mPosition;
-            target_model->mSkinWeights = base->mSkinWeights;
-            target_model->mSkinInfo = base->mSkinInfo;
-
-            //copy material list
-            target_model->mMaterialList = base->mMaterialList;
-
-            if (!validate_model(target_model))
-            {
-                LL_ERRS() << "Invalid model generated when creating LODs" << LL_ENDL;
-            }
-        }
-
-        //rebuild scene based on mBaseScene
-        mScene[lod].clear();
-        mScene[lod] = mBaseScene;
-
-        for (U32 i = 0; i < mBaseModel.size(); ++i)
-        {
-            LLModel* mdl = mBaseModel[i];
-            LLModel* target = mModel[lod][i];
-            if (target)
-            {
-                for (LLModelLoader::scene::iterator iter = mScene[lod].begin(); iter != mScene[lod].end(); ++iter)
-                {
-                    for (U32 j = 0; j < iter->second.size(); ++j)
-                    {
-                        if (iter->second[j].mModel == mdl)
-                        {
-                            iter->second[j].mModel = target;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    mResourceCost = calcResourceCost();
-
-    LLVertexBuffer::unbind();
-    if (shader)
-    {
-        shader->bind();
-    }
-
-    refresh();
 }
 

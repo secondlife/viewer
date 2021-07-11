@@ -139,7 +139,7 @@ mAvatarTabIndex(0)
 	mLODMode[LLModel::LOD_HIGH] = 0;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
 	{
-		mLODMode[i] = 1;
+		mLODMode[i] = LLModelPreview::MESH_OPTIMIZER;
 	}
 }
 
@@ -1767,7 +1767,7 @@ void LLFloaterModelPreview::resetUploadOptions()
 	getChild<LLComboBox>("lod_source_" + lod_name[NUM_LOD - 1])->setCurrentByIndex(LLModelPreview::LOD_FROM_FILE);
 	for (S32 lod = 0; lod < NUM_LOD - 1; ++lod)
 	{
-		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::GENERATE);
+		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::MESH_OPTIMIZER);
 		childSetValue("lod_file_" + lod_name[lod], "");
 	}
 

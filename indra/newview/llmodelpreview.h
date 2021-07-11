@@ -163,6 +163,7 @@ public:
     bool lodsReady() { return !mGenLOD && mLodsQuery.empty(); }
     void queryLODs() { mGenLOD = true; };
     void genGlodLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
+    void genMeshOptimizerLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
     void generateNormals();
     void restoreNormals();
     U32 calcResourceCost();
