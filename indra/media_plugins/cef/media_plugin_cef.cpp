@@ -546,7 +546,12 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.host_process_path = std::string(cur_dir_str);
 #endif
 				settings.accept_language_list = mHostLanguage;
-				settings.background_color = 0xff282828; // close to Viewer background color
+
+				// SL-15560: Product team overruled my change to set the default
+				// embedded background color to match the floater background
+				// and set it to white
+				settings.background_color = 0xffffffff;	// white 
+
 				settings.cache_enabled = true;
 				settings.root_cache_path = mRootCachePath;
 				settings.cache_path = mCachePath;
