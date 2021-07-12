@@ -180,6 +180,10 @@
                  name="MeshOpt"
                  label="MeshOpt"
                  value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="MeshOptSloppy"
+                 value="MeshOptSloppy" />
             </combo_box>
             <line_editor
              follows="left|top"
@@ -313,6 +317,10 @@
                  name="MeshOpt"
                  label="MeshOpt"
                  value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="MeshOptSloppy"
+                 value="MeshOptSloppy" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -451,6 +459,10 @@
                  label="MeshOpt"
                  value="MeshOpt" />
                 <item
+                 name="MeshOptSloppy"
+                 label="MeshOptSloppy"
+                 value="MeshOptSloppy" />
+                <item
                  name="Use LoD above"
                  label="Use LoD above"
                  value="Use LoD above" />
@@ -587,6 +599,10 @@
                  name="MeshOpt"
                  label="MeshOpt"
                  value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="MeshOptSloppy"
+                 value="MeshOptSloppy" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"

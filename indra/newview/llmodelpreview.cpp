@@ -1706,7 +1706,7 @@ void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri
     }
 }
 
-void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit)
+void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit, bool sloppy)
 {
     LL_INFOS() << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
@@ -1851,14 +1851,34 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
 
                 S32 target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
                 F32 result_code = 0; // how far from original the model is
-                S32 new_indices = LLMeshOptimizer::simplify(&output[0],
-                    face.mIndices,
-                    num_indices,
-                    &face.mPositions[0],
-                    face.mNumVertices,
-                    target_indices,
-                    lod_error_threshold,
-                    &result_code);
+                S32 new_indices = 0;
+
+                if (sloppy)
+                {
+                    new_indices = LLMeshOptimizer::simplifySloppy(
+                        &output[0],
+                        face.mIndices,
+                        num_indices,
+                        &face.mPositions[0],
+                        face.mNumVertices,
+                        target_indices,
+                        lod_error_threshold,
+                        &result_code);
+                }
+                
+                if (new_indices <= 0)
+                {
+                    new_indices = LLMeshOptimizer::simplify(
+                        &output[0],
+                        face.mIndices,
+                        num_indices,
+                        &face.mPositions[0],
+                        face.mNumVertices,
+                        target_indices,
+                        lod_error_threshold,
+                        &result_code);
+                }
+
 
                 if (result_code < 0)
                 {
@@ -3800,11 +3820,11 @@ void LLModelPreview::onLODGenerateParamCommit(S32 lod, bool enforce_tri_limit)
     }
 }
 
-void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit)
+void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit, bool sloppy)
 {
     if (!mLODFrozen)
     {
-        genMeshOptimizerLODs(requested_lod, 3, enforce_tri_limit);
+        genMeshOptimizerLODs(requested_lod, 3, enforce_tri_limit, sloppy);
         refresh();
     }
 }

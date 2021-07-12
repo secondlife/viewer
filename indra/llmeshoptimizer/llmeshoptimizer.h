@@ -47,6 +47,18 @@ public:
         U64 target_index_count,
         F32 target_error,
         F32* result_error);
+
+    // returns amount of indices in destiantion
+    // result_error returns how far from original the model is in % if not NULL
+    static U64 simplifySloppy(
+        U16 *destination,
+        const U16 *indices,
+        U64 index_count,
+        const LLVector4a *vertex_positions,
+        U64 vertex_count,
+        U64 target_index_count,
+        F32 target_error,
+        F32* result_error);
 private:
 };
 

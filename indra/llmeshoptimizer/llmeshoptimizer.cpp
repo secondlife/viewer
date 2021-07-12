@@ -66,3 +66,27 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
                                  result_error
                                  );
 }
+
+//static
+U64 LLMeshOptimizer::simplifySloppy(U16 *destination,
+                              const U16 *indices,
+                              U64 index_count,
+                              const LLVector4a *vertex_positions,
+                              U64 vertex_count,
+                              U64 target_index_count,
+                              F32 target_error,
+                              F32* result_error
+    )
+{
+    const size_t vertex_stride = 4; // should be either 0 or 4
+    return meshopt_simplifySloppy<unsigned short>(destination,
+                                 indices,
+                                 index_count,
+                                 (const float*)vertex_positions, // verify that it is correct to convert to float
+                                 vertex_count,
+                                 vertex_stride, 
+                                 target_index_count,
+                                 target_error,
+                                 result_error
+                                 );
+}
