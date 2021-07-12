@@ -2415,9 +2415,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1d979dc9e0392aa8298f17a7104c8e8c</string>
+              <string>30bc37db57bbd87c4b5f62634964242a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83991/783527/meshoptimizer-0.16.561213-darwin64-561213.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84218/784918/meshoptimizer-0.16.561408-darwin64-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2427,9 +2427,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>273dd2587b55a1efd108996d9b451b7e</string>
+              <string>ca3684bcf0447746cd2844e94f6d1fc7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83995/783559/meshoptimizer-0.16.561213-windows-561213.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84219/784924/meshoptimizer-0.16.561408-windows-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2439,16 +2439,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cfe23766c1d71dd80cd61874d1032fe</string>
+              <string>aef28c089d20f69d13c9c3e113fb3895</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/83996/783560/meshoptimizer-0.16.561213-windows64-561213.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/84220/784931/meshoptimizer-0.16.561408-windows64-561408.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.16.561213</string>
+        <string>0.16.561408</string>
       </map>
       <key>nghttp2</key>
       <map>
