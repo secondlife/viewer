@@ -557,8 +557,17 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.disable_network_service = mDisableNetworkService;
 				settings.use_mock_keychain = mUseMockKeyChain;
 #endif
+				// This setting applies to all plugins, not just Flash
+				// Regarding, SL-15559 PDF files do not load in CEF v91,
+				// it turns out that on Windows, PDF support is treated
+				// as a plugin on Windows only so turning all plugins
+				// off, disabled built in PDF support.  (Works okay in
+				// macOS surprisingly). To mitigrate this, we set the global
+				// media enabled flag to whatever the consumer wants and 
+				// explicitly disable Flash with a different setting (below)
+				settings.plugins_enabled = mPluginsEnabled;
+
 				// SL-14897 Disable Flash support in the embedded browser
-				//settings.flash_enabled = mPluginsEnabled;
 				settings.flash_enabled = false;
 
 				settings.flip_mouse_y = false;
@@ -571,10 +580,6 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.javascript_enabled = mJavascriptEnabled;
 				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granularity/query UI
 				
-				// SL-14897 Disable Flash support in the embedded browser
-				//settings.plugins_enabled = mPluginsEnabled;
-				settings.plugins_enabled = false;
-
 				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 				settings.webgl_enabled = true;
 				settings.log_file = mCefLogFile;
