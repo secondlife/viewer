@@ -403,7 +403,7 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags);
 	virtual void performAction(LLInventoryModel* model, std::string action);
 	bool canSaveTexture(void);
-    void setFileName(std::string& file_name) { mFileName = file_name; }
+    void setFileName(std::string file_name) { mFileName = file_name; }
 protected:
     std::string mFileName;
 };
