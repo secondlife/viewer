@@ -10,7 +10,7 @@ if (WINDOWS)
 elseif (LINUX)
   set(MESHOPTIMIZER_LIBRARIES meshoptimizer.o)
 elseif (DARWIN)
-  set(MESHOPTIMIZER_LIBRARIES libmeshoptimizer.o)
+  set(MESHOPTIMIZER_LIBRARIES libmeshoptimizer.a)
 endif (WINDOWS)
 
 set(MESHOPTIMIZER_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/meshoptimizer)

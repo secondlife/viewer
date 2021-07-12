@@ -1767,7 +1767,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
-            indices_ratio = (F32)triangle_limit / (F32)base_triangle_count;
+            indices_ratio = triangle_limit / (F32)base_triangle_count;
         }
         else
         {
@@ -1849,7 +1849,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
 
                 // todo: run generateShadowIndexBuffer, at some stage, potentially inside simplify
 
-                F32 target_indices = llmax((F32)3, num_indices * indices_ratio); // leave at least one triangle
+                S32 target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
                 F32 result_code = 0; // how far from original the model is
                 S32 new_indices = LLMeshOptimizer::simplify(&output[0],
                     face.mIndices,
@@ -1868,8 +1868,15 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                 LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
 
                 // Copy old values
-                // todo: no point copying faces?
                 new_face = face;
+
+                // Assign new values
+                S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
+                LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)(&output[0]), idx_size);
+                new_face.mNumIndices = new_indices;
+
+                // clear unused values
+                new_face.optimize();
 
                 if (new_indices == 0)
                 {
@@ -1877,16 +1884,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                                << " of model " << target_model->mLabel
                                << " target Indices: " << target_indices
                                << " original count: "  << num_indices << LL_ENDL;
-                }
-                else
-                {
-                    // Assign new values
-                    S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-                    LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)(&output[0]), idx_size);
-                    new_face.mNumIndices = new_indices;
-
-                    // clear unused values
-                    new_face.optimize();
                 }
             }
 
