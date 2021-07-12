@@ -1869,6 +1869,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                         num_indices,
                         face.mPositions,
                         face.mNumVertices,
+                        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
                         target_indices,
                         lod_error_threshold,
                         &result_code);
@@ -1882,6 +1883,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                         num_indices,
                         face.mPositions,
                         face.mNumVertices,
+                        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
                         target_indices,
                         lod_error_threshold,
                         &result_code);

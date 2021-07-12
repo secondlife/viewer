@@ -44,18 +44,17 @@ void LLMeshOptimizer::generateShadowIndexBuffer(U16 *destination,
     const U16 *indices,
     U64 index_count,
     const LLVector4a *vertex_positions,
-    U64 vertex_count
+    U64 vertex_count,
+    U64 vertex_positions_stride
 )
 {
-    const size_t vertex_stride = 4; // should be either 0 or 4
-
     meshopt_generateShadowIndexBuffer<unsigned short>(destination,
         indices,
         index_count,
         (const float*)vertex_positions, // verify that it is correct to convert to float
         vertex_count,
         sizeof(LLVector4a),
-        vertex_stride
+        vertex_positions_stride
         );
 }
 
@@ -65,19 +64,19 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
                               U64 index_count,
                               const LLVector4a *vertex_positions,
                               U64 vertex_count,
+                              U64 vertex_positions_stride,
                               U64 target_index_count,
                               F32 target_error,
                               F32* result_error
     )
 {
-    const size_t vertex_stride = 4; // should be either 0 or 4
 
     return meshopt_simplify<unsigned short>(destination,
                                  indices,
                                  index_count,
-                                 (const float*)vertex_positions, // verify that it is correct to convert to float
+                                 (const float*)vertex_positions,
                                  vertex_count,
-                                 vertex_stride, 
+                                 vertex_positions_stride, 
                                  target_index_count,
                                  target_error,
                                  result_error
@@ -90,18 +89,18 @@ U64 LLMeshOptimizer::simplifySloppy(U16 *destination,
                               U64 index_count,
                               const LLVector4a *vertex_positions,
                               U64 vertex_count,
+    U64 vertex_positions_stride,
                               U64 target_index_count,
                               F32 target_error,
                               F32* result_error
     )
 {
-    const size_t vertex_stride = 4; // should be either 0 or 4
     return meshopt_simplifySloppy<unsigned short>(destination,
                                  indices,
                                  index_count,
-                                 (const float*)vertex_positions, // verify that it is correct to convert to float
+                                 (const float*)vertex_positions,
                                  vertex_count,
-                                 vertex_stride, 
+                                 vertex_positions_stride, 
                                  target_index_count,
                                  target_error,
                                  result_error

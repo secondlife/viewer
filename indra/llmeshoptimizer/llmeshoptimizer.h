@@ -36,12 +36,13 @@ public:
     LLMeshOptimizer();
     ~LLMeshOptimizer();
 
-    static void LLMeshOptimizer::generateShadowIndexBuffer(
+    static void generateShadowIndexBuffer(
         U16 *destination,
         const U16 *indices,
         U64 index_count,
         const LLVector4a *vertex_positions,
-        U64 vertex_count);
+        U64 vertex_count,
+        U64 vertex_positions_stride);
 
     // returns amount of indices in destiantion
     // result_error returns how far from original the model is in % if not NULL
@@ -51,6 +52,7 @@ public:
         U64 index_count,
         const LLVector4a *vertex_positions,
         U64 vertex_count,
+        U64 vertex_positions_stride,
         U64 target_index_count,
         F32 target_error,
         F32* result_error);
@@ -63,6 +65,7 @@ public:
         U64 index_count,
         const LLVector4a *vertex_positions,
         U64 vertex_count,
+        U64 vertex_positions_stride,
         U64 target_index_count,
         F32 target_error,
         F32* result_error);
