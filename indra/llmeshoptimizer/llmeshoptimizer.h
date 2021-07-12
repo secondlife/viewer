@@ -36,6 +36,13 @@ public:
     LLMeshOptimizer();
     ~LLMeshOptimizer();
 
+    static void LLMeshOptimizer::generateShadowIndexBuffer(
+        U16 *destination,
+        const U16 *indices,
+        U64 index_count,
+        const LLVector4a *vertex_positions,
+        U64 vertex_count);
+
     // returns amount of indices in destiantion
     // result_error returns how far from original the model is in % if not NULL
     static U64 simplify(

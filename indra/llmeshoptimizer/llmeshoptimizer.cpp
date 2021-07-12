@@ -40,6 +40,26 @@ LLMeshOptimizer::~LLMeshOptimizer()
 }
 
 //static
+void LLMeshOptimizer::generateShadowIndexBuffer(U16 *destination,
+    const U16 *indices,
+    U64 index_count,
+    const LLVector4a *vertex_positions,
+    U64 vertex_count
+)
+{
+    const size_t vertex_stride = 4; // should be either 0 or 4
+
+    meshopt_generateShadowIndexBuffer<unsigned short>(destination,
+        indices,
+        index_count,
+        (const float*)vertex_positions, // verify that it is correct to convert to float
+        vertex_count,
+        sizeof(LLVector4a),
+        vertex_stride
+        );
+}
+
+//static
 U64 LLMeshOptimizer::simplify(U16 *destination,
                               const U16 *indices,
                               U64 index_count,
@@ -52,9 +72,6 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
 {
     const size_t vertex_stride = 4; // should be either 0 or 4
 
-    // Consider running meshopt_generateShadowIndexBuffer<unsigned short> first.
-    // meshopt_generateShadowIndexBuffer is only needed if models don't use some of the vertices,
-    // but since we call optimize() in a lot of cases, it likely isn't needed
     return meshopt_simplify<unsigned short>(destination,
                                  indices,
                                  index_count,

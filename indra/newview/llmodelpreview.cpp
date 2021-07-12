@@ -1847,10 +1847,18 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                 S32 num_indices = face.mNumIndices;
                 std::vector<U16> output(num_indices); //todo: do not allocate per each face, add one large buffer somewhere
 
-                // todo: run generateShadowIndexBuffer, at some stage, potentially inside simplify
+                /*
+                generateShadowIndexBuffer appears to deform model
+                LLMeshOptimizer::generateShadowIndexBuffer(
+                    &shadow[0],
+                    face.mIndices,
+                    num_indices,
+                    &face.mPositions[0],
+                    face.mNumVertices);
+                */
 
                 S32 target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
-                F32 result_code = 0; // how far from original the model is
+                F32 result_code = 0; // how far from original the model is, 1 == 100%
                 S32 new_indices = 0;
 
                 if (sloppy)
@@ -1859,7 +1867,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                         &output[0],
                         face.mIndices,
                         num_indices,
-                        &face.mPositions[0],
+                        face.mPositions,
                         face.mNumVertices,
                         target_indices,
                         lod_error_threshold,
@@ -1872,7 +1880,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                         &output[0],
                         face.mIndices,
                         num_indices,
-                        &face.mPositions[0],
+                        face.mPositions,
                         face.mNumVertices,
                         target_indices,
                         lod_error_threshold,
