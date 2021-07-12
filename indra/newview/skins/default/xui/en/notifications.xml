@@ -2296,6 +2296,7 @@ Please try again later.
   <notification
    icon="notifytip.tga"
    name="LandmarkCreated"
+   log_to_chat="false"
    type="notifytip">
 You have added "[LANDMARK_NAME]" to your [FOLDER_NAME] folder.
   </notification>
