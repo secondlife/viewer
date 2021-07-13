@@ -1845,7 +1845,10 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
             {
                 const LLVolumeFace &face = base->getVolumeFace(face_idx);
                 S32 num_indices = face.mNumIndices;
-                std::vector<U16> output(num_indices); //todo: do not allocate per each face, add one large buffer somewhere
+                // todo: do not allocate per each face, add one large buffer somewhere
+                // faces have limited amount of indices
+                S32 size = (num_indices * sizeof(U16) + 0xF) & ~0xF;
+                U16* output = (U16*)ll_aligned_malloc_16(size);
 
                 /*
                 generateShadowIndexBuffer appears to deform model
@@ -1864,7 +1867,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                 if (sloppy)
                 {
                     new_indices = LLMeshOptimizer::simplifySloppy(
-                        &output[0],
+                        output,
                         face.mIndices,
                         num_indices,
                         face.mPositions,
@@ -1880,7 +1883,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                 if (new_indices <= 0)
                 {
                     new_indices = LLMeshOptimizer::simplify(
-                        &output[0],
+                        output,
                         face.mIndices,
                         num_indices,
                         face.mPositions,
@@ -1916,7 +1919,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
                 // Assign new values
                 new_face.resizeIndices(new_indices); // will wipe out mIndices, so new_face can't substitute output
                 S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-                LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)(&output[0]), idx_size);
+                LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+
+                ll_aligned_free_16(output);
 
                 // clear unused values
                 new_face.optimize();
