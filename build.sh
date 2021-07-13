@@ -16,6 +16,29 @@
 # * The special style in which python is invoked is intentional to permit
 #   use of a native python install on windows - which requires paths in DOS form
 
+retry_cmd()
+{
+    max_attempts="$1"; shift
+    initial_wait="$1"; shift
+    attempt_num=1
+    echo "trying" "$@"
+    until "$@"
+    do
+        if ((attempt_num==max_attempts))
+        then
+            echo "Last attempt $attempt_num failed"
+            return 1
+        else
+            wait_time=$(($attempt_num*$initial_wait))
+            echo "Attempt $attempt_num failed. Trying again in $wait_time seconds..."
+            sleep $wait_time
+            attempt_num=$(($attempt_num+1))
+        fi
+    done
+    echo "succeeded"
+    return 0
+}
+
 build_dir_Darwin()
 {
   echo build-darwin-x86_64
@@ -443,7 +466,7 @@ then
       succeeded=$build_coverity
     else
       # Upload base package.
-      python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
+      retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
           || fatal "Upload of installer failed"
 
       # Upload additional packages.
@@ -452,9 +475,7 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          echo "sleeping 30"
-          sleep 30
-          python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
+          retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
               || fatal "Upload of installer $package_id failed"
         else
           record_failure "Failed to find additional package for '$package_id'."
@@ -467,9 +488,7 @@ then
           if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
               # Upload crash reporter file
-              echo "sleeping 30"
-              sleep 30
-              python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
+              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
           fi
 
@@ -477,10 +496,8 @@ then
           # *TODO: Make this an upload-extension
           if [ -r "$build_dir/llphysicsextensions_package" ]
           then
-              echo "sleeping 30"
-              sleep 30
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
-              python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
+              retry_cmd 4 30 python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
                   || fatal "Upload of physics extensions package failed"
           fi
       fi
