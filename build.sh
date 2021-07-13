@@ -449,6 +449,7 @@ then
       # Upload additional packages.
       for package_id in $additional_packages
       do
+        sleep 240
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
