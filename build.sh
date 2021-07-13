@@ -452,8 +452,8 @@ then
         package=$(installer_$arch "$package_id")
         if [ x"$package" != x ]
         then
-          echo "sleeping 240"
-          sleep 240
+          echo "sleeping 30"
+          sleep 30
           python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
               || fatal "Upload of installer $package_id failed"
         else
@@ -467,8 +467,8 @@ then
           if [ "${RELEASE_CRASH_REPORTING:-}" != "OFF" ]
           then
               # Upload crash reporter file
-              echo "sleeping 240"
-              sleep 240
+              echo "sleeping 30"
+              sleep 30
               python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
           fi
@@ -477,8 +477,8 @@ then
           # *TODO: Make this an upload-extension
           if [ -r "$build_dir/llphysicsextensions_package" ]
           then
-              echo "sleeping 240"
-              sleep 240
+              echo "sleeping 30"
+              sleep 30
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
               python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
                   || fatal "Upload of physics extensions package failed"
