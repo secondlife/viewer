@@ -42,18 +42,7 @@
    top_pad="10"
    name="av_nearby_title"
    width="205">
-    Nearby avatar complexity is
-  </text>
-  <text
-   follows="left|top"
-   font="SansSerifLarge"
-   text_color="PerformanceMid"
-   height="20"
-   layout="topleft"
-   left_pad="3"
-   name="av_nearby_value"
-   width="150">
-    very high
+    Avatars nearby
   </text>
   <text
    follows="left|top"
@@ -65,7 +54,7 @@
    top_pad="5"
    name="av_nearby_desc"
    width="580">
-    Some avatars nearby are slow to display. Choosing a complexity limit may help graphics speed.
+    Avatars more complex than your chosen limit will be shown in silhouette.
   </text>
   <slider
     control_name="IndirectMaxComplexity"
@@ -83,7 +72,6 @@
     name="IndirectMaxComplexity"
     show_text="false"
     top_pad="10"
-    left="40"
     width="300">
   </slider>
   <text
@@ -148,7 +136,7 @@
     control_name="AlwaysRenderFriends"
     height="16"
     initial_value="true"
-    label="Always display friends"
+    label="Always display friends in full detail"
     label_text.text_color="White"
     layout="topleft"
     name="display_friends"

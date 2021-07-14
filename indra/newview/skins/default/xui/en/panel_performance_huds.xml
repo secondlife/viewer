@@ -42,18 +42,7 @@
    top_pad="10"
    name="huds_title"
    width="135">
-    Your current HUDs: 
-  </text>
-  <text
-   follows="left|top"
-   font="SansSerifLargeBold"
-   text_color="PerformanceMid"
-   height="20"
-   layout="topleft"
-   left_pad="3"
-   name="huds_value"
-   width="70">
-    7
+    Your active HUDs
   </text>
   <text
    follows="left|top"
@@ -65,7 +54,7 @@
    left="20"
    name="huds_desc1"
    width="540">
-    Detaching HUDs you aren't using us always a good idea, but especially in a complex location.
+    Detaching HUDs you aren't using saves memory and can make Second Life run faster.
   </text>
   <text
    follows="left|top"
@@ -77,7 +66,7 @@
    left="20"
    name="huds_desc2"
    width="540">
-    Note: Using a HUD's minimize button does not save memory. 
+    Note: Using a HUD's minimize button does not detach it. 
   </text>
   <name_list
     column_padding="0"

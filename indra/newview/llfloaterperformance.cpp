@@ -31,6 +31,7 @@
 #include "llappearancemgr.h"
 #include "llavataractions.h"
 #include "llavatarrendernotifier.h"
+#include "llcheckboxctrl.h"
 #include "llfeaturemanager.h"
 #include "llfloaterpreference.h" // LLAvatarComplexityControls
 #include "llfloaterreg.h"
@@ -38,52 +39,69 @@
 #include "llsliderctrl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
+#include "llviewerobjectlist.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h" 
+#include "pipeline.h"
 
 const F32 REFRESH_INTERVAL = 1.0f;
-const S32 COMPLEXITY_THRESHOLD_HIGH = 100000;
-const S32 COMPLEXITY_THRESHOLD_MEDIUM = 30000;
 const S32 BAR_LEFT_PAD = 2;
 const S32 BAR_RIGHT_PAD = 5;
 const S32 BAR_BOTTOM_PAD = 9;
+
+class LLExceptionsContextMenu : public LLListContextMenu
+{
+public:
+    LLExceptionsContextMenu(LLFloaterPerformance* floater_settings)
+        :   mFloaterPerformance(floater_settings)
+    {}
+protected:
+    LLContextMenu* createMenu()
+    {
+        LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
+        LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_registrar;
+        registrar.add("Settings.SetRendering", boost::bind(&LLFloaterPerformance::onCustomAction, mFloaterPerformance, _2, mUUIDs.front()));
+        enable_registrar.add("Settings.IsSelected", boost::bind(&LLFloaterPerformance::isActionChecked, mFloaterPerformance, _2, mUUIDs.front()));
+        LLContextMenu* menu = createFromFile("menu_avatar_rendering_settings.xml");
+
+        return menu;
+    }
+
+    LLFloaterPerformance* mFloaterPerformance;
+};
 
 LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 :   LLFloater(key),
     mUpdateTimer(new LLTimer()),
     mNearbyMaxComplexity(0)
 {
+    mContextMenu = new LLExceptionsContextMenu(this);
 }
 
 LLFloaterPerformance::~LLFloaterPerformance()
 {
     mComplexityChangedSignal.disconnect();
+    delete mContextMenu;
     delete mUpdateTimer;
 }
 
 BOOL LLFloaterPerformance::postBuild()
 {
     mMainPanel = getChild<LLPanel>("panel_performance_main");
-    mTroubleshootingPanel = getChild<LLPanel>("panel_performance_troubleshooting");
     mNearbyPanel = getChild<LLPanel>("panel_performance_nearby");
     mComplexityPanel = getChild<LLPanel>("panel_performance_complexity");
     mSettingsPanel = getChild<LLPanel>("panel_performance_preferences");
     mHUDsPanel = getChild<LLPanel>("panel_performance_huds");
-    mPresetsPanel = getChild<LLPanel>("panel_performance_presets");
 
-    getChild<LLPanel>("troubleshooting_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mTroubleshootingPanel));
     getChild<LLPanel>("nearby_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
     getChild<LLPanel>("complexity_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mComplexityPanel));
     getChild<LLPanel>("settings_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
     getChild<LLPanel>("huds_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mHUDsPanel));
-    getChild<LLPanel>("presets_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mPresetsPanel));
 
-    initBackBtn(mTroubleshootingPanel);
     initBackBtn(mNearbyPanel);
     initBackBtn(mComplexityPanel);
     initBackBtn(mSettingsPanel);
     initBackBtn(mHUDsPanel);
-    initBackBtn(mPresetsPanel);
 
     mHUDList = mHUDsPanel->getChild<LLNameListCtrl>("hud_list");
     mHUDList->setNameListType(LLNameListCtrl::SPECIAL);
@@ -96,12 +114,12 @@ BOOL LLFloaterPerformance::postBuild()
     mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
 
     mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
+    mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickHideAvatars, this));
+    mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
-
-    mPresetsPanel->getChild<LLTextBox>("avatars_nearby_link")->setURLClickedCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
-    mPresetsPanel->getChild<LLTextBox>("settings_link")->setURLClickedCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
+    mNearbyList->setRightMouseDownCallback(boost::bind(&LLFloaterPerformance::onAvatarListRightClick, this, _1, _2, _3));
 
     updateComplexityText();
     mComplexityChangedSignal = gSavedSettings.getControl("IndirectMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateComplexityText, this));
@@ -134,27 +152,26 @@ void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
 
 void LLFloaterPerformance::draw()
 {
+    const S32 NUM_PERIODS = 50;
+
     if (mUpdateTimer->hasExpired())
     {
-        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS)));
-        if (mMainPanel->getVisible())
-        {
-            mMainPanel->getChild<LLTextBox>("huds_value")->setValue(LLHUDRenderNotifier::getInstance()->getHUDsCount());
-            mMainPanel->getChild<LLTextBox>("complexity_value")->setValue((S32)gAgentAvatarp->getVisualComplexity());
-            updateNearbyComplexityDesc();
-        }
-        else if (mHUDsPanel->getVisible())
+        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS, NUM_PERIODS)));
+        if (mHUDsPanel->getVisible())
         {
             populateHUDList();
         }
         else if (mNearbyPanel->getVisible())
         {
             populateNearbyList();
-            updateNearbyComplexityDesc();
         }
         else if (mComplexityPanel->getVisible())
         {
             populateObjectList();
+        }
+        else if (mSettingsPanel->getVisible())
+        {
+            mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
         }
 
         mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
@@ -170,12 +187,10 @@ void LLFloaterPerformance::showMainPanel()
 
 void LLFloaterPerformance::hidePanels()
 {
-    mTroubleshootingPanel->setVisible(FALSE);
     mNearbyPanel->setVisible(FALSE);
     mComplexityPanel->setVisible(FALSE);
     mHUDsPanel->setVisible(FALSE);
     mSettingsPanel->setVisible(FALSE);
-    mPresetsPanel->setVisible(FALSE);
 }
 
 void LLFloaterPerformance::initBackBtn(LLPanel* panel)
@@ -236,8 +251,6 @@ void LLFloaterPerformance::populateHUDList()
     mHUDList->sortByColumnIndex(1, FALSE);
     mHUDList->setScrollPos(prev_pos);
     mHUDList->selectItemBySpecialId(prev_selected_id);
-
-    mHUDsPanel->getChild<LLTextBox>("huds_value")->setValue(std::to_string(complexity_list.size()));
 }
 
 void LLFloaterPerformance::populateObjectList()
@@ -384,32 +397,6 @@ void LLFloaterPerformance::getNearbyAvatars(std::vector<LLCharacter*> &valid_nea
     }
 }
 
-void LLFloaterPerformance::updateNearbyComplexityDesc()
-{
-    std::string desc = getString("low");
-
-    static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-    if (mMainPanel->getVisible())
-    {
-        std::vector<LLCharacter*> valid_nearby_avs;
-        getNearbyAvatars(valid_nearby_avs);
-    }
-    if (mNearbyMaxComplexity > COMPLEXITY_THRESHOLD_HIGH)
-    {
-        desc = getString("very_high");
-    }
-    else if (mNearbyMaxComplexity > COMPLEXITY_THRESHOLD_MEDIUM)
-    {
-        desc = getString("medium");
-    }
-   
-    if (mMainPanel->getVisible())
-    {
-        mMainPanel->getChild<LLTextBox>("avatars_nearby_value")->setValue(desc);
-    }
-    mNearbyPanel->getChild<LLTextBox>("av_nearby_value")->setValue(desc);
-}
-
 void LLFloaterPerformance::detachItem(const LLUUID& item_id)
 {
     LLAppearanceMgr::instance().removeItemFromAvatar(item_id);
@@ -423,6 +410,11 @@ void LLFloaterPerformance::onClickAdvanced()
         instance->saveSettings();
     }
     LLFloaterReg::showInstance("prefs_graphics_advanced");
+}
+
+void LLFloaterPerformance::onClickHideAvatars()
+{
+    LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
 }
 
 void LLFloaterPerformance::onClickExceptions()
@@ -441,6 +433,92 @@ void LLFloaterPerformance::updateComplexityText()
 {
     LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText", true));
+}
+
+static LLVOAvatar* find_avatar(const LLUUID& id)
+{
+    LLViewerObject *obj = gObjectList.findObject(id);
+    while (obj && obj->isAttachment())
+    {
+        obj = (LLViewerObject *)obj->getParent();
+    }
+
+    if (obj && obj->isAvatar())
+    {
+        return (LLVOAvatar*)obj;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+void LLFloaterPerformance::onCustomAction(const LLSD& userdata, const LLUUID& av_id)
+{
+    const std::string command_name = userdata.asString();
+
+    S32 new_setting = 0;
+    if ("default" == command_name)
+    {
+        new_setting = S32(LLVOAvatar::AV_RENDER_NORMALLY);
+    }
+    else if ("never" == command_name)
+    {
+        new_setting = S32(LLVOAvatar::AV_DO_NOT_RENDER);
+    }
+    else if ("always" == command_name)
+    {
+        new_setting = S32(LLVOAvatar::AV_ALWAYS_RENDER);
+    }
+
+    LLVOAvatar *avatarp = find_avatar(av_id);
+    if (avatarp)
+    {
+        avatarp->setVisualMuteSettings(LLVOAvatar::VisualMuteSettings(new_setting));
+    }
+    else
+    {
+        LLRenderMuteList::getInstance()->saveVisualMuteSetting(av_id, new_setting);
+    }
+}
+
+
+bool LLFloaterPerformance::isActionChecked(const LLSD& userdata, const LLUUID& av_id)
+{
+    const std::string command_name = userdata.asString();
+
+    S32 visual_setting = LLRenderMuteList::getInstance()->getSavedVisualMuteSetting(av_id);
+    if ("default" == command_name)
+    {
+        return (visual_setting == S32(LLVOAvatar::AV_RENDER_NORMALLY));
+    }
+    else if ("non_default" == command_name)
+    {
+        return (visual_setting != S32(LLVOAvatar::AV_RENDER_NORMALLY));
+    }
+    else if ("never" == command_name)
+    {
+        return (visual_setting == S32(LLVOAvatar::AV_DO_NOT_RENDER));
+    }
+    else if ("always" == command_name)
+    {
+        return (visual_setting == S32(LLVOAvatar::AV_ALWAYS_RENDER));
+    }
+    return false;
+}
+
+void LLFloaterPerformance::onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
+{
+    LLNameListCtrl* list = dynamic_cast<LLNameListCtrl*>(ctrl);
+    if (!list) return;
+    list->selectItemAt(x, y, MASK_NONE);
+    uuid_vec_t selected_uuids;
+
+    if(list->getCurrentID().notNull())
+    {
+        selected_uuids.push_back(list->getCurrentID());
+        mContextMenu->show(ctrl, selected_uuids, x, y);
+    }
 }
 
 // EOF

@@ -27,6 +27,7 @@
 #define LL_LLFLOATERPERFORMANCE_H
 
 #include "llfloater.h"
+#include "lllistcontextmenu.h"
 
 class LLCharacter;
 class LLNameListCtrl;
@@ -46,6 +47,11 @@ public:
 
     void detachItem(const LLUUID& item_id);
 
+    void onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y);
+
+    void onCustomAction (const LLSD& userdata, const LLUUID& av_id);
+    bool isActionChecked(const LLSD& userdata, const LLUUID& av_id);
+
 private:
     void initBackBtn(LLPanel* panel);
     void populateHUDList();
@@ -53,24 +59,24 @@ private:
     void populateNearbyList();
 
     void onClickAdvanced();
+    void onClickHideAvatars();
     void onClickExceptions();
 
     void updateMaxComplexity();
     void updateComplexityText();
 
     void getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs);
-    void updateNearbyComplexityDesc();
 
     LLPanel* mMainPanel;
-    LLPanel* mTroubleshootingPanel;
     LLPanel* mNearbyPanel;
     LLPanel* mComplexityPanel;
     LLPanel* mHUDsPanel;
     LLPanel* mSettingsPanel;
-    LLPanel* mPresetsPanel;
     LLNameListCtrl* mHUDList;
     LLNameListCtrl* mObjectList;
     LLNameListCtrl* mNearbyList;
+
+    LLListContextMenu* mContextMenu;
 
     LLTimer* mUpdateTimer;
 

@@ -42,7 +42,7 @@
    top_pad="10"
    name="attachments_title"
    width="195">
-    My avatar complexity 
+    Your avatar complexity 
   </text>
   <text
    follows="left|top"
@@ -54,7 +54,7 @@
    left="20"
    name="attachments_desc1"
    width="580">
-    Complex attachments require more time and memory to display.
+    If your avatar is very complex, some other people may not see you in full detail and
   </text>
   <text
    follows="left|top"
@@ -66,7 +66,7 @@
    left="20"
    name="attachments_desc2"
    width="580">
-    While you are in this location, removing the most complex ones may increase speed.
+    your own graphics speed may be reduced.
   </text>
   <name_list
     column_padding="0"
