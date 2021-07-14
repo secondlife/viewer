@@ -39,7 +39,7 @@ if [ -f "$CONFIG_FILE" ]; then
                 echo "Notarization error: failed to process the app file"
                 exit 1
             fi
-        elif
+        else
             echo "Notarization error: couldn't get request UUID"
             exit 1
         fi
