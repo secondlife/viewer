@@ -143,7 +143,7 @@ public:
 
     /// Instructs the LLCore::HTTPRequest to verify that the exchanged security
     /// certificate is authentic. 
-    /// Default: false
+    /// Default: sDefaultVerifyPeer
     void				setSSLVerifyPeer(bool verify);
 	bool				getSSLVerifyPeer() const
 	{
@@ -177,6 +177,13 @@ public:
     {
         return mNoBody;
     }
+
+    /// Sets default behavior for verifying that the name in the 
+    /// security certificate matches the name of the host contacted.
+    /// Defaults false if not set, but should be set according to
+    /// viewer's initialization options and command argunments, see
+    /// NoVerifySSLCert
+    static void         setDefaultSSLVerifyPeer(bool verify);
 	
 protected:
 	bool				mWantHeaders;
@@ -192,6 +199,8 @@ protected:
 	bool        		mVerifyHost;
 	int					mDNSCacheTimeout;
     bool                mNoBody;
+
+    static bool         sDefaultVerifyPeer;
 }; // end class HttpOptions
 
 
