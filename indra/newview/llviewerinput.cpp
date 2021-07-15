@@ -1070,7 +1070,7 @@ BOOL LLViewerInput::bindKey(const S32 mode, const KEY key, const MASK mask, cons
 
 	if (!function)
 	{
-		LL_ERRS() << "Can't bind key to function " << function_name << ", no function with this name found" << LL_ENDL;
+		LL_WARNS() << "Can't bind key to function " << function_name << ", no function with this name found" << LL_ENDL;
 		return FALSE;
 	}
 
@@ -1112,7 +1112,7 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
 
     if (!function)
     {
-        LL_ERRS() << "Can't bind key to function " << function_name << ", no function with this name found" << LL_ENDL;
+        LL_WARNS() << "Can't bind mouse key to function " << function_name << ", no function with this name found" << LL_ENDL;
         return FALSE;
     }
 
