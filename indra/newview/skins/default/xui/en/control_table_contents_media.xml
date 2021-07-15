@@ -74,8 +74,8 @@
          value="Start Gesture" />
     </rows>
     <rows
-     name="sript_trigger_lbutton"
-     value="sript_trigger_lbutton">
+     name="script_trigger_lbutton"
+     value="script_trigger_lbutton">
         <columns
          column="lst_action"
          font="SansSerif"

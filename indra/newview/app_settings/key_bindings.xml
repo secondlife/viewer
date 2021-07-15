@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<keys version="1">
+<keys xml_version="1">
   <first_person>
     <binding key="A" mask="NONE" command="slide_left"/>
     <binding key="D" mask="NONE" command="slide_right"/>
@@ -34,7 +34,7 @@
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
 
-    <binding key="" mask="NONE" mouse="LMB" command="sript_trigger_lbutton"/>
+    <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
   </first_person>
   <third_person>
     <binding key="A" mask="NONE" command="turn_left"/>
@@ -130,7 +130,7 @@
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
     <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
 
-    <binding key="" mask="NONE" mouse="LMB" command="sript_trigger_lbutton"/>
+    <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
   </third_person>
   <sitting>
     <binding key="A" mask="ALT" command="spin_around_cw"/>
@@ -229,7 +229,7 @@
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
 
-    <binding key="" mask="NONE" mouse="LMB" command="sript_trigger_lbutton"/>
+    <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
   </sitting>
   <edit_avatar>
     <!--Avatar editing camera controls-->
@@ -258,6 +258,6 @@
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
 
-    <binding key="" mask="NONE" mouse="LMB" command="sript_trigger_lbutton"/>
+    <binding key="" mask="NONE" mouse="LMB" command="script_trigger_lbutton"/>
   </edit_avatar>
 </keys>

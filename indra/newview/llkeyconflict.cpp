@@ -378,7 +378,7 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
         }
 
         // verify version
-        if (keys.version < 1)
+        if (keys.xml_version < 1)
         {
             // Updating from a version that was not aware of LMouse bindings.
             // Assign defaults.
@@ -389,7 +389,8 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
             LLKeyData data(CLICK_LEFT, KEY_NONE, MASK_NONE, true);
             type_data.mKeyBind.replaceKeyData(data, 0);
 
-            // Mark this mode for an update
+            // Mark this mode for an update, once user clicks 'OK' in preferences
+            // it should get saved
             mHasUnsavedChanges = true;
         }
     }
@@ -432,12 +433,6 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         }
     }
     mLoadMode = load_mode;
-
-    if (mHasUnsavedChanges)
-    {
-        // We ended up with some settings assigned due to changes in version, resave
-        saveToSettings(false);
-    }
 }
 
 void LLKeyConflictHandler::saveToSettings(bool temporary)
@@ -596,6 +591,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
                 LL_ERRS() << "Not implememted mode " << mLoadMode << LL_ENDL;
                 break;
             }
+
+            keys.xml_version.set(keybindings_xml_version, true);
 
             if (temporary)
             {
@@ -821,9 +818,9 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name)
     resetToDefaultAndResolve(control_name, false);
 }
 
-void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
+void LLKeyConflictHandler::resetToDefaultsAndResolve()
 {
-    if (mode == MODE_SAVED_SETTINGS)
+    if (mLoadMode == MODE_SAVED_SETTINGS)
     {
         control_map_t::iterator iter = mControlsMap.begin();
         control_map_t::iterator end = mControlsMap.end();
@@ -836,7 +833,7 @@ void LLKeyConflictHandler::resetToDefaults(ESourceMode mode)
     else
     {
         mControlsMap.clear();
-        generatePlaceholders(mode);
+        generatePlaceholders(mLoadMode);
         mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
     }
 
@@ -847,7 +844,7 @@ void LLKeyConflictHandler::resetToDefaults()
 {
     if (!empty())
     {
-        resetToDefaults(mLoadMode);
+        resetToDefaultsAndResolve();
     }
     else
     {
@@ -857,7 +854,7 @@ void LLKeyConflictHandler::resetToDefaults()
         // 3. We are loading 'current' only to replace it
         // but it is reliable and works Todo: consider optimizing.
         loadFromSettings(mLoadMode);
-        resetToDefaults(mLoadMode);
+        resetToDefaultsAndResolve();
     }
 }
 
@@ -890,7 +887,7 @@ void LLKeyConflictHandler::resetKeyboardBindings()
 
 void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
 {
-    // These placeholds are meant to cause conflict resolution when user tries to assign same control somewhere else
+    // These placeholders are meant to cause conflict resolution when user tries to assign same control somewhere else
     // also this can be used to pre-record controls that should not conflict or to assign conflict groups/masks
 
     if (load_mode == MODE_FIRST_PERSON)
@@ -1005,18 +1002,6 @@ bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, U32 conlict_ma
         S32 index = cntrl_iter->second.mKeyBind.findKeyData(data);
         if (index >= 0)
         {
-            if (cmp_mask != U32_MAX)
-            {
-                const LLKeyData cmp_data = cntrl_iter->second.mKeyBind.getKeyData(index);
-                if ((cmp_mask & CONFLICT_LMOUSE) == 0
-                    && cmp_data.mMouse == CLICK_LEFT
-                    && cmp_data.mMask == MASK_NONE
-                    && cmp_data.mKey == KEY_NONE)
-                {
-                    // Does not conflict
-                    continue;
-                }
-            }
             if (cntrl_iter->second.mAssignable)
             {
                 // Potentially we can have multiple conflict flags conflicting

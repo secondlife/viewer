@@ -836,7 +836,7 @@ bool voice_follow_key(EKeystate s)
     return false;
 }
 
-bool sript_trigger_lbutton(EKeystate s)
+bool script_trigger_lbutton(EKeystate s)
 {
     // Check for script overriding/expecting left mouse button.
     // Note that this does not pass event further and depends onto mouselook.
@@ -848,8 +848,6 @@ bool sript_trigger_lbutton(EKeystate s)
         switch (s)
         {
         case KEYSTATE_DOWN:
-            // at the moment sript_trigger_lbutton is only intended for mouselook
-            // but handling other modes just in case
             if (mouselook)
             {
                 gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_DOWN);
@@ -947,7 +945,7 @@ REGISTER_KEYBOARD_ACTION("teleport_to", teleport_to);
 REGISTER_KEYBOARD_ACTION("walk_to", walk_to);
 REGISTER_KEYBOARD_ACTION("toggle_voice", toggle_voice);
 REGISTER_KEYBOARD_ACTION("voice_follow_key", voice_follow_key);
-REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, sript_trigger_lbutton);
+REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, script_trigger_lbutton);
 #undef REGISTER_KEYBOARD_ACTION
 
 LLViewerInput::LLViewerInput()
@@ -1213,7 +1211,7 @@ LLViewerInput::Keys::Keys()
 	third_person("third_person"),
 	sitting("sitting"),
 	edit_avatar("edit_avatar"),
-	version("version", 0)
+	xml_version("xml_version", 0)
 {}
 
 void LLViewerInput::resetBindings()
@@ -1243,7 +1241,7 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
 		binding_count += loadBindingMode(keys.edit_avatar, MODE_EDIT_AVATAR);
 
         // verify version
-        if (keys.version < 1)
+        if (keys.xml_version < 1)
         {
             // updating from a version that was not aware of LMouse bindings
             for (S32 i = 0; i < MODE_COUNT; i++)
@@ -1602,7 +1600,7 @@ void LLViewerInput::scanMouse()
     }
 }
 
-bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode)
+bool LLViewerInput::isMouseBindUsed(const EMouseClickType mouse, const MASK mask, const S32 mode) const
 {
     S32 size = mMouseBindings[mode].size();
     for (S32 index = 0; index < size; index++)

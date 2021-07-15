@@ -138,11 +138,11 @@ public:
 
     bool hasUnsavedChanges() const { return mHasUnsavedChanges; }
     void setLoadMode(ESourceMode mode) { mLoadMode = mode; }
-    ESourceMode getLoadMode() { return mLoadMode; }
+    ESourceMode getLoadMode() const { return mLoadMode; }
 
 private:
     void resetToDefaultAndResolve(const std::string &control_name, bool ignore_conflicts);
-    void resetToDefaults(ESourceMode mode);
+    void resetToDefaultsAndResolve();
 
     // at the moment these kind of control is not savable, but takes part in conflict resolution
     void registerTemporaryControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
