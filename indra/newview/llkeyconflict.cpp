@@ -376,6 +376,22 @@ bool LLKeyConflictHandler::loadFromSettings(const ESourceMode &load_mode, const 
             LL_ERRS() << "Not implememted mode " << load_mode << LL_ENDL;
             break;
         }
+
+        // verify version
+        if (keys.version < 1)
+        {
+            // Updating from a version that was not aware of LMouse bindings.
+            // Assign defaults.
+            //
+            // mDefaultsMap is always going to have correct version so
+            // registerControl is usable, but using 'destination' just in case.
+            LLKeyConflict &type_data = (*destination)[script_mouse_handler_name];
+            LLKeyData data(CLICK_LEFT, KEY_NONE, MASK_NONE, true);
+            type_data.mKeyBind.replaceKeyData(data, 0);
+
+            // Mark this mode for an update
+            mHasUnsavedChanges = true;
+        }
     }
     return res;
 }
@@ -416,6 +432,12 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         }
     }
     mLoadMode = load_mode;
+
+    if (mHasUnsavedChanges)
+    {
+        // We ended up with some settings assigned due to changes in version, resave
+        saveToSettings(false);
+    }
 }
 
 void LLKeyConflictHandler::saveToSettings(bool temporary)

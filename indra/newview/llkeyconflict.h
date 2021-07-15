@@ -129,14 +129,14 @@ public:
     // resets current mode to defaults
     void resetToDefaults();
 
-    bool empty() { return mControlsMap.empty(); }
+    bool empty() const { return mControlsMap.empty(); }
     void clear();
 
     // reloads bindings from last valid user's xml or from default xml
     // to keyboard's handler
     static void resetKeyboardBindings();
 
-    bool hasUnsavedChanges() { return mHasUnsavedChanges; }
+    bool hasUnsavedChanges() const { return mHasUnsavedChanges; }
     void setLoadMode(ESourceMode mode) { mLoadMode = mode; }
     ESourceMode getLoadMode() { return mLoadMode; }
 

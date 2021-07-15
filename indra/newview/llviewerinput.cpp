@@ -1212,7 +1212,8 @@ LLViewerInput::Keys::Keys()
 :	first_person("first_person"),
 	third_person("third_person"),
 	sitting("sitting"),
-	edit_avatar("edit_avatar")
+	edit_avatar("edit_avatar"),
+	version("version", 0)
 {}
 
 void LLViewerInput::resetBindings()
@@ -1240,6 +1241,16 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
 		binding_count += loadBindingMode(keys.third_person, MODE_THIRD_PERSON);
 		binding_count += loadBindingMode(keys.sitting, MODE_SITTING);
 		binding_count += loadBindingMode(keys.edit_avatar, MODE_EDIT_AVATAR);
+
+        // verify version
+        if (keys.version < 1)
+        {
+            // updating from a version that was not aware of LMouse bindings
+            for (S32 i = 0; i < MODE_COUNT; i++)
+            {
+                mLMouseDefaultHandling[i] = true;
+            }
+        }
 	}
 	return binding_count;
 }

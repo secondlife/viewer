@@ -101,7 +101,7 @@ public:
 							third_person,
 							sitting,
 							edit_avatar;
-
+		Optional<U32> version;
 		Keys();
 	};
 
