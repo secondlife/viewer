@@ -746,7 +746,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else if (!mMouseOutsideSlop 
 		&& mMouseButtonDown
 		// disable camera steering if click on land is not used for moving
-		&& gViewerInput.isMouseBindUsed(CLICK_LEFT))
+		&& gViewerInput.isMouseBindUsed(CLICK_LEFT, MASK_NONE, MODE_THIRD_PERSON))
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;

@@ -61,7 +61,7 @@ const F32 ORBIT_NUDGE_RATE = 0.05f;  // fraction of normal speed
 const LLKeyData agent_control_lbutton(CLICK_LEFT, KEY_NONE, MASK_NONE, true);
 
 struct LLKeyboardActionRegistry 
-:	public LLRegistrySingleton<std::string, boost::function<bool (EKeystate keystate)>, LLKeyboardActionRegistry>
+:	public LLRegistrySingleton<const std::string, boost::function<bool (EKeystate keystate)>, LLKeyboardActionRegistry>
 {
 	LLSINGLETON_EMPTY_CTOR(LLKeyboardActionRegistry);
 };
@@ -836,7 +836,49 @@ bool voice_follow_key(EKeystate s)
     return false;
 }
 
-bool agen_control_lbutton_handle(EKeystate s)
+bool sript_trigger_lbutton(EKeystate s)
+{
+    // Check for script overriding/expecting left mouse button.
+    // Note that this does not pass event further and depends onto mouselook.
+    // Checks CONTROL_ML_LBUTTON_DOWN_INDEX for mouselook,
+    // CONTROL_LBUTTON_DOWN_INDEX for normal camera
+    if (gAgent.leftButtonGrabbed())
+    {
+        bool mouselook = gAgentCamera.cameraMouselook();
+        switch (s)
+        {
+        case KEYSTATE_DOWN:
+            // at the moment sript_trigger_lbutton is only intended for mouselook
+            // but handling other modes just in case
+            if (mouselook)
+            {
+                gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_DOWN);
+            }
+            else
+            {
+                gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_DOWN);
+            }
+            return true;
+        case KEYSTATE_UP:
+            if (mouselook)
+            {
+                gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_UP);
+            }
+            else
+            {
+                gAgent.setControlFlags(AGENT_CONTROL_LBUTTON_UP);
+            }
+            return true;
+        default:
+            break;
+        }
+    }
+    return false;
+}
+
+// Used by scripts, for overriding/handling left mouse button
+// see mControlsTakenCount
+bool agent_control_lbutton_handle(EKeystate s)
 {
     switch (s)
     {
@@ -905,6 +947,7 @@ REGISTER_KEYBOARD_ACTION("teleport_to", teleport_to);
 REGISTER_KEYBOARD_ACTION("walk_to", walk_to);
 REGISTER_KEYBOARD_ACTION("toggle_voice", toggle_voice);
 REGISTER_KEYBOARD_ACTION("voice_follow_key", voice_follow_key);
+REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, sript_trigger_lbutton);
 #undef REGISTER_KEYBOARD_ACTION
 
 LLViewerInput::LLViewerInput()
@@ -1104,6 +1147,20 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
     typedef boost::function<bool(EKeystate)> function_t;
     function_t function = NULL;
 
+    if (mouse == CLICK_LEFT
+        && mask == MASK_NONE
+        && function_name == script_mouse_handler_name)
+    {
+        // Special case
+        // Left click has script overrides and by default
+        // is handled via agent_control_lbutton as last option
+        // In case of mouselook and present overrides it has highest
+        // priority even over UI and is handled in LLToolCompGun::handleMouseDown
+        // so just mark it as having default handler
+        mLMouseDefaultHandling[mode] = true;
+        return TRUE;
+    }
+
     function_t* result = LLKeyboardActionRegistry::getValue(function_name);
     if (result)
     {
@@ -1164,6 +1221,7 @@ void LLViewerInput::resetBindings()
     {
         mKeyBindings[i].clear();
         mMouseBindings[i].clear();
+        mLMouseDefaultHandling[i] = false;
     }
 }
 
@@ -1355,13 +1413,14 @@ bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 
     if (!res && agent_control_lbutton.canHandle(CLICK_NONE, key, mask))
     {
+        // pass mouse left button press to script
         if (key_down && !repeat)
         {
-            res = agen_control_lbutton_handle(KEYSTATE_DOWN);
+            res = agent_control_lbutton_handle(KEYSTATE_DOWN);
         }
         if (key_up)
         {
-            res = agen_control_lbutton_handle(KEYSTATE_UP);
+            res = agent_control_lbutton_handle(KEYSTATE_UP);
         }
     }
     return res;
@@ -1481,24 +1540,28 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     S32 mode = getMode();
     MASK mask = gKeyboard->currentMask(TRUE);
     res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state);
+
     // no user defined actions found or those actions can't handle the key/button, handle control if nessesary
-    if (!res && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
+    // This will pass AGENT_CONTROL_LBUTTON_DOWN to server, no idea why it doesn't do mouselook variant _ML_
+    // but it was set this way forever (moved as is from LLTool::handleMouseDown) so lots of scripts probably
+    // rely on this.
+    if (!res && mLMouseDefaultHandling[mode] && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
     {
         switch (state)
         {
         case MOUSE_STATE_DOWN:
-            agen_control_lbutton_handle(KEYSTATE_DOWN);
+            agent_control_lbutton_handle(KEYSTATE_DOWN);
             res = true;
             break;
         case MOUSE_STATE_CLICK:
             // might not work best with some functions,
             // but some function need specific states too specifically
-            agen_control_lbutton_handle(KEYSTATE_DOWN);
-            agen_control_lbutton_handle(KEYSTATE_UP);
+            agent_control_lbutton_handle(KEYSTATE_DOWN);
+            agent_control_lbutton_handle(KEYSTATE_UP);
             res = true;
             break;
         case MOUSE_STATE_UP:
-            agen_control_lbutton_handle(KEYSTATE_UP);
+            agent_control_lbutton_handle(KEYSTATE_UP);
             res = true;
             break;
         default:
