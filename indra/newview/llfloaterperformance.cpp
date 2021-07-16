@@ -156,7 +156,7 @@ void LLFloaterPerformance::draw()
 
     if (mUpdateTimer->hasExpired())
     {
-        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS, NUM_PERIODS)));
+        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS)));
         if (mHUDsPanel->getVisible())
         {
             populateHUDList();
