@@ -70,6 +70,7 @@ Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
+  <string name="LocalTime">[month, datetime, local] [day, datetime, local] [year, datetime, local] [hour, datetime, local]:[min, datetime, local]:[second,datetime, local]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
 	
@@ -152,8 +153,10 @@ People with free accounts will not be able to access Second Life during this tim
 	<string name="LoginFailedComputerProhibited">Second Life cannot be accessed from this computer.
 If you feel this is an error, please contact
 support@secondlife.com.</string>
+  <!--'Pacific time' placeholder for [TIME] in case time from server can't be decoded-->
+  <string name="PacificTime">Pacific Time</string>
 	<string name="LoginFailedAcountSuspended">Your account is not accessible until
-[TIME] Pacific Time.
+[TIME].
 If you feel this is an error, please contact support@secondlife.com.</string>
 	<string name="LoginFailedAccountDisabled">We are unable to complete your request at this time.
 Please contact Second Life support for assistance at http://support.secondlife.com.</string>
@@ -161,7 +164,7 @@ Please contact Second Life support for assistance at http://support.secondlife.c
 Please contact support@secondlife.com.</string>
 	<string name="LoginFailedAccountMaintenance">Your account is undergoing minor maintenance.
 Your account is not accessible until
-[TIME] Pacific Time.
+[TIME].
 If you feel this is an error, please contact support@secondlife.com.</string>
 	<string name="LoginFailedPendingLogoutFault">Request for logout responded with a fault from simulator.</string>
 	<string name="LoginFailedPendingLogout">The system is logging you out right now.
