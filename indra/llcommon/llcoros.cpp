@@ -56,6 +56,10 @@
 #include "stringize.h"
 #include "llexception.h"
 
+#if LL_WINDOWS
+#include <excpt.h>
+#endif
+
 // static
 LLCoros::CoroData& LLCoros::get_CoroData(const std::string& caller)
 {
@@ -249,29 +253,58 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
 
 #if LL_WINDOWS
 
-void LLCoros::winlevel(const callable_t& callable)
+static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
+
+U32 cpp_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop, const std::string& name)
+{
+    // C++ exceptions were logged in toplevelTryWrapper, but not SEH
+    // log SEH exceptions here, to make sure it gets into bugsplat's 
+    // report and because __try won't allow std::string operations
+    if (code != STATUS_MSC_EXCEPTION)
+    {
+        LL_WARNS() << "SEH crash in " << name << ", code: " << code << LL_ENDL;
+    }
+    // Handle bugsplat here, since GetExceptionInformation() can only be
+    // called from within filter for __except(filter), not from __except's {}
+    // Bugsplat should get all exceptions, C++ and SEH
+    LLApp::instance()->reportCrashToBugsplat(exception_infop);
+
+    // Only convert non C++ exceptions.
+    if (code == STATUS_MSC_EXCEPTION)
+    {
+        // C++ exception, go on
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    else
+    {
+        // handle it
+        return EXCEPTION_EXECUTE_HANDLER;
+    }
+}
+
+void LLCoros::winlevel(const std::string& name, const callable_t& callable)
 {
     __try
     {
-        callable();
+        toplevelTryWrapper(name, callable);
     }
-    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
+    __except (cpp_exception_filter(GetExceptionCode(), GetExceptionInformation(), name))
     {
-        // convert to C++ styled exception
+        // convert to C++ styled exception for handlers other than bugsplat
         // Note: it might be better to use _se_set_translator
         // if you want exception to inherit full callstack
-        char integer_string[32];
-        sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
+        //
+        // in case of bugsplat this will get to exceptionTerminateHandler and
+        // looks like fiber will terminate application after that
+        char integer_string[512];
+        sprintf(integer_string, "SEH crash in %s, code: %lu\n", name.c_str(), GetExceptionCode());
         throw std::exception(integer_string);
     }
 }
 
 #endif
 
-// Top-level wrapper around caller's coroutine callable.
-// Normally we like to pass strings and such by const reference -- but in this
-// case, we WANT to copy both the name and the callable to our local stack!
-void LLCoros::toplevel(std::string name, callable_t callable)
+void LLCoros::toplevelTryWrapper(const std::string& name, const callable_t& callable)
 {
     // keep the CoroData on this top-level function's stack frame
     CoroData corodata(name);
@@ -281,16 +314,12 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     // run the code the caller actually wants in the coroutine
     try
     {
-#if LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD
-        winlevel(callable);
-#else
         callable();
-#endif
     }
     catch (const Stop& exc)
     {
         LL_INFOS("LLCoros") << "coroutine " << name << " terminating because "
-                            << exc.what() << LL_ENDL;
+            << exc.what() << LL_ENDL;
     }
     catch (const LLContinueError&)
     {
@@ -303,8 +332,23 @@ void LLCoros::toplevel(std::string name, callable_t callable)
     {
         // Any OTHER kind of uncaught exception will cause the viewer to
         // crash, hopefully informatively.
-        CRASH_ON_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << name));
+        // to not modify callstack
+        throw;
     }
+}
+
+// Top-level wrapper around caller's coroutine callable.
+// Normally we like to pass strings and such by const reference -- but in this
+// case, we WANT to copy both the name and the callable to our local stack!
+void LLCoros::toplevel(std::string name, callable_t callable)
+{
+#if LL_WINDOWS
+    // Can not use __try in functions that require unwinding, so use one more wrapper
+    winlevel(name, callable);
+#else
+    toplevelTryWrapper(name, callable);
+#endif
 }
 
 //static

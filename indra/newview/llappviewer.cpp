@@ -729,14 +729,14 @@ LLAppViewer::LLAppViewer()
 	// from the previous viewer run between this constructor call and the
 	// init() call, which will overwrite the static_debug_info.log file for
 	// THIS run. So setDebugFileNames() early.
-#if LL_BUGSPLAT
+#   ifdef LL_BUGSPLAT
 	// MAINT-8917: don't create a dump directory just for the
 	// static_debug_info.log file
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-#else // ! LL_BUGSPLAT
+#   else // ! LL_BUGSPLAT
 	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-#endif // ! LL_BUGSPLAT
+#   endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
 	setMiniDumpDir(logdir);
 	setDebugFileNames(logdir);
@@ -760,17 +760,6 @@ public:
 		return LLTrans::getString(xml_desc);
 	}
 };
-
-namespace {
-// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
-// this little helper function.
-void fast_exit(int rc)
-{
-	_exit(rc);
-}
-
-
-}
 
 
 bool LLAppViewer::init()
@@ -823,9 +812,9 @@ bool LLAppViewer::init()
 	if (rc >= 0)
 	{
 		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
-		// fast_exit() rather than exit() because normal cleanup depends too
+		// _exit() rather than exit() because normal cleanup depends too
 		// much on successful startup!
-		LLError::setFatalFunction(boost::bind(fast_exit, rc));
+		LLError::setFatalFunction([rc](const std::string&){ _exit(rc); });
 	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
@@ -2193,28 +2182,6 @@ bool LLAppViewer::cleanup()
 	return true;
 }
 
-// A callback for LL_ERRS() to call during the watchdog error.
-void watchdog_llerrs_callback(const std::string &error_string)
-{
-	gLLErrorActivated = true;
-
-	gDebugInfo["FatalMessage"] = error_string;
-	LLAppViewer::instance()->writeDebugInfo();
-
-#ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
-#else
-	raise(SIGQUIT);
-#endif
-}
-
-// A callback for the watchdog to call.
-void watchdog_killer_callback()
-{
-	LLError::setFatalFunction(watchdog_llerrs_callback);
-	LL_ERRS() << "Watchdog killer event" << LL_ENDL;
-}
-
 bool LLAppViewer::initThreads()
 {
 	static const bool enable_threads = true;
@@ -2249,24 +2216,23 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-void errorCallback(const std::string &error_string)
+void errorCallback(LLError::ELevel level, const std::string &error_string)
 {
+    if (level == LLError::LEVEL_ERROR)
+    {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-	//Set the ErrorActivated global so we know to create a marker file
-	gLLErrorActivated = true;
+        //Set the ErrorActivated global so we know to create a marker file
+        gLLErrorActivated = true;
 
-	gDebugInfo["FatalMessage"] = error_string;
-	// We're not already crashing -- we simply *intend* to crash. Since we
-	// haven't actually trashed anything yet, we can afford to write the whole
-	// static info file.
-	LLAppViewer::instance()->writeDebugInfo();
-
-#ifndef SHADER_CRASH_NONFATAL
-	LLError::crashAndLoop(error_string);
-#endif
+        gDebugInfo["FatalMessage"] = error_string;
+        // We're not already crashing -- we simply *intend* to crash. Since we
+        // haven't actually trashed anything yet, we can afford to write the whole
+        // static info file.
+        LLAppViewer::instance()->writeDebugInfo();
+    }
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
@@ -2277,7 +2243,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalFunction(errorCallback);
+	LLError::addGenericRecorder(&errorCallback);
 	//LLError::setTimeFunction(getRuntime);
 
 	// Remove the last ".old" log file.
@@ -3036,11 +3002,16 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
+	LL_INFOS("AppInit") << "watchdog"
+						<< (use_watchdog ? " " : " NOT ")
+						<< "enabled"
+						<< " (setting = " << watchdog_enabled_setting << ")"
+						<< LL_ENDL;
+
 	if (use_watchdog)
 	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+		LLWatchdog::getInstance()->init();
 	}
-	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 
@@ -3473,8 +3444,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 
-	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
-	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
+	gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
+	gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
 	gDebugInfo["OSInfo"] = LLOSInfo::instance().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
@@ -3487,12 +3458,18 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
 #endif
 
+#ifndef LL_BUGSPLAT
 	// "CrashNotHandled" is set here, while things are running well,
 	// in case of a freeze. If there is a freeze, the crash logger will be launched
 	// and can read this value from the debug_info.log.
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
-	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
+#else // LL_BUGSPLAT
+	// "CrashNotHandled" is obsolete; it used (not very successsfully)
+    // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(false);
+#endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
 	// that the crash report will go to the proper location in the case of a
@@ -3523,7 +3500,7 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
-	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
+	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
 
@@ -3653,7 +3630,7 @@ void LLAppViewer::handleViewerCrash()
 
 	// The crash is being handled here so set this value to false.
 	// Otherwise the crash logger will think this crash was a freeze.
-	gDebugInfo["Dynamic"]["CrashNotHandled"] = (LLSD::Boolean)false;
+	gDebugInfo["Dynamic"]["CrashNotHandled"] = LLSD::Boolean(false);
 
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
@@ -3725,6 +3702,8 @@ void LLAppViewer::handleViewerCrash()
 	}
 
 	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
+
+	gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
 
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
@@ -3824,9 +3803,8 @@ void LLAppViewer::processMarkerFiles()
 		else if (marker_is_same_version)
 		{
 			// the file existed, is ours, and matched our version, so we can report on what it says
-			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec FROZE" << LL_ENDL;
-			gLastExecEvent = LAST_EXEC_FROZE;
-
+			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
+			gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 		}
 		else
 		{
@@ -5370,10 +5348,9 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
-void LLAppViewer::updateNameLookupUrl()
+void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
 {
-    LLViewerRegion* region = gAgent.getRegion();
-    if (!region || !region->capabilitiesReceived())
+    if (!regionp || !regionp->capabilitiesReceived())
     {
         return;
     }
@@ -5382,7 +5359,7 @@ void LLAppViewer::updateNameLookupUrl()
     bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
     std::string name_lookup_url;
     name_lookup_url.reserve(128); // avoid a memory allocation below
-    name_lookup_url = region->getCapability("GetDisplayNames");
+    name_lookup_url = regionp->getCapability("GetDisplayNames");
     bool have_capability = !name_lookup_url.empty();
     if (have_capability)
     {
@@ -5693,6 +5670,33 @@ void LLAppViewer::forceErrorDriverCrash()
 	glDeleteTextures(1, NULL);
 }
 
+void LLAppViewer::forceErrorCoroutineCrash()
+{
+    LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
+    LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw LLException("A deliberate crash from LLCoros"); });
+}
+
+void LLAppViewer::forceErrorThreadCrash()
+{
+    class LLCrashTestThread : public LLThread
+    {
+    public:
+
+        LLCrashTestThread() : LLThread("Crash logging test thread")
+        {
+        }
+
+        void run()
+        {
+            LL_ERRS() << "This is a deliberate llerror in thread" << LL_ENDL;
+        }
+    };
+
+    LL_WARNS() << "This is a deliberate crash in a thread" << LL_ENDL;
+    LLCrashTestThread *thread = new LLCrashTestThread();
+    thread->start();
+}
+
 void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 {
 	if(!mMainloopTimeout)
@@ -5736,11 +5740,6 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
-//	if(!restoreErrorTrap())
-//	{
-//		LL_WARNS() << "!!!!!!!!!!!!! Its an error trap!!!!" << state << LL_ENDL;
-//	}
-
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)

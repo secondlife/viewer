@@ -124,7 +124,7 @@ public:
 	/// them on their way.
 	///
 	/// Threading:  callable by any thread.
-	void stopQueue();
+	bool stopQueue();
 	
 protected:
 	static HttpRequestQueue *			sInstance;
