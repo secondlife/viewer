@@ -962,9 +962,10 @@ void LLFolderViewItem::draw()
 	//
     if (filter_string_length > 0)
     {
-        F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+        S32 filter_offset = mViewModelItem->getFilterStringOffset();
+        F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string, filter_offset, filter_string_length);
         F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
-        font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+        font->renderUTF8( combined_string, filter_offset, match_string_left, yy,
             sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
             filter_string_length, S32_MAX, &right_x, FALSE );
     }
@@ -1607,7 +1608,7 @@ void LLFolderViewFolder::destroyView()
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.
-void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
+void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_model )
 {
 	if (item->isSelected())
 		getRoot()->clearSelection();
@@ -1630,7 +1631,11 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		mItems.erase(it);
 	}
 	//item has been removed, need to update filter
-	getViewModelItem()->removeChild(item->getViewModelItem());
+    if (deparent_model)
+    {
+        // in some cases model does not belong to parent view, is shared between views
+        getViewModelItem()->removeChild(item->getViewModelItem());
+    }
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
 	removeChild(item);

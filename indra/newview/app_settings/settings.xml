@@ -14335,19 +14335,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <!-- SL-12594 removes fixed function rendering
-    <key>VertexShaderEnable</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable/disable all GLSL shaders (debug)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <-->
     <key>VivoxAutoPostCrashDumps</key>
     <map>
       <key>Comment</key>
@@ -14436,7 +14423,7 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
-    
+
   <key>VivoxVadAuto</key>
   <map>
     <key>Comment</key>
@@ -14473,8 +14460,7 @@
   <key>VivoxVadSensitivity</key>
   <map>
     <key>Comment</key>
-    <string>
-      A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
+    <string>A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

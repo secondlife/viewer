@@ -136,6 +136,7 @@ LLMultiSlider::LLMultiSlider(const LLMultiSlider::Params& p)
 		}
 	}
 
+    mRoundedSquareImgp = LLUI::getUIImage("Rounded_Square");
 	if (p.thumb_image.isProvided())
 	{
 		mThumbImagep = LLUI::getUIImage(p.thumb_image());
@@ -666,8 +667,6 @@ void LLMultiSlider::draw()
 	F32 opacity = getEnabled() ? 1.f : 0.3f;
 
 	// Track
-	LLUIImagePtr thumb_imagep = LLUI::getUIImage("Rounded_Square");
-
 	static LLUICachedControl<S32> multi_track_height_width ("UIMultiTrackHeight", 0);
 	S32 height_offset = 0;
 	S32 width_offset = 0;
@@ -685,7 +684,7 @@ void LLMultiSlider::draw()
 	if(mDrawTrack)
 	{
 		track_rect.stretch(-1);
-		thumb_imagep->draw(track_rect, mTrackColor.get() % opacity);
+		mRoundedSquareImgp->draw(track_rect, mTrackColor.get() % opacity);
 	}
 
 	// if we're supposed to use a drawn triangle
@@ -704,7 +703,7 @@ void LLMultiSlider::draw()
 				mTriangleColor.get() % opacity, TRUE);
 		}
 	}
-	else if (!thumb_imagep && !mThumbImagep)
+	else if (!mRoundedSquareImgp && !mThumbImagep)
 	{
 		// draw all the thumbs
 		curSldrIt = mThumbRects.end();
@@ -757,7 +756,7 @@ void LLMultiSlider::draw()
 			}
 			else
 			{
-				thumb_imagep->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
+                mRoundedSquareImgp->drawSolid(mDragStartThumbRect, mThumbCenterColor.get() % 0.3f);
 			}
 		}
 
@@ -772,7 +771,7 @@ void LLMultiSlider::draw()
 				}
 				else
 				{
-					thumb_imagep->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+                    mRoundedSquareImgp->drawBorder(mThumbRects[mCurSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
 				}
 			}
 		}
@@ -784,7 +783,7 @@ void LLMultiSlider::draw()
             }
             else
             {
-                thumb_imagep->drawBorder(mThumbRects[mHoverSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
+                mRoundedSquareImgp->drawBorder(mThumbRects[mHoverSlider], gFocusMgr.getFocusColor(), gFocusMgr.getFocusFlashWidth());
             }
         }
 
@@ -822,11 +821,11 @@ void LLMultiSlider::draw()
 			}
 			else if (capture == this)
 			{
-				thumb_imagep->drawSolid(mIt->second, curThumbColor);
+                mRoundedSquareImgp->drawSolid(mIt->second, curThumbColor);
 			}
 			else
 			{
-				thumb_imagep->drawSolid(mIt->second, curThumbColor % opacity);
+                mRoundedSquareImgp->drawSolid(mIt->second, curThumbColor % opacity);
 			}
 		}
 		
@@ -846,11 +845,11 @@ void LLMultiSlider::draw()
 			}
 			else if (capture == this)
 			{
-				thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get());
+                mRoundedSquareImgp->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get());
 			}
 			else
 			{
-				thumb_imagep->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
+                mRoundedSquareImgp->drawSolid(curSldrIt->second, mThumbCenterSelectedColor.get() % opacity);
 			}
 		}
 		if(hoverSldrIt != mThumbRects.end()) 
@@ -861,7 +860,7 @@ void LLMultiSlider::draw()
 			}
 			else
 			{
-				thumb_imagep->drawSolid(hoverSldrIt->second, mThumbCenterSelectedColor.get());
+                mRoundedSquareImgp->drawSolid(hoverSldrIt->second, mThumbCenterSelectedColor.get());
 			}
 		}
 	}
