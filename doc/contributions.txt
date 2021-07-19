@@ -226,6 +226,7 @@ Ansariel Hiller
 	SL-13364
 	SL-13858
 	SL-13697
+	SL-13395
 	SL-3136
 Aralara Rajal
 Arare Chantilly
@@ -268,6 +269,7 @@ Beq Janus
     SL-11300
 	SL-13583
 	SL-14766
+	SL-14927
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani

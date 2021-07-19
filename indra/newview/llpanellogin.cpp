@@ -254,7 +254,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	LLLineEditor* password_edit(getChild<LLLineEditor>("password_edit"));
 	password_edit->setKeystrokeCallback(onPassKey, this);
 	// STEAM-14: When user presses Enter with this field in focus, initiate login
-	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(getChildView("forgot_password_text"));
@@ -265,7 +265,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
     {
         LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
         updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
-        favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+        favorites_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, false));
         favorites_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onLocationSLURL, this));
 
         LLComboBox* server_choice_combo = getChild<LLComboBox>("server_combo");
@@ -458,6 +458,9 @@ void LLPanelLogin::addFavoritesToStartLocation()
 	if (combo->getValue().asString().empty())
 	{
 		combo->selectFirstItem();
+        // Value 'home' or 'last' should have been taken from NextLoginLocation
+        // but NextLoginLocation was not set, so init it from combo explicitly
+        onLocationSLURL();
 	}
 }
 
@@ -1004,12 +1007,15 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 // Protected methods
 //---------------------------------------------------------------------------
 // static
-void LLPanelLogin::onClickConnect(void *)
+void LLPanelLogin::onClickConnect(bool commit_fields)
 {
 	if (sInstance && sInstance->mCallback)
 	{
-		// JC - Make sure the fields all get committed.
-		sInstance->setFocus(FALSE);
+		if (commit_fields)
+		{
+			// JC - Make sure the fields all get committed.
+			sInstance->setFocus(FALSE);
+		}
 
 		LLComboBox* combo = sInstance->getChild<LLComboBox>("server_combo");
 		LLSD combo_val = combo->getSelectedValue();
@@ -1132,7 +1138,7 @@ void LLPanelLogin::onUserListCommit(void*)
            }
            else
            {
-               onClickConnect(NULL);
+               onClickConnect();
            }
         }
     }
@@ -1364,6 +1370,7 @@ void LLPanelLogin::onSelectServer()
 			{
 				// the grid specified by the location is not this one, so clear the combo
 				location_combo->setCurrentByIndex(0); // last location on the new grid
+				onLocationSLURL();
 			}
 		}			
 		break;

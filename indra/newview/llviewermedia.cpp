@@ -1237,6 +1237,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     
     httpOpts->setFollowRedirects(true);
     httpOpts->setWantHeaders(true);
+    httpOpts->setSSLVerifyPeer(false); // viewer's cert bundle doesn't appear to agree with web certs from "https://my.secondlife.com/"
 
     LLURL hostUrl(url.c_str());
     std::string hostAuth = hostUrl.getAuthority();

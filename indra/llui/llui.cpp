@@ -154,7 +154,6 @@ mAudioCallback(audio_callback),
 mDeferredAudioCallback(deferred_audio_callback),
 mWindow(NULL), // set later in startup
 mRootView(NULL),
-mDirty(FALSE),
 mHelpImpl(NULL)
 {
 	LLRender2D::initParamSingleton(image_provider);
@@ -202,19 +201,6 @@ void LLUI::setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t& rem
 	mAddPopupFunc = add_popup;
 	mRemovePopupFunc = remove_popup;
 	mClearPopupsFunc = clear_popups;
-}
-
-void LLUI::dirtyRect(LLRect rect)
-{
-	if (!mDirty)
-	{
-		mDirtyRect = rect;
-		mDirty = TRUE;
-	}
-	else
-	{
-		mDirtyRect.unionWith(rect);
-	}
 }
 
 void LLUI::setMousePositionScreen(S32 x, S32 y)
@@ -509,6 +495,18 @@ const LLView* LLUI::resolvePath(const LLView* context, const std::string& path)
 	}
 
 	return context;
+}
+
+//static
+LLVector2& LLUI::getScaleFactor()
+{
+    return LLRender::sUIGLScaleFactor;
+}
+
+//static
+void LLUI::setScaleFactor(const LLVector2& scale_factor)
+{
+    LLRender::sUIGLScaleFactor = scale_factor;
 }
 
 
