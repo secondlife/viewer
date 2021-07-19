@@ -129,11 +129,6 @@ pre_build()
     then # show that we're doing this, just not the contents
          echo source "$bugsplat_sh"
          source "$bugsplat_sh"
-         # important: we test this and use its value in [grand-]child processes
-         if [ -n "${BUGSPLAT_DB:-}" ]
-         then echo export BUGSPLAT_DB
-              export BUGSPLAT_DB
-         fi
     fi
     set -x
 
@@ -445,6 +440,15 @@ then
   fi
 fi
 
+# Some of the uploads takes a long time to finish in the codeticket backend,
+# causing the next codeticket upload attempt to fail.
+# Inserting this after each potentially large upload may prevent those errors.
+# JJ is making changes to Codeticket that we hope will eliminate this failure, then this can be removed
+wait_for_codeticket()
+{
+    sleep $(( 60 * 6 ))
+}
+
 # check status and upload results to S3
 if $succeeded
 then
@@ -461,6 +465,7 @@ then
       # Upload base package.
       python_cmd "$helpers/codeticket.py" addoutput Installer "$package"  \
           || fatal "Upload of installer failed"
+      wait_for_codeticket
 
       # Upload additional packages.
       for package_id in $additional_packages
@@ -470,6 +475,7 @@ then
         then
           python_cmd "$helpers/codeticket.py" addoutput "Installer $package_id" "$package" \
               || fatal "Upload of installer $package_id failed"
+          wait_for_codeticket
         else
           record_failure "Failed to find additional package for '$package_id'."
         fi
@@ -483,6 +489,7 @@ then
               # Upload crash reporter file
               python_cmd "$helpers/codeticket.py" addoutput "Symbolfile" "$VIEWER_SYMBOL_FILE" \
                   || fatal "Upload of symbolfile failed"
+              wait_for_codeticket
           fi
 
           # Upload the llphysicsextensions_tpv package, if one was produced
@@ -490,6 +497,9 @@ then
           if [ -r "$build_dir/llphysicsextensions_package" ]
           then
               llphysicsextensions_package=$(cat $build_dir/llphysicsextensions_package)
+              # This next upload is a frequent failure; see if giving the last one some time helps
+              # JJ is making changes to Codeticket that we hope will eliminate this failure soon
+              sleep 300
               python_cmd "$helpers/codeticket.py" addoutput "Physics Extensions Package" "$llphysicsextensions_package" --private \
                   || fatal "Upload of physics extensions package failed"
           fi
@@ -502,6 +512,7 @@ then
               begin_section "Upload Extension $extension"
               . $extension
               [ $? -eq 0 ] || fatal "Upload of extension $extension failed"
+              wait_for_codeticket
               end_section "Upload Extension $extension"
           done
       fi
@@ -511,7 +522,6 @@ then
     record_event "skipping upload of installer"
   fi
 
-  
 else
     record_event "skipping upload of installer due to failed build"
 fi

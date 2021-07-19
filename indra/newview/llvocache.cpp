@@ -44,6 +44,9 @@ F32 LLVOCacheEntry::sFrontPixelThreshold = 1.0f;
 F32 LLVOCacheEntry::sRearPixelThreshold = 1.0f;
 BOOL LLVOCachePartition::sNeedsOcclusionCheck = FALSE;
 
+const S32 ENTRY_HEADER_SIZE = 6 * sizeof(S32);
+const S32 MAX_ENTRY_BODY_SIZE = 10000;
+
 BOOL check_read(LLAPRFile* apr_file, void* src, S32 n_bytes) 
 {
 	return apr_file->read(src, n_bytes) == n_bytes ;
@@ -111,32 +114,22 @@ LLVOCacheEntry::LLVOCacheEntry(LLAPRFile* apr_file)
 {
 	S32 size = -1;
 	BOOL success;
+    static U8 data_buffer[ENTRY_HEADER_SIZE];
 
 	mDP.assignBuffer(mBuffer, 0);
-	
-	success = check_read(apr_file, &mLocalID, sizeof(U32));
-	if(success)
-	{
-		success = check_read(apr_file, &mCRC, sizeof(U32));
-	}
-	if(success)
-	{
-		success = check_read(apr_file, &mHitCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_read(apr_file, &mDupeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_read(apr_file, &mCRCChangeCount, sizeof(S32));
-	}
-	if(success)
-	{
-		success = check_read(apr_file, &size, sizeof(S32));
+
+    success = check_read(apr_file, (void *)data_buffer, ENTRY_HEADER_SIZE);
+    if (success)
+    {
+        memcpy(&mLocalID, data_buffer, sizeof(U32));
+        memcpy(&mCRC, data_buffer + sizeof(U32), sizeof(U32));
+        memcpy(&mHitCount, data_buffer + (2 * sizeof(U32)), sizeof(S32));
+        memcpy(&mDupeCount, data_buffer + (3 * sizeof(U32)), sizeof(S32));
+        memcpy(&mCRCChangeCount, data_buffer + (4 * sizeof(U32)), sizeof(S32));
+        memcpy(&size, data_buffer + (5 * sizeof(U32)), sizeof(S32));
 
 		// Corruption in the cache entries
-		if ((size > 10000) || (size < 1))
+		if ((size > MAX_ENTRY_BODY_SIZE) || (size < 1))
 		{
 			// We've got a bogus size, skip reading it.
 			// We won't bother seeking, because the rest of this file
@@ -345,11 +338,15 @@ void LLVOCacheEntry::dump() const
 		<< LL_ENDL;
 }
 
-BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
+S32 LLVOCacheEntry::writeToBuffer(U8 *data_buffer) const
 {
-    static const S32 data_buffer_size = 6 * sizeof(S32);
-    static U8 data_buffer[data_buffer_size];
     S32 size = mDP.getBufferSize();
+
+    if (size > MAX_ENTRY_BODY_SIZE)
+    {
+        LL_WARNS() << "Failed to write entry with size above allowed limit: " << size << LL_ENDL;
+        return 0;
+    }
 
     memcpy(data_buffer, &mLocalID, sizeof(U32));
     memcpy(data_buffer + sizeof(U32), &mCRC, sizeof(U32));
@@ -357,14 +354,9 @@ BOOL LLVOCacheEntry::writeToFile(LLAPRFile* apr_file) const
     memcpy(data_buffer + (3 * sizeof(U32)), &mDupeCount, sizeof(S32));
     memcpy(data_buffer + (4 * sizeof(U32)), &mCRCChangeCount, sizeof(S32));
     memcpy(data_buffer + (5 * sizeof(U32)), &size, sizeof(S32));
+    memcpy(data_buffer + ENTRY_HEADER_SIZE, (void*)mBuffer, size);
 
-    BOOL success = check_write(apr_file, (void*)data_buffer, data_buffer_size);
-    if (success)
-    {
-        success = check_write(apr_file, (void*)mBuffer, size);
-    }
-
-    return success;
+    return ENTRY_HEADER_SIZE + size;
 }
 
 //static 
@@ -1393,11 +1385,11 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 	bool success = true ;
 	{
 		std::string filename;
+		LLUUID cache_id;
 		getObjectCacheFilename(handle, filename);
 		LLAPRFile apr_file(filename, APR_READ|APR_BINARY, mLocalAPRFilePoolp);
 	
-		LLUUID cache_id ;
-		success = check_read(&apr_file, cache_id.mData, UUID_BYTES) ;
+		success = check_read(&apr_file, cache_id.mData, UUID_BYTES);
 	
 		if(success)
 		{		
@@ -1409,7 +1401,7 @@ void LLVOCache::readFromCache(U64 handle, const LLUUID& id, LLVOCacheEntry::voca
 
 			if(success)
 			{
-				S32 num_entries;
+				S32 num_entries;  // if removal was enabled during write num_entries might be wrong
 				success = check_read(&apr_file, &num_entries, sizeof(S32)) ;
 	
 				if(success)
@@ -1516,28 +1508,57 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		std::string filename;
 		getObjectCacheFilename(handle, filename);
-		LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY, mLocalAPRFilePoolp);
+		LLAPRFile apr_file(filename, APR_CREATE|APR_WRITE|APR_BINARY|APR_TRUNCATE, mLocalAPRFilePoolp);
 	
-		success = check_write(&apr_file, (void*)id.mData, UUID_BYTES) ;
-
+		success = check_write(&apr_file, (void*)id.mData, UUID_BYTES);
 	
 		if(success)
 		{
-			S32 num_entries = cache_entry_map.size() ;
+			S32 num_entries = cache_entry_map.size(); // if removal is enabled num_entries might be wrong
 			success = check_write(&apr_file, &num_entries, sizeof(S32));
+            if (success)
+            {
+                const S32 buffer_size = 32768; //should be large enough for couple MAX_ENTRY_BODY_SIZE
+                U8 data_buffer[buffer_size]; // generaly entries are fairly small, so collect them and drop onto disk in one go
+                S32 size_in_buffer = 0;
 
-			// This can have a lot of entries, so might be better to dump them into buffer first and write in one go.
-			for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
-			{
-				if(!removal_enabled || iter->second->isValid())
-				{
-					success = iter->second->writeToFile(&apr_file) ;
-					if(!success)
-					{
-						break;
-					}
-				}
-			}
+                // This can have a lot of entries, so might be better to dump them into buffer first and write in one go.
+                for (LLVOCacheEntry::vocache_entry_map_t::const_iterator iter = cache_entry_map.begin(); success && iter != cache_entry_map.end(); ++iter)
+                {
+                    if (!removal_enabled || iter->second->isValid())
+                    {
+                        S32 size = iter->second->writeToBuffer(data_buffer + size_in_buffer);
+
+                        if (size > ENTRY_HEADER_SIZE) // body is minimum of 1
+                        {
+                            size_in_buffer += size;
+                        }
+                        else
+                        {
+                            success = false;
+                            break;
+                        }
+
+                        // Make sure we have space in buffer for next element
+                        if (buffer_size - size_in_buffer < MAX_ENTRY_BODY_SIZE + ENTRY_HEADER_SIZE)
+                        {
+                            success = check_write(&apr_file, (void*)data_buffer, size_in_buffer);
+                            size_in_buffer = 0;
+                            if (!success)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (success && size_in_buffer > 0)
+                {
+                    // final write
+                    success = check_write(&apr_file, (void*)data_buffer, size_in_buffer);
+                    size_in_buffer = 0;
+                }
+            }
 		}
 	}
 

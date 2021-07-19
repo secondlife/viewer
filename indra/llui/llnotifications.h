@@ -879,6 +879,7 @@ class LLNotifications :
 {
 	LLSINGLETON(LLNotifications);
 	LOG_CLASS(LLNotifications);
+	virtual ~LLNotifications() {}
 
 public:
 
@@ -1076,7 +1077,11 @@ public:
 	LLPersistentNotificationChannel() 
 		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
 	{}
-	virtual ~LLPersistentNotificationChannel() {}
+
+    virtual ~LLPersistentNotificationChannel()
+    {
+        mHistory.clear();
+    }
 
 	typedef std::vector<LLNotificationPtr> history_list_t;
 	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }

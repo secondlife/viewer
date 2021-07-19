@@ -87,6 +87,7 @@ public:
 
 protected:
 	/*virtual*/void updateButtons();
+	void updateNoItemsLabel();
 
 private:
 	void onClickDelete();
