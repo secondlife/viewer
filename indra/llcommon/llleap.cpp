@@ -59,7 +59,6 @@ public:
         // pump name -- so it should NOT need tweaking for uniqueness.
         mReplyPump(LLUUID::generateNewID().asString()),
         mExpect(0),
-        mPrevFatalFunction(LLError::getFatalFunction()),
         // Instantiate a distinct LLLeapListener for this plugin. (Every
         // plugin will want its own collection of managed listeners, etc.)
         // Pass it a callback to our connect() method, so it can send events
@@ -146,7 +145,9 @@ public:
             .listen("LLLeap", boost::bind(&LLLeapImpl::rstderr, this, _1));
 
         // For our lifespan, intercept any LL_ERRS so we can notify plugin
-        LLError::setFatalFunction(boost::bind(&LLLeapImpl::fatalFunction, this, _1));
+        mRecorder = LLError::addGenericRecorder(
+            [this](LLError::ELevel level, const std::string& message)
+            { onError(level, message); });
 
         // Send child a preliminary event reporting our own reply-pump name --
         // which would otherwise be pretty tricky to guess!
@@ -162,8 +163,7 @@ public:
     virtual ~LLLeapImpl()
     {
         LL_DEBUGS("LLLeap") << "destroying LLLeap(\"" << mDesc << "\")" << LL_ENDL;
-        // Restore original FatalFunction
-        LLError::setFatalFunction(mPrevFatalFunction);
+        LLError::removeRecorder(mRecorder);
     }
 
     // Listener for failed launch attempt
@@ -377,28 +377,28 @@ public:
         return false;
     }
 
-    void fatalFunction(const std::string& error)
+    void onError(LLError::ELevel level, const std::string& error)
     {
-        // Notify plugin
-        LLSD event;
-        event["type"] = "error";
-        event["error"] = error;
-        mReplyPump.post(event);
-
-        // All the above really accomplished was to buffer the serialized
-        // event in our WritePipe. Have to pump mainloop a couple times to
-        // really write it out there... but time out in case we can't write.
-        LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
-        LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-        LLSD nop;
-        F64 until = (LLTimer::getElapsedSeconds() + 2).value();
-        while (childin.size() && LLTimer::getElapsedSeconds() < until)
+        if (level == LLError::LEVEL_ERROR)
         {
-            mainloop.post(nop);
-        }
+            // Notify plugin
+            LLSD event;
+            event["type"] = "error";
+            event["error"] = error;
+            mReplyPump.post(event);
 
-        // forward the call to the previous FatalFunction
-        mPrevFatalFunction(error);
+            // All the above really accomplished was to buffer the serialized
+            // event in our WritePipe. Have to pump mainloop a couple times to
+            // really write it out there... but time out in case we can't write.
+            LLProcess::WritePipe& childin(mChild->getWritePipe(LLProcess::STDIN));
+            LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
+            LLSD nop;
+            F64 until = (LLTimer::getElapsedSeconds() + 2).value();
+            while (childin.size() && LLTimer::getElapsedSeconds() < until)
+            {
+                mainloop.post(nop);
+            }
+        }
     }
 
 private:
@@ -421,7 +421,7 @@ private:
         mStdinConnection, mStdoutConnection, mStdoutDataConnection, mStderrConnection;
     boost::scoped_ptr<LLEventPump::Blocker> mBlocker;
     LLProcess::ReadPipe::size_type mExpect;
-    LLError::FatalFunction mPrevFatalFunction;
+    LLError::RecorderPtr mRecorder;
     boost::scoped_ptr<LLLeapListener> mListener;
 };
 

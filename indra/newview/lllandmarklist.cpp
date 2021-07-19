@@ -74,6 +74,16 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 		{
 			return NULL;
 		}
+
+        if (cb)
+        {
+            // Multiple different sources can request same landmark,
+            // mLoadedCallbackMap is a multimap that allows multiple pairs with same key
+            // Todo: this might need to be improved to not hold identical callbacks multiple times
+            loaded_callback_map_t::value_type vt(asset_uuid, cb);
+            mLoadedCallbackMap.insert(vt);
+        }
+
 	    if ( mWaitList.find(asset_uuid) != mWaitList.end() )
 		{
             // Landmark is sheduled for download, but not requested yet
@@ -88,12 +98,6 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 			{
 				return NULL;
 			}
-		}
-		
-		if (cb)
-		{
-			loaded_callback_map_t::value_type vt(asset_uuid, cb);
-			mLoadedCallbackMap.insert(vt);
 		}
 
         if (mRequestedList.size() > MAX_SIMULTANEOUS_REQUESTS)
@@ -132,36 +136,49 @@ void LLLandmarkList::processGetAssetReply(
 		LLVFile file(vfs, uuid, type);
 		S32 file_length = file.getSize();
 
-		std::vector<char> buffer(file_length + 1);
-		file.read( (U8*)&buffer[0], file_length);
-		buffer[ file_length ] = 0;
+        if (file_length > 0)
+        {
+            std::vector<char> buffer(file_length + 1);
+            file.read((U8*)&buffer[0], file_length);
+            buffer[file_length] = 0;
 
-		LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0]);
-		if (landmark)
-		{
-			gLandmarkList.mList[ uuid ] = landmark;
-			gLandmarkList.mRequestedList.erase(uuid);
-			
-			LLVector3d pos;
-			if(!landmark->getGlobalPos(pos))
-			{
-				LLUUID region_id;
-				if(landmark->getRegionID(region_id))
-				{
-					LLLandmark::requestRegionHandle(
-						gMessageSystem,
-						gAgent.getRegionHost(),
-						region_id,
-						boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
-				}
+            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], buffer.size());
+            if (landmark)
+            {
+                gLandmarkList.mList[uuid] = landmark;
+                gLandmarkList.mRequestedList.erase(uuid);
 
-				// the callback will be called when we get the region handle.
-			}
-			else
-			{
-				gLandmarkList.makeCallbacks(uuid);
-			}
-		}
+                LLVector3d pos;
+                if (!landmark->getGlobalPos(pos))
+                {
+                    LLUUID region_id;
+                    if (landmark->getRegionID(region_id))
+                    {
+                        LLLandmark::requestRegionHandle(
+                            gMessageSystem,
+                            gAgent.getRegionHost(),
+                            region_id,
+                            boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
+                    }
+
+                    // the callback will be called when we get the region handle.
+                }
+                else
+                {
+                    gLandmarkList.makeCallbacks(uuid);
+                }
+            }
+            else
+            {
+                // failed to parse, shouldn't happen
+                gLandmarkList.eraseCallbacks(uuid);
+            }
+        }
+        else
+        {
+            // got a good status, but no file, shouldn't happen
+            gLandmarkList.eraseCallbacks(uuid);
+        }
 	}
 	else
 	{
@@ -179,7 +196,7 @@ void LLLandmarkList::processGetAssetReply(
 
 		gLandmarkList.mBadList.insert(uuid);
         gLandmarkList.mRequestedList.erase(uuid); //mBadList effectively blocks any load, so no point keeping id in requests
-        // todo: this should clean mLoadedCallbackMap!
+        gLandmarkList.eraseCallbacks(uuid);
 	}
 
     // getAssetData can fire callback immediately, causing
@@ -223,23 +240,30 @@ BOOL LLLandmarkList::assetExists(const LLUUID& asset_uuid)
 void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
 {
 	LLLandmark* landmark = getAsset(landmark_id);
-
-	if (!landmark)
-	{
-		LL_WARNS() << "Got region handle but the landmark not found." << LL_ENDL;
-		return;
-	}
+    if (!landmark)
+    {
+        LL_WARNS() << "Got region handle but the landmark " << landmark_id << " not found." << LL_ENDL;
+        eraseCallbacks(landmark_id);
+        return;
+    }
 
 	// Calculate landmark global position.
 	// This should succeed since the region handle is available.
 	LLVector3d pos;
 	if (!landmark->getGlobalPos(pos))
 	{
-		LL_WARNS() << "Got region handle but the landmark global position is still unknown." << LL_ENDL;
-		return;
+        LL_WARNS() << "Got region handle but the landmark " << landmark_id << " global position is still unknown." << LL_ENDL;
+        eraseCallbacks(landmark_id);
+        return;
 	}
 
+    // Call this even if no landmark exists to clean mLoadedCallbackMap
 	makeCallbacks(landmark_id);
+}
+
+void LLLandmarkList::eraseCallbacks(const LLUUID& landmark_id)
+{
+    mLoadedCallbackMap.erase(landmark_id);
 }
 
 void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
@@ -248,7 +272,7 @@ void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
 
 	if (!landmark)
 	{
-		LL_WARNS() << "Landmark to make callbacks for not found." << LL_ENDL;
+		LL_WARNS() << "Landmark " << landmark_id << " to make callbacks for not found." << LL_ENDL;
 	}
 
 	// make all the callbacks here.
