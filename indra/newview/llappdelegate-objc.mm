@@ -66,6 +66,7 @@
 	constructViewer();
 
 #if defined(LL_BUGSPLAT)
+    infos("bugsplat setup");
 	// Engage BugsplatStartupManager *before* calling initViewer() to handle
 	// any crashes during initialization.
 	// https://www.bugsplat.com/docs/platforms/os-x#initialization
@@ -74,6 +75,7 @@
 	[BugsplatStartupManager sharedManager].delegate = self;
 	[[BugsplatStartupManager sharedManager] start];
 #endif
+    infos("post-bugsplat setup");
 
 	frameTimer = nil;
 
@@ -301,9 +303,13 @@ struct AttachmentInfo
 
     // We "happen to know" that info[0].basename is "SecondLife.old" -- due to
     // the fact that BugsplatMac only notices a crash during the viewer run
-    // following the crash. Replace .old with .log to reduce confusion.
+    // following the crash. 
+    // The Bugsplat service doesn't respect the MIME type above when returning
+    // the log data to a browser, so take this opportunity to rename the file
+    // from <base>.old to <base>_log.txt
     info[0].basename = 
-        boost::filesystem::path(info[0].pathname).stem().string() + ".log";
+        boost::filesystem::path(info[0].pathname).stem().string() + "_log.txt";
+    infos("attachmentsForBugsplatStartupManager attaching log " + info[0].basename);
 
     NSMutableArray *attachments = [[NSMutableArray alloc] init];
 
