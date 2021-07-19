@@ -106,7 +106,7 @@ public:
 	F32 getSceneContribution() const             { return mSceneContrib;}
 
 	void dump() const;
-	BOOL writeToFile(LLAPRFile* apr_file) const;
+	S32 writeToBuffer(U8 *data_buffer) const;
 	LLDataPackerBinaryBuffer *getDP();
 	void recordHit();
 	void recordDupe() { mDupeCount++; }
