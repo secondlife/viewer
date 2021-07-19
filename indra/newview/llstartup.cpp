@@ -1062,7 +1062,7 @@ bool idle_startup()
 	{
 		// Generic failure message
 		std::ostringstream emsg;
-		emsg << LLTrans::getString("LoginFailed") << "\n";
+		emsg << LLTrans::getString("LoginFailedHeader") << "\n";
 		if(LLLoginInstance::getInstance()->authFailure())
 		{
 			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "
