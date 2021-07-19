@@ -234,32 +234,6 @@
             left_pad="32"
             name="image_right"
             top="0" />
-          <text
-            follows="left|top"
-            font="SansSerifLarge"
-            text_color="White"
-            height="64"
-            name="image_caption_left"
-            left="0"
-            halign="center"
-            top="408"
-            word_wrap="true"
-            width="400">
-            Your first step is Learning Island. Find the exit portal!
-          </text>
-          <text
-            follows="left|top"
-            font="SansSerifLarge"
-            text_color="White"
-            height="64"
-            name="image_caption_right"
-            left="432"
-            halign="center"
-            top="408"
-            word_wrap="true"
-            width="400">
-            Then explore Social Island and meet other new residents!
-          </text>
         </layout_panel>
         <layout_panel
           height="100"

@@ -85,7 +85,6 @@
 
 #include <boost/utility.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
@@ -305,7 +304,7 @@ typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibility
  */
 class LLNotification  : 
 	boost::noncopyable,
-	public boost::enable_shared_from_this<LLNotification>
+	public std::enable_shared_from_this<LLNotification>
 {
 LOG_CLASS(LLNotification);
 friend class LLNotifications;
@@ -744,7 +743,10 @@ public:
 	:	mFilter(filter), 
 		mItems() 
 	{}
-	virtual ~LLNotificationChannelBase() {}
+    virtual ~LLNotificationChannelBase()
+    {
+        mItems.clear();
+    }
 	// you can also connect to a Channel, so you can be notified of
 	// changes to this channel
     LLBoundListener connectChanged(const LLEventListener& slot)
@@ -874,6 +876,7 @@ class LLNotifications :
 {
 	LLSINGLETON(LLNotifications);
 	LOG_CLASS(LLNotifications);
+	virtual ~LLNotifications() {}
 
 public:
 
@@ -1071,7 +1074,11 @@ public:
 	LLPersistentNotificationChannel() 
 		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
 	{}
-	virtual ~LLPersistentNotificationChannel() {}
+
+    virtual ~LLPersistentNotificationChannel()
+    {
+        mHistory.clear();
+    }
 
 	typedef std::vector<LLNotificationPtr> history_list_t;
 	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }

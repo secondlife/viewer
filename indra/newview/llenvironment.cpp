@@ -1029,7 +1029,7 @@ void LLEnvironment::onRegionChange()
     }
     if (!cur_region->capabilitiesReceived())
     {
-        cur_region->setCapabilitiesReceivedCallback([](const LLUUID &region_id) {  LLEnvironment::instance().requestRegion(); });
+        cur_region->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp) {  LLEnvironment::instance().requestRegion(); });
         return;
     }
     requestRegion();
@@ -1154,9 +1154,38 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     }
     else if (!environment->getSky())
     {
-        LL_DEBUGS("ENVIRONMENT") << "Blank sky for " << env_selection_to_string(env) << ". Reusing environment for sky." << LL_ENDL;
-        environment->setSky(mCurrentEnvironment->getSky());
-        environment->setFlags(DayInstance::NO_ANIMATE_SKY);
+        if (mCurrentEnvironment->getEnvironmentSelection() != ENV_NONE)
+        {
+            // Note: This looks suspicious. Shouldn't we assign whole day if mCurrentEnvironment has whole day?
+            // and then add water/sky on top
+            // This looks like it will result in sky using single keyframe instead of whole day if day is present
+            // when setting static water without static sky
+            environment->setSky(mCurrentEnvironment->getSky());
+            environment->setFlags(DayInstance::NO_ANIMATE_SKY);
+        }
+        else
+        {
+            // Environment is not properly initialized yet, but we should have environment by this point
+            DayInstance::ptr_t substitute = getEnvironmentInstance(ENV_PARCEL, true);
+            if (!substitute || !substitute->getSky())
+            {
+                substitute = getEnvironmentInstance(ENV_REGION, true);
+            }
+            if (!substitute || !substitute->getSky())
+            {
+                substitute = getEnvironmentInstance(ENV_DEFAULT, true);
+            }
+
+            if (substitute && substitute->getSky())
+            {
+                environment->setSky(substitute->getSky());
+                environment->setFlags(DayInstance::NO_ANIMATE_SKY);
+            }
+            else
+            {
+                LL_WARNS("ENVIRONMENT") << "Failed to assign substitute water/sky, environment is not properly initialized" << LL_ENDL;
+            }
+        }
     }
         
     if (fixed.second)
@@ -1167,9 +1196,38 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironm
     }
     else if (!environment->getWater())
     {
-        LL_DEBUGS("ENVIRONMENT") << "Blank water for " << env_selection_to_string(env) << ". Reusing environment for water." << LL_ENDL;
-        environment->setWater(mCurrentEnvironment->getWater());
-        environment->setFlags(DayInstance::NO_ANIMATE_WATER);
+        if (mCurrentEnvironment->getEnvironmentSelection() != ENV_NONE)
+        {
+            // Note: This looks suspicious. Shouldn't we assign whole day if mCurrentEnvironment has whole day?
+            // and then add water/sky on top
+            // This looks like it will result in water using single keyframe instead of whole day if day is present
+            // when setting static sky without static water
+            environment->setWater(mCurrentEnvironment->getWater());
+            environment->setFlags(DayInstance::NO_ANIMATE_WATER);
+        }
+        else
+        {
+            // Environment is not properly initialized yet, but we should have environment by this point
+            DayInstance::ptr_t substitute = getEnvironmentInstance(ENV_PARCEL, true);
+            if (!substitute || !substitute->getWater())
+            {
+                substitute = getEnvironmentInstance(ENV_REGION, true);
+            }
+            if (!substitute || !substitute->getWater())
+            {
+                substitute = getEnvironmentInstance(ENV_DEFAULT, true);
+            }
+
+            if (substitute && substitute->getWater())
+            {
+                environment->setWater(substitute->getWater());
+                environment->setFlags(DayInstance::NO_ANIMATE_WATER);
+            }
+            else
+            {
+                LL_WARNS("ENVIRONMENT") << "Failed to assign substitute water/sky, environment is not properly initialized" << LL_ENDL;
+            }
+        }
     }
 
     if (!mSignalEnvChanged.empty())
@@ -1694,8 +1752,11 @@ void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentI
         }
         else
         {
-            setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
             mTrackAltitudes = envinfo->mAltitudes;
+            // update track selection based on new altitudes
+            mCurrentTrack = calculateSkyTrackForAltitude(gAgent.getPositionAgent().mV[VZ]);
+
+            setEnvironment(ENV_REGION, envinfo->mDayCycle, envinfo->mDayLength, envinfo->mDayOffset, envinfo->mEnvVersion);
         }
 
         LL_DEBUGS("ENVIRONMENT") << "Altitudes set to {" << mTrackAltitudes[0] << ", "<< mTrackAltitudes[1] << ", " << mTrackAltitudes[2] << ", " << mTrackAltitudes[3] << LL_ENDL;
@@ -1927,6 +1988,10 @@ void LLEnvironment::coroRequestEnvironment(S32 parcel_id, LLEnvironment::environ
     {
         LL_WARNS("ENVIRONMENT") << "Couldn't retrieve environment settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
     }
+    else if (LLApp::isExiting())
+    {
+        return;
+    }
     else
     {
         LLSD environment = result[KEY_ENVIRONMENT];
@@ -2016,6 +2081,10 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
     }
+    else if (LLApp::isExiting())
+    {
+        return;
+    }
     else
     {
         LLSD environment = result[KEY_ENVIRONMENT];
@@ -2077,6 +2146,10 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
 
         notify = LLSD::emptyMap();
         notify["FAIL_REASON"] = result["message"].asString();
+    }
+    else if (LLApp::isExiting())
+    {
+        return;
     }
     else
     {
@@ -2315,6 +2388,15 @@ void LLEnvironment::onAgentPositionHasChanged(const LLVector3 &localpos)
         return;
 
     mCurrentTrack = trackno;
+
+    LLViewerRegion* cur_region = gAgent.getRegion();
+    if (!cur_region || !cur_region->capabilitiesReceived())
+    {
+        // Environment not ready, environment will be updated later, don't cause 'blend' yet.
+        // But keep mCurrentTrack updated in case we won't get new altitudes for some reason
+        return;
+    }
+
     for (S32 env = ENV_LOCAL; env < ENV_DEFAULT; ++env)
     {
         if (mEnvironments[env])
