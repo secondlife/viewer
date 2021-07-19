@@ -652,7 +652,6 @@ void LLVivoxVoiceClient::idle(void* user_data)
 {
 }
 
-
 //=========================================================================
 // the following are methods to support the coroutine implementation of the 
 // voice connection and processing.  They should only be called in the context 
@@ -699,12 +698,15 @@ void LLVivoxVoiceClient::voiceControlCoro()
 			gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
 			gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
 
-            if (mTuningMode)
+			if (mTuningMode && !sShuttingDown)
             {
                 performMicTuning();
             }
 
-            waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
+            if (!sShuttingDown)
+            {
+                waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
+            }
     
             LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;            
             endAndDisconnectSession();
@@ -745,7 +747,6 @@ void LLVivoxVoiceClient::voiceControlCoro()
     mIsCoroutineActive = false;
     LL_INFOS("Voice") << "exiting" << LL_ENDL;
 }
-
 
 bool LLVivoxVoiceClient::startAndConnectSession()
 {
@@ -1047,7 +1048,14 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         {
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
             LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds." << LL_ENDL;
-            llcoro::suspendUntilTimeout(timeout);
+            if (sShuttingDown)
+            {
+                return false;
+            }
+            else
+            {
+                llcoro::suspendUntilTimeout(timeout);
+            }
         }
         else if (!status)
         {
@@ -1274,8 +1282,13 @@ bool LLVivoxVoiceClient::loginToVivox()
 
                 // tell the user there is a problem
                 LL_WARNS("Voice") << "login " << loginresp << " will retry login in " << timeout << " seconds." << LL_ENDL;
-                    
-                llcoro::suspendUntilTimeout(timeout);
+                
+                if (!sShuttingDown)
+                {
+                    // Todo: this is way to long, viewer can get stuck waiting during shutdown
+                    // either make it listen to pump or split in smaller waits with checks for shutdown
+                    llcoro::suspendUntilTimeout(timeout);
+                }
             }
             else if (loginresp == "failed")
             {
@@ -1340,6 +1353,11 @@ void LLVivoxVoiceClient::logoutOfVivox(bool wait)
                     << LL_ENDL;
 
                 result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGOUT_ATTEMPT_TIMEOUT, timeoutResult);
+
+                if (sShuttingDown)
+                {
+                    break;
+                }
 
                 LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
                 // Don't get confused by prior queued events -- note that it's
@@ -1580,6 +1598,12 @@ bool LLVivoxVoiceClient::addAndJoinSession(const sessionStatePtr_t &nextSession)
     {
         result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, SESSION_JOIN_TIMEOUT, timeoutResult);
 
+        if (sShuttingDown)
+        {
+            mIsJoiningSession = false;
+            return false;
+        }
+
         LL_INFOS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
         if (result.has("session"))
         {
@@ -1774,7 +1798,7 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         if (sShuttingDown)
         {
-            logoutOfVivox(true);
+            logoutOfVivox(false);
             return false;
         }
 
@@ -1818,7 +1842,7 @@ bool LLVivoxVoiceClient::waitForChannel()
                 // the parcel is changed, or we have no pending audio sessions,
                 // so try to request the parcel voice info
                 // if we have the cap, we move to the appropriate state
-                requestParcelVoiceInfo();
+                requestParcelVoiceInfo(); //suspends for http reply
             }
             else if (sessionNeedsRelog(mNextAudioSession))
             {
@@ -1830,7 +1854,7 @@ bool LLVivoxVoiceClient::waitForChannel()
             {
                 sessionStatePtr_t joinSession = mNextAudioSession;
                 mNextAudioSession.reset();
-                if (!runSession(joinSession))
+                if (!runSession(joinSession)) //suspends
                 {
                     LL_DEBUGS("Voice") << "runSession returned false; leaving inner loop" << LL_ENDL;
                     break;
@@ -1845,7 +1869,7 @@ bool LLVivoxVoiceClient::waitForChannel()
                 }
             }
 
-            if (!mNextAudioSession)
+            if (!mNextAudioSession && !sShuttingDown)
             {
                 llcoro::suspendUntilTimeout(1.0);
             }
@@ -1866,9 +1890,9 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         mIsProcessingChannels = false;
 
-        logoutOfVivox(true);
+        logoutOfVivox(!sShuttingDown /*bool wait*/);
 
-        if (mRelogRequested)
+        if (mRelogRequested && !sShuttingDown)
         {
             LL_DEBUGS("Voice") << "Relog Requested, restarting provisioning" << LL_ENDL;
             if (!provisionVoiceAccount())
@@ -1918,7 +1942,12 @@ bool LLVivoxVoiceClient::runSession(const sessionStatePtr_t &session)
 
     while (mVoiceEnabled && isGatewayRunning() && !mSessionTerminateRequested && !mTuningMode)
     {
-        sendCaptureAndRenderDevices();
+        sendCaptureAndRenderDevices(); // suspends
+        if (mSessionTerminateRequested)
+        {
+            break;
+        }
+
         if (mAudioSession && mAudioSession->mParticipantsChanged)
         {
             mAudioSession->mParticipantsChanged = false;
@@ -2145,7 +2174,7 @@ bool LLVivoxVoiceClient::performMicTuning()
     mIsInTuningMode = true;
     llcoro::suspend();
 
-    while (mTuningMode)
+    while (mTuningMode && !sShuttingDown)
     {
 
         if (mCaptureDeviceDirty || mRenderDeviceDirty)
@@ -2181,9 +2210,12 @@ bool LLVivoxVoiceClient::performMicTuning()
         tuningCaptureStartSendMessage(1);  // 1-loop, zero, don't loop
 
         //---------------------------------------------------------------------
-        llcoro::suspend();
+        if (!sShuttingDown)
+        {
+            llcoro::suspend();
+        }
 
-        while (mTuningMode && !mCaptureDeviceDirty && !mRenderDeviceDirty)
+        while (mTuningMode && !mCaptureDeviceDirty && !mRenderDeviceDirty && !sShuttingDown)
         {
             // process mic/speaker volume changes
             if (mTuningMicVolumeDirty || mTuningSpeakerVolumeDirty)
@@ -2223,7 +2255,7 @@ bool LLVivoxVoiceClient::performMicTuning()
 
         // transition out of mic tuning
         tuningCaptureStopSendMessage();
-        if (mCaptureDeviceDirty || mRenderDeviceDirty)
+        if ((mCaptureDeviceDirty || mRenderDeviceDirty) && !sShuttingDown)
         {
             llcoro::suspendUntilTimeout(UPDATE_THROTTLE_SECONDS);
         }

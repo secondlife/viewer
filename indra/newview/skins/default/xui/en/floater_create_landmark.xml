@@ -49,7 +49,7 @@
      layout="topleft"
      name="folder_label"
      top_pad="10"
-     value="Landmark location:"
+     value="Save this landmark in:"
      width="290" />
     <combo_box
      follows="bottom|left"

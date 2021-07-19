@@ -131,7 +131,12 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
     for (U32 j = 0; j < count; ++j)
     {
-        LLJoint *joint = avatar->getJoint(skin->mJointNums[j]);
+        S32 joint_num = skin->mJointNums[j];
+        LLJoint *joint = NULL;
+        if (joint_num >= 0 && joint_num < LL_CHARACTER_MAX_ANIMATED_JOINTS)
+        {
+            joint = avatar->getJoint(joint_num);
+        }
         llassert(joint);
         if (joint)
         {

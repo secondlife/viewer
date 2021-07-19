@@ -106,11 +106,10 @@ void gl_rect_2d_offset_local( S32 left, S32 top, S32 right, S32 bottom, S32 pixe
 	top += LLFontGL::sCurOrigin.mY;
 
 	gGL.loadUIIdentity();
-	LLRender2D *r2d_inst = LLRender2D::getInstance();
-	gl_rect_2d(llfloor((F32)left * r2d_inst->mGLScaleFactor.mV[VX]) - pixel_offset,
-				llfloor((F32)top * r2d_inst->mGLScaleFactor.mV[VY]) + pixel_offset,
-				llfloor((F32)right * r2d_inst->mGLScaleFactor.mV[VX]) + pixel_offset,
-				llfloor((F32)bottom * r2d_inst->mGLScaleFactor.mV[VY]) - pixel_offset,
+	gl_rect_2d(llfloor((F32)left * LLRender::sUIGLScaleFactor.mV[VX]) - pixel_offset,
+				llfloor((F32)top * LLRender::sUIGLScaleFactor.mV[VY]) + pixel_offset,
+				llfloor((F32)right * LLRender::sUIGLScaleFactor.mV[VX]) + pixel_offset,
+				llfloor((F32)bottom * LLRender::sUIGLScaleFactor.mV[VY]) - pixel_offset,
 				filled);
 	gGL.popUIMatrix();
 }
@@ -1568,7 +1567,6 @@ void gl_segmented_rect_3d_tex(const LLRectf& clip_rect, const LLRectf& center_uv
 
 LLRender2D::LLRender2D(LLImageProviderInterface* image_provider)
 {
-	mGLScaleFactor = LLVector2(1.f, 1.f);
 	mImageProvider = image_provider;
 	if(mImageProvider)
 	{
@@ -1585,7 +1583,7 @@ LLRender2D::~LLRender2D()
 	}
 }
 
-
+// static
 void LLRender2D::translate(F32 x, F32 y, F32 z)
 {
 	gGL.translateUI(x,y,z);
@@ -1594,12 +1592,14 @@ void LLRender2D::translate(F32 x, F32 y, F32 z)
 	LLFontGL::sCurDepth += z;
 }
 
+// static
 void LLRender2D::pushMatrix()
 {
 	gGL.pushUIMatrix();
 	LLFontGL::sOriginStack.push_back(std::make_pair(LLFontGL::sCurOrigin, LLFontGL::sCurDepth));
 }
 
+// static
 void LLRender2D::popMatrix()
 {
 	gGL.popUIMatrix();
@@ -1608,6 +1608,7 @@ void LLRender2D::popMatrix()
 	LLFontGL::sOriginStack.pop_back();
 }
 
+// static
 void LLRender2D::loadIdentity()
 {
 	gGL.loadUIIdentity(); 
@@ -1616,15 +1617,11 @@ void LLRender2D::loadIdentity()
 	LLFontGL::sCurDepth = 0.f;
 }
 
-void LLRender2D::setScaleFactor(const LLVector2 &scale_factor)
-{
-	mGLScaleFactor = scale_factor;
-}
-
+// static
 void LLRender2D::setLineWidth(F32 width)
 {
 	gGL.flush();
-	glLineWidth(width * lerp(mGLScaleFactor.mV[VX], mGLScaleFactor.mV[VY], 0.5f));
+	glLineWidth(width * lerp(LLRender::sUIGLScaleFactor.mV[VX], LLRender::sUIGLScaleFactor.mV[VY], 0.5f));
 }
 
 LLPointer<LLUIImage> LLRender2D::getUIImageByID(const LLUUID& image_id, S32 priority)

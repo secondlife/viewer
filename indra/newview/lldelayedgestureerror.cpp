@@ -113,7 +113,7 @@ bool LLDelayedGestureError::doDialog(const LLErrorEntry &ent, bool uuid_ok)
 		}
 	}
 	 
-	if(!LLApp::isQuitting())
+	if(!LLApp::isExiting())
 	{
 		LLNotificationsUtil::add(ent.mNotifyName, args);
 	}
