@@ -229,6 +229,7 @@ Ansariel Hiller
 	SL-14939
 	SL-14940
 	SL-14941
+	SL-13395
 	SL-3136
 	SL-15200
 	SL-15226
@@ -275,6 +276,7 @@ Beq Janus
     SL-11300
 	SL-13583
 	SL-14766
+	SL-14927
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani

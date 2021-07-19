@@ -67,6 +67,7 @@ LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
       mOutfitsObserver(NULL),
       mScrollPanel(NULL),
       mGalleryPanel(NULL),
+      mLastRowPanel(NULL),
       mGalleryCreated(false),
       mRowCount(0),
       mItemsAddedCount(0),
@@ -166,9 +167,7 @@ bool compareGalleryItem(LLOutfitGalleryItem* item1, LLOutfitGalleryItem* item2)
         std::string name1 = item1->getItemName();
         std::string name2 = item2->getItemName();
 
-        LLStringUtil::toUpper(name1);
-        LLStringUtil::toUpper(name2);
-        return name1 < name2;
+        return (LLStringUtil::compareDict(name1, name2) < 0);
     }
     else
     {
@@ -241,7 +240,15 @@ void LLOutfitGallery::removeLastRow()
     mGalleryPanel->removeChild(mLastRowPanel);
     mUnusedRowPanels.push_back(mLastRowPanel);
     mRowPanels.pop_back();
-    mLastRowPanel = mRowPanels.back();
+    if (mRowPanels.size() > 0)
+    {
+        // Just removed last row
+        mLastRowPanel = mRowPanels.back();
+    }
+    else
+    {
+        mLastRowPanel = NULL;
+    }
 }
 
 LLPanel* LLOutfitGallery::addToRow(LLPanel* row_stack, LLOutfitGalleryItem* item, int pos, int hgap)
@@ -1111,7 +1118,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         }
     }
     
-    if (mGalleryCreated && !LLApp::isQuitting())
+    if (mGalleryCreated && !LLApp::isExiting())
     {
         reArrangeRows();
     }

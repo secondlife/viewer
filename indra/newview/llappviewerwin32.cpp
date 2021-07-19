@@ -177,7 +177,7 @@ static void exceptionTerminateHandler()
     long *null_ptr;
     null_ptr = 0;
     *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
-	//LLAppViewer::handleViewerCrash();
+
 	// we've probably been killed-off before now, but...
 	gOldTerminateHandler(); // call old terminate() handler
 }
@@ -364,10 +364,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	viewer_app_ptr->setErrorHandler(LLAppViewer::handleViewerCrash);
-
-#if LL_SEND_CRASH_REPORTS 
-	// ::SetUnhandledExceptionFilter(catchallCrashHandler); 
-#endif
 
 	// Set a debug info flag to indicate if multiple instances are running.
 	bool found_other_instance = !create_app_mutex();
@@ -609,6 +605,13 @@ bool LLAppViewerWin32::init()
 #else // LL_BUGSPLAT
 #pragma message("Building with BugSplat")
 
+    if (!isSecondInstance())
+    {
+        // Cleanup previous session
+        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
+        LLFile::remove(log_file, ENOENT);
+    }
+
 	std::string build_data_fname(
 		gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "build_data.json"));
 	// Use llifstream instead of std::ifstream because LL_PATH_EXECUTABLE
@@ -616,7 +619,7 @@ bool LLAppViewerWin32::init()
 	llifstream inf(build_data_fname.c_str());
 	if (! inf.is_open())
 	{
-		LL_WARNS() << "Can't initialize BugSplat, can't read '" << build_data_fname
+		LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't read '" << build_data_fname
 				   << "'" << LL_ENDL;
 	}
 	else
@@ -626,7 +629,7 @@ bool LLAppViewerWin32::init()
 		if (! reader.parse(inf, build_data, false)) // don't collect comments
 		{
 			// gah, the typo is baked into Json::Reader API
-			LL_WARNS() << "Can't initialize BugSplat, can't parse '" << build_data_fname
+			LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, can't parse '" << build_data_fname
 					   << "': " << reader.getFormatedErrorMessages() << LL_ENDL;
 		}
 		else
@@ -634,7 +637,7 @@ bool LLAppViewerWin32::init()
 			Json::Value BugSplat_DB = build_data["BugSplat DB"];
 			if (! BugSplat_DB)
 			{
-				LL_WARNS() << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
+				LL_WARNS("BUGSPLAT") << "Can't initialize BugSplat, no 'BugSplat DB' entry in '"
 						   << build_data_fname << "'" << LL_ENDL;
 			}
 			else
@@ -645,18 +648,35 @@ bool LLAppViewerWin32::init()
 													   LL_VIEWER_VERSION_PATCH << '.' <<
 													   LL_VIEWER_VERSION_BUILD));
 
+                DWORD dwFlags = MDSF_NONINTERACTIVE | // automatically submit report without prompting
+                                MDSF_PREVENTHIJACKING; // disallow swiping Exception filter
+
+                bool needs_log_file = !isSecondInstance() && debugLoggingEnabled("BUGSPLAT");
+                if (needs_log_file)
+                {
+                    // Startup only!
+                    LL_INFOS("BUGSPLAT") << "Engaged BugSplat logging to bugsplat.log" << LL_ENDL;
+                    dwFlags |= MDSF_LOGFILE | MDSF_LOG_VERBOSE;
+                }
+
 				// have to convert normal wide strings to strings of __wchar_t
 				sBugSplatSender = new MiniDmpSender(
 					WCSTR(BugSplat_DB.asString()),
 					WCSTR(LL_TO_WSTRING(LL_VIEWER_CHANNEL)),
 					WCSTR(version_string),
 					nullptr,              // szAppIdentifier -- set later
-					MDSF_NONINTERACTIVE | // automatically submit report without prompting
-					MDSF_PREVENTHIJACKING); // disallow swiping Exception filter
+					dwFlags);
 				sBugSplatSender->setCallback(bugsplatSendLog);
 
+                if (needs_log_file)
+                {
+                    // Log file will be created in %TEMP%, but it will be moved into logs folder in case of crash
+                    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "bugsplat.log");
+                    sBugSplatSender->setLogFilePath(WCSTR(log_file));
+                }
+
 				// engage stringize() overload that converts from wstring
-				LL_INFOS() << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
+				LL_INFOS("BUGSPLAT") << "Engaged BugSplat(" << LL_TO_STRING(LL_VIEWER_CHANNEL)
 						   << ' ' << stringize(version_string) << ')' << LL_ENDL;
 			} // got BugSplat_DB
 		} // parsed build_data.json
@@ -683,6 +703,16 @@ bool LLAppViewerWin32::cleanup()
 	}
 
 	return result;
+}
+
+void LLAppViewerWin32::reportCrashToBugsplat(void* pExcepInfo)
+{
+#if defined(LL_BUGSPLAT)
+    if (sBugSplatSender)
+    {
+        sBugSplatSender->createReport((EXCEPTION_POINTERS*)pExcepInfo);
+    }
+#endif // LL_BUGSPLAT
 }
 
 void LLAppViewerWin32::initLoggingAndGetLastDuration()
@@ -813,8 +843,7 @@ bool LLAppViewerWin32::beingDebugged()
 
 bool LLAppViewerWin32::restoreErrorTrap()
 {	
-	return true;
-	//return LLWinDebug::checkExceptionHandler();
+	return true; // we don't check for handler collisions on windows, so just say they're ok
 }
 
 void LLAppViewerWin32::initCrashReporting(bool reportFreeze)

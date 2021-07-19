@@ -64,6 +64,7 @@ public:
 
 protected:
 	void onRegionHandle(const LLUUID& landmark_id);
+	void eraseCallbacks(const LLUUID& landmark_id);
 	void makeCallbacks(const LLUUID& landmark_id);
 
 	typedef std::map<LLUUID, LLLandmark*> landmark_list_t;
