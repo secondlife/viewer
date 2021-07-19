@@ -4271,7 +4271,7 @@ Try enclosing path to the editor with double quotes.
   <string name="preset_combo_label">-Empty list-</string>
   <string name="Default">Default</string>
   <string name="none_paren_cap">(None)</string>
-  <string name="no_limit">No Limit</string>
+  <string name="no_limit">No limit</string>
   
   <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
       The physics shape contains triangles which are too small. Try simplifying the physics model.

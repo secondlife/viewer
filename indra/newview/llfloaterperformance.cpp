@@ -114,10 +114,10 @@ BOOL LLFloaterPerformance::postBuild()
     mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
 
     mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
-    mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickHideAvatars, this));
-    mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
+    mNearbyPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickHideAvatars, this));
+    mNearbyPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
     mNearbyList->setRightMouseDownCallback(boost::bind(&LLFloaterPerformance::onAvatarListRightClick, this, _1, _2, _3));
 
@@ -164,14 +164,11 @@ void LLFloaterPerformance::draw()
         else if (mNearbyPanel->getVisible())
         {
             populateNearbyList();
+            mNearbyPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
         }
         else if (mComplexityPanel->getVisible())
         {
             populateObjectList();
-        }
-        else if (mSettingsPanel->getVisible())
-        {
-            mSettingsPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->set(!LLPipeline::hasRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR));
         }
 
         mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
@@ -223,7 +220,7 @@ void LLFloaterPerformance::populateHUDList()
     for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLHUDComplexity hud_object_complexity = *iter;        
-
+        S32 obj_cost_short = hud_object_complexity.objectsCost / 1000;
         LLSD item;
         item["special_id"] = hud_object_complexity.objectId;
         item["target"] = LLNameListCtrl::SPECIAL;
@@ -231,14 +228,14 @@ void LLFloaterPerformance::populateHUDList()
         row[0]["column"] = "complex_visual";
         row[0]["type"] = "bar";
         LLSD& value = row[0]["value"];
-        value["ratio"] = (F32)hud_object_complexity.objectsCost / max_complexity;
+        value["ratio"] = (F32)obj_cost_short / max_complexity * 1000;
         value["bottom"] = BAR_BOTTOM_PAD;
         value["left_pad"] = BAR_LEFT_PAD;
         value["right_pad"] = BAR_RIGHT_PAD;
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
-        row[1]["value"] = std::to_string(hud_object_complexity.objectsCost);
+        row[1]["value"] = std::to_string(obj_cost_short);
         row[1]["font"]["name"] = "SANSSERIF";
  
         row[2]["column"] = "name";
@@ -246,7 +243,15 @@ void LLFloaterPerformance::populateHUDList()
         row[2]["value"] = hud_object_complexity.objectName;
         row[2]["font"]["name"] = "SANSSERIF";
 
-        mHUDList->addElement(item);
+        LLScrollListItem* obj = mHUDList->addElement(item);
+        if (obj)
+        {
+            LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
+            if (value_text)
+            {
+                value_text->setAlignment(LLFontGL::HCENTER);
+            }
+        }
     }
     mHUDList->sortByColumnIndex(1, FALSE);
     mHUDList->setScrollPos(prev_pos);
@@ -274,7 +279,7 @@ void LLFloaterPerformance::populateObjectList()
     for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLObjectComplexity object_complexity = *iter;        
-
+        S32 obj_cost_short = object_complexity.objectCost / 1000;
         LLSD item;
         item["special_id"] = object_complexity.objectId;
         item["target"] = LLNameListCtrl::SPECIAL;
@@ -282,14 +287,14 @@ void LLFloaterPerformance::populateObjectList()
         row[0]["column"] = "complex_visual";
         row[0]["type"] = "bar";
         LLSD& value = row[0]["value"];
-        value["ratio"] = (F32)object_complexity.objectCost / max_complexity;
+        value["ratio"] = (F32)obj_cost_short / max_complexity * 1000;
         value["bottom"] = BAR_BOTTOM_PAD;
         value["left_pad"] = BAR_LEFT_PAD;
         value["right_pad"] = BAR_RIGHT_PAD;
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
-        row[1]["value"] = std::to_string(object_complexity.objectCost);
+        row[1]["value"] = std::to_string(obj_cost_short);
         row[1]["font"]["name"] = "SANSSERIF";
 
         row[2]["column"] = "name";
@@ -297,7 +302,15 @@ void LLFloaterPerformance::populateObjectList()
         row[2]["value"] = object_complexity.objectName;
         row[2]["font"]["name"] = "SANSSERIF";
 
-        mObjectList->addElement(item);
+        LLScrollListItem* obj = mObjectList->addElement(item);
+        if (obj)
+        {
+            LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
+            if (value_text)
+            {
+                value_text->setAlignment(LLFontGL::HCENTER);
+            }
+        }
     }
     mObjectList->sortByColumnIndex(1, FALSE);
     mObjectList->setScrollPos(prev_pos);
@@ -321,20 +334,21 @@ void LLFloaterPerformance::populateNearbyList()
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
         if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
         {
+            S32 complexity_short = avatar->getVisualComplexity() / 1000;
             LLSD item;
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
             row[0]["column"] = "complex_visual";
             row[0]["type"] = "bar";
             LLSD& value = row[0]["value"];
-            value["ratio"] = (F32)avatar->getVisualComplexity() / mNearbyMaxComplexity;
+            value["ratio"] = (F32)complexity_short / mNearbyMaxComplexity * 1000;
             value["bottom"] = BAR_BOTTOM_PAD;
             value["left_pad"] = BAR_LEFT_PAD;
             value["right_pad"] = BAR_RIGHT_PAD;
 
             row[1]["column"] = "complex_value";
             row[1]["type"] = "text";
-            row[1]["value"] = std::to_string( avatar->getVisualComplexity());
+            row[1]["value"] = std::to_string(complexity_short);
             row[1]["font"]["name"] = "SANSSERIF";
 
             row[2]["column"] = "name";
@@ -345,24 +359,36 @@ void LLFloaterPerformance::populateNearbyList()
             LLScrollListItem* av_item = mNearbyList->addElement(item);
             if(av_item)
             {
+                LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(1));
+                if (value_text)
+                {
+                    value_text->setAlignment(LLFontGL::HCENTER);
+                }
                 LLScrollListText* name_text = dynamic_cast<LLScrollListText*>(av_item->getColumn(2));
                 if (name_text)
                 {
-                    std::string color = "white";
-                    if (LLVOAvatar::AOA_JELLYDOLL == avatar->getOverallAppearance())
+                    if (avatar->isSelf())
                     {
-                        color = "LabelDisabledColor";
-                        LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
-                        if (bar)
+                        name_text->setColor(LLUIColorTable::instance().getColor("DrYellow"));
+                    }
+                    else
+                    {
+                        std::string color = "white";
+                        if (LLVOAvatar::AOA_JELLYDOLL == avatar->getOverallAppearance())
                         {
-                            bar->setColor(LLUIColorTable::instance().getColor(color));
+                            color = "LabelDisabledColor";
+                            LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
+                            if (bar)
+                            {
+                                bar->setColor(LLUIColorTable::instance().getColor(color));
+                            }
                         }
+                        else if (LLVOAvatar::AOA_NORMAL == avatar->getOverallAppearance())
+                        {
+                            color = LLAvatarActions::isFriend(avatar->getID()) ? "ConversationFriendColor" : "white";
+                        }
+                        name_text->setColor(LLUIColorTable::instance().getColor(color));
                     }
-                    else if (LLVOAvatar::AOA_NORMAL == avatar->getOverallAppearance())
-                    {
-                        color =  LLAvatarActions::isFriend(avatar->getID()) ? "ConversationFriendColor" : "white";
-                    }
-                    name_text->setColor(LLUIColorTable::instance().getColor(color));
                 }
             }
         }
@@ -376,12 +402,13 @@ void LLFloaterPerformance::populateNearbyList()
 void LLFloaterPerformance::getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs)
 {
     static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
+    mNearbyMaxComplexity = 0;
     F32 radius = render_far_clip * render_far_clip;
     std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
     while (char_iter != LLCharacter::sInstances.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && !avatar->isDead() && !avatar->isControlAvatar() && !avatar->isSelf())
+        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
         {
             if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
                 (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
@@ -426,13 +453,15 @@ void LLFloaterPerformance::updateMaxComplexity()
 {
     LLAvatarComplexityControls::updateMax(
         mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
-        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText"));
+        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText"), 
+        true);
 }
 
 void LLFloaterPerformance::updateComplexityText()
 {
     LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
-        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText", true));
+        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText", true), 
+        true);
 }
 
 static LLVOAvatar* find_avatar(const LLUUID& id)

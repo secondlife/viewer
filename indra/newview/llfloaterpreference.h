@@ -351,8 +351,8 @@ private:
 class LLAvatarComplexityControls
 {
   public: 
-	static void updateMax(LLSliderCtrl* slider, LLTextBox* value_label);
-	static void setText(U32 value, LLTextBox* text_box);
+	static void updateMax(LLSliderCtrl* slider, LLTextBox* value_label, bool short_val = false);
+	static void setText(U32 value, LLTextBox* text_box, bool short_val = false);
 	static void setIndirectControls();
 	static void setIndirectMaxNonImpostors();
 	static void setIndirectMaxArc();

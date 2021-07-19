@@ -1455,7 +1455,7 @@ void LLFloaterPreference::refreshUI()
 	refresh();
 }
 
-void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* value_label)
+void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* value_label, bool short_val)
 {
 	// Called when the IndirectMaxComplexity control changes
 	// Responsible for fixing the slider label (IndirectMaxComplexityText) and setting RenderAvatarMaxComplexity
@@ -1477,10 +1477,10 @@ void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* valu
 	}
 
 	gSavedSettings.setU32("RenderAvatarMaxComplexity", (U32)max_arc);
-	setText(max_arc, value_label);
+	setText(max_arc, value_label, short_val);
 }
 
-void LLAvatarComplexityControls::setText(U32 value, LLTextBox* text_box)
+void LLAvatarComplexityControls::setText(U32 value, LLTextBox* text_box, bool short_val)
 {
 	if (0 == value)
 	{
@@ -1488,7 +1488,8 @@ void LLAvatarComplexityControls::setText(U32 value, LLTextBox* text_box)
 	}
 	else
 	{
-		text_box->setText(llformat("%d", value));
+        std::string text_value = short_val ? llformat("%d", value / 1000) : llformat("%d", value);
+        text_box->setText(text_value);
 	}
 }
 

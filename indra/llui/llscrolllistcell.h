@@ -154,6 +154,7 @@ public:
 
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style);
+    void			setAlignment(LLFontGL::HAlign align) { mFontAlignment = align; }
 
 protected:
 	LLUIString		mText;

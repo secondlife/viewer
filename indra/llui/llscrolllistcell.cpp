@@ -234,8 +234,7 @@ void LLScrollListBar::draw(const LLColor4& color, const LLColor4& highlight_colo
     S32 left = bar_width - bar_width * mRatio;
     left = llclamp(left, mLeftPad, getWidth() - mRightPad - 1);
 
-    gl_line_2d(left, mBottom, getWidth() - mRightPad, mBottom, mColor);
-    gl_line_2d(left, mBottom - 1, getWidth() - mRightPad, mBottom - 1, mColor);
+    gl_rect_2d(left, mBottom, getWidth() - mRightPad, mBottom - 1, mColor);
 }
 
 //

@@ -363,7 +363,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 			else if (LLAvatarNameCache::get(id, &av_name))
 			{
 				if (mShortNames)
-					fullname = av_name.getDisplayName();
+					fullname = av_name.getDisplayName(true);
 				else
 					fullname = av_name.getCompleteName();
 			}
