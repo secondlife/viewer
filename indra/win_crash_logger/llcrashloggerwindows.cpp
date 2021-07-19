@@ -498,7 +498,7 @@ bool LLCrashLoggerWindows::frame()
 		
 		MSG msg;
 		memset(&msg, 0, sizeof(msg));
-		while (!LLApp::isQuitting() && GetMessage(&msg, NULL, 0, 0))
+		while (!LLApp::isExiting() && GetMessage(&msg, NULL, 0, 0))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
