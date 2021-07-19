@@ -154,9 +154,9 @@ void LLPluginProcessParent::shutdown()
     {
         EState state = (*it).second->mState;
         if (state != STATE_CLEANUP
-            || state != STATE_EXITING
-            || state != STATE_DONE
-            || state != STATE_ERROR)
+            && state != STATE_EXITING
+            && state != STATE_DONE
+            && state != STATE_ERROR)
         {
             (*it).second->setState(STATE_GOODBYE);
         }

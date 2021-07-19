@@ -26,6 +26,7 @@
  */
 
 #include <vector>
+#include <stdexcept>
 
 #include "linden_common.h"
 
@@ -69,9 +70,29 @@ namespace
 
 namespace
 {
-	static bool fatalWasCalled;
-	void fatalCall(const std::string&) { fatalWasCalled = true; }
+	static bool fatalWasCalled = false;
+    struct FatalWasCalled: public std::runtime_error
+    {
+        FatalWasCalled(const std::string& what): std::runtime_error(what) {}
+    };
+    void fatalCall(const std::string& msg) { throw FatalWasCalled(msg); }
 }
+
+// Because we use LLError::setFatalFunction(fatalCall), any LL_ERRS call we
+// issue will throw FatalWasCalled. But we want the test program to continue.
+// So instead of writing:
+// LL_ERRS("tag") << "some message" << LL_ENDL;
+// write:
+// CATCH(LL_ERRS("tag"), "some message");
+#define CATCH(logcall, expr)                    \
+    try                                         \
+    {                                           \
+        logcall << expr << LL_ENDL;             \
+    }                                           \
+    catch (const FatalWasCalled&)               \
+    {                                           \
+        fatalWasCalled = true;                  \
+    }
 
 namespace tut
 {
@@ -79,11 +100,11 @@ namespace tut
 	{
 	public:
 		TestRecorder()
-            {
-                showTime(false);
-            }
+			{
+				showTime(false);
+			}
 		virtual ~TestRecorder()
-            {}
+			{}
 
 		virtual void recordMessage(LLError::ELevel level,
 						   const std::string& message)
@@ -252,7 +273,7 @@ namespace
 		LL_DEBUGS("WriteTag","AnotherTag") << "one" << LL_ENDL;
 		LL_INFOS("WriteTag") << "two" << LL_ENDL;
 		LL_WARNS("WriteTag") << "three" << LL_ENDL;
-		LL_ERRS("WriteTag") << "four" << LL_ENDL;
+		CATCH(LL_ERRS("WriteTag"), "four");
 	}
 };
 
@@ -380,7 +401,7 @@ namespace
 
 	std::string errorReturningLocation()
 	{
-		LL_ERRS() << "die" << LL_ENDL;	int this_line = __LINE__;
+		int this_line = __LINE__;	CATCH(LL_ERRS(), "die");
 		return locationString(this_line);
 	}
 }
@@ -701,7 +722,7 @@ public:
 	static void doDebug()	{ LL_DEBUGS() << "add dice" << LL_ENDL; }
 	static void doInfo()	{ LL_INFOS()  << "any idea" << LL_ENDL; }
 	static void doWarn()	{ LL_WARNS()  << "aim west" << LL_ENDL; }
-	static void doError()	{ LL_ERRS()   << "ate eels" << LL_ENDL; }
+	static void doError()	{ CATCH(LL_ERRS(), "ate eels"); }
 	static void doAll() { doDebug(); doInfo(); doWarn(); doError(); }
 };
 
@@ -712,7 +733,7 @@ public:
 	static void doDebug()	{ LL_DEBUGS() << "bed down" << LL_ENDL; }
 	static void doInfo()	{ LL_INFOS()  << "buy iron" << LL_ENDL; }
 	static void doWarn()	{ LL_WARNS()  << "bad word" << LL_ENDL; }
-	static void doError()	{ LL_ERRS()   << "big easy" << LL_ENDL; }
+	static void doError()	{ CATCH(LL_ERRS(), "big easy"); }
 	static void doAll() { doDebug(); doInfo(); doWarn(); doError(); }
 };
 
@@ -874,13 +895,10 @@ namespace tut
 namespace
 {
     std::string writeTagWithSpaceReturningLocation()
-	{
-        LL_DEBUGS("Write Tag") << "not allowed" << LL_ENDL;	int this_line = __LINE__;
-        
-        std::ostringstream location;
-        location << LLError::abbreviateFile(__FILE__).c_str() << "(" << this_line << ")";
-        return location.str();
-	}
+    {
+        int this_line = __LINE__; CATCH(LL_DEBUGS("Write Tag"), "not allowed");
+        return locationString(this_line);
+    }
 };
 
 namespace tut
@@ -894,9 +912,9 @@ namespace tut
 
         std::string location = writeTagWithSpaceReturningLocation();
         std::string expected = "Space is not allowed in a log tag at " + location;
-		ensure_message_field_equals(0, LEVEL_FIELD, "ERROR");
-		ensure_message_field_equals(0, MSG_FIELD, expected);
-		ensure("fatal callback called", fatalWasCalled);
+        ensure_message_field_equals(0, LEVEL_FIELD, "ERROR");
+        ensure_message_field_equals(0, MSG_FIELD, expected);
+        ensure("fatal callback called", fatalWasCalled);
     }
 }
 

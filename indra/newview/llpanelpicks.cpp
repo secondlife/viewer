@@ -483,19 +483,7 @@ void LLPanelPicks::processProperties(void* data, EAvatarProcessorType type)
 		mNoClassifieds = !mClassifiedsList->size();
 	}
 
-	bool no_data = mNoPicks && mNoClassifieds;
-	mNoItemsLabel->setVisible(no_data);
-	if (no_data)
-	{
-		if(getAvatarId() == gAgentID)
-		{
-			mNoItemsLabel->setValue(LLTrans::getString("NoPicksClassifiedsText"));
-		}
-		else
-		{
-			mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
-		}
-	}
+    updateNoItemsLabel();
 }
 
 LLPickItem* LLPanelPicks::getSelectedPickItem()
@@ -724,6 +712,13 @@ bool LLPanelPicks::callbackDeletePick(const LLSD& notification, const LLSD& resp
 	{
 		LLAvatarPropertiesProcessor::instance().sendPickDelete(pick_value[PICK_ID]);
 		mPicksList->removeItemByValue(pick_value);
+        
+        mNoPicks = !mPicksList->size();
+        if (mNoPicks)
+        {
+            showAccordion("tab_picks", false);
+        }
+        updateNoItemsLabel();
 	}
 	updateButtons();
 	return false;
@@ -738,6 +733,13 @@ bool LLPanelPicks::callbackDeleteClassified(const LLSD& notification, const LLSD
 	{
 		LLAvatarPropertiesProcessor::instance().sendClassifiedDelete(value[CLASSIFIED_ID]);
 		mClassifiedsList->removeItemByValue(value);
+
+        mNoClassifieds = !mClassifiedsList->size();
+        if (mNoClassifieds)
+        {
+            showAccordion("tab_classifieds", false);
+        }
+        updateNoItemsLabel();
 	}
 	updateButtons();
 	return false;
@@ -849,6 +851,23 @@ void LLPanelPicks::updateButtons()
 	{
 		getChildView(XML_BTN_INFO)->setEnabled(isClassifiedPublished(c_item));
 	}
+}
+
+void LLPanelPicks::updateNoItemsLabel()
+{
+    bool no_data = mNoPicks && mNoClassifieds;
+    mNoItemsLabel->setVisible(no_data);
+    if (no_data)
+    {
+        if (getAvatarId() == gAgentID)
+        {
+            mNoItemsLabel->setValue(LLTrans::getString("NoPicksClassifiedsText"));
+        }
+        else
+        {
+            mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksClassifiedsText"));
+        }
+    }
 }
 
 void LLPanelPicks::setProfilePanel(LLPanelProfile* profile_panel)

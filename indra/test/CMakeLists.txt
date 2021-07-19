@@ -13,7 +13,7 @@ include(LLXML)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
-
+include(bugsplat)
 include(GoogleMock)
 
 include_directories(
@@ -82,6 +82,10 @@ set_source_files_properties(${test_HEADER_FILES}
 list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})
+
+if (USE_BUGSPLAT)
+  set_target_properties(lltest PROPERTIES COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+endif (USE_BUGSPLAT)
 
 target_link_libraries(lltest
     ${LEGACY_STDIO_LIBS}
