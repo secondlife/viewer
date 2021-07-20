@@ -595,10 +595,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setCustomSchemes(custom_schemes);
 
 				bool result = mCEFLib->init(settings);
-				if (!result)
-				{
-					// if this fails, the media system in viewer will put up a message
-				}
+                if (!result)
+                {
+                    // if this fails, the media system in viewer will put up a message
+                }
 
 				// now we can set page zoom factor
 				F32 factor = (F32)message_in.getValueReal("factor");

@@ -614,12 +614,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("msvcp140.dll")
                 self.path("vcruntime140.dll")
 
-            # as of CEF 88, this (apparently software rendering support)
-            # folder is required - likely a Chromium bug - but including
-            # for now until the root cause is found - it's tiny
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("swiftshader/")
-
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
                 self.path("chrome_100_percent.pak")
@@ -686,11 +680,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
-
-        # pull in the crash logger from other projects
-        # tag:"crash-logger" here as a cue to the exporter
-        self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
-                  dst="win_crash_logger.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -1072,10 +1061,8 @@ class DarwinManifest(ViewerManifest):
 
                 # our apps
                 executable_path = {}
-                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
-                                         ):
+                embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
+                for app_bld_dir, app in embedded_apps:
                     self.path2basename(os.path.join(os.pardir,
                                                     app_bld_dir, self.args['configuration']),
                                        app)

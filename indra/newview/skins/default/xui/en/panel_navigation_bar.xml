@@ -151,7 +151,7 @@
 	         layout="topleft"
            auto_resize="true"
            user_resize="true"
-           min_width="254"
+           min_width="342"
            name="favorites_layout_panel"
            width="342">
            <icon
@@ -198,8 +198,8 @@
              tool_tip="Drag Landmarks here for quick access to your favorite places in Second Life!"
              top="13"
 	     valign="bottom"
-             width="205">
-              Your saved locations will appear here.
+             width="290">
+              Places you save to your favorites bar will appear here.
             </label>
               <!-- More button actually is a text box. -->
               <more_button
