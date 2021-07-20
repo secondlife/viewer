@@ -165,11 +165,14 @@ BOOL LLFileSystem::read(U8* buffer, S32 bytes)
         }
     }
 
-    // update the last access time for the file - this is required
-    // even though we are reading and not writing because this is the
-    // way the cache works - it relies on a valid "last accessed time" for
-    // each file so it knows how to remove the oldest, unused files
-    LLDiskCache::getInstance()->updateFileAccessTime(filename);
+    if (success == TRUE)
+    {
+        // update the last access time for the file - this is required
+        // even though we are reading and not writing because this is the
+        // way the cache works - it relies on a valid "last accessed time" for
+        // each file so it knows how to remove the oldest, unused files
+        LLDiskCache::getInstance()->updateFileAccessTime(filename);
+    }
 
     return success;
 }
