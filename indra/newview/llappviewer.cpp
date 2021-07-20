@@ -2252,7 +2252,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
     LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-    LLError::setFatalFunction(errorCallback);
+    LLError::addGenericRecorder(&errorCallback);
     //LLError::setTimeFunction(getRuntime);
 
 
