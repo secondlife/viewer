@@ -164,6 +164,10 @@ BOOL LLFileSystem::read(U8* buffer, S32 bytes)
             success = FALSE;
         }
     }
+    else
+    {
+        success = FALSE;
+    }
 
     if (success == TRUE)
     {
