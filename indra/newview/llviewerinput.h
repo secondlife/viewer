@@ -156,7 +156,8 @@ private:
                           S32 binding_count,
                           EMouseClickType mouse,
                           MASK mask,
-                          EMouseState state) const;
+                          EMouseState state,
+                          bool ignore_additional_masks) const;
 
     S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
     BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);

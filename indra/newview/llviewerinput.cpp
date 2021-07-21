@@ -1068,7 +1068,7 @@ bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask,
     if (down)
     {
         S32 mode = getMode();
-        res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_DOWN);
+        res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_DOWN, true);
     }
     return res;
 }
@@ -1530,11 +1530,18 @@ BOOL LLViewerInput::handleMouse(LLWindow *window_impl, LLCoordGL pos, MASK mask,
     return handled;
 }
 
-bool LLViewerInput::scanMouse(const std::vector<LLMouseBinding> &binding, S32 binding_count, EMouseClickType mouse, MASK mask, EMouseState state) const
+bool LLViewerInput::scanMouse(
+    const std::vector<LLMouseBinding> &binding,
+    S32 binding_count,
+    EMouseClickType mouse,
+    MASK mask,
+    EMouseState state,
+    bool ignore_additional_masks
+) const
 {
     for (S32 i = 0; i < binding_count; i++)
     {
-        if (binding[i].mMouse == mouse && (binding[i].mMask & mask) == binding[i].mMask)
+        if (binding[i].mMouse == mouse && (ignore_additional_masks ? (binding[i].mMask & mask) == binding[i].mMask : binding[i].mMask == mask))
         {
             bool res = false;
             switch (state)
@@ -1571,7 +1578,11 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     bool res = false;
     S32 mode = getMode();
     MASK mask = gKeyboard->currentMask(TRUE);
-    res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state);
+
+    // By default mouse clicks require exact mask
+    // Todo: support for mIgnoreMasks because some functions like teleports
+    // expect to be canceled, but for voice it's prefered to ignore mask.
+    res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state, false);
     // no user defined actions found or those actions can't handle the key/button, handle control if nessesary
     if (!res && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
     {

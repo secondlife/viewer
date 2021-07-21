@@ -3206,7 +3206,12 @@ void LLPanelPreferenceControls::setKeyBind(const std::string &control, EMouseCli
                 break;
             }
         }
-        mConflictHandler[mode].registerControl(control, index, click, key, mask, true);
+        // At the moment 'ignore_mask' mask is mostly ignored, a placeholder
+        // Todo: implement it since it's preferable for things like teleport to match
+        // mask exactly but for things like running to ignore additional masks
+        // Ideally this needs representation in keybindings UI
+        bool ignore_mask = true;
+        mConflictHandler[mode].registerControl(control, index, click, key, mask, ignore_mask);
     }
     else if (!set)
     {
