@@ -59,6 +59,7 @@ private:
     void populateNearbyList();
 
     void onClickAdvanced();
+    void onChangeQuality(const LLSD& data);
     void onClickHideAvatars();
     void onClickExceptions();
 

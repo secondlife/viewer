@@ -36,6 +36,7 @@
 #include "llfloaterpreference.h" // LLAvatarComplexityControls
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
+#include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
@@ -114,6 +115,7 @@ BOOL LLFloaterPerformance::postBuild()
     mObjectList->setIconClickedCallback(boost::bind(&LLFloaterPerformance::detachItem, this, _1));
 
     mSettingsPanel->getChild<LLButton>("advanced_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickAdvanced, this));
+    mSettingsPanel->getChild<LLRadioGroup>("graphics_quality")->setCommitCallback(boost::bind(&LLFloaterPerformance::onChangeQuality, this, _2));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickHideAvatars, this));
@@ -220,7 +222,7 @@ void LLFloaterPerformance::populateHUDList()
     for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLHUDComplexity hud_object_complexity = *iter;        
-        S32 obj_cost_short = hud_object_complexity.objectsCost / 1000;
+        S32 obj_cost_short = llmax((S32)hud_object_complexity.objectsCost / 1000, 1);
         LLSD item;
         item["special_id"] = hud_object_complexity.objectId;
         item["target"] = LLNameListCtrl::SPECIAL;
@@ -279,7 +281,7 @@ void LLFloaterPerformance::populateObjectList()
     for (iter = complexity_list.begin(); iter != end; ++iter)
     {
         LLObjectComplexity object_complexity = *iter;        
-        S32 obj_cost_short = object_complexity.objectCost / 1000;
+        S32 obj_cost_short = llmax((S32)object_complexity.objectCost / 1000, 1);
         LLSD item;
         item["special_id"] = object_complexity.objectId;
         item["target"] = LLNameListCtrl::SPECIAL;
@@ -334,7 +336,7 @@ void LLFloaterPerformance::populateNearbyList()
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
         if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
         {
-            S32 complexity_short = avatar->getVisualComplexity() / 1000;
+            S32 complexity_short = llmax((S32)avatar->getVisualComplexity() / 1000, 1);;
             LLSD item;
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
@@ -437,6 +439,15 @@ void LLFloaterPerformance::onClickAdvanced()
         instance->saveSettings();
     }
     LLFloaterReg::showInstance("prefs_graphics_advanced");
+}
+
+void LLFloaterPerformance::onChangeQuality(const LLSD& data)
+{
+    LLFloaterPreference* instance = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+    if (instance)
+    {
+        instance->onChangeQuality(data);
+    }
 }
 
 void LLFloaterPerformance::onClickHideAvatars()
