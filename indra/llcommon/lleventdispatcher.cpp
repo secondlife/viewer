@@ -390,9 +390,11 @@ std::string LLSDArgsMapper::formatlist(const LLSD& list)
     return out.str();
 }
 
-LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key):
+LLEventDispatcher::LLEventDispatcher(const std::string& desc, const std::string& key,
+                                     const std::string& replyKey):
     mDesc(desc),
-    mKey(key)
+    mKey(key),
+    mReplyKey(replyKey)
 {
 }
 
@@ -414,13 +416,14 @@ struct LLEventDispatcher::LLSDDispatchEntry: public LLEventDispatcher::DispatchE
     Callable mFunc;
     LLSD mRequired;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    virtual void call(const LLEventDispatcher& parent,
+                      const std::string& desc, const LLSD& event) const
     {
         // Validate the syntax of the event itself.
         std::string mismatch(llsd_matches(mRequired, event));
         if (! mismatch.empty())
         {
-            LL_ERRS("LLEventDispatcher") << desc << ": bad request: " << mismatch << LL_ENDL;
+            return parent.callFail(event, STRINGIZE(desc << ": bad request: " << mismatch));
         }
         // Event syntax looks good, go for it!
         mFunc(event);
@@ -446,7 +449,8 @@ struct LLEventDispatcher::ParamsDispatchEntry: public LLEventDispatcher::Dispatc
 
     invoker_function mInvoker;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    virtual void call(const LLEventDispatcher& parent,
+                      const std::string& desc, const LLSD& event) const
     {
         LLSDArgsSource src(desc, event);
         mInvoker(boost::bind(&LLSDArgsSource::next, boost::ref(src)));
@@ -532,11 +536,12 @@ struct LLEventDispatcher::MapParamsDispatchEntry: public LLEventDispatcher::Para
     LLSD mRequired;
     LLSD mOptional;
 
-    virtual void call(const std::string& desc, const LLSD& event) const
+    virtual void call(const LLEventDispatcher& parent,
+                      const std::string& desc, const LLSD& event) const
     {
         // Just convert from LLSD::Map to LLSD::Array using mMapper, then pass
         // to base-class call() method.
-        ParamsDispatchEntry::call(desc, mMapper.map(event));
+        ParamsDispatchEntry::call(parent, desc, mMapper.map(event));
     }
 
     virtual LLSD addMetadata(LLSD meta) const
@@ -579,7 +584,7 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc,
 
 void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const
 {
-    LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << ")::add(" << name
+    LL_ERRS("LLEventDispatcher") << *this << "::add(" << name
                                  << "): " << classname << " is not a subclass "
                                  << "of LLEventDispatcher" << LL_ENDL;
 }
@@ -602,8 +607,7 @@ void LLEventDispatcher::operator()(const std::string& name, const LLSD& event) c
 {
     if (! try_call(name, event))
     {
-        LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << "): '" << name
-                                     << "' not found" << LL_ENDL;
+        return callFail(event, STRINGIZE(*this << ": '" << name << "' not found"));
     }
 }
 
@@ -617,8 +621,8 @@ void LLEventDispatcher::operator()(const LLSD& event) const
     std::string name(event[mKey]);
     if (! try_call(name, event))
     {
-        LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << "): bad " << mKey
-                                     << " value '" << name << "'" << LL_ENDL;
+        return callFail(event,
+                        STRINGIZE(*this << ": bad " << mKey << " value '" << name << "'"));
     }
 }
 
@@ -635,9 +639,25 @@ bool LLEventDispatcher::try_call(const std::string& name, const LLSD& event) con
         return false;
     }
     // Found the name, so it's plausible to even attempt the call.
-    found->second->call(STRINGIZE("LLEventDispatcher(" << mDesc << ") calling '" << name << "'"),
+    found->second->call(*this,
+                        STRINGIZE(*this << " calling '" << name << "'"),
                         event);
     return true;                    // tell caller we were able to call
+}
+
+void LLEventDispatcher::callFail(const LLSD& event, const std::string& message) const
+{
+    if (event.has(mReplyKey))
+    {
+        // If the passed event has mReplyKey, send a reply to that LLEventPump.
+        LL_WARNS("LLEventDispatcher") << message << LL_ENDL;
+        sendReply(llsd::map("error", message), event, mReplyKey);
+    }
+    else
+    {
+        // no mReplyKey: no reply was expected, die with this error
+        LL_ERRS("LLEventDispatcher") << message << LL_ENDL;
+    }
 }
 
 LLSD LLEventDispatcher::getMetadata(const std::string& name) const

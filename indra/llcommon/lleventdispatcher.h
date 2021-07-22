@@ -89,7 +89,8 @@ class LLSD;
 class LL_COMMON_API LLEventDispatcher
 {
 public:
-    LLEventDispatcher(const std::string& desc, const std::string& key);
+    LLEventDispatcher(const std::string& desc, const std::string& key,
+                      const std::string& replyKey="reply");
     virtual ~LLEventDispatcher();
 
     /// @name Register functions accepting(const LLSD&)
@@ -255,32 +256,52 @@ public:
     bool remove(const std::string& name);
 
     /// Call a registered callable with an explicitly-specified name. If no
-    /// such callable exists, die with LL_ERRS. If the @a event fails to match
-    /// the @a required prototype specified at add() time, die with LL_ERRS.
+    /// such callable exists, it is an error. If the @a event fails to match
+    /// the @a required prototype specified at add() time, it is an error. On
+    /// error, if @a event contains the @a replyKey specified to our
+    /// constructor, log a warning and send a reply LLSD::Map containing key
+    /// "error" whose value is a string describing the problem. If @a replyKey
+    /// is not present, die with LL_ERRS.
     void operator()(const std::string& name, const LLSD& event) const;
 
     /// Call a registered callable with an explicitly-specified name and
     /// return <tt>true</tt>. If no such callable exists, return
     /// <tt>false</tt>. If the @a event fails to match the @a required
-    /// prototype specified at add() time, die with LL_ERRS.
+    /// prototype specified at add() time, it is an error. On error, if @a
+    /// event contains the @a replyKey specified to our constructor, log a
+    /// warning and send a reply LLSD::Map containing key "error" whose value
+    /// is a string describing the problem. If @a replyKey is not present, die
+    /// with LL_ERRS.
     bool try_call(const std::string& name, const LLSD& event) const;
 
     /// Extract the @a key value from the incoming @a event, and call the
     /// callable whose name is specified by that map @a key. If no such
-    /// callable exists, die with LL_ERRS. If the @a event fails to match the
-    /// @a required prototype specified at add() time, die with LL_ERRS.
+    /// callable exists, it is an error. If the @a event fails to match the @a
+    /// required prototype specified at add() time, it is an error. On error,
+    /// if @a event contains the @a replyKey specified to our constructor, log
+    /// a warning and send a reply LLSD::Map containing key "error" whose
+    /// value is a string describing the problem. If @a replyKey is not
+    /// present, die with LL_ERRS.
     void operator()(const LLSD& event) const;
 
     /// Extract the @a key value from the incoming @a event, call the callable
     /// whose name is specified by that map @a key and return <tt>true</tt>.
     /// If no such callable exists, return <tt>false</tt>. If the @a event
-    /// fails to match the @a required prototype specified at add() time, die
-    /// with LL_ERRS.
+    /// fails to match the @a required prototype specified at add() time, it
+    /// is an error. On error, if @a event contains the @a replyKey specified
+    /// to our constructor, log a warning and send a reply LLSD::Map
+    /// containing key "error" whose value is a string describing the problem.
+    /// If @a replyKey is not present, die with LL_ERRS.
     bool try_call(const LLSD& event) const;
 
     /// @name Iterate over defined names
     //@{
     typedef std::pair<std::string, std::string> NameDesc;
+
+    friend std::ostream& operator<<(std::ostream& out, const LLEventDispatcher& disp)
+    {
+        return out << "LLEventDispatcher(" << disp.mDesc << ")";
+    }
 
 private:
     struct DispatchEntry
@@ -290,7 +311,8 @@ private:
 
         std::string mDesc;
 
-        virtual void call(const std::string& desc, const LLSD& event) const = 0;
+        virtual void call(const LLEventDispatcher& parent,
+                          const std::string& desc, const LLSD& event) const = 0;
         virtual LLSD addMetadata(LLSD) const = 0;
     };
     // Tried using boost::ptr_map<std::string, DispatchEntry>, but ptr_map<>
@@ -340,8 +362,13 @@ private:
         }
     }
     void addFail(const std::string& name, const std::string& classname) const;
+    /// Implement error behavior: if @a event contains the @a replyKey
+    /// specified to our constructor, log a warning and send a reply LLSD::Map
+    /// containing key "error" whose value is the passed @a message. If @a
+    /// replyKey is not present, die with LL_ERRS.
+    void callFail(const LLSD& event, const std::string& message) const;
 
-    std::string mDesc, mKey;
+    std::string mDesc, mKey, mReplyKey;
     DispatchMap mDispatch;
 
     static NameDesc makeNameDesc(const DispatchMap::value_type& item)

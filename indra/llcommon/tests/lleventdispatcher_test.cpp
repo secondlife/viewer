@@ -644,12 +644,77 @@ namespace tut
                    outer.find(inner) != std::string::npos);
         }
 
-        void call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
+        template <typename CALLABLE>
+        std::string call_exc_(const CALLABLE& callable, const LLSD& args,
+                              const std::string& exc_frag)
         {
-            std::string threw = catch_what<std::runtime_error>([this, &func, &args](){
-                    work(func, args);
-                });
+            std::string threw = catch_what<std::runtime_error>(
+                [&callable, &args](){ callable(args); });
             ensure_has(threw, exc_frag);
+            return threw;
+        }
+
+        std::string call_exc(const LLSD& args, const std::string& exc_frag)
+        {
+            return call_exc_([this](const LLSD& args){ work(args); },
+                             args, exc_frag);
+        }
+
+        std::string call_exc(const std::string& func, const LLSD& args, const std::string& exc_frag)
+        {
+            return call_exc_([this, &func](const LLSD& args){ work(func, args); },
+                             args, exc_frag);
+        }
+
+        template <typename CALLABLE>
+        std::string call_cond_exc_(const CALLABLE& callable, const LLSD& args,
+                                   const std::string& exc_frag)
+        {
+            // We expect the unmodified call to throw.
+            call_exc_(callable, args, exc_frag);
+            // But! If the args blob contains a "reply" key naming an
+            // LLEventPump, we expect the call to instead post a reply
+            // LLSD::Map on that LLEventPump containing an "error" key whose
+            // value is the error message that should have been passed to
+            // LL_ERRS (which, given our WrapLLErrs member, would have thrown
+            // an exception instead).
+            // Instantiate an LLEventPump on which to receive our reply. Allow
+            // tweaking its name for uniqueness.
+            LLEventStream pump("reply", true);
+            // Store reply here.
+            LLSD reply;
+            // Register a listener that will populate 'reply'. Store in an
+            // LLTempBoundListener to unregister before we destroy 'pump'.
+            LLTempBoundListener connection =
+                pump.listen("listener",
+                            [&reply](const LLSD& data)->bool
+                            { reply = data; return false; });
+            // Make a copy of the args blob so we can modify.
+            LLSD newargs(args);
+            // Pass the (possibly tweaked) name of our reply pump.
+            newargs["reply"] = pump.getName();
+            // This call SHOULD NOT throw an exception (or die, for that matter).
+            callable(newargs);
+            // Instead, it should have called our lambda listener, which
+            // should have populated 'reply'.
+            ensure("bad call with reply didn't answer", reply.has("error"));
+            std::string error(reply["error"]);
+            // Verify that the error message is as we expect.
+            ensure_has(error, exc_frag);
+            return error;
+        }
+
+        std::string call_cond_exc(const LLSD& args, const std::string& exc_frag)
+        {
+            return call_cond_exc_([this](const LLSD& args){ work(args); },
+                                  args, exc_frag);
+        }
+
+        std::string call_cond_exc(const std::string& func, const LLSD& args,
+                                  const std::string& exc_frag)
+        {
+            return call_cond_exc_([this, &func](const LLSD& args){ work(func, args); },
+                                  args, exc_frag);
         }
 
         LLSD getMetadata(const std::string& name)
@@ -1030,16 +1095,11 @@ namespace tut
     void object::test<14>()
     {
         set_test_name("call with bad name");
-        call_exc("freek", LLSD(), "not found");
-        // We don't have a comparable helper function for the one-arg
-        // operator() method, and it's not worth building one just for this
-        // case. Write it out.
-        std::string threw = catch_what<std::runtime_error>([this](){
-                work(LLSDMap("op", "freek"));
-            });
-        ensure_has(threw, "bad");
-        ensure_has(threw, "op");
-        ensure_has(threw, "freek");
+        call_cond_exc("freek", LLSD(), "not found");
+        // one-arg operator() method
+        std::string error = call_cond_exc(LLSDMap("op", "freek"), "bad");
+        ensure_has(error, "op");
+        ensure_has(error, "freek");
     }
 
     template<> template<>
@@ -1087,7 +1147,7 @@ namespace tut
             ensure_equals("answer mismatch", tr.llsd, answer);
             // Should NOT be able to pass 'answer' to Callables registered
             // with 'required'.
-            call_exc(tr.name_req, answer, "bad request");
+            call_cond_exc(tr.name_req, answer, "bad request");
             // But SHOULD be able to pass 'matching' to Callables registered
             // with 'required'.
             work(tr.name_req, matching);
@@ -1107,6 +1167,10 @@ namespace tut
         // args. We should only need to engage it for one map-style
         // registration and one array-style registration.
         std::string array_exc("needs an args array");
+        // call_cond_exc() injects a key into args, implicitly turning the
+        // args blob into a map if it isn't already. We're trying to validate
+        // passing specific invalid LLSD types to a function requiring an LLSD
+        // array, so use call_exc() instead of call_cond_exc().
         call_exc("free0_array", 17, array_exc);
         call_exc("free0_array", LLSDMap("pi", 3.14), array_exc);
 
@@ -1158,6 +1222,10 @@ namespace tut
         {
             foreach(const llsd::MapEntry& e, inMap(funcsab))
             {
+                // call_cond_exc() injects a key into args, implicitly turning
+                // the args blob into a map if it isn't already. We're trying
+                // to validate passing a too-short LLSD array, so use
+                // call_exc() instead of call_cond_exc().
                 call_exc(e.second, tooshort, "requires more arguments");
             }
         }
