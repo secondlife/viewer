@@ -244,8 +244,7 @@ namespace tut
         {
             mSync.bump();
             LLCoroEventPump waiter;
-            result = waiter.postAndSuspend(LLSDMap("value", 17),
-                                        immediateAPI.getPump(), "reply");
+            result = waiter.postAndSuspend(LLSDMap("value", 17), immediateAPI.getPump());
             mSync.bump();
         }
         END
@@ -258,6 +257,8 @@ namespace tut
         DEBUG;
         LLCoros::instance().launch("test<5>", [this](){ coroPumpPost(); });
         ensure_equals(result.asInteger(), 18);
+        result = llcoro::postAndSuspendTemp(llsd::map("value", 22), immediateAPI.getPump());
+        ensure_equals(result.asInteger(), 23);
     }
 
     template <class PUMP>

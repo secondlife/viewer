@@ -203,7 +203,7 @@ public:
     }
 
     LLSD postAndSuspend(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
-                     const LLSD& replyPumpNamePath=LLSD())
+                        const LLSD& replyPumpNamePath="reply")
     {
         return llcoro::postAndSuspend(event, requestPump, mPump, replyPumpNamePath);
     }
@@ -211,5 +211,24 @@ public:
 private:
     LLEventStream mPump;
 };
+
+namespace llcoro
+{
+
+/**
+ * Instantiate a temporary local LLCoroEventPump and call its postAndSuspend()
+ * method, returning the result. This supports a one-liner query of some
+ * LLEventAPI. For multiple calls from the same function, it's still cheaper
+ * to instantiate LLCoroEventPump explicitly.
+ */
+inline
+LLSD postAndSuspendTemp(const LLSD& event, const LLEventPumpOrPumpName& requestPump,
+                        const LLSD& replyPumpNamePath="reply")
+{
+    LLCoroEventPump waiter;
+    return waiter.postAndSuspend(event, requestPump, replyPumpNamePath);
+}
+
+} // namespace llcoro
 
 #endif /* ! defined(LL_LLEVENTCORO_H) */
