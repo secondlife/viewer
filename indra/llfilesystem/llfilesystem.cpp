@@ -48,6 +48,28 @@ LLFileSystem::LLFileSystem(const LLUUID& file_id, const LLAssetType::EType file_
     mPosition = 0;
     mBytesRead = 0;
     mMode = mode;
+
+    // This block of code was originally called in the read() method but after comments here:
+    // https://bitbucket.org/lindenlab/viewer/commits/e28c1b46e9944f0215a13cab8ee7dded88d7fc90#comment-10537114
+    // we decided to follow Henri's suggestion and move the code to update the last access time here.
+    if (mode == LLFileSystem::READ)
+    {
+        // build the filename (TODO: we do this in a few places - perhaps we should factor into a single function)
+        std::string id;
+        mFileID.toString(id);
+        const std::string extra_info = "";
+        const std::string filename = LLDiskCache::getInstance()->metaDataToFilepath(id, mFileType, extra_info);
+
+        // update the last access time for the file if it exists - this is required
+        // even though we are reading and not writing because this is the
+        // way the cache works - it relies on a valid "last accessed time" for
+        // each file so it knows how to remove the oldest, unused files
+        bool exists = gDirUtilp->fileExists(filename);
+        if (exists)
+        {
+            LLDiskCache::getInstance()->updateFileAccessTime(filename);
+        }
+    }
 }
 
 LLFileSystem::~LLFileSystem()
@@ -133,7 +155,7 @@ S32 LLFileSystem::getFileSize(const LLUUID& file_id, const LLAssetType::EType fi
 
 BOOL LLFileSystem::read(U8* buffer, S32 bytes)
 {
-    BOOL success = TRUE;
+    BOOL success = FALSE;
 
     std::string id;
     mFileID.toString(id);
@@ -159,23 +181,10 @@ BOOL LLFileSystem::read(U8* buffer, S32 bytes)
         file.close();
 
         mPosition += mBytesRead;
-        if (!mBytesRead)
+        if (mBytesRead)
         {
-            success = FALSE;
+            success = TRUE;
         }
-    }
-    else
-    {
-        success = FALSE;
-    }
-
-    if (success == TRUE)
-    {
-        // update the last access time for the file - this is required
-        // even though we are reading and not writing because this is the
-        // way the cache works - it relies on a valid "last accessed time" for
-        // each file so it knows how to remove the oldest, unused files
-        LLDiskCache::getInstance()->updateFileAccessTime(filename);
     }
 
     return success;
