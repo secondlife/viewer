@@ -38,8 +38,8 @@
        left="20"
        top="8"
        name="fps_value"
-       width="40">
-          75
+       width="42">
+          167
       </text>
       <text
        follows="left|top"
