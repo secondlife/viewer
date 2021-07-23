@@ -1706,7 +1706,7 @@ void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri
     }
 }
 
-void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool enforce_tri_limit, bool sloppy)
+void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation, bool enforce_tri_limit)
 {
     LL_INFOS() << "Generating lod " << which_lod << " using meshoptimizer" << LL_ENDL;
     // Allow LoD from -1 to LLModel::LOD_PHYSICS
@@ -1840,108 +1840,269 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, U32 decimation, bool en
 
             LLModel* target_model = mModel[lod][mdl_idx];
 
-            // Run meshoptimizer for each face
-            for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+            if (meshopt_mode == MESH_OPTIMIZER_COMBINE)
             {
-                const LLVolumeFace &face = base->getVolumeFace(face_idx);
-                S32 num_indices = face.mNumIndices;
-                // todo: do not allocate per each face, add one large buffer somewhere
-                // faces have limited amount of indices
-                S32 size = (num_indices * sizeof(U16) + 0xF) & ~0xF;
-                U16* output = (U16*)ll_aligned_malloc_16(size);
+                // Figure out buffer size
+                S32 size_indices = 0;
+                S32 size_vertices = 0;
 
-                /*
-                generateShadowIndexBuffer appears to deform model
-                LLMeshOptimizer::generateShadowIndexBuffer(
-                    &shadow[0],
-                    face.mIndices,
-                    num_indices,
-                    &face.mPositions[0],
-                    face.mNumVertices);
-                */
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                {
+                    const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                    size_indices += face.mNumIndices;
+                    size_vertices += face.mNumVertices;
+                }
 
+                // Allocate buffers, note that we are using U32 buffer instead of U16
+                U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+                U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+
+                // extra space for normals and text coords, is it needed?
+                S32 size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
+                LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + size);
+
+                // copy indices and vertices into new buffers
+                S32 vertices_copied = 0;
+                S32 indices_shift = 0;
+                S32 indices_copied = 0;
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                {
+                    const LLVolumeFace &face = base->getVolumeFace(face_idx);
+
+                    // vertices
+                    S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
+                    LLVector4a* dest = combined_positions + vertices_copied;
+                    LLVector4a::memcpyNonAliased16((F32*)dest, (F32*)face.mPositions, copy_bytes);
+                    vertices_copied += face.mNumVertices;
+
+                    // todo: figure if need to copy normals and text coords
+
+                    // indices, sadly can't do dumb memcpy for indices, we need to adjust each value
+                    for (S32 i = 0; i < face.mNumIndices; ++i)
+                    {
+                        U16 idx = face.mIndices[i];
+
+                        combined_indices[indices_copied] = idx + indices_shift;
+                        indices_copied++;
+                    }
+                    indices_shift += face.mNumVertices;
+                }
+
+                // Now that we have buffers, optimize
                 S32 target_indices = 0;
                 F32 result_code = 0; // how far from original the model is, 1 == 100%
                 S32 new_indices = 0;
 
-                if (sloppy)
-                {
-                    target_indices = llfloor(num_indices * indices_ratio);
-                    new_indices = LLMeshOptimizer::simplifySloppy(
-                        output,
-                        face.mIndices,
-                        num_indices,
-                        face.mPositions,
-                        face.mNumVertices,
-                        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
-                        target_indices,
-                        lod_error_threshold,
-                        &result_code);
-                }
-                else
-                {
-                    target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
-                    new_indices = LLMeshOptimizer::simplify(
-                        output,
-                        face.mIndices,
-                        num_indices,
-                        face.mPositions,
-                        face.mNumVertices,
-                        LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
-                        target_indices,
-                        lod_error_threshold,
-                        &result_code);
-                }
+                target_indices = llmax(3, llfloor(size_indices * indices_ratio)); // leave at least one triangle
+                new_indices = LLMeshOptimizer::simplifyU32(
+                    output_indices,
+                    combined_indices,
+                    size_indices,
+                    combined_positions,
+                    size_vertices,
+                    LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
+                    target_indices,
+                    lod_error_threshold,
+                    &result_code);
 
 
                 if (result_code < 0)
                 {
-                    LL_WARNS() << "Negative result code from meshoptimizer for face " << face_idx
-                        << " of model " << target_model->mLabel
+                    LL_WARNS() << "Negative result code from meshoptimizer for model " << target_model->mLabel
                         << " target Indices: " << target_indices
                         << " new Indices: " << new_indices
-                        << " original count: " << num_indices << LL_ENDL;
+                        << " original count: " << size_indices << LL_ENDL;
                 }
 
-                LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
-
-                // Copy old values
-                new_face = face;
-
-
-                if (new_indices == 0)
+                // repack back into individual faces
+                indices_shift = 0;
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
-                    if (!sloppy)
+                    const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                    LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+
+                    S32 size = (face.mNumIndices * sizeof(U16) + 0xF) & ~0xF;
+                    U16* output = (U16*)ll_aligned_malloc_16(size);
+
+                    // Copy old values
+                    new_face = face;
+
+                    // Fow now crude method to copy indices back into face
+                    // Should have been done in reverse - cycle by indices and figure out target face from id's size
+                    // Experiment
+                    S32 indices_copied = 0;
+                    for (S32 i = 0; i < new_indices / 3; ++i)
                     {
-                        // optimizeSloppy() can optimize triangles away even if target_indices is > 2,
-                        // but optimize() isn't supposed to
-                        LL_INFOS() << "No indices generated by meshoptimizer for face " << face_idx
+                        U32 position = i * 3;
+                        U32 idx1 = output_indices[position];
+                        U32 idx2 = output_indices[position+1];
+                        U32 idx3 = output_indices[position+2];
+
+                        bool copy = false;
+                        S32 range = indices_shift + face.mNumVertices;
+
+                        if (idx1 >= indices_shift && idx1 < range)
+                        {
+                            output[indices_copied] = idx1 - indices_shift;
+                            copy = true;
+                        }
+                        if (copy)
+                        {
+                            if (idx2 >= indices_shift && idx2 < range)
+                            {
+                                output[indices_copied + 1] = idx2 - indices_shift;
+                            }
+                            else
+                            {
+                                // todo: extend size of face's vertices list and add new vertices
+                                LL_WARNS_ONCE() << "incomplete code, dropped triangle" << LL_ENDL;
+                                output[indices_copied + 1] = 0;
+                            }
+
+                            if (idx3 < face.mNumVertices)
+                            {
+                                output[indices_copied + 2] = idx3 - indices_shift;
+                            }
+                            else
+                            {
+                                // todo: extend size of face's vertices list and add new vertices
+                                LL_WARNS_ONCE() << "incomplete code, dropped triangle" << LL_ENDL;
+                                output[indices_copied + 2] = 0;
+                            }
+                        }
+                        if (copy)
+                        {
+                            indices_copied += 3;
+                        }
+
+                        new_face.resizeIndices(indices_copied);
+                        S32 idx_size = (indices_copied * sizeof(U16) + 0xF) & ~0xF;
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+
+                    }
+                    indices_shift += face.mNumVertices;
+
+                    if (indices_copied == 0)
+                    {
+                        new_face.resizeIndices(3);
+                        new_face.resizeVertices(1);
+                        memset(new_face.mIndices, 0, sizeof(U16) * 3);
+                        new_face.mPositions[0].clear(); // set first vertice to 0
+                        new_face.mNormals[0].clear();
+                        new_face.mTexCoords[0].setZero();
+                    }
+                }
+
+                ll_aligned_free<64>(combined_positions);
+                ll_aligned_free_32(output_indices);
+                ll_aligned_free_32(combined_indices);
+            }
+            else
+            {
+                // Run meshoptimizer for each face
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                {
+                    const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                    S32 num_indices = face.mNumIndices;
+                    // todo: do not allocate per each face, add one large buffer somewhere
+                    // faces have limited amount of indices
+                    S32 size = (num_indices * sizeof(U16) + 0xF) & ~0xF;
+                    U16* output = (U16*)ll_aligned_malloc_16(size);
+
+                    /*
+                    generateShadowIndexBuffer appears to deform model
+                    LLMeshOptimizer::generateShadowIndexBuffer(
+                        &shadow[0],
+                        face.mIndices,
+                        num_indices,
+                        &face.mPositions[0],
+                        face.mNumVertices);
+                    */
+
+                    S32 target_indices = 0;
+                    F32 result_code = 0; // how far from original the model is, 1 == 100%
+                    S32 new_indices = 0;
+
+                    if (meshopt_mode == MESH_OPTIMIZER_SLOPPY)
+                    {
+                        target_indices = llfloor(num_indices * indices_ratio);
+                        new_indices = LLMeshOptimizer::simplifySloppy(
+                            output,
+                            face.mIndices,
+                            num_indices,
+                            face.mPositions,
+                            face.mNumVertices,
+                            LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
+                            target_indices,
+                            lod_error_threshold,
+                            &result_code);
+                    }
+
+                    if (meshopt_mode == MESH_OPTIMIZER)
+                    {
+                        target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
+                        new_indices = LLMeshOptimizer::simplify(
+                            output,
+                            face.mIndices,
+                            num_indices,
+                            face.mPositions,
+                            face.mNumVertices,
+                            LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
+                            target_indices,
+                            lod_error_threshold,
+                            &result_code);
+                    }
+
+
+                    if (result_code < 0)
+                    {
+                        LL_WARNS() << "Negative result code from meshoptimizer for face " << face_idx
                             << " of model " << target_model->mLabel
                             << " target Indices: " << target_indices
+                            << " new Indices: " << new_indices
                             << " original count: " << num_indices << LL_ENDL;
                     }
 
-                    // Face got optimized away
-                    // Generate empty triangle
-                    new_face.resizeIndices(3);
-                    new_face.resizeVertices(1);
-                    memset(new_face.mIndices, 0, sizeof(U16) * 3);
-                    new_face.mPositions[0].clear(); // set first vertice to 0
-                    new_face.mNormals[0].clear();
-                    new_face.mTexCoords[0].setZero();
-                }
-                else
-                {
-                    // Assign new values
-                    new_face.resizeIndices(new_indices); // will wipe out mIndices, so new_face can't substitute output
-                    S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-                    LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+                    LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
 
-                    // clear unused values
-                    new_face.optimize();
-                }
+                    // Copy old values
+                    new_face = face;
 
-                ll_aligned_free_16(output);
+
+                    if (new_indices == 0)
+                    {
+                        if (meshopt_mode != MESH_OPTIMIZER_SLOPPY)
+                        {
+                            // optimizeSloppy() can optimize triangles away even if target_indices is > 2,
+                            // but optimize() isn't supposed to
+                            LL_INFOS() << "No indices generated by meshoptimizer for face " << face_idx
+                                << " of model " << target_model->mLabel
+                                << " target Indices: " << target_indices
+                                << " original count: " << num_indices << LL_ENDL;
+                        }
+
+                        // Face got optimized away
+                        // Generate empty triangle
+                        new_face.resizeIndices(3);
+                        new_face.resizeVertices(1);
+                        memset(new_face.mIndices, 0, sizeof(U16) * 3);
+                        new_face.mPositions[0].clear(); // set first vertice to 0
+                        new_face.mNormals[0].clear();
+                        new_face.mTexCoords[0].setZero();
+                    }
+                    else
+                    {
+                        // Assign new values
+                        new_face.resizeIndices(new_indices); // will wipe out mIndices, so new_face can't substitute output
+                        S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+
+                        // clear unused values
+                        new_face.optimize();
+                    }
+
+                    ll_aligned_free_16(output);
+                }
             }
 
             //blind copy skin weights and just take closest skin weight to point on
@@ -3833,7 +3994,7 @@ bool LLModelPreview::lodQueryCallback()
         {
             S32 lod = preview->mLodsQuery.back();
             preview->mLodsQuery.pop_back();
-            preview->genMeshOptimizerLODs(lod);
+            preview->genMeshOptimizerLODs(lod, MESH_OPTIMIZER);
 
             if (preview->mLookUpLodFiles && (lod == LLModel::LOD_HIGH))
             {
@@ -3857,11 +4018,11 @@ void LLModelPreview::onLODGenerateParamCommit(S32 lod, bool enforce_tri_limit)
     }
 }
 
-void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit, bool sloppy)
+void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enforce_tri_limit, S32 mode)
 {
     if (!mLODFrozen)
     {
-        genMeshOptimizerLODs(requested_lod, 3, enforce_tri_limit, sloppy);
+        genMeshOptimizerLODs(requested_lod, mode, 3, enforce_tri_limit);
         refresh();
     }
 }

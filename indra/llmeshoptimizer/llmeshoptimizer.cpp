@@ -59,6 +59,30 @@ void LLMeshOptimizer::generateShadowIndexBuffer(U16 *destination,
 }
 
 //static
+U64 LLMeshOptimizer::simplifyU32(U32 *destination,
+    const U32 *indices,
+    U64 index_count,
+    const LLVector4a *vertex_positions,
+    U64 vertex_count,
+    U64 vertex_positions_stride,
+    U64 target_index_count,
+    F32 target_error,
+    F32* result_error
+)
+{
+    return meshopt_simplify<unsigned int>(destination,
+        indices,
+        index_count,
+        (const float*)vertex_positions,
+        vertex_count,
+        vertex_positions_stride,
+        target_index_count,
+        target_error,
+        result_error
+        );
+}
+
+//static
 U64 LLMeshOptimizer::simplify(U16 *destination,
                               const U16 *indices,
                               U64 index_count,
@@ -70,7 +94,6 @@ U64 LLMeshOptimizer::simplify(U16 *destination,
                               F32* result_error
     )
 {
-
     return meshopt_simplify<unsigned short>(destination,
                                  indices,
                                  index_count,
