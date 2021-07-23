@@ -30,8 +30,9 @@
 #define LL_LLVIEWERCONTROLLISTENER_H
 
 #include "lleventapi.h"
+#include <map>
+#include <string>
 
-class LLControlGroup;
 class LLSD;
 
 class  LLViewerControlListener : public LLEventAPI
@@ -43,8 +44,14 @@ private:
 	static void set(LLSD const & event_data);
 	static void toggle(LLSD const & event_data);
 	static void get(LLSD const & event_data);
+	// monitor() isn't static because it needs member data
+	void monitor(LLSD const & event_data);
 	static void groups(LLSD const & event_data);
 	static void vars(LLSD const & event_data);
+
+	// map (group, key) to LLEventPump name
+	typedef std::map<std::pair<std::string, std::string>, std::string> MonitorMap;
+	MonitorMap mMonitorMap;
 };
 
 #endif // LL_LLVIEWERCONTROLLISTENER_H
