@@ -246,6 +246,8 @@ public:
 	// Used for profiles, inspectors.
 	static std::string paymentInfo(const LLAvatarData* avatar_data);
 
+	static bool hasPaymentInfoOnFile(const LLAvatarData* avatar_data);
+
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
 	static void processAvatarInterestsReply(LLMessageSystem* msg, void**);

@@ -31,15 +31,6 @@
 
 const U32 WATCHDOG_SLEEP_TIME_USEC = 1000000;
 
-void default_killer_callback()
-{
-#ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
-#else
-	raise(SIGQUIT);
-#endif
-}
-
 // This class runs the watchdog timing thread.
 class LLWatchdogTimerThread : public LLThread
 {
@@ -158,11 +149,10 @@ void LLWatchdogTimeout::ping(const std::string& state)
 }
 
 // LLWatchdog
-LLWatchdog::LLWatchdog() :
-	mSuspectsAccessMutex(),
-	mTimer(NULL),
-	mLastClockCount(0),
-	mKillerCallback(&default_killer_callback)
+LLWatchdog::LLWatchdog()
+    :mSuspectsAccessMutex()
+    ,mTimer(NULL)
+	,mLastClockCount(0)
 {
 }
 
@@ -184,9 +174,8 @@ void LLWatchdog::remove(LLWatchdogEntry* e)
 	unlockThread();
 }
 
-void LLWatchdog::init(killer_event_callback func)
+void LLWatchdog::init()
 {
-	mKillerCallback = func;
 	if(!mSuspectsAccessMutex && !mTimer)
 	{
 		mSuspectsAccessMutex = new LLMutex();
@@ -253,8 +242,7 @@ void LLWatchdog::run()
 				mTimer->stop();
 			}
 
-			LL_INFOS() << "Watchdog detected error:" << LL_ENDL;
-			mKillerCallback();
+            LL_ERRS() << "Watchdog timer expired; assuming viewer is hung and crashing" << LL_ENDL;
 		}
 	}
 

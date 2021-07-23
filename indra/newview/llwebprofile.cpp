@@ -113,6 +113,7 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
 
     httpOpts->setWantHeaders(true);
     httpOpts->setFollowRedirects(false);
+    httpOpts->setSSLVerifyPeer(false); ; // viewer's cert bundle doesn't appear to agree with web certs from "https://my.secondlife.com/"
 
     // Get upload configuration data.
     std::string configUrl(getProfileURL(std::string()) + "snapshots/s3_upload_config");

@@ -7,9 +7,11 @@
   text_pad_right="6" 
   select_on_focus="true"
   text_tentative_color="TextFgTentativeColor"
+  highlight_text_field="false"
   background_image="TextField_Search_Off"
   background_image_disabled="TextField_Search_Disabled"
-  background_image_focused="TextField_Search_Active" >
+  background_image_focused="TextField_Search_Active"
+  background_image_highlight="TextField_Search_Highlight">
   <search_button 
     top_pad="4"
     left_pad="4" 
