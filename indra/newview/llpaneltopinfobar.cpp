@@ -31,6 +31,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llclipboard.h"
+#include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "lllandmarkactions.h"
 #include "lllocationinputctrl.h"
@@ -456,7 +457,7 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
 
 		if(landmark == NULL)
 		{
-			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
+			LLFloaterReg::showInstance("add_landmark");
 		}
 		else
 		{

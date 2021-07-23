@@ -348,6 +348,42 @@ LLQuaternion LLVirtualTrackball::getRotation() const
 	return mValue;
 }
 
+// static
+void LLVirtualTrackball::getAzimuthAndElevation(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+{
+    // LLQuaternion has own function to get azimuth, but it doesn't appear to return correct values (meant for 2d?)
+    LLVector3 point = VectorZero * quat;
+
+    if (!is_approx_zero(point.mV[VX]) || !is_approx_zero(point.mV[VY]))
+    {
+        azimuth = atan2f(point.mV[VX], point.mV[VY]);
+    }
+    else
+    {
+        azimuth = 0;
+    }
+
+    azimuth -= F_PI_BY_TWO;
+
+    if (azimuth < 0)
+    {
+        azimuth += F_PI * 2;
+    }
+
+    // while vector is '1', F32 is not sufficiently precise and we can get
+    // values like 1.0000012 which will result in -90deg angle instead of 90deg
+    F32 z = llclamp(point.mV[VZ], -1.f, 1.f);
+    elevation = asin(z); // because VectorZero's length is '1'
+}
+
+// static
+void LLVirtualTrackball::getAzimuthAndElevationDeg(const LLQuaternion &quat, F32 &azimuth, F32 &elevation)
+{
+    getAzimuthAndElevation(quat, azimuth, elevation);
+    azimuth *= RAD_TO_DEG;
+    elevation *= RAD_TO_DEG;
+}
+
 BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
 {
     if (hasMouseCapture())
@@ -408,6 +444,10 @@ BOOL LLVirtualTrackball::handleHover(S32 x, S32 y, MASK mask)
             az_quat.setAngleAxis(azimuth, 0, 0, 1);
             mValue *= az_quat;
         }
+
+        // we are doing a lot of F32 mathematical operations with loss of precision,
+        // re-normalize to compensate
+        mValue.normalize();
 
         mPrevX = x;
         mPrevY = y;

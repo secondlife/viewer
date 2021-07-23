@@ -73,9 +73,11 @@ private:
     void                        onGlowChanged();
     void                        onStarBrightnessChanged();
     void                        onSunRotationChanged();
+    void                        onSunAzimElevChanged();
     void                        onSunScaleChanged();
 
     void                        onMoonRotationChanged();
+    void                        onMoonAzimElevChanged();
 
     void                        onCloudMapChanged();
     void                        onWaterMapChanged();

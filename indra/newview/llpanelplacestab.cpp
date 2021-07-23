@@ -38,6 +38,7 @@
 #include "llworldmap.h"
 
 std::string LLPanelPlacesTab::sFilterSubString = LLStringUtil::null;
+LLButton* LLPanelPlacesTab::sRemoveBtn = NULL;
 
 bool LLPanelPlacesTab::isTabVisible()
 {
@@ -45,13 +46,6 @@ bool LLPanelPlacesTab::isTabVisible()
 	if (!parent) return false;
 	if (!parent->getVisible()) return false;
 	return true;
-}
-
-void LLPanelPlacesTab::setPanelPlacesButtons(LLPanelPlaces* panel)
-{
-	mTeleportBtn = panel->getChild<LLButton>("teleport_btn");
-	mShowOnMapBtn = panel->getChild<LLButton>("map_btn");
-	mShowProfile = panel->getChild<LLButton>("profile_btn");
 }
 
 void LLPanelPlacesTab::onRegionResponse(const LLVector3d& landmark_global_pos,

@@ -211,6 +211,20 @@ bool LLFloaterExperienceProfile::experiencePermission( LLHandle<LLFloaterExperie
     return false;
 }
 
+bool LLFloaterExperienceProfile::matchesKey(const LLSD& key)
+{
+    if (key.has("experience_id"))
+    {
+        return mExperienceId == key["experience_id"].asUUID();
+    }
+    else if (key.isUUID())
+    {
+        return mExperienceId == key.asUUID();
+    }
+    // Assume NULL uuid
+    return mExperienceId.isNull();
+}
+
 
 void LLFloaterExperienceProfile::onClickEdit()
 {

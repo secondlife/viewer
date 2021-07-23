@@ -8,9 +8,7 @@ include(00-Common)
 include(Linking)
 
 include(Boost)
-if (BUGSPLAT_DB)
-  include(bugsplat)
-endif (BUGSPLAT_DB)
+include(bugsplat)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
@@ -96,17 +94,17 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-if (BUGSPLAT_DB)
-  include_directories(
-    ${BUGSPLAT_INCLUDE_DIR}
-    )
-endif (BUGSPLAT_DB)
-
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     ${LLXML_SYSTEM_INCLUDE_DIRS}
     ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
     )
+
+if (USE_BUGSPLAT)
+  include_directories(AFTER
+    ${BUGSPLAT_INCLUDE_DIR}
+    )
+endif (USE_BUGSPLAT)
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -209,6 +207,7 @@ set(viewer_SOURCE_FILES
     llflexibleobject.cpp
     llfloaterabout.cpp
     llfloaterbvhpreview.cpp
+    llfloateraddpaymentmethod.cpp
     llfloaterauction.cpp
     llfloaterautoreplacesettings.cpp
     llfloateravatar.cpp
@@ -232,6 +231,7 @@ set(viewer_SOURCE_FILES
     llfloatercolorpicker.cpp
     llfloaterconversationlog.cpp
     llfloaterconversationpreview.cpp
+    llfloatercreatelandmark.cpp
     llfloaterdeleteprefpreset.cpp
     llfloaterdestinations.cpp
     llfloatereditenvironmentbase.cpp
@@ -254,6 +254,7 @@ set(viewer_SOURCE_FILES
     llfloaterhandler.cpp
     llfloaterhelpbrowser.cpp
     llfloaterhoverheight.cpp
+    llfloaterhowto.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimsessiontab.cpp
@@ -636,6 +637,7 @@ set(viewer_SOURCE_FILES
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
+    llurlfloaterdispatchhandler.cpp
     llurlhistory.cpp
     llurllineeditorctrl.cpp
     llurlwhitelist.cpp
@@ -844,6 +846,7 @@ set(viewer_HEADER_FILES
     llflexibleobject.h
     llfloaterabout.h
     llfloaterbvhpreview.h
+    llfloateraddpaymentmethod.h
     llfloaterauction.h
     llfloaterautoreplacesettings.h
     llfloateravatar.h
@@ -867,6 +870,7 @@ set(viewer_HEADER_FILES
     llfloatercolorpicker.h
     llfloaterconversationlog.h
     llfloaterconversationpreview.h
+    llfloatercreatelandmark.h
     llfloaterdeleteprefpreset.h
     llfloaterdestinations.h
     llfloatereditenvironmentbase.h
@@ -889,6 +893,7 @@ set(viewer_HEADER_FILES
     llfloaterhandler.h
     llfloaterhelpbrowser.h
     llfloaterhoverheight.h
+    llfloaterhowto.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimnearbychat.h
@@ -1264,6 +1269,7 @@ set(viewer_HEADER_FILES
     llurl.h
     llurldispatcher.h
     llurldispatcherlistener.h
+    llurlfloaterdispatchhandler.h
     llurlhistory.h
     llurllineeditorctrl.h
     llurlwhitelist.h
@@ -1415,11 +1421,11 @@ if (DARWIN)
     ${COREAUDIO_LIBRARY}
     )
 
-  if (BUGSPLAT_DB)
+  if (USE_BUGSPLAT)
     list(APPEND viewer_LIBRARIES
       ${BUGSPLAT_LIBRARIES}
       )
-  endif (BUGSPLAT_DB)
+  endif (USE_BUGSPLAT)
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
@@ -1757,10 +1763,10 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
-if (BUGSPLAT_DB)
+if (USE_BUGSPLAT)
   set_property(TARGET ${VIEWER_BINARY_NAME}
-    PROPERTY COMPILE_DEFINITIONS "LL_BUGSPLAT")
-endif (BUGSPLAT_DB)
+    PROPERTY COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+endif (USE_BUGSPLAT)
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
@@ -1839,8 +1845,11 @@ if (WINDOWS)
       media_plugin_libvlc
       media_plugin_example
       winmm_shim
-      windows-crash-logger
       )
+
+    if (NOT USE_BUGSPLAT)
+        LIST(APPEND COPY_INPUT_DEPENDENCIES windows-crash-logger)
+    endif (NOT USE_BUGSPLAT)
 
     if (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1904,10 +1913,11 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME}
-      SLPlugin
-      windows-crash-logger
-    )
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
+
+    if (NOT USE_BUGSPLAT)
+        add_dependencies(${VIEWER_BINARY_NAME} windows-crash-logger)
+    endif (NOT USE_BUGSPLAT)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2059,11 +2069,11 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
-if (BUGSPLAT_DB)
+if (USE_BUGSPLAT)
   target_link_libraries(${VIEWER_BINARY_NAME}
     ${BUGSPLAT_LIBRARIES}
     )
-endif (BUGSPLAT_DB)
+endif (USE_BUGSPLAT)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
@@ -2074,12 +2084,15 @@ if (LINUX)
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
-    linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
     media_plugin_libvlc
     llcommon
     )
+
+  if (NOT USE_BUGSPLAT)
+      LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
+  endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2211,8 +2224,11 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef mac-crash-logger)
-  add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
+
+  if (NOT USE_BUGSPLAT)
+      add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
+  endif (NOT USE_BUGSPLAT)
 
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
@@ -2255,7 +2271,7 @@ endif (INSTALL)
 
 # Note that the conventional VIEWER_SYMBOL_FILE is set by ../../build.sh
 if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIEWER_SYMBOL_FILE)
-  if (NOT BUGSPLAT_DB)
+  if (NOT USE_BUGSPLAT)
     # Breakpad symbol-file generation
     set(SYMBOL_SEARCH_DIRS "")
     if (WINDOWS)
@@ -2272,7 +2288,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
       list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin mac-crash-logger")
+      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin")
       set(VIEWER_EXE_GLOBS "'${product}' mac-crash-logger")
       set(VIEWER_LIB_GLOB "*.dylib")
     endif (DARWIN)
@@ -2310,7 +2326,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
       add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
     endif (WINDOWS OR LINUX)
 
-  else (NOT BUGSPLAT_DB)
+  else (NOT USE_BUGSPLAT)
     # BugSplat symbol-file generation
     if (WINDOWS)
       # Just pack up a tarball containing only the .pdb file for the
@@ -2394,9 +2410,9 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
     if (LINUX)
       # TBD
     endif (LINUX)
-  endif (NOT BUGSPLAT_DB)
+  endif (NOT USE_BUGSPLAT)
 
-  # for both BUGSPLAT_DB and Breakpad
+  # for both Bugsplat and Breakpad
   add_dependencies(llpackage generate_symbols)
 endif ()
 
@@ -2529,6 +2545,10 @@ if (LL_TESTS)
     ${BOOST_CONTEXT_LIBRARY}
   )
 
+  LL_ADD_INTEGRATION_TEST(cppfeatures
+    ""
+    "${test_libs}"
+    )
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"

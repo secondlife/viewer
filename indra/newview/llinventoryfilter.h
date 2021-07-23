@@ -99,6 +99,14 @@ public:
 		FILTERCREATOR_OTHERS
 	};
 
+	enum ESearchVisibility
+	{
+		VISIBILITY_NONE = 0,
+		VISIBILITY_TRASH = 0x1 << 0,
+		VISIBILITY_LIBRARY = 0x1 << 1,
+		VISIBILITY_LINKS	= 0x1 << 2
+	};
+
 	struct FilterOps
 	{
 		struct DateRange : public LLInitParam::Block<DateRange>
@@ -116,11 +124,13 @@ public:
 
 		struct Params : public LLInitParam::Block<Params>
 		{
-			Optional<U32>				types;
+			Optional<U32>				types,
+										search_visibility;
 			Optional<U64>				object_types,
 										wearable_types,
                                         settings_types,
 										category_types;
+										
 			Optional<EFilterLink>		links;
 			Optional<LLUUID>			uuid;
 			Optional<DateRange>			date_range;
@@ -137,6 +147,7 @@ public:
                 settings_types("settings_types", 0xffffFFFFffffFFFFULL),
 				category_types("category_types", 0xffffFFFFffffFFFFULL),
 				links("links", FILTERLINK_INCLUDE_LINKS),
+				search_visibility("search_visibility", 0xFFFFFFFF),
 				uuid("uuid"),
 				date_range("date_range"),
 				hours_ago("hours_ago", 0),
@@ -149,7 +160,8 @@ public:
 
 		FilterOps(const Params& = Params());
 
-		U32 			mFilterTypes;
+		U32 			mFilterTypes,
+						mSearchVisibility;
 		U64				mFilterObjectTypes,   // For _OBJECT
 						mFilterWearableTypes,
                         mFilterSettingsTypes, // for _SETTINGS
@@ -193,7 +205,8 @@ public:
 	U64 				getFilterObjectTypes() const;
 	U64					getFilterCategoryTypes() const;
 	U64					getFilterWearableTypes() const;
-    U64                 getFilterSettingsTypes() const;
+	U64					getFilterSettingsTypes() const;
+	U64					getSearchVisibilityTypes() const;
 
 	bool 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterObjectTypes(U64 types);
@@ -212,6 +225,12 @@ public:
 	void 				setSearchType(ESearchType type);
 	ESearchType			getSearchType() { return mSearchType; }
 	void 				setFilterCreator(EFilterCreatorType type);
+
+	void				toggleSearchVisibilityLinks();
+	void				toggleSearchVisibilityTrash();
+	void				toggleSearchVisibilityLibrary();
+	void 				setSearchVisibilityTypes(U32 types);
+	void 				setSearchVisibilityTypes(const Params& params);
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
@@ -310,6 +329,7 @@ private:
 	bool 				checkAgainstPermissions(const LLInventoryItem* item) const;
 	bool 				checkAgainstFilterLinks(const class LLFolderViewModelItemInventory* listener) const;
 	bool 				checkAgainstCreator(const class LLFolderViewModelItemInventory* listener) const;
+	bool				checkAgainstSearchVisibility(const class LLFolderViewModelItemInventory* listener) const;
 	bool				checkAgainstClipboard(const LLUUID& object_id) const;
 
 	FilterOps				mFilterOps;

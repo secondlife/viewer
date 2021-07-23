@@ -1,26 +1,52 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<context_menu
+<toggleable_menu
+ name="Teleport History Item Menu"
  layout="topleft"
- name="Teleport History Item Context Menu">
+ left="0"
+ mouse_opaque="false"
+ visible="false">
     <menu_item_call
      label="Teleport"
      layout="topleft"
      name="Teleport">
-        <menu_item_call.on_click
-         function="TeleportHistory.Teleport" />
+        <on_click
+         function="TeleportHistory.GearMenu.Action"
+         parameter="teleport" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="teleport" />
     </menu_item_call>
     <menu_item_call
-     label="More Information"
+     label="View"
      layout="topleft"
      name="More Information">
-        <menu_item_call.on_click
-         function="TeleportHistory.MoreInformation" />
+        <on_click
+         function="TeleportHistory.GearMenu.Action"
+         parameter="view" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="view" />
+    </menu_item_call>
+    <menu_item_call
+     label="Show on map"
+     layout="topleft"
+     name="show_on_map">
+        <on_click
+         function="TeleportHistory.GearMenu.Action"
+         parameter="show_on_map" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="show_on_map" />
     </menu_item_call>
     <menu_item_call
      label="Copy SLurl"
      layout="topleft"
      name="CopyToClipboard">
-        <menu_item_call.on_click
-         function="TeleportHistory.CopyToClipboard" />
+        <on_click
+         function="TeleportHistory.GearMenu.Action"
+         parameter="copy_slurl" />
+        <on_enable
+         function="TeleportHistory.GearMenu.Enable"
+         parameter="copy_slurl" />
     </menu_item_call>
-</context_menu>
+</toggleable_menu>

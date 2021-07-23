@@ -35,7 +35,7 @@
     </panel.string>
   <panel
 	 height="18"
-	 left="-458"
+	 left="-398"
 	 top="0"
 	 width="120"
 	 follows="right|top"
@@ -75,7 +75,7 @@
   </panel>
   <panel
     height="18"
-    left="-458"
+    left="-398"
     width="185"
     top="1"
     follows="right|top" 
@@ -142,7 +142,7 @@
      left_pad="0"
      name="TimeText"
      tool_tip="Current time (Pacific)"
-     width="145">
+     width="85">
         24:00 AM PST
     </text>
     <icon
