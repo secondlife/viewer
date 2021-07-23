@@ -54,6 +54,7 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
 
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 {
+    mComplexityChangedSignal.disconnect();
 }
 
 BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
@@ -72,6 +73,8 @@ BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
     LLCheckBoxCtrl *use_HiDPI = getChild<LLCheckBoxCtrl>("use HiDPI");
     use_HiDPI->setVisible(FALSE);
 #endif
+
+    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this));
 
     return TRUE;
 }
@@ -150,14 +153,12 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+}
 
-    LLFloaterPreference* floater_preferences = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
-    if (floater_preferences)
-    {
-        LLAvatarComplexityControls::updateMax(
-            floater_preferences->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
-            floater_preferences->getChild<LLTextBox>("IndirectMaxComplexityText"));
-    }
+void LLFloaterPreferenceGraphicsAdvanced::updateComplexityText()
+{
+    LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
+        getChild<LLTextBox>("IndirectMaxComplexityText", true));
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)

@@ -201,6 +201,7 @@ private:
 	void onDeleteTranscriptsResponse(const LLSD& notification, const LLSD& response);
 	void updateDeleteTranscriptsButton();
 	void updateMaxComplexity();
+    void updateComplexityText();
 	static bool loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map);
 
 	static std::string sSkin;
@@ -221,6 +222,8 @@ private:
 
 	LLSearchEditor *mFilterEdit;
 	std::unique_ptr< ll::prefs::SearchData > mSearchData;
+
+    boost::signals2::connection	mComplexityChangedSignal;
 
 	void onUpdateFilterTerm( bool force = false );
 	void collectSearchableItems();

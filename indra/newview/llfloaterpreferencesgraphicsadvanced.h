@@ -47,7 +47,7 @@ public:
     void updateMaxNonImpostors();
     void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
     void updateMaxComplexity();
-    void setMaxComplexityText(U32 value, LLTextBox* text_box);
+    void updateComplexityText();
     void refresh();
     // callback for when client modifies a render option
     void onRenderOptionEnable();
@@ -57,6 +57,8 @@ public:
 protected:	
     void		onBtnOK(const LLSD& userdata);
     void		onBtnCancel(const LLSD& userdata);
+
+    boost::signals2::connection	mComplexityChangedSignal;
 };
 
 #endif //LLFLOATERPREFERENCEGRAPHICSADVANCED_H
