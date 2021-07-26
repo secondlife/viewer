@@ -1857,12 +1857,14 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
                 U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
 
-                // extra space for normals and text coords, is it needed?
-                S32 size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
-                LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + size);
+                // extra space for normals and text coords
+                S32 tc_bytes_size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
+                LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
+                LLVector4a* combined_normals = combined_positions + size_vertices;
+                LLVector2* combined_tex_coords = (LLVector2*)(combined_normals + size_vertices);
 
                 // copy indices and vertices into new buffers
-                S32 vertices_copied = 0;
+                S32 positions_copied = 0;
                 S32 indices_shift = 0;
                 S32 indices_copied = 0;
                 for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
@@ -1871,13 +1873,18 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
                     // vertices
                     S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
-                    LLVector4a* dest = combined_positions + vertices_copied;
-                    LLVector4a::memcpyNonAliased16((F32*)dest, (F32*)face.mPositions, copy_bytes);
-                    vertices_copied += face.mNumVertices;
+                    LLVector4a::memcpyNonAliased16((F32*)(combined_positions + positions_copied), (F32*)face.mPositions, copy_bytes);
 
-                    // todo: figure if need to copy normals and text coords
+                    // normals
+                    LLVector4a::memcpyNonAliased16((F32*)(combined_normals + positions_copied), (F32*)face.mNormals, copy_bytes);
 
-                    // indices, sadly can't do dumb memcpy for indices, we need to adjust each value
+                    // tex coords
+                    copy_bytes = (face.mNumVertices * sizeof(LLVector2) + 0xF) & ~0xF;
+                    LLVector4a::memcpyNonAliased16((F32*)(combined_tex_coords + positions_copied), (F32*)face.mTexCoords, copy_bytes);
+
+                    positions_copied += face.mNumVertices;
+
+                    // indices, sadly can't do dumb memcpy for indices, need to adjust each value
                     for (S32 i = 0; i < face.mNumIndices; ++i)
                     {
                         U16 idx = face.mIndices[i];
@@ -1916,20 +1923,31 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
                 // repack back into individual faces
                 indices_shift = 0;
+
+                LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
+                LLVector4a* buffer_normals = buffer_positions + size_vertices;
+                LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
+                S32 position_buffer_known_size = 0;
+
+                U16* buffer_indices = (U16*)ll_aligned_malloc_16(U16_MAX * sizeof(U16));
+
+                // Crude method to copy indices back into face
+                // Should have been done in reverse - cycle by indices and figure out target face from ids
                 for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
                     const LLVolumeFace &face = base->getVolumeFace(face_idx);
-                    LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
 
-                    S32 size = (face.mNumIndices * sizeof(U16) + 0xF) & ~0xF;
-                    U16* output = (U16*)ll_aligned_malloc_16(size);
+                    // copy face's original data
+                    S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
+                    LLVector4a::memcpyNonAliased16((F32*)buffer_positions, (F32*)face.mPositions, copy_bytes);
+                    LLVector4a::memcpyNonAliased16((F32*)buffer_normals, (F32*)face.mNormals, copy_bytes);
 
-                    // Copy old values
-                    new_face = face;
+                    copy_bytes = (face.mNumVertices * sizeof(LLVector2) + 0xF) & ~0xF;
+                    LLVector4a::memcpyNonAliased16((F32*)buffer_tex_coords, (F32*)face.mTexCoords, copy_bytes);
 
-                    // Fow now crude method to copy indices back into face
-                    // Should have been done in reverse - cycle by indices and figure out target face from id's size
-                    // Experiment
+                    position_buffer_known_size = face.mNumVertices;
+
+                    // Copy indices
                     S32 indices_copied = 0;
                     for (S32 i = 0; i < new_indices / 3; ++i)
                     {
@@ -1941,49 +1959,60 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         bool copy = false;
                         S32 range = indices_shift + face.mNumVertices;
 
+                        // todo: we should not copy more than U16_MAX items per face
                         if (idx1 >= indices_shift && idx1 < range)
                         {
-                            output[indices_copied] = idx1 - indices_shift;
+                            buffer_indices[indices_copied] = idx1 - indices_shift;
                             copy = true;
                         }
                         if (copy)
                         {
                             if (idx2 >= indices_shift && idx2 < range)
                             {
-                                output[indices_copied + 1] = idx2 - indices_shift;
+                                buffer_indices[indices_copied + 1] = idx2 - indices_shift;
                             }
                             else
                             {
-                                // todo: extend size of face's vertices list and add new vertices
-                                LL_WARNS_ONCE() << "incomplete code, dropped triangle" << LL_ENDL;
-                                output[indices_copied + 1] = 0;
+                                // Extend size of face's positions list
+                                buffer_indices[indices_copied + 1] = (U16)position_buffer_known_size;
+                                buffer_positions[position_buffer_known_size] = combined_positions[idx2];
+                                buffer_normals[position_buffer_known_size] = combined_normals[idx2];
+                                buffer_tex_coords[position_buffer_known_size] = combined_tex_coords[idx2];
+                                position_buffer_known_size++;
+
+                                LL_WARNS_ONCE() << "Merged triangle into different face" << LL_ENDL;
                             }
 
                             if (idx3 < face.mNumVertices)
                             {
-                                output[indices_copied + 2] = idx3 - indices_shift;
+                                buffer_indices[indices_copied + 2] = idx3 - indices_shift;
                             }
                             else
                             {
-                                // todo: extend size of face's vertices list and add new vertices
-                                LL_WARNS_ONCE() << "incomplete code, dropped triangle" << LL_ENDL;
-                                output[indices_copied + 2] = 0;
+                                // Extend size of face's positions list
+                                buffer_indices[indices_copied + 2] = position_buffer_known_size;
+                                buffer_positions[position_buffer_known_size] = combined_positions[idx3];
+                                buffer_normals[position_buffer_known_size] = combined_normals[idx3];
+                                buffer_tex_coords[position_buffer_known_size] = combined_tex_coords[idx3];
+                                position_buffer_known_size++;
+
+                                LL_WARNS_ONCE() << "Merged triangle into different face" << LL_ENDL;
                             }
                         }
+
                         if (copy)
                         {
                             indices_copied += 3;
                         }
 
-                        new_face.resizeIndices(indices_copied);
-                        S32 idx_size = (indices_copied * sizeof(U16) + 0xF) & ~0xF;
-                        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
-
                     }
-                    indices_shift += face.mNumVertices;
+
+                    LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+                    //new_face = face; //temp
 
                     if (indices_copied == 0)
                     {
+                        // face was optimized away
                         new_face.resizeIndices(3);
                         new_face.resizeVertices(1);
                         memset(new_face.mIndices, 0, sizeof(U16) * 3);
@@ -1991,10 +2020,30 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         new_face.mNormals[0].clear();
                         new_face.mTexCoords[0].setZero();
                     }
+                    else
+                    {
+                        new_face.resizeIndices(indices_copied);
+                        new_face.resizeVertices(position_buffer_known_size);
+
+                        S32 idx_size = (indices_copied * sizeof(U16) + 0xF) & ~0xF;
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)buffer_indices, idx_size);
+
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mPositions, (F32*)buffer_positions, position_buffer_known_size * sizeof(LLVector4a));
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mNormals, (F32*)buffer_normals, position_buffer_known_size * sizeof(LLVector4a));
+
+                        U32 tex_size = (position_buffer_known_size * sizeof(LLVector2) + 0xF)&~0xF;
+                        LLVector4a::memcpyNonAliased16((F32*)new_face.mTexCoords, (F32*)buffer_tex_coords, tex_size);
+
+                        new_face.optimize();
+                    }
+
+                    indices_shift += face.mNumVertices;
                 }
 
                 ll_aligned_free<64>(combined_positions);
+                ll_aligned_free<64>(buffer_positions);
                 ll_aligned_free_32(output_indices);
+                ll_aligned_free_32(buffer_indices);
                 ll_aligned_free_32(combined_indices);
             }
             else
