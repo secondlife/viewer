@@ -135,6 +135,8 @@ void LLThread::threadRun()
     set_thread_name(-1, mName.c_str());
 #endif
 
+    LL_PROFILER_SET_THREAD_NAME( mName.c_str() );
+
     // this is the first point at which we're actually running in the new thread
     mID = currentID();
 

@@ -1667,6 +1667,8 @@ bool LLAppViewer::doFrame()
 		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
 
+    LL_PROFILER_FRAME_END
+
 	return ! LLApp::isRunning();
 }
 

@@ -60,4 +60,6 @@
 #include "llerror.h"
 #include "llfile.h"
 
+#include "llprofiler.h" // must be before fast timer; needed due to LLThreads potentially needing access to tracy
+
 #endif
