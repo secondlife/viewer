@@ -2697,6 +2697,7 @@ void LLInventoryModel::createCommonSystemCategories()
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
     gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS, true);
+    gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
 }
 
 struct LLUUIDAndName
