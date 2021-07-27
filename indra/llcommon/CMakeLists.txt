@@ -201,6 +201,7 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llprofiler.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h
