@@ -2025,8 +2025,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
                         U32 tex_size = (buf_positions_copied * sizeof(LLVector2) + 0xF)&~0xF;
                         LLVector4a::memcpyNonAliased16((F32*)new_face.mTexCoords, (F32*)buffer_tex_coords, tex_size);
-
-                        new_face.optimize();
                     }
 
                     indices_idx_shift += face.mNumVertices;
