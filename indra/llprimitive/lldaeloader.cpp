@@ -787,7 +787,12 @@ LLModel::EModelStatus load_face_from_dom_polygons(std::vector<LLVolumeFace>& fac
 	for (U32 i = 0; i < verts.size(); ++i)
 	{
 		indices[i] = vert_idx[verts[i]];
-		llassert(!i || (indices[i-1] != indices[i]));
+        if (i % 3 != 0) // assumes GL_TRIANGLES, compare 0-1, 1-2, 3-4, 4-5 but not 2-3 or 5-6
+        {
+            // A faulty degenerate triangle detection (triangle with 0 area),
+            // probably should be a warning and not an assert
+            llassert(!i || (indices[i-1] != indices[i]));
+        }
 	}
 
 	// DEBUG just build an expanded triangle list
