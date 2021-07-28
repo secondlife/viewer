@@ -46,6 +46,7 @@ public:
 
     // returns amount of indices in destiantion
     // result_error returns how far from original the model is in % if not NULL
+    // Works with U32 indices (LLFace uses U16 indices)
     static U64 simplifyU32(
         U32 *destination,
         const U32 *indices,
@@ -57,8 +58,9 @@ public:
         F32 target_error,
         F32* result_error);
 
-    // returns amount of indices in destiantion
-    // result_error returns how far from original the model is in % if not NULL
+    // Returns amount of indices in destiantion
+    // Result_error returns how far from original the model is in % if not NULL
+    // Meant for U16 indices (LLFace uses U16 indices)
     static U64 simplify(
         U16 *destination,
         const U16 *indices,

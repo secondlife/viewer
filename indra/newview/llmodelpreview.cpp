@@ -1840,7 +1840,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             LLModel* target_model = mModel[lod][mdl_idx];
 
-            if (meshopt_mode == MESH_OPTIMIZER_COMBINE)
+            S32 model_meshopt_mode = meshopt_mode;
+
+            if (model_meshopt_mode == MESH_OPTIMIZER_COMBINE)
             {
                 // Figure out buffer size
                 S32 size_indices = 0;
@@ -1961,22 +1963,23 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
                         if (copy_triangle)
                         {
-                            if (idx >= U16_MAX)
-                            {
-                                // Shouldn't happen due to simplification?
-                                // Todo: add a fallback?
-                                LL_ERRS() << "Over triangle limit" << LL_ENDL;
-                                break;
-                            }
-
                             if (old_to_new_positions_map[idx] == -1)
                             {
                                 // New position, need to copy it
                                 // Validate size
                                 if (buf_positions_copied >= U16_MAX)
                                 {
-                                    // Shouldn't happen due to simplification?
-                                    LL_ERRS() << "Over triangle limit" << LL_ENDL;
+                                    // Normally this shouldn't happen since the whole point is to reduce amount of vertices
+                                    // but it might happen if user tries to run optimization with too large triangle or error value
+                                    // so fallback to 'per face' mode or verify requested limits and copy base model as is.
+                                    LL_WARNS() << "Over triangle limit. Failed to optimize in 'per object' mode, falling back to per face variant for"
+                                               << " model " << target_model->mLabel
+                                               << " target Indices: " << target_indices
+                                               << " new Indices: " << new_indices
+                                               << " original count: " << size_indices
+                                               << " error treshold: " << lod_error_threshold
+                                               << LL_ENDL;
+                                    model_meshopt_mode = MESH_OPTIMIZER;
                                     break;
                                 }
 
@@ -1997,6 +2000,11 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                             }
                             buf_indices_copied++;
                         }
+                    }
+
+                    if (buf_positions_copied >= U16_MAX)
+                    {
+                        break;
                     }
 
                     LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
@@ -2037,7 +2045,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 ll_aligned_free_32(buffer_indices);
                 ll_aligned_free_32(combined_indices);
             }
-            else
+            
+            if (model_meshopt_mode == MESH_OPTIMIZER
+                || model_meshopt_mode == MESH_OPTIMIZER_SLOPPY)
             {
                 // Run meshoptimizer for each face
                 for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
@@ -2049,21 +2059,11 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     S32 size = (num_indices * sizeof(U16) + 0xF) & ~0xF;
                     U16* output = (U16*)ll_aligned_malloc_16(size);
 
-                    /*
-                    generateShadowIndexBuffer appears to deform model
-                    LLMeshOptimizer::generateShadowIndexBuffer(
-                        &shadow[0],
-                        face.mIndices,
-                        num_indices,
-                        &face.mPositions[0],
-                        face.mNumVertices);
-                    */
-
                     S32 target_indices = 0;
                     F32 result_code = 0; // how far from original the model is, 1 == 100%
                     S32 new_indices = 0;
 
-                    if (meshopt_mode == MESH_OPTIMIZER_SLOPPY)
+                    if (model_meshopt_mode == MESH_OPTIMIZER_SLOPPY)
                     {
                         target_indices = llfloor(num_indices * indices_ratio);
                         new_indices = LLMeshOptimizer::simplifySloppy(
@@ -2078,7 +2078,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                             &result_code);
                     }
 
-                    if (meshopt_mode == MESH_OPTIMIZER)
+                    if (model_meshopt_mode == MESH_OPTIMIZER)
                     {
                         target_indices = llmax(3, llfloor(num_indices * indices_ratio)); // leave at least one triangle
                         new_indices = LLMeshOptimizer::simplify(
@@ -2100,7 +2100,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                             << " of model " << target_model->mLabel
                             << " target Indices: " << target_indices
                             << " new Indices: " << new_indices
-                            << " original count: " << num_indices << LL_ENDL;
+                            << " original count: " << num_indices
+                            << " error treshold: " << lod_error_threshold
+                            << LL_ENDL;
                     }
 
                     LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
@@ -2118,7 +2120,9 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                             LL_INFOS() << "No indices generated by meshoptimizer for face " << face_idx
                                 << " of model " << target_model->mLabel
                                 << " target Indices: " << target_indices
-                                << " original count: " << num_indices << LL_ENDL;
+                                << " original count: " << num_indices
+                                << " error treshold: " << lod_error_threshold
+                                << LL_ENDL;
                         }
 
                         // Face got optimized away
