@@ -1065,10 +1065,14 @@ bool LLViewerInput::handleGlobalBindsKeyUp(KEY key, MASK mask)
 bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down)
 {
     bool res = false;
+    S32 mode = getMode();
     if (down)
     {
-        S32 mode = getMode();
         res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_DOWN, true);
+    }
+    else
+    {
+        res = scanMouse(mGlobalMouseBindings[mode], mGlobalMouseBindings[mode].size(), clicktype, mask, MOUSE_STATE_UP, true);
     }
     return res;
 }
