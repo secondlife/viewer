@@ -3911,16 +3911,6 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide the Region/Estate floater
 	LLFloaterReg::hideInstance("region_info");
 
-	// minimize the Search floater (STORM-1474)
-	{
-		LLFloater* instance = LLFloaterReg::getInstance("search");
-
-		if (instance && instance->getVisible())
-		{
-			instance->setMinimized(TRUE);
-		}
-	}
-
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
