@@ -2538,7 +2538,11 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	if (!(gPipeline.hasRenderType(mIsControlAvatar ? LLPipeline::RENDER_TYPE_CONTROL_AV : LLPipeline::RENDER_TYPE_AVATAR))
 		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")) && !isSelf())
 	{
-		return;
+        if (!mIsControlAvatar)
+        {
+            idleUpdateNameTag( mLastRootPos );
+        }
+        return;
 	}
 
     // Update should be happening max once per frame.
@@ -3148,11 +3152,9 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	const F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
 	const F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
-	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
 	BOOL visible_chat = gSavedSettings.getBOOL("UseChatBubbles") && (mChats.size() || mTyping);
 	BOOL render_name =	visible_chat ||
-		(visible_avatar &&
-		 ((sRenderName == RENDER_NAME_ALWAYS) ||
+		(((sRenderName == RENDER_NAME_ALWAYS) ||
 		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
