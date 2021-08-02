@@ -1,0 +1,17 @@
+repos:
+  - repo: https://bitbucket.org/signal-linden/git-hooks
+    rev: 737e45f52176291f1fc0707ca05dba4cc617c9be
+    hooks:
+      - id: opensource-license
+      - id: jira-issue 
+      - id: llsd
+      - id: indent-with-spaces
+      - id: indent-with-tabs
+      - id: no-trigraphs
+      - id: copyright
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-xml
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
