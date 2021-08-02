@@ -554,7 +554,7 @@ void LLFloaterPerformance::onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
     list->selectItemAt(x, y, MASK_NONE);
     uuid_vec_t selected_uuids;
 
-    if(list->getCurrentID().notNull())
+    if((list->getCurrentID().notNull()) && (list->getCurrentID() != gAgentID))
     {
         selected_uuids.push_back(list->getCurrentID());
         mContextMenu->show(ctrl, selected_uuids, x, y);
