@@ -713,6 +713,12 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 		setControlFlags(AGENT_CONTROL_YAW_NEG);
 	}
 
+    U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
+    if ((getControlFlags() & mask) == mask)
+    {
+        gAgentCamera.setYawKey(0);
+    }
+
     if (reset_view)
 	{
         gAgentCamera.resetView();
