@@ -883,6 +883,7 @@ private:
 	LLView*		mOldParent;
 	LLMenuGL*	mMenu;
 	S32			mTargetHeight;
+    bool        mQuitRequested;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
