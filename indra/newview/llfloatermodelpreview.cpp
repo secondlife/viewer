@@ -136,7 +136,7 @@ mAvatarTabIndex(0)
 	mStatusLock = new LLMutex();
 	mModelPreview = NULL;
 
-	mLODMode[LLModel::LOD_HIGH] = 0;
+	mLODMode[LLModel::LOD_HIGH] = LLModelPreview::LOD_FROM_FILE;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
 	{
 		mLODMode[i] = LLModelPreview::MESH_OPTIMIZER;

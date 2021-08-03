@@ -289,6 +289,7 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 				material = std::string(tri->getMaterial());
 			}
 
+            // Todo: mark model in some way as having generated(split) faces  
 			materials.push_back(material);
 			face_list.push_back(face);
 			face_list.rbegin()->fillFromLegacyData(verts, indices);

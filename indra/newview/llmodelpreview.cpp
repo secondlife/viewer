@@ -1842,6 +1842,8 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             S32 model_meshopt_mode = meshopt_mode;
 
+            // Ideally this should run not per model,
+            // but combine all submodels with origin model as well
             if (model_meshopt_mode == MESH_OPTIMIZER_COMBINE)
             {
                 // Figure out buffer size
@@ -2758,7 +2760,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     S32 lod_mode = lod_combo->getCurrentIndex();
     if (lod_mode == LOD_FROM_FILE) // LoD from file
     {
-        fmp->mLODMode[lod] = 0;
+        fmp->mLODMode[lod] = LOD_FROM_FILE;
         for (U32 i = 0; i < num_file_controls; ++i)
         {
             mFMP->childSetVisible(file_controls[i] + lod_name[lod], true);
@@ -2771,7 +2773,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     }
     else if (lod_mode == USE_LOD_ABOVE) // use LoD above
     {
-        fmp->mLODMode[lod] = 2;
+        fmp->mLODMode[lod] = USE_LOD_ABOVE;
         for (U32 i = 0; i < num_file_controls; ++i)
         {
             mFMP->childSetVisible(file_controls[i] + lod_name[lod], false);
@@ -2797,7 +2799,7 @@ void LLModelPreview::updateLodControls(S32 lod)
     }
     else // auto generate, the default case for all LoDs except High
     {
-        fmp->mLODMode[lod] = 1;
+        fmp->mLODMode[lod] = MESH_OPTIMIZER;
 
         //don't actually regenerate lod when refreshing UI
         mLODFrozen = true;

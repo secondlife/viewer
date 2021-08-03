@@ -281,6 +281,8 @@ public:
 
 	EModelStatus mStatus ;
 
+    // A model/object can only have 8 faces, spillover faces will
+    // be moved to new model/object and assigned a submodel id.
 	int mSubmodelID;
 };
 
