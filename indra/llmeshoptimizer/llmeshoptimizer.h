@@ -45,6 +45,8 @@ public:
         U64 vertex_positions_stride);
 
     // returns amount of indices in destiantion
+    // sloppy engages a variant of a mechanizm that does not respect topology as much
+    // but is much more efective for simpler models
     // result_error returns how far from original the model is in % if not NULL
     // Works with U32 indices (LLFace uses U16 indices)
     static U64 simplifyU32(
@@ -56,10 +58,13 @@ public:
         U64 vertex_positions_stride,
         U64 target_index_count,
         F32 target_error,
+        bool sloppy,
         F32* result_error);
 
     // Returns amount of indices in destiantion
-    // Result_error returns how far from original the model is in % if not NULL
+    // sloppy engages a variant of a mechanizm that does not respect topology as much
+    // but is much better for simpler models
+    // result_error returns how far from original the model is in % if not NULL
     // Meant for U16 indices (LLFace uses U16 indices)
     static U64 simplify(
         U16 *destination,
@@ -70,19 +75,7 @@ public:
         U64 vertex_positions_stride,
         U64 target_index_count,
         F32 target_error,
-        F32* result_error);
-
-    // returns amount of indices in destiantion
-    // result_error returns how far from original the model is in % if not NULL
-    static U64 simplifySloppy(
-        U16 *destination,
-        const U16 *indices,
-        U64 index_count,
-        const LLVector4a *vertex_positions,
-        U64 vertex_count,
-        U64 vertex_positions_stride,
-        U64 target_index_count,
-        F32 target_error,
+        bool sloppy,
         F32* result_error);
 private:
 };

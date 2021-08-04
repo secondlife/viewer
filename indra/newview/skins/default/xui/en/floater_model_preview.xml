@@ -178,16 +178,20 @@
                  value="Generate" />
                 <item
                  name="MeshOpt"
+                 label="Simplify (auto)"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptCombine"
+                 label="Simplify per object"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
                  label="Simplify per face"
                  value="MeshOpt" />
                 <item
                  name="MeshOptSloppy"
                  label="Simplify sloppy"
                  value="MeshOptSloppy" />
-                <item
-                 name="MeshOptCombine"
-                 label="Simplify per object"
-                 value="MeshOptCombine" />
             </combo_box>
             <line_editor
              follows="left|top"
@@ -319,16 +323,20 @@
                  value="Generate" />
                 <item
                  name="MeshOpt"
+                 label="Simplify (auto)"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptCombine"
+                 label="Simplify per object"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
                  label="Simplify per face"
                  value="MeshOpt" />
                 <item
                  name="MeshOptSloppy"
                  label="Simplify sloppy"
                  value="MeshOptSloppy" />
-                <item
-                 name="MeshOptCombine"
-                 label="Simplify per object"
-                 value="MeshOptCombine" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -464,16 +472,20 @@
                  value="Generate" />
                 <item
                  name="MeshOpt"
+                 label="Simplify (auto)"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptCombine"
+                 label="Simplify per object"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
                  label="Simplify per face"
                  value="MeshOpt" />
                 <item
                  name="MeshOptSloppy"
                  label="Simplify sloppy"
                  value="MeshOptSloppy" />
-                <item
-                 name="MeshOptCombine"
-                 label="Simplify per object"
-                 value="MeshOptCombine" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -609,16 +621,20 @@
                  value="Generate" />
                 <item
                  name="MeshOpt"
+                 label="Simplify (auto)"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptCombine"
+                 label="Simplify per object"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
                  label="Simplify per face"
                  value="MeshOpt" />
                 <item
                  name="MeshOptSloppy"
                  label="Simplify sloppy"
                  value="MeshOptSloppy" />
-                <item
-                 name="MeshOptCombine"
-                 label="Simplify per object"
-                 value="MeshOptCombine" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"

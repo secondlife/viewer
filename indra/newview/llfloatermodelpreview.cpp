@@ -139,7 +139,7 @@ mAvatarTabIndex(0)
 	mLODMode[LLModel::LOD_HIGH] = LLModelPreview::LOD_FROM_FILE;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
 	{
-		mLODMode[i] = LLModelPreview::MESH_OPTIMIZER;
+		mLODMode[i] = LLModelPreview::MESH_OPTIMIZER_AUTO;
 	}
 }
 
@@ -729,6 +729,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
     case LLModelPreview::GENERATE:
         mModelPreview->onLODGenerateParamCommit(lod, enforce_tri_limit);
         break;
+    case LLModelPreview::MESH_OPTIMIZER_AUTO:
     case LLModelPreview::MESH_OPTIMIZER:
     case LLModelPreview::MESH_OPTIMIZER_SLOPPY:
     case LLModelPreview::MESH_OPTIMIZER_COMBINE:
@@ -1738,6 +1739,7 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
     S32 index = lod_source_combo->getCurrentIndex();
 	if (index == LLModelPreview::GENERATE
+        || index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
         || index == LLModelPreview::MESH_OPTIMIZER_COMBINE)
@@ -1771,7 +1773,7 @@ void LLFloaterModelPreview::resetUploadOptions()
 	getChild<LLComboBox>("lod_source_" + lod_name[NUM_LOD - 1])->setCurrentByIndex(LLModelPreview::LOD_FROM_FILE);
 	for (S32 lod = 0; lod < NUM_LOD - 1; ++lod)
 	{
-		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::MESH_OPTIMIZER);
+		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::MESH_OPTIMIZER_AUTO);
 		childSetValue("lod_file_" + lod_name[lod], "");
 	}
 
