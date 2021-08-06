@@ -487,7 +487,8 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 			S32 count = cats->size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->at(i)->getPreferredType() == preferred_type)
+				LLViewerInventoryCategory* p_cat = cats->at(i);
+				if(p_cat && p_cat->getPreferredType() == preferred_type)
 				{
 					const LLUUID& folder_id = cats->at(i)->getUUID();
 					if (rv.isNull() || folder_id < rv)
