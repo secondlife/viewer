@@ -1109,19 +1109,27 @@ bool LLAppViewer::init()
             if (count > 0 && v1 <= 10)
             {
                 LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
-                LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
-                std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
-                details.setArg("[VERSION]", driver);
-                details.setArg("[GPUNAME]", gpu_name);
-                S32 button = OSMessageBox(details.getString(),
-                                          LLStringUtil::null,
-                                          OSMB_YESNO);
-                if (OSBTN_YES == button && gViewerWindow)
+
+                if (!gViewerWindow->getInitAlert().empty() // graphic initialization crashed on last run
+                    || LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion // viewer was updated
+                    || mNumSessions % 20 == 0 //periodically remind user to update driver
+                    )
                 {
-                    std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
-                    if (gViewerWindow->getWindow())
+                    LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
+                    std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
+                    LL_INFOS("AppInit") << "Notifying user about obsolete intel driver for " << gpu_name << LL_ENDL;
+                    details.setArg("[VERSION]", driver);
+                    details.setArg("[GPUNAME]", gpu_name);
+                    S32 button = OSMessageBox(details.getString(),
+                        LLStringUtil::null,
+                        OSMB_YESNO);
+                    if (OSBTN_YES == button && gViewerWindow)
                     {
-                        gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                        std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
+                        if (gViewerWindow->getWindow())
+                        {
+                            gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                        }
                     }
                 }
             }
