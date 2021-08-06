@@ -2151,7 +2151,15 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
                 // Ideally this should run not per model,
                 // but combine all submodels with origin model as well
-                genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                F32 res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                if (res < 0)
+                {
+                    // U16 vertices overflow, shouldn't happen, but just in case
+                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                    {
+                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
+                    }
+                }
             }
             
             if (model_meshopt_mode == MESH_OPTIMIZER)
@@ -2175,12 +2183,23 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             if (model_meshopt_mode == MESH_OPTIMIZER_AUTO)
             {
                 F32 allowed_ratio_drift = 2.f;
-                S32 res = 0;
+                F32 res = 0;
                 if (base->mHasGeneratedFaces)
                 {
                     res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
 
-                    if (res * allowed_ratio_drift < indices_decimator)
+                    if (res < 0) 
+                    {
+                        // U16 vertices overflow, shouldn't happen, but just in case
+                        for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                        {
+                            genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
+                        }
+                        LL_INFOS() << "Model " << target_model->getName()
+                            << " lod " << which_lod
+                            << " per model method overflow, defaulting to per face." << LL_ENDL;
+                    }
+                    else if (res * allowed_ratio_drift < indices_decimator)
                     {
                         res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
                         LL_INFOS() << "Model " << target_model->getName()
