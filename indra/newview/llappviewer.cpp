@@ -1735,12 +1735,14 @@ bool LLAppViewer::cleanup()
 	// one because it happens just after mFastTimerLogThread is deleted. This
 	// comment is in case we guessed wrong, so we can move it here instead.
 
+#if LL_LINUX
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
 		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
+#endif
 
 	// Kill off LLLeap objects. We can find them all because LLLeap is derived
 	// from LLInstanceTracker.
