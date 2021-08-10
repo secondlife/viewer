@@ -1550,11 +1550,16 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     MASK mask = gKeyboard->currentMask(TRUE);
     res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state);
 
-    // no user defined actions found or those actions can't handle the key/button, handle control if nessesary
-    // This will pass AGENT_CONTROL_LBUTTON_DOWN to server, no idea why it doesn't do mouselook variant _ML_
-    // but it was set this way forever (moved as is from LLTool::handleMouseDown) so lots of scripts probably
-    // rely on this.
-    if (!res && mLMouseDefaultHandling[mode] && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
+    // No user defined actions found or those actions can't handle the key/button, handle control if nessesary
+    //
+    // Default handling for MODE_FIRST_PERSON is in LLToolCompGun::handleMouseDown, but only if
+    // leftButtonGrabbed()
+    //
+    // If not grabbed or not in mouse look, should pass AGENT_CONTROL_LBUTTON_DOWN to server
+    if (!res
+        && (mode != MODE_FIRST_PERSON || !gAgent.leftButtonGrabbed()) 
+        && mLMouseDefaultHandling[mode]
+        && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
     {
         switch (state)
         {
