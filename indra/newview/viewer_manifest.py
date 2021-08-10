@@ -616,11 +616,9 @@ class WindowsManifest(ViewerManifest):
 
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
-                self.path("cef.pak")
-                self.path("cef_100_percent.pak")
-                self.path("cef_200_percent.pak")
-                self.path("cef_extensions.pak")
-                self.path("devtools_resources.pak")
+                self.path("chrome_100_percent.pak")
+                self.path("chrome_200_percent.pak")
+                self.path("resources.pak")
                 self.path("icudtl.dat")
 
             with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
