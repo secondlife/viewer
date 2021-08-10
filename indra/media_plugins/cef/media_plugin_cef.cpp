@@ -73,6 +73,7 @@ private:
 	void onCursorChangedCallback(dullahan::ECursorType type);
 	const std::vector<std::string> onFileDialog(dullahan::EFileDialogType dialog_type, const std::string dialog_title, const std::string default_file, const std::string dialog_accept_filter, bool& use_default);
 	bool onJSDialogCallback(const std::string origin_url, const std::string message_text, const std::string default_prompt_text);
+	bool onJSBeforeUnloadCallback();
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -377,6 +378,14 @@ bool MediaPluginCEF::onJSDialogCallback(const std::string origin_url, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+bool MediaPluginCEF::onJSBeforeUnloadCallback()
+{
+	// return true indicates we suppress the JavaScript UI entirely
+	return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
 void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 {
 	std::string name = "";
@@ -523,10 +532,26 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1));
 				mCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 				mCEFLib->setOnJSDialogCallback(std::bind(&MediaPluginCEF::onJSDialogCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+				mCEFLib->setOnJSBeforeUnloadCallback(std::bind(&MediaPluginCEF::onJSBeforeUnloadCallback, this));
 				
 				dullahan::dullahan_settings settings;
+#if LL_WINDOWS
+				// As of CEF version 83+, for Windows versions, we need to tell CEF 
+				// where the host helper process is since this DLL is not in the same
+				// dir as the executable that loaded it (SLPlugin.exe). The code in 
+				// Dullahan that tried to figure out the location automatically uses 
+				// the location of the exe which isn't helpful so we tell it explicitly.
+				char cur_dir_str[MAX_PATH];
+				GetCurrentDirectoryA(MAX_PATH, cur_dir_str);
+				settings.host_process_path = std::string(cur_dir_str);
+#endif
 				settings.accept_language_list = mHostLanguage;
-				settings.background_color = 0xffffffff;
+
+				// SL-15560: Product team overruled my change to set the default
+				// embedded background color to match the floater background
+				// and set it to white
+				settings.background_color = 0xffffffff;	// white 
+
 				settings.cache_enabled = true;
 				settings.root_cache_path = mRootCachePath;
 				settings.cache_path = mCachePath;
@@ -537,7 +562,19 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.disable_network_service = mDisableNetworkService;
 				settings.use_mock_keychain = mUseMockKeyChain;
 #endif
-				settings.flash_enabled = mPluginsEnabled;
+				// This setting applies to all plugins, not just Flash
+				// Regarding, SL-15559 PDF files do not load in CEF v91,
+				// it turns out that on Windows, PDF support is treated
+				// as a plugin on Windows only so turning all plugins
+				// off, disabled built in PDF support.  (Works okay in
+				// macOS surprisingly). To mitigrate this, we set the global
+				// media enabled flag to whatever the consumer wants and 
+				// explicitly disable Flash with a different setting (below)
+				settings.plugins_enabled = mPluginsEnabled;
+
+				// SL-14897 Disable Flash support in the embedded browser
+				settings.flash_enabled = false;
+
 				settings.flip_mouse_y = false;
 				settings.flip_pixels_y = true;
 				settings.frame_rate = 60;
@@ -546,8 +583,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.initial_width = 1024;
 				settings.java_enabled = false;
 				settings.javascript_enabled = mJavascriptEnabled;
-				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
-				settings.plugins_enabled = mPluginsEnabled;
+				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granularity/query UI
+				
 				settings.user_agent_substring = mCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
 				settings.webgl_enabled = true;
 				settings.log_file = mCefLogFile;
@@ -558,10 +595,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setCustomSchemes(custom_schemes);
 
 				bool result = mCEFLib->init(settings);
-				if (!result)
-				{
-					// if this fails, the media system in viewer will put up a message
-				}
+                if (!result)
+                {
+                    // if this fails, the media system in viewer will put up a message
+                }
 
 				// now we can set page zoom factor
 				F32 factor = (F32)message_in.getValueReal("factor");
