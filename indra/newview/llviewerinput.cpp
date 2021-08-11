@@ -58,8 +58,6 @@ const F32 NUDGE_TIME = 0.25f;  // in seconds
 const S32 NUDGE_FRAMES = 2;
 const F32 ORBIT_NUDGE_RATE = 0.05f;  // fraction of normal speed
 
-const LLKeyData agent_control_lbutton(CLICK_LEFT, KEY_NONE, MASK_NONE, true);
-
 struct LLKeyboardActionRegistry 
 :	public LLRegistrySingleton<const std::string, boost::function<bool (EKeystate keystate)>, LLKeyboardActionRegistry>
 {
@@ -1420,18 +1418,6 @@ bool LLViewerInput::scanKey(KEY key, BOOL key_down, BOOL key_up, BOOL key_level)
 
     bool res = scanKey(mKeyBindings[mode], mKeyBindings[mode].size(), key, mask, key_down, key_up, key_level, repeat);
 
-    if (!res && agent_control_lbutton.canHandle(CLICK_NONE, key, mask))
-    {
-        // pass mouse left button press to script
-        if (key_down && !repeat)
-        {
-            res = agent_control_lbutton_handle(KEYSTATE_DOWN);
-        }
-        if (key_up)
-        {
-            res = agent_control_lbutton_handle(KEYSTATE_UP);
-        }
-    }
     return res;
 }
 
@@ -1550,16 +1536,18 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     MASK mask = gKeyboard->currentMask(TRUE);
     res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state);
 
-    // No user defined actions found or those actions can't handle the key/button, handle control if nessesary
+    // No user defined actions found or those actions can't handle the key/button,
+    // so handle CONTROL_LBUTTON if nessesary.
     //
-    // Default handling for MODE_FIRST_PERSON is in LLToolCompGun::handleMouseDown, but only if
-    // leftButtonGrabbed()
-    //
-    // If not grabbed or not in mouse look, should pass AGENT_CONTROL_LBUTTON_DOWN to server
+    // Default handling for MODE_FIRST_PERSON is in LLToolCompGun::handleMouseDown,
+    // and sends AGENT_CONTROL_ML_LBUTTON_DOWN, but it only applies if ML controls
+    // are leftButtonGrabbed(), send a normal click otherwise.
+
     if (!res
-        && (mode != MODE_FIRST_PERSON || !gAgent.leftButtonGrabbed()) 
         && mLMouseDefaultHandling[mode]
-        && agent_control_lbutton.canHandle(click, KEY_NONE, mask))
+        && (mode != MODE_FIRST_PERSON || !gAgent.leftButtonGrabbed())
+        && (click == CLICK_LEFT || click == CLICK_DOUBLELEFT)
+        )
     {
         switch (state)
         {
