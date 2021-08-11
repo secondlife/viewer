@@ -428,8 +428,16 @@ void LLKeyConflictHandler::loadFromSettings(ESourceMode load_mode)
         filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename_default);
         if (!gDirUtilp->fileExists(filename) || !loadFromSettings(load_mode, filename, &mControlsMap))
         {
-            // mind placeholders
-            mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
+            // Mind placeholders
+            // Do not use mControlsMap.insert(mDefaultsMap) since mControlsMap has
+            // placeholders that won't be added over(to) by insert.
+            // Or instead move generatePlaceholders call to be after copying
+            control_map_t::iterator iter = mDefaultsMap.begin();
+            while (iter != mDefaultsMap.end())
+            {
+                mControlsMap[iter->first].mKeyBind = iter->second.mKeyBind;
+                iter++;
+            }
         }
     }
     mLoadMode = load_mode;
@@ -771,8 +779,16 @@ void LLKeyConflictHandler::resetToDefaultsAndResolve()
     else
     {
         mControlsMap.clear();
-        generatePlaceholders(mLoadMode);
+
+        // Set key combinations.
+        // Copy from mDefaultsMap before doing generatePlaceholders, otherwise
+        // insert() will fail to add some keys into pre-existing values from
+        // generatePlaceholders()
         mControlsMap.insert(mDefaultsMap.begin(), mDefaultsMap.end());
+
+        // Set conflict masks and mark functions (un)assignable
+        generatePlaceholders(mLoadMode);
+
     }
 
     mHasUnsavedChanges = true;
