@@ -1439,7 +1439,12 @@ void LLViewerRegion::clearCachedVisibleObjects()
 	for(LLVOCacheEntry::vocache_entry_set_t::iterator iter = mImpl->mActiveSet.begin();
 		iter != mImpl->mActiveSet.end(); ++iter)
 	{
-		LLDrawable* drawablep = (LLDrawable*)(*iter)->getEntry()->getDrawable();
+        LLVOCacheEntry* vo_entry = *iter;
+        if (!vo_entry || !vo_entry->getEntry())
+        {
+            continue;
+        }
+        LLDrawable* drawablep = (LLDrawable*)vo_entry->getEntry()->getDrawable();
 	
 		if(drawablep && !drawablep->getParent())
 		{
