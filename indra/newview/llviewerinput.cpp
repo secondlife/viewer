@@ -800,13 +800,20 @@ bool toggle_enable_media(EKeystate s)
 
 bool walk_to(EKeystate s)
 {
-    if (KEYSTATE_DOWN != s) return true;
+    if (KEYSTATE_DOWN != s)
+    {
+        // teleport/walk is usually on mouseclick, mouseclick needs
+        // to let AGENT_CONTROL_LBUTTON_UP happen if teleport didn't,
+        // so return false, but if it causes issues, do some kind of
+        // "return !has_teleported"
+        return false;
+    }
     return LLToolPie::getInstance()->walkToClickedLocation();
 }
 
 bool teleport_to(EKeystate s)
 {
-    if (KEYSTATE_DOWN != s) return true;
+    if (KEYSTATE_DOWN != s) return false;
     return LLToolPie::getInstance()->teleportToClickedLocation();
 }
 
