@@ -915,11 +915,19 @@ void _validateCert(int validation_policy,
 	}
 	if (validation_policy & VALIDATION_POLICY_SSL_KU)
 	{
+		// This stanza of code was changed 2021-06-09 as per details in SL-15370.
+		// Brief summary: a renewed certificate from Akamai only contains the
+		// 'Digital Signature' field and not the 'Key Encipherment' one. This code 
+		// used to look for both and throw an exception at startup (ignored) and 
+		// (for example) when buying L$ in the Viewer (fails with a UI message
+		// and an entry in the Viewer log). This modified code removes the second 
+		// check for the 'Key Encipherment' field. If Akamai can provide a 
+		// replacement certificate that has both fields, then this modified code 
+		// will not be required.
 		if (current_cert_info.has(CERT_KEY_USAGE) && current_cert_info[CERT_KEY_USAGE].isArray() &&
-			(!(_LLSDArrayIncludesValue(current_cert_info[CERT_KEY_USAGE], 
-									   LLSD((std::string)CERT_KU_DIGITAL_SIGNATURE))) ||
 			!(_LLSDArrayIncludesValue(current_cert_info[CERT_KEY_USAGE], 
-									  LLSD((std::string)CERT_KU_KEY_ENCIPHERMENT)))))
+									   LLSD((std::string)CERT_KU_DIGITAL_SIGNATURE)))
+			)
 		{
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}

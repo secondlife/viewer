@@ -446,7 +446,6 @@ protected:
 	// local audio updates, mic mute, speaker mute, mic volume and speaker volumes
 	void sendLocalAudioUpdates();
 
-
 	/////////////////////////////
 	// Response/Event handlers
 	void connectorCreateResponse(int statusCode, std::string &statusString, std::string &connectorHandle, std::string &versionID);

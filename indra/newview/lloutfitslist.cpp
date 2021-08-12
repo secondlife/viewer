@@ -59,10 +59,7 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	std::string name1 = tab1->getTitle();
 	std::string name2 = tab2->getTitle();
 
-	LLStringUtil::toUpper(name1);
-	LLStringUtil::toUpper(name2);
-
-	return name1 < name2;
+    return (LLStringUtil::compareDict(name1, name2) < 0);
 }
 
 struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
