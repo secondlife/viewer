@@ -452,7 +452,8 @@ BOOL LLPanelLandGeneral::postBuild()
 
 	mEditDesc = getChild<LLTextEditor>("Description");
 	mEditDesc->setCommitOnFocusLost(TRUE);
-	mEditDesc->setCommitCallback(onCommitAny, this);	
+	mEditDesc->setCommitCallback(onCommitAny, this);
+    mEditDesc->setContentTrusted(false);
 	// No prevalidate function - historically the prevalidate function was broken,
 	// allowing residents to put in characters like U+2661 WHITE HEART SUIT, so
 	// preserve that ability.
@@ -749,6 +750,7 @@ void LLPanelLandGeneral::refresh()
 		BOOL can_edit_identity = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_LAND_CHANGE_IDENTITY);
 		mEditName->setEnabled(can_edit_identity);
 		mEditDesc->setEnabled(can_edit_identity);
+        mEditDesc->setParseURLs(!can_edit_identity);
 
 		BOOL can_edit_agent_only = LLViewerParcelMgr::isParcelModifiableByAgent(parcel, GP_NO_POWERS);
 		mBtnSetGroup->setEnabled(can_edit_agent_only && !parcel->getIsGroupOwned());
