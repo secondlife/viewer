@@ -2321,9 +2321,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2aa4ec0d72bbe4b755730f1bf92b39e7</string>
+              <string>f09066891d5a52add50bdb14efdc86f6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30340/257304/llphysicsextensions_tpv-1.0.542327-darwin64-542327.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/84729/788142/llphysicsextensions_tpv-1.0.561752-darwin64-561752.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2345,9 +2345,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad9aba5e2c43a37b6530a0d2de64df1c</string>
+              <string>60e399f707bca32d0a4f7ee33ac4c35b</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30341/257307/llphysicsextensions_tpv-1.0.542327-windows-542327.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/84730/788138/llphysicsextensions_tpv-1.0.561752-windows-561752.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2357,16 +2357,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>46689ff1442a8eccac3a7f3258308e1e</string>
+              <string>a43e360236e7c17b5823f91e4c349e60</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/30341/257307/llphysicsextensions_tpv-1.0.542327-windows64-542327.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/84731/788139/llphysicsextensions_tpv-1.0.561752-windows64-561752.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.542327</string>
+        <string>1.0.561752</string>
       </map>
       <key>mesa</key>
       <map>
