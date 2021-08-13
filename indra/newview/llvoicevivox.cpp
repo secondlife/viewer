@@ -1880,13 +1880,22 @@ bool LLVivoxVoiceClient::waitForChannel()
                 break;
             }
 
-        } while (mVoiceEnabled && !mRelogRequested && !sShuttingDown);
+        } while (!sShuttingDown && mVoiceEnabled && !mRelogRequested);
 
-        LL_DEBUGS("Voice")
-            << "leaving inner waitForChannel loop"
-            << " RelogRequested=" << mRelogRequested
-            << " VoiceEnabled=" << mVoiceEnabled
-            << LL_ENDL;
+        if (!sShuttingDown)
+        {
+            LL_DEBUGS("Voice")
+                << "leaving inner waitForChannel loop"
+                << " RelogRequested=" << mRelogRequested
+                << " VoiceEnabled=" << mVoiceEnabled
+                << LL_ENDL;
+        }
+        else
+        {
+            // if sShuttingDown is set, we already logged out
+            LL_DEBUGS("Voice") << "leaving inner waitForChannel loop." << LL_ENDL;
+            return false;
+        }
 
         mIsProcessingChannels = false;
 
@@ -1902,7 +1911,7 @@ bool LLVivoxVoiceClient::waitForChannel()
                 return false;
             }
         }
-    } while (mVoiceEnabled && mRelogRequested && isGatewayRunning() && !sShuttingDown);
+    } while (!sShuttingDown && mVoiceEnabled && mRelogRequested && isGatewayRunning());
 
     LL_DEBUGS("Voice")
         << "exiting"
