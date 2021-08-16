@@ -389,7 +389,8 @@ void LLVolumeImplFlexible::doIdleUpdate()
 						U64 throttling_delay = (virtual_frame_num + id) % update_period;
 
 						if ((throttling_delay == 0 && mLastFrameNum < virtual_frame_num) //one or more virtual frames per frame
-							|| (mLastFrameNum + update_period < virtual_frame_num)) // missed virtual frame
+							|| (mLastFrameNum + update_period < virtual_frame_num) // missed virtual frame
+							|| mLastFrameNum > virtual_frame_num) // overflow
 						{
 							// We need mLastFrameNum to compensate for 'unreliable time' and to filter 'duplicate' frames
 							// If happened too late, subtract throttling_delay (it is zero otherwise)
