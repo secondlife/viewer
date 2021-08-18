@@ -658,6 +658,22 @@ void LLVivoxVoiceClient::idle(void* user_data)
 // of a coroutine.
 // 
 // 
+
+typedef enum e_voice_control_coro_state
+{
+    VOICE_STATE_ERROR = -1,
+    VOICE_STATE_DONE = 0,
+    VOICE_STATE_TP_WAIT, // entry point
+    VOICE_STATE_START_DAEMON,
+    VOICE_STATE_PROVISION_ACCOUNT,
+    VOICE_STATE_START_SESSION,
+    VOICE_STATE_SESSION_RETRY,
+    VOICE_STATE_SESSION_ESTABLISHED,
+    VOICE_STATE_WAIT_FOR_CHANNEL,
+    VOICE_STATE_DISCONNECT,
+    VOICE_STATE_WAIT_FOR_EXIT,
+} EVoiceControlCoroState;
+
 void LLVivoxVoiceClient::voiceControlCoro()
 {
     LL_DEBUGS("Voice") << "starting" << LL_ENDL;
@@ -666,112 +682,156 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
     U32 retry = 0;
 
-    while (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE && !sShuttingDown)
-    {
-        LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode << ". Relog: " << mRelogRequested << LL_ENDL;
-        llcoro::suspendUntilTimeout(1.0);
-    }
-
-    if (sShuttingDown)
-    {
-        mIsCoroutineActive = false;
-        return;
-    }
+    EVoiceControlCoroState coro_state = VOICE_STATE_TP_WAIT;
 
     do
     {
-        bool success = startAndConnectSession();
-        if (success)
+        if (sShuttingDown)
         {
-			// enable/disable the automatic VAD and explicitly set the initial values of 
-			// the VAD variables ourselves when it is off - see SL-15072 for more details
-			// note: we set the other parameters too even if the auto VAD is on which is ok
-			unsigned int vad_auto = gSavedSettings.getU32("VivoxVadAuto");
-			unsigned int vad_hangover = gSavedSettings.getU32("VivoxVadHangover");
-			unsigned int vad_noise_floor = gSavedSettings.getU32("VivoxVadNoiseFloor");
-			unsigned int vad_sensitivity = gSavedSettings.getU32("VivoxVadSensitivity");
-			setupVADParams(vad_auto, vad_hangover, vad_noise_floor, vad_sensitivity);
-			
-			// watch for changes to the VAD settings via Debug Settings UI and act on them accordingly
-			gSavedSettings.getControl("VivoxVadAuto")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-			gSavedSettings.getControl("VivoxVadHangover")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-			gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-			gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
-
-			if (mTuningMode && !sShuttingDown)
-            {
-                performMicTuning();
-            }
-
-            if (!sShuttingDown)
-            {
-                waitForChannel(); // this doesn't normally return unless relog is needed or shutting down
-            }
-    
-            LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;            
-            endAndDisconnectSession();
-            retry = 0;
+            // Vivox singleton performed the exit, and no longer
+            // cares about state of coroutine, so just stop
+            return;
         }
-        
-        // if we hit this and mRelogRequested is true, that indicates
-        // that we attempted to relog into Vivox and were rejected.
-        // Rather than just quit out of voice, we will tear it down (above)
-        // and then reconstruct the voice connecion from scratch.
-        LL_DEBUGS("Voice")
-            << "disconnected"
-            << " RelogRequested=" << mRelogRequested
-            << LL_ENDL;            
-        if (mRelogRequested && !sShuttingDown)
+
+        switch (coro_state)
         {
-            if (!success)
+        case VOICE_STATE_TP_WAIT:
+            // starting point for voice
+            if (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE)
             {
-                // We failed to connect, give it a bit time before retrying.
-                retry++;
-                F32 delay = llmin(5.f * (F32)retry, 60.f);
-                llcoro::suspendUntilTimeout(delay);
-                LL_INFOS("Voice") << "Voice failed to establish session after " << retry << " tries. Will attempt to reconnect." << LL_ENDL;
+                LL_DEBUGS("Voice") << "Suspending voiceControlCoro() momentarily for teleport. Tuning: " << mTuningMode << ". Relog: " << mRelogRequested << LL_ENDL;
+                llcoro::suspendUntilTimeout(1.0);
             }
             else
             {
-                LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
+                coro_state = VOICE_STATE_START_DAEMON;
             }
+            break;
 
-            while (isGatewayRunning() || (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE && !sShuttingDown))
+        case VOICE_STATE_START_DAEMON:
+            LL_DEBUGS("Voice") << "Launching daemon" << LL_ENDL;
+            LLVoiceVivoxStats::getInstance()->reset();
+            if (startAndLaunchDaemon())
+            {
+                coro_state = VOICE_STATE_PROVISION_ACCOUNT;
+            }
+            else
+            {
+                coro_state = VOICE_STATE_SESSION_RETRY;
+            }
+            break;
+
+        case VOICE_STATE_PROVISION_ACCOUNT:
+            if (provisionVoiceAccount())
+            {
+                coro_state = VOICE_STATE_START_SESSION;
+            }
+            else
+            {
+                coro_state = VOICE_STATE_SESSION_RETRY;
+            }
+            break;
+
+        case VOICE_STATE_START_SESSION:
+            if (establishVoiceConnection())
+            {
+                coro_state = VOICE_STATE_SESSION_ESTABLISHED;
+            }
+            else
+            {
+                coro_state = VOICE_STATE_SESSION_RETRY;
+            }
+            break;
+
+        case VOICE_STATE_SESSION_RETRY:
+            giveUp(); // cleans sockets and session
+            if (mRelogRequested)
+            {
+                // We failed to connect, give it a bit time before retrying.
+                retry++;
+                F32 full_delay = llmin(5.f * (F32)retry, 60.f);
+                F32 current_delay = 0.f;
+                LL_INFOS("Voice") << "Voice failed to establish session after " << retry
+                                  << " tries. Will attempt to reconnect in " << full_delay
+                                  << " seconds" << LL_ENDL;
+                while (current_delay < full_delay && !sShuttingDown)
+                {
+                    // Assuming that a second has passed is not accurate,
+                    // but we don't need accurancy here, just to make sure
+                    // that some time passed and not to outlive voice itself
+                    current_delay++;
+                    llcoro::suspendUntilTimeout(1.f);
+                }
+                coro_state = VOICE_STATE_WAIT_FOR_EXIT;
+            }
+            else
+            {
+                coro_state = VOICE_STATE_DONE;
+            }
+            break;
+
+        case VOICE_STATE_SESSION_ESTABLISHED:
+            {
+                // enable/disable the automatic VAD and explicitly set the initial values of 
+                // the VAD variables ourselves when it is off - see SL-15072 for more details
+                // note: we set the other parameters too even if the auto VAD is on which is ok
+                unsigned int vad_auto = gSavedSettings.getU32("VivoxVadAuto");
+                unsigned int vad_hangover = gSavedSettings.getU32("VivoxVadHangover");
+                unsigned int vad_noise_floor = gSavedSettings.getU32("VivoxVadNoiseFloor");
+                unsigned int vad_sensitivity = gSavedSettings.getU32("VivoxVadSensitivity");
+                setupVADParams(vad_auto, vad_hangover, vad_noise_floor, vad_sensitivity);
+
+                // watch for changes to the VAD settings via Debug Settings UI and act on them accordingly
+                gSavedSettings.getControl("VivoxVadAuto")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadHangover")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadNoiseFloor")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+                gSavedSettings.getControl("VivoxVadSensitivity")->getSignal()->connect(boost::bind(&LLVivoxVoiceClient::onVADSettingsChange, this));
+
+                if (mTuningMode)
+                {
+                    performMicTuning();
+                }
+
+                coro_state = VOICE_STATE_WAIT_FOR_CHANNEL;
+            }
+            break;
+
+        case VOICE_STATE_WAIT_FOR_CHANNEL:
+            waitForChannel();
+            coro_state = VOICE_STATE_DISCONNECT;
+            break;
+
+        case VOICE_STATE_DISCONNECT:
+            LL_DEBUGS("Voice") << "lost channel RelogRequested=" << mRelogRequested << LL_ENDL;
+            endAndDisconnectSession();
+            retry = 0; // Connected without issues
+            coro_state = VOICE_STATE_WAIT_FOR_EXIT;
+            break;
+
+        case VOICE_STATE_WAIT_FOR_EXIT:
+            if (isGatewayRunning())
             {
                 LL_INFOS("Voice") << "waiting for SLVoice to exit" << LL_ENDL;
                 llcoro::suspendUntilTimeout(1.0);
             }
+            else if (mRelogRequested && mVoiceEnabled)
+            {
+                LL_INFOS("Voice") << "will attempt to reconnect to voice" << LL_ENDL;
+                coro_state = VOICE_STATE_TP_WAIT;
+            }
+            else
+            {
+                coro_state = VOICE_STATE_DONE;
+            }
+            break;
+
+        case VOICE_STATE_DONE:
+            break;
         }
-    }
-    while (mVoiceEnabled && mRelogRequested && !sShuttingDown);
+    } while (coro_state > 0);
+
     mIsCoroutineActive = false;
     LL_INFOS("Voice") << "exiting" << LL_ENDL;
-}
-
-bool LLVivoxVoiceClient::startAndConnectSession()
-{
-    bool ok = false;
-    LL_DEBUGS("Voice") << LL_ENDL;
-
-    LLVoiceVivoxStats::getInstance()->reset();
-
-    if (startAndLaunchDaemon())
-    {
-        if (provisionVoiceAccount())
-        {
-            if (establishVoiceConnection())
-            {
-                ok = true;
-            }
-        }
-    }
-
-    if (!ok)
-    {
-        giveUp();
-    }
-
-    return ok;
 }
 
 bool LLVivoxVoiceClient::endAndDisconnectSession()
@@ -1047,7 +1107,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         if (status == LLCore::HttpStatus(404))
         {
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
-            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds." << LL_ENDL;
+            LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds. Retries: " << (S32)retryCount << LL_ENDL;
             if (sShuttingDown)
             {
                 return false;
@@ -1798,7 +1858,6 @@ bool LLVivoxVoiceClient::waitForChannel()
 
         if (sShuttingDown)
         {
-            logoutOfVivox(false);
             return false;
         }
 
