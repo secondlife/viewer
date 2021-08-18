@@ -1420,7 +1420,7 @@ void LLAgentCamera::updateCamera()
 			
 			F32 smoothing = LLSmoothInterpolation::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
 					
-			if (!mFocusObject)  // we differentiate on avatar mode 
+			if (mFocusOnAvatar && !mFocusObject) // we differentiate on avatar mode 
 			{
 				// for avatar-relative focus, we smooth in avatar space -
 				// the avatar moves too jerkily w/r/t global space to smooth there.
