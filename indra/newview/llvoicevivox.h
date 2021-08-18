@@ -626,6 +626,7 @@ private:
     // Coroutine support methods
     //---
     void voiceControlCoro();
+    void voiceControlStateMachine(S32 &coro_state);
 
     bool endAndDisconnectSession();
 
