@@ -627,7 +627,6 @@ private:
     //---
     void voiceControlCoro();
 
-    bool startAndConnectSession();
     bool endAndDisconnectSession();
 
     bool callbackEndDaemon(const LLSD& data);
