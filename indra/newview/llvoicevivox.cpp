@@ -676,20 +676,45 @@ typedef enum e_voice_control_coro_state
 
 void LLVivoxVoiceClient::voiceControlCoro()
 {
+    int state = 0;
+    try
+    {
+        // state is passed as a reference instead of being
+        // a member due to unresolved issues with coroutine
+        // surviving longer than LLVivoxVoiceClient
+        voiceControlStateMachine(state);
+    }
+    catch (const LLContinueError&)
+    {
+        LOG_UNHANDLED_EXCEPTION("LLVivoxVoiceClient");
+    }
+    catch (...)
+    {
+        // Ideally for Windows need to log SEH exception instead or to set SEH
+        // handlers but bugsplat shows local variables for windows, which should
+        // be enough
+        LL_WARNS("Voice") << "voiceControlStateMachine crashed in state " << state << LL_ENDL;
+        throw;
+    }
+}
+
+void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
+{
     LL_DEBUGS("Voice") << "starting" << LL_ENDL;
     mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
 
     U32 retry = 0;
 
-    EVoiceControlCoroState coro_state = VOICE_STATE_TP_WAIT;
+    coro_state = VOICE_STATE_TP_WAIT;
 
     do
     {
         if (sShuttingDown)
         {
-            // Vivox singleton performed the exit, and no longer
-            // cares about state of coroutine, so just stop
+            // Vivox singleton performed the exit, logged out,
+            // cleaned sockets, gateway and no longer cares
+            // about state of coroutine, so just stop
             return;
         }
 
@@ -797,7 +822,7 @@ void LLVivoxVoiceClient::voiceControlCoro()
             break;
 
         case VOICE_STATE_WAIT_FOR_CHANNEL:
-            waitForChannel();
+            waitForChannel(); // todo: split into more states like login/fonts
             coro_state = VOICE_STATE_DISCONNECT;
             break;
 
@@ -1864,6 +1889,11 @@ bool LLVivoxVoiceClient::waitForChannel()
         if (LLVoiceClient::instance().getVoiceEffectEnabled())
         {
             retrieveVoiceFonts();
+
+            if (sShuttingDown)
+            {
+                return false;
+            }
 
             // Request the set of available voice fonts.
             refreshVoiceEffectLists(false);
