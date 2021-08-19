@@ -3211,6 +3211,11 @@ void LLViewerWindow::handleScrollWheel(S32 clicks)
 
 void LLViewerWindow::handleScrollHWheel(S32 clicks)
 {
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return;
+    }
+    
     LLUI::getInstance()->resetMouseIdleTimer();
 
     LLMouseHandler* mouse_captor = gFocusMgr.getMouseCapture();
