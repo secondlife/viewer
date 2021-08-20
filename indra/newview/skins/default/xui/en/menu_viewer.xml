@@ -735,7 +735,7 @@
         </menu_item_call>
         
 <menu_item_call
-         label="Capture 360"
+         label="360 snapshot"
          name="Capture 360"
          shortcut="control|alt|shift|s">
             <menu_item_call.on_click

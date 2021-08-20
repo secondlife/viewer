@@ -7,7 +7,7 @@
          name="360capture"
          help_topic="360capture"
          save_rect="true"
-         title="360 Capture"
+         title="360 CAPTURE"
          width="800">
   <panel layout="topleft"
        background_visible="true"
@@ -18,7 +18,7 @@
        bg_opaque_color="0.195 0.195 0.195 1"
        background_opaque="true"
        height="400"
-       name="ui_panel">
+       name="ui_panel_left">
     <text
        follows="top|left|right"
        height="16"
@@ -89,7 +89,7 @@
                width="100"/>
     <button follows="left|top"
             height="20"
-            label="Capture 360 image"
+            label="Create 360 image"
             layout="topleft"
             left="10"
             name="capture_button"
@@ -97,28 +97,39 @@
             width="180" />
     <button follows="left|top"
             height="20"
-            label="Save as.."
+            label="Save as..."
             layout="topleft"
             left="10"
             name="save_local_button"
             top_delta="35"
             width="180" />
   </panel>
-  <web_browser top="0"
-               follows="all"
-               bg_opaque_color="0.225 0.225 0.225 1"
-               left="200"
-               width="600"
-               height="380"
-               name="360capture_contents"
-               trusted_content="true" />
-  <text follows="bottom"
-        layout="topleft"
-        name="statusbar"
-        height="17"
-        left="210"
-        top="383"
-        width="600">
-       Click and drag on the image to pan
-  </text>
+  <panel layout="topleft"
+     background_visible="true"
+     top="0"
+     follows="all"
+     left="200"
+     width="600"
+     bg_opaque_color="0.195 0.195 0.195 1"
+     background_opaque="true"
+     height="400"
+     name="ui_panel_right">
+    <web_browser top="10"
+                 follows="all"
+                 bg_opaque_color="0.225 0.225 0.225 1"
+                 left="0"
+                 width="590"
+                 height="368"
+                 name="360capture_contents"
+                 trusted_content="true" />
+    <text follows="bottom"
+          layout="topleft"
+          name="statusbar"
+          height="17"
+          left="0"
+          top="382"
+          width="590">
+      Click and drag on the image to pan
+    </text>
+  </panel>
 </floater>
