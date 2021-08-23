@@ -384,13 +384,16 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    mVoiceButton->setEnabled(
-    		mSessionID.notNull()
-    		&& mSession
-    		&& mSession->mSessionInitialized
-    		&& LLVoiceClient::getInstance()->voiceEnabled()
-    		&& LLVoiceClient::getInstance()->isVoiceWorking()
-    		&& mSession->mCallBackEnabled);
+    if (LLVoiceClient::instanceExists())
+    {
+        mVoiceButton->setEnabled(
+            mSessionID.notNull()
+            && mSession
+            && mSession->mSessionInitialized
+            && LLVoiceClient::getInstance()->voiceEnabled()
+            && LLVoiceClient::getInstance()->isVoiceWorking()
+            && mSession->mCallBackEnabled);
+    }
 }
 
 void LLFloaterIMSessionTab::onFocusReceived()
