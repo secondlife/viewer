@@ -2895,7 +2895,7 @@ bool LLAgent::requestGetCapability(const std::string &capName, httpCallback_t cb
 {
     std::string url;
 
-    url = getRegion()->getCapability(capName);
+    url = getRegionCapability(capName);
 
     if (url.empty())
     {
