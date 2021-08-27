@@ -1,7 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(TRACY ON CACHE BOOL "Use Tracy profiler.")
+set(TRACY OFF CACHE BOOL "Use Tracy profiler.")
 
 if (TRACY)
   set(TRACY_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/tracy) 
