@@ -192,8 +192,8 @@ void LLFloater360Capture::changeInterestListMode(bool send_everything)
     }
 
     if (gAgent.requestPostCapability("InterestList", body, [](const LLSD & response)
-    {
-        LL_INFOS("360Capture") <<
+{
+    LL_INFOS("360Capture") <<
                                "InterestList capability responded: \n" <<
                                ll_pretty_print_sd(response) <<
                                LL_ENDL;
@@ -230,6 +230,15 @@ void LLFloater360Capture::setSourceImageSize()
         S32 window_width = window_rect.getWidth();
         S32 window_height = window_rect.getHeight();
 
+        // It's not possible (as I had hoped) to always render to an off screen
+        // buffer regardless of deferred rendering status so the next best
+        // option is to render to a buffer that is the size of the users app
+        // window.  Note, this was changed - before it chose the smallest
+        // power of 2 less than the window size - but since that meant a
+        // 1023 height app window would result in a 512 pixel capture, Maxim
+        // tried this and it does indeed appear to work.  Mayb need to revisit
+        // after the project viewer pass if people on low end graphics systems
+        // after having issues.
         if (mSourceImageSize > window_width || mSourceImageSize > window_height)
         {
             mSourceImageSize = llmin(window_width, window_height, mSourceImageSize);
@@ -257,7 +266,7 @@ void LLFloater360Capture::setSourceImageSize()
 // This function shouldn't exist! We use the tooltip text from
 // the corresponding XUI file (floater_360capture.xml) as the
 // overlay text for the final web page to inform the user
-// about the quality level in play.  There ouught to be a
+// about the quality level in play.  There ought to be a
 // UI function like LLView* getSelectedItemView() or similar
 // but as far as I can tell, there isn't so we have to resort
 // to finding it ourselves with this icky code..
@@ -894,7 +903,7 @@ const std::string LLFloater360Capture::generate_proposed_filename()
 
     // the unusual way we save the output image (originates in the
     // embedded browser and not the C++ code) means that the system
-    // appends ".jpeg" to the file automatically on macOS at least, 
+    // appends ".jpeg" to the file automatically on macOS at least,
     // so we only need to do it ourselves for windows.
 #if LL_WINDOWS
     filename << ".jpg";
