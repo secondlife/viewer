@@ -40,30 +40,6 @@
 // <ND> For strcmp
 #include <string.h>
 #endif
-// Use to compare the first element only of a pair
-// e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 
-template <typename T1, typename T2>
-struct compare_pair_first
-{
-	bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
-	{
-		return a.first < b.first;
-	}
-};
-
-template <typename T1, typename T2>
-struct compare_pair_greater
-{
-	bool operator()(const std::pair<T1, T2>& a, const std::pair<T1, T2>& b) const
-	{
-		if (!(a.first < b.first))
-			return true;
-		else if (!(b.first < a.first))
-			return false;
-		else
-			return !(a.second < b.second);
-	}
-};
 
 // Use to compare the contents of two pointers (e.g. std::string*)
 template <typename T>
@@ -122,58 +98,6 @@ struct DeletePairedPointerArray
 	}
 };
 
-
-// Alternate version of the above so that has a more cumbersome
-// syntax, but it can be used with compositional functors.
-// NOTE: The functor retuns a bool because msdev bombs during the
-// composition if you return void. Once we upgrade to a newer
-// compiler, the second unary_function template parameter can be set
-// to void.
-//
-// Here's a snippet showing how you use this object:
-//
-// typedef std::map<int, widget*> map_type;
-// map_type widget_map;
-// ... // add elements
-// // delete them all
-// for_each(widget_map.begin(),
-//          widget_map.end(),
-//          llcompose1(DeletePointerFunctor<widget>(),
-//                     llselect2nd<map_type::value_type>()));
-
-template<typename T>
-struct DeletePointerFunctor : public std::unary_function<T*, bool>
-{
-	bool operator()(T* ptr) const
-	{
-		delete ptr;
-		return true;
-	}
-};
-
-// See notes about DeleteArray for why you should consider avoiding this.
-template<typename T>
-struct DeleteArrayFunctor : public std::unary_function<T*, bool>
-{
-	bool operator()(T* ptr) const
-	{
-		delete[] ptr;
-		return true;
-	}
-};
-
-// CopyNewPointer is a simple helper which accepts a pointer, and
-// returns a new pointer built with the copy constructor. Example:
-//
-//  transform(in.begin(), in.end(), out.end(), CopyNewPointer());
-
-struct CopyNewPointer
-{
-	template<typename T> T* operator()(const T* ptr) const
-	{
-		return new T(*ptr);
-	}
-};
 
 template<typename T, typename ALLOC>
 void delete_and_clear(std::list<T*, ALLOC>& list)
@@ -363,161 +287,6 @@ OutputIter ll_transform_n(
 }
 
 
-
-/*
- *
- * Copyright (c) 1994
- * Hewlett-Packard Company
- *
- * Permission to use, copy, modify, distribute and sell this software
- * and its documentation for any purpose is hereby granted without fee,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.  Hewlett-Packard Company makes no
- * representations about the suitability of this software for any
- * purpose.  It is provided "as is" without express or implied warranty.
- *
- *
- * Copyright (c) 1996-1998
- * Silicon Graphics Computer Systems, Inc.
- *
- * Permission to use, copy, modify, distribute and sell this software
- * and its documentation for any purpose is hereby granted without fee,
- * provided that the above copyright notice appear in all copies and
- * that both that copyright notice and this permission notice appear
- * in supporting documentation.  Silicon Graphics makes no
- * representations about the suitability of this software for any
- * purpose.  It is provided "as is" without express or implied warranty.
- */
-
-
-// helper to deal with the fact that MSDev does not package
-// select... with the stl. Look up usage on the sgi website.
-
-template <class _Pair>
-struct _LLSelect1st : public std::unary_function<_Pair, typename _Pair::first_type> {
-  const typename _Pair::first_type& operator()(const _Pair& __x) const {
-    return __x.first;
-  }
-};
-
-template <class _Pair>
-struct _LLSelect2nd : public std::unary_function<_Pair, typename _Pair::second_type>
-{
-  const typename _Pair::second_type& operator()(const _Pair& __x) const {
-    return __x.second;
-  }
-};
-
-template <class _Pair> struct llselect1st : public _LLSelect1st<_Pair> {};
-template <class _Pair> struct llselect2nd : public _LLSelect2nd<_Pair> {};
-
-// helper to deal with the fact that MSDev does not package
-// compose... with the stl. Look up usage on the sgi website.
-
-template <class _Operation1, class _Operation2>
-class ll_unary_compose :
-	public std::unary_function<typename _Operation2::argument_type,
-							   typename _Operation1::result_type>
-{
-protected:
-  _Operation1 __op1;
-  _Operation2 __op2;
-public:
-  ll_unary_compose(const _Operation1& __x, const _Operation2& __y)
-    : __op1(__x), __op2(__y) {}
-  typename _Operation1::result_type
-  operator()(const typename _Operation2::argument_type& __x) const {
-    return __op1(__op2(__x));
-  }
-};
-
-template <class _Operation1, class _Operation2>
-inline ll_unary_compose<_Operation1,_Operation2>
-llcompose1(const _Operation1& __op1, const _Operation2& __op2)
-{
-  return ll_unary_compose<_Operation1,_Operation2>(__op1, __op2);
-}
-
-template <class _Operation1, class _Operation2, class _Operation3>
-class ll_binary_compose
-  : public std::unary_function<typename _Operation2::argument_type,
-							   typename _Operation1::result_type> {
-protected:
-  _Operation1 _M_op1;
-  _Operation2 _M_op2;
-  _Operation3 _M_op3;
-public:
-  ll_binary_compose(const _Operation1& __x, const _Operation2& __y,
-					const _Operation3& __z)
-    : _M_op1(__x), _M_op2(__y), _M_op3(__z) { }
-  typename _Operation1::result_type
-  operator()(const typename _Operation2::argument_type& __x) const {
-    return _M_op1(_M_op2(__x), _M_op3(__x));
-  }
-};
-
-template <class _Operation1, class _Operation2, class _Operation3>
-inline ll_binary_compose<_Operation1, _Operation2, _Operation3>
-llcompose2(const _Operation1& __op1, const _Operation2& __op2,
-         const _Operation3& __op3)
-{
-  return ll_binary_compose<_Operation1,_Operation2,_Operation3>
-    (__op1, __op2, __op3);
-}
-
-// helpers to deal with the fact that MSDev does not package
-// bind... with the stl. Again, this is from sgi.
-template <class _Operation>
-class llbinder1st :
-	public std::unary_function<typename _Operation::second_argument_type,
-							   typename _Operation::result_type> {
-protected:
-  _Operation op;
-  typename _Operation::first_argument_type value;
-public:
-  llbinder1st(const _Operation& __x,
-			  const typename _Operation::first_argument_type& __y)
-      : op(__x), value(__y) {}
-	typename _Operation::result_type
-	operator()(const typename _Operation::second_argument_type& __x) const {
-		return op(value, __x);
-	}
-};
-
-template <class _Operation, class _Tp>
-inline llbinder1st<_Operation>
-llbind1st(const _Operation& __oper, const _Tp& __x)
-{
-  typedef typename _Operation::first_argument_type _Arg1_type;
-  return llbinder1st<_Operation>(__oper, _Arg1_type(__x));
-}
-
-template <class _Operation>
-class llbinder2nd
-	: public std::unary_function<typename _Operation::first_argument_type,
-								 typename _Operation::result_type> {
-protected:
-	_Operation op;
-	typename _Operation::second_argument_type value;
-public:
-	llbinder2nd(const _Operation& __x,
-				const typename _Operation::second_argument_type& __y)
-		: op(__x), value(__y) {}
-	typename _Operation::result_type
-	operator()(const typename _Operation::first_argument_type& __x) const {
-		return op(__x, value);
-	}
-};
-
-template <class _Operation, class _Tp>
-inline llbinder2nd<_Operation>
-llbind2nd(const _Operation& __oper, const _Tp& __x)
-{
-  typedef typename _Operation::second_argument_type _Arg2_type;
-  return llbinder2nd<_Operation>(__oper, _Arg2_type(__x));
-}
-
 /**
  * Compare std::type_info* pointers a la std::less. We break this out as a
  * separate function for use in two different std::less specializations.
@@ -548,8 +317,7 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
 namespace std
 {
 	template <>
-	struct less<const std::type_info*>:
-		public std::binary_function<const std::type_info*, const std::type_info*, bool>
+	struct less<const std::type_info*>
 	{
 		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
 		{
@@ -558,8 +326,7 @@ namespace std
 	};
 
 	template <>
-	struct less<std::type_info*>:
-		public std::binary_function<std::type_info*, std::type_info*, bool>
+	struct less<std::type_info*>
 	{
 		bool operator()(std::type_info* lhs, std::type_info* rhs) const
 		{

@@ -149,10 +149,6 @@ std::string LLExperienceLog::getPermissionString( const LLSD& message, const std
 		{
 			buf.str(entry);
 		}
-		else
-		{
-			buf.str();
-		}
 	}
 
 	if(buf.str().empty())
