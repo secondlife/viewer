@@ -230,9 +230,9 @@ void LLFloater360Capture::setSourceImageSize()
         S32 window_width = window_rect.getWidth();
         S32 window_height = window_rect.getHeight();
 
-        while (mSourceImageSize > window_width || mSourceImageSize > window_height)
+        if (mSourceImageSize > window_width || mSourceImageSize > window_height)
         {
-            mSourceImageSize /= 2;
+            mSourceImageSize = llmin(window_width, window_height, mSourceImageSize);
             LL_INFOS("360Capture") << "Deferred rendering is forcing a smaller capture size: " << mSourceImageSize << LL_ENDL;
         }
 
