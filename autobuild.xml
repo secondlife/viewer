@@ -3188,9 +3188,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>313a852ddc87be24235319987a42f0f2</string>
+              <string>768b0a00560264f8d726fa669870d96e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86208/797009/threejs-0.131.3-darwin64-562835.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87079/802202/threejs-0.132.2-darwin64-563403.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3200,9 +3200,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>850b2400f91e7704653fe3fd4171ce94</string>
+              <string>1c1dcfd382d25275bb84f8b9992f935c</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86210/797031/threejs-0.131.3-windows-562835.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87080/802213/threejs-0.132.2-windows-563403.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3212,16 +3212,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>821f398169c1743987ac1b99376f767f</string>
+              <string>9bdce3fa1a8dc019aa3ce085253e7a0b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86209/797030/threejs-0.131.3-windows64-562835.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87081/802214/threejs-0.132.2-windows64-563403.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.131.3</string>
+        <string>0.132.2</string>
       </map>
       <key>tut</key>
       <map>
