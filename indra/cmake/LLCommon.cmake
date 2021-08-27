@@ -30,7 +30,7 @@ else (LINUX)
         ${BOOST_FIBER_LIBRARY} 
         ${BOOST_CONTEXT_LIBRARY} 
         ${BOOST_THREAD_LIBRARY} 
-        ${BOOST_SYSTEM_LIBRARY} )
+        ${BOOST_SYSTEM_LIBRARY})
 endif (LINUX)
 
 set(LLCOMMON_LINK_SHARED OFF CACHE BOOL "Build the llcommon target as a static library.")
