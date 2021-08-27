@@ -29,6 +29,14 @@
 
 #include "llframetimer.h"
 
+// On Windows we build a static lib and link with that
+// On macOS we don't bother building a stand alone lib, just include the one source file we need for Tracy support
+#if LL_DARWIN
+	#if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
+		#include "TracyClient.cpp"
+	#endif // LL_PROFILER_CONFIGURATION
+#endif // LL_DARWIN
+
 // Static members
 //LLTimer	LLFrameTimer::sInternalTimer;
 U64 LLFrameTimer::sStartTotalTime = totalTime();
