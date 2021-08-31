@@ -358,7 +358,7 @@ public:
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
 		BOOL show_ui = TRUE, BOOL show_hud = TRUE, BOOL do_rebuild = FALSE, LLSnapshotModel::ESnapshotLayerType type = LLSnapshotModel::SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE);
 
-    BOOL			simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height);
+    BOOL			simpleSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, const int num_render_passes);
 
     BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL show_hud, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type);
 	BOOL			isSnapshotLocSet() const;

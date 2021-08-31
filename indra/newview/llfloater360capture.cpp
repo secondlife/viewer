@@ -192,8 +192,8 @@ void LLFloater360Capture::changeInterestListMode(bool send_everything)
     }
 
     if (gAgent.requestPostCapability("InterestList", body, [](const LLSD & response)
-{
-    LL_INFOS("360Capture") <<
+    {
+        LL_INFOS("360Capture") <<
                                "InterestList capability responded: \n" <<
                                ll_pretty_print_sd(response) <<
                                LL_ENDL;
@@ -563,6 +563,15 @@ void LLFloater360Capture::capture360Images()
         "negx", "negz", "negy",
     };
 
+    // number of times to render the scene (display(..) inside
+    // the simple snapshot function in llViewerWindow.
+    // Note: rendering even just 1 more time (for a total of 2)
+    // has a dramatic effect on the scene contents and *much*
+    // less of it is missing. More investigation required
+    // but for the moment, this helps with missing content
+    // because of interest list issues.
+    int num_render_passes = gSavedSettings.getU32("360CaptureNumRenderPasses");
+
     // time the encode process for later optimization
     auto encode_time_total = 0.0;
 
@@ -596,7 +605,8 @@ void LLFloater360Capture::capture360Images()
 
         // call the (very) simplified snapshot code that simply deals
         // with a single image, no sub-images etc. but is very fast
-        gViewerWindow->simpleSnapshot(mRawImages[i], mSourceImageSize, mSourceImageSize);
+        gViewerWindow->simpleSnapshot(mRawImages[i],
+                                      mSourceImageSize, mSourceImageSize, num_render_passes);
 
         // encode each image and write to disk while saving how long it took to do so
         auto t_start = std::chrono::high_resolution_clock::now();

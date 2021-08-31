@@ -5160,7 +5160,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	return ret;
 }
 
-BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height)
+BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes)
 {
     gDisplaySwapBuffers = FALSE;
 
@@ -5202,7 +5202,11 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     const bool do_rebuild = true;
     const F32 zoom = 1.0;
     const bool for_snapshot = TRUE;
-    display(do_rebuild, zoom, subfield, for_snapshot);
+
+    for (int i = 0; i < num_render_passes; ++i)
+    {
+        display(do_rebuild, zoom, subfield, for_snapshot);
+    }
 
     glReadPixels(
         0, 0,

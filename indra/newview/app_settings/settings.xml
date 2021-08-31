@@ -16721,6 +16721,17 @@
     <key>Value</key>
     <integer>75</integer>
   </map>
+  <key>360CaptureNumRenderPasses</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of times to render the scene while taking a snapshot</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2</integer>
+  </map>
   <key>ResetUIScaleOnFirstRun</key>
   <map>
   <key>Comment</key>
