@@ -305,6 +305,7 @@ target_link_libraries(
     ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${URIPARSER_LIBRARIES}
+    ${TRACY_LIBRARY}
     )
 
 if (DARWIN)
