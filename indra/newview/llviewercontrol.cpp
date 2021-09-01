@@ -148,6 +148,17 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleAvatarVPChanged(const LLSD& newvalue)
+{
+    LLRenderTarget::sUseFBO = newvalue.asBoolean()
+                                && gSavedSettings.getBOOL("RenderObjectBump")
+                                && gSavedSettings.getBOOL("RenderTransparentWater")
+                                && gSavedSettings.getBOOL("RenderDeferred");
+
+    handleSetShaderChanged(LLSD());
+    return true;
+}
+
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 {
        bool status = !newvalue.asBoolean();
@@ -187,7 +198,10 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 
 bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
-    LLRenderTarget::sUseFBO = newvalue.asBoolean() && gSavedSettings.getBOOL("RenderObjectBump") && gSavedSettings.getBOOL("RenderDeferred");
+    LLRenderTarget::sUseFBO = newvalue.asBoolean() 
+                                && gSavedSettings.getBOOL("RenderObjectBump") 
+                                && gSavedSettings.getBOOL("RenderAvatarVP") 
+                                && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		gPipeline.updateRenderTransparentWater();
@@ -440,7 +454,10 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 //
 static bool handleRenderBumpChanged(const LLSD& newval)
 {
-    LLRenderTarget::sUseFBO = newval.asBoolean() && gSavedSettings.getBOOL("RenderTransparentWater") && gSavedSettings.getBOOL("RenderDeferred");
+    LLRenderTarget::sUseFBO = newval.asBoolean() 
+                                && gSavedSettings.getBOOL("RenderTransparentWater") 
+                                && gSavedSettings.getBOOL("RenderAvatarVP")
+                                && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		gPipeline.updateRenderBump();
@@ -634,7 +651,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("OctreeAttachmentSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("RenderMaxTextureIndex")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleAvatarVPChanged, _2));
 	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleWindowResized, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
