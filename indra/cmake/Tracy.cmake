@@ -1,9 +1,9 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(TRACY OFF CACHE BOOL "Use Tracy profiler.")
+set(USE_TRACY OFF CACHE BOOL "Use Tracy profiler.")
 
-if (TRACY)
+if (USE_TRACY)
   set(TRACY_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/tracy) 
 
 # See: indra/llcommon/llprofiler.h
@@ -24,7 +24,9 @@ if (TRACY)
     MESSAGE(STATUS "Including Tracy for Linux: '${TRACY_INCLUDE_DIR}'")
     set(TRACY_LIBRARY "")
   endif (LINUX)
-else (TRACY)
+else (USE_TRACY)
+  # Tracy.cmake should not set LLCOMMON_INCLUDE_DIRS, let LLCommon.cmake do that
+  set(TRACY_INCLUDE_DIR "")
   set(TRACY_LIBRARY "")
-endif (TRACY)
+endif (USE_TRACY)
 
