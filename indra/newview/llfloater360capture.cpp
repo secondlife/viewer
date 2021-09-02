@@ -336,17 +336,6 @@ const std::string LLFloater360Capture::makeFullPathToJS(const std::string filena
     return full_js_path;
 }
 
-const wchar_t *get_filename_char(const std::string filename)
-{
-#if LL_WINDOWS
-    std::wstring filename_wstr(utf8str_to_utf16str(filename));
-#else
-    std::string filename_wstr(filename);
-#endif
-
-    return filename_wstr.c_str();
-}
-
 // Write the header/prequel portion of the JavaScript array of data urls
 // that we use to store the cube map images in (so the web code can load
 // them without tweaking browser security - we'd have to do this if they
@@ -354,7 +343,7 @@ const wchar_t *get_filename_char(const std::string filename)
 // one, if it exists
 void LLFloater360Capture::writeDataURLHeader(const std::string filename)
 {
-    std::ofstream file_handle(get_filename_char(filename));
+    llofstream file_handle(filename.c_str());
     if (file_handle.is_open())
     {
         file_handle << "// cube map images for Second Life Viewer panorama 360 images" << std::endl;
@@ -369,7 +358,7 @@ void LLFloater360Capture::writeDataURLHeader(const std::string filename)
 // reference and read.
 void LLFloater360Capture::writeDataURLFooter(const std::string filename)
 {
-    std::ofstream file_handle(get_filename_char(filename), std::ios_base::app);
+    llofstream file_handle(filename.c_str(), std::ios_base::app);
     if (file_handle.is_open())
     {
         file_handle << "var cubemap_img_js = [" << std::endl;
@@ -391,7 +380,7 @@ bool LLFloater360Capture::writeDataURL(const std::string filename, const std::st
 
     const std::string data_url = LLBase64::encode(data, data_len);
 
-    std::ofstream file_handle(get_filename_char(filename), std::ios_base::app);
+    llofstream file_handle(filename.c_str(), std::ios_base::app);
     if (file_handle.is_open())
     {
         file_handle << "var img_";
