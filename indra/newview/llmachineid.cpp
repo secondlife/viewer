@@ -30,7 +30,6 @@
 #if	LL_WINDOWS
 #define _WIN32_DCOM
 #include <iostream>
-using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 #elif LL_DARWIN
@@ -89,7 +88,7 @@ void LLWMIMethods::initCOMObjects()
     mHR = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(mHR))
     {
-        LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << hex << mHR << LL_ENDL;
+        LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x" << std::hex << mHR << LL_ENDL;
         return;
     }
 
@@ -114,7 +113,7 @@ void LLWMIMethods::initCOMObjects()
 
     if (FAILED(mHR))
     {
-        LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x" << hex << mHR << LL_ENDL;
+        LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x" << std::hex << mHR << LL_ENDL;
         CoUninitialize();
         return;               // Program has failed.
     }
@@ -130,7 +129,7 @@ void LLWMIMethods::initCOMObjects()
 
     if (FAILED(mHR))
     {
-        LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << mHR << LL_ENDL;
+        LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << std::hex << mHR << LL_ENDL;
         CoUninitialize();
         return;               // Program has failed.
     }
@@ -154,7 +153,7 @@ void LLWMIMethods::initCOMObjects()
 
     if (FAILED(mHR))
     {
-        LL_WARNS("AppInit") << "Could not connect. Error code = 0x" << hex << mHR << LL_ENDL;
+        LL_WARNS("AppInit") << "Could not connect. Error code = 0x" << std::hex << mHR << LL_ENDL;
         pLoc->Release();
         CoUninitialize();
         return;               // Program has failed.
@@ -178,7 +177,7 @@ void LLWMIMethods::initCOMObjects()
 
     if (FAILED(mHR))
     {
-        LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x" << hex << mHR << LL_ENDL;
+        LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x" << std::hex << mHR << LL_ENDL;
         cleanCOMObjects();
         return;               // Program has failed.
     }
@@ -247,7 +246,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
 
     if (FAILED(hres))
     {
-        LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x" << hex << hres << LL_ENDL;
+        LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x" << std::hex << hres << LL_ENDL;
         return false;               // Program has failed.
     }
 
@@ -274,7 +273,7 @@ bool LLWMIMethods::getGenericSerialNumber(const BSTR &select, const LPCWSTR &var
         hr = pclsObj->Get(variable, 0, &vtProp, 0, 0);
         if (FAILED(hr))
         {
-            LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << hex << hres << LL_ENDL;
+            LL_WARNS() << "Failed to get SerialNumber. Error code = 0x" << std::hex << hres << LL_ENDL;
             pclsObj->Release();
             pclsObj = NULL;
             continue;

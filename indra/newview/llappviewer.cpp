@@ -1108,19 +1108,27 @@ bool LLAppViewer::init()
             if (count > 0 && v1 <= 10)
             {
                 LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
-                LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
-                std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
-                details.setArg("[VERSION]", driver);
-                details.setArg("[GPUNAME]", gpu_name);
-                S32 button = OSMessageBox(details.getString(),
-                                          LLStringUtil::null,
-                                          OSMB_YESNO);
-                if (OSBTN_YES == button && gViewerWindow)
+
+                if (!gViewerWindow->getInitAlert().empty() // graphic initialization crashed on last run
+                    || LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion // viewer was updated
+                    || mNumSessions % 20 == 0 //periodically remind user to update driver
+                    )
                 {
-                    std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
-                    if (gViewerWindow->getWindow())
+                    LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
+                    std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
+                    LL_INFOS("AppInit") << "Notifying user about obsolete intel driver for " << gpu_name << LL_ENDL;
+                    details.setArg("[VERSION]", driver);
+                    details.setArg("[GPUNAME]", gpu_name);
+                    S32 button = OSMessageBox(details.getString(),
+                        LLStringUtil::null,
+                        OSMB_YESNO);
+                    if (OSBTN_YES == button && gViewerWindow)
                     {
-                        gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                        std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
+                        if (gViewerWindow->getWindow())
+                        {
+                            gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                        }
                     }
                 }
             }
@@ -3114,6 +3122,15 @@ bool LLAppViewer::initWindow()
 
 void LLAppViewer::writeDebugInfo(bool isStatic)
 {
+#if LL_WINDOWS && LL_BUGSPLAT
+    // bugsplat does not create dump folder and debug logs are written directly
+    // to logs folder, so it conflicts with main instance
+    if (mSecondInstance)
+    {
+        return;
+    }
+#endif
+
     //Try to do the minimum when writing data during a crash.
     std::string* debug_filename;
     debug_filename = ( isStatic
@@ -3442,7 +3459,7 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_BUGSPLAT
 	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
     //Not ideal but sufficient for good reporting.

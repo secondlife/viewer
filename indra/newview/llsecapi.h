@@ -264,7 +264,9 @@ public:
 	virtual void validate(int validation_policy,
 						  LLPointer<LLCertificateChain> cert_chain,
 						  const LLSD& validation_params) =0;
-	
+
+    // Clear cache if any
+    virtual void clearSertCache()=0;
 };
 
 

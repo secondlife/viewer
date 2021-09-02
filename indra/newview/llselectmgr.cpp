@@ -1368,11 +1368,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			}
 			break;
 		case SELECT_TYPE_HUD:
-			// use HUD-scaled grid
-			mGridScale = LLVector3(0.25f, 0.25f, 0.25f);
-			break;
 		case SELECT_TYPE_WORLD:
-			mGridScale = LLVector3(1.f, 1.f, 1.f) * gSavedSettings.getF32("GridResolution");
+			mGridScale = LLVector3(1.f, 1.f, 1.f) * llmin(gSavedSettings.getF32("GridResolution"), 0.5f);
 			break;
 		}
 	}
