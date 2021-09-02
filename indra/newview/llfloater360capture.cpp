@@ -504,6 +504,7 @@ void LLFloater360Capture::capture360Images()
         // will turn it back on again.  Similarly, for the case where it
         // was set to off - I think this is what we need
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
+        LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
     }
 
     // these are the 6 directions we will point the camera - essentially,
@@ -513,6 +514,8 @@ void LLFloater360Capture::capture360Images()
 
     // save current view/camera settings so we can restore them afterwards
     S32 old_occlusion = LLPipeline::sUseOcclusion;
+
+    // set new parameters specific to the 360 requirements
     LLPipeline::sUseOcclusion = 0;
     LLViewerCamera* camera = LLViewerCamera::getInstance();
     F32 old_fov = camera->getView();
@@ -650,6 +653,7 @@ void LLFloater360Capture::capture360Images()
     if (gSavedSettings.getBOOL("360CaptureHideAvatars"))
     {
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
+        LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
     }
 
     // record that we missed some shots in the log for later debugging
@@ -668,7 +672,7 @@ void LLFloater360Capture::capture360Images()
     // page is loaded and ready so we can turn on the buttons again
     mCaptureBtn->setEnabled(true);
     mSaveLocalBtn->setEnabled(true);
-    
+
     // allow the UI to update by suspending and waiting for the
     // main render loop to update the UI
     suspendForAFrame();
