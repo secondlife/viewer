@@ -665,13 +665,13 @@ void LLFloater360Capture::capture360Images()
     std::string url = "file:///" + getHTMLBaseFolder() + mEqrGenHTML;
     mWebBrowser->navigateTo(url);
 
-    // allow the UI to update by suspending and waiting for the
-    // main render loop to update the UI
-    suspendForAFrame();
-
     // page is loaded and ready so we can turn on the buttons again
     mCaptureBtn->setEnabled(true);
     mSaveLocalBtn->setEnabled(true);
+    
+    // allow the UI to update by suspending and waiting for the
+    // main render loop to update the UI
+    suspendForAFrame();
 }
 
 // once the request is made to navigate to the web page containing the code
