@@ -616,11 +616,9 @@ class WindowsManifest(ViewerManifest):
 
             # CEF files common to all configurations
             with self.prefix(src=os.path.join(pkgdir, 'resources')):
-                self.path("cef.pak")
-                self.path("cef_100_percent.pak")
-                self.path("cef_200_percent.pak")
-                self.path("cef_extensions.pak")
-                self.path("devtools_resources.pak")
+                self.path("chrome_100_percent.pak")
+                self.path("chrome_200_percent.pak")
+                self.path("resources.pak")
                 self.path("icudtl.dat")
 
             with self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst='locales'):
@@ -682,11 +680,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("libvlc.dll")
                 self.path("libvlccore.dll")
                 self.path("plugins/")
-
-        # pull in the crash logger from other projects
-        # tag:"crash-logger" here as a cue to the exporter
-        self.path(src='../win_crash_logger/%s/windows-crash-logger.exe' % self.args['configuration'],
-                  dst="win_crash_logger.exe")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
@@ -1068,10 +1061,8 @@ class DarwinManifest(ViewerManifest):
 
                 # our apps
                 executable_path = {}
-                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
-                                         # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
-                                         ):
+                embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
+                for app_bld_dir, app in embedded_apps:
                     self.path2basename(os.path.join(os.pardir,
                                                     app_bld_dir, self.args['configuration']),
                                        app)

@@ -1237,6 +1237,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     
     httpOpts->setFollowRedirects(true);
     httpOpts->setWantHeaders(true);
+    httpOpts->setSSLVerifyPeer(false); // viewer's cert bundle doesn't appear to agree with web certs from "https://my.secondlife.com/"
 
     LLURL hostUrl(url.c_str());
     std::string hostAuth = hostUrl.getAuthority();
@@ -1744,13 +1745,13 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
 			media_source->cookies_enabled( cookies_enabled || clean_browser);
 
-			// collect 'plugins enabled' setting from prefs and send to embedded browser
-			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
-			media_source->setPluginsEnabled( plugins_enabled  || clean_browser);
-
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
 			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
 			media_source->setJavascriptEnabled( javascript_enabled || clean_browser);
+
+			// As of SL-15559 PDF files do not load in CEF v91 we enable plugins
+			// but explicitly disable Flash (PDF support in CEF is now treated as a plugin)
+			media_source->setPluginsEnabled(true);
 
 			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
 			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);

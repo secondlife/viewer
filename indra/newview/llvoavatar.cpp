@@ -10774,7 +10774,23 @@ F32 LLVOAvatar::calculateRenderComplexityLegacy(hud_complexity_list_t& hud_compl
 		{
 			if (isTextureVisible(tex_index))
 			{
-				legacy_cost += COMPLEXITY_BODY_PART_COST;
+                // Same as isTextureVisible(), but doesn't account for isSelf to ensure identical numbers for all avatars
+                if (isIndexLocalTexture(tex_index))
+                {
+                    if (isTextureDefined(tex_index, 0))
+                    {
+                        legacy_cost += COMPLEXITY_BODY_PART_COST;
+                    }
+                }
+                else
+                {
+                    // baked textures can use TE images directly
+                    if (isTextureDefined(tex_index)
+                        && (getTEImage(tex_index)->getID() != IMG_INVISIBLE || LLDrawPoolAlpha::sShowDebugAlpha))
+                    {
+                        legacy_cost += COMPLEXITY_BODY_PART_COST;
+                    }
+                }
 			}
 		}
 	}

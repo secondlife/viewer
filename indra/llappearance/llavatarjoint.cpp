@@ -103,7 +103,7 @@ void LLAvatarJoint::setValid( BOOL valid, BOOL recursive )
 		for (joints_t::iterator iter = mChildren.begin();
 			 iter != mChildren.end(); ++iter)
 		{
-			LLAvatarJoint* joint = (LLAvatarJoint*)(*iter);
+			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(*iter);
 			joint->setValid(valid, TRUE);
 		}
 	}
@@ -136,7 +136,7 @@ void LLAvatarJoint::setVisible(BOOL visible, BOOL recursive)
 		for (joints_t::iterator iter = mChildren.begin();
 			 iter != mChildren.end(); ++iter)
 		{
-			LLAvatarJoint* joint = (LLAvatarJoint*)(*iter);
+			LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(*iter);
 			joint->setVisible(visible, recursive);
 		}
 	}
@@ -167,7 +167,7 @@ void LLAvatarJoint::updateJointGeometry()
 	for (joints_t::iterator iter = mChildren.begin();
 		 iter != mChildren.end(); ++iter)
 	{
-		LLAvatarJoint* joint = dynamic_cast<LLAvatarJoint*>(*iter);
+		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(*iter);
 		joint->updateJointGeometry();
 	}
 }

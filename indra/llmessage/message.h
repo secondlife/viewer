@@ -35,10 +35,6 @@
 #include <netinet/in.h>
 #endif
 
-#if LL_SOLARIS
-#include <netinet/in.h>
-#endif
-
 #if LL_WINDOWS
 #include "winsock2.h" // htons etc.
 #endif

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="menu_sorter_gear"
+ visible="false">
+    <menu_item_call
+     label="Expand all folders"
+     layout="topleft"
+     name="expand_all">
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="expand_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="expand_all" />
+    </menu_item_call>
+    <menu_item_call
+     label="Collapse all folders"
+     layout="topleft"
+     name="collapse_all">
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="collapse_all" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="collapse_all" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" />
+    <menu_item_check
+     label="Sort by Date"
+     layout="topleft"
+     name="sort_by_date">
+        <on_check
+         function="Places.LandmarksGear.Check"
+         parameter="sort_by_date" />
+        <on_click
+         function="Places.LandmarksGear.Folding.Action"
+         parameter="sort_by_date" />
+        <on_enable
+         function="Places.LandmarksGear.Enable"
+         parameter="sort_by_date" />
+    </menu_item_check>
+</toggleable_menu>

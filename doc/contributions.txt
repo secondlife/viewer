@@ -226,6 +226,7 @@ Ansariel Hiller
 	SL-13364
 	SL-13858
 	SL-13697
+	SL-13395
 	SL-3136
 Aralara Rajal
 Arare Chantilly
@@ -265,8 +266,10 @@ Benjamin Bigdipper
 Beq Janus
 	BUG-227094
 	SL-10288
+    SL-11300
 	SL-13583
 	SL-14766
+	SL-14927
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -359,6 +362,8 @@ Chaser Zaks
     BUG-227485
 Cherry Cheevers
 ChickyBabes Zuzu
+Chorazin Allen
+    BUG-229753
 Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
@@ -1354,6 +1359,12 @@ Sovereign Engineer
     SL-11079
     OPEN-343
 	SL-11625
+	SL-14705
+	SL-14706
+	SL-14707
+	SL-14731
+	SL-14732
+	SL-15096
 SpacedOut Frye
 	VWR-34
 	VWR-45

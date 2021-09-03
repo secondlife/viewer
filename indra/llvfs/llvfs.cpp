@@ -33,10 +33,6 @@
 #include <map>
 #if LL_WINDOWS
 #include <share.h>
-#elif LL_SOLARIS
-#include <sys/types.h>
-#include <unistd.h>
-#include <fcntl.h>
 #else
 #include <sys/file.h>
 #endif
@@ -2146,12 +2142,6 @@ LLFILE *LLVFS::openAndLock(const std::string& filename, const char* mode, BOOL r
 	int fd;
 	
 	// first test the lock in a non-destructive way
-#if LL_SOLARIS
-        struct flock fl;
-        fl.l_whence = SEEK_SET;
-        fl.l_start = 0;
-        fl.l_len = 1;
-#else // !LL_SOLARIS
 	if (strchr(mode, 'w') != NULL)
 	{
 		fp = LLFile::fopen(filename, "rb");	/* Flawfinder: ignore */
@@ -2167,19 +2157,13 @@ LLFILE *LLVFS::openAndLock(const std::string& filename, const char* mode, BOOL r
 			fclose(fp);
 		}
 	}
-#endif // !LL_SOLARIS
 
 	// now actually open the file for use
 	fp = LLFile::fopen(filename, mode);	/* Flawfinder: ignore */
 	if (fp)
 	{
 		fd = fileno(fp);
-#if LL_SOLARIS
-                fl.l_type = read_lock ? F_RDLCK : F_WRLCK;
-                if (fcntl(fd, F_SETLK, &fl) == -1)
-#else
 		if (flock(fd, (read_lock ? LOCK_SH : LOCK_EX) | LOCK_NB) == -1)
-#endif
 		{
 			fclose(fp);
 			fp = NULL;
@@ -2207,14 +2191,6 @@ void LLVFS::unlockAndClose(LLFILE *fp)
 	  flock(fd, LOCK_UN);
 	  #endif
     */
-#if LL_SOLARIS
-	        struct flock fl;
-		fl.l_whence = SEEK_SET;
-		fl.l_start = 0;
-		fl.l_len = 1;
-		fl.l_type = F_UNLCK;
-		fcntl(fileno(fp), F_SETLK, &fl);
-#endif
 		fclose(fp);
 	}
 }

@@ -229,9 +229,10 @@ private:
 	conversations_widgets_map mConversationsWidgets;
 	LLConversationViewModel mConversationViewModel;
 	LLFolderView* mConversationsRoot;
-	LLEventStream mConversationsEventStream; 
+	LLEventStream mConversationsEventStream;
 
-	std::deque<LLSD> mConversationEventQueue;
+	typedef std::map<LLUUID, std::deque<LLSD> > conversations_items_deque;
+	conversations_items_deque mConversationEventQueue;
 
 	LLTimer mParticipantRefreshTimer;
 };

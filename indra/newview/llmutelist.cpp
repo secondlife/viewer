@@ -726,7 +726,20 @@ void LLMuteList::requestFromServer(const LLUUID& agent_id)
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 	msg->nextBlockFast(_PREHASH_MuteData);
 	msg->addU32Fast(_PREHASH_MuteCRC, crc.getCRC());
-	gAgent.sendReliableMessage();
+
+    if (gDisconnected)
+    {
+        LL_WARNS() << "Trying to request mute list when disconnected!" << LL_ENDL;
+        return;
+    }
+    if (!gAgent.getRegion())
+    {
+        LL_WARNS() << "No region for agent yet, skipping mute list request!" << LL_ENDL;
+        return;
+    }
+    // Double amount of retries due to this request happening during busy stage
+    // Ideally this should be turned into a capability
+    gMessageSystem->sendReliable(gAgent.getRegionHost(), LL_DEFAULT_RELIABLE_RETRIES * 2, TRUE, LL_PING_BASED_TIMEOUT_DUMMY, NULL, NULL);
 }
 
 //-----------------------------------------------------------------------------

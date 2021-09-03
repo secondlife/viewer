@@ -36,7 +36,7 @@
 #include "lltracethreadrecorder.h"
 #include "llexception.h"
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include <sched.h>
 #endif
 
@@ -354,8 +354,9 @@ void LLThread::setQuitting()
     {
         mStatus = QUITTING;
     }
+    // It's only safe to remove mRunCondition if all locked threads were notified
+    mRunCondition->broadcast();
     mDataLock->unlock();
-    wake();
 }
 
 // static

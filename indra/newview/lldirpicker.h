@@ -78,7 +78,7 @@ private:
 	void buildDirname( void );
 	bool check_local_file_access_enabled();
 
-#if LL_LINUX || LL_SOLARIS || LL_DARWIN
+#if LL_LINUX || LL_DARWIN
 	// On Linux we just implement LLDirPicker on top of LLFilePicker
 	LLFilePicker *mFilePicker;
 #endif

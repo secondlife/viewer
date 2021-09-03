@@ -30,6 +30,7 @@
 #include "llpanel.h"
 
 class LLPanelPlaces;
+class LLToggleableMenu;
 
 class LLPanelPlacesTab : public LLPanel
 {
@@ -42,11 +43,21 @@ public:
 	virtual void onShowOnMap() = 0;
 	virtual void onShowProfile() = 0;
 	virtual void onTeleport() = 0;
+	virtual void onRemoveSelected() = 0;
 	virtual bool isSingleItemSelected() = 0;
+
+    // returns menu for current selection
+    virtual LLToggleableMenu* getSelectionMenu() = 0;
+    virtual LLToggleableMenu* getSortingMenu() = 0;
+    virtual LLToggleableMenu* getCreateMenu() = 0;
+
+    /**
+    * Processes drag-n-drop of the Landmarks and folders into trash button.
+    */
+    virtual bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data, EAcceptance* accept) = 0;
 
 	bool isTabVisible(); // Check if parent TabContainer is visible.
 
-	void setPanelPlacesButtons(LLPanelPlaces* panel);
 	void onRegionResponse(const LLVector3d& landmark_global_pos,
 										U64 region_handle,
 										const std::string& url,
@@ -56,13 +67,12 @@ public:
 	const std::string& getFilterSubString() { return sFilterSubString; }
 	void setFilterSubString(const std::string& string) { sFilterSubString = string; }
 
-protected:
-	LLButton*				mTeleportBtn;
-	LLButton*				mShowOnMapBtn;
-	LLButton*				mShowProfile;
+	void setRemoveBtn(LLButton* trash_btn) { sRemoveBtn = trash_btn; }
 
+protected:
 	// Search string for filtering landmarks and teleport history locations
 	static std::string		sFilterSubString;
+	static LLButton*		sRemoveBtn;
 };
 
 #endif //LL_LLPANELPLACESTAB_H

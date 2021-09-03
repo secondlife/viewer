@@ -967,6 +967,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 			executeStopParam.function_name = executeStopFunction;
 			executeStopParam.parameter = commandp->executeStopParameters();
 			LLUICtrl::commit_callback_t execute_func = initCommitCallback(executeParam);
+			button->setFunctionName(commandp->executeFunctionName());
+			LL_DEBUGS("UIUsage") << "button function name a -> " << commandp->executeFunctionName() << LL_ENDL;
 			LLUICtrl::commit_callback_t stop_func = initCommitCallback(executeStopParam);
 			
 			button->setMouseDownCallback(boost::bind(&LLToolBarButton::callIfEnabled, button, execute_func, _1, _2));
@@ -974,6 +976,8 @@ LLToolBarButton* LLToolBar::createButton(const LLCommandId& id)
 		}
 		else
 		{
+			button->setFunctionName(commandp->executeFunctionName());
+			LL_DEBUGS("UIUsage") << "button function name b -> " << commandp->executeFunctionName() << LL_ENDL;
 			button->setCommitCallback(executeParam);
 		}
 
@@ -1125,7 +1129,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 		
 	S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
-	S32 drag_threshold = LLUI::getInstance()->mSettingGroups["config"]->getS32("DragAndDropDistanceThreshold");
+	static LLCachedControl<S32> drag_threshold(*LLUI::getInstance()->mSettingGroups["config"], "DragAndDropDistanceThreshold", 3);
 	if (mouse_distance_squared > drag_threshold * drag_threshold
 		&& hasMouseCapture() && 
 		mStartDragItemCallback && mHandleDragItemCallback)

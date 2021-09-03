@@ -57,6 +57,7 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLViewerJoystick;
+class LLViewerRegion;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
@@ -151,6 +152,8 @@ public:
     virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
+    virtual void forceErrorCoroutineCrash();
+    virtual void forceErrorThreadCrash();
 
 	// The list is found in app_settings/settings_files.xml
 	// but since they are used explicitly in code,
@@ -210,7 +213,7 @@ public:
 	// llcorehttp init/shutdown/config information.
 	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
 
-    void updateNameLookupUrl();
+    void updateNameLookupUrl(const LLViewerRegion* regionp);
 
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
@@ -236,7 +239,6 @@ private:
 	bool initConfiguration(); // Initialize settings from the command line/config file.
 	void initStrings();       // Initialize LLTrans machinery
 	bool initCache(); // Initialize local client cache.
-	void checkMemory() ;
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.
@@ -314,8 +316,6 @@ private:
 	LLUUID mAgentRegionLastID;
 
     LLAllocator mAlloc;
-
-	LLFrameTimer mMemCheckTimer;
 
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;

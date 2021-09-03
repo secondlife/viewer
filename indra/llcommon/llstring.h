@@ -37,7 +37,7 @@
 #include <map>
 #include "llformat.h"
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include <wctype.h>
 #include <wchar.h>
 #endif
@@ -45,16 +45,10 @@
 #include <string.h>
 #include <boost/scoped_ptr.hpp>
 
-#if LL_SOLARIS
-// stricmp and strnicmp do not exist on Solaris:
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
-
 const char LL_UNKNOWN_CHAR = '?';
 class LLSD;
 
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 // Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
 #include <cstring>
 

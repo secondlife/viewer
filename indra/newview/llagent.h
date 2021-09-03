@@ -254,7 +254,7 @@ public:
 	boost::signals2::connection     addParcelChangedCallback(parcel_changed_callback_t);
 
 private:
-	static void capabilityReceivedCallback(const LLUUID &region_id);
+	static void capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion *regionp);
 
 	typedef boost::signals2::signal<void()> parcel_changed_signal_t;
 	parcel_changed_signal_t		mParcelChangedSignal;
@@ -653,6 +653,7 @@ public:
 	void            restartFailedTeleportRequest();
 	void            clearTeleportRequest();
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
+	void            sheduleTeleportIM();
 
 private:
 
@@ -669,6 +670,7 @@ private:
 	boost::signals2::connection mTeleportFailedSlot;
 
 	bool            mIsMaturityRatingChangingDuringTeleport;
+	bool            mTPNeedsNeabyChatSeparator;
 	U8              mMaturityRatingChange;
 
 	bool            hasPendingTeleportRequest();
@@ -685,6 +687,7 @@ private:
 	void            handleTeleportFinished();
 	void            handleTeleportFailed();
 
+    static void     addTPNearbyChatSeparator();
     static void     onCapabilitiesReceivedAfterTeleport();
 
 	//--------------------------------------------------------------------

@@ -56,7 +56,7 @@
 #include "m4math.h"
 #include "llmatrix4a.h"
 
-#if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
+#if !LL_DARWIN && !LL_LINUX
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
