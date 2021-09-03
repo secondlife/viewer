@@ -2945,7 +2945,7 @@ void LLModelPreview::updateLodControls(S32 lod)
             threshold->setVisible(false);
 
             limit->setMaxValue(mMaxTriangleLimit);
-            limit->setIncrement(mMaxTriangleLimit / 32);
+            limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
         {
