@@ -270,9 +270,6 @@ namespace LLHttp
 {
 namespace
 {
-typedef boost::shared_ptr<LLMutex> LLMutex_ptr;
-std::vector<LLMutex_ptr> sSSLMutex;
-
 CURL *getCurlTemplateHandle()
 {
     static CURL *curlpTemplateHandle = NULL;
