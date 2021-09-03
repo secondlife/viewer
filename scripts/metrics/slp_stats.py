@@ -108,6 +108,10 @@ def analyze_timers(df):
     print df_fast.mean().sort_values(ascending=False)[0:30]
     df_slow = df[df[tkey]>=slow_frame]
     df_very_slow = df[df[tkey]>=very_slow_frame]
+    print "\nMedians for slow frames:"
+    print df_fast.quantile(0.5).sort_values(ascending=False)[0:30]
+    sys.exit(1)
+    
     print "\nTop timers for slow frames:"
     print df_slow.mean().sort_values(ascending=False)[0:30]
 
@@ -128,18 +132,18 @@ def analyze_timers(df):
     df_diff_cols = rows[start:start+10]
     print "df_diff_cols", df_diff_cols
     speed_bucket_labels = ["fastest 5%", "all", "slowest 5%", "slowest 1%"] 
-    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_diff_cols, [0,very_slow_frame], "df_high_diff_timers_histo.jpg") 
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_diff_cols, [0,very_slow_frame], "df_high_diff_timers_histo.png") 
 
     slow_cols = list(df_slow.mean().sort_values(ascending=False)[0:20].index.values)
     start = slow_cols.index("Frame - Times")
     print "slow_cols", slow_cols
-    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, slow_cols[start:start+10], [0,very_slow_frame], "df_slow_frames_histo.jpg") 
-    #make_histo(df_slow, df_diff_cols, [0,slow_frame], "df_slow_histo.jpg") 
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, slow_cols[start:start+10], [0,very_slow_frame], "df_slow_frames_histo.png") 
+    #make_histo(df_slow, df_diff_cols, [0,slow_frame], "df_slow_histo.png") 
 
     df_sleep_cols = ["Frame - Times"]
     df_sleep_cols.extend([col for col in list(df.columns) if "Sleep" in col])
     start = df_sleep_cols.index("Frame - Times")
-    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_sleep_cols, [0,slow_frame], "df_sleep_histo.jpg")
+    make_parallel_histo([df_fast,df,df_slow,df_very_slow], speed_bucket_labels, df_sleep_cols, [0,slow_frame], "df_sleep_histo.png")
 
     for col in df_diff_cols:
         print "Stats: col", col, "count", len(df[col].values), "mean", df[col].mean(), "std", df[col].std(), \
