@@ -118,14 +118,16 @@ namespace
     {
         if (nCode == MDSCB_EXCEPTIONCODE)
         {
-            // second instance does not have own log files
+            // send the main viewer log file, one per instance
+            // widen to wstring, convert to __wchar_t, then pass c_str()
+            sBugSplatSender->sendAdditionalFile(
+                WCSTR(LLError::logFileName()));
+
+            // second instance does not have some log files
+            // TODO: This needs fixing, if each instance now has individual logs,
+            // same should be made true for static debug files
             if (!LLAppViewer::instance()->isSecondInstance())
             {
-                // send the main viewer log file
-                // widen to wstring, convert to __wchar_t, then pass c_str()
-                sBugSplatSender->sendAdditionalFile(
-                    WCSTR(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "SecondLife.log")));
-
                 sBugSplatSender->sendAdditionalFile(
                     WCSTR(*LLAppViewer::instance()->getStaticDebugFile()));
             }
