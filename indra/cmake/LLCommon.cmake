@@ -33,7 +33,6 @@ else (LINUX)
         ${BOOST_CONTEXT_LIBRARY} 
         ${BOOST_THREAD_LIBRARY} 
         ${BOOST_SYSTEM_LIBRARY}
-        ${TRACY_LIBRARY}
         )
 endif (LINUX)
 
