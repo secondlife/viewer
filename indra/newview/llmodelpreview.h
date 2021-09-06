@@ -296,7 +296,13 @@ protected:
 
     U32 mGroup;
     std::map<LLPointer<LLModel>, U32> mObject;
+
+    // Amount of triangles in original(base) model
     U32 mMaxTriangleLimit;
+
+    // Minimum amount of allowed triangles in lod for spin cntrl.
+    // Leave at least one triangle per model.
+    S32 mMinTriangleLimit;
 
     LLMeshUploadThread::instance_list mUploadData;
     std::set<LLViewerFetchedTexture * > mTextureSet;

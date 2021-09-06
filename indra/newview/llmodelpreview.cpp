@@ -194,6 +194,7 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mPreviewLOD = 0;
     mModelLoader = NULL;
     mMaxTriangleLimit = 0;
+    mMinTriangleLimit = 0;
     mDirty = false;
     mGenLOD = false;
     mLoading = false;
@@ -1508,6 +1509,7 @@ void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri
     }
 
     mMaxTriangleLimit = base_triangle_count;
+    mMinTriangleLimit = mBaseModel.size();
 
     for (S32 lod = start; lod >= end; --lod)
     {
@@ -1541,7 +1543,7 @@ void LLModelPreview::genGlodLODs(S32 which_lod, U32 decimation, bool enforce_tri
         U32 actual_verts = 0;
         U32 submeshes = 0;
 
-        mRequestedTriangleCount[lod] = (S32)((F32)triangle_count / triangle_ratio);
+        mRequestedTriangleCount[lod] = llmax(mMinTriangleLimit, (S32)((F32)triangle_count / triangle_ratio));
         mRequestedErrorThreshold[lod] = lod_error_threshold;
 
         glodGroupParameteri(mGroup, GLOD_ADAPT_MODE, lod_mode);
@@ -2100,6 +2102,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
     }
 
     mMaxTriangleLimit = base_triangle_count;
+    mMinTriangleLimit = mBaseModel.size();
 
     // TODO: Glod regenerates vertex buffer at this stage
     // check why, it might be needed to regenerate buffer as well
@@ -2133,7 +2136,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
 
-        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedTriangleCount[lod] = llmax(mMinTriangleLimit, (S32)triangle_limit);
         mRequestedErrorThreshold[lod] = lod_error_threshold;
         mRequestedLoDMode[lod] = lod_mode;
 
@@ -2431,6 +2434,7 @@ void LLModelPreview::updateStatusMessages()
     if (mMaxTriangleLimit == 0)
     {
         mMaxTriangleLimit = total_tris[LLModel::LOD_HIGH];
+        mMinTriangleLimit = mUploadData.size();
     }
 
     mHasDegenerate = false;
@@ -2933,6 +2937,7 @@ void LLModelPreview::updateLodControls(S32 lod)
         LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
 
         limit->setMaxValue(mMaxTriangleLimit);
+        limit->setMinValue(mMinTriangleLimit);
         limit->forceSetValue(mRequestedTriangleCount[lod]);
 
         threshold->forceSetValue(mRequestedErrorThreshold[lod]);
@@ -2945,6 +2950,7 @@ void LLModelPreview::updateLodControls(S32 lod)
             threshold->setVisible(false);
 
             limit->setMaxValue(mMaxTriangleLimit);
+            limit->setMinValue(mMinTriangleLimit);
             limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
