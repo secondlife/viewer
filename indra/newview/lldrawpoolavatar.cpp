@@ -1526,7 +1526,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	}
 
 	LLVOAvatar *attached_av = avatarp->getAttachedAvatar();
-	if (attached_av && LLVOAvatar::AOA_NORMAL != attached_av->getOverallAppearance())
+	if (attached_av && (LLVOAvatar::AOA_NORMAL != attached_av->getOverallAppearance() || !gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR)))
 	{
 		// Animesh attachment of a jellydolled or invisible parent - don't show
 		return;

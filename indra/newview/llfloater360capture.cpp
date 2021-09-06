@@ -492,6 +492,7 @@ void LLFloater360Capture::capture360Images()
     mCaptureBtn->setEnabled(false);
     mSaveLocalBtn->setEnabled(false);
 
+    bool render_attached_lights = LLPipeline::sRenderAttachedLights;
     // determine whether or not to include avatar in the scene as we capture the 360 panorama
     if (gSavedSettings.getBOOL("360CaptureHideAvatars"))
     {
@@ -505,6 +506,7 @@ void LLFloater360Capture::capture360Images()
         // was set to off - I think this is what we need
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
+        LLPipeline::sRenderAttachedLights = FALSE;
     }
 
     // these are the 6 directions we will point the camera - essentially,
@@ -654,6 +656,7 @@ void LLFloater360Capture::capture360Images()
     {
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_AVATAR);
         LLPipeline::toggleRenderTypeControl(LLPipeline::RENDER_TYPE_PARTICLES);
+        LLPipeline::sRenderAttachedLights = render_attached_lights;
     }
 
     // record that we missed some shots in the log for later debugging
