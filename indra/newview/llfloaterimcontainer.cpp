@@ -1686,7 +1686,7 @@ BOOL LLFloaterIMContainer::selectConversationPair(const LLUUID& session_id, bool
 
     /* floater processing */
 
-	if (NULL != session_floater)
+	if (NULL != session_floater && !session_floater->isDead())
 	{
 		if (session_id != getSelectedSession())
 		{
@@ -1858,11 +1858,14 @@ bool LLFloaterIMContainer::removeConversationListItem(const LLUUID& uuid, bool c
 	if (widget)
 	{
 		is_widget_selected = widget->isSelected();
-		new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
-		if (!new_selection)
-		{
-			new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
-		}
+        if (mConversationsRoot)
+        {
+            new_selection = mConversationsRoot->getNextFromChild(widget, FALSE);
+            if (!new_selection)
+            {
+                new_selection = mConversationsRoot->getPreviousFromChild(widget, FALSE);
+            }
+        }
 
 		// Will destroy views and delete models that are not assigned to any views
 		widget->destroyView();
