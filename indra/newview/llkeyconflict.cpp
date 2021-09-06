@@ -868,7 +868,7 @@ void LLKeyConflictHandler::resetKeyboardBindings()
 
 void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
 {
-    // These placeholds are meant to cause conflict resolution when user tries to assign same control somewhere else
+    // These controls are meant to cause conflicts when user tries to assign same control somewhere else
     // also this can be used to pre-record controls that should not conflict or to assign conflict groups/masks
 
     if (load_mode == MODE_FIRST_PERSON)
@@ -928,73 +928,25 @@ void LLKeyConflictHandler::generatePlaceholders(ESourceMode load_mode)
         registerTemporaryControl("spin_around_ccw_sitting");
         registerTemporaryControl("spin_around_cw_sitting");
     }
-
-
-    // Special case, mouse clicks passed to scripts have 'lowest' piority
-    // thus do not conflict, everything else has a chance before them
-    // also in ML they have highest priority, but only when script-grabbed,
-    // thus do not conflict
-    // (see AGENT_CONTROL_ML_LBUTTON_DOWN and CONTROL_LBUTTON_DOWN_INDEX)
-    LLKeyConflict *type_data = &mControlsMap[script_mouse_handler_name];
-    type_data->mAssignable = true;
-    type_data->mConflictMask = U32_MAX - CONFLICT_LMOUSE;
 }
 
-bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, U32 conlict_mask)
+bool LLKeyConflictHandler::removeConflicts(const LLKeyData &data, const U32 &conlict_mask)
 {
     if (conlict_mask == CONFLICT_NOTHING)
     {
         // Can't conflict
         return true;
     }
-
-    if (data.mMouse == CLICK_LEFT
-        && data.mMask == MASK_NONE
-        && data.mKey == KEY_NONE)
-    {
-        if ((conlict_mask & CONFLICT_LMOUSE) == 0)
-        {
-            // Can't conflict
-            return true;
-        }
-        else
-        {
-            // simplify conflict mask
-            conlict_mask = CONFLICT_LMOUSE;
-        }
-    }
-    else
-    {
-        // simplify conflict mask
-        conlict_mask &= ~CONFLICT_LMOUSE;
-    }
-
     std::map<std::string, S32> conflict_list;
     control_map_t::iterator cntrl_iter = mControlsMap.begin();
     control_map_t::iterator cntrl_end = mControlsMap.end();
     for (; cntrl_iter != cntrl_end; ++cntrl_iter)
     {
-        const U32 cmp_mask = cntrl_iter->second.mConflictMask;
-        if ((cmp_mask & conlict_mask) == 0)
-        {
-            // can't conflict
-            continue;
-        }
         S32 index = cntrl_iter->second.mKeyBind.findKeyData(data);
-        if (index >= 0)
+        if (index >= 0
+            && cntrl_iter->second.mConflictMask != CONFLICT_NOTHING
+            && (cntrl_iter->second.mConflictMask & conlict_mask) != 0)
         {
-            if (cmp_mask != U32_MAX)
-            {
-                const LLKeyData cmp_data = cntrl_iter->second.mKeyBind.getKeyData(index);
-                if ((cmp_mask & CONFLICT_LMOUSE) == 0
-                    && cmp_data.mMouse == CLICK_LEFT
-                    && cmp_data.mMask == MASK_NONE
-                    && cmp_data.mKey == KEY_NONE)
-                {
-                    // Does not conflict
-                    continue;
-                }
-            }
             if (cntrl_iter->second.mAssignable)
             {
                 // Potentially we can have multiple conflict flags conflicting
