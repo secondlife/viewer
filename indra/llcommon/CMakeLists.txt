@@ -10,14 +10,14 @@ include(Boost)
 include(LLSharedLibs)
 include(JsonCpp)
 include(Copy3rdPartyLibs)
-include(ZLIB)
+include(ZLIBNG)
 include(URIPARSER)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
-    ${ZLIB_INCLUDE_DIRS}
+    ${ZLIBNG_INCLUDE_DIRS}
     ${URIPARSER_INCLUDE_DIRS}
     )
 
@@ -290,7 +290,7 @@ target_link_libraries(
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${JSONCPP_LIBRARIES}
-    ${ZLIB_LIBRARIES}
+    ${ZLIBNG_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
