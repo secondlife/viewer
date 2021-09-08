@@ -2218,10 +2218,6 @@ if (DARWIN)
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
 
-  if (NOT USE_BUGSPLAT)
-      add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
-  endif (NOT USE_BUGSPLAT)
-
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
   else (ENABLE_SIGNING)

@@ -222,14 +222,7 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 
 bool LLAppViewerMacOSX::init()
 {
-	bool success = LLAppViewer::init();
-    
-    if (success)
-    {
-        LLAppViewer* pApp = LLAppViewer::instance();
-        pApp->initCrashReporting();
-    }
-    return success;
+    return LLAppViewer::init();
 }
 
 // MacOSX may add and addition command line arguement for the process serial number.
