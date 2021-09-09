@@ -32,7 +32,7 @@ elseif (DARWIN)
         llprimitive
         debug collada14dom-d
         optimized collada14dom
-        libminizip           # for collada
+        minizip           # for collada libminizip.a
         xml2
         pcrecpp
         pcre
@@ -43,7 +43,7 @@ elseif (LINUX)
         llprimitive
         debug collada14dom-d
         optimized collada14dom
-        libminizip
+        minizip
         xml2
         pcrecpp
         pcre
