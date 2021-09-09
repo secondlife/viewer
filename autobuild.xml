@@ -308,9 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba754816c391d93319f77964284bde2e</string>
+              <string>99973077c6739a9283d3f452d94facc2</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87587/804749/colladadom-2.3.563706-darwin64-563706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87650/805016/colladadom-2.3.563750-darwin64-563750.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -344,9 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>649395b9e3d8b49f6879efc97f52bf49</string>
+              <string>363a408dc345ef7d826887836b001aab</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87590/804763/colladadom-2.3.563706-windows-563706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87649/805023/colladadom-2.3.563750-windows-563750.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -356,16 +356,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>349f8c5f46a16425463ba15ad1013bf2</string>
+              <string>36f4c117c27f1fd929529710e3eb5439</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87588/804757/colladadom-2.3.563706-windows64-563706.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87648/805028/colladadom-2.3.563750-windows64-563750.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.563706</string>
+        <string>2.3.563750</string>
       </map>
       <key>curl</key>
       <map>
@@ -2325,9 +2325,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6880623b17821b0e19ea277018a39e7f</string>
+              <string>3eb82369d98fc2cd3923c70c6038bbe9</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87561/804600/minizip_ng-.563689-darwin64-563689.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87644/804995/minizip_ng-3.0.2.563749-darwin64-563749.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2337,9 +2337,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bbc8a9dd05cdc9e8150084ea16de3ace</string>
+              <string>84c175fd3ba2c333d6620d7edfe406f4</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87560/804605/minizip_ng-.563689-windows-563689.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87647/805006/minizip_ng-3.0.2.563749-windows-563749.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2349,16 +2349,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89af88d850467ee736c6e7ccaaeadb7e</string>
+              <string>572db3e4373daf92a132e5de156c545f</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87559/804602/minizip_ng-.563689-windows64-563689.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87646/805007/minizip_ng-3.0.2.563749-windows64-563749.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>.563689</string>
+        <string>3.0.2.563749</string>
       </map>
       <key>nghttp2</key>
       <map>
