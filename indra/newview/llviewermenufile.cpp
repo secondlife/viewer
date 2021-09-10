@@ -775,6 +775,94 @@ void handle_compress_image(void*)
 	}
 }
 
+// No convinient check in LLFile, and correct way would be something
+// like GetFileSizeEx, which is too OS specific for current purpose
+// so doing dirty, but OS independent fopen and fseek
+size_t get_file_size(std::string &filename)
+{
+    LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+    if (!file)
+    {
+        LL_WARNS() << "Error opening " << filename << LL_ENDL;
+        return 0;
+    }
+
+    // read in the whole file
+    fseek(file, 0L, SEEK_END);
+    size_t file_length = (size_t)ftell(file);
+    fclose(file);
+    return file_length;
+}
+
+void handle_compress_file_test(void*)
+{
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getOpenFile())
+    {
+        std::string infile = picker.getFirstFile();
+        if (!infile.empty())
+        {
+            std::string packfile = infile + ".pack_test";
+            std::string unpackfile = infile + ".unpack_test";
+
+            S64Bytes initial_size = S64Bytes(get_file_size(infile));
+
+            BOOL success;
+
+            F64 total_seconds = LLTimer::getTotalSeconds();
+            success = gzip_file(infile, packfile);
+            F64 result_pack_seconds = LLTimer::getTotalSeconds() - total_seconds;
+
+            if (success)
+            {
+                S64Bytes packed_size = S64Bytes(get_file_size(packfile));
+
+                LL_INFOS() << "Packing complete, time: " << result_pack_seconds << " size: " << packed_size << LL_ENDL;
+                total_seconds = LLTimer::getTotalSeconds();
+                success = gunzip_file(packfile, unpackfile);
+                F64 result_unpack_seconds = LLTimer::getTotalSeconds() - total_seconds;
+
+                if (success)
+                {
+                    S64Bytes unpacked_size = S64Bytes(get_file_size(unpackfile));
+
+                    LL_INFOS() << "Unpacking complete, time: " << result_unpack_seconds << " size: " << unpacked_size << LL_ENDL;
+
+                    LLSD args;
+                    args["FILE"] = infile;
+                    args["PACK_TIME"] = result_pack_seconds;
+                    args["UNPACK_TIME"] = result_unpack_seconds;
+                    args["SIZE"] = LLSD::Integer(initial_size.valueInUnits<LLUnits::Kilobytes>());
+                    args["PSIZE"] = LLSD::Integer(packed_size.valueInUnits<LLUnits::Kilobytes>());
+                    args["USIZE"] = LLSD::Integer(unpacked_size.valueInUnits<LLUnits::Kilobytes>());
+                    LLNotificationsUtil::add("CompressionTestResults", args);
+
+                    LLFile::remove(packfile);
+                    LLFile::remove(unpackfile);
+                }
+                else
+                {
+                    LL_INFOS() << "Failed to uncompress file: " << packfile << LL_ENDL;
+                    LLFile::remove(packfile);
+                }
+
+            }
+            else
+            {
+                LL_INFOS() << "Failed to compres file: " << infile << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_INFOS() << "Failed to open file" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_INFOS() << "Failed to open file" << LL_ENDL;
+    }
+}
+
 
 LLUUID upload_new_resource(
 	const std::string& src_filename,
