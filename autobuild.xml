@@ -166,9 +166,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2009b5914f5884b4a3c28e9ad3da549</string>
+              <string>fedc8d63856f534b6098102e059dc548</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86984/801771/boost-1.72-darwin64-563356.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87776/805857/boost-1.72-darwin64-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -202,9 +202,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f7dcd4eacc9a8a9dd00b796d8d3cda90</string>
+              <string>6cc9fb4ca21365c4470a3e516544ba71</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86991/801772/boost-1.72-windows-563356.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87784/805850/boost-1.72-windows-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -214,9 +214,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2cd6b17ca13c5eeeca562c28a3af441c</string>
+              <string>0c526efc3f8825cd25cdf635e238fab3</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86992/801784/boost-1.72-windows64-563356.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87783/805851/boost-1.72-windows64-563847.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -308,9 +308,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>99973077c6739a9283d3f452d94facc2</string>
+              <string>84d625d41067e6dc633ac53367ae4e87</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87650/805016/colladadom-2.3.563750-darwin64-563750.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87796/805943/colladadom-2.3.563854-darwin64-563854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -344,9 +344,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>363a408dc345ef7d826887836b001aab</string>
+              <string>d365992132ca2bd89f48a2dab1f3b1f2</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87649/805023/colladadom-2.3.563750-windows-563750.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87794/805955/colladadom-2.3.563854-windows-563854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -356,16 +356,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>36f4c117c27f1fd929529710e3eb5439</string>
+              <string>27687df032caffdc1ec92611341adfe3</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87648/805028/colladadom-2.3.563750-windows64-563750.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87795/805951/colladadom-2.3.563854-windows64-563854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.563750</string>
+        <string>2.3.563854</string>
       </map>
       <key>curl</key>
       <map>
@@ -398,9 +398,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>85aa93094c46f5ba86eaf397ed11d1f1</string>
+              <string>44d801e05811269d1bed7dbc75d85843</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87000/801824/curl-7.54.1.563360-darwin64-563360.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87786/805905/curl-7.54.1.563852-darwin64-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -434,11 +434,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ae764cb3274f9e0381294f74d489d21f</string>
+              <string>676f624d4ebdc2189caa43ef6dd8266d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87001/801821/curl-7.54.1.563360-windows-563360.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87790/805917/curl-7.54.1.563852-windows-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -448,16 +448,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>377186f1859230a3588b6caea4286f26</string>
+              <string>b3db5a2cdf275c1af7758fbe2d14544a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87002/801815/curl-7.54.1.563360-windows64-563360.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87789/805918/curl-7.54.1.563852-windows64-563852.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.54.1.563360</string>
+        <string>7.54.1.563852</string>
       </map>
       <key>db</key>
       <map>
@@ -880,9 +880,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5a284b9a5c19e6502b243e702e6666ee</string>
+              <string>8865739d8e530199dacb3c3042c1bc01</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86990/801719/freetype-2.4.4.563358-darwin64-563358.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87777/805782/freetype-2.4.4.563848-darwin64-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -916,9 +916,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7309f26bf50a2a6581ba886680368a24</string>
+              <string>c0b3601e997553931cadc7d7ee94168b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86996/801804/freetype-2.4.4.563358-windows-563358.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87779/805814/freetype-2.4.4.563848-windows-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -928,16 +928,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4566d1fcf5d3c50475082f06187ea763</string>
+              <string>e98e1e088cdcd20442e05e9abecdadf9</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86997/801803/freetype-2.4.4.563358-windows64-563358.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87778/805815/freetype-2.4.4.563848-windows64-563848.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.4.4.563358</string>
+        <string>2.4.4.563848</string>
       </map>
       <key>glext</key>
       <map>
@@ -1172,9 +1172,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf03c4eb26b4cc07a87def2ccc847fe4</string>
+              <string>11d0794582e91a57f6524ad345f2399d</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87026/801906/googlemock-1.7.0.563371-darwin64-563371.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87791/805924/googlemock-1.7.0.563853-darwin64-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1208,9 +1208,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6e22038018e933acab39b87ed7ec8154</string>
+              <string>7d267050970ec6e28749178597bc8af0</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87027/801912/googlemock-1.7.0.563371-windows-563371.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87793/805930/googlemock-1.7.0.563853-windows-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1220,16 +1220,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3caed7eeb2161dfce81bb6754f27c709</string>
+              <string>27638c692f0ec6121e54bf75f2d45e49</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87028/801918/googlemock-1.7.0.563371-windows64-563371.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87792/805936/googlemock-1.7.0.563853-windows64-563853.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.7.0.563371</string>
+        <string>1.7.0.563853</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1858,9 +1858,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cc46a0f06659c60c1776dce789ffc8f0</string>
+              <string>c1c9e32e21f3c34d91ed045b2ca91f24</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86989/801708/libpng-1.6.8.563357-darwin64-563357.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87781/805801/libpng-1.6.8.563850-darwin64-563850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1894,9 +1894,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>17e0fd54af900ecbccbfe298de696fee</string>
+              <string>642e9cf95c8ccd0eb34f6d7a40df585a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86994/801760/libpng-1.6.8.563357-windows-563357.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87782/805831/libpng-1.6.8.563850-windows-563850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1906,16 +1906,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e1d6c3b01a7a948522f890d1f20cd05c</string>
+              <string>ce46aa0f171d97626c4a3940347cecd7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86993/801759/libpng-1.6.8.563357-windows64-563357.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87780/805832/libpng-1.6.8.563850-windows64-563850.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.8.563357</string>
+        <string>1.6.8.563850</string>
       </map>
       <key>libuuid</key>
       <map>
@@ -1990,9 +1990,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>359cf1c7267c69db37aa894783a1d6ed</string>
+              <string>6f37dd6c4a5174f358b6cc5d953f121b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86995/801734/libxml2-2.9.4.563359-darwin64-563359.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87768/805766/libxml2-2.9.4.563845-darwin64-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2026,9 +2026,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>37dbc89c4fb24da3751cfb99bd9f1bcc</string>
+              <string>fd85d3aa13fbdfd1f1ace587e95ef151</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86998/801792/libxml2-2.9.4.563359-windows-563359.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87773/805797/libxml2-2.9.4.563845-windows-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2038,16 +2038,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04ce00040a95960484bd484f31532cda</string>
+              <string>d231d36c3b8942e0259aa2d9fcaa3b7e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86999/801791/libxml2-2.9.4.563359-windows64-563359.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87772/805795/libxml2-2.9.4.563845-windows64-563845.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.9.4.563359</string>
+        <string>2.9.4.563845</string>
       </map>
       <key>llappearance_utility</key>
       <map>
@@ -2313,7 +2313,7 @@
         <key>description</key>
         <string>minizip-ng is a zip manipulation library. Based on work of Gilles Vollant.</string>
         <key>license</key>
-        <string>minizip</string>
+        <string>minizip-ng</string>
         <key>license_file</key>
         <string>LICENSES/minizip-ng.txt</string>
         <key>name</key>
@@ -2325,9 +2325,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3eb82369d98fc2cd3923c70c6038bbe9</string>
+              <string>d00bed67d307d5435280fc7b42ceb822</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87644/804995/minizip_ng-3.0.2.563749-darwin64-563749.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87785/805884/minizip_ng-3.0.2.563851-darwin64-563851.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2337,9 +2337,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>84c175fd3ba2c333d6620d7edfe406f4</string>
+              <string>e7cf61cde66e5c632e0e2c1fc5770dbb</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87647/805006/minizip_ng-3.0.2.563749-windows-563749.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87787/805898/minizip_ng-3.0.2.563851-windows-563851.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2349,16 +2349,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>572db3e4373daf92a132e5de156c545f</string>
+              <string>b3c69f9d05cfb531b591347f7b6785cb</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87646/805007/minizip_ng-3.0.2.563749-windows64-563749.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87788/805899/minizip_ng-3.0.2.563851-windows64-563851.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.2.563749</string>
+        <string>3.0.2.563851</string>
       </map>
       <key>nghttp2</key>
       <map>
@@ -2794,9 +2794,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e589a1ec2695468ee0034e214fd97e2</string>
+              <string>142d0ad85d0ee4fbb673c9f9e414fbdd</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86982/801701/openssl-1.1.1l.563354-darwin64-563354.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87769/805772/openssl-1.1.1l.563846-darwin64-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2830,9 +2830,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aac15f6f01a8283b001d04ce409a51eb</string>
+              <string>55bd833166d03f1467e2c7f24fa9143e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86987/801746/openssl-1.1.1l.563354-windows-563354.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87775/805841/openssl-1.1.1l.563846-windows-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2842,16 +2842,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6a0c5bb2a7e17d7b36e3f8f322af4e9f</string>
+              <string>6fefc60f68882fc6b246521b696497ab</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86988/801748/openssl-1.1.1l.563354-windows64-563354.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87774/805833/openssl-1.1.1l.563846-windows64-563846.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.1.1l.563354</string>
+        <string>1.1.1l.563846</string>
       </map>
       <key>pcre</key>
       <map>
@@ -3374,7 +3374,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>description</key>
         <string>zlib data compression library for the next generation systems</string>
         <key>license</key>
-        <string>zlib</string>
+        <string>zlib-ng</string>
         <key>license_file</key>
         <string>LICENSES/zlib-ng.txt</string>
         <key>name</key>
@@ -3386,9 +3386,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>978934d8ee9fa44cfcbf0fc6952733f9</string>
+              <string>bf306e38bf81c6095e0967bdef6a2445</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86979/801678/zlib_ng-2.0.5.563353-darwin64-563353.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87759/805718/zlib_ng-2.0.5.563838-darwin64-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3398,9 +3398,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>abbfde54d943fb999db9b98ee5850cb4</string>
+              <string>8ffce5bd00e3d5afa8cb39b855237c4a</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86980/801690/zlib_ng-2.0.5.563353-windows-563353.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87761/805730/zlib_ng-2.0.5.563838-windows-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3410,16 +3410,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b038b8dd39273494668f90cdbfa35332</string>
+              <string>bd103a9129e57f7ea35886bc7750f8a6</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86981/801689/zlib_ng-2.0.5.563353-windows64-563353.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87760/805729/zlib_ng-2.0.5.563838-windows64-563838.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.0.5.563353</string>
+        <string>2.0.5.563838</string>
       </map>
     </map>
     <key>package_description</key>
