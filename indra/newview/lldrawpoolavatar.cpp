@@ -1840,6 +1840,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
     LLVolume* volume,
     LLVolumeFace& vol_face)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	LLVector4a* weights = vol_face.mWeights;
 	if (!weights)
 	{
@@ -2352,8 +2354,10 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 	//update rigged vertex buffers
 	for (U32 type = 0; type < NUM_RIGGED_PASSES; ++type)
 	{
+        LL_PROFILE_ZONE_NAMED("Pass");
 		for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 		{
+            LL_PROFILE_ZONE_NAMED("Face");
 			LLFace* face = mRiggedFace[type][i];
 			LLDrawable* drawable = face->getDrawable();
 			if (!drawable)
