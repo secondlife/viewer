@@ -140,7 +140,13 @@ LLOSInfo::LLOSInfo() :
 
 #if LL_WINDOWS
 
-	if (IsWindowsVersionOrGreater(10, 0, 0))
+    if (IsWindowsVersionOrGreater(11, 0, 0))
+    {
+        mMajorVer = 11;
+        mMinorVer = 0;
+        mOSStringSimple = "Microsoft Windows 11 ";
+    }
+    else if (IsWindows10OrGreater())
 	{
 		mMajorVer = 10;
 		mMinorVer = 0;
