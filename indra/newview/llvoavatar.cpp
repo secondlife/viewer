@@ -3136,6 +3136,8 @@ void LLVOAvatar::idleUpdateWindEffect()
 
 void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	// update chat bubble
 	//--------------------------------------------------------------------
 	// draw text label over character's head
