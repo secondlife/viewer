@@ -224,6 +224,7 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
 
 void LLHUDNameTag::render()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (sDisplayText)
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -731,6 +732,7 @@ void LLHUDNameTag::updateSize()
 
 void LLHUDNameTag::updateAll()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	// iterate over all text objects, calculate their restoration forces,
 	// and add them to the visible set if they are on screen and close enough
 	sVisibleTextObjects.clear();
