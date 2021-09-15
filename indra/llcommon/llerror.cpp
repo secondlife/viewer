@@ -1397,7 +1397,10 @@ namespace LLError
 		if (site.mLevel == LEVEL_ERROR)
 		{
 			g->mFatalMessage = message;
-			s->mCrashFunction(message);
+            if (s->mCrashFunction)
+            {
+                s->mCrashFunction(message);
+            }
 		}
 	}
 }
