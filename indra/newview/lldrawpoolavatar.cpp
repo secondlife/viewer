@@ -1836,7 +1836,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
     LLVOAvatar* avatar,
     LLFace* face,
-    const LLMeshSkinInfo* skin,
+    const LLVOVolume* vobj,
     LLVolume* volume,
     LLVolumeFace& vol_face)
 {
@@ -1848,13 +1848,13 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		return;
 	}
 
+    if (!vobj || vobj->isNoLOD())
+    {
+        return;
+    }
+
 	LLPointer<LLVertexBuffer> buffer = face->getVertexBuffer();
 	LLDrawable* drawable = face->getDrawable();
-
-	if (drawable->getVOVolume() && drawable->getVOVolume()->isNoLOD())
-	{
-		return;
-	}
 
     const U32 max_joints = LLSkinningUtil::getMaxJointCount();
 
@@ -1895,23 +1895,26 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
     }
 #endif
 
-    // FIXME ugly const cast
-    LLSkinningUtil::scrubInvalidJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
+    U32 data_mask = face->getRiggedVertexBufferDataMask();
+    const LLMeshSkinInfo* skin = nullptr;
 
-	U32 data_mask = face->getRiggedVertexBufferDataMask();
-
-    if (!vol_face.mWeightsScrubbed)
-    {
-        LLSkinningUtil::scrubSkinWeights(weights, vol_face.mNumVertices, skin);
-        vol_face.mWeightsScrubbed = TRUE;
-    }
-	
 	if (buffer.isNull() || 
 		buffer->getTypeMask() != data_mask ||
 		buffer->getNumVerts() != vol_face.mNumVertices ||
 		buffer->getNumIndices() != vol_face.mNumIndices ||
 		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
+        LL_PROFILE_ZONE_NAMED("Rigged VBO Rebuild");
+        skin = vobj->getSkinInfo();
+        // FIXME ugly const cast
+        LLSkinningUtil::scrubInvalidJoints(avatar, const_cast<LLMeshSkinInfo*>(skin));
+
+        if (!vol_face.mWeightsScrubbed)
+        {
+            LLSkinningUtil::scrubSkinWeights(weights, vol_face.mNumVertices, skin);
+            vol_face.mWeightsScrubbed = TRUE;
+        }
+
 		if (drawable && drawable->isState(LLDrawable::REBUILD_ALL))
 		{
             //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
@@ -1937,18 +1940,13 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		}
 	}
 
-	if (buffer.isNull() ||
-		buffer->getNumVerts() != vol_face.mNumVertices ||
-		buffer->getNumIndices() != vol_face.mNumIndices)
+	if (sShaderLevel <= 0 && 
+        face->mLastSkinTime < avatar->getLastSkinTime() &&
+        !buffer.isNull() &&
+        buffer->getNumVerts() == vol_face.mNumVertices &&
+        buffer->getNumIndices() == vol_face.mNumIndices)
 	{
-		// Allocation failed
-		return;
-	}
-
-	if (!buffer.isNull() && 
-		sShaderLevel <= 0 && 
-		face->mLastSkinTime < avatar->getLastSkinTime())
-	{
+        LL_PROFILE_ZONE_NAMED("Software Skinning");
 		//perform software vertex skinning for this face
 		LLStrider<LLVector3> position;
 		LLStrider<LLVector3> normal;
@@ -1965,6 +1963,11 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 
 		LLVector4a* norm = has_normal ? (LLVector4a*) normal.get() : NULL;
 		
+        if (skin == nullptr)
+        {
+            skin = vobj->getSkinInfo();
+        }
+
 		//build matrix palette
 		LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
         U32 count = LLSkinningUtil::getMeshJointCount(skin);
@@ -2380,16 +2383,10 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 				continue;
 			}
 
-			const LLMeshSkinInfo* skin = vobj->getSkinInfo();
-			if (!skin)
-			{
-				continue;
-			}
-
 			stop_glerror();
 
 			LLVolumeFace& vol_face = volume->getVolumeFace(te);
-			updateRiggedFaceVertexBuffer(avatar, face, skin, volume, vol_face);
+			updateRiggedFaceVertexBuffer(avatar, face, vobj, volume, vol_face);
 		}
 	}
 }
