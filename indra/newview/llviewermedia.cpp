@@ -1687,6 +1687,11 @@ void LLViewerMediaImpl::setMediaType(const std::string& media_type)
 /*static*/
 LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_type, LLPluginClassMediaOwner *owner /* may be NULL */, S32 default_width, S32 default_height, F64 zoom_factor, const std::string target, bool clean_browser)
 {
+    if (gSavedSettings.getBOOL("NonInteractive"))
+    {
+        return NULL;
+    }
+
 	std::string plugin_basename = LLMIMETypes::implType(media_type);
 	LLPluginClassMedia* media_source = NULL;
 
