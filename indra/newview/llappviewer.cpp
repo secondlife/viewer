@@ -1557,6 +1557,15 @@ bool LLAppViewer::doFrame()
 				ms_sleep(yield_time);
 			}
 
+			static LLCachedControl<bool> s_non_interactive(gSavedSettings, "NonInteractive", false);
+			if (s_non_interactive)
+			{
+				S32 non_interactive_ms_sleep_time = 1000;
+				LLAppViewer::getTextureCache()->pause();
+				LLAppViewer::getImageDecodeThread()->pause();
+				ms_sleep(non_interactive_ms_sleep_time);
+			}
+
 			// yield cooperatively when not running as foreground window
 			// and when not quiting (causes trouble at mac's cleanup stage)
 			if (!LLApp::isExiting()

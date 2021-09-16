@@ -487,6 +487,10 @@ void LLPipeline::init()
 	{
 		clearAllRenderTypes();
 	}
+	else if (gSavedSettings.getBOOL("NonInteractive"))
+	{
+		clearAllRenderTypes();
+	}
 	else
 	{
 		setAllRenderTypes(); // By default, all rendering types start enabled
@@ -1153,6 +1157,13 @@ void LLPipeline::refreshCachedSettings()
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
 	RenderSpotLight = nullptr;
 	updateRenderDeferred();
+
+	bool non_interactive = gSavedSettings.getBOOL("NonInteractive");
+	if (non_interactive)
+	{
+		LLVOAvatar::sMaxNonImpostors = 1;
+		LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	}
 }
 
 void LLPipeline::releaseGLBuffers()
