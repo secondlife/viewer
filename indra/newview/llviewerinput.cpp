@@ -38,6 +38,7 @@
 #include "llkeybind.h" // LLKeyData
 #include "llmorphview.h"
 #include "llmoveview.h"
+#include "llsetkeybinddialog.h"
 #include "lltoolfocus.h"
 #include "lltoolpie.h"
 #include "llviewercontrol.h"
@@ -1052,18 +1053,38 @@ BOOL LLViewerInput::handleKeyUp(KEY translated_key, MASK translated_mask)
 
 bool LLViewerInput::handleGlobalBindsKeyDown(KEY key, MASK mask)
 {
+    if (LLSetKeyBindDialog::isRecording())
+    {
+        // handleGlobalBindsKeyDown happens before view handling, so can't
+        // be interupted by LLSetKeyBindDialog, check manually
+        return false;
+    }
     S32 mode = getMode();
     return scanKey(mGlobalKeyBindings[mode], mGlobalKeyBindings[mode].size(), key, mask, TRUE, FALSE, FALSE, FALSE);
 }
 
 bool LLViewerInput::handleGlobalBindsKeyUp(KEY key, MASK mask)
 {
+    if (LLSetKeyBindDialog::isRecording())
+    {
+        // handleGlobalBindsKeyUp happens before view handling, so can't
+        // be interupted by LLSetKeyBindDialog, check manually
+        return false;
+    }
+
     S32 mode = getMode();
     return scanKey(mGlobalKeyBindings[mode], mGlobalKeyBindings[mode].size(), key, mask, FALSE, TRUE, FALSE, FALSE);
 }
 
 bool LLViewerInput::handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down)
 {
+    if (LLSetKeyBindDialog::isRecording())
+    {
+        // handleGlobalBindsMouse happens before view handling, so can't
+        // be interupted by LLSetKeyBindDialog, check manually
+        return false;
+    }
+
     bool res = false;
     S32 mode = getMode();
     if (down)
