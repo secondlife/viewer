@@ -153,13 +153,21 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
     dumpStack("ObjectUpdateStack");
     
+	static LLCachedControl<bool> s_non_interactive(gSavedSettings, "NonInteractive", false);
+	
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 	
 	switch (pcode)
 	{
 	case LL_PCODE_VOLUME:
-	  res = new LLVOVolume(id, pcode, regionp); break;
+	{
+		if (!s_non_interactive)
+		{
+			res = new LLVOVolume(id, pcode, regionp); break;
+		}
+		break;
+	}
 	case LL_PCODE_LEGACY_AVATAR:
 	{
 		if (id == gAgentID)
@@ -193,9 +201,12 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
         }
 		else
 		{
-			LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
-			avatar->initInstance();
-			res = avatar;
+			if (!s_non_interactive)
+			{
+				LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
+				avatar->initInstance();
+				res = avatar;
+			}
 		}
 		break;
 	}

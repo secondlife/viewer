@@ -80,6 +80,7 @@
 #include "llfloaterperms.h"
 #include "llvocache.h"
 #include "llcorehttputil.h"
+#include "llstartup.h"
 
 #include <algorithm>
 #include <iterator>
@@ -303,9 +304,10 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Objects");
 
 LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
 {
+	static LLCachedControl<bool> s_non_interactive(gSavedSettings, "NonInteractive", false);
 	LLDataPacker *cached_dpp = entry->getDP();
 
-	if (!cached_dpp)
+	if (!cached_dpp || s_non_interactive)
 	{
 		return NULL; //nothing cached.
 	}
@@ -2051,7 +2053,6 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
-	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)
 	{

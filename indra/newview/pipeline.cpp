@@ -487,10 +487,10 @@ void LLPipeline::init()
 	{
 		clearAllRenderTypes();
 	}
-	else if (gSavedSettings.getBOOL("NonInteractive"))
-	{
-		clearAllRenderTypes();
-	}
+	//else if (gSavedSettings.getBOOL("NonInteractive"))
+//	{
+	//	clearAllRenderTypes();
+	//}
 	else
 	{
 		setAllRenderTypes(); // By default, all rendering types start enabled
