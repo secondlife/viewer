@@ -4562,11 +4562,6 @@ void LLAppViewer::loadKeyBindings()
 			LLKeyboard::keyFromString(key_string, &key);
 		}
 
-		value = gSavedSettings.getBOOL("PushToTalkToggle");
-		std::string control_name = value ? "toggle_voice" : "voice_follow_key";
-		third_person_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-		sitting_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
 		if (third_person_view.hasUnsavedChanges())
 		{
 			// calls loadBindingsXML()
@@ -4577,25 +4572,6 @@ void LLAppViewer::loadKeyBindings()
 		{
 			// calls loadBindingsXML()
 			sitting_view.saveToSettings();
-		}
-
-		// in case of voice we need to repeat this in other modes
-
-		for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
-		{
-			// edit and first person modes; MODE_SAVED_SETTINGS not in use at the moment
-			if (i != LLKeyConflictHandler::MODE_THIRD_PERSON && i != LLKeyConflictHandler::MODE_SITTING)
-			{
-				LLKeyConflictHandler handler((LLKeyConflictHandler::ESourceMode)i);
-
-				handler.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
-				if (handler.hasUnsavedChanges())
-				{
-					// calls loadBindingsXML()
-					handler.saveToSettings();
-				}
-			}
 		}
 	}
 	// since something might have gone wrong or there might have been nothing to save
