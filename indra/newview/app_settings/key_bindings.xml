@@ -32,7 +32,7 @@
     <binding key="ENTER" mask="NONE" command="start_chat"/>
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
 
-    <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="MMB" command="voice_follow_key"/>
   </first_person>
   <third_person>
     <binding key="A" mask="NONE" command="turn_left"/>
@@ -125,7 +125,7 @@
     <binding key="PAD_ENTER" mask="CTL_ALT_SHIFT" command="start_chat"/>
     <binding key="PAD_DIVIDE" mask="CTL_ALT_SHIFT" command="start_gesture"/>
 
-    <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="MMB" command="voice_follow_key"/>
     <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </third_person>
   <sitting>
@@ -223,7 +223,7 @@
     <binding key="ENTER" mask="NONE" command="start_chat"/>
     <binding key="DIVIDE" mask="NONE" command="start_gesture"/>
 
-    <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="MMB" command="voice_follow_key"/>
   </sitting>
   <edit_avatar>
     <!--Avatar editing camera controls-->
@@ -250,6 +250,6 @@
     <binding key="PAD_ENTER" mask="NONE" command="start_chat"/>
     <binding key="PAD_DIVIDE" mask="NONE" command="start_gesture"/>
 
-    <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
+    <binding key="" mask="NONE" mouse="MMB" command="voice_follow_key"/>
   </edit_avatar>
 </keys>
