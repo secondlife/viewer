@@ -469,6 +469,11 @@ private:
                                           current);
                 responses.insert(key, submap);
             }
+            else if (xmlrpc_type_empty == type)
+            {
+                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
+                responses.insert(key, LLSD());
+            }
             else
             {
                 // whoops - unrecognized type

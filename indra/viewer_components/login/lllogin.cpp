@@ -287,8 +287,9 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
                || status == "XMLRPCError"
                || status == "OtherError"))
         {
-            LL_ERRS("LLLogin") << "Unexpected status from " << xmlrpcPump.getName() << " pump: "
-                               << mAuthResponse << LL_ENDL;
+            LL_ERRS("LLLogin") << "Unexpected status " << status
+                               << " from " << xmlrpcPump.getName()
+                               << " pump: " << mAuthResponse << LL_ENDL;
             return;
         }
 
