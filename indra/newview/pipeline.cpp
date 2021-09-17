@@ -9259,7 +9259,12 @@ inline float sgn(float a)
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
-    if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
+    if (!assertInitialized())
+    {
+        return;
+    }
+
+    if (LLPipeline::sWaterReflections && LLDrawPoolWater::sNeedsReflectionUpdate)
     {
         bool skip_avatar_update = false;
         if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
@@ -9551,6 +9556,29 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         }
 
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+    }
+    else
+    {
+        // Initial sky pass is still needed even if water reflection is not rendering
+        bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
+        if (!camera_is_underwater)
+        {
+            gPipeline.pushRenderTypeMask();
+            {
+                gPipeline.andRenderTypeMask(
+                    LLPipeline::RENDER_TYPE_SKY,
+                    LLPipeline::RENDER_TYPE_WL_SKY,
+                    LLPipeline::END_RENDER_TYPES);
+
+                LLCamera camera = camera_in;
+                camera.setFar(camera_in.getFar() * 0.75f);
+
+                updateCull(camera, mSky);
+                stateSort(camera, mSky);
+                renderGeom(camera, TRUE);
+            }
+            gPipeline.popRenderTypeMask();
+        }
     }
 }
 
