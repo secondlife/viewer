@@ -591,7 +591,7 @@ void LLModelPreview::rebuildUploadData()
                 bool upload_skinweights = fmp && fmp->childGetValue("upload_skin").asBoolean();
                 if (upload_skinweights && high_lod_model->mSkinInfo.mJointNames.size() > 0)
                 {
-                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(high_lod_model->mSkinInfo.mBindShapeMatrix);
+                    LLQuaternion bind_rot = LLSkinningUtil::getUnscaledQuaternion(LLMatrix4(high_lod_model->mSkinInfo.mBindShapeMatrix));
                     LLQuaternion identity;
                     if (!bind_rot.isEqualEps(identity, 0.01))
                     {
@@ -3298,7 +3298,7 @@ BOOL LLModelPreview::render()
                                 LLJoint *joint = getPreviewAvatar()->getJoint(skin->mJointNums[j]);
                                 if (joint)
                                 {
-                                    const LLVector3& jointPos = skin->mAlternateBindMatrix[j].getTranslation();
+                                    const LLVector3& jointPos = LLVector3(skin->mAlternateBindMatrix[j].getTranslation());
                                     if (joint->aboveJointPosThreshold(jointPos))
                                     {
                                         bool override_changed;
@@ -3340,11 +3340,10 @@ BOOL LLModelPreview::render()
                             //build matrix palette
 
                             LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-                            LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, joint_count,
+                            LLSkinningUtil::initSkinningMatrixPalette(mat, joint_count,
                                 skin, getPreviewAvatar());
 
-                            LLMatrix4a bind_shape_matrix;
-                            bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+                            const LLMatrix4a& bind_shape_matrix = skin->mBindShapeMatrix;
                             U32 max_joints = LLSkinningUtil::getMaxJointCount();
                             for (U32 j = 0; j < buffer->getNumVerts(); ++j)
                             {

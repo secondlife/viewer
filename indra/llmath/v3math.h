@@ -33,6 +33,7 @@
 #include "llsd.h"
 class LLVector2;
 class LLVector4;
+class LLVector4a;
 class LLMatrix3;
 class LLMatrix4;
 class LLVector3d;
@@ -62,7 +63,9 @@ class LLVector3
 		explicit LLVector3(const LLVector2 &vec);				// Initializes LLVector3 to (vec[0]. vec[1], 0)
 		explicit LLVector3(const LLVector3d &vec);				// Initializes LLVector3 to (vec[0]. vec[1], vec[2])
 		explicit LLVector3(const LLVector4 &vec);				// Initializes LLVector4 to (vec[0]. vec[1], vec[2])
-		explicit LLVector3(const LLSD& sd);
+        explicit LLVector3(const LLVector4a& vec);              // Initializes LLVector4 to (vec[0]. vec[1], vec[2])
+        explicit LLVector3(const LLSD& sd);
+        
 
 		LLSD getValue() const;
 

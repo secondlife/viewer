@@ -620,6 +620,7 @@ void LLViewerTextureList::findTexturesByID(const LLUUID &image_id, std::vector<L
 
 LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLTextureKey &search_key)
 {
+    LL_PROFILE_ZONE_SCOPED;
     uuid_map_t::iterator iter = mUUIDMap.find(search_key);
     if (iter == mUUIDMap.end())
         return NULL;

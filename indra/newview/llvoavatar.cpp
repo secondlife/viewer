@@ -4886,6 +4886,8 @@ bool LLVOAvatar::shouldAlphaMask()
 //-----------------------------------------------------------------------------
 U32 LLVOAvatar::renderSkinned()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	U32 num_indices = 0;
 
 	if (!mIsBuilt)
@@ -6160,27 +6162,29 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 LLJoint *LLVOAvatar::getJoint( S32 joint_num )
 {
     LLJoint *pJoint = NULL;
-    S32 collision_start = mNumBones;
-    S32 attachment_start = mNumBones + mNumCollisionVolumes;
-    if (joint_num>=attachment_start)
+    if (joint_num >= 0)
     {
-        // Attachment IDs start at 1
-        S32 attachment_id = joint_num - attachment_start + 1;
-        attachment_map_t::iterator iter = mAttachmentPoints.find(attachment_id);
-        if (iter != mAttachmentPoints.end())
+        if (joint_num < mNumBones)
         {
-            pJoint = iter->second;
+            pJoint = mSkeleton[joint_num];
+        }
+        else if (joint_num < mNumBones + mNumCollisionVolumes)
+        {
+            S32 collision_id = joint_num - mNumBones;
+            pJoint = &mCollisionVolumes[collision_id];
+        }
+        else
+        {
+            // Attachment IDs start at 1
+            S32 attachment_id = joint_num - (mNumBones + mNumCollisionVolumes) + 1;
+            attachment_map_t::iterator iter = mAttachmentPoints.find(attachment_id);
+            if (iter != mAttachmentPoints.end())
+            {
+                pJoint = iter->second;
+            }
         }
     }
-    else if (joint_num>=collision_start)
-    {
-        S32 collision_id = joint_num-collision_start;
-        pJoint = &mCollisionVolumes[collision_id];
-    }
-    else if (joint_num>=0)
-    {
-        pJoint = mSkeleton[joint_num];
-    }
+    
 	llassert(!pJoint || pJoint->getJointNum() == joint_num);
     return pJoint;
 }
@@ -6515,7 +6519,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LL
 					LLJoint* pJoint = getJoint( lookingForJoint );
 					if (pJoint)
 					{   									
-						const LLVector3& jointPos = pSkinData->mAlternateBindMatrix[i].getTranslation();									
+						const LLVector3& jointPos = LLVector3(pSkinData->mAlternateBindMatrix[i].getTranslation());
                         if (pJoint->aboveJointPosThreshold(jointPos))
                         {
                             bool override_changed;
@@ -7864,6 +7868,8 @@ void LLVOAvatar::onGlobalColorChanged(const LLTexGlobalColor* global_color)
 // Do rigged mesh attachments display with this av?
 bool LLVOAvatar::shouldRenderRigged() const
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	if (getOverallAppearance() == AOA_NORMAL)
 	{
 		return true;
@@ -10951,6 +10957,7 @@ void LLVOAvatar::updateOverallAppearanceAnimations()
 // Based on isVisuallyMuted(), but has 3 possible results.
 LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
 {
+    LL_PROFILE_ZONE_SCOPED;
 	AvatarOverallAppearance result = AOA_NORMAL;
 
 	// Priority order (highest priority first)

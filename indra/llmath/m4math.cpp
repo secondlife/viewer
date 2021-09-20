@@ -32,8 +32,7 @@
 #include "m4math.h"
 #include "m3math.h"
 #include "llquaternion.h"
-
-
+#include "llmatrix4a.h"
 
 
 // LLMatrix4
@@ -113,6 +112,12 @@ LLMatrix4::LLMatrix4(const LLMatrix3 &mat)
 LLMatrix4::LLMatrix4(const LLQuaternion &q)
 {
 	*this = initRotation(q);
+}
+
+LLMatrix4::LLMatrix4(const LLMatrix4a& mat)
+    : LLMatrix4(mat.getF32ptr())
+{
+    
 }
 
 LLMatrix4::LLMatrix4(const LLQuaternion &q, const LLVector4 &pos)

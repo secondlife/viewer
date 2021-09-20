@@ -28,15 +28,18 @@
 #define LL_LLDRAWPOOLAVATAR_H
 
 #include "lldrawpool.h"
+#include "llmodel.h"
+
+#include <unordered_map>
 
 class LLVOAvatar;
 class LLVOVolume;
 class LLGLSLShader;
 class LLFace;
-class LLMeshSkinInfo;
 class LLVolume;
 class LLVolumeFace;
 
+extern U32 gFrameCount;
 
 class LLDrawPoolAvatar : public LLFacePool
 {
@@ -259,6 +262,8 @@ typedef enum
 									  LLVolumeFace& vol_face);
 	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
 
+    void updateSkinInfoMatrixPalettes(LLVOAvatar* avatarp);
+
 	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
 	void renderRiggedSimple(LLVOAvatar* avatar);
 	void renderRiggedAlpha(LLVOAvatar* avatar);
@@ -277,6 +282,26 @@ typedef enum
 	void removeRiggedFace(LLFace* facep); 
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
+
+    class MatrixPaletteCache
+    {
+    public:
+        U32 mFrame;
+        LLMeshSkinInfo::matrix_list_t mMatrixPalette;
+        
+        // Float array ready to be sent to GL
+        std::vector<F32> mGLMp;
+
+        MatrixPaletteCache() :
+            mFrame(gFrameCount-1)
+        {
+        }
+    };
+    
+    const MatrixPaletteCache& updateSkinInfoMatrixPalette(LLVOAvatar* avatarp, const LLMeshSkinInfo* skin);
+
+    typedef std::unordered_map<const LLMeshSkinInfo*, MatrixPaletteCache> matrix_palette_cache_t;
+    matrix_palette_cache_t mMatrixPaletteCache;
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
