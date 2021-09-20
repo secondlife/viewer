@@ -488,6 +488,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;
+extern BOOL gNonInteractive;
 extern BOOL gGLActive;
 
 // Deal with changing glext.h definitions for newer SDK versions, specifically

@@ -1158,8 +1158,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderSpotLight = nullptr;
 	updateRenderDeferred();
 
-	bool non_interactive = gSavedSettings.getBOOL("NonInteractive");
-	if (non_interactive)
+	if (gNonInteractive)
 	{
 		LLVOAvatar::sMaxNonImpostors = 1;
 		LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);

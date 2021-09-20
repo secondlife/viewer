@@ -62,6 +62,7 @@
 BOOL gDebugSession = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gHeadlessClient = FALSE;
+BOOL gNonInteractive = FALSE;
 BOOL gGLActive = FALSE;
 BOOL gGLDebugLoggingEnabled = TRUE;
 

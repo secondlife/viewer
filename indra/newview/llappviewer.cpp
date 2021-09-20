@@ -1557,8 +1557,7 @@ bool LLAppViewer::doFrame()
 				ms_sleep(yield_time);
 			}
 
-			static LLCachedControl<bool> s_non_interactive(gSavedSettings, "NonInteractive", false);
-			if (s_non_interactive)
+			if (gNonInteractive)
 			{
 				S32 non_interactive_ms_sleep_time = 1000;
 				LLAppViewer::getTextureCache()->pause();
@@ -2979,6 +2978,7 @@ bool LLAppViewer::initWindow()
 
 	// store setting in a global for easy access and modification
 	gHeadlessClient = gSavedSettings.getBOOL("HeadlessClient");
+	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");

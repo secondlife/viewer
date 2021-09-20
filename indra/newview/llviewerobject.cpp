@@ -107,6 +107,7 @@
 #include "llcleanup.h"
 #include "llcallstack.h"
 #include "llmeshrepository.h"
+#include "llgl.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -153,8 +154,6 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
     dumpStack("ObjectUpdateStack");
     
-	static LLCachedControl<bool> s_non_interactive(gSavedSettings, "NonInteractive", false);
-	
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 	
@@ -162,7 +161,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 	{
 	case LL_PCODE_VOLUME:
 	{
-		if (!s_non_interactive)
+		if (!gNonInteractive)
 		{
 			res = new LLVOVolume(id, pcode, regionp); break;
 		}
@@ -201,7 +200,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
         }
 		else
 		{
-			if (!s_non_interactive)
+			if (!gNonInteractive)
 			{
 				LLVOAvatar *avatar = new LLVOAvatar(id, pcode, regionp); 
 				avatar->initInstance();
