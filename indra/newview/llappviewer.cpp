@@ -2439,6 +2439,37 @@ namespace
     }
 } // anonymous namespace
 
+// Set a named control temporarily for this session, as when set via the command line --set option.
+bool tempSetControl(const std::string& name, const std::string& value)
+{
+	std::string name_part;
+	std::string group_part;
+	LLControlVariable* control = NULL;
+
+	// Name can be further split into ControlGroup.Name, with the default control group being Global
+	size_t pos = name.find('.');
+	if (pos != std::string::npos)
+	{
+		group_part = name.substr(0, pos);
+		name_part = name.substr(pos+1);
+		LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
+		LLControlGroup* g = LLControlGroup::getInstance(group_part);
+		if (g) control = g->getControl(name_part);
+	}
+	else
+	{
+		LL_INFOS() << "Setting Global." << name << " to " << value << LL_ENDL;
+		control = gSavedSettings.getControl(name);
+	}
+
+	if (control)
+	{
+		control->setValue(value, false);
+		return true;
+	}
+	return false;
+}
+
 bool LLAppViewer::initConfiguration()
 {
 	//Load settings files list
@@ -2635,34 +2666,10 @@ bool LLAppViewer::initConfiguration()
             {
                 const std::string& name = *itr;
                 const std::string& value = *(++itr);
-                std::string name_part;
-                std::string group_part;
-				LLControlVariable* control = NULL;
-
-				// Name can be further split into ControlGroup.Name, with the default control group being Global
-				size_t pos = name.find('.');
-				if (pos != std::string::npos)
+				if (!tempSetControl(name,value))
 				{
-					group_part = name.substr(0, pos);
-					name_part = name.substr(pos+1);
-					LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
-					LLControlGroup* g = LLControlGroup::getInstance(group_part);
-					if (g) control = g->getControl(name_part);
-				}
-				else
-				{
-					LL_INFOS() << "Setting Global." << name << " to " << value << LL_ENDL;
-					control = gSavedSettings.getControl(name);
-				}
-
-                if (control)
-                {
-                    control->setValue(value, false);
-                }
-                else
-                {
 					LL_WARNS() << "Failed --set " << name << ": setting name unknown." << LL_ENDL;
-                }
+				}
             }
         }
     }
@@ -2746,6 +2753,14 @@ bool LLAppViewer::initConfiguration()
 			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
 		}
 	}
+
+	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
+	if (gNonInteractive)
+	{
+		tempSetControl("SLURLPassToOtherInstance", "FALSE");
+		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
+	}
+
 
 	// Handle slurl use. NOTE: Don't let SL-55321 reappear.
 	// This initial-SLURL logic, up through the call to
@@ -2978,7 +2993,6 @@ bool LLAppViewer::initWindow()
 
 	// store setting in a global for easy access and modification
 	gHeadlessClient = gSavedSettings.getBOOL("HeadlessClient");
-	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
 
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
