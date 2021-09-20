@@ -8308,13 +8308,13 @@
     <key>PushToTalkToggle</key>
     <map>
       <key>Comment</key>
-      <string>Should the push-to-talk toolbar button behave as a toggle</string>
+      <string>Should the push-to-talk button behave as a toggle</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>QAMode</key>
     <map>

@@ -644,6 +644,7 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
             data = getControl("voice_follow_key", 0);
         }
 
+        gSavedSettings.setBOOL("PushToTalkToggle", can_toggle);
         if (data.isEmpty())
         {
             // legacy viewer has a bug that might crash it if NONE value is assigned.
