@@ -1,5 +1,5 @@
 #!/bin/sh
-if [ -n $SKIP_NOTARIZATION ]; then
+if [[ $SKIP_NOTARIZATION == "true" ]]; then
     echo "Skipping notarization"
     exit 0
 fi
