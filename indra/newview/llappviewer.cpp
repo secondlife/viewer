@@ -2440,6 +2440,7 @@ namespace
 } // anonymous namespace
 
 // Set a named control temporarily for this session, as when set via the command line --set option.
+// Name can be specified as "<control_group>.<control_name>", with default group being Global.
 bool tempSetControl(const std::string& name, const std::string& value)
 {
 	std::string name_part;

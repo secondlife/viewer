@@ -4049,6 +4049,7 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
+	bool non_interactive_got_run = false;
 
 	LL_DEBUGS("Messaging", "Motion") << "Processing " << num_blocks << " Animations" << LL_ENDL;
 
@@ -4064,6 +4065,14 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
 			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
 
+			if (gNonInteractive && (animation_id == ANIM_AGENT_RUN))
+			{
+				// RUN requests get sent at startup for unclear
+				// reasons. Same avatar may get requests one run and
+				// not another. At least in the non-interactive case,
+				// we want to override these.
+				non_interactive_got_run = true;
+			}
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
 
 			// *HACK: Disabling flying mode if it has been enabled shortly before the agent
@@ -4126,6 +4135,13 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	if (num_blocks)
 	{
 		avatarp->processAnimationStateChanges();
+	}
+
+	if (non_interactive_got_run)
+	{
+		// Total kluge alert.
+		LL_INFOS("Messaging","Motion") << "non-interactive mode, resetting animations" << LL_ENDL;
+		gAgent.stopCurrentAnimations();
 	}
 }
 
