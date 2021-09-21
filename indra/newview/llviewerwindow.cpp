@@ -2231,6 +2231,7 @@ void LLViewerWindow::initWorldUI()
 	gStatusBar->setShape(status_bar_container->getLocalRect());
 	// sync bg color with menu bar
 	gStatusBar->setBackgroundColor( gMenuBarView->getBackgroundColor().get() );
+    // add InBack so that gStatusBar won't be drawn over menu
 	status_bar_container->addChildInBack(gStatusBar);
 	status_bar_container->setVisible(TRUE);
 
