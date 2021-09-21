@@ -591,6 +591,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 						glTexCoordPointer(2, GL_FLOAT, 8, vol_face.mTexCoords);
 					}
 					gGL.syncMatrices();
+					LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x00FF00 );
 					glDrawElements(GL_TRIANGLES, vol_face.mNumIndices, GL_UNSIGNED_SHORT, vol_face.mIndices);
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 				}
