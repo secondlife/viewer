@@ -11146,6 +11146,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffersARB", 0x8000FF );
 			glDrawBuffersARB(1, &buff);
 		}
 
