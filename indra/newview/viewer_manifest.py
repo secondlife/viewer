@@ -1319,7 +1319,7 @@ class DarwinManifest(ViewerManifest):
                             else:
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
-                    self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
+                    # self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
                     # self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
 
         finally:
