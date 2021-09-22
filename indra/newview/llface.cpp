@@ -241,6 +241,8 @@ void LLFace::setPool(LLFacePool* pool)
 
 void LLFace::setPool(LLFacePool* new_pool, LLViewerTexture *texturep)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (!new_pool)
 	{
 		LL_ERRS() << "Setting pool to null!" << LL_ENDL;
@@ -320,6 +322,8 @@ void LLFace::setSpecularMap(LLViewerTexture* tex)
 
 void LLFace::dirtyTexture()
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	LLDrawable* drawablep = getDrawable();
 
 	if (mVObjp.notNull() && mVObjp->getVolume())
@@ -535,6 +539,8 @@ void LLFace::updateCenterAgent()
 
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL)
 	{
 		return;
@@ -606,6 +612,8 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 
 void renderFace(LLDrawable* drawable, LLFace *face)
 {
+	LL_PROFILE_ZONE_SCOPED
+
     LLVOVolume* vobj = drawable->getVOVolume();
     if (vobj)
     {
@@ -892,6 +900,8 @@ bool less_than_max_mag(const LLVector4a& vec)
 BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
                              const LLMatrix4& mat_vert_in, BOOL global_volume)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	//get bounding box
 	if (mDrawablep->isState(LLDrawable::REBUILD_VOLUME | LLDrawable::REBUILD_POSITION | LLDrawable::REBUILD_RIGGED))
 	{
@@ -2376,6 +2386,8 @@ F32 LLFace::getTextureVirtualSize()
 
 BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	//VECTORIZE THIS
 	//get area of circle around face
 	LLVector4a center;
@@ -2655,6 +2667,8 @@ const LLMatrix4& LLFace::getRenderMatrix() const
 
 S32 LLFace::renderElements(const U16 *index_array) const
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	S32 ret = 0;
 	
 	if (isState(GLOBAL))
@@ -2674,6 +2688,8 @@ S32 LLFace::renderElements(const U16 *index_array) const
 
 S32 LLFace::renderIndexed()
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if(mDrawablep == NULL || mDrawPoolp == NULL)
 	{
 		return 0;
@@ -2684,6 +2700,8 @@ S32 LLFace::renderIndexed()
 
 S32 LLFace::renderIndexed(U32 mask)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (mVertexBuffer.isNull())
 	{
 		return 0;

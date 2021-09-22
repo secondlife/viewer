@@ -1358,7 +1358,8 @@ void LLAppViewer::initMaxHeapSize()
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
-static LLTrace::BlockTimerStatHandle FTM_SLEEP("Sleep");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP1("Sleep1");
+static LLTrace::BlockTimerStatHandle FTM_SLEEP2("Sleep2");
 static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
@@ -1420,13 +1421,17 @@ bool LLAppViewer::frame()
 
 bool LLAppViewer::doFrame()
 {
+	LL_RECORD_BLOCK_TIME(FTM_FRAME);
+
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 
-	LL_RECORD_BLOCK_TIME(FTM_FRAME);
-	LLTrace::BlockTimer::processTimes();
-	LLTrace::get_frame_recording().nextPeriod();
-	LLTrace::BlockTimer::logStats();
+	{
+		LL_PROFILE_ZONE_NAMED( "df blocktimer" )
+		LLTrace::BlockTimer::processTimes();
+		LLTrace::get_frame_recording().nextPeriod();
+		LLTrace::BlockTimer::logStats();
+	}
 
 	LLTrace::get_thread_recorder()->pullFromChildren();
 
@@ -1434,6 +1439,7 @@ bool LLAppViewer::doFrame()
 	LL_CLEAR_CALLSTACKS();
 
 	{
+		LL_PROFILE_ZONE_NAMED( "df processMiscNativeEvents" )
 		pingMainloopTimeout("Main:MiscNativeWindowEvents");
 
 		if (gViewerWindow)
@@ -1442,7 +1448,10 @@ bool LLAppViewer::doFrame()
 			gViewerWindow->getWindow()->processMiscNativeEvents();
 		}
 
-		pingMainloopTimeout("Main:GatherInput");
+		{
+			LL_PROFILE_ZONE_NAMED( "df gatherInput" )
+			pingMainloopTimeout("Main:GatherInput");
+		}
 
 		if (gViewerWindow)
 		{
@@ -1466,13 +1475,21 @@ bool LLAppViewer::doFrame()
 			}
 		}
 
-		// canonical per-frame event
-		mainloop.post(newFrame);
-		// give listeners a chance to run
-		llcoro::suspend();
+		{
+			LL_PROFILE_ZONE_NAMED( "df mainloop" )
+			// canonical per-frame event
+			mainloop.post(newFrame);
+		}
+
+		{
+			LL_PROFILE_ZONE_NAMED( "df suspend" )
+			// give listeners a chance to run
+			llcoro::suspend();
+		}
 
 		if (!LLApp::isExiting())
 		{
+			LL_PROFILE_ZONE_NAMED( "df JoystickKeyboard" )
 			pingMainloopTimeout("Main:JoystickKeyboard");
 
 			// Scan keyboard for movement keys.  Command keys and typing
@@ -1493,12 +1510,18 @@ bool LLAppViewer::doFrame()
 
 			// Update state based on messages, user input, object idle.
 			{
-				pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+				{
+					LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
+					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+				}
 
 				LL_RECORD_BLOCK_TIME(FTM_IDLE);
 				idle();
 
-				resumeMainloopTimeout();
+				{
+					LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
+					resumeMainloopTimeout();
+				}
 			}
 
 			if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
@@ -1513,6 +1536,7 @@ bool LLAppViewer::doFrame()
 			// *TODO: Should we run display() even during gHeadlessClient?  DK 2011-02-18
 			if (!LLApp::isExiting() && !gHeadlessClient && gViewerWindow)
 			{
+				LL_PROFILE_ZONE_NAMED( "df Display" )
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
 
@@ -1525,34 +1549,45 @@ bool LLAppViewer::doFrame()
 					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
 					if (elapsed_time < mMinMicroSecPerFrame)
 					{
-						LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+						//LL_RECORD_BLOCK_TIME(FTM_SLEEP1);
+						LL_PROFILE_ZONE_WARN( "Sleep1" )
 						// llclamp for when time function gets funky
 						U64 sleep_time = llclamp(mMinMicroSecPerFrame - elapsed_time, (U64)1, (U64)1e6);
+
+						LL_PROFILE_ZONE_NUM( sleep_time )
 						micro_sleep(sleep_time, 0);
 					}
 				}
 				last_call = LLTimer::getTotalTime();
 
-				pingMainloopTimeout("Main:Snapshot");
-				LLFloaterSnapshot::update(); // take snapshots
+				{
+					LL_PROFILE_ZONE_NAMED( "df Snapshot" )
+					pingMainloopTimeout("Main:Snapshot");
+					LLFloaterSnapshot::update(); // take snapshots
 					LLFloaterOutfitSnapshot::update();
-				gGLActive = FALSE;
+					gGLActive = FALSE;
+				}
 			}
 		}
 
-		pingMainloopTimeout("Main:Sleep");
+		{
+			LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
+			pingMainloopTimeout("Main:Sleep");
 
-		pauseMainloopTimeout();
+			pauseMainloopTimeout();
+		}
 
 		// Sleep and run background threads
 		{
-			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
+			//LL_RECORD_BLOCK_TIME(SLEEP2);
+			LL_PROFILE_ZONE_WARN( "Sleep2" )
 
 			// yield some time to the os based on command line option
 			static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime", -1);
 			if(yield_time >= 0)
 			{
 				LL_RECORD_BLOCK_TIME(FTM_YIELD);
+				LL_PROFILE_ZONE_NUM( yield_time )
 				ms_sleep(yield_time);
 			}
 
@@ -1615,16 +1650,22 @@ bool LLAppViewer::doFrame()
 				total_io_pending += io_pending ;
 
 			}
-			gMeshRepo.update() ;
+
+			{
+				LL_PROFILE_ZONE_NAMED( "df gMeshRepo" )
+				gMeshRepo.update() ;
+			}
 
 			if(!total_work_pending) //pause texture fetching threads if nothing to process.
 			{
+				LL_PROFILE_ZONE_NAMED( "df getTextureCache" )
 				LLAppViewer::getTextureCache()->pause();
 				LLAppViewer::getImageDecodeThread()->pause();
 				LLAppViewer::getTextureFetch()->pause();
 			}
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
+				LL_PROFILE_ZONE_NAMED( "df LLVFSThread" )
 				LLVFSThread::sLocal->pause();
 				LLLFSThread::sLocal->pause();
 			}
@@ -1632,6 +1673,7 @@ bool LLAppViewer::doFrame()
 			//texture fetching debugger
 			if(LLTextureFetchDebugger::isEnabled())
 			{
+				LL_PROFILE_ZONE_NAMED( "df tex_fetch_debugger_instance" )
 				LLFloaterTextureFetchDebugger* tex_fetch_debugger_instance =
 					LLFloaterReg::findTypedInstance<LLFloaterTextureFetchDebugger>("tex_fetch_debugger");
 				if(tex_fetch_debugger_instance)
@@ -1640,8 +1682,10 @@ bool LLAppViewer::doFrame()
 				}
 			}
 
-			resumeMainloopTimeout();
-
+			{
+				LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
+				resumeMainloopTimeout();
+			}
 			pingMainloopTimeout("Main:End");
 		}
 	}
