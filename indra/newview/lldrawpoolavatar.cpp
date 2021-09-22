@@ -121,6 +121,8 @@ LLDrawPoolAvatar::~LLDrawPoolAvatar()
 // virtual
 BOOL LLDrawPoolAvatar::isDead()
 {
+    LL_PROFILE_ZONE_SCOPED
+
     if (!LLFacePool::isDead())
     {
         return FALSE;
@@ -138,11 +140,15 @@ BOOL LLDrawPoolAvatar::isDead()
 
 S32 LLDrawPoolAvatar::getShaderLevel() const
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	return (S32) LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 	
 	sShaderLevel = mShaderLevel;
@@ -170,6 +176,8 @@ void LLDrawPoolAvatar::prerender()
 
 LLMatrix4& LLDrawPoolAvatar::getModelView()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	static LLMatrix4 ret;
 
 	ret.initRows(LLVector4(gGLModelView+0),
@@ -258,6 +266,8 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	render(pass);
 }
 
@@ -268,6 +278,8 @@ S32 LLDrawPoolAvatar::getNumPostDeferredPasses()
 
 void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	switch (pass)
 	{
 	case 0:
@@ -296,6 +308,8 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::beginPostDeferredAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sSkipOpaque = TRUE;
 	sShaderLevel = mShaderLevel;
 	sVertexProgram = &gDeferredAvatarAlphaProgram;
@@ -310,6 +324,8 @@ void LLDrawPoolAvatar::beginPostDeferredAlpha()
 
 void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sVertexProgram = &gDeferredSkinnedAlphaProgram;
 	gPipeline.bindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -318,6 +334,8 @@ void LLDrawPoolAvatar::beginDeferredRiggedAlpha()
 
 void LLDrawPoolAvatar::beginDeferredRiggedMaterialAlpha(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	switch (pass)
 	{
 	case 0: pass = 1; break;
@@ -344,6 +362,8 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterialAlpha(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredRiggedAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	gPipeline.unbindDeferredShader(*sVertexProgram);
 	sDiffuseChannel = 0;
@@ -354,6 +374,8 @@ void LLDrawPoolAvatar::endDeferredRiggedAlpha()
 
 void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	switch (pass)
 	{
 	case 0:
@@ -382,6 +404,8 @@ void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::endPostDeferredAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	sSkipOpaque = FALSE;
@@ -393,6 +417,8 @@ void LLDrawPoolAvatar::endPostDeferredAlpha()
 
 void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	static const S32 actual_pass[] =
 	{ //map post deferred pass numbers to what render() expects
 		2, //skinned
@@ -656,6 +682,8 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 S32 LLDrawPoolAvatar::getNumPasses()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (LLPipeline::sImpostorRender)
 	{
 		return 8;
@@ -669,6 +697,8 @@ S32 LLDrawPoolAvatar::getNumPasses()
 
 S32 LLDrawPoolAvatar::getNumDeferredPasses()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (LLPipeline::sImpostorRender)
 	{
 		return 19;
@@ -789,6 +819,8 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::beginImpostor()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!LLPipeline::sReflectionRender)
 	{
 		LLVOAvatar::sRenderDistance = llclamp(LLVOAvatar::sRenderDistance, 16.f, 256.f);
@@ -807,6 +839,8 @@ void LLDrawPoolAvatar::beginImpostor()
 
 void LLDrawPoolAvatar::endImpostor()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		gImpostorProgram.unbind();
@@ -816,6 +850,8 @@ void LLDrawPoolAvatar::endImpostor()
 
 void LLDrawPoolAvatar::beginRigid()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (gPipeline.canUseVertexShaders())
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -849,6 +885,8 @@ void LLDrawPoolAvatar::beginRigid()
 
 void LLDrawPoolAvatar::endRigid()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sShaderLevel = mShaderLevel;
 	if (sVertexProgram != NULL)
 	{
@@ -858,6 +896,8 @@ void LLDrawPoolAvatar::endRigid()
 
 void LLDrawPoolAvatar::beginDeferredImpostor()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!LLPipeline::sReflectionRender)
 	{
 		LLVOAvatar::sRenderDistance = llclamp(LLVOAvatar::sRenderDistance, 16.f, 256.f);
@@ -874,6 +914,8 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 
 void LLDrawPoolAvatar::endDeferredImpostor()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
@@ -885,6 +927,8 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 
 void LLDrawPoolAvatar::beginDeferredRigid()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->bind();
@@ -901,6 +945,8 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 
 void LLDrawPoolAvatar::endDeferredRigid()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	sVertexProgram->unbind();
@@ -910,6 +956,8 @@ void LLDrawPoolAvatar::endDeferredRigid()
 
 void LLDrawPoolAvatar::beginSkinned()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -976,6 +1024,8 @@ void LLDrawPoolAvatar::beginSkinned()
 
 void LLDrawPoolAvatar::endSkinned()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	if (sShaderLevel > 0)
 	{
@@ -1000,6 +1050,8 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginRiggedSimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -1040,6 +1092,8 @@ void LLDrawPoolAvatar::beginRiggedSimple()
 
 void LLDrawPoolAvatar::endRiggedSimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
@@ -1050,27 +1104,37 @@ void LLDrawPoolAvatar::endRiggedSimple()
 
 void LLDrawPoolAvatar::beginRiggedAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	beginRiggedSimple();
 }
 
 void LLDrawPoolAvatar::endRiggedAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	endRiggedSimple();
 }
 
 
 void LLDrawPoolAvatar::beginRiggedFullbrightAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	beginRiggedFullbright();
 }
 
 void LLDrawPoolAvatar::endRiggedFullbrightAlpha()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	endRiggedFullbright();
 }
 
 void LLDrawPoolAvatar::beginRiggedGlow()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -1117,11 +1181,15 @@ void LLDrawPoolAvatar::beginRiggedGlow()
 
 void LLDrawPoolAvatar::endRiggedGlow()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	endRiggedFullbright();
 }
 
 void LLDrawPoolAvatar::beginRiggedFullbright()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -1179,6 +1247,8 @@ void LLDrawPoolAvatar::beginRiggedFullbright()
 
 void LLDrawPoolAvatar::endRiggedFullbright()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
@@ -1189,6 +1259,8 @@ void LLDrawPoolAvatar::endRiggedFullbright()
 
 void LLDrawPoolAvatar::beginRiggedShinySimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -1229,6 +1301,8 @@ void LLDrawPoolAvatar::beginRiggedShinySimple()
 
 void LLDrawPoolAvatar::endRiggedShinySimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
@@ -1240,6 +1314,8 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 
 void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (sShaderLevel > 0)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -1305,6 +1381,8 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 
 void LLDrawPoolAvatar::endRiggedFullbrightShiny()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
@@ -1317,6 +1395,8 @@ void LLDrawPoolAvatar::endRiggedFullbrightShiny()
 
 void LLDrawPoolAvatar::beginDeferredRiggedSimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sVertexProgram = &gDeferredSkinnedDiffuseProgram;
 	sDiffuseChannel = 0;
 	sVertexProgram->bind();
@@ -1332,6 +1412,8 @@ void LLDrawPoolAvatar::beginDeferredRiggedSimple()
 
 void LLDrawPoolAvatar::endDeferredRiggedSimple()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	sVertexProgram->unbind();
 	sVertexProgram = NULL;
@@ -1339,6 +1421,8 @@ void LLDrawPoolAvatar::endDeferredRiggedSimple()
 
 void LLDrawPoolAvatar::beginDeferredRiggedBump()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sVertexProgram = &gDeferredSkinnedBumpProgram;
 	sVertexProgram->bind();
     if (LLPipeline::sRenderingHUDs)
@@ -1355,6 +1439,8 @@ void LLDrawPoolAvatar::beginDeferredRiggedBump()
 
 void LLDrawPoolAvatar::endDeferredRiggedBump()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	LLVertexBuffer::unbind();
 	sVertexProgram->disableTexture(LLViewerShaderMgr::BUMP_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -1366,6 +1452,8 @@ void LLDrawPoolAvatar::endDeferredRiggedBump()
 
 void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (pass == 1 ||
 		pass == 5 ||
 		pass == 9 ||
@@ -1396,6 +1484,8 @@ void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (pass == 1 ||
 		pass == 5 ||
 		pass == 9 ||
@@ -1416,6 +1506,8 @@ void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	sShaderLevel = mShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
 	sRenderingSkinned = TRUE;
@@ -1437,6 +1529,8 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	sVertexProgram->unbind();
@@ -1749,6 +1843,8 @@ void LLDrawPoolAvatar::getRiggedGeometry(
     LLVolume* volume,
     const LLVolumeFace& vol_face)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     face->setGeomIndex(0);
     face->setIndicesIndex(0);
 
@@ -2049,7 +2145,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 
 void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED
 
 	if (!avatar->shouldRenderRigged())
 	{
@@ -2326,16 +2422,22 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_DEFERRED_SIMPLE);
 }
 
 void LLDrawPoolAvatar::renderDeferredRiggedBump(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_DEFERRED_BUMP);
 }
 
 void LLDrawPoolAvatar::renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, pass);
 }
 
@@ -2448,27 +2550,37 @@ const LLDrawPoolAvatar::MatrixPaletteCache& LLDrawPoolAvatar::updateSkinInfoMatr
 
 void LLDrawPoolAvatar::renderRiggedSimple(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_SIMPLE);
 }
 
 void LLDrawPoolAvatar::renderRiggedFullbright(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_FULLBRIGHT);
 }
 
 	
 void LLDrawPoolAvatar::renderRiggedShinySimple(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_SHINY);
 }
 
 void LLDrawPoolAvatar::renderRiggedFullbrightShiny(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	renderRigged(avatar, RIGGED_FULLBRIGHT_SHINY);
 }
 
 void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!mRiggedFace[RIGGED_ALPHA].empty())
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -2486,6 +2598,8 @@ void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
 
 void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!mRiggedFace[RIGGED_FULLBRIGHT_ALPHA].empty())
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -2503,6 +2617,8 @@ void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
 
 void LLDrawPoolAvatar::renderRiggedGlow(LLVOAvatar* avatar)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!mRiggedFace[RIGGED_GLOW].empty())
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -2530,6 +2646,8 @@ void LLDrawPoolAvatar::renderRiggedGlow(LLVOAvatar* avatar)
 //-----------------------------------------------------------------------------
 LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (mReferences.empty())
 	{
 		return NULL;
@@ -2553,6 +2671,8 @@ LLColor3 LLDrawPoolAvatar::getDebugColor() const
 
 void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     llassert (facep->isState(LLFace::RIGGED));
     llassert(getType() == LLDrawPool::POOL_AVATAR || getType() == LLDrawPool::POOL_CONTROL_AV);
     if (facep->getPool() && facep->getPool() != this)
@@ -2575,6 +2695,8 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 
 void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     llassert (facep->isState(LLFace::RIGGED));
     llassert(getType() == LLDrawPool::POOL_AVATAR || getType() == LLDrawPool::POOL_CONTROL_AV);
     if (facep->getPool() != this)
@@ -2612,7 +2734,7 @@ LLVertexBufferAvatar::LLVertexBufferAvatar()
 : LLVertexBuffer(sDataMask, 
 	GL_STREAM_DRAW_ARB) //avatars are always stream draw due to morph targets
 {
-
+    LL_PROFILE_ZONE_SCOPED
 }
 
 
