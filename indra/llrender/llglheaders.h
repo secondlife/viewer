@@ -812,7 +812,7 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #define GL_RENDERBUFFER_FREE_MEMORY_ATI            0x87FD
 #endif
 
-#if LL_PROFILER_ENABLE_TRACY_OPENGL
+#if defined(TRACY_ENABLE) && LL_PROFILER_ENABLE_TRACY_OPENGL
     // Tracy uses the following:
     //    glGenQueries
     //    glGetQueryiv
