@@ -45,6 +45,9 @@
 //      #define TRACY_ONLY_LOCALHOST 1
         #define TRACY_ONLY_IPV4      1
         #include "Tracy.hpp"
+
+        // Mutually exclusive with detailed memory tracing
+        #define LL_PROFILER_ENABLE_TRACY_OPENGL 0
     #endif
 
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY

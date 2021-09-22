@@ -437,11 +437,13 @@ void LLRenderTarget::bindTarget()
 									GL_COLOR_ATTACHMENT1,
 									GL_COLOR_ATTACHMENT2,
 									GL_COLOR_ATTACHMENT3};
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffersARB", 0x4000FF )
 			glDrawBuffersARB(mTex.size(), drawbuffers);
 		}
 			
 		if (mTex.empty())
 		{ //no color buffer to draw to
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffer", 0x0000FF )
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}
