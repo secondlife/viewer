@@ -1748,6 +1748,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 		return FALSE;
 	}
 
+	LL_PROFILER_GPU_CONTEXT
+
 	if (!gGLManager.initGL())
 	{
 		close();
@@ -3474,6 +3476,8 @@ BOOL LLWindowWin32::resetDisplayResolution()
 void LLWindowWin32::swapBuffers()
 {
 	SwapBuffers(mhDC);
+
+    LL_PROFILER_GPU_COLLECT
 }
 
 
