@@ -100,15 +100,7 @@ std::string get_user_key_from_name(const std::string &username)
     std::string key = username;
     LLStringUtil::trim(key);
     LLStringUtil::toLower(key);
-    if (!LLGridManager::getInstance()->isSystemGrid())
-    {
-        size_t separator_index = username.find_first_of(" ");
-        if (separator_index == username.npos)
-        {
-            // CRED_IDENTIFIER_TYPE_ACCOUNT
-            return key;
-        }
-    }
+
     // CRED_IDENTIFIER_TYPE_AGENT
     size_t separator_index = username.find_first_of(" ._");
     std::string first = username.substr(0, separator_index);

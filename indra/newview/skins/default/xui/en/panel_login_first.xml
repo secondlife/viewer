@@ -216,23 +216,16 @@
           auto_resize="false"
           follows="left|right|top"
           name="images_container"
-          width="832"
+          width="675"
           left="0"
           top="0"
           height="500">
           <icon
-            height="400"
-            width="400"
-            image_name="first_login_image_left"
+            height="450"
+            width="675"
+            image_name="first_login_image"
             left="0"
             name="image_left"
-            top="0" />
-          <icon
-            height="400"
-            width="400"
-            image_name="first_login_image_right"
-            left_pad="32"
-            name="image_right"
             top="0" />
         </layout_panel>
         <layout_panel

@@ -553,9 +553,13 @@ class WindowsManifest(ViewerManifest):
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
             
-            # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
+            # OpenSSL
+            if (self.address_size == 64):
+                self.path("libcrypto-1_1-x64.dll")
+                self.path("libssl-1_1-x64.dll")
+            else:
+                self.path("libcrypto-1_1.dll")
+                self.path("libssl-1_1.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
@@ -1025,7 +1029,6 @@ class DarwinManifest(ViewerManifest):
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
                                 "libexpat.1.dylib",
-                                "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 # libnghttp2.dylib is a symlink to
                                 # libnghttp2.major.dylib, which is a symlink to

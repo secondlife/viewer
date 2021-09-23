@@ -1672,8 +1672,19 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 	// Make sure new position is in a valid region, so the object
 	// won't get dumped by the simulator.
 	LLVector3d new_pos_global = regionp->getPosGlobalFromRegion(newpos);
+    bool is_valid_pos = true;
+    if (mObject->isAttachment())
+    {
+        LLVector3 delta_pos = mObject->getPositionEdit() - newpos;
+        LLVector3d attachment_pos = regionp->getPosGlobalFromRegion(mObject->getPositionRegion() + delta_pos);
+        is_valid_pos = LLWorld::getInstance()->positionRegionValidGlobal(attachment_pos);
+    }
+    else
+    {
+        is_valid_pos = LLWorld::getInstance()->positionRegionValidGlobal(new_pos_global);
+    }
 
-	if ( LLWorld::getInstance()->positionRegionValidGlobal(new_pos_global) )
+	if (is_valid_pos)
 	{
 		// send only if the position is changed, that is, the delta vector is not zero
 		LLVector3d old_pos_global = mObject->getPositionGlobal();

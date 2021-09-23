@@ -739,7 +739,7 @@ LLAppViewer::LLAppViewer()
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
 #   endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
-	setMiniDumpDir(logdir);
+
 	setDebugFileNames(logdir);
 }
 
@@ -3165,7 +3165,28 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["GRAPHICS_CARD"] = ll_safe_string((const char*)(glGetString(GL_RENDERER)));
 
 #if LL_WINDOWS
-	std::string drvinfo = gDXHardware.getDriverVersionWMI();
+    std::string drvinfo;
+
+    if (gGLManager.mIsIntel)
+    {
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_INTEL);
+    }
+    else if (gGLManager.mIsNVIDIA)
+    {
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_NVIDIA);
+    }
+    else if (gGLManager.mIsATI)
+    {
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_AMD);
+    }
+
+    if (drvinfo.empty())
+    {
+        // Generic/substitute windows driver? Unknown vendor?
+        LL_WARNS("DriverVersion") << "Vendor based driver search failed, searching for any driver" << LL_ENDL;
+        drvinfo = gDXHardware.getDriverVersionWMI(LLDXHardware::GPU_ANY);
+    }
+
 	if (!drvinfo.empty())
 	{
 		info["GRAPHICS_DRIVER_VERSION"] = drvinfo;
@@ -5018,12 +5039,17 @@ void LLAppViewer::idle()
 		}
 	}
 
+
+    // Update layonts, handle mouse events, tooltips, e t c
+    // updateUI() needs to be called even in case viewer disconected
+    // since related notification still needs handling and allows
+    // opening chat.
+    gViewerWindow->updateUI();
+
 	if (gDisconnected)
     {
 		return;
     }
-
-    gViewerWindow->updateUI();
 
 	if (gTeleportDisplay)
     {

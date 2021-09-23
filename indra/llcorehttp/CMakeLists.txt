@@ -7,7 +7,7 @@ include(GoogleMock)
 include(CURL)
 include(OpenSSL)
 include(NGHTTP2)
-include(ZLIB)
+include(ZLIBNG)
 include(LLCoreHttp)
 include(LLAddBuildTest)
 include(LLMessage)
@@ -177,7 +177,6 @@ if (DARWIN)
   set(copy_dylibs
     libapr-1.0.dylib
     libaprutil-1.0.dylib
-    libexception_handler.dylib
     libnghttp2*.dylib
     liburiparser*.dylib
     ${EXPAT_COPY}

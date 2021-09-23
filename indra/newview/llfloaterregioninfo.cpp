@@ -2085,6 +2085,8 @@ bool LLPanelEstateCovenant::refreshFromRegion(LLViewerRegion* region)
 	
 	LLTextBox* region_landtype = getChild<LLTextBox>("region_landtype_text");
 	region_landtype->setText(region->getLocalizedSimProductName());
+
+    getChild<LLButton>("reset_covenant")->setEnabled(gAgent.isGodlike() || (region && region->canManageEstate()));
 	
 	// let the parent class handle the general data collection. 
 	bool rv = LLPanelRegionInfo::refreshFromRegion(region);
