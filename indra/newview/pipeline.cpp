@@ -9428,18 +9428,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
-                LLPlane plane(-pnorm, water_dist);
+                LLPlane plane(-pnorm, camera_is_underwater ? -water_height : water_dist);
                 LLGLUserClipPlane clip_plane(plane, saved_modelview, saved_projection);
 
                 gGL.setColorMask(true, true);
                 mWaterDis.clear();
                 gGL.setColorMask(true, false);
-
-                // ignore clip plane if we're underwater and viewing distortion map of objects above waterline
-                if (camera_is_underwater)
-                {
-                    clip_plane.disable();
-                }
 
                 if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
                 {
