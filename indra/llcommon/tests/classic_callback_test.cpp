@@ -22,7 +22,7 @@
 #include "../test/lltut.h"
 
 /*****************************************************************************
-*   example callback accepting only (void* userdata)
+*   example callback
 *****************************************************************************/
 // callback_t is part of the specification of someAPI()
 typedef void (*callback_t)(const char*, void*);
@@ -46,12 +46,6 @@ struct MyCallback
 
     std::string mMsg;
 };
-
-// a function for which I want to bind other data
-void callback_with_extra(const std::string& extra, void*)
-{
-    std::cout << "callback_with_extra('" << extra << "', *)\n";
-}
 
 /*****************************************************************************
 *   example callback accepting several params, and void* userdata isn't first

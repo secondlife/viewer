@@ -167,9 +167,9 @@ protected:
     template <typename... Args>
     static USERDATA extract_userdata(Args... args)
     {
-        // Search for the first void* parameter type, then extract that pointer.
+        // Search for the first USERDATA parameter type, then extract that pointer.
         // extract value from parameter pack: http://stackoverflow.com/a/24710433/5533635
-        return std::get<index_of<0, void*, Args...>::value>(std::forward_as_tuple(args...));
+        return std::get<index_of<0, USERDATA, Args...>::value>(std::forward_as_tuple(args...));
     }
 
     CALLABLE mCallable;
