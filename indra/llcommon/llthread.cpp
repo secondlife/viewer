@@ -148,7 +148,9 @@ void LLThread::threadRun()
     {
         try
         {
+            LL_PROFILER_THREAD_BEGIN
             run();
+            LL_PROFILER_THREAD_END
         }
         catch (const LLContinueError &e)
         {
@@ -333,6 +335,8 @@ bool LLThread::runCondition(void)
 // Stop thread execution if requested until unpaused.
 void LLThread::checkPause()
 {
+    LL_PROFILER_THREAD_BEGIN
+
     mDataLock->lock();
 
     // This is in a while loop because the pthread API allows for spurious wakeups.
@@ -345,6 +349,8 @@ void LLThread::checkPause()
     }
     
     mDataLock->unlock();
+
+    LL_PROFILER_THREAD_END
 }
 
 //============================================================================
@@ -375,12 +381,16 @@ void LLThread::yield()
 
 void LLThread::wake()
 {
+    LL_PROFILER_THREAD_BEGIN
+
     mDataLock->lock();
     if(!shouldSleep())
     {
         mRunCondition->signal();
     }
     mDataLock->unlock();
+
+    LL_PROFILER_THREAD_END
 }
 
 void LLThread::wakeLocked()
