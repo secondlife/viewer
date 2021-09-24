@@ -126,6 +126,9 @@ const F32 MIN_HOVER_Z = -2.0;
 const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
 const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
 
+const F32 FIRST_APPEARANCE_CLOUD_MIN_DELAY = 3.f; // seconds
+const F32 FIRST_APPEARANCE_CLOUD_MAX_DELAY = 45.f;
+
 using namespace LLAvatarAppearanceDefines;
 
 //-----------------------------------------------------------------------------
@@ -664,6 +667,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
 	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
 	mFirstFullyVisible(TRUE),
+	mFirstUseDelaySeconds(FIRST_APPEARANCE_CLOUD_MIN_DELAY),
 	mFullyLoaded(FALSE),
 	mPreviousFullyLoaded(FALSE),
 	mFullyLoadedInitialized(FALSE),
@@ -738,7 +742,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mCurrentGesticulationLevel = 0;
 
-    
+	mFirstSeenTimer.reset();
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
@@ -8126,16 +8130,35 @@ void LLVOAvatar::updateRuthTimer(bool loading)
 BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
 {
 	// We wait a little bit before giving the 'all clear', to let things to
-	// settle down (models to snap into place, textures to get first packets)
+	// settle down (models to snap into place, textures to get first packets).
+    // And if viewer isn't aware of some parts yet, this gives them a chance
+    // to arrive.
 	const F32 LOADED_DELAY = 1.f;
-	const F32 FIRST_USE_DELAY = 3.f;
 
-	if (loading)
-		mFullyLoadedTimer.reset();
+    if (loading)
+    {
+        mFullyLoadedTimer.reset();
+    }
 
 	if (mFirstFullyVisible)
 	{
-		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > FIRST_USE_DELAY);
+        if (!isSelf() && loading)
+        {
+                // Note that textures can causes 60s delay on thier own
+                // so this delay might end up on top of textures' delay
+                mFirstUseDelaySeconds = llclamp(
+                    mFirstSeenTimer.getElapsedTimeF32(),
+                    FIRST_APPEARANCE_CLOUD_MIN_DELAY,
+                    FIRST_APPEARANCE_CLOUD_MAX_DELAY);
+
+                if (shouldImpostor())
+                {
+                    // Impostors are less of a priority,
+                    // let them stay cloud longer
+                    mFirstUseDelaySeconds *= 1.25;
+                }
+        }
+		mFullyLoaded = (mFullyLoadedTimer.getElapsedTimeF32() > mFirstUseDelaySeconds);
 	}
 	else
 	{

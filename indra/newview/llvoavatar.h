@@ -380,6 +380,9 @@ protected:
 
 private:
 	BOOL			mFirstFullyVisible;
+	F32				mFirstUseDelaySeconds;
+	LLFrameTimer	mFirstSeenTimer;
+
 	BOOL			mFullyLoaded;
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
