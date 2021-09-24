@@ -226,8 +226,11 @@ public:
 	BOOL saveFavoritesRecord(bool pref_changed = false);
 	void showFavoritesOnLoginChanged(BOOL show);
 
-	LLInventoryModel::item_array_t mPrevFavorites;
+	bool isStorageUpdateNeeded();
 
+	LLInventoryModel::item_array_t mPrevFavorites;
+	LLSD mStorageFavorites;
+	bool mRecreateFavoriteStorage;
 
 	const static S32 NO_INDEX;
 	static bool mSaveOnExit;
@@ -254,7 +257,6 @@ private:
 	slurls_map_t mSLURLs;
 	std::set<LLUUID> mMissingSLURLs;
 	bool mIsDirty;
-	bool mRecreateFavoriteStorage;
 
 	struct IsNotInFavorites
 	{
