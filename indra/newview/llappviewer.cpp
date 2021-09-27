@@ -2501,12 +2501,7 @@ bool LLAppViewer::initConfiguration()
 #ifndef	LL_RELEASE_FOR_DOWNLOAD
 	// provide developer build only overrides for these control variables that are not
 	// persisted to settings.xml
-	LLControlVariable* c = gSavedSettings.getControl("ShowConsoleWindow");
-	if (c)
-	{
-		c->setValue(true, false);
-	}
-	c = gSavedSettings.getControl("AllowMultipleViewers");
+	LLControlVariable* c = gSavedSettings.getControl("AllowMultipleViewers");
 	if (c)
 	{
 		c->setValue(true, false);

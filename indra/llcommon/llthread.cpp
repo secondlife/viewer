@@ -333,6 +333,7 @@ bool LLThread::runCondition(void)
 // Stop thread execution if requested until unpaused.
 void LLThread::checkPause()
 {
+    LL_PROFILE_ZONE_SCOPED
     mDataLock->lock();
 
     // This is in a while loop because the pthread API allows for spurious wakeups.
@@ -364,17 +365,20 @@ void LLThread::setQuitting()
 // static
 LLThread::id_t LLThread::currentID()
 {
+    LL_PROFILE_ZONE_SCOPED
     return std::this_thread::get_id();
 }
 
 // static
 void LLThread::yield()
 {
+    LL_PROFILE_ZONE_SCOPED
     std::this_thread::yield();
 }
 
 void LLThread::wake()
 {
+    LL_PROFILE_ZONE_SCOPED
     mDataLock->lock();
     if(!shouldSleep())
     {
@@ -385,6 +389,7 @@ void LLThread::wake()
 
 void LLThread::wakeLocked()
 {
+    LL_PROFILE_ZONE_SCOPED
     if(!shouldSleep())
     {
         mRunCondition->signal();
@@ -393,11 +398,13 @@ void LLThread::wakeLocked()
 
 void LLThread::lockData()
 {
+    LL_PROFILE_ZONE_SCOPED
     mDataLock->lock();
 }
 
 void LLThread::unlockData()
 {
+    LL_PROFILE_ZONE_SCOPED
     mDataLock->unlock();
 }
 

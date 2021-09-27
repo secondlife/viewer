@@ -126,6 +126,7 @@ struct LLGLSLShaderCompareTimeElapsed
 //static
 void LLGLSLShader::finishProfile(bool emit_report)
 {
+    LL_PROFILE_ZONE_SCOPED
     sProfileEnabled = false;
 
     if (emit_report)

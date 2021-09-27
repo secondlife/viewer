@@ -208,9 +208,11 @@ void display_update_camera()
 // Write some stats to LL_INFOS()
 void display_stats()
 {
+	LL_PROFILE_ZONE_SCOPED
 	F32 fps_log_freq = gSavedSettings.getF32("FPSLogFrequency");
 	if (fps_log_freq > 0.f && gRecentFPSTime.getElapsedTimeF32() >= fps_log_freq)
 	{
+		LL_PROFILE_ZONE_NAMED("DS - FPS");
 		F32 fps = gRecentFrameCount / fps_log_freq;
 		LL_INFOS() << llformat("FPS: %.02f", fps) << LL_ENDL;
 		gRecentFrameCount = 0;
@@ -219,6 +221,7 @@ void display_stats()
 	F32 mem_log_freq = gSavedSettings.getF32("MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
+		LL_PROFILE_ZONE_NAMED("DS - Memory");
 		gMemoryAllocated = U64Bytes(LLMemory::getCurrentRSS());
 		U32Megabytes memory = gMemoryAllocated;
 		LL_INFOS() << "MEMORY: " << memory << LL_ENDL;
@@ -228,6 +231,7 @@ void display_stats()
     F32 asset_storage_log_freq = gSavedSettings.getF32("AssetStorageLogFrequency");
     if (asset_storage_log_freq > 0.f && gAssetStorageLogTime.getElapsedTimeF32() >= asset_storage_log_freq)
     {
+		LL_PROFILE_ZONE_NAMED("DS - Asset Storage");
         gAssetStorageLogTime.reset();
         gAssetStorage->logAssetStorageInfo();
     }
@@ -630,6 +634,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	
 	if (!gDisconnected)
 	{
+		LL_PROFILE_ZONE_NAMED("display - 1");
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Update");
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{ //don't draw hud objects in this frame
@@ -722,6 +727,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Swap");
 		
 		{ 
+			LL_PROFILE_ZONE_NAMED("display - 2")
 			if (gResizeScreenTexture)
 			{
 				gResizeScreenTexture = FALSE;
@@ -777,6 +783,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		//if (!for_snapshot)
 		{
+			LL_PROFILE_ZONE_NAMED("display - 3")
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
 			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
@@ -825,7 +832,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLImageGL::deleteDeadTextures();
 				stop_glerror();
 			}*/
-			}
+		}
 
 		LLGLState::checkStates();
 		LLGLState::checkClientArrays();
@@ -840,6 +847,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		//
 		LLAppViewer::instance()->pingMainloopTimeout("Display:StateSort");
 		{
+			LL_PROFILE_ZONE_NAMED("display - 3")
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 			gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
 			stop_glerror();
@@ -948,6 +956,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		if (!(LLAppViewer::instance()->logoutRequestSent() && LLAppViewer::instance()->hasSavedFinalSnapshot())
 				&& !gRestoreGL)
 		{
+			LL_PROFILE_ZONE_NAMED("display - 4")
 			LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
 			if (gSavedSettings.getBOOL("RenderDepthPrePass") && LLGLSLShader::sNoFixedFunction)
