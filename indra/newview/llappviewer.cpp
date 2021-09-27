@@ -1559,7 +1559,7 @@ bool LLAppViewer::doFrame()
 
 			if (gNonInteractive)
 			{
-				S32 non_interactive_ms_sleep_time = 1000;
+				S32 non_interactive_ms_sleep_time = 100;
 				LLAppViewer::getTextureCache()->pause();
 				LLAppViewer::getImageDecodeThread()->pause();
 				ms_sleep(non_interactive_ms_sleep_time);

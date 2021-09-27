@@ -4077,6 +4077,11 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 				gAgent.setFlying(FALSE);
 			}
 
+			if (gNonInteractive && animation_id == ANIM_AGENT_RUN)
+			{
+				LL_INFOS() << "Noninteractive, got run request for self" << LL_ENDL;
+			}
+
 			if (i < num_source_blocks)
 			{
 				mesgsys->getUUIDFast(_PREHASH_AnimationSourceList, _PREHASH_ObjectID, object_id, i);
