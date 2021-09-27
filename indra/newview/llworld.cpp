@@ -1284,6 +1284,7 @@ void send_agent_pause()
 
 void send_agent_resume()
 {
+	LL_PROFILE_ZONE_SCOPED
 	// Note: used to check for LLWorld initialization before it became a singleton.
 	// Rather than just remove this check I'm changing it to assure that the message 
 	// system has been initialized. -MG

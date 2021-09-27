@@ -1897,6 +1897,7 @@ void LLPipeline::createObject(LLViewerObject* vobj)
 
 void LLPipeline::resetFrameStats()
 {
+	LL_PROFILE_ZONE_SCOPED
 	assertInitialized();
 
 	sCompiles        = 0;
@@ -2125,6 +2126,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 
 void LLPipeline::clearReferences()
 {
+	LL_PROFILE_ZONE_SCOPED
 	sCull = NULL;
 	mGroupSaveQ1.clear();
 }
