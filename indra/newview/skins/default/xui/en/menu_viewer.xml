@@ -471,7 +471,7 @@
        layout="topleft"
        name="Reset Skeleton And Animations">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeletonAndAnimations" />
+         function="Avatar.ResetSelfSkeletonAndAnimations" />
       </menu_item_call>
       <menu_item_call
        label="Attachment scripts..."
