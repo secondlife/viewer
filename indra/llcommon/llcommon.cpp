@@ -34,14 +34,13 @@
 #include "llcleanup.h"
 
 #if (TRACY_ENABLE)
-// Override new/delet for tracy memory profiling
+// Override new/delete for tracy memory profiling
 void *operator new(size_t size)
 {
     auto ptr = (malloc) (size);
     if (!ptr)
     {
         throw std::bad_alloc();
-        return nullptr;
     }
     TracyAlloc(ptr, size);
     return ptr;
