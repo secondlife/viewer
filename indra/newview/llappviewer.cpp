@@ -2761,7 +2761,7 @@ bool LLAppViewer::initConfiguration()
 		tempSetControl("SLURLPassToOtherInstance", "FALSE");
 		tempSetControl("RenderWater", "FALSE");
 		tempSetControl("FlyingAtExit", "FALSE");
-		gPipeline.clearAllRenderTypes();
+		LLError::setEnabledLogTypesMask(0);
 		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
 	}
 
