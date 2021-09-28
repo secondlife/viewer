@@ -3807,6 +3807,11 @@ LLViewerInventoryItem* recursiveGetObjectInventoryItem(LLViewerObject *vobj, LLU
 
 void LLVOAvatar::updateAnimationDebugText()
 {
+	if (isSelf() && gNonInteractive)
+	{
+		LLVector3 vel = getVelocity();
+		addDebugText(llformat("vel %f %f %f\n",vel[0],vel[1],vel[2]));
+	}
 	for (LLMotionController::motion_list_t::iterator iter = mMotionController.getActiveMotions().begin();
 		 iter != mMotionController.getActiveMotions().end(); ++iter)
 	{
