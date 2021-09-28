@@ -2759,6 +2759,8 @@ bool LLAppViewer::initConfiguration()
 	if (gNonInteractive)
 	{
 		tempSetControl("SLURLPassToOtherInstance", "FALSE");
+		tempSetControl("RenderWater", "FALSE");
+		tempSetControl("FlyingAtExit", "FALSE");
 		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
 	}
 
