@@ -436,11 +436,12 @@ LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Secon
 
 LLCircuit::~LLCircuit()
 {
-    // delete pointers in the map.
-    for (auto circ_pair : mCircuitData)
-    {
-        delete circ_pair.second;
-    }
+	// delete pointers in the map.
+	std::for_each(mCircuitData.begin(),
+				  mCircuitData.end(),
+				  llcompose1(
+					  DeletePointerFunctor<LLCircuitData>(),
+					  llselect2nd<circuit_data_map::value_type>()));
 }
 
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)

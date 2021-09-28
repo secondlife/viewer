@@ -224,7 +224,7 @@ void LLWatchdog::run()
 		LL_INFOS() << "Watchdog thread delayed: resetting entries." << LL_ENDL;
 		std::for_each(mSuspects.begin(), 
 			mSuspects.end(), 
-			[](SuspectsRegistry::value_type suspect){ suspect->reset(); }
+			std::mem_fun(&LLWatchdogEntry::reset)
 			);
 	}
 	else
@@ -232,7 +232,7 @@ void LLWatchdog::run()
 		SuspectsRegistry::iterator result = 
 			std::find_if(mSuspects.begin(), 
 				mSuspects.end(), 
-				[](SuspectsRegistry::value_type suspect){ return ! suspect->isAlive(); }
+				std::not1(std::mem_fun(&LLWatchdogEntry::isAlive))
 				);
 		if(result != mSuspects.end())
 		{
