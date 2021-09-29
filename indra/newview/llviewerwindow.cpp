@@ -2198,12 +2198,15 @@ void LLViewerWindow::initWorldUI()
 	//getRootView()->sendChildToFront(gFloaterView);
 	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
-	LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
-	LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
-	chiclet_bar->setShape(chiclet_container->getLocalRect());
-	chiclet_bar->setFollowsAll();
-	chiclet_container->addChild(chiclet_bar);
-	chiclet_container->setVisible(TRUE);
+	if (!gNonInteractive)
+	{
+		LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
+		LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
+		chiclet_bar->setShape(chiclet_container->getLocalRect());
+		chiclet_bar->setFollowsAll();
+		chiclet_container->addChild(chiclet_bar);
+		chiclet_container->setVisible(TRUE);
+	}
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -2292,21 +2295,24 @@ void LLViewerWindow::initWorldUI()
 		gToolBarView->setVisible(TRUE);
 	}
 
-	LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-	if (destinations)
+	if (!gNonInteractive)
 	{
-		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		std::string url = gSavedSettings.getString("DestinationGuideURL");
-		url = LLWeb::expandURLSubstitutions(url, LLSD());
-		destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-	}
-	LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (avatar_picker)
-	{
-		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		std::string url = gSavedSettings.getString("AvatarPickerURL");
-		url = LLWeb::expandURLSubstitutions(url, LLSD());
-		avatar_picker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+		if (destinations)
+		{
+			destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+			std::string url = gSavedSettings.getString("DestinationGuideURL");
+			url = LLWeb::expandURLSubstitutions(url, LLSD());
+			destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		}
+		LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
+		if (avatar_picker)
+		{
+			avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+			std::string url = gSavedSettings.getString("AvatarPickerURL");
+			url = LLWeb::expandURLSubstitutions(url, LLSD());
+			avatar_picker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		}
 	}
 }
 

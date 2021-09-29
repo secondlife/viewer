@@ -1216,7 +1216,7 @@ LLCore::HttpHeaders::ptr_t LLViewerMedia::getHttpHeaders()
 /////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMedia::setOpenIDCookie(const std::string& url)
 {
-	if(!mOpenIDCookie.empty())
+	if(!gNonInteractive && !mOpenIDCookie.empty())
 	{
         std::string profileUrl = getProfileURL("");
 
