@@ -137,6 +137,12 @@ BOOL LLWindow::canDelete()
 	return TRUE;
 }
 
+//virtual
+void LLWindow::setTitle(const std::string title)
+{
+    // the action happens in the platform specific impl
+}
+
 // virtual
 void LLWindow::incBusyCount()
 {

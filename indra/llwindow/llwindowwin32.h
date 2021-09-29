@@ -58,7 +58,8 @@ public:
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
-	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
+    /*virtual*/ void setTitle(const std::string title);
+    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
 	/*virtual*/ void showCursor();
 	/*virtual*/ void hideCursor();

@@ -2632,9 +2632,10 @@ bool LLAppViewer::initConfiguration()
 		disableCrashlogger();
 	}
 
+	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
 	// Handle initialization from settings.
 	// Start up the debugging console before handling other options.
-	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
+	if (gSavedSettings.getBOOL("ShowConsoleWindow") && !gNonInteractive)
 	{
 		initConsole();
 	}
@@ -2755,7 +2756,6 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
-	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
 	if (gNonInteractive)
 	{
 		tempSetControl("SLURLPassToOtherInstance", "FALSE");
