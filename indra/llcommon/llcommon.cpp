@@ -61,7 +61,7 @@ void operator delete(void *ptr) noexcept
 
 void *tracy_aligned_malloc(size_t size, size_t alignment)
 {
-    auto ptr = (_aligned_malloc) (size, alignment);
+    auto ptr = ll_aligned_malloc_fallback(size, alignment);
     if (ptr) TracyAlloc(ptr, size);
     return ptr;
 }
@@ -69,7 +69,7 @@ void *tracy_aligned_malloc(size_t size, size_t alignment)
 void tracy_aligned_free(void *memblock)
 {
     TracyFree(memblock);
-    (_aligned_free)(memblock);
+    ll_aligned_free_fallback(memblock);
 }
 
 #endif
