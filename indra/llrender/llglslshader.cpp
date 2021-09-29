@@ -126,6 +126,7 @@ struct LLGLSLShaderCompareTimeElapsed
 //static
 void LLGLSLShader::finishProfile(bool emit_report)
 {
+    LL_PROFILE_ZONE_SCOPED
     sProfileEnabled = false;
 
     if (emit_report)
@@ -1346,6 +1347,7 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 
 void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (mProgramObject)
 	{	
 		if (mUniform.size() <= index)

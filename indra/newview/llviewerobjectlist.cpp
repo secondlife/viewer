@@ -168,6 +168,8 @@ U64 LLViewerObjectList::getIndex(const U32 local_id,
 
 BOOL LLViewerObjectList::removeFromLocalIDTable(const LLViewerObject* objectp)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if(objectp && objectp->getRegion())
 	{
 		U32 local_id = objectp->mLocalID;		
@@ -303,6 +305,8 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_OBJECTS("Process Objects");
 
 LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry* entry, LLViewerRegion* regionp)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	LLDataPacker *cached_dpp = entry->getDP();
 
 	if (!cached_dpp)
@@ -848,6 +852,8 @@ static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	// Update globals
 	LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
 	LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
@@ -1293,6 +1299,8 @@ void LLViewerObjectList::clearDebugText()
 
 void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	bool new_dead_object = true;
 	if (mDeadObjects.find(objectp->mID) != mDeadObjects.end())
 	{
@@ -1523,6 +1531,8 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 
 void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (objectp->isDead())
 	{
 		return; // We don't update dead objects!
@@ -1843,6 +1853,8 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 
 void LLViewerObjectList::generatePickList(LLCamera &camera)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 		LLViewerObject *objectp;
 		S32 i;
 		// Reset all of the GL names to zero.
@@ -2104,6 +2116,8 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 
 S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	LLViewerObject *objectp;
 	S32 num_refs = 0;
 	
@@ -2167,6 +2181,8 @@ void LLViewerObjectList::orphanize(LLViewerObject *childp, U32 parent_id, U32 ip
 
 void LLViewerObjectList::findOrphans(LLViewerObject* objectp, U32 ip, U32 port)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (objectp->isDead())
 	{
 		LL_WARNS() << "Trying to find orphans for dead obj " << objectp->mID 

@@ -91,6 +91,8 @@ LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW_ARB, GL_ELEMENT_ARRAY_
 
 U32 LLVBOPool::sBytesPooled = 0;
 U32 LLVBOPool::sIndexBytesPooled = 0;
+U32 LLVBOPool::sNameIdx = 0;
+U32 LLVBOPool::sNamePool[1024];
 
 std::list<U32> LLVertexBuffer::sAvailableVAOName;
 U32 LLVertexBuffer::sCurVAOName = 1;
@@ -121,15 +123,20 @@ bool LLVertexBuffer::sPreferStreamDraw = false;
 
 U32 LLVBOPool::genBuffer()
 {
-	U32 ret = 0;
+	LL_PROFILE_ZONE_SCOPED
 
-	glGenBuffersARB(1, &ret);
-	
-	return ret;
+	if (sNameIdx == 0)
+	{
+		glGenBuffersARB(1024, sNamePool);
+		sNameIdx = 1024;
+	}
+
+	return sNamePool[--sNameIdx];
 }
 
 void LLVBOPool::deleteBuffer(U32 name)
 {
+	LL_PROFILE_ZONE_SCOPED
 	if (gGLManager.mInited)
 	{
 		LLVertexBuffer::unbind();
@@ -152,6 +159,7 @@ LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 
 volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 {
+	LL_PROFILE_ZONE_SCOPED
 	llassert(vbo_block_size(size) == size);
 	
 	volatile U8* ret = NULL;
@@ -267,10 +275,12 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 
 void LLVBOPool::seedPool()
 {
+	LL_PROFILE_ZONE_SCOPED
 	U32 dummy_name = 0;
 
 	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
 	{
+		LL_PROFILE_ZONE_NAMED("VBOPool Resize");
 		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
 	}
 
@@ -411,6 +421,7 @@ void LLVertexBuffer::releaseVAOName(U32 name)
 //static
 void LLVertexBuffer::seedPools()
 {
+	LL_PROFILE_ZONE_SCOPED
 	sStreamVBOPool.seedPool();
 	sDynamicVBOPool.seedPool();
 	sDynamicCopyVBOPool.seedPool();
@@ -615,6 +626,7 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 		glNormalPointer(GL_FLOAT, 0, norm[0].mV);
 	}
 	LLGLSLShader::startProfile();
+	LL_PROFILER_GPU_ZONEC( "gl.DrawArrays", 0xFF0000 )
 	glDrawArrays(sGLMode[mode], 0, count);
 	LLGLSLShader::stopProfile(count, mode);
 }
@@ -654,6 +666,7 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 	}
 
 	LLGLSLShader::startProfile();
+    LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x80FF80 )
 	glDrawElements(sGLMode[mode], num_indices, GL_UNSIGNED_SHORT, indicesp);
 	LLGLSLShader::stopProfile(num_indices, mode);
 }
@@ -763,6 +776,7 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 
 	stop_glerror();
 	LLGLSLShader::startProfile();
+    LL_PROFILER_GPU_ZONEC( "gl.DrawRangeElements", 0xFFFF00 )
 	glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT, 
 		idx);
 	LLGLSLShader::stopProfile(count, mode);
@@ -814,6 +828,7 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 
 	stop_glerror();
 	LLGLSLShader::startProfile();
+    LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0xA0FFA0 )
 	glDrawElements(sGLMode[mode], count, GL_UNSIGNED_SHORT,
 		((U16*) getIndicesPointer()) + indices_offset);
 	LLGLSLShader::stopProfile(count, mode);
@@ -861,6 +876,7 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 		stop_glerror();
 		LLGLSLShader::startProfile();
 		stop_glerror();
+        LL_PROFILER_GPU_ZONEC( "gl.DrawArrays", 0xFF4040 )
 		glDrawArrays(sGLMode[mode], first, count);
 		stop_glerror();
 		LLGLSLShader::stopProfile(count, mode);

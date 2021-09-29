@@ -89,6 +89,9 @@ public:
 	std::vector<record_list_t> mFreeList;
 	std::vector<U32> mMissCount;
 
+	//used to avoid calling glGenBuffers for every VBO creation
+	static U32 sNamePool[1024];
+	static U32 sNameIdx;
 };
 
 
@@ -127,7 +130,7 @@ public:
 	static LLVBOPool sDynamicCopyVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-	
+
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 

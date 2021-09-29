@@ -503,7 +503,9 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 	}
 
 BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
-	{
+{
+	LL_PROFILE_ZONE_SCOPED
+
 	if(!drawablep)
 	{
 		return FALSE;
@@ -591,6 +593,8 @@ public:
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 	
 	if (mode > STATE_MODE_SINGLE)
@@ -638,6 +642,8 @@ public:
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 
 	if (mode > STATE_MODE_SINGLE)
@@ -724,6 +730,8 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 
 F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	LLVector4a eye;
 	LLVector4a origin;
 	origin.load3(camera.getOrigin().mV);
@@ -815,6 +823,8 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 
 BOOL LLSpatialGroup::changeLOD()
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
 	{
 		//a rebuild is going to happen, update distance and LoD
@@ -907,6 +917,8 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child) 
 {
+	LL_PROFILE_ZONE_SCOPED
+
 	if (child->getListenerCount() == 0)
 	{
 		new LLSpatialGroup(child, getSpatialPartition());
@@ -2700,11 +2712,17 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 			gGL.diffuseColor4fv(line_color.mV);
 			gGL.syncMatrices();
-			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+			{
+				LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x20FF20 )
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+			}
 			
 			gGL.diffuseColor4fv(color.mV);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);			
+			{
+				LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x40FF40 )
+				glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);
+			}
 		}
 		else
 		{
@@ -3222,6 +3240,7 @@ void renderRaycast(LLDrawable* drawablep)
 						gGL.diffuseColor4f(0,1,1,0.5f);
 						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
 						gGL.syncMatrices();
+						LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x60FF60 );
 						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
 					}
 					

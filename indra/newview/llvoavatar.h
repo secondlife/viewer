@@ -209,6 +209,11 @@ public:
 	virtual LLJoint*		getJoint(const std::string &name);
 	LLJoint*		        getJoint(S32 num);
 
+    //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
+    inline LLJoint* getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }
+    inline size_t getSkeletonJointCount() const { return mSkeleton.size(); }
+
+
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = NULL, bool recursive = true);
 	void					removeAttachmentOverridesForObject(const LLUUID& mesh_id);
 	void					removeAttachmentOverridesForObject(LLViewerObject *vo);

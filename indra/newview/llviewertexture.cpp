@@ -208,6 +208,7 @@ void  LLViewerTextureManager::findTextures(const LLUUID& id, std::vector<LLViewe
 
 LLViewerFetchedTexture* LLViewerTextureManager::findFetchedTexture(const LLUUID& id, S32 tex_type)
 {
+    LL_PROFILE_ZONE_SCOPED;
     return gTextureList.findImage(id, (ETexListType)tex_type);
 }
 
