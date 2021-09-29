@@ -2803,42 +2803,51 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
 
 	LL_INFOS(LOG_INV) << "saving inventory to: (" << filename << ")" << LL_ENDL;
 
-	llofstream fileXML(filename.c_str());
-	if (!fileXML.is_open())
-	{
-		LL_WARNS(LOG_INV) << "unable to save inventory to: " << filename << LL_ENDL;
-		return false;
-	}
+    try
+    {
+        llofstream fileXML(filename.c_str());
+        if (!fileXML.is_open())
+        {
+            LL_WARNS(LOG_INV) << "unable to save inventory to: " << filename << LL_ENDL;
+            return false;
+        }
 
-	LLSD cache_ver;
-	cache_ver["inv_cache_version"] = sCurrentInvCacheVersion;
+        LLSD cache_ver;
+        cache_ver["inv_cache_version"] = sCurrentInvCacheVersion;
 
-	fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
+        fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
 
-	S32 count = categories.size();
-	S32 cat_count = 0;
-	S32 i;
-	for(i = 0; i < count; ++i)
-	{
-		LLViewerInventoryCategory* cat = categories[i];
-		if(cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
-		{
-			fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
-			cat_count++;
-		}
-	}
+        S32 count = categories.size();
+        S32 cat_count = 0;
+        S32 i;
+        for (i = 0; i < count; ++i)
+        {
+            LLViewerInventoryCategory* cat = categories[i];
+            if (cat->getVersion() != LLViewerInventoryCategory::VERSION_UNKNOWN)
+            {
+                fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
+                cat_count++;
+            }
+        }
 
-	S32 it_count = items.size();
-	for(i = 0; i < it_count; ++i)
-	{
-		fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
-	}
+        S32 it_count = items.size();
+        for (i = 0; i < it_count; ++i)
+        {
+            fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
+        }
 
-	fileXML.close();
+        fileXML.close();
 
-	LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
+        LL_INFOS(LOG_INV) << "Inventory saved: " << cat_count << " categories, " << it_count << " items." << LL_ENDL;
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION("");
+        LL_INFOS(LOG_INV) << "Failed to save inventory to: (" << filename << ")" << LL_ENDL;
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 // message handling functionality

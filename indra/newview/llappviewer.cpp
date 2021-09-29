@@ -5456,14 +5456,18 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	// save inventory if appropriate
-	gInventory.cache(gInventory.getRootFolderID(), gAgent.getID());
-	if (gInventory.getLibraryRootFolderID().notNull()
-		&& gInventory.getLibraryOwnerID().notNull())
-	{
-		gInventory.cache(
-			gInventory.getLibraryRootFolderID(),
-			gInventory.getLibraryOwnerID());
-	}
+    if (gInventory.isInventoryUsable()
+        && gAgent.getID().notNull()) // Shouldn't be null at this stage
+    {
+        gInventory.cache(gInventory.getRootFolderID(), gAgent.getID());
+        if (gInventory.getLibraryRootFolderID().notNull()
+            && gInventory.getLibraryOwnerID().notNull())
+        {
+            gInventory.cache(
+                gInventory.getLibraryRootFolderID(),
+                gInventory.getLibraryOwnerID());
+        }
+    }
 
 	saveNameCache();
 	if (LLExperienceCache::instanceExists())
