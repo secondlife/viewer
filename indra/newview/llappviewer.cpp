@@ -2761,6 +2761,8 @@ bool LLAppViewer::initConfiguration()
 		tempSetControl("SLURLPassToOtherInstance", "FALSE");
 		tempSetControl("RenderWater", "FALSE");
 		tempSetControl("FlyingAtExit", "FALSE");
+		tempSetControl("WindowWidth", "1024");
+		tempSetControl("WindowHeight", "200");
 		LLError::setEnabledLogTypesMask(0);
 		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
 	}
