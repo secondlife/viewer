@@ -2758,6 +2758,7 @@ bool LLAppViewer::initConfiguration()
 
 	if (gNonInteractive)
 	{
+		tempSetControl("AllowMultipleViewers", "TRUE");
 		tempSetControl("SLURLPassToOtherInstance", "FALSE");
 		tempSetControl("RenderWater", "FALSE");
 		tempSetControl("FlyingAtExit", "FALSE");
