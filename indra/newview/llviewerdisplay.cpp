@@ -124,7 +124,8 @@ void display_startup()
 	if (   !gViewerWindow
 		|| !gViewerWindow->getActive()
 		|| !gViewerWindow->getWindow()->getVisible() 
-		|| gViewerWindow->getWindow()->getMinimized() )
+		|| gViewerWindow->getWindow()->getMinimized()
+		|| gNonInteractive)
 	{
 		return; 
 	}
@@ -309,7 +310,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Attempting to draw into a minimized window causes a GL error. JC
 	if (   !gViewerWindow->getActive()
 		|| !gViewerWindow->getWindow()->getVisible() 
-		|| gViewerWindow->getWindow()->getMinimized() )
+		|| gViewerWindow->getWindow()->getMinimized() 
+		|| gNonInteractive)
 	{
 		// Clean up memory the pools may have allocated
 		if (rebuild)

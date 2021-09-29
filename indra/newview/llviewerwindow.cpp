@@ -2188,6 +2188,13 @@ void LLViewerWindow::initBase()
 
 void LLViewerWindow::initWorldUI()
 {
+	if (gNonInteractive)
+	{
+		gIMMgr = LLIMMgr::getInstance();
+		gFloaterView->pushVisibleAll(FALSE);
+		return;
+	}
+	
 	S32 height = mRootView->getRect().getHeight();
 	S32 width = mRootView->getRect().getWidth();
 	LLRect full_window(0, height, width, 0);
