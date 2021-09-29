@@ -98,6 +98,11 @@ namespace {
     const std::string TABS_SKYS("sky_tabs");
     const std::string TABS_WATER("water_tabs");
 
+    // 'Play' buttons
+    const std::string BTN_PLAY("play_btn");
+    const std::string BTN_SKIP_BACK("skip_back_btn");
+    const std::string BTN_SKIP_FORWARD("skip_forward_btn");
+
     const std::string EVNT_DAYTRACK("DayCycle.Track");
     const std::string EVNT_PLAY("DayCycle.PlayActions");
 
@@ -1205,6 +1210,11 @@ void LLFloaterEditExtDayCycle::updateButtons()
     mDeleteFrameButton->setEnabled(can_manipulate && isRemovingFrameAllowed());
     mLoadFrame->setEnabled(can_manipulate);
 
+    BOOL enable_play = mEditDay ? TRUE : FALSE;
+    childSetEnabled(BTN_PLAY, enable_play);
+    childSetEnabled(BTN_SKIP_BACK, enable_play);
+    childSetEnabled(BTN_SKIP_FORWARD, enable_play);
+
     // update track buttons
     bool extended_env = LLEnvironment::instance().isExtendedEnvironmentEnabled();
     for (S32 track = 0; track < LLSettingsDay::TRACK_MAX; ++track)
@@ -1575,15 +1585,22 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
     {
         LLFloaterEditExtDayCycle* self = (LLFloaterEditExtDayCycle*)user_data;
 
-        F32 prcnt_played = self->mPlayTimer.getElapsedTimeF32() / DAY_CYCLE_PLAY_TIME_SECONDS;
-        F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
+        if (self->mSkyBlender == nullptr || self->mWaterBlender == nullptr)
+        {
+            self->stopPlay();
+        }
+        else
+        {
 
-        self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
-        self->mSkyBlender->setPosition(new_frame);
-        self->mWaterBlender->setPosition(new_frame);
-        self->synchronizeTabs();
-        self->updateTimeAndLabel();
-        self->updateButtons();
+            F32 prcnt_played = self->mPlayTimer.getElapsedTimeF32() / DAY_CYCLE_PLAY_TIME_SECONDS;
+            F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
+
+            self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
+
+            self->synchronizeTabs();
+            self->updateTimeAndLabel();
+            self->updateButtons();
+        }
     }
 }
 
