@@ -15,6 +15,7 @@
   <panel follows="all"
          height="768"
          name="menu_tab_wrapper"
+         mouse_opaque="false"
          focus_root="true"
          top="0">
   <layout_stack border_size="0"
