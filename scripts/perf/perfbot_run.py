@@ -168,7 +168,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--region",
-        default="Sandbox Cordova",
+        default="Lag Me 5",
         dest="region",
         help="The SLURL for the Second Life region to visit",
     )
