@@ -7123,6 +7123,7 @@ void LLVOAvatar::updateGL()
 {
 	if (mMeshTexturesDirty)
 	{
+		LL_PROFILE_ZONE_SCOPED
 		updateMeshTextures();
 		mMeshTexturesDirty = FALSE;
 	}
@@ -8361,6 +8362,7 @@ void LLVOAvatar::updateMeshVisibility()
 // virtual
 void LLVOAvatar::updateMeshTextures()
 {
+	LL_PROFILE_ZONE_SCOPED
 	static S32 update_counter = 0;
 	mBakedTextureDebugText.clear();
 	
