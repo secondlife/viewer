@@ -2808,12 +2808,18 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
         llofstream fileXML(filename.c_str());
         if (!fileXML.is_open())
         {
-            LL_WARNS(LOG_INV) << "unable to save inventory to: " << filename << LL_ENDL;
+            LL_WARNS(LOG_INV) << "Failed to open file. Unable to save inventory to: " << filename << LL_ENDL;
             return false;
         }
 
         LLSD cache_ver;
         cache_ver["inv_cache_version"] = sCurrentInvCacheVersion;
+
+        if (fileXML.fail())
+        {
+            LL_WARNS(LOG_INV) << "Failed to write cache version to file. Unable to save inventory to: " << filename << LL_ENDL;
+            return false;
+        }
 
         fileXML << LLSDOStreamer<LLSDNotationFormatter>(cache_ver) << std::endl;
 
@@ -2828,12 +2834,24 @@ bool LLInventoryModel::saveToFile(const std::string& filename,
                 fileXML << LLSDOStreamer<LLSDNotationFormatter>(cat->exportLLSD()) << std::endl;
                 cat_count++;
             }
+
+            if (fileXML.fail())
+            {
+                LL_WARNS(LOG_INV) << "Failed to write a folder to file. Unable to save inventory to: " << filename << LL_ENDL;
+                return false;
+            }
         }
 
         S32 it_count = items.size();
         for (i = 0; i < it_count; ++i)
         {
             fileXML << LLSDOStreamer<LLSDNotationFormatter>(items[i]->asLLSD()) << std::endl;
+
+            if (fileXML.fail())
+            {
+                LL_WARNS(LOG_INV) << "Failed to write an item to file. Unable to save inventory to: " << filename << LL_ENDL;
+                return false;
+            }
         }
 
         fileXML.close();
