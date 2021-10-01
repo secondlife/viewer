@@ -88,7 +88,7 @@ public:
 	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
 
 	// static data update, called from message handler
-	static void updateUserInfo(const std::string& visibility, bool im_via_email, bool is_verified_email);
+	static void updateUserInfo(const std::string& visibility);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
@@ -159,7 +159,7 @@ public:
 	void changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name);
 	bool moveTranscriptsAndLog();
 	void enableHistory();
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, bool is_verified_email);
+	void setPersonalInfo(const std::string& visibility);
 	void refreshEnabledState();
 	void onCommitWindowedMode();
 	void refresh();	// Refresh enable/disable
@@ -205,7 +205,6 @@ private:
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
 	bool mGotPersonalInfo;
-	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
 	bool mAvatarDataInitialized;
 	std::string mPriorInstantMessageLogPath;
