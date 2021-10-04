@@ -254,6 +254,7 @@ set(llcommon_HEADER_FILES
     stdtypes.h
     stringize.h
     timer.h
+    tuple.h
     u64.h
     StackWalker.h
     )
@@ -358,6 +359,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
 
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
 ## every build. It's to help a developer make implementation choices about
