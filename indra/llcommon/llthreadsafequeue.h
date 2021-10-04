@@ -191,9 +191,11 @@ protected:
 	template <typename T>
 	bool push_(lock_t& lock, T&& element);
 	// while lock is locked, really pop the head element, if we can
+	bool pop_(lock_t& lock, ElementT& element);
+	// pop_() with an explicit predicate indicating whether the head element
+	// is ready to be popped
 	template <typename PRED>
-	bool pop_(lock_t& lock, ElementT& element,
-			  PRED&& pred=[](const ElementT&){ return true; });
+	bool pop_(lock_t& lock, ElementT& element, PRED&& pred);
 };
 
 /*****************************************************************************
@@ -384,6 +386,16 @@ bool LLThreadSafeQueue<ElementT, QueueT>::tryPushUntil(
 
 
 // while lock is locked, really pop the head element, if we can
+template <typename ElementT, typename QueueT>
+bool LLThreadSafeQueue<ElementT, QueueT>::pop_(lock_t& lock, ElementT& element)
+{
+    // default predicate: head element, if present, is always ready to pop
+    return pop_(lock, element, [](const ElementT&){ return true; });
+}
+
+
+// pop_() with an explicit predicate indicating whether the head element
+// is ready to be popped
 template <typename ElementT, typename QueueT>
 template <typename PRED>
 bool LLThreadSafeQueue<ElementT, QueueT>::pop_(
