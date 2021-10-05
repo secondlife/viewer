@@ -938,52 +938,45 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 
 void LLGLSLShader::bind()
 {
-    gGL.flush();
-    if (gGLManager.mHasShaderObjects)
+    LL_PROFILE_ZONE_SCOPED;
+
+    if (sCurBoundShader != mProgramObject)  // Don't re-bind current shader
     {
+        gGL.flush();
         LLVertexBuffer::unbind();
         glUseProgramObjectARB(mProgramObject);
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
-        if (mUniformsDirty)
-        {
-            LLShaderMgr::instance()->updateShaderUniforms(this);
-            mUniformsDirty = FALSE;
-        }
+    }
+
+    if (mUniformsDirty)
+    {
+        LLShaderMgr::instance()->updateShaderUniforms(this);
+        mUniformsDirty = FALSE;
     }
 }
 
 void LLGLSLShader::unbind()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     gGL.flush();
-    if (gGLManager.mHasShaderObjects)
-    {
-        stop_glerror();
-        if (gGLManager.mIsNVIDIA)
-        {
-            for (U32 i = 0; i < mAttribute.size(); ++i)
-            {
-                vertexAttrib4f(i, 0,0,0,1);
-                stop_glerror();
-            }
-        }
-        LLVertexBuffer::unbind();
-        glUseProgramObjectARB(0);
-        sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
-        stop_glerror();
-    }
+    stop_glerror();
+    LLVertexBuffer::unbind();
+    glUseProgramObjectARB(0);
+    sCurBoundShader = 0;
+    sCurBoundShaderPtr = NULL;
+    stop_glerror();
 }
 
 void LLGLSLShader::bindNoShader(void)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     LLVertexBuffer::unbind();
-    if (gGLManager.mHasShaderObjects)
-    {
-        glUseProgramObjectARB(0);
-        sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
-    }
+    glUseProgramObjectARB(0);
+    sCurBoundShader = 0;
+    sCurBoundShaderPtr = NULL;
 }
 
 S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
