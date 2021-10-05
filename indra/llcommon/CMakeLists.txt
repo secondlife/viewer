@@ -127,6 +127,7 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    chrono.h
     ctype_workaround.h
     fix_macros.h
     indra_constants.h
@@ -253,6 +254,7 @@ set(llcommon_HEADER_FILES
     lockstatic.h
     stdtypes.h
     stringize.h
+    threadsafeschedule.h
     timer.h
     tuple.h
     u64.h
@@ -359,6 +361,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(threadsafeschedule "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
 
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
