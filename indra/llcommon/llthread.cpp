@@ -148,9 +148,9 @@ void LLThread::threadRun()
     {
         try
         {
-            LL_PROFILER_THREAD_BEGIN
+            LL_PROFILER_THREAD_BEGIN(mName.c_str())
             run();
-            LL_PROFILER_THREAD_END
+            LL_PROFILER_THREAD_END(mName.c_str())
         }
         catch (const LLContinueError &e)
         {
@@ -335,7 +335,7 @@ bool LLThread::runCondition(void)
 // Stop thread execution if requested until unpaused.
 void LLThread::checkPause()
 {
-    LL_PROFILER_THREAD_BEGIN
+    LL_PROFILER_THREAD_BEGIN(mName.c_str())
 
     mDataLock->lock();
 
@@ -350,7 +350,7 @@ void LLThread::checkPause()
     
     mDataLock->unlock();
 
-    LL_PROFILER_THREAD_END
+    LL_PROFILER_THREAD_END(mName.c_str())
 }
 
 //============================================================================
@@ -381,7 +381,7 @@ void LLThread::yield()
 
 void LLThread::wake()
 {
-    LL_PROFILER_THREAD_BEGIN
+    LL_PROFILER_THREAD_BEGIN(mName.c_str())
 
     mDataLock->lock();
     if(!shouldSleep())
@@ -390,7 +390,7 @@ void LLThread::wake()
     }
     mDataLock->unlock();
 
-    LL_PROFILER_THREAD_END
+    LL_PROFILER_THREAD_END(mName.c_str())
 }
 
 void LLThread::wakeLocked()
