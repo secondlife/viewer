@@ -338,7 +338,6 @@ S32		LLPipeline::sUseOcclusion = 0;
 bool	LLPipeline::sDelayVBUpdate = true;
 bool	LLPipeline::sAutoMaskAlphaDeferred = true;
 bool	LLPipeline::sAutoMaskAlphaNonDeferred = false;
-bool	LLPipeline::sDisableShaders = false;
 bool	LLPipeline::sRenderTransparentWater = true;
 bool	LLPipeline::sRenderBump = true;
 bool	LLPipeline::sBakeSunlight = false;
@@ -1393,10 +1392,7 @@ void LLPipeline::restoreGL()
 
 bool LLPipeline::canUseVertexShaders()
 {
-	if (sDisableShaders ||
-		!gGLManager.mHasVertexShader ||
-		!gGLManager.mHasFragmentShader ||
-		(assertInitialized() && mVertexShadersLoaded != 1) )
+	if ((assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return false;
 	}
@@ -1408,8 +1404,7 @@ bool LLPipeline::canUseVertexShaders()
 
 bool LLPipeline::canUseWindLightShaders() const
 {
-	return (!LLPipeline::sDisableShaders &&
-			gWLSkyProgram.mProgramObject != 0 &&
+	return (gWLSkyProgram.mProgramObject != 0 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 

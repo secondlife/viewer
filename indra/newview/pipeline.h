@@ -574,7 +574,6 @@ public:
 	static bool				sDelayVBUpdate;
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
-	static bool				sDisableShaders; // if true, rendering will be done without shaders
 	static bool				sRenderTransparentWater;
 	static bool				sRenderBump;
 	static bool				sBakeSunlight;
