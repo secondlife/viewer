@@ -1759,6 +1759,10 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			// need to set agent string here before instance created
 			media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
+            // configure and pass proxy setup based on debug settings that are 
+            // configured by UI in prefs -> setup
+            media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
+
 			media_source->setTarget(target);
 
 			const std::string plugin_dir = gDirUtilp->getLLPluginDir();
@@ -1841,8 +1845,6 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		// Qt/WebKit loads from your system location.
 		std::string ca_path = gDirUtilp->getCAFile();
 		media_source->addCertificateFilePath( ca_path );
-
-		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
 		if(mClearCache)
 		{
