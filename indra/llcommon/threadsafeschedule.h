@@ -73,11 +73,7 @@ namespace LL
     private:
         using super = LLThreadSafeQueue<TimeTuple, ThreadSafeSchedulePrivate::TimedQueue<Args...>>;
         using lock_t = typename super::lock_t;
-        using super::pop_;
-        using super::push_;
-        using super::mClosed;
-        using super::mEmptyCond;
-        using super::mCapacityCond;
+        using pop_result = typename super::pop_result;
 
     public:
         using TimePoint = ThreadSafeSchedulePrivate::TimePoint;
@@ -92,6 +88,11 @@ namespace LL
         using super::push;
 
         /// pass DataTuple with implicit now
+        // This could be ambiguous for Args with a single type. Unfortunately
+        // we can't enable_if an individual method with a condition based on
+        // the *class* template arguments, only on that method's template
+        // arguments. We could specialize this class for the single-Args case;
+        // we could minimize redundancy by breaking out a common base class...
         void push(const DataTuple& tuple)
         {
             push(tuple_cons(Clock::now(), tuple));
@@ -103,11 +104,11 @@ namespace LL
             push(TimeTuple(time, std::forward<Args>(args)...));
         }
 
-        /// individually pass every component except the TimePoint (implies
-        /// now) -- could be ambiguous if the first specified template
-        /// parameter type is also TimePoint -- we could try to disambiguate,
-        /// but a simpler approach would be for the caller to explicitly
-        /// construct DataTuple and call that overload
+        /// individually pass every component except the TimePoint (implies now)
+        // This could be ambiguous if the first specified template parameter
+        // type is also TimePoint. We could try to disambiguate, but a simpler
+        // approach would be for the caller to explicitly construct DataTuple
+        // and call that overload.
         void push(Args&&... args)
         {
             push(Clock::now(), std::forward<Args>(args)...);
@@ -199,6 +200,10 @@ namespace LL
         // current time.
 
         /// pop DataTuple by value
+        // It would be great to notice when sizeof...(Args) == 1 and directly
+        // return the first (only) value, instead of making pop()'s caller
+        // call std::get<0>(value). See push(DataTuple) remarks for why we
+        // haven't yet jumped through those hoops.
         DataTuple pop()
         {
             return tuple_cdr(popWithTime());
@@ -224,16 +229,17 @@ namespace LL
             {
                 // Pick a point suitably far into the future.
                 TimePoint until = TimePoint::clock::now() + std::chrono::hours(24);
-                if (tryPopUntil_(lock, until, tt))
+                pop_result popped = tryPopUntil_(lock, until, tt);
+                if (popped == super::POPPED)
                     return std::move(tt);
 
-                // empty and closed: throw, just as super::pop() does
-                if (super::mStorage.empty() && super::mClosed)
+                // DONE: throw, just as super::pop() does
+                if (popped == super::DONE)
                 {
                     LLTHROW(LLThreadSafeQueueInterrupt());
                 }
-                // If not empty, we've still got items to drain.
-                // If not closed, it's worth waiting for more items.
+                // WAITING: we've still got items to drain.
+                // EMPTY: not closed, so it's worth waiting for more items.
                 // Either way, loop back to wait.
             }
         }
@@ -249,6 +255,16 @@ namespace LL
             if (! super::tryPop(tt))
                 return false;
             tuple = tuple_cdr(std::move(tt));
+            return true;
+        }
+
+        /// for when Args has exactly one type
+        bool tryPop(typename std::tuple_element<1, TimeTuple>::type& value)
+        {
+            TimeTuple tt;
+            if (! super::tryPop(tt))
+                return false;
+            value = std::get<1>(std::move(tt));
             return true;
         }
 
@@ -278,11 +294,12 @@ namespace LL
                 {
                     // Use our time_point_cast to allow for 'until' that's a
                     // time_point type other than TimePoint.
-                    return tryPopUntil_(lock, time_point_cast<TimePoint>(until), tuple);
+                    return super::POPPED ==
+                        tryPopUntil_(lock, LL::time_point_cast<TimePoint>(until), tuple);
                 });
         }
 
-        bool tryPopUntil_(lock_t& lock, const TimePoint& until, TimeTuple& tuple)
+        pop_result tryPopUntil_(lock_t& lock, const TimePoint& until, TimeTuple& tuple)
         {
             TimePoint adjusted = until;
             if (! super::mStorage.empty())
@@ -292,7 +309,14 @@ namespace LL
                 adjusted = min(std::get<0>(super::mStorage.front()), adjusted);
             }
             // now delegate to base-class tryPopUntil_()
-            return super::tryPopUntil_(lock, adjusted, tuple);
+            pop_result popped;
+            while ((popped = super::tryPopUntil_(lock, adjusted, tuple)) == super::WAITING)
+            {
+                // If super::tryPopUntil_() returns WAITING, it means there's
+                // a head item, but it's not yet time. But it's worth looping
+                // back to recheck.
+            }
+            return popped;
         }
 
         /// tryPopUntil(DataTuple&)
@@ -304,6 +328,18 @@ namespace LL
             if (! tryPopUntil(until, tt))
                 return false;
             tuple = tuple_cdr(std::move(tt));
+            return true;
+        }
+
+        /// for when Args has exactly one type
+        template <typename Clock, typename Duration>
+        bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
+                         typename std::tuple_element<1, TimeTuple>::type& value)
+        {
+            TimeTuple tt;
+            if (! tryPopUntil(until, tt))
+                return false;
+            value = std::get<1>(std::move(tt));
             return true;
         }
 

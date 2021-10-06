@@ -179,11 +179,12 @@ protected:
 	boost::fibers::condition_variable_any mCapacityCond;
 	boost::fibers::condition_variable_any mEmptyCond;
 
+	enum pop_result { EMPTY, DONE, WAITING, POPPED };
 	// implementation logic, suitable for passing to tryLockUntil()
 	template <typename Clock, typename Duration>
-	bool tryPopUntil_(lock_t& lock,
-					  const std::chrono::time_point<Clock, Duration>& until,
-					  ElementT& element);
+	pop_result tryPopUntil_(lock_t& lock,
+							const std::chrono::time_point<Clock, Duration>& until,
+							ElementT& element);
 	// if we're able to lock immediately, do so and run the passed callable,
 	// which must accept lock_t& and return bool
 	template <typename CALLABLE>
@@ -197,7 +198,6 @@ protected:
 	template <typename T>
 	bool push_(lock_t& lock, T&& element);
 	// while lock is locked, really pop the head element, if we can
-	enum pop_result { EMPTY, WAITING, POPPED };
 	pop_result pop_(lock_t& lock, ElementT& element);
 	// Is the current head element ready to pop? We say yes; subclass can
 	// override as needed.
@@ -398,7 +398,7 @@ LLThreadSafeQueue<ElementT, QueueT>::pop_(lock_t& lock, ElementT& element)
 {
     // If mStorage is empty, there's no head element.
     if (mStorage.empty())
-        return EMPTY;
+        return mClosed? DONE : EMPTY;
 
     // If there's a head element, pass it to canPop() to see if it's ready to pop. 
     if (! canPop(mStorage.front()))
@@ -427,16 +427,16 @@ ElementT LLThreadSafeQueue<ElementT, QueueT>::pop(void)
         if (popped == POPPED)
             return std::move(value);
 
-        // Once the queue is empty, mClosed lets us know if there will ever be
-        // any more coming. If we didn't pop because WAITING, i.e. canPop()
-        // returned false, then even if the producer end has been closed,
-        // there's still at least one item to drain: wait for it.
-        if (popped == EMPTY && mClosed)
+        // Once the queue is DONE, there will never be any more coming.
+        if (popped == DONE)
         {
             LLTHROW(LLThreadSafeQueueInterrupt());
         }
 
-        // Storage empty, queue still open. Wait for signal.
+        // If we didn't pop because WAITING, i.e. canPop() returned false,
+        // then even if the producer end has been closed, there's still at
+        // least one item to drain: wait for it. Or we might be EMPTY, with
+        // the queue still open. Either way, wait for signal.
         mEmptyCond.wait(lock1);
     }
 }
@@ -448,8 +448,8 @@ bool LLThreadSafeQueue<ElementT, QueueT>::tryPop(ElementT & element)
     return tryLock(
         [this, &element](lock_t& lock)
         {
-            // no need to check mClosed: tryPop() behavior when the queue is
-            // closed is implemented by simple inability to push any new
+            // conflate EMPTY, DONE, WAITING: tryPop() behavior when the queue
+            // is closed is implemented by simple inability to push any new
             // elements
             return pop_(lock, element) == POPPED;
         });
@@ -478,7 +478,8 @@ bool LLThreadSafeQueue<ElementT, QueueT>::tryPopUntil(
         until,
         [this, until, &element](lock_t& lock)
         {
-            return tryPopUntil_(lock, until, element);
+            // conflate EMPTY, DONE, WAITING
+            return tryPopUntil_(lock, until, element) == POPPED;
         });
 }
 
@@ -486,26 +487,28 @@ bool LLThreadSafeQueue<ElementT, QueueT>::tryPopUntil(
 // body of tryPopUntil(), called once we have the lock
 template <typename ElementT, typename QueueT>
 template <typename Clock, typename Duration>
-bool LLThreadSafeQueue<ElementT, QueueT>::tryPopUntil_(
+typename LLThreadSafeQueue<ElementT, QueueT>::pop_result
+LLThreadSafeQueue<ElementT, QueueT>::tryPopUntil_(
     lock_t& lock,
     const std::chrono::time_point<Clock, Duration>& until,
     ElementT& element)
 {
     while (true)
     {
-        if (pop_(lock, element) == POPPED)
-            return true;
-
-        if (mClosed)
+        pop_result popped = pop_(lock, element);
+        if (popped == POPPED || popped == DONE)
         {
-            return false;
+            // If we succeeded, great! If we've drained the last item, so be
+            // it. Either way, break the loop and tell caller.
+            return popped;
         }
 
-        // Storage empty. Wait for signal.
+        // EMPTY or WAITING: wait for signal.
         if (LLCoros::cv_status::timeout == mEmptyCond.wait_until(lock, until))
         {
-            // timed out -- formally we might recheck both conditions above
-            return false;
+            // timed out -- formally we might recheck
+            // as it is, break loop
+            return popped;
         }
         // If we didn't time out, we were notified for some reason. Loop back
         // to check.
@@ -546,7 +549,7 @@ template<typename ElementT, typename QueueT>
 bool LLThreadSafeQueue<ElementT, QueueT>::done()
 {
     lock_t lock(mLock);
-    return mClosed && mStorage.size() == 0;
+    return mClosed && mStorage.empty();
 }
 
 #endif

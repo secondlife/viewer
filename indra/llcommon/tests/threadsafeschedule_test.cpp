@@ -47,6 +47,8 @@ namespace tut
         // the timestamp for each one -- but since we're passing explicit
         // timestamps, make the queue reorder them.
         queue.push(Queue::TimeTuple(Queue::Clock::now() + 20ms, "ghi"));
+        // Given the various push() overloads, you have to match the type
+        // exactly: conversions are ambiguous.
         queue.push("abc"s);
         queue.push(Queue::Clock::now() + 10ms, "def");
         queue.close();
@@ -56,9 +58,11 @@ namespace tut
         ensure_equals("failed to pop second", std::get<0>(entry), "def"s);
         ensure("queue not closed", queue.isClosed());
         ensure("queue prematurely done", ! queue.done());
-        entry = queue.pop();
-        ensure_equals("failed to pop third", std::get<0>(entry), "ghi"s);
-        bool popped = queue.tryPop(entry);
+        std::string s;
+        bool popped = queue.tryPopFor(1s, s);
+        ensure("failed to pop third", popped);
+        ensure_equals("third is wrong", s, "ghi"s);
+        popped = queue.tryPop(s);
         ensure("queue not empty", ! popped);
         ensure("queue not done", queue.done());
     }
