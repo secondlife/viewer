@@ -199,11 +199,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -301,11 +297,7 @@ void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -392,11 +384,7 @@ void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -567,11 +555,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	else 
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
