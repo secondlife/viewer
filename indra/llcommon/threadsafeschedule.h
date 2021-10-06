@@ -73,7 +73,9 @@ namespace LL
     private:
         using super = LLThreadSafeQueue<TimeTuple, ThreadSafeSchedulePrivate::TimedQueue<Args...>>;
         using lock_t = typename super::lock_t;
-        using pop_result = typename super::pop_result;
+        // VS 2017 needs this due to a bug:
+        // https://developercommunity.visualstudio.com/t/cannot-access-protected-enumerator-of-enclosing-cl/203430
+        enum pop_result { EMPTY=super::EMPTY, DONE=super::DONE, WAITING=super::WAITING, POPPED=super::POPPED };
 
     public:
         using TimePoint = ThreadSafeSchedulePrivate::TimePoint;
@@ -230,11 +232,11 @@ namespace LL
                 // Pick a point suitably far into the future.
                 TimePoint until = TimePoint::clock::now() + std::chrono::hours(24);
                 pop_result popped = tryPopUntil_(lock, until, tt);
-                if (popped == super::POPPED)
+                if (popped == POPPED)
                     return std::move(tt);
 
                 // DONE: throw, just as super::pop() does
-                if (popped == super::DONE)
+                if (popped == DONE)
                 {
                     LLTHROW(LLThreadSafeQueueInterrupt());
                 }
@@ -294,7 +296,7 @@ namespace LL
                 {
                     // Use our time_point_cast to allow for 'until' that's a
                     // time_point type other than TimePoint.
-                    return super::POPPED ==
+                    return POPPED ==
                         tryPopUntil_(lock, LL::time_point_cast<TimePoint>(until), tuple);
                 });
         }
@@ -310,7 +312,7 @@ namespace LL
             }
             // now delegate to base-class tryPopUntil_()
             pop_result popped;
-            while ((popped = super::tryPopUntil_(lock, adjusted, tuple)) == super::WAITING)
+            while ((popped = pop_result(super::tryPopUntil_(lock, adjusted, tuple))) == WAITING)
             {
                 // If super::tryPopUntil_() returns WAITING, it means there's
                 // a head item, but it's not yet time. But it's worth looping
