@@ -112,6 +112,8 @@ void LLQueuedThread::shutdown()
 // virtual
 S32 LLQueuedThread::update(F32 max_time_ms)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (!mStarted)
 	{
 		if (!mThreaded)
@@ -125,6 +127,8 @@ S32 LLQueuedThread::update(F32 max_time_ms)
 
 S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	F64 max_time = (F64)max_time_ms * .001;
 	LLTimer timer;
 	S32 pending = 1;
@@ -147,11 +151,14 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 				break;
 		}
 	}
+
 	return pending;
 }
 
 void LLQueuedThread::incQueue()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	// Something has been added to the queue
 	if (!isPaused())
 	{
@@ -166,6 +173,8 @@ void LLQueuedThread::incQueue()
 // May be called from any thread
 S32 LLQueuedThread::getPending()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	S32 res;
 	lockData();
 	res = mRequestQueue.size();
@@ -176,6 +185,8 @@ S32 LLQueuedThread::getPending()
 // MAIN thread
 void LLQueuedThread::waitOnPending()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	while(1)
 	{
 		update(0);
@@ -195,6 +206,8 @@ void LLQueuedThread::waitOnPending()
 // MAIN thread
 void LLQueuedThread::printQueueStats()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	lockData();
 	if (!mRequestQueue.empty())
 	{
@@ -211,6 +224,8 @@ void LLQueuedThread::printQueueStats()
 // MAIN thread
 LLQueuedThread::handle_t LLQueuedThread::generateHandle()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	lockData();
 	while ((mNextHandle == nullHandle()) || (mRequestHash.find(mNextHandle)))
 	{
@@ -224,6 +239,8 @@ LLQueuedThread::handle_t LLQueuedThread::generateHandle()
 // MAIN thread
 bool LLQueuedThread::addRequest(QueuedRequest* req)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (mStatus == QUITTING)
 	{
 		return false;
@@ -246,6 +263,8 @@ bool LLQueuedThread::addRequest(QueuedRequest* req)
 // MAIN thread
 bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_complete)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	llassert (handle != nullHandle());
 	bool res = false;
 	bool waspaused = isPaused();
@@ -281,12 +300,15 @@ bool LLQueuedThread::waitForResult(LLQueuedThread::handle_t handle, bool auto_co
 	{
 		pause();
 	}
+
 	return res;
 }
 
 // MAIN thread
 LLQueuedThread::QueuedRequest* LLQueuedThread::getRequest(handle_t handle)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	if (handle == nullHandle())
 	{
 		return 0;
@@ -299,6 +321,8 @@ LLQueuedThread::QueuedRequest* LLQueuedThread::getRequest(handle_t handle)
 
 LLQueuedThread::status_t LLQueuedThread::getRequestStatus(handle_t handle)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	status_t res = STATUS_EXPIRED;
 	lockData();
 	QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
@@ -312,6 +336,8 @@ LLQueuedThread::status_t LLQueuedThread::getRequestStatus(handle_t handle)
 
 void LLQueuedThread::abortRequest(handle_t handle, bool autocomplete)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	lockData();
 	QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
 	if (req)
@@ -324,6 +350,8 @@ void LLQueuedThread::abortRequest(handle_t handle, bool autocomplete)
 // MAIN thread
 void LLQueuedThread::setFlags(handle_t handle, U32 flags)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	lockData();
 	QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
 	if (req)
@@ -335,6 +363,8 @@ void LLQueuedThread::setFlags(handle_t handle, U32 flags)
 
 void LLQueuedThread::setPriority(handle_t handle, U32 priority)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	lockData();
 	QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
 	if (req)
@@ -357,6 +387,8 @@ void LLQueuedThread::setPriority(handle_t handle, U32 priority)
 
 bool LLQueuedThread::completeRequest(handle_t handle)
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	bool res = false;
 	lockData();
 	QueuedRequest* req = (QueuedRequest*)mRequestHash.find(handle);
@@ -401,6 +433,8 @@ bool LLQueuedThread::check()
 
 S32 LLQueuedThread::processNextRequest()
 {
+    LL_PROFILE_ZONE_SCOPED
+
 	QueuedRequest *req;
 	// Get next request from pool
 	lockData();
@@ -509,9 +543,11 @@ void LLQueuedThread::run()
 
 		mIdleThread = FALSE;
 
+        LL_PROFILER_THREAD_BEGIN(mName.c_str())
 		threadedUpdate();
-		
+
 		int pending_work = processNextRequest();
+        LL_PROFILER_THREAD_END(mName.c_str())
 
 		if (pending_work == 0)
 		{

@@ -67,6 +67,8 @@ LLEventMatching::LLEventMatching(LLEventPump& source, const LLSD& pattern):
 
 bool LLEventMatching::post(const LLSD& event)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     if (! llsd_matches(mPattern, event).empty())
         return false;
 
@@ -88,6 +90,8 @@ LLEventTimeoutBase::LLEventTimeoutBase(LLEventPump& source):
 
 void LLEventTimeoutBase::actionAfter(F32 seconds, const Action& action)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     setCountdown(seconds);
     mAction = action;
     if (! mMainloop.connected())
@@ -126,6 +130,8 @@ public:
 
     void operator()()
     {
+        LL_PROFILE_ZONE_SCOPED
+
         mPump.post(mEvent);
     }
 
@@ -136,6 +142,8 @@ private:
 
 void LLEventTimeoutBase::eventAfter(F32 seconds, const LLSD& event)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     actionAfter(seconds, EventAfter(*this, event));
 }
 
@@ -152,6 +160,8 @@ void LLEventTimeoutBase::cancel()
 
 bool LLEventTimeoutBase::tick(const LLSD&)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     if (countdownElapsed())
     {
         cancel();
@@ -189,7 +199,9 @@ LLEventTimer* LLEventTimeout::post_every(F32 period, const std::string& pump, co
 {
     return LLEventTimer::run_every(
         period,
-        [pump, data](){ LLEventPumps::instance().obtain(pump).post(data); });
+        [pump, data](){
+            LL_PROFILE_ZONE_SCOPED
+            LLEventPumps::instance().obtain(pump).post(data); });
 }
 
 LLEventTimer* LLEventTimeout::post_at(const LLDate& time, const std::string& pump, const LLSD& data)
@@ -221,6 +233,8 @@ LLEventBatch::LLEventBatch(LLEventPump& source, std::size_t size):
 
 void LLEventBatch::flush()
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // copy and clear mBatch BEFORE posting to avoid weird circularity effects
     LLSD batch(mBatch);
     mBatch.clear();
@@ -229,6 +243,8 @@ void LLEventBatch::flush()
 
 bool LLEventBatch::post(const LLSD& event)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     mBatch.append(event);
     // calling setSize(same) performs the very check we want
     setSize(mBatchSize);
@@ -267,6 +283,8 @@ void LLEventThrottleBase::flush()
     // post() anything but an isUndefined(). This is what mPosts is for.
     if (mPosts)
     {
+        LL_PROFILE_ZONE_SCOPED
+
         mPosts = 0;
         alarmCancel();
         // This is not to set our alarm; we are not yet requesting
@@ -288,6 +306,8 @@ LLSD LLEventThrottleBase::pending() const
 
 bool LLEventThrottleBase::post(const LLSD& event)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // Always capture most recent post() event data. If caller wants to
     // aggregate multiple events, let them retrieve pending() and modify
     // before calling post().
@@ -411,6 +431,8 @@ LLEventBatchThrottle::LLEventBatchThrottle(LLEventPump& source, F32 interval, st
 
 bool LLEventBatchThrottle::post(const LLSD& event)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     // simply retrieve pending value and append the new event to it
     LLSD partial = pending();
     partial.append(event);
@@ -447,6 +469,8 @@ LLEventLogProxy::LLEventLogProxy(LLEventPump& source, const std::string& name, b
 
 bool LLEventLogProxy::post(const LLSD& event) /* override */
 {
+    LL_PROFILE_ZONE_SCOPED
+
     auto counter = mCounter++;
     auto eventplus = event;
     if (eventplus.type() == LLSD::TypeMap)

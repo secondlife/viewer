@@ -53,6 +53,9 @@
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY
         #define LL_PROFILER_FRAME_END                   FrameMark
         #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name )
+        #define LL_PROFILER_THREAD_BEGIN(name)          FrameMarkStart( name ) // C string
+        #define LL_PROFILER_THREAD_END(name)            FrameMarkEnd( name )   // C string
+
         #define LL_RECORD_BLOCK_TIME(name)              ZoneScoped // Want descriptive names; was: ZoneNamedN( ___tracy_scoped_zone, #name, true );
         #define LL_PROFILE_ZONE_NAMED(name)             ZoneNamedN( ___tracy_scoped_zone, name, true );
         #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) ZoneNamedNC( ___tracy_scopped_zone, name, color, true ) // RGB
@@ -67,7 +70,10 @@
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_FAST_TIMER
         #define LL_PROFILER_FRAME_END
-        #define LL_PROFILER_SET_THREAD_NAME( name )      (void)(name)
+        #define LL_PROFILER_SET_THREAD_NAME( name )     (void)(name);
+        #define LL_PROFILER_THREAD_BEGIN(name)          (void)(name); // Not supported
+        #define LL_PROFILER_THREAD_END(name)            (void)(name); // Not supported
+
         #define LL_RECORD_BLOCK_TIME(name)                                                                  const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(name)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
         #define LL_PROFILE_ZONE_NAMED(name)             // LL_PROFILE_ZONE_NAMED is a no-op when Tracy is disabled
         #define LL_PROFILE_ZONE_SCOPED                  // LL_PROFILE_ZONE_SCOPED is a no-op when Tracy is disabled
@@ -83,6 +89,9 @@
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #define LL_PROFILER_FRAME_END                   FrameMark
         #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name )
+        #define LL_PROFILER_THREAD_BEGIN(name)          FrameMarkStart( name ) // C string
+        #define LL_PROFILER_THREAD_END(name)            FrameMarkEnd( name )   // C string
+
         #define LL_RECORD_BLOCK_TIME(name)              ZoneScoped                                          const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(name)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
         #define LL_PROFILE_ZONE_NAMED(name)             ZoneNamedN( ___tracy_scoped_zone, #name, true );
         #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) ZoneNamedNC( ___tracy_scopped_zone, name, color, true ) // RGB
