@@ -83,13 +83,34 @@ class LLInstanceTracker
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
+    using ptr_t  = std::shared_ptr<T>;
+    using weak_t = std::weak_ptr<T>;
+
+    /**
+     * Storing a dumb T* somewhere external is a bad idea, since
+     * LLInstanceTracker subclasses are explicitly destroyed rather than
+     * managed by smart pointers. It's legal to declare stack instances of an
+     * LLInstanceTracker subclass. But it's reasonable to store a
+     * std::weak_ptr<T>, which will become invalid when the T instance is
+     * destroyed.
+     */
+    weak_t getWeak()
+    {
+        return mSelf;
+    }
+
+    static S32 instanceCount() 
+    { 
+        return LockStatic()->mMap.size(); 
+    }
+    
     // snapshot of std::pair<const KEY, std::shared_ptr<T>> pairs
     class snapshot
     {
         // It's very important that what we store in this snapshot are
         // weak_ptrs, NOT shared_ptrs. That's how we discover whether any
         // instance has been deleted during the lifespan of a snapshot.
-        typedef std::vector<std::pair<const KEY, std::weak_ptr<T>>> VectorType;
+        typedef std::vector<std::pair<const KEY, weak_t>> VectorType;
         // Dereferencing our iterator produces a std::shared_ptr for each
         // instance that still exists. Since we store weak_ptrs, that involves
         // two chained transformations:
@@ -98,7 +119,7 @@ public:
         // It is very important that we filter lazily, that is, during
         // traversal. Any one of our stored weak_ptrs might expire during
         // traversal.
-        typedef std::pair<const KEY, std::shared_ptr<T>> strong_pair;
+        typedef std::pair<const KEY, ptr_t> strong_pair;
         // Note for future reference: nat has not yet had any luck (up to
         // Boost 1.67) trying to use boost::transform_iterator with a hand-
         // coded functor, only with actual functions. In my experience, an
@@ -202,17 +223,12 @@ public:
         iterator end()   { return iterator(snapshot::end(),   key_getter); }
     };
 
-    static T* getInstance(const KEY& k)
+    static ptr_t getInstance(const KEY& k)
     {
         LockStatic lock;
         const InstanceMap& map(lock->mMap);
         typename InstanceMap::const_iterator found = map.find(k);
-        return (found == map.end()) ? NULL : found->second.get();
-    }
-
-    static S32 instanceCount() 
-    { 
-        return LockStatic()->mMap.size(); 
+        return (found == map.end()) ? NULL : found->second;
     }
 
 protected:
@@ -222,7 +238,9 @@ protected:
         // shared_ptr, so give it a no-op deleter. We store shared_ptrs in our
         // InstanceMap specifically so snapshot can store weak_ptrs so we can
         // detect deletions during traversals.
-        std::shared_ptr<T> ptr(static_cast<T*>(this), [](T*){});
+        ptr_t ptr(static_cast<T*>(this), [](T*){});
+        // save corresponding weak_ptr for future reference
+        mSelf = ptr;
         LockStatic lock;
         add_(lock, key, ptr);
     }
@@ -257,7 +275,7 @@ private:
     static std::string report(const char* key) { return report(std::string(key)); }
 
     // caller must instantiate LockStatic
-    void add_(LockStatic& lock, const KEY& key, const std::shared_ptr<T>& ptr) 
+    void add_(LockStatic& lock, const KEY& key, const ptr_t& ptr) 
     { 
         mInstanceKey = key; 
         InstanceMap& map = lock->mMap;
@@ -281,7 +299,7 @@ private:
             break;
         }
     }
-    std::shared_ptr<T> remove_(LockStatic& lock)
+    ptr_t remove_(LockStatic& lock)
     {
         InstanceMap& map = lock->mMap;
         typename InstanceMap::iterator iter = map.find(mInstanceKey);
@@ -295,6 +313,9 @@ private:
     }
 
 private:
+    // Storing a weak_ptr to self is a bit like deriving from
+    // std::enable_shared_from_this(), except more explicit.
+    weak_t mSelf;
     KEY mInstanceKey;
 };
 
@@ -326,6 +347,9 @@ class LLInstanceTracker<T, void, KEY_COLLISION_BEHAVIOR>
     typedef llthread::LockStatic<StaticData> LockStatic;
 
 public:
+    using ptr_t  = std::shared_ptr<T>;
+    using weak_t = std::weak_ptr<T>;
+
     /**
      * Storing a dumb T* somewhere external is a bad idea, since
      * LLInstanceTracker subclasses are explicitly destroyed rather than
@@ -334,12 +358,15 @@ public:
      * std::weak_ptr<T>, which will become invalid when the T instance is
      * destroyed.
      */
-    std::weak_ptr<T> getWeak()
+    weak_t getWeak()
     {
         return mSelf;
     }
     
-    static S32 instanceCount() { return LockStatic()->mSet.size(); }
+    static S32 instanceCount()
+    {
+        return LockStatic()->mSet.size();
+    }
 
     // snapshot of std::shared_ptr<T> pointers
     class snapshot
@@ -347,7 +374,7 @@ public:
         // It's very important that what we store in this snapshot are
         // weak_ptrs, NOT shared_ptrs. That's how we discover whether any
         // instance has been deleted during the lifespan of a snapshot.
-        typedef std::vector<std::weak_ptr<T>> VectorType;
+        typedef std::vector<weak_t> VectorType;
         // Dereferencing our iterator produces a std::shared_ptr for each
         // instance that still exists. Since we store weak_ptrs, that involves
         // two chained transformations:
@@ -453,7 +480,7 @@ protected:
 private:
     // Storing a weak_ptr to self is a bit like deriving from
     // std::enable_shared_from_this(), except more explicit.
-    std::weak_ptr<T> mSelf;
+    weak_t mSelf;
 };
 
 #endif

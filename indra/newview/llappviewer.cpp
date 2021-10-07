@@ -2336,7 +2336,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			LL_INFOS("Settings") << "Attempting to load settings for the group " << file.name()
 			    << " - from location " << location_key << LL_ENDL;
 
-			LLControlGroup* settings_group = LLControlGroup::getInstance(file.name);
+			auto settings_group = LLControlGroup::getInstance(file.name);
 			if(!settings_group)
 			{
 				LL_WARNS("Settings") << "No matching settings group for name " << file.name() << LL_ENDL;
@@ -2638,7 +2638,7 @@ bool LLAppViewer::initConfiguration()
 					group_part = name.substr(0, pos);
 					name_part = name.substr(pos+1);
 					LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
-					LLControlGroup* g = LLControlGroup::getInstance(group_part);
+					auto g = LLControlGroup::getInstance(group_part);
 					if (g) control = g->getControl(name_part);
 				}
 				else

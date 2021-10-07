@@ -554,29 +554,25 @@ void LLStatBar::draw()
 void LLStatBar::setStat(const std::string& stat_name)
 {
 	using namespace LLTrace;
-	const StatType<CountAccumulator>*	count_stat;
-	const StatType<EventAccumulator>*	event_stat;
-	const StatType<SampleAccumulator>*	sample_stat;
-	const StatType<MemAccumulator>*		mem_stat;
 
-	if ((count_stat = StatType<CountAccumulator>::getInstance(stat_name)))
+	if (auto count_stat = StatType<CountAccumulator>::getInstance(stat_name))
 	{
-		mStat.countStatp = count_stat;
+		mStat.countStatp = count_stat.get();
 		mStatType = STAT_COUNT;
 	}
-	else if ((event_stat = StatType<EventAccumulator>::getInstance(stat_name)))
+	else if (auto event_stat = StatType<EventAccumulator>::getInstance(stat_name))
 	{
-		mStat.eventStatp = event_stat;
+		mStat.eventStatp = event_stat.get();
 		mStatType = STAT_EVENT;
 	}
-	else if ((sample_stat = StatType<SampleAccumulator>::getInstance(stat_name)))
+	else if (auto sample_stat = StatType<SampleAccumulator>::getInstance(stat_name))
 	{
-		mStat.sampleStatp = sample_stat;
+		mStat.sampleStatp = sample_stat.get();
 		mStatType = STAT_SAMPLE;
 	}
-	else if ((mem_stat = StatType<MemAccumulator>::getInstance(stat_name)))
+	else if (auto mem_stat = StatType<MemAccumulator>::getInstance(stat_name))
 	{
-		mStat.memStatp = mem_stat;
+		mStat.memStatp = mem_stat.get();
 		mStatType = STAT_MEM;
 	}
 }
