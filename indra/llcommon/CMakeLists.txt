@@ -121,6 +121,7 @@ set(llcommon_SOURCE_FILES
     llworkerthread.cpp
     timing.cpp
     u64.cpp
+    workqueue.cpp
     StackWalker.cpp
     )
     
@@ -258,6 +259,7 @@ set(llcommon_HEADER_FILES
     timer.h
     tuple.h
     u64.h
+    workqueue.h
     StackWalker.h
     )
 
@@ -363,6 +365,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(threadsafeschedule "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(workqueue "" "${test_libs}")
 
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
 ## every build. It's to help a developer make implementation choices about

@@ -78,6 +78,7 @@ namespace LL
         enum pop_result { EMPTY=super::EMPTY, DONE=super::DONE, WAITING=super::WAITING, POPPED=super::POPPED };
 
     public:
+        using Closed = LLThreadSafeQueueInterrupt;
         using TimePoint = ThreadSafeSchedulePrivate::TimePoint;
         using Clock = TimePoint::clock;
 
