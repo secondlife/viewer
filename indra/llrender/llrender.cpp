@@ -1848,6 +1848,7 @@ LLLightState* LLRender::getLight(U32 index)
 
 void LLRender::setAmbientLightColor(const LLColor4& color)
 {
+	LL_PROFILE_ZONE_SCOPED
 	if (color != mAmbientLightColor)
 	{
 		++mLightHash;

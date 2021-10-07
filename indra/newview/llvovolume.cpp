@@ -4807,7 +4807,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 	LLMatrix4a mat[kMaxJoints];
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
-    LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
+    LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar);
 
     S32 rigged_vert_count = 0;
     S32 rigged_face_count = 0;
@@ -4823,8 +4823,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		if ( weight )
 		{
             LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
-			LLMatrix4a bind_shape_matrix;
-			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
+			const LLMatrix4a& bind_shape_matrix = skin->mBindShapeMatrix;
 
 			LLVector4a* pos = dst_face.mPositions;
 
@@ -6045,123 +6044,130 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 	if (group && group->hasState(LLSpatialGroup::MESH_DIRTY) && !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
 		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_VB);
-		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
+		{
+			// SL-15709 -- NOTE: Tracy only allows one ZoneScoped per function.
+			// Solutions are:
+			// 1. Use a new scope
+			// 2. Use named zones
+			// 3. Use transient zones
+			LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
 
-		group->mBuilt = 1.f;
+			group->mBuilt = 1.f;
 		
-		S32 num_mapped_vertex_buffer = LLVertexBuffer::sMappedCount ;
+			S32 num_mapped_vertex_buffer = LLVertexBuffer::sMappedCount ;
 
-		const U32 MAX_BUFFER_COUNT = 4096;
-		LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
-		
-		U32 buffer_count = 0;
+			const U32 MAX_BUFFER_COUNT = 4096;
+			LLVertexBuffer* locked_buffer[MAX_BUFFER_COUNT];
 
-		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
-		{
-			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+			U32 buffer_count = 0;
 
-			if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
-			{
-				LLVOVolume* vobj = drawablep->getVOVolume();
-                if (debugLoggingEnabled("AnimatedObjectsLinkset"))
-                {
-                    if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
-                    {
-                        std::string vobj_name = llformat("Vol%p", vobj);
-                        F32 est_tris = vobj->getEstTrianglesMax();
-                        LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL; 
-                    }
-                }
-				if (vobj->isNoLOD()) continue;
-
-				vobj->preRebuild();
-
-				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
-				{
-					vobj->updateRelativeXform(true);
-				}
-
-				LLVolume* volume = vobj->getVolume();
-				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-				{
-					LLFace* face = drawablep->getFace(i);
-					if (face)
-					{
-						LLVertexBuffer* buff = face->getVertexBuffer();
-						if (buff)
-						{
-							llassert(!face->isState(LLFace::RIGGED));
-
-							if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
-								vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
-							{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
-								group->dirtyGeom();
-								gPipeline.markRebuild(group, TRUE);
-							}
-
-
-							if (buff->isLocked() && buffer_count < MAX_BUFFER_COUNT)
-							{
-								locked_buffer[buffer_count++] = buff;
-							}
-						}
-					}
-				}
-
-				if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
-				{
-					vobj->updateRelativeXform();
-				}
-
-				
-				drawablep->clearState(LLDrawable::REBUILD_ALL);
-			}
-		}
-		
-		{
-			LL_RECORD_BLOCK_TIME(FTM_REBUILD_MESH_FLUSH);
-			for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
-		{
-			(*iter)->flush();
-		}
-
-		// don't forget alpha
-		if(group != NULL && 
-		   !group->mVertexBuffer.isNull() && 
-		   group->mVertexBuffer->isLocked())
-		{
-			group->mVertexBuffer->flush();
-		}
-		}
-
-		//if not all buffers are unmapped
-		if(num_mapped_vertex_buffer != LLVertexBuffer::sMappedCount) 
-		{
-			LL_WARNS() << "Not all mapped vertex buffers are unmapped!" << LL_ENDL ; 
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
 				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
-				if(!drawablep)
+
+				if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 				{
-					continue;
-				}
-				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
-				{
-					LLFace* face = drawablep->getFace(i);
-					if (face)
+					LLVOVolume* vobj = drawablep->getVOVolume();
+					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
-						LLVertexBuffer* buff = face->getVertexBuffer();
-						if (buff && buff->isLocked())
+						if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
 						{
-							buff->flush();
+							std::string vobj_name = llformat("Vol%p", vobj);
+							F32 est_tris = vobj->getEstTrianglesMax();
+							LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL;
+						}
+					}
+					if (vobj->isNoLOD()) continue;
+
+					vobj->preRebuild();
+
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform(true);
+					}
+
+					LLVolume* volume = vobj->getVolume();
+					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+					{
+						LLFace* face = drawablep->getFace(i);
+						if (face)
+						{
+							LLVertexBuffer* buff = face->getVertexBuffer();
+							if (buff)
+							{
+								llassert(!face->isState(LLFace::RIGGED));
+
+								if (!face->getGeometryVolume(*volume, face->getTEOffset(), 
+									vobj->getRelativeXform(), vobj->getRelativeXformInvTrans(), face->getGeomIndex()))
+								{ //something's gone wrong with the vertex buffer accounting, rebuild this group 
+									group->dirtyGeom();
+									gPipeline.markRebuild(group, TRUE);
+								}
+
+
+								if (buff->isLocked() && buffer_count < MAX_BUFFER_COUNT)
+								{
+									locked_buffer[buffer_count++] = buff;
+								}
+							}
+						}
+					}
+
+					if (drawablep->isState(LLDrawable::ANIMATED_CHILD))
+					{
+						vobj->updateRelativeXform();
+					}
+
+					drawablep->clearState(LLDrawable::REBUILD_ALL);
+				}
+			}
+
+			{
+				LL_RECORD_BLOCK_TIME(FTM_REBUILD_MESH_FLUSH);
+				for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
+				{
+					(*iter)->flush();
+				}
+
+				// don't forget alpha
+				if(group != NULL &&
+				   !group->mVertexBuffer.isNull() &&
+				   group->mVertexBuffer->isLocked())
+				{
+					group->mVertexBuffer->flush();
+				}
+			}
+
+			//if not all buffers are unmapped
+			if(num_mapped_vertex_buffer != LLVertexBuffer::sMappedCount)
+			{
+				LL_WARNS() << "Not all mapped vertex buffers are unmapped!" << LL_ENDL ;
+				for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
+				{
+					LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+					if(!drawablep)
+					{
+						continue;
+					}
+					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
+					{
+						LLFace* face = drawablep->getFace(i);
+						if (face)
+						{
+							LLVertexBuffer* buff = face->getVertexBuffer();
+							if (buff && buff->isLocked())
+							{
+								buff->flush();
+							}
 						}
 					}
 				}
-			} 
+			}
+
+			group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 		}
 
-		group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
-	}
+	} // Tracy integration
 
 //	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
 }

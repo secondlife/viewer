@@ -338,7 +338,6 @@ S32		LLPipeline::sUseOcclusion = 0;
 bool	LLPipeline::sDelayVBUpdate = true;
 bool	LLPipeline::sAutoMaskAlphaDeferred = true;
 bool	LLPipeline::sAutoMaskAlphaNonDeferred = false;
-bool	LLPipeline::sDisableShaders = false;
 bool	LLPipeline::sRenderTransparentWater = true;
 bool	LLPipeline::sRenderBump = true;
 bool	LLPipeline::sBakeSunlight = false;
@@ -1393,10 +1392,7 @@ void LLPipeline::restoreGL()
 
 bool LLPipeline::canUseVertexShaders()
 {
-	if (sDisableShaders ||
-		!gGLManager.mHasVertexShader ||
-		!gGLManager.mHasFragmentShader ||
-		(assertInitialized() && mVertexShadersLoaded != 1) )
+	if ((assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return false;
 	}
@@ -1408,8 +1404,7 @@ bool LLPipeline::canUseVertexShaders()
 
 bool LLPipeline::canUseWindLightShaders() const
 {
-	return (!LLPipeline::sDisableShaders &&
-			gWLSkyProgram.mProgramObject != 0 &&
+	return (gWLSkyProgram.mProgramObject != 0 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
@@ -1897,6 +1892,7 @@ void LLPipeline::createObject(LLViewerObject* vobj)
 
 void LLPipeline::resetFrameStats()
 {
+	LL_PROFILE_ZONE_SCOPED
 	assertInitialized();
 
 	sCompiles        = 0;
@@ -2125,6 +2121,7 @@ void LLPipeline::grabReferences(LLCullResult& result)
 
 void LLPipeline::clearReferences()
 {
+	LL_PROFILE_ZONE_SCOPED
 	sCull = NULL;
 	mGroupSaveQ1.clear();
 }
@@ -4564,52 +4561,79 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
-
-	LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
-
-	LLGLEnable cull(GL_CULL_FACE);
-
-	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 	{
-		LLDrawPool *poolp = *iter;
-		if (hasRenderType(poolp->getType()))
+		// SL-15709 -- NOTE: Tracy only allows one ZoneScoped per function.
+		// Solutions are:
+		// 1. Use a new scope
+		// 2. Use named zones
+		// 3. Use transient zones
+		LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
+
+		LLGLEnable cull(GL_CULL_FACE);
+
+		for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
 		{
-			poolp->prerender();
-		}
-	}
-
-	LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
-
-	LLVertexBuffer::unbind();
-
-	LLGLState::checkStates();
-	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
-
-	U32 cur_type = 0;
-
-	gGL.setColorMask(true, true);
-	
-	pool_set_t::iterator iter1 = mPools.begin();
-
-	while ( iter1 != mPools.end() )
-	{
-		LLDrawPool *poolp = *iter1;
-		
-		cur_type = poolp->getType();
-
-		pool_set_t::iterator iter2 = iter1;
-		if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
-		{
-			LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLRENDER);
-
-			gGLLastMatrix = NULL;
-			gGL.loadMatrix(gGLModelView);
-		
-			for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
+			LLDrawPool *poolp = *iter;
+			if (hasRenderType(poolp->getType()))
 			{
-				LLVertexBuffer::unbind();
-				poolp->beginDeferredPass(i);
+				poolp->prerender();
+			}
+		}
+
+		LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
+
+		LLVertexBuffer::unbind();
+
+		LLGLState::checkStates();
+		LLGLState::checkTextureChannels();
+		LLGLState::checkClientArrays();
+
+		U32 cur_type = 0;
+
+		gGL.setColorMask(true, true);
+	
+		pool_set_t::iterator iter1 = mPools.begin();
+
+		while ( iter1 != mPools.end() )
+		{
+			LLDrawPool *poolp = *iter1;
+		
+			cur_type = poolp->getType();
+
+			pool_set_t::iterator iter2 = iter1;
+			if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
+			{
+				LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLRENDER);
+
+				gGLLastMatrix = NULL;
+				gGL.loadMatrix(gGLModelView);
+		
+				for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
+				{
+					LLVertexBuffer::unbind();
+					poolp->beginDeferredPass(i);
+					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
+					{
+						LLDrawPool *p = *iter2;
+						if (p->getType() != cur_type)
+						{
+							break;
+						}
+
+						if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
+					}
+					poolp->endDeferredPass(i);
+					LLVertexBuffer::unbind();
+
+					if (gDebugGL || gDebugPipeline)
+					{
+						LLGLState::checkStates();
+					}
+				}
+			}
+			else
+			{
+				// Skip all pools of this type
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
 					LLDrawPool *p = *iter2;
@@ -4617,39 +4641,19 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 					{
 						break;
 					}
-										
-					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
-				}
-				poolp->endDeferredPass(i);
-				LLVertexBuffer::unbind();
-
-				if (gDebugGL || gDebugPipeline)
-				{
-					LLGLState::checkStates();
 				}
 			}
+			iter1 = iter2;
+			stop_glerror();
 		}
-		else
-		{
-			// Skip all pools of this type
-			for (iter2 = iter1; iter2 != mPools.end(); iter2++)
-			{
-				LLDrawPool *p = *iter2;
-				if (p->getType() != cur_type)
-				{
-					break;
-				}
-			}
-		}
-		iter1 = iter2;
-		stop_glerror();
-	}
 
-	gGLLastMatrix = NULL;
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.loadMatrix(gGLModelView);
+		gGLLastMatrix = NULL;
+		gGL.matrixMode(LLRender::MM_MODELVIEW);
+		gGL.loadMatrix(gGLModelView);
 
-	gGL.setColorMask(true, false);
+		gGL.setColorMask(true, false);
+
+	} // Tracy ZoneScoped
 }
 
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
@@ -11139,6 +11143,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffersARB", 0x8000FF );
 			glDrawBuffersARB(1, &buff);
 		}
 

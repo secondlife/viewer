@@ -13,6 +13,7 @@ include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
+include(Tracy)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
@@ -21,6 +22,7 @@ include_directories(
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
+    ${TRACY_INCLUDE_DIR}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -201,6 +203,7 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llprofiler.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h
@@ -307,6 +310,7 @@ target_link_libraries(
     ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${URIPARSER_LIBRARIES}
+    ${TRACY_LIBRARY}
     )
 
 if (DARWIN)

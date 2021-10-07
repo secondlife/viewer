@@ -47,6 +47,7 @@ include(OpenGL)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
+include(Tracy)
 include(UI)
 include(UnixInstall)
 include(ViewerMiscLibs)
@@ -92,6 +93,7 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${TRACY_INCLUDE_DIR}
     )
 
 include_directories(SYSTEM
@@ -587,7 +589,6 @@ set(viewer_SOURCE_FILES
     llsyntaxid.cpp
     llsyswellitem.cpp
     llsyswellwindow.cpp
-    lltelemetry.cpp
     llteleporthistory.cpp
     llteleporthistorystorage.cpp
     lltextureatlas.cpp
@@ -2067,6 +2068,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${TRACY_LIBRARY}
     )
 
 if (USE_BUGSPLAT)

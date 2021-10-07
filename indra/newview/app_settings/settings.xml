@@ -812,17 +812,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>FramePerSecondLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Controls upper limit of frames per second</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>120</integer>
-    </map>
     <key>BackgroundYieldTime</key>
     <map>
       <key>Comment</key>
@@ -3366,13 +3355,13 @@
     <key>DisableVerticalSync</key>
     <map>
       <key>Comment</key>
-      <string>Update frames as fast as possible (FALSE = update frames between display scans)</string>
+      <string>Update frames as fast as possible (FALSE = update frames between display scans).  Requires restart.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>EnableGroupChatPopups</key>
     <map>

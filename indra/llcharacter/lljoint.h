@@ -38,6 +38,7 @@
 #include "m4math.h"
 #include "llquaternion.h"
 #include "xform.h"
+#include "llmatrix4a.h"
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;
 // Need to set this to count of animate-able joints,
@@ -123,6 +124,7 @@ protected:
 
 	// explicit transformation members
 	LLXformMatrix		mXform;
+    LLMatrix4a          mWorldMatrix;
 
     LLVector3       mDefaultPosition;
     LLVector3       mDefaultScale;
@@ -258,6 +260,8 @@ public:
 	// get/set world matrix
 	const LLMatrix4 &getWorldMatrix();
 	void setWorldMatrix( const LLMatrix4& mat );
+
+    const LLMatrix4a& getWorldMatrix4a();
 
 	void updateWorldMatrixChildren();
 	void updateWorldMatrixParent();

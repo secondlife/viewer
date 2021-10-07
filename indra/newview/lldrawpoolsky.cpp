@@ -82,13 +82,7 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 	else
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			// Ironically, we must support shader objects to be
-			// able to use this call.
-			LLGLSLShader::bindNoShader();
-		}
+		LLGLSLShader::bindNoShader();
 		mShader = NULL;
 	}
 	
