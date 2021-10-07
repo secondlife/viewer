@@ -103,12 +103,13 @@ namespace tut
         Shared result = data.get();
         ensure_equals("called wrong number of times", result.size(), 3);
         // postEvery() assumes you want the first call to happen right away.
-        // Inject a fake start time that's (interval) earlier than that, to
-        // make our too early/too late tests uniform for all entries.
-        result.push_front(start - interval);
-        for (size_t i = 1; i < result.size(); ++i)
+        // Pretend our start time was (interval) earlier than that, to make
+        // our too early/too late tests uniform for all entries.
+        start -= interval;
+        for (size_t i = 0; i < result.size(); ++i)
         {
-            auto diff = (result[i] - result[i-1]);
+            auto diff = result[i] - start;
+            start += interval;
             try
             {
                 ensure(STRINGIZE("call " << i << " too soon"), diff >= interval);

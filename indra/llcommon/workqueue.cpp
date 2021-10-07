@@ -17,9 +17,14 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "llcoros.h"
+#include LLCOROS_MUTEX_HEADER
 #include "llerror.h"
 #include "llexception.h"
 #include "stringize.h"
+
+using Mutex = LLCoros::Mutex;
+using Lock  = LLCoros::LockType;
 
 LL::WorkQueue::WorkQueue(const std::string& name):
     super(makeName(name))
@@ -83,8 +88,17 @@ std::string LL::WorkQueue::makeName(const std::string& name)
     if (! name.empty())
         return name;
 
-    static thread_local U32 discriminator = 0;
-    return STRINGIZE("WorkQueue" << discriminator++);
+    static U32 discriminator = 0;
+    static Mutex mutex;
+    U32 num;
+    {
+        // Protect discriminator from concurrent access by different threads.
+        // It can't be thread_local, else two racing threads will come up with
+        // the same name.
+        Lock lk(mutex);
+        num = discriminator++;
+    }
+    return STRINGIZE("WorkQueue" << num);
 }
 
 void LL::WorkQueue::callWork(const Queue::DataTuple& work)
