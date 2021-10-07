@@ -511,7 +511,7 @@ extern F32 gGLLastProjection[16];
 extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
 
-extern LLRender gGL;
+extern LL_THREAD_LOCAL LLRender gGL;
 
 // This rotation matrix moves the default OpenGL reference frame 
 // (-Z at, Y up) to Cory's favorite reference frame (X at, Z up)

@@ -1774,58 +1774,11 @@ const	S32   max_format  = (S32)num_formats - 1;
 	mhRC = 0;
 	if (wglCreateContextAttribsARB)
 	{ //attempt to create a specific versioned context
-		S32 attribs[] = 
-		{ //start at 4.2
-			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
-			WGL_CONTEXT_MINOR_VERSION_ARB, 2,
-			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-			WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
-			0
-		};
-
-		bool done = false;
-		while (!done)
-		{
-			mhRC = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
-
-			if (!mhRC)
-			{
-				if (attribs[3] > 0)
-				{ //decrement minor version
-					attribs[3]--;
-				}
-				else if (attribs[1] > 3)
-				{ //decrement major version and start minor version over at 3
-					attribs[1]--;
-					attribs[3] = 3;
-				}
-				else
-				{ //we reached 3.0 and still failed, bail out
-					done = true;
-				}
-			}
-			else
-			{
-				LL_INFOS() << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) << 
-					(LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << LL_ENDL;
-				done = true;
-
-			// force sNoFixedFunction iff we're trying to use nsight debugging which does not support many legacy API uses
-
-				// nSight doesn't support use of legacy API funcs in the fixed function pipe
-				if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
-				{
-					LLGLSLShader::sNoFixedFunction = true;
-				}
-			}
-		}
-	}
-
-	if (!mhRC && !(mhRC = wglCreateContext(mhDC)))
-	{
-		close();
-		OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
-		return FALSE;
+        mhRC = (HGLRC) createContext();
+        if (!mhRC)
+        {
+            return FALSE;
+        }
 	}
 
 	if (!wglMakeCurrent(mhDC, mhRC))
@@ -1878,6 +1831,75 @@ const	S32   max_format  = (S32)num_formats - 1;
 	}
 
 	return TRUE;
+}
+
+void* LLWindowWin32::createContext()
+{
+    S32 attribs[] =
+    {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 2,
+        WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+        WGL_CONTEXT_FLAGS_ARB, gDebugGL ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
+        0
+    };
+
+    HGLRC rc = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+    bool done = false;
+    while (!done)
+    {
+        rc = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+
+        if (!rc)
+        {
+            if (attribs[3] > 0)
+            { //decrement minor version
+                attribs[3]--;
+            }
+            else if (attribs[1] > 3)
+            { //decrement major version and start minor version over at 3
+                attribs[1]--;
+                attribs[3] = 3;
+            }
+            else
+            { //we reached 3.0 and still failed, bail out
+                done = true;
+            }
+        }
+        else
+        {
+            LL_INFOS() << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) <<
+                (LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << LL_ENDL;
+            done = true;
+
+            // force sNoFixedFunction iff we're trying to use nsight debugging which does not support many legacy API uses
+
+                // nSight doesn't support use of legacy API funcs in the fixed function pipe
+            if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
+            {
+                LLGLSLShader::sNoFixedFunction = true;
+            }
+        }
+    }
+
+    if (!rc && !(rc = wglCreateContext(mhDC)))
+    {
+        close();
+        OSMessageBox(mCallbacks->translateString("MBGLContextErr"), mCallbacks->translateString("MBError"), OSMB_OK);
+    }
+
+    return rc;
+}
+
+void LLWindowWin32::makeContextCurrent(void* contextPtr)
+{
+    wglMakeCurrent(mhDC, (HGLRC) contextPtr);
+}
+
+void LLWindowWin32::destroyContext(void* contextPtr)
+{
+    wglDeleteContext((HGLRC)contextPtr);
 }
 
 void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScreen& size )
@@ -3720,6 +3742,7 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
+    LL_PROFILE_ZONE_SCOPED;
     ASSERT_MAIN_THREAD();
 	SwapBuffers(mhDC);
 
