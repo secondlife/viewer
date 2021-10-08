@@ -192,6 +192,7 @@ void LLPluginProcessParent::shutdown()
             && state != STATE_ERROR)
         {
             (*it).second->setState(STATE_GOODBYE);
+            (*it).second->mOwner = NULL;
         }
         if (state != STATE_DONE)
         {
@@ -407,7 +408,10 @@ void LLPluginProcessParent::idle(void)
 			mMessagePipe->pumpOutput();
 			
 			// Only do input processing here if this instance isn't in a pollset.
-			if(!mPolledInput)
+            // If we are shutting down plugin, owner is null and we can't process
+            // input, we are here only to send shutdown_plugin message
+			if(!mPolledInput
+               && mState != STATE_GOODBYE)
 			{
 				mMessagePipe->pumpInput();
 			}
