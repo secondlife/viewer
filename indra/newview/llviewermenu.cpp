@@ -388,7 +388,19 @@ void set_merchant_SLM_menu()
     // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
     gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
     LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
-	gToolBarView->enableCommand(command->id(), true);
+    gToolBarView->enableCommand(command->id(), true);
+
+    const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplacelistings_id.isNull())
+    {
+        U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+        bool is_merchant = (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) || (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT);
+        if (is_merchant)
+        {
+            gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+            LL_WARNS("SLM") << "Creating the marketplace listings folder for a merchant" << LL_ENDL;
+        }
+    }
 }
 
 void check_merchant_status(bool force)
