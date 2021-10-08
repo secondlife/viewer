@@ -49,9 +49,9 @@ public:
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
-    void* createContext() override { return nullptr; }
-    void makeContextCurrent(void*) override {}
-    void destroyContext(void*) override {}
+    void* createSharedContext()  { return nullptr; }
+    void makeContextCurrent(void*)  {}
+    void destroySharedContext(void*)  {}
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
 	/*virtual*/ void showCursor() {};

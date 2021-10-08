@@ -80,14 +80,13 @@ public:
 	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) = 0;
 
     //create a new GL context that shares a namespace with this Window's main GL context and make it current on the current thread
-    // returns a pointer to be handed back to destroyGLConext/makeContextCurrent
-    virtual void*  createContext() = 0;
+    // returns a pointer to be handed back to destroySharedConext/makeContextCurrent
+    virtual void* createSharedContext() = 0;
     //make the given context current on the current thread
     virtual void makeContextCurrent(void* context) = 0;
-    //destroy the given context that was retrieved by makeGLContext
-    //Must be called on the same thread that called makeGLContext
-    virtual void destroyContext(void* context) = 0;
-
+    //destroy the given context that was retrieved by createSharedContext()
+    //Must be called on the same thread that called createSharedContext()
+    virtual void destroySharedContext(void* context) = 0;
 
     virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;

@@ -1833,7 +1833,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 	return TRUE;
 }
 
-void* LLWindowWin32::createContext()
+void* LLWindowWin32::createSharedContext()
 {
     S32 attribs[] =
     {
@@ -1897,7 +1897,7 @@ void LLWindowWin32::makeContextCurrent(void* contextPtr)
     wglMakeCurrent(mhDC, (HGLRC) contextPtr);
 }
 
-void LLWindowWin32::destroyContext(void* contextPtr)
+void LLWindowWin32::destroySharedContext(void* contextPtr)
 {
     wglDeleteContext((HGLRC)contextPtr);
 }

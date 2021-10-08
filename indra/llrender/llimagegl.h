@@ -324,7 +324,7 @@ public:
 
     LLWindow* mWindow;
     void* mContext;
-    LLAtomicBool mFinished = false;
+    LLAtomicBool mFinished;
 
     static LLImageGLThread* sInstance;
 };

@@ -2263,7 +2263,9 @@ void LLImageGL::resetCurTexSizebar()
 LLImageGLThread::LLImageGLThread(LLWindow* window)
     : LLThread("LLImageGL"), mWindow(window)
 {
-    mContext = mWindow->createContext();
+    mFinished = false;
+
+    mContext = mWindow->createSharedContext();
 }
 
 // post a function to be executed on the LLImageGL background thread
@@ -2342,5 +2344,5 @@ void LLImageGLThread::run()
         //queue is closed, fall out of run loop
     }
     gGL.shutdown();
-    mWindow->destroyContext(mContext);
+    mWindow->destroySharedContext(mContext);
 }
