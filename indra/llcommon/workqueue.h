@@ -104,9 +104,13 @@ namespace LL
          * Returns true if able to post, false if the other WorkQueue is
          * inaccessible.
          */
-        template <typename CALLABLE, typename CALLBACK>
-        bool postTo(std::weak_ptr<WorkQueue> target,
-                    const TimePoint& time, CALLABLE&& callable, CALLBACK&& callback)
+        // Apparently some Microsoft header file defines a macro CALLBACK? The
+        // natural template argument name CALLBACK produces very weird Visual
+        // Studio compile errors that seem utterly unrelated to this source
+        // code.
+        template <typename CALLABLE, typename FOLLOWUP>
+        bool postTo(WorkQueue::weak_t target,
+                    const TimePoint& time, CALLABLE&& callable, FOLLOWUP&& callback)
         {
             // We're being asked to post to the WorkQueue at target.
             // target is a weak_ptr: have to lock it to check it.
@@ -170,9 +174,9 @@ namespace LL
          * Returns true if able to post, false if the other WorkQueue is
          * inaccessible.
          */
-        template <typename CALLABLE, typename CALLBACK>
-        bool postTo(std::weak_ptr<WorkQueue> target,
-                    CALLABLE&& callable, CALLBACK&& callback)
+        template <typename CALLABLE, typename FOLLOWUP>
+        bool postTo(WorkQueue::weak_t target,
+                    CALLABLE&& callable, FOLLOWUP&& callback)
         {
             return postTo(target, TimePoint::clock::now(), std::move(callable), std::move(callback));
         }
@@ -243,7 +247,7 @@ namespace LL
     {
     public:
         // bind the desired data
-        BackJack(std::weak_ptr<WorkQueue> target,
+        BackJack(WorkQueue::weak_t target,
                  const WorkQueue::TimePoint& start,
                  const std::chrono::duration<Rep, Period>& interval,
                  CALLABLE&& callable):
@@ -291,7 +295,7 @@ namespace LL
         }
 
     private:
-        std::weak_ptr<WorkQueue> mTarget;
+        WorkQueue::weak_t mTarget;
         WorkQueue::TimePoint mStart;
         std::chrono::duration<Rep, Period> mInterval;
         CALLABLE mCallable;
