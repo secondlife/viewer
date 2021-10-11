@@ -1963,6 +1963,13 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	}
 	
 	LLFontManager::initClass();
+	// Init font system, load default fonts and generate basic glyphs
+	// currently it takes aprox. 0.5 sec and we would load these fonts anyway
+	// before login screen.
+	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
+		mDisplayScale.mV[VX],
+		mDisplayScale.mV[VY],
+		gDirUtilp->getAppRODataDir());
 
 	//
 	// We want to set this stuff up BEFORE we initialize the pipeline, so we can turn off
@@ -2008,14 +2015,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	gTextureList.init();
 	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
-	
-	// Init font system, but don't actually load the fonts yet
-	// because our window isn't onscreen and they take several
-	// seconds to parse.
-	LLFontGL::initClass( gSavedSettings.getF32("FontScreenDPI"),
-								mDisplayScale.mV[VX],
-								mDisplayScale.mV[VY],
-								gDirUtilp->getAppRODataDir());
 	
 	// Create container for all sub-views
 	LLView::Params rvp;
@@ -2101,6 +2100,8 @@ void LLViewerWindow::initBase()
 	// Login screen and main_view.xml need edit menus for preferences and browser
 	LL_DEBUGS("AppInit") << "initializing edit menu" << LL_ENDL;
 	initialize_edit_menu();
+
+    LLFontGL::loadCommonFonts();
 
 	// Create the floater view at the start so that other views can add children to it. 
 	// (But wait to add it as a child of the root view so that it will be in front of the 
@@ -5499,8 +5500,6 @@ void LLViewerWindow::initFonts(F32 zoom_factor)
 								mDisplayScale.mV[VX] * zoom_factor,
 								mDisplayScale.mV[VY] * zoom_factor,
 								gDirUtilp->getAppRODataDir());
-	// Force font reloads, which can be very slow
-	LLFontGL::loadDefaultFonts();
 }
 
 void LLViewerWindow::requestResolutionUpdate()
