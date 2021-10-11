@@ -36,7 +36,7 @@
 #include "lltexture.h"
 #include "llshadermgr.h"
 
-LLRender gGL;
+thread_local LLRender gGL;
 
 // Handy copies of last good GL matrices
 F32	gGLModelView[16];

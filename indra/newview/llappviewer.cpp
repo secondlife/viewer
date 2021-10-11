@@ -613,7 +613,7 @@ static void settings_modify()
 	LLPipeline::sRenderDeferred		= LLPipeline::sRenderTransparentWater && LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
-	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
+    gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 }
 
@@ -4831,6 +4831,7 @@ void LLAppViewer::idle()
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
+    LLImageGL::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();

@@ -208,6 +208,7 @@ void LLGLSLShader::dumpStats()
 //static
 void LLGLSLShader::startProfile()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->placeProfileQuery();
@@ -218,6 +219,7 @@ void LLGLSLShader::startProfile()
 //static
 void LLGLSLShader::stopProfile(U32 count, U32 mode)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->readProfileQuery(count, mode);

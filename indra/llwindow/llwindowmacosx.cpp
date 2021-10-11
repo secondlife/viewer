@@ -1907,6 +1907,34 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
     allowDirectMarkedTextInput(b, mGLView); // mLanguageTextInputAllowed and mMarkedTextAllowed should be updated at once (by Pell Smit
 }
 
+class sharedContext 
+{
+public:
+    CGLContextObj mContext;
+};
+
+void* LLWindowMacOSX::createSharedContext()
+{
+    sharedContext* sc = new sharedContext();
+    CGLCreateContext(mPixelFormat, mContext, &(sc->mContext));
+
+    return (void *)sc;
+}
+
+void LLWindowMacOSX::makeContextCurrent(void* context)
+{
+    CGLSetCurrentContext(((sharedContext*)context)->mContext);
+}
+
+void LLWindowMacOSX::destroySharedContext(void* context)
+{
+    sharedContext* sc = (sharedContext*)context;
+
+    CGLDestroyContext(sc->mContext);
+
+    delete sc;
+}
+
 void LLWindowMacOSX::interruptLanguageTextInput()
 {
 	commitCurrentPreedit(mGLView);
