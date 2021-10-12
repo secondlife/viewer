@@ -169,6 +169,7 @@ void LLTexUnit::refreshState(void)
 
 void LLTexUnit::activate(void)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (mIndex < 0) return;
 
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
@@ -229,8 +230,20 @@ void LLTexUnit::disable(void)
 	}
 }
 
+void LLTexUnit::bindFast(LLTexture* texture)
+{
+    LLImageGL* gl_tex = texture->getGLTexture();
+
+    glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+    gGL.mCurrTextureUnitIndex = mIndex;
+    mCurrTexture = gl_tex->getTexName();
+    glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
+    mHasMipMaps = gl_tex->mHasMipMaps;
+}
+
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	stop_glerror();
 	if (mIndex >= 0)
 	{
@@ -1243,8 +1256,6 @@ void LLRender::syncLightState()
 
 void LLRender::syncMatrices()
 {
-	stop_glerror();
-
 	static const U32 name[] = 
 	{
 		LLShaderMgr::MODELVIEW_MATRIX,
@@ -1415,8 +1426,6 @@ void LLRender::syncMatrices()
 			}
 		}
 	}
-
-	stop_glerror();
 }
 
 void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
@@ -1925,6 +1934,7 @@ void LLRender::end()
 }
 void LLRender::flush()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (mCount > 0)
 	{
 		if (!mUIOffset.empty())

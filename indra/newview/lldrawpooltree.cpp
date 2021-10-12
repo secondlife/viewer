@@ -153,6 +153,7 @@ void LLDrawPoolTree::beginDeferredPass(S32 pass)
 
 void LLDrawPoolTree::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	render(pass);
 }
 

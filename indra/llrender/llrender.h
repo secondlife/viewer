@@ -161,6 +161,17 @@ public:
 	bool bind(LLImageGL* texture, bool for_rendering = false, bool forceBind = false);
     bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
 
+    // bind implementation for inner loops
+    // makes the following assumptions:
+    //  - No need for gGL.flush() 
+    //  - texture is not null
+    //  - gl_tex->getTexName() is not zero
+    //  - This texture is not being bound redundantly
+    //  - USE_SRGB_DECODE is disabled
+    //  - mTexOptionsDirty is false
+    //  - 
+    void bindFast(LLTexture* texture);
+
 	// Binds a cubemap to this texture unit 
 	// (automatically enables the texture unit for cubemaps)
 	bool bind(LLCubeMap* cubeMap);

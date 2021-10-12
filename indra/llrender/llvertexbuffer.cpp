@@ -787,6 +787,18 @@ void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indi
 	placeFence();
 }
 
+void LLVertexBuffer::drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
+{
+    mMappable = false;
+    gGL.syncMatrices();
+
+    U16* idx = ((U16*)(U8*)mAlignedIndexOffset) + indices_offset;
+
+    LL_PROFILER_GPU_ZONEC("gl.DrawRangeElements", 0xFFFF00)
+        glDrawRangeElements(sGLMode[mode], start, end, count, GL_UNSIGNED_SHORT,
+            idx);
+}
+
 void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
@@ -2272,6 +2284,21 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 	return ret;
 }
 
+bool LLVertexBuffer::bindGLBufferFast()
+{
+    if (mGLBuffer != sGLRenderBuffer || !sVBOActive)
+    {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, mGLBuffer);
+        sGLRenderBuffer = mGLBuffer;
+        sBindCount++;
+        sVBOActive = true;
+
+        return true;
+    }
+
+    return false;
+}
+
 static LLTrace::BlockTimerStatHandle FTM_BIND_GL_INDICES("Bind Indices");
 
 bool LLVertexBuffer::bindGLIndices(bool force_bind)
@@ -2295,6 +2322,21 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 	}
 
 	return ret;
+}
+
+bool LLVertexBuffer::bindGLIndicesFast()
+{
+    if (mGLIndices != sGLRenderIndices || !sIBOActive)
+    {
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, mGLIndices);
+        sGLRenderIndices = mGLIndices;
+        sBindCount++;
+        sIBOActive = true;
+        
+        return true;
+    }
+
+    return false;
 }
 
 void LLVertexBuffer::flush()
@@ -2487,6 +2529,26 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 	}
 }
 
+void LLVertexBuffer::setBufferFast(U32 data_mask)
+{
+    //set up pointers if the data mask is different ...
+    bool setup = (sLastMask != data_mask);
+
+    
+    const bool bindBuffer = bindGLBufferFast();
+    const bool bindIndices = bindGLIndicesFast();
+
+    setup = setup || bindBuffer || bindIndices;
+
+    setupClientArrays(data_mask);
+  
+    if (data_mask && setup)
+    {
+        setupVertexBuffer(data_mask); // subclass specific setup (virtual function)
+        sSetCount++;
+    }
+}
+
 // virtual (default)
 void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 {
@@ -2642,6 +2704,99 @@ void LLVertexBuffer::setupVertexBuffer(U32 data_mask)
 	}
 
 	llglassertok();
+}
+
+void LLVertexBuffer::setupVertexBufferFast(U32 data_mask)
+{
+    U8* base = (U8*)mAlignedOffset;
+
+    if (data_mask & MAP_NORMAL)
+    {
+        S32 loc = TYPE_NORMAL;
+        void* ptr = (void*)(base + mOffsets[TYPE_NORMAL]);
+        glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_NORMAL], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD3)
+    {
+        S32 loc = TYPE_TEXCOORD3;
+        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD3]);
+        glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD3], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD2)
+    {
+        S32 loc = TYPE_TEXCOORD2;
+        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD2]);
+        glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD2], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD1)
+    {
+        S32 loc = TYPE_TEXCOORD1;
+        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD1]);
+        glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD1], ptr);
+    }
+    if (data_mask & MAP_TANGENT)
+    {
+        S32 loc = TYPE_TANGENT;
+        void* ptr = (void*)(base + mOffsets[TYPE_TANGENT]);
+        glVertexAttribPointerARB(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TANGENT], ptr);
+    }
+    if (data_mask & MAP_TEXCOORD0)
+    {
+        S32 loc = TYPE_TEXCOORD0;
+        void* ptr = (void*)(base + mOffsets[TYPE_TEXCOORD0]);
+        glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_TEXCOORD0], ptr);
+    }
+    if (data_mask & MAP_COLOR)
+    {
+        S32 loc = TYPE_COLOR;
+        //bind emissive instead of color pointer if emissive is present
+        void* ptr = (data_mask & MAP_EMISSIVE) ? (void*)(base + mOffsets[TYPE_EMISSIVE]) : (void*)(base + mOffsets[TYPE_COLOR]);
+        glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_COLOR], ptr);
+    }
+    if (data_mask & MAP_EMISSIVE)
+    {
+        S32 loc = TYPE_EMISSIVE;
+        void* ptr = (void*)(base + mOffsets[TYPE_EMISSIVE]);
+        glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+
+        if (!(data_mask & MAP_COLOR))
+        { //map emissive to color channel when color is not also being bound to avoid unnecessary shader swaps
+            loc = TYPE_COLOR;
+            glVertexAttribPointerARB(loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_EMISSIVE], ptr);
+        }
+    }
+    if (data_mask & MAP_WEIGHT)
+    {
+        S32 loc = TYPE_WEIGHT;
+        void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT]);
+        glVertexAttribPointerARB(loc, 1, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT], ptr);
+    }
+    if (data_mask & MAP_WEIGHT4)
+    {
+        S32 loc = TYPE_WEIGHT4;
+        void* ptr = (void*)(base + mOffsets[TYPE_WEIGHT4]);
+        glVertexAttribPointerARB(loc, 4, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_WEIGHT4], ptr);
+    }
+    if (data_mask & MAP_CLOTHWEIGHT)
+    {
+        S32 loc = TYPE_CLOTHWEIGHT;
+        void* ptr = (void*)(base + mOffsets[TYPE_CLOTHWEIGHT]);
+        glVertexAttribPointerARB(loc, 4, GL_FLOAT, GL_TRUE, LLVertexBuffer::sTypeSize[TYPE_CLOTHWEIGHT], ptr);
+    }
+    if (data_mask & MAP_TEXTURE_INDEX)
+    {
+#if !LL_DARWIN
+        S32 loc = TYPE_TEXTURE_INDEX;
+        void* ptr = (void*)(base + mOffsets[TYPE_VERTEX] + 12);
+        glVertexAttribIPointer(loc, 1, GL_UNSIGNED_INT, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+#endif
+    }
+    if (data_mask & MAP_VERTEX)
+    {
+        S32 loc = TYPE_VERTEX;
+        void* ptr = (void*)(base + mOffsets[TYPE_VERTEX]);
+        glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, LLVertexBuffer::sTypeSize[TYPE_VERTEX], ptr);
+    }
 }
 
 LLVertexBuffer::MappedRegion::MappedRegion(S32 type, S32 index, S32 count)

@@ -845,14 +845,14 @@ void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) co
 	{
 		//flag to reset the values because the old values are used.
 		resetMaxVirtualSizeResetCounter();
-		mMaxVirtualSize = virtual_size;		
-		mAdditionalDecodePriority = 0.f;	
+		mMaxVirtualSize = virtual_size;
+		mAdditionalDecodePriority = 0.f;
 		mNeedsGLTexture = needs_gltexture;
 	}
 	else if (virtual_size > mMaxVirtualSize)
 	{
 		mMaxVirtualSize = virtual_size;
-	}	
+	}
 }
 
 void LLViewerTexture::resetTextureStats()

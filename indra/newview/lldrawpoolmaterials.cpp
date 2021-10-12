@@ -106,6 +106,7 @@ void LLDrawPoolMaterials::endDeferredPass(S32 pass)
 
 void LLDrawPoolMaterials::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	static const U32 type_list[] = 
 	{
 		LLRenderPass::PASS_MATERIAL,
