@@ -491,7 +491,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 			}
 			else
 			{
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+				gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
 			}
 		}
 	}
