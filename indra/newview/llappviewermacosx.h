@@ -44,7 +44,6 @@ public:
 
 protected:
 	virtual bool restoreErrorTrap();
-	virtual void initCrashReporting(bool reportFreeze);
 
 	std::string generateSerialNumber();
 	virtual bool initParseCommandLine(LLCommandLineParser& clp);

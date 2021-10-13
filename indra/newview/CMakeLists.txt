@@ -1835,10 +1835,6 @@ if (WINDOWS)
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
-      ${ARCH_PREBUILT_DIRS_RELEASE}/libeay32.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
-      ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
-      ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
       ${viewer_APPSETTINGS_FILES}
       SLPlugin
       media_plugin_cef
@@ -1855,11 +1851,15 @@ if (WINDOWS)
         list(APPEND COPY_INPUT_DEPENDENCIES
             ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk_x64.dll
             ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp_x64.dll
+           ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1-x64.dll
+           ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1-x64.dll
             )
     else (ADDRESS_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
             ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
             ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1.dll
+            ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1.dll
             )
     endif (ADDRESS_SIZE EQUAL 64)
 
@@ -1913,11 +1913,9 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
-
-    if (NOT USE_BUGSPLAT)
-        add_dependencies(${VIEWER_BINARY_NAME} windows-crash-logger)
-    endif (NOT USE_BUGSPLAT)
+    add_dependencies(${VIEWER_BINARY_NAME}
+      SLPlugin
+    )
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2226,10 +2224,6 @@ if (DARWIN)
 
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc media_plugin_cef)
 
-  if (NOT USE_BUGSPLAT)
-      add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
-  endif (NOT USE_BUGSPLAT)
-
   if (ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
   else (ENABLE_SIGNING)
@@ -2271,62 +2265,7 @@ endif (INSTALL)
 
 # Note that the conventional VIEWER_SYMBOL_FILE is set by ../../build.sh
 if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIEWER_SYMBOL_FILE)
-  if (NOT USE_BUGSPLAT)
-    # Breakpad symbol-file generation
-    set(SYMBOL_SEARCH_DIRS "")
-    if (WINDOWS)
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-      # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
-      # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
-      set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
-      set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
-      set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
-    endif (WINDOWS)
-    if (DARWIN)
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-      # *TODO: Generate these search dirs in the cmake files related to each binary.
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-      set(VIEWER_EXE_GLOBS "'${product}' SLPlugin")
-      set(VIEWER_EXE_GLOBS "'${product}' mac-crash-logger")
-      set(VIEWER_LIB_GLOB "*.dylib")
-    endif (DARWIN)
-    if (LINUX)
-      list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
-      set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
-      set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin")
-      set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
-      set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
-    endif (LINUX)
-
-    if(CMAKE_CFG_INTDIR STREQUAL ".")
-        set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-    else(CMAKE_CFG_INTDIR STREQUAL ".")
-        # set LLBUILD_CONFIG to be a shell variable evaluated at build time
-        # reflecting the configuration we are currently building.
-        set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-    endif(CMAKE_CFG_INTDIR STREQUAL ".")
-    add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
-      COMMAND "${PYTHON_EXECUTABLE}"
-      ARGS
-        "${CMAKE_CURRENT_SOURCE_DIR}/generate_breakpad_symbols.py"
-        "${LLBUILD_CONFIG}"
-        "${SYMBOL_SEARCH_DIRS}"
-        "${VIEWER_EXE_GLOBS}"
-        "${VIEWER_LIB_GLOB}"
-        "${AUTOBUILD_INSTALL_DIR}/bin/dump_syms"
-        "${VIEWER_SYMBOL_FILE}"
-      DEPENDS generate_breakpad_symbols.py
-          VERBATIM)
-
-    add_custom_target(generate_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" ${VIEWER_BINARY_NAME} "${VIEWER_COPY_MANIFEST}")
-    add_dependencies(generate_symbols ${VIEWER_BINARY_NAME})
-    if (WINDOWS OR LINUX)
-      add_dependencies(generate_symbols "${VIEWER_COPY_MANIFEST}")
-    endif (WINDOWS OR LINUX)
-
-  else (NOT USE_BUGSPLAT)
+  if (BUGSPLAT_DB)
     # BugSplat symbol-file generation
     if (WINDOWS)
       # Just pack up a tarball containing only the .pdb file for the
@@ -2410,7 +2349,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
     if (LINUX)
       # TBD
     endif (LINUX)
-  endif (NOT USE_BUGSPLAT)
+  endif (BUGSPLAT_DB)
 
   # for both Bugsplat and Breakpad
   add_dependencies(llpackage generate_symbols)
