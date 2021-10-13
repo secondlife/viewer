@@ -46,7 +46,6 @@
 #include "llstl.h" // for DeletePointer()
 #include "llstring.h"
 #include "lleventtimer.h"
-#include "google_breakpad/exception_handler.h"
 #include "stringize.h"
 #include "llcleanup.h"
 #include "llevents.h"
@@ -62,12 +61,6 @@
 
 LONG WINAPI default_windows_exception_handler(struct _EXCEPTION_POINTERS *exception_infop);
 BOOL ConsoleCtrlHandler(DWORD fdwCtrlType);
-bool windows_post_minidump_callback(const wchar_t* dump_path,
-									const wchar_t* minidump_id,
-									void* context,
-									EXCEPTION_POINTERS* exinfo,
-									MDRawAssertionInfo* assertion,
-									bool succeeded);
 #else
 # include <signal.h>
 # include <unistd.h> // for fork()
@@ -146,8 +139,6 @@ void LLApp::commonCtor()
 
 	// Set the application to this instance.
 	sApplication = this;
-
-	mExceptionHandler = 0;
 	
 	// initialize the buffer to write the minidump filename to
 	// (this is used to avoid allocating memory in the crash handler)
@@ -177,8 +168,6 @@ LLApp::~LLApp()
 		delete mThreadErrorp;
 		mThreadErrorp = NULL;
 	}
-	
-	if(mExceptionHandler != 0) delete mExceptionHandler;
 
 	SUBSYSTEM_CLEANUP_DBG(LLCommon);
 }
@@ -394,138 +383,17 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 #if LL_WINDOWS
 
-#if LL_SEND_CRASH_REPORTS && ! defined(LL_BUGSPLAT)
-	EnableCrashingOnCrashes();
-
-	// This sets a callback to handle w32 signals to the console window.
-	// The viewer shouldn't be affected, sicne its a windowed app.
-	SetConsoleCtrlHandler( (PHANDLER_ROUTINE) ConsoleCtrlHandler, TRUE);
-
-	// Install the Google Breakpad crash handler for Windows
-	if(mExceptionHandler == 0)
-	{
-		if ( second_instance )  //BUG-5707 Firing teleport from a web browser causes second 
-		{
-			mExceptionHandler = new google_breakpad::ExceptionHandler(
-															L"C:\\Temp\\",		
-															0,		//No filter
-															windows_post_minidump_callback,
-															0,
-															google_breakpad::ExceptionHandler::HANDLER_ALL);  //No custom client info.
-		}
-		else
-		{
-			LL_WARNS() << "adding breakpad exception handler" << LL_ENDL;
-
-			std::wstring wpipe_name;
-			wpipe_name =  mCrashReportPipeStr + wstringize(getPid());
-
-			const std::wstring wdump_path(utf8str_to_utf16str(mDumpPath));
-
-			int retries = 30;
-			for (; retries > 0; --retries)
-			{
-				if (mExceptionHandler != 0) delete mExceptionHandler;
-
-				mExceptionHandler = new google_breakpad::ExceptionHandler(
-															wdump_path,		
-															NULL,		//No filter
-															windows_post_minidump_callback,
-															0,
-															google_breakpad::ExceptionHandler::HANDLER_ALL,
-															MiniDumpNormal, //Generate a 'normal' minidump.
-															wpipe_name.c_str(),
-															NULL);  //No custom client info.
-				if (mExceptionHandler->IsOutOfProcess())
-				{
-					LL_INFOS("CRASHREPORT") << "Successfully attached to Out of Process exception handler." << LL_ENDL;
-					break;
-				}
-				else
-				{
-					LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler.  " << retries << " retries remaining." << LL_ENDL; 
-					::Sleep(100);  //Wait a tick and try again.
-				}
-			}
-
-			if (retries == 0) LL_WARNS("CRASHREPORT") << "Unable to attach to Out of Process exception handler." << LL_ENDL;
-		}
-
-		if (mExceptionHandler)
-		{
-			mExceptionHandler->set_handle_debug_exceptions(true);
-		}
-	}
-#endif // LL_SEND_CRASH_REPORTS && ! defined(LL_BUGSPLAT)
 #else  // ! LL_WINDOWS
 
-#if defined(LL_BUGSPLAT)
-	// Don't install our own signal handlers -- BugSplat needs to hook them,
-	// or it's completely ineffectual.
-	bool installHandler = false;
-
-#else // ! LL_BUGSPLAT
-	//
-	// Start up signal handling.
-	//
-	// There are two different classes of signals.  Synchronous signals are delivered to a specific
-	// thread, asynchronous signals can be delivered to any thread (in theory)
-	//
-	setup_signals();
-
-	// Add google breakpad exception handler configured for Darwin/Linux.
-	bool installHandler = true;
+#if ! defined(LL_BUGSPLAT)
+    //
+    // Start up signal handling.
+    //
+    // There are two different classes of signals.  Synchronous signals are delivered to a specific
+    // thread, asynchronous signals can be delivered to any thread (in theory)
+    //
+    setup_signals();
 #endif // ! LL_BUGSPLAT
-
-#if LL_DARWIN
-	// For the special case of Darwin, we do not want to install the handler if
-	// the process is being debugged as the app will exit with value ABRT (6) if
-	// we do.  Unfortunately, the code below which performs that test relies on
-	// the structure kinfo_proc which has been tagged by apple as an unstable
-	// API.  We disable this test for shipping versions to avoid conflicts with
-	// future releases of Darwin.  This test is really only needed for developers
-	// starting the app from a debugger anyway.
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
-    int mib[4];
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PID;
-	mib[3] = getpid();
-	
-	struct kinfo_proc info;
-	memset(&info, 0, sizeof(info));
-	
-	size_t size = sizeof(info);
-	int result = sysctl(mib, sizeof(mib) / sizeof(*mib), &info, &size, NULL, 0);
-	if((result == 0) || (errno == ENOMEM))
-	{
-		// P_TRACED flag is set, so this process is being debugged; do not install
-		// the handler
-		if(info.kp_proc.p_flag & P_TRACED) installHandler = false;
-	}
-	else
-	{
-		// Failed to discover if the process is being debugged; default to
-		// installing the handler.
-		installHandler = true;
-	}
-	#endif // ! LL_RELEASE_FOR_DOWNLOAD
-
-	if(installHandler && (mExceptionHandler == 0))
-	{
-		mExceptionHandler = new google_breakpad::ExceptionHandler(mDumpPath, 0, &unix_post_minidump_callback, 0, true, 0);
-	}
-#elif LL_LINUX
-	if(installHandler && (mExceptionHandler == 0))
-	{
-		if (mDumpPath.empty())
-		{
-			mDumpPath = "/tmp";
-		}
-		google_breakpad::MinidumpDescriptor desc(mDumpPath);
-	    mExceptionHandler = new google_breakpad::ExceptionHandler(desc, NULL, unix_minidump_callback, NULL, true, -1);
-	}
-#endif // LL_LINUX
 
 #endif // ! LL_WINDOWS
 
@@ -614,31 +482,6 @@ void LLApp::setError()
 	setStatus(APP_STATUS_ERROR);
 }
 
-void LLApp::setMiniDumpDir(const std::string &path)
-{
-	if (path.empty())
-	{
-		mDumpPath = "/tmp";
-	}
-	else
-	{
-		mDumpPath = path;
-	}
-
-	if(mExceptionHandler == 0) return;
-#ifdef LL_WINDOWS
-	std::wstring buffer(utf8str_to_utf16str(mDumpPath));
-	if (buffer.size() > MAX_MINDUMP_PATH_LENGTH) buffer.resize(MAX_MINDUMP_PATH_LENGTH);
-	mExceptionHandler->set_dump_path(buffer);
-#elif LL_LINUX
-        //google_breakpad::MinidumpDescriptor desc("/tmp");	//path works in debug fails in production inside breakpad lib so linux gets a little less stack reporting until it is patched.
-        google_breakpad::MinidumpDescriptor desc(mDumpPath);	//path works in debug fails in production inside breakpad lib so linux gets a little less stack reporting until it is patched.
-	mExceptionHandler->set_minidump_descriptor(desc);
-#else
-	mExceptionHandler->set_dump_path(mDumpPath);
-#endif
-}
-
 void LLApp::setDebugFileNames(const std::string &path)
 {
   	mStaticDebugFileName = path + "static_debug_info.log";
@@ -647,8 +490,6 @@ void LLApp::setDebugFileNames(const std::string &path)
 
 void LLApp::writeMiniDump()
 {
-	if(mExceptionHandler == 0) return;
-	mExceptionHandler->WriteMinidump();
 }
 
 // static
@@ -705,13 +546,6 @@ bool LLApp::isExiting()
 
 void LLApp::disableCrashlogger()
 {
-	// Disable Breakpad exception handler.
-	if (mExceptionHandler != 0)
-	{
-		delete mExceptionHandler;
-		mExceptionHandler = 0;
-	}
-
 	sDisableCrashlogger = TRUE;
 }
 
@@ -1105,64 +939,3 @@ bool unix_post_minidump_callback(const char *dump_dir,
 }
 #endif // !WINDOWS
 
-#ifdef LL_WINDOWS
-bool windows_post_minidump_callback(const wchar_t* dump_path,
-									const wchar_t* minidump_id,
-									void* context,
-									EXCEPTION_POINTERS* exinfo,
-									MDRawAssertionInfo* assertion,
-									bool succeeded)
-{
-	char * path = LLApp::instance()->getMiniDumpFilename();
-	S32 remaining = LLApp::MAX_MINDUMP_PATH_LENGTH;
-	size_t bytesUsed;
-
-	LL_INFOS("MINIDUMPCALLBACK") << "Dump file was generated." << LL_ENDL;
-	bytesUsed = wcstombs(path, dump_path, static_cast<size_t>(remaining));
-	remaining -= bytesUsed;
-	path += bytesUsed;
-	if(remaining > 0 && bytesUsed > 0 && path[-1] != '\\')
-	{
-		*path++ = '\\';
-		--remaining;
-	}
-	if(remaining > 0)
-	{
-		bytesUsed = wcstombs(path, minidump_id, static_cast<size_t>(remaining));
-		remaining -= bytesUsed;
-		path += bytesUsed;
-	}
-	if(remaining > 0)
-	{
-		strncpy(path, ".dmp", remaining);
-	}
-
-	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
-   // *NOTE:Mani - this code is stolen from LLApp, where its never actually used.
-	//OSMessageBox("Attach Debugger Now", "Error", OSMB_OK);
-   // *TODO: Translate the signals/exceptions into cross-platform stuff
-	// Windows implementation
-	LL_INFOS() << "Entering Windows Exception Handler..." << LL_ENDL;
-
-	if (LLApp::isError())
-	{
-		LL_WARNS() << "Got another fatal signal while in the error handler, die now!" << LL_ENDL;
-	}
-
-	// Flag status to error, so thread_error starts its work
-	LLApp::setError();
-
-	// Block in the exception handler until the app has stopped
-	// This is pretty sketchy, but appears to work just fine
-	while (!LLApp::isStopped())
-	{
-		ms_sleep(10);
-	}
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	return false;
-#else
-	return true;
-#endif
-}
-#endif
