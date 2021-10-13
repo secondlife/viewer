@@ -472,6 +472,28 @@ void LLTexUnit::unbind(eTextureType type)
 	}
 }
 
+void LLTexUnit::unbindFast(eTextureType type)
+{
+    activate();
+
+    // Disabled caching of binding state.
+    if (mCurrTexType == type)
+    {
+        mCurrTexture = 0;
+
+        // Always make sure our texture color space is reset to linear.  SRGB sampling should be opt-in in the vast majority of cases.  Also prevents color space "popping".
+        mTexColorSpace = TCS_LINEAR;
+        if (type == LLTexUnit::TT_TEXTURE)
+        {
+            glBindTexture(sGLTextureType[type], sWhiteTexture);
+        }
+        else
+        {
+            glBindTexture(sGLTextureType[type], 0);
+        }
+    }
+}
+
 void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 {
 	if (mIndex < 0 || mCurrTexture == 0) return;

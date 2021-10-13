@@ -188,6 +188,9 @@ public:
 	// (only if there's a texture of the given type currently bound)
 	void unbind(eTextureType type);
 
+    // Fast but unsafe version of unbind
+    void unbindFast(eTextureType type);
+
 	// Sets the addressing mode used to sample the texture
 	// Warning: this stays set for the bound texture forever, 
 	// make sure you want to permanently change the address mode  for the bound texture.

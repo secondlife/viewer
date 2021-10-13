@@ -496,17 +496,15 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		}
 	}
 	
+    if (params.mGroup)
     {
-        if (params.mGroup)
-        {
-            params.mGroup->rebuildMesh();
-        }
-
-        LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
-
-        params.mVertexBuffer->setBufferFast(mask);
-        params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+        params.mGroup->rebuildMesh();
     }
+
+    LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+
+    params.mVertexBuffer->setBufferFast(mask);
+    params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
 	if (tex_setup)
 	{
