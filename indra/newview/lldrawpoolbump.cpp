@@ -694,7 +694,7 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 		break;
 	case BE_BRIGHTNESS: 
 	case BE_DARKNESS:
-		bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );		
+		bump = gBumpImageList.getBrightnessDarknessImage( tex, bump_code );
 		break;
 
 	default:
@@ -710,12 +710,12 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 	{
 		if (channel == -2)
 		{
-			gGL.getTexUnit(1)->bind(bump);
-			gGL.getTexUnit(0)->bind(bump);
+			gGL.getTexUnit(1)->bindFast(bump);
+			gGL.getTexUnit(0)->bindFast(bump);
 		}
 		else
 		{
-			gGL.getTexUnit(channel)->bind(bump);
+			gGL.getTexUnit(channel)->bindFast(bump);
 		}
 
 		return TRUE;
