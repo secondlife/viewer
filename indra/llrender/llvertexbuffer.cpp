@@ -2544,7 +2544,7 @@ void LLVertexBuffer::setBufferFast(U32 data_mask)
   
     if (data_mask && setup)
     {
-        setupVertexBuffer(data_mask); // subclass specific setup (virtual function)
+        setupVertexBufferFast(data_mask);
         sSetCount++;
     }
 }
