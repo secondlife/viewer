@@ -34,6 +34,11 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
+#if defined(_MSC_VER)
+#include <basetsd.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 #include "vlc/vlc.h"
 #include "vlc/libvlc_version.h"
 
