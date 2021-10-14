@@ -88,6 +88,7 @@ public:
     //Must be called on the same thread that called createSharedContext()
     virtual void destroySharedContext(void* context) = 0;
 
+
     virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
 	virtual void showCursor() = 0;

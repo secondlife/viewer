@@ -101,6 +101,19 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 #define LL_ALIGN_16(var) LL_ALIGN_PREFIX(16) var LL_ALIGN_POSTFIX(16)
 
+#define LL_ALIGN_NEW                        \
+public:                                     \
+    void* operator new(size_t size)         \
+    {                                       \
+        return ll_aligned_malloc_16(size);  \
+    }                                       \
+                                            \
+    void operator delete(void* ptr)         \
+    {                                       \
+        ll_aligned_free_16(ptr);            \
+    }
+
+
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 	// for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library

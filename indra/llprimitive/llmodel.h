@@ -40,8 +40,10 @@ class domMesh;
 
 #define MAX_MODEL_FACES 8
 
+LL_ALIGN_PREFIX(16)
 class LLMeshSkinInfo 
 {
+    LL_ALIGN_NEW
 public:
 	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
@@ -55,15 +57,17 @@ public:
 	matrix_list_t mInvBindMatrix;
 	matrix_list_t mAlternateBindMatrix;
 
-	LLMatrix4a mBindShapeMatrix;
+	LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
     bool mJointNumsInitialized;
-};
+} LL_ALIGN_POSTFIX(16);
 
+LL_ALIGN_PREFIX(16)
 class LLModel : public LLVolume
 {
+    LL_ALIGN_NEW
 public:
 
 	enum
@@ -285,7 +289,7 @@ public:
 	EModelStatus mStatus ;
 
 	int mSubmodelID;
-};
+} LL_ALIGN_POSTFIX(16);
 
 typedef std::vector<LLPointer<LLModel> >	model_list;
 typedef std::queue<LLPointer<LLModel> >	model_queue;
