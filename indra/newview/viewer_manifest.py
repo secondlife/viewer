@@ -553,9 +553,13 @@ class WindowsManifest(ViewerManifest):
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
             
-            # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
+            # OpenSSL
+            if (self.address_size == 64):
+                self.path("libcrypto-1_1-x64.dll")
+                self.path("libssl-1_1-x64.dll")
+            else:
+                self.path("libcrypto-1_1.dll")
+                self.path("libssl-1_1.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
@@ -1025,7 +1029,6 @@ class DarwinManifest(ViewerManifest):
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
                                 "libexpat.1.dylib",
-                                "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 # libnghttp2.dylib is a symlink to
                                 # libnghttp2.major.dylib, which is a symlink to
@@ -1294,14 +1297,19 @@ class DarwinManifest(ViewerManifest):
                     signed=False
                     sign_attempts=3
                     sign_retry_wait=15
+                    libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
+                    cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
+                    slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
+                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet/_greenlet.so"
                     while (not signed) and (sign_attempts > 0):
                         try:
-                            sign_attempts-=1;
-                            self.run_command(
-                                # Note: See blurb above about names of keychains
-                               ['codesign', '--verbose', '--deep', '--force',
-                                '--keychain', viewer_keychain, '--sign', identity,
-                                app_in_dmg])
+                            sign_attempts-=1
+                            # Note: See blurb above about names of keychains
+                            self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
                             signed=True # if no exception was raised, the codesign worked
                         except ManifestError as err:
                             if sign_attempts:
@@ -1312,6 +1320,7 @@ class DarwinManifest(ViewerManifest):
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
+                    self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
 
         finally:
             # Unmount the image even if exceptions from any of the above 
@@ -1364,7 +1373,7 @@ class LinuxManifest(ViewerManifest):
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin") 
+            self.path2basename("../llplugin/slplugin", "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             with self.prefix(src="../viewer_components/manager", dst=""):
                 self.path("*.py")
