@@ -169,7 +169,6 @@ void LLTexUnit::refreshState(void)
 
 void LLTexUnit::activate(void)
 {
-    LL_PROFILE_ZONE_SCOPED;
 	if (mIndex < 0) return;
 
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
@@ -1956,9 +1955,9 @@ void LLRender::end()
 }
 void LLRender::flush()
 {
-    LL_PROFILE_ZONE_SCOPED;
 	if (mCount > 0)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		if (!mUIOffset.empty())
 		{
 			sUICalls++;

@@ -3555,7 +3555,7 @@ const LLMeshSkinInfo* LLVOVolume::getSkinInfo() const
 {
     if (getVolume())
     {
-        return gMeshRepo.getSkinInfo(getVolume()->getParams().getSculptID(), this);
+        return gMeshRepo.getSkinInfo(getMeshID(), this);
     }
     else
     {
