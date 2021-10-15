@@ -1748,8 +1748,6 @@ const	S32   max_format  = (S32)num_formats - 1;
 		return FALSE;
 	}
 
-	LL_PROFILER_GPU_CONTEXT
-
 	if (!gGLManager.initGL())
 	{
 		close();
@@ -1757,6 +1755,8 @@ const	S32   max_format  = (S32)num_formats - 1;
 		return FALSE;
 	}
 	
+	LL_PROFILER_GPU_CONTEXT
+
 	// Disable vertical sync for swap
 	if (disable_vsync && wglSwapIntervalEXT)
 	{
