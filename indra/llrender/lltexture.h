@@ -67,11 +67,9 @@ public:
 	virtual S32	       getWidth(S32 discard_level = -1) const;
 	virtual S32	       getHeight(S32 discard_level = -1) const;
 	virtual bool       isActiveFetching();
+    virtual LLImageGL* getGLTexture() const;
 
 private:
-	//note: do not make this function public.
-	virtual LLImageGL* getGLTexture() const;
-
 	virtual void updateBindStatsForTester();
 };
 #endif

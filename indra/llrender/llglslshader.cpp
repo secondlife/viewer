@@ -1017,7 +1017,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextu
     
     if (uniform > -1)
     {
-        gGL.getTexUnit(uniform)->bind(texture, mode);
+        gGL.getTexUnit(uniform)->bindFast(texture);
         gGL.getTexUnit(uniform)->setTextureColorSpace(colorspace);
     }
     
@@ -1048,7 +1048,7 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
     
     if (uniform > -1)
     {
-        gGL.getTexUnit(uniform)->unbind(mode);
+        gGL.getTexUnit(uniform)->unbindFast(mode);
     }
     
     return uniform;

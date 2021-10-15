@@ -150,13 +150,6 @@ void LLDrawPoolGlow::render(S32 pass)
 	}
 }
 
-void LLDrawPoolGlow::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
-{
-	//gGL.diffuseColor4ubv(params.mGlowColor.mV);
-	LLRenderPass::pushBatch(params, mask, texture, batch_textures);
-}
-
-
 LLDrawPoolSimple::LLDrawPoolSimple() :
 	LLRenderPass(POOL_SIMPLE)
 {
@@ -471,6 +464,7 @@ void LLDrawPoolSimple::endDeferredPass(S32 pass)
 
 void LLDrawPoolSimple::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 

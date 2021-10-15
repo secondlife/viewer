@@ -358,7 +358,6 @@ bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
 S32		LLPipeline::sVisibleLightCount = 0;
-F32		LLPipeline::sMinRenderSize = 0.f;
 bool	LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 
@@ -2550,13 +2549,6 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		return;
 	}
 
-	const LLVector4a* bounds = group->getBounds();
-	if (sMinRenderSize > 0.f && 
-			llmax(llmax(bounds[1][0], bounds[1][1]), bounds[1][2]) < sMinRenderSize)
-	{
-		return;
-	}
-
 	assertInitialized();
 	
 	if (!group->getSpatialPartition()->mRenderByGroup)
@@ -3480,7 +3472,6 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 			group->mLastUpdateDistance = group->mDistance;
 		}
 	}
-
 }
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed)
@@ -3787,6 +3778,27 @@ void renderSoundHighlights(LLDrawable* drawablep)
 }
 }
 
+void LLPipeline::touchTextures(LLDrawInfo* info)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    for (auto& tex : info->mTextureList)
+    {
+        if (tex.notNull())
+        {
+            LLImageGL* gl_tex = tex->getGLTexture();
+            if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
+            {
+                tex->setActive();
+            }
+        }
+    }
+
+    if (info->mTexture.notNull())
+    {
+        info->mTexture->addTextureStats(info->mVSize);
+    }
+}
+
 void LLPipeline::postSort(LLCamera& camera)
 {
 	LL_RECORD_BLOCK_TIME(FTM_STATESORT_POSTSORT);
@@ -3839,20 +3851,14 @@ void LLPipeline::postSort(LLCamera& camera)
 			
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
 			{
-				if (sMinRenderSize > 0.f)
-				{
-					LLVector4a bounds;
-					bounds.setSub((*k)->mExtents[1],(*k)->mExtents[0]);
-
-					if (llmax(llmax(bounds[0], bounds[1]), bounds[2]) > sMinRenderSize)
-					{
-						sCull->pushDrawInfo(j->first, *k);
-					}
-				}
-				else
-				{
-					sCull->pushDrawInfo(j->first, *k);
-				}
+                LLDrawInfo* info = *k;
+				
+				sCull->pushDrawInfo(j->first, info);
+                if (!sShadowRender && !sReflectionRender)
+                {
+                    touchTextures(info);
+                    addTrianglesDrawn(info->mCount, info->mDrawMode);
+                }
 			}
 		}
 

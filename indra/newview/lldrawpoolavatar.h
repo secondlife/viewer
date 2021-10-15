@@ -283,12 +283,13 @@ typedef enum
 
 	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
 
+    LL_ALIGN_PREFIX(16)
     class MatrixPaletteCache
     {
     public:
         U32 mFrame;
         LLMeshSkinInfo::matrix_list_t mMatrixPalette;
-        
+        LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
         // Float array ready to be sent to GL
         std::vector<F32> mGLMp;
 
@@ -296,11 +297,11 @@ typedef enum
             mFrame(gFrameCount-1)
         {
         }
-    };
+    } LL_ALIGN_POSTFIX(16);
     
-    const MatrixPaletteCache& updateSkinInfoMatrixPalette(LLVOAvatar* avatarp, const LLMeshSkinInfo* skin);
+    const MatrixPaletteCache& updateSkinInfoMatrixPalette(LLVOAvatar* avatarp, const LLUUID& meshId);
 
-    typedef std::unordered_map<const LLMeshSkinInfo*, MatrixPaletteCache> matrix_palette_cache_t;
+    typedef std::unordered_map<LLUUID, MatrixPaletteCache> matrix_palette_cache_t;
     matrix_palette_cache_t mMatrixPaletteCache;
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();

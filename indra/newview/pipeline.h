@@ -265,6 +265,8 @@ public:
 	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
+    //update stats for textures in given DrawInfo
+    void touchTextures(LLDrawInfo* info);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
 	void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
@@ -596,7 +598,6 @@ public:
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
 	static S32				sVisibleLightCount;
-	static F32				sMinRenderSize;
 	static bool				sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;
 
