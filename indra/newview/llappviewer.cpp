@@ -613,7 +613,7 @@ static void settings_modify()
 	LLPipeline::sRenderDeferred		= LLPipeline::sRenderTransparentWater && LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
-	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
+    gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 }
 
@@ -737,7 +737,7 @@ LLAppViewer::LLAppViewer()
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
 #   endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
-	setMiniDumpDir(logdir);
+
 	setDebugFileNames(logdir);
 }
 
@@ -1009,19 +1009,6 @@ bool LLAppViewer::init()
 			OSMB_OK);
 		return 0;
 	}
-
-    // If we don't have the right shader requirements.
-    if (!gGLManager.mHasShaderObjects
-        || !gGLManager.mHasVertexShader
-        || !gGLManager.mHasFragmentShader)
-    {
-        LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedShaderRequirements");
-        OSMessageBox(
-            details.getString(),
-            LLStringUtil::null,
-            OSMB_OK);
-        return 0;
-    }
 
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())
@@ -2026,7 +2013,9 @@ bool LLAppViewer::cleanup()
 	if (LLConversationLog::instanceExists())
 	{
 		LLConversationLog::instance().cache();
-	}
+    }
+
+    clearSecHandler();
 
 	if (mPurgeCacheOnExit)
 	{
@@ -2356,7 +2345,7 @@ bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
 			LL_INFOS("Settings") << "Attempting to load settings for the group " << file.name()
 			    << " - from location " << location_key << LL_ENDL;
 
-			LLControlGroup* settings_group = LLControlGroup::getInstance(file.name);
+			auto settings_group = LLControlGroup::getInstance(file.name);
 			if(!settings_group)
 			{
 				LL_WARNS("Settings") << "No matching settings group for name " << file.name() << LL_ENDL;
@@ -2653,7 +2642,7 @@ bool LLAppViewer::initConfiguration()
 					group_part = name.substr(0, pos);
 					name_part = name.substr(pos+1);
 					LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
-					LLControlGroup* g = LLControlGroup::getInstance(group_part);
+					auto g = LLControlGroup::getInstance(group_part);
 					if (g) control = g->getControl(name_part);
 				}
 				else
@@ -4844,6 +4833,7 @@ void LLAppViewer::idle()
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
+    LLImageGL::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();

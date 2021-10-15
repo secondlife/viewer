@@ -35,9 +35,11 @@
 #include "llrefcount.h"
 #include "v2math.h"
 #include "llunits.h"
-
+#include "llthreadsafequeue.h"
 #include "llrender.h"
 class LLTextureAtlas ;
+class LLWindow;
+
 #define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
 #define MEGA_BYTES_TO_BYTES(x) ((x) << 20)
 
@@ -102,7 +104,7 @@ public:
 	void setAllowCompression(bool allow) { mAllowCompression = allow; }
 
 	static void setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void *pixels, bool allow_compression = true);
-
+    
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
 		S32 category = sMaxCategories-1);
@@ -265,7 +267,8 @@ public:
 #endif
 
 public:
-	static void initClass(S32 num_catagories, BOOL skip_analyze_alpha = false); 
+	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false); 
+    static void updateClass();
 	static void cleanupClass() ;
 
 private:
@@ -300,5 +303,31 @@ public:
 //****************************************************************************************************
 
 };
+
+class LLImageGLThread : public LLThread
+{
+public:
+    LLImageGLThread(LLWindow* window);
+
+    // post a function to be executed on the LLImageGL background thread
+    bool post(const std::function<void()>& func);
+
+    //post a callback to be executed on the main thread
+    bool postCallback(const std::function<void()>& callback);
+
+    void executeCallbacks();
+
+    void run() override;
+
+    LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+    LLThreadSafeQueue<std::function<void()>> mCallbackQueue;
+
+    LLWindow* mWindow;
+    void* mContext;
+    LLAtomicBool mFinished;
+
+    static LLImageGLThread* sInstance;
+};
+
 
 #endif // LL_LLIMAGEGL_H

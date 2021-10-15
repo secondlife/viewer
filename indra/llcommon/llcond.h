@@ -53,6 +53,8 @@ private:
     LLCoros::Mutex mMutex;
     // Use LLCoros::ConditionVariable for the same reason.
     LLCoros::ConditionVariable mCond;
+    using LockType = LLCoros::LockType;
+    using cv_status = LLCoros::cv_status;
 
 public:
     /// LLCond can be explicitly initialized with a specific value for mData if
@@ -65,10 +67,14 @@ public:
     LLCond(const LLCond&) = delete;
     LLCond& operator=(const LLCond&) = delete;
 
-    /// get() returns a const reference to the stored DATA. The only way to
-    /// get a non-const reference -- to modify the stored DATA -- is via
-    /// update_one() or update_all().
-    const value_type& get() const { return mData; }
+    /// get() returns the stored DATA by value -- so to use get(), DATA must
+    /// be copyable. The only way to get a non-const reference -- to modify
+    /// the stored DATA -- is via update_one() or update_all().
+    value_type get()
+    {
+        LockType lk(mMutex);
+        return mData;
+    }
 
     /**
      * Pass update_one() an invocable accepting non-const (DATA&). The
@@ -83,7 +89,7 @@ public:
     void update_one(MODIFY modify)
     {
         { // scope of lock can/should end before notify_one()
-            LLCoros::LockType lk(mMutex);
+            LockType lk(mMutex);
             modify(mData);
         }
         mCond.notify_one();
@@ -102,7 +108,7 @@ public:
     void update_all(MODIFY modify)
     {
         { // scope of lock can/should end before notify_all()
-            LLCoros::LockType lk(mMutex);
+            LockType lk(mMutex);
             modify(mData);
         }
         mCond.notify_all();
@@ -118,7 +124,7 @@ public:
     template <typename Pred>
     void wait(Pred pred)
     {
-        LLCoros::LockType lk(mMutex);
+        LockType lk(mMutex);
         // We must iterate explicitly since the predicate accepted by
         // condition_variable::wait() requires a different signature:
         // condition_variable::wait() calls its predicate with no arguments.
@@ -205,14 +211,14 @@ private:
     template <typename Clock, typename Duration, typename Pred>
     bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred pred)
     {
-        LLCoros::LockType lk(mMutex);
+        LockType lk(mMutex);
         // We advise the caller to pass a predicate accepting (const DATA&).
         // But what if they instead pass a predicate accepting non-const
         // (DATA&)? Such a predicate could modify mData, which would be Bad.
         // Forbid that.
         while (! pred(const_cast<const value_type&>(mData)))
         {
-            if (LLCoros::cv_status::timeout == mCond.wait_until(lk, timeout_time))
+            if (cv_status::timeout == mCond.wait_until(lk, timeout_time))
             {
                 // It's possible that wait_until() timed out AND the predicate
                 // became true more or less simultaneously. Even though

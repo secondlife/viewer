@@ -338,7 +338,6 @@ S32		LLPipeline::sUseOcclusion = 0;
 bool	LLPipeline::sDelayVBUpdate = true;
 bool	LLPipeline::sAutoMaskAlphaDeferred = true;
 bool	LLPipeline::sAutoMaskAlphaNonDeferred = false;
-bool	LLPipeline::sDisableShaders = false;
 bool	LLPipeline::sRenderTransparentWater = true;
 bool	LLPipeline::sRenderBump = true;
 bool	LLPipeline::sBakeSunlight = false;
@@ -359,7 +358,6 @@ bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
 S32		LLPipeline::sVisibleLightCount = 0;
-F32		LLPipeline::sMinRenderSize = 0.f;
 bool	LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
 
@@ -1393,10 +1391,7 @@ void LLPipeline::restoreGL()
 
 bool LLPipeline::canUseVertexShaders()
 {
-	if (sDisableShaders ||
-		!gGLManager.mHasVertexShader ||
-		!gGLManager.mHasFragmentShader ||
-		(assertInitialized() && mVertexShadersLoaded != 1) )
+	if ((assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return false;
 	}
@@ -1408,8 +1403,7 @@ bool LLPipeline::canUseVertexShaders()
 
 bool LLPipeline::canUseWindLightShaders() const
 {
-	return (!LLPipeline::sDisableShaders &&
-			gWLSkyProgram.mProgramObject != 0 &&
+	return (gWLSkyProgram.mProgramObject != 0 &&
 			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
@@ -2555,13 +2549,6 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		return;
 	}
 
-	const LLVector4a* bounds = group->getBounds();
-	if (sMinRenderSize > 0.f && 
-			llmax(llmax(bounds[1][0], bounds[1][1]), bounds[1][2]) < sMinRenderSize)
-	{
-		return;
-	}
-
 	assertInitialized();
 	
 	if (!group->getSpatialPartition()->mRenderByGroup)
@@ -3485,7 +3472,6 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 			group->mLastUpdateDistance = group->mDistance;
 		}
 	}
-
 }
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed)
@@ -3792,6 +3778,27 @@ void renderSoundHighlights(LLDrawable* drawablep)
 }
 }
 
+void LLPipeline::touchTextures(LLDrawInfo* info)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    for (auto& tex : info->mTextureList)
+    {
+        if (tex.notNull())
+        {
+            LLImageGL* gl_tex = tex->getGLTexture();
+            if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
+            {
+                tex->setActive();
+            }
+        }
+    }
+
+    if (info->mTexture.notNull())
+    {
+        info->mTexture->addTextureStats(info->mVSize);
+    }
+}
+
 void LLPipeline::postSort(LLCamera& camera)
 {
 	LL_RECORD_BLOCK_TIME(FTM_STATESORT_POSTSORT);
@@ -3844,20 +3851,14 @@ void LLPipeline::postSort(LLCamera& camera)
 			
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
 			{
-				if (sMinRenderSize > 0.f)
-				{
-					LLVector4a bounds;
-					bounds.setSub((*k)->mExtents[1],(*k)->mExtents[0]);
-
-					if (llmax(llmax(bounds[0], bounds[1]), bounds[2]) > sMinRenderSize)
-					{
-						sCull->pushDrawInfo(j->first, *k);
-					}
-				}
-				else
-				{
-					sCull->pushDrawInfo(j->first, *k);
-				}
+                LLDrawInfo* info = *k;
+				
+				sCull->pushDrawInfo(j->first, info);
+                if (!sShadowRender && !sReflectionRender)
+                {
+                    touchTextures(info);
+                    addTrianglesDrawn(info->mCount, info->mDrawMode);
+                }
 			}
 		}
 

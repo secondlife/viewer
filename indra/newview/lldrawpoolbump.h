@@ -32,6 +32,8 @@
 #include "lltextureentry.h"
 #include "lluuid.h"
 
+#include <unordered_map>
+
 class LLImageRaw;
 class LLSpatialGroup;
 class LLDrawInfo;
@@ -161,7 +163,7 @@ private:
 	static void onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump );
 
 private:
-	typedef std::map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
+	typedef std::unordered_map<LLUUID, LLPointer<LLViewerTexture> > bump_image_map_t;
 	bump_image_map_t mBrightnessEntries;
 	bump_image_map_t mDarknessEntries;
 };

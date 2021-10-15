@@ -150,6 +150,7 @@ void LLCubeMap::initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages
 
 void LLCubeMap::initGLData()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for (int i = 0; i < 6; i++)
 	{
 		mImages[i]->setSubImage(mRawImages[i], 0, 0, RESOLUTION, RESOLUTION);
@@ -453,6 +454,7 @@ BOOL LLCubeMap::project(F32& v_min, F32& v_max, F32& h_min, F32& h_max,
 
 void LLCubeMap::paintIn(LLVector3 dir[4], const LLColor4U& col)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	F32 v_min, v_max, h_min, h_max;
 	LLVector3 center = dir[0] + dir[1] + dir[2] + dir[3];
 	center.normVec();

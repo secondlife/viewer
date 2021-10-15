@@ -384,7 +384,7 @@ void LLViewerShaderMgr::initAttribsAndUniforms(void)
 
 S32 LLViewerShaderMgr::getShaderLevel(S32 type)
 {
-	return LLPipeline::sDisableShaders ? 0 : mShaderLevel[type];
+	return mShaderLevel[type];
 }
 
 //============================================================================
@@ -397,15 +397,6 @@ void LLViewerShaderMgr::setShaders()
     
     if (!gPipeline.mInitialized || !sInitialized || reentrance || sSkipReload)
     {
-        return;
-    }
-
-    if (!gGLManager.mHasShaderObjects
-        || !gGLManager.mHasVertexShader
-        || !gGLManager.mHasFragmentShader)
-    {
-        // Viewer will show 'hardware requirements' warning later
-        LL_INFOS("ShaderLoading") << "Shaders not supported" << LL_ENDL;
         return;
     }
 

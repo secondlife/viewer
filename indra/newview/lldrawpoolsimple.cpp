@@ -150,13 +150,6 @@ void LLDrawPoolGlow::render(S32 pass)
 	}
 }
 
-void LLDrawPoolGlow::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
-{
-	//gGL.diffuseColor4ubv(params.mGlowColor.mV);
-	LLRenderPass::pushBatch(params, mask, texture, batch_textures);
-}
-
-
 LLDrawPoolSimple::LLDrawPoolSimple() :
 	LLRenderPass(POOL_SIMPLE)
 {
@@ -199,11 +192,7 @@ void LLDrawPoolSimple::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -301,11 +290,7 @@ void LLDrawPoolAlphaMask::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -392,11 +377,7 @@ void LLDrawPoolFullbrightAlphaMask::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 
@@ -483,6 +464,7 @@ void LLDrawPoolSimple::endDeferredPass(S32 pass)
 
 void LLDrawPoolSimple::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 
@@ -567,11 +549,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	else 
 	{
 		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
-		// don't use shaders!
-		if (gGLManager.mHasShaderObjects)
-		{
-			LLGLSLShader::bindNoShader();
-		}		
+		LLGLSLShader::bindNoShader();
 	}
 }
 

@@ -126,7 +126,6 @@ struct LLGLSLShaderCompareTimeElapsed
 //static
 void LLGLSLShader::finishProfile(bool emit_report)
 {
-    LL_PROFILE_ZONE_SCOPED
     sProfileEnabled = false;
 
     if (emit_report)
@@ -209,6 +208,7 @@ void LLGLSLShader::dumpStats()
 //static
 void LLGLSLShader::startProfile()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->placeProfileQuery();
@@ -219,6 +219,7 @@ void LLGLSLShader::startProfile()
 //static
 void LLGLSLShader::stopProfile(U32 count, U32 mode)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->readProfileQuery(count, mode);
@@ -385,6 +386,8 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
                                 U32 varying_count,
                                 const char** varyings)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     unloadInternal();
 
     sInstances.insert(this);
@@ -589,6 +592,8 @@ void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
 
 BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attributes)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     //before linking, make sure reserved attributes always have consistent locations
     for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
     {
@@ -650,6 +655,8 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
 
 void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * uniforms)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (index == -1)
     {
         return;
@@ -771,6 +778,8 @@ void LLGLSLShader::removePermutation(std::string name)
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
         type == GL_SAMPLER_2D_MULTISAMPLE)
     {   //this here is a texture
@@ -783,7 +792,9 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 
 BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 {
-	BOOL res = TRUE;
+    LL_PROFILE_ZONE_SCOPED;
+
+    BOOL res = TRUE;
 
 	mTotalUniformSize = 0;
 	mActiveTextureChannels = 0;
@@ -926,6 +937,8 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 BOOL LLGLSLShader::link(BOOL suppress_errors)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
     if (!success && !suppress_errors)
@@ -938,56 +951,52 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 
 void LLGLSLShader::bind()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     gGL.flush();
-    if (gGLManager.mHasShaderObjects)
+
+    if (sCurBoundShader != mProgramObject)  // Don't re-bind current shader
     {
         LLVertexBuffer::unbind();
         glUseProgramObjectARB(mProgramObject);
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
-        if (mUniformsDirty)
-        {
-            LLShaderMgr::instance()->updateShaderUniforms(this);
-            mUniformsDirty = FALSE;
-        }
+    }
+
+    if (mUniformsDirty)
+    {
+        LLShaderMgr::instance()->updateShaderUniforms(this);
+        mUniformsDirty = FALSE;
     }
 }
 
 void LLGLSLShader::unbind()
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     gGL.flush();
-    if (gGLManager.mHasShaderObjects)
-    {
-        stop_glerror();
-        if (gGLManager.mIsNVIDIA)
-        {
-            for (U32 i = 0; i < mAttribute.size(); ++i)
-            {
-                vertexAttrib4f(i, 0,0,0,1);
-                stop_glerror();
-            }
-        }
-        LLVertexBuffer::unbind();
-        glUseProgramObjectARB(0);
-        sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
-        stop_glerror();
-    }
+    stop_glerror();
+    LLVertexBuffer::unbind();
+    glUseProgramObjectARB(0);
+    sCurBoundShader = 0;
+    sCurBoundShaderPtr = NULL;
+    stop_glerror();
 }
 
 void LLGLSLShader::bindNoShader(void)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     LLVertexBuffer::unbind();
-    if (gGLManager.mHasShaderObjects)
-    {
-        glUseProgramObjectARB(0);
-        sCurBoundShader = 0;
-        sCurBoundShaderPtr = NULL;
-    }
+    glUseProgramObjectARB(0);
+    sCurBoundShader = 0;
+    sCurBoundShaderPtr = NULL;
 }
 
 S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     S32 channel = 0;
     channel = getUniformLocation(uniform);
     
@@ -996,6 +1005,8 @@ S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LL
 
 S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
@@ -1006,7 +1017,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextu
     
     if (uniform > -1)
     {
-        gGL.getTexUnit(uniform)->bind(texture, mode);
+        gGL.getTexUnit(uniform)->bindFast(texture);
         gGL.getTexUnit(uniform)->setTextureColorSpace(colorspace);
     }
     
@@ -1015,6 +1026,8 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextu
 
 S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureType mode)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     S32 channel = 0;
     channel = getUniformLocation(uniform);
     
@@ -1023,6 +1036,8 @@ S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureT
 
 S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
@@ -1033,7 +1048,7 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
     
     if (uniform > -1)
     {
-        gGL.getTexUnit(uniform)->unbind(mode);
+        gGL.getTexUnit(uniform)->unbindFast(mode);
     }
     
     return uniform;
@@ -1041,6 +1056,8 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
@@ -1058,6 +1075,8 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
 
 S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
         LL_SHADER_UNIFORM_ERRS() << "Uniform out of range: " << uniform << LL_ENDL;
@@ -1348,6 +1367,7 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)
 {
     LL_PROFILE_ZONE_SCOPED;
+
 	if (mProgramObject)
 	{	
 		if (mUniform.size() <= index)
@@ -1382,6 +1402,8 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
 GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     GLint ret = -1;
     if (mProgramObject)
     {
@@ -1406,6 +1428,8 @@ GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
 
 GLint LLGLSLShader::getUniformLocation(U32 index)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     GLint ret = -1;
     if (mProgramObject)
     {
@@ -1418,6 +1442,8 @@ GLint LLGLSLShader::getUniformLocation(U32 index)
 
 GLint LLGLSLShader::getAttribLocation(U32 attrib)
 {
+    LL_PROFILE_ZONE_SCOPED;
+
     if (attrib < mAttribute.size())
     {
         return mAttribute[attrib];

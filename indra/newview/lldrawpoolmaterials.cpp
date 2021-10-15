@@ -106,6 +106,7 @@ void LLDrawPoolMaterials::endDeferredPass(S32 pass)
 
 void LLDrawPoolMaterials::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	static const U32 type_list[] = 
 	{
 		LLRenderPass::PASS_MATERIAL,
@@ -157,7 +158,10 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		mShader->setMinimumAlpha(params.mAlphaMaskCutoff);
 		mShader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, params.mFullbright ? 1.f : 0.f);
 
-		pushBatch(params, mask, TRUE);
+        {
+            LL_PROFILE_ZONE_SCOPED;
+            pushMaterialsBatch(params, mask);
+        }
 	}
 }
 
@@ -171,49 +175,37 @@ void LLDrawPoolMaterials::bindNormalMap(LLViewerTexture* tex)
 	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex);
 }
 
-void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
+void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	applyModelMatrix(params);
 	
 	bool tex_setup = false;
 	
-	if (batch_textures && params.mTextureList.size() > 1)
+	//not batching textures or batch has only 1 texture -- might need a texture matrix
+	if (params.mTextureMatrix)
 	{
-		for (U32 i = 0; i < params.mTextureList.size(); ++i)
+		//if (mShiny)
 		{
-			if (params.mTextureList[i].notNull())
-			{
-				gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
-			}
+			gGL.getTexUnit(0)->activate();
+			gGL.matrixMode(LLRender::MM_TEXTURE);
 		}
+			
+		gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
+		gPipeline.mTextureMatrixOps++;
+			
+		tex_setup = true;
 	}
-	else
-	{ //not batching textures or batch has only 1 texture -- might need a texture matrix
-		if (params.mTextureMatrix)
-		{
-			//if (mShiny)
-			{
-				gGL.getTexUnit(0)->activate();
-				gGL.matrixMode(LLRender::MM_TEXTURE);
-			}
-			
-			gGL.loadMatrix((GLfloat*) params.mTextureMatrix->mMatrix);
-			gPipeline.mTextureMatrixOps++;
-			
-			tex_setup = true;
-		}
 		
-		if (mShaderLevel > 1 && texture)
+	if (mShaderLevel > 1)
+	{
+		if (params.mTexture.notNull())
 		{
-			if (params.mTexture.notNull())
-			{
-				gGL.getTexUnit(diffuse_channel)->bind(params.mTexture);
-				params.mTexture->addTextureStats(params.mVSize);
-			}
-			else
-			{
-				gGL.getTexUnit(diffuse_channel)->unbind(LLTexUnit::TT_TEXTURE);
-			}
+			gGL.getTexUnit(diffuse_channel)->bindFast(params.mTexture);
+		}
+		else
+		{
+			gGL.getTexUnit(diffuse_channel)->unbindFast(LLTexUnit::TT_TEXTURE);
 		}
 	}
 	
@@ -224,9 +216,9 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 
 	LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
-	params.mVertexBuffer->setBuffer(mask);
-	params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-	gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
+	params.mVertexBuffer->setBufferFast(mask);
+	params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
 	if (tex_setup)
 	{
 		gGL.getTexUnit(0)->activate();
