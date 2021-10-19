@@ -1062,6 +1062,7 @@ void LLBumpImageList::updateImages()
 // Note: the caller SHOULD NOT keep the pointer that this function returns.  It may be updated as more data arrives.
 LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedTexture* src_image, U8 bump_code )
 {
+    LL_PROFILE_ZONE_SCOPED;
 	llassert( (bump_code == BE_BRIGHTNESS) || (bump_code == BE_DARKNESS) );
 
 	LLViewerTexture* bump = NULL;
