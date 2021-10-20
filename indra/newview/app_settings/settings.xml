@@ -3858,6 +3858,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>MainWorkTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time per frame devoted to mainloop work queue (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.1</real>
+    </map>
     <key>QueueInventoryFetchTimeout</key>
     <map>
         <key>Comment</key>
