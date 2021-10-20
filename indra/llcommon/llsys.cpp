@@ -107,7 +107,7 @@ LLOSInfo::LLOSInfo() :
 
 #if LL_WINDOWS
 
-	if (IsWindowsVersionOrGreater(10, 0, 0))
+    if (IsWindows10OrGreater())
 	{
 		mMajorVer = 10;
 		mMinorVer = 0;
@@ -240,6 +240,21 @@ LLOSInfo::LLOSInfo() :
 				ubr = data;
 			}
 		}
+
+        if (mBuild >= 22000)
+        {
+            // At release Windows 11 version was 10.0.22000.194
+            // Windows 10 version was 10.0.19043.1266
+            // There is no warranty that Win10 build won't increase,
+            // so until better solution is found or Microsoft updates
+            // SDK with IsWindows11OrGreater(), indicate "10/11"
+            //
+            // Current alternatives:
+            // Query WMI's Win32_OperatingSystem for OS string. Slow
+            // and likely to return 'compatibility' string.
+            // Check presence of dlls/libs or may be their version.
+            mOSStringSimple = "Microsoft Windows 10/11";
+        }
 	}
 
 	mOSString = mOSStringSimple;
