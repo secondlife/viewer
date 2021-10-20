@@ -8427,8 +8427,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t sky = environment.getCurrentSky();
-
-    static_cast<LLSettingsVOSky*>(sky.get())->updateShader(&shader);
 }
 
 LLColor3 pow3f(LLColor3 v, F32 f)

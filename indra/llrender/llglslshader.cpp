@@ -1104,6 +1104,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTe
 
 void LLGLSLShader::uniform1i(U32 index, GLint x)
 {
+    LL_PROFILE_ZONE_SCOPED
     if (mProgramObject)
     {   
         if (mUniform.size() <= index)
@@ -1114,7 +1115,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
                 glUniform1iARB(mUniform[index], x);
@@ -1126,6 +1127,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
 
 void LLGLSLShader::uniform1f(U32 index, GLfloat x)
 {
+    LL_PROFILE_ZONE_SCOPED
     if (mProgramObject)
     {   
         if (mUniform.size() <= index)
@@ -1136,7 +1138,7 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
                 glUniform1fARB(mUniform[index], x);
@@ -1158,7 +1160,7 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x,y,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
@@ -1181,7 +1183,7 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x,y,z,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
@@ -1204,7 +1206,7 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(x,y,z,w);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
@@ -1227,7 +1229,7 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
@@ -1250,7 +1252,7 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
@@ -1273,7 +1275,7 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0],v[1],0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
@@ -1296,7 +1298,7 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0],v[1],v[2],0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
@@ -1319,10 +1321,11 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
 
         if (mUniform[index] >= 0)
         {
-            std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
+            const auto& iter = mValue.find(mUniform[index]);
             LLVector4 vec(v[0],v[1],v[2],v[3]);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
+                LL_PROFILE_ZONE_SCOPED;
                 glUniform4fvARB(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
@@ -1460,7 +1463,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(v,0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
@@ -1476,7 +1479,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(i,j,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
@@ -1493,7 +1496,7 @@ void LLGLSLShader::uniform1f(const LLStaticHashedString& uniform, GLfloat v)
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(v,0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
@@ -1509,7 +1512,7 @@ void LLGLSLShader::uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLf
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(x,y,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
@@ -1526,7 +1529,7 @@ void LLGLSLShader::uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLf
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(x,y,z,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
@@ -1542,7 +1545,7 @@ void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, co
 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(v[0],0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
@@ -1558,7 +1561,7 @@ void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, co
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(v[0],v[1],0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
@@ -1574,7 +1577,7 @@ void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, U32 count, co
                 
     if (location >= 0)
     {
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         LLVector4 vec(v[0],v[1],v[2],0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
@@ -1591,12 +1594,11 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
     if (location >= 0)
     {
         LLVector4 vec(v);
-        std::map<GLint, LLVector4>::iterator iter = mValue.find(location);
+        const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
-            stop_glerror();
+            LL_PROFILE_ZONE_SCOPED;
             glUniform4fvARB(location, count, v);
-            stop_glerror();
             mValue[location] = vec;
         }
     }
@@ -1635,4 +1637,28 @@ void LLGLSLShader::setMinimumAlpha(F32 minimum)
 {
     gGL.flush();
     uniform1f(LLShaderMgr::MINIMUM_ALPHA, minimum);
+}
+
+void LLShaderUniforms::apply(LLGLSLShader* shader)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    for (auto& uniform : mIntegers)
+    {
+        shader->uniform1i(uniform.mUniform, uniform.mValue);
+    }
+
+    for (auto& uniform : mFloats)
+    {
+        shader->uniform1f(uniform.mUniform, uniform.mValue);
+    }
+
+    for (auto& uniform : mVectors)
+    {
+        shader->uniform4fv(uniform.mUniform, 1, uniform.mValue.mV);
+    }
+
+    for (auto& uniform : mVector3s)
+    {
+        shader->uniform3fv(uniform.mUniform, 1, uniform.mValue.mV);
+    }
 }
