@@ -1637,19 +1637,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             {
                 //actually create the texture on a background thread
                 createTexture();
-                {
-                    LL_PROFILE_ZONE_NAMED("iglt - sync");
-                    if (gGLManager.mHasSync)
-                    {
-                        auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-                        glClientWaitSync(sync, 0, 0);
-                        glDeleteSync(sync);
-                    }
-                    else
-                    {
-                        glFinish();
-                    }
-                }
                 LLImageGLThread::sInstance->postCallback([this]()
                     {
                         //finalize on main thread

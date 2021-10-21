@@ -683,7 +683,7 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 }
 
 static LLTrace::BlockTimerStatHandle FTM_SET_IMAGE("setImage");
-BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
+BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips, S32 usename)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_IMAGE);
 	bool is_compressed = false;
@@ -702,12 +702,11 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
         break;
     }
 	
-	
-	
 	if (mUseMipMaps)
 	{
 		//set has mip maps to true before binding image so tex parameters get set properly
-		gGL.getTexUnit(0)->unbind(mBindTarget);
+        gGL.getTexUnit(0)->unbind(mBindTarget);
+        
 		mHasMipMaps = true;
 		mTexOptionsDirty = true;
 		setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
@@ -717,7 +716,8 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 		mHasMipMaps = false;
 	}
 	
-	llverify(gGL.getTexUnit(0)->bind(this));
+    gGL.getTexUnit(0)->bind(this, false, false, usename);
+
 
     if (mUseMipMaps)
 	{
@@ -1211,7 +1211,7 @@ void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 }
 
 // static
-void LLImageGL::deleteTextures(S32 numTextures, U32 *textures)
+void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 {
 	if (gGLManager.mInited)
 	{
@@ -1381,13 +1381,13 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		return FALSE;
 	}
 
-	mGLTextureCreated = false ;
 	llassert(gGLManager.mInited);
 	stop_glerror();
 
 	if (!imageraw || imageraw->isBufferInvalid())
 	{
 		LL_WARNS() << "Trying to create a texture from invalid image data" << LL_ENDL;
+        mGLTextureCreated = false;
 		return FALSE;
 	}
 
@@ -1407,6 +1407,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	if (!setSize(w, h, imageraw->getComponents(), discard_level))
 	{
 		LL_WARNS() << "Trying to create a texture with incorrect dimensions!" << LL_ENDL;
+        mGLTextureCreated = false;
 		return FALSE;
 	}
 
@@ -1475,6 +1476,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		destroyGLTexture();
 		mCurrentDiscardLevel = discard_level;	
 		mLastBindTime = sLastFrameTime;
+        mGLTextureCreated = false;
 		return TRUE ;
 	}
 
@@ -1486,104 +1488,123 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);
-	llassert(data_in);
-	stop_glerror();
+    LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);
+    llassert(data_in);
+    stop_glerror();
 
-	if (discard_level < 0)
-	{
-		llassert(mCurrentDiscardLevel >= 0);
-		discard_level = mCurrentDiscardLevel;
-	}
-	discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
+    if (discard_level < 0)
+    {
+        llassert(mCurrentDiscardLevel >= 0);
+        discard_level = mCurrentDiscardLevel;
+    }
+    discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
 
-	if (mTexName != 0 && discard_level == mCurrentDiscardLevel)
-	{
-		// This will only be true if the size has not changed
-		return setImage(data_in, data_hasmips);
-	}
-	
-	U32 old_name = mTexName;
-// 	S32 old_discard = mCurrentDiscardLevel;
-	
-	if (usename != 0)
-	{
-		mTexName = usename;
-	}
-	else
-	{
-		LLImageGL::generateTextures(1, &mTexName);
-		stop_glerror();
-		{
-			llverify(gGL.getTexUnit(0)->bind(this));
-			stop_glerror();
-			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_BASE_LEVEL, 0);
-			stop_glerror();
-			glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL,  mMaxDiscardLevel-discard_level);
-			stop_glerror();
-		}
-	}
-	if (!mTexName)
-	{
-		if (old_name)
-		{
-			sGlobalTextureMemory -= mTextureMemory;
-			LLImageGL::deleteTextures(1, &old_name);
-			disclaimMem(mTextureMemory);
-			stop_glerror();
-		}
+    if (mTexName != 0 && discard_level == mCurrentDiscardLevel)
+    {
+        // This will only be true if the size has not changed
+        return setImage(data_in, data_hasmips);
+    }
 
-		LL_WARNS() << "LLImageGL::createGLTexture failed to make texture" << LL_ENDL;
-		return FALSE;
-	}
-
-	if (mUseMipMaps)
-	{
-		mAutoGenMips = gGLManager.mHasMipMapGeneration;
+    GLuint old_texname = mTexName;
+    
+    if (usename != 0)
+    {
+        mNewTexName = usename;
+    }
+    else
+    {
+        LLImageGL::generateTextures(1, &mNewTexName);
+        {
+            gGL.getTexUnit(0)->bind(this, false, false, mNewTexName);
+            glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_BASE_LEVEL, 0);
+            glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL, mMaxDiscardLevel - discard_level);
+        }
+    }
+    
+    if (mUseMipMaps)
+    {
+        mAutoGenMips = gGLManager.mHasMipMapGeneration;
 #if LL_DARWIN
-		// On the Mac GF2 and GF4MX drivers, auto mipmap generation doesn't work right with alpha-only textures.
-		if(gGLManager.mIsGF2or4MX && (mFormatInternal == GL_ALPHA8) && (mFormatPrimary == GL_ALPHA))
-		{
-			mAutoGenMips = FALSE;
-		}
+        // On the Mac GF2 and GF4MX drivers, auto mipmap generation doesn't work right with alpha-only textures.
+        if (gGLManager.mIsGF2or4MX && (mFormatInternal == GL_ALPHA8) && (mFormatPrimary == GL_ALPHA))
+        {
+            mAutoGenMips = FALSE;
+        }
 #endif
-	}
+    }
 
-	mCurrentDiscardLevel = discard_level;	
+    mCurrentDiscardLevel = discard_level;
 
-	if (!setImage(data_in, data_hasmips))
-	{
-		stop_glerror();
-		return FALSE;
-	}
+    if (!setImage(data_in, data_hasmips, mNewTexName))
+    {
+        return FALSE;
+    }
 
-	// Set texture options to our defaults.
-	gGL.getTexUnit(0)->setHasMipMaps(mHasMipMaps);
-	gGL.getTexUnit(0)->setTextureAddressMode(mAddressMode);
-	gGL.getTexUnit(0)->setTextureFilteringOption(mFilterOption);
+    // Set texture options to our defaults.
+    gGL.getTexUnit(0)->setHasMipMaps(mHasMipMaps);
+    gGL.getTexUnit(0)->setTextureAddressMode(mAddressMode);
+    gGL.getTexUnit(0)->setTextureFilteringOption(mFilterOption);
 
-	// things will break if we don't unbind after creation
-	gGL.getTexUnit(0)->unbind(mBindTarget);
-	stop_glerror();
+    // things will break if we don't unbind after creation
+    gGL.getTexUnit(0)->unbind(mBindTarget);
 
-	if (old_name != 0)
-	{
-		sGlobalTextureMemory -= mTextureMemory;
+    if (old_texname != 0)
+    {
+        sGlobalTextureMemory -= mTextureMemory;
+    }
 
-		LLImageGL::deleteTextures(1, &old_name);
+    //if we're on the image loading thread, be sure to delete old_texname and update mTexName on the main thread
+    if (LLImageGLThread::sInstance != nullptr && 
+        LLThread::currentID() == LLImageGLThread::sInstance->getID())
+    {
+        {
+            LL_PROFILE_ZONE_NAMED("cglt - sync");
+            if (gGLManager.mHasSync)
+            {
+                auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+                glClientWaitSync(sync, 0, 0);
+                glDeleteSync(sync);
+            }
+            else
+            {
+                glFinish();
+            }
+        }
 
-		stop_glerror();
-	}
+        ref();
+        LLImageGLThread::sInstance->postCallback([=]()
+            {
+                LL_PROFILE_ZONE_NAMED("cglt - delete callback");
+                if (old_texname != 0)
+                {
+                    LLImageGL::deleteTextures(1, &old_texname);
+                }
+                mTexName = mNewTexName;
+                mNewTexName = 0;
+                unref();
+            });
+    }
+    else 
+    {
+        //not on background thread, immediately set mTexName
+        if (old_texname != 0)
+        {
+            LLImageGL::deleteTextures(1, &old_texname);
+        }
+        mTexName = mNewTexName;
+        mNewTexName = 0;
+    }
+    
+    disclaimMem(mTextureMemory);
+    mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
+    claimMem(mTextureMemory);
+    sGlobalTextureMemory += mTextureMemory;
+    mTexelsInGLTexture = getWidth() * getHeight();
 
-	disclaimMem(mTextureMemory);
-	mTextureMemory = (S32Bytes)getMipBytes(discard_level);
-	claimMem(mTextureMemory);
-	sGlobalTextureMemory += mTextureMemory;
-	mTexelsInGLTexture = getWidth() * getHeight() ;
+    // mark this as bound at this point, so we don't throw it out immediately
+    mLastBindTime = sLastFrameTime;
 
-	// mark this as bound at this point, so we don't throw it out immediately
-	mLastBindTime = sLastFrameTime;
-	return TRUE;
+    return TRUE;
 }
 
 BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const
@@ -2274,17 +2295,7 @@ bool LLImageGLThread::post(const std::function<void()>& func)
 {
     try
     {
-        if (mFunctionQueue.size() < mFunctionQueue.capacity())
-        {
-            //NOTE: tryPushFront will return immediately if the lock is held
-            // desired behavior here is to push and return true unless the 
-            // queue is full or closed
-            mFunctionQueue.pushFront(func);
-        }
-        else
-        {
-            return false;
-        }
+        mFunctionQueue.post(func);
     }
     catch (LLThreadSafeQueueInterrupt e)
     {
@@ -2300,7 +2311,7 @@ bool LLImageGLThread::postCallback(const std::function<void()>& callback)
 {
     try
     {
-        mCallbackQueue.pushFront(callback);
+        mCallbackQueue.post(callback);
     }
     catch (LLThreadSafeQueueInterrupt e)
     {
@@ -2315,34 +2326,14 @@ void LLImageGLThread::executeCallbacks()
 {
     LL_PROFILE_ZONE_SCOPED;
     //executed from main thread
-    std::function<void()> callback;
-    while (mCallbackQueue.tryPopBack(callback))
-    {
-        LL_PROFILE_ZONE_NAMED("iglt - callback");
-        callback();
-    }
+    mCallbackQueue.runPending();
 }
 
 void LLImageGLThread::run()
 {
     mWindow->makeContextCurrent(mContext);
     gGL.init();
-    try
-    {
-        while (true)
-        {
-            LL_PROFILE_ZONE_SCOPED;
-            std::function<void()> curFunc = mFunctionQueue.popBack();
-            {
-                LL_PROFILE_ZONE_NAMED("iglt - function")
-                    curFunc();
-            }
-        }
-    }
-    catch (LLThreadSafeQueueInterrupt e)
-    {
-        //queue is closed, fall out of run loop
-    }
+    mFunctionQueue.runUntilClose();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
 }
