@@ -1206,6 +1206,14 @@ LLColor3 LLSettingsSky::getLightTransmittance(F32 distance) const
     return transmittance;
 }
 
+// SL-16127: getTotalDensity() and getDensityMultiplier() call LLSettingsSky::getColor() and LLSettingsSky::getFloat() respectively which are S-L-O-W
+LLColor3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density, const F32 density_multiplier, const F32 distance ) const
+{
+    // Transparency (-> density) from Beer's law
+    LLColor3 transmittance = componentExp(total_density * -(density_multiplier * distance));
+    return transmittance;
+}
+
 // performs soft scale clip and gamma correction ala the shader implementation
 // scales colors down to 0 - 1 range preserving relative ratios
 LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
