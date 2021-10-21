@@ -44,7 +44,6 @@ PARAM_SLURL = "--slurl"
 
 
 def gen_niv_script(args):
-    print(f"Launching {(args.num)} instances of the Viewer")
     print(f"Reading creds from {(args.creds)} folder")
     print(f"Using the non interactive Viewer from {(args.viewer)}")
     print(f"Sleeping for {args.sleep}ms between Viewer launches")
@@ -58,6 +57,8 @@ def gen_niv_script(args):
         creds_lines = [line.rstrip() for line in creds_lines]
         creds_lines = [line for line in creds_lines if not line.startswith("#") and len(line)]
     # We cannot log in more users than we have credentials for
+    if args.num==0:
+        args.num = len(creds_lines)
     if args.num > len(creds_lines):
         print(
             f"The number of agents specified ({(args.num)}) exceeds "
@@ -65,19 +66,24 @@ def gen_niv_script(args):
             f"the creds file "
         )
         return
+
+    print(f"Launching {(args.num)} instances of the Viewer")
+
     # The Viewer (in dev environments at least) needs a well specified
     # working directory to function properly. We try to guess what it
     # might be based on the full path to the Viewer executable but
     # you can also specify it explicitly with the --cwd parameter
     # (required for dev builds)
+    args.viewer = os.path.abspath(args.viewer)
     working_dir = args.cwd
     if len(args.cwd) == 0:
         working_dir = os.path.dirname(os.path.abspath(args.viewer))
     print(f"Working directory is {working_dir}")
-    os.chdir(working_dir)
+    environ = os.environ
+    environ["cwd"] = working_dir 
 
     if args.dryrun:
-        print("Ruuning in dry-run mode - no Viewers will be started")
+        print("Running in dry-run mode - no Viewers will be started")
     print("")
 
     for inst in range(args.num):
@@ -111,7 +117,7 @@ def gen_niv_script(args):
             region_y = center_y
         slurl = f"secondlife://{args.region}/{region_x}/{region_y}/{region_z}"
 
-        # Buold the script line
+        # Build the script line
         script_cmd = [args.viewer]
         script_cmd.append(PARAM_NON_INTERACTIVE)
         script_cmd.append(PARAM_MULTI)
@@ -131,7 +137,8 @@ def gen_niv_script(args):
         # If --dry-run is specified, we do everything (including, most
         # usefully, display the script lines) but do not start the Viewer
         if args.dryrun == False:
-            viewer_session = subprocess.Popen(script_cmd)
+            print("opening viewer session with",script_cmd)
+            viewer_session = subprocess.Popen(script_cmd,env=environ)
 
         # Sleeping a bit between launches seems to help avoid a CPU
         # surge when N Viewers are started simulatanously. The default
@@ -144,7 +151,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--num",
         type=int,
-        required=True,
+        default=0,
         dest="num",
         help="How many avatars to add to the script",
     )
