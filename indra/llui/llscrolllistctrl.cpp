@@ -336,8 +336,7 @@ LLScrollListCtrl::~LLScrollListCtrl()
 
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
 	mItemList.clear();
-	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
-	mColumns.clear();
+    clearColumns(); //clears columns and deletes headers
 	delete mIsFriendSignal;
 }
 
@@ -3011,6 +3010,8 @@ void LLScrollListCtrl::clearColumns()
 	mSortColumns.clear();
 	mTotalStaticColumnWidth = 0;
 	mTotalColumnPadding = 0;
+
+    dirtyColumns(); // Clears mColumnsIndexed
 }
 
 void LLScrollListCtrl::setColumnLabel(const std::string& column, const std::string& label)
