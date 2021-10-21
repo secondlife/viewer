@@ -214,7 +214,6 @@ public:
 	// Initialize/delete data that's only inited once per class.
 	void init();
 	void initCubeMap();
-	void initEmpty();
 	
 	void cleanupGL();
 	void restoreGL();
@@ -252,8 +251,6 @@ public:
 
     LLColor4 getSkyFogColor() const                        { return m_legacyAtmospherics.getFogColor(); }
     LLColor4 getGLFogColor() const                      { return m_legacyAtmospherics.getGLFogColor(); }
-
-    LLColor4U getFadeColor() const;
 
 	void setCloudDensity(F32 cloud_density)				{ mCloudDensity = cloud_density; }
 	void setWind ( const LLVector3& wind )				{ mWind = wind.length(); }
