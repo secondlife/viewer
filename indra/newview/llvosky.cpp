@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llvosky.cpp
  * @brief LLVOSky class implementation
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -468,7 +468,7 @@ void LLVOSky::init()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     // invariants across whole sky tex process...
-    m_atmosphericsVars.blue_density = psky->getBlueDensity();    
+    m_atmosphericsVars.blue_density = psky->getBlueDensity();
     m_atmosphericsVars.blue_horizon = psky->getBlueHorizon();
     m_atmosphericsVars.haze_density = psky->getHazeDensity();
     m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
@@ -476,7 +476,7 @@ void LLVOSky::init()
     m_atmosphericsVars.max_y = psky->getMaxY();
     m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
     m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
-    m_atmosphericsVars.ambient = psky->getAmbientColor();    
+    m_atmosphericsVars.ambient = psky->getAmbientColor();
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
     m_atmosphericsVars.dome_radius = psky->getDomeRadius();
@@ -514,7 +514,7 @@ void LLVOSky::calc()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
     // invariants across whole sky tex process...
-    m_atmosphericsVars.blue_density = psky->getBlueDensity();    
+    m_atmosphericsVars.blue_density = psky->getBlueDensity();
     m_atmosphericsVars.blue_horizon = psky->getBlueHorizon();
     m_atmosphericsVars.haze_density = psky->getHazeDensity();
     m_atmosphericsVars.haze_horizon = psky->getHazeHorizon();
@@ -523,7 +523,7 @@ void LLVOSky::calc()
     m_atmosphericsVars.max_y = psky->getMaxY();
     m_atmosphericsVars.sun_norm = LLEnvironment::instance().getClampedSunNorm();
     m_atmosphericsVars.sunlight = psky->getIsSunUp() ? psky->getSunlightColor() : psky->getMoonlightColor();
-    m_atmosphericsVars.ambient = psky->getAmbientColor();    
+    m_atmosphericsVars.ambient = psky->getAmbientColor();
     m_atmosphericsVars.glow = psky->getGlow();
     m_atmosphericsVars.cloud_shadow = psky->getCloudShadow();
     m_atmosphericsVars.dome_radius = psky->getDomeRadius();
@@ -541,7 +541,7 @@ void LLVOSky::calc()
 	mMoon.renewColor();
 }
 
-void LLVOSky::initCubeMap() 
+void LLVOSky::initCubeMap()
 {
 	std::vector<LLPointer<LLImageRaw> > images;
 	for (S32 side = 0; side < NUM_CUBEMAP_FACES; side++)
@@ -925,7 +925,7 @@ void LLVOSky::setSunTextures(const LLUUID& sun_texture, const LLUUID& sun_textur
         {
             if (mSunTexturep[1])
 						{
-	            mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);            
+	            mSunTexturep[1]->setAddressMode(LLTexUnit::TAM_CLAMP);
 						}
             mFace[FACE_SUN]->setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, mSunTexturep[1]);
 					}
@@ -1033,7 +1033,7 @@ BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 
 	for (S32 side = 0; side < NUM_CUBEMAP_FACES; ++side)
 	{
-		face = mFace[FACE_SIDE0 + side]; 
+		face = mFace[FACE_SIDE0 + side];
 
 		if (!face->getVertexBuffer())
 		{
@@ -1164,7 +1164,7 @@ bool LLVOSky::updateHeavenlyBodyGeometry(LLDrawable *drawable, F32 scale, const 
 
 	hb.setVisible(TRUE);
 
-	facep = mFace[f]; 
+	facep = mFace[f];
 
 	if (!facep->getVertexBuffer())
 	{
@@ -1402,7 +1402,7 @@ void LLVOSky::updateReflectionGeometry(LLDrawable *drawable, F32 H,
 		dt_clip = -0.1f;
 	}
 
-	LLFace *face = mFace[FACE_REFLECTION]; 
+	LLFace *face = mFace[FACE_REFLECTION];
 
     if (face)
     {
