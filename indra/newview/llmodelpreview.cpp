@@ -1911,7 +1911,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     ll_aligned_free<64>(combined_positions);
     ll_aligned_free<64>(buffer_positions);
     ll_aligned_free_32(output_indices);
-    ll_aligned_free_32(buffer_indices);
+    ll_aligned_free_16(buffer_indices);
     ll_aligned_free_32(combined_indices);
 
     if (new_indices < 3)
