@@ -605,6 +605,12 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function RemoveProgFilesOnInst
 
+# We do not remove whole pervious install folder on install, since
+# there is a chance that viewer was installed into some important
+# folder by intent or accident
+# RMDir /r $INSTDIR is especially unsafe if user installed somewhere
+# like Program Files
+
 # Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575
 Delete "$INSTDIR\$INSTEXE"
 Delete "$INSTDIR\$VIEWER_EXE"
@@ -612,8 +618,23 @@ Delete "$INSTDIR\$VIEWER_EXE"
 # Remove old shader files first so fallbacks will work. See DEV-5663
 RMDir /r "$INSTDIR\app_settings\shaders"
 
-# Remove skins folder to clean up files removed during development
+# Remove folders to clean up files removed during development
+RMDir /r "$INSTDIR\app_settings"
 RMDir /r "$INSTDIR\skins"
+RMDir /r "$INSTDIR\vmp_icons"
+
+# Remove llplugin, plugins can crash or malfunction if they
+# find modules from different versions
+RMDir /r "$INSTDIR\llplugin"
+
+IfErrors 0 PREINSTALLCLEAN
+  StrCmp $SKIP_DIALOGS "true" PREINSTALLCLEAN
+    MessageBox MB_OKCANCEL $(CloseSecondLifeInstRM) IDOK PREINSTALLCLEAN IDCANCEL PREINSTALLFAIL
+
+PREINSTALLFAIL:
+    Quit
+
+PREINSTALLCLEAN:
 
 # We are no longer including release notes with the viewer, so remove them.
 Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
