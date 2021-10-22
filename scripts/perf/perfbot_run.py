@@ -75,12 +75,12 @@ def gen_niv_script(args):
     # you can also specify it explicitly with the --cwd parameter
     # (required for dev builds)
     args.viewer = os.path.abspath(args.viewer)
-    working_dir = args.cwd
     if len(args.cwd) == 0:
         working_dir = os.path.dirname(os.path.abspath(args.viewer))
-    print(f"Working directory is {working_dir} {args.cwd=}")
-    environ = os.environ
-    environ["cwd"] = working_dir 
+    else:
+        working_dir = os.path.abspath(args.cwd)
+    print(f"Working directory is {working_dir}, cwd {args.cwd}")
+    os.chdir(working_dir)
 
     if args.dryrun:
         print("Running in dry-run mode - no Viewers will be started")
@@ -138,7 +138,7 @@ def gen_niv_script(args):
         # usefully, display the script lines) but do not start the Viewer
         if args.dryrun == False:
             print("opening viewer session with",script_cmd)
-            viewer_session = subprocess.Popen(script_cmd,env=environ)
+            viewer_session = subprocess.Popen(script_cmd)
 
         # Sleeping a bit between launches seems to help avoid a CPU
         # surge when N Viewers are started simulatanously. The default
