@@ -89,6 +89,9 @@ public:
 	std::vector<record_list_t> mFreeList;
 	std::vector<U32> mMissCount;
 
+	//used to avoid calling glGenBuffers for every VBO creation
+	static U32 sNamePool[1024];
+	static U32 sNameIdx;
 };
 
 
@@ -127,7 +130,7 @@ public:
 	static LLVBOPool sDynamicCopyVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-	
+
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 
@@ -207,13 +210,17 @@ protected:
 
 	virtual ~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
+	virtual void setupVertexBuffer(U32 data_mask);
+    void setupVertexBufferFast(U32 data_mask);
+
 	void setupVertexArray();
 	
 	void	genBuffer(U32 size);
 	void	genIndices(U32 size);
 	bool	bindGLBuffer(bool force_bind = false);
+    bool	bindGLBufferFast();
 	bool	bindGLIndices(bool force_bind = false);
+    bool    bindGLIndicesFast();
 	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
@@ -236,6 +243,8 @@ public:
 
 	// set for rendering
 	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+    void	setBufferFast(U32 data_mask); 	// calls setupVertexBufferFast(), assumes data_mask is not 0 among other assumptions
+
 	void flush(); //flush pending data to GL memory
 	// allocate buffer
 	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
@@ -286,6 +295,9 @@ public:
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+
+    //implementation for inner loops that does no safety checking
+    void drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
 	//for debugging, validate data in given range is valid
 	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;

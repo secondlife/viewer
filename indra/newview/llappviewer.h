@@ -109,7 +109,6 @@ public:
 
 	virtual bool restoreErrorTrap() = 0; // Require platform specific override to reset error handling mechanism.
 	                                     // return false if the error trap needed restoration.
-	virtual void initCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
     void checkForCrash();
     
@@ -262,8 +261,6 @@ private:
     void sendLogoutRequest();
     void disconnectViewer();
 
-	bool onChangeFrameLimit(LLSD const & evt);
-
 	// *FIX: the app viewer class should be some sort of singleton, no?
 	// Perhaps its child class is the singleton and this should be an abstract base.
 	static LLAppViewer* sInstance; 
@@ -319,10 +316,7 @@ private:
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
 
-        bool mIsFirstRun;
-	U64 mMinMicroSecPerFrame; // frame throttling
-
-
+    bool mIsFirstRun;
 };
 
 // consts from viewer.h

@@ -46,10 +46,9 @@ class LLRotation;
 // of this writing, July 08, 2010) about getting it implemented before you resort to
 // LLVector3/LLVector4. 
 /////////////////////////////////
-struct LLVector4a;
 
 LL_ALIGN_PREFIX(16)
-struct LLVector4a
+class LLVector4a
 {
 public:
 
@@ -138,10 +137,10 @@ public:
 	// BASIC GET/SET 
 	////////////////////////////////////
 	
-	// Return a "this" as an F32 pointer. Do not use unless you have a very good reason.  (Not sure? Ask Falcon)
+	// Return a "this" as an F32 pointer.
 	inline F32* getF32ptr();
 	
-	// Return a "this" as a const F32 pointer. Do not use unless you have a very good reason.  (Not sure? Ask Falcon)
+	// Return a "this" as a const F32 pointer.
 	inline const F32* const getF32ptr() const;
 	
 	// Read-only access a single float in this vector. Do not use in proximity to any function call that manipulates

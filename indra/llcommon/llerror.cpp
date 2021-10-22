@@ -109,6 +109,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 									const std::string& message) override
 		{
+            LL_PROFILE_ZONE_SCOPED
 			int syslogPriority = LOG_CRIT;
 			switch (level) {
 				case LLError::LEVEL_DEBUG:	syslogPriority = LOG_DEBUG;	break;
@@ -166,6 +167,7 @@ namespace {
         virtual void recordMessage(LLError::ELevel level,
                                     const std::string& message) override
         {
+            LL_PROFILE_ZONE_SCOPED
             if (LLError::getAlwaysFlush())
             {
                 mFile << message << std::endl;
@@ -208,6 +210,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 					   const std::string& message) override
 		{
+            LL_PROFILE_ZONE_SCOPED
             static std::string s_ansi_error = createANSI("31"); // red
             static std::string s_ansi_warn  = createANSI("34"); // blue
             static std::string s_ansi_debug = createANSI("35"); // magenta
@@ -220,7 +223,8 @@ namespace {
 			}
             else
             {
-                 fprintf(stderr, "%s\n", message.c_str());
+                LL_PROFILE_ZONE_NAMED("fprintf");
+                fprintf(stderr, "%s\n", message.c_str());
             }
 		}
 	
@@ -229,6 +233,7 @@ namespace {
 
         LL_FORCE_INLINE void writeANSI(const std::string& ansi_code, const std::string& message)
 		{
+            LL_PROFILE_ZONE_SCOPED
             static std::string s_ansi_bold  = createANSI("1");  // bold
             static std::string s_ansi_reset = createANSI("0");  // reset
 			// ANSI color code escape sequence, message, and reset in one fprintf call
@@ -265,6 +270,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message) override
 		{
+            LL_PROFILE_ZONE_SCOPED
 			mBuffer->addLine(message);
 		}
 	
@@ -291,6 +297,7 @@ namespace {
 		virtual void recordMessage(LLError::ELevel level,
 								   const std::string& message) override
 		{
+            LL_PROFILE_ZONE_SCOPED
 			debugger_print(message);
 		}
 	};
@@ -1178,6 +1185,7 @@ namespace
 
 	void writeToRecorders(const LLError::CallSite& site, const std::string& message)
 	{
+        LL_PROFILE_ZONE_SCOPED
 		LLError::ELevel level = site.mLevel;
 		LLError::SettingsConfigPtr s = LLError::Settings::getInstance()->getSettingsConfig();
 
@@ -1311,6 +1319,7 @@ namespace LLError
 
 	bool Log::shouldLog(CallSite& site)
 	{
+        LL_PROFILE_ZONE_SCOPED
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
 		if (!lock.isLocked())
 		{
@@ -1354,6 +1363,7 @@ namespace LLError
 
 	void Log::flush(const std::ostringstream& out, const CallSite& site)
 	{
+        LL_PROFILE_ZONE_SCOPED
 		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
 		if (!lock.isLocked())
 		{

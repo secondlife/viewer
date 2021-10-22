@@ -288,7 +288,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	
 	if (vsync)
 	{
-		[glContext setValues:(const GLint*)1 forParameter:NSOpenGLCPSwapInterval];
+		GLint value = 1;
+		[glContext setValues:&value forParameter:NSOpenGLCPSwapInterval];
 	} else {
 		// supress this error after move to Xcode 7:
 		// error: null passed to a callee that requires a non-null argument [-Werror,-Wnonnull]

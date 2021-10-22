@@ -33,13 +33,17 @@
 #include "m4math.h"
 #include <queue>
 
+#include <boost/align/aligned_allocator.hpp>
+
 class daeElement;
 class domMesh;
 
 #define MAX_MODEL_FACES 8
 
+LL_ALIGN_PREFIX(16)
 class LLMeshSkinInfo 
 {
+    LL_ALIGN_NEW
 public:
 	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
@@ -49,18 +53,21 @@ public:
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
     mutable std::vector<S32> mJointNums;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
+    typedef std::vector<LLMatrix4a, boost::alignment::aligned_allocator<LLMatrix4a, 16>> matrix_list_t;
+	matrix_list_t mInvBindMatrix;
+	matrix_list_t mAlternateBindMatrix;
 
-	LLMatrix4 mBindShapeMatrix;
+	LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
     bool mJointNumsInitialized;
-};
+} LL_ALIGN_POSTFIX(16);
 
+LL_ALIGN_PREFIX(16)
 class LLModel : public LLVolume
 {
+    LL_ALIGN_NEW
 public:
 
 	enum
@@ -282,7 +289,7 @@ public:
 	EModelStatus mStatus ;
 
 	int mSubmodelID;
-};
+} LL_ALIGN_POSTFIX(16);
 
 typedef std::vector<LLPointer<LLModel> >	model_list;
 typedef std::queue<LLPointer<LLModel> >	model_queue;

@@ -176,7 +176,7 @@ private:
 protected:
 	void setTexelsPerImage();
 
-	//note: do not make this function public.
+public:
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 
 protected:

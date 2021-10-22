@@ -161,6 +161,17 @@ public:
 	bool bind(LLImageGL* texture, bool for_rendering = false, bool forceBind = false);
     bool bind(LLTexture* texture, bool for_rendering = false, bool forceBind = false);
 
+    // bind implementation for inner loops
+    // makes the following assumptions:
+    //  - No need for gGL.flush() 
+    //  - texture is not null
+    //  - gl_tex->getTexName() is not zero
+    //  - This texture is not being bound redundantly
+    //  - USE_SRGB_DECODE is disabled
+    //  - mTexOptionsDirty is false
+    //  - 
+    void bindFast(LLTexture* texture);
+
 	// Binds a cubemap to this texture unit 
 	// (automatically enables the texture unit for cubemaps)
 	bool bind(LLCubeMap* cubeMap);
@@ -176,6 +187,9 @@ public:
 	// Unbinds the currently bound texture of the given type 
 	// (only if there's a texture of the given type currently bound)
 	void unbind(eTextureType type);
+
+    // Fast but unsafe version of unbind
+    void unbindFast(eTextureType type);
 
 	// Sets the addressing mode used to sample the texture
 	// Warning: this stays set for the bound texture forever, 
@@ -511,7 +525,7 @@ extern F32 gGLLastProjection[16];
 extern F32 gGLProjection[16];
 extern S32 gGLViewport[4];
 
-extern LLRender gGL;
+extern thread_local LLRender gGL;
 
 // This rotation matrix moves the default OpenGL reference frame 
 // (-Z at, Y up) to Cory's favorite reference frame (X at, Z up)

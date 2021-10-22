@@ -33,10 +33,45 @@
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
 #include "lldragdropwin32.h"
+#include "llthread.h"
+#include "llthreadsafequeue.h"
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
 typedef void (*LLW32MsgCallback)(const MSG &msg);
+
+class LLWindowWin32;
+
+// Thread that owns the Window Handle
+class LLWindowWin32Thread : public LLThread
+{
+public:
+    class Message
+    {
+    public:
+        LRESULT mMsg;
+    };
+
+    static const int MAX_QUEUE_SIZE = 2048;
+
+    LLThreadSafeQueue<MSG> mMessageQueue;
+    LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+
+    bool mFinished = false;
+
+    LLWindowWin32Thread(LLWindowWin32* window);
+
+    void run() override;
+
+    void post(const std::function<void()>& func);
+
+private:
+
+    // call PeekMessage and pull enqueue messages for later processing
+    void gatherInput();
+    LLWindowWin32* mWindow = nullptr;
+
+};
 
 class LLWindowWin32 : public LLWindow
 {
@@ -59,7 +94,10 @@ public:
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
     /*virtual*/ void setTitle(const std::string title);
-    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
+    void* createSharedContext() override;
+    void makeContextCurrent(void* context) override;
+    void destroySharedContext(void* context) override;
+	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
 	/*virtual*/ void showCursor();
 	/*virtual*/ void hideCursor();
@@ -173,9 +211,9 @@ protected:
 	WCHAR		*mWindowTitle;
 	WCHAR		*mWindowClassName;
 
-	HWND		mWindowHandle;	// window handle
-	HGLRC		mhRC;			// OpenGL rendering context
-	HDC			mhDC;			// Windows Device context handle
+	HWND	    mWindowHandle = 0;	// window handle
+	HGLRC		mhRC = 0;			// OpenGL rendering context
+	HDC			mhDC = 0;			// Windows Device context handle
 	HINSTANCE	mhInstance;		// handle to application instance
 	WNDPROC		mWndProc;		// user-installable window proc
 	RECT		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
@@ -222,7 +260,12 @@ protected:
 
 	BOOL			mMouseVanish;
 
+    LLWindowWin32Thread* mWindowThread = nullptr;
+    LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+    void post(const std::function<void()>& func);
+
 	friend class LLWindowManager;
+    friend class LLWindowWin32Thread;
 };
 
 class LLSplashScreenWin32 : public LLSplashScreen

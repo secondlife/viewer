@@ -314,6 +314,7 @@ private:
 		// Threads:  Ttc
 		virtual void completed(bool success)
 		{
+            LL_PROFILE_ZONE_SCOPED;
 			LLTextureFetchWorker* worker = mFetcher->getWorker(mID);
 			if (worker)
 			{
@@ -338,6 +339,7 @@ private:
 		// Threads:  Ttc
 		virtual void completed(bool success)
 		{
+            LL_PROFILE_ZONE_SCOPED;
 			LLTextureFetchWorker* worker = mFetcher->getWorker(mID);
 			if (worker)
 			{
@@ -362,6 +364,7 @@ private:
 		// Threads:  Tid
 		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux)
 		{
+            LL_PROFILE_ZONE_SCOPED;
 			LLTextureFetchWorker* worker = mFetcher->getWorker(mID);
 			if (worker)
 			{
@@ -1139,6 +1142,7 @@ void LLTextureFetchWorker::startWork(S32 param)
 // Threads:  Ttf
 bool LLTextureFetchWorker::doWork(S32 param)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (gNonInteractive)
 	{
 		return true;

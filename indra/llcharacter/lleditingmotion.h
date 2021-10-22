@@ -42,9 +42,11 @@
 //-----------------------------------------------------------------------------
 // class LLEditingMotion
 //-----------------------------------------------------------------------------
+LL_ALIGN_PREFIX(16)
 class LLEditingMotion :
 	public LLMotion
 {
+    LL_ALIGN_NEW
 public:
 	// Constructor
 	LLEditingMotion(const LLUUID &id);
@@ -108,6 +110,13 @@ public:
 	//-------------------------------------------------------------------------
 	// joint states to be animated
 	//-------------------------------------------------------------------------
+    LL_ALIGN_16(LLJoint				mParentJoint);
+    LL_ALIGN_16(LLJoint				mShoulderJoint);
+    LL_ALIGN_16(LLJoint				mElbowJoint);
+    LL_ALIGN_16(LLJoint				mWristJoint);
+    LL_ALIGN_16(LLJoint				mTarget);
+    LLJointSolverRP3	mIKSolver;
+
 	LLCharacter			*mCharacter;
 	LLVector3			mWristOffset;
 
@@ -117,17 +126,10 @@ public:
 	LLPointer<LLJointState> mWristState;
 	LLPointer<LLJointState> mTorsoState;
 
-	LLJoint				mParentJoint;
-	LLJoint				mShoulderJoint;
-	LLJoint				mElbowJoint;
-	LLJoint				mWristJoint;
-	LLJoint				mTarget;
-	LLJointSolverRP3	mIKSolver;
-
 	static S32			sHandPose;
 	static S32			sHandPosePriority;
 	LLVector3			mLastSelectPt;
-};
+} LL_ALIGN_POSTFIX(16);
 
 #endif // LL_LLKEYFRAMEMOTION_H
 

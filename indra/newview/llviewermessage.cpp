@@ -3982,8 +3982,8 @@ void process_sim_stats(LLMessageSystem *msg, void **user_data)
 		F32 stat_value;
 		msg->getU32("Stat", "StatID", stat_id, i);
 		msg->getF32("Stat", "StatValue", stat_value, i);
-		LLStatViewer::SimMeasurementSampler* measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
-		
+		auto measurementp = LLStatViewer::SimMeasurementSampler::getInstance((ESimStatID)stat_id);
+
 		if (measurementp )
 		{
 			measurementp->sample(stat_value);
@@ -4079,11 +4079,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 			if (animation_id == ANIM_AGENT_STANDUP && gAgent.getFlying())
 			{
 				gAgent.setFlying(FALSE);
-			}
-
-			if (gNonInteractive && animation_id == ANIM_AGENT_RUN)
-			{
-				LL_INFOS() << "Noninteractive, got run request for self" << LL_ENDL;
 			}
 
 			if (i < num_source_blocks)

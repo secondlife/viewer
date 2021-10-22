@@ -78,7 +78,7 @@ def gen_niv_script(args):
     working_dir = args.cwd
     if len(args.cwd) == 0:
         working_dir = os.path.dirname(os.path.abspath(args.viewer))
-    print(f"Working directory is {working_dir}")
+    print(f"Working directory is {working_dir} {args.cwd=}")
     environ = os.environ
     environ["cwd"] = working_dir 
 

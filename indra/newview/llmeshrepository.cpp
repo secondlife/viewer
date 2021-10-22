@@ -4045,29 +4045,28 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED;
+    if (mesh_id.notNull())
+    {
+        skin_map::iterator iter = mSkinMap.find(mesh_id);
+        if (iter != mSkinMap.end())
+        {
+            return &(iter->second);
+        }
 
-	if (mesh_id.notNull())
-	{
-		skin_map::iterator iter = mSkinMap.find(mesh_id);
-		if (iter != mSkinMap.end())
-		{
-			return &(iter->second);
-		}
-		
-		//no skin info known about given mesh, try to fetch it
-		{
-			LLMutexLock lock(mMeshMutex);
-			//add volume to list of loading meshes
-			skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
-			if (iter == mLoadingSkins.end())
-			{ //no request pending for this skin info
-				mPendingSkinRequests.push(mesh_id);
-			}
-			mLoadingSkins[mesh_id].insert(requesting_obj->getID());
-		}
-	}
-
+        //no skin info known about given mesh, try to fetch it
+        if (requesting_obj != nullptr)
+        {
+            LLMutexLock lock(mMeshMutex);
+            //add volume to list of loading meshes
+            skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
+            if (iter == mLoadingSkins.end())
+            { //no request pending for this skin info
+                mPendingSkinRequests.push(mesh_id);
+            }
+            mLoadingSkins[mesh_id].insert(requesting_obj->getID());
+        }
+    }
 	return NULL;
 }
 

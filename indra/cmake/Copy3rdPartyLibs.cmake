@@ -56,13 +56,20 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         nghttp2.dll
         glod.dll
         libhunspell.dll
         uriparser.dll
         )
+
+    # OpenSSL
+    if(ADDRESS_SIZE EQUAL 64)
+        set(release_files ${release_files} libcrypto-1_1-x64.dll)
+        set(release_files ${release_files} libssl-1_1-x64.dll)
+    else(ADDRESS_SIZE EQUAL 64)
+        set(release_files ${release_files} libcrypto-1_1.dll)
+        set(release_files ${release_files} libssl-1_1.dll)
+    endif(ADDRESS_SIZE EQUAL 64)
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
@@ -96,6 +103,8 @@ if(WINDOWS)
     elseif (MSVC_VERSION EQUAL 1800) # VisualStudio 2013, which is (sigh) VS 12
         set(MSVC_VER 120)
     elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
+        set(MSVC_VER 140)
+    elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019
         set(MSVC_VER 140)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
@@ -158,7 +167,6 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexception_handler.dylib
         ${EXPAT_COPY}
         libGLOD.dylib
         libhunspell-1.3.0.dylib

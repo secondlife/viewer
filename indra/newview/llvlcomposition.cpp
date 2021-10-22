@@ -254,6 +254,7 @@ BOOL LLVLComposition::generateComposition()
 BOOL LLVLComposition::generateTexture(const F32 x, const F32 y,
 									  const F32 width, const F32 height)
 {
+	LL_PROFILE_ZONE_SCOPED
 	llassert(mSurfacep);
 	llassert(x >= 0.f);
 	llassert(y >= 0.f);

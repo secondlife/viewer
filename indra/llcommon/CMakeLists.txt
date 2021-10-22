@@ -9,18 +9,18 @@ include(Linking)
 include(Boost)
 include(LLSharedLibs)
 include(JsonCpp)
-include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
+include(Tracy)
 
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
-    ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
+    ${TRACY_INCLUDE_DIR}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -121,12 +121,14 @@ set(llcommon_SOURCE_FILES
     llworkerthread.cpp
     timing.cpp
     u64.cpp
+    workqueue.cpp
     StackWalker.cpp
     )
     
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    chrono.h
     ctype_workaround.h
     fix_macros.h
     indra_constants.h
@@ -199,6 +201,7 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llprofiler.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h
@@ -253,8 +256,11 @@ set(llcommon_HEADER_FILES
     lockstatic.h
     stdtypes.h
     stringize.h
+    threadsafeschedule.h
     timer.h
+    tuple.h
     u64.h
+    workqueue.h
     StackWalker.h
     )
 
@@ -288,7 +294,6 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
-    ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
@@ -302,6 +307,7 @@ target_link_libraries(
     ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${URIPARSER_LIBRARIES}
+    ${TRACY_LIBRARY}
     )
 
 if (DARWIN)
@@ -358,6 +364,9 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(threadsafeschedule "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(workqueue "" "${test_libs}")
 
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
 ## every build. It's to help a developer make implementation choices about
