@@ -723,7 +723,13 @@ void LLFloaterIMContainer::setMinimized(BOOL b)
 }
 
 void LLFloaterIMContainer::setVisible(BOOL visible)
-{	LLFloaterIMNearbyChat* nearby_chat;
+{
+    if (LLFloater::isQuitRequested())
+    {
+        return;
+    }
+
+    LLFloaterIMNearbyChat* nearby_chat;
 	if (visible)
 	{
 		// Make sure we have the Nearby Chat present when showing the conversation container
