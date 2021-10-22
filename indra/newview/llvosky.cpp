@@ -491,7 +491,7 @@ void LLVOSky::init()
 		for (S32 tile = 0; tile < NUM_TILES; ++tile)
 		{
 			initSkyTextureDirs(side, tile);
-            createSkyTexture(m_atmosphericsVars, side, tile);
+            createSkyTexture(psky, m_atmosphericsVars, side, tile);
 		}
         mSkyTex[side].create();
         mShinyTex[side].create();
@@ -639,10 +639,8 @@ void LLVOSky::initSkyTextureDirs(const S32 side, const S32 tile)
 	}
 }
 
-void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile)
+void LLVOSky::createSkyTexture(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, const S32 side, const S32 tile)
 {
-	LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
 	S32 tile_x = tile % NUM_TILES_X;
 	S32 tile_y = tile / NUM_TILES_X;
 
@@ -812,7 +810,7 @@ bool LLVOSky::updateSky()
         // instead of executing per face, or may be can be moved to shaders)
         for (S32 tile = 0; tile < NUM_TILES; tile++)
         {
-            createSkyTexture(m_atmosphericsVars, side, tile);
+            createSkyTexture(psky, m_atmosphericsVars, side, tile);
         }
         mCubeMapUpdateStage++;
     }
