@@ -2006,7 +2006,9 @@ bool LLAppViewer::cleanup()
 	if (LLConversationLog::instanceExists())
 	{
 		LLConversationLog::instance().cache();
-	}
+    }
+
+    clearSecHandler();
 
 	if (mPurgeCacheOnExit)
 	{
