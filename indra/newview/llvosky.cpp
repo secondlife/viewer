@@ -64,7 +64,9 @@ namespace
     const S32 NUM_TILES_X = 8;
     const S32 NUM_TILES_Y = 4;
     const S32 NUM_TILES = NUM_TILES_X * NUM_TILES_Y;
-    const S32 NUM_CUBEMAP_FACES = 6;
+    const S32 NUM_CUBEMAP_FACES = 6; // See sResolution for face dimensions
+    const S32 TOTAL_TILES = NUM_CUBEMAP_FACES * NUM_TILES;
+    const S32 MAX_TILES = TOTAL_TILES + 1;
 
 // Heavenly body constants
     const F32 SUN_DISK_RADIUS	= 0.5f;
@@ -690,15 +692,13 @@ bool LLVOSky::updateSky()
 	}
 
 	static S32 next_frame = 0;
-	const S32 total_no_tiles = NUM_CUBEMAP_FACES * NUM_TILES;
-	const S32 cycle_frame_no = total_no_tiles + 1;
 
     mNeedUpdate = mForceUpdate;
 
 	++next_frame;
-	next_frame = next_frame % cycle_frame_no;
+	next_frame = next_frame % MAX_TILES;
 
-	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
+	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / MAX_TILES;
 	LLHeavenBody::setInterpVal( mInterpVal );
 	updateDirections(psky);
 
