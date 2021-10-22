@@ -715,7 +715,8 @@ BOOL LLDrawPoolBump::bindBumpMap(U8 bump_code, LLViewerTexture* texture, F32 vsi
 		}
 		else
 		{
-			gGL.getTexUnit(channel)->bindFast(bump);
+            // NOTE: do not use bindFast here (see SL-16222)
+            gGL.getTexUnit(channel)->bind(bump);
 		}
 
 		return TRUE;
