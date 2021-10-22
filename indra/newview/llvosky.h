@@ -296,7 +296,7 @@ public:
 protected:
 	~LLVOSky();
 
-	void updateDirections(void);
+	void updateDirections(LLSettingsSky::ptr_t psky);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
 	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile);

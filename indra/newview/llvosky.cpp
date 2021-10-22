@@ -461,11 +461,10 @@ void LLVOSky::init()
     llassert(!mInitialized);
 
     // Update sky at least once to get correct initial sun/moon directions and lighting calcs performed
-    LLEnvironment::instance().getCurrentSky()->update();
-
-	updateDirections();
-
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    psky->update();
+
+    updateDirections(psky);
 
     // invariants across whole sky tex process...
     m_atmosphericsVars.blue_density = psky->getBlueDensity();
@@ -592,7 +591,7 @@ void LLVOSky::restoreGL()
         setMoonTextures(psky->getMoonTextureId(), psky->getNextMoonTextureId());
     }
 
-	updateDirections();
+	updateDirections(psky);
 
 	if (gSavedSettings.getBOOL("RenderWater") && gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
 		{
@@ -661,16 +660,14 @@ void LLVOSky::createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32
 	}
 }
 
-void LLVOSky::updateDirections(void)
+void LLVOSky::updateDirections(LLSettingsSky::ptr_t psky)
 {
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-
     mSun.setDirection(psky->getSunDirection());
-	mMoon.setDirection(psky->getMoonDirection());
+    mMoon.setDirection(psky->getMoonDirection());
     mSun.setRotation(psky->getSunRotation());
-	mMoon.setRotation(psky->getMoonRotation());
-	mSun.renewDirection();
-	mMoon.renewDirection();
+    mMoon.setRotation(psky->getMoonRotation());
+    mSun.renewDirection();
+    mMoon.renewDirection();
 }
 
 void LLVOSky::idleUpdate(LLAgent &agent, const F64 &time)
@@ -717,7 +714,7 @@ bool LLVOSky::updateSky()
 
 	mInterpVal = (!mInitialized) ? 1 : (F32)next_frame / cycle_frame_no;
 	LLHeavenBody::setInterpVal( mInterpVal );
-	updateDirections();
+	updateDirections(psky);
 
     if (!mCubeMap)
 	{
@@ -1579,16 +1576,17 @@ void LLVOSky::setSunAndMoonDirectionsCFR(const LLVector3 &sun_dir_cfr, const LLV
 	    F32 sunDot = llmax(0.f, sun_dir_cfr.mV[2]);
 	    sunDot *= sunDot;	
 
-	    // Create normalized vector that has the sunDir pushed south about an hour and change.
-	    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
-		
-	    // Blend between normal sun dir and adjusted sun dir based on how close we are
-	    // to having the sun overhead.
-	    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-	    mBumpSunDir.normalize();
-		}
-	updateDirections();
-	}
+    // Create normalized vector that has the sunDir pushed south about an hour and change.
+    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
+
+    // Blend between normal sun dir and adjusted sun dir based on how close we are
+    // to having the sun overhead.
+    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
+    mBumpSunDir.normalize();
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    updateDirections(psky);
+}
 
 void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
 	{
@@ -1604,16 +1602,18 @@ void LLVOSky::setSunDirectionCFR(const LLVector3 &sun_dir_cfr)
 	// Create normalized vector that has the sunDir pushed south about an hour and change.
 	    LLVector3 adjustedDir = (sun_dir_cfr + LLVector3(0.f, -0.70711f, 0.70711f)) * 0.5f;
 
-	// Blend between normal sun dir and adjusted sun dir based on how close we are
-	// to having the sun overhead.
-	    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
-	mBumpSunDir.normalize();
-    }
-	updateDirections();
+    // Blend between normal sun dir and adjusted sun dir based on how close we are
+    // to having the sun overhead.
+    mBumpSunDir = adjustedDir * sunDot + sun_dir_cfr * (1.0f - sunDot);
+    mBumpSunDir.normalize();
+
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    updateDirections(psky);
 }
 
 void LLVOSky::setMoonDirectionCFR(const LLVector3 &moon_dir_cfr)
 {
-	mMoon.setDirection(moon_dir_cfr);
-	updateDirections();
+    mMoon.setDirection(moon_dir_cfr);
+    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
+    updateDirections(psky);
 }
