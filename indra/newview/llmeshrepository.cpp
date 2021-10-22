@@ -4045,7 +4045,7 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED;
     if (mesh_id.notNull())
     {
         skin_map::iterator iter = mSkinMap.find(mesh_id);
@@ -4055,6 +4055,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
         }
 
         //no skin info known about given mesh, try to fetch it
+        if (requesting_obj != nullptr)
         {
             LLMutexLock lock(mMeshMutex);
             //add volume to list of loading meshes

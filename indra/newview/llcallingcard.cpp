@@ -257,7 +257,6 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 			LLAvatarName av_name;
 			LLAvatarNameCache::get(agent_id, &av_name);
 
-			addChangedMask(LLFriendObserver::ADD, agent_id);
 			LL_DEBUGS() << "Added buddy " << agent_id
 					<< ", " << (mBuddyInfo[agent_id]->isOnline() ? "Online" : "Offline")
 					<< ", TO: " << mBuddyInfo[agent_id]->getRightsGrantedTo()
@@ -493,6 +492,7 @@ void LLAvatarTracker::notifyObservers()
 		// new masks and ids will be processed later from idle.
 		return;
 	}
+	LL_PROFILE_ZONE_SCOPED
 	mIsNotifyObservers = TRUE;
 
 	observer_list_t observers(mObservers);
@@ -678,6 +678,7 @@ void LLAvatarTracker::processChangeUserRights(LLMessageSystem* msg, void**)
 
 void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 {
+	LL_PROFILE_ZONE_SCOPED
 	S32 count = msg->getNumberOfBlocksFast(_PREHASH_AgentBlock);
 	BOOL chat_notify = gSavedSettings.getBOOL("ChatOnlineNotification");
 
@@ -712,8 +713,6 @@ void LLAvatarTracker::processNotify(LLMessageSystem* msg, bool online)
 				// we were tracking someone who went offline
 				deleteTrackingData();
 			}
-			// *TODO: get actual inventory id
-			gInventory.addChangedMask(LLInventoryObserver::CALLING_CARD, LLUUID::null);
 		}
 		if(chat_notify)
 		{

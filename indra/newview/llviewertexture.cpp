@@ -845,14 +845,14 @@ void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) co
 	{
 		//flag to reset the values because the old values are used.
 		resetMaxVirtualSizeResetCounter();
-		mMaxVirtualSize = virtual_size;		
-		mAdditionalDecodePriority = 0.f;	
+		mMaxVirtualSize = virtual_size;
+		mAdditionalDecodePriority = 0.f;
 		mNeedsGLTexture = needs_gltexture;
 	}
 	else if (virtual_size > mMaxVirtualSize)
 	{
 		mMaxVirtualSize = virtual_size;
-	}	
+	}
 }
 
 void LLViewerTexture::resetTextureStats()
@@ -1637,19 +1637,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             {
                 //actually create the texture on a background thread
                 createTexture();
-                {
-                    LL_PROFILE_ZONE_NAMED("iglt - sync");
-                    if (gGLManager.mHasSync)
-                    {
-                        auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-                        glClientWaitSync(sync, 0, 0);
-                        glDeleteSync(sync);
-                    }
-                    else
-                    {
-                        glFinish();
-                    }
-                }
                 LLImageGLThread::sInstance->postCallback([this]()
                     {
                         //finalize on main thread

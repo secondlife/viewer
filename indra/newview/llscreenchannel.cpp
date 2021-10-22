@@ -259,7 +259,8 @@ void LLScreenChannel::updatePositionAndSize(LLRect new_world_rect)
 //--------------------------------------------------------------------------
 void LLScreenChannel::addToast(const LLToast::Params& p)
 {
-	bool store_toast = false, show_toast = false;
+    LL_PROFILE_ZONE_SCOPED
+    bool store_toast = false, show_toast = false;
 
 	if (mDisplayToastsAlways)
 	{

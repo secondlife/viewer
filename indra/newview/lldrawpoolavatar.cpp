@@ -1685,7 +1685,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 				renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_EMISSIVE);
 				renderRigged(avatarp, RIGGED_NORMMAP);
 				renderRigged(avatarp, RIGGED_NORMMAP_MASK);
-				renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);	
+				renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);
 				renderRigged(avatarp, RIGGED_SPECMAP);
 				renderRigged(avatarp, RIGGED_SPECMAP_MASK);
 				renderRigged(avatarp, RIGGED_SPECMAP_EMISSIVE);
@@ -2067,56 +2067,12 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		LLVector4a* pos = (LLVector4a*) position.get();
 
 		LLVector4a* norm = has_normal ? (LLVector4a*) normal.get() : NULL;
-		
-        if (skin == nullptr)
-        {
-            skin = vobj->getSkinInfo();
-        }
 
-        const MatrixPaletteCache& mpc = updateSkinInfoMatrixPalette(avatar, skin);
+        const MatrixPaletteCache& mpc = updateSkinInfoMatrixPalette(avatar, vobj->getMeshID());
         const LLMatrix4a* mat = &(mpc.mMatrixPalette[0]);
+        const LLMatrix4a& bind_shape_matrix = mpc.mBindShapeMatrix;
 
-        LLSkinningUtil::checkSkinWeights(weights, buffer->getNumVerts(), skin);
-		const LLMatrix4a& bind_shape_matrix = skin->mBindShapeMatrix;
-
-#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
-        U8* joint_indices_cursor = vol_face.mJointIndices;
-        // fast path with joint indices separate from weights
-        if (joint_indices_cursor)
-        {
-            LLMatrix4a src[4];
-		    for (U32 j = 0; j < buffer->getNumVerts(); ++j)
-		    {
-			    LLMatrix4a final_mat;
-                //LLMatrix4a final_mat_correct;
-
-                F32* jw = just_weights[j].getF32ptr();
-
-                LLSkinningUtil::getPerVertexSkinMatrixWithIndices(jw, joint_indices_cursor, mat, final_mat, src);                
-
-                joint_indices_cursor += 4;
-
-			    LLVector4a& v = vol_face.mPositions[j];
-
-			    LLVector4a t;
-			    LLVector4a dst;
-			    bind_shape_matrix.affineTransform(v, t);
-			    final_mat.affineTransform(t, dst);
-			    pos[j] = dst;
-
-			    if (norm)
-			    {
-				    LLVector4a& n = vol_face.mNormals[j];
-				    bind_shape_matrix.rotate(n, t);
-				    final_mat.rotate(t, dst);
-				    dst.normalize3fast();
-				    norm[j] = dst;
-			    }
-		    }
-        }
-        // slow path with joint indices calculated from weights
-        else
-#endif
+        if (!mpc.mMatrixPalette.empty())
         {
             for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 		    {
@@ -2152,9 +2108,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		return;
 	}
 
-	stop_glerror();
-
-    const LLMeshSkinInfo* lastSkin = nullptr;
+    LLUUID lastMeshId;
 
 	for (U32 i = 0; i < mRiggedFace[type].size(); ++i)
 	{
@@ -2187,19 +2141,6 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		{
 			continue;
 		}
-
-		const LLMeshSkinInfo* skin = vobj->getSkinInfo();
-		if (!skin)
-		{
-			continue;
-		}
-
-		//stop_glerror();
-
-		//const LLVolumeFace& vol_face = volume->getVolumeFace(te);
-		//updateRiggedFaceVertexBuffer(avatar, face, skin, volume, vol_face);
-		
-		//stop_glerror();
 
 		U32 data_mask = LLFace::getRiggedDataMask(type);
 
@@ -2290,33 +2231,32 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 		{
 			if (sShaderLevel > 0)
 			{
-                if (lastSkin != skin) // <== only upload matrix palette to GL if the skininfo changed
+                auto& meshId = vobj->getMeshID();
+                
+                if (lastMeshId != meshId) // <== only upload matrix palette to GL if the skininfo changed
                 {
                     // upload matrix palette to shader
-                    const MatrixPaletteCache& mpc = updateSkinInfoMatrixPalette(avatar, skin);
+                    const MatrixPaletteCache& mpc = updateSkinInfoMatrixPalette(avatar, meshId);
                     U32 count = mpc.mMatrixPalette.size();
 
-                    stop_glerror();
+                    if (count == 0)
+                    {
+                        //skin info not loaded yet, don't render
+                        continue;
+                    }
 
                     LLDrawPoolAvatar::sVertexProgram->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
                         count,
                         FALSE,
                         (GLfloat*) &(mpc.mGLMp[0]));
-
-                    stop_glerror();
                 }
+
+                lastMeshId = meshId;
 			}
 			else
 			{
 				data_mask &= ~LLVertexBuffer::MAP_WEIGHT4;
 			}
-
-            lastSkin = skin;
-
-			/*if (glow)
-			{
-				gGL.diffuseColor4f(0,0,0,face->getTextureEntry()->getGlow());
-			}*/
 
 			if (mat)
 			{
@@ -2332,13 +2272,25 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 {
                     specular = face->getTexture(LLRender::SPECULAR_MAP);
                 }
-                if (specular)
+                if (specular && specular_channel >= 0)
                 {
-                    gGL.getTexUnit(specular_channel)->bind(specular);
+                    gGL.getTexUnit(specular_channel)->bindFast(specular);
                 }
                 
-				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
+                if (normal_channel >= 0)
+                {
+                    auto* texture = face->getTexture(LLRender::NORMAL_MAP);
+                    if (texture)
+                    {
+                        gGL.getTexUnit(normal_channel)->bindFast(texture);
+                    }
+                    //else
+                    //{
+                        // TODO handle missing normal map
+                    //}
+                }
+
+				gGL.getTexUnit(sDiffuseChannel)->bindFast(face->getTexture(LLRender::DIFFUSE_MAP));
 
 
 				LLColor4 col = mat->getSpecularLightColor();
@@ -2369,23 +2321,28 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 					sVertexProgram->setMinimumAlpha(0.f);
 				}
 
-				for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
-				{
-					LLViewerTexture* tex = face->getTexture(i);
-					if (tex)
-					{
-						tex->addTextureStats(avatar->getPixelArea());
-					}
-				}
+                if (!LLPipeline::sShadowRender && !LLPipeline::sReflectionRender)
+                {
+                    for (U32 i = 0; i < LLRender::NUM_TEXTURE_CHANNELS; ++i)
+                    {
+                        LLViewerTexture* tex = face->getTexture(i);
+                        if (tex)
+                        {
+                            tex->addTextureStats(avatar->getPixelArea());
+                        }
+                    }
+                }
 			}
 			else
 			{
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
 				sVertexProgram->setMinimumAlpha(0.f);
 				if (normal_channel > -1)
 				{
 					LLDrawPoolBump::bindBumpMap(face, normal_channel);
 				}
+
+                gGL.getTexUnit(sDiffuseChannel)->bindFast(face->getTexture());
+
 			}
 
 			if (face->mTextureMatrix && vobj->mTexAnimMode)
@@ -2399,8 +2356,8 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				    gGL.loadMatrix((F32*) face->mTextureMatrix->mMatrix);
                 }
 
-				buff->setBuffer(data_mask);
-				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+				buff->setBufferFast(data_mask);
+				buff->drawRangeFast(LLRender::TRIANGLES, start, end, count, offset);
 
                 if (tex_index <= 1)
                 {
@@ -2411,11 +2368,9 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			}
 			else
 			{
-				buff->setBuffer(data_mask);
-				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
+				buff->setBufferFast(data_mask);
+				buff->drawRangeFast(LLRender::TRIANGLES, start, end, count, offset);
 			}
-
-			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
 	}
 }
@@ -2476,8 +2431,6 @@ void LLDrawPoolAvatar::updateRiggedVertexBuffers(LLVOAvatar* avatar)
 				continue;
 			}
 
-			stop_glerror();
-
 			LLVolumeFace& vol_face = volume->getVolumeFace(te);
 			updateRiggedFaceVertexBuffer(avatar, face, vobj, volume, vol_face);
 		}
@@ -2501,47 +2454,58 @@ void LLDrawPoolAvatar::updateSkinInfoMatrixPalettes(LLVOAvatar* avatarp)
     }
 }
 
-const LLDrawPoolAvatar::MatrixPaletteCache& LLDrawPoolAvatar::updateSkinInfoMatrixPalette(LLVOAvatar * avatarp, const LLMeshSkinInfo* skin)
+const LLDrawPoolAvatar::MatrixPaletteCache& LLDrawPoolAvatar::updateSkinInfoMatrixPalette(LLVOAvatar * avatarp, const LLUUID& meshId)
 {
-    MatrixPaletteCache& entry = mMatrixPaletteCache[skin];
+    MatrixPaletteCache& entry = mMatrixPaletteCache[meshId];
 
     if (entry.mFrame != gFrameCount)
     {
         LL_PROFILE_ZONE_SCOPED;
+
+        const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(meshId);
         entry.mFrame = gFrameCount;
-        //build matrix palette
-        U32 count = LLSkinningUtil::getMeshJointCount(skin);
-        entry.mMatrixPalette.resize(count);
-        LLSkinningUtil::initSkinningMatrixPalette(&(entry.mMatrixPalette[0]), count, skin, avatarp);
 
-        const LLMatrix4a* mat = &(entry.mMatrixPalette[0]);
-
-        stop_glerror();
-        
-        entry.mGLMp.resize(count * 12);
-
-        F32* mp = &(entry.mGLMp[0]);
-        
-        for (U32 i = 0; i < count; ++i)
+        if (skin != nullptr)
         {
-            F32* m = (F32*)mat[i].mMatrix[0].getF32ptr();
+            entry.mBindShapeMatrix = skin->mBindShapeMatrix;
 
-            U32 idx = i * 12;
+            //build matrix palette
+            U32 count = LLSkinningUtil::getMeshJointCount(skin);
+            entry.mMatrixPalette.resize(count);
+            LLSkinningUtil::initSkinningMatrixPalette(&(entry.mMatrixPalette[0]), count, skin, avatarp);
 
-            mp[idx + 0] = m[0];
-            mp[idx + 1] = m[1];
-            mp[idx + 2] = m[2];
-            mp[idx + 3] = m[12];
+            const LLMatrix4a* mat = &(entry.mMatrixPalette[0]);
 
-            mp[idx + 4] = m[4];
-            mp[idx + 5] = m[5];
-            mp[idx + 6] = m[6];
-            mp[idx + 7] = m[13];
+            entry.mGLMp.resize(count * 12);
 
-            mp[idx + 8] = m[8];
-            mp[idx + 9] = m[9];
-            mp[idx + 10] = m[10];
-            mp[idx + 11] = m[14];
+            F32* mp = &(entry.mGLMp[0]);
+
+            for (U32 i = 0; i < count; ++i)
+            {
+                F32* m = (F32*)mat[i].mMatrix[0].getF32ptr();
+
+                U32 idx = i * 12;
+
+                mp[idx + 0] = m[0];
+                mp[idx + 1] = m[1];
+                mp[idx + 2] = m[2];
+                mp[idx + 3] = m[12];
+
+                mp[idx + 4] = m[4];
+                mp[idx + 5] = m[5];
+                mp[idx + 6] = m[6];
+                mp[idx + 7] = m[13];
+
+                mp[idx + 8] = m[8];
+                mp[idx + 9] = m[9];
+                mp[idx + 10] = m[10];
+                mp[idx + 11] = m[14];
+            }
+        }
+        else
+        {
+            entry.mMatrixPalette.resize(0);
+            entry.mGLMp.resize(0);
         }
     }
 

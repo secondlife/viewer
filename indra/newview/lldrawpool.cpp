@@ -404,6 +404,7 @@ void LLRenderPass::renderTexture(U32 type, U32 mask, BOOL batch_textures)
 
 void LLRenderPass::pushBatches(U32 type, U32 mask, BOOL texture, BOOL batch_textures)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
 	{
 		LLDrawInfo* pparams = *i;
@@ -452,6 +453,7 @@ void LLRenderPass::applyModelMatrix(const LLDrawInfo& params)
 
 void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (!params.mCount)
     {
         return;
@@ -469,7 +471,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 			{
 				if (params.mTextureList[i].notNull())
 				{
-					gGL.getTexUnit(i)->bind(params.mTextureList[i], TRUE);
+					gGL.getTexUnit(i)->bindFast(params.mTextureList[i]);
 				}
 			}
 		}
@@ -477,8 +479,7 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 		{ //not batching textures or batch has only 1 texture -- might need a texture matrix
 			if (params.mTexture.notNull())
 			{
-				params.mTexture->addTextureStats(params.mVSize);
-				gGL.getTexUnit(0)->bind(params.mTexture, TRUE) ;
+				gGL.getTexUnit(0)->bindFast(params.mTexture);
 				if (params.mTextureMatrix)
 				{
 					tex_setup = true;
@@ -490,24 +491,20 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 			}
 			else
 			{
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+				gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
 			}
 		}
 	}
 	
-	if (params.mVertexBuffer.notNull())
-	{
-		if (params.mGroup)
-		{
-			params.mGroup->rebuildMesh();
-		}
+    if (params.mGroup)
+    {
+        params.mGroup->rebuildMesh();
+    }
 
-		LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
-	
-		params.mVertexBuffer->setBuffer(mask);
-		params.mVertexBuffer->drawRange(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-		gPipeline.addTrianglesDrawn(params.mCount, params.mDrawMode);
-	}
+    LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+
+    params.mVertexBuffer->setBufferFast(mask);
+    params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 
 	if (tex_setup)
 	{

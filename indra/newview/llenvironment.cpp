@@ -1471,6 +1471,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSharedEnvironmentInstance()
 
 void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
+    LL_PROFILE_ZONE_SCOPED;
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
     if ((mCurrentEnvironment != pinstance) || forced)
@@ -1488,6 +1489,8 @@ void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool f
         {
             mCurrentEnvironment = pinstance;
         }
+
+        updateSettingsUniforms();
     }
 }
 
@@ -1614,6 +1617,8 @@ void LLEnvironment::update(const LLViewerCamera * cam)
 
     stop_glerror();
 
+    updateSettingsUniforms();
+
     // *TODO: potential optimization - this block may only need to be
     // executed some of the time.  For example for water shaders only.
     {
@@ -1648,10 +1653,16 @@ void LLEnvironment::updateCloudScroll()
 }
 
 // static
-void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting)
+void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, const LLSettingsBase::ptr_t &psetting)
 {
     LL_RECORD_BLOCK_TIME(FTM_SHADER_PARAM_UPDATE);
 
+    for (int i = 0; i < LLGLSLShader::SG_COUNT; ++i)
+    {
+        uniforms[i].clear();
+    }
+
+    LLShaderUniforms* shader = &uniforms[LLGLSLShader::SG_ANY];
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
     LLSettingsBase::parammapping_t params = psetting->getParameterMap();
     for (auto &it: params)
@@ -1694,7 +1705,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         {
             LLVector4 vect4(value);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv(it.second.getShaderKey(), 1, vect4.mV);
+            shader->uniform4fv(it.second.getShaderKey(), vect4 );
             break;
         }
 
@@ -1707,17 +1718,30 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         default:
             break;
         }
-        stop_glerror();
     }
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
-    psetting->applySpecial(shader);
+    psetting->applySpecial(uniforms);
 }
 
-void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
+void LLEnvironment::updateShaderUniforms(LLGLSLShader* shader)
 {
-    updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
-    updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
+    LL_PROFILE_ZONE_SCOPED;
+
+    // apply uniforms that should be applied to all shaders
+    mSkyUniforms[LLGLSLShader::SG_ANY].apply(shader);
+    mWaterUniforms[LLGLSLShader::SG_ANY].apply(shader);
+
+    // apply uniforms specific to the given shader's shader group
+    auto group = shader->mShaderGroup;
+    mSkyUniforms[group].apply(shader);
+    mWaterUniforms[group].apply(shader);
+}
+
+void LLEnvironment::updateSettingsUniforms()
+{
+    updateGLVariablesForSettings(mWaterUniforms, mCurrentEnvironment->getWater());
+    updateGLVariablesForSettings(mSkyUniforms, mCurrentEnvironment->getSky());
 }
 
 void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo, LLSettingsBase::Seconds transition)
@@ -2618,6 +2642,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
 
 bool LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
+    LL_PROFILE_ZONE_SCOPED;
     ptr_t keeper(shared_from_this());   // makes sure that this does not go away while it is being worked on.
 
     bool changed(false);

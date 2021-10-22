@@ -7,7 +7,7 @@ if (USE_TRACY)
   set(TRACY_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/tracy) 
 
 # See: indra/llcommon/llprofiler.h
-  add_definitions(-DLL_PROFILER_CONFIGURATION=2)
+  add_definitions(-DLL_PROFILER_CONFIGURATION=3)
   use_prebuilt_binary(tracy)
 
   if (WINDOWS)

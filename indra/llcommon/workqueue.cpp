@@ -54,6 +54,7 @@ void LL::WorkQueue::runUntilClose()
 
 bool LL::WorkQueue::runPending()
 {
+    LL_PROFILE_ZONE_SCOPED;
     for (Work work; mQueue.tryPop(work); )
     {
         callWork(work);
@@ -110,6 +111,7 @@ void LL::WorkQueue::callWork(const Queue::DataTuple& work)
 
 void LL::WorkQueue::callWork(const Work& work)
 {
+    LL_PROFILE_ZONE_SCOPED;
     try
     {
         work();

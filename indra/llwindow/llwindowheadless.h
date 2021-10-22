@@ -54,6 +54,9 @@ public:
     void destroySharedContext(void*)  {}
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
+#if LL_WINDOWS
+    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta) { return FALSE; }
+#endif
 	/*virtual*/ void showCursor() {};
 	/*virtual*/ void hideCursor() {};
 	/*virtual*/ void showCursorFromMouseMove() {};

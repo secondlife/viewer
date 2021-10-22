@@ -28,8 +28,6 @@
 
 #if LL_WINDOWS && !LL_MESA_HEADLESS
 
-#define LL_WINDOW_SINGLE_THREADED 0
-
 #include "llwindowwin32.h"
 
 // LLWindow library includes
@@ -85,7 +83,7 @@ extern BOOL gDebugWindowProc;
 static std::thread::id sWindowThreadId;
 static std::thread::id sMainThreadId;
 
-#if 1 || LL_WINDOW_SINGLE_THREADED
+#if 1 // flip to zero to enable assertions for functions being called from wrong thread
 #define ASSERT_MAIN_THREAD()
 #define ASSERT_WINDOW_THREAD()
 #else
@@ -482,9 +480,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 {
     sMainThreadId = LLThread::currentID();
     mWindowThread = new LLWindowWin32Thread(this);
-#if !LL_WINDOW_SINGLE_THREADED
     mWindowThread->start();
-#endif
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
 
@@ -492,7 +488,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	mIconResource = gIconResource;
 	mOverrideAspectRatio = 0.f;
 	mNativeAspectRatio = 0.f;
-	mMousePositionModified = FALSE;
 	mInputProcessingPaused = FALSE;
 	mPreeditor = NULL;
 	mKeyCharCode = 0;
@@ -813,6 +808,13 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	//start with arrow cursor
 	initCursors();
 	setCursor( UI_CURSOR_ARROW );
+
+    mRawMouse.usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+    mRawMouse.usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+    mRawMouse.dwFlags = 0;    // adds mouse and also ignores legacy mouse messages
+    mRawMouse.hwndTarget = 0;
+
+    RegisterRawInputDevices(&mRawMouse, 1, sizeof(mRawMouse));
 
 	// Initialize (boot strap) the Language text input management,
 	// based on the system's (or user's) default settings.
@@ -1927,31 +1929,26 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 {
     ASSERT_MAIN_THREAD();
 
-	if (!mWindowHandle)
-	{
-		return FALSE;
-	}
+    if (!mWindowHandle)
+    {
+        return FALSE;
+    }
+
+    LLCoordScreen screen_pos(position.convert());
+
+    // instantly set the cursor position from the app's point of view
+    mCursorPosition = position;
+    mLastCursorPosition = position;
 
     // Inform the application of the new mouse position (needed for per-frame
-	// hover/picking to function).
-	mCallbacks->handleMouseMove(this, position.convert(), (MASK)0);
-	
-    mMousePositionModified = TRUE;
-    LLCoordScreen screen_pos(position.convert());
-    
-    mWindowThread->post([=]
+    // hover/picking to function).
+    mCallbacks->handleMouseMove(this, position.convert(), (MASK)0);
+
+    // actually set the cursor position on the window thread
+    mWindowThread->post([=]()
         {
+            // actually set the OS cursor position
             SetCursorPos(screen_pos.mX, screen_pos.mY);
-            // DEV-18951 VWR-8524 Camera moves wildly when alt-clicking.
-            // Because we have preemptively notified the application of the new
-            // mouse position via handleMouseMove() above, we need to clear out
-            // any stale mouse move events.  RN/JC
-            MSG msg;
-            while (PeekMessage(&msg, NULL, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
-            {
-            }
-            
-            mMousePositionModified = FALSE;
         });
 
     return TRUE;
@@ -1960,17 +1957,25 @@ BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 BOOL LLWindowWin32::getCursorPosition(LLCoordWindow *position)
 {
     ASSERT_MAIN_THREAD();
-	POINT cursor_point;
+    if (!position)
+    {
+        return FALSE;
+    }
 
-	if (!mWindowHandle 
-		|| !GetCursorPos(&cursor_point)
-		|| !position)
-	{
-		return FALSE;
-	}
-
-	*position = LLCoordScreen(cursor_point.x, cursor_point.y).convert();
+    *position = mCursorPosition;
 	return TRUE;
+}
+
+BOOL LLWindowWin32::getCursorDelta(LLCoordCommon* delta)
+{
+    if (delta == nullptr)
+    {
+        return FALSE;
+    }
+
+    *delta = mMouseFrameDelta;
+
+    return TRUE;
 }
 
 void LLWindowWin32::hideCursor()
@@ -2153,34 +2158,31 @@ void LLWindowWin32::gatherInput()
     LL_PROFILE_ZONE_SCOPED
     MSG msg;
 
-#if LL_WINDOW_SINGLE_THREADED
-    int	msg_count = 0;
-
-    while ((msg_count < MAX_MESSAGE_PER_UPDATE))
     {
-        LL_PROFILE_ZONE_NAMED("gi - loop");
-        ++msg_count;
-        {
-            LL_PROFILE_ZONE_NAMED("gi - PeekMessage");
-            if (!PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-            {
-                break;
-            }
-        }
+        LLMutexLock lock(&mRawMouseMutex);
+        mMouseFrameDelta = mRawMouseDelta;
 
-        {
-            LL_PROFILE_ZONE_NAMED("gi - translate");
-            TranslateMessage(&msg);
-        }
+        mRawMouseDelta.mX = 0;
+        mRawMouseDelta.mY = 0;
+    }
 
-        {
-            LL_PROFILE_ZONE_NAMED("gi - dispatch");
-            DispatchMessage(&msg);
-        }
 
+    if (mWindowThread->mFunctionQueue.size() > 0)
+    {
+        LL_PROFILE_ZONE_NAMED("gi - PostMessage");
+        if (mWindowHandle)
+        { // post a nonsense user message to wake up the Window Thread in case any functions are pending
+            // and no windows events came through this frame
+            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+        }
+    }
+        
+    while (mWindowThread->mMessageQueue.tryPopBack(msg))
+    {
+        LL_PROFILE_ZONE_NAMED("gi - message queue");
         if (mInputProcessingPaused)
         {
-            break;
+            continue;
         }
 
         // For async host by name support.  Really hacky.
@@ -2188,34 +2190,6 @@ void LLWindowWin32::gatherInput()
         {
             LL_PROFILE_ZONE_NAMED("gi - callback");
             gAsyncMsgCallback(msg);
-        }
-    }
-#else //multi-threaded window impl
-    {
-        if (mWindowThread->mFunctionQueue.size() > 0)
-        {
-            LL_PROFILE_ZONE_NAMED("gi - PostMessage");
-            if (mWindowHandle)
-            { // post a nonsense user message to wake up the Window Thread in case any functions are pending
-                // and no windows events came through this frame
-                PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
-            }
-        }
-        
-        while (mWindowThread->mMessageQueue.tryPopBack(msg))
-        {
-            LL_PROFILE_ZONE_NAMED("gi - message queue");
-            if (mInputProcessingPaused)
-            {
-                continue;
-            }
-
-            // For async host by name support.  Really hacky.
-            if (gAsyncMsgCallback && (LL_WM_HOST_RESOLVED == msg.message))
-            {
-                LL_PROFILE_ZONE_NAMED("gi - callback");
-                gAsyncMsgCallback(msg);
-            }
         }
     }
 
@@ -2228,7 +2202,25 @@ void LLWindowWin32::gatherInput()
             curFunc();
         }
     }
-#endif
+
+    // send one and only one mouse move event per frame BEFORE handling mouse button presses
+    if (mLastCursorPosition != mCursorPosition)
+    {
+        LL_PROFILE_ZONE_NAMED("gi - mouse move");
+        mCallbacks->handleMouseMove(this, mCursorPosition.convert(), mMouseMask);
+    }
+    
+    mLastCursorPosition = mCursorPosition;
+
+    {
+        LL_PROFILE_ZONE_NAMED("gi - mouse queue");
+        // handle mouse button presses AFTER updating mouse cursor position
+        std::function<void()> curFunc;
+        while (mMouseQueue.tryPopBack(curFunc))
+        {
+            curFunc();
+        }
+    }
 
 	mInputProcessingPaused = FALSE;
 
@@ -2238,11 +2230,7 @@ void LLWindowWin32::gatherInput()
 static LLTrace::BlockTimerStatHandle FTM_KEYHANDLER("Handle Keyboard");
 static LLTrace::BlockTimerStatHandle FTM_MOUSEHANDLER("Handle Mouse");
 
-#if LL_WINDOW_SINGLE_THREADED
-#define WINDOW_IMP_POST(x) x
-#else
 #define WINDOW_IMP_POST(x) window_imp->post([=]() { x; })
-#endif
 
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
@@ -2277,10 +2265,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         // Juggle to make sure we can get negative positions for when
         // mouse is outside window.
         LLCoordWindow window_coord((S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param));
-
-        // This doesn't work, as LOWORD returns unsigned short.
-        //LLCoordWindow window_coord(LOWORD(l_param), HIWORD(l_param));
-        LLCoordGL gl_coord;
 
         // pass along extended flag in mask
         MASK mask = (l_param >> 16 & KF_EXTENDED) ? MASK_EXTENDED : 0x0;
@@ -2665,35 +2649,19 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                window_imp->post([=]()
+                window_imp->postMouseButtonEvent([=]()
                     {
-                        auto glc = gl_coord;
                         sHandleLeftMouseUp = true;
-
+                        
                         if (LLWinImm::isAvailable() && window_imp->mPreeditor)
                         {
                             window_imp->interruptLanguageTextInput();
                         }
-
-                        // Because we move the cursor position in the app, we need to query
-                        // to find out where the cursor at the time the event is handled.
-                        // If we don't do this, many clicks could get buffered up, and if the
-                        // first click changes the cursor position, all subsequent clicks
-                        // will occur at the wrong location.  JC
-                        if (window_imp->mMousePositionModified)
-                        {
-                            LLCoordWindow cursor_coord_window;
-                            window_imp->getCursorPosition(&cursor_coord_window);
-                            glc = cursor_coord_window.convert();
-                        }
-                        else
-                        {
-                            glc = window_coord.convert();
-                        }
+                        
                         MASK mask = gKeyboard->currentMask(TRUE);
-                        // generate move event to update mouse coordinates
-                        window_imp->mCallbacks->handleMouseMove(window_imp, glc, mask);
-                        window_imp->mCallbacks->handleMouseDown(window_imp, glc, mask);
+                        auto gl_coord = window_imp->mCursorPosition.convert();
+                        window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
+                        window_imp->mCallbacks->handleMouseDown(window_imp, gl_coord, mask);
                     });
 
                 return 0;
@@ -2704,77 +2672,43 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_LBUTTONDBLCLK:
         {
             LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONDBLCLK");
-            //RN: ignore right button double clicks for now
-            //case WM_RBUTTONDBLCLK:
-            if (!sHandleDoubleClick)
-            {
-                sHandleDoubleClick = true;
-                return 0;
-            }
-
-            // Because we move the cursor position in the app, we need to query
-            // to find out where the cursor at the time the event is handled.
-            // If we don't do this, many clicks could get buffered up, and if the
-            // first click changes the cursor position, all subsequent clicks
-            // will occur at the wrong location.  JC
-            if (window_imp->mMousePositionModified)
-            {
-                LLCoordWindow cursor_coord_window;
-                window_imp->getCursorPosition(&cursor_coord_window);
-                gl_coord = cursor_coord_window.convert();
-            }
-            else
-            {
-                gl_coord = window_coord.convert();
-            }
-            MASK mask = gKeyboard->currentMask(TRUE);
-            // generate move event to update mouse coordinates
-            window_imp->post([=]()
+            window_imp->postMouseButtonEvent([=]()
                 {
-                    window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                    window_imp->mCallbacks->handleDoubleClick(window_imp, gl_coord, mask);
+                    //RN: ignore right button double clicks for now
+                    //case WM_RBUTTONDBLCLK:
+                    if (!sHandleDoubleClick)
+                    {
+                        sHandleDoubleClick = true;
+                        return;
+                    }
+                    MASK mask = gKeyboard->currentMask(TRUE);
+
+                    // generate move event to update mouse coordinates
+                    window_imp->mCursorPosition = window_coord;
+                    window_imp->mCallbacks->handleDoubleClick(window_imp, window_imp->mCursorPosition.convert(), mask);
                 });
+
             return 0;
         }
         case WM_LBUTTONUP:
         {
             LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONUP");
             {
-                LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-
-                if (!sHandleLeftMouseUp)
-                {
-                    sHandleLeftMouseUp = true;
-                    return 0;
-                }
-                sHandleDoubleClick = true;
-                window_imp->post([=]()
+                window_imp->postMouseButtonEvent([=]()
                     {
-                        auto glc = gl_coord;
+                        LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+                        if (!sHandleLeftMouseUp)
+                        {
+                            sHandleLeftMouseUp = true;
+                            return;
+                        }
+                        sHandleDoubleClick = true;
 
-                        //if (gDebugClicks)
-                        //{
-                        //	LL_INFOS("Window") << "WndProc left button up" << LL_ENDL;
-                        //}
-                        // Because we move the cursor position in the app, we need to query
-                        // to find out where the cursor at the time the event is handled.
-                        // If we don't do this, many clicks could get buffered up, and if the
-                        // first click changes the cursor position, all subsequent clicks
-                        // will occur at the wrong location.  JC
-                        if (window_imp->mMousePositionModified)
-                        {
-                            LLCoordWindow cursor_coord_window;
-                            window_imp->getCursorPosition(&cursor_coord_window);
-                            glc = cursor_coord_window.convert();
-                        }
-                        else
-                        {
-                            glc = window_coord.convert();
-                        }
+                        
                         MASK mask = gKeyboard->currentMask(TRUE);
                         // generate move event to update mouse coordinates
-                        window_imp->mCallbacks->handleMouseMove(window_imp, glc, mask);
-                        window_imp->mCallbacks->handleMouseUp(window_imp, glc, mask);
+                        window_imp->mCursorPosition = window_coord;
+                        window_imp->mCallbacks->handleMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
                     });
             }
             return 0;
@@ -2785,30 +2719,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED("mwp - WM_RBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                if (LLWinImm::isAvailable() && window_imp->mPreeditor)
-                {
-                    WINDOW_IMP_POST(window_imp->interruptLanguageTextInput());
-                }
-
-                // Because we move the cursor position in the llviewerapp, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
-                {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
                 window_imp->post([=]()
                     {
+                        if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+                        {
+                            WINDOW_IMP_POST(window_imp->interruptLanguageTextInput());
+                        }
+
+                        MASK mask = gKeyboard->currentMask(TRUE);
+                        // generate move event to update mouse coordinates
+                        auto gl_coord = window_imp->mCursorPosition.convert();
                         window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
                         window_imp->mCallbacks->handleRightMouseDown(window_imp, gl_coord, mask);
                     });
@@ -2822,28 +2742,11 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED("mwp - WM_RBUTTONUP");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                // Because we move the cursor position in the app, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
-                {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
-                window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                if (window_imp->mCallbacks->handleRightMouseUp(window_imp, gl_coord, mask))
-                {
-                    return 0;
-                }
+                window_imp->postMouseButtonEvent([=]()
+                    {
+                        MASK mask = gKeyboard->currentMask(TRUE);
+                        window_imp->mCallbacks->handleRightMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
+                    });
             }
         }
         break;
@@ -2854,33 +2757,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED("mwp - WM_MBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                if (LLWinImm::isAvailable() && window_imp->mPreeditor)
-                {
-                    window_imp->interruptLanguageTextInput();
-                }
+                window_imp->postMouseButtonEvent([=]()
+                    {
+                        if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+                        {
+                            window_imp->interruptLanguageTextInput();
+                        }
 
-                // Because we move the cursor position in tllviewerhe app, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
-                {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
-                window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                if (window_imp->mCallbacks->handleMiddleMouseDown(window_imp, gl_coord, mask))
-                {
-                    return 0;
-                }
+                        MASK mask = gKeyboard->currentMask(TRUE);
+                        window_imp->mCallbacks->handleMiddleMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask);
+                    });
             }
         }
         break;
@@ -2890,99 +2776,47 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED("mwp - WM_MBUTTONUP");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                // Because we move the cursor position in the llviewer app, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
-                {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
-                window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                if (window_imp->mCallbacks->handleMiddleMouseUp(window_imp, gl_coord, mask))
-                {
-                    return 0;
-                }
+                window_imp->postMouseButtonEvent([=]()
+                    {
+                        MASK mask = gKeyboard->currentMask(TRUE);
+                        window_imp->mCallbacks->handleMiddleMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask);
+                    });
             }
         }
         break;
         case WM_XBUTTONDOWN:
         {
             LL_PROFILE_ZONE_NAMED("mwp - WM_XBUTTONDOWN");
-            {
-                LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                S32 button = GET_XBUTTON_WPARAM(w_param);
-                if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+            window_imp->postMouseButtonEvent([=]()
                 {
-                    window_imp->interruptLanguageTextInput();
-                }
+                    LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+                    S32 button = GET_XBUTTON_WPARAM(w_param);
+                    if (LLWinImm::isAvailable() && window_imp->mPreeditor)
+                    {
+                        window_imp->interruptLanguageTextInput();
+                    }
 
-                // Because we move the cursor position in tllviewerhe app, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
-                {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
-                window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
-                if (window_imp->mCallbacks->handleOtherMouseDown(window_imp, gl_coord, mask, button + 3))
-                {
-                    return 0;
-                }
-            }
+                    MASK mask = gKeyboard->currentMask(TRUE);
+                    // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+                    window_imp->mCallbacks->handleOtherMouseDown(window_imp, window_imp->mCursorPosition.convert(), mask, button + 3);
+                });
+            
         }
         break;
 
         case WM_XBUTTONUP:
         {
             LL_PROFILE_ZONE_NAMED("mwp - WM_XBUTTONUP");
-            {
-                LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
-                S32 button = GET_XBUTTON_WPARAM(w_param);
-                // Because we move the cursor position in the llviewer app, we need to query
-                // to find out where the cursor at the time the event is handled.
-                // If we don't do this, many clicks could get buffered up, and if the
-                // first click changes the cursor position, all subsequent clicks
-                // will occur at the wrong location.  JC
-                if (window_imp->mMousePositionModified)
+            window_imp->postMouseButtonEvent([=]()
                 {
-                    LLCoordWindow cursor_coord_window;
-                    window_imp->getCursorPosition(&cursor_coord_window);
-                    gl_coord = cursor_coord_window.convert();
-                }
-                else
-                {
-                    gl_coord = window_coord.convert();
-                }
-                MASK mask = gKeyboard->currentMask(TRUE);
-                // generate move event to update mouse coordinates
-                window_imp->mCallbacks->handleMouseMove(window_imp, gl_coord, mask);
-                // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
-                if (window_imp->mCallbacks->handleOtherMouseUp(window_imp, gl_coord, mask, button + 3))
-                {
-                    return 0;
-                }
-            }
+
+                    LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
+
+                    S32 button = GET_XBUTTON_WPARAM(w_param);
+                    MASK mask = gKeyboard->currentMask(TRUE);
+                    // Windows uses numbers 1 and 2 for buttons, remap to 4, 5
+                    window_imp->mCallbacks->handleOtherMouseUp(window_imp, window_imp->mCursorPosition.convert(), mask, button + 3);
+                });
         }
         break;
 
@@ -3022,7 +2856,8 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             // large deltas, like 480 or so.  Thus we need to scroll more quickly.
             if (z_delta <= -WHEEL_DELTA || WHEEL_DELTA <= z_delta)
             {
-                window_imp->mCallbacks->handleScrollWheel(window_imp, -z_delta / WHEEL_DELTA);
+                short clicks = -z_delta / WHEEL_DELTA;
+                WINDOW_IMP_POST(window_imp->mCallbacks->handleScrollWheel(window_imp, clicks));
                 z_delta = 0;
             }
             return 0;
@@ -3082,11 +2917,16 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_MOUSEMOVE:
         {
             LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEMOVE");
-            if (!window_imp->mMousePositionModified)
-            {
-                MASK mask = gKeyboard->currentMask(TRUE);
-                WINDOW_IMP_POST(window_imp->mCallbacks->handleMouseMove(window_imp, window_coord.convert(), mask));
-            }
+            // DO NOT use mouse event queue for move events to ensure cursor position is updated 
+            // when button events are handled
+            WINDOW_IMP_POST(
+                {
+                    LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEMOVE lambda");
+
+                    MASK mask = gKeyboard->currentMask(TRUE);
+                    window_imp->mMouseMask = mask;
+                    window_imp->mCursorPosition = window_coord;
+                });
             return 0;
         }
 
@@ -3235,6 +3075,28 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         break;
         
+        case WM_INPUT:
+        {
+            LL_PROFILE_ZONE_NAMED("MWP - WM_INPUT");
+            
+            UINT dwSize = 0;
+            GetRawInputData((HRAWINPUT)l_param, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+            llassert(dwSize < 1024);
+
+            U8 lpb[1024];
+            
+            if (GetRawInputData((HRAWINPUT)l_param, RID_INPUT, (void*)lpb, &dwSize, sizeof(RAWINPUTHEADER)) == dwSize)
+            {
+                RAWINPUT* raw = (RAWINPUT*)lpb;
+
+                if (raw->header.dwType == RIM_TYPEMOUSE)
+                {
+                    LLMutexLock lock(&window_imp->mRawMouseMutex);
+                    window_imp->mRawMouseDelta.mX += raw->data.mouse.lLastX;
+                    window_imp->mRawMouseDelta.mY -= raw->data.mouse.lLastY;
+                }
+            }
+        }
         //list of messages we get often that we don't care to log about
         case WM_NCHITTEST:
         case WM_NCMOUSEMOVE:
@@ -4740,18 +4602,16 @@ inline void LLWindowWin32Thread::run()
 
 void LLWindowWin32Thread::post(const std::function<void()>& func)
 {
-#if LL_WINDOW_SINGLE_THREADED
-    func();
-#else
     mFunctionQueue.pushFront(func);
-#endif
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
 {
-#if LL_WINDOW_SINGLE_THREADED
-    func();
-#else
     mFunctionQueue.pushFront(func);
-#endif
 }
+
+void LLWindowWin32::postMouseButtonEvent(const std::function<void()>& func)
+{
+    mMouseQueue.pushFront(func);
+}
+

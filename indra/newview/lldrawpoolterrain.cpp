@@ -343,8 +343,6 @@ void LLDrawPoolTerrain::renderFullShader()
 
     LLSettingsWater::ptr_t pwater = LLEnvironment::instance().getCurrentWater();
 
-    ((LLSettingsVOWater*)pwater.get())->updateShader(shader);
-
 	//
 	// detail texture 1
 	//
