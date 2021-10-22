@@ -642,8 +642,8 @@ void LLVOSky::createSkyTexture(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars
 	{
 		for (x = tile_x_pos; x < (tile_x_pos + sTileResX); ++x)
 		{
-			mSkyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mSkyTex[side].getDir(x, y), false), x, y);
-			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mShinyTex[side].getDir(x, y), true), x, y);
+			mSkyTex  [side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mSkyTex  [side].getDir(x, y), false), x, y);
+			mShinyTex[side].setPixel(m_legacyAtmospherics.calcSkyColorInDir(psky, vars, mShinyTex[side].getDir(x, y), true ), x, y);
 		}
 	}
 }
@@ -676,11 +676,6 @@ bool LLVOSky::updateSky()
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
 	if (mDead || !(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY)))
-	{
-		return TRUE;
-	}
-
-	if (mDead)
 	{
 		// It's dead.  Don't update it.
 		return TRUE;
