@@ -91,6 +91,9 @@ public:
 
     virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
+#if LL_WINDOWS
+    virtual BOOL getCursorDelta(LLCoordCommon* delta) = 0;
+#endif
 	virtual void showCursor() = 0;
 	virtual void hideCursor() = 0;
 	virtual BOOL isCursorHidden() = 0;

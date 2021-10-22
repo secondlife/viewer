@@ -35,6 +35,7 @@
 #include "lldragdropwin32.h"
 #include "llthread.h"
 #include "llthreadsafequeue.h"
+#include "llmutex.h"
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
@@ -98,6 +99,7 @@ public:
     void destroySharedContext(void* context) override;
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
+    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta);
 	/*virtual*/ void showCursor();
 	/*virtual*/ void hideCursor();
 	/*virtual*/ void showCursorFromMouseMove();
@@ -221,6 +223,14 @@ protected:
 	F32			mNativeAspectRatio;
 
 	HCURSOR		mCursor[ UI_CURSOR_COUNT ];  // Array of all mouse cursors
+    LLCoordWindow mCursorPosition;  // mouse cursor position, should only be mutated on main thread
+    LLMutex mRawMouseMutex;
+    RAWINPUTDEVICE mRawMouse;
+    LLCoordWindow mLastCursorPosition; // mouse cursor position from previous frame
+    LLCoordCommon mRawMouseDelta; // raw mouse delta according to window thread
+    LLCoordCommon mMouseFrameDelta; // how much the mouse moved between the last two calls to gatherInput
+
+    MASK        mMouseMask;
 
 	static BOOL sIsClassRegistered; // has the window class been registered?
 
@@ -231,7 +241,6 @@ protected:
 	BOOL		mCustomGammaSet;
 
 	LPWSTR		mIconResource;
-	BOOL		mMousePositionModified;
 	BOOL		mInputProcessingPaused;
 
 	// The following variables are for Language Text Input control.
@@ -261,7 +270,9 @@ protected:
 
     LLWindowWin32Thread* mWindowThread = nullptr;
     LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+    LLThreadSafeQueue<std::function<void()>> mMouseQueue;
     void post(const std::function<void()>& func);
+    void postMouseButtonEvent(const std::function<void()>& func);
 
 	friend class LLWindowManager;
     friend class LLWindowWin32Thread;
