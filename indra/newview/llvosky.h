@@ -219,6 +219,7 @@ public:
 	void restoreGL();
 
     void calc();
+    void cacheEnvironment(LLSettingsSky::ptr_t psky, AtmosphericsVars& atmosphericsVars);
 
 	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
 	bool updateSky();
