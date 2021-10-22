@@ -59,6 +59,11 @@ namespace LL
          */
         void close();
 
+        /// producer end: are we prevented from pushing any additional items?
+        bool isClosed();
+        /// consumer end: are we done, is the queue entirely drained?
+        bool done();
+
         /*---------------------- fire and forget API -----------------------*/
 
         /// fire-and-forget, but at a particular (future?) time

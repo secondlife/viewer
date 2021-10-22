@@ -239,7 +239,6 @@ using namespace LL;
 // Include for security api initialization
 #include "llsecapi.h"
 #include "llmachineid.h"
-#include "llmainlooprepeater.h"
 #include "llcleanup.h"
 
 #include "llcoproceduremanager.h"
@@ -384,42 +383,6 @@ static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
-
-//-- LLDeferredTaskList ------------------------------------------------------
-
-/**
- * A list of deferred tasks.
- *
- * We sometimes need to defer execution of some code until the viewer gets idle,
- * e.g. removing an inventory item from within notifyObservers() may not work out.
- *
- * Tasks added to this list will be executed in the next LLAppViewer::idle() iteration.
- * All tasks are executed only once.
- */
-class LLDeferredTaskList: public LLSingleton<LLDeferredTaskList>
-{
-	LLSINGLETON_EMPTY_CTOR(LLDeferredTaskList);
-	LOG_CLASS(LLDeferredTaskList);
-
-	friend class LLAppViewer;
-	typedef boost::signals2::signal<void()> signal_t;
-
-	void addTask(const signal_t::slot_type& cb)
-	{
-		mSignal.connect(cb);
-	}
-
-	void run()
-	{
-		if (!mSignal.empty())
-		{
-			mSignal();
-			mSignal.disconnect_all_slots();
-		}
-	}
-
-	signal_t mSignal;
-};
 
 //----------------------------------------------------------------------------
 
@@ -979,9 +942,6 @@ bool LLAppViewer::init()
 		return 0;
 	}
 	LL_INFOS("InitInfo") << "Cache initialization is done." << LL_ENDL ;
-
-	// Initialize the repeater service.
-	LLMainLoopRepeater::instance().start();
 
 	//
 	// Initialize the window
@@ -2170,8 +2130,6 @@ bool LLAppViewer::cleanup()
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
-
-	LLMainLoopRepeater::instance().stop();
 
 	ll_close_fail_log();
 
@@ -4437,7 +4395,7 @@ bool LLAppViewer::initCache()
 
 void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 {
-	LLDeferredTaskList::instance().addTask(cb);
+	gMainloopWork.post(cb);
 }
 
 void LLAppViewer::loadKeyBindings()
@@ -5210,9 +5168,6 @@ void LLAppViewer::idle()
 			gAudiop->idle(max_audio_decode_time);
 		}
 	}
-
-	// Execute deferred tasks.
-	LLDeferredTaskList::instance().run();
 
 	// Service the WorkQueue we use for replies from worker threads.
 	// Use function statics for the timeslice setting so we only have to fetch

@@ -38,6 +38,16 @@ void LL::WorkQueue::close()
     mQueue.close();
 }
 
+bool LL::WorkQueue::isClosed()
+{
+    return mQueue.isClosed();
+}
+
+bool LL::WorkQueue::done()
+{
+    return mQueue.done();
+}
+
 void LL::WorkQueue::runUntilClose()
 {
     try
