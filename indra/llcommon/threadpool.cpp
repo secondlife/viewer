@@ -27,7 +27,7 @@ LL::ThreadPool::ThreadPool(const std::string& name, size_t threads):
 {
     for (size_t i = 0; i < threads; ++i)
     {
-        std::string tname{ STRINGIZE(mName << ':' << (i+i) << '/' << threads) };
+        std::string tname{ STRINGIZE(mName << ':' << (i+1) << '/' << threads) };
         mThreads.emplace_back(tname, [this, tname](){ run(tname); });
     }
     // Listen on "LLApp", and when the app is shutting down, close the queue
