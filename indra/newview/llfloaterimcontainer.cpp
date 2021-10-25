@@ -724,11 +724,6 @@ void LLFloaterIMContainer::setMinimized(BOOL b)
 
 void LLFloaterIMContainer::setVisible(BOOL visible)
 {
-    if (LLFloater::isQuitRequested())
-    {
-        return;
-    }
-
     LLFloaterIMNearbyChat* nearby_chat;
 	if (visible)
 	{
@@ -764,22 +759,25 @@ void LLFloaterIMContainer::setVisible(BOOL visible)
 		LLFloaterIMSessionTab::addToHost(LLUUID());
 	}
 
-	// We need to show/hide all the associated conversations that have been torn off
-	// (and therefore, are not longer managed by the multifloater),
-	// so that they show/hide with the conversations manager.
-	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
-	for (;widget_it != mConversationsWidgets.end(); ++widget_it)
-	{
-		LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
-		if (widget)
-		{
-			LLFloater* session_floater = widget->getSessionFloater();
-			if (session_floater != nearby_chat)
-			{
-		    widget->setVisibleIfDetached(visible);
-		}
-	}
-	}
+    if (!LLFloater::isQuitRequested())
+    {
+        // We need to show/hide all the associated conversations that have been torn off
+        // (and therefore, are not longer managed by the multifloater),
+        // so that they show/hide with the conversations manager.
+        conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
+        for (; widget_it != mConversationsWidgets.end(); ++widget_it)
+        {
+            LLConversationViewSession* widget = dynamic_cast<LLConversationViewSession*>(widget_it->second);
+            if (widget)
+            {
+                LLFloater* session_floater = widget->getSessionFloater();
+                if (session_floater != nearby_chat)
+                {
+                    widget->setVisibleIfDetached(visible);
+                }
+            }
+        }
+    }
 	
 	// Now, do the normal multifloater show/hide
 	LLMultiFloater::setVisible(visible);
