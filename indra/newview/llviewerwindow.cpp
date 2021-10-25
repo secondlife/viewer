@@ -1516,8 +1516,15 @@ BOOL LLViewerWindow::handleCloseRequest(LLWindow *window)
 
 void LLViewerWindow::handleQuit(LLWindow *window)
 {
-	LL_INFOS() << "Window forced quit" << LL_ENDL;
-	LLAppViewer::instance()->forceQuit();
+	if (gNonInteractive)
+	{
+		LLAppViewer::instance()->requestQuit();
+	}
+	else
+	{
+		LL_INFOS() << "Window forced quit" << LL_ENDL;
+		LLAppViewer::instance()->forceQuit();
+	}
 }
 
 void LLViewerWindow::handleResize(LLWindow *window,  S32 width,  S32 height)
@@ -2189,6 +2196,14 @@ void LLViewerWindow::initBase()
 
 void LLViewerWindow::initWorldUI()
 {
+	if (gNonInteractive)
+	{
+		gIMMgr = LLIMMgr::getInstance();
+		LLNavigationBar::getInstance();
+		gFloaterView->pushVisibleAll(FALSE);
+		return;
+	}
+	
 	S32 height = mRootView->getRect().getHeight();
 	S32 width = mRootView->getRect().getWidth();
 	LLRect full_window(0, height, width, 0);
@@ -2199,12 +2214,15 @@ void LLViewerWindow::initWorldUI()
 	//getRootView()->sendChildToFront(gFloaterView);
 	//getRootView()->sendChildToFront(gSnapshotFloaterView);
 
-	LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
-	LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
-	chiclet_bar->setShape(chiclet_container->getLocalRect());
-	chiclet_bar->setFollowsAll();
-	chiclet_container->addChild(chiclet_bar);
-	chiclet_container->setVisible(TRUE);
+	if (!gNonInteractive)
+	{
+		LLPanel* chiclet_container = getRootView()->getChild<LLPanel>("chiclet_container");
+		LLChicletBar* chiclet_bar = LLChicletBar::getInstance();
+		chiclet_bar->setShape(chiclet_container->getLocalRect());
+		chiclet_bar->setFollowsAll();
+		chiclet_container->addChild(chiclet_bar);
+		chiclet_container->setVisible(TRUE);
+	}
 
 	LLRect morph_view_rect = full_window;
 	morph_view_rect.stretch( -STATUS_BAR_HEIGHT );
@@ -2293,21 +2311,24 @@ void LLViewerWindow::initWorldUI()
 		gToolBarView->setVisible(TRUE);
 	}
 
-	LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
-	if (destinations)
+	if (!gNonInteractive)
 	{
-		destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		std::string url = gSavedSettings.getString("DestinationGuideURL");
-		url = LLWeb::expandURLSubstitutions(url, LLSD());
-		destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
-	}
-	LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
-	if (avatar_picker)
-	{
-		avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
-		std::string url = gSavedSettings.getString("AvatarPickerURL");
-		url = LLWeb::expandURLSubstitutions(url, LLSD());
-		avatar_picker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		LLMediaCtrl* destinations = LLFloaterReg::getInstance("destinations")->getChild<LLMediaCtrl>("destination_guide_contents");
+		if (destinations)
+		{
+			destinations->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+			std::string url = gSavedSettings.getString("DestinationGuideURL");
+			url = LLWeb::expandURLSubstitutions(url, LLSD());
+			destinations->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		}
+		LLMediaCtrl* avatar_picker = LLFloaterReg::getInstance("avatar")->findChild<LLMediaCtrl>("avatar_picker_contents");
+		if (avatar_picker)
+		{
+			avatar_picker->setErrorPageURL(gSavedSettings.getString("GenericErrorPageURL"));
+			std::string url = gSavedSettings.getString("AvatarPickerURL");
+			url = LLWeb::expandURLSubstitutions(url, LLSD());
+			avatar_picker->navigateTo(url, HTTP_CONTENT_TEXT_HTML);
+		}
 	}
 }
 
@@ -2551,7 +2572,7 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 			mWindow->setMinSize(min_window_width, min_window_height);
 
 			LLCoordScreen window_rect;
-			if (mWindow->getSize(&window_rect))
+			if (!gNonInteractive && mWindow->getSize(&window_rect))
 			{
 			// Only save size if not maximized
 				gSavedSettings.setU32("WindowWidth", window_rect.mX);

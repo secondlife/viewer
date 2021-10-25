@@ -94,6 +94,7 @@ public:
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
 	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
+    /*virtual*/ void setTitle(const std::string title);
     void* createSharedContext() override;
     void makeContextCurrent(void* context) override;
     void destroySharedContext(void* context) override;

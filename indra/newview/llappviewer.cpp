@@ -1555,6 +1555,14 @@ bool LLAppViewer::doFrame()
 				ms_sleep(yield_time);
 			}
 
+			if (gNonInteractive)
+			{
+				S32 non_interactive_ms_sleep_time = 100;
+				LLAppViewer::getTextureCache()->pause();
+				LLAppViewer::getImageDecodeThread()->pause();
+				ms_sleep(non_interactive_ms_sleep_time);
+			}
+
 			// yield cooperatively when not running as foreground window
 			// and when not quiting (causes trouble at mac's cleanup stage)
 			if (!LLApp::isExiting()
@@ -1562,8 +1570,8 @@ bool LLAppViewer::doFrame()
 					|| !gFocusMgr.getAppHasFocus()))
 			{
 				// Sleep if we're not rendering, or the window is minimized.
-				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
-				S32 milliseconds_to_sleep = llclamp((S32)s_bacground_yeild_time, 0, 1000);
+				static LLCachedControl<S32> s_background_yield_time(gSavedSettings, "BackgroundYieldTime", 40);
+				S32 milliseconds_to_sleep = llclamp((S32)s_background_yield_time, 0, 1000);
 				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
 				// of equal priority on Windows
 				if (milliseconds_to_sleep > 0)
@@ -2440,6 +2448,38 @@ namespace
     }
 } // anonymous namespace
 
+// Set a named control temporarily for this session, as when set via the command line --set option.
+// Name can be specified as "<control_group>.<control_name>", with default group being Global.
+bool tempSetControl(const std::string& name, const std::string& value)
+{
+	std::string name_part;
+	std::string group_part;
+	LLControlVariable* control = NULL;
+
+	// Name can be further split into ControlGroup.Name, with the default control group being Global
+	size_t pos = name.find('.');
+	if (pos != std::string::npos)
+	{
+		group_part = name.substr(0, pos);
+		name_part = name.substr(pos+1);
+		LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
+		auto g = LLControlGroup::getInstance(group_part);
+		if (g) control = g->getControl(name_part);
+	}
+	else
+	{
+		LL_INFOS() << "Setting Global." << name << " to " << value << LL_ENDL;
+		control = gSavedSettings.getControl(name);
+	}
+
+	if (control)
+	{
+		control->setValue(value, false);
+		return true;
+	}
+	return false;
+}
+
 bool LLAppViewer::initConfiguration()
 {
 	//Load settings files list
@@ -2596,9 +2636,10 @@ bool LLAppViewer::initConfiguration()
 		disableCrashlogger();
 	}
 
+	gNonInteractive = gSavedSettings.getBOOL("NonInteractive");
 	// Handle initialization from settings.
 	// Start up the debugging console before handling other options.
-	if (gSavedSettings.getBOOL("ShowConsoleWindow"))
+	if (gSavedSettings.getBOOL("ShowConsoleWindow") && !gNonInteractive)
 	{
 		initConsole();
 	}
@@ -2631,33 +2672,9 @@ bool LLAppViewer::initConfiguration()
             {
                 const std::string& name = *itr;
                 const std::string& value = *(++itr);
-                std::string name_part;
-                std::string group_part;
-				LLControlVariable* control = NULL;
-
-				// Name can be further split into ControlGroup.Name, with the default control group being Global
-				size_t pos = name.find('.');
-				if (pos != std::string::npos)
-				{
-					group_part = name.substr(0, pos);
-					name_part = name.substr(pos+1);
-					LL_INFOS() << "Setting " << group_part << "." << name_part << " to " << value << LL_ENDL;
-					auto g = LLControlGroup::getInstance(group_part);
-					if (g) control = g->getControl(name_part);
-				}
-				else
-				{
-					LL_INFOS() << "Setting Global." << name << " to " << value << LL_ENDL;
-					control = gSavedSettings.getControl(name);
-				}
-
-                if (control)
+                if (!tempSetControl(name,value))
                 {
-                    control->setValue(value, false);
-                }
-                else
-                {
-					LL_WARNS() << "Failed --set " << name << ": setting name unknown." << LL_ENDL;
+                    LL_WARNS() << "Failed --set " << name << ": setting name unknown." << LL_ENDL;
                 }
             }
         }
@@ -2742,6 +2759,19 @@ bool LLAppViewer::initConfiguration()
 			LLSpellChecker::instance().setSecondaryDictionaries(dict_list);
 		}
 	}
+
+	if (gNonInteractive)
+	{
+		tempSetControl("AllowMultipleViewers", "TRUE");
+		tempSetControl("SLURLPassToOtherInstance", "FALSE");
+		tempSetControl("RenderWater", "FALSE");
+		tempSetControl("FlyingAtExit", "FALSE");
+		tempSetControl("WindowWidth", "1024");
+		tempSetControl("WindowHeight", "200");
+		LLError::setEnabledLogTypesMask(0);
+		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
+	}
+
 
 	// Handle slurl use. NOTE: Don't let SL-55321 reappear.
 	// This initial-SLURL logic, up through the call to

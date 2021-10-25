@@ -217,6 +217,14 @@
       <string>NoInventoryLibrary</string>
     </map>
 
+    <key>noninteractive</key>
+    <map>
+      <key>desc</key>
+      <string>Run in semi-headless mode where only login and logout need to work.</string>
+      <key>map-to</key>
+      <string>NonInteractive</string>
+    </map>
+
     <key>nonotifications</key>
     <map>
       <key>desc</key>

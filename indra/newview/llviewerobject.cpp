@@ -107,6 +107,7 @@
 #include "llcleanup.h"
 #include "llcallstack.h"
 #include "llmeshrepository.h"
+#include "llgl.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -155,11 +156,27 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
     
 	LLViewerObject *res = NULL;
 	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
-	
+
+	if (gNonInteractive
+		&& pcode != LL_PCODE_LEGACY_AVATAR
+		&& pcode != LL_VO_SURFACE_PATCH
+		&& pcode != LL_VO_WATER
+		&& pcode != LL_VO_VOID_WATER
+		&& pcode != LL_VO_WL_SKY
+		&& pcode != LL_VO_SKY
+		&& pcode != LL_VO_GROUND
+		&& pcode != LL_VO_PART_GROUP
+		)
+	{
+		return res;
+	}
 	switch (pcode)
 	{
 	case LL_PCODE_VOLUME:
-	  res = new LLVOVolume(id, pcode, regionp); break;
+	{
+		res = new LLVOVolume(id, pcode, regionp); break;
+		break;
+	}
 	case LL_PCODE_LEGACY_AVATAR:
 	{
 		if (id == gAgentID)

@@ -485,6 +485,10 @@ void LLPipeline::init()
 	{
 		clearAllRenderTypes();
 	}
+	else if (gNonInteractive)
+	{
+		clearAllRenderTypes();
+	}
 	else
 	{
 		setAllRenderTypes(); // By default, all rendering types start enabled
@@ -1151,6 +1155,12 @@ void LLPipeline::refreshCachedSettings()
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
 	RenderSpotLight = nullptr;
 	updateRenderDeferred();
+
+	if (gNonInteractive)
+	{
+		LLVOAvatar::sMaxNonImpostors = 1;
+		LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
+	}
 }
 
 void LLPipeline::releaseGLBuffers()
@@ -3997,7 +4007,10 @@ void LLPipeline::postSort(LLCamera& camera)
 	{
 		mSelectedFaces.clear();
 
-		LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
+		if (!gNonInteractive)
+		{
+			LLPipeline::setRenderHighlightTextureChannel(gFloaterTools->getPanelFace()->getTextureChannelToEdit());
+		}
 
 		// Draw face highlights for selected faces.
 		if (LLSelectMgr::getInstance()->getTEMode())

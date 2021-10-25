@@ -100,6 +100,13 @@ public:
 	virtual void showCursorFromMouseMove() = 0;
 	virtual void hideCursorUntilMouseMove() = 0;
 
+    // Provide a way to set the Viewer window title after the
+    // windows has been created. The initial use case for this
+    // is described in SL-16102 (update window title with agent 
+    // name, location etc. for non-interactive viewer) but it
+    // may also be useful in other cases.
+    virtual void setTitle(const std::string title);
+
 	// These two functions create a way to make a busy cursor instead
 	// of an arrow when someone's busy doing something. Draw an
 	// arrow/hour if busycount > 0.

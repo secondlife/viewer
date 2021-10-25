@@ -1925,6 +1925,13 @@ void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScre
 	MoveWindow(mWindowHandle, position.mX, position.mY, size.mX, size.mY, TRUE);
 }
 
+void LLWindowWin32::setTitle(const std::string title)
+{
+    // TODO: Do we need to use the wide string version of this call
+    // to support non-ascii usernames (and region names?)
+    SetWindowTextA(mWindowHandle, title.c_str());
+}
+
 BOOL LLWindowWin32::setCursorPosition(const LLCoordWindow position)
 {
     ASSERT_MAIN_THREAD();

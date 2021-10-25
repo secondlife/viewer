@@ -2423,6 +2423,10 @@ void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string
 
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
+	if (gNonInteractive)
+	{
+		return;
+	}
 	LLChat	chat;
 	std::string		mesg;
 	std::string		from_name;
