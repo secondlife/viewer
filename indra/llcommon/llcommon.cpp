@@ -33,11 +33,22 @@
 #include "lltracethreadrecorder.h"
 #include "llcleanup.h"
 
+thread_local bool gProfilerEnabled = false;
+
 #if (TRACY_ENABLE)
 // Override new/delete for tracy memory profiling
 void *operator new(size_t size)
 {
-    auto ptr = (malloc) (size);
+    void* ptr;
+    if (gProfilerEnabled)
+    {
+        LL_PROFILE_ZONE_SCOPED;
+        ptr = (malloc)(size);
+    }
+    else
+    {
+        ptr = (malloc)(size);
+    }
     if (!ptr)
     {
         throw std::bad_alloc();
@@ -49,7 +60,16 @@ void *operator new(size_t size)
 void operator delete(void *ptr) noexcept
 {
     TracyFree(ptr);
-    (free)(ptr);
+
+    if (gProfilerEnabled)
+    {
+        LL_PROFILE_ZONE_SCOPED;
+        (free)(ptr);
+    }
+    else
+    {
+        (free)(ptr);
+    }
 }
 
 // C-style malloc/free can't be so easily overridden, so we define tracy versions and use

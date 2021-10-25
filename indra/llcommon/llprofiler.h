@@ -36,6 +36,8 @@
 #define LL_PROFILER_CONFIGURATION           LL_PROFILER_CONFIG_FAST_TIMER
 #endif
 
+extern thread_local bool gProfilerEnabled;
+
 #if defined(LL_PROFILER_CONFIGURATION) && (LL_PROFILER_CONFIGURATION > LL_PROFILER_CONFIG_NONE)
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #define TRACY_ENABLE         1
@@ -52,7 +54,7 @@
 
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY
         #define LL_PROFILER_FRAME_END                   FrameMark
-        #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name )
+        #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name );    gProfilerEnabled = true;
         #define LL_RECORD_BLOCK_TIME(name)              ZoneScoped // Want descriptive names; was: ZoneNamedN( ___tracy_scoped_zone, #name, true );
         #define LL_PROFILE_ZONE_NAMED(name)             ZoneNamedN( ___tracy_scoped_zone, name, true );
         #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) ZoneNamedNC( ___tracy_scopped_zone, name, color, true ) // RGB
@@ -82,7 +84,7 @@
     #endif
     #if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
         #define LL_PROFILER_FRAME_END                   FrameMark
-        #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name )
+        #define LL_PROFILER_SET_THREAD_NAME( name )     tracy::SetThreadName( name );    gProfilerEnabled = true;
         #define LL_RECORD_BLOCK_TIME(name)              ZoneScoped                                          const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(name)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
         #define LL_PROFILE_ZONE_NAMED(name)             ZoneNamedN( ___tracy_scoped_zone, #name, true );
         #define LL_PROFILE_ZONE_NAMED_COLOR(name,color) ZoneNamedNC( ___tracy_scopped_zone, name, color, true ) // RGB
