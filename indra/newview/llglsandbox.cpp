@@ -1090,7 +1090,7 @@ F32 gpu_benchmark()
     delete [] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STREAM_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STREAM_DRAW_ARB);
 
 	if (!buff->allocateBuffer(3, 0, true))
 	{
@@ -1100,7 +1100,6 @@ F32 gpu_benchmark()
 	}
 
 	LLStrider<LLVector3> v;
-	LLStrider<LLVector2> tc;
 
 	if (! buff->getVertexStrider(v))
 	{

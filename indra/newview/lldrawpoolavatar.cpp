@@ -2279,7 +2279,15 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 
                 if (normal_channel >= 0)
                 {
-                    gGL.getTexUnit(normal_channel)->bindFast(face->getTexture(LLRender::NORMAL_MAP));
+                    auto* texture = face->getTexture(LLRender::NORMAL_MAP);
+                    if (texture)
+                    {
+                        gGL.getTexUnit(normal_channel)->bindFast(texture);
+                    }
+                    //else
+                    //{
+                        // TODO handle missing normal map
+                    //}
                 }
 
 				gGL.getTexUnit(sDiffuseChannel)->bindFast(face->getTexture(LLRender::DIFFUSE_MAP));

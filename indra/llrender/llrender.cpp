@@ -236,6 +236,10 @@ void LLTexUnit::bindFast(LLTexture* texture)
     glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
+    if (!mCurrTexture)
+    {
+        mCurrTexture = LLImageGL::sDefaultGLTexture->getTexName();
+    }
     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;
 }
@@ -306,10 +310,12 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 	return true;
 }
 
-bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
+bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32 usename)
 {
 	stop_glerror();
 	if (mIndex < 0) return false;
+
+    U32 texname = usename ? usename : texture->getTexName();
 
 	if(!texture)
 	{
@@ -317,7 +323,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		return false;
 	}
 
-	if(!texture->getTexName())
+	if(!texname)
 	{
 		if(LLImageGL::sDefaultGLTexture && LLImageGL::sDefaultGLTexture->getTexName())
 		{
@@ -327,7 +333,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		return false ;
 	}
 
-	if ((mCurrTexture != texture->getTexName()) || forceBind)
+	if ((mCurrTexture != texname) || forceBind)
 	{
 		gGL.flush();
 		stop_glerror();
@@ -335,7 +341,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind)
 		stop_glerror();
 		enable(texture->getTarget());
 		stop_glerror();
-		mCurrTexture = texture->getTexName();
+		mCurrTexture = texname;
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
 		stop_glerror();
 		texture->updateBindStats(texture->mTextureMemory);		
