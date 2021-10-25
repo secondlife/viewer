@@ -864,8 +864,6 @@ bool LLAppViewer::init()
 	LLNotifications::instance();
 	LL_INFOS("InitInfo") << "Notifications initialized." << LL_ENDL ;
 
-    writeSystemInfo();
-
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -985,6 +983,9 @@ bool LLAppViewer::init()
 	gGLActive = TRUE;
 	initWindow();
 	LL_INFOS("InitInfo") << "Window is initialized." << LL_ENDL ;
+
+    // writeSystemInfo can be called after window is initialized (gViewerWindow non-null)
+    writeSystemInfo();
 
 	// initWindow also initializes the Feature List, so now we can initialize this global.
 	LLCubeMap::sUseCubeMaps = LLFeatureManager::getInstance()->isFeatureAvailable("RenderCubeMap");
@@ -3540,12 +3541,15 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
-
-	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
-	for (auto res_iter : resolutions)
-	{
-		gDebugInfo["DisplayInfo"].append(res_iter);
-	}
+    
+    if (gViewerWindow)
+    {
+        std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+        for (auto res_iter : resolutions)
+        {
+            gDebugInfo["DisplayInfo"].append(res_iter);
+        }
+    }
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
