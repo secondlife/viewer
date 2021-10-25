@@ -138,7 +138,8 @@ namespace tut
             [](){ return 17; },
             // Note that a postTo() *callback* can safely bind a reference to
             // a variable on the invoking thread, because the callback is run
-            // on the invoking thread.
+            // on the invoking thread. (Of course the bound variable must
+            // survive until the callback is called.)
             [&result](int i){ result = i; });
         // this should post the callback to main
         qptr->runOne();
@@ -155,5 +156,25 @@ namespace tut
         qptr->runPending();
         main.runPending();
         ensure_equals("failed to run string callback", alpha, "abc");
+    }
+
+    template<> template<>
+    void object::test<5>()
+    {
+        set_test_name("postTo with void return");
+        WorkQueue main("main");
+        auto qptr = WorkQueue::getInstance("queue");
+        std::string observe;
+        main.postTo(
+            qptr,
+            // The ONLY reason we can get away with binding a reference to
+            // 'observe' in our work callable is because we're directly
+            // calling qptr->runOne() on this same thread. It would be a
+            // mistake to do that if some other thread were servicing 'queue'.
+            [&observe](){ observe = "queue"; },
+            [&observe](){ observe.append(";main"); });
+        qptr->runOne();
+        main.runOne();
+        ensure_equals("failed to run both lambdas", observe, "queue;main");
     }
 } // namespace tut
