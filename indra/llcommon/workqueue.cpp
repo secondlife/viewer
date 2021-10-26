@@ -26,11 +26,6 @@
 using Mutex = LLCoros::Mutex;
 using Lock  = LLCoros::LockType;
 
-struct NotOnDftCoro: public LLException
-{
-    NotOnDftCoro(const std::string& what): LLException(what) {}
-};
-
 LL::WorkQueue::WorkQueue(const std::string& name):
     super(makeName(name))
 {
@@ -148,6 +143,6 @@ void LL::WorkQueue::checkCoroutine(const std::string& method)
     // string. See also LLCoros::logname().
     if (LLCoros::getName().empty())
     {
-        LLTHROW(NotOnDftCoro("Do not call " + method + " from a thread's default coroutine"));
+        LLTHROW(Error("Do not call " + method + " from a thread's default coroutine"));
     }
 }
