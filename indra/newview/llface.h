@@ -271,10 +271,10 @@ private:
 	LLColor4	mFaceColor;			// overrides material color if state |= USE_FACE_COLOR
 	
 	U16			mGeomCount;			// vertex count for this face
-	U16			mGeomIndex;			// index into draw pool
+	U16			mGeomIndex;			// starting index into mVertexBuffer's vertex array
 	U8			mTextureIndex;		// index of texture channel to use for pseudo-atlasing
 	U32			mIndicesCount;
-	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
+	U32			mIndicesIndex;		// index into mVertexBuffer's index array
 	S32         mIndexInTex[LLRender::NUM_TEXTURE_CHANNELS];
 
 	LLXformMatrix* mXform;

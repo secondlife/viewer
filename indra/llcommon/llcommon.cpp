@@ -44,6 +44,7 @@ void *operator new(size_t size)
     {
         LL_PROFILE_ZONE_SCOPED;
         ptr = (malloc)(size);
+        TracyAlloc(ptr, size);
     }
     else
     {
@@ -53,17 +54,15 @@ void *operator new(size_t size)
     {
         throw std::bad_alloc();
     }
-    TracyAlloc(ptr, size);
     return ptr;
 }
 
 void operator delete(void *ptr) noexcept
 {
-    TracyFree(ptr);
-
     if (gProfilerEnabled)
     {
         LL_PROFILE_ZONE_SCOPED;
+        TracyFree(ptr);
         (free)(ptr);
     }
     else

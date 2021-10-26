@@ -2386,7 +2386,12 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 		if (!decomp->mBaseHullMesh.empty())
 		{
 			gGL.diffuseColor4fv(color.mV);
-			LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions, decomp->mBaseHullMesh.mNormals);
+			LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions);
+
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            gGL.diffuseColor4fv(line_color.mV);
+            LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mBaseHullMesh.mPositions);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 		else
 		{
@@ -2406,13 +2411,11 @@ void renderMeshBaseHull(LLVOVolume* volume, U32 data_mask, LLColor4& color, LLCo
 void render_hull(LLModel::PhysicsMesh& mesh, const LLColor4& color, const LLColor4& line_color)
 {
 	gGL.diffuseColor4fv(color.mV);
-	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
-	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
+	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glPolygonOffset(3.f, 3.f);
 	glLineWidth(3.f);
 	gGL.diffuseColor4fv(line_color.mV);
-	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions, mesh.mNormals);
+	LLVertexBuffer::drawArrays(LLRender::TRIANGLES, mesh.mPositions);
 	glLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -2467,6 +2470,9 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 	gGL.pushMatrix();
 	gGL.multMatrix((F32*) volume->getRelativeXform().mMatrix);
 		
+    LLGLEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(3.f, 3.f);
+
 	if (type == LLPhysicsShapeBuilderUtil::PhysicsShapeSpecification::USER_MESH)
 	{
 		LLUUID mesh_id = volume->getVolume()->getParams().getSculptID();
@@ -2494,12 +2500,12 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			{ 
 				//decomp has physics mesh, render that mesh
 				gGL.diffuseColor4fv(color.mV);
-				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
+				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions);
 								
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 				gGL.diffuseColor4fv(line_color.mV);
-				LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions, decomp->mPhysicsShapeMesh.mNormals);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                LLVertexBuffer::drawArrays(LLRender::TRIANGLES, decomp->mPhysicsShapeMesh.mPositions);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			}
 			else
 			{ //no mesh or decomposition, render base hull
@@ -2626,8 +2632,8 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				LLVertexBuffer::unbind();
 
 				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
-							
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+				
+                LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
 				gGL.diffuseColor4fv(color.mV);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

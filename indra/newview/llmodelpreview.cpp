@@ -3126,7 +3126,7 @@ BOOL LLModelPreview::render()
                                         }
 
                                         gGL.diffuseColor4ubv(hull_colors[i].mV);
-                                        LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions, physics.mMesh[i].mNormals);
+                                        LLVertexBuffer::drawArrays(LLRender::TRIANGLES, physics.mMesh[i].mPositions);
 
                                         if (explode > 0.f)
                                         {

@@ -577,63 +577,22 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 }
 
 //static
-static LLTrace::BlockTimerStatHandle FTM_VB_DRAW_ARRAYS("drawArrays");
-void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
+void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos)
 {
-	LL_RECORD_BLOCK_TIME(FTM_VB_DRAW_ARRAYS);
-	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
-	gGL.syncMatrices();
-
-	U32 count = pos.size();
-	
-	llassert(norm.size() >= pos.size());
-	llassert(count > 0);
-
-	if( count == 0 )
-	{
-		LL_WARNS() << "Called drawArrays with 0 vertices" << LL_ENDL;
-		return;
-	}
-
-	if( norm.size() < pos.size() )
-	{
-		LL_WARNS() << "Called drawArrays with #" << norm.size() << " normals and #" << pos.size() << " vertices" << LL_ENDL;
-		return;
-	}
-
-	unbind();
-	
-	setupClientArrays(MAP_VERTEX | MAP_NORMAL);
-
-	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-
-	if (shader)
-	{
-		S32 loc = LLVertexBuffer::TYPE_VERTEX;
-		if (loc > -1)
-		{
-			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 0, pos[0].mV);
-		}
-		loc = LLVertexBuffer::TYPE_NORMAL;
-		if (loc > -1)
-		{
-			glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 0, norm[0].mV);
-		}
-	}
-	else
-	{
-		glVertexPointer(3, GL_FLOAT, 0, pos[0].mV);
-		glNormalPointer(GL_FLOAT, 0, norm[0].mV);
-	}
-	LLGLSLShader::startProfile();
-	LL_PROFILER_GPU_ZONEC( "gl.DrawArrays", 0xFF0000 )
-	glDrawArrays(sGLMode[mode], 0, count);
-	LLGLSLShader::stopProfile(count, mode);
+    LL_PROFILE_ZONE_SCOPED;
+    gGL.begin(mode);
+    for (auto& v : pos)
+    {
+        gGL.vertex3fv(v.mV);
+    }
+    gGL.end();
+    gGL.flush();
 }
 
 //static
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 
 	gGL.syncMatrices();
@@ -646,29 +605,27 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
 	unbind();
 	
-	setupClientArrays(mask);
+    gGL.begin(mode);
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		S32 loc = LLVertexBuffer::TYPE_VERTEX;
-		glVertexAttribPointerARB(loc, 3, GL_FLOAT, GL_FALSE, 16, pos);
-
-		if (tc)
-		{
-			loc = LLVertexBuffer::TYPE_TEXCOORD0;
-			glVertexAttribPointerARB(loc, 2, GL_FLOAT, GL_FALSE, 0, tc);
-		}
-	}
-	else
-	{
-		glTexCoordPointer(2, GL_FLOAT, 0, tc);
-		glVertexPointer(3, GL_FLOAT, 16, pos);
-	}
-
-	LLGLSLShader::startProfile();
-    LL_PROFILER_GPU_ZONEC( "gl.DrawElements", 0x80FF80 )
-	glDrawElements(sGLMode[mode], num_indices, GL_UNSIGNED_SHORT, indicesp);
-	LLGLSLShader::stopProfile(num_indices, mode);
+    if (tc != nullptr)
+    {
+        for (int i = 0; i < num_indices; ++i)
+        {
+            U16 idx = indicesp[i];
+            gGL.texCoord2fv(tc[idx].mV);
+            gGL.vertex3fv(pos[idx].getF32ptr());
+        }
+    }
+    else
+    {
+        for (int i = 0; i < num_indices; ++i)
+        {
+            U16 idx = indicesp[i];
+            gGL.vertex3fv(pos[idx].getF32ptr());
+        }
+    }
+    gGL.end();
+    gGL.flush();
 }
 
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
@@ -851,51 +808,51 @@ void LLVertexBuffer::draw(U32 mode, U32 count, U32 indices_offset) const
 static LLTrace::BlockTimerStatHandle FTM_GL_DRAW_ARRAYS("GL draw arrays");
 void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 {
-	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
-	mMappable = false;
-	gGL.syncMatrices();
-	
-	llassert(mNumVerts >= 0);
-	if (first >= (U32) mNumVerts ||
-	    first + count > (U32) mNumVerts)
-	{
-		LL_ERRS() << "Bad vertex buffer draw range: [" << first << ", " << first+count << "]" << LL_ENDL;
-	}
+    llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+    mMappable = false;
+    gGL.syncMatrices();
 
-	if (mGLArray)
-	{
-		if (mGLArray != sGLRenderArray)
-		{
-			LL_ERRS() << "Wrong vertex array bound." << LL_ENDL;
-		}
-	}
-	else
-	{
-		if (mGLBuffer != sGLRenderBuffer || useVBOs() != sVBOActive)
-		{
-			LL_ERRS() << "Wrong vertex buffer bound." << LL_ENDL;
-		}
-	}
+    llassert(mNumVerts >= 0);
+    if (first >= (U32)mNumVerts ||
+        first + count > (U32)mNumVerts)
+    {
+        LL_ERRS() << "Bad vertex buffer draw range: [" << first << ", " << first + count << "]" << LL_ENDL;
+    }
 
-	if (mode >= LLRender::NUM_MODES)
-	{
-		LL_ERRS() << "Invalid draw mode: " << mode << LL_ENDL;
-		return;
-	}
+    if (mGLArray)
+    {
+        if (mGLArray != sGLRenderArray)
+        {
+            LL_ERRS() << "Wrong vertex array bound." << LL_ENDL;
+        }
+    }
+    else
+    {
+        if (mGLBuffer != sGLRenderBuffer || useVBOs() != sVBOActive)
+        {
+            LL_ERRS() << "Wrong vertex buffer bound." << LL_ENDL;
+        }
+    }
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_GL_DRAW_ARRAYS);
-		stop_glerror();
-		LLGLSLShader::startProfile();
-		stop_glerror();
-        LL_PROFILER_GPU_ZONEC( "gl.DrawArrays", 0xFF4040 )
-		glDrawArrays(sGLMode[mode], first, count);
-		stop_glerror();
-		LLGLSLShader::stopProfile(count, mode);
-	}
+    if (mode >= LLRender::NUM_MODES)
+    {
+        LL_ERRS() << "Invalid draw mode: " << mode << LL_ENDL;
+        return;
+    }
 
-	stop_glerror();
-	placeFence();
+    {
+        LL_RECORD_BLOCK_TIME(FTM_GL_DRAW_ARRAYS);
+        stop_glerror();
+        LLGLSLShader::startProfile();
+        stop_glerror();
+        LL_PROFILER_GPU_ZONEC("gl.DrawArrays", 0xFF4040)
+            glDrawArrays(sGLMode[mode], first, count);
+        stop_glerror();
+        LLGLSLShader::stopProfile(count, mode);
+    }
+
+    stop_glerror();
+    placeFence();
 }
 
 //static

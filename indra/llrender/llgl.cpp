@@ -2117,6 +2117,7 @@ void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
 LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (LLGLSLShader::sNoFixedFunction)
 	{ //always ignore state that's deprecated post GL 3.0
 		switch (state)
@@ -2175,6 +2176,7 @@ void LLGLState::setEnabled(S32 enabled)
 
 LLGLState::~LLGLState() 
 {
+    LL_PROFILE_ZONE_SCOPED;
 	stop_glerror();
 	if (mState)
 	{
