@@ -93,6 +93,25 @@ namespace LL
         }
 
         /**
+         * Post work to be run at a specified time to another WorkQueue, which
+         * may or may not still exist and be open. Return true if we were able
+         * to post.
+         */
+        template <typename CALLABLE>
+        static bool postMaybe(weak_t target, const TimePoint& time, CALLABLE&& callable);
+
+        /**
+         * Post work to another WorkQueue, which may or may not still exist
+         * and be open. Return true if we were able to post.
+         */
+        template <typename CALLABLE>
+        static bool postMaybe(weak_t target, CALLABLE&& callable)
+        {
+            return postMaybe(target, TimePoint::clock::now(),
+                             std::forward<CALLABLE>(callable));
+        }
+
+        /**
          * Launch a callable returning bool that will trigger repeatedly at
          * specified interval, until the callable returns false.
          *
@@ -134,25 +153,6 @@ namespace LL
         {
             return postTo(target, TimePoint::clock::now(),
                           std::move(callable), std::move(callback));
-        }
-
-        /**
-         * Post work to be run at a specified time to another WorkQueue, which
-         * may or may not still exist and be open. Return true if we were able
-         * to post.
-         */
-        template <typename CALLABLE>
-        static bool postMaybe(weak_t target, const TimePoint& time, CALLABLE&& callable);
-
-        /**
-         * Post work to another WorkQueue, which may or may not still exist
-         * and be open. Return true if we were able to post.
-         */
-        template <typename CALLABLE>
-        static bool postMaybe(weak_t target, CALLABLE&& callable)
-        {
-            return postMaybe(target, TimePoint::clock::now(),
-                             std::forward<CALLABLE>(callable));
         }
 
         /**

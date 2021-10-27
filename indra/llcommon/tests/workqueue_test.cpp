@@ -20,7 +20,10 @@
 // external library headers
 // other Linden headers
 #include "../test/lltut.h"
+#include "../test/catch_and_store_what_in.h"
 #include "llcond.h"
+#include "llcoros.h"
+#include "lleventcoro.h"
 #include "llstring.h"
 #include "stringize.h"
 
@@ -176,5 +179,51 @@ namespace tut
         qptr->runOne();
         main.runOne();
         ensure_equals("failed to run both lambdas", observe, "queue;main");
+    }
+
+    template<> template<>
+    void object::test<6>()
+    {
+        set_test_name("waitForResult");
+        std::string stored;
+        // Try to call waitForResult() on this thread's main coroutine. It
+        // should throw because the main coroutine must service the queue.
+        auto what{ catch_what<WorkQueue::Error>(
+                [this, &stored](){ stored = queue.waitForResult(
+                        [](){ return "should throw"; }); }) };
+        ensure("lambda should not have run", stored.empty());
+        ensure_not("waitForResult() should have thrown", what.empty());
+        ensure(STRINGIZE("should mention waitForResult: " << what),
+               what.find("waitForResult") != std::string::npos);
+
+        // Call waitForResult() on a coroutine, with a string result.
+        LLCoros::instance().launch(
+            "waitForResult string",
+            [this, &stored]()
+            { stored = queue.waitForResult(
+                    [](){ return "string result"; }); });
+        llcoro::suspend();
+        // Nothing will have happened yet because, even if the coroutine did
+        // run immediately, all it did was to queue the inner lambda on
+        // 'queue'. Service it.
+        queue.runOne();
+        llcoro::suspend();
+        ensure_equals("bad waitForResult return", stored, "string result");
+
+        // Call waitForResult() on a coroutine, with a void callable.
+        stored.clear();
+        bool done = false;
+        LLCoros::instance().launch(
+            "waitForResult void",
+            [this, &stored, &done]()
+            {
+                queue.waitForResult([&stored](){ stored = "ran"; });
+                done = true;
+            });
+        llcoro::suspend();
+        queue.runOne();
+        llcoro::suspend();
+        ensure_equals("didn't run coroutine", stored, "ran");
+        ensure("void waitForResult() didn't return", done);
     }
 } // namespace tut
