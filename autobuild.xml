@@ -748,9 +748,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d5528538e67c710387ae0c061a90cb23</string>
+              <string>c36808a58384a52672d81593de61f7ff</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76868/730756/fmodstudio-2.01.07.555883-darwin64-555883.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89681/818422/fmodstudio-2.02.03.565082-darwin64-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -760,9 +760,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5283050c22d31877cd9e0afbe6feb9fc</string>
+              <string>24b86630ccdfb5b3221f90ca7a9704f6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65398/612630/fmodstudio-2.00.11.546392-linux-546392.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89682/818423/fmodstudio-2.02.03.565082-linux-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -772,9 +772,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5a3c78f4a77ae6477986e33836725e8b</string>
+              <string>24b86630ccdfb5b3221f90ca7a9704f6</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/65399/612631/fmodstudio-2.00.11.546392-linux64-546392.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89682/818423/fmodstudio-2.02.03.565082-linux-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -784,9 +784,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a2bb6eaf51f933993b26a5fe7503a761</string>
+              <string>96853d91ce4da14e14ea322122629551</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76869/730763/fmodstudio-2.01.07.555883-windows-555883.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89683/818438/fmodstudio-2.02.03.565082-windows-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -796,16 +796,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>138d07dd516a9ad5b9787192fe6134dd</string>
+              <string>58d0cc28a1d90bacefbda48fcd8d379c</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/76867/730751/fmodstudio-2.01.07.555883-windows64-555883.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/89684/818439/fmodstudio-2.02.03.565082-windows64-565082.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.01.07.555883</string>
+        <string>2.02.03.565082</string>
       </map>
       <key>fontconfig</key>
       <map>
