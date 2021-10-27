@@ -211,8 +211,8 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVecto
 // This cubemap is used as "environmentMap" in indra/newview/app_settings/shaders/class2/deferred/softenLightF.glsl
 LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
 {
-	F32 sky_saturation = 0.25f;
-	F32 land_saturation = 0.1f;
+	const F32 sky_saturation = 0.25f;
+	const F32 land_saturation = 0.1f;
 
 	if (isShiny && dir.mV[VZ] < -0.02f)
 	{
@@ -270,11 +270,12 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 //       indra\newview\lllegacyatmospherics.cpp
 void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars)
 {
-    LLColor3    blue_density = vars.blue_density;
-    LLColor3    blue_horizon = vars.blue_horizon;
-    F32         haze_horizon = vars.haze_horizon;
-    F32         haze_density = vars.haze_density;
-    F32         density_multiplier = vars.density_multiplier;
+    const LLColor3    blue_density = vars.blue_density;
+    const LLColor3    blue_horizon = vars.blue_horizon;
+    const F32         haze_horizon = vars.haze_horizon;
+    const F32         haze_density = vars.haze_density;
+    const F32         density_multiplier = vars.density_multiplier;
+
     F32         max_y = vars.max_y;
     LLVector4   sun_norm = vars.sun_norm;
 
@@ -313,7 +314,7 @@ void LLAtmospherics::calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVect
 	// Sunlight attenuation effect (hue and brightness) due to atmosphere
 	// this is used later for sunlight modulation at various altitudes
 	LLColor3 light_atten = vars.light_atten;
-    LLColor3 light_transmittance = psky->getLightTransmittance(Plen);
+    LLColor3 light_transmittance = psky->getLightTransmittanceFast(vars.total_density, vars.density_multiplier, Plen);
     (void)light_transmittance; // silence Clang warn-error
 
 	// Calculate relative weights

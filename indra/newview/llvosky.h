@@ -214,12 +214,12 @@ public:
 	// Initialize/delete data that's only inited once per class.
 	void init();
 	void initCubeMap();
-	void initEmpty();
 	
 	void cleanupGL();
 	void restoreGL();
 
     void calc();
+    void cacheEnvironment(LLSettingsSky::ptr_t psky, AtmosphericsVars& atmosphericsVars);
 
 	/*virtual*/ void idleUpdate(LLAgent &agent, const F64 &time);
 	bool updateSky();
@@ -252,8 +252,6 @@ public:
 
     LLColor4 getSkyFogColor() const                        { return m_legacyAtmospherics.getFogColor(); }
     LLColor4 getGLFogColor() const                      { return m_legacyAtmospherics.getGLFogColor(); }
-
-    LLColor4U getFadeColor() const;
 
 	void setCloudDensity(F32 cloud_density)				{ mCloudDensity = cloud_density; }
 	void setWind ( const LLVector3& wind )				{ mWind = wind.length(); }
@@ -299,10 +297,10 @@ public:
 protected:
 	~LLVOSky();
 
-	void updateDirections(void);
+	void updateDirections(LLSettingsSky::ptr_t psky);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(AtmosphericsVars& vars, const S32 side, const S32 tile);
+	void createSkyTexture(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, const S32 side, const S32 tile);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
