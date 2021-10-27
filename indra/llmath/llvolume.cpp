@@ -5723,7 +5723,16 @@ BOOL LLVolumeFace::createUnCutCubeCap(LLVolume* volume, BOOL partial_build)
 		resizeIndices(grid_size*grid_size*6);
 		if (!volume->isMeshAssetLoaded())
 		{
-			mEdge.resize(grid_size*grid_size * 6);
+            S32 size = grid_size * grid_size * 6;
+            try
+            {
+                mEdge.resize(size);
+            }
+            catch (std::bad_alloc&)
+            {
+                LL_WARNS("LLVOLUME") << "Resize of mEdge to " << size << " failed" << LL_ENDL;
+                return false;
+            }
 		}
 
 		U16* out = mIndices;
@@ -6514,7 +6523,15 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 		if (!volume->isMeshAssetLoaded())
 		{
-			mEdge.resize(num_indices);
+            try
+            {
+                mEdge.resize(num_indices);
+            }
+            catch (std::bad_alloc&)
+            {
+                LL_WARNS("LLVOLUME") << "Resize of mEdge to " << num_indices << " failed" << LL_ENDL;
+                return false;
+            }
 		}
 	}
 
@@ -6742,7 +6759,15 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 	LLVector4a* norm = mNormals;
 
 	static LLAlignedArray<LLVector4a, 64> triangle_normals;
-	triangle_normals.resize(count);
+    try
+    {
+        triangle_normals.resize(count);
+    }
+    catch (std::bad_alloc&)
+    {
+        LL_WARNS("LLVOLUME") << "Resize of triangle_normals to " << count << " failed" << LL_ENDL;
+        return false;
+    }
 	LLVector4a* output = triangle_normals.mArray;
 	LLVector4a* end_output = output+count;
 
