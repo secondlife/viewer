@@ -535,6 +535,11 @@ struct ll_convert_impl<TO, FROM>                            \
     TO operator()(const FROM& in) const { return EXPR; }    \
 }
 
+// If all we're doing is copying characters, pass this as EXPR. Since it
+// expands into the 'return EXPR' slot in the ll_convert_impl specialization
+// above, it implies TO{ in.begin(), in.end() }.
+#define LL_CONVERT_COPY_CHARS { in.begin(), in.end() }
+
 // Make the incoming string a utf8 string. Replaces any unknown glyph
 // with the UNKNOWN_CHARACTER. Once any unknown glyph is found, the rest
 // of the data may not be recovered.
@@ -571,30 +576,31 @@ LL_COMMON_API std::string rawstr_to_utf8(const std::string& raw);
 // LL_WCHAR_T_NATIVE.
 typedef std::basic_string<U16> llutf16string;
 
-#if ! defined(LL_WCHAR_T_NATIVE)
-// wchar_t is identical to U16, and std::wstring is identical to llutf16string.
-// Defining an ll_convert alias involving llutf16string would collide with the
-// comparable preferred alias involving std::wstring. (In this scenario, if
-// you pass llutf16string, it will engage the std::wstring specialization.)
-#define ll_convert_u16_alias(TO, FROM, EXPR) // nothing
-#else  // defined(LL_WCHAR_T_NATIVE)
-// wchar_t is a distinct native type, so llutf16string is also a distinct
-// type, and there IS a point to converting separately to/from llutf16string.
-// (But why? Windows APIs are still defined in terms of wchar_t, and
-// in this scenario llutf16string won't work for them!)
-#define ll_convert_u16_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
+// Considering wchar_t, llwchar and U16, there are three relevant cases:
+#if LLWCHAR_IS_WCHAR_T         // every which way but Windows
+// llwchar is identical to wchar_t, LLWString is identical to std::wstring.
+// U16 is distinct, llutf16string is distinct (though pretty useless).
+// Given conversions to/from LLWString and to/from llutf16string, conversions
+// involving std::wstring would collide.
+#define ll_convert_wstr_alias(TO, FROM, EXPR) // nothing
+// but we can define conversions involving llutf16string without collisions
+#define  ll_convert_u16_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
 
-#if LL_WINDOWS
-// LL_WCHAR_T_NATIVE is defined on non-Windows systems because, in fact,
-// wchar_t is native. Everywhere but Windows, we use it for llwchar (see
-// stdtypes.h). That makes LLWString identical to std::wstring, so these
-// aliases for std::wstring would collide with those for LLWString. Only
-// define on Windows, where converting between std::wstring and llutf16string
-// means copying chars.
-ll_convert_alias(llutf16string, std::wstring, llutf16string(in.begin(), in.end()));
-ll_convert_alias(std::wstring, llutf16string,  std::wstring(in.begin(), in.end()));
-#endif // LL_WINDOWS
-#endif // defined(LL_WCHAR_T_NATIVE)
+#elif defined(LL_WCHAR_T_NATIVE)    // Windows, either clang or MS /Zc:wchar_t
+// llwchar (32-bit), wchar_t (16-bit) and U16 are all different types.
+// Conversions to/from LLWString, to/from std::wstring and to/from llutf16string
+// can all be defined.
+#define ll_convert_wstr_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
+#define  ll_convert_u16_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
+
+#else  // ! LL_WCHAR_T_NATIVE: Windows with MS /Zc:wchar_t-
+// wchar_t is identical to U16, std::wstring is identical to llutf16string.
+// Given conversions to/from LLWString and to/from std::wstring, conversions
+// involving llutf16string would collide.
+#define  ll_convert_u16_alias(TO, FROM, EXPR) // nothing
+// but we can define conversions involving std::wstring without collisions
+#define ll_convert_wstr_alias(TO, FROM, EXPR) ll_convert_alias(TO, FROM, EXPR)
+#endif
 
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str, S32 len);
 LL_COMMON_API LLWString utf16str_to_wstring(const llutf16string &utf16str);
@@ -625,9 +631,8 @@ LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str, S32
 LL_COMMON_API std::string utf16str_to_utf8str(const llutf16string &utf16str);
 ll_convert_u16_alias(std::string, llutf16string, utf16str_to_utf8str(in));
 
-#if LL_WINDOWS
+// an older alias for utf16str_to_utf8str(llutf16string)
 inline std::string wstring_to_utf8str(const llutf16string &utf16str) { return utf16str_to_utf8str(utf16str);}
-#endif
 
 // Length of this UTF32 string in bytes when transformed to UTF8
 LL_COMMON_API S32 wstring_utf8_length(const LLWString& wstr); 
@@ -715,7 +720,7 @@ inline std::string ll_convert_wide_to_string(const std::wstring& in)
 {
     return ll_convert_wide_to_string(in.c_str());
 }
-ll_convert_alias(std::string, std::wstring, ll_convert_wide_to_string(in));
+ll_convert_wstr_alias(std::string, std::wstring, ll_convert_wide_to_string(in));
 
 /**
  * Converts a string to wide string.
@@ -724,19 +729,19 @@ LL_COMMON_API std::wstring ll_convert_string_to_wide(const std::string& in,
                                                      unsigned int code_page);
 LL_COMMON_API std::wstring ll_convert_string_to_wide(const std::string& in);
                                                      // default CP_UTF8
-ll_convert_alias(std::wstring, std::string, ll_convert_string_to_wide(in));
+ll_convert_wstr_alias(std::wstring, std::string, ll_convert_string_to_wide(in));
 
 /**
  * Convert a Windows wide string to our LLWString
  */
 LL_COMMON_API LLWString ll_convert_wide_to_wstring(const std::wstring& in);
-ll_convert_alias(LLWString, std::wstring, ll_convert_wide_to_wstring(in));
+ll_convert_wstr_alias(LLWString, std::wstring, ll_convert_wide_to_wstring(in));
 
 /**
  * Convert LLWString to Windows wide string
  */
 LL_COMMON_API std::wstring ll_convert_wstring_to_wide(const LLWString& in);
-ll_convert_alias(std::wstring, LLWString, ll_convert_wstring_to_wide(in));
+ll_convert_wstr_alias(std::wstring, LLWString, ll_convert_wstring_to_wide(in));
 
 /**
  * Converts incoming string into utf8 string
