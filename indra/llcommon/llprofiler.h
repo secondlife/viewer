@@ -106,7 +106,21 @@
     #endif
 #else
     #define LL_PROFILER_FRAME_END
-    #define LL_PROFILER_SET_THREAD_NAME( name ) (void)(name)
+    #define LL_PROFILER_SET_THREAD_NAME(name)
+    #define LL_PROFILER_THREAD_BEGIN(name)
+    #define LL_PROFILER_THREAD_END(name)
+
+    #define LL_RECORD_BLOCK_TIME(name)
+    #define LL_PROFILE_ZONE_NAMED(name)
+    #define LL_PROFILE_ZONE_NAMED_COLOR(name,color)
+    #define LL_PROFILE_ZONE_SCOPED
+
+    #define LL_PROFILE_ZONE_NUM(val)
+    #define LL_PROFILE_ZONE_TEXT(text, size)
+
+    #define LL_PROFILE_ZONE_ERR(name)
+    #define LL_PROFILE_ZONE_INFO(name)
+    #define LL_PROFILE_ZONE_WARN(name)
 #endif // LL_PROFILER
 
 #endif // LL_PROFILER_H
