@@ -43,6 +43,9 @@ const F32 HEAVENLY_BODY_DIST	= HORIZON_DIST - 20.f;
 const F32 HEAVENLY_BODY_FACTOR	= 0.1f;
 const F32 HEAVENLY_BODY_SCALE	= HEAVENLY_BODY_DIST * HEAVENLY_BODY_FACTOR;
 
+const F32 SKYTEX_COMPONENTS = 4;
+const F32 SKYTEX_RESOLUTION = 64;
+
 class LLFace;
 class LLHaze;
 
@@ -50,8 +53,6 @@ class LLSkyTex
 {
 	friend class LLVOSky;
 private:
-	static S32		sResolution;
-	static S32		sComponents;
 	LLPointer<LLViewerTexture> mTexture[2];
 	LLPointer<LLImageRaw> mImageRaw[2];
 	LLColor4		*mSkyData;
@@ -82,25 +83,25 @@ protected:
 
 	void setDir(const LLVector3 &dir, const S32 i, const S32 j)
 	{
-		S32 offset = i * sResolution + j;
+		S32 offset = i * SKYTEX_RESOLUTION + j;
 		mSkyDirs[offset] = dir;
 	}
 
 	const LLVector3 &getDir(const S32 i, const S32 j) const
 	{
-		S32 offset = i * sResolution + j;
+		S32 offset = i * SKYTEX_RESOLUTION + j;
 		return mSkyDirs[offset];
 	}
 
 	void setPixel(const LLColor4 &col, const S32 i, const S32 j)
 	{
-		S32 offset = i * sResolution + j;
+		S32 offset = i * SKYTEX_RESOLUTION + j;
 		mSkyData[offset] = col;
 	}
 
 	void setPixel(const LLColor4U &col, const S32 i, const S32 j)
 	{
-		S32 offset = (i * sResolution + j) * sComponents;
+		S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
 		U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
 		*pix = col.asRGBA();
 	}
@@ -108,7 +109,7 @@ protected:
 	LLColor4U getPixel(const S32 i, const S32 j)
 	{
 		LLColor4U col;
-		S32 offset = (i * sResolution + j) * sComponents;
+		S32 offset = (i * SKYTEX_RESOLUTION + j) * SKYTEX_COMPONENTS;
 		U32* pix = (U32*) &(mImageRaw[sCurrent]->getData()[offset]);
 		col.fromRGBA( *pix );
 		return col;
@@ -300,7 +301,7 @@ protected:
 	void updateDirections(LLSettingsSky::ptr_t psky);
 
 	void initSkyTextureDirs(const S32 side, const S32 tile);
-	void createSkyTexture(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, const S32 side, const S32 tile);
+	void createSkyTexture(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const S32 side, const S32 tile);
 
 	LLPointer<LLViewerFetchedTexture> mSunTexturep[2];
 	LLPointer<LLViewerFetchedTexture> mMoonTexturep[2];
