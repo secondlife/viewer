@@ -77,73 +77,63 @@ protected:
 
 //-----------------------------------------------------------------------------
 
-LL_ALIGN_PREFIX(16)
-class LLDriverParam : public LLViewerVisualParam
+class alignas(16) LLDriverParam : public LLViewerVisualParam
 {
+    LL_ALIGN_NEW
 private:
-	// Hide the default constructor.  Force construction with LLAvatarAppearance.
-	LLDriverParam() {}
+    // Hide the default constructor.  Force construction with LLAvatarAppearance.
+    LLDriverParam() {}
 public:
-	LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable = NULL);
-	~LLDriverParam();
+    LLDriverParam(LLAvatarAppearance* appearance, LLWearable* wearable = NULL);
+    ~LLDriverParam();
 
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
+    // Special: These functions are overridden by child classes
+    LLDriverParamInfo* getInfo() const { return (LLDriverParamInfo*)mInfo; }
+    //   This sets mInfo and calls initialization functions
+    BOOL					setInfo(LLDriverParamInfo* info);
 
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
+    LLAvatarAppearance* getAvatarAppearance() { return mAvatarAppearance; }
+    const LLAvatarAppearance* getAvatarAppearance() const { return mAvatarAppearance; }
 
-	// Special: These functions are overridden by child classes
-	LLDriverParamInfo*		getInfo() const { return (LLDriverParamInfo*)mInfo; }
-	//   This sets mInfo and calls initialization functions
-	BOOL					setInfo(LLDriverParamInfo *info);
+    void					updateCrossDrivenParams(LLWearableType::EType driven_type);
 
-	LLAvatarAppearance* getAvatarAppearance() { return mAvatarAppearance; }
-	const LLAvatarAppearance* getAvatarAppearance() const { return mAvatarAppearance; }
+    /*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
 
-	void					updateCrossDrivenParams(LLWearableType::EType driven_type);
+    // LLVisualParam Virtual functions
+    /*virtual*/ void				apply(ESex sex) {} // apply is called separately for each driven param.
+    /*virtual*/ void				setWeight(F32 weight);
+    /*virtual*/ void				setAnimationTarget(F32 target_value);
+    /*virtual*/ void				stopAnimating();
+    /*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
+    /*virtual*/ void				resetDrivenParams();
 
-	/*virtual*/ LLViewerVisualParam* cloneParam(LLWearable* wearable) const;
+    // LLViewerVisualParam Virtual functions
+    /*virtual*/ F32					getTotalDistortion();
+    /*virtual*/ const LLVector4a& getAvgDistortion();
+    /*virtual*/ F32					getMaxDistortion();
+    /*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh* poly_mesh);
+    /*virtual*/ const LLVector4a* getFirstDistortion(U32* index, LLPolyMesh** poly_mesh);
+    /*virtual*/ const LLVector4a* getNextDistortion(U32* index, LLPolyMesh** poly_mesh);
 
-	// LLVisualParam Virtual functions
-	/*virtual*/ void				apply( ESex sex ) {} // apply is called separately for each driven param.
-	/*virtual*/ void				setWeight(F32 weight);
-	/*virtual*/ void				setAnimationTarget( F32 target_value);
-	/*virtual*/ void				stopAnimating();
-	/*virtual*/ BOOL				linkDrivenParams(visual_param_mapper mapper, BOOL only_cross_params);
-	/*virtual*/ void				resetDrivenParams();
-	
-	// LLViewerVisualParam Virtual functions
-	/*virtual*/ F32					getTotalDistortion();
-	/*virtual*/ const LLVector4a&	getAvgDistortion();
-	/*virtual*/ F32					getMaxDistortion();
-	/*virtual*/ LLVector4a			getVertexDistortion(S32 index, LLPolyMesh *poly_mesh);
-	/*virtual*/ const LLVector4a*	getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh);
-	/*virtual*/ const LLVector4a*	getNextDistortion(U32 *index, LLPolyMesh **poly_mesh);
+    S32								getDrivenParamsCount() const;
+    const LLViewerVisualParam* getDrivenParam(S32 index) const;
 
-	S32								getDrivenParamsCount() const;
-	const LLViewerVisualParam*		getDrivenParam(S32 index) const;
-
-	typedef std::vector<LLDrivenEntry> entry_list_t;
-    entry_list_t&                   getDrivenList() { return mDriven; }
+    typedef std::vector<LLDrivenEntry> entry_list_t;
+    entry_list_t& getDrivenList() { return mDriven; }
     void                            setDrivenList(entry_list_t& driven_list) { mDriven = driven_list; }
 
 protected:
-	LLDriverParam(const LLDriverParam& pOther);
-	F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
-	void setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight);
+    LLDriverParam(const LLDriverParam& pOther);
+    F32 getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight);
+    void setDrivenWeight(LLDrivenEntry* driven, F32 driven_weight);
 
 
-	LL_ALIGN_16(LLVector4a	mDefaultVec); // temp holder
-	entry_list_t mDriven;
-	LLViewerVisualParam* mCurrentDistortionParam;
-	// Backlink only; don't make this an LLPointer.
-	LLAvatarAppearance* mAvatarAppearance;
-	LLWearable* mWearablep;
-} LL_ALIGN_POSTFIX(16);
+    LL_ALIGN_16(LLVector4a	mDefaultVec); // temp holder
+    entry_list_t mDriven;
+    LLViewerVisualParam* mCurrentDistortionParam;
+    // Backlink only; don't make this an LLPointer.
+    LLAvatarAppearance* mAvatarAppearance;
+    LLWearable* mWearablep;
+};
 
 #endif  // LL_LLDRIVERPARAM_H

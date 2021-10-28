@@ -103,10 +103,6 @@ S32 LLVOVolume::mRenderComplexity_current = 0;
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
-static LLTrace::BlockTimerStatHandle FTM_GEN_TRIANGLES("Generate Triangles");
-static LLTrace::BlockTimerStatHandle FTM_GEN_VOLUME("Generate Volumes");
-static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
-
 extern BOOL gGLDebugLoggingEnabled;
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
@@ -692,7 +688,7 @@ BOOL LLVOVolume::isVisible() const
 
 void LLVOVolume::updateTextureVirtualSize(bool forced)
 {
-	LL_RECORD_BLOCK_TIME(FTM_VOLUME_TEXTURES);
+    LL_PROFILE_ZONE_SCOPED;
 	// Update the pixel area of all faces
 
     if (mDrawable.isNull())
@@ -971,6 +967,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 
 BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bool unique_volume)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLVolumeParams volume_params = params_in;
 
 	S32 last_lod = mVolumep.notNull() ? LLVolumeLODGroup::getVolumeDetailFromScale(mVolumep->getDetail()) : -1;
@@ -1598,6 +1595,7 @@ BOOL LLVOVolume::setParent(LLViewerObject* parent)
 // NOTE: regenFaces() MUST be followed by genTriangles()!
 void LLVOVolume::regenFaces()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	// remove existing faces
 	BOOL count_changed = mNumFaces != getNumTEs();
 	
@@ -1645,6 +1643,7 @@ void LLVOVolume::regenFaces()
 
 BOOL LLVOVolume::genBBoxes(BOOL force_global)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL res = TRUE;
 
 	LLVector4a min,max;
@@ -1855,12 +1854,9 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_GEN_FLEX("Generate Flexies");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_PRIMITIVES("Update Primitives");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_RIGGED_VOLUME("Update Rigged");
-
 bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	bool regen_faces = false;
 
 	LLVolume *old_volumep, *new_volumep;
@@ -1873,7 +1869,6 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 	old_volumep = NULL;
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
 		const LLVolumeParams &volume_params = getVolume()->getParams();
 		setVolume(volume_params, 0);
 	}
@@ -1901,7 +1896,6 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 		drawable->setState(LLDrawable::REBUILD_VOLUME); // for face->genVolumeTriangles()
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
 			regen_faces = new_num_faces != old_num_faces || mNumFaces != (S32)getNumTEs();
 			if (regen_faces)
 			{
@@ -1926,14 +1920,11 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 
 BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_PRIMITIVES);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	if (mDrawable->isState(LLDrawable::REBUILD_RIGGED))
 	{
-		{
-			LL_RECORD_BLOCK_TIME(FTM_UPDATE_RIGGED_VOLUME);
-			updateRiggedVolume();
-		}
+		updateRiggedVolume();
 		genBBoxes(FALSE);
 		mDrawable->clearState(LLDrawable::REBUILD_RIGGED);
 	}
@@ -1942,7 +1933,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	{
 		BOOL res;
 		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_FLEX);
 			res = mVolumeImpl->doUpdateGeometry(drawable);
 		}
 		updateFaceFlags();
@@ -1982,7 +1972,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		}
 
 		if (!was_regen_faces) {
-			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
 			regenFaces();
 		}
 
@@ -2005,7 +1994,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	{
 		compiled = TRUE;
 		// All it did was move or we changed the texture coordinate offset
-		LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
 		genBBoxes(FALSE);
 	}
 
@@ -3717,11 +3705,9 @@ void LLVOVolume::afterReparent()
 }
 
 //----------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_VOVOL_RIGGING_INFO("VOVol Rigging Info");
-
 void LLVOVolume::updateRiggingInfo()
 {
-    LL_RECORD_BLOCK_TIME(FTM_VOVOL_RIGGING_INFO);
+    LL_PROFILE_ZONE_SCOPED;
     if (isRiggedMesh())
     {
         const LLMeshSkinInfo* skin = getSkinInfo();
@@ -4726,6 +4712,7 @@ void LLVOVolume::clearRiggedVolume()
 
 void LLVOVolume::updateRiggedVolume(bool force_update)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	//Update mRiggedVolume to match current animation frame of avatar. 
 	//Also update position/size in octree.  
 
@@ -4761,11 +4748,9 @@ void LLVOVolume::updateRiggedVolume(bool force_update)
 	mRiggedVolume->update(skin, avatar, volume);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SKIN_RIGGED("Skin");
-static LLTrace::BlockTimerStatHandle FTM_RIGGED_OCTREE("Octree");
-
 void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	bool copy = false;
 	if (volume->getNumVolumeFaces() != getNumVolumeFaces())
 	{ 
@@ -4829,8 +4814,6 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			if (pos && dst_face.mExtents)
 			{
-				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
-
                 U32 max_joints = LLSkinningUtil::getMaxJointCount();
                 rigged_vert_count += dst_face.mNumVertices;
                 rigged_face_count++;
@@ -4901,8 +4884,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 			}
 
 			{
-				LL_RECORD_BLOCK_TIME(FTM_RIGGED_OCTREE);
-				delete dst_face.mOctree;
+    			delete dst_face.mOctree;
 				dst_face.mOctree = NULL;
 
 				LLVector4a size;
@@ -5066,11 +5048,9 @@ void LLVolumeGeometryManager::freeFaces()
 	sAlphaFaces = NULL;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
-
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
+    LL_PROFILE_ZONE_SCOPED;
 	if (   type == LLRenderPass::PASS_ALPHA 
 		&& facep->getTextureEntry()->getMaterialParams().notNull() 
 		&& !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT)
@@ -5302,10 +5282,6 @@ void LLVolumeGeometryManager::getGeometry(LLSpatialGroup* group)
 
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_VB("Volume VB");
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_FACE_LIST("Build Face List");
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_VOLUME_GEN_DRAW_INFO("Gen Draw Info");
-
 static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 {
 	LLVOAvatar* avatar = vobj->getAvatar();
@@ -5411,6 +5387,7 @@ void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value)
 
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;
@@ -5426,8 +5403,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		}
 		return;
 	}
-
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_VB);
 
 	group->mBuilt = 1.f;
 	
@@ -5485,7 +5460,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 #endif
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_FACE_LIST);
+        LL_PROFILE_ZONE_NAMED("rebuildGeom - face list");
 
 		//get all the faces into a list
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); 
@@ -6036,23 +6011,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	mFaceList.clear();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_MESH_FLUSH("Flush Mesh");
-
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	llassert(group);
 	if (group && group->hasState(LLSpatialGroup::MESH_DIRTY) && !group->hasState(LLSpatialGroup::GEOM_DIRTY))
 	{
-		LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_VB);
 		{
-			// SL-15709 -- NOTE: Tracy only allows one ZoneScoped per function.
-			// Solutions are:
-			// 1. Use a new scope
-			// 2. Use named zones
-			// 3. Use transient zones
-			LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_GEN_DRAW_INFO); //make sure getgeometryvolume shows up in the right place in timers
+            LL_PROFILE_ZONE_NAMED("rebuildMesh - gen draw info");
 
-			group->mBuilt = 1.f;
+            group->mBuilt = 1.f;
 		
 			S32 num_mapped_vertex_buffer = LLVertexBuffer::sMappedCount ;
 
@@ -6123,7 +6091,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			}
 
 			{
-				LL_RECORD_BLOCK_TIME(FTM_REBUILD_MESH_FLUSH);
+                LL_PROFILE_ZONE_NAMED("rebuildMesh - flush");
 				for (LLVertexBuffer** iter = locked_buffer, ** end_iter = locked_buffer+buffer_count; iter != end_iter; ++iter)
 				{
 					(*iter)->flush();
@@ -6166,10 +6134,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 			group->clearState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 		}
-
-	} // Tracy integration
-
-//	llassert(!group || !group->isState(LLSpatialGroup::NEW_DRAWINFO));
+	} 
 }
 
 struct CompareBatchBreakerModified
@@ -6202,19 +6167,10 @@ struct CompareBatchBreakerModified
 	}
 };
 
-static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_SORT("Draw Info Face Sort");
-static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_FACE_SIZE("Face Sizing");
-static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_ALLOCATE("Allocate VB");
-static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_FIND_VB("Find VB");
-static LLTrace::BlockTimerStatHandle FTM_GEN_DRAW_INFO_RESIZE_VB("Resize VB");
-
-
-
-
 
 U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort, BOOL batch_textures, BOOL no_materials)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_VOLUME_GEN_DRAW_INFO);
+    LL_PROFILE_ZONE_SCOPED;
 
 	U32 geometryBytes = 0;
 	U32 buffer_usage = group->mBufferUsage;
@@ -6246,7 +6202,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_GEN_DRAW_INFO_SORT);
+        LL_PROFILE_ZONE_NAMED("genDrawInfo - sort");
 		if (!distance_sort)
 		{
 			//sort faces by things that break batches
@@ -6332,7 +6288,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		U32 texture_count = 0;
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_DRAW_INFO_FACE_SIZE);
+            LL_PROFILE_ZONE_NAMED("genDrawInfo - face size");
 			if (batch_textures)
 			{
 				U8 cur_tex = 0;
@@ -6455,7 +6411,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		LLPointer<LLVertexBuffer> buffer;
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_GEN_DRAW_INFO_ALLOCATE);
+            LL_PROFILE_ZONE_NAMED("genDrawInfo - allocate");
 			buffer = createVertexBuffer(mask, buffer_usage);
 			if(!buffer->allocateBuffer(geom_count, index_count, TRUE))
 			{
@@ -6843,6 +6799,8 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
 {	
+    LL_PROFILE_ZONE_SCOPED;
+
 	//initialize to default usage for this partition
 	U32 usage = group->getSpatialPartition()->mBufferUsage;
 	

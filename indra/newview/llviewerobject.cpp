@@ -146,16 +146,14 @@ const S32 MAX_OBJECT_BINARY_DATA_SIZE = 60 + 16;
 const F64 INVENTORY_UPDATE_WAIT_TIME_DESYNC = 5; // seconds
 const F64 INVENTORY_UPDATE_WAIT_TIME_OUTDATED = 1;
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_OBJECT("Create Object");
-
 // static
 LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, S32 flags)
 {
+    LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
     dumpStack("ObjectUpdateStack");
     
 	LLViewerObject *res = NULL;
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_OBJECT);
 
 	if (gNonInteractive
 		&& pcode != LL_PCODE_LEGACY_AVATAR
@@ -252,8 +250,7 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 }
 
 LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp, BOOL is_global)
-:	LLTrace::MemTrackable<LLViewerObject>("LLViewerObject"),
-	LLPrimitive(),
+:	LLPrimitive(),
 	mChildList(),
 	mID(id),
 	mLocalID(0),
@@ -2517,9 +2514,6 @@ void LLViewerObject::loadFlags(U32 flags)
 
 void LLViewerObject::idleUpdate(LLAgent &agent, const F64 &frame_time)
 {
-	//static LLTrace::BlockTimerStatHandle ftm("Viewer Object");
-	//LL_RECORD_BLOCK_TIME(ftm);
-
 	if (!mDead)
 	{
 		if (!mStatic && sVelocityInterpolate && !isSelected())

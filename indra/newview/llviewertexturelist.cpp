@@ -68,7 +68,6 @@ void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
 S32 LLViewerTextureList::sNumImages = 0;
 
 LLViewerTextureList gTextureList;
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
 ETexListType get_element_type(S32 priority)
 {
@@ -761,18 +760,10 @@ void LLViewerTextureList::dirtyImage(LLViewerFetchedTexture *image)
 }
 
 ////////////////////////////////////////////////////////////////////////////
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_MARK_DIRTY("Dirty Images");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_PRIORITIES("Prioritize");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_CALLBACKS("Callbacks");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_FETCH("Fetch");
-static LLTrace::BlockTimerStatHandle FTM_FAST_CACHE_IMAGE_FETCH("Fast Cache Fetch");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_CREATE("Create");
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_STATS("Stats");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXTURES("Update Textures");
 
 void LLViewerTextureList::updateImages(F32 max_time)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXTURES);
+    LL_PROFILE_ZONE_SCOPED;
 	static BOOL cleared = FALSE;
 	if(gTeleportDisplay)
 	{
@@ -798,62 +789,44 @@ void LLViewerTextureList::updateImages(F32 max_time)
 		sample(FORMATTED_MEM, F64Bytes(LLImageFormatted::sGlobalFormattedMemory));
 	}
 
-	{
-		//loading from fast cache 
-		LL_RECORD_BLOCK_TIME(FTM_FAST_CACHE_IMAGE_FETCH);
-		max_time -= updateImagesLoadingFastCache(max_time);
-	}
-
-	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_PRIORITIES);
-		updateImagesDecodePriorities();
-	}
-
-	F32 total_max_time = max_time;
-
-	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_FETCH);
-		max_time -= updateImagesFetchTextures(max_time);
-	}
+	//loading from fast cache 
+	max_time -= updateImagesLoadingFastCache(max_time);
 	
-	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_CREATE);
-		max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
-		max_time -= updateImagesCreateTextures(max_time);
-	}
+	updateImagesDecodePriorities();
+	
+    F32 total_max_time = max_time;
+
+	max_time -= updateImagesFetchTextures(max_time);
+		
+	max_time = llmax(max_time, total_max_time*.50f); // at least 50% of max_time
+	max_time -= updateImagesCreateTextures(max_time);
 	
 	if (!mDirtyTextureList.empty())
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_MARK_DIRTY);
 		gPipeline.dirtyPoolObjectTextures(mDirtyTextureList);
 		mDirtyTextureList.clear();
 	}
 
+	bool didone = false;
+	for (image_list_t::iterator iter = mCallbackList.begin();
+		iter != mCallbackList.end(); )
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_CALLBACKS);
-		bool didone = false;
-		for (image_list_t::iterator iter = mCallbackList.begin();
-			iter != mCallbackList.end(); )
+		//trigger loaded callbacks on local textures immediately
+		LLViewerFetchedTexture* image = *iter++;
+		if (!image->getUrl().empty())
 		{
-			//trigger loaded callbacks on local textures immediately
-			LLViewerFetchedTexture* image = *iter++;
-			if (!image->getUrl().empty())
-			{
-				// Do stuff to handle callbacks, update priorities, etc.
-				didone = image->doLoadedCallbacks();
-			}
-			else if (!didone)
-			{
-				// Do stuff to handle callbacks, update priorities, etc.
-				didone = image->doLoadedCallbacks();
-			}
+			// Do stuff to handle callbacks, update priorities, etc.
+			didone = image->doLoadedCallbacks();
+		}
+		else if (!didone)
+		{
+			// Do stuff to handle callbacks, update priorities, etc.
+			didone = image->doLoadedCallbacks();
 		}
 	}
+	
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_IMAGE_STATS);
-		updateImagesUpdateStats();
-	}
+	updateImagesUpdateStats();
 }
 
 void LLViewerTextureList::clearFetchingRequests()
@@ -1497,8 +1470,8 @@ void LLViewerTextureList::receiveImageHeader(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
 
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
-	
+    LL_PROFILE_ZONE_SCOPED;
+
 	// Receive image header, copy into image object and decompresses 
 	// if this is a one-packet image. 
 	
@@ -1569,7 +1542,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 {
 	static LLCachedControl<bool> log_texture_traffic(gSavedSettings,"LogTextureNetworkTraffic", false) ;
 
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	// Receives image packet, copy into image object,
 	// checks if all packets received, decompresses if so. 
@@ -1642,7 +1615,7 @@ void LLViewerTextureList::receiveImagePacket(LLMessageSystem *msg, void **user_d
 // static
 void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **user_data)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMAGES);
+    LL_PROFILE_ZONE_SCOPED;
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	

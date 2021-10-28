@@ -87,6 +87,7 @@ class LLVOAvatar :
 	public LLViewerObject,
 	public boost::signals2::trackable
 {
+    LL_ALIGN_NEW;
 	LOG_CLASS(LLVOAvatar);
 
 public:
@@ -99,16 +100,6 @@ public:
  **/
 
 public:
-	void* operator new(size_t size)
-	{
-		return LLTrace::MemTrackable<LLViewerObject>::aligned_new<16>(size);
-	}
-
-	void operator delete(void* ptr, size_t size)
-	{
-		LLTrace::MemTrackable<LLViewerObject>::aligned_delete<16>(ptr, size);
-	}
-
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual void		markDead();
 	static void			initClass(); // Initialize data that's only init'd once per class.

@@ -62,8 +62,7 @@ typedef LLPointer<LLListViewModel> LLListViewModelPtr;
  * last referencing widget is destroyed.
  */
 class LLViewModel 
-:	public LLRefCount,
-	public LLTrace::MemTrackable<LLViewModel>
+:	public LLRefCount
 {
 public:
     LLViewModel();

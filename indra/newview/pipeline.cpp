@@ -238,7 +238,6 @@ const LLMatrix4* gGLLastMatrix = NULL;
 LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY("Render Geometry");
 LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS("Grass");
 LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE("Invisible");
-LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION("Occlusion");
 LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY("Shiny");
 LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE("Simple");
 LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN("Terrain");
@@ -253,14 +252,12 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_MATERIALS("Render Materials");
 LLTrace::BlockTimerStatHandle FTM_RENDER_FULLBRIGHT("Fullbright");
 LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW("Glow");
 LLTrace::BlockTimerStatHandle FTM_GEO_UPDATE("Geo Update");
-LLTrace::BlockTimerStatHandle FTM_PIPELINE_CREATE("Pipeline Create");
 LLTrace::BlockTimerStatHandle FTM_POOLRENDER("RenderPool");
 LLTrace::BlockTimerStatHandle FTM_POOLS("Pools");
 LLTrace::BlockTimerStatHandle FTM_DEFERRED_POOLRENDER("RenderPool (Deferred)");
 LLTrace::BlockTimerStatHandle FTM_DEFERRED_POOLS("Pools (Deferred)");
 LLTrace::BlockTimerStatHandle FTM_POST_DEFERRED_POOLRENDER("RenderPool (Post)");
 LLTrace::BlockTimerStatHandle FTM_POST_DEFERRED_POOLS("Pools (Post)");
-LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM_FBO("First FBO");
 LLTrace::BlockTimerStatHandle FTM_STATESORT("Sort Draw State");
 LLTrace::BlockTimerStatHandle FTM_PIPELINE("Pipeline");
 LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY("Client Copy");
@@ -269,11 +266,8 @@ LLTrace::BlockTimerStatHandle FTM_RENDER_DEFERRED("Deferred Shading");
 LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD("HUD");
 LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D("3D");
 LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D("2D");
-LLTrace::BlockTimerStatHandle FTM_RENDER_UI_DEBUG_TEXT("Debug Text");
-LLTrace::BlockTimerStatHandle FTM_RENDER_UI_SCENE_MON("Scene Mon");
 
 static LLTrace::BlockTimerStatHandle FTM_STATESORT_DRAWABLE("Sort Drawables");
-static LLTrace::BlockTimerStatHandle FTM_STATESORT_POSTSORT("Post Sort");
 
 static LLStaticHashedString sTint("tint");
 static LLStaticHashedString sAmbiance("ambiance");
@@ -727,8 +721,6 @@ void LLPipeline::destroyGL()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RESIZE_SCREEN_TEXTURE("Resize Screen Texture");
-
 void LLPipeline::requestResizeScreenTexture()
 {
     gResizeScreenTexture = TRUE;
@@ -748,7 +740,6 @@ void LLPipeline::resizeShadowTexture()
 
 void LLPipeline::resizeScreenTexture()
 {
-	LL_RECORD_BLOCK_TIME(FTM_RESIZE_SCREEN_TEXTURE);
 	if (gPipeline.canUseVertexShaders() && assertInitialized())
 	{
 		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
@@ -1518,6 +1509,7 @@ public:
 // Called when a texture changes # of channels (causes faces to move to alpha pool)
 void LLPipeline::dirtyPoolObjectTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	assertInitialized();
 
 	// *TODO: This is inefficient and causes frame spikes; need a better way to do this
@@ -1729,15 +1721,9 @@ void LLPipeline::allocDrawable(LLViewerObject *vobj)
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_UNLINK("Unlink");
-static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_MOVE_LIST("Movelist");
-static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_SPATIAL_PARTITION("Spatial Partition");
-static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_LIGHT_SET("Light Set");
-static LLTrace::BlockTimerStatHandle FTM_REMOVE_FROM_HIGHLIGHT_SET("Highlight Set");
-
 void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UNLINK);
+    LL_PROFILE_ZONE_SCOPED;
 
 	assertInitialized();
 
@@ -1746,7 +1732,6 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 	// Based on flags, remove the drawable from the queues that it's on.
 	if (drawablep->isState(LLDrawable::ON_MOVE_LIST))
 	{
-		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_MOVE_LIST);
 		LLDrawable::drawable_vector_t::iterator iter = std::find(mMovedList.begin(), mMovedList.end(), drawablep);
 		if (iter != mMovedList.end())
 		{
@@ -1756,7 +1741,6 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 
 	if (drawablep->getSpatialGroup())
 	{
-		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_SPATIAL_PARTITION);
 		if (!drawablep->getSpatialGroup()->getSpatialPartition()->remove(drawablep, drawablep->getSpatialGroup()))
 		{
 #ifdef LL_RELEASE_FOR_DOWNLOAD
@@ -1767,30 +1751,24 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		}
 	}
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_LIGHT_SET);
-		mLights.erase(drawablep);
+	mLights.erase(drawablep);
 
-		for (light_set_t::iterator iter = mNearbyLights.begin();
-					iter != mNearbyLights.end(); iter++)
+	for (light_set_t::iterator iter = mNearbyLights.begin();
+				iter != mNearbyLights.end(); iter++)
+	{
+		if (iter->drawable == drawablep)
 		{
-			if (iter->drawable == drawablep)
-			{
-				mNearbyLights.erase(iter);
-				break;
-			}
+			mNearbyLights.erase(iter);
+			break;
 		}
 	}
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_HIGHLIGHT_SET);
-		HighlightItem item(drawablep);
-		mHighlightSet.erase(item);
+	HighlightItem item(drawablep);
+	mHighlightSet.erase(item);
 
-		if (mHighlightObject == drawablep)
-		{
-			mHighlightObject = NULL;
-		}
+	if (mHighlightObject == drawablep)
+	{
+		mHighlightObject = NULL;
 	}
 
 	for (U32 i = 0; i < 2; ++i)
@@ -1805,14 +1783,12 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 			mTargetShadowSpotLight[i] = NULL;
 		}
 	}
-
-
 }
 
 //static
 void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_LIGHT_SET);
+    LL_PROFILE_ZONE_SCOPED;
 	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
 		 iter != gPipeline.mNearbyLights.end(); iter++)
 	{
@@ -1840,7 +1816,7 @@ U32 LLPipeline::addObject(LLViewerObject *vobj)
 
 void LLPipeline::createObjects(F32 max_dtime)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PIPELINE_CREATE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	LLTimer update_timer;
 
@@ -1864,6 +1840,7 @@ void LLPipeline::createObjects(F32 max_dtime)
 
 void LLPipeline::createObject(LLViewerObject* vobj)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLDrawable* drawablep = vobj->mDrawable;
 
 	if (!drawablep)
@@ -2010,14 +1987,9 @@ void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_OCTREE_BALANCE("Balance Octree");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_MOVE("Update Move");
-static LLTrace::BlockTimerStatHandle FTM_RETEXTURE("Retexture");
-static LLTrace::BlockTimerStatHandle FTM_MOVED_LIST("Moved List");
-
 void LLPipeline::updateMove()
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_MOVE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (FreezeTime)
 	{
@@ -2026,49 +1998,38 @@ void LLPipeline::updateMove()
 
 	assertInitialized();
 
+	for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
+			iter != mRetexturedList.end(); ++iter)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_RETEXTURE);
-
-		for (LLDrawable::drawable_set_t::iterator iter = mRetexturedList.begin();
-			 iter != mRetexturedList.end(); ++iter)
+		LLDrawable* drawablep = *iter;
+		if (drawablep && !drawablep->isDead())
 		{
-			LLDrawable* drawablep = *iter;
-			if (drawablep && !drawablep->isDead())
-			{
-				drawablep->updateTexture();
-			}
+			drawablep->updateTexture();
 		}
-		mRetexturedList.clear();
 	}
+	mRetexturedList.clear();
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_MOVED_LIST);
-		updateMovedList(mMovedList);
-	}
+	updateMovedList(mMovedList);
 
 	//balance octrees
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+		iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
- 		LL_RECORD_BLOCK_TIME(FTM_OCTREE_BALANCE);
-
-		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
 			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{
-					part->mOctree->balance();
-				}
+				part->mOctree->balance();
 			}
+		}
 
-			//balance the VO Cache tree
-			LLVOCachePartition* vo_part = region->getVOCachePartition();
-			if(vo_part)
-			{
-				vo_part->mOctree->balance();
-			}
+		//balance the VO Cache tree
+		LLVOCachePartition* vo_part = region->getVOCachePartition();
+		if(vo_part)
+		{
+			vo_part->mOctree->balance();
 		}
 	}
 }
@@ -2752,14 +2713,10 @@ bool LLPipeline::updateDrawableGeom(LLDrawable* drawablep, bool priority)
 	return update_complete;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SEED_VBO_POOLS("Seed VBO Pool");
-
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_GL("Update GL");
-
 void LLPipeline::updateGL()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_UPDATE_GL);
 		while (!LLGLUpdate::sGLQ.empty())
 		{
 			LLGLUpdate* glu = LLGLUpdate::sGLQ.front();
@@ -2770,15 +2727,13 @@ void LLPipeline::updateGL()
 	}
 
 	{ //seed VBO Pools
-		LL_RECORD_BLOCK_TIME(FTM_SEED_VBO_POOLS);
 		LLVertexBuffer::seedPools();
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_PRIORITY_GROUPS("Rebuild Priority Groups");
-
 void LLPipeline::clearRebuildGroups()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLSpatialGroup::sg_vector_t	hudGroups;
 
 	mGroupQ1Locked = true;
@@ -2883,7 +2838,7 @@ void LLPipeline::clearRebuildDrawables()
 
 void LLPipeline::rebuildPriorityGroups()
 {
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_PRIORITY_GROUPS);
+    LL_PROFILE_ZONE_SCOPED;
 	LLTimer update_timer;
 	assertInitialized();
 
@@ -2905,8 +2860,6 @@ void LLPipeline::rebuildPriorityGroups()
 
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_GROUPS("Rebuild Groups");
-
 void LLPipeline::rebuildGroups()
 {
 	if (mGroupQ2.empty())
@@ -2914,7 +2867,7 @@ void LLPipeline::rebuildGroups()
 		return;
 	}
 
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_GROUPS);
+    LL_PROFILE_ZONE_SCOPED;
 	mGroupQ2Locked = true;
 	// Iterate through some drawables on the non-priority build queue
 	S32 size = (S32) mGroupQ2.size();
@@ -3160,12 +3113,9 @@ void LLPipeline::markShift(LLDrawable *drawablep)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SHIFT_DRAWABLE("Shift Drawable");
-static LLTrace::BlockTimerStatHandle FTM_SHIFT_OCTREE("Shift Octree");
-static LLTrace::BlockTimerStatHandle FTM_SHIFT_HUD("Shift HUD");
-
 void LLPipeline::shiftObjects(const LLVector3 &offset)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	assertInitialized();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -3174,46 +3124,36 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 	LLVector4a offseta;
 	offseta.load3(offset.mV);
 
+	for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
+			iter != mShiftList.end(); iter++)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_SHIFT_DRAWABLE);
-
-		for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
-			 iter != mShiftList.end(); iter++)
+		LLDrawable *drawablep = *iter;
+		if (drawablep->isDead())
 		{
-			LLDrawable *drawablep = *iter;
-			if (drawablep->isDead())
-			{
-				continue;
-			}	
-			drawablep->shiftPos(offseta);	
-			drawablep->clearState(LLDrawable::ON_SHIFT_LIST);
-		}
-		mShiftList.resize(0);
+			continue;
+		}	
+		drawablep->shiftPos(offseta);	
+		drawablep->clearState(LLDrawable::ON_SHIFT_LIST);
 	}
-
+	mShiftList.resize(0);
 	
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
+			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_SHIFT_OCTREE);
-		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-				iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		LLViewerRegion* region = *iter;
+		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLViewerRegion* region = *iter;
-			for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
+			LLSpatialPartition* part = region->getSpatialPartition(i);
+			if (part)
 			{
-				LLSpatialPartition* part = region->getSpatialPartition(i);
-				if (part)
-				{
-					part->shift(offseta);
-				}
+				part->shift(offseta);
 			}
 		}
 	}
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_SHIFT_HUD);
-		LLHUDText::shiftAll(offset);
-		LLHUDNameTag::shiftAll(offset);
-	}
+	LLHUDText::shiftAll(offset);
+	LLHUDNameTag::shiftAll(offset);
+
 	display_update_camera();
 }
 
@@ -3244,10 +3184,9 @@ void LLPipeline::markPartitionMove(LLDrawable* drawable)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_PARTITIONQ("PartitionQ");
 void LLPipeline::processPartitionQ()
 {
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_PARTITIONQ);
+    LL_PROFILE_ZONE_SCOPED;
 	for (LLDrawable::drawable_list_t::iterator iter = mPartitionQ.begin(); iter != mPartitionQ.end(); ++iter)
 	{
 		LLDrawable* drawable = *iter;
@@ -3347,8 +3286,6 @@ void LLPipeline::markRebuild(LLDrawable *drawablep, LLDrawable::EDrawableFlags f
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RESET_DRAWORDER("Reset Draw Order");
-
 void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 {
 	if (hasAnyRenderType(LLPipeline::RENDER_TYPE_AVATAR,
@@ -3362,7 +3299,6 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 					  LLPipeline::END_RENDER_TYPES))
 	{
 		//clear faces from face pools
-		LL_RECORD_BLOCK_TIME(FTM_RESET_DRAWORDER);
 		gPipeline.resetDrawOrders();
 	}
 
@@ -3811,7 +3747,7 @@ void LLPipeline::touchTextures(LLDrawInfo* info)
 
 void LLPipeline::postSort(LLCamera& camera)
 {
-	LL_RECORD_BLOCK_TIME(FTM_STATESORT_POSTSORT);
+    LL_PROFILE_ZONE_SCOPED;
 
 	assertInitialized();
 
@@ -4837,6 +4773,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 
 void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	assertInitialized();
 	S32 count = 0;
 	if (render_type == LLRender::TRIANGLE_STRIP)
@@ -5617,11 +5554,9 @@ void LLPipeline::renderDebug()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_POOLS("Rebuild Pools");
-
 void LLPipeline::rebuildPools()
 {
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_POOLS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	assertInitialized();
 
@@ -5965,6 +5900,7 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 
 void LLPipeline::resetDrawOrders()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	assertInitialized();
 	// Iterate through all of the draw pools and rebuild them.
 	for (pool_set_t::iterator iter = mPools.begin(); iter != mPools.end(); ++iter)
@@ -7380,8 +7316,6 @@ void LLPipeline::resetVertexBuffers()
 	mResetVertexBuffers = true;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RESET_VB("Reset VB");
-
 void LLPipeline::doResetVertexBuffers(bool forced)
 {
 	if (!mResetVertexBuffers)
@@ -7403,7 +7337,7 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 		}
 	}
 
-	LL_RECORD_BLOCK_TIME(FTM_RESET_VB);
+    LL_PROFILE_ZONE_SCOPED;
 	mResetVertexBuffers = false;
 
 	mCubeVB = NULL;
@@ -7603,11 +7537,8 @@ void LLPipeline::renderFinalize()
 
     if (sRenderGlow)
     {
-        {
-            LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
-            mGlow[2].bindTarget();
-            mGlow[2].clear();
-        }
+        mGlow[2].bindTarget();
+        mGlow[2].clear();
 
         gGlowExtractProgram.bind();
         F32 minLum = llmax((F32) RenderGlowMinLuminance, 0.0f);
@@ -7673,11 +7604,8 @@ void LLPipeline::renderFinalize()
 
         for (S32 i = 0; i < kernel; i++)
         {
-            {
-                LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
-                mGlow[i % 2].bindTarget();
-                mGlow[i % 2].clear();
-            }
+            mGlow[i % 2].bindTarget();
+            mGlow[i % 2].clear();
 
             if (i == 0)
             {
@@ -8194,11 +8122,9 @@ void LLPipeline::renderFinalize()
     LLGLState::checkTextureChannels();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BIND_DEFERRED("Bind Deferred");
-
 void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_target)
 {
-	LL_RECORD_BLOCK_TIME(FTM_BIND_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED;
 
     LLRenderTarget* deferred_target       = &mDeferredScreen;
     LLRenderTarget* deferred_depth_target = &mDeferredDepth;
@@ -8458,16 +8384,7 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 	return v;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_GI_TRACE("Trace");
-static LLTrace::BlockTimerStatHandle FTM_GI_GATHER("Gather");
-static LLTrace::BlockTimerStatHandle FTM_SUN_SHADOW("Shadow Map");
-static LLTrace::BlockTimerStatHandle FTM_SOFTEN_SHADOW("Shadow Soften");
-static LLTrace::BlockTimerStatHandle FTM_EDGE_DETECTION("Find Edges");
-static LLTrace::BlockTimerStatHandle FTM_LOCAL_LIGHTS("Local Lights");
-static LLTrace::BlockTimerStatHandle FTM_ATMOSPHERICS("Atmospherics");
-static LLTrace::BlockTimerStatHandle FTM_FULLSCREEN_LIGHTS("Fullscreen Lights");
-static LLTrace::BlockTimerStatHandle FTM_PROJECTORS("Projectors");
-static LLTrace::BlockTimerStatHandle FTM_POST("Post");
+static LLTrace::BlockTimerStatHandle FTM_DEFERRED_LIGHTING("Deferred Lighting");
 
 void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 {
@@ -8475,6 +8392,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
     {
         return;
     }
+    LL_RECORD_BLOCK_TIME(FTM_DEFERRED_LIGHTING);
 
     LLRenderTarget *deferred_target       = &mDeferredScreen;
     LLRenderTarget *deferred_depth_target = &mDeferredDepth;
@@ -8547,7 +8465,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
         {
             deferred_light_target->bindTarget();
             {  // paint shadow/SSAO light map (direct lighting lightmap)
-                LL_RECORD_BLOCK_TIME(FTM_SUN_SHADOW);
+                LL_PROFILE_ZONE_NAMED("renderDeferredLighting - sun shadow");
                 bindDeferredShader(gDeferredSunProgram, deferred_light_target);
                 mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
                 glClearColor(1, 1, 1, 1);
@@ -8593,7 +8511,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 
         if (RenderDeferredSSAO)
         {  // soften direct lighting lightmap
-            LL_RECORD_BLOCK_TIME(FTM_SOFTEN_SHADOW);
+            LL_PROFILE_ZONE_NAMED("renderDeferredLighting - soften shadow");
             // blur lightmap
             screen_target->bindTarget();
             glClearColor(1, 1, 1, 1);
@@ -8671,7 +8589,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
         {  // apply sunlight contribution
             LLGLSLShader &soften_shader = LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram;
 
-            LL_RECORD_BLOCK_TIME(FTM_ATMOSPHERICS);
+            LL_PROFILE_ZONE_NAMED("renderDeferredLighting - atmospherics");
             bindDeferredShader(soften_shader);
 
             LLEnvironment &environment = LLEnvironment::instance();
@@ -8737,6 +8655,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             LLVertexBuffer::unbind();
 
             {
+                LL_PROFILE_ZONE_NAMED("renderDeferredLighting - local lights");
                 bindDeferredShader(gDeferredLightProgram);
 
                 if (mCubeVB.isNull())
@@ -8807,7 +8726,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
                                 continue;
                             }
 
-                            LL_RECORD_BLOCK_TIME(FTM_LOCAL_LIGHTS);
                             gDeferredLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, c);
                             gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
                             gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
@@ -8843,6 +8761,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 
             if (!spot_lights.empty())
             {
+                LL_PROFILE_ZONE_NAMED("renderDeferredLighting - projectors");
                 LLGLDepthTest depth(GL_TRUE, GL_FALSE);
                 bindDeferredShader(gDeferredSpotLightProgram);
 
@@ -8852,7 +8771,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 
                 for (LLDrawable::drawable_list_t::iterator iter = spot_lights.begin(); iter != spot_lights.end(); ++iter)
                 {
-                    LL_RECORD_BLOCK_TIME(FTM_PROJECTORS);
                     LLDrawable *drawablep = *iter;
 
                     LLVOVolume *volume = drawablep->getVOVolume();
@@ -8888,6 +8806,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             vert[2].set(3, 1, 0);
 
             {
+                LL_PROFILE_ZONE_NAMED("renderDeferredLighting - fullscreen lights");
                 LLGLDepthTest depth(GL_FALSE);
 
                 // full screen blit
@@ -8907,7 +8826,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 
                 while (!fullscreen_lights.empty())
                 {
-                    LL_RECORD_BLOCK_TIME(FTM_FULLSCREEN_LIGHTS);
                     light[count] = fullscreen_lights.front();
                     fullscreen_lights.pop_front();
                     col[count] = light_colors.front();
@@ -8939,7 +8857,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 
                 for (LLDrawable::drawable_list_t::iterator iter = fullscreen_spot_lights.begin(); iter != fullscreen_spot_lights.end(); ++iter)
                 {
-                    LL_RECORD_BLOCK_TIME(FTM_PROJECTORS);
                     LLDrawable *drawablep           = *iter;
                     LLVOVolume *volume              = drawablep->getVOVolume();
                     LLVector3   center              = drawablep->getPositionAgent();
@@ -9849,10 +9766,9 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLPipeline::sShadowRender = false;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_VISIBLE_CLOUD("Visible Cloud");
 bool LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir)
 {
-	LL_RECORD_BLOCK_TIME(FTM_VISIBLE_CLOUD);
+    LL_PROFILE_ZONE_SCOPED;
 	//get point cloud of intersection of frust and min, max
 
 	if (getVisibleExtents(camera, min, max))
@@ -10109,9 +10025,6 @@ LLRenderTarget* LLPipeline::getShadowTarget(U32 i)
 }
 
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW("Gen Sun Shadow");
-static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SETUP("Sun Shadow Setup");
-static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_RENDER_DIRECTIONAL("Render Dir");
-static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SPOT_SETUP("Spot Shadow Setup");
 static LLTrace::BlockTimerStatHandle FTM_GEN_SUN_SHADOW_SPOT_RENDER("Spot Shadow Render");
 
 void LLPipeline::generateSunShadow(LLCamera& camera)
@@ -10907,14 +10820,11 @@ void LLPipeline::renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool textu
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_MARK_VISIBLE("Impostor Mark Visible");
-static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_SETUP("Impostor Setup");
-static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_BACKGROUND("Impostor Background");
-static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_ALLOCATE("Impostor Allocate");
-static LLTrace::BlockTimerStatHandle FTM_IMPOSTOR_RESIZE("Impostor Resize");
+static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
 
 void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 {
+    LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
@@ -10989,7 +10899,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLViewerCamera* viewer_camera = LLViewerCamera::getInstance();
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_MARK_VISIBLE);
 		markVisible(avatar->mDrawable, *viewer_camera);
 
 		LLVOAvatar::attachment_map_t::iterator iter;
@@ -11018,7 +10927,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	U32 resX = 0;
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_SETUP);
 		const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
 		LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
 
@@ -11075,9 +10983,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		if (!avatar->mImpostor.isComplete())
 		{
-			LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_ALLOCATE);
-			
-
 			if (LLPipeline::sRenderDeferred)
 			{
 				avatar->mImpostor.allocate(resX,resY,GL_SRGB8_ALPHA8,TRUE,FALSE);
@@ -11094,7 +10999,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 		else if(resX != avatar->mImpostor.getWidth() || resY != avatar->mImpostor.getHeight())
 		{
-			LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_RESIZE);
 			avatar->mImpostor.resize(resX,resY);
 		}
 
@@ -11156,7 +11060,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
 
 	{ //create alpha mask based on depth buffer (grey out if muted)
-		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_BACKGROUND);
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;

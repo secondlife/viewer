@@ -188,11 +188,9 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
 //-----------------------------------------------------------------------------
 // apply()
 //-----------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_POLYSKELETAL_DISTORTION_APPLY("Skeletal Distortion");
-
 void LLPolySkeletalDistortion::apply( ESex avatar_sex )
 {
-    LL_RECORD_BLOCK_TIME(FTM_POLYSKELETAL_DISTORTION_APPLY);
+    LL_PROFILE_ZONE_SCOPED;
 
     F32 effective_weight = ( getSex() & avatar_sex ) ? mCurWeight : getDefaultWeight();
 

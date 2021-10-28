@@ -114,7 +114,7 @@ protected:
 
 public:	
 	static void initClass();
-	static void updateClass(const F32 velocity, const F32 angular_velocity) ;
+	static void updateClass();
 	
 	LLViewerTexture(BOOL usemipmaps = TRUE);
 	LLViewerTexture(const LLUUID& id, BOOL usemipmaps) ;

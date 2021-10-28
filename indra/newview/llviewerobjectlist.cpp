@@ -849,8 +849,6 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
-
 void LLViewerObjectList::update(LLAgent &agent)
 {
 	LL_PROFILE_ZONE_SCOPED
@@ -906,8 +904,6 @@ void LLViewerObjectList::update(LLAgent &agent)
 	U32 idle_count = 0;
 	
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IDLE_COPY);
-
  		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
 			active_iter != mActiveObjects.end(); active_iter++)
 		{
@@ -1352,11 +1348,9 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REMOVE_DRAWABLE("Remove Drawable");
-
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (!drawablep)
 	{
@@ -1645,12 +1639,9 @@ void LLViewerObjectList::onPhysicsFlagsFetchFailure(const LLUUID& object_id)
 	mPendingPhysicsFlags.erase(object_id);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SHIFT_OBJECTS("Shift Objects");
-static LLTrace::BlockTimerStatHandle FTM_PIPELINE_SHIFT("Pipeline Shift");
-static LLTrace::BlockTimerStatHandle FTM_REGION_SHIFT("Region Shift");
-
 void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	// This is called when we shift our origin when we cross region boundaries...
 	// We need to update many object caches, I'll document this more as I dig through the code
 	// cleaning things out...
@@ -1660,7 +1651,6 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 		return;
 	}
 
-	LL_RECORD_BLOCK_TIME(FTM_SHIFT_OBJECTS);
 
 	LLViewerObject *objectp;
 	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
@@ -1678,15 +1668,9 @@ void LLViewerObjectList::shiftObjects(const LLVector3 &offset)
 		}
 	}
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_PIPELINE_SHIFT);
 	gPipeline.shiftObjects(offset);
-	}
-
-	{
-		LL_RECORD_BLOCK_TIME(FTM_REGION_SHIFT);
+	
 	LLWorld::getInstance()->shiftRegions(offset);
-}
 }
 
 void LLViewerObjectList::repartitionObjects()

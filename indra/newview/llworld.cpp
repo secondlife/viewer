@@ -62,6 +62,8 @@
 #include <cstring>
 
 
+LLWorld* LLSimpleton<LLWorld>::sInstance = nullptr;
+
 //
 // Globals
 //
@@ -135,6 +137,7 @@ void LLWorld::destroyClass()
 	LLDrawable::incrementVisible();
 
 	LLSceneMonitor::deleteSingleton();
+    LLWorld::deleteSingleton();
 }
 
 
@@ -1077,6 +1080,7 @@ void LLWorld::updateWaterObjects()
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
 	{
 		LLViewerRegion* region = *i;
@@ -1147,11 +1151,9 @@ void LLWorld::disconnectRegions()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
-
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
+    LL_PROFILE_ZONE_SCOPED;
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure
 	U64		handle;
@@ -1217,12 +1219,11 @@ public:
 	}
 };
 
-static LLTrace::BlockTimerStatHandle FTM_DISABLE_REGION("Disable Region");
 // disable the circuit to this simulator
 // Called in response to "DisableSimulator" message.
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 {
-    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);
+    LL_PROFILE_ZONE_SCOPED;
 
     LLHost host = mesgsys->getSender();
 

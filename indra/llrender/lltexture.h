@@ -42,7 +42,7 @@ class LLFontGL ;
 //
 //this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public virtual LLRefCount, public LLTrace::MemTrackable<LLTexture>
+class LLTexture : public virtual LLRefCount
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
@@ -52,7 +52,6 @@ protected:
 
 public:
 	LLTexture()
-	:	LLTrace::MemTrackable<LLTexture>("LLTexture")
 	{}
 
 	//

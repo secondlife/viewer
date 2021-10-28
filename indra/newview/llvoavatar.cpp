@@ -328,6 +328,7 @@ public:
 	// must return FALSE when the motion is completed.
 	virtual BOOL onUpdate(F32 time, U8* joint_mask)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		F32 nx[2];
 		nx[0]=time*TORSO_NOISE_SPEED;
 		nx[1]=0.0f;
@@ -448,6 +449,7 @@ public:
 	// must return FALSE when the motion is completed.
 	virtual BOOL onUpdate(F32 time, U8* joint_mask)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		mBreatheRate = 1.f;
 
 		F32 breathe_amt = (sinf(mBreatheRate * time) * BREATHE_ROT_MOTION_STRENGTH);
@@ -549,6 +551,7 @@ public:
 	// must return FALSE when the motion is completed.
 	virtual BOOL onUpdate(F32 time, U8* joint_mask)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		mPelvisState->setPosition(LLVector3::zero);
 
 		return TRUE;
@@ -1318,11 +1321,9 @@ void LLVOAvatar::updateSpatialExtents(LLVector4a& newMin, LLVector4a &newMax)
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_EXTENT_UPDATE("Av Upd Extent");
-
 void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
-    LL_RECORD_BLOCK_TIME(FTM_AVATAR_EXTENT_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 
     S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
     if (getOverallAppearance() != AOA_NORMAL)
@@ -2491,10 +2492,6 @@ S32 LLVOAvatar::setTETexture(const U8 te, const LLUUID& uuid)
 	return setTETextureCore(te, image);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_UPDATE("Avatar Update");
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_UPDATE_COMPLEXITY("Avatar Update Complexity");
-static LLTrace::BlockTimerStatHandle FTM_JOINT_UPDATE("Update Joints");
-
 //------------------------------------------------------------------------
 // LLVOAvatar::dumpAnimationState()
 //------------------------------------------------------------------------
@@ -2527,7 +2524,7 @@ void LLVOAvatar::dumpAnimationState()
 //------------------------------------------------------------------------
 void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 {
-	LL_RECORD_BLOCK_TIME(FTM_AVATAR_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (isDead())
 	{
@@ -2563,8 +2560,6 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	// force asynchronous drawable update
 	if(mDrawable.notNull())
 	{	
-		LL_RECORD_BLOCK_TIME(FTM_JOINT_UPDATE);
-	
 		if (isSitting() && getParent())
 		{
 			LLViewerObject *root_object = (LLViewerObject*)getRoot();
@@ -2664,9 +2659,8 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 
     if ((LLFrameTimer::getFrameCount() + mID.mData[0]) % compl_upd_freq == 0)
     {
-        LL_RECORD_BLOCK_TIME(FTM_AVATAR_UPDATE_COMPLEXITY);
-	idleUpdateRenderComplexity();
-}
+        idleUpdateRenderComplexity();
+    }
     idleUpdateDebugInfo();
 }
 
@@ -2779,10 +2773,9 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	}//if ( voiceEnabled )
 }		
 
-static LLTrace::BlockTimerStatHandle FTM_ATTACHMENT_UPDATE("Update Attachments");
-
 void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (LLVOAvatar::sJointDebug)
 	{
 		LL_INFOS() << getFullname() << ": joint touches: " << LLJoint::sNumTouches << " updates: " << LLJoint::sNumUpdates << LL_ENDL;
@@ -2796,7 +2789,6 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	// update attachments positions
 	if (detailed_update)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			 iter != mAttachmentPoints.end();
 			 ++iter)
@@ -7132,10 +7124,9 @@ void LLVOAvatar::updateGL()
 //-----------------------------------------------------------------------------
 // updateGeometry()
 //-----------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_AVATAR("Update Avatar");
 BOOL LLVOAvatar::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_AVATAR);
+    LL_PROFILE_ZONE_SCOPED;
 	if (!(gPipeline.hasRenderType(mIsControlAvatar ? LLPipeline::RENDER_TYPE_CONTROL_AV : LLPipeline::RENDER_TYPE_AVATAR)))
 	{
 		return TRUE;
@@ -10193,6 +10184,7 @@ void showRigInfoTabExtents(LLVOAvatar *avatar, LLJointRiggingInfoTab& tab, S32& 
 
 void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for ( LLVOAvatar::attachment_map_t::iterator iter = mAttachmentPoints.begin(); iter != mAttachmentPoints.end(); ++iter )
 	{
 		LLViewerJointAttachment* attachment = iter->second;
@@ -10250,27 +10242,19 @@ void LLVOAvatar::getAssociatedVolumes(std::vector<LLVOVolume*>& volumes)
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_INFO_UPDATE("Av Upd Rig Info");
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_KEY_UPDATE("Av Upd Rig Key");
-static LLTrace::BlockTimerStatHandle FTM_AVATAR_RIGGING_AVOL_UPDATE("Av Upd Avol");
-
 // virtual
 void LLVOAvatar::updateRiggingInfo()
 {
-    LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_INFO_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 
     LL_DEBUGS("RigSpammish") << getFullname() << " updating rig tab" << LL_ENDL;
 
     std::vector<LLVOVolume*> volumes;
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_AVOL_UPDATE);
-		getAssociatedVolumes(volumes);
-	}
+	getAssociatedVolumes(volumes);
 
 	std::map<LLUUID,S32> curr_rigging_info_key;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_AVATAR_RIGGING_KEY_UPDATE);
 		// Get current rigging info key
 		for (std::vector<LLVOVolume*>::iterator it = volumes.begin(); it != volumes.end(); ++it)
 		{
@@ -10432,6 +10416,7 @@ void LLVOAvatar::updateImpostorRendering(U32 newMaxNonImpostorsValue)
 
 void LLVOAvatar::idleUpdateRenderComplexity()
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (isControlAvatar())
     {
         LLControlAvatar *cav = dynamic_cast<LLControlAvatar*>(this);

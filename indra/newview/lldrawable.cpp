@@ -58,8 +58,6 @@ const F32 MIN_INTERPOLATE_DISTANCE_SQUARED = 0.001f * 0.001f;
 const F32 MAX_INTERPOLATE_DISTANCE_SQUARED = 10.f * 10.f;
 const F32 OBJECT_DAMPING_TIME_CONSTANT = 0.06f;
 
-static LLTrace::BlockTimerStatHandle FTM_CULL_REBOUND("Cull Rebound");
-
 extern bool gShiftFrame;
 
 
@@ -93,7 +91,6 @@ void LLDrawable::incrementVisible()
 
 LLDrawable::LLDrawable(LLViewerObject *vobj, bool new_entry)
 :	LLViewerOctreeEntryData(LLViewerOctreeEntry::LLDRAWABLE),
-	LLTrace::MemTrackable<LLDrawable, 16>("LLDrawable"),
 	mVObjp(vobj)
 {
 	init(new_entry); 
@@ -263,19 +260,13 @@ BOOL LLDrawable::isLight() const
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_CLEANUP_DRAWABLE("Cleanup Drawable");
-static LLTrace::BlockTimerStatHandle FTM_DEREF_DRAWABLE("Deref");
-static LLTrace::BlockTimerStatHandle FTM_DELETE_FACES("Faces");
-
 void LLDrawable::cleanupReferences()
 {
-	LL_RECORD_BLOCK_TIME(FTM_CLEANUP_DRAWABLE);
+    LL_PROFILE_ZONE_SCOPED;
 	
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DELETE_FACES);
-		std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
-		mFaces.clear();
-	}
+	
+	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
+	mFaces.clear();
 
 	gObjectList.removeDrawable(this);
 	
@@ -283,12 +274,9 @@ void LLDrawable::cleanupReferences()
 	
 	removeFromOctree();
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_DEREF_DRAWABLE);
-		// Cleanup references to other objects
-		mVObjp = NULL;
-		mParent = NULL;
-	}
+	// Cleanup references to other objects
+	mVObjp = NULL;
+	mParent = NULL;
 }
 
 void LLDrawable::removeFromOctree()
@@ -333,15 +321,12 @@ S32 LLDrawable::findReferences(LLDrawable *drawablep)
 	return count;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_ALLOCATE_FACE("Allocate Face");
-
 LLFace*	LLDrawable::addFace(LLFacePool *poolp, LLViewerTexture *texturep)
 {
 	LL_PROFILE_ZONE_SCOPED
 	
 	LLFace *face;
 	{
-		LL_RECORD_BLOCK_TIME(FTM_ALLOCATE_FACE);
 		face = new LLFace(this, mVObjp);
 	}
 
@@ -370,11 +355,8 @@ LLFace*	LLDrawable::addFace(const LLTextureEntry *te, LLViewerTexture *texturep)
 
 	LLFace *face;
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_ALLOCATE_FACE);
-		face = new LLFace(this, mVObjp);
-	}
-
+	face = new LLFace(this, mVObjp);
+	
 	face->setTEOffset(mFaces.size());
 	face->setTexture(texturep);
 	face->setPoolType(gPipeline.getPoolTypeFromTE(te, texturep));
@@ -1333,10 +1315,7 @@ void LLSpatialBridge::updateSpatialExtents()
 
 	LLSpatialGroup* root = (LLSpatialGroup*) mOctree->getListener(0);
 	
-	{
-		LL_RECORD_BLOCK_TIME(FTM_CULL_REBOUND);
-		root->rebound();
-	}
+	root->rebound();
 	
 	const LLVector4a* root_bounds = root->getBounds();
 	LLVector4a offset;

@@ -74,8 +74,9 @@ public:
 };
 
 template <class T>
-class LLOctreeNode : public LLTreeNode<T>
+class alignas(16) LLOctreeNode : public LLTreeNode<T>
 {
+    LL_ALIGN_NEW
 public:
 
 	typedef LLOctreeTraveler<T>									oct_traveler;
@@ -90,16 +91,6 @@ public:
 	typedef LLTreeNode<T>		BaseType;
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
 
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 

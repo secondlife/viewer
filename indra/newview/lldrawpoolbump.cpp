@@ -1116,11 +1116,10 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_STANDARD_LOADED("Bump Standard Callback");
-
 // static
 void LLBumpImageList::onSourceBrightnessLoaded( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata )
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLUUID* source_asset_id = (LLUUID*)userdata;
 	LLBumpImageList::onSourceLoaded( success, src_vi, src, *source_asset_id, BE_BRIGHTNESS );
 	if( final )
@@ -1140,22 +1139,17 @@ void LLBumpImageList::onSourceDarknessLoaded( BOOL success, LLViewerFetchedTextu
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUMP_GEN_NORMAL("Generate Normal Map");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_CREATE_TEXTURE("Create GL Normal Map");
-
 void LLBumpImageList::onSourceStandardLoaded( BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* aux_src, S32 discard_level, BOOL final, void* userdata)
 {
 	if (success && LLPipeline::sRenderDeferred)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_STANDARD_LOADED);
+        LL_PROFILE_ZONE_SCOPED;
 		LLPointer<LLImageRaw> nrm_image = new LLImageRaw(src->getWidth(), src->getHeight(), 4);
 		{
-			LL_RECORD_BLOCK_TIME(FTM_BUMP_GEN_NORMAL);
 			generateNormalMapFromAlpha(src, nrm_image);
 		}
 		src_vi->setExplicitFormat(GL_RGBA, GL_RGBA);
 		{
-			LL_RECORD_BLOCK_TIME(FTM_BUMP_CREATE_TEXTURE);
 			src_vi->createGLTexture(src_vi->getDiscardLevel(), nrm_image);
 		}
 	}
@@ -1216,28 +1210,18 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 	}
 }
 
-
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_LOADED("Bump Source Loaded");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_ENTRIES_UPDATE("Entries Update");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_MIN_MAX("Min/Max");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RGB2LUM("RGB to Luminance");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_RESCALE("Rescale");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_GEN_NORMAL("Generate Normal");
-static LLTrace::BlockTimerStatHandle FTM_BUMP_SOURCE_CREATE("Bump Source Create");
-
 // static
 void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )
 {
 	if( success )
 	{
-		LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_LOADED);
+        LL_PROFILE_ZONE_SCOPED;
 
 
 		bump_image_map_t& entries_list(bump_code == BE_BRIGHTNESS ? gBumpImageList.mBrightnessEntries : gBumpImageList.mDarknessEntries );
 		bump_image_map_t::iterator iter = entries_list.find(source_asset_id);
 
 		{
-			LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_ENTRIES_UPDATE);
 			if (iter == entries_list.end() ||
 				iter->second.isNull() ||
 							iter->second->getWidth() != src->getWidth() ||
@@ -1280,7 +1264,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			case 1:
 			case 2:
 				{
-					LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_MIN_MAX);
 					if( src_data_size == dst_data_size * src_components )
 					{
 						for( S32 i = 0, j=0; i < dst_data_size; i++, j+= src_components )
@@ -1306,7 +1289,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			case 3:
 			case 4:
 				{
-					LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_RGB2LUM);
 					if( src_data_size == dst_data_size * src_components )
 					{
 						for( S32 i = 0, j=0; i < dst_data_size; i++, j+= src_components )
@@ -1339,7 +1321,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
 			if( maximum > minimum )
 			{
-				LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_RESCALE);
 				U8 bias_and_scale_lut[256];
 				F32 twice_one_over_range = 2.f / (maximum - minimum);
 				S32 i;
@@ -1375,7 +1356,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
 			if (!LLPipeline::sRenderDeferred)
 			{
-				LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_CREATE);
 				bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
 				bump->createGLTexture(0, dst_image);
 			}
@@ -1386,13 +1366,11 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 				bump->getGLTexture()->setAllowCompression(false);
 
 				{
-					LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_CREATE);
 					bump->setExplicitFormat(GL_RGBA8, GL_ALPHA);
 					bump->createGLTexture(0, dst_image);
 				}
 
 				{
-					LL_RECORD_BLOCK_TIME(FTM_BUMP_SOURCE_GEN_NORMAL);
 					gPipeline.mScreen.bindTarget();
 					
 					LLGLDepthTest depth(GL_FALSE);

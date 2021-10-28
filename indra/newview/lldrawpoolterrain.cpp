@@ -920,6 +920,7 @@ void LLDrawPoolTerrain::renderOwnership()
 
 void LLDrawPoolTerrain::dirtyTextures(const std::set<LLViewerFetchedTexture*>& textures)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(mTexturep) ;
 	if (tex && textures.find(tex) != textures.end())
 	{

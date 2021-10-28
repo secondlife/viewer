@@ -481,8 +481,6 @@ const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 F32 texmem_lower_bound_scale = 0.85f;
 F32 texmem_middle_bound_scale = 0.925f;
 
-static LLTrace::BlockTimerStatHandle FTM_TEXTURE_MEMORY_CHECK("Memory Check");
-
 //static 
 bool LLViewerTexture::isMemoryForTextureLow()
 {
@@ -531,8 +529,6 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     timer.reset();
 
     {
-        LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
-
         if (gGLManager.mHasATIMemInfo)
         {
             S32 meminfo[4];
@@ -555,11 +551,8 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_MEDIA("Media");
-static LLTrace::BlockTimerStatHandle FTM_TEXTURE_UPDATE_TEST("Test");
-
 //static
-void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity)
+void LLViewerTexture::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED;
 	sCurrentTime = gFrameTimeSeconds;
@@ -567,14 +560,10 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 	if (tester)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UPDATE_TEST);
 		tester->update();
 	}
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_TEXTURE_UPDATE_MEDIA);
-		LLViewerMediaTexture::updateClass();
-	}
+	LLViewerMediaTexture::updateClass();
 
 	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;
 	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;
@@ -2614,6 +2603,7 @@ void LLViewerFetchedTexture::pauseLoadedCallbacks(const LLLoadedCallbackEntry::s
 
 bool LLViewerFetchedTexture::doLoadedCallbacks()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	static const F32 MAX_INACTIVE_TIME = 900.f ; //seconds
 	static const F32 MAX_IDLE_WAIT_TIME = 5.f ; //seconds
 
@@ -3419,6 +3409,7 @@ bool LLViewerLODTexture::scaleDown()
 //static
 void LLViewerMediaTexture::updateClass()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	static const F32 MAX_INACTIVE_TIME = 30.f;
 
 #if 0

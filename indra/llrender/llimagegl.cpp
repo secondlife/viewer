@@ -276,11 +276,10 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 
 //----------------------------------------------------------------------------
 
-static LLTrace::BlockTimerStatHandle FTM_IMAGE_UPDATE_STATS("Image Stats");
 // static
 void LLImageGL::updateStats(F32 current_time)
 {
-	LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_STATS);
+    LL_PROFILE_ZONE_SCOPED;
 	sLastFrameTime = current_time;
 	sBoundTextureMemory = sCurBoundTextureMemory;
 	sCurBoundTextureMemory = S32Bytes(0);
@@ -313,10 +312,8 @@ void LLImageGL::destroyGL(BOOL save_state)
 			if (save_state && glimage->isGLTextureCreated() && glimage->mComponents)
 			{
 				glimage->mSaveData = new LLImageRaw;
-				glimage->claimMem(glimage->mSaveData);
 				if(!glimage->readBackRaw(glimage->mCurrentDiscardLevel, glimage->mSaveData, false)) //necessary, keep it.
 				{
-					glimage->disclaimMem(glimage->mSaveData);
 					glimage->mSaveData = NULL ;
 				}
 			}
@@ -390,8 +387,7 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 //----------------------------------------------------------------------------
 
 LLImageGL::LLImageGL(BOOL usemipmaps)
-:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-    mSaveData(0), mExternalTexture(FALSE)
+:	mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -400,8 +396,7 @@ LLImageGL::LLImageGL(BOOL usemipmaps)
 }
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
-:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-    mSaveData(0), mExternalTexture(FALSE)
+:	mSaveData(0), mExternalTexture(FALSE)
 {
 	llassert( components <= 4 );
 	init(usemipmaps);
@@ -411,8 +406,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 }
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
-:	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-    mSaveData(0), mExternalTexture(FALSE)
+:	mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -430,7 +424,6 @@ LLImageGL::LLImageGL(
     LLGLenum formatPrimary,
     LLGLenum formatType,
     LLTexUnit::eTextureAddressMode addressMode)
-    : LLTrace::MemTrackable<LLImageGL>("LLImageGL"), mSaveData(0), mExternalTexture(TRUE)
 {
     init(false);
     mTexName = texName;
@@ -682,10 +675,9 @@ void LLImageGL::setImage(const LLImageRaw* imageraw)
 	setImage(rawdata, FALSE);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_SET_IMAGE("setImage");
 BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips, S32 usename)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SET_IMAGE);
+    LL_PROFILE_ZONE_SCOPED;
 	bool is_compressed = false;
 
     switch (mFormatPrimary)
@@ -746,8 +738,6 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips, S32 usename)
 				}
 				else
 				{
-// 					LL_RECORD_BLOCK_TIME(FTM_TEMP4);
-
 					if(mFormatSwapBytes)
 					{
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
@@ -778,8 +768,6 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips, S32 usename)
 			{
 				stop_glerror();
 				{
-// 					LL_RECORD_BLOCK_TIME(FTM_TEMP4);
-
 					if(mFormatSwapBytes)
 					{
 						glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
@@ -889,7 +877,6 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips, S32 usename)
 					llassert(w > 0 && h > 0 && cur_mip_data);
 					(void)cur_mip_data;
 					{
-// 						LL_RECORD_BLOCK_TIME(FTM_TEMP4);
 						if(mFormatSwapBytes)
 						{
 							glPixelStorei(GL_UNPACK_SWAP_BYTES, 1);
@@ -1203,10 +1190,9 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 }
 
 // static
-static LLTrace::BlockTimerStatHandle FTM_GENERATE_TEXTURES("generate textures");
 void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
-	LL_RECORD_BLOCK_TIME(FTM_GENERATE_TEXTURES);
+    LL_PROFILE_ZONE_SCOPED;
 	glGenTextures(numTextures, textures);
 }
 
@@ -1220,10 +1206,9 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 }
 
 // static
-static LLTrace::BlockTimerStatHandle FTM_SET_MANUAL_IMAGE("setManualImage");
 void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 width, S32 height, U32 pixformat, U32 pixtype, const void* pixels, bool allow_compression)
 {
-    LL_RECORD_BLOCK_TIME(FTM_SET_MANUAL_IMAGE);
+    LL_PROFILE_ZONE_SCOPED;
     bool use_scratch = false;
     U32* scratch = NULL;
     if (LLRender::sGLCoreProfile)
@@ -1338,10 +1323,9 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
 //create an empty GL texture: just create a texture name
 //the texture is assiciate with some image by calling glTexImage outside LLImageGL
-static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE1("createGLTexture()");
 BOOL LLImageGL::createGLTexture()
 {
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE1);
+    LL_PROFILE_ZONE_SCOPED;
 	if (gGLManager.mIsDisabled)
 	{
 		LL_WARNS() << "Trying to create a texture while GL is disabled!" << LL_ENDL;
@@ -1371,10 +1355,9 @@ BOOL LLImageGL::createGLTexture()
 	return TRUE ;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE2("createGLTexture(raw)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE2);
+    LL_PROFILE_ZONE_SCOPED;
 	if (gGLManager.mIsDisabled)
 	{
 		LL_WARNS() << "Trying to create a texture while GL is disabled!" << LL_ENDL;
@@ -1485,10 +1468,9 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	return createGLTexture(discard_level, rawdata, FALSE, usename);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_GL_TEXTURE3("createGLTexture3(data)");
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
-    LL_RECORD_BLOCK_TIME(FTM_CREATE_GL_TEXTURE3);
+    LL_PROFILE_ZONE_SCOPED;
     llassert(data_in);
     stop_glerror();
 
@@ -1595,9 +1577,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
         mNewTexName = 0;
     }
     
-    disclaimMem(mTextureMemory);
     mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
-    claimMem(mTextureMemory);
     sGlobalTextureMemory += mTextureMemory;
     mTexelsInGLTexture = getWidth() * getHeight();
 
@@ -1735,7 +1715,6 @@ void LLImageGL::destroyGLTexture()
 		if(mTextureMemory != S32Bytes(0))
 		{
 			sGlobalTextureMemory -= mTextureMemory;
-			disclaimMem(mTextureMemory);
 			mTextureMemory = (S32Bytes)0;
 		}
 		
@@ -2088,7 +2067,6 @@ U32 LLImageGL::createPickMask(S32 pWidth, S32 pHeight)
 	U32 size = pick_width * pick_height;
 	size = (size + 7) / 8; // pixelcount-to-bits
 	mPickMask = new U8[size];
-	claimMem(size);
 	mPickMaskWidth = pick_width - 1;
 	mPickMaskHeight = pick_height - 1;
 
@@ -2103,7 +2081,6 @@ void LLImageGL::freePickMask()
 	// pickmask validity depends on old image size, delete it
 	if (mPickMask != NULL)
 	{
-		disclaimMem((mPickMaskWidth * mPickMaskHeight + 7) / 8);
 		delete [] mPickMask;
 	}
 	mPickMask = NULL;

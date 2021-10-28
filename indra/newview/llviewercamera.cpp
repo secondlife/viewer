@@ -54,6 +54,8 @@
 // System includes
 #include <iomanip> // for setprecision
 
+LLViewerCamera* LLSimpleton<LLViewerCamera>::sInstance = nullptr;
+
 LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
 LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
 
@@ -80,9 +82,6 @@ glh::matrix4f gl_pick_matrix(GLfloat x, GLfloat y, GLfloat width, GLfloat height
 
 	return glh::matrix4f(m);
 }
-
-// Build time optimization, generate this once in .cpp file
-template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
 
 LLViewerCamera::LLViewerCamera() : LLCamera()
 {

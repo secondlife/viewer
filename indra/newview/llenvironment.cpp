@@ -105,7 +105,6 @@ namespace
 
     //---------------------------------------------------------------------
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
-    LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 
     LLSettingsBase::Seconds         DEFAULT_UPDATE_THRESHOLD(10.0);
     const LLSettingsBase::Seconds   MINIMUM_SPANLENGTH(0.01f);
@@ -825,7 +824,7 @@ std::string env_selection_to_string(LLEnvironment::EnvSelection_t sel)
 #undef RTNENUM
 }
 
-
+LLEnvironment* LLSimpleton<LLEnvironment>::sInstance = nullptr;
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
     mCloudScrollDelta(),
@@ -879,6 +878,7 @@ void LLEnvironment::cleanupSingleton()
 
 LLEnvironment::~LLEnvironment()
 {
+    cleanupSingleton();
 }
 
 bool LLEnvironment::canEdit() const
@@ -1655,7 +1655,7 @@ void LLEnvironment::updateCloudScroll()
 // static
 void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, const LLSettingsBase::ptr_t &psetting)
 {
-    LL_RECORD_BLOCK_TIME(FTM_SHADER_PARAM_UPDATE);
+    LL_PROFILE_ZONE_SCOPED;
 
     for (int i = 0; i < LLGLSLShader::SG_COUNT; ++i)
     {

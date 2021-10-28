@@ -47,11 +47,11 @@ class LLViewerCamera;
 class LLParcel;
 
 //-------------------------------------------------------------------------
-class LLEnvironment : public LLSingleton<LLEnvironment>
+class LLEnvironment : public LLSimpleton<LLEnvironment>
 {
-    LLSINGLETON_C11(LLEnvironment);
     LOG_CLASS(LLEnvironment);
 public:
+    LLEnvironment();
 
     static const F64Seconds     TRANSITION_INSTANT;
     static const F64Seconds     TRANSITION_FAST;
@@ -115,7 +115,7 @@ public:
     typedef std::array<F32, 4>                                      altitude_list_t;
     typedef std::vector<F32>                                        altitudes_vect_t;
 
-    virtual                     ~LLEnvironment();
+    ~LLEnvironment();
 
     bool                        canEdit() const;
     bool                        isExtendedEnvironmentEnabled() const;
@@ -337,9 +337,10 @@ public:
     DayInstance::ptr_t          getSelectedEnvironmentInstance();
     DayInstance::ptr_t          getSharedEnvironmentInstance();
 
+    void                initSingleton();
+
 protected:
-    virtual void                initSingleton() override;
-    virtual void                cleanupSingleton() override;
+    void                cleanupSingleton();
 
 
 private:

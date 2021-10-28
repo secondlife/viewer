@@ -59,14 +59,13 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
 LL_ALIGN_PREFIX(16)
-class LLDrawable 
-:	public LLViewerOctreeEntryData,
-	public LLTrace::MemTrackable<LLDrawable, 16>
+class LLDrawable
+    : public LLViewerOctreeEntryData
 {
+    LL_ALIGN_NEW;
 public:
 	LLDrawable(const LLDrawable& rhs) 
-	:	LLTrace::MemTrackable<LLDrawable, 16>("LLDrawable"),
-		LLViewerOctreeEntryData(rhs)
+        : LLViewerOctreeEntryData(rhs)
 	{
 		*this = rhs;
 	}
