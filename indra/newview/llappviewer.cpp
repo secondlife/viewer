@@ -1841,6 +1841,8 @@ bool LLAppViewer::cleanup()
 
 	if (gAudiop)
 	{
+        LL_INFOS() << "Shutting down audio" << LL_ENDL;
+
         // be sure to stop the internet stream cleanly BEFORE destroying the interface to stop it.
         gAudiop->stopInternetStream();
         // shut down the streaming audio sub-subsystem first, in case it relies on not outliving the general audio subsystem.
