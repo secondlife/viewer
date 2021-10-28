@@ -982,6 +982,8 @@ void LLWindowWin32::close()
 
     while (!mWindowThread->isStopped())
     {
+        //nudge window thread
+        PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
