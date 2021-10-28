@@ -67,6 +67,7 @@ private:
 
     std::string mURL;
     F32 mGain;
+    S32 mRetryCount;
 };
 
 
