@@ -1613,6 +1613,7 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_TOOLCAMERA, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLPAN, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLZOOMIN, 7, 6);
+    initPixmapCursor(UI_CURSOR_TOOLZOOMOUT, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLPICKOBJECT3, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPLAY, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPAUSE, 1, 1);
@@ -1631,6 +1632,7 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_SIZENESW, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZEWE, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZENS, 10, 10);
+    initPixmapCursor(UI_CURSOR_SIZEALL, 10, 10);
 
 }
 
