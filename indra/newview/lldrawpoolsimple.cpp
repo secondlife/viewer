@@ -57,8 +57,6 @@ void LLDrawPoolGlow::beginPostDeferredPass(S32 pass)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_GLOW_PUSH("Glow Push");
-
 void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GLOW);
@@ -73,10 +71,7 @@ void LLDrawPoolGlow::renderPostDeferred(S32 pass)
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	gGL.setColorMask(false, true);
 
-	{
-		LL_RECORD_BLOCK_TIME(FTM_RENDER_GLOW_PUSH);
-		pushBatches(LLRenderPass::PASS_GLOW, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-	}
+	pushBatches(LLRenderPass::PASS_GLOW, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 	
 	gGL.setColorMask(true, false);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);	
@@ -309,7 +304,7 @@ void LLDrawPoolAlphaMask::endRenderPass(S32 pass)
 void LLDrawPoolAlphaMask::render(S32 pass)
 {
 	LLGLDisable blend(GL_BLEND);
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_MASK);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	if (mShaderLevel > 0)
 	{

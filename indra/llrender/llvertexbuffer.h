@@ -98,7 +98,7 @@ public:
 //============================================================================
 // base class 
 class LLPrivateMemoryPool;
-class LLVertexBuffer : public LLRefCount, public LLTrace::MemTrackable<LLVertexBuffer>
+class LLVertexBuffer : public LLRefCount
 {
 public:
 	class MappedRegion
@@ -113,8 +113,7 @@ public:
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
-	:	LLTrace::MemTrackable<LLVertexBuffer>("LLVertexBuffer"),
-		mUsage(rhs.mUsage)
+	:	mUsage(rhs.mUsage)
 	{
 		*this = rhs;
 	}

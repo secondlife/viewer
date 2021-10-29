@@ -809,13 +809,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			
 			{
 				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_CLASS);
-				LLTrace::CountStatHandle<>* velocity_stat = LLViewerCamera::getVelocityStat();
-				LLTrace::CountStatHandle<>* angular_velocity_stat = LLViewerCamera::getAngularVelocityStat();
-				LLViewerTexture::updateClass(LLTrace::get_frame_recording().getPeriodMeanPerSec(*velocity_stat),
-											LLTrace::get_frame_recording().getPeriodMeanPerSec(*angular_velocity_stat));
+				LLViewerTexture::updateClass();
 			}
 
-			
 			{
 				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_BUMP);
 				gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.
@@ -1285,7 +1281,6 @@ void render_ui(F32 zoom_factor, int subfield)
 	
 	if(LLSceneMonitor::getInstance()->needsUpdate())
 	{
-		LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_SCENE_MON);
 		gGL.pushMatrix();
 		gViewerWindow->setup2DRender();
 		LLSceneMonitor::getInstance()->compare();
@@ -1334,12 +1329,9 @@ void render_ui(F32 zoom_factor, int subfield)
 			}
 			gGL.flush();
 
-			{
-				LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_DEBUG_TEXT);
-				gViewerWindow->setup2DRender();
-				gViewerWindow->updateDebugText();
-				gViewerWindow->drawDebugText();
-			}
+			gViewerWindow->setup2DRender();
+			gViewerWindow->updateDebugText();
+			gViewerWindow->drawDebugText();
 
 			LLVertexBuffer::unbind();
 		}

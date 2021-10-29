@@ -839,4 +839,30 @@ private:                                                                \
     /* LLSINGLETON() is carefully implemented to permit exactly this */ \
     LLSINGLETON_C11(DERIVED_CLASS) {}
 
+// Relatively unsafe singleton implementation that is much faster
+// and simpler than LLSingleton, but has no dependency tracking
+// or inherent thread safety and requires manual invocation of 
+// createInstance before first use.
+template<class T>
+class LLSimpleton
+{
+public:
+    static T* sInstance;
+    
+    static void createInstance() 
+    { 
+        llassert(sInstance == nullptr);
+        sInstance = new T(); 
+    }
+    
+    static inline T* getInstance() { return sInstance; }
+    static inline T& instance() { return *getInstance(); }
+    static inline bool instanceExists() { return sInstance != nullptr; }
+
+    static void deleteSingleton() { 
+        delete sInstance; 
+        sInstance = nullptr; 
+    }
+};
+
 #endif

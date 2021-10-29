@@ -977,6 +977,9 @@ bool LLAppViewer::init()
 	// Initialize the repeater service.
 	LLMainLoopRepeater::instance().start();
 
+    // Initialize event recorder
+    LLViewerEventRecorder::createInstance();
+
 	//
 	// Initialize the window
 	//
@@ -1316,6 +1319,13 @@ bool LLAppViewer::init()
 	// Load User's bindings
 	loadKeyBindings();
 
+    //LLSimpleton creations
+    LLEnvironment::createInstance();
+    LLEnvironment::getInstance()->initSingleton();
+    LLWorld::createInstance();
+    LLSelectMgr::createInstance();
+    LLViewerCamera::createInstance();
+
 	return true;
 }
 
@@ -1410,10 +1420,14 @@ bool LLAppViewer::doFrame()
 	LLSD newFrame;
 
 	{
-		LL_PROFILE_ZONE_NAMED( "df blocktimer" )
-		LLTrace::BlockTimer::processTimes();
-		LLTrace::get_frame_recording().nextPeriod();
-		LLTrace::BlockTimer::logStats();
+        LL_PROFILE_ZONE_NAMED("df LLTrace");
+        if (LLFloaterReg::instanceVisible("block_timers"))
+        {
+            LLTrace::BlockTimer::processTimes();
+        }
+        
+        LLTrace::get_frame_recording().nextPeriod();
+        LLTrace::BlockTimer::logStats();
 	}
 
 	LLTrace::get_thread_recorder()->pullFromChildren();
@@ -2184,6 +2198,10 @@ bool LLAppViewer::cleanup()
 
 	LLError::LLCallStacks::cleanup();
 
+    LLEnvironment::deleteSingleton();
+    LLSelectMgr::deleteSingleton();
+    LLViewerEventRecorder::deleteSingleton();
+
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
 	// explicit hand-placed calls into the generic mechanism, eventually
@@ -2194,6 +2212,7 @@ bool LLAppViewer::cleanup()
 	// This calls every remaining LLSingleton's cleanupSingleton() and
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
+
 
     LL_INFOS() << "Goodbye!" << LL_ENDL;
 
@@ -5641,6 +5660,7 @@ void LLAppViewer::disconnectViewer()
 		LLWorld::getInstance()->destroyClass();
 	}
 	LLVOCache::deleteSingleton();
+    LLViewerCamera::deleteSingleton();
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();

@@ -66,11 +66,6 @@ namespace {
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_SKYVALUES("Recalculate Sky");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_BODIES("Recalculate Heavenly Bodies");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_LIGHTING("Recalculate Lighting");
-
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
 const std::string LLSettingsSky::SETTING_BLUE_DENSITY("blue_density");
@@ -940,7 +935,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    LL_RECORD_BLOCK_TIME(FTM_RECALCULATE_SKYVALUES);
+    LL_PROFILE_ZONE_SCOPED;
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();

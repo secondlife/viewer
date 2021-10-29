@@ -42,7 +42,6 @@
 
 S32 LLDrawPoolTree::sDiffTex = 0;
 static LLGLSLShader* shader = NULL;
-static LLTrace::BlockTimerStatHandle FTM_SHADOW_TREE("Tree Shadow");
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TREE),
@@ -84,7 +83,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 
 void LLDrawPoolTree::render(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(LLPipeline::sShadowRender ? FTM_SHADOW_TREE : FTM_RENDER_TREES);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (mDrawFace.empty())
 	{
@@ -169,7 +168,7 @@ void LLDrawPoolTree::endDeferredPass(S32 pass)
 //============================================
 void LLDrawPoolTree::beginShadowPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredTreeShadowOffset"),
 					gSavedSettings.getF32("RenderDeferredTreeShadowBias"));
@@ -188,7 +187,7 @@ void LLDrawPoolTree::renderShadow(S32 pass)
 
 void LLDrawPoolTree::endShadowPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	glPolygonOffset(gSavedSettings.getF32("RenderDeferredSpotShadowOffset"),
 						gSavedSettings.getF32("RenderDeferredSpotShadowBias"));

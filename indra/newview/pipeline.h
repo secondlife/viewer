@@ -66,7 +66,6 @@ bool setup_hud_matrices(const LLRect& screen_region); // specify portion of scre
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN;
@@ -87,8 +86,6 @@ extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_DEBUG_TEXT;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_SCENE_MON;
 
 class LLPipeline
 {

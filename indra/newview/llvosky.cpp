@@ -79,11 +79,6 @@ namespace
     const LLVector2 TEX10 = LLVector2(1.f, 0.f);
     const LLVector2 TEX11 = LLVector2(1.f, 1.f);
 
-    LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATETIMER("VOSky Update Timer Tick");
-    LLTrace::BlockTimerStatHandle FTM_VOSKY_CALC("VOSky Update Calculations");
-    LLTrace::BlockTimerStatHandle FTM_VOSKY_CREATETEXTURES("VOSky Update Textures");
-    LLTrace::BlockTimerStatHandle FTM_VOSKY_UPDATEFORCED("VOSky Update Forced");
-
     F32Seconds UPDATE_EXPRY(0.25f);
 
     const F32 UPDATE_MIN_DELTA_THRESHOLD = 0.0005f;
@@ -515,6 +510,7 @@ void LLVOSky::cacheEnvironment(LLSettingsSky::ptr_t psky,AtmosphericsVars& atmos
 
 void LLVOSky::calc()
 {
+    LL_PROFILE_ZONE_SCOPED;
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     cacheEnvironment(psky,m_atmosphericsVars);
 
@@ -685,6 +681,8 @@ bool LLVOSky::updateSky()
 		return TRUE;
 	}
 
+    LL_PROFILE_ZONE_SCOPED;
+
 	static S32 next_frame = 0;
 
     mNeedUpdate = mForceUpdate;
@@ -705,7 +703,6 @@ bool LLVOSky::updateSky()
 
     if (mCubeMapUpdateStage < 0)
     {
-        LL_RECORD_BLOCK_TIME(FTM_VOSKY_CALC);
         calc();
 
         bool same_atmospherics = approximatelyEqual(m_lastAtmosphericsVars, m_atmosphericsVars, UPDATE_MIN_DELTA_THRESHOLD);
@@ -722,7 +719,7 @@ bool LLVOSky::updateSky()
 	}
     else if (mCubeMapUpdateStage == NUM_CUBEMAP_FACES)
 	{
-        LL_RECORD_BLOCK_TIME(FTM_VOSKY_UPDATEFORCED);
+        LL_PROFILE_ZONE_NAMED("updateSky - forced");
         LLSkyTex::stepCurrent();
 
         bool is_alm_wl_sky = gPipeline.canUseWindLightShaders();
@@ -783,7 +780,7 @@ bool LLVOSky::updateSky()
     // run 0 to 5 faces, each face in own frame
     else if (mCubeMapUpdateStage >= 0 && mCubeMapUpdateStage < NUM_CUBEMAP_FACES)
 	{
-        LL_RECORD_BLOCK_TIME(FTM_VOSKY_CREATETEXTURES);
+        LL_PROFILE_ZONE_NAMED("updateSky - create");
         S32 side = mCubeMapUpdateStage;
         // CPU hungry part, createSkyTexture() is math heavy
         // Prior to EEP it was mostly per tile, but since EPP it is per face.
@@ -973,11 +970,9 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Sky Geometry");
-
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_GEO_SKY);
+    LL_PROFILE_ZONE_SCOPED;
 	if (mFace[FACE_REFLECTION] == NULL)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);

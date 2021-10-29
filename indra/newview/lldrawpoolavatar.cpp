@@ -103,8 +103,6 @@ S32 normal_channel = -1;
 S32 specular_channel = -1;
 S32 cube_channel = -1;
 
-static LLTrace::BlockTimerStatHandle FTM_SHADOW_AVATAR("Avatar Shadow");
-
 LLDrawPoolAvatar::LLDrawPoolAvatar(U32 type) : 
 	LLFacePool(type)	
 {
@@ -196,7 +194,7 @@ LLMatrix4& LLDrawPoolAvatar::getModelView()
 
 void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED;
 	
 	sSkipTransparent = TRUE;
 	is_deferred_render = true;
@@ -231,7 +229,7 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	sSkipTransparent = FALSE;
 	is_deferred_render = false;
@@ -454,229 +452,220 @@ S32 LLDrawPoolAvatar::getNumShadowPasses()
 
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+    LL_PROFILE_ZONE_SCOPED;
+
+    if (pass == SHADOW_PASS_AVATAR_OPAQUE)
     {
-        LL_PROFILE_ZONE_SCOPED;
+        sVertexProgram = &gDeferredAvatarShadowProgram;
 
-        if (pass == SHADOW_PASS_AVATAR_OPAQUE)
+        if ((sShaderLevel > 0))  // for hardware blending
         {
-            sVertexProgram = &gDeferredAvatarShadowProgram;
-
-            if ((sShaderLevel > 0))  // for hardware blending
-            {
-                sRenderingSkinned = TRUE;
-                sVertexProgram->bind();
-            }
-
-            gGL.diffuseColor4f(1, 1, 1, 1);
-        }
-        else if (pass == SHADOW_PASS_AVATAR_ALPHA_BLEND)
-        {
-            sVertexProgram = &gDeferredAvatarAlphaShadowProgram;
-
-            // bind diffuse tex so we can reference the alpha channel...
-            S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
-            sDiffuseChannel = 0;
-            if (loc != -1)
-            {
-                sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-            }
-
-            if ((sShaderLevel > 0))  // for hardware blending
-            {
-                sRenderingSkinned = TRUE;
-                sVertexProgram->bind();
-            }
-
-            gGL.diffuseColor4f(1, 1, 1, 1);
-        }
-        else if (pass == SHADOW_PASS_AVATAR_ALPHA_MASK)
-        {
-            sVertexProgram = &gDeferredAvatarAlphaMaskShadowProgram;
-
-            // bind diffuse tex so we can reference the alpha channel...
-            S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
-            sDiffuseChannel = 0;
-            if (loc != -1)
-            {
-                sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-            }
-
-            if ((sShaderLevel > 0))  // for hardware blending
-            {
-                sRenderingSkinned = TRUE;
-                sVertexProgram->bind();
-            }
-
-            gGL.diffuseColor4f(1, 1, 1, 1);
-        }
-        else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_BLEND)
-        {
-            sVertexProgram = &gDeferredAttachmentAlphaShadowProgram;
-
-            // bind diffuse tex so we can reference the alpha channel...
-            S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
-            sDiffuseChannel = 0;
-            if (loc != -1)
-            {
-                sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-            }
-
-            if ((sShaderLevel > 0))  // for hardware blending
-            {
-                sRenderingSkinned = TRUE;
-                sVertexProgram->bind();
-            }
-
-            gGL.diffuseColor4f(1, 1, 1, 1);
-        }
-        else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_MASK)
-        {
-            sVertexProgram = &gDeferredAttachmentAlphaMaskShadowProgram;
-
-            // bind diffuse tex so we can reference the alpha channel...
-            S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
-            sDiffuseChannel = 0;
-            if (loc != -1)
-            {
-                sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-            }
-
-            if ((sShaderLevel > 0))  // for hardware blending
-            {
-                sRenderingSkinned = TRUE;
-                sVertexProgram->bind();
-            }
-
-            gGL.diffuseColor4f(1, 1, 1, 1);
-        }
-        else // SHADOW_PASS_ATTACHMENT_OPAQUE
-        {
-            sVertexProgram = &gDeferredAttachmentShadowProgram;
-            S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
-            sDiffuseChannel = 0;
-            if (loc != -1)
-            {
-                sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-            }
+            sRenderingSkinned = TRUE;
             sVertexProgram->bind();
         }
+
+        gGL.diffuseColor4f(1, 1, 1, 1);
+    }
+    else if (pass == SHADOW_PASS_AVATAR_ALPHA_BLEND)
+    {
+        sVertexProgram = &gDeferredAvatarAlphaShadowProgram;
+
+        // bind diffuse tex so we can reference the alpha channel...
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        }
+
+        if ((sShaderLevel > 0))  // for hardware blending
+        {
+            sRenderingSkinned = TRUE;
+            sVertexProgram->bind();
+        }
+
+        gGL.diffuseColor4f(1, 1, 1, 1);
+    }
+    else if (pass == SHADOW_PASS_AVATAR_ALPHA_MASK)
+    {
+        sVertexProgram = &gDeferredAvatarAlphaMaskShadowProgram;
+
+        // bind diffuse tex so we can reference the alpha channel...
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        }
+
+        if ((sShaderLevel > 0))  // for hardware blending
+        {
+            sRenderingSkinned = TRUE;
+            sVertexProgram->bind();
+        }
+
+        gGL.diffuseColor4f(1, 1, 1, 1);
+    }
+    else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_BLEND)
+    {
+        sVertexProgram = &gDeferredAttachmentAlphaShadowProgram;
+
+        // bind diffuse tex so we can reference the alpha channel...
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        }
+
+        if ((sShaderLevel > 0))  // for hardware blending
+        {
+            sRenderingSkinned = TRUE;
+            sVertexProgram->bind();
+        }
+
+        gGL.diffuseColor4f(1, 1, 1, 1);
+    }
+    else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_MASK)
+    {
+        sVertexProgram = &gDeferredAttachmentAlphaMaskShadowProgram;
+
+        // bind diffuse tex so we can reference the alpha channel...
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        }
+
+        if ((sShaderLevel > 0))  // for hardware blending
+        {
+            sRenderingSkinned = TRUE;
+            sVertexProgram->bind();
+        }
+
+        gGL.diffuseColor4f(1, 1, 1, 1);
+    }
+    else // SHADOW_PASS_ATTACHMENT_OPAQUE
+    {
+        sVertexProgram = &gDeferredAttachmentShadowProgram;
+        S32 loc = sVertexProgram->getUniformLocation(LLViewerShaderMgr::DIFFUSE_MAP);
+        sDiffuseChannel = 0;
+        if (loc != -1)
+        {
+            sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
+        }
+        sVertexProgram->bind();
     }
 }
 
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+	LL_PROFILE_ZONE_SCOPED;
+
+    if (pass == SHADOW_PASS_ATTACHMENT_OPAQUE)
     {
-        LL_PROFILE_ZONE_SCOPED;
-
-        if (pass == SHADOW_PASS_ATTACHMENT_OPAQUE)
-        {
-            LLVertexBuffer::unbind();
-        }
-
-        if (sShaderLevel > 0)
-        {
-            sVertexProgram->unbind();
-        }
-        sVertexProgram = NULL;
-        sRenderingSkinned = FALSE;
-        LLDrawPoolAvatar::sShadowPass = -1;
+        LLVertexBuffer::unbind();
     }
+
+    if (sShaderLevel > 0)
+    {
+        sVertexProgram->unbind();
+    }
+    sVertexProgram = NULL;
+    sRenderingSkinned = FALSE;
+    LLDrawPoolAvatar::sShadowPass = -1;
 }
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
-    LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+    LL_PROFILE_ZONE_SCOPED;
+
+    if (mDrawFace.empty())
     {
-        LL_PROFILE_ZONE_SCOPED;
+        return;
+    }
 
-        if (mDrawFace.empty())
-        {
-            return;
-        }
+    const LLFace *facep = mDrawFace[0];
+    if (!facep->getDrawable())
+    {
+        return;
+    }
+    LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-        const LLFace *facep = mDrawFace[0];
-        if (!facep->getDrawable())
-        {
-            return;
-        }
-        LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
+    if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
+    {
+        return;
+    }
+    LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
+    BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
+    if (impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
+    {
+        // No shadows for impostored (including jellydolled) or invisible avs.
+        return;
+    }
 
-        if (avatarp->isDead() || avatarp->isUIAvatar() || avatarp->mDrawable.isNull())
-        {
-            return;
-        }
-        LLVOAvatar::AvatarOverallAppearance oa = avatarp->getOverallAppearance();
-        BOOL impostor = !LLPipeline::sImpostorRender && avatarp->isImpostor();
-        if (impostor || (oa == LLVOAvatar::AOA_INVISIBLE))
-        {
-            // No shadows for impostored (including jellydolled) or invisible avs.
-            return;
-        }
+    LLDrawPoolAvatar::sShadowPass = pass;
 
-        LLDrawPoolAvatar::sShadowPass = pass;
-
-        if (pass == SHADOW_PASS_AVATAR_OPAQUE)
-        {
-            LLDrawPoolAvatar::sSkipTransparent = true;
-            avatarp->renderSkinned();
-            LLDrawPoolAvatar::sSkipTransparent = false;
-        }
-        else if (pass == SHADOW_PASS_AVATAR_ALPHA_BLEND)
-        {
-            LLDrawPoolAvatar::sSkipOpaque = true;
-            avatarp->renderSkinned();
-            LLDrawPoolAvatar::sSkipOpaque = false;
-        }
-        else if (pass == SHADOW_PASS_AVATAR_ALPHA_MASK)
-        {
-            LLDrawPoolAvatar::sSkipOpaque = true;
-            avatarp->renderSkinned();
-            LLDrawPoolAvatar::sSkipOpaque = false;
-        }
-        else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_BLEND) // rigged alpha
-        {
-            LLDrawPoolAvatar::sSkipOpaque = true;
-            renderRigged(avatarp, RIGGED_MATERIAL_ALPHA);
-            renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_EMISSIVE);
-            renderRigged(avatarp, RIGGED_ALPHA);
-            renderRigged(avatarp, RIGGED_FULLBRIGHT_ALPHA);
-            renderRigged(avatarp, RIGGED_GLOW);
-            renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
-            renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
-            renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
-            LLDrawPoolAvatar::sSkipOpaque = false;
-        }
-        else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_MASK) // rigged alpha mask
-        {
-            LLDrawPoolAvatar::sSkipOpaque = true;
-            renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_MASK);
-            renderRigged(avatarp, RIGGED_NORMMAP_MASK);
-            renderRigged(avatarp, RIGGED_SPECMAP_MASK);
-            renderRigged(avatarp, RIGGED_NORMSPEC_MASK);
-            renderRigged(avatarp, RIGGED_GLOW);
-            LLDrawPoolAvatar::sSkipOpaque = false;
-        }
-        else // rigged opaque (SHADOW_PASS_ATTACHMENT_OPAQUE
-        {
-            LLDrawPoolAvatar::sSkipTransparent = true;
-            renderRigged(avatarp, RIGGED_MATERIAL);
-            renderRigged(avatarp, RIGGED_SPECMAP);
-            renderRigged(avatarp, RIGGED_SPECMAP_EMISSIVE);
-            renderRigged(avatarp, RIGGED_NORMMAP);
-            renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);
-            renderRigged(avatarp, RIGGED_NORMSPEC);
-            renderRigged(avatarp, RIGGED_NORMSPEC_EMISSIVE);
-            renderRigged(avatarp, RIGGED_SIMPLE);
-            renderRigged(avatarp, RIGGED_FULLBRIGHT);
-            renderRigged(avatarp, RIGGED_SHINY);
-            renderRigged(avatarp, RIGGED_FULLBRIGHT_SHINY);
-            renderRigged(avatarp, RIGGED_GLOW);
-            renderRigged(avatarp, RIGGED_DEFERRED_BUMP);
-            renderRigged(avatarp, RIGGED_DEFERRED_SIMPLE);
-            LLDrawPoolAvatar::sSkipTransparent = false;
-        }
+    if (pass == SHADOW_PASS_AVATAR_OPAQUE)
+    {
+        LLDrawPoolAvatar::sSkipTransparent = true;
+        avatarp->renderSkinned();
+        LLDrawPoolAvatar::sSkipTransparent = false;
+    }
+    else if (pass == SHADOW_PASS_AVATAR_ALPHA_BLEND)
+    {
+        LLDrawPoolAvatar::sSkipOpaque = true;
+        avatarp->renderSkinned();
+        LLDrawPoolAvatar::sSkipOpaque = false;
+    }
+    else if (pass == SHADOW_PASS_AVATAR_ALPHA_MASK)
+    {
+        LLDrawPoolAvatar::sSkipOpaque = true;
+        avatarp->renderSkinned();
+        LLDrawPoolAvatar::sSkipOpaque = false;
+    }
+    else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_BLEND) // rigged alpha
+    {
+        LLDrawPoolAvatar::sSkipOpaque = true;
+        renderRigged(avatarp, RIGGED_MATERIAL_ALPHA);
+        renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_EMISSIVE);
+        renderRigged(avatarp, RIGGED_ALPHA);
+        renderRigged(avatarp, RIGGED_FULLBRIGHT_ALPHA);
+        renderRigged(avatarp, RIGGED_GLOW);
+        renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
+        renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
+        renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
+        LLDrawPoolAvatar::sSkipOpaque = false;
+    }
+    else if (pass == SHADOW_PASS_ATTACHMENT_ALPHA_MASK) // rigged alpha mask
+    {
+        LLDrawPoolAvatar::sSkipOpaque = true;
+        renderRigged(avatarp, RIGGED_MATERIAL_ALPHA_MASK);
+        renderRigged(avatarp, RIGGED_NORMMAP_MASK);
+        renderRigged(avatarp, RIGGED_SPECMAP_MASK);
+        renderRigged(avatarp, RIGGED_NORMSPEC_MASK);
+        renderRigged(avatarp, RIGGED_GLOW);
+        LLDrawPoolAvatar::sSkipOpaque = false;
+    }
+    else // rigged opaque (SHADOW_PASS_ATTACHMENT_OPAQUE
+    {
+        LLDrawPoolAvatar::sSkipTransparent = true;
+        renderRigged(avatarp, RIGGED_MATERIAL);
+        renderRigged(avatarp, RIGGED_SPECMAP);
+        renderRigged(avatarp, RIGGED_SPECMAP_EMISSIVE);
+        renderRigged(avatarp, RIGGED_NORMMAP);
+        renderRigged(avatarp, RIGGED_NORMMAP_EMISSIVE);
+        renderRigged(avatarp, RIGGED_NORMSPEC);
+        renderRigged(avatarp, RIGGED_NORMSPEC_EMISSIVE);
+        renderRigged(avatarp, RIGGED_SIMPLE);
+        renderRigged(avatarp, RIGGED_FULLBRIGHT);
+        renderRigged(avatarp, RIGGED_SHINY);
+        renderRigged(avatarp, RIGGED_FULLBRIGHT_SHINY);
+        renderRigged(avatarp, RIGGED_GLOW);
+        renderRigged(avatarp, RIGGED_DEFERRED_BUMP);
+        renderRigged(avatarp, RIGGED_DEFERRED_SIMPLE);
+        LLDrawPoolAvatar::sSkipTransparent = false;
     }
 }
 
@@ -712,7 +701,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 
 void LLDrawPoolAvatar::render(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED;
 	if (LLPipeline::sImpostorRender)
 	{
 		renderAvatars(NULL, pass+2);
@@ -724,7 +713,7 @@ void LLDrawPoolAvatar::render(S32 pass)
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED;
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
 
@@ -775,7 +764,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::endRenderPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -1542,13 +1531,8 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 	gGL.getTexUnit(0)->activate();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_AVATARS("renderAvatars");
-
-
 void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_AVATARS);
-
 	if (pass == -1)
 	{
 		for (S32 i = 1; i < getNumPasses(); i++)
@@ -1587,6 +1571,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		return;
 	}
+
+    LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
 
 	if (!single_avatar && !avatarp->isFullyLoaded() )
 	{

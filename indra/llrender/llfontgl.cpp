@@ -109,8 +109,6 @@ S32 LLFontGL::getNumFaces(const std::string& filename)
 	return mFontFreetype->getNumFaces(filename);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_FONTS("Fonts");
-
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRect& rect, const LLColor4 &color, HAlign halign, VAlign valign, U8 style,
     ShadowType shadow, S32 max_chars, F32* right_x, BOOL use_ellipses) const
 {
@@ -147,7 +145,7 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, const LLRectf& rec
 S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, const LLColor4 &color, HAlign halign, VAlign valign, U8 style, 
 					 ShadowType shadow, S32 max_chars, S32 max_pixels, F32* right_x, BOOL use_ellipses) const
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_FONTS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if(!sDisplayFont) //do not display texts
 	{

@@ -2434,6 +2434,7 @@ void LLGLNamePool::cleanup()
 
 GLuint LLGLNamePool::allocate()
 {
+    LL_PROFILE_ZONE_SCOPED;
 #if LL_GL_NAME_POOLING
 	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
 	{

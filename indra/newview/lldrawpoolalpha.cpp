@@ -53,10 +53,6 @@ BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
 
-static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_SETUP("Alpha Setup");
-static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_GROUP_LOOP("Alpha Group");
-static LLTrace::BlockTimerStatHandle FTM_RENDER_ALPHA_DEFERRED("Alpha Deferred");
-
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), current_shader(NULL), target_shader(NULL),
 		simple_shader(NULL), fullbright_shader(NULL), emissive_shader(NULL),
@@ -98,7 +94,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
 { 
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED;
 
     F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
 
@@ -153,7 +149,7 @@ void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
 { 
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if (pass == 1 && !LLPipeline::sImpostorRender)
 	{
@@ -168,13 +164,13 @@ void LLDrawPoolAlpha::endPostDeferredPass(S32 pass)
 
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass) 
 { 
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_DEFERRED);
+    LL_PROFILE_ZONE_SCOPED;
 	render(pass); 
 }
 
 void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_SETUP);
+    LL_PROFILE_ZONE_SCOPED;
 	
     simple_shader     = (LLPipeline::sImpostorRender)   ? &gObjectSimpleImpostorProgram  :
                         (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram     : &gObjectSimpleProgram;
@@ -225,7 +221,7 @@ void LLDrawPoolAlpha::beginRenderPass(S32 pass)
 
 void LLDrawPoolAlpha::endRenderPass( S32 pass )
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_SETUP);
+    LL_PROFILE_ZONE_SCOPED;
 	LLRenderPass::endRenderPass(pass);
 
 	if(gPipeline.canUseWindLightShaders()) 
@@ -522,6 +518,7 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED;
     BOOL batch_fullbrights = gSavedSettings.getBOOL("RenderAlphaBatchFullbrights");
     BOOL batch_emissives   = gSavedSettings.getBOOL("RenderAlphaBatchEmissives");
 	BOOL initialized_lighting = FALSE;
@@ -529,6 +526,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 	
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
+        LL_PROFILE_ZONE_NAMED("renderAlpha - group");
 		LLSpatialGroup* group = *i;
 		llassert(group);
 		llassert(group->getSpatialPartition());
@@ -545,9 +543,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
 			bool draw_glow_for_this_partition = mShaderLevel > 0; // no shaders = no glow.
-
-			
-			LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA_GROUP_LOOP);
 
 			bool disable_cull = is_particle_or_hud_particle;
 			LLGLDisable cull(disable_cull ? GL_CULL_FACE : 0);
