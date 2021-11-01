@@ -202,14 +202,8 @@ void LLAtmospherics::init()
 	mInitialized = true;
 }
 
-LLColor4 LLAtmospherics::calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
-{
-    LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
-    return calcSkyColorInDir(psky, vars, dir, isShiny);
-}
-
 // This cubemap is used as "environmentMap" in indra/newview/app_settings/shaders/class2/deferred/softenLightF.glsl
-LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny)
+LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3 &dir, bool isShiny, bool low_end)
 {
 	const F32 sky_saturation = 0.25f;
 	const F32 land_saturation = 0.1f;
@@ -227,7 +221,7 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 		}
 		F32 greyscale_sat = brightness * (1.0f - land_saturation);
 		desat_fog = desat_fog * land_saturation + smear(greyscale_sat);
-		if (!gPipeline.canUseWindLightShaders())
+		if (low_end)
 		{
 			col = LLColor4(desat_fog, 0.f);
 		}
@@ -258,8 +252,7 @@ LLColor4 LLAtmospherics::calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, Atm
 		return LLColor4(sky_color, 0.0f);
 	}
 
-	bool low_end = !gPipeline.canUseWindLightShaders();
-	LLColor3 sky_color = low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f);
+	LLColor3 sky_color = low_end ? vars.hazeColor * 2.0f : psky->gammaCorrect(vars.hazeColor * 2.0f, vars.gamma);
 
 	return LLColor4(sky_color, 0.0f);
 }
@@ -437,12 +430,16 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
 
+    // NOTE: This is very similar to LLVOSky::cacheEnvironment()
+    // Differences:
+    //     vars.sun_norm
+    //     vars.sunlight
     // invariants across whole sky tex process...
-    vars.blue_density = psky->getBlueDensity();    
+    vars.blue_density = psky->getBlueDensity();
     vars.blue_horizon = psky->getBlueHorizon();
     vars.haze_density = psky->getHazeDensity();
     vars.haze_horizon = psky->getHazeHorizon();
-    vars.density_multiplier = psky->getDensityMultiplier();    
+    vars.density_multiplier = psky->getDensityMultiplier();
     vars.distance_multiplier = psky->getDistanceMultiplier();
     vars.max_y = psky->getMaxY();
     vars.sun_norm = LLEnvironment::instance().getSunDirectionCFR();
@@ -457,9 +454,9 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
     vars.total_density = psky->getTotalDensity();
     vars.gamma = psky->getGamma();
 
-	res_color[0] = calcSkyColorInDir(vars, tosun);
-	res_color[1] = calcSkyColorInDir(vars, perp_tosun);
-	res_color[2] = calcSkyColorInDir(vars, tosun_45);
+    res_color[0] = calcSkyColorInDir(psky, vars, tosun);
+    res_color[1] = calcSkyColorInDir(psky, vars, perp_tosun);
+    res_color[2] = calcSkyColorInDir(psky, vars, tosun_45);
 
 	sky_fog_color = color_norm(res_color[0] + res_color[1] + res_color[2]);
 

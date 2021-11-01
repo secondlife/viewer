@@ -666,6 +666,7 @@ void LLSettingsVOSky::updateSettings()
 
 void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 {
+    LL_PROFILE_ZONE_SCOPED
     LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_DEFAULT];
@@ -908,6 +909,8 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
 //-------------------------------------------------------------------------
 void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 {
+    LL_PROFILE_ZONE_SCOPED
+
     LLEnvironment& env = LLEnvironment::instance();
 
     auto group = LLGLSLShader::SG_WATER;

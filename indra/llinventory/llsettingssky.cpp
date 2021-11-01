@@ -1214,9 +1214,9 @@ LLColor3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density
 
 // performs soft scale clip and gamma correction ala the shader implementation
 // scales colors down to 0 - 1 range preserving relative ratios
-LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
+LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in,const F32 &gamma) const
 {
-    F32 gamma = getGamma();
+    //F32 gamma = getGamma(); // SL-16127: Use cached gamma from atmospheric vars
 
     LLColor3 v(in);
     // scale down to 0 to 1 range preserving relative ratio (aka homegenize)
