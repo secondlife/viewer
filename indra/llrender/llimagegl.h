@@ -332,6 +332,8 @@ public:
     void* mContext;
     LLAtomicBool mFinished;
 
+    std::queue<std::function<void()>> mPendingCallbackQ;
+
     static LLImageGLThread* sInstance;
 };
 

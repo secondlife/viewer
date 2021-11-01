@@ -94,6 +94,12 @@ namespace LL
         void postEvery(const std::chrono::duration<Rep, Period>& interval,
                        CALLABLE&& callable);
 
+        template <typename CALLABLE>
+        bool tryPost(CALLABLE&& callable)
+        {
+            return mQueue.tryPush(TimedWork(TimePoint::clock::now(), std::move(callable)));
+        }
+
         /*------------------------- handshake API --------------------------*/
 
         /**
