@@ -3172,9 +3172,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b639d0035f4a8c9b4973be428a1b7e61</string>
+              <string>738688816ebd76958e49772712a6b972</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/69569/671323/vlc_bin-3.0.9.549888-darwin64-549888.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90004/820701/vlc_bin-3.0.16.565299-darwin64-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3196,9 +3196,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4f50b0c47daa081dd4fcb83763d5b0b2</string>
+              <string>6801f91f3f27e626898bab90d40fc1c3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/69567/671314/vlc_bin-3.0.9.549888-windows-549888.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90005/820712/vlc_bin-3.0.16.565299-windows-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3208,16 +3208,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c2f8c01fb6c261b72beb07f0c4cd423f</string>
+              <string>7f66982d6edf3c38f3493e28826d58e8</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/69568/671315/vlc_bin-3.0.9.549888-windows64-549888.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90006/820713/vlc_bin-3.0.16.565299-windows64-565299.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.9.549888</string>
+        <string>3.0.16.565299</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
