@@ -84,9 +84,64 @@ mRetryCount(0)
 
 LLStreamingAudio_FMODSTUDIO::~LLStreamingAudio_FMODSTUDIO()
 {
-    // nothing interesting/safe to do.
+    if (mCurrentInternetStreamp)
+    {
+        // Isn't supposed to hapen, stream should be clear by now,
+        // and if it does, we are likely going to crash.
+        LL_WARNS("FMOD") << "mCurrentInternetStreamp not null on shutdown!" << LL_ENDL;
+        stop();
+    }
+
+    // Kill dead internet streams, if possible
+    killDeadStreams();
+
+    if (!mDeadStreams.empty())
+    {
+        // LLStreamingAudio_FMODSTUDIO was inited on startup
+        // and should be destroyed on shutdown, it should
+        // wait for streams to die to not cause crashes or
+        // leaks.
+        // Ideally we need to wait on some kind of callback
+        // to release() streams correctly, but 200 ms should
+        // be enough and we can't wait forever.
+        LL_INFOS("FMOD") << "Waiting for " << (S32)mDeadStreams.size() << " streams to stop" << LL_ENDL;
+        for (S32 i = 0; i < 20; i++)
+        {
+            const U32 ms_delay = 10;
+            ms_sleep(ms_delay); // rude, but not many options here
+            killDeadStreams();
+            if (mDeadStreams.empty())
+            {
+                LL_INFOS("FMOD") << "All streams stopped after " << (S32)((i + 1) * ms_delay) << "ms" << LL_ENDL;
+                break;
+            }
+        }
+    }
+
+    if (!mDeadStreams.empty())
+    {
+        LL_WARNS("FMOD") << "Failed to kill some audio streams" << LL_ENDL;
+    }
 }
 
+void LLStreamingAudio_FMODSTUDIO::killDeadStreams()
+{
+    std::list<LLAudioStreamManagerFMODSTUDIO *>::iterator iter;
+    for (iter = mDeadStreams.begin(); iter != mDeadStreams.end();)
+    {
+        LLAudioStreamManagerFMODSTUDIO *streamp = *iter;
+        if (streamp->stopStream())
+        {
+            LL_INFOS("FMOD") << "Closed dead stream" << LL_ENDL;
+            delete streamp;
+            mDeadStreams.erase(iter++);
+        }
+        else
+        {
+            iter++;
+        }
+    }
+}
 
 void LLStreamingAudio_FMODSTUDIO::start(const std::string& url)
 {
@@ -118,21 +173,7 @@ void LLStreamingAudio_FMODSTUDIO::start(const std::string& url)
 void LLStreamingAudio_FMODSTUDIO::update()
 {
     // Kill dead internet streams, if possible
-    std::list<LLAudioStreamManagerFMODSTUDIO *>::iterator iter;
-    for (iter = mDeadStreams.begin(); iter != mDeadStreams.end();)
-    {
-        LLAudioStreamManagerFMODSTUDIO *streamp = *iter;
-        if (streamp->stopStream())
-        {
-            LL_INFOS("FMOD") << "Closed dead stream" << LL_ENDL;
-            delete streamp;
-            mDeadStreams.erase(iter++);
-        }
-        else
-        {
-            iter++;
-        }
-    }
+    killDeadStreams();
 
     // Don't do anything if there are no streams playing
     if (!mCurrentInternetStreamp)
