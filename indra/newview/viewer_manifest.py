@@ -1296,12 +1296,13 @@ class DarwinManifest(ViewerManifest):
                     sign_retry_wait=15
                     while (not signed) and (sign_attempts > 0):
                         try:
-                            sign_attempts-=1;
-                            self.run_command(
-                                # Note: See blurb above about names of keychains
-                               ['codesign', '--verbose', '--deep', '--force',
-                                '--keychain', viewer_keychain, '--sign', identity,
-                                app_in_dmg])
+                            sign_attempts-=1
+                            # Note: See blurb above about names of keychains
+                            self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
+                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
                             signed=True # if no exception was raised, the codesign worked
                         except ManifestError as err:
                             if sign_attempts:
