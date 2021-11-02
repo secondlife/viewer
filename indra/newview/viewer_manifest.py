@@ -553,9 +553,13 @@ class WindowsManifest(ViewerManifest):
                 self.path("vivoxsdk.dll")
                 self.path("ortp.dll")
             
-            # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
+            # OpenSSL
+            if (self.address_size == 64):
+                self.path("libcrypto-1_1-x64.dll")
+                self.path("libssl-1_1-x64.dll")
+            else:
+                self.path("libcrypto-1_1.dll")
+                self.path("libssl-1_1.dll")
 
             # HTTP/2
             self.path("nghttp2.dll")
@@ -1025,7 +1029,6 @@ class DarwinManifest(ViewerManifest):
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
                                 "libexpat.1.dylib",
-                                "libexception_handler.dylib",
                                 "libGLOD.dylib",
                                 # libnghttp2.dylib is a symlink to
                                 # libnghttp2.major.dylib, which is a symlink to
@@ -1061,19 +1064,15 @@ class DarwinManifest(ViewerManifest):
 
                 # our apps
                 executable_path = {}
-                embedded_apps = [ (os.path.join("llplugin", "slplugin"), "SLPlugin.app") ]
-                for app_bld_dir, app in embedded_apps:
-                    self.path2basename(os.path.join(os.pardir,
-                                                    app_bld_dir, self.args['configuration']),
-                                       app)
-                    executable_path[app] = \
-                        self.dst_path_of(os.path.join(app, "Contents", "MacOS"))
+                self.path2basename(os.path.join(os.pardir, os.path.join("llplugin", "slplugin"), self.args['configuration']), "SLPlugin.app")
+                executable_path["SLPlugin.app"] = \
+                    self.dst_path_of(os.path.join("SLPlugin.app", "Contents", "MacOS"))
 
-                    # our apps dependencies on shared libs
-                    # for each app, for each dylib we collected in dylibs,
-                    # create a symlink to the real copy of the dylib.
-                    with self.prefix(dst=os.path.join(app, "Contents", "Resources")):
-                        for libfile in dylibs:
+                # our apps dependencies on shared libs
+                # for each app, for each dylib we collected in dylibs,
+                # create a symlink to the real copy of the dylib.
+                with self.prefix(dst=os.path.join("SLPlugin.app", "Contents", "Resources")):
+                    for libfile in dylibs:
                             self.relsymlinkf(os.path.join(libfile_parent, libfile))
 
                 # Dullahan helper apps go inside SLPlugin.app
@@ -1294,6 +1293,10 @@ class DarwinManifest(ViewerManifest):
                     signed=False
                     sign_attempts=3
                     sign_retry_wait=15
+                    libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
+                    cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
+                    slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
+                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet/_greenlet.so"
                     while (not signed) and (sign_attempts > 0):
                         try:
                             sign_attempts-=1
@@ -1313,6 +1316,7 @@ class DarwinManifest(ViewerManifest):
                                 print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                                 raise
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
+                    self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
 
         finally:
             # Unmount the image even if exceptions from any of the above 
@@ -1365,7 +1369,7 @@ class LinuxManifest(ViewerManifest):
         with self.prefix(dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin") 
+            self.path2basename("../llplugin/slplugin", "SLPlugin")
             #this copies over the python wrapper script, associated utilities and required libraries, see SL-321, SL-322 and SL-323
             with self.prefix(src="../viewer_components/manager", dst=""):
                 self.path("*.py")
