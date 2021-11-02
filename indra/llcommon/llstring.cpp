@@ -712,10 +712,11 @@ std::wstring ll_convert_wstring_to_wide(const llwchar* in, size_t len)
 
 std::string ll_convert_string_to_utf8_string(const std::string& in)
 {
-	auto w_mesg = ll_convert_string_to_wide(in, CP_ACP);
-	std::string out_utf8(ll_convert_wide_to_string(w_mesg.c_str(), CP_UTF8));
-
-	return out_utf8;
+	// If you pass code_page, you must also pass length, otherwise the code
+	// page parameter will be mistaken for length.
+	auto w_mesg = ll_convert_string_to_wide(in, in.length(), CP_ACP);
+	// CP_UTF8 is default -- see ll_wstring_default_code_page() above.
+	return ll_convert_wide_to_string(w_mesg);
 }
 
 namespace
