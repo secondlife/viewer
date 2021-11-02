@@ -749,16 +749,28 @@ LL_COMMON_API unsigned int ll_wstring_default_code_page();
 // This is like ll_convert_forms(), with the added complexity of a code page
 // parameter that may or may not be passed.
 #define ll_convert_cp_forms(aliasmacro, OUTSTR, INSTR, longname)    \
+/* declare the only nontrivial implementation (in .cpp file) */     \
 LL_COMMON_API OUTSTR longname(                                      \
     const INSTR::value_type* in,                                    \
-    size_t len=ll_convert_length(in),                               \
+    size_t len,                                                     \
     unsigned int code_page=ll_wstring_default_code_page());         \
+/* if passed only a char pointer, scan for nul terminator */        \
+inline auto longname(const INSTR::value_type* in)                   \
+{                                                                   \
+    return longname(in, ll_convert_length(in));                     \
+}                                                                   \
+/* if passed string and length, extract its char pointer */         \
 inline auto longname(                                               \
     const INSTR& in,                                                \
-    size_t len=in.length(),                                         \
+    size_t len,                                                     \
     unsigned int code_page=ll_wstring_default_code_page())          \
 {                                                                   \
     return longname(in.c_str(), len, code_page);                    \
+}                                                                   \
+/* if passed only a string object, no scan, pass known length */    \
+inline auto longname(const INSTR& in)                               \
+{                                                                   \
+    return longname(in.c_str(), in.length());                       \
 }                                                                   \
 aliasmacro(OUTSTR, INSTR, longname(in));                            \
 aliasmacro(OUTSTR, const INSTR::value_type*, longname(in))
@@ -1966,5 +1978,15 @@ void LLStringUtilBase<T>::truncate(string_type& string, size_type count)
 	size_type cur_size = string.size();
 	string.resize(count < cur_size ? count : cur_size);
 }
+
+// The good thing about *declaration* macros, vs. usage macros, is that now
+// we're done with them: we don't need them to bleed into the consuming source
+// file.
+#undef ll_convert_alias
+#undef ll_convert_u16_alias
+#undef ll_convert_wstr_alias
+#undef LL_CONVERT_COPY_CHARS
+#undef ll_convert_forms
+#undef ll_convert_cp_forms
 
 #endif  // LL_STRING_H
