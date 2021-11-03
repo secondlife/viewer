@@ -1309,7 +1309,7 @@ class DarwinManifest(ViewerManifest):
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
                             self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
-                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
                             signed=True # if no exception was raised, the codesign worked
                         except ManifestError as err:
                             if sign_attempts:
