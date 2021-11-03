@@ -1176,16 +1176,16 @@ class DarwinManifest(ViewerManifest):
                         [newpath, self.dst_path_of(dylibexecutable)])
 
                     # copy LibVLC plugin itself
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
-                                       "media_plugin_libvlc.dylib")
+                    #self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
+                    #                   "media_plugin_libvlc.dylib")
 
                     # copy LibVLC dynamic libraries
-                    with self.prefix(src=relpkgdir, dst="lib"):
-                        self.path( "libvlc*.dylib*" )
-                        # copy LibVLC plugins folder
-                        with self.prefix(src='plugins', dst=""):
-                            self.path( "*.dylib" )
-                            self.path( "plugins.dat" )
+                    #with self.prefix(src=relpkgdir, dst="lib"):
+                    #    self.path( "libvlc*.dylib*" )
+                    #    # copy LibVLC plugins folder
+                    #    with self.prefix(src='plugins', dst=""):
+                    #        self.path( "*.dylib" )
+                    #        self.path( "plugins.dat" )
 
     def package_finish(self):
         global CHANNEL_VENDOR_BASE
@@ -1297,7 +1297,7 @@ class DarwinManifest(ViewerManifest):
                     signed=False
                     sign_attempts=3
                     sign_retry_wait=15
-                    libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
+                    #libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
                     cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
                     slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
                     greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet/_greenlet.so"
@@ -1305,7 +1305,7 @@ class DarwinManifest(ViewerManifest):
                         try:
                             sign_attempts-=1
                             # Note: See blurb above about names of keychains
-                            self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
+                            #self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
                             self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
