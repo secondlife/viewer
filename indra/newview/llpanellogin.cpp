@@ -92,36 +92,6 @@ LLPointer<LLCredential> load_user_credentials(std::string &user_key)
     }
 }
 
-// keys are lower case to be case insensitive so they are not always
-// identical to names which retain user input, like:
-// "AwEsOmE Resident" -> "awesome_resident"
-std::string get_user_key_from_name(const std::string &username)
-{
-    std::string key = username;
-    LLStringUtil::trim(key);
-    LLStringUtil::toLower(key);
-
-    // CRED_IDENTIFIER_TYPE_AGENT
-    size_t separator_index = username.find_first_of(" ._");
-    std::string first = username.substr(0, separator_index);
-    std::string last;
-    if (separator_index != username.npos)
-    {
-        last = username.substr(separator_index + 1, username.npos);
-        LLStringUtil::trim(last);
-    }
-    else
-    {
-        // ...on Linden grids, single username users as considered to have
-        // last name "Resident"
-        // *TODO: Make login.cgi support "account_name" like above
-        last = "resident";
-    }
-
-    key = first + "_" + last;
-    return key;
-}
-
 class LLLoginLocationAutoHandler : public LLCommandHandler
 {
 public:
@@ -682,39 +652,6 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	LL_INFOS("Credentials", "Authentication") << "retrieving username:" << username << LL_ENDL;
 	// determine if the username is a first/last form or not.
 	size_t separator_index = username.find_first_of(' ');
-	if (separator_index == username.npos
-		&& !LLGridManager::getInstance()->isSystemGrid())
-	{
-		LL_INFOS("Credentials", "Authentication") << "account: " << username << LL_ENDL;
-		// single username, so this is a 'clear' identifier
-		identifier["type"] = CRED_IDENTIFIER_TYPE_ACCOUNT;
-		identifier["account_name"] = username;
-		
-		if (LLPanelLogin::sInstance->mPasswordModified)
-		{
-			// password is plaintext
-			authenticator["type"] = CRED_AUTHENTICATOR_TYPE_CLEAR;
-			authenticator["secret"] = password;
-		}
-        else
-        {
-            credential = load_user_credentials(username);
-            if (credential.notNull())
-            {
-                authenticator = credential->getAuthenticator();
-                if (authenticator.emptyMap())
-                {
-                    // Likely caused by user trying to log in to non-system grid
-                    // with unsupported name format, just retry
-                    LL_WARNS() << "Authenticator failed to load for: " << username << LL_ENDL;
-                    // password is plaintext
-                    authenticator["type"] = CRED_AUTHENTICATOR_TYPE_CLEAR;
-                    authenticator["secret"] = password;
-                }
-            }
-        }
-	}
-	else
 	{
 		// Be lenient in terms of what separators we allow for two-word names
 		// and allow legacy users to login with firstname.lastname
