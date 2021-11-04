@@ -2429,8 +2429,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		LLVOCachePartition* vo_part = region->getVOCachePartition();
 		if(vo_part)
 		{
-			bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe && 0 > water_clip /* && !gViewerWindow->getProgressView()->getVisible()*/;
-            do_occlusion_cull &= !sReflectionRender;
+            bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe; // && 0 > water_clip
 			vo_part->cull(camera, do_occlusion_cull);
 		}
 	}
@@ -9261,11 +9260,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             water_clip = -1;
         }
 
-        S32 occlusion = LLPipeline::sUseOcclusion;
-
-        //disable occlusion culling for reflection map for now
-        LLPipeline::sUseOcclusion = 0;
-
         if (!camera_is_underwater)
         {
             //generate planar reflection map
@@ -9381,8 +9375,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             set_current_modelview(saved_modelview);
         }
 
-        //LLPipeline::sUseOcclusion = occlusion;
-
         camera.setOrigin(camera_in.getOrigin());
         //render distortion map
         static bool last_update = true;
@@ -9477,7 +9469,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
         gPipeline.popRenderTypeMask();
 
-        LLPipeline::sUseOcclusion     = occlusion;
         LLPipeline::sUnderWaterRender = false;
         LLPipeline::sReflectionRender = false;
 
