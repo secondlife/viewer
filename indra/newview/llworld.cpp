@@ -62,8 +62,6 @@
 #include <cstring>
 
 
-LLWorld* LLSimpleton<LLWorld>::sInstance = nullptr;
-
 //
 // Globals
 //

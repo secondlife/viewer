@@ -28,8 +28,6 @@
 #include "llui.h"
 #include "llleap.h"
 
-LLViewerEventRecorder* LLSimpleton<LLViewerEventRecorder>::sInstance = nullptr;
-
 LLViewerEventRecorder::LLViewerEventRecorder() {
 
   clear(UNDEFINED);
