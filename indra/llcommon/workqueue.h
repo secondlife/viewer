@@ -12,14 +12,14 @@
 #if ! defined(LL_WORKQUEUE_H)
 #define LL_WORKQUEUE_H
 
+#include "llcoros.h"
+#include "llexception.h"
 #include "llinstancetracker.h"
 #include "threadsafeschedule.h"
 #include <chrono>
+#include <exception>                // std::current_exception
 #include <functional>               // std::function
-#include <queue>
 #include <string>
-#include <utility>                  // std::pair
-#include <vector>
 
 namespace LL
 {
@@ -45,6 +45,11 @@ namespace LL
         using TimedWork = Queue::TimeTuple;
         using Closed    = Queue::Closed;
 
+        struct Error: public LLException
+        {
+            Error(const std::string& what): LLException(what) {}
+        };
+
         /**
          * You may omit the WorkQueue name, in which case a unique name is
          * synthesized; for practical purposes that makes it anonymous.
@@ -58,6 +63,11 @@ namespace LL
          * that it's time for them to quit, close() the queue.
          */
         void close();
+
+        /// producer end: are we prevented from pushing any additional items?
+        bool isClosed();
+        /// consumer end: are we done, is the queue entirely drained?
+        bool done();
 
         /*---------------------- fire and forget API -----------------------*/
 
@@ -80,6 +90,25 @@ namespace LL
             // a mix of past-due TimedWork items and TimedWork items scheduled
             // for the future. Sift this new item into the correct place.
             post(TimePoint::clock::now(), std::move(callable));
+        }
+
+        /**
+         * Post work to be run at a specified time to another WorkQueue, which
+         * may or may not still exist and be open. Return true if we were able
+         * to post.
+         */
+        template <typename CALLABLE>
+        static bool postMaybe(weak_t target, const TimePoint& time, CALLABLE&& callable);
+
+        /**
+         * Post work to another WorkQueue, which may or may not still exist
+         * and be open. Return true if we were able to post.
+         */
+        template <typename CALLABLE>
+        static bool postMaybe(weak_t target, CALLABLE&& callable)
+        {
+            return postMaybe(target, TimePoint::clock::now(),
+                             std::forward<CALLABLE>(callable));
         }
 
         /**
@@ -115,63 +144,8 @@ namespace LL
         // Studio compile errors that seem utterly unrelated to this source
         // code.
         template <typename CALLABLE, typename FOLLOWUP>
-        bool postTo(WorkQueue::weak_t target,
-                    const TimePoint& time, CALLABLE&& callable, FOLLOWUP&& callback)
-        {
-            // We're being asked to post to the WorkQueue at target.
-            // target is a weak_ptr: have to lock it to check it.
-            auto tptr = target.lock();
-            if (! tptr)
-                // can't post() if the target WorkQueue has been destroyed
-                return false;
-
-            // Here we believe target WorkQueue still exists. Post to it a
-            // lambda that packages our callable, our callback and a weak_ptr
-            // to this originating WorkQueue.
-            tptr->post(
-                time,
-                [reply = super::getWeak(),
-                 callable = std::move(callable),
-                 callback = std::move(callback)]
-                ()
-                {
-                    // Call the callable in any case -- but to minimize
-                    // copying the result, immediately bind it into a reply
-                    // lambda. The reply lambda also binds the original
-                    // callback, so that when we, the originating WorkQueue,
-                    // finally receive and process the reply lambda, we'll
-                    // call the bound callback with the bound result -- on the
-                    // same thread that originally called postTo().
-                    auto rlambda =
-                        [result = callable(),
-                         callback = std::move(callback)]
-                        ()
-                        { callback(std::move(result)); };
-                    // Check if this originating WorkQueue still exists.
-                    // Remember, the outer lambda is now running on a thread
-                    // servicing the target WorkQueue, and real time has
-                    // elapsed since postTo()'s tptr->post() call.
-                    // reply is a weak_ptr: have to lock it to check it.
-                    auto rptr = reply.lock();
-                    if (rptr)
-                    {
-                        // Only post reply lambda if the originating WorkQueue
-                        // still exists. If not -- who would we tell? Log it?
-                        try
-                        {
-                            rptr->post(std::move(rlambda));
-                        }
-                        catch (const Closed&)
-                        {
-                            // Originating WorkQueue might still exist, but
-                            // might be Closed. Same thing: just discard the
-                            // callback.
-                        }
-                    }
-                });
-            // looks like we were able to post()
-            return true;
-        }
+        bool postTo(weak_t target,
+                    const TimePoint& time, CALLABLE&& callable, FOLLOWUP&& callback);
 
         /**
          * Post work to another WorkQueue, requesting a specific callback to
@@ -181,10 +155,36 @@ namespace LL
          * inaccessible.
          */
         template <typename CALLABLE, typename FOLLOWUP>
-        bool postTo(WorkQueue::weak_t target,
-                    CALLABLE&& callable, FOLLOWUP&& callback)
+        bool postTo(weak_t target, CALLABLE&& callable, FOLLOWUP&& callback)
         {
-            return postTo(target, TimePoint::clock::now(), std::move(callable), std::move(callback));
+            return postTo(target, TimePoint::clock::now(),
+                          std::move(callable), std::move(callback));
+        }
+
+        /**
+         * Post work to another WorkQueue to be run at a specified time,
+         * blocking the calling coroutine until then, returning the result to
+         * caller on completion.
+         *
+         * In general, we assume that each thread's default coroutine is busy
+         * servicing its WorkQueue or whatever. To try to prevent mistakes, we
+         * forbid calling waitForResult() from a thread's default coroutine.
+         */
+        template <typename CALLABLE>
+        auto waitForResult(const TimePoint& time, CALLABLE&& callable);
+
+        /**
+         * Post work to another WorkQueue, blocking the calling coroutine
+         * until then, returning the result to caller on completion.
+         *
+         * In general, we assume that each thread's default coroutine is busy
+         * servicing its WorkQueue or whatever. To try to prevent mistakes, we
+         * forbid calling waitForResult() from a thread's default coroutine.
+         */
+        template <typename CALLABLE>
+        auto waitForResult(CALLABLE&& callable)
+        {
+            return waitForResult(TimePoint::clock::now(), std::move(callable));
         }
 
         /*--------------------------- worker API ---------------------------*/
@@ -232,6 +232,23 @@ namespace LL
         bool runUntil(const TimePoint& until);
 
     private:
+        template <typename CALLABLE, typename FOLLOWUP>
+        static auto makeReplyLambda(CALLABLE&& callable, FOLLOWUP&& callback);
+        /// general case: arbitrary C++ return type
+        template <typename CALLABLE, typename FOLLOWUP, typename RETURNTYPE>
+        struct MakeReplyLambda;
+        /// specialize for CALLABLE returning void
+        template <typename CALLABLE, typename FOLLOWUP>
+        struct MakeReplyLambda<CALLABLE, FOLLOWUP, void>;
+
+        /// general case: arbitrary C++ return type
+        template <typename CALLABLE, typename RETURNTYPE>
+        struct WaitForResult;
+        /// specialize for CALLABLE returning void
+        template <typename CALLABLE>
+        struct WaitForResult<CALLABLE, void>;
+
+        static void checkCoroutine(const std::string& method);
         static void error(const std::string& msg);
         static std::string makeName(const std::string& name);
         void callWork(const Queue::DataTuple& work);
@@ -253,8 +270,8 @@ namespace LL
     {
     public:
         // bind the desired data
-        BackJack(WorkQueue::weak_t target,
-                 const WorkQueue::TimePoint& start,
+        BackJack(weak_t target,
+                 const TimePoint& start,
                  const std::chrono::duration<Rep, Period>& interval,
                  CALLABLE&& callable):
             mTarget(target),
@@ -301,8 +318,8 @@ namespace LL
         }
 
     private:
-        WorkQueue::weak_t mTarget;
-        WorkQueue::TimePoint mStart;
+        weak_t mTarget;
+        TimePoint mStart;
         std::chrono::duration<Rep, Period> mInterval;
         CALLABLE mCallable;
     };
@@ -328,6 +345,187 @@ namespace LL
         post(
             BackJack<Rep, Period, CALLABLE>(
                  getWeak(), TimePoint::clock::now(), interval, std::move(callable)));
+    }
+
+    /// general case: arbitrary C++ return type
+    template <typename CALLABLE, typename FOLLOWUP, typename RETURNTYPE>
+    struct WorkQueue::MakeReplyLambda
+    {
+        auto operator()(CALLABLE&& callable, FOLLOWUP&& callback)
+        {
+            // Call the callable in any case -- but to minimize
+            // copying the result, immediately bind it into the reply
+            // lambda. The reply lambda also binds the original
+            // callback, so that when we, the originating WorkQueue,
+            // finally receive and process the reply lambda, we'll
+            // call the bound callback with the bound result -- on the
+            // same thread that originally called postTo().
+            return
+                [result = std::forward<CALLABLE>(callable)(),
+                 callback = std::move(callback)]
+                ()
+                { callback(std::move(result)); };
+        }
+    };
+
+    /// specialize for CALLABLE returning void
+    template <typename CALLABLE, typename FOLLOWUP>
+    struct WorkQueue::MakeReplyLambda<CALLABLE, FOLLOWUP, void>
+    {
+        auto operator()(CALLABLE&& callable, FOLLOWUP&& callback)
+        {
+            // Call the callable, which produces no result.
+            std::forward<CALLABLE>(callable)();
+            // Our completion callback is simply the caller's callback.
+            return std::move(callback);
+        }
+    };
+
+    template <typename CALLABLE, typename FOLLOWUP>
+    auto WorkQueue::makeReplyLambda(CALLABLE&& callable, FOLLOWUP&& callback)
+    {
+        return MakeReplyLambda<CALLABLE, FOLLOWUP,
+                               decltype(std::forward<CALLABLE>(callable)())>()
+            (std::move(callable), std::move(callback));
+    }
+
+    template <typename CALLABLE, typename FOLLOWUP>
+    bool WorkQueue::postTo(weak_t target,
+                           const TimePoint& time, CALLABLE&& callable, FOLLOWUP&& callback)
+    {
+        // We're being asked to post to the WorkQueue at target.
+        // target is a weak_ptr: have to lock it to check it.
+        auto tptr = target.lock();
+        if (! tptr)
+            // can't post() if the target WorkQueue has been destroyed
+            return false;
+
+        // Here we believe target WorkQueue still exists. Post to it a
+        // lambda that packages our callable, our callback and a weak_ptr
+        // to this originating WorkQueue.
+        tptr->post(
+            time,
+            [reply = super::getWeak(),
+             callable = std::move(callable),
+             callback = std::move(callback)]
+            ()
+            {
+                // Use postMaybe() below in case this originating WorkQueue
+                // has been closed or destroyed. Remember, the outer lambda is
+                // now running on a thread servicing the target WorkQueue, and
+                // real time has elapsed since postTo()'s tptr->post() call.
+                try
+                {
+                    // Make a reply lambda to repost to THIS WorkQueue.
+                    // Delegate to makeReplyLambda() so we can partially
+                    // specialize on void return.
+                    postMaybe(reply, makeReplyLambda(std::move(callable), std::move(callback)));
+                }
+                catch (...)
+                {
+                    // Either variant of makeReplyLambda() is responsible for
+                    // calling the caller's callable. If that throws, return
+                    // the exception to the originating thread.
+                    postMaybe(
+                        reply,
+                        // Bind the current exception to transport back to the
+                        // originating WorkQueue. Once there, rethrow it.
+                        [exc = std::current_exception()](){ std::rethrow_exception(exc); });
+                }
+            });
+
+        // looks like we were able to post()
+        return true;
+    }
+
+    template <typename CALLABLE>
+    bool WorkQueue::postMaybe(weak_t target, const TimePoint& time, CALLABLE&& callable)
+    {
+        // target is a weak_ptr: have to lock it to check it
+        auto tptr = target.lock();
+        if (tptr)
+        {
+            try
+            {
+                tptr->post(time, std::forward<CALLABLE>(callable));
+                // we were able to post()
+                return true;
+            }
+            catch (const Closed&)
+            {
+                // target WorkQueue still exists, but is Closed
+            }
+        }
+        // either target no longer exists, or its WorkQueue is Closed
+        return false;
+    }
+
+    /// general case: arbitrary C++ return type
+    template <typename CALLABLE, typename RETURNTYPE>
+    struct WorkQueue::WaitForResult
+    {
+        auto operator()(WorkQueue* self, const TimePoint& time, CALLABLE&& callable)
+        {
+            LLCoros::Promise<RETURNTYPE> promise;
+            self->post(
+                time,
+                // We dare to bind a reference to Promise because it's
+                // specifically designed for cross-thread communication.
+                [&promise, callable = std::move(callable)]()
+                {
+                    try
+                    {
+                        // call the caller's callable and trigger promise with result
+                        promise.set_value(callable());
+                    }
+                    catch (...)
+                    {
+                        promise.set_exception(std::current_exception());
+                    }
+                });
+            auto future{ LLCoros::getFuture(promise) };
+            // now, on the calling thread, wait for that result
+            LLCoros::TempStatus st("waiting for WorkQueue::waitForResult()");
+            return future.get();
+        }
+    };
+
+    /// specialize for CALLABLE returning void
+    template <typename CALLABLE>
+    struct WorkQueue::WaitForResult<CALLABLE, void>
+    {
+        void operator()(WorkQueue* self, const TimePoint& time, CALLABLE&& callable)
+        {
+            LLCoros::Promise<void> promise;
+            self->post(
+                time,
+                // &promise is designed for cross-thread access
+                [&promise, callable = std::move(callable)]()
+                {
+                    try
+                    {
+                        callable();
+                        promise.set_value();
+                    }
+                    catch (...)
+                    {
+                        promise.set_exception(std::current_exception());
+                    }
+                });
+            auto future{ LLCoros::getFuture(promise) };
+            // block until set_value()
+            LLCoros::TempStatus st("waiting for void WorkQueue::waitForResult()");
+            future.get();
+        }
+    };
+
+    template <typename CALLABLE>
+    auto WorkQueue::waitForResult(const TimePoint& time, CALLABLE&& callable)
+    {
+        checkCoroutine("waitForResult()");
+        // derive callable's return type so we can specialize for void
+        return WaitForResult<CALLABLE, decltype(std::forward<CALLABLE>(callable)())>()
+            (this, time, std::forward<CALLABLE>(callable));
     }
 
 } // namespace LL

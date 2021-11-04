@@ -38,6 +38,16 @@ void LL::WorkQueue::close()
     mQueue.close();
 }
 
+bool LL::WorkQueue::isClosed()
+{
+    return mQueue.isClosed();
+}
+
+bool LL::WorkQueue::done()
+{
+    return mQueue.done();
+}
+
 void LL::WorkQueue::runUntilClose()
 {
     try
@@ -127,4 +137,14 @@ void LL::WorkQueue::callWork(const Work& work)
 void LL::WorkQueue::error(const std::string& msg)
 {
     LL_ERRS("WorkQueue") << msg << LL_ENDL;
+}
+
+void LL::WorkQueue::checkCoroutine(const std::string& method)
+{
+    // By convention, the default coroutine on each thread has an empty name
+    // string. See also LLCoros::logname().
+    if (LLCoros::getName().empty())
+    {
+        LLTHROW(Error("Do not call " + method + " from a thread's default coroutine"));
+    }
 }
