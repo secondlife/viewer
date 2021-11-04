@@ -130,7 +130,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</scheme>
 	<scheme name="example">
@@ -152,7 +152,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</scheme>
 	<mimetype name="blank">
@@ -185,7 +185,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="video/*">
@@ -196,7 +196,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="image/*">
@@ -218,7 +218,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="application/javascript">
@@ -328,7 +328,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-aiff">
@@ -339,7 +339,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="audio/x-wav">
@@ -350,7 +350,7 @@
 			audio
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype menu="1" name="image/bmp">
@@ -460,7 +460,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="video/mp4">
@@ -471,7 +471,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
   <mimetype name="application/octet-stream">
@@ -482,7 +482,7 @@
       movie
     </widgettype>
     <impl>
-      media_plugin_libvlc
+      media_plugin_cef
     </impl>
   </mimetype>
   <mimetype menu="1" name="video/quicktime">
@@ -493,7 +493,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-asf">
@@ -504,7 +504,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 	<mimetype name="video/x-ms-wmv">
@@ -526,7 +526,7 @@
 			movie
 		</widgettype>
 		<impl>
-			media_plugin_libvlc
+			media_plugin_cef
 		</impl>
 	</mimetype>
 </mimetypes>

@@ -591,8 +591,8 @@ class WindowsManifest(ViewerManifest):
                     self.path("media_plugin_cef.dll")
 
                 # Media plugins - LibVLC
-                with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
-                    self.path("media_plugin_libvlc.dll")
+                #with self.prefix(src=os.path.join('libvlc', self.args['configuration'])):
+                #    self.path("media_plugin_libvlc.dll")
 
                 # Media plugins - Example (useful for debugging - not shipped with release viewer)
                 if self.channel_type() != 'release':
@@ -680,10 +680,10 @@ class WindowsManifest(ViewerManifest):
                 self.path("zh-CN.pak")
                 self.path("zh-TW.pak")
 
-            with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
-                self.path("libvlc.dll")
-                self.path("libvlccore.dll")
-                self.path("plugins/")
+            # with self.prefix(src=os.path.join(pkgdir, 'bin', 'release')):
+            #     self.path("libvlc.dll")
+            #     self.path("libvlccore.dll")
+            #     self.path("plugins/")
 
         if not self.is_packaging_viewer():
             self.package_file = "copied_deps"    
