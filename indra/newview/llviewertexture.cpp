@@ -1626,7 +1626,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             {
                 //actually create the texture on a background thread
                 createTexture();
-                LLImageGLThread::sInstance->postCallback([this]()
+                LL::WorkQueue::getInstance("mainloop")->post([this]()
                     {
                         //finalize on main thread
                         postCreateTexture();

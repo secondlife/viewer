@@ -4848,7 +4848,6 @@ void LLAppViewer::idle()
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
-    LLImageGL::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();

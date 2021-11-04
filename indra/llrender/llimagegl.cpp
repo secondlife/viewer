@@ -183,13 +183,6 @@ void LLImageGL::initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyz
     LLImageGLThread::sInstance->start();
 }
 
-//static
-void LLImageGL::updateClass()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    LLImageGLThread::sInstance->executeCallbacks();
-}
-
 //static 
 void LLImageGL::cleanupClass() 
 {
@@ -504,6 +497,9 @@ void LLImageGL::init(BOOL usemipmaps)
 #endif
 
 	mCategory = -1;
+
+	// Sometimes we have to post work for the main thread.
+	mMainQueue = LL::WorkQueue::getInstance("mainloop");
 }
 
 void LLImageGL::cleanup()
@@ -1554,7 +1550,9 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
         }
 
         ref();
-        LLImageGLThread::sInstance->postCallback([=]()
+        LL::WorkQueue::postMaybe(
+            mMainQueue,
+            [=]()
             {
                 LL_PROFILE_ZONE_NAMED("cglt - delete callback");
                 if (old_texname != 0)
@@ -2264,61 +2262,6 @@ LLImageGLThread::LLImageGLThread(LLWindow* window)
     mFinished = false;
 
     mContext = mWindow->createSharedContext();
-}
-
-// post a function to be executed on the LLImageGL background thread
-
-bool LLImageGLThread::post(const std::function<void()>& func)
-{
-    try
-    {
-        mFunctionQueue.post(func);
-    }
-    catch (LLThreadSafeQueueInterrupt e)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//post a callback to be executed on the main thread
-
-bool LLImageGLThread::postCallback(const std::function<void()>& callback)
-{
-    try
-    {
-        if (!mCallbackQueue.tryPost(callback))
-        {
-            mPendingCallbackQ.push(callback);
-        }
-    }
-    catch (LLThreadSafeQueueInterrupt e)
-    {
-        //thread is closing, drop request
-        return false;
-    }
-
-    return true;
-}
-
-void LLImageGLThread::executeCallbacks()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    //executed from main thread
-    mCallbackQueue.runPending();
-
-    while (!mPendingCallbackQ.empty())
-    {
-        if (mCallbackQueue.tryPost(mPendingCallbackQ.front()))
-        {
-            mPendingCallbackQ.pop();
-        }
-        else
-        {
-            break;
-        }
-    }
 }
 
 void LLImageGLThread::run()
