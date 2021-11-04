@@ -75,9 +75,10 @@ namespace LL
         template <typename CALLABLE>
         void post(const TimePoint& time, CALLABLE&& callable)
         {
-            // Defer reifying an arbitrary CALLABLE until we hit this method.
-            // All other methods should accept CALLABLEs of arbitrary type to
-            // avoid multiple levels of std::function indirection.
+            // Defer reifying an arbitrary CALLABLE until we hit this or
+            // postIfOpen(). All other methods should accept CALLABLEs of
+            // arbitrary type to avoid multiple levels of std::function
+            // indirection.
             mQueue.push(TimedWork(time, std::move(callable)));
         }
 
@@ -90,6 +91,28 @@ namespace LL
             // a mix of past-due TimedWork items and TimedWork items scheduled
             // for the future. Sift this new item into the correct place.
             post(TimePoint::clock::now(), std::move(callable));
+        }
+
+        /**
+         * post work for a particular time, unless the queue is closed before
+         * we can post
+         */
+        template <typename CALLABLE>
+        bool postIfOpen(const TimePoint& time, CALLABLE&& callable)
+        {
+            // Defer reifying an arbitrary CALLABLE until we hit this or
+            // post(). All other methods should accept CALLABLEs of arbitrary
+            // type to avoid multiple levels of std::function indirection.
+            return mQueue.pushIfOpen(TimedWork(time, std::move(callable)));
+        }
+
+        /**
+         * post work, unless the queue is closed before we can post
+         */
+        template <typename CALLABLE>
+        bool postIfOpen(CALLABLE&& callable)
+        {
+            return postIfOpen(TimePoint::clock::now(), std::move(callable));
         }
 
         /**
