@@ -54,8 +54,6 @@
 // System includes
 #include <iomanip> // for setprecision
 
-LLViewerCamera* LLSimpleton<LLViewerCamera>::sInstance = nullptr;
-
 LLTrace::CountStatHandle<> LLViewerCamera::sVelocityStat("camera_velocity");
 LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_velocity");
 

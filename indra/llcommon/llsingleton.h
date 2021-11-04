@@ -865,4 +865,7 @@ public:
     }
 };
 
+template <class T>
+T* LLSimpleton<T>::sInstance{ nullptr };
+
 #endif
