@@ -29,7 +29,7 @@ namespace LL
          * Pass ThreadPool a string name. This can be used to look up the
          * relevant WorkQueue.
          */
-        ThreadPool(const std::string& name, size_t threads=1);
+        ThreadPool(const std::string& name, size_t threads=1, size_t capacity=1024);
         ~ThreadPool();
         void close();
 

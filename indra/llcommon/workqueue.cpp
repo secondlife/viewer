@@ -26,8 +26,9 @@
 using Mutex = LLCoros::Mutex;
 using Lock  = LLCoros::LockType;
 
-LL::WorkQueue::WorkQueue(const std::string& name):
-    super(makeName(name))
+LL::WorkQueue::WorkQueue(const std::string& name, size_t capacity):
+    super(makeName(name)),
+    mQueue(capacity)
 {
     // TODO: register for "LLApp" events so we can implicitly close() on
     // viewer shutdown.

@@ -367,7 +367,9 @@ BOOL gLogoutInProgress = FALSE;
 
 BOOL gSimulateMemLeak = FALSE;
 
-WorkQueue gMainloopWork("mainloop");
+// We don't want anyone, especially threads working on the graphics pipeline,
+// to have to block due to this WorkQueue being full.
+WorkQueue gMainloopWork("mainloop", 1024*1024);
 
 ////////////////////////////////////////////////////////////
 // Internal globals... that should be removed.

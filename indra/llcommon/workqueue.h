@@ -54,7 +54,7 @@ namespace LL
          * You may omit the WorkQueue name, in which case a unique name is
          * synthesized; for practical purposes that makes it anonymous.
          */
-        WorkQueue(const std::string& name = std::string());
+        WorkQueue(const std::string& name = std::string(), size_t capacity=1024);
 
         /**
          * Since the point of WorkQueue is to pass work to some other worker

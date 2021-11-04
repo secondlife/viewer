@@ -21,8 +21,8 @@
 #include "llevents.h"
 #include "stringize.h"
 
-LL::ThreadPool::ThreadPool(const std::string& name, size_t threads):
-    mQueue(name),
+LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
+    mQueue(name, capacity),
     mName("ThreadPool:" + name)
 {
     for (size_t i = 0; i < threads; ++i)

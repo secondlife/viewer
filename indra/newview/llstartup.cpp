@@ -313,7 +313,9 @@ void launchThreadPool()
                             << size << " threads" << LL_ENDL;
     // Use a function-static ThreadPool: static duration, but instantiated
     // only on demand.
-    static LL::ThreadPool pool("General", size);
+    // We don't want anyone, especially the main thread, to have to block
+    // due to this ThreadPool being full.
+    static LL::ThreadPool pool("General", size, 1024*1024);
 }
 
 void update_texture_fetch()
