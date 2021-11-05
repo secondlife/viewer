@@ -2203,6 +2203,17 @@ void LLWindowWin32::gatherInput()
     }
 
     {
+        LL_PROFILE_ZONE_NAMED("gi - PeekMessage");
+        S32 msg_count = 0;
+        while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+            msg_count++;
+        }
+    }
+
+    {
         LL_PROFILE_ZONE_NAMED("gi - function queue");
         //process any pending functions
         std::function<void()> curFunc;
