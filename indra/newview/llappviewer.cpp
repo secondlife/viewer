@@ -5566,7 +5566,7 @@ void LLAppViewer::disconnectViewer()
 		gFloaterView->restoreAll();
 	}
 
-	if (LLSelectMgr::getInstance())
+	if (LLSelectMgr::instanceExists())
 	{
 		LLSelectMgr::getInstance()->deselectAll();
 	}
