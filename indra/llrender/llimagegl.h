@@ -37,6 +37,7 @@
 #include "llunits.h"
 #include "llthreadsafequeue.h"
 #include "llrender.h"
+#include "threadpool.h"
 #include "workqueue.h"
 
 class LLTextureAtlas ;
@@ -307,7 +308,7 @@ public:
 
 };
 
-class LLImageGLThread : public LLThread
+class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 {
 public:
     LLImageGLThread(LLWindow* window);
@@ -316,19 +317,15 @@ public:
     template <typename CALLABLE>
     bool post(CALLABLE&& func)
     {
-        return mFunctionQueue.postIfOpen(std::forward<CALLABLE>(func));
+        return getQueue().postIfOpen(std::forward<CALLABLE>(func));
     }
 
     void run() override;
 
-    // Work Queue for background thread
-    LL::WorkQueue mFunctionQueue;
-
+private:
     LLWindow* mWindow;
     void* mContext;
     LLAtomicBool mFinished;
-
-    static LLImageGLThread* sInstance;
 };
 
 

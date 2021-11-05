@@ -30,8 +30,24 @@ namespace LL
          * relevant WorkQueue.
          */
         ThreadPool(const std::string& name, size_t threads=1, size_t capacity=1024);
-        ~ThreadPool();
+        virtual ~ThreadPool();
+
+        /**
+         * ThreadPool listens for application shutdown messages on the "LLApp"
+         * LLEventPump. Call close() to shut down this ThreadPool early.
+         */
         void close();
+
+        std::string getName() const { return mName; }
+        size_t getWidth() const { return mThreads.size(); }
+        /// obtain a non-const reference to the WorkQueue to post work to it
+        WorkQueue& getQueue() { return mQueue; }
+
+        /**
+         * Override run() if you need special processing. The default run()
+         * implementation simply calls WorkQueue::runUntilClose().
+         */
+        virtual void run();
 
     private:
         void run(const std::string& name);

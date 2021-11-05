@@ -70,6 +70,11 @@ void LL::ThreadPool::close()
 void LL::ThreadPool::run(const std::string& name)
 {
     LL_DEBUGS("ThreadPool") << name << " starting" << LL_ENDL;
-    mQueue.runUntilClose();
+    run();
     LL_DEBUGS("ThreadPool") << name << " stopping" << LL_ENDL;
+}
+
+void LL::ThreadPool::run()
+{
+    mQueue.runUntilClose();
 }

@@ -679,6 +679,9 @@ void LLViewerTexture::init(bool firstinit)
 	
 	mVolumeList[LLRender::LIGHT_TEX].clear();
 	mVolumeList[LLRender::SCULPT_TEX].clear();
+
+	mMainQueue	= LL::WorkQueue::getInstance("mainloop");
+	mImageQueue = LL::WorkQueue::getInstance("LLImageGL");
 }
 
 //virtual 
@@ -1622,17 +1625,26 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
     {
         mNeedsCreateTexture = TRUE;
 #if LL_WINDOWS //flip to 0 to revert to single-threaded OpenGL texture uploads
-        if (!LLImageGLThread::sInstance->post([this]()
-            {
-                //actually create the texture on a background thread
-                createTexture();
-                LL::WorkQueue::getInstance("mainloop")->post([this]()
-                    {
-                        //finalize on main thread
-                        postCreateTexture();
-                        unref();
-                    });
-            }))
+        auto mainq = mMainQueue.lock();
+        if (mainq)
+        {
+            mainq->postTo(
+                mImageQueue,
+                // work to be done on LLImageGL worker thread
+                [this]()
+                {
+                    //actually create the texture on a background thread
+                    createTexture();
+                },
+                // callback to be run on main thread
+                [this]()
+                {
+                    //finalize on main thread
+                    postCreateTexture();
+                    unref();
+                });
+        }
+        else
 #endif
         {
             gTextureList.mCreateTextureList.insert(this);
