@@ -41,6 +41,7 @@ set(llrender_SOURCE_FILES
     llgldbg.cpp
     llglslshader.cpp
     llgltexture.cpp
+    llglubo.cpp
     llimagegl.cpp
     llpostprocess.cpp
     llrender.cpp
@@ -71,6 +72,7 @@ set(llrender_HEADER_FILES
     llglstates.h
     llgltexture.h
     llgltypes.h
+    llglubo.h
     llimagegl.h
     llpostprocess.h
     llrender.h
