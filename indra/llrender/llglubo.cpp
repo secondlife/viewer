@@ -35,23 +35,28 @@
 // Implementation
 
 // @param usage GL_STATIC_DRAW or GL_DYNAMIC_DRAW
-bool LLUniformBufferObject::createUBO( size_t size, const char *nameBlock, GLhandleARB *program, const GLuint usage )
+bool LLUniformBufferObject::createUBO( size_t size, const char *nameBlock, GLhandleARB program, const GLuint usage )
 {
-    muboIndex = glGetUniformBlockIndex( program, *nameBlock );
+    GLuint index = glGetUniformBlockIndexARB( program, nameBlock );
+    if (index == GL_INVALID_INDEX)
+        return false;
 
-    glGenBuffers    ( 1,                          &muboBuffer );
-    glBindBuffer    ( GL_UNIFORM_BUFFER,           muboBuffer );
-    glBufferData    ( GL_UNIFORM_BUFFER, size, NULL, usage    ); // size, data, usage; Reserve size
+    muboIndex =  index;
+    glGenBuffersARB ( 1,                          &muboBuffer );
+    glBindBufferARB ( GL_UNIFORM_BUFFER,           muboBuffer );
+    glBufferDataARB ( GL_UNIFORM_BUFFER, size, NULL, usage    ); // size, data, usage; Reserve size
     glBindBufferBase( GL_UNIFORM_BUFFER, muboBind, muboBuffer );
+
+    return true;
 }
 
 void LLUniformBufferObject::update( size_t offset, size_t size, void *data )
 {
-    glBindBuffer   ( GL_UNIFORM_BUFFER, muboBuffer );
-    glBufferSubData( GL_UNIFORM_BUFFER, offset, size, data );
+    glBindBufferARB   ( GL_UNIFORM_BUFFER, muboBuffer );
+    glBufferSubDataARB( GL_UNIFORM_BUFFER, offset, size, data );
 }
 
 void LLUniformBufferObject::deleteUBO()
 {
-    glDeleteBuffers( 1, &muboBuffer );
+    glDeleteBuffersARB( 1, &muboBuffer );
 }

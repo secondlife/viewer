@@ -324,6 +324,10 @@ PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
 PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = NULL;
 
+// Uniform Buffer Object
+PFNGLBINDBUFFERBASEPROC       glBindBufferBaseARB       = NULL;
+PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndexARB = NULL;
+
 #if LL_WINDOWS
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
 #endif
@@ -1443,6 +1447,13 @@ void LLGLManager::initExtensions()
     glGetUniformfvARB         = (PFNGLGETUNIFORMFVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetUniformfvARB");
     glGetUniformivARB         = (PFNGLGETUNIFORMIVARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetUniformivARB");
     glGetShaderSourceARB      = (PFNGLGETSHADERSOURCEARBPROC) GLH_EXT_GET_PROC_ADDRESS("glGetShaderSourceARB");
+
+    // Uniform Buffer Object
+    if(mGLVersion >= 3.1) // UBO >= OpenGL 3.1
+    {
+        glBindBufferBaseARB       = (PFNGLBINDBUFFERBASEPROC      )GLH_EXT_GET_PROC_ADDRESS("glBindBufferBaseARB");
+        glGetUniformBlockIndexARB = (PFNGLGETUNIFORMBLOCKINDEXPROC)GLH_EXT_GET_PROC_ADDRESS("glGetUniformBlockIndexARB");
+    }
 
     LL_INFOS() << "initExtensions() VertexShader-related procs..." << LL_ENDL;
 

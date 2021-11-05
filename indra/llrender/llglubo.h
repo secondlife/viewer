@@ -27,12 +27,12 @@
 class LLUniformBufferObject
 {
 public:
-    void createUBO( size_t size, const char *name, LLGLSLShader *programs );
-    void update( void *data, size_t offset, size_t length );
+    bool createUBO( size_t size, const char *nameBlock, GLhandleARB program, const GLuint usage );
+    void update( size_t offset, size_t size, void *data );
     void deleteUBO();
 
 private:
     GLuint muboIndex;
     GLuint muboBuffer;
-    GLUint muboBind;
+    GLuint muboBind;
 };
