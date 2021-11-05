@@ -55,6 +55,8 @@
 #include <shellapi.h>
 #include <fstream>
 #include <Imm.h>
+#include <future>
+#include <utility>                  // std::pair
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -468,6 +470,37 @@ private:
 static LLMonitorInfo sMonitorInfo;
 
 
+// Thread that owns the Window Handle
+// This whole struct is private to LLWindowWin32, which needs to mess with its
+// members, which is why it's a struct rather than a class. In effect, we make
+// the containing class a friend.
+struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
+{
+    static const int MAX_QUEUE_SIZE = 2048;
+
+    LLThreadSafeQueue<MSG> mMessageQueue;
+
+    LLWindowWin32Thread();
+
+    void run() override;
+
+    template <typename CALLABLE>
+    void post(CALLABLE&& func)
+    {
+        getQueue().post(std::forward<CALLABLE>(func));
+        // bump us out of blocked GetMessage() call
+        if (mWindowHandle)
+        {
+            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+        }
+    }
+
+    // call PeekMessage and pull enqueue messages for later processing
+    void gatherInput();
+    HWND mWindowHandle = NULL;
+    HDC mhDC = 0;
+};
+
 
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
@@ -479,8 +512,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	: LLWindow(callbacks, fullscreen, flags)
 {
     sMainThreadId = LLThread::currentID();
-    mWindowThread = new LLWindowWin32Thread(this);
-    mWindowThread->start();
+    mWindowThread = new LLWindowWin32Thread();
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
 
@@ -975,17 +1007,13 @@ void LLWindowWin32::close()
                 // Something killed the window while we were busy destroying gl or handle somehow got broken
                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
             }
-            mWindowHandle = NULL;
 
-            mWindowThread->mFinished = true;
         });
-
-    while (!mWindowThread->isStopped())
-    {
-        //nudge window thread
-        PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+    // Even though the above lambda might not yet have run, we've already
+    // bound mWindowHandle into it by value, which should suffice for the
+    // operations we're asking. That's the last time WE should touch it.
+    mWindowHandle = NULL;
+    mWindowThread->close();
 }
 
 BOOL LLWindowWin32::isValid()
@@ -1278,51 +1306,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
         << " Fullscreen: " << mFullscreen
         << LL_ENDL;
 
-    auto oldHandle = mWindowHandle;
-
-    //zero out mWindowHandle and mhDC before destroying window so window thread falls back to peekmessage
-    mWindowHandle = 0;
-    mhDC = 0;
-
-    if (oldHandle && !destroy_window_handler(oldHandle))
-    {
-        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
-    }
-
-    mWindowHandle = NULL;
-    mhDC = 0;
-
-    mWindowThread->post(
-        [this, window_rect, dw_ex_style, dw_style]()
-        {
-            mWindowHandle = CreateWindowEx(dw_ex_style,
-                mWindowClassName,
-                mWindowTitle,
-                WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
-                window_rect.left,								// x pos
-                window_rect.top,								// y pos
-                window_rect.right - window_rect.left,			// width
-                window_rect.bottom - window_rect.top,			// height
-                NULL,
-                NULL,
-                mhInstance,
-                NULL);
-
-            if (mWindowHandle)
-            {
-                mhDC = GetDC(mWindowHandle);
-            }
-        }
-    );
-
-    // HACK wait for above handle to become populated
-    // TODO: use a future
-    int count = 1024;
-    while (!mhDC && count > 0)
-    {
-        Sleep(10);
-        --count;
-    }
+	recreateWindow(window_rect, dw_ex_style, dw_style);
 
 	if (mWindowHandle)
 	{
@@ -1650,48 +1634,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 			mhDC = 0;											// Zero The Device Context
 		}
 
-        auto oldHandle = mWindowHandle;
-        mWindowHandle = NULL;
-        mhDC = 0;
-
-        // Destroy The Window
-        if (oldHandle && !destroy_window_handler(oldHandle))
-        {
-            LL_WARNS("Window") << "Failed to properly close window!" << LL_ENDL;
-        }		
-
-        mWindowThread->post(
-            [this, window_rect, dw_ex_style, dw_style]()
-            {
-                mWindowHandle = CreateWindowEx(dw_ex_style,
-                    mWindowClassName,
-                    mWindowTitle,
-                    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
-                    window_rect.left,								// x pos
-                    window_rect.top,								// y pos
-                    window_rect.right - window_rect.left,			// width
-                    window_rect.bottom - window_rect.top,			// height
-                    NULL,
-                    NULL,
-                    mhInstance,
-                    NULL);
-
-                if (mWindowHandle)
-                {
-                    mhDC = GetDC(mWindowHandle);
-                }
-            }
-        );
-
-        // HACK wait for above handle to become populated
-        // TODO: use a future
-        int count = 1024;
-        while (!mhDC && count > 0)
-        {
-            PostMessage(oldHandle, WM_USER + 8, 0x1717, 0x3b3b);
-            Sleep(10);
-            --count;
-        }
+		recreateWindow(window_rect, dw_ex_style, dw_style);
 
 		if (mWindowHandle)
 		{
@@ -1835,6 +1778,64 @@ const	S32   max_format  = (S32)num_formats - 1;
 	}
 
 	return TRUE;
+}
+
+void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style)
+{
+    auto oldHandle = mWindowHandle;
+
+    // zero out mWindowHandle and mhDC before destroying window so window
+    // thread falls back to peekmessage
+    mWindowHandle = 0;
+    mhDC = 0;
+
+    if (oldHandle && !destroy_window_handler(oldHandle))
+    {
+        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
+    }
+
+    std::promise<std::pair<HWND, HDC>> promise;
+    mWindowThread->post(
+        [this, window_rect, dw_ex_style, dw_style, &promise]()
+        {
+            auto handle = CreateWindowEx(dw_ex_style,
+                mWindowClassName,
+                mWindowTitle,
+                WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
+                window_rect.left,								// x pos
+                window_rect.top,								// y pos
+                window_rect.right - window_rect.left,			// width
+                window_rect.bottom - window_rect.top,			// height
+                NULL,
+                NULL,
+                mhInstance,
+                NULL);
+
+            if (! handle)
+            {
+                // Failed to create window: clear the variables. This
+                // assignment is valid because we're running on mWindowThread.
+                mWindowThread->mWindowHandle = NULL;
+                mWindowThread->mhDC = 0;
+            }
+            else
+            {
+                // Update mWindowThread's own mWindowHandle and mhDC.
+                mWindowThread->mWindowHandle = handle;
+                mWindowThread->mhDC = GetDC(handle);
+            }
+                
+            // It's important to wake up the future either way.
+            promise.set_value(std::make_pair(mWindowThread->mWindowHandle, mWindowThread->mhDC));
+        }
+    );
+
+    auto future = promise.get_future();
+    // This blocks until mWindowThread processes CreateWindowEx() and calls
+    // promise.set_value().
+    auto pair = future.get();
+    mWindowHandle = pair.first;
+    mhDC = pair.second;
 }
 
 void* LLWindowWin32::createSharedContext()
@@ -2173,17 +2174,6 @@ void LLWindowWin32::gatherInput()
 
         mRawMouseDelta.mX = 0;
         mRawMouseDelta.mY = 0;
-    }
-
-
-    if (mWindowThread->mFunctionQueue.size() > 0)
-    {
-        LL_PROFILE_ZONE_NAMED("gi - PostMessage");
-        if (mWindowHandle)
-        { // post a nonsense user message to wake up the Window Thread in case any functions are pending
-            // and no windows events came through this frame
-            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
-        }
     }
         
     while (mWindowThread->mMessageQueue.tryPopBack(msg))
@@ -4551,35 +4541,32 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 
 #endif // LL_WINDOWS
 
-inline LLWindowWin32Thread::LLWindowWin32Thread(LLWindowWin32* window)
-    : LLThread("Window Thread"), 
-    mWindow(window),
-    mFunctionQueue(MAX_QUEUE_SIZE)
+inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
+    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
 {
-
 }
 
-inline void LLWindowWin32Thread::run()
+void LLWindowWin32::LLWindowWin32Thread::run()
 {
-    sWindowThreadId = getID();
-    while (!mFinished)
+    sWindowThreadId = std::this_thread::get_id();
+    while (! getQueue().done())
     {
         LL_PROFILE_ZONE_SCOPED;
 
 
-        if (mWindow && mWindow->mWindowHandle != 0)
+        if (mWindowHandle != 0)
         {
             MSG msg;
             BOOL status;
-            if (mWindow->mhDC == 0)
+            if (mhDC == 0)
             {
                 LL_PROFILE_ZONE_NAMED("w32t - PeekMessage");
-                status = PeekMessage(&msg, mWindow->mWindowHandle, 0, 0, PM_REMOVE);
+                status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED("w32t - GetMessage");
-                status = GetMessage(&msg, mWindow->mWindowHandle, 0, 0);
+                status = GetMessage(&msg, mWindowHandle, 0, 0);
             }
             if (status > 0)
             {
@@ -4593,11 +4580,7 @@ inline void LLWindowWin32Thread::run()
         {
             LL_PROFILE_ZONE_NAMED("w32t - Function Queue");
             //process any pending functions
-            std::function<void()> curFunc;
-            while (mFunctionQueue.tryPopBack(curFunc))
-            {
-                curFunc();
-            }
+            getQueue().runPending();
         }
         
 #if 0
@@ -4607,11 +4590,6 @@ inline void LLWindowWin32Thread::run()
         }
 #endif
     }
-}
-
-void LLWindowWin32Thread::post(const std::function<void()>& func)
-{
-    mFunctionQueue.pushFront(func);
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
