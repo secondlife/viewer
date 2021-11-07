@@ -1176,8 +1176,10 @@ class DarwinManifest(ViewerManifest):
                         [newpath, self.dst_path_of(dylibexecutable)])
 
                     # copy LibVLC plugin itself
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
-                                       "media_plugin_libvlc.dylib")
+                    dylibexecutable = 'media_plugin_libvlc.dylib'
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'], dylibexecutable)
+                    # add @rpath for the correct LibVLC subfolder
+                    self.run_command(['install_name_tool', '-add_rpath', '@loader_path/lib', self.dst_path_of(dylibexecutable)])
 
                     # copy LibVLC dynamic libraries
                     with self.prefix(src=relpkgdir, dst="lib"):
