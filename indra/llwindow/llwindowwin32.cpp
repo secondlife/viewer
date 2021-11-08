@@ -488,11 +488,6 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     void post(CALLABLE&& func)
     {
         getQueue().post(std::forward<CALLABLE>(func));
-        // bump us out of blocked GetMessage() call
-        if (mWindowHandle)
-        {
-            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
-        }
     }
 
     // call PeekMessage and pull enqueue messages for later processing
@@ -583,7 +578,6 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 	// Make an instance of our window then define the window class
 	mhInstance = GetModuleHandle(NULL);
-	mWndProc = NULL;
 
     // Init Direct Input - needed for joystick / Spacemouse
 
@@ -2175,6 +2169,19 @@ void LLWindowWin32::gatherInput()
         mRawMouseDelta.mX = 0;
         mRawMouseDelta.mY = 0;
     }
+
+
+    if (mWindowThread->getQueue().size())
+    {
+        LL_PROFILE_ZONE_NAMED("gi - PostMessage");
+        if (mWindowHandle)
+        {
+            // post a nonsense user message to wake up the Window Thread in
+            // case any functions are pending and no windows events came
+            // through this frame
+            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+        }
+    }
         
     while (mWindowThread->mMessageQueue.tryPopBack(msg))
     {
@@ -2250,17 +2257,6 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
     if (NULL != window_imp)
     {
-        // Has user provided their own window callback?
-        if (NULL != window_imp->mWndProc)
-        {
-            LL_PROFILE_ZONE_NAMED("mwp - WndProc");
-            if (!window_imp->mWndProc(h_wnd, u_msg, w_param, l_param))
-            {
-                // user has handled window message
-                return 0;
-            }
-        }
-
         // Juggle to make sure we can get negative positions for when
         // mouse is outside window.
         LLCoordWindow window_coord((S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param));
