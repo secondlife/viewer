@@ -39,6 +39,7 @@
 
 #include <functional>
 #include <chrono>
+#include <regex>
 
 #include "dullahan.h"
 
@@ -83,6 +84,9 @@ private:
 
 	void checkEditState();
     void setVolume();
+
+	bool should_wrap_video_url(const std::string url, const std::string mime_type);
+	const std::string wrap_video_url(const std::string url, const std::string mime_type);
 
 	bool mEnableMediaPluginDebugging;
 	std::string mHostLanguage;
@@ -686,6 +690,13 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "load_uri")
 			{
 				std::string uri = message_in.getValue("uri");
+				std::string mime_type = message_in.getValue("mime_type");
+
+				// after this call, uri will be a data URI containing the
+				// video URL wrapped in a blob of HTML or it will be the
+				// original uri if wrapping is not required
+				uri = wrap_video_url(uri, mime_type);
+
 				mCEFLib->navigate(uri);
 			}
 			else if (message_name == "set_cookie")
@@ -996,6 +1007,86 @@ void MediaPluginCEF::checkEditState()
 void MediaPluginCEF::setVolume()
 {
 	mVolumeCatcher.setVolume(mCurVolume);
+}
+
+/*
+	Determine if a bare video URL should be wrapped or not
+*/
+bool MediaPluginCEF::should_wrap_video_url(const std::string url, const std::string mime_type)
+{
+	/*
+		TODO:
+		Initial pass is just to look at MIME type for MPEG-4 since that is one 
+		of the few media types CEF can render.  If this test is deemed successful
+		then we might consider making this test more robust - perhaps a wider
+		array of MPEG4 MIME types (if they exist) and/or inspecting the 'widgettype'
+		parameter in mimetypes.xml.
+	*/
+	if (mime_type == "video/mp4" ||
+		mime_type == "application/mp4")
+	{
+		return true;
+	}
+
+	return false;
+}
+
+const std::string MediaPluginCEF::wrap_video_url(const std::string url, const std::string mime_type)
+{
+	/*
+		This code takes a "bare" media URL (https://example.com/foo.mp4) and wraps
+		it in a blob of HTML/CSS and then construct a data URI with the result that
+		can be passed to CEF as a URL and rendered normally.
+
+		This version of CEF is able to play back some media formats (typically MPEG-4)
+		and since VLC is rather cumbersome to update, we are investigating the 
+		possibility of using CEF to play back MPEG-4 media (and others) and removing
+		VLC altogether. However, when CEF plays back the media URL, it does not loop
+		by default and typically does not fill the browser window. The HTML wrapper
+		is designed to fix that (see  SL-16316 and SL-16318 for details).
+
+		The HTML fragment we use to wrap looks like this:
+
+		<html>
+		  <head>
+			<meta name="viewport" content="width=100%">
+			<style>
+			  body { background: #000; margin: 0; } 
+			  video { position: relative; top: 50%; transform: translateY(-50%); }
+			</style>
+		  </head>
+		  <body>
+			<video controls="" autoplay loop name="media" width="100%">
+			  <source src="__URL__" type="__MIMETYPE__">
+			</video>
+		  </body>
+		</html>
+	
+		and in the code below, we substitute __URL__ for the media URL to wrap and 
+		__MIMETYPE__ with the mime type. Clearly, there are unlimited possibilities
+		for what we can add to the HTML (E.G. different background color that more
+		closely matches the floater background color) but this works well for now.
+	
+		If this needs to be changed in the future, my recipe was to take the 
+		HTML stanza above, combine it into a single line and run it through a
+		URL encoder online such as https://www.urldecoder.org/.  Then, replace
+		the 'wrapper' string below with the result.
+	*/
+
+	// Return the original URL if we shouldn't wrap this URL
+	if (should_wrap_video_url(url, mime_type) == false)
+	{
+		return url;
+	}
+
+	const std::string wrapper = "%3Chtml%3E%3Chead%3E%3Cmeta%20name%3D%22viewport%22%20content%3D%22width%3D100%25%22%3E%20%3Cstyle%3E%20body%20%7Bbackground%3A%20%23000%3B%20margin%3A%200%3B%20%7D%20video%7Bposition%3A%20relative%3B%20top%3A%2050%25%3B%20transform%3A%20translateY%28-50%25%29%3B%20%7D%20%3C%2Fstyle%3E%20%3C%2Fhead%3E%20%3Cbody%3E%20%3Cvideo%20controls%3D%22%22%20autoplay%20loop%20name%3D%22media%22%20width%3D%22100%25%22%3E%20%3Csource%20src%3D%22__URL__%22%20type%3D%22__MIMETYPE__%22%3E%20%3C%2Fvideo%3E%20%3C%2Fbody%3E%20%3C%2Fhtml%3E";
+
+	std::string wrapped = std::regex_replace(wrapper, std::regex("__URL__"), url);
+	wrapped = std::regex_replace(wrapped, std::regex("__MIMETYPE__"), mime_type);
+
+	std::string data_url = "data:text/html;charset=utf-8," + wrapped;
+
+	return data_url;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

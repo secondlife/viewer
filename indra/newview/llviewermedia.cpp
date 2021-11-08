@@ -1880,7 +1880,7 @@ void LLViewerMediaImpl::loadURI()
             LL_INFOS() << "Asking media source to load URI: " << sanitized_uri << LL_ENDL;
         }
 
-		mMediaSource->loadURI( uri );
+		mMediaSource->loadURI( uri, mMimeType );
 
 		// A non-zero mPreviousMediaTime means that either this media was previously unloaded by the priority code while playing/paused,
 		// or a seek happened before the media loaded.  In either case, seek to the saved time.

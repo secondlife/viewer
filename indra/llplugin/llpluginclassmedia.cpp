@@ -705,11 +705,12 @@ void LLPluginClassMedia::setCookie(std::string uri, std::string name, std::strin
 	sendMessage(message);
 }
 
-void LLPluginClassMedia::loadURI(const std::string &uri)
+void LLPluginClassMedia::loadURI(const std::string &uri, const std::string &mime_type)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "load_uri");
 
 	message.setValue("uri", uri);
+	message.setValue("mime_type", mime_type);
 
 	sendMessage(message);
 }

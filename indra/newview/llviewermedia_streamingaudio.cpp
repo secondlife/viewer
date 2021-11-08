@@ -65,7 +65,7 @@ void LLStreamingAudio_MediaPlugins::start(const std::string& url)
 	if (!url.empty()) {
 		LL_INFOS() << "Starting internet stream: " << url << LL_ENDL;
 		mURL = url;
-		mMediaPlugin->loadURI ( url );
+		mMediaPlugin->loadURI ( url, "audio/mpeg" );
 		mMediaPlugin->start();
 		LL_INFOS() << "Playing stream..." << LL_ENDL;		
 	} else {

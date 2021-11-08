@@ -137,7 +137,7 @@ public:
 	
 	void setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path, bool httponly, bool secure);
 
-	void loadURI(const std::string &uri);
+	void loadURI(const std::string &uri, const std::string &mime_type);
 	
 	// "Loading" means uninitialized or any state prior to fully running (processing commands)
 	bool isPluginLoading(void) { return mPlugin?mPlugin->isLoading():false; };
