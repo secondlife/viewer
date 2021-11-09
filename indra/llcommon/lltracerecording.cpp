@@ -858,7 +858,6 @@ F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, S3
 			: NaN;
 }
 
-
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -950,6 +949,32 @@ F64 PeriodicRecording::getPeriodMean( const StatType<SampleAccumulator>& stat, S
 	return valid_period_count
 			? mean / F64(valid_period_count)
 			: NaN;
+}
+
+F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
+{
+    LL_PROFILE_ZONE_SCOPED;
+	num_periods = llmin(num_periods, getNumRecordedPeriods());
+
+	std::vector<F64> buf;
+	for (S32 i = 1; i <= num_periods; i++)
+	{
+		Recording& recording = getPrevRecording(i);
+		if (recording.getDuration() > (F32Seconds)0.f)
+		{
+			if (recording.hasValue(stat))
+			{
+				buf.push_back(recording.getMean(stat));
+			}
+		}
+	}
+	if (buf.size()==0)
+	{
+		return 0.0f;
+	}
+	std::sort(buf.begin(), buf.end());
+
+	return F64((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
 }
 
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )

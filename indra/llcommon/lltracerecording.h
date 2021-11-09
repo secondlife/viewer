@@ -599,6 +599,35 @@ namespace LLTrace
 			return typename RelatedTypes<T>::fractional_t(getPeriodMeanPerSec(static_cast<const StatType<CountAccumulator>&>(stat), num_periods));
 		}
 
+        F64 getPeriodMedian( const StatType<SampleAccumulator>& stat, S32 num_periods = S32_MAX);
+
+        template <typename T>
+        typename RelatedTypes<typename T::value_t>::fractional_t getPeriodMedianPerSec(const StatType<T>& stat, S32 num_periods = S32_MAX)
+        {
+            LL_PROFILE_ZONE_SCOPED;
+            num_periods = llmin(num_periods, getNumRecordedPeriods());
+
+            std::vector <typename RelatedTypes<typename T::value_t>::fractional_t> buf;
+            for (S32 i = 1; i <= num_periods; i++)
+            {
+                Recording& recording = getPrevRecording(i);
+                if (recording.getDuration() > (F32Seconds)0.f)
+                {
+                    buf.push_back(recording.getPerSec(stat));
+                }
+            }
+            std::sort(buf.begin(), buf.end());
+
+            return typename RelatedTypes<T>::fractional_t((buf.size() % 2 == 0) ? (buf[buf.size() / 2 - 1] + buf[buf.size() / 2]) / 2 : buf[buf.size() / 2]);
+        }
+
+        template<typename T>
+        typename RelatedTypes<T>::fractional_t getPeriodMedianPerSec(const CountStatHandle<T>& stat, S32 num_periods = S32_MAX)
+        {
+            LL_PROFILE_ZONE_SCOPED;
+            return typename RelatedTypes<T>::fractional_t(getPeriodMedianPerSec(static_cast<const StatType<CountAccumulator>&>(stat), num_periods));
+        }
+
 		//
 		// PERIODIC STANDARD DEVIATION
 		//
