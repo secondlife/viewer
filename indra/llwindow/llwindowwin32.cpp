@@ -473,7 +473,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
-							 BOOL disable_vsync, BOOL use_gl,
+							 BOOL enable_vsync, BOOL use_gl,
 							 BOOL ignore_pixel_depth,
 							 U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags)
@@ -800,7 +800,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	LLCoordScreen windowPos(x,y);
 	LLCoordScreen windowSize(window_rect.right - window_rect.left,
 							 window_rect.bottom - window_rect.top);
-	if (!switchContext(mFullscreen, windowSize, disable_vsync, &windowPos))
+	if (!switchContext(mFullscreen, windowSize, enable_vsync, &windowPos))
 	{
 		return;
 	}
@@ -1126,7 +1126,7 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
 }
 
 // changing fullscreen resolution
-BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BOOL disable_vsync, const LLCoordScreen* const posp)
+BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BOOL enable_vsync, const LLCoordScreen* const posp)
 {
     //called from main thread
     GLuint	pixel_format;
@@ -1802,16 +1802,7 @@ const	S32   max_format  = (S32)num_formats - 1;
 	}
 	
 	// Disable vertical sync for swap
-	if (disable_vsync && wglSwapIntervalEXT)
-	{
-		LL_DEBUGS("Window") << "Disabling vertical sync" << LL_ENDL;
-		wglSwapIntervalEXT(0);
-	}
-	else
-	{
-		LL_DEBUGS("Window") << "Keeping vertical sync" << LL_ENDL;
-        wglSwapIntervalEXT(1);
-	}
+    toggleVSync(enable_vsync);
 
 	SetWindowLongPtr(mWindowHandle, GWLP_USERDATA, (LONG_PTR)this);
 
@@ -1904,6 +1895,20 @@ void LLWindowWin32::makeContextCurrent(void* contextPtr)
 void LLWindowWin32::destroySharedContext(void* contextPtr)
 {
     wglDeleteContext((HGLRC)contextPtr);
+}
+
+void LLWindowWin32::toggleVSync(bool enable_vsync)
+{
+    if (!enable_vsync && wglSwapIntervalEXT)
+    {
+        LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
+        wglSwapIntervalEXT(0);
+    }
+    else
+    {
+        LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
+        wglSwapIntervalEXT(1);
+    }
 }
 
 void LLWindowWin32::moveWindow( const LLCoordScreen& position, const LLCoordScreen& size )

@@ -8388,8 +8388,6 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 	return v;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_DEFERRED_LIGHTING("Deferred Lighting");
-
 void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -8397,7 +8395,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
     {
         return;
     }
-    LL_RECORD_BLOCK_TIME(FTM_DEFERRED_LIGHTING);
 
     LLRenderTarget *deferred_target       = &mDeferredScreen;
     LLRenderTarget *deferred_depth_target = &mDeferredDepth;
