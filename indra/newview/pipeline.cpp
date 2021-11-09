@@ -1231,7 +1231,8 @@ void LLPipeline::releaseShadowTargets()
 
 void LLPipeline::createGLBuffers()
 {
-	stop_glerror();
+    LL_PROFILE_ZONE_SCOPED;
+    stop_glerror();
 	assertInitialized();
 
 	updateRenderDeferred();
@@ -1384,7 +1385,7 @@ void LLPipeline::restoreGL()
 			if (part)
 			{
 				part->restoreGL();
-			}
+		}
 		}
 	}
 }
@@ -2428,8 +2429,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		LLVOCachePartition* vo_part = region->getVOCachePartition();
 		if(vo_part)
 		{
-			bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe && 0 > water_clip /* && !gViewerWindow->getProgressView()->getVisible()*/;
-            do_occlusion_cull &= !sReflectionRender;
+            bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe; // && 0 > water_clip
 			vo_part->cull(camera, do_occlusion_cull);
 		}
 	}
@@ -2629,7 +2629,8 @@ void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderT
 
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
-	if (LLPipeline::sUseOcclusion > 1 && !LLSpatialPartition::sTeleportRequested && 
+    LL_PROFILE_ZONE_SCOPED;
+    if (LLPipeline::sUseOcclusion > 1 && !LLSpatialPartition::sTeleportRequested &&
 		(sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
 	{
 		LLVertexBuffer::unbind();
@@ -3422,7 +3423,8 @@ void LLPipeline::stateSort(LLSpatialGroup* group, LLCamera& camera)
 
 void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed)
 {
-	if (bridge->getSpatialGroup()->changeLOD() || fov_changed)
+    LL_PROFILE_ZONE_SCOPED;
+    if (bridge->getSpatialGroup()->changeLOD() || fov_changed)
 	{
 		bool force_update = false;
 		bridge->updateDistance(camera, force_update);
@@ -3431,7 +3433,8 @@ void LLPipeline::stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_c
 
 void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 {
-	if (!drawablep
+    LL_PROFILE_ZONE_SCOPED;
+    if (!drawablep
 		|| drawablep->isDead() 
 		|| !hasRenderType(drawablep->getRenderType()))
 	{
@@ -4708,7 +4711,8 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 
 void LLPipeline::renderGeomShadow(LLCamera& camera)
 {
-	U32 cur_type = 0;
+    LL_PROFILE_ZONE_SCOPED;
+    U32 cur_type = 0;
 	
 	LLGLEnable cull(GL_CULL_FACE);
 
@@ -8384,15 +8388,13 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 	return v;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_DEFERRED_LIGHTING("Deferred Lighting");
-
 void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (!sCull)
     {
         return;
     }
-    LL_RECORD_BLOCK_TIME(FTM_DEFERRED_LIGHTING);
 
     LLRenderTarget *deferred_target       = &mDeferredScreen;
     LLRenderTarget *deferred_depth_target = &mDeferredDepth;
@@ -9200,6 +9202,7 @@ inline float sgn(float a)
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
+    LL_PROFILE_ZONE_SCOPED;
     if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
     {
         bool skip_avatar_update = false;
@@ -9253,11 +9256,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             plane.setVec(pnorm, water_height);
             water_clip = -1;
         }
-
-        S32 occlusion = LLPipeline::sUseOcclusion;
-
-        //disable occlusion culling for reflection map for now
-        LLPipeline::sUseOcclusion = 0;
 
         if (!camera_is_underwater)
         {
@@ -9374,8 +9372,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             set_current_modelview(saved_modelview);
         }
 
-        //LLPipeline::sUseOcclusion = occlusion;
-
         camera.setOrigin(camera_in.getOrigin());
         //render distortion map
         static bool last_update = true;
@@ -9470,7 +9466,6 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
         gPipeline.popRenderTypeMask();
 
-        LLPipeline::sUseOcclusion     = occlusion;
         LLPipeline::sUnderWaterRender = false;
         LLPipeline::sReflectionRender = false;
 

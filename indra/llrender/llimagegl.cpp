@@ -2288,7 +2288,10 @@ bool LLImageGLThread::postCallback(const std::function<void()>& callback)
 {
     try
     {
-        mCallbackQueue.post(callback);
+        if (!mCallbackQueue.tryPost(callback))
+        {
+            mPendingCallbackQ.push(callback);
+        }
     }
     catch (LLThreadSafeQueueInterrupt e)
     {
@@ -2304,6 +2307,18 @@ void LLImageGLThread::executeCallbacks()
     LL_PROFILE_ZONE_SCOPED;
     //executed from main thread
     mCallbackQueue.runPending();
+
+    while (!mPendingCallbackQ.empty())
+    {
+        if (mCallbackQueue.tryPost(mPendingCallbackQ.front()))
+        {
+            mPendingCallbackQ.pop();
+        }
+        else
+        {
+            break;
+        }
+    }
 }
 
 void LLImageGLThread::run()

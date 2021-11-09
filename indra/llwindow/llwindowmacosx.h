@@ -60,7 +60,7 @@ public:
 	BOOL setPosition(LLCoordScreen position) override;
 	BOOL setSizeImpl(LLCoordScreen size) override;
 	BOOL setSizeImpl(LLCoordWindow size) override;
-	BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) override;
+	BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) override;
 	BOOL setCursorPosition(LLCoordWindow position) override;
 	BOOL getCursorPosition(LLCoordWindow *position) override;
 	void showCursor() override;
@@ -143,7 +143,7 @@ public:
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
-		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
+		BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth,
 		U32 fsaa_samples);
 		~LLWindowMacOSX();
@@ -176,7 +176,7 @@ protected:
 	//
 
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
-	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync);
+	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync);
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void adjustCursorDecouple(bool warpingMouse = false);
