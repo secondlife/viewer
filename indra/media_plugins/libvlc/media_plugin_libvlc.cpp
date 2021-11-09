@@ -354,7 +354,7 @@ void MediaPluginLibVLC::playMedia()
 	// but that appears to always be the case
 	if (mIsLooping)
 	{
-		libvlc_media_add_option(mLibVLCMedia, "input-repeat=-1");
+		libvlc_media_add_option(mLibVLCMedia, "input-repeat=65535");
 	}
 
 	libvlc_media_player_play(mLibVLCMediaPlayer);
