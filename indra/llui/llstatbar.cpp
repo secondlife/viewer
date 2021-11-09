@@ -160,6 +160,7 @@ LLStatBar::Params::Params()
 	tick_spacing("tick_spacing", 0.f),
 	decimal_digits("decimal_digits", 3),
 	show_bar("show_bar", false),
+	show_median("show_median", false),
 	show_history("show_history", false),
 	scale_range("scale_range", true),
 	num_frames("num_frames", 200),
@@ -186,6 +187,7 @@ LLStatBar::LLStatBar(const Params& p)
 	mNumShortHistoryFrames(p.num_frames_short),
 	mMaxHeight(p.max_height),
 	mDisplayBar(p.show_bar),
+	mShowMedian(p.show_median),
 	mDisplayHistory(p.show_history),
 	mOrientation(p.orientation),
 	mAutoScaleMax(!p.bar_max.isProvided()),
@@ -318,7 +320,14 @@ void LLStatBar::draw()
 			min           = frame_recording.getPeriodMinPerSec(count_stat, num_frames);
 			max           = frame_recording.getPeriodMaxPerSec(count_stat, num_frames);
 			mean          = frame_recording.getPeriodMeanPerSec(count_stat, num_frames);
-			display_value = mean;
+			if (mShowMedian)
+			{
+				display_value = frame_recording.getPeriodMedianPerSec(count_stat, num_frames);
+			}
+			else
+			{
+				display_value = mean;
+			}
 		}
 		break;
 	case STAT_EVENT:
@@ -344,7 +353,11 @@ void LLStatBar::draw()
 			mean              = frame_recording.getPeriodMean(sample_stat, num_frames);
 			num_rapid_changes = calc_num_rapid_changes(frame_recording, sample_stat, RAPID_CHANGE_WINDOW);
 
-			if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
+			if (mShowMedian)
+			{
+				display_value = frame_recording.getPeriodMedian(sample_stat, num_frames);
+			}
+			else if (num_rapid_changes / RAPID_CHANGE_WINDOW.value() > MAX_RAPID_CHANGES_PER_SEC)
 			{
 				display_value = mean;
 			}

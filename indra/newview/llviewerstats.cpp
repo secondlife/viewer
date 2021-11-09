@@ -183,8 +183,9 @@ SimMeasurement<F64Kilobytes >	SIM_UNACKED_BYTES("simtotalunackedbytes", "", LL_S
 SimMeasurement<F64Megabytes >	SIM_PHYSICS_MEM("physicsmemoryallocated", "", LL_SIM_STAT_SIMPHYSICSMEMORY);
 
 LLTrace::SampleStatHandle<F64Milliseconds >	FRAMETIME_JITTER("frametimejitter", "Average delta between successive frame times"),
-																FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
-																SIM_PING("simpingstat");
+											FRAMETIME_SLEW("frametimeslew", "Average delta between frame time and mean"),
+											FRAMETIME("frametime", "Measured frame time"),
+											SIM_PING("simpingstat");
 
 LLTrace::EventStatHandle<LLUnit<F64, LLUnits::Meters> > AGENT_POSITION_SNAP("agentpositionsnap", "agent position corrections");
 
@@ -261,8 +262,12 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 		// new "stutter" meter
 		add(LLStatViewer::FRAMETIME_DOUBLED, time_diff >= 2.0 * mLastTimeDiff ? 1 : 0);
 
+		sample(LLStatViewer::FRAMETIME, time_diff);
+
 		// old stats that were never really used
-		sample(LLStatViewer::FRAMETIME_JITTER, F64Milliseconds (mLastTimeDiff - time_diff));
+		F64Seconds jit = (F64Seconds) std::fabs((mLastTimeDiff - time_diff));
+		LL_INFOS() << "times " << mLastTimeDiff << ", " << time_diff << " jit " << jit << LL_ENDL;
+		sample(LLStatViewer::FRAMETIME_JITTER, jit);
 			
 		F32Seconds average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
 		sample(LLStatViewer::FRAMETIME_SLEW, F64Milliseconds (average_frametime - time_diff));
