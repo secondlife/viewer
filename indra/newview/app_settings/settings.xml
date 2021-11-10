@@ -3352,16 +3352,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DisableVerticalSync</key>
+    <key>RenderVSyncEnable</key>
     <map>
       <key>Comment</key>
-      <string>Update frames as fast as possible (FALSE = update frames between display scans).  Requires restart.</string>
+      <string>Update frames between display scans (FALSE = Update frames as fast as possible).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>EnableGroupChatPopups</key>
     <map>

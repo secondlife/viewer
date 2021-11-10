@@ -77,7 +77,7 @@ public:
 	BOOL setSize(LLCoordScreen size);
 	BOOL setSize(LLCoordWindow size);
 	virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
-	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) = 0;
+	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) = 0;
 
     //create a new GL context that shares a namespace with this Window's main GL context and make it current on the current thread
     // returns a pointer to be handed back to destroySharedConext/makeContextCurrent
@@ -92,6 +92,7 @@ public:
     virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
 #if LL_WINDOWS
+    virtual void toggleVSync(bool enable_vsync) = 0;
     virtual BOOL getCursorDelta(LLCoordCommon* delta) = 0;
 #endif
 	virtual void showCursor() = 0;
@@ -295,7 +296,7 @@ public:
 		U32 flags = 0,
 		BOOL fullscreen = FALSE,
 		BOOL clearBg = FALSE,
-		BOOL disable_vsync = TRUE,
+		BOOL enable_vsync = FALSE,
 		BOOL use_gl = TRUE,
 		BOOL ignore_pixel_depth = FALSE,
 		U32 fsaa_samples = 0);

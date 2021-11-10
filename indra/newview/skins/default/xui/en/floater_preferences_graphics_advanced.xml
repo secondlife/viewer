@@ -102,6 +102,18 @@
        Low
   </text>
 
+  <check_box
+    control_name="RenderVSyncEnable"
+    height="16"
+    initial_value="true"
+    label="Enable VSync"
+    layout="topleft"
+    left="30"
+    top_delta="16"
+    name="vsync"
+    tool_tip="Synchronizes the frame rate to the refresh rate of the monitor, which results in smooth performance."
+    width="315" />
+
   <text
     type="string"
     length="1"
@@ -332,18 +344,6 @@
     name="ani"
     top_delta="16"
     width="256" />
-
-  <check_box
-    control_name="RenderVBOEnable"
-    height="16"
-    initial_value="true"
-    label="Enable OpenGL Vertex Buffer Objects"
-    layout="topleft"
-    left="30"
-    top_delta="16"
-    name="vbo"
-    tool_tip="Enabling this on modern hardware gives a performance gain.  However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."
-    width="315" />
 
   <check_box
     control_name="RenderCompressTextures"
