@@ -176,23 +176,19 @@ DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
 
 // The following class LLWinImm delegates Windows IMM APIs.
-// We need this because some language versions of Windows,
-// e.g., US version of Windows XP, doesn't install IMM32.DLL
-// as a default, and we can't link against imm32.lib statically.
-// I believe DLL loading of this type is best suited to do
-// in a static initialization of a class.  What I'm not sure is
-// whether it follows the Linden Conding Standard... 
-// See http://wiki.secondlife.com/wiki/Coding_standards#Static_Members
+// It was originally introduced to support US Windows XP, on which we needed
+// to dynamically load IMM32.DLL and use GetProcAddress to resolve its entry
+// points. Now that that's moot, we retain this wrapper only for hooks for
+// metrics.
 
 class LLWinImm
 {
 public:
-	static bool		isAvailable() { return sTheInstance.mHImmDll != NULL; }
+	static bool		isAvailable() { return true; }
 
 public:
 	// Wrappers for IMM API.
 	static BOOL		isIME(HKL hkl);															
-	static HWND		getDefaultIMEWnd(HWND hwnd);
 	static HIMC		getContext(HWND hwnd);													
 	static BOOL		releaseContext(HWND hwnd, HIMC himc);
 	static BOOL		getOpenStatus(HIMC himc);												
@@ -206,234 +202,94 @@ public:
 	static BOOL		setCompositionFont(HIMC himc, LPLOGFONTW logfont);
 	static BOOL		setCandidateWindow(HIMC himc, LPCANDIDATEFORM candidate_form);
 	static BOOL		notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value);
-
-private:
-	LLWinImm();
-	~LLWinImm();
-
-private:
-	// Pointers to IMM API.
-	BOOL	 	(WINAPI *mImmIsIME)(HKL);
-	HWND		(WINAPI *mImmGetDefaultIMEWnd)(HWND);
-	HIMC		(WINAPI *mImmGetContext)(HWND);
-	BOOL		(WINAPI *mImmReleaseContext)(HWND, HIMC);
-	BOOL		(WINAPI *mImmGetOpenStatus)(HIMC);
-	BOOL		(WINAPI *mImmSetOpenStatus)(HIMC, BOOL);
-	BOOL		(WINAPI *mImmGetConversionStatus)(HIMC, LPDWORD, LPDWORD);
-	BOOL		(WINAPI *mImmSetConversionStatus)(HIMC, DWORD, DWORD);
-	BOOL		(WINAPI *mImmGetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
-	BOOL		(WINAPI *mImmSetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
-	LONG		(WINAPI *mImmGetCompositionString)(HIMC, DWORD, LPVOID, DWORD);
-	BOOL		(WINAPI *mImmSetCompositionString)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD);
-	BOOL		(WINAPI *mImmSetCompositionFont)(HIMC, LPLOGFONTW);
-	BOOL		(WINAPI *mImmSetCandidateWindow)(HIMC, LPCANDIDATEFORM);
-	BOOL		(WINAPI *mImmNotifyIME)(HIMC, DWORD, DWORD, DWORD);
-
-private:
-	HMODULE		mHImmDll;
-	static LLWinImm sTheInstance;
 };
-
-LLWinImm LLWinImm::sTheInstance;
-
-LLWinImm::LLWinImm() : mHImmDll(NULL)
-{
-	// Check system metrics 
-	if ( !GetSystemMetrics( SM_IMMENABLED ) )
-		return;
-
-	mHImmDll = LoadLibraryA("Imm32");
-	if (mHImmDll != NULL)
-	{
-		mImmIsIME               = (BOOL (WINAPI *)(HKL))                    GetProcAddress(mHImmDll, "ImmIsIME");
-		mImmGetDefaultIMEWnd	= (HWND (WINAPI *)(HWND))					GetProcAddress(mHImmDll, "ImmGetDefaultIMEWnd");
-		mImmGetContext          = (HIMC (WINAPI *)(HWND))                   GetProcAddress(mHImmDll, "ImmGetContext");
-		mImmReleaseContext      = (BOOL (WINAPI *)(HWND, HIMC))             GetProcAddress(mHImmDll, "ImmReleaseContext");
-		mImmGetOpenStatus       = (BOOL (WINAPI *)(HIMC))                   GetProcAddress(mHImmDll, "ImmGetOpenStatus");
-		mImmSetOpenStatus       = (BOOL (WINAPI *)(HIMC, BOOL))             GetProcAddress(mHImmDll, "ImmSetOpenStatus");
-		mImmGetConversionStatus = (BOOL (WINAPI *)(HIMC, LPDWORD, LPDWORD)) GetProcAddress(mHImmDll, "ImmGetConversionStatus");
-		mImmSetConversionStatus = (BOOL (WINAPI *)(HIMC, DWORD, DWORD))     GetProcAddress(mHImmDll, "ImmSetConversionStatus");
-		mImmGetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmGetCompositionWindow");
-		mImmSetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmSetCompositionWindow");
-		mImmGetCompositionString= (LONG (WINAPI *)(HIMC, DWORD, LPVOID, DWORD))					GetProcAddress(mHImmDll, "ImmGetCompositionStringW");
-		mImmSetCompositionString= (BOOL (WINAPI *)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD))	GetProcAddress(mHImmDll, "ImmSetCompositionStringW");
-		mImmSetCompositionFont  = (BOOL (WINAPI *)(HIMC, LPLOGFONTW))		GetProcAddress(mHImmDll, "ImmSetCompositionFontW");
-		mImmSetCandidateWindow  = (BOOL (WINAPI *)(HIMC, LPCANDIDATEFORM))  GetProcAddress(mHImmDll, "ImmSetCandidateWindow");
-		mImmNotifyIME			= (BOOL (WINAPI *)(HIMC, DWORD, DWORD, DWORD))	GetProcAddress(mHImmDll, "ImmNotifyIME");
-
-		if (mImmIsIME == NULL ||
-			mImmGetDefaultIMEWnd == NULL ||
-			mImmGetContext == NULL ||
-			mImmReleaseContext == NULL ||
-			mImmGetOpenStatus == NULL ||
-			mImmSetOpenStatus == NULL ||
-			mImmGetConversionStatus == NULL ||
-			mImmSetConversionStatus == NULL ||
-			mImmGetCompostitionWindow == NULL ||
-			mImmSetCompostitionWindow == NULL ||
-			mImmGetCompositionString == NULL ||
-			mImmSetCompositionString == NULL ||
-			mImmSetCompositionFont == NULL ||
-			mImmSetCandidateWindow == NULL ||
-			mImmNotifyIME == NULL)
-		{
-			// If any of the above API entires are not found, we can't use IMM API.  
-			// So, turn off the IMM support.  We should log some warning message in 
-			// the case, since it is very unusual; these APIs are available from 
-			// the beginning, and all versions of IMM32.DLL should have them all.  
-			// Unfortunately, this code may be executed before initialization of 
-			// the logging channel (LL_WARNS()), and we can't do it here...  Yes, this 
-			// is one of disadvantages to use static constraction to DLL loading. 
-			FreeLibrary(mHImmDll);
-			mHImmDll = NULL;
-
-			// If we unload the library, make sure all the function pointers are cleared
-			mImmIsIME = NULL;
-			mImmGetDefaultIMEWnd = NULL;
-			mImmGetContext = NULL;
-			mImmReleaseContext = NULL;
-			mImmGetOpenStatus = NULL;
-			mImmSetOpenStatus = NULL;
-			mImmGetConversionStatus = NULL;
-			mImmSetConversionStatus = NULL;
-			mImmGetCompostitionWindow = NULL;
-			mImmSetCompostitionWindow = NULL;
-			mImmGetCompositionString = NULL;
-			mImmSetCompositionString = NULL;
-			mImmSetCompositionFont = NULL;
-			mImmSetCandidateWindow = NULL;
-			mImmNotifyIME = NULL;
-		}
-	}
-}
-
 
 // static 
 BOOL	LLWinImm::isIME(HKL hkl)
 { 
-	if ( sTheInstance.mImmIsIME )
-		return sTheInstance.mImmIsIME(hkl); 
-	return FALSE;
+	return ImmIsIME(hkl);
 }
 
 // static 
 HIMC		LLWinImm::getContext(HWND hwnd)
 {
-	if ( sTheInstance.mImmGetContext )
-		return sTheInstance.mImmGetContext(hwnd); 
-	return 0;
+	return ImmGetContext(hwnd);
 }
 
 //static 
 BOOL		LLWinImm::releaseContext(HWND hwnd, HIMC himc)
 { 
-	if ( sTheInstance.mImmIsIME )
-		return sTheInstance.mImmReleaseContext(hwnd, himc); 
-	return FALSE;
+	return ImmReleaseContext(hwnd, himc);
 }
 
 // static 
 BOOL		LLWinImm::getOpenStatus(HIMC himc)
 { 
-	if ( sTheInstance.mImmGetOpenStatus )
-		return sTheInstance.mImmGetOpenStatus(himc); 
-	return FALSE;
+	return ImmGetOpenStatus(himc);
 }
 
 // static 
 BOOL		LLWinImm::setOpenStatus(HIMC himc, BOOL status)
 { 
-	if ( sTheInstance.mImmSetOpenStatus )
-		return sTheInstance.mImmSetOpenStatus(himc, status); 
-	return FALSE;
+	return ImmSetOpenStatus(himc, status);
 }
 
 // static 
 BOOL		LLWinImm::getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	
 { 
-	if ( sTheInstance.mImmGetConversionStatus )
-		return sTheInstance.mImmGetConversionStatus(himc, conversion, sentence); 
-	return FALSE;
+	return ImmGetConversionStatus(himc, conversion, sentence);
 }
 
 // static 
 BOOL		LLWinImm::setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		
 { 
-	if ( sTheInstance.mImmSetConversionStatus )
-		return sTheInstance.mImmSetConversionStatus(himc, conversion, sentence); 
-	return FALSE;
+	return ImmSetConversionStatus(himc, conversion, sentence);
 }
 
 // static 
 BOOL		LLWinImm::getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
-	if ( sTheInstance.mImmGetCompostitionWindow )
-		return sTheInstance.mImmGetCompostitionWindow(himc, form);	
-	return FALSE;
+	return ImmGetCompositionWindow(himc, form);
 }
 
 // static 
 BOOL		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
-	if ( sTheInstance.mImmSetCompostitionWindow )
-		return sTheInstance.mImmSetCompostitionWindow(himc, form);	
-	return FALSE;
+	return ImmSetCompositionWindow(himc, form);
 }
 
 
 // static 
 LONG		LLWinImm::getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD length)					
 { 
-	if ( sTheInstance.mImmGetCompositionString )
-		return sTheInstance.mImmGetCompositionString(himc, index, data, length);	
-	return FALSE;
+	return ImmGetCompositionString(himc, index, data, length);
 }
 
 
 // static 
 BOOL		LLWinImm::setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength)					
 { 
-	if ( sTheInstance.mImmSetCompositionString )
-		return sTheInstance.mImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);	
-	return FALSE;
+	return ImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);
 }
 
 // static 
 BOOL		LLWinImm::setCompositionFont(HIMC himc, LPLOGFONTW pFont)					
 { 
-	if ( sTheInstance.mImmSetCompositionFont )
-		return sTheInstance.mImmSetCompositionFont(himc, pFont);	
-	return FALSE;
+	return ImmSetCompositionFont(himc, pFont);
 }
 
 // static 
 BOOL		LLWinImm::setCandidateWindow(HIMC himc, LPCANDIDATEFORM form)					
 { 
-	if ( sTheInstance.mImmSetCandidateWindow )
-		return sTheInstance.mImmSetCandidateWindow(himc, form);	
-	return FALSE;
+	return ImmSetCandidateWindow(himc, form);
 }
 
 // static 
 BOOL		LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value)					
 { 
-	if ( sTheInstance.mImmNotifyIME )
-		return sTheInstance.mImmNotifyIME(himc, action, index, value);	
-	return FALSE;
+	return ImmNotifyIME(himc, action, index, value);
 }
 
-
-
-
-// ----------------------------------------------------------------------------------------
-LLWinImm::~LLWinImm()
-{
-	if (mHImmDll != NULL)
-	{
-		FreeLibrary(mHImmDll);
-		mHImmDll = NULL;
-	}
-}
 
 
 class LLMonitorInfo
