@@ -39,6 +39,11 @@ void LL::WorkQueue::close()
     mQueue.close();
 }
 
+size_t LL::WorkQueue::size()
+{
+    return mQueue.size();
+}
+
 bool LL::WorkQueue::isClosed()
 {
     return mQueue.isClosed();

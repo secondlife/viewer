@@ -64,6 +64,21 @@ namespace LL
          */
         void close();
 
+        /**
+         * WorkQueue supports multiple producers and multiple consumers. In
+         * the general case it's misleading to test size(), since any other
+         * thread might change it the nanosecond the lock is released. On that
+         * basis, some might argue against publishing a size() method at all.
+         *
+         * But there are two specific cases in which a test based on size()
+         * might be reasonable:
+         *
+         * * If you're the only producer, noticing that size() == 0 is
+         *   meaningful.
+         * * If you're the only consumer, noticing that size() > 0 is
+         *   meaningful.
+         */
+        size_t size();
         /// producer end: are we prevented from pushing any additional items?
         bool isClosed();
         /// consumer end: are we done, is the queue entirely drained?
