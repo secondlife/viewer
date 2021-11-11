@@ -859,9 +859,16 @@ public:
     static inline T& instance() { return *getInstance(); }
     static inline bool instanceExists() { return sInstance != nullptr; }
 
+<<<<<<< HEAD
     static void deleteSingleton() { 
         delete sInstance; 
         sInstance = nullptr; 
+=======
+    static void deleteSingleton()
+    {
+        delete sInstance;
+        sInstance = nullptr;
+>>>>>>> 18de6c9b98 (SL-16094: Stylish braces!)
     }
 };
 
