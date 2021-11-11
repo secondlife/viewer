@@ -858,7 +858,8 @@ public:
     static inline T& instance() { return *getInstance(); }
     static inline bool instanceExists() { return sInstance != nullptr; }
 
-    static void deleteSingleton() {
+    static void deleteSingleton()
+    {
         delete sInstance;
         sInstance = nullptr;
     }
