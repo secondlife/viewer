@@ -266,7 +266,6 @@ void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 
 		// old stats that were never really used
 		F64Seconds jit = (F64Seconds) std::fabs((mLastTimeDiff - time_diff));
-		LL_INFOS() << "times " << mLastTimeDiff << ", " << time_diff << " jit " << jit << LL_ENDL;
 		sample(LLStatViewer::FRAMETIME_JITTER, jit);
 			
 		F32Seconds average_frametime = gRenderStartTime.getElapsedTimeF32() / (F32)gFrameCount;
