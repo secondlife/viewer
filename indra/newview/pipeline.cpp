@@ -1047,7 +1047,6 @@ void LLPipeline::updateRenderDeferred()
                       RenderDeferred &&
                       LLRenderTarget::sUseFBO &&
                       LLPipeline::sRenderBump &&
-                      LLPipeline::sRenderTransparentWater &&
                       RenderAvatarVP &&
                       WindLightUseAtmosShaders &&
                       (bool) LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
@@ -9203,7 +9202,13 @@ inline float sgn(float a)
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
     LL_PROFILE_ZONE_SCOPED;
-    if (LLPipeline::sWaterReflections && assertInitialized() && LLDrawPoolWater::sNeedsReflectionUpdate)
+
+    if (!assertInitialized())
+    {
+        return;
+    }
+
+    if (LLPipeline::sWaterReflections && LLDrawPoolWater::sNeedsReflectionUpdate)
     {
         bool skip_avatar_update = false;
         if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
@@ -9423,18 +9428,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
                 //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
                 // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
-                LLPlane plane(-pnorm, water_dist);
+                LLPlane plane(-pnorm, camera_is_underwater ? -water_height : water_dist);
                 LLGLUserClipPlane clip_plane(plane, saved_modelview, saved_projection);
 
                 gGL.setColorMask(true, true);
                 mWaterDis.clear();
                 gGL.setColorMask(true, false);
-
-                // ignore clip plane if we're underwater and viewing distortion map of objects above waterline
-                if (camera_is_underwater)
-                {
-                    clip_plane.disable();
-                }
 
                 if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
                 {
@@ -9487,6 +9486,29 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         }
 
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+    }
+    else
+    {
+        // Initial sky pass is still needed even if water reflection is not rendering
+        bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
+        if (!camera_is_underwater)
+        {
+            gPipeline.pushRenderTypeMask();
+            {
+                gPipeline.andRenderTypeMask(
+                    LLPipeline::RENDER_TYPE_SKY,
+                    LLPipeline::RENDER_TYPE_WL_SKY,
+                    LLPipeline::END_RENDER_TYPES);
+
+                LLCamera camera = camera_in;
+                camera.setFar(camera_in.getFar() * 0.75f);
+
+                updateCull(camera, mSky);
+                stateSort(camera, mSky);
+                renderGeom(camera, TRUE);
+            }
+            gPipeline.popRenderTypeMask();
+        }
     }
 }
 

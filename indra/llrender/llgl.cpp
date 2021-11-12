@@ -557,7 +557,7 @@ bool LLGLManager::initGL()
 		glGetIntegerv(GL_NUM_EXTENSIONS, &count);
 		for (GLint i = 0; i < count; ++i)
 		{
-			std::string ext((const char*) glGetStringi(GL_EXTENSIONS, i));
+			std::string ext = ll_safe_string((const char*) glGetStringi(GL_EXTENSIONS, i));
 			str << ext << " ";
 			LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
 		}
