@@ -1427,11 +1427,7 @@ GLint LLGLSLShader::getUniformLocation(U32 index)
     GLint ret = -1;
     if (mProgramObject)
     {
-        if (index >= mUniform.size())
-        {
-            LL_WARNS_ONCE("Shader") << "Uniform index " << index << " out of bounds " << (S32)mUniform.size() << LL_ENDL;
-            return ret;
-        }
+        llassert(index < mUniform.size());
         return mUniform[index];
     }
 

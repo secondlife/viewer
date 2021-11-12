@@ -137,14 +137,6 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
-
-    if (!LLPipeline::sRenderTransparentWater)
-    {
-        // Will render opaque water without use of ALM
-        render(pass);
-        return;
-    }
-
 	deferred_render = TRUE;
 	shade();
 	deferred_render = FALSE;
@@ -346,11 +338,6 @@ void LLDrawPoolWater::render(S32 pass)
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
-
-    if (voskyp == NULL)
-    {
-        return;
-    }
 
 	LLGLSLShader* shader = NULL;
 	if (LLGLSLShader::sNoFixedFunction)
