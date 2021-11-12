@@ -649,7 +649,6 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
                         bool edge_patch = water->getIsEdgePatch();
                         if (edge_patch)
                         {
-                            //sNeedsReflectionUpdate = TRUE;
                             face->renderIndexed();
                         }
                     }
@@ -671,8 +670,12 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
                         bool edge_patch = water->getIsEdgePatch();
                         if (!edge_patch)
                         {
-                            sNeedsReflectionUpdate = TRUE;
-                            sNeedsDistortionUpdate = TRUE;
+                            if (!LLPipeline::sUseOcclusion)
+                            {
+                                // If occlusion is enabled, these are set within LLOcclusionCullingGroup::checkOcclusion()
+                                sNeedsReflectionUpdate = TRUE;
+                                sNeedsDistortionUpdate = TRUE;
+                            }
                             face->renderIndexed();
                         }
                     }
