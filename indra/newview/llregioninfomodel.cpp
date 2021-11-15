@@ -173,6 +173,29 @@ void LLRegionInfoModel::update(LLMessageSystem* msg)
 		mRegionFlags = flags;
 	}
 
+	if (msg->has(_PREHASH_RegionInfo5))
+	{
+		F32 chat_whisper_range;
+		F32 chat_normal_range;
+		F32 chat_shout_range;
+		F32 chat_whisper_offset;
+		F32 chat_normal_offset;
+		F32 chat_shout_offset;
+		U32 chat_flags;
+
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperRange, chat_whisper_range);
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalRange, chat_normal_range);
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutRange, chat_shout_range);
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatWhisperOffset, chat_whisper_offset);
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatNormalOffset, chat_normal_offset);
+		msg->getF32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatShoutOffset, chat_shout_offset);
+		msg->getU32Fast(_PREHASH_RegionInfo5, _PREHASH_ChatFlags, chat_flags);
+
+		LL_INFOS() << "Whisper range: " << chat_whisper_range << " normal range: " << chat_normal_range << " shout range: " << chat_shout_range
+			<< " whisper offset: " << chat_whisper_offset << " normal offset: " << chat_normal_offset << " shout offset: " << chat_shout_offset
+			<< " chat flags: " << chat_flags << LL_ENDL;
+	}
+
 	// the only reasonable way to decide if we actually have any data is to
 	// check to see if any of these fields have nonzero sizes
 	if (msg->getSize(_PREHASH_RegionInfo2, _PREHASH_ProductSKU) > 0 ||

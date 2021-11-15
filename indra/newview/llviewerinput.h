@@ -109,6 +109,13 @@ public:
 	BOOL			handleKey(KEY key, MASK mask, BOOL repeated);
 	BOOL			handleKeyUp(KEY key, MASK mask);
 
+    // Handle 'global' keybindings that do not consume event,
+    // yet need to be processed early
+    // Example: we want voice to toggle even if some floater is focused
+    bool			handleGlobalBindsKeyDown(KEY key, MASK mask);
+    bool			handleGlobalBindsKeyUp(KEY key, MASK mask);
+    bool			handleGlobalBindsMouse(EMouseClickType clicktype, MASK mask, bool down);
+
 	S32				loadBindingsXML(const std::string& filename);										// returns number bound, 0 on error
 	EKeyboardMode	getMode() const;
 
@@ -149,7 +156,8 @@ private:
                           S32 binding_count,
                           EMouseClickType mouse,
                           MASK mask,
-                          EMouseState state) const;
+                          EMouseState state,
+                          bool ignore_additional_masks) const;
 
     S32				loadBindingMode(const LLViewerInput::KeyMode& keymode, S32 mode);
     BOOL			bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name);
@@ -163,6 +171,10 @@ private:
     // to send what we think function wants based on collection of bools (mKeyRepeated, mKeyLevel, mKeyDown)
     std::vector<LLKeyboardBinding>	mKeyBindings[MODE_COUNT];
     std::vector<LLMouseBinding>		mMouseBindings[MODE_COUNT];
+
+    // keybindings that do not consume event and are handled earlier, before floaters
+    std::vector<LLKeyboardBinding>	mGlobalKeyBindings[MODE_COUNT];
+    std::vector<LLMouseBinding>		mGlobalMouseBindings[MODE_COUNT];
 
 	typedef std::map<U32, U32> key_remap_t;
 	key_remap_t		mRemapKeys[MODE_COUNT];

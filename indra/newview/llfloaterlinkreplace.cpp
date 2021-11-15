@@ -162,7 +162,7 @@ void LLFloaterLinkReplace::onStartClicked()
 		else
 		{
 			LLSD args;
-			args["TYPE"] = LLWearableType::getTypeName(source_item->getWearableType());
+			args["TYPE"] = LLWearableType::getInstance()->getTypeName(source_item->getWearableType());
 			params.substitutions(args);
 			LLNotifications::instance().add(params);
 		}

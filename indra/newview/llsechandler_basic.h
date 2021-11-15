@@ -177,7 +177,10 @@ public:
 	virtual void validate(int validation_policy,
 						  LLPointer<LLCertificateChain> ca_chain,
 						  const LLSD& validation_params);
-	
+
+	// Clears cache of certs validated agains store
+	virtual void clearSertCache() { mTrustedCertCache.clear(); }
+
 protected:
 	std::vector<LLPointer<LLCertificate> >            mCerts;
 	
@@ -326,6 +329,7 @@ public:
 
 
 protected:
+	void _readProtectedData(unsigned char *unique_id, U32 id_len);
 	void _readProtectedData();
 	void _writeProtectedData();
 	std::string _legacyLoadPassword();
