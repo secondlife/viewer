@@ -85,8 +85,8 @@ public:
 	LLThreadSafeQueue(U32 capacity = 1024);
 	virtual ~LLThreadSafeQueue() {}
 
-	// Add an element to the queue (will block if the queue has reached
-	// capacity).
+	// Add an element to the queue (will block if the queue has
+	// reached capacity).
 	//
 	// This call will raise an interrupt error if the queue is closed while
 	// the caller is blocked.
@@ -94,11 +94,6 @@ public:
 	void push(T&& element);
 	// legacy name
 	void pushFront(ElementT const & element) { return push(element); }
-
-	// Add an element to the queue (will block if the queue has reached
-	// capacity). Return false if the queue is closed before push is possible.
-	template <typename T>
-	bool pushIfOpen(T&& element);
 
 	// Try to add an element to the queue without blocking. Returns
 	// true only if the element was actually added.
@@ -316,8 +311,8 @@ bool LLThreadSafeQueue<ElementT, QueueT>::push_(lock_t& lock, T&& element)
 
 
 template <typename ElementT, typename QueueT>
-template <typename T>
-bool LLThreadSafeQueue<ElementT, QueueT>::pushIfOpen(T&& element)
+template<typename T>
+void LLThreadSafeQueue<ElementT, QueueT>::push(T&& element)
 {
     lock_t lock1(mLock);
     while (true)
@@ -326,24 +321,15 @@ bool LLThreadSafeQueue<ElementT, QueueT>::pushIfOpen(T&& element)
         // drained or not: the moment either end calls close(), further push()
         // operations will fail.
         if (mClosed)
-            return false;
+        {
+            LLTHROW(LLThreadSafeQueueInterrupt());
+        }
 
         if (push_(lock1, std::forward<T>(element)))
-            return true;
+            return;
 
         // Storage Full. Wait for signal.
         mCapacityCond.wait(lock1);
-    }
-}
-
-
-template <typename ElementT, typename QueueT>
-template<typename T>
-void LLThreadSafeQueue<ElementT, QueueT>::push(T&& element)
-{
-    if (! pushIfOpen(std::forward<T>(element)))
-    {
-        LLTHROW(LLThreadSafeQueueInterrupt());
     }
 }
 

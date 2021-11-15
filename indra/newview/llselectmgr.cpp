@@ -97,6 +97,8 @@
 #include "llglheaders.h"
 #include "llinventoryobserver.h"
 
+LLSelectMgr* LLSimpleton<LLSelectMgr>::sInstance = nullptr;
+
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
 // Consts

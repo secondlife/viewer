@@ -36,11 +36,43 @@
 #include "llthread.h"
 #include "llthreadsafequeue.h"
 #include "llmutex.h"
-#include "workqueue.h"
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
 typedef void (*LLW32MsgCallback)(const MSG &msg);
+
+class LLWindowWin32;
+
+// Thread that owns the Window Handle
+class LLWindowWin32Thread : public LLThread
+{
+public:
+    class Message
+    {
+    public:
+        LRESULT mMsg;
+    };
+
+    static const int MAX_QUEUE_SIZE = 2048;
+
+    LLThreadSafeQueue<MSG> mMessageQueue;
+    LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+
+    bool mFinished = false;
+
+    LLWindowWin32Thread(LLWindowWin32* window);
+
+    void run() override;
+
+    void post(const std::function<void()>& func);
+
+private:
+
+    // call PeekMessage and pull enqueue messages for later processing
+    void gatherInput();
+    LLWindowWin32* mWindow = nullptr;
+
+};
 
 class LLWindowWin32 : public LLWindow
 {
@@ -186,6 +218,7 @@ protected:
 	HGLRC		mhRC = 0;			// OpenGL rendering context
 	HDC			mhDC = 0;			// Windows Device context handle
 	HINSTANCE	mhInstance;		// handle to application instance
+	WNDPROC		mWndProc;		// user-installable window proc
 	RECT		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
 	WPARAM		mLastSizeWParam;
 	F32			mOverrideAspectRatio;
@@ -237,15 +270,14 @@ protected:
 
 	BOOL			mMouseVanish;
 
-	struct LLWindowWin32Thread;
-	LLWindowWin32Thread* mWindowThread = nullptr;
-	LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
-	LLThreadSafeQueue<std::function<void()>> mMouseQueue;
-	void post(const std::function<void()>& func);
-	void postMouseButtonEvent(const std::function<void()>& func);
-	void recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style);
+    LLWindowWin32Thread* mWindowThread = nullptr;
+    LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+    LLThreadSafeQueue<std::function<void()>> mMouseQueue;
+    void post(const std::function<void()>& func);
+    void postMouseButtonEvent(const std::function<void()>& func);
 
 	friend class LLWindowManager;
+    friend class LLWindowWin32Thread;
 };
 
 class LLSplashScreenWin32 : public LLSplashScreen

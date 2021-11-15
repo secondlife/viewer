@@ -824,6 +824,7 @@ std::string env_selection_to_string(LLEnvironment::EnvSelection_t sel)
 #undef RTNENUM
 }
 
+LLEnvironment* LLSimpleton<LLEnvironment>::sInstance = nullptr;
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
     mCloudScrollDelta(),

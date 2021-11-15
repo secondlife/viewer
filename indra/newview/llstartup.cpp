@@ -205,9 +205,6 @@
 
 #include "llstacktrace.h"
 
-#include "threadpool.h"
-
-
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
@@ -303,20 +300,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 //
 // local classes
 //
-
-void launchThreadPool()
-{
-    LLSD poolSizes{ gSavedSettings.getLLSD("ThreadPoolSizes") };
-    LLSD sizeSpec{ poolSizes["General"] };
-    LLSD::Integer size{ sizeSpec.isInteger()? sizeSpec.asInteger() : 3 };
-    LL_DEBUGS("ThreadPool") << "Instantiating General pool with "
-                            << size << " threads" << LL_ENDL;
-    // Use a function-static ThreadPool: static duration, but instantiated
-    // only on demand.
-    // We don't want anyone, especially the main thread, to have to block
-    // due to this ThreadPool being full.
-    static LL::ThreadPool pool("General", size, 1024*1024);
-}
 
 void update_texture_fetch()
 {
@@ -1505,9 +1488,6 @@ bool idle_startup()
 		gAgentCamera.stopCameraAnimation();
 		gAgentCamera.resetCamera();
 		display_startup();
-
-		// start up the ThreadPool we'll use for textures et al.
-		launchThreadPool();
 
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;

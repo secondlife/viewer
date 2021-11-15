@@ -55,8 +55,6 @@
 #include <shellapi.h>
 #include <fstream>
 #include <Imm.h>
-#include <future>
-#include <utility>                  // std::pair
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -176,19 +174,23 @@ DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
 
 // The following class LLWinImm delegates Windows IMM APIs.
-// It was originally introduced to support US Windows XP, on which we needed
-// to dynamically load IMM32.DLL and use GetProcAddress to resolve its entry
-// points. Now that that's moot, we retain this wrapper only for hooks for
-// metrics.
+// We need this because some language versions of Windows,
+// e.g., US version of Windows XP, doesn't install IMM32.DLL
+// as a default, and we can't link against imm32.lib statically.
+// I believe DLL loading of this type is best suited to do
+// in a static initialization of a class.  What I'm not sure is
+// whether it follows the Linden Conding Standard... 
+// See http://wiki.secondlife.com/wiki/Coding_standards#Static_Members
 
 class LLWinImm
 {
 public:
-	static bool		isAvailable() { return true; }
+	static bool		isAvailable() { return sTheInstance.mHImmDll != NULL; }
 
 public:
 	// Wrappers for IMM API.
 	static BOOL		isIME(HKL hkl);															
+	static HWND		getDefaultIMEWnd(HWND hwnd);
 	static HIMC		getContext(HWND hwnd);													
 	static BOOL		releaseContext(HWND hwnd, HIMC himc);
 	static BOOL		getOpenStatus(HIMC himc);												
@@ -202,94 +204,234 @@ public:
 	static BOOL		setCompositionFont(HIMC himc, LPLOGFONTW logfont);
 	static BOOL		setCandidateWindow(HIMC himc, LPCANDIDATEFORM candidate_form);
 	static BOOL		notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value);
+
+private:
+	LLWinImm();
+	~LLWinImm();
+
+private:
+	// Pointers to IMM API.
+	BOOL	 	(WINAPI *mImmIsIME)(HKL);
+	HWND		(WINAPI *mImmGetDefaultIMEWnd)(HWND);
+	HIMC		(WINAPI *mImmGetContext)(HWND);
+	BOOL		(WINAPI *mImmReleaseContext)(HWND, HIMC);
+	BOOL		(WINAPI *mImmGetOpenStatus)(HIMC);
+	BOOL		(WINAPI *mImmSetOpenStatus)(HIMC, BOOL);
+	BOOL		(WINAPI *mImmGetConversionStatus)(HIMC, LPDWORD, LPDWORD);
+	BOOL		(WINAPI *mImmSetConversionStatus)(HIMC, DWORD, DWORD);
+	BOOL		(WINAPI *mImmGetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
+	BOOL		(WINAPI *mImmSetCompostitionWindow)(HIMC, LPCOMPOSITIONFORM);
+	LONG		(WINAPI *mImmGetCompositionString)(HIMC, DWORD, LPVOID, DWORD);
+	BOOL		(WINAPI *mImmSetCompositionString)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD);
+	BOOL		(WINAPI *mImmSetCompositionFont)(HIMC, LPLOGFONTW);
+	BOOL		(WINAPI *mImmSetCandidateWindow)(HIMC, LPCANDIDATEFORM);
+	BOOL		(WINAPI *mImmNotifyIME)(HIMC, DWORD, DWORD, DWORD);
+
+private:
+	HMODULE		mHImmDll;
+	static LLWinImm sTheInstance;
 };
+
+LLWinImm LLWinImm::sTheInstance;
+
+LLWinImm::LLWinImm() : mHImmDll(NULL)
+{
+	// Check system metrics 
+	if ( !GetSystemMetrics( SM_IMMENABLED ) )
+		return;
+
+	mHImmDll = LoadLibraryA("Imm32");
+	if (mHImmDll != NULL)
+	{
+		mImmIsIME               = (BOOL (WINAPI *)(HKL))                    GetProcAddress(mHImmDll, "ImmIsIME");
+		mImmGetDefaultIMEWnd	= (HWND (WINAPI *)(HWND))					GetProcAddress(mHImmDll, "ImmGetDefaultIMEWnd");
+		mImmGetContext          = (HIMC (WINAPI *)(HWND))                   GetProcAddress(mHImmDll, "ImmGetContext");
+		mImmReleaseContext      = (BOOL (WINAPI *)(HWND, HIMC))             GetProcAddress(mHImmDll, "ImmReleaseContext");
+		mImmGetOpenStatus       = (BOOL (WINAPI *)(HIMC))                   GetProcAddress(mHImmDll, "ImmGetOpenStatus");
+		mImmSetOpenStatus       = (BOOL (WINAPI *)(HIMC, BOOL))             GetProcAddress(mHImmDll, "ImmSetOpenStatus");
+		mImmGetConversionStatus = (BOOL (WINAPI *)(HIMC, LPDWORD, LPDWORD)) GetProcAddress(mHImmDll, "ImmGetConversionStatus");
+		mImmSetConversionStatus = (BOOL (WINAPI *)(HIMC, DWORD, DWORD))     GetProcAddress(mHImmDll, "ImmSetConversionStatus");
+		mImmGetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmGetCompositionWindow");
+		mImmSetCompostitionWindow = (BOOL (WINAPI *)(HIMC, LPCOMPOSITIONFORM))   GetProcAddress(mHImmDll, "ImmSetCompositionWindow");
+		mImmGetCompositionString= (LONG (WINAPI *)(HIMC, DWORD, LPVOID, DWORD))					GetProcAddress(mHImmDll, "ImmGetCompositionStringW");
+		mImmSetCompositionString= (BOOL (WINAPI *)(HIMC, DWORD, LPVOID, DWORD, LPVOID, DWORD))	GetProcAddress(mHImmDll, "ImmSetCompositionStringW");
+		mImmSetCompositionFont  = (BOOL (WINAPI *)(HIMC, LPLOGFONTW))		GetProcAddress(mHImmDll, "ImmSetCompositionFontW");
+		mImmSetCandidateWindow  = (BOOL (WINAPI *)(HIMC, LPCANDIDATEFORM))  GetProcAddress(mHImmDll, "ImmSetCandidateWindow");
+		mImmNotifyIME			= (BOOL (WINAPI *)(HIMC, DWORD, DWORD, DWORD))	GetProcAddress(mHImmDll, "ImmNotifyIME");
+
+		if (mImmIsIME == NULL ||
+			mImmGetDefaultIMEWnd == NULL ||
+			mImmGetContext == NULL ||
+			mImmReleaseContext == NULL ||
+			mImmGetOpenStatus == NULL ||
+			mImmSetOpenStatus == NULL ||
+			mImmGetConversionStatus == NULL ||
+			mImmSetConversionStatus == NULL ||
+			mImmGetCompostitionWindow == NULL ||
+			mImmSetCompostitionWindow == NULL ||
+			mImmGetCompositionString == NULL ||
+			mImmSetCompositionString == NULL ||
+			mImmSetCompositionFont == NULL ||
+			mImmSetCandidateWindow == NULL ||
+			mImmNotifyIME == NULL)
+		{
+			// If any of the above API entires are not found, we can't use IMM API.  
+			// So, turn off the IMM support.  We should log some warning message in 
+			// the case, since it is very unusual; these APIs are available from 
+			// the beginning, and all versions of IMM32.DLL should have them all.  
+			// Unfortunately, this code may be executed before initialization of 
+			// the logging channel (LL_WARNS()), and we can't do it here...  Yes, this 
+			// is one of disadvantages to use static constraction to DLL loading. 
+			FreeLibrary(mHImmDll);
+			mHImmDll = NULL;
+
+			// If we unload the library, make sure all the function pointers are cleared
+			mImmIsIME = NULL;
+			mImmGetDefaultIMEWnd = NULL;
+			mImmGetContext = NULL;
+			mImmReleaseContext = NULL;
+			mImmGetOpenStatus = NULL;
+			mImmSetOpenStatus = NULL;
+			mImmGetConversionStatus = NULL;
+			mImmSetConversionStatus = NULL;
+			mImmGetCompostitionWindow = NULL;
+			mImmSetCompostitionWindow = NULL;
+			mImmGetCompositionString = NULL;
+			mImmSetCompositionString = NULL;
+			mImmSetCompositionFont = NULL;
+			mImmSetCandidateWindow = NULL;
+			mImmNotifyIME = NULL;
+		}
+	}
+}
+
 
 // static 
 BOOL	LLWinImm::isIME(HKL hkl)
 { 
-	return ImmIsIME(hkl);
+	if ( sTheInstance.mImmIsIME )
+		return sTheInstance.mImmIsIME(hkl); 
+	return FALSE;
 }
 
 // static 
 HIMC		LLWinImm::getContext(HWND hwnd)
 {
-	return ImmGetContext(hwnd);
+	if ( sTheInstance.mImmGetContext )
+		return sTheInstance.mImmGetContext(hwnd); 
+	return 0;
 }
 
 //static 
 BOOL		LLWinImm::releaseContext(HWND hwnd, HIMC himc)
 { 
-	return ImmReleaseContext(hwnd, himc);
+	if ( sTheInstance.mImmIsIME )
+		return sTheInstance.mImmReleaseContext(hwnd, himc); 
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::getOpenStatus(HIMC himc)
 { 
-	return ImmGetOpenStatus(himc);
+	if ( sTheInstance.mImmGetOpenStatus )
+		return sTheInstance.mImmGetOpenStatus(himc); 
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::setOpenStatus(HIMC himc, BOOL status)
 { 
-	return ImmSetOpenStatus(himc, status);
+	if ( sTheInstance.mImmSetOpenStatus )
+		return sTheInstance.mImmSetOpenStatus(himc, status); 
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::getConversionStatus(HIMC himc, LPDWORD conversion, LPDWORD sentence)	
 { 
-	return ImmGetConversionStatus(himc, conversion, sentence);
+	if ( sTheInstance.mImmGetConversionStatus )
+		return sTheInstance.mImmGetConversionStatus(himc, conversion, sentence); 
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::setConversionStatus(HIMC himc, DWORD conversion, DWORD sentence)		
 { 
-	return ImmSetConversionStatus(himc, conversion, sentence);
+	if ( sTheInstance.mImmSetConversionStatus )
+		return sTheInstance.mImmSetConversionStatus(himc, conversion, sentence); 
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::getCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
-	return ImmGetCompositionWindow(himc, form);
+	if ( sTheInstance.mImmGetCompostitionWindow )
+		return sTheInstance.mImmGetCompostitionWindow(himc, form);	
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::setCompositionWindow(HIMC himc, LPCOMPOSITIONFORM form)					
 { 
-	return ImmSetCompositionWindow(himc, form);
+	if ( sTheInstance.mImmSetCompostitionWindow )
+		return sTheInstance.mImmSetCompostitionWindow(himc, form);	
+	return FALSE;
 }
 
 
 // static 
 LONG		LLWinImm::getCompositionString(HIMC himc, DWORD index, LPVOID data, DWORD length)					
 { 
-	return ImmGetCompositionString(himc, index, data, length);
+	if ( sTheInstance.mImmGetCompositionString )
+		return sTheInstance.mImmGetCompositionString(himc, index, data, length);	
+	return FALSE;
 }
 
 
 // static 
 BOOL		LLWinImm::setCompositionString(HIMC himc, DWORD index, LPVOID pComp, DWORD compLength, LPVOID pRead, DWORD readLength)					
 { 
-	return ImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);
+	if ( sTheInstance.mImmSetCompositionString )
+		return sTheInstance.mImmSetCompositionString(himc, index, pComp, compLength, pRead, readLength);	
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::setCompositionFont(HIMC himc, LPLOGFONTW pFont)					
 { 
-	return ImmSetCompositionFont(himc, pFont);
+	if ( sTheInstance.mImmSetCompositionFont )
+		return sTheInstance.mImmSetCompositionFont(himc, pFont);	
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::setCandidateWindow(HIMC himc, LPCANDIDATEFORM form)					
 { 
-	return ImmSetCandidateWindow(himc, form);
+	if ( sTheInstance.mImmSetCandidateWindow )
+		return sTheInstance.mImmSetCandidateWindow(himc, form);	
+	return FALSE;
 }
 
 // static 
 BOOL		LLWinImm::notifyIME(HIMC himc, DWORD action, DWORD index, DWORD value)					
 { 
-	return ImmNotifyIME(himc, action, index, value);
+	if ( sTheInstance.mImmNotifyIME )
+		return sTheInstance.mImmNotifyIME(himc, action, index, value);	
+	return FALSE;
 }
 
+
+
+
+// ----------------------------------------------------------------------------------------
+LLWinImm::~LLWinImm()
+{
+	if (mHImmDll != NULL)
+	{
+		FreeLibrary(mHImmDll);
+		mHImmDll = NULL;
+	}
+}
 
 
 class LLMonitorInfo
@@ -326,32 +468,6 @@ private:
 static LLMonitorInfo sMonitorInfo;
 
 
-// Thread that owns the Window Handle
-// This whole struct is private to LLWindowWin32, which needs to mess with its
-// members, which is why it's a struct rather than a class. In effect, we make
-// the containing class a friend.
-struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
-{
-    static const int MAX_QUEUE_SIZE = 2048;
-
-    LLThreadSafeQueue<MSG> mMessageQueue;
-
-    LLWindowWin32Thread();
-
-    void run() override;
-
-    template <typename CALLABLE>
-    void post(CALLABLE&& func)
-    {
-        getQueue().post(std::forward<CALLABLE>(func));
-    }
-
-    // call PeekMessage and pull enqueue messages for later processing
-    void gatherInput();
-    HWND mWindowHandle = NULL;
-    HDC mhDC = 0;
-};
-
 
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
@@ -363,7 +479,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	: LLWindow(callbacks, fullscreen, flags)
 {
     sMainThreadId = LLThread::currentID();
-    mWindowThread = new LLWindowWin32Thread();
+    mWindowThread = new LLWindowWin32Thread(this);
+    mWindowThread->start();
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	LoadLibrary(L"opengl32.dll");
 
@@ -434,6 +551,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 	// Make an instance of our window then define the window class
 	mhInstance = GetModuleHandle(NULL);
+	mWndProc = NULL;
 
     // Init Direct Input - needed for joystick / Spacemouse
 
@@ -857,13 +975,17 @@ void LLWindowWin32::close()
                 // Something killed the window while we were busy destroying gl or handle somehow got broken
                 LL_WARNS("Window") << "Failed to destroy Window, invalid handle!" << LL_ENDL;
             }
+            mWindowHandle = NULL;
 
+            mWindowThread->mFinished = true;
         });
-    // Even though the above lambda might not yet have run, we've already
-    // bound mWindowHandle into it by value, which should suffice for the
-    // operations we're asking. That's the last time WE should touch it.
-    mWindowHandle = NULL;
-    mWindowThread->close();
+
+    while (!mWindowThread->isStopped())
+    {
+        //nudge window thread
+        PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 BOOL LLWindowWin32::isValid()
@@ -1156,7 +1278,51 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
         << " Fullscreen: " << mFullscreen
         << LL_ENDL;
 
-	recreateWindow(window_rect, dw_ex_style, dw_style);
+    auto oldHandle = mWindowHandle;
+
+    //zero out mWindowHandle and mhDC before destroying window so window thread falls back to peekmessage
+    mWindowHandle = 0;
+    mhDC = 0;
+
+    if (oldHandle && !destroy_window_handler(oldHandle))
+    {
+        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
+    }
+
+    mWindowHandle = NULL;
+    mhDC = 0;
+
+    mWindowThread->post(
+        [this, window_rect, dw_ex_style, dw_style]()
+        {
+            mWindowHandle = CreateWindowEx(dw_ex_style,
+                mWindowClassName,
+                mWindowTitle,
+                WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
+                window_rect.left,								// x pos
+                window_rect.top,								// y pos
+                window_rect.right - window_rect.left,			// width
+                window_rect.bottom - window_rect.top,			// height
+                NULL,
+                NULL,
+                mhInstance,
+                NULL);
+
+            if (mWindowHandle)
+            {
+                mhDC = GetDC(mWindowHandle);
+            }
+        }
+    );
+
+    // HACK wait for above handle to become populated
+    // TODO: use a future
+    int count = 1024;
+    while (!mhDC && count > 0)
+    {
+        Sleep(10);
+        --count;
+    }
 
 	if (mWindowHandle)
 	{
@@ -1484,7 +1650,48 @@ const	S32   max_format  = (S32)num_formats - 1;
 			mhDC = 0;											// Zero The Device Context
 		}
 
-		recreateWindow(window_rect, dw_ex_style, dw_style);
+        auto oldHandle = mWindowHandle;
+        mWindowHandle = NULL;
+        mhDC = 0;
+
+        // Destroy The Window
+        if (oldHandle && !destroy_window_handler(oldHandle))
+        {
+            LL_WARNS("Window") << "Failed to properly close window!" << LL_ENDL;
+        }		
+
+        mWindowThread->post(
+            [this, window_rect, dw_ex_style, dw_style]()
+            {
+                mWindowHandle = CreateWindowEx(dw_ex_style,
+                    mWindowClassName,
+                    mWindowTitle,
+                    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
+                    window_rect.left,								// x pos
+                    window_rect.top,								// y pos
+                    window_rect.right - window_rect.left,			// width
+                    window_rect.bottom - window_rect.top,			// height
+                    NULL,
+                    NULL,
+                    mhInstance,
+                    NULL);
+
+                if (mWindowHandle)
+                {
+                    mhDC = GetDC(mWindowHandle);
+                }
+            }
+        );
+
+        // HACK wait for above handle to become populated
+        // TODO: use a future
+        int count = 1024;
+        while (!mhDC && count > 0)
+        {
+            PostMessage(oldHandle, WM_USER + 8, 0x1717, 0x3b3b);
+            Sleep(10);
+            --count;
+        }
 
 		if (mWindowHandle)
 		{
@@ -1619,64 +1826,6 @@ const	S32   max_format  = (S32)num_formats - 1;
 	}
 
 	return TRUE;
-}
-
-void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style)
-{
-    auto oldHandle = mWindowHandle;
-
-    // zero out mWindowHandle and mhDC before destroying window so window
-    // thread falls back to peekmessage
-    mWindowHandle = 0;
-    mhDC = 0;
-
-    if (oldHandle && !destroy_window_handler(oldHandle))
-    {
-        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
-    }
-
-    std::promise<std::pair<HWND, HDC>> promise;
-    mWindowThread->post(
-        [this, window_rect, dw_ex_style, dw_style, &promise]()
-        {
-            auto handle = CreateWindowEx(dw_ex_style,
-                mWindowClassName,
-                mWindowTitle,
-                WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
-                window_rect.left,								// x pos
-                window_rect.top,								// y pos
-                window_rect.right - window_rect.left,			// width
-                window_rect.bottom - window_rect.top,			// height
-                NULL,
-                NULL,
-                mhInstance,
-                NULL);
-
-            if (! handle)
-            {
-                // Failed to create window: clear the variables. This
-                // assignment is valid because we're running on mWindowThread.
-                mWindowThread->mWindowHandle = NULL;
-                mWindowThread->mhDC = 0;
-            }
-            else
-            {
-                // Update mWindowThread's own mWindowHandle and mhDC.
-                mWindowThread->mWindowHandle = handle;
-                mWindowThread->mhDC = GetDC(handle);
-            }
-                
-            // It's important to wake up the future either way.
-            promise.set_value(std::make_pair(mWindowThread->mWindowHandle, mWindowThread->mhDC));
-        }
-    );
-
-    auto future = promise.get_future();
-    // This blocks until mWindowThread processes CreateWindowEx() and calls
-    // promise.set_value().
-    auto pair = future.get();
-    mWindowHandle = pair.first;
-    mhDC = pair.second;
 }
 
 void* LLWindowWin32::createSharedContext()
@@ -2032,14 +2181,12 @@ void LLWindowWin32::gatherInput()
     }
 
 
-    if (mWindowThread->getQueue().size())
+    if (mWindowThread->mFunctionQueue.size() > 0)
     {
         LL_PROFILE_ZONE_NAMED("gi - PostMessage");
         if (mWindowHandle)
-        {
-            // post a nonsense user message to wake up the Window Thread in
-            // case any functions are pending and no windows events came
-            // through this frame
+        { // post a nonsense user message to wake up the Window Thread in case any functions are pending
+            // and no windows events came through this frame
             PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
         }
     }
@@ -2129,6 +2276,17 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
     if (NULL != window_imp)
     {
+        // Has user provided their own window callback?
+        if (NULL != window_imp->mWndProc)
+        {
+            LL_PROFILE_ZONE_NAMED("mwp - WndProc");
+            if (!window_imp->mWndProc(h_wnd, u_msg, w_param, l_param))
+            {
+                // user has handled window message
+                return 0;
+            }
+        }
+
         // Juggle to make sure we can get negative positions for when
         // mouse is outside window.
         LLCoordWindow window_coord((S32)(S16)LOWORD(l_param), (S32)(S16)HIWORD(l_param));
@@ -4409,32 +4567,35 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 
 #endif // LL_WINDOWS
 
-inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
-    : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
+inline LLWindowWin32Thread::LLWindowWin32Thread(LLWindowWin32* window)
+    : LLThread("Window Thread"), 
+    mWindow(window),
+    mFunctionQueue(MAX_QUEUE_SIZE)
 {
+
 }
 
-void LLWindowWin32::LLWindowWin32Thread::run()
+inline void LLWindowWin32Thread::run()
 {
-    sWindowThreadId = std::this_thread::get_id();
-    while (! getQueue().done())
+    sWindowThreadId = getID();
+    while (!mFinished)
     {
         LL_PROFILE_ZONE_SCOPED;
 
 
-        if (mWindowHandle != 0)
+        if (mWindow && mWindow->mWindowHandle != 0)
         {
             MSG msg;
             BOOL status;
-            if (mhDC == 0)
+            if (mWindow->mhDC == 0)
             {
                 LL_PROFILE_ZONE_NAMED("w32t - PeekMessage");
-                status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
+                status = PeekMessage(&msg, mWindow->mWindowHandle, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED("w32t - GetMessage");
-                status = GetMessage(&msg, mWindowHandle, 0, 0);
+                status = GetMessage(&msg, mWindow->mWindowHandle, 0, 0);
             }
             if (status > 0)
             {
@@ -4448,7 +4609,11 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         {
             LL_PROFILE_ZONE_NAMED("w32t - Function Queue");
             //process any pending functions
-            getQueue().runPending();
+            std::function<void()> curFunc;
+            while (mFunctionQueue.tryPopBack(curFunc))
+            {
+                curFunc();
+            }
         }
         
 #if 0
@@ -4458,6 +4623,11 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+}
+
+void LLWindowWin32Thread::post(const std::function<void()>& func)
+{
+    mFunctionQueue.pushFront(func);
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)
