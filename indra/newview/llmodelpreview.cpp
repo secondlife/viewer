@@ -1775,68 +1775,41 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             if (model_meshopt_mode == MESH_OPTIMIZER_AUTO)
             {
                 F32 allowed_ratio_drift = 2.f;
-                F32 res_ratio = 0;
-                if (base->mHasGeneratedFaces)
+                F32 res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+
+                if (res_ratio < 0)
                 {
-                    res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                    // U16 vertices overflow, shouldn't happen, but just in case
+                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                    {
+                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
+                    }
+                    LL_INFOS() << "Model " << target_model->getName()
+                        << " lod " << which_lod
+                        << " per model method overflow, defaulting to per face." << LL_ENDL;
+                }
+                else if (res_ratio * allowed_ratio_drift < indices_decimator)
+                {
+                    // Try sloppy variant if normal one failed to simplify model enough.
+                    res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+                    LL_INFOS() << "Model " << target_model->getName()
+                        << " lod " << which_lod
+                        << " sloppily simplified using per model method." << LL_ENDL;
+
 
                     if (res_ratio < 0)
                     {
-                        // U16 vertices overflow, shouldn't happen, but just in case
-                        for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                        {
-                            genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                        }
-                        LL_INFOS() << "Model " << target_model->getName()
-                            << " lod " << which_lod
-                            << " per model method overflow, defaulting to per face." << LL_ENDL;
-                    }
-                    else if (res_ratio * allowed_ratio_drift < indices_decimator)
-                    {
-                        // Try sloppy variant if normal one failed to simplify model enough.
-                        res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
-                        LL_INFOS() << "Model " << target_model->getName()
-                                   << " lod " << which_lod
-                                   << " sloppily simplified using per model method." << LL_ENDL;
-
-
-                        if (res_ratio < 0)
-                        {
-                            // Sloppy variant failed to generate triangles.
-                            // Can happen with models that are too simple as is.
-                            // Fallback to normal method.
-                            genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
-                        }
-                    }
-                    else
-                    {
-                        LL_INFOS() << "Model " << target_model->getName()
-                            << " lod " << which_lod
-                            << " simplified using per model method." << LL_ENDL;
+                        // Sloppy variant failed to generate triangles.
+                        // Can happen with models that are too simple as is.
+                        // Fallback to normal method.
+                        genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
                     }
                 }
                 else
                 {
-                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                    {
-                        res_ratio = genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                        
-                        if (res_ratio * allowed_ratio_drift < indices_decimator)
-                        {
-                            // normal method failed to sufficiently simplify, try sloppy
-                            res_ratio = genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, true);
-                            if (res_ratio < 0)
-                            {
-                                // Sloppy failed to generate triangles.
-                                // Can happen with models that are too simple as is.
-                                // Fallback to normal method.
-                                genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                            }
-                        }
-                    }
                     LL_INFOS() << "Model " << target_model->getName()
                         << " lod " << which_lod
-                        << " simplified using per face methods." << LL_ENDL;
+                        << " simplified using per model method." << LL_ENDL;
                 }
             }
 

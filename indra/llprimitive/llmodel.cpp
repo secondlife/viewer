@@ -55,8 +55,7 @@ LLModel::LLModel(LLVolumeParams& params, F32 detail)
       mNormalizedTranslation(0,0,0), 
       mPelvisOffset( 0.0f ), 
       mStatus(NO_ERRORS), 
-      mSubmodelID(0),
-      mHasGeneratedFaces(false)
+      mSubmodelID(0)
 {
 	mDecompID = -1;
 	mLocalID = -1;

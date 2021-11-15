@@ -153,7 +153,6 @@ LLModel::EModelStatus load_face_from_dom_triangles(
     std::vector<LLVolumeFace>& face_list,
     std::vector<std::string>& materials,
     domTrianglesRef& tri,
-    bool &generated_additional_faces,
     LLSD& log_msg)
 {
 	LLVolumeFace face;
@@ -293,8 +292,6 @@ LLModel::EModelStatus load_face_from_dom_triangles(
 
 		if (indices.size()%3 == 0 && verts.size() >= 65532)
 		{
-            generated_additional_faces = true;
-
 			std::string material;
 
 			if (tri->getMaterial())
@@ -360,7 +357,6 @@ LLModel::EModelStatus load_face_from_dom_polylist(
     std::vector<LLVolumeFace>& face_list,
     std::vector<std::string>& materials,
     domPolylistRef& poly,
-    bool& generated_additional_faces,
     LLSD& log_msg)
 {
 	domPRef p = poly->getP();
@@ -574,8 +570,6 @@ LLModel::EModelStatus load_face_from_dom_polylist(
 
 			if (indices.size()%3 == 0 && indices.size() >= 65532)
 			{
-                generated_additional_faces = true;
-
 				std::string material;
 
 				if (poly->getMaterial())
@@ -2453,13 +2447,11 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 	LLModel::EModelStatus status = LLModel::NO_ERRORS;
 	domTriangles_Array& tris = mesh->getTriangles_array();
 
-    pModel->mHasGeneratedFaces = false;
-
 	for (U32 i = 0; i < tris.getCount(); ++i)
 	{
 		domTrianglesRef& tri = tris.get(i);
 
-		status = load_face_from_dom_triangles(pModel->getVolumeFaces(), pModel->getMaterialList(), tri, pModel->mHasGeneratedFaces, log_msg);
+		status = load_face_from_dom_triangles(pModel->getVolumeFaces(), pModel->getMaterialList(), tri, log_msg);
 		pModel->mStatus = status;
 		if(status != LLModel::NO_ERRORS)
 		{
@@ -2472,7 +2464,7 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 	for (U32 i = 0; i < polys.getCount(); ++i)
 	{
 		domPolylistRef& poly = polys.get(i);
-		status = load_face_from_dom_polylist(pModel->getVolumeFaces(), pModel->getMaterialList(), poly, pModel->mHasGeneratedFaces, log_msg);
+		status = load_face_from_dom_polylist(pModel->getVolumeFaces(), pModel->getMaterialList(), poly, log_msg);
 
 		if(status != LLModel::NO_ERRORS)
 		{
@@ -2486,9 +2478,6 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 	for (U32 i = 0; i < polygons.getCount(); ++i)
 	{
 		domPolygonsRef& poly = polygons.get(i);
-
-        // Due to how poligons work, assume that face was 'generated' by default
-        pModel->mHasGeneratedFaces = true;
 
 		status = load_face_from_dom_polygons(pModel->getVolumeFaces(), pModel->getMaterialList(), poly);
 
@@ -2589,7 +2578,6 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 		{
 			LLModel* next = new LLModel(volume_params, 0.f);
 			next->mSubmodelID = ++submodelID;
-			next->mHasGeneratedFaces = ret->mHasGeneratedFaces;
 			next->mLabel = model_name + (char)((int)'a' + next->mSubmodelID) + lod_suffix[mLod];
 			next->getVolumeFaces() = remainder;
 			next->mNormalizedScale = ret->mNormalizedScale;

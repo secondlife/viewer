@@ -284,11 +284,6 @@ public:
     // A model/object can only have 8 faces, spillover faces will
     // be moved to new model/object and assigned a submodel id.
 	int mSubmodelID;
-    // A .dae face can have more than 65K vertices, but viewer
-    // is limited to U16 for indices, in such case spilower will
-    // be moved into new face and this will be set to true.
-    // Also true in case faces were generated from polygons
-    bool mHasGeneratedFaces;
 };
 
 typedef std::vector<LLPointer<LLModel> >	model_list;
