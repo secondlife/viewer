@@ -170,7 +170,10 @@ void LLManipScale::handleSelect()
 	LLBBox bbox = LLSelectMgr::getInstance()->getBBoxOfSelection();
 	updateSnapGuides(bbox);
 	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_PICK);
-	gFloaterTools->setStatusText("scale");
+    if (gFloaterTools)
+    {
+        gFloaterTools->setStatusText("scale");
+    }
 	LLManip::handleSelect();
 }
 

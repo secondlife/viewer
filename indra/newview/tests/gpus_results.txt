@@ -1487,8 +1487,8 @@ Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Desktop       
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Desktop x86/MMX/SSE2                   unsupported    1     1     3      Mesa
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Mobile                                 unsupported    1     1     3      Mesa
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2                    unsupported    1     1     3      Mesa
-Intel Open Source Technology Center Mesa DRI Mobile Intelå¨ GM45 Express Chipset                         unsupported    1     1     3      Mesa
-Intel Open Source Technology Center Mesa DRI Mobile Intelå¨ GM45 Express Chipset x86/MMX/SSE2            unsupported    1     1     3      Mesa
+Intel Open Source Technology Center Mesa DRI Mobile Intel(R) GM45 Express Chipset                         unsupported    1     1     3      Mesa
+Intel Open Source Technology Center Mesa DRI Mobile Intel(R) GM45 Express Chipset x86/MMX/SSE2            unsupported    1     1     3      Mesa
 Intel Pineview                                                                                           supported      0     1     1.4    Intel Pineview
 Intel Q45/Q43                                                                                            supported      1     1     2.1    Intel Q45/Q43
 Intel Royal BNA Driver                                                                                   unsupported    0     0     0      Intel Royal BNA
@@ -3012,11 +3012,11 @@ Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile  x86/MMX/SSE2       
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile GEM 20100330 DEVELOPMENT x86/MMX/SSE2        unsupported    1     1     3      Mesa
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2                                 unsupported    1     1     3      Mesa
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Server                                              unsupported    1     1     3      Mesa
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset                                      unsupported    1     1     3      Mesa
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20091221 2009Q4                  supported      1     1     2.1    Intel Q45/Q43
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20091221 2009Q4 x86/MMX/SSE2     supported      1     1     2.1    Intel Q45/Q43
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20100330 DEVELOPMENT x86/MMX     unsupported    1     1     3      Mesa
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset x86/MMX/SSE2                         unsupported    1     1     3      Mesa
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset                                      unsupported    1     1     3      Mesa
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20091221 2009Q4                  supported      1     1     2.1    Intel Q45/Q43
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20091221 2009Q4 x86/MMX/SSE2     supported      1     1     2.1    Intel Q45/Q43
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20100330 DEVELOPMENT x86/MMX     unsupported    1     1     3      Mesa
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset x86/MMX/SSE2                         unsupported    1     1     3      Mesa
 Tungsten Graphics, Inc. Mesa DRI R100 (RS200 4437) x86/MMX/SSE2 NO-TCL DRI2                              unsupported    1     1     3      Mesa
 Tungsten Graphics, Inc. Mesa DRI R100 (RV200 4C57)  TCL DRI2                                             unsupported    1     1     3      Mesa
 Tungsten Graphics, Inc. Mesa DRI R100 (RV200 4C57) x86/MMX/SSE2 TCL DRI2                                 unsupported    1     1     3      Mesa

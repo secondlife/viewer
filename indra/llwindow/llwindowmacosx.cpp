@@ -208,8 +208,17 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
     return retVal;
 }
 
-bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask)
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character)
 {
+    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    {
+        key = gKeyboard->inverseTranslateKey('Y');
+    }
+    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+    {
+        key = gKeyboard->inverseTranslateKey('Z');
+    }
+
     mRawKeyEvent = event;
 	bool retVal = gKeyboard->handleKeyDown(key, mask);
     mRawKeyEvent = NULL;

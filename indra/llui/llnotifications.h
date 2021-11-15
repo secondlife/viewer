@@ -84,7 +84,6 @@
 #include <sstream>
 
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
@@ -131,7 +130,7 @@ public:
 
 typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
 
-typedef boost::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
+typedef std::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
 
 typedef LLFunctorRegistry<LLNotificationResponder> LLNotificationFunctorRegistry;
 typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegistration;
@@ -276,19 +275,19 @@ private:
 	bool								mInvertSetting;
 };
 
-typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
+typedef std::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 
 
 struct LLNotificationTemplate;
 
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
-typedef boost::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
+typedef std::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
 
 
 struct LLNotificationVisibilityRule;
 
-typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
+typedef std::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
 
 /**
  * @class LLNotification
@@ -745,6 +744,10 @@ public:
 	{}
     virtual ~LLNotificationChannelBase()
     {
+        // explicit cleanup for easier issue detection
+        mChanged.disconnect_all_slots();
+        mPassedFilter.disconnect_all_slots();
+        mFailedFilter.disconnect_all_slots();
         mItems.clear();
     }
 	// you can also connect to a Channel, so you can be notified of
