@@ -1457,14 +1457,22 @@ void LLFloaterEditExtDayCycle::reblendSettings()
 {
     F64 position = mTimeSlider->getCurSliderValue();
 
-    if ((mSkyBlender->getTrack() != mCurrentTrack) && (mCurrentTrack != LLSettingsDay::TRACK_WATER))
+    if (mSkyBlender)
     {
-        mSkyBlender->switchTrack(mCurrentTrack, position);
+        if ((mSkyBlender->getTrack() != mCurrentTrack) && (mCurrentTrack != LLSettingsDay::TRACK_WATER))
+        {
+            mSkyBlender->switchTrack(mCurrentTrack, position);
+        }
+        else
+        {
+            mSkyBlender->setPosition(position);
+        }
     }
-    else
-        mSkyBlender->setPosition(position);
 
-    mWaterBlender->setPosition(position);    
+    if (mWaterBlender)
+    {
+        mWaterBlender->setPosition(position);
+    }
 }
 
 void LLFloaterEditExtDayCycle::doApplyCommit(LLSettingsDay::ptr_t day)
