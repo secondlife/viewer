@@ -50,6 +50,7 @@
 //#include "llfirstuse.h"
 #include "llfocusmgr.h"
 #include "llmanipscale.h"
+#include "llinventorymodel.h"
 #include "llmenubutton.h"
 #include "llpreviewscript.h"
 #include "llresmgr.h"
@@ -58,6 +59,7 @@
 #include "lltextbox.h"
 #include "lltool.h"
 #include "lltoolcomp.h"
+#include "lltooldraganddrop.h"
 #include "lltoolmgr.h"
 #include "lltrans.h"
 #include "llui.h"
@@ -788,7 +790,7 @@ void LLPanelVolume::onLightCancelTexture(const LLSD& data)
         // selection of "None" texture.
         LLUUID tex_id = LightTextureCtrl->getImageAssetID();
         bool is_spotlight = volobjp->isLightSpotlight();
-        volobjp->setLightTextureID(tex_id); //updates spotlight
+        setLightTextureID(tex_id, LightTextureCtrl->getImageItemID(), volobjp); //updates spotlight
 
         if (!is_spotlight && tex_id.notNull())
         {
@@ -833,7 +835,7 @@ void LLPanelVolume::onLightSelectTexture(const LLSD& data)
 	if(LightTextureCtrl)
 	{
 		LLUUID id = LightTextureCtrl->getImageAssetID();
-		volobjp->setLightTextureID(id);
+		setLightTextureID(id, LightTextureCtrl->getImageItemID(), volobjp);
 	}
 }
 
@@ -1180,11 +1182,12 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 	if(LightTextureCtrl)
 	{
 		LLUUID id = LightTextureCtrl->getImageAssetID();
+        LLUUID item_id = LightTextureCtrl->getImageItemID();
 		if (id.notNull())
 		{
 			if (!volobjp->isLightSpotlight())
 			{ //this commit is making this a spot light, set UI to default params
-				volobjp->setLightTextureID(id);
+                setLightTextureID(id, item_id, volobjp);
 				LLVector3 spot_params = volobjp->getSpotLightParams();
 				self->getChild<LLUICtrl>("Light FOV")->setValue(spot_params.mV[0]);
 				self->getChild<LLUICtrl>("Light Focus")->setValue(spot_params.mV[1]);
@@ -1194,7 +1197,7 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 			{ //modifying existing params, this time volobjp won't change params on its own.
                 if (volobjp->getLightTextureID() != id)
                 {
-                    volobjp->setLightTextureID(id);
+                    setLightTextureID(id, item_id, volobjp);
                 }
 
 				LLVector3 spot_params;
@@ -1206,7 +1209,7 @@ void LLPanelVolume::onCommitLight( LLUICtrl* ctrl, void* userdata )
 		}
 		else if (volobjp->isLightSpotlight())
 		{ //no longer a spot light
-			volobjp->setLightTextureID(id);
+			setLightTextureID(id, item_id, volobjp);
 			//self->getChildView("Light FOV")->setEnabled(FALSE);
 			//self->getChildView("Light Focus")->setEnabled(FALSE);
 			//self->getChildView("Light Ambiance")->setEnabled(FALSE);
@@ -1223,6 +1226,19 @@ void LLPanelVolume::onCommitIsLight( LLUICtrl* ctrl, void* userdata )
 	self->sendIsLight();
 }
 
+// static
+void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item_id, LLVOVolume* volobjp)
+{
+    if (volobjp)
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(item_id);
+        if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+        {
+            LLToolDragAndDrop::handleDropTextureProtections(volobjp, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+        }    
+        volobjp->setLightTextureID(asset_id);
+    }
+}
 //----------------------------------------------------------------------------
 
 // static
