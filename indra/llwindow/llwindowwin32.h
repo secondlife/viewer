@@ -244,6 +244,7 @@ protected:
 	void post(const std::function<void()>& func);
 	void postMouseButtonEvent(const std::function<void()>& func);
 	void recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style);
+	void kickWindowThread(HWND windowHandle=0);
 
 	friend class LLWindowManager;
 };

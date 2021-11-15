@@ -346,7 +346,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
         getQueue().post(std::forward<CALLABLE>(func));
     }
 
-    // call PeekMessage and pull enqueue messages for later processing
+    // call GetMessage() and pull enqueue messages for later processing
     void gatherInput();
     HWND mWindowHandle = NULL;
     HDC mhDC = 0;
@@ -1671,6 +1671,13 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
         }
     );
 
+    // Having posted work to mWindowThread, bump it out of blocked
+    // GetMessage() call. Normally we could just wait for the next
+    // gatherInput() call to notice the pending work item and call
+    // kickWindowThread(), but that would be on THIS calling thread, and we're
+    // about to block this thread until we get a result from mWindowThread.
+    kickWindowThread(oldHandle);
+
     auto future = promise.get_future();
     // This blocks until mWindowThread processes CreateWindowEx() and calls
     // promise.set_value().
@@ -2035,13 +2042,7 @@ void LLWindowWin32::gatherInput()
     if (mWindowThread->getQueue().size())
     {
         LL_PROFILE_ZONE_NAMED("gi - PostMessage");
-        if (mWindowHandle)
-        {
-            // post a nonsense user message to wake up the Window Thread in
-            // case any functions are pending and no windows events came
-            // through this frame
-            PostMessage(mWindowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
-        }
+        kickWindowThread();
     }
         
     while (mWindowThread->mMessageQueue.tryPopBack(msg))
@@ -4470,3 +4471,15 @@ void LLWindowWin32::postMouseButtonEvent(const std::function<void()>& func)
     mMouseQueue.pushFront(func);
 }
 
+void LLWindowWin32::kickWindowThread(HWND windowHandle)
+{
+    if (! windowHandle)
+        windowHandle = mWindowHandle;
+    if (windowHandle)
+    {
+        // post a nonsense user message to wake up the Window Thread in
+        // case any functions are pending and no windows events came
+        // through this frame
+        PostMessage(windowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+    }
+}
