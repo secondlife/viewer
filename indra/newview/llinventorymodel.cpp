@@ -540,7 +540,8 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 			S32 count = cats->size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->at(i)->getPreferredType() == preferred_type)
+				LLViewerInventoryCategory* p_cat = cats->at(i);
+				if(p_cat && p_cat->getPreferredType() == preferred_type)
 				{
 					const LLUUID& folder_id = cats->at(i)->getUUID();
 					if (rv.isNull() || folder_id < rv)
@@ -1734,9 +1735,18 @@ void LLInventoryModel::notifyObservers()
 		iter = mObservers.upper_bound(observer); 
 	}
 
-	mModifyMask = LLInventoryObserver::NONE;
+	// If there were any changes that arrived during notifyObservers,
+	// shedule them for next loop
+	mModifyMask = mModifyMaskBacklog;
 	mChangedItemIDs.clear();
+	mChangedItemIDs.insert(mChangedItemIDsBacklog.begin(), mChangedItemIDsBacklog.end());
 	mAddedItemIDs.clear();
+	mAddedItemIDs.insert(mAddedItemIDsBacklog.begin(), mAddedItemIDsBacklog.end());
+
+	mModifyMaskBacklog = LLInventoryObserver::NONE;
+	mChangedItemIDsBacklog.clear();
+	mAddedItemIDsBacklog.clear();
+
 	mIsNotifyObservers = FALSE;
 }
 
@@ -1748,8 +1758,10 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	{
 		// Something marked an item for change within a call to notifyObservers
 		// (which is in the process of processing the list of items marked for change).
-		// This means the change may fail to be processed.
-		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers!  Change will likely be lost." << LL_ENDL;
+		// This means the change will have to be processed later.
+		// It's preferable for this not to happen, but it's not an issue unless code
+		// specifically wants to notifyObservers immediately (changes won't happen untill later)
+		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers! Change's processing will be performed on idle." << LL_ENDL;
 		LLViewerInventoryItem *item = getItem(referent);
 		if (item)
 		{
@@ -1764,17 +1776,40 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 			}
 		}
 	}
-	
-	mModifyMask |= mask;
+
+    if (mIsNotifyObservers)
+    {
+        mModifyMaskBacklog |= mask;
+    }
+    else
+    {
+        mModifyMask |= mask;
+    }
+
 	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
-		mChangedItemIDs.insert(referent);
+        if (mIsNotifyObservers)
+        {
+            mChangedItemIDsBacklog.insert(referent);
+        }
+        else
+        {
+            mChangedItemIDs.insert(referent);
+        }
+
         update_marketplace_category(referent, false);
 
-		if (mask & LLInventoryObserver::ADD)
-		{
-			mAddedItemIDs.insert(referent);
-		}
+        if (mask & LLInventoryObserver::ADD)
+        {
+            if (mIsNotifyObservers)
+            {
+                mAddedItemIDsBacklog.insert(referent);
+            }
+            else
+            {
+                mAddedItemIDs.insert(referent);
+            }
+        }
 	
 		// Update all linked items.  Starting with just LABEL because I'm
 		// not sure what else might need to be accounted for this.
@@ -2745,7 +2780,10 @@ void LLInventoryModel::createCommonSystemCategories()
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
     gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS, true);
+    gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
 }
 
 struct LLUUIDAndName

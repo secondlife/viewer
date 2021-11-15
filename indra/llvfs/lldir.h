@@ -90,6 +90,7 @@ class LLDir
 	const std::string &getLindenUserDir() const;	// Location of the Linden user dir.
 	const std::string &getChatLogsDir() const;	// Location of the chat logs dir.
 	const std::string &getDumpDir() const;	// Location of the per-run dump dir.
+	bool              dumpDirExists() const;
 	const std::string &getPerAccountChatLogsDir() const;	// Location of the per account chat logs dir.
 	const std::string &getTempDir() const;			// Common temporary directory
 	const std::string  getCacheDir(bool get_default = false) const;	// Location of the cache.
@@ -173,6 +174,8 @@ class LLDir
 
 	// random filename in common temporary directory
 	std::string getTempFilename() const;
+
+    static std::string getDumpLogsDirPath(const std::string &file_name = "");
 
 	// For producing safe download file names from potentially unsafe ones
 	static std::string getScrubbedFileName(const std::string uncleanFileName);
