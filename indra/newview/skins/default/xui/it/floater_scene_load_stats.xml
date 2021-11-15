@@ -29,7 +29,6 @@
 					<stat_bar label="Livelli" name="layersdatareceived"/>
 					<stat_bar label="Effettivi in ingresso" name="messagedatain"/>
 					<stat_bar label="Effettivi in uscita" name="messagedataout"/>
-					<stat_bar label="Operazioni VFS in sospeso" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulatore" name="sim">

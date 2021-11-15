@@ -5,13 +5,13 @@ project(llxml)
 include(00-Common)
 include(LLCommon)
 include(LLMath)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     )
 include_directories(
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -42,7 +42,7 @@ add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries( llxml
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
