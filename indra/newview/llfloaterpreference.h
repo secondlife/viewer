@@ -108,6 +108,7 @@ public:
 	void getControlNames(std::vector<std::string>& names);
 	// updates click/double-click action controls depending on values from settings.xml
 	void updateClickActionViews();
+    void updateSearchableItems();
 
     void		onBtnOK(const LLSD& userdata);
     void		onBtnCancel(const LLSD& userdata);
@@ -222,6 +223,7 @@ private:
 
 	LLSearchEditor *mFilterEdit;
 	std::unique_ptr< ll::prefs::SearchData > mSearchData;
+	bool mSearchDataDirty;
 
     boost::signals2::connection	mComplexityChangedSignal;
 
