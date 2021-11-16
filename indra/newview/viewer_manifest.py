@@ -1176,8 +1176,10 @@ class DarwinManifest(ViewerManifest):
                         [newpath, self.dst_path_of(dylibexecutable)])
 
                     # copy LibVLC plugin itself
-                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'],
-                                       "media_plugin_libvlc.dylib")
+                    dylibexecutable = 'media_plugin_libvlc.dylib'
+                    self.path2basename("../media_plugins/libvlc/" + self.args['configuration'], dylibexecutable)
+                    # add @rpath for the correct LibVLC subfolder
+                    self.run_command(['install_name_tool', '-add_rpath', '@loader_path/lib', self.dst_path_of(dylibexecutable)])
 
                     # copy LibVLC dynamic libraries
                     with self.prefix(src=relpkgdir, dst="lib"):
@@ -1309,7 +1311,7 @@ class DarwinManifest(ViewerManifest):
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
                             self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
                             self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
-                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
+                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
                             signed=True # if no exception was raised, the codesign worked
                         except ManifestError as err:
                             if sign_attempts:

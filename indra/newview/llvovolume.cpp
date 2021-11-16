@@ -377,6 +377,18 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				{
 					delete mTextureAnimp;
 					mTextureAnimp = NULL;
+
+                    for (S32 i = 0; i < getNumTEs(); i++)
+                    {
+                        LLFace* facep = mDrawable->getFace(i);
+                        if (facep && facep->mTextureMatrix)
+                        {
+                            // delete or reset
+                            delete facep->mTextureMatrix;
+                            facep->mTextureMatrix = NULL;
+                        }
+                    }
+
 					gPipeline.markTextured(mDrawable);
 					mFaceMappingChanged = TRUE;
 					mTexAnimMode = 0;
@@ -476,6 +488,18 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			{
 				delete mTextureAnimp;
 				mTextureAnimp = NULL;
+
+                for (S32 i = 0; i < getNumTEs(); i++)
+                {
+                    LLFace* facep = mDrawable->getFace(i);
+                    if (facep && facep->mTextureMatrix)
+                    {
+                        // delete or reset
+                        delete facep->mTextureMatrix;
+                        facep->mTextureMatrix = NULL;
+                    }
+                }
+
 				gPipeline.markTextured(mDrawable);
 				mFaceMappingChanged = TRUE;
 				mTexAnimMode = 0;
