@@ -1290,7 +1290,13 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
 				// down.
 				std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
 
-				media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host, cookie_path, httponly, secure);
+				media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host, 
+                    cookie_path, httponly, secure);
+
+                // Now that we have parsed the raw cookie, we must store it so that each new media instance
+                // can also get a copy and faciliate logging into internal SL sites.
+				media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value, 
+                    cookie_host, cookie_path, httponly, secure);
 			}
 		}
 	}
@@ -1825,6 +1831,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 
 	if (media_source)
 	{
+		media_source->injectOpenIDCookie();
 		media_source->setDisableTimeout(gSavedSettings.getBOOL("DebugPluginDisableTimeout"));
 		media_source->setLoop(mMediaLoop);
 		media_source->setAutoScale(mMediaAutoScale);

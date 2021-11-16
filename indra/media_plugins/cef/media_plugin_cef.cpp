@@ -29,7 +29,7 @@
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
 
-#include "llgl.h"
+#include "llglheaders.h" // for GL_* constants
 #include "llsdutil.h"
 #include "llplugininstance.h"
 #include "llpluginmessage.h"

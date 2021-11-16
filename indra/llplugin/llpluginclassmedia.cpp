@@ -690,6 +690,66 @@ bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers, LLSD
 	return true;
 }
 
+// This function injects a previously stored OpenID cookie into
+// each new media instance - see SL-15867 for details. It appears
+// that the way we use the cache, shared between multiple CEF
+// instances means that sometimes the OpenID cookie cannot be read
+// even though it appears to be there.  The long term solution to
+// this is to create a separate cache directory for each instance 
+// but that has its own set of problems. This short term approach
+// "forces" each new media instance to have a copy of the cookie
+// so that a page that needs it - e.g. Profiles - finds it and
+// can log in successfully.
+void LLPluginClassMedia::injectOpenIDCookie()
+{
+    // can be called before we know who the user is at login
+    // and there is no OpenID cookie at that point so no 
+    // need to try to set it (these values will all be empty)
+    if (sOIDcookieName.length() && sOIDcookieValue.length())
+    {
+        setCookie(sOIDcookieUrl, sOIDcookieName,
+            sOIDcookieValue, sOIDcookieHost, sOIDcookiePath, sOIDcookieHttpOnly, sOIDcookieSecure);
+    }
+}
+
+// We store each component of the OpenI cookie individuality here
+// because previously, there was some significant parsing to
+// break up the raw string into these components and we do not
+// want to have to do that again here. Stored as statics because 
+// we want to share their value between all instances of this 
+// class - the ones that receive it at login and any others 
+// that open afterwards (e.g. the Profiles floater)
+std::string LLPluginClassMedia::sOIDcookieUrl = std::string();
+std::string LLPluginClassMedia::sOIDcookieName = std::string();
+std::string LLPluginClassMedia::sOIDcookieValue = std::string();
+std::string LLPluginClassMedia::sOIDcookieHost = std::string();
+std::string LLPluginClassMedia::sOIDcookiePath = std::string();
+bool LLPluginClassMedia::sOIDcookieHttpOnly = false;
+bool LLPluginClassMedia::sOIDcookieSecure = false;
+
+// Once we receive the OpenID cookie, it is parsed/processed
+// in llViewerMedia::parseRawCookie() and then the component
+// values are stored here so that next time a new media
+// instance is created, we can use injectOpenIDCookie()
+// to "insist" that the cookie store remember its value.
+// One might ask why we need to go via LLViewerMedia (which
+// makes this call) - this is because the raw cookie arrives
+// here in this file but undergoes non-trivial processing
+// in LLViewerMedia.
+void LLPluginClassMedia::storeOpenIDCookie(const std::string url,
+    const std::string name, const std::string value,
+    const std::string host, const std::string path,
+    bool httponly, bool secure)
+{
+    sOIDcookieUrl = url;
+    sOIDcookieName = name;
+    sOIDcookieValue = value;
+    sOIDcookieHost = host;
+    sOIDcookiePath = path;
+    sOIDcookieHttpOnly = httponly;
+    sOIDcookieSecure = secure;
+}
+
 void LLPluginClassMedia::setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path, bool httponly, bool secure)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_cookie");
