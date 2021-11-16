@@ -31,6 +31,7 @@ bool pumpMainLoop();
 void handleQuit();
 void cleanupViewer();
 void infos(const std::string& message);
+void clearDumpLogsDir();
 
 // This struct is malleable; it only serves as a way to convey a number of
 // fields from llappviewermacosx.cpp's CrashMetadata_instance() function to the
@@ -47,6 +48,7 @@ struct CrashMetadata
     std::string agentFullname;
     std::string regionName;
     std::string fatalMessage;
+    std::string secondLogFilePathname;
 };
 
 CrashMetadata& CrashMetadata_instance();

@@ -626,8 +626,8 @@ private:
     // Coroutine support methods
     //---
     void voiceControlCoro();
+    void voiceControlStateMachine(S32 &coro_state);
 
-    bool startAndConnectSession();
     bool endAndDisconnectSession();
 
     bool callbackEndDaemon(const LLSD& data);
