@@ -1,15 +1,39 @@
-Second Life Viewer
-====================
-This project manages the source code for the
-[Second Life](https://www.secondlife.com) Viewer.
+![Second Life Logo](doc/sl-logo.png)
 
-This source is available as open source; for details on licensing, see
-[the licensing page on the Second Life wiki](https://wiki.secondlife.com/wiki/Linden_Lab_Official:Second_Life_Viewer_Licensing_Program)
+**[Second Life][] is a free 3D virtual world where users can create, connect and chat with others from around the
+world.** This repository contains the source code for the official client.
 
-For information on how to use and contribute to this, see
-[the open source portal on the wiki](https://wiki.secondlife.com/wiki/Open_Source_Portal).
+## Open Source
 
-To download the current default version, visit
-[the download page](https://secondlife.com/support/downloads). For
-even newer versions try
-[the Alternate Viewers page](https://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers)
+Second Life provides a huge variety of tools for expression, content creation, socialization and play. Its vibrancy is
+only possible because of input and contributions from its residents. The client codebase has been open source since
+2007 and is available under the LGPL license. The [Open Source Portal][] contains additional information about Linden
+Lab's open source history and projects.
+
+## Download
+
+Most people use a pre-built viewer release to access Second Life. Windows and macOS builds are
+[published on the official website][download]. More experimental viewers, such as release candidates and
+project viewers, are detailed on the [Alternate Viewers page](https://releasenotes.secondlife.com/viewer.html).
+
+### Third Party Viewers
+
+Third party maintained forks, which include Linux compatible builds, are indexed in the [Third Party Viewer Directory][tpv].
+
+## Build Instructions
+
+[Windows](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Windows)
+
+[Mac](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_macOS)
+
+[Linux](https://wiki.secondlife.com/wiki/Build_the_Viewer_on_Linux)
+
+## Contribute
+
+Help make Second Life better! You can get involved with improvements by filing bugs, suggesting enhancements, submitting
+pull requests and more. See the [open source portal][] for details.
+
+[Second Life]: https://secondlife.com/
+[download]: https://secondlife.com/support/downloads/
+[tpv]: http://wiki.secondlife.com/wiki/Third_Party_Viewer_Directory
+[open source portal]: http://wiki.secondlife.com/wiki/Open_Source_Portal
