@@ -51,7 +51,7 @@ public:
 
 
 private:
-    boost::shared_ptr<LLEventPolling::Details::LLEventPollImpl>  mImpl;
+    std::shared_ptr<LLEventPolling::Details::LLEventPollImpl>  mImpl;
 };
 
 
