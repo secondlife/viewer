@@ -1276,7 +1276,7 @@ void LLPanelEditWearable::changeCamera(U8 subpart)
 {
 	// Don't change the camera if this type doesn't have a camera switch.
 	// Useful for wearables like physics that don't have an associated physical body part.
-	if (LLWearableType::getDisableCameraSwitch(mWearablePtr->getType()))
+	if (LLWearableType::getInstance()->getDisableCameraSwitch(mWearablePtr->getType()))
 	{
 		return;
 	}

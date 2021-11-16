@@ -609,9 +609,9 @@ public:
 	void selectionRevertColors();
 	void selectionRevertShinyColors();
 	BOOL selectionRevertTextures();
-	void selectionSetBumpmap( U8 bumpmap );
+	void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
 	void selectionSetTexGen( U8 texgen );
-	void selectionSetShiny( U8 shiny );
+	void selectionSetShiny( U8 shiny, const LLUUID &image_id );
 	void selectionSetFullbright( U8 fullbright );
 	void selectionSetMedia( U8 media_type, const LLSD &media_data );
 	void selectionSetClickAction(U8 action);

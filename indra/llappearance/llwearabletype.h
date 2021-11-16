@@ -35,10 +35,9 @@
 
 class LLWearableType : public LLParamSingleton<LLWearableType>
 {
-	LLSINGLETON(LLWearableType, LLTranslationBridge* trans);
+	LLSINGLETON(LLWearableType, LLTranslationBridge::ptr_t &trans);
 	~LLWearableType();
 	void initSingleton();
-	friend struct WearableEntry;
 public: 
 	enum EType
 	{
@@ -67,20 +66,53 @@ public:
 
 	// Most methods are wrappers for dictionary, but if LLWearableType is not initialized,
 	// they will crash. Whole LLWearableType is just wrapper for convinient calls.
-	static const std::string& 			getTypeName(EType type);
-	static const std::string& 			getTypeDefaultNewName(EType type);
-	static const std::string& 			getTypeLabel(EType type);
-	static LLAssetType::EType 			getAssetType(EType type);
-	static EType 						typeNameToType(const std::string& type_name);
-	static LLInventoryType::EIconName 	getIconName(EType type);
-	static BOOL 						getDisableCameraSwitch(EType type);
-	static BOOL 						getAllowMultiwear(EType type);
+	const std::string& 					getTypeName(EType type);
+	const std::string& 					getTypeDefaultNewName(EType type);
+	const std::string& 					getTypeLabel(EType type);
+	LLAssetType::EType 					getAssetType(EType type);
+	EType 								typeNameToType(const std::string& type_name);
+	LLInventoryType::EIconName 			getIconName(EType type);
+	BOOL 								getDisableCameraSwitch(EType type);
+	BOOL 								getAllowMultiwear(EType type);
 
 	static EType						inventoryFlagsToWearableType(U32 flags);
 
-protected:
+private:
+    struct WearableEntry : public LLDictionaryEntry
+    {
+        WearableEntry(LLTranslationBridge::ptr_t& trans,
+            const std::string &name,
+            const std::string& default_new_name,
+            LLAssetType::EType assetType,
+            LLInventoryType::EIconName iconName,
+            BOOL disable_camera_switch = FALSE,
+            BOOL allow_multiwear = TRUE) :
+            LLDictionaryEntry(name),
+            mAssetType(assetType),
+            mDefaultNewName(default_new_name),
+            mLabel(trans->getString(name)),
+            mIconName(iconName),
+            mDisableCameraSwitch(disable_camera_switch),
+            mAllowMultiwear(allow_multiwear)
+        {
 
-	LLTranslationBridge* mTrans;
+        }
+        const LLAssetType::EType mAssetType;
+        const std::string mLabel;
+        const std::string mDefaultNewName;
+        LLInventoryType::EIconName mIconName;
+        BOOL mDisableCameraSwitch;
+        BOOL mAllowMultiwear;
+    };
+
+    class LLWearableDictionary : public LLDictionary<LLWearableType::EType, WearableEntry>
+    {
+    public:
+        LLWearableDictionary(LLTranslationBridge::ptr_t& trans);
+        ~LLWearableDictionary() {}
+    };
+
+    LLWearableDictionary mDictionary;
 };
 
 #endif  // LL_LLWEARABLETYPE_H

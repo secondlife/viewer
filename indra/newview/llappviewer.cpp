@@ -613,7 +613,7 @@ static void settings_modify()
 	LLPipeline::sRenderDeferred		= LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
-    gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
+	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 }
 
@@ -715,8 +715,6 @@ LLAppViewer::LLAppViewer()
 
 	gLoggedInTime.stop();
 
-	initLoggingAndGetLastDuration();
-
 	processMarkerFiles();
 	//
 	// OK to write stuff to logs now, we've now crash reported if necessary
@@ -769,10 +767,6 @@ bool LLAppViewer::init()
 	// Start of the application
 	//
 
-	// initialize LLWearableType translation bridge.
-	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initParamSingleton(new LLUITranslationBridge());
-
     // initialize the LLSettingsType translation bridge.
     LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
     LLSettingsType::initParamSingleton(trans);
@@ -794,6 +788,7 @@ bool LLAppViewer::init()
 	//
 	init_default_trans_args();
 
+    // inits from settings.xml and from strings.xml
 	if (!initConfiguration())
 		return false;
 
@@ -859,6 +854,10 @@ bool LLAppViewer::init()
 
 	// Setup LLTrans after LLUI::initClass has been called.
 	initStrings();
+
+    // initialize LLWearableType translation bridge.
+    // Will immediately use LLTranslationBridge to init LLWearableDictionary
+    LLWearableType::initParamSingleton(trans);
 
 	// Setup notifications after LLUI::initClass() has been called.
 	LLNotifications::instance();
@@ -1098,8 +1097,15 @@ bool LLAppViewer::init()
             if (count > 0 && v1 <= 10)
             {
                 LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
+
+                if (!gViewerWindow->getInitAlert().empty() // graphic initialization crashed on last run
+                    || LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion // viewer was updated
+                    || mNumSessions % 20 == 0 //periodically remind user to update driver
+                    )
+                {
                 LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
                 std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
+                    LL_INFOS("AppInit") << "Notifying user about obsolete intel driver for " << gpu_name << LL_ENDL;
                 details.setArg("[VERSION]", driver);
                 details.setArg("[GPUNAME]", gpu_name);
                 S32 button = OSMessageBox(details.getString(),
@@ -1115,6 +1121,7 @@ bool LLAppViewer::init()
                 }
             }
         }
+    }
     }
 #endif
 
@@ -1326,6 +1333,13 @@ bool LLAppViewer::init()
     LLSelectMgr::createInstance();
     LLViewerCamera::createInstance();
 
+#if LL_WINDOWS
+    if (!mSecondInstance)
+    {
+        gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
+    }
+#endif
+
 	return true;
 }
 
@@ -1423,11 +1437,11 @@ bool LLAppViewer::doFrame()
         LL_PROFILE_ZONE_NAMED("df LLTrace");
         if (LLFloaterReg::instanceVisible("block_timers"))
         {
-            LLTrace::BlockTimer::processTimes();
+	LLTrace::BlockTimer::processTimes();
         }
         
-        LLTrace::get_frame_recording().nextPeriod();
-        LLTrace::BlockTimer::logStats();
+	LLTrace::get_frame_recording().nextPeriod();
+	LLTrace::BlockTimer::logStats();
 	}
 
 	LLTrace::get_thread_recorder()->pullFromChildren();
@@ -1447,7 +1461,7 @@ bool LLAppViewer::doFrame()
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df gatherInput" )
-			pingMainloopTimeout("Main:GatherInput");
+		pingMainloopTimeout("Main:GatherInput");
 		}
 
 		if (gViewerWindow)
@@ -1474,14 +1488,14 @@ bool LLAppViewer::doFrame()
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df mainloop" )
-			// canonical per-frame event
-			mainloop.post(newFrame);
+		// canonical per-frame event
+		mainloop.post(newFrame);
 		}
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df suspend" )
-			// give listeners a chance to run
-			llcoro::suspend();
+		// give listeners a chance to run
+		llcoro::suspend();
 		}
 
 		if (!LLApp::isExiting())
@@ -1509,7 +1523,7 @@ bool LLAppViewer::doFrame()
 			{
 				{
 					LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
-					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+				pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
 				}
 
 				LL_RECORD_BLOCK_TIME(FTM_IDLE);
@@ -1517,14 +1531,20 @@ bool LLAppViewer::doFrame()
 
 				{
 					LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
-					resumeMainloopTimeout();
-				}
+				resumeMainloopTimeout();
+			}
 			}
 
 			if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
 			{
 				pauseMainloopTimeout();
 				saveFinalSnapshot();
+
+                if (LLVoiceClient::instanceExists())
+                {
+                    LLVoiceClient::getInstance()->terminate();
+                }
+
 				disconnectViewer();
 				resumeMainloopTimeout();
 			}
@@ -1541,19 +1561,19 @@ bool LLAppViewer::doFrame()
 
 				{
 					LL_PROFILE_ZONE_NAMED( "df Snapshot" )
-					pingMainloopTimeout("Main:Snapshot");
-					LLFloaterSnapshot::update(); // take snapshots
+				pingMainloopTimeout("Main:Snapshot");
+				LLFloaterSnapshot::update(); // take snapshots
 					LLFloaterOutfitSnapshot::update();
-					gGLActive = FALSE;
-				}
+				gGLActive = FALSE;
 			}
+		}
 		}
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
-			pingMainloopTimeout("Main:Sleep");
+		pingMainloopTimeout("Main:Sleep");
 
-			pauseMainloopTimeout();
+		pauseMainloopTimeout();
 		}
 
 		// Sleep and run background threads
@@ -1640,7 +1660,7 @@ bool LLAppViewer::doFrame()
 
 			{
 				LL_PROFILE_ZONE_NAMED( "df gMeshRepo" )
-				gMeshRepo.update() ;
+			gMeshRepo.update() ;
 			}
 
 			if(!total_work_pending) //pause texture fetching threads if nothing to process.
@@ -1671,7 +1691,7 @@ bool LLAppViewer::doFrame()
 
 			{
 				LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
-				resumeMainloopTimeout();
+			resumeMainloopTimeout();
 			}
 			pingMainloopTimeout("Main:End");
 		}
@@ -2286,6 +2306,17 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	LLError::addGenericRecorder(&errorCallback);
 	//LLError::setTimeFunction(getRuntime);
 
+
+    if (mSecondInstance)
+    {
+        LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
+ 
+        LLUUID uid;
+        uid.generate();
+        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+    }
+    else
+    {
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
 							     "SecondLife.old");
@@ -2305,12 +2336,12 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	std::ostringstream duration_log_stream; // can't log yet, so save any message for when we can below
 	int start_stat_result = LLFile::stat(start_marker_file_name, &start_marker_stat);
 	int log_stat_result = LLFile::stat(log_file, &log_file_stat);
-	if ( 0 == start_stat_result && 0 == log_stat_result )
+        if (0 == start_stat_result && 0 == log_stat_result)
 	{
 		int elapsed_seconds = log_file_stat.st_ctime - start_marker_stat.st_ctime;
 		// only report a last run time if the last viewer was the same version
 		// because this stat will be counted against this version
-		if ( markerIsSameVersion(start_marker_file_name) )
+            if (markerIsSameVersion(start_marker_file_name))
 		{
 			gLastExecDuration = elapsed_seconds;
 		}
@@ -2323,13 +2354,13 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	else
 	{
 		// at least one of the LLFile::stat calls failed, so we can't compute the run time
-		duration_log_stream << "duration stat failure; start: "<< start_stat_result << " log: " << log_stat_result;
+            duration_log_stream << "duration stat failure; start: " << start_stat_result << " log: " << log_stat_result;
 		gLastExecDuration = -1; // unknown
 	}
 	std::string duration_log_msg(duration_log_stream.str());
 
 	// Create a new start marker file for comparison with log file time for the next run
-	LLAPRFile start_marker_file ;
+        LLAPRFile start_marker_file;
 	start_marker_file.open(start_marker_file_name, LL_APR_WB);
 	if (start_marker_file.getFileHandle())
 	{
@@ -2346,6 +2377,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	{
 		LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
 	}
+    }
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
@@ -2694,7 +2726,7 @@ bool LLAppViewer::initConfiguration()
                 const std::string& value = *(++itr);
                 if (!tempSetControl(name,value))
                 {
-                    LL_WARNS() << "Failed --set " << name << ": setting name unknown." << LL_ENDL;
+					LL_WARNS() << "Failed --set " << name << ": setting name unknown." << LL_ENDL;
                 }
             }
         }
@@ -3150,6 +3182,15 @@ bool LLAppViewer::initWindow()
 
 void LLAppViewer::writeDebugInfo(bool isStatic)
 {
+#if LL_WINDOWS && LL_BUGSPLAT
+    // bugsplat does not create dump folder and debug logs are written directly
+    // to logs folder, so it conflicts with main instance
+    if (mSecondInstance)
+    {
+        return;
+    }
+#endif
+
     //Try to do the minimum when writing data during a crash.
     std::string* debug_filename;
     debug_filename = ( isStatic
@@ -3478,7 +3519,7 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_BUGSPLAT
 	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
     //Not ideal but sufficient for good reporting.
@@ -3560,14 +3601,14 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
-    
+
     if (gViewerWindow)
     {
-        std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
-        for (auto res_iter : resolutions)
-        {
-            gDebugInfo["DisplayInfo"].append(res_iter);
-        }
+	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+	for (auto res_iter : resolutions)
+	{
+		gDebugInfo["DisplayInfo"].append(res_iter);
+	}
     }
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
@@ -3822,6 +3863,7 @@ void LLAppViewer::processMarkerFiles()
 	// - Other Crash (SecondLife.error_marker present)
 	// These checks should also remove these files for the last 2 cases if they currently exist
 
+	std::ostringstream marker_log_stream;
 	bool marker_is_same_version = true;
 	// first, look for the marker created at startup and deleted on a clean exit
 	mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
@@ -3832,12 +3874,12 @@ void LLAppViewer::processMarkerFiles()
 		marker_is_same_version = markerIsSameVersion(mMarkerFileName);
 
 		// now test to see if this file is locked by a running process (try to open for write)
-		LL_DEBUGS("MarkerFile") << "Checking exec marker file for lock..." << LL_ENDL;
+		marker_log_stream << "Checking exec marker file for lock...";
 		mMarkerFile.open(mMarkerFileName, LL_APR_WB);
 		apr_file_t* fMarker = mMarkerFile.getFileHandle() ;
 		if (!fMarker)
 		{
-			LL_INFOS("MarkerFile") << "Exec marker file open failed - assume it is locked." << LL_ENDL;
+			marker_log_stream << "Exec marker file open failed - assume it is locked.";
 			mSecondInstance = true; // lock means that instance is running.
 		}
 		else
@@ -3845,16 +3887,20 @@ void LLAppViewer::processMarkerFiles()
 			// We were able to open it, now try to lock it ourselves...
 			if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS)
 			{
-				LL_WARNS_ONCE("MarkerFile") << "Locking exec marker failed." << LL_ENDL;
+				marker_log_stream << "Locking exec marker failed.";
 				mSecondInstance = true; // lost a race? be conservative
 			}
 			else
 			{
 				// No other instances; we've locked this file now, so record our version; delete on quit.
 				recordMarkerVersion(mMarkerFile);
-				LL_DEBUGS("MarkerFile") << "Exec marker file existed but was not locked; rewritten." << LL_ENDL;
+				marker_log_stream << "Exec marker file existed but was not locked; rewritten.";
 			}
 		}
+		initLoggingAndGetLastDuration();
+
+		std::string marker_log_msg(marker_log_stream.str());
+		LL_INFOS("MarkerFile") << marker_log_msg << LL_ENDL;
 
 		if (mSecondInstance)
 		{
@@ -3873,6 +3919,7 @@ void LLAppViewer::processMarkerFiles()
 	}
 	else // marker did not exist... last exec (if any) did not freeze
 	{
+		initLoggingAndGetLastDuration();
 		// Create the marker file for this execution & lock it; it will be deleted on a clean exit
 		apr_status_t s;
 		s = mMarkerFile.open(mMarkerFileName, LL_APR_WB, TRUE);
@@ -3998,8 +4045,18 @@ void LLAppViewer::removeDumpDir()
 {
     //Call this routine only on clean exit.  Crash reporter will clean up
     //its locking table for us.
+    if (gDirUtilp->dumpDirExists()) // Check if dump dir was created this run
+    {
     std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
     gDirUtilp->deleteDirAndContents(dump_dir);
+    }
+
+    if (mSecondInstance && !isError())
+    {
+        std::string log_filename = LLError::logFileName();
+        LLError::logToFile("");
+        LLFile::remove(log_filename);
+    }
 }
 
 void LLAppViewer::forceQuit()
