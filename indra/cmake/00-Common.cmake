@@ -90,7 +90,8 @@ if (WINDOWS)
   add_compile_options(
       /GS
       /TP
-      /W3
+#      /W3
+      /W0
       /c
       /Zc:forScope
       /nologo
@@ -103,11 +104,13 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     add_definitions( /arch:SSE2 )
   endif()
-     
+
+
+
   # Are we using the crummy Visual Studio KDU build workaround?
-  if (NOT VS_DISABLE_FATAL_WARNINGS)
-    add_definitions(/WX)
-  endif (NOT VS_DISABLE_FATAL_WARNINGS)
+#  if (NOT VS_DISABLE_FATAL_WARNINGS)
+#    add_definitions(/WX)
+#  endif (NOT VS_DISABLE_FATAL_WARNINGS)
 endif (WINDOWS)
 
 
