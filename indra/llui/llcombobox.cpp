@@ -1037,6 +1037,43 @@ void LLComboBox::prearrangeList(std::string filter)
 	}
 }
 
+
+//============================================================================
+// ll::ui::SearchableControl functions
+
+//virtual
+std::string LLComboBox::_getSearchText() const
+{
+    std::string res;
+    if (mList)
+    {
+        // getAllData returns a full copy of content, might be a
+        // better option to implement an mList->getSearchText(column)
+        std::vector<LLScrollListItem*> data = mList->getAllData();
+        std::vector<LLScrollListItem*>::iterator iter = data.begin();
+        while (iter != data.end())
+        {
+            LLScrollListCell* cell = (*iter)->getColumn(0);
+            if (cell)
+            {
+                std::string whitelist_url = cell->getValue().asString();
+                res += cell->getValue().asString();
+            }
+            iter++;
+        }
+    }
+    return res + getToolTip();
+}
+
+//virtual
+void LLComboBox::onSetHighlight() const
+{
+    if (mButton)
+    {
+        mButton->ll::ui::SearchableControl::setHighlighted(ll::ui::SearchableControl::getHighlighted());
+    }
+}
+
 //============================================================================
 // LLCtrlListInterface functions
 

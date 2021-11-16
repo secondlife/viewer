@@ -29,16 +29,13 @@
 #include "linden_common.h"
 #include "indra_constants.h" // for indra keyboard codes
 
-#include "llgl.h"
+#include "llglheaders.h" // for GL_* constants
 #include "llsdutil.h"
 #include "llplugininstance.h"
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
-
-#include <functional>
-#include <chrono>
 
 #include "dullahan.h"
 

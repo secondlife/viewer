@@ -28,9 +28,9 @@
 #include "llviewerprecompiledheaders.h"
 #include "llevents.h"
 #include "lleventfilter.h"
+#include "llregex.h"
 #include "llversioninfo.h"
 #include "stringize.h"
-#include <boost/regex.hpp>
 
 #if ! defined(LL_VIEWER_CHANNEL)       \
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
@@ -139,19 +139,19 @@ LLVersionInfo::ViewerMaturity LLVersionInfo::getViewerMaturity()
 	static const boost::regex is_project_channel("\\bProject\\b");
 	static const boost::regex is_release_channel("\\bRelease\\b");
 
-    if (boost::regex_search(channel, is_release_channel))
+    if (ll_regex_search(channel, is_release_channel))
     {
         maturity = RELEASE_VIEWER;
     }
-    else if (boost::regex_search(channel, is_beta_channel))
+    else if (ll_regex_search(channel, is_beta_channel))
     {
         maturity = BETA_VIEWER;
     }
-    else if (boost::regex_search(channel, is_project_channel))
+    else if (ll_regex_search(channel, is_project_channel))
     {
         maturity = PROJECT_VIEWER;
     }
-    else if (boost::regex_search(channel, is_test_channel))
+    else if (ll_regex_search(channel, is_test_channel))
     {
         maturity = TEST_VIEWER;
     }

@@ -270,7 +270,7 @@ public:
     public:
         static const U32 VALIDATION_PARTIAL;
         
-        typedef boost::function<bool(LLSD &)> verify_pr;
+        typedef boost::function<bool(LLSD &, U32)> verify_pr;
 
         Validator(std::string name, bool required, LLSD::Type type, verify_pr verify = verify_pr(), LLSD defval = LLSD())  :
             mName(name),
@@ -287,15 +287,15 @@ public:
         bool        verify(LLSD &data, U32 flags);
 
         // Some basic verifications
-        static bool verifyColor(LLSD &value);
-        static bool verifyVector(LLSD &value, S32 length);
-        static bool verifyVectorMinMax(LLSD &value, LLSD minvals, LLSD maxvals);
-        static bool verifyVectorNormalized(LLSD &value, S32 length);
-        static bool verifyQuaternion(LLSD &value);
-        static bool verifyQuaternionNormal(LLSD &value);
-        static bool verifyFloatRange(LLSD &value, LLSD range);
-        static bool verifyIntegerRange(LLSD &value, LLSD range);
-        static bool verifyStringLength(LLSD &value, S32 length);
+        static bool verifyColor(LLSD &value, U32 flags);
+        static bool verifyVector(LLSD &value, U32 flags, S32 length);
+        static bool verifyVectorMinMax(LLSD &value, U32 flags, LLSD minvals, LLSD maxvals);
+        static bool verifyVectorNormalized(LLSD &value, U32 flags, S32 length);
+        static bool verifyQuaternion(LLSD &value, U32 flags);
+        static bool verifyQuaternionNormal(LLSD &value, U32 flags);
+        static bool verifyFloatRange(LLSD &value, U32 flags, LLSD range);
+        static bool verifyIntegerRange(LLSD &value, U32 flags, LLSD range);
+        static bool verifyStringLength(LLSD &value, U32 flags, S32 length);
 
     private:
         std::string mName;
