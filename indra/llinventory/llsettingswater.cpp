@@ -236,34 +236,34 @@ LLSettingsWater::validation_list_t LLSettingsWater::validationList()
         // in deeply nested arrays like this [[[[[[[[[[v1,v2,v3]]]]]]]]]]
 
         validation.push_back(Validator(SETTING_BLUR_MULTIPLIER, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-0.5f)(0.5f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(-0.5f)(0.5f)))));
         validation.push_back(Validator(SETTING_FOG_COLOR, true, LLSD::TypeArray,
-            boost::bind(&Validator::verifyVectorMinMax, _1,
+            boost::bind(&Validator::verifyVectorMinMax, _1, _2,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)(1.0f)),
                 LLSD(LLSDArray(1.0f)(1.0f)(1.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_FOG_DENSITY, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(-10.0f)(10.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(-10.0f)(10.0f)))));
         validation.push_back(Validator(SETTING_FOG_MOD, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(20.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(20.0f)))));
         validation.push_back(Validator(SETTING_FRESNEL_OFFSET, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_FRESNEL_SCALE, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(1.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(1.0f)))));
         validation.push_back(Validator(SETTING_NORMAL_MAP, true, LLSD::TypeUUID));
         validation.push_back(Validator(SETTING_NORMAL_SCALE, true, LLSD::TypeArray,
-            boost::bind(&Validator::verifyVectorMinMax, _1,
+            boost::bind(&Validator::verifyVectorMinMax, _1, _2,
                 LLSD(LLSDArray(0.0f)(0.0f)(0.0f)),
                 LLSD(LLSDArray(10.0f)(10.0f)(10.0f)))));
         validation.push_back(Validator(SETTING_SCALE_ABOVE, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(3.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(3.0f)))));
         validation.push_back(Validator(SETTING_SCALE_BELOW, true, LLSD::TypeReal,
-            boost::bind(&Validator::verifyFloatRange, _1, LLSD(LLSDArray(0.0f)(3.0f)))));
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(3.0f)))));
         validation.push_back(Validator(SETTING_WAVE1_DIR, true, LLSD::TypeArray,
-            boost::bind(&Validator::verifyVectorMinMax, _1,
+            boost::bind(&Validator::verifyVectorMinMax, _1, _2,
                 LLSD(LLSDArray(-20.0f)(-20.0f)),
                 LLSD(LLSDArray(20.0f)(20.0f)))));
         validation.push_back(Validator(SETTING_WAVE2_DIR, true, LLSD::TypeArray,
-            boost::bind(&Validator::verifyVectorMinMax, _1,
+            boost::bind(&Validator::verifyVectorMinMax, _1, _2,
                 LLSD(LLSDArray(-20.0f)(-20.0f)),
                 LLSD(LLSDArray(20.0f)(20.0f)))));
     }

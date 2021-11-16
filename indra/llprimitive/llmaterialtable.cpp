@@ -559,6 +559,23 @@ LLUUID LLMaterialTable::getCollisionSoundUUID(U8 mcode, U8 mcode2)
 	}
 }
 
+bool LLMaterialTable::isCollisionSound(const LLUUID &uuid)
+{
+	for (U8 i = 0; i < LL_MCODE_END; i++)
+	{
+		for (U8 j = 0; j < LL_MCODE_END; j++)
+		{
+			i &= LL_MCODE_MASK;
+			j &= LL_MCODE_MASK;
+			if (mCollisionSoundMatrix[i * LL_MCODE_END + j] == uuid)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 LLUUID LLMaterialTable::getSlidingSoundUUID(U8 mcode, U8 mcode2)
 {	
 	mcode &= LL_MCODE_MASK;

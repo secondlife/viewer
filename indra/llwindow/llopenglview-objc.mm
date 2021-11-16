@@ -494,7 +494,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers);
+
+    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, [[theEvent characters] characterAtIndex:0]);
     unichar ch;
     if (acceptsText &&
         !mMarkedTextAllowed &&
@@ -537,7 +538,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (mModifiers & mask)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
-        callKeyDown(&eventData, [theEvent keyCode], 0);
+        callKeyDown(&eventData, [theEvent keyCode], 0, [[theEvent characters] characterAtIndex:0]);
     }
     else
     {

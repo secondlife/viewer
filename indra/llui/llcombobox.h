@@ -44,7 +44,9 @@ class LLFontGL;
 class LLViewBorder;
 
 class LLComboBox
-:	public LLUICtrl, public LLCtrlListInterface
+: public LLUICtrl
+, public LLCtrlListInterface
+, public ll::ui::SearchableControl
 {
 public:	
 	typedef enum e_preferred_position
@@ -99,6 +101,9 @@ protected:
 	LLComboBox(const Params&);
 	void	initFromParams(const Params&);
 	void	prearrangeList(std::string filter = "");
+
+    virtual std::string _getSearchText() const;
+    virtual void onSetHighlight() const;
 
 public:
 	// LLView interface

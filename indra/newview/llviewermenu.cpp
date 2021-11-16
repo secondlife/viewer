@@ -360,11 +360,21 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 void LLMenuParcelObserver::changed()
 {
 	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
-	
-	BOOL buyable = enable_buy_land(NULL);
-	gMenuHolder->childSetEnabled("Land Buy", buyable);
-	gMenuHolder->childSetEnabled("Buy Land...", buyable);
+    if (gMenuLand && parcel)
+    {
+        LLView* child = gMenuLand->findChild<LLView>("Land Buy Pass");
+        if (child)
+        {
+            child->setEnabled(LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID() == gAgent.getID()));
+        }
+
+        child = gMenuLand->findChild<LLView>("Land Buy");
+        if (child)
+        {
+            BOOL buyable = enable_buy_land(NULL);
+            child->setEnabled(buyable);
+        }
+    }
 }
 
 
@@ -7280,7 +7290,7 @@ namespace
 	};
 }
 
-void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
+bool queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 {
 	QueueObjects func(q);
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();
@@ -7302,6 +7312,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 		{
 			LL_ERRS() << "Bad logic." << LL_ENDL;
 		}
+		q->closeFloater();
 	}
 	else
 	{
@@ -7310,6 +7321,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 			LL_WARNS() << "Unexpected script compile failure." << LL_ENDL;
 		}
 	}
+	return !fail;
 }
 
 class LLToolsSelectedScriptAction : public view_listener_t
@@ -7357,8 +7369,10 @@ class LLToolsSelectedScriptAction : public view_listener_t
 		if (queue)
 		{
 			queue->setMono(mono);
-			queue_actions(queue, msg);
-			queue->setTitle(title);
+			if (queue_actions(queue, msg))
+			{
+				queue->setTitle(title);
+			}			
 		}
 		else
 		{
@@ -8552,7 +8566,7 @@ class LLEditEnableTakeOff : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		std::string clothing = userdata.asString();
-		LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
+		LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(clothing);
 		if (type >= LLWearableType::WT_SHAPE && type < LLWearableType::WT_COUNT)
 			return LLAgentWearables::selfHasWearable(type);
 		return false;
@@ -8568,7 +8582,7 @@ class LLEditTakeOff : public view_listener_t
 			LLAppearanceMgr::instance().removeAllClothesFromAvatar();
 		else
 		{
-			LLWearableType::EType type = LLWearableType::typeNameToType(clothing);
+			LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(clothing);
 			if (type >= LLWearableType::WT_SHAPE 
 				&& type < LLWearableType::WT_COUNT
 				&& (gAgentWearables.getWearableCount(type) > 0))
