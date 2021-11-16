@@ -107,10 +107,14 @@ static bool handleRenderAvatarMouselookChanged(const LLSD& newvalue)
 
 static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
-	F32 draw_distance = (F32) newvalue.asReal();
-	gAgentCamera.mDrawDistance = draw_distance;
-	LLWorld::getInstance()->setLandFarClip(draw_distance);
-	return true;
+    if (LLStartUp::getStartupState() >= STATE_STARTED)
+    {
+        F32 draw_distance = (F32)newvalue.asReal();
+        gAgentCamera.mDrawDistance = draw_distance;
+        LLWorld::getInstance()->setLandFarClip(draw_distance);
+        return true;
+    }
+    return false;
 }
 
 static bool handleTerrainDetailChanged(const LLSD& newvalue)
