@@ -81,7 +81,7 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_RELEASE
       "${OG_CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
       CACHE STRING "C++ compiler release options" FORCE)
-	  
+  
   # zlib has assembly-language object files incompatible with SAFESEH
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
 
