@@ -1373,7 +1373,8 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
     LLVector4a* buffer_normals = buffer_positions + size_vertices;
     LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
-    U16* buffer_indices = (U16*)ll_aligned_malloc_16(U16_MAX * sizeof(U16));
+    S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
+    U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
     S32* old_to_new_positions_map = new S32[size_vertices];
 
     S32 buf_positions_copied = 0;
