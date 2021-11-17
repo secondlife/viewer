@@ -418,7 +418,9 @@ std::string get_string(IDxDiagContainer *containerp, WCHAR *wszPropName)
     WCHAR wszPropValue[256];
 	get_wstring(containerp, wszPropName, wszPropValue, 256);
 
-	return utf16str_to_utf8str(wszPropValue);
+	auto propvalue = ll_convert<std::string>(wszPropValue);
+
+	return propvalue;
 }
 
 
@@ -999,7 +1001,7 @@ LLSD LLDXHardware::getDisplayInfo()
 
 		// Dump the string as an int into the structure
 		char *stopstring;
-		ret["VRAM"] = strtol(ram_str.c_str(), &stopstring, 10);
+		ret["VRAM"] = (int)strtol(ram_str.c_str(), &stopstring, 10);
 		std::string device_name = get_string(device_containerp, L"szDescription");
 		ret["DeviceName"] = device_name;
 		std::string device_driver=  get_string(device_containerp, L"szDriverVersion");
@@ -1027,7 +1029,9 @@ LLSD LLDXHardware::getDisplayInfo()
                     // print the value
                     // windows doesn't guarantee to be null terminated
                     release_version[RV_SIZE - 1] = NULL;
-                    ret["DriverVersion"] = utf16str_to_utf8str(release_version);
+                    auto srelease_version = ll_convert<std::string>(release_version);
+
+                    ret["DriverVersion"] = srelease_version;
 
                 }
                 RegCloseKey(hKey);

@@ -4684,11 +4684,7 @@ void LLViewerWindow::saveImageLocal(LLImageFormatted *image, const snapshot_save
 	}
 
 // Check if there is enough free space to save snapshot
-#ifdef LL_WINDOWS
-	boost::filesystem::path b_path(utf8str_to_utf16str(lastSnapshotDir));
-#else
 	boost::filesystem::path b_path(lastSnapshotDir);
-#endif
 	if (!boost::filesystem::is_directory(b_path))
 	{
 		LLSD args;

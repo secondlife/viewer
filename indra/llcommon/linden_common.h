@@ -53,6 +53,10 @@
 #include <iosfwd>
 #include <memory>
 
+#if defined(LL_WINDOWS) && defined(__clang__)
+#include <immintrin.h>
+#endif
+
 // Linden only libs in alpha-order other than stdtypes.h
 // *NOTE: Please keep includes here to a minimum, see above.
 #include "stdtypes.h"

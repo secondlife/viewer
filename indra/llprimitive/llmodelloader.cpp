@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#include <immintrin.h>
 #include "llmodelloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"

@@ -189,21 +189,15 @@ LLSD LLCrashLock::getProcessList()
 //static
 bool LLCrashLock::fileExists(std::string filename)
 {
-#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-	boost::filesystem::path file_path(utf8str_to_utf16str(filename));
-#else
 	boost::filesystem::path file_path(filename);
-#endif
+
 	return boost::filesystem::exists(file_path);
 }
 
 void LLCrashLock::cleanupProcess(std::string proc_dir)
 {
-#ifdef LL_WINDOWS // or BOOST_WINDOWS_API
-	boost::filesystem::path dir_path(utf8str_to_utf16str(proc_dir));
-#else
 	boost::filesystem::path dir_path(proc_dir);
-#endif
+
 	boost::filesystem::remove_all(dir_path);
 }
 

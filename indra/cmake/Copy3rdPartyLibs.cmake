@@ -104,6 +104,8 @@ if(WINDOWS)
         set(MSVC_VER 120)
     elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
         set(MSVC_VER 140)
+    elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019 16.11 (_MSC_VER = 1929)
+        set(MSVC_VER 140)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
     endif (MSVC80)

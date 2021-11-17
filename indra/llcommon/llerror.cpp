@@ -74,11 +74,12 @@ namespace {
 		//
 		if (IsDebuggerPresent())
 		{
-			// Need UTF16 for Unicode OutputDebugString
+			// Need std::wstring for Unicode OutputDebugStringW(..)
 			//
 			if (s.size())
 			{
-				OutputDebugString(utf8str_to_utf16str(s).c_str());
+                auto wstr {ll_convert<std::wstring>(s)};
+				OutputDebugString(wstr.c_str());
 				OutputDebugString(TEXT("\n"));
 			}
 		}

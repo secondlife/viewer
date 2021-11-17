@@ -756,17 +756,15 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
     {
         if (display_index >= 0)
         {
-            // CHAR DeviceName  [ 32] Adapter name
-            // CHAR DeviceString[128]
             CHAR text[256];
 
             size_t name_len = strlen(display_device.DeviceName  );
             size_t desc_len = strlen(display_device.DeviceString);
 
-            CHAR *name = name_len ? display_device.DeviceName   : "???";
-            CHAR *desc = desc_len ? display_device.DeviceString : "???";
+            std::string name = ((name_len > 0) ? display_device.DeviceName : "???");
+            std::string desc = ((desc_len > 0) ? display_device.DeviceString : "???");
 
-            sprintf(text, "Display Device %d: %s, %s", display_index, name, desc);
+            sprintf(text, "Display Device %d: %s, %s", display_index, name.c_str(), desc.c_str());
             LL_INFOS("Window") << text << LL_ENDL;
         }
 
@@ -3130,7 +3128,6 @@ BOOL LLWindowWin32::pasteTextFromClipboard(LLWString &dst)
 				WCHAR *utf16str = (WCHAR*) GlobalLock(h_data);
 				if (utf16str)
 				{
-					dst = utf16str_to_wstring(utf16str);
 					LLWStringUtil::removeWindowsCR(dst);
 					GlobalUnlock(h_data);
 					success = TRUE;
@@ -3623,9 +3620,7 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 	// replaced ShellExecute code with ShellExecuteEx since ShellExecute doesn't work
 	// reliablly on Vista.
 
-	// this is madness.. no, this is..
-	LLWString url_wstring = utf8str_to_wstring( escaped_url );
-	llutf16string url_utf16 = wstring_to_utf16str( url_wstring );
+	std::wstring wescaped_url = ll_convert<std::wstring>(escaped_url);
 
 	// let the OS decide what to use to open the URL
 	SHELLEXECUTEINFO sei = { sizeof( sei ) };
@@ -3635,9 +3630,10 @@ void LLWindowWin32::spawnWebBrowser(const std::string& escaped_url, bool async)
 	{
 		sei.fMask = SEE_MASK_ASYNCOK;
 	}
+
 	sei.nShow = SW_SHOWNORMAL;
 	sei.lpVerb = L"open";
-	sei.lpFile = url_utf16.c_str();
+    sei.lpFile = wescaped_url.c_str();
 	ShellExecuteEx( &sei );
 }
 
@@ -3988,7 +3984,8 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			size = LLWinImm::getCompositionString(himc, GCS_RESULTSTR, data, size);
 			if (size > 0)
 			{
-				result_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+                auto wdata = std::wstring(data, size / sizeof(WCHAR));
+				result_string = ll_convert<LLWString>(wdata);
 			}
 			delete[] data;
 			needs_update = TRUE;
@@ -4004,8 +4001,8 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 			size = LLWinImm::getCompositionString(himc, GCS_COMPSTR, data, size);
 			if (size > 0)
 			{
-				preedit_string_utf16_length = size / sizeof(WCHAR);
-				preedit_string = utf16str_to_wstring(llutf16string(data, size / sizeof(WCHAR)));
+                auto wdata = std::wstring(data, size / sizeof(WCHAR));
+                preedit_string = ll_convert<LLWString>(wdata);
 			}
 			delete[] data;
 			needs_update = TRUE;

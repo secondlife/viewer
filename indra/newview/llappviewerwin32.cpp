@@ -252,7 +252,8 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 	NvAPI_UnicodeString profile_name;
 	std::string app_name = LLTrans::getString("APP_NAME");
 	llutf16string w_app_name = utf8str_to_utf16str(app_name);
-	wsprintf(profile_name, L"%s", w_app_name.c_str());
+	wsprintf((wchar_t*)profile_name, L"%s", w_app_name.c_str());
+
 	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, profile_name);
 	if (status != NVAPI_OK)
 	{
@@ -488,7 +489,9 @@ void LLAppViewerWin32::disableWinErrorReporting()
 {
 	std::string executable_name = gDirUtilp->getExecutableFilename();
 
-	if( S_OK == WerAddExcludedApplication( utf8str_to_utf16str(executable_name).c_str(), FALSE ) )
+	auto wexecutable_name = ll_convert<std::wstring>(executable_name);
+
+	if( S_OK == WerAddExcludedApplication( wexecutable_name.c_str(), FALSE ) )
 	{
 		LL_INFOS() << "WerAddExcludedApplication() succeeded for " << executable_name << LL_ENDL;
 	}

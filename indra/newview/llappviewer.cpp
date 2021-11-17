@@ -3120,7 +3120,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	LLSD info;
 	auto& versionInfo(LLVersionInfo::instance());
 	info["VIEWER_VERSION"] = LLSDArray(versionInfo.getMajor())(versionInfo.getMinor())(versionInfo.getPatch())(versionInfo.getBuild());
-	info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
+    info["VIEWER_VERSION_STR"] = versionInfo.getVersion();
 	info["CHANNEL"] = versionInfo.getChannel();
     info["ADDRESS_SIZE"] = ADDRESS_SIZE;
     std::string build_config = versionInfo.getBuildConfig();
@@ -4158,8 +4158,9 @@ void dumpVFSCaches()
 	{
 		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
 	}
-	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
-	gStaticVFS->dumpFiles();
+    auto svd_dir_name = ll_convert<std::wstring>("StaticVFSDump");
+    SetCurrentDirectory(svd_dir_name.c_str());
+    gStaticVFS->dumpFiles();
 	SetCurrentDirectory(w_str);
 #endif
 
@@ -4172,7 +4173,9 @@ void dumpVFSCaches()
 	{
 		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
 	}
-	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
+
+	auto vfsd_dir_name = ll_convert<std::wstring>("VFSDump");
+    SetCurrentDirectory(vfsd_dir_name.c_str());
 	gVFS->dumpFiles();
 	SetCurrentDirectory(w_str);
 #endif

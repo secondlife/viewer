@@ -144,7 +144,7 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
     // Capable of detecting devices like Oculus Rift
     if (device_instance_ptr)
     {
-        std::string product_name = utf16str_to_utf8str(llutf16string(device_instance_ptr->tszProductName));
+        std::string product_name = ll_convert<std::string>(device_instance_ptr->tszProductName);
 
         LLSD guid = LLViewerJoystick::getInstance()->getDeviceUUID();
 
@@ -195,8 +195,11 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
                 LLSD::Binary data; //just an std::vector
                 data.resize(size);
                 memcpy(&data[0], &device_instance_ptr->guidInstance /*POD _GUID*/, size);
-                LLViewerJoystick::getInstance()->initDevice(&device, product_name, LLSD(data));
-                return DIENUM_STOP;
+
+				LLSD sd = LLSD(data);
+                LLViewerJoystick::getInstance()->initDevice(&device, product_name, sd);
+                
+				return DIENUM_STOP;
             }
         }
         else
@@ -211,7 +214,9 @@ BOOL CALLBACK di8_devices_callback(LPCDIDEVICEINSTANCE device_instance_ptr, LPVO
 // This is GUID2 so teoretically it can be memcpy copied into LLUUID
 void guid_from_string(GUID &guid, const std::string &input)
 {
-    CLSIDFromString(utf8str_to_utf16str(input).c_str(), &guid);
+    auto winput = ll_convert<std::wstring>(input);
+
+    CLSIDFromString(winput.c_str(), &guid);
 }
 
 std::string string_from_guid(const GUID &guid)
@@ -220,8 +225,8 @@ std::string string_from_guid(const GUID &guid)
     StringFromCLSID(guid, &guidString);
 
     // use guidString...
+	std::string res = ll_convert<std::string>(guidString);
 
-    std::string res = utf16str_to_utf8str(llutf16string(guidString));
     // ensure memory is freed
     ::CoTaskMemFree(guidString);
 

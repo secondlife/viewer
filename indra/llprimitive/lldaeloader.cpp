@@ -28,6 +28,8 @@
 #pragma warning (disable : 4263)
 #pragma warning (disable : 4264)
 #endif
+#include <immintrin.h>
+
 #include "dae.h"
 #include "dom/domAsset.h"
 #include "dom/domBind_material.h"
