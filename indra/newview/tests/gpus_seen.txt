@@ -1954,8 +1954,8 @@ Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Desktop x86/MM
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Mobile
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2
 Intel Open Source Technology Center Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2
-Intel Open Source Technology Center Mesa DRI Mobile Intelå¨ GM45 Express Chipset
-Intel Open Source Technology Center Mesa DRI Mobile Intelå¨ GM45 Express Chipset x86/MMX/SSE2
+Intel Open Source Technology Center Mesa DRI Mobile Intel(R) GM45 Express Chipset
+Intel Open Source Technology Center Mesa DRI Mobile Intel(R) GM45 Express Chipset x86/MMX/SSE2
 Intel Pineview
 Intel Q45/Q43
 Intel Royal BNA Driver
@@ -4079,12 +4079,12 @@ Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile GEM 20100330 DEVELOP
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Mobile x86/MMX/SSE2
 Tungsten Graphics, Inc Mesa DRI Intel(R) Sandybridge Server
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20091221 2009Q4
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20091221 2009Q4 x86/MMX/SSE2
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset GEM 20100330 DEVELOPMENT x86/MMX/SSE2
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset x86/MMX/SSE2
-Tungsten Graphics, Inc Mesa DRI Mobile Intelå¨ GM45 Express Chipset x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20091221 2009Q4
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20091221 2009Q4 x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset GEM 20100330 DEVELOPMENT x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset x86/MMX/SSE2
+Tungsten Graphics, Inc Mesa DRI Mobile Intel(R) GM45 Express Chipset x86/MMX/SSE2
 Tungsten Graphics, Inc. Mesa DRI R100 (RS200 4437) x86/MMX/SSE2 NO-TCL DRI2
 Tungsten Graphics, Inc. Mesa DRI R100 (RV200 4C57)  TCL DRI2
 Tungsten Graphics, Inc. Mesa DRI R100 (RV200 4C57) x86/MMX/SSE2 TCL DRI2

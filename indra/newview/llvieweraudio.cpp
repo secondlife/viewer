@@ -81,7 +81,7 @@ void LLViewerAudio::registerIdleListener()
 	}
 }
 
-void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
+void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI)
 {
     LL_DEBUGS("AudioEngine") << "Start with outo fade: " << streamURI << LL_ENDL;
 

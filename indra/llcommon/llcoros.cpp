@@ -135,6 +135,13 @@ LLCoros::LLCoros():
 
 LLCoros::~LLCoros()
 {
+}
+
+void LLCoros::cleanupSingleton()
+{
+    // Some of the coroutines (like voice) will depend onto
+    // origin singletons, so clean coros before deleting those
+
     printActiveCoroutines("at entry to ~LLCoros()");
     // Other LLApp status-change listeners do things like close
     // work queues and inject the Stop exception into pending
@@ -150,6 +157,8 @@ LLCoros::~LLCoros()
     {
         // don't use llcoro::suspend() because that module depends
         // on this one
+        // This will yield current(main) thread and will let active
+        // corutines run once
         boost::this_fiber::yield();
     }
     printActiveCoroutines("after pumping");

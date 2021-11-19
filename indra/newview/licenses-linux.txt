@@ -638,7 +638,7 @@ Vivox SDK License
 
 RSA Data Security, Inc. MD5 Message-Digest Algorithm 
 
-Audio coding: Polycom¨ Siren14TM (ITU-T Rec. G.722.1 Annex C) 
+Audio coding: Polycom(R) Siren14TM (ITU-T Rec. G.722.1 Annex C) 
 
 Open Source Software Licensing 
 Each open source software component utilized by this product is subject to its own copyright and licensing terms, as listed below. 

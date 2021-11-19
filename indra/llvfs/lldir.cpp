@@ -337,6 +337,11 @@ const std::string &LLDir::getDumpDir() const
 	return LLDir::sDumpDir;
 }
 
+bool LLDir::dumpDirExists() const
+{
+    return !sDumpDir.empty();
+}
+
 const std::string &LLDir::getPerAccountChatLogsDir() const
 {
 	return mPerAccountChatLogsDir;
@@ -886,6 +891,11 @@ std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
 		}
 	}
 	return name;
+}
+
+std::string LLDir::getDumpLogsDirPath(const std::string &file_name)
+{
+    return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "dump_logs", file_name);
 }
 
 // static

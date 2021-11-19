@@ -460,8 +460,9 @@ BOOL LLToolPie::useClickAction(MASK mask,
 			&& object
 			&& !object->isAttachment() 
 			&& LLPrimitive::isPrimitive(object->getPCode())
-			&& (object->getClickAction() 
-				|| parent->getClickAction());
+				// useClickAction does not handle Touch (0) or Disabled action
+			&& ((object->getClickAction() && object->getClickAction() != CLICK_ACTION_DISABLED)
+				|| (parent && parent->getClickAction() && parent->getClickAction() != CLICK_ACTION_DISABLED));
 
 }
 
@@ -472,18 +473,18 @@ U8 final_click_action(LLViewerObject* obj)
 
 	U8 click_action = CLICK_ACTION_TOUCH;
 	LLViewerObject* parent = obj->getRootEdit();
-	if (obj->getClickAction()
-	    || (parent && parent->getClickAction()))
-	{
-		if (obj->getClickAction())
-		{
-			click_action = obj->getClickAction();
-		}
-		else if (parent && parent->getClickAction())
-		{
-			click_action = parent->getClickAction();
-		}
-	}
+    U8 object_action = obj->getClickAction();
+    U8 parent_action = parent ? parent->getClickAction() : CLICK_ACTION_TOUCH;
+    if (parent_action == CLICK_ACTION_DISABLED || object_action)
+    {
+        // CLICK_ACTION_DISABLED ("None" in UI) is intended for child action to
+        // override parent's action when assigned to parent or to child
+        click_action = object_action;
+    }
+    else if (parent_action)
+    {
+        click_action = parent_action;
+    }
 	return click_action;
 }
 
@@ -657,9 +658,10 @@ bool LLToolPie::teleportToClickedLocation()
     bool is_land = mHoverPick.mPickType == LLPickInfo::PICK_LAND;
     bool pos_non_zero = !mHoverPick.mPosGlobal.isExactlyZero();
     bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-    bool has_click_action = final_click_action(objp);
+    U8 click_action = final_click_action(objp); // default action: 0 - touch
+    bool has_click_action = (click_action || has_touch_handler) && click_action != CLICK_ACTION_DISABLED;
 
-    if (pos_non_zero && (is_land || (is_in_world && !has_touch_handler && !has_click_action)))
+    if (pos_non_zero && (is_land || (is_in_world && !has_click_action)))
     {
         LLVector3d pos = mHoverPick.mPosGlobal;
         pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
@@ -790,7 +792,8 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
 		else if ((!object || !object->isAttachment() || object->getClickAction() != CLICK_ACTION_DISABLED)
-				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch())))
+				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch()))
+				 && (!object || !object->isAvatar()))
 		{
 			show_highlight = true;
 			gViewerWindow->setCursor(UI_CURSOR_HAND);
@@ -1094,8 +1097,6 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				final_name = LLTrans::getString("TooltipPerson");;
 			}
 
-			// *HACK: We may select this object, so pretend it was clicked
-			mPick = mHoverPick;
 			LLInspector::Params p;
 			p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 			p.message(final_name);
@@ -1207,8 +1208,6 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			
 			if (show_all_object_tips || needs_tip)
 			{
-				// We may select this object, so pretend it was clicked
-				mPick = mHoverPick;
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(tooltip_msg);

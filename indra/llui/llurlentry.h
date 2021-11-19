@@ -105,7 +105,7 @@ public:
 
 	bool isLinkDisabled() const;
 
-	bool isWikiLinkCorrect(std::string url);
+	bool isWikiLinkCorrect(const std::string &url) const;
 
 	virtual bool isSLURLvalid(const std::string &url) const { return TRUE; };
 
