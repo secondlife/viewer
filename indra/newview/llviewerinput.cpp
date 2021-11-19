@@ -967,8 +967,8 @@ REGISTER_KEYBOARD_ACTION("toggle_pause_media", toggle_pause_media);
 REGISTER_KEYBOARD_ACTION("toggle_enable_media", toggle_enable_media);
 REGISTER_KEYBOARD_ACTION("teleport_to", teleport_to);
 REGISTER_KEYBOARD_ACTION("walk_to", walk_to);
-REGISTER_KEYBOARD_ACTION("toggle_voice", toggle_voice);
-REGISTER_KEYBOARD_ACTION("voice_follow_key", voice_follow_key);
+REGISTER_KEYBOARD_GLOBAL_ACTION("toggle_voice", toggle_voice);
+REGISTER_KEYBOARD_GLOBAL_ACTION("voice_follow_key", voice_follow_key);
 REGISTER_KEYBOARD_ACTION(script_mouse_handler_name, script_trigger_lbutton);
 #undef REGISTER_KEYBOARD_ACTION
 
