@@ -75,7 +75,7 @@ public:
 	void setLandingTab(LLUICtrl* tab) { mLandingTab = tab; }
 
 protected:
-	void updateButtons();
+    void updateButtons(bool force_update = false);
 	LLButton* createButton(const LLPointer<LLViewerInventoryItem> item, const LLButton::Params& button_params, S32 x_offset );
 	const LLButton::Params& getButtonParams();
 	BOOL collectFavoriteItems(LLInventoryModel::item_array_t &items);

@@ -54,7 +54,6 @@
 #include "llslurl.h"
 #include "llrender.h"
 
-#include "llvoiceclient.h"	// for push-to-talk button handling
 #include "stringize.h"
 
 //
@@ -1057,6 +1056,9 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window, LLCoordGL pos, MASK m
 	x = ll_round((F32)x / mDisplayScale.mV[VX]);
 	y = ll_round((F32)y / mDisplayScale.mV[VY]);
 
+    // Handle non-consuming global keybindings, like voice 
+    gViewerInput.handleGlobalBindsMouse(clicktype, mask, down);
+
 	// only send mouse clicks to UI if UI is visible
 	if(gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
 	{	
@@ -1577,6 +1579,10 @@ void LLViewerWindow::handleFocusLost(LLWindow *window)
 
 BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 {
+    // Handle non-consuming global keybindings, like voice 
+    // Never affects event processing.
+    gViewerInput.handleGlobalBindsKeyDown(key, mask);
+
 	if (gAwayTimer.getElapsedTimeF32() > LLAgent::MIN_AFK_TIME)
 	{
 		gAgent.clearAFK();
@@ -1601,6 +1607,10 @@ BOOL LLViewerWindow::handleTranslatedKeyDown(KEY key,  MASK mask, BOOL repeated)
 
 BOOL LLViewerWindow::handleTranslatedKeyUp(KEY key,  MASK mask)
 {
+    // Handle non-consuming global keybindings, like voice 
+    // Never affects event processing.
+    gViewerInput.handleGlobalBindsKeyUp(key, mask);
+
 	// Let the inspect tool code check for ALT key to set LLToolSelectRect active instead LLToolCamera
 	LLToolCompInspect * tool_inspectp = LLToolCompInspect::getInstance();
 	if (LLToolMgr::getInstance()->getCurrentTool() == tool_inspectp)

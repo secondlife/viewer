@@ -283,35 +283,16 @@ void MediaPluginLibVLC::playMedia()
 		return;
 	}
 
+	// A new call to play the media is received after the initial one. Typically
+	// this is due to a size change request either as the media naturally resizes
+	// to the size of the prim container, or else, as a 2D window is resized by the
+	// user.  Stopping the media, helps avoid a race condition where the media pixel
+	// buffer size is out of sync with the declared size (width/height) for a frame
+	// or two and the plugin crashes as VLC tries to decode a frame into unallocated
+	// memory.
 	if (mLibVLCMediaPlayer)
 	{
-		// stop listening to events while we reset things
-		libvlc_event_manager_t* em = libvlc_media_player_event_manager(mLibVLCMediaPlayer);
-		if (em)
-		{
-			libvlc_event_detach(em, libvlc_MediaPlayerOpening, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerPlaying, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerPaused, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerStopped, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerEndReached, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerEncounteredError, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerTimeChanged, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerPositionChanged, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerLengthChanged, eventCallbacks, NULL);
-			libvlc_event_detach(em, libvlc_MediaPlayerTitleChanged, eventCallbacks, NULL);
-		};
-
 		libvlc_media_player_stop(mLibVLCMediaPlayer);
-		libvlc_media_player_release(mLibVLCMediaPlayer);
-
-		mLibVLCMediaPlayer = 0;
-	}
-
-	if (mLibVLCMedia)
-	{
-		libvlc_media_release(mLibVLCMedia);
-
-		mLibVLCMedia = 0;
 	}
 
 	mLibVLCMedia = libvlc_media_new_location(mLibVLC, mURL.c_str());
@@ -345,6 +326,9 @@ void MediaPluginLibVLC::playMedia()
 		libvlc_event_attach(em, libvlc_MediaPlayerTitleChanged, eventCallbacks, this);
 	}
 
+	libvlc_video_set_callbacks(mLibVLCMediaPlayer, lock, unlock, display, &mLibVLCCallbackContext);
+	libvlc_video_set_format(mLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
+
 	mLibVLCCallbackContext.parent = this;
 	mLibVLCCallbackContext.texture_pixels = mPixels;
 	mLibVLCCallbackContext.mp = mLibVLCMediaPlayer;
@@ -366,14 +350,11 @@ void MediaPluginLibVLC::playMedia()
 
 	setStatus(STATUS_LOADED);
 
-	libvlc_video_set_callbacks(mLibVLCMediaPlayer, lock, unlock, display, &mLibVLCCallbackContext);
-	libvlc_video_set_format(mLibVLCMediaPlayer, "RV32", mWidth, mHeight, mWidth * mDepth);
-
 	// note this relies on the "set_loop" message arriving before the "start" (play) one
 	// but that appears to always be the case
 	if (mIsLooping)
 	{
-		libvlc_media_add_option(mLibVLCMedia, "input-repeat=-1");
+		libvlc_media_add_option(mLibVLCMedia, "input-repeat=65535");
 	}
 
 	libvlc_media_player_play(mLibVLCMediaPlayer);

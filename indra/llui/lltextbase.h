@@ -701,7 +701,7 @@ protected:
 	bool						mPlainText;			// didn't use Image or Icon segments
 	bool						mAutoIndent;
 	S32							mMaxTextByteLength;	// Maximum length mText is allowed to be in bytes
-
+	bool						mSkipTripleClick;
 	bool						mSkipLinkUnderline;
 
 	// support widgets

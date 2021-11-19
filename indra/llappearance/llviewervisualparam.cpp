@@ -70,7 +70,7 @@ BOOL LLViewerVisualParamInfo::parseXml(LLXmlTreeNode *node)
 	static LLStdStringHandle wearable_string = LLXmlTree::addAttributeString("wearable");
 	if( node->getFastAttributeString( wearable_string, wearable) )
 	{
-		mWearableType = LLWearableType::typeNameToType( wearable );
+		mWearableType = LLWearableType::getInstance()->typeNameToType( wearable );
 	}
 
 	static LLStdStringHandle edit_group_string = LLXmlTree::addAttributeString("edit_group");
