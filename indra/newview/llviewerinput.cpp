@@ -1255,7 +1255,7 @@ BOOL LLViewerInput::bindMouse(const S32 mode, const EMouseClickType mouse, const
         return TRUE;
     }
 
-    function_t* result = LLKeyboardActionRegistry::getValue(function_name);
+    LLKeybindFunctionData* result = LLKeyboardActionRegistry::getValue(function_name);
     if (result)
     {
         function = result->mFunction;
@@ -1666,7 +1666,7 @@ bool LLViewerInput::scanMouse(EMouseClickType click, EMouseState state) const
     bool res = false;
     S32 mode = getMode();
     MASK mask = gKeyboard->currentMask(TRUE);
-    res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state);
+    res = scanMouse(mMouseBindings[mode], mMouseBindings[mode].size(), click, mask, state, false);
 
     // No user defined actions found or those actions can't handle the key/button,
     // so handle CONTROL_LBUTTON if nessesary.
