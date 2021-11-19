@@ -4854,6 +4854,20 @@ void LLAppViewer::idle()
 	LLDirPickerThread::clearDead();
 	F32 dt_raw = idle_timer.getElapsedTimeAndResetF32();
 
+	// Service the WorkQueue we use for replies from worker threads.
+	// Use function statics for the timeslice setting so we only have to fetch
+	// and convert MainWorkTime once.
+	static F32 MainWorkTimeRaw = gSavedSettings.getF32("MainWorkTime");
+	static F32Milliseconds MainWorkTimeMs(MainWorkTimeRaw);
+	// MainWorkTime is specified in fractional milliseconds, but std::chrono
+	// uses integer representations. What if we want less than a microsecond?
+	// Use nanoseconds. We're very sure we will never need to specify a
+	// MainWorkTime that would be larger than we could express in
+	// std::chrono::nanoseconds.
+	static std::chrono::nanoseconds MainWorkTimeNanoSec{
+		std::chrono::nanoseconds::rep(MainWorkTimeMs.value() * 1000000)};
+	gMainloopWork.runFor(MainWorkTimeNanoSec);
+
 	// Cap out-of-control frame times
 	// Too low because in menus, swapping, debugger, etc.
 	// Too high because idle called with no objects in view, etc.
@@ -5225,20 +5239,6 @@ void LLAppViewer::idle()
 			gAudiop->idle(max_audio_decode_time);
 		}
 	}
-
-	// Service the WorkQueue we use for replies from worker threads.
-	// Use function statics for the timeslice setting so we only have to fetch
-	// and convert MainWorkTime once.
-	static F32 MainWorkTimeRaw = gSavedSettings.getF32("MainWorkTime");
-	static F32Milliseconds MainWorkTimeMs(MainWorkTimeRaw);
-	// MainWorkTime is specified in fractional milliseconds, but std::chrono
-	// uses integer representations. What if we want less than a microsecond?
-	// Use nanoseconds. We're very sure we will never need to specify a
-	// MainWorkTime that would be larger than we could express in
-	// std::chrono::nanoseconds.
-	static std::chrono::nanoseconds MainWorkTimeNanoSec{
-		std::chrono::nanoseconds::rep(MainWorkTimeMs.value() * 1000000)};
-	gMainloopWork.runFor(MainWorkTimeNanoSec);
 
 	// Handle shutdown process, for example,
 	// wait for floaters to close, send quit message,
