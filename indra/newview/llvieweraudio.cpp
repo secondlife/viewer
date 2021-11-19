@@ -81,7 +81,7 @@ void LLViewerAudio::registerIdleListener()
 	}
 }
 
-void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
+void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI)
 {
 	// Old and new stream are identical
 	if (mNextStreamURI == streamURI)

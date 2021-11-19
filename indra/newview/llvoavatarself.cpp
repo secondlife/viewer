@@ -2036,6 +2036,7 @@ void LLVOAvatarSelf::debugBakedTextureUpload(EBakedTextureIndex index, BOOL fini
 const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const
 {
 	std::ostringstream outbuf;
+    LLWearableType *wr_inst = LLWearableType::getInstance();
 	for (LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter =
 			 sAvatarDictionary->getBakedTextures().begin();
 		 baked_iter != sAvatarDictionary->getBakedTextures().end();
@@ -2059,7 +2060,7 @@ const std::string LLVOAvatarSelf::verboseDebugDumpLocalTextureDataInfo(const LLV
 				{
 					for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 					{
-						outbuf << "    " << LLWearableType::getTypeName(wearable_type) << " " << wearable_index << ":";
+						outbuf << "    " << wr_inst->getTypeName(wearable_type) << " " << wearable_index << ":";
 						const LLLocalTextureObject *local_tex_obj = getLocalTextureObject(tex_index, wearable_index);
 						if (local_tex_obj)
 						{
@@ -2114,6 +2115,7 @@ void LLVOAvatarSelf::dumpAllTextures() const
 const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTexLayerSet* layerset) const
 {
 	std::string text="";
+    LLWearableType *wr_inst = LLWearableType::getInstance();
 
 	text = llformat("[Final:%d Avail:%d] ",isLocalTextureDataFinal(layerset), isLocalTextureDataAvailable(layerset));
 
@@ -2137,7 +2139,7 @@ const std::string LLVOAvatarSelf::debugDumpLocalTextureDataInfo(const LLViewerTe
 				const U32 wearable_count = gAgentWearables.getWearableCount(wearable_type);
 				if (wearable_count > 0)
 				{
-					text += LLWearableType::getTypeName(wearable_type) + ":";
+					text += wr_inst->getTypeName(wearable_type) + ":";
 					for (U32 wearable_index = 0; wearable_index < wearable_count; wearable_index++)
 					{
 						const U32 discard_level = getLocalDiscardLevel(tex_index, wearable_index);
@@ -2844,9 +2846,10 @@ void LLVOAvatarSelf::dumpWearableInfo(LLAPRFile& outfile)
 	apr_file_printf( file, "\n<wearable_info>\n" );
 
 	LLWearableData *wd = getWearableData();
+    LLWearableType *wr_inst = LLWearableType::getInstance();
 	for (S32 type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
-		const std::string& type_name = LLWearableType::getTypeName((LLWearableType::EType)type);
+		const std::string& type_name = wr_inst->getTypeName((LLWearableType::EType)type);
 		for (U32 j=0; j< wd->getWearableCount((LLWearableType::EType)type); j++)
 		{
 			LLViewerWearable *wearable = gAgentWearables.getViewerWearable((LLWearableType::EType)type,j);

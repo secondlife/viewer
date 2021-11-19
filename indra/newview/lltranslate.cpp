@@ -197,6 +197,11 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
 
     LLSD result = httpAdapter->getRawAndSuspend(httpRequest, url, httpOpts, httpHeaders);
 
+    if (LLApp::isQuitting())
+    {
+        return;
+    }
+
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
@@ -207,7 +212,22 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
     const LLSD::Binary &rawBody = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
     std::string body(rawBody.begin(), rawBody.end());
 
-    if (this->parseResponse(parseResult, body, translation, detected_lang, err_msg))
+    bool res = false;
+
+    try
+    {
+        res = this->parseResponse(parseResult, body, translation, detected_lang, err_msg);
+    }
+    catch (std::out_of_range&)
+    {
+        LL_WARNS() << "Out of range exception on string " << body << LL_ENDL;
+    }
+    catch (...)
+    {
+        LOG_UNHANDLED_EXCEPTION( "Exception on string " + body );
+    }
+
+    if (res)
     {
         // Fix up the response
         LLStringUtil::replaceString(translation, "&lt;", "<");
