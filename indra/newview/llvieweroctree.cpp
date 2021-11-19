@@ -1125,12 +1125,18 @@ void LLOcclusionCullingGroup::checkOcclusion()
         else
         {
             GLuint available;
-            glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+            {
+                LL_PROFILE_ZONE_NAMED("co - query available");
+                glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+            }
 
             if (available)
             {   
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)
-                glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &query_result);
+                {
+                    LL_PROFILE_ZONE_NAMED("co - query result");
+                    glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &query_result);
+                }
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
                 sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
