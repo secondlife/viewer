@@ -78,8 +78,15 @@ public:
 		mMatrix[1] = _mm_loadu_ps(src.mMatrix[1]);
 		mMatrix[2] = _mm_loadu_ps(src.mMatrix[2]);
 		mMatrix[3] = _mm_loadu_ps(src.mMatrix[3]);
-		
 	}
+    
+    inline void loadu(const F32* src)
+    {
+        mMatrix[0] = _mm_loadu_ps(src);
+        mMatrix[1] = _mm_loadu_ps(src+4);
+        mMatrix[2] = _mm_loadu_ps(src+8);
+        mMatrix[3] = _mm_loadu_ps(src+12);
+    }
 
 	inline void loadu(const LLMatrix3& src)
 	{

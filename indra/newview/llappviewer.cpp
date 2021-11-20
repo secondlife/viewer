@@ -1430,6 +1430,11 @@ bool LLAppViewer::doFrame()
 {
 	LL_RECORD_BLOCK_TIME(FTM_FRAME);
 
+    if (!LLWorld::instanceExists())
+    {
+        LLWorld::createInstance();
+    }
+
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 

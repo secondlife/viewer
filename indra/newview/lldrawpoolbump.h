@@ -57,7 +57,7 @@ public:
 	virtual void endRenderPass( S32 pass );
 	virtual S32	 getNumPasses();
 	/*virtual*/ void prerender();
-	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
+	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
 
 	void renderBump(U32 type, U32 mask);
 	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
@@ -72,7 +72,7 @@ public:
 	void renderFullbrightShiny();
 	void endFullbrightShiny();
 
-	void beginBump(U32 pass = LLRenderPass::PASS_BUMP);
+	void beginBump();
 	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
 	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
 
@@ -84,7 +84,7 @@ public:
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
-	virtual S32 getNumPostDeferredPasses() { return 2; }
+	virtual S32 getNumPostDeferredPasses() { return 4; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
@@ -94,6 +94,7 @@ public:
 
 private:
 	static BOOL bindBumpMap(U8 bump_code, LLViewerTexture* tex, F32 vsize, S32 channel);
+    bool mRigged = false; // if true, doing a rigged pass
 
 };
 

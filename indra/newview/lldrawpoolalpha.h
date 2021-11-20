@@ -65,23 +65,22 @@ public:
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	void renderAlpha(U32 mask, S32 pass);
 	void renderAlphaHighlight(U32 mask);
-		
+    bool uploadMatrixPalette(const LLDrawInfo& params);
+
 	static BOOL sShowDebugAlpha;
 
 private:
-	LLGLSLShader* current_shader;
 	LLGLSLShader* target_shader;
-	LLGLSLShader* simple_shader;
-	LLGLSLShader* fullbright_shader;	
-	LLGLSLShader* emissive_shader;
 
-    void renderFullbrights(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
-    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    // setup by beginFooPass, [0] is static variant, [1] is rigged variant
+    LLGLSLShader* simple_shader[2] = { nullptr };
+	LLGLSLShader* fullbright_shader[2] = { nullptr };
+	LLGLSLShader* emissive_shader[2] = { nullptr };
 
     void drawEmissive(U32 mask, LLDrawInfo* draw);
-    void drawEmissiveInline(U32 mask, LLDrawInfo* draw);
-
-    bool TexSetup(LLDrawInfo* draw, bool use_material, LLGLSLShader* current_shader);
+    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    void renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    bool TexSetup(LLDrawInfo* draw, bool use_material);
     void RestoreTexSetup(bool tex_setup);
 
 	// our 'normal' alpha blend function for this pass
@@ -89,6 +88,9 @@ private:
 	LLRender::eBlendFactor mColorDFactor;	
 	LLRender::eBlendFactor mAlphaSFactor;
 	LLRender::eBlendFactor mAlphaDFactor;
+
+    // if true, we're executing a rigged render pass
+    bool mRigged = false;
 };
 
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha

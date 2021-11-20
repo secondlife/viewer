@@ -29,6 +29,8 @@
 
 #include "lldrawpool.h"
 
+class LLGLSLShader;
+
 class LLDrawPoolSimple : public LLRenderPass
 {
 public:
@@ -43,18 +45,19 @@ public:
 
 	LLDrawPoolSimple();
 	
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
+    S32 getNumDeferredPasses() override;
+	void beginDeferredPass(S32 pass) override;
+	void endDeferredPass(S32 pass) override;
+	void renderDeferred(S32 pass) override;
 
-	/*virtual*/ void beginRenderPass(S32 pass);
-	/*virtual*/ void endRenderPass(S32 pass);
+	void beginRenderPass(S32 pass) override;
+	void endRenderPass(S32 pass) override;
 	/// We need two passes so we can handle emissive materials separately.
-	/*virtual*/ S32	 getNumPasses() { return 1; }
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
+    S32	 getNumPasses() override;
+	void render(S32 pass = 0) override;
+	void prerender() override;
 
+    LLGLSLShader* mShader = nullptr;
 };
 
 class LLDrawPoolGrass : public LLRenderPass
@@ -98,12 +101,12 @@ public:
 
 	LLDrawPoolAlphaMask();
 
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
+	/*virtual*/ S32 getNumDeferredPasses() { return 2; }
 	/*virtual*/ void beginDeferredPass(S32 pass);
 	/*virtual*/ void endDeferredPass(S32 pass);
 	/*virtual*/ void renderDeferred(S32 pass);
 
-	/*virtual*/ S32	 getNumPasses() { return 1; }
+	/*virtual*/ S32	 getNumPasses() { return 2; }
 	/*virtual*/ void beginRenderPass(S32 pass);
 	/*virtual*/ void endRenderPass(S32 pass);
 	/*virtual*/ void render(S32 pass = 0);
@@ -124,12 +127,12 @@ public:
 
 	LLDrawPoolFullbrightAlphaMask();
 	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ S32 getNumPostDeferredPasses() { return 2; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
 
-	/*virtual*/ S32	 getNumPasses() { return 1; }
+	/*virtual*/ S32	 getNumPasses() { return 2; }
 	/*virtual*/ void beginRenderPass(S32 pass);
 	/*virtual*/ void endRenderPass(S32 pass);
 	/*virtual*/ void render(S32 pass = 0);
@@ -150,7 +153,7 @@ public:
 
 	LLDrawPoolFullbright();
 	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ S32 getNumPostDeferredPasses() { return 2; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass);
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
@@ -179,7 +182,7 @@ public:
 
 	virtual void prerender() { }
 
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 1; }
+	/*virtual*/ S32 getNumPostDeferredPasses() { return 2; }
 	/*virtual*/ void beginPostDeferredPass(S32 pass); 
 	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);

@@ -49,6 +49,7 @@ public:
 	LLMeshSkinInfo(LLSD& data);
 	void fromLLSD(LLSD& data);
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
+    void updateHash();
 
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
@@ -58,10 +59,12 @@ public:
 	matrix_list_t mAlternateBindMatrix;
 
 	LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
+
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
     bool mJointNumsInitialized;
+    U64 mHash = 0;
 } LL_ALIGN_POSTFIX(16);
 
 LL_ALIGN_PREFIX(16)

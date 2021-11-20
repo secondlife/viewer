@@ -1,8 +1,9 @@
 /** 
- * @file diffuseSkinnedV.glsl
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * @file debugSkinnedV.glsl
+ *
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,37 +24,18 @@
  */
 
 uniform mat4 projection_matrix;
-uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
-
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
-
-VARYING vec3 vary_normal;
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
 
 mat4 getObjectSkinnedTransform();
 
+ATTRIBUTE vec3 position;
+
 void main()
 {
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-		
-	mat4 mat = getObjectSkinnedTransform();
-	
-	mat = modelview_matrix * mat;
-	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
-	
-	vec4 norm = vec4(position.xyz, 1.0);
-	norm.xyz += normal.xyz;
-	norm.xyz = (mat*norm).xyz;
-	norm.xyz = normalize(norm.xyz-pos.xyz);
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 
-	vary_normal = norm.xyz;
-			
-	vertex_color = diffuse_color;
-	
-	gl_Position = projection_matrix*vec4(pos, 1.0);
+    gl_Position = projection_matrix*vec4(pos, 1.0);
 }
+

@@ -8649,28 +8649,6 @@
     </array>
   </map>
 
-    <key>RenderAlphaBatchFullbrights</key>
-    <map>
-      <key>Comment</key>
-      <string>Render fullbright alpha content more efficiently, but with possible visual differences from prev viewers.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderAlphaBatchEmissives</key>
-    <map>
-      <key>Comment</key>
-      <string>Render emissive alpha content more efficiently, but with possible visual differences from prev viewers.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
@@ -10145,7 +10123,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>512</integer>
+      <integer>4096</integer>
     </map>
     <key>RenderNameFadeDuration</key>
     <map>

@@ -1956,7 +1956,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		LLMeshSkinInfo info(skin);
 		info.mMeshID = mesh_id;
 
-		// LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
+        // LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
 		{
 			LLMutexLock lock(mMutex);
 			mSkinInfoQ.push_back(info);

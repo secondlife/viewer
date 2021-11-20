@@ -1,6 +1,7 @@
 /** 
- * @file shinySimpleSkinnedV.glsl
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * @file shadowSkinnedV.glsl
+ *
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
  * 
@@ -22,45 +23,30 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 projection_matrix;
-uniform mat4 texture_matrix0;
-uniform mat4 texture_matrix1;
 uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec2 texcoord0;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-VARYING vec3 vary_texcoord1;
+VARYING vec4 post_pos;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
-void calcAtmospherics(vec3 inPositionEye);
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
+	//transform vertex
 	mat4 mat = getObjectSkinnedTransform();
 	
 	mat = modelview_matrix * mat;
-	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
-	
-	vec4 norm = vec4(position.xyz, 1.0);
-	norm.xyz += normal.xyz;
-	norm.xyz = (mat*norm).xyz;
-	norm.xyz = normalize(norm.xyz-pos.xyz);
-		
-	vec3 ref = reflect(pos.xyz, -norm.xyz);
+	vec4 pos = (mat*vec4(position.xyz, 1.0));
+	pos = projection_matrix*pos;
 
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vary_texcoord1 = (texture_matrix1*vec4(ref,1.0)).xyz;
+	post_pos = pos;
 
-	calcAtmospherics(pos.xyz);
+#if !defined(DEPTH_CLAMP)
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+#else
+	gl_Position = pos;
+#endif
 
-	vec4 color = calcLighting(pos.xyz, norm.xyz, diffuse_color);
-	vertex_color = color;
-	
-	gl_Position = projection_matrix*vec4(pos, 1.0);
 }

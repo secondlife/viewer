@@ -44,12 +44,16 @@ void calcAtmospherics(vec3 inPositionEye);
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+#endif
+
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz,1.0);
-	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 
 	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
@@ -58,11 +62,23 @@ void main()
 	if (no_atmo == 1)
 	{
 		vertex_color = diffuse_color;
+        gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	}
 	else
 	{
+#ifdef HAS_SKIN
+        mat4 mat = getObjectSkinnedTransform();
+        mat = modelview_matrix * mat;
+
+        vec4 pos = mat * vert;
+        vec3 norm = normalize((mat*vec4(normal.xyz+vert.xyz,1.0)).xyz-pos.xyz);
+
+        gl_Position = projection_matrix * pos;
+#else
 		vec4 pos = (modelview_matrix * vert);
 		vec3 norm = normalize(normal_matrix * normal);
+        gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+#endif
 
 		calcAtmospherics(pos.xyz);
 
