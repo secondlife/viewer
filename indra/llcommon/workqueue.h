@@ -260,6 +260,7 @@ namespace LL
         template <typename Rep, typename Period>
         bool runFor(const std::chrono::duration<Rep, Period>& timeslice)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return runUntil(TimePoint::clock::now() + timeslice);
         }
 
@@ -431,6 +432,7 @@ namespace LL
     bool WorkQueue::postTo(weak_t target,
                            const TimePoint& time, CALLABLE&& callable, FOLLOWUP&& callback)
     {
+        LL_PROFILE_ZONE_SCOPED;
         // We're being asked to post to the WorkQueue at target.
         // target is a weak_ptr: have to lock it to check it.
         auto tptr = target.lock();
@@ -479,6 +481,7 @@ namespace LL
     template <typename CALLABLE>
     bool WorkQueue::postMaybe(weak_t target, const TimePoint& time, CALLABLE&& callable)
     {
+        LL_PROFILE_ZONE_SCOPED;
         // target is a weak_ptr: have to lock it to check it
         auto tptr = target.lock();
         if (tptr)

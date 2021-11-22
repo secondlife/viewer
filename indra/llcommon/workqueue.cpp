@@ -60,6 +60,7 @@ void LL::WorkQueue::runUntilClose()
     {
         for (;;)
         {
+            LL_PROFILE_ZONE_SCOPED;
             callWork(mQueue.pop());
         }
     }
@@ -90,6 +91,7 @@ bool LL::WorkQueue::runOne()
 
 bool LL::WorkQueue::runUntil(const TimePoint& until)
 {
+    LL_PROFILE_ZONE_SCOPED;
     // Should we subtract some slop to allow for typical Work execution time?
     // How much slop?
     Work work;
