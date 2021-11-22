@@ -48,19 +48,19 @@ public:
 	static U32 sVertexMask;
 	BOOL mShiny;
 	
-	virtual U32 getVertexDataMask() { return sVertexMask; }
+	virtual U32 getVertexDataMask() override { return sVertexMask; }
 
 	LLDrawPoolBump();
 
-	virtual void render(S32 pass = 0);
-	virtual void beginRenderPass( S32 pass );
-	virtual void endRenderPass( S32 pass );
-	virtual S32	 getNumPasses();
-	/*virtual*/ void prerender();
+	virtual void render(S32 pass = 0) override;
+	virtual void beginRenderPass( S32 pass ) override;
+	virtual void endRenderPass( S32 pass ) override;
+	virtual S32	 getNumPasses() override;
+	/*virtual*/ void prerender() override;
 	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
 
 	void renderBump(U32 type, U32 mask);
-	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture);
+	void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture) override;
 		
 	S32 numBumpPasses();
 	
@@ -79,15 +79,15 @@ public:
 	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
 	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
 
-	virtual S32 getNumDeferredPasses();
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
+	virtual S32 getNumDeferredPasses() override;
+	/*virtual*/ void beginDeferredPass(S32 pass) override;
+	/*virtual*/ void endDeferredPass(S32 pass) override;
+	/*virtual*/ void renderDeferred(S32 pass) override;
 
-	virtual S32 getNumPostDeferredPasses() { return 4; }
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
-	/*virtual*/ void renderPostDeferred(S32 pass);
+    virtual S32 getNumPostDeferredPasses() override { return 4; }
+	/*virtual*/ void beginPostDeferredPass(S32 pass) override;
+	/*virtual*/ void endPostDeferredPass(S32 pass) override;
+	/*virtual*/ void renderPostDeferred(S32 pass) override;
 
 	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
 	static BOOL bindBumpMap(LLFace* face, S32 channel = -2);
