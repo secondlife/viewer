@@ -103,12 +103,13 @@ public:
 /// LLViewerAssetStorage
 ///----------------------------------------------------------------------------
 
+S32 LLViewerAssetStorage::sAssetCoroCount = 0;
+
 // Unused?
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
                                            LLVFS *vfs, LLVFS *static_vfs, 
                                            const LLHost &upstream_host)
     : LLAssetStorage(msg, xfer, vfs, static_vfs, upstream_host),
-      mAssetCoroCount(0),
       mCountRequests(0),
       mCountStarted(0),
       mCountCompleted(0),
@@ -122,7 +123,6 @@ LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *
 LLViewerAssetStorage::LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
                                            LLVFS *vfs, LLVFS *static_vfs)
     : LLAssetStorage(msg, xfer, vfs, static_vfs),
-      mAssetCoroCount(0),
       mCountRequests(0),
       mCountStarted(0),
       mCountCompleted(0),
@@ -491,8 +491,7 @@ void LLViewerAssetStorage::assetRequestCoro(
     LLGetAssetCallback callback,
     void *user_data)
 {
-    LLScopedIncrement coro_count_boost(mAssetCoroCount);
-    mCountStarted++;
+    LLScopedIncrement coro_count_boost(sAssetCoroCount); // static counter since corotine can outlive LLViewerAssetStorage
     
     S32 result_code = LL_ERR_NOERR;
     LLExtStat ext_status = LLExtStat::NONE;
@@ -502,6 +501,9 @@ void LLViewerAssetStorage::assetRequestCoro(
         LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: asset storage no longer exists" << LL_ENDL;
         return;
     }
+
+    mCountStarted++;
+
     if (!gAgent.getRegion())
     {
         LL_WARNS_ONCE("ViewerAsset") << "Asset request fails: no region set" << LL_ENDL;
@@ -628,7 +630,7 @@ std::string LLViewerAssetStorage::getAssetURL(const std::string& cap_url, const 
 void LLViewerAssetStorage::logAssetStorageInfo()
 {
     LLMemory::logMemoryInfo(true);
-    LL_INFOS("AssetStorage") << "Active coros " << mAssetCoroCount << LL_ENDL;
+    LL_INFOS("AssetStorage") << "Active coros " << sAssetCoroCount << LL_ENDL;
     LL_INFOS("AssetStorage") << "mPendingDownloads size " << mPendingDownloads.size() << LL_ENDL;
     LL_INFOS("AssetStorage") << "mCountStarted " << mCountStarted << LL_ENDL;
     LL_INFOS("AssetStorage") << "mCountCompleted " << mCountCompleted << LL_ENDL;
