@@ -197,11 +197,9 @@ void destringize_f(std::basic_string<CHARTYPE> const & str, Functor const & f)
  * std::istringstream in(str);
  * in >> item1 >> item2 >> item3 ... ;
  * @endcode
- * @NOTE - once we get generic lambdas, we shouldn't need DEWSTRINGIZE() any
- * more since DESTRINGIZE() should do the right thing with a std::wstring. But
- * until then, the lambda we pass must accept the right std::basic_istream.
  */
-#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](std::istream& in){in >> EXPRESSION;}))
-#define DEWSTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](std::wistream& in){in >> EXPRESSION;}))
+#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](auto& in){in >> EXPRESSION;}))
+// legacy name, just use DESTRINGIZE() going forward
+#define DEWSTRINGIZE(STR, EXPRESSION) DESTRINGIZE(STR, EXPRESSION)
 
 #endif /* ! defined(LL_STRINGIZE_H) */
