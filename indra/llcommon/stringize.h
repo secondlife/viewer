@@ -53,7 +53,7 @@ void stream_to(std::basic_ostream<CHARTYPE>& out) {}
 template <typename CHARTYPE, typename T, typename... Items>
 void stream_to(std::basic_ostream<CHARTYPE>& out, T&& item, Items&&... items)
 {
-    out << std::move(item);
+    out << std::forward<T>(item);
     stream_to(out, std::forward<Items>(items)...);
 }
 
@@ -113,8 +113,8 @@ struct gstringize_impl<OUTCHAR, INCHAR*>
 template <typename CHARTYPE, typename T>
 auto gstringize(T&& item)
 {
-    // use decay<T> so we don't require separate specializations for T, const
-    // T, T&, const T& ...
+    // use decay<T> so we don't require separate specializations
+    // for T, const T, T&, const T& ...
     return gstringize_impl<CHARTYPE, std::decay_t<T>>()(std::forward<T>(item));
 }
 
