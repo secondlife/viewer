@@ -529,6 +529,13 @@ struct ll_convert_impl<T, T>
     T operator()(const T& in) const { return in; }
 };
 
+// simple construction from char*
+template<typename T>
+struct ll_convert_impl<T, const typename T::value_type*>
+{
+    T operator()(const typename T::value_type* in) const { return { in }; }
+};
+
 // specialize ll_convert_impl<TO, FROM> to return EXPR
 #define ll_convert_alias(TO, FROM, EXPR)                    \
 template<>                                                  \
