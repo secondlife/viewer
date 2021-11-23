@@ -46,6 +46,7 @@
 #include "llsdutil.h"
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
+#include "stringize.h"
 
 // System includes
 #include <commdlg.h>
@@ -55,7 +56,9 @@
 #include <shellapi.h>
 #include <fstream>
 #include <Imm.h>
+#include <iomanip>
 #include <future>
+#include <sstream>
 #include <utility>                  // std::pair
 
 // Require DirectInput version 8
@@ -79,6 +82,10 @@ const F32	ICON_FLASH_TIME = 0.5f;
 #ifndef USER_DEFAULT_SCREEN_DPI
 #define USER_DEFAULT_SCREEN_DPI 96 // Win7
 #endif
+
+// Claim a couple unused GetMessage() message IDs
+const UINT WM_DUMMY_(WM_USER + 0x0017);
+const UINT WM_POST_FUNCTION_(WM_USER + 0x0018);
 
 extern BOOL gDebugWindowProc;
 
@@ -340,12 +347,42 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
+    /// called by main thread to post work to this window thread
     template <typename CALLABLE>
     void post(CALLABLE&& func)
     {
         getQueue().post(std::forward<CALLABLE>(func));
     }
 
+    /**
+     * Like post(), Post() is a way of conveying a single work item to this
+     * thread. Its virtue is that it will definitely be executed "soon" rather
+     * than potentially waiting for the next frame: it uses PostMessage() to
+     * break us out of the window thread's blocked GetMessage() call. It's
+     * more expensive, though, not only from the Windows API latency of
+     * PostMessage() and GetMessage(), but also because it involves heap
+     * allocation and release.
+     *
+     * Require HWND from caller, even though we store an HWND locally.
+     * Otherwise, if our mWindowHandle was accessed from both threads, we'd
+     * have to protect it with a mutex.
+     */
+    template <typename CALLABLE>
+    void Post(HWND windowHandle, CALLABLE&& func)
+    {
+        // Move func to the heap. If we knew FuncType could fit into LPARAM,
+        // we could simply instantiate FuncType and pass it by value. But
+        // since we don't, we must put that on the heap as well as the
+        // internal heap allocation it likely requires to store func.
+        auto ptr = new FuncType(std::move(func));
+        WPARAM wparam{ 0xF1C };
+        LL_DEBUGS("Window") << "PostMessage(" << std::hex << windowHandle
+                            << ", " << WM_POST_FUNCTION_
+                            << ", " << wparam << std::dec << LL_ENDL;
+        PostMessage(windowHandle, WM_POST_FUNCTION_, wparam, LPARAM(ptr));
+    }
+
+    using FuncType = std::function<void()>;
     // call GetMessage() and pull enqueue messages for later processing
     void gatherInput();
     HWND mWindowHandle = NULL;
@@ -757,7 +794,7 @@ void LLWindowWin32::restore()
 // I'm turning off optimizations for this part to be sure code executes as intended
 // (it is a straw, but I have no idea why else __try can get overruled)
 #pragma optimize("", off)
-bool destroy_window_handler(HWND &hWnd)
+bool destroy_window_handler(HWND hWnd)
 {
     bool res;
     __try
@@ -1630,18 +1667,36 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     mWindowHandle = 0;
     mhDC = 0;
 
-    if (oldHandle && !destroy_window_handler(oldHandle))
-    {
-        LL_WARNS("Window") << "Failed to properly close window before recreating it!" << LL_ENDL;
-    }
-
     std::promise<std::pair<HWND, HDC>> promise;
-    mWindowThread->post(
-        [this, window_rect, dw_ex_style, dw_style, &promise]()
+    // What follows must be done on the window thread.
+    auto window_work =
+        [self=mWindowThread,
+         oldHandle,
+         // bind CreateWindowEx() parameters by value instead of
+         // back-referencing LLWindowWin32 members
+         windowClassName=mWindowClassName,
+         windowTitle=mWindowTitle,
+         hInstance=mhInstance,
+         window_rect,
+         dw_ex_style,
+         dw_style,
+         &promise]
+        ()
         {
+            LL_DEBUGS("Window") << "recreateWindow(): window_work entry" << LL_ENDL;
+            self->mWindowHandle = 0;
+            self->mhDC = 0;
+
+            // important to call DestroyWindow() from the window thread
+            if (oldHandle && !destroy_window_handler(oldHandle))
+            {
+                LL_WARNS("Window") << "Failed to properly close window before recreating it!"
+                                   << LL_ENDL;
+            }
+
             auto handle = CreateWindowEx(dw_ex_style,
-                mWindowClassName,
-                mWindowTitle,
+                windowClassName,
+                windowTitle,
                 WS_CLIPSIBLINGS | WS_CLIPCHILDREN | dw_style,
                 window_rect.left,								// x pos
                 window_rect.top,								// y pos
@@ -1649,34 +1704,44 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
                 window_rect.bottom - window_rect.top,			// height
                 NULL,
                 NULL,
-                mhInstance,
+                hInstance,
                 NULL);
 
             if (! handle)
             {
                 // Failed to create window: clear the variables. This
                 // assignment is valid because we're running on mWindowThread.
-                mWindowThread->mWindowHandle = NULL;
-                mWindowThread->mhDC = 0;
+                self->mWindowHandle = NULL;
+                self->mhDC = 0;
             }
             else
             {
                 // Update mWindowThread's own mWindowHandle and mhDC.
-                mWindowThread->mWindowHandle = handle;
-                mWindowThread->mhDC = GetDC(handle);
+                self->mWindowHandle = handle;
+                self->mhDC = GetDC(handle);
             }
                 
             // It's important to wake up the future either way.
-            promise.set_value(std::make_pair(mWindowThread->mWindowHandle, mWindowThread->mhDC));
-        }
-    );
-
-    // Having posted work to mWindowThread, bump it out of blocked
-    // GetMessage() call. Normally we could just wait for the next
-    // gatherInput() call to notice the pending work item and call
-    // kickWindowThread(), but that would be on THIS calling thread, and we're
-    // about to block this thread until we get a result from mWindowThread.
-    kickWindowThread(oldHandle);
+            promise.set_value(std::make_pair(self->mWindowHandle, self->mhDC));
+            LL_DEBUGS("Window") << "recreateWindow(): window_work done" << LL_ENDL;
+        };
+    // But how we pass window_work to the window thread depends on whether we
+    // already have a window handle.
+    if (! oldHandle)
+    {
+        // Pass window_work using the WorkQueue: without an existing window
+        // handle, the window thread can't call GetMessage().
+        LL_DEBUGS("Window") << "posting window_work to WorkQueue" << LL_ENDL;
+        mWindowThread->post(window_work);
+    }
+    else
+    {
+        // Pass window_work using PostMessage(). We can still
+        // PostMessage(oldHandle) because oldHandle won't be destroyed until
+        // the window thread has retrieved and executed window_work.
+        LL_DEBUGS("Window") << "posting window_work to message queue" << LL_ENDL;
+        mWindowThread->Post(oldHandle, window_work);
+    }
 
     auto future = promise.get_future();
     // This blocks until mWindowThread processes CreateWindowEx() and calls
@@ -2115,6 +2180,23 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 {
     ASSERT_WINDOW_THREAD();
     LL_PROFILE_ZONE_SCOPED;
+
+    LL_DEBUGS("Window") << "mainWindowProc(" << std::hex << h_wnd
+                        << ", " << u_msg
+                        << ", " << w_param << ")" << std::dec << LL_ENDL;
+
+    if (u_msg == WM_POST_FUNCTION_)
+    {
+        LL_DEBUGS("Window") << "WM_POST_FUNCTION_" << LL_ENDL;
+        // from LLWindowWin32Thread::Post()
+        // Cast l_param back to the pointer to the heap FuncType
+        // allocated by Post(). Capture in unique_ptr so we'll delete
+        // once we're done with it.
+        std::unique_ptr<LLWindowWin32Thread::FuncType>
+            ptr(reinterpret_cast<LLWindowWin32Thread::FuncType*>(l_param));
+        (*ptr)();
+        return 0;
+    }
 
     // Ignore clicks not originated in the client area, i.e. mouse-up events not preceded with a WM_LBUTTONDOWN.
     // This helps prevent avatar walking after maximizing the window by double-clicking the title bar.
@@ -4415,13 +4497,60 @@ inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
 {
 }
 
+/**
+ * LogChange is to log changes in status while trying to avoid spamming the
+ * log with repeated messages, especially in a tight loop. It refuses to log
+ * a continuous run of identical messages, but logs every time the message
+ * changes. (It will happily spam when messages quickly bounce back and
+ * forth.)
+ */
+class LogChange
+{
+public:
+    LogChange(const std::string& tag):
+        mTag(tag)
+    {}
+
+    template <typename... Items>
+    void always(Items&&... items)
+    {
+        // This odd construct ensures that the stringize() call is only
+        // executed if DEBUG logging is enabled for the passed tag.
+        LL_DEBUGS(mTag.c_str());
+        log(LL_CONT, stringize(std::forward<Items>(items)...));
+        LL_ENDL;
+    }
+
+    template <typename... Items>
+    void onChange(Items&&... items)
+    {
+        LL_DEBUGS(mTag.c_str());
+        auto str = stringize(std::forward<Items>(items)...);
+        if (str != mPrev)
+        {
+            log(LL_CONT, str);
+        }
+        LL_ENDL;
+    }
+
+private:
+    void log(std::ostream& out, const std::string& message)
+    {
+        mPrev = message;
+        out << message;
+    }
+    std::string mTag;
+    std::string mPrev;
+};
+
 void LLWindowWin32::LLWindowWin32Thread::run()
 {
     sWindowThreadId = std::this_thread::get_id();
+    LogChange logger("Window");
+
     while (! getQueue().done())
     {
         LL_PROFILE_ZONE_SCOPED;
-
 
         if (mWindowHandle != 0)
         {
@@ -4430,15 +4559,19 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             if (mhDC == 0)
             {
                 LL_PROFILE_ZONE_NAMED("w32t - PeekMessage");
+                logger.onChange("PeekMessage(", std::hex, mWindowHandle, ")");
                 status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
             }
             else
             {
                 LL_PROFILE_ZONE_NAMED("w32t - GetMessage");
+                logger.always("GetMessage(", std::hex, mWindowHandle, ")");
                 status = GetMessage(&msg, mWindowHandle, 0, 0);
             }
             if (status > 0)
             {
+                logger.always("got MSG (", std::hex, msg.hwnd, ", ", msg.message,
+                              ", ", msg.wParam, ")");
                 TranslateMessage(&msg);
                 DispatchMessage(&msg);
 
@@ -4448,6 +4581,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         {
             LL_PROFILE_ZONE_NAMED("w32t - Function Queue");
+            logger.onChange("runPending()");
             //process any pending functions
             getQueue().runPending();
         }
@@ -4455,6 +4589,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 #if 0
         {
             LL_PROFILE_ZONE_NAMED("w32t - Sleep");
+            logger.always("sleep(1)");
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
 #endif
@@ -4480,6 +4615,10 @@ void LLWindowWin32::kickWindowThread(HWND windowHandle)
         // post a nonsense user message to wake up the Window Thread in
         // case any functions are pending and no windows events came
         // through this frame
-        PostMessage(windowHandle, WM_USER + 0x0017, 0xB0B0, 0x1337);
+        WPARAM wparam{ 0xB0B0 };
+        LL_DEBUGS("Window") << "PostMessage(" << std::hex << windowHandle
+                            << ", " << WM_DUMMY_
+                            << ", " << wparam << ")" << std::dec << LL_ENDL;
+        PostMessage(windowHandle, WM_DUMMY_, wparam, 0x1337);
     }
 }
