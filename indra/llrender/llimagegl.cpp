@@ -2268,6 +2268,10 @@ void LLImageGLThread::run()
     LL_PROFILE_ZONE_SCOPED;
     // We must perform setup on this thread before actually servicing our
     // WorkQueue, likewise cleanup afterwards.
+    while (mContext == nullptr)
+    { // HACK -- wait for mContext to be initialized since this thread will usually start before mContext is set
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
     mWindow->makeContextCurrent(mContext);
     gGL.init();
     ThreadPool::run();

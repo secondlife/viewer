@@ -324,7 +324,7 @@ public:
 
 private:
     LLWindow* mWindow;
-    void* mContext;
+    void* mContext = nullptr;
     LLAtomicBool mFinished;
 };
 
