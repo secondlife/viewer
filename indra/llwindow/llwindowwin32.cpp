@@ -1762,7 +1762,7 @@ void* LLWindowWin32::createSharedContext()
         0
     };
 
-    HGLRC rc = wglCreateContextAttribsARB(mhDC, mhRC, attribs);
+    HGLRC rc = 0;
 
     bool done = false;
     while (!done)
