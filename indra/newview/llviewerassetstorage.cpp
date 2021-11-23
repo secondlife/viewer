@@ -570,6 +570,18 @@ void LLViewerAssetStorage::assetRequestCoro(
         result_code = LL_ERR_ASSET_REQUEST_FAILED;
         ext_status = LLExtStat::NONE;
     }
+    else if (!result.has(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW))
+    {
+        LL_DEBUGS("ViewerAsset") << "request failed, no data returned!" << LL_ENDL;
+        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        ext_status = LLExtStat::NONE;
+    }
+    else if (!result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].isBinary())
+    {
+        LL_DEBUGS("ViewerAsset") << "request failed, invalid data format!" << LL_ENDL;
+        result_code = LL_ERR_ASSET_REQUEST_FAILED;
+        ext_status = LLExtStat::NONE;
+    }
     else
     {
         LL_DEBUGS("ViewerAsset") << "request succeeded, url " << url << LL_ENDL;
