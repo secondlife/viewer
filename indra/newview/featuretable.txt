@@ -70,6 +70,7 @@ RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
+RenderGLCoreProfile         1   1
 
 //
 // Low Graphics Settings (fixed function)
@@ -619,9 +620,10 @@ RenderAvatarCloth			0	0
 RenderVBOEnable				1	0
 
 // ATI cards generally perform better when not using VBOs for streaming data
-
+// ATI cards also prefer an OpenGL Compatibility Profile Context
 list ATI
 RenderUseStreamVBO			1	0
+RenderGLCoreProfile         1   0
 
 // Disable vertex buffer objects by default for ATI cards with little video memory
 list ATIVramLT256
