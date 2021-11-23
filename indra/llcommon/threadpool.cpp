@@ -28,7 +28,11 @@ LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capac
     for (size_t i = 0; i < threads; ++i)
     {
         std::string tname{ STRINGIZE(mName << ':' << (i+1) << '/' << threads) };
-        mThreads.emplace_back(tname, [this, tname](){ run(tname); });
+        mThreads.emplace_back(tname, [this, tname]()
+            {
+                LL_PROFILER_SET_THREAD_NAME(tname.c_str());
+                run(tname);
+            });
     }
     // Listen on "LLApp", and when the app is shutting down, close the queue
     // and join the workers.

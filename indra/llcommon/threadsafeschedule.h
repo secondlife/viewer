@@ -98,12 +98,14 @@ namespace LL
         // we could minimize redundancy by breaking out a common base class...
         void push(const DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             push(tuple_cons(Clock::now(), tuple));
         }
 
         /// individually pass each component of the TimeTuple
         void push(const TimePoint& time, Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             push(TimeTuple(time, std::forward<Args>(args)...));
         }
 
@@ -114,6 +116,7 @@ namespace LL
         // and call that overload.
         void push(Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             push(Clock::now(), std::forward<Args>(args)...);
         }
 
@@ -124,18 +127,21 @@ namespace LL
         /// DataTuple with implicit now
         bool tryPush(const DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPush(tuple_cons(Clock::now(), tuple));
         }
 
         /// individually pass components
         bool tryPush(const TimePoint& time, Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPush(TimeTuple(time, std::forward<Args>(args)...));
         }
 
         /// individually pass components with implicit now
         bool tryPush(Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPush(Clock::now(), std::forward<Args>(args)...);
         }
 
@@ -148,6 +154,7 @@ namespace LL
         bool tryPushFor(const std::chrono::duration<Rep, Period>& timeout,
                         const DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushFor(timeout, tuple_cons(Clock::now(), tuple));
         }
 
@@ -156,6 +163,7 @@ namespace LL
         bool tryPushFor(const std::chrono::duration<Rep, Period>& timeout,
                         const TimePoint& time, Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushFor(TimeTuple(time, std::forward<Args>(args)...));
         }
 
@@ -164,6 +172,7 @@ namespace LL
         bool tryPushFor(const std::chrono::duration<Rep, Period>& timeout,
                         Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushFor(Clock::now(), std::forward<Args>(args)...);
         }
 
@@ -176,6 +185,7 @@ namespace LL
         bool tryPushUntil(const std::chrono::time_point<Clock, Duration>& until,
                           const DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushUntil(until, tuple_cons(Clock::now(), tuple));
         }
 
@@ -184,6 +194,7 @@ namespace LL
         bool tryPushUntil(const std::chrono::time_point<Clock, Duration>& until,
                           const TimePoint& time, Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushUntil(until, TimeTuple(time, std::forward<Args>(args)...));
         }
 
@@ -192,6 +203,7 @@ namespace LL
         bool tryPushUntil(const std::chrono::time_point<Clock, Duration>& until,
                           Args&&... args)
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tryPushUntil(until, Clock::now(), std::forward<Args>(args)...);
         }
 
@@ -209,12 +221,14 @@ namespace LL
         // haven't yet jumped through those hoops.
         DataTuple pop()
         {
+            LL_PROFILE_ZONE_SCOPED;
             return tuple_cdr(popWithTime());
         }
 
         /// pop TimeTuple by value
         TimeTuple popWithTime()
         {
+            LL_PROFILE_ZONE_SCOPED;
             lock_t lock(super::mLock);
             // We can't just sit around waiting forever, given that there may
             // be items in the queue that are not yet ready but will *become*
@@ -254,6 +268,7 @@ namespace LL
         /// tryPop(DataTuple&)
         bool tryPop(DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             TimeTuple tt;
             if (! super::tryPop(tt))
                 return false;
@@ -264,6 +279,7 @@ namespace LL
         /// for when Args has exactly one type
         bool tryPop(typename std::tuple_element<1, TimeTuple>::type& value)
         {
+            LL_PROFILE_ZONE_SCOPED;
             TimeTuple tt;
             if (! super::tryPop(tt))
                 return false;
@@ -275,6 +291,7 @@ namespace LL
         template <typename Rep, typename Period, typename Tuple>
         bool tryPopFor(const std::chrono::duration<Rep, Period>& timeout, Tuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             // It's important to use OUR tryPopUntil() implementation, rather
             // than delegating immediately to our base class.
             return tryPopUntil(Clock::now() + timeout, tuple);
@@ -285,6 +302,7 @@ namespace LL
         bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
                          TimeTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             // super::tryPopUntil() wakes up when an item becomes available or
             // we hit 'until', whichever comes first. Thing is, the current
             // head of the queue could become ready sooner than either of
@@ -304,20 +322,25 @@ namespace LL
 
         pop_result tryPopUntil_(lock_t& lock, const TimePoint& until, TimeTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             TimePoint adjusted = until;
             if (! super::mStorage.empty())
             {
+                LL_PROFILE_ZONE_NAMED("tpu - adjust");
                 // use whichever is earlier: the head item's timestamp, or
                 // the caller's limit
                 adjusted = min(std::get<0>(super::mStorage.front()), adjusted);
             }
             // now delegate to base-class tryPopUntil_()
             pop_result popped;
-            while ((popped = pop_result(super::tryPopUntil_(lock, adjusted, tuple))) == WAITING)
             {
-                // If super::tryPopUntil_() returns WAITING, it means there's
-                // a head item, but it's not yet time. But it's worth looping
-                // back to recheck.
+                LL_PROFILE_ZONE_NAMED("tpu - super");
+                while ((popped = pop_result(super::tryPopUntil_(lock, adjusted, tuple))) == WAITING)
+                {
+                    // If super::tryPopUntil_() returns WAITING, it means there's
+                    // a head item, but it's not yet time. But it's worth looping
+                    // back to recheck.
+                }
             }
             return popped;
         }
@@ -327,6 +350,7 @@ namespace LL
         bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
                          DataTuple& tuple)
         {
+            LL_PROFILE_ZONE_SCOPED;
             TimeTuple tt;
             if (! tryPopUntil(until, tt))
                 return false;
@@ -339,6 +363,7 @@ namespace LL
         bool tryPopUntil(const std::chrono::time_point<Clock, Duration>& until,
                          typename std::tuple_element<1, TimeTuple>::type& value)
         {
+            LL_PROFILE_ZONE_SCOPED;
             TimeTuple tt;
             if (! tryPopUntil(until, tt))
                 return false;
@@ -362,6 +387,7 @@ namespace LL
         // considering whether to deliver the current head element
         bool canPop(const TimeTuple& head) const override
         {
+            LL_PROFILE_ZONE_SCOPED;
             // an item with a future timestamp isn't yet ready to pop
             // (should we add some slop for overhead?)
             return std::get<0>(head) <= Clock::now();

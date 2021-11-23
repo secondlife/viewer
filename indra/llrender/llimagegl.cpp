@@ -2257,6 +2257,7 @@ LLImageGLThread::LLImageGLThread(LLWindow* window)
     : ThreadPool("LLImageGL", 1, 1024*1024)
     , mWindow(window)
 {
+    LL_PROFILE_ZONE_SCOPED;
     mFinished = false;
 
     mContext = mWindow->createSharedContext();
@@ -2264,6 +2265,7 @@ LLImageGLThread::LLImageGLThread(LLWindow* window)
 
 void LLImageGLThread::run()
 {
+    LL_PROFILE_ZONE_SCOPED;
     // We must perform setup on this thread before actually servicing our
     // WorkQueue, likewise cleanup afterwards.
     mWindow->makeContextCurrent(mContext);
