@@ -99,9 +99,15 @@ namespace tut
                 return (++count < 3);
             });
         // no convenient way to close() our queue while we've got a
-        // postEvery() running, so run until we think we should have exhausted
-        // the iterations
-        queue.runFor(10*interval);
+        // postEvery() running, so run until we have exhausted the iterations
+        // or we time out waiting
+        for (auto finish = start + 10*interval;
+             WorkQueue::TimePoint::clock::now() < finish &&
+             data.get([](const Shared& data){ return data.size(); }) < 3; )
+        {
+            queue.runPending();
+            std::this_thread::sleep_for(interval/10);
+        }
         // Take a copy of the captured deque.
         Shared result = data.get();
         ensure_equals("called wrong number of times", result.size(), 3);
