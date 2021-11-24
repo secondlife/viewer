@@ -1117,10 +1117,10 @@ bool idle_startup()
 			}
 			else 
 			{
-				if (reason_response != "tos") 
+				if (reason_response != "tos"  && reason_response != "mfa_challenge")
 				{
-					// Don't pop up a notification in the TOS case because
-					// LLFloaterTOS::onCancel() already scolded the user.
+					// Don't pop up a notification in the TOS or MFA cases because
+					// the specialized floater has already scolded the user.
 					std::string error_code;
 					if(response.has("errorcode"))
 					{

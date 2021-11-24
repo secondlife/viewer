@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_minimize="false"
+ height="87"
+ layout="topleft"
+ name="mfa_challenge"
+ help_topic="mfa_challenge"
+ width="480">
+    <text
+     type="string"
+     length="1"
+     bottom="20"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="token_prompt"
+     top="20">
+        token prompt
+    </text>
+    <text_box
+     allow_text_entry="true"
+     follows="left|top|right"
+     height="19"
+     layout="topleft"
+     left_delta="70"
+     max_chars="16"
+     name="token_entry"
+     top_delta="-4"
+     width="16" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Continue"
+     layout="topleft"
+     left="10"
+     name="Continue"
+     top="50"
+     width="64" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="Cancel"
+     top_delta="0"
+     width="64" />
+</floater>

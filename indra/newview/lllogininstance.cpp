@@ -75,6 +75,8 @@ public:
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
+static const char * const MFA_REPLY_PUMP = "lllogininstance_mfa_callback";
+static const char * const MFA_LISTENER_NAME = "lllogininstance_mfa";
 
 std::string construct_start_string();
 
@@ -408,6 +410,23 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
                 boost::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
         }
     }
+    else if(reason_response == "mfa_challenge")
+    {
+        LL_DEBUGS("LLLogin") << " MFA challenge" << LL_ENDL;
+
+        LLSD data(LLSD::emptyMap());
+        data["message"] = message_response;
+        data["reply_pump"] = MFA_REPLY_PUMP;
+        if (gViewerWindow)
+        {
+            gViewerWindow->setShowProgress(FALSE);
+        }
+        LLFloaterReg::showInstance("message_mfa", data);
+        LLEventPumps::instance().obtain(MFA_REPLY_PUMP)
+            .listen(MFA_LISTENER_NAME, [=](const LLSD& token) {
+                return this->handleMFAResponse(token, "token");
+            });
+    }
     else if(   reason_response == "key"
             || reason_response == "presence"
             || reason_response == "connect"
@@ -500,6 +519,27 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 
 	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
 	return true;
+}
+
+bool LLLoginInstance::handleMFAResponse(const std::string& token, const std::string& key)
+{
+    if(!token.empty())
+    {
+        LL_INFOS("LLLogin") << "LLLoginInstance::handleMFAResponse: token submitted" << LL_ENDL;
+
+        // Set the request data to true and retry login.
+        mRequestData["params"][key] = token;
+        reconnect();
+    }
+    else
+    {
+        LL_INFOS("LLLogin") << "LLLoginInstance::handleMFAResponse: no token, attemptComplete" << LL_ENDL;
+
+        attemptComplete();
+    }
+
+    LLEventPumps::instance().obtain(MFA_REPLY_PUMP).stopListening(MFA_LISTENER_NAME);
+    return true;
 }
 
 std::string construct_start_string()
