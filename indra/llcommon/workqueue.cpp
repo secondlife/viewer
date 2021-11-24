@@ -78,8 +78,8 @@ bool LL::WorkQueue::runUntil(const TimePoint& until)
     LL_PROFILE_ZONE_SCOPED;
     // Should we subtract some slop to allow for typical Work execution time?
     // How much slop?
-    Work work;
-    while (TimePoint::clock::now() < until && mQueue.tryPopUntil(until, work))
+    // runUntil() is simply a time-bounded runPending().
+    for (Work work; TimePoint::clock::now() < until && mQueue.tryPop(work); )
     {
         callWork(work);
     }
