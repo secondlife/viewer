@@ -351,7 +351,15 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     template <typename CALLABLE>
     void post(CALLABLE&& func)
     {
-        getQueue().post(std::forward<CALLABLE>(func));
+        try
+        {
+            getQueue().post(std::forward<CALLABLE>(func));
+        }
+        catch (const LLThreadSafeQueueInterrupt&)
+        {
+            // Shutdown timing is tricky. The main thread can end up trying
+            // to post a cursor position after having closed the WorkQueue.
+        }
     }
 
     /**
