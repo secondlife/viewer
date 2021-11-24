@@ -225,6 +225,7 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["id0"] = mSerialNumber;
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
+	request_params["token"] = "";
 
     // log request_params _before_ adding the credentials   
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
