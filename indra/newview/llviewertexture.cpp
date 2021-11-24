@@ -679,9 +679,6 @@ void LLViewerTexture::init(bool firstinit)
 	
 	mVolumeList[LLRender::LIGHT_TEX].clear();
 	mVolumeList[LLRender::SCULPT_TEX].clear();
-
-	mMainQueue	= LL::WorkQueue::getInstance("mainloop");
-	mImageQueue = LL::WorkQueue::getInstance("LLImageGL");
 }
 
 //virtual 
@@ -1625,26 +1622,17 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
     {
         mNeedsCreateTexture = TRUE;
 #if LL_WINDOWS //flip to 0 to revert to single-threaded OpenGL texture uploads
-        auto mainq = mMainQueue.lock();
-        if (mainq)
-        {
-            mainq->postTo(
-                mImageQueue,
-                // work to be done on LLImageGL worker thread
-                [this]()
-                {
-                    //actually create the texture on a background thread
-                    createTexture();
-                },
-                // callback to be run on main thread
-                [this]()
-                {
-                    //finalize on main thread
-                    postCreateTexture();
-                    unref();
-                });
-        }
-        else
+        if (!LLImageGLThread::sInstance->post([this]()
+            {
+                //actually create the texture on a background thread
+                createTexture();
+                LLImageGLThread::sInstance->postCallback([this]()
+                    {
+                        //finalize on main thread
+                        postCreateTexture();
+                        unref();
+                    });
+            }))
 #endif
         {
             gTextureList.mCreateTextureList.insert(this);
@@ -3598,11 +3586,22 @@ BOOL LLViewerMediaTexture::findFaces()
 	for(; iter != obj_list->end(); ++iter)
 	{
 		LLVOVolume* obj = *iter;
-		if(obj->mDrawable.isNull())
-		{
-			ret = FALSE;
-			continue;
-		}
+        if (obj->isDead())
+        {
+            // Isn't supposed to happen, objects are supposed to detach
+            // themselves on markDead()
+            // If this happens, viewer is likely to crash
+            llassert(0);
+            LL_WARNS() << "Dead object in mMediaImplp's object list" << LL_ENDL;
+            ret = FALSE;
+            continue;
+        }
+
+        if (obj->mDrawable.isNull() || obj->mDrawable->isDead())
+        {
+            ret = FALSE;
+            continue;
+        }
 
 		S32 face_id = -1;
 		S32 num_faces = obj->mDrawable->getNumFaces();

@@ -52,10 +52,10 @@ public:
     void* createSharedContext()  { return nullptr; }
     void makeContextCurrent(void*)  {}
     void destroySharedContext(void*)  {}
-	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
-	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
+    /*virtual*/ void toggleVSync(bool enable_vsync) { }
+    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
+    /*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
 #if LL_WINDOWS
-    /*virtual*/ virtual void toggleVSync(bool enable_vsync) { }
     /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta) { return FALSE; }
 #endif
 	/*virtual*/ void showCursor() {};

@@ -885,6 +885,7 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 
 void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (!gAgent.getRegion())
 	{
 		return;
@@ -1194,6 +1195,11 @@ public:
 
 	virtual void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
 	{
+        if (LLApp::isExiting())
+        {
+            return;
+        }
+
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
 			!input["body"].has("seed-capability"))

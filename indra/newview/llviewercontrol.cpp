@@ -107,10 +107,14 @@ static bool handleRenderAvatarMouselookChanged(const LLSD& newvalue)
 
 static bool handleRenderFarClipChanged(const LLSD& newvalue)
 {
-	F32 draw_distance = (F32) newvalue.asReal();
-	gAgentCamera.mDrawDistance = draw_distance;
-	LLWorld::getInstance()->setLandFarClip(draw_distance);
-	return true;
+    if (LLStartUp::getStartupState() >= STATE_STARTED)
+    {
+        F32 draw_distance = (F32)newvalue.asReal();
+        gAgentCamera.mDrawDistance = draw_distance;
+        LLWorld::getInstance()->setLandFarClip(draw_distance);
+        return true;
+    }
+    return false;
 }
 
 static bool handleTerrainDetailChanged(const LLSD& newvalue)
@@ -142,6 +146,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	// changing shader level may invalidate existing cached bump maps, as the shader type determines the format of the bump map it expects - clear and repopulate the bump cache
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
+
+    if (gPipeline.isInit())
+    {
+        // ALM depends onto atmospheric shaders, state might have changed
+        bool old_state = LLPipeline::sRenderDeferred;
+        LLPipeline::refreshCachedSettings();
+        gPipeline.updateRenderDeferred();
+        if (old_state != LLPipeline::sRenderDeferred)
+        {
+            gPipeline.releaseGLBuffers();
+            gPipeline.createGLBuffers();
+            gPipeline.resetVertexBuffers();
+        }
+    }
 
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();

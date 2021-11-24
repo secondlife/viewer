@@ -393,6 +393,7 @@ set(viewer_SOURCE_FILES
     llloginhandler.cpp
     lllogininstance.cpp
     llmachineid.cpp
+    llmainlooprepeater.cpp
     llmanip.cpp
     llmaniprotate.cpp
     llmanipscale.cpp
@@ -1031,6 +1032,7 @@ set(viewer_HEADER_FILES
     llloginhandler.h
     lllogininstance.h
     llmachineid.h
+    llmainlooprepeater.h
     llmanip.h
     llmaniprotate.h
     llmanipscale.h
@@ -1602,7 +1604,6 @@ if (WINDOWS)
         ${WINDOWS_LIBRARIES}
         comdlg32
         dxguid
-        imm32
         kernel32
         odbc32
         odbccp32
@@ -2184,8 +2185,8 @@ if (DARWIN)
     # SIGH, as of 2018-05-24 (cmake 3.11.1) the INSTALL_RPATH property simply
     # does not work. Try this:
     LINK_FLAGS "-rpath @loader_path/../Frameworks"
-    MACOSX_BUNDLE_INFO_PLIST
-    "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+    MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+    XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${MACOSX_BUNDLE_GUI_IDENTIFIER}"
     )
 
   set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")

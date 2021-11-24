@@ -119,8 +119,8 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
+    timing.cpp
     u64.cpp
-    threadpool.cpp
     workqueue.cpp
     StackWalker.cpp
     )
@@ -213,9 +213,9 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregex.h
     llregistry.h
     llrun.h
-    llrefcount.h
     llsafehandle.h
     llsd.h
     llsdjson.h
@@ -256,7 +256,6 @@ set(llcommon_HEADER_FILES
     lockstatic.h
     stdtypes.h
     stringize.h
-    threadpool.h
     threadsafeschedule.h
     timer.h
     tuple.h

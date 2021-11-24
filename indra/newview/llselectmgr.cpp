@@ -1366,11 +1366,8 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			}
 			break;
 		case SELECT_TYPE_HUD:
-			// use HUD-scaled grid
-			mGridScale = LLVector3(0.25f, 0.25f, 0.25f);
-			break;
 		case SELECT_TYPE_WORLD:
-			mGridScale = LLVector3(1.f, 1.f, 1.f) * gSavedSettings.getF32("GridResolution");
+			mGridScale = LLVector3(1.f, 1.f, 1.f) * llmin(gSavedSettings.getF32("GridResolution"), 0.5f);
 			break;
 		}
 	}
@@ -1937,7 +1934,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 	return revert_successful;
 }
 
-void LLSelectMgr::selectionSetBumpmap(U8 bumpmap)
+void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
 {
 	struct f : public LLSelectedTEFunctor
 	{
@@ -1953,7 +1950,22 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap)
 			return true;
 		}
 	} setfunc(bumpmap);
-	getSelection()->applyToTEs(&setfunc);
+
+    LLViewerInventoryItem* item = gInventory.getItem(image_id);
+    if(item 
+        && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
+        && (mSelectedObjects->getNumNodes() > 1) )
+    {
+        LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
+        return;
+    }
+    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    {
+        LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+        if (!object) return;
+        LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+    }
+    getSelection()->applyToTEs(&setfunc);
 	
 	LLSelectMgrSendFunctor sendfunc;
 	getSelection()->applyToObjects(&sendfunc);
@@ -1982,7 +1994,7 @@ void LLSelectMgr::selectionSetTexGen(U8 texgen)
 }
 
 
-void LLSelectMgr::selectionSetShiny(U8 shiny)
+void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
 {
 	struct f : public LLSelectedTEFunctor
 	{
@@ -1998,7 +2010,22 @@ void LLSelectMgr::selectionSetShiny(U8 shiny)
 			return true;
 		}
 	} setfunc(shiny);
-	getSelection()->applyToTEs(&setfunc);
+
+    LLViewerInventoryItem* item = gInventory.getItem(image_id);
+    if(item 
+        && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
+        && (mSelectedObjects->getNumNodes() > 1) )
+    {
+        LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
+        return;
+    }
+    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    {
+        LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+        if (!object) return;
+        LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+    }
+    getSelection()->applyToTEs(&setfunc);
 
 	LLSelectMgrSendFunctor sendfunc;
 	getSelection()->applyToObjects(&sendfunc);

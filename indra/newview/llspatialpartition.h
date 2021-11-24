@@ -82,6 +82,9 @@ public:
 
 	void validate();
 
+    // return mSkinHash->mHash, or 0 if mSkinHash is null
+    U64 getSkinHash();
+
 	LLVector4a mExtents[2];
 	
 	LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -120,6 +123,8 @@ public:
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
 	bool mSelected;
+    LLVOAvatar* mAvatar = nullptr;
+    LLMeshSkinInfo* mSkinInfo = nullptr;
 
 
 	struct CompareTexture
@@ -647,7 +652,7 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildGeom(LLSpatialGroup* group);
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
-	U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
+	U32 genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL rigged = FALSE);
 	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 
 private:
@@ -655,13 +660,13 @@ private:
 	void freeFaces();
 
 	static int32_t sInstanceCount;
-	static LLFace** sFullbrightFaces;
-	static LLFace** sBumpFaces;
-	static LLFace** sSimpleFaces;
-	static LLFace** sNormFaces;
-	static LLFace** sSpecFaces;
-	static LLFace** sNormSpecFaces;
-	static LLFace** sAlphaFaces;
+	static LLFace** sFullbrightFaces[2];
+	static LLFace** sBumpFaces[2];
+	static LLFace** sSimpleFaces[2];
+	static LLFace** sNormFaces[2];
+	static LLFace** sSpecFaces[2];
+	static LLFace** sNormSpecFaces[2];
+	static LLFace** sAlphaFaces[2];
 };
 
 //spatial partition that uses volume geometry manager (implemented in LLVOVolume.cpp)

@@ -230,6 +230,8 @@ public:
 	
     BOOL link(BOOL suppress_errors = FALSE);
 	void bind();
+    //helper to conditionally bind mRiggedVariant instead of this
+    void bind(bool rigged);
 	void unbind();
 
 	// Unbinds any previously bound shader by explicitly binding no shader.
@@ -267,7 +269,8 @@ public:
 	LLShaderFeatures mFeatures;
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
-	boost::unordered_map<std::string, std::string> mDefines;
+    typedef std::unordered_map<std::string, std::string> defines_map_t;
+	defines_map_t mDefines;
 
 	//statistcis for profiling shader performance
 	U32 mTimerQuery;
@@ -284,6 +287,9 @@ public:
 	bool mTextureStateFetched;
 	std::vector<U32> mTextureMagFilter;
 	std::vector<U32> mTextureMinFilter;
+
+    // this pointer should be set to whichever shader represents this shader's rigged variant
+    LLGLSLShader* mRiggedVariant = nullptr;
 
 private:
 	void unloadInternal();

@@ -847,13 +847,14 @@ template<class T>
 class LLSimpleton
 {
 public:
-    template <typename... ARGS>
-    static void createInstance(ARGS&&... args)
-    {
+    static T* sInstance;
+    
+    static void createInstance() 
+    { 
         llassert(sInstance == nullptr);
-        sInstance = new T(std::forward<ARGS>(args)...);
+        sInstance = new T(); 
     }
-
+    
     static inline T* getInstance() { return sInstance; }
     static inline T& instance() { return *getInstance(); }
     static inline bool instanceExists() { return sInstance != nullptr; }
@@ -863,9 +864,6 @@ public:
         delete sInstance;
         sInstance = nullptr;
     }
-
-private:
-    static T* sInstance;
 };
 
 template <class T>

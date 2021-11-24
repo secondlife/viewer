@@ -31,6 +31,7 @@
 #include "llconvexdecomposition.h"
 #include "llsdserialize.h"
 #include "llvector4a.h"
+#include "llmd5.h"
 
 #ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
@@ -1451,6 +1452,8 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 	{
 		mLockScaleIfJointPosition = false;
 	}
+
+    updateHash();
 }
 
 LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_position) const
@@ -1500,6 +1503,38 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
 	}
 
 	return ret;
+}
+
+void LLMeshSkinInfo::updateHash()
+{
+    //  get hash of data relevant to render batches
+    LLMD5 hash;
+
+    //mJointNames
+    for (auto& name : mJointNames)
+    {
+        hash.update(name);
+    }
+    
+    //mJointNums 
+    hash.update((U8*)&(mJointNums[0]), sizeof(S32) * mJointNums.size());
+    
+    //mInvBindMatrix
+    F32* src = mInvBindMatrix[0].getF32ptr();
+    
+    for (int i = 0; i < mInvBindMatrix.size() * 16; ++i)
+    {
+        S32 t = llround(src[i] * 10000.f);
+        hash.update((U8*)&t, sizeof(S32));
+    }
+    //hash.update((U8*)&(mInvBindMatrix[0]), sizeof(LLMatrix4a) * mInvBindMatrix.size());
+
+    hash.finalize();
+
+    U64 digest[2];
+    hash.raw_digest((U8*) digest);
+
+    mHash = digest[0];
 }
 
 LLModel::Decomposition::Decomposition(LLSD& data)

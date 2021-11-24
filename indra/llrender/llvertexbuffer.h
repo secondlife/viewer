@@ -64,10 +64,10 @@ public:
 	const U32 mType;
 
 	//size MUST be a power of 2
-	volatile U8* allocate(U32& name, U32 size, bool for_seed = false);
+	U8* allocate(U32& name, U32 size, bool for_seed = false);
 	
 	//size MUST be the size provided to allocate that returned the given name
-	void release(U32 name, volatile U8* buffer, U32 size);
+	void release(U32 name, U8* buffer, U32 size);
 	
 	//batch allocate buffers to be provided to the application on demand
 	void seedPool();
@@ -82,7 +82,7 @@ public:
 	{
 	public:
 		U32 mGLName;
-		volatile U8* mClientData;
+		U8* mClientData;
 	};
 
 	typedef std::list<Record> record_list_t;
@@ -234,8 +234,8 @@ public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
 	// map for data access
-	volatile U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
-	volatile U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
+	U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
+	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	void bindForFeedback(U32 channel, U32 type, U32 index, U32 count);
 
@@ -278,14 +278,14 @@ public:
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
-	volatile U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	volatile U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
+	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
 	S32 getSize() const;
 	S32 getIndicesSize() const				{ return mIndicesSize; }
-	volatile U8* getMappedData() const				{ return mMappedData; }
-	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
+	U8* getMappedData() const				{ return mMappedData; }
+	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
 	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? true : false; }
@@ -318,8 +318,8 @@ protected:
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
 	
-	volatile U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
-	volatile U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
+	U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
+	U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 
 	U32		mMappedDataUsingVBOs : 1;
 	U32		mMappedIndexDataUsingVBOs : 1;

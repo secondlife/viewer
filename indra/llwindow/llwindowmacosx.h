@@ -140,6 +140,8 @@ public:
     //Must be called on the same thread that called createSharedContext()
     void destroySharedContext(void* context) override;
 
+    void toggleVSync(bool enable_vsync) override;
+
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,

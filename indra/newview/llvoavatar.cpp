@@ -111,6 +111,7 @@
 #include "llsdserialize.h"
 #include "llcallstack.h"
 #include "llrendersphere.h"
+#include "llskinningutil.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -8976,7 +8977,7 @@ void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 	S32 u8_value = F32_to_U8(value,viewer_param->getMinWeight(),viewer_param->getMaxWeight());
 	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" display=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
 					viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getDisplayName().c_str(), value, u8_value, type_string.c_str(),
-					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str(),
+					LLWearableType::getInstance()->getTypeName(LLWearableType::EType(wtype)).c_str(),
 					viewer_param->getGroup());
 	}
 	
@@ -9445,6 +9446,54 @@ LLViewerTexture* LLVOAvatar::getBakedTexture(const U8 te)
 	
 }
 
+const LLVOAvatar::MatrixPaletteCache& LLVOAvatar::updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skin, LLVOVolume* requesting_obj)
+{
+    U64 hash = skin->mHash;
+    MatrixPaletteCache& entry = mMatrixPaletteCache[hash];
+
+    if (entry.mFrame != gFrameCount)
+    {
+        LL_PROFILE_ZONE_SCOPED;
+
+        entry.mFrame = gFrameCount;
+
+        //build matrix palette
+        U32 count = LLSkinningUtil::getMeshJointCount(skin);
+        entry.mMatrixPalette.resize(count);
+        LLSkinningUtil::initSkinningMatrixPalette(&(entry.mMatrixPalette[0]), count, skin, this);
+
+        const LLMatrix4a* mat = &(entry.mMatrixPalette[0]);
+
+        entry.mGLMp.resize(count * 12);
+
+        F32* mp = &(entry.mGLMp[0]);
+
+        for (U32 i = 0; i < count; ++i)
+        {
+            F32* m = (F32*)mat[i].mMatrix[0].getF32ptr();
+
+            U32 idx = i * 12;
+
+            mp[idx + 0] = m[0];
+            mp[idx + 1] = m[1];
+            mp[idx + 2] = m[2];
+            mp[idx + 3] = m[12];
+
+            mp[idx + 4] = m[4];
+            mp[idx + 5] = m[5];
+            mp[idx + 6] = m[6];
+            mp[idx + 7] = m[13];
+
+            mp[idx + 8] = m[8];
+            mp[idx + 9] = m[9];
+            mp[idx + 10] = m[10];
+            mp[idx + 11] = m[14];
+        }
+    }
+
+    return entry;
+}
+
 // static
 void LLVOAvatar::getAnimLabels( std::vector<std::string>* labels )
 {
@@ -9754,6 +9803,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
 	
 	LLAPRFile outfile;
+    LLWearableType *wr_inst = LLWearableType::getInstance();
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
 	if (APR_SUCCESS == outfile.open(fullpath, LL_APR_WB ))
 	{
@@ -9770,7 +9820,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		{
 			for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
 			{
-				const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
+				const std::string& wearable_name = wr_inst->getTypeName((LLWearableType::EType)type);
 				apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
 				for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())

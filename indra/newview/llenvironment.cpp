@@ -2102,7 +2102,15 @@ void LLEnvironment::coroUpdateEnvironment(S32 parcel_id, S32 track_no, UpdateInf
         LL_WARNS("ENVIRONMENT") << "Couldn't update Windlight settings for " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         notify = LLSD::emptyMap();
-        notify["FAIL_REASON"] = result["message"].asString();
+        std::string reason = result["message"].asString();
+        if (reason.empty())
+        {
+            notify["FAIL_REASON"] = status.toString();
+        }
+        else
+        {
+            notify["FAIL_REASON"] = reason;
+        }
     }
     else if (LLApp::isExiting())
     {
@@ -2168,7 +2176,15 @@ void LLEnvironment::coroResetEnvironment(S32 parcel_id, S32 track_no, environmen
         LL_WARNS("ENVIRONMENT") << "Couldn't reset Windlight settings in " << ((parcel_id == INVALID_PARCEL_ID) ? ("region!") : ("parcel!")) << LL_ENDL;
 
         notify = LLSD::emptyMap();
-        notify["FAIL_REASON"] = result["message"].asString();
+        std::string reason = result["message"].asString();
+        if (reason.empty())
+        {
+            notify["FAIL_REASON"] = status.toString();
+        }
+        else
+        {
+            notify["FAIL_REASON"] = reason;
+        }
     }
     else if (LLApp::isExiting())
     {

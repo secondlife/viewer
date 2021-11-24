@@ -165,6 +165,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 
 	if (features->hasObjectSkinning)
 	{
+        shader->mRiggedVariant = shader;
         if (!shader->attachVertexObject("avatar/objectSkinV.glsl"))
 		{
 			return FALSE;
@@ -599,7 +600,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 	}
  }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
+GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
 {
 
 // endsure work-around for missing GLSL funcs gets propogated to feature shader files (e.g. srgbF.glsl)
@@ -774,7 +775,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	
 	if (defines)
 	{
-		for (boost::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
+		for (std::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
 		{
 			std::string define = "#define " + iter->first + " " + iter->second + "\n";
 			extra_code_text[extra_code_count++] = (GLcharARB *) strdup(define.c_str());

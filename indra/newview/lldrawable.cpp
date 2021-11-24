@@ -149,21 +149,6 @@ void LLDrawable::unload()
 {
 	LLVOVolume *pVVol = getVOVolume();
 	pVVol->setNoLOD();
-
-	for (S32 i = 0; i < getNumFaces(); i++)
-	{
-		LLFace* facep = getFace(i);
-		if (facep->isState(LLFace::RIGGED))
-		{
-			LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*)facep->getPool();
-			if (pool) {
-				pool->removeRiggedFace(facep);
-			}
-			facep->setVertexBuffer(NULL);
-		}
-		facep->clearState(LLFace::RIGGED);
-	}
-
 	pVVol->markForUpdate(TRUE);
 }
 

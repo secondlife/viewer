@@ -208,8 +208,17 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
     return retVal;
 }
 
-bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask)
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character)
 {
+    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    {
+        key = gKeyboard->inverseTranslateKey('Y');
+    }
+    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+    {
+        key = gKeyboard->inverseTranslateKey('Z');
+    }
+
     mRawKeyEvent = event;
 	bool retVal = gKeyboard->handleKeyDown(key, mask);
     mRawKeyEvent = NULL;
@@ -652,17 +661,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	}
 
 	// Disable vertical sync for swap
-	GLint frames_per_swap = 0;
-	if (!enable_vsync)
-	{
-		frames_per_swap = 0;
-	}
-	else
-	{
-		frames_per_swap = 1;
-	}
-	
-	CGLSetParameter(mContext, kCGLCPSwapInterval, &frames_per_swap);
+    toggleVSync(enable_vsync);
 
 	//enable multi-threaded OpenGL
 	if (sUseMultGL)
@@ -1933,6 +1932,21 @@ void LLWindowMacOSX::destroySharedContext(void* context)
     CGLDestroyContext(sc->mContext);
 
     delete sc;
+}
+
+void LLWindowMacOSX::toggleVSync(bool enable_vsync)
+{
+    GLint frames_per_swap = 0;
+    if (!enable_vsync)
+    {
+        frames_per_swap = 0;
+    }
+    else
+    {
+        frames_per_swap = 1;
+    }
+    
+    CGLSetParameter(mContext, kCGLCPSwapInterval, &frames_per_swap);
 }
 
 void LLWindowMacOSX::interruptLanguageTextInput()

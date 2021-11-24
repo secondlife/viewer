@@ -53,6 +53,8 @@
 #include "llviewerstats.h"
 #include "llvovolume.h"
 #include "llavatarrendernotifier.h"
+#include "llmodel.h"
+
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -77,6 +79,7 @@ class LLViewerJointMesh;
 
 const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
 
+extern U32 gFrameCount;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -745,6 +748,26 @@ public:
 	void 			updateMeshData();
 	void			updateMeshVisibility();
 	LLViewerTexture*		getBakedTexture(const U8 te);
+
+    class alignas(16) MatrixPaletteCache
+    {
+    public:
+        U32 mFrame;
+        LLMeshSkinInfo::matrix_list_t mMatrixPalette;
+
+        // Float array ready to be sent to GL
+        std::vector<F32> mGLMp;
+
+        MatrixPaletteCache() :
+            mFrame(gFrameCount - 1)
+        {
+        }
+    };
+
+    const MatrixPaletteCache& updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skinInfo, LLVOVolume* requesting_obj = nullptr);
+
+    typedef std::unordered_map<U64, MatrixPaletteCache> matrix_palette_cache_t;
+    matrix_palette_cache_t mMatrixPaletteCache;
 
 protected:
 	void 			releaseMeshData();

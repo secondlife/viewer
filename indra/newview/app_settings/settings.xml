@@ -1573,10 +1573,11 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>CameraPreset</key>  <!-- deprecated (see SL-12429) -->
+    <key>CameraPreset</key>
+    <!-- deprecated (see SL-12429) -->
     <map>
       <key>Comment</key>
-      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
+      <string>(Deprecated) Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2483,10 +2484,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>DebugShowPrivateMem</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>Show Private Mem Info</string>
+      <string>(Deprecated) Show Private Mem Info</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3726,6 +3728,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>EnableCollisionSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Play sounds on collision</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>EnableMouselook</key>
     <map>
       <key>Comment</key>
@@ -3857,17 +3870,6 @@
         <string>S32</string>
         <key>Value</key>
         <integer>1</integer>
-    </map>
-    <key>MainWorkTime</key>
-    <map>
-        <key>Comment</key>
-        <string>Max time per frame devoted to mainloop work queue (in milliseconds)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-        <string>F32</string>
-        <key>Value</key>
-        <real>0.1</real>
     </map>
     <key>QueueInventoryFetchTimeout</key>
     <map>
@@ -5797,7 +5799,7 @@
   <key>LoginSRVPump</key>
   <map>
     <key>Comment</key>
-    <string>Name of the message pump that handles SRV request (deprecated)</string>
+    <string>(Deprecated) Name of the message pump that handles SRV request)</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -6608,10 +6610,11 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Enable the private memory pool management</string>
+      <string>(Deprecated) Enable the private memory pool management</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6619,10 +6622,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
+      <string>(Deprecated) Size of the private memory pool in MB (min. value is 256)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8326,7 +8330,7 @@
     <key>QAModeEventHostPort</key>
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Port on which lleventhost should listen</string>
+      <string>(Deprecated) Port on which lleventhost should listen</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -8645,28 +8649,6 @@
     </array>
   </map>
 
-    <key>RenderAlphaBatchFullbrights</key>
-    <map>
-      <key>Comment</key>
-      <string>Render fullbright alpha content more efficiently, but with possible visual differences from prev viewers.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>RenderAlphaBatchEmissives</key>
-    <map>
-      <key>Comment</key>
-      <string>Render emissive alpha content more efficiently, but with possible visual differences from prev viewers.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
@@ -10141,7 +10123,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>512</integer>
+      <integer>4096</integer>
     </map>
     <key>RenderNameFadeDuration</key>
     <map>
@@ -12674,19 +12656,16 @@
       <key>Value</key>
       <integer>50</integer>
     </map>
-    <key>ThreadPoolSizes</key>
+    <key>TextureSaveLocation</key>
     <map>
       <key>Comment</key>
-      <string>Map of size overrides for specific thread pools.</string>
+      <string>Current location for bulk saving textures to disk</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
-      <string>LLSD</string>
+      <string>String</string>
       <key>Value</key>
-      <map>
-        <key>General</key>
-        <integer>4</integer>
-      </map>
+      <string />
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
@@ -14074,10 +14053,11 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
+    <key>UseExternalBrowser</key>
+    <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
-      <string>Use default browser when opening web pages instead of in-world browser.</string>
+      <string>(Deprecated) Use default browser when opening web pages instead of in-world browser.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14472,6 +14452,7 @@
     <integer>0</integer>
   </map>
   <key>VoiceCallsFriendsOnly</key>
+  <!-- deprecated (see SL-12871) -->
     <map>
       <key>Comment</key>
       <string>(Deprecated) Only accept voice calls from residents on your friends list</string>

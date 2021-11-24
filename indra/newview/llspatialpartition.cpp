@@ -2901,8 +2901,24 @@ void renderBatchSize(LLDrawInfo* params)
 {
 	LLGLEnable offset(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(-1.f, 1.f);
-	gGL.diffuseColor4ubv((GLubyte*) &(params->mDebugColor));
-	pushVerts(params, LLVertexBuffer::MAP_VERTEX);
+    LLGLSLShader* old_shader = LLGLSLShader::sCurBoundShaderPtr;
+    U32 mask = LLVertexBuffer::MAP_VERTEX;
+    bool bind = false;
+    if (params->mAvatar)
+    { 
+        bind = true;
+        old_shader->mRiggedVariant->bind();
+        LLRenderPass::uploadMatrixPalette(*params);
+        mask |= LLVertexBuffer::MAP_WEIGHT4;
+    }
+	
+    gGL.diffuseColor4ubv((GLubyte*)&(params->mDebugColor));
+	pushVerts(params, mask);
+
+    if (bind)
+    {
+        old_shader->bind();
+    }
 }
 
 void renderShadowFrusta(LLDrawInfo* params)
@@ -4083,6 +4099,11 @@ LLDrawInfo::~LLDrawInfo()
 void LLDrawInfo::validate()
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
+}
+
+U64 LLDrawInfo::getSkinHash()
+{
+    return mSkinInfo ? mSkinInfo->mHash : 0;
 }
 
 LLVertexBuffer* LLGeometryManager::createVertexBuffer(U32 type_mask, U32 usage)

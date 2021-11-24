@@ -20,10 +20,7 @@
 // external library headers
 // other Linden headers
 #include "../test/lltut.h"
-#include "../test/catch_and_store_what_in.h"
 #include "llcond.h"
-#include "llcoros.h"
-#include "lleventcoro.h"
 #include "llstring.h"
 #include "stringize.h"
 
@@ -141,8 +138,7 @@ namespace tut
             [](){ return 17; },
             // Note that a postTo() *callback* can safely bind a reference to
             // a variable on the invoking thread, because the callback is run
-            // on the invoking thread. (Of course the bound variable must
-            // survive until the callback is called.)
+            // on the invoking thread.
             [&result](int i){ result = i; });
         // this should post the callback to main
         qptr->runOne();
@@ -159,71 +155,5 @@ namespace tut
         qptr->runPending();
         main.runPending();
         ensure_equals("failed to run string callback", alpha, "abc");
-    }
-
-    template<> template<>
-    void object::test<5>()
-    {
-        set_test_name("postTo with void return");
-        WorkQueue main("main");
-        auto qptr = WorkQueue::getInstance("queue");
-        std::string observe;
-        main.postTo(
-            qptr,
-            // The ONLY reason we can get away with binding a reference to
-            // 'observe' in our work callable is because we're directly
-            // calling qptr->runOne() on this same thread. It would be a
-            // mistake to do that if some other thread were servicing 'queue'.
-            [&observe](){ observe = "queue"; },
-            [&observe](){ observe.append(";main"); });
-        qptr->runOne();
-        main.runOne();
-        ensure_equals("failed to run both lambdas", observe, "queue;main");
-    }
-
-    template<> template<>
-    void object::test<6>()
-    {
-        set_test_name("waitForResult");
-        std::string stored;
-        // Try to call waitForResult() on this thread's main coroutine. It
-        // should throw because the main coroutine must service the queue.
-        auto what{ catch_what<WorkQueue::Error>(
-                [this, &stored](){ stored = queue.waitForResult(
-                        [](){ return "should throw"; }); }) };
-        ensure("lambda should not have run", stored.empty());
-        ensure_not("waitForResult() should have thrown", what.empty());
-        ensure(STRINGIZE("should mention waitForResult: " << what),
-               what.find("waitForResult") != std::string::npos);
-
-        // Call waitForResult() on a coroutine, with a string result.
-        LLCoros::instance().launch(
-            "waitForResult string",
-            [this, &stored]()
-            { stored = queue.waitForResult(
-                    [](){ return "string result"; }); });
-        llcoro::suspend();
-        // Nothing will have happened yet because, even if the coroutine did
-        // run immediately, all it did was to queue the inner lambda on
-        // 'queue'. Service it.
-        queue.runOne();
-        llcoro::suspend();
-        ensure_equals("bad waitForResult return", stored, "string result");
-
-        // Call waitForResult() on a coroutine, with a void callable.
-        stored.clear();
-        bool done = false;
-        LLCoros::instance().launch(
-            "waitForResult void",
-            [this, &stored, &done]()
-            {
-                queue.waitForResult([&stored](){ stored = "ran"; });
-                done = true;
-            });
-        llcoro::suspend();
-        queue.runOne();
-        llcoro::suspend();
-        ensure_equals("didn't run coroutine", stored, "ran");
-        ensure("void waitForResult() didn't return", done);
     }
 } // namespace tut

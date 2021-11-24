@@ -31,6 +31,7 @@
 #include "llviewershadermgr.h"
 #include "pipeline.h"
 #include "llglcommonfunc.h"
+#include "llvoavatar.h"
 
 S32 diffuse_channel = -1;
 
@@ -47,11 +48,18 @@ void LLDrawPoolMaterials::prerender()
 
 S32 LLDrawPoolMaterials::getNumDeferredPasses()
 {
-	return 12;
+    // 12 render passes times 2 (one for each rigged and non rigged)
+	return 12*2;
 }
 
 void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 {
+    bool rigged = false;
+    if (pass >= 12)
+    { 
+        rigged = true;
+        pass -= 12;
+    }
 	U32 shader_idx[] = 
 	{
 		0, //LLRenderPass::PASS_MATERIAL,
@@ -72,13 +80,22 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 		15, //LLRenderPass::PASS_NORMSPEC_GLOW,
 	};
 	
-	mShader = &(gDeferredMaterialProgram[shader_idx[pass]]);
-
-	if (LLPipeline::sUnderWaterRender)
-	{
-		mShader = &(gDeferredMaterialWaterProgram[shader_idx[pass]]);
-	}
-
+    U32 idx = shader_idx[pass];
+    
+    if (LLPipeline::sUnderWaterRender)
+    {
+        mShader = &(gDeferredMaterialWaterProgram[idx]);
+    }
+    else
+    {
+        mShader = &(gDeferredMaterialProgram[idx]);
+    }
+    
+    if (rigged)
+    {
+        llassert(mShader->mRiggedVariant != nullptr);
+        mShader = mShader->mRiggedVariant;
+    }
 	mShader->bind();
 
     if (LLPipeline::sRenderingHUDs)
@@ -127,9 +144,20 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 		LLRenderPass::PASS_NORMSPEC_EMISSIVE,
 	};
 
+    bool rigged = false;
+    if (pass >= 12)
+    {
+        rigged = true;
+        pass -= 12;
+    }
+
 	llassert(pass < sizeof(type_list)/sizeof(U32));
 
 	U32 type = type_list[pass];
+    if (rigged)
+    {
+        type += 1;
+    }
 
 	U32 mask = mShader->mAttributeMask;
 
@@ -160,7 +188,7 @@ void LLDrawPoolMaterials::renderDeferred(S32 pass)
 
         {
             LL_PROFILE_ZONE_SCOPED;
-            pushMaterialsBatch(params, mask);
+            pushMaterialsBatch(params, mask, rigged);
         }
 	}
 }
@@ -175,7 +203,7 @@ void LLDrawPoolMaterials::bindNormalMap(LLViewerTexture* tex)
 	mShader->bindTexture(LLShaderMgr::BUMP_MAP, tex);
 }
 
-void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask)
+void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED;
 	applyModelMatrix(params);
@@ -213,6 +241,24 @@ void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask)
 	{
 		params.mGroup->rebuildMesh();
 	}
+
+    // upload matrix palette to shader
+    if (rigged)
+    {
+        const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
+        U32 count = mpc.mMatrixPalette.size();
+
+        if (count == 0)
+        {
+            //skin info not loaded yet, don't render
+            return;
+        }
+
+        mShader->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
+            count,
+            FALSE,
+            (GLfloat*)&(mpc.mGLMp[0]));
+    }
 
 	LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 

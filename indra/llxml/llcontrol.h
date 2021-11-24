@@ -247,6 +247,7 @@ public:
 	// generic getter
 	template<typename T> T get(const std::string& name)
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		LLControlVariable* control = getControl(name);
 		LLSD value;
 		eControlType type = TYPE_COUNT;

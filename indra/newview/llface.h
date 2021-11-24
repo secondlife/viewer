@@ -49,6 +49,7 @@ class LLViewerTexture;
 class LLGeometryManager;
 class LLTextureAtlasSlot;
 class LLDrawInfo;
+class LLMeshSkinInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
@@ -228,11 +229,7 @@ public:
 	void setVertexBuffer(LLVertexBuffer* buffer);
 	void clearVertexBuffer(); //sets mVertexBuffer to NULL
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
-	U32 getRiggedVertexBufferDataMask() const;
 	S32 getRiggedIndex(U32 type) const;
-	void setRiggedIndex(U32 type, S32 index);
-
-	static U32 getRiggedDataMask(U32 type);
 
 	void	notifyAboutCreatingTexture(LLViewerTexture *texture);
 	void	notifyAboutMissingAsset(LLViewerTexture *texture);
@@ -261,6 +258,11 @@ public:
 	LLMatrix4*	mSpecMapMatrix;
 	LLMatrix4*	mNormalMapMatrix;
 	LLDrawInfo* mDrawInfo;
+    LLVOAvatar* mAvatar = nullptr;
+    LLMeshSkinInfo* mSkinInfo = nullptr;
+    
+    // return mSkinInfo->mHash or 0 if mSkinInfo is null
+    U64 getSkinHash();
 
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
