@@ -35,6 +35,7 @@
 #include "llrender.h"
 #include "llmetricperformancetester.h"
 #include "httpcommon.h"
+#include "workqueue.h"
 
 #include <map>
 #include <list>
@@ -212,6 +213,9 @@ protected:
 
 	//do not use LLPointer here.
 	LLViewerMediaTexture* mParcelMedia ;
+
+	LL::WorkQueue::weak_t mMainQueue;
+	LL::WorkQueue::weak_t mImageQueue;
 
 	static F32 sTexelPixelRatio;
 public:

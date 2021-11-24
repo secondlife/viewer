@@ -3871,6 +3871,17 @@
         <key>Value</key>
         <integer>1</integer>
     </map>
+    <key>MainWorkTime</key>
+    <map>
+        <key>Comment</key>
+        <string>Max time per frame devoted to mainloop work queue (in milliseconds)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>F32</string>
+        <key>Value</key>
+        <real>0.1</real>
+    </map>
     <key>QueueInventoryFetchTimeout</key>
     <map>
         <key>Comment</key>
@@ -12666,6 +12677,20 @@
       <string>String</string>
       <key>Value</key>
       <string />
+    </map>
+    <key>ThreadPoolSizes</key>
+    <map>
+      <key>Comment</key>
+      <string>Map of size overrides for specific thread pools.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <map>
+        <key>General</key>
+        <integer>4</integer>
+      </map>
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>

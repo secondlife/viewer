@@ -172,31 +172,19 @@ BOOL is_little_endian()
 	return (*c == 0x78) ;
 }
 
-LLImageGLThread* LLImageGLThread::sInstance = nullptr;
-
 //static 
 void LLImageGL::initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED;
 	sSkipAnalyzeAlpha = skip_analyze_alpha;
-    LLImageGLThread::sInstance = new LLImageGLThread(window);
-    LLImageGLThread::sInstance->start();
-}
-
-//static
-void LLImageGL::updateClass()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    LLImageGLThread::sInstance->executeCallbacks();
+    LLImageGLThread::createInstance(window);
 }
 
 //static 
 void LLImageGL::cleanupClass() 
 {
     LL_PROFILE_ZONE_SCOPED;
-    LLImageGLThread::sInstance->mFunctionQueue.close();
-    delete LLImageGLThread::sInstance;
-    LLImageGLThread::sInstance = nullptr;
+    LLImageGLThread::deleteSingleton();
 }
 
 //static
@@ -504,6 +492,9 @@ void LLImageGL::init(BOOL usemipmaps)
 #endif
 
 	mCategory = -1;
+
+	// Sometimes we have to post work for the main thread.
+	mMainQueue = LL::WorkQueue::getInstance("mainloop");
 }
 
 void LLImageGL::cleanup()
@@ -1536,8 +1527,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     }
 
     //if we're on the image loading thread, be sure to delete old_texname and update mTexName on the main thread
-    if (LLImageGLThread::sInstance != nullptr && 
-        LLThread::currentID() == LLImageGLThread::sInstance->getID())
+    if (! on_main_thread())
     {
         {
             LL_PROFILE_ZONE_NAMED("cglt - sync");
@@ -1554,7 +1544,9 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
         }
 
         ref();
-        LLImageGLThread::sInstance->postCallback([=]()
+        LL::WorkQueue::postMaybe(
+            mMainQueue,
+            [=]()
             {
                 LL_PROFILE_ZONE_NAMED("cglt - delete callback");
                 if (old_texname != 0)
@@ -2259,68 +2251,17 @@ void LLImageGL::resetCurTexSizebar()
 */  
 
 LLImageGLThread::LLImageGLThread(LLWindow* window)
-    : LLThread("LLImageGL"), mWindow(window)
+    // We want exactly one thread, but a very large capacity: we never want
+    // anyone, especially inner-loop render code, to have to block on post()
+    // because we're full.
+    : ThreadPool("LLImageGL", 1, 1024*1024)
+    , mWindow(window)
 {
     LL_PROFILE_ZONE_SCOPED;
     mFinished = false;
 
     mContext = mWindow->createSharedContext();
     ThreadPool::start();
-}
-
-// post a function to be executed on the LLImageGL background thread
-
-bool LLImageGLThread::post(const std::function<void()>& func)
-{
-    try
-    {
-        mFunctionQueue.post(func);
-    }
-    catch (LLThreadSafeQueueInterrupt e)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-//post a callback to be executed on the main thread
-
-bool LLImageGLThread::postCallback(const std::function<void()>& callback)
-{
-    try
-    {
-        if (!mCallbackQueue.tryPost(callback))
-        {
-            mPendingCallbackQ.push(callback);
-        }
-    }
-    catch (LLThreadSafeQueueInterrupt e)
-    {
-        //thread is closing, drop request
-        return false;
-    }
-
-    return true;
-}
-
-void LLImageGLThread::executeCallbacks()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    //executed from main thread
-    mCallbackQueue.runPending();
-
-    while (!mPendingCallbackQ.empty())
-    {
-        if (mCallbackQueue.tryPost(mPendingCallbackQ.front()))
-        {
-            mPendingCallbackQ.pop();
-        }
-        else
-        {
-            break;
-        }
-    }
 }
 
 void LLImageGLThread::run()
@@ -2330,7 +2271,7 @@ void LLImageGLThread::run()
     // WorkQueue, likewise cleanup afterwards.
     mWindow->makeContextCurrent(mContext);
     gGL.init();
-    mFunctionQueue.runUntilClose();
+    ThreadPool::run();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
 }

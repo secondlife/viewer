@@ -37,6 +37,7 @@
 #include "llunits.h"
 #include "llthreadsafequeue.h"
 #include "llrender.h"
+#include "threadpool.h"
 #include "workqueue.h"
 
 class LLTextureAtlas ;
@@ -198,6 +199,7 @@ private:
 	void freePickMask();
 
 	LLPointer<LLImageRaw> mSaveData; // used for destroyGL/restoreGL
+	LL::WorkQueue::weak_t mMainQueue;
 	U8* mPickMask;  //downsampled bitmap approximation of alpha channel.  NULL if no alpha channel
 	U16 mPickMaskWidth;
 	U16 mPickMaskHeight;
@@ -271,7 +273,6 @@ public:
 
 public:
 	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false); 
-    static void updateClass();
 	static void cleanupClass() ;
 
 private:
@@ -307,34 +308,24 @@ public:
 
 };
 
-class LLImageGLThread : public LLThread
+class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 {
 public:
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
-    bool post(const std::function<void()>& func);
-
-    //post a callback to be executed on the main thread
-    bool postCallback(const std::function<void()>& callback);
-
-    void executeCallbacks();
+    template <typename CALLABLE>
+    bool post(CALLABLE&& func)
+    {
+        return getQueue().postIfOpen(std::forward<CALLABLE>(func));
+    }
 
     void run() override;
 
-    // Work Queue for background thread
-    LL::WorkQueue mFunctionQueue;
-
-    // Work Queue for main thread (run from updateClass)
-    LL::WorkQueue mCallbackQueue;
-
+private:
     LLWindow* mWindow;
     void* mContext = nullptr;
     LLAtomicBool mFinished;
-
-    std::queue<std::function<void()>> mPendingCallbackQ;
-
-    static LLImageGLThread* sInstance;
 };
 
 
