@@ -23,11 +23,15 @@
 
 LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
     mQueue(name, capacity),
-    mName("ThreadPool:" + name)
+    mName("ThreadPool:" + name),
+    mThreadCount(threads)
+{}
+
+void LL::ThreadPool::start()
 {
-    for (size_t i = 0; i < threads; ++i)
+    for (size_t i = 0; i < mThreadCount; ++i)
     {
-        std::string tname{ STRINGIZE(mName << ':' << (i+1) << '/' << threads) };
+        std::string tname{ stringize(mName, ':', (i+1), '/', mThreadCount) };
         mThreads.emplace_back(tname, [this, tname]()
             {
                 LL_PROFILER_SET_THREAD_NAME(tname.c_str());

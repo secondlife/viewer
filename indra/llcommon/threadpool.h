@@ -33,6 +33,14 @@ namespace LL
         virtual ~ThreadPool();
 
         /**
+         * Launch the ThreadPool. Until this call, a constructed ThreadPool
+         * launches no threads. That permits coders to derive from ThreadPool,
+         * or store it as a member of some other class, but refrain from
+         * launching it until all other construction is complete.
+         */
+        void start();
+
+        /**
          * ThreadPool listens for application shutdown messages on the "LLApp"
          * LLEventPump. Call close() to shut down this ThreadPool early.
          */
@@ -54,6 +62,7 @@ namespace LL
 
         WorkQueue mQueue;
         std::string mName;
+        size_t mThreadCount;
         std::vector<std::pair<std::string, std::thread>> mThreads;
     };
 

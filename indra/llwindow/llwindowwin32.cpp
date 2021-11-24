@@ -4495,6 +4495,7 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
     : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
 {
+    ThreadPool::start();
 }
 
 /**
