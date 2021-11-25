@@ -4010,8 +4010,11 @@ void render_hud_elements()
 		// Draw the tracking overlays
 		LLTracker::render3D();
 		
-		// Show the property lines
-		LLWorld::getInstance()->renderPropertyLines();
+        if (LLWorld::instanceExists())
+        {
+            // Show the property lines
+            LLWorld::getInstance()->renderPropertyLines();
+        }
 		LLViewerParcelMgr::getInstance()->render();
 		LLViewerParcelMgr::getInstance()->renderParcelCollision();
 	
