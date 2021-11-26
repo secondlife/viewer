@@ -136,13 +136,11 @@ public:
 	void createPick()
 	{
 		// open the new pick panel on the Picks floater
-		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+        LLSD params;
+        params["open_tab_name"] = "panel_picks";
+        params["show_tab_panel"] = "create_classified";
 
-		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
-		if (picks)
-		{
-			picks->createNewPick();
-		}
+        LLFloaterSidePanelContainer::showPanel("picks", params);
 	}
 
 	void editPick(LLPickData* pick_info)
@@ -261,13 +259,11 @@ public:
 	void createClassified()
 	{
 		// open the new classified panel on the Picks floater
-		LLFloater* picks_floater = LLFloaterReg::showInstance("picks");
+        LLSD params;
+        params["open_tab_name"] = "panel_picks";
+        params["show_tab_panel"] = "create_pick";
 
-		LLPanelPicks* picks = picks_floater->findChild<LLPanelPicks>("panel_picks");
-		if (picks)
-		{
-			picks->createNewClassified();
-		}
+        LLFloaterSidePanelContainer::showPanel("picks", params);
 	}
 
 	void openClassified(LLAvatarClassifiedInfo* c_info)
