@@ -57,7 +57,6 @@ if(WINDOWS)
         libaprutil-1.dll
         libapriconv-1.dll
         nghttp2.dll
-        glod.dll
         libhunspell.dll
         uriparser.dll
         )
@@ -168,7 +167,6 @@ elseif(DARWIN)
         libaprutil-1.0.dylib
         libaprutil-1.dylib
         ${EXPAT_COPY}
-        libGLOD.dylib
         libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
@@ -217,7 +215,6 @@ elseif(LINUX)
         ${EXPAT_COPY}
         libfreetype.so.6.6.2
         libfreetype.so.6
-        libGLOD.so
         libgmodule-2.0.so
         libgobject-2.0.so
         libhunspell-1.3.so.0.0.0

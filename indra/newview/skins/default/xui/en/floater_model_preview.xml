@@ -45,7 +45,21 @@
   <string name="UnrecognizedJoint">Rigged to unrecognized joint name [NAME]</string>
   <string name="UnknownJoints">Skinning disabled due to [COUNT] unknown joints</string>
   <string name="ModelLoaded">Model [MODEL_NAME] loaded</string>
+
   <string name="IncompleteTC">Texture coordinates data is not complete.</string>
+  <string name="PositionNaN">Found NaN while loading position data from DAE-Model, invalid model.</string>
+  <string name="NormalsNaN">Found NaN while loading normals from DAE-Model, invalid model.</string>
+  <string name="NegativeScaleTrans">Negative scale detected, unsupported transform. domInstance_geometry: [LABEL]</string>
+  <string name="NegativeScaleNormTrans">Negative scale detected, unsupported post-normalization transform. domInstance_geometry: [LABEL]</string>
+  <string name="CantResolveGeometryUrl">Unable to resolve geometry URL.</string>
+  <string name="ParsingErrorBadElement">Bad element</string>
+  <string name="ParsingErrorCantParseScene">Scene could not be parsed</string>
+  <string name="ParsingErrorCorrupt">Error with dae - traditionally indicates a corrupt file.</string>
+  <string name="ParsingErrorNoController">Could not verify controller</string>
+  <string name="ParsingErrorNoDoc">Can't find internal doc</string>
+  <string name="ParsingErrorNoRoot">Document has no root</string>
+  <string name="ParsingErrorNoScene">Document has no visual_scene</string>
+  <string name="ParsingErrorPositionInvalidModel">Unable to process mesh without position data. Invalid model.</string>
 
   <panel
     follows="top|left"
@@ -173,9 +187,21 @@
                  label="Load from file"
                  value="Load from file" />
                 <item
-                 name="Generate"
-                 label="Generate"
-                 value="Generate" />
+                 name="MeshOpt Auto"
+                 label="Generate Auto"
+                 value="MeshOpt Auto" />
+                <item
+                 name="MeshOptCombine"
+                 label="Generate Precise"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
+                 label="Generate per face"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="Generate Sloppy"
+                 value="MeshOptSloppy" />
             </combo_box>
             <line_editor
              follows="left|top"
@@ -302,9 +328,21 @@
                  label="Load from file"
                  value="Load from file" />
                 <item
-                 name="Generate"
-                 label="Generate"
-                 value="Generate" />
+                 name="MeshOpt Auto"
+                 label="Generate Auto"
+                 value="MeshOpt Auto" />
+                <item
+                 name="MeshOptCombine"
+                 label="Generate Precise"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
+                 label="Generate per face"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="Generate Sloppy"
+                 value="MeshOptSloppy" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -435,9 +473,21 @@
                  label="Load from file"
                  value="Load from file" />
                 <item
-                 name="Generate"
-                 label="Generate"
-                 value="Generate" />
+                 name="MeshOpt Auto"
+                 label="Generate Auto"
+                 value="MeshOpt Auto" />
+                <item
+                 name="MeshOptCombine"
+                 label="Generate Precise"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
+                 label="Generate per face"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="Generate Sloppy"
+                 value="MeshOptSloppy" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
@@ -568,9 +618,21 @@
                  label="Load from file"
                  value="Load from file" />
                 <item
-                 name="Generate"
-                 label="Generate"
-                 value="Generate" />
+                 name="MeshOpt Auto"
+                 label="Generate Auto"
+                 value="MeshOpt Auto" />
+                <item
+                 name="MeshOptCombine"
+                 label="Generate Precise"
+                 value="MeshOptCombine" />
+                <item
+                 name="MeshOpt"
+                 label="Generate per face"
+                 value="MeshOpt" />
+                <item
+                 name="MeshOptSloppy"
+                 label="Generate Sloppy"
+                 value="MeshOptSloppy" />
                 <item
                  name="Use LoD above"
                  label="Use LoD above"
