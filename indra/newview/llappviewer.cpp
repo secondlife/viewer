@@ -1734,7 +1734,7 @@ bool LLAppViewer::cleanup()
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
-    LLNotifications::instance().clear();
+     LLNotifications::instance().clear();
 
 	// workaround for DEV-35406 crash on shutdown
 	LLEventPumps::instance().reset();
@@ -1775,6 +1775,7 @@ bool LLAppViewer::cleanup()
     LLPluginProcessParent::shutdown();
 
 	disconnectViewer();
+    LLViewerCamera::deleteSingleton();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
 	
@@ -5696,7 +5697,6 @@ void LLAppViewer::disconnectViewer()
 		LLWorld::getInstance()->destroyClass();
 	}
 	LLVOCache::deleteSingleton();
-    LLViewerCamera::deleteSingleton();
 
 	// call all self-registered classes
 	LLDestroyClassList::instance().fireCallbacks();
