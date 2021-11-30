@@ -137,11 +137,6 @@ void LLTexUnit::refreshState(void)
 		glBindTexture(GL_TEXTURE_2D, 0);	
 	}
 
-	if (mCurrBlendType != TB_COMBINE)
-	{
-		setTextureBlendType(mCurrBlendType);
-	}
-
     setTextureColorSpace(mTexColorSpace);
 }
 
@@ -538,10 +533,6 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);
 		}
 	}
-}
-
-void LLTexUnit::setTextureBlendType(eTextureBlendType type)
-{
 }
 
 GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)

@@ -328,11 +328,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	triangle_count += count;
 	
-	if (mTestImageName)
-	{
-		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
-
 	return triangle_count;
 }
 

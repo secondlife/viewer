@@ -188,9 +188,6 @@ void LLHUDText::renderText()
 	F32 y_offset = (F32)mOffsetY;
 		
 	// Render label
-	{
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
 
 	// Render text
 	{

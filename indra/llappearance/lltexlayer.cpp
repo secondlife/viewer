@@ -529,7 +529,6 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 			{
 				LLGLSUIDefault gls_ui;
 				gGL.getTexUnit(0)->bind(tex);
-				gGL.getTexUnit(0)->setTextureBlendType( LLTexUnit::TB_REPLACE );
 				gl_rect_2d_simple_tex( width, height );
 			}
 		}
@@ -555,7 +554,6 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	if (mMaskLayerList.size() > 0)
 	{
 		gGL.setSceneBlendType(LLRender::BT_MULT_ALPHA);
-		gGL.getTexUnit(0)->setTextureBlendType( LLTexUnit::TB_REPLACE );
 		for (layer_list_t::iterator iter = mMaskLayerList.begin(); iter != mMaskLayerList.end(); iter++)
 		{
 			LLTexLayerInterface* layer = *iter;
@@ -568,7 +566,6 @@ void LLTexLayerSet::renderAlphaMaskTextures(S32 x, S32 y, S32 width, S32 height,
 	
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	gGL.setColorMask(true, true);
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }

@@ -166,8 +166,6 @@ void display_startup()
 
 	if (gViewerWindow)
 	gViewerWindow->setup2DRender();
-	gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
 	gGL.color4f(1,1,1,1);
 	if (gViewerWindow)
 	gViewerWindow->draw();
@@ -1480,7 +1478,6 @@ void render_ui_2d()
 	}
 
 	stop_glerror();
-	//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 	// render outline for HUD
 	if (isAgentAvatarValid() && gAgentCamera.mHUDCurZoom < 0.98f)

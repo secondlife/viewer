@@ -593,21 +593,9 @@ void LLDrawPoolBump::endFullbrightShiny()
 	if( cube_map )
 	{
 		cube_map->disable();
-
-        /*if (diffuse_channel != 0)
-		{
-			shader->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
-		}
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);*/
-
 		shader->unbind();
-		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 	}
 	
-	//gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
 	diffuse_channel = -1;
 	cube_channel = 0;
 	mShiny = FALSE;
