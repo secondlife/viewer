@@ -239,7 +239,6 @@ void LLDrawPoolWater::render(S32 pass)
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1);
 
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	gGL.getTexUnit(0)->activate();

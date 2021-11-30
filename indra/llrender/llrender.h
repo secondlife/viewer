@@ -105,10 +105,7 @@ public:
 		TBO_LERP_VERT_ALPHA,		// Interpolate based on Vertex Alpha (VA): ( Source1 * VA + Source2 * (1-VA) )
 		TBO_LERP_TEX_ALPHA,			// Interpolate based on Texture Alpha (TA): ( Source1 * TA + Source2 * (1-TA) )
 		TBO_LERP_PREV_ALPHA,		// Interpolate based on Previous Alpha (PA): ( Source1 * PA + Source2 * (1-PA) )
-		TBO_LERP_CONST_ALPHA,		// Interpolate based on Const Alpha (CA): ( Source1 * CA + Source2 * (1-CA) )
-		TBO_LERP_VERT_COLOR			// Interpolate based on Vertex Col (VC): ( Source1 * VC + Source2 * (1-VC) )
-										// *Note* TBO_LERP_VERTEX_COLOR only works with setTextureColorBlend(),
-										// and falls back to TBO_LERP_VERTEX_ALPHA for setTextureAlphaBlend().
+		TBO_LERP_CONST_ALPHA		// Interpolate based on Const Alpha (CA): ( Source1 * CA + Source2 * (1-CA) )
 	} eTextureBlendOp;
 
 	typedef enum 
@@ -200,9 +197,6 @@ public:
 	// Warning: this stays set for the bound texture forever, 
 	// make sure you want to permanently change the filtering for the bound texture.
 	void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
-
-	inline void setTextureColorBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_COLOR)
-	{ /* setTextureCombiner(op, src1, src2, false); */ }
 
 	// NOTE: If *_COLOR enums are passed to src1 or src2, the corresponding *_ALPHA enum will be used instead.
 	inline void setTextureAlphaBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_ALPHA)

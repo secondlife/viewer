@@ -265,7 +265,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 		else
 		{
 			gGL.diffuseColor4f(0.7f, 0.6f, 0.3f, 1.f);
-			gGL.getTexUnit(diffuse_channel)->setTextureColorBlend(LLTexUnit::TBO_LERP_TEX_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);
 		}
 	}
 	else if( !is_dummy && layerset )

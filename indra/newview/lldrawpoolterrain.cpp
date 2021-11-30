@@ -467,8 +467,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-
 	//
 	// Stage 1: Generate alpha ramp for detail0/detail1 transition
 	//
@@ -478,7 +476,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.getTexUnit(1)->activate();
 	
 	// Care about alpha only
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	//
@@ -495,8 +492,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(2)->setTextureColorBlend(LLTexUnit::TBO_LERP_PREV_ALPHA, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_TEX_COLOR);
-
 	//
 	// Stage 3: Modulate with primary (vertex) color for lighting
 	//
@@ -504,9 +499,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.getTexUnit(3)->enable(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(3)->activate();
 	
-	// Set alpha texture and do lighting modulation
-	gGL.getTexUnit(3)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_VERT_COLOR);
-
 	gGL.getTexUnit(0)->activate();
 	
 	// GL_BLEND disabled by default
@@ -527,8 +519,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-
 	//
 	// Stage 1: Generate alpha ramp for detail2/detail3 transition
 	//
@@ -542,7 +532,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.translatef(-2.f, 0.f, 0.f);
 
 	// Care about alpha only
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	//
@@ -559,8 +548,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(2)->setTextureColorBlend(LLTexUnit::TBO_LERP_PREV_ALPHA, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_PREV_COLOR);	
-
 	//
 	// Stage 3: Generate alpha ramp for detail1/detail2 transition
 	//
@@ -575,7 +562,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// Set alpha texture and do lighting modulation
-	gGL.getTexUnit(3)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_PREV_COLOR, LLTexUnit::TBS_VERT_COLOR);
 	gGL.getTexUnit(3)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
@@ -665,8 +651,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
-
 	drawLoop();
 
 	//----------------------------------------------------------------------------
@@ -681,7 +665,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glDisable(GL_TEXTURE_GEN_T);
 	
 	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 
@@ -699,7 +682,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
@@ -722,7 +704,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	//
@@ -739,7 +720,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	{
@@ -762,7 +742,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_COLOR);
 	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	// Stage 1: Write detail3
@@ -777,7 +756,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
 
-	gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
@@ -836,8 +814,6 @@ void LLDrawPoolTerrain::renderSimple()
 	
 	sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_S, 1, tp0.mV);
 	sShader->uniform4fv(LLShaderMgr::OBJECT_PLANE_T, 1, tp1.mV);
-
-	gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
 
 	drawLoop();
 
