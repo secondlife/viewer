@@ -376,7 +376,7 @@ LLPipeline::LLPipeline() :
 	mNumVisibleFaces(0),
 
 	mInitialized(false),
-	mVertexShadersLoaded(0),
+	mShadersLoaded(false),
 	mTransformFeedbackPrimitives(0),
 	mRenderDebugFeatureMask(0),
 	mRenderDebugMask(0),
@@ -737,7 +737,7 @@ void LLPipeline::resizeShadowTexture()
 
 void LLPipeline::resizeScreenTexture()
 {
-	if (gPipeline.canUseVertexShaders() && assertInitialized())
+	if (gPipeline.shadersLoaded())
 	{
 		GLuint resX = gViewerWindow->getWorldViewWidthRaw();
 		GLuint resY = gViewerWindow->getWorldViewHeightRaw();
@@ -748,8 +748,8 @@ void LLPipeline::resizeScreenTexture()
             releaseShadowTargets();
 		    allocateScreenBuffer(resX,resY);
             gResizeScreenTexture = FALSE;
-				}
-			}
+		}
+	}
 }
 
 void LLPipeline::allocatePhysicsBuffer()
@@ -1380,17 +1380,9 @@ void LLPipeline::restoreGL()
 	}
 }
 
-
-bool LLPipeline::canUseVertexShaders()
+bool LLPipeline::shadersLoaded()
 {
-	if ((assertInitialized() && mVertexShadersLoaded != 1) )
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    return (assertInitialized() && mShadersLoaded);
 }
 
 bool LLPipeline::canUseWindLightShaders() const
@@ -1413,8 +1405,7 @@ bool LLPipeline::canUseAntiAliasing() const
 void LLPipeline::unloadShaders()
 {
 	LLViewerShaderMgr::instance()->unloadShaders();
-
-	mVertexShadersLoaded = 0;
+	mShadersLoaded = false;
 }
 
 void LLPipeline::assertInitializedDoError()
@@ -2351,7 +2342,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	sCull->clear();
 
-	bool to_texture = LLPipeline::sUseOcclusion > 1 && gPipeline.canUseVertexShaders();
+	bool to_texture = LLPipeline::sUseOcclusion > 1 && gPipeline.shadersLoaded();
 
 	if (to_texture)
 	{
@@ -2385,7 +2376,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 	bool bound_shader = false;
-	if (gPipeline.canUseVertexShaders() && LLGLSLShader::sCurBoundShader == 0)
+	if (gPipeline.shadersLoaded() && LLGLSLShader::sCurBoundShader == 0)
 	{ //if no shader is currently bound, use the occlusion shader instead of fixed function if we can
 		// (shadow render uses a special shader that clamps to clip planes)
 		bound_shader = true;

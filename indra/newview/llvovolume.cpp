@@ -6567,7 +6567,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				{
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
-				else if (gPipeline.canUseVertexShaders()
+				else if (gPipeline.shadersLoaded()
 					&& LLPipeline::sRenderBump 
 					&& te->getShiny() 
 					&& can_be_shiny)
@@ -6602,7 +6602,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 					registerFace(group, facep, LLRenderPass::PASS_ALPHA);
 				}
 			}
-			else if (gPipeline.canUseVertexShaders()
+			else if (gPipeline.shadersLoaded()
 				&& LLPipeline::sRenderBump 
 				&& te->getShiny() 
 				&& can_be_shiny)
@@ -6683,7 +6683,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 				}
 				
 				
-				if (!gPipeline.canUseVertexShaders() && 
+				if (!gPipeline.shadersLoaded() && 
 					!is_alpha && 
 					te->getShiny() && 
 					LLPipeline::sRenderBump)

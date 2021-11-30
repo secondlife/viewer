@@ -516,7 +516,7 @@ void LLDrawPoolAvatar::beginRigid()
 {
     LL_PROFILE_ZONE_SCOPED
 
-	if (gPipeline.canUseVertexShaders())
+	if (gPipeline.shadersLoaded())
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
@@ -664,7 +664,7 @@ void LLDrawPoolAvatar::beginSkinned()
 	}
 	else
 	{
-		if(gPipeline.canUseVertexShaders())
+		if(gPipeline.shadersLoaded())
 		{
 			// software skinning, use a basic shader for windlight.
 			// TODO: find a better fallback method for software skinning.
@@ -698,7 +698,7 @@ void LLDrawPoolAvatar::endSkinned()
 	}
 	else
 	{
-		if(gPipeline.canUseVertexShaders())
+		if(gPipeline.shadersLoaded())
 		{
 			// software skinning, use a basic shader for windlight.
 			// TODO: find a better fallback method for software skinning.

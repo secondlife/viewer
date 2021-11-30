@@ -558,7 +558,7 @@ void LLViewerShaderMgr::setShaders()
         return;
     }
 
-    gPipeline.mVertexShadersLoaded = 1;
+    gPipeline.mShadersLoaded = true;
 
     // Load all shaders to set max levels
     loaded = loadShadersEnvironment();
@@ -714,8 +714,6 @@ void LLViewerShaderMgr::setShaders()
         return;
     }
 
-    // gPipeline.mVertexShadersLoaded = 0;
-    
     if (gViewerWindow)
     {
         gViewerWindow->setCursor(UI_CURSOR_ARROW);
@@ -845,7 +843,7 @@ void LLViewerShaderMgr::unloadShaders()
 	mShaderLevel[SHADER_WINDLIGHT] = 0;
 	mShaderLevel[SHADER_TRANSFORM] = 0;
 
-	gPipeline.mVertexShadersLoaded = 0;
+	gPipeline.mShadersLoaded = false;
 }
 
 BOOL LLViewerShaderMgr::loadBasicShaders()

@@ -460,7 +460,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
     F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
-    bool can_use_vertex_shaders = gPipeline.canUseVertexShaders();
+    bool can_use_vertex_shaders = gPipeline.shadersLoaded();
     bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
 
 
