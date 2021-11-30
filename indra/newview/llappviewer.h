@@ -49,6 +49,8 @@
 #include "lltimer.h"
 #include "llappcorehttp.h"
 
+#include <boost/signals2.hpp>
+
 class LLCommandLineParser;
 class LLFrameTimer;
 class LLPumpIO;
@@ -189,9 +191,19 @@ public:
 	// On LoginCompleted callback
 	typedef boost::signals2::signal<void (void)> login_completed_signal_t;
 	login_completed_signal_t mOnLoginCompleted;
-	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
+	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb )
+	{
+		return mOnLoginCompleted.connect(cb);
+	}
 
 	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
+
+	typedef boost::signals2::signal<void()> cleanup_signal_t;
+	cleanup_signal_t mOnCleanup;
+	boost::signals2::connection onCleanup(const cleanup_signal_t::slot_type& cb)
+	{
+		return mOnCleanup.connect(cb);
+	}
 
 	void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
 	void purgeCache(); // Clear the local cache. 

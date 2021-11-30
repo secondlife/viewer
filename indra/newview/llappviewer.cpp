@@ -1729,6 +1729,11 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	// Since we don't know what functions are going to be queued by
+	// onCleanup(), we have to assume they might rely on some of the things
+	// we're about to destroy below. Run them first.
+	mOnCleanup();
+
 	LLAtmosphere::cleanupClass();
 
 	//ditch LLVOAvatarSelf instance
