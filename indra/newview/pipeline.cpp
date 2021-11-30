@@ -376,7 +376,6 @@ LLPipeline::LLPipeline() :
 	mNumVisibleFaces(0),
 
 	mInitialized(false),
-	mVertexShadersEnabled(false),
 	mVertexShadersLoaded(0),
 	mTransformFeedbackPrimitives(0),
 	mRenderDebugFeatureMask(0),
@@ -1364,10 +1363,7 @@ void LLPipeline::restoreGL()
 {
 	assertInitialized();
 
-	if (mVertexShadersEnabled)
-	{
-		LLViewerShaderMgr::instance()->setShaders();
-	}
+	LLViewerShaderMgr::instance()->setShaders();
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)

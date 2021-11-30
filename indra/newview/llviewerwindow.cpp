@@ -608,12 +608,6 @@ public:
 		{
 			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 
-			if (gPipeline.getUseVertexShaders() == 0)
-			{
-				addText(xpos, ypos, "Shaders Disabled");
-				ypos += y_inc;
-			}
-
 			if (gGLManager.mHasATIMemInfo)
 			{
 				S32 meminfo[4];
