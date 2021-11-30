@@ -1936,206 +1936,29 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 #endif
 }
 
-void LLGLState::checkClientArrays(const std::string& msg, U32 data_mask)
-{
-	if (!gDebugGL || LLGLSLShader::sNoFixedFunction)
-	{
-		return;
-	}
-
-	stop_glerror();
-	BOOL error = FALSE;
-
-	GLint active_texture;
-	glGetIntegerv(GL_CLIENT_ACTIVE_TEXTURE_ARB, &active_texture);
-
-	if (active_texture != GL_TEXTURE0_ARB)
-	{
-		LL_WARNS() << "Client active texture corrupted: " << active_texture << LL_ENDL;
-		if (gDebugSession)
-		{
-			gFailLog << "Client active texture corrupted: " << active_texture << std::endl;
-		}
-		error = TRUE;
-	}
-
-	/*glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &active_texture);
-	if (active_texture != GL_TEXTURE0_ARB)
-	{
-		LL_WARNS() << "Active texture corrupted: " << active_texture << LL_ENDL;
-		if (gDebugSession)
-		{
-			gFailLog << "Active texture corrupted: " << active_texture << std::endl;
-		}
-		error = TRUE;
-	}*/
-
-	static const char* label[] =
-	{
-		"GL_VERTEX_ARRAY",
-		"GL_NORMAL_ARRAY",
-		"GL_COLOR_ARRAY",
-		"GL_TEXTURE_COORD_ARRAY"
-	};
-
-	static GLint value[] =
-	{
-		GL_VERTEX_ARRAY,
-		GL_NORMAL_ARRAY,
-		GL_COLOR_ARRAY,
-		GL_TEXTURE_COORD_ARRAY
-	};
-
-	static const U32 mask[] = 
-	{ //copied from llvertexbuffer.h
-		0x0001, //MAP_VERTEX,
-		0x0002, //MAP_NORMAL,
-		0x0010, //MAP_COLOR,
-		0x0004, //MAP_TEXCOORD
-	};
-
-
-	for (S32 j = 1; j < 4; j++)
-	{
-		if (glIsEnabled(value[j]))
-		{
-			if (!(mask[j] & data_mask))
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "GL still has " << label[j] << " enabled." << LL_ENDL;
-				if (gDebugSession)
-				{
-					gFailLog << "GL still has " << label[j] << " enabled." << std::endl;
-				}
-			}
-		}
-		else
-		{
-			if (mask[j] & data_mask)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "GL does not have " << label[j] << " enabled." << LL_ENDL;
-				if (gDebugSession)
-				{
-					gFailLog << "GL does not have " << label[j] << " enabled." << std::endl;
-				}
-			}
-		}
-	}
-
-	glClientActiveTextureARB(GL_TEXTURE1_ARB);
-	gGL.getTexUnit(1)->activate();
-	if (glIsEnabled(GL_TEXTURE_COORD_ARRAY))
-	{
-		if (!(data_mask & 0x0008))
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "GL still has GL_TEXTURE_COORD_ARRAY enabled on channel 1." << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "GL still has GL_TEXTURE_COORD_ARRAY enabled on channel 1." << std::endl;
-			}
-		}
-	}
-	else
-	{
-		if (data_mask & 0x0008)
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "GL does not have GL_TEXTURE_COORD_ARRAY enabled on channel 1." << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "GL does not have GL_TEXTURE_COORD_ARRAY enabled on channel 1." << std::endl;
-			}
-		}
-	}
-
-	/*if (glIsEnabled(GL_TEXTURE_2D))
-	{
-		if (!(data_mask & 0x0008))
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "GL still has GL_TEXTURE_2D enabled on channel 1." << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "GL still has GL_TEXTURE_2D enabled on channel 1." << std::endl;
-			}
-		}
-	}
-	else
-	{
-		if (data_mask & 0x0008)
-		{
-			error = TRUE;
-			LL_WARNS("RenderState") << "GL does not have GL_TEXTURE_2D enabled on channel 1." << LL_ENDL;
-			if (gDebugSession)
-			{
-				gFailLog << "GL does not have GL_TEXTURE_2D enabled on channel 1." << std::endl;
-			}
-		}
-	}*/
-
-	glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	gGL.getTexUnit(0)->activate();
-
-	if (LLGLSLShader::sNoFixedFunction)
-	{	//make sure vertex attribs are all disabled
-		GLint count;
-		glGetIntegerv(GL_MAX_VERTEX_ATTRIBS_ARB, &count);
-		for (GLint i = 0; i < count; i++)
-		{
-			GLint enabled;
-			glGetVertexAttribivARB((GLuint) i, GL_VERTEX_ATTRIB_ARRAY_ENABLED_ARB, &enabled);
-			if (enabled)
-			{
-				error = TRUE;
-				LL_WARNS("RenderState") << "GL still has vertex attrib array " << i << " enabled." << LL_ENDL;
-				if (gDebugSession)
-				{
-					gFailLog <<  "GL still has vertex attrib array " << i << " enabled." << std::endl;
-				}
-			}
-		}
-	}
-
-	if (error)
-	{
-		if (gDebugSession)
-		{
-			ll_fail("LLGLState::checkClientArrays failed.");
-		}
-		else
-		{
-			LL_GL_ERRS << "GL client array corruption detected.  " << msg << LL_ENDL;
-		}
-	}
-}
-
 ///////////////////////////////////////////////////////////////////////
 
 LLGLState::LLGLState(LLGLenum state, S32 enabled) :
 	mState(state), mWasEnabled(FALSE), mIsEnabled(FALSE)
 {
     LL_PROFILE_ZONE_SCOPED;
-	if (LLGLSLShader::sNoFixedFunction)
-	{ //always ignore state that's deprecated post GL 3.0
-		switch (state)
-		{
-			case GL_ALPHA_TEST:
-			case GL_NORMALIZE:
-			case GL_TEXTURE_GEN_R:
-			case GL_TEXTURE_GEN_S:
-			case GL_TEXTURE_GEN_T:
-			case GL_TEXTURE_GEN_Q:
-			case GL_LIGHTING:
-			case GL_COLOR_MATERIAL:
-			case GL_FOG:
-			case GL_LINE_STIPPLE:
-			case GL_POLYGON_STIPPLE:
-				mState = 0;
-				break;
-		}
+	switch (state)
+	{
+		case GL_ALPHA_TEST:
+		case GL_NORMALIZE:
+		case GL_TEXTURE_GEN_R:
+		case GL_TEXTURE_GEN_S:
+		case GL_TEXTURE_GEN_T:
+		case GL_TEXTURE_GEN_Q:
+		case GL_LIGHTING:
+		case GL_COLOR_MATERIAL:
+		case GL_FOG:
+		case GL_LINE_STIPPLE:
+		case GL_POLYGON_STIPPLE:
+			mState = 0;
+			break;
 	}
+
 
 	stop_glerror();
 	if (mState)
@@ -2688,22 +2511,10 @@ LLGLSPipelineSkyBox::LLGLSPipelineSkyBox()
 , mCullFace(GL_CULL_FACE)
 , mSquashClip()
 { 
-    if (!LLGLSLShader::sNoFixedFunction)
-    {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_FOG);
-        glDisable(GL_CLIP_PLANE0);
-    }
 }
 
 LLGLSPipelineSkyBox::~LLGLSPipelineSkyBox()
 {
-    if (!LLGLSLShader::sNoFixedFunction)
-    {
-        glEnable(GL_LIGHTING);
-        glEnable(GL_FOG);
-        glEnable(GL_CLIP_PLANE0);
-    }
 }
 
 LLGLSPipelineDepthTestSkyBox::LLGLSPipelineDepthTestSkyBox(bool depth_test, bool depth_write)

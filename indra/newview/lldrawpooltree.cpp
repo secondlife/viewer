@@ -90,7 +90,7 @@ void LLDrawPoolTree::render(S32 pass)
 		return;
 	}
 
-	LLGLState test(GL_ALPHA_TEST, LLGLSLShader::sNoFixedFunction ? 0 : 1);
+	LLGLState test(GL_ALPHA_TEST, 0);
 
 	gGL.getTexUnit(sDiffTex)->bind(mTexturep);
 				

@@ -745,23 +745,9 @@ void LLDrawPoolBump::renderBump(U32 pass)
 //static
 void LLDrawPoolBump::endBump(U32 pass)
 {
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gObjectBumpProgram.unbind();
-	}
-	else
-	{
-		// Disable texture blending on unit 1
-		gGL.getTexUnit(1)->activate();
-		gGL.getTexUnit(1)->disable();
-		gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
+    gObjectBumpProgram.unbind();
 
-		// Disable texture blending on unit 0
-		gGL.getTexUnit(0)->activate();
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
-	
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
 }
 
 S32 LLDrawPoolBump::getNumDeferredPasses()

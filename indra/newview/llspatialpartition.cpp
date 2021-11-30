@@ -2612,7 +2612,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				gGL.diffuseColor4fv(line_color.mV);
 				LLVertexBuffer::unbind();
 
-				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
+				llassert(LLGLSLShader::sCurBoundShader != 0);
 				
                 LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
@@ -2694,7 +2694,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
+			llassert(LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
 			glVertexPointer(3, GL_FLOAT, 16, phys_volume->mHullPoints);
 			gGL.diffuseColor4fv(line_color.mV);
@@ -3796,10 +3796,7 @@ void LLSpatialPartition::renderDebug()
 		return;
 	}
 	
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gDebugProgram.bind();
-	}
+	gDebugProgram.bind();
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 	{
@@ -3848,10 +3845,7 @@ void LLSpatialPartition::renderDebug()
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
 	}
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gDebugProgram.unbind();
-	}
+	gDebugProgram.unbind();
 }
 
 void LLSpatialGroup::drawObjectBox(LLColor4 col)

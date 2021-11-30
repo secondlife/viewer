@@ -271,7 +271,7 @@ void LLSceneMonitor::capture()
 	static LLCachedControl<F32>  scene_load_sample_time(gSavedSettings, "SceneLoadingMonitorSampleTime");
 	static bool force_capture = true;
 
-	bool enabled = LLGLSLShader::sNoFixedFunction && (monitor_enabled || mDebugViewerVisible);
+	bool enabled = monitor_enabled || mDebugViewerVisible;
 	if(mEnabled != enabled)
 	{
 		if(mEnabled)
@@ -719,13 +719,6 @@ void LLSceneMonitorView::onTeleportFinished()
 
 void LLSceneMonitorView::onVisibilityChange(BOOL visible)
 {
-	if (!LLGLSLShader::sNoFixedFunction && visible)
-	{
-		visible = false;
-		// keep Scene monitor and its view in sycn
-		setVisible(false);
-		LL_WARNS("SceneMonitor") << "Incompatible graphical settings, Scene Monitor can't be turned on" << LL_ENDL; 
-	}
 	LLSceneMonitor::getInstance()->setDebugViewerVisible(visible);
 }
 

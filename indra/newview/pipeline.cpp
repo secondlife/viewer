@@ -1061,7 +1061,6 @@ void LLPipeline::refreshCachedSettings()
 
 	LLPipeline::sUseOcclusion = 
 			(!gUseWireframe
-			&& LLGLSLShader::sNoFixedFunction
 			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
@@ -2338,8 +2337,7 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
 	static LLCachedControl<bool> use_occlusion(gSavedSettings,"UseOcclusion");
-	static bool can_use_occlusion = LLGLSLShader::sNoFixedFunction
-									&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
+	static bool can_use_occlusion = LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 									&& gGLManager.mHasOcclusionQuery;
 
 	LL_RECORD_BLOCK_TIME(FTM_CULL);
@@ -2650,7 +2648,7 @@ void LLPipeline::doOcclusion(LLCamera& camera)
 		LLGLDisable cull(GL_CULL_FACE);
 
 		
-		bool bind_shader = LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShader == 0;
+		bool bind_shader = (LLGLSLShader::sCurBoundShader == 0);
 		if (bind_shader)
 		{
 			if (LLPipeline::sShadowRender)
@@ -3992,10 +3990,7 @@ void render_hud_elements()
 	
 	gGL.color4f(1,1,1,1);
 	
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
 	if (!LLPipeline::sReflectionRender && gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
@@ -4027,10 +4022,7 @@ void render_hud_elements()
 		LLHUDText::renderAllHUD();
 	}
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
+	gUIProgram.unbind();
 	gGL.flush();
 }
 
@@ -4062,10 +4054,7 @@ void LLPipeline::renderHighlights()
 
 		gGL.setColorMask(false, false);
 
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gHighlightProgram.bind();
-        }
+        gHighlightProgram.bind();
 
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); ++iter)
 		{
@@ -4297,7 +4286,6 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 	// Do verification of GL state
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 	if (mRenderDebugMask & RENDER_DEBUG_VERIFY)
 	{
 		if (!verify())
@@ -4546,7 +4534,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
-		LLGLState::checkClientArrays();
 
 		U32 cur_type = 0;
 
@@ -4819,10 +4806,7 @@ void LLPipeline::renderPhysicsDisplay()
 
 	gGL.setColorMask(true, false);
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gDebugProgram.bind();
-	}
+	gDebugProgram.bind();
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -4843,11 +4827,7 @@ void LLPipeline::renderPhysicsDisplay()
 
 	gGL.flush();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gDebugProgram.unbind();
-	}
-
+	gDebugProgram.unbind();
 	mPhysicsDisplay.flush();
 }
 
@@ -4874,13 +4854,10 @@ void LLPipeline::renderDebug()
 
 				if ( pathfindingCharacter->getVisible() || gAgentCamera.cameraMouselook() )			
 				{	
-					if (LLGLSLShader::sNoFixedFunction)
-					{					
-						gPathfindingProgram.bind();			
-						gPathfindingProgram.uniform1f(sTint, 1.f);
-						gPathfindingProgram.uniform1f(sAmbiance, 1.f);
-						gPathfindingProgram.uniform1f(sAlphaScale, 1.f);
-					}
+					gPathfindingProgram.bind();			
+					gPathfindingProgram.uniform1f(sTint, 1.f);
+					gPathfindingProgram.uniform1f(sAmbiance, 1.f);
+					gPathfindingProgram.uniform1f(sAlphaScale, 1.f);
 
 					//Requried character physics capsule render parameters
 					LLUUID id;					
@@ -4889,21 +4866,14 @@ void LLPipeline::renderDebug()
 				
 					if ( pathfindingCharacter->isPhysicsCapsuleEnabled( id, pos, rot ) )
 					{
-						if (LLGLSLShader::sNoFixedFunction)
-						{					
-							//remove blending artifacts
-							gGL.setColorMask(false, false);
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );				
-							gGL.setColorMask(true, false);
-							LLGLEnable blend(GL_BLEND);
-							gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
-							gPathfindingProgram.bind();
-						}
-						else
-						{
-							llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
-						}
+						//remove blending artifacts
+						gGL.setColorMask(false, false);
+						llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );				
+						gGL.setColorMask(true, false);
+						LLGLEnable blend(GL_BLEND);
+						gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
+						llPathingLibInstance->renderSimpleShapeCapsuleID( gGL, id, pos, rot );
+						gPathfindingProgram.bind();
 					}
 				}
 			}
@@ -4919,14 +4889,11 @@ void LLPipeline::renderDebug()
 				{				
 					F32 ambiance = gSavedSettings.getF32("PathfindingAmbiance");
 
-					if (LLGLSLShader::sNoFixedFunction)
-					{					
-						gPathfindingProgram.bind();
+					gPathfindingProgram.bind();
 			
-						gPathfindingProgram.uniform1f(sTint, 1.f);
-						gPathfindingProgram.uniform1f(sAmbiance, ambiance);
-						gPathfindingProgram.uniform1f(sAlphaScale, 1.f);
-					}
+					gPathfindingProgram.uniform1f(sTint, 1.f);
+					gPathfindingProgram.uniform1f(sAmbiance, ambiance);
+					gPathfindingProgram.uniform1f(sAlphaScale, 1.f);
 
 					if ( !pathfindingConsole->isRenderWorld() )
 					{
@@ -4958,18 +4925,11 @@ void LLPipeline::renderDebug()
 						}
 						
 						//render edges
-						if (LLGLSLShader::sNoFixedFunction)
-						{
-							gPathfindingNoNormalsProgram.bind();
-							gPathfindingNoNormalsProgram.uniform1f(sTint, 1.f);
-							gPathfindingNoNormalsProgram.uniform1f(sAlphaScale, 1.f);
-							llPathingLibInstance->renderNavMeshEdges();
-							gPathfindingProgram.bind();
-						}
-						else
-						{
-							llPathingLibInstance->renderNavMeshEdges();
-						}
+						gPathfindingNoNormalsProgram.bind();
+						gPathfindingNoNormalsProgram.uniform1f(sTint, 1.f);
+						gPathfindingNoNormalsProgram.uniform1f(sAlphaScale, 1.f);
+						llPathingLibInstance->renderNavMeshEdges();
+						gPathfindingProgram.bind();
 
 						gGL.flush();
 						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
@@ -4980,53 +4940,31 @@ void LLPipeline::renderDebug()
 					if ( LLPathfindingPathTool::getInstance()->isRenderPath() )
 					{
 						//The path
-						if (LLGLSLShader::sNoFixedFunction)
-						{
-							gUIProgram.bind();
-							gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
-							llPathingLibInstance->renderPath();
-							gPathfindingProgram.bind();
-						}
-						else
-						{
-							llPathingLibInstance->renderPath();
-						}
-						//The bookends
-						if (LLGLSLShader::sNoFixedFunction)
-						{
-							//remove blending artifacts
-							gGL.setColorMask(false, false);
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						gUIProgram.bind();
+						gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
+						llPathingLibInstance->renderPath();
+						gPathfindingProgram.bind();
+
+                        //The bookends
+						//remove blending artifacts
+						gGL.setColorMask(false, false);
+						llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+						llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
 						
-							gGL.setColorMask(true, false);
-							//render the bookends
-							LLGLEnable blend(GL_BLEND);
-							gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
-							gPathfindingProgram.bind();
-						}
-						else
-						{
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
-							llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
-						}
-					
+						gGL.setColorMask(true, false);
+						//render the bookends
+						LLGLEnable blend(GL_BLEND);
+						gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
+						llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_START );
+						llPathingLibInstance->renderPathBookend( gGL, LLPathingLib::LLPL_END );
+						gPathfindingProgram.bind();
 					}
 				
 					if ( pathfindingConsole->isRenderWaterPlane() )
 					{	
-						if (LLGLSLShader::sNoFixedFunction)
-						{
-							LLGLEnable blend(GL_BLEND);
-							gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
-							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );
-						}
-						else
-						{
-							llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );					
-						}
+						LLGLEnable blend(GL_BLEND);
+						gPathfindingProgram.uniform1f(sAlphaScale, 0.90f);
+						llPathingLibInstance->renderSimpleShapes( gGL, gAgent.getRegion()->getWaterHeight() );
 					}
 				//physics/exclusion shapes
 				if ( pathfindingConsole->isRenderAnyShapes() )
@@ -5157,18 +5095,11 @@ void LLPipeline::renderDebug()
 						}
 
 						//render edges
-						if (LLGLSLShader::sNoFixedFunction)
-						{
-							gPathfindingNoNormalsProgram.bind();
-							gPathfindingNoNormalsProgram.uniform1f(sTint, gSavedSettings.getF32("PathfindingXRayTint"));
-							gPathfindingNoNormalsProgram.uniform1f(sAlphaScale, gSavedSettings.getF32("PathfindingXRayOpacity"));
-							llPathingLibInstance->renderNavMeshEdges();
-							gPathfindingProgram.bind();
-						}
-						else
-						{
-							llPathingLibInstance->renderNavMeshEdges();
-						}
+						gPathfindingNoNormalsProgram.bind();
+						gPathfindingNoNormalsProgram.uniform1f(sTint, gSavedSettings.getF32("PathfindingXRayTint"));
+						gPathfindingNoNormalsProgram.uniform1f(sAlphaScale, gSavedSettings.getF32("PathfindingXRayOpacity"));
+						llPathingLibInstance->renderNavMeshEdges();
+						gPathfindingProgram.bind();
 					
 						gGL.flush();
 						glLineWidth(1.0f);	
@@ -5177,10 +5108,7 @@ void LLPipeline::renderDebug()
 					glPolygonOffset(0.f, 0.f);
 
 					gGL.flush();
-					if (LLGLSLShader::sNoFixedFunction)
-					{
-						gPathfindingProgram.unbind();
-					}
+					gPathfindingProgram.unbind();
 				}
 			}
 		}
@@ -5195,10 +5123,7 @@ void LLPipeline::renderDebug()
 	
 	if (!hud_only && !mDebugBlips.empty())
 	{ //render debug blips
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gUIProgram.bind();
-		}
+		gUIProgram.bind();
 
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep, true);
 
@@ -5262,7 +5187,7 @@ void LLPipeline::renderDebug()
 		}
 	}
 
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION) && LLGLSLShader::sNoFixedFunction)
+	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{ //render visible selected group occlusion geometry
 		gDebugProgram.bind();
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
@@ -5284,44 +5209,38 @@ void LLPipeline::renderDebug()
 
 	visible_selected_groups.clear();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_RAYCAST) && !hud_only)
 	{ //draw crosshairs on particle intersection
 		if (gDebugRaycastParticle)
 		{
-			if (LLGLSLShader::sNoFixedFunction)
-			{ //this debug display requires shaders
-				gDebugProgram.bind();
+			gDebugProgram.bind();
 
-				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-				LLVector3 center(gDebugRaycastParticleIntersection.getF32ptr());
-				LLVector3 size(0.1f, 0.1f, 0.1f);
+			LLVector3 center(gDebugRaycastParticleIntersection.getF32ptr());
+			LLVector3 size(0.1f, 0.1f, 0.1f);
 
-				LLVector3 p[6];
+			LLVector3 p[6];
 
-				p[0] = center + size.scaledVec(LLVector3(1,0,0));
-				p[1] = center + size.scaledVec(LLVector3(-1,0,0));
-				p[2] = center + size.scaledVec(LLVector3(0,1,0));
-				p[3] = center + size.scaledVec(LLVector3(0,-1,0));
-				p[4] = center + size.scaledVec(LLVector3(0,0,1));
-				p[5] = center + size.scaledVec(LLVector3(0,0,-1));
+			p[0] = center + size.scaledVec(LLVector3(1,0,0));
+			p[1] = center + size.scaledVec(LLVector3(-1,0,0));
+			p[2] = center + size.scaledVec(LLVector3(0,1,0));
+			p[3] = center + size.scaledVec(LLVector3(0,-1,0));
+			p[4] = center + size.scaledVec(LLVector3(0,0,1));
+			p[5] = center + size.scaledVec(LLVector3(0,0,-1));
 				
-				gGL.begin(LLRender::LINES);
-				gGL.diffuseColor3f(1.f, 1.f, 0.f);
-				for (U32 i = 0; i < 6; i++)
-				{
-					gGL.vertex3fv(p[i].mV);
-				}
-				gGL.end();
-				gGL.flush();
-
-				gDebugProgram.unbind();
+			gGL.begin(LLRender::LINES);
+			gGL.diffuseColor3f(1.f, 1.f, 0.f);
+			for (U32 i = 0; i < 6; i++)
+			{
+				gGL.vertex3fv(p[i].mV);
 			}
+			gGL.end();
+			gGL.flush();
+
+			gDebugProgram.unbind();
 		}
 	}
 
@@ -5554,10 +5473,7 @@ void LLPipeline::renderDebug()
 	}
 
 	gGL.flush();
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
+	gUIProgram.unbind();
 }
 
 void LLPipeline::rebuildPools()
@@ -6226,11 +6142,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
     LLEnvironment& environment = LLEnvironment::instance();
     LLSettingsSky::ptr_t psky = environment.getCurrentSky();
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		gGL.syncMatrices();
-	}
-
     // Ambient
     LLColor4 ambient = psky->getTotalAmbient();
 		gGL.setAmbientLightColor(ambient);
@@ -6429,11 +6340,6 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
     // prev site of forward (non-deferred) character light injection, removed by SL-13522 09/20
 
 	// Init GL state
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glDisable(GL_LIGHTING);
-	}
-
 	for (S32 i = 0; i < 8; ++i)
 	{
 		gGL.getLight(i)->disable();
@@ -6452,13 +6358,6 @@ void LLPipeline::enableLights(U32 mask)
 	if (mLightMask != mask)
 	{
 		stop_glerror();
-		if (!mLightMask)
-		{
-			if (!LLGLSLShader::sNoFixedFunction)
-			{
-				glEnable(GL_LIGHTING);
-			}
-		}
 		if (mask)
 		{
 			stop_glerror();
@@ -6477,13 +6376,6 @@ void LLPipeline::enableLights(U32 mask)
 				}
 			}
 			stop_glerror();
-		}
-		else
-		{
-			if (!LLGLSLShader::sNoFixedFunction)
-			{
-				glDisable(GL_LIGHTING);
-			}
 		}
 		mLightMask = mask;
 		stop_glerror();
@@ -6534,11 +6426,6 @@ void LLPipeline::enableLightsAvatar()
 void LLPipeline::enableLightsPreview()
 {
 	disableLights();
-
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		glEnable(GL_LIGHTING);
-	}
 
 	LLColor4 ambient = PreviewAmbientColor;
 	gGL.setAmbientLightColor(ambient);
@@ -8093,18 +7980,7 @@ void LLPipeline::renderFinalize()
 
         LLGLDisable blend(GL_BLEND);
 
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gGlowCombineProgram.bind();
-        }
-        else
-        {
-            // tex unit 0
-            gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_COLOR);
-            // tex unit 1
-            gGL.getTexUnit(1)->setTextureColorBlend(LLTexUnit::TBO_ADD, LLTexUnit::TBS_TEX_COLOR,
-                                                    LLTexUnit::TBS_PREV_COLOR);
-        }
+        gGlowCombineProgram.bind();
 
         gGL.getTexUnit(0)->bind(&mGlow[1]);
         gGL.getTexUnit(1)->bind(&mScreen);
@@ -8114,28 +7990,14 @@ void LLPipeline::renderFinalize()
         buff->setBuffer(mask);
         buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
 
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gGlowCombineProgram.unbind();
-        }
-        else
-        {
-            gGL.getTexUnit(1)->disable();
-            gGL.getTexUnit(1)->setTextureBlendType(LLTexUnit::TB_MULT);
-
-            gGL.getTexUnit(0)->activate();
-            gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-        }
+        gGlowCombineProgram.unbind();
     }
 
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
     if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
     {
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gSplatTextureRectProgram.bind();
-        }
+        gSplatTextureRectProgram.bind();
 
         gGL.setColorMask(true, false);
 
@@ -8161,10 +8023,7 @@ void LLPipeline::renderFinalize()
         gGL.end();
         gGL.flush();
 
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gSplatTextureRectProgram.unbind();
-        }
+        gSplatTextureRectProgram.unbind();
     }
 
     if (LLRenderTarget::sUseFBO)
@@ -9502,17 +9361,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                     renderGeom(camera);
                 }
 
-                if (LLGLSLShader::sNoFixedFunction)
-                {
-                    gUIProgram.bind();
-                }
+                gUIProgram.bind();
 
                 LLWorld::getInstance()->renderPropertyLines();
 
-                if (LLGLSLShader::sNoFixedFunction)
-                {
-                    gUIProgram.unbind();
-                }
+                gUIProgram.unbind();
 
                 mWaterDis.flush();
             }
@@ -10066,10 +9919,7 @@ void LLPipeline::generateHighlight(LLCamera& camera)
 		gGL.setColorMask(true, true);
 		mHighlight.clear();
 
-        if (LLGLSLShader::sNoFixedFunction)
-        {
-            gHighlightProgram.bind();
-        }
+        gHighlightProgram.bind();
 
 		gGL.getTexUnit(0)->bind(LLViewerFetchedTexture::sWhiteImagep);
 		for (std::set<HighlightItem>::iterator iter = mHighlightSet.begin(); iter != mHighlightSet.end(); )
@@ -10951,7 +10801,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
     LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 
 	static LLCullResult result;
 	result.clear();
@@ -11210,11 +11059,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		static const F32 clip_plane = 0.99999f;
 
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gDebugProgram.bind();
-		}
-
+		gDebugProgram.bind();
 
 		if (visually_muted)
 		{	// Visually muted avatar
@@ -11228,7 +11073,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			gGL.diffuseColor4fv(LLColor4::pink.mV );
 		}
 
-		{
 		gGL.begin(LLRender::QUADS);
 		gGL.vertex3f(-1, -1, clip_plane);
 		gGL.vertex3f(1, -1, clip_plane);
@@ -11236,12 +11080,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.vertex3f(-1, 1, clip_plane);
 		gGL.end();
 		gGL.flush();
-		}
 
-		if (LLGLSLShader::sNoFixedFunction)
-		{
-			gDebugProgram.unbind();
-		}
+		gDebugProgram.unbind();
 
 		gGL.popMatrix();
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
@@ -11270,7 +11110,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-	LLGLState::checkClientArrays();
 }
 
 bool LLPipeline::hasRenderBatches(const U32 type) const

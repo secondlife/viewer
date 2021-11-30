@@ -266,7 +266,6 @@ public:
 	static void dumpStates();
 	static void checkStates(const std::string& msg = "");
 	static void checkTextureChannels(const std::string& msg = "");
-	static void checkClientArrays(const std::string& msg = "", U32 data_mask = 0);
 	
 protected:
 	static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;

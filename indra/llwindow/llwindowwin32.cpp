@@ -1798,14 +1798,6 @@ void* LLWindowWin32::createSharedContext()
             LL_INFOS() << "Created OpenGL " << llformat("%d.%d", attribs[1], attribs[3]) <<
                 (LLRender::sGLCoreProfile ? " core" : " compatibility") << " context." << LL_ENDL;
             done = true;
-
-            // force sNoFixedFunction iff we're trying to use nsight debugging which does not support many legacy API uses
-
-                // nSight doesn't support use of legacy API funcs in the fixed function pipe
-            if (LLRender::sGLCoreProfile || LLRender::sNsightDebugSupport)
-            {
-                LLGLSLShader::sNoFixedFunction = true;
-            }
         }
     }
 

@@ -471,7 +471,6 @@ void LLViewerShaderMgr::setShaders()
     }
     mMaxAvatarShaderLevel = 0;
 
-    LLGLSLShader::sNoFixedFunction = false;
     LLVertexBuffer::unbind();
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
@@ -481,9 +480,6 @@ void LLViewerShaderMgr::setShaders()
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
     bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
-
-    //using shaders, disable fixed function
-    LLGLSLShader::sNoFixedFunction = true;
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -556,12 +552,12 @@ void LLViewerShaderMgr::setShaders()
     }
     else
     {
-        LL_WARNS() << "Failed to load basic shaders." << LL_ENDL;
+        LL_ERRS() << "Unable to load basic shaders, verify graphics driver installed and current." << LL_ENDL;
         llassert(loaded);
+        reentrance = false; // For hygiene only, re-try probably helps nothing 
+        return;
     }
 
-    if (loaded)
-    {
         gPipeline.mVertexShadersEnabled = TRUE;
         gPipeline.mVertexShadersLoaded = 1;
 
@@ -686,8 +682,8 @@ void LLViewerShaderMgr::setShaders()
                 mShaderLevel[SHADER_AVATAR] = 0;
                 mShaderLevel[SHADER_DEFERRED] = 0;
 
-                gSavedSettings.setBOOL("RenderDeferred", FALSE);
-                gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
+                    gSavedSettings.setBOOL("RenderDeferred", FALSE);
+                    gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 
                 loadShadersAvatar(); // unloads
 
@@ -718,21 +714,9 @@ void LLViewerShaderMgr::setShaders()
             setShaders();
             return;
         }
-    }
-    else
-    {
-        LLGLSLShader::sNoFixedFunction = false;
-        gPipeline.mVertexShadersEnabled = FALSE;
-        gPipeline.mVertexShadersLoaded = 0;
-        mShaderLevel[SHADER_LIGHTING] = 0;
-        mShaderLevel[SHADER_INTERFACE] = 0;
-        mShaderLevel[SHADER_ENVIRONMENT] = 0;
-        mShaderLevel[SHADER_WATER] = 0;
-        mShaderLevel[SHADER_OBJECT] = 0;
-        mShaderLevel[SHADER_EFFECT] = 0;
-        mShaderLevel[SHADER_WINDLIGHT] = 0;
-        mShaderLevel[SHADER_AVATAR] = 0;
-    }
+
+    // gPipeline.mVertexShadersEnabled = FALSE;
+    // gPipeline.mVertexShadersLoaded = 0;
     
     if (gViewerWindow)
     {

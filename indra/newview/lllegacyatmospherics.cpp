@@ -383,12 +383,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 	if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_FOG))
 	{
-		if (!LLGLSLShader::sNoFixedFunction)
-		{
-			glFogf(GL_FOG_DENSITY, 0);
-			glFogfv(GL_FOG_COLOR, (F32 *) &LLColor4::white.mV);
-			glFogf(GL_FOG_END, 1000000.f);
-		}
 		return;
 	}
 
@@ -484,10 +478,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 	if (camera_height > water_height)
 	{
 		LLColor4 fog(render_fog_color);
-		if (!LLGLSLShader::sNoFixedFunction)
-		{
-			glFogfv(GL_FOG_COLOR, fog.mV);
-		}
 		mGLFogCol = fog;
 
 		if (hide_clip_plane)
@@ -495,19 +485,11 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 			// For now, set the density to extend to the cull distance.
 			const F32 f_log = 2.14596602628934723963618357029f; // sqrt(fabs(log(0.01f)))
 			fog_density = f_log/fog_distance;
-			if (!LLGLSLShader::sNoFixedFunction)
-			{
-				glFogi(GL_FOG_MODE, GL_EXP2);
-			}
 		}
 		else
 		{
 			const F32 f_log = 4.6051701859880913680359829093687f; // fabs(log(0.01f))
 			fog_density = (f_log)/fog_distance;
-			if (!LLGLSLShader::sNoFixedFunction)
-			{
-				glFogi(GL_FOG_MODE, GL_EXP);
-			}
 		}
 	}
 	else
@@ -533,12 +515,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 		// set the density based on what the shaders use
 		fog_density = water_fog_density * gSavedSettings.getF32("WaterGLFogDensityScale");
-
-		if (!LLGLSLShader::sNoFixedFunction)
-		{
-			glFogfv(GL_FOG_COLOR, (F32 *) &fogCol.mV);
-			glFogi(GL_FOG_MODE, GL_EXP2);
-		}
 	}
 
 	mFogColor = sky_fog_color;
@@ -546,13 +522,6 @@ void LLAtmospherics::updateFog(const F32 distance, const LLVector3& tosun_in)
 
 	LLDrawPoolWater::sWaterFogEnd = fog_distance*2.2f;
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{
-		LLGLSFog gls_fog;
-		glFogf(GL_FOG_END, fog_distance*2.2f);
-		glFogf(GL_FOG_DENSITY, fog_density);
-		glHint(GL_FOG_HINT, GL_NICEST);
-	}
 	stop_glerror();
 }
 
