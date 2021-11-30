@@ -77,7 +77,7 @@ void LLDrawPoolTree::beginRenderPass(S32 pass)
 	else
 	{
 		gPipeline.enableLightsDynamic();
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+		gGL.flush();
 	}
 }
 
@@ -134,7 +134,7 @@ void LLDrawPoolTree::endRenderPass(S32 pass)
 	
 	if (mShaderLevel <= 0)
 	{
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+        gGL.flush();
 	}
 }
 

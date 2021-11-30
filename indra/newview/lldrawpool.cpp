@@ -493,7 +493,7 @@ void LLRenderPass::pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture, BOOL 
             }
             else
             {
-                gGL.setAlphaRejectSettings(LLRender::CF_GREATER, pparams->mAlphaMaskCutoff);
+                gGL.flush();
             }
 
             if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)

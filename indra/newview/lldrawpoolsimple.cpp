@@ -591,7 +591,7 @@ void LLDrawPoolGrass::beginRenderPass(S32 pass)
 	}
 	else 
 	{
-		gGL.setAlphaRejectSettings(LLRender::CF_GREATER, 0.5f);
+        gGL.flush();
 		LLGLSLShader::bindNoShader();
 	}
 }
@@ -607,7 +607,7 @@ void LLDrawPoolGrass::endRenderPass(S32 pass)
 	}
 	else
 	{
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+		gGL.flush();
 	}
 }
 

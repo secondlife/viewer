@@ -259,7 +259,7 @@ void LLNetMap::draw()
 			gGL.end();
 
 			// Draw water
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
+            gGL.flush();
 			{
 				if (regionp->getLand().getWaterTexture())
 				{
@@ -276,7 +276,7 @@ void LLNetMap::draw()
 					gGL.end();
 				}
 			}
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            gGL.flush();
 		}
 
 		// Redraw object layer periodically

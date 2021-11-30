@@ -926,7 +926,7 @@ void LLRender::refreshState(void)
 
 	setColorMask(mCurrColorMask[0], mCurrColorMask[1], mCurrColorMask[2], mCurrColorMask[3]);
 	
-	setAlphaRejectSettings(mCurrAlphaFunc, mCurrAlphaFuncVal);
+    flush();
 
 	mDirty = false;
 }
@@ -1427,11 +1427,6 @@ void LLRender::setSceneBlendType(eBlendType type)
 			LL_ERRS() << "Unknown Scene Blend Type: " << type << LL_ENDL;
 			break;
 	}
-}
-
-void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
-{
-	flush();
 }
 
 void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
