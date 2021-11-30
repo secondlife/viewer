@@ -475,9 +475,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(1)->activate();
 	
-	// Care about alpha only
-	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
 	//
 	// Stage 2: Interpolate detail1 with existing based on ramp
 	//
@@ -531,9 +528,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.loadIdentity();
 	gGL.translatef(-2.f, 0.f, 0.f);
 
-	// Care about alpha only
-	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
 	//
 	// Stage 2: Interpolate detail2 with existing based on ramp
 	//
@@ -560,9 +554,6 @@ void LLDrawPoolTerrain::renderFull4TU()
 	gGL.loadIdentity();
 	gGL.translatef(-1.f, 0.f, 0.f);
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
-
-	// Set alpha texture and do lighting modulation
-	gGL.getTexUnit(3)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
 	{
@@ -664,10 +655,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	
-	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
-
 	//
 	// Stage 1: Write detail1
 	//
@@ -681,8 +668,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
 	{
@@ -703,9 +688,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.translatef(-1.f, 0.f, 0.f);
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
-	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
 	//
 	// Stage 1: Write detail2
 	//
@@ -719,8 +701,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	{
 		LLGLEnable blend(GL_BLEND);
@@ -741,9 +721,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	gGL.translatef(-2.f, 0.f, 0.f);
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
-	// Care about alpha only
-	gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_TEX_ALPHA);
-
 	// Stage 1: Write detail3
 	gGL.getTexUnit(1)->bind(detail_texture3p);
 	gGL.getTexUnit(1)->enable(LLTexUnit::TT_TEXTURE);
@@ -755,8 +732,6 @@ void LLDrawPoolTerrain::renderFull2TU()
 	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 	glTexGenfv(GL_S, GL_OBJECT_PLANE, tp0.mV);
 	glTexGenfv(GL_T, GL_OBJECT_PLANE, tp1.mV);
-
-	gGL.getTexUnit(1)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_PREV_ALPHA);
 
 	gGL.getTexUnit(0)->activate();
 	{

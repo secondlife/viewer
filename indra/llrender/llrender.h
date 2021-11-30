@@ -198,10 +198,6 @@ public:
 	// make sure you want to permanently change the filtering for the bound texture.
 	void setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option);
 
-	// NOTE: If *_COLOR enums are passed to src1 or src2, the corresponding *_ALPHA enum will be used instead.
-	inline void setTextureAlphaBlend(eTextureBlendOp op, eTextureBlendSrc src1, eTextureBlendSrc src2 = TBS_PREV_ALPHA)
-	{ /* setTextureCombiner(op, src1, src2, true); */ }
-
 	static U32 getInternalType(eTextureType type);
 
 	U32 getCurrTexture(void) { return mCurrTexture; }

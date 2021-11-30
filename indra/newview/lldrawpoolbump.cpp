@@ -402,8 +402,6 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 			gGL.getTexUnit(0)->disable();
 			cube_map->enable(0);
 			gGL.getTexUnit(0)->bind(cube_map);
-
-			gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_REPLACE, LLTexUnit::TBS_VERT_ALPHA);
 		}
 	}
 }
