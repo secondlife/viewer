@@ -661,20 +661,6 @@
   </text>
 
   <check_box
-    control_name="RenderAvatarVP"
-    height="16"
-    initial_value="true"
-    label="Avatar Hardware skinning"
-    layout="topleft"
-    left="440"
-    name="AvatarVertexProgram"
-    top_delta="16"
-    width="280">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
-  <check_box
     control_name="RenderAvatarCloth"
     height="16"
     initial_value="true"
@@ -885,7 +871,7 @@
       layout="topleft"
       left="13"
       name="horiz_border"
-      top_pad="5"
+      top_pad="21"
       top_delta="5"
       width="774"/>
   <button

@@ -8840,17 +8840,6 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>RenderAvatarVP</key>
-    <map>
-      <key>Comment</key>
-      <string>Use vertex programs to perform hardware skinning of avatar</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
   <key>RenderCompressTextures</key>
   <map>
     <key>Comment</key>

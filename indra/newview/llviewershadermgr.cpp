@@ -480,7 +480,7 @@ void LLViewerShaderMgr::setShaders()
     bool hasWindLightShaders     = LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-    bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred") && gSavedSettings.getBOOL("RenderAvatarVP");
+    bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
 
     //using shaders, disable fixed function
     LLGLSLShader::sNoFixedFunction = true;
@@ -655,7 +655,7 @@ void LLViewerShaderMgr::setShaders()
             mShaderLevel[SHADER_AVATAR] = 3;
             mMaxAvatarShaderLevel = 3;
                 
-            if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+            if (loadShadersObject())
             { //hardware skinning is enabled and rigged attachment shaders loaded correctly
                 BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
 
@@ -670,10 +670,6 @@ void LLViewerShaderMgr::setShaders()
 
                 if (mShaderLevel[SHADER_AVATAR] != avatar_class)
                 {
-                    if (mShaderLevel[SHADER_AVATAR] == 0)
-                    {
-                        gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
-                    }
                     if(llmax(mShaderLevel[SHADER_AVATAR]-1,0) >= 3)
                     {
                         avatar_cloth = true;
@@ -690,12 +686,8 @@ void LLViewerShaderMgr::setShaders()
                 mShaderLevel[SHADER_AVATAR] = 0;
                 mShaderLevel[SHADER_DEFERRED] = 0;
 
-                if (gSavedSettings.getBOOL("RenderAvatarVP"))
-                {
-                    gSavedSettings.setBOOL("RenderDeferred", FALSE);
-                    gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-                    gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
-                }
+                gSavedSettings.setBOOL("RenderDeferred", FALSE);
+                gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 
                 loadShadersAvatar(); // unloads
 

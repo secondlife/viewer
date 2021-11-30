@@ -904,7 +904,6 @@ public:
 
 	//cached settings
 	static bool WindLightUseAtmosShaders;
-	static bool RenderAvatarVP;
 	static bool RenderDeferred;
 	static F32 RenderDeferredSunWash;
 	static U32 RenderFSAASamples;

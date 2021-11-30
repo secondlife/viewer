@@ -142,7 +142,6 @@
 bool gShiftFrame = false;
 
 //cached settings
-bool LLPipeline::RenderAvatarVP;
 bool LLPipeline::WindLightUseAtmosShaders;
 bool LLPipeline::RenderDeferred;
 F32 LLPipeline::RenderDeferredSunWash;
@@ -537,7 +536,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
 	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
 	connectRefreshCachedSettingsSafe("UseOcclusion");
-	connectRefreshCachedSettingsSafe("RenderAvatarVP");
 	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
 	connectRefreshCachedSettingsSafe("RenderDeferred");
 	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
@@ -1047,7 +1045,6 @@ void LLPipeline::updateRenderDeferred()
                       RenderDeferred &&
                       LLRenderTarget::sUseFBO &&
                       LLPipeline::sRenderBump &&
-                      RenderAvatarVP &&
                       WindLightUseAtmosShaders &&
                       (bool) LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
 }
@@ -1069,7 +1066,6 @@ void LLPipeline::refreshCachedSettings()
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 	
-	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
 	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	RenderDeferred = gSavedSettings.getBOOL("RenderDeferred");
 	RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
