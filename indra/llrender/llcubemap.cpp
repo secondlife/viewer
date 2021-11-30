@@ -47,7 +47,6 @@ bool LLCubeMap::sUseCubeMaps = true;
 
 LLCubeMap::LLCubeMap(bool init_as_srgb)
 	: mTextureStage(0),
-	  mTextureCoordStage(0),
 	  mMatrixStage(0),
 	  mIssRGB(init_as_srgb)
 {
@@ -180,7 +179,6 @@ void LLCubeMap::bind()
 void LLCubeMap::enable(S32 stage)
 {
 	enableTexture(stage);
-	enableTextureCoords(stage);
 }
 
 void LLCubeMap::enableTexture(S32 stage)
@@ -192,15 +190,9 @@ void LLCubeMap::enableTexture(S32 stage)
 	}
 }
 
-void LLCubeMap::enableTextureCoords(S32 stage)
-{
-	mTextureCoordStage = stage;
-}
-
 void LLCubeMap::disable(void)
 {
 	disableTexture();
-	disableTextureCoords();
 }
 
 void LLCubeMap::disableTexture(void)
@@ -213,10 +205,6 @@ void LLCubeMap::disableTexture(void)
 			gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 		}
 	}
-}
-
-void LLCubeMap::disableTextureCoords(void)
-{
 }
 
 void LLCubeMap::setMatrix(S32 stage)

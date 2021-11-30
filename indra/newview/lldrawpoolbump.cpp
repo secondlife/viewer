@@ -383,7 +383,6 @@ void LLDrawPoolBump::bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& di
 				// the cube map in the one pass shiny shaders
 				cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 				cube_map->enableTexture(cube_channel);
-				cube_map->enableTextureCoords(1);
 				diffuse_channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 			}
 			else
@@ -534,7 +533,6 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		gGL.getTexUnit(1)->disable();
 		cube_channel = shader->enableTexture(LLViewerShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 		cube_map->enableTexture(cube_channel);
-		cube_map->enableTextureCoords(1);
 		diffuse_channel = shader->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 
 		gGL.getTexUnit(cube_channel)->bind(cube_map);
