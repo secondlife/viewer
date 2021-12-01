@@ -541,7 +541,7 @@ void send_viewer_stats(bool include_preferences)
 	{
 		shader_level = 2;
 	}
-	else if (gPipeline.canUseVertexShaders())
+	else if (gPipeline.shadersLoaded())
 	{
 		shader_level = 1;
 	}

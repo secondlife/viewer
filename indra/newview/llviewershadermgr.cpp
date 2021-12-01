@@ -471,7 +471,6 @@ void LLViewerShaderMgr::setShaders()
     }
     mMaxAvatarShaderLevel = 0;
 
-    LLGLSLShader::sNoFixedFunction = false;
     LLVertexBuffer::unbind();
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
@@ -481,9 +480,6 @@ void LLViewerShaderMgr::setShaders()
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
     bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
-
-    //using shaders, disable fixed function
-    LLGLSLShader::sNoFixedFunction = true;
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -556,184 +552,168 @@ void LLViewerShaderMgr::setShaders()
     }
     else
     {
-        LL_WARNS() << "Failed to load basic shaders." << LL_ENDL;
+        LL_ERRS() << "Unable to load basic shaders, verify graphics driver installed and current." << LL_ENDL;
+        llassert(loaded);
+        reentrance = false; // For hygiene only, re-try probably helps nothing 
+        return;
+    }
+
+    gPipeline.mShadersLoaded = true;
+
+    // Load all shaders to set max levels
+    loaded = loadShadersEnvironment();
+
+    if (loaded)
+    {
+        LL_INFOS() << "Loaded environment shaders." << LL_ENDL;
+    }
+    else
+    {
+        LL_WARNS() << "Failed to load environment shaders." << LL_ENDL;
         llassert(loaded);
     }
 
     if (loaded)
     {
-        gPipeline.mVertexShadersEnabled = TRUE;
-        gPipeline.mVertexShadersLoaded = 1;
-
-        // Load all shaders to set max levels
-        loaded = loadShadersEnvironment();
-
+        loaded = loadShadersWater();
         if (loaded)
         {
-            LL_INFOS() << "Loaded environment shaders." << LL_ENDL;
+            LL_INFOS() << "Loaded water shaders." << LL_ENDL;
         }
         else
         {
-            LL_WARNS() << "Failed to load environment shaders." << LL_ENDL;
+            LL_WARNS() << "Failed to load water shaders." << LL_ENDL;
             llassert(loaded);
         }
+    }
 
+    if (loaded)
+    {
+        loaded = loadShadersWindLight();
         if (loaded)
         {
-            loaded = loadShadersWater();
-            if (loaded)
-            {
-                LL_INFOS() << "Loaded water shaders." << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "Failed to load water shaders." << LL_ENDL;
-                llassert(loaded);
-            }
+            LL_INFOS() << "Loaded windlight shaders." << LL_ENDL;
         }
-
-        if (loaded)
+        else
         {
-            loaded = loadShadersWindLight();
-            if (loaded)
-            {
-                LL_INFOS() << "Loaded windlight shaders." << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "Failed to load windlight shaders." << LL_ENDL;
-                llassert(loaded);
-            }
+            LL_WARNS() << "Failed to load windlight shaders." << LL_ENDL;
+            llassert(loaded);
         }
+    }
 
+    if (loaded)
+    {
+        loaded = loadShadersEffects();
         if (loaded)
         {
-            loaded = loadShadersEffects();
-            if (loaded)
-            {
-                LL_INFOS() << "Loaded effects shaders." << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "Failed to load effects shaders." << LL_ENDL;
-                llassert(loaded);
-            }
+            LL_INFOS() << "Loaded effects shaders." << LL_ENDL;
         }
-
-        if (loaded)
+        else
         {
-            loaded = loadShadersInterface();
-            if (loaded)
-            {
-                LL_INFOS() << "Loaded interface shaders." << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "Failed to load interface shaders." << LL_ENDL;
-                llassert(loaded);
-            }
+            LL_WARNS() << "Failed to load effects shaders." << LL_ENDL;
+            llassert(loaded);
         }
+    }
 
+    if (loaded)
+    {
+        loaded = loadShadersInterface();
         if (loaded)
-
         {
-            loaded = loadTransformShaders();
-            if (loaded)
-            {
-                LL_INFOS() << "Loaded transform shaders." << LL_ENDL;
-            }
-            else
-            {
-                LL_WARNS() << "Failed to load transform shaders." << LL_ENDL;
-                llassert(loaded);
-            }
+            LL_INFOS() << "Loaded interface shaders." << LL_ENDL;
         }
+        else
+        {
+            LL_WARNS() << "Failed to load interface shaders." << LL_ENDL;
+            llassert(loaded);
+        }
+    }
 
+    if (loaded)
+
+    {
+        loaded = loadTransformShaders();
         if (loaded)
         {
-            // Load max avatar shaders to set the max level
-            mShaderLevel[SHADER_AVATAR] = 3;
-            mMaxAvatarShaderLevel = 3;
+            LL_INFOS() << "Loaded transform shaders." << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS() << "Failed to load transform shaders." << LL_ENDL;
+            llassert(loaded);
+        }
+    }
+
+    if (loaded)
+    {
+        // Load max avatar shaders to set the max level
+        mShaderLevel[SHADER_AVATAR] = 3;
+        mMaxAvatarShaderLevel = 3;
                 
             if (loadShadersObject())
-            { //hardware skinning is enabled and rigged attachment shaders loaded correctly
-                BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+        { //hardware skinning is enabled and rigged attachment shaders loaded correctly
+            BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
 
-                // cloth is a class3 shader
-                S32 avatar_class = avatar_cloth ? 3 : 1;
+            // cloth is a class3 shader
+            S32 avatar_class = avatar_cloth ? 3 : 1;
                 
-                // Set the actual level
-                mShaderLevel[SHADER_AVATAR] = avatar_class;
+            // Set the actual level
+            mShaderLevel[SHADER_AVATAR] = avatar_class;
 
-                loaded = loadShadersAvatar();
-                llassert(loaded);
+            loaded = loadShadersAvatar();
+            llassert(loaded);
 
-                if (mShaderLevel[SHADER_AVATAR] != avatar_class)
+            if (mShaderLevel[SHADER_AVATAR] != avatar_class)
+            {
+                if(llmax(mShaderLevel[SHADER_AVATAR]-1,0) >= 3)
                 {
-                    if(llmax(mShaderLevel[SHADER_AVATAR]-1,0) >= 3)
-                    {
-                        avatar_cloth = true;
-                    }
-                    else
-                    {
-                        avatar_cloth = false;
-                    }
-                    gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+                    avatar_cloth = true;
                 }
+                else
+                {
+                    avatar_cloth = false;
+                }
+                gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
             }
-            else
-            { //hardware skinning not possible, neither is deferred rendering
-                mShaderLevel[SHADER_AVATAR] = 0;
-                mShaderLevel[SHADER_DEFERRED] = 0;
+        }
+        else
+        { //hardware skinning not possible, neither is deferred rendering
+            mShaderLevel[SHADER_AVATAR] = 0;
+            mShaderLevel[SHADER_DEFERRED] = 0;
 
                 gSavedSettings.setBOOL("RenderDeferred", FALSE);
                 gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 
-                loadShadersAvatar(); // unloads
+            loadShadersAvatar(); // unloads
 
-                loaded = loadShadersObject();
-                llassert(loaded);
-            }
+            loaded = loadShadersObject();
+            llassert(loaded);
         }
+    }
 
-        if (!loaded)
-        { //some shader absolutely could not load, try to fall back to a simpler setting
-            if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
-            { //disable windlight and try again
-                gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
-                LL_WARNS() << "Falling back to no windlight shaders." << LL_ENDL;
-                reentrance = false;
-                setShaders();
-                return;
-            }
-        }       
-
-        llassert(loaded);
-
-        if (loaded && !loadShadersDeferred())
-        { //everything else succeeded but deferred failed, disable deferred and try again
-            gSavedSettings.setBOOL("RenderDeferred", FALSE);
-            LL_WARNS() << "Falling back to no deferred shaders." << LL_ENDL;
+    if (!loaded)
+    { //some shader absolutely could not load, try to fall back to a simpler setting
+        if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
+        { //disable windlight and try again
+            gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
+            LL_WARNS() << "Falling back to no windlight shaders." << LL_ENDL;
             reentrance = false;
             setShaders();
             return;
         }
+    }       
+
+    llassert(loaded);
+
+    if (loaded && !loadShadersDeferred())
+    { //everything else succeeded but deferred failed, disable deferred and try again
+        gSavedSettings.setBOOL("RenderDeferred", FALSE);
+        LL_WARNS() << "Falling back to no deferred shaders." << LL_ENDL;
+        reentrance = false;
+        setShaders();
+        return;
     }
-    else
-    {
-        LLGLSLShader::sNoFixedFunction = false;
-        gPipeline.mVertexShadersEnabled = FALSE;
-        gPipeline.mVertexShadersLoaded = 0;
-        mShaderLevel[SHADER_LIGHTING] = 0;
-        mShaderLevel[SHADER_INTERFACE] = 0;
-        mShaderLevel[SHADER_ENVIRONMENT] = 0;
-        mShaderLevel[SHADER_WATER] = 0;
-        mShaderLevel[SHADER_OBJECT] = 0;
-        mShaderLevel[SHADER_EFFECT] = 0;
-        mShaderLevel[SHADER_WINDLIGHT] = 0;
-        mShaderLevel[SHADER_AVATAR] = 0;
-    }
-    
+
     if (gViewerWindow)
     {
         gViewerWindow->setCursor(UI_CURSOR_ARROW);
@@ -863,7 +843,7 @@ void LLViewerShaderMgr::unloadShaders()
 	mShaderLevel[SHADER_WINDLIGHT] = 0;
 	mShaderLevel[SHADER_TRANSFORM] = 0;
 
-	gPipeline.mVertexShadersLoaded = 0;
+	gPipeline.mShadersLoaded = false;
 }
 
 BOOL LLViewerShaderMgr::loadBasicShaders()

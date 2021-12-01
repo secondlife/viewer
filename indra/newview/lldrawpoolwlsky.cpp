@@ -266,33 +266,14 @@ void LLDrawPoolWLSky::renderStars(const LLVector3& camPosLocal) const
 	gGL.pushMatrix();
 	gGL.translatef(camPosLocal.mV[0], camPosLocal.mV[1], camPosLocal.mV[2]);
 	gGL.rotatef(gFrameTimeSeconds*0.01f, 0.f, 0.f, 1.f);
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gCustomAlphaProgram.bind();
-		gCustomAlphaProgram.uniform1f(sCustomAlpha, star_alpha.mV[3]);
-	}
-	else
-	{
-		gGL.getTexUnit(0)->setTextureColorBlend(LLTexUnit::TBO_MULT, LLTexUnit::TBS_TEX_COLOR, LLTexUnit::TBS_VERT_COLOR);
-		gGL.getTexUnit(0)->setTextureAlphaBlend(LLTexUnit::TBO_MULT_X2, LLTexUnit::TBS_CONST_ALPHA, LLTexUnit::TBS_TEX_ALPHA);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, star_alpha.mV);
-	}
+	gCustomAlphaProgram.bind();
+	gCustomAlphaProgram.uniform1f(sCustomAlpha, star_alpha.mV[3]);
 
 	gSky.mVOWLSkyp->drawStars();
 
     gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
 	gGL.popMatrix();
-
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gCustomAlphaProgram.unbind();
-	}
-	else
-	{
-		// and disable the combiner states
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
+	gCustomAlphaProgram.unbind();
 }
 
 void LLDrawPoolWLSky::renderStarsDeferred(const LLVector3& camPosLocal) const
@@ -479,7 +460,7 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 	LLFace * face = gSky.mVOSkyp->mFace[LLVOSky::FACE_SUN];
 
     F32 blend_factor = LLEnvironment::instance().getCurrentSky()->getBlendFactor();
-    bool can_use_vertex_shaders = gPipeline.canUseVertexShaders();
+    bool can_use_vertex_shaders = gPipeline.shadersLoaded();
     bool can_use_windlight_shaders = gPipeline.canUseWindLightShaders();
 
 

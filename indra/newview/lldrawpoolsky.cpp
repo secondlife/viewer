@@ -76,16 +76,8 @@ void LLDrawPoolSky::render(S32 pass)
 	}
 
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{ //just use the UI shader (generic single texture no lighting)
-		gOneTextureNoColorProgram.bind();
-	}
-	else
-	{
-		LLGLSLShader::bindNoShader();
-		mShader = NULL;
-	}
-	
+    //just use the UI shader (generic single texture no lighting)
+	gOneTextureNoColorProgram.bind();
 
 	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 

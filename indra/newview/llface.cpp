@@ -653,7 +653,7 @@ void LLFace::renderOneWireframe(const LLColor4 &color, F32 fogCfx, bool wirefram
             glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
             glFogfv(GL_FOG_COLOR, fogCol.mV);
 
-            gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            gGL.flush();
             {
                 gGL.diffuseColor4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);
                 renderFace(mDrawablep, this);

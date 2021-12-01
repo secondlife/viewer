@@ -50,7 +50,6 @@ using std::string;
 GLhandleARB LLGLSLShader::sCurBoundShader = 0;
 LLGLSLShader* LLGLSLShader::sCurBoundShaderPtr = NULL;
 S32 LLGLSLShader::sIndexedTextureChannels = 0;
-bool LLGLSLShader::sNoFixedFunction = false;
 bool LLGLSLShader::sProfileEnabled = false;
 std::set<LLGLSLShader*> LLGLSLShader::sInstances;
 U64 LLGLSLShader::sTotalTimeElapsed = 0;

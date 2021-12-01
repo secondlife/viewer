@@ -2886,8 +2886,6 @@ BOOL LLModelPreview::render()
     LLMutexLock lock(this);
     mNeedsUpdate = FALSE;
 
-    bool use_shaders = LLGLSLShader::sNoFixedFunction;
-
     bool edges = mViewOption["show_edges"];
     bool joint_overrides = mViewOption["show_joint_overrides"];
     bool joint_positions = mViewOption["show_joint_positions"];
@@ -2905,10 +2903,8 @@ BOOL LLModelPreview::render()
     LLGLDisable fog(GL_FOG);
 
     {
-        if (use_shaders)
-        {
-            gUIProgram.bind();
-        }
+        gUIProgram.bind();
+
         //clear background to grey
         gGL.matrixMode(LLRender::MM_PROJECTION);
         gGL.pushMatrix();
@@ -2927,10 +2923,7 @@ BOOL LLModelPreview::render()
 
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.popMatrix();
-        if (use_shaders)
-        {
-            gUIProgram.unbind();
-        }
+        gUIProgram.unbind();
     }
 
     LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
@@ -3083,10 +3076,7 @@ BOOL LLModelPreview::render()
         refresh();
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.bind();
-    }
+    gObjectPreviewProgram.bind();
 
     gGL.loadIdentity();
     gPipeline.enableLightsPreview();
@@ -3587,10 +3577,7 @@ BOOL LLModelPreview::render()
         }
     }
 
-    if (use_shaders)
-    {
-        gObjectPreviewProgram.unbind();
-    }
+    gObjectPreviewProgram.unbind();
 
     gGL.popMatrix();
 

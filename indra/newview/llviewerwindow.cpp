@@ -608,12 +608,6 @@ public:
 		{
 			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 
-			if (gPipeline.getUseVertexShaders() == 0)
-			{
-				addText(xpos, ypos, "Shaders Disabled");
-				ypos += y_inc;
-			}
-
 			if (gGLManager.mHasATIMemInfo)
 			{
 				S32 meminfo[4];
@@ -2065,20 +2059,6 @@ void LLViewerWindow::initGLDefaults()
 {
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (!LLGLSLShader::sNoFixedFunction)
-	{ //initialize fixed function state
-		glColorMaterial( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE );
-
-		glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,LLColor4::black.mV);
-		glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,LLColor4::white.mV);
-
-		// lights for objects
-		glShadeModel( GL_SMOOTH );
-
-		gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
-
 	glPixelStorei(GL_PACK_ALIGNMENT,1);
 	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
@@ -2694,10 +2674,7 @@ void LLViewerWindow::drawDebugText()
 	gGL.color4f(1,1,1,1);
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 	{
 		// scale view by UI global scale factor and aspect ratio correction factor
 		gGL.scaleUI(mDisplayScale.mV[VX], mDisplayScale.mV[VY], 1.f);
@@ -2707,10 +2684,7 @@ void LLViewerWindow::drawDebugText()
 	gGL.popMatrix();
 
 	gGL.flush();
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
+	gUIProgram.unbind();
 }
 
 void LLViewerWindow::draw()
@@ -2756,10 +2730,7 @@ void LLViewerWindow::draw()
 	// Draw all nested UI views.
 	// No translation needed, this view is glued to 0,0
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	gGL.pushMatrix();
 	LLUI::pushMatrix();
@@ -2835,14 +2806,9 @@ void LLViewerWindow::draw()
 	LLUI::popMatrix();
 	gGL.popMatrix();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.unbind();
-	}
+	gUIProgram.unbind();
 
-//#if LL_DEBUG
 	LLView::sIsDrawing = FALSE;
-//#endif
 }
 
 // Takes a single keyup event, usually when UI is visible

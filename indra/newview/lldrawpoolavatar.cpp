@@ -497,11 +497,8 @@ void LLDrawPoolAvatar::beginImpostor()
 		LLVOAvatar::sNumVisibleAvatars = 0;
 	}
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gImpostorProgram.bind();
-		gImpostorProgram.setMinimumAlpha(0.01f);
-	}
+	gImpostorProgram.bind();
+	gImpostorProgram.setMinimumAlpha(0.01f);
 
 	gPipeline.enableLightsFullbright();
 	sDiffuseChannel = 0;
@@ -511,10 +508,7 @@ void LLDrawPoolAvatar::endImpostor()
 {
     LL_PROFILE_ZONE_SCOPED
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gImpostorProgram.unbind();
-	}
+	gImpostorProgram.unbind();
 	gPipeline.enableLightsDynamic();
 }
 
@@ -522,7 +516,7 @@ void LLDrawPoolAvatar::beginRigid()
 {
     LL_PROFILE_ZONE_SCOPED
 
-	if (gPipeline.canUseVertexShaders())
+	if (gPipeline.shadersLoaded())
 	{
 		if (LLPipeline::sUnderWaterRender)
 		{
@@ -670,7 +664,7 @@ void LLDrawPoolAvatar::beginSkinned()
 	}
 	else
 	{
-		if(gPipeline.canUseVertexShaders())
+		if(gPipeline.shadersLoaded())
 		{
 			// software skinning, use a basic shader for windlight.
 			// TODO: find a better fallback method for software skinning.
@@ -686,10 +680,7 @@ void LLDrawPoolAvatar::beginSkinned()
 		}
 	}
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
-	}
+	sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
 }
 
 void LLDrawPoolAvatar::endSkinned()
@@ -707,7 +698,7 @@ void LLDrawPoolAvatar::endSkinned()
 	}
 	else
 	{
-		if(gPipeline.canUseVertexShaders())
+		if(gPipeline.shadersLoaded())
 		{
 			// software skinning, use a basic shader for windlight.
 			// TODO: find a better fallback method for software skinning.
