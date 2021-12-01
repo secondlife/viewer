@@ -214,13 +214,6 @@ protected:
 	const S32			mIndex;
 	U32					mCurrTexture;
 	eTextureType		mCurrTexType;
-	eTextureBlendType	mCurrBlendType;
-	eTextureBlendOp		mCurrColorOp;
-	eTextureBlendSrc	mCurrColorSrc1;
-	eTextureBlendSrc	mCurrColorSrc2;
-	eTextureBlendOp		mCurrAlphaOp;
-	eTextureBlendSrc	mCurrAlphaSrc1;
-	eTextureBlendSrc	mCurrAlphaSrc2;
     eTextureColorSpace  mTexColorSpace;
 	S32					mCurrColorScale;
 	S32					mCurrAlphaScale;
@@ -481,8 +474,6 @@ private:
 	U32				mMode;
 	U32				mCurrTextureUnitIndex;
 	bool				mCurrColorMask[4];
-	eCompareFunc			mCurrAlphaFunc;
-	F32				mCurrAlphaFuncVal;
 
 	LLPointer<LLVertexBuffer>	mBuffer;
 	LLStrider<LLVector3>		mVerticesp;
