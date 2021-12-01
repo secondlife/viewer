@@ -60,7 +60,6 @@ public:
 	void setupVertexBuffer(U32 data_mask)
 	{	
 		LLVertexBuffer::setupVertexBuffer(data_mask & ~(MAP_TEXCOORD2 | MAP_TEXCOORD3));
-		return;
 	}
 };
 
