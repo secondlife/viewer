@@ -2661,6 +2661,8 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
                 *(index_strider++) = vf.mIndices[i];
             }
 
+            vb->flush();
+
             mVertexBuffer[lod][mdl].push_back(vb);
 
             vertex_count += num_vertices;
@@ -3136,6 +3138,11 @@ BOOL LLModelPreview::render()
             genBuffers(mPreviewLOD, skin_weight);
         }
 
+        if (physics && mVertexBuffer[LLModel::LOD_PHYSICS].empty())
+        {
+            genBuffers(LLModel::LOD_PHYSICS, false);
+        }
+
         if (!skin_weight)
         {
             for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
@@ -3290,11 +3297,6 @@ BOOL LLModelPreview::render()
 
                         if (render_mesh)
                         {
-                            if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-                            {
-                                genBuffers(LLModel::LOD_PHYSICS, false);
-                            }
-
                             U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                             if (pass > 0){
                                 for (U32 i = 0; i < num_models; ++i)
@@ -3358,11 +3360,6 @@ BOOL LLModelPreview::render()
 
                                 if (physics.mHull.empty())
                                 {
-                                    if (mVertexBuffer[LLModel::LOD_PHYSICS].empty())
-                                    {
-                                        genBuffers(LLModel::LOD_PHYSICS, false);
-                                    }
-
                                     U32 num_models = mVertexBuffer[LLModel::LOD_PHYSICS][model].size();
                                     for (U32 v = 0; v < num_models; ++v)
                                     {
