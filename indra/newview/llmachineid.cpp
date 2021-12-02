@@ -466,7 +466,7 @@ S32 LLMachineID::init()
         }
     }
 #else
-    unsigned char * staticPtr = (unsigned char *)(&static_legacy_id[0]);
+    unsigned char * staticPtr = (unsigned char *)(&static_unique_id[0]);
     ret_code = LLUUID::getNodeID(staticPtr);
     has_static_unique_id = true;
     has_static_legacy_id = false;
