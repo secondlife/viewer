@@ -3204,6 +3204,7 @@ BOOL LLModelPreview::render()
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                         glLineWidth(1.f);
                     }
+                    buffer->flush();
                 }
                 gGL.popMatrix();
             }
@@ -3316,6 +3317,8 @@ BOOL LLModelPreview::render()
 
                                     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                                     glLineWidth(1.f);
+
+                                    buffer->flush();
                                 }
                             }
                         }
@@ -3386,6 +3389,8 @@ BOOL LLModelPreview::render()
                                                 buffer->draw(LLRender::POINTS, 3, i);
                                             }
                                         }
+
+                                        buffer->flush();
                                     }
                                 }
                             }
