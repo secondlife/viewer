@@ -51,19 +51,17 @@ public:
 	/*virtual*/ ~LLDrawPoolAlpha();
 
 	/*virtual*/ S32 getNumPostDeferredPasses();
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
-
-	/*virtual*/ void beginRenderPass(S32 pass = 0);
-	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
 
 	virtual void render(S32 pass = 0);
+    void forwardRender();
 	/*virtual*/ void prerender();
 
+    void renderDebugAlpha();
+
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask, S32 pass);
+	void renderAlpha(U32 mask, bool depth_only = false);
 	void renderAlphaHighlight(U32 mask);
     bool uploadMatrixPalette(const LLDrawInfo& params);
 
@@ -73,9 +71,9 @@ private:
 	LLGLSLShader* target_shader;
 
     // setup by beginFooPass, [0] is static variant, [1] is rigged variant
-    LLGLSLShader* simple_shader[2] = { nullptr };
-	LLGLSLShader* fullbright_shader[2] = { nullptr };
-	LLGLSLShader* emissive_shader[2] = { nullptr };
+    LLGLSLShader* simple_shader = nullptr;
+    LLGLSLShader* fullbright_shader = nullptr;
+    LLGLSLShader* emissive_shader = nullptr;
 
     void drawEmissive(U32 mask, LLDrawInfo* draw);
     void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);

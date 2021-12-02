@@ -80,213 +80,162 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
-	if (LLPipeline::sImpostorRender)
-	{ //skip depth buffer filling pass when rendering impostors
-		return 1;
-	}
-	else if (gSavedSettings.getBOOL("RenderDepthOfField"))
-	{
-		return 2; 
-	}
-	else
-	{
-		return 1;
-	}
+    return 1;
 }
 
-void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 
-{ 
-    LL_PROFILE_ZONE_SCOPED;
+// set some common parameters on the given shader to prepare for alpha rendering
+static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma)
+{
+    static LLCachedControl<F32> displayGamma(gSavedSettings, "RenderDeferredDisplayGamma");
+    F32 gamma = displayGamma;
 
-    F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+    shader->bind();
+    shader->uniform1i(LLShaderMgr::NO_ATMO, (LLPipeline::sRenderingHUDs) ? 1 : 0);
+    shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
 
-    emissive_shader[0] = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
-    emissive_shader[1] = emissive_shader[0]->mRiggedVariant;
-
-    for (int i = 0; i < 2; ++i)
+    if (LLPipeline::sImpostorRender)
     {
-        emissive_shader[i]->bind();
-        emissive_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, (LLPipeline::sRenderingHUDs) ? 1 : 0);
-        emissive_shader[i]->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-        emissive_shader[i]->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
+        shader->setMinimumAlpha(0.5f);
+    }
+    else
+    {
+        shader->setMinimumAlpha(0.f);
+    }
+    if (textureGamma)
+    {
+        shader->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
     }
 
-	if (pass == 0)
-	{
-        fullbright_shader[0] = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
-                (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
-        fullbright_shader[1] = fullbright_shader[0]->mRiggedVariant;
- 
-        for (int i = 0; i < 2; ++i)
-        {
-            fullbright_shader[i]->bind();
-            fullbright_shader[i]->uniform1f(LLShaderMgr::TEXTURE_GAMMA, 2.2f);
-            fullbright_shader[i]->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
-            fullbright_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-            fullbright_shader[i]->unbind();
-        }
-
-        simple_shader[0] = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
-                (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
-        simple_shader[1] = simple_shader[0]->mRiggedVariant;
-
-		//prime simple shader (loads shadow relevant uniforms)
-        for (int i = 0; i < 2; ++i)
-        {
-            gPipeline.bindDeferredShader(*simple_shader[i]);
-            simple_shader[i]->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
-            simple_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-        }
-	}
-	else if (!LLPipeline::sImpostorRender)
-	{
-		//update depth buffer sampler
-		gPipeline.mScreen.flush();
-		gPipeline.mDeferredDepth.copyContents(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
-							0, 0, gPipeline.mDeferredDepth.getWidth(), gPipeline.mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
-		gPipeline.mDeferredDepth.bindTarget();
-		simple_shader[0] = fullbright_shader[0] = &gObjectFullbrightAlphaMaskProgram;
-        simple_shader[1] = fullbright_shader[1] = simple_shader[0]->mRiggedVariant;
-        
-        for (int i = 0; i < 2; ++i)
-        {
-            simple_shader[i]->bind();
-            simple_shader[i]->setMinimumAlpha(0.33f);
-        }
-	}
-
-	deferred_render = TRUE;
-	if (mShaderLevel > 0)
-	{
-		// Start out with no shaders.
-		target_shader = NULL;
-	}
-	gPipeline.enableLightsDynamic();
-}
-
-void LLDrawPoolAlpha::endPostDeferredPass(S32 pass) 
-{ 
-    LL_PROFILE_ZONE_SCOPED;
-
-	if (pass == 1 && !LLPipeline::sImpostorRender)
-	{
-		gPipeline.mDeferredDepth.flush();
-		gPipeline.mScreen.bindTarget();
-		LLGLSLShader::sCurBoundShaderPtr->unbind();
-	}
-
-	deferred_render = FALSE;
-	endRenderPass(pass);
+    //also prepare rigged variant
+    if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
+    { 
+        prepare_alpha_shader(shader->mRiggedVariant, textureGamma);
+    }
 }
 
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass) 
 { 
     LL_PROFILE_ZONE_SCOPED;
-	render(pass); 
-}
+    deferred_render = TRUE;
 
-void LLDrawPoolAlpha::beginRenderPass(S32 pass)
-{
-    LL_PROFILE_ZONE_SCOPED;
-	
-    simple_shader[0]     = (LLPipeline::sImpostorRender)   ? &gObjectSimpleImpostorProgram  :
-                        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram     : &gObjectSimpleProgram;
+    // first pass, regular forward alpha rendering
+    {
+        emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+        prepare_alpha_shader(emissive_shader, true);
 
-    fullbright_shader[0] = (LLPipeline::sImpostorRender)   ? &gObjectFullbrightProgram      :
-                        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightProgram;
+        fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
+            (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
+        prepare_alpha_shader(fullbright_shader, true);
 
-    emissive_shader[0]   = (LLPipeline::sImpostorRender)   ? &gObjectEmissiveProgram        :
-                        (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram   : &gObjectEmissiveProgram;
-
-    simple_shader[1] = simple_shader[0]->mRiggedVariant;
-    fullbright_shader[1] = fullbright_shader[0]->mRiggedVariant;
-    emissive_shader[1] = emissive_shader[0]->mRiggedVariant;
-
-    if (LLPipeline::sImpostorRender)
-	{
-        for (int i = 0; i < 2; ++i)
-        {
-            fullbright_shader[i]->bind();
-            fullbright_shader[i]->setMinimumAlpha(0.5f);
-            fullbright_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-            simple_shader[i]->bind();
-            simple_shader[i]->setMinimumAlpha(0.5f);
-            simple_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-        }
-	}
-    else
-	{
-        for (int i = 0; i < 2; ++i)
-        {
-            fullbright_shader[i]->bind();
-            fullbright_shader[i]->setMinimumAlpha(0.f);
-            fullbright_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-            simple_shader[i]->bind();
-            simple_shader[i]->setMinimumAlpha(0.f);
-            simple_shader[i]->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
-        }
+        simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+            (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
+        prepare_alpha_shader(simple_shader, false);
+        
+        forwardRender();
     }
-	gPipeline.enableLightsDynamic();
 
-    LLGLSLShader::bindNoShader();
+    // second pass, render to depth for depth of field effects
+    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField"))
+    { 
+        //update depth buffer sampler
+        gPipeline.mScreen.flush();
+        gPipeline.mDeferredDepth.copyContents(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
+            0, 0, gPipeline.mDeferredDepth.getWidth(), gPipeline.mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        gPipeline.mDeferredDepth.bindTarget();
+        simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
+
+        simple_shader->bind();
+        simple_shader->setMinimumAlpha(0.33f);
+
+        // mask off color buffer writes as we're only writing to depth buffer
+        gGL.setColorMask(false, false);
+
+        // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
+        // We don't want the nearly invisible objects to cause of DoF effects
+        renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, 
+            true); // <--- discard mostly transparent faces
+
+        gPipeline.mDeferredDepth.flush();
+        gPipeline.mScreen.bindTarget();
+        gGL.setColorMask(true, false);
+    }
+
+    renderDebugAlpha();
+
+    deferred_render = FALSE;
 }
 
-void LLDrawPoolAlpha::endRenderPass( S32 pass )
+//set some generic parameters for forward (non-deferred) rendering
+static void prepare_forward_shader(LLGLSLShader* shader, F32 minimum_alpha)
 {
-    LL_PROFILE_ZONE_SCOPED;
-	LLRenderPass::endRenderPass(pass);
+    shader->bind();
+    shader->setMinimumAlpha(minimum_alpha);
+    shader->uniform1i(LLShaderMgr::NO_ATMO, LLPipeline::sRenderingHUDs ? 1 : 0);
 
-	if(gPipeline.canUseWindLightShaders()) 
-	{
-		LLGLSLShader::bindNoShader();
-	}
+    //also prepare rigged variant
+    if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
+    {
+        prepare_forward_shader(shader->mRiggedVariant, minimum_alpha);
+    }
 }
 
 void LLDrawPoolAlpha::render(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
+    LL_RECORD_BLOCK_TIME(FTM_RENDER_ALPHA);
 
-	LLGLSPipelineAlpha gls_pipeline_alpha;
+    simple_shader = (LLPipeline::sImpostorRender) ? &gObjectSimpleImpostorProgram :
+        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleProgram;
 
-	if (deferred_render && pass == 1)
-	{ //depth only
-		gGL.setColorMask(false, false);
-	}
-	else
-	{
-		gGL.setColorMask(true, true);
-	}
-	
-	bool write_depth = LLDrawPoolWater::sSkipScreenCopy
-						 || (deferred_render && pass == 1)
-						 // we want depth written so that rendered alpha will
-						 // contribute to the alpha mask used for impostors
-						 || LLPipeline::sImpostorRenderAlphaDepthPass;
+    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightProgram :
+        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightProgram;
 
-	LLGLDepthTest depth(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
+    emissive_shader = (LLPipeline::sImpostorRender) ? &gObjectEmissiveProgram :
+        (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 
-	if (deferred_render && pass == 1)
-	{
-		gGL.blendFunc(LLRender::BF_SOURCE_ALPHA, LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
-	}
-	else
-	{
-		mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
-		mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
-		mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
-		mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
-		gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-	}
+    F32 minimum_alpha = 0.f;
+    if (LLPipeline::sImpostorRender)
+    {
+        minimum_alpha = 0.5f;
+    }
+    prepare_forward_shader(fullbright_shader, minimum_alpha);
+    prepare_forward_shader(simple_shader, minimum_alpha);
 
-	renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, pass);
+    forwardRender();
 
-	gGL.setColorMask(true, false);
+    renderDebugAlpha();
+}
 
-	if (deferred_render && pass == 1)
-	{
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-	}
+void LLDrawPoolAlpha::forwardRender()
+{
+    gPipeline.enableLightsDynamic();
 
+    LLGLSPipelineAlpha gls_pipeline_alpha;
+
+    //enable writing to alpha for emissive effects
+    gGL.setColorMask(true, true);
+
+    bool write_depth = LLDrawPoolWater::sSkipScreenCopy
+        // we want depth written so that rendered alpha will
+        // contribute to the alpha mask used for impostors
+        || LLPipeline::sImpostorRenderAlphaDepthPass;
+
+    LLGLDepthTest depth(GL_TRUE, write_depth ? GL_TRUE : GL_FALSE);
+
+    mColorSFactor = LLRender::BF_SOURCE_ALPHA;           // } regular alpha blend
+    mColorDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA; // }
+    mAlphaSFactor = LLRender::BF_ZERO;                         // } glow suppression
+    mAlphaDFactor = LLRender::BF_ONE_MINUS_SOURCE_ALPHA;       // }
+    gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
+
+    // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
+    // We don't want the nearly invisible objects to cause of DoF effects
+    renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
+
+    gGL.setColorMask(true, false);
+}
+
+void LLDrawPoolAlpha::renderDebugAlpha()
+{
 	if (sShowDebugAlpha)
 	{
 		gHighlightProgram.bind();
@@ -403,7 +352,7 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
 			current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, draw->mSpecularMap);
 		} 
     }
-    else if (current_shader == simple_shader[0] || current_shader == simple_shader[1])
+    else if (current_shader == simple_shader || current_shader == simple_shader->mRiggedVariant)
     {
         current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
 	    current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
@@ -470,14 +419,8 @@ void LLDrawPoolAlpha::drawEmissive(U32 mask, LLDrawInfo* draw)
 
 void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
 {
-    emissive_shader[0]->bind();
-    emissive_shader[0]->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
-
-    gPipeline.enableLightsDynamic();
-
-    // install glow-accumulating blend mode
-    // don't touch color, add to alpha (glow)
-    gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
+    emissive_shader->bind();
+    emissive_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
 
     for (LLDrawInfo* draw : emissives)
     {
@@ -485,24 +428,13 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
         drawEmissive(mask, draw);
         RestoreTexSetup(tex_setup);
     }
-
-    // restore our alpha blend mode
-    gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-
-    emissive_shader[0]->unbind();
 }
 
 void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
 {
-    emissive_shader[1]->bind();
-    emissive_shader[1]->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
-
-    gPipeline.enableLightsDynamic();
-
-    mask |= LLVertexBuffer::MAP_WEIGHT4;
-    // install glow-accumulating blend mode
-    // don't touch color, add to alpha (glow)
-    gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
+    LLGLSLShader* shader = emissive_shader->mRiggedVariant;
+    shader->bind();
+    shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
 
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
@@ -522,14 +454,9 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
         drawEmissive(mask, draw);
         RestoreTexSetup(tex_setup);
     }
-
-    // restore our alpha blend mode
-    gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
-
-    emissive_shader[1]->unbind();
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
+void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only)
 {
     LL_PROFILE_ZONE_SCOPED;
     BOOL initialized_lighting = FALSE;
@@ -577,17 +504,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					continue;
 				}
 
-				// Fix for bug - NORSPEC-271
-				// If the face is more than 90% transparent, then don't update the Depth buffer for Dof
-				// We don't want the nearly invisible objects to cause of DoF effects
-				if(pass == 1 && !LLPipeline::sImpostorRender)
+				if(depth_only)
 				{
+                    // when updating depth buffer, discard faces that are more than 90% transparent
 					LLFace*	face = params.mFace;
 					if(face)
 					{
 						const LLTextureEntry* tep = face->getTextureEntry();
 						if(tep)
-						{
+						{ // don't render faces that are more than 90% transparent
 							if(tep->getColor().mV[3] < 0.1f)
 								continue;
 						}
@@ -609,7 +534,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 					if (light_enabled || !initialized_lighting)
 					{
 						initialized_lighting = TRUE;
-						target_shader = fullbright_shader[0];
+						target_shader = fullbright_shader;
 
 						light_enabled = FALSE;
 					}
@@ -618,7 +543,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				else if (!light_enabled || !initialized_lighting)
 				{
 					initialized_lighting = TRUE;
-					target_shader = simple_shader[0];
+					target_shader = simple_shader;
 					light_enabled = TRUE;
 				}
 
@@ -647,11 +572,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 				else if (!params.mFullbright)
 				{
-					target_shader = simple_shader[0];
+					target_shader = simple_shader;
 				}
 				else
 				{
-					target_shader = fullbright_shader[0];
+					target_shader = fullbright_shader;
 				}
 				
                 if (params.mAvatar != nullptr)
@@ -748,7 +673,15 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				}
 			}
 
+            // render emissive faces into alpha channel for bloom effects
+            if (!depth_only)
             {
+                gPipeline.enableLightsDynamic();
+
+                // install glow-accumulating blend mode
+                // don't touch color, add to alpha (glow)
+                gGL.blendFunc(LLRender::BF_ZERO, LLRender::BF_ONE, LLRender::BF_ONE, LLRender::BF_ONE);
+
                 bool rebind = false;
                 LLGLSLShader* lastShader = current_shader;
                 if (!emissives.empty())
@@ -764,6 +697,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
                     renderRiggedEmissives(mask, rigged_emissives);
                     rebind = true;
                 }
+
+                // restore our alpha blend mode
+                gGL.blendFunc(mColorSFactor, mColorDFactor, mAlphaSFactor, mAlphaDFactor);
 
                 if (lastShader && rebind)
                 {

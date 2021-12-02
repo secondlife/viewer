@@ -53,8 +53,6 @@ public:
 	LLDrawPoolBump();
 
 	virtual void render(S32 pass = 0) override;
-	virtual void beginRenderPass( S32 pass ) override;
-	virtual void endRenderPass( S32 pass ) override;
 	virtual S32	 getNumPasses() override;
 	/*virtual*/ void prerender() override;
 	void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE) override;
@@ -64,9 +62,9 @@ public:
 		
 	S32 numBumpPasses();
 	
-	void beginShiny(bool invisible = false);
-	void renderShiny(bool invisible = false);
-	void endShiny(bool invisible = false);
+	void beginShiny();
+	void renderShiny();
+	void endShiny();
 	
 	void beginFullbrightShiny();
 	void renderFullbrightShiny();
@@ -76,17 +74,13 @@ public:
 	void renderBump(U32 pass = LLRenderPass::PASS_BUMP);
 	void endBump(U32 pass = LLRenderPass::PASS_BUMP);
 
-	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
-	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel, bool invisible);
+	static void bindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
+	static void unbindCubeMap(LLGLSLShader* shader, S32 shader_level, S32& diffuse_channel, S32& cube_channel);
 
 	virtual S32 getNumDeferredPasses() override;
-	/*virtual*/ void beginDeferredPass(S32 pass) override;
-	/*virtual*/ void endDeferredPass(S32 pass) override;
 	/*virtual*/ void renderDeferred(S32 pass) override;
 
-    virtual S32 getNumPostDeferredPasses() override { return 4; }
-	/*virtual*/ void beginPostDeferredPass(S32 pass) override;
-	/*virtual*/ void endPostDeferredPass(S32 pass) override;
+    virtual S32 getNumPostDeferredPasses() override { return 1; }
 	/*virtual*/ void renderPostDeferred(S32 pass) override;
 
 	static BOOL bindBumpMap(LLDrawInfo& params, S32 channel = -2);
@@ -171,10 +165,10 @@ private:
 
 extern LLBumpImageList gBumpImageList;
 
-class LLDrawPoolInvisible : public LLDrawPoolBump
+class LLDrawPoolInvisible : public LLRenderPass
 {
 public:
-	LLDrawPoolInvisible() : LLDrawPoolBump(LLDrawPool::POOL_INVISIBLE) { }
+	LLDrawPoolInvisible() : LLRenderPass(LLDrawPool::POOL_INVISIBLE) { }
 
 	enum
 	{
@@ -189,11 +183,6 @@ public:
 	virtual void beginRenderPass( S32 pass ) { }
 	virtual void endRenderPass( S32 pass ) { }
 	virtual S32	 getNumPasses() {return 1;}
-
-	virtual S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
 };
 
 
