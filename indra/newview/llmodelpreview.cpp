@@ -1691,12 +1691,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         end = which_lod;
     }
 
-    LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
-    if (shader)
-    {
-        shader->unbind();
-    }
-
     for (S32 lod = start; lod >= end; --lod)
     {
         if (which_lod == -1)
@@ -1855,12 +1849,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
     }
 
     mResourceCost = calcResourceCost();
-
-    LLVertexBuffer::unbind();
-    if (shader)
-    {
-        shader->bind();
-    }
 }
 
 void LLModelPreview::updateStatusMessages()
