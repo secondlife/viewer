@@ -1115,6 +1115,14 @@ F32 gpu_benchmark()
 	// ensure matched pair of bind() and unbind() calls
 	ShaderBinder binder(gBenchmarkProgram);
 
+    U32 glarray = 0;
+
+    if (LLRender::sGLCoreProfile)
+    {
+        glGenVertexArrays(1, &glarray);
+        glBindVertexArray(glarray);
+    }
+
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
 
@@ -1146,6 +1154,13 @@ F32 gpu_benchmark()
 			results.push_back(gbps);
 		}
 	}
+
+    if (LLRender::sGLCoreProfile)
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &glarray);
+    }
+
 
 	std::sort(results.begin(), results.end());
 

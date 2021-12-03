@@ -1476,6 +1476,10 @@ void LLViewerFetchedTexture::addToCreateTexture()
 BOOL LLViewerFetchedTexture::preCreateTexture(S32 usename/*= 0*/)
 {
     LL_PROFILE_ZONE_SCOPED;
+#if LL_IMAGEGL_THREAD_CHECK
+    mGLTexturep->checkActiveThread();
+#endif
+
     if (!mNeedsCreateTexture)
     {
         destroyRawImage();
@@ -1603,6 +1607,9 @@ void LLViewerFetchedTexture::postCreateTexture()
     {
         return;
     }
+#if LL_IMAGEGL_THREAD_CHECK
+    mGLTexturep->checkActiveThread();
+#endif
 
     notifyAboutCreatingTexture();
 
@@ -1619,36 +1626,45 @@ void LLViewerFetchedTexture::postCreateTexture()
 
 void LLViewerFetchedTexture::scheduleCreateTexture()
 {
-    ref();
-    mNeedsCreateTexture = TRUE;
-    if (preCreateTexture())
+    if (!mNeedsCreateTexture)
     {
+        ref();
         mNeedsCreateTexture = TRUE;
+        if (preCreateTexture())
+        {
+            mNeedsCreateTexture = TRUE;
 #if LL_WINDOWS //flip to 0 to revert to single-threaded OpenGL texture uploads
-        auto mainq = mMainQueue.lock();
-        if (mainq)
-        {
-            mainq->postTo(
-                mImageQueue,
-                // work to be done on LLImageGL worker thread
-                [this]()
-                {
-                    //actually create the texture on a background thread
-                    createTexture();
-                },
-                // callback to be run on main thread
-                [this]()
-                {
-                    //finalize on main thread
-                    postCreateTexture();
-                    unref();
-                });
-        }
-        else
+            auto mainq = mMainQueue.lock();
+            if (mainq)
+            {
+                mainq->postTo(
+                    mImageQueue,
+                    // work to be done on LLImageGL worker thread
+                    [this]()
+                    {
+#if LL_IMAGEGL_THREAD_CHECK
+                        mGLTexturep->mActiveThread = LLThread::currentID();
 #endif
-        {
-            gTextureList.mCreateTextureList.insert(this);
-            unref();
+                        //actually create the texture on a background thread
+                        createTexture();
+                    },
+                    // callback to be run on main thread
+                        [this]()
+                    {
+#if LL_IMAGEGL_THREAD_CHECK
+                        mGLTexturep->mActiveThread = LLThread::currentID();
+#endif
+                        //finalize on main thread
+                        postCreateTexture();
+                        unref();
+                    });
+            }
+            else
+#endif
+            {
+                gTextureList.mCreateTextureList.insert(this);
+                unref();
+            }
         }
     }
 }
@@ -2967,7 +2983,8 @@ void LLViewerFetchedTexture::destroyRawImage()
 void LLViewerFetchedTexture::switchToCachedImage()
 {
     LL_PROFILE_ZONE_SCOPED;
-	if(mCachedRawImage.notNull())
+	if(mCachedRawImage.notNull() && 
+        !mNeedsCreateTexture) // <--- texture creation is pending, don't step on it
 	{
 		mRawImage = mCachedRawImage;
 						

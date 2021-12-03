@@ -41,6 +41,10 @@
 #include "llrender.h"
 #include "llwindow.h"
 
+#if !LL_IMAGEGL_THREAD_CHECK
+#define checkActiveThread()
+#endif
+
 //----------------------------------------------------------------------------
 const F32 MIN_TEXTURE_LIFETIME = 10.f;
 
@@ -437,6 +441,10 @@ LLImageGL::~LLImageGL()
 
 void LLImageGL::init(BOOL usemipmaps)
 {
+#if LL_IMAGEGL_THREAD_CHECK
+    mActiveThread = LLThread::currentID();
+#endif
+
 	// keep these members in the same order as declared in llimagehl.h
 	// so that it is obvious by visual inspection if we forgot to
 	// init a field.
@@ -1317,6 +1325,8 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 BOOL LLImageGL::createGLTexture()
 {
     LL_PROFILE_ZONE_SCOPED;
+    checkActiveThread();
+
 	if (gGLManager.mIsDisabled)
 	{
 		LL_WARNS() << "Trying to create a texture while GL is disabled!" << LL_ENDL;
@@ -1349,6 +1359,8 @@ BOOL LLImageGL::createGLTexture()
 BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename/*=0*/, BOOL to_create, S32 category)
 {
     LL_PROFILE_ZONE_SCOPED;
+    checkActiveThread();
+
 	if (gGLManager.mIsDisabled)
 	{
 		LL_WARNS() << "Trying to create a texture while GL is disabled!" << LL_ENDL;
@@ -1462,6 +1474,8 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
     LL_PROFILE_ZONE_SCOPED;
+    checkActiveThread();
+
     llassert(data_in);
     stop_glerror();
 
@@ -1576,6 +1590,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     // mark this as bound at this point, so we don't throw it out immediately
     mLastBindTime = sLastFrameTime;
 
+    checkActiveThread();
     return TRUE;
 }
 
@@ -1690,18 +1705,10 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 	return TRUE ;
 }
 
-void LLImageGL::deleteDeadTextures()
-{
-	bool reset = false;
-
-	if (reset)
-	{
-		gGL.getTexUnit(0)->activate();
-	}
-}
-		
 void LLImageGL::destroyGLTexture()
 {
+    checkActiveThread();
+
 	if (mTexName != 0)
 	{
 		if(mTextureMemory != S32Bytes(0))
@@ -1720,6 +1727,7 @@ void LLImageGL::destroyGLTexture()
 //force to invalidate the gl texture, most likely a sculpty texture
 void LLImageGL::forceToInvalidateGLTexture()
 {
+    checkActiveThread();
 	if (mTexName != 0)
 	{
 		destroyGLTexture();
@@ -2196,6 +2204,12 @@ void LLImageGL::resetCurTexSizebar()
 	sCurTexPickSize = -1 ;
 }
 //----------------------------------------------------------------------------
+#if LL_IMAGEGL_THREAD_CHECK
+void LLImageGL::checkActiveThread()
+{
+    llassert(mActiveThread == LLThread::currentID());
+}
+#endif
 
 //----------------------------------------------------------------------------
 

@@ -50,8 +50,6 @@ class LLViewerOctreePartition;
 class LLSpatialPartition;
 class LLSpatialBridge;
 class LLSpatialGroup;
-class LLTextureAtlas;
-class LLTextureAtlasSlot;
 class LLViewerRegion;
 
 void pushVerts(LLFace* face, U32 mask);
@@ -90,6 +88,10 @@ public:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
 	LLPointer<LLViewerTexture>     mTexture;
 	std::vector<LLPointer<LLViewerTexture> > mTextureList;
+
+    // virtual size of mTexture and mTextureList textures
+    // used to update the decode priority of textures in this DrawInfo
+    std::vector<F32> mTextureListVSize;
 
 	S32 mDebugColor;
 	const LLMatrix4* mTextureMatrix;
@@ -304,48 +306,14 @@ public:
 	virtual void handleDestruction(const TreeNode* node);
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
 
-//-------------------
-//for atlas use
-//-------------------
-	//atlas	
-	void setCurUpdatingTime(U32 t) {mCurUpdatingTime = t ;}
-	U32  getCurUpdatingTime() const { return mCurUpdatingTime ;}
-	
-	void setCurUpdatingSlot(LLTextureAtlasSlot* slotp) ;
-	LLTextureAtlasSlot* getCurUpdatingSlot(LLViewerTexture* imagep, S8 recursive_level = 3) ;
-
-	void setCurUpdatingTexture(LLViewerTexture* tex){ mCurUpdatingTexture = tex ;}
-	LLViewerTexture* getCurUpdatingTexture() const { return mCurUpdatingTexture ;}
-	
-	BOOL hasAtlas(LLTextureAtlas* atlasp) ;
-	LLTextureAtlas* getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level = 3) ;
-	void addAtlas(LLTextureAtlas* atlasp, S8 recursive_level = 3) ;
-	void removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group = TRUE, S8 recursive_level = 3) ;
-	void clearAtlasList() ;
-
 public:
-
 	LL_ALIGN_16(LLVector4a mViewAngle);
 	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
 	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
-		
-private:
-	U32                     mCurUpdatingTime ;
-	//do not make the below two to use LLPointer
-	//because mCurUpdatingTime invalidates them automatically.
-	LLTextureAtlasSlot* mCurUpdatingSlotp ;
-	LLViewerTexture*          mCurUpdatingTexture ;
-
-	std::vector< std::list<LLTextureAtlas*> > mAtlasList ; 
-//-------------------
-//end for atlas use
-//-------------------
 
 protected:
 	virtual ~LLSpatialGroup();
-
-	static S32 sLODSeed;
 
 public:
 	bridge_list_t mBridgeList;

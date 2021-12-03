@@ -260,8 +260,11 @@ public:
 	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
+    
     //update stats for textures in given DrawInfo
     void touchTextures(LLDrawInfo* info);
+    void touchTexture(LLViewerTexture* tex, F32 vsize);
+
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
     void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);

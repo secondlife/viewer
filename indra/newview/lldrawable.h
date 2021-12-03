@@ -64,6 +64,8 @@ class LLDrawable
 {
     LL_ALIGN_NEW;
 public:
+    typedef std::vector<LLFace*> face_list_t;
+
 	LLDrawable(const LLDrawable& rhs) 
         : LLViewerOctreeEntryData(rhs)
 	{
@@ -129,6 +131,7 @@ public:
 	
 	inline LLFace*      getFace(const S32 i) const;
 	inline S32			getNumFaces()      	 const;
+    face_list_t& getFaces() { return mFaces; }
 
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
 	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
@@ -297,8 +300,6 @@ public:
 	static F32 sCurPixelAngle; //current pixels per radian
 
 private:
-	typedef std::vector<LLFace*> face_list_t;
-	
 	U32				mState;
 	S32				mRenderType;
 	LLPointer<LLViewerObject> mVObjp;

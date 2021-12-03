@@ -3711,25 +3711,31 @@ void renderSoundHighlights(LLDrawable* drawablep)
 }
 }
 
-void LLPipeline::touchTextures(LLDrawInfo* info)
+void LLPipeline::touchTexture(LLViewerTexture* tex, F32 vsize)
 {
-    LL_PROFILE_ZONE_SCOPED;
-    for (auto& tex : info->mTextureList)
+    if (tex)
     {
-        if (tex.notNull())
+        LLImageGL* gl_tex = tex->getGLTexture();
+        if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
         {
-            LLImageGL* gl_tex = tex->getGLTexture();
-            if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
-            {
-                tex->setActive();
-            }
+            tex->setActive();
+            tex->addTextureStats(vsize);
         }
     }
 
-    if (info->mTexture.notNull())
+
+}
+void LLPipeline::touchTextures(LLDrawInfo* info)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    for (int i = 0; i < info->mTextureList.size(); ++i)
     {
-        info->mTexture->addTextureStats(info->mVSize);
+        touchTexture(info->mTextureList[i], info->mTextureListVSize[i]);
     }
+
+    touchTexture(info->mTexture, info->mVSize);
+    touchTexture(info->mSpecularMap, info->mVSize);
+    touchTexture(info->mNormalMap, info->mVSize);
 }
 
 void LLPipeline::postSort(LLCamera& camera)

@@ -88,24 +88,32 @@ void APIENTRY gl_debug_callback(GLenum source,
 {
 	if (gGLDebugLoggingEnabled)
 	{
-	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-	{
-		LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
-	}
-	else
-	{
-		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
-	}
-	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
-	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
-	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
-	LL_WARNS() << "Message: " << message << LL_ENDL;
-	LL_WARNS() << "-----------------------" << LL_ENDL;
-	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
-	{
-		LL_ERRS() << "Halting on GL Error" << LL_ENDL;
-	}
-}
+
+        if (severity != GL_DEBUG_SEVERITY_HIGH_ARB &&
+            severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
+            severity != GL_DEBUG_SEVERITY_LOW_ARB)
+        { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
+            return;
+        }
+
+	    if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	    {
+		    LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
+	    }
+	    else
+	    {
+		    LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
+	    }
+	    LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
+	    LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
+	    LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
+	    LL_WARNS() << "Message: " << message << LL_ENDL;
+	    LL_WARNS() << "-----------------------" << LL_ENDL;
+	    if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
+	    {
+		    LL_ERRS() << "Halting on GL Error" << LL_ENDL;
+	    }
+    }
 }
 #endif
 

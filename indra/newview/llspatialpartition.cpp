@@ -51,7 +51,6 @@
 #include "llphysicsshapebuilderutil.h"
 #include "llvoavatar.h"
 #include "llvolumemgr.h"
-#include "lltextureatlas.h"
 #include "llviewershadermgr.h"
 #include "llcontrolavatar.h"
 
@@ -128,129 +127,6 @@ LLSpatialGroup::~LLSpatialGroup()
 	sNodeCount--;
 
 	clearDrawMap();
-	clearAtlasList() ;
-}
-
-BOOL LLSpatialGroup::hasAtlas(LLTextureAtlas* atlasp)
-{
-	S8 type = atlasp->getComponents() - 1 ;
-	for(std::list<LLTextureAtlas*>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
-	{
-		if(atlasp == *iter)
-		{
-			return TRUE ;
-		}
-	}
-	return FALSE ;
-}
-
-void LLSpatialGroup::addAtlas(LLTextureAtlas* atlasp, S8 recursive_level) 
-{		
-	if(!hasAtlas(atlasp))
-	{
-		mAtlasList[atlasp->getComponents() - 1].push_back(atlasp) ;
-		atlasp->addSpatialGroup(this) ;
-	}
-	
-	--recursive_level;
-	if(recursive_level)//levels propagating up.
-	{
-		LLSpatialGroup* parent = getParent() ;
-		if(parent)
-		{
-			parent->addAtlas(atlasp, recursive_level) ;
-		}
-	}	
-}
-
-void LLSpatialGroup::removeAtlas(LLTextureAtlas* atlasp, BOOL remove_group, S8 recursive_level) 
-{
-	mAtlasList[atlasp->getComponents() - 1].remove(atlasp) ;
-	if(remove_group)
-	{
-		atlasp->removeSpatialGroup(this) ;
-	}
-
-	--recursive_level;
-	if(recursive_level)//levels propagating up.
-	{
-		LLSpatialGroup* parent = getParent() ;
-		if(parent)
-		{
-			parent->removeAtlas(atlasp, recursive_level) ;
-		}
-	}	
-}
-
-void LLSpatialGroup::clearAtlasList() 
-{
-	std::list<LLTextureAtlas*>::iterator iter ;
-	for(S8 i = 0 ; i < 4 ; i++)
-	{
-		if(mAtlasList[i].size() > 0)
-		{
-			for(iter = mAtlasList[i].begin(); iter != mAtlasList[i].end() ; ++iter)
-			{
-				((LLTextureAtlas*)*iter)->removeSpatialGroup(this) ;			
-			}
-			mAtlasList[i].clear() ;
-		}
-	}
-}
-
-LLTextureAtlas* LLSpatialGroup::getAtlas(S8 ncomponents, S8 to_be_reserved, S8 recursive_level)
-{
-	S8 type = ncomponents - 1 ;
-	if(mAtlasList[type].size() > 0)
-	{
-		for(std::list<LLTextureAtlas*>::iterator iter = mAtlasList[type].begin(); iter != mAtlasList[type].end() ; ++iter)
-		{
-			if(!((LLTextureAtlas*)*iter)->isFull(to_be_reserved))
-			{
-				return *iter ;
-			}
-		}
-	}
-
-	--recursive_level;
-	if(recursive_level)
-	{
-		LLSpatialGroup* parent = getParent() ;
-		if(parent)
-		{
-			return parent->getAtlas(ncomponents, to_be_reserved, recursive_level) ;
-		}
-	}
-	return NULL ;
-}
-
-void LLSpatialGroup::setCurUpdatingSlot(LLTextureAtlasSlot* slotp) 
-{ 
-	mCurUpdatingSlotp = slotp;
-
-	//if(!hasAtlas(mCurUpdatingSlotp->getAtlas()))
-	//{
-	//	addAtlas(mCurUpdatingSlotp->getAtlas()) ;
-	//}
-}
-
-LLTextureAtlasSlot* LLSpatialGroup::getCurUpdatingSlot(LLViewerTexture* imagep, S8 recursive_level) 
-{ 
-	if(gFrameCount && mCurUpdatingTime == gFrameCount && mCurUpdatingTexture == imagep)
-	{
-		return mCurUpdatingSlotp ;
-	}
-
-	//--recursive_level ;
-	//if(recursive_level)
-	//{
-	//	LLSpatialGroup* parent = getParent() ;
-	//	if(parent)
-	//	{
-	//		return parent->getCurUpdatingSlot(imagep, recursive_level) ;
-	//	}
-	//}
-	return NULL ;
 }
 
 void LLSpatialGroup::clearDrawMap()
@@ -665,11 +541,7 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLO
 	mDistance(0.f),
 	mDepth(0.f),
 	mLastUpdateDistance(-1.f), 
-	mLastUpdateTime(gFrameTimeSeconds),
-	mAtlasList(4),
-	mCurUpdatingTime(0),
-	mCurUpdatingSlotp(NULL),
-	mCurUpdatingTexture (NULL)
+	mLastUpdateTime(gFrameTimeSeconds)
 {
 	ll_assert_aligned(this,16);
 	

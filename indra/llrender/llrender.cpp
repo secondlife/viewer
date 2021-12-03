@@ -181,7 +181,11 @@ void LLTexUnit::bindFast(LLTexture* texture)
     mCurrTexture = gl_tex->getTexName();
     if (!mCurrTexture)
     {
-        mCurrTexture = LLImageGL::sDefaultGLTexture->getTexName();
+        LL_PROFILE_ZONE_NAMED("MISSING TEXTURE");
+        //if deleted, will re-generate it immediately
+        texture->forceImmediateUpdate();
+        gl_tex->forceUpdateBindStats();
+        texture->bindDefaultImage(mIndex);
     }
     glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
     mHasMipMaps = gl_tex->mHasMipMaps;

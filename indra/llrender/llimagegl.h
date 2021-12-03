@@ -40,7 +40,8 @@
 #include "threadpool.h"
 #include "workqueue.h"
 
-class LLTextureAtlas ;
+#define LL_IMAGEGL_THREAD_CHECK 0 //set to 1 to enable thread debugging for ImageGL
+
 class LLWindow;
 
 #define BYTES_TO_MEGA_BYTES(x) ((x) >> 20)
@@ -54,7 +55,6 @@ public:
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(S32 numTextures, U32 *textures);
 	static void deleteTextures(S32 numTextures, const U32 *textures);
-	static void deleteDeadTextures();
 
 	// Size calculation
 	static S32 dataFormatBits(S32 dataformat);
@@ -188,6 +188,12 @@ public:
 
 	BOOL preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image);
 	void postAddToAtlas() ;	
+
+#if LL_IMAGEGL_THREAD_CHECK
+    // thread debugging
+    std::thread::id mActiveThread;
+    void checkActiveThread();
+#endif
 
 public:
 	// Various GL/Rendering options
