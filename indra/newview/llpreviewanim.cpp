@@ -44,8 +44,7 @@ extern LLAgent gAgent;
 const S32 ADVANCED_VPAD = 3;
 
 LLPreviewAnim::LLPreviewAnim(const LLSD& key)
-	: LLPreview( key ),
-	pMotion(NULL)
+	: LLPreview( key )
 {
 	mCommitCallbackRegistrar.add("PreviewAnim.Play", boost::bind(&LLPreviewAnim::play, this, _2));
 }
@@ -172,7 +171,7 @@ void LLPreviewAnim::refreshFromItem()
     }
 
     // Preload motion
-    pMotion = gAgentAvatarp->createMotion(item->getAssetUUID());
+    gAgentAvatarp->createMotion(item->getAssetUUID());  
 
     LLPreview::refreshFromItem();
 }
@@ -215,15 +214,24 @@ void LLPreviewAnim::showAdvanced()
         LLRect rect = getRect();
         reshape(rect.getWidth(), rect.getHeight() + pAdvancedStatsTextBox->getRect().getHeight() + ADVANCED_VPAD, FALSE);
 
-        // set text
-        if (pMotion)
+        LLMotion *motion = NULL;
+        const LLInventoryItem* item = getItem();
+        if (item)
         {
-            pAdvancedStatsTextBox->setTextArg("[PRIORITY]", llformat("%d", pMotion->getPriority()));
-            pAdvancedStatsTextBox->setTextArg("[DURATION]", llformat("%.2f", pMotion->getDuration()));
-            pAdvancedStatsTextBox->setTextArg("[EASE_IN]", llformat("%.2f", pMotion->getEaseInDuration()));
-            pAdvancedStatsTextBox->setTextArg("[EASE_OUT]", llformat("%.2f", pMotion->getEaseOutDuration()));
-            pAdvancedStatsTextBox->setTextArg("[IS_LOOP]", (pMotion->getLoop() ? LLTrans::getString("PermYes") : LLTrans::getString("PermNo")));
-            pAdvancedStatsTextBox->setTextArg("[NUM_JOINTS]", llformat("%d", pMotion->getNumJointMotions()));
+            // if motion exists, will return existing one.
+            // Needed because viewer can purge motions
+            motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+        }
+
+        // set text
+        if (motion)
+        {
+            pAdvancedStatsTextBox->setTextArg("[PRIORITY]", llformat("%d", motion->getPriority()));
+            pAdvancedStatsTextBox->setTextArg("[DURATION]", llformat("%.2f", motion->getDuration()));
+            pAdvancedStatsTextBox->setTextArg("[EASE_IN]", llformat("%.2f", motion->getEaseInDuration()));
+            pAdvancedStatsTextBox->setTextArg("[EASE_OUT]", llformat("%.2f", motion->getEaseOutDuration()));
+            pAdvancedStatsTextBox->setTextArg("[IS_LOOP]", (motion->getLoop() ? LLTrans::getString("PermYes") : LLTrans::getString("PermNo")));
+            pAdvancedStatsTextBox->setTextArg("[NUM_JOINTS]", llformat("%d", motion->getNumJointMotions()));
         }
     }
 }
