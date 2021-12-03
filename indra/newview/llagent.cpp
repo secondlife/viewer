@@ -1988,7 +1988,8 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
-	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+    static LLCachedControl<F32> hint_timeout(gSavedSettings, "NotMovingHintTimeout");
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > hint_timeout)
 	{
 		LLFirstUse::notMoving();
 	}
@@ -2159,7 +2160,8 @@ void LLAgent::endAnimationUpdateUI()
 		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
 		gStatusBar->setVisibleForMouselook(true);
 
-		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+        static LLCachedControl<bool> show_mini_location_panel(gSavedSettings, "ShowMiniLocationPanel");
+		if (show_mini_location_panel)
 		{
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}
