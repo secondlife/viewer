@@ -556,12 +556,6 @@ bool LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_leve
 			return false;
 		}
 		
-		if (mTexName)
-		{
-// 			LL_WARNS() << "Setting Size of LLImageGL with existing mTexName = " << mTexName << LL_ENDL;
-			destroyGLTexture();
-		}
-
 		// pickmask validity depends on old image size, delete it
 		freePickMask();
 
