@@ -1699,6 +1699,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
     {
         LL_DEBUGS("RiggedBox") << "rebuilding box, volume face count " << getVolume()->getNumVolumeFaces() << " drawable face count " << mDrawable->getNumFaces() << LL_ENDL;
     }
+
     // There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
 	for (S32 i = 0;
 		 i < getVolume()->getNumVolumeFaces() && i < mDrawable->getNumFaces() && i < getNumTEs();
@@ -1740,7 +1741,18 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		}
 	}
 
-    if (isRiggedMesh())
+    bool rigged = false;
+    
+    if (!isAnimatedObject())
+    {
+        rigged = isRiggedMesh() && isAttachment();
+    }
+    else
+    {
+        rigged = isRiggedMesh() && getControlAvatar() && getControlAvatar()->mPlaying;
+    }
+
+    if (rigged)
     {
         min.set(-1, -1, -1, 0);
         max.set(1, 1, 1, 0);
