@@ -132,40 +132,15 @@ void gl_rect_2d(S32 left, S32 top, S32 right, S32 bottom, BOOL filled )
 	}
 	else
 	{
-		if( gGLManager.mATIOffsetVerticalLines )
-		{
-			// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-			gGL.begin( LLRender::LINES );
-
-				// Verticals 
-				gGL.vertex2i(left + 1, top);
-				gGL.vertex2i(left + 1, bottom);
-
-				gGL.vertex2i(right, bottom);
-				gGL.vertex2i(right, top);
-
-				// Horizontals
-				top--;
-				right--;
-				gGL.vertex2i(left, bottom);
-				gGL.vertex2i(right, bottom);
-
-				gGL.vertex2i(left, top);
-				gGL.vertex2i(right, top);
-			gGL.end();
-		}
-		else
-		{
-			top--;
-			right--;
-			gGL.begin( LLRender::LINE_STRIP );
-				gGL.vertex2i(left, top);
-				gGL.vertex2i(left, bottom);
-				gGL.vertex2i(right, bottom);
-				gGL.vertex2i(right, top);
-				gGL.vertex2i(left, top);
-			gGL.end();
-		}
+		top--;
+		right--;
+		gGL.begin( LLRender::LINE_STRIP );
+			gGL.vertex2i(left, top);
+			gGL.vertex2i(left, bottom);
+			gGL.vertex2i(right, bottom);
+			gGL.vertex2i(right, top);
+			gGL.vertex2i(left, top);
+		gGL.end();
 	}
 	stop_glerror();
 }
@@ -250,15 +225,6 @@ void gl_drop_shadow(S32 left, S32 top, S32 right, S32 bottom, const LLColor4 &st
 
 void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2 )
 {
-	// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-	if( (x1 == x2) && gGLManager.mATIOffsetVerticalLines )
-	{
-		x1++;
-		x2++;
-		y1++;
-		y2++;
-	}
-
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	
 	gGL.begin(LLRender::LINES);
@@ -269,15 +235,6 @@ void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2 )
 
 void gl_line_2d(S32 x1, S32 y1, S32 x2, S32 y2, const LLColor4 &color )
 {
-	// Work around bug in ATI driver: vertical lines are offset by (-1,-1)
-	if( (x1 == x2) && gGLManager.mATIOffsetVerticalLines )
-	{
-		x1++;
-		x2++;
-		y1++;
-		y2++;
-	}
-
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	gGL.color4fv( color.mV );

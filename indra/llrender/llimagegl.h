@@ -278,7 +278,7 @@ public:
 #endif
 
 public:
-	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false); 
+	static void initClass(LLWindow* window, S32 num_catagories, BOOL skip_analyze_alpha = false, bool multi_threaded = false); 
 	static void cleanupClass() ;
 
 private:
@@ -317,6 +317,9 @@ public:
 class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 {
 public:
+    // follows gSavedSettings "RenderGLMultiThreaded"
+    static bool sEnabled;
+
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread

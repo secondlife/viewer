@@ -782,7 +782,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 	}
 
-	if( gGLManager.mIsATI )
+	if( gGLManager.mIsAMD )
 	{
 		extra_code_text[extra_code_count++] = strdup( "#define IS_AMD_CARD 1\n" );
 	}

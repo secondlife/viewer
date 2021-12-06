@@ -1361,7 +1361,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 		//  - it's going to be swapping constantly regardless
 		S32Megabytes max_vram(gGLManager.mVRAM);
 
-		if(gGLManager.mIsATI)
+		if(gGLManager.mIsAMD)
 		{
 			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
 			max_vram = max_vram * 0.75f; 

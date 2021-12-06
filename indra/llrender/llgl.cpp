@@ -161,7 +161,6 @@ LLMatrix4 gGLObliqueProjectionInverse;
 std::list<LLGLUpdate*> LLGLUpdate::sGLQ;
 
 #if (LL_WINDOWS || LL_LINUX)  && !LL_MESA_HEADLESS
-// ATI prototypes
 
 #if LL_WINDOWS
 PFNGLGETSTRINGIPROC glGetStringi = NULL;
@@ -207,21 +206,6 @@ PFNGLGETSYNCIVPROC				glGetSynciv = NULL;
 // GL_APPLE_flush_buffer_range
 PFNGLBUFFERPARAMETERIAPPLEPROC	glBufferParameteriAPPLE = NULL;
 PFNGLFLUSHMAPPEDBUFFERRANGEAPPLEPROC glFlushMappedBufferRangeAPPLE = NULL;
-
-// vertex object prototypes
-PFNGLNEWOBJECTBUFFERATIPROC			glNewObjectBufferATI = NULL;
-PFNGLISOBJECTBUFFERATIPROC			glIsObjectBufferATI = NULL;
-PFNGLUPDATEOBJECTBUFFERATIPROC		glUpdateObjectBufferATI = NULL;
-PFNGLGETOBJECTBUFFERFVATIPROC		glGetObjectBufferfvATI = NULL;
-PFNGLGETOBJECTBUFFERIVATIPROC		glGetObjectBufferivATI = NULL;
-PFNGLFREEOBJECTBUFFERATIPROC		glFreeObjectBufferATI = NULL;
-PFNGLARRAYOBJECTATIPROC				glArrayObjectATI = NULL;
-PFNGLVERTEXATTRIBARRAYOBJECTATIPROC	glVertexAttribArrayObjectATI = NULL;
-PFNGLGETARRAYOBJECTFVATIPROC		glGetArrayObjectfvATI = NULL;
-PFNGLGETARRAYOBJECTIVATIPROC		glGetArrayObjectivATI = NULL;
-PFNGLVARIANTARRAYOBJECTATIPROC		glVariantObjectArrayATI = NULL;
-PFNGLGETVARIANTARRAYOBJECTFVATIPROC	glGetVariantArrayObjectfvATI = NULL;
-PFNGLGETVARIANTARRAYOBJECTIVATIPROC	glGetVariantArrayObjectivATI = NULL;
 
 // GL_ARB_occlusion_query
 PFNGLGENQUERIESARBPROC glGenQueriesARB = NULL;
@@ -462,14 +446,9 @@ LLGLManager::LLGLManager() :
 	mHasCubeMap(FALSE),
 	mHasDebugOutput(FALSE),
 
-	mIsATI(FALSE),
+	mIsAMD(FALSE),
 	mIsNVIDIA(FALSE),
 	mIsIntel(FALSE),
-	mIsGF2or4MX(FALSE),
-	mIsGF3(FALSE),
-	mIsGFFX(FALSE),
-	mATIOffsetVerticalLines(FALSE),
-	mATIOldDriver(FALSE),
 #if LL_DARWIN
 	mIsMobileGF(FALSE),
 #endif
@@ -628,59 +607,17 @@ bool LLGLManager::initGL()
 	
 	// Trailing space necessary to keep "nVidia Corpor_ati_on" cards
 	// from being recognized as ATI.
+    // NOTE: AMD has been pretty good about not breaking this check, do not rename without good reason
 	if (mGLVendor.substr(0,4) == "ATI ")
 	{
-		mGLVendorShort = "ATI";
+		mGLVendorShort = "AMD";
 		// *TODO: Fix this?
-		mIsATI = TRUE;
-
-#if LL_WINDOWS && !LL_MESA_HEADLESS
-		if (mDriverVersionRelease < 3842)
-		{
-			mATIOffsetVerticalLines = TRUE;
-		}
-#endif // LL_WINDOWS
-
-#if (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
-		// count any pre OpenGL 3.0 implementation as an old driver
-		if (mGLVersion < 3.f) 
-		{
-			mATIOldDriver = TRUE;
-		}
-#endif // (LL_WINDOWS || LL_LINUX) && !LL_MESA_HEADLESS
+		mIsAMD = TRUE;
 	}
 	else if (mGLVendor.find("NVIDIA ") != std::string::npos)
 	{
 		mGLVendorShort = "NVIDIA";
 		mIsNVIDIA = TRUE;
-		if (   mGLRenderer.find("GEFORCE4 MX") != std::string::npos
-			|| mGLRenderer.find("GEFORCE2") != std::string::npos
-			|| mGLRenderer.find("GEFORCE 2") != std::string::npos
-			|| mGLRenderer.find("GEFORCE4 460 GO") != std::string::npos
-			|| mGLRenderer.find("GEFORCE4 440 GO") != std::string::npos
-			|| mGLRenderer.find("GEFORCE4 420 GO") != std::string::npos)
-		{
-			mIsGF2or4MX = TRUE;
-		}
-		else if (mGLRenderer.find("GEFORCE FX") != std::string::npos
-				 || mGLRenderer.find("QUADRO FX") != std::string::npos
-				 || mGLRenderer.find("NV34") != std::string::npos)
-		{
-			mIsGFFX = TRUE;
-		}
-		else if(mGLRenderer.find("GEFORCE3") != std::string::npos)
-		{
-			mIsGF3 = TRUE;
-		}
-#if LL_DARWIN
-		else if ((mGLRenderer.find("9400M") != std::string::npos)
-			  || (mGLRenderer.find("9600M") != std::string::npos)
-			  || (mGLRenderer.find("9800M") != std::string::npos))
-		{
-			mIsMobileGF = TRUE;
-		}
-#endif
-
 	}
 	else if (mGLVendor.find("INTEL") != std::string::npos
 #if LL_LINUX
@@ -834,12 +771,6 @@ bool LLGLManager::initGL()
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
-	if (mIsATI)
-	{ //using multisample textures on ATI results in black screen for some reason
-		mHasTextureMultisample = FALSE;
-	}
-
-
 	if (mIsIntel && mGLVersion <= 3.f)
 	{ //never try to use framebuffer objects on older intel drivers (crashy)
 		mHasFramebufferObject = FALSE;
@@ -1004,14 +935,9 @@ void LLGLManager::asLLSD(LLSD& info)
     info["has_texture_srgb_decode"] = mHasTexturesRGBDecode;
 
 	// Vendor-specific extensions
-	info["is_ati"] = mIsATI;
+	info["is_ati"] = mIsAMD;  // note, do not rename is_ati to is_amd without coordinating with DW
 	info["is_nvidia"] = mIsNVIDIA;
 	info["is_intel"] = mIsIntel;
-	info["is_gf2or4mx"] = mIsGF2or4MX;
-	info["is_gf3"] = mIsGF3;
-	info["is_gf_gfx"] = mIsGFFX;
-	info["ati_offset_vertical_lines"] = mATIOffsetVerticalLines;
-	info["ati_old_driver"] = mATIOldDriver;
 
 	// Other fields
 	info["has_requirements"] = mHasRequirements;
@@ -1138,7 +1064,7 @@ void LLGLManager::initExtensions()
 	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
 	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
 #if !LL_DARWIN
-	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
+	mHasPointParameters = ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
 #endif
 
@@ -1256,14 +1182,7 @@ void LLGLManager::initExtensions()
 		LL_INFOS("RenderInit") << "Disabling mip-map generation for Intel GPUs" << LL_ENDL;
 		mHasMipMapGeneration = FALSE;
 	}
-#if !LL_DARWIN
-	if (mIsATI && mHasMipMapGeneration)
-	{
-		LL_INFOS("RenderInit") << "Disabling mip-map generation for ATI GPUs (performance opt)" << LL_ENDL;
-		mHasMipMapGeneration = FALSE;
-	}
-#endif
-	
+
 	// Misc
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
 	glGetIntegerv(GL_MAX_ELEMENTS_INDICES, (GLint*) &mGLMaxIndexRange);

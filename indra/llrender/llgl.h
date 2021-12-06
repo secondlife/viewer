@@ -119,14 +119,9 @@ public:
     BOOL mHasTexturesRGBDecode;
 
 	// Vendor-specific extensions
-	BOOL mIsATI;
+	BOOL mIsAMD;
 	BOOL mIsNVIDIA;
 	BOOL mIsIntel;
-	BOOL mIsGF2or4MX;
-	BOOL mIsGF3;
-	BOOL mIsGFFX;
-	BOOL mATIOffsetVerticalLines;
-	BOOL mATIOldDriver;
 
 #if LL_DARWIN
 	// Needed to distinguish problem cards on older Macs that break with Materials

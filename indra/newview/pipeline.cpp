@@ -890,7 +890,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
 		GLuint screenFormat = GL_RGBA16;
-		if (gGLManager.mIsATI)
+		if (gGLManager.mIsAMD)
 		{
 			screenFormat = GL_RGBA12;
 		}
