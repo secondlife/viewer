@@ -36,6 +36,7 @@
 #include "llfloaterevent.h"
 #include "llagent.h"
 #include "llcommandhandler.h"	// secondlife:///app/... support
+#include "lltrans.h"
 
 class LLEventHandler : public LLCommandHandler
 {
@@ -218,8 +219,40 @@ void LLEventNotifier::load(const LLSD& event_options)
 		end = event_options.endArray(); resp_it != end; ++resp_it)
 	{
 		LLSD response = *resp_it;
+        LLDate date;
+        bool is_iso8601_date = false;
 
-		add(response["event_id"].asInteger(), response["event_date_ut"], response["event_date"].asString(), response["event_name"].asString());
+        if (response["event_date"].isDate())
+        {
+            date = response["event_date"].asDate();
+            is_iso8601_date = true;
+        }
+        else if (date.fromString(response["event_date"].asString()))
+        {
+            is_iso8601_date = true;
+        }
+
+        if (is_iso8601_date)
+        {
+            std::string dateStr;
+
+            dateStr = "[" + LLTrans::getString("LTimeYear") + "]-["
+                + LLTrans::getString("LTimeMthNum") + "]-["
+                + LLTrans::getString("LTimeDay") + "] ["
+                + LLTrans::getString("LTimeHour") + "]:["
+                + LLTrans::getString("LTimeMin") + "]:["
+                + LLTrans::getString("LTimeSec") + "]";
+
+            LLSD substitution;
+            substitution["datetime"] = date;
+            LLStringUtil::format(dateStr, substitution);
+
+            add(response["event_id"].asInteger(), response["event_date_ut"], dateStr, response["event_name"].asString());
+        }
+        else
+        {
+            add(response["event_id"].asInteger(), response["event_date_ut"], response["event_date"].asString(), response["event_name"].asString());
+        }
 	}
 }
 
