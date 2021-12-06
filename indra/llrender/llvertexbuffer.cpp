@@ -734,10 +734,12 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
     }
 #endif
 
+    LLGLSLShader::startProfile();
     {
         LL_PROFILER_GPU_ZONEC("gl.DrawArrays", 0xFF4040)
             glDrawArrays(sGLMode[mode], first, count);
     }
+    LLGLSLShader::stopProfile(count, mode);
 
     stop_glerror();
     placeFence();
