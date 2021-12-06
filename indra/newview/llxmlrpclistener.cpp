@@ -433,6 +433,18 @@ private:
                 LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
                 responses.insert(key, val);
             }
+            else if (xmlrpc_type_boolean == type)
+            {
+                LLSD::Boolean val(XMLRPC_GetValueBoolean(current));
+                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                responses.insert(key, val);
+            }
+            else if (xmlrpc_type_datetime == type)
+            {
+                std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(current));
+                LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
+                responses.insert(key, LLSD::Date(iso8601_date));
+            }
             else if (xmlrpc_type_double == type)
             {
                 LLSD::Real val(XMLRPC_GetValueDouble(current));
