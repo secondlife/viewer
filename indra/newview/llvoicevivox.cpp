@@ -705,6 +705,11 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
 void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
 {
+    if (sShuttingDown)
+    {
+        return;
+    }
+
     LL_DEBUGS("Voice") << "starting" << LL_ENDL;
     mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
@@ -859,6 +864,12 @@ void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
             break;
         }
     } while (coro_state > 0);
+
+    if (sShuttingDown)
+    {
+        // LLVivoxVoiceClient might be already dead
+        return;
+    }
 
     mIsCoroutineActive = false;
     LL_INFOS("Voice") << "exiting" << LL_ENDL;
@@ -1343,6 +1354,12 @@ bool LLVivoxVoiceClient::loginToVivox()
         }
         
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
+
+        if (sShuttingDown)
+        {
+            return false;
+        }
+
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
 
         if (result.has("login"))
@@ -1404,6 +1421,11 @@ bool LLVivoxVoiceClient::loginToVivox()
         }
 
     } while ((!response_ok || !account_login) && !sShuttingDown);
+
+    if (sShuttingDown)
+    {
+        return false;
+    }
 
     mRelogRequested = false;
     mIsLoggedIn = true;
