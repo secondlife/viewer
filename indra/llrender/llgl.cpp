@@ -2112,7 +2112,8 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& mode
 		mModelview = modelview;
 		mProjection = projection;
 
-		setPlane(p[0], p[1], p[2], p[3]);
+        //flip incoming LLPlane to get consistent behavior compared to frustum culling
+		setPlane(-p[0], -p[1], -p[2], -p[3]);
 	}
 }
 

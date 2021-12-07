@@ -683,21 +683,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		
 		stop_glerror();
 
-		S32 water_clip = 0;
-		if ((LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT) > 1) &&
-			 (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_WATER) || 
-			  gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_VOIDWATER)))
-		{
-			if (LLViewerCamera::getInstance()->cameraUnderWater())
-			{
-				water_clip = -1;
-			}
-			else
-			{
-				water_clip = 1;
-			}
-		}
-		
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Cull");
 		
 		//Increment drawable frame counter
@@ -719,7 +704,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		static LLCullResult result;
 		LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 		LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
-		gPipeline.updateCull(*LLViewerCamera::getInstance(), result, water_clip);
+		gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
 		stop_glerror();
 
 		LLGLState::checkStates();
