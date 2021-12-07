@@ -520,7 +520,6 @@ void LLFeatureManager::initSingleton()
 
 void LLFeatureManager::applyRecommendedSettings()
 {
-	loadGPUClass();
 	// apply saved settings
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
@@ -719,11 +718,9 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 
 	LLSD map(LLSD::emptyMap());
 
-	loadGPUClass();
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
 
-	applyBaseMasks();
 	std::string features(isValidGraphicsLevel(level) ? getNameForGraphicsLevel(level) : "Low");
 
 	maskFeatures(features);
