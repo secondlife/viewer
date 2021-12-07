@@ -214,6 +214,19 @@ Make sure your Internet connection is working properly.
 
   <notification
    icon="alertmodal.tga"
+   name="LoginFailedToParse"
+   type="alertmodal">
+    <tag>fail</tag>
+Viewer received malformed response from server. Please, make sure your Internet connection is working properly and try again later.
+
+If you feel this is in error, please contact Support.
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="MessageTemplateNotFound"
    type="alertmodal">
 Message Template [PATH] not found.
