@@ -125,9 +125,8 @@ public:
     {
         LOD_FROM_FILE = 0,
         MESH_OPTIMIZER_AUTO, // automatically selects method based on model or face
-        MESH_OPTIMIZER_COMBINE,
-        MESH_OPTIMIZER,
-        MESH_OPTIMIZER_SLOPPY,
+        MESH_OPTIMIZER_COMBINE, // combines faces into a single model, simplifies, then splits back into faces
+        MESH_OPTIMIZER_SLOPPY, // uses sloppy method, works per face
         USE_LOD_ABOVE,
     } eLoDMode;
 

@@ -1754,15 +1754,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     }
                 }
             }
-            
-            if (model_meshopt_mode == MESH_OPTIMIZER)
-            {
-                // Run meshoptimizer for each face
-                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                {
-                    genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                }
-            }
 
             if (model_meshopt_mode == MESH_OPTIMIZER_SLOPPY)
             {
