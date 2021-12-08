@@ -9122,6 +9122,10 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
     if (LLPipeline::sWaterReflections && LLDrawPoolWater::sNeedsReflectionUpdate)
     {
+        //disable occlusion culling for reflection/refraction passes (save setting to restore later)
+        S32 occlude = LLPipeline::sUseOcclusion;
+        LLPipeline::sUseOcclusion = 0;
+
         bool skip_avatar_update = false;
         if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
         {
@@ -9408,6 +9412,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
         }
 
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+
+        // restore occlusion culling
+        LLPipeline::sUseOcclusion = occlude;
     }
     else
     {
@@ -9515,7 +9522,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 {
     LL_RECORD_BLOCK_TIME(FTM_SHADOW_RENDER);
 
-    //clip out geometry on the same side of water as the camera
+    //disable occlusion culling for shadow passes (save setting to restore later)
     S32 occlude = LLPipeline::sUseOcclusion;
     if (!use_occlusion)
     {
