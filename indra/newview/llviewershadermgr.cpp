@@ -151,6 +151,7 @@ LLGLSLShader		gUnderWaterProgram;
 
 //interface shaders
 LLGLSLShader		gHighlightProgram;
+LLGLSLShader        gSkinnedHighlightProgram;
 LLGLSLShader		gHighlightNormalProgram;
 LLGLSLShader		gHighlightSpecularProgram;
 
@@ -807,6 +808,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gAvatarEyeballProgram.unload();
 	gAvatarPickProgram.unload();
 	gHighlightProgram.unload();
+    gSkinnedHighlightProgram.unload();
 	gHighlightNormalProgram.unload();
 	gHighlightSpecularProgram.unload();
 
@@ -3419,12 +3421,6 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 {
 	BOOL success = TRUE;
 
-	if (mShaderLevel[SHADER_INTERFACE] == 0)
-	{
-		gHighlightProgram.unload();
-		return TRUE;
-	}
-	
 	if (success)
 	{
 		gHighlightProgram.mName = "Highlight Shader";
@@ -3432,7 +3428,8 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gHighlightProgram.mShaderFiles.push_back(make_pair("interface/highlightV.glsl", GL_VERTEX_SHADER_ARB));
 		gHighlightProgram.mShaderFiles.push_back(make_pair("interface/highlightF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gHighlightProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-		success = gHighlightProgram.createShader(NULL, NULL);
+        success = make_rigged_variant(gHighlightProgram, gSkinnedHighlightProgram);
+		success = success && gHighlightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)

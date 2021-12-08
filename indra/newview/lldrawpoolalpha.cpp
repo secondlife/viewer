@@ -160,8 +160,6 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         gGL.setColorMask(true, false);
     }
 
-    renderDebugAlpha();
-
     deferred_render = FALSE;
 }
 
@@ -201,8 +199,6 @@ void LLDrawPoolAlpha::render(S32 pass)
     prepare_forward_shader(simple_shader, minimum_alpha);
 
     forwardRender();
-
-    renderDebugAlpha();
 }
 
 void LLDrawPoolAlpha::forwardRender()
@@ -232,20 +228,21 @@ void LLDrawPoolAlpha::forwardRender()
     renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
 
     gGL.setColorMask(true, false);
+
+    renderDebugAlpha();
 }
 
 void LLDrawPoolAlpha::renderDebugAlpha()
 {
 	if (sShowDebugAlpha)
 	{
-		gHighlightProgram.bind();
-		
-		gGL.diffuseColor4f(1,0,0,1);
-				
-		LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f*1024.f);
-		gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sSmokeImagep);
-		renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
-							LLVertexBuffer::MAP_TEXCOORD0);
+        gHighlightProgram.bind();
+        gGL.diffuseColor4f(1, 0, 0, 1);
+        LLViewerFetchedTexture::sSmokeImagep->addTextureStats(1024.f * 1024.f);
+        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sSmokeImagep);
+
+        renderAlphaHighlight(LLVertexBuffer::MAP_VERTEX |
+            LLVertexBuffer::MAP_TEXCOORD0);
 
 		pushBatches(LLRenderPass::PASS_ALPHA_MASK, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
 		pushBatches(LLRenderPass::PASS_ALPHA_INVISIBLE, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, FALSE);
@@ -283,6 +280,9 @@ void LLDrawPoolAlpha::renderDebugAlpha()
 
 void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 {
+    LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
+
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{
 		LLSpatialGroup* group = *i;
@@ -300,16 +300,37 @@ void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 					continue;
 				}
 
+                bool rigged = (params.mAvatar != nullptr);
+                gHighlightProgram.bind(rigged);
+                gGL.diffuseColor4f(1, 0, 0, 1);
+
+                if (rigged)
+                {
+                    if (lastAvatar != params.mAvatar ||
+                        lastMeshId != params.mSkinInfo->mHash)
+                    {
+                        if (!uploadMatrixPalette(params))
+                        {
+                            continue;
+                        }
+                        lastAvatar = params.mAvatar;
+                        lastMeshId = params.mSkinInfo->mHash;
+                    }
+                }
+
 				LLRenderPass::applyModelMatrix(params);
 				if (params.mGroup)
 				{
 					params.mGroup->rebuildMesh();
 				}
-				params.mVertexBuffer->setBufferFast(mask);
+				params.mVertexBuffer->setBufferFast(rigged ?  mask | LLVertexBuffer::MAP_WEIGHT4 : mask);
 				params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
 			}
 		}
 	}
+
+    // make sure static version of highlight shader is bound before returning
+    gHighlightProgram.bind();
 }
 
 inline bool IsFullbright(LLDrawInfo& params)
