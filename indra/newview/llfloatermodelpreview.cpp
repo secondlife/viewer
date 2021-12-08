@@ -727,7 +727,6 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
     switch (mode)
     {
     case LLModelPreview::MESH_OPTIMIZER_AUTO:
-    case LLModelPreview::MESH_OPTIMIZER:
     case LLModelPreview::MESH_OPTIMIZER_SLOPPY:
     case LLModelPreview::MESH_OPTIMIZER_COMBINE:
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
@@ -1736,7 +1735,6 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
     S32 index = lod_source_combo->getCurrentIndex();
 	if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
-        || index == LLModelPreview::MESH_OPTIMIZER
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
         || index == LLModelPreview::MESH_OPTIMIZER_COMBINE)
 	{ //rebuild LoD to update triangle counts
