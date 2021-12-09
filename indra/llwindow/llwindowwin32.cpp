@@ -1654,7 +1654,8 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
     std::promise<std::pair<HWND, HDC>> promise;
     // What follows must be done on the window thread.
     auto window_work =
-        [self=mWindowThread,
+        [this,
+         self=mWindowThread,
          oldHandle,
          // bind CreateWindowEx() parameters by value instead of
          // back-referencing LLWindowWin32 members
@@ -1704,7 +1705,9 @@ void LLWindowWin32::recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw
                 self->mWindowHandle = handle;
                 self->mhDC = GetDC(handle);
             }
-                
+            
+            updateWindowRect();
+
             // It's important to wake up the future either way.
             promise.set_value(std::make_pair(self->mWindowHandle, self->mhDC));
             LL_DEBUGS("Window") << "recreateWindow(): window_work done" << LL_ENDL;
@@ -3280,15 +3283,31 @@ void LLWindowWin32::setMouseClipping( BOOL b )
 
 BOOL LLWindowWin32::getClientRectInScreenSpace( RECT* rectp )
 {
-    S32 offsetx = mRect.left - mClientRect.left;
-    S32 offsety = mRect.top - mClientRect.top;
+    BOOL success = FALSE;
 
-    rectp->left += offsetx;
-    rectp->right += offsetx;
-    rectp->bottom += offsety;
-    rectp->bottom += offsety;
+    RECT client_rect;
+    if (mWindowHandle && GetClientRect(mWindowHandle, &client_rect))
+    {
+        POINT top_left;
+        top_left.x = client_rect.left;
+        top_left.y = client_rect.top;
+        ClientToScreen(mWindowHandle, &top_left);
 
-    return TRUE;
+        POINT bottom_right;
+        bottom_right.x = client_rect.right;
+        bottom_right.y = client_rect.bottom;
+        ClientToScreen(mWindowHandle, &bottom_right);
+
+        SetRect(rectp,
+            top_left.x,
+            top_left.y,
+            bottom_right.x,
+            bottom_right.y);
+
+        success = TRUE;
+    }
+
+    return success;
 }
 
 void LLWindowWin32::flashIcon(F32 seconds)
