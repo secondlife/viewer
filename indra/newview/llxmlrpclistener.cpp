@@ -440,7 +440,7 @@ private:
 
                         LLSD::Binary data;
                         data.resize(len);
-                        memcpy(&data[0], buf, len);
+                        memcpy((void*)&data[0], (void*)buf, len);
                         responses.insert(key, data);
                     }
                     else
