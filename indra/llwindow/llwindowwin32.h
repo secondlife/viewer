@@ -237,6 +237,11 @@ protected:
 
 	BOOL			mMouseVanish;
 
+    // Cached values of GetWindowRect and GetClientRect to be used by app thread
+    void updateWindowRect();
+    RECT mRect; 
+    RECT mClientRect;
+
 	struct LLWindowWin32Thread;
 	LLWindowWin32Thread* mWindowThread = nullptr;
 	LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
