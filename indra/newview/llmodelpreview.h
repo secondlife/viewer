@@ -125,9 +125,8 @@ public:
     {
         LOD_FROM_FILE = 0,
         MESH_OPTIMIZER_AUTO, // automatically selects method based on model or face
-        MESH_OPTIMIZER_COMBINE,
-        MESH_OPTIMIZER,
-        MESH_OPTIMIZER_SLOPPY,
+        MESH_OPTIMIZER_COMBINE, // combines faces into a single model, simplifies, then splits back into faces
+        MESH_OPTIMIZER_SLOPPY, // uses sloppy method, works per face
         USE_LOD_ABOVE,
     } eLoDMode;
 
@@ -226,8 +225,12 @@ private:
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
 
-    // functions for meshoptimizer, return reached simplification ratio
+    // Merges faces into single mesh, simplifies using mesh optimizer,
+    // then splits back into faces.
+    // Returns reached simplification ratio. -1 in case of a failure.
     F32 genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_ratio, F32 error_threshold, bool sloppy);
+    // Simplifies specified face using mesh optimizer.
+    // Returns reached simplification ratio. -1 in case of a failure.
     F32 genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_ratio, F32 error_threshold, bool sloppy);
 
 protected:

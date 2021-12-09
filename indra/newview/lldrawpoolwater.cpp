@@ -679,9 +679,8 @@ void LLDrawPoolWater::renderWater()
             {
                 face->renderIndexed();
 
-                // If not occlusion culling, record non-void water being drawn
-                // (If occlusion is enabled, these are set within LLOcclusionCullingGroup::checkOcclusion() )
-                if (!edge && !LLPipeline::sUseOcclusion)
+                // Note non-void water being drawn, updates required
+                if (!edge)  // SL-16461 remove !LLPipeline::sUseOcclusion check
                 {
                     sNeedsReflectionUpdate = TRUE;
                     sNeedsDistortionUpdate = TRUE;

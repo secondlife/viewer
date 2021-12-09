@@ -1140,6 +1140,10 @@ void LLOcclusionCullingGroup::checkOcclusion()
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
                 sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
 #endif
+
+#if 0   // (12/2021) occasional false-negative occlusion tests produce water reflection errors, SL-16461
+        // If/when water occlusion queries become 100% reliable, re-enable this optimization
+
                 if (LLPipeline::RENDER_TYPE_WATER == mSpatialPartition->mDrawableType)
                 {
                     // Note any unoccluded water, for deciding on reflection/distortion passes
@@ -1150,7 +1154,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
                         LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
                     }
                 }
- 
+#endif
                 if (query_result > 0)
                 {
                     clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
