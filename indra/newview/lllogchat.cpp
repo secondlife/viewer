@@ -30,6 +30,7 @@
 #include "llagentui.h"
 #include "llavatarnamecache.h"
 #include "lllogchat.h"
+#include "llregex.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 
@@ -40,7 +41,6 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/regex.hpp>
 #include <boost/regex/v4/match_results.hpp>
 #include <boost/foreach.hpp>
 
@@ -250,8 +250,8 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 	 **/
 
 	boost::match_results<std::string::const_iterator> matches;
-	bool inboundConf = boost::regex_match(filename, matches, INBOUND_CONFERENCE);
-	bool outboundConf = boost::regex_match(filename, matches, OUTBOUND_CONFERENCE);
+	bool inboundConf = ll_regex_match(filename, matches, INBOUND_CONFERENCE);
+	bool outboundConf = ll_regex_match(filename, matches, OUTBOUND_CONFERENCE);
 	if (!(inboundConf || outboundConf))
 	{
 		if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
@@ -837,7 +837,7 @@ bool LLLogChat::isTranscriptFileFound(std::string fullname)
 		{
 			//matching a timestamp
 			boost::match_results<std::string::const_iterator> matches;
-			if (boost::regex_match(remove_utf8_bom(buffer), matches, TIMESTAMP))
+			if (ll_regex_match(remove_utf8_bom(buffer), matches, TIMESTAMP))
 			{
 				result = true;
 			}
@@ -917,7 +917,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 
 	//matching a timestamp
 	boost::match_results<std::string::const_iterator> matches;
-	if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
+	if (!ll_regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
 	
 	bool has_timestamp = matches[IDX_TIMESTAMP].matched;
 	if (has_timestamp)
@@ -950,7 +950,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//matching a name and a text
 	std::string stuff = matches[IDX_STUFF];
 	boost::match_results<std::string::const_iterator> name_and_text;
-	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
+	if (!ll_regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
 
 	bool has_name = name_and_text[IDX_NAME].matched;
 	std::string name = LLURI::unescape(name_and_text[IDX_NAME]);

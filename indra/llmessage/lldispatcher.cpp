@@ -62,7 +62,7 @@ void LLDispatcher::copyAllHandlerNames(keys_t& names) const
 		mHandlers.begin(),
 		mHandlers.end(),
 		std::back_insert_iterator<keys_t>(names),
-		[](const dispatch_map_t::value_type& pair){ return pair.first; });
+		llselect1st<dispatch_map_t::value_type>());
 }
 
 bool LLDispatcher::dispatch(

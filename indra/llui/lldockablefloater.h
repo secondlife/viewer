@@ -108,7 +108,7 @@ public:
 	 *
 	 * By default returns false.
 	 */
-	virtual bool overlapsScreenChannel() const { return mOverlapsScreenChannel && getVisible() && isDocked(); }
+	virtual bool overlapsScreenChannel() { return mOverlapsScreenChannel && getVisible() && isDocked(); }
 	virtual void setOverlapsScreenChannel(bool overlaps) { mOverlapsScreenChannel = overlaps; }
 
 	bool getUniqueDocking() { return mUniqueDocking;	}
@@ -131,7 +131,7 @@ protected:
 	boost::function<BOOL ()> mIsDockedStateForcedCallback;
 
 private:
-	std::unique_ptr<LLDockControl> mDockControl;
+	std::auto_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
 	static LLHandle<LLFloater> sInstanceHandle;
 	/**

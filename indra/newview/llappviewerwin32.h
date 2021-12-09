@@ -51,9 +51,8 @@ protected:
 	bool initHardwareTest() override; // Win32 uses DX9 to test hardware.
 	bool initParseCommandLine(LLCommandLineParser& clp) override;
 
-	bool beingDebugged() override;
-	bool restoreErrorTrap() override;
-	void initCrashReporting(bool reportFreeze) override;
+	virtual bool beingDebugged();
+	virtual bool restoreErrorTrap();
 
 	bool sendURLToOtherInstance(const std::string& url) override;
 

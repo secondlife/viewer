@@ -66,8 +66,7 @@ if (WINDOWS)
   # CP changed to only append the flag for 32bit builds - on 64bit builds,
   # locally at least, the build output is spammed with 1000s of 'D9002'
   # warnings about this switch being ignored.
-  # We need std::string_view, but that's not available without /std:c++17.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /std:c++17")  
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")  
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
@@ -176,7 +175,7 @@ if (DARWIN)
   # Until we decide to set -std=c++14 in viewer-build-variables/variables, set
   # it locally here: we want to at least prevent inadvertently reintroducing
   # viewer code that would fail with C++14.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags} -std=c++17")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags} -std=c++14")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.

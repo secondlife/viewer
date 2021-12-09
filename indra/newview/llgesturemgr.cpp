@@ -752,7 +752,7 @@ S32 LLGestureMgr::getPlayingCount() const
 }
 
 
-struct IsGesturePlaying
+struct IsGesturePlaying : public std::unary_function<LLMultiGesture*, bool>
 {
 	bool operator()(const LLMultiGesture* gesture) const
 	{

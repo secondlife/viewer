@@ -49,8 +49,6 @@
 #endif
 
 #include <boost/bind.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
 #include <boost/visit_each.hpp>
@@ -571,7 +569,7 @@ protected:
                                         const NameList& before);
     
     /// implement the dispatching
-    boost::shared_ptr<LLStandardSignal> mSignal;
+    std::shared_ptr<LLStandardSignal> mSignal;
 
     /// valve open?
     bool mEnabled;
@@ -744,15 +742,5 @@ private:
  */
 LL_COMMON_API bool sendReply(const LLSD& reply, const LLSD& request,
                              const std::string& replyKey="reply");
-
-// Somewhat to my surprise, passing boost::bind(...boost::weak_ptr<T>...) to
-// listen() fails in Boost code trying to instantiate LLEventListener (i.e.
-// LLStandardSignal::slot_type) because the boost::get_pointer() utility function isn't
-// specialized for boost::weak_ptr. This remedies that omission.
-namespace boost
-{
-    template <typename T>
-    T* get_pointer(const weak_ptr<T>& ptr) { return shared_ptr<T>(ptr).get(); }
-}
 
 #endif /* ! defined(LL_LLEVENTS_H) */

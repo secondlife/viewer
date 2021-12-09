@@ -562,7 +562,7 @@ void LLViewerWearable::saveNewAsset() const
 void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userdata, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLWearableSaveData* data = (LLWearableSaveData*)userdata;
-	const std::string& type_name = LLWearableType::getTypeName(data->mType);
+	const std::string& type_name = LLWearableType::getInstance()->getTypeName(data->mType);
 	if(0 == status)
 	{
 		// Success
@@ -588,7 +588,7 @@ void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* 
 
 std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w)
 {
-	s << "wearable " << LLWearableType::getTypeName(w.mType) << "\n";
+	s << "wearable " << LLWearableType::getInstance()->getTypeName(w.mType) << "\n";
 	s << "    Name: " << w.mName << "\n";
 	s << "    Desc: " << w.mDescription << "\n";
 	//w.mPermissions

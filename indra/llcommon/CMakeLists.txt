@@ -9,7 +9,6 @@ include(Linking)
 include(Boost)
 include(LLSharedLibs)
 include(JsonCpp)
-include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
@@ -19,7 +18,6 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
-    ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
     )
 
@@ -210,9 +208,9 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregex.h
     llregistry.h
     llrun.h
-    llrefcount.h
     llsafehandle.h
     llsd.h
     llsdjson.h
@@ -288,7 +286,6 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
-    ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}

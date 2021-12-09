@@ -487,7 +487,8 @@ const LLUUID LLInventoryModel::findCategoryUUIDForTypeInRoot(
 			S32 count = cats->size();
 			for(S32 i = 0; i < count; ++i)
 			{
-				if(cats->at(i)->getPreferredType() == preferred_type)
+				LLViewerInventoryCategory* p_cat = cats->at(i);
+				if(p_cat && p_cat->getPreferredType() == preferred_type)
 				{
 					const LLUUID& folder_id = cats->at(i)->getUUID();
 					if (rv.isNull() || folder_id < rv)
@@ -1659,9 +1660,18 @@ void LLInventoryModel::notifyObservers()
 		iter = mObservers.upper_bound(observer); 
 	}
 
-	mModifyMask = LLInventoryObserver::NONE;
+	// If there were any changes that arrived during notifyObservers,
+	// shedule them for next loop
+	mModifyMask = mModifyMaskBacklog;
 	mChangedItemIDs.clear();
+	mChangedItemIDs.insert(mChangedItemIDsBacklog.begin(), mChangedItemIDsBacklog.end());
 	mAddedItemIDs.clear();
+	mAddedItemIDs.insert(mAddedItemIDsBacklog.begin(), mAddedItemIDsBacklog.end());
+
+	mModifyMaskBacklog = LLInventoryObserver::NONE;
+	mChangedItemIDsBacklog.clear();
+	mAddedItemIDsBacklog.clear();
+
 	mIsNotifyObservers = FALSE;
 }
 
@@ -1673,8 +1683,10 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 	{
 		// Something marked an item for change within a call to notifyObservers
 		// (which is in the process of processing the list of items marked for change).
-		// This means the change may fail to be processed.
-		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers!  Change will likely be lost." << LL_ENDL;
+		// This means the change will have to be processed later.
+		// It's preferable for this not to happen, but it's not an issue unless code
+		// specifically wants to notifyObservers immediately (changes won't happen untill later)
+		LL_WARNS(LOG_INV) << "Adding changed mask within notify observers! Change's processing will be performed on idle." << LL_ENDL;
 		LLViewerInventoryItem *item = getItem(referent);
 		if (item)
 		{
@@ -1689,17 +1701,40 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
 			}
 		}
 	}
-	
-	mModifyMask |= mask;
+
+    if (mIsNotifyObservers)
+    {
+        mModifyMaskBacklog |= mask;
+    }
+    else
+    {
+        mModifyMask |= mask;
+    }
+
 	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
 	{
-		mChangedItemIDs.insert(referent);
+        if (mIsNotifyObservers)
+        {
+            mChangedItemIDsBacklog.insert(referent);
+        }
+        else
+        {
+            mChangedItemIDs.insert(referent);
+        }
+
         update_marketplace_category(referent, false);
 
-		if (mask & LLInventoryObserver::ADD)
-		{
-			mAddedItemIDs.insert(referent);
-		}
+        if (mask & LLInventoryObserver::ADD)
+        {
+            if (mIsNotifyObservers)
+            {
+                mAddedItemIDsBacklog.insert(referent);
+            }
+            else
+            {
+                mAddedItemIDs.insert(referent);
+            }
+        }
 	
 		// Update all linked items.  Starting with just LABEL because I'm
 		// not sure what else might need to be accounted for this.
@@ -2660,7 +2695,10 @@ void LLInventoryModel::createCommonSystemCategories()
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD,true);
 	gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS,true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, true);
+	gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK, true); // folder should exist before user tries to 'landmark this'
     gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS, true);
+    gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX, true);
 }
 
 struct LLUUIDAndName
@@ -3705,17 +3743,18 @@ void LLInventoryModel::dumpInventory() const
 // returning an overall good/bad flag.
 bool LLInventoryModel::validate() const
 {
-	bool valid = true;
+    const S32 MAX_VERBOSE_ERRORS = 40; // too many errors can cause disconect or freeze
+    S32 error_count = 0;
 
 	if (getRootFolderID().isNull())
 	{
 		LL_WARNS() << "no root folder id" << LL_ENDL;
-		valid = false;
+        error_count++;
 	}
 	if (getLibraryRootFolderID().isNull())
 	{
 		LL_WARNS() << "no root folder id" << LL_ENDL;
-		valid = false;
+        error_count++;
 	}
 
 	if (mCategoryMap.size() + 1 != mParentChildCategoryTree.size())
@@ -3723,7 +3762,7 @@ bool LLInventoryModel::validate() const
 		// ParentChild should be one larger because of the special entry for null uuid.
 		LL_INFOS() << "unexpected sizes: cat map size " << mCategoryMap.size()
 				<< " parent/child " << mParentChildCategoryTree.size() << LL_ENDL;
-		valid = false;
+        error_count++;
 	}
 	S32 cat_lock = 0;
 	S32 item_lock = 0;
@@ -3735,23 +3774,32 @@ bool LLInventoryModel::validate() const
 		const LLViewerInventoryCategory *cat = cit->second;
 		if (!cat)
 		{
-			LL_WARNS() << "invalid cat" << LL_ENDL;
-			valid = false;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "invalid cat" << LL_ENDL;
+            }
+            error_count++;
 			continue;
 		}
 		if (cat_id != cat->getUUID())
 		{
-			LL_WARNS() << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << LL_ENDL;
-			valid = false;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << LL_ENDL;
+            }
+            error_count++;
 		}
 
 		if (cat->getParentUUID().isNull())
 		{
 			if (cat_id != getRootFolderID() && cat_id != getLibraryRootFolderID())
 			{
-				LL_WARNS() << "cat " << cat_id << " has no parent, but is not root ("
-						<< getRootFolderID() << ") or library root ("
-						<< getLibraryRootFolderID() << ")" << LL_ENDL;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "cat " << cat_id << " has no parent, but is not root ("
+                        << getRootFolderID() << ") or library root ("
+                        << getLibraryRootFolderID() << ")" << LL_ENDL;
+                }
 			}
 		}
 		cat_array_t* cats;
@@ -3759,8 +3807,11 @@ bool LLInventoryModel::validate() const
 		getDirectDescendentsOf(cat_id,cats,items);
 		if (!cats || !items)
 		{
-			LL_WARNS() << "invalid direct descendents for " << cat_id << LL_ENDL;
-			valid = false;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "invalid direct descendents for " << cat_id << LL_ENDL;
+            }
+            error_count++;
 			continue;
 		}
 		if (cat->getDescendentCount() == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN)
@@ -3769,12 +3820,15 @@ bool LLInventoryModel::validate() const
 		}
 		else if (cats->size() + items->size() != cat->getDescendentCount())
 		{
-			LL_WARNS() << "invalid desc count for " << cat_id << " name [" << cat->getName()
-					<< "] parent " << cat->getParentUUID()
-					<< " cached " << cat->getDescendentCount()
-					<< " expected " << cats->size() << "+" << items->size()
-					<< "=" << cats->size() +items->size() << LL_ENDL;
-			valid = false;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "invalid desc count for " << cat_id << " name [" << cat->getName()
+                    << "] parent " << cat->getParentUUID()
+                    << " cached " << cat->getDescendentCount()
+                    << " expected " << cats->size() << "+" << items->size()
+                    << "=" << cats->size() + items->size() << LL_ENDL;
+            }
+            error_count++;
 		}
 		if (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN)
 		{
@@ -3794,8 +3848,11 @@ bool LLInventoryModel::validate() const
 
 			if (!item)
 			{
-				LL_WARNS() << "null item at index " << i << " for cat " << cat_id << LL_ENDL;
-				valid = false;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "null item at index " << i << " for cat " << cat_id << LL_ENDL;
+                }
+                error_count++;
 				continue;
 			}
 
@@ -3803,10 +3860,13 @@ bool LLInventoryModel::validate() const
 			
 			if (item->getParentUUID() != cat_id)
 			{
-				LL_WARNS() << "wrong parent for " << item_id << " found "
-						<< item->getParentUUID() << " expected " << cat_id
-						<< LL_ENDL;
-				valid = false;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "wrong parent for " << item_id << " found "
+                        << item->getParentUUID() << " expected " << cat_id
+                        << LL_ENDL;
+                }
+                error_count++;
 			}
 
 
@@ -3814,17 +3874,24 @@ bool LLInventoryModel::validate() const
 			item_map_t::const_iterator it = mItemMap.find(item_id);
 			if (it == mItemMap.end())
 			{
-				LL_WARNS() << "item " << item_id << " found as child of "
-						<< cat_id << " but not in top level mItemMap" << LL_ENDL;
-				valid = false;
+
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "item " << item_id << " found as child of "
+                        << cat_id << " but not in top level mItemMap" << LL_ENDL;
+                }
+                error_count++;
 			}
 			else
 			{
 				LLViewerInventoryItem *top_item = it->second;
 				if (top_item != item)
 				{
-					LL_WARNS() << "item mismatch, item_id " << item_id
-							<< " top level entry is different, uuid " << top_item->getUUID() << LL_ENDL;
+                    if (error_count < MAX_VERBOSE_ERRORS)
+                    {
+                        LL_WARNS() << "item mismatch, item_id " << item_id
+                            << " top level entry is different, uuid " << top_item->getUUID() << LL_ENDL;
+                    }
 				}
 			}
 
@@ -3833,19 +3900,25 @@ bool LLInventoryModel::validate() const
 			bool found = getObjectTopmostAncestor(item_id, topmost_ancestor_id);
 			if (!found)
 			{
-				LL_WARNS() << "unable to find topmost ancestor for " << item_id << LL_ENDL;
-				valid = false;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "unable to find topmost ancestor for " << item_id << LL_ENDL;
+                }
+                error_count++;
 			}
 			else
 			{
 				if (topmost_ancestor_id != getRootFolderID() &&
 					topmost_ancestor_id != getLibraryRootFolderID())
 				{
-					LL_WARNS() << "unrecognized top level ancestor for " << item_id
-							<< " got " << topmost_ancestor_id
-							<< " expected " << getRootFolderID()
-							<< " or " << getLibraryRootFolderID() << LL_ENDL;
-					valid = false;
+                    if (error_count < MAX_VERBOSE_ERRORS)
+                    {
+                        LL_WARNS() << "unrecognized top level ancestor for " << item_id
+                            << " got " << topmost_ancestor_id
+                            << " expected " << getRootFolderID()
+                            << " or " << getLibraryRootFolderID() << LL_ENDL;
+                    }
+                    error_count++;
 				}
 			}
 		}
@@ -3859,9 +3932,12 @@ bool LLInventoryModel::validate() const
 			getDirectDescendentsOf(parent_id,cats,items);
 			if (!cats)
 			{
-				LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
-						<< "] orphaned - no child cat array for alleged parent " << parent_id << LL_ENDL;
-				valid = false;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
+                        << "] orphaned - no child cat array for alleged parent " << parent_id << LL_ENDL;
+                }
+                error_count++;
 			}
 			else
 			{
@@ -3877,8 +3953,11 @@ bool LLInventoryModel::validate() const
 				}
 				if (!found)
 				{
-					LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
-							<< "] orphaned - not found in child cat array of alleged parent " << parent_id << LL_ENDL;
+                    if (error_count < MAX_VERBOSE_ERRORS)
+                    {
+                        LL_WARNS() << "cat " << cat_id << " name [" << cat->getName()
+                            << "] orphaned - not found in child cat array of alleged parent " << parent_id << LL_ENDL;
+                    }
 				}
 			}
 		}
@@ -3890,24 +3969,33 @@ bool LLInventoryModel::validate() const
 		LLViewerInventoryItem *item = iit->second;
 		if (item->getUUID() != item_id)
 		{
-			LL_WARNS() << "item_id " << item_id << " does not match " << item->getUUID() << LL_ENDL;
-			valid = false;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "item_id " << item_id << " does not match " << item->getUUID() << LL_ENDL;
+            }
+            error_count++;
 		}
 
 		const LLUUID& parent_id = item->getParentUUID();
 		if (parent_id.isNull())
 		{
-			LL_WARNS() << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << LL_ENDL;
+            if (error_count < MAX_VERBOSE_ERRORS)
+            {
+                LL_WARNS() << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << LL_ENDL;
+            }
 		}
-		else
+		else if (error_count < MAX_VERBOSE_ERRORS)
 		{
 			cat_array_t* cats;
 			item_array_t* items;
 			getDirectDescendentsOf(parent_id,cats,items);
 			if (!items)
 			{
-				LL_WARNS() << "item " << item_id << " name [" << item->getName()
-						<< "] orphaned - alleged parent has no child items list " << parent_id << LL_ENDL;
+                if (error_count < MAX_VERBOSE_ERRORS)
+                {
+                    LL_WARNS() << "item " << item_id << " name [" << item->getName()
+                        << "] orphaned - alleged parent has no child items list " << parent_id << LL_ENDL;
+                }
 			}
 			else
 			{
@@ -3922,63 +4010,70 @@ bool LLInventoryModel::validate() const
 				}
 				if (!found)
 				{
-					LL_WARNS() << "item " << item_id << " name [" << item->getName()
-							<< "] orphaned - not found as child of alleged parent " << parent_id << LL_ENDL;
+                    if (error_count < MAX_VERBOSE_ERRORS)
+                    {
+                        LL_WARNS() << "item " << item_id << " name [" << item->getName()
+                            << "] orphaned - not found as child of alleged parent " << parent_id << LL_ENDL;
+                    }
 				}
 			}
 				
 		}
-		// Link checking
-		if (item->getIsLinkType())
-		{
-			const LLUUID& link_id = item->getUUID();
-			const LLUUID& target_id = item->getLinkedUUID();
-			LLViewerInventoryItem *target_item = getItem(target_id);
-			LLViewerInventoryCategory *target_cat = getCategory(target_id);
-			// Linked-to UUID should have back reference to this link.
-			if (!hasBacklinkInfo(link_id, target_id))
-			{
-				LL_WARNS() << "link " << item->getUUID() << " type " << item->getActualType()
-						<< " missing backlink info at target_id " << target_id
-						<< LL_ENDL;
-			}
-			// Links should have referents.
-			if (item->getActualType() == LLAssetType::AT_LINK && !target_item)
-			{
-				LL_WARNS() << "broken item link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
-			}
-			else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER && !target_cat)
-			{
-				LL_WARNS() << "broken folder link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
-			}
-			if (target_item && target_item->getIsLinkType())
-			{
-				LL_WARNS() << "link " << item->getName() << " references a link item "
-						<< target_item->getName() << " " << target_item->getUUID() << LL_ENDL;
-			}
 
-			// Links should not have backlinks.
-			std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(link_id);
-			if (range.first != range.second)
-			{
-				LL_WARNS() << "Link item " << item->getName() << " has backlinks!" << LL_ENDL;
-			}
-		}
-		else
-		{
-			// Check the backlinks of a non-link item.
-			const LLUUID& target_id = item->getUUID();
-			std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(target_id);
-			for (backlink_mmap_t::const_iterator it = range.first; it != range.second; ++it)
-			{
-				const LLUUID& link_id = it->second;
-				LLViewerInventoryItem *link_item = getItem(link_id);
-				if (!link_item || !link_item->getIsLinkType())
-				{
-					LL_WARNS() << "invalid backlink from target " << item->getName() << " to " << link_id << LL_ENDL;
-				}
-			}
-		}
+		// Link checking
+        if (error_count < MAX_VERBOSE_ERRORS)
+        {
+            if (item->getIsLinkType())
+            {
+                const LLUUID& link_id = item->getUUID();
+                const LLUUID& target_id = item->getLinkedUUID();
+                LLViewerInventoryItem *target_item = getItem(target_id);
+                LLViewerInventoryCategory *target_cat = getCategory(target_id);
+                // Linked-to UUID should have back reference to this link.
+                if (!hasBacklinkInfo(link_id, target_id))
+                {
+                    LL_WARNS() << "link " << item->getUUID() << " type " << item->getActualType()
+                        << " missing backlink info at target_id " << target_id
+                        << LL_ENDL;
+                }
+                // Links should have referents.
+                if (item->getActualType() == LLAssetType::AT_LINK && !target_item)
+                {
+                    LL_WARNS() << "broken item link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
+                }
+                else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER && !target_cat)
+                {
+                    LL_WARNS() << "broken folder link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
+                }
+                if (target_item && target_item->getIsLinkType())
+                {
+                    LL_WARNS() << "link " << item->getName() << " references a link item "
+                        << target_item->getName() << " " << target_item->getUUID() << LL_ENDL;
+                }
+
+                // Links should not have backlinks.
+                std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(link_id);
+                if (range.first != range.second)
+                {
+                    LL_WARNS() << "Link item " << item->getName() << " has backlinks!" << LL_ENDL;
+                }
+            }
+            else
+            {
+                // Check the backlinks of a non-link item.
+                const LLUUID& target_id = item->getUUID();
+                std::pair<backlink_mmap_t::const_iterator, backlink_mmap_t::const_iterator> range = mBacklinkMMap.equal_range(target_id);
+                for (backlink_mmap_t::const_iterator it = range.first; it != range.second; ++it)
+                {
+                    const LLUUID& link_id = it->second;
+                    LLViewerInventoryItem *link_item = getItem(link_id);
+                    if (!link_item || !link_item->getIsLinkType())
+                    {
+                        LL_WARNS() << "invalid backlink from target " << item->getName() << " to " << link_id << LL_ENDL;
+                    }
+                }
+            }
+        }
 	}
 	
 	if (cat_lock > 0 || item_lock > 0)
@@ -3995,9 +4090,9 @@ bool LLInventoryModel::validate() const
 		LL_INFOS() << "Found " << version_unknown_count << " cats with unknown version" << LL_ENDL;
 	}
 
-	LL_INFOS() << "Validate done, valid = " << (U32) valid << LL_ENDL;
+	LL_INFOS() << "Validate done, found " << error_count << " errors" << LL_ENDL;
 
-	return valid;
+	return error_count == 0;
 }
 
 ///----------------------------------------------------------------------------

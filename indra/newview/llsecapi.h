@@ -264,7 +264,9 @@ public:
 	virtual void validate(int validation_policy,
 						  LLPointer<LLCertificateChain> cert_chain,
 						  const LLSD& validation_params) =0;
-	
+
+    // Clear cache if any
+    virtual void clearSertCache()=0;
 };
 
 
@@ -452,7 +454,7 @@ public:
 	virtual LLPointer<LLCertificate> getCertificate(X509* openssl_cert)=0;
 	
 	// instantiate a chain from an X509_STORE_CTX
-	virtual LLPointer<LLCertificateChain> getCertificateChain(const X509_STORE_CTX* chain)=0;
+	virtual LLPointer<LLCertificateChain> getCertificateChain(X509_STORE_CTX* chain)=0;
 	
 	// instantiate a cert store given it's id.  if a persisted version
 	// exists, it'll be loaded.  If not, one will be created (but not
@@ -533,6 +535,8 @@ public:
 };
 
 void initializeSecHandler();
+
+void clearSecHandler();
 				
 // retrieve a security api depending on the api type
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type);

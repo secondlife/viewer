@@ -177,7 +177,10 @@ public:
 	virtual void validate(int validation_policy,
 						  LLPointer<LLCertificateChain> ca_chain,
 						  const LLSD& validation_params);
-	
+
+	// Clears cache of certs validated agains store
+	virtual void clearSertCache() { mTrustedCertCache.clear(); }
+
 protected:
 	std::vector<LLPointer<LLCertificate> >            mCerts;
 	
@@ -197,7 +200,7 @@ class LLBasicCertificateChain : virtual public LLBasicCertificateVector, public 
 {
 	
 public:
-	LLBasicCertificateChain(const X509_STORE_CTX * store);
+	LLBasicCertificateChain(X509_STORE_CTX * store);
 	
 	virtual ~LLBasicCertificateChain() {}
 	
@@ -241,7 +244,7 @@ public:
 	virtual LLPointer<LLCertificate> getCertificate(X509* openssl_cert);
 	
 	// instantiate a chain from an X509_STORE_CTX
-	virtual LLPointer<LLCertificateChain> getCertificateChain(const X509_STORE_CTX* chain);
+	virtual LLPointer<LLCertificateChain> getCertificateChain(X509_STORE_CTX* chain);
 	
 	// instantiate a cert store given it's id.  if a persisted version
 	// exists, it'll be loaded.  If not, one will be created (but not
@@ -326,6 +329,7 @@ public:
 
 
 protected:
+	void _readProtectedData(unsigned char *unique_id, U32 id_len);
 	void _readProtectedData();
 	void _writeProtectedData();
 	std::string _legacyLoadPassword();

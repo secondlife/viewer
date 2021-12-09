@@ -27,8 +27,8 @@
 #include "lldiriterator.h"
 
 #include "fix_macros.h"
+#include "llregex.h"
 #include <boost/filesystem.hpp>
-#include <boost/regex.hpp>
 
 namespace fs = boost::filesystem;
 
@@ -131,7 +131,7 @@ bool LLDirIterator::Impl::next(std::string &fname)
 		{
 			boost::smatch match;
 			std::string name = mIter->path().filename().string();
-			found = boost::regex_match(name, match, mFilterExp);
+			found = ll_regex_match(name, match, mFilterExp);
 			if (found)
 			{
 				fname = name;

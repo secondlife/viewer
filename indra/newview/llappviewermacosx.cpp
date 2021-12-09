@@ -57,6 +57,7 @@
 #include <fstream>
 
 #include "lldir.h"
+#include "lldiriterator.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
 class LLMediaCtrl;		// for LLURLDispatcher
@@ -136,6 +137,14 @@ void cleanupViewer()
 	gViewerAppPtr = NULL;
 }
 
+void clearDumpLogsDir()
+{
+    if (!LLAppViewer::instance()->isSecondInstance())
+    {
+        gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
+    }
+}
+
 // The BugsplatMac API is structured as a number of different method
 // overrides, each returning a different piece of metadata. But since we
 // obtain such metadata by opening and parsing a file, it seems ridiculous to
@@ -190,6 +199,24 @@ CrashMetadataSingleton::CrashMetadataSingleton()
         LLStringUtil::replaceChar(agentFullname, '_', ' ');
         regionName           = get_metadata(info, "CurrentRegion");
         fatalMessage         = get_metadata(info, "FatalMessage");
+        
+        if (gDirUtilp->fileExists(gDirUtilp->getDumpLogsDirPath()))
+        {
+            LLDirIterator file_iter(gDirUtilp->getDumpLogsDirPath(), "*.log");
+            std::string file_name;
+            bool found = true;
+            while(found)
+            {
+                if((found = file_iter.next(file_name)))
+                {
+                    std::string log_filename = gDirUtilp->getDumpLogsDirPath(file_name);
+                    if(LLError::logFileName() != log_filename)
+                    {
+                        secondLogFilePathname = log_filename;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -222,14 +249,7 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 
 bool LLAppViewerMacOSX::init()
 {
-	bool success = LLAppViewer::init();
-    
-    if (success)
-    {
-        LLAppViewer* pApp = LLAppViewer::instance();
-        pApp->initCrashReporting();
-    }
-    return success;
+    return LLAppViewer::init();
 }
 
 // MacOSX may add and addition command line arguement for the process serial number.
@@ -345,28 +365,6 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 #undef SET_SIG
 	
 	return reset_count == 0;
-}
-
-void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
-{
-#if defined LL_BUGSPLAT
-    LL_DEBUGS("InitOSX", "Bugsplat") << "using BugSplat crash logger" << LL_ENDL;
-#elif LL_SEND_CRASH_REPORTS
-    LL_DEBUGS("InitOSX") << "Initializing legacy crash logger" << LL_ENDL;
-	std::string command_str = "mac-crash-logger.app";
-    
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    std::string appname = gDirUtilp->getExecutableFilename();
-    std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
-    std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
-    LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str()
-               << " " << logdir << " " << appname << LL_ENDL;
-    launchApplication(&command_str, &args);
-#else
-    LL_DEBUGS("InitOSX") << "No crash logger enabled" << LL_ENDL;    
-#endif // ! LL_BUGSPLAT
 }
 
 std::string LLAppViewerMacOSX::generateSerialNumber()
