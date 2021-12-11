@@ -73,17 +73,17 @@ LLWearable::~LLWearable()
 
 const std::string& LLWearable::getTypeLabel() const
 {
-	return LLWearableType::getTypeLabel(mType);
+	return LLWearableType::getInstance()->getTypeLabel(mType);
 }
 
 const std::string& LLWearable::getTypeName() const
 {
-	return LLWearableType::getTypeName(mType);
+	return LLWearableType::getInstance()->getTypeName(mType);
 }
 
 LLAssetType::EType LLWearable::getAssetType() const
 {
-	return LLWearableType::getAssetType(mType);
+	return LLWearableType::getInstance()->getAssetType(mType);
 }
 
 BOOL LLWearable::exportFile(const std::string& filename) const

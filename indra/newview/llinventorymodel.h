@@ -538,6 +538,10 @@ private:
 	U32 mModifyMask;
 	changed_items_t mChangedItemIDs;
 	changed_items_t mAddedItemIDs;
+    // Fallback when notifyObservers is in progress
+    U32 mModifyMaskBacklog;
+    changed_items_t mChangedItemIDsBacklog;
+    changed_items_t mAddedItemIDsBacklog;
 	
 	
 	//--------------------------------------------------------------------

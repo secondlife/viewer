@@ -298,6 +298,22 @@ python_cmd "$helpers/codeticket.py" addinput "Viewer Channel" "${viewer_channel}
 
 initialize_version # provided by buildscripts build.sh; sets version id
 
+begin_section "coding policy check"
+# On our TC Windows build hosts, the GitPython library underlying our
+# coding_policy_git.py script fails to run git for reasons we have not tried
+# to diagnose. Clearly git works fine on those hosts, or we would never get
+# this far. Running coding policy checks on one platform *should* suffice...
+if [[ "$arch" == "Darwin" ]]
+then
+    # install the git-hooks dependencies
+    pip install -r "$(native_path "$git_hooks_checkout/requirements.txt")" || \
+        fatal "pip install git-hooks failed"
+    # validate the branch we're about to build
+    python_cmd "$git_hooks_checkout/coding_policy_git.py" --all_files || \
+        fatal "coding policy check failed"
+fi
+end_section "coding policy check"
+
 # Now run the build
 succeeded=true
 last_built_variant=

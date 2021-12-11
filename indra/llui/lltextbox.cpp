@@ -45,7 +45,9 @@ LLTextBox::LLTextBox(const LLTextBox::Params& p)
 :	LLTextBase(p),
 	mClickedCallback(NULL),
 	mShowCursorHand(true)
-{}
+{
+	mSkipTripleClick = true;
+}
 
 LLTextBox::~LLTextBox()
 {}

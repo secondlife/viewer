@@ -60,6 +60,11 @@ public:
 
 	virtual BOOL		packU16(const U16 value, const char *name) = 0;
 	virtual BOOL		unpackU16(U16 &value, const char *name) = 0;
+    BOOL                unpackU16s(U16 *value, S32 count, const char *name);
+ 
+    virtual BOOL		packS16(const S16 value, const char *name) = 0;
+    virtual BOOL		unpackS16(S16 &value, const char *name) = 0;
+    BOOL                unpackS16s(S16 *value, S32 count, const char *name);
 
 	virtual BOOL		packU32(const U32 value, const char *name) = 0;
 	virtual BOOL		unpackU32(U32 &value, const char *name) = 0;
@@ -69,6 +74,7 @@ public:
 
 	virtual BOOL		packF32(const F32 value, const char *name) = 0;
 	virtual BOOL		unpackF32(F32 &value, const char *name) = 0;
+    BOOL                unpackF32s(F32 *values, S32 count, const char *name);
 
 	// Packs a float into an integer, using the given size
 	// and picks the right U* data type to pack into.
@@ -82,6 +88,7 @@ public:
 
 	virtual BOOL		packColor4U(const LLColor4U &value, const char *name) = 0;
 	virtual BOOL		unpackColor4U(LLColor4U &value, const char *name) = 0;
+    BOOL                unpackColor4Us(LLColor4U *values, S32 count, const char *name);
 
 	virtual BOOL		packVector2(const LLVector2 &value, const char *name) = 0;
 	virtual BOOL		unpackVector2(LLVector2 &value, const char *name) = 0;
@@ -94,6 +101,7 @@ public:
 
 	virtual BOOL		packUUID(const LLUUID &value, const char *name) = 0;
 	virtual BOOL		unpackUUID(LLUUID &value, const char *name) = 0;
+    BOOL                unpackUUIDs(LLUUID *values, S32 count, const char *name);
 			U32			getPassFlags() const	{ return mPassFlags; }
 			void		setPassFlags(U32 flags)	{ mPassFlags = flags; }
 protected:
@@ -138,6 +146,9 @@ public:
 
 	/*virtual*/ BOOL		packU16(const U16 value, const char *name);
 	/*virtual*/ BOOL		unpackU16(U16 &value, const char *name);
+
+    /*virtual*/ BOOL		packS16(const S16 value, const char *name);
+    /*virtual*/ BOOL		unpackS16(S16 &value, const char *name);
 
 	/*virtual*/ BOOL		packU32(const U32 value, const char *name);
 	/*virtual*/ BOOL		unpackU32(U32 &value, const char *name);
@@ -246,6 +257,9 @@ public:
 
 	/*virtual*/ BOOL		packU16(const U16 value, const char *name);
 	/*virtual*/ BOOL		unpackU16(U16 &value, const char *name);
+
+    /*virtual*/ BOOL		packS16(const S16 value, const char *name);
+    /*virtual*/ BOOL		unpackS16(S16 &value, const char *name);
 
 	/*virtual*/ BOOL		packU32(const U32 value, const char *name);
 	/*virtual*/ BOOL		unpackU32(U32 &value, const char *name);
@@ -374,6 +388,9 @@ public:
 
 	/*virtual*/ BOOL		packU16(const U16 value, const char *name);
 	/*virtual*/ BOOL		unpackU16(U16 &value, const char *name);
+
+    /*virtual*/ BOOL		packS16(const S16 value, const char *name);
+    /*virtual*/ BOOL		unpackS16(S16 &value, const char *name);
 
 	/*virtual*/ BOOL		packU32(const U32 value, const char *name);
 	/*virtual*/ BOOL		unpackU32(U32 &value, const char *name);
