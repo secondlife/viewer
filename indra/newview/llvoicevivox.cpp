@@ -1142,7 +1142,6 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         if (status == LLCore::HttpStatus(404))
         {
             F32 timeout = pow(PROVISION_RETRY_TIMEOUT, static_cast<float>(retryCount));
-            retryCount++;
             LL_WARNS("Voice") << "Provision CAP 404.  Retrying in " << timeout << " seconds. Retries: " << (S32)retryCount << LL_ENDL;
             llcoro::suspendUntilTimeout(timeout);
 
