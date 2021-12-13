@@ -1754,10 +1754,9 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 
     if (rigged)
     {
-        min.set(-1, -1, -1, 0);
-        max.set(1, 1, 1, 0);
-
         mDrawable->setSpatialExtents(min, max);
+        // always use the same octree node position for any given rigged mesh so it doesn't switch nodes
+        // while animating (and thus rebuild its vertex buffer)
         mDrawable->setPositionGroup(LLVector4a(0, 0, 0));
         updateRadius();
         mDrawable->movePartition();
@@ -4363,6 +4362,7 @@ void LLVOVolume::updateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 
 F32 LLVOVolume::getBinRadius()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	F32 radius;
 	
 	F32 scale = 1.f;
