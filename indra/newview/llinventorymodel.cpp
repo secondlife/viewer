@@ -1786,7 +1786,20 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
         mModifyMask |= mask;
     }
 
-	if (referent.notNull() && (mChangedItemIDs.find(referent) == mChangedItemIDs.end()))
+    bool needs_update = false;
+    if (referent.notNull())
+    {
+        if (mIsNotifyObservers)
+        {
+            needs_update = mChangedItemIDsBacklog.find(referent) == mChangedItemIDsBacklog.end();
+        }
+        else
+        {
+            needs_update = mChangedItemIDs.find(referent) == mChangedItemIDs.end();
+        }
+    }
+
+    if (needs_update)
 	{
         if (mIsNotifyObservers)
         {
@@ -1797,6 +1810,8 @@ void LLInventoryModel::addChangedMask(U32 mask, const LLUUID& referent)
             mChangedItemIDs.insert(referent);
         }
 
+        // Fix me: From DD-81, probably shouldn't be here, instead
+        // should be somewhere in an observer
         update_marketplace_category(referent, false);
 
         if (mask & LLInventoryObserver::ADD)
