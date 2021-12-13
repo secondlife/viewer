@@ -190,6 +190,7 @@ std::string LLGridManager::getAppSLURLBase(const std::string& grid_name)
 //-----------------------------------------------------------------------------
 #include "../llviewercontrol.h"
 LLControlGroup gSavedSettings("Global");
+LLControlGroup gSavedPerAccountSettings("PerAccount");
 
 LLControlGroup::LLControlGroup(const std::string& name) :
 	LLInstanceTracker<LLControlGroup, std::string>(name){}

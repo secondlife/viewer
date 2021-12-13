@@ -3605,6 +3605,11 @@ bool process_login_success_response()
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
 	}
 
+	if(response.has("slmfa_hash"))
+	{
+		gSavedPerAccountSettings.setString("SLMFAHash", response["slmfa_hash"]);
+	}
+
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.
