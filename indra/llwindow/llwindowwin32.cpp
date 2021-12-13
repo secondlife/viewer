@@ -4568,7 +4568,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             {
                 LL_PROFILE_ZONE_NAMED("w32t - GetMessage");
                 logger.always("GetMessage(", std::hex, mWindowHandle, ")");
-                status = GetMessage(&msg, mWindowHandle, 0, 0);
+                status = GetMessage(&msg, NULL, 0, 0);
             }
             if (status > 0)
             {
