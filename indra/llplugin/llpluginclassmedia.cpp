@@ -1527,6 +1527,7 @@ void LLPluginClassMedia::seek(float time)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME, "seek");
 
 	message.setValueReal("time", time);
+    mCurrentTime = time; // assume that it worked and we will receive an update later
 
 	sendMessage(message);
 }
