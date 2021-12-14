@@ -22,12 +22,10 @@
         token prompt
     </text>
     <line_editor
-     allow_text_entry="true"
      follows="left|top|right"
      height="19"
      layout="topleft"
      bottom_delta="40"
-     max_chars="16"
      name="token_edit"
      width="100" />
     <button

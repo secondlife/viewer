@@ -524,6 +524,8 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 
 bool LLLoginInstance::handleMFAResponse(const std::string& token, const std::string& key)
 {
+    LLEventPumps::instance().obtain(MFA_REPLY_PUMP).stopListening(MFA_LISTENER_NAME);
+
     if(!token.empty())
     {
         LL_INFOS("LLLogin") << "LLLoginInstance::handleMFAResponse: token submitted" << LL_ENDL;
@@ -539,7 +541,6 @@ bool LLLoginInstance::handleMFAResponse(const std::string& token, const std::str
         attemptComplete();
     }
 
-    LLEventPumps::instance().obtain(MFA_REPLY_PUMP).stopListening(MFA_LISTENER_NAME);
     return true;
 }
 
