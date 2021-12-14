@@ -562,7 +562,24 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 						mTextureWidth = texture_width;
 						mTextureHeight = texture_height;
 
+                        libvlc_time_t time = 1000.0 * mCurTime;
+
 						playMedia();
+
+                        if (mLibVLCMediaPlayer)
+                        {
+                            libvlc_media_player_set_time(mLibVLCMediaPlayer, time);
+                            time = libvlc_media_player_get_time(mLibVLCMediaPlayer);
+                            if (time < 0)
+                            {
+                                // -1 if there is no media
+                                mCurTime = 0;
+                            }
+                            else
+                            {
+                                mCurTime = (F64)time / 1000.0;
+                            }
+                        }
 					};
 				};
 
