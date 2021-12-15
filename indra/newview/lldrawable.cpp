@@ -1162,21 +1162,26 @@ void LLDrawable::setGroup(LLViewerOctreeGroup *groupp)
 	LLViewerOctreeEntryData::setGroup(groupp);
 }
 
+/*
+* Get the SpatialPartition this Drawable should use.  
+* Checks current SpatialPartition assignment and corrects if it is invalid.
+*/
 LLSpatialPartition* LLDrawable::getSpatialPartition()
 { 
 	LL_PROFILE_ZONE_SCOPED
 
 	LLSpatialPartition* retval = NULL;
-	
+
 	if (!mVObjp || 
 		!getVOVolume() ||
 		isStatic())
 	{
-		retval = gPipeline.getSpatialPartition((LLViewerObject*) mVObjp);
+        retval = gPipeline.getSpatialPartition((LLViewerObject*)mVObjp);
 	}
 	else if (isRoot())
 	{
-		if (mSpatialBridge)
+        // determine if the spatial bridge has changed
+        if (mSpatialBridge)
 		{
 			U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
 			bool is_hud = mVObjp->isHUDAttachment();
@@ -1193,14 +1198,14 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			{
 				// Was/became part of animesh
 				// remove obsolete bridge
-				mSpatialBridge->markDead();
+                mSpatialBridge->markDead();
 				setSpatialBridge(NULL);
 			}
 			else if ((partition_type == LLViewerRegion::PARTITION_AVATAR) != is_attachment)
 			{
 				// Was/became part of avatar
 				// remove obsolete bridge
-				mSpatialBridge->markDead();
+                mSpatialBridge->markDead();
 				setSpatialBridge(NULL);
 			}
 		}
@@ -1211,17 +1216,20 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
 			}
-			else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
-			{
-				setSpatialBridge(new LLControlAVBridge(this, getRegion()));
-			}
+            else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+            {
+                setSpatialBridge(new LLControlAVBridge(this, getRegion()));
+            }
 			// check HUD first, because HUD is also attachment
 			else if (mVObjp->isAttachment())
 			{
+                // Attachment
+                // Use AvatarBridge of root object in attachment linkset
 				setSpatialBridge(new LLAvatarBridge(this, getRegion()));
 			}
 			else
 			{
+                // Moving linkset, use VolumeBridge of root object in linkset
 				setSpatialBridge(new LLVolumeBridge(this, getRegion()));
 			}
 		}
@@ -1395,9 +1403,20 @@ LLCamera LLSpatialBridge::transformCamera(LLCamera& camera)
 
 	ret.setOrigin(delta);
 	ret.setAxes(lookAt, left_axis, up_axis);
-		
+
 	return ret;
 }
+
+void LLSpatialBridge::transformExtents(const LLVector4a* src, LLVector4a* dst)
+{
+    LLMatrix4 mat = mDrawable->getXform()->getWorldMatrix();
+    mat.invert();
+
+    LLMatrix4a world_to_bridge(mat);
+
+    matMulBoundBox(world_to_bridge, src, dst);
+}
+
 
 void LLDrawable::setVisible(LLCamera& camera, std::vector<LLDrawable*>* results, BOOL for_select)
 {
