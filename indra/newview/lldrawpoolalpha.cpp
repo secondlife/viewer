@@ -84,12 +84,21 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 }
 
 // set some common parameters on the given shader to prepare for alpha rendering
-static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma)
+static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool deferredEnvironment)
 {
     static LLCachedControl<F32> displayGamma(gSavedSettings, "RenderDeferredDisplayGamma");
     F32 gamma = displayGamma;
 
-    shader->bind();
+    // Deferred shader needs environment uniforms set such as sun_dir, etc. ?
+    // i.e. shaders\class1\deferred\alphaF.glsl
+    if (deferredEnvironment)
+    {
+        gPipeline.bindDeferredShader( *shader );
+    }
+    else
+    {
+        shader->bind();
+    }
     shader->uniform1i(LLShaderMgr::NO_ATMO, (LLPipeline::sRenderingHUDs) ? 1 : 0);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
 
@@ -109,7 +118,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma)
     //also prepare rigged variant
     if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
     { 
-        prepare_alpha_shader(shader->mRiggedVariant, textureGamma);
+        prepare_alpha_shader(shader->mRiggedVariant, textureGamma, deferredEnvironment);
     }
 }
 
@@ -121,15 +130,15 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     // first pass, regular forward alpha rendering
     {
         emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
-        prepare_alpha_shader(emissive_shader, true);
+        prepare_alpha_shader(emissive_shader, true, false);
 
         fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
             (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
-        prepare_alpha_shader(fullbright_shader, true);
+        prepare_alpha_shader(fullbright_shader, true, false);
 
         simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
             (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
-        prepare_alpha_shader(simple_shader, false);
+        prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
         
         forwardRender();
     }
