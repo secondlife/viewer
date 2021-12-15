@@ -69,7 +69,6 @@ class ViewerManifest(LLManifest):
                 self.exclude("logcontrol-dev.xml")
                 self.path("*.ini")
                 self.path("*.xml")
-                self.path("*.db2")
 
                 # include the entire shaders directory recursively
                 self.path("shaders")
@@ -158,18 +157,12 @@ class ViewerManifest(LLManifest):
                     self.path("*/xui/*/widgets/*.xml")
                     self.path("*/*.xml")
 
-                    # Local HTML files (e.g. loading screen)
-                    # The claim is that we never use local html files any
-                    # longer. But rather than commenting out this block, let's
-                    # rename every html subdirectory as html.old. That way, if
-                    # we're wrong, a user actually does have the relevant
-                    # files; s/he just needs to rename every html.old
-                    # directory back to html to recover them.
-                    with self.prefix(src="*/html", dst="*/html.old"):
-                            self.path("*.png")
-                            self.path("*/*/*.html")
-                            self.path("*/*/*.gif")
-
+                    # Update: 2017-11-01 CP Now we store app code in the html folder
+                    #         Initially the HTML/JS code to render equirectangular
+                    #         images for the 360 capture feature but more to follow.
+                    with self.prefix(src="*/html", dst="*/html"):
+                        self.path("*/*/*/*.js")
+                        self.path("*/*/*.html")
 
             #build_data.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             #platform is computed above with other arg parsing

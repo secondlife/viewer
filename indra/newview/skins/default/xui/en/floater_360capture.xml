@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater can_resize="true"
+         height="400"
+         layout="topleft"
+         min_height="300"
+         min_width="400"
+         name="360capture"
+         help_topic="360capture"
+         save_rect="true"
+         title="360 SNAPSHOT"
+         width="800">
+  <panel layout="topleft"
+       background_visible="true"
+       top="0"
+       follows="left|bottom|top"
+       left="0"
+       width="200"
+       bg_opaque_color="0.195 0.195 0.195 1"
+       background_opaque="true"
+       height="400"
+       name="ui_panel_left">
+    <text
+       follows="top|left|right"
+       height="16"
+       layout="topleft"
+       left="10"
+       top="10"
+       width="100">
+      Quality level
+    </text>
+    <radio_group
+      control_name="360QualitySelection"
+      follows="left|top"
+      height="94"
+      layout="topleft"
+      left_delta="20"
+      name="360_quality_selection"
+      top_pad="0"
+      width="180">
+      <radio_item
+        height="20"
+        label="Preview (fast)"
+        layout="topleft"
+        left="0"
+        name="preview_quality"
+        value="128"
+        tool_tip="Preview quality"
+        top="0"
+        width="100" />
+      <radio_item
+         height="20"
+         label="Medium"
+         layout="topleft"
+         left_delta="0"
+         name="medium_quality"
+         value="512"
+         tool_tip="Medium quality"
+         top_delta="20"
+         width="100" />
+      <radio_item
+         height="20"
+         label="High"
+         layout="topleft"
+         left_delta="0"
+         name="high_quality"
+         value="1024"
+         tool_tip="High quality"
+         top_delta="20"
+         width="100" />
+      <radio_item
+         height="20"
+         label="Maximum"
+         layout="topleft"
+         left_delta="0"
+         name="maximum_quality"
+         value="2048"
+         tool_tip="Maximum quality"
+         top_delta="20"
+         width="100" />
+    </radio_group>
+    <check_box control_name="360CaptureHideAvatars"
+               follows="left|top"
+               height="15"
+               label="Hide all avatars"
+               layout="left"
+               left="10"
+               name="360_hide_avatar"
+               top_delta="0"
+               width="100"/>
+    <button follows="left|top"
+            height="20"
+            label="Create 360 image"
+            layout="topleft"
+            left="10"
+            name="capture_button"
+            top_delta="32"
+            width="180" />
+    <button follows="left|top"
+            height="20"
+            label="Save as..."
+            layout="topleft"
+            left="10"
+            name="save_local_button"
+            top_delta="35"
+            width="180" />
+  </panel>
+  <panel layout="topleft"
+     background_visible="true"
+     top="0"
+     follows="all"
+     left="200"
+     width="600"
+     bg_opaque_color="0.195 0.195 0.195 1"
+     background_opaque="true"
+     height="400"
+     name="ui_panel_right">
+    <web_browser top="10"
+                 follows="all"
+                 bg_opaque_color="0.225 0.225 0.225 1"
+                 left="0"
+                 width="590"
+                 height="368"
+                 name="360capture_contents"
+                 trusted_content="true" />
+    <text follows="bottom"
+          layout="topleft"
+          name="statusbar"
+          height="17"
+          left="0"
+          top="382"
+          width="590">
+      Click and drag on the image to pan
+    </text>
+  </panel>
+</floater>
