@@ -367,6 +367,58 @@
         <key>version</key>
         <string>2.3.557064</string>
       </map>
+      <key>cubemaptoequirectangular</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2017 Jaume Sanchez Elias, http://www.clicktorelease.com</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/CUBEMAPTOEQUIRECTANGULAR_LICENSE.txt</string>
+        <key>name</key>
+        <string>cubemaptoequirectangular</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7e4622b497bc465b01ff6d3e7e0b4214</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89303/815402/cubemaptoequirectangular-1.1.0-darwin64-564841.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b5ea7097ae10037024b0c2b3df9812b5</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89307/815434/cubemaptoequirectangular-1.1.0-windows-564841.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.1.0</string>
+      </map>
       <key>curl</key>
       <map>
         <key>copyright</key>
@@ -1400,6 +1452,58 @@
         </map>
         <key>version</key>
         <string>2012.1-2</string>
+      </map>
+      <key>jpegencoderbasic</key>
+      <map>
+        <key>copyright</key>
+        <string>Andreas Ritter, www.bytestrom.eu, 11/2009</string>
+        <key>license</key>
+        <string>NONE</string>
+        <key>license_file</key>
+        <string>LICENSES/JPEG_ENCODER_BASIC_LICENSE.txt</string>
+        <key>name</key>
+        <string>jpegencoderbasic</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>c3c9e60bdc12b35e0e3d6b67d5635f60</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89304/815407/jpegencoderbasic-1.0-darwin64-564842.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0a376676dbb43fdd0c81ffdfbc5e6f81</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89308/815432/jpegencoderbasic-1.0-windows-564842.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>1.0</string>
       </map>
       <key>jpeglib</key>
       <map>
@@ -2977,6 +3081,58 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>version</key>
         <string>4.10.0000.32327.5fc3fe7c.558436</string>
       </map>
+      <key>threejs</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright © 2010-2021 three.js authors</string>
+        <key>license</key>
+        <string>MIT</string>
+        <key>license_file</key>
+        <string>LICENSES/THREEJS_LICENSE.txt</string>
+        <key>name</key>
+        <string>threejs</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>24440e8219e59d81423b68d3be381fef</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89305/815412/threejs-0.132.2-darwin64-564843.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin64</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e1303fb9f2242a79aee5fd9f97726ace</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89311/815452/threejs-0.132.2-windows-564843.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.132.2</string>
+      </map>
       <key>tut</key>
       <map>
         <key>copyright</key>
@@ -3116,9 +3272,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>97fac6d88480445c856083ed20d78093</string>
+              <string>a3c8357a2f5a62cd7de43181b02553bc</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/85206/790666/viewer_manager-2.0.562101-darwin64-562101.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/91396/829032/viewer_manager-2.0.566227-darwin64-566227.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -3140,9 +3296,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3f6271ec0e2e2f0cc1067d4c4102bb4c</string>
+              <string>0654b449d9bdf3507664cf5caa67336f</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/85208/790681/viewer_manager-2.0.562101-windows-562101.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/91397/829041/viewer_manager-2.0.566227-windows-566227.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3153,7 +3309,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <key>source_type</key>
         <string>hg</string>
         <key>version</key>
-        <string>2.0.562101</string>
+        <string>2.0.566227</string>
       </map>
       <key>vlc-bin</key>
       <map>

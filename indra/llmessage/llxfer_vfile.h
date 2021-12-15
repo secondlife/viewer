@@ -30,8 +30,7 @@
 #include "llxfer.h"
 #include "llassetstorage.h"
 
-class LLVFS;
-class LLVFile;
+class LLFileSystem;
 
 class LLXfer_VFile : public LLXfer
 {
@@ -41,9 +40,7 @@ class LLXfer_VFile : public LLXfer
 	LLUUID mTempID;
 	LLAssetType::EType mType;
 	
-	LLVFile *mVFile;
-
-	LLVFS *mVFS;
+	LLFileSystem *mVFile;
 
 	std::string mName;
 
@@ -51,14 +48,13 @@ class LLXfer_VFile : public LLXfer
 
  public:
 	LLXfer_VFile ();
-	LLXfer_VFile (LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type);
+	LLXfer_VFile (const LLUUID &local_id, LLAssetType::EType type);
 	virtual ~LLXfer_VFile();
 
-	virtual void init(LLVFS *vfs, const LLUUID &local_id, LLAssetType::EType type);
+	virtual void init(const LLUUID &local_id, LLAssetType::EType type);
 	virtual void cleanup();
 
 	virtual S32 initializeRequest(U64 xfer_id,
-			LLVFS *vfs,
 			const LLUUID &local_id,
 			const LLUUID &remote_id,
 			const LLAssetType::EType type,
