@@ -5669,6 +5669,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                     facep->mAvatar = avatar;
                     any_rigged_face = true;
                 }
+                else
+                {
+                    if (facep->isState(LLFace::RIGGED))
+                    { 
+                        //face is not rigged but used to be, remove from rigged face pool
+                        LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+                        if (pool)
+                        {
+                            pool->removeFace(facep);
+                        }
+                        facep->clearState(LLFace::RIGGED);
+                    }
+                }
 
 				if (cur_total > max_total || facep->getIndicesCount() <= 0 || facep->getGeomCount() <= 0)
 				{
