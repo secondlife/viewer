@@ -56,7 +56,6 @@
 					<stat_bar label="Layers" name="layersdatareceived"/>
 					<stat_bar label="Actual In" name="messagedatain"/>
 					<stat_bar label="Actual Out" name="messagedataout"/>
-					<stat_bar label="Operações pendentes do VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulator" name="sim">

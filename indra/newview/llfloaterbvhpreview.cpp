@@ -32,7 +32,7 @@
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llnotificationsutil.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "llapr.h"
 #include "llstring.h"
 
@@ -997,10 +997,9 @@ void LLFloaterBvhPreview::onBtnOK(void* userdata)
 		LLDataPackerBinaryBuffer dp(buffer, file_size);
 		if (motionp->serialize(dp))
 		{
-			LLVFile file(gVFS, motionp->getID(), LLAssetType::AT_ANIMATION, LLVFile::APPEND);
+			LLFileSystem file(motionp->getID(), LLAssetType::AT_ANIMATION, LLFileSystem::APPEND);
 
 			S32 size = dp.getCurrentSize();
-			file.setMaxSize(size);
 			if (file.write((U8*)buffer, size))
 			{
 				std::string name = floaterp->getChild<LLUICtrl>("name_form")->getValue().asString();
