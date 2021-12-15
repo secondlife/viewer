@@ -9426,7 +9426,7 @@ LLViewerTexture* LLVOAvatar::getBakedTexture(const U8 te)
 	
 }
 
-const LLVOAvatar::MatrixPaletteCache& LLVOAvatar::updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skin, LLVOVolume* requesting_obj)
+const LLVOAvatar::MatrixPaletteCache& LLVOAvatar::updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skin)
 {
     U64 hash = skin->mHash;
     MatrixPaletteCache& entry = mMatrixPaletteCache[hash];

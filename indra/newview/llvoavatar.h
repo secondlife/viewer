@@ -55,7 +55,6 @@
 #include "llavatarrendernotifier.h"
 #include "llmodel.h"
 
-
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
 extern const LLUUID ANIM_AGENT_PHYSICS_MOTION;
@@ -749,10 +748,14 @@ public:
 	void			updateMeshVisibility();
 	LLViewerTexture*		getBakedTexture(const U8 te);
 
+    // Matrix palette cache entry
     class alignas(16) MatrixPaletteCache
     {
     public:
+        // Last frame this entry was updated
         U32 mFrame;
+
+        // List of Matrix4a's for this entry
         LLMeshSkinInfo::matrix_list_t mMatrixPalette;
 
         // Float array ready to be sent to GL
@@ -764,8 +767,12 @@ public:
         }
     };
 
-    const MatrixPaletteCache& updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skinInfo, LLVOVolume* requesting_obj = nullptr);
+    // Accessor for Matrix Palette Cache
+    // Will do a map lookup for the entry associated with the given MeshSkinInfo
+    // Will update said entry if it hasn't been updated yet this frame
+    const MatrixPaletteCache& updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skinInfo);
 
+    // Map of LLMeshSkinInfo::mHash to MatrixPaletteCache
     typedef std::unordered_map<U64, MatrixPaletteCache> matrix_palette_cache_t;
     matrix_palette_cache_t mMatrixPaletteCache;
 
