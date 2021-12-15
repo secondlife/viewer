@@ -10,11 +10,11 @@ include(LLImage)
 include(LLMath)
 include(LLImageJ2COJ) 
 include(LLKDU)
-include(LLVFS)
+include(LLFileSystem)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     )
@@ -66,7 +66,7 @@ endif (DARWIN)
 target_link_libraries(llimage_libtest
     ${LEGACY_STDIO_LIBS}
     ${LLCOMMON_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLKDU_LIBRARIES}

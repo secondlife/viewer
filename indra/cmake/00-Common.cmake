@@ -70,7 +70,6 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
-  
   # Preserve first-pass-through versions (ie no FORCE overwrite). Prevents recursive addition of /Zo (04/2021)
   set(OG_CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} CACHE STRING "OG_CXX_FLAGS_RELEASE")
   set(OG_CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} CACHE STRING "OG_CXX_FLAGS_RELWITHDEBINFO")
