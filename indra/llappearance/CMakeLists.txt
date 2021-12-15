@@ -11,7 +11,7 @@ include(LLMath)
 include(LLMessage)
 include(LLCoreHttp)
 include(LLRender)
-include(LLVFS)
+include(LLFileSystem)
 include(LLWindow)
 include(LLXML)
 include(Linking)
@@ -23,7 +23,7 @@ include_directories(
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
@@ -83,7 +83,7 @@ target_link_libraries(llappearance
     ${LLINVENTORY_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLRENDER_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
@@ -100,7 +100,7 @@ if (BUILD_HEADLESS)
       ${LLINVENTORY_LIBRARIES}
       ${LLIMAGE_LIBRARIES}
       ${LLRENDERHEADLESS_LIBRARIES}
-      ${LLVFS_LIBRARIES}
+      ${LLFILESYSTEM_LIBRARIES}
       ${LLMATH_LIBRARIES}
       ${LLXML_LIBRARIES}
       ${LLMATH_LIBRARIES}
@@ -109,15 +109,3 @@ if (BUILD_HEADLESS)
       ${LLCOMMON_LIBRARIES}
       )
 endif (BUILD_HEADLESS)
-
-#add unit tests
-#if (LL_TESTS)
-#    INCLUDE(LLAddBuildTest)
-#    SET(llappearance_TEST_SOURCE_FILES
-#      # no real unit tests yet!
-#      )
-#    LL_ADD_PROJECT_UNIT_TESTS(llappearance "${llappearance_TEST_SOURCE_FILES}")
-
-    #set(TEST_DEBUG on)
-#    set(test_libs llappearance ${LLCOMMON_LIBRARIES})
-#endif (LL_TESTS)

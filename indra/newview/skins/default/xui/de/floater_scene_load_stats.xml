@@ -29,7 +29,6 @@
 					<stat_bar label="Ebenen" name="layersdatareceived"/>
 					<stat_bar label="Tatsächlicher Eingang" name="messagedatain"/>
 					<stat_bar label="Tatsächlicher Ausgang" name="messagedataout"/>
-					<stat_bar label="Ausstehende Vorgänge im VFS" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="Simulator" name="sim">
