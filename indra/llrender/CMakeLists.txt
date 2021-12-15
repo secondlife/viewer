@@ -9,10 +9,9 @@ include(LLCommon)
 include(LLImage)
 include(LLMath)
 include(LLRender)
-include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(LLVFS)
+include(LLFileSystem)
 
 include_directories(
     ${FREETYPE_INCLUDE_DIRS}
@@ -20,10 +19,9 @@ include_directories(
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -104,9 +102,8 @@ if (BUILD_HEADLESS)
     ${LLIMAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLRENDER_HEADLESS_LIBRARIES}
-    ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLWINDOW_HEADLESS_LIBRARIES}
     ${OPENGL_HEADLESS_LIBRARIES})
 
@@ -126,9 +123,8 @@ target_link_libraries(llrender
     ${LLCOMMON_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${OPENGL_LIBRARIES})

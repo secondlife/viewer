@@ -6,14 +6,14 @@ include(00-Common)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
@@ -85,18 +85,6 @@ target_link_libraries(
     ${LLCOMMON_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
     )
-
-
-# Add tests
-#if (LL_TESTS)
-#    include(LLAddBuildTest)
-#    # UNIT TESTS
-#    SET(llcharacter_TEST_SOURCE_FILES
-#      lljoint.cpp
-#      )
-#    LL_ADD_PROJECT_UNIT_TESTS(llcharacter "${llcharacter_TEST_SOURCE_FILES}")
-#endif (LL_TESTS)
-

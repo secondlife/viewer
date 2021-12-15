@@ -28,6 +28,7 @@
 
 #include "linden_common.h"
 
+#include "llapp.h"
 #include "llpluginprocessparent.h"
 #include "llpluginmessagepipe.h"
 #include "llpluginmessageclasses.h"

@@ -2973,6 +2973,8 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("IncrementCOFVersion");
 	AISAPI::getCapNames(capabilityNames);
 
+	capabilityNames.append("InterestList");
+
 	capabilityNames.append("GetDisplayNames");
 	capabilityNames.append("GetExperiences");
 	capabilityNames.append("AgentExperiences");
