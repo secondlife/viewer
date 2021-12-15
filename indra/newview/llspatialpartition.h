@@ -439,8 +439,11 @@ public:
 	virtual void cleanupReferences();
 	virtual LLSpatialPartition* asPartition()		{ return this; }
 		
+    //transform agent space camera into this Spatial Bridge's coordinate frame
 	virtual LLCamera transformCamera(LLCamera& camera);
-	
+
+    //transform agent space bounding box into this Spatial Bridge's coordinate frame
+    void transformExtents(const LLVector4a* src, LLVector4a* dst);
 	LLDrawable* mDrawable;
 };
 
