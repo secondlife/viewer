@@ -1,4 +1,4 @@
-#!runpy.sh
+#!/usr/bin/env python3
 
 """\
 
@@ -32,14 +32,14 @@ from lxml import etree
  
 def get_joint_names(tree):
     joints = [element.get('name') for element in tree.getroot().iter() if element.tag in ['bone','collision_volume']]
-    print "joints:",joints
+    print("joints:",joints)
     return joints
 
 def get_aliases(tree):
     aliases = {}
     alroot = tree.getroot()
     for element in alroot.iter():
-        for key in element.keys():
+        for key in list(element.keys()):
             if key == 'aliases':
                 name = element.get('name')
                 val = element.get('aliases')
@@ -58,19 +58,19 @@ def float_tuple(str, n=3):
         if len(result)==n:
             return result
         else:
-            print "tuple length wrong:", str,"gave",result,"wanted len",n,"got len",len(result)
+            print("tuple length wrong:", str,"gave",result,"wanted len",n,"got len",len(result))
             raise Exception()
     except:
-        print "convert failed for:",str
+        print("convert failed for:",str)
         raise
 
 def check_symmetry(name, field, vec1, vec2):
     if vec1[0] != vec2[0]:
-        print name,field,"x match fail"
+        print(name,field,"x match fail")
     if vec1[1] != -vec2[1]:
-        print name,field,"y mirror image fail"
+        print(name,field,"y mirror image fail")
     if vec1[2] != vec2[2]:
-        print name,field,"z match fail"
+        print(name,field,"z match fail")
 
 def enforce_symmetry(tree, element, field, fix=False):
     name = element.get("name")
@@ -92,7 +92,7 @@ def get_element_by_name(tree,name):
     if len(matches)==1:
         return matches[0]
     elif len(matches)>1:
-        print "multiple matches for name",name
+        print("multiple matches for name",name)
         return None
     else:
         return None
@@ -100,7 +100,7 @@ def get_element_by_name(tree,name):
 def list_skel_tree(tree):
     for element in tree.getroot().iter():
         if element.tag == "bone":
-            print element.get("name"),"-",element.get("support")
+            print(element.get("name"),"-",element.get("support"))
     
 def validate_child_order(tree, ogtree, fix=False):
     unfixable = 0
@@ -116,12 +116,12 @@ def validate_child_order(tree, ogtree, fix=False):
         if og_element is not None:
             for echild,ochild in zip(list(element),list(og_element)):
                 if echild.get("name") != ochild.get("name"):
-                    print "Child ordering error, parent",element.get("name"),echild.get("name"),"vs",ochild.get("name")
+                    print("Child ordering error, parent",element.get("name"),echild.get("name"),"vs",ochild.get("name"))
                     if fix:
                         tofix.add(element.get("name"))
     children = {}
     for name in tofix:
-        print "FIX",name
+        print("FIX",name)
         element = get_element_by_name(tree,name)
         og_element = get_element_by_name(ogtree,name)
         children = []
@@ -130,20 +130,20 @@ def validate_child_order(tree, ogtree, fix=False):
             elt = get_element_by_name(tree,og_elt.get("name"))
             if elt is not None:
                 children.append(elt)
-                print "b:",elt.get("name")
+                print("b:",elt.get("name"))
             else:
-                print "b missing:",og_elt.get("name")
+                print("b missing:",og_elt.get("name"))
         # then add children that are not present in the original joints
         for elt in list(element):
             og_elt = get_element_by_name(ogtree,elt.get("name"))
             if og_elt is None:
                 children.append(elt)
-                print "e:",elt.get("name")
+                print("e:",elt.get("name"))
         # if we've done this right, we have a rearranged list of the same length
         if len(children)!=len(element):
-            print "children",[e.get("name") for e in children]
-            print "element",[e.get("name") for e in element]
-            print "children changes for",name,", cannot reconcile"
+            print("children",[e.get("name") for e in children])
+            print("element",[e.get("name") for e in element])
+            print("children changes for",name,", cannot reconcile")
         else:
             element[:] = children
 
@@ -163,7 +163,7 @@ def validate_child_order(tree, ogtree, fix=False):
 # - digits of precision should be consistent (again, except for old joints)
 # - new bones should have pos, pivot the same
 def validate_skel_tree(tree, ogtree, reftree, fix=False):
-    print "validate_skel_tree"
+    print("validate_skel_tree")
     (num_bones,num_cvs) = (0,0)
     unfixable = 0
     defaults = {"connected": "false", 
@@ -175,7 +175,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
         # Preserve values from og_file:
         for f in ["pos","rot","scale","pivot"]:
             if og_element is not None and og_element.get(f) and (str(element.get(f)) != str(og_element.get(f))):
-                print element.get("name"),"field",f,"has changed:",og_element.get(f),"!=",element.get(f)
+                print(element.get("name"),"field",f,"has changed:",og_element.get(f),"!=",element.get(f))
                 if fix:
                     element.set(f, og_element.get(f))
 
@@ -187,17 +187,17 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
             fields.extend(["end","connected"])
         for f in fields:
             if not element.get(f):
-                print element.get("name"),"missing required field",f
+                print(element.get("name"),"missing required field",f)
                 if fix:
                     if og_element is not None and og_element.get(f):
-                        print "fix from ogtree"
+                        print("fix from ogtree")
                         element.set(f,og_element.get(f))
                     elif ref_element is not None and ref_element.get(f):
-                        print "fix from reftree"
+                        print("fix from reftree")
                         element.set(f,ref_element.get(f))
                     else:
                         if f in defaults:
-                            print "fix by using default value",f,"=",defaults[f]
+                            print("fix by using default value",f,"=",defaults[f])
                             element.set(f,defaults[f])
                         elif f == "support":
                             if og_element is not None:
@@ -205,7 +205,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
                             else:
                                 element.set(f,"extended")
                         else:
-                            print "unfixable:",element.get("name"),"no value for field",f
+                            print("unfixable:",element.get("name"),"no value for field",f)
                             unfixable += 1
 
         fix_name(element)
@@ -214,7 +214,7 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
             enforce_symmetry(tree, element, field, fix)
         if element.get("support")=="extended":
             if element.get("pos") != element.get("pivot"):
-                print "extended joint",element.get("name"),"has mismatched pos, pivot"
+                print("extended joint",element.get("name"),"has mismatched pos, pivot")
         
 
         if element.tag == "linden_skeleton":
@@ -223,19 +223,19 @@ def validate_skel_tree(tree, ogtree, reftree, fix=False):
             all_bones = [e for e in tree.getroot().iter() if e.tag=="bone"]
             all_cvs = [e for e in tree.getroot().iter() if e.tag=="collision_volume"]
             if num_bones != len(all_bones):
-                print "wrong bone count, expected",len(all_bones),"got",num_bones
+                print("wrong bone count, expected",len(all_bones),"got",num_bones)
                 if fix:
                     element.set("num_bones", str(len(all_bones)))
             if num_cvs != len(all_cvs):
-                print "wrong cv count, expected",len(all_cvs),"got",num_cvs
+                print("wrong cv count, expected",len(all_cvs),"got",num_cvs)
                 if fix:
                     element.set("num_collision_volumes", str(len(all_cvs)))
 
-    print "skipping child order code"
+    print("skipping child order code")
     #unfixable += validate_child_order(tree, ogtree, fix)
 
     if fix and (unfixable > 0):
-        print "BAD FILE:", unfixable,"errs could not be fixed"
+        print("BAD FILE:", unfixable,"errs could not be fixed")
             
 
 def slider_info(ladtree,skeltree):
@@ -243,37 +243,37 @@ def slider_info(ladtree,skeltree):
         for skel_param in param.iter("param_skeleton"):
             bones = [b for b in skel_param.iter("bone")]
         if bones:
-            print "param",param.get("name"),"id",param.get("id")
+            print("param",param.get("name"),"id",param.get("id"))
             value_min = float(param.get("value_min"))
             value_max = float(param.get("value_max"))
             neutral = 100.0 * (0.0-value_min)/(value_max-value_min)
-            print "  neutral",neutral
+            print("  neutral",neutral)
             for b in bones:
                 scale = float_tuple(b.get("scale","0 0 0"))
                 offset = float_tuple(b.get("offset","0 0 0"))
-                print "  bone", b.get("name"), "scale", scale, "offset", offset
+                print("  bone", b.get("name"), "scale", scale, "offset", offset)
                 scale_min = [value_min * s for s in scale]
                 scale_max = [value_max * s for s in scale]
                 offset_min = [value_min * t for t in offset]
                 offset_max = [value_max * t for t in offset]
                 if (scale_min != scale_max):
-                    print "    Scale MinX", scale_min[0]
-                    print "    Scale MinY", scale_min[1]
-                    print "    Scale MinZ", scale_min[2]
-                    print "    Scale MaxX", scale_max[0]
-                    print "    Scale MaxY", scale_max[1]
-                    print "    Scale MaxZ", scale_max[2]
+                    print("    Scale MinX", scale_min[0])
+                    print("    Scale MinY", scale_min[1])
+                    print("    Scale MinZ", scale_min[2])
+                    print("    Scale MaxX", scale_max[0])
+                    print("    Scale MaxY", scale_max[1])
+                    print("    Scale MaxZ", scale_max[2])
                 if (offset_min != offset_max):
-                    print "    Offset MinX", offset_min[0]
-                    print "    Offset MinY", offset_min[1]
-                    print "    Offset MinZ", offset_min[2]
-                    print "    Offset MaxX", offset_max[0]
-                    print "    Offset MaxY", offset_max[1]
-                    print "    Offset MaxZ", offset_max[2]
+                    print("    Offset MinX", offset_min[0])
+                    print("    Offset MinY", offset_min[1])
+                    print("    Offset MinZ", offset_min[2])
+                    print("    Offset MaxX", offset_max[0])
+                    print("    Offset MaxY", offset_max[1])
+                    print("    Offset MaxZ", offset_max[2])
     
 # Check contents of avatar_lad file relative to a specified skeleton
 def validate_lad_tree(ladtree,skeltree,orig_ladtree):
-    print "validate_lad_tree"
+    print("validate_lad_tree")
     bone_names = [elt.get("name") for elt in skeltree.iter("bone")]
     bone_names.append("mScreen")
     bone_names.append("mRoot")
@@ -285,7 +285,7 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         #print "attachment",att_name
         joint_name = att.get("joint")
         if not joint_name in bone_names:
-            print "att",att_name,"linked to invalid joint",joint_name
+            print("att",att_name,"linked to invalid joint",joint_name)
     for skel_param in ladtree.iter("param_skeleton"):
         skel_param_id = skel_param.get("id")
         skel_param_name = skel_param.get("name")
@@ -297,13 +297,13 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         for bone in skel_param.iter("bone"):
             bone_name = bone.get("name")
             if not bone_name in bone_names:
-                print "skel param references invalid bone",bone_name
-                print etree.tostring(bone)
+                print("skel param references invalid bone",bone_name)
+                print(etree.tostring(bone))
             bone_scale = float_tuple(bone.get("scale","0 0 0"))
             bone_offset = float_tuple(bone.get("offset","0 0 0"))
             param = bone.getparent().getparent()
             if bone_scale==(0, 0, 0) and bone_offset==(0, 0, 0):
-                print "no-op bone",bone_name,"in param",param.get("id","-1")
+                print("no-op bone",bone_name,"in param",param.get("id","-1"))
             # check symmetry of sliders
             if "Right" in bone.get("name"):
                 left_name = bone_name.replace("Right","Left")
@@ -312,12 +312,12 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
                     if b.get("name")==left_name:
                         left_bone = b
                 if left_bone is None:
-                    print "left_bone not found",left_name,"in",param.get("id","-1")
+                    print("left_bone not found",left_name,"in",param.get("id","-1"))
                 else:
                     left_scale = float_tuple(left_bone.get("scale","0 0 0"))
                     left_offset = float_tuple(left_bone.get("offset","0 0 0"))
                     if left_scale != bone_scale:
-                        print "scale mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1")
+                        print("scale mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1"))
                     param_id = int(param.get("id","-1"))
                     if param_id in [661]: # shear
                         expected_offset = tuple([bone_offset[0],bone_offset[1],-bone_offset[2]])
@@ -326,7 +326,7 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
                     else:
                         expected_offset = tuple([bone_offset[0],-bone_offset[1],bone_offset[2]])
                     if left_offset != expected_offset:
-                        print "offset mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1")
+                        print("offset mismatch between",bone_name,"and",left_name,"in param",param.get("id","-1"))
                     
     drivers = {}
     for driven_param in ladtree.iter("driven"):
@@ -340,15 +340,15 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
             if (actual_param.get("value_min") != driver.get("value_min") or \
                 actual_param.get("value_max") != driver.get("value_max")):
                 if args.verbose:
-                    print "MISMATCH min max:",driver.get("id"),"drives",driven_param.get("id"),"min",driver.get("value_min"),actual_param.get("value_min"),"max",driver.get("value_max"),actual_param.get("value_max")
+                    print("MISMATCH min max:",driver.get("id"),"drives",driven_param.get("id"),"min",driver.get("value_min"),actual_param.get("value_min"),"max",driver.get("value_max"),actual_param.get("value_max"))
 
     for driven_id in drivers:
         dset = drivers[driven_id]
         if len(dset) != 1:
-            print "driven_id",driven_id,"has multiple drivers",dset
+            print("driven_id",driven_id,"has multiple drivers",dset)
         else:
             if args.verbose:
-                print "driven_id",driven_id,"has one driver",dset
+                print("driven_id",driven_id,"has one driver",dset)
     if orig_ladtree:
         # make sure expected message format is unchanged
         orig_message_params_by_id = dict((int(param.get("id")),param) for param in orig_ladtree.iter("param") if param.get("group") in ["0","3"])
@@ -358,25 +358,25 @@ def validate_lad_tree(ladtree,skeltree,orig_ladtree):
         message_ids = sorted(message_params_by_id.keys())
         #print "message_ids",message_ids
         if (set(message_ids) != set(orig_message_ids)):
-            print "mismatch in message ids!"
-            print "added",set(message_ids) - set(orig_message_ids)
-            print "removed",set(orig_message_ids) - set(message_ids)
+            print("mismatch in message ids!")
+            print("added",set(message_ids) - set(orig_message_ids))
+            print("removed",set(orig_message_ids) - set(message_ids))
         else:
-            print "message ids OK"
+            print("message ids OK")
     
 def remove_joint_by_name(tree, name):
-    print "remove joint:",name
+    print("remove joint:",name)
     elt = get_element_by_name(tree,name)
     while elt is not None:
         children = list(elt)
         parent = elt.getparent()
-        print "graft",[e.get("name") for e in children],"into",parent.get("name")
-        print "remove",elt.get("name")
+        print("graft",[e.get("name") for e in children],"into",parent.get("name"))
+        print("remove",elt.get("name"))
         #parent_children = list(parent)
         loc = parent.index(elt)
         parent[loc:loc+1] = children
         elt[:] = []
-        print "parent now:",[e.get("name") for e in list(parent)]
+        print("parent now:",[e.get("name") for e in list(parent)])
         elt = get_element_by_name(tree,name)
     
 def compare_skel_trees(atree,btree):
@@ -386,9 +386,9 @@ def compare_skel_trees(atree,btree):
     b_missing = set()
     a_names = set(e.get("name") for e in atree.getroot().iter() if e.get("name"))
     b_names = set(e.get("name") for e in btree.getroot().iter() if e.get("name"))
-    print "a_names\n  ",str("\n  ").join(sorted(list(a_names)))
-    print
-    print "b_names\n  ","\n  ".join(sorted(list(b_names)))
+    print("a_names\n  ",str("\n  ").join(sorted(list(a_names))))
+    print()
+    print("b_names\n  ","\n  ".join(sorted(list(b_names))))
     all_names = set.union(a_names,b_names)
     for name in all_names:
         if not name:
@@ -396,38 +396,38 @@ def compare_skel_trees(atree,btree):
         a_element = get_element_by_name(atree,name)
         b_element = get_element_by_name(btree,name)
         if a_element is None or b_element is None:
-            print "something not found for",name,a_element,b_element
+            print("something not found for",name,a_element,b_element)
         if a_element is not None and b_element is not None:
             all_attrib = set.union(set(a_element.attrib.keys()),set(b_element.attrib.keys()))
-            print name,all_attrib
+            print(name,all_attrib)
             for att in all_attrib:
                 if a_element.get(att) != b_element.get(att):
                     if not att in diffs:
                         diffs[att] = set()
                     diffs[att].add(name)
-                print "tuples",name,att,float_tuple(a_element.get(att)),float_tuple(b_element.get(att))
+                print("tuples",name,att,float_tuple(a_element.get(att)),float_tuple(b_element.get(att)))
                 if float_tuple(a_element.get(att)) != float_tuple(b_element.get(att)):
-                    print "diff in",name,att
+                    print("diff in",name,att)
                     if not att in realdiffs:
                         realdiffs[att] = set()
                     realdiffs[att].add(name)
     for att in diffs:
-        print "Differences in",att
+        print("Differences in",att)
         for name in sorted(diffs[att]):
-            print "  ",name
+            print("  ",name)
     for att in realdiffs:
-        print "Real differences in",att
+        print("Real differences in",att)
         for name in sorted(diffs[att]):
-            print "  ",name
+            print("  ",name)
     a_missing = b_names.difference(a_names)
     b_missing = a_names.difference(b_names)
     if len(a_missing) or len(b_missing):
-        print "Missing from comparison"
+        print("Missing from comparison")
         for name in a_missing:
-            print "  ",name
-        print "Missing from infile"
+            print("  ",name)
+        print("Missing from infile")
         for name in b_missing:
-            print "  ",name
+            print("  ",name)
 
 if __name__ == "__main__":
 
@@ -499,5 +499,5 @@ if __name__ == "__main__":
         
     if args.outfilename:
         f = open(args.outfilename,"w")
-        print >>f, etree.tostring(tree, pretty_print=True) #need update to get: , short_empty_elements=True)
+        print(etree.tostring(tree, pretty_print=True), file=f) #need update to get: , short_empty_elements=True)
 

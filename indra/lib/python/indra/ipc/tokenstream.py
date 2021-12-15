@@ -60,7 +60,7 @@ class ParseError(Exception):
         return "line %d: %s @ ... %s" % (
             self.line, self.reason, self._contextString())
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
 

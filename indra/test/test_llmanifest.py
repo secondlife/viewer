@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 @file test_llmanifest.py
 @author Ryan Williams
@@ -124,10 +124,10 @@ class TestLLManifest(unittest.TestCase):
 
     def testcmakedirs(self):
         self.m.cmakedirs("test_dir_DELETE/nested/dir")
-        self.assert_(os.path.exists("test_dir_DELETE/nested/dir"))
-        self.assert_(os.path.isdir("test_dir_DELETE"))
-        self.assert_(os.path.isdir("test_dir_DELETE/nested"))
-        self.assert_(os.path.isdir("test_dir_DELETE/nested/dir"))
+        self.assertTrue(os.path.exists("test_dir_DELETE/nested/dir"))
+        self.assertTrue(os.path.isdir("test_dir_DELETE"))
+        self.assertTrue(os.path.isdir("test_dir_DELETE/nested"))
+        self.assertTrue(os.path.isdir("test_dir_DELETE/nested/dir"))
         os.removedirs("test_dir_DELETE/nested/dir")
 
 if __name__ == '__main__':

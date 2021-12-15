@@ -1,4 +1,4 @@
-#!runpy.sh
+#!/usr/bin/env python3
 
 """\
 
@@ -35,14 +35,14 @@ from collada import *
 from lxml import etree
 
 def mesh_summary(mesh):
-    print "scenes",mesh.scenes
+    print("scenes",mesh.scenes)
     for scene in mesh.scenes:
-        print "scene",scene
+        print("scene",scene)
         for node in scene.nodes:
-            print "node",node
+            print("node",node)
 
 def mesh_lock_offsets(tree, joints):
-    print "mesh_lock_offsets",tree,joints
+    print("mesh_lock_offsets",tree,joints)
     for joint_node in tree.iter():
         if "node" not in joint_node.tag:
             continue
@@ -57,11 +57,11 @@ def mesh_lock_offsets(tree, joints):
                         floats[7] += 0.0001
                         floats[11] += 0.0001
                         matrix_node.text = " ".join([str(f) for f in floats])
-                        print joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats
+                        print(joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats)
         
 
 def mesh_random_offsets(tree, joints):
-    print "mesh_random_offsets",tree,joints
+    print("mesh_random_offsets",tree,joints)
     for joint_node in tree.iter():
         if "node" not in joint_node.tag:
             continue
@@ -73,13 +73,13 @@ def mesh_random_offsets(tree, joints):
             for matrix_node in list(joint_node):
                 if "matrix" in matrix_node.tag:
                     floats = [float(x) for x in matrix_node.text.split()]
-                    print "randomizing",floats
+                    print("randomizing",floats)
                     if len(floats) == 16:
                         floats[3] += random.uniform(-1.0,1.0)
                         floats[7] += random.uniform(-1.0,1.0)
                         floats[11] += random.uniform(-1.0,1.0)
                         matrix_node.text = " ".join([str(f) for f in floats])
-                        print joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats
+                        print(joint_node.get("name"),matrix_node.tag,"text",matrix_node.text,len(floats),floats)
         
 
 if __name__ == "__main__":
@@ -96,24 +96,24 @@ if __name__ == "__main__":
     tree = None
 
     if args.infilename:
-        print "reading",args.infilename
+        print("reading",args.infilename)
         mesh = Collada(args.infilename)
         tree = etree.parse(args.infilename)
 
     if args.summary:
-        print "summarizing",args.infilename
+        print("summarizing",args.infilename)
         mesh_summary(mesh)
         
     if args.lock_offsets:
-        print "locking offsets for",args.lock_offsets
+        print("locking offsets for",args.lock_offsets)
         mesh_lock_offsets(tree, args.lock_offsets)
 
     if args.random_offsets:
-        print "adding random offsets for",args.random_offsets
+        print("adding random offsets for",args.random_offsets)
         mesh_random_offsets(tree, args.random_offsets)
 
     if args.outfilename:
-        print "writing",args.outfilename
+        print("writing",args.outfilename)
         f = open(args.outfilename,"w")
-        print >>f, etree.tostring(tree, pretty_print=True) #need update to get: , short_empty_elements=True)
+        print(etree.tostring(tree, pretty_print=True), file=f) #need update to get: , short_empty_elements=True)
     

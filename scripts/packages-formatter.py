@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 This module formats the package version and copyright information for the
 viewer and its dependent packages.
@@ -37,6 +37,9 @@ parser.add_argument('version', help='viewer version number')
 args = parser.parse_args()
 
 _autobuild=os.getenv('AUTOBUILD', 'autobuild')
+_autobuild_env=os.environ.copy()
+# Coerce stdout encoding to utf-8 as cygwin's will be detected as cp1252 otherwise.
+_autobuild_env["PYTHONIOENCODING"] = "utf-8"
 
 pkg_line=re.compile('^([\w-]+):\s+(.*)$')
 
@@ -50,7 +53,7 @@ def autobuild(*args):
     try:
         child = subprocess.Popen(command,
                                  stdin=None, stdout=subprocess.PIPE,
-                                 universal_newlines=True)
+                                 universal_newlines=True, env=_autobuild_env)
     except OSError as err:
         if err.errno != errno.ENOENT:
             # Don't attempt to interpret anything but ENOENT
@@ -110,20 +113,20 @@ for key, rawdata in ("versions", versions), ("copyrights", copyrights):
                 break
 
 # Now that we've run through all of both outputs -- are there duplicates?
-if any(pkgs for pkgs in dups.values()):
-    for key, pkgs in dups.items():
+if any(pkgs for pkgs in list(dups.values())):
+    for key, pkgs in list(dups.items()):
         if pkgs:
-            print >>sys.stderr, "Duplicate %s for %s" % (key, ", ".join(pkgs))
+            print("Duplicate %s for %s" % (key, ", ".join(pkgs)), file=sys.stderr)
     sys.exit(1)
 
-print "%s %s" % (args.channel, args.version)
-print viewer_copyright
+print("%s %s" % (args.channel, args.version))
+print(viewer_copyright)
 version = list(info['versions'].items())
 version.sort()
 for pkg, pkg_version in version:
-    print ': '.join([pkg, pkg_version])
+    print(': '.join([pkg, pkg_version]))
     try:
-        print info['copyrights'][pkg]
+        print(info['copyrights'][pkg])
     except KeyError:
         sys.exit("No copyright for %s" % pkg)
-    print
+    print()
