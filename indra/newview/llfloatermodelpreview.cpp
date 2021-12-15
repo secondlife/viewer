@@ -59,6 +59,7 @@
 #include "llspinctrl.h"
 #include "lltabcontainer.h"
 #include "lltrans.h"
+#include "llfilesystem.h"
 #include "llcallbacklist.h"
 #include "llviewertexteditor.h"
 #include "llviewernetwork.h"
