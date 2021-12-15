@@ -89,7 +89,9 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     static LLCachedControl<F32> displayGamma(gSavedSettings, "RenderDeferredDisplayGamma");
     F32 gamma = displayGamma;
 
-    // Deferred shader needs environment uniforms set such as sun_dir, etc. ?
+    // Does this deferred shader need environment uniforms set such as sun_dir, etc. ?
+    // NOTE: We don't actually need a gbuffer since we are doing forward rendering (for transparency) post deferred rendering
+    // TODO: bindDeferredShader() probably should have the updating of the environment uniforms factored out into updateShaderEnvironmentUniforms()
     // i.e. shaders\class1\deferred\alphaF.glsl
     if (deferredEnvironment)
     {
