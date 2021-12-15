@@ -36,7 +36,7 @@
 #include <unistd.h>
 #include <glob.h>
 #include <boost/filesystem.hpp>
-#include "llvfs_objc.h"
+#include "lldir_utils_objc.h"
 
 // --------------------------------------------------------------------------------
 

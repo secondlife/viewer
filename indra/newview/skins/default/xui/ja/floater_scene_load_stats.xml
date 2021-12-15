@@ -29,7 +29,6 @@
 					<stat_bar label="レイヤー" name="layersdatareceived"/>
 					<stat_bar label="実際の受信" name="messagedatain"/>
 					<stat_bar label="実際の送信" name="messagedataout"/>
-					<stat_bar label="VFS 保留中の操作" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="シミュレーター" name="sim">
