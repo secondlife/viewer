@@ -35,7 +35,6 @@
 
 //Forward declaration to avoid circular dependencies
 class LLXfer;
-class LLVFS;
 
 #include "llxfer.h"
 #include "message.h"
@@ -72,9 +71,6 @@ public:
 
 class LLXferManager
 {
- private:
-	LLVFS *mVFS;
-
  protected:
 	S32    mMaxOutgoingXfersPerCircuit;
 	S32    mHardLimitOutgoingXfersPerCircuit;	// At this limit, kill off the connection
@@ -111,10 +107,10 @@ class LLXferManager
 	std::multiset<std::string> mExpectedVFileRequests;  // files that are authorized to be downloaded on top of
 
  public:
-	LLXferManager(LLVFS *vfs);
+	LLXferManager();
 	virtual ~LLXferManager();
 
-	virtual void init(LLVFS *vfs);
+	virtual void init();
 	virtual void cleanup();
 
 	void setUseAckThrottling(const BOOL use);
@@ -166,7 +162,7 @@ class LLXferManager
 // vfile requesting
 // .. to vfile
 	virtual void requestVFile(const LLUUID &local_id, const LLUUID& remote_id,
-							  LLAssetType::EType type, LLVFS* vfs,
+							  LLAssetType::EType type,
 							  const LLHost& remote_host,
 							  void (*callback)(void**,S32,LLExtStat), void** user_data,
 							  BOOL is_priority = FALSE);
@@ -213,7 +209,7 @@ class LLXferManager
 extern LLXferManager*	gXferManager;
 
 // initialization and garbage collection
-void start_xfer_manager(LLVFS *vfs);
+void start_xfer_manager();
 void cleanup_xfer_manager();
 
 // message system callbacks

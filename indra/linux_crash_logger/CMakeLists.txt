@@ -9,7 +9,7 @@ include(LLCommon)
 include(LLCrashLogger)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 include(Linking)
 include(UI)
@@ -21,7 +21,7 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCRASHLOGGER_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${FREETYPE_INCLUDE_DIRS}
     )
@@ -62,10 +62,9 @@ set(LIBRT_LIBRARY rt)
 
 target_link_libraries(linux-crash-logger
     ${LLCRASHLOGGER_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
-    ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
     ${LLCOMMON_LIBRARIES}

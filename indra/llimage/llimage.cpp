@@ -2219,19 +2219,10 @@ bool LLImageFormatted::save(const std::string &filename)
 	return true;
 }
 
-// bool LLImageFormatted::save(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
-// Depricated to remove VFS dependency.
-// Use:
-// LLVFile::writeFile(image->getData(), image->getDataSize(), vfs, uuid, type);
-
-//----------------------------------------------------------------------------
-
 S8 LLImageFormatted::getCodec() const
 {
 	return mCodec;
 }
-
-//============================================================================
 
 static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {

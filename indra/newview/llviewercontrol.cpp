@@ -110,9 +110,9 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
     if (LLStartUp::getStartupState() >= STATE_STARTED)
     {
         F32 draw_distance = (F32)newvalue.asReal();
-        gAgentCamera.mDrawDistance = draw_distance;
-        LLWorld::getInstance()->setLandFarClip(draw_distance);
-        return true;
+	gAgentCamera.mDrawDistance = draw_distance;
+	LLWorld::getInstance()->setLandFarClip(draw_distance);
+	return true;
     }
     return false;
 }
@@ -164,6 +164,17 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
+}
+
+static bool handleAvatarVPChanged(const LLSD& newvalue)
+{
+    LLRenderTarget::sUseFBO = newvalue.asBoolean()
+                                && gSavedSettings.getBOOL("RenderObjectBump")
+                                && gSavedSettings.getBOOL("RenderTransparentWater")
+                                && gSavedSettings.getBOOL("RenderDeferred");
+
+    handleSetShaderChanged(LLSD());
+    return true;
 }
 
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
@@ -465,7 +476,10 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 //
 static bool handleRenderBumpChanged(const LLSD& newval)
 {
-	LLRenderTarget::sUseFBO = newval.asBoolean();
+    LLRenderTarget::sUseFBO = newval.asBoolean() 
+                                && gSavedSettings.getBOOL("RenderTransparentWater") 
+                                && gSavedSettings.getBOOL("RenderAvatarVP")
+                                && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		gPipeline.updateRenderBump();
