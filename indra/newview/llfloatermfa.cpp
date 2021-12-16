@@ -52,14 +52,13 @@ BOOL LLFloaterMFA::postBuild()
     childSetAction("cancel_btn", onCancel, this);
     childSetCommitCallback("token_edit", [](LLUICtrl*, void* userdata) { onContinue(userdata);}, this);
 
-    if (hasChild("token_prompt_text"))
-    {
-        // this displays the prompt message
-        LLUICtrl *token_prompt = getChild<LLUICtrl>("token_prompt_text");
-        token_prompt->setEnabled( FALSE );
-        token_prompt->setFocus(TRUE);
-        token_prompt->setValue(LLSD(mMessage));
-    }
+    // this displays the prompt message
+    LLUICtrl *token_prompt = getChild<LLUICtrl>("token_prompt_text");
+    token_prompt->setEnabled( FALSE );
+    token_prompt->setValue(LLSD(mMessage));
+
+    LLUICtrl *token_edit = getChild<LLUICtrl>("token_edit");
+    token_edit->setFocus(TRUE);
 
     return TRUE;
 }
@@ -68,24 +67,21 @@ BOOL LLFloaterMFA::postBuild()
 void LLFloaterMFA::onContinue(void* userdata )
 {
     LLFloaterMFA* self = static_cast<LLFloaterMFA*>(userdata);
-    LL_INFOS("MFA") << "User submits MFA token for challenge." << LL_ENDL;
 
-    std::string token;
+    LLUICtrl *token_ctrl = self->getChild<LLUICtrl>("token_edit");
 
-    if (self->hasChild("token_edit"))
+    std::string token(token_ctrl->getValue().asStringRef());
+
+    if (!token.empty())
     {
-        // this displays the prompt message
-        LLUICtrl *token_ctrl = self->getChild<LLUICtrl>("token_edit");
+        LL_INFOS("MFA") << "User submits MFA token for challenge." << LL_ENDL;
+        if(self->mReplyPumpName != "")
+        {
+            LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(token));
+        }
 
-        token = token_ctrl->getValue().asStringRef();
+        self->closeFloater(); // destroys this object
     }
-
-    if(self->mReplyPumpName != "")
-    {
-        LLEventPumps::instance().obtain(self->mReplyPumpName).post(LLSD(token));
-    }
-
-    self->closeFloater(); // destroys this object
 }
 
 // static
