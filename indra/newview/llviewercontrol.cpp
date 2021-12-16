@@ -465,9 +465,7 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 //
 static bool handleRenderBumpChanged(const LLSD& newval)
 {
-    LLRenderTarget::sUseFBO = newval.asBoolean() 
-                                && gSavedSettings.getBOOL("RenderTransparentWater") 
-                                && gSavedSettings.getBOOL("RenderDeferred");
+    LLRenderTarget::sUseFBO = newval.asBoolean() && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		gPipeline.updateRenderBump();
