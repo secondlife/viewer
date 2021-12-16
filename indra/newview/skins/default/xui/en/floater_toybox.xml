@@ -4,7 +4,7 @@
   can_dock="false"
   can_minimize="false"
   can_resize="false"
-  height="375"
+  height="430"
   help_topic="toybox"
   layout="topleft"
   legacy_header_height="18"
@@ -45,7 +45,7 @@
       Buttons will appear as shown or as icon-only depending on each toolbar's settings.
   </text>
   <toolbar
-    bottom="310"
+    bottom="365"
     button_display_mode="icons_with_text"
     follows="all"
     left="20"
@@ -81,11 +81,11 @@
   <panel
     bevel_style="none"
     border="true"
-    bottom="311"
+    bottom="366"
     follows="left|bottom|right"
     left="20"
     right="-20"
-    top="311" />
+    top="366" />
   <button
     follows="left|bottom|right"
     height="23"
@@ -94,7 +94,7 @@
     layout="topleft"
     left="185"
     name="btn_clear_all"
-    top="330"
+    top="385"
     width="130">
     <button.commit_callback function="Toybox.ClearAll" />
   </button>
@@ -106,7 +106,7 @@
     layout="topleft"
     left="335"
     name="btn_restore_defaults"
-    top="330"
+    top="385"
     width="130">
     <button.commit_callback function="Toybox.RestoreDefaults" />
   </button>

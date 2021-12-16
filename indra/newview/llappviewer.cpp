@@ -100,6 +100,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "lldiskcache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -117,8 +118,6 @@
 #include "llprimitive.h"
 #include "llurlaction.h"
 #include "llurlentry.h"
-#include "llvfile.h"
-#include "llvfsthread.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
 #include "llphysicsextensions.h"
@@ -342,9 +341,6 @@ bool			gUseWireframe = FALSE;
 //use for remember deferred mode in wireframe switch
 bool			gInitialDeferredModeForWireframe = FALSE;
 
-// VFS globals - see llappviewer.h
-LLVFS* gStaticVFS = NULL;
-
 LLMemoryInfo gSysMemory;
 U64Bytes gMemoryAllocated(0); // updated in display_stats() in llviewerdisplay.cpp
 
@@ -432,12 +428,6 @@ void init_default_trans_args()
 	// files. We really only want to have to maintain a single copy of it.
 	default_trans_args.insert("create_account_url");
 }
-
-//----------------------------------------------------------------------------
-// File scope definitons
-const char *VFS_DATA_FILE_BASE = "data.db2.x.";
-const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
-
 
 struct SettingsFile : public LLInitParam::Block<SettingsFile>
 {
@@ -607,10 +597,10 @@ static void settings_to_globals()
 
 static void settings_modify()
 {
-	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderDeferred");
 	LLPipeline::sRenderTransparentWater	= gSavedSettings.getBOOL("RenderTransparentWater");
 	LLPipeline::sRenderBump				= gSavedSettings.getBOOL("RenderObjectBump");
 	LLPipeline::sRenderDeferred		= LLPipeline::sRenderTransparentWater && LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
+    LLRenderTarget::sUseFBO = LLPipeline::sRenderDeferred && gSavedSettings.getBOOL("RenderAvatarVP");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
@@ -666,6 +656,7 @@ LLAppViewer* LLAppViewer::sInstance = NULL;
 LLTextureCache* LLAppViewer::sTextureCache = NULL;
 LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL;
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
+LLPurgeDiskCacheThread* LLAppViewer::sPurgeDiskCacheThread = NULL;
 
 std::string getRuntime()
 {
@@ -959,10 +950,6 @@ bool LLAppViewer::init()
 #endif // LL_WINDOWS && LL_RELEASE_FOR_DOWNLOAD && LL_USE_SMARTHEAP
 
 	// *Note: this is where gViewerStats used to be created.
-
-	//
-	// Initialize the VFS, and gracefully handle initialization errors
-	//
 
 	if (!initCache())
 	{
@@ -1381,7 +1368,6 @@ static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
 static LLTrace::BlockTimerStatHandle FTM_FETCH("Image Fetch");
 
-static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
 static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
@@ -1443,9 +1429,9 @@ bool LLAppViewer::doFrame()
 
 	{
 		LL_PROFILE_ZONE_NAMED( "df blocktimer" )
-		LLTrace::BlockTimer::processTimes();
-		LLTrace::get_frame_recording().nextPeriod();
-		LLTrace::BlockTimer::logStats();
+	LLTrace::BlockTimer::processTimes();
+	LLTrace::get_frame_recording().nextPeriod();
+	LLTrace::BlockTimer::logStats();
 	}
 
 	LLTrace::get_thread_recorder()->pullFromChildren();
@@ -1465,7 +1451,7 @@ bool LLAppViewer::doFrame()
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df gatherInput" )
-			pingMainloopTimeout("Main:GatherInput");
+		pingMainloopTimeout("Main:GatherInput");
 		}
 
 		if (gViewerWindow)
@@ -1492,14 +1478,14 @@ bool LLAppViewer::doFrame()
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df mainloop" )
-			// canonical per-frame event
-			mainloop.post(newFrame);
+		// canonical per-frame event
+		mainloop.post(newFrame);
 		}
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df suspend" )
-			// give listeners a chance to run
-			llcoro::suspend();
+		// give listeners a chance to run
+		llcoro::suspend();
 		}
 
 		if (!LLApp::isExiting())
@@ -1527,7 +1513,7 @@ bool LLAppViewer::doFrame()
 			{
 				{
 					LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
-					pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
+				pauseMainloopTimeout(); // *TODO: Remove. Messages shouldn't be stalling for 20+ seconds!
 				}
 
 				LL_RECORD_BLOCK_TIME(FTM_IDLE);
@@ -1535,8 +1521,8 @@ bool LLAppViewer::doFrame()
 
 				{
 					LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
-					resumeMainloopTimeout();
-				}
+				resumeMainloopTimeout();
+			}
 			}
 
 			if (gDoDisconnect && (LLStartUp::getStartupState() == STATE_STARTED))
@@ -1583,19 +1569,19 @@ bool LLAppViewer::doFrame()
 
 				{
 					LL_PROFILE_ZONE_NAMED( "df Snapshot" )
-					pingMainloopTimeout("Main:Snapshot");
-					LLFloaterSnapshot::update(); // take snapshots
+				pingMainloopTimeout("Main:Snapshot");
+				LLFloaterSnapshot::update(); // take snapshots
 					LLFloaterOutfitSnapshot::update();
-					gGLActive = FALSE;
-				}
+				gGLActive = FALSE;
 			}
+		}
 		}
 
 		{
 			LL_PROFILE_ZONE_NAMED( "df pauseMainloopTimeout" )
-			pingMainloopTimeout("Main:Sleep");
+		pingMainloopTimeout("Main:Sleep");
 
-			pauseMainloopTimeout();
+		pauseMainloopTimeout();
 		}
 
 		// Sleep and run background threads
@@ -1654,17 +1640,13 @@ bool LLAppViewer::doFrame()
 				work_pending += updateTextureThreads(max_time);
 
 				{
-					LL_RECORD_BLOCK_TIME(FTM_VFS);
- 					io_pending += LLVFSThread::updateClass(1);
-				}
-				{
 					LL_RECORD_BLOCK_TIME(FTM_LFS);
  					io_pending += LLLFSThread::updateClass(1);
 				}
 
 				if (io_pending > 1000)
 				{
-					ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
+					ms_sleep(llmin(io_pending/100,100)); // give the lfs some time to catch up
 				}
 
 				total_work_pending += work_pending ;
@@ -1674,7 +1656,7 @@ bool LLAppViewer::doFrame()
 
 			{
 				LL_PROFILE_ZONE_NAMED( "df gMeshRepo" )
-				gMeshRepo.update() ;
+			gMeshRepo.update() ;
 			}
 
 			if(!total_work_pending) //pause texture fetching threads if nothing to process.
@@ -1687,7 +1669,6 @@ bool LLAppViewer::doFrame()
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
 				LL_PROFILE_ZONE_NAMED( "df LLVFSThread" )
-				LLVFSThread::sLocal->pause();
 				LLLFSThread::sLocal->pause();
 			}
 
@@ -1705,7 +1686,7 @@ bool LLAppViewer::doFrame()
 
 			{
 				LL_PROFILE_ZONE_NAMED( "df resumeMainloopTimeout" )
-				resumeMainloopTimeout();
+			resumeMainloopTimeout();
 			}
 			pingMainloopTimeout("Main:End");
 		}
@@ -1755,12 +1736,11 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 	return work_pending;
 }
 
-void LLAppViewer::flushVFSIO()
+void LLAppViewer::flushLFSIO()
 {
 	while (1)
 	{
-		S32 pending = LLVFSThread::updateClass(0);
-		pending += LLLFSThread::updateClass(0);
+		S32 pending = LLLFSThread::updateClass(0);
 		if (!pending)
 		{
 			break;
@@ -1852,7 +1832,7 @@ bool LLAppViewer::cleanup()
 
 	LLKeyframeDataCache::clear();
 
- 	// End TransferManager before deleting systems it depends on (Audio, VFS, AssetStorage)
+ 	// End TransferManager before deleting systems it depends on (Audio, AssetStorage)
 #if 0 // this seems to get us stuck in an infinite loop...
 	gTransferManager.cleanup();
 #endif
@@ -1919,8 +1899,8 @@ bool LLAppViewer::cleanup()
 
 	LL_INFOS() << "Cache files removed" << LL_ENDL;
 
-	// Wait for any pending VFS IO
-	flushVFSIO();
+	// Wait for any pending LFS IO
+	flushLFSIO();
 	LL_INFOS() << "Shutting down Views" << LL_ENDL;
 
 	// Destroy the UI
@@ -2003,15 +1983,6 @@ bool LLAppViewer::cleanup()
 	LLPrimitive::cleanupVolumeManager();
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
-
-	//
-	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
-	// Also after viewerwindow is deleted, since it may have image pointers (which have vfiles)
-	// Also after shutting down the messaging system since it has VFS dependencies
-
-	//
-	LL_INFOS() << "Cleaning up VFS" << LL_ENDL;
-	SUBSYSTEM_CLEANUP(LLVFile);
 
 	LL_INFOS() << "Saving Data" << LL_ENDL;
 
@@ -2101,7 +2072,6 @@ bool LLAppViewer::cleanup()
 		pending += LLAppViewer::getTextureCache()->update(1); // unpauses the worker thread
 		pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
-		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
 		F64 idle_time = idleTimer.getElapsedTimeF64();
 		if(!pending)
@@ -2129,6 +2099,7 @@ bool LLAppViewer::cleanup()
 	sTextureFetch->shutdown();
 	sTextureCache->shutdown();
 	sImageDecodeThread->shutdown();
+	sPurgeDiskCacheThread->shutdown();
 
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
@@ -2151,6 +2122,8 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
+	delete sPurgeDiskCacheThread;
+	sPurgeDiskCacheThread = NULL;
 
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
@@ -2176,27 +2149,10 @@ bool LLAppViewer::cleanup()
 	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 
-	// This should eventually be done in LLAppViewer
 	SUBSYSTEM_CLEANUP(LLImage);
-	SUBSYSTEM_CLEANUP(LLVFSThread);
 	SUBSYSTEM_CLEANUP(LLLFSThread);
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_INFOS() << "Auditing VFS" << LL_ENDL;
-	if(gVFS)
-	{
-		gVFS->audit();
-	}
-#endif
-
 	LL_INFOS() << "Misc Cleanup" << LL_ENDL;
-
-	// For safety, the LLVFS has to be deleted *after* LLVFSThread. This should be cleaned up.
-	// (LLVFS doesn't know about LLVFSThread so can't kill pending requests) -Steve
-	delete gStaticVFS;
-	gStaticVFS = NULL;
-	delete gVFS;
-	gVFS = NULL;
 
 	gSavedSettings.cleanup();
 	LLUIColorTable::instance().clear();
@@ -2257,7 +2213,6 @@ bool LLAppViewer::initThreads()
 
 	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
-	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
@@ -2267,6 +2222,7 @@ bool LLAppViewer::initThreads()
 													sImageDecodeThread,
 													enable_threads && true,
 													app_metrics_qa_mode);
+	LLAppViewer::sPurgeDiskCacheThread = new LLPurgeDiskCacheThread();
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -3284,10 +3240,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gSavedSettings.getS32("TextureMemory");
 
-    LLSD substitution;
-    substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
-    info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
-
 #if LL_DARWIN
     info["HIDPI"] = gHiDPISupport;
 #endif
@@ -3378,6 +3330,9 @@ LLSD LLAppViewer::getViewerInfo() const
 	{
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
+
+    // populate field for new local disk cache with some details
+    info["DISK_CACHE_INFO"] = LLDiskCache::getInstance()->getCacheInfo();
 
 	return info;
 }
@@ -3593,14 +3548,14 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
-    
+
     if (gViewerWindow)
     {
-        std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
-        for (auto res_iter : resolutions)
-        {
-            gDebugInfo["DisplayInfo"].append(res_iter);
-        }
+	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+	for (auto res_iter : resolutions)
+	{
+		gDebugInfo["DisplayInfo"].append(res_iter);
+	}
     }
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
@@ -4060,7 +4015,7 @@ void LLAppViewer::forceQuit()
 void LLAppViewer::fastQuit(S32 error_code)
 {
 	// finish pending transfers
-	flushVFSIO();
+	flushLFSIO();
 	// let sim know we're logging out
 	sendLogoutRequest();
 	// flush network buffers by shutting down messaging system
@@ -4249,44 +4204,14 @@ void LLAppViewer::migrateCacheDirectory()
 #endif // LL_WINDOWS || LL_DARWIN
 }
 
-void dumpVFSCaches()
-{
-	LL_INFOS() << "======= Static VFS ========" << LL_ENDL;
-	gStaticVFS->listFiles();
-#if LL_WINDOWS
-	LL_INFOS() << "======= Dumping static VFS to StaticVFSDump ========" << LL_ENDL;
-	WCHAR w_str[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, w_str);
-	S32 res = LLFile::mkdir("StaticVFSDump");
-	if (res == -1)
-	{
-		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-	}
-	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
-	gStaticVFS->dumpFiles();
-	SetCurrentDirectory(w_str);
-#endif
-
-	LL_INFOS() << "========= Dynamic VFS ====" << LL_ENDL;
-	gVFS->listFiles();
-#if LL_WINDOWS
-	LL_INFOS() << "========= Dumping dynamic VFS to VFSDump ====" << LL_ENDL;
-	res = LLFile::mkdir("VFSDump");
-	if (res == -1)
-	{
-		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-	}
-	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
-	gVFS->dumpFiles();
-	SetCurrentDirectory(w_str);
-#endif
-}
-
 //static
 U32 LLAppViewer::getTextureCacheVersion()
 {
-	//viewer texture cache version, change if the texture cache format changes.
-	const U32 TEXTURE_CACHE_VERSION = 8;
+	// Viewer texture cache version, change if the texture cache format changes.
+	// 2021-03-10 Bumping up by one to help obviate texture cache issues with
+	//            Simple Cache Viewer - see SL-14985 for more information
+	//const U32 TEXTURE_CACHE_VERSION = 8;
+	const U32 TEXTURE_CACHE_VERSION = 9;
 
 	return TEXTURE_CACHE_VERSION ;
 }
@@ -4307,6 +4232,17 @@ bool LLAppViewer::initCache()
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
 	LLVOCache::initParamSingleton(read_only);
+
+	// initialize the new disk cache using saved settings
+	const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
+
+    // note that the maximum size of this cache is defined as a percentage of the 
+    // total cache size - the 'CacheSize' pref - for all caches. 
+    const unsigned int cache_total_size_mb = gSavedSettings.getU32("CacheSize");
+    const double disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
+    const unsigned int disk_cache_mb = cache_total_size_mb * disk_cache_percent / 100;
+    const uintmax_t disk_cache_bytes = disk_cache_mb * 1024 * 1024;
+	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
@@ -4342,6 +4278,7 @@ bool LLAppViewer::initCache()
 			LL_INFOS("AppCache") << "Cache location changed, cache needs purging" << LL_ENDL;
 			gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
 			purgeCache(); // purge old cache
+			gDirUtilp->deleteDirAndContents(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name));
 			gSavedSettings.setString("CacheLocation", new_cache_location);
 			gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
 		}
@@ -4354,11 +4291,26 @@ bool LLAppViewer::initCache()
 		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 
-	if (mPurgeCache && !read_only)
+	const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
+	LLDiskCache::initParamSingleton(cache_dir, disk_cache_bytes, enable_cache_debug_info);
+
+	if (!read_only)
+	{
+		if (mPurgeCache)
 	{
 		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 		purgeCache();
+
+			// clear the new C++ file system based cache
+			LLDiskCache::getInstance()->clearCache();
 	}
+		else
+		{
+			// purge excessive files from the new file system based cache
+			LLDiskCache::getInstance()->purge();
+		}
+	}
+	LLAppViewer::getPurgeDiskCacheThread()->start();
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 
@@ -4367,172 +4319,18 @@ bool LLAppViewer::initCache()
 	const S32 MB = 1024 * 1024;
 	const S64 MIN_CACHE_SIZE = 256 * MB;
 	const S64 MAX_CACHE_SIZE = 9984ll * MB;
-	const S64 MAX_VFS_SIZE = 1024 * MB; // 1 GB
 
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
 	cache_size = llclamp(cache_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
 
-	S64 vfs_size = llmin((S64)((cache_size * 2) / 10), MAX_VFS_SIZE);
-	S64 texture_cache_size = cache_size - vfs_size;
+	S64 texture_cache_size = cache_size;
 
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
 
-
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
-	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
-
-	// Init the VFS
-	vfs_size = llmin(vfs_size + extra, MAX_VFS_SIZE);
-	vfs_size = (vfs_size / MB) * MB; // make sure it is MB aligned
-	U32 vfs_size_u32 = (U32)vfs_size;
-	U32 old_vfs_size = gSavedSettings.getU32("VFSOldSize") * MB;
-	bool resize_vfs = (vfs_size_u32 != old_vfs_size);
-	if (resize_vfs)
-	{
-		gSavedSettings.setU32("VFSOldSize", vfs_size_u32 / MB);
-	}
-	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << vfs_size / (1024*1024) << " MB" << LL_ENDL;
-
-	// This has to happen BEFORE starting the vfs
-	// time_t	ltime;
-	srand(time(NULL));		// Flawfinder: ignore
-	U32 old_salt = gSavedSettings.getU32("VFSSalt");
-	U32 new_salt;
-	std::string old_vfs_data_file;
-	std::string old_vfs_index_file;
-	std::string new_vfs_data_file;
-	std::string new_vfs_index_file;
-	std::string static_vfs_index_file;
-	std::string static_vfs_data_file;
-
-	if (gSavedSettings.getBOOL("AllowMultipleViewers"))
-	{
-		// don't mess with renaming the VFS in this case
-		new_salt = old_salt;
-	}
-	else
-	{
-		do
-		{
-			new_salt = rand();
-		} while(new_salt == old_salt);
-	}
-
-	old_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", old_salt);
-
-	// make sure this file exists
-	llstat s;
-	S32 stat_result = LLFile::stat(old_vfs_data_file, &s);
-	if (stat_result)
-	{
-		// doesn't exist, look for a data file
-		std::string mask;
-		mask = VFS_DATA_FILE_BASE;
-		mask += "*";
-
-		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-
-		std::string found_file;
-		LLDirIterator iter(dir, mask);
-		if (iter.next(found_file))
-		{
-			old_vfs_data_file = gDirUtilp->add(dir, found_file);
-
-			S32 start_pos = found_file.find_last_of('.');
-			if (start_pos > 0)
-			{
-				sscanf(found_file.substr(start_pos+1).c_str(), "%d", &old_salt);
-			}
-			LL_DEBUGS("AppCache") << "Default vfs data file not present, found: " << old_vfs_data_file << " Old salt: " << old_salt << LL_ENDL;
-		}
-	}
-
-	old_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", old_salt);
-
-	stat_result = LLFile::stat(old_vfs_index_file, &s);
-	if (stat_result)
-	{
-		// We've got a bad/missing index file, nukem!
-		LL_WARNS("AppCache") << "Bad or missing vfx index file " << old_vfs_index_file << LL_ENDL;
-		LL_WARNS("AppCache") << "Removing old vfs data file " << old_vfs_data_file << LL_ENDL;
-		LLFile::remove(old_vfs_data_file);
-		LLFile::remove(old_vfs_index_file);
-
-		// Just in case, nuke any other old cache files in the directory.
-		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-
-		std::string mask;
-		mask = VFS_DATA_FILE_BASE;
-		mask += "*";
-
-		gDirUtilp->deleteFilesInDir(dir, mask);
-
-		mask = VFS_INDEX_FILE_BASE;
-		mask += "*";
-
-		gDirUtilp->deleteFilesInDir(dir, mask);
-	}
-
-	new_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", new_salt);
-	new_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", new_salt);
-
-	static_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_data.db2");
-	static_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_index.db2");
-
-	if (resize_vfs)
-	{
-		LL_DEBUGS("AppCache") << "Removing old vfs and re-sizing" << LL_ENDL;
-
-		LLFile::remove(old_vfs_data_file);
-		LLFile::remove(old_vfs_index_file);
-	}
-	else if (old_salt != new_salt)
-	{
-		// move the vfs files to a new name before opening
-		LL_DEBUGS("AppCache") << "Renaming " << old_vfs_data_file << " to " << new_vfs_data_file << LL_ENDL;
-		LL_DEBUGS("AppCache") << "Renaming " << old_vfs_index_file << " to " << new_vfs_index_file << LL_ENDL;
-		LLFile::rename(old_vfs_data_file, new_vfs_data_file);
-		LLFile::rename(old_vfs_index_file, new_vfs_index_file);
-	}
-
-	// Startup the VFS...
-	gSavedSettings.setU32("VFSSalt", new_salt);
-
-	// Don't remove VFS after viewer crashes.  If user has corrupt data, they can reinstall. JC
-	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
-	if (!gVFS)
-	{
-		return false;
-	}
-
-	gStaticVFS = LLVFS::createLLVFS(static_vfs_index_file, static_vfs_data_file, true, 0, false);
-	if (!gStaticVFS)
-	{
-		return false;
-	}
-
-	BOOL success = gVFS->isValid() && gStaticVFS->isValid();
-	if (!success)
-	{
-		return false;
-	}
-	else
-	{
-		LLVFile::initClass();
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		if (gSavedSettings.getBOOL("DumpVFSCaches"))
-		{
-			dumpVFSCaches();
-		}
-#endif
-
 		return true;
-	}
 }
 
 void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
