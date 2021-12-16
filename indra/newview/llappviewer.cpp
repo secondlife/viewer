@@ -1669,7 +1669,7 @@ bool LLAppViewer::doFrame()
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
 				LL_PROFILE_ZONE_NAMED( "df LLVFSThread" )
-				LLVFSThread::sLocal->pause();
+				LLLFSThread::sLocal->pause();
 			}
 
 			//texture fetching debugger
