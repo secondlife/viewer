@@ -166,17 +166,6 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleAvatarVPChanged(const LLSD& newvalue)
-{
-    LLRenderTarget::sUseFBO = newvalue.asBoolean()
-                                && gSavedSettings.getBOOL("RenderObjectBump")
-                                && gSavedSettings.getBOOL("RenderTransparentWater")
-                                && gSavedSettings.getBOOL("RenderDeferred");
-
-    handleSetShaderChanged(LLSD());
-    return true;
-}
-
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 {
        bool status = !newvalue.asBoolean();
