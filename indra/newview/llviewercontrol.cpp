@@ -467,7 +467,6 @@ static bool handleRenderBumpChanged(const LLSD& newval)
 {
     LLRenderTarget::sUseFBO = newval.asBoolean() 
                                 && gSavedSettings.getBOOL("RenderTransparentWater") 
-                                && gSavedSettings.getBOOL("RenderAvatarVP")
                                 && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
