@@ -42,7 +42,7 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llmeshoptimizer)
 add_subdirectory(${LIBS_OPEN_PREFIX}llmessage)
 add_subdirectory(${LIBS_OPEN_PREFIX}llprimitive)
 add_subdirectory(${LIBS_OPEN_PREFIX}llrender)
-add_subdirectory(${LIBS_OPEN_PREFIX}llvfs)
+add_subdirectory(${LIBS_OPEN_PREFIX}llfilesystem)
 add_subdirectory(${LIBS_OPEN_PREFIX}llwindow)
 add_subdirectory(${LIBS_OPEN_PREFIX}llxml)
 

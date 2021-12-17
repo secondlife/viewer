@@ -38,7 +38,6 @@
 #include "llextendedstatus.h"
 #include <boost/signals2.hpp>
 
-class LLVFS;
 class LLInventoryItem;
 class LLGLSLShader;
 
@@ -81,7 +80,7 @@ private:
     static void     onAgentAssetUploadComplete(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
     static void     onTaskAssetUploadComplete(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, LLSettingsBase::ptr_t psettings, inventory_result_fn callback);
     
-    static void     onAssetDownloadComplete(LLVFS *vfs, const LLUUID &asset_id, S32 status, LLExtStat ext_status, asset_download_fn callback);
+    static void     onAssetDownloadComplete(const LLUUID &asset_id, S32 status, LLExtStat ext_status, asset_download_fn callback);
 };
 
 //=========================================================================

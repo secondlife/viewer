@@ -427,6 +427,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	memset(mPrevGammaRamp, 0, sizeof(mPrevGammaRamp));
 	mCustomGammaSet = FALSE;
 	mWindowHandle = NULL;
+
+    mRect = {0, 0, 0, 0};
+    mClientRect = {0, 0, 0, 0};
 	
 	if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &mMouseVanish, 0))
 	{
@@ -1506,6 +1509,16 @@ const	S32   max_format  = (S32)num_formats - 1;
 		}
 
 		recreateWindow(window_rect, dw_ex_style, dw_style);
+        
+        RECT rect;
+        RECT client_rect;
+        //initialize immediately on main thread
+        if (GetWindowRect(mWindowHandle, &rect) &&
+            GetClientRect(mWindowHandle, &client_rect))
+        {
+            mRect = rect;
+            mClientRect = client_rect;
+        };
 
 		if (mWindowHandle)
 		{

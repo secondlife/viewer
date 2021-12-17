@@ -44,7 +44,6 @@
 class LLMessageSystem;
 class LLXferManager;
 class LLAssetStorage;
-class LLVFS;
 class LLSD;
 
 // anything that takes longer than this to download will abort.
@@ -60,11 +59,11 @@ const int LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE = -4;
 const int LL_ERR_INSUFFICIENT_PERMISSIONS = -5;
 const int LL_ERR_PRICE_MISMATCH = -23018;
 
-// *TODO: these typedefs are passed into the VFS via a legacy C function pointer
+// *TODO: these typedefs are passed into the cache via a legacy C function pointer
 // future project would be to convert these to C++ callables (std::function<>) so that 
 // we can use bind and remove the userData parameter.
 // 
-typedef std::function<void(LLVFS *vfs, const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)> LLGetAssetCallback;
+typedef std::function<void(const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)> LLGetAssetCallback;
 typedef std::function<void(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)> LLStoreAssetCallback;
 
 
@@ -120,7 +119,6 @@ protected:
 
 public:
     LLGetAssetCallback mDownCallback;
-//    void(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
 
     void	*mUserData;
     LLHost  mHost;
@@ -128,7 +126,7 @@ public:
     F64Seconds		mTime;				// Message system time
     BOOL    mIsPriority;
     BOOL	mDataSentInFirstPacket;
-    BOOL	mDataIsInVFS;
+    BOOL	mDataIsInCache;
 };
 
 class LLAssetRequest : public LLBaseDownloadRequest
@@ -198,9 +196,6 @@ typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
 class LLAssetStorage
 {
 public:
-	// VFS member is public because static child methods need it :(
-	LLVFS *mVFS;
-	LLVFS *mStaticVFS;
     typedef ::LLStoreAssetCallback LLStoreAssetCallback;
     typedef ::LLGetAssetCallback LLGetAssetCallback;
 
@@ -230,11 +225,9 @@ protected:
 	toxic_asset_map_t	mToxicAssetMap;		// Objects in this list are known to cause problems and are not loaded
 
 public:
-	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host);
+	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
 
-	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs);
+	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
 	virtual ~LLAssetStorage();
 
 	void setUpstream(const LLHost &upstream_host);
@@ -284,7 +277,7 @@ public:
 	void		markAssetToxic( const LLUUID& uuid );
 
 protected:
-	bool findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+	bool findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
 										  LLGetAssetCallback callback, void *user_data);
 
 	LLSD getPendingDetailsImpl(const request_list_t* requests,
@@ -375,7 +368,7 @@ public:
 		bool user_waiting = false,
 		F64Seconds timeout  = LL_ASSET_STORAGE_TIMEOUT) = 0;
 
-	static void legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status, LLExtStat ext_status);
+	static void legacyGetDataCallback(const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status, LLExtStat ext_status);
 	static void legacyStoreDataCallback(const LLUUID &uuid, void *user_data, S32 status, LLExtStat ext_status);
 
 	// add extra methods to handle metadata
@@ -385,15 +378,12 @@ protected:
 	void _callUploadCallbacks(const LLUUID &uuid, const LLAssetType::EType asset_type, BOOL success, LLExtStat ext_status);
 
 	virtual void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type, LLGetAssetCallback callback,
-//								   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
 								   void *user_data, BOOL duplicate,
 								   BOOL is_priority) = 0;
 
 private:
 	void _init(LLMessageSystem *msg,
 			   LLXferManager *xfer,
-			   LLVFS *vfs,
-			   LLVFS *static_vfs,
 			   const LLHost &upstream_host);
 
 protected:
@@ -408,7 +398,7 @@ protected:
 		MR_FILE_NONEXIST	= 3,	// Old format store call - source file does not exist
 		MR_NO_FILENAME		= 4,	// Old format store call - source filename is NULL/0-length
 		MR_NO_UPSTREAM		= 5,	// Upstream provider is missing
-		MR_VFS_CORRUPTION	= 6		// VFS is corrupt - too-large or mismatched stated/returned sizes
+		MR_CACHE_CORRUPTION	= 6		// cache is corrupt - too-large or mismatched stated/returned sizes
 	};
 
 	static class LLMetrics *metric_recipient;
