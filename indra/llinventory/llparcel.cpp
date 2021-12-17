@@ -540,6 +540,7 @@ void LLParcel::packMessage(LLSD& msg)
 	msg["see_avs"] = (LLSD::Boolean) getSeeAVs();
 	msg["group_av_sounds"] = (LLSD::Boolean) getAllowGroupAVSounds();
 	msg["any_av_sounds"] = (LLSD::Boolean) getAllowAnyAVSounds();
+    msg["obscure_moap"] = (LLSD::Boolean) getObscureMOAP();
 }
 
 
