@@ -264,10 +264,12 @@ bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
     riggedShader.mName = llformat("Skinned %s", shader.mName.c_str());
     riggedShader.mFeatures = shader.mFeatures;
     riggedShader.mFeatures.hasObjectSkinning = true;
+    riggedShader.mDefines = shader.mDefines;    // NOTE: Must come before addPermutation
     riggedShader.addPermutation("HAS_SKIN", "1");
     riggedShader.mShaderFiles = shader.mShaderFiles;
     riggedShader.mShaderLevel = shader.mShaderLevel;
     riggedShader.mShaderGroup = shader.mShaderGroup;
+
     shader.mRiggedVariant = &riggedShader;
     return riggedShader.createShader(NULL, NULL);
 }
