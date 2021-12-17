@@ -1767,6 +1767,7 @@ void LLViewerWindow::handleDataCopy(LLWindow *window, S32 data_type, void *data)
 
 BOOL LLViewerWindow::handleTimerEvent(LLWindow *window)
 {
+    //TODO: just call this every frame from gatherInput instead of using a convoluted 30fps timer callback
 	if (LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		LLViewerJoystick::getInstance()->updateStatus();

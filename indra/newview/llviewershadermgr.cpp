@@ -3664,19 +3664,9 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gDebugProgram.mShaderFiles.push_back(make_pair("interface/debugF.glsl", GL_FRAGMENT_SHADER_ARB));
         gDebugProgram.mRiggedVariant = &gSkinnedDebugProgram;
 		gDebugProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-		success = gDebugProgram.createShader(NULL, NULL);
+        success = make_rigged_variant(gDebugProgram, gSkinnedDebugProgram);
+		success = success && gDebugProgram.createShader(NULL, NULL);
 	}
-
-    if (success)
-    {
-        gSkinnedDebugProgram.mName = "Skinned Debug Shader";
-        gSkinnedDebugProgram.mFeatures.hasObjectSkinning = true;
-        gSkinnedDebugProgram.mShaderFiles.clear();
-        gSkinnedDebugProgram.mShaderFiles.push_back(make_pair("interface/debugSkinnedV.glsl", GL_VERTEX_SHADER_ARB));
-        gSkinnedDebugProgram.mShaderFiles.push_back(make_pair("interface/debugF.glsl", GL_FRAGMENT_SHADER_ARB));
-        gSkinnedDebugProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
-        success = gSkinnedDebugProgram.createShader(NULL, NULL);
-    }
 
 	if (success)
 	{

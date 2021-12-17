@@ -37,6 +37,8 @@ class LLViewerTexture;
 class LLViewerFetchedTexture;
 class LLSpatialGroup;
 class LLDrawInfo;
+class LLVOAvatar;
+class LLMeshSkinInfo;
 
 class LLDrawPool
 {
@@ -204,6 +206,7 @@ public:
     virtual void pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
     static bool uploadMatrixPalette(LLDrawInfo& params);
+    static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
     virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 };

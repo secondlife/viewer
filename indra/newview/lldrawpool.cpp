@@ -590,7 +590,13 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
 bool LLRenderPass::uploadMatrixPalette(LLDrawInfo& params)
 {
     // upload matrix palette to shader
-    const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
+    return uploadMatrixPalette(params.mAvatar, params.mSkinInfo);
+}
+
+//static
+bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo)
+{
+    const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
     U32 count = mpc.mMatrixPalette.size();
 
     if (count == 0)
