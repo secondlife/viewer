@@ -2402,6 +2402,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 			color.setVec(1.f, 0.f, 0.f, 1.f);
 		}
 		gPipeline.addDebugBlip(getPositionAgent(), color);
+		LL_DEBUGS("MessageBlip") << "Update type " << (S32)update_type << " blip for local " << mLocalID << " at " << getPositionAgent() << LL_ENDL;
 	}
 
 	const F32 MAG_CUTOFF = F_APPROXIMATELY_ZERO;

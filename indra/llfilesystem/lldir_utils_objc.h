@@ -1,10 +1,10 @@
 /** 
- * @file llvfs_objc.h
+ * @file lldir_utils_objc.h
  * @brief Definition of directory utilities class for Mac OS X
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2020&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2020, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,8 +28,8 @@
 #error This header must not be included when compiling for any target other than Mac OS. Consider including lldir.h instead.
 #endif // !LL_DARWIN
 
-#ifndef LL_LLVFS_OBJC_H
-#define LL_LLVFS_OBJC_H
+#ifndef LL_LLDIR_UTILS_OBJC_H
+#define LL_LLDIR_UTILS_OBJC_H
 
 #include <iostream>
 
@@ -40,4 +40,4 @@ std::string* getSystemResourceFolder();
 std::string* getSystemExecutableFolder();
 
 
-#endif // LL_LLVFS_OBJC_H
+#endif // LL_LLDIR_UTILS_OBJC_H

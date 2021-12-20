@@ -774,6 +774,15 @@ void LLPluginClassMedia::loadURI(const std::string &uri)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::executeJavaScript(const std::string &code)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "execute_javascript");
+
+	message.setValue("code", code);
+
+	sendMessage(message);
+}
+
 const char* LLPluginClassMedia::priorityToString(EPriority priority)
 {
 	const char* result = "UNKNOWN";
@@ -951,6 +960,19 @@ void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::setWebSecurityDisabled(const bool disabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "web_security_disabled");
+	message.setValueBoolean("disabled", disabled);
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::setFileAccessFromFileUrlsEnabled(const bool enabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "file_access_from_file_urls");
+	message.setValueBoolean("enabled", enabled);
+	sendMessage(message);
+}
 
 void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
 {
