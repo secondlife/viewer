@@ -153,6 +153,8 @@ public:
 
 	void loadURI(const std::string &uri);
 	
+	void executeJavaScript(const std::string &code);
+
 	// "Loading" means uninitialized or any state prior to fully running (processing commands)
 	bool isPluginLoading(void) { return mPlugin?mPlugin->isLoading():false; };
 
@@ -213,6 +215,8 @@ public:
 	void	setLanguageCode(const std::string &language_code);
 	void	setPluginsEnabled(const bool enabled);
 	void	setJavascriptEnabled(const bool enabled);
+	void	setWebSecurityDisabled(const bool disabled);
+	void	setFileAccessFromFileUrlsEnabled(const bool enabled);
 	void	setTarget(const std::string &target);
 	
 	///////////////////////////////////

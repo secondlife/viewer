@@ -39,8 +39,6 @@
 #include "llimagej2c.h"
 #include "llimagetga.h"
 #include "llstl.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "message.h"
 #include "lltimer.h"
 

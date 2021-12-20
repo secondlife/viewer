@@ -400,7 +400,7 @@
    layout="topleft"
    name="img_info_border"
    top_pad="0"
-   right="-10"
+   right="-130"
    follows="left|top|right"
    left_delta="0"/>
    <text
@@ -411,11 +411,10 @@
     height="14"
     layout="topleft"
     left="220"
-	right="-20"
     halign="left"
     name="image_res_text"
     top_delta="5"
-    width="200">
+    width="250">
        [WIDTH]px (width) x [HEIGHT]px (height)
    </text>
    <text
@@ -423,7 +422,7 @@
     font="SansSerifSmall"
     height="14"
     layout="topleft"
-    left="-65"
+    left="-185"
     length="1"
     halign="right"
     name="file_size_label"
@@ -431,5 +430,20 @@
     type="string"
     width="50">
        [SIZE] KB
+   </text>
+   <text
+    follows="right|top"
+    font="SansSerifSmall"
+    height="14"
+    layout="topleft"
+    left="-130"
+    length="1"
+    halign="right"
+    name="360_label"
+    text_color="0.3 0.82 1 1"
+    top_delta="0"
+    type="string"
+    width="115">
+    Take a 360 snapshot
    </text>
 </floater>

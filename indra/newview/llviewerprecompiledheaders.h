@@ -101,7 +101,6 @@
 #include "v4math.h"
 #include "xform.h"
 
-// Library includes from llvfs
 #include "lldir.h"
 
 // Library includes from llmessage project
