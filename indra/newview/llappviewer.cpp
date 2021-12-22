@@ -3209,9 +3209,18 @@ LLSD LLAppViewer::getViewerInfo() const
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
         auto& licenseInfo(LLLicenseInfo::instance());
+        std::string detailed_version = licenseInfo.getVersion("slvoice");
         LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
 		std::ostringstream version_string;
-		version_string << version.serverType << " " << version.serverVersion << " SLVoice " << licenseInfo.getVersion("slvoice") << std::endl;
+        if (std::equal(detailed_version.begin(), detailed_version.begin() + version.serverVersion.size(),
+                       version.serverVersion.begin()))
+        {  // Normal case: Show type and detailed version.
+            version_string << version.serverType << " " << detailed_version << std::endl;
+        }
+        else
+        {  // Mismatch: Show both versions.
+            version_string << version.serverVersion << "/" << detailed_version << std::endl;
+        }
 		info["VOICE_VERSION"] = version_string.str();
 	}
 	else
