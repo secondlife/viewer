@@ -385,6 +385,7 @@ set(viewer_SOURCE_FILES
     lllandmarkactions.cpp
     lllandmarklist.cpp
     lllegacyatmospherics.cpp
+    lllicenseinfo.cpp
     lllistbrowser.cpp
     lllistcontextmenu.cpp
     lllistview.cpp
@@ -1025,6 +1026,7 @@ set(viewer_HEADER_FILES
     llkeyconflict.h
     lllandmarkactions.h
     lllandmarklist.h
+    lllicenseinfo.h
     lllightconstants.h
     lllistbrowser.h
     lllistcontextmenu.h
