@@ -5170,6 +5170,104 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	return ret;
 }
 
+BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes)
+{
+    gDisplaySwapBuffers = FALSE;
+
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    setCursor(UI_CURSOR_WAIT);
+
+    BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+    if (prev_draw_ui != false)
+    {
+        LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+    }
+
+    LLPipeline::sShowHUDAttachments = FALSE;
+    LLRect window_rect = getWorldViewRectRaw();
+
+    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
+    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
+
+    LLRenderTarget scratch_space;
+    U32 color_fmt = GL_RGBA;
+    const bool use_depth_buffer = true;
+    const bool use_stencil_buffer = true;
+    if (scratch_space.allocate(image_width, image_height, color_fmt, use_depth_buffer, use_stencil_buffer))
+    {
+        if (gPipeline.allocateScreenBuffer(image_width, image_height))
+        {
+            mWorldViewRectRaw.set(0, image_height, image_width, 0);
+
+            scratch_space.bindTarget();
+        }
+        else
+        {
+            scratch_space.release();
+            gPipeline.allocateScreenBuffer(original_width, original_height);
+        }
+    }
+
+    // we render the scene more than once since this helps
+    // greatly with the objects not being drawn in the 
+    // snapshot when they are drawn in the scene. This is 
+    // evident when you set this value via the debug setting
+    // called 360CaptureNumRenderPasses to 1. The theory is
+    // that the missing objects are caused by the sUseOcclusion
+    // property in pipeline but that the use in pipeline.cpp
+    // lags by a frame or two so rendering more than once
+    // appears to help a lot.
+    for (int i = 0; i < num_render_passes; ++i)
+    {
+        // turning this flag off here prohibits the screen swap
+        // to present the new page to the viewer - this stops
+        // the black flash in between captures when the number
+        // of render passes is more than 1. We need to also
+        // set it here because code in LLViewerDisplay resets
+        // it to TRUE each time.
+        gDisplaySwapBuffers = FALSE;
+
+        // actually render the scene
+        const U32 subfield = 0;
+        const bool do_rebuild = true;
+        const F32 zoom = 1.0;
+        const bool for_snapshot = TRUE;
+        display(do_rebuild, zoom, subfield, for_snapshot);
+    }
+
+    glReadPixels(
+        0, 0,
+        image_width,
+        image_height,
+        GL_RGB, GL_UNSIGNED_BYTE,
+        raw->getData()
+    );
+    stop_glerror();
+
+    gDisplaySwapBuffers = FALSE;
+    gDepthDirty = TRUE;
+
+    if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+    {
+        if (prev_draw_ui != false)
+        {
+            LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+        }
+    }
+
+    LLPipeline::sShowHUDAttachments = TRUE;
+
+    setCursor(UI_CURSOR_ARROW);
+
+    gPipeline.resetDrawOrders();
+    mWorldViewRectRaw = window_rect;
+    scratch_space.flush();
+    scratch_space.release();
+    gPipeline.allocateScreenBuffer(original_width, original_height);
+
+    return true;
+}
+
 void LLViewerWindow::destroyWindow()
 {
 	if (mWindow)

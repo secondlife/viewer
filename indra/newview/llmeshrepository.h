@@ -48,7 +48,6 @@
 class LLVOVolume;
 class LLMutex;
 class LLCondition;
-class LLVFS;
 class LLMeshRepository;
 
 typedef enum e_mesh_processing_result_enum

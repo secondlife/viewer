@@ -733,6 +733,15 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
+        
+<menu_item_call
+         label="360 snapshot"
+         name="Capture 360"
+         shortcut="control|alt|shift|s">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="360capture" />
+        </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
          label="Place profile"
@@ -3426,6 +3435,14 @@ function="World.EnvPreset"
              name="Dump Region Object Cache">
                 <menu_item_call.on_click
                  function="Advanced.DumpRegionObjectCache" />
+            </menu_item_call>
+        
+<menu_item_call
+             label="Interest List: Full Update"
+             name="Interest List: Full Update"
+             shortcut="alt|shift|I">
+                <menu_item_call.on_click
+                 function="Advanced.InterestListFullUpdate" />
             </menu_item_call>
         </menu>
         <menu

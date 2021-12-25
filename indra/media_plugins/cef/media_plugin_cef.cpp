@@ -62,7 +62,7 @@ private:
 	void onTooltipCallback(std::string text);
 	void onLoadStartCallback();
 	void onRequestExitCallback();
-	void onLoadEndCallback(int httpStatusCode);
+	void onLoadEndCallback(int httpStatusCode, std::string url);
 	void onLoadError(int status, const std::string error_text);
 	void onAddressChangeCallback(std::string url);
 	void onOpenPopupCallback(std::string url, std::string target);
@@ -89,6 +89,8 @@ private:
 	bool mDisableGPU;
 	bool mDisableNetworkService;
 	bool mUseMockKeyChain;
+	bool mDisableWebSecurity;
+	bool mFileAccessFromFileUrls;
 	std::string mUserAgentSubtring;
 	std::string mAuthUsername;
 	std::string mAuthPassword;
@@ -124,6 +126,8 @@ MediaPluginBase(host_send_func, host_user_data)
 	mDisableGPU = false;
 	mDisableNetworkService = true;
 	mUseMockKeyChain = true;
+	mDisableWebSecurity = false;
+	mFileAccessFromFileUrls = false;
 	mUserAgentSubtring = "";
 	mAuthUsername = "";
 	mAuthPassword = "";
@@ -257,13 +261,14 @@ void MediaPluginCEF::onRequestExitCallback()
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-void MediaPluginCEF::onLoadEndCallback(int httpStatusCode)
+void MediaPluginCEF::onLoadEndCallback(int httpStatusCode, std::string url)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "navigate_complete");
 	//message.setValue("uri", event.getEventUri());  // not easily available here in CEF - needed?
 	message.setValueS32("result_code", httpStatusCode);
 	message.setValueBoolean("history_back_available", mCEFLib->canGoBack());
 	message.setValueBoolean("history_forward_available", mCEFLib->canGoForward());
+	message.setValue("uri", url);
 	sendMessage(message);
 }
 
@@ -352,14 +357,16 @@ const std::vector<std::string> MediaPluginCEF::onFileDialog(dullahan::EFileDialo
 	}
 	else if (dialog_type == dullahan::FD_SAVE_FILE)
 	{
+		mPickedFiles.clear();
 		mAuthOK = false;
 
 		LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "file_download");
+		message.setValueBoolean("blocking_request", true);
 		message.setValue("filename", default_file);
 
 		sendMessage(message);
 
-		return std::vector<std::string>();
+		return mPickedFiles;
 	}
 
 	return std::vector<std::string>();
@@ -520,7 +527,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnTooltipCallback(std::bind(&MediaPluginCEF::onTooltipCallback, this, std::placeholders::_1));
 				mCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
-				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
+				mCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnLoadErrorCallback(std::bind(&MediaPluginCEF::onLoadError, this, std::placeholders::_1, std::placeholders::_2));
 				mCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
 				mCEFLib->setOnOpenPopupCallback(std::bind(&MediaPluginCEF::onOpenPopupCallback, this, std::placeholders::_1, std::placeholders::_2));
@@ -559,6 +566,19 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.disable_network_service = mDisableNetworkService;
 				settings.use_mock_keychain = mUseMockKeyChain;
 #endif
+                // these were added to facilitate loading images directly into a local
+                // web page for the prototype 360 project in 2017 - something that is 
+                // disallowed normally by the browser security model. Now the the source
+                // (cubemap) images are stores as JavaScript, we can avoid opening up
+                // this security hole (it was only set for the 360 floater but still 
+                // a concern). Leaving them here, explicitly turn off vs removing 
+                // entirely from this source file so that others are aware of them 
+                // in the future.
+                settings.disable_web_security = false;
+                settings.file_access_from_file_urls = false;
+
+                settings.flash_enabled = mPluginsEnabled;
+
 				// This setting applies to all plugins, not just Flash
 				// Regarding, SL-15559 PDF files do not load in CEF v91,
 				// it turns out that on Windows, PDF support is treated
@@ -684,6 +704,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				std::string uri = message_in.getValue("uri");
 				mCEFLib->navigate(uri);
+			}
+			else if (message_name == "execute_javascript")
+			{
+				std::string code = message_in.getValue("code");
+				mCEFLib->executeJavaScript(code);
 			}
 			else if (message_name == "set_cookie")
 			{
@@ -879,6 +904,14 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "gpu_disabled")
 			{
 				mDisableGPU = message_in.getValueBoolean("disable");
+			}
+			else if (message_name == "web_security_disabled")
+			{
+				mDisableWebSecurity = message_in.getValueBoolean("disabled");
+			}
+			else if (message_name == "file_access_from_file_urls")
+			{
+				mFileAccessFromFileUrls = message_in.getValueBoolean("enabled");
 			}
 		}
         else if (message_class == LLPLUGIN_MESSAGE_CLASS_MEDIA_TIME)

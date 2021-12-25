@@ -28,9 +28,11 @@
 #define LL_LLAPP_H
 
 #include <map>
+#include "llcond.h"
 #include "llrun.h"
 #include "llsd.h"
 #include <atomic>
+#include <chrono>
 // Forward declarations
 class LLErrorThread;
 class LLLiveFile;
@@ -207,6 +209,36 @@ public:
 	static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
 	static int getPid();
 
+	//
+	// Sleep for specified time while still running
+	//
+	// For use by a coroutine or thread that performs some maintenance on a
+	// periodic basis. (See also LLEventTimer.) This method supports the
+	// pattern of an "infinite" loop that sleeps for some time, performs some
+	// action, then sleeps again. The trouble with literally sleeping a worker
+	// thread is that it could potentially sleep right through attempted
+	// application shutdown. This method avoids that by returning false as
+	// soon as the application status changes away from APP_STATUS_RUNNING
+	// (isRunning()).
+	//
+	// sleep() returns true if it sleeps undisturbed for the entire specified
+	// duration. The idea is that you can code 'while sleep(duration) ...',
+	// which will break the loop once shutdown begins.
+	//
+	// Since any time-based LLUnit should be implicitly convertible to
+	// F32Milliseconds, accept that specific type as a proxy.
+	static bool sleep(F32Milliseconds duration);
+	// Allow any duration defined in terms of <chrono>.
+	// One can imagine a wonderfully general bidirectional conversion system
+	// between any type derived from LLUnits::LLUnit<T, LLUnits::Seconds> and
+	// any std::chrono::duration -- but that doesn't yet exist.
+	template <typename Rep, typename Period>
+	bool sleep(const std::chrono::duration<Rep, Period>& duration)
+	{
+		// wait_for_unequal() has the opposite bool return convention
+		return ! sStatus.wait_for_unequal(duration, APP_STATUS_RUNNING);
+	}
+
 	/** @name Error handling methods */
 	//@{
 	/**
@@ -236,8 +268,8 @@ public:
 
 	// Return the Google Breakpad minidump filename after a crash.
 	char *getMiniDumpFilename() { return mMinidumpPath; }
-    std::string* getStaticDebugFile() { return &mStaticDebugFileName; }
-    std::string* getDynamicDebugFile() { return &mDynamicDebugFileName; }
+	std::string* getStaticDebugFile() { return &mStaticDebugFileName; }
+	std::string* getDynamicDebugFile() { return &mDynamicDebugFileName; }
 
 	// Write out a Google Breakpad minidump file.
 	void writeMiniDump();
@@ -265,7 +297,7 @@ public:
 protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
-	static EAppStatus sStatus; // Reflects current application status
+	static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
 	static BOOL sErrorThreadRunning; // Set while the error thread is running
 	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.

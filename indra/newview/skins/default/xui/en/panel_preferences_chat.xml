@@ -44,22 +44,26 @@
     <check_box
         enabled="false"
         height="16"
-        label="Email me IMs when I'm offline"
-        layout="topleft"
-        name="send_im_to_email"
-        top_pad="6"
-        width="330">
-    </check_box>
-
-    <check_box
-        enabled="false"
-        height="16"
         label="Only friends and groups can call or IM me"
         layout="topleft"
         name="voice_call_friends_only_check"
         top_pad="6"
         width="350">     
     </check_box>
+
+    <text
+       font="SansSerifSmall"
+       height="16"
+       layout="topleft"
+       length="1"       
+       name="email_settings"
+       skip_link_underline="true"
+       top_pad="6"
+       left_delta="2"
+       type="string"
+       width="350">
+      [https://accounts.secondlife.com/change_email Email me IMs when I'm offline]
+    </text>
 
     <text
         layout="topleft"

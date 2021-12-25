@@ -218,10 +218,9 @@ public:
 				void	updateSculptTexture();
 				void    setIndexInTex(U32 ch, S32 index) { mIndexInTex[ch] = index ;}
 				void	sculpt();
-	 static     void    rebuildMeshAssetCallback(LLVFS *vfs,
-														  const LLUUID& asset_uuid,
-														  LLAssetType::EType type,
-														  void* user_data, S32 status, LLExtStat ext_status);
+	 static     void    rebuildMeshAssetCallback(const LLUUID& asset_uuid,
+												 LLAssetType::EType type,
+												 void* user_data, S32 status, LLExtStat ext_status);
 					
 				void	updateRelativeXform(bool force_identity = false);
 	/*virtual*/ BOOL	updateGeometry(LLDrawable *drawable);
