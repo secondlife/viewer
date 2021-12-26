@@ -31,9 +31,6 @@
 	<string name="StartupInitializingTextureCache">
 		テクスチャキャッシュを初期化中です...
 	</string>
-	<string name="StartupInitializingVFS">
-		VFS を初期化中です...
-	</string>
 	<string name="StartupRequireDriverUpdate">
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
@@ -74,7 +71,6 @@ LOD 係数: [LOD_FACTOR]
 描画の質: [RENDER_QUALITY]
 高度なライティングモデル: [GPU_SHADERS]
 テクスチャメモリ: [TEXTURE_MEMORY]MB
-VFS（キャッシュ）作成時間: [VFS_TIME]
 	</string>
 	<string name="AboutOSXHiDPI">
 		HiDPI 表示モード: [HIDPI]
