@@ -56,6 +56,7 @@ indra/newview/search_history.txt
 indra/newview/teleport_history.txt
 indra/newview/typed_locations.txt
 indra/newview/vivox-runtime
+indra/newview/skins/default/html/common/equirectangular/js
 indra/server-linux-*
 indra/temp
 indra/test/linden_file.dat
