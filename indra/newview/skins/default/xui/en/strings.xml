@@ -17,7 +17,6 @@
 	<string name="StartupLoading">Loading [APP_NAME]...</string>
 	<string name="StartupClearingCache">Clearing cache...</string>
 	<string name="StartupInitializingTextureCache">Initializing texture cache...</string>
-	<string name="StartupInitializingVFS">Initializing VFS...</string>
 	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!-- about dialog/support string-->
@@ -56,9 +55,9 @@ LOD factor: [LOD_FACTOR]
 Render quality: [RENDER_QUALITY]
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
-VFS (cache) creation time: [VFS_TIME]
+Disk cache: [DISK_CACHE_INFO]
 	</string>
-	<string name="AboutOSXHiDPI">
+  <string name="AboutOSXHiDPI">
 HiDPI display mode: [HIDPI]
 	</string>
 	<string name="AboutLibs">
@@ -4124,6 +4123,8 @@ Try enclosing path to the editor with double quotes.
 
   <!-- commands -->
 
+  <string 
+name="Command_360_Capture_Label">360 snapshot</string>
   <string name="Command_AboutLand_Label">About land</string>
   <string name="Command_Appearance_Label">Outfits</string>
   <string name="Command_Avatar_Label">Complete avatars</string>
@@ -4154,6 +4155,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_View_Label">Camera controls</string>
   <string name="Command_Voice_Label">Voice settings</string>
 
+  <string 
+name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
