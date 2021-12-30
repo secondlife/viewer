@@ -30,7 +30,6 @@
 
 // Viewer includes
 #include "llversioninfo.h"
-#include "lllicenseinfo.h"
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
@@ -3208,18 +3207,17 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : "Undefined";
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
-        auto& licenseInfo(LLLicenseInfo::instance());
-        std::string detailed_version = licenseInfo.getVersion("slvoice");
         LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        std::string buildVersion = version.buildVersion;
 		std::ostringstream version_string;
-        if (std::equal(detailed_version.begin(), detailed_version.begin() + version.serverVersion.size(),
+        if (std::equal(buildVersion.begin(), buildVersion.begin() + version.serverVersion.size(),
                        version.serverVersion.begin()))
-        {  // Normal case: Show type and detailed version.
-            version_string << version.serverType << " " << detailed_version << std::endl;
+        {  // Normal case: Show type and build version.
+            version_string << version.serverType << " " << buildVersion << std::endl;
         }
         else
         {  // Mismatch: Show both versions.
-            version_string << version.serverVersion << "/" << detailed_version << std::endl;
+            version_string << version.serverVersion << "/" << buildVersion << std::endl;
         }
 		info["VOICE_VERSION"] = version_string.str();
 	}
