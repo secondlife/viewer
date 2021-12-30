@@ -44,7 +44,6 @@
 #include "llviewerstats.h"
 #include "llviewerregion.h"
 #include "llversioninfo.h"
-#include "lllicenseinfo.h"
 #include "llweb.h"
 
 // Linden library includes
@@ -179,21 +178,26 @@ BOOL LLFloaterAbout::postBuild()
 	contrib_names_widget->setEnabled(FALSE);
 	contrib_names_widget->startOfDoc();
 
-    auto& license_info(LLLicenseInfo::instance());
-    if (!license_info.empty())
-    {
-        // Although the iteration is fine if empty(), we only want to clear if not empty().
-        // That then uses the (out of date) hard coded value from the XUI.
-        licenses_widget->clear();
-        for (const auto& library : license_info)
-        {
-            const std::string& name = library.first;
-            const LLLicenseInfo::LibraryData& data = library.second;
-            std::string license_line = name + ": " + data.version + "\n" + data.copyrights + "\n\n";
-            licenses_widget->appendText(license_line, FALSE,
-                                        LLStyle::Params() .color(about_color));
-        }
-    }
+    // Get the Versions and Copyrights, created at build time
+	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
+	llifstream licenses_file;
+	licenses_file.open(licenses_path.c_str());		/* Flawfinder: ignore */
+	if (licenses_file.is_open())
+	{
+		std::string license_line;
+		licenses_widget->clear();
+		while ( std::getline(licenses_file, license_line) )
+		{
+			licenses_widget->appendText(license_line+"\n", FALSE,
+										LLStyle::Params() .color(about_color));
+		}
+		licenses_file.close();
+	}
+	else
+	{
+		// this case will use the (out of date) hard coded value from the XUI
+		LL_INFOS("AboutInit") << "Could not read licenses file at " << licenses_path << LL_ENDL;
+	}
 	licenses_widget->setEnabled(FALSE);
 	licenses_widget->startOfDoc();
 
