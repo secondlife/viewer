@@ -35,6 +35,7 @@ buildscripts_shared_more_NAMEs="build_secrets build_variables git_hooks"
 # should use a viewer_channel that begins with "Second Life"
 ################################################################
 viewer_channel = "Second Life Test"
+DRTVWR-550-mfa.viewer_channel = "Second Life Project MFA"
 
 ################################################################
 # Special packaging parameters.
