@@ -3207,9 +3207,18 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : "Undefined";
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
-		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        const std::string build_version = version.mBuildVersion;
 		std::ostringstream version_string;
-		version_string << version.serverType << " " << version.serverVersion << std::endl;
+        if (std::equal(build_version.begin(), build_version.begin() + version.serverVersion.size(),
+                       version.serverVersion.begin()))
+        {  // Normal case: Show type and build version.
+            version_string << version.serverType << " " << build_version << std::endl;
+        }
+        else
+        {  // Mismatch: Show both versions.
+            version_string << version.serverVersion << "/" << build_version << std::endl;
+        }
 		info["VOICE_VERSION"] = version_string.str();
 	}
 	else
