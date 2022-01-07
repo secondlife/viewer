@@ -4548,7 +4548,7 @@ void LLVivoxVoiceClient::sessionNotificationEvent(std::string &sessionHandle, st
 	}
 }
 
-void LLVivoxVoiceClient::voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &buildID)
+void LLVivoxVoiceClient::voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &build_id)
 {
 	// We don't generally need to process this. However, one occurence is when we first connect, and so it is the
 	// earliest opportunity to learn what we're connected to.
@@ -4558,11 +4558,11 @@ void LLVivoxVoiceClient::voiceServiceConnectionStateChangedEvent(int statusCode,
 			"statusString: " << statusString << LL_ENDL;
 		return;
 	}
-	if (buildID.empty())
+	if (build_id.empty())
 	{
 		return;
 	}
-	mVoiceVersion.buildVersion = buildID;
+	mVoiceVersion.mBuildVersion = build_id;
 }
 
 void LLVivoxVoiceClient::auxAudioPropertiesEvent(F32 energy)
@@ -7546,7 +7546,7 @@ void LLVivoxProtocolParser::EndTag(const char *tag)
 		else if (!stricmp("VersionID", tag))
 			versionID = string;
 		else if (!stricmp("Version", tag))
-			buildID = string;
+			mBuildID = string;
 		else if (!stricmp("AccountHandle", tag))
 			accountHandle = string;
 		else if (!stricmp("State", tag))
@@ -7850,7 +7850,7 @@ void LLVivoxProtocolParser::processResponse(std::string tag)
 		}
 		else if (!stricmp(eventTypeCstr, "VoiceServiceConnectionStateChangedEvent"))
 		{
-			LLVivoxVoiceClient::getInstance()->voiceServiceConnectionStateChangedEvent(statusCode, statusString, buildID);
+			LLVivoxVoiceClient::getInstance()->voiceServiceConnectionStateChangedEvent(statusCode, statusString, mBuildID);
 		}
 		else if (!stricmp(eventTypeCstr, "AudioDeviceHotSwapEvent"))
 		{
