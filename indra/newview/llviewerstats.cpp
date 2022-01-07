@@ -64,6 +64,44 @@
 #include "llvoicevivox.h"
 #include "lluiusage.h"
 
+#define LL_MINIMAL_VULKAN 1
+#if LL_MINIMAL_VULKAN
+// Calls
+    #if defined(_WIN32)
+        #define VKAPI_ATTR
+        #define VKAPI_CALL __stdcall
+        #define VKAPI_PTR  VKAPI_CALL
+    #else
+        #define VKAPI_ATTR
+        #define VKAPI_CALL
+        #define VKAPI_PTR
+    #endif // _WIN32
+
+// Macros
+    #define VK_API_VERSION_MAJOR(  version) (((uint32_t)(version) >> 22) & 0x07FU)
+    #define VK_API_VERSION_MINOR(  version) (((uint32_t)(version) >> 12) & 0x3FFU)
+    #define VK_API_VERSION_PATCH(  version) ( (uint32_t)(version)        & 0xFFFU)
+    #define VK_API_VERSION_VARIANT(version) (((uint32_t)(version) >> 29)         )
+
+    #define VK_DEFINE_HANDLE(object) typedef struct object##_T* object;
+
+// Types
+    VK_DEFINE_HANDLE(VkInstance);
+
+    typedef enum VkResult
+    {
+        VK_SUCCESS = 0,
+        VK_RESULT_MAX_ENUM = 0x7FFFFFFF
+    } VkResult;
+
+// Prototypes
+    typedef void               (VKAPI_PTR *PFN_vkVoidFunction            )(void);
+    typedef PFN_vkVoidFunction (VKAPI_PTR *PFN_vkGetInstanceProcAddr     )(VkInstance instance, const char* pName);
+    typedef VkResult           (VKAPI_PTR *PFN_vkEnumerateInstanceVersion)(uint32_t* pApiVersion);
+#else
+    #include <vulkan/vulkan.h>
+#endif // LL_MINIMAL_VULKAN
+
 namespace LLStatViewer
 {
 
@@ -598,19 +636,64 @@ void send_viewer_stats(bool include_preferences)
     // detailed information on versions and extensions can come later.
     static bool vulkan_oneshot = false;
     static bool vulkan_detected = false;
+    static std::string vulkan_version( "0" ); // Unknown/None
 
     if (!vulkan_oneshot)
     {
-        HMODULE vulkan_loader = LoadLibraryExA("vulkan-1.dll", NULL, LOAD_LIBRARY_AS_DATAFILE);
+        // The 32-bit and 64-bit versions normally exist in:
+        //     C:\Windows\System32
+        //     C:\Windows\SysWOW64
+        HMODULE vulkan_loader = LoadLibraryA("vulkan-1.dll");
         if (NULL != vulkan_loader)
         {
             vulkan_detected = true;
+
+            // We use Run-Time Dynamic Linking (via GetProcAddress()) instead of Load-Time Dynamic Linking (via directly calling vkGetInstanceProcAddr()).
+            // This allows us to:
+            //   a) not need the header: #include <vulkan/vulkan.h>
+            //      (and not need to set the corresponding "Additional Include Directories" as long as we provide the equivalent Vulkan types/prototypes/etc.)
+            //   b) not need to link to: vulkan-1.lib
+            //      (and not need to set the corresponding "Additional Library Directories")
+            // The former will allow Second Life to start and run even if the vulkan.dll is missing.
+            // The latter will require us to:
+            //   a) link with vulkan-1.lib
+            //   b) cause a System Error at startup if the .dll is not found:
+            //      "The code execution cannot proceed because vulkan-1.dll was not found."
+            //
+            // See:
+            //   https://docs.microsoft.com/en-us/windows/win32/dlls/using-run-time-dynamic-linking
+            //   https://docs.microsoft.com/en-us/windows/win32/dlls/run-time-dynamic-linking
+
+            // NOTE: Technically we can use GetProcAddress() as a replacement for vkGetInstanceProcAddr()
+            //       but the canonical recommendation (mandate?) is to use vkGetInstanceProcAddr().
+            PFN_vkGetInstanceProcAddr      pGetInstanceProcAddr      = (PFN_vkGetInstanceProcAddr     ) GetProcAddress(vulkan_loader, "vkGetInstanceProcAddr"  ); if (!pGetInstanceProcAddr     ) goto UnloadVulkan;
+            PFN_vkEnumerateInstanceVersion pEnumerateInstanceVersion = (PFN_vkEnumerateInstanceVersion) pGetInstanceProcAddr(NULL, "vkEnumerateInstanceVersion"); if (!pEnumerateInstanceVersion) goto UnloadVulkan;
+
+            uint32_t version = 0;   // e.g. 4202631 = 1.2.135.0
+            VkResult status  = pEnumerateInstanceVersion( &version );
+            if (status != VK_SUCCESS)
+            {
+                LL_INFOS("Vulkan") << "FAILED to get Vulkan version.  Status: " << version << "." << LL_ENDL;
+            }
+            else
+            {
+                // https://www.khronos.org/registry/vulkan/specs/1.2-extensions/html/vkspec.html#extendingvulkan-coreversions-versionnumbers
+                int major   = VK_API_VERSION_MAJOR  ( version );
+                int minor   = VK_API_VERSION_MINOR  ( version );
+                int patch   = VK_API_VERSION_PATCH  ( version );
+                int variant = VK_API_VERSION_VARIANT( version );
+
+                vulkan_version = llformat( "%d.%d.%d.%d", major, minor, patch, variant );
+                LL_INFOS("Vulkan") << "Vulkan version: " << vulkan_version << ", raw version: " << version << LL_ENDL;
+            }
+UnloadVulkan:
             FreeLibrary(vulkan_loader);
         }
         vulkan_oneshot = true;
     }
 
     misc["string_1"] = vulkan_detected ? llformat("Vulkan driver is detected") : llformat("No Vulkan driver detected");
+    misc["VulkanVersion"] = vulkan_version;
 
 #else
     misc["string_1"] = llformat("Unused");
