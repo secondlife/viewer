@@ -98,6 +98,8 @@ void showNSCursor();
 bool isCGCursorVisible();
 void hideNSCursorTillMove(bool hide);
 void requestUserAttention();
+bool osxHasMicrophonePermission();
+void osxRequestMicrophonePermissionIfNeeded();
 long showAlert(std::string title, std::string text, int type);
 void setResizeMode(bool oldresize, void* glview);
 

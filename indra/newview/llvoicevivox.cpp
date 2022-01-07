@@ -1,5 +1,5 @@
  /** 
- * @file LLVivoxVoiceClient.cpp
+ * @file llvoicevivox.cpp
  * @brief Implementation of LLVivoxVoiceClient class which is the interface to the voice client process.
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
@@ -68,6 +68,9 @@
 
 #include "llcorehttputil.h"
 #include "lleventfilter.h"
+#if LL_DARWIN
+#include "llwindowmacosx.h"
+#endif
 
 #include "stringize.h"
 
@@ -392,7 +395,6 @@ void LLVivoxVoiceClient::init(LLPumpIO *pump)
 {
 	// constructor will set up LLVoiceClient::getInstance()
 	mPump = pump;
-
 //     LLCoros::instance().launch("LLVivoxVoiceClient::voiceControlCoro",
 //         boost::bind(&LLVivoxVoiceClient::voiceControlCoro, LLVivoxVoiceClient::getInstance()));
 
@@ -5513,6 +5515,12 @@ void LLVivoxVoiceClient::setMuteMic(bool muted)
 
 void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 {
+#if LL_DARWIN
+	if (!hasMicrophonePermission())
+	{
+		enabled = false;
+	}
+#endif
     LL_DEBUGS("Voice")
         << "( " << (enabled ? "enabled" : "disabled") << " )"
         << " was "<< (mVoiceEnabled ? "enabled" : "disabled")

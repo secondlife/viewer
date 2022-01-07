@@ -242,5 +242,6 @@ private:
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type);
 
 void load_url_external(const char* url);
+bool hasMicrophonePermission();
 
 #endif //LL_LLWINDOWMACOSX_H

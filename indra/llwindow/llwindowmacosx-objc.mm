@@ -27,6 +27,7 @@
 
 #include <AppKit/AppKit.h>
 #include <Cocoa/Cocoa.h>
+#include <AVFoundation/AVFoundation.h>
 #include "llopenglview-objc.h"
 #include "llwindowmacosx-objc.h"
 #include "llappdelegate-objc.h"
@@ -416,6 +417,17 @@ void requestUserAttention()
 {
 	[[NSApplication sharedApplication] requestUserAttention:NSInformationalRequest];
 }
+
+bool osxHasMicrophonePermission() {
+	auto permission = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeAudio];
+	NSLog(@"HRS TODO permission: %ld", permission);
+	return permission == AVAuthorizationStatusAuthorized;
+}
+void osxRequestMicrophonePermissionIfNeeded() {
+	[AVCaptureDevice requestAccessForMediaType:AVMediaTypeAudio
+							 completionHandler:^(BOOL granted){ NSLog(@"HRS TODO granted=%d", granted); }];
+}
+
 
 long showAlert(std::string text, std::string title, int type)
 {
