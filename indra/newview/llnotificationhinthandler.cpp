@@ -53,7 +53,7 @@ void LLHintHandler::onDelete(LLNotificationPtr p)
 	LLHints::getInstance()->hide(p);
 }
 
-bool LLHintHandler::processNotification(const LLNotificationPtr& p)
+bool LLHintHandler::processNotification(const LLNotificationPtr& p, bool should_log)
 {
 	return false;
 }

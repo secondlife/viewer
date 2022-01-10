@@ -90,7 +90,7 @@ public:
 	void clearAvatarTab(); // clears table
 	void updateAvatarTab(bool highlight_overrides); // populates table and data as nessesary
 
-	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
+	void setDetails(F32 x, F32 y, F32 z);
 	void setPreviewLOD(S32 lod);
 	
 	void onBrowseLOD(S32 lod);

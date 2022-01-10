@@ -402,21 +402,86 @@ void MediaPluginCEF::onCursorChangedCallback(dullahan::ECursorType type)
 
 	switch (type)
 	{
-		case dullahan::CT_POINTER:
-			name = "arrow";
-			break;
+        case dullahan::CT_POINTER:
+            name = "UI_CURSOR_ARROW";
+            break;
+        case dullahan::CT_CROSS:
+            name = "UI_CURSOR_CROSS";
+            break;
+        case dullahan::CT_HAND:
+            name = "UI_CURSOR_HAND";
+            break;
 		case dullahan::CT_IBEAM:
-			name = "ibeam";
+			name = "UI_CURSOR_IBEAM";
 			break;
-		case dullahan::CT_NORTHSOUTHRESIZE:
-			name = "splitv";
-			break;
-		case dullahan::CT_EASTWESTRESIZE:
-			name = "splith";
-			break;
-		case dullahan::CT_HAND:
-			name = "hand";
-			break;
+        case dullahan::CT_WAIT:
+            name = "UI_CURSOR_WAIT";
+            break;
+        //case dullahan::CT_HELP:
+        case dullahan::CT_ROWRESIZE:
+        case dullahan::CT_NORTHRESIZE:
+        case dullahan::CT_SOUTHRESIZE:
+        case dullahan::CT_NORTHSOUTHRESIZE:
+            name = "UI_CURSOR_SIZENS";
+            break;
+        case dullahan::CT_COLUMNRESIZE:
+        case dullahan::CT_EASTRESIZE:
+        case dullahan::CT_WESTRESIZE:
+        case dullahan::CT_EASTWESTRESIZE:
+            name = "UI_CURSOR_SIZEWE";
+            break;
+        case dullahan::CT_NORTHEASTRESIZE:
+        case dullahan::CT_SOUTHWESTRESIZE:
+        case dullahan::CT_NORTHEASTSOUTHWESTRESIZE:
+            name = "UI_CURSOR_SIZENESW";
+            break;
+        case dullahan::CT_SOUTHEASTRESIZE:
+        case dullahan::CT_NORTHWESTRESIZE:
+        case dullahan::CT_NORTHWESTSOUTHEASTRESIZE:
+            name = "UI_CURSOR_SIZENWSE";
+            break;
+        case dullahan::CT_MOVE:
+            name = "UI_CURSOR_SIZEALL";
+            break;
+        //case dullahan::CT_MIDDLEPANNING:
+        //case dullahan::CT_EASTPANNING:
+        //case dullahan::CT_NORTHPANNING:
+        //case dullahan::CT_NORTHEASTPANNING:
+        //case dullahan::CT_NORTHWESTPANNING:
+        //case dullahan::CT_SOUTHPANNING:
+        //case dullahan::CT_SOUTHEASTPANNING:
+        //case dullahan::CT_SOUTHWESTPANNING:
+        //case dullahan::CT_WESTPANNING:
+        //case dullahan::CT_VERTICALTEXT:
+        //case dullahan::CT_CELL:
+        //case dullahan::CT_CONTEXTMENU:
+        case dullahan::CT_ALIAS:
+            name = "UI_CURSOR_TOOLMEDIAOPEN";
+            break;
+        case dullahan::CT_PROGRESS:
+            name = "UI_CURSOR_WORKING";
+            break;
+        case dullahan::CT_COPY:
+            name = "UI_CURSOR_ARROWCOPY";
+            break;
+        case dullahan::CT_NONE:
+            name = "UI_CURSOR_NO";
+            break;
+        case dullahan::CT_NODROP:
+        case dullahan::CT_NOTALLOWED:
+            name = "UI_CURSOR_NOLOCKED";
+            break;
+        case dullahan::CT_ZOOMIN:
+            name = "UI_CURSOR_TOOLZOOMIN";
+            break;
+        case dullahan::CT_ZOOMOUT:
+            name = "UI_CURSOR_TOOLZOOMOUT";
+            break;
+        case dullahan::CT_GRAB:
+            name = "UI_CURSOR_TOOLGRAB";
+            break;
+        //case dullahan::CT_GRABING:
+        //case dullahan::CT_CUSTOM:
 
 		default:
 			LL_WARNS() << "Unknown cursor ID: " << (int)type << LL_ENDL;

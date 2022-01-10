@@ -5316,22 +5316,23 @@ bool LLVolumeFace::cacheOptimize()
 	{
 		triangle_data.resize(mNumIndices / 3);
 		vertex_data.resize(mNumVertices);
-	}
-	catch (std::bad_alloc&)
-	{
-		LL_WARNS("LLVOLUME") << "Resize failed" << LL_ENDL;
-		return false;
-	}
 
-	for (U32 i = 0; i < mNumIndices; i++)
-	{ //populate vertex data and triangle data arrays
-		U16 idx = mIndices[i];
-		U32 tri_idx = i/3;
+        for (U32 i = 0; i < mNumIndices; i++)
+        { //populate vertex data and triangle data arrays
+            U16 idx = mIndices[i];
+            U32 tri_idx = i / 3;
 
-		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
-		vertex_data[idx].mIdx = idx;
-		triangle_data[tri_idx].mVertex[i%3] = &(vertex_data[idx]);
-	}
+            vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
+            vertex_data[idx].mIdx = idx;
+            triangle_data[tri_idx].mVertex[i % 3] = &(vertex_data[idx]);
+        }
+    }
+    catch (std::bad_alloc&)
+    {
+        // resize or push_back failed
+        LL_WARNS("LLVOLUME") << "Resize for " << mNumVertices << " vertices failed" << LL_ENDL;
+        return false;
+    }
 
 	/*F32 pre_acmr = 1.f;
 	//measure cache misses from before rebuild
