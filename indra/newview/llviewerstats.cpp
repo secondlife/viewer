@@ -64,8 +64,8 @@
 #include "llvoicevivox.h"
 #include "lluiusage.h"
 
-#define LL_MINIMAL_VULKAN 1
-#if LL_MINIMAL_VULKAN
+// "Minimal Vulkan" to get max API Version
+
 // Calls
     #if defined(_WIN32)
         #define VKAPI_ATTR
@@ -110,9 +110,6 @@
     typedef void               (VKAPI_PTR *PFN_vkVoidFunction            )(void);
     typedef PFN_vkVoidFunction (VKAPI_PTR *PFN_vkGetInstanceProcAddr     )(VkInstance instance, const char* pName);
     typedef VkResult           (VKAPI_PTR *PFN_vkEnumerateInstanceVersion)(uint32_t* pApiVersion);
-#else
-    #include <vulkan/vulkan.h>
-#endif // LL_MINIMAL_VULKAN
 
 namespace LLStatViewer
 {
