@@ -122,6 +122,7 @@ public:
 
 	static U32 getTextureCacheVersion() ;
 	static U32 getObjectCacheVersion() ;
+    static U32 getDiskCacheVersion() ;
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	

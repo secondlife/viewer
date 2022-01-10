@@ -4179,6 +4179,15 @@ U32 LLAppViewer::getTextureCacheVersion()
 }
 
 //static
+U32 LLAppViewer::getDiskCacheVersion()
+{
+    // Viewer disk cache version intorduced in Simple Cache Viewer, change if the cache format changes.
+    const U32 DISK_CACHE_VERSION = 1;
+
+    return DISK_CACHE_VERSION ;
+}
+
+//static
 U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
@@ -4258,7 +4267,13 @@ bool LLAppViewer::initCache()
 
 	if (!read_only)
 	{
-		if (mPurgeCache)
+        if (gSavedSettings.getS32("DiskCacheVersion") != LLAppViewer::getDiskCacheVersion())
+        {
+            LLDiskCache::getInstance()->clearCache();
+            gSavedSettings.setS32("DiskCacheVersion", LLAppViewer::getDiskCacheVersion());
+        }
+        
+        if (mPurgeCache)
 		{
 			LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 			purgeCache();
