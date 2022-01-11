@@ -4216,12 +4216,16 @@ bool LLAppViewer::initCache()
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
+    bool remove_vfs_files = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
 	{
 		texture_cache_mismatch = true;
 		if(!read_only)
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
+
+            //texture cache version was bumped up in Simple Cache Viewer, and at this point old vfs files are not needed
+            remove_vfs_files = true;   
 		}
 	}
 
@@ -4270,7 +4274,13 @@ bool LLAppViewer::initCache()
         if (gSavedSettings.getS32("DiskCacheVersion") != LLAppViewer::getDiskCacheVersion())
         {
             LLDiskCache::getInstance()->clearCache();
+            remove_vfs_files = true;
             gSavedSettings.setS32("DiskCacheVersion", LLAppViewer::getDiskCacheVersion());
+        }
+
+        if (remove_vfs_files)
+        {
+            LLDiskCache::getInstance()->removeOldVFSFiles();
         }
         
         if (mPurgeCache)
