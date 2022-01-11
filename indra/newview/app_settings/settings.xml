@@ -15690,6 +15690,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>AllowSelectAvatar</key>
+    <map>
+      <key>Comment</key>
+      <string>Allows user to select and move avatars, move is viewer sided, does not propagate to server, also supresses avatar position updates while avatars are selected</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
      <key>WebProfileFloaterRect</key>
     <map>
       <key>Comment</key>
