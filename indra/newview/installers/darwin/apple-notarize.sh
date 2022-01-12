@@ -16,8 +16,9 @@ if [ -f "$CONFIG_FILE" ]; then
                                    --password $PASSWORD \
                                    --asc-provider $ASC_PROVIDER \
                                    --file "$zip_file" 2>&1)
+        echo $res
+        
         requestUUID=$(echo $res | awk '/RequestUUID/ { print $NF; }')
-
         echo "Apple Notarization RequestUUID: $requestUUID"
 
         if [[ -n $requestUUID ]]; then
