@@ -635,6 +635,7 @@ static bool proximity_comparitor(const LLViewerMediaImpl* i1, const LLViewerMedi
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE("Update Media");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SPARE_IDLE("Spare Idle");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_INTEREST("Update/Interest");
+static LLTrace::BlockTimerStatHandle FTM_MEDIA_UPDATE_VOLUME("Update/Volume");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT("Media Sort");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_SORT2("Media Sort 2");
 static LLTrace::BlockTimerStatHandle FTM_MEDIA_MISC("Misc");
@@ -2087,6 +2088,7 @@ void LLViewerMediaImpl::setMute(bool mute)
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateVolume()
 {
+    LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE_VOLUME);
 	if(mMediaSource)
 	{
 		// always scale the volume by the global media volume
@@ -2943,7 +2945,7 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 	}
 
 	LLViewerMediaTexture* placeholder_image = LLViewerTextureManager::getMediaTexture( mTextureId );
-
+    
 	if (mNeedsNewTexture
 		|| placeholder_image->getUseMipMaps()
 		|| (placeholder_image->getWidth() != mMediaSource->getTextureWidth())
@@ -2960,25 +2962,30 @@ LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
 		int texture_depth = mMediaSource->getTextureDepth();
 
 		// MEDIAOPT: check to see if size actually changed before doing work
-		placeholder_image->destroyGLTexture();
+            placeholder_image->destroyGLTexture();
 		// MEDIAOPT: apparently just calling setUseMipMaps(FALSE) doesn't work?
 		placeholder_image->reinit(FALSE);	// probably not needed
 
-		// MEDIAOPT: seems insane that we actually have to make an imageraw then
-		// immediately discard it
-		LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
-		// Clear the texture to the background color, ignoring alpha.
-		// convert background color channels from [0.0, 1.0] to [0, 255];
-		raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
-		int discard_level = 0;
-
-		// ask media source for correct GL image format constants
-		placeholder_image->setExplicitFormat(mMediaSource->getTextureFormatInternal(),
-											 mMediaSource->getTextureFormatPrimary(),
-											 mMediaSource->getTextureFormatType(),
-											 mMediaSource->getTextureFormatSwapBytes());
-
-		placeholder_image->createGLTexture(discard_level, raw);
+        // MEDIAOPT: seems insane that we actually have to make an imageraw then
+        // immediately discard it
+        LLPointer<LLImageRaw> raw = new LLImageRaw(texture_width, texture_height, texture_depth);
+        // Clear the texture to the background color, ignoring alpha.
+        // convert background color channels from [0.0, 1.0] to [0, 255];
+        {LL_PROFILE_ZONE_NAMED("djh clear raw");
+        raw->clear(int(mBackgroundColor.mV[VX] * 255.0f), int(mBackgroundColor.mV[VY] * 255.0f), int(mBackgroundColor.mV[VZ] * 255.0f), 0xff);
+        }
+        // ask media source for correct GL image format constants
+        {LL_PROFILE_ZONE_NAMED("djh setformat raw");
+        placeholder_image->setExplicitFormat(mMediaSource->getTextureFormatInternal(),
+            mMediaSource->getTextureFormatPrimary(),
+            mMediaSource->getTextureFormatType(),
+            mMediaSource->getTextureFormatSwapBytes());
+        }
+        {
+            LL_PROFILE_ZONE_NAMED("djh create ph");
+            int discard_level = 0;
+            placeholder_image->createGLTexture(discard_level, raw);
+        }
 
 		// MEDIAOPT: set this dynamically on play/stop
 		// FIXME
