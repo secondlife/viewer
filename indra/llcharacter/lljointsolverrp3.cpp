@@ -1,6 +1,6 @@
 /** 
  * @file lljointsolverrp3.cpp
- * @brief Implementation of LLJointSolverRP3 class.
+ * @brief Implementation of Joint Solver in 3D Real Projective space (RP3). See: https://en.wikipedia.org/wiki/Real_projective_space
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
