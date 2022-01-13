@@ -207,7 +207,7 @@ void LLGLSLShader::dumpStats()
 //static
 void LLGLSLShader::startProfile()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->placeProfileQuery();
@@ -218,7 +218,7 @@ void LLGLSLShader::startProfile()
 //static
 void LLGLSLShader::stopProfile(U32 count, U32 mode)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     if (sProfileEnabled && sCurBoundShaderPtr)
     {
         sCurBoundShaderPtr->readProfileQuery(count, mode);
@@ -385,7 +385,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
                                 U32 varying_count,
                                 const char** varyings)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     unloadInternal();
 
@@ -591,7 +591,7 @@ void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
 
 BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attributes)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     //before linking, make sure reserved attributes always have consistent locations
     for (U32 i = 0; i < LLShaderMgr::instance()->mReservedAttribs.size(); i++)
@@ -654,7 +654,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
 
 void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * uniforms)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (index == -1)
     {
@@ -777,7 +777,7 @@ void LLGLSLShader::removePermutation(std::string name)
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
         type == GL_SAMPLER_2D_MULTISAMPLE)
@@ -791,7 +791,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 
 BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     BOOL res = TRUE;
 
@@ -936,7 +936,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 BOOL LLGLSLShader::link(BOOL suppress_errors)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
 
@@ -950,7 +950,7 @@ BOOL LLGLSLShader::link(BOOL suppress_errors)
 
 void LLGLSLShader::bind()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     gGL.flush();
 
@@ -984,7 +984,7 @@ void LLGLSLShader::bind(bool rigged)
 
 void LLGLSLShader::unbind()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     gGL.flush();
     stop_glerror();
@@ -997,7 +997,7 @@ void LLGLSLShader::unbind()
 
 void LLGLSLShader::bindNoShader(void)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     LLVertexBuffer::unbind();
     glUseProgramObjectARB(0);
@@ -1007,7 +1007,7 @@ void LLGLSLShader::bindNoShader(void)
 
 S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     S32 channel = 0;
     channel = getUniformLocation(uniform);
@@ -1017,7 +1017,7 @@ S32 LLGLSLShader::bindTexture(const std::string &uniform, LLTexture *texture, LL
 
 S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace colorspace)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
@@ -1038,7 +1038,7 @@ S32 LLGLSLShader::bindTexture(S32 uniform, LLTexture *texture, LLTexUnit::eTextu
 
 S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureType mode)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     S32 channel = 0;
     channel = getUniformLocation(uniform);
@@ -1048,7 +1048,7 @@ S32 LLGLSLShader::unbindTexture(const std::string &uniform, LLTexUnit::eTextureT
 
 S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
@@ -1068,7 +1068,7 @@ S32 LLGLSLShader::unbindTexture(S32 uniform, LLTexUnit::eTextureType mode)
 
 S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
@@ -1087,7 +1087,7 @@ S32 LLGLSLShader::enableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTex
 
 S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTexUnit::eTextureColorSpace space)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (uniform < 0 || uniform >= (S32)mTexture.size())
     {
@@ -1116,7 +1116,7 @@ S32 LLGLSLShader::disableTexture(S32 uniform, LLTexUnit::eTextureType mode, LLTe
 
 void LLGLSLShader::uniform1i(U32 index, GLint x)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER
     if (mProgramObject)
     {   
         if (mUniform.size() <= index)
@@ -1139,7 +1139,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
 
 void LLGLSLShader::uniform1f(U32 index, GLfloat x)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER
     if (mProgramObject)
     {   
         if (mUniform.size() <= index)
@@ -1337,7 +1337,7 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
             LLVector4 vec(v[0],v[1],v[2],v[3]);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                LL_PROFILE_ZONE_SCOPED;
+                LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
                 glUniform4fvARB(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
@@ -1381,7 +1381,7 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 
 void LLGLSLShader::uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
 	if (mProgramObject)
 	{	
@@ -1417,7 +1417,7 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
 GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     GLint ret = -1;
     if (mProgramObject)
@@ -1443,7 +1443,7 @@ GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
 
 GLint LLGLSLShader::getUniformLocation(U32 index)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     GLint ret = -1;
     if (mProgramObject)
@@ -1461,7 +1461,7 @@ GLint LLGLSLShader::getUniformLocation(U32 index)
 
 GLint LLGLSLShader::getAttribLocation(U32 attrib)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if (attrib < mAttribute.size())
     {
@@ -1613,7 +1613,7 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
         const auto& iter = mValue.find(location);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
             glUniform4fvARB(location, count, v);
             mValue[location] = vec;
         }
@@ -1657,7 +1657,7 @@ void LLGLSLShader::setMinimumAlpha(F32 minimum)
 
 void LLShaderUniforms::apply(LLGLSLShader* shader)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     for (auto& uniform : mIntegers)
     {
         shader->uniform1i(uniform.mUniform, uniform.mValue);

@@ -1654,7 +1654,7 @@ void LLEnvironment::updateCloudScroll()
 // static
 void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, const LLSettingsBase::ptr_t &psetting)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     for (int i = 0; i < LLGLSLShader::SG_COUNT; ++i)
     {
@@ -1725,7 +1725,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
 
 void LLEnvironment::updateShaderUniforms(LLGLSLShader* shader)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     // apply uniforms that should be applied to all shaders
     mSkyUniforms[LLGLSLShader::SG_ANY].apply(shader);
