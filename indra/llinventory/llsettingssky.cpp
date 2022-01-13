@@ -439,7 +439,7 @@ void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     llassert(getSettingsType() == end->getSettingsType());
 
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
@@ -935,7 +935,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
@@ -1018,7 +1018,7 @@ LLColor3 LLSettingsSky::getLightDiffuse() const
 
 LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default_value) const
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
     {
         return LLColor3(mSettings[SETTING_LEGACY_HAZE][key]);
@@ -1032,7 +1032,7 @@ LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default
 
 F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value) const
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
     {
         return mSettings[SETTING_LEGACY_HAZE][key].asReal();

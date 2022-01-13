@@ -637,7 +637,7 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
 //-------------------------------------------------------------------------
 void LLSettingsVOSky::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     LLSettingsSky::updateSettings();
     LLVector3 sun_direction  = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
