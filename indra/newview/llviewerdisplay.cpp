@@ -848,7 +848,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		{
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Sky");
-			LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKY);	
+			LL_PROFILE_ZONE_NAMED_CATEGORY_ENVIRONMENT("update sky"); //LL_RECORD_BLOCK_TIME(FTM_UPDATE_SKY);	
 			gSky.updateSky();
 		}
 

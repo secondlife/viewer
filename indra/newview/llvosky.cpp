@@ -510,7 +510,7 @@ void LLVOSky::cacheEnvironment(LLSettingsSky::ptr_t psky,AtmosphericsVars& atmos
 
 void LLVOSky::calc()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     LLSettingsSky::ptr_t psky = LLEnvironment::instance().getCurrentSky();
     cacheEnvironment(psky,m_atmosphericsVars);
 
@@ -681,7 +681,7 @@ bool LLVOSky::updateSky()
 		return TRUE;
 	}
 
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
 
 	static S32 next_frame = 0;
 
