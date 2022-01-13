@@ -66,7 +66,7 @@ namespace LLTrace
 			: mStorageSize(0),
 			mStorage(NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			const AccumulatorBuffer& other = *getDefaultBuffer();
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
@@ -77,7 +77,7 @@ namespace LLTrace
 
 		~AccumulatorBuffer()
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			if (isCurrent())
 			{
 				LLThreadLocalSingletonPointer<ACCUMULATOR>::setInstance(NULL);
@@ -100,7 +100,7 @@ namespace LLTrace
 			: mStorageSize(0),
 			mStorage(NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
@@ -110,7 +110,7 @@ namespace LLTrace
 
 		void addSamples(const AccumulatorBuffer<ACCUMULATOR>& other, EBufferAppendType append_type)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -120,7 +120,7 @@ namespace LLTrace
 
 		void copyFrom(const AccumulatorBuffer<ACCUMULATOR>& other)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot && other.mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -130,7 +130,7 @@ namespace LLTrace
 
 		void reset(const AccumulatorBuffer<ACCUMULATOR>* other = NULL)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -140,7 +140,7 @@ namespace LLTrace
 
 		void sync(F64SecondsImplicit time_stamp)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			llassert(mStorageSize >= sNextStorageSlot);
 			for (size_t i = 0; i < sNextStorageSlot; i++)
 			{
@@ -166,7 +166,7 @@ namespace LLTrace
 		// NOTE: this is not thread-safe.  We assume that slots are reserved in the main thread before any child threads are spawned
 		size_t reserveSlot()
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			size_t next_slot = sNextStorageSlot++;
 			if (next_slot >= mStorageSize)
 			{
@@ -180,7 +180,7 @@ namespace LLTrace
 
 		void resize(size_t new_size)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			if (new_size <= mStorageSize) return;
 
 			ACCUMULATOR* old_storage = mStorage;
@@ -221,7 +221,7 @@ namespace LLTrace
 
 		static self_t* getDefaultBuffer()
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			static bool sInitialized = false;
 			if (!sInitialized)
 			{
@@ -336,7 +336,7 @@ namespace LLTrace
 
 		void sample(F64 value)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			F64SecondsImplicit time_stamp = LLTimer::getTotalSeconds();
 
 			// store effect of last value
@@ -550,7 +550,7 @@ namespace LLTrace
 
 		void addSamples(const MemAccumulator& other, EBufferAppendType append_type)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			mAllocations.addSamples(other.mAllocations, append_type);
 			mDeallocations.addSamples(other.mDeallocations, append_type);
 
@@ -569,7 +569,7 @@ namespace LLTrace
 
 		void reset(const MemAccumulator* other)
 		{
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 			mSize.reset(other ? &other->mSize : NULL);
 			mAllocations.reset(other ? &other->mAllocations : NULL);
 			mDeallocations.reset(other ? &other->mDeallocations : NULL);
