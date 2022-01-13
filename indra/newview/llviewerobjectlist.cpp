@@ -1350,7 +1350,7 @@ void LLViewerObjectList::cleanupReferences(LLViewerObject *objectp)
 
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
 	if (!drawablep)
 	{
@@ -1526,7 +1526,7 @@ void LLViewerObjectList::removeFromActiveList(LLViewerObject* objectp)
 
 void LLViewerObjectList::updateActive(LLViewerObject *objectp)
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
 	if (objectp->isDead())
 	{
@@ -2100,7 +2100,7 @@ LLViewerObject *LLViewerObjectList::replaceObject(const LLUUID &id, const LLPCod
 
 S32 LLViewerObjectList::findReferences(LLDrawable *drawablep) const
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 
 	LLViewerObject *objectp;
 	S32 num_refs = 0;

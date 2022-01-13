@@ -3373,7 +3373,7 @@ void LLPipeline::stateSort(LLCamera& camera, LLCullResult &result)
 	}
 	
 	{
-		LL_RECORD_BLOCK_TIME(FTM_STATESORT_DRAWABLE);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWABLE("stateSort"); // LL_RECORD_BLOCK_TIME(FTM_STATESORT_DRAWABLE);
 		for (LLCullResult::drawable_iterator iter = sCull->beginVisibleList();
 			 iter != sCull->endVisibleList(); ++iter)
 		{
