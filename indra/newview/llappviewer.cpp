@@ -4785,7 +4785,7 @@ void LLAppViewer::idle()
 
 	if (!gDisconnected)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_NETWORK);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("network"); //LL_RECORD_BLOCK_TIME(FTM_NETWORK);
 		// Update spaceserver timeinfo
 	    LLWorld::getInstance()->setSpaceTimeUSec(LLWorld::getInstance()->getSpaceTimeUSec() + LLUnits::Seconds::fromValue(dt_raw));
 
@@ -4817,7 +4817,7 @@ void LLAppViewer::idle()
 							|| (agent_force_update_time > (1.0f / (F32) AGENT_FORCE_UPDATES_PER_SECOND));
 		if (force_update || (agent_update_time > (1.0f / (F32) AGENT_UPDATES_PER_SECOND)))
 		{
-			LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
+			LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_AGENT_UPDATE);
 			// Send avatar and camera info
 			mLastAgentControlFlags = gAgent.getControlFlags();
 			mLastAgentForceUpdate = force_update ? 0 : agent_force_update_time;
@@ -5337,6 +5337,7 @@ static LLTrace::BlockTimerStatHandle FTM_CHECK_REGION_CIRCUIT("Check Region Circ
 
 void LLAppViewer::idleNetwork()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	pingMainloopTimeout("idleNetwork");
 
 	gObjectList.mNumNewObjects = 0;
@@ -5344,7 +5345,7 @@ void LLAppViewer::idleNetwork()
 
 	if (!gSavedSettings.getBOOL("SpeedTest"))
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
+		LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("idle network"); //LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
 
 		LLTimer check_message_timer;
 		//  Read all available packets from network
