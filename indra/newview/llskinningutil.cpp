@@ -125,7 +125,7 @@ void LLSkinningUtil::initSkinningMatrixPalette(
     const LLMeshSkinInfo* skin,
     LLVOAvatar *avatar)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     initJointNums(const_cast<LLMeshSkinInfo*>(skin), avatar);
 
@@ -270,7 +270,7 @@ void LLSkinningUtil::initJointNums(LLMeshSkinInfo* skin, LLVOAvatar *avatar)
 {
     if (!skin->mJointNumsInitialized)
     {
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
         for (U32 j = 0; j < skin->mJointNames.size(); ++j)
         {
     #if DEBUG_SKINNING     

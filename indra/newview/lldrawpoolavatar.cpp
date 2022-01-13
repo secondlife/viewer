@@ -119,7 +119,7 @@ LLDrawPoolAvatar::~LLDrawPoolAvatar()
 // virtual
 BOOL LLDrawPoolAvatar::isDead()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     if (!LLFacePool::isDead())
     {
@@ -131,14 +131,14 @@ BOOL LLDrawPoolAvatar::isDead()
 
 S32 LLDrawPoolAvatar::getShaderLevel() const
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	return (S32) LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 }
 
 void LLDrawPoolAvatar::prerender()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR);
 	
@@ -156,7 +156,7 @@ void LLDrawPoolAvatar::prerender()
 
 LLMatrix4& LLDrawPoolAvatar::getModelView()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	static LLMatrix4 ret;
 
@@ -176,7 +176,7 @@ LLMatrix4& LLDrawPoolAvatar::getModelView()
 
 void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	
 	sSkipTransparent = TRUE;
 	is_deferred_render = true;
@@ -202,7 +202,7 @@ void LLDrawPoolAvatar::beginDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
 	sSkipTransparent = FALSE;
 	is_deferred_render = false;
@@ -228,7 +228,7 @@ void LLDrawPoolAvatar::endDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::renderDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	render(pass);
 }
@@ -240,7 +240,7 @@ S32 LLDrawPoolAvatar::getNumPostDeferredPasses()
 
 void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sSkipOpaque = TRUE;
 	sShaderLevel = mShaderLevel;
@@ -256,7 +256,7 @@ void LLDrawPoolAvatar::beginPostDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
 	sSkipOpaque = FALSE;
@@ -268,7 +268,7 @@ void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
 
 void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
     is_post_deferred_render = true;
 	if (LLPipeline::sImpostorRender)
@@ -291,7 +291,7 @@ S32 LLDrawPoolAvatar::getNumShadowPasses()
 
 void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
 	if (pass == SHADOW_PASS_AVATAR_OPAQUE)
 	{
@@ -349,7 +349,7 @@ void LLDrawPoolAvatar::beginShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::endShadowPass(S32 pass)
 {
-	LL_PROFILE_ZONE_SCOPED;
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
     if (sShaderLevel > 0)
 	{			
@@ -362,7 +362,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
 	if (mDrawFace.empty())
 	{
@@ -424,7 +424,7 @@ S32 LLDrawPoolAvatar::getNumDeferredPasses()
 
 void LLDrawPoolAvatar::render(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (LLPipeline::sImpostorRender)
 	{
 		renderAvatars(NULL, pass+2);
@@ -436,7 +436,7 @@ void LLDrawPoolAvatar::render(S32 pass)
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	//reset vertex buffer mappings
 	LLVertexBuffer::unbind();
 
@@ -466,7 +466,7 @@ void LLDrawPoolAvatar::beginRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::endRenderPass(S32 pass)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
 	if (LLPipeline::sImpostorRender)
 	{
@@ -489,7 +489,7 @@ void LLDrawPoolAvatar::endRenderPass(S32 pass)
 
 void LLDrawPoolAvatar::beginImpostor()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	if (!LLPipeline::sReflectionRender)
 	{
@@ -506,7 +506,7 @@ void LLDrawPoolAvatar::beginImpostor()
 
 void LLDrawPoolAvatar::endImpostor()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 		gImpostorProgram.unbind();
 	gPipeline.enableLightsDynamic();
@@ -514,7 +514,7 @@ void LLDrawPoolAvatar::endImpostor()
 
 void LLDrawPoolAvatar::beginRigid()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	if (gPipeline.shadersLoaded())
 	{
@@ -549,7 +549,7 @@ void LLDrawPoolAvatar::beginRigid()
 
 void LLDrawPoolAvatar::endRigid()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sShaderLevel = mShaderLevel;
 	if (sVertexProgram != NULL)
@@ -560,7 +560,7 @@ void LLDrawPoolAvatar::endRigid()
 
 void LLDrawPoolAvatar::beginDeferredImpostor()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	if (!LLPipeline::sReflectionRender)
 	{
@@ -578,7 +578,7 @@ void LLDrawPoolAvatar::beginDeferredImpostor()
 
 void LLDrawPoolAvatar::endDeferredImpostor()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DEFERRED_NORMAL);
@@ -591,7 +591,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 
 void LLDrawPoolAvatar::beginDeferredRigid()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sVertexProgram = &gDeferredNonIndexedDiffuseAlphaMaskNoColorProgram;
 	sDiffuseChannel = sVertexProgram->enableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -609,7 +609,7 @@ void LLDrawPoolAvatar::beginDeferredRigid()
 
 void LLDrawPoolAvatar::endDeferredRigid()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sShaderLevel = mShaderLevel;
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
@@ -620,7 +620,7 @@ void LLDrawPoolAvatar::endDeferredRigid()
 
 void LLDrawPoolAvatar::beginSkinned()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	if (sShaderLevel > 0)
 	{
@@ -685,7 +685,7 @@ void LLDrawPoolAvatar::beginSkinned()
 
 void LLDrawPoolAvatar::endSkinned()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	if (sShaderLevel > 0)
@@ -711,7 +711,7 @@ void LLDrawPoolAvatar::endSkinned()
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	sShaderLevel = mShaderLevel;
 	sVertexProgram = &gDeferredAvatarProgram;
@@ -734,7 +734,7 @@ void LLDrawPoolAvatar::beginDeferredSkinned()
 
 void LLDrawPoolAvatar::endDeferredSkinned()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	// if we're in software-blending, remember to set the fence _after_ we draw so we wait till this rendering is done
 	sRenderingSkinned = FALSE;
@@ -749,6 +749,8 @@ void LLDrawPoolAvatar::endDeferredSkinned()
 
 void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR; //LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
+
 	if (pass == -1)
 	{
 		for (S32 i = 1; i < getNumPasses(); i++)
@@ -787,8 +789,6 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		return;
 	}
-
-    LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
 
 	if (!single_avatar && !avatarp->isFullyLoaded() )
 	{
@@ -908,7 +908,7 @@ static LLTrace::BlockTimerStatHandle FTM_RIGGED_VBO("Rigged VBO");
 //-----------------------------------------------------------------------------
 LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 
 	if (mReferences.empty())
 	{
@@ -936,7 +936,7 @@ LLVertexBufferAvatar::LLVertexBufferAvatar()
 : LLVertexBuffer(sDataMask, 
 	GL_STREAM_DRAW_ARB) //avatars are always stream draw due to morph targets
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR
 }
 
 
