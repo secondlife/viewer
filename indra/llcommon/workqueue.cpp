@@ -60,7 +60,7 @@ void LL::WorkQueue::runUntilClose()
     {
         for (;;)
         {
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
             callWork(mQueue.pop());
         }
     }
@@ -71,7 +71,7 @@ void LL::WorkQueue::runUntilClose()
 
 bool LL::WorkQueue::runPending()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     for (Work work; mQueue.tryPop(work); )
     {
         callWork(work);
@@ -91,7 +91,7 @@ bool LL::WorkQueue::runOne()
 
 bool LL::WorkQueue::runUntil(const TimePoint& until)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     // Should we subtract some slop to allow for typical Work execution time?
     // How much slop?
     // runUntil() is simply a time-bounded runPending().
@@ -129,7 +129,7 @@ void LL::WorkQueue::callWork(const Queue::DataTuple& work)
 
 void LL::WorkQueue::callWork(const Work& work)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
     try
     {
         work();
