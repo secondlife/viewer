@@ -544,7 +544,7 @@ void LLViewerOctreeGroup::unbound()
 //virtual 
 void LLViewerOctreeGroup::rebound()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
 	if (!isDirty())
 	{	
 		return;
@@ -1053,7 +1053,7 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode /* = STATE
 
 BOOL LLOcclusionCullingGroup::earlyFail(LLCamera* camera, const LLVector4a* bounds)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
 	if (camera->getOrigin().isExactlyZero())
 	{
 		return FALSE;
@@ -1104,7 +1104,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
 {
     if (LLPipeline::sUseOcclusion < 2) return;  // 0 - NoOcclusion, 1 = ReadOnly, 2 = ModifyOcclusionState  TODO: DJH 11-2021 ENUM this
 
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
     LLOcclusionCullingGroup* parent = (LLOcclusionCullingGroup*)getParent();
     if (parent && parent->isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
     {	//if the parent has been marked as occluded, the child is implicitly occluded
@@ -1126,7 +1126,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
         {
             GLuint available;
             {
-                LL_PROFILE_ZONE_NAMED("co - query available");
+                LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query available");
                 glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
             }
 
@@ -1134,7 +1134,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
             {   
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)
                 {
-                    LL_PROFILE_ZONE_NAMED("co - query result");
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query result");
                     glGetQueryObjectuivARB(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &query_result);
                 }
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
@@ -1177,7 +1177,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
 
 void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_OCTREE;
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
 		//move mBounds to the agent space if necessary
@@ -1198,7 +1198,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
 		if (earlyFail(camera, bounds))
 		{
-            LL_PROFILE_ZONE_NAMED("doOcclusion - early fail");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - early fail");
 			setOcclusionState(LLOcclusionCullingGroup::DISCARD_QUERY);
 			assert_states_valid(this);
 			clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
@@ -1209,7 +1209,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 			if (!isOcclusionState(QUERY_PENDING) || isOcclusionState(DISCARD_QUERY))
 			{
 				{ //no query pending, or previous query to be discarded
-                    LL_PROFILE_ZONE_NAMED("doOcclusion - render");
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - render");
 
 					if (!mOcclusionQuery[LLViewerCamera::sCurCameraID])
 					{
@@ -1237,7 +1237,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 					add(sOcclusionQueries, 1);
 
 					{
-                        LL_PROFILE_ZONE_NAMED("doOcclusion - push");
+                        LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - push");
 						
 						//store which frame this query was issued on
 						mOcclusionIssued[LLViewerCamera::sCurCameraID] = gFrameCount;
@@ -1254,7 +1254,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 
 						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_VOIDWATER)
 						{
-                            LL_PROFILE_ZONE_NAMED("doOcclusion - draw water");
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - draw water");
 
 							LLGLSquashToFarClip squash;
 							if (camera->getOrigin().isExactlyZero())
@@ -1269,7 +1269,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 						}
 						else
 						{
-                            LL_PROFILE_ZONE_NAMED("doOcclusion - draw");
+                            LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - draw");
 							if (camera->getOrigin().isExactlyZero())
 							{ //origin is invalid, draw entire box
 								gPipeline.mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, 0);
@@ -1286,7 +1286,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 				}
 
 				{
-                    LL_PROFILE_ZONE_NAMED("doOcclusion - set state");
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - set state");
 					setOcclusionState(LLOcclusionCullingGroup::QUERY_PENDING);
 					clearOcclusionState(LLOcclusionCullingGroup::DISCARD_QUERY);
 				}
