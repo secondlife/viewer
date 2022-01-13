@@ -4338,7 +4338,7 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 	}
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_POOLS);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pools"); //LL_RECORD_BLOCK_TIME(FTM_POOLS);
 		
 		// HACK: don't calculate local lights if we're rendering the HUD!
 		//    Removing this check will cause bad flickering when there are 
@@ -4374,7 +4374,7 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 			pool_set_t::iterator iter2 = iter1;
 			if (hasRenderType(poolp->getType()) && poolp->getNumPasses() > 0)
 			{
-				LL_RECORD_BLOCK_TIME(FTM_POOLRENDER);
+				LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("pool render"); //LL_RECORD_BLOCK_TIME(FTM_POOLRENDER);
 
 				gGLLastMatrix = NULL;
 				gGL.loadMatrix(gGLModelView);
@@ -4504,14 +4504,14 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
 	{
 		// SL-15709 -- NOTE: Tracy only allows one ZoneScoped per function.
 		// Solutions are:
 		// 1. Use a new scope
 		// 2. Use named zones
 		// 3. Use transient zones
-		LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
 		LLGLEnable cull(GL_CULL_FACE);
 
@@ -4546,7 +4546,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			pool_set_t::iterator iter2 = iter1;
 			if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
 			{
-				LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLRENDER);
+				LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pool render"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLRENDER);
 
 				gGLLastMatrix = NULL;
 				gGL.loadMatrix(gGLModelView);
@@ -4601,7 +4601,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 {
-	LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
 	U32 cur_type = 0;
 
 	LLGLEnable cull(GL_CULL_FACE);
@@ -4635,7 +4635,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
 		{
-			LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLRENDER);
+			LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred poolrender"); //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLRENDER);
 
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);

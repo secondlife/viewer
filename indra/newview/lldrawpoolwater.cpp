@@ -134,7 +134,7 @@ void LLDrawPoolWater::endPostDeferredPass(S32 pass)
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 
     if (!LLPipeline::sRenderTransparentWater)
     {
@@ -152,7 +152,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
 		return;
@@ -334,7 +334,7 @@ void LLDrawPoolWater::render(S32 pass)
 // for low end hardware
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOSky *voskyp = gSky.mVOSkyp;
 
     if (voskyp == NULL)
@@ -443,7 +443,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 
 void LLDrawPoolWater::renderReflection(LLFace* face)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
 	if (!voskyp)
@@ -472,7 +472,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 void LLDrawPoolWater::renderWater()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     if (!deferred_render)
     {
         gGL.setColorMask(true, true);

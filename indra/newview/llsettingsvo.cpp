@@ -966,7 +966,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
 void LLSettingsVOWater::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
 
