@@ -1667,6 +1667,7 @@ void LLVOVolume::regenFaces()
 
 BOOL LLVOVolume::genBBoxes(BOOL force_global)
 {
+    LL_PROFILE_ZONE_SCOPED;
     BOOL res = TRUE;
 
     LLVector4a min, max;
@@ -1698,6 +1699,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
     {
         LL_DEBUGS("RiggedBox") << "rebuilding box, volume face count " << getVolume()->getNumVolumeFaces() << " drawable face count " << mDrawable->getNumFaces() << LL_ENDL;
     }
+
     // There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
     for (S32 i = 0;
         i < getVolume()->getNumVolumeFaces() && i < mDrawable->getNumFaces() && i < getNumTEs();
@@ -1739,11 +1741,22 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
         }
     }
 
+    bool rigged = false;
+
+    if (!isAnimatedObject())
+    {
+        rigged = isRiggedMesh() && isAttachment();
+    }
+    else
+    {
+        rigged = isRiggedMesh() && getControlAvatar() && getControlAvatar()->mPlaying;
+    }
+
     if (any_valid_boxes)
     {
         if (rebuild)
         {
-            //get the Avatar associated with this object if there is one
+            //get the Avatar associated with this object if it's rigged
             LLVOAvatar* avatar = nullptr;
             if (isRiggedMesh())
             {
@@ -1764,30 +1777,21 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
                 }
             }
 
-            LLSpatialBridge* bridge = mDrawable->getSpatialBridge();
-            if (avatar && bridge)
+            mDrawable->setSpatialExtents(min, max);
+
+            if (avatar)
             {
-                //use avatar bounding box for visibility culling
-                LLDrawable* ref = avatar->mDrawable;
-
-                LLVector4a extents[2];
-
-                bridge->transformExtents(ref->getSpatialExtents(), extents);
-                
-                mDrawable->setSpatialExtents(extents[0], extents[1]);
-                // don't switch octree node based on bounding box center to avoid breaking batches and rebuilding vertex buffers
-                mDrawable->setPositionGroup(LLVector4a(0, 0, 0, 0));
-                LL_DEBUGS("RiggedBox") << "rebuilding got extents " << extents[0] << ", " << extents[1] << LL_ENDL;
+                // put all rigged drawables in the same octree node for better batching
+                mDrawable->setPositionGroup(LLVector4a(0, 0, 0));
             }
             else
             {
-                mDrawable->setSpatialExtents(min, max);
                 min.add(max);
                 min.mul(0.5f);
                 mDrawable->setPositionGroup(min);
             }
         }
-
+        
         updateRadius();
         mDrawable->movePartition();
     }
@@ -5844,6 +5848,11 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				if (!drawablep->isState(LLDrawable::RIGGED))
 				{
 					drawablep->setState(LLDrawable::RIGGED);
+                    LLDrawable* root = drawablep->getRoot();
+                    if (root != drawablep)
+                    {
+                        root->setState(LLDrawable::RIGGED_CHILD);
+                    }
 
 					//first time this is drawable is being marked as rigged,
 					// do another LoD update to use avatar bounding box

@@ -1876,6 +1876,7 @@ void LLPipeline::resetFrameStats()
 //external functions for asynchronous updating
 void LLPipeline::updateMoveDampedAsync(LLDrawable* drawablep)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (FreezeTime)
 	{
 		return;
@@ -1906,6 +1907,7 @@ void LLPipeline::updateMoveDampedAsync(LLDrawable* drawablep)
 
 void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (FreezeTime)
 	{
 		return;
@@ -1936,6 +1938,7 @@ void LLPipeline::updateMoveNormalAsync(LLDrawable* drawablep)
 
 void LLPipeline::updateMovedList(LLDrawable::drawable_vector_t& moved_list)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for (LLDrawable::drawable_vector_t::iterator iter = moved_list.begin();
 		 iter != moved_list.end(); )
 	{

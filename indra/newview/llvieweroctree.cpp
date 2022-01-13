@@ -516,6 +516,7 @@ bool LLViewerOctreeGroup::removeFromGroup(LLViewerOctreeEntry* entry)
 //virtual 
 void LLViewerOctreeGroup::unbound()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (isDirty())
 	{
 		return;
