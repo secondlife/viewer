@@ -972,7 +972,7 @@ void LLVOSky::setBloomTextures(const LLUUID& bloom_texture, const LLUUID& bloom_
 
 BOOL LLVOSky::updateGeometry(LLDrawable *drawable)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 	if (mFace[FACE_REFLECTION] == NULL)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
