@@ -338,7 +338,7 @@ S32 LLFolderView::arrange( S32* unused_width, S32* unused_height )
 
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     static LLCachedControl<S32> time_visible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameVisible", 10);
     static LLCachedControl<S32> time_invisible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameUnvisible", 1);
     filter.resetTime(llclamp((mParentPanel.get()->getVisible() ? time_visible() : time_invisible()), 1, 100));
@@ -502,7 +502,7 @@ BOOL LLFolderView::changeSelection(LLFolderViewItem* selection, BOOL selected)
 
 void LLFolderView::sanitizeSelection()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	// store off current item in case it is automatically deselected
 	// and we want to preserve context
 	LLFolderViewItem* original_selected_item = getCurSelectedItem();
@@ -1624,7 +1624,7 @@ void LLFolderView::update()
 {
 	// If this is associated with the user's inventory, don't do anything
 	// until that inventory is loaded up.
-	LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_INVENTORY);
     
     // If there's no model, the view is in suspended state (being deleted) and shouldn't be updated
     if (getFolderViewModel() == NULL)

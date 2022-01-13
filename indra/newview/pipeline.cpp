@@ -3970,8 +3970,8 @@ void LLPipeline::postSort(LLCamera& camera)
 
 void render_hud_elements()
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
-	gPipeline.disableLights();		
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
+	gPipeline.disableLights();
 	
 	LLGLDisable fog(GL_FOG);
 	LLGLSUIDefault gls_ui;

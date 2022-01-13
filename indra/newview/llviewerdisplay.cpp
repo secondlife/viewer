@@ -1242,7 +1242,7 @@ bool setup_hud_matrices(const LLRect& screen_region)
 
 void render_ui(F32 zoom_factor, int subfield)
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
 
 	LLGLState::checkStates();
 	
@@ -1274,7 +1274,7 @@ void render_ui(F32 zoom_factor, int subfield)
 		// 1. Use a new scope
 		// 2. Use named zones
 		// 3. Use transient zones
-		LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
+		LL_PROFILE_ZONE_NAMED_CATEGORY_UI("HUD"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_HUD);
 		render_hud_elements();
 		render_hud_attachments();
 
@@ -1290,7 +1290,7 @@ void render_ui(F32 zoom_factor, int subfield)
 			{
 				if (!gDisconnected)
 				{
-					LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
+					LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
 					render_ui_3d();
 					LLGLState::checkStates();
 				}
@@ -1299,7 +1299,7 @@ void render_ui(F32 zoom_factor, int subfield)
 					render_disconnected_background();
 				}
 
-				LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
+				LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
 				render_ui_2d();
 				LLGLState::checkStates();
 			}
