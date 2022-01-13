@@ -428,7 +428,7 @@ LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	//LL_INFOS() << "LLPumpIO::pump()" << LL_ENDL;
 
 	// Run any pending runners.
@@ -506,7 +506,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		S32 count = 0;
 		S32 client_id = 0;
         {
-            LL_PROFILE_ZONE_SCOPED;
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
             apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
         }
 		PUMP_DEBUG;
@@ -736,7 +736,7 @@ bool LLPumpIO::respond(
 
 void LLPumpIO::callback()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	//LL_INFOS() << "LLPumpIO::callback()" << LL_ENDL;
 	if(true)
 	{
