@@ -190,7 +190,7 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 void LLCharacter::updateMotions(e_update_t update_type)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (update_type == HIDDEN_UPDATE)
 	{
 		mMotionController.updateMotionsMinimal();

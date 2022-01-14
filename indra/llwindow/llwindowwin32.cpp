@@ -1931,7 +1931,7 @@ void LLWindowWin32::hideCursor()
 
 void LLWindowWin32::showCursor()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
     ASSERT_MAIN_THREAD();
 	
@@ -2046,7 +2046,7 @@ void LLWindowWin32::initCursors()
 void LLWindowWin32::updateCursor()
 {
     ASSERT_MAIN_THREAD();
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32
 	if (mNextCursor == UI_CURSOR_ARROW
 		&& mBusyCount > 0)
 	{
@@ -2076,7 +2076,7 @@ void LLWindowWin32::captureMouse()
 
 void LLWindowWin32::releaseMouse()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 	ReleaseCapture();
 }
 
@@ -2090,7 +2090,7 @@ void LLWindowWin32::delayInputProcessing()
 void LLWindowWin32::gatherInput()
 {
     ASSERT_MAIN_THREAD();
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32
     MSG msg;
 
     {
@@ -2104,13 +2104,13 @@ void LLWindowWin32::gatherInput()
 
     if (mWindowThread->getQueue().size())
     {
-        LL_PROFILE_ZONE_NAMED("gi - PostMessage");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - PostMessage");
         kickWindowThread();
     }
         
     while (mWindowThread->mMessageQueue.tryPopBack(msg))
     {
-        LL_PROFILE_ZONE_NAMED("gi - message queue");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - message queue");
         if (mInputProcessingPaused)
         {
             continue;
@@ -2119,13 +2119,13 @@ void LLWindowWin32::gatherInput()
         // For async host by name support.  Really hacky.
         if (gAsyncMsgCallback && (LL_WM_HOST_RESOLVED == msg.message))
         {
-            LL_PROFILE_ZONE_NAMED("gi - callback");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - callback");
             gAsyncMsgCallback(msg);
         }
     }
 
     {
-        LL_PROFILE_ZONE_NAMED("gi - PeekMessage");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - PeekMessage");
         S32 msg_count = 0;
         while ((msg_count < MAX_MESSAGE_PER_UPDATE) && PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_REMOVE))
         {
@@ -2136,7 +2136,7 @@ void LLWindowWin32::gatherInput()
     }
 
     {
-        LL_PROFILE_ZONE_NAMED("gi - function queue");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - function queue");
         //process any pending functions
         std::function<void()> curFunc;
         while (mFunctionQueue.tryPopBack(curFunc))
@@ -2148,14 +2148,14 @@ void LLWindowWin32::gatherInput()
     // send one and only one mouse move event per frame BEFORE handling mouse button presses
     if (mLastCursorPosition != mCursorPosition)
     {
-        LL_PROFILE_ZONE_NAMED("gi - mouse move");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - mouse move");
         mCallbacks->handleMouseMove(this, mCursorPosition.convert(), mMouseMask);
     }
     
     mLastCursorPosition = mCursorPosition;
 
     {
-        LL_PROFILE_ZONE_NAMED("gi - mouse queue");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("gi - mouse queue");
         // handle mouse button presses AFTER updating mouse cursor position
         std::function<void()> curFunc;
         while (mMouseQueue.tryPopBack(curFunc))
@@ -2177,7 +2177,7 @@ static LLTrace::BlockTimerStatHandle FTM_MOUSEHANDLER("Handle Mouse");
 LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_param, LPARAM l_param)
 {
     ASSERT_WINDOW_THREAD();
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
     LL_DEBUGS("Window") << "mainWindowProc(" << std::hex << h_wnd
                         << ", " << u_msg
@@ -2226,14 +2226,14 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_TIMER:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_TIMER");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_TIMER");
             WINDOW_IMP_POST(window_imp->mCallbacks->handleTimerEvent(window_imp));
             break;
         }
 
         case WM_DEVICECHANGE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_DEVICECHANGE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DEVICECHANGE");
             if (debug_window_proc)
             {
                 LL_INFOS("Window") << "  WM_DEVICECHANGE: wParam=" << w_param
@@ -2250,7 +2250,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_PAINT:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_PAINT");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_PAINT");
             GetUpdateRect(window_imp->mWindowHandle, &update_rect, FALSE);
             update_width = update_rect.right - update_rect.left + 1;
             update_height = update_rect.bottom - update_rect.top + 1;
@@ -2266,7 +2266,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_SETCURSOR:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SETCURSOR");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETCURSOR");
             // This message is sent whenever the cursor is moved in a window.
             // You need to set the appropriate cursor appearance.
 
@@ -2281,21 +2281,21 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_ENTERMENULOOP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_ENTERMENULOOP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ENTERMENULOOP");
             WINDOW_IMP_POST(window_imp->mCallbacks->handleWindowBlock(window_imp));
             break;
         }
 
         case WM_EXITMENULOOP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_EXITMENULOOP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_EXITMENULOOP");
             WINDOW_IMP_POST(window_imp->mCallbacks->handleWindowUnblock(window_imp));
             break;
         }
 
         case WM_ACTIVATEAPP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_ACTIVATEAPP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ACTIVATEAPP");
             window_imp->post([=]()
                 {
                     // This message should be sent whenever the app gains or loses focus.
@@ -2338,7 +2338,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_ACTIVATE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_ACTIVATE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_ACTIVATE");
             window_imp->post([=]()
                 {
                     // Can be one of WA_ACTIVE, WA_CLICKACTIVE, or WA_INACTIVE
@@ -2372,7 +2372,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_SYSCOMMAND:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SYSCOMMAND");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSCOMMAND");
             switch (w_param)
             {
             case SC_KEYMENU:
@@ -2388,7 +2388,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_CLOSE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_CLOSE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CLOSE");
             window_imp->post([=]()
                 {
                     // Will the app allow the window to close?
@@ -2403,7 +2403,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_DESTROY:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_DESTROY");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DESTROY");
             if (window_imp->shouldPostQuit())
             {
                 PostQuitMessage(0);  // Posts WM_QUIT with an exit code of 0
@@ -2412,7 +2412,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_COMMAND:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_COMMAND");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_COMMAND");
             if (!HIWORD(w_param)) // this message is from a menu
             {
                 WINDOW_IMP_POST(window_imp->mCallbacks->handleMenuSelect(window_imp, LOWORD(w_param)));
@@ -2421,13 +2421,13 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_SYSKEYDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SYSKEYDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSKEYDOWN");
             // allow system keys, such as ALT-F4 to be processed by Windows
             eat_keystroke = FALSE;
         }
         case WM_KEYDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_KEYDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYDOWN");
             window_imp->post([=]()
                 {
                     window_imp->mKeyCharCode = 0; // don't know until wm_char comes in next
@@ -2454,7 +2454,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             eat_keystroke = FALSE;
         case WM_KEYUP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_KEYUP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KEYUP");
             window_imp->post([=]()
             {
                 window_imp->mKeyScanCode = (l_param >> 16) & 0xff;
@@ -2479,7 +2479,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_IME_SETCONTEXT:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_IME_SETCONTEXT");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_SETCONTEXT");
             if (debug_window_proc)
             {
                 LL_INFOS("Window") << "WM_IME_SETCONTEXT" << LL_ENDL;
@@ -2493,7 +2493,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_IME_STARTCOMPOSITION:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_IME_STARTCOMPOSITION");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_STARTCOMPOSITION");
             if (debug_window_proc)
             {
                 LL_INFOS() << "WM_IME_STARTCOMPOSITION" << LL_ENDL;
@@ -2507,7 +2507,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_IME_ENDCOMPOSITION:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_IME_ENDCOMPOSITION");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_ENDCOMPOSITION");
             if (debug_window_proc)
             {
                 LL_INFOS() << "WM_IME_ENDCOMPOSITION" << LL_ENDL;
@@ -2520,7 +2520,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_IME_COMPOSITION:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_IME_COMPOSITION");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_COMPOSITION");
             if (debug_window_proc)
             {
                 LL_INFOS() << "WM_IME_COMPOSITION" << LL_ENDL;
@@ -2534,7 +2534,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_IME_REQUEST:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_IME_REQUEST");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_IME_REQUEST");
             if (debug_window_proc)
             {
                 LL_INFOS() << "WM_IME_REQUEST" << LL_ENDL;
@@ -2549,7 +2549,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_CHAR:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_CHAR");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_CHAR");
             window_imp->post([=]()
                 {
                     window_imp->mKeyCharCode = w_param;
@@ -2581,7 +2581,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_NCLBUTTONDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_NCLBUTTONDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_NCLBUTTONDOWN");
             {
                 // A click in a non-client area, e.g. title bar or window border.
                 window_imp->post([=]()
@@ -2594,7 +2594,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_LBUTTONDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_LBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
@@ -2619,7 +2619,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_LBUTTONDBLCLK:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONDBLCLK");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_LBUTTONDBLCLK");
             window_imp->postMouseButtonEvent([=]()
                 {
                     //RN: ignore right button double clicks for now
@@ -2640,7 +2640,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_LBUTTONUP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_LBUTTONUP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_LBUTTONUP");
             {
                 window_imp->postMouseButtonEvent([=]()
                     {
@@ -2664,7 +2664,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_RBUTTONDBLCLK:
         case WM_RBUTTONDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_RBUTTONDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->post([=]()
@@ -2687,7 +2687,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_RBUTTONUP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_RBUTTONUP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_RBUTTONUP");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
@@ -2702,7 +2702,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         case WM_MBUTTONDOWN:
             //		case WM_MBUTTONDBLCLK:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_MBUTTONDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MBUTTONDOWN");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
@@ -2721,7 +2721,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_MBUTTONUP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_MBUTTONUP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MBUTTONUP");
             {
                 LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
                 window_imp->postMouseButtonEvent([=]()
@@ -2734,7 +2734,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         break;
         case WM_XBUTTONDOWN:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_XBUTTONDOWN");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_XBUTTONDOWN");
             window_imp->postMouseButtonEvent([=]()
                 {
                     LL_RECORD_BLOCK_TIME(FTM_MOUSEHANDLER);
@@ -2754,7 +2754,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_XBUTTONUP:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_XBUTTONUP");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_XBUTTONUP");
             window_imp->postMouseButtonEvent([=]()
                 {
 
@@ -2770,7 +2770,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_MOUSEWHEEL:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEWHEEL");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MOUSEWHEEL");
             static short z_delta = 0;
 
             RECT	client_rect;
@@ -2827,7 +2827,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         */
         case WM_MOUSEHWHEEL:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEHWHEEL");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MOUSEHWHEEL");
             static short h_delta = 0;
 
             RECT	client_rect;
@@ -2864,12 +2864,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         // Handle mouse movement within the window
         case WM_MOUSEMOVE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEMOVE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MOUSEMOVE");
             // DO NOT use mouse event queue for move events to ensure cursor position is updated 
             // when button events are handled
             WINDOW_IMP_POST(
                 {
-                    LL_PROFILE_ZONE_NAMED("mwp - WM_MOUSEMOVE lambda");
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_MOUSEMOVE lambda");
 
                     MASK mask = gKeyboard->currentMask(TRUE);
                     window_imp->mMouseMask = mask;
@@ -2880,7 +2880,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_GETMINMAXINFO:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_GETMINMAXINFO");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_GETMINMAXINFO");
             LPMINMAXINFO min_max = (LPMINMAXINFO)l_param;
             min_max->ptMinTrackSize.x = window_imp->mMinWindowWidth;
             min_max->ptMinTrackSize.y = window_imp->mMinWindowHeight;
@@ -2894,7 +2894,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_SIZE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SIZE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SIZE");
             window_imp->updateWindowRect();
             S32 width = S32(LOWORD(l_param));
             S32 height = S32(HIWORD(l_param));
@@ -2956,7 +2956,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_DPICHANGED:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_DPICHANGED");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_DPICHANGED");
             LPRECT lprc_new_scale;
             F32 new_scale = F32(LOWORD(w_param)) / F32(USER_DEFAULT_SCREEN_DPI);
             lprc_new_scale = (LPRECT)l_param;
@@ -2977,7 +2977,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_SETFOCUS:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SETFOCUS");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETFOCUS");
             if (debug_window_proc)
             {
                 LL_INFOS("Window") << "WINDOWPROC SetFocus" << LL_ENDL;
@@ -2988,7 +2988,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_KILLFOCUS:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_KILLFOCUS");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_KILLFOCUS");
             if (debug_window_proc)
             {
                 LL_INFOS("Window") << "WINDOWPROC KillFocus" << LL_ENDL;
@@ -2999,7 +2999,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         case WM_COPYDATA:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_COPYDATA");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_COPYDATA");
             {
                 // received a URL
                 PCOPYDATASTRUCT myCDS = (PCOPYDATASTRUCT)l_param;
@@ -3019,7 +3019,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         }
         case WM_SETTINGCHANGE:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - WM_SETTINGCHANGE");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SETTINGCHANGE");
             if (w_param == SPI_SETMOUSEVANISH)
             {
                 if (!SystemParametersInfo(SPI_GETMOUSEVANISH, 0, &window_imp->mMouseVanish, 0))
@@ -3032,7 +3032,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
         
         case WM_INPUT:
         {
-            LL_PROFILE_ZONE_NAMED("MWP - WM_INPUT");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("MWP - WM_INPUT");
             
             UINT dwSize = 0;
             GetRawInputData((HRAWINPUT)l_param, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
@@ -3064,7 +3064,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
         default:
         {
-            LL_PROFILE_ZONE_NAMED("mwp - default");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - default");
             if (debug_window_proc)
             {
                 LL_INFOS("Window") << "Unhandled windows message code: 0x" << std::hex << U32(u_msg) << LL_ENDL;
@@ -3082,7 +3082,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
     // pass unhandled messages down to Windows
     LRESULT ret;
     {
-        LL_PROFILE_ZONE_NAMED("mwp - DefWindowProc");
+        LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - DefWindowProc");
         ret = DefWindowProc(h_wnd, u_msg, w_param, l_param);
     }
     return ret;
@@ -3264,7 +3264,7 @@ BOOL LLWindowWin32::copyTextToClipboard(const LLWString& wstr)
 // Constrains the mouse to the window.
 void LLWindowWin32::setMouseClipping( BOOL b )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 	if( b != mIsMouseClipping )
 	{
@@ -3562,7 +3562,7 @@ BOOL LLWindowWin32::resetDisplayResolution()
 
 void LLWindowWin32::swapBuffers()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
 	SwapBuffers(mhDC);
 
@@ -4565,7 +4565,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
     while (! getQueue().done())
     {
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
 
         if (mWindowHandle != 0)
         {
@@ -4573,13 +4573,13 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             BOOL status;
             if (mhDC == 0)
             {
-                LL_PROFILE_ZONE_NAMED("w32t - PeekMessage");
+                LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - PeekMessage");
                 logger.onChange("PeekMessage(", std::hex, mWindowHandle, ")");
                 status = PeekMessage(&msg, mWindowHandle, 0, 0, PM_REMOVE);
             }
             else
             {
-                LL_PROFILE_ZONE_NAMED("w32t - GetMessage");
+                LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - GetMessage");
                 logger.always("GetMessage(", std::hex, mWindowHandle, ")");
                 status = GetMessage(&msg, NULL, 0, 0);
             }
@@ -4595,7 +4595,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 
         {
-            LL_PROFILE_ZONE_NAMED("w32t - Function Queue");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Function Queue");
             logger.onChange("runPending()");
             //process any pending functions
             getQueue().runPending();
@@ -4603,7 +4603,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         
 #if 0
         {
-            LL_PROFILE_ZONE_NAMED("w32t - Sleep");
+            LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Sleep");
             logger.always("sleep(1)");
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
@@ -4640,7 +4640,7 @@ void LLWindowWin32::kickWindowThread(HWND windowHandle)
 
 void LLWindowWin32::updateWindowRect()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     //called from window thread
     RECT rect;
     RECT client_rect;

@@ -27,6 +27,44 @@
 #ifndef LL_PROFILER_H
 #define LL_PROFILER_H
 
+// If you use the default macros LL_PROFILE_ZONE_SCOPED and LL_PROFILE_ZONE_NAMED to profile code ...
+//
+//     void foo()
+//     {
+//         LL_PROFILE_ZONE_SCOPED;
+//         :
+//
+//         {
+//             LL_PROFILE_ZONE_NAMED("widget bar");
+//             :
+//         }
+//         {
+//             LL_PROFILE_ZONE_NAMED("widget qux");
+//             :
+//         }
+//     }
+//
+// ... please be aware that ALL these will show up in a Tracy capture which can quickly exhaust memory.
+// Instead, use LL_PROFILE_ZONE_SCOPED_CATEGORY_* and LL_PROFILE_ZONE_NAMED_CATEGORY_* to profile code ...
+//
+//     void foo()
+//     {
+//         LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
+//         :
+//
+//         {
+//             LL_PROFILE_ZONE_NAMED_CATEGORY_UI("widget bar");
+//             :
+//         }
+//         {
+//             LL_PROFILE_ZONE_NAMED_CATEGORY_UI("widget qux");
+//             :
+//         }
+//     }
+//
+// ... as these can be selectively turned on/off.  This will minimize memory usage and visual clutter in a Tracy capture.
+// See llprofiler_categories.h for more details on profiling categories.
+
 #define LL_PROFILER_CONFIG_NONE             0  // No profiling
 #define LL_PROFILER_CONFIG_FAST_TIMER       1  // Profiling on: Only Fast Timers
 #define LL_PROFILER_CONFIG_TRACY            2  // Profiling on: Only Tracy
@@ -107,5 +145,7 @@ extern thread_local bool gProfilerEnabled;
     #define LL_PROFILER_FRAME_END
     #define LL_PROFILER_SET_THREAD_NAME( name ) (void)(name)
 #endif // LL_PROFILER
+
+#include "llprofilercategories.h"
 
 #endif // LL_PROFILER_H
