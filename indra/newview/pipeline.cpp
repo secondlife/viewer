@@ -2500,13 +2500,6 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		group->updateDistance(camera);
 	}
 	
-	const F32 MINIMUM_PIXEL_AREA = 16.f;
-
-	if (group->mPixelArea < MINIMUM_PIXEL_AREA)
-	{
-		return;
-	}
-
 	assertInitialized();
 	
 	if (!group->getSpatialPartition()->mRenderByGroup)

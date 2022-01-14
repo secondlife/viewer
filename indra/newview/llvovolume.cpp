@@ -5516,8 +5516,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	group->clearDrawMap();
 
-	mFaceList.clear();
-
     U32 fullbright_count[2] = { 0 };
 	U32 bump_count[2] = { 0 };
 	U32 simple_count[2] = { 0 };
@@ -5693,12 +5691,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					continue;
 				}
 
-				cur_total += facep->getGeomCount();
-
-				if (facep->hasGeometry() && 
+				if (facep->hasGeometry() &&
                     (rigged ||  // <-- HACK FIXME -- getPixelArea might be incorrect for rigged objects
                         facep->getPixelArea() > FORCE_CULL_AREA)) // <-- don't render tiny faces
 				{
+                    cur_total += facep->getGeomCount();
+
 					const LLTextureEntry* te = facep->getTextureEntry();
 					LLViewerTexture* tex = facep->getTexture();
 
@@ -5947,7 +5945,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		group->setState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 	}
 
-	mFaceList.clear();
 }
 
 void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
@@ -6781,6 +6778,30 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	return geometryBytes;
 }
 
+void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& vertex_count, U32& index_count)
+{
+    //initialize to default usage for this partition
+    U32 usage = group->getSpatialPartition()->mBufferUsage;
+
+    //for each drawable
+    for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
+    {
+        LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+
+        if (!drawablep || drawablep->isDead())
+        {
+            continue;
+        }
+
+        if (drawablep->isAnimating())
+        { //fall back to stream draw for animating verts
+            usage = GL_STREAM_DRAW_ARB;
+        }
+    }
+
+    group->mBufferUsage = usage;
+}
+
 void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_count, U32 &index_count)
 {	
     LL_PROFILE_ZONE_SCOPED;
@@ -6788,11 +6809,10 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 	//initialize to default usage for this partition
 	U32 usage = group->getSpatialPartition()->mBufferUsage;
 	
-	//clear off any old faces
-	mFaceList.clear();
+    //clear off any old faces
+    mFaceList.clear();
 
 	//for each drawable
-
 	for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 	{
 		LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
