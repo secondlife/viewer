@@ -92,10 +92,15 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
+    enum
+    {
+        NO_CHILD_NODES = 255 // Note: This is an U8 to match the max value in mChildMap[]
+    };
+
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
 					BaseType* parent, 
-					U8 octant = 255)
+					U8 octant = NO_CHILD_NODES)
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
@@ -108,7 +113,7 @@ public:
 		mSize = size;
 
 		updateMinMax();
-		if ((mOctant == 255) && mParent)
+		if ((mOctant == NO_CHILD_NODES) && mParent)
 		{
 			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
@@ -253,7 +258,7 @@ public:
 		for (U32 i = 0; i < 8; i++)
 		{
 			U8 idx = mChildMap[i];
-			if (idx != 255)
+			if (idx != NO_CHILD_NODES)
 			{
 				LLOctreeNode<T>* child = mChild[idx];
 
@@ -286,7 +291,7 @@ public:
 			// the data
 			U8 next_node = node->mChildMap[octant];
 			
-			while (next_node != 255 && node->getSize()[0] >= rad)
+			while (next_node != NO_CHILD_NODES && node->getSize()[0] >= rad)
 			{	
 				node = node->getChild(next_node);
 				octant = node->getOctant(pos);
@@ -514,9 +519,7 @@ public:
 	void clearChildren()
 	{
 		mChildCount = 0;
-
-		U32* foo = (U32*) mChildMap;
-		foo[0] = foo[1] = 0xFFFFFFFF;
+		memset(mChildMap, NO_CHILD_NODES, sizeof(mChildMap));
 	}
 
 	void validate()
@@ -607,11 +610,9 @@ public:
 		--mChildCount;
 
 		mChild[index] = mChild[mChildCount];
-		
 
 		//rebuild child map
-		U32* foo = (U32*) mChildMap;
-		foo[0] = foo[1] = 0xFFFFFFFF;
+		memset(mChildMap, NO_CHILD_NODES, sizeof(mChildMap));
 
 		for (U32 i = 0; i < mChildCount; ++i)
 		{
