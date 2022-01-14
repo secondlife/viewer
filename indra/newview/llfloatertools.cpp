@@ -1500,7 +1500,7 @@ void LLFloaterTools::updateMediaTitle()
 
 	// get plugin impl
 	LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
-	if ( media_plugin )
+	if ( media_plugin && mTitleMedia->getCurrentNavUrl() == media_plugin->getNavigateURI())
 	{
 		// get the media name (asynchronous - must call repeatedly)
 		std::string media_title = media_plugin->getMediaName();
