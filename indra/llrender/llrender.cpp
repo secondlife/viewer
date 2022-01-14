@@ -193,7 +193,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
 
 bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	stop_glerror();
 	if (mIndex >= 0)
 	{
@@ -1483,7 +1483,7 @@ LLLightState* LLRender::getLight(U32 index)
 
 void LLRender::setAmbientLightColor(const LLColor4& color)
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE
 	if (color != mAmbientLightColor)
 	{
 		++mLightHash;
@@ -1558,7 +1558,7 @@ void LLRender::flush()
 {
 	if (mCount > 0)
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 		if (!mUIOffset.empty())
 		{
 			sUICalls++;

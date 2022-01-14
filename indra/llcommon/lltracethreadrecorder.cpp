@@ -277,7 +277,7 @@ void ThreadRecorder::pushToParent()
 void ThreadRecorder::pullFromChildren()
 {
 #if LL_TRACE_ENABLED
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	if (mActiveRecordings.empty()) return;
 
 	{ LLMutexLock lock(&mChildListMutex);

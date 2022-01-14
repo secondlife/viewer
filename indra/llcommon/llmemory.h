@@ -136,7 +136,7 @@ public:                                     \
 #else
 	inline void* ll_aligned_malloc_fallback( size_t size, int align )
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	#if defined(LL_WINDOWS)
         void* ret = _aligned_malloc(size, align);
 	#else
@@ -157,7 +157,7 @@ public:                                     \
 
 	inline void ll_aligned_free_fallback( void* ptr )
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
         LL_PROFILE_FREE(ptr);
 	#if defined(LL_WINDOWS)
 		_aligned_free(ptr);
@@ -174,7 +174,7 @@ public:                                     \
 
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
 	void* ret = _aligned_malloc(size, 16);
 #elif defined(LL_DARWIN)
@@ -190,7 +190,7 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 
 inline void ll_aligned_free_16(void *p)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
@@ -203,7 +203,7 @@ inline void ll_aligned_free_16(void *p)
 
 inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(ptr);
 #if defined(LL_WINDOWS)
 	void* ret = _aligned_realloc(ptr, size, 16);
@@ -228,7 +228,7 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 
 inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
 	void* ret = _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
@@ -244,7 +244,7 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 
 inline void ll_aligned_free_32(void *p)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
@@ -259,7 +259,7 @@ inline void ll_aligned_free_32(void *p)
 template<size_t ALIGNMENT>
 LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
     void* ret;
 	if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
 	{
@@ -284,7 +284,7 @@ LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 template<size_t ALIGNMENT>
 LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 	{
         LL_PROFILE_FREE(ptr);
@@ -309,7 +309,7 @@ LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 //
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	assert(src != NULL);
 	assert(dst != NULL);
 	assert(bytes > 0);

@@ -296,7 +296,7 @@ void LLSpatialPartition::rebuildGeom(LLSpatialGroup* group)
 		group->mLastUpdateViewAngle = group->mViewAngle;
 	}
 	
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 
 	group->clearDrawMap();
 	
@@ -367,7 +367,7 @@ LLSpatialGroup* LLSpatialGroup::getParent()
 
 BOOL LLSpatialGroup::removeObject(LLDrawable *drawablep, BOOL from_octree)
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	if(!drawablep)
 	{
@@ -456,7 +456,7 @@ public:
 
 void LLSpatialGroup::setState(U32 state, S32 mode) 
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 	
@@ -505,7 +505,7 @@ public:
 
 void LLSpatialGroup::clearState(U32 state, S32 mode)
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	llassert(state <= LLSpatialGroup::STATE_MASK);
 
@@ -589,7 +589,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 
 F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	LLVector4a eye;
 	LLVector4a origin;
@@ -648,9 +648,11 @@ F32 LLSpatialPartition::calcDistance(LLSpatialGroup* group, LLCamera& camera)
 		dist = eye.getLength3().getF32();
 	}
 
+#if !LL_RELEASE
     LL_DEBUGS("RiggedBox") << "calcDistance, group " << group << " camera " << origin << " obj bounds " 
                            << group->mObjectBounds[0] << ", " << group->mObjectBounds[1] 
                            << " dist " << dist << " radius " << group->mRadius << LL_ENDL;
+#endif
 
 	if (dist < 16.f)
 	{
@@ -682,7 +684,7 @@ F32 LLSpatialGroup::getUpdateUrgency() const
 
 BOOL LLSpatialGroup::changeLOD()
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	if (hasState(ALPHA_DIRTY | OBJECT_DIRTY))
 	{
@@ -776,7 +778,7 @@ void LLSpatialGroup::handleDestruction(const TreeNode* node)
 
 void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* child) 
 {
-	LL_PROFILE_ZONE_SCOPED
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
 	if (child->getListenerCount() == 0)
 	{
@@ -1351,7 +1353,7 @@ void LLSpatialPartition::resetVertexBuffers()
 
 BOOL LLSpatialPartition::getVisibleExtents(LLCamera& camera, LLVector3& visMin, LLVector3& visMax)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 	LLVector4a visMina, visMaxa;
 	visMina.load3(visMin.mV);
 	visMaxa.load3(visMax.mV);
@@ -1378,7 +1380,7 @@ BOOL LLSpatialPartition::visibleObjectsInFrustum(LLCamera& camera)
 
 S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* results, BOOL for_select)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif
@@ -1399,7 +1401,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	
 S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
 #if LL_OCTREE_PARANOIA_CHECK
 	((LLSpatialGroup*)mOctree->getListener(0))->checkStates();
 #endif

@@ -566,11 +566,11 @@ void LLDrawPoolWLSky::renderHeavenlyBodies()
 
 void LLDrawPoolWLSky::renderDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
 		return;
 	}
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
 
@@ -590,11 +590,11 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 void LLDrawPoolWLSky::render(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 	if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_SKY))
 	{
 		return;
 	}
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_WL_SKY);
 
     const F32 camHeightLocal = LLEnvironment::instance().getCamHeight();
     LLVector3 const & origin = LLViewerCamera::getInstance()->getOrigin();

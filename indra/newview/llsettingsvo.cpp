@@ -637,7 +637,7 @@ LLSD LLSettingsVOSky::convertToLegacy(const LLSettingsSky::ptr_t &psky, bool isA
 //-------------------------------------------------------------------------
 void LLSettingsVOSky::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     LLSettingsSky::updateSettings();
     LLVector3 sun_direction  = getSunDirection();
     LLVector3 moon_direction = getMoonDirection();
@@ -666,7 +666,7 @@ void LLSettingsVOSky::updateSettings()
 
 void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
     LLVector4 light_direction = LLEnvironment::instance().getClampedLightNorm();
 
     LLShaderUniforms* shader = &((LLShaderUniforms*)ptarget)[LLGLSLShader::SG_DEFAULT];
@@ -909,7 +909,7 @@ LLSD LLSettingsVOWater::convertToLegacy(const LLSettingsWater::ptr_t &pwater)
 //-------------------------------------------------------------------------
 void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 {
-    LL_PROFILE_ZONE_SCOPED
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     LLEnvironment& env = LLEnvironment::instance();
 
@@ -966,7 +966,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
 void LLSettingsVOWater::updateSettings()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
 

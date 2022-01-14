@@ -209,7 +209,7 @@ private:
 	template<typename T>
 	static T* createWidgetImpl(const typename T::Params& params, LLView* parent = NULL)
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 		T* widget = NULL;
 
 		if (!params.validateBlock())
@@ -233,7 +233,7 @@ private:
 	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
 		typename T::Params params(getDefaultParams<T>());
 

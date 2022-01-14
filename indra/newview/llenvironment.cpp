@@ -1470,7 +1470,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSharedEnvironmentInstance()
 
 void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
     if ((mCurrentEnvironment != pinstance) || forced)
@@ -1596,7 +1596,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
-    LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT; //LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
     //F32Seconds now(LLDate::now().secondsSinceEpoch());
     static LLFrameTimer timer;
 
@@ -1654,7 +1654,7 @@ void LLEnvironment::updateCloudScroll()
 // static
 void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, const LLSettingsBase::ptr_t &psetting)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     for (int i = 0; i < LLGLSLShader::SG_COUNT; ++i)
     {
@@ -1725,7 +1725,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, con
 
 void LLEnvironment::updateShaderUniforms(LLGLSLShader* shader)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     // apply uniforms that should be applied to all shaders
     mSkyUniforms[LLGLSLShader::SG_ANY].apply(shader);
@@ -2657,7 +2657,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
 
 bool LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     ptr_t keeper(shared_from_this());   // makes sure that this does not go away while it is being worked on.
 
     bool changed(false);

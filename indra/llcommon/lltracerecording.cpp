@@ -50,7 +50,7 @@ Recording::Recording(EPlayState state)
 :	mElapsedSeconds(0),
 	mActiveBuffers(NULL)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	claim_alloc(gTraceMemStat, this);
 	mBuffers = new AccumulatorBufferGroup();
 	claim_alloc(gTraceMemStat, mBuffers);
@@ -60,14 +60,14 @@ Recording::Recording(EPlayState state)
 Recording::Recording( const Recording& other )
 :	mActiveBuffers(NULL)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	claim_alloc(gTraceMemStat, this);
 	*this = other;
 }
 
 Recording& Recording::operator = (const Recording& other)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	// this will allow us to seamlessly start without affecting any data we've acquired from other
 	setPlayState(PAUSED);
 
@@ -88,7 +88,7 @@ Recording& Recording::operator = (const Recording& other)
 
 Recording::~Recording()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	disclaim_alloc(gTraceMemStat, this);
 	disclaim_alloc(gTraceMemStat, mBuffers);
 
@@ -107,7 +107,7 @@ void Recording::update()
 #if LL_TRACE_ENABLED
 	if (isStarted())
 	{
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 
 		// must have 
@@ -128,7 +128,7 @@ void Recording::update()
 
 void Recording::handleReset()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
 	mBuffers.write()->reset();
 
@@ -139,7 +139,7 @@ void Recording::handleReset()
 
 void Recording::handleStart()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
 	mSamplingTimer.reset();
 	mBuffers.setStayUnique(true);
@@ -151,7 +151,7 @@ void Recording::handleStart()
 
 void Recording::handleStop()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
 	mElapsedSeconds += mSamplingTimer.getElapsedTimeF64();
 	// must have thread recorder running on this thread
@@ -583,20 +583,20 @@ PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state)
 	mNumRecordedPeriods(0),
 	mRecordingPeriods(num_periods ? num_periods : 1)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	setPlayState(state);
 	claim_alloc(gTraceMemStat, this);
 }
 
 PeriodicRecording::~PeriodicRecording()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	disclaim_alloc(gTraceMemStat, this);
 }
 
 void PeriodicRecording::nextPeriod()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	if (mAutoResize)
 	{
 		mRecordingPeriods.push_back(Recording());
@@ -611,7 +611,7 @@ void PeriodicRecording::nextPeriod()
 
 void PeriodicRecording::appendRecording(Recording& recording)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	getCurRecording().appendRecording(recording);
 	nextPeriod();
 }
@@ -619,7 +619,7 @@ void PeriodicRecording::appendRecording(Recording& recording)
 
 void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	if (other.mRecordingPeriods.empty()) return;
 
 	getCurRecording().update();
@@ -693,7 +693,7 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 
 F64Seconds PeriodicRecording::getDuration() const
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	F64Seconds duration;
 	S32 num_periods = mRecordingPeriods.size();
 	for (S32 i = 1; i <= num_periods; i++)
@@ -707,7 +707,7 @@ F64Seconds PeriodicRecording::getDuration() const
 
 LLTrace::Recording PeriodicRecording::snapshotCurRecording() const
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	Recording recording_copy(getCurRecording());
 	recording_copy.stop();
 	return recording_copy;
@@ -750,19 +750,19 @@ const Recording& PeriodicRecording::getPrevRecording( S32 offset ) const
 
 void PeriodicRecording::handleStart()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	getCurRecording().start();
 }
 
 void PeriodicRecording::handleStop()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	getCurRecording().pause();
 }
 
 void PeriodicRecording::handleReset()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	getCurRecording().stop();
 
 	if (mAutoResize)
@@ -786,13 +786,13 @@ void PeriodicRecording::handleReset()
 
 void PeriodicRecording::handleSplitTo(PeriodicRecording& other)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	getCurRecording().splitTo(other.getCurRecording());
 }
 
 F64 PeriodicRecording::getPeriodMin( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
@@ -814,7 +814,7 @@ F64 PeriodicRecording::getPeriodMin( const StatType<EventAccumulator>& stat, S32
 
 F64 PeriodicRecording::getPeriodMax( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
@@ -837,7 +837,7 @@ F64 PeriodicRecording::getPeriodMax( const StatType<EventAccumulator>& stat, S32
 // calculates means using aggregates per period
 F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 mean = 0;
@@ -860,7 +860,7 @@ F64 PeriodicRecording::getPeriodMean( const StatType<EventAccumulator>& stat, S3
 
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 period_mean = getPeriodMean(stat, num_periods);
@@ -885,7 +885,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<EventAccumulat
 
 F64 PeriodicRecording::getPeriodMin( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
@@ -907,7 +907,7 @@ F64 PeriodicRecording::getPeriodMin( const StatType<SampleAccumulator>& stat, S3
 
 F64 PeriodicRecording::getPeriodMax(const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	bool has_value = false;
@@ -930,7 +930,7 @@ F64 PeriodicRecording::getPeriodMax(const StatType<SampleAccumulator>& stat, S32
 
 F64 PeriodicRecording::getPeriodMean( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	S32 valid_period_count = 0;
@@ -953,7 +953,7 @@ F64 PeriodicRecording::getPeriodMean( const StatType<SampleAccumulator>& stat, S
 
 F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	std::vector<F64> buf;
@@ -979,7 +979,7 @@ F64 PeriodicRecording::getPeriodMedian( const StatType<SampleAccumulator>& stat,
 
 F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64 period_mean = getPeriodMean(stat, num_periods);
@@ -1005,7 +1005,7 @@ F64 PeriodicRecording::getPeriodStandardDeviation( const StatType<SampleAccumula
 
 F64Kilobytes PeriodicRecording::getPeriodMin( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes min_val(std::numeric_limits<F64>::max());
@@ -1025,7 +1025,7 @@ F64Kilobytes PeriodicRecording::getPeriodMin(const MemStatHandle& stat, S32 num_
 
 F64Kilobytes PeriodicRecording::getPeriodMax(const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes max_val(0.0);
@@ -1045,7 +1045,7 @@ F64Kilobytes PeriodicRecording::getPeriodMax(const MemStatHandle& stat, S32 num_
 
 F64Kilobytes PeriodicRecording::getPeriodMean( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes mean(0);
@@ -1066,7 +1066,7 @@ F64Kilobytes PeriodicRecording::getPeriodMean(const MemStatHandle& stat, S32 num
 
 F64Kilobytes PeriodicRecording::getPeriodStandardDeviation( const StatType<MemAccumulator>& stat, S32 num_periods /*= S32_MAX*/ )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	num_periods = llmin(num_periods, getNumRecordedPeriods());
 
 	F64Kilobytes period_mean = getPeriodMean(stat, num_periods);
@@ -1100,7 +1100,7 @@ F64Kilobytes PeriodicRecording::getPeriodStandardDeviation(const MemStatHandle& 
 
 void ExtendableRecording::extend()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	// push the data back to accepted recording
 	mAcceptedRecording.appendRecording(mPotentialRecording);
 	// flush data, so we can start from scratch
@@ -1109,26 +1109,26 @@ void ExtendableRecording::extend()
 
 void ExtendableRecording::handleStart()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.start();
 }
 
 void ExtendableRecording::handleStop()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.pause();
 }
 
 void ExtendableRecording::handleReset()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mAcceptedRecording.reset();
 	mPotentialRecording.reset();
 }
 
 void ExtendableRecording::handleSplitTo(ExtendableRecording& other)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.splitTo(other.mPotentialRecording);
 }
 
@@ -1145,7 +1145,7 @@ ExtendablePeriodicRecording::ExtendablePeriodicRecording()
 
 void ExtendablePeriodicRecording::extend()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	// push the data back to accepted recording
 	mAcceptedRecording.appendPeriodicRecording(mPotentialRecording);
 	// flush data, so we can start from scratch
@@ -1155,26 +1155,26 @@ void ExtendablePeriodicRecording::extend()
 
 void ExtendablePeriodicRecording::handleStart()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.start();
 }
 
 void ExtendablePeriodicRecording::handleStop()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.pause();
 }
 
 void ExtendablePeriodicRecording::handleReset()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mAcceptedRecording.reset();
 	mPotentialRecording.reset();
 }
 
 void ExtendablePeriodicRecording::handleSplitTo(ExtendablePeriodicRecording& other)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	mPotentialRecording.splitTo(other.mPotentialRecording);
 }
 
@@ -1189,7 +1189,7 @@ PeriodicRecording& get_frame_recording()
 
 void LLStopWatchControlsMixinCommon::start()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1211,7 +1211,7 @@ void LLStopWatchControlsMixinCommon::start()
 
 void LLStopWatchControlsMixinCommon::stop()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1231,7 +1231,7 @@ void LLStopWatchControlsMixinCommon::stop()
 
 void LLStopWatchControlsMixinCommon::pause()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1251,7 +1251,7 @@ void LLStopWatchControlsMixinCommon::pause()
 
 void LLStopWatchControlsMixinCommon::unpause()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1271,7 +1271,7 @@ void LLStopWatchControlsMixinCommon::unpause()
 
 void LLStopWatchControlsMixinCommon::resume()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1292,7 +1292,7 @@ void LLStopWatchControlsMixinCommon::resume()
 
 void LLStopWatchControlsMixinCommon::restart()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch (mPlayState)
 	{
 	case STOPPED:
@@ -1316,13 +1316,13 @@ void LLStopWatchControlsMixinCommon::restart()
 
 void LLStopWatchControlsMixinCommon::reset()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	handleReset();
 }
 
 void LLStopWatchControlsMixinCommon::setPlayState( EPlayState state )
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 	switch(state)
 	{
 	case STOPPED:

@@ -503,7 +503,7 @@ void LLMotionController::resetJointSignatures()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateIdleMotion(LLMotion* motionp)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (motionp->isStopped() && mAnimTime > motionp->getStopTime() + motionp->getEaseOutDuration())
 	{
 		deactivateMotionInstance(motionp);
@@ -542,7 +542,7 @@ void LLMotionController::updateIdleMotion(LLMotion* motionp)
 //-----------------------------------------------------------------------------
 void LLMotionController::updateIdleActiveMotions()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	for (motion_list_t::iterator iter = mActiveMotions.begin();
 		 iter != mActiveMotions.end(); )
 	{
@@ -557,7 +557,7 @@ void LLMotionController::updateIdleActiveMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_type)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	BOOL update_result = TRUE;
 	U8 last_joint_signature[LL_CHARACTER_MAX_ANIMATED_JOINTS];
 
@@ -768,7 +768,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 //-----------------------------------------------------------------------------
 void LLMotionController::updateLoadingMotions()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// query pending motions for completion
 	for (motion_set_t::iterator iter = mLoadingMotions.begin();
 		 iter != mLoadingMotions.end(); )
@@ -816,7 +816,7 @@ void LLMotionController::updateLoadingMotions()
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotions(bool force_update)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     // SL-763: "Distant animated objects run at super fast speed"
     // The use_quantum optimization or possibly the associated code in setTimeStamp()
     // does not work as implemented.
@@ -909,7 +909,7 @@ void LLMotionController::updateMotions(bool force_update)
 //-----------------------------------------------------------------------------
 void LLMotionController::updateMotionsMinimal()
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// Always update mPrevTimerElapsed
 	mPrevTimerElapsed = mTimer.getElapsedTimeF32();
 
@@ -927,7 +927,7 @@ void LLMotionController::updateMotionsMinimal()
 //-----------------------------------------------------------------------------
 BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// It's not clear why the getWeight() line seems to be crashing this, but
 	// hopefully this fixes it.
 	if (motion == NULL || motion->getPose() == NULL)

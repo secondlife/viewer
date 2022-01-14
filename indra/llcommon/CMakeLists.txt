@@ -202,6 +202,7 @@ set(llcommon_HEADER_FILES
     llnametable.h
     llpointer.h
     llprofiler.h
+    llprofilercategories.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h

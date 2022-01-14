@@ -455,7 +455,7 @@ public:
 
     static DERIVED_TYPE* getInstance()
     {
-        LL_PROFILE_ZONE_SCOPED;
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD;
         // We know the viewer has LLSingleton dependency circularities. If you
         // feel strongly motivated to eliminate them, cheers and good luck.
         // (At that point we could consider a much simpler locking mechanism.)
