@@ -2779,7 +2779,7 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 
 static void override_bbox(LLDrawable* drawable, LLVector4a* extents)
 {
-    LL_PROFILE_ZONE_SCOPED;
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
     drawable->setSpatialExtents(extents[0], extents[1]);
     drawable->setPositionGroup(LLVector4a(0, 0, 0));
     drawable->movePartition();
