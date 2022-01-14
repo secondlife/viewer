@@ -78,6 +78,9 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
+// Statics
+bool LLMediaTextureUpdateThread::sEnabled = false;
+
 class LLMediaFilePicker : public LLFilePickerThread // deletes itself when done
 {
 public:
@@ -1591,6 +1594,8 @@ LLViewerMediaImpl::LLViewerMediaImpl(	  const LLUUID& texture_id,
 		media_tex->setMediaImpl();
 	}
 
+    mMainQueue = LL::WorkQueue::getInstance("mainloop");
+    mTexUpdateQueue = LL::WorkQueue::getInstance("LLMediaTextureUpdate"); // Share work queue with tex loader.
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -1602,6 +1607,25 @@ LLViewerMediaImpl::~LLViewerMediaImpl()
 
 	setTextureID();
 	remove_media_impl(this);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static 
+void LLViewerMediaImpl::initClass(LLWindow* window, bool multi_threaded /* = false */)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (multi_threaded)
+    {
+        LLMediaTextureUpdateThread::createInstance(window);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+//static 
+void LLViewerMediaImpl::cleanupClass()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    LLMediaTextureUpdateThread::deleteSingleton();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2876,64 +2900,107 @@ void LLViewerMediaImpl::update()
 		return;
 	}
 
-	LLViewerMediaTexture* placeholder_image = updatePlaceholderImage();
+    ref();
 
-	if(placeholder_image)
-	{
-		LLRect dirty_rect;
+    if (preUpdateMediaTexture())
+    {
+        // Push update to worker thread
+        auto main_queue = LLMediaTextureUpdateThread::sEnabled ? mMainQueue.lock() : nullptr;
+        if (main_queue)
+        {
+            main_queue->postTo(
+                mTexUpdateQueue, // Worker thread queue
+                [this]() // work done on update worker thread
+                {
+                    doMediaTexUpdate();
+                },
+                [this]() // callback to main thread
+                {
+                    postUpdateMediaTexture();
+                    //unref();
+                });
+        }
+        else
+        {
+            doMediaTexUpdate(); // otherwise, update on main thread
+            //unref();
+        }
+    }
+    unref();
 
-		// Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
-		placeholder_image->setPlaying(TRUE);
-
-		if(mMediaSource->getDirty(&dirty_rect))
-		{
-			// Constrain the dirty rect to be inside the texture
-			S32 x_pos = llmax(dirty_rect.mLeft, 0);
-			S32 y_pos = llmax(dirty_rect.mBottom, 0);
-			S32 width = llmin(dirty_rect.mRight, placeholder_image->getWidth()) - x_pos;
-			S32 height = llmin(dirty_rect.mTop, placeholder_image->getHeight()) - y_pos;
-
-			if(width > 0 && height > 0)
-			{
-
-				U8* data = NULL;
-				{
-					LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media get data"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_GET_DATA);
-					data = mMediaSource->getBitsData();
-				}
-
-				if(data != NULL)
-				{
-					// Offset the pixels pointer to match x_pos and y_pos
-					data += ( x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth() );
-					data += ( y_pos * mMediaSource->getTextureDepth() );
-
-					{
-						LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media set subimage"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
-									placeholder_image->setSubImage(
-									data,
-									mMediaSource->getBitsWidth(),
-									mMediaSource->getBitsHeight(),
-									x_pos,
-									y_pos,
-									width,
-									height);
-					}
-				}
-
-			}
-
-			mMediaSource->resetDirty();
-		}
-	}
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::preUpdateMediaTexture()
+{
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+bool LLViewerMediaImpl::postUpdateMediaTexture()
+{
+    return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::doMediaTexUpdate()
+{
+    LLViewerMediaTexture* placeholder_image = updatePlaceholderImage();
+
+    if (placeholder_image)
+    {
+        LLRect dirty_rect;
+
+        // Since we're updating this texture, we know it's playing.  Tell the texture to do its replacement magic so it gets rendered.
+        placeholder_image->setPlaying(TRUE);
+
+        if (mMediaSource->getDirty(&dirty_rect))
+        {
+            // Constrain the dirty rect to be inside the texture
+            S32 x_pos = llmax(dirty_rect.mLeft, 0);
+            S32 y_pos = llmax(dirty_rect.mBottom, 0);
+            S32 width = llmin(dirty_rect.mRight, placeholder_image->getWidth()) - x_pos;
+            S32 height = llmin(dirty_rect.mTop, placeholder_image->getHeight()) - y_pos;
+
+            if (width > 0 && height > 0)
+            {
+
+                U8* data = NULL;
+                {
+                    LL_RECORD_BLOCK_TIME(FTM_MEDIA_GET_DATA);
+                    data = mMediaSource->getBitsData();
+                }
+
+                if (data != NULL)
+                {
+                    // Offset the pixels pointer to match x_pos and y_pos
+                    data += (x_pos * mMediaSource->getTextureDepth() * mMediaSource->getBitsWidth());
+                    data += (y_pos * mMediaSource->getTextureDepth());
+
+                    {
+                        LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
+                        placeholder_image->setSubImage(
+                            data,
+                            mMediaSource->getBitsWidth(),
+                            mMediaSource->getBitsHeight(),
+                            x_pos,
+                            y_pos,
+                            width,
+                            height);
+                    }
+                }
+
+            }
+
+            mMediaSource->resetDirty();
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::updateImagesMediaStreams()
 {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaTexture* LLViewerMediaImpl::updatePlaceholderImage()
@@ -3926,4 +3993,30 @@ LLNotificationPtr LLViewerMediaImpl::getCurrentNotification() const
 bool LLViewerMediaImpl::isObjectInAgentParcel(LLVOVolume *obj)
 {
 	return (LLViewerParcelMgr::getInstance()->inAgentParcel(obj->getPositionGlobal()));
+}
+
+LLMediaTextureUpdateThread::LLMediaTextureUpdateThread(LLWindow* window)
+// We want exactly one thread, of moderate capacity: there are likely only a handful
+// of media texture frames in-flight at any one time 
+    : ThreadPool("LLMediaTextureUpdate", 1, 4096)
+    , mWindow(window)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    sEnabled = true;
+    mFinished = false;
+
+    mContext = mWindow->createSharedContext();
+    ThreadPool::start();
+}
+
+void LLMediaTextureUpdateThread::run()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    // We must perform setup on this thread before actually servicing our
+    // WorkQueue, likewise cleanup afterwards.
+    mWindow->makeContextCurrent(mContext);
+    gGL.init();
+    ThreadPool::run();
+    gGL.shutdown();
+    mWindow->destroySharedContext(mContext);
 }
