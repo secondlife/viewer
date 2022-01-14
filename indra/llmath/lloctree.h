@@ -126,9 +126,9 @@ public:
 		clearChildren();
 	}
 
-	virtual ~LLOctreeNode()								
+	virtual ~LLOctreeNode()
 	{ 
-		BaseType::destroyListeners(); 
+		BaseType::destroyListeners();
 		
 		for (U32 i = 0; i < mElementCount; ++i)
 		{
@@ -167,7 +167,7 @@ public:
 		return rad <= mSize[0]*2.f && isInside(pos); 
 	}
 
-	inline bool isInside(T* data) const			
+	inline bool isInside(T* data) const
 	{ 
 		return isInside(data->getPositionGroup(), data->getBinRadius());
 	}
@@ -284,7 +284,7 @@ public:
 		LLOctreeNode<T>* node = this;
 
 		if (node->isInside(pos, rad))
-		{		
+		{
 			//do a quick search by octant
 			U8 octant = node->getOctant(pos);
 			
@@ -655,7 +655,7 @@ public:
 		OCT_ERRS << "Octree failed to delete requested child." << LL_ENDL;
 	}
 
-protected:	
+protected:
 	typedef enum
 	{
 		CENTER = 0,
@@ -679,7 +679,6 @@ protected:
 	element_list mData;
 	element_iter mDataEnd;
 	U32 mElementCount;
-		
 }; 
 
 //just like a regular node, except it might expand on insert and compress on balance
@@ -688,7 +687,7 @@ class LLOctreeRoot : public LLOctreeNode<T>
 {
 public:
 	typedef LLOctreeNode<T>	BaseType;
-	typedef LLOctreeNode<T>		oct_node;
+	typedef LLOctreeNode<T>	oct_node;
 
 	LLOctreeRoot(const LLVector4a& center, 
 				 const LLVector4a& size, 
@@ -703,7 +702,7 @@ public:
 
 		if (this->getChildCount() == 1 && 
 			!(this->mChild[0]->isLeaf()) &&
-			this->mChild[0]->getElementCount() == 0) 
+			this->mChild[0]->getElementCount() == 0)
 		{ //if we have only one child and that child is an empty branch, make that child the root
 			oct_node* child = this->mChild[0];
 					
