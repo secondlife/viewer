@@ -46,6 +46,7 @@
 #include "llimagejpeg.h"
 #include "llimagetga.h"
 #include "llinventorymodel.h"	// gInventory
+#include "llpluginclassmedia.h"
 #include "llresourcedata.h"
 #include "lltoast.h"
 #include "llfloaterperms.h"
@@ -249,6 +250,25 @@ void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
 			(*mFilePickedSignal)(filenames, mLoadFilter, mSaveFilter);
 		}
 	}
+}
+
+
+LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
+    : LLFilePickerThread(filter, get_multiple),
+    mPlugin(plugin->getSharedPrt())
+{
+}
+
+LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+    : LLFilePickerThread(filter, proposed_name),
+    mPlugin(plugin->getSharedPrt())
+{
+}
+
+void LLMediaFilePicker::notify(const std::vector<std::string>& filenames)
+{
+    mPlugin->sendPickFileResponse(mResponses);
+    mPlugin = NULL;
 }
 
 //============================================================================
