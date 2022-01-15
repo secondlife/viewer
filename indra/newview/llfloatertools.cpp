@@ -1472,17 +1472,17 @@ void LLFloaterTools::navigateToTitleMedia( const std::string url )
 	else if (mTitleMedia)
 	{
 		LLPluginClassMedia* media_plugin = mTitleMedia->getMediaPlugin();
-
-		if ( media_plugin ) // Shouldn't this be after navigateTo creates plugin?
-		{
-			// if it's a movie, we don't want to hear it
-			media_plugin->setVolume( 0 );
-		};
-
 		// check if url changed or if we need a new media source
 		if (mTitleMedia->getCurrentNavUrl() != url || media_plugin == NULL)
 		{
 			mTitleMedia->navigateTo( url );
+
+            LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(mTitleMedia->getTextureID());
+            if (impl)
+            {
+                // if it's a page with a movie, we don't want to hear it
+                impl->setVolume(0);
+            };
 		}
 
 		// flag that we need to update the title (even if no request were made)
