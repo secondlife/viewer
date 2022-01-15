@@ -84,7 +84,6 @@ private:
 	void syncWithUpdater(ResponsePtr resp, const LLSD& notification, const LLSD& response);
 
 	bool handleTOSResponse(bool v, const std::string& key);
-	bool handleMFAResponse(const std::string& v, const std::string& key);
 
 	void attemptComplete() { mAttemptComplete = true; } // In the future an event?
 

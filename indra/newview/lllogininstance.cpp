@@ -75,8 +75,6 @@ public:
 
 static const char * const TOS_REPLY_PUMP = "lllogininstance_tos_callback";
 static const char * const TOS_LISTENER_NAME = "lllogininstance_tos";
-static const char * const MFA_REPLY_PUMP = "lllogininstance_mfa_callback";
-static const char * const MFA_LISTENER_NAME = "lllogininstance_mfa";
 
 std::string construct_start_string();
 
@@ -424,18 +422,30 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
     {
         LL_DEBUGS("LLLogin") << " MFA challenge" << LL_ENDL;
 
-        LLSD data(LLSD::emptyMap());
-        data["message"] = message_response;
-        data["reply_pump"] = MFA_REPLY_PUMP
         if (gViewerWindow)
         {
             gViewerWindow->setShowProgress(FALSE);
         }
-        LLFloaterReg::showInstance("message_mfa", data);
-        LLEventPumps::instance().obtain(MFA_REPLY_PUMP)
-            .listen(MFA_LISTENER_NAME, [=](const LLSD& token) {
-                return this->handleMFAResponse(token, "token");
-            });
+
+        LLSD args(llsd::map( "MESSAGE", LLTrans::getString(response["message_id"]) ));
+        LLSD payload;
+        LLNotificationsUtil::add("PromptMFAToken", args, payload, [=](LLSD const & notif, LLSD const & response) {
+            bool continue_clicked = response["continue"].asBoolean();
+            LLSD token = response["token"];
+            LL_DEBUGS("LLLogin") << "PromptMFAToken: response: " << response << " continue_clicked" << continue_clicked << LL_ENDL;
+
+            if (continue_clicked && !token.asString().empty())
+            {
+                LL_INFOS("LLLogin") << "PromptMFAToken: token submitted" << LL_ENDL;
+
+                // Set the request data to true and retry login.
+                mRequestData["params"]["token"] = token;
+                reconnect();
+            } else {
+                LL_INFOS("LLLogin") << "PromptMFAToken: no token, attemptComplete" << LL_ENDL;
+                attemptComplete();
+            }
+        });
     }
     else if(   reason_response == "key"
             || reason_response == "presence"
@@ -529,28 +539,6 @@ bool LLLoginInstance::handleTOSResponse(bool accepted, const std::string& key)
 
 	LLEventPumps::instance().obtain(TOS_REPLY_PUMP).stopListening(TOS_LISTENER_NAME);
 	return true;
-}
-
-bool LLLoginInstance::handleMFAResponse(const std::string& token, const std::string& key)
-{
-    LLEventPumps::instance().obtain(MFA_REPLY_PUMP).stopListening(MFA_LISTENER_NAME);
-
-    if(!token.empty())
-    {
-        LL_INFOS("LLLogin") << "LLLoginInstance::handleMFAResponse: token submitted" << LL_ENDL;
-
-        // Set the request data to true and retry login.
-        mRequestData["params"][key] = token;
-        reconnect();
-    }
-    else
-    {
-        LL_INFOS("LLLogin") << "LLLoginInstance::handleMFAResponse: no token, attemptComplete" << LL_ENDL;
-
-        attemptComplete();
-    }
-
-    return true;
 }
 
 std::string construct_start_string()

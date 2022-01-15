@@ -275,7 +275,6 @@ set(viewer_SOURCE_FILES
     llfloatermap.cpp
     llfloatermediasettings.cpp
     llfloatermemleak.cpp
-    llfloatermfa.cpp
     llfloatermodelpreview.cpp
     llfloatermodeluploadbase.cpp
     llfloatermyscripts.cpp
@@ -919,7 +918,6 @@ set(viewer_HEADER_FILES
     llfloatermarketplacelistings.h
     llfloatermediasettings.h
     llfloatermemleak.h
-    llfloatermfa.h
     llfloatermodelpreview.h
     llfloatermodeluploadbase.h
     llfloatermyscripts.h
