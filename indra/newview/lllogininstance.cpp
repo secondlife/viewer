@@ -228,10 +228,19 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
 	request_params["token"] = "";
-	request_params["slmfa_hash"] = gSavedPerAccountSettings.getString("SLMFAHash");
 
-    // log request_params _before_ adding the credentials   
+    // log request_params _before_ adding the credentials or sensitive MFA hash data
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
+
+    std::string slmfa_hash = gSavedPerAccountSettings.getString("SLMFAHash"); //non-persistent to enable testing
+    if(slmfa_hash.empty())
+    {
+        LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
+        std::string grid(LLGridManager::getInstance()->getGridId());
+        slmfa_hash = basic_secure_store->getProtectedData("slmfa_hash", grid).asString();
+    }
+
+    request_params["slmfa_hash"] = slmfa_hash;
 
     // Copy the credentials into the request after logging the rest
     LLSD credentials(user_credential->getLoginParams());
@@ -417,7 +426,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 
         LLSD data(LLSD::emptyMap());
         data["message"] = message_response;
-        data["reply_pump"] = MFA_REPLY_PUMP;
+        data["reply_pump"] = MFA_REPLY_PUMP
         if (gViewerWindow)
         {
             gViewerWindow->setShowProgress(FALSE);

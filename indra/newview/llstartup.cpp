@@ -133,6 +133,7 @@
 #include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llqueryflags.h"
+#include "llsecapi.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstatview.h"
@@ -3599,7 +3600,9 @@ bool process_login_success_response()
 
 	if(response.has("slmfa_hash"))
 	{
-		gSavedPerAccountSettings.setString("SLMFAHash", response["slmfa_hash"]);
+		LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
+		std::string grid(LLGridManager::getInstance()->getGridId());
+		basic_secure_store->setProtectedData("slmfa_hash", grid, response["slmfa_hash"]);
 	}
 
 	bool success = false;
