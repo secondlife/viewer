@@ -47,6 +47,7 @@ class LLUICtrl;
 class LLViewerObject;
 class LLFloater;
 class LLMaterialID;
+class LLMediaCtrl;
 
 // Represents an edit for use in replicating the op across one or more materials in the selection set.
 //
@@ -97,8 +98,10 @@ public:
 	virtual ~LLPanelFace();
 
 	void			refresh();
-	void			setMediaURL(const std::string& url);
-	void			setMediaType(const std::string& mime_type);
+    void			refreshMedia();
+    void			unloadMedia();
+
+    /*virtual*/ void draw();
 
 	LLMaterialPtr createDefaultMaterial(LLMaterialPtr current_material)
 	{
@@ -114,6 +117,12 @@ public:
 	LLRender::eTexIndex getTextureChannelToEdit();
 
 protected:
+    void			navigateToTitleMedia(const std::string url);
+    bool			selectedMediaEditable();
+    void			clearMediaSettings();
+    void			updateMediaSettings();
+    void			updateMediaTitle();
+
 	void			getState();
 
 	void			sendTexture();			// applies and sends texture
@@ -140,6 +149,9 @@ protected:
 	void 	onCommitNormalTexture(const LLSD& data);
 	void 	onCancelNormalTexture(const LLSD& data);
 	void 	onSelectNormalTexture(const LLSD& data);
+    void 	onClickBtnEditMedia();
+    void 	onClickBtnDeleteMedia();
+    void 	onClickBtnAddMedia();
 	void 	onCommitColor(const LLSD& data);
 	void 	onCommitShinyColor(const LLSD& data);
 	void 	onCommitAlpha(const LLSD& data);
@@ -149,6 +161,9 @@ protected:
 	void 	onSelectShinyColor(const LLSD& data);
 
 	void 	onCloseTexturePicker(const LLSD& data);
+
+    static bool deleteMediaConfirm(const LLSD& notification, const LLSD& response);
+    static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 
 	// Make UI reflect state of currently selected material (refresh)
 	// and UI mode (e.g. editing normal map v diffuse map)
@@ -233,6 +248,9 @@ private:
 	F32		getCurrentShinyScaleV();
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
+
+    LLMediaCtrl *mTitleMedia;
+    LLTextBox *mTitleMediaText;
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -416,6 +434,9 @@ private:
 	 */
 	bool mUpdateInFlight;
 	bool mUpdatePending;
+
+    LLSD mMediaSettings;
+    bool mNeedMediaTitle;
 
 public:
 	#if defined(DEF_GET_MAT_STATE)
