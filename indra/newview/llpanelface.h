@@ -260,10 +260,6 @@ private:
 	//
 	void updateVisibility();
 
-	// Make material(s) reflect current state of UI (apply edit)
-	//
-	void updateMaterial();
-
 	// Hey look everyone, a type-safe alternative to copy and paste! :)
 	//
 
