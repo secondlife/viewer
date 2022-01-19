@@ -1626,10 +1626,21 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
 {
     if (!mNeedsCreateTexture)
     {
-        ref();
         mNeedsCreateTexture = TRUE;
         if (preCreateTexture())
         {
+            ref();
+#if LL_IMAGEGL_THREAD_CHECK
+            //grab a copy of the raw image data to make sure it isn't modified pending texture creation
+            U8* data = mRawImage->getData();
+            U8* data_copy = nullptr;
+            S32 size = mRawImage->getDataSize();
+            if (data != nullptr && size > 0)
+            {
+                data_copy = new U8[size];
+                memcpy(data_copy, data, size);
+            }
+#endif
             mNeedsCreateTexture = TRUE;
             auto mainq = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
             if (mainq)
@@ -1637,19 +1648,40 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
                 mainq->postTo(
                     mImageQueue,
                     // work to be done on LLImageGL worker thread
+#if LL_IMAGEGL_THREAD_CHECK
+                    [this, data, data_copy, size]()
+                    {
+                        mGLTexturep->mActiveThread = LLThread::currentID();
+                        //verify data is unmodified
+                        llassert(data == mRawImage->getData());
+                        llassert(mRawImage->getDataSize() == size);
+                        llassert(memcmp(data, data_copy, size) == 0);
+#else
                     [this]()
                     {
-#if LL_IMAGEGL_THREAD_CHECK
-                        mGLTexturep->mActiveThread = LLThread::currentID();
 #endif
                         //actually create the texture on a background thread
                         createTexture();
+
+#if LL_IMAGEGL_THREAD_CHECK
+                        //verify data is unmodified
+                        llassert(data == mRawImage->getData());
+                        llassert(mRawImage->getDataSize() == size);
+                        llassert(memcmp(data, data_copy, size) == 0);
+#endif
                     },
                     // callback to be run on main thread
-                        [this]()
-                    {
 #if LL_IMAGEGL_THREAD_CHECK
+                        [this, data, data_copy, size]()
+                    {
                         mGLTexturep->mActiveThread = LLThread::currentID();
+                        llassert(data == mRawImage->getData());
+                        llassert(mRawImage->getDataSize() == size);
+                        llassert(memcmp(data, data_copy, size) == 0);
+                        delete[] data_copy;
+#else
+                        [this]()
+                        {
 #endif
                         //finalize on main thread
                         postCreateTexture();

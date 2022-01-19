@@ -860,6 +860,14 @@ LLRender::~LLRender()
 
 void LLRender::init()
 {
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    gGL.setAmbientLightColor(LLColor4::black);
+
+    glCullFace(GL_BACK);
+
 	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
 	{ //bind a dummy vertex array object so we're core profile compliant
 #ifdef GL_ARB_vertex_array_object

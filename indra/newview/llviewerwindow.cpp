@@ -2058,15 +2058,6 @@ std::string LLViewerWindow::getLastSnapshotDir()
 
 void LLViewerWindow::initGLDefaults()
 {
-	gGL.setSceneBlendType(LLRender::BT_ALPHA);
-
-	glPixelStorei(GL_PACK_ALIGNMENT,1);
-	glPixelStorei(GL_UNPACK_ALIGNMENT,1);
-
-	gGL.setAmbientLightColor(LLColor4::black);
-		
-	glCullFace(GL_BACK);
-
 	// RN: Need this for translation and stretch manip.
 	gBox.prerender();
 }
