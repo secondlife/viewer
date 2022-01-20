@@ -1089,6 +1089,8 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
+	LL_WARNS("RenderInit") << "glGetString(GL_EXTENSIONS) reports GL_ARB_multitexture " << mHasMultitexture << " and " << gGLHExts.mSysExts << LL_ENDL;
+	mHasMultitexture = TRUE; // FIXME: for an experiment, just assume we're good. (Continue to side-effect gGLHExts.mSysExts as above.)
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
 	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
