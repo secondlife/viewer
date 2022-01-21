@@ -461,9 +461,18 @@ void LLInventoryModel::consolidateForType(const LLUUID& main_id, LLFolderType::E
             LLViewerInventoryCategory* cat = getCategory(*it);
             changeCategoryParent(cat, main_id, TRUE);
         }
-        
+
         // Purge the emptied folder
-        removeCategory(folder_id);
+        // Note that this might be a system folder, don't validate removability
+        LLViewerInventoryCategory* cat = getCategory(folder_id);
+        if (cat)
+        {
+            const LLUUID trash_id = findCategoryUUIDForType(LLFolderType::FT_TRASH);
+            if (trash_id.notNull())
+            {
+                changeCategoryParent(cat, trash_id, TRUE);
+            }
+        }
         remove_inventory_category(folder_id, NULL);
 	}
 }
