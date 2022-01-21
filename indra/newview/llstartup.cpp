@@ -35,6 +35,7 @@
 #else
 #	include <sys/stat.h>		// mkdir()
 #endif
+#include <memory>                   // std::unique_ptr
 
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
@@ -178,7 +179,6 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llfasttimerview.h"
-#include "lltelemetry.h"
 #include "llfloatermap.h"
 #include "llweb.h"
 #include "llvoiceclient.h"
@@ -204,6 +204,9 @@
 #include "llenvironment.h"
 
 #include "llstacktrace.h"
+
+#include "threadpool.h"
+
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -252,9 +255,9 @@ static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
 
-boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
-boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
-boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
+std::unique_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+std::unique_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+std::unique_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -529,8 +532,6 @@ bool idle_startup()
 			}
 
 			#if LL_WINDOWS
-                LLPROFILE_STARTUP();
-
 				// On the windows dev builds, unpackaged, the message.xml file will 
 				// be located in indra/build-vc**/newview/<config>/app_settings.
 				std::string message_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message.xml");
@@ -1483,6 +1484,21 @@ bool idle_startup()
 		gAgentCamera.stopCameraAnimation();
 		gAgentCamera.resetCamera();
 		display_startup();
+
+		// start up the ThreadPool we'll use for textures et al.
+		{
+			LLSD poolSizes{ gSavedSettings.getLLSD("ThreadPoolSizes") };
+			LLSD sizeSpec{ poolSizes["General"] };
+			LLSD::Integer poolSize{ sizeSpec.isInteger()? sizeSpec.asInteger() : 3 };
+			LL_DEBUGS("ThreadPool") << "Instantiating General pool with "
+									<< poolSize << " threads" << LL_ENDL;
+			// We don't want anyone, especially the main thread, to have to block
+			// due to this ThreadPool being full.
+			auto pool = new LL::ThreadPool("General", poolSize, 1024*1024);
+			pool->start();
+			// Once we start shutting down, destroy this ThreadPool.
+			LLAppViewer::instance()->onCleanup([pool](){ delete pool; });
+		}
 
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;

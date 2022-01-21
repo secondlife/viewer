@@ -61,6 +61,7 @@ TimeBlockTreeNode::TimeBlockTreeNode()
 
 void TimeBlockTreeNode::setParent( BlockTimerStatHandle* parent )
 {
+    LL_PROFILE_ZONE_SCOPED;
 	llassert_always(parent != mBlock);
 	llassert_always(parent != NULL);
 

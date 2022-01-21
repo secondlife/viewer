@@ -135,6 +135,7 @@ void LLWorld::destroyClass()
 	LLDrawable::incrementVisible();
 
 	LLSceneMonitor::deleteSingleton();
+    LLWorld::deleteSingleton();
 }
 
 
@@ -884,6 +885,7 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 
 void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	if (!gAgent.getRegion())
 	{
 		return;
@@ -1077,6 +1079,7 @@ void LLWorld::updateWaterObjects()
 
 void LLWorld::shiftRegions(const LLVector3& offset)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
 	for (region_list_t::const_iterator i = getRegionList().begin(); i != getRegionList().end(); ++i)
 	{
 		LLViewerRegion* region = *i;
@@ -1147,11 +1150,9 @@ void LLWorld::disconnectRegions()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
-
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
-	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure
 	U64		handle;
@@ -1222,12 +1223,11 @@ public:
 	}
 };
 
-static LLTrace::BlockTimerStatHandle FTM_DISABLE_REGION("Disable Region");
 // disable the circuit to this simulator
 // Called in response to "DisableSimulator" message.
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
 {
-    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 
     LLHost host = mesgsys->getSender();
 
@@ -1289,6 +1289,7 @@ void send_agent_pause()
 
 void send_agent_resume()
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK
 	// Note: used to check for LLWorld initialization before it became a singleton.
 	// Rather than just remove this check I'm changing it to assure that the message 
 	// system has been initialized. -MG

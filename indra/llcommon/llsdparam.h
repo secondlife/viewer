@@ -110,7 +110,6 @@ private:
 };
 
 
-extern LL_COMMON_API LLTrace::BlockTimerStatHandle FTM_SD_PARAM_ADAPTOR;
 template<typename T>
 class LLSDParamAdapter : public T
 {
@@ -118,7 +117,7 @@ public:
 	LLSDParamAdapter() {}
 	LLSDParamAdapter(const LLSD& sd)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_SD_PARAM_ADAPTOR);
+        LL_PROFILE_ZONE_SCOPED;
 		LLParamSDParser parser;
 		// don't spam for implicit parsing of LLSD, as we want to allow arbitrary freeform data and ignore most of it
 		bool parse_silently = true;

@@ -1,6 +1,6 @@
 /** 
  * @file lljointsolverrp3.cpp
- * @brief Implementation of LLJointSolverRP3 class.
+ * @brief Implementation of Joint Solver in 3D Real Projective space (RP3). See: https://en.wikipedia.org/wiki/Real_projective_space
  *
  * $LicenseInfo:firstyear=2001&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -35,6 +35,11 @@
 
 #define F_EPSILON 0.00001f
 
+#if LL_RELEASE
+    #define DEBUG_JOINT_SOLVER 0
+#else
+    #define DEBUG_JOINT_SOLVER 1
+#endif
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -150,6 +155,7 @@ void LLJointSolverRP3::solve()
 	LLVector3 cPos = mJointC->getWorldPosition();
 	LLVector3 gPos = mJointGoal->getWorldPosition();
 
+#if DEBUG_JOINT_SOLVER
 	LL_DEBUGS("JointSolver") << "LLJointSolverRP3::solve()" << LL_NEWLINE
 							<< "bPosLocal = " << mJointB->getPosition() << LL_NEWLINE
 							<< "cPosLocal = " << mJointC->getPosition() << LL_NEWLINE
@@ -159,6 +165,7 @@ void LLJointSolverRP3::solve()
 							<< "bPos : " << bPos << LL_NEWLINE
 							<< "cPos : " << cPos << LL_NEWLINE
 							<< "gPos : " << gPos << LL_ENDL;
+#endif
 
 	//-------------------------------------------------------------------------
 	// get the poleVector in world space
@@ -194,6 +201,7 @@ void LLJointSolverRP3::solve()
 	//-------------------------------------------------------------------------
 	LLVector3 abacCompOrthoVec = abVec - acVec * ((abVec * acVec)/(acVec * acVec));
 
+#if DEBUG_JOINT_SOLVER
 	LL_DEBUGS("JointSolver") << "abVec : " << abVec << LL_NEWLINE
 		<< "bcVec : " << bcVec << LL_NEWLINE
 		<< "acVec : " << acVec << LL_NEWLINE
@@ -202,6 +210,7 @@ void LLJointSolverRP3::solve()
 		<< "bcLen : " << bcLen << LL_NEWLINE
 		<< "agLen : " << agLen << LL_NEWLINE
 		<< "abacCompOrthoVec : " << abacCompOrthoVec << LL_ENDL;
+#endif
 
 	//-------------------------------------------------------------------------
 	// compute the normal of the original ABC plane (and store for later)
@@ -269,6 +278,7 @@ void LLJointSolverRP3::solve()
 
 	LLQuaternion bRot(theta - abbcAng, abbcOrthoVec);
 
+#if DEBUG_JOINT_SOLVER
 	LL_DEBUGS("JointSolver") << "abbcAng      : " << abbcAng << LL_NEWLINE
 							<< "abbcOrthoVec : " << abbcOrthoVec << LL_NEWLINE
 							<< "agLenSq      : " << agLenSq << LL_NEWLINE
@@ -280,6 +290,7 @@ void LLJointSolverRP3::solve()
 								<< abbcAng*180.0f/F_PI << " " 
 								<< (theta - abbcAng)*180.0f/F_PI 
 	<< LL_ENDL;
+#endif
 
 	//-------------------------------------------------------------------------
 	// compute rotation that rotates new A->C to A->G
@@ -293,9 +304,11 @@ void LLJointSolverRP3::solve()
 	LLQuaternion cgRot;
 	cgRot.shortestArc( acVec, agVec );
 
+#if DEBUG_JOINT_SOLVER
 	LL_DEBUGS("JointSolver") << "bcVec : " << bcVec << LL_NEWLINE
 							<< "acVec : " << acVec << LL_NEWLINE
 							<< "cgRot : " << cgRot << LL_ENDL;
+#endif
 
 	// update A->B and B->C with rotation from C to G
 	abVec = abVec * cgRot;
@@ -358,11 +371,13 @@ void LLJointSolverRP3::solve()
 	//-------------------------------------------------------------------------
 	LLQuaternion twistRot( mTwist, agVec );
 
+#if DEBUG_JOINT_SOLVER
 	LL_DEBUGS("JointSolver") << "abcNorm = " << abcNorm << LL_NEWLINE
 							<< "apgNorm = " << apgNorm << LL_NEWLINE
 							<< "pRot = " << pRot << LL_NEWLINE
 							<< "twist    : " << mTwist*180.0/F_PI << LL_NEWLINE
 							<< "twistRot : " << twistRot << LL_ENDL;
+#endif
 
 	//-------------------------------------------------------------------------
 	// compute rotation of A

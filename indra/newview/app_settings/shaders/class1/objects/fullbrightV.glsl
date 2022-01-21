@@ -33,26 +33,33 @@ ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 
-
 void calcAtmospherics(vec3 inPositionEye);
-
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+#endif
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz,1.0);
 	passTextureIndex();
-	vec4 pos = (modelview_matrix * vert);
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec4 pos = mat * vert;
+    gl_Position = projection_matrix * pos;
+#else
+    vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+#endif
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 	calcAtmospherics(pos.xyz);
 
 	vertex_color = diffuse_color;
-
-	
 }

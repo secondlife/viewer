@@ -38,9 +38,9 @@
 class LLCamera;
 
 class LLVOCacheEntry 
-:	public LLViewerOctreeEntryData,
-	public LLTrace::MemTrackable<LLVOCacheEntry, 16>
+:	public LLViewerOctreeEntryData
 {
+    LL_ALIGN_NEW
 public:
 	enum 
 	{
@@ -185,7 +185,7 @@ protected:
 	virtual ~LLVOCacheGroup();
 };
 
-class LLVOCachePartition : public LLViewerOctreePartition, public LLTrace::MemTrackable<LLVOCachePartition>
+class LLVOCachePartition : public LLViewerOctreePartition
 {
 public:
 	LLVOCachePartition(LLViewerRegion* regionp);

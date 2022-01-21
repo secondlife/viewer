@@ -730,13 +730,19 @@ void LLKeyConflictHandler::resetToDefault(const std::string &control_name, U32 i
     {
         return;
     }
+    LLKeyConflict &type_data = mControlsMap[control_name];
+    if (!type_data.mAssignable)
+    {
+        return;
+    }
     LLKeyData data = getDefaultControl(control_name, index);
 
-    if (data != mControlsMap[control_name].getKeyData(index))
+    if (data != type_data.getKeyData(index))
     {
         // reset controls that might have been switched to our current control
         removeConflicts(data, mControlsMap[control_name].mConflictMask);
         mControlsMap[control_name].setKeyData(data, index);
+        mHasUnsavedChanges = true;
     }
 }
 

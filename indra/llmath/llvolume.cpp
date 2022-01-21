@@ -383,6 +383,7 @@ public:
 	virtual void visit(const LLOctreeNode<LLVolumeTriangle>* branch)
 	{ //this is a depth first traversal, so it's safe to assum all children have complete
 		//bounding data
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
 		LLVolumeOctreeListener* node = (LLVolumeOctreeListener*) branch->getListener(0);
 
@@ -822,6 +823,8 @@ S32 LLProfile::getNumPoints(const LLProfileParams& params, BOOL path_open,F32 de
 BOOL LLProfile::generate(const LLProfileParams& params, BOOL path_open,F32 detail, S32 split,
 						 BOOL is_sculpted, S32 sculpt_size)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -1302,6 +1305,8 @@ S32 LLPath::getNumNGonPoints(const LLPathParams& params, S32 sides, F32 startOff
 
 void LLPath::genNGon(const LLPathParams& params, S32 sides, F32 startOff, F32 end_scale, F32 twist_scale)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	// Generates a circular path, starting at (1, 0, 0), counterclockwise along the xz plane.
 	static const F32 tableScale[] = { 1, 1, 1, 0.5f, 0.707107f, 0.53f, 0.525f, 0.5f };
 
@@ -1536,6 +1541,8 @@ S32 LLPath::getNumPoints(const LLPathParams& params, F32 detail)
 BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 					  BOOL is_sculpted, S32 sculpt_size)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	if ((!mDirty) && (!is_sculpted))
 	{
 		return FALSE;
@@ -2112,6 +2119,8 @@ LLVolume::~LLVolume()
 
 BOOL LLVolume::generate()
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	LL_CHECK_MEMORY
 	llassert_always(mProfilep);
 	
@@ -2370,6 +2379,8 @@ bool LLVolumeFace::VertexData::compareNormal(const LLVolumeFace::VertexData& rhs
 
 bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	//input stream is now pointing at a zlib compressed block of LLSD
 	//decompress block
 	LLSD mdl;
@@ -2755,6 +2766,8 @@ S32	LLVolume::getNumFaces() const
 
 void LLVolume::createVolumeFaces()
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	if (mGenerateSingleFace)
 	{
 		// do nothing
@@ -3720,6 +3733,8 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 										  const LLMatrix3& norm_mat_in,
 										  S32 face_mask)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	LLMatrix4a mat;
 	mat.loadu(mat_in);
 
@@ -4846,6 +4861,8 @@ void LLVolumeFace::freeData()
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	//tree for this face is no longer valid
 	delete mOctree;
 	mOctree = NULL;
@@ -5514,6 +5531,8 @@ bool LLVolumeFace::cacheOptimize()
 
 void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVector4a& size)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	if (mOctree)
 	{
 		return;
@@ -6287,6 +6306,8 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 
 void LLVolumeFace::createTangents()
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	if (!mTangents)
 	{
 		allocateTangents(mNumVertices);
@@ -6327,9 +6348,9 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 	if (num_verts)
 	{
 		//pad texture coordinate block end to allow for QWORD reads
-		S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
+		S32 tc_size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
 
-		mPositions = (LLVector4a*) ll_aligned_malloc<64>(sizeof(LLVector4a)*2*num_verts+size);
+		mPositions = (LLVector4a*) ll_aligned_malloc<64>(sizeof(LLVector4a)*2*num_verts+tc_size);
 		mNormals = mPositions+num_verts;
 		mTexCoords = (LLVector2*) (mNormals+num_verts);
 
@@ -6482,6 +6503,8 @@ void LLVolumeFace::fillFromLegacyData(std::vector<LLVolumeFace::VertexData>& v, 
 
 BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
 	LL_CHECK_MEMORY
 	BOOL flat = mTypeMask & FLAT_MASK;
 
@@ -6974,6 +6997,8 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent)
 {
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
+
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
 	// new(tan1) LLVector4a;

@@ -53,6 +53,7 @@
 #include "llviewerstats.h"
 #include "llvovolume.h"
 #include "llavatarrendernotifier.h"
+#include "llmodel.h"
 
 extern const LLUUID ANIM_AGENT_BODY_NOISE;
 extern const LLUUID ANIM_AGENT_BREATHE_ROT;
@@ -77,6 +78,7 @@ class LLViewerJointMesh;
 
 const F32 MAX_AVATAR_LOD_FACTOR = 1.0f;
 
+extern U32 gFrameCount;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
@@ -87,6 +89,7 @@ class LLVOAvatar :
 	public LLViewerObject,
 	public boost::signals2::trackable
 {
+    LL_ALIGN_NEW;
 	LOG_CLASS(LLVOAvatar);
 
 public:
@@ -99,16 +102,6 @@ public:
  **/
 
 public:
-	void* operator new(size_t size)
-	{
-		return LLTrace::MemTrackable<LLViewerObject>::aligned_new<16>(size);
-	}
-
-	void operator delete(void* ptr, size_t size)
-	{
-		LLTrace::MemTrackable<LLViewerObject>::aligned_delete<16>(ptr, size);
-	}
-
 	LLVOAvatar(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp);
 	virtual void		markDead();
 	static void			initClass(); // Initialize data that's only init'd once per class.
@@ -208,6 +201,11 @@ public:
 
 	virtual LLJoint*		getJoint(const std::string &name);
 	LLJoint*		        getJoint(S32 num);
+
+    //if you KNOW joint_num is a valid animated joint index, use getSkeletonJoint for efficiency
+    inline LLJoint* getSkeletonJoint(S32 joint_num) { return mSkeleton[joint_num]; }
+    inline size_t getSkeletonJointCount() const { return mSkeleton.size(); }
+
 
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo, std::set<LLUUID>* meshes_seen = NULL, bool recursive = true);
 	void					removeAttachmentOverridesForObject(const LLUUID& mesh_id);
@@ -381,6 +379,9 @@ protected:
 
 private:
 	BOOL			mFirstFullyVisible;
+	F32				mFirstUseDelaySeconds;
+	LLFrameTimer	mFirstSeenTimer;
+
 	BOOL			mFullyLoaded;
 	BOOL			mPreviousFullyLoaded;
 	BOOL			mFullyLoadedInitialized;
@@ -747,6 +748,34 @@ public:
 	void 			updateMeshData();
 	void			updateMeshVisibility();
 	LLViewerTexture*		getBakedTexture(const U8 te);
+
+    // Matrix palette cache entry
+    class alignas(16) MatrixPaletteCache
+    {
+    public:
+        // Last frame this entry was updated
+        U32 mFrame;
+
+        // List of Matrix4a's for this entry
+        LLMeshSkinInfo::matrix_list_t mMatrixPalette;
+
+        // Float array ready to be sent to GL
+        std::vector<F32> mGLMp;
+
+        MatrixPaletteCache() :
+            mFrame(gFrameCount - 1)
+        {
+        }
+    };
+
+    // Accessor for Matrix Palette Cache
+    // Will do a map lookup for the entry associated with the given MeshSkinInfo
+    // Will update said entry if it hasn't been updated yet this frame
+    const MatrixPaletteCache& updateSkinInfoMatrixPalette(const LLMeshSkinInfo* skinInfo);
+
+    // Map of LLMeshSkinInfo::mHash to MatrixPaletteCache
+    typedef std::unordered_map<U64, MatrixPaletteCache> matrix_palette_cache_t;
+    matrix_palette_cache_t mMatrixPaletteCache;
 
 protected:
 	void 			releaseMeshData();

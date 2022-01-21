@@ -90,19 +90,19 @@ namespace tut
         {
             Keyed one("one");
             ensure_equals(Keyed::instanceCount(), 1);
-            Keyed* found = Keyed::getInstance("one");
-            ensure("couldn't find stack Keyed", found);
-            ensure_equals("found wrong Keyed instance", found, &one);
+            auto found = Keyed::getInstance("one");
+            ensure("couldn't find stack Keyed", bool(found));
+            ensure_equals("found wrong Keyed instance", found.get(), &one);
             {
                 boost::scoped_ptr<Keyed> two(new Keyed("two"));
                 ensure_equals(Keyed::instanceCount(), 2);
-                Keyed* found = Keyed::getInstance("two");
-                ensure("couldn't find heap Keyed", found);
-                ensure_equals("found wrong Keyed instance", found, two.get());
+                auto found = Keyed::getInstance("two");
+                ensure("couldn't find heap Keyed", bool(found));
+                ensure_equals("found wrong Keyed instance", found.get(), two.get());
             }
             ensure_equals(Keyed::instanceCount(), 1);
         }
-        Keyed* found = Keyed::getInstance("one");
+        auto found = Keyed::getInstance("one");
         ensure("Keyed key lives too long", ! found);
         ensure_equals(Keyed::instanceCount(), 0);
     }

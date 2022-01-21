@@ -262,6 +262,7 @@ LLTexUnit::eTextureType LLGLTexture::getTarget(void) const
 
 BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height) ;
@@ -269,6 +270,7 @@ BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, 
 
 BOOL LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	llassert(mGLTexturep.notNull()) ;
 
 	return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height) ;

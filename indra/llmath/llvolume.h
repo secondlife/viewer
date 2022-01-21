@@ -936,17 +936,23 @@ public:
 	LLVector4a* mCenter;
 	LLVector2   mTexCoordExtents[2]; //minimum and maximum of texture coordinates of the face.
 
-	S32 mNumVertices;
+	S32 mNumVertices; // num vertices == num normals == num texcoords
 	S32 mNumAllocatedVertices;
 	S32 mNumIndices;
 
-	LLVector4a* mPositions;
-	LLVector4a* mNormals;
+	LLVector4a* mPositions; // Contains vertices, nortmals and texcoords
+	LLVector4a* mNormals; // pointer into mPositions
 	LLVector4a* mTangents;
-	LLVector2*  mTexCoords;
+	LLVector2*  mTexCoords; // pointer into mPositions
+
+	// mIndices contains mNumIndices amount of elements.
+	// It contains triangles, each 3 indices describe one triangle.
+    // If mIndices contains {0, 2, 3, 1, 2, 4}, it means there
+    // are two triangles {0, 2, 3} and {1, 2, 4} with values being
+    // indexes for mPositions/mNormals/mTexCoords
 	U16* mIndices;
 
-	//vertex buffer filled in by LLFace to cache this volume face geometry in vram 
+	// vertex buffer filled in by LLFace to cache this volume face geometry in vram 
 	// (declared as a LLPointer to LLRefCount to avoid dependency on LLVertexBuffer)
 	mutable LLPointer<LLRefCount> mVertexBuffer; 
 

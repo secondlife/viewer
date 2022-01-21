@@ -5740,14 +5740,14 @@ class LLCallingCardObserver : public LLFriendObserver
 public:
 	LLCallingCardObserver(LLCallingCardBridge* bridge) : mBridgep(bridge) {}
 	virtual ~LLCallingCardObserver() { mBridgep = NULL; }
-	virtual void changed(U32 mask)
-	{
-		mBridgep->refreshFolderViewItem();
-		if (mask & LLFriendObserver::ONLINE)
-		{
-			mBridgep->checkSearchBySuffixChanges();
-		}
-	}
+    virtual void changed(U32 mask)
+    {
+        if (mask & LLFriendObserver::ONLINE)
+        {
+            mBridgep->refreshFolderViewItem();
+            mBridgep->checkSearchBySuffixChanges();
+        }
+    }
 protected:
 	LLCallingCardBridge* mBridgep;
 };
@@ -5761,14 +5761,15 @@ LLCallingCardBridge::LLCallingCardBridge(LLInventoryPanel* inventory,
 										 const LLUUID& uuid ) :
 	LLItemBridge(inventory, root, uuid)
 {
-	mObserver = new LLCallingCardObserver(this);
-	LLAvatarTracker::instance().addObserver(mObserver);
+    mObserver = new LLCallingCardObserver(this);
+    LLAvatarTracker::instance().addParticularFriendObserver(getItem()->getCreatorUUID(), mObserver);
 }
 
 LLCallingCardBridge::~LLCallingCardBridge()
 {
-	LLAvatarTracker::instance().removeObserver(mObserver);
-	delete mObserver;
+    LLAvatarTracker::instance().removeParticularFriendObserver(getItem()->getCreatorUUID(), mObserver);
+
+    delete mObserver;
 }
 
 void LLCallingCardBridge::refreshFolderViewItem()

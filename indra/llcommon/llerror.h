@@ -35,7 +35,9 @@
 
 #include "stdtypes.h"
 
+#include "llprofiler.h"
 #include "llpreprocessor.h"
+
 #include <boost/static_assert.hpp>
 
 const int LL_ERR_NOERR = 0;
@@ -348,7 +350,8 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 // if (condition) LL_INFOS() << "True" << LL_ENDL; else LL_INFOS()() << "False" << LL_ENDL;
 
 #define lllog(level, once, ...)                                         \
-	do {                                                                \
+    do {                                                                \
+        LL_PROFILE_ZONE_NAMED("lllog");                                 \
 		const char* tags[] = {"", ##__VA_ARGS__};                       \
 		static LLError::CallSite _site(lllog_site_args_(level, once, tags)); \
 		lllog_test_()

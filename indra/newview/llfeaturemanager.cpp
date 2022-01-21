@@ -520,7 +520,6 @@ void LLFeatureManager::initSingleton()
 
 void LLFeatureManager::applyRecommendedSettings()
 {
-	loadGPUClass();
 	// apply saved settings
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
@@ -607,22 +606,6 @@ void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 
     // if we're passed an invalid level, default to "Low"
     std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
-    if (features == "Low")
-    {
-#if LL_DARWIN
-        // This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
-        // systems which support them instead of falling back to fixed-function unnecessarily
-        // MAINT-2157
-        if (gGLManager.mGLVersion < 2.1f)
-#else
-        // only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
-        if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
-#endif
-        {
-            // same as Low, but with "Basic Shaders" disabled
-            features = "LowFixedFunction";
-        }
-    }
 
     maskFeatures(features);
 
@@ -670,45 +653,17 @@ void LLFeatureManager::applyBaseMasks()
 	}
 
 	// now all those wacky ones
-	if (!gGLManager.mHasFragmentShader)
-	{
-		maskFeatures("NoPixelShaders");
-	}
-	if (!gGLManager.mHasVertexShader || !mGPUSupported)
-	{
-		maskFeatures("NoVertexShaders");
-	}
 	if (gGLManager.mIsNVIDIA)
 	{
 		maskFeatures("NVIDIA");
 	}
-	if (gGLManager.mIsGF2or4MX)
+	if (gGLManager.mIsAMD)
 	{
-		maskFeatures("GeForce2");
-	}
-	if (gGLManager.mIsATI)
-	{
-		maskFeatures("ATI");
-	}
-	if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
-	{
-		maskFeatures("ATIVramLT256");
-	}
-	if (gGLManager.mATIOldDriver)
-	{
-		maskFeatures("ATIOldDriver");
-	}
-	if (gGLManager.mIsGFFX)
-	{
-		maskFeatures("GeForceFX");
+		maskFeatures("AMD");
 	}
 	if (gGLManager.mIsIntel)
 	{
 		maskFeatures("Intel");
-	}
-	if (gGLManager.mGLVersion < 1.5f)
-	{
-		maskFeatures("OpenGLPre15");
 	}
 	if (gGLManager.mGLVersion < 3.f)
 	{
@@ -749,17 +704,6 @@ void LLFeatureManager::applyBaseMasks()
 	//LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
 	maskFeatures(gpustr);
 
-	// now mask cpu type ones
-	if (gSysMemory.getPhysicalMemoryKB() <= U32Megabytes(256))
-	{
-		maskFeatures("RAM256MB");
-	}
-	
-	if (gSysCPU.getMHz() < 1100)
-	{
-		maskFeatures("CPUSlow");
-	}
-
 	if (isSafe())
 	{
 		maskFeatures("safe");
@@ -774,11 +718,9 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 
 	LLSD map(LLSD::emptyMap());
 
-	loadGPUClass();
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
 
-	applyBaseMasks();
 	std::string features(isValidGraphicsLevel(level) ? getNameForGraphicsLevel(level) : "Low");
 
 	maskFeatures(features);
