@@ -61,6 +61,7 @@ public:
 	void loadNotifications();
     void updateNotifications();
     void removeNotification(const char * name, const LLUUID& id);
+    void reset();
 
 protected:
 
