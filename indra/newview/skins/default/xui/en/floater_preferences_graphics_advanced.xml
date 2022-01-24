@@ -39,7 +39,10 @@
     max_val="512"
     name="DrawDistance"
     top_delta="16"
-    width="330" />
+    width="330">
+    <slider.mouse_down_callback
+      function="Pref.MouseDown" />
+    </slider>
   <text
     type="string"
     length="1"
@@ -182,6 +185,8 @@
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxNonImpostors"
       parameter="IndirectNonImpostorsText" />
+    <slider.mouse_down_callback
+      function="Pref.MouseDown" />
   </slider>
   <text
     type="string"
@@ -850,6 +855,8 @@
    top_delta="0" 
    name="ShadowDetail"
    width="150">
+    <combo_box.mouse_down_callback
+ function="Pref.MouseDown" />
      <combo_box.item
        label="None"
        name="0"

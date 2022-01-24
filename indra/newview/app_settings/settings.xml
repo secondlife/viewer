@@ -16620,6 +16620,63 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>AutoFPS</key>
+    <map>
+      <key>Comment</key>
+      <string>
+        Allow dynamic adjustment of graphics preferences
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  <key>AutoAdjustmentTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Time before next iteration of automatic adjustments</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>5</real>
+  </map>
+  <key>InitialAdjustmentTimeout</key>
+  <map>
+    <key>Comment</key>
+    <string>Time before first iteration of automatic adjustments after login to the world, teleporting, maximizing Viewer etc.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>10</real>
+  </map>
+  <key>AutoFPSLowerBoundary</key>
+  <map>
+    <key>Comment</key>
+    <string>FPS lower boundary when automatic adjustments are occured to reduce graphics quality to increase FPS</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>30</real>
+  </map>
+  <key>AutoFPSUpperBoundary</key>
+  <map>
+    <key>Comment</key>
+    <string>FPS upper boundary when automatic adjustments are occured to increase graphics quality</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <real>50</real>
+  </map>
   <key>CameraOpacity</key>
   <map>
     <key>Comment</key>

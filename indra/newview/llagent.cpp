@@ -4078,6 +4078,8 @@ void LLAgent::handleTeleportFinished()
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
     }
+
+    gPipeline.setAdjustmentTimerExpiry(gSavedSettings.getF32("InitialAdjustmentTimeout"));
 }
 
 void LLAgent::handleTeleportFailed()
@@ -4109,6 +4111,8 @@ void LLAgent::handleTeleportFailed()
 	}
 
     mTPNeedsNeabyChatSeparator = false;
+
+    gPipeline.setAdjustmentTimerExpiry(gSavedSettings.getF32("InitialAdjustmentTimeout"));
 }
 
 /*static*/

@@ -36,13 +36,15 @@
 #include "llfloaterpreference.h" // LLAvatarComplexityControls
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
+#include "llnotificationsutil.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
-#include "llvoavatarself.h" 
+#include "llvoavatarself.h"
+#include "llworld.h"
 #include "pipeline.h"
 
 const F32 REFRESH_INTERVAL = 1.0f;
@@ -77,6 +79,8 @@ LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
     mNearbyMaxComplexity(0)
 {
     mContextMenu = new LLExceptionsContextMenu(this);
+
+    mCommitCallbackRegistrar.add("Pref.MouseDown", boost::bind(&LLFloaterPerformance::onUICtrlMouseDown, this));
 }
 
 LLFloaterPerformance::~LLFloaterPerformance()
@@ -328,7 +332,7 @@ void LLFloaterPerformance::populateNearbyList()
 
     static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
     std::vector<LLCharacter*> valid_nearby_avs;
-    getNearbyAvatars(valid_nearby_avs);
+    mNearbyMaxComplexity = LLWorld::getInstance()->getNearbyAvatarsAndCompl(valid_nearby_avs);
 
     std::vector<LLCharacter*>::iterator char_iter = valid_nearby_avs.begin();
     while (char_iter != valid_nearby_avs.end())
@@ -399,31 +403,6 @@ void LLFloaterPerformance::populateNearbyList()
     mNearbyList->sortByColumnIndex(1, FALSE);
     mNearbyList->setScrollPos(prev_pos);
     mNearbyList->selectByID(prev_selected_id);
-}
-
-void LLFloaterPerformance::getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs)
-{
-    static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip", 64);
-    mNearbyMaxComplexity = 0;
-    F32 radius = render_far_clip * render_far_clip;
-    std::vector<LLCharacter*>::iterator char_iter = LLCharacter::sInstances.begin();
-    while (char_iter != LLCharacter::sInstances.end())
-    {
-        LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
-        if (avatar && !avatar->isDead() && !avatar->isControlAvatar())
-        {
-            if ((dist_vec_squared(avatar->getPositionGlobal(), gAgent.getPositionGlobal()) > radius) &&
-                (dist_vec_squared(avatar->getPositionGlobal(), gAgentCamera.getCameraPositionGlobal()) > radius))
-            {
-                char_iter++;
-                continue;
-            }
-            avatar->calculateUpdateRenderComplexity();
-            mNearbyMaxComplexity = llmax(mNearbyMaxComplexity, (S32)avatar->getVisualComplexity());
-            valid_nearby_avs.push_back(*char_iter);
-        }
-        char_iter++;
-    }
 }
 
 void LLFloaterPerformance::detachItem(const LLUUID& item_id)
@@ -558,6 +537,23 @@ void LLFloaterPerformance::onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
     {
         selected_uuids.push_back(list->getCurrentID());
         mContextMenu->show(ctrl, selected_uuids, x, y);
+    }
+}
+
+void LLFloaterPerformance::onUICtrlMouseDown()
+{
+    static LLCachedControl<bool> use_auto_adjust(gSavedSettings,"AutoFPS");
+    if (use_auto_adjust)
+    {
+        LLNotificationsUtil::add("AutoFPSConfirmDisable", LLSD(), LLSD(),
+            [this](const LLSD&notif, const LLSD&resp)
+        {
+            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
+            if (opt == 0)
+            {
+                gSavedSettings.setBOOL("AutoFPS", FALSE);
+            }
+        });
     }
 }
 

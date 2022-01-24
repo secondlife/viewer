@@ -424,6 +424,9 @@ public:
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
 
+    void autoAdjustSettings();
+    void setAdjustmentTimerExpiry(F32 expiration);
+
 private:
 	void unloadShaders();
 	void addToQuickLookup( LLDrawPool* new_poolp );
@@ -715,7 +718,8 @@ protected:
 	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
 
-	
+    LLTimer* mUpdateTimer;
+
 	/////////////////////////////////////////////
 	//
 	//

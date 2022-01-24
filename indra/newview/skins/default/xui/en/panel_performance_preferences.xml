@@ -206,7 +206,10 @@
     max_val="512"
     name="draw_distance"
     left_pad="5"
-    width="250" />
+    width="250">
+    <slider.mouse_down_callback
+      function="Pref.MouseDown" />
+  </slider>
   <text
     type="string"
     length="1"

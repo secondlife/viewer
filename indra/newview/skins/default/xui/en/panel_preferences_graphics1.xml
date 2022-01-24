@@ -217,7 +217,10 @@
     max_val="512"
     name="DrawDistance"
     top_delta="40"
-    width="330" />
+    width="330">
+    <slider.mouse_down_callback
+      function="Pref.MouseDown" />
+  </slider>
   <text
     type="string"
     length="1"
@@ -258,6 +261,18 @@
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
   </check_box>
+
+  <check_box
+    control_name="AutoFPS"
+    height="16"
+    initial_value="true"
+    label="Auto FPS"
+    layout="topleft"
+    left="30"
+    name="AutoFPS"
+    top_delta="30"
+    width="256">
+  </check_box>
   
   <slider
     control_name="IndirectMaxComplexity"
@@ -274,7 +289,7 @@
     max_val="101"
     name="IndirectMaxComplexity"
     show_text="false"
-    top_delta="60"
+    top_delta="34"
     width="300">
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxComplexity"

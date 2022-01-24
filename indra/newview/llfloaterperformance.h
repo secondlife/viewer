@@ -63,10 +63,10 @@ private:
     void onClickHideAvatars();
     void onClickExceptions();
 
+    void onUICtrlMouseDown();
+
     void updateMaxComplexity();
     void updateComplexityText();
-
-    void getNearbyAvatars(std::vector<LLCharacter*> &valid_nearby_avs);
 
     LLPanel* mMainPanel;
     LLPanel* mNearbyPanel;
