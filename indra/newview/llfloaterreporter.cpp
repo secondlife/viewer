@@ -54,6 +54,7 @@
 #include "llbutton.h"
 #include "llfloaterreg.h"
 #include "lltexturectrl.h"
+#include "lltexteditor.h"
 #include "llscrolllistctrl.h"
 #include "lldispatcher.h"
 #include "llviewerobject.h"
@@ -249,9 +250,6 @@ LLFloaterReporter::~LLFloaterReporter()
 	}
 
 	mPosition.setVec(0.0f, 0.0f, 0.0f);
-
-	std::for_each(mMCDList.begin(), mMCDList.end(), DeletePointer() );
-	mMCDList.clear();
 
 	delete mResourceDatap;
 }
@@ -661,6 +659,13 @@ void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::strin
 	show(avatar_id, avatar_name);
 }
 
+// static
+void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, std::string& time, std::string& description)
+{
+    show(avatar_id, avatar_name);
+    setDescription(time + "\n" + description);
+}
+
 void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
 {
 	getChild<LLUICtrl>("object_name")->setValue(object_name);
@@ -1029,36 +1034,12 @@ void LLFloaterReporter::onClose(bool app_quitting)
 	gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", app_quitting);
 }
 
-
-// void LLFloaterReporter::setDescription(const std::string& description, LLMeanCollisionData *mcd)
-// {
-// 	LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
-// 	if (self)
-// 	{
-// 		self->getChild<LLUICtrl>("details_edit")->setValue(description);
-
-// 		for_each(self->mMCDList.begin(), self->mMCDList.end(), DeletePointer());
-// 		self->mMCDList.clear();
-// 		if (mcd)
-// 		{
-// 			self->mMCDList.push_back(new LLMeanCollisionData(mcd));
-// 		}
-// 	}
-// }
-
-// void LLFloaterReporter::addDescription(const std::string& description, LLMeanCollisionData *mcd)
-// {
-// 	LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
-// 	if (self)
-// 	{
-// 		LLTextEditor* text = self->getChild<LLTextEditor>("details_edit");
-// 		if (text)
-// 		{	
-// 			text->insertText(description);
-// 		}
-// 		if (mcd)
-// 		{
-// 			self->mMCDList.push_back(new LLMeanCollisionData(mcd));
-// 		}
-// 	}
-// }
+// static
+void LLFloaterReporter::setDescription(const std::string& description)
+{
+    LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
+    if (self)
+    {
+        self->getChild<LLUICtrl>("details_edit")->setValue(description);
+    }
+}

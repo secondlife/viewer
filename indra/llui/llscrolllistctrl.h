@@ -458,6 +458,7 @@ private:
 	static void		sendIM(std::string id);
 	static void		addFriend(std::string id);
 	static void		removeFriend(std::string id);
+    static void		reportAbuse(std::string id, bool is_group);
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);
 	static void		copySLURLToClipboard(std::string id, bool is_group);
