@@ -1553,6 +1553,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
     BOOL    region_allow_environment_override = true;
     S32     parcel_environment_version = 0;
     BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
+    U32     extended_flags = 0; //obscure MOAP
 
     S32		other_clean_time = 0;
 
@@ -1642,6 +1643,11 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         msg->getBOOLFast(_PREHASH_RegionAllowAccessBlock, _PREHASH_RegionAllowAccessOverride, region_allow_access_override);
     }
 
+    if (msg->getNumberOfBlocks(_PREHASH_ParcelExtendedFlags))
+    {
+        msg->getU32Fast(_PREHASH_ParcelExtendedFlags, _PREHASH_Flags, extended_flags);
+     }
+
     if (msg->getNumberOfBlocks(_PREHASH_ParcelEnvironmentBlock))
     {
         msg->getS32Fast(_PREHASH_ParcelEnvironmentBlock, _PREHASH_ParcelEnvironmentVersion, parcel_environment_version);
@@ -1697,6 +1703,8 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
         parcel->setRegionAllowAccessOverride(region_allow_access_override);
         parcel->setParcelEnvironmentVersion(cur_parcel_environment_version);
         parcel->setRegionAllowEnvironmentOverride(region_allow_environment_override);
+
+        parcel->setObscureMOAP((bool)extended_flags);
 
 		parcel->unpackMessage(msg);
 

@@ -80,9 +80,14 @@ LLDoNotDisturbNotificationStorage::~LLDoNotDisturbNotificationStorage()
 {
 }
 
+void LLDoNotDisturbNotificationStorage::reset()
+{
+    setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"));
+}
+
 void LLDoNotDisturbNotificationStorage::initialize()
 {
-	setFileName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "dnd_notifications.xml"));
+    reset();
 	getCommunicationChannel()->connectFailedFilter(boost::bind(&LLDoNotDisturbNotificationStorage::onChannelChanged, this, _1));
 }
 

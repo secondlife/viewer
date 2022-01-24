@@ -93,8 +93,8 @@ private:
 
 	bool mIsLooping;
 
-	float mCurTime;
-	float mDuration;
+	F64 mCurTime;
+	F64 mDuration;
 	EStatus mVlcStatus;
 };
 
@@ -562,7 +562,24 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 						mTextureWidth = texture_width;
 						mTextureHeight = texture_height;
 
+                        libvlc_time_t time = 1000.0 * mCurTime;
+
 						playMedia();
+
+                        if (mLibVLCMediaPlayer)
+                        {
+                            libvlc_media_player_set_time(mLibVLCMediaPlayer, time);
+                            time = libvlc_media_player_get_time(mLibVLCMediaPlayer);
+                            if (time < 0)
+                            {
+                                // -1 if there is no media
+                                mCurTime = 0;
+                            }
+                            else
+                            {
+                                mCurTime = (F64)time / 1000.0;
+                            }
+                        }
 					};
 				};
 
@@ -606,11 +623,27 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				}
 				else if (message_name == "seek")
 				{
-					if (mDuration > 0)
-					{
-						F64 normalized_offset = message_in.getValueReal("time") / mDuration;
-						libvlc_media_player_set_position(mLibVLCMediaPlayer, normalized_offset);
-					}
+                    if (mLibVLCMediaPlayer)
+                    {
+                        libvlc_time_t time = 1000.0 * message_in.getValueReal("time");
+                        libvlc_media_player_set_time(mLibVLCMediaPlayer, time);
+                        time = libvlc_media_player_get_time(mLibVLCMediaPlayer);
+                        if (time < 0)
+                        {
+                            // -1 if there is no media
+                            mCurTime = 0;
+                        }
+                        else
+                        {
+                            mCurTime = (F64)time / 1000.0;
+                        }
+
+                        if (!libvlc_media_player_is_playing(mLibVLCMediaPlayer))
+                        {
+                            // if paused, won't trigger update, update now
+                            setDirty(0, 0, mWidth, mHeight);
+                        }
+                    }
 				}
 				else if (message_name == "set_loop")
 				{

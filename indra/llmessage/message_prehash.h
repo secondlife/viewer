@@ -1386,6 +1386,7 @@ extern char const* const _PREHASH_RegionAllowAccessBlock;
 extern char const* const _PREHASH_RegionAllowAccessOverride;
 extern char const* const _PREHASH_ParcelEnvironmentBlock;
 extern char const* const _PREHASH_ParcelEnvironmentVersion;
+extern char const* const _PREHASH_ParcelExtendedFlags;
 extern char const* const _PREHASH_RegionAllowEnvironmentOverride;
 extern char const* const _PREHASH_UCoord;
 extern char const* const _PREHASH_VCoord;

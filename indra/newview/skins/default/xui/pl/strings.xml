@@ -596,9 +596,6 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="GroupNameNone">
 		(brak danych)
 	</string>
-	<string name="AvalineCaller">
-		Avaline [ORDER]
-	</string>
 	<string name="AssetErrorNone">
 		Brak błędu
 	</string>
