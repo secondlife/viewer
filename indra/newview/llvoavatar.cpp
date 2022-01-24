@@ -2839,13 +2839,21 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                     attached_object->mDrawable->makeActive();
                     attached_object->mDrawable->updateXform(TRUE);
                     
-                    if (!rigged)
+                    if (bridge)
                     {
-                        if (bridge)
+                        if (!rigged)
                         {
                             gPipeline.updateMoveNormalAsync(bridge);
                         }
+                        else
+                        {
+                            //specialized impl of updateMoveNormalAsync just for rigged attachment SpatialBridge
+                            bridge->setState(LLDrawable::MOVE_UNDAMPED);
+                            bridge->updateMove();
+                            bridge->setState(LLDrawable::EARLY_MOVE);
+                        }
                     }
+
 					attached_object->updateText();	
 				}
 			}
