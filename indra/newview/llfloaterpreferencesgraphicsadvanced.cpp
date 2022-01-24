@@ -201,7 +201,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onUICtrlMouseDown()
     if (use_auto_adjust)
     {
         LLNotificationsUtil::add("AutoFPSConfirmDisable", LLSD(), LLSD(),
-            [this](const LLSD&notif, const LLSD&resp)
+            [](const LLSD&notif, const LLSD&resp)
         {
             S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
             if (opt == 0)
