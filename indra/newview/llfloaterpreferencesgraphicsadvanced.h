@@ -46,7 +46,6 @@ public:
     void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
     void updateMaxNonImpostors();
     void updateIndirectMaxNonImpostors(const LLSD& newvalue);
-    void onUICtrlMouseDown();
     void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
     void updateMaxComplexity();
     void updateComplexityText();

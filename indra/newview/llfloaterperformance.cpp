@@ -80,7 +80,7 @@ LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 {
     mContextMenu = new LLExceptionsContextMenu(this);
 
-    mCommitCallbackRegistrar.add("Pref.MouseDown", boost::bind(&LLFloaterPerformance::onUICtrlMouseDown, this));
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustWarning", boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
 }
 
 LLFloaterPerformance::~LLFloaterPerformance()
@@ -537,23 +537,6 @@ void LLFloaterPerformance::onAvatarListRightClick(LLUICtrl* ctrl, S32 x, S32 y)
     {
         selected_uuids.push_back(list->getCurrentID());
         mContextMenu->show(ctrl, selected_uuids, x, y);
-    }
-}
-
-void LLFloaterPerformance::onUICtrlMouseDown()
-{
-    static LLCachedControl<bool> use_auto_adjust(gSavedSettings,"AutoFPS");
-    if (use_auto_adjust)
-    {
-        LLNotificationsUtil::add("AutoFPSConfirmDisable", LLSD(), LLSD(),
-            [](const LLSD&notif, const LLSD&resp)
-        {
-            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-            if (opt == 0)
-            {
-                gSavedSettings.setBOOL("AutoFPS", FALSE);
-            }
-        });
     }
 }
 
