@@ -49,7 +49,7 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
     mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
     mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
 
-    mCommitCallbackRegistrar.add("Pref.MouseDown", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onUICtrlMouseDown, this));
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustWarning", boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
 
     mCommitCallbackRegistrar.add("Pref.Cancel", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnCancel, this, _2));
     mCommitCallbackRegistrar.add("Pref.OK",     boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onBtnOK, this, _2));
@@ -192,23 +192,6 @@ void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, L
     else
     {
         text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
-    }
-}
-
-void LLFloaterPreferenceGraphicsAdvanced::onUICtrlMouseDown()
-{
-    static LLCachedControl<bool> use_auto_adjust(gSavedSettings,"AutoFPS");
-    if (use_auto_adjust)
-    {
-        LLNotificationsUtil::add("AutoFPSConfirmDisable", LLSD(), LLSD(),
-            [](const LLSD&notif, const LLSD&resp)
-        {
-            S32 opt = LLNotificationsUtil::getSelectedOption(notif, resp);
-            if (opt == 0)
-            {
-                gSavedSettings.setBOOL("AutoFPS", FALSE);
-            }
-        });
     }
 }
 

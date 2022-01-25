@@ -219,7 +219,7 @@
     top_delta="40"
     width="330">
     <slider.mouse_down_callback
-      function="Pref.MouseDown" />
+      function="Pref.AutoAdjustWarning" />
   </slider>
   <text
     type="string"

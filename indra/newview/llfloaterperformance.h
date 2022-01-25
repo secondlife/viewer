@@ -63,8 +63,6 @@ private:
     void onClickHideAvatars();
     void onClickExceptions();
 
-    void onUICtrlMouseDown();
-
     void updateMaxComplexity();
     void updateComplexityText();
 

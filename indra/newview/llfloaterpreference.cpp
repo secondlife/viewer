@@ -304,7 +304,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
 	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
-    mCommitCallbackRegistrar.add("Pref.MouseDown",				boost::bind(&LLFloaterPreference::onUICtrlMouseDown, this));
+    mCommitCallbackRegistrar.add("Pref.AutoAdjustWarning",				boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
 
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
@@ -1783,7 +1783,7 @@ void LLFloaterPreference::updateSearchableItems()
     mSearchDataDirty = true;
 }
 
-void LLFloaterPreference::onUICtrlMouseDown()
+void LLFloaterPreference::showAutoAdjustWarning()
 {
     static LLCachedControl<bool> use_auto_adjust(gSavedSettings,"AutoFPS");
     if (use_auto_adjust)

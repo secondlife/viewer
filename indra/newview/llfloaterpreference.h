@@ -110,7 +110,7 @@ public:
 	void updateClickActionViews();
     void updateSearchableItems();
 
-    void onUICtrlMouseDown();
+    static void showAutoAdjustWarning();
 
     void		onBtnOK(const LLSD& userdata);
     void		onBtnCancel(const LLSD& userdata);

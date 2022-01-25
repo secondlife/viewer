@@ -41,7 +41,7 @@
     top_delta="16"
     width="330">
     <slider.mouse_down_callback
-      function="Pref.MouseDown" />
+      function="Pref.AutoAdjustWarning" />
     </slider>
   <text
     type="string"
@@ -186,7 +186,7 @@
       function="Pref.UpdateIndirectMaxNonImpostors"
       parameter="IndirectNonImpostorsText" />
     <slider.mouse_down_callback
-      function="Pref.MouseDown" />
+      function="Pref.AutoAdjustWarning" />
   </slider>
   <text
     type="string"
@@ -856,7 +856,7 @@
    name="ShadowDetail"
    width="150">
     <combo_box.mouse_down_callback
- function="Pref.MouseDown" />
+ function="Pref.AutoAdjustWarning" />
      <combo_box.item
        label="None"
        name="0"
