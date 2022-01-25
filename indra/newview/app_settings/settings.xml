@@ -1426,7 +1426,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>1024</integer>
+      <integer>4096</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
