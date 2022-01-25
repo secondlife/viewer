@@ -406,7 +406,8 @@ public:
 		}
         else if (level == "report_abuse")
         {
-            LLFloaterReporter::showFromChat(mAvatarID, mFrom, getChild<LLTextBox>("time_box")->getValue().asString(), mText);
+            std::string time = getChild<LLTextBox>("time_box")->getValue().asString();
+            LLFloaterReporter::showFromChat(mAvatarID, mFrom, time, mText);
         }
 		else if(level == "block_unblock")
 		{

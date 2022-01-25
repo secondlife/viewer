@@ -93,7 +93,7 @@ public:
 
 	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
 	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
-    static void showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, std::string& time, std::string& description);
+    static void showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description);
 	static void showFromExperience(const LLUUID& experience_id);
 
 	static void onClickSend			(void *userdata);

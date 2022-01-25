@@ -660,7 +660,7 @@ void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::strin
 }
 
 // static
-void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, std::string& time, std::string& description)
+void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description)
 {
     show(avatar_id, avatar_name);
     setDescription(time + "\n" + description);
