@@ -6821,6 +6821,17 @@
       <key>Value</key>
       <real>128.0</real>
     </map>
+    <key>MiniMapShowPropertyLines</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to show parcel borders on the MiniMap.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>MouseSensitivity</key>
     <map>
       <key>Comment</key>

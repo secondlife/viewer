@@ -69,6 +69,7 @@ public:
 
 	// Returns the number of vertices drawn
 	S32				renderPropertyLines();
+    void			renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32* parcel_outline_color);
 
 	U8				ownership( const LLVector3& pos) const;
 	U8				parcelLineFlags( const LLVector3& pos) const;
@@ -82,7 +83,7 @@ public:
 
 	void	idleUpdate(bool update_now = false);
 	void	updateGL();
-
+    
 private:
 	// This is in parcel rows and columns, not grid rows and columns
 	// Stored in bottom three bits.

@@ -154,6 +154,7 @@ void LLNetMap::draw()
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
+	static LLUIColor map_parcel_outline_color = LLUIColorTable::instance().getColor("MapParcelOutlineColor", LLColor4(LLColor3(LLColor4::yellow), 0.5f));
 	
 	if (mObjectImagep.isNull())
 	{
@@ -211,7 +212,8 @@ void LLNetMap::draw()
 		}
 
 		// figure out where agent is
-		S32 region_width = ll_round(LLWorld::getInstance()->getRegionWidthInMeters());
+		const S32 region_width = ll_round(LLWorld::getInstance()->getRegionWidthInMeters());
+        const F32 scale_pixels_per_meter = mScale / region_width;
 
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
 			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -220,8 +222,8 @@ void LLNetMap::draw()
 			// Find x and y position relative to camera's center.
 			LLVector3 origin_agent = regionp->getOriginAgent();
 			LLVector3 rel_region_pos = origin_agent - gAgentCamera.getCameraPositionAgent();
-			F32 relative_x = (rel_region_pos.mV[0] / region_width) * mScale;
-			F32 relative_y = (rel_region_pos.mV[1] / region_width) * mScale;
+			F32 relative_x = rel_region_pos.mV[0] * scale_pixels_per_meter;
+			F32 relative_y = rel_region_pos.mV[1] * scale_pixels_per_meter;
 
 			// background region rectangle
 			F32 bottom =	relative_y;
@@ -242,6 +244,7 @@ void LLNetMap::draw()
 			{
 				gGL.color4f(1.f, 0.5f, 0.5f, 1.f);
 			}
+
 
 
 			// Draw using texture.
@@ -305,8 +308,8 @@ void LLNetMap::draw()
 		LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
 		LLVector3 camera_position = gAgentCamera.getCameraPositionAgent();
 		map_center_agent -= camera_position;
-		map_center_agent.mV[VX] *= mScale/region_width;
-		map_center_agent.mV[VY] *= mScale/region_width;
+		map_center_agent.mV[VX] *= scale_pixels_per_meter;
+		map_center_agent.mV[VY] *= scale_pixels_per_meter;
 
 		gGL.getTexUnit(0)->bind(mObjectImagep);
 		F32 image_half_width = 0.5f*mObjectMapPixels;
@@ -322,6 +325,13 @@ void LLNetMap::draw()
 			gGL.texCoord2f(1.f, 1.f);
 			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
 		gGL.end();
+        
+		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		{
+			LLViewerRegion* regionp = *iter;
+            regionp->renderPropertyLinesOnMinimap(scale_pixels_per_meter, map_parcel_outline_color.get().mV);
+        }
 
 		gGL.popMatrix();
 
