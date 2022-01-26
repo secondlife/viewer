@@ -70,7 +70,7 @@ RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-RenderGLCoreProfile         1   0
+RenderGLContextCoreProfile         1   0
 RenderGLMultiThreaded       1   0
 
 //
