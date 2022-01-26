@@ -127,6 +127,9 @@ const F32 MIN_HOVER_Z = -2.0;
 const F32 MIN_ATTACHMENT_COMPLEXITY = 0.f;
 const F32 DEFAULT_MAX_ATTACHMENT_COMPLEXITY = 1.0e6f;
 
+// Unlike with 'self' avatar, server doesn't inform viewer about
+// expected attachments so viewer has to wait to see if anything
+// else will arrive
 const F32 FIRST_APPEARANCE_CLOUD_MIN_DELAY = 3.f; // seconds
 const F32 FIRST_APPEARANCE_CLOUD_MAX_DELAY = 45.f;
 
@@ -746,7 +749,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 
 	mCurrentGesticulationLevel = 0;
 
-	mFirstSeenTimer.reset();
+    mFirstAppearanceMessageTimer.reset();
 	mRuthTimer.reset();
 	mRuthDebugTimer.reset();
 	mDebugExistenceTimer.reset();
@@ -6434,6 +6437,16 @@ void LLVOAvatar::updateAttachmentOverrides()
 #endif
 }
 
+void LLVOAvatar::notifyAttachmentMeshLoaded()
+{
+    if (!isFullyLoaded())
+    {
+        // We just received mesh or skin info
+        // Reset timer to wait for more potential meshes or changes
+        mFullyLoadedTimer.reset();
+    }
+}
+
 //-----------------------------------------------------------------------------
 // addAttachmentOverridesForObject
 //-----------------------------------------------------------------------------
@@ -8156,7 +8169,7 @@ BOOL LLVOAvatar::processFullyLoadedChange(bool loading)
                 // Note that textures can causes 60s delay on thier own
                 // so this delay might end up on top of textures' delay
                 mFirstUseDelaySeconds = llclamp(
-                    mFirstSeenTimer.getElapsedTimeF32(),
+                    mFirstAppearanceMessageTimer.getElapsedTimeF32(),
                     FIRST_APPEARANCE_CLOUD_MIN_DELAY,
                     FIRST_APPEARANCE_CLOUD_MAX_DELAY);
 
@@ -8926,6 +8939,9 @@ void LLVOAvatar::onFirstTEMessageReceived()
 
         mMeshTexturesDirty = TRUE;
 		gPipeline.markGLRebuild(this);
+
+        mFirstAppearanceMessageTimer.reset();
+        mFullyLoadedTimer.reset();
 	}
 }
 
