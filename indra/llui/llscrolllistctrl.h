@@ -325,6 +325,7 @@ public:
 	// support right-click context menus for avatar/group lists
 	enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
 	void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
+    ContextMenuType getContextMenuType() { return mContextMenuType; }
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();

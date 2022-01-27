@@ -271,6 +271,25 @@ BOOL LLNameListCtrl::handleToolTip(S32 x, S32 y, MASK mask)
 	return handled;
 }
 
+// virtual
+BOOL LLNameListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
+{
+    LLNameListItem* hit_item = dynamic_cast<LLNameListItem*>(hitItem(x, y));
+    LLFloater* floater = gFloaterView->getParentFloater(this);
+    if (floater && floater->isFrontmost() && hit_item)
+    {
+        if(hit_item->isGroup())
+        {
+            ContextMenuType prev_menu = getContextMenuType();
+            setContextMenu(MENU_GROUP);
+            BOOL handled = LLScrollListCtrl::handleRightMouseDown(x, y, mask);
+            setContextMenu(prev_menu);
+            return handled;
+        }
+    }
+    return LLScrollListCtrl::handleRightMouseDown(x, y, mask);    
+}
+
 // public
 void LLNameListCtrl::addGroupNameItem(const LLUUID& group_id, EAddPosition pos,
 									  BOOL enabled)
