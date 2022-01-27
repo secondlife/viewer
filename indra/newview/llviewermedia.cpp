@@ -2825,7 +2825,7 @@ static LLTrace::BlockTimerStatHandle FTM_MEDIA_SET_SUBIMAGE("Set Subimage");
 
 void LLViewerMediaImpl::update()
 {
-    LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA; //LL_RECORD_BLOCK_TIME(FTM_MEDIA_DO_UPDATE);
     if(mMediaSource == NULL)
     {
         if(mPriority == LLPluginClassMedia::PRIORITY_UNLOADED)
@@ -2933,7 +2933,7 @@ void LLViewerMediaImpl::update()
 //////////////////////////////////////////////////////////////////////////////////////////
 void LLViewerMediaImpl::doMediaTexUpdate()
 {
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     LLViewerMediaTexture* media_tex = updateMediaImage();
 
     if (media_tex && mMediaSource)
@@ -2970,7 +2970,7 @@ void LLViewerMediaImpl::doMediaTexUpdate()
                     data += (y_pos * media_depth);
 
                     {
-                        LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
+                        LL_PROFILE_ZONE_NAMED_CATEGORY_MEDIA("media set subimage"); //LL_RECORD_BLOCK_TIME(FTM_MEDIA_SET_SUBIMAGE);
                         media_tex->setSubImage(
                             data,
                             data_width,
@@ -2993,6 +2993,7 @@ void LLViewerMediaImpl::doMediaTexUpdate()
 // runs on main thread, but only called when bg thread updates are active
 void LLViewerMediaImpl::endMediaTexUpdate()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     LLViewerMediaTexture* base_image = LLViewerTextureManager::findMediaTexture(mTextureId);
     llassert(base_image);
 
@@ -3008,6 +3009,7 @@ void LLViewerMediaImpl::updateImagesMediaStreams()
 //////////////////////////////////////////////////////////////////////////////////////////
 LLViewerMediaTexture* LLViewerMediaImpl::updateMediaImage()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
     if (!mMediaSource)
     {
         return nullptr; // not ready for updating
