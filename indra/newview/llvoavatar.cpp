@@ -2825,7 +2825,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                     //override rigged attachments' octree spatial extents with this avatar's bounding box
                     LLSpatialBridge* bridge = attached_object->mDrawable->getSpatialBridge();
                     bool rigged = false;
-                    if (bridge)
+                    if (bridge && !bridge->isDead())
                     {
                         //transform avatar bounding box into attachment's coordinate frame
                         LLVector4a extents[2];
@@ -2842,7 +2842,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                     attached_object->mDrawable->makeActive();
                     attached_object->mDrawable->updateXform(TRUE);
                     
-                    if (bridge)
+                    if (bridge && !bridge->isDead())
                     {
                         if (!rigged)
                         {
