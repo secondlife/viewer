@@ -925,7 +925,7 @@ bool LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 
 void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
-    LL_PROFILE_ZONE_NAMED("djh imageraw clear")
+    LL_PROFILE_ZONE_SCOPED;
     S8 components = getComponents();
     llassert( components > 0 && components <= 4 );
 

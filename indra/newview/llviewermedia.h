@@ -269,9 +269,8 @@ public:
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
 
 	void update();
-    bool preUpdateMediaTexture();
     void doMediaTexUpdate();
-    bool postUpdateMediaTexture();
+    void endMediaTexUpdate();
 	void updateImagesMediaStreams();
 	LLUUID getMediaTextureID() const;
 	
@@ -495,13 +494,13 @@ private:
     bool mCanceling;
 
 private:
-	LLViewerMediaTexture *updatePlaceholderImage();
+	LLViewerMediaTexture *updateMediaImage();
     LL::WorkQueue::weak_t mMainQueue;
     LL::WorkQueue::weak_t mTexUpdateQueue;
 
 };
 
-// Define a worker thread pool for media updates ( LLImageGLThread)
+// Define a worker thread pool for media updates (ref LLImageGLThread)
 class LLMediaTextureUpdateThread : public LLSimpleton<LLMediaTextureUpdateThread>, LL::ThreadPool
 {
 public:

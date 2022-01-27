@@ -1643,6 +1643,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
 #endif
             mNeedsCreateTexture = TRUE;
             auto mainq = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
+            ref(); // protect texture from deletion while active on bg queue
             if (mainq)
             {
                 mainq->postTo(
