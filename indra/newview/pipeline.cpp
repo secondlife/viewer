@@ -9325,7 +9325,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 LLColor3 col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
                 glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 
-                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+                // HACK FIX -- pretend underwater camera is the world camera to fix weird visibility artifacts
+                // during distortion render (doesn't break main render because the camera is the same perspective
+                // as world camera and occlusion culling is disabled for this pass)
+                //LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
                 mWaterDis.bindTarget();
                 mWaterDis.getViewport(gGLViewport);
