@@ -69,6 +69,9 @@ public:
 	S32 mFatalErrorCount;
 	S32 mWarningCount;
 	bool mInitialized;
+	bool mFatalNoRootFolder;
+	bool mFatalNoLibraryRootFolder;
+	bool mFatalQADebugMode;
 	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
 	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
 };

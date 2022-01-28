@@ -138,7 +138,10 @@ bool LLCanCache::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
 LLInventoryValidationInfo::LLInventoryValidationInfo():
 	mFatalErrorCount(0),
 	mWarningCount(0),
-	mInitialized(false)
+	mInitialized(false),
+	mFatalNoRootFolder(false),
+	mFatalNoLibraryRootFolder(false),
+	mFatalQADebugMode(false)
 {
 }
 
@@ -160,6 +163,9 @@ void LLInventoryValidationInfo::asLLSD(LLSD& sd) const
 	sd["warning_count"] = mWarningCount;
 	sd["initialized"] = mInitialized;
 	sd["missing_system_folders_count"] = LLSD::Integer(mMissingRequiredSystemFolders.size());
+	sd["fatal_no_root_folder"] = mFatalNoRootFolder;
+	sd["fatal_no_library_root_folder"] = mFatalNoLibraryRootFolder;
+	sd["fatal_qa_debug_mode"] = mFatalQADebugMode;
 	if (mMissingRequiredSystemFolders.size()>0)
 	{
 		sd["missing_system_folders"] = LLSD::emptyArray();
@@ -3850,11 +3856,13 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	if (getRootFolderID().isNull())
 	{
 		LL_WARNS("Inventory") << "Fatal inventory corruption: no root folder id" << LL_ENDL;
+		validation_info->mFatalNoRootFolder = true;
 		fatalities++;
 	}
 	if (getLibraryRootFolderID().isNull())
 	{
 		LL_WARNS("Inventory") << "Fatal inventory corruption: no library root folder id" << LL_ENDL;
+		validation_info->mFatalNoLibraryRootFolder = true;
 		fatalities++;
 	}
 
@@ -4196,6 +4204,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			// Force all counts to be either 0 or 2, thus flagged as an error.
 			count_under_root = 2*distrib(e); 
 			count_elsewhere = 2*distrib(e);
+			validation_info->mFatalQADebugMode = true;
 		}
 		if (is_singleton)
 		{
