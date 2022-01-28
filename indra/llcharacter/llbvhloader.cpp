@@ -874,6 +874,8 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 	}
 
 	// If the user only supplies one animation frame (after the ignored reference frame 0), hold for mFrameTime.
+	// If the user supples exactly one total frame, it isn't clear if that is a pose or reference frame, and the
+	// behavior is not defined. In this case, retain historical undefined behavior.
 	mDuration = llmax((F32)(mNumFrames - NUMBER_OF_UNPLAYED_FRAMES), 1.0f) * mFrameTime;
 	if (!mLoop)
 	{
@@ -1383,11 +1385,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 				continue;
 			}
 
-			if (frame == 0) {
-				LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] Joint " << ki - joint->mKeys.begin() << " not marked to ignore rotation for initial frame. Not serializing." << LL_ENDL;
-				return FALSE;
-			}
-			time = (F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START) * mFrameTime; // Time elapsed before this frame starts.
+			time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
 			if (mergeParent)
 			{
@@ -1463,11 +1461,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 					continue;
 				}
 
-				if (frame == 0) {
-					LL_WARNS("BVH") << "ERROR: [line: " << getLineNumber() << "] Joint " << ki - joint->mKeys.begin() << " not marked to ignore position for initial frame. Not serializing." << LL_ENDL;
-					return FALSE;
-				}
-				time = (F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START) * mFrameTime; // Time elapsed before this frame starts.
+				time = llmax((F32)(frame - NUMBER_OF_IGNORED_FRAMES_AT_START), 0.0f) * mFrameTime; // Time elapsed before this frame starts.
 
 				LLVector3 inPos = (LLVector3(ki->mPos) - relKey) * ~first_frame_rot;// * fixup_rot;
 				LLVector3 outPos = inPos * frameRot * offsetRot;
