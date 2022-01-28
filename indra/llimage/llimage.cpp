@@ -951,7 +951,11 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
             U16 *dst = (U16 *)getData();
             S32 count = getWidth() * getHeight();
             llassert(count == getDataSize() / 2);
+#ifdef LL_LITTLE_ENDIAN
             U16 val = (U16)(r | g << 8);
+#else
+            U16 val = (U16)(r << 8 | g);
+#endif
             std::fill_n(dst, count, val);
             break;
         }
@@ -973,7 +977,11 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
             U32 *dst = (U32 *)getData();
             S32 count = getWidth() * getHeight();
             llassert(count == getDataSize() / 4);
+#ifdef LL_LITTLE_ENDIAN
             U32 val = (U32)(r | g << 8 | b << 16 | a << 24);
+#else
+            U32 val = (U32)(r << 24 | g << 16 | b << 8 | a);
+#endif
             std::fill_n(dst, count, val);
             break;
         }
