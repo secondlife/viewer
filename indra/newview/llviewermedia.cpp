@@ -1702,11 +1702,13 @@ void LLViewerMediaImpl::destroyMediaSource()
 
 	cancelMimeTypeProbe();
 
+    mLock.lock();   // Delay tear-down while bg thread is updating
 	if(mMediaSource)
 	{
 		mMediaSource->setDeleteOK(true) ;
 		mMediaSource = NULL; // shared pointer
 	}
+    mLock.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -2901,16 +2903,11 @@ void LLViewerMediaImpl::update()
         return;
     }
 
-
     // Push update to worker thread
     auto main_queue = LLMediaTextureUpdateThread::sEnabled ? mMainQueue.lock() : nullptr;
     ref();  // protect texture from deletion while active on bg queue
     if (main_queue)
     {
-        // replace GL name
-        //llassert(!mTextureId.isNull());
-        //LLImageGL* base_image = LLViewerTextureManager::getMediaTexture(mTextureId)->getGLTexture();
-        //GLuint retired_name = base_image->allocNew();
         main_queue->postTo(
             mTexUpdateQueue, // Worker thread queue
             [this]() // work done on update worker thread
@@ -2934,12 +2931,12 @@ void LLViewerMediaImpl::update()
 void LLViewerMediaImpl::doMediaTexUpdate()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEDIA;
+    mLock.lock();   // don't allow media source tear-down during update
+
     LLViewerMediaTexture* media_tex = updateMediaImage();
 
     if (media_tex && mMediaSource)
     {
-        llassert(mMediaSource); 
-        
         LLRect dirty_rect;
         S32 media_width = mMediaSource->getTextureWidth();
         S32 media_height = mMediaSource->getTextureHeight();
@@ -2987,6 +2984,7 @@ void LLViewerMediaImpl::doMediaTexUpdate()
             mMediaSource->resetDirty();
         }
     }
+    mLock.unlock();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
