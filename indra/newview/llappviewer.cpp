@@ -1177,43 +1177,41 @@ bool LLAppViewer::init()
 #if LL_RELEASE_FOR_DOWNLOAD
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
     {
-	LLProcess::Params updater;
-	updater.desc = "updater process";
-	// Because it's the updater, it MUST persist beyond the lifespan of the
-	// viewer itself.
-	updater.autokill = false;
-	std::string updater_file;
+        LLProcess::Params updater;
+        updater.desc = "updater process";
+        // Because it's the updater, it MUST persist beyond the lifespan of the
+        // viewer itself.
+        updater.autokill = false;
+        std::string updater_file;
 #if LL_WINDOWS
-	updater_file = "SLVersionChecker.exe";
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
+        updater_file = "SLVersionChecker.exe";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on SLVersionChecker.py
-	updater.executable = "python";
-	updater_file = "SLVersionChecker.py";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file));
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file);
 #else
-	updater_file = "SLVersionChecker";
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #endif
-	// add LEAP mode command-line argument to whichever of these we selected
-	updater.args.add("leap");
-	// UpdaterServiceSettings
-    if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-    {
-        // Befor first login, treat this as 'manual' updates,
-        // updater won't install anything, but required updates
-        updater.args.add("0");
-    }
-    else
-    {
-        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
-    }
-	// channel
-	updater.args.add(LLVersionInfo::instance().getChannel());
-	// testok
-	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// ForceAddressSize
-	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
+        // add LEAP mode command-line argument to whichever of these we selected
+        updater.args.add("leap");
+        // UpdaterServiceSettings
+        if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+        {
+            // Befor first login, treat this as 'manual' updates,
+            // updater won't install anything, but required updates
+            updater.args.add("0");
+        }
+        else
+        {
+            updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+        }
+        // channel
+        updater.args.add(LLVersionInfo::instance().getChannel());
+        // testok
+        updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+        // ForceAddressSize
+        updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
         try
         {
@@ -1231,11 +1229,11 @@ bool LLAppViewer::init()
                 OSMB_OK);
             mUpdaterNotFound = true;
         }
-	}
-	else
-	{
-		LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
-	}
+    }
+    else
+    {
+        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
+    }
 
     if (mUpdaterNotFound)
     {
@@ -1268,12 +1266,12 @@ bool LLAppViewer::init()
         }
     }
 
-	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
-	{
-		LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
-							 << "lleventhost no longer supported as a dynamic library"
-							 << LL_ENDL;
-	}
+    if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
+    {
+        LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
+                             << "lleventhost no longer supported as a dynamic library"
+                             << LL_ENDL;
+    }
 #endif //LL_RELEASE_FOR_DOWNLOAD
 
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
