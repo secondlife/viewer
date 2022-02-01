@@ -1047,7 +1047,11 @@ LLPreviewAnimation::LLPreviewAnimation(S32 width, S32 height) : LLViewerDynamicT
 	mDummyAvatar = (LLVOAvatar*)gObjectList.createObjectViewer(LL_PCODE_LEGACY_AVATAR, gAgent.getRegion(), LLViewerObject::CO_FLAG_UI_AVATAR);
 	mDummyAvatar->mSpecialRenderMode = 1;
 	mDummyAvatar->startMotion(ANIM_AGENT_STAND, BASE_ANIM_TIME_OFFSET);
-	mDummyAvatar->hideSkirt();
+
+    // on idle overall apperance update will set skirt to visible, so either
+    // call early or account for mSpecialRenderMode in updateMeshVisibility
+    mDummyAvatar->updateOverallAppearance();
+    mDummyAvatar->hideSkirt();
 
 	// stop extraneous animations
 	mDummyAvatar->stopMotion( ANIM_AGENT_HEAD_ROT, TRUE );
