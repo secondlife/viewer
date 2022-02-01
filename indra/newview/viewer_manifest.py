@@ -26,7 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
+from __future__ import print_function
+
 import errno
+import glob
+import itertools
 import json
 import os
 import os.path
@@ -1273,47 +1277,80 @@ class DarwinManifest(ViewerManifest):
                     keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
                     keychain_pwd = open(keychain_pwd_path).read().rstrip()
 
-                    # Note: As of macOS Sierra, keychains are created with names postfixed with '-db' so for example, the
-                    #       SL Viewer keychain would by default be found in ~/Library/Keychains/viewer.keychain-db instead of
-                    #       just ~/Library/Keychains/viewer.keychain in earlier versions.
+                    # Note: As of macOS Sierra, keychains are created with
+                    #       names postfixed with '-db' so for example, the SL
+                    #       Viewer keychain would by default be found in
+                    #       ~/Library/Keychains/viewer.keychain-db instead of
+                    #       just ~/Library/Keychains/viewer.keychain in
+                    #       earlier versions.
                     #
-                    #       Because we have old OS files from previous versions of macOS on the build hosts, the configurations
-                    #       are different on each host. Some have viewer.keychain, some have viewer.keychain-db and some have both.
-                    #       As you can see in the line below, this script expects the Linden Developer cert/keys to be in viewer.keychain.
+                    #       Because we have old OS files from previous
+                    #       versions of macOS on the build hosts, the
+                    #       configurations are different on each host. Some
+                    #       have viewer.keychain, some have viewer.keychain-db
+                    #       and some have both. As you can see in the line
+                    #       below, this script expects the Linden Developer
+                    #       cert/keys to be in viewer.keychain.
                     #
-                    #       To correctly sign builds you need to make sure ~/Library/Keychains/viewer.keychain exists on the host
-                    #       and that it contains the correct cert/key. If a build host is set up with a clean version of macOS Sierra (or later)
-                    #       then you will need to change this line (and the one for 'codesign' command below) to point to right place or else
-                    #       pull in the cert/key into the default viewer keychain 'viewer.keychain-db' and export it to 'viewer.keychain'
+                    #       To correctly sign builds you need to make sure
+                    #       ~/Library/Keychains/viewer.keychain exists on the
+                    #       host and that it contains the correct cert/key. If
+                    #       a build host is set up with a clean version of
+                    #       macOS Sierra (or later) then you will need to
+                    #       change this line (and the one for 'codesign'
+                    #       command below) to point to right place or else
+                    #       pull in the cert/key into the default viewer
+                    #       keychain 'viewer.keychain-db' and export it to
+                    #       'viewer.keychain'
                     viewer_keychain = os.path.join(home_path, 'Library',
                                                    'Keychains', 'viewer.keychain')
                     self.run_command(['security', 'unlock-keychain',
                                       '-p', keychain_pwd, viewer_keychain])
-                    signed=False
-                    sign_attempts=3
                     sign_retry_wait=15
-                    libvlc_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_libvlc.dylib"
-                    cef_path = app_in_dmg + "/Contents/Resources/llplugin/media_plugin_cef.dylib"
-                    slplugin_path = app_in_dmg + "/Contents/Resources/SLPlugin.app/Contents/MacOS/SLPlugin"
-                    greenlet_path = app_in_dmg + "/Contents/Resources/updater/greenlet/_greenlet.so"
-                    while (not signed) and (sign_attempts > 0):
+                    resources = app_in_dmg + "/Contents/Resources/"
+                    plain_sign = list(itertools.chain(
+                        glob.glob(resources + "llplugin/*.dylib"),
+                        [resources + "updater/SLVersionChecker"]))
+                    deep_sign = [
+                        resources + "SLPlugin.app/Contents/MacOS/SLPlugin",
+                        app_in_dmg,
+                        ]
+                    for attempt in range(3):
+                        if attempt: # second or subsequent iteration
+                            print("codesign failed, waiting %d seconds before retrying" %
+                                  sign_retry_wait,
+                                  file=sys.stderr)
+                            time.sleep(sign_retry_wait)
+                            sign_retry_wait*=2
+
                         try:
-                            sign_attempts-=1
                             # Note: See blurb above about names of keychains
-                            self.run_command(['codesign', '--force', '--timestamp','--keychain', viewer_keychain, '--sign', identity, libvlc_path])
-                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, cef_path])
-                            self.run_command(['codesign', '--force', '--timestamp', '--keychain', viewer_keychain, '--sign', identity, greenlet_path])
-                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, slplugin_path])
-                            self.run_command(['codesign', '--verbose', '--deep', '--force', '--entitlements', self.src_path_of("slplugin.entitlements"), '--options', 'runtime', '--keychain', viewer_keychain, '--sign', identity, app_in_dmg])
-                            signed=True # if no exception was raised, the codesign worked
+                            for signee in plain_sign:
+                                self.run_command(
+                                    ['codesign',
+                                     '--force',
+                                     '--timestamp',
+                                     '--keychain', viewer_keychain,
+                                     '--sign', identity,
+                                     signee])
+                            for signee in deep_sign:
+                                self.run_command(
+                                    ['codesign',
+                                     '--verbose',
+                                     '--deep',
+                                     '--force',
+                                     '--entitlements', self.src_path_of("slplugin.entitlements"),
+                                     '--options', 'runtime',
+                                     '--keychain', viewer_keychain,
+                                     '--sign', identity,
+                                     signee])
+                            break # if no exception was raised, the codesign worked
                         except ManifestError as err:
-                            if sign_attempts:
-                                print >> sys.stderr, "codesign failed, waiting %d seconds before retrying" % sign_retry_wait
-                                time.sleep(sign_retry_wait)
-                                sign_retry_wait*=2
-                            else:
-                                print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
-                                raise
+                            # 'err' goes out of scope
+                            sign_failed = err
+                    else:
+                        print("Maximum codesign attempts exceeded; giving up", file=sys.stderr)
+                        raise sign_failed
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
                     self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
 
