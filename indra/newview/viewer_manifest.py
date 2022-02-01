@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
 $/LicenseInfo$
 """
-from __future__ import print_function
-
 import errno
 import glob
 import itertools
@@ -1317,9 +1315,9 @@ class DarwinManifest(ViewerManifest):
                         ]
                     for attempt in range(3):
                         if attempt: # second or subsequent iteration
-                            print("codesign failed, waiting %d seconds before retrying" %
-                                  sign_retry_wait,
-                                  file=sys.stderr)
+                            print >> sys.stderr, \
+                                ("codesign failed, waiting %d seconds before retrying" %
+                                 sign_retry_wait)
                             time.sleep(sign_retry_wait)
                             sign_retry_wait*=2
 
@@ -1349,7 +1347,7 @@ class DarwinManifest(ViewerManifest):
                             # 'err' goes out of scope
                             sign_failed = err
                     else:
-                        print("Maximum codesign attempts exceeded; giving up", file=sys.stderr)
+                        print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
                         raise sign_failed
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
                     self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
