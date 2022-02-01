@@ -149,9 +149,6 @@ protected:
 	void 	onCommitNormalTexture(const LLSD& data);
 	void 	onCancelNormalTexture(const LLSD& data);
 	void 	onSelectNormalTexture(const LLSD& data);
-    void 	onClickBtnEditMedia();
-    void 	onClickBtnDeleteMedia();
-    void 	onClickBtnAddMedia();
 	void 	onCommitColor(const LLSD& data);
 	void 	onCommitShinyColor(const LLSD& data);
 	void 	onCommitAlpha(const LLSD& data);
@@ -209,6 +206,9 @@ protected:
 
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnEditMedia(LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnDeleteMedia(LLUICtrl* ctrl, void* userdata);
+	static void 	onClickBtnAddMedia(LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);

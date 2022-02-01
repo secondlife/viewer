@@ -157,10 +157,8 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("glossiness",&LLPanelFace::onCommitMaterialGloss, this);
 	childSetCommitCallback("environment",&LLPanelFace::onCommitMaterialEnv, this);
 	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterialMaskCutoff, this);
-
-    mCommitCallbackRegistrar.add("BuildTool.AddMedia", boost::bind(&LLPanelFace::onClickBtnAddMedia, this));
-    mCommitCallbackRegistrar.add("BuildTool.DeleteMedia", boost::bind(&LLPanelFace::onClickBtnDeleteMedia, this));
-    mCommitCallbackRegistrar.add("BuildTool.EditMedia", boost::bind(&LLPanelFace::onClickBtnEditMedia, this));
+    childSetCommitCallback("add_media", &LLPanelFace::onClickBtnAddMedia, this);
+    childSetCommitCallback("delete_media", &LLPanelFace::onClickBtnDeleteMedia, this);
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
@@ -2797,32 +2795,34 @@ void LLPanelFace::onSelectNormalTexture(const LLSD& data)
 //////////////////////////////////////////////////////////////////////////////
 // called when a user wants to edit existing media settings on a prim or prim face
 // TODO: test if there is media on the item and only allow editing if present
-void LLPanelFace::onClickBtnEditMedia()
+void LLPanelFace::onClickBtnEditMedia(LLUICtrl* ctrl, void* userdata)
 {
-    refreshMedia();
+    LLPanelFace* self = (LLPanelFace*)userdata;
+    self->refreshMedia();
     LLFloaterReg::showInstance("media_settings");
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when a user wants to delete media from a prim or prim face
-void LLPanelFace::onClickBtnDeleteMedia()
+void LLPanelFace::onClickBtnDeleteMedia(LLUICtrl* ctrl, void* userdata)
 {
     LLNotificationsUtil::add("DeleteMedia", LLSD(), LLSD(), deleteMediaConfirm);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when a user wants to add media to a prim or prim face
-void LLPanelFace::onClickBtnAddMedia()
+void LLPanelFace::onClickBtnAddMedia(LLUICtrl* ctrl, void* userdata)
 {
     // check if multiple faces are selected
     if (LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected())
     {
-        refreshMedia();
+        LLPanelFace* self = (LLPanelFace*)userdata;
+        self->refreshMedia();
         LLNotificationsUtil::add("MultipleFacesSelected", LLSD(), LLSD(), multipleFacesSelectedConfirm);
     }
     else
     {
-        onClickBtnEditMedia();
+        onClickBtnEditMedia(ctrl, userdata);
     }
 }
 
