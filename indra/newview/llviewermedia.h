@@ -432,7 +432,6 @@ private:
 private:
 	// a single media url with some data and an impl.
 	boost::shared_ptr<LLPluginClassMedia> mMediaSource;
-    LLMutex mLock;
 	F64		mZoomFactor;
 	LLUUID mTextureId;
 	bool  mMovieImageHasMips;
