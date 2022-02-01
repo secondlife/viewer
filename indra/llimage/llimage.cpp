@@ -925,73 +925,47 @@ bool LLImageRaw::setSubImage(U32 x_pos, U32 y_pos, U32 width, U32 height,
 
 void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
-    LL_PROFILE_ZONE_SCOPED;
-    S8 components = getComponents();
-    llassert( components > 0 && components <= 4 );
+	llassert( getComponents() <= 4 );
+	// This is fairly bogus, but it'll do for now.
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
 
-    // This is fairly bogus, but it'll do for now.
-    if (isBufferInvalid())
-    {
-        LL_WARNS() << "Invalid image buffer" << LL_ENDL;
-        return;
-    }
-
-    switch (components)
-    {
-    case 1:
-        {
-            U8 *dst = getData();
-            S32 count = getWidth() * getHeight();
-            llassert(count == getDataSize());
-            std::fill_n(dst, count, r);
-            break;
-        }
-    case 2:
-        {
-            U16 *dst = (U16 *)getData();
-            S32 count = getWidth() * getHeight();
-            llassert(count == getDataSize() / 2);
-#ifdef LL_LITTLE_ENDIAN
-            U16 val = (U16)(r | g << 8);
-#else
-            U16 val = (U16)(r << 8 | g);
-#endif
-            std::fill_n(dst, count, val);
-            break;
-        }
-    case 3:
-        {
-            U8 *dst = getData();
-            S32 count = getWidth() * getHeight();
-            llassert(count == getDataSize() / 3);
-            for (S32 i = 0; i < count; i++)
-            {
-                *dst++ = r;
-                *dst++ = g;
-                *dst++ = b;
-            }
-            break;
-        }
-    case 4:
-        {
-            U32 *dst = (U32 *)getData();
-            S32 count = getWidth() * getHeight();
-            llassert(count == getDataSize() / 4);
-#ifdef LL_LITTLE_ENDIAN
-            U32 val = (U32)(r | g << 8 | b << 16 | a << 24);
-#else
-            U32 val = (U32)(r << 24 | g << 16 | b << 8 | a);
-#endif
-            std::fill_n(dst, count, val);
-            break;
-        }
-    }
+	U8 *pos = getData();
+	U32 x, y;
+	for (x = 0; x < getWidth(); x++)
+	{
+		for (y = 0; y < getHeight(); y++)
+		{
+			*pos = r;
+			pos++;
+			if (getComponents() == 1)
+			{
+				continue;
+			}
+			*pos = g;
+			pos++;
+			if (getComponents() == 2)
+			{
+				continue;
+			}
+			*pos = b;
+			pos++;
+			if (getComponents() == 3)
+			{
+				continue;
+			}
+			*pos = a;
+			pos++;
+		}
+	}
 }
 
 // Reverses the order of the rows in the image
 void LLImageRaw::verticalFlip()
 {
-    LL_PROFILE_ZONE_SCOPED;
 	S32 row_bytes = getWidth() * getComponents();
 	llassert(row_bytes > 0);
 	std::vector<U8> line_buffer(row_bytes);

@@ -197,10 +197,7 @@ public:
 		U8 media_loop);
 
 	~LLViewerMediaImpl();
-
-    static void initClass(LLWindow* window, bool multi_threaded = false);
-    static void cleanupClass();
-
+	
 	// Override inherited version from LLViewerMediaEventEmitter 
 	virtual void emitEvent(LLPluginClassMedia* self, LLViewerMediaObserver::EMediaEvent event);
 
@@ -269,8 +266,6 @@ public:
 	void scaleTextureCoords(const LLVector2& texture_coords, S32 *x, S32 *y);
 
 	void update();
-    void doMediaTexUpdate();
-    void endMediaTexUpdate();
 	void updateImagesMediaStreams();
 	LLUUID getMediaTextureID() const;
 	
@@ -494,35 +489,7 @@ private:
     bool mCanceling;
 
 private:
-	LLViewerMediaTexture *updateMediaImage();
-    LL::WorkQueue::weak_t mMainQueue;
-    LL::WorkQueue::weak_t mTexUpdateQueue;
-
+	LLViewerMediaTexture *updatePlaceholderImage();
 };
-
-// Define a worker thread pool for media updates (ref LLImageGLThread)
-class LLMediaTextureUpdateThread : public LLSimpleton<LLMediaTextureUpdateThread>, LL::ThreadPool
-{
-public:
-    // follows gSavedSettings "RenderGLMultiThreaded"
-    static bool sEnabled;
-
-    LLMediaTextureUpdateThread(LLWindow* window);
-
-    // post a function to be executed on the LLMediaTextureUpdateThread background thread
-    template <typename CALLABLE>
-    bool post(CALLABLE&& func)
-    {
-        return getQueue().postIfOpen(std::forward<CALLABLE>(func));
-    }
-
-    void run() override;
-
-private:
-    LLWindow* mWindow;
-    void* mContext = nullptr;
-    LLAtomicBool mFinished;
-};
-
 
 #endif	// LLVIEWERMEDIA_H

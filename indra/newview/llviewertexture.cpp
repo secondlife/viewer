@@ -1629,6 +1629,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
         mNeedsCreateTexture = TRUE;
         if (preCreateTexture())
         {
+            ref();
 #if LL_IMAGEGL_THREAD_CHECK
             //grab a copy of the raw image data to make sure it isn't modified pending texture creation
             U8* data = mRawImage->getData();
@@ -1642,7 +1643,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
 #endif
             mNeedsCreateTexture = TRUE;
             auto mainq = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
-            ref(); // protect texture from deletion while active on bg queue
             if (mainq)
             {
                 mainq->postTo(
