@@ -3822,6 +3822,16 @@ void LLPipeline::postSort(LLCamera& camera)
 					sCull->pushAlphaGroup(group);
 				}
 			}
+
+            LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
+
+            if (rigged_alpha != group->mDrawMap.end())
+            { //store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
+                if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                {
+                    sCull->pushRiggedAlphaGroup(group);
+                }
+            }
 		}
 	}
 	
@@ -11151,6 +11161,16 @@ LLCullResult::sg_iterator LLPipeline::beginAlphaGroups()
 LLCullResult::sg_iterator LLPipeline::endAlphaGroups()
 {
 	return sCull->endAlphaGroups();
+}
+
+LLCullResult::sg_iterator LLPipeline::beginRiggedAlphaGroups()
+{
+    return sCull->beginRiggedAlphaGroups();
+}
+
+LLCullResult::sg_iterator LLPipeline::endRiggedAlphaGroups()
+{
+    return sCull->endRiggedAlphaGroups();
 }
 
 bool LLPipeline::hasRenderType(const U32 type) const

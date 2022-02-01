@@ -129,23 +129,26 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     deferred_render = TRUE;
 
-    // first pass, regular forward alpha rendering
-    {
-        emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
-        prepare_alpha_shader(emissive_shader, true, false);
+    // prepare shaders
+    emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+    prepare_alpha_shader(emissive_shader, true, false);
 
-        fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
-            (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
-        prepare_alpha_shader(fullbright_shader, true, false);
+    fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
+    prepare_alpha_shader(fullbright_shader, true, false);
 
-        simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
-            (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
-        prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
-        
-        forwardRender();
-    }
+    simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
+    prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
-    // second pass, render to depth for depth of field effects
+
+    // first pass, render rigged objects only and render to depth buffer
+    forwardRender(true);
+
+    // second pass, regular forward alpha rendering
+    forwardRender();
+
+    // final pass, render to depth for depth of field effects
     if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField"))
     { 
         //update depth buffer sampler
@@ -209,10 +212,14 @@ void LLDrawPoolAlpha::render(S32 pass)
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
 
+    //first pass -- rigged only and drawn to depth buffer
+    forwardRender(true);
+
+    //second pass -- non-rigged, no depth buffer writes
     forwardRender();
 }
 
-void LLDrawPoolAlpha::forwardRender()
+void LLDrawPoolAlpha::forwardRender(bool rigged)
 {
     gPipeline.enableLightsDynamic();
 
@@ -221,7 +228,8 @@ void LLDrawPoolAlpha::forwardRender()
     //enable writing to alpha for emissive effects
     gGL.setColorMask(true, true);
 
-    bool write_depth = LLDrawPoolWater::sSkipScreenCopy
+    bool write_depth = rigged
+        || LLDrawPoolWater::sSkipScreenCopy
         // we want depth written so that rendered alpha will
         // contribute to the alpha mask used for impostors
         || LLPipeline::sImpostorRenderAlphaDepthPass;
@@ -236,11 +244,17 @@ void LLDrawPoolAlpha::forwardRender()
 
     // If the face is more than 90% transparent, then don't update the Depth buffer for Dof
     // We don't want the nearly invisible objects to cause of DoF effects
-    renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2);
+    renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, false, rigged);
 
     gGL.setColorMask(true, false);
 
-    renderDebugAlpha();
+    if (!rigged)
+    { //render "highlight alpha" on final non-rigged pass
+        // NOTE -- hacky call here protected by !rigged instead of alongside "forwardRender"
+        // so renderDebugAlpha is executed while gls_pipeline_alpha and depth GL state
+        // variables above are still in scope
+        renderDebugAlpha();
+    }
 }
 
 void LLDrawPoolAlpha::renderDebugAlpha()
@@ -291,54 +305,60 @@ void LLDrawPoolAlpha::renderDebugAlpha()
 
 void LLDrawPoolAlpha::renderAlphaHighlight(U32 mask)
 {
-    LLVOAvatar* lastAvatar = nullptr;
-    U64 lastMeshId = 0;
+    for (int pass = 0; pass < 2; ++pass)
+    { //two passes, one rigged and one not
+        LLVOAvatar* lastAvatar = nullptr;
+        U64 lastMeshId = 0;
 
-	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
-	{
-		LLSpatialGroup* group = *i;
-		if (group->getSpatialPartition()->mRenderByGroup &&
-			!group->isDead())
-		{
-			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];	
+        LLCullResult::sg_iterator begin = pass == 0 ? gPipeline.beginAlphaGroups() : gPipeline.beginRiggedAlphaGroups();
+        LLCullResult::sg_iterator end = pass == 0 ? gPipeline.endAlphaGroups() : gPipeline.endRiggedAlphaGroups();
 
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
-			{
-				LLDrawInfo& params = **k;
-				
-				if (params.mParticle)
-				{
-					continue;
-				}
+        for (LLCullResult::sg_iterator i = begin; i != end; ++i)
+        {
+            LLSpatialGroup* group = *i;
+            if (group->getSpatialPartition()->mRenderByGroup &&
+                !group->isDead())
+            {
+                LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA+pass]; // <-- hacky + pass to use PASS_ALPHA_RIGGED on second pass 
 
-                bool rigged = (params.mAvatar != nullptr);
-                gHighlightProgram.bind(rigged);
-                gGL.diffuseColor4f(1, 0, 0, 1);
-
-                if (rigged)
+                for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)
                 {
-                    if (lastAvatar != params.mAvatar ||
-                        lastMeshId != params.mSkinInfo->mHash)
-                    {
-                        if (!uploadMatrixPalette(params))
-                        {
-                            continue;
-                        }
-                        lastAvatar = params.mAvatar;
-                        lastMeshId = params.mSkinInfo->mHash;
-                    }
-                }
+                    LLDrawInfo& params = **k;
 
-				LLRenderPass::applyModelMatrix(params);
-				if (params.mGroup)
-				{
-					params.mGroup->rebuildMesh();
-				}
-				params.mVertexBuffer->setBufferFast(rigged ?  mask | LLVertexBuffer::MAP_WEIGHT4 : mask);
-				params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
-			}
-		}
-	}
+                    if (params.mParticle)
+                    {
+                        continue;
+                    }
+
+                    bool rigged = (params.mAvatar != nullptr);
+                    gHighlightProgram.bind(rigged);
+                    gGL.diffuseColor4f(1, 0, 0, 1);
+
+                    if (rigged)
+                    {
+                        if (lastAvatar != params.mAvatar ||
+                            lastMeshId != params.mSkinInfo->mHash)
+                        {
+                            if (!uploadMatrixPalette(params))
+                            {
+                                continue;
+                            }
+                            lastAvatar = params.mAvatar;
+                            lastMeshId = params.mSkinInfo->mHash;
+                        }
+                    }
+
+                    LLRenderPass::applyModelMatrix(params);
+                    if (params.mGroup)
+                    {
+                        params.mGroup->rebuildMesh();
+                    }
+                    params.mVertexBuffer->setBufferFast(rigged ? mask | LLVertexBuffer::MAP_WEIGHT4 : mask);
+                    params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+                }
+            }
+        }
+    }
 
     // make sure static version of highlight shader is bound before returning
     gHighlightProgram.bind();
@@ -471,6 +491,8 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
     LLVOAvatar* lastAvatar = nullptr;
     U64 lastMeshId = 0;
 
+    mask |= LLVertexBuffer::MAP_WEIGHT4;
+
     for (LLDrawInfo* draw : emissives)
     {
         bool tex_setup = TexSetup(draw, false);
@@ -488,7 +510,7 @@ void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& 
     }
 }
 
-void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only)
+void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     BOOL initialized_lighting = FALSE;
@@ -498,7 +520,21 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only)
     U64 lastMeshId = 0;
     LLGLSLShader* lastAvatarShader = nullptr;
 
-    for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
+    LLCullResult::sg_iterator begin;
+    LLCullResult::sg_iterator end;
+
+    if (rigged)
+    {
+        begin = gPipeline.beginRiggedAlphaGroups();
+        end = gPipeline.endRiggedAlphaGroups();
+    }
+    else
+    {
+        begin = gPipeline.beginAlphaGroups();
+        end = gPipeline.endAlphaGroups();
+    }
+
+    for (LLCullResult::sg_iterator i = begin; i != end; ++i)
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("renderAlpha - group");
 		LLSpatialGroup* group = *i;
@@ -521,12 +557,18 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only)
 			bool disable_cull = is_particle_or_hud_particle;
 			LLGLDisable cull(disable_cull ? GL_CULL_FACE : 0);
 
-			LLSpatialGroup::drawmap_elem_t& draw_info = group->mDrawMap[LLRenderPass::PASS_ALPHA];
+			LLSpatialGroup::drawmap_elem_t& draw_info = rigged ? group->mDrawMap[LLRenderPass::PASS_ALPHA_RIGGED] : group->mDrawMap[LLRenderPass::PASS_ALPHA];
 
 			for (LLSpatialGroup::drawmap_elem_t::iterator k = draw_info.begin(); k != draw_info.end(); ++k)	
 			{
-                LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("ra - push batch")
 				LLDrawInfo& params = **k;
+                if ((bool)params.mAvatar != rigged)
+                {
+                    continue;
+                }
+
+                LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("ra - push batch")
+
                 U32 have_mask = params.mVertexBuffer->getTypeMask() & mask;
 				if (have_mask != mask)
 				{ //FIXME!

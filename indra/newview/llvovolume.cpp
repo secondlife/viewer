@@ -5143,7 +5143,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
     bool rigged = facep->isState(LLFace::RIGGED);
 
-    if (rigged && type != LLRenderPass::PASS_ALPHA)
+    if (rigged)
     {
         // hacky, should probably clean up -- if this face is rigged, put it in "type + 1"
         // See LLRenderPass PASS_foo enum

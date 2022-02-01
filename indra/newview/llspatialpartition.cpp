@@ -4022,6 +4022,7 @@ LLCullResult::LLCullResult()
 {
 	mVisibleGroupsAllocated = 0;
 	mAlphaGroupsAllocated = 0;
+    mRiggedAlphaGroupsAllocated = 0;
 	mOcclusionGroupsAllocated = 0;
 	mDrawableGroupsAllocated = 0;
 	mVisibleListAllocated = 0;
@@ -4033,6 +4034,9 @@ LLCullResult::LLCullResult()
 	mAlphaGroups.clear();
 	mAlphaGroups.push_back(NULL);
 	mAlphaGroupsEnd = &mAlphaGroups[0];
+    mRiggedAlphaGroups.clear();
+    mRiggedAlphaGroups.push_back(NULL);
+    mRiggedAlphaGroupsEnd = &mRiggedAlphaGroups[0];
 	mOcclusionGroups.clear();
 	mOcclusionGroups.push_back(NULL);
 	mOcclusionGroupsEnd = &mOcclusionGroups[0];
@@ -4072,6 +4076,9 @@ void LLCullResult::clear()
 
 	mAlphaGroupsSize = 0;
 	mAlphaGroupsEnd = &mAlphaGroups[0];
+
+    mRiggedAlphaGroupsSize = 0;
+    mRiggedAlphaGroupsEnd = &mRiggedAlphaGroups[0];
 
 	mOcclusionGroupsSize = 0;
 	mOcclusionGroupsEnd = &mOcclusionGroups[0];
@@ -4115,6 +4122,16 @@ LLCullResult::sg_iterator LLCullResult::beginAlphaGroups()
 LLCullResult::sg_iterator LLCullResult::endAlphaGroups()
 {
 	return mAlphaGroupsEnd;
+}
+
+LLCullResult::sg_iterator LLCullResult::beginRiggedAlphaGroups()
+{
+    return &mRiggedAlphaGroups[0];
+}
+
+LLCullResult::sg_iterator LLCullResult::endRiggedAlphaGroups()
+{
+    return mRiggedAlphaGroupsEnd;
 }
 
 LLCullResult::sg_iterator LLCullResult::beginOcclusionGroups()
@@ -4193,6 +4210,20 @@ void LLCullResult::pushAlphaGroup(LLSpatialGroup* group)
 	}
 	++mAlphaGroupsSize;
 	mAlphaGroupsEnd = &mAlphaGroups[mAlphaGroupsSize];
+}
+
+void LLCullResult::pushRiggedAlphaGroup(LLSpatialGroup* group)
+{
+    if (mRiggedAlphaGroupsSize < mRiggedAlphaGroupsAllocated)
+    {
+        mRiggedAlphaGroups[mRiggedAlphaGroupsSize] = group;
+    }
+    else
+    {
+        pushBack(mRiggedAlphaGroups, mRiggedAlphaGroupsAllocated, group);
+    }
+    ++mRiggedAlphaGroupsSize;
+    mRiggedAlphaGroupsEnd = &mRiggedAlphaGroups[mRiggedAlphaGroupsSize];
 }
 
 void LLCullResult::pushOcclusionGroup(LLSpatialGroup* group)
