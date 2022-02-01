@@ -71,6 +71,8 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llmeshrepository.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
 #include "lldatapacker.h"
@@ -2960,6 +2962,10 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			}
 		}
 		break;
+
+        case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+            LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+            break;
 		
 		default:
 		break;
