@@ -282,7 +282,7 @@ http://wiki.secondlife.com/wiki/Template_verifier.py
     if not options.force_verification:
         # Early exist if the template hasn't changed.
         sha_url = "%s.sha1" % current_url
-        current_sha = fetch(sha_url)
+        current_sha = fetch(sha_url).decode("utf-8")
         if hexdigest == current_sha:
             print("Message template SHA_1 has not changed.")
             sys.exit(0)
