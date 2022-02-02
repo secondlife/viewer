@@ -2027,9 +2027,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	gTextureList.init();
 	LLViewerTextureManager::init() ;
 	gBumpImageList.init();
-
-    // Init Media texture worker queue
-    LLViewerMediaImpl::initClass(mWindow, gSavedSettings.getBOOL("RenderGLMultiThreaded"));
 	
 	// Create container for all sub-views
 	LLView::Params rvp;
@@ -2419,8 +2416,7 @@ void LLViewerWindow::shutdownGL()
 
 	LLViewerTextureManager::cleanup() ;
 	SUBSYSTEM_CLEANUP(LLImageGL) ;
-    SUBSYSTEM_CLEANUP(LLViewerMediaImpl);
-    
+
 	LL_INFOS() << "All textures and llimagegl images are destroyed!" << LL_ENDL ;
 
 	LL_INFOS() << "Cleaning up select manager" << LL_ENDL;

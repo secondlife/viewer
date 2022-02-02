@@ -1215,8 +1215,9 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE)
         { //GL_ALPHA is deprecated, convert to RGBA
             use_scratch = true;
+            scratch = new U32[width * height];
+
             U32 pixel_count = (U32)(width * height);
-            scratch = new U32[pixel_count];
             for (U32 i = 0; i < pixel_count; i++)
             {
                 U8* pix = (U8*)&scratch[i];
@@ -1231,8 +1232,9 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE)
         { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
             use_scratch = true;
+            scratch = new U32[width * height];
+
             U32 pixel_count = (U32)(width * height);
-            scratch = new U32[pixel_count];
             for (U32 i = 0; i < pixel_count; i++)
             {
                 U8 lum = ((U8*)pixels)[i * 2 + 0];
@@ -1250,8 +1252,9 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE)
         { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
             use_scratch = true;
+            scratch = new U32[width * height];
+
             U32 pixel_count = (U32)(width * height);
-            scratch = new U32[pixel_count];
             for (U32 i = 0; i < pixel_count; i++)
             {
                 U8 lum = ((U8*)pixels)[i];
@@ -1311,7 +1314,10 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     }
     stop_glerror();
 
-    if (scratch) delete[] scratch;
+    if (use_scratch)
+    {
+        delete[] scratch;
+    }
 }
 
 //create an empty GL texture: just create a texture name
@@ -1465,49 +1471,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 	return createGLTexture(discard_level, rawdata, FALSE, usename);
 }
 
-// Create a new GL name and allocate tex storage (unitialized) for it
-// Used to break resource contention stall in background media tex updates
-void LLImageGL::allocNewTexName()
-{
-    LL_PROFILE_ZONE_SCOPED;
-    if (on_main_thread()) return;       // Should only be called on bg update thread
-    if (!mGLTextureCreated) return;
-    if (0 != mNewTexName) return;       // only 1 rename in flight at a time
-
-    generateTextures(1, &mNewTexName);  // create new GL name
-
-    mHasMipMaps = false;                // Media textures aren't mipped
-    mMipLevels = 0;
-    // Set state to match current
-    gGL.getTexUnit(0)->bind(this, false, false, mNewTexName);
-    glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL, mMaxDiscardLevel);
-    glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_WIDTH, mWidth);
-    glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_HEIGHT, mHeight);
-    gGL.getTexUnit(0)->setHasMipMaps(mHasMipMaps);
-    gGL.getTexUnit(0)->setTextureAddressMode(mAddressMode);
-    gGL.getTexUnit(0)->setTextureFilteringOption(mFilterOption);
-
-    setManualImage(mTarget, 0, mFormatInternal, mWidth, mHeight, mFormatPrimary, mFormatType, 
-                   (GLvoid *) nullptr, mAllowCompression);
-    
-    gGL.getTexUnit(0)->unbind(mBindTarget);
-
-    mLastBindTime = sLastFrameTime;
-}
-
-// Delete no-longer-needed GL tex name (on main thread) 
-void LLImageGL::swapTexName()
-{
-    if (mNewTexName)
-    {
-        deleteTextures(1, &mTexName);
-        mTexName = mNewTexName;
-        mNewTexName = 0;
-    }
-}
-
-BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips /* = FALSE */, S32 usename /* = 0 */)
+BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     checkActiveThread();
@@ -1751,14 +1715,6 @@ void LLImageGL::destroyGLTexture()
 		mTexName = 0;		
 		mGLTextureCreated = FALSE ;
 	}	
-
-    // clean up any in-flight name change
-    if (0 != mNewTexName)
-    {
-        // Memory is transient, not tracked by sGlobalTextuerMemory
-        LLImageGL::deleteTextures(1, &mNewTexName);
-        mNewTexName = 0;
-    }
 }
 
 //force to invalidate the gl texture, most likely a sculpty texture
