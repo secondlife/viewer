@@ -3681,7 +3681,7 @@ void LLPanelEstateAccess::searchAgent(LLNameListCtrl* listCtrl, const std::strin
 	if (!search_string.empty())
 	{
 		listCtrl->setSearchColumn(0); // name column
-		listCtrl->selectItemByPrefix(search_string, FALSE);
+		listCtrl->searchItems(search_string, false, true);
 	}
 	else
 	{
