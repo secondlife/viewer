@@ -1306,10 +1306,9 @@ class DarwinManifest(ViewerManifest):
                                       '-p', keychain_pwd, viewer_keychain])
                     sign_retry_wait=15
                     resources = app_in_dmg + "/Contents/Resources/"
-                    plain_sign = list(itertools.chain(
-                        glob.glob(resources + "llplugin/*.dylib"),
-                        [resources + "updater/SLVersionChecker"]))
+                    plain_sign = glob.glob(resources + "llplugin/*.dylib")
                     deep_sign = [
+                        resources + "updater/SLVersionChecker",
                         resources + "SLPlugin.app/Contents/MacOS/SLPlugin",
                         app_in_dmg,
                         ]
