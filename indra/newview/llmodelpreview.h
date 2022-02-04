@@ -217,6 +217,7 @@ private:
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
+	void		renderGroundPlane(float z_offset = 0.0f);
 
 protected:
     friend class LLModelLoader;

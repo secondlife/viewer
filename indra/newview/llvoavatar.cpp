@@ -1673,36 +1673,6 @@ void LLVOAvatar::renderBones(const std::string &selected_joint)
 	}
 }
 
-void LLVOAvatar::renderGroundPlane(float z_offset)
-{   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
-	const LLVector3 root_pos = mRoot->getPosition();
-	const LLVector4a* ext = mDrawable->getSpatialExtents();
-	const LLVector4a min = ext[0], max = ext[1];
-	const F32 center = (max[2] - min[2]) * 0.5f;
-	const F32 ground = root_pos[2] - center - z_offset;
-
-	const LLVector3 vA{min[0], min[1], ground};
-	const LLVector3 vB{max[0], min[1], ground};
-	const LLVector3 vC{max[0], max[1], ground};
-	const LLVector3 vD{min[0], max[1], ground};
-
-	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
-
-	gGL.begin(LLRender::LINES);
-	gGL.vertex3fv(vA.mV);
-	gGL.vertex3fv(vB.mV);
-
-	gGL.vertex3fv(vB.mV);
-	gGL.vertex3fv(vC.mV);
-
-	gGL.vertex3fv(vC.mV);
-	gGL.vertex3fv(vD.mV);
-
-	gGL.vertex3fv(vD.mV);
-	gGL.vertex3fv(vA.mV);
-
-	gGL.end();
-}
 
 void LLVOAvatar::renderJoints()
 {
