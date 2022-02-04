@@ -3598,11 +3598,11 @@ bool process_login_success_response()
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
 	}
 
-	if(response.has("slmfa_hash"))
+	if(response.has("mfa_hash"))
 	{
 		LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
 		std::string grid(LLGridManager::getInstance()->getGridId());
-		basic_secure_store->setProtectedData("slmfa_hash", grid, response["slmfa_hash"]);
+		basic_secure_store->setProtectedData("mfa_hash", grid, response["mfa_hash"]);
 	}
 
 	bool success = false;

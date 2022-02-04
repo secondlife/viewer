@@ -230,15 +230,15 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     // log request_params _before_ adding the credentials or sensitive MFA hash data
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
 
-    std::string slmfa_hash = gSavedPerAccountSettings.getString("SLMFAHash"); //non-persistent to enable testing
-    if(slmfa_hash.empty())
+    std::string mfa_hash = gSavedPerAccountSettings.getString("MFAHash"); //non-persistent to enable testing
+    if(mfa_hash.empty())
     {
         LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
         std::string grid(LLGridManager::getInstance()->getGridId());
-        slmfa_hash = basic_secure_store->getProtectedData("slmfa_hash", grid).asString();
+        mfa_hash = basic_secure_store->getProtectedData("mfa_hash", grid).asString();
     }
 
-    request_params["slmfa_hash"] = slmfa_hash;
+    request_params["mfa_hash"] = mfa_hash;
 
     // Copy the credentials into the request after logging the rest
     LLSD credentials(user_credential->getLoginParams());

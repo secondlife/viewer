@@ -436,7 +436,7 @@
         <key>Value</key>
         <integer>2</integer>
       </map>
-      <key>SLMFAHash</key>
+      <key>MFAHash</key>
       <map>
         <key>Comment</key>
         <string>MFA state hash for authentication</string>
