@@ -3404,10 +3404,7 @@ BOOL LLModelPreview::render()
                 {
                     gDebugProgram.bind();
                 }
-                if (fmp->mTabContainer->getCurrentPanelIndex() == fmp->mPhysicsTabIndex)
-                {  // Physics collision volumes obscure a lot, so only show them when on the physics tab.
-                    getPreviewAvatar()->renderCollisionVolumes();
-                }
+                getPreviewAvatar()->renderCollisionVolumes();
                 if (fmp->mTabContainer->getCurrentPanelIndex() == fmp->mAvatarTabIndex)
                 {
                     getPreviewAvatar()->renderBones(fmp->mSelectedJointName);

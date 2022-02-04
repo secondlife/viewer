@@ -231,7 +231,6 @@ private:
 	LLTabContainer* mTabContainer;
 
 	S32			mAvatarTabIndex; // just to avoid any issues in case of xml changes
-	S32			mPhysicsTabIndex;
 	std::string	mSelectedJointName;
 
 	joint_override_data_map_t mJointOverrides[LLModel::NUM_LODS];
