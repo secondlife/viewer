@@ -62,9 +62,13 @@ private:
     void onChangeQuality(const LLSD& data);
     void onClickHideAvatars();
     void onClickExceptions();
+    void onClickShadows();
+    void onClickAdvancedLighting();
 
     void updateMaxComplexity();
     void updateComplexityText();
+
+    static void changeQualityLevel(const std::string& notif);
 
     LLPanel* mMainPanel;
     LLPanel* mNearbyPanel;

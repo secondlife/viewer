@@ -1848,9 +1848,9 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
   </notification>
 
   <notification
- icon="alertmodal.tga"
- name="AutoFPSConfirmDisable"
- type="alertmodal">
+   icon="alertmodal.tga"
+   name="AutoFPSConfirmDisable"
+   type="alertmodal">
     Changing this setting will disable automatic adjustment and turn off 'Auto FPS' setting.
 Are you sure you want to continue?
     <tag>confirm</tag>
@@ -1858,6 +1858,28 @@ Are you sure you want to continue?
      name="okcancelbuttons"
      notext="Cancel"
      yestext="Continue"/>
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="AdvancedLightingConfirm"
+   type="alertmodal">
+To turn on advanced lighting, we need to increase quality to level 4.
+    <tag>confirm</tag>
+  <usetemplate
+   name="okcancelbuttons"
+   notext="Cancel"
+   yestext="OK"/>
+  </notification>
+  <notification
+ icon="alertmodal.tga"
+   name="ShadowsConfirm"
+   type="alertmodal">
+To enable shadows, we need to increase quality to level 4.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
   </notification>
 
   <notification
