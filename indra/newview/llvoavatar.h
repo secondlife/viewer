@@ -486,6 +486,7 @@ public:
 	void 		renderCollisionVolumes();
 	void		renderBones(const std::string &selected_joint = std::string());
 	void		renderJoints();
+	void		renderGroundPlane(float z_offset = 0.0f);
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();

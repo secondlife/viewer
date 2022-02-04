@@ -1,4 +1,4 @@
-﻿/** 
+/**
  * @File llvoavatar.cpp
  * @brief Implementation of LLVOAvatar class which is a derivation of LLViewerObject
  *
@@ -1673,6 +1673,36 @@ void LLVOAvatar::renderBones(const std::string &selected_joint)
 	}
 }
 
+void LLVOAvatar::renderGroundPlane(float z_offset)
+{   // Not necesarilly general - beware - but it seems to meet the needs of LLModelPreview::render
+	LLVector3 root_pos = mRoot->getPosition();
+	const LLVector4a* ext = mDrawable->getSpatialExtents();
+	auto min = ext[0], max = ext[1];
+	auto center = (max - min) * 0.5f;
+	F32 ground = root_pos[2] - center[2] - z_offset;
+
+	LLVector3 vA{min[0], min[1], ground};
+	LLVector3 vB{max[0], min[1], ground};
+	LLVector3 vC{max[0], max[1], ground};
+	LLVector3 vD{min[0], max[1], ground};
+
+	gGL.diffuseColor3f( 1.0f, 0.0f, 1.0f );
+
+	gGL.begin(LLRender::LINES);
+	gGL.vertex3fv(vA.mV);
+	gGL.vertex3fv(vB.mV);
+
+	gGL.vertex3fv(vB.mV);
+	gGL.vertex3fv(vC.mV);
+
+	gGL.vertex3fv(vC.mV);
+	gGL.vertex3fv(vD.mV);
+
+	gGL.vertex3fv(vD.mV);
+	gGL.vertex3fv(vA.mV);
+
+	gGL.end();
+}
 
 void LLVOAvatar::renderJoints()
 {

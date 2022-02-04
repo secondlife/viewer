@@ -270,6 +270,7 @@ BOOL LLFloaterModelPreview::postBuild()
     LLPanel *panel = mTabContainer->getPanelByName("rigging_panel");
     mAvatarTabIndex = mTabContainer->getIndexForPanel(panel);
     panel->getChild<LLScrollListCtrl>("joints_list")->setCommitCallback(boost::bind(&LLFloaterModelPreview::onJointListSelection, this));
+    mPhysicsTabIndex = mTabContainer->getIndexForPanel(mTabContainer->getPanelByName("physics_panel"));
 
 	if (LLConvexDecomposition::getInstance() != NULL)
 	{
