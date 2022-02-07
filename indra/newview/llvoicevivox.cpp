@@ -689,6 +689,10 @@ void LLVivoxVoiceClient::voiceControlCoro()
         // surviving longer than LLVivoxVoiceClient
         voiceControlStateMachine(state);
     }
+    catch (const LLCoros::Stop&)
+    {
+        LL_DEBUGS("LLVivoxVoiceClient") << "Received a shutdown exception" << LL_ENDL;
+    }
     catch (const LLContinueError&)
     {
         LOG_UNHANDLED_EXCEPTION("LLVivoxVoiceClient");
