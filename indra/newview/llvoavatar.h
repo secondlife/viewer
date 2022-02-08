@@ -328,7 +328,6 @@ public:
 	static bool		sLimitNonImpostors; // use impostors for far away avatars
 	static F32		sRenderDistance; // distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
 	static S32		sNumLODChangesThisFrame;
