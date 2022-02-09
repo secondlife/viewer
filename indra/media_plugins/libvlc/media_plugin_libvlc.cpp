@@ -270,6 +270,10 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 
 	case libvlc_MediaPlayerTimeChanged:
 		parent->mCurTime = (float)libvlc_media_player_get_time(parent->mLibVLCMediaPlayer) / 1000.0f;
+        if (parent->mVlcStatus == STATUS_DONE && libvlc_media_player_is_playing(parent->mLibVLCMediaPlayer))
+        {
+            parent->mVlcStatus = STATUS_PLAYING;
+        }
         parent->setDurationDirty();
 		break;
 
@@ -630,6 +634,13 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				{
 					if (mLibVLCMediaPlayer)
 					{
+                        if (mVlcStatus == STATUS_DONE && !libvlc_media_player_is_playing(mLibVLCMediaPlayer))
+                        {
+                            // stop or vlc will ignore 'play', it will just
+                            // make an MediaPlayerEndReached event even if
+                            // seek was used
+                            libvlc_media_player_stop(mLibVLCMediaPlayer);
+                        }
 						libvlc_media_player_play(mLibVLCMediaPlayer);
 					}
 				}
