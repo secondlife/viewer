@@ -16,11 +16,35 @@
  width="200">
     <floater.string
      name="ToolTipMsg">
-        [REGION](Double-click to open Map, shift-drag to pan)
+        [PARCEL_NAME_MSG][PARCEL_SALE_PRICE_MSG][PARCEL_SALE_AREA_MSG][PARCEL_OWNER_MSG][REGION_NAME_MSG][TOOL_TIP_HINT_MSG]
+    </floater.string>
+    <floater.string
+     name="ParcelNameMsg">
+        [PARCEL_NAME]
+    </floater.string>
+    <floater.string
+     name="ParcelSalePriceMsg">
+        Price: L$[PRICE] (L$[PRICE_PER_SQM]/m²)
+    </floater.string>
+    <floater.string
+     name="ParcelSaleAreaMsg">
+        Area: [AREA]m²
+    </floater.string>
+    <floater.string
+     name="ParcelOwnerMsg">
+        Owner: [PARCEL_OWNER]
+    </floater.string>
+    <floater.string
+     name="RegionNameMsg">
+        Region: [REGION_NAME]
     </floater.string>
 	<floater.string
-     name="AltToolTipMsg">
-		[REGION](Double-click to teleport, shift-drag to pan)
+     name="ToolTipHintMsg">
+        Double-click to open map
+	</floater.string>
+	<floater.string
+     name="AltToolTipHintMsg">
+        Double-click to teleport
 	</floater.string>
 	<floater.string name="mini_map_caption">
 	Mini-map

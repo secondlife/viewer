@@ -37,6 +37,7 @@
 #include "llfocusmgr.h"
 #include "lllocalcliprect.h"
 #include "llrender.h"
+#include "llresmgr.h"
 #include "llui.h"
 #include "lltooltip.h"
 
@@ -48,10 +49,14 @@
 #include "llappviewer.h" // for gDisconnected
 #include "llcallingcard.h" // LLAvatarTracker
 #include "llfloaterworldmap.h"
+#include "llparcel.h"
 #include "lltracker.h"
 #include "llsurface.h"
+#include "llurlmatch.h"
+#include "llurlregistry.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
+#include "llviewerparcelmgr.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llviewermenu.h"
@@ -603,47 +608,116 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return TRUE;
 }
 
-BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
+BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
 {
-	if (gDisconnected)
-	{
-		return FALSE;
-	}
+    if (gDisconnected)
+    {
+        return false;
+    }
 
-	// If the cursor is near an avatar on the minimap, a mini-inspector will be
-	// shown for the avatar, instead of the normal map tooltip.
-	if (handleToolTipAgent(mClosestAgentToCursor))
-	{
-		return TRUE;
-	}
+    // If the cursor is near an avatar on the minimap, a mini-inspector will be
+    // shown for the avatar, instead of the normal map tooltip.
+    if (handleToolTipAgent(mClosestAgentToCursor))
+    {
+        return true;
+    }
 
-	LLRect sticky_rect;
-	std::string region_name;
-	LLViewerRegion*	region = LLWorld::getInstance()->getRegionFromPosGlobal( viewPosToGlobal( x, y ) );
-	if(region)
-	{
-		// set sticky_rect
-		S32 SLOP = 4;
-		localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect.mLeft), &(sticky_rect.mBottom));
-		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
-		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
+    LLRect sticky_rect;
+    S32 SLOP = 4;
+    localPointToScreen(x - SLOP, y - SLOP, &(sticky_rect.mLeft), &(sticky_rect.mBottom));
+    sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
+    sticky_rect.mTop   = sticky_rect.mBottom + 2 * SLOP;
 
-		region_name = region->getName();
-		if (!region_name.empty())
-		{
-			region_name += "\n";
-		}
-	}
+    std::string parcel_name_msg;
+    std::string parcel_sale_price_msg;
+    std::string parcel_sale_area_msg;
+    std::string parcel_owner_msg;
+    std::string region_name_msg;
 
-	LLStringUtil::format_map_t args;
-	args["[REGION]"] = region_name;
-	std::string msg = mToolTipMsg;
-	LLStringUtil::format(msg, args);
-	LLToolTipMgr::instance().show(LLToolTip::Params()
-		.message(msg)
-		.sticky_rect(sticky_rect));
-		
-	return TRUE;
+    LLVector3d      posGlobal = viewPosToGlobal(x, y);
+    LLViewerRegion *region    = LLWorld::getInstance()->getRegionFromPosGlobal(posGlobal);
+    if (region)
+    {
+        std::string region_name = region->getName();
+        if (!region_name.empty())
+        {
+            region_name_msg = mRegionNameMsg;
+            LLStringUtil::format(region_name_msg, {{"[REGION_NAME]", region_name}});
+        }
+
+        // Only show parcel information in the tooltip if property lines are visible. Otherwise, the parcel the tooltip is referring to is
+        // ambiguous.
+        if (gSavedSettings.getBOOL("MiniMapShowPropertyLines"))
+        {
+            LLViewerParcelMgr::getInstance()->setHoverParcel(posGlobal);
+            LLParcel *hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
+            if (hover_parcel)
+            {
+                std::string parcel_name = hover_parcel->getName();
+                if (!parcel_name.empty())
+                {
+                    parcel_name_msg = mParcelNameMsg;
+                    LLStringUtil::format(parcel_name_msg, {{"[PARCEL_NAME]", parcel_name}});
+                }
+
+                const LLUUID      parcel_owner          = hover_parcel->getOwnerID();
+                std::string       parcel_owner_name_url = LLSLURL("agent", parcel_owner, "inspect").getSLURLString();
+                static LLUrlMatch parcel_owner_name_url_match;
+                LLUrlRegistry::getInstance()->findUrl(parcel_owner_name_url, parcel_owner_name_url_match);
+                if (!parcel_owner_name_url_match.empty())
+                {
+                    parcel_owner_msg              = mParcelOwnerMsg;
+                    std::string parcel_owner_name = parcel_owner_name_url_match.getLabel();
+                    LLStringUtil::format(parcel_owner_msg, {{"[PARCEL_OWNER]", parcel_owner_name}});
+                }
+
+                if (hover_parcel->getForSale())
+                {
+                    const LLUUID auth_buyer_id = hover_parcel->getAuthorizedBuyerID();
+                    const LLUUID agent_id      = gAgent.getID();
+                    bool         show_for_sale = auth_buyer_id.isNull() || auth_buyer_id == agent_id || parcel_owner == agent_id;
+                    if (show_for_sale)
+                    {
+                        S32 price        = hover_parcel->getSalePrice();
+                        S32 area         = hover_parcel->getArea();
+                        F32 cost_per_sqm = 0.0f;
+                        if (area > 0)
+                        {
+                            cost_per_sqm = F32(price) / area;
+                        }
+                        std::string formatted_price          = LLResMgr::getInstance()->getMonetaryString(price);
+                        std::string formatted_cost_per_meter = llformat("%.1f", cost_per_sqm);
+                        parcel_sale_price_msg                = mParcelSalePriceMsg;
+                        LLStringUtil::format(parcel_sale_price_msg,
+                                             {{"[PRICE]", formatted_price}, {"[PRICE_PER_SQM]", formatted_cost_per_meter}});
+                        std::string formatted_area = llformat("%d", area);
+                        parcel_sale_area_msg       = mParcelSaleAreaMsg;
+                        LLStringUtil::format(parcel_sale_area_msg, {{"[AREA]", formatted_area}});
+                    }
+                }
+            }
+        }
+    }
+
+    std::string tool_tip_hint_msg = mToolTipHintMsg;
+
+    LLStringUtil::format_map_t args;
+    args["[PARCEL_NAME_MSG]"]       = parcel_name_msg.empty() ? "" : parcel_name_msg + '\n';
+    args["[PARCEL_SALE_PRICE_MSG]"] = parcel_sale_price_msg.empty() ? "" : parcel_sale_price_msg + '\n';
+    args["[PARCEL_SALE_AREA_MSG]"]  = parcel_sale_area_msg.empty() ? "" : parcel_sale_area_msg + '\n';
+    args["[PARCEL_OWNER_MSG]"]      = parcel_owner_msg.empty() ? "" : parcel_owner_msg + '\n';
+    args["[REGION_NAME_MSG]"]       = region_name_msg.empty() ? "" : region_name_msg + '\n';
+    args["[TOOL_TIP_HINT_MSG]"]     = tool_tip_hint_msg.empty() ? "" : tool_tip_hint_msg + '\n';
+
+    std::string msg                 = mToolTipMsg;
+    LLStringUtil::format(msg, args);
+    if (msg.back() == '\n')
+    {
+        msg.resize(msg.size() - 1);
+    }
+    LLToolTipMgr::instance().show(LLToolTip::Params().message(msg).sticky_rect(sticky_rect));
+
+    return true;
 }
 
 BOOL LLNetMap::handleToolTipAgent(const LLUUID& avatar_id)

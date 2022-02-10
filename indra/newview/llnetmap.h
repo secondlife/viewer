@@ -79,8 +79,16 @@ public:
 	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 
-	void			setScale( F32 scale );
-	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
+    void            setScale(F32 scale);
+
+    void            setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
+    void            setParcelNameMsg(const std::string& msg) { mParcelNameMsg = msg; }
+    void            setParcelSalePriceMsg(const std::string& msg) { mParcelSalePriceMsg = msg; }
+    void            setParcelSaleAreaMsg(const std::string& msg) { mParcelSaleAreaMsg = msg; }
+    void            setParcelOwnerMsg(const std::string& msg) { mParcelOwnerMsg = msg; }
+    void            setRegionNameMsg(const std::string& msg) { mRegionNameMsg = msg; }
+    void            setToolTipHintMsg(const std::string& msg) { mToolTipHintMsg = msg; }
+
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
 
 private:
@@ -125,7 +133,13 @@ private:
 	LLUUID			mClosestAgentToCursor;
 	LLUUID			mClosestAgentAtLastRightClick;
 
-	std::string		mToolTipMsg;
+    std::string     mToolTipMsg;
+    std::string     mParcelNameMsg;
+    std::string     mParcelSalePriceMsg;
+    std::string     mParcelSaleAreaMsg;
+    std::string     mParcelOwnerMsg;
+    std::string     mRegionNameMsg;
+    std::string     mToolTipHintMsg;
 
 public:
 	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };
