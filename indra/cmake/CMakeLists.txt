@@ -10,7 +10,6 @@ set(cmake_SOURCE_FILES
     00-Common.cmake
     APR.cmake
     Audio.cmake
-    BerkeleyDB.cmake
     Boost.cmake
     bugsplat.cmake
     BuildVersion.cmake
@@ -26,7 +25,6 @@ set(cmake_SOURCE_FILES
     EXPAT.cmake
     FindAPR.cmake
     FindAutobuild.cmake
-    FindBerkeleyDB.cmake
     FindGLH.cmake
     FindHUNSPELL.cmake
     FindJsonCpp.cmake
