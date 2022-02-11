@@ -1500,6 +1500,25 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_positi
 	return ret;
 }
 
+U32 LLMeshSkinInfo::sizeBytes() const
+{
+    U32 res = sizeof(LLUUID); // mMeshID
+
+    res += sizeof(std::vector<std::string>) + sizeof(std::string) * mJointNames.size();
+    for (U32 i = 0; i < mJointNames.size(); ++i)
+    {
+        res += mJointNames[i].size(); // actual size, not capacity
+    }
+
+    res += sizeof(std::vector<S32>) + sizeof(S32) * mJointNums.size();
+    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * mInvBindMatrix.size();
+    res += sizeof(std::vector<LLMatrix4>) + 16 * sizeof(float) * mAlternateBindMatrix.size();
+    res += 16 * sizeof(float); //mBindShapeMatrix
+    res += sizeof(float) + 3 * sizeof(bool);
+
+    return res;
+}
+
 LLModel::Decomposition::Decomposition(LLSD& data)
 {
 	fromLLSD(data);
@@ -1604,6 +1623,30 @@ void LLModel::Decomposition::fromLLSD(LLSD& decomp)
 		//but contains no base hull
 		mBaseHullMesh.clear();
 	}
+}
+
+U32 LLModel::Decomposition::sizeBytes() const
+{
+    U32 res = sizeof(LLUUID); // mMeshID
+
+    res += sizeof(LLModel::convex_hull_decomposition) + sizeof(std::vector<LLVector3>) * mHull.size();
+    for (U32 i = 0; i < mHull.size(); ++i)
+    {
+        res += mHull[i].size() * sizeof(LLVector3);
+    }
+
+    res += sizeof(LLModel::hull) + sizeof(LLVector3) * mBaseHull.size();
+
+    res += sizeof(std::vector<LLModel::PhysicsMesh>) + sizeof(std::vector<LLModel::PhysicsMesh>) * mMesh.size();
+    for (U32 i = 0; i < mMesh.size(); ++i)
+    {
+        res += mMesh[i].sizeBytes();
+    }
+
+    res += sizeof(std::vector<LLModel::PhysicsMesh>) * 2;
+    res += mBaseHullMesh.sizeBytes() + mPhysicsShapeMesh.sizeBytes();
+
+    return res;
 }
 
 bool LLModel::Decomposition::hasHullList() const
