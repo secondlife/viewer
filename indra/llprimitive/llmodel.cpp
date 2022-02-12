@@ -834,7 +834,7 @@ LLSD LLModel::writeModel(
 					{
 						LLVector3 pos(face.mPositions[j].getF32ptr());
 
-						weight_list& weights = high->getJointInfluences(pos);
+						weight_list& weights = model[idx]->getJointInfluences(pos);
 
 						S32 count = 0;
 						for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
