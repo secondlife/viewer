@@ -164,11 +164,11 @@ BOOL LLGLTexture::createGLTexture()
 	return mGLTexturep->createGLTexture() ;
 }
 
-BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, BOOL to_create, S32 category)
+BOOL LLGLTexture::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename, BOOL to_create, S32 category, bool defer_copy)
 {
 	llassert(mGLTexturep.notNull()) ;	
 
-	BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category) ;
+	BOOL ret = mGLTexturep->createGLTexture(discard_level, imageraw, usename, to_create, category, defer_copy) ;
 
 	if(ret)
 	{
@@ -260,20 +260,20 @@ LLTexUnit::eTextureType LLGLTexture::getTarget(void) const
 	return mGLTexturep->getTarget() ;
 }
 
-BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height)
+BOOL LLGLTexture::setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, bool use_new_name /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	llassert(mGLTexturep.notNull()) ;
 
-	return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height) ;
+	return mGLTexturep->setSubImage(imageraw, x_pos, y_pos, width, height, 0, use_new_name) ;
 }
 
-BOOL LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height)
+BOOL LLGLTexture::setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, bool use_new_name /* = false */)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	llassert(mGLTexturep.notNull()) ;
 
-	return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height) ;
+	return mGLTexturep->setSubImage(datap, data_width, data_height, x_pos, y_pos, width, height, 0, use_new_name) ;
 }
 
 void LLGLTexture::setGLTextureCreated (bool initialized)

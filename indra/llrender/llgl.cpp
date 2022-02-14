@@ -757,17 +757,6 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 
-#if LL_WINDOWS
-	if (mHasDebugOutput && gDebugGL)
-	{ //setup debug output callback
-		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-	}
-#endif
-
-	stop_glerror();
-
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS

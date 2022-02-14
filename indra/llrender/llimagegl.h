@@ -110,14 +110,18 @@ public:
     
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
-		S32 category = sMaxCategories-1);
-	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0);
+		S32 category = sMaxCategories-1, bool defer_copy = false);
+	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false);
 	void setImage(const LLImageRaw* imageraw);
 	BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
-	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE);
-	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE);
+	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, bool use_new_name = false);
+	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, bool use_new_name = false);
 	BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
-	
+
+    // wait for gl commands to finish on current thread and push
+    // a lambda to main thread to swap mNewTexName and mTexName
+    void syncToMainThread();
+
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
 	void destroyGLTexture();
