@@ -423,6 +423,7 @@ public:
 	void skipRenderingOfTerrain( bool flag );
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
+    void handleShadowDetailChanged();
 
     void autoAdjustSettings();
     void setAdjustmentTimerExpiry(F32 expiration);
@@ -437,6 +438,7 @@ private:
 	void connectRefreshCachedSettingsSafe(const std::string name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
+    void skipRenderingShadows();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
