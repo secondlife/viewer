@@ -392,8 +392,9 @@ BOOL LLToolPie::handleLeftClickPick()
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
-	BOOL touchable = (object && object->flagHandleTouch()) 
-					 || (parent && parent->flagHandleTouch());
+    bool touchable = object
+                     && (object->getClickAction() != CLICK_ACTION_DISABLED)
+                     && (object->flagHandleTouch() || (parent && parent->flagHandleTouch()));
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
