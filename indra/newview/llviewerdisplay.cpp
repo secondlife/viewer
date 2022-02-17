@@ -649,9 +649,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
 		}
 
-		//upkeep gl name pools
-		LLGLNamePool::upkeepPools();
-		
 		stop_glerror();
 		display_update_camera();
 		stop_glerror();

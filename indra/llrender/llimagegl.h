@@ -110,17 +110,17 @@ public:
     
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
-		S32 category = sMaxCategories-1, bool defer_copy = false);
-	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false);
+		S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 	void setImage(const LLImageRaw* imageraw);
 	BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
-	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, bool use_new_name = false);
-	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, bool use_new_name = false);
+	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
+	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
 
     // wait for gl commands to finish on current thread and push
     // a lambda to main thread to swap mNewTexName and mTexName
-    void syncToMainThread();
+    void syncToMainThread(LLGLuint new_tex_name);
 
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
@@ -224,7 +224,7 @@ private:
 
 	bool     mGLTextureCreated ;
 	LLGLuint mTexName;
-    LLGLuint mNewTexName = 0; // tex name set by background thread to be applied in main thread
+    //LLGLuint mNewTexName = 0; // tex name set by background thread to be applied in main thread
 	U16      mWidth;
 	U16      mHeight;
 	S8       mCurrentDiscardLevel;
@@ -324,6 +324,9 @@ public:
     // follows gSavedSettings "RenderGLMultiThreaded"
     static bool sEnabled;
 
+    // free video memory in megabytes
+    static std::atomic<S32> sFreeVRAMMegabytes;
+
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
@@ -334,6 +337,8 @@ public:
     }
 
     void run() override;
+
+    static S32 getFreeVRAMMegabytes();
 
 private:
     LLWindow* mWindow;

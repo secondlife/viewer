@@ -7267,11 +7267,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
-	//delete all name pool caches
-	LLGLNamePool::cleanupPools();
-
-	
-
 	if (LLVertexBuffer::sGLCount > 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;

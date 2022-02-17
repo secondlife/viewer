@@ -2986,11 +2986,12 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
     LLPointer<LLImageRaw> raw = new LLImageRaw(data, media_tex->getWidth(), media_tex->getHeight(), media_tex->getComponents(), true);
         
     // Allocate GL texture based on LLImageRaw but do NOT copy to GL
-    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true);
+    LLGLuint tex_name = 0;
+    media_tex->createGLTexture(0, raw, 0, TRUE, LLGLTexture::OTHER, true, &tex_name);
 
     // copy just the subimage covered by the image raw to GL
-    media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, sync);
-    media_tex->getGLTexture()->syncToMainThread();
+    media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
+    media_tex->getGLTexture()->syncToMainThread(tex_name);
     
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't
     // free memory at data pointer

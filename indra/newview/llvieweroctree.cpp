@@ -787,42 +787,73 @@ void LLViewerOctreeGroup::checkStates()
 //occulsion culling functions and classes
 //-------------------------------------------------------------------------------------------
 std::set<U32> LLOcclusionCullingGroup::sPendingQueries;
-class LLOcclusionQueryPool : public LLGLNamePool
-{
-public:
-	LLOcclusionQueryPool()
-	{
-	}
 
-protected:
+static std::queue<GLuint> sFreeQueries;
 
-	virtual GLuint allocateName()
-	{
-		GLuint ret = 0;
-
-		glGenQueriesARB(1, &ret);
-	
-		return ret;
-	}
-
-	virtual void releaseName(GLuint name)
-	{
-#if LL_TRACK_PENDING_OCCLUSION_QUERIES
-		LLOcclusionCullingGroup::sPendingQueries.erase(name);
-#endif
-		glDeleteQueriesARB(1, &name);
-	}
-};
-
-static LLOcclusionQueryPool sQueryPool;
 U32 LLOcclusionCullingGroup::getNewOcclusionQueryObjectName()
 {
-	return sQueryPool.allocate();
+    LL_PROFILE_ZONE_SCOPED;
+    // TODO: refactor this to a general purpose name pool
+    static GLuint occlusion_queries[2][1024];
+    static std::atomic<S32> query_count[2];
+    static S32 query_page = -1;
+    
+    //reuse any query names that have been freed 
+    if (!sFreeQueries.empty())
+    {
+        GLuint ret = sFreeQueries.front();
+        sFreeQueries.pop();
+        return ret;
+    }
+
+    // first call, immediately fill entire name pool
+    if (query_page == -1)
+    {
+        glGenQueriesARB(1024, occlusion_queries[0]);
+        glGenQueriesARB(1024, occlusion_queries[1]);
+        query_page = 0;
+        query_count[0] = 1024;
+        query_count[1] = 1024;
+    }
+
+    if (query_count[query_page] == 0) //this page is empty
+    {
+        //check the other page
+        query_page = (query_page + 1) % 2;
+
+        if (query_count[query_page] == 0)
+        {
+            //the other page is also empty, generate immediately and return
+            GLuint ret;
+            glGenQueriesARB(1, &ret);
+            return ret;
+        }
+    }
+
+    GLuint ret = occlusion_queries[query_page][--query_count[query_page]];
+
+    if (query_count[query_page] == 0)
+    { //exhausted this page, replenish on background thread
+        S32 page = query_page;
+        LL::WorkQueue::postMaybe(LL::WorkQueue::getInstance("LLImageGL"),
+            [=]()
+            {
+                LL_PROFILE_ZONE_NAMED("glGenQueries bg");
+                if (query_count[page] == 0) // <-- protect against redundant attempts to replenish
+                {
+                    glGenQueriesARB(1024, occlusion_queries[page]);
+                    query_count[page] = 1024;
+                    glFlush();
+                }
+            });
+    }
+
+    return ret;
 }
 
 void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(GLuint name)
 {
-	sQueryPool.release(name);
+    sFreeQueries.push(name);
 }
 
 //=====================================
@@ -1243,7 +1274,10 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 						//store which frame this query was issued on
 						mOcclusionIssued[LLViewerCamera::sCurCameraID] = gFrameCount;
 
-    					glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);					
+                        {
+                            LL_PROFILE_ZONE_NAMED("glBeginQuery");
+                            glBeginQueryARB(mode, mOcclusionQuery[LLViewerCamera::sCurCameraID]);
+                        }
 					
 						LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 						llassert(shader);
@@ -1282,7 +1316,10 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 							}
 						}
 	
-						glEndQueryARB(mode);
+                        {
+                            LL_PROFILE_ZONE_NAMED("glEndQuery");
+                            glEndQueryARB(mode);
+                        }
 					}
 				}
 

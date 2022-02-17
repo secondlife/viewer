@@ -2150,95 +2150,6 @@ LLGLUserClipPlane::~LLGLUserClipPlane()
 	disable();
 }
 
-LLGLNamePool::LLGLNamePool()
-{
-}
-
-LLGLNamePool::~LLGLNamePool()
-{
-}
-
-void LLGLNamePool::upkeep()
-{
-	std::sort(mNameList.begin(), mNameList.end(), CompareUsed());
-}
-
-void LLGLNamePool::cleanup()
-{
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		releaseName(iter->name);
-	}
-
-	mNameList.clear();
-}
-
-GLuint LLGLNamePool::allocate()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-#if LL_GL_NAME_POOLING
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		if (!iter->used)
-		{
-			iter->used = TRUE;
-			return iter->name;
-		}
-	}
-
-	NameEntry entry;
-	entry.name = allocateName();
-	entry.used = TRUE;
-	mNameList.push_back(entry);
-
-	return entry.name;
-#else
-	return allocateName();
-#endif
-}
-
-void LLGLNamePool::release(GLuint name)
-{
-#if LL_GL_NAME_POOLING
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		if (iter->name == name)
-		{
-			if (iter->used)
-			{
-				iter->used = FALSE;
-				return;
-			}
-			else
-			{
-				LL_ERRS() << "Attempted to release a pooled name that is not in use!" << LL_ENDL;
-			}
-		}
-	}
-	LL_ERRS() << "Attempted to release a non pooled name!" << LL_ENDL;
-#else
-	releaseName(name);
-#endif
-}
-
-//static
-void LLGLNamePool::upkeepPools()
-{
-	for (auto& pool : instance_snapshot())
-	{
-		pool.upkeep();
-	}
-}
-
-//static
-void LLGLNamePool::cleanupPools()
-{
-	for (auto& pool : instance_snapshot())
-	{
-		pool.cleanup();
-	}
-}
-
 LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, GLenum depth_func)
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
@@ -2459,4 +2370,5 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
+
 
