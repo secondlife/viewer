@@ -225,6 +225,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mNumFaces = 0;
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
+    mColorChanged = FALSE;
 	mSpotLightPriority = 0.f;
 
 	mMediaImplList.resize(getNumTEs());
@@ -2031,7 +2032,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
-		else if (mSculptChanged || mLODChanged)
+		else if (mSculptChanged || mLODChanged || mColorChanged)
 		{
 			compiled = TRUE;
 			was_regen_faces = lodOrSculptChanged(drawable, compiled);
@@ -2043,7 +2044,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 		genBBoxes(FALSE);
 	}
-	else if (mLODChanged || mSculptChanged)
+	else if (mLODChanged || mSculptChanged || mColorChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
@@ -2075,6 +2076,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
+    mColorChanged = FALSE;
 	
 	return LLViewerObject::updateGeometry(drawable);
 }
@@ -2213,6 +2215,7 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 		if (mDrawable.notNull() && retval)
 		{
 			// These should only happen on updates which are not the initial update.
+            mColorChanged = TRUE;
 			mDrawable->setState(LLDrawable::REBUILD_COLOR);
 			dirtyMesh();
 		}
