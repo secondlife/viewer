@@ -135,6 +135,7 @@ public:
 	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
+    void previewAvatar(LLVOAvatar* avatar);
 	void bindScreenToTexture();
 	void renderFinalize();
 
