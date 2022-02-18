@@ -150,6 +150,7 @@ U32 LLPipeline::RenderFSAASamples;
 U32 LLPipeline::RenderResolutionDivisor;
 bool LLPipeline::RenderUIBuffer;
 S32 LLPipeline::RenderShadowDetail;
+S32 LLPipeline::RenderShadowSplits;
 bool LLPipeline::RenderDeferredSSAO;
 F32 LLPipeline::RenderShadowResolutionScale;
 bool LLPipeline::RenderLocalLights;
@@ -544,6 +545,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
 	connectRefreshCachedSettingsSafe("RenderUIBuffer");
 	connectRefreshCachedSettingsSafe("RenderShadowDetail");
+    connectRefreshCachedSettingsSafe("RenderShadowSplits");
 	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
 	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
 	connectRefreshCachedSettingsSafe("RenderLocalLights");
@@ -611,6 +613,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraDoFResScale");
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
+    gSavedSettings.getControl("AutoFPS")->getCommitSignal()->connect(boost::bind(&LLPipeline::onToggleAutoFPS));
 }
 
 LLPipeline::~LLPipeline()
@@ -1073,6 +1076,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
 	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
+    RenderShadowSplits = gSavedSettings.getS32("RenderShadowSplits");
 	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
 	RenderShadowResolutionScale = gSavedSettings.getF32("RenderShadowResolutionScale");
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
@@ -10270,7 +10274,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			std::vector<LLVector3> fp;
 
-			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir))
+			if (!gPipeline.getVisiblePointCloud(shadow_cam, min, max, fp, lightDir)
+                || j > RenderShadowSplits)
 			{
 				//no possible shadow receivers
 				if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA))
@@ -11505,10 +11510,10 @@ void LLPipeline::autoAdjustSettings()
             {
                 S32 fps_dif = fps_lower_boundary - fps;
                 
-                if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0)
+                if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0 && RenderShadowSplits > 0)
                 {
-                    S32 shadow_detail = RenderShadowDetail - 1;
-                    gSavedSettings.setS32("RenderShadowDetail", shadow_detail);
+                    S32 shadow_splits = llclamp(RenderShadowSplits - 1, 0, 3);
+                    gSavedSettings.setS32("RenderShadowSplits", shadow_splits);
                     return;
                 }
                 
@@ -11542,10 +11547,10 @@ void LLPipeline::autoAdjustSettings()
                     update_far_clip(fps_dif);
                 }
 
-                if (LLPipeline::sRenderDeferred && RenderShadowDetail < 2)
+                if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0 && RenderShadowSplits < 3)
                 {
-                    S32 shadow_detail = RenderShadowDetail + 1;
-                    gSavedSettings.setS32("RenderShadowDetail", shadow_detail);
+                    S32 shadow_splits = llclamp(RenderShadowSplits + 1, 0, 3);
+                    gSavedSettings.setS32("RenderShadowSplits", shadow_splits);
                 }
             }
         }
@@ -11560,4 +11565,14 @@ void LLPipeline::autoAdjustSettings()
 void LLPipeline::setAdjustmentTimerExpiry(F32 expiration)
 {
     mUpdateTimer->setTimerExpirySec(expiration);
+}
+
+void LLPipeline::onToggleAutoFPS()
+{
+    if (!gSavedSettings.getBOOL("AutoFPS"))
+    {
+        //reset the number of shadow map splits rendered, when disabling auto-fps
+        //probably should be removed, if we'll have actual UI control for this setting
+        gSavedSettings.setS32("RenderShadowSplits", 3);
+    }
 }

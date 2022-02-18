@@ -9049,6 +9049,17 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
+  <key>RenderShadowSplits</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount of shadow map splits to render (0 - 3).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
   <key>RenderSSAOScale</key>
   <map>
     <key>Comment</key>

@@ -416,6 +416,8 @@ public:
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
+    static void onToggleAutoFPS();
+
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
@@ -916,6 +918,7 @@ public:
 	static U32 RenderResolutionDivisor;
 	static bool RenderUIBuffer;
 	static S32 RenderShadowDetail;
+    static S32 RenderShadowSplits;
 	static bool RenderDeferredSSAO;
 	static F32 RenderShadowResolutionScale;
 	static bool RenderLocalLights;
