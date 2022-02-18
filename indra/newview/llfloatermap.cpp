@@ -248,32 +248,6 @@ void LLFloaterMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 	updateMinorDirections();
 }
 
-void LLFloaterMap::handleZoom(const LLSD& userdata)
-{
-	std::string level = userdata.asString();
-	
-	F32 scale = 0.0f;
-	if (level == std::string("default"))
-	{
-		LLControlVariable *pvar = gSavedSettings.getControl("MiniMapScale");
-		if(pvar)
-		{
-			pvar->resetToDefault();
-			scale = gSavedSettings.getF32("MiniMapScale");
-		}
-	}
-	else if (level == std::string("close"))
-		scale = LLNetMap::MAP_SCALE_MAX;
-	else if (level == std::string("medium"))
-		scale = LLNetMap::MAP_SCALE_MID;
-	else if (level == std::string("far"))
-		scale = LLNetMap::MAP_SCALE_MIN;
-	if (scale != 0.0f)
-	{
-		mMap->setScale(scale);
-	}
-}
-
 LLFloaterMap* LLFloaterMap::getInstance()
 {
 	return LLFloaterReg::getTypedInstance<LLFloaterMap>("mini_map");

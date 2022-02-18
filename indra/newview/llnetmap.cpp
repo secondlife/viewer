@@ -48,6 +48,7 @@
 #include "llagentcamera.h"
 #include "llappviewer.h" // for gDisconnected
 #include "llcallingcard.h" // LLAvatarTracker
+#include "llfloaterland.h"
 #include "llfloaterworldmap.h"
 #include "llparcel.h"
 #include "lltracker.h"
@@ -69,7 +70,10 @@
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 LLNetMap::MAP_SCALE_MIN = 32;
-const F32 LLNetMap::MAP_SCALE_MID = 1024;
+const F32 LLNetMap::MAP_SCALE_FAR = 32;
+const F32 LLNetMap::MAP_SCALE_MEDIUM = 128;
+const F32 LLNetMap::MAP_SCALE_CLOSE = 256;
+const F32 LLNetMap::MAP_SCALE_VERY_CLOSE = 1024;
 const F32 LLNetMap::MAP_SCALE_MAX = 4096;
 
 const F32 MAP_SCALE_ZOOM_FACTOR = 1.04f; // Zoom in factor per click of scroll wheel (4%)
@@ -83,12 +87,13 @@ const F64 COARSEUPDATE_MAX_Z = 1020.0f;
 LLNetMap::LLNetMap (const Params & p)
 :	LLUICtrl (p),
 	mBackgroundColor (p.bg_color()),
-	mScale( MAP_SCALE_MID ),
-	mPixelsPerMeter( MAP_SCALE_MID / REGION_WIDTH_METERS ),
+    mScale( MAP_SCALE_MEDIUM ),
+    mPixelsPerMeter( MAP_SCALE_MEDIUM / REGION_WIDTH_METERS ),
 	mObjectMapTPM(0.f),
 	mObjectMapPixels(0.f),
 	mCurPan(0.f, 0.f),
 	mStartPan(0.f, 0.f),
+    mPopupWorldPos(0.f, 0.f, 0.f),
 	mMouseDown(0, 0),
 	mPanning(false),
 	mUpdateNow(false),
@@ -112,14 +117,19 @@ LLNetMap::~LLNetMap()
 BOOL LLNetMap::postBuild()
 {
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enableRegistrar;
 
-    commitRegistrar.add("Minimap.Zoom", boost::bind(&LLNetMap::handleZoom, this, _2));
+    enableRegistrar.add("Minimap.Zoom.Check", boost::bind(&LLNetMap::isZoomChecked, this, _2));
+    commitRegistrar.add("Minimap.Zoom.Set", boost::bind(&LLNetMap::setZoom, this, _2));
     commitRegistrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
     commitRegistrar.add("Minimap.Center.Activate", boost::bind(&LLNetMap::activateCenterMap, this, _2));
+    enableRegistrar.add("Minimap.MapOrientation.Check", boost::bind(&LLNetMap::isMapOrientationChecked, this, _2));
+    commitRegistrar.add("Minimap.MapOrientation.Set", boost::bind(&LLNetMap::setMapOrientation, this, _2));
+    commitRegistrar.add("Minimap.AboutLand", boost::bind(&LLNetMap::popupShowAboutLand, this, _2));
 
     mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder,
                                                                           LLViewerMenuHolderGL::child_registry_t::instance());
-    mPopupMenu->setItemEnabled("Re-Center Map", false);
+    mPopupMenu->setItemEnabled("Re-center map", false);
 
     return true;
 }
@@ -186,7 +196,7 @@ void LLNetMap::draw()
     }
 
     bool can_recenter_map = !(centered || mCentering || auto_centering);
-    mPopupMenu->setItemEnabled("Re-Center Map", can_recenter_map);
+    mPopupMenu->setItemEnabled("Re-center map", can_recenter_map);
 
 	// Prepare a scissor region
 	F32 rotation = 0;
@@ -962,9 +972,10 @@ BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	if (mPopupMenu)
 	{
+        mPopupWorldPos = viewPosToGlobal(x, y);
 		mPopupMenu->buildDrawLabels();
 		mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
-		mPopupMenu->setItemEnabled("Stop Tracking", LLTracker::isTracking(0));
+		mPopupMenu->setItemEnabled("Stop tracking", LLTracker::isTracking(0));
 		LLMenuGL::showPopup(this, mPopupMenu, x, y);
 	}
 	return TRUE;
@@ -1010,6 +1021,27 @@ BOOL LLNetMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 		LLFloaterReg::showInstance("world_map");
 	}
 	return TRUE;
+}
+
+F32 LLNetMap::getScaleForName(std::string scale_name)
+{
+    if (scale_name == "very close")
+    {
+        return LLNetMap::MAP_SCALE_VERY_CLOSE;
+    }
+    else if (scale_name == "close")
+    {
+        return LLNetMap::MAP_SCALE_CLOSE;
+    }
+    else if (scale_name == "medium")
+    {
+        return LLNetMap::MAP_SCALE_MEDIUM;
+    }
+    else if (scale_name == "far")
+    {
+        return LLNetMap::MAP_SCALE_FAR;
+    }
+    return 0.0f;
 }
 
 // static
@@ -1058,39 +1090,70 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 	return TRUE;
 }
 
-void LLNetMap::handleZoom(const LLSD& userdata)
+bool LLNetMap::isZoomChecked(const LLSD &userdata)
 {
-	std::string level = userdata.asString();
-	
-	F32 scale = 0.0f;
-	if (level == std::string("default"))
-	{
-		LLControlVariable *pvar = gSavedSettings.getControl("MiniMapScale");
-		if(pvar)
-		{
-			pvar->resetToDefault();
-			scale = gSavedSettings.getF32("MiniMapScale");
-		}
-	}
-	else if (level == std::string("close"))
-		scale = LLNetMap::MAP_SCALE_MAX;
-	else if (level == std::string("medium"))
-		scale = LLNetMap::MAP_SCALE_MID;
-	else if (level == std::string("far"))
-		scale = LLNetMap::MAP_SCALE_MIN;
-	if (scale != 0.0f)
-	{
-		setScale(scale);
-	}
+    std::string level = userdata.asString();
+    F32         scale = getScaleForName(level);
+    return scale == mScale;
+}
+
+void LLNetMap::setZoom(const LLSD &userdata)
+{
+    std::string level = userdata.asString();
+    F32         scale = getScaleForName(level);
+    if (scale != 0.0f)
+    {
+        setScale(scale);
+    }
 }
 
 void LLNetMap::handleStopTracking (const LLSD& userdata)
 {
 	if (mPopupMenu)
 	{
-		mPopupMenu->setItemEnabled ("Stop Tracking", false);
+		mPopupMenu->setItemEnabled ("Stop tracking", false);
 		LLTracker::stopTracking (LLTracker::isTracking(NULL));
 	}
 }
 
 void LLNetMap::activateCenterMap(const LLSD &userdata) { mCentering = true; }
+
+bool LLNetMap::isMapOrientationChecked(const LLSD &userdata)
+{
+    const std::string command_name = userdata.asString();
+    const bool        rotate_map   = gSavedSettings.getBOOL("MiniMapRotate");
+    if (command_name == "north_at_top")
+    {
+        return !rotate_map;
+    }
+
+    if (command_name == "camera_at_top")
+    {
+        return rotate_map;
+    }
+
+    return false;
+}
+
+void LLNetMap::setMapOrientation(const LLSD &userdata)
+{
+    const std::string command_name = userdata.asString();
+    if (command_name == "north_at_top")
+    {
+        gSavedSettings.setBOOL("MiniMapRotate", false);
+    }
+    else if (command_name == "camera_at_top")
+    {
+        gSavedSettings.setBOOL("MiniMapRotate", true);
+    }
+}
+
+void LLNetMap::popupShowAboutLand(const LLSD &userdata)
+{
+    // Update parcel selection. It's important to deselect land first so the "About Land" floater doesn't refresh with the old selection.
+    LLViewerParcelMgr::getInstance()->deselectLand();
+    LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt(mPopupWorldPos);
+    gMenuHolder->setParcelSelection(selection);
+
+    LLFloaterReg::showInstance("about_land", LLSD(), false);
+}
