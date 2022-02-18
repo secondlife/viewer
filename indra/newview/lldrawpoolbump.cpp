@@ -1218,6 +1218,10 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
                 auto gen_normal_map = [bump_ptr, dst_ptr]()
                 {
                     LL_PROFILE_ZONE_NAMED("bil - generate normal map");
+                    if (gNormalMapGenProgram.mProgramObject == 0)
+                    {
+                        return;
+                    }
                     gPipeline.mScreen.bindTarget();
 
                     LLGLDepthTest depth(GL_FALSE);
