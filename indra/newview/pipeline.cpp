@@ -132,7 +132,7 @@
 
 // NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
 // NOTE: Unused consts are commented out since some compilers (on macOS) may complain about unused variables.
-//  const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
+    const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
     const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
     const S32 WATER_REFLECT_MINIMAL                 =  0;
 //  const S32 WATER_REFLECT_TERRAIN                 =  1;
@@ -11510,6 +11510,13 @@ void LLPipeline::autoAdjustSettings()
             {
                 S32 fps_dif = fps_lower_boundary - fps;
                 
+                if (sWaterReflections && RenderReflectionDetail > WATER_REFLECT_NONE_WATER_OPAQUE)
+                {
+                    S32 reflection_detail = llclamp(RenderReflectionDetail - 1, WATER_REFLECT_NONE_WATER_OPAQUE, WATER_REFLECT_MINIMAL);
+                    gSavedSettings.setS32("RenderReflectionDetail", reflection_detail);
+                    return;
+                }
+                
                 if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0 && RenderShadowSplits > 0)
                 {
                     S32 shadow_splits = llclamp(RenderShadowSplits - 1, 0, 3);
@@ -11551,6 +11558,13 @@ void LLPipeline::autoAdjustSettings()
                 {
                     S32 shadow_splits = llclamp(RenderShadowSplits + 1, 0, 3);
                     gSavedSettings.setS32("RenderShadowSplits", shadow_splits);
+                    return;
+                }
+
+                if (sWaterReflections && RenderReflectionDetail < WATER_REFLECT_MINIMAL)
+                {
+                    S32 reflection_detail = llclamp(RenderReflectionDetail + 1, WATER_REFLECT_NONE_WATER_OPAQUE, WATER_REFLECT_MINIMAL);
+                    gSavedSettings.setS32("RenderReflectionDetail", reflection_detail);
                 }
             }
         }
