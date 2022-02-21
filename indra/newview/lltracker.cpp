@@ -109,7 +109,12 @@ void LLTracker::stopTracking(bool clear_ui)
 // static virtual
 void LLTracker::drawHUDArrow()
 {
-	if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
+    if (!LLWorld::instanceExists())
+    {
+        return;
+    }
+    
+    if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
 
 	if (gViewerWindow->getProgressView()->getVisible()) return;
 
