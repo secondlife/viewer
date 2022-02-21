@@ -113,8 +113,12 @@ void LLTracker::drawHUDArrow()
     {
         return;
     }
-    
-    if (!gSavedSettings.getBOOL("RenderTrackerBeacon")) return;
+
+    static LLCachedControl<bool> render_beacon(gSavedSettings, "RenderTrackerBeacon", true);
+    if (!render_beacon)
+    {
+        return;
+    }
 
 	if (gViewerWindow->getProgressView()->getVisible()) return;
 
