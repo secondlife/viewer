@@ -1049,7 +1049,9 @@ void LLFloaterModelPreview::onPhysicsUseLOD(LLUICtrl* ctrl, void* userdata)
 	{
 		S32 which_lod = num_lods - which_mode;
 		sInstance->mModelPreview->setPhysicsFromLOD(which_lod);
-	} else if (which_mode == cube_mode) {
+	}
+	else if (which_mode == cube_mode)
+	{
 		std::string path = gDirUtilp->getAppRODataDir();
 		gDirUtilp->append(path, "cube.dae");
 		sInstance->loadModel(LLModel::LOD_PHYSICS, path);
@@ -1652,7 +1654,7 @@ void LLFloaterModelPreview::setCtrlLoadFromFile(S32 lod)
         LLComboBox* lod_combo = findChild<LLComboBox>("physics_lod_combo");
         if (lod_combo)
         {
-			lod_combo->setCurrentByIndex(lod_combo->getItemCount() - 1);
+            lod_combo->setCurrentByIndex(lod_combo->getItemCount() - 1);
         }
     }
     else
