@@ -1311,11 +1311,6 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
                 if (main_queue)
                 { //dispatch creation to background thread
-                    LLImageRaw* dst_ptr = dst_image;
-                    LLViewerTexture* bump_ptr = bump;
-                    dst_ptr->ref();
-                    bump_ptr->ref();
-
                     main_queue->postTo(sTexUpdateQueue, create_texture, gen_normal_map);
                 }
                 else

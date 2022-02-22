@@ -1480,7 +1480,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 }
 
 BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_hasmips, S32 usename, bool defer_copy, LLGLuint* tex_name)
-    // Call with void data, vmem is allocated but unitialized
+// Call with void data, vmem is allocated but unitialized
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     checkActiveThread();
@@ -1505,7 +1505,8 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     }
     discard_level = llclamp(discard_level, 0, (S32)mMaxDiscardLevel);
 
-    if (main_thread // <--- always force creation of mNewTexName when not on main thread
+    if (main_thread // <--- always force creation of new_texname when not on main thread ...
+        && !defer_copy // <--- ... or defer copy is set
         && mTexName != 0 && discard_level == mCurrentDiscardLevel)
     {
         LL_PROFILE_ZONE_NAMED("cglt - early setImage");
@@ -1533,7 +1534,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
             glTexParameteri(LLTexUnit::getInternalType(mBindTarget), GL_TEXTURE_MAX_LEVEL, mMaxDiscardLevel - discard_level);
         }
     }
-    
+
     if (tex_name != nullptr)
     {
         *tex_name = new_texname;
@@ -1568,22 +1569,23 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     }
 
     //if we're on the image loading thread, be sure to delete old_texname and update mTexName on the main thread
-    if (!main_thread)
+    if (!defer_copy)
     {
-        if (!defer_copy)
+        if (!main_thread)
         {
             syncToMainThread(new_texname);
         }
-    }
-    else 
-    {
-        //not on background thread, immediately set mTexName
-        if (old_texname != 0)
+        else
         {
-            LLImageGL::deleteTextures(1, &old_texname);
+            //not on background thread, immediately set mTexName
+            if (old_texname != 0 && old_texname != new_texname)
+            {
+                LLImageGL::deleteTextures(1, &old_texname);
+            }
+            mTexName = new_texname;
         }
-        mTexName = new_texname;
     }
+
     
     mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
     sGlobalTextureMemory += mTextureMemory;
@@ -1596,22 +1598,46 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     return TRUE;
 }
 
-void update_free_vram()
+void LLImageGLThread::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED;
 
-    if (gGLManager.mHasATIMemInfo)
-    {
-        S32 meminfo[4];
-        glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-        LLImageGLThread::sFreeVRAMMegabytes = meminfo[0];
+    // update available vram one per second
+    static LLFrameTimer sTimer;
 
-    }
-    else if (gGLManager.mHasNVXMemInfo)
+    if (sTimer.getElapsedSeconds() < 1.f)
     {
-        S32 free_memory;
-        glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-        LLImageGLThread::sFreeVRAMMegabytes = free_memory / 1024;
+        return;
+    }
+    
+    sTimer.reset();
+
+    auto func = []()
+    {
+        if (gGLManager.mHasATIMemInfo)
+        {
+            S32 meminfo[4];
+            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
+            LLImageGLThread::sFreeVRAMMegabytes = meminfo[0];
+
+        }
+        else if (gGLManager.mHasNVXMemInfo)
+        {
+            S32 free_memory;
+            glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
+            LLImageGLThread::sFreeVRAMMegabytes = free_memory / 1024;
+        }
+    };
+
+    // post update to background thread if available, otherwise execute immediately
+    auto queue = LLImageGLThread::sEnabled ? LL::WorkQueue::getInstance("LLImageGL") : nullptr;
+    if (queue)
+    {
+        queue->post(func);
+    }
+    else
+    {
+        func();
     }
 }
 
@@ -1657,7 +1683,7 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
             LL_PROFILE_ZONE_NAMED("cglt - delete callback");
             if (new_tex_name != 0)
             {
-                if (mTexName != 0)
+                if (mTexName != 0 && mTexName != new_tex_name)
                 {
                     LLImageGL::deleteTextures(1, &mTexName);
                 }
@@ -1665,17 +1691,6 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
                 unref();
             }
         });
-
-
-    //update free vram periodically
-    static LLFrameTimer timer;
-    
-    if (timer.getElapsedTimeF32() > 1.f) //call this once per second.
-    {
-        update_free_vram();
-        timer.reset();
-    }
-    
 }
 
 BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const
@@ -2379,11 +2394,6 @@ void LLImageGLThread::run()
 
 S32 LLImageGLThread::getFreeVRAMMegabytes()
 {
-    if (!sEnabled)
-    {
-        update_free_vram();
-    }
-
     return sFreeVRAMMegabytes;
 }
 
