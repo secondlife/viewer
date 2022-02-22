@@ -336,7 +336,8 @@ public:
 	static F32		sLODFactor; // user-settable LOD factor
 	static F32		sPhysicsLODFactor; // user-settable physics LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
-	static BOOL		sDebugAvatarRotation;
+
+    static LLPointer<LLViewerTexture>  sCloudTexture;
 
 	//--------------------------------------------------------------------
 	// Region state

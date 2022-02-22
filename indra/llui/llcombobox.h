@@ -105,6 +105,8 @@ protected:
     virtual std::string _getSearchText() const;
     virtual void onSetHighlight() const;
 
+    void imageLoaded();
+
 public:
 	// LLView interface
 	virtual void	onFocusLost();
@@ -244,6 +246,7 @@ private:
 	commit_callback_t	mTextChangedCallback;
 	commit_callback_t	mSelectionCallback;
 	boost::signals2::connection mTopLostSignalConnection;
+    boost::signals2::connection mImageLoadedConnection;
 	commit_signal_t		mOnReturnSignal;
 	S32                 mLastSelectedIndex;
 };
