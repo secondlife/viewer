@@ -1216,7 +1216,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 
                 bump_ptr->setExplicitFormat(GL_RGBA8, GL_ALPHA);
 
-                auto create_texture = [bump_ptr, dst_ptr]()
+                auto create_texture = [=]()
                 {
 #if LL_IMAGEGL_THREAD_CHECK
                     bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
@@ -1225,7 +1225,7 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
                     bump_ptr->createGLTexture(0, dst_ptr);
                 };
 
-                auto gen_normal_map = [bump_ptr, dst_ptr]()
+                auto gen_normal_map = [=]()
                 {
 #if LL_IMAGEGL_THREAD_CHECK
                     bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
