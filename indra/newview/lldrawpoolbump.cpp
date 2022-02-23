@@ -1051,8 +1051,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 		}
 
-		//if (iter->second->getWidth() != src->getWidth() ||
-		//	iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
+		if (iter->second->getWidth() != src->getWidth() ||
+			iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 		{
 			LLPointer<LLImageRaw> dst_image = new LLImageRaw(src->getWidth(), src->getHeight(), 1);
 			U8* dst_data = dst_image->getData();

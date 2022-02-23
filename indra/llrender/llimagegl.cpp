@@ -437,7 +437,7 @@ LLImageGL::LLImageGL(
 
 LLImageGL::~LLImageGL()
 {
-    if (!mExternalTexture)
+    if (!mExternalTexture && gGLManager.mInited)
     {
 	    LLImageGL::cleanup();
 	    sImageList.erase(this);
@@ -1629,14 +1629,16 @@ void LLImageGLThread::updateClass()
         }
     };
 
+    
     // post update to background thread if available, otherwise execute immediately
-    auto queue = LLImageGLThread::sEnabled ? LL::WorkQueue::getInstance("LLImageGL") : nullptr;
-    if (queue)
+    auto queue = LL::WorkQueue::getInstance("LLImageGL");
+    if (sEnabled)
     {
         queue->post(func);
     }
     else
     {
+        llassert(queue == nullptr);
         func();
     }
 }
