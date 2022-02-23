@@ -2911,10 +2911,16 @@ void LLViewerMediaImpl::update()
                 mTexUpdateQueue, // Worker thread queue
                 [=]() // work done on update worker thread
                 {
+#if LL_IMAGEGL_THREAD_CHECK
+                    media_tex->getGLTexture()->mActiveThread = LLThread::currentID();
+#endif
                     doMediaTexUpdate(media_tex, data, data_width, data_height, x_pos, y_pos, width, height, true);
                 },
                 [=]() // callback to main thread
                 {
+#if LL_IMAGEGL_THREAD_CHECK
+                    media_tex->getGLTexture()->mActiveThread = LLThread::currentID();
+#endif
                     mTextureUpdatePending = false;
                     media_tex->unref();
                     unref();
@@ -2991,7 +2997,10 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
-    media_tex->getGLTexture()->syncToMainThread(tex_name);
+    if (sync)
+    {
+        media_tex->getGLTexture()->syncToMainThread(tex_name);
+    }
     
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't
     // free memory at data pointer

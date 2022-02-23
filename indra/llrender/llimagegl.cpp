@@ -1644,6 +1644,8 @@ void LLImageGLThread::updateClass()
 void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
 {
     LL_PROFILE_ZONE_SCOPED;
+    llassert(!on_main_thread());
+
     {
         LL_PROFILE_ZONE_NAMED("cglt - sync");
         if (gGLManager.mHasSync)
