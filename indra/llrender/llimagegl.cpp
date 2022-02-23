@@ -1685,16 +1685,21 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
         [=]()
         {
             LL_PROFILE_ZONE_NAMED("cglt - delete callback");
-            if (new_tex_name != 0)
-            {
-                if (mTexName != 0 && mTexName != new_tex_name)
-                {
-                    LLImageGL::deleteTextures(1, &mTexName);
-                }
-                mTexName = new_tex_name;
-                unref();
-            }
+            syncTexName(new_tex_name);
+            unref();
         });
+}
+
+void LLImageGL::syncTexName(LLGLuint texname)
+{
+    if (texname != 0)
+    {
+        if (mTexName != 0 && mTexName != texname)
+        {
+            LLImageGL::deleteTextures(1, &mTexName);
+        }
+        mTexName = texname;
+    }
 }
 
 BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const

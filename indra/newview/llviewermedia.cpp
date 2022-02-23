@@ -2997,9 +2997,14 @@ void LLViewerMediaImpl::doMediaTexUpdate(LLViewerMediaTexture* media_tex, U8* da
 
     // copy just the subimage covered by the image raw to GL
     media_tex->setSubImage(data, data_width, data_height, x_pos, y_pos, width, height, tex_name);
+    
     if (sync)
     {
         media_tex->getGLTexture()->syncToMainThread(tex_name);
+    }
+    else
+    {
+        media_tex->getGLTexture()->syncTexName(tex_name);
     }
     
     // release the data pointer before freeing raw so LLImageRaw destructor doesn't

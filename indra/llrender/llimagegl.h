@@ -304,6 +304,9 @@ public:
 	
     void setTexName(GLuint texName) { mTexName = texName; }
 
+    //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
+    void syncTexName(LLGLuint texname);
+
 	//for debug use: show texture size distribution 
 	//----------------------------------------
 	static S32 sCurTexSizeBar ;
