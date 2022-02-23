@@ -3987,10 +3987,11 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	const LLUUID &marketplace_listings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	const LLUUID &outfits_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 
-	if (outfits_id == mUUID)
-	{
-		items.push_back(std::string("New Outfit"));
-	}
+    if (outfits_id == mUUID)
+    {
+        items.push_back(std::string("New Folder"));
+        items.push_back(std::string("New Outfit"));
+    }
 
 	if (lost_and_found_id == mUUID)
 	{
