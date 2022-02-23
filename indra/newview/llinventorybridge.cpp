@@ -5762,12 +5762,13 @@ LLCallingCardBridge::LLCallingCardBridge(LLInventoryPanel* inventory,
 	LLItemBridge(inventory, root, uuid)
 {
     mObserver = new LLCallingCardObserver(this);
-    LLAvatarTracker::instance().addParticularFriendObserver(getItem()->getCreatorUUID(), mObserver);
+    mCreatorUUID = getItem()->getCreatorUUID();
+    LLAvatarTracker::instance().addParticularFriendObserver(mCreatorUUID, mObserver);
 }
 
 LLCallingCardBridge::~LLCallingCardBridge()
 {
-    LLAvatarTracker::instance().removeParticularFriendObserver(getItem()->getCreatorUUID(), mObserver);
+    LLAvatarTracker::instance().removeParticularFriendObserver(mCreatorUUID, mObserver);
 
     delete mObserver;
 }
