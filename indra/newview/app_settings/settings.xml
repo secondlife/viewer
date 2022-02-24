@@ -3858,7 +3858,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://events.secondlife.com/viewer/embed/event/</string>
+      <string>http://events.[GRID]/viewer/embed/event/[EVENT_ID]</string>
     </map>
     <key>FastCacheFetchEnabled</key>
     <map>
