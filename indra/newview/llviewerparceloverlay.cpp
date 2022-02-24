@@ -907,8 +907,8 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 	// Always fudge a little vertically.
 	pull_toward_camera.mV[VZ] += 0.01f;
 
-	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.pushMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.pushMatrix();
 
 	// Move to appropriate region coords
 	LLVector3 origin = mRegion->getOriginAgent();
@@ -1013,7 +1013,65 @@ S32 LLViewerParcelOverlay::renderPropertyLines	()
 		
 	}
 
-	gGL.popMatrix();
+    gGL.popMatrix();
 
 	return drawn;
+}
+
+// Draw half of a single cell (no fill) in a grid drawn from left to right and from bottom to top
+void grid_2d_part_lines(const F32 left, const F32 top, const F32 right, const F32 bottom, bool has_left, bool has_bottom)
+{
+    gGL.begin(LLRender::LINES);
+
+    if (has_left)
+    {
+        gGL.vertex2f(left, bottom);
+        gGL.vertex2f(left, top);
+    }
+    if (has_bottom)
+    {
+        gGL.vertex2f(left, bottom);
+        gGL.vertex2f(right, bottom);
+    }
+
+    gGL.end();
+}
+
+void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_meter, const F32 *parcel_outline_color)
+{
+    if (!mOwnership)
+    {
+        return;
+    }
+    if (!gSavedSettings.getBOOL("MiniMapShowPropertyLines"))
+    {
+        return;
+    }
+
+    LLVector3 origin_agent     = mRegion->getOriginAgent();
+    LLVector3 rel_region_pos   = origin_agent - gAgentCamera.getCameraPositionAgent();
+    F32       region_left      = rel_region_pos.mV[0] * scale_pixels_per_meter;
+    F32       region_bottom    = rel_region_pos.mV[1] * scale_pixels_per_meter;
+    F32       map_parcel_width = PARCEL_GRID_STEP_METERS * scale_pixels_per_meter;
+    const S32 GRIDS_PER_EDGE   = mParcelGridsPerEdge;
+
+    gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+    glLineWidth(1.0f);
+    gGL.color4fv(parcel_outline_color);
+    for (S32 i = 0; i < GRIDS_PER_EDGE + 1; i++)
+    {
+        F32 bottom = region_bottom + (i * map_parcel_width);
+        F32 top    = bottom + map_parcel_width;
+        for (S32 j = 0; j < GRIDS_PER_EDGE + 1; j++)
+        {
+            F32 left    = region_left + (j * map_parcel_width);
+            F32 right   = left + map_parcel_width;
+            U8  overlay = mOwnership[(i * GRIDS_PER_EDGE) + j];
+            // The property line vertices are three-dimensional, but here we only care about the x and y coordinates, as we are drawing on a
+            // 2D map
+            const bool has_left   = i != GRIDS_PER_EDGE && (j == GRIDS_PER_EDGE || (overlay & PARCEL_WEST_LINE));
+            const bool has_bottom = j != GRIDS_PER_EDGE && (i == GRIDS_PER_EDGE || (overlay & PARCEL_SOUTH_LINE));
+            grid_2d_part_lines(left, top, right, bottom, has_left, has_bottom);
+        }
+    }
 }

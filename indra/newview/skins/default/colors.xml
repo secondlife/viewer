@@ -514,6 +514,9 @@
      name="MapFrustumColor"
      reference="White_10" />
     <color
+     name="MapParcelOutlineColor"
+     value="1 1 0 0.5" />
+    <color
      name="MapFrustumRotatingColor"
      value="1 1 1 0.2" />
     <color

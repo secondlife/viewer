@@ -63,6 +63,16 @@
          function="Minimap.Tracker"
          parameter="task_properties" />
     </menu_item_call>
+	<menu_item_separator />
+    <menu_item_check
+     label="Show Property Lines"
+     name="Show Property Lines">
+        <menu_item_check.on_check
+         control="MiniMapShowPropertyLines" />
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="MiniMapShowPropertyLines" />
+    </menu_item_check>
     <menu_item_separator />
     <menu_item_call
      label="World Map"
