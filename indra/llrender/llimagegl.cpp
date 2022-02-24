@@ -2372,7 +2372,7 @@ void LLImageGL::checkActiveThread()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,  nummips);
 */  
 
-std::atomic<S32> LLImageGLThread::sFreeVRAMMegabytes = 4096; //if free vram is unknown, default to 4GB
+std::atomic<S32> LLImageGLThread::sFreeVRAMMegabytes(4096); //if free vram is unknown, default to 4GB
 
 LLImageGLThread::LLImageGLThread(LLWindow* window)
     // We want exactly one thread, but a very large capacity: we never want
