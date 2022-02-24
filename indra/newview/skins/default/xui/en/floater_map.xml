@@ -37,105 +37,73 @@
     <text
      type="string"
      length="1"
-     bottom="218"
      label="N"
      layout="topleft"
-     left="0"
      name="floater_map_north"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         N
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="E"
      layout="topleft"
-     left="0"
      name="floater_map_east"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         E
     </text>
     <text
      type="string"
      length="1"
-     bottom="205"
      label="W"
      layout="topleft"
-     left="0"
      name="floater_map_west"
-     right="11"
-     text_color="1 1 1 0.7"
-     top="175">
+     text_color="1 1 1 0.7">
         W
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="S"
      layout="topleft"
-     left="0"
      name="floater_map_south"
-     right="10"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         S
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="SE"
      layout="topleft"
-     left="0"
      name="floater_map_southeast"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         SE
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="NE"
      layout="topleft"
-     left="0"
      name="floater_map_northeast"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         NE
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="SW"
      layout="topleft"
-     left="0"
      name="floater_map_southwest"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         SW
     </text>
     <text
      type="string"
      length="1"
-     bottom="218"
      label="NW"
      layout="topleft"
-     left="0"
      name="floater_map_northwest"
-     right="20"
-     text_color="1 1 1 0.7"
-     top="189">
+     text_color="1 1 1 0.7">
         NW
     </text>
 </floater>
