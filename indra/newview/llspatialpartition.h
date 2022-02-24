@@ -40,6 +40,8 @@
 #include "llface.h"
 #include "llviewercamera.h"
 #include "llvector4a.h"
+#include "llvoavatar.h"
+
 #include <queue>
 #include <unordered_map>
 
@@ -125,7 +127,7 @@ public:
 	F32  mAlphaMaskCutoff;
 	U8   mDiffuseAlphaMode;
 	bool mSelected;
-    LLVOAvatar* mAvatar = nullptr;
+    LLPointer<LLVOAvatar> mAvatar = nullptr;
     LLMeshSkinInfo* mSkinInfo = nullptr;
 
 
