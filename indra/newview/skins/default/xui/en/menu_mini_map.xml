@@ -46,16 +46,13 @@
              function="ToggleControl"
              parameter="MiniMapRotate" />
     </menu_item_check>
-    <menu_item_check
-       label="Auto Center"
-       name="Auto Center">
-          <menu_item_check.on_check
-             control="MiniMapAutoCenter" />
-          <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="MiniMapAutoCenter" />
-    </menu_item_check>
     <menu_item_separator />
+    <menu_item_call
+     label="Re-Center Map"
+     name="Re-Center Map">
+        <menu_item_call.on_click
+         function="Minimap.Center.Activate" />
+    </menu_item_call>
     <menu_item_call
      label="Stop Tracking"
      name="Stop Tracking">

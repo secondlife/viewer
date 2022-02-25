@@ -121,11 +121,11 @@ private:
 	F32				mObjectMapPixels;		// Width of object map in pixels
 	F32				mDotRadius;				// Size of avatar markers
 
-	bool			mPanning;			// map is being dragged
-	LLVector2		mTargetPan;
-	LLVector2		mCurPan;
-	LLVector2		mStartPan;		// pan offset at start of drag
-	LLCoordGL		mMouseDown;			// pointer position at start of drag
+    bool            mPanning; // map is being dragged
+    bool            mCentering; // map is being re-centered around the agent
+    LLVector2       mCurPan;
+    LLVector2       mStartPan; // pan offset at start of drag
+    LLCoordGL       mMouseDown; // pointer position at start of drag
 
 	LLVector3d		mObjectImageCenterGlobal;
 	LLPointer<LLImageRaw> mObjectRawImagep;
@@ -148,7 +148,8 @@ public:
 
 private:
 	void handleZoom(const LLSD& userdata);
-	void handleStopTracking (const LLSD& userdata);
+    void handleStopTracking(const LLSD& userdata);
+    void activateCenterMap(const LLSD& userdata);
 
 	LLMenuGL*		mPopupMenu;
 	uuid_vec_t		gmSelected;

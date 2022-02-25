@@ -87,7 +87,6 @@ LLNetMap::LLNetMap (const Params & p)
 	mPixelsPerMeter( MAP_SCALE_MID / REGION_WIDTH_METERS ),
 	mObjectMapTPM(0.f),
 	mObjectMapPixels(0.f),
-	mTargetPan(0.f, 0.f),
 	mCurPan(0.f, 0.f),
 	mStartPan(0.f, 0.f),
 	mMouseDown(0, 0),
@@ -112,13 +111,17 @@ LLNetMap::~LLNetMap()
 
 BOOL LLNetMap::postBuild()
 {
-	LLUICtrl::CommitCallbackRegistry::ScopedRegistrar registrar;
-	
-	registrar.add("Minimap.Zoom", boost::bind(&LLNetMap::handleZoom, this, _2));
-	registrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commitRegistrar;
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	return TRUE;
+    commitRegistrar.add("Minimap.Zoom", boost::bind(&LLNetMap::handleZoom, this, _2));
+    commitRegistrar.add("Minimap.Tracker", boost::bind(&LLNetMap::handleStopTracking, this, _2));
+    commitRegistrar.add("Minimap.Center.Activate", boost::bind(&LLNetMap::activateCenterMap, this, _2));
+
+    mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder,
+                                                                          LLViewerMenuHolderGL::child_registry_t::instance());
+    mPopupMenu->setItemEnabled("Re-Center Map", false);
+
+    return true;
 }
 
 void LLNetMap::setScale( F32 scale )
@@ -166,10 +169,16 @@ void LLNetMap::draw()
 		createObjectImage();
 	}
 
-	static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
-	if (auto_center)
+    mCentering = mCentering && !mPanning;
+    if (mCentering)
 	{
-		mCurPan = lerp(mCurPan, mTargetPan, LLSmoothInterpolation::getInterpolant(0.1f));
+        mCurPan = lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
+        if (abs(mCurPan.mV[0]) < 0.5f && abs(mCurPan.mV[1]) < 0.5f){
+            mCurPan.mV[0] = 0.0f;
+            mCurPan.mV[1] = 0.0f;
+            mCentering = false;
+            mPopupMenu->setItemEnabled("Re-Center Map", false);
+        }
 	}
 
 	// Prepare a scissor region
@@ -589,23 +598,25 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 
 BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	// note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
-	F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+    // note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
+    F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
+    // *TODO: Decide if we want this feature
+#if 0
 	F32 old_scale = mScale;
+#endif
 
-	setScale(new_scale);
+    setScale(new_scale);
 
-	static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
-	if (!auto_center)
-	{
-		// Adjust pan to center the zoom on the mouse pointer
-		LLVector2 zoom_offset;
-		zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
-		zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
-		mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
-	}
+    // *TODO: Decide if we want this feature
+#if 0
+    // Adjust pan to center the zoom on the mouse pointer
+    LLVector2 zoom_offset;
+    zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
+    zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
+    mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
+#endif
 
-	return TRUE;
+    return true;
 }
 
 BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
@@ -898,50 +909,48 @@ void LLNetMap::createObjectImage()
 	mUpdateNow = true;
 }
 
-BOOL LLNetMap::handleMouseDown( S32 x, S32 y, MASK mask )
+BOOL LLNetMap::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (!(mask & MASK_SHIFT)) return FALSE;
+    // Start panning
+    gFocusMgr.setMouseCapture(this);
 
-	// Start panning
-	gFocusMgr.setMouseCapture(this);
-
-	mStartPan = mCurPan;
-	mMouseDown.mX = x;
-	mMouseDown.mY = y;
-	return TRUE;
+    mStartPan     = mCurPan;
+    mMouseDown.mX = x;
+    mMouseDown.mY = y;
+    return true;
 }
 
-BOOL LLNetMap::handleMouseUp( S32 x, S32 y, MASK mask )
+BOOL LLNetMap::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if(abs(mMouseDown.mX-x)<3 && abs(mMouseDown.mY-y)<3)
-		handleClick(x,y,mask);
+    if (abs(mMouseDown.mX - x) < 3 && abs(mMouseDown.mY - y) < 3)
+    {
+        handleClick(x, y, mask);
+    }
 
-	if (hasMouseCapture())
-	{
-		if (mPanning)
-		{
-			// restore mouse cursor
-			S32 local_x, local_y;
-			local_x = mMouseDown.mX + llfloor(mCurPan.mV[VX] - mStartPan.mV[VX]);
-			local_y = mMouseDown.mY + llfloor(mCurPan.mV[VY] - mStartPan.mV[VY]);
-			LLRect clip_rect = getRect();
-			clip_rect.stretch(-8);
-			clip_rect.clipPointToRect(mMouseDown.mX, mMouseDown.mY, local_x, local_y);
-			LLUI::getInstance()->setMousePositionLocal(this, local_x, local_y);
+    if (hasMouseCapture())
+    {
+        if (mPanning)
+        {
+            // restore mouse cursor
+            S32 local_x, local_y;
+            local_x          = mMouseDown.mX + llfloor(mCurPan.mV[VX] - mStartPan.mV[VX]);
+            local_y          = mMouseDown.mY + llfloor(mCurPan.mV[VY] - mStartPan.mV[VY]);
+            LLRect clip_rect = getRect();
+            clip_rect.stretch(-8);
+            clip_rect.clipPointToRect(mMouseDown.mX, mMouseDown.mY, local_x, local_y);
+            LLUI::getInstance()->setMousePositionLocal(this, local_x, local_y);
 
-			// finish the pan
-			mPanning = false;
+            // finish the pan
+            mPanning = false;
 
-			mMouseDown.set(0, 0);
+            mMouseDown.set(0, 0);
+        }
+        gViewerWindow->showCursor();
+        gFocusMgr.setMouseCapture(NULL);
+        return true;
+    }
 
-			// auto centre
-			mTargetPan.setZero();
-		}
-		gViewerWindow->showCursor();
-		gFocusMgr.setMouseCapture(NULL);
-		return TRUE;
-	}
-	return FALSE;
+    return false;
 }
 
 BOOL LLNetMap::handleRightMouseDown(S32 x, S32 y, MASK mask)
@@ -1015,9 +1024,10 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 		{
 			if (!mPanning)
 			{
-				// just started panning, so hide cursor
+                // Just started panning. Hide cursor and enable the "Re-Center Map" button.
 				mPanning = true;
 				gViewerWindow->hideCursor();
+                mPopupMenu->setItemEnabled("Re-Center Map", true);
 			}
 
 			LLVector2 delta(static_cast<F32>(gViewerWindow->getCurrentMouseDX()),
@@ -1025,26 +1035,21 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 
 			// Set pan to value at start of drag + offset
 			mCurPan += delta;
-			mTargetPan = mCurPan;
 
 			gViewerWindow->moveCursorToCenter();
 		}
+	}
 
-		// Doesn't really matter, cursor should be hidden
-		gViewerWindow->setCursor( UI_CURSOR_TOOLPAN );
-	}
-	else
-	{
-		if (mask & MASK_SHIFT)
-		{
-			// If shift is held, change the cursor to hint that the map can be dragged
-			gViewerWindow->setCursor( UI_CURSOR_TOOLPAN );
-		}
-		else
-		{
-			gViewerWindow->setCursor( UI_CURSOR_CROSS );
-		}
-	}
+    if (mask & MASK_SHIFT)
+    {
+        // If shift is held, change the cursor to hint that the map can be
+        // dragged. However, holding shift is not required to drag the map.
+        gViewerWindow->setCursor( UI_CURSOR_TOOLPAN );
+    }
+    else
+    {
+        gViewerWindow->setCursor( UI_CURSOR_CROSS );
+    }
 
 	return TRUE;
 }
@@ -1083,3 +1088,5 @@ void LLNetMap::handleStopTracking (const LLSD& userdata)
 		LLTracker::stopTracking (LLTracker::isTracking(NULL));
 	}
 }
+
+void LLNetMap::activateCenterMap(const LLSD &userdata) { mCentering = true; }
