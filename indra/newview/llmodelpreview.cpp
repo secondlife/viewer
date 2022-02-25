@@ -1299,6 +1299,11 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         size_vertices += face.mNumVertices;
     }
 
+    if (size_indices < 3)
+    {
+        return -1;
+    }
+
     // Allocate buffers, note that we are using U32 buffer instead of U16
     U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
     U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
@@ -1343,10 +1348,10 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     // Now that we have buffers, optimize
     S32 target_indices = 0;
-    F32 result_code = 0; // how far from original the model is, 1 == 100%
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llmax(3, llfloor(size_indices / indices_decimator)); // leave at least one triangle
+    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
     new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
         combined_indices,
@@ -1357,15 +1362,25 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         target_indices,
         error_threshold,
         sloppy,
-        &result_code);
+        &result_error);
 
 
-    if (result_code < 0)
+    if (result_error < 0)
     {
-        LL_WARNS() << "Negative result code from meshoptimizer for model " << target_model->mLabel
+        LL_WARNS() << "Negative result error from meshoptimizer for model " << target_model->mLabel
             << " target Indices: " << target_indices
             << " new Indices: " << new_indices
             << " original count: " << size_indices << LL_ENDL;
+    }
+
+    if (new_indices < 3)
+    {
+        // Model should have at least one visible triangle
+        ll_aligned_free<64>(combined_positions);
+        ll_aligned_free_32(output_indices);
+        ll_aligned_free_32(combined_indices);
+
+        return -1;
     }
 
     // repack back into individual faces
@@ -1520,16 +1535,20 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 {
     const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
     S32 size_indices = face.mNumIndices;
+    if (size_indices < 3)
+    {
+        return -1;
+    }
     // todo: do not allocate per each face, add one large buffer somewhere
     // faces have limited amount of indices
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* output = (U16*)ll_aligned_malloc_16(size);
 
     S32 target_indices = 0;
-    F32 result_code = 0; // how far from original the model is, 1 == 100%
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llmax(3, llfloor(size_indices / indices_decimator)); // leave at least one triangle
+    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
     new_indices = LLMeshOptimizer::simplify(
         output,
         face.mIndices,
@@ -1540,12 +1559,12 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         target_indices,
         error_threshold,
         sloppy,
-        &result_code);
+        &result_error);
 
 
-    if (result_code < 0)
+    if (result_error < 0)
     {
-        LL_WARNS() << "Negative result code from meshoptimizer for face " << face_idx
+        LL_WARNS() << "Negative result error from meshoptimizer for face " << face_idx
             << " of model " << target_model->mLabel
             << " target Indices: " << target_indices
             << " new Indices: " << new_indices
