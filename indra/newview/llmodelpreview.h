@@ -217,6 +217,8 @@ private:
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
+    LLModel* mLastSpecifiedPhysicsP{}; // As opposed to being found by name or LOD;
+    std::string mLastSpecifiedPhysicsModelOriginalName{""}; // Since the above will have it's label bashed.
 
 protected:
     friend class LLModelLoader;
