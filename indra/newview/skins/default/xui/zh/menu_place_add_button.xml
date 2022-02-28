@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<menu name="menu_folder_gear">
+<toggleable_menu name="menu_create">
 	<menu_item_call label="添加資料夾" name="add_folder"/>
 	<menu_item_call label="添加地標" name="add_landmark"/>
-</menu>
+</toggleable_menu>

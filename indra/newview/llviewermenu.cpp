@@ -202,6 +202,7 @@ LLContextMenu* gDetachBodyPartPieMenus[9];
 
 // File Menu
 void handle_compress_image(void*);
+void handle_compress_file_test(void*);
 
 
 // Edit menu
@@ -2221,6 +2222,21 @@ class LLAdvancedCompressImage : public view_listener_t
 		handle_compress_image(NULL);
 		return true;
 	}
+};
+
+
+
+////////////////////////
+// COMPRESS FILE TEST //
+////////////////////////
+
+class LLAdvancedCompressFileTest : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        handle_compress_file_test(NULL);
+        return true;
+    }
 };
 
 
@@ -6258,6 +6274,32 @@ class LLAvatarToggleMyProfile : public view_listener_t
 	}
 };
 
+class LLAvatarToggleSearch : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLFloater* instance = LLFloaterReg::findInstance("search");
+		if (LLFloater::isMinimized(instance))
+		{
+			instance->setMinimized(FALSE);
+			instance->setFocus(TRUE);
+		}
+		else if (!LLFloater::isShown(instance))
+		{
+			LLFloaterReg::showInstance("search");
+		}
+		else if (!instance->hasFocus() && !instance->getIsChrome())
+		{
+			instance->setFocus(TRUE);
+		}
+		else
+		{
+			instance->closeFloater();
+		}
+		return true;
+	}
+};
+
 class LLAvatarResetSkeleton: public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -9341,6 +9383,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleShowObjectUpdates(), "Advanced.ToggleShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCheckShowObjectUpdates(), "Advanced.CheckShowObjectUpdates");
 	view_listener_t::addMenu(new LLAdvancedCompressImage(), "Advanced.CompressImage");
+    view_listener_t::addMenu(new LLAdvancedCompressFileTest(), "Advanced.CompressFileTest");
 	view_listener_t::addMenu(new LLAdvancedShowDebugSettings(), "Advanced.ShowDebugSettings");
 	view_listener_t::addMenu(new LLAdvancedEnableViewAdminOptions(), "Advanced.EnableViewAdminOptions");
 	view_listener_t::addMenu(new LLAdvancedToggleViewAdminOptions(), "Advanced.ToggleViewAdminOptions");
@@ -9405,6 +9448,7 @@ void initialize_menus()
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
+	view_listener_t::addMenu(new LLAvatarToggleSearch(), "Avatar.ToggleSearch");
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");

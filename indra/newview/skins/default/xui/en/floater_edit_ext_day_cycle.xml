@@ -342,6 +342,7 @@
                                             width="25">
                                         <button
                                                 name="skip_back_btn"
+                                                enabled="false"
                                                 follows="top"
                                                 image_overlay="SkipBackward_Off"
                                                 image_disabled="PushButton_Disabled"
@@ -373,6 +374,7 @@
                                             width="25">
                                         <button
                                                 name="play_btn"
+                                                enabled="false"
                                                 follows="top"
                                                 image_overlay="Play_Off"
                                                 image_disabled="PushButton_Disabled"
@@ -434,6 +436,7 @@
                                             width="25">
                                         <button
                                                 name="skip_forward_btn"
+                                                enabled="false"
                                                 follows="top"
                                                 image_overlay="SkipForward_Off"
                                                 image_disabled="PushButton_Disabled"

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   start-client.py
 
@@ -28,12 +28,12 @@ import os
 import llstart
 
 def usage():
-    print """start-client.py
+    print("""start-client.py
     
     --grid <grid>
     --farm <grid>
     --region <starting region name>
-    """
+    """)
 
 def start_client(grid, slurl, build_config, my_args):
     login_url = "https://login.%s.lindenlab.com/cgi-bin/login.cgi" % (grid)
@@ -42,7 +42,7 @@ def start_client(grid, slurl, build_config, my_args):
                     "--loginuri" : login_url }
     viewer_args.update(my_args)
     # *sigh*  We must put --url at the end of the argument list.
-    if viewer_args.has_key("--url"):
+    if "--url" in viewer_args:
         slurl = viewer_args["--url"]
         del(viewer_args["--url"])
     viewer_args = llstart.get_args_from_dict(viewer_args)
@@ -54,7 +54,7 @@ def start_client(grid, slurl, build_config, my_args):
     # but the exe is at indra/build-<xxx>/newview/<target>
     build_path = os.path.dirname(os.getcwd());    
     f = open("start-client.log", "w")
-    print >>f, "Viewer startup arguments:"
+    print("Viewer startup arguments:", file=f)
     llstart.start("viewer", "../../newview", 
         "%s/newview/%s/secondlife-bin.exe" % (build_path, build_config),
         viewer_args, f)

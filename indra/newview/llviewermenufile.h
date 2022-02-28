@@ -37,6 +37,7 @@
 #include "llviewerassetupload.h"
 
 class LLTransactionID;
+class LLPluginClassMedia;
 
 
 void init_menu_file();
@@ -71,6 +72,7 @@ void assign_defaults_and_show_upload_message(
 	const std::string& display_name,
 	std::string& description);
 
+//consider moving all file pickers below to more suitable place
 class LLFilePickerThread : public LLThread
 { //multi-threaded file picker (runs system specific file picker in background and calls "notify" from main thread)
 public:
@@ -125,6 +127,18 @@ private:
 	LLFilePicker::ESaveFilter	mSaveFilter;
 	file_picked_signal_t*		mFilePickedSignal;
 	file_picked_signal_t*		mFailureSignal;
+};
+
+class LLMediaFilePicker : public LLFilePickerThread
+{
+public:
+    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple);
+    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name);
+
+    virtual void notify(const std::vector<std::string>& filenames);
+
+private:
+    boost::shared_ptr<LLPluginClassMedia> mPlugin;
 };
 
 

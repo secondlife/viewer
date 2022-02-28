@@ -50,6 +50,7 @@ class LLHost;
 class LLViewerAssetStats;
 class LLTextureFetchDebugger;
 class LLTextureCache;
+class LLTextureFetchTester;
 
 // Interface class
 
@@ -312,6 +313,7 @@ public:
     static LLTrace::CountStatHandle<F64>        sCacheAttempt;
     static LLTrace::SampleStatHandle<F32Seconds> sCacheReadLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexDecodeLatency;
+	static LLTrace::SampleStatHandle<F32Seconds> sCacheWriteLatency;
     static LLTrace::SampleStatHandle<F32Seconds> sTexFetchLatency;
     static LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > sCacheHitRate;
 
@@ -403,6 +405,9 @@ public:
 		FROM_HTTP_ONLY,
 		INVALID_SOURCE
 	};
+
+	static LLTextureFetchTester* sTesterp;
+
 private:
 	//debug use
 	LLTextureFetchDebugger* mFetchDebugger;
@@ -634,6 +639,27 @@ private:
 	static bool sDebuggerEnabled;
 public:
 	static bool isEnabled() {return sDebuggerEnabled;}
+};
+
+
+class LLTextureFetchTester : public LLMetricPerformanceTesterBasic
+{
+public:
+	LLTextureFetchTester();
+	~LLTextureFetchTester();
+
+	void updateStats(const std::map<S32, F32> states_timers, const F32 fetch_time, const F32 other_states_time, const S32 file_size);
+
+protected:
+	/*virtual*/ void outputTestRecord(LLSD* sd);
+
+private:
+
+	F32 mTextureFetchTime;
+	F32 mSkippedStatesTime;
+	S32 mFileSize;
+
+	std::map<S32, F32> mStateTimersMap;
 };
 #endif // LL_LLTEXTUREFETCH_H
 

@@ -255,7 +255,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     return;
 }
 
-void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement)
+void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement, bool skip_clear_listing)
 {
     // When changing the marketplace status of an item, we usually have to change the status of all
     // folders in the same listing. This is because the display of each folder is affected by the
@@ -327,7 +327,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
     else
     {
         // If the folder is outside the marketplace listings root, clear its SLM data if needs be
-        if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
+        if (perform_consistency_enforcement && !skip_clear_listing && LLMarketplaceData::instance().isListed(cur_uuid))
         {
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
@@ -1843,7 +1843,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);
 	}
     
-    update_marketplace_category(cat->getUUID());
+    update_marketplace_category(cat->getUUID(), true, true);
     gInventory.notifyObservers();
     return result && !has_bad_items;
 }

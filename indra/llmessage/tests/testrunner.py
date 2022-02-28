@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   testrunner.py
 @author Nat Goodspeed
@@ -41,7 +41,7 @@ VERBOSE = not re.match(r"(0|off|false|quiet)$", VERBOSE, re.IGNORECASE)
 
 if VERBOSE:
     def debug(fmt, *args):
-        print fmt % args
+        print(fmt % args)
         sys.stdout.flush()
 else:
     debug = lambda *args: None
@@ -99,14 +99,14 @@ def freeport(portlist, expr):
         # error because we can't return meaningful values. We have no 'port',
         # therefore no 'expr(port)'.
         portiter = iter(portlist)
-        port = portiter.next()
+        port = next(portiter)
 
         while True:
             try:
                 # If this value of port works, return as promised.
                 value = expr(port)
 
-            except socket.error, err:
+            except socket.error as err:
                 # Anything other than 'Address already in use', propagate
                 if err.args[0] != errno.EADDRINUSE:
                     raise
@@ -117,9 +117,9 @@ def freeport(portlist, expr):
                 type, value, tb = sys.exc_info()
                 try:
                     try:
-                        port = portiter.next()
+                        port = next(portiter)
                     except StopIteration:
-                        raise type, value, tb
+                        raise type(value).with_traceback(tb)
                 finally:
                     # Clean up local traceback, see docs for sys.exc_info()
                     del tb
@@ -138,7 +138,7 @@ def freeport(portlist, expr):
             # If we've actually arrived at this point, portiter.next() delivered a
             # new port value. Loop back to pass that to expr(port).
 
-    except Exception, err:
+    except Exception as err:
         debug("*** freeport() raising %s: %s", err.__class__.__name__, err)
         raise
 
@@ -227,13 +227,13 @@ def test_freeport():
     def exc(exception_class, *args):
         try:
             yield
-        except exception_class, err:
+        except exception_class as err:
             for i, expected_arg in enumerate(args):
                 assert expected_arg == err.args[i], \
                        "Raised %s, but args[%s] is %r instead of %r" % \
                        (err.__class__.__name__, i, err.args[i], expected_arg)
-            print "Caught expected exception %s(%s)" % \
-                  (err.__class__.__name__, ', '.join(repr(arg) for arg in err.args))
+            print("Caught expected exception %s(%s)" % \
+                  (err.__class__.__name__, ', '.join(repr(arg) for arg in err.args)))
         else:
             assert False, "Failed to raise " + exception_class.__class__.__name__
 
@@ -270,18 +270,18 @@ def test_freeport():
     # This is the magic exception that should prompt us to retry
     inuse = socket.error(errno.EADDRINUSE, 'Address already in use')
     # Get the iterator to our ports list so we can check later if we've used all
-    ports = iter(xrange(5))
+    ports = iter(range(5))
     with exc(socket.error, errno.EADDRINUSE):
         freeport(ports, lambda port: raiser(inuse))
     # did we entirely exhaust 'ports'?
     with exc(StopIteration):
-        ports.next()
+        next(ports)
 
-    ports = iter(xrange(2))
+    ports = iter(range(2))
     # Any exception but EADDRINUSE should quit immediately
     with exc(SomeError):
         freeport(ports, lambda port: raiser(SomeError()))
-    assert_equals(ports.next(), 1)
+    assert_equals(next(ports), 1)
 
     # ----------- freeport() with platform-dependent socket stuff ------------
     # This is what we should've had unit tests to begin with (see CHOP-661).
@@ -290,14 +290,14 @@ def test_freeport():
         sock.bind(('127.0.0.1', port))
         return sock
 
-    bound0, port0 = freeport(xrange(7777, 7780), newbind)
+    bound0, port0 = freeport(range(7777, 7780), newbind)
     assert_equals(port0, 7777)
-    bound1, port1 = freeport(xrange(7777, 7780), newbind)
+    bound1, port1 = freeport(range(7777, 7780), newbind)
     assert_equals(port1, 7778)
-    bound2, port2 = freeport(xrange(7777, 7780), newbind)
+    bound2, port2 = freeport(range(7777, 7780), newbind)
     assert_equals(port2, 7779)
     with exc(socket.error, errno.EADDRINUSE):
-        bound3, port3 = freeport(xrange(7777, 7780), newbind)
+        bound3, port3 = freeport(range(7777, 7780), newbind)
 
 if __name__ == "__main__":
     test_freeport()
