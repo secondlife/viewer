@@ -307,7 +307,7 @@ background_visible="true"
         top_pad="8"
         word_wrap="true"
         halign="center">
-        Note: After 7 days, a group with no members (other than the creator) is deleted
+        Note: Any group that has less than two members for 48 hours is automatically disbanded
       </text>
     </layout_panel>
   </layout_stack>

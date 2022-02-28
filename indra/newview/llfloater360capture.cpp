@@ -102,6 +102,7 @@ BOOL LLFloater360Capture::postBuild()
 
     mWebBrowser = getChild<LLMediaCtrl>("360capture_contents");
     mWebBrowser->addObserver(this);
+    mWebBrowser->setAllowFileDownload(true);
 
     // There is a group of radio buttons that define the quality
     // by each having a 'value' that is returns equal to the pixel

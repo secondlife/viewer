@@ -198,6 +198,17 @@ LLModel::EModelStatus load_face_from_dom_triangles(std::vector<LLVolumeFace>& fa
 	}
 	
 	LLVolumeFace::VertexMapData::PointMap point_map;
+
+    if (idx_stride <= 0
+        || (pos_source && pos_offset >= idx_stride)
+        || (tc_source && tc_offset >= idx_stride)
+        || (norm_source && norm_offset >= idx_stride))
+    {
+        // Looks like these offsets should fit inside idx_stride
+        // Might be good idea to also check idx.getCount()%idx_stride != 0
+        LL_WARNS() << "Invalid pos_offset " << pos_offset <<  ", tc_offset " << tc_offset << " or norm_offset " << norm_offset << LL_ENDL;
+        return LLModel::BAD_ELEMENT;
+    }
 	
 	for (U32 i = 0; i < idx.getCount(); i += idx_stride)
 	{

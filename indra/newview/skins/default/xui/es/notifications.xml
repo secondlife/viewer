@@ -3389,15 +3389,15 @@ Con los siguientes Residentes:
 		Error de transferencia a grupo.
 	</notification>
 	<notification name="ReleaseLandThrottled">
-		La parcela [NOMBRE_PARCELA] no se puede abandonar en este momento.
+		La parcela [PARCEL_NAME] no se puede abandonar en este momento.
 	</notification>
 	<notification name="ReleasedLandWithReclaim">
-		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+		Ya está disponible la parcela [PARCEL_NAME] de [AREA] m².
 
-Dispondrás de [PERÍODO_DE_RECLAMACIÓN] horas para reclamar la cantidad de 0 L$ antes de que se ponga en venta.
+Dispondrás de [RECLAIM_PERIOD] horas para reclamar la cantidad de 0 L$ antes de que se ponga en venta.
 	</notification>
 	<notification name="ReleasedLandNoReclaim">
-		Ya está disponible la parcela [NOMBRE_PARCELA] de [ÁREA] m².
+		Ya está disponible la parcela [PARCEL_NAME] de [AREA] m².
 
 Ya está en venta.
 	</notification>
