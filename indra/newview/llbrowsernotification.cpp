@@ -40,7 +40,7 @@ LLBrowserNotification::LLBrowserNotification()
 {
 }
 
-bool LLBrowserNotification::processNotification(const LLNotificationPtr& notification)
+bool LLBrowserNotification::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
 	LLUUID media_id = notification->getPayload()["media_id"].asUUID();
 	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(media_id);

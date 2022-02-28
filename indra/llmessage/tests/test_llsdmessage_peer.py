@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   test_llsdmessage_peer.py
 @author Nat Goodspeed
@@ -31,7 +31,7 @@ $/LicenseInfo$
 
 import os
 import sys
-from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 from llbase.fastest_elementtree import parse as xml_parse
 from llbase import llsd
@@ -165,7 +165,7 @@ if __name__ == "__main__":
         # "Then there's Windows"
         # Instantiate a Server(TestHTTPRequestHandler) on the first free port
         # in the specified port range.
-        httpd, port = freeport(xrange(8000, 8020), make_server)
+        httpd, port = freeport(range(8000, 8020), make_server)
 
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's

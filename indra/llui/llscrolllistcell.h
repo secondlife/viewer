@@ -60,6 +60,7 @@ public:
 
 		Optional<void*>				userdata;
 		Optional<LLSD>				value; // state of checkbox, icon id/name, date
+		Optional<LLSD>				alt_value;
 		Optional<std::string>		label; // description or text
 		Optional<std::string>		tool_tip;
 
@@ -76,6 +77,7 @@ public:
 			enabled("enabled", true),
 			visible("visible", true),
 			value("value"),
+			alt_value("alt_value", ""),
 			label("label"),
 			tool_tip("tool_tip", ""),
 			font("font", LLFontGL::getFontSansSerifSmall()),
@@ -98,7 +100,9 @@ public:
 	virtual S32				getContentWidth() const { return 0; }
 	virtual S32				getHeight() const { return 0; }
 	virtual const LLSD		getValue() const;
+	virtual const LLSD		getAltValue() const;
 	virtual void			setValue(const LLSD& value) { }
+	virtual void			setAltValue(const LLSD& value) { }
 	virtual const std::string &getToolTip() const { return mToolTip; }
 	virtual void			setToolTip(const std::string &str) { mToolTip = str; }
 	virtual BOOL			getVisible() const { return TRUE; }
@@ -138,7 +142,9 @@ public:
 	/*virtual*/ S32		getContentWidth() const;
 	/*virtual*/ S32		getHeight() const;
 	/*virtual*/ void	setValue(const LLSD& value);
+	/*virtual*/ void	setAltValue(const LLSD& value);
 	/*virtual*/ const LLSD getValue() const;
+	/*virtual*/ const LLSD getAltValue() const;
 	/*virtual*/ BOOL	getVisible() const;
 	/*virtual*/ void	highlightText(S32 offset, S32 num_chars);
 
@@ -156,6 +162,7 @@ public:
 
 protected:
 	LLUIString		mText;
+	LLUIString		mAltText;
 	S32				mTextWidth;
 	const LLFontGL*	mFont;
 	LLColor4		mColor;

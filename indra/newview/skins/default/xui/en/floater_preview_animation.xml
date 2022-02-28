@@ -1,15 +1,71 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="85"
+ height="241"
  layout="topleft"
  name="preview_anim"
  help_topic="preview_anim"
- width="280">
+ width="320">
     <floater.string
      name="Title">
         Animation: [NAME]
     </floater.string>
+    <button
+     height="20"
+     label="Play Inworld"
+     label_selected="Stop"
+     follows="left|top"
+     layout="topleft"
+     left="10"
+     name="Inworld"
+     tool_tip="Play this animation so that others can see it"
+     top="25"
+     width="125">
+       <button.commit_callback
+        function="PreviewAnim.Play"
+        parameter="Inworld" /> 
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left_pad="10"
+     name="desc inworld"
+     top_delta="3"
+     width="160">
+        Other people can see
+    </text>
+    <button
+     height="20"
+     label="Play Locally"
+     label_selected="Stop"
+     follows="left|top"
+     layout="topleft"
+     left="10"
+     name="Locally"
+     tool_tip="Play this animation so that only you can see it"
+     top_pad="5"
+     width="125">
+       <button.commit_callback
+        function="PreviewAnim.Play"
+        parameter="Locally" /> 
+    </button>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
+     layout="topleft"
+     left_pad="10"
+     name="desc local"
+     top_delta="3"
+     width="160">
+        Only you can see
+    </text>
     <text
      type="string"
      length="1"
@@ -19,7 +75,7 @@
      layout="topleft"
      left="10"
      name="desc txt"
-     top="25"
+     top_pad="7"
      width="80">
         Description:
     </text>
@@ -30,37 +86,41 @@
      font="SansSerifSmall"
      height="19"
      layout="topleft"
-     left_delta="95"
+     left="10"
+     right="-10"
      max_length_bytes="127"
      name="desc"
-     top="19"
-     width="170" />
-    <button
-     height="20"
-     label="Play Inworld"
-     label_selected="Stop"
+     top_pad="0" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="19"
      layout="topleft"
      left="10"
-     name="Inworld"
-     tool_tip="Play this animation so that others can see it"
-     top="47"
-     width="125">
-       <button.commit_callback
-        function="PreviewAnim.Play"
-        parameter="Inworld" /> 
-    </button>
-    <button
-     height="20"
-     label="Play Locally"
-     label_selected="Stop"
+     name="adv_trigger"
+     top_pad="7"
+     width="100"
+     text_color="EmphasisColor">
+        Advanced
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     font="SansSerif"
+     height="91"
      layout="topleft"
-     left_pad="5"
-     name="Locally"
-     tool_tip="Play this animation so that only you can see it"
-     top_delta="0"
-     width="125">
-       <button.commit_callback
-        function="PreviewAnim.Play"
-        parameter="Locally" /> 
-    </button>
+     left="10"
+     name="AdvancedStats"
+     top_pad="3"
+     width="200">
+Priority: [PRIORITY]
+Duration: [DURATION]s
+Ease In: [EASE_IN]s
+Ease Out: [EASE_OUT]s
+Loop: [IS_LOOP]
+Joints: [NUM_JOINTS]
+    </text>
 </floater>

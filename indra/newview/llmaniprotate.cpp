@@ -1556,7 +1556,10 @@ LLQuaternion LLManipRotate::dragConstrained( S32 x, S32 y )
 	
 				LLVector3 object_axis;
 				getObjectAxisClosestToMouse(object_axis);
-				object_axis = object_axis * first_object_node->mSavedRotation;
+                if (first_object_node)
+                {
+                    object_axis = object_axis * first_object_node->mSavedRotation;
+                }
 	
 				// project onto constraint plane
 				object_axis = object_axis - (object_axis * getConstraintAxis()) * getConstraintAxis();

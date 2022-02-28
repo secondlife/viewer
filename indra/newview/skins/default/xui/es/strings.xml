@@ -204,10 +204,10 @@ Si deseas obtener más información, consulta las preguntas frecuentes que apare
 http://secondlife.com/viewer-access-faq
 	</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">
-		Actualización opcional del visor disponible: [VERSIÓN]
+		Actualización opcional del visor disponible: [VERSION]
 	</string>
 	<string name="LoginFailedRequiredUpdate">
-		Actualización necesaria del visor: [VERSIÓN]
+		Actualización necesaria del visor: [VERSION]
 	</string>
 	<string name="LoginFailedAlreadyLoggedIn">
 		El agente ya ha iniciado sesión.
@@ -248,7 +248,7 @@ support@secondlife.com.
 	</string>
 	<string name="LoginFailedAcountSuspended">
 		No se podrá acceder a tu cuenta hasta las
-[HORA] (horario de la costa del Pacífico).
+[TIME] (horario de la costa del Pacífico).
 	</string>
 	<string name="LoginFailedAccountDisabled">
 		En este momento no podemos completar la solicitud. 
@@ -261,7 +261,7 @@ Ponte en contacto con support@secondlife.com.
 	<string name="LoginFailedAccountMaintenance">
 		Se están realizando tareas rutinarias de mantenimiento en tu cuenta.
 No se podrá acceder a tu cuenta hasta las
-[HORA] (horario de la costa del Pacífico).
+[TIME] (horario de la costa del Pacífico).
 Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
 	</string>
 	<string name="LoginFailedPendingLogoutFault">
@@ -279,7 +279,7 @@ Por favor, aguarda un momento antes de intentar conectarte nuevamente.
 	</string>
 	<string name="LoginFailedRestrictedHours">
 		Tu cuenta solo puede acceder a Second Life
-entre las [INICIO] y las [FIN] (horario de la costa del Pacífico).
+entre las [START] y las [END] (horario de la costa del Pacífico).
 Inténtalo de nuevo durante ese horario.
 Si crees que se trata de un error, ponte en contacto con support@secondlife.com.
 	</string>
