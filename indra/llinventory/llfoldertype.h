@@ -102,6 +102,8 @@ public:
 	static const std::string&	lookup(EType folder_type);
 
 	static bool 				lookupIsProtectedType(EType folder_type);
+	static bool 				lookupIsAutomaticType(EType folder_type);
+	static bool 				lookupIsSingletonType(EType folder_type);
 	static bool 				lookupIsEnsembleType(EType folder_type);
 
 	static LLAssetType::EType	folderTypeToAssetType(LLFolderType::EType folder_type);

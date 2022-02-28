@@ -1,4 +1,4 @@
-#!runpy.sh
+#!/usr/bin/env python3
 
 """\
 
@@ -42,23 +42,23 @@ def node_key(e):
 def compare_matched_nodes(key,items,summary):
     tags = list(set([e.tag for e in items]))
     if len(tags) != 1:
-        print "different tag types for key",key
+        print("different tag types for key",key)
         summary.setdefault("tag_mismatch",0)
         summary["tag_mismatch"] += 1
         return
-    all_attrib = list(set(chain.from_iterable([e.attrib.keys() for e in items])))
+    all_attrib = list(set(chain.from_iterable([list(e.attrib.keys()) for e in items])))
     #print key,"all_attrib",all_attrib
     for attr in all_attrib:
         vals = [e.get(attr) for e in items]
         #print "key",key,"attr",attr,"vals",vals
         if len(set(vals)) != 1:
-            print key,"- attr",attr,"multiple values",vals
+            print(key,"- attr",attr,"multiple values",vals)
             summary.setdefault("attr",{})
             summary["attr"].setdefault(attr,0)
             summary["attr"][attr] += 1
 
 def compare_trees(file_trees):
-    print "compare_trees"
+    print("compare_trees")
     summary = {}
     all_keys = list(set([node_key(e) for tree in file_trees for e in tree.getroot().iter() if node_key(e)]))
     #print "keys",all_keys
@@ -70,14 +70,14 @@ def compare_trees(file_trees):
         items = []
         for nodes in tree_nodes:
             if not key in nodes:
-                print "file",i,"missing item for key",key
+                print("file",i,"missing item for key",key)
                 summary.setdefault("missing",0)
                 summary["missing"] += 1
             else:
                 items.append(nodes[key])
         compare_matched_nodes(key,items,summary)
-    print "Summary:"
-    print summary
+    print("Summary:")
+    print(summary)
                 
 def dump_appearance_params(tree):
     vals = []
@@ -88,7 +88,7 @@ def dump_appearance_params(tree):
                 vals.append("{" + e.get("id") + "," +e.get("u8") + "}")
                 #print e.get("id"), e.get("name"), e.get("group"), e.get("u8")
     if len(vals)==253:
-        print ", ".join(vals)
+        print(", ".join(vals))
         
     
 if __name__ == "__main__":
@@ -101,9 +101,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
 
-    print "files",args.files
+    print("files",args.files)
     file_trees = [etree.parse(filename) for filename in args.files]
-    print args
+    print(args)
     if args.compare:
         compare_trees(file_trees)
     if args.appearance_params:

@@ -173,7 +173,9 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	mMouseButtonDown = true;
 
-    return handleLeftClickPick();
+	// If nothing clickable is picked, needs to return
+	// false for click-to-walk or click-to-teleport to work.
+	return handleLeftClickPick();
 }
 
 // Spawn context menus on right mouse down so you can drag over and select

@@ -1596,7 +1596,8 @@ void LLFloaterEditExtDayCycle::onIdlePlay(void* user_data)
             F32 new_frame = fmod(self->mPlayStartFrame + prcnt_played, 1.f);
 
             self->mTimeSlider->setCurSliderValue(new_frame); // will do the rounding
-
+            self->mSkyBlender->setPosition(new_frame);
+            self->mWaterBlender->setPosition(new_frame);
             self->synchronizeTabs();
             self->updateTimeAndLabel();
             self->updateButtons();

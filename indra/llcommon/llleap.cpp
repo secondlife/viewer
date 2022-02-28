@@ -86,7 +86,7 @@ public:
             // notice Python specially: we provide Python LLSD serialization
             // support, so there's a pretty good reason to implement plugins
             // in that language.
-            if (cparams.args.size() && (desclower == "python" || desclower == "python.exe"))
+            if (cparams.args.size() && (desclower == "python" || desclower == "python3" || desclower == "python.exe"))
             {
                 mDesc = LLProcess::basename(cparams.args()[0]);
             }

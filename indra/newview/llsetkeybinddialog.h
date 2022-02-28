@@ -85,7 +85,7 @@ private:
     void setKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
     LLKeyBindResponderInterface *pParent;
     LLCheckBoxCtrl *pCheckBox;
-    LLTextBase *pDesription;
+    LLTextBase *pDescription;
 
     U32 mKeyFilterMask;
     Updater *pUpdater;

@@ -122,12 +122,13 @@ protected:
     wait_list_t mCoroWaitList;
 
     std::string mViewerAssetUrl;
-    S32 mAssetCoroCount;
     S32 mCountRequests;
     S32 mCountStarted;
     S32 mCountCompleted;
     S32 mCountSucceeded;
     S64 mTotalBytesFetched;
+
+    static S32 sAssetCoroCount; // coroutine count, static since coroutines can outlive LLViewerAssetStorage
 };
 
 #endif

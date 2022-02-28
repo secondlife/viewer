@@ -649,9 +649,8 @@ void LLKeyConflictHandler::saveToSettings(bool temporary)
     if (mLoadMode == MODE_THIRD_PERSON && mHasUnsavedChanges)
     {
         // Map floater should react to doubleclick if doubleclick for teleport is set
-        // Todo: Seems conterintuitive for map floater to share inworld controls
-        // after these changes release, discuss with UI UX engineer if this should just
-        // be set to 1 by default (before release this also doubles as legacy support)
+        // Todo: Seems conterintuitive for map floater to share inworld controls,
+        // discuss with UI UX engineer if this should just be set to 1 by default
         bool value = canHandleMouse("teleport_to", CLICK_DOUBLELEFT, MASK_NONE);
         gSavedSettings.setBOOL("DoubleClickTeleport", value);
     }

@@ -61,6 +61,8 @@ static LLPanelInjector<LLOutfitGallery> t_outfit_gallery("outfit_gallery");
 #define MAX_OUTFIT_PHOTO_WIDTH 256
 #define MAX_OUTFIT_PHOTO_HEIGHT 256
 
+const S32 GALLERY_ITEMS_PER_ROW_MIN = 2;
+
 LLOutfitGallery::LLOutfitGallery(const LLOutfitGallery::Params& p)
     : LLOutfitListBase(),
       mTexturesObserver(NULL),
@@ -95,7 +97,7 @@ LLOutfitGallery::Params::Params()
       item_width("item_width", 150),
       item_height("item_height", 175),
       item_horizontal_gap("item_horizontal_gap", 16),
-      items_in_row("items_in_row", 3),
+      items_in_row("items_in_row", GALLERY_ITEMS_PER_ROW_MIN),
       row_panel_width_factor("row_panel_width_factor", 166),
       gallery_width_factor("gallery_width_factor", 163)
 {
@@ -153,7 +155,7 @@ void LLOutfitGallery::updateRowsIfNeeded()
     {
         reArrangeRows(1);
     }
-    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > 3)
+    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > GALLERY_ITEMS_PER_ROW_MIN)
     {
         reArrangeRows(-1);
     }

@@ -35,11 +35,13 @@
 #include "llkeyframemotion.h"
 #include "llfilepicker.h"
 #include "lllineeditor.h"
+#include "lltrans.h"
 #include "lluictrlfactory.h"
 #include "lluictrlfactory.h"
 #include "lldatapacker.h"
 
 extern LLAgent gAgent;
+const S32 ADVANCED_VPAD = 3;
 
 LLPreviewAnim::LLPreviewAnim(const LLSD& key)
 	: LLPreview( key )
@@ -50,20 +52,19 @@ LLPreviewAnim::LLPreviewAnim(const LLSD& key)
 // virtual
 BOOL LLPreviewAnim::postBuild()
 {
-	const LLInventoryItem* item = getItem();
-	if(item)
-	{
-		gAgentAvatarp->createMotion(item->getAssetUUID()); // preload the animation
-		getChild<LLUICtrl>("desc")->setValue(item->getDescription());
-	}
-
 	childSetCommitCallback("desc", LLPreview::onText, this);
 	getChild<LLLineEditor>("desc")->setPrevalidate(&LLTextValidate::validateASCIIPrintableNoPipe);
+	getChild<LLTextBox>("adv_trigger")->setClickedCallback(boost::bind(&LLPreviewAnim::showAdvanced, this));
+	pAdvancedStatsTextBox = getChild<LLTextBox>("AdvancedStats");
+
+    // Assume that advanced stats start visible (for XUI preview tool's purposes)
+    pAdvancedStatsTextBox->setVisible(FALSE);
+    LLRect rect = getRect();
+    reshape(rect.getWidth(), rect.getHeight() - pAdvancedStatsTextBox->getRect().getHeight() - ADVANCED_VPAD, FALSE);
 
 	return LLPreview::postBuild();
 }
 
-// static
 // llinventorybridge also calls into here
 void LLPreviewAnim::play(const LLSD& param)
 {
@@ -161,14 +162,28 @@ void LLPreviewAnim::draw()
 }
 
 // virtual
+void LLPreviewAnim::refreshFromItem()
+{
+    const LLInventoryItem* item = getItem();
+    if (!item)
+    {
+        return;
+    }
+
+    // Preload motion
+    gAgentAvatarp->createMotion(item->getAssetUUID());  
+
+    LLPreview::refreshFromItem();
+}
+
 void LLPreviewAnim::cleanup()
 {
 	this->mItemID = LLUUID::null;
 	this->mDidStart = false;
 	getChild<LLUICtrl>("Inworld")->setValue(FALSE);
 	getChild<LLUICtrl>("Locally")->setValue(FALSE);
-	getChild<LLUICtrl>("Inworld")->setEnabled(true);
-	getChild<LLUICtrl>("Locally")->setEnabled(true);
+	getChild<LLUICtrl>("Inworld")->setEnabled(TRUE);
+	getChild<LLUICtrl>("Locally")->setEnabled(TRUE);
 }
 
 // virtual
@@ -181,4 +196,42 @@ void LLPreviewAnim::onClose(bool app_quitting)
 		gAgentAvatarp->stopMotion(item->getAssetUUID());
 		gAgent.sendAnimationRequest(item->getAssetUUID(), ANIM_REQUEST_STOP);
 	}
+}
+
+void LLPreviewAnim::showAdvanced()
+{
+    BOOL was_visible =  pAdvancedStatsTextBox->getVisible();
+
+    if (was_visible)
+    {
+        pAdvancedStatsTextBox->setVisible(FALSE);
+        LLRect rect = getRect();
+        reshape(rect.getWidth(), rect.getHeight() - pAdvancedStatsTextBox->getRect().getHeight() - ADVANCED_VPAD, FALSE);
+    }
+    else
+    {
+        pAdvancedStatsTextBox->setVisible(TRUE);
+        LLRect rect = getRect();
+        reshape(rect.getWidth(), rect.getHeight() + pAdvancedStatsTextBox->getRect().getHeight() + ADVANCED_VPAD, FALSE);
+
+        LLMotion *motion = NULL;
+        const LLInventoryItem* item = getItem();
+        if (item)
+        {
+            // if motion exists, will return existing one.
+            // Needed because viewer can purge motions
+            motion = gAgentAvatarp->createMotion(item->getAssetUUID());
+        }
+
+        // set text
+        if (motion)
+        {
+            pAdvancedStatsTextBox->setTextArg("[PRIORITY]", llformat("%d", motion->getPriority()));
+            pAdvancedStatsTextBox->setTextArg("[DURATION]", llformat("%.2f", motion->getDuration()));
+            pAdvancedStatsTextBox->setTextArg("[EASE_IN]", llformat("%.2f", motion->getEaseInDuration()));
+            pAdvancedStatsTextBox->setTextArg("[EASE_OUT]", llformat("%.2f", motion->getEaseOutDuration()));
+            pAdvancedStatsTextBox->setTextArg("[IS_LOOP]", (motion->getLoop() ? LLTrans::getString("PermYes") : LLTrans::getString("PermNo")));
+            pAdvancedStatsTextBox->setTextArg("[NUM_JOINTS]", llformat("%d", motion->getNumJointMotions()));
+        }
+    }
 }
