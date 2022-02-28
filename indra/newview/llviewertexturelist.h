@@ -138,6 +138,8 @@ public:
 
 	static S32Megabytes getMinVideoRamSetting();
 	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
+
+	static bool isPrioRequestsFetched();
 	
 private:
 	void updateImagesDecodePriorities();

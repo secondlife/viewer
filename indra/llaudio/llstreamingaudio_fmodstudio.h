@@ -59,6 +59,8 @@ public:
     /*virtual*/ bool supportsAdjustableBufferSizes(){return true;}
     /*virtual*/ void setBufferSizes(U32 streambuffertime, U32 decodebuffertime);
 private:
+    void killDeadStreams();
+
     FMOD::System *mSystem;
 
     LLAudioStreamManagerFMODSTUDIO *mCurrentInternetStreamp;
@@ -67,6 +69,7 @@ private:
 
     std::string mURL;
     F32 mGain;
+    S32 mRetryCount;
 };
 
 

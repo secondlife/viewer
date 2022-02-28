@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file test_win32_manifest.py
 @brief Test an assembly binding version and uniqueness in a windows dll or exe.  
@@ -44,10 +44,10 @@ class NoMatchingAssemblyException(AssemblyTestException):
     pass
 
 def get_HKLM_registry_value(key_str, value_str):
-    import _winreg
-    reg = _winreg.ConnectRegistry(None, _winreg.HKEY_LOCAL_MACHINE)
-    key = _winreg.OpenKey(reg, key_str)
-    value = _winreg.QueryValueEx(key, value_str)[0]
+    import winreg
+    reg = winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE)
+    key = winreg.OpenKey(reg, key_str)
+    value = winreg.QueryValueEx(key, value_str)[0]
     #print 'Found: %s' % value
     return value
         
@@ -62,13 +62,13 @@ def find_vc_dir():
                       (product, version))
             try:
                 return get_HKLM_registry_value(key_str, value_str)
-            except WindowsError, err:
+            except WindowsError as err:
                 x64_key_str = (r'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\%s\Setup\VS' %
                         version)
                 try:
                     return get_HKLM_registry_value(x64_key_str, value_str)
                 except:
-                    print >> sys.stderr, "Didn't find MS %s version %s " % (product,version)
+                    print("Didn't find MS %s version %s " % (product,version), file=sys.stderr)
         
     raise
 
@@ -78,7 +78,7 @@ def find_mt_path():
     return mt_path
     
 def test_assembly_binding(src_filename, assembly_name, assembly_ver):
-    print "checking %s dependency %s..." % (src_filename, assembly_name)
+    print("checking %s dependency %s..." % (src_filename, assembly_name))
 
     (tmp_file_fd, tmp_file_name) = tempfile.mkstemp(suffix='.xml')
     tmp_file = os.fdopen(tmp_file_fd)
@@ -89,10 +89,10 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
     if os.path.splitext(src_filename)[1].lower() == ".dll":
        resource_id = ";#2"
     system_call = '%s -nologo -inputresource:%s%s -out:%s > NUL' % (mt_path, src_filename, resource_id, tmp_file_name)
-    print "Executing: %s" % system_call
+    print("Executing: %s" % system_call)
     mt_result = os.system(system_call)
     if mt_result == 31:
-        print "No manifest found in %s" % src_filename
+        print("No manifest found in %s" % src_filename)
         raise NoManifestException()
 
     manifest_dom = parse(tmp_file_name)
@@ -104,30 +104,30 @@ def test_assembly_binding(src_filename, assembly_name, assembly_ver):
             versions.append(node.getAttribute('version'))
 
     if len(versions) == 0:
-        print "No matching assemblies found in %s" % src_filename
+        print("No matching assemblies found in %s" % src_filename)
         raise NoMatchingAssemblyException()
         
     elif len(versions) > 1:
-        print "Multiple bindings to %s found:" % assembly_name
-        print versions
-        print 
+        print("Multiple bindings to %s found:" % assembly_name)
+        print(versions)
+        print() 
         raise MultipleBindingsException(versions)
 
     elif versions[0] != assembly_ver:
-        print "Unexpected version found for %s:" % assembly_name
-        print "Wanted %s, found %s" % (assembly_ver, versions[0])
-        print
+        print("Unexpected version found for %s:" % assembly_name)
+        print("Wanted %s, found %s" % (assembly_ver, versions[0]))
+        print()
         raise UnexpectedVersionException(assembly_ver, versions[0])
             
     os.remove(tmp_file_name)
     
-    print "SUCCESS: %s OK!" % src_filename
-    print
+    print("SUCCESS: %s OK!" % src_filename)
+    print()
   
 if __name__ == '__main__':
 
-    print
-    print "Running test_win32_manifest.py..."
+    print()
+    print("Running test_win32_manifest.py...")
     
     usage = 'test_win32_manfest <srcFileName> <assemblyName> <assemblyVersion>'
 
@@ -136,9 +136,9 @@ if __name__ == '__main__':
         assembly_name = sys.argv[2]
         assembly_ver = sys.argv[3]
     except:
-        print "Usage:"
-        print usage
-        print
+        print("Usage:")
+        print(usage)
+        print()
         raise
     
     test_assembly_binding(src_filename, assembly_name, assembly_ver)

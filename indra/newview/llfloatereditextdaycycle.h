@@ -194,8 +194,6 @@ private:
     std::string                 mLastFrameSlider;
     bool                        mShiftCopyEnabled;
 
-    LLUUID                      mExpectingAssetId;
-
     LLButton*                   mAddFrameButton;
     LLButton*                   mDeleteFrameButton;
     LLButton*                   mImportButton;

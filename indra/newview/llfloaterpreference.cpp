@@ -2945,6 +2945,9 @@ void LLPanelPreferenceControls::populateControlTable()
         LL_WARNS() << "Unimplemented mode" << LL_ENDL;
     }
 
+    // explicit update to make sure table is ready for llsearchableui
+    pControlsTable->updateColumns();
+
     // Searchable columns were removed and readded, mark searchables for an update
     // Note: at the moment tables/lists lack proper llsearchableui support
     LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
