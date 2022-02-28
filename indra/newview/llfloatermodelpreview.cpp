@@ -40,6 +40,7 @@
 #include "llagent.h"
 #include "llbutton.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
 #include "llfocusmgr.h"
 #include "llmeshrepository.h"
 #include "llnotificationsutil.h"
@@ -343,8 +344,28 @@ void LLFloaterModelPreview::initModelPreview()
 
 	mModelPreview = new LLModelPreview(tex_width, tex_height, this);
     mModelPreview->setPreviewTarget(PREVIEW_CAMERA_DISTANCE);
-	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3, _4, _5));
+	mModelPreview->setDetailsCallback(boost::bind(&LLFloaterModelPreview::setDetails, this, _1, _2, _3));
 	mModelPreview->setModelUpdatedCallback(boost::bind(&LLFloaterModelPreview::modelUpdated, this, _1));
+}
+
+//static
+bool LLFloaterModelPreview::showModelPreview()
+{
+#ifdef LL_GLOD
+    if (LLRender::sGLCoreProfile)
+    {
+        // GLOD is incompatible with RenderGLCoreProfile, will crash on init
+        LLNotificationsUtil::add("MeshUploadProfilerError");
+        return false;
+    }
+#endif
+
+    LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
+    if (fmp && !fmp->isModelLoading())
+    {
+        fmp->loadHighLodModel();
+    }
+    return true;
 }
 
 void LLFloaterModelPreview::onUploadOptionChecked(LLUICtrl* ctrl)
@@ -803,9 +824,6 @@ void LLFloaterModelPreview::draw()
 			childSetTextArg("status", "[STATUS]", getString("status_idle"));
 		}
 	}
-
-	childSetTextArg("prim_cost", "[PRIM_COST]", llformat("%d", mModelPreview->mResourceCost));
-	childSetTextArg("description_label", "[TEXTURES]", llformat("%d", mModelPreview->mTextureSet.size()));
 
     if (!isMinimized() && mModelPreview->lodsReady())
 	{
@@ -1546,7 +1564,7 @@ void LLFloaterModelPreview::addStringToLogTab(const std::string& str, bool flash
 	}
 	}
 
-void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost)
+void LLFloaterModelPreview::setDetails(F32 x, F32 y, F32 z)
 {
 	assert_main_thread();
 	childSetTextArg("import_dimensions", "[X]", llformat("%.3f", x));
@@ -1719,9 +1737,20 @@ void LLFloaterModelPreview::toggleCalculateButton(bool visible)
 void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 {
 	mModelPreview->updateLodControls(lod);
-	refresh();
 
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+
+    if (lod_source_combo->getCurrentIndex() == LLModelPreview::LOD_FROM_FILE
+        && mModelPreview->mLODFile[lod].empty())
+    {
+        // File wasn't selected, so nothing to do yet, refreshing
+        // hovewer will cause a small freeze with large meshes
+        // Might be good idea to open filepicker here
+        return;
+    }
+
+	refresh();
+
 	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);

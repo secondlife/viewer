@@ -70,7 +70,11 @@ LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > LLTextureFetch::sCacheH
 
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sCacheReadLatency("texture_cache_read_latency");
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexDecodeLatency("texture_decode_latency");
+LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sCacheWriteLatency("texture_write_latency");
 LLTrace::SampleStatHandle<F32Seconds> LLTextureFetch::sTexFetchLatency("texture_fetch_latency");
+
+LLTextureFetchTester* LLTextureFetch::sTesterp = NULL ;
+const std::string sTesterName("TextureFetchTester");
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -438,6 +442,29 @@ public:
 	// Threads:  Ttf
 	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
 
+	enum e_state // mState
+	{
+		// *NOTE:  Do not change the order/value of state variables, some code
+		// depends upon specific ordering/adjacency.
+
+		// NOTE: Affects LLTextureBar::draw in lltextureview.cpp (debug hack)
+		INVALID = 0,
+		INIT,
+		LOAD_FROM_TEXTURE_CACHE,
+		CACHE_POST,
+		LOAD_FROM_NETWORK,
+		LOAD_FROM_SIMULATOR,
+		WAIT_HTTP_RESOURCE,				// Waiting for HTTP resources
+		WAIT_HTTP_RESOURCE2,			// Waiting for HTTP resources
+		SEND_HTTP_REQ,					// Commit to sending as HTTP
+		WAIT_HTTP_REQ,					// Request sent, wait for completion
+		DECODE_IMAGE,
+		DECODE_IMAGE_UPDATE,
+		WRITE_TO_CACHE,
+		WAIT_ON_WRITE,
+		DONE
+	};
+
 protected:
 	LLTextureFetchWorker(LLTextureFetch* fetcher, FTType f_type,
 						 const std::string& url, const LLUUID& id, const LLHost& host,
@@ -517,28 +544,6 @@ private:
 		}
 	
 private:
-	enum e_state // mState
-	{
-		// *NOTE:  Do not change the order/value of state variables, some code
-		// depends upon specific ordering/adjacency.
-		
-		// NOTE: Affects LLTextureBar::draw in lltextureview.cpp (debug hack)
-		INVALID = 0,
-		INIT,
-		LOAD_FROM_TEXTURE_CACHE,
-		CACHE_POST,
-		LOAD_FROM_NETWORK,
-		LOAD_FROM_SIMULATOR,
-		WAIT_HTTP_RESOURCE,				// Waiting for HTTP resources
-		WAIT_HTTP_RESOURCE2,			// Waiting for HTTP resources
-		SEND_HTTP_REQ,					// Commit to sending as HTTP
-		WAIT_HTTP_REQ,					// Request sent, wait for completion
-		DECODE_IMAGE,
-		DECODE_IMAGE_UPDATE,
-		WRITE_TO_CACHE,
-		WAIT_ON_WRITE,
-		DONE
-	};
 	enum e_request_state // mSentRequest
 	{
 		UNSENT = 0,
@@ -551,7 +556,7 @@ private:
 		CAN_WRITE = 1,
 		SHOULD_WRITE = 2
 	};
-	static const char* sStateDescs[];
+
 	e_state mState;
 	void setState(e_state new_state);
 
@@ -579,10 +584,15 @@ private:
 	LLFrameTimer mFetchDeltaTimer;
 	LLTimer mCacheReadTimer;
     LLTimer mDecodeTimer;
+	LLTimer mCacheWriteTimer;
     LLTimer mFetchTimer;
+	LLTimer mStateTimer;
 	F32 mCacheReadTime; // time for cache read only
     F32 mDecodeTime;    // time for decode only
+	F32 mCacheWriteTime;
     F32 mFetchTime;     // total time from req to finished fetch
+	std::map<S32, F32> mStateTimersMap;
+	F32 mSkippedStatesTime;
 	LLTextureCache::handle_t    mCacheReadHandle,
 								mCacheWriteHandle;
 	S32                         mRequestedSize,
@@ -866,8 +876,7 @@ bool truncate_viewer_metrics(int max_regions, LLSD & metrics);
 
 //////////////////////////////////////////////////////////////////////////////
 
-//static
-const char* LLTextureFetchWorker::sStateDescs[] = {
+const char* sStateDescs[] = {
 	"INVALID",
 	"INIT",
 	"LOAD_FROM_TEXTURE_CACHE",
@@ -884,6 +893,9 @@ const char* LLTextureFetchWorker::sStateDescs[] = {
 	"WAIT_ON_WRITE",
 	"DONE"
 };
+
+const std::set<S32> LOGGED_STATES = { LLTextureFetchWorker::LOAD_FROM_TEXTURE_CACHE, LLTextureFetchWorker::LOAD_FROM_NETWORK, LLTextureFetchWorker::LOAD_FROM_SIMULATOR, 
+										LLTextureFetchWorker::WAIT_HTTP_REQ, LLTextureFetchWorker::DECODE_IMAGE_UPDATE, LLTextureFetchWorker::WAIT_ON_WRITE };
 
 // static
 volatile bool LLTextureFetch::svMetricsDataBreak(true);	// Start with a data break
@@ -916,6 +928,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mLoadedDiscard(-1),
 	  mDecodedDiscard(-1),
 	  mCacheReadTime(0.f),
+	  mCacheWriteTime(0.f),
 	  mDecodeTime(0.f),
       mFetchTime(0.f),
 	  mCacheReadHandle(LLTextureCache::nullHandle()),
@@ -924,6 +937,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mRequestedOffset(0),
 	  mDesiredSize(TEXTURE_CACHE_ENTRY_SIZE),
 	  mFileSize(0),
+	  mSkippedStatesTime(0),
 	  mCachedSize(0),
 	  mLoaded(FALSE),
 	  mSentRequest(UNSENT),
@@ -1184,6 +1198,13 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == INIT)
 	{		
+		mStateTimer.reset();
+		mFetchTimer.reset();
+		for(auto i : LOGGED_STATES) 
+		{
+			mStateTimersMap[i] = 0;
+		}
+		mSkippedStatesTime = 0;
 		mRawImage = NULL ;
 		mRequestedDiscard = -1;
 		mLoadedDiscard = -1;
@@ -1241,9 +1262,10 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				++mCacheReadCount;
 				std::string filename = mUrl.substr(7, std::string::npos);
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
+				mCacheReadTimer.reset();  
 				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(filename, mID, cache_priority,
 																		  offset, size, responder);
-                mCacheReadTimer.reset();                
+              
 			}
 			else if ((mUrl.empty() || mFTType==FTT_SERVER_BAKE) && mFetcher->canLoadFromCache())
 			{
@@ -1251,9 +1273,9 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 				++mCacheReadCount;
 				CacheReadResponder* responder = new CacheReadResponder(mFetcher, mID, mFormattedImage);
-				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
-																		  offset, size, responder);
 				mCacheReadTimer.reset();
+				mCacheReadHandle = mFetcher->mTextureCache->readFromCache(mID, cache_priority,
+																		  offset, size, responder);;
 			}
 			else if(!mUrl.empty() && mCanUseHTTP)
 			{
@@ -1275,6 +1297,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mCacheReadHandle = LLTextureCache::nullHandle();
 				setState(CACHE_POST);
                 add(LLTextureFetch::sCacheHit, 1.0);
+				mCacheReadTime = mCacheReadTimer.getElapsedTimeF32();
 				// fall through
 			}
 			else
@@ -1888,7 +1911,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 			LL_DEBUGS(LOG_TXT) << mID << " DECODE_IMAGE abort: mLoadedDiscard < 0" << LL_ENDL;
 			return true;
 		}
-
+		mDecodeTimer.reset();
 		mRawImage = NULL;
 		mAuxImage = NULL;
 		llassert_always(mFormattedImage.notNull());
@@ -1982,6 +2005,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
         // be protected by work mutex and won't be safe to use here nor in cache worker.
         // So make sure users of getRequestFinished() does not attempt to modify image while
         // fetcher is working
+		mCacheWriteTimer.reset();
 		mCacheWriteHandle = mFetcher->mTextureCache->writeToCache(mID, cache_priority,
 																  mFormattedImage->getData(), datasize,
 																  mFileSize, mRawImage, mDecodedDiscard, responder);
@@ -1992,6 +2016,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 	{
 		if (writeToCacheComplete())
 		{
+			mCacheWriteTime = mCacheWriteTimer.getElapsedTimeF32();
 			setState(DONE);
 			// fall through
 		}
@@ -2500,7 +2525,6 @@ void LLTextureFetchWorker::callbackDecoded(bool success, LLImageRaw* raw, LLImag
 	mDecoded = TRUE;
 // 	LL_INFOS(LOG_TXT) << mID << " : DECODE COMPLETE " << LL_ENDL;
 	setPriority(LLWorkerThread::PRIORITY_HIGH | mWorkPriority);
-	mCacheReadTime = mCacheReadTimer.getElapsedTimeF32();
 }																		// -Mw
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2624,6 +2648,17 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 			gSavedSettings.setS32("TextureFetchSource", 0);
 		}
 		mOriginFetchSource = mFetchSource;
+	}
+
+	// If that test log has ben requested but not yet created, create it
+	if (LLMetricPerformanceTesterBasic::isMetricLogRequested(sTesterName) && !LLMetricPerformanceTesterBasic::getTester(sTesterName))
+	{
+		sTesterp = new LLTextureFetchTester() ;
+		if (!sTesterp->isValid())
+		{
+			delete sTesterp;
+			sTesterp = NULL;
+		}
 	}
 }
 
@@ -2966,20 +3001,51 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 		}
 		else if (worker->checkWork())
 		{
+			F32 decode_time;
+			F32 fetch_time;
+			F32 cache_read_time;
+			F32 cache_write_time;
+			S32 file_size;
+			std::map<S32, F32> logged_state_timers;
+			F32 skipped_states_time;
 			worker->lockWorkMutex();									// +Mw
 			last_http_get_status = worker->mGetStatus;
 			discard_level = worker->mDecodedDiscard;
 			raw = worker->mRawImage;
 			aux = worker->mAuxImage;
-			sample(sTexDecodeLatency, worker->mDecodeTime);
-            sample(sTexFetchLatency, worker->mFetchTime);
-            sample(sCacheReadLatency, worker->mCacheReadTime);
+
+			decode_time = worker->mDecodeTime;
+			fetch_time = worker->mFetchTime;
+			cache_read_time = worker->mCacheReadTime;
+			cache_write_time = worker->mCacheWriteTime;
+			file_size = worker->mFileSize;
             worker->mCacheReadTimer.reset();
             worker->mDecodeTimer.reset();
+			worker->mCacheWriteTimer.reset();
             worker->mFetchTimer.reset();
+			logged_state_timers = worker->mStateTimersMap;
+			skipped_states_time = worker->mSkippedStatesTime;
+			worker->mStateTimer.reset();
 			res = true;
 			LL_DEBUGS(LOG_TXT) << id << ": Request Finished. State: " << worker->mState << " Discard: " << discard_level << LL_ENDL;
 			worker->unlockWorkMutex();									// -Mw
+			
+			sample(sTexDecodeLatency, decode_time);
+			sample(sTexFetchLatency, fetch_time);
+			sample(sCacheReadLatency, cache_read_time);
+			sample(sCacheWriteLatency, cache_write_time);
+			
+			static LLCachedControl<F32> min_time_to_log(gSavedSettings, "TextureFetchMinTimeToLog", 2.f);
+			if (fetch_time > min_time_to_log)
+			{
+				//LL_INFOS() << "fetch_time: " << fetch_time << " cache_read_time: " << cache_read_time << " decode_time: " << decode_time << " cache_write_time: " << cache_write_time << LL_ENDL;
+
+				LLTextureFetchTester* tester = (LLTextureFetchTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
+				if (tester)
+				{
+					tester->updateStats(logged_state_timers, fetch_time, skipped_states_time, file_size) ;
+				}
+			}
 		}
 		else
 		{
@@ -3464,6 +3530,21 @@ void LLTextureFetchWorker::setState(e_state new_state)
 
 //		LL_INFOS(LOG_TXT) << "id: " << mID << " FTType: " << mFTType << " disc: " << mDesiredDiscard << " sz: " << mDesiredSize << " state: " << e_state_name[mState] << " => " << e_state_name[new_state] << LL_ENDL;
 	}
+	
+	F32 d_time = mStateTimer.getElapsedTimeF32();
+	if (d_time >= 0.0001F)
+	{
+		if (LOGGED_STATES.count(mState))
+		{
+			mStateTimersMap[mState] = d_time;
+		}
+		else
+		{
+			mSkippedStatesTime += d_time;
+		}
+	}
+	
+	mStateTimer.reset();
 	mState = new_state;
 }
 
@@ -3679,7 +3760,7 @@ void LLTextureFetch::dump()
 		LLTextureFetchWorker* worker = (LLTextureFetchWorker*)wreq->getWorkerClass();
 		LL_INFOS(LOG_TXT) << " ID: " << worker->mID
 						  << " PRI: " << llformat("0x%08x",wreq->getPriority())
-						  << " STATE: " << worker->sStateDescs[worker->mState]
+						  << " STATE: " << sStateDescs[worker->mState]
 						  << LL_ENDL;
 	}
 
@@ -5121,4 +5202,40 @@ void LLTextureFetchDebugger::callbackHTTP(FetchEntry & fetch, LLCore::HttpRespon
 //End LLTextureFetchDebugger
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+LLTextureFetchTester::LLTextureFetchTester() : LLMetricPerformanceTesterBasic(sTesterName) 
+{
+	mTextureFetchTime = 0;
+	mSkippedStatesTime = 0;
+	mFileSize = 0;
+}
+
+LLTextureFetchTester::~LLTextureFetchTester()
+{
+	outputTestResults();
+	LLTextureFetch::sTesterp = NULL;
+}
+
+//virtual 
+void LLTextureFetchTester::outputTestRecord(LLSD *sd) 
+{	
+	std::string currentLabel = getCurrentLabelName();
+
+	(*sd)[currentLabel]["Texture Fetch Time"]	= (LLSD::Real)mTextureFetchTime;
+	(*sd)[currentLabel]["File Size"]			= (LLSD::Integer)mFileSize;
+	(*sd)[currentLabel]["Skipped States Time"]	= (LLSD::String)llformat("%.6f", mSkippedStatesTime);
+
+	for(auto i : LOGGED_STATES) 
+	{
+		(*sd)[currentLabel][sStateDescs[i]] = mStateTimersMap[i];
+	}
+}
+
+void LLTextureFetchTester::updateStats(const std::map<S32, F32> state_timers, const F32 fetch_time, const F32 skipped_states_time, const S32 file_size)
+{
+	mTextureFetchTime = fetch_time;
+	mStateTimersMap = state_timers;
+	mFileSize = file_size;
+	mSkippedStatesTime = skipped_states_time;
+	outputTestResults();
+}
 

@@ -62,6 +62,7 @@
 #include "llsdutil.h"
 #include "llcorehttputil.h"
 #include "llvoicevivox.h"
+#include "llinventorymodel.h"
 #include "lluiusage.h"
 
 namespace LLStatViewer
@@ -205,6 +206,7 @@ LLTrace::EventStatHandle<F64Seconds >	AVATAR_EDIT_TIME("avataredittime", "Second
 
 LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > OBJECT_CACHE_HIT_RATE("object_cache_hits");
 
+LLTrace::EventStatHandle<F64Seconds >	TEXTURE_FETCH_TIME("texture_fetch_time");
 }
 
 LLViewerStats::LLViewerStats() 
@@ -385,15 +387,6 @@ void update_statistics()
 	add(LLStatViewer::ASSET_UDP_DATA_RECEIVED, F64Bits(gTransferManager.getTransferBitsIn(LLTCT_ASSET)));
 	gTransferManager.resetTransferBitsIn(LLTCT_ASSET);
 
-	if (LLAppViewer::getTextureFetch()->getNumRequests() == 0)
-	{
-		gTextureTimer.pause();
-	}
-	else
-	{
-		gTextureTimer.unpause();
-	}
-	
 	sample(LLStatViewer::VISIBLE_AVATARS, LLVOAvatar::sNumVisibleAvatars);
 	LLWorld::getInstance()->updateNetStats();
 	LLWorld::getInstance()->requestCacheMisses();
@@ -415,6 +408,19 @@ void update_statistics()
 	}
 }
 
+void update_texture_time()
+{
+	if (gTextureList.isPrioRequestsFetched())
+	{
+		gTextureTimer.pause();
+	}
+	else
+	{		
+		gTextureTimer.unpause();
+	}
+
+	record(LLStatViewer::TEXTURE_FETCH_TIME, gTextureTimer.getElapsedTimeF32());
+}
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *
@@ -574,6 +580,11 @@ void send_viewer_stats(bool include_preferences)
 	fail["off_circuit"] = (S32) gMessageSystem->mOffCircuitPackets;
 	fail["invalid"] = (S32) gMessageSystem->mInvalidOnCircuitPackets;
 	fail["missing_updater"] = (S32) LLAppViewer::instance()->isUpdaterMissing();
+
+	LLSD &inventory = body["inventory"];
+	inventory["usable"] = gInventory.isInventoryUsable();
+	LLSD& validation_info = inventory["validation_info"];
+	gInventory.mValidationInfo->asLLSD(validation_info);
 
 	body["ui"] = LLUIUsage::instance().asLLSD();
 		

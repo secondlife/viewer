@@ -214,6 +214,19 @@ Make sure your Internet connection is working properly.
 
   <notification
    icon="alertmodal.tga"
+   name="LoginFailedToParse"
+   type="alertmodal">
+    <tag>fail</tag>
+Viewer received malformed response from server. Please, make sure your Internet connection is working properly and try again later.
+
+If you feel this is in error, please contact Support.
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="MessageTemplateNotFound"
    type="alertmodal">
 Message Template [PATH] not found.
@@ -2945,6 +2958,14 @@ Darn. You have been logged out of [SECOND_LIFE].
      name="okcancelbuttons"
      notext="Quit"
      yestext="View IM &amp; Chat"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InventoryUnusable"
+   type="alertmodal">
+There was a problem loading your inventory. First, try logging out and logging in again. If you see this message again, contact Support to correct the problem.
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -8765,6 +8786,13 @@ See SecondLife.log for details
     type="alert">
     Error while requesting mesh upload permissons.
   </notification>
+
+  <notification
+    name="MeshUploadProfilerError"
+    icon="alert.tga"
+    type="alert">
+Mesh uploader is incompatible with RenderGLCoreProfile, please turn RenderGLCoreProfile off in debug settings and restart the viewer.
+  </notification>
   
   <notification
     name="RegionCapabilityRequestError"
@@ -11776,6 +11804,16 @@ Unable to load the track into [TRACK].
    type="alertmodal">
 Unable to load the track from [TRACK1] into [TRACK2].
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CompressionTestResults"
+   type="alertmodal">
+Test result for gzip level 6 file compression with [FILE] of size [SIZE] KB:
+Packing: [PACK_TIME]s [PSIZE]KB
+Unpacking: [UNPACK_TIME]s [USIZE]KB
+    <tag>fail</tag>
   </notification>
   
 </notifications>

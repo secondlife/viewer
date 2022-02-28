@@ -257,6 +257,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mPopupMenuHandle = menu->getHandle();
 
 	mViewModelItem->openItem();
+
+	mAreChildrenInited = true; // root folder is a special case due to not being loaded normally, assume that it's inited.
 }
 
 // Destroys the object
