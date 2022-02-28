@@ -88,6 +88,7 @@ public:
     void            setParcelOwnerMsg(const std::string& msg) { mParcelOwnerMsg = msg; }
     void            setRegionNameMsg(const std::string& msg) { mRegionNameMsg = msg; }
     void            setToolTipHintMsg(const std::string& msg) { mToolTipHintMsg = msg; }
+    void            setAltToolTipHintMsg(const std::string& msg) { mAltToolTipHintMsg = msg; }
 
 	void			renderScaledPointGlobal( const LLVector3d& pos, const LLColor4U &color, F32 radius );
 
@@ -140,6 +141,7 @@ private:
     std::string     mParcelOwnerMsg;
     std::string     mRegionNameMsg;
     std::string     mToolTipHintMsg;
+    std::string     mAltToolTipHintMsg;
 
 public:
 	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };

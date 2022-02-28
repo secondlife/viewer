@@ -84,14 +84,8 @@ BOOL LLFloaterMap::postBuild()
     mMap->setParcelSaleAreaMsg(getString("ParcelSaleAreaMsg"));
     mMap->setParcelOwnerMsg(getString("ParcelOwnerMsg"));
     mMap->setRegionNameMsg(getString("RegionNameMsg"));
-    if (gSavedSettings.getBOOL("DoubleClickTeleport"))
-    {
-        mMap->setToolTipHintMsg(getString("AltToolTipHintMsg"));
-    }
-    else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
-    {
-        mMap->setToolTipHintMsg(getString("ToolTipHintMsg"));
-    }
+    mMap->setToolTipHintMsg(getString("ToolTipHintMsg"));
+    mMap->setAltToolTipHintMsg(getString("AltToolTipHintMsg"));
     sendChildToBack(mMap);
 
     mTextBoxNorth     = getChild<LLTextBox>("floater_map_north");

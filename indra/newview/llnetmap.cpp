@@ -699,7 +699,15 @@ BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
         }
     }
 
-    std::string tool_tip_hint_msg = mToolTipHintMsg;
+    std::string tool_tip_hint_msg;
+    if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+    {
+        tool_tip_hint_msg = mAltToolTipHintMsg;
+    }
+    else if (gSavedSettings.getBOOL("DoubleClickShowWorldMap"))
+    {
+        tool_tip_hint_msg = mToolTipHintMsg;
+    }
 
     LLStringUtil::format_map_t args;
     args["[PARCEL_NAME_MSG]"]       = parcel_name_msg.empty() ? "" : parcel_name_msg + '\n';
