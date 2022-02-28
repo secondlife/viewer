@@ -703,8 +703,7 @@
              function="Floater.Visible"
              parameter="search" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="search" />
+             function="Avatar.ToggleSearch"/>
             </menu_item_check>
         <menu_item_separator/>
         <menu_item_call
@@ -774,7 +773,7 @@
              label="My land holdings..."
              name="My Land">
             <menu_item_call.on_click
-             function="Floater.Show"
+             function="Floater.ShowOrBringToFront"
              parameter="land_holdings" />
       </menu_item_call>
         <menu_item_call
@@ -3900,6 +3899,12 @@ function="World.EnvPreset"
             <menu_item_call.on_click
              function="Advanced.CompressImage" />
         </menu_item_call>
+      <menu_item_call
+       label="Compress File Test"
+       name="Compress File Test">
+        <menu_item_call.on_click
+         function="Advanced.CompressFileTest" />
+      </menu_item_call>
 
       <menu_item_call
          label="Enable Visual Leak Detector"

@@ -115,6 +115,15 @@ public:
 		else return LLJoint::LOW_PRIORITY;
 	}
 
+    virtual S32 getNumJointMotions()
+    {
+        if (mJointMotionList)
+        {
+            return mJointMotionList->getNumJointMotions();
+        }
+        return 0;
+    }
+
 	virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
 
 	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage

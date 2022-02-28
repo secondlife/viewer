@@ -204,6 +204,7 @@ void LLFloaterURLEntry::onBtnOK( void* userdata )
 	self->getChildView("ok_btn")->setEnabled(false);
 	self->getChildView("cancel_btn")->setEnabled(false);
 	self->getChildView("media_entry")->setEnabled(false);
+    self->getChildView("clear_btn")->setEnabled(false);
 }
 
 // static

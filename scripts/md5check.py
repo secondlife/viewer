@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file md5check.py
 @brief Replacement for message template compatibility verifier.
@@ -29,14 +29,14 @@ import sys
 import hashlib
 
 if len(sys.argv) != 3:
-    print """Usage: %s --create|<hash-digest> <file>
+    print("""Usage: %s --create|<hash-digest> <file>
 
 Creates an md5sum hash digest of the specified file content
 and compares it with the given hash digest.
 
 If --create is used instead of a hash digest, it will simply
 print out the hash digest of specified file content.
-""" % sys.argv[0]
+""" % sys.argv[0])
     sys.exit(1)
 
 if sys.argv[2] == '-':
@@ -48,9 +48,9 @@ else:
 
 hexdigest = hashlib.md5(fh.read()).hexdigest()
 if sys.argv[1] == '--create':
-    print hexdigest
+    print(hexdigest)
 elif hexdigest == sys.argv[1]:
-    print "md5sum check passed:", filename
+    print("md5sum check passed:", filename)
 else:
-    print "md5sum check FAILED:", filename
+    print("md5sum check FAILED:", filename)
     sys.exit(1)

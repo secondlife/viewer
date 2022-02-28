@@ -2414,7 +2414,14 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			
 
 			//copy out indices
-			face.resizeIndices(idx.size()/2);
+            S32 num_indices = idx.size() / 2;
+            face.resizeIndices(num_indices);
+
+            if (num_indices > 2 && !face.mIndices)
+            {
+                LL_WARNS() << "Failed to allocate " << num_indices << " indices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                continue;
+            }
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
@@ -2432,6 +2439,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			//copy out vertices
 			U32 num_verts = pos.size()/(3*2);
 			face.resizeVertices(num_verts);
+
+            if (num_verts > 0 && !face.mPositions)
+            {
+                LL_WARNS() << "Failed to allocate " << num_verts << " vertices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                face.resizeIndices(0);
+                continue;
+            }
 
 			LLVector3 minp;
 			LLVector3 maxp;
@@ -2534,6 +2548,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			if (mdl[i].has("Weights"))
 			{
 				face.allocateWeights(num_verts);
+                if (!face.mWeights && num_verts)
+                {
+                    LL_WARNS() << "Failed to allocate " << num_verts << " weights for face index: " << i << " Total: " << face_count << LL_ENDL;
+                    face.resizeIndices(0);
+                    face.resizeVertices(0);
+                    continue;
+                }
 
 				LLSD::Binary weights = mdl[i]["Weights"];
 
@@ -5295,22 +5316,23 @@ bool LLVolumeFace::cacheOptimize()
 	{
 		triangle_data.resize(mNumIndices / 3);
 		vertex_data.resize(mNumVertices);
-	}
-	catch (std::bad_alloc&)
-	{
-		LL_WARNS("LLVOLUME") << "Resize failed" << LL_ENDL;
-		return false;
-	}
 
-	for (U32 i = 0; i < mNumIndices; i++)
-	{ //populate vertex data and triangle data arrays
-		U16 idx = mIndices[i];
-		U32 tri_idx = i/3;
+        for (U32 i = 0; i < mNumIndices; i++)
+        { //populate vertex data and triangle data arrays
+            U16 idx = mIndices[i];
+            U32 tri_idx = i / 3;
 
-		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
-		vertex_data[idx].mIdx = idx;
-		triangle_data[tri_idx].mVertex[i%3] = &(vertex_data[idx]);
-	}
+            vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
+            vertex_data[idx].mIdx = idx;
+            triangle_data[tri_idx].mVertex[i % 3] = &(vertex_data[idx]);
+        }
+    }
+    catch (std::bad_alloc&)
+    {
+        // resize or push_back failed
+        LL_WARNS("LLVOLUME") << "Resize for " << mNumVertices << " vertices failed" << LL_ENDL;
+        return false;
+    }
 
 	/*F32 pre_acmr = 1.f;
 	//measure cache misses from before rebuild
@@ -6342,8 +6364,18 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 		mTexCoords = NULL;
 	}
 
-	mNumVertices = num_verts;
-	mNumAllocatedVertices = num_verts;
+
+    if (mPositions)
+    {
+        mNumVertices = num_verts;
+        mNumAllocatedVertices = num_verts;
+    }
+    else
+    {
+        // Either num_verts is zero or allocation failure
+        mNumVertices = 0;
+        mNumAllocatedVertices = 0;
+    }
 
     // Force update
     mJointRiggingInfoTab.clear();
@@ -6444,7 +6476,15 @@ void LLVolumeFace::resizeIndices(S32 num_indices)
 		mIndices = NULL;
 	}
 
-	mNumIndices = num_indices;
+    if (mIndices)
+    {
+        mNumIndices = num_indices;
+    }
+    else
+    {
+        // Either num_indices is zero or allocation failure
+        mNumIndices = 0;
+    }
 }
 
 void LLVolumeFace::pushIndex(const U16& idx)

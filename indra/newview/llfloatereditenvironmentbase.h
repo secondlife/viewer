@@ -107,7 +107,7 @@ protected:
 
     void                    onAssetLoaded(LLUUID asset_id, LLSettingsBase::ptr_t settins, S32 status);
 
-private:
+protected:
     LLUUID                  mExpectingAssetId; // for asset load confirmation
 };
 
