@@ -343,7 +343,9 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	}
 	// Nothing selected means the first mouse click was probably
 	// bad, so try again.
-	return FALSE;
+	// This also consumes the event to prevent things like double-click
+	// teleport from triggering.
+	return handleMouseDown(x, y, mask);
 }
 
 

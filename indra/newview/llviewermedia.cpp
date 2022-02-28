@@ -78,39 +78,10 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
-class LLMediaFilePicker : public LLFilePickerThread // deletes itself when done
-{
-public:
-    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
-        : LLFilePickerThread(filter, get_multiple),
-        mPlugin(plugin->getSharedPrt())
-    {
-    }
-
-    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
-        : LLFilePickerThread(filter, proposed_name),
-        mPlugin(plugin->getSharedPrt())
-    {
-    }
-
-    virtual void notify(const std::vector<std::string>& filenames)
-    {
-        mPlugin->sendPickFileResponse(mResponses);
-        mPlugin = NULL;
-    }
-
-private:
-    boost::shared_ptr<LLPluginClassMedia> mPlugin;
-};
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
     (new LLMediaFilePicker(plugin, filter, get_multiple))->getFile(); // will delete itself
-}
-
-void init_threaded_picker_save_dialog(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, std::string &proposed_name)
-{
-    (new LLMediaFilePicker(plugin, filter, proposed_name))->getFile(); // will delete itself
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1773,6 +1744,10 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			// need to set agent string here before instance created
 			media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
 
+            // configure and pass proxy setup based on debug settings that are 
+            // configured by UI in prefs -> setup
+            media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
+
 			media_source->setTarget(target);
 
 			const std::string plugin_dir = gDirUtilp->getLLPluginDir();
@@ -1856,8 +1831,6 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		// Qt/WebKit loads from your system location.
 		std::string ca_path = gDirUtilp->getCAFile();
 		media_source->addCertificateFilePath( ca_path );
-
-		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
 		if(mClearCache)
 		{
@@ -3218,37 +3191,17 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << plugin->getCursorName() << LL_ENDL;
 
 			std::string cursor = plugin->getCursorName();
-
-			if(cursor == "arrow")
-				mLastSetCursor = UI_CURSOR_ARROW;
-			else if(cursor == "ibeam")
-				mLastSetCursor = UI_CURSOR_IBEAM;
-			else if(cursor == "splith")
-				mLastSetCursor = UI_CURSOR_SIZEWE;
-			else if(cursor == "splitv")
-				mLastSetCursor = UI_CURSOR_SIZENS;
-			else if(cursor == "hand")
-				mLastSetCursor = UI_CURSOR_HAND;
-			else // for anything else, default to the arrow
-				mLastSetCursor = UI_CURSOR_ARROW;
+			mLastSetCursor = getCursorFromString(cursor);
 		}
 		break;
 
 		case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
 		{
 			LL_DEBUGS("Media") << "Media event - file download requested - filename is " << plugin->getFileDownloadFilename() << LL_ENDL;
-			// pick a file from SAVE FILE dialog
 
-			// need a better algorithm that this or else, pass in type of save type
-			// from event that initiated it - this is okay for now - only thing
-			// that saves is 360s
-			std::string suggested_filename = plugin->getFileDownloadFilename();
-			LLFilePicker::ESaveFilter filter = LLFilePicker::FFSAVE_ALL;
-			if (suggested_filename.find(".jpg") != std::string::npos || suggested_filename.find(".jpeg") != std::string::npos)
-				filter = LLFilePicker::FFSAVE_JPEG;
-			if (suggested_filename.find(".png") != std::string::npos)
-				filter = LLFilePicker::FFSAVE_PNG;
-			init_threaded_picker_save_dialog(plugin, filter, suggested_filename);
+            //unblock media plugin
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
 		}
 		break;
 

@@ -438,8 +438,14 @@ void LLLandmarksPanel::initLandmarksPanel(LLPlacesInventoryPanel* inventory_list
 	LLPlacesFolderView* root_folder = dynamic_cast<LLPlacesFolderView*>(inventory_list->getRootFolder());
 	if (root_folder)
 	{
-		root_folder->setupMenuHandle(LLInventoryType::IT_CATEGORY, mGearFolderMenu->getHandle());
-		root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
+        if (mGearFolderMenu)
+        {
+            root_folder->setupMenuHandle(LLInventoryType::IT_CATEGORY, mGearFolderMenu->getHandle());
+        }
+        if (mGearLandmarkMenu)
+        {
+            root_folder->setupMenuHandle(LLInventoryType::IT_LANDMARK, mGearLandmarkMenu->getHandle());
+        }
 
 		root_folder->setParentLandmarksPanel(this);
 	}
@@ -462,13 +468,23 @@ void LLLandmarksPanel::initListCommandsHandlers()
 	mSortingMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_places_gear_sorting.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 	mAddMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>("menu_place_add_button.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
 
-	mGearLandmarkMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
-	mGearFolderMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+    if (mGearLandmarkMenu)
+    {
+        mGearLandmarkMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+        // show menus even if all items are disabled
+        mGearLandmarkMenu->setAlwaysShowMenu(TRUE);
+    } // Else corrupted files?
 
-	// show menus even if all items are disabled
-	mGearLandmarkMenu->setAlwaysShowMenu(TRUE);
-	mGearFolderMenu->setAlwaysShowMenu(TRUE);
-	mAddMenu->setAlwaysShowMenu(TRUE);
+    if (mGearFolderMenu)
+    {
+        mGearFolderMenu->setVisibilityChangeCallback(boost::bind(&LLLandmarksPanel::onMenuVisibilityChange, this, _1, _2));
+        mGearFolderMenu->setAlwaysShowMenu(TRUE);
+    }
+
+    if (mAddMenu)
+    {
+        mAddMenu->setAlwaysShowMenu(TRUE);
+    }
 }
 
 void LLLandmarksPanel::updateMenuVisibility(LLUICtrl* menu)
@@ -1054,7 +1070,10 @@ void LLLandmarksPanel::doShowOnMap(LLLandmark* landmark)
 		LLFloaterReg::showInstance("world_map", "center");
 	}
 
-	mGearLandmarkMenu->setItemEnabled("show_on_map", TRUE);
+    if (mGearLandmarkMenu)
+    {
+        mGearLandmarkMenu->setItemEnabled("show_on_map", TRUE);
+    }
 }
 
 void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,

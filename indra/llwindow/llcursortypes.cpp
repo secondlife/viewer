@@ -42,6 +42,7 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 		cursor_string_table["UI_CURSOR_SIZENESW"] = UI_CURSOR_SIZENESW;
 		cursor_string_table["UI_CURSOR_SIZEWE"] = UI_CURSOR_SIZEWE;
 		cursor_string_table["UI_CURSOR_SIZENS"] = UI_CURSOR_SIZENS;
+		cursor_string_table["UI_CURSOR_SIZEALL"] = UI_CURSOR_SIZEALL;
 		cursor_string_table["UI_CURSOR_NO"] = UI_CURSOR_NO;
 		cursor_string_table["UI_CURSOR_WORKING"] = UI_CURSOR_WORKING;
 		cursor_string_table["UI_CURSOR_TOOLGRAB"] = UI_CURSOR_TOOLGRAB;
@@ -61,6 +62,7 @@ ECursorType getCursorFromString(const std::string& cursor_string)
 		cursor_string_table["UI_CURSOR_TOOLCAMERA"] = UI_CURSOR_TOOLCAMERA;
 		cursor_string_table["UI_CURSOR_TOOLPAN"] = UI_CURSOR_TOOLPAN;
 		cursor_string_table["UI_CURSOR_TOOLZOOMIN"] = UI_CURSOR_TOOLZOOMIN;
+		cursor_string_table["UI_CURSOR_TOOLZOOMOUT"] = UI_CURSOR_TOOLZOOMOUT;
 		cursor_string_table["UI_CURSOR_TOOLPICKOBJECT3"] = UI_CURSOR_TOOLPICKOBJECT3;
 		cursor_string_table["UI_CURSOR_TOOLPLAY"] = UI_CURSOR_TOOLPLAY;
 		cursor_string_table["UI_CURSOR_TOOLPAUSE"] = UI_CURSOR_TOOLPAUSE;

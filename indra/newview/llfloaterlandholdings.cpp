@@ -108,6 +108,9 @@ LLFloaterLandHoldings::~LLFloaterLandHoldings()
 
 void LLFloaterLandHoldings::onOpen(const LLSD& key)
 {
+    LLScrollListCtrl *list = getChild<LLScrollListCtrl>("parcel list");
+    list->clearRows();
+
 	// query_id null is known to be us
 	const LLUUID& query_id = LLUUID::null;
 

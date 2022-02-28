@@ -56,6 +56,7 @@ public:
 	void displayItemInfo(const LLInventoryItem* pItem);
 
 	void toggleLandmarkEditMode(BOOL enabled);
+	void setCanEdit(BOOL enabled);
 
 	const std::string& getLandmarkTitle() const;
 	const std::string getLandmarkNotes() const;
