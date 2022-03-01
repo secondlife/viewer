@@ -7055,7 +7055,7 @@
     <key>NoInventoryLibrary</key>
     <map>
       <key>Comment</key>
-      <string>Do not request inventory library.</string>
+      <string>(Deprecated) Do not request inventory library.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
