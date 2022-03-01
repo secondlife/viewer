@@ -283,13 +283,6 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
         // record that we just entered a new region
         newRegionEntry(*regionp);
 
-        // After a few attempts, continue login.  But keep trying to get the caps:
-        if (impl->mSeedCapAttempts >= impl->mSeedCapMaxAttemptsBeforeLogin &&
-            STATE_SEED_GRANTED_WAIT == LLStartUp::getStartupState())
-        {
-            LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
-        }
-
         if (impl->mSeedCapAttempts > impl->mSeedCapMaxAttempts)
         {
             // *TODO: Give a user pop-up about this error?
