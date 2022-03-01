@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <floater name="Import Collada" title="Importar escena">
 	<text name="mesh count">
-		Redes: [RECUENTO]
+		Redes: [COUNT]
 	</text>
 	<text name="texture count">
-		Texturas: [RECUENTO]
+		Texturas: [COUNT]
 	</text>
 	<text name="status">
-		Estado: [ESTADO]
+		Estado: [STATUS]
 	</text>
 	<button label="Cancelar" name="cancel"/>
 	<button label="OK" name="ok"/>
@@ -15,9 +15,9 @@
 		Inactivo
 	</string>
 	<string name="status_uploading">
-		Cargando [NOMBRE]
+		Cargando [NAME]
 	</string>
 	<string name="status_creating">
-		Creando objeto [NOMBRE]
+		Creando objeto [NAME]
 	</string>
 </floater>

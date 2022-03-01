@@ -171,6 +171,7 @@ public:
 	// LLUICtrl methods
 	 /*virtual*/ void onFocusLost();
 	 /*virtual*/ void onFocusReceived();
+     void onFolderOpening(const LLUUID &id);
 
 	// LLBadgeHolder methods
 	bool addBadge(LLBadge * badge);
@@ -318,12 +319,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void addHideFolderType(LLFolderType::EType folder_type);
-
-public:
-	bool getViewsInitialized() const { return mViewsInitialized == VIEWS_INITIALIZED; }
 protected:
 	// Builds the UI.  Call this once the inventory is usable.
-	void 				initializeViews();
+	void 				initializeViews(F64 max_time);
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
@@ -331,13 +329,25 @@ protected:
 	static LLUIColor			sDefaultHighlightColor;
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sLinkColor;
-	
+
+    enum EBuildModes
+    {
+        BUILD_NO_LIMIT,
+        BUILD_TIMELIMIT, // requires mBuildViewsEndTime
+        BUILD_ONE_FOLDER,
+        BUILD_NO_CHILDREN,
+    };
+
+    // All buildNewViews() use BUILD_TIMELIMIT by default
+    // and expect time limit mBuildViewsEndTime to be set
 	LLFolderViewItem*			buildNewViews(const LLUUID& id);
     LLFolderViewItem*			buildNewViews(const LLUUID& id,
                                               LLInventoryObject const* objectp);
     LLFolderViewItem*			buildNewViews(const LLUUID& id,
                                               LLInventoryObject const* objectp,
-                                              LLFolderViewItem *target_view);
+                                              LLFolderViewItem *target_view,
+                                              const EBuildModes &mode = BUILD_TIMELIMIT);
+
     // if certain types are not allowed, no reason to create views
     virtual bool				typedViewsFilter(const LLUUID& id, LLInventoryObject const* objectp) { return true; }
 
@@ -354,17 +364,21 @@ private:
                                               const LLUUID& parent_id,
                                               LLInventoryObject const* objectp,
                                               LLFolderViewItem *target_view,
-                                              LLFolderViewFolder *parent_folder_view);
+                                              LLFolderViewFolder *parent_folder_view,
+                                              const EBuildModes &mode);
 
     typedef enum e_views_initialization_state
     {
         VIEWS_UNINITIALIZED = 0,
         VIEWS_INITIALIZING,
+        VIEWS_BUILDING, // Root folder exists
         VIEWS_INITIALIZED,
     } EViewsInitializationState;
 
 	bool						mBuildViewsOnInit;
     EViewsInitializationState	mViewsInitialized; // Whether views have been generated
+    F64							mBuildViewsEndTime; // Stop building views past this timestamp
+    std::deque<LLUUID>			mBuildViewsQueue;
 };
 
 /************************************************************************/

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   test_llxmlrpc_peer.py
 @author Nat Goodspeed
@@ -31,7 +31,7 @@ $/LicenseInfo$
 
 import os
 import sys
-from SimpleXMLRPCServer import SimpleXMLRPCServer
+from xmlrpc.server import SimpleXMLRPCServer
 
 mydir = os.path.dirname(__file__)       # expected to be .../indra/newview/tests/
 sys.path.insert(0, os.path.join(mydir, os.pardir, os.pardir, "llmessage", "tests"))
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         # "Then there's Windows"
         # Instantiate a TestServer on the first free port in the specified
         # port range.
-        xmlrpcd, port = freeport(xrange(8000, 8020), make_server)
+        xmlrpcd, port = freeport(range(8000, 8020), make_server)
 
     # Pass the selected port number to the subject test program via the
     # environment. We don't want to impose requirements on the test program's

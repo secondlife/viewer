@@ -69,7 +69,7 @@ void LLAlertHandler::initChannel()
 }
 
 //--------------------------------------------------------------------------
-bool LLAlertHandler::processNotification(const LLNotificationPtr& notification)
+bool LLAlertHandler::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
 	if(mChannel.isDead())
 	{
@@ -131,7 +131,7 @@ LLViewerAlertHandler::LLViewerAlertHandler(const std::string& name, const std::s
 {
 }
 
-bool LLViewerAlertHandler::processNotification(const LLNotificationPtr& p)
+bool LLViewerAlertHandler::processNotification(const LLNotificationPtr& p, bool should_log)
 {
 	if (gHeadlessClient)
 	{

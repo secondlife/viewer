@@ -126,7 +126,6 @@
     <binding key="PAD_DIVIDE" mask="CTL_ALT_SHIFT" command="start_gesture"/>
 
     <binding key="" mask="NONE" mouse="MMB" command="toggle_voice"/>
-    <binding key="" mask="NONE" mouse="LMB" command="walk_to"/>
   </third_person>
   <sitting>
     <binding key="A" mask="ALT" command="spin_around_cw"/>

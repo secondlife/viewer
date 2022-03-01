@@ -89,6 +89,7 @@ namespace {
 
     // Don't retry connecting to the daemon more frequently than this:
     const F32 DAEMON_CONNECT_THROTTLE_SECONDS = 1.0f;
+    const int DAEMON_CONNECT_RETRY_MAX = 3;
 
     // Don't send positional updates more frequently than this:
     const F32 UPDATE_THROTTLE_SECONDS = 0.5f;
@@ -705,6 +706,11 @@ void LLVivoxVoiceClient::voiceControlCoro()
 
 void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
 {
+    if (sShuttingDown)
+    {
+        return;
+    }
+
     LL_DEBUGS("Voice") << "starting" << LL_ENDL;
     mIsCoroutineActive = true;
     LLCoros::set_consuming(true);
@@ -859,6 +865,12 @@ void LLVivoxVoiceClient::voiceControlStateMachine(S32 &coro_state)
             break;
         }
     } while (coro_state > 0);
+
+    if (sShuttingDown)
+    {
+        // LLVivoxVoiceClient might be already dead
+        return;
+    }
 
     mIsCoroutineActive = false;
     LL_INFOS("Voice") << "exiting" << LL_ENDL;
@@ -1033,8 +1045,9 @@ bool LLVivoxVoiceClient::startAndLaunchDaemon()
 
     LL_DEBUGS("Voice") << "Connecting to vivox daemon:" << mDaemonHost << LL_ENDL;
 
+    int retryCount(0);
     LLVoiceVivoxStats::getInstance()->reset();
-    while (!mConnected && !sShuttingDown)
+    while (!mConnected && !sShuttingDown && retryCount++ <= DAEMON_CONNECT_RETRY_MAX)
     {
         LLVoiceVivoxStats::getInstance()->connectionAttemptStart();
         LL_DEBUGS("Voice") << "Attempting to connect to vivox daemon: " << mDaemonHost << LL_ENDL;
@@ -1160,7 +1173,7 @@ bool LLVivoxVoiceClient::provisionVoiceAccount()
         {
             provisioned = true;
         }        
-    } while (!provisioned && retryCount <= PROVISION_RETRY_MAX && !sShuttingDown);
+    } while (!provisioned && ++retryCount <= PROVISION_RETRY_MAX && !sShuttingDown);
 
     if (sShuttingDown && !provisioned)
     {
@@ -1343,6 +1356,12 @@ bool LLVivoxVoiceClient::loginToVivox()
         }
         
         LLSD result = llcoro::suspendUntilEventOnWithTimeout(mVivoxPump, LOGIN_ATTEMPT_TIMEOUT, timeoutResult);
+
+        if (sShuttingDown)
+        {
+            return false;
+        }
+
         LL_DEBUGS("Voice") << "event=" << ll_stream_notation_sd(result) << LL_ENDL;
 
         if (result.has("login"))
@@ -1404,6 +1423,11 @@ bool LLVivoxVoiceClient::loginToVivox()
         }
 
     } while ((!response_ok || !account_login) && !sShuttingDown);
+
+    if (sShuttingDown)
+    {
+        return false;
+    }
 
     mRelogRequested = false;
     mIsLoggedIn = true;

@@ -561,10 +561,17 @@ Function CloseSecondLife
 
   LOOP:
 	  FindWindow $0 "Second Life" ""
-	  IntCmp $0 0 DONE
+	  IntCmp $0 0 SLEEP
 	  Sleep 500
 	  Goto LOOP
-
+	  
+  SLEEP:
+    # Second life window just closed, but program might not be fully done yet
+    # and OS might have not released some locks, wait a bit more to make sure
+    # all file handles were released.
+	# If something still isn't unlocked, it will trigger a notification from
+	# RemoveProgFilesOnInst
+    Sleep 1000
   DONE:
     Pop $0
     Return
@@ -605,6 +612,18 @@ FunctionEnd
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function RemoveProgFilesOnInst
 
+# We do not remove whole pervious install folder on install, since
+# there is a chance that viewer was installed into some important
+# folder by intent or accident
+# RMDir /r $INSTDIR is especially unsafe if user installed somewhere
+# like Program Files
+
+# Set retry counter. All integers are strings.
+Push $0
+StrCpy $0 0
+
+PREINSTALLREMOVE:
+
 # Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575
 Delete "$INSTDIR\$INSTEXE"
 Delete "$INSTDIR\$VIEWER_EXE"
@@ -612,12 +631,34 @@ Delete "$INSTDIR\$VIEWER_EXE"
 # Remove old shader files first so fallbacks will work. See DEV-5663
 RMDir /r "$INSTDIR\app_settings\shaders"
 
-# Remove skins folder to clean up files removed during development
+# Remove folders to clean up files removed during development
+RMDir /r "$INSTDIR\app_settings"
 RMDir /r "$INSTDIR\skins"
+RMDir /r "$INSTDIR\vmp_icons"
+
+# Remove llplugin, plugins can crash or malfunction if they
+# find modules from different versions
+RMDir /r "$INSTDIR\llplugin"
+
+IntOp $0 $0 + 1
+
+IfErrors 0 PREINSTALLDONE
+  IntCmp $0 1 PREINSTALLREMOVE #try again once
+    StrCmp $SKIP_DIALOGS "true" PREINSTALLDONE
+      MessageBox MB_ABORTRETRYIGNORE $(CloseSecondLifeInstRM) IDABORT PREINSTALLFAIL IDRETRY PREINSTALLREMOVE
+      # MB_ABORTRETRYIGNORE does not accept IDIGNORE
+      Goto PREINSTALLDONE
+
+PREINSTALLFAIL:
+    Quit
+
+PREINSTALLDONE:
 
 # We are no longer including release notes with the viewer, so remove them.
 Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
 Delete "$INSTDIR\releasenotes.txt"
+
+Pop $0
 
 FunctionEnd
 

@@ -956,7 +956,7 @@ BOOL LLDrawable::updateGeometry(BOOL priority)
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
 
 	llassert(mVObjp.notNull());
-	BOOL res = mVObjp->updateGeometry(this);
+	BOOL res = mVObjp && mVObjp->updateGeometry(this);
 	return res;
 }
 

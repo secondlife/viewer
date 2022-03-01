@@ -99,6 +99,7 @@ END
 TOOLGRAB                CURSOR                  "lltoolgrab.cur"
 TOOLLAND                CURSOR                  "lltoolland.cur"
 TOOLZOOMIN              CURSOR                  "lltoolzoomin.cur"
+TOOLZOOMOUT             CURSOR                  "lltoolzoomout.cur"
 TOOLCREATE              CURSOR                  "lltoolcreate.cur"
 ARROWDRAG               CURSOR                  "llarrowdrag.cur"
 ARROW                   CURSOR                  "llarrow.cur"

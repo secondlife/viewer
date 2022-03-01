@@ -1132,43 +1132,41 @@ bool LLAppViewer::init()
 #if LL_RELEASE_FOR_DOWNLOAD
     if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
     {
-	LLProcess::Params updater;
-	updater.desc = "updater process";
-	// Because it's the updater, it MUST persist beyond the lifespan of the
-	// viewer itself.
-	updater.autokill = false;
-	std::string updater_file;
+        LLProcess::Params updater;
+        updater.desc = "updater process";
+        // Because it's the updater, it MUST persist beyond the lifespan of the
+        // viewer itself.
+        updater.autokill = false;
+        std::string updater_file;
 #if LL_WINDOWS
-	updater_file = "SLVersionChecker.exe";
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
+        updater_file = "SLVersionChecker.exe";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on SLVersionChecker.py
-	updater.executable = "python";
-	updater_file = "SLVersionChecker.py";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file));
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file);
 #else
-	updater_file = "SLVersionChecker";
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #endif
-	// add LEAP mode command-line argument to whichever of these we selected
-	updater.args.add("leap");
-	// UpdaterServiceSettings
-    if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-    {
-        // Befor first login, treat this as 'manual' updates,
-        // updater won't install anything, but required updates
-        updater.args.add("0");
-    }
-    else
-    {
-        updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
-    }
-	// channel
-	updater.args.add(LLVersionInfo::instance().getChannel());
-	// testok
-	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// ForceAddressSize
-	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
+        // add LEAP mode command-line argument to whichever of these we selected
+        updater.args.add("leap");
+        // UpdaterServiceSettings
+        if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+        {
+            // Befor first login, treat this as 'manual' updates,
+            // updater won't install anything, but required updates
+            updater.args.add("0");
+        }
+        else
+        {
+            updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+        }
+        // channel
+        updater.args.add(LLVersionInfo::instance().getChannel());
+        // testok
+        updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+        // ForceAddressSize
+        updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
         try
         {
@@ -1186,11 +1184,11 @@ bool LLAppViewer::init()
                 OSMB_OK);
             mUpdaterNotFound = true;
         }
-	}
-	else
-	{
-		LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
-	}
+    }
+    else
+    {
+        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
+    }
 
     if (mUpdaterNotFound)
     {
@@ -1223,12 +1221,12 @@ bool LLAppViewer::init()
         }
     }
 
-	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
-	{
-		LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
-							 << "lleventhost no longer supported as a dynamic library"
-							 << LL_ENDL;
-	}
+    if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
+    {
+        LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
+                             << "lleventhost no longer supported as a dynamic library"
+                             << LL_ENDL;
+    }
 #endif //LL_RELEASE_FOR_DOWNLOAD
 
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
@@ -1743,12 +1741,14 @@ bool LLAppViewer::cleanup()
 	// one because it happens just after mFastTimerLogThread is deleted. This
 	// comment is in case we guessed wrong, so we can move it here instead.
 
+#if LL_LINUX
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
 		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
+#endif
 
 	// Kill off LLLeap objects. We can find them all because LLLeap is derived
 	// from LLInstanceTracker.
@@ -1830,6 +1830,8 @@ bool LLAppViewer::cleanup()
 
 	if (gAudiop)
 	{
+        LL_INFOS() << "Shutting down audio" << LL_ENDL;
+
         // be sure to stop the internet stream cleanly BEFORE destroying the interface to stop it.
         gAudiop->stopInternetStream();
         // shut down the streaming audio sub-subsystem first, in case it relies on not outliving the general audio subsystem.
@@ -4325,120 +4327,6 @@ void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 void LLAppViewer::loadKeyBindings()
 {
 	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
-#if 1
-	// Legacy support
-	// Remove #if-#endif section half a year after DRTVWR-501 releases.
-	// Mouse actions are part of keybinding file since DRTVWR-501 instead of being stored in
-	// settings.xml. To support legacy viewers that were storing in  settings.xml we need to
-	// transfer old variables to new format.
-	// Also part of backward compatibility is present in LLKeyConflictHandler to modify
-	// legacy variables on changes in new system (to make sure we won't enforce
-	// legacy values again if user dropped to defaults in new system)
-	if (LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion
-		|| !gDirUtilp->fileExists(key_bindings_file)) // if file is missing, assume that there were no changes by user yet
-	{
-		// copy mouse actions and voice key changes to new file
-		LL_INFOS("InitInfo") << "Converting legacy mouse bindings to new format" << LL_ENDL;
-		// Load settings from file
-		LLKeyConflictHandler third_person_view(LLKeyConflictHandler::MODE_THIRD_PERSON);
-		LLKeyConflictHandler sitting_view(LLKeyConflictHandler::MODE_SITTING);
-
-		// Since we are only modifying keybindings if personal file doesn't exist yet,
-		// it should be safe to just overwrite the value
-		// If key is already in use somewhere by default, LLKeyConflictHandler should resolve it.
-		BOOL value = gSavedSettings.getBOOL("DoubleClickAutoPilot");
-		third_person_view.registerControl("walk_to",
-			0,
-			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-			KEY_NONE,
-			MASK_NONE,
-			value);
-
-		U32 index = value ? 1 : 0; // we can store multiple combinations per action, so if first is in use by doubleclick, go to second
-		value = gSavedSettings.getBOOL("ClickToWalk");
-		third_person_view.registerControl("walk_to",
-			index,
-			value ? EMouseClickType::CLICK_LEFT : EMouseClickType::CLICK_NONE,
-			KEY_NONE,
-			MASK_NONE,
-			value);
-
-		value = gSavedSettings.getBOOL("DoubleClickTeleport");
-		third_person_view.registerControl("teleport_to",
-			0,
-			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-			KEY_NONE,
-			MASK_NONE,
-			value);
-
-		// sitting also supports teleport
-		sitting_view.registerControl("teleport_to",
-			0,
-			value ? EMouseClickType::CLICK_DOUBLELEFT : EMouseClickType::CLICK_NONE,
-			KEY_NONE,
-			MASK_NONE,
-			value);
-
-		std::string key_string = gSavedSettings.getString("PushToTalkButton");
-		EMouseClickType mouse = EMouseClickType::CLICK_NONE;
-		KEY key = KEY_NONE;
-		if (key_string == "MiddleMouse")
-		{
-			mouse = EMouseClickType::CLICK_MIDDLE;
-		}
-		else if (key_string == "MouseButton4")
-		{
-			mouse = EMouseClickType::CLICK_BUTTON4;
-		}
-		else if (key_string == "MouseButton5")
-		{
-			mouse = EMouseClickType::CLICK_BUTTON5;
-		}
-		else
-		{
-			LLKeyboard::keyFromString(key_string, &key);
-		}
-
-		value = gSavedSettings.getBOOL("PushToTalkToggle");
-		std::string control_name = value ? "toggle_voice" : "voice_follow_key";
-		third_person_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-		sitting_view.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
-		if (third_person_view.hasUnsavedChanges())
-		{
-			// calls loadBindingsXML()
-			third_person_view.saveToSettings();
-		}
-
-		if (sitting_view.hasUnsavedChanges())
-		{
-			// calls loadBindingsXML()
-			sitting_view.saveToSettings();
-		}
-
-		// in case of voice we need to repeat this in other modes
-
-		for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
-		{
-			// edit and first person modes; MODE_SAVED_SETTINGS not in use at the moment
-			if (i != LLKeyConflictHandler::MODE_THIRD_PERSON && i != LLKeyConflictHandler::MODE_SITTING)
-			{
-				LLKeyConflictHandler handler((LLKeyConflictHandler::ESourceMode)i);
-
-				handler.registerControl(control_name, 0, mouse, key, MASK_NONE, true);
-
-				if (handler.hasUnsavedChanges())
-				{
-					// calls loadBindingsXML()
-					handler.saveToSettings();
-				}
-			}
-		}
-	}
-	// since something might have gone wrong or there might have been nothing to save
-	// (and because otherwise following code will have to be encased in else{}),
-	// load everything one last time
-#endif
 	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
 	{
 		// Failed to load custom bindings, try default ones
@@ -4768,6 +4656,10 @@ void LLAppViewer::idle()
 	//
 	// Special case idle if still starting up
 	//
+	if (LLStartUp::getStartupState() >= STATE_WORLD_INIT)
+	{
+		update_texture_time();
+	}
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// Skip rest if idle startup returns false (essentially, no world yet)

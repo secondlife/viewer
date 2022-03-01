@@ -5981,6 +5981,9 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 				{
 					LLVOVolume* vobj = drawablep->getVOVolume();
+					
+					if (!vobj) continue;
+					
 					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
 						if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
@@ -6000,6 +6003,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					}
 
 					LLVolume* volume = vobj->getVolume();
+					if (!volume) continue;
 					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 					{
 						LLFace* face = drawablep->getFace(i);

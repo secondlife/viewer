@@ -305,8 +305,11 @@ BOOL LLPanelGroupNotices::postBuild()
 
 void LLPanelGroupNotices::activate()
 {
-	if(mNoticesList)
-		mNoticesList->deleteAllItems();
+    if (mNoticesList)
+    {
+        mNoticesList->deleteAllItems();
+        mKnownNoticeIds.clear();
+    }
 
 	mPrevSelectedNotice = LLUUID();
 	
@@ -413,6 +416,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	row["columns"][4]["value"] = llformat( "%u", timestamp);
 
 	self->mNoticesList->addElement(row, ADD_BOTTOM);
+	self->mKnownNoticeIds.insert(id);
 
 	self->mCreateMessage->clear();
 	self->mCreateSubject->clear();
@@ -443,27 +447,13 @@ void LLPanelGroupNotices::onClickNewMessage(void* data)
 void LLPanelGroupNotices::refreshNotices()
 {
 	onClickRefreshNotices(this);
-	/*
-	LL_DEBUGS() << "LLPanelGroupNotices::onClickGetPastNotices" << LL_ENDL;
-	
-	mNoticesList->deleteAllItems();
-
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessage("GroupNoticesListRequest");
-	msg->nextBlock("AgentData");
-	msg->addUUID("AgentID",gAgent.getID());
-	msg->addUUID("SessionID",gAgent.getSessionID());
-	msg->nextBlock("Data");
-	msg->addUUID("GroupID",self->mGroupID);
-	gAgent.sendReliableMessage();
-	*/
-	
 }
 
 void LLPanelGroupNotices::clearNoticeList()
 {
 	mPrevSelectedNotice = mNoticesList->getStringUUIDSelectedItem();
 	mNoticesList->deleteAllItems();
+	mKnownNoticeIds.clear();
 }
 
 void LLPanelGroupNotices::onClickRefreshNotices(void* data)
@@ -541,13 +531,14 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 			return;
 		}
 
-		//with some network delays we can receive notice list more then once...
-		//so add only unique notices
-		S32 pos = mNoticesList->getItemIndex(id);
+        // Due to some network delays we can receive notice list more than once...
+        // So add only unique notices
+        if (mKnownNoticeIds.find(id) != mKnownNoticeIds.end())
+        {
+            // If items with this ID already in the list - skip it
+            continue;
+        }
 
-		if(pos!=-1)//if items with this ID already in the list - skip it
-			continue;
-			
 		msg->getString("Data","Subject",subj,i);
 		msg->getString("Data","FromName",name,i);
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
@@ -582,6 +573,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][4]["value"] = llformat( "%u", timestamp);
 
 		mNoticesList->addElement(row, ADD_BOTTOM);
+		mKnownNoticeIds.insert(id);
 	}
 
 	mNoticesList->setNeedsSort(save_sort);

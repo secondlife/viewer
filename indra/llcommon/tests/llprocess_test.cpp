@@ -382,7 +382,11 @@ namespace tut
 
         std::vector<const char*> argv;
         apr_proc_t child;
+#if defined(LL_WINDOWS)
         argv.push_back("python");
+#else
+        argv.push_back("python3");
+#endif
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
         std::string scriptname(script.getName());
@@ -743,7 +747,7 @@ namespace tut
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
                                      "# wait for 'go' from test program\n"
-                                     "for i in xrange(60):\n"
+                                     "for i in range(60):\n"
                                      "    time.sleep(1)\n"
                                      "    with open(sys.argv[2]) as f:\n"
                                      "        go = f.read()\n"
@@ -805,7 +809,7 @@ namespace tut
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
                                      "# wait for 'go' from test program\n"
-                                     "for i in xrange(60):\n"
+                                     "for i in range(60):\n"
                                      "    time.sleep(1)\n"
                                      "    with open(sys.argv[2]) as f:\n"
                                      "        go = f.read()\n"
