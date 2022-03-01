@@ -1801,8 +1801,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
     }
-
-    mResourceCost = calcResourceCost();
 }
 
 void LLModelPreview::updateStatusMessages()
