@@ -361,10 +361,17 @@ namespace tut
             "import time" EOL
             EOL
             "time.sleep(2)" EOL
+<<<<<<< HEAD
             "print('stdout after wait',file=sys.stdout)" EOL
             "sys.stdout.flush()" EOL
             "time.sleep(2)" EOL
             "print('stderr after wait',file=sys.stderr)" EOL
+=======
+            "print('stdout after wait', file=sys.stdout)" EOL
+            "sys.stdout.flush()" EOL
+            "time.sleep(2)" EOL
+            "print('stderr after wait', file=sys.stderr)" EOL
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
             "sys.stderr.flush()" EOL
             );
 
@@ -382,7 +389,11 @@ namespace tut
 
         std::vector<const char*> argv;
         apr_proc_t child;
+#if defined(LL_WINDOWS)
         argv.push_back("python");
+#else
+        argv.push_back("python3");
+#endif
         // Have to have a named copy of this std::string so its c_str() value
         // will persist.
         std::string scriptname(script.getName());
@@ -743,7 +754,7 @@ namespace tut
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
                                      "# wait for 'go' from test program\n"
-                                     "for i in xrange(60):\n"
+                                     "for i in range(60):\n"
                                      "    time.sleep(1)\n"
                                      "    with open(sys.argv[2]) as f:\n"
                                      "        go = f.read()\n"
@@ -805,7 +816,7 @@ namespace tut
                                      "with open(sys.argv[1], 'w') as f:\n"
                                      "    f.write('ok')\n"
                                      "# wait for 'go' from test program\n"
-                                     "for i in xrange(60):\n"
+                                     "for i in range(60):\n"
                                      "    time.sleep(1)\n"
                                      "    with open(sys.argv[2]) as f:\n"
                                      "        go = f.read()\n"
@@ -858,7 +869,10 @@ namespace tut
         set_test_name("'bogus' test");
         CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
+=======
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
                                  "print('Hello world')\n");
         py.mParams.files.add(LLProcess::FileParam("bogus"));
         py.mPy = LLProcess::create(py.mParams);
@@ -874,7 +888,10 @@ namespace tut
         // Replace this test with one or more real 'file' tests when we
         // implement 'file' support
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
+=======
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
                                  "print('Hello world')\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam("file"));
@@ -890,7 +907,10 @@ namespace tut
         // implement 'tpipe' support
         CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
+=======
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
                                  "print('Hello world')\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam("tpipe"));
@@ -908,7 +928,10 @@ namespace tut
         // implement 'npipe' support
         CaptureLog recorder;
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
+=======
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
                                  "print('Hello world')\n");
         py.mParams.files.add(LLProcess::FileParam());
         py.mParams.files.add(LLProcess::FileParam());
@@ -985,8 +1008,12 @@ namespace tut
     {
         set_test_name("get*Pipe() validation");
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
                                  "print('this output is expected')\n");
+=======
+                                 "print('this output is expected)'\n");
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
         py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for  stdin
         py.mParams.files.add(LLProcess::FileParam());       // inherit stdout
         py.mParams.files.add(LLProcess::FileParam("pipe")); // pipe for stderr
@@ -1125,7 +1152,10 @@ namespace tut
     {
         set_test_name("ReadPipe \"eof\" event");
         PythonProcessLauncher py(get_test_name(),
+<<<<<<< HEAD
                                  "from __future__ import print_function\n"
+=======
+>>>>>>> 6ca09a94554ec01f5c94ec60fffd01d7e33f3546
                                  "print('Hello from Python!')\n");
         py.mParams.files.add(LLProcess::FileParam()); // stdin
         py.mParams.files.add(LLProcess::FileParam("pipe")); // stdout

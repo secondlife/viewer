@@ -410,6 +410,7 @@ LLScrollListItem* LLNameListCtrl::addNameItemRow(
 	if (cell)
 	{
 		cell->setValue(prefix + fullname);
+		cell->setAltValue(name_item.alt_value());
 	}
 
 	dirtyColumns();

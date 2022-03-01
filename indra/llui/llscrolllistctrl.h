@@ -398,6 +398,8 @@ public:
 	BOOL			hasSortOrder() const;
 	void			clearSortOrder();
 
+	void			setAlternateSort() { mAlternateSort = true; }
+
 	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
 	void			updateSort() const;
@@ -481,6 +483,8 @@ private:
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;
+
+	bool			mAlternateSort;
 
 	mutable item_list	mItemList;
 

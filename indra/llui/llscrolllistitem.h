@@ -55,6 +55,7 @@ public:
 		Optional<bool>		enabled;
 		Optional<void*>		userdata;
 		Optional<LLSD>		value;
+		Optional<LLSD>		alt_value;
 		
 		Ignored				name; // use for localization tools
 		Ignored				type; 
@@ -65,6 +66,7 @@ public:
 		Params()
 		:	enabled("enabled", true),
 			value("value"),
+			alt_value("alt_value"),
 			name("name"),
 			type("type"),
 			length("length"),
@@ -97,6 +99,7 @@ public:
 
 	virtual LLUUID	getUUID() const			{ return mItemValue.asUUID(); }
 	LLSD	getValue() const				{ return mItemValue; }
+	LLSD	getAltValue() const				{ return mItemAltValue; }
 	
 	void	setRect(LLRect rect)			{ mRectangle = rect; }
 	LLRect	getRect() const					{ return mRectangle; }
@@ -131,6 +134,7 @@ private:
 	BOOL	mEnabled;
 	void*	mUserdata;
 	LLSD	mItemValue;
+	LLSD	mItemAltValue;
 	std::vector<LLScrollListCell *> mColumns;
 	LLRect  mRectangle;
 };

@@ -173,7 +173,9 @@ BOOL LLToolPie::handleMouseDown(S32 x, S32 y, MASK mask)
 
 	mMouseButtonDown = true;
 
-    return handleLeftClickPick();
+	// If nothing clickable is picked, needs to return
+	// false for click-to-walk or click-to-teleport to work.
+	return handleLeftClickPick();
 }
 
 // Spawn context menus on right mouse down so you can drag over and select
@@ -791,7 +793,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 			gViewerWindow->setCursor(UI_CURSOR_TOOLGRAB);
 			LL_DEBUGS("UserInput") << "hover handled by LLToolPie (inactive)" << LL_ENDL;
 		}
-		else if ((!object || !object->isAttachment() || object->getClickAction() != CLICK_ACTION_DISABLED)
+		else if ((!object || object->getClickAction() != CLICK_ACTION_DISABLED)
 				 && ((object && object->flagHandleTouch()) || (parent && parent->flagHandleTouch()))
 				 && (!object || !object->isAvatar()))
 		{
