@@ -2964,8 +2964,15 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 		break;
 
         case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+        {
+            // Media might be blocked, waiting for a file,
+            // send an empty response to unblock it
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
+
             LLNotificationsUtil::add("MediaFileDownloadUnsupported");
-            break;
+        }
+        break;
 		
 		default:
 		break;
