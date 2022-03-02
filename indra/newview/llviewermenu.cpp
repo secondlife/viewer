@@ -6279,6 +6279,29 @@ class LLAvatarToggleMyProfile : public view_listener_t
 	}
 };
 
+class LLAvatarTogglePicks : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLFloater * instance = LLAvatarActions::getProfileFloater(gAgent.getID());
+        if (LLFloater::isMinimized(instance) || (instance && !instance->hasFocus() && !instance->getIsChrome()))
+        {
+            instance->setMinimized(FALSE);
+            instance->setFocus(TRUE);
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        else if (picks_tab_visible())
+        {
+            instance->closeFloater();
+        }
+        else
+        {
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        return true;
+    }
+};
+
 class LLAvatarToggleSearch : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
