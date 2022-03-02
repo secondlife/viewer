@@ -54,6 +54,8 @@
 
 // static
 LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT]; 
+LL::WorkQueue::weak_t LLBumpImageList::sMainQueue;
+LL::WorkQueue::weak_t LLBumpImageList::sTexUpdateQueue;
 
 // static
 U32 LLStandardBumpmap::sStandardBumpmapCount = 0;
@@ -73,6 +75,8 @@ static LLGLSLShader* shader = NULL;
 static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
+
+#define LL_BUMPLIST_MULTITHREADED 0
 
 // static 
 void LLStandardBumpmap::init()
@@ -761,6 +765,8 @@ void LLBumpImageList::init()
 	LLStandardBumpmap::init();
 
 	LLStandardBumpmap::restoreGL();
+    sMainQueue = LL::WorkQueue::getInstance("mainloop");
+    sTexUpdateQueue = LL::WorkQueue::getInstance("LLImageGL"); // Share work queue with tex loader.
 }
 
 void LLBumpImageList::clear()
@@ -909,10 +915,7 @@ LLViewerTexture* LLBumpImageList::getBrightnessDarknessImage(LLViewerFetchedText
 	}
 	else
 	{
-		LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
-		raw->clear(0x77, 0x77, 0xFF, 0xFF);
-
-		(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+		(*entries_list)[src_image->getID()] = LLViewerTextureManager::getLocalTexture( TRUE );
 		bump = (*entries_list)[src_image->getID()]; // In case callback was called immediately and replaced the image
 	}
 
@@ -1043,16 +1046,13 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 							iter->second->getWidth() != src->getWidth() ||
 							iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 			{ //make sure an entry exists for this image
-				LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,1);
-				raw->clear(0x77, 0x77, 0xFF, 0xFF);
-
-				entries_list[src_vi->getID()] = LLViewerTextureManager::getLocalTexture( raw.get(), TRUE);
+				entries_list[src_vi->getID()] = LLViewerTextureManager::getLocalTexture(TRUE);
 				iter = entries_list.find(src_vi->getID());
 			}
 		}
 
-		//if (iter->second->getWidth() != src->getWidth() ||
-		//	iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
+		if (iter->second->getWidth() != src->getWidth() ||
+			iter->second->getHeight() != src->getHeight()) // bump not cached yet or has changed resolution
 		{
 			LLPointer<LLImageRaw> dst_image = new LLImageRaw(src->getWidth(), src->getHeight(), 1);
 			U8* dst_data = dst_image->getData();
@@ -1166,108 +1166,178 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 
 			//---------------------------------------------------
-			// immediately assign bump to a global smart pointer in case some local smart pointer
+			// immediately assign bump to a smart pointer in case some local smart pointer
 			// accidentally releases it.
-			LLPointer<LLViewerTexture> bump = LLViewerTextureManager::getLocalTexture( TRUE );
+            LLPointer<LLViewerTexture> bump = iter->second;
 
 			if (!LLPipeline::sRenderDeferred)
 			{
 				bump->setExplicitFormat(GL_ALPHA8, GL_ALPHA);
-				bump->createGLTexture(0, dst_image);
+
+#if LL_BUMPLIST_MULTITHREADED
+                auto tex_queue = LLImageGLThread::sEnabled ? sTexUpdateQueue.lock() : nullptr;
+
+                if (tex_queue)
+                { //dispatch creation to background thread
+                    LLImageRaw* dst_ptr = dst_image;
+                    LLViewerTexture* bump_ptr = bump;
+                    dst_ptr->ref();
+                    bump_ptr->ref();
+                    tex_queue->post(
+                        [=]()
+                        {
+                            LL_PROFILE_ZONE_NAMED("bil - create texture");
+                            bump_ptr->createGLTexture(0, dst_ptr);
+                            bump_ptr->unref();
+                            dst_ptr->unref();
+                        });
+
+                }
+                else
+#endif
+                {
+                    bump->createGLTexture(0, dst_image);
+                }
 			}
 			else 
 			{ //convert to normal map
 				
 				//disable compression on normal maps to prevent errors below
 				bump->getGLTexture()->setAllowCompression(false);
+                bump->getGLTexture()->setUseMipMaps(TRUE);
 
-				{
-					bump->setExplicitFormat(GL_RGBA8, GL_ALPHA);
-					bump->createGLTexture(0, dst_image);
-				}
+                auto* bump_ptr = bump.get();
+                auto* dst_ptr = dst_image.get();
 
-				{
-					gPipeline.mScreen.bindTarget();
-					
-					LLGLDepthTest depth(GL_FALSE);
-					LLGLDisable cull(GL_CULL_FACE);
-					LLGLDisable blend(GL_BLEND);
-					gGL.setColorMask(TRUE, TRUE);
-					gNormalMapGenProgram.bind();
+#if LL_BUMPLIST_MULTITHREADED
+                bump_ptr->ref();
+                dst_ptr->ref();
+#endif
 
-					static LLStaticHashedString sNormScale("norm_scale");
-					static LLStaticHashedString sStepX("stepX");
-					static LLStaticHashedString sStepY("stepY");
+                bump_ptr->setExplicitFormat(GL_RGBA8, GL_ALPHA);
 
-					gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
-					gNormalMapGenProgram.uniform1f(sStepX, 1.f/bump->getWidth());
-					gNormalMapGenProgram.uniform1f(sStepY, 1.f/bump->getHeight());
+                auto create_texture = [=]()
+                {
+#if LL_IMAGEGL_THREAD_CHECK
+                    bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
+#endif
+                    LL_PROFILE_ZONE_NAMED("bil - create texture deferred");
+                    bump_ptr->createGLTexture(0, dst_ptr);
+                };
 
-					LLVector2 v((F32) bump->getWidth()/gPipeline.mScreen.getWidth(),
-								(F32) bump->getHeight()/gPipeline.mScreen.getHeight());
+                auto gen_normal_map = [=]()
+                {
+#if LL_IMAGEGL_THREAD_CHECK
+                    bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
+#endif
+                    LL_PROFILE_ZONE_NAMED("bil - generate normal map");
+                    if (gNormalMapGenProgram.mProgramObject == 0)
+                    {
+#if LL_BUMPLIST_MULTITHREADED
+                        bump_ptr->unref();
+                        dst_ptr->unref();
+#endif
+                        return;
+                    }
+                    gPipeline.mScreen.bindTarget();
 
-					gGL.getTexUnit(0)->bind(bump);
-					
-					S32 width = bump->getWidth();
-					S32 height = bump->getHeight();
+                    LLGLDepthTest depth(GL_FALSE);
+                    LLGLDisable cull(GL_CULL_FACE);
+                    LLGLDisable blend(GL_BLEND);
+                    gGL.setColorMask(TRUE, TRUE);
+                    gNormalMapGenProgram.bind();
 
-					S32 screen_width = gPipeline.mScreen.getWidth();
-					S32 screen_height = gPipeline.mScreen.getHeight();
+                    static LLStaticHashedString sNormScale("norm_scale");
+                    static LLStaticHashedString sStepX("stepX");
+                    static LLStaticHashedString sStepY("stepY");
 
-					glViewport(0, 0, screen_width, screen_height);
+                    gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
+                    gNormalMapGenProgram.uniform1f(sStepX, 1.f / bump_ptr->getWidth());
+                    gNormalMapGenProgram.uniform1f(sStepY, 1.f / bump_ptr->getHeight());
 
-					for (S32 left = 0; left < width; left += screen_width)
-					{
-						S32 right = left + screen_width;
-						right = llmin(right, width);
-						
-						F32 left_tc = (F32) left/ width;
-						F32 right_tc = (F32) right/width;
+                    LLVector2 v((F32)bump_ptr->getWidth() / gPipeline.mScreen.getWidth(),
+                        (F32)bump_ptr->getHeight() / gPipeline.mScreen.getHeight());
 
-						for (S32 bottom = 0; bottom < height; bottom += screen_height)
-						{
-							S32 top = bottom+screen_height;
-							top = llmin(top, height);
+                    gGL.getTexUnit(0)->bind(bump_ptr);
 
-							F32 bottom_tc = (F32) bottom/height;
-							F32 top_tc = (F32)(bottom+screen_height)/height;
-							top_tc = llmin(top_tc, 1.f);
+                    S32 width = bump_ptr->getWidth();
+                    S32 height = bump_ptr->getHeight();
 
-							F32 screen_right = (F32) (right-left)/screen_width;
-							F32 screen_top = (F32) (top-bottom)/screen_height;
+                    S32 screen_width = gPipeline.mScreen.getWidth();
+                    S32 screen_height = gPipeline.mScreen.getHeight();
 
-							gGL.begin(LLRender::TRIANGLE_STRIP);
-							gGL.texCoord2f(left_tc, bottom_tc);
-							gGL.vertex2f(0, 0);
+                    glViewport(0, 0, screen_width, screen_height);
 
-							gGL.texCoord2f(left_tc, top_tc);
-							gGL.vertex2f(0, screen_top);
+                    for (S32 left = 0; left < width; left += screen_width)
+                    {
+                        S32 right = left + screen_width;
+                        right = llmin(right, width);
 
-							gGL.texCoord2f(right_tc, bottom_tc);
-							gGL.vertex2f(screen_right, 0);
+                        F32 left_tc = (F32)left / width;
+                        F32 right_tc = (F32)right / width;
 
-							gGL.texCoord2f(right_tc, top_tc);
-							gGL.vertex2f(screen_right, screen_top);
+                        for (S32 bottom = 0; bottom < height; bottom += screen_height)
+                        {
+                            S32 top = bottom + screen_height;
+                            top = llmin(top, height);
 
-							gGL.end();
+                            F32 bottom_tc = (F32)bottom / height;
+                            F32 top_tc = (F32)(bottom + screen_height) / height;
+                            top_tc = llmin(top_tc, 1.f);
 
-							gGL.flush();
+                            F32 screen_right = (F32)(right - left) / screen_width;
+                            F32 screen_top = (F32)(top - bottom) / screen_height;
 
-							S32 w = right-left;
-							S32 h = top-bottom;
+                            gGL.begin(LLRender::TRIANGLE_STRIP);
+                            gGL.texCoord2f(left_tc, bottom_tc);
+                            gGL.vertex2f(0, 0);
 
-							glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, 0, 0, w, h);
-						}
-					}
+                            gGL.texCoord2f(left_tc, top_tc);
+                            gGL.vertex2f(0, screen_top);
 
-					glGenerateMipmap(GL_TEXTURE_2D);
+                            gGL.texCoord2f(right_tc, bottom_tc);
+                            gGL.vertex2f(screen_right, 0);
 
-					gPipeline.mScreen.flush();
+                            gGL.texCoord2f(right_tc, top_tc);
+                            gGL.vertex2f(screen_right, screen_top);
 
-					gNormalMapGenProgram.unbind();
-										
-					//generateNormalMapFromAlpha(dst_image, nrm_image);
-				}
+                            gGL.end();
+
+                            gGL.flush();
+
+                            S32 w = right - left;
+                            S32 h = top - bottom;
+
+                            glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, 0, 0, w, h);
+                        }
+                    }
+
+                    glGenerateMipmap(GL_TEXTURE_2D);
+
+                    gPipeline.mScreen.flush();
+
+                    gNormalMapGenProgram.unbind();
+
+                    //generateNormalMapFromAlpha(dst_image, nrm_image);
+#if LL_BUMPLIST_MULTITHREADED
+                    bump_ptr->unref();
+                    dst_ptr->unref();
+#endif
+                };
+
+#if LL_BUMPLIST_MULTITHREADED
+                auto main_queue = sMainQueue.lock();
+
+                if (LLImageGLThread::sEnabled)
+                { //dispatch creation to background thread
+                    main_queue->postTo(sTexUpdateQueue, create_texture, gen_normal_map);
+                }
+                else
+#endif
+                {
+                    create_texture();
+                    gen_normal_map();
+                }
 			}
 		
 			iter->second = bump; // derefs (and deletes) old image

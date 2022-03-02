@@ -70,7 +70,7 @@ RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-RenderGLCoreProfile         1   1
+RenderGLContextCoreProfile         1   1
 RenderGLMultiThreaded       1   1
 
 
@@ -320,12 +320,12 @@ list Intel
 RenderAnisotropic			1	0
 RenderFSAASamples			1	0
 RenderGLMultiThreaded       1   0
-RenderGLCoreProfile         1   0
+RenderGLContextCoreProfile         1   0
 
 // AMD cards generally perform better when not using VBOs for streaming data
 // AMD cards also prefer an OpenGL Compatibility Profile Context
 list AMD
 RenderUseStreamVBO			1	0
-RenderGLCoreProfile         1   0
+RenderGLContextCoreProfile         1   0
 
 

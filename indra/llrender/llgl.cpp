@@ -757,17 +757,6 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 
-#if LL_WINDOWS
-	if (mHasDebugOutput && gDebugGL)
-	{ //setup debug output callback
-		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
-	}
-#endif
-
-	stop_glerror();
-
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
@@ -1029,7 +1018,9 @@ void LLGLManager::initExtensions()
 	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
 	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
 	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
-	mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
+    // NOTE: Using extensions breaks reflections when Shadows are set to projector.  See: SL-16727
+    //mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
+    mHasDepthClamp = FALSE;
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
 	mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
@@ -2159,95 +2150,6 @@ LLGLUserClipPlane::~LLGLUserClipPlane()
 	disable();
 }
 
-LLGLNamePool::LLGLNamePool()
-{
-}
-
-LLGLNamePool::~LLGLNamePool()
-{
-}
-
-void LLGLNamePool::upkeep()
-{
-	std::sort(mNameList.begin(), mNameList.end(), CompareUsed());
-}
-
-void LLGLNamePool::cleanup()
-{
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		releaseName(iter->name);
-	}
-
-	mNameList.clear();
-}
-
-GLuint LLGLNamePool::allocate()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-#if LL_GL_NAME_POOLING
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		if (!iter->used)
-		{
-			iter->used = TRUE;
-			return iter->name;
-		}
-	}
-
-	NameEntry entry;
-	entry.name = allocateName();
-	entry.used = TRUE;
-	mNameList.push_back(entry);
-
-	return entry.name;
-#else
-	return allocateName();
-#endif
-}
-
-void LLGLNamePool::release(GLuint name)
-{
-#if LL_GL_NAME_POOLING
-	for (name_list_t::iterator iter = mNameList.begin(); iter != mNameList.end(); ++iter)
-	{
-		if (iter->name == name)
-		{
-			if (iter->used)
-			{
-				iter->used = FALSE;
-				return;
-			}
-			else
-			{
-				LL_ERRS() << "Attempted to release a pooled name that is not in use!" << LL_ENDL;
-			}
-		}
-	}
-	LL_ERRS() << "Attempted to release a non pooled name!" << LL_ENDL;
-#else
-	releaseName(name);
-#endif
-}
-
-//static
-void LLGLNamePool::upkeepPools()
-{
-	for (auto& pool : instance_snapshot())
-	{
-		pool.upkeep();
-	}
-}
-
-//static
-void LLGLNamePool::cleanupPools()
-{
-	for (auto& pool : instance_snapshot())
-	{
-		pool.cleanup();
-	}
-}
-
 LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, GLenum depth_func)
 : mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
 {
@@ -2468,4 +2370,5 @@ extern "C"
     __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 }
 #endif
+
 

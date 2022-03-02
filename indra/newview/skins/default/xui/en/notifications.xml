@@ -8821,13 +8821,6 @@ See SecondLife.log for details
     type="alert">
     Error while requesting mesh upload permissons.
   </notification>
-
-  <notification
-    name="MeshUploadProfilerError"
-    icon="alert.tga"
-    type="alert">
-Mesh uploader is incompatible with RenderGLCoreProfile, please turn RenderGLCoreProfile off in debug settings and restart the viewer.
-  </notification>
   
   <notification
     name="RegionCapabilityRequestError"

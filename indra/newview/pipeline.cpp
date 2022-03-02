@@ -3828,6 +3828,16 @@ void LLPipeline::postSort(LLCamera& camera)
 					sCull->pushAlphaGroup(group);
 				}
 			}
+
+            LLSpatialGroup::draw_map_t::iterator rigged_alpha = group->mDrawMap.find(LLRenderPass::PASS_ALPHA_RIGGED);
+
+            if (rigged_alpha != group->mDrawMap.end())
+            { //store rigged alpha groups for LLDrawPoolAlpha prepass (skip distance update, rigged attachments use depth buffer)
+                if (hasRenderType(LLDrawPool::POOL_ALPHA))
+                {
+                    sCull->pushRiggedAlphaGroup(group);
+                }
+            }
 		}
 	}
 	
@@ -7264,11 +7274,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
-	//delete all name pool caches
-	LLGLNamePool::cleanupPools();
-
-	
-
 	if (LLVertexBuffer::sGLCount > 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;
@@ -9332,7 +9337,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
                 LLColor3 col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
                 glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
 
-                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+                // HACK FIX -- pretend underwater camera is the world camera to fix weird visibility artifacts
+                // during distortion render (doesn't break main render because the camera is the same perspective
+                // as world camera and occlusion culling is disabled for this pass)
+                //LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
+                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
                 mWaterDis.bindTarget();
                 mWaterDis.getViewport(gGLViewport);
@@ -11125,6 +11134,167 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLGLState::checkTextureChannels();
 }
 
+static LLTrace::BlockTimerStatHandle FTM_PREVIEW_AVATAR("Preview Avatar");
+
+void LLPipeline::previewAvatar(LLVOAvatar* avatar)
+{
+    LL_RECORD_BLOCK_TIME(FTM_PREVIEW_AVATAR);
+
+    LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+    gGL.flush();
+    gGL.setSceneBlendType(LLRender::BT_REPLACE);
+
+    LLGLState::checkStates();
+    LLGLState::checkTextureChannels();
+
+    static LLCullResult result;
+    result.clear();
+    grabReferences(result);
+
+    if (!avatar || !avatar->mDrawable)
+    {
+        LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
+        return;
+    }
+    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " is drawable" << LL_ENDL;
+
+    assertInitialized();
+
+    pushRenderTypeMask();
+
+    {
+        //hide world geometry
+        clearRenderTypeMask(
+            RENDER_TYPE_SKY,
+            RENDER_TYPE_WL_SKY,
+            RENDER_TYPE_GROUND,
+            RENDER_TYPE_TERRAIN,
+            RENDER_TYPE_GRASS,
+            RENDER_TYPE_CONTROL_AV, // Animesh
+            RENDER_TYPE_TREE,
+            RENDER_TYPE_VOIDWATER,
+            RENDER_TYPE_WATER,
+            RENDER_TYPE_PASS_GRASS,
+            RENDER_TYPE_HUD,
+            RENDER_TYPE_PARTICLES,
+            RENDER_TYPE_CLOUDS,
+            RENDER_TYPE_HUD_PARTICLES,
+            END_RENDER_TYPES
+        );
+    }
+
+    S32 occlusion = sUseOcclusion;
+    sUseOcclusion = 0;
+
+    sReflectionRender = !sRenderDeferred;
+
+    sShadowRender = true;
+    sImpostorRender = true; // Likely not needed for previews
+
+    LLViewerCamera* viewer_camera = LLViewerCamera::getInstance();
+
+    {
+        markVisible(avatar->mDrawable, *viewer_camera);
+
+        LLVOAvatar::attachment_map_t::iterator iter;
+        for (iter = avatar->mAttachmentPoints.begin();
+            iter != avatar->mAttachmentPoints.end();
+            ++iter)
+        {
+            LLViewerJointAttachment *attachment = iter->second;
+            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                attachment_iter != attachment->mAttachedObjects.end();
+                ++attachment_iter)
+            {
+                if (LLViewerObject* attached_object = attachment_iter->get())
+                {
+                    markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                }
+            }
+        }
+    }
+
+    stateSort(*LLViewerCamera::getInstance(), result);
+
+    LLCamera camera = *viewer_camera;
+
+    F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
+
+    if (LLPipeline::sRenderDeferred)
+    {
+        renderGeomDeferred(camera);
+
+        renderGeomPostDeferred(camera);
+    }
+    else
+    {
+        renderGeom(camera);
+    }
+
+    LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
+
+    { //create alpha mask based on depth buffer
+        if (LLPipeline::sRenderDeferred)
+        {
+            GLuint buff = GL_COLOR_ATTACHMENT0;
+            LL_PROFILER_GPU_ZONEC("gl.DrawBuffersARB", 0x8000FF);
+            glDrawBuffersARB(1, &buff);
+        }
+
+        LLGLDisable blend(GL_BLEND);
+
+        gGL.setColorMask(false, true);
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+        LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
+
+        gGL.flush();
+
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+
+        static const F32 clip_plane = 0.99999f;
+
+        gDebugProgram.bind();
+
+        gGL.begin(LLRender::QUADS);
+        gGL.vertex3f(-1, -1, clip_plane);
+        gGL.vertex3f(1, -1, clip_plane);
+        gGL.vertex3f(1, 1, clip_plane);
+        gGL.vertex3f(-1, 1, clip_plane);
+        gGL.end();
+        gGL.flush();
+
+        gDebugProgram.unbind();
+
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+    }
+
+    sUseOcclusion = occlusion;
+    sReflectionRender = false;
+    sImpostorRender = false;
+    sShadowRender = false;
+    popRenderTypeMask();
+
+    gGL.matrixMode(LLRender::MM_PROJECTION);
+    gGL.popMatrix();
+    gGL.matrixMode(LLRender::MM_MODELVIEW);
+    gGL.popMatrix();
+
+    LLVertexBuffer::unbind();
+    LLGLState::checkStates();
+    LLGLState::checkTextureChannels();
+
+    gGL.setSceneBlendType(LLRender::BT_ALPHA);
+    gGL.flush();
+}
+
 bool LLPipeline::hasRenderBatches(const U32 type) const
 {
 	return sCull->getRenderMapSize(type) > 0;
@@ -11148,6 +11318,16 @@ LLCullResult::sg_iterator LLPipeline::beginAlphaGroups()
 LLCullResult::sg_iterator LLPipeline::endAlphaGroups()
 {
 	return sCull->endAlphaGroups();
+}
+
+LLCullResult::sg_iterator LLPipeline::beginRiggedAlphaGroups()
+{
+    return sCull->beginRiggedAlphaGroups();
+}
+
+LLCullResult::sg_iterator LLPipeline::endRiggedAlphaGroups()
+{
+    return sCull->endRiggedAlphaGroups();
 }
 
 bool LLPipeline::hasRenderType(const U32 type) const

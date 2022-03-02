@@ -183,6 +183,7 @@ public:
 		PASS_GLOW,
         PASS_GLOW_RIGGED,
 		PASS_ALPHA,
+        PASS_ALPHA_RIGGED,
 		PASS_ALPHA_MASK,
         PASS_ALPHA_MASK_RIGGED,
 		PASS_FULLBRIGHT_ALPHA_MASK,            // Diffuse texture used as alpha mask and fullbright

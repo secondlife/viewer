@@ -520,9 +520,10 @@ void LLDrawPoolWater::renderWater()
 
     LLColor4      specular(sun_up ? psky->getSunlightColor() : psky->getMoonlightColor());
     F32           phase_time = (F32) LLFrameTimer::getElapsedSeconds() * 0.5f;
-    bool          edge       = false;
     LLGLSLShader *shader     = nullptr;
-    do  // twice through, once with normal shader bound & once with edge shader bound
+
+    // two passes, first with standard water shader bound, second with edge water shader bound
+    for( int edge = 0 ; edge < 2; edge++ )
     {
         // select shader
         if (underwater && LLPipeline::sWaterReflections)
@@ -675,7 +676,7 @@ void LLDrawPoolWater::renderWater()
 
             gGL.getTexUnit(diffTex)->bind(face->getTexture());
 
-            if (edge == (bool) water->getIsEdgePatch())
+            if ((bool)edge == (bool) water->getIsEdgePatch())
             {
                 face->renderIndexed();
 
@@ -699,9 +700,7 @@ void LLDrawPoolWater::renderWater()
         shader->unbind();
         gGL.getTexUnit(bumpTex)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
-
-        edge = !edge;
-    } while (!edge);
+    }
 
     gGL.getTexUnit(0)->activate();
     gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);

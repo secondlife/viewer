@@ -351,15 +351,6 @@ void LLFloaterModelPreview::initModelPreview()
 //static
 bool LLFloaterModelPreview::showModelPreview()
 {
-#ifdef LL_GLOD
-    if (LLRender::sGLCoreProfile)
-    {
-        // GLOD is incompatible with RenderGLCoreProfile, will crash on init
-        LLNotificationsUtil::add("MeshUploadProfilerError");
-        return false;
-    }
-#endif
-
     LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
     if (fmp && !fmp->isModelLoading())
     {

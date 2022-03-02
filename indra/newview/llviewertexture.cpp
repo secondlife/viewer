@@ -515,9 +515,10 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static LLFrameTimer timer;
+
     static S32Megabytes gpu_res = S32Megabytes(S32_MAX);
     static S32Megabytes physical_res = S32Megabytes(S32_MAX);
-
+    
     if (timer.getElapsedTimeF32() < GPU_MEMORY_CHECK_WAIT_TIME) //call this once per second.
     {
         gpu = gpu_res;
@@ -527,22 +528,11 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     timer.reset();
 
     {
-        if (gGLManager.mHasATIMemInfo)
-        {
-            S32 meminfo[4];
-            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-            gpu_res = (S32Megabytes)meminfo[0];
-
-            //check main memory, only works for windows.
-            LLMemory::updateMemoryInfo();
-            physical_res = LLMemory::getAvailableMemKB();
-        }
-        else if (gGLManager.mHasNVXMemInfo)
-        {
-            S32 free_memory;
-            glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-            gpu_res = (S32Megabytes)(free_memory / 1024);
-        }
+        gpu_res = (S32Megabytes) LLImageGLThread::getFreeVRAMMegabytes();
+        
+        //check main memory, only works for windows.
+        LLMemory::updateMemoryInfo();
+        physical_res = LLMemory::getAvailableMemKB();
 
         gpu = gpu_res;
         physical = physical_res;
@@ -1629,7 +1619,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
         mNeedsCreateTexture = TRUE;
         if (preCreateTexture())
         {
-            ref();
 #if LL_IMAGEGL_THREAD_CHECK
             //grab a copy of the raw image data to make sure it isn't modified pending texture creation
             U8* data = mRawImage->getData();
@@ -1645,6 +1634,7 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             auto mainq = LLImageGLThread::sEnabled ? mMainQueue.lock() : nullptr;
             if (mainq)
             {
+                ref();
                 mainq->postTo(
                     mImageQueue,
                     // work to be done on LLImageGL worker thread
@@ -1691,7 +1681,6 @@ void LLViewerFetchedTexture::scheduleCreateTexture()
             else
             {
                 gTextureList.mCreateTextureList.insert(this);
-                unref();
             }
         }
     }

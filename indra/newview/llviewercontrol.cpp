@@ -266,9 +266,8 @@ static bool handleAnisotropicChanged(const LLSD& newvalue)
 
 static bool handleVSyncChanged(const LLSD& newvalue)
 {
-#if LL_WINDOWS
     gViewerWindow->getWindow()->toggleVSync(newvalue.asBoolean());
-#endif
+
     return true;
 }
 

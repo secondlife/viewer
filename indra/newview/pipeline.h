@@ -135,6 +135,7 @@ public:
 	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
+    void previewAvatar(LLVOAvatar* avatar);
 	void bindScreenToTexture();
 	void renderFinalize();
 
@@ -338,6 +339,8 @@ public:
 	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
 	LLCullResult::sg_iterator beginAlphaGroups();
 	LLCullResult::sg_iterator endAlphaGroups();
+    LLCullResult::sg_iterator beginRiggedAlphaGroups();
+    LLCullResult::sg_iterator endRiggedAlphaGroups();
 	
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);

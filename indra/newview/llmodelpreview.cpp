@@ -1235,6 +1235,11 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         size_vertices += face.mNumVertices;
     }
 
+    if (size_indices < 3)
+    {
+        return -1;
+    }
+
     // Allocate buffers, note that we are using U32 buffer instead of U16
     U32* combined_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
     U32* output_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
@@ -1279,10 +1284,10 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     // Now that we have buffers, optimize
     S32 target_indices = 0;
-    F32 result_code = 0; // how far from original the model is, 1 == 100%
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llmax(3, llfloor(size_indices / indices_decimator)); // leave at least one triangle
+    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
     new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
         combined_indices,
@@ -1293,15 +1298,25 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         target_indices,
         error_threshold,
         sloppy,
-        &result_code);
+        &result_error);
 
 
-    if (result_code < 0)
+    if (result_error < 0)
     {
-        LL_WARNS() << "Negative result code from meshoptimizer for model " << target_model->mLabel
+        LL_WARNS() << "Negative result error from meshoptimizer for model " << target_model->mLabel
             << " target Indices: " << target_indices
             << " new Indices: " << new_indices
             << " original count: " << size_indices << LL_ENDL;
+    }
+
+    if (new_indices < 3)
+    {
+        // Model should have at least one visible triangle
+        ll_aligned_free<64>(combined_positions);
+        ll_aligned_free_32(output_indices);
+        ll_aligned_free_32(combined_indices);
+
+        return -1;
     }
 
     // repack back into individual faces
@@ -1456,16 +1471,20 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 {
     const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
     S32 size_indices = face.mNumIndices;
+    if (size_indices < 3)
+    {
+        return -1;
+    }
     // todo: do not allocate per each face, add one large buffer somewhere
     // faces have limited amount of indices
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* output = (U16*)ll_aligned_malloc_16(size);
 
     S32 target_indices = 0;
-    F32 result_code = 0; // how far from original the model is, 1 == 100%
+    F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llmax(3, llfloor(size_indices / indices_decimator)); // leave at least one triangle
+    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
     new_indices = LLMeshOptimizer::simplify(
         output,
         face.mIndices,
@@ -1476,12 +1495,12 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         target_indices,
         error_threshold,
         sloppy,
-        &result_code);
+        &result_error);
 
 
-    if (result_code < 0)
+    if (result_error < 0)
     {
-        LL_WARNS() << "Negative result code from meshoptimizer for face " << face_idx
+        LL_WARNS() << "Negative result error from meshoptimizer for face " << face_idx
             << " of model " << target_model->mLabel
             << " target Indices: " << target_indices
             << " new Indices: " << new_indices
@@ -1693,21 +1712,21 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 // Run meshoptimizer for each face
                 for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
-                    genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, true);
+                    if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, true) < 0)
+                    {
+                        // Sloppy failed and returned an invalid model
+                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
+                    }
                 }
-
-                LL_INFOS() << "Model " << target_model->getName()
-                    << " lod " << which_lod
-                    << " simplified using per face method." << LL_ENDL;
             }
 
             if (model_meshopt_mode == MESH_OPTIMIZER_AUTO)
             {
-                // Switches between 'combine' method and 'per model sloppy' based on combine's result.
+                // Switches between 'combine' method and 'sloppy' based on combine's result.
                 F32 allowed_ratio_drift = 2.f;
-                F32 res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
-
-                if (res_ratio < 0)
+                F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                
+                if (precise_ratio < 0)
                 {
                     // U16 vertices overflow, shouldn't happen, but just in case
                     for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
@@ -1715,42 +1734,101 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
                     }
                 }
-                else if (res_ratio * allowed_ratio_drift < indices_decimator)
+                else if (precise_ratio * allowed_ratio_drift < indices_decimator)
                 {
                     // Try sloppy variant if normal one failed to simplify model enough.
-                    res_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+                    // Sloppy variant can fail entirely and has issues with precision,
+                    // so code needs to do multiple attempts with different decimators.
+                    // Todo: this is a bit of a mess, needs to be refined and improved
+                    F32 last_working_decimator = 0.f;
+                    F32 last_working_ratio = F32_MAX;
+
+                    F32 sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+
+                    if (sloppy_ratio > 0)
+                    {
+                        // Would be better to do a copy of target_model here, but if
+                        // we need to use sloppy decimation, model should be cheap
+                        // and fast to generate and it won't affect end result
+                        last_working_decimator = indices_decimator;
+                        last_working_ratio = sloppy_ratio;
+                    }
 
                     // Sloppy has a tendecy to error into lower side, so a request for 100
                     // triangles turns into ~70, so check for significant difference from target decimation
                     F32 sloppy_ratio_drift = 1.4f;
                     if (lod_mode == LIMIT_TRIANGLES
-                        && (res_ratio > indices_decimator * sloppy_ratio_drift || res_ratio < 0))
+                        && (sloppy_ratio > indices_decimator * sloppy_ratio_drift || sloppy_ratio < 0))
                     {
                         // Apply a correction to compensate.
 
                         // (indices_decimator / res_ratio) by itself is likely to overshoot to a differend
                         // side due to overal lack of precision, and we don't need an ideal result, which
                         // likely does not exist, just a better one, so a partial correction is enough.
-                        F32 sloppy_decimator = indices_decimator * (indices_decimator / res_ratio + 1) / 2;
-                        res_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, true);
+                        F32 sloppy_decimator = indices_decimator * (indices_decimator / sloppy_ratio + 1) / 2;
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, true);
                     }
 
-
-                    if (res_ratio < 0)
+                    if (last_working_decimator > 0 && sloppy_ratio < last_working_ratio)
                     {
-                        // Sloppy variant failed to generate triangles.
+                        // Compensation didn't work, return back to previous decimator
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+                    }
+
+                    if (sloppy_ratio < 0)
+                    {
+                        // Sloppy method didn't work, try with smaller decimation values
+                        S32 size_vertices = 0;
+
+                        for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
+                        {
+                            const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                            size_vertices += face.mNumVertices;
+                        }
+
+                        // Complex models aren't supposed to get here, they are supposed
+                        // to work on a first try of sloppy due to having more viggle room.
+                        // If they didn't, something is likely wrong, no point locking the
+                        // thread in a long calculation that will fail.
+                        const U32 too_many_vertices = 27000;
+                        if (size_vertices > too_many_vertices)
+                        {
+                            LL_WARNS() << "Sloppy optimization method failed for a complex model " << target_model->getName() << LL_ENDL;
+                        }
+                        else
+                        {
+                            // Find a decimator that does work
+                            F32 sloppy_decimation_step = sqrt((F32)decimation); // example: 27->15->9->5->3
+                            F32 sloppy_decimator = indices_decimator / sloppy_decimation_step;
+
+                            while (sloppy_ratio < 0
+                                && sloppy_decimator > precise_ratio
+                                && sloppy_decimator > 1)// precise_ratio isn't supposed to be below 1, but check just in case
+                            {
+                                sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, true);
+                                sloppy_decimator = sloppy_decimator / sloppy_decimation_step;
+                            }
+                        }
+                    }
+
+                    if (sloppy_ratio < 0 || sloppy_ratio < precise_ratio)
+                    {
+                        // Sloppy variant failed to generate triangles or is worse.
                         // Can happen with models that are too simple as is.
-                        // Fallback to normal method or use lower decimator.
-                        genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                        // Fallback to normal method
+
+                        precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
 
                         LL_INFOS() << "Model " << target_model->getName()
                             << " lod " << which_lod
+                            << " resulting ratio " << precise_ratio
                             << " simplified using per model method." << LL_ENDL;
                     }
                     else
                     {
                         LL_INFOS() << "Model " << target_model->getName()
                             << " lod " << which_lod
+                            << " resulting ratio " << sloppy_ratio
                             << " sloppily simplified using per model method." << LL_ENDL;
                     }
                 }
@@ -1758,6 +1836,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 {
                     LL_INFOS() << "Model " << target_model->getName()
                         << " lod " << which_lod
+                        << " resulting ratio " << precise_ratio
                         << " simplified using per model method." << LL_ENDL;
                 }
             }

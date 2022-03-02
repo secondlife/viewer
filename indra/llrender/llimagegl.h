@@ -110,14 +110,18 @@ public:
     
 	BOOL createGLTexture() ;
 	BOOL createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE,
-		S32 category = sMaxCategories-1);
-	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0);
+		S32 category = sMaxCategories-1, bool defer_copy = false, LLGLuint* tex_name = nullptr);
+	BOOL createGLTexture(S32 discard_level, const U8* data, BOOL data_hasmips = FALSE, S32 usename = 0, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 	void setImage(const LLImageRaw* imageraw);
 	BOOL setImage(const U8* data_in, BOOL data_hasmips = FALSE, S32 usename = 0);
-	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE);
-	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE);
+	BOOL setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
+	BOOL setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, BOOL force_fast_update = FALSE, LLGLuint use_name = 0);
 	BOOL setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_pos, S32 width, S32 height);
-	
+
+    // wait for gl commands to finish on current thread and push
+    // a lambda to main thread to swap mNewTexName and mTexName
+    void syncToMainThread(LLGLuint new_tex_name);
+
 	// Read back a raw image for this discard level, if it exists
 	BOOL readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compressed_ok) const;
 	void destroyGLTexture();
@@ -220,7 +224,7 @@ private:
 
 	bool     mGLTextureCreated ;
 	LLGLuint mTexName;
-    LLGLuint mNewTexName = 0; // tex name set by background thread to be applied in main thread
+    //LLGLuint mNewTexName = 0; // tex name set by background thread to be applied in main thread
 	U16      mWidth;
 	U16      mHeight;
 	S8       mCurrentDiscardLevel;
@@ -300,6 +304,9 @@ public:
 	
     void setTexName(GLuint texName) { mTexName = texName; }
 
+    //similar to setTexName, but will call deleteTextures on mTexName if mTexName is not 0 or texname
+    void syncTexName(LLGLuint texname);
+
 	//for debug use: show texture size distribution 
 	//----------------------------------------
 	static S32 sCurTexSizeBar ;
@@ -319,6 +326,12 @@ class LLImageGLThread : public LLSimpleton<LLImageGLThread>, LL::ThreadPool
 public:
     // follows gSavedSettings "RenderGLMultiThreaded"
     static bool sEnabled;
+    
+    // app should call this function periodically
+    static void updateClass();
+
+    // free video memory in megabytes
+    static std::atomic<S32> sFreeVRAMMegabytes;
 
     LLImageGLThread(LLWindow* window);
 
@@ -330,6 +343,8 @@ public:
     }
 
     void run() override;
+
+    static S32 getFreeVRAMMegabytes();
 
 private:
     LLWindow* mWindow;

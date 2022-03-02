@@ -225,6 +225,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 	mNumFaces = 0;
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
+    mColorChanged = FALSE;
 	mSpotLightPriority = 0.f;
 
 	mMediaImplList.resize(getNumTEs());
@@ -1170,13 +1171,17 @@ void LLVOVolume::notifyMeshLoaded()
 	mSculptChanged = TRUE;
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_GEOMETRY, TRUE);
 
-    if (getAvatar() && !isAnimatedObject())
+    LLVOAvatar *av = getAvatar();
+    if (av && !isAnimatedObject())
     {
-        getAvatar()->addAttachmentOverridesForObject(this);
+        av->addAttachmentOverridesForObject(this);
+        av->notifyAttachmentMeshLoaded();
     }
-    if (getControlAvatar() && isAnimatedObject())
+    LLControlAvatar *cav = getControlAvatar();
+    if (cav && isAnimatedObject())
     {
-        getControlAvatar()->addAttachmentOverridesForObject(this);
+        cav->addAttachmentOverridesForObject(this);
+        cav->notifyAttachmentMeshLoaded();
     }
     updateVisualComplexity();
 }
@@ -2027,7 +2032,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 			was_regen_faces = lodOrSculptChanged(drawable, compiled);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
-		else if (mSculptChanged || mLODChanged)
+		else if (mSculptChanged || mLODChanged || mColorChanged)
 		{
 			compiled = TRUE;
 			was_regen_faces = lodOrSculptChanged(drawable, compiled);
@@ -2039,7 +2044,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 
 		genBBoxes(FALSE);
 	}
-	else if (mLODChanged || mSculptChanged)
+	else if (mLODChanged || mSculptChanged || mColorChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
@@ -2071,6 +2076,7 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	mLODChanged = FALSE;
 	mSculptChanged = FALSE;
 	mFaceMappingChanged = FALSE;
+    mColorChanged = FALSE;
 	
 	return LLViewerObject::updateGeometry(drawable);
 }
@@ -2209,6 +2215,7 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 		if (mDrawable.notNull() && retval)
 		{
 			// These should only happen on updates which are not the initial update.
+            mColorChanged = TRUE;
 			mDrawable->setState(LLDrawable::REBUILD_COLOR);
 			dirtyMesh();
 		}
@@ -5139,7 +5146,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
     bool rigged = facep->isState(LLFace::RIGGED);
 
-    if (rigged && type != LLRenderPass::PASS_ALPHA)
+    if (rigged)
     {
         // hacky, should probably clean up -- if this face is rigged, put it in "type + 1"
         // See LLRenderPass PASS_foo enum
@@ -5903,23 +5910,25 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	U32 geometryBytes = 0;
 
+    // generate render batches for static geometry
     U32 extra_mask = LLVertexBuffer::MAP_TEXTURE_INDEX;
-	geometryBytes += genDrawInfo(group, simple_mask | extra_mask, sSimpleFaces[0], simple_count[0], FALSE, batch_textures);
-	geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[0], fullbright_count[0], FALSE, batch_textures);
-	geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, sAlphaFaces[0], alpha_count[0], TRUE, batch_textures);
-	geometryBytes += genDrawInfo(group, bump_mask | extra_mask, sBumpFaces[0], bump_count[0], FALSE, FALSE);
-	geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[0], norm_count[0], FALSE, FALSE);
-	geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[0], spec_count[0], FALSE, FALSE);
-	geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[0], normspec_count[0], FALSE, FALSE);
+    BOOL alpha_sort = TRUE;
+    BOOL rigged = FALSE;
+    for (int i = 0; i < 2; ++i) //two sets, static and rigged)
+    {
+        geometryBytes += genDrawInfo(group, simple_mask | extra_mask, sSimpleFaces[i], simple_count[i], FALSE, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[i], fullbright_count[i], FALSE, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, sAlphaFaces[i], alpha_count[i], alpha_sort, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, bump_mask | extra_mask, sBumpFaces[i], bump_count[i], FALSE, FALSE, rigged);
+        geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[i], norm_count[i], FALSE, FALSE, rigged);
+        geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[i], spec_count[i], FALSE, FALSE, rigged);
+        geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[i], normspec_count[i], FALSE, FALSE, rigged);
 
-    extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
-    geometryBytes += genDrawInfo(group, simple_mask | extra_mask, sSimpleFaces[1], simple_count[1], FALSE, batch_textures, TRUE);
-    geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[1], fullbright_count[1], FALSE, batch_textures, TRUE);
-    geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, sAlphaFaces[1], alpha_count[1], TRUE, batch_textures, TRUE);
-    geometryBytes += genDrawInfo(group, bump_mask | extra_mask, sBumpFaces[1], bump_count[1], FALSE, TRUE);
-    geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[1], norm_count[1], FALSE, TRUE);
-    geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[1], spec_count[1], FALSE, TRUE);
-    geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[1], normspec_count[1], FALSE, TRUE);
+        // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
+        extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
+        alpha_sort = FALSE;
+        rigged = TRUE;
+    }
 
 	group->mGeometryBytes = geometryBytes;
 
@@ -5972,8 +5981,9 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 				{
 					LLVOVolume* vobj = drawablep->getVOVolume();
-                    if (!vobj) continue;
-
+					
+					if (!vobj) continue;
+					
 					if (debugLoggingEnabled("AnimatedObjectsLinkset"))
 					{
 						if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
@@ -5993,7 +6003,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					}
 
 					LLVolume* volume = vobj->getVolume();
-                    if (!volume) continue;
+					if (!volume) continue;
 					for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 					{
 						LLFace* face = drawablep->getFace(i);

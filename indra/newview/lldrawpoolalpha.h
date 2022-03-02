@@ -55,13 +55,13 @@ public:
 	/*virtual*/ S32	 getNumPasses() { return 1; }
 
 	virtual void render(S32 pass = 0);
-    void forwardRender();
+    void forwardRender(bool write_depth = false);
 	/*virtual*/ void prerender();
 
     void renderDebugAlpha();
 
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask, bool depth_only = false);
+	void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
 	void renderAlphaHighlight(U32 mask);
     bool uploadMatrixPalette(const LLDrawInfo& params);
 

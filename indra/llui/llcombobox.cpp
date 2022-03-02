@@ -78,7 +78,6 @@ LLComboBox::Params::Params()
 	combo_button("combo_button"),
 	combo_list("combo_list"),
 	combo_editor("combo_editor"),
-    mouse_down_callback("mouse_down_callback"),
 	drop_down_button("drop_down_button")
 {
 	addSynonym(items, "combo_item");
@@ -98,8 +97,7 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	mTextChangedCallback(p.text_changed_callback()),
 	mListPosition(p.list_position),
 	mLastSelectedIndex(-1),
-	mLabel(p.label),
-    mMouseDownSignal(NULL)
+	mLabel(p.label)
 {
 	// Text label button
 
@@ -115,6 +113,10 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	}
 
 	mArrowImage = button_params.image_unselected;
+    if (mArrowImage.notNull())
+    {
+        mImageLoadedConnection = mArrowImage->addLoadedCallback(boost::bind(&LLComboBox::imageLoaded, this));
+    }
 
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 
@@ -155,11 +157,6 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 
 	createLineEditor(p);
 
-    if (p.mouse_down_callback.isProvided())
-    {
-        setMouseDownCallback(initCommitCallback(p.mouse_down_callback));
-    }
-
 	mTopLostSignalConnection = setTopLostCallback(boost::bind(&LLComboBox::hideList, this));
 }
 
@@ -190,7 +187,7 @@ LLComboBox::~LLComboBox()
 
 	// explicitly disconect this signal, since base class destructor might fire top lost
 	mTopLostSignalConnection.disconnect();
-    delete mMouseDownSignal;
+    mImageLoadedConnection.disconnect();
 }
 
 
@@ -717,9 +714,6 @@ void LLComboBox::hideList()
 
 void LLComboBox::onButtonMouseDown()
 {
-    if (mMouseDownSignal)
-        (*mMouseDownSignal)( this, 0 );
-
 	if (!mList->getVisible())
 	{
 		// this might change selection, so do it first
@@ -1085,6 +1079,30 @@ void LLComboBox::onSetHighlight() const
     }
 }
 
+void LLComboBox::imageLoaded()
+{
+    static LLUICachedControl<S32> drop_shadow_button("DropShadowButton", 0);
+
+    if (mAllowTextEntry)
+    {
+        LLRect rect = getLocalRect();
+        S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+        S32 shadow_size = drop_shadow_button;
+        mButton->setRect(LLRect(getRect().getWidth() - llmax(8, arrow_width) - 2 * shadow_size,
+            rect.mTop, rect.mRight, rect.mBottom));
+        if (mButton->getVisible())
+        {
+            // recalculate field size
+            if (mTextEntry)
+            {
+                LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+                text_entry_rect.mRight -= llmax(8, arrow_width) + 2 * drop_shadow_button;
+                mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
+            }
+        }
+    }
+}
+
 //============================================================================
 // LLCtrlListInterface functions
 
@@ -1194,11 +1212,6 @@ BOOL LLComboBox::selectItemRange( S32 first, S32 last )
 	return mList->selectItemRange(first, last);
 }
 
-boost::signals2::connection LLComboBox::setMouseDownCallback( const commit_signal_t::slot_type& cb ) 
-{ 
-    if (!mMouseDownSignal) mMouseDownSignal = new commit_signal_t();
-    return mMouseDownSignal->connect(cb); 
-}
 
 static LLDefaultChildRegistry::Register<LLIconsComboBox> register_icons_combo_box("icons_combo_box");
 

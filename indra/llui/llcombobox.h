@@ -78,8 +78,6 @@ public:
 											text_entry_callback,
 											text_changed_callback;
 
-        Optional<CommitCallbackParam>       mouse_down_callback;
-
 		Optional<EPreferredPosition, PreferredPositionValues>	list_position;
 		
 		// components
@@ -106,6 +104,8 @@ protected:
 
     virtual std::string _getSearchText() const;
     virtual void onSetHighlight() const;
+
+    void imageLoaded();
 
 public:
 	// LLView interface
@@ -209,8 +209,6 @@ public:
 	void			setTextEntryCallback( commit_callback_t cb ) { mTextEntryCallback = cb; }
 	void			setTextChangedCallback( commit_callback_t cb ) { mTextChangedCallback = cb; }
 
-    boost::signals2::connection setMouseDownCallback( const commit_signal_t::slot_type& cb );
-
 	/**
 	* Connects callback to signal called when Return key is pressed.
 	*/
@@ -248,7 +246,7 @@ private:
 	commit_callback_t	mTextChangedCallback;
 	commit_callback_t	mSelectionCallback;
 	boost::signals2::connection mTopLostSignalConnection;
-    commit_signal_t*	mMouseDownSignal;
+    boost::signals2::connection mImageLoadedConnection;
 	commit_signal_t		mOnReturnSignal;
 	S32                 mLastSelectedIndex;
 };

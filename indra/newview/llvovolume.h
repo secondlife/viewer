@@ -413,6 +413,7 @@ private:
 	S32			mLOD;
 	BOOL		mLODChanged;
 	BOOL		mSculptChanged;
+    BOOL		mColorChanged;
 	F32			mSpotLightPriority;
 	LLMatrix4	mRelativeXform;
 	LLMatrix3	mRelativeXformInvTrans;

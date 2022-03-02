@@ -860,6 +860,12 @@ U8* LLImageRaw::reallocateData(S32 size)
 	return res;
 }
 
+void LLImageRaw::releaseData()
+{
+    LLImageBase::setSize(0, 0, 0);
+    LLImageBase::setDataAndSize(nullptr, 0);
+}
+
 // virtual
 void LLImageRaw::deleteData()
 {
