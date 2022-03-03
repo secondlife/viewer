@@ -67,8 +67,16 @@ public:
 	bool			checkItemHit(S32 x, S32 y, LLItemInfo& item, LLUUID* id, bool track);
 	void			handleClick(S32 x, S32 y, MASK mask, S32* hit_type, LLUUID* id);
 
-	// Scale and pan are shared across all instances! (i.e. Terrain and Objects maps are always registered)
-	static void		setScale( F32 scale );
+    // Zoom, scale, and pan are shared across all instances! (i.e. Terrain and Objects maps are always registered)
+    // Scale and zoom are the same thing but with different units.
+    // Scale is for things defined in in-world coordinates.
+    // Zoom is used for UI and will interpolate the map scale over multiple frames.
+    // Pan is in pixels relative to the center of the map.
+    static void     zoom(F32 zoom);
+    static void     zoomWithPivot(F32 zoom, S32 x, S32 y);
+    static F32      getZoom();
+    static void     setScale(F32 scale, bool snap = true);
+    static F32      getScale();
 	static void		translatePan( S32 delta_x, S32 delta_y );
 	static void		setPan( S32 x, S32 y, BOOL snap = TRUE );
 	// Return true if the current scale level is above the threshold for accessing region info
@@ -153,8 +161,6 @@ public:
 	static LLUIImagePtr	sForSaleImage;
 	static LLUIImagePtr	sForSaleAdultImage;
 
-	static F32		sMapScale;				// scale = size of a region in pixels
-
 	BOOL			mItemPicked;
 
 	static F32		sPanX;		// in pixels
@@ -194,6 +200,17 @@ public:
 
 private:
 	void drawTileOutline(S32 level, F32 top, F32 left, F32 bottom, F32 right);
+
+    static F32 scaleFromZoom(F32 zoom);
+    static F32 zoomFromScale(F32 scale);
+
+    static F32 sMapScale;
+    static F32 sTargetMapScale;
+    static LLVector2 sZoomPivot;
+    static LLFrameTimer sZoomTimer;
+
+    static F32 sWidthForZoom;
+    static F32 sHeightForZoom;
 };
 
 #endif

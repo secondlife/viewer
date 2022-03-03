@@ -58,9 +58,14 @@
 
 #include "llglheaders.h"
 
+// # Constants
+static const F32 MAP_ITERP_TIME_CONSTANT = 0.75f;
+static const F32 MAP_ZOOM_ACCELERATION_TIME = 0.3f;
+static const F32 MAP_ZOOM_MAX_INTERP = 0.5f;
+static const F32 MAP_SCALE_SNAP_THRESHOLD = 0.005f;
+
 // Basically a C++ implementation of the OCEAN_COLOR defined in mapstitcher.py 
 // Please ensure consistency between those 2 files (TODO: would be better to get that color from an asset source...)
-// # Constants
 // OCEAN_COLOR = "#1D475F"
 const F32 OCEAN_RED   = (F32)(0x1D)/255.f;
 const F32 OCEAN_GREEN = (F32)(0x47)/255.f;
@@ -100,6 +105,13 @@ S32 LLWorldMapView::sTrackingArrowX = 0;
 S32 LLWorldMapView::sTrackingArrowY = 0;
 bool LLWorldMapView::sVisibleTilesLoaded = false;
 F32 LLWorldMapView::sMapScale = 128.f;
+F32 LLWorldMapView::sTargetMapScale = LLWorldMapView::sMapScale;
+LLVector2 LLWorldMapView::sZoomPivot = LLVector2(0.0f, 0.0f);
+LLFrameTimer LLWorldMapView::sZoomTimer = LLFrameTimer();
+// *HACK: Borrowing some non-static values from the parent LLPanel implementation. Ideally this entire class should not rely on statics for zoom functionality, but I'm treading lightly for smallest delta - Cosmic
+// TODO: Actually make this class non-static as discussed above, then test to make sure there are no adverse consequences to performance/stability - Cosmic
+F32 LLWorldMapView::sWidthForZoom = 0.0f;
+F32 LLWorldMapView::sHeightForZoom = 0.0f;
 
 std::map<std::string,std::string> LLWorldMapView::sStringsMap;
 
@@ -210,6 +222,8 @@ BOOL LLWorldMapView::postBuild()
 	mTextBoxNorthEast ->reshapeToFitText();
 	mTextBoxSouthWest->reshapeToFitText();
 	mTextBoxNorthWest ->reshapeToFitText();
+    
+    sZoomTimer.stop();
 
 	return true;
 }
@@ -227,9 +241,36 @@ void LLWorldMapView::cleanupTextures()
 {
 }
 
+// static
+void LLWorldMapView::zoom(F32 zoom)
+{
+    sTargetMapScale = scaleFromZoom(zoom);
+    if (!sZoomTimer.getStarted() && sMapScale != sTargetMapScale)
+    {
+        sZoomPivot = LLVector2(0, 0);
+        sZoomTimer.start();
+    }
+}
 
 // static
-void LLWorldMapView::setScale( F32 scale )
+void LLWorldMapView::zoomWithPivot(F32 zoom, S32 x, S32 y)
+{
+    sTargetMapScale = scaleFromZoom(zoom);
+    sZoomPivot = LLVector2(x, y);
+    if (!sZoomTimer.getStarted() && sMapScale != sTargetMapScale)
+    {
+        sZoomTimer.start();
+    }
+}
+
+// static
+F32 LLWorldMapView::getZoom()
+{
+    return LLWorldMapView::zoomFromScale(sMapScale);
+}
+
+// static
+void LLWorldMapView::setScale(F32 scale, bool snap)
 {
 	if (scale != sMapScale)
 	{
@@ -247,9 +288,32 @@ void LLWorldMapView::setScale( F32 scale )
 		sTargetPanX = sPanX;
 		sTargetPanY = sPanY;
 		sVisibleTilesLoaded = false;
+        
+        // If we are zooming relative to somewhere else rather than the center of the map, compensate for the difference in panning here
+        if (!sZoomPivot.isExactlyZero())
+        {
+            LLVector2 relative_pivot;
+            relative_pivot.mV[VX] = sZoomPivot.mV[VX] - (sWidthForZoom / 2.0);
+            relative_pivot.mV[VY] = sZoomPivot.mV[VY] - (sHeightForZoom / 2.0);
+            LLVector2 zoom_pan_offset = relative_pivot - (relative_pivot * scale / old_scale);
+            sPanX += zoom_pan_offset.mV[VX];
+            sPanY += zoom_pan_offset.mV[VY];
+            sTargetPanX += zoom_pan_offset.mV[VX];
+            sTargetPanY += zoom_pan_offset.mV[VY];
+        }
 	}
+
+    if (snap)
+    {
+        sTargetMapScale = scale;
+    }
 }
 
+// static
+F32 LLWorldMapView::getScale()
+{
+    return sMapScale;
+}
 
 // static
 void LLWorldMapView::translatePan( S32 delta_x, S32 delta_y )
@@ -301,11 +365,34 @@ void LLWorldMapView::draw()
 	mVisibleRegions.clear();
 
 	// animate pan if necessary
-	sPanX = lerp(sPanX, sTargetPanX, LLSmoothInterpolation::getInterpolant(0.1f));
-	sPanY = lerp(sPanY, sTargetPanY, LLSmoothInterpolation::getInterpolant(0.1f));
+    sPanX = lerp(sPanX, sTargetPanX, LLSmoothInterpolation::getInterpolant(MAP_ITERP_TIME_CONSTANT));
+	sPanY = lerp(sPanY, sTargetPanY, LLSmoothInterpolation::getInterpolant(MAP_ITERP_TIME_CONSTANT));
+    
+    //RN: snaps to zoom value because interpolation caused jitter in the text rendering
+    if (!sZoomTimer.getStarted() && sMapScale != sTargetMapScale)
+    {
+        sZoomTimer.start();
+    }
+    bool snap_scale = false;
+    F32 interp = llmin(MAP_ZOOM_MAX_INTERP, sZoomTimer.getElapsedTimeF32() / MAP_ZOOM_ACCELERATION_TIME);
+    F32 current_zoom_val = zoomFromScale(sMapScale);
+    F32 target_zoom_val = zoomFromScale(sTargetMapScale);
+    F32 new_zoom_val = lerp(current_zoom_val, target_zoom_val, interp);
+    if (abs(new_zoom_val - current_zoom_val) < MAP_SCALE_SNAP_THRESHOLD)
+    {
+        sZoomTimer.stop();
+        snap_scale = true;
+        new_zoom_val = target_zoom_val;
+    }
+    F32 map_scale = scaleFromZoom(new_zoom_val);
+    setScale(map_scale, snap_scale);
 
 	const S32 width = getRect().getWidth();
 	const S32 height = getRect().getHeight();
+    // *HACK: Borrowing some non-static values from the parent LLPanel implementation. Ideally this entire class should not rely on statics for zoom functionality, but I'm treading lightly for smallest delta - Cosmic
+    // TODO: Actually make this class non-static as discussed above, then test to make sure there are no adverse consequences to performance/stability - Cosmic
+    sWidthForZoom = width;
+    sHeightForZoom = height;
 	const F32 half_width = F32(width) / 2.0f;
 	const F32 half_height = F32(height) / 2.0f;
 	LLVector3d camera_global = gAgentCamera.getCameraPositionGlobal();
@@ -1792,4 +1879,14 @@ BOOL LLWorldMapView::handleDoubleClick( S32 x, S32 y, MASK mask )
 	return FALSE;
 }
 
+// static
+F32 LLWorldMapView::scaleFromZoom(F32 zoom)
+{
+    return exp2(zoom) * 256.0f;
+}
 
+// static
+F32 LLWorldMapView::zoomFromScale(F32 scale)
+{
+    return log2(scale / 256.f);
+}
