@@ -657,8 +657,7 @@ bool LLToolPie::teleportToClickedLocation()
     LLViewerObject* objp = mHoverPick.getObject();
     LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
 
-    if (objp->getAvatar() == gAgentAvatarp
-        || objp == gAgentAvatarp) // ex: nametag
+    if (objp && (objp->getAvatar() == gAgentAvatarp || objp == gAgentAvatarp)) // ex: nametag
     {
         // Don't teleport to self, teleporting to other avatars is fine
         return false;
