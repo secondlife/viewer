@@ -169,17 +169,25 @@ void LLNetMap::draw()
 		createObjectImage();
 	}
 
+    static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
+    bool auto_centering = auto_center && !mPanning;
     mCentering = mCentering && !mPanning;
-    if (mCentering)
+    bool centered = mCurPan.mV[VX] == 0.0f && mCurPan.mV[VY] == 0.0f;
+
+    if (auto_centering || mCentering)
 	{
         mCurPan = lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
-        if (abs(mCurPan.mV[0]) < 0.5f && abs(mCurPan.mV[1]) < 0.5f){
-            mCurPan.mV[0] = 0.0f;
-            mCurPan.mV[1] = 0.0f;
-            mCentering = false;
-            mPopupMenu->setItemEnabled("Re-Center Map", false);
-        }
 	}
+    centered = abs(mCurPan.mV[VX]) < 0.5f && abs(mCurPan.mV[VY]) < 0.5f;
+    if (centered)
+    {
+        mCurPan.mV[0] = 0.0f;
+        mCurPan.mV[1] = 0.0f;
+        mCentering = false;
+    }
+
+    bool can_recenter_map = !(centered || mCentering || auto_centering);
+    mPopupMenu->setItemEnabled("Re-Center Map", can_recenter_map);
 
 	// Prepare a scissor region
 	F32 rotation = 0;
@@ -600,21 +608,19 @@ BOOL LLNetMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     // note that clicks are reversed from what you'd think: i.e. > 0  means zoom out, < 0 means zoom in
     F32 new_scale = mScale * pow(MAP_SCALE_ZOOM_FACTOR, -clicks);
-    // *TODO: Decide if we want this feature
-#if 0
 	F32 old_scale = mScale;
-#endif
 
     setScale(new_scale);
 
-    // *TODO: Decide if we want this feature
-#if 0
-    // Adjust pan to center the zoom on the mouse pointer
-    LLVector2 zoom_offset;
-    zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
-    zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
-    mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
-#endif
+    static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
+    if (!auto_center)
+    {
+        // Adjust pan to center the zoom on the mouse pointer
+        LLVector2 zoom_offset;
+        zoom_offset.mV[VX] = x - getRect().getWidth() / 2;
+        zoom_offset.mV[VY] = y - getRect().getHeight() / 2;
+        mCurPan -= zoom_offset * mScale / old_scale - zoom_offset;
+    }
 
     return true;
 }
@@ -1024,10 +1030,9 @@ BOOL LLNetMap::handleHover( S32 x, S32 y, MASK mask )
 		{
 			if (!mPanning)
 			{
-                // Just started panning. Hide cursor and enable the "Re-Center Map" button.
+                // Just started panning. Hide cursor.
 				mPanning = true;
 				gViewerWindow->hideCursor();
-                mPopupMenu->setItemEnabled("Re-Center Map", true);
 			}
 
 			LLVector2 delta(static_cast<F32>(gViewerWindow->getCurrentMouseDX()),
