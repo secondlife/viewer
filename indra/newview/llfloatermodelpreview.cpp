@@ -483,6 +483,7 @@ void LLFloaterModelPreview::prepareToLoadModel(S32 lod)
 	{
 		// loading physics from file
 		mModelPreview->mPhysicsSearchLOD = lod;
+		mModelPreview->mLastSpecifiedPhysicsP = NULL;
 	}
 }
 void LLFloaterModelPreview::loadModel(S32 lod)

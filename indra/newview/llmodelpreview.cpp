@@ -470,8 +470,8 @@ void LLModelPreview::rebuildUploadData()
                     // Despite the various strategies above, if we don't now have a physics model, we're going to end up with decomposition.
                     // That's ok, but in the case where someone supplied a physics file, that's probably not what they wanted.
                     std::ostringstream out;
-                    out << "Reusing physics model " << mLastSpecifiedPhysicsModelOriginalName << " for " << instance.mLabel;
-                    LL_INFOS() << out.str() << LL_ENDL;
+                    out << "No physics model specified for " << instance.mLabel << ". Reusing physics model " << mLastSpecifiedPhysicsModelOriginalName << ".";
+                    LL_WARNS() << out.str() << LL_ENDL;
                     LLFloaterModelPreview::addStringToLog(out, false);
                     lod_model = mLastSpecifiedPhysicsP;
                 }
@@ -1140,7 +1140,7 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                             }
                         }
                     }
-                    else if ((loaded_lod == LLModel::LOD_PHYSICS) && (mModel[loaded_lod].size() == 1))
+                    else if ((loaded_lod == LLModel::LOD_PHYSICS) && !mLastSpecifiedPhysicsP)
                     {
                         mLastSpecifiedPhysicsModelOriginalName = stripSuffix(mModel[loaded_lod][0]->mLabel);
                         mLastSpecifiedPhysicsP = mModel[loaded_lod][0];
