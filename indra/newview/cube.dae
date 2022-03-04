@@ -51,7 +51,7 @@
 
 
  <library_geometries>
-  <geometry id="F1" name="Unit Cube">
+  <geometry id="F1" name="default_physics_shape">
    <mesh>
 
     <source id="cube-vertex-positions">

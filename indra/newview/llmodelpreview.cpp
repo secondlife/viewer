@@ -86,6 +86,7 @@ static const LLColor4 PREVIEW_DEG_FILL_COL(1.f, 0.f, 0.f, 0.5f);
 static const F32 PREVIEW_DEG_EDGE_WIDTH(3.f);
 static const F32 PREVIEW_DEG_POINT_SIZE(8.f);
 static const F32 PREVIEW_ZOOM_LIMIT(10.f);
+static const std::string DEFAULT_PHYSICS_MESH_NAME = "default_physics_shape";
 
 const F32 SKIN_WEIGHT_CAMERA_DISTANCE = 16.f;
 
@@ -465,15 +466,19 @@ void LLModelPreview::rebuildUploadData()
                         LLFloaterModelPreview::addStringToLog(out, false);
                     }
                 }
-                if (mLastSpecifiedPhysicsP && !lod_model && (i == LLModel::LOD_PHYSICS))
+                if (mWarnOfUnmatchedPhyicsMeshes && !lod_model && (i == LLModel::LOD_PHYSICS))
                 {
                     // Despite the various strategies above, if we don't now have a physics model, we're going to end up with decomposition.
-                    // That's ok, but in the case where someone supplied a physics file, that's probably not what they wanted.
+                    // That's ok, but might not what they wanted. Use default_physics_shape if found.
                     std::ostringstream out;
-                    out << "No physics model specified for " << instance.mLabel << ". Reusing physics model " << mLastSpecifiedPhysicsModelOriginalName << ".";
+                    out << "No physics model specified for " << instance.mLabel;
+                    if (mDefaultPhysicsShapeP)
+                    {
+                        out << " - using: " << DEFAULT_PHYSICS_MESH_NAME;
+                        lod_model = mDefaultPhysicsShapeP;
+                    }
                     LL_WARNS() << out.str() << LL_ENDL;
-                    LLFloaterModelPreview::addStringToLog(out, false);
-                    lod_model = mLastSpecifiedPhysicsP;
+                    LLFloaterModelPreview::addStringToLog(out, !mDefaultPhysicsShapeP); // Flash log tab if no default.
                 }
 
                 if (lod_model)
@@ -1061,6 +1066,13 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
         }
         else
         {
+            if (loaded_lod == LLModel::LOD_PHYSICS)
+            {   // Explicitly loading physics. See if there is a default mesh.
+                LLMatrix4 ignored_transform; // Each mesh that uses this will supply their own.
+                mDefaultPhysicsShapeP = nullptr;
+                FindModel(mScene[loaded_lod], DEFAULT_PHYSICS_MESH_NAME + getLodSuffix(loaded_lod), mDefaultPhysicsShapeP, ignored_transform);
+                mWarnOfUnmatchedPhyicsMeshes = true;
+            }
             BOOL legacyMatching = gSavedSettings.getBOOL("ImporterLegacyMatching");
             if (!legacyMatching)
             {
@@ -1131,19 +1143,9 @@ void LLModelPreview::loadModelCallback(S32 loaded_lod)
                                     LL_WARNS() << out.str() << LL_ENDL;
                                     LLFloaterModelPreview::addStringToLog(out, false);
                                 }
-                                if (loaded_lod == LLModel::LOD_PHYSICS)
-                                {
-                                    mLastSpecifiedPhysicsModelOriginalName = loaded_name;
-                                    mLastSpecifiedPhysicsP = mModel[loaded_lod][idx];
-                                }
                                 mModel[loaded_lod][idx]->mLabel = name;
                             }
                         }
-                    }
-                    else if ((loaded_lod == LLModel::LOD_PHYSICS) && !mLastSpecifiedPhysicsP)
-                    {
-                        mLastSpecifiedPhysicsModelOriginalName = stripSuffix(mModel[loaded_lod][0]->mLabel);
-                        mLastSpecifiedPhysicsP = mModel[loaded_lod][0];
                     }
                 }
             }
