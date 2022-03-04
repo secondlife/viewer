@@ -1371,6 +1371,55 @@ S32 LLViewerInput::loadBindingsXML(const std::string& filename)
             {
                 mLMouseDefaultHandling[i] = true;
             }
+
+            // fix missing values
+            KeyBinding mouse_binding;
+            mouse_binding.key = "";
+            mouse_binding.mask = "NONE";
+            mouse_binding.mouse = "LMB";
+            mouse_binding.command = script_mouse_handler_name;
+
+            if (keys.third_person.isProvided())
+            {
+                keys.third_person.bindings.add(mouse_binding);
+            }
+
+            if (keys.first_person.isProvided())
+            {
+                keys.first_person.bindings.add(mouse_binding);
+            }
+
+            if (keys.sitting.isProvided())
+            {
+                keys.sitting.bindings.add(mouse_binding);
+            }
+
+            if (keys.edit_avatar.isProvided())
+            {
+                keys.edit_avatar.bindings.add(mouse_binding);
+            }
+
+            // fix version
+            keys.xml_version.set(keybindings_xml_version, true);
+
+            // Write the resulting XML to file
+            LLXMLNodePtr output_node = new LLXMLNode("keys", false);
+            LLXUIParser write_parser;
+            write_parser.writeXUI(output_node, keys);
+
+            if (!output_node->isNull())
+            {
+                // file in app_settings is supposed to be up to date
+                // this is only for the file from user_settings
+                LL_INFOS("ViewerInput") << "Updating file " << filename << " to a newer version" << LL_ENDL;
+                LLFILE *fp = LLFile::fopen(filename, "w");
+                if (fp != NULL)
+                {
+                    LLXMLNode::writeHeaderToFile(fp);
+                    output_node->writeToFile(fp);
+                    fclose(fp);
+                }
+            }
         }
 	}
 	return binding_count;
