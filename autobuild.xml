@@ -236,9 +236,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>84d625d41067e6dc633ac53367ae4e87</string>
+              <string>4699b8389dfb754da0393ddb5d325722</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87796/805943/colladadom-2.3.563854-darwin64-563854.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95882/856117/colladadom-2.3.569219-darwin64-569219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -260,9 +260,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d365992132ca2bd89f48a2dab1f3b1f2</string>
+              <string>343e46ea49a08ad6596d3dc702d5b812</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87794/805955/colladadom-2.3.563854-windows-563854.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95883/856128/colladadom-2.3.569219-windows-569219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -272,16 +272,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>27687df032caffdc1ec92611341adfe3</string>
+              <string>de5bdfb61b31db56c5fe7d0962ad11e2</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87795/805951/colladadom-2.3.563854-windows64-563854.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95884/856129/colladadom-2.3.569219-windows64-569219.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.3.563854</string>
+        <string>2.3.569219</string>
       </map>
       <key>cubemaptoequirectangular</key>
       <map>
@@ -2127,9 +2127,6 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
         <string>LICENSES/libndofdev.txt</string>
         <key>name</key>
         <string>open-libndofdev</string>
-        <key>platforms</key>
-        <map>
-        </map>
         <key>version</key>
         <string>0.3</string>
       </map>
