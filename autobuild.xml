@@ -1640,7 +1640,7 @@
         <key>name</key>
         <string>llappearance_utility</string>
         <key>platforms</key>
-		<map>
+        <map>
           <key>linux</key>
           <map>
             <key>archive</key>
@@ -1903,9 +1903,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d00bed67d307d5435280fc7b42ceb822</string>
+              <string>843587a078102d86d90054d03354684d</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87785/805884/minizip_ng-3.0.2.563851-darwin64-563851.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95876/856095/minizip_ng-3.0.2.569217-darwin64-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1915,9 +1915,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e7cf61cde66e5c632e0e2c1fc5770dbb</string>
+              <string>26dc254f443ca9c5509547d7fbd9d8e5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87787/805898/minizip_ng-3.0.2.563851-windows-563851.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95878/856107/minizip_ng-3.0.2.569217-windows-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1927,16 +1927,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b3c69f9d05cfb531b591347f7b6785cb</string>
+              <string>e9241fa325f4014995b62193321e7a1c</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87788/805899/minizip_ng-3.0.2.563851-windows64-563851.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/95877/856106/minizip_ng-3.0.2.569217-windows64-569217.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.0.2.563851</string>
+        <string>3.0.2.569217</string>
       </map>
       <key>nghttp2</key>
       <map>
