@@ -340,12 +340,26 @@ const LLViewerInventoryCategory* LLInventoryModel::getFirstDescendantOf(const LL
 bool LLInventoryModel::getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const
 {
 	LLInventoryObject *object = getObject(object_id);
-	while (object && object->getParentUUID().notNull())
-	{
-		LLInventoryObject *parent_object = getObject(object->getParentUUID());
+    if (!object)
+    {
+        LL_WARNS(LOG_INV) << "Unable to trace topmost ancestor, initial object " << object_id << " does not exist" << LL_ENDL;
+        return false;
+    }
+
+    std::set<LLUUID> object_ids{ object_id }; // loop protection
+    while (object->getParentUUID().notNull())
+    {
+        LLUUID parent_id = object->getParentUUID();
+        if (object_ids.find(parent_id) != object_ids.end())
+        {
+            LL_WARNS(LOG_INV) << "Detected a loop on an object " << parent_id << " when searching for ancestor of " << object_id << LL_ENDL;
+            return false;
+        }
+        object_ids.insert(parent_id);
+        LLInventoryObject *parent_object = getObject(parent_id);
 		if (!parent_object)
 		{
-			LL_WARNS(LOG_INV) << "unable to trace topmost ancestor, missing item for uuid " << object->getParentUUID() << LL_ENDL;
+			LL_WARNS(LOG_INV) << "unable to trace topmost ancestor of " << object_id << ", missing item for uuid " << parent_id << LL_ENDL;
 			return false;
 		}
 		object = parent_object;
