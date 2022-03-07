@@ -1377,7 +1377,28 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                             << " original count: " << size_indices
                             << " error treshold: " << error_threshold
                             << LL_ENDL;
-                        return -1;
+
+                        // U16 vertices overflow shouldn't happen, but just in case
+                        new_indices = 0;
+                        valid_faces = 0;
+                        for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+                        {
+                            genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, false);
+                            const LLVolumeFace &face = target_model->getVolumeFace(face_idx);
+                            new_indices += face.mNumIndices;
+                            if (face.mNumIndices >= 3)
+                            {
+                                valid_faces++;
+                            }
+                        }
+                        if (valid_faces)
+                        {
+                            return (F32)size_indices / (F32)new_indices;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
 
                     // Copy vertice, normals, tcs
@@ -1447,20 +1468,6 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     if (new_indices < 3 || valid_faces == 0)
     {
         // Model should have at least one visible triangle
-
-        if (!sloppy)
-        {
-            // Should only happen with sloppy
-            // non sloppy shouldn't be capable of optimizing mesh away
-            LL_WARNS() << "Failed to generate triangles"
-                << " model " << target_model->mLabel
-                << " target Indices: " << target_indices
-                << " new Indices: " << new_indices
-                << " original count: " << size_indices
-                << " error treshold: " << error_threshold
-                << LL_ENDL;
-        }
-
         return -1;
     }
 
@@ -1699,11 +1706,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 F32 res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
                 if (res < 0)
                 {
-                    // U16 vertices overflow, shouldn't happen, but just in case
-                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                    {
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                    }
+                    target_model->copyVolumeFaces(base);
                 }
             }
 
@@ -1726,15 +1729,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 F32 allowed_ratio_drift = 2.f;
                 F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
                 
-                if (precise_ratio < 0)
-                {
-                    // U16 vertices overflow, shouldn't happen, but just in case
-                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                    {
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                    }
-                }
-                else if (precise_ratio * allowed_ratio_drift < indices_decimator)
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
                 {
                     // Try sloppy variant if normal one failed to simplify model enough.
                     // Sloppy variant can fail entirely and has issues with precision,
@@ -1815,9 +1810,18 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     {
                         // Sloppy variant failed to generate triangles or is worse.
                         // Can happen with models that are too simple as is.
-                        // Fallback to normal method
 
-                        precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                        if (precise_ratio < 0)
+                        {
+                            // Precise method failed as well, just copy face over
+                            target_model->copyVolumeFaces(base);
+                            precise_ratio = 1.f;
+                        }
+                        else
+                        {
+                            // Fallback to normal method
+                            precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                        }
 
                         LL_INFOS() << "Model " << target_model->getName()
                             << " lod " << which_lod
