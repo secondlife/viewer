@@ -2817,11 +2817,15 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				 ++attachment_iter)
 			{
 				LLViewerObject* attached_object = attachment_iter->get();
-				BOOL visibleAttachment = visible || (attached_object && 
+				BOOL visibleAttachment = visible || (attached_object && attached_object->mDrawable.notNull() &&
 													 !(attached_object->mDrawable->getSpatialBridge() &&
 													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0));
 				
-				if (visibleAttachment && attached_object && !attached_object->isDead() && attachment->getValid())
+				if (visibleAttachment
+                    && attached_object
+                    && !attached_object->isDead()
+                    && attachment->getValid()
+                    && attached_object->mDrawable.notNull())
 				{
 
                     //override rigged attachments' octree spatial extents with this avatar's bounding box
