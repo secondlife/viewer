@@ -524,6 +524,11 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
 	const LLCore::HttpHandler::ptr_t &handler, void *appdata)
 {
+    if (gDisconnected)
+    {
+        return LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+    }
+
     LLCore::HttpStatus result;
     try
     {

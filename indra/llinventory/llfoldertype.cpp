@@ -37,15 +37,22 @@
 struct FolderEntry : public LLDictionaryEntry
 {
 	FolderEntry(const std::string &type_name, // 8 character limit!
-				bool is_protected) // can the viewer change categories of this type?
+				bool is_protected, // can the viewer change categories of this type?
+				bool is_automatic, // always made before first login? 
+				bool is_singleton  // should exist as a unique copy under root
+		) 
 		:
 	LLDictionaryEntry(type_name),
-	mIsProtected(is_protected)
+	mIsProtected(is_protected),
+	mIsAutomatic(is_automatic),
+	mIsSingleton(is_singleton)
 	{
 		llassert(type_name.length() <= 8);
 	}
 
 	const bool mIsProtected;
+	const bool mIsAutomatic;
+	const bool mIsSingleton;
 };
 
 class LLFolderDictionary : public LLSingleton<LLFolderDictionary>,
@@ -59,50 +66,64 @@ protected:
 	}
 };
 
+// Folder types
+// 
+// PROTECTED means that folders of this type can't be moved, deleted
+// or otherwise modified by the viewer.
+// 
+// SINGLETON means that there should always be exactly one folder of
+// this type, and it should be the root or a child of the root. This
+// is true for most types of folders.
+//
+// AUTOMATIC means that a copy of this folder should be created under
+// the root before the user ever logs in, and should never be created
+// from the viewer. A missing AUTOMATIC folder should be treated as a
+// fatal error by the viewer, since it indicates either corrupted
+// inventory or a failure in the inventory services.
+//
 LLFolderDictionary::LLFolderDictionary()
 {
-	//       													    TYPE NAME	PROTECTED
-	//      													   |-----------|---------|
-	addEntry(LLFolderType::FT_TEXTURE, 				new FolderEntry("texture",	TRUE));
-	addEntry(LLFolderType::FT_SOUND, 				new FolderEntry("sound",	TRUE));
-	addEntry(LLFolderType::FT_CALLINGCARD, 			new FolderEntry("callcard",	TRUE));
-	addEntry(LLFolderType::FT_LANDMARK, 			new FolderEntry("landmark",	TRUE));
-	addEntry(LLFolderType::FT_CLOTHING, 			new FolderEntry("clothing",	TRUE));
-	addEntry(LLFolderType::FT_OBJECT, 				new FolderEntry("object",	TRUE));
-	addEntry(LLFolderType::FT_NOTECARD, 			new FolderEntry("notecard",	TRUE));
-	addEntry(LLFolderType::FT_ROOT_INVENTORY, 		new FolderEntry("root_inv",	TRUE));
-	addEntry(LLFolderType::FT_LSL_TEXT, 			new FolderEntry("lsltext",	TRUE));
-	addEntry(LLFolderType::FT_BODYPART, 			new FolderEntry("bodypart",	TRUE));
-	addEntry(LLFolderType::FT_TRASH, 				new FolderEntry("trash",	TRUE));
-	addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY, 	new FolderEntry("snapshot", TRUE));
-	addEntry(LLFolderType::FT_LOST_AND_FOUND, 		new FolderEntry("lstndfnd",	TRUE));
-	addEntry(LLFolderType::FT_ANIMATION, 			new FolderEntry("animatn",	TRUE));
-	addEntry(LLFolderType::FT_GESTURE, 				new FolderEntry("gesture",	TRUE));
-	addEntry(LLFolderType::FT_FAVORITE, 			new FolderEntry("favorite",	TRUE));
+	//       													    TYPE NAME, PROTECTED, AUTOMATIC, SINGLETON
+	addEntry(LLFolderType::FT_TEXTURE, 				new FolderEntry("texture",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_SOUND, 				new FolderEntry("sound",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_CALLINGCARD, 			new FolderEntry("callcard",	TRUE, TRUE, FALSE));
+	addEntry(LLFolderType::FT_LANDMARK, 			new FolderEntry("landmark",	TRUE, FALSE, FALSE));
+	addEntry(LLFolderType::FT_CLOTHING, 			new FolderEntry("clothing",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_OBJECT, 				new FolderEntry("object",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_NOTECARD, 			new FolderEntry("notecard",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_ROOT_INVENTORY, 		new FolderEntry("root_inv",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_LSL_TEXT, 			new FolderEntry("lsltext",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_BODYPART, 			new FolderEntry("bodypart",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_TRASH, 				new FolderEntry("trash",	TRUE, FALSE, TRUE));
+	addEntry(LLFolderType::FT_SNAPSHOT_CATEGORY, 	new FolderEntry("snapshot", TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_LOST_AND_FOUND, 		new FolderEntry("lstndfnd",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_ANIMATION, 			new FolderEntry("animatn",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_GESTURE, 				new FolderEntry("gesture",	TRUE, TRUE, TRUE));
+	addEntry(LLFolderType::FT_FAVORITE, 			new FolderEntry("favorite",	TRUE, FALSE, TRUE));
 	
 	for (S32 ensemble_num = S32(LLFolderType::FT_ENSEMBLE_START); ensemble_num <= S32(LLFolderType::FT_ENSEMBLE_END); ensemble_num++)
 	{
-		addEntry(LLFolderType::EType(ensemble_num), new FolderEntry("ensemble", FALSE)); 
+		addEntry(LLFolderType::EType(ensemble_num), new FolderEntry("ensemble", FALSE, FALSE, FALSE)); // Not used
 	}
 
-	addEntry(LLFolderType::FT_CURRENT_OUTFIT, 		new FolderEntry("current",	TRUE));
-	addEntry(LLFolderType::FT_OUTFIT, 				new FolderEntry("outfit",	FALSE));
-	addEntry(LLFolderType::FT_MY_OUTFITS, 			new FolderEntry("my_otfts",	TRUE));
+	addEntry(LLFolderType::FT_CURRENT_OUTFIT, 		new FolderEntry("current",	TRUE, FALSE, TRUE));
+	addEntry(LLFolderType::FT_OUTFIT, 				new FolderEntry("outfit",	FALSE, FALSE, FALSE));
+	addEntry(LLFolderType::FT_MY_OUTFITS, 			new FolderEntry("my_otfts",	TRUE, FALSE, TRUE));
 
-	addEntry(LLFolderType::FT_MESH, 				new FolderEntry("mesh",	TRUE));
+	addEntry(LLFolderType::FT_MESH, 				new FolderEntry("mesh",		TRUE, FALSE, FALSE)); // Not used?
 
-	addEntry(LLFolderType::FT_INBOX, 				new FolderEntry("inbox",	TRUE));
-	addEntry(LLFolderType::FT_OUTBOX, 				new FolderEntry("outbox",	TRUE));
+	addEntry(LLFolderType::FT_INBOX, 				new FolderEntry("inbox",	TRUE, FALSE, TRUE));
+	addEntry(LLFolderType::FT_OUTBOX, 				new FolderEntry("outbox",	TRUE, FALSE, FALSE));
 	
-	addEntry(LLFolderType::FT_BASIC_ROOT,			new FolderEntry("basic_rt", TRUE));
+	addEntry(LLFolderType::FT_BASIC_ROOT,			new FolderEntry("basic_rt", TRUE, FALSE, FALSE)); 
 
-	addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new FolderEntry("merchant", FALSE));
-	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    FALSE));
-	addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",    FALSE));
+	addEntry(LLFolderType::FT_MARKETPLACE_LISTINGS, new FolderEntry("merchant", FALSE, FALSE, FALSE));
+	addEntry(LLFolderType::FT_MARKETPLACE_STOCK,    new FolderEntry("stock",    FALSE, FALSE, FALSE));
+	addEntry(LLFolderType::FT_MARKETPLACE_VERSION,  new FolderEntry("version",  FALSE, FALSE, FALSE));
 		 
-    addEntry(LLFolderType::FT_SETTINGS,             new FolderEntry("settings", TRUE));
+    addEntry(LLFolderType::FT_SETTINGS,             new FolderEntry("settings", TRUE, FALSE, TRUE));
 
-	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE));
+	addEntry(LLFolderType::FT_NONE, 				new FolderEntry("-1",		FALSE, FALSE, FALSE));
 };
 
 // static
@@ -126,8 +147,8 @@ const std::string &LLFolderType::lookup(LLFolderType::EType folder_type)
 }
 
 // static
-// Only ensembles and plain folders aren't protected.  "Protected" means
-// you can't change certain properties such as their type.
+// Only plain folders and a few other types aren't protected.  "Protected" means
+// you can't move, deleted, or change certain properties such as their type.
 bool LLFolderType::lookupIsProtectedType(EType folder_type)
 {
 	const LLFolderDictionary *dict = LLFolderDictionary::getInstance();
@@ -135,6 +156,32 @@ bool LLFolderType::lookupIsProtectedType(EType folder_type)
 	if (entry)
 	{
 		return entry->mIsProtected;
+	}
+	return true;
+}
+ 
+// static
+// Is this folder type automatically created outside the viewer? 
+bool LLFolderType::lookupIsAutomaticType(EType folder_type)
+{
+	const LLFolderDictionary *dict = LLFolderDictionary::getInstance();
+	const FolderEntry *entry = dict->lookup(folder_type);
+	if (entry)
+	{
+		return entry->mIsAutomatic;
+	}
+	return true;
+}
+
+// static
+// Should this folder always exist as a single copy under (or as) the root?
+bool LLFolderType::lookupIsSingletonType(EType folder_type)
+{
+	const LLFolderDictionary *dict = LLFolderDictionary::getInstance();
+	const FolderEntry *entry = dict->lookup(folder_type);
+	if (entry)
+	{
+		return entry->mIsSingleton;
 	}
 	return true;
 }
