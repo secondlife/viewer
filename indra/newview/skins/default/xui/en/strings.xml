@@ -133,6 +133,7 @@ http://secondlife.com/viewer-access-faq</string>
 Please check to make sure you entered the right
     * Username (like bobsmith12 or steller.sunshine)
     * Password
+    * Second Factor Token (if enabled)
 Also, please make sure your Caps Lock key is off.</string>
 	<string name="LoginFailedPasswordChanged">As a security precaution your password has been changed.
 Please go to your account page at http://secondlife.com/password
