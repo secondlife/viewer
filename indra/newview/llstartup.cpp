@@ -3621,9 +3621,9 @@ bool process_login_success_response()
 	// Only save mfa_hash for future logins if the user wants their info remembered.
 	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
 	{
-		LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
 		std::string grid(LLGridManager::getInstance()->getGridId());
-		basic_secure_store->setProtectedData("mfa_hash", grid, response["mfa_hash"]);
+		std::string user_id(gUserCredential->userID());
+		gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
 	}
 
 	bool success = false;

@@ -191,15 +191,14 @@ std::string LLGridManager::getGridId(const std::string& grid)
     return std::string();
 }
 
-LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
-{
-    return nullptr;
-}
+//LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
+//{
+//    return nullptr;
+//}
 
 //-----------------------------------------------------------------------------
 #include "../llviewercontrol.h"
 LLControlGroup gSavedSettings("Global");
-LLControlGroup gSavedPerAccountSettings("PerAccount");
 
 LLControlGroup::LLControlGroup(const std::string& name) :
 	LLInstanceTracker<LLControlGroup, std::string>(name){}
@@ -235,6 +234,8 @@ LLAppViewer * LLAppViewer::sInstance = 0;
 #include "llfloaterreg.h"
 static std::string gTOSType;
 static LLEventPump * gTOSReplyPump = NULL;
+
+LLPointer<LLSecAPIHandler> gSecAPIHandler;
 
 //static
 LLFloater* LLFloaterReg::showInstance(const std::string& name, const LLSD& key, BOOL focus)
