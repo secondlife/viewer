@@ -3617,7 +3617,9 @@ bool process_login_success_response()
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
 	}
 
-	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser"))
+
+	// Only save mfa_hash for future logins if the user wants their info remembered.
+	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
 	{
 		LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
 		std::string grid(LLGridManager::getInstance()->getGridId());
