@@ -231,11 +231,19 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
 
     std::string mfa_hash = gSavedPerAccountSettings.getString("MFAHash"); //non-persistent to enable testing
-    if(mfa_hash.empty())
+    LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
+    std::string grid(LLGridManager::getInstance()->getGridId());
+    if (basic_secure_store)
     {
-        LLPointer<LLSecAPIHandler> basic_secure_store = getSecHandler(BASIC_SECHANDLER);
-        std::string grid(LLGridManager::getInstance()->getGridId());
-        mfa_hash = basic_secure_store->getProtectedData("mfa_hash", grid).asString();
+        if (mfa_hash.empty())
+        {
+            mfa_hash = basic_secure_store->getProtectedData("mfa_hash", grid).asString();
+        }
+        else
+        {
+            // SL-16888 the mfa_hash is being overridden for testing so save it for consistency for future login requests
+            basic_secure_store->setProtectedData("mfa_hash", grid, mfa_hash);
+        }
     }
 
     request_params["mfa_hash"] = mfa_hash;
