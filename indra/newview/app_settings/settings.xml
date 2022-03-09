@@ -6481,13 +6481,24 @@
     <key>MaxHeapSize</key>
     <map>
       <key>Comment</key>
-      <string>Maximum heap size (GB)</string>
+      <string>Maximum heap size on 32-bit builds (GB)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>4.0</real>
+      <real>1.6</real>
+    </map>
+    <key>MaxHeapSize64</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum heap size on 64-bit builds (GB)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>16.0</real>
     </map>
     <key>MaxPersistentNotifications</key>
     <map>
