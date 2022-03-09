@@ -3734,6 +3734,7 @@ void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enfor
     {
         genMeshOptimizerLODs(requested_lod, mode, 3, enforce_tri_limit);
         refresh();
+        mDirty = true;
     }
 }
 
