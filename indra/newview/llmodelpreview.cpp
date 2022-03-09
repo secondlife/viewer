@@ -3529,6 +3529,7 @@ void LLModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
     {
         genLODs(lod, 3, enforce_tri_limit);
         refresh();
+        mDirty = true;
     }
 }
 
