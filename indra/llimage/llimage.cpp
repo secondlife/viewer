@@ -884,8 +884,6 @@ void LLImageRaw::setDataAndSize(U8 *data, S32 width, S32 height, S8 components)
 
 	LLImageBase::setSize(width, height, components) ;
 	LLImageBase::setDataAndSize(data, width * height * components) ;
-	
-	sGlobalRawMemory += getDataSize();
 }
 
 bool LLImageRaw::resize(U16 width, U16 height, S8 components)
