@@ -2208,7 +2208,11 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "", "");
+        if (gAgent.isFirstLogin())
+        {
+            gSavedSettings.setBOOL("AutoFPS", TRUE);
+        }
+        set_startup_status(1.0, "", "");
 		display_startup();
 
 		if (!mBenefitsSuccessfullyInit)

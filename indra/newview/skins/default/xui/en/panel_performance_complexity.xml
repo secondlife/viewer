@@ -2,7 +2,7 @@
 <panel
  bevel_style="none"
  follows="left|top"
- height="530"
+ height="580"
  width="580"
  name="panel_performance_complexity"
  layout="topleft"
@@ -83,7 +83,7 @@
   <name_list
     column_padding="0"
     draw_stripes="true"
-    height="379"
+    height="429"
     follows="left|top"
     layout="topleft"
     name="obj_list"
