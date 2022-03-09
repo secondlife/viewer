@@ -1304,9 +1304,8 @@ class DarwinManifest(ViewerManifest):
                         ]
                     for attempt in range(3):
                         if attempt: # second or subsequent iteration
-                            print >> sys.stderr, \
-                                ("codesign failed, waiting %d seconds before retrying" %
-                                 sign_retry_wait)
+                            print("codesign failed, waiting {:d} seconds before retrying".format(sign_retry_wait),
+                                  file=sys.stderr)
                             time.sleep(sign_retry_wait)
                             sign_retry_wait*=2
 
