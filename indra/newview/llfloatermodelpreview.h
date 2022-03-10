@@ -223,6 +223,7 @@ private:
 
 	void resetUploadOptions();
 	void clearLogTab();
+	void prepareToLoadModel(S32 lod);
 
 	void createSmoothComboBox(LLComboBox* combo_box, float min, float max);
 
