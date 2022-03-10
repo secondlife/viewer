@@ -248,6 +248,8 @@ public:
 
 	static bool hasPaymentInfoOnFile(const LLAvatarData* avatar_data);
 
+    static void requestAvatarPropertiesCoro(std::string cap_url, LLUUID agent_id);
+
 	static void processAvatarPropertiesReply(LLMessageSystem* msg, void**);
 
 	static void processAvatarInterestsReply(LLMessageSystem* msg, void**);
@@ -266,7 +268,10 @@ public:
 
 protected:
 
-	void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string method);
+	void sendRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
+    void sendGenericRequest(const LLUUID& avatar_id, EAvatarProcessorType type, const std::string &method);
+    void sendAvatarPropertiesRequestMessage(const LLUUID& avatar_id);
+    void initAgentProfileCapRequest(const LLUUID& avatar_id, const std::string& cap_url);
 
 	void notifyObservers(const LLUUID& id,void* data, EAvatarProcessorType type);
 
