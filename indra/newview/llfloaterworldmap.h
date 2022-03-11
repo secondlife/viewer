@@ -44,6 +44,7 @@ class LLInventoryObserver;
 class LLItemInfo;
 class LLLineEditor;
 class LLTabContainer;
+class LLWorldMapView;
 
 class LLFloaterWorldMap : public LLFloater
 {
@@ -154,7 +155,7 @@ protected:
 	void			cacheLandmarkPosition();
 
 private:
-	LLPanel*			mPanel;		// Panel displaying the map
+    LLWorldMapView* mMapView; // Panel displaying the map
 
 	// update display of teleport destination coordinates - pos is in global coordinates
 	void updateTeleportCoordsDisplay( const LLVector3d& pos );

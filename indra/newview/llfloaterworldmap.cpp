@@ -278,7 +278,7 @@ void* LLFloaterWorldMap::createWorldMapView(void* data)
 
 BOOL LLFloaterWorldMap::postBuild()
 {
-	mPanel = getChild<LLPanel>("objects_mapview");
+    mMapView = dynamic_cast<LLWorldMapView*>(getChild<LLPanel>("objects_mapview"));
 	
 	LLComboBox *avatar_combo = getChild<LLComboBox>("friend combo");
 	avatar_combo->selectFirstItem();
@@ -299,7 +299,7 @@ BOOL LLFloaterWorldMap::postBuild()
 	landmark_combo->setTextChangedCallback( boost::bind(&LLFloaterWorldMap::onComboTextEntry, this) );
 	mListLandmarkCombo = dynamic_cast<LLCtrlListInterface *>(landmark_combo);
 	
-    F32 slider_zoom = LLWorldMapView::getZoom();
+    F32 slider_zoom = mMapView->getZoom();
     getChild<LLUICtrl>("zoom slider")->setValue(slider_zoom);
 	
 	setDefaultBtn(NULL);
@@ -313,7 +313,7 @@ BOOL LLFloaterWorldMap::postBuild()
 LLFloaterWorldMap::~LLFloaterWorldMap()
 {
 	// All cleaned up by LLView destructor
-	mPanel = NULL;
+    mMapView = NULL;
 	
 	// Inventory deletes all observers on shutdown
 	mInventory = NULL;
@@ -345,17 +345,15 @@ void LLFloaterWorldMap::onOpen(const LLSD& key)
 	
 	mIsClosing = FALSE;
 	
-	LLWorldMapView* map_panel;
-	map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
-	map_panel->clearLastClick();
+    mMapView->clearLastClick();
 	
 	{
 		// reset pan on show, so it centers on you again
 		if (!center_on_target)
 		{
-			LLWorldMapView::setPan(0, 0, TRUE);
+            mMapView->setPan(0, 0, true);
 		}
-		map_panel->updateVisibleBlocks();
+        mMapView->updateVisibleBlocks();
 		
 		// Reload items as they may have changed
 		LLWorldMap::getInstance()->reloadItems();
@@ -405,14 +403,14 @@ BOOL LLFloaterWorldMap::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
     if (!isMinimized() && isFrontmost())
     {
-        S32 map_x = x - mPanel->getRect().mLeft;
-        S32 map_y = y - mPanel->getRect().mBottom;
-        if (mPanel->pointInView(map_x, map_y))
+        S32 map_x = x - mMapView->getRect().mLeft;
+        S32 map_y = y - mMapView->getRect().mBottom;
+        if (mMapView->pointInView(map_x, map_y))
         {
             F32 old_slider_zoom = (F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal();
             F32 slider_zoom = old_slider_zoom + ((F32)clicks * -0.3333f);
             getChild<LLUICtrl>("zoom slider")->setValue(LLSD(slider_zoom));
-            LLWorldMapView::zoomWithPivot(slider_zoom, map_x, map_y);
+            mMapView->zoomWithPivot(slider_zoom, map_x, map_y);
             return true;
         }
     }
@@ -497,12 +495,12 @@ void LLFloaterWorldMap::draw()
 	setMouseOpaque(TRUE);
 	getDragHandle()->setMouseOpaque(TRUE);
 
-    LLWorldMapView::zoom((F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal());
+    mMapView->zoom((F32)getChild<LLUICtrl>("zoom slider")->getValue().asReal());
 	
 	// Enable/disable checkboxes depending on the zoom level
 	// If above threshold level (i.e. low res) -> Disable all checkboxes
 	// If under threshold level (i.e. high res) -> Enable all checkboxes
-	bool enable = LLWorldMapView::showRegionInfo();
+    bool enable = mMapView->showRegionInfo();
 	getChildView("people_chk")->setEnabled(enable);
 	getChildView("infohub_chk")->setEnabled(enable);
 	getChildView("telehub_chk")->setEnabled(enable);
@@ -1001,9 +999,7 @@ void LLFloaterWorldMap::adjustZoomSliderBounds()
 	S32 world_height_regions = MAX_VISIBLE_REGIONS;
 	
 	// Find how much space we have to display the world
-	LLWorldMapView* map_panel;
-	map_panel = (LLWorldMapView*)mPanel;
-	LLRect view_rect = map_panel->getRect();
+    LLRect view_rect = mMapView->getRect();
 	
 	// View size in pixels
 	S32 view_width = view_rect.getWidth();
@@ -1271,9 +1267,9 @@ void LLFloaterWorldMap::onShowTargetBtn()
 
 void LLFloaterWorldMap::onShowAgentBtn()
 {
-	LLWorldMapView::setPan( 0, 0, FALSE); // FALSE == animate
+    mMapView->setPan(0, 0, false); // false == animate
 	// Set flag so user's location will be displayed if not tracking anything else
-	mSetToUserPosition = TRUE;	
+    mSetToUserPosition = true;
 }
 
 void LLFloaterWorldMap::onClickTeleportBtn()
@@ -1325,8 +1321,8 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 		pos_global.clearVec();
 	}
 	
-    F64 map_scale = (F64)LLWorldMapView::getScale();
-	LLWorldMapView::setPan( -llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)), 
+    F64 map_scale = (F64)mMapView->getScale();
+    mMapView->setPan(-llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
                            -llfloor((F32)(pos_global.mdV[VY] * map_scale / REGION_WIDTH_METERS)),
                            !animate);
 	mWaitingForTracker = FALSE;
@@ -1627,6 +1623,5 @@ void LLFloaterWorldMap::onChangeMaturity()
 void LLFloaterWorldMap::onFocusLost()
 {
 	gViewerWindow->showCursor();
-	LLWorldMapView* map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
-	map_panel->mPanning = FALSE;
+    mMapView->mPanning = false;
 }
