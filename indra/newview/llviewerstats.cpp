@@ -155,10 +155,7 @@ LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >
 static LLTrace::SampleStatHandle<bool> 
 							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
-LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM("gltexmemstat"),
-															GL_BOUND_MEM("glboundmemstat"),
-															RAW_MEM("rawmemstat"),
-															FORMATTED_MEM("formattedmemstat");
+LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM("formattedmemstat");
 LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
 															MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 

@@ -3712,7 +3712,7 @@ void LLPipeline::touchTexture(LLViewerTexture* tex, F32 vsize)
     if (tex)
     {
         LLImageGL* gl_tex = tex->getGLTexture();
-        if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
+        if (gl_tex && gl_tex->updateBindStats())
         {
             tex->setActive();
             tex->addTextureStats(vsize);

@@ -84,11 +84,6 @@ S32 LLViewerTexture::sAuxCount = 0;
 LLFrameTimer LLViewerTexture::sEvaluationTimer;
 F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
-S32Bytes LLViewerTexture::sBoundTextureMemory;
-S32Bytes LLViewerTexture::sTotalTextureMemory;
-S32Megabytes LLViewerTexture::sMaxBoundTextureMemory;
-S32Megabytes LLViewerTexture::sMaxTotalTextureMem;
-S32Bytes LLViewerTexture::sMaxDesiredTextureMem;
 S8  LLViewerTexture::sCameraMovingDiscardBias = 0;
 F32 LLViewerTexture::sCameraMovingBias = 0.0f;
 S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
@@ -553,27 +548,7 @@ void LLViewerTexture::updateClass()
 
 	LLViewerMediaTexture::updateClass();
 
-	sBoundTextureMemory = LLImageGL::sBoundTextureMemory;
-	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;
-	sMaxBoundTextureMemory = gTextureList.getMaxResidentTexMem();
-	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem();
-	sMaxDesiredTextureMem = sMaxTotalTextureMem; //in Bytes, by default and when total used texture memory is small.
-
-	if (sBoundTextureMemory >= sMaxBoundTextureMemory ||
-		sTotalTextureMemory >= sMaxTotalTextureMem)
-	{
-		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
-		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, F32Bytes(gMaxVideoRam));
-	
-		// If we are using more texture memory than we should,
-		// scale up the desired discard level
-		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
-		{
-			sDesiredDiscardBias += discard_bias_delta;
-			sEvaluationTimer.reset();
-		}
-	}
-	else if(isMemoryForTextureLow())
+	if(isMemoryForTextureLow())
 	{
 		// Note: isMemoryForTextureLow() uses 1s delay, make sure we waited enough for it to recheck
 		if (sEvaluationTimer.getElapsedTimeF32() > GPU_MEMORY_CHECK_WAIT_TIME)
@@ -583,8 +558,6 @@ void LLViewerTexture::updateClass()
 		}
 	}
 	else if (sDesiredDiscardBias > 0.0f
-			 && sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale
-			 && sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale
 			 && isMemoryForTextureSuficientlyFree())
 	{
 		// If we are using less texture memory than we should,
@@ -1352,10 +1325,7 @@ void LLViewerFetchedTexture::dump()
 void LLViewerFetchedTexture::destroyTexture() 
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	if(LLImageGL::sGlobalTextureMemory < sMaxDesiredTextureMem * 0.95f)//not ready to release unused memory.
-	{
-		return ;
-	}
+
 	if (mNeedsCreateTexture)//return if in the process of generating a new texture.
 	{
 		return;
@@ -3398,18 +3368,6 @@ void LLViewerLODTexture::processTextureStats()
 			if(desired_discard_bias_max <= sDesiredDiscardBias && !mForceToSaveRawImage)
 			{
 				//needs to release texture memory urgently
-				scaleDown();
-			}
-			// Limit the amount of GL memory bound each frame
-			else if ( sBoundTextureMemory > sMaxBoundTextureMemory * texmem_middle_bound_scale &&
-				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
-			{
-				scaleDown();
-			}
-			// Only allow GL to have 2x the video card memory
-			else if ( sTotalTextureMemory > sMaxTotalTextureMem * texmem_middle_bound_scale &&
-				(!getBoundRecently() || mDesiredDiscardLevel >= mCachedRawDiscardLevel))
-			{
 				scaleDown();
 			}
 		}

@@ -500,10 +500,6 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
-	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
-	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
 	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
@@ -549,15 +545,10 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
 
-	text = llformat("GL Tot: %d/%d MB GL Free: %d Sys Free: %d MB Bound: %4d/%4d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-					total_mem.value(),
-					max_total_mem.value(),
+	text = llformat("GL Free: %d Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
                     LLImageGLThread::getFreeVRAMMegabytes(),
                     LLMemory::getAvailableMemKB()/1024,
-					bound_mem.value(),
-					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
-					LLImageRaw::sGlobalRawMemory >> 20,
 					discard_bias,
 					cache_usage,
 					cache_max_usage);

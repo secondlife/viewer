@@ -61,7 +61,7 @@ public:
 	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
 	static S32 dataFormatComponents(S32 dataformat);
 
-	BOOL updateBindStats(S32Bytes tex_mem) const ;
+	BOOL updateBindStats() const ;
 	F32 getTimePassedSinceLastBound();
 	void forceUpdateBindStats(void) const;
 
@@ -73,9 +73,6 @@ public:
 	static void restoreGL();
 	static void dirtyTexOptions();
 
-	// Sometimes called externally for textures not using LLImageGL (should go away...)	
-	static S32 updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category) ;
-	
 	static bool checkSize(S32 width, S32 height);
 
 	//for server side use only.
@@ -265,9 +262,6 @@ public:
 	static F32 sLastFrameTime;
 
 	// Global memory statistics
-	static S32Bytes sGlobalTextureMemory;	// Tracks main memory texmem
-	static S32Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
-	static S32Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;

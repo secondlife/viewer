@@ -188,10 +188,11 @@ private:
 
 	virtual void switchToCachedImage();
 	
-	static bool isMemoryForTextureLow() ;
 	static bool isMemoryForTextureSuficientlyFree();
 	static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical);
 
+public:
+    static bool isMemoryForTextureLow();
 protected:
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
@@ -226,11 +227,6 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	static S32Bytes sBoundTextureMemory;
-	static S32Bytes sTotalTextureMemory;
-	static S32Megabytes sMaxBoundTextureMemory;
-	static S32Megabytes sMaxTotalTextureMem;
-	static S32Bytes sMaxDesiredTextureMem ;
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;

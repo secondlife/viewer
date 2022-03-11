@@ -57,9 +57,6 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32Bytes LLImageGL::sGlobalTextureMemory(0);
-S32Bytes LLImageGL::sBoundTextureMemory(0);
-S32Bytes LLImageGL::sCurBoundTextureMemory(0);
 S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -282,15 +279,6 @@ void LLImageGL::updateStats(F32 current_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	sLastFrameTime = current_time;
-	sBoundTextureMemory = sCurBoundTextureMemory;
-	sCurBoundTextureMemory = S32Bytes(0);
-}
-
-//static
-S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
-{
-	LLImageGL::sCurBoundTextureMemory += mem ;
-	return LLImageGL::sCurBoundTextureMemory.value();
 }
 
 //----------------------------------------------------------------------------
@@ -623,7 +611,7 @@ void LLImageGL::forceUpdateBindStats(void) const
 	mLastBindTime = sLastFrameTime;
 }
 
-BOOL LLImageGL::updateBindStats(S32Bytes tex_mem) const
+BOOL LLImageGL::updateBindStats() const
 {	
 	if (mTexName != 0)
 	{
@@ -635,7 +623,6 @@ BOOL LLImageGL::updateBindStats(S32Bytes tex_mem) const
 		{
 			// we haven't accounted for this texture yet this frame
 			sUniqueCount++;
-			updateBoundTexMem(tex_mem, mComponents, mCategory);
 			mLastBindTime = sLastFrameTime;
 
 			return TRUE ;
@@ -1599,11 +1586,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     // things will break if we don't unbind after creation
     gGL.getTexUnit(0)->unbind(mBindTarget);
 
-    if (old_texname != 0)
-    {
-        sGlobalTextureMemory -= mTextureMemory;
-    }
-
     //if we're on the image loading thread, be sure to delete old_texname and update mTexName on the main thread
     if (!defer_copy)
     {
@@ -1624,7 +1606,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
     
     mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
-    sGlobalTextureMemory += mTextureMemory;
     mTexelsInGLTexture = getWidth() * getHeight();
 
     // mark this as bound at this point, so we don't throw it out immediately
@@ -1857,7 +1838,6 @@ void LLImageGL::destroyGLTexture()
 	{
 		if(mTextureMemory != S32Bytes(0))
 		{
-			sGlobalTextureMemory -= mTextureMemory;
 			mTextureMemory = (S32Bytes)0;
 		}
 		

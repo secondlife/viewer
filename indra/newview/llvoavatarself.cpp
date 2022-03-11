@@ -2823,7 +2823,6 @@ void LLVOAvatarSelf::deleteScratchTextures()
 		LL_DEBUGS() << "Clearing Scratch Textures " << (S32Kilobytes)sScratchTexBytes << LL_ENDL;
 
 		delete_and_clear(sScratchTexNames);
-		LLImageGL::sGlobalTextureMemory -= sScratchTexBytes;
 		sScratchTexBytes = S32Bytes(0);
 	}
 }
