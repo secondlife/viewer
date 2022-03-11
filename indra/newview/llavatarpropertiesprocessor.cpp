@@ -116,7 +116,9 @@ void LLAvatarPropertiesProcessor::sendRequest(const LLUUID& avatar_id, EAvatarPr
 		return;
 	}
 
-    std::string cap = gAgent.getRegionCapability("AgentProfile");
+    // Cap is not ready for global use
+    //std::string cap = gAgent.getRegionCapability("AgentProfile");
+    std::string cap;
 
     switch (type)
     {

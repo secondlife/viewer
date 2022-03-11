@@ -241,66 +241,71 @@ void LLPanelProfilePicks::processProperties(void* data, EAvatarProcessorType typ
         LLAvatarPicks* avatar_picks = static_cast<LLAvatarPicks*>(data);
         if (avatar_picks && getAvatarId() == avatar_picks->target_id)
         {
-            LLUUID selected_id = mPickToSelectOnLoad;
-            if (mPickToSelectOnLoad.isNull())
-            {
-                if (mTabContainer->getTabCount() > 0)
-                {
-                    LLPanelProfilePick* active_pick_panel = dynamic_cast<LLPanelProfilePick*>(mTabContainer->getCurrentPanel());
-                    if (active_pick_panel)
-                    {
-                        selected_id = active_pick_panel->getPickId();
-                    }
-                }
-            }
-
-            mTabContainer->deleteAllTabs();
-
-            LLAvatarPicks::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
-            for (; avatar_picks->picks_list.end() != it; ++it)
-            {
-                LLUUID pick_id = it->first;
-                std::string pick_name = it->second;
-
-                LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
-
-                pick_panel->setPickId(pick_id);
-                pick_panel->setPickName(pick_name);
-                pick_panel->setAvatarId(getAvatarId());
-
-                mTabContainer->addTabPanel(
-                    LLTabContainer::TabPanelParams().
-                    panel(pick_panel).
-                    select_tab(selected_id == pick_id).
-                    label(pick_name));
-
-                if (selected_id == pick_id)
-                {
-                    mPickToSelectOnLoad = LLUUID::null;
-                }
-            }
-
-            BOOL no_data = !mTabContainer->getTabCount();
-            mNoItemsLabel->setVisible(no_data);
-            if (no_data)
-            {
-                if(getSelfProfile())
-                {
-                    mNoItemsLabel->setValue(LLTrans::getString("NoPicksText"));
-                }
-                else
-                {
-                    mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksText"));
-                }
-            }
-            else if (selected_id.isNull())
-            {
-                mTabContainer->selectFirstTab();
-            }
-
-            updateButtons();
+            processProperties(avatar_picks);
         }
     }
+}
+
+void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
+{
+    LLUUID selected_id = mPickToSelectOnLoad;
+    if (mPickToSelectOnLoad.isNull())
+    {
+        if (mTabContainer->getTabCount() > 0)
+        {
+            LLPanelProfilePick* active_pick_panel = dynamic_cast<LLPanelProfilePick*>(mTabContainer->getCurrentPanel());
+            if (active_pick_panel)
+            {
+                selected_id = active_pick_panel->getPickId();
+            }
+        }
+    }
+
+    mTabContainer->deleteAllTabs();
+
+    LLAvatarPicks::picks_list_t::const_iterator it = avatar_picks->picks_list.begin();
+    for (; avatar_picks->picks_list.end() != it; ++it)
+    {
+        LLUUID pick_id = it->first;
+        std::string pick_name = it->second;
+
+        LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
+
+        pick_panel->setPickId(pick_id);
+        pick_panel->setPickName(pick_name);
+        pick_panel->setAvatarId(getAvatarId());
+
+        mTabContainer->addTabPanel(
+            LLTabContainer::TabPanelParams().
+            panel(pick_panel).
+            select_tab(selected_id == pick_id).
+            label(pick_name));
+
+        if (selected_id == pick_id)
+        {
+            mPickToSelectOnLoad = LLUUID::null;
+        }
+    }
+
+    BOOL no_data = !mTabContainer->getTabCount();
+    mNoItemsLabel->setVisible(no_data);
+    if (no_data)
+    {
+        if (getSelfProfile())
+        {
+            mNoItemsLabel->setValue(LLTrans::getString("NoPicksText"));
+        }
+        else
+        {
+            mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksText"));
+        }
+    }
+    else if (selected_id.isNull())
+    {
+        mTabContainer->selectFirstTab();
+    }
+
+    updateButtons();
 }
 
 void LLPanelProfilePicks::resetData()

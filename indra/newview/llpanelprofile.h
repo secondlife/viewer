@@ -103,6 +103,8 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
+    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
+
 protected:
 	/**
 	 * Process profile related data received from server.
@@ -244,6 +246,8 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
+    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
+
 protected:
 	/*virtual*/ void updateButtons();
 	void onCommitLoad(LLUICtrl* ctrl);
@@ -309,6 +313,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(const LLAvatarData* avatar_data);
 
 	void resetData();
 
@@ -316,6 +321,8 @@ public:
 	 * Saves changes.
 	 */
 	void apply(LLAvatarData* data);
+
+    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 protected:
 	/*virtual*/ void updateButtons();
@@ -351,6 +358,7 @@ public:
 	/*virtual*/ BOOL postBuild();
 
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(LLAvatarNotes* avatar_notes);
 
 	void resetData();
 

@@ -47,7 +47,7 @@ Only first 1000 characters are shown here. If you edit your notes and click OK, 
      height="311"
      follows="all"
      layout="topleft"
-     max_length="1000"
+     max_length="65530"
      word_wrap="true"
     />
     <text

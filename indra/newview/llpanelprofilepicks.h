@@ -57,6 +57,7 @@ public:
     void selectPick(const LLUUID& pick_id);
 
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(const LLAvatarPicks* avatar_picks);
 
     /*virtual*/ void resetData();
 
@@ -71,6 +72,8 @@ public:
      * Sends update data request to server.
      */
     /*virtual*/ void updateData();
+
+    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 private:
     void onClickNewBtn();
