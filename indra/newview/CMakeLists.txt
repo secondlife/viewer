@@ -1874,8 +1874,8 @@ if (WINDOWS)
 
     if (FMODSTUDIO)
       list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/Release/fmodL.dll
-           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodL.dll
+           ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
           )
     endif (FMODSTUDIO)

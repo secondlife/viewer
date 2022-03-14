@@ -20,16 +20,16 @@ if (FMODSTUDIO)
     if (WINDOWS)
       set(FMODSTUDIO_LIBRARY
           debug fmodL_vc
-          optimized fmodL_vc)
+          optimized fmod_vc)
     elseif (DARWIN)
       #despite files being called libfmod.dylib, we are searching for fmod
       set(FMODSTUDIO_LIBRARY
           debug fmodL
-          optimized fmodL)
+          optimized fmod)
     elseif (LINUX)
       set(FMODSTUDIO_LIBRARY
           debug fmodL
-          optimized fmodL)
+          optimized fmod)
     endif (WINDOWS)
     set(FMODSTUDIO_LIBRARIES ${FMODSTUDIO_LIBRARY})
     set(FMODSTUDIO_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/fmodstudio)

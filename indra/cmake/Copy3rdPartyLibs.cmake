@@ -87,7 +87,7 @@ if(WINDOWS)
 
     if (FMODSTUDIO)
         set(debug_files ${debug_files} fmodL.dll)
-        set(release_files ${release_files} fmodL.dll)
+        set(release_files ${release_files} fmod.dll)
     endif (FMODSTUDIO)
 
     if (OPENAL)
@@ -179,7 +179,7 @@ elseif(DARWIN)
 
     if (FMODSTUDIO)
       set(debug_files ${debug_files} libfmodL.dylib)
-      set(release_files ${release_files} libfmodL.dylib)
+      set(release_files ${release_files} libfmod.dylib)
     endif (FMODSTUDIO)
 
 elseif(LINUX)
@@ -229,7 +229,7 @@ elseif(LINUX)
 
     if (FMODSTUDIO)
       set(debug_files ${debug_files} "libfmodL.so")
-      set(release_files ${release_files} "libfmodL.so")
+      set(release_files ${release_files} "libfmod.so")
     endif (FMODSTUDIO)
 
 else(WINDOWS)

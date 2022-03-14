@@ -517,7 +517,7 @@ class WindowsManifest(ViewerManifest):
                 if(self.args['configuration'].lower() == 'debug'):
                     self.path("fmodL.dll")
                 else:
-                    self.path("fmodL.dll")
+                    self.path("fmod.dll")
 
             if self.args['openal'] == 'ON':
                 # Get openal dll
@@ -1051,7 +1051,7 @@ class DarwinManifest(ViewerManifest):
                             dylibs += path_optional(os.path.join(debpkgdir, libfile), libfile)
                     else:
                         for libfile in (
-                                    "libfmodL.dylib",
+                                    "libfmod.dylib",
                                     ):
                             dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
@@ -1545,9 +1545,9 @@ class Linux_i686_Manifest(LinuxManifest):
 
             if self.args['fmodstudio'] == 'ON':
                 try:
-                    self.path("libfmodL.so.11.7")
-                    self.path("libfmodL.so.11")
-                    self.path("libfmodL.so")
+                    self.path("libfmod.so.11.7")
+                    self.path("libfmod.so.11")
+                    self.path("libfmod.so")
                     pass
                 except:
                     print("Skipping libfmod.so - not found")
