@@ -2745,6 +2745,9 @@ BOOL LLModelPreview::render()
                     // (note: all these UI updates need to be somewhere that is not render)
                     fmp->childSetValue("upload_skin", true);
                     mFirstSkinUpdate = false;
+                    upload_skin = true;
+                    skin_weight = true;
+                    mViewOption["show_skin_weight"] = true;
                 }
 
                 fmp->enableViewOption("show_skin_weight");
