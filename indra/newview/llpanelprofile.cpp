@@ -84,6 +84,7 @@ static const std::string PANEL_PICKS        = "panel_profile_picks";
 static const std::string PANEL_CLASSIFIEDS  = "panel_profile_classifieds";
 static const std::string PANEL_FIRSTLIFE    = "panel_profile_firstlife";
 static const std::string PANEL_NOTES        = "panel_profile_notes";
+static const std::string PANEL_PROFILE_VIEW = "panel_profile_view";
 
 static const std::string PROFILE_PROPERTIES_CAP = "AgentProfile";
 
@@ -123,32 +124,59 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         return;
     }
 
+    LLPanel *panel = floater_profile->findChild<LLPanel>(PANEL_PROFILE_VIEW, TRUE);
+    LLPanelProfile *panel_profile = dynamic_cast<LLPanelProfile*>(panel);
+    if (!panel_profile)
+    {
+        LL_WARNS() << PANEL_PROFILE_VIEW << " not found" << LL_ENDL;
+        return;
+    }
+
 
     // Avatar Data
 
-    LLAvatarData avatar_data;
+    LLAvatarData *avatar_data = &panel_profile->mAvatarData;
     std::string birth_date;
 
-    avatar_data.agent_id = agent_id;
-    avatar_data.avatar_id = agent_id;
-    avatar_data.image_id = result["sl_image_id"].asUUID();
-    avatar_data.fl_image_id = result["fl_image_id"].asUUID();
-    avatar_data.partner_id = result["partner_id"].asUUID();
-    avatar_data.about_text = result["sl_about_text"].asString();
-    avatar_data.fl_about_text = result["fl_about_text"].asString();
-    avatar_data.born_on = result["member_since"].asDate();
-    avatar_data.profile_url = getProfileURL(agent_id.asString());
+    avatar_data->agent_id = agent_id;
+    avatar_data->avatar_id = agent_id;
+    avatar_data->image_id = result["sl_image_id"].asUUID();
+    avatar_data->fl_image_id = result["fl_image_id"].asUUID();
+    avatar_data->partner_id = result["partner_id"].asUUID();
+    // Todo: new descriptio size is 65536, check if it actually fits or has scroll
+    avatar_data->about_text = result["sl_about_text"].asString();
+    // Todo: new descriptio size is 65536, check if it actually fits or has scroll
+    avatar_data->fl_about_text = result["fl_about_text"].asString();
+    avatar_data->born_on = result["member_since"].asDate();
+    avatar_data->profile_url = getProfileURL(agent_id.asString());
 
-    avatar_data.flags = 0;
-    avatar_data.caption_index = 0;
+    avatar_data->flags = 0;
 
-    LLPanel *panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
+    if (result["online"].asBoolean())
+    {
+        avatar_data->flags |= AVATAR_ONLINE;
+    }
+    if (result["allow_publish"].asBoolean())
+    {
+        avatar_data->flags |= AVATAR_ALLOW_PUBLISH;
+    }
+
+    if (result["charter_member"].asBoolean())
+    {
+        const S32 TYPE_CHARTER_MEMBER = 2;
+        avatar_data->caption_index = TYPE_CHARTER_MEMBER;
+    }
+    else
+    {
+        const S32 TYPE_RESIDENT = 0; // See ACCT_TYPE
+        avatar_data->caption_index = TYPE_RESIDENT;
+    }
+
+    panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
     LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
     if (panel_sl)
     {
-        panel_sl->fillCommonData(&avatar_data);
-        panel_sl->fillPartnerData(&avatar_data);
-        panel_sl->updateButtons();
+        panel_sl->processProfileProperties(avatar_data);
     }
 
     panel = floater_profile->findChild<LLPanel>(PANEL_WEB, TRUE);
@@ -162,9 +190,9 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     LLPanelProfileFirstLife *panel_first = dynamic_cast<LLPanelProfileFirstLife*>(panel);
     if (panel_first)
     {
-        panel_first->mCurrentDescription = avatar_data.fl_about_text;
+        panel_first->mCurrentDescription = avatar_data->fl_about_text;
         panel_first->mDescriptionEdit->setValue(panel_first->mCurrentDescription);
-        panel_first->mPicture->setValue(avatar_data.fl_image_id);
+        panel_first->mPicture->setValue(avatar_data->fl_image_id);
         panel_first->updateButtons();
     }
 
@@ -550,19 +578,19 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
             {
                 params["sl_about_text"] = mDescriptionEdit->getValue().asString();
             }
+            if ((bool)data->allow_publish != mShowInSearchCheckbox->getValue().asBoolean())
+            {
+                params["allow_publish"] = mShowInSearchCheckbox->getValue().asBoolean();
+            }
             if (!params.emptyMap())
             {
                 LLCoros::instance().launch("putAgentUserInfoCoro",
                     boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
             }
         }
-
-        if ((bool)data->allow_publish != mShowInSearchCheckbox->getValue().asBoolean())
+        else
         {
-            data->image_id = mSecondLifePic->getImageAssetID();
-            data->about_text = mDescriptionEdit->getValue().asString();
-            data->allow_publish = mShowInSearchCheckbox->getValue();
-            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate(data);
+            LL_WARNS() << "Failed to update profile data, no cap found" << LL_ENDL;
         }
     }
 }
@@ -579,9 +607,10 @@ void LLPanelProfileSecondLife::updateData()
         {
             LLCoros::instance().launch("requestAgentUserInfoCoro",
                 boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
-
-            // needed for online status for other avatars and 'payment' for self
-            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_id);
+        }
+        else
+        {
+            LL_WARNS() << "Failed to update profile data, no cap found" << LL_ENDL;
         }
     }
 }
@@ -633,9 +662,9 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
         processOnlineStatus(avatar_data->flags & AVATAR_ONLINE);
     }
 
-    //fillCommonData(avatar_data);
+    fillCommonData(avatar_data);
 
-    //fillPartnerData(avatar_data);
+    fillPartnerData(avatar_data);
 
     fillAccountStatus(avatar_data);
 
@@ -1503,7 +1532,6 @@ BOOL LLPanelProfileNotes::postBuild()
     mMapRights = getChild<LLCheckBoxCtrl>("map_check");
     mEditObjectRights = getChild<LLCheckBoxCtrl>("objects_check");
     mNotesEditor = getChild<LLTextEditor>("notes_edit");
-    mCharacterLimitWarning = getChild<LLTextBox>("character_limit_warning");
 
     mEditObjectRights->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
 
@@ -1552,11 +1580,18 @@ void LLPanelProfileNotes::fillRightsData()
 void LLPanelProfileNotes::onCommitNotes()
 {
     std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (getIsLoaded() && !cap_url.empty())
+    if (getIsLoaded())
     {
-        std::string notes = mNotesEditor->getValue().asString();
-        LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", notes)));
+        if (!cap_url.empty())
+        {
+            std::string notes = mNotesEditor->getValue().asString();
+            LLCoros::instance().launch("putAgentUserInfoCoro",
+                boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", notes)));
+        }
+        else
+        {
+            LL_WARNS() << "Failed to update notes, no cap found" << LL_ENDL;
+        }
     }
 }
 
@@ -1630,27 +1665,6 @@ void LLPanelProfileNotes::applyRights()
     LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(), rights);
 }
 
-void LLPanelProfileNotes::updateWarning()
-{
-    mCharacterLimitWarning->setText(std::string());
-
-    std::string str = getString("header_symbol_limit");
-    mCharacterLimitWarning->appendText(str, false, LLStyle::Params().color(LLColor4::yellow));
-    mCharacterLimitWarning->appendText(" ", false, LLStyle::Params());
-
-    LLStringUtil::format_map_t args;
-    if (!mURLWebProfile.empty())
-    {
-        args["[PROFILE_URL]"] = mURLWebProfile;
-    }
-    else
-    {
-        args["[PROFILE_URL]"] = getProfileURL(getAvatarId().asString());
-    }
-    str = getString("body_symbol_limit", args);
-    mCharacterLimitWarning->appendText(str, false, LLStyle::Params());
-}
-
 void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType type)
 {
     if (APT_NOTES == type)
@@ -1669,16 +1683,6 @@ void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
     mNotesEditor->setValue(avatar_notes->notes);
     mNotesEditor->setEnabled(TRUE);
     updateButtons();
-
-    /*if (avatar_notes->notes.size() > 1000)
-    {
-        mCharacterLimitWarning->setVisible(TRUE);
-        updateWarning();
-    }
-    else
-    {*/
-        mCharacterLimitWarning->setVisible(FALSE);
-    //}
 }
 
 void LLPanelProfileNotes::resetData()
@@ -1688,7 +1692,6 @@ void LLPanelProfileNotes::resetData()
     mOnlineStatus->setValue(FALSE);
     mMapRights->setValue(FALSE);
     mEditObjectRights->setValue(FALSE);
-    mCharacterLimitWarning->setVisible(FALSE);
 
     mURLWebProfile.clear();
 }
@@ -1735,11 +1738,6 @@ void LLPanelProfileNotes::onAvatarNameCache(const LLUUID& agent_id, const LLAvat
     }
 
     mURLWebProfile = getProfileURL(username, false);
-
-    if (mCharacterLimitWarning->getVisible())
-    {
-        updateWarning();
-    }
 }
 
 
@@ -1847,9 +1845,6 @@ void LLPanelProfile::updateData()
         {
             LLCoros::instance().launch("requestAgentUserInfoCoro",
                 boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
-
-            // needed for online status for other avatars and 'payment' for self
-            LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesRequest(avatar_id);
         }
     }
 }
@@ -1860,11 +1855,9 @@ void LLPanelProfile::apply()
     {
         //KC - AvatarData is spread over 3 different panels
         // collect data from the last 2 and give to the first to save
-        LLAvatarData data = LLAvatarData();
-        data.avatar_id = gAgentID;
-        mPanelFirstlife->apply(&data);
-        mPanelWeb->apply(&data);
-        mPanelSecondlife->apply(&data);
+        mPanelFirstlife->apply(&mAvatarData);
+        mPanelWeb->apply(&mAvatarData);
+        mPanelSecondlife->apply(&mAvatarData);
 
         mPanelInterests->apply();
         mPanelPicks->apply();

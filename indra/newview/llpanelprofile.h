@@ -384,13 +384,11 @@ protected:
 	void enableCheckboxes(bool enable);
 
 	void applyRights();
-    void updateWarning();
 
     LLCheckBoxCtrl*     mOnlineStatus;
 	LLCheckBoxCtrl*     mMapRights;
 	LLCheckBoxCtrl*     mEditObjectRights;
 	LLTextEditor*       mNotesEditor;
-    LLTextBox*          mCharacterLimitWarning;
 
     std::string			mURLWebProfile;
 
@@ -429,6 +427,10 @@ public:
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 
+    LLAvatarData getAvatarData() { return mAvatarData; };
+
+    friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
+
 private:
     void onTabChange();
 
@@ -440,6 +442,13 @@ private:
     LLPanelProfileFirstLife*    mPanelFirstlife;
     LLPanelProfileNotes*         mPanelNotes;
     LLTabContainer*             mTabContainer;
+
+    // Todo: due to server taking minutes to update this needs a more long term storage
+    // to reuse recently saved values if user opens floater again
+    // Storage implementation depends onto how a cap will be implemented, if cap will be
+    // enought to fully update LLAvatarPropertiesProcessor, then this storage can be
+    // implemented there.
+    LLAvatarData mAvatarData;
 };
 
 #endif //LL_LLPANELPROFILE_H

@@ -44,7 +44,7 @@
      layout="topleft"
      bg_readonly_color="Transparent"
      border_visible="true"
-     max_length="253"
+     max_length="65000"
      parse_urls="true"
      word_wrap="true"
     />

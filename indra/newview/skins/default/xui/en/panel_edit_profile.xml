@@ -245,7 +245,7 @@
        layout="topleft"
        left="123"
        top="90"
-       max_length="512"
+       max_length="65000"
        name="sl_description_edit"
        width="157"
        word_wrap="true">
@@ -300,7 +300,7 @@
        height="102"
        layout="topleft"
        left="123"
-       max_length="512"
+       max_length="65000"
        top="223"
        name="fl_description_edit"
        width="157"
