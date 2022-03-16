@@ -342,6 +342,13 @@ LLViewerObject::~LLViewerObject()
 		mPartSourcep = NULL;
 	}
 
+    if (mText)
+    {
+        // something recovered LLHUDText when object was already dead
+        mText->markDead();
+        mText = NULL;
+    }
+
 	// Delete memory associated with extra parameters.
 	std::map<U16, ExtraParameter*>::iterator iter;
 	for (iter = mExtraParameterList.begin(); iter != mExtraParameterList.end(); ++iter)
