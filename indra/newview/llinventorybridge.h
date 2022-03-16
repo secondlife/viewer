@@ -361,8 +361,8 @@ protected:
 	void determineFolderType();
 
 	void dropToFavorites(LLInventoryItem* inv_item);
-	void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-	void dropToMyOutfits(LLInventoryCategory* inv_cat);
+    void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+    void dropToMyOutfits(const LLUUID& dest_id, const LLInventoryCategory* copy_category);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
