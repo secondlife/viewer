@@ -161,15 +161,14 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
         avatar_data->flags |= AVATAR_ALLOW_PUBLISH;
     }
 
-    if (result["charter_member"].asBoolean())
+    avatar_data->caption_index = 0;
+    if (result.has("charter_member")) // won't be present if "caption" is set
     {
-        const S32 TYPE_CHARTER_MEMBER = 2;
-        avatar_data->caption_index = TYPE_CHARTER_MEMBER;
+        avatar_data->caption_index = result["charter_member"].asInteger();
     }
-    else
+    else if (result.has("caption"))
     {
-        const S32 TYPE_RESIDENT = 0; // See ACCT_TYPE
-        avatar_data->caption_index = TYPE_RESIDENT;
+        avatar_data->caption_text = result["caption"].asString();
     }
 
     panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
