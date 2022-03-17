@@ -3677,9 +3677,10 @@ void LLFolderBridge::perform_pasteFromClipboard()
 		const LLUUID &lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
-		const BOOL move_is_into_outfit = move_is_into_my_outfits || (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
-        const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
+                // Assume the outfit doesn't have folders
+                const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
+                const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
+            const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 		const BOOL move_is_into_favorites = (mUUID == favorites_id);
 		const BOOL move_is_into_lost_and_found = model->isObjectDescendentOf(mUUID, lost_and_found_id);
 
@@ -3755,41 +3756,37 @@ void LLFolderBridge::perform_pasteFromClipboard()
 						return;
 					}
 				}
-				if (move_is_into_outfit)
-				{
-					if (!move_is_into_my_outfits && item && can_move_to_outfit(item, move_is_into_current_outfit))
-					{
-						dropToOutfit(item, move_is_into_current_outfit);
-					}
-					else if (move_is_into_my_outfits && LLAssetType::AT_CATEGORY == obj->getType())
-					{
-						LLInventoryCategory* cat = model->getCategory(item_id);
-						U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
-						if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
-						{
-                                                    dropToMyOutfits(mUUID, cat);
-						}
-						else
-						{
-							LLNotificationsUtil::add("MyOutfitsPasteFailed");
-						}
-					}
-					else
-					{
-						LLNotificationsUtil::add("MyOutfitsPasteFailed");
-					}
-				}
-				else if (move_is_into_current_outfit)
-				{
-					if (item && can_move_to_outfit(item, move_is_into_current_outfit))
-					{
-						dropToOutfit(item, move_is_into_current_outfit);
-					}
-					else
-					{
-						LLNotificationsUtil::add("MyOutfitsPasteFailed");
-					}
-				}
+                                if (move_is_into_my_outfits && !move_is_into_outfit)
+                                {
+                                    if (LLAssetType::AT_CATEGORY == obj->getType())
+                                    {
+                                        LLInventoryCategory* cat = model->getCategory(item_id);
+                                        U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
+                                        if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
+                                        {
+                                            dropToMyOutfits(mUUID, cat);
+                                        }
+                                        else
+                                        {
+                                            LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                                    }
+                                }
+                                else if (move_is_into_outfit || move_is_into_current_outfit)
+                                {
+                                    if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+                                    {
+                                        dropToOutfit(item, move_is_into_current_outfit);
+                                    }
+                                    else
+                                    {
+                                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                                    }
+                                }
 				else if (move_is_into_favorites)
 				{
 					if (item && can_move_to_landmarks(item))
@@ -3910,11 +3907,10 @@ void LLFolderBridge::pasteLinkFromClipboard()
 	{
 		const LLUUID &current_outfit_id = model->findCategoryUUIDForType(LLFolderType::FT_CURRENT_OUTFIT, false);
         const LLUUID &marketplacelistings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
-		const LLUUID &my_outifts_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-		const BOOL move_is_into_my_outfits = (mUUID == my_outifts_id) || model->isObjectDescendentOf(mUUID, my_outifts_id);
-		const BOOL move_is_into_outfit = move_is_into_my_outfits || (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT);
+                // Assume the outfit doesn't have folders
+                const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
         const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 
 		if (move_is_into_marketplacelistings)
@@ -3932,7 +3928,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
 			 ++iter)
 		{
 			const LLUUID &object_id = (*iter);
-			if (move_is_into_current_outfit || move_is_into_outfit)
+                        if (move_is_into_current_outfit || move_is_into_outfit)
 			{
 				LLInventoryItem *item = model->getItem(object_id);
 				if (item && can_move_to_outfit(item, move_is_into_current_outfit))
