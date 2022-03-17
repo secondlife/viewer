@@ -94,6 +94,21 @@ const outfit_accordion_tab_params& get_accordion_tab_params()
 	return tab_params;
 }
 
+class LLIsOutfit : public LLInventoryCollectFunctor
+{
+public:
+    bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) override;
+};
+
+bool LLIsOutfit::operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+{
+    if (!cat)
+    {
+        return false;
+    }
+    return cat->getPreferredType() == LLFolderType::FT_OUTFIT;
+}
+
 
 static LLPanelInjector<LLOutfitsList> t_outfits_list("outfits_list");
 
@@ -849,18 +864,19 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     LLInventoryModel::item_array_t item_array;
 
     // Collect all sub-categories of a given category.
-    LLIsType is_category(LLAssetType::AT_CATEGORY);
+    LLIsOutfit is_outfit;
     gInventory.collectDescendentsIf(
         category_id,
         cat_array,
         item_array,
         LLInventoryModel::EXCLUDE_TRASH,
-        is_category);
+        is_outfit);
 
     uuid_vec_t vadded;
     uuid_vec_t vremoved;
 
     // Create added and removed items vectors.
+    // TODO: Handle recursion correctly... Here? Or possibly elsewhere as well? Maybe it's an issue with the way the listener is registered
     computeDifference(cat_array, vadded, vremoved);
 
     // Handle added tabs.
