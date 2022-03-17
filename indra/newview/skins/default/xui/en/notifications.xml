@@ -1864,7 +1864,7 @@ Graphics Quality can be raised in Preferences &gt; Graphics.
    icon="alertmodal.tga"
    name="AutoFPSConfirmDisable"
    type="alertmodal">
-    Changing this setting will disable automatic adjustment and turn off 'Auto FPS' setting.
+Changing this setting will disable automatic adjustment and turn off 'Automatic settings'.
 Are you sure you want to continue?
     <tag>confirm</tag>
     <usetemplate

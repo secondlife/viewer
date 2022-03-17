@@ -697,8 +697,6 @@
     top_delta="0"
     name="Reflections"
     width="150">
-      <combo_box.mouse_down_callback
-        function="Pref.AutoAdjustWarning" />
       <combo_box.item
         label="None; opaque"
         name="0"
@@ -857,8 +855,6 @@
    top_delta="0" 
    name="ShadowDetail"
    width="150">
-    <combo_box.mouse_down_callback
- function="Pref.AutoAdjustWarning" />
      <combo_box.item
        label="None"
        name="0"

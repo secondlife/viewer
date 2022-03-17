@@ -81,6 +81,9 @@ BOOL LLFloaterPreferenceGraphicsAdvanced::postBuild()
 
     mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateComplexityText, this));
 
+    getChild<LLComboBox>("ShadowDetail")->setMouseDownCallback(boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
+    getChild<LLComboBox>("Reflections")->setMouseDownCallback(boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
+
     return TRUE;
 }
 
