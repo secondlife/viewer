@@ -61,6 +61,7 @@
 #include "lltrans.h"
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/regex.hpp>
 #include <sstream>
 
 const S32 LOGIN_MAX_RETRIES = 0; // Viewer should not autmatically retry login
@@ -448,10 +449,13 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         LLSD payload;
         LLNotificationsUtil::add("PromptMFAToken", args, payload, [=](LLSD const & notif, LLSD const & response) {
             bool continue_clicked = response["continue"].asBoolean();
-            LLSD token = response["token"];
+            std::string token = response["token"].asString();
             LL_DEBUGS("LLLogin") << "PromptMFAToken: response: " << response << " continue_clicked" << continue_clicked << LL_ENDL;
 
-            if (continue_clicked && !token.asString().empty())
+            // strip out whitespace - SL-17034/BUG-231938
+            token = boost::regex_replace(token, boost::regex("\\s"), "");
+
+            if (continue_clicked && !token.empty())
             {
                 LL_INFOS("LLLogin") << "PromptMFAToken: token submitted" << LL_ENDL;
 
