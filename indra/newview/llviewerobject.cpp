@@ -1264,6 +1264,7 @@ U32 LLViewerObject::processUpdateMessage(LLMessageSystem *mesgsys,
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_ObjectData, data, length, block_num, MAX_OBJECT_BINARY_DATA_SIZE);
 
 				mTotalCRC = crc;
+                // Might need to update mSourceMuted here to properly pick up new radius
 				mSoundCutOffRadius = cutoff;
 
 				// Owner ID used for sound muting or particle system muting
@@ -5873,7 +5874,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		else if (flags & LL_SOUND_FLAG_STOP)
         {
 			// Just shut off the sound
-			mAudioSourcep->play(LLUUID::null);
+			mAudioSourcep->stop();
 		}
 		return;
 	}
@@ -5912,7 +5913,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		mAudioSourcep->setQueueSounds(queue);
 		if(!queue) // stop any current sound first to avoid "farts of doom" (SL-1541) -MG
 		{
-			mAudioSourcep->play(LLUUID::null);
+			mAudioSourcep->stop();
 		}
 		
 		// Play this sound if region maturity permits

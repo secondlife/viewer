@@ -304,7 +304,13 @@ public:
 	LLAudioBuffer *getCurrentBuffer();
 
 	bool setupChannel();
-	bool play(const LLUUID &audio_id);	// Start the audio source playing
+
+    // Stop the audio source, reset audio id even if muted
+    void stop();
+
+    // Start the audio source playing,
+    // takes mute into account to preserve previous id if nessesary
+    bool play(const LLUUID &audio_id);
 
 	bool hasPendingPreloads() const;	// Has preloads that haven't been done yet
 
