@@ -253,6 +253,8 @@ public:
 
 	// Compute a hash of direct descendant names (for detecting child name changes)
 	LLMD5 hashDirectDescendentNames(const LLUUID& cat_id) const;
+    // Compute a hash of direct descendant names including categories (for detecting child name changes)
+    LLMD5 hashDirectDescendentAndCategoryNames(const LLUUID& cat_id) const;
 	
 	// Starting with the object specified, add its descendants to the
 	// array provided, but do not add the inventory object specified

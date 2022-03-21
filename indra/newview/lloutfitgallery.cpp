@@ -539,7 +539,7 @@ void LLOutfitGallery::updateAddedCategory(LLUUID cat_id)
 
     if (mOutfitsObserver == NULL)
     {
-        mOutfitsObserver = new LLInventoryCategoriesObserver();
+        mOutfitsObserver = new LLInventoryCategoriesObserver(true);
         gInventory.addObserver(mOutfitsObserver);
     }
 
@@ -1028,7 +1028,7 @@ void LLOutfitGallery::loadPhotos()
         return;
     if (mTexturesObserver == NULL)
     {
-        mTexturesObserver = new LLInventoryCategoriesObserver();
+        mTexturesObserver = new LLInventoryCategoriesObserver(false);
         gInventory.addObserver(mTexturesObserver);
     }
 

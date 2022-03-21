@@ -218,7 +218,7 @@ LLPanelWearing::LLPanelWearing()
 	,	mIsInitialized(false)
 	,	mAttachmentsChangedConnection()
 {
-	mCategoriesObserver = new LLInventoryCategoriesObserver();
+    mCategoriesObserver = new LLInventoryCategoriesObserver(true);
 
 	mGearMenu = new LLWearingGearMenu(this);
 	mContextMenu = new LLWearingContextMenu();

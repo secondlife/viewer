@@ -574,100 +574,176 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 	}
 }
 
+void LLInventoryAddedObserver::LLInventoryAddedObserver(bool recursive)
+: mRecursive(recursive)
+{
+}
+
+bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_data, std::set<LLUUID>& categories_not_found)
+{
+    const LLUUID& cat_id = category_data.mCatId;
+    
+    LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+    if (!category)
+    {
+        if (mCategoryMap.find(cat_id) != mCategoryMap.end())
+        {
+            // This category was added explicitly, so we expect it to always exist.
+            LL_WARNS() << "Category : Category id = " << cat_id << " disappeared" << LL_ENDL;
+        }
+        return true;
+    }
+    categories_not_found.remove(cat_id);
+
+    const S32 version = category->getVersion();
+    const S32 expected_num_descendents = category->getDescendentCount();
+    if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
+        (expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
+    {
+        return false;
+    }
+
+    // Check number of known descendents to find out whether it has changed.
+    LLInventoryModel::cat_array_t* cats;
+    LLInventoryModel::item_array_t* items;
+    gInventory.getDirectDescendentsOf(cat_id, cats, items);
+    if (!cats || !items)
+    {
+        LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
+        // NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
+        // that the cat just doesn't have any items or subfolders).
+        // Unrecoverable, so just skip this category.
+
+        llassert(cats != NULL && items != NULL);
+
+        return false;
+    }
+    
+    const S32 current_num_known_descendents = cats->size() + items->size();
+
+    bool cat_changed = false;
+
+    // If category version or descendents count has changed
+    // update category data in mCategoryMap
+    if (version != cat_data.mVersion || current_num_known_descendents != cat_data.mChildCount)
+    {
+        cat_data.mVersion = version;
+        cat_data.mChildCount = current_num_known_descendents;
+        cat_changed = true;
+    }
+
+    // If any item names have changed, update the name hash
+    // Only need to check if (a) name hash has not previously been
+    // computed, or (b) a name has changed.
+    if (!cat_data.mIsNameHashInitialized || (mask & LLInventoryObserver::LABEL))
+    {
+        LLMD5 child_name_hash;
+        if (!recursive)
+        {
+            child_name_hash = gInventory.hashDirectDescendentNames(cat_id);
+        }
+        else
+        {
+            child_name_hash = gInventory.hashDirectDescendentAndCategoryNames(cat_id);
+        }
+        if (cat_data.mChildNameHash != child_name_hash)
+        {
+            cat_data.mIsNameHashInitialized = true;
+            cat_data.mChildNameHash = child_name_hash;
+            cat_changed = true;
+        }
+    }
+
+    if (mRecursive)
+    {
+        for (LLInventoryModel::cat_array_t::iterator child_iter = cats->begin(); iter != cats->end(); iter++)
+        {
+            LLViewerInventoryCategory* child_category = *child_iter;
+            if (!child_category)
+            {
+                continue;
+            }
+
+            const LLUUID& child_cat_id = child_category.getUUID();
+            category_map_t::iterator cached_child_it = mSubCategoryMap.find(child_cat_id);
+            bool have_cached_child_cat = cached_child_it != mSubCategoryMap.end();
+            if (!have_cached_child_cat)
+            {
+                // If we don't have cached info on this child_category, attempt to add it to mSubCategoryMap
+                addCategory(child_cat_id, child_category, callback_t(0), true)
+                cached_child_it = mSubCategoryMap.find(child_cat_id);
+                have_cached_child_cat = cached_child_it != mSubCategoryMap.end();
+            }
+            if (have_cached_child_cat)
+            {
+                LLCategoryData& child_cat_data = (*cached_child_it).second;
+                cat_changed |= checkCategoryChanged(child_cat_data, categories_not_found);
+            }
+        }
+    }
+
+    return cat_changed;
+}
+
 void LLInventoryCategoriesObserver::changed(U32 mask)
 {
-	if (!mCategoryMap.size())
-		return;
+    if (!mCategoryMap.size())
+    {
+        return;
+    }
 
-	std::vector<LLUUID> deleted_categories_ids;
+    // Keep track of deleted (or moved away) categories so we can remove them
+    std::set<LLUUID> categories_not_found;
+    for (category_map_t::iterator iter = mCategoryMap.begin();
+         iter != mCategoryMap.end();
+         ++iter)
+    {
+        const LLUUID& cat_id = (*iter).first;
+        categories_not_found.add(cat_id);
+    }
+    for (category_map_t::iterator iter = mSubCategoryMap.begin();
+         iter != mSubCategoryMap.end();
+         ++iter)
+    {
+        const LLUUID& cat_id = (*iter).first;
+        categories_not_found.add(cat_id);
+    }
 
-	for (category_map_t::iterator iter = mCategoryMap.begin();
-		 iter != mCategoryMap.end();
-		 ++iter)
-	{
-		const LLUUID& cat_id = (*iter).first;
-		LLCategoryData& cat_data = (*iter).second;
-        
-		LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
-		if (!category)
+    for (category_map_t::iterator iter = mCategoryMap.begin();
+         iter != mCategoryMap.end();
+         ++iter)
+    {
+        LLCategoryData& cat_data = (*iter).second;
+        bool cat_changed |= checkCategoryChanged(LLCategoryData& cat_data, enqueued_callbacks, categories_not_found);
+        if (cat_changed)
         {
-            LL_WARNS() << "Category : Category id = " << cat_id << " disappeared" << LL_ENDL;
-			cat_data.mCallback();
-            // Keep track of those deleted categories so we can remove them
-            deleted_categories_ids.push_back(cat_id);
-			continue;
+            cat_data.mCallback();
         }
-
-		const S32 version = category->getVersion();
-		const S32 expected_num_descendents = category->getDescendentCount();
-		if ((version == LLViewerInventoryCategory::VERSION_UNKNOWN) ||
-			(expected_num_descendents == LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN))
-		{
-			continue;
-		}
-
-		// Check number of known descendents to find out whether it has changed.
-		LLInventoryModel::cat_array_t* cats;
-		LLInventoryModel::item_array_t* items;
-		gInventory.getDirectDescendentsOf(cat_id, cats, items);
-		if (!cats || !items)
-		{
-			LL_WARNS() << "Category '" << category->getName() << "' descendents corrupted, fetch failed." << LL_ENDL;
-			// NULL means the call failed -- cats/items map doesn't exist (note: this does NOT mean
-			// that the cat just doesn't have any items or subfolders).
-			// Unrecoverable, so just skip this category.
-
-			llassert(cats != NULL && items != NULL);
-
-			continue;
-		}
-		
-		const S32 current_num_known_descendents = cats->size() + items->size();
-
-		bool cat_changed = false;
-
-		// If category version or descendents count has changed
-		// update category data in mCategoryMap
-		if (version != cat_data.mVersion || current_num_known_descendents != cat_data.mDescendentsCount)
-		{
-			cat_data.mVersion = version;
-			cat_data.mDescendentsCount = current_num_known_descendents;
-			cat_changed = true;
-		}
-
-		// If any item names have changed, update the name hash 
-		// Only need to check if (a) name hash has not previously been
-		// computed, or (b) a name has changed.
-		if (!cat_data.mIsNameHashInitialized || (mask & LLInventoryObserver::LABEL))
-		{
-			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
-			if (cat_data.mItemNameHash != item_name_hash)
-			{
-				cat_data.mIsNameHashInitialized = true;
-				cat_data.mItemNameHash = item_name_hash;
-				cat_changed = true;
-			}
-		}
-
-		// If anything has changed above, fire the callback.
-		if (cat_changed)
-			cat_data.mCallback();
-	}
+    }
     
-    // Remove deleted categories from the list
- 	for (std::vector<LLUUID>::iterator deleted_id = deleted_categories_ids.begin(); deleted_id != deleted_categories_ids.end(); ++deleted_id)
-	{
-		removeCategory(*deleted_id);
+    // Remove deleted/moved away categories from the maps
+    for (std::vector<LLUUID>::iterator not_found_id = categories_not_found.begin(); not_found_id != categories_not_found.end(); ++not_found_id)
+    {
+        removeCategory(*not_found_id);
+        mSubCategoryMap.erase(*not_found_id);
     }
 }
 
 bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash)
 {
+    // category may be nullptr
+	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
+    return addCategory(mCategoryMap, cat_id, category, cb, init_name_hash);
+}
+
+// category may be nullptr. Categories with empty callbacks are put in mSubCategoryMap.
+// Returns whether the category was added
+bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, LLViewerInventoryCategory* category, callback_t cb, bool init_name_hash)
+{
 	S32 version = LLViewerInventoryCategory::VERSION_UNKNOWN;
 	S32 current_num_known_descendents = LLViewerInventoryCategory::DESCENDENT_COUNT_UNKNOWN;
 	bool can_be_added = true;
 
-	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
 	// If category could not be retrieved it might mean that
 	// inventory is unusable at the moment so the category is
 	// stored with VERSION_UNKNOWN and DESCENDENT_COUNT_UNKNOWN,
@@ -699,23 +775,31 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 
 	if (can_be_added)
 	{
-		if(init_name_hash)
+        LLMD5 item_name_hash;
+        if (init_name_hash)
 		{
 			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
-			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents,item_name_hash)));
 		}
-		else
-		{
-			mCategoryMap.insert(category_map_value_t(cat_id,LLCategoryData(cat_id, cb, version, current_num_known_descendents)));
-		}
+
+        LLCategoryData cat_data(cat_id, cb, version, current_num_known_descendents, item_name_hash);
+        if (!cb.empty())
+        {
+            mCategoryMap.insert(category_map_value_t(cat_id, cat_data));
+            mCallbacks.insert(callback_map_value_t(cat_id, cb));
+        }
+        else
+        {
+            mSubCategoryMap.insert(category_map_value_t(cat_id, cat_data));
+        }
 	}
 
-	return can_be_added;
+    return can_be_added;
 }
 
 void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
 {
-	mCategoryMap.erase(cat_id);
+    // *NOTE: Categories in mSubCategoryMap with no associated ancestor in mCategoryMap will be cleaned up the next time LLInventoryCategoriesObserver::changed is called
+    mCategoryMap.erase(cat_id);
 }
 
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
@@ -724,10 +808,10 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	: mCatID(cat_id)
 	, mCallback(cb)
 	, mVersion(version)
-	, mDescendentsCount(num_descendents)
+	, mChildCount(num_descendents)
 	, mIsNameHashInitialized(false)
 {
-	mItemNameHash.finalize();
+	mChildNameHash.finalize();
 }
 
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
@@ -736,9 +820,9 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	: mCatID(cat_id)
 	, mCallback(cb)
 	, mVersion(version)
-	, mDescendentsCount(num_descendents)
+	, mChildCount(num_descendents)
 	, mIsNameHashInitialized(true)
-	, mItemNameHash(name_hash)
+	, mChildNameHash(name_hash)
 {
 }
 

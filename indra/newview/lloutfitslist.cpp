@@ -800,7 +800,7 @@ LLOutfitListBase::LLOutfitListBase()
     :   LLPanelAppearanceTab()
     ,   mIsInitialized(false)
 {
-    mCategoriesObserver = new LLInventoryCategoriesObserver();
+    mCategoriesObserver = new LLInventoryCategoriesObserver(true);
     mOutfitMenu = new LLOutfitContextMenu(this);
     //mGearMenu = createGearMenu();
 }

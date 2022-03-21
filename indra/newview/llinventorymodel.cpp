@@ -449,6 +449,39 @@ LLMD5 LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
 	return item_name_hash;
 }
 
+LLMD5 LLInventoryModel::hashDirectDescendentAndCategoryNames(const LLUUID& cat_id) const
+{
+	LLInventoryModel::cat_array_t* cat_array;
+	LLInventoryModel::item_array_t* item_array;
+	getDirectDescendentsOf(cat_id,cat_array,item_array);
+	LLMD5 child_name_hash;
+	if (!item_array)
+	{
+		child_name_hash.finalize();
+		return child_name_hash;
+	}
+	for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
+		 iter != item_array->end();
+		 iter++)
+	{
+		const LLViewerInventoryItem *item = (*iter);
+		if (!item)
+			continue;
+		child_name_hash.update(item->getName());
+	}
+	for (LLInventoryModel::cat_array_t::const_iterator iter = cat_array->begin();
+		 iter != cat_array->end();
+		 iter++)
+	{
+		const LLViewerInventoryItem *cat = (*iter);
+		if (!cat)
+			continue;
+        child_name_hash.update(cat->getName());
+	}
+	child_name_hash.finalize();
+	return child_name_hash;
+}
+
 // SJB: Added version to lock the arrays to catch potential logic bugs
 void LLInventoryModel::lockDirectDescendentArrays(const LLUUID& cat_id,
 												  cat_array_t*& categories,

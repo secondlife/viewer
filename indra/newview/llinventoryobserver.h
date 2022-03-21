@@ -255,38 +255,47 @@ protected:
 class LLInventoryCategoriesObserver : public LLInventoryObserver
 {
 public:
-	typedef boost::function<void()> callback_t;
+    typedef boost::function<void()> callback_t;
 
-	LLInventoryCategoriesObserver() {};
-	virtual void changed(U32 mask);
+    // When recursive = false, only track direct child items of each added category
+    // When recursive = true, also track child categories and all their children, recursively
+    LLInventoryCategoriesObserver(bool recursive);
+    void changed(U32 mask) override;
 
-	/**
-	 * Add cat_id to the list of observed categories with a
-	 * callback fired on category being changed.
-	 *
-	 * @return "true" if category was added, "false" if it could
-	 * not be found.
-	 */
-	bool addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash = false);
-	void removeCategory(const LLUUID& cat_id);
+    /**
+     * Add cat_id to the list of observed categories with a
+     * callback fired on category being changed.
+     *
+     * @return "true" if category was added, "false" if it could
+     * not be found.
+     */
+    bool addCategory(const LLUUID& cat_id, callback_t cb, bool init_name_hash = false);
+    void removeCategory(const LLUUID& cat_id);
 
 protected:
-	struct LLCategoryData
-	{
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents);
-		LLCategoryData(const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash);
-		callback_t	mCallback;
-		S32			mVersion;
-		S32			mDescendentsCount;
-		LLMD5		mItemNameHash;
-		bool		mIsNameHashInitialized;
-		LLUUID		mCatID;
-	};
+    bool addCategory(const LLUUID& cat_id, LLViewerInventoryCategory* category, callback_t cb, bool init_name_hash);
+    void checkCategoryChanged(LLCategoryData& cat_data, std::set<LLUUID>& categories_not_found);
 
-	typedef	std::map<LLUUID, LLCategoryData>	category_map_t;
-	typedef category_map_t::value_type			category_map_value_t;
+    struct LLCategoryData
+    {
+        LLCategoryData(const LLUUID& cat_id, S32 version, S32 num_item_descendents, S32 num_category_descendents, LLMD5 name_hash);
+        S32 mVersion;
+        S32 mChildCount;
+        LLMD5 mChildNameHash;
+        bool mIsNameHashInitialized;
+        LLUUID mCatID;
+    };
 
-	category_map_t				mCategoryMap;
+    typedef std::map<LLUUID, LLCategoryData> category_map_t;
+    typedef category_map_t::value_type category_map_value_t;
+    typedef std::map<LLUUID, callback_t> callback_map_t;
+    typedef callback_map_t::value_type callback_map_value_t;
+
+    bool mRecursive;
+
+    category_map_t mCategoryMap;
+    callback_map_t mCallbacks;
+    category_map_t mSubCategoryMap;
 };
 
 class LLFolderView;

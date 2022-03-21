@@ -490,7 +490,7 @@ void LLFloaterMarketplaceListings::setPanels()
 	// Create observer for marketplace listings modifications
     if (!mCategoriesObserver)
     {
-        mCategoriesObserver = new LLInventoryCategoriesObserver();
+        mCategoriesObserver = new LLInventoryCategoriesObserver(false);
         llassert(mCategoriesObserver);
         gInventory.addObserver(mCategoriesObserver);
         mCategoriesObserver->addCategory(mRootFolderId, boost::bind(&LLFloaterMarketplaceListings::onChanged, this));

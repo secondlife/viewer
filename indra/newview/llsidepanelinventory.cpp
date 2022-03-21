@@ -311,7 +311,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 
 	if (mCategoriesObserver == NULL)
 	{
-		mCategoriesObserver = new LLInventoryCategoriesObserver();
+        mCategoriesObserver = new LLInventoryCategoriesObserver(false);
 		gInventory.addObserver(mCategoriesObserver);
 	}
 
