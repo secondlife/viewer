@@ -197,6 +197,7 @@ void LLNetMap::draw()
 
     bool can_recenter_map = !(centered || mCentering || auto_centering);
     mPopupMenu->setItemEnabled("Re-center map", can_recenter_map);
+    updateAboutLandPopupButton();
 
 	// Prepare a scissor region
 	F32 rotation = 0;
@@ -588,6 +589,65 @@ void LLNetMap::drawTracking(const LLVector3d& pos_global, const LLColor4& color,
 	}
 }
 
+bool LLNetMap::isMouseOnPopupMenu()
+{
+    if (!mPopupMenu->isOpen())
+    {
+        return false;
+    }
+
+    S32 popup_x;
+    S32 popup_y;
+    LLUI::getInstance()->getMousePositionLocal(mPopupMenu, &popup_x, &popup_y);
+    // *NOTE: Tolerance is larger than it needs to be because the context menu is offset from the mouse when the menu is opened from certain
+    // directions. This may be a quirk of LLMenuGL::showPopup. -Cosmic,2022-03-22
+    constexpr S32 tolerance = 10;
+    // Test tolerance from all four corners, as the popup menu can appear from a different direction if there's not enough space.
+    // Assume the size of the popup menu is much larger than the provided tolerance.
+    // In practice, this is a [tolerance]px margin around the popup menu.
+    for (S32 sign_x = -1; sign_x <= 1; sign_x += 2)
+    {
+        for (S32 sign_y = -1; sign_y <= 1; sign_y += 2)
+        {
+            if (mPopupMenu->pointInView(popup_x + (sign_x * tolerance), popup_y + (sign_y * tolerance)))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void LLNetMap::updateAboutLandPopupButton()
+{
+    if (!mPopupMenu->isOpen())
+    {
+        return;
+    }
+
+    LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosGlobal(mPopupWorldPos);
+    if (!region)
+    {
+        mPopupMenu->setItemEnabled("About Land", false);
+    }
+    else
+    {
+        // Check if the mouse is in the bounds of the popup. If so, it's safe to assume no other hover function will be called, so the hover
+        // parcel can be used to check if location-sensitive tooltip options are available.
+        if (isMouseOnPopupMenu())
+        {
+            LLViewerParcelMgr::getInstance()->setHoverParcel(mPopupWorldPos);
+            LLParcel *hover_parcel = LLViewerParcelMgr::getInstance()->getHoverParcel();
+            bool      valid_parcel = false;
+            if (hover_parcel)
+            {
+                valid_parcel = hover_parcel->getOwnerID().notNull();
+            }
+            mPopupMenu->setItemEnabled("About Land", valid_parcel);
+        }
+    }
+}
+
 LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 {
 	x -= ll_round(getRect().getWidth() / 2 + mCurPan.mV[VX]);
@@ -646,6 +706,15 @@ BOOL LLNetMap::handleToolTip(S32 x, S32 y, MASK mask)
     if (handleToolTipAgent(mClosestAgentToCursor))
     {
         return true;
+    }
+
+    // The popup menu uses the hover parcel when it is open and the mouse is on
+    // top of it, with some additional tolerance. Returning early here prevents
+    // fighting over that hover parcel when getting tooltip info in the
+    // tolerance region.
+    if (isMouseOnPopupMenu())
+    {
+        return false;
     }
 
     LLRect sticky_rect;
