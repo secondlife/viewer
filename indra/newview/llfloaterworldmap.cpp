@@ -61,6 +61,7 @@
 #include "lltrans.h"
 #include "llviewerinventory.h"	// LLViewerInventoryItem
 #include "llviewermenu.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexture.h"
@@ -330,6 +331,8 @@ LLFloaterWorldMap::~LLFloaterWorldMap()
 	mFriendObserver = NULL;
 	
 	gFloaterWorldMap = NULL;
+
+    mTeleportFinishConnection.disconnect();
 }
 
 //static
@@ -343,12 +346,16 @@ void LLFloaterWorldMap::onClose(bool app_quitting)
 {
 	// While we're not visible, discard the overlay images we're using
 	LLWorldMap::getInstance()->clearImageRefs();
+    mTeleportFinishConnection.disconnect();
 }
 
 // virtual
 void LLFloaterWorldMap::onOpen(const LLSD& key)
 {
-	bool center_on_target = (key.asString() == "center");
+    mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+        setTeleportFinishedCallback(boost::bind(&LLFloaterWorldMap::onTeleportFinished, this));
+ 
+    bool center_on_target = (key.asString() == "center");
 	
 	mIsClosing = FALSE;
 	
@@ -1570,6 +1577,13 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	}
 }
 
+void LLFloaterWorldMap::onTeleportFinished()
+{
+    if(isInVisibleChain())
+    {
+        LLWorldMapView::setPan(0, 0, TRUE);
+    }
+}
 
 void LLFloaterWorldMap::onCommitSearchResult()
 {

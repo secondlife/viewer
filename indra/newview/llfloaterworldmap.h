@@ -151,7 +151,7 @@ protected:
 	void			onCoordinatesCommit();
 	void		    onCommitSearchResult();
 
-	void			cacheLandmarkPosition();
+    void            onTeleportFinished();
 
 private:
 	LLPanel*			mPanel;		// Panel displaying the map
@@ -195,6 +195,8 @@ private:
 	LLCtrlListInterface *	mListFriendCombo;
 	LLCtrlListInterface *	mListLandmarkCombo;
 	LLCtrlListInterface *	mListSearchResults;
+
+    boost::signals2::connection mTeleportFinishConnection;
 };
 
 extern LLFloaterWorldMap* gFloaterWorldMap;
