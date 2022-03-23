@@ -323,11 +323,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	username_combo->setReturnCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 	username_combo->setKeystrokeOnEsc(TRUE);
 
-    if (!mFirstLoginThisInstall)
-    {
-        LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
-        remember_name->setCommitCallback(boost::bind(&LLPanelLogin::onRememberUserCheck, this));
-    }
+
+    LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
+    remember_name->setCommitCallback(boost::bind(&LLPanelLogin::onRememberUserCheck, this));
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
@@ -527,21 +525,12 @@ void LLPanelLogin::populateFields(LLPointer<LLCredential> credential, bool remem
         LL_WARNS() << "Attempted fillFields with no login view shown" << LL_ENDL;
         return;
     }
-    if (sInstance->mFirstLoginThisInstall)
-    {
-        LLUICtrl* remember_check = sInstance->getChild<LLUICtrl>("remember_check");
-        remember_check->setValue(remember_psswrd);
-        // no list to populate
-        setFields(credential);
-    }
-    else
-    {
-        sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
-        LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
-        remember_password->setValue(remember_user && remember_psswrd);
-        remember_password->setEnabled(remember_user);
-        sInstance->populateUserList(credential);
-    }
+
+    sInstance->getChild<LLUICtrl>("remember_name")->setValue(remember_user);
+    LLUICtrl* remember_password = sInstance->getChild<LLUICtrl>("remember_password");
+    remember_password->setValue(remember_user && remember_psswrd);
+    remember_password->setEnabled(remember_user);
+    sInstance->populateUserList(credential);
 }
 
 //static
@@ -702,16 +691,9 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 		}
 	}
 	credential = gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), identifier, authenticator);
-    if (!sInstance->mFirstLoginThisInstall)
-    {
-        remember_psswrd = sInstance->getChild<LLUICtrl>("remember_password")->getValue();
-        remember_user = sInstance->getChild<LLUICtrl>("remember_name")->getValue();
-    }
-    else
-    {
-        remember_psswrd = sInstance->getChild<LLUICtrl>("remember_check")->getValue();
-        remember_user = remember_psswrd; // on panel_login_first "remember_check" is named as 'remember me'
-    }
+
+    remember_psswrd = sInstance->getChild<LLUICtrl>("remember_password")->getValue();
+    remember_user = sInstance->getChild<LLUICtrl>("remember_name")->getValue();
 }
 
 
@@ -1074,17 +1056,18 @@ void LLPanelLogin::onUserListCommit(void*)
 }
 
 // static
-// At the moment only happens if !mFirstLoginThisInstall
 void LLPanelLogin::onRememberUserCheck(void*)
 {
-    if (sInstance && !sInstance->mFirstLoginThisInstall)
+    if (sInstance)
     {
         LLCheckBoxCtrl* remember_name(sInstance->getChild<LLCheckBoxCtrl>("remember_name"));
         LLCheckBoxCtrl* remember_psswrd(sInstance->getChild<LLCheckBoxCtrl>("remember_password"));
         LLComboBox* user_combo(sInstance->getChild<LLComboBox>("username_combo"));
 
         bool remember = remember_name->getValue().asBoolean();
-        if (user_combo->getCurrentIndex() != -1 && !remember)
+        if (!sInstance->mFirstLoginThisInstall
+            && user_combo->getCurrentIndex() != -1
+            && !remember)
         {
             remember = true;
             remember_name->setValue(true);
