@@ -488,41 +488,34 @@ void LLNetMap::draw()
 		F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
 		F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
 		F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
-
-		F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
-		F32 half_width_pixels = half_width_meters * meters_to_pixels;
 		
-		F32 ctr_x = (F32)center_sw_left;
-		F32 ctr_y = (F32)center_sw_bottom;
+        F32 ctr_x = (F32)center_sw_left;
+        F32 ctr_y = (F32)center_sw_bottom;
 
+        const F32 steps_per_circle = 40.0f;
+        const F32 steps_per_radian = steps_per_circle / F_TWO_PI;
+        const F32 arc_start = -(horiz_fov / 2.0f) + F_PI_BY_TWO;
+        const F32 arc_end = (horiz_fov / 2.0f) + F_PI_BY_TWO;
+        const S32 steps = llmax(1, (S32)((horiz_fov * steps_per_radian) + 0.5f));
 
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		if( rotate_map )
-		{
-			gGL.color4fv((map_frustum_color()).mV);
-
-			gGL.begin( LLRender::TRIANGLES  );
-				gGL.vertex2f( ctr_x, ctr_y );
-				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
-				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
-			gGL.end();
-		}
-		else
-		{
-			gGL.color4fv((map_frustum_rotating_color()).mV);
-			
-			// If we don't rotate the map, we have to rotate the frustum.
-			gGL.pushMatrix();
-				gGL.translatef( ctr_x, ctr_y, 0 );
-				gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin( LLRender::TRIANGLES  );
-					gGL.vertex2f( 0, 0 );
-					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
-					gGL.vertex2f(  half_width_pixels, far_clip_pixels );
-				gGL.end();
-			gGL.popMatrix();
-		}
+        if( rotate_map )
+        {
+            gGL.pushMatrix();
+                gGL.translatef( ctr_x, ctr_y, 0 );
+                gl_washer_segment_2d(far_clip_pixels, 0, arc_start, arc_end, steps, map_frustum_color(), map_frustum_color());
+            gGL.popMatrix();
+        }
+        else
+        {
+            gGL.pushMatrix();
+                gGL.translatef( ctr_x, ctr_y, 0 );
+                // If we don't rotate the map, we have to rotate the frustum.
+                gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
+                gl_washer_segment_2d(far_clip_pixels, 0, arc_start, arc_end, steps, map_frustum_color(), map_frustum_color());
+            gGL.popMatrix();
+        }
 	}
 	
 	gGL.popMatrix();
