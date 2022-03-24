@@ -2426,6 +2426,7 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("mwp - WM_SYSKEYDOWN");
             // allow system keys, such as ALT-F4 to be processed by Windows
             eat_keystroke = FALSE;
+            break;
         }
         case WM_KEYDOWN:
         {
