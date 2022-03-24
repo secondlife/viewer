@@ -876,7 +876,6 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     uuid_vec_t vremoved;
 
     // Create added and removed items vectors.
-    // TODO: Handle recursion correctly... Here? Or possibly elsewhere as well? Maybe it's an issue with the way the listener is registered
     computeDifference(cat_array, vadded, vremoved);
 
     // Handle added tabs.

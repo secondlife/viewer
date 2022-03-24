@@ -91,6 +91,7 @@ public:
   void  update     (FILE *file);
   void  update     (const std::string& str);
   void  finalize   ();
+  bool  isFinalized();
 
 // constructors for special circumstances.  All these constructors finalize
 // the MD5 context.

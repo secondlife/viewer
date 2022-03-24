@@ -225,6 +225,10 @@ void LLMD5::finalize (){
 
 }
 
+bool LLMD5::isFinalized (){
+    return (bool)finalized;
+}
+
 
 
 

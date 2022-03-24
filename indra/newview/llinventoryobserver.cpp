@@ -574,14 +574,14 @@ void LLInventoryCategoryAddedObserver::changed(U32 mask)
 	}
 }
 
-void LLInventoryAddedObserver::LLInventoryAddedObserver(bool recursive)
+LLInventoryCategoriesObserver::LLInventoryCategoriesObserver(bool recursive)
 : mRecursive(recursive)
 {
 }
 
-bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_data, std::set<LLUUID>& categories_not_found)
+bool LLInventoryCategoriesObserver::checkCategoryChanged(U32 mask, LLCategoryData& cat_data, std::set<LLUUID>& categories_not_found)
 {
-    const LLUUID& cat_id = category_data.mCatId;
+    const LLUUID& cat_id = cat_data.mCatID;
     
     LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
     if (!category)
@@ -593,7 +593,7 @@ bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_dat
         }
         return true;
     }
-    categories_not_found.remove(cat_id);
+    categories_not_found.erase(cat_id);
 
     const S32 version = category->getVersion();
     const S32 expected_num_descendents = category->getDescendentCount();
@@ -635,10 +635,10 @@ bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_dat
     // If any item names have changed, update the name hash
     // Only need to check if (a) name hash has not previously been
     // computed, or (b) a name has changed.
-    if (!cat_data.mIsNameHashInitialized || (mask & LLInventoryObserver::LABEL))
+    if (!cat_data.mChildNameHash.isFinalized() || (mask & LLInventoryObserver::LABEL))
     {
         LLMD5 child_name_hash;
-        if (!recursive)
+        if (!mRecursive)
         {
             child_name_hash = gInventory.hashDirectDescendentNames(cat_id);
         }
@@ -648,7 +648,6 @@ bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_dat
         }
         if (cat_data.mChildNameHash != child_name_hash)
         {
-            cat_data.mIsNameHashInitialized = true;
             cat_data.mChildNameHash = child_name_hash;
             cat_changed = true;
         }
@@ -656,7 +655,7 @@ bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_dat
 
     if (mRecursive)
     {
-        for (LLInventoryModel::cat_array_t::iterator child_iter = cats->begin(); iter != cats->end(); iter++)
+        for (LLInventoryModel::cat_array_t::iterator child_iter = cats->begin(); child_iter != cats->end(); child_iter++)
         {
             LLViewerInventoryCategory* child_category = *child_iter;
             if (!child_category)
@@ -664,20 +663,20 @@ bool LLInventoryCategoriesObserver::checkCategoryChanged(LLCategoryData& cat_dat
                 continue;
             }
 
-            const LLUUID& child_cat_id = child_category.getUUID();
+            const LLUUID& child_cat_id = child_category->getUUID();
             category_map_t::iterator cached_child_it = mSubCategoryMap.find(child_cat_id);
             bool have_cached_child_cat = cached_child_it != mSubCategoryMap.end();
             if (!have_cached_child_cat)
             {
                 // If we don't have cached info on this child_category, attempt to add it to mSubCategoryMap
-                addCategory(child_cat_id, child_category, callback_t(0), true)
+                addCategory(child_cat_id, child_category, callback_t(0), true);
                 cached_child_it = mSubCategoryMap.find(child_cat_id);
                 have_cached_child_cat = cached_child_it != mSubCategoryMap.end();
             }
             if (have_cached_child_cat)
             {
                 LLCategoryData& child_cat_data = (*cached_child_it).second;
-                cat_changed |= checkCategoryChanged(child_cat_data, categories_not_found);
+                cat_changed = cat_changed || checkCategoryChanged(mask, child_cat_data, categories_not_found);
             }
         }
     }
@@ -699,30 +698,31 @@ void LLInventoryCategoriesObserver::changed(U32 mask)
          ++iter)
     {
         const LLUUID& cat_id = (*iter).first;
-        categories_not_found.add(cat_id);
+        categories_not_found.insert(cat_id);
     }
     for (category_map_t::iterator iter = mSubCategoryMap.begin();
          iter != mSubCategoryMap.end();
          ++iter)
     {
         const LLUUID& cat_id = (*iter).first;
-        categories_not_found.add(cat_id);
+        categories_not_found.insert(cat_id);
     }
 
     for (category_map_t::iterator iter = mCategoryMap.begin();
          iter != mCategoryMap.end();
          ++iter)
     {
-        LLCategoryData& cat_data = (*iter).second;
-        bool cat_changed |= checkCategoryChanged(LLCategoryData& cat_data, enqueued_callbacks, categories_not_found);
+        LLCategoryData& child_cat_data = (*iter).second;
+        bool cat_changed = checkCategoryChanged(mask, child_cat_data, categories_not_found);
         if (cat_changed)
         {
-            cat_data.mCallback();
+            callback_t callback = mCallbacks.find(child_cat_data.mCatID)->second;
+            callback();
         }
     }
     
     // Remove deleted/moved away categories from the maps
-    for (std::vector<LLUUID>::iterator not_found_id = categories_not_found.begin(); not_found_id != categories_not_found.end(); ++not_found_id)
+    for (std::set<LLUUID>::iterator not_found_id = categories_not_found.begin(); not_found_id != categories_not_found.end(); ++not_found_id)
     {
         removeCategory(*not_found_id);
         mSubCategoryMap.erase(*not_found_id);
@@ -733,7 +733,7 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, callback_t
 {
     // category may be nullptr
 	LLViewerInventoryCategory* category = gInventory.getCategory(cat_id);
-    return addCategory(mCategoryMap, cat_id, category, cb, init_name_hash);
+    return addCategory(cat_id, category, cb, init_name_hash);
 }
 
 // category may be nullptr. Categories with empty callbacks are put in mSubCategoryMap.
@@ -778,10 +778,10 @@ bool LLInventoryCategoriesObserver::addCategory(const LLUUID& cat_id, LLViewerIn
         LLMD5 item_name_hash;
         if (init_name_hash)
 		{
-			LLMD5 item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
+			item_name_hash = gInventory.hashDirectDescendentNames(cat_id);
 		}
 
-        LLCategoryData cat_data(cat_id, cb, version, current_num_known_descendents, item_name_hash);
+        LLCategoryData cat_data(cat_id, version, current_num_known_descendents, item_name_hash);
         if (!cb.empty())
         {
             mCategoryMap.insert(category_map_value_t(cat_id, cat_data));
@@ -803,25 +803,11 @@ void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
 }
 
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
-	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents)
-	
-	: mCatID(cat_id)
-	, mCallback(cb)
-	, mVersion(version)
-	, mChildCount(num_descendents)
-	, mIsNameHashInitialized(false)
-{
-	mChildNameHash.finalize();
-}
-
-LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
-	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
+    const LLUUID& cat_id, S32 version, S32 child_count, LLMD5 name_hash)
 
 	: mCatID(cat_id)
-	, mCallback(cb)
 	, mVersion(version)
-	, mChildCount(num_descendents)
-	, mIsNameHashInitialized(true)
+    , mChildCount(child_count)
 	, mChildNameHash(name_hash)
 {
 }
