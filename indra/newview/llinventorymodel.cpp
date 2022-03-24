@@ -473,7 +473,7 @@ LLMD5 LLInventoryModel::hashDirectDescendentAndCategoryNames(const LLUUID& cat_i
 		 iter != cat_array->end();
 		 iter++)
 	{
-		const LLViewerInventoryItem *cat = (*iter);
+        const LLViewerInventoryCategory *cat = (*iter);
 		if (!cat)
 			continue;
         child_name_hash.update(cat->getName());

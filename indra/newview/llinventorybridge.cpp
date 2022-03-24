@@ -3677,10 +3677,10 @@ void LLFolderBridge::perform_pasteFromClipboard()
 		const LLUUID &lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND, false);
 
 		const BOOL move_is_into_current_outfit = (mUUID == current_outfit_id);
-                // Assume the outfit doesn't have folders
-                const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
-                const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
-            const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
+        // Assume the outfit doesn't have folders
+        const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
+        const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
+        const BOOL move_is_into_marketplacelistings = model->isObjectDescendentOf(mUUID, marketplacelistings_id);
 		const BOOL move_is_into_favorites = (mUUID == favorites_id);
 		const BOOL move_is_into_lost_and_found = model->isObjectDescendentOf(mUUID, lost_and_found_id);
 
@@ -3756,37 +3756,43 @@ void LLFolderBridge::perform_pasteFromClipboard()
 						return;
 					}
 				}
-                                if (move_is_into_my_outfits && !move_is_into_outfit)
-                                {
-                                    if (LLAssetType::AT_CATEGORY == obj->getType())
-                                    {
-                                        LLInventoryCategory* cat = model->getCategory(item_id);
-                                        U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
-                                        if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
-                                        {
-                                            dropToMyOutfits(mUUID, cat);
-                                        }
-                                        else
-                                        {
-                                            LLNotificationsUtil::add("MyOutfitsPasteFailed");
-                                        }
-                                    }
-                                    else
-                                    {
-                                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
-                                    }
-                                }
-                                else if (move_is_into_outfit || move_is_into_current_outfit)
-                                {
-                                    if (item && can_move_to_outfit(item, move_is_into_current_outfit))
-                                    {
-                                        dropToOutfit(item, move_is_into_current_outfit);
-                                    }
-                                    else
-                                    {
-                                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
-                                    }
-                                }
+                if (move_is_into_my_outfits && !move_is_into_outfit)
+                {
+                    if (LLAssetType::AT_CATEGORY == obj->getType())
+                    {
+                        LLInventoryCategory* cat = model->getCategory(item_id);
+                        U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
+                        if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
+                        {
+                            dropToMyOutfits(mUUID, cat);
+                        }
+                        else
+                        {
+                            LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                        }
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                    }
+                }
+#if 1
+                else if (move_is_into_current_outfit)
+                {
+                // *TODO: Decide if we want to allow copy/pasting wearables into outfits in My Outfits (SL-17078)
+#else
+                else if (move_is_into_outfit || move_is_into_current_outfit)
+                {
+#endif
+                    if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+                    {
+                        dropToOutfit(item, move_is_into_current_outfit);
+                    }
+                    else
+                    {
+                        LLNotificationsUtil::add("MyOutfitsPasteFailed");
+                    }
+                }
 				else if (move_is_into_favorites)
 				{
 					if (item && can_move_to_landmarks(item))
@@ -4874,7 +4880,6 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 
 void LLFolderBridge::dropToMyOutfits(const LLUUID& dest_id, const LLInventoryCategory* copy_category)
 {
-    // TODO: (but not to do here)Handle edge case where folder is drag/dropped into its own parent - should be consistent with existing outfit behavior (intuitively, should not be allowed, but follow conventions for now). NOTE: Current behavior in viewer is: Dragging and dropping an outfit onto its parent folder does not clone the outfit, but dragging and dropping the outfit part into the outfit's parent folder creates a copy any number of times
     // TODO: (but not to do here)Tighten up restrictions of where this can be copied to. Drag/dropping folders into outfits should not be allowed
     // TODO: (but not to do here)Do not allow dragging outfit parts into a folder in "MY OUTFITS" which itself contains folders - only allow dragging into an empty folder or an outfit containing only outfit items
     const LLUUID& copy_id = copy_category->getUUID();
