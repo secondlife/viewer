@@ -30,20 +30,20 @@
 #include "llassetstorage.h"
 #include "llcorehttputil.h"
 
-class LLVFile;
+class LLFileSystem;
 
 class LLViewerAssetRequest;
 
 class LLViewerAssetStorage : public LLAssetStorage
 {
 public:
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host);
+	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
 
-	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs);
+	LLViewerAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
 
-	virtual void storeAssetData(
+	~LLViewerAssetStorage();
+
+	void storeAssetData(
 		const LLTransactionID& tid,
 		LLAssetType::EType atype,
 		LLStoreAssetCallback callback,
@@ -52,9 +52,9 @@ public:
 		bool is_priority = false,
 		bool store_local = false,
 		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
-	
-	virtual void storeAssetData(
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+
+	void storeAssetData(
 		const std::string& filename,
 		const LLTransactionID& tid,
 		LLAssetType::EType type,
@@ -63,20 +63,21 @@ public:
 		bool temp_file = false,
 		bool is_priority = false,
 		bool user_waiting=FALSE,
-		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT);
+		F64Seconds timeout=LL_ASSET_STORAGE_TIMEOUT) override;
+
+    void checkForTimeouts() override;
 
 protected:
-	// virtual
 	void _queueDataRequest(const LLUUID& uuid,
 						   LLAssetType::EType type,
-						   void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                           LLGetAssetCallback callback,
 						   void *user_data,
 						   BOOL duplicate,
-						   BOOL is_priority);
+						   BOOL is_priority) override;
 
     void queueRequestHttp(const LLUUID& uuid,
                           LLAssetType::EType type,
-                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          LLGetAssetCallback callback,
                           void *user_data,
                           BOOL duplicate,
                           BOOL is_priority);
@@ -86,20 +87,48 @@ protected:
     void assetRequestCoro(LLViewerAssetRequest *req,
                           const LLUUID uuid,
                           LLAssetType::EType atype,
-                          void (*callback) (LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+                          LLGetAssetCallback callback,
                           void *user_data);
 
     std::string getAssetURL(const std::string& cap_url, const LLUUID& uuid, LLAssetType::EType atype);
 
-    void logAssetStorageInfo();
-    
+    void logAssetStorageInfo() override;
+
+    // Asset storage works through coroutines and coroutines have limited queue capacity
+    // This class is meant to temporary store requests when fiber's queue is full
+    class CoroWaitList
+    {
+    public:
+        CoroWaitList(LLViewerAssetRequest *req,
+            const LLUUID& uuid,
+            LLAssetType::EType atype,
+            LLGetAssetCallback &callback,
+            void *user_data)
+          : mRequest(req),
+            mId(uuid),
+            mType(atype),
+            mCallback(callback),
+            mUserData(user_data)
+        {
+        }
+
+        LLViewerAssetRequest* mRequest;
+        LLUUID mId;
+        LLAssetType::EType mType;
+        LLGetAssetCallback mCallback;
+        void *mUserData;
+    };
+    typedef std::list<CoroWaitList> wait_list_t;
+    wait_list_t mCoroWaitList;
+
     std::string mViewerAssetUrl;
-    S32 mAssetCoroCount;
     S32 mCountRequests;
     S32 mCountStarted;
     S32 mCountCompleted;
     S32 mCountSucceeded;
     S64 mTotalBytesFetched;
+
+    static S32 sAssetCoroCount; // coroutine count, static since coroutines can outlive LLViewerAssetStorage
 };
 
 #endif

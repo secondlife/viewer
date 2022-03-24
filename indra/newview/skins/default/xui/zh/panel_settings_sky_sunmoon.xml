@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="日與月" name="panel_settings_sky_hbodies">
+	<layout_stack>
+		<layout_panel name="sun_layout">
+			<check_box label="顯示指標" name="sunbeacon"/>
+		</layout_panel>
+		<layout_panel>
+			<layout_stack>
+				<layout_panel name="moon_layout">
+					<check_box label="顯示指標" name="moonbeacon"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</panel>

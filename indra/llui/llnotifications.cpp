@@ -68,7 +68,8 @@ LLNotificationForm::FormIgnore::FormIgnore()
 	control("control"),
 	invert_control("invert_control", false),
 	save_option("save_option", false),
-	session_only("session_only", false)
+	session_only("session_only", false),
+	checkbox_only("checkbox_only", false)
 {}
 
 LLNotificationForm::FormButton::FormButton()
@@ -76,6 +77,7 @@ LLNotificationForm::FormButton::FormButton()
 	text("text"),
 	ignore("ignore"),
 	is_default("default"),
+	width("width", 0),
 	type("type")
 {
 	// set type here so it gets serialized
@@ -195,10 +197,15 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 {
 	if (p.ignore.isProvided())
 	{
+		// For all cases but IGNORE_CHECKBOX_ONLY this is name for use in preferences
 		mIgnoreMsg = p.ignore.text;
 
 		LLUI *ui_inst = LLUI::getInstance();
-		if (!p.ignore.save_option)
+		if (p.ignore.checkbox_only)
+		{
+			mIgnore = IGNORE_CHECKBOX_ONLY;
+		}
+		else if (!p.ignore.save_option)
 		{
 			mIgnore = p.ignore.session_only ? IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY : IGNORE_WITH_DEFAULT_RESPONSE;
 		}
@@ -215,7 +222,7 @@ LLNotificationForm::LLNotificationForm(const std::string& name, const LLNotifica
 			mIgnoreSetting = ui_inst->mSettingGroups["config"]->getControl(p.ignore.control);
 			mInvertSetting = p.ignore.invert_control;
 		}
-		else
+		else if (mIgnore > IGNORE_NO)
 		{
 			ui_inst->mSettingGroups["ignores"]->declareBOOL(name, show_notification, "Show notification with this name", LLControlVariable::PERSIST_NONDFT);
 			mIgnoreSetting = ui_inst->mSettingGroups["ignores"]->getControl(name);
@@ -249,7 +256,7 @@ LLNotificationForm::LLNotificationForm(const LLSD& sd)
 	}
 	else
 	{
-		LL_WARNS() << "Invalid form data " << sd << LL_ENDL;
+		LL_WARNS("Notifications") << "Invalid form data " << sd << LL_ENDL;
 		mFormData = LLSD::emptyArray();
 	}
 }
@@ -389,13 +396,12 @@ LLControlVariablePtr LLNotificationForm::getIgnoreSetting()
 bool LLNotificationForm::getIgnored()
 {
 	bool show = true;
-	if (mIgnore != LLNotificationForm::IGNORE_NO
+	if (mIgnore > LLNotificationForm::IGNORE_NO
 		&& mIgnoreSetting) 
 	{
 		show = mIgnoreSetting->getValue().asBoolean();
 		if (mInvertSetting) show = !show;
 	}
-
 	return !show;
 }
 
@@ -443,11 +449,11 @@ LLNotificationTemplate::LLNotificationTemplate(const LLNotificationTemplate::Par
 		mUniqueContext.push_back(context.value);
 	}
 	
-	LL_DEBUGS() << "notification \"" << mName << "\": tag count is " << p.tags.size() << LL_ENDL;
+	LL_DEBUGS("Notifications") << "notification \"" << mName << "\": tag count is " << p.tags.size() << LL_ENDL;
 	
 	BOOST_FOREACH(const LLNotificationTemplate::Tag& tag, p.tags)
 	{
-		LL_DEBUGS() << "    tag \"" << std::string(tag.value) << "\"" << LL_ENDL;
+		LL_DEBUGS("Notifications") << "    tag \"" << std::string(tag.value) << "\"" << LL_ENDL;
 		mTags.push_back(tag.value);
 	}
 
@@ -696,7 +702,7 @@ void LLNotification::respond(const LLSD& response)
 		mTemporaryResponder = false;
 	}
 
-	if (mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+	if (mForm->getIgnoreType() > LLNotificationForm::IGNORE_NO)
 	{
 		mForm->setIgnored(mIgnored);
 		if (mIgnored && mForm->getIgnoreType() == LLNotificationForm::IGNORE_WITH_LAST_RESPONSE)
@@ -1393,8 +1399,14 @@ void LLNotifications::initSingleton()
 	createDefaultChannels();
 }
 
+void LLNotifications::cleanupSingleton()
+{
+    clear();
+}
+
 void LLNotifications::createDefaultChannels()
 {
+    LL_INFOS("Notifications") << "Generating default notification channels" << LL_ENDL;
 	// now construct the various channels AFTER loading the notifications,
 	// because the history channel is going to rewrite the stored notifications file
 	mDefaultChannels.push_back(new LLNotificationChannel("Enabled", "",
@@ -1450,7 +1462,7 @@ void LLNotifications::forceResponse(const LLNotification::Params& params, S32 op
 	
 	if (selected_item.isUndefined())
 	{
-		LL_WARNS() << "Invalid option" << option << " for notification " << (std::string)params.name << LL_ENDL;
+		LL_WARNS("Notifications") << "Invalid option" << option << " for notification " << (std::string)params.name << LL_ENDL;
 		return;
 	}
 	response[selected_item["name"].asString()] = true;
@@ -1484,12 +1496,12 @@ void replaceSubstitutionStrings(LLXMLNodePtr node, StringMap& replacements)
 			if (found != replacements.end())
 			{
 				replacement = found->second;
-				LL_DEBUGS() << "replaceSubstitutionStrings: value: \"" << value << "\" repl: \"" << replacement << "\"." << LL_ENDL;
+				LL_DEBUGS("Notifications") << "replaceSubstitutionStrings: value: \"" << value << "\" repl: \"" << replacement << "\"." << LL_ENDL;
 				it->second->setValue(replacement);
 			}
 			else
 			{
-				LL_WARNS() << "replaceSubstitutionStrings FAILURE: could not find replacement \"" << value << "\"." << LL_ENDL;
+				LL_WARNS("Notifications") << "replaceSubstitutionStrings FAILURE: could not find replacement \"" << value << "\"." << LL_ENDL;
 			}
 		}
 	}
@@ -1528,7 +1540,7 @@ void addPathIfExists(const std::string& new_path, std::vector<std::string>& path
 
 bool LLNotifications::loadTemplates()
 {
-	LL_INFOS() << "Reading notifications template" << LL_ENDL;
+	LL_INFOS("Notifications") << "Reading notifications template" << LL_ENDL;
 	// Passing findSkinnedFilenames(constraint=LLDir::ALL_SKINS) makes it
 	// output all relevant pathnames instead of just the ones from the most
 	// specific skin.
@@ -1599,7 +1611,7 @@ bool LLNotifications::loadTemplates()
 		mTemplates[notification.name] = LLNotificationTemplatePtr(new LLNotificationTemplate(notification));
 	}
 
-	LL_INFOS() << "...done" << LL_ENDL;
+	LL_INFOS("Notifications") << "...done" << LL_ENDL;
 
 	return true;
 }
@@ -1686,6 +1698,20 @@ void LLNotifications::add(const LLNotificationPtr pNotif)
 	}
 
 	updateItem(LLSD().with("sigtype", "add").with("id", pNotif->id()), pNotif);
+}
+
+void LLNotifications::load(const LLNotificationPtr pNotif)
+{
+	if (pNotif == NULL) return;
+
+	// first see if we already have it -- if so, that's a problem
+	LLNotificationSet::iterator it=mItems.find(pNotif);
+	if (it != mItems.end())
+	{
+		LL_ERRS() << "Notification loaded a second time to the master notification channel." << LL_ENDL;
+	}
+
+	updateItem(LLSD().with("sigtype", "load").with("id", pNotif->id()), pNotif);
 }
 
 void LLNotifications::cancel(LLNotificationPtr pNotif)
@@ -1827,7 +1853,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
 	{
 		// An empty type/tag/name string will match any notification, so only do the comparison when the string is non-empty in the rule.
-		LL_DEBUGS() 
+		LL_DEBUGS("Notifications")
 			<< "notification \"" << n->getName() << "\" " 
 			<< "testing against " << ((*it)->mVisible?"show":"hide") << " rule, "
 			<< "name = \"" << (*it)->mName << "\" "
@@ -1872,7 +1898,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 			if((*it)->mResponse.empty())
 			{
 				// Response property is empty.  Cancel this notification.
-				LL_DEBUGS() << "cancelling notification " << n->getName() << LL_ENDL;
+				LL_DEBUGS("Notifications") << "cancelling notification " << n->getName() << LL_ENDL;
 
 				cancel(n);
 			}
@@ -1883,7 +1909,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 				// TODO: verify that the response template has an item with the correct name
 				response[(*it)->mResponse] = true;
 
-				LL_DEBUGS() << "responding to notification " << n->getName() << " with response = " << response << LL_ENDL;
+				LL_DEBUGS("Notifications") << "responding to notification " << n->getName() << " with response = " << response << LL_ENDL;
 				
 				n->respond(response);
 			}
@@ -1895,7 +1921,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 		break;
 	}
 	
-	LL_DEBUGS() << "allowing notification " << n->getName() << LL_ENDL;
+	LL_DEBUGS("Notifications") << "allowing notification " << n->getName() << LL_ENDL;
 
 	return true;
 }
@@ -1956,7 +1982,7 @@ void LLPostponedNotification::onAvatarNameCache(const LLUUID& agent_id,
 	// from PE merge - we should figure out if this is the right thing to do
 	if (name.empty())
 	{
-		LL_WARNS() << "Empty name received for Id: " << agent_id << LL_ENDL;
+		LL_WARNS("Notifications") << "Empty name received for Id: " << agent_id << LL_ENDL;
 		name = SYSTEM_FROM;
 	}
 	

@@ -81,6 +81,8 @@ public:
 	void selectAllItemsPanel();
 	const LLInventoryPanel* getActivePanel() const { return mActivePanel; }
 
+	bool isRecentItemsPanelSelected();
+
 	const std::string& getFilterText() const { return mFilterText; }
 	
 	void setSelectCallback(const LLFolderView::signal_t::slot_type& cb);
@@ -92,6 +94,8 @@ public:
 	static void newWindow();
 
 	void toggleFindOptions();
+
+    void resetFilters();
 
 protected:
 	//
@@ -117,7 +121,6 @@ protected:
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
 	void doCreate(const LLSD& userdata);
-	void resetFilters();
 	void setSortBy(const LLSD& userdata);
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
@@ -161,6 +164,7 @@ protected:
 	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
+    static bool hasSettingsInventory();
 	/**
 	 * Set upload cost in "Upload" sub menu.
 	 */
@@ -168,7 +172,9 @@ protected:
 private:
 	LLDragAndDropButton*		mTrashButton;
 	LLToggleableMenu*			mMenuGearDefault;
+	LLToggleableMenu*			mMenuVisibility;
 	LLMenuButton*				mGearMenuButton;
+	LLMenuButton*				mVisibilityMenuButton;
 	LLHandle<LLView>			mMenuAddHandle;
 
 	bool						mNeedUploadCost;

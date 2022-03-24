@@ -33,6 +33,7 @@
 
 // library includes
 #include "lldbstrings.h"
+#include "llcheckboxctrl.h"
 #include "lllslconstants.h"
 #include "llnotifications.h"
 #include "lluiconstants.h"
@@ -55,7 +56,7 @@ const LLFontGL* LLToastNotifyPanel::sFontSmall = NULL;
 LLToastNotifyPanel::button_click_signal_t LLToastNotifyPanel::sButtonClickSignal;
 
 LLToastNotifyPanel::LLToastNotifyPanel(const LLNotificationPtr& notification, const LLRect& rect, bool show_images) 
-:	LLToastPanel(notification),
+:	LLCheckBoxToastPanel(notification),
 	LLInstanceTracker<LLToastNotifyPanel, LLUUID, LLInstanceTrackerReplaceOnCollision>(notification->getID())
 {
 	init(rect, show_images);
@@ -161,6 +162,11 @@ void LLToastNotifyPanel::updateButtonsLayout(const std::vector<index_button_pair
 		if (buttons.size() == 1) // for the one-button forms, center that button
 		{
 			left = (max_width - btn_rect.getWidth()) / 2;
+		}
+		else if (left == 0 && buttons.size() == 2)
+		{
+			// Note: this and "size() == 1" shouldn't be inside the cycle, might be good idea to refactor whole placing process
+			left = (max_width - (btn_rect.getWidth() * 2) - h_pad) / 2;
 		}
 		else if (left + btn_rect.getWidth() > max_width)// whether there is still some place for button+h_pad in the mControlPanel
 		{
@@ -381,9 +387,9 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
             if (mIsScriptDialog)
             {
                 // we are using default width for script buttons so we can determinate button_rows
-                //to get a number of rows we divide the required width of the buttons to button_panel_width
-                S32 button_rows = llceil(F32(buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width);
-                //S32 button_rows = (buttons.size() - 1) * (BUTTON_WIDTH + h_pad) / button_panel_width;
+                // to get a number of rows we divide the required width of the buttons to button_panel_width
+                // buttons.size() is reduced by -2 due to presence of ignore button which is calculated independently a bit lower
+                S32 button_rows = llceil(F32(buttons.size() - 2) * (BUTTON_WIDTH + h_pad) / (button_panel_width + h_pad));
                 //reserve one row for the ignore_btn
                 button_rows++;
                 //calculate required panel height for scripdialog notification.
@@ -409,7 +415,20 @@ void LLToastNotifyPanel::init( LLRect rect, bool show_images )
 	//.xml file intially makes info panel only follow left/right/top. This is so that when control buttons are added the info panel 
 	//can shift upward making room for the buttons inside mControlPanel. After the buttons are added, the info panel can then be set to follow 'all'.
 	mInfoPanel->setFollowsAll();
-	snapToMessageHeight(mTextBox, LLToastPanel::MAX_TEXT_LENGTH);
+
+    // Add checkbox (one of couple types) if nessesary.
+    setCheckBoxes(HPAD * 2, 0, mInfoPanel);
+    if (mCheck)
+    {
+        mCheck->setFollows(FOLLOWS_BOTTOM | FOLLOWS_LEFT);
+    }
+    // Snap to message, then to checkbox if present
+    snapToMessageHeight(mTextBox, LLToastPanel::MAX_TEXT_LENGTH);
+    if (mCheck)
+    {
+        S32 new_panel_height = mCheck->getRect().getHeight() + getRect().getHeight() + VPAD;
+        reshape(getRect().getWidth(), new_panel_height);
+    }
 
 	// reshape the panel to its previous size
 	if (current_rect.notEmpty())

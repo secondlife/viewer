@@ -107,7 +107,6 @@ LLWearable::EImportResult LLViewerWearable::importStream( std::istream& input_st
 		// Shouldn't really log the asset id for security reasons, but
 		// we need it in this case.
 		LL_WARNS() << "Bad Wearable asset header: " << mAssetID << LL_ENDL;
-		//gVFS->dumpMap();
 		return result;
 	}
 
@@ -178,7 +177,7 @@ BOOL LLViewerWearable::isOldVersion() const
 	S32 te_count = 0;
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_count++;
 			if( !is_in_map(mTEMap, te ) )
@@ -230,7 +229,7 @@ BOOL LLViewerWearable::isDirty() const
 
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator current_iter = mTEMap.find(te);
 			if(current_iter != mTEMap.end())
@@ -276,7 +275,7 @@ void LLViewerWearable::setTexturesToDefaults()
 {
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			LLUUID id = getDefaultTextureImageID((ETextureIndex) te);
 			LLViewerFetchedTexture * image = LLViewerTextureManager::getFetchedTexture( id );
@@ -300,7 +299,7 @@ void LLViewerWearable::setTexturesToDefaults()
 // virtual
 LLUUID LLViewerWearable::getDefaultTextureImageID(ETextureIndex index) const
 {
-	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearanceDictionary::getInstance()->getTexture(index);
+	const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = LLAvatarAppearance::getDictionary()->getTexture(index);
 	const std::string &default_image_name = texture_dict ? texture_dict->mDefaultImageName : "";
 	if (default_image_name == "")
 	{
@@ -331,7 +330,7 @@ void LLViewerWearable::writeToAvatar(LLAvatarAppearance *avatarp)
 	// Pull texture entries
 	for( S32 te = 0; te < TEX_NUM_INDICES; te++ )
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = mTEMap.find(te);
 			LLUUID image_id;
@@ -424,7 +423,7 @@ void LLViewerWearable::copyDataFrom(const LLViewerWearable* src)
 	// Deep copy of mTEMap (copies only those tes that are current, filling in defaults where needed)
 	for (S32 te = 0; te < TEX_NUM_INDICES; te++)
 	{
-		if (LLAvatarAppearanceDictionary::getTEWearableType((ETextureIndex) te) == mType)
+		if (LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex) te) == mType)
 		{
 			te_map_t::const_iterator iter = src->mTEMap.find(te);
 			LLUUID image_id;
@@ -463,8 +462,7 @@ void LLViewerWearable::revertValues()
 {
 	LLWearable::revertValues();
 
-
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::findPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
@@ -480,7 +478,7 @@ void LLViewerWearable::saveValues()
 {
 	LLWearable::saveValues();
 
-	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
+	LLSidepanelAppearance *panel = dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::findPanel("appearance"));
 	if( panel )
 	{
 		panel->updateScrollingPanelList();
@@ -563,7 +561,7 @@ void LLViewerWearable::saveNewAsset() const
 void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* userdata, S32 status, LLExtStat ext_status) // StoreAssetData callback (fixed)
 {
 	LLWearableSaveData* data = (LLWearableSaveData*)userdata;
-	const std::string& type_name = LLWearableType::getTypeName(data->mType);
+	const std::string& type_name = LLWearableType::getInstance()->getTypeName(data->mType);
 	if(0 == status)
 	{
 		// Success
@@ -589,7 +587,7 @@ void LLViewerWearable::onSaveNewAssetComplete(const LLUUID& new_asset_id, void* 
 
 std::ostream& operator<<(std::ostream &s, const LLViewerWearable &w)
 {
-	s << "wearable " << LLWearableType::getTypeName(w.mType) << "\n";
+	s << "wearable " << LLWearableType::getInstance()->getTypeName(w.mType) << "\n";
 	s << "    Name: " << w.mName << "\n";
 	s << "    Desc: " << w.mDescription << "\n";
 	//w.mPermissions

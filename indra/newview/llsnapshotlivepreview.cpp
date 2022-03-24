@@ -28,14 +28,13 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentui.h"
+#include "llfilesystem.h"
 #include "llcombobox.h"
-#include "lleconomy.h"
 #include "llfloaterperms.h"
 #include "llfloaterreg.h"
-#include "llfloaterflickr.h"
-#include "llfloatertwitter.h"
 #include "llimagefilter.h"
 #include "llimagefiltersmanager.h"
 #include "llimagebmp.h"
@@ -52,8 +51,6 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h"	// upload_new_resource()
 #include "llviewerstats.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "llwindow.h"
 #include "llworld.h"
 #include <boost/filesystem.hpp>
@@ -65,6 +62,7 @@ F32 SHINE_WIDTH = 0.6f;
 F32 SHINE_OPACITY = 0.3f;
 F32 FALL_TIME = 0.6f;
 S32 BORDER_WIDTH = 6;
+S32 TOP_PANEL_HEIGHT = 30;
 
 const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
@@ -156,7 +154,7 @@ F32 LLSnapshotLivePreview::getImageAspect()
 
 void LLSnapshotLivePreview::updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail, F32 delay)
 {
-	LL_DEBUGS() << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "updateSnapshot: mSnapshotUpToDate = " << getSnapshotUpToDate() << LL_ENDL;
 
 	// Update snapshot if requested.
 	if (new_snapshot)
@@ -295,8 +293,8 @@ void LLSnapshotLivePreview::draw()
 		F32 uv_width = isImageScaled() ? 1.f : llmin((F32)getWidth() / (F32)getCurrentImage()->getWidth(), 1.f);
 		F32 uv_height = isImageScaled() ? 1.f : llmin((F32)getHeight() / (F32)getCurrentImage()->getHeight(), 1.f);
 		gGL.pushMatrix();
-		{
-			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom, 0.f);
+		{	
+			gGL.translatef((F32)rect.mLeft, (F32)rect.mBottom + TOP_PANEL_HEIGHT, 0.f);
 			gGL.begin(LLRender::QUADS);
 			{
 				gGL.texCoord2f(uv_width, uv_height);
@@ -344,18 +342,19 @@ void LLSnapshotLivePreview::draw()
 		}
 		else if (mShineAnimTimer.getStarted())
 		{
-			LL_DEBUGS() << "Drawing shining animation" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Drawing shining animation" << LL_ENDL;
 			F32 shine_interp = llmin(1.f, mShineAnimTimer.getElapsedTimeF32() / SHINE_TIME);
 
 			// draw "shine" effect
-			LLLocalClipRect clip(getLocalRect());
+			LLRect local_rect(0, getRect().getHeight() + TOP_PANEL_HEIGHT, getRect().getWidth(), 0);
+			LLLocalClipRect clip(local_rect);
 			{
 				// draw diagonal stripe with gradient that passes over screen
 				S32 x1 = gViewerWindow->getWindowWidthScaled() * ll_round((clamp_rescale(shine_interp, 0.f, 1.f, -1.f - SHINE_WIDTH, 1.f)));
 				S32 x2 = x1 + ll_round(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
 				S32 x3 = x2 + ll_round(gViewerWindow->getWindowWidthScaled() * SHINE_WIDTH);
 				S32 y1 = 0;
-				S32 y2 = gViewerWindow->getWindowHeightScaled();
+				S32 y2 = gViewerWindow->getWindowHeightScaled() + TOP_PANEL_HEIGHT;
 
 				gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 				gGL.begin(LLRender::QUADS);
@@ -385,43 +384,13 @@ void LLSnapshotLivePreview::draw()
 		}
 	}
 
-	// draw framing rectangle
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		gGL.color4f(1.f, 1.f, 1.f, 1.f);
-		const LLRect& outline_rect = getImageRect();
-		gGL.begin(LLRender::QUADS);
-		{
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mLeft, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mLeft - BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mBottom);
-			gGL.vertex2i(outline_rect.mRight, outline_rect.mTop);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mTop + BORDER_WIDTH);
-			gGL.vertex2i(outline_rect.mRight + BORDER_WIDTH, outline_rect.mBottom - BORDER_WIDTH);
-		}
-		gGL.end();
-	}
-
 	// draw old image dropping away
 	if (mFallAnimTimer.getStarted())
 	{
 		S32 old_image_index = (mCurImageIndex + 1) % 2;
 		if (mViewerImage[old_image_index].notNull() && mFallAnimTimer.getElapsedTimeF32() < FALL_TIME)
 		{
-			LL_DEBUGS() << "Drawing fall animation" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Drawing fall animation" << LL_ENDL;
 			F32 fall_interp = mFallAnimTimer.getElapsedTimeF32() / FALL_TIME;
 			F32 alpha = clamp_rescale(fall_interp, 0.f, 1.f, 0.8f, 0.4f);
 			LLColor4 image_color(1.f, 1.f, 1.f, alpha);
@@ -465,7 +434,7 @@ void LLSnapshotLivePreview::reshape(S32 width, S32 height, BOOL called_from_pare
 	LLView::reshape(width, height, called_from_parent);
 	if (old_rect.getWidth() != width || old_rect.getHeight() != height)
 	{
-		LL_DEBUGS() << "window reshaped, updating thumbnail" << LL_ENDL;
+		LL_DEBUGS("Window", "Snapshot") << "window reshaped, updating thumbnail" << LL_ENDL;
 		if (mViewContainer && mViewContainer->isInVisibleChain())
 		{
 			// We usually resize only on window reshape, so give it a chance to redraw, assign delay
@@ -588,6 +557,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
         if(!gViewerWindow->thumbnailSnapshot(raw,
                                          mThumbnailWidth, mThumbnailHeight,
                                          mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                                         gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                                          FALSE,
                                          mSnapshotBufferType) )
         {
@@ -609,7 +579,7 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -657,7 +627,7 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         // Scale to a power of 2 so it can be mapped to a texture
@@ -677,7 +647,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	LLSnapshotLivePreview* previewp = (LLSnapshotLivePreview*)snapshot_preview;
 	if (previewp->getWidth() == 0 || previewp->getHeight() == 0)
 	{
-		LL_WARNS() << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << LL_ENDL;
+		LL_WARNS("Snapshot") << "Incorrect dimensions: " << previewp->getWidth() << "x" << previewp->getHeight() << LL_ENDL;
 		return FALSE;
 	}
 
@@ -708,7 +678,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
 		BOOL new_snapshot = gSavedSettings.getBOOL("AutoSnapshot") || previewp->mForceUpdateSnapshot;
-		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
+		LL_DEBUGS("Snapshot") << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
 			new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
 			FALSE, // or if 1st arg is false, whether to produce a new thumbnail image.
@@ -724,7 +694,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	// time to produce a snapshot
 	if(!previewp->getSnapshotUpToDate())
     {
-        LL_DEBUGS() << "producing snapshot" << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "producing snapshot" << LL_ENDL;
         if (!previewp->mPreviewImage)
         {
             previewp->mPreviewImage = new LLImageRaw;
@@ -746,6 +716,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
                 previewp->getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE,
                 previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                gSavedSettings.getBOOL("RenderHUDInSnapshot"),
                 FALSE,
                 previewp->mSnapshotBufferType,
                 previewp->getMaxImageSize()))
@@ -773,7 +744,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->getWindow()->decBusyCount();
         previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = FALSE;
-        LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "done creating snapshot" << LL_ENDL;
     }
     
     if (!previewp->getThumbnailUpToDate())
@@ -864,7 +835,7 @@ LLPointer<LLImageRaw> LLSnapshotLivePreview::getEncodedImage()
         if (getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE)
 		{
             // We don't store the intermediate formatted image in mFormattedImage in the J2C case 
-			LL_DEBUGS() << "Encoding new image of format J2C" << LL_ENDL;
+			LL_DEBUGS("Snapshot") << "Encoding new image of format J2C" << LL_ENDL;
 			LLPointer<LLImageJ2C> formatted = new LLImageJ2C;
             // Copy the preview
 			LLPointer<LLImageRaw> scaled = new LLImageRaw(
@@ -949,13 +920,13 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
             }
             else
             {
-                LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+                LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
             }
         }
         
         // Create the new formatted image of the appropriate format.
         LLSnapshotModel::ESnapshotFormat format = getSnapshotFormat();
-        LL_DEBUGS() << "Encoding new image of format " << format << LL_ENDL;
+        LL_DEBUGS("Snapshot") << "Encoding new image of format " << format << LL_ENDL;
             
         switch (format)
         {
@@ -980,7 +951,7 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
 
 void LLSnapshotLivePreview::setSize(S32 w, S32 h)
 {
-	LL_DEBUGS() << "setSize(" << w << ", " << h << ")" << LL_ENDL;
+    LL_DEBUGS("Snapshot") << "setSize(" << w << ", " << h << ")" << LL_ENDL;
 	setWidth(w);
 	setHeight(h);
 }
@@ -1002,7 +973,7 @@ void LLSnapshotLivePreview::getSize(S32& w, S32& h) const
 
 void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 {
-	LL_DEBUGS() << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "saving texture: " << mPreviewImage->getWidth() << "x" << mPreviewImage->getHeight() << LL_ENDL;
 	// gen a new uuid for this asset
 	LLTransactionID tid;
 	tid.generate();
@@ -1025,21 +996,22 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		}
 		else
 		{
-			LL_WARNS() << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
+			LL_WARNS("Snapshot") << "Couldn't find a path to the following filter : " << getFilter() << LL_ENDL;
 		}
 	}
 
 	scaled->biasedScaleToPowerOfTwo(MAX_TEXTURE_SIZE);
-	LL_DEBUGS() << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
+	LL_DEBUGS("Snapshot") << "scaled texture to " << scaled->getWidth() << "x" << scaled->getHeight() << LL_ENDL;
 
 	if (formatted->encode(scaled, 0.0f))
 	{
-		LLVFile::writeFile(formatted->getData(), formatted->getDataSize(), gVFS, new_asset_id, LLAssetType::AT_TEXTURE);
+        LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_TEXTURE, LLFileSystem::WRITE);
+        fmt_file.write(formatted->getData(), formatted->getDataSize());
 		std::string pos_string;
 		LLAgentUI::buildLocationString(pos_string, LLAgentUI::LOCATION_FORMAT_FULL);
 		std::string who_took_it;
 		LLAgentUI::buildFullname(who_took_it);
-		S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+		S32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
         std::string res_name = outfit_snapshot ? name : "Snapshot : " + pos_string;
         std::string res_desc = outfit_snapshot ? "" : "Taken by " + who_took_it + " at " + pos_string;
         LLFolderType::EType folder_type = outfit_snapshot ? LLFolderType::FT_NONE : LLFolderType::FT_SNAPSHOT_CATEGORY;
@@ -1058,7 +1030,7 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 	else
 	{
 		LLNotificationsUtil::add("ErrorEncodingSnapshot");
-		LL_WARNS() << "Error encoding snapshot" << LL_ENDL;
+		LL_WARNS("Snapshot") << "Error encoding snapshot" << LL_ENDL;
 	}
 
 	add(LLStatViewer::SNAPSHOT, 1);

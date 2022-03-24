@@ -48,7 +48,7 @@ public:
 	void initAttribsAndUniforms(void);
 	void setShaders();
 	void unloadShaders();
-	S32 getVertexShaderLevel(S32 type);
+    S32  getShaderLevel(S32 type);
 	BOOL loadBasicShaders();
 	BOOL loadShadersEffects();
 	BOOL loadShadersDeferred();
@@ -60,7 +60,7 @@ public:
 	BOOL loadShadersWindLight();
 	BOOL loadTransformShaders();
 
-	std::vector<S32> mVertexShaderLevel;
+	std::vector<S32> mShaderLevel;
 	S32	mMaxAvatarShaderLevel;
 
 	enum EShaderClass
@@ -129,24 +129,6 @@ public:
 	/* virtual */ void updateShaderUniforms(LLGLSLShader * shader);
 
 private:
-	
-	std::vector<std::string> mShinyUniforms;
-
-	//water parameters
-	std::vector<std::string> mWaterUniforms;
-
-	std::vector<std::string> mWLUniforms;
-
-	//terrain parameters
-	std::vector<std::string> mTerrainUniforms;
-
-	//glow parameters
-	std::vector<std::string> mGlowUniforms;
-
-	std::vector<std::string> mGlowExtractUniforms;
-
-	std::vector<std::string> mAvatarUniforms;
-
 	// the list of shaders we need to propagate parameters to.
 	std::vector<LLGLSLShader *> mShaderList;
 
@@ -255,6 +237,7 @@ extern LLGLSLShader			gSkinnedObjectShinySimpleWaterProgram;
 extern LLGLSLShader			gTerrainProgram;
 extern LLGLSLShader			gTerrainWaterProgram;
 extern LLGLSLShader			gWaterProgram;
+extern LLGLSLShader			gWaterEdgeProgram;
 extern LLGLSLShader			gUnderWaterProgram;
 extern LLGLSLShader			gGlowProgram;
 extern LLGLSLShader			gGlowExtractProgram;
@@ -281,6 +264,8 @@ extern LLGLSLShader			gImpostorProgram;
 // WindLight shader handles
 extern LLGLSLShader			gWLSkyProgram;
 extern LLGLSLShader			gWLCloudProgram;
+extern LLGLSLShader			gWLSunProgram;
+extern LLGLSLShader			gWLMoonProgram;
 
 // Post Process Shaders
 extern LLGLSLShader			gPostColorFilterProgram;
@@ -301,6 +286,7 @@ extern LLGLSLShader			gDeferredSkinnedBumpProgram;
 extern LLGLSLShader			gDeferredSkinnedAlphaProgram;
 extern LLGLSLShader			gDeferredBumpProgram;
 extern LLGLSLShader			gDeferredTerrainProgram;
+extern LLGLSLShader			gDeferredTerrainWaterProgram;
 extern LLGLSLShader			gDeferredTreeProgram;
 extern LLGLSLShader			gDeferredTreeShadowProgram;
 extern LLGLSLShader			gDeferredLightProgram;
@@ -315,6 +301,7 @@ extern LLGLSLShader			gDeferredSoftenWaterProgram;
 extern LLGLSLShader			gDeferredShadowProgram;
 extern LLGLSLShader			gDeferredShadowCubeProgram;
 extern LLGLSLShader			gDeferredShadowAlphaMaskProgram;
+extern LLGLSLShader			gDeferredShadowFullbrightAlphaMaskProgram;
 extern LLGLSLShader			gDeferredPostProgram;
 extern LLGLSLShader			gDeferredCoFProgram;
 extern LLGLSLShader			gDeferredDoFCombineProgram;
@@ -339,6 +326,8 @@ extern LLGLSLShader			gDeferredAvatarEyesProgram;
 extern LLGLSLShader			gDeferredAvatarAlphaProgram;
 extern LLGLSLShader			gDeferredWLSkyProgram;
 extern LLGLSLShader			gDeferredWLCloudProgram;
+extern LLGLSLShader			gDeferredWLSunProgram;
+extern LLGLSLShader			gDeferredWLMoonProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gDeferredFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;

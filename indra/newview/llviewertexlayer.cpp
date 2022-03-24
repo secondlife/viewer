@@ -31,8 +31,6 @@
 #include "llagent.h"
 #include "llimagej2c.h"
 #include "llnotificationsutil.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "llviewerregion.h"
 #include "llglslshader.h"
 #include "llvoavatarself.h"
@@ -54,7 +52,7 @@ LLViewerTexLayerSetBuffer::LLViewerTexLayerSetBuffer(LLTexLayerSet* const owner,
 										 S32 width, S32 height) :
 	// ORDER_LAST => must render these after the hints are created.
 	LLTexLayerSetBuffer(owner),
-	LLViewerDynamicTexture( width, height, 4, LLViewerDynamicTexture::ORDER_LAST, TRUE ), 
+    LLViewerDynamicTexture(width, height, 4, LLViewerDynamicTexture::ORDER_LAST, FALSE),
 	mNeedsUpdate(TRUE),
 	mNumLowresUpdates(0)
 {

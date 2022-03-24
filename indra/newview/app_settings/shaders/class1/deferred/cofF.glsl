@@ -50,15 +50,6 @@ uniform vec2 screen_res;
 
 VARYING vec2 vary_fragcoord;
 
-float getDepth(vec2 pos_screen)
-{
-	float z = texture2DRect(depthMap, pos_screen.xy).r;
-	z = z*2.0-1.0;
-	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
-	vec4 p = inv_proj*ndc;
-	return p.z/p.w;
-}
-
 float calc_cof(float depth)
 {
 	float sc = (depth-focal_distance)/-depth*blur_constant;
@@ -77,8 +68,12 @@ float calc_cof(float depth)
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
-	
-	float depth = getDepth(tc);
+
+    float z = texture2DRect(depthMap, tc).r;
+	z = z*2.0-1.0;
+	vec4 ndc = vec4(0.0, 0.0, z, 1.0);
+	vec4 p = inv_proj*ndc;
+	float depth = p.z/p.w;
 	
 	vec4 diff = texture2DRect(diffuseRect, vary_fragcoord.xy);
 	

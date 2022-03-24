@@ -271,10 +271,10 @@ namespace tut
 		LLSD w;
 		mParser->reset();	// reset() call is needed since test code re-uses mParser
 		mParser->parse(stream, w, stream.str().size());
-		
+
 		try
 		{
-			ensure_equals(msg.c_str(), w, v);
+			ensure_equals(msg, w, v);
 		}
 		catch (...)
 		{
@@ -432,6 +432,7 @@ namespace tut
 		
 		const char source[] = "it must be a blue moon again";
 		std::vector<U8> data;
+		// note, includes terminating '\0'
 		copy(&source[0], &source[sizeof(source)], back_inserter(data));
 		
 		v = data;
@@ -468,28 +469,36 @@ namespace tut
 		checkRoundTrip(msg + " many nested maps", v);
 	}
 	
-	typedef tut::test_group<TestLLSDSerializeData> TestLLSDSerialzeGroup;
-	typedef TestLLSDSerialzeGroup::object TestLLSDSerializeObject;
-	TestLLSDSerialzeGroup gTestLLSDSerializeGroup("llsd serialization");
+	typedef tut::test_group<TestLLSDSerializeData> TestLLSDSerializeGroup;
+	typedef TestLLSDSerializeGroup::object TestLLSDSerializeObject;
+	TestLLSDSerializeGroup gTestLLSDSerializeGroup("llsd serialization");
 
 	template<> template<> 
 	void TestLLSDSerializeObject::test<1>()
 	{
-		mFormatter = new LLSDNotationFormatter();
+		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_PRETTY_BINARY);
 		mParser = new LLSDNotationParser();
-		doRoundTripTests("notation serialization");
+		doRoundTripTests("pretty binary notation serialization");
 	}
-	
+
 	template<> template<> 
 	void TestLLSDSerializeObject::test<2>()
+	{
+		mFormatter = new LLSDNotationFormatter(false, "", LLSDFormatter::OPTIONS_NONE);
+		mParser = new LLSDNotationParser();
+		doRoundTripTests("raw binary notation serialization");
+	}
+
+	template<> template<> 
+	void TestLLSDSerializeObject::test<3>()
 	{
 		mFormatter = new LLSDXMLFormatter();
 		mParser = new LLSDXMLParser();
 		doRoundTripTests("xml serialization");
 	}
-	
+
 	template<> template<> 
-	void TestLLSDSerializeObject::test<3>()
+	void TestLLSDSerializeObject::test<4>()
 	{
 		mFormatter = new LLSDBinaryFormatter();
 		mParser = new LLSDBinaryParser();
@@ -1786,7 +1795,7 @@ namespace tut
         set_test_name("verify NamedTempFile");
         python("platform",
                "import sys\n"
-               "print 'Running on', sys.platform\n");
+               "print('Running on', sys.platform)\n");
     }
 
     // helper for test<3>
@@ -1816,14 +1825,14 @@ namespace tut
         const char pydata[] =
             "def verify(iterable):\n"
             "    it = iter(iterable)\n"
-            "    assert it.next() == 17\n"
-            "    assert abs(it.next() - 3.14) < 0.01\n"
-            "    assert it.next() == '''\\\n"
+            "    assert next(it) == 17\n"
+            "    assert abs(next(it) - 3.14) < 0.01\n"
+            "    assert next(it) == '''\\\n"
             "This string\n"
             "has several\n"
             "lines.'''\n"
             "    try:\n"
-            "        it.next()\n"
+            "        next(it)\n"
             "    except StopIteration:\n"
             "        pass\n"
             "    else:\n"
@@ -1846,7 +1855,7 @@ namespace tut
                "        yield llsd.parse(item)\n" <<
                pydata <<
                // Don't forget raw-string syntax for Windows pathnames.
-               "verify(parse_each(open(r'" << file.getName() << "')))\n");
+               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
     }
 
     template<> template<>
@@ -1861,7 +1870,6 @@ namespace tut
 
         python("write Python notation",
                placeholders::arg1 <<
-               "from __future__ import with_statement\n" <<
                import_llsd <<
                "DATA = [\n"
                "    17,\n"
@@ -1875,7 +1883,7 @@ namespace tut
                // N.B. Using 'print' implicitly adds newlines.
                "with open(r'" << file.getName() << "', 'w') as f:\n"
                "    for item in DATA:\n"
-               "        print >>f, llsd.format_notation(item)\n");
+               "        print(llsd.format_notation(item).decode(), file=f)\n");
 
         std::ifstream inf(file.getName().c_str());
         LLSD item;

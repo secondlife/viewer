@@ -180,7 +180,9 @@ void LLConsole::draw()
 
 	LLUIImagePtr imagep = LLUI::getUIImage("transparent");
 
-	F32 console_opacity = llclamp(LLUI::getInstance()->mSettingGroups["config"]->getF32("ConsoleBackgroundOpacity"), 0.f, 1.f);
+	static LLCachedControl<F32> console_bg_opacity(*LLUI::getInstance()->mSettingGroups["config"], "ConsoleBackgroundOpacity", 0.7f);
+	F32 console_opacity = llclamp(console_bg_opacity(), 0.f, 1.f);
+
 	LLColor4 color = LLUIColorTable::instance().getColor("ConsoleBackground");
 	color.mV[VALPHA] *= console_opacity;
 
@@ -369,9 +371,9 @@ LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_t
 // static
 void LLConsole::updateClass()
 {	
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (auto& con : instance_snapshot())
 	{
-		it->update();
+		con.update();
 	} 
 }
 

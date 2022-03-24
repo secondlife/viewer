@@ -94,6 +94,10 @@ public:
 
 	LLSD getDisplayInfo();
 
+	// Will get memory of best GPU in MB, return memory on sucsess, 0 on failure
+	// Note: WMI is not accurate in some cases
+	static S32 getMBVideoMemoryViaWMI();
+
 	// Find a particular device that matches the following specs.
 	// Empty strings indicate that you don't care.
 	// You can separate multiple devices with '|' chars to indicate you want

@@ -13,7 +13,7 @@
 			<item label="Medio" name="Medium" value="1"/>
 			<item label="Grande" name="Large" value="2"/>
 		</combo_box>
-		<check_box label="Bocadillos del chat" name="bubble_text_chat"/>
+		<check_box label="Bocadillos del chat" name="bubble_text_chat" left_delta="30"/>
 	</panel>
 	<panel name="im_notification_settings">
 		<text name="friend_ims">

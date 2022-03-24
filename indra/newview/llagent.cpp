@@ -32,6 +32,7 @@
 #include "pipeline.h"
 
 #include "llagentaccess.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llagentlistener.h"
 #include "llagentwearables.h"
@@ -43,7 +44,6 @@
 #include "llchicletbar.h"
 #include "llconsole.h"
 #include "lldonotdisturbnotificationstorage.h"
-#include "llenvmanager.h"
 #include "llfirstuse.h"
 #include "llfloatercamera.h"
 #include "llfloaterimcontainer.h"
@@ -108,7 +108,8 @@ const U8 AGENT_STATE_EDITING =  0x10;
 // Autopilot constants
 const F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
 const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
-const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
+const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_WALK = 1.5f;		// seconds
+const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS_FLY = 2.5f;		// seconds. Flying is less presize, needs a bit more time
 
 const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
 const F64 CHAT_AGE_FAST_RATE = 3.0;
@@ -137,6 +138,10 @@ public:
 	EStatus getStatus() const          {return mStatus;};
 	void    setStatus(EStatus pStatus) {mStatus = pStatus;};
 
+	static std::map<S32, std::string> sTeleportStatusName;
+	static const std::string& statusName(EStatus status);
+	virtual void toOstream(std::ostream& os) const;
+
 	virtual bool canRestartTeleport();
 
 	virtual void startTeleport() = 0;
@@ -148,11 +153,18 @@ private:
 	EStatus mStatus;
 };
 
+std::map<S32, std::string> LLTeleportRequest::sTeleportStatusName = { { kPending, "kPending" },
+																	  { kStarted, "kStarted" },
+																	  { kFailed, "kFailed" },
+																	  { kRestartPending, "kRestartPending"} };
+
 class LLTeleportRequestViaLandmark : public LLTeleportRequest
 {
 public:
 	LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId);
 	virtual ~LLTeleportRequestViaLandmark();
+
+	virtual void toOstream(std::ostream& os) const;
 
 	virtual bool canRestartTeleport();
 
@@ -172,6 +184,8 @@ public:
 	LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL pIsLureGodLike);
 	virtual ~LLTeleportRequestViaLure();
 
+	virtual void toOstream(std::ostream& os) const;
+
 	virtual bool canRestartTeleport();
 
 	virtual void startTeleport();
@@ -188,6 +202,8 @@ class LLTeleportRequestViaLocation : public LLTeleportRequest
 public:
 	LLTeleportRequestViaLocation(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocation();
+
+	virtual void toOstream(std::ostream& os) const;
 
 	virtual bool canRestartTeleport();
 
@@ -207,6 +223,8 @@ class LLTeleportRequestViaLocationLookAt : public LLTeleportRequestViaLocation
 public:
 	LLTeleportRequestViaLocationLookAt(const LLVector3d &pPosGlobal);
 	virtual ~LLTeleportRequestViaLocationLookAt();
+
+	virtual void toOstream(std::ostream& os) const;
 
 	virtual bool canRestartTeleport();
 
@@ -370,6 +388,7 @@ LLAgent::LLAgent() :
 	mTeleportFinishedSlot(),
 	mTeleportFailedSlot(),
 	mIsMaturityRatingChangingDuringTeleport(false),
+	mTPNeedsNeabyChatSeparator(false),
 	mMaturityRatingChange(0U),
 	mIsDoSendMaturityPreferenceToServer(false),
 	mMaturityPreferenceRequestId(0U),
@@ -383,6 +402,7 @@ LLAgent::LLAgent() :
 
 	mAgentOriginGlobal(),
 	mPositionGlobal(),
+    mLastTestGlobal(),
 
 	mDistanceTraveled(0.F),
 	mLastPositionGlobal(LLVector3d::zero),
@@ -491,6 +511,8 @@ void LLAgent::init()
 void LLAgent::cleanup()
 {
 	mRegionp = NULL;
+    mTeleportRequest = NULL;
+    mTeleportCanceled = NULL;
 	if (mTeleportFinishedSlot.connected())
 	{
 		mTeleportFinishedSlot.disconnect();
@@ -774,7 +796,7 @@ void LLAgent::setFlying(BOOL fly, BOOL fail_sound)
 			// and it's OK if you're already flying
 			if (fail_sound)
 			{
-				make_ui_sound("UISndBadKeystroke");
+			make_ui_sound("UISndBadKeystroke");
 			}
 			return;
 		}
@@ -829,6 +851,17 @@ bool LLAgent::enableFlying()
 	return !sitting;
 }
 
+// static
+bool LLAgent::isSitting()
+{
+    BOOL sitting = FALSE;
+    if (isAgentAvatarValid())
+    {
+        sitting = gAgentAvatarp->isSitting();
+    }
+    return sitting;
+}
+
 void LLAgent::standUp()
 {
 	setControlFlags(AGENT_CONTROL_STAND_UP);
@@ -846,6 +879,17 @@ boost::signals2::connection LLAgent::addParcelChangedCallback(parcel_changed_cal
 	return mParcelChangedSignal.connect(cb);
 }
 
+// static
+void LLAgent::capabilityReceivedCallback(const LLUUID &region_id, LLViewerRegion *regionp)
+{
+    if (regionp && regionp->getRegionID() == region_id)
+    {
+        regionp->requestSimulatorFeatures();
+        LLAppViewer::instance()->updateNameLookupUrl(regionp);
+    }
+}
+
+
 //-----------------------------------------------------------------------------
 // setRegion()
 //-----------------------------------------------------------------------------
@@ -855,9 +899,12 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 	if (mRegionp != regionp)
 	{
 
-		std::string ip = regionp->getHost().getString();
-		LL_INFOS("AgentLocation") << "Moving agent into region: " << regionp->getName()
-				<< " located at " << ip << LL_ENDL;
+		LL_INFOS("AgentLocation","Teleport") << "Moving agent into region: handle " << regionp->getHandle() 
+											 << " id " << regionp->getRegionID()
+											 << " name " << regionp->getName()
+											 << " previous region "
+											 << (mRegionp ? mRegionp->getRegionID() : LLUUID::null)
+											 << LL_ENDL;
 		if (mRegionp)
 		{
 			// We've changed regions, we're now going to change our agent coordinate frame.
@@ -889,10 +936,11 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
             if (regionp->capabilitiesReceived())
             {
                 regionp->requestSimulatorFeatures();
+                LLAppViewer::instance()->updateNameLookupUrl(regionp);
             }
             else
             {
-                regionp->setCapabilitiesReceivedCallback(boost::bind(&LLViewerRegion::requestSimulatorFeatures, regionp));
+                regionp->setCapabilitiesReceivedCallback(LLAgent::capabilityReceivedCallback);
             }
 
 		}
@@ -911,6 +959,15 @@ void LLAgent::setRegion(LLViewerRegion *regionp)
 
 			// Update all of the regions.
 			LLWorld::getInstance()->updateAgentOffset(mAgentOriginGlobal);
+
+            if (regionp->capabilitiesReceived())
+            {
+                LLAppViewer::instance()->updateNameLookupUrl(regionp);
+            }
+            else
+            {
+                regionp->setCapabilitiesReceivedCallback([](const LLUUID &region_id, LLViewerRegion* regionp) {LLAppViewer::instance()->updateNameLookupUrl(regionp); });
+            }
 		}
 
 		// Pass new region along to metrics components that care about this level of detail.
@@ -1085,6 +1142,13 @@ void LLAgent::setPositionAgent(const LLVector3 &pos_agent)
 		pos_agent_d.setVec(pos_agent);
 		mPositionGlobal = pos_agent_d + mAgentOriginGlobal;
 	}
+
+    if (((mLastTestGlobal - mPositionGlobal).lengthSquared() > 1.0) && !mOnPositionChanged.empty())
+    {   // If the position has changed my more than 1 meter since the last time we triggered.
+        // filters out some noise. 
+        mLastTestGlobal = mPositionGlobal;
+        mOnPositionChanged(mFrameAgent.getOrigin(), mPositionGlobal);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1124,6 +1188,12 @@ const LLVector3 &LLAgent::getPositionAgent()
 
 	return mFrameAgent.getOrigin();
 }
+
+boost::signals2::connection LLAgent::whenPositionChanged(position_signal_t::slot_type fn)
+{
+    return mOnPositionChanged.connect(fn);
+}
+
 
 //-----------------------------------------------------------------------------
 // getRegionsVisited()
@@ -1493,6 +1563,12 @@ void LLAgent::startAutoPilotGlobal(
 	{
 		return;
 	}
+
+    if (target_global.isExactlyZero())
+    {
+        LL_WARNS() << "Canceling attempt to start autopilot towards invalid position" << LL_ENDL;
+        return;
+    }
 	
 	// Are there any pending callbacks from previous auto pilot requests?
 	if (mAutoPilotFinishedCallback)
@@ -1708,7 +1784,16 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		if (target_dist >= mAutoPilotTargetDist)
 		{
 			mAutoPilotNoProgressFrameCount++;
-			if (mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS * gFPSClamped)
+            bool out_of_time = false;
+            if (getFlying())
+            {
+                out_of_time = mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS_FLY * gFPSClamped;
+            }
+            else
+            {
+                out_of_time = mAutoPilotNoProgressFrameCount > AUTOPILOT_MAX_TIME_NO_PROGRESS_WALK * gFPSClamped;
+            }
+			if (out_of_time)
 			{
 				stopAutoPilot();
 				return;
@@ -1757,7 +1842,7 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		F32 slow_distance;
 		if (getFlying())
 		{
-			slow_distance = llmax(6.f, mAutoPilotStopDistance + 5.f);
+			slow_distance = llmax(8.f, mAutoPilotStopDistance + 5.f);
 		}
 		else
 		{
@@ -1801,14 +1886,41 @@ void LLAgent::autoPilot(F32 *delta_yaw)
 		}
 		else if (mAutoPilotTargetDist > mAutoPilotStopDistance)
 		{
-			// walking/flying slow
+            // walking/flying slow
+            U32 movement_flag = 0;
+
 			if (at * direction > 0.9f)
 			{
-				setControlFlags(AGENT_CONTROL_AT_POS);
-			}
-			else if (at * direction < -0.9f)
-			{
-				setControlFlags(AGENT_CONTROL_AT_NEG);
+                movement_flag = AGENT_CONTROL_AT_POS;
+            }
+            else if (at * direction < -0.9f)
+            {
+                movement_flag = AGENT_CONTROL_AT_NEG;
+            }
+
+            if (getFlying())
+            {
+                // flying is too fast and has high inertia, artificially slow it down
+                // Don't update flags too often, server might not react
+                static U64 last_time_microsec = 0;
+                U64 time_microsec = LLTimer::getTotalTime();
+                U64 delta = time_microsec - last_time_microsec;
+                // fly during ~0-40 ms, stop during ~40-250 ms
+                if (delta > 250000) // 250ms
+                {
+                    // reset even if !movement_flag
+                    last_time_microsec = time_microsec;
+                }
+                else if (delta > 40000) // 40 ms
+                {
+                    clearControlFlags(AGENT_CONTROL_AT_POS | AGENT_CONTROL_AT_POS);
+                    movement_flag = 0;
+                }
+            }
+
+            if (movement_flag)
+            {
+                setControlFlags(movement_flag);
 			}
 		}
 
@@ -2022,6 +2134,14 @@ U8 LLAgent::getRenderState()
 //-----------------------------------------------------------------------------
 void LLAgent::endAnimationUpdateUI()
 {
+	if (LLApp::isExiting()
+		|| !gViewerWindow
+		|| !gMenuBarView
+		|| !gToolBarView
+		|| !gStatusBar)
+	{
+		return;
+	}
 	if (gAgentCamera.getCameraMode() == gAgentCamera.getLastCameraMode())
 	{
 		// We're already done endAnimationUpdateUI for this transition.
@@ -2598,6 +2718,7 @@ void LLAgent::handlePreferredMaturityResult(U8 pServerMaturity)
 		else
 		{
 			mMaturityPreferenceNumRetries = 0;
+			LL_WARNS() << "Too many retries for maturity preference" << LL_ENDL;
 			reportPreferredMaturityError();
 		}
 	}
@@ -2649,6 +2770,7 @@ void LLAgent::reportPreferredMaturityError()
 	mIsMaturityRatingChangingDuringTeleport = false;
 	if (hasPendingTeleportRequest())
 	{
+		LL_WARNS("Teleport") << "Teleport failing due to preferred maturity error" << LL_ENDL;
 		setTeleportState(LLAgent::TELEPORT_NONE);
 	}
 
@@ -2773,7 +2895,7 @@ bool LLAgent::requestGetCapability(const std::string &capName, httpCallback_t cb
 {
     std::string url;
 
-    url = getRegion()->getCapability(capName);
+    url = getRegionCapability(capName);
 
     if (url.empty())
     {
@@ -2984,7 +3106,7 @@ BOOL LLAgent::setUserGroupFlags(const LLUUID& group_id, BOOL accept_notices, BOO
 
 BOOL LLAgent::canJoinGroups() const
 {
-	return (S32)mGroups.size() < gMaxAgentGroups;
+	return (S32)mGroups.size() < LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 }
 
 LLQuaternion LLAgent::getHeadRotation()
@@ -3744,7 +3866,7 @@ void LLAgent::clearVisualParams(void *data)
 // protected
 bool LLAgent::teleportCore(bool is_local)
 {
-    LL_INFOS("Teleport") << "In teleport core!" << LL_ENDL;
+    LL_DEBUGS("Teleport") << "In teleport core" << LL_ENDL;
 	if ((TELEPORT_NONE != mTeleportState) && (mTeleportState != TELEPORT_PENDING))
 	{
 		LL_WARNS() << "Attempt to teleport when already teleporting." << LL_ENDL;
@@ -3789,16 +3911,6 @@ bool LLAgent::teleportCore(bool is_local)
 	// hide the Region/Estate floater
 	LLFloaterReg::hideInstance("region_info");
 
-	// minimize the Search floater (STORM-1474)
-	{
-		LLFloater* instance = LLFloaterReg::getInstance("search");
-
-		if (instance && instance->getVisible())
-		{
-			instance->setMinimized(TRUE);
-		}
-	}
-
 	LLViewerParcelMgr::getInstance()->deselectLand();
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
@@ -3810,11 +3922,13 @@ bool LLAgent::teleportCore(bool is_local)
 	add(LLStatViewer::TELEPORT, 1);
 	if (is_local)
 	{
+		LL_INFOS("Teleport") << "Setting teleport state to TELEPORT_LOCAL" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_LOCAL );
 	}
 	else
 	{
 		gTeleportDisplay = TRUE;
+		LL_INFOS("Teleport") << "Non-local, setting teleport state to TELEPORT_START" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START );
 
 		//release geometry from old location
@@ -3853,12 +3967,19 @@ void LLAgent::clearTeleportRequest()
         LLVoiceClient::getInstance()->setHidden(FALSE);
     }
 	mTeleportRequest.reset();
+    mTPNeedsNeabyChatSeparator = false;
 }
 
 void LLAgent::setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange)
 {
 	mIsMaturityRatingChangingDuringTeleport = true;
 	mMaturityRatingChange = pMaturityRatingChange;
+}
+
+void LLAgent::sheduleTeleportIM()
+{
+    // is supposed to be called during teleport so we are still waiting for parcel
+    mTPNeedsNeabyChatSeparator = true;
 }
 
 bool LLAgent::hasPendingTeleportRequest()
@@ -3881,6 +4002,7 @@ void LLAgent::startTeleportRequest()
 		if  (!isMaturityPreferenceSyncedWithServer())
 		{
 			gTeleportDisplay = TRUE;
+			LL_INFOS("Teleport") << "Maturity preference not synced yet, setting teleport state to TELEPORT_PENDING" << LL_ENDL;
 			setTeleportState(TELEPORT_PENDING);
 		}
 		else
@@ -3907,6 +4029,12 @@ void LLAgent::startTeleportRequest()
 void LLAgent::handleTeleportFinished()
 {
     LL_INFOS("Teleport") << "Agent handling teleport finished." << LL_ENDL;
+    if (mTPNeedsNeabyChatSeparator)
+    {
+        // parcel is ready at this point
+        addTPNearbyChatSeparator();
+        mTPNeedsNeabyChatSeparator = false;
+    }
 	clearTeleportRequest();
     mTeleportCanceled.reset();
 	if (mIsMaturityRatingChangingDuringTeleport)
@@ -3924,10 +4052,19 @@ void LLAgent::handleTeleportFinished()
     {
         if (mRegionp->capabilitiesReceived())
         {
+			LL_DEBUGS("Teleport") << "capabilities have been received for region handle "
+								  << mRegionp->getHandle()
+								  << " id " << mRegionp->getRegionID()
+								  << ", calling onCapabilitiesReceivedAfterTeleport()"
+								  << LL_ENDL;
             onCapabilitiesReceivedAfterTeleport();
         }
         else
         {
+			LL_DEBUGS("Teleport") << "Capabilities not yet received for region handle "
+								  << mRegionp->getHandle()
+								  << " id " << mRegionp->getRegionID()
+								  << LL_ENDL;
             mRegionp->setCapabilitiesReceivedCallback(boost::bind(&LLAgent::onCapabilitiesReceivedAfterTeleport));
         }
     }
@@ -3960,11 +4097,61 @@ void LLAgent::handleTeleportFailed()
 		LLNotificationsUtil::add("PreferredMaturityChanged", args);
 		mIsMaturityRatingChangingDuringTeleport = false;
 	}
+
+    mTPNeedsNeabyChatSeparator = false;
+}
+
+/*static*/
+void LLAgent::addTPNearbyChatSeparator()
+{
+    LLViewerRegion* agent_region = gAgent.getRegion();
+    LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+    if (!agent_region || !agent_parcel)
+    {
+        return;
+    }
+
+    LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+    if (nearby_chat)
+    {
+        std::string location_name;
+        LLAgentUI::ELocationFormat format = LLAgentUI::LOCATION_FORMAT_NO_MATURITY;
+
+        // Might be better to provide slurl to chat
+        if (!LLAgentUI::buildLocationString(location_name, format))
+        {
+            location_name = "Teleport to new region"; // Shouldn't happen
+        }
+
+        LLChat chat;
+        chat.mFromName = location_name;
+        chat.mMuted = FALSE;
+        chat.mFromID = LLUUID::null;
+        chat.mSourceType = CHAT_SOURCE_TELEPORT;
+        chat.mChatStyle = CHAT_STYLE_TELEPORT_SEP;
+        chat.mText = "";
+
+        LLSD args;
+        args["do_not_log"] = TRUE;
+        nearby_chat->addMessage(chat, true, args);
+    }
 }
 
 /*static*/
 void LLAgent::onCapabilitiesReceivedAfterTeleport()
 {
+	if (gAgent.getRegion())
+	{
+		LL_DEBUGS("Teleport") << "running after capabilities received callback has been triggered, agent region "
+							  << gAgent.getRegion()->getHandle()
+							  << " id " << gAgent.getRegion()->getRegionID()
+							  << " name " << gAgent.getRegion()->getName()
+							  << LL_ENDL;
+	}
+	else
+	{
+		LL_WARNS("Teleport") << "called when agent region is null!" << LL_ENDL;
+	}
 
     check_merchant_status();
 }
@@ -3978,8 +4165,8 @@ void LLAgent::teleportRequest(
 	LLViewerRegion* regionp = getRegion();
 	if (regionp && teleportCore(region_handle == regionp->getHandle()))
 	{
-		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
-					 << pos_local << LL_ENDL;
+		LL_INFOS("Teleport") << "Sending TeleportLocationRequest: '" << region_handle << "':"
+							 << pos_local << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessage("TeleportLocationRequest");
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -4010,6 +4197,11 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 	LLViewerRegion *regionp = getRegion();
 	if(regionp && teleportCore())
 	{
+		LL_INFOS("Teleport") << "Sending TeleportLandmarkRequest. Current region handle " << regionp->getHandle()
+							 << " region id " << regionp->getRegionID()
+							 << " requested landmark id " << landmark_asset_id
+							 << LL_ENDL;
+
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_TeleportLandmarkRequest);
 		msg->nextBlockFast(_PREHASH_Info);
@@ -4042,6 +4234,11 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 			teleport_flags |= TELEPORT_FLAGS_VIA_LURE;
 		}
 
+		LL_INFOS("Teleport") << "Sending TeleportLureRequest."
+							 << " Current region handle " << regionp->getHandle()
+							 << " region id " << regionp->getRegionID()
+							 << " lure id " << lure_id
+							 << LL_ENDL;
 		// send the message
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_TeleportLureRequest);
@@ -4064,6 +4261,8 @@ void LLAgent::teleportCancel()
 		LLViewerRegion* regionp = getRegion();
 		if(regionp)
 		{
+			LL_INFOS("Teleport") << "Sending TeleportCancel" << LL_ENDL;
+			
 			// send the message
 			LLMessageSystem* msg = gMessageSystem;
 			msg->newMessage("TeleportCancel");
@@ -4076,13 +4275,14 @@ void LLAgent::teleportCancel()
 	}
 	clearTeleportRequest();
 	gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
-	gPipeline.resetVertexBuffers();
+	gPipeline.resetVertexBuffers(); 
 }
 
 void LLAgent::restoreCanceledTeleportRequest()
 {
     if (mTeleportCanceled != NULL)
     {
+		LL_INFOS() << "Restoring canceled teleport request, setting state to TELEPORT_REQUESTED" << LL_ENDL;
         gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
         mTeleportRequest = mTeleportCanceled;
         mTeleportCanceled.reset();
@@ -4120,7 +4320,6 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 	else if(regionp && 
 		teleportCore(regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY])))
 	{
-		LL_WARNS() << "Using deprecated teleportlocationrequest." << LL_ENDL; 
 		// send the message
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_TeleportLocationRequest);
@@ -4140,6 +4339,14 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 		msg->addVector3Fast(_PREHASH_Position, pos);
 		pos.mV[VX] += 1;
 		msg->addVector3Fast(_PREHASH_LookAt, pos);
+
+		LL_WARNS("Teleport") << "Sending deprecated(?) TeleportLocationRequest."
+							 << " pos_global " << pos_global
+							 << " region_x " << region_x
+							 << " region_y " << region_y
+							 << " region_handle " << region_handle
+							 << LL_ENDL; 
+
 		sendReliableMessage();
 	}
 }
@@ -4181,7 +4388,11 @@ void LLAgent::setTeleportState(ETeleportState state)
             " for previously failed teleport.  Ignore!" << LL_ENDL;
         return;
     }
-    LL_DEBUGS("Teleport") << "Setting teleport state to " << state << " Previous state: " << mTeleportState << LL_ENDL;
+    LL_DEBUGS("Teleport") << "Setting teleport state to "
+						  << LLAgent::teleportStateName(state) << "(" << state << ")"
+						  << " Previous state: "
+						  << teleportStateName(mTeleportState) << "(" << mTeleportState << ")"
+						  << LL_ENDL;
 	mTeleportState = state;
 	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
 	{
@@ -4415,23 +4626,19 @@ void LLAgent::requestAgentUserInfoCoro(std::string capurl)
         return;
     }
 
-    bool im_via_email;
-    bool is_verified_email;
     std::string email;
     std::string dir_visibility;
 
-    im_via_email = result["im_via_email"].asBoolean();
-    is_verified_email = result["is_verified"].asBoolean();
     email = result["email"].asString();
     dir_visibility = result["directory_visibility"].asString();
 
     // TODO: This should probably be changed.  I'm not entirely comfortable 
     // having LLAgent interact directly with the UI in this way.
-    LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, is_verified_email);
+    LLFloaterPreference::updateUserInfo(dir_visibility);
     LLFloaterSnapshot::setAgentEmail(email);
 }
 
-void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& directory_visibility)
+void LLAgent::sendAgentUpdateUserInfo(const std::string& directory_visibility)
 {
     std::string cap;
 
@@ -4444,16 +4651,16 @@ void LLAgent::sendAgentUpdateUserInfo(bool im_via_email, const std::string& dire
     if (!cap.empty())
     {
         LLCoros::instance().launch("updateAgentUserInfoCoro",
-            boost::bind(&LLAgent::updateAgentUserInfoCoro, this, cap, im_via_email, directory_visibility));
+            boost::bind(&LLAgent::updateAgentUserInfoCoro, this, cap, directory_visibility));
     }
     else
     {
-        sendAgentUpdateUserInfoMessage(im_via_email, directory_visibility);
+        sendAgentUpdateUserInfoMessage(directory_visibility);
     }
 }
 
 
-void LLAgent::updateAgentUserInfoCoro(std::string capurl, bool im_via_email, std::string directory_visibility)
+void LLAgent::updateAgentUserInfoCoro(std::string capurl, std::string directory_visibility)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -4464,8 +4671,8 @@ void LLAgent::updateAgentUserInfoCoro(std::string capurl, bool im_via_email, std
 
     httpOpts->setFollowRedirects(true);
     LLSD body(LLSDMap
-        ("dir_visibility",  LLSD::String(directory_visibility))
-        ("im_via_email",    LLSD::Boolean(im_via_email)));
+        ("dir_visibility",  LLSD::String(directory_visibility)));
+
 
     LLSD result = httpAdapter->postAndSuspend(httpRequest, capurl, body, httpOpts, httpHeaders);
 
@@ -4493,14 +4700,13 @@ void LLAgent::sendAgentUserInfoRequestMessage()
     sendReliableMessage();
 }
 
-void LLAgent::sendAgentUpdateUserInfoMessage(bool im_via_email, const std::string& directory_visibility)
+void LLAgent::sendAgentUpdateUserInfoMessage(const std::string& directory_visibility)
 {
     gMessageSystem->newMessageFast(_PREHASH_UpdateUserInfo);
     gMessageSystem->nextBlockFast(_PREHASH_AgentData);
     gMessageSystem->addUUIDFast(_PREHASH_AgentID, getID());
     gMessageSystem->addUUIDFast(_PREHASH_SessionID, getSessionID());
     gMessageSystem->nextBlockFast(_PREHASH_UserData);
-    gMessageSystem->addBOOLFast(_PREHASH_IMViaEMail, im_via_email);
     gMessageSystem->addString("DirectoryVisibility", directory_visibility);
     gAgent.sendReliableMessage();
 
@@ -4516,6 +4722,34 @@ void LLAgent::observeFriends()
 		LLAvatarTracker::instance().addObserver(mFriendObserver);
 		friendsChanged();
 	}
+}
+
+std::map<S32, std::string> LLAgent::sTeleportStateName = { { TELEPORT_NONE, "TELEPORT_NONE" },
+														   { TELEPORT_START, "TELEPORT_START" },
+														   { TELEPORT_REQUESTED, "TELEPORT_REQUESTED" },
+														   { TELEPORT_MOVING, "TELEPORT_MOVING" },
+														   { TELEPORT_START_ARRIVAL, "TELEPORT_START_ARRIVAL" },
+														   { TELEPORT_ARRIVING, "TELEPORT_ARRIVING" },
+														   { TELEPORT_LOCAL, "TELEPORT_LOCAL" },
+														   { TELEPORT_PENDING, "TELEPORT_PENDING" } };
+
+const std::string& LLAgent::teleportStateName(S32 state)
+{
+	static std::string invalid_state_str("INVALID");
+	auto iter = LLAgent::sTeleportStateName.find(state);
+	if (iter != LLAgent::sTeleportStateName.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return invalid_state_str;
+	}
+}
+
+const std::string& LLAgent::getTeleportStateName() const
+{
+	return teleportStateName(getTeleportState());
 }
 
 void LLAgent::parseTeleportMessages(const std::string& xml_filename)
@@ -4641,40 +4875,70 @@ void LLTeleportRequest::restartTeleport()
 	llassert(0);
 }
 
+// TODO this enum -> name idiom should be in a common class rather than repeated various places.
+const std::string& LLTeleportRequest::statusName(EStatus status)
+{
+	static std::string invalid_status_str("INVALID");
+	auto iter = LLTeleportRequest::sTeleportStatusName.find(status);
+	if (iter != LLTeleportRequest::sTeleportStatusName.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		return invalid_status_str;
+	}
+}
+
+std::ostream& operator<<(std::ostream& os, const LLTeleportRequest& req)
+{
+	req.toOstream(os);
+	return os;
+}
+
+void LLTeleportRequest::toOstream(std::ostream& os) const
+{
+	os << "status " << statusName(mStatus) << "(" << mStatus << ")";
+}
+
 //-----------------------------------------------------------------------------
 // LLTeleportRequestViaLandmark
 //-----------------------------------------------------------------------------
-
 LLTeleportRequestViaLandmark::LLTeleportRequestViaLandmark(const LLUUID &pLandmarkId)
 	: LLTeleportRequest(),
 	mLandmarkId(pLandmarkId)
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created." << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark created, " << *this << LL_ENDL;
 }
 
 LLTeleportRequestViaLandmark::~LLTeleportRequestViaLandmark()
 {
-    LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark" << LL_ENDL;
+    LL_INFOS("Teleport") << "~LLTeleportRequestViaLandmark, " << *this << LL_ENDL;
+}
+
+void LLTeleportRequestViaLandmark::toOstream(std::ostream& os) const
+{
+	os << "landmark " << mLandmarkId << " ";
+	LLTeleportRequest::toOstream(os);
 }
 
 bool LLTeleportRequestViaLandmark::canRestartTeleport()
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::canRestartTeleport? -> true" << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::canRestartTeleport? -> true, " << *this << LL_ENDL;
 	return true;
 }
 
 void LLTeleportRequestViaLandmark::startTeleport()
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::startTeleport" << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::startTeleport, " << *this << LL_ENDL;
 	gAgent.doTeleportViaLandmark(getLandmarkId());
 }
 
 void LLTeleportRequestViaLandmark::restartTeleport()
 {
-    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::restartTeleport" << LL_ENDL;
+    LL_INFOS("Teleport") << "LLTeleportRequestViaLandmark::restartTeleport, " << *this << LL_ENDL;
 	gAgent.doTeleportViaLandmark(getLandmarkId());
 }
-
 //-----------------------------------------------------------------------------
 // LLTeleportRequestViaLure
 //-----------------------------------------------------------------------------
@@ -4689,6 +4953,12 @@ LLTeleportRequestViaLure::LLTeleportRequestViaLure(const LLUUID &pLureId, BOOL p
 LLTeleportRequestViaLure::~LLTeleportRequestViaLure()
 {
     LL_INFOS("Teleport") << "~LLTeleportRequestViaLure" << LL_ENDL;
+}
+
+void LLTeleportRequestViaLure::toOstream(std::ostream& os) const
+{
+	os << "mIsLureGodLike " << (S32) mIsLureGodLike << " ";
+	LLTeleportRequestViaLandmark::toOstream(os);
 }
 
 bool LLTeleportRequestViaLure::canRestartTeleport()
@@ -4731,6 +5001,12 @@ LLTeleportRequestViaLocation::~LLTeleportRequestViaLocation()
     LL_INFOS("Teleport") << "~LLTeleportRequestViaLocation" << LL_ENDL;
 }
 
+void LLTeleportRequestViaLocation::toOstream(std::ostream& os) const
+{
+	os << "mPosGlobal " << mPosGlobal << " ";
+	LLTeleportRequest::toOstream(os);
+}
+
 bool LLTeleportRequestViaLocation::canRestartTeleport()
 {
     LL_INFOS("Teleport") << "LLTeleportRequestViaLocation::canRestartTeleport -> true" << LL_ENDL;
@@ -4762,6 +5038,11 @@ LLTeleportRequestViaLocationLookAt::LLTeleportRequestViaLocationLookAt(const LLV
 LLTeleportRequestViaLocationLookAt::~LLTeleportRequestViaLocationLookAt()
 {
     LL_INFOS("Teleport") << "~LLTeleportRequestViaLocationLookAt" << LL_ENDL;
+}
+
+void LLTeleportRequestViaLocationLookAt::toOstream(std::ostream& os) const
+{
+	LLTeleportRequestViaLocation::toOstream(os);
 }
 
 bool LLTeleportRequestViaLocationLookAt::canRestartTeleport()

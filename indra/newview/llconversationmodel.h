@@ -96,6 +96,7 @@ public:
 	virtual void buildContextMenu(LLMenuGL& menu, U32 flags) { }
 	virtual BOOL isUpToDate() const { return TRUE; }
 	virtual bool hasChildren() const { return FALSE; }
+    virtual void addChild(LLFolderViewModelItem* child);
 
 	virtual bool potentiallyVisible() { return true; }
 	virtual bool filter( LLFolderViewFilter& filter) { return false; }
@@ -164,6 +165,7 @@ public:
 	void removeParticipant(LLConversationItemParticipant* participant);
 	void removeParticipant(const LLUUID& participant_id);
 	void clearParticipants();
+	void clearAndDeparentModels(); // will delete unowned models and deparent owned ones
 	LLConversationItemParticipant* findParticipant(const LLUUID& participant_id);
 
 	void setParticipantIsMuted(const LLUUID& participant_id, bool is_muted);

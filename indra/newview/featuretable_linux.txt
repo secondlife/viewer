@@ -56,7 +56,6 @@ RenderVBOMappingDisable		1	1
 RenderVolumeLODFactor		1	2.0
 UseStartScreen				1	1
 UseOcclusion				1	1
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 Disregard128DefaultDrawDistance	1	1
@@ -66,6 +65,7 @@ RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
@@ -93,10 +93,10 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
@@ -124,10 +124,10 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
@@ -154,10 +154,10 @@ RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
@@ -184,10 +184,10 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
@@ -214,9 +214,9 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
+RenderUseAdvancedAtmospherics 1 0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
@@ -244,10 +244,10 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
@@ -274,10 +274,10 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
@@ -303,11 +303,11 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
-VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
+RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
 
@@ -319,6 +319,7 @@ RenderVBOEnable				1	0
 RenderShadowDetail			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderUseAdvancedAtmospherics 1 0
 
 //
 // Class 0 Hardware (just old)
@@ -369,10 +370,10 @@ list NoPixelShaders
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
-VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
+RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
 
 //
@@ -382,10 +383,10 @@ list NoVertexShaders
 RenderAvatarVP				0	0
 RenderAvatarCloth			0	0
 RenderReflectionDetail		0	0
-VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
+RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
 
 //
@@ -413,6 +414,7 @@ RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
+RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
 
 //

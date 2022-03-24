@@ -125,7 +125,7 @@ LLVoiceClient::LLVoiceClient(LLPumpIO *pump)
 	mPTTDirty(true),
 	mPTT(true),
 	mUsePTT(true),
-	mPTTIsMiddleMouse(false),
+	mPTTMouseButton(0),
 	mPTTKey(0),
 	mPTTIsToggle(false),
 	mUserPTTState(false),
@@ -180,6 +180,13 @@ void LLVoiceClient::terminate()
 {
 	if (mVoiceModule) mVoiceModule->terminate();
 	mVoiceModule = NULL;
+    m_servicePump = NULL;
+
+    // Shutdown speaker volume storage before LLSingletonBase::deleteAll() does it
+    if (LLSpeakerVolumeStorage::instanceExists())
+    {
+        LLSpeakerVolumeStorage::deleteSingleton();
+    }
 }
 
 const LLVoiceVersionInfo LLVoiceClient::getVersion()
@@ -200,8 +207,6 @@ const LLVoiceVersionInfo LLVoiceClient::getVersion()
 void LLVoiceClient::updateSettings()
 {
 	setUsePTT(gSavedSettings.getBOOL("PTTCurrentlyEnabled"));
-	std::string keyString = gSavedSettings.getString("PushToTalkButton");
-	setPTTKey(keyString);
 	setPTTIsToggle(gSavedSettings.getBOOL("PushToTalkToggle"));
 	mDisableMic = gSavedSettings.getBOOL("VoiceDisableMic");
 
@@ -637,23 +642,6 @@ bool LLVoiceClient::getPTTIsToggle()
 	return mPTTIsToggle;
 }
 
-void LLVoiceClient::setPTTKey(std::string &key)
-{
-	if(key == "MiddleMouse")
-	{
-		mPTTIsMiddleMouse = true;
-	}
-	else
-	{
-		mPTTIsMiddleMouse = false;
-		if(!LLKeyboard::keyFromString(key, &mPTTKey))
-		{
-			// If the call failed, don't match any key.
-			key = KEY_NONE;
-		}
-	}
-}
-
 void LLVoiceClient::inputUserControlState(bool down)
 {
 	if(mPTTIsToggle)
@@ -672,43 +660,6 @@ void LLVoiceClient::inputUserControlState(bool down)
 void LLVoiceClient::toggleUserPTTState(void)
 {
 	setUserPTTState(!getUserPTTState());
-}
-
-void LLVoiceClient::keyDown(KEY key, MASK mask)
-{	
-	if (gKeyboard->getKeyRepeated(key))
-	{
-		// ignore auto-repeat keys                                                                         
-		return;
-	}
-	
-	if (!mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak") && (key == mPTTKey))
-	{
-		bool down = gKeyboard->getKeyDown(mPTTKey);
-		if (down)
-		{
-			inputUserControlState(down);
-		}
-	}
-	
-}
-void LLVoiceClient::keyUp(KEY key, MASK mask)
-{
-	if (!mPTTIsMiddleMouse && (key == mPTTKey))
-	{
-		bool down = gKeyboard->getKeyDown(mPTTKey);
-		if (!down)
-		{
-			inputUserControlState(down);
-		}
-	}
-}
-void LLVoiceClient::middleMouseState(bool down)
-{
-	if(mPTTIsMiddleMouse && LLAgent::isActionAllowed("speak"))
-	{
-		inputUserControlState(down);
-	}
 }
 
 
@@ -972,7 +923,12 @@ LLSpeakerVolumeStorage::LLSpeakerVolumeStorage()
 
 LLSpeakerVolumeStorage::~LLSpeakerVolumeStorage()
 {
-	save();
+}
+
+//virtual
+void LLSpeakerVolumeStorage::cleanupSingleton()
+{
+    save();
 }
 
 void LLSpeakerVolumeStorage::storeSpeakerVolume(const LLUUID& speaker_id, F32 volume)

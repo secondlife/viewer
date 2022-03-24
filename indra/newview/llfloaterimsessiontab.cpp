@@ -32,6 +32,8 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llavataractions.h"
+#include "llavatariconctrl.h"
+#include "llgroupiconctrl.h"
 #include "llchatentry.h"
 #include "llchathistory.h"
 #include "llchiclet.h"
@@ -45,6 +47,9 @@
 #include "llfloaterimnearbychat.h"
 
 const F32 REFRESH_INTERVAL = 1.0f;
+const std::string ICN_GROUP("group_chat_icon");
+const std::string ICN_NEARBY("nearby_chat_icon");
+const std::string ICN_AVATAR("avatar_icon");
 
 void cb_group_do_nothing()
 {
@@ -379,13 +384,16 @@ void LLFloaterIMSessionTab::draw()
 
 void LLFloaterIMSessionTab::enableDisableCallBtn()
 {
-    mVoiceButton->setEnabled(
-    		mSessionID.notNull()
-    		&& mSession
-    		&& mSession->mSessionInitialized
-    		&& LLVoiceClient::getInstance()->voiceEnabled()
-    		&& LLVoiceClient::getInstance()->isVoiceWorking()
-    		&& mSession->mCallBackEnabled);
+    if (LLVoiceClient::instanceExists())
+    {
+        mVoiceButton->setEnabled(
+            mSessionID.notNull()
+            && mSession
+            && mSession->mSessionInitialized
+            && LLVoiceClient::getInstance()->voiceEnabled()
+            && LLVoiceClient::getInstance()->isVoiceWorking()
+            && mSession->mCallBackEnabled);
+    }
 }
 
 void LLFloaterIMSessionTab::onFocusReceived()
@@ -465,9 +473,10 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 	}
 }
 
-
+static LLTrace::BlockTimerStatHandle FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT("Build Conversation View");
 void LLFloaterIMSessionTab::buildConversationViewParticipant()
 {
+	LL_RECORD_BLOCK_TIME(FTM_BUILD_CONVERSATION_VIEW_PARTICIPANT);
 	// Clear the widget list since we are rebuilding afresh from the model
 	conversations_widgets_map::iterator widget_it = mConversationsWidgets.begin();
 	while (widget_it != mConversationsWidgets.end())
@@ -491,13 +500,22 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	while (current_participant_model != end_participant_model)
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
-		addConversationViewParticipant(participant_model);
+        if (participant_model)
+        {
+            addConversationViewParticipant(participant_model);
+        }
 		current_participant_model++;
 	}
 }
 
-void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* participant_model)
+void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* participant_model, bool update_view)
 {
+	if (!participant_model)
+	{
+		// Nothing to do if the model is inexistent
+		return;
+	}
+
 	// Check if the model already has an associated view
 	LLUUID uuid = participant_model->getUUID();
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,uuid);
@@ -505,7 +523,10 @@ void LLFloaterIMSessionTab::addConversationViewParticipant(LLConversationItem* p
 	// If not already present, create the participant view and attach it to the root, otherwise, just refresh it
 	if (widget)
 	{
-		updateConversationViewParticipant(uuid); // overkill?
+        if (update_view)
+        {
+            updateConversationViewParticipant(uuid); // overkill?
+        }
 	}
 	else
 	{
@@ -522,10 +543,9 @@ void LLFloaterIMSessionTab::removeConversationViewParticipant(const LLUUID& part
 	LLFolderViewItem* widget = get_ptr_in_map(mConversationsWidgets,participant_id);
 	if (widget)
 	{
-		mConversationsRoot->extractItem(widget);
-		delete widget;
-		mConversationsWidgets.erase(participant_id);
+		widget->destroyView();
 	}
+	mConversationsWidgets.erase(participant_id);
 }
 
 void LLFloaterIMSessionTab::updateConversationViewParticipant(const LLUUID& participant_id)
@@ -691,6 +711,39 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
 {
 	mInputEditor->setLabel(LLTrans::getString("IM_to_label") + " " + name);
+}
+
+void LLFloaterIMSessionTab::updateChatIcon(const LLUUID& id)
+{
+	if (mSession)
+	{
+		if (mSession->isP2PSessionType())
+		{
+			LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>(ICN_AVATAR);
+			icon->setVisible(true);
+			icon->setValue(id);
+		}
+		if (mSession->isAdHocSessionType())
+		{
+			LLGroupIconCtrl* icon = getChild<LLGroupIconCtrl>(ICN_GROUP);
+			icon->setVisible(true);
+		}
+		if (mSession->isGroupSessionType())
+		{
+			LLGroupIconCtrl* icon = getChild<LLGroupIconCtrl>(ICN_GROUP);
+			icon->setVisible(true);
+			icon->setValue(id);
+		}
+	}
+	else
+	{
+		if (mIsNearbyChat)
+		{
+			LLIconCtrl* icon = getChild<LLIconCtrl>(ICN_NEARBY);
+			icon->setVisible(true);
+		}
+	}
+
 }
 
 void LLFloaterIMSessionTab::hideAllStandardButtons()

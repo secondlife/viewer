@@ -43,8 +43,6 @@ public:
 
 	LLDrawPoolGround();
 
-	/*virtual*/ LLDrawPool *instancePool();
-
 	/*virtual*/ void prerender();
 	/*virtual*/ void render(S32 pass = 0);
 };

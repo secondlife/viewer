@@ -29,12 +29,8 @@
 #if ! defined(LL_LLEVENTCORO_H)
 #define LL_LLEVENTCORO_H
 
-#include <boost/optional.hpp>
 #include <string>
-#include <utility>                  // std::pair
 #include "llevents.h"
-#include "llerror.h"
-#include "llexception.h"
 
 /**
  * Like LLListenerOrPumpName, this is a class intended for parameter lists:
@@ -147,116 +143,28 @@ LLSD suspendUntilEventOn(const LLEventPumpOrPumpName& pump)
     return postAndSuspend(LLSD(), LLEventPumpOrPumpName(), pump);
 }
 
+/// Like postAndSuspend(), but if we wait longer than @a timeout seconds,
+/// stop waiting and return @a timeoutResult instead.
+LLSD postAndSuspendWithTimeout(const LLSD& event,
+                               const LLEventPumpOrPumpName& requestPump,
+                               const LLEventPumpOrPumpName& replyPump,
+                               const LLSD& replyPumpNamePath,
+                               F32 timeout, const LLSD& timeoutResult);
+
 /// Suspend the coroutine until an event is fired on the identified pump
 /// or the timeout duration has elapsed.  If the timeout duration 
 /// elapses the specified LLSD is returned.
-LLSD suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& suspendPumpOrName, F32 timeoutin, const LLSD &timeoutResult);
-
-} // namespace llcoro
-
-/// return type for two-pump variant of suspendUntilEventOn()
-typedef std::pair<LLSD, int> LLEventWithID;
-
-namespace llcoro
-{
-
-/**
- * This function waits for a reply on either of two specified LLEventPumps.
- * Otherwise, it closely resembles postAndSuspend(); please see the documentation
- * for that function for detailed parameter info.
- *
- * While we could have implemented the single-pump variant in terms of this
- * one, there's enough added complexity here to make it worthwhile to give the
- * single-pump variant its own straightforward implementation. Conversely,
- * though we could use preprocessor logic to generate n-pump overloads up to
- * BOOST_COROUTINE_WAIT_MAX, we don't foresee a use case. This two-pump
- * overload exists because certain event APIs are defined in terms of a reply
- * LLEventPump and an error LLEventPump.
- *
- * The LLEventWithID return value provides not only the received event, but
- * the index of the pump on which it arrived (0 or 1).
- *
- * @note
- * I'd have preferred to overload the name postAndSuspend() for both signatures.
- * But consider the following ambiguous call:
- * @code
- * postAndSuspend(LLSD(), requestPump, replyPump, "someString");
- * @endcode
- * "someString" could be converted to either LLSD (@a replyPumpNamePath for
- * the single-pump function) or LLEventOrPumpName (@a replyPump1 for two-pump
- * function).
- *
- * It seems less burdensome to write postAndSuspend2() than to write either
- * LLSD("someString") or LLEventOrPumpName("someString").
- */
-LLEventWithID postAndSuspend2(const LLSD& event,
-                           const LLEventPumpOrPumpName& requestPump,
-                           const LLEventPumpOrPumpName& replyPump0,
-                           const LLEventPumpOrPumpName& replyPump1,
-                           const LLSD& replyPump0NamePath=LLSD(),
-                           const LLSD& replyPump1NamePath=LLSD());
-
-/**
- * Wait for the next event on either of two specified LLEventPumps.
- */
 inline
-LLEventWithID
-suspendUntilEventOn(const LLEventPumpOrPumpName& pump0, const LLEventPumpOrPumpName& pump1)
+LLSD suspendUntilEventOnWithTimeout(const LLEventPumpOrPumpName& suspendPumpOrName,
+                                    F32 timeoutin, const LLSD &timeoutResult)
 {
-    // This is now a convenience wrapper for postAndSuspend2().
-    return postAndSuspend2(LLSD(), LLEventPumpOrPumpName(), pump0, pump1);
+    return postAndSuspendWithTimeout(LLSD(),                  // event
+                                     LLEventPumpOrPumpName(), // requestPump
+                                     suspendPumpOrName,       // replyPump
+                                     LLSD(),                  // replyPumpNamePath
+                                     timeoutin,
+                                     timeoutResult);
 }
-
-/**
- * Helper for the two-pump variant of suspendUntilEventOn(), e.g.:
- *
- * @code
- * LLSD reply = errorException(suspendUntilEventOn(replyPump, errorPump),
- *                             "error response from login.cgi");
- * @endcode
- *
- * Examines an LLEventWithID, assuming that the second pump (pump 1) is
- * listening for an error indication. If the incoming data arrived on pump 1,
- * throw an LLErrorEvent exception. If the incoming data arrived on pump 0,
- * just return it. Since a normal return can only be from pump 0, we no longer
- * need the LLEventWithID's discriminator int; we can just return the LLSD.
- *
- * @note I'm not worried about introducing the (fairly generic) name
- * errorException() into global namespace, because how many other overloads of
- * the same name are going to accept an LLEventWithID parameter?
- */
-LLSD errorException(const LLEventWithID& result, const std::string& desc);
-
-} // namespace llcoro
-
-/**
- * Exception thrown by errorException(). We don't call this LLEventError
- * because it's not an error in event processing: rather, this exception
- * announces an event that bears error information (for some other API).
- */
-class LL_COMMON_API LLErrorEvent: public LLException
-{
-public:
-    LLErrorEvent(const std::string& what, const LLSD& data):
-        LLException(what),
-        mData(data)
-    {}
-    virtual ~LLErrorEvent() throw() {}
-
-    LLSD getData() const { return mData; }
-
-private:
-    LLSD mData;
-};
-
-namespace llcoro
-{
-
-/**
- * Like errorException(), save that this trips a fatal error using LL_ERRS
- * rather than throwing an exception.
- */
-LL_COMMON_API LLSD errorLog(const LLEventWithID& result, const std::string& desc);
 
 } // namespace llcoro
 
@@ -302,86 +210,6 @@ public:
 
 private:
     LLEventStream mPump;
-};
-
-/**
- * Other event APIs require the names of two different LLEventPumps: one for
- * success response, the other for error response. Extend LLCoroEventPump
- * for the two-pump use case.
- */
-class LL_COMMON_API LLCoroEventPumps
-{
-public:
-    LLCoroEventPumps(const std::string& name="coro",
-                     const std::string& suff0="Reply",
-                     const std::string& suff1="Error"):
-        mPump0(name + suff0, true),   // allow tweaking the pump instance name
-        mPump1(name + suff1, true)
-    {}
-    /// request pump 0's name
-    std::string getName0() const { return mPump0.getName(); }
-    /// request pump 1's name
-    std::string getName1() const { return mPump1.getName(); }
-    /// request both names
-    std::pair<std::string, std::string> getNames() const
-    {
-        return std::pair<std::string, std::string>(mPump0.getName(), mPump1.getName());
-    }
-
-    /// request pump 0
-    LLEventPump& getPump0() { return mPump0; }
-    /// request pump 1
-    LLEventPump& getPump1() { return mPump1; }
-
-    /// suspendUntilEventOn(either of our two LLEventPumps)
-    LLEventWithID suspend()
-    {
-        return llcoro::suspendUntilEventOn(mPump0, mPump1);
-    }
-
-    /// errorException(suspend())
-    LLSD suspendWithException()
-    {
-        return llcoro::errorException(suspend(), std::string("Error event on ") + getName1());
-    }
-
-    /// errorLog(suspend())
-    LLSD suspendWithLog()
-    {
-        return llcoro::errorLog(suspend(), std::string("Error event on ") + getName1());
-    }
-
-    LLEventWithID postAndSuspend(const LLSD& event,
-                              const LLEventPumpOrPumpName& requestPump,
-                              const LLSD& replyPump0NamePath=LLSD(),
-                              const LLSD& replyPump1NamePath=LLSD())
-    {
-        return llcoro::postAndSuspend2(event, requestPump, mPump0, mPump1,
-                                    replyPump0NamePath, replyPump1NamePath);
-    }
-
-    LLSD postAndSuspendWithException(const LLSD& event,
-                                  const LLEventPumpOrPumpName& requestPump,
-                                  const LLSD& replyPump0NamePath=LLSD(),
-                                  const LLSD& replyPump1NamePath=LLSD())
-    {
-        return llcoro::errorException(postAndSuspend(event, requestPump,
-                                                  replyPump0NamePath, replyPump1NamePath),
-                                      std::string("Error event on ") + getName1());
-    }
-
-    LLSD postAndSuspendWithLog(const LLSD& event,
-                            const LLEventPumpOrPumpName& requestPump,
-                            const LLSD& replyPump0NamePath=LLSD(),
-                            const LLSD& replyPump1NamePath=LLSD())
-    {
-        return llcoro::errorLog(postAndSuspend(event, requestPump,
-                                            replyPump0NamePath, replyPump1NamePath),
-                                std::string("Error event on ") + getName1());
-    }
-
-private:
-    LLEventStream mPump0, mPump1;
 };
 
 #endif /* ! defined(LL_LLEVENTCORO_H) */

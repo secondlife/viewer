@@ -64,6 +64,7 @@ LangString MissingSSE2 ${LANG_GERMAN} "Dieses Gerät verfügt möglicherweise ni
 ; closesecondlife function (install)
 LangString CloseSecondLifeInstDP ${LANG_GERMAN} "Warten auf die Beendigung von Second Life ..."
 LangString CloseSecondLifeInstMB ${LANG_GERMAN} "Second Life kann nicht installiert oder ersetzt werden, wenn es bereits läuft.$\n$\nBeenden Sie, was Sie gerade tun und klicken Sie OK, um Second Life zu beenden.$\nKlicken Sie CANCEL, um die Installation abzubrechen."
+LangString CloseSecondLifeInstRM ${LANG_GERMAN} "Second Life failed to remove some files from a previous install."
 
 ; closesecondlife function (uninstall)
 LangString CloseSecondLifeUnInstDP ${LANG_GERMAN} "Warten auf die Beendigung von Second Life ..."

@@ -223,6 +223,18 @@ Ansariel Hiller
 	MAINT-8723
 	SL-10385
 	SL-10891
+	SL-13364
+	SL-13858
+	SL-13697
+	SL-14939
+	SL-14940
+	SL-14941
+	SL-13395
+	SL-3136
+	SL-15200
+	SL-15226
+	SL-15227
+	SL-15398
 Aralara Rajal
 Arare Chantilly
 	CHUIBUG-191
@@ -258,6 +270,15 @@ Beansy Twine
 Benja Kepler
 	VWR-746
 Benjamin Bigdipper
+Beq Janus
+	BUG-227094
+	SL-10288
+    SL-11300
+	SL-13583
+	SL-14766
+	SL-14927
+	SL-11300
+	SL-16021
 Beth Walcher
 Bezilon Kasei
 Biancaluce Robbiani
@@ -347,8 +368,11 @@ Charles Courtois
 Charlie Sazaland
 Chaser Zaks
     BUG-225599
+    BUG-227485
 Cherry Cheevers
 ChickyBabes Zuzu
+Chorazin Allen
+    BUG-229753
 Christopher  Organiser
 Ciaran Laval
 Cinder Roxley
@@ -485,6 +509,16 @@ Geenz Spad
 	STORM-1900
 	STORM-1905
 	NORSPEC-229
+	BUG-226611
+	BUG-226617
+	BUG-226618
+	BUG-226646
+	BUG-226647
+	BUG-226648
+	OPEN-339
+	BUG-226620
+	OPEN-340
+	OPEN-343
 Gene Frostbite
 GeneJ Composer
 Geneko Nemeth
@@ -781,6 +815,7 @@ Jonathan Yap
 	STORM-2104
 	STORM-2142
 	SL-10089
+	BUG-229818
 Kadah Coba
 	STORM-1060
     STORM-1843
@@ -818,6 +853,9 @@ Khyota Wulluf
 Kimar Coba
 Kithrak Kirkorian
 Kitty Barnett
+	BUG-228664
+	BUG-228665
+	BUG-228719
 	VWR-19699
 	STORM-288
 	STORM-799
@@ -1068,12 +1106,17 @@ Nicky Dasmijn
 	OPEN-187
 	STORM-1937
 	OPEN-187
+	SL-15234
     STORM-2010
 	STORM-2082
 	MAINT-6665
 	SL-10291
 	SL-10293
 	SL-11061
+    SL-11072
+	SL-13141
+	SL-13642
+	SL-16438
 Nicky Perian
 	OPEN-1
 	STORM-1087
@@ -1287,6 +1330,7 @@ Shyotl Kuhr
 	MAINT-2334
 	MAINT-6913
 	STORM-2143
+	SL-11625
 Siana Gearz
 	STORM-960
 	STORM-1088
@@ -1325,6 +1369,15 @@ Sovereign Engineer
     STORM-2148
     MAINT-7343
     SL-11079
+    OPEN-343
+    SL-11625
+    BUG-229030
+	SL-14705
+	SL-14706
+	SL-14707
+	SL-14731
+	SL-14732
+	SL-15096
 SpacedOut Frye
 	VWR-34
 	VWR-45
@@ -1430,6 +1483,8 @@ Thickbrick Sleaford
 	STORM-956
 	STORM-1147
 	STORM-1325
+Thoys Pan
+	SL-12396
 Thraxis Epsilon
 	SVC-371
 	VWR-383
@@ -1504,6 +1559,7 @@ Whirly Fizzle
 	STORM-1930
 	BUG-6659
 	STORM-2078
+	BUG-17349
 Whoops Babii
 	VWR-631
 	VWR-1640

@@ -2,7 +2,7 @@
 <floater
  legacy_header_height="18"
  can_minimize="false"
- height="610"
+ height="645"
  layout="topleft"
  name="Animation Preview"
  help_topic="animation_preview"
@@ -570,4 +570,17 @@ We recommend BVH files exported from Poser 4.
      name="cancel_btn"
      left="142"
      width="128" />
+    <text
+     type="string"
+     length="1"
+     follows="left|top"
+     height="35"
+     layout="topleft"
+     left="10"
+     mouse_opaque="false"
+     skip_link_underline="true"
+     name="info_text"
+     word_wrap="true"
+     top_pad="10"
+     width="270"/>
 </floater>

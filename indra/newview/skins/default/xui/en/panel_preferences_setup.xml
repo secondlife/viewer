@@ -148,20 +148,6 @@
   </radio_group>
 
   <check_box
-    top_delta="2"
-    enabled="true"
-    follows="left|top"
-    height="18"
-    initial_value="true"
-    control_name="BrowserPluginsEnabled"
-    label="Enable plugins"
-    left_delta="20"
-    mouse_opaque="true"
-    name="browser_plugins_enabled"
-    radio_style="false"
-    width="400"
-    top_pad="5"/>
-  <check_box
     top_delta="4"
     enabled="true"
     follows="left|top"
@@ -245,20 +231,21 @@
      mouse_opaque="false"
      top_pad="5"
      width="300">
-		Proxy Settings:
+    Proxy Settings:
   </text>
   <button
 	label="Adjust proxy settings"
     follows="left|top"
     height="23"
-	width="140" 
+	width="140"
     label_selected="Browse"
     layout="topleft"
     left_delta="50"
     name="set_proxy"
     top_pad="5"
     >
-		<button.commit_callback
+    <button.commit_callback
 		  function="Pref.Proxy" />
   </button>
 </panel>
+

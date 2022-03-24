@@ -3,6 +3,26 @@
  layout="topleft"
  name="COF Attachment">
     <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="touch_attach">
+        <on_click
+         function="Attachment.Touch" />
+        <on_enable
+         function="Attachment.OnEnable"
+         parameter="touch" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit_item">
+        <on_click
+         function="Attachment.Edit" />
+        <on_enable
+         function="Attachment.OnEnable"
+         parameter="edit" />
+   </menu_item_call>
+    <menu_item_call
      label="Detach"
      layout="topleft"
      name="detach">

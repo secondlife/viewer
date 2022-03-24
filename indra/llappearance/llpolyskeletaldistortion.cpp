@@ -160,7 +160,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
         mJointScales[joint] = bone_info->mScaleDeformation;
 
         // apply to children that need to inherit it
-        for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+        for (LLJoint::joints_t::iterator iter = joint->mChildren.begin();
              iter != joint->mChildren.end(); ++iter)
         {
             LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);

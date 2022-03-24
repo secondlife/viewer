@@ -45,7 +45,7 @@ public:
 
 	virtual void onModelPhysicsFeeReceived(const LLSD& result, std::string upload_url) = 0;
 
-	virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason) = 0;
+	virtual void setModelPhysicsFeeErrorStatus(S32 status, const std::string& reason, const LLSD& result) = 0;
 
 	virtual void onModelUploadSuccess() {};
 

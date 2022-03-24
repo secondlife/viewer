@@ -29,7 +29,9 @@
 #define LL_LLERROR_H
 
 #include <sstream>
+#include <string>
 #include <typeinfo>
+#include <vector>
 
 #include "stdtypes.h"
 
@@ -191,19 +193,26 @@ namespace LLError
 		The classes CallSite and Log are used by the logging macros below.
 		They are not intended for general use.
 	*/
-	
+
 	struct CallSite;
-	
+
 	class LL_COMMON_API Log
 	{
 	public:
 		static bool shouldLog(CallSite&);
-		static std::ostringstream* out();
-		static void flush(std::ostringstream* out, char* message);
-		static void flush(std::ostringstream*, const CallSite&);
+		static void flush(const std::ostringstream&, const CallSite&);
 		static std::string demangle(const char* mangled);
+		/// classname<TYPE>()
+		template <typename T>
+		static std::string classname()             { return demangle(typeid(T).name()); }
+		/// classname(some_pointer)
+		template <typename T>
+		static std::string classname(T* const ptr) { return ptr? demangle(typeid(*ptr).name()) : "nullptr"; }
+		/// classname(some_reference)
+		template <typename T>
+		static std::string classname(const T& obj) { return demangle(typeid(obj).name()); }
 	};
-	
+
 	struct LL_COMMON_API CallSite
 	{
 		// Represents a specific place in the code where a message is logged
@@ -262,39 +271,43 @@ namespace LLError
 	class LL_COMMON_API NoClassInfo { };
 		// used to indicate no class info known for logging
 
-   //LLCallStacks keeps track of call stacks and output the call stacks to log file
-   //when LLAppViewer::handleViewerCrash() is triggered.
-   //
-   //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
-	//LLCallStacks is designed not to be thread-safe.
-   //so try not to use it in multiple parallel threads at same time.
-   //Used in a single thread at a time is fine.
-   class LL_COMMON_API LLCallStacks
-   {
-   private:
-       static char**  sBuffer ;
-	   static S32     sIndex ;
+    //LLCallStacks keeps track of call stacks and output the call stacks to log file
+    //when LLAppViewer::handleViewerCrash() is triggered.
+    //
+    //Note: to be simple, efficient and necessary to keep track of correct call stacks, 
+    //LLCallStacks is designed not to be thread-safe.
+    //so try not to use it in multiple parallel threads at same time.
+    //Used in a single thread at a time is fine.
+    class LL_COMMON_API LLCallStacks
+    {
+    private:
+        typedef std::vector<std::string> StringVector;
+        static StringVector sBuffer ;
+              
+    public:   
+        static void push(const char* function, const int line) ;
+        static void insert(std::ostream& out, const char* function, const int line) ;
+        static void print() ;
+        static void clear() ;
+        static void end(const std::ostringstream& out) ;
+        static void cleanup();
+    };
 
-	   static void allocateStackBuffer();
-	   static void freeStackBuffer();
-          
-   public:   
-	   static void push(const char* function, const int line) ;
-	   static std::ostringstream* insert(const char* function, const int line) ;
-       static void print() ;
-       static void clear() ;
-	   static void end(std::ostringstream* _out) ;
-	   static void cleanup();
-   }; 
+    // class which, when streamed, inserts the current stack trace
+    struct LLStacktrace
+    {
+        friend std::ostream& operator<<(std::ostream& out, const LLStacktrace&);
+    };
 }
 
 //this is cheaper than llcallstacks if no need to output other variables to call stacks. 
 #define LL_PUSH_CALLSTACKS() LLError::LLCallStacks::push(__FUNCTION__, __LINE__)
 
-#define llcallstacks                                                                      \
-	{                                                                                     \
-       std::ostringstream* _out = LLError::LLCallStacks::insert(__FUNCTION__, __LINE__) ; \
-       (*_out)
+#define llcallstacks                                                    \
+	{                                                                   \
+		std::ostringstream _out;                                        \
+		LLError::LLCallStacks::insert(_out, __FUNCTION__, __LINE__) ;   \
+		_out
 
 #define llcallstacksendl                   \
 		LLError::End();                    \
@@ -340,11 +353,11 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 		static LLError::CallSite _site(lllog_site_args_(level, once, tags)); \
 		lllog_test_()
 
-#define lllog_test_()                                       \
-		if (LL_UNLIKELY(_site.shouldLog()))                 \
-		{                                                   \
-			std::ostringstream* _out = LLError::Log::out(); \
-			(*_out)
+#define lllog_test_()                           \
+		if (LL_UNLIKELY(_site.shouldLog()))     \
+		{                                       \
+			std::ostringstream _out;            \
+			_out
 
 #define lllog_site_args_(level, once, tags)                 \
 	level, __FILE__, __LINE__, typeid(_LL_CLASS_TO_LOG),    \
@@ -363,15 +376,27 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 //	LL_CONT << " for " << t << " seconds" << LL_ENDL;
 //	
 //Such computation is done iff the message will be logged.
-#define LL_CONT	(*_out)
+#define LL_CONT	_out
 
 #define LL_NEWLINE '\n'
 
-#define LL_ENDL                               \
-			LLError::End();                   \
-			LLError::Log::flush(_out, _site); \
-		}                                     \
-	} while(0)
+// Use this only in LL_ERRS or in a place that LL_ERRS may not be used
+#define LLERROR_CRASH         \
+{                             \
+    int* make_me_crash = NULL;\
+    *make_me_crash = 0;       \
+    exit(*make_me_crash);     \
+}
+
+#define LL_ENDL                                         \
+            LLError::End();                             \
+            LLError::Log::flush(_out, _site);           \
+            if (_site.mLevel == LLError::LEVEL_ERROR)   \
+            {                                           \
+                LLERROR_CRASH                           \
+            }                                           \
+        }                                               \
+    } while(0)
 
 // NEW Macros for debugging, allow the passing of a string tag
 
@@ -381,8 +406,13 @@ typedef LLError::NoClassInfo _LL_CLASS_TO_LOG;
 #define LL_WARNS(...)	lllog(LLError::LEVEL_WARN, false, ##__VA_ARGS__)
 #define LL_ERRS(...)	lllog(LLError::LEVEL_ERROR, false, ##__VA_ARGS__)
 // alternative to llassert_always that prints explanatory message
-#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(##__VA_ARGS__) << "(" #exp ")"
-#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(##__VA_ARGS__) << "(" #exp ")"
+// note ## token paste operator hack used above will only work in gcc following
+// a comma and is completely unnecessary in VS since the comma is automatically
+// suppressed
+// https://gcc.gnu.org/onlinedocs/cpp/Variadic-Macros.html
+// https://docs.microsoft.com/en-us/cpp/preprocessor/variadic-macros?view=vs-2015
+#define LL_WARNS_IF(exp, ...)	if (exp) LL_WARNS(__VA_ARGS__) << "(" #exp ")"
+#define LL_ERRS_IF(exp, ...)	if (exp) LL_ERRS(__VA_ARGS__) << "(" #exp ")"
 
 // Only print the log message once (good for warnings or infos that would otherwise
 // spam the log file over and over, such as tighter loops).

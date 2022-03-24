@@ -37,7 +37,7 @@
 #include <map>
 #include "llformat.h"
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 #include <wctype.h>
 #include <wchar.h>
 #endif
@@ -45,16 +45,10 @@
 #include <string.h>
 #include <boost/scoped_ptr.hpp>
 
-#if LL_SOLARIS
-// stricmp and strnicmp do not exist on Solaris:
-#define stricmp strcasecmp
-#define strnicmp strncasecmp
-#endif
-
 const char LL_UNKNOWN_CHAR = '?';
 class LLSD;
 
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 // Template specialization of char_traits for U16s. Only necessary on Mac and Linux (exists on Windows already)
 #include <cstring>
 
@@ -705,32 +699,6 @@ LL_COMMON_API std::string utf8str_removeCRLF(const std::string& utf8str);
 /* @name Windows string helpers
  */
 //@{
-
-/**
- * @brief Implementation the expected snprintf interface.
- *
- * If the size of the passed in buffer is not large enough to hold the string,
- * two bad things happen:
- * 1. resulting formatted string is NOT null terminated
- * 2. Depending on the platform, the return value could be a) the required
- *    size of the buffer to copy the entire formatted string or b) -1.
- *    On Windows with VS.Net 2003, it returns -1 e.g. 
- *
- * safe_snprintf always adds a NULL terminator so that the caller does not
- * need to check for return value or need to add the NULL terminator.
- * It does not, however change the return value - to let the caller know
- * that the passed in buffer size was not large enough to hold the
- * formatted string.
- *
- */
-
-// Deal with the differeneces on Windows
-namespace snprintf_hack
-{
-	LL_COMMON_API int snprintf(char *str, size_t size, const char *format, ...);
-}
-
-using snprintf_hack::snprintf;
 
 /**
  * @brief Convert a wide string to std::string

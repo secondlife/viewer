@@ -60,8 +60,7 @@ objektet.
 	</text>
 	<button label="Køb nu" name="buy_btn"/>
 	<button label="Annullér" name="cancel_btn"/>
-	<text name="info_cannot_buy">
+  <floater.string name="info_cannot_buy">
 		Kan ikke købe
-	</text>
-	<button label="Fortsæt til web" name="error_web"/>
+	</floater.string>
 </floater>

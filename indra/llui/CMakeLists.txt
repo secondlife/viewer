@@ -13,7 +13,7 @@ include(LLCoreHttp)
 include(LLRender)
 include(LLWindow)
 include(LLCoreHttp)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 
 include_directories(
@@ -25,7 +25,7 @@ include_directories(
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LIBS_PREBUILD_DIR}/include/hunspell
     )
@@ -122,6 +122,7 @@ set(llui_SOURCE_FILES
     lluictrl.cpp
     lluictrlfactory.cpp
     lluistring.cpp
+    lluiusage.cpp
     llundo.cpp
     llurlaction.cpp
     llurlentry.cpp
@@ -133,8 +134,10 @@ set(llui_SOURCE_FILES
     llview.cpp
     llviewquery.cpp
     llviewereventrecorder.cpp
+    llvirtualtrackball.cpp
     llwindowshade.cpp
     llxuiparser.cpp
+    llxyvector.cpp
     )
     
 set(llui_HEADER_FILES
@@ -239,6 +242,7 @@ set(llui_HEADER_FILES
     llui.h
     lluicolor.h
     lluistring.h
+    lluiusage.h
     llundo.h
     llurlaction.h
     llurlentry.h
@@ -250,8 +254,10 @@ set(llui_HEADER_FILES
     llview.h
     llviewereventrecorder.h
     llviewquery.h
+    llvirtualtrackball.h
     llwindowshade.h
     llxuiparser.h
+    llxyvector.h
     )
 
 set_source_files_properties(${llui_HEADER_FILES}
@@ -279,7 +285,7 @@ target_link_libraries(llui
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
-    ${LLVFS_LIBRARIES}    # ugh, just for LLDir
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXUIXML_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLMATH_LIBRARIES}
@@ -299,7 +305,7 @@ if(LL_TESTS)
   set(test_libs llui llmessage llcorehttp llcommon
       ${HUNSPELL_LIBRARY}
       ${LLCOMMON_LIBRARIES}
-      ${BOOST_COROUTINE_LIBRARY} ${BOOST_CONTEXT_LIBRARY} ${BOOST_SYSTEM_LIBRARY}
+      ${BOOST_FIBER_LIBRARY} ${BOOST_CONTEXT_LIBRARY} ${BOOST_SYSTEM_LIBRARY}
       ${WINDOWS_LIBRARIES})
   if(NOT LINUX)
     LL_ADD_INTEGRATION_TEST(llurlentry llurlentry.cpp "${test_libs}")

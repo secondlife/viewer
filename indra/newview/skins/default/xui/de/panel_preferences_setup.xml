@@ -35,5 +35,5 @@
 	<text name="Proxy Settings:">
 		Proxy-Einstellungen:
 	</text>
-	<button label="Proxy-Einstellungen ändern" label_selected="Durchsuchen" name="set_proxy"/>
+	<button label="Proxy-Einstellungen ändern" label_selected="Durchsuchen" name="set_proxy" width="160"/>
 </panel>

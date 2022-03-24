@@ -25,6 +25,7 @@
 
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_projection_matrix;
+uniform float time;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
@@ -32,11 +33,20 @@ ATTRIBUTE vec2 texcoord0;
 
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+VARYING vec2 screenpos;
 
 void main()
 {
 	//transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    vec4 pos = modelview_projection_matrix * vec4(position, 1.0);
+
+// bias z to fix SL-9806 and get stars to depth test against clouds
+    pos.z += 0.001f;
+
+	gl_Position = pos;
+
+    float t = mod(time, 1.25f);
+    screenpos = position.xy * vec2(t, t);
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	vertex_color = diffuse_color;
 }

@@ -44,6 +44,10 @@
 const std::string AISAPI::INVENTORY_CAP_NAME("InventoryAPIv3");
 const std::string AISAPI::LIBRARY_CAP_NAME("LibraryAPIv3");
 
+std::list<AISAPI::ais_query_item_t> AISAPI::sPostponedQuery;
+
+const S32 MAX_SIMULTANEOUS_COROUTINES = 2048;
+
 //-------------------------------------------------------------------------
 /*static*/
 bool AISAPI::isAvailable()
@@ -366,9 +370,51 @@ void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t 
 /*static*/
 void AISAPI::EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc)
 {
+    LLCoprocedureManager &inst = LLCoprocedureManager::instance();
+    S32 pending_in_pool = inst.countPending("AIS");
     std::string procFullName = "AIS(" + procName + ")";
-    LLCoprocedureManager::instance().enqueueCoprocedure("AIS", procFullName, proc);
+    if (pending_in_pool < MAX_SIMULTANEOUS_COROUTINES)
+    {
+        inst.enqueueCoprocedure("AIS", procFullName, proc);
+    }
+    else
+    {
+        // As I understand it, coroutines have built-in 'pending' pool
+        // but unfortunately it has limited size which inventory often goes over
+        // so this is a workaround to not overfill it.
+        if (sPostponedQuery.empty())
+        {
+            sPostponedQuery.push_back(ais_query_item_t(procFullName, proc));
+            gIdleCallbacks.addFunction(onIdle, NULL);
+        }
+        else
+        {
+            sPostponedQuery.push_back(ais_query_item_t(procFullName, proc));
+        }
+    }
+}
 
+/*static*/
+void AISAPI::onIdle(void *userdata)
+{
+    if (!sPostponedQuery.empty())
+    {
+        LLCoprocedureManager &inst = LLCoprocedureManager::instance();
+        S32 pending_in_pool = inst.countPending("AIS");
+        while (pending_in_pool < MAX_SIMULTANEOUS_COROUTINES && !sPostponedQuery.empty())
+        {
+            ais_query_item_t &item = sPostponedQuery.front();
+            inst.enqueueCoprocedure("AIS", item.first, item.second);
+            sPostponedQuery.pop_front();
+            pending_in_pool++;
+        }
+    }
+    
+    if (sPostponedQuery.empty())
+    {
+        // Nothing to do anymore
+        gIdleCallbacks.deleteFunction(onIdle, NULL);
+    }
 }
 
 /*static*/

@@ -222,7 +222,7 @@ struct symbol_info
 
 #define ent(SYMBOL)										\
 	{													\
-		#SYMBOL + 28, /* skip "LLCommandHandler::UNTRUSTED_" prefix */	\
+		&#SYMBOL[28], /* skip "LLCommandHandler::UNTRUSTED_" prefix */	\
 		SYMBOL											\
 	}
 

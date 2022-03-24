@@ -452,6 +452,35 @@ void LLAccordionCtrlTab::onVisibilityChange(BOOL new_visibility)
 	notifyParent(LLSD().with("child_visibility_change", new_visibility));
 }
 
+// virtual
+void LLAccordionCtrlTab::onUpdateScrollToChild(const LLUICtrl *cntrl)
+{
+    if (mScrollbar && mScrollbar->getVisible())
+    {
+        LLRect rect;
+        cntrl->localRectToOtherView(cntrl->getLocalRect(), &rect, this);
+
+        // Translate to parent coordinatess to check if we are in visible rectangle
+        rect.translate(getRect().mLeft, getRect().mBottom);
+
+        if (!getRect().contains(rect))
+        {
+            // for accordition's scroll, height is in pixels
+            // Back to local coords and calculate position for scroller
+            S32 bottom = mScrollbar->getDocPos() - rect.mBottom + getRect().mBottom;
+            S32 top = mScrollbar->getDocPos() - rect.mTop + getRect().mTop;
+
+            S32 scroll_pos = llclamp(mScrollbar->getDocPos(),
+                bottom, // min vertical scroll
+                top); // max vertical scroll 
+
+            mScrollbar->setDocPos(scroll_pos);
+        }
+    }
+
+    LLUICtrl::onUpdateScrollToChild(cntrl);
+}
+
 BOOL LLAccordionCtrlTab::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	if(mCollapsible && mHeaderVisible && mCanOpenClose)
@@ -977,7 +1006,7 @@ void LLAccordionCtrlTab::drawChild(const LLRect& root_rect,LLView* child)
 		LLRect screen_rect;
 		localRectToScreen(child->getRect(),&screen_rect);
 		
-		if ( root_rect.overlaps(screen_rect)  && LLUI::getInstance()->mDirtyRect.overlaps(screen_rect))
+		if ( root_rect.overlaps(screen_rect)  && sDirtyRect.overlaps(screen_rect))
 		{
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();

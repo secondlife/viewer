@@ -36,8 +36,9 @@ class LLVector3;
 // Environment map hack!
 class LLCubeMap : public LLRefCount
 {
+	bool mIssRGB;
 public:
-	LLCubeMap();
+	LLCubeMap(bool init_as_srgb);
 	void init(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 	void initGL();
 	void initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages);

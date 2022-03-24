@@ -22,6 +22,8 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+
+/*[EXTRA_CODE_HERE]*/
  
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -40,11 +42,7 @@ VARYING vec3 vary_mat2;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+vec2 encode_normal(vec3 n);
 
 void main() 
 {

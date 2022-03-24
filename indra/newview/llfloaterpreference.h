@@ -37,13 +37,17 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llconversationlog.h"
 #include "llsearcheditor.h"
+#include "llsetkeybinddialog.h"
+#include "llkeyconflict.h"
 
 class LLConversationLogObserver;
 class LLPanelPreference;
 class LLPanelLCD;
 class LLPanelDebug;
 class LLMessageSystem;
+class LLComboBox;
 class LLScrollListCtrl;
+class LLScrollListCell;
 class LLSliderCtrl;
 class LLSD;
 class LLTextBox;
@@ -84,7 +88,7 @@ public:
 	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
 
 	// static data update, called from message handler
-	static void updateUserInfo(const std::string& visibility, bool im_via_email, bool is_verified_email);
+	static void updateUserInfo(const std::string& visibility);
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
@@ -102,12 +106,15 @@ public:
 	void selectPrivacyPanel();
 	void selectChatPanel();
 	void getControlNames(std::vector<std::string>& names);
+	// updates click/double-click action controls depending on values from settings.xml
+	void updateClickActionViews();
+    void updateSearchableItems();
 
 protected:	
 	void		onBtnOK(const LLSD& userdata);
 	void		onBtnCancel(const LLSD& userdata);
 
-	void		onClickClearCache();			// Clear viewer texture cache, vfs, and VO cache on next startup
+	void		onClickClearCache();			// Clear viewer texture cache, file cache on next startup
 	void		onClickBrowserClearCache();		// Clear web history and caches as well as viewer caches above
 	void		onLanguageChange();
 	void		onNotificationsChange(const std::string& OptionName);
@@ -122,16 +129,14 @@ protected:
 	// callback for defaults
 	void setHardwareDefaults();
 	void setRecommended();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+    void onRenderOptionEnable();
 	// callback for when client turns on impostors
 	void onAvatarImpostorsEnable();
 
 	// callback for commit in the "Single click on land" and "Double click on land" comboboxes.
 	void onClickActionChange();
-	// updates click/double-click action settings depending on controls values
-	void updateClickActionSettings();
-	// updates click/double-click action controls depending on values from settings.xml
+	// updates click/double-click action keybindngs depending on view values
 	void updateClickActionControls();
 
 public:
@@ -146,9 +151,6 @@ public:
 	void onClickResetCache();
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
-	void onClickSetKey();
-	void setKey(KEY key);
-	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
 	void onClickDisablePopup();	
@@ -158,7 +160,7 @@ public:
 	void changeLogPath(const std::vector<std::string>& filenames, std::string proposed_name);
 	bool moveTranscriptsAndLog();
 	void enableHistory();
-	void setPersonalInfo(const std::string& visibility, bool im_via_email, bool is_verified_email);
+	void setPersonalInfo(const std::string& visibility);
 	void refreshEnabledState();
 	void onCommitWindowedMode();
 	void refresh();	// Refresh enable/disable
@@ -167,7 +169,6 @@ public:
 	
 	void refreshUI();
 
-	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();
 	void onCommitMusicEnabled();
 	void applyResolution();
@@ -180,6 +181,7 @@ public:
 	void onClickProxySettings();
 	void onClickTranslationSettings();
 	void onClickPermsDefault();
+	void onClickRememberedUsernames();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
 	void onClickRenderExceptions();
@@ -190,6 +192,7 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
+	void saveCameraPreset(std::string& preset);
 	void saveGraphicsPreset(std::string& preset);
 
 private:
@@ -202,9 +205,7 @@ private:
 
 	static std::string sSkin;
 	notifications_map mNotificationOptions;
-	bool mClickActionDirty; ///< Set to true when the click/double-click options get changed by user.
 	bool mGotPersonalInfo;
-	bool mOriginalIMViaEmail;
 	bool mLanguageChanged;
 	bool mAvatarDataInitialized;
 	std::string mPriorInstantMessageLogPath;
@@ -213,11 +214,13 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+	std::string mSavedCameraPreset;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
 
 	LLSearchEditor *mFilterEdit;
 	std::unique_ptr< ll::prefs::SearchData > mSearchData;
+	bool mSearchDataDirty;
 
 	void onUpdateFilterTerm( bool force = false );
 	void collectSearchableItems();
@@ -287,9 +290,62 @@ protected:
 	bool hasDirtyChilds();
 
 private:
-
 	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
+};
+
+class LLPanelPreferenceControls : public LLPanelPreference, public LLKeyBindResponderInterface
+{
+	LOG_CLASS(LLPanelPreferenceControls);
+public:
+	LLPanelPreferenceControls();
+	virtual ~LLPanelPreferenceControls();
+
+	BOOL postBuild();
+
+	void apply();
+	void cancel();
+	void saveSettings();
+	void resetDirtyChilds();
+
+	void onListCommit();
+	void onModeCommit();
+	void onRestoreDefaultsBtn();
+	void onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response);
+
+    // Bypass to let Move & view read values without need to create own key binding handler
+    // Todo: consider a better way to share access to keybindings
+    bool canKeyBindHandle(const std::string &control, EMouseClickType click, KEY key, MASK mask);
+    // Bypasses to let Move & view modify values without need to create own key binding handler
+    void setKeyBind(const std::string &control, EMouseClickType click, KEY key, MASK mask, bool set /*set or reset*/ );
+    void updateAndApply();
+
+    // from interface
+	/*virtual*/ bool onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes);
+    /*virtual*/ void onDefaultKeyBind(bool all_modes);
+    /*virtual*/ void onCancelKeyBind();
+
+private:
+	// reloads settings, discards current changes, updates table
+	void regenerateControls();
+
+	// These fuctions do not clean previous content
+	bool addControlTableColumns(const std::string &filename);
+	bool addControlTableRows(const std::string &filename);
+	void addControlTableSeparator();
+
+	// Cleans content and then adds content from xml files according to current mEditingMode
+    void populateControlTable();
+
+    // Updates keybindings from storage to table
+    void updateTable();
+
+	LLScrollListCtrl* pControlsTable;
+	LLComboBox *pKeyModeBox;
+	LLKeyConflictHandler mConflictHandler[LLKeyConflictHandler::MODE_COUNT];
+	std::string mEditingControl;
+	S32 mEditingColumn;
+	S32 mEditingMode;
 };
 
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
@@ -312,8 +368,9 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 	static void setIndirectMaxNonImpostors();
 	static void setIndirectMaxArc();
 	void refresh();
-	// callback for when client turns on shaders
-	void onVertexShaderEnable();
+	// callback for when client modifies a render option
+	void onRenderOptionEnable();
+    void onAdvancedAtmosphericsEnable();
 	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
 

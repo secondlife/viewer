@@ -32,6 +32,10 @@
      name="no_transfer_text">
         (no transfer)
     </floater.string>
+    <floater.string
+      name="mupliple_selected">
+        Mupliple selection
+    </floater.string>
     <scroll_list
      background_visible="true"
      draw_border="false"

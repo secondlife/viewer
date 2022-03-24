@@ -4,11 +4,24 @@
  visible="false"
  name="Gear Wearing">
     <menu_item_call
-     label="Edit Outfit"
+     label="Touch"
      layout="topleft"
-     name="edit">
+     name="touch">
         <on_click
-         function="Gear.Edit" />
+         function="Gear.TouchAttach" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="touch_attach" />
+    </menu_item_call>
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit_item">
+        <on_click
+         function="Gear.EditItem" />
+        <on_enable
+         function="Gear.OnEnable"
+         parameter="edit_item" />
     </menu_item_call>
     <menu_item_call
      label="Take Off"
@@ -19,6 +32,14 @@
         <on_enable
          function="Gear.OnEnable"
          parameter="take_off" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
+     label="Edit Outfit"
+     layout="topleft"
+     name="edit_outfit">
+        <on_click
+         function="Gear.EditOutfit" />
     </menu_item_call>
     <menu_item_call
      label="Copy outfit list to clipboard"

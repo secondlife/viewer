@@ -38,7 +38,9 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
-	vec4 color = vertex_color*texture2D(diffuseMap, vary_texcoord0.xy);
-	color.a *= custom_alpha;
+	vec4 color = texture2D(diffuseMap, vary_texcoord0.xy);
+    color.rgb = pow(color.rgb, vec3(0.45));
+    color.rgb *= vertex_color.rgb;
+	color.a *= max(custom_alpha, vertex_color.a);
 	frag_color = color;
 }

@@ -272,6 +272,25 @@ BOOL LLScrollContainer::handleScrollWheel( S32 x, S32 y, S32 clicks )
 	return FALSE;
 }
 
+BOOL LLScrollContainer::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	if (LLUICtrl::handleScrollHWheel(x,y,clicks))
+	{
+		return TRUE;
+	}
+
+	LLScrollbar* horizontal = mScrollbar[HORIZONTAL];
+	if (horizontal->getVisible()
+		&& horizontal->getEnabled()
+		&& horizontal->handleScrollHWheel( 0, 0, clicks ) )
+	{
+		updateScroll();
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
 BOOL LLScrollContainer::handleDragAndDrop(S32 x, S32 y, MASK mask,
 												  BOOL drop,
 												  EDragAndDropType cargo_type,

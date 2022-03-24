@@ -42,7 +42,6 @@ static LLDefaultChildRegistry::Register<LLSlider> r1("slider_bar");
 
 LLSlider::Params::Params()
 :	orientation ("orientation", std::string ("horizontal")),
-	track_color("track_color"),
 	thumb_outline_color("thumb_outline_color"),
 	thumb_center_color("thumb_center_color"),
 	thumb_image("thumb_image"),
@@ -60,7 +59,6 @@ LLSlider::LLSlider(const LLSlider::Params& p)
 :	LLF32UICtrl(p),
 	mMouseOffset( 0 ),
 	mOrientation ((p.orientation() == "horizontal") ? HORIZONTAL : VERTICAL),
-	mTrackColor(p.track_color()),
 	mThumbOutlineColor(p.thumb_outline_color()),
 	mThumbCenterColor(p.thumb_center_color()),
 	mThumbImage(p.thumb_image),
@@ -331,8 +329,9 @@ void LLSlider::draw()
 		highlight_rect.set(track_rect.mLeft, track_rect.mTop, track_rect.mRight, track_rect.mBottom);
 	}
 
-	trackImage->draw(track_rect, LLColor4::white % alpha);
-	trackHighlightImage->draw(highlight_rect, LLColor4::white % alpha);
+	LLColor4 color = isInEnabledChain() ? LLColor4::white % alpha : LLColor4::white % (0.6f * alpha);
+	trackImage->draw(track_rect, color);
+	trackHighlightImage->draw(highlight_rect, color);
 
 	// Thumb
 	if (hasFocus())

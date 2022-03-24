@@ -34,6 +34,20 @@
 #include "llquaternion.h"
 #include "llcoordframe.h"
 
+#define CHECK_FINITE(var)                                            \
+    if (!var.isFinite())                                             \
+    {                                                                \
+        LL_WARNS() << "Non Finite " << std::string(#var) << LL_ENDL; \
+        reset();                                                     \
+    }
+
+#define CHECK_FINITE_OBJ()                                       \
+    if (!isFinite())                                             \
+    {                                                            \
+        LL_WARNS() << "Non Finite in LLCoordFrame " << LL_ENDL;  \
+        reset();                                                 \
+    }
+
 #ifndef X_AXIS
 	#define X_AXIS 1.0f,0.0f,0.0f
 	#define Y_AXIS 0.0f,1.0f,0.0f
@@ -56,11 +70,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin) :
 	mYAxis(Y_AXIS),
 	mZAxis(Z_AXIS)
 {
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
 
 LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLVector3 &direction) :
@@ -68,11 +78,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLVector3 &direction) 
 {
 	lookDir(direction);
 	
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+    CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLVector3 &x_axis,
@@ -83,11 +89,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &x_axis,
 	mYAxis(y_axis), 
 	mZAxis(z_axis)
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
@@ -99,11 +101,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
 	mYAxis(y_axis), 
 	mZAxis(z_axis)
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -114,11 +112,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin,
 	mYAxis(rotation.mMatrix[VY]),
 	mZAxis(rotation.mMatrix[VZ])
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
@@ -129,11 +123,7 @@ LLCoordFrame::LLCoordFrame(const LLQuaternion &q) :
 	mYAxis.setVec(rotation_matrix.mMatrix[VY]);
 	mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
 
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLQuaternion &q) :
@@ -144,11 +134,7 @@ LLCoordFrame::LLCoordFrame(const LLVector3 &origin, const LLQuaternion &q) :
 	mYAxis.setVec(rotation_matrix.mMatrix[VY]);
 	mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
 
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 LLCoordFrame::LLCoordFrame(const LLMatrix4 &mat) :
@@ -157,11 +143,7 @@ LLCoordFrame::LLCoordFrame(const LLMatrix4 &mat) :
 	mYAxis(mat.mMatrix[VY]),
 	mZAxis(mat.mMatrix[VZ])
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -173,11 +155,7 @@ LLCoordFrame::LLCoordFrame(const F32 *origin, const F32 *rotation) :
 	mYAxis(rotation+3*VY),
 	mZAxis(rotation+3*VZ)
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 */
 
@@ -188,11 +166,7 @@ LLCoordFrame::LLCoordFrame(const F32 *origin_and_rotation) :
 	mYAxis(origin_and_rotation + 3*(VY+1)),
 	mZAxis(origin_and_rotation + 3*(VZ+1))
 {
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::LLCoordFrame()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 */
 
@@ -217,21 +191,13 @@ void LLCoordFrame::setOrigin(F32 x, F32 y, F32 z)
 {
 	mOrigin.setVec(x, y, z); 
 
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setOrigin()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
 
 void LLCoordFrame::setOrigin(const LLVector3 &new_origin)
 {
 	mOrigin = new_origin; 
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setOrigin()" << LL_ENDL;
-	}
+	CHECK_FINITE(mOrigin);
 }
 
 void LLCoordFrame::setOrigin(const F32 *origin)
@@ -239,23 +205,13 @@ void LLCoordFrame::setOrigin(const F32 *origin)
 	mOrigin.mV[VX] = *(origin + VX);
 	mOrigin.mV[VY] = *(origin + VY);
 	mOrigin.mV[VZ] = *(origin + VZ);
-
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setOrigin()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
 
 void LLCoordFrame::setOrigin(const LLCoordFrame &frame)
 {
 	mOrigin = frame.getOrigin();
-
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setOrigin()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
 
 // setAxes()  member functions set the axes, and assume that
@@ -268,11 +224,7 @@ void LLCoordFrame::setAxes(const LLVector3 &x_axis,
 	mXAxis = x_axis;
 	mYAxis = y_axis;
 	mZAxis = z_axis;
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setAxes()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -281,11 +233,7 @@ void LLCoordFrame::setAxes(const LLMatrix3 &rotation_matrix)
 	mXAxis.setVec(rotation_matrix.mMatrix[VX]);
 	mYAxis.setVec(rotation_matrix.mMatrix[VY]);
 	mZAxis.setVec(rotation_matrix.mMatrix[VZ]);
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setAxes()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -293,11 +241,7 @@ void LLCoordFrame::setAxes(const LLQuaternion &q )
 {
 	LLMatrix3 rotation_matrix(q);
 	setAxes(rotation_matrix);
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setAxes()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -313,11 +257,7 @@ void LLCoordFrame::setAxes(  const F32 *rotation_matrix )
 	mZAxis.mV[VY] = *(rotation_matrix + 3*VZ + VY);
 	mZAxis.mV[VZ] = *(rotation_matrix + 3*VZ + VZ);
 
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setAxes()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 
@@ -326,40 +266,22 @@ void LLCoordFrame::setAxes(const LLCoordFrame &frame)
 	mXAxis = frame.getXAxis();
 	mYAxis = frame.getYAxis();
 	mZAxis = frame.getZAxis();
-
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::setAxes()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
-
 // translate() member functions move mOrigin to a relative position
-
 void LLCoordFrame::translate(F32 x, F32 y, F32 z)
 {
 	mOrigin.mV[VX] += x;
 	mOrigin.mV[VY] += y;
 	mOrigin.mV[VZ] += z;
-
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::translate()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
-
 
 void LLCoordFrame::translate(const LLVector3 &v)
 {
 	mOrigin += v;
-
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::translate()" << LL_ENDL;
-	}
+    CHECK_FINITE(mOrigin);
 }
 
 
@@ -368,12 +290,7 @@ void LLCoordFrame::translate(const F32 *origin)
 	mOrigin.mV[VX] += *(origin + VX);
 	mOrigin.mV[VY] += *(origin + VY);
 	mOrigin.mV[VZ] += *(origin + VZ);
-
-	if( !mOrigin.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::translate()" << LL_ENDL;
-	}
+	CHECK_FINITE(mOrigin);
 }
 
 
@@ -383,6 +300,7 @@ void LLCoordFrame::rotate(F32 angle, F32 x, F32 y, F32 z)
 {
 	LLQuaternion q(angle, LLVector3(x,y,z));
 	rotate(q);
+    CHECK_FINITE_OBJ();
 }
 
 
@@ -390,6 +308,7 @@ void LLCoordFrame::rotate(F32 angle, const LLVector3 &rotation_axis)
 {
 	LLQuaternion q(angle, rotation_axis);
 	rotate(q);
+    CHECK_FINITE_OBJ();
 }
 
 
@@ -397,6 +316,7 @@ void LLCoordFrame::rotate(const LLQuaternion &q)
 {
 	LLMatrix3 rotation_matrix(q);
 	rotate(rotation_matrix);
+    CHECK_FINITE_OBJ();
 }
 
 
@@ -405,12 +325,7 @@ void LLCoordFrame::rotate(const LLMatrix3 &rotation_matrix)
 	mXAxis.rotVec(rotation_matrix);
 	mYAxis.rotVec(rotation_matrix);
 	orthonormalize();
-
-	if( !isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::rotate()" << LL_ENDL;
-	}
+    CHECK_FINITE_OBJ();
 }
 
 
@@ -419,12 +334,7 @@ void LLCoordFrame::roll(F32 angle)
 	LLQuaternion q(angle, mXAxis);
 	LLMatrix3 rotation_matrix(q);
 	rotate(rotation_matrix);
-
-	if( !mYAxis.isFinite() || !mZAxis.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::roll()" << LL_ENDL;
-	}
+    CHECK_FINITE_OBJ();
 }
 
 void LLCoordFrame::pitch(F32 angle)
@@ -432,12 +342,7 @@ void LLCoordFrame::pitch(F32 angle)
 	LLQuaternion q(angle, mYAxis);
 	LLMatrix3 rotation_matrix(q);
 	rotate(rotation_matrix);
-
-	if( !mXAxis.isFinite() || !mZAxis.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::pitch()" << LL_ENDL;
-	}
+	CHECK_FINITE_OBJ();
 }
 
 void LLCoordFrame::yaw(F32 angle)
@@ -445,12 +350,7 @@ void LLCoordFrame::yaw(F32 angle)
 	LLQuaternion q(angle, mZAxis);
 	LLMatrix3 rotation_matrix(q);
 	rotate(rotation_matrix);
-
-	if( !mXAxis.isFinite() || !mYAxis.isFinite() )
-	{
-		reset();
-		LL_WARNS() << "Non Finite in LLCoordFrame::yaw()" << LL_ENDL;
-	}
+    CHECK_FINITE_OBJ();
 }
 
 // get*() routines

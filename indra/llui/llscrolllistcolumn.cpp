@@ -257,7 +257,7 @@ void LLScrollColumnHeader::updateResizeBars()
 	for (col = 0; col < mColumn->mParentCtrl->getNumColumns(); col++)
 	{
 		LLScrollListColumn* columnp = mColumn->mParentCtrl->getColumn(col);
-		if (columnp->mHeader && columnp->mHeader->canResize())
+		if (columnp && columnp->mHeader && columnp->mHeader->canResize())
 		{
 			num_resizable_columns++;
 		}
@@ -269,7 +269,7 @@ void LLScrollColumnHeader::updateResizeBars()
 	for (col = 0; col < mColumn->mParentCtrl->getNumColumns(); col++)
 	{
 		LLScrollListColumn* columnp = mColumn->mParentCtrl->getColumn(col);
-		if (!columnp->mHeader) continue;
+		if (!columnp || !columnp->mHeader) continue;
 		BOOL enable = num_resizable_columns >= 2 && num_resizers_enabled < (num_resizable_columns - 1) && columnp->mHeader->canResize();
 		columnp->mHeader->enableResizeBar(enable);
 		if (enable)

@@ -10,7 +10,7 @@
 		描述：
 	</text>
 	<text name="dimensions">
-		[WIDTH] 像素 X [HEIGHT] 像素
+		[WIDTH]像素 x [HEIGHT]像素
 	</text>
 	<text name="aspect_ratio">
 		預覽長寬比

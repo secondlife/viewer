@@ -15,7 +15,7 @@
      top="30"
      scale_image="true"
      visible="false"
-     width="212" />
+     width="30" />
   <panel_camera_item.icon_selected
    follows="top|left"
      height="30"
@@ -27,7 +27,7 @@
      top="30"
      scale_image="true"
      visible="false"
-     width="212" />
+     width="30" />
   <panel_camera_item.picture
      follows="top|left"
      height="30"

@@ -35,6 +35,7 @@
 #include "llaccordionctrltab.h"
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llagentbenefits.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
@@ -58,10 +59,7 @@ bool LLOutfitTabNameComparator::compare(const LLAccordionCtrlTab* tab1, const LL
 	std::string name1 = tab1->getTitle();
 	std::string name2 = tab2->getTitle();
 
-	LLStringUtil::toUpper(name1);
-	LLStringUtil::toUpper(name2);
-
-	return name1 < name2;
+    return (LLStringUtil::compareDict(name1, name2) < 0);
 }
 
 struct outfit_accordion_tab_params : public LLInitParam::Block<outfit_accordion_tab_params, LLAccordionCtrlTab::Params>
@@ -1209,7 +1207,7 @@ void LLOutfitListGearMenuBase::onRename()
 
 void LLOutfitListGearMenuBase::onCreate(const LLSD& data)
 {
-    LLWearableType::EType type = LLWearableType::typeNameToType(data.asString());
+    LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(data.asString());
     if (type == LLWearableType::WT_NONE)
     {
         LL_WARNS() << "Invalid wearable type" << LL_ENDL;
@@ -1235,6 +1233,7 @@ bool LLOutfitListGearMenuBase::onEnable(LLSD::String param)
 
 bool LLOutfitListGearMenuBase::onVisible(LLSD::String param)
 {
+	getMenu()->getChild<LLUICtrl>("upload_photo")->setLabelArg("[UPLOAD_COST]", std::to_string(LLAgentBenefitsMgr::current().getTextureUploadCost()));
     const LLUUID& selected_outfit_id = getSelectedOutfitID();
     if (selected_outfit_id.isNull()) // no selection or invalid outfit selected
     {

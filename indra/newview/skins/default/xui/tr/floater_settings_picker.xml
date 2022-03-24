@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings picker" title="SEÇİM: AYARLAR">
+	<floater.string name="pick title">
+		Seçim:
+	</floater.string>
+	<floater.string name="pick_track">
+		ROTA SEÇ
+	</floater.string>
+	<floater.string name="pick_settings">
+		AYARLARI SEÇ
+	</floater.string>
+	<floater.string name="track_water">
+		Su
+	</floater.string>
+	<floater.string name="track_ground">
+		Zemin
+	</floater.string>
+	<floater.string name="track_sky">
+		Gökyüzü [NUM]
+	</floater.string>
+	<layout_stack name="test_stack">
+		<layout_panel name="inv_list">
+			<filter_editor label="Dokuları Filtrele" name="flt_inventory_search"/>
+		</layout_panel>
+		<layout_panel name="temp">
+			<button label="Tamam" label_selected="Tamam" name="btn_select"/>
+			<button label="İptal Et" label_selected="İptal Et" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

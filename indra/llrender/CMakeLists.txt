@@ -9,10 +9,9 @@ include(LLCommon)
 include(LLImage)
 include(LLMath)
 include(LLRender)
-include(LLVFS)
 include(LLWindow)
 include(LLXML)
-include(LLVFS)
+include(LLFileSystem)
 
 include_directories(
     ${FREETYPE_INCLUDE_DIRS}
@@ -20,10 +19,9 @@ include_directories(
     ${LLIMAGE_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLRENDER_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLWINDOW_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
     )
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
@@ -31,6 +29,7 @@ include_directories(SYSTEM
     )
 
 set(llrender_SOURCE_FILES
+    llatmosphere.cpp
     llcubemap.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
@@ -57,6 +56,7 @@ set(llrender_SOURCE_FILES
 set(llrender_HEADER_FILES
     CMakeLists.txt
 
+    llatmosphere.h
     llcubemap.h
     llfontgl.h
     llfontfreetype.h
@@ -78,6 +78,7 @@ set(llrender_HEADER_FILES
     llshadermgr.h
     lltexture.h
     lluiimage.h
+    lluiimage.inl
     llvertexbuffer.h
     llglcommonfunc.h
     )
@@ -101,9 +102,8 @@ if (BUILD_HEADLESS)
     ${LLIMAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLRENDER_HEADLESS_LIBRARIES}
-    ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLWINDOW_HEADLESS_LIBRARIES}
     ${OPENGL_HEADLESS_LIBRARIES})
 
@@ -123,9 +123,8 @@ target_link_libraries(llrender
     ${LLCOMMON_LIBRARIES}
     ${LLIMAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LLVFS_LIBRARIES}
     ${LLWINDOW_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${OPENGL_LIBRARIES})

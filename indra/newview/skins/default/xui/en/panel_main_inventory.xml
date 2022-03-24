@@ -32,30 +32,20 @@
     		 left="12"
 		     name="ItemcountText"
 		     font="SansSerifMedium"
-		     text_color="EmphasisColor"
+		     text_color="InventoryItemLinkColor"
 		     use_ellipses="true"
 		     top_pad="0"
 		     width="300">
     Items:
   </text>
-  <filter_editor
-   text_pad_left="10"
-   follows="left|top|right"
-   height="23"
-   label="Enter search text"
-   layout="topleft"
-   left="10"
-   max_length_chars="300"
-   name="inventory search editor"
-   top="18"
-   width="208" />
   <combo_box
    height="23"
    layout="topleft"
-   left_pad="4"
+   left="10"
+   top="18"
    name="search_type"
-   follows="top|right"
-   width="90">
+   follows="top|left"
+   width="88">
     <item
      label="Name"
      name="Name"
@@ -72,7 +62,27 @@
      label="UUID"
      name="UUID"
      value="search_by_UUID"/>
-    </combo_box>
+  </combo_box>
+  <menu_button
+   follows="top|left"
+   tool_tip="Show search visibility options"
+   height="23"
+   image_overlay="Inv_Toolbar_SearchVisibility"
+   layout="topleft"
+   left_pad="3"
+   name="options_visibility_btn"
+   width="31" />
+  <filter_editor
+   text_pad_left="10"
+   follows="left|top|right"
+   height="23"
+   label="Enter search text"
+   layout="topleft"
+   left_pad="3"
+   max_length_chars="300"
+   highlight_text_field="true"
+   name="inventory search editor"
+   width="177" />
   <tab_container
      follows="all"
      halign="center"

@@ -43,7 +43,7 @@
 
 #if LL_WINDOWS
 #include "lltimer.h"
-#elif LL_LINUX || LL_SOLARIS
+#elif LL_LINUX
 #include <sys/time.h>
 #include <sched.h>
 #include "lltimer.h"
@@ -64,7 +64,7 @@ bool        BlockTimer::sLog		     = false;
 std::string BlockTimer::sLogName         = "";
 bool        BlockTimer::sMetricLog       = false;
 
-#if LL_LINUX || LL_SOLARIS
+#if LL_LINUX
 U64         BlockTimer::sClockResolution = 1000000000; // Nanosecond resolution
 #else
 U64         BlockTimer::sClockResolution = 1000000; // Microsecond resolution
@@ -151,12 +151,12 @@ void BlockTimer::setLogLock(LLMutex* lock)
 
 
 //static
-#if (LL_DARWIN || LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+#if (LL_DARWIN || LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
 U64 BlockTimer::countsPerSecond()
 {
 	return sClockResolution;
 }
-#else // windows or x86-mac or x86-linux or x86-solaris
+#else // windows or x86-mac or x86-linux
 U64 BlockTimer::countsPerSecond()
 {
 #if LL_FASTTIMER_USE_RDTSC || !LL_WINDOWS
@@ -193,27 +193,26 @@ TimeBlockTreeNode& BlockTimerStatHandle::getTreeNode() const
 
 void BlockTimer::bootstrapTimerTree()
 {
-	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-		it != end_it; 
-		++it)
+	for (auto& base : BlockTimerStatHandle::instance_snapshot())
 	{
-		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
+		// because of indirect derivation from LLInstanceTracker, have to downcast
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
 		if (&timer == &BlockTimer::getRootTimeBlock()) continue;
 
 		// bootstrap tree construction by attaching to last timer to be on stack
 		// when this timer was called
 		if (timer.getParent() == &BlockTimer::getRootTimeBlock())
-{
+		{
 			TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
 			if (accumulator.mLastCaller)
-	{
+			{
 				timer.setParent(accumulator.mLastCaller);
 				accumulator.mParent = accumulator.mLastCaller;
-		}
+			}
 			// no need to push up tree on first use, flag can be set spuriously
 			accumulator.mMoveUpTree = false;
-	}
+		}
 	}
 }
 
@@ -306,12 +305,10 @@ void BlockTimer::processTimes()
 	updateTimes();
 
 	// reset for next frame
-	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(),
-			end_it = BlockTimerStatHandle::instance_tracker_t::endInstances();
-		it != end_it;
-		++it)
+	for (auto& base : BlockTimerStatHandle::instance_snapshot())
 	{
-		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
+		// because of indirect derivation from LLInstanceTracker, have to downcast
+		BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
 		TimeBlockAccumulator& accumulator = timer.getCurrentAccumulator();
 
 		accumulator.mLastCaller = NULL;
@@ -362,12 +359,10 @@ void BlockTimer::logStats()
 		LLSD sd;
 
 		{
-			for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), 
-				end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-				it != end_it; 
-			++it)
+			for (auto& base : BlockTimerStatHandle::instance_snapshot())
 			{
-				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(*it);
+				// because of indirect derivation from LLInstanceTracker, have to downcast
+				BlockTimerStatHandle& timer = static_cast<BlockTimerStatHandle&>(base);
 				LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
 				sd[timer.getName()]["Time"] = (LLSD::Real) (frame_recording.getLastRecording().getSum(timer).value());	
 				sd[timer.getName()]["Calls"] = (LLSD::Integer) (frame_recording.getLastRecording().getSum(timer.callCount()));

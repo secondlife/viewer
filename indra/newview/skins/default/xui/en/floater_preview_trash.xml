@@ -14,7 +14,7 @@
  reuse_instance="true"
  can_minimize="false">
   <inventory_panel
-      name="inventory_outbox"
+      name="inventory_trash"
       start_folder.name="Trash"
       show_empty_message="false"
       start_folder.type="trash"

@@ -64,7 +64,7 @@ void initializeSecHandler()
 		{
 			handler->init();
 		}
-		catch (LLProtectedDataException e)
+		catch (LLProtectedDataException& e)
 		{
 			exception_msg = e.what();
 		}
@@ -74,6 +74,12 @@ void initializeSecHandler()
 		LLTHROW(LLProtectedDataException(exception_msg));
 	}
 
+}
+
+void clearSecHandler()
+{
+    gSecAPIHandler = NULL;
+    gHandlerMap.clear();
 }
 // start using a given security api handler.  If the string is empty
 // the default is used
@@ -117,7 +123,7 @@ LLSD LLCredential::getLoginParams()
 		else if (mIdentifier["type"].asString() == "account")
 		{
 			result["username"] = mIdentifier["account_name"];
-			result["passwd"] = mAuthenticator["secret"];
+			result["passwd"] = mAuthenticator["secret"].asString();
 			username = result["username"].asString();
 		}
 	}
@@ -153,4 +159,11 @@ void LLCredential::authenticatorType(std::string &idType)
 		idType = std::string();
 		
 	}
+}
+
+LLCertException::LLCertException(const LLSD& cert_data, const std::string& msg)
+  : LLException(msg),
+    mCertData(cert_data)
+{
+    LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
 }

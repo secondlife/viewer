@@ -60,6 +60,7 @@ public:
 		POOL_GRASS,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
+		POOL_CONTROL_AV, // Animesh
 		POOL_VOIDWATER,
 		POOL_WATER,
 		POOL_GLOW,
@@ -107,16 +108,15 @@ public:
 	virtual void prerender() = 0;
 	virtual U32 getVertexDataMask() = 0;
 	virtual BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
-	virtual S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
+	virtual S32 getShaderLevel() const { return mShaderLevel; }
 	
 	static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
-	virtual LLDrawPool *instancePool() = 0;	// Create an empty new instance of the pool.
 	virtual LLViewerTexture* getTexture() = 0;
 	virtual BOOL isFacePool() { return FALSE; }
 	virtual void resetDrawOrders() = 0;
 
 protected:
-	S32 mVertexShaderLevel;
+	S32 mShaderLevel;
 	S32	mId;
 	U32 mType;				// Type of draw pool
 	BOOL mSkipRender;
@@ -138,31 +138,30 @@ public:
 		PASS_POST_BUMP,
 		PASS_MATERIAL,
 		PASS_MATERIAL_ALPHA,
-		PASS_MATERIAL_ALPHA_MASK,
+		PASS_MATERIAL_ALPHA_MASK,              // Diffuse texture used as alpha mask
 		PASS_MATERIAL_ALPHA_EMISSIVE,
 		PASS_SPECMAP,
 		PASS_SPECMAP_BLEND,
-		PASS_SPECMAP_MASK,
+		PASS_SPECMAP_MASK,                     // Diffuse texture used as alpha mask and specular texture(map)
 		PASS_SPECMAP_EMISSIVE,
 		PASS_NORMMAP,
 		PASS_NORMMAP_BLEND,
-		PASS_NORMMAP_MASK,
+		PASS_NORMMAP_MASK,                     // Diffuse texture used as alpha mask and normal map
 		PASS_NORMMAP_EMISSIVE,
 		PASS_NORMSPEC,
 		PASS_NORMSPEC_BLEND,
-		PASS_NORMSPEC_MASK,
+		PASS_NORMSPEC_MASK,                    // Diffuse texture used as alpha mask with normal and specular map
 		PASS_NORMSPEC_EMISSIVE,
 		PASS_GLOW,
 		PASS_ALPHA,
 		PASS_ALPHA_MASK,
-		PASS_FULLBRIGHT_ALPHA_MASK,
+		PASS_FULLBRIGHT_ALPHA_MASK,            // Diffuse texture used as alpha mask and fullbright
 		PASS_ALPHA_INVISIBLE,
 		NUM_RENDER_TYPES,
 	};
 
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
-	/*virtual*/ LLDrawPool* instancePool();
 	/*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }
 	LLViewerTexture* getTexture() { return NULL; }
 	BOOL isDead() { return FALSE; }
@@ -174,7 +173,7 @@ public:
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderTexture(U32 type, U32 mask);
+	virtual void renderTexture(U32 type, U32 mask, BOOL batch_textures = TRUE);
 
 };
 

@@ -12,6 +12,7 @@
 	<check_box label="Sesler" name="check_sound"/>
 	<check_box label="Dokular" name="check_texture"/>
 	<check_box label="Anlık Görüntüler" name="check_snapshot"/>
+	<check_box label="Ayarlar" name="check_settings"/>
 	<button label="Tümü" label_selected="Tümü" name="All"/>
 	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
 	<check_box label="Klasörleri her zaman göster" name="check_show_empty"/>

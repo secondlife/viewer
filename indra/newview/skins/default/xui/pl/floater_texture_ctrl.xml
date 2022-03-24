@@ -9,13 +9,10 @@
 	<text name="Multiple">
 		Wiele tekstur
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="Szafa" name="inventory" />
-		<radio_item label="Lokalna" name="local" />
-	</radio_group>
-	<text name="unknown">
-		Rozm.: [DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="Szafa" name="inventory" />
+		<combo_box.item label="Lokalna" name="local" />
+	</combo_box>
 	<button label="Domyślna" label_selected="Domyślna" name="Default" />
 	<button label="Pusta" label_selected="Pusta" name="Blank" />
 	<button label="Przezrocz." label_selected="Przezrocz." name="None" />

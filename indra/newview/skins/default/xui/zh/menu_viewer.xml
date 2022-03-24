@@ -77,30 +77,15 @@
 			<menu_item_check label="地段屬性" name="Parcel Properties"/>
 			<menu_item_check label="進階選單" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="太陽" name="Sun">
+		<menu label="環境" name="Environment">
 			<menu_item_check label="日出" name="Sunrise"/>
 			<menu_item_check label="中午" name="Noon"/>
 			<menu_item_check label="日落" name="Sunset"/>
 			<menu_item_check label="午夜" name="Midnight"/>
-			<menu_item_check label="使用地區設定" name="Use Region Settings"/>
-		</menu>
-		<menu label="環境編輯器" name="Environment Editor">
-			<menu_item_call label="環境設定…" name="Environment Settings"/>
-			<menu label="水的自訂配置" name="Water Presets">
-				<menu_item_call label="新的自訂配置…" name="new_water_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_water_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_water_preset"/>
-			</menu>
-			<menu label="天空自訂配置" name="Sky Presets">
-				<menu_item_call label="新的自訂配置…" name="new_sky_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_sky_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_sky_preset"/>
-			</menu>
-			<menu label="日的自訂配置" name="Day Presets">
-				<menu_item_call label="新的自訂配置…" name="new_day_preset"/>
-				<menu_item_call label="編輯自訂配置…" name="edit_day_preset"/>
-				<menu_item_call label="刪除自訂配置…" name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="使用共享環境" name="Use Shared Environment"/>
+			<menu_item_call label="我的環境…" name="my_environs"/>
+			<menu_item_call label="個人照明⋯" name="adjustment_tool"/>
+			<menu_item_check label="暫停雲彩" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="建造" name="BuildTools">
@@ -344,6 +329,9 @@
 			<menu_item_check label="自動半透明遮罩（非遞延）" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="動作材質" name="Animation Textures"/>
 			<menu_item_check label="關閉材質" name="Disable Textures"/>
+			<menu_item_check label="停用環境光" name="Disable Ambient"/>
+			<menu_item_check label="停用日光" name="Disable Sunlight"/>
+			<menu_item_check label="停用本地光線" name="Disable Local Lights"/>
 			<menu_item_check label="全解析度材質" name="Rull Res Textures"/>
 			<menu_item_check label="使附著燈光呈像" name="Render Attached Lights"/>
 			<menu_item_check label="使附著例子效果呈像" name="Render Attached Particles"/>
@@ -481,6 +469,7 @@
 			<menu_item_call label="裙子" name="Skirt"/>
 			<menu_item_call label="半透明" name="Alpha"/>
 			<menu_item_call label="刺青" name="Tattoo"/>
+			<menu_item_call label="通用值" name="Universal"/>
 			<menu_item_call label="身體物理" name="Physics"/>
 			<menu_item_call label="全部衣服" name="All Clothes"/>
 		</menu>

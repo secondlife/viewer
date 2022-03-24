@@ -56,7 +56,7 @@
 #include "m4math.h"
 #include "llmatrix4a.h"
 
-#if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
+#if !LL_DARWIN && !LL_LINUX
 extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
 extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
 extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
@@ -112,7 +112,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	S32 joint_num;
 	LLPolyMesh *reference_mesh = mMesh->getReferenceMesh();
 	LLDrawPool *poolp = mFace ? mFace->getPool() : NULL;
-	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
 
 	//calculate joint matrices
 	for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
@@ -246,14 +246,13 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	stop_glerror();
 	
-	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getVertexShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
+	LLGLSSpecular specular(LLColor4(1.f,1.f,1.f,1.f), (mFace->getPool()->getShaderLevel() > 0 || LLGLSLShader::sNoFixedFunction) ? 0.f : mShiny);
 
 	//----------------------------------------------------------------
 	// setup current texture
 	//----------------------------------------------------------------
 	llassert( !(mTexture.notNull() && mLayerSet) );  // mutually exclusive
 
-	LLTexUnit::eTextureAddressMode old_mode = LLTexUnit::TAM_WRAP;
 	LLViewerTexLayerSet *layerset = dynamic_cast<LLViewerTexLayerSet*>(mLayerSet);
 	if (mTestImageName)
 	{
@@ -280,21 +279,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 			gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 		}
 	}
-	else
-	if ( !is_dummy && mTexture.notNull() )
+	else if ( !is_dummy && mTexture.notNull() )
 	{
-		if(mTexture->hasGLTexture())
-		{
-			old_mode = mTexture->getAddressMode();
-		}
 		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
-		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(LLTexUnit::TAM_CLAMP);
 	}
 	else
 	{
 		gGL.getTexUnit(diffuse_channel)->bind(LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT));
 	}
-	
 	
 	U32 mask = sRenderMask;
 
@@ -307,14 +299,14 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 
 	if (mMesh->hasWeights())
 	{
-		if ((mFace->getPool()->getVertexShaderLevel() > 0))
+		if ((mFace->getPool()->getShaderLevel() > 0))
 		{
 			if (first_pass)
 			{
 				uploadJointMatrices();
 			}
 			mask = mask | LLVertexBuffer::MAP_WEIGHT;
-			if (mFace->getPool()->getVertexShaderLevel() > 1)
+			if (mFace->getPool()->getShaderLevel() > 1)
 			{
 				mask = mask | LLVertexBuffer::MAP_CLOTHWEIGHT;
 			}
@@ -339,12 +331,6 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	if (mTestImageName)
 	{
 		gGL.getTexUnit(diffuse_channel)->setTextureBlendType(LLTexUnit::TB_MULT);
-	}
-
-	if (mTexture.notNull() && !is_dummy)
-	{
-		gGL.getTexUnit(diffuse_channel)->bind(mTexture);
-		gGL.getTexUnit(diffuse_channel)->setTextureAddressMode(old_mode);
 	}
 
 	return triangle_count;
@@ -390,7 +376,7 @@ void LLViewerJointMesh::updateFaceData(LLFace *face, F32 pixel_area, BOOL damp_w
 	}
 
 	LLDrawPool *poolp = mFace->getPool();
-	BOOL hardware_skinning = (poolp && poolp->getVertexShaderLevel() > 0) ? TRUE : FALSE;
+	BOOL hardware_skinning = (poolp && poolp->getShaderLevel() > 0) ? TRUE : FALSE;
 
 	if (!hardware_skinning && terse_update)
 	{ //no need to do terse updates if we're doing software vertex skinning
@@ -538,7 +524,7 @@ void LLViewerJointMesh::updateJointGeometry()
 		  && mFace
 		  && mMesh->hasWeights()
 		  && mFace->getVertexBuffer()
-		  && LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
+		  && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) == 0))
 	{
 		return;
 	}

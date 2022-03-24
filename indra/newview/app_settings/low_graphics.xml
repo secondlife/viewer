@@ -33,8 +33,6 @@
 	<!--Default for now-->
 	<RenderVolumeLODFactor value="1.125"/>
 	<!--NO SHADERS-->
-	<VertexShaderEnable value="FALSE"/>
-	<!--NO SHADERS-->
 	<WindLightUseAtmosShaders value="FALSE"/>
 	<!--No Deferred Shading-->
 	<RenderDeferred value="FALSE"/>

@@ -95,8 +95,7 @@ public:
 	//   Implemented here so that a minimal information set can be transmitted
 	//   between simulator and viewer.
 	//--------------------------------------------------------------------
-	// virtual BOOL importFile(LLFILE* fp);
-	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
+
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
@@ -197,8 +196,6 @@ public:
 	// File Support
 	//--------------------------------------------------------------------
 public:
-	virtual BOOL importFile(LLFILE* fp);
-	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
@@ -247,7 +244,7 @@ public:
 	LLInventoryCategory(const LLInventoryCategory* other);
 	void copyCategory(const LLInventoryCategory* other); // LLRefCount requires custom copy
 protected:
-	~LLInventoryCategory();
+	virtual ~LLInventoryCategory();
 
 	//--------------------------------------------------------------------
 	// Accessors And Mutators
@@ -269,11 +266,11 @@ public:
 	// File Support
 	//--------------------------------------------------------------------
 public:
-	virtual BOOL importFile(LLFILE* fp);
-	virtual BOOL exportFile(LLFILE* fp, BOOL include_asset_key = TRUE) const;
 	virtual BOOL importLegacyStream(std::istream& input_stream);
 	virtual BOOL exportLegacyStream(std::ostream& output_stream, BOOL include_asset_key = TRUE) const;
 
+	LLSD exportLLSD() const;
+	bool importLLSD(const LLSD& cat_data);
 	//--------------------------------------------------------------------
 	// Member Variables
 	//--------------------------------------------------------------------

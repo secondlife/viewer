@@ -220,6 +220,17 @@
         <key>Value</key>
             <integer>1</integer>
         </map>
+    <key>VoiceCallsFriendsOnly</key>
+    <map>
+        <key>Comment</key>
+        <string>Only accept voice calls and receive IMs from residents on your friends list</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>Boolean</string>
+        <key>Value</key>
+        <integer>0</integer>
+    </map>
     <key>VoiceEffectDefault</key>
     <map>
         <key>Comment</key>

@@ -31,8 +31,6 @@
 
 #include <iostream>
 
-#include "test_allocator.h"
-
 
 using namespace LLCoreInt;
 
@@ -60,7 +58,6 @@ namespace tut
 	{
 		// the test objects inherit from this so the member functions and variables
 		// can be referenced directly inside of the test functions.
-		size_t mMemTotal;
 	};
 
 	typedef test_group<HttpOperationTestData> HttpOperationTestGroupType;
@@ -72,28 +69,18 @@ namespace tut
 	{
 		set_test_name("HttpOpNull construction");
 
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
-
 		// create a new ref counted object with an implicit reference
 		HttpOperation::ptr_t op (new HttpOpNull());
 		ensure(op.use_count() == 1);
-		ensure(mMemTotal < GetMemTotal());
-		
-		// release the implicit reference, causing the object to be released
-        op.reset();
 
-		// make sure we didn't leak any memory
-		ensure(mMemTotal == GetMemTotal());
+		// release the implicit reference, causing the object to be released
+		op.reset();
 	}
 
 	template <> template <>
 	void HttpOperationTestObjectType::test<2>()
 	{
 		set_test_name("HttpOpNull construction with handlers");
-
-		// record the total amount of dynamically allocated memory
-		mMemTotal = GetMemTotal();
 
 		// Get some handlers
 		LLCore::HttpHandler::ptr_t h1 (new TestHandler());
@@ -109,13 +96,10 @@ namespace tut
 
 		// release the reference, releasing the operation but
 		// not the handlers.
-        op.reset();
-		ensure(mMemTotal != GetMemTotal());
-		
-		// release the handlers
-        h1.reset();
+		op.reset();
 
-		ensure(mMemTotal == GetMemTotal());
+		// release the handlers
+		h1.reset();
 	}
 
 }

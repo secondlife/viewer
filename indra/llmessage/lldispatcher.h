@@ -105,6 +105,12 @@ public:
 		LLUUID& invoice,
 		sparam_t& parameters);
 
+    static bool unpackLargeMessage(
+        LLMessageSystem* msg,
+        key_t& method,
+        LLUUID& invoice,
+        sparam_t& parameters);
+
 protected:
 	typedef std::map<key_t, LLDispatchHandler*> dispatch_map_t;
 	dispatch_map_t mHandlers;

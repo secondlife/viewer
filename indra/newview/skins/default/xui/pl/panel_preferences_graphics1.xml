@@ -28,7 +28,6 @@
 		<check_box label="Przezroczysta woda" name="TransparentWater" />
 		<check_box label="Mapping wypukłości i połysk" name="BumpShiny" />
 		<check_box label="Lokalne światła" name="LocalLights" />
-		<check_box label="Podstawowe shadery" name="BasicShaders" tool_tip="Wyłączenie tej opcji może naprawić błędy niektórych sterowników graficznych" />
 		<check_box label="Shadery atmosfery" name="WindLightUseAtmosShaders" />
 		<check_box label="Zaawansowane oświetlenie" name="UseLightShaders" />
 		<check_box label="Okluzja otoczenia" name="UseSSAO" />

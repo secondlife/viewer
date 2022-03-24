@@ -153,7 +153,7 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	}
 
 	mTEOffset		= -1;
-	mTextureIndex = 255;
+	mTextureIndex = FACE_DO_NOT_BATCH_TEXTURES;
 
 	setDrawable(drawablep);
 	mVObjp = objp;
@@ -168,7 +168,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 	mImportanceToCamera = 0.f ;
 	mBoundingSphereRadius = 0.0f ;
 
-	mHasMedia = FALSE ;
+	mHasMedia = false ;
+	mIsMediaAllowed = true;
 }
 
 void LLFace::destroy()
@@ -183,6 +184,7 @@ void LLFace::destroy()
 		if(mTexture[i].notNull())
 		{
 			mTexture[i]->removeFace(i, this) ;
+			mTexture[i] = NULL;
 		}
 	}
 	
@@ -194,7 +196,7 @@ void LLFace::destroy()
 
 	if (mDrawPoolp)
 	{
-		if (this->isState(LLFace::RIGGED) && mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR)
+		if (this->isState(LLFace::RIGGED) && (mDrawPoolp->getType() == LLDrawPool::POOL_CONTROL_AV || mDrawPoolp->getType() == LLDrawPool::POOL_AVATAR))
 		{
 			((LLDrawPoolAvatar*) mDrawPoolp)->removeRiggedFace(this);
 		}
@@ -202,7 +204,6 @@ void LLFace::destroy()
 		{
 			mDrawPoolp->removeFace(this);
 		}
-	
 		mDrawPoolp = NULL;
 	}
 
@@ -211,7 +212,7 @@ void LLFace::destroy()
 		delete mTextureMatrix;
 		mTextureMatrix = NULL;
 
-		if (mDrawablep.notNull())
+		if (mDrawablep)
 		{
 			LLSpatialGroup* group = mDrawablep->getSpatialGroup();
 			if (group)
@@ -223,7 +224,7 @@ void LLFace::destroy()
 	}
 	
 	setDrawInfo(NULL);
-		
+
 	mDrawablep = NULL;
 	mVObjp = NULL;
 }
@@ -300,6 +301,11 @@ void LLFace::setTexture(LLViewerTexture* tex)
 void LLFace::setDiffuseMap(LLViewerTexture* tex)
 {
 	setTexture(LLRender::DIFFUSE_MAP, tex);
+}
+
+void LLFace::setAlternateDiffuseMap(LLViewerTexture* tex)
+{
+    setTexture(LLRender::ALTERNATE_DIFFUSE_MAP, tex);
 }
 
 void LLFace::setNormalMap(LLViewerTexture* tex)
@@ -450,7 +456,7 @@ void LLFace::setTextureIndex(U8 index)
 	{
 		mTextureIndex = index;
 
-		if (mTextureIndex != 255)
+		if (mTextureIndex != FACE_DO_NOT_BATCH_TEXTURES)
 		{
 			mDrawablep->setState(LLDrawable::REBUILD_POSITION);
 		}
@@ -529,7 +535,7 @@ void LLFace::updateCenterAgent()
 
 void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 {
-	if (mDrawablep->getSpatialGroup() == NULL)
+	if (mDrawablep == NULL || mDrawablep->getSpatialGroup() == NULL)
 	{
 		return;
 	}
@@ -537,7 +543,7 @@ void LLFace::renderSelected(LLViewerTexture *imagep, const LLColor4& color)
 	mDrawablep->getSpatialGroup()->rebuildGeom();
 	mDrawablep->getSpatialGroup()->rebuildMesh();
 		
-	if(mDrawablep.isNull() || mVertexBuffer.isNull())
+	if(mVertexBuffer.isNull())
 	{
 		return;
 	}
@@ -1068,6 +1074,13 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
 
     F32 map_rot = 0.f, map_scaleS = 0.f, map_scaleT = 0.f, map_offsS = 0.f, map_offsT = 0.f;
 
+    LLMaterial* mat = orig_tep->getMaterialParams();
+    if (!mat && map != LLRender::DIFFUSE_MAP)
+    {
+        LL_WARNS_ONCE("llface") << "Face is set to use specular or normal map but has no material, defaulting to diffuse" << LL_ENDL;
+        map = LLRender::DIFFUSE_MAP;
+    }
+
     switch (map)
     {
     case LLRender::DIFFUSE_MAP:
@@ -1078,26 +1091,26 @@ bool LLFace::calcAlignedPlanarTE(const LLFace* align_to,  LLVector2* res_st_offs
         map_offsT = orig_tep->mOffsetT;
         break;
     case LLRender::NORMAL_MAP:
-        if (orig_tep->getMaterialParams()->getNormalID().isNull())
+        if (mat->getNormalID().isNull())
         {
             return false;
         }
-        map_rot = orig_tep->getMaterialParams()->getNormalRotation();
-        map_scaleS = orig_tep->getMaterialParams()->getNormalRepeatX();
-        map_scaleT = orig_tep->getMaterialParams()->getNormalRepeatY();
-        map_offsS = orig_tep->getMaterialParams()->getNormalOffsetX();
-        map_offsT = orig_tep->getMaterialParams()->getNormalOffsetY();
+        map_rot = mat->getNormalRotation();
+        map_scaleS = mat->getNormalRepeatX();
+        map_scaleT = mat->getNormalRepeatY();
+        map_offsS = mat->getNormalOffsetX();
+        map_offsT = mat->getNormalOffsetY();
         break;
     case LLRender::SPECULAR_MAP:
-        if (orig_tep->getMaterialParams()->getSpecularID().isNull())
+        if (mat->getSpecularID().isNull())
         {
             return false;
         }
-        map_rot = orig_tep->getMaterialParams()->getSpecularRotation();
-        map_scaleS = orig_tep->getMaterialParams()->getSpecularRepeatX();
-        map_scaleT = orig_tep->getMaterialParams()->getSpecularRepeatY();
-        map_offsS = orig_tep->getMaterialParams()->getSpecularOffsetX();
-        map_offsT = orig_tep->getMaterialParams()->getSpecularOffsetY();
+        map_rot = mat->getSpecularRotation();
+        map_scaleS = mat->getSpecularRepeatX();
+        map_scaleT = mat->getSpecularRepeatY();
+        map_offsS = mat->getSpecularOffsetX();
+        map_offsT = mat->getSpecularOffsetY();
         break;
     default: /*make compiler happy*/
         break;
@@ -1414,17 +1427,16 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			if (shiny_in_alpha)
 			{
-
-				static const GLfloat alpha[4] =
+				static const GLfloat SHININESS_TO_ALPHA[4] =
 				{
-					0.00f,
+					0.0000f,
 					0.25f,
 					0.5f,
 					0.75f
 				};
 			
 				llassert(tep->getShiny() <= 3);
-				color.mV[3] = U8 (alpha[tep->getShiny()] * 255);
+				color.mV[3] = U8 (SHININESS_TO_ALPHA[tep->getShiny()] * 255);
 			}
 		}
 	}
@@ -1534,7 +1546,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			mVertexBuffer->bindForFeedback(0, LLVertexBuffer::TYPE_VERTEX, mGeomIndex, mGeomCount);
 
-			U8 index = mTextureIndex < 255 ? mTextureIndex : 0;
+			U8 index = mTextureIndex < FACE_DO_NOT_BATCH_TEXTURES ? mTextureIndex : 0;
 
 			S32 val = 0;
 			U8* vp = (U8*) &val;
@@ -1710,7 +1722,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				// that emboss mapping always shows up on the upward faces of cubes when 
 				// it's noon (since a lot of builders build with the sun forced to noon).
 				LLVector3   sun_ray  = gSky.mVOSkyp->mBumpSunDir;
-				LLVector3   moon_ray = gSky.getMoonDirection();
+				LLVector3   moon_ray = gSky.mVOSkyp->getMoon().getDirection();
 				LLVector3& primary_light_ray = (sun_ray.mV[VZ] > 0) ? sun_ray : moon_ray;
 
 				bump_s_primary_light_ray.load3((offset_multiple * s_scale * primary_light_ray).mV);
@@ -2067,7 +2079,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 			LLVector4a texIdx;
 
-			S32 index = mTextureIndex < 255 ? mTextureIndex : 0;
+			S32 index = mTextureIndex < FACE_DO_NOT_BATCH_TEXTURES ? mTextureIndex : 0;
 
 			F32 val = 0.f;
 			S32* vp = (S32*) &val;
@@ -2668,7 +2680,7 @@ S32 LLFace::renderElements(const U16 *index_array) const
 
 S32 LLFace::renderIndexed()
 {
-	if(mDrawablep.isNull() || mDrawPoolp == NULL)
+	if(mDrawablep == NULL || mDrawPoolp == NULL)
 	{
 		return 0;
 	}

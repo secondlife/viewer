@@ -205,6 +205,7 @@ public:
 	void			setFlashing( bool b, bool force_flashing = false );
 	BOOL			getFlashing() const		{ return mFlashing; }
     LLFlashTimer*   getFlashTimer() {return mFlashingTimer;}
+	void			setFlashColor(const LLUIColor &color) { mFlashBgColor = color; };
 
 	void			setHAlign( LLFontGL::HAlign align )		{ mHAlign = align; }
 	LLFontGL::HAlign getHAlign() const						{ return mHAlign; }

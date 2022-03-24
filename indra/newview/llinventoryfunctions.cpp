@@ -47,6 +47,7 @@
 #include "llappviewer.h"
 #include "llavataractions.h"
 #include "llclipboard.h"
+#include "lldirpicker.h"
 #include "lldonotdisturbnotificationstorage.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfocusmgr.h"
@@ -78,6 +79,7 @@
 #include "lltooldraganddrop.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
+#include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerfoldertype.h"
 #include "llviewerobjectlist.h"
@@ -253,7 +255,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
     return;
 }
 
-void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement)
+void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistency_enforcement, bool skip_clear_listing)
 {
     // When changing the marketplace status of an item, we usually have to change the status of all
     // folders in the same listing. This is because the display of each folder is affected by the
@@ -325,7 +327,7 @@ void update_marketplace_category(const LLUUID& cur_uuid, bool perform_consistenc
     else
     {
         // If the folder is outside the marketplace listings root, clear its SLM data if needs be
-        if (perform_consistency_enforcement && LLMarketplaceData::instance().isListed(cur_uuid))
+        if (perform_consistency_enforcement && !skip_clear_listing && LLMarketplaceData::instance().isListed(cur_uuid))
         {
             LL_INFOS("SLM") << "Disassociate as the listing folder is not under the marketplace folder anymore!!" << LL_ENDL;
             LLMarketplaceData::instance().clearListing(cur_uuid);
@@ -655,6 +657,50 @@ BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id)
 	return TRUE;
 }
 
+bool get_is_item_editable(const LLUUID& inv_item_id)
+{
+	if (const LLInventoryItem* inv_item = gInventory.getLinkedItem(inv_item_id))
+	{
+		switch (inv_item->getType())
+		{
+			case LLAssetType::AT_BODYPART:
+			case LLAssetType::AT_CLOTHING:
+				return gAgentWearables.isWearableModifiable(inv_item_id);
+			case LLAssetType::AT_OBJECT:
+				return true;
+			default:
+                return false;;
+		}
+	}
+	return gAgentAvatarp->getWornAttachment(inv_item_id) != nullptr;
+}
+
+void handle_item_edit(const LLUUID& inv_item_id)
+{
+	if (get_is_item_editable(inv_item_id))
+	{
+		if (const LLInventoryItem* inv_item = gInventory.getLinkedItem(inv_item_id))
+		{
+			switch (inv_item->getType())
+			{
+				case LLAssetType::AT_BODYPART:
+				case LLAssetType::AT_CLOTHING:
+					LLAgentWearables::editWearable(inv_item_id);
+					break;
+				case LLAssetType::AT_OBJECT:
+					handle_attachment_edit(inv_item_id);
+					break;
+				default:
+					break;
+			}
+		}
+		else
+		{
+			handle_attachment_edit(inv_item_id);
+		}
+	}
+}
+
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id)
 {
 	// NOTE: This function doesn't check the folder's children.
@@ -729,40 +775,45 @@ void show_item_profile(const LLUUID& item_uuid)
 
 void show_item_original(const LLUUID& item_uuid)
 {
-	LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
-	if (!floater_inventory)
-	{
-		LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
-		return;
-	}
+    LLFloater* floater_inventory = LLFloaterReg::getInstance("inventory");
+    if (!floater_inventory)
+    {
+        LL_WARNS() << "Could not find My Inventory floater" << LL_ENDL;
+        return;
+    }
+    LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+    if (sidepanel_inventory)
+    {
+        LLPanelMainInventory* main_inventory = sidepanel_inventory->getMainInventoryPanel();
+        if (main_inventory)
+        {
+            main_inventory->resetFilters();
+        }
+        reset_inventory_filter();
 
-	//sidetray inventory panel
-	LLSidepanelInventory *sidepanel_inventory =	LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+        if (!LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("inventory")->isInVisibleChain())
+        {
+            LLFloaterReg::toggleInstanceOrBringToFront("inventory");
+        }
 
-	bool do_reset_inventory_filter = !floater_inventory->isInVisibleChain();
-
-	LLInventoryPanel* active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		//this may happen when there is no floatera and other panel is active in inventory tab
-
-		if	(sidepanel_inventory)
-		{
-			sidepanel_inventory->showInventoryPanel();
-		}
-	}
-	
-	active_panel = LLInventoryPanel::getActiveInventoryPanel();
-	if (!active_panel) 
-	{
-		return;
-	}
-	active_panel->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
-	
-	if(do_reset_inventory_filter)
-	{
-		reset_inventory_filter();
-	}
+        const LLUUID inbox_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_INBOX);
+        if (gInventory.isObjectDescendentOf(gInventory.getLinkedItemID(item_uuid), inbox_id))
+        {
+            if (sidepanel_inventory->getInboxPanel())
+            {
+                sidepanel_inventory->openInbox();
+                sidepanel_inventory->getInboxPanel()->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
+            }
+        }
+        else
+        {
+            sidepanel_inventory->selectAllItemsPanel();
+            if (sidepanel_inventory->getActivePanel())
+            {
+                sidepanel_inventory->getActivePanel()->setSelection(gInventory.getLinkedItemID(item_uuid), TAKE_FOCUS_YES);
+            }
+        }
+    }
 }
 
 
@@ -1792,9 +1843,29 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);
 	}
     
-    update_marketplace_category(cat->getUUID());
+    update_marketplace_category(cat->getUUID(), true, true);
     gInventory.notifyObservers();
     return result && !has_bad_items;
+}
+
+void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id)
+{
+	LLInventoryItem* inv_item = gInventory.getItem(item_id);
+	if (inv_item)
+	{
+		LLInventoryModel::update_list_t update;
+		LLInventoryModel::LLCategoryUpdate old_folder(inv_item->getParentUUID(), -1);
+		update.push_back(old_folder);
+		LLInventoryModel::LLCategoryUpdate new_folder(new_parent_id, 1);
+		update.push_back(new_folder);
+		gInventory.accountForUpdate(update);
+
+		LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(inv_item);
+		new_item->setParent(new_parent_id);
+		new_item->updateParentOnServer(FALSE);
+		gInventory.updateItem(new_item);
+		gInventory.notifyObservers();
+	}
 }
 
 ///----------------------------------------------------------------------------
@@ -2395,10 +2466,32 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 
 	if (("task_open" == action  || "open" == action) && selected_items.size() > 1)
 	{
-		multi_previewp = new LLMultiPreview();
-		gFloaterView->addChild(multi_previewp);
+		bool open_multi_preview = true;
 
-		LLFloater::setFloaterHost(multi_previewp);
+		if ("open" == action)
+		{
+			for (std::set<LLFolderViewItem*>::iterator set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+			{
+				LLFolderViewItem* folder_item = *set_iter;
+				if (folder_item)
+				{
+					LLInvFVBridge* bridge = dynamic_cast<LLInvFVBridge*>(folder_item->getViewModelItem());
+					if (!bridge || !bridge->isMultiPreviewAllowed())
+					{
+						open_multi_preview = false;
+						break;
+					}
+				}
+			}
+		}
+
+		if (open_multi_preview)
+		{
+			multi_previewp = new LLMultiPreview();
+			gFloaterView->addChild(multi_previewp);
+
+			LLFloater::setFloaterHost(multi_previewp);
+		}
 
 	}
 	else if (("task_properties" == action || "properties" == action) && selected_items.size() > 1)
@@ -2425,6 +2518,10 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
     {
         LLAppearanceMgr::instance().removeItemsFromAvatar(ids);
     }
+    else if ("save_selected_as" == action)
+    {
+        (new LLDirPickerThread(boost::bind(&LLInventoryAction::saveMultipleTextures, _1, selected_items, model), std::string()))->getFile();
+    }
     else
     {
         std::set<LLFolderViewItem*>::iterator set_iter;
@@ -2450,6 +2547,41 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	{
 		multi_propertiesp->openFloater(LLSD());
 	}
+}
+
+void LLInventoryAction::saveMultipleTextures(const std::vector<std::string>& filenames, std::set<LLFolderViewItem*> selected_items, LLInventoryModel* model)
+{
+    gSavedSettings.setString("TextureSaveLocation", filenames[0]);
+ 
+    LLMultiPreview* multi_previewp = new LLMultiPreview();
+    gFloaterView->addChild(multi_previewp);
+
+    LLFloater::setFloaterHost(multi_previewp);
+
+    std::map<std::string, S32> tex_names_map;
+    std::set<LLFolderViewItem*>::iterator set_iter;
+   
+    for (set_iter = selected_items.begin(); set_iter != selected_items.end(); ++set_iter)
+    {
+        LLFolderViewItem* folder_item = *set_iter;
+        if(!folder_item) continue;
+        LLTextureBridge* bridge = (LLTextureBridge*)folder_item->getViewModelItem();
+        if(!bridge) continue;
+
+        std::string tex_name = bridge->getName();
+        if(!tex_names_map.insert(std::pair<std::string, S32>(tex_name, 0)).second) 
+        { 
+            tex_names_map[tex_name]++;
+            bridge->setFileName(tex_name + llformat("_%.3d", tex_names_map[tex_name]));            
+        }
+        bridge->performAction(model, "save_selected_as");
+    }
+
+    LLFloater::setFloaterHost(NULL);
+    if (multi_previewp)
+    {
+        multi_previewp->openFloater(LLSD());
+    }
 }
 
 void LLInventoryAction::removeItemFromDND(LLFolderView* root)

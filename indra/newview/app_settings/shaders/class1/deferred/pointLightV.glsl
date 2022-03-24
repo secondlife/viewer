@@ -1,5 +1,5 @@
 /** 
- * @file pointLightF.glsl
+ * @file pointLightV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

@@ -39,6 +39,7 @@
 #include "llfloaterimcontainer.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
+#include "llstartup.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "groupchatlistener.h"
 
@@ -55,6 +56,11 @@ public:
 	bool handle(const LLSD& tokens, const LLSD& query_map,
 				LLMediaCtrl* web)
 	{
+		if (LLStartUp::getStartupState() < STATE_STARTED)
+		{
+			return true;
+		}
+
 		if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableGroupInfo"))
 		{
 			LLNotificationsUtil::add("NoGroupInfo", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
@@ -366,6 +372,11 @@ void LLGroupActions::show(const LLUUID& group_id)
 	params["open_tab_name"] = "panel_group_info_sidetray";
 
 	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+    LLFloater *floater = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");
+    if (!floater->isFrontmost())
+    {
+        floater->setVisibleAndFrontmost(TRUE, params);
+    }
 }
 
 void LLGroupActions::refresh_notices()
@@ -400,10 +411,10 @@ void LLGroupActions::createGroup()
 {
 	LLSD params;
 	params["group_id"] = LLUUID::null;
-	params["open_tab_name"] = "panel_group_info_sidetray";
+	params["open_tab_name"] = "panel_group_creation_sidetray";
 	params["action"] = "create";
 
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	LLFloaterSidePanelContainer::showPanel("people", "panel_group_creation_sidetray", params);
 
 }
 //static

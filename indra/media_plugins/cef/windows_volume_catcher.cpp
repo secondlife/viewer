@@ -27,8 +27,9 @@
  */
 
 #include "volume_catcher.h"
-#include <windows.h>
 #include "llsingleton.h"
+#include <windows.h>
+#include <mmeapi.h>
 class VolumeCatcherImpl : public LLSingleton<VolumeCatcherImpl>
 {
 	LLSINGLETON(VolumeCatcherImpl);

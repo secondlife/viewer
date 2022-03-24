@@ -359,10 +359,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
         callRightMouseDown(mMousePos, [theEvent modifierFlags]);
         mSimulatedRightClick = true;
     } else {
-        if ([theEvent clickCount] >= 2)
+        if ([theEvent clickCount] == 2)
         {
             callDoubleClick(mMousePos, [theEvent modifierFlags]);
-        } else if ([theEvent clickCount] == 1) {
+        } else if ([theEvent clickCount] >= 1) {
             callLeftMouseDown(mMousePos, [theEvent modifierFlags]);
         }
     }
@@ -444,7 +444,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseDown(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseDown(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) otherMouseUp:(NSEvent *)theEvent
@@ -452,7 +452,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     NSPoint mPoint = gHiDPISupport ? [self convertPointToBacking:[theEvent locationInWindow]] : [theEvent locationInWindow];
     mMousePos[0] = mPoint.x;
     mMousePos[1] = mPoint.y;
-	callMiddleMouseUp(mMousePos, [theEvent modifierFlags]);
+    callOtherMouseUp(mMousePos, [theEvent modifierFlags], [theEvent buttonNumber]);
 }
 
 - (void) rightMouseDragged:(NSEvent *)theEvent
@@ -467,7 +467,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (void) scrollWheel:(NSEvent *)theEvent
 {
-	callScrollMoved(-[theEvent deltaY]);
+	callScrollMoved(-[theEvent deltaX], -[theEvent deltaY]);
 }
 
 - (void) mouseExited:(NSEvent *)theEvent
@@ -494,7 +494,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // e.g. OS Window for upload something or Input Window...
     // mModifiers instance variable is for insertText: or insertText:replacementRange:  (by Pell Smit)
 	mModifiers = [theEvent modifierFlags];
-    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers);
+
+    bool acceptsText = mHasMarkedText ? false : callKeyDown(&eventData, keycode, mModifiers, [[theEvent characters] characterAtIndex:0]);
     unichar ch;
     if (acceptsText &&
         !mMarkedTextAllowed &&
@@ -537,7 +538,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (mModifiers & mask)
     {
         eventData.mKeyEvent = NativeKeyEventData::KEYDOWN;
-        callKeyDown(&eventData, [theEvent keyCode], 0);
+        callKeyDown(&eventData, [theEvent keyCode], 0, [[theEvent characters] characterAtIndex:0]);
     }
     else
     {
@@ -816,7 +817,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
     [super setMarkedText:aString selectedRange:selectedRange replacementRange:replacementRange];
     if ([aString length] == 0)      // this means Input Widow becomes empty
     {
-        [_window orderOut:_window];     // Close this to avoid empty Input Window
+        [self.window orderOut:self.window];     // Close this to avoid empty Input Window
     }
 }
 
@@ -840,7 +841,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
         (mKeyPressed >= 0xF700 && mKeyPressed <= 0xF8FF))
     {
         // this is case a) of above comment
-        [_window orderOut:_window];     // to avoid empty Input Window
+        [self.window orderOut:self.window];     // to avoid empty Input Window
     }
 }
 

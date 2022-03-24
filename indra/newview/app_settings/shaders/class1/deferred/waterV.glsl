@@ -31,8 +31,8 @@ ATTRIBUTE vec3 position;
 
 void calcAtmospherics(vec3 inPositionEye);
 
-uniform vec2 d1;
-uniform vec2 d2;
+uniform vec2 waveDir1;
+uniform vec2 waveDir2;
 uniform float time;
 uniform vec3 eyeVec;
 uniform float waterHeight;
@@ -88,10 +88,10 @@ void main()
 	calcAtmospherics(pos.xyz);
 		
 	//pass wave parameters to pixel shader
-	vec2 bigWave =  (v.xy) * vec2(0.04,0.04)  + d1 * time * 0.055;
+	vec2 bigWave =  (v.xy) * vec2(0.04,0.04)  + waveDir1 * time * 0.055;
 	//get two normal map (detail map) texture coordinates
-	littleWave.xy = (v.xy) * vec2(0.45, 0.9)   + d2 * time * 0.13;
-	littleWave.zw = (v.xy) * vec2(0.1, 0.2) + d1 * time * 0.1;
+	littleWave.xy = (v.xy) * vec2(0.45, 0.9)   + waveDir2 * time * 0.13;
+	littleWave.zw = (v.xy) * vec2(0.1, 0.2) + waveDir1 * time * 0.1;
 	view.w = bigWave.y;
 	refCoord.w = bigWave.x;
 	

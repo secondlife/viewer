@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ legacy_header_height="18"
+ can_resize="true"
+ height="200"
+ min_height="150"
+ title="MY CAMERA PRESETS"
+ layout="topleft"
+ name="floater_camera_presets"
+ single_instance="true"
+ min_width="185"
+ width="250">
+  <flat_list_view
+    allow_select="true"
+    follows="all"
+    height="165"
+    layout="topleft"
+    left="3"
+    multi_select="false"
+    name="preset_list"
+    top="20"
+    width="245" />
+  </floater>

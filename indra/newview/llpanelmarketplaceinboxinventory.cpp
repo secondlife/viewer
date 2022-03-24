@@ -36,11 +36,14 @@
 #include "llpanellandmarks.h"
 #include "llplacesinventorybridge.h"
 #include "llviewerfoldertype.h"
+#include "llsdserialize.h"
 
 
 #define DEBUGGING_FRESHNESS	0
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
+
+const std::string NEW_INBOX_FILENAME("inbox_new_items.xml");
 
 //
 // statics
@@ -57,7 +60,9 @@ static LLDefaultChildRegistry::Register<LLInboxFolderViewItem> r3("inbox_folder_
 
 LLInboxInventoryPanel::LLInboxInventoryPanel(const LLInboxInventoryPanel::Params& p)
 :	LLInventoryPanel(p)
-{}
+{
+	LLInboxNewItemsStorage::getInstance()->load();
+}
 
 LLInboxInventoryPanel::~LLInboxInventoryPanel()
 {}
@@ -127,7 +132,7 @@ void LLInboxFolderViewFolder::addItem(LLFolderViewItem* item)
     }
 
     // Compute freshness if our parent is the root folder for the inbox
-    if (mParentFolder == mRoot)
+    if ((mParentFolder == mRoot) && !mFresh)
     {
         computeFreshness();
     }
@@ -145,6 +150,12 @@ void LLInboxFolderViewFolder::draw()
 	setBadgeVisibility(mFresh);
 
 	LLFolderViewFolder::draw();
+
+	if (mFresh)
+	{
+		reshapeBadge(getRect());
+	}
+
 }
 
 BOOL LLInboxFolderViewFolder::handleMouseDown( S32 x, S32 y, MASK mask )
@@ -167,11 +178,12 @@ void LLInboxFolderViewFolder::selectItem()
 
 void LLInboxFolderViewFolder::computeFreshness()
 {
+	LLFolderViewModelItemInventory* view_model = static_cast<LLFolderViewModelItemInventory*>(getViewModelItem());
 	const U32 last_expansion_utc = gSavedPerAccountSettings.getU32("LastInventoryInboxActivity");
 
 	if (last_expansion_utc > 0)
 	{
-		mFresh = (static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getCreationDate() > last_expansion_utc);
+		mFresh = (view_model->getCreationDate() > last_expansion_utc) || LLInboxNewItemsStorage::getInstance()->isItemFresh(view_model->getUUID());
 
 #if DEBUGGING_FRESHNESS
 		if (mFresh)
@@ -184,6 +196,11 @@ void LLInboxFolderViewFolder::computeFreshness()
 	{
 		mFresh = true;
 	}
+
+	if (mFresh)
+	{
+		LLInboxNewItemsStorage::getInstance()->addFreshItem(view_model->getUUID());
+	}
 }
 
 void LLInboxFolderViewFolder::deFreshify()
@@ -191,6 +208,7 @@ void LLInboxFolderViewFolder::deFreshify()
 	mFresh = false;
 
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
+	LLInboxNewItemsStorage::getInstance()->removeItem(static_cast<LLFolderViewModelItemInventory*>(getViewModelItem())->getUUID());
 }
 
 //
@@ -271,5 +289,55 @@ void LLInboxFolderViewItem::deFreshify()
 	gSavedPerAccountSettings.setU32("LastInventoryInboxActivity", time_corrected());
 }
 
+LLInboxNewItemsStorage::LLInboxNewItemsStorage()
+{
+}
 
+// static
+void LLInboxNewItemsStorage::destroyClass()
+{
+	LLInboxNewItemsStorage::getInstance()->saveNewItemsIds();
+}
+
+void LLInboxNewItemsStorage::saveNewItemsIds()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, NEW_INBOX_FILENAME);
+	if (!filename.empty())
+	{
+		LLSD uuids_data;
+		for (std::set<LLUUID>::const_iterator it = mNewItemsIDs.begin(); it != mNewItemsIDs.end(); it++)
+		{
+			uuids_data.append((*it));
+		}
+
+		llofstream file;
+		file.open(filename.c_str());
+		if ( file.is_open() )
+		{
+			LLSDSerialize::toPrettyXML(uuids_data, file);
+			file.close();
+		}
+	}
+}
+
+void LLInboxNewItemsStorage::load()
+{
+	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, NEW_INBOX_FILENAME);
+	if (!filename.empty())
+	{
+		llifstream in_file;
+		in_file.open(filename.c_str());
+
+		LLSD uuids_data;
+		if (in_file.is_open())
+		{
+			LLSDSerialize::fromXML(uuids_data, in_file);
+			in_file.close();
+			for (LLSD::array_iterator i = uuids_data.beginArray(); i != uuids_data.endArray(); ++i)
+			{
+				mNewItemsIDs.insert((*i).asUUID());
+			}
+		}
+	}
+}
 // eof

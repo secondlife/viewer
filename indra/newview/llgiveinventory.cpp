@@ -129,23 +129,14 @@ bool LLGiveInventory::isInventoryGiveAcceptable(const LLInventoryItem* item)
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
-		if (get_is_item_worn(item->getUUID()))
-		{
-			acceptable = false;
-		}
-		break;
 	case LLAssetType::AT_BODYPART:
 	case LLAssetType::AT_CLOTHING:
 		{
-			BOOL copyable = false;
-			if (item->getPermissions().allowCopyBy(gAgentID)) copyable = true;
-
-			if (!copyable && get_is_item_worn(item->getUUID()))
+			if (get_is_item_worn(item->getUUID()))
 			{
-				// worn no-copy items can't be transfered,
-				// but it is valid to transfer a copy of a worn item
 				acceptable = false;
 			}
+			break;
 		}
 		break;
 	default:

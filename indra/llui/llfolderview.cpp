@@ -148,7 +148,9 @@ LLFolderView::Params::Params()
 :	title("title"),
 	use_label_suffix("use_label_suffix"),
 	allow_multiselect("allow_multiselect", true),
+	allow_drag("allow_drag", true),
 	show_empty_message("show_empty_message", true),
+	suppress_folder_menu("suppress_folder_menu", false),
 	use_ellipses("use_ellipses", false),
     options_menu("options_menu", "")
 {
@@ -162,11 +164,13 @@ LLFolderView::LLFolderView(const Params& p)
 	mScrollContainer( NULL ),
 	mPopupMenuHandle(),
 	mAllowMultiSelect(p.allow_multiselect),
+	mAllowDrag(p.allow_drag),
 	mShowEmptyMessage(p.show_empty_message),
 	mShowFolderHierarchy(FALSE),
 	mRenameItem( NULL ),
 	mNeedsScroll( FALSE ),
 	mUseLabelSuffix(p.use_label_suffix),
+	mSuppressFolderMenu(p.suppress_folder_menu),
 	mPinningSelectedItem(FALSE),
 	mNeedsAutoSelect( FALSE ),
 	mAutoSelectOverride(FALSE),
@@ -253,6 +257,8 @@ LLFolderView::LLFolderView(const Params& p)
 	mPopupMenuHandle = menu->getHandle();
 
 	mViewModelItem->openItem();
+
+	mAreChildrenInited = true; // root folder is a special case due to not being loaded normally, assume that it's inited.
 }
 
 // Destroys the object
@@ -338,7 +344,9 @@ static LLTrace::BlockTimerStatHandle FTM_FILTER("Filter Folder View");
 void LLFolderView::filter( LLFolderViewFilter& filter )
 {
 	LL_RECORD_BLOCK_TIME(FTM_FILTER);
-    filter.resetTime(llclamp(LLUI::getInstance()->mSettingGroups["config"]->getS32(mParentPanel.get()->getVisible() ? "FilterItemsMaxTimePerFrameVisible" : "FilterItemsMaxTimePerFrameUnvisible"), 1, 100));
+    static LLCachedControl<S32> time_visible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameVisible", 10);
+    static LLCachedControl<S32> time_invisible(*LLUI::getInstance()->mSettingGroups["config"], "FilterItemsMaxTimePerFrameUnvisible", 1);
+    filter.resetTime(llclamp((mParentPanel.get()->getVisible() ? time_visible() : time_invisible()), 1, 100));
 
     // Note: we filter the model, not the view
 	getViewModelItem()->filter(filter);
@@ -657,7 +665,8 @@ void LLFolderView::draw()
 		closeAutoOpenedFolders();
 	}
 
-	if (mSearchTimer.getElapsedTimeF32() > LLUI::getInstance()->mSettingGroups["config"]->getF32("TypeAheadTimeout") || !mSearchString.size())
+	static LLCachedControl<F32> type_ahead_timeout(*LLUI::getInstance()->mSettingGroups["config"], "TypeAheadTimeout", 1.5f);
+	if (mSearchTimer.getElapsedTimeF32() > type_ahead_timeout || !mSearchString.size())
 	{
 		mSearchString.clear();
 	}
@@ -1432,10 +1441,13 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 
 	BOOL handled = childrenHandleRightMouseDown(x, y, mask) != NULL;
 	S32 count = mSelectedItems.size();
+
 	LLMenuGL* menu = (LLMenuGL*)mPopupMenuHandle.get();
-	if (   handled
+	bool hide_folder_menu = mSuppressFolderMenu && isFolderSelected();
+	if ((handled
 		&& ( count > 0 && (hasVisibleChildren()) ) // show menu only if selected items are visible
-		&& menu )
+		&& menu ) &&
+		!hide_folder_menu)
 	{
 		if (mCallbackRegistrar)
         {
@@ -1449,7 +1461,7 @@ BOOL LLFolderView::handleRightMouseDown( S32 x, S32 y, MASK mask )
 		if (mCallbackRegistrar)
         {
 			mCallbackRegistrar->popScope();
-	}
+	    }
 	}
 	else
 	{
@@ -1860,6 +1872,20 @@ void LLFolderView::updateMenu()
 		updateMenuOptions(menu);
 		menu->needsArrange(); // update menu height if needed
 	}
+}
+
+bool LLFolderView::isFolderSelected()
+{
+	selected_items_t::iterator item_iter;
+	for (item_iter = mSelectedItems.begin(); item_iter != mSelectedItems.end(); ++item_iter)
+	{
+		LLFolderViewFolder* folder = dynamic_cast<LLFolderViewFolder*>(*item_iter);
+		if (folder != NULL)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool LLFolderView::selectFirstItem()

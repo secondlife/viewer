@@ -1,5 +1,4 @@
 /** 
-
  * @file llfloater.cpp
  * @brief LLFloater base class
  *
@@ -37,6 +36,7 @@
 #include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llcheckboxctrl.h"
+#include "llcriticaldamp.h" // LLSmoothInterpolation
 #include "lldir.h"
 #include "lldraghandle.h"
 #include "llfloaterreg.h"
@@ -58,11 +58,16 @@
 #include "llhelp.h"
 #include "llmultifloater.h"
 #include "llsdutil.h"
+#include "lluiusage.h"
 #include <boost/foreach.hpp>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
 const S32 TABBED_FLOATER_OFFSET = 0;
+
+const F32 LLFloater::CONTEXT_CONE_IN_ALPHA = 0.0f;
+const F32 LLFloater::CONTEXT_CONE_OUT_ALPHA = 1.f;
+const F32 LLFloater::CONTEXT_CONE_FADE_TIME = 0.08f;
 
 namespace LLInitParam
 {
@@ -194,7 +199,9 @@ LLFloater::Params::Params()
 	help_pressed_image("help_pressed_image"),
 	open_callback("open_callback"),
 	close_callback("close_callback"),
-	follows("follows")
+	follows("follows"),
+	rel_x("rel_x", 0),
+	rel_y("rel_y", 0)
 {
 	changeDefault(visible, false);
 }
@@ -263,6 +270,8 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
 	mPreviousMinimizedLeft(0),
+	mDefaultRelativeX(p.rel_x),
+	mDefaultRelativeY(p.rel_y),
 	mMinimizeSignal(NULL)
 //	mNotificationContext(NULL)
 {
@@ -299,12 +308,10 @@ void LLFloater::initFloater(const Params& p)
 		mButtonsEnabled[BUTTON_CLOSE] = TRUE;
 	}
 
-	// Help button: '?'
-	if ( !mHelpTopic.empty() )
-	{
-		mButtonsEnabled[BUTTON_HELP] = TRUE;
-	}
-
+	// Help button: '?' 
+	//SL-14050 Disable all Help question marks
+	mButtonsEnabled[BUTTON_HELP] = FALSE;
+	
 	// Minimize button only for top draggers
 	if ( !mDragOnLeft && mCanMinimize )
 	{
@@ -374,13 +381,15 @@ void LLFloater::layoutDragHandle()
 // static
 void LLFloater::updateActiveFloaterTransparency()
 {
-    sActiveControlTransparency = LLUI::getInstance()->mSettingGroups["config"]->getF32("ActiveFloaterTransparency");
+    static LLCachedControl<F32> active_transparency(*LLUI::getInstance()->mSettingGroups["config"], "ActiveFloaterTransparency", 1.f);
+    sActiveControlTransparency = active_transparency;
 }
 
 // static
 void LLFloater::updateInactiveFloaterTransparency()
 {
-    sInactiveControlTransparency = LLUI::getInstance()->mSettingGroups["config"]->getF32("InactiveFloaterTransparency");
+    static LLCachedControl<F32> inactive_transparency(*LLUI::getInstance()->mSettingGroups["config"], "InactiveFloaterTransparency", 0.95f);
+    sInactiveControlTransparency = inactive_transparency;
 }
 
 void LLFloater::addResizeCtrls()
@@ -503,7 +512,12 @@ void LLFloater::destroy()
 // virtual
 LLFloater::~LLFloater()
 {
-	LLFloaterReg::removeInstance(mInstanceName, mKey);
+    if (!isDead())
+    {
+        // If it's dead, instance is supposed to be already removed, and
+        // in case of single instance we can remove new one by accident
+        LLFloaterReg::removeInstance(mInstanceName, mKey);
+    }
 	
 	if( gFocusMgr.childHasKeyboardFocus(this))
 	{
@@ -927,6 +941,15 @@ bool LLFloater::applyRectControl()
 		{
 			mPosition.mX = x_control->getValue().asReal();
 			mPosition.mY = y_control->getValue().asReal();
+			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
+			applyRelativePosition();
+
+			saved_rect = true;
+		}
+		else if ((mDefaultRelativeX != 0) && (mDefaultRelativeY != 0))
+		{
+			mPosition.mX = mDefaultRelativeX;
+			mPosition.mY = mDefaultRelativeY;
 			mPositioning = LLFloaterEnums::POSITIONING_RELATIVE;
 			applyRelativePosition();
 
@@ -1629,6 +1652,7 @@ void LLFloater::bringToFront( S32 x, S32 y )
 // virtual
 void LLFloater::setVisibleAndFrontmost(BOOL take_focus,const LLSD& key)
 {
+	LLUIUsage::instance().logFloater(getInstanceName());
 	LLMultiFloater* hostp = getHost();
 	if (hostp)
 	{
@@ -2114,6 +2138,70 @@ void LLFloater::updateTitleButtons()
 		localRectToOtherView(buttons_rect, &buttons_rect, mDragHandle);
 		mDragHandle->setButtonsRect(buttons_rect);
 	}
+}
+
+void LLFloater::drawConeToOwner(F32 &context_cone_opacity,
+                                F32 max_cone_opacity,
+                                LLView *owner_view,
+                                F32 fade_time,
+                                F32 contex_cone_in_alpha,
+                                F32 contex_cone_out_alpha)
+{
+    if (owner_view
+        && owner_view->isInVisibleChain()
+        && hasFocus()
+        && context_cone_opacity > 0.001f
+        && gFocusMgr.childHasKeyboardFocus(this))
+    {
+        // draw cone of context pointing back to owner (e.x. texture swatch)
+        LLRect owner_rect;
+        owner_view->localRectToOtherView(owner_view->getLocalRect(), &owner_rect, this);
+        LLRect local_rect = getLocalRect();
+
+        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+        LLGLEnable(GL_CULL_FACE);
+        gGL.begin(LLRender::QUADS);
+        {
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mTop);
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+            gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mTop);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+
+
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_out_alpha * context_cone_opacity);
+            gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+            gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+            gGL.color4f(0.f, 0.f, 0.f, contex_cone_in_alpha * context_cone_opacity);
+            gGL.vertex2i(owner_rect.mRight, owner_rect.mBottom);
+            gGL.vertex2i(owner_rect.mLeft, owner_rect.mBottom);
+        }
+        gGL.end();
+    }
+
+    if (gFocusMgr.childHasMouseCapture(getDragHandle()))
+    {
+        context_cone_opacity = lerp(context_cone_opacity, max_cone_opacity, LLSmoothInterpolation::getInterpolant(fade_time));
+    }
+    else
+    {
+        context_cone_opacity = lerp(context_cone_opacity, 0.f, LLSmoothInterpolation::getInterpolant(fade_time));
+    }
 }
 
 void LLFloater::buildButtons(const Params& floater_params)
@@ -3131,6 +3219,9 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	mLegacyHeaderHeight = p.legacy_header_height;
 	mSingleInstance = p.single_instance;
 	mReuseInstance = p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance;
+
+	mDefaultRelativeX = p.rel_x;
+	mDefaultRelativeY = p.rel_y;
 
 	mPositioning = p.positioning;
 

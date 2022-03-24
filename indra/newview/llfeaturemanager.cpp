@@ -379,22 +379,6 @@ F32 gpu_benchmark();
 
 #if LL_WINDOWS
 
-static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
-
-U32 exception_benchmark_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
-{
-    if (code == STATUS_MSC_EXCEPTION)
-    {
-        // C++ exception, go on
-        return EXCEPTION_CONTINUE_SEARCH;
-    }
-    else
-    {
-        // handle it
-        return EXCEPTION_EXECUTE_HANDLER;
-    }
-}
-
 F32 logExceptionBenchmark()
 {
     // Todo: make a wrapper/class for SEH exceptions
@@ -403,7 +387,7 @@ F32 logExceptionBenchmark()
     {
         gbps = gpu_benchmark();
     }
-    __except (exception_benchmark_filter(GetExceptionCode(), GetExceptionInformation()))
+    __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
         // convert to C++ styled exception
         char integer_string[32];
@@ -617,36 +601,36 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 
 void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 {
-	LLViewerShaderMgr::sSkipReload = true;
+    LLViewerShaderMgr::sSkipReload = true;
 
-	applyBaseMasks();
+    applyBaseMasks();
 
-	// if we're passed an invalid level, default to "Low"
-	std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
-	if (features == "Low")
-	{
+    // if we're passed an invalid level, default to "Low"
+    std::string features(isValidGraphicsLevel(level)? getNameForGraphicsLevel(level) : "Low");
+    if (features == "Low")
+    {
 #if LL_DARWIN
-		// This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
-		// systems which support them instead of falling back to fixed-function unnecessarily
-		// MAINT-2157
-		if (gGLManager.mGLVersion < 2.1f)
+        // This Mac-specific change is to insure that we force 'Basic Shaders' for all Mac
+        // systems which support them instead of falling back to fixed-function unnecessarily
+        // MAINT-2157
+        if (gGLManager.mGLVersion < 2.1f)
 #else
-		// only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
-		if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
+        // only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
+        if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
 #endif
-		{
+        {
             // same as Low, but with "Basic Shaders" disabled
-			features = "LowFixedFunction";
-		}
-	}
+            features = "LowFixedFunction";
+        }
+    }
 
-	maskFeatures(features);
+    maskFeatures(features);
 
-	applyFeatures(skipFeatures);
+    applyFeatures(skipFeatures);
 
-	LLViewerShaderMgr::sSkipReload = false;
-	LLViewerShaderMgr::instance()->setShaders();
-	gPipeline.refreshCachedSettings();
+    LLViewerShaderMgr::sSkipReload = false;
+    LLViewerShaderMgr::instance()->setShaders();
+    gPipeline.refreshCachedSettings();
 }
 
 void LLFeatureManager::applyBaseMasks()
@@ -771,12 +755,7 @@ void LLFeatureManager::applyBaseMasks()
 		maskFeatures("RAM256MB");
 	}
 	
-#if LL_SOLARIS && defined(__sparc) 	//  even low MHz SPARCs are fast
-#error The 800 is hinky. Would something like a LL_MIN_MHZ make more sense here?
-	if (gSysCPU.getMHz() < 800)
-#else
 	if (gSysCPU.getMHz() < 1100)
-#endif
 	{
 		maskFeatures("CPUSlow");
 	}

@@ -52,6 +52,7 @@ class LLDrawInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
+const U8 FACE_DO_NOT_BATCH_TEXTURES = 255;
 
 class LLFace : public LLTrace::MemTrackableNonVirtual<LLFace, 16>
 {
@@ -104,6 +105,7 @@ public:
 	void			setDiffuseMap(LLViewerTexture* tex);
 	void			setNormalMap(LLViewerTexture* tex);
 	void			setSpecularMap(LLViewerTexture* tex);
+    void			setAlternateDiffuseMap(LLViewerTexture* tex);
 	void            switchTexture(U32 ch, LLViewerTexture* new_texture);
 	void            dirtyTexture();
 	LLXformMatrix*	getXform()			const	{ return mXform; }
@@ -217,6 +219,9 @@ public:
 	void        setHasMedia(bool has_media)  { mHasMedia = has_media ;}
 	BOOL        hasMedia() const ;
 
+    void        setMediaAllowed(bool is_media_allowed)  { mIsMediaAllowed = is_media_allowed; }
+    BOOL        isMediaAllowed() const { return mIsMediaAllowed; }
+
 	BOOL		switchTexture() ;
 
 	//vertex buffer tracking
@@ -275,8 +280,13 @@ private:
 	LLXformMatrix* mXform;
 
 	LLPointer<LLViewerTexture> mTexture[LLRender::NUM_TEXTURE_CHANNELS];
-	
-	LLPointer<LLDrawable> mDrawablep;
+
+	// mDrawablep is not supposed to be null, don't use LLPointer because
+	// mDrawablep owns LLFace and LLPointer is a good way to either cause a
+	// memory leak or a 'delete each other' situation if something deletes
+	// drawable wrongly.
+	LLDrawable* mDrawablep;
+	// LLViewerObject technically owns drawable, but also it should be strictly managed
 	LLPointer<LLViewerObject> mVObjp;
 	S32			mTEOffset;
 
@@ -292,6 +302,7 @@ private:
 	F32         mImportanceToCamera ; 
 	F32         mBoundingSphereRadius ;
 	bool        mHasMedia ;
+	bool        mIsMediaAllowed;
 
 	
 protected:

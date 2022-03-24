@@ -76,7 +76,6 @@ private:
 	std::string mFragment;
 	std::string mNormalizedUri;
 
-	UriParserStateA mState;
 	UriUriA mUri;
 
 	S32 mRes;

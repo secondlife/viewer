@@ -52,7 +52,7 @@
 
 void init_curl();
 void term_curl();
-unsigned long ssl_thread_id_callback(void);
+void ssl_thread_id_callback(CRYPTO_THREADID*);
 void ssl_locking_callback(int mode, int type, const char * file, int line);
 void usage(std::ostream & out);
 
@@ -624,7 +624,7 @@ void init_curl()
 		}
 
 		CRYPTO_set_locking_callback(ssl_locking_callback);
-		CRYPTO_set_id_callback(ssl_thread_id_callback);
+		CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
 	}
 }
 
@@ -640,12 +640,12 @@ void term_curl()
 }
 
 
-unsigned long ssl_thread_id_callback(void)
+void ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
 {
 #if defined(WIN32)
-	return (unsigned long) GetCurrentThread();
+	CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
 #else
-	return (unsigned long) pthread_self();
+	CRYPTO_THREADID_set_pointer(pthreadid, pthread_self());
 #endif
 }
 

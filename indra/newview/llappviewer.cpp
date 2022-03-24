@@ -33,6 +33,7 @@
 #include "llfeaturemanager.h"
 #include "lluictrlfactory.h"
 #include "lltexteditor.h"
+#include "llenvironment.h"
 #include "llerrorcontrol.h"
 #include "lleventtimer.h"
 #include "llviewertexturelist.h"
@@ -48,6 +49,7 @@
 #include "llwindow.h"
 #include "llviewerstats.h"
 #include "llviewerstatsrecorder.h"
+#include "llkeyconflict.h" // for legacy keybinding support, remove later
 #include "llmarketplacefunctions.h"
 #include "llmarketplacenotifications.h"
 #include "llmd5.h"
@@ -57,18 +59,23 @@
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llfocusmgr.h"
+#include "llurlfloaterdispatchhandler.h"
 #include "llviewerjoystick.h"
 #include "llallocator.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
+#if LL_WINDOWS
 #include "lldxhardware.h"
+#endif
 #include "lltexturestats.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
 #include "llviewerwindow.h"
 #include "llviewerdisplay.h"
 #include "llviewermedia.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
+#include "llviewershadermgr.h"
 #include "llviewermediafocus.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
@@ -84,6 +91,7 @@
 #include "llsdutil_math.h"
 #include "lllocationhistory.h"
 #include "llfasttimerview.h"
+#include "lltelemetry.h"
 #include "llvector4a.h"
 #include "llviewermenufile.h"
 #include "llvoicechannel.h"
@@ -93,6 +101,7 @@
 #include "lllogininstance.h"
 #include "llprogressview.h"
 #include "llvocache.h"
+#include "lldiskcache.h"
 #include "llvopartgroup.h"
 #include "llweb.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -110,8 +119,6 @@
 #include "llprimitive.h"
 #include "llurlaction.h"
 #include "llurlentry.h"
-#include "llvfile.h"
-#include "llvfsthread.h"
 #include "llvolumemgr.h"
 #include "llxfermanager.h"
 #include "llphysicsextensions.h"
@@ -125,7 +132,7 @@
 #include "llcoros.h"
 #include "llexception.h"
 #if !LL_LINUX
-#include "cef/dullahan.h"
+#include "cef/dullahan_version.h"
 #include "vlc/libvlc_version.h"
 #endif // LL_LINUX
 
@@ -145,7 +152,7 @@
 #include "llapr.h"
 #include <boost/lexical_cast.hpp>
 
-#include "llviewerkeyboard.h"
+#include "llviewerinput.h"
 #include "lllfsthread.h"
 #include "llworkerthread.h"
 #include "lltexturecache.h"
@@ -171,8 +178,6 @@
 #include "llviewerparcelmgr.h"
 #include "llworldmapview.h"
 #include "llpostprocess.h"
-#include "llwlparammanager.h"
-#include "llwaterparammanager.h"
 
 #include "lldebugview.h"
 #include "llconsole.h"
@@ -208,6 +213,7 @@
 #include "llfloateroutfitsnapshot.h"
 #include "llfloatersnapshot.h"
 #include "llsidepanelinventory.h"
+#include "llatmosphere.h"
 
 // includes for idle() idleShutdown()
 #include "llviewercontrol.h"
@@ -251,9 +257,9 @@
 // define a self-registering event API object
 #include "llappviewerlistener.h"
 
-#if (LL_LINUX || LL_SOLARIS) && LL_GTK
+#if LL_LINUX && LL_GTK
 #include "glib.h"
-#endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
+#endif // (LL_LINUX) && LL_GTK
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -282,7 +288,7 @@ extern BOOL gHiDPISupport;
 ////////////////////////////////////////////////////////////
 // All from the last globals push...
 
-F32 gSimLastTime; // Used in LLAppViewer::init and send_stats()
+F32 gSimLastTime; // Used in LLAppViewer::init and send_viewer_stats()
 F32 gSimFrames;
 
 BOOL gShowObjectUpdates = FALSE;
@@ -335,9 +341,6 @@ bool			gUseWireframe = FALSE;
 
 //use for remember deferred mode in wireframe switch
 bool			gInitialDeferredModeForWireframe = FALSE;
-
-// VFS globals - see llappviewer.h
-LLVFS* gStaticVFS = NULL;
 
 LLMemoryInfo gSysMemory;
 U64Bytes gMemoryAllocated(0); // updated in display_stats() in llviewerdisplay.cpp
@@ -426,12 +429,6 @@ void init_default_trans_args()
 	// files. We really only want to have to maintain a single copy of it.
 	default_trans_args.insert("create_account_url");
 }
-
-//----------------------------------------------------------------------------
-// File scope definitons
-const char *VFS_DATA_FILE_BASE = "data.db2.x.";
-const char *VFS_INDEX_FILE_BASE = "index.db2.x.";
-
 
 struct SettingsFile : public LLInitParam::Block<SettingsFile>
 {
@@ -523,7 +520,8 @@ bool	create_text_segment_icon_from_url_match(LLUrlMatch* match,LLTextBase* base)
 
 	LLIconCtrl* icon;
 
-	if(gAgent.isInGroup(match_id, TRUE))
+	if( match->getMenuName() == "menu_url_group.xml" // See LLUrlEntryGroup constructor
+		|| gAgent.isInGroup(match_id, TRUE)) //This check seems unfiting, urls are either /agent or /group
 	{
 		LLGroupIconCtrl::Params icon_params;
 		icon_params.group_id = match_id;
@@ -600,9 +598,10 @@ static void settings_to_globals()
 
 static void settings_modify()
 {
-	LLRenderTarget::sUseFBO				= gSavedSettings.getBOOL("RenderDeferred");
+	LLPipeline::sRenderTransparentWater	= gSavedSettings.getBOOL("RenderTransparentWater");
 	LLPipeline::sRenderBump				= gSavedSettings.getBOOL("RenderObjectBump");
-	LLPipeline::sRenderDeferred		= LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
+	LLPipeline::sRenderDeferred = LLPipeline::sRenderTransparentWater && LLPipeline::sRenderBump && gSavedSettings.getBOOL("RenderDeferred");
+    LLRenderTarget::sUseFBO = LLPipeline::sRenderDeferred && gSavedSettings.getBOOL("RenderAvatarVP");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
 	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
@@ -658,6 +657,7 @@ LLAppViewer* LLAppViewer::sInstance = NULL;
 LLTextureCache* LLAppViewer::sTextureCache = NULL;
 LLImageDecodeThread* LLAppViewer::sImageDecodeThread = NULL;
 LLTextureFetch* LLAppViewer::sTextureFetch = NULL;
+LLPurgeDiskCacheThread* LLAppViewer::sPurgeDiskCacheThread = NULL;
 
 std::string getRuntime()
 {
@@ -670,8 +670,10 @@ LLAppViewer::LLAppViewer()
 	mReportedCrash(false),
 	mNumSessions(0),
 	mPurgeCache(false),
-	mPurgeOnExit(false),
+	mPurgeCacheOnExit(false),
+	mPurgeUserDataOnExit(false),
 	mSecondInstance(false),
+	mUpdaterNotFound(false),
 	mSavedFinalSnapshot(false),
 	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
 	mQuitRequested(false),
@@ -706,8 +708,6 @@ LLAppViewer::LLAppViewer()
 
 	gLoggedInTime.stop();
 
-	initLoggingAndGetLastDuration();
-
 	processMarkerFiles();
 	//
 	// OK to write stuff to logs now, we've now crash reported if necessary
@@ -719,16 +719,16 @@ LLAppViewer::LLAppViewer()
 	// from the previous viewer run between this constructor call and the
 	// init() call, which will overwrite the static_debug_info.log file for
 	// THIS run. So setDebugFileNames() early.
-#if LL_BUGSPLAT
+#   ifdef LL_BUGSPLAT
 	// MAINT-8917: don't create a dump directory just for the
 	// static_debug_info.log file
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
-#else // ! LL_BUGSPLAT
+#   else // ! LL_BUGSPLAT
 	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-#endif // ! LL_BUGSPLAT
+#   endif // ! LL_BUGSPLAT
 	mDumpPath = logdir;
-	setMiniDumpDir(logdir);
+
 	setDebugFileNames(logdir);
 }
 
@@ -751,17 +751,6 @@ public:
 	}
 };
 
-namespace {
-// With Xcode 6, _exit() is too magical to use with boost::bind(), so provide
-// this little helper function.
-void fast_exit(int rc)
-{
-	_exit(rc);
-}
-
-
-}
-
 
 bool LLAppViewer::init()
 {
@@ -771,9 +760,9 @@ bool LLAppViewer::init()
 	// Start of the application
 	//
 
-	// initialize LLWearableType translation bridge.
-	// Memory will be cleaned up in ::cleanupClass()
-	LLWearableType::initParamSingleton(new LLUITranslationBridge());
+    // initialize the LLSettingsType translation bridge.
+    LLTranslationBridge::ptr_t trans = std::make_shared<LLUITranslationBridge>();
+    LLSettingsType::initParamSingleton(trans);
 
 	// initialize SSE options
 	LLVector4a::initClass();
@@ -792,6 +781,7 @@ bool LLAppViewer::init()
 	//
 	init_default_trans_args();
 
+    // inits from settings.xml and from strings.xml
 	if (!initConfiguration())
 		return false;
 
@@ -809,9 +799,9 @@ bool LLAppViewer::init()
 	if (rc >= 0)
 	{
 		// QAModeTermCode set, terminate with that rc on LL_ERRS. Use
-		// fast_exit() rather than exit() because normal cleanup depends too
+		// _exit() rather than exit() because normal cleanup depends too
 		// much on successful startup!
-		LLError::setFatalFunction(boost::bind(fast_exit, rc));
+		LLError::setFatalFunction([rc](const std::string&){ _exit(rc); });
 	}
 
     mAlloc.setProfilingEnabled(gSavedSettings.getBOOL("MemProfiling"));
@@ -857,6 +847,10 @@ bool LLAppViewer::init()
 
 	// Setup LLTrans after LLUI::initClass has been called.
 	initStrings();
+
+    // initialize LLWearableType translation bridge.
+    // Will immediately use LLTranslationBridge to init LLWearableDictionary
+    LLWearableType::initParamSingleton(trans);
 
 	// Setup notifications after LLUI::initClass() has been called.
 	LLNotifications::instance();
@@ -904,6 +898,7 @@ bool LLAppViewer::init()
 
 	// Load translations for tooltips
 	LLFloater::initClass();
+	LLUrlFloaterDispatchHandler::registerInDispatcher();
 
 	/////////////////////////////////////////////////
 
@@ -959,10 +954,6 @@ bool LLAppViewer::init()
 
 	// *Note: this is where gViewerStats used to be created.
 
-	//
-	// Initialize the VFS, and gracefully handle initialization errors
-	//
-
 	if (!initCache())
 	{
 		LL_WARNS("InitInfo") << "Failed to init cache" << LL_ENDL;
@@ -994,34 +985,31 @@ bool LLAppViewer::init()
 	gGLManager.getGLInfo(gDebugInfo);
 	gGLManager.printGLInfoString();
 
-	// Load Default bindings
-	std::string key_bindings_file = gDirUtilp->findFile("keys.xml",
-														gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-														gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-
-
-	if (!gViewerKeyboard.loadBindingsXML(key_bindings_file))
-	{
-		std::string key_bindings_file = gDirUtilp->findFile("keys.ini",
-															gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, ""),
-															gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-		if (!gViewerKeyboard.loadBindings(key_bindings_file))
-		{
-			LL_ERRS("InitInfo") << "Unable to open keys.ini" << LL_ENDL;
-		}
-	}
-
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements)
 	{
 		// can't use an alert here since we're exiting and
 		// all hell breaks lose.
+		LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedGLRequirements");
 		OSMessageBox(
-			LLNotifications::instance().getGlobalString("UnsupportedGLRequirements"),
+			details.getString(),
 			LLStringUtil::null,
 			OSMB_OK);
 		return 0;
 	}
+
+    // If we don't have the right shader requirements.
+    if (!gGLManager.mHasShaderObjects
+        || !gGLManager.mHasVertexShader
+        || !gGLManager.mHasFragmentShader)
+    {
+        LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedShaderRequirements");
+        OSMessageBox(
+            details.getString(),
+            LLStringUtil::null,
+            OSMB_OK);
+        return 0;
+    }
 
 	// Without SSE2 support we will crash almost immediately, warn here.
 	if (!gSysCPU.hasSSE2())
@@ -1088,6 +1076,54 @@ bool LLAppViewer::init()
 		}
 	}
 
+#if LL_WINDOWS && ADDRESS_SIZE == 64
+    if (gGLManager.mIsIntel)
+    {
+        // Check intel driver's version
+        // Ex: "3.1.0 - Build 8.15.10.2559";
+        std::string version = ll_safe_string((const char *)glGetString(GL_VERSION));
+
+        const boost::regex is_intel_string("[0-9].[0-9].[0-9] - Build [0-9]{1,2}.[0-9]{2}.[0-9]{2}.[0-9]{4}");
+
+        if (boost::regex_search(version, is_intel_string))
+        {
+            // Valid string, extract driver version
+            std::size_t found = version.find("Build ");
+            std::string driver = version.substr(found + 6);
+            S32 v1, v2, v3, v4;
+            S32 count = sscanf(driver.c_str(), "%d.%d.%d.%d", &v1, &v2, &v3, &v4);
+            if (count > 0 && v1 <= 10)
+            {
+                LL_INFOS("AppInit") << "Detected obsolete intel driver: " << driver << LL_ENDL;
+
+                if (!gViewerWindow->getInitAlert().empty() // graphic initialization crashed on last run
+                    || LLVersionInfo::getInstance()->getChannelAndVersion() != gLastRunVersion // viewer was updated
+                    || mNumSessions % 20 == 0 //periodically remind user to update driver
+                    )
+                {
+                    LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedIntelDriver");
+                    std::string gpu_name = ll_safe_string((const char *)glGetString(GL_RENDERER));
+                    LL_INFOS("AppInit") << "Notifying user about obsolete intel driver for " << gpu_name << LL_ENDL;
+                    details.setArg("[VERSION]", driver);
+                    details.setArg("[GPUNAME]", gpu_name);
+                    S32 button = OSMessageBox(details.getString(),
+                        LLStringUtil::null,
+                        OSMB_YESNO);
+                    if (OSBTN_YES == button && gViewerWindow)
+                    {
+                        std::string url = LLWeb::escapeURL(LLTrans::getString("IntelDriverPage"));
+                        if (gViewerWindow->getWindow())
+                        {
+                            gViewerWindow->getWindow()->spawnWebBrowser(url, false);
+                        }
+                    }
+                }
+            }
+        }
+    }
+#endif
+
+    // Obsolete? mExpectedGLVersion is always zero
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
@@ -1123,86 +1159,120 @@ bool LLAppViewer::init()
 	gSimLastTime = gRenderStartTime.getElapsedTimeF32();
 	gSimFrames = (F32)gFrameCount;
 
-	LLViewerJoystick::getInstance()->init(false);
+    if (gSavedSettings.getBOOL("JoystickEnabled"))
+    {
+        LLViewerJoystick::getInstance()->init(false);
+    }
 
 	try {
 		initializeSecHandler();
 	}
-	catch (LLProtectedDataException ex)
+	catch (LLProtectedDataException&)
 	{
 	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
 	}
 
 	gGLActive = FALSE;
 
-	LLProcess::Params updater;
-	updater.desc = "updater process";
-	// Because it's the updater, it MUST persist beyond the lifespan of the
-	// viewer itself.
-	updater.autokill = false;
+#if LL_RELEASE_FOR_DOWNLOAD
+    if (!gSavedSettings.getBOOL("CmdLineSkipUpdater"))
+    {
+        LLProcess::Params updater;
+        updater.desc = "updater process";
+        // Because it's the updater, it MUST persist beyond the lifespan of the
+        // viewer itself.
+        updater.autokill = false;
+        std::string updater_file;
 #if LL_WINDOWS
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker.exe");
+        updater_file = "SLVersionChecker.exe";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #elif LL_DARWIN
-	// explicitly run the system Python interpreter on SLVersionChecker.py
-	updater.executable = "python";
-	updater.args.add(gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", "SLVersionChecker.py"));
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->add(gDirUtilp->getAppRODataDir(), "updater", updater_file);
 #else
-	updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "SLVersionChecker");
+        updater_file = "SLVersionChecker";
+        updater.executable = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, updater_file);
 #endif
-	// add LEAP mode command-line argument to whichever of these we selected
-	updater.args.add("leap");
-	// UpdaterServiceSettings
-	updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
-	// channel
-	updater.args.add(LLVersionInfo::instance().getChannel());
-	// testok
-	updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
-	// ForceAddressSize
-	updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
+        // add LEAP mode command-line argument to whichever of these we selected
+        updater.args.add("leap");
+        // UpdaterServiceSettings
+        if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+        {
+            // Befor first login, treat this as 'manual' updates,
+            // updater won't install anything, but required updates
+            updater.args.add("0");
+        }
+        else
+        {
+            updater.args.add(stringize(gSavedSettings.getU32("UpdaterServiceSetting")));
+        }
+        // channel
+        updater.args.add(LLVersionInfo::instance().getChannel());
+        // testok
+        updater.args.add(stringize(gSavedSettings.getBOOL("UpdaterWillingToTest")));
+        // ForceAddressSize
+        updater.args.add(stringize(gSavedSettings.getU32("ForceAddressSize")));
 
-#if LL_WINDOWS && !LL_RELEASE_FOR_DOWNLOAD && !LL_SEND_CRASH_REPORTS
-	// This is neither a release package, nor crash-reporting enabled test build
-	// try to run version updater, but don't bother if it fails (file might be missing)
-	LLLeap *leap_p = LLLeap::create(updater, false);
-	if (!leap_p)
-	{
-		LL_WARNS("LLLeap") << "Failed to run LLLeap" << LL_ENDL;
-	}
-#else
- 	// Run the updater. An exception from launching the updater should bother us.
-	LLLeap::create(updater, true);
-#endif
+        try
+        {
+            // Run the updater. An exception from launching the updater should bother us.
+            LLLeap::create(updater, true);
+            mUpdaterNotFound = false;
+        }
+        catch (...)
+        {
+            LLUIString details = LLNotifications::instance().getGlobalString("LLLeapUpdaterFailure");
+            details.setArg("[UPDATER_APP]", updater_file);
+            OSMessageBox(
+                details.getString(),
+                LLStringUtil::null,
+                OSMB_OK);
+            mUpdaterNotFound = true;
+        }
+    }
+    else
+    {
+        LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
+    }
 
-	// Iterate over --leap command-line options. But this is a bit tricky: if
-	// there's only one, it won't be an array at all.
-	LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
-	LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
-	if (LeapCommand.isDefined() && ! LeapCommand.isArray())
-	{
-		// If LeapCommand is actually a scalar value, make an array of it.
-		// Have to do it in two steps because LeapCommand.append(LeapCommand)
-		// trashes content! :-P
-		LLSD item(LeapCommand);
-		LeapCommand.append(item);
-	}
-	BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
-	{
-		LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
-		// We don't have any better description of this plugin than the
-		// user-specified command line. Passing "" causes LLLeap to derive a
-		// description from the command line itself.
-		// Suppress LLLeap::Error exception: trust LLLeap's own logging. We
-		// don't consider any one --leap command mission-critical, so if one
-		// fails, log it, shrug and carry on.
-		LLLeap::create("", leap, false); // exception=false
-	}
+    if (mUpdaterNotFound)
+    {
+        LL_WARNS("InitInfo") << "Failed to launch updater. Skipping Leap commands." << LL_ENDL;
+    }
+    else
+    {
+        // Iterate over --leap command-line options. But this is a bit tricky: if
+        // there's only one, it won't be an array at all.
+        LLSD LeapCommand(gSavedSettings.getLLSD("LeapCommand"));
+        LL_DEBUGS("InitInfo") << "LeapCommand: " << LeapCommand << LL_ENDL;
+        if (LeapCommand.isDefined() && !LeapCommand.isArray())
+        {
+            // If LeapCommand is actually a scalar value, make an array of it.
+            // Have to do it in two steps because LeapCommand.append(LeapCommand)
+            // trashes content! :-P
+            LLSD item(LeapCommand);
+            LeapCommand.append(item);
+        }
+        BOOST_FOREACH(const std::string& leap, llsd::inArray(LeapCommand))
+        {
+            LL_INFOS("InitInfo") << "processing --leap \"" << leap << '"' << LL_ENDL;
+            // We don't have any better description of this plugin than the
+            // user-specified command line. Passing "" causes LLLeap to derive a
+            // description from the command line itself.
+            // Suppress LLLeap::Error exception: trust LLLeap's own logging. We
+            // don't consider any one --leap command mission-critical, so if one
+            // fails, log it, shrug and carry on.
+            LLLeap::create("", leap, false); // exception=false
+        }
+    }
 
-	if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
-	{
-		LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
-							 << "lleventhost no longer supported as a dynamic library"
-							 << LL_ENDL;
-	}
+    if (gSavedSettings.getBOOL("QAMode") && gSavedSettings.getS32("QAModeEventHostPort") > 0)
+    {
+        LL_WARNS("InitInfo") << "QAModeEventHostPort DEPRECATED: "
+                             << "lleventhost no longer supported as a dynamic library"
+                             << LL_ENDL;
+    }
+#endif //LL_RELEASE_FOR_DOWNLOAD
 
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
@@ -1253,6 +1323,16 @@ bool LLAppViewer::init()
 	gSavedSettings.getControl("FramePerSecondLimit")->getSignal()->connect(boost::bind(&LLAppViewer::onChangeFrameLimit, this, _2));
 	onChangeFrameLimit(gSavedSettings.getLLSD("FramePerSecondLimit"));
 
+	// Load User's bindings
+	loadKeyBindings();
+
+#if LL_WINDOWS
+    if (!mSecondInstance)
+    {
+        gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
+    }
+#endif
+
 	return true;
 }
 
@@ -1273,39 +1353,8 @@ void LLAppViewer::initMaxHeapSize()
 
 	//F32 max_heap_size_gb = llmin(1.6f, (F32)gSavedSettings.getF32("MaxHeapSize")) ;
 	F32Gigabytes max_heap_size_gb = (F32Gigabytes)gSavedSettings.getF32("MaxHeapSize") ;
-	BOOL enable_mem_failure_prevention = (BOOL)gSavedSettings.getBOOL("MemoryFailurePreventionEnabled") ;
 
-	LLMemory::initMaxHeapSizeGB(max_heap_size_gb, enable_mem_failure_prevention) ;
-}
-
-void LLAppViewer::checkMemory()
-{
-	const static F32 MEMORY_CHECK_INTERVAL = 1.0f ; //second
-	//const static F32 MAX_QUIT_WAIT_TIME = 30.0f ; //seconds
-	//static F32 force_quit_timer = MAX_QUIT_WAIT_TIME + MEMORY_CHECK_INTERVAL ;
-
-	if(!gGLManager.mDebugGPU)
-	{
-		return ;
-	}
-
-	if(MEMORY_CHECK_INTERVAL > mMemCheckTimer.getElapsedTimeF32())
-	{
-		return ;
-	}
-	mMemCheckTimer.reset() ;
-
-		//update the availability of memory
-		LLMemory::updateMemoryInfo() ;
-
-	bool is_low = LLMemory::isMemoryPoolLow() ;
-
-	LLPipeline::throttleNewMemoryAllocation(is_low) ;
-
-	if(is_low)
-	{
-		LLMemory::logMemoryInfo() ;
-	}
+	LLMemory::initMaxHeapSizeGB(max_heap_size_gb);
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
@@ -1314,7 +1363,8 @@ static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
 
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
-static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
+static LLTrace::BlockTimerStatHandle FTM_FETCH("Image Fetch");
+
 static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
 static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
@@ -1341,7 +1391,7 @@ bool LLAppViewer::frame()
 		{
 			LOG_UNHANDLED_EXCEPTION("");
 		}
-		catch (std::bad_alloc)
+		catch (std::bad_alloc&)
 		{
 			LLMemory::logMemoryInfo(TRUE);
 			LLFloaterMemLeak* mem_leak_instance = LLFloaterReg::findTypedInstance<LLFloaterMemLeak>("mem_leaking");
@@ -1382,9 +1432,6 @@ bool LLAppViewer::doFrame()
 	//clear call stack records
 	LL_CLEAR_CALLSTACKS();
 
-	//check memory availability information
-	checkMemory() ;
-
 	{
 		pingMainloopTimeout("Main:MiscNativeWindowEvents");
 
@@ -1420,6 +1467,8 @@ bool LLAppViewer::doFrame()
 
 		// canonical per-frame event
 		mainloop.post(newFrame);
+		// give listeners a chance to run
+		llcoro::suspend();
 
 		if (!LLApp::isExiting())
 		{
@@ -1438,6 +1487,7 @@ bool LLAppViewer::doFrame()
 			{
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
+                gViewerInput.scanMouse();
 			}
 
 			// Update state based on messages, user input, object idle.
@@ -1454,6 +1504,12 @@ bool LLAppViewer::doFrame()
 			{
 				pauseMainloopTimeout();
 				saveFinalSnapshot();
+
+                if (LLVoiceClient::instanceExists())
+                {
+                    LLVoiceClient::getInstance()->terminate();
+                }
+
 				disconnectViewer();
 				resumeMainloopTimeout();
 			}
@@ -1465,10 +1521,12 @@ bool LLAppViewer::doFrame()
 				pingMainloopTimeout("Main:Display");
 				gGLActive = TRUE;
 
+				display();
+
 				static U64 last_call = 0;
 				if (!gTeleportDisplay)
 				{
-					// Frame/draw throttling
+					// Frame/draw throttling, controlled by FramePerSecondLimit
 					U64 elapsed_time = LLTimer::getTotalTime() - last_call;
 					if (elapsed_time < mMinMicroSecPerFrame)
 					{
@@ -1479,8 +1537,6 @@ bool LLAppViewer::doFrame()
 					}
 				}
 				last_call = LLTimer::getTotalTime();
-
-				display();
 
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
@@ -1506,8 +1562,10 @@ bool LLAppViewer::doFrame()
 			}
 
 			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
+			// and when not quiting (causes trouble at mac's cleanup stage)
+			if (!LLApp::isExiting()
+				&& ((gViewerWindow && !gViewerWindow->getWindow()->getVisible())
+					|| !gFocusMgr.getAppHasFocus()))
 			{
 				// Sleep if we're not rendering, or the window is minimized.
 				static LLCachedControl<S32> s_bacground_yeild_time(gSavedSettings, "BackgroundYieldTime", 40);
@@ -1545,17 +1603,13 @@ bool LLAppViewer::doFrame()
 				work_pending += updateTextureThreads(max_time);
 
 				{
-					LL_RECORD_BLOCK_TIME(FTM_VFS);
- 					io_pending += LLVFSThread::updateClass(1);
-				}
-				{
 					LL_RECORD_BLOCK_TIME(FTM_LFS);
  					io_pending += LLLFSThread::updateClass(1);
 				}
 
 				if (io_pending > 1000)
 				{
-					ms_sleep(llmin(io_pending/100,100)); // give the vfs some time to catch up
+					ms_sleep(llmin(io_pending/100,100)); // give the lfs some time to catch up
 				}
 
 				total_work_pending += work_pending ;
@@ -1572,7 +1626,6 @@ bool LLAppViewer::doFrame()
 			}
 			if(!total_io_pending) //pause file threads if nothing to process.
 			{
-				LLVFSThread::sLocal->pause();
 				LLLFSThread::sLocal->pause();
 			}
 
@@ -1607,11 +1660,14 @@ bool LLAppViewer::doFrame()
 		}
 
 		delete gServicePump;
+		gServicePump = NULL;
 
 		destroyMainloopTimeout();
 
 		LL_INFOS() << "Exiting main_loop" << LL_ENDL;
 	}
+
+    LLPROFILE_UPDATE();
 
 	return ! LLApp::isRunning();
 }
@@ -1628,18 +1684,17 @@ S32 LLAppViewer::updateTextureThreads(F32 max_time)
 	 	work_pending += LLAppViewer::getImageDecodeThread()->update(max_time); // unpauses the image thread
 	}
 	{
-		LL_RECORD_BLOCK_TIME(FTM_DECODE);
+		LL_RECORD_BLOCK_TIME(FTM_FETCH);
 	 	work_pending += LLAppViewer::getTextureFetch()->update(max_time); // unpauses the texture fetch thread
 	}
 	return work_pending;
 }
 
-void LLAppViewer::flushVFSIO()
+void LLAppViewer::flushLFSIO()
 {
 	while (1)
 	{
-		S32 pending = LLVFSThread::updateClass(0);
-		pending += LLLFSThread::updateClass(0);
+		S32 pending = LLLFSThread::updateClass(0);
 		if (!pending)
 		{
 			break;
@@ -1651,6 +1706,8 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+    LLAtmosphere::cleanupClass();
+
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
@@ -1662,7 +1719,11 @@ bool LLAppViewer::cleanup()
 	//dump scene loading monitor results
 	if (LLSceneMonitor::instanceExists())
 	{
-		LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		if (!isSecondInstance())
+		{
+			LLSceneMonitor::instance().dumpToFile(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "scene_monitor_results.csv"));
+		}
+		LLSceneMonitor::deleteSingleton();
 	}
 
 	// There used to be an 'if (LLFastTimerView::sAnalyzePerformance)' block
@@ -1672,31 +1733,18 @@ bool LLAppViewer::cleanup()
 	// one because it happens just after mFastTimerLogThread is deleted. This
 	// comment is in case we guessed wrong, so we can move it here instead.
 
+#if LL_LINUX
 	// remove any old breakpad minidump files from the log directory
 	if (! isError())
 	{
 		std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "");
 		gDirUtilp->deleteFilesInDir(logdir, "*-*-*-*-*.dmp");
 	}
+#endif
 
-	{
-		// Kill off LLLeap objects. We can find them all because LLLeap is derived
-		// from LLInstanceTracker. But collect instances first: LLInstanceTracker
-		// specifically forbids adding/deleting instances while iterating.
-		std::vector<LLLeap*> leaps;
-		leaps.reserve(LLLeap::instanceCount());
-		for (LLLeap::instance_iter li(LLLeap::beginInstances()), lend(LLLeap::endInstances());
-			 li != lend; ++li)
-		{
-			leaps.push_back(&*li);
-		}
-		// Okay, now trash them all. We don't have to NULL or erase the entry
-		// in 'leaps' because the whole vector is going away momentarily.
-		BOOST_FOREACH(LLLeap* leap, leaps)
-		{
-			delete leap;
-		}
-	} // destroy 'leaps'
+	// Kill off LLLeap objects. We can find them all because LLLeap is derived
+	// from LLInstanceTracker.
+	LLLeap::instance_snapshot().deleteAll();
 
 	//flag all elements as needing to be destroyed immediately
 	// to ensure shutdown order
@@ -1708,6 +1756,11 @@ bool LLAppViewer::cleanup()
 	disconnectViewer();
 
 	LL_INFOS() << "Viewer disconnected" << LL_ENDL;
+	
+	if (gKeyboard)
+	{
+		gKeyboard->resetKeys();
+	}
 
 	display_cleanup();
 
@@ -1735,7 +1788,7 @@ bool LLAppViewer::cleanup()
 
 	LLKeyframeDataCache::clear();
 
- 	// End TransferManager before deleting systems it depends on (Audio, VFS, AssetStorage)
+ 	// End TransferManager before deleting systems it depends on (Audio, AssetStorage)
 #if 0 // this seems to get us stuck in an infinite loop...
 	gTransferManager.cleanup();
 #endif
@@ -1768,6 +1821,8 @@ bool LLAppViewer::cleanup()
 
 	if (gAudiop)
 	{
+        LL_INFOS() << "Shutting down audio" << LL_ENDL;
+
         // be sure to stop the internet stream cleanly BEFORE destroying the interface to stop it.
         gAudiop->stopInternetStream();
         // shut down the streaming audio sub-subsystem first, in case it relies on not outliving the general audio subsystem.
@@ -1802,8 +1857,8 @@ bool LLAppViewer::cleanup()
 
 	LL_INFOS() << "Cache files removed" << LL_ENDL;
 
-	// Wait for any pending VFS IO
-	flushVFSIO();
+	// Wait for any pending LFS IO
+	flushLFSIO();
 	LL_INFOS() << "Shutting down Views" << LL_ENDL;
 
 	// Destroy the UI
@@ -1845,14 +1900,15 @@ bool LLAppViewer::cleanup()
 	delete gKeyboard;
 	gKeyboard = NULL;
 
-	// Turn off Space Navigator and similar devices
-	LLViewerJoystick::getInstance()->terminate();
+    if (LLViewerJoystick::instanceExists())
+    {
+        // Turn off Space Navigator and similar devices
+        LLViewerJoystick::getInstance()->terminate();
+    }
 
 	LL_INFOS() << "Cleaning up Objects" << LL_ENDL;
 
 	LLViewerObject::cleanupVOClasses();
-
-	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
 
 	SUBSYSTEM_CLEANUP(LLAvatarAppearance);
 
@@ -1886,19 +1942,16 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLWorldMapView);
 	SUBSYSTEM_CLEANUP(LLFolderViewItem);
 
-	//
-	// Shut down the VFS's AFTER the decode manager cleans up (since it cleans up vfiles).
-	// Also after viewerwindow is deleted, since it may have image pointers (which have vfiles)
-	// Also after shutting down the messaging system since it has VFS dependencies
-
-	//
-	LL_INFOS() << "Cleaning up VFS" << LL_ENDL;
-	SUBSYSTEM_CLEANUP(LLVFile);
-
 	LL_INFOS() << "Saving Data" << LL_ENDL;
 
 	// Store the time of our current logoff
 	gSavedPerAccountSettings.setU32("LastLogoff", time_corrected());
+
+    if (LLEnvironment::instanceExists())
+    {
+        //Store environment settings if nessesary
+        LLEnvironment::getInstance()->saveToSettings();
+    }
 
 	// Must do this after all panels have been deleted because panels that have persistent rects
 	// save their rects on delete.
@@ -1923,6 +1976,11 @@ bool LLAppViewer::cleanup()
 	{
 		gSavedPerAccountSettings.saveToFile(gSavedSettings.getString("PerAccountSettingsFile"), TRUE);
 		LL_INFOS() << "Saved settings" << LL_ENDL;
+
+		if (LLViewerParcelAskPlay::instanceExists())
+		{
+			LLViewerParcelAskPlay::getInstance()->saveSettings();
+		}
 	}
 
 	std::string warnings_settings_filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, getSettingsFilename("Default", "Warnings"));
@@ -1941,9 +1999,11 @@ bool LLAppViewer::cleanup()
 	if (LLConversationLog::instanceExists())
 	{
 		LLConversationLog::instance().cache();
-	}
+    }
 
-	if (mPurgeOnExit)
+    clearSecHandler();
+
+	if (mPurgeCacheOnExit)
 	{
 		LL_INFOS() << "Purging all cache files on exit" << LL_ENDL;
 		gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE,""), "*.*");
@@ -1970,7 +2030,6 @@ bool LLAppViewer::cleanup()
 		pending += LLAppViewer::getTextureCache()->update(1); // unpauses the worker thread
 		pending += LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
-		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
 		F64 idle_time = idleTimer.getElapsedTimeF64();
 		if(!pending)
@@ -1984,12 +2043,21 @@ bool LLAppViewer::cleanup()
 		}
 	}
 
+    if (mPurgeUserDataOnExit)
+    {
+        // Ideally we should not save anything from this session since it is going to be purged now,
+        // but this is a very 'rare' case (user deleting himself), not worth overcomplicating 'save&cleanup' code
+        std::string user_path = gDirUtilp->getOSUserAppDir() + gDirUtilp->getDirDelimiter() + LLStartUp::getUserId();
+        gDirUtilp->deleteDirAndContents(user_path);
+    }
+
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
 	mAppCoreHttp.requestStop();
 	sTextureFetch->shutdown();
 	sTextureCache->shutdown();
 	sImageDecodeThread->shutdown();
+	sPurgeDiskCacheThread->shutdown();
 
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
@@ -2012,6 +2080,8 @@ bool LLAppViewer::cleanup()
     sImageDecodeThread = NULL;
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
+	delete sPurgeDiskCacheThread;
+	sPurgeDiskCacheThread = NULL;
 
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
@@ -2037,26 +2107,10 @@ bool LLAppViewer::cleanup()
 	gTextureList.shutdown(); // shutdown again in case a callback added something
 	LLUIImageList::getInstance()->cleanUp();
 
-	// This should eventually be done in LLAppViewer
-	SUBSYSTEM_CLEANUP(LLVFSThread);
+	SUBSYSTEM_CLEANUP(LLImage);
 	SUBSYSTEM_CLEANUP(LLLFSThread);
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	LL_INFOS() << "Auditing VFS" << LL_ENDL;
-	if(gVFS)
-	{
-		gVFS->audit();
-	}
-#endif
-
 	LL_INFOS() << "Misc Cleanup" << LL_ENDL;
-
-	// For safety, the LLVFS has to be deleted *after* LLVFSThread. This should be cleaned up.
-	// (LLVFS doesn't know about LLVFSThread so can't kill pending requests) -Steve
-	delete gStaticVFS;
-	gStaticVFS = NULL;
-	delete gVFS;
-	gVFS = NULL;
 
 	gSavedSettings.cleanup();
 	LLUIColorTable::instance().clear();
@@ -2081,6 +2135,7 @@ bool LLAppViewer::cleanup()
 		LLWeb::loadURLExternal( gLaunchFileOnQuit, false );
 		LL_INFOS() << "File launched." << LL_ENDL;
 	}
+	// make sure nothing uses applyProxySettings by this point.
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	SUBSYSTEM_CLEANUP(LLProxy);
     LLCore::LLHttp::cleanup();
@@ -2091,8 +2146,6 @@ bool LLAppViewer::cleanup()
 
 	LLError::LLCallStacks::cleanup();
 
-	removeMarkerFiles();
-
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
 	// explicit hand-placed calls into the generic mechanism, eventually
@@ -2100,13 +2153,11 @@ bool LLAppViewer::cleanup()
 	// still see above are calls that MUST happen before the generic cleanup
 	// kicks in.
 
-	// The logging subsystem depends on an LLSingleton. Any logging after
-	// LLSingletonBase::deleteAll() won't be recorded.
-	LL_INFOS() << "Goodbye!" << LL_ENDL;
-
 	// This calls every remaining LLSingleton's cleanupSingleton() and
 	// deleteSingleton() methods.
 	LLSingletonBase::deleteAll();
+
+    LL_INFOS() << "Goodbye!" << LL_ENDL;
 
 	removeDumpDir();
 
@@ -2114,32 +2165,12 @@ bool LLAppViewer::cleanup()
 	return true;
 }
 
-// A callback for LL_ERRS() to call during the watchdog error.
-void watchdog_llerrs_callback(const std::string &error_string)
-{
-	gLLErrorActivated = true;
-
-#ifdef LL_WINDOWS
-	RaiseException(0,0,0,0);
-#else
-	raise(SIGQUIT);
-#endif
-}
-
-// A callback for the watchdog to call.
-void watchdog_killer_callback()
-{
-	LLError::setFatalFunction(watchdog_llerrs_callback);
-	LL_ERRS() << "Watchdog killer event" << LL_ENDL;
-}
-
 bool LLAppViewer::initThreads()
 {
 	static const bool enable_threads = true;
 
-	LLImage::initParamSingleton(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
+	LLImage::initClass(gSavedSettings.getBOOL("TextureNewByteRange"),gSavedSettings.getS32("TextureReverseByteRange"));
 
-	LLVFSThread::initClass(enable_threads && false);
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
@@ -2149,6 +2180,7 @@ bool LLAppViewer::initThreads()
 													sImageDecodeThread,
 													enable_threads && true,
 													app_metrics_qa_mode);
+	LLAppViewer::sPurgeDiskCacheThread = new LLPurgeDiskCacheThread();
 
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
@@ -2167,95 +2199,108 @@ bool LLAppViewer::initThreads()
 	return true;
 }
 
-void errorCallback(const std::string &error_string)
+void errorCallback(LLError::ELevel level, const std::string &error_string)
 {
+    if (level == LLError::LEVEL_ERROR)
+    {
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+        OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
 #endif
 
-	//Set the ErrorActivated global so we know to create a marker file
-	gLLErrorActivated = true;
+        //Set the ErrorActivated global so we know to create a marker file
+        gLLErrorActivated = true;
 
-	gDebugInfo["FatalMessage"] = error_string;
-	// We're not already crashing -- we simply *intend* to crash. Since we
-	// haven't actually trashed anything yet, we can afford to write the whole
-	// static info file.
-	LLAppViewer::instance()->writeDebugInfo();
-
-	LLError::crashAndLoop(error_string);
+        gDebugInfo["FatalMessage"] = error_string;
+        // We're not already crashing -- we simply *intend* to crash. Since we
+        // haven't actually trashed anything yet, we can afford to write the whole
+        // static info file.
+        LLAppViewer::instance()->writeDebugInfo();
+    }
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
 {
-	//
-	// Set up logging defaults for the viewer
-	//
-	LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
+    //
+    // Set up logging defaults for the viewer
+    //
+    LLError::initForApplication( gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "")
                                 ,gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "")
                                 );
-	LLError::setFatalFunction(errorCallback);
-	//LLError::setTimeFunction(getRuntime);
+    LLError::addGenericRecorder(&errorCallback);
+    //LLError::setTimeFunction(getRuntime);
 
-	// Remove the last ".old" log file.
-	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.old");
-	LLFile::remove(old_log_file);
 
-	// Get name of the log file
-	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.log");
- 	/*
-	 * Before touching any log files, compute the duration of the last run
-	 * by comparing the ctime of the previous start marker file with the ctime
-	 * of the last log file.
-	 */
-	std::string start_marker_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, START_MARKER_FILE_NAME);
-	llstat start_marker_stat;
-	llstat log_file_stat;
-	std::ostringstream duration_log_stream; // can't log yet, so save any message for when we can below
-	int start_stat_result = LLFile::stat(start_marker_file_name, &start_marker_stat);
-	int log_stat_result = LLFile::stat(log_file, &log_file_stat);
-	if ( 0 == start_stat_result && 0 == log_stat_result )
-	{
-		int elapsed_seconds = log_file_stat.st_ctime - start_marker_stat.st_ctime;
-		// only report a last run time if the last viewer was the same version
-		// because this stat will be counted against this version
-		if ( markerIsSameVersion(start_marker_file_name) )
-		{
-			gLastExecDuration = elapsed_seconds;
-		}
-		else
-		{
-			duration_log_stream << "start marker from some other version; duration is not reported";
-			gLastExecDuration = -1;
-		}
-	}
-	else
-	{
-		// at least one of the LLFile::stat calls failed, so we can't compute the run time
-		duration_log_stream << "duration stat failure; start: "<< start_stat_result << " log: " << log_stat_result;
-		gLastExecDuration = -1; // unknown
-	}
-	std::string duration_log_msg(duration_log_stream.str());
+    if (mSecondInstance)
+    {
+        LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
+ 
+        LLUUID uid;
+        uid.generate();
+        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+    }
+    else
+    {
+        // Remove the last ".old" log file.
+        std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.old");
+        LLFile::remove(old_log_file);
 
-	// Create a new start marker file for comparison with log file time for the next run
-	LLAPRFile start_marker_file ;
-	start_marker_file.open(start_marker_file_name, LL_APR_WB);
-	if (start_marker_file.getFileHandle())
-	{
-		recordMarkerVersion(start_marker_file);
-		start_marker_file.close();
-	}
+        // Get name of the log file
+        std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
+            "SecondLife.log");
+        /*
+        * Before touching any log files, compute the duration of the last run
+        * by comparing the ctime of the previous start marker file with the ctime
+        * of the last log file.
+        */
+        std::string start_marker_file_name = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, START_MARKER_FILE_NAME);
+        llstat start_marker_stat;
+        llstat log_file_stat;
+        std::ostringstream duration_log_stream; // can't log yet, so save any message for when we can below
+        int start_stat_result = LLFile::stat(start_marker_file_name, &start_marker_stat);
+        int log_stat_result = LLFile::stat(log_file, &log_file_stat);
+        if (0 == start_stat_result && 0 == log_stat_result)
+        {
+            int elapsed_seconds = log_file_stat.st_ctime - start_marker_stat.st_ctime;
+            // only report a last run time if the last viewer was the same version
+            // because this stat will be counted against this version
+            if (markerIsSameVersion(start_marker_file_name))
+            {
+                gLastExecDuration = elapsed_seconds;
+            }
+            else
+            {
+                duration_log_stream << "start marker from some other version; duration is not reported";
+                gLastExecDuration = -1;
+            }
+        }
+        else
+        {
+            // at least one of the LLFile::stat calls failed, so we can't compute the run time
+            duration_log_stream << "duration stat failure; start: " << start_stat_result << " log: " << log_stat_result;
+            gLastExecDuration = -1; // unknown
+        }
+        std::string duration_log_msg(duration_log_stream.str());
 
-	// Rename current log file to ".old"
-	LLFile::rename(log_file, old_log_file);
+        // Create a new start marker file for comparison with log file time for the next run
+        LLAPRFile start_marker_file;
+        start_marker_file.open(start_marker_file_name, LL_APR_WB);
+        if (start_marker_file.getFileHandle())
+        {
+            recordMarkerVersion(start_marker_file);
+            start_marker_file.close();
+        }
 
-	// Set the log file to SecondLife.log
-	LLError::logToFile(log_file);
-	if (!duration_log_msg.empty())
-	{
-		LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
-	}
+        // Rename current log file to ".old"
+        LLFile::rename(log_file, old_log_file);
+
+        // Set the log file to SecondLife.log
+        LLError::logToFile(log_file);
+        if (!duration_log_msg.empty())
+        {
+            LL_WARNS("MarkerFile") << duration_log_msg << LL_ENDL;
+        }
+    }
 }
 
 bool LLAppViewer::loadSettingsFromDirectory(const std::string& location_key,
@@ -2834,12 +2879,11 @@ bool LLAppViewer::initConfiguration()
 
 	// Let anyone else who cares know that we've populated our settings
 	// variables.
-	for (LLControlGroup::key_iter ki(LLControlGroup::beginKeys()), kend(LLControlGroup::endKeys());
-		 ki != kend; ++ki)
+	for (const auto& key : LLControlGroup::key_snapshot())
 	{
 		// For each named instance of LLControlGroup, send an event saying
 		// we've initialized an LLControlGroup instance by that name.
-		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
+		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", key));
 	}
 
 	return true; // Config was successful.
@@ -2953,11 +2997,16 @@ bool LLAppViewer::initWindow()
 		use_watchdog = bool(watchdog_enabled_setting);
 	}
 
+	LL_INFOS("AppInit") << "watchdog"
+						<< (use_watchdog ? " " : " NOT ")
+						<< "enabled"
+						<< " (setting = " << watchdog_enabled_setting << ")"
+						<< LL_ENDL;
+
 	if (use_watchdog)
 	{
-		LLWatchdog::getInstance()->init(watchdog_killer_callback);
+		LLWatchdog::getInstance()->init();
 	}
-	LL_INFOS("AppInit") << "watchdog setting is done." << LL_ENDL;
 
 	LLNotificationsUI::LLNotificationManager::getInstance();
 
@@ -3039,6 +3088,15 @@ bool LLAppViewer::initWindow()
 
 void LLAppViewer::writeDebugInfo(bool isStatic)
 {
+#if LL_WINDOWS && LL_BUGSPLAT
+    // bugsplat does not create dump folder and debug logs are written directly
+    // to logs folder, so it conflicts with main instance
+    if (mSecondInstance)
+    {
+        return;
+    }
+#endif
+
     //Try to do the minimum when writing data during a crash.
     std::string* debug_filename;
     debug_filename = ( isStatic
@@ -3072,8 +3130,15 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	// return a URL to the release notes for this viewer, such as:
 	// https://releasenotes.secondlife.com/viewer/2.1.0.123456.html
-	std::string url = versionInfo.getReleaseNotes();
-	info["VIEWER_RELEASE_NOTES_URL"] = url.empty()? LLTrans::getString("RetrievingData") : url;
+	std::string url = versionInfo.getReleaseNotes(); // VVM supplied
+    if (url.empty())
+    {
+        url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
+        if (!LLStringUtil::endsWith(url, "/"))
+            url += "/";
+        url += LLURI::escape(versionInfo.getVersion()) + ".html";
+    }
+	info["VIEWER_RELEASE_NOTES_URL"] = url;
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3083,8 +3148,9 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["POSITION"] = ll_sd_from_vector3d(pos);
 		info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
 		info["REGION"] = gAgent.getRegion()->getName();
-		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
-		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
+
+		boost::regex regex("\\.(secondlife|lindenlab)\\..*");
+		info["HOSTNAME"] = boost::regex_replace(gAgent.getRegion()->getSimHostName(), regex, "");
 		info["SERVER_VERSION"] = gLastVersionChannel;
 		LLSLURL slurl;
 		LLAgentUI::buildSLURL(slurl);
@@ -3096,8 +3162,8 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["MEMORY_MB"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>());
 	// Moved hack adjustment to Windows memory size into llsys.cpp
 	info["OS_VERSION"] = LLOSInfo::instance().getOSString();
-	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));
-	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
+	info["GRAPHICS_CARD_VENDOR"] = ll_safe_string((const char*)(glGetString(GL_VENDOR)));
+	info["GRAPHICS_CARD"] = ll_safe_string((const char*)(glGetString(GL_RENDERER)));
 
 #if LL_WINDOWS
 	std::string drvinfo = gDXHardware.getDriverVersionWMI();
@@ -3116,7 +3182,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 #endif
 
-	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
+	info["OPENGL_VERSION"] = ll_safe_string((const char*)(glGetString(GL_VERSION)));
 
     // Settings
 
@@ -3131,10 +3197,6 @@ LLSD LLAppViewer::getViewerInfo() const
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
     info["TEXTURE_MEMORY"] = gSavedSettings.getS32("TextureMemory");
-
-    LLSD substitution;
-    substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
-    info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
 
 #if LL_DARWIN
     info["HIDPI"] = gHiDPISupport;
@@ -3164,12 +3226,16 @@ LLSD LLAppViewer::getViewerInfo() const
 	cef_ver_codec << ".";
 	cef_ver_codec << DULLAHAN_VERSION_MINOR;
 	cef_ver_codec << ".";
+	cef_ver_codec << DULLAHAN_VERSION_POINT;
+	cef_ver_codec << ".";
 	cef_ver_codec << DULLAHAN_VERSION_BUILD;
 
-	cef_ver_codec << " / CEF: ";
+	cef_ver_codec << std::endl;
+	cef_ver_codec << "  CEF: ";
 	cef_ver_codec << CEF_VERSION;
 
-	cef_ver_codec << " / Chromium: ";
+	cef_ver_codec << std::endl;
+	cef_ver_codec << "  Chromium: ";
 	cef_ver_codec << CHROME_VERSION_MAJOR;
 	cef_ver_codec << ".";
 	cef_ver_codec << CHROME_VERSION_MINOR;
@@ -3222,6 +3288,9 @@ LLSD LLAppViewer::getViewerInfo() const
 	{
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
+
+    // populate field for new local disk cache with some details
+    info["DISK_CACHE_INFO"] = LLDiskCache::getInstance()->getCacheInfo();
 
 	return info;
 }
@@ -3355,7 +3424,7 @@ void LLAppViewer::writeSystemInfo()
     if (! gDebugInfo.has("Dynamic") )
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
 
-#if LL_WINDOWS
+#if LL_WINDOWS && !LL_BUGSPLAT
 	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
 #else
     //Not ideal but sufficient for good reporting.
@@ -3378,8 +3447,8 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["CPUInfo"]["CPUSSE"] = gSysCPU.hasSSE();
 	gDebugInfo["CPUInfo"]["CPUSSE2"] = gSysCPU.hasSSE2();
 
-	gDebugInfo["RAMInfo"]["Physical"] = (LLSD::Integer)(gSysMemory.getPhysicalMemoryKB().value());
-	gDebugInfo["RAMInfo"]["Allocated"] = (LLSD::Integer)(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
+	gDebugInfo["RAMInfo"]["Physical"] = LLSD::Integer(gSysMemory.getPhysicalMemoryKB().value());
+	gDebugInfo["RAMInfo"]["Allocated"] = LLSD::Integer(gMemoryAllocated.valueInUnits<LLUnits::Kilobytes>());
 	gDebugInfo["OSInfo"] = LLOSInfo::instance().getOSStringSimple();
 
 	// The user is not logged on yet, but record the current grid choice login url
@@ -3392,12 +3461,18 @@ void LLAppViewer::writeSystemInfo()
 	gDebugInfo["MainloopThreadID"] = (S32)thread_id;
 #endif
 
+#ifndef LL_BUGSPLAT
 	// "CrashNotHandled" is set here, while things are running well,
 	// in case of a freeze. If there is a freeze, the crash logger will be launched
 	// and can read this value from the debug_info.log.
 	// If the crash is handled by LLAppViewer::handleViewerCrash, ie not a freeze,
 	// then the value of "CrashNotHandled" will be set to true.
-	gDebugInfo["CrashNotHandled"] = (LLSD::Boolean)true;
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(true);
+#else // LL_BUGSPLAT
+	// "CrashNotHandled" is obsolete; it used (not very successsfully)
+    // to try to distinguish crashes from freezes - the intent here to to avoid calling it a freeze
+	gDebugInfo["CrashNotHandled"] = LLSD::Boolean(false);
+#endif // ! LL_BUGSPLAT
 
 	// Insert crash host url (url to post crash log to) if configured. This insures
 	// that the crash report will go to the proper location in the case of a
@@ -3428,9 +3503,15 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
 	gDebugInfo["ViewerExePath"] = gDirUtilp->getExecutablePathAndName();
 	gDebugInfo["CurrentPath"] = gDirUtilp->getCurPath();
-	gDebugInfo["FirstLogin"] = (LLSD::Boolean) gAgent.isFirstLogin();
+	gDebugInfo["FirstLogin"] = LLSD::Boolean(gAgent.isFirstLogin());
 	gDebugInfo["FirstRunThisInstall"] = gSavedSettings.getBOOL("FirstRunThisInstall");
     gDebugInfo["StartupState"] = LLStartUp::getStartupStateString();
+
+	std::vector<std::string> resolutions = gViewerWindow->getWindow()->getDisplaysResolutionList();
+	for (auto res_iter : resolutions)
+	{
+		gDebugInfo["DisplayInfo"].append(res_iter);
+	}
 
 	writeDebugInfo(); // Save out debug_info.log early, in case of crash.
 }
@@ -3536,7 +3617,7 @@ void LLAppViewer::handleViewerCrash()
 
 	if(gAgent.getRegion())
 	{
-		gDebugInfo["Dynamic"]["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
+		gDebugInfo["Dynamic"]["CurrentSimHost"] = gAgent.getRegion()->getSimHostName();
 		gDebugInfo["Dynamic"]["CurrentRegion"] = gAgent.getRegion()->getName();
 
 		const LLVector3& loc = gAgent.getPositionAgent();
@@ -3552,7 +3633,7 @@ void LLAppViewer::handleViewerCrash()
 
 	// The crash is being handled here so set this value to false.
 	// Otherwise the crash logger will think this crash was a freeze.
-	gDebugInfo["Dynamic"]["CrashNotHandled"] = (LLSD::Boolean)false;
+	gDebugInfo["Dynamic"]["CrashNotHandled"] = LLSD::Boolean(false);
 
 	//Write out the crash status file
 	//Use marker file style setup, as that's the simplest, especially since
@@ -3625,6 +3706,8 @@ void LLAppViewer::handleViewerCrash()
 
 	if (LLWorld::instanceExists()) LLWorld::getInstance()->getInfo(gDebugInfo["Dynamic"]);
 
+	gDebugInfo["FatalMessage"] = LLError::getFatalMessage();
+
 	// Close the debug file
 	pApp->writeDebugInfo(false);  //false answers the isStatic question with the least overhead.
 }
@@ -3682,6 +3765,7 @@ void LLAppViewer::processMarkerFiles()
 	// - Other Crash (SecondLife.error_marker present)
 	// These checks should also remove these files for the last 2 cases if they currently exist
 
+	std::ostringstream marker_log_stream;
 	bool marker_is_same_version = true;
 	// first, look for the marker created at startup and deleted on a clean exit
 	mMarkerFileName = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,MARKER_FILE_NAME);
@@ -3692,12 +3776,12 @@ void LLAppViewer::processMarkerFiles()
 		marker_is_same_version = markerIsSameVersion(mMarkerFileName);
 
 		// now test to see if this file is locked by a running process (try to open for write)
-		LL_DEBUGS("MarkerFile") << "Checking exec marker file for lock..." << LL_ENDL;
+		marker_log_stream << "Checking exec marker file for lock...";
 		mMarkerFile.open(mMarkerFileName, LL_APR_WB);
 		apr_file_t* fMarker = mMarkerFile.getFileHandle() ;
 		if (!fMarker)
 		{
-			LL_INFOS("MarkerFile") << "Exec marker file open failed - assume it is locked." << LL_ENDL;
+			marker_log_stream << "Exec marker file open failed - assume it is locked.";
 			mSecondInstance = true; // lock means that instance is running.
 		}
 		else
@@ -3705,16 +3789,20 @@ void LLAppViewer::processMarkerFiles()
 			// We were able to open it, now try to lock it ourselves...
 			if (apr_file_lock(fMarker, APR_FLOCK_NONBLOCK | APR_FLOCK_EXCLUSIVE) != APR_SUCCESS)
 			{
-				LL_WARNS_ONCE("MarkerFile") << "Locking exec marker failed." << LL_ENDL;
+				marker_log_stream << "Locking exec marker failed.";
 				mSecondInstance = true; // lost a race? be conservative
 			}
 			else
 			{
 				// No other instances; we've locked this file now, so record our version; delete on quit.
 				recordMarkerVersion(mMarkerFile);
-				LL_DEBUGS("MarkerFile") << "Exec marker file existed but was not locked; rewritten." << LL_ENDL;
+				marker_log_stream << "Exec marker file existed but was not locked; rewritten.";
 			}
 		}
+		initLoggingAndGetLastDuration();
+
+		std::string marker_log_msg(marker_log_stream.str());
+		LL_INFOS("MarkerFile") << marker_log_msg << LL_ENDL;
 
 		if (mSecondInstance)
 		{
@@ -3723,9 +3811,8 @@ void LLAppViewer::processMarkerFiles()
 		else if (marker_is_same_version)
 		{
 			// the file existed, is ours, and matched our version, so we can report on what it says
-			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec FROZE" << LL_ENDL;
-			gLastExecEvent = LAST_EXEC_FROZE;
-
+			LL_INFOS("MarkerFile") << "Exec marker '"<< mMarkerFileName << "' found; last exec crashed" << LL_ENDL;
+			gLastExecEvent = LAST_EXEC_OTHER_CRASH;
 		}
 		else
 		{
@@ -3734,6 +3821,7 @@ void LLAppViewer::processMarkerFiles()
 	}
 	else // marker did not exist... last exec (if any) did not freeze
 	{
+		initLoggingAndGetLastDuration();
 		// Create the marker file for this execution & lock it; it will be deleted on a clean exit
 		apr_status_t s;
 		s = mMarkerFile.open(mMarkerFileName, LL_APR_WB, TRUE);
@@ -3859,8 +3947,18 @@ void LLAppViewer::removeDumpDir()
 {
     //Call this routine only on clean exit.  Crash reporter will clean up
     //its locking table for us.
-    std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    gDirUtilp->deleteDirAndContents(dump_dir);
+    if (gDirUtilp->dumpDirExists()) // Check if dump dir was created this run
+    {
+        std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
+        gDirUtilp->deleteDirAndContents(dump_dir);
+    }
+
+    if (mSecondInstance && !isError())
+    {
+        std::string log_filename = LLError::logFileName();
+        LLError::logToFile("");
+        LLFile::remove(log_filename);
+    }
 }
 
 void LLAppViewer::forceQuit()
@@ -3872,7 +3970,7 @@ void LLAppViewer::forceQuit()
 void LLAppViewer::fastQuit(S32 error_code)
 {
 	// finish pending transfers
-	flushVFSIO();
+	flushLFSIO();
 	// let sim know we're logging out
 	sendLogoutRequest();
 	// flush network buffers by shutting down messaging system
@@ -3928,7 +4026,9 @@ void LLAppViewer::requestQuit()
 		gFloaterView->closeAllChildren(true);
 	}
 
-	send_stats();
+	// Send preferences once, when exiting
+	bool include_preferences = true;
+	send_viewer_stats(include_preferences);
 
 	gLogoutTimer.reset();
 	mQuitRequested = true;
@@ -3948,7 +4048,11 @@ static LLNotificationFunctorRegistration finish_quit_reg("ConfirmQuit", finish_q
 
 void LLAppViewer::userQuit()
 {
-	if (gDisconnected || gViewerWindow->getProgressView()->getVisible())
+	LL_INFOS() << "User requested quit" << LL_ENDL;
+	if (gDisconnected
+		|| !gViewerWindow
+		|| !gViewerWindow->getProgressView()
+		|| gViewerWindow->getProgressView()->getVisible())
 	{
 		requestQuit();
 	}
@@ -4055,44 +4159,14 @@ void LLAppViewer::migrateCacheDirectory()
 #endif // LL_WINDOWS || LL_DARWIN
 }
 
-void dumpVFSCaches()
-{
-	LL_INFOS() << "======= Static VFS ========" << LL_ENDL;
-	gStaticVFS->listFiles();
-#if LL_WINDOWS
-	LL_INFOS() << "======= Dumping static VFS to StaticVFSDump ========" << LL_ENDL;
-	WCHAR w_str[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH, w_str);
-	S32 res = LLFile::mkdir("StaticVFSDump");
-	if (res == -1)
-	{
-		LL_WARNS() << "Couldn't create dir StaticVFSDump" << LL_ENDL;
-	}
-	SetCurrentDirectory(utf8str_to_utf16str("StaticVFSDump").c_str());
-	gStaticVFS->dumpFiles();
-	SetCurrentDirectory(w_str);
-#endif
-
-	LL_INFOS() << "========= Dynamic VFS ====" << LL_ENDL;
-	gVFS->listFiles();
-#if LL_WINDOWS
-	LL_INFOS() << "========= Dumping dynamic VFS to VFSDump ====" << LL_ENDL;
-	res = LLFile::mkdir("VFSDump");
-	if (res == -1)
-	{
-		LL_WARNS() << "Couldn't create dir VFSDump" << LL_ENDL;
-	}
-	SetCurrentDirectory(utf8str_to_utf16str("VFSDump").c_str());
-	gVFS->dumpFiles();
-	SetCurrentDirectory(w_str);
-#endif
-}
-
 //static
 U32 LLAppViewer::getTextureCacheVersion()
 {
-	//viewer texture cache version, change if the texture cache format changes.
-	const U32 TEXTURE_CACHE_VERSION = 8;
+	// Viewer texture cache version, change if the texture cache format changes.
+	// 2021-03-10 Bumping up by one to help obviate texture cache issues with
+	//            Simple Cache Viewer - see SL-14985 for more information
+	//const U32 TEXTURE_CACHE_VERSION = 8;
+	const U32 TEXTURE_CACHE_VERSION = 9;
 
 	return TEXTURE_CACHE_VERSION ;
 }
@@ -4113,6 +4187,17 @@ bool LLAppViewer::initCache()
 	BOOL read_only = mSecondInstance ? TRUE : FALSE;
 	LLAppViewer::getTextureCache()->setReadOnly(read_only) ;
 	LLVOCache::initParamSingleton(read_only);
+
+	// initialize the new disk cache using saved settings
+	const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
+
+    // note that the maximum size of this cache is defined as a percentage of the 
+    // total cache size - the 'CacheSize' pref - for all caches. 
+    const unsigned int cache_total_size_mb = gSavedSettings.getU32("CacheSize");
+    const double disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
+    const unsigned int disk_cache_mb = cache_total_size_mb * disk_cache_percent / 100;
+    const uintmax_t disk_cache_bytes = disk_cache_mb * 1024 * 1024;
+	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
@@ -4148,6 +4233,7 @@ bool LLAppViewer::initCache()
 			LL_INFOS("AppCache") << "Cache location changed, cache needs purging" << LL_ENDL;
 			gDirUtilp->setCacheDir(gSavedSettings.getString("CacheLocation"));
 			purgeCache(); // purge old cache
+			gDirUtilp->deleteDirAndContents(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name));
 			gSavedSettings.setString("CacheLocation", new_cache_location);
 			gSavedSettings.setString("CacheLocationTopFolder", gDirUtilp->getBaseFileName(new_cache_location));
 		}
@@ -4160,11 +4246,26 @@ bool LLAppViewer::initCache()
 		gSavedSettings.setString("CacheLocationTopFolder", "");
 	}
 
-	if (mPurgeCache && !read_only)
+	const std::string cache_dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, cache_dir_name);
+	LLDiskCache::initParamSingleton(cache_dir, disk_cache_bytes, enable_cache_debug_info);
+
+	if (!read_only)
 	{
-		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
-		purgeCache();
+		if (mPurgeCache)
+		{
+			LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
+			purgeCache();
+
+			// clear the new C++ file system based cache
+			LLDiskCache::getInstance()->clearCache();
+		}
+		else
+		{
+			// purge excessive files from the new file system based cache
+			LLDiskCache::getInstance()->purge();
+		}
 	}
+	LLAppViewer::getPurgeDiskCacheThread()->start();
 
 	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
 
@@ -4173,177 +4274,37 @@ bool LLAppViewer::initCache()
 	const S32 MB = 1024 * 1024;
 	const S64 MIN_CACHE_SIZE = 256 * MB;
 	const S64 MAX_CACHE_SIZE = 9984ll * MB;
-	const S64 MAX_VFS_SIZE = 1024 * MB; // 1 GB
 
 	S64 cache_size = (S64)(gSavedSettings.getU32("CacheSize")) * MB;
 	cache_size = llclamp(cache_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
 
-	S64 vfs_size = llmin((S64)((cache_size * 2) / 10), MAX_VFS_SIZE);
-	S64 texture_cache_size = cache_size - vfs_size;
+	S64 texture_cache_size = cache_size;
 
 	S64 extra = LLAppViewer::getTextureCache()->initCache(LL_PATH_CACHE, texture_cache_size, texture_cache_mismatch);
 	texture_cache_size -= extra;
 
-
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion());
 
-	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
-
-	// Init the VFS
-	vfs_size = llmin(vfs_size + extra, MAX_VFS_SIZE);
-	vfs_size = (vfs_size / MB) * MB; // make sure it is MB aligned
-	U32 vfs_size_u32 = (U32)vfs_size;
-	U32 old_vfs_size = gSavedSettings.getU32("VFSOldSize") * MB;
-	bool resize_vfs = (vfs_size_u32 != old_vfs_size);
-	if (resize_vfs)
-	{
-		gSavedSettings.setU32("VFSOldSize", vfs_size_u32 / MB);
-	}
-	LL_INFOS("AppCache") << "VFS CACHE SIZE: " << vfs_size / (1024*1024) << " MB" << LL_ENDL;
-
-	// This has to happen BEFORE starting the vfs
-	// time_t	ltime;
-	srand(time(NULL));		// Flawfinder: ignore
-	U32 old_salt = gSavedSettings.getU32("VFSSalt");
-	U32 new_salt;
-	std::string old_vfs_data_file;
-	std::string old_vfs_index_file;
-	std::string new_vfs_data_file;
-	std::string new_vfs_index_file;
-	std::string static_vfs_index_file;
-	std::string static_vfs_data_file;
-
-	if (gSavedSettings.getBOOL("AllowMultipleViewers"))
-	{
-		// don't mess with renaming the VFS in this case
-		new_salt = old_salt;
-	}
-	else
-	{
-		do
-		{
-			new_salt = rand();
-		} while(new_salt == old_salt);
-	}
-
-	old_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", old_salt);
-
-	// make sure this file exists
-	llstat s;
-	S32 stat_result = LLFile::stat(old_vfs_data_file, &s);
-	if (stat_result)
-	{
-		// doesn't exist, look for a data file
-		std::string mask;
-		mask = VFS_DATA_FILE_BASE;
-		mask += "*";
-
-		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-
-		std::string found_file;
-		LLDirIterator iter(dir, mask);
-		if (iter.next(found_file))
-		{
-			old_vfs_data_file = gDirUtilp->add(dir, found_file);
-
-			S32 start_pos = found_file.find_last_of('.');
-			if (start_pos > 0)
-			{
-				sscanf(found_file.substr(start_pos+1).c_str(), "%d", &old_salt);
-			}
-			LL_DEBUGS("AppCache") << "Default vfs data file not present, found: " << old_vfs_data_file << " Old salt: " << old_salt << LL_ENDL;
-		}
-	}
-
-	old_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", old_salt);
-
-	stat_result = LLFile::stat(old_vfs_index_file, &s);
-	if (stat_result)
-	{
-		// We've got a bad/missing index file, nukem!
-		LL_WARNS("AppCache") << "Bad or missing vfx index file " << old_vfs_index_file << LL_ENDL;
-		LL_WARNS("AppCache") << "Removing old vfs data file " << old_vfs_data_file << LL_ENDL;
-		LLFile::remove(old_vfs_data_file);
-		LLFile::remove(old_vfs_index_file);
-
-		// Just in case, nuke any other old cache files in the directory.
-		std::string dir;
-		dir = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "");
-
-		std::string mask;
-		mask = VFS_DATA_FILE_BASE;
-		mask += "*";
-
-		gDirUtilp->deleteFilesInDir(dir, mask);
-
-		mask = VFS_INDEX_FILE_BASE;
-		mask += "*";
-
-		gDirUtilp->deleteFilesInDir(dir, mask);
-	}
-
-	new_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_DATA_FILE_BASE) + llformat("%u", new_salt);
-	new_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, VFS_INDEX_FILE_BASE) + llformat("%u", new_salt);
-
-	static_vfs_data_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_data.db2");
-	static_vfs_index_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "static_index.db2");
-
-	if (resize_vfs)
-	{
-		LL_DEBUGS("AppCache") << "Removing old vfs and re-sizing" << LL_ENDL;
-
-		LLFile::remove(old_vfs_data_file);
-		LLFile::remove(old_vfs_index_file);
-	}
-	else if (old_salt != new_salt)
-	{
-		// move the vfs files to a new name before opening
-		LL_DEBUGS("AppCache") << "Renaming " << old_vfs_data_file << " to " << new_vfs_data_file << LL_ENDL;
-		LL_DEBUGS("AppCache") << "Renaming " << old_vfs_index_file << " to " << new_vfs_index_file << LL_ENDL;
-		LLFile::rename(old_vfs_data_file, new_vfs_data_file);
-		LLFile::rename(old_vfs_index_file, new_vfs_index_file);
-	}
-
-	// Startup the VFS...
-	gSavedSettings.setU32("VFSSalt", new_salt);
-
-	// Don't remove VFS after viewer crashes.  If user has corrupt data, they can reinstall. JC
-	gVFS = LLVFS::createLLVFS(new_vfs_index_file, new_vfs_data_file, false, vfs_size_u32, false);
-	if (!gVFS)
-	{
-		return false;
-	}
-
-	gStaticVFS = LLVFS::createLLVFS(static_vfs_index_file, static_vfs_data_file, true, 0, false);
-	if (!gStaticVFS)
-	{
-		return false;
-	}
-
-	BOOL success = gVFS->isValid() && gStaticVFS->isValid();
-	if (!success)
-	{
-		return false;
-	}
-	else
-	{
-		LLVFile::initClass();
-
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-		if (gSavedSettings.getBOOL("DumpVFSCaches"))
-		{
-			dumpVFSCaches();
-		}
-#endif
-
-		return true;
-	}
+    return true;
 }
 
 void LLAppViewer::addOnIdleCallback(const boost::function<void()>& cb)
 {
 	LLDeferredTaskList::instance().addTask(cb);
+}
+
+void LLAppViewer::loadKeyBindings()
+{
+	std::string key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "key_bindings.xml");
+	if (!gDirUtilp->fileExists(key_bindings_file) || !gViewerInput.loadBindingsXML(key_bindings_file))
+	{
+		// Failed to load custom bindings, try default ones
+		key_bindings_file = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "key_bindings.xml");
+		if (!gViewerInput.loadBindingsXML(key_bindings_file))
+		{
+			LL_ERRS("InitInfo") << "Unable to open default key bindings from " << key_bindings_file << LL_ENDL;
+		}
+	}
 }
 
 void LLAppViewer::purgeCache()
@@ -4438,7 +4399,7 @@ void LLAppViewer::badNetworkHandler()
 	// Flush all of our caches on exit in the case of disconnect due to
 	// invalid packets.
 
-	mPurgeOnExit = TRUE;
+	mPurgeCacheOnExit = TRUE;
 
 	std::ostringstream message;
 	message <<
@@ -4478,6 +4439,7 @@ void LLAppViewer::saveFinalSnapshot()
 									gViewerWindow->getWindowWidthRaw(),
 									gViewerWindow->getWindowHeightRaw(),
 									FALSE,
+									gSavedSettings.getBOOL("RenderHUDInSnapshot"),
 									TRUE,
 									LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
 									LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
@@ -4606,6 +4568,9 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
+	// LLApp::stepFrame() performs the above three calls plus mRunner.run().
+	// Not sure why we don't call stepFrame() here, except that LLRunner seems
+	// completely redundant with LLEventTimer.
 	LLNotificationsUI::LLToast::updateClass();
 	LLSmoothInterpolation::updateInterpolants();
 	LLMortician::updateClass();
@@ -4645,6 +4610,10 @@ void LLAppViewer::idle()
 	//
 	// Special case idle if still starting up
 	//
+	if (LLStartUp::getStartupState() >= STATE_WORLD_INIT)
+	{
+		update_texture_time();
+	}
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// Skip rest if idle startup returns false (essentially, no world yet)
@@ -4719,7 +4688,8 @@ void LLAppViewer::idle()
 		if (viewer_stats_timer.getElapsedTimeF32() >= SEND_STATS_PERIOD && !gDisconnected)
 		{
 			LL_INFOS() << "Transmitting sessions stats" << LL_ENDL;
-			send_stats();
+			bool include_preferences = false;
+			send_viewer_stats(include_preferences);
 			viewer_stats_timer.reset();
 		}
 
@@ -4801,12 +4771,13 @@ void LLAppViewer::idle()
     {
 		return;
     }
+
+    gViewerWindow->updateUI();
+
 	if (gTeleportDisplay)
     {
 		return;
     }
-
-	gViewerWindow->updateUI();
 
 	///////////////////////////////////////
 	// Agent and camera movement
@@ -4901,7 +4872,6 @@ void LLAppViewer::idle()
 	//
 	// Update weather effects
 	//
-	gSky.propagateHeavenlyBodies(gFrameDTClamped);				// moves sun, moon, and planets
 
 	// Update wind vector
 	LLVector3 wind_position_region;
@@ -5130,11 +5100,55 @@ void LLAppViewer::sendLogoutRequest()
 	}
 }
 
+void LLAppViewer::updateNameLookupUrl(const LLViewerRegion * regionp)
+{
+    if (!regionp || !regionp->capabilitiesReceived())
+    {
+        return;
+    }
+
+    LLAvatarNameCache *name_cache = LLAvatarNameCache::getInstance();
+    bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
+    std::string name_lookup_url;
+    name_lookup_url.reserve(128); // avoid a memory allocation below
+    name_lookup_url = regionp->getCapability("GetDisplayNames");
+    bool have_capability = !name_lookup_url.empty();
+    if (have_capability)
+    {
+        // we have support for display names, use it
+        U32 url_size = name_lookup_url.size();
+        // capabilities require URLs with slashes before query params:
+        // https://<host>:<port>/cap/<uuid>/?ids=<blah>
+        // but the caps are granted like:
+        // https://<host>:<port>/cap/<uuid>
+        if (url_size > 0 && name_lookup_url[url_size - 1] != '/')
+        {
+            name_lookup_url += '/';
+        }
+        name_cache->setNameLookupURL(name_lookup_url);
+    }
+    else
+    {
+        // Display names not available on this region
+        name_cache->setNameLookupURL(std::string());
+    }
+
+    // Error recovery - did we change state?
+    if (had_capability != have_capability)
+    {
+        // name tags are persistant on screen, so make sure they refresh
+        LLVOAvatar::invalidateNameTags();
+    }
+}
+
 void LLAppViewer::idleNameCache()
 {
 	// Neither old nor new name cache can function before agent has a region
 	LLViewerRegion* region = gAgent.getRegion();
-	if (!region) return;
+    if (!region)
+    {
+        return;
+    }
 
 	// deal with any queued name requests and replies.
 	gCacheName->processPending();
@@ -5142,47 +5156,12 @@ void LLAppViewer::idleNameCache()
 	// Can't run the new cache until we have the list of capabilities
 	// for the agent region, and can therefore decide whether to use
 	// display names or fall back to the old name system.
-	if (!region->capabilitiesReceived()) return;
+    if (!region->capabilitiesReceived())
+    {
+        return;
+    }
 
-	// Agent may have moved to a different region, so need to update cap URL
-	// for name lookups.  Can't do this in the cap grant code, as caps are
-	// granted to neighbor regions before the main agent gets there.  Can't
-	// do it in the move-into-region code because cap not guaranteed to be
-	// granted yet, for example on teleport.
-	LLAvatarNameCache *name_cache = LLAvatarNameCache::getInstance();
-	bool had_capability = LLAvatarNameCache::getInstance()->hasNameLookupURL();
-	std::string name_lookup_url;
-	name_lookup_url.reserve(128); // avoid a memory allocation below
-	name_lookup_url = region->getCapability("GetDisplayNames");
-	bool have_capability = !name_lookup_url.empty();
-	if (have_capability)
-	{
-		// we have support for display names, use it
-	    U32 url_size = name_lookup_url.size();
-	    // capabilities require URLs with slashes before query params:
-	    // https://<host>:<port>/cap/<uuid>/?ids=<blah>
-	    // but the caps are granted like:
-	    // https://<host>:<port>/cap/<uuid>
-	    if (url_size > 0 && name_lookup_url[url_size-1] != '/')
-	    {
-		    name_lookup_url += '/';
-	    }
-		name_cache->setNameLookupURL(name_lookup_url);
-	}
-	else
-	{
-		// Display names not available on this region
-		name_cache->setNameLookupURL( std::string() );
-	}
-
-	// Error recovery - did we change state?
-	if (had_capability != have_capability)
-	{
-		// name tags are persistant on screen, so make sure they refresh
-		LLVOAvatar::invalidateNameTags();
-	}
-
-	name_cache->idle();
+    LLAvatarNameCache::getInstance()->idle();
 }
 
 //
@@ -5219,37 +5198,40 @@ void LLAppViewer::idleNetwork()
 		const S64 frame_count = gFrameCount;  // U32->S64
 		F32 total_time = 0.0f;
 
-		while (gMessageSystem->checkAllMessages(frame_count, gServicePump))
 		{
-			if (gDoDisconnect)
+			LockMessageChecker lmc(gMessageSystem);
+			while (lmc.checkAllMessages(frame_count, gServicePump))
 			{
-				// We're disconnecting, don't process any more messages from the server
-				// We're usually disconnecting due to either network corruption or a
-				// server going down, so this is OK.
-				break;
-			}
+				if (gDoDisconnect)
+				{
+					// We're disconnecting, don't process any more messages from the server
+					// We're usually disconnecting due to either network corruption or a
+					// server going down, so this is OK.
+					break;
+				}
 
-			total_decoded++;
-			gPacketsIn++;
+				total_decoded++;
+				gPacketsIn++;
 
-			if (total_decoded > MESSAGE_MAX_PER_FRAME)
-			{
-				break;
-			}
+				if (total_decoded > MESSAGE_MAX_PER_FRAME)
+				{
+					break;
+				}
 
 #ifdef TIME_THROTTLE_MESSAGES
-			// Prevent slow packets from completely destroying the frame rate.
-			// This usually happens due to clumps of avatars taking huge amount
-			// of network processing time (which needs to be fixed, but this is
-			// a good limit anyway).
-			total_time = check_message_timer.getElapsedTimeF32();
-			if (total_time >= CheckMessagesMaxTime)
-				break;
+				// Prevent slow packets from completely destroying the frame rate.
+				// This usually happens due to clumps of avatars taking huge amount
+				// of network processing time (which needs to be fixed, but this is
+				// a good limit anyway).
+				total_time = check_message_timer.getElapsedTimeF32();
+				if (total_time >= CheckMessagesMaxTime)
+					break;
 #endif
-		}
+			}
 
-		// Handle per-frame message system processing.
-		gMessageSystem->processAcks(gSavedSettings.getF32("AckCollectTime"));
+			// Handle per-frame message system processing.
+			lmc.processAcks(gSavedSettings.getF32("AckCollectTime"));
+		}
 
 #ifdef TIME_THROTTLE_MESSAGES
 		if (total_time >= CheckMessagesMaxTime)
@@ -5385,7 +5367,7 @@ bool LLAppViewer::onChangeFrameLimit(LLSD const & evt)
 {
 	if (evt.asInteger() > 0)
 	{
-		mMinMicroSecPerFrame = 1000000 / evt.asInteger();
+		mMinMicroSecPerFrame = (U64)(1000000.0f / F32(evt.asInteger()));
 	}
 	else
 	{
@@ -5440,6 +5422,33 @@ void LLAppViewer::forceErrorDriverCrash()
 	glDeleteTextures(1, NULL);
 }
 
+void LLAppViewer::forceErrorCoroutineCrash()
+{
+    LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
+    LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw LLException("A deliberate crash from LLCoros"); });
+}
+
+void LLAppViewer::forceErrorThreadCrash()
+{
+    class LLCrashTestThread : public LLThread
+    {
+    public:
+
+        LLCrashTestThread() : LLThread("Crash logging test thread")
+        {
+        }
+
+        void run()
+        {
+            LL_ERRS() << "This is a deliberate llerror in thread" << LL_ENDL;
+        }
+    };
+
+    LL_WARNS() << "This is a deliberate crash in a thread" << LL_ENDL;
+    LLCrashTestThread *thread = new LLCrashTestThread();
+    thread->start();
+}
+
 void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
 {
 	if(!mMainloopTimeout)
@@ -5483,11 +5492,6 @@ void LLAppViewer::pauseMainloopTimeout()
 
 void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 {
-//	if(!restoreErrorTrap())
-//	{
-//		LL_WARNS() << "!!!!!!!!!!!!! Its an error trap!!!!" << state << LL_ENDL;
-//	}
-
 	if(mMainloopTimeout)
 	{
 		if(secs < 0.0f)
@@ -5531,7 +5535,7 @@ void LLAppViewer::handleLoginComplete()
 
 	if(gAgent.getRegion())
 	{
-		gDebugInfo["CurrentSimHost"] = gAgent.getRegionHost().getHostName();
+		gDebugInfo["CurrentSimHost"] = gAgent.getRegion()->getSimHostName();
 		gDebugInfo["CurrentRegion"] = gAgent.getRegion()->getName();
 	}
 

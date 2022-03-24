@@ -1,15 +1,14 @@
-
 # -*- cmake -*-
 
 project(llcommon)
 
 include(00-Common)
 include(LLCommon)
+include(bugsplat)
 include(Linking)
 include(Boost)
 include(LLSharedLibs)
 include(JsonCpp)
-include(GoogleBreakpad)
 include(Copy3rdPartyLibs)
 include(ZLIB)
 include(URIPARSER)
@@ -19,7 +18,6 @@ include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
-    ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
     )
 
@@ -44,7 +42,6 @@ set(llcommon_SOURCE_FILES
     llcleanup.cpp
     llcommon.cpp
     llcommonutils.cpp
-    llcoro_get_id.cpp
     llcoros.cpp
     llcrc.cpp
     llcriticaldamp.cpp
@@ -73,6 +70,7 @@ set(llcommon_SOURCE_FILES
     llinitparam.cpp
     llinitdestroyclass.cpp
     llinstancetracker.cpp
+    llkeybind.cpp
     llleap.cpp
     llleaplistener.cpp
     llliveappconfig.cpp
@@ -106,6 +104,7 @@ set(llcommon_SOURCE_FILES
     llstring.cpp
     llstringtable.cpp
     llsys.cpp
+    lltempredirect.cpp
     llthread.cpp
     llthreadlocalstorage.cpp
     llthreadsafequeue.cpp
@@ -146,7 +145,7 @@ set(llcommon_HEADER_FILES
     llcleanup.h
     llcommon.h
     llcommonutils.h
-    llcoro_get_id.h
+    llcond.h
     llcoros.h
     llcrc.h
     llcriticaldamp.h
@@ -183,12 +182,13 @@ set(llcommon_HEADER_FILES
     llinitdestroyclass.h
     llinitparam.h
     llinstancetracker.h
+    llkeybind.h
     llkeythrottle.h
     llleap.h
     llleaplistener.h
-    lllistenerwrapper.h
     llliveappconfig.h
     lllivefile.h
+    llmainthreadtask.h
     llmd5.h
     llmemory.h
     llmemorystream.h
@@ -208,9 +208,9 @@ set(llcommon_HEADER_FILES
     llqueuedthread.h
     llrand.h
     llrefcount.h
+    llregex.h
     llregistry.h
     llrun.h
-    llrefcount.h
     llsafehandle.h
     llsd.h
     llsdjson.h
@@ -230,6 +230,7 @@ set(llcommon_HEADER_FILES
     llstaticstringtable.h
     llstatsaccumulator.h
     llsys.h
+    lltempredirect.h
     llthread.h
     llthreadlocalstorage.h
     llthreadsafequeue.h
@@ -247,6 +248,7 @@ set(llcommon_HEADER_FILES
     llwin32headers.h
     llwin32headerslean.h
     llworkerthread.h
+    lockstatic.h
     stdtypes.h
     stringize.h
     timer.h
@@ -257,10 +259,10 @@ set(llcommon_HEADER_FILES
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if (BUGSPLAT_DB)
-  set_source_files_properties(llapp.cpp
-    PROPERTIES COMPILE_DEFINITIONS "LL_BUGSPLAT")
-endif (BUGSPLAT_DB)
+if (USE_BUGSPLAT)
+  set_source_files_properties(${llcommon_SOURCE_FILES}
+    PROPERTIES COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+endif (USE_BUGSPLAT)
 
 list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
@@ -284,14 +286,13 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
     llcommon
-    ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${WINDOWS_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
@@ -320,13 +321,14 @@ if (LL_TESTS)
       ${LLCOMMON_LIBRARIES} 
       ${WINDOWS_LIBRARIES} 
       ${GOOGLEMOCK_LIBRARIES} 
-      ${BOOST_COROUTINE_LIBRARY} 
+      ${BOOST_FIBER_LIBRARY} 
       ${BOOST_CONTEXT_LIBRARY} 
       ${BOOST_THREAD_LIBRARY} 
       ${BOOST_SYSTEM_LIBRARY})
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldeadmantimer "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldependencies "" "${test_libs}")
@@ -338,6 +340,7 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llheteromap "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llinstancetracker "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llleap "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(llmainthreadtask "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llpounceable "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocess "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llprocessor "" "${test_libs}")

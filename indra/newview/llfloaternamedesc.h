@@ -30,6 +30,7 @@
 #include "llfloater.h"
 #include "llresizehandle.h"
 #include "llstring.h"
+#include "llassettype.h"
 
 class LLLineEditor;
 class LLButton;
@@ -45,6 +46,8 @@ public:
 	void		onBtnOK();
 	void		onBtnCancel();
 	void		doCommit();
+
+	S32			getExpectedUploadCost() const;
 	
 protected:
 	virtual void		onCommit();

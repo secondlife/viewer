@@ -1,5 +1,6 @@
 /** 
  * @mainpage
+ * @mainpage
  *
  * This is the sources for the Second Life Viewer;
  * information on the open source project is at 
@@ -57,6 +58,8 @@ class LLImageDecodeThread;
 class LLTextureFetch;
 class LLWatchdogTimeout;
 class LLViewerJoystick;
+class LLPurgeDiskCacheThread;
+class LLViewerRegion;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
@@ -82,7 +85,7 @@ public:
 	virtual bool frame(); // Override for application body logic
 
 	// Application control
-	void flushVFSIO(); // waits for vfs transfers to complete
+	void flushLFSIO(); // waits for lfs transfers to complete
 	void forceQuit(); // Puts the viewer into 'shutting down without error' mode.
 	void fastQuit(S32 error_code = 0); // Shuts down the viewer immediately after sending a logout message
 	void requestQuit(); // Request a quit. A kinder, gentler quit.
@@ -95,6 +98,7 @@ public:
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
 	bool isSecondInstance() { return mSecondInstance; }
+    bool isUpdaterMissing() { return mUpdaterNotFound; }
 
 	void writeDebugInfo(bool isStatic=true);
 
@@ -107,7 +111,6 @@ public:
 
 	virtual bool restoreErrorTrap() = 0; // Require platform specific override to reset error handling mechanism.
 	                                     // return false if the error trap needed restoration.
-	virtual void initCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
     void checkForCrash();
     
@@ -115,6 +118,7 @@ public:
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
 	static LLImageDecodeThread* getImageDecodeThread() { return sImageDecodeThread; }
 	static LLTextureFetch* getTextureFetch() { return sTextureFetch; }
+	static LLPurgeDiskCacheThread* getPurgeDiskCacheThread() { return sPurgeDiskCacheThread; }
 
 	static U32 getTextureCacheVersion() ;
 	static U32 getObjectCacheVersion() ;
@@ -149,6 +153,8 @@ public:
     virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
+    virtual void forceErrorCoroutineCrash();
+    virtual void forceErrorThreadCrash();
 
 	// The list is found in app_settings/settings_files.xml
 	// but since they are used explicitly in code,
@@ -190,9 +196,12 @@ public:
 
 	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
 
+	void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
 	S32  updateTextureThreads(F32 max_time);
+
+	void loadKeyBindings();
 	
 	// mute/unmute the system's master audio
 	virtual void setMasterSystemAudioMute(bool mute);
@@ -204,7 +213,9 @@ public:
 
 	// llcorehttp init/shutdown/config information.
 	LLAppCoreHttp & getAppCoreHttp()			{ return mAppCoreHttp; }
-	
+
+    void updateNameLookupUrl(const LLViewerRegion* regionp);
+
 protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
@@ -229,7 +240,6 @@ private:
 	bool initConfiguration(); // Initialize settings from the command line/config file.
 	void initStrings();       // Initialize LLTrans machinery
 	bool initCache(); // Initialize local client cache.
-	void checkMemory() ;
 
 	// We have switched locations of both Mac and Windows cache, make sure
 	// files migrate and old cache is cleared out.
@@ -261,6 +271,7 @@ private:
 	static LLAppViewer* sInstance; 
 
     bool mSecondInstance; // Is this a second instance of the app?
+	bool mUpdaterNotFound; // True when attempt to start updater failed
 
 	std::string mMarkerFileName;
 	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
@@ -276,12 +287,14 @@ private:
 	static LLTextureCache* sTextureCache; 
 	static LLImageDecodeThread* sImageDecodeThread; 
 	static LLTextureFetch* sTextureFetch;
+	static LLPurgeDiskCacheThread* sPurgeDiskCacheThread;
 
 	S32 mNumSessions;
 
 	std::string mSerialNumber;
 	bool mPurgeCache;
-    bool mPurgeOnExit;
+	bool mPurgeCacheOnExit;
+	bool mPurgeUserDataOnExit;
 	LLViewerJoystick* joystick;
 
 	bool mSavedFinalSnapshot;
@@ -305,8 +318,6 @@ private:
 	LLUUID mAgentRegionLastID;
 
     LLAllocator mAlloc;
-
-	LLFrameTimer mMemCheckTimer;
 
 	// llcorehttp library init/shutdown helper
 	LLAppCoreHttp mAppCoreHttp;
@@ -375,12 +386,6 @@ extern BOOL			gRestoreGL;
 extern bool		gUseWireframe;
 extern bool		gInitialDeferredModeForWireframe;
 
-// VFS globals - gVFS is for general use
-// gStaticVFS is read-only and is shipped w/ the viewer
-// it has pre-cache data like the UI .TGAs
-class LLVFS;
-extern LLVFS	*gStaticVFS;
-
 extern LLMemoryInfo gSysMemory;
 extern U64Bytes gMemoryAllocated;
 
@@ -391,8 +396,6 @@ extern LLVector3 gRelativeWindVec;
 extern U32	gPacketsIn;
 extern BOOL gPrintMessagesThisFrame;
 
-extern LLUUID gSunTextureID;
-extern LLUUID gMoonTextureID;
 extern LLUUID gBlackSquareID;
 
 extern BOOL gRandomizeFramerate;

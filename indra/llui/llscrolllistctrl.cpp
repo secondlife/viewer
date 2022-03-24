@@ -66,9 +66,10 @@ static LLDefaultChildRegistry::Register<LLScrollListCtrl> r("scroll_list");
 // local structures & classes.
 struct SortScrollListItem
 {
-	SortScrollListItem(const std::vector<std::pair<S32, BOOL> >& sort_orders,const LLScrollListCtrl::sort_signal_t*	sort_signal)
+	SortScrollListItem(const std::vector<std::pair<S32, BOOL> >& sort_orders,const LLScrollListCtrl::sort_signal_t*	sort_signal, bool alternate_sort)
 	:	mSortOrders(sort_orders)
 	,   mSortSignal(sort_signal)
+	,	mAltSort(alternate_sort)
 	{}
 
 	bool operator()(const LLScrollListItem* i1, const LLScrollListItem* i2)
@@ -93,7 +94,14 @@ struct SortScrollListItem
 				}
 				else
 				{
-					sort_result = order * LLStringUtil::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
+					if (mAltSort && !cell1->getAltValue().asString().empty() && !cell2->getAltValue().asString().empty())
+					{
+						sort_result = order * LLStringUtil::compareDict(cell1->getAltValue().asString(), cell2->getAltValue().asString());
+					}
+					else
+					{
+						sort_result = order * LLStringUtil::compareDict(cell1->getValue().asString(), cell2->getValue().asString());
+					}
 				}
 				if (sort_result != 0)
 				{
@@ -109,11 +117,19 @@ struct SortScrollListItem
 	typedef std::vector<std::pair<S32, BOOL> > sort_order_t;
 	const LLScrollListCtrl::sort_signal_t* mSortSignal;
 	const sort_order_t& mSortOrders;
+	const bool mAltSort;
 };
 
 //---------------------------------------------------------------------------
 // LLScrollListCtrl
 //---------------------------------------------------------------------------
+
+void LLScrollListCtrl::SelectionTypeNames::declareValues()
+{
+    declare("row", LLScrollListCtrl::ROW);
+    declare("cell", LLScrollListCtrl::CELL);
+    declare("header", LLScrollListCtrl::HEADER);
+}
 
 LLScrollListCtrl::Contents::Contents()
 :	columns("column"),
@@ -128,15 +144,19 @@ LLScrollListCtrl::Params::Params()
 	has_border("draw_border"),
 	draw_heading("draw_heading"),
 	search_column("search_column", 0),
+	selection_type("selection_type", ROW),
 	sort_column("sort_column", -1),
 	sort_ascending("sort_ascending", true),
+	can_sort("can_sort", true),
 	mouse_wheel_opaque("mouse_wheel_opaque", false),
 	commit_on_keyboard_movement("commit_on_keyboard_movement", true),
+	commit_on_selection_change("commit_on_selection_change", false),
 	heading_height("heading_height"),
 	page_lines("page_lines", 0),
 	background_visible("background_visible"),
 	draw_stripes("draw_stripes"),
 	column_padding("column_padding"),
+	row_padding("row_padding", 2),
 	fg_unselected_color("fg_unselected_color"),
 	fg_selected_color("fg_selected_color"),
 	bg_selected_color("bg_selected_color"),
@@ -161,10 +181,12 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mMaxSelectable(0),
 	mAllowKeyboardMovement(true),
 	mCommitOnKeyboardMovement(p.commit_on_keyboard_movement),
-	mCommitOnSelectionChange(false),
+	mCommitOnSelectionChange(p.commit_on_selection_change),
 	mSelectionChanged(false),
+	mSelectionType(p.selection_type),
 	mNeedsScroll(false),
 	mCanSelect(true),
+	mCanSort(p.can_sort),
 	mColumnsDirty(false),
 	mMaxItemCount(INT_MAX), 
 	mBorderThickness( 2 ),
@@ -199,6 +221,8 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 	mHoveredColor(p.hovered_color()),
 	mSearchColumn(p.search_column),
 	mColumnPadding(p.column_padding),
+	mRowPadding(p.row_padding),
+	mAlternateSort(false),
 	mContextMenuType(MENU_NONE),
 	mIsFriendSignal(NULL)
 {
@@ -322,8 +346,7 @@ LLScrollListCtrl::~LLScrollListCtrl()
 
 	std::for_each(mItemList.begin(), mItemList.end(), DeletePointer());
 	mItemList.clear();
-	std::for_each(mColumns.begin(), mColumns.end(), DeletePairedPointer());
-	mColumns.clear();
+    clearColumns(); //clears columns and deletes headers
 	delete mIsFriendSignal;
 }
 
@@ -685,8 +708,6 @@ bool LLScrollListCtrl::updateColumnWidths()
 	return width_changed;
 }
 
-const S32 SCROLL_LIST_ROW_PAD = 2;
-
 // Line height is the max height of all the cells in all the items.
 void LLScrollListCtrl::updateLineHeight()
 {
@@ -699,7 +720,7 @@ void LLScrollListCtrl::updateLineHeight()
 		S32 i = 0;
 		for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
 		{
-			mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
+			mLineHeight = llmax( mLineHeight, cell->getHeight() + mRowPadding );
 		}
 	}
 }
@@ -711,7 +732,7 @@ void LLScrollListCtrl::updateLineHeightInsert(LLScrollListItem* itemp)
 	S32 i = 0;
 	for (const LLScrollListCell* cell = itemp->getColumn(i); i < num_cols; cell = itemp->getColumn(++i))
 	{
-		mLineHeight = llmax( mLineHeight, cell->getHeight() + SCROLL_LIST_ROW_PAD );
+		mLineHeight = llmax( mLineHeight, cell->getHeight() + mRowPadding );
 	}
 }
 
@@ -731,12 +752,12 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 	LLScrollColumnHeader* last_header = NULL;
 	for (column_ordered_it = mColumnsIndexed.begin(); column_ordered_it != mColumnsIndexed.end(); ++column_ordered_it)
 	{
-		if ((*column_ordered_it)->getWidth() < 0)
+		LLScrollListColumn* column = *column_ordered_it;
+		if (!column || column->getWidth() < 0)
 		{
 			// skip hidden columns
 			continue;
 		}
-		LLScrollListColumn* column = *column_ordered_it;
 		
 		if (column->mHeader)
 		{
@@ -762,14 +783,20 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 		}
 	}
 
+	bool header_changed_width = false;
 	// expand last column header we encountered to full list width
 	if (last_header)
 	{
+		S32 old_width = last_header->getColumn()->getWidth();
 		S32 new_width = llmax(0, mItemListRect.mRight - last_header->getRect().mLeft);
 		last_header->reshape(new_width, last_header->getRect().getHeight());
 		last_header->setVisible(mDisplayColumnHeaders && new_width > 0);
-		last_header->getColumn()->setWidth(new_width);
-	}
+        if (old_width != new_width)
+        {
+            last_header->getColumn()->setWidth(new_width);
+            header_changed_width = true;
+        }
+    }
 
 	// propagate column widths to individual cells
 	if (columns_changed_width || force_update)
@@ -788,6 +815,20 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 			}
 		}
 	}
+    else if (header_changed_width)
+    {
+        item_list::iterator iter;
+        S32 index = last_header->getColumn()->mIndex; // Not always identical to last column!
+        for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
+        {
+            LLScrollListItem *itemp = *iter;
+            LLScrollListCell* cell = itemp->getColumn(index);
+            if (cell)
+            {
+                cell->setWidth(last_header->getColumn()->getWidth());
+            }
+        }
+    }
 }
 
 void LLScrollListCtrl::setHeadingHeight(S32 heading_height)
@@ -819,7 +860,15 @@ BOOL LLScrollListCtrl::selectFirstItem()
 		{
 			if (!itemp->getSelected())
 			{
-				selectItem(itemp);
+                switch (mSelectionType)
+                {
+                case CELL:
+                    selectItem(itemp, 0);
+                    break;
+                case HEADER:
+                case ROW:
+                    selectItem(itemp, -1);
+                }
 			}
 			success = TRUE;
 			mOriginalSelection = 0;
@@ -878,7 +927,8 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 		{
 			if( itemp->getEnabled() )
 			{
-				selectItem(itemp, FALSE);
+				// TODO: support range selection for cells
+				selectItem(itemp, -1, FALSE);
 				success = TRUE;				
 			}
 		}
@@ -1004,10 +1054,14 @@ void LLScrollListCtrl::clearHighlightedItems()
 
 void LLScrollListCtrl::mouseOverHighlightNthItem(S32 target_index)
 {
-	if (mHighlightedItem != target_index)
-	{
-		mHighlightedItem = target_index;
-	}
+    if (mHighlightedItem != target_index)
+    {
+        if (mHighlightedItem >= 0 && mHighlightedItem < mItemList.size())
+        {
+            mItemList[mHighlightedItem]->setHoverCell(-1);
+        }
+        mHighlightedItem = target_index;
+    }
 }
 
 S32	LLScrollListCtrl::selectMultiple( uuid_vec_t ids )
@@ -1022,7 +1076,8 @@ S32	LLScrollListCtrl::selectMultiple( uuid_vec_t ids )
 		{
 			if (item->getEnabled() && (item->getUUID() == (*iditr)))
 			{
-				selectItem(item,FALSE);
+				// TODO: support multiple selection for cells
+				selectItem(item, -1, FALSE);
 				++count;
 				break;
 			}
@@ -1095,7 +1150,7 @@ void LLScrollListCtrl::selectPrevItem( BOOL extend_selection)
 			{
 				if (prev_item)
 				{
-					selectItem(prev_item, !extend_selection);
+					selectItem(prev_item, cur_item->getSelectedCell(), !extend_selection);
 				}
 				else
 				{
@@ -1139,7 +1194,7 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 			{
 				if (next_item)
 				{
-					selectItem(next_item, !extend_selection);
+					selectItem(next_item, cur_item->getSelectedCell(), !extend_selection);
 				}
 				else
 				{
@@ -1210,7 +1265,7 @@ BOOL LLScrollListCtrl::selectItemByLabel(const std::string& label, BOOL case_sen
 	bool found = NULL != item;
 	if(found)
 	{
-		selectItem(item);
+		selectItem(item, -1);
 	}
 
 	if (mCommitOnSelectionChange)
@@ -1278,7 +1333,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 			BOOL select = cellp ? item->getEnabled() && ('\0' == cellp->getValue().asString()[0]) : FALSE;
 			if (select)
 			{
-				selectItem(item);
+				selectItem(item, -1);
 				found = TRUE;
 				break;
 			}
@@ -1318,7 +1373,7 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 				// find offset of matching text (might have leading whitespace)
 				S32 offset = item_label.find(target_trimmed);
 				cellp->highlightText(offset, target_trimmed.size());
-				selectItem(item);
+				selectItem(item, -1);
 				found = TRUE;
 				break;
 			}
@@ -1380,18 +1435,34 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
-		if (item->getEnabled() && (item->getValue().asString() == value.asString()))
+		if (item->getEnabled())
 		{
-			if (selected)
-			{
-				selectItem(item);
-			}
-			else
-			{
-				deselectItem(item);
-			}
-			found = TRUE;
-			break;
+            if (value.isBinary())
+            {
+                if (item->getValue().isBinary())
+                {
+                    LLSD::Binary data1 = value.asBinary();
+                    LLSD::Binary data2 = item->getValue().asBinary();
+                    found = std::equal(data1.begin(), data1.end(), data2.begin()) ? TRUE : FALSE;
+                }
+            }
+            else
+            {
+                found = item->getValue().asString() == value.asString() ? TRUE : FALSE;
+            }
+
+            if (found)
+            {
+                if (selected)
+                {
+                    selectItem(item, -1);
+                }
+                else
+                {
+                    deselectItem(item);
+                }
+                break;
+            }
 		}
 	}
 
@@ -1464,7 +1535,7 @@ void LLScrollListCtrl::drawItems()
 		
 		S32 max_columns = 0;
 
-		LLColor4 highlight_color = LLColor4::white;
+		LLColor4 highlight_color = LLColor4::white; // ex: text inside cells
 		static LLUICachedControl<F32> type_ahead_timeout ("TypeAheadTimeout", 0);
 		highlight_color.mV[VALPHA] = clamp_rescale(mSearchTimer.getElapsedTimeF32(), type_ahead_timeout * 0.7f, type_ahead_timeout(), 0.4f, 0.f);
 
@@ -1490,7 +1561,8 @@ void LLScrollListCtrl::drawItems()
 			max_columns = llmax(max_columns, item->getNumColumns());
 
 			LLColor4 fg_color;
-			LLColor4 bg_color(LLColor4::transparent);
+			LLColor4 hover_color(LLColor4::transparent);
+			LLColor4 select_color(LLColor4::transparent);
 
 			if( mScrollLines <= line && line < mScrollLines + num_page_lines )
 			{
@@ -1499,44 +1571,44 @@ void LLScrollListCtrl::drawItems()
 				{
 					if(item->getHighlighted())	// if it's highlighted, average the colors
 					{
-						bg_color = lerp(mBgSelectedColor.get(), mHighlightedColor.get(), 0.5f);
+						select_color = lerp(mBgSelectedColor.get(), mHighlightedColor.get(), 0.5f);
 					}
 					else						// otherwise just select-highlight it
 					{
-						bg_color = mBgSelectedColor.get();
+						select_color = mBgSelectedColor.get();
 					}
 
 					fg_color = (item->getEnabled() ? mFgSelectedColor.get() : mFgDisabledColor.get());
 				}
-				else if (mHighlightedItem == line && mCanSelect)
+				if (mHighlightedItem == line && mCanSelect)
 				{
 					if(item->getHighlighted())	// if it's highlighted, average the colors
 					{
-						bg_color = lerp(mHoveredColor.get(), mHighlightedColor.get(), 0.5f);
+						hover_color = lerp(mHoveredColor.get(), mHighlightedColor.get(), 0.5f);
 					}
 					else						// otherwise just hover-highlight it
 					{
-						bg_color = mHoveredColor.get();
+						hover_color = mHoveredColor.get();
 					}
 				}
 				else if (item->getHighlighted())
 				{
-					bg_color = mHighlightedColor.get();
+					hover_color = mHighlightedColor.get();
 				}
 				else 
 				{
 					if (mDrawStripes && (line % 2 == 0) && (max_columns > 1))
 					{
-						bg_color = mBgStripeColor.get();
+						hover_color = mBgStripeColor.get();
 					}
 				}
 
 				if (!item->getEnabled())
 				{
-					bg_color = mBgReadOnlyColor.get();
+					hover_color = mBgReadOnlyColor.get();
 				}
 
-				item->draw(item_rect, fg_color % alpha, bg_color% alpha, highlight_color % alpha, mColumnPadding);
+				item->draw(item_rect, fg_color % alpha, hover_color% alpha, select_color% alpha, highlight_color % alpha, mColumnPadding);
 
 				cur_y -= mLineHeight;
 			}
@@ -1592,6 +1664,20 @@ BOOL LLScrollListCtrl::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	BOOL handled = FALSE;
 	// Pretend the mouse is over the scrollbar
 	handled = mScrollbar->handleScrollWheel( 0, 0, clicks );
+
+	if (mMouseWheelOpaque)
+	{
+		return TRUE;
+	}
+
+	return handled;
+}
+
+BOOL LLScrollListCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	BOOL handled = FALSE;
+	// Pretend the mouse is over the scrollbar
+	handled = mScrollbar->handleScrollHWheel( 0, 0, clicks );
 
 	if (mMouseWheelOpaque)
 	{
@@ -1674,7 +1760,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 			{
 				if (mLastSelected == NULL)
 				{
-					selectItem(hit_item);
+					selectItem(hit_item, getColumnIndexFromOffset(x));
 				}
 				else
 				{
@@ -1698,7 +1784,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 						LLScrollListItem *item = *itor;
                         if (item == hit_item || item == lastSelected)
 						{
-							selectItem(item, FALSE);
+							selectItem(item, getColumnIndexFromOffset(x), FALSE);
 							selecting = !selecting;
 							if (hit_item == lastSelected)
 							{
@@ -1708,7 +1794,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 						}
 						if (selecting)
 						{
-							selectItem(item, FALSE);
+							selectItem(item, getColumnIndexFromOffset(x), FALSE);
 						}
 					}
 				}
@@ -1723,7 +1809,7 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 				{
 					if(!(mMaxSelectable > 0 && getAllSelected().size() >= mMaxSelectable))
 					{
-						selectItem(hit_item, FALSE);
+						selectItem(hit_item, getColumnIndexFromOffset(x), FALSE);
 					}
 					else
 					{
@@ -1737,12 +1823,12 @@ BOOL LLScrollListCtrl::selectItemAt(S32 x, S32 y, MASK mask)
 			else
 			{
 				deselectAllItems(TRUE);
-				selectItem(hit_item);
+				selectItem(hit_item, getColumnIndexFromOffset(x));
 			}
 		}
 		else
 		{
-			selectItem(hit_item);
+			selectItem(hit_item, getColumnIndexFromOffset(x));
 		}
 
 		selection_changed = mSelectionChanged;
@@ -2110,8 +2196,29 @@ BOOL LLScrollListCtrl::handleHover(S32 x,S32 y,MASK mask)
 	{
 		LLScrollListItem* item = hitItem(x, y);
 		if (item)
-		{
-			mouseOverHighlightNthItem(getItemIndex(item));
+        {
+            mouseOverHighlightNthItem(getItemIndex(item));
+            switch (mSelectionType)
+            {
+            case CELL:
+                item->setHoverCell(getColumnIndexFromOffset(x));
+                break;
+            case HEADER:
+                {
+                    S32 cell = getColumnIndexFromOffset(x);
+                    if (cell > 0)
+                    {
+                        item->setHoverCell(cell);
+                    }
+                    else
+                    {
+                        item->setHoverCell(-1);
+                    }
+                    break;
+                }
+            case ROW:
+                break;
+            }
 		}
 		else
 		{
@@ -2159,6 +2266,58 @@ BOOL LLScrollListCtrl::handleKeyHere(KEY key,MASK mask )
 					handled = TRUE;
 				}
 				break;
+            case KEY_LEFT:
+                if (mAllowKeyboardMovement || hasFocus())
+                {
+                    // TODO: support multi-select
+                    LLScrollListItem *item = getFirstSelected();
+                    if (item)
+                    {
+                        S32 cell = item->getSelectedCell();
+                        switch (mSelectionType)
+                        {
+                        case CELL:
+                            if (cell < mColumns.size()) cell++;
+                            break;
+                        case HEADER:
+                            if (cell == -1) cell = 1;
+                            else if (cell > 1 && cell < mColumns.size()) cell++; // skip header
+                            break;
+                        case ROW:
+                            cell = -1;
+                            break;
+                        }
+                        item->setSelectedCell(cell);
+                        handled = TRUE;
+                    }
+                }
+                break;
+            case KEY_RIGHT:
+                if (mAllowKeyboardMovement || hasFocus())
+                {
+                    // TODO: support multi-select
+                    LLScrollListItem *item = getFirstSelected();
+                    if (item)
+                    {
+                        S32 cell = item->getSelectedCell();
+                        switch (mSelectionType)
+                        {
+                        case CELL:
+                            if (cell >= 0) cell--;
+                            break;
+                        case HEADER:
+                            if (cell > 1) cell--;
+                            else if (cell == 1) cell = -1; // skip header
+                            break;
+                        case ROW:
+                            cell = -1;
+                            break;
+                        }
+                        item->setSelectedCell(cell);
+                        handled = TRUE;
+                    }
+                }
+                break;
 			case KEY_PAGE_UP:
 				if (mAllowKeyboardMovement || hasFocus())
 				{
@@ -2327,7 +2486,7 @@ BOOL LLScrollListCtrl::handleUnicodeCharHere(llwchar uni_char)
 				LLWString item_label = utf8str_to_wstring(cellp->getValue().asString());
 				if (item->getEnabled() && LLStringOps::toLower(item_label[0]) == uni_char)
 				{
-					selectItem(item);
+					selectItem(item, -1);
 					mNeedsScroll = true;
 					cellp->highlightText(0, 1);
 					mSearchTimer.reset();
@@ -2379,7 +2538,7 @@ BOOL LLScrollListCtrl::isRepeatedChars(const LLWString& string) const
 	return TRUE;
 }
 
-void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, BOOL select_single_item)
+void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, S32 cell, BOOL select_single_item)
 {
 	if (!itemp) return;
 
@@ -2398,6 +2557,18 @@ void LLScrollListCtrl::selectItem(LLScrollListItem* itemp, BOOL select_single_it
 			deselectAllItems(TRUE);
 		}
 		itemp->setSelected(TRUE);
+        switch (mSelectionType)
+        {
+        case CELL:
+            itemp->setSelectedCell(cell);
+            break;
+        case HEADER:
+            itemp->setSelectedCell(cell <= 0 ? -1 : cell);
+            break;
+        case ROW:
+            itemp->setSelectedCell(-1);
+            break;
+        }
 		mLastSelected = itemp;
 		mSelectionChanged = true;
 	}
@@ -2518,7 +2689,7 @@ void LLScrollListCtrl::updateSort() const
 		std::stable_sort(
 			mItemList.begin(), 
 			mItemList.end(), 
-			SortScrollListItem(mSortColumns,mSortCallback));
+			SortScrollListItem(mSortColumns,mSortCallback, mAlternateSort));
 
 		mSorted = true;
 	}
@@ -2534,7 +2705,7 @@ void LLScrollListCtrl::sortOnce(S32 column, BOOL ascending)
 	std::stable_sort(
 		mItemList.begin(), 
 		mItemList.end(), 
-		SortScrollListItem(sort_column,mSortCallback));
+		SortScrollListItem(sort_column,mSortCallback,mAlternateSort));
 }
 
 void LLScrollListCtrl::dirtyColumns() 
@@ -2658,7 +2829,7 @@ void	LLScrollListCtrl::selectAll()
 		LLScrollListItem *itemp = *iter;
 		if( itemp->getEnabled() )
 		{
-			selectItem(itemp, FALSE);
+			selectItem(itemp, -1, FALSE);
 		}
 	}
 
@@ -2787,6 +2958,8 @@ void LLScrollListCtrl::onClickColumn(void *userdata)
 	LLScrollListCtrl *parent = info->mParentCtrl;
 	if (!parent) return;
 
+	if (!parent->mCanSort) return;
+
 	S32 column_index = info->mIndex;
 
 	LLScrollListColumn* column = parent->mColumnsIndexed[info->mIndex];
@@ -2847,6 +3020,8 @@ void LLScrollListCtrl::clearColumns()
 	mSortColumns.clear();
 	mTotalStaticColumnWidth = 0;
 	mTotalColumnPadding = 0;
+
+    dirtyColumns(); // Clears mColumnsIndexed
 }
 
 void LLScrollListCtrl::setColumnLabel(const std::string& column, const std::string& label)

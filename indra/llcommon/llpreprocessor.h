@@ -34,16 +34,7 @@
 #include <endian.h>
 #endif	//	LL_LINUX
 
-#if LL_SOLARIS
-#   ifdef  __sparc     // Since we're talking Solaris 10 and up, only 64 bit is supported.
-#      define LL_BIG_ENDIAN 1
-#      define LL_SOLARIS_ALIGNED_CPU 1     //  used to designate issues where SPARC alignment is addressed
-#      define LL_SOLARIS_NON_MESA_GL 1      //  The SPARC GL does not provide a MESA-based GL API
-#   endif
-#   include <sys/isa_defs.h> // ensure we know which end is up
-#endif // LL_SOLARIS
-
-#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)) || (defined(LL_SOLARIS) && defined(__i386)))
+#if (defined(LL_WINDOWS) || (defined(LL_LINUX) && (__BYTE_ORDER == __LITTLE_ENDIAN)) || (defined(LL_DARWIN) && defined(__LITTLE_ENDIAN__)))
 #define LL_LITTLE_ENDIAN 1
 #else
 #define LL_BIG_ENDIAN 1
@@ -230,6 +221,13 @@
 #else
 // no way to get gcc 4.2 to print a user-defined diagnostic message only when a macro is used
 #define LL_COMPILE_TIME_MESSAGE(msg)
+#endif
+
+// __FUNCTION__ works on all the platforms we care about, but...
+#if LL_WINDOWS
+#define LL_PRETTY_FUNCTION __FUNCSIG__
+#else
+#define LL_PRETTY_FUNCTION __PRETTY_FUNCTION__
 #endif
 
 #endif	//	not LL_LINDEN_PREPROCESSOR_H

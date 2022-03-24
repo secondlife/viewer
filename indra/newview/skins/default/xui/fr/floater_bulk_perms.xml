@@ -30,6 +30,7 @@
 	<icon name="icon_sound" tool_tip="Sons"/>
 	<check_box label="Textures" name="check_texture"/>
 	<icon name="icon_texture" tool_tip="Textures"/>
+	<icon name="icon_setting" tool_tip="Paramètres d&apos;environnement"/>
 	<button label="√ Tout" label_selected="Tout" name="check_all"/>
 	<button label="Effacer" label_selected="Aucun" name="check_none"/>
 	<text name="newperms">

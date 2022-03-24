@@ -37,6 +37,7 @@
 #include "llui.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llviewercamera.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
 #include "llviewerwindow.h"
@@ -48,11 +49,13 @@ static LLDefaultChildRegistry::Register<LLJoystickAgentSlide> r1("joystick_slide
 static LLDefaultChildRegistry::Register<LLJoystickAgentTurn> r2("joystick_turn");
 static LLDefaultChildRegistry::Register<LLJoystickCameraRotate> r3("joystick_rotate");
 static LLDefaultChildRegistry::Register<LLJoystickCameraTrack> r5("joystick_track");
-
+static LLDefaultChildRegistry::Register<LLJoystickQuaternion> r6("joystick_quat");
 
 
 const F32 NUDGE_TIME = 0.25f;		// in seconds
 const F32 ORBIT_NUDGE_RATE = 0.05f; // fraction of normal speed
+
+const S32 CENTER_DOT_RADIUS = 7;
 
 //
 // Public Methods
@@ -138,7 +141,23 @@ bool LLJoystick::pointInCircle(S32 x, S32 y) const
 	//center is x and y coordinates of center of joystick circle, and also its radius
 	int center = this->getLocalRect().getHeight()/2;
 	bool in_circle = (x - center) * (x - center) + (y - center) * (y - center) <= center * center;
+	
 	return in_circle;
+}
+
+bool LLJoystick::pointInCenterDot(S32 x, S32 y, S32 radius) const
+{
+	if (this->getLocalRect().getHeight() != this->getLocalRect().getWidth())
+	{
+		LL_WARNS() << "Joystick shape is not square" << LL_ENDL;
+		return true;
+	}
+
+	S32 center = this->getLocalRect().getHeight() / 2;
+
+	bool in_center_circle = (x - center) * (x - center) + (y - center) * (y - center) <= radius * radius;
+
+	return in_center_circle;
 }
 
 BOOL LLJoystick::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -403,8 +422,11 @@ LLJoystickCameraRotate::LLJoystickCameraRotate(const LLJoystickCameraRotate::Par
 	mInLeft( FALSE ),
 	mInTop( FALSE ),
 	mInRight( FALSE ),
-	mInBottom( FALSE )
-{ }
+	mInBottom( FALSE ),
+	mInCenter( FALSE )
+{ 
+	mCenterImageName = "Cam_Rotate_Center";
+}
 
 
 void LLJoystickCameraRotate::updateSlop()
@@ -434,7 +456,16 @@ BOOL LLJoystickCameraRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 	S32 dx = x - horiz_center;
 	S32 dy = y - vert_center;
 
-	if (dy > dx && dy > -dx)
+	if (pointInCenterDot(x, y, CENTER_DOT_RADIUS))
+	{
+		mInitialOffset.mX = 0;
+		mInitialOffset.mY = 0;
+		mInitialQuadrant = JQ_ORIGIN;
+		mInCenter = TRUE;
+
+		resetJoystickCamera();
+	}
+	else if (dy > dx && dy > -dx)
 	{
 		// top
 		mInitialOffset.mX = 0;
@@ -469,7 +500,18 @@ BOOL LLJoystickCameraRotate::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLJoystickCameraRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gAgent.setMovementLocked(FALSE);
+	mInCenter = FALSE;
 	return LLJoystick::handleMouseUp(x, y, mask);
+}
+
+BOOL LLJoystickCameraRotate::handleHover(S32 x, S32 y, MASK mask)
+{
+	if (!pointInCenterDot(x, y, CENTER_DOT_RADIUS))
+	{
+		mInCenter = FALSE;
+	}
+
+	return LLJoystick::handleHover(x, y, mask);
 }
 
 void LLJoystickCameraRotate::onHeldDown()
@@ -504,6 +546,11 @@ void LLJoystickCameraRotate::onHeldDown()
 	}
 }
 
+void LLJoystickCameraRotate::resetJoystickCamera()
+{
+	gAgentCamera.resetCameraOrbit();
+}
+
 F32 LLJoystickCameraRotate::getOrbitRate()
 {
 	F32 time = getElapsedHeldDownTime();
@@ -536,24 +583,31 @@ void LLJoystickCameraRotate::draw()
 	getImageUnselected()->draw( 0, 0 );
 	LLPointer<LLUIImage> image = getImageSelected();
 
-	if( mInTop )
+	if (mInCenter)
 	{
-		drawRotatedImage( getImageSelected(), 0 );
+		drawRotatedImage(LLUI::getUIImage(mCenterImageName), 0);
 	}
-
-	if( mInRight )
+	else
 	{
-		drawRotatedImage( getImageSelected(), 1 );
-	}
+		if (mInTop)
+		{
+			drawRotatedImage(getImageSelected(), 0);
+		}
 
-	if( mInBottom )
-	{
-		drawRotatedImage( getImageSelected(), 2 );
-	}
+		if (mInRight)
+		{
+			drawRotatedImage(getImageSelected(), 1);
+		}
 
-	if( mInLeft )
-	{
-		drawRotatedImage( getImageSelected(), 3 );
+		if (mInBottom)
+		{
+			drawRotatedImage(getImageSelected(), 2);
+		}
+
+		if (mInLeft)
+		{
+			drawRotatedImage(getImageSelected(), 3);
+		}
 	}
 }
 
@@ -613,7 +667,9 @@ LLJoystickCameraTrack::Params::Params()
 
 LLJoystickCameraTrack::LLJoystickCameraTrack(const LLJoystickCameraTrack::Params& p)
 :	LLJoystickCameraRotate(p)
-{}
+{
+	mCenterImageName = "Cam_Tracking_Center";
+}
 
 
 void LLJoystickCameraTrack::onHeldDown()
@@ -646,3 +702,243 @@ void LLJoystickCameraTrack::onHeldDown()
 		gAgentCamera.setPanDownKey(getOrbitRate());
 	}
 }
+
+void LLJoystickCameraTrack::resetJoystickCamera()
+{
+	gAgentCamera.resetCameraPan();
+}
+
+//-------------------------------------------------------------------------------
+// LLJoystickQuaternion
+//-------------------------------------------------------------------------------
+
+LLJoystickQuaternion::Params::Params()
+{
+}
+
+LLJoystickQuaternion::LLJoystickQuaternion(const LLJoystickQuaternion::Params &p):
+    LLJoystick(p),
+    mInLeft(false),
+    mInTop(false),
+    mInRight(false),
+    mInBottom(false),
+    mVectorZero(0.0f, 0.0f, 1.0f),
+    mRotation(),
+    mUpDnAxis(1.0f, 0.0f, 0.0f),
+    mLfRtAxis(0.0f, 0.0f, 1.0f),
+    mXAxisIndex(2), // left & right across the control
+    mYAxisIndex(0), // up & down across the  control
+    mZAxisIndex(1)  // tested for above and below
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        mLfRtAxis.mV[i] = (mXAxisIndex == i) ? 1.0 : 0.0;
+        mUpDnAxis.mV[i] = (mYAxisIndex == i) ? 1.0 : 0.0;
+    }
+}
+
+void LLJoystickQuaternion::setToggleState(BOOL left, BOOL top, BOOL right, BOOL bottom)
+{
+    mInLeft = left;
+    mInTop = top;
+    mInRight = right;
+    mInBottom = bottom;
+}
+
+BOOL LLJoystickQuaternion::handleMouseDown(S32 x, S32 y, MASK mask)
+{
+    updateSlop();
+
+    // Set initial offset based on initial click location
+    S32 horiz_center = getRect().getWidth() / 2;
+    S32 vert_center = getRect().getHeight() / 2;
+
+    S32 dx = x - horiz_center;
+    S32 dy = y - vert_center;
+
+    if (dy > dx && dy > -dx)
+    {
+        // top
+        mInitialOffset.mX = 0;
+        mInitialOffset.mY = (mVertSlopNear + mVertSlopFar) / 2;
+        mInitialQuadrant = JQ_UP;
+    }
+    else if (dy > dx && dy <= -dx)
+    {
+        // left
+        mInitialOffset.mX = -(mHorizSlopNear + mHorizSlopFar) / 2;
+        mInitialOffset.mY = 0;
+        mInitialQuadrant = JQ_LEFT;
+    }
+    else if (dy <= dx && dy <= -dx)
+    {
+        // bottom
+        mInitialOffset.mX = 0;
+        mInitialOffset.mY = -(mVertSlopNear + mVertSlopFar) / 2;
+        mInitialQuadrant = JQ_DOWN;
+    }
+    else
+    {
+        // right
+        mInitialOffset.mX = (mHorizSlopNear + mHorizSlopFar) / 2;
+        mInitialOffset.mY = 0;
+        mInitialQuadrant = JQ_RIGHT;
+    }
+
+    return LLJoystick::handleMouseDown(x, y, mask);
+}
+
+BOOL LLJoystickQuaternion::handleMouseUp(S32 x, S32 y, MASK mask)
+{
+    return LLJoystick::handleMouseUp(x, y, mask);
+}
+
+void LLJoystickQuaternion::onHeldDown()
+{
+    LLVector3 axis;
+    updateSlop();
+
+    S32 dx = mLastMouse.mX - mFirstMouse.mX + mInitialOffset.mX;
+    S32 dy = mLastMouse.mY - mFirstMouse.mY + mInitialOffset.mY;
+
+    // left-right rotation
+    if (dx > mHorizSlopNear)
+    {
+        axis += mUpDnAxis;
+    }
+    else if (dx < -mHorizSlopNear)
+    {
+        axis -= mUpDnAxis;
+    }
+
+    // over/under rotation
+    if (dy > mVertSlopNear)
+    {
+        axis += mLfRtAxis;
+    }
+    else if (dy < -mVertSlopNear)
+    {
+        axis -= mLfRtAxis;
+    }
+
+    if (axis.isNull())
+        return;
+
+    axis.normalize();
+
+    LLQuaternion delta;
+    delta.setAngleAxis(0.0523599f, axis);   // about 3deg 
+
+    mRotation *= delta;
+    setValue(mRotation.getValue());
+    onCommit();
+}
+
+void LLJoystickQuaternion::draw()
+{
+    LLGLSUIDefault gls_ui;
+
+    getImageUnselected()->draw(0, 0);
+    LLPointer<LLUIImage> image = getImageSelected();
+
+    if (mInTop)
+    {
+        drawRotatedImage(getImageSelected(), 0);
+    }
+
+    if (mInRight)
+    {
+        drawRotatedImage(getImageSelected(), 1);
+    }
+
+    if (mInBottom)
+    {
+        drawRotatedImage(getImageSelected(), 2);
+    }
+
+    if (mInLeft)
+    {
+        drawRotatedImage(getImageSelected(), 3);
+    }
+
+    LLVector3 draw_point = mVectorZero * mRotation;
+    S32 halfwidth = getRect().getWidth() / 2;
+    S32 halfheight = getRect().getHeight() / 2;
+    draw_point.mV[mXAxisIndex] = (draw_point.mV[mXAxisIndex] + 1.0) * halfwidth;
+    draw_point.mV[mYAxisIndex] = (draw_point.mV[mYAxisIndex] + 1.0) * halfheight;
+
+    gl_circle_2d(draw_point.mV[mXAxisIndex], draw_point.mV[mYAxisIndex], 4, 8,
+        draw_point.mV[mZAxisIndex] >= 0.f);
+
+}
+
+F32 LLJoystickQuaternion::getOrbitRate()
+{
+    return 1;
+}
+
+void LLJoystickQuaternion::updateSlop()
+{
+    // small fixed slop region
+    mVertSlopNear = 16;
+    mVertSlopFar = 32;
+
+    mHorizSlopNear = 16;
+    mHorizSlopFar = 32;
+}
+
+void LLJoystickQuaternion::drawRotatedImage(LLPointer<LLUIImage> image, S32 rotations)
+{
+    S32 width = image->getWidth();
+    S32 height = image->getHeight();
+    LLTexture* texture = image->getImage();
+
+    /*
+    * Scale  texture coordinate system
+    * to handle the different between image size and size of texture.
+    */
+    F32 uv[][2] =
+    {
+        { (F32)width / texture->getWidth(), (F32)height / texture->getHeight() },
+        { 0.f, (F32)height / texture->getHeight() },
+        { 0.f, 0.f },
+        { (F32)width / texture->getWidth(), 0.f }
+    };
+
+    gGL.getTexUnit(0)->bind(texture);
+
+    gGL.color4fv(UI_VERTEX_COLOR.mV);
+
+    gGL.begin(LLRender::QUADS);
+    {
+        gGL.texCoord2fv(uv[(rotations + 0) % 4]);
+        gGL.vertex2i(width, height);
+
+        gGL.texCoord2fv(uv[(rotations + 1) % 4]);
+        gGL.vertex2i(0, height);
+
+        gGL.texCoord2fv(uv[(rotations + 2) % 4]);
+        gGL.vertex2i(0, 0);
+
+        gGL.texCoord2fv(uv[(rotations + 3) % 4]);
+        gGL.vertex2i(width, 0);
+    }
+    gGL.end();
+}
+
+void LLJoystickQuaternion::setRotation(const LLQuaternion &value)
+{
+    if (value != mRotation)
+    {
+        mRotation = value;
+        mRotation.normalize();
+        LLJoystick::setValue(mRotation.getValue());
+    }
+}
+
+LLQuaternion LLJoystickQuaternion::getRotation() const
+{
+    return mRotation;
+}
+
+

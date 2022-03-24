@@ -8,12 +8,12 @@ include(LLCoreHttp)
 include(LLInventory)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
-
+include(bugsplat)
 include(GoogleMock)
 
 include_directories(
@@ -23,7 +23,7 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
     ${GOOGLEMOCK_INCLUDE_DIRS}
@@ -67,6 +67,7 @@ set(test_HEADER_FILES
     llpipeutil.h
     llsdtraits.h
     lltut.h
+    sync.h
     )
 
 if (NOT WINDOWS)
@@ -82,12 +83,17 @@ list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})
 
+if (USE_BUGSPLAT)
+  set_target_properties(lltest PROPERTIES COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
+endif (USE_BUGSPLAT)
+
 target_link_libraries(lltest
+    ${LEGACY_STDIO_LIBS}
     ${LLDATABASE_LIBRARIES}
     ${LLINVENTORY_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLMATH_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
@@ -98,7 +104,7 @@ target_link_libraries(lltest
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_SYSTEM_LIBRARY}
     ${DL_LIBRARY}

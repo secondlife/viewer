@@ -16,7 +16,7 @@
 // #include "include_kdu_xxxx.h"
 // // kdu_xxxx #undef'ed by include_kdu_xxxx.h
 
-#if LL_DARWIN
+#if __clang__
 // don't *really* want to rebuild KDU so turn off specific warnings for this header
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wself-assign-field"

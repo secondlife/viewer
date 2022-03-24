@@ -105,6 +105,9 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 {
 	LLPointer<LLHUDNameTag> ptr(this);
 	sTextObjects.insert(ptr);
+
+    mRoundedRectImgp = LLUI::getUIImage("Rounded_Rect");
+    mRoundedRectTopImgp = LLUI::getUIImage("Rounded_Rect_Top");
 }
 
 LLHUDNameTag::~LLHUDNameTag()
@@ -274,9 +277,6 @@ void LLHUDNameTag::renderText(BOOL for_select)
 
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
-	// *TODO: cache this image
-	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Rect");
-
 	// *TODO: make this a per-text setting
 	LLColor4 bg_color = LLUIColorTable::instance().getColor("NameTagBackground");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
@@ -306,17 +306,16 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
 	LLRect screen_rect;
 	screen_rect.setCenterAndSize(0, static_cast<S32>(lltrunc(-mHeight / 2 + mOffsetY)), static_cast<S32>(lltrunc(mWidth)), static_cast<S32>(lltrunc(mHeight)));
-	imagep->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
+    mRoundedRectImgp->draw3D(render_position, x_pixel_vec, y_pixel_vec, screen_rect, bg_color);
 	if (mLabelSegments.size())
 	{
-		LLUIImagePtr rect_top_image = LLUI::getUIImage("Rounded_Rect_Top");
 		LLRect label_top_rect = screen_rect;
 		const S32 label_height = ll_round((mFontp->getLineHeight() * (F32)mLabelSegments.size() + (VERTICAL_PADDING / 3.f)));
 		label_top_rect.mBottom = label_top_rect.mTop - label_height;
 		LLColor4 label_top_color = text_color;
 		label_top_color.mV[VALPHA] = gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor;
 
-		rect_top_image->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
+        mRoundedRectTopImgp->draw3D(render_position, x_pixel_vec, y_pixel_vec, label_top_rect, label_top_color);
 	}
 
 	F32 y_offset = (F32)mOffsetY;
@@ -415,7 +414,8 @@ void LLHUDNameTag::clearString()
 void LLHUDNameTag::addLine(const std::string &text_utf8,
 						const LLColor4& color,
 						const LLFontGL::StyleFlags style,
-						const LLFontGL* font)
+						const LLFontGL* font,
+						const bool use_ellipses)
 {
 	LLWString wline = utf8str_to_wstring(text_utf8);
 	if (!wline.empty())
@@ -432,18 +432,52 @@ void LLHUDNameTag::addLine(const std::string &text_utf8,
 		tokenizer tokens(wline, sep);
 		tokenizer::iterator iter = tokens.begin();
 
-		while (iter != tokens.end())
-		{
-			U32 line_length = 0;
-			do	
-			{
-				F32 max_pixels = HUD_TEXT_MAX_WIDTH;
-				S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, wline.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
-				LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
-				mTextSegments.push_back(segment);
-				line_length += segment_length;
-			}
-			while (line_length != iter->size());
+        const F32 max_pixels = HUD_TEXT_MAX_WIDTH;
+        while (iter != tokens.end())
+        {
+            U32 line_length = 0;
+            if (use_ellipses)
+            {
+                // "QualityAssuranceAssuresQuality1" will end up like "QualityAssuranceAssuresQual..."
+                // "QualityAssuranceAssuresQuality QualityAssuranceAssuresQuality" will end up like "QualityAssuranceAssuresQual..."
+                // "QualityAssurance AssuresQuality1" will end up as "QualityAssurance AssuresQua..." because we are enforcing single line
+                do
+                {
+                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, wline.length(), LLFontGL::ANYWHERE);
+                    if (segment_length + line_length < wline.length()) // since we only draw one string, line_length should be 0
+                    {
+                        // token does does not fit into signle line, need to draw "...".
+                        // Use four dots for ellipsis width to generate padding
+                        const LLWString dots_pad(utf8str_to_wstring(std::string("....")));
+                        S32 elipses_width = font->getWidthF32(dots_pad.c_str());
+                        // truncated string length
+                        segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels - elipses_width, wline.length(), LLFontGL::ANYWHERE);
+                        const LLWString dots(utf8str_to_wstring(std::string("...")));
+                        LLHUDTextSegment segment(iter->substr(line_length, segment_length) + dots, style, color, font);
+                        mTextSegments.push_back(segment);
+                        break; // consider it to be complete
+                    }
+                    else
+                    {
+                        // token fits fully into string
+                        LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
+                        mTextSegments.push_back(segment);
+                        line_length += segment_length;
+                    }
+                } while (line_length != iter->size());
+            }
+            else
+            {
+                // "QualityAssuranceAssuresQuality 1" will be split into two lines "QualityAssuranceAssuresQualit" and "y 1"
+                // "QualityAssurance AssuresQuality 1" will be split into two lines "QualityAssurance" and "AssuresQuality"
+                do
+                {
+                    S32 segment_length = font->maxDrawableChars(iter->substr(line_length).c_str(), max_pixels, wline.length(), LLFontGL::WORD_BOUNDARY_IF_POSSIBLE);
+                    LLHUDTextSegment segment(iter->substr(line_length, segment_length), style, color, font);
+                    mTextSegments.push_back(segment);
+                    line_length += segment_length;
+                } while (line_length != iter->size());
+            }
 			++iter;
 		}
 	}

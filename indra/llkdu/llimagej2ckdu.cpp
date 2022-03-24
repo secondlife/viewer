@@ -44,16 +44,19 @@ using namespace kdu_core;
 #include <sstream>
 #include <iomanip>
 
-// stream kdu_dims to std::ostream
 // Turns out this must NOT be in the anonymous namespace!
-// It must also precede #include "stringize.h".
+namespace kdu_core
+{
+// stream kdu_dims to std::ostream
 inline
 std::ostream& operator<<(std::ostream& out, const kdu_dims& dims)
 {
 	return out << "(" << dims.pos.x << "," << dims.pos.y << "),"
 				  "[" << dims.size.x << "x" << dims.size.y << "]";
 }
+} // namespace kdu_core
 
+// operator<<(std::ostream&, const kdu_dims&) must precede #include "stringize.h"
 #include "stringize.h"
 
 namespace {

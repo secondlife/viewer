@@ -355,7 +355,7 @@ bool LLToolMgr::inBuildMode()
 
 bool LLToolMgr::canAccessMarketplace()
 {
-	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT) || gSavedSettings.getBOOL("InventoryOutboxDisplayBoth");
+	return (LLMarketplaceData::instance().getSLMStatus() != MarketplaceStatusCodes::MARKET_PLACE_NOT_MIGRATED_MERCHANT);
 }
 
 void LLToolMgr::toggleMarketplace(const LLSD& sdname)
@@ -405,7 +405,7 @@ void LLToolMgr::clearTransientTool()
 
 void LLToolMgr::onAppFocusLost()
 {
-	if (LLApp::isQuitting())
+	if (LLApp::isExiting())
 		return;
 
 	if (mSelectedTool)

@@ -267,6 +267,36 @@
                  right="-1">
                     <layout_panel
                      name="input_editor_layout_panel">
+                        <avatar_icon
+                         follows="left|bottom"
+                         name="avatar_icon"
+                         height="20"
+                         default_icon_name="Generic_Person"
+                         layout="topleft"
+                         left="3"
+                         bottom="-9"
+                         visible="false"
+                         width="20" />
+                        <group_icon
+                         follows="left|bottom"
+                         name="group_chat_icon"
+                         height="20"
+                         default_icon_name="Generic_Group"
+                         layout="topleft"
+                         left="3"
+                         bottom="-9"
+                         visible="false"
+                         width="20" />
+                        <icon
+                         follows="left|bottom"
+                         height="20"
+                         image_name="Nearby_chat_icon"
+                         layout="topleft"
+                         left="3"
+                         bottom="-9"
+                         name="nearby_chat_icon"
+                         visible="false"
+                         width="20"/>
                         <chat_editor
                          layout="topleft"
                          expand_lines_count="5"
@@ -280,7 +310,7 @@
                          spellcheck="true"
                          tab_group="3"
                          bottom="-8"
-                         left="5"
+                         left_pad="5"
                          right="-5"
                          wrap="true" />
                     </layout_panel>

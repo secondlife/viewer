@@ -1,6 +1,6 @@
 /** 
  * @file llfloatersaveprefpreset.cpp
- * @brief Floater to save a graphics / camera preset
+ * @brief Floater to save a graphics preset
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -37,24 +37,27 @@
 #include "lltrans.h"
 
 LLFloaterSavePrefPreset::LLFloaterSavePrefPreset(const LLSD &key)
-:	LLFloater(key)
+	: LLFloater(key)
 {
 }
 
 // virtual
 BOOL LLFloaterSavePrefPreset::postBuild()
-{	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+{
+	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
 	if (preferences)
 	{
 		preferences->addDependentFloater(this);
 	}
+	
 	getChild<LLComboBox>("preset_combo")->setTextEntryCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
 	getChild<LLComboBox>("preset_combo")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetNameEdited, this));
 	getChild<LLButton>("save")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnSave, this));
+
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterSavePrefPreset::onBtnCancel, this));
 
 	LLPresetsManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterSavePrefPreset::onPresetsListChange, this));
-
+	
 	mSaveButton = getChild<LLButton>("save");
 	mPresetCombo = getChild<LLComboBox>("preset_combo");
 
@@ -73,10 +76,6 @@ void LLFloaterSavePrefPreset::onOpen(const LLSD& key)
 {
 	mSubdirectory = key.asString();
 
-	std::string floater_title = getString(std::string("title_") + mSubdirectory);
-
-	setTitle(floater_title);
-
 	EDefaultOptions option = DEFAULT_HIDE;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, mPresetCombo, option);
 
@@ -87,7 +86,10 @@ void LLFloaterSavePrefPreset::onBtnSave()
 {
 	std::string name = mPresetCombo->getSimple();
 
-	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (name == PRESETS_DEFAULT))
+	std::string upper_name(name);
+	LLStringUtil::toUpper(upper_name);
+
+	if ((name == LLTrans::getString(PRESETS_DEFAULT)) || (upper_name == PRESETS_DEFAULT_UPPER))
 	{
 		LLNotificationsUtil::add("DefaultPresetNotSaved");
 	}

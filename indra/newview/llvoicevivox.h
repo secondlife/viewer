@@ -446,7 +446,6 @@ protected:
 	// local audio updates, mic mute, speaker mute, mic volume and speaker volumes
 	void sendLocalAudioUpdates();
 
-
 	/////////////////////////////
 	// Response/Event handlers
 	void connectorCreateResponse(int statusCode, std::string &statusString, std::string &connectorHandle, std::string &versionID);
@@ -472,6 +471,12 @@ protected:
 	
 	void muteListChanged();
 		
+	/////////////////////////////
+	// VAD changes
+	// disable auto-VAD and configure VAD parameters explicitly
+	void setupVADParams(unsigned int vad_auto, unsigned int vad_hangover, unsigned int vad_noise_floor, unsigned int vad_sensitivity);
+	void onVADSettingsChange();
+
 	/////////////////////////////
 	// Sending updates of current state
 	void updatePosition(void);
@@ -621,8 +626,8 @@ private:
     // Coroutine support methods
     //---
     void voiceControlCoro();
+    void voiceControlStateMachine(S32 &coro_state);
 
-    bool startAndConnectSession();
     bool endAndDisconnectSession();
 
     bool callbackEndDaemon(const LLSD& data);
@@ -911,6 +916,8 @@ private:
     bool    mIsLoggedIn;
     bool    mIsProcessingChannels;
     bool    mIsCoroutineActive;
+
+    static bool sShuttingDown; // corutines can last longer than vivox so we need a static variable as a shutdown flag
 
     LLEventMailDrop mVivoxPump;
 };

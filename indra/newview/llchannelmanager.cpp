@@ -48,11 +48,18 @@ LLChannelManager::LLChannelManager()
 	LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLChannelManager::onLoginCompleted, this));
 	mChannelList.clear();
 	mStartUpChannel = NULL;
-	
+
 	if(!gViewerWindow)
 	{
 		LL_ERRS() << "LLChannelManager::LLChannelManager() - viwer window is not initialized yet" << LL_ENDL;
 	}
+
+	// We don't actually need this instance right now, but our
+	// cleanupSingleton() method deletes LLScreenChannels, which need to
+	// unregister from LLUI. Calling LLUI::instance() here establishes the
+	// dependency so LLSingletonBase::deleteAll() calls our deleteSingleton()
+	// before LLUI::deleteSingleton().
+	LLUI::instance();
 }
 
 //--------------------------------------------------------------------------

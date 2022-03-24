@@ -315,7 +315,7 @@ bool LLImageJPEG::decode(LLImageRaw* raw_image, F32 decode_time)
 		jpeg_destroy_decompress(&cinfo);
 	}
 
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		setLastError( "Out of memory");
 		jpeg_destroy_decompress(&cinfo);
@@ -386,7 +386,6 @@ boolean LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )
   {
     self->setLastError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )");
     LLTHROW(LLContinueError("Out of memory in LLImageJPEG::encodeEmptyOutputBuffer( j_compress_ptr cinfo )"));
-  	return false;
   }
   memcpy( new_buffer, self->mOutputBuffer, self->mOutputBufferSize );	/* Flawfinder: ignore */
   delete[] self->mOutputBuffer;

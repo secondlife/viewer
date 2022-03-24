@@ -28,9 +28,9 @@
 
 #include "linden_common.h"
 #include "llsd.h"
+#include "llsdserialize.h"
 
 #include "../llinventory.h"
-
 #include "../test/lltut.h"
 
 
@@ -320,27 +320,39 @@ namespace tut
 	template<> template<>
 	void inventory_object::test<7>()
 	{
-		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
-		if(!fp)
+		std::string filename("linden_file.dat");
+		llofstream fileXML(filename.c_str());
+		if (!fileXML.is_open())
 		{
 			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
 			
 		LLPointer<LLInventoryItem> src1 = create_random_inventory_item();
-		src1->exportFile(fp, TRUE);
-		fclose(fp);
+		fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->asLLSD()) << std::endl;
+		fileXML.close();
 
-		LLPointer<LLInventoryItem> src2 = new LLInventoryItem();	
-		fp = LLFile::fopen("linden_file.dat","r+");
-		if(!fp)
+		
+		LLPointer<LLInventoryItem> src2 = new LLInventoryItem();
+		llifstream file(filename.c_str());
+		if (!file.is_open())
 		{
 			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
-		
-		src2->importFile(fp);
-		fclose(fp);
+		std::string line;
+		LLPointer<LLSDParser> parser = new LLSDNotationParser();
+		std::getline(file, line);
+		LLSD s_item;
+		std::istringstream iss(line);
+		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
+		{
+			LL_ERRS()<< "Parsing cache failed" << LL_ENDL;
+			return;
+		}
+		src2->fromLLSD(s_item);
+
+		file.close();
 		
 		ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
 		ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());
@@ -457,27 +469,39 @@ namespace tut
 	template<> template<>
 	void inventory_object::test<13>()
 	{
-		LLFILE* fp = LLFile::fopen("linden_file.dat","w");
-		if(!fp)
+		std::string filename("linden_file.dat");
+		llofstream fileXML(filename.c_str());
+		if (!fileXML.is_open())
 		{
-			LL_ERRS() << "file coudnt be opened\n" << LL_ENDL;
+			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
-			
-		LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
-		src1->exportFile(fp, TRUE);
-		fclose(fp);
 
-		LLPointer<LLInventoryCategory> src2 = new LLInventoryCategory();	
-		fp = LLFile::fopen("linden_file.dat","r");
-		if(!fp)
+		LLPointer<LLInventoryCategory> src1 = create_random_inventory_cat();
+		fileXML << LLSDOStreamer<LLSDNotationFormatter>(src1->exportLLSD()) << std::endl;
+		fileXML.close();
+
+		llifstream file(filename.c_str());
+		if (!file.is_open())
 		{
-			LL_ERRS() << "file coudnt be opened\n" << LL_ENDL;
+			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
 			return;
 		}
-		
-		src2->importFile(fp);
-		fclose(fp);
+		std::string line;
+		LLPointer<LLSDParser> parser = new LLSDNotationParser();
+		std::getline(file, line);
+		LLSD s_item;
+		std::istringstream iss(line);
+		if (parser->parse(iss, s_item, line.length()) == LLSDParser::PARSE_FAILURE)
+		{
+			LL_ERRS()<< "Parsing cache failed" << LL_ENDL;
+			return;
+		}
+
+		file.close();
+
+		LLPointer<LLInventoryCategory> src2 = new LLInventoryCategory();
+		src2->importLLSD(s_item);
 
 		ensure_equals("1.item id::getUUID() failed", src1->getUUID(), src2->getUUID());
 		ensure_equals("2.parent::getParentUUID() failed", src1->getParentUUID(), src2->getParentUUID());

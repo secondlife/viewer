@@ -141,10 +141,11 @@ U32 LLViewerJoint::render( F32 pixelArea, BOOL first_pass, BOOL is_dummy )
 	//----------------------------------------------------------------
 	// render children
 	//----------------------------------------------------------------
-	for (child_list_t::iterator iter = mChildren.begin();
-		 iter != mChildren.end(); ++iter)
+	for (LLJoint* j : mChildren)
 	{
-		LLAvatarJoint* joint = dynamic_cast<LLAvatarJoint*>(*iter);
+		// LLViewerJoint is derived from LLAvatarJoint,
+		// all children of LLAvatarJoint are assumed to be LLAvatarJoint
+		LLAvatarJoint* joint = static_cast<LLAvatarJoint*>(j);
 		F32 jointLOD = joint->getLOD();
 		if (pixelArea >= jointLOD || sDisableLOD)
 		{

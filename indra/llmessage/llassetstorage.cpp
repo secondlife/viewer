@@ -42,8 +42,7 @@
 // this library includes
 #include "message.h"
 #include "llxfermanager.h"
-#include "llvfile.h"
-#include "llvfs.h"
+#include "llfilesystem.h"
 #include "lldbstrings.h"
 
 #include "lltransfersourceasset.h"
@@ -61,6 +60,42 @@ static LLTrace::CountStatHandle<> sFailedDownloadCount("faileddownloads", "Numbe
 const LLUUID CATEGORIZE_LOST_AND_FOUND_ID(std::string("00000000-0000-0000-0000-000000000010"));
 
 const U64 TOXIC_ASSET_LIFETIME = (120 * 1000000);       // microseconds
+
+namespace
+{
+    bool operator == (const LLAssetStorage::LLGetAssetCallback &lhs, const LLAssetStorage::LLGetAssetCallback &rhs)
+    {
+        auto fnPtrLhs = lhs.target<LLAssetStorage::LLGetAssetCallback>();
+        auto fnPtrRhs = rhs.target<LLAssetStorage::LLGetAssetCallback>();
+        if (fnPtrLhs && fnPtrRhs)
+            return (*fnPtrLhs == *fnPtrRhs);
+        else if (!fnPtrLhs && !fnPtrRhs)
+            return true;
+        return false;
+    }
+
+// Rider: This is the general case of the operator declared above. The code compares the callback 
+// passed into the LLAssetStorage functions to determine if there are duplicated requests for an 
+// asset.  Unfortunately std::function does not provide a direct way to compare two variables so 
+// we define the operator here. 
+// XCode is not very happy with the variadic temples in use below so we will just define the specific 
+// case of comparing two LLGetAssetCallback objects since that is all we really use.
+// 
+//     template<typename T, typename... U>
+//     bool operator == (const std::function<T(U...)> &a, const std::function <T(U...)> &b)
+//     {
+//         typedef T(fnType)(U...);
+// 
+//         auto fnPtrA = a.target<T(*)(U...)>();
+//         auto fnPtrB = b.target<T(*)(U...)>();
+//         if (fnPtrA && fnPtrB)
+//             return (*fnPtrA == *fnPtrB);
+//         else if (!fnPtrA && !fnPtrB)
+//             return true;
+//         return false;
+//     }
+
+}
 
 ///----------------------------------------------------------------------------
 /// LLAssetInfo
@@ -160,13 +195,13 @@ void LLAssetInfo::setFromNameValue( const LLNameValue& nv )
 LLBaseDownloadRequest::LLBaseDownloadRequest(const LLUUID &uuid, const LLAssetType::EType type)
     : mUUID(uuid),
       mType(type),
-      mDownCallback(NULL),
+      mDownCallback(),
       mUserData(NULL),
       mHost(),
       mIsTemp(FALSE),
       mIsPriority(FALSE),
       mDataSentInFirstPacket(FALSE),
-      mDataIsInVFS(FALSE)
+      mDataIsInCache(FALSE)
 {
     // Need to guarantee that this time is up to date, we may be creating a circuit even though we haven't been
     //  running a message system loop.
@@ -191,7 +226,7 @@ LLBaseDownloadRequest* LLBaseDownloadRequest::getCopy()
 
 LLAssetRequest::LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType type)
     :   LLBaseDownloadRequest(uuid, type),
-        mUpCallback( NULL ),
+        mUpCallback(),
         mInfoCallback( NULL ),
         mIsLocal(FALSE),
         mIsUserWaiting(FALSE),
@@ -230,7 +265,8 @@ LLSD LLAssetRequest::getFullDetails() const
     sd["is_local"] = mIsLocal;
     sd["is_priority"] = mIsPriority;
     sd["data_send_in_first_packet"] = mDataSentInFirstPacket;
-    sd["data_is_in_vfs"] = mDataIsInVFS;
+    // Note: cannot change this (easily) since it is consumed by server
+    sd["data_is_in_vfs"] = mDataIsInCache;
 
     return sd;
 }
@@ -294,28 +330,23 @@ LLBaseDownloadRequest* LLEstateAssetRequest::getCopy()
 // TODO: rework tempfile handling?
 
 
-LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host)
+LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host)
 {
-    _init(msg, xfer, vfs, static_vfs, upstream_host);
+    _init(msg, xfer, upstream_host);
 }
 
-LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-                               LLVFS *vfs, LLVFS *static_vfs)
+LLAssetStorage::LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer)
 {
-    _init(msg, xfer, vfs, static_vfs, LLHost());
+    _init(msg, xfer, LLHost());
 }
 
 void LLAssetStorage::_init(LLMessageSystem *msg,
                            LLXferManager *xfer,
-                           LLVFS *vfs,
-                           LLVFS *static_vfs,
                            const LLHost &upstream_host)
 {
     mShutDown = FALSE;
     mMessageSys = msg;
     mXferManager = xfer;
-    mVFS = vfs;
-    mStaticVFS = static_vfs;
 
     setUpstream(upstream_host);
     msg->setHandlerFuncFast(_PREHASH_AssetUploadComplete, processUploadComplete, (void **)this);
@@ -390,11 +421,11 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
         LLAssetRequest* tmp = *curiter;
         if (tmp->mUpCallback)
         {
-            tmp->mUpCallback(tmp->getUUID(), tmp->mUserData, error, LL_EXSTAT_NONE);
+            tmp->mUpCallback(tmp->getUUID(), tmp->mUserData, error, LLExtStat::NONE);
         }
         if (tmp->mDownCallback)
         {
-            tmp->mDownCallback(mVFS, tmp->getUUID(), tmp->getType(), tmp->mUserData, error, LL_EXSTAT_NONE);
+            tmp->mDownCallback(tmp->getUUID(), tmp->getType(), tmp->mUserData, error, LLExtStat::NONE);
         }
         if (tmp->mInfoCallback)
         {
@@ -407,10 +438,10 @@ void LLAssetStorage::_cleanupRequests(BOOL all, S32 error)
 
 BOOL LLAssetStorage::hasLocalAsset(const LLUUID &uuid, const LLAssetType::EType type)
 {
-    return mStaticVFS->getExists(uuid, type) || mVFS->getExists(uuid, type);
+    return LLFileSystem::getExists(uuid, type);
 }
 
-bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+bool LLAssetStorage::findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
                                                       LLGetAssetCallback callback, void *user_data)
 {
     if (user_data)
@@ -419,17 +450,17 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
         llassert(callback != NULL);
     }
 
-    BOOL exists = mStaticVFS->getExists(uuid, type);
+    BOOL exists = LLFileSystem::getExists(uuid, type);
     if (exists)
     {
-        LLVFile file(mStaticVFS, uuid, type);
+        LLFileSystem file(uuid, type);
         U32 size = file.getSize();
         if (size > 0)
         {
             // we've already got the file
             if (callback)
             {
-                callback(mStaticVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+                callback(uuid, type, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
             }
             return true;
         }
@@ -449,7 +480,7 @@ bool LLAssetStorage::findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAsse
 // IW - uuid is passed by value to avoid side effects, please don't re-add &    
 void LLAssetStorage::getAssetData(const LLUUID uuid,
                                   LLAssetType::EType type, 
-                                  LLGetAssetCallback callback, 
+                                  LLAssetStorage::LLGetAssetCallback callback,
                                   void *user_data, 
                                   BOOL is_priority)
 {
@@ -470,7 +501,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_FAILED, LL_EXSTAT_NONE);
+            callback(uuid, type, user_data, LL_ERR_ASSET_REQUEST_FAILED, LLExtStat::NONE);
         }
         return;
     }
@@ -481,22 +512,21 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, uuid, type, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
+            callback(uuid, type, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LLExtStat::NULL_UUID);
         }
         return;
     }
 
-    // Try static VFS first.
-    if (findInStaticVFSAndInvokeCallback(uuid,type,callback,user_data))
+    if (findInCacheAndInvokeCallback(uuid,type,callback,user_data))
     {
-        LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in static VFS" << LL_ENDL;
+        LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in cache" << LL_ENDL;
         return;
     }
 
-    BOOL exists = mVFS->getExists(uuid, type);
-    LLVFile file(mVFS, uuid, type);
+    BOOL exists = LLFileSystem::getExists(uuid, type);
+    LLFileSystem file(uuid, type);
     U32 size = exists ? file.getSize() : 0;
-    
+
     if (size > 0)
     {
         // we've already got the file
@@ -504,10 +534,10 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, uuid, type, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(uuid, type, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
         }
 
-        LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in VFS" << LL_ENDL;
+        LL_DEBUGS("AssetStorage") << "ASSET_TRACE asset " << uuid << " found in cache" << LL_ENDL;
     }
     else
     {
@@ -580,7 +610,7 @@ void LLAssetStorage::removeAndCallbackPendingDownloads(const LLUUID& file_id, LL
             {
                 add(sFailedDownloadCount, 1);
             }
-            tmp->mDownCallback(gAssetStorage->mVFS, callback_id, callback_type, tmp->mUserData, result_code, ext_status);
+            tmp->mDownCallback(callback_id, callback_type, tmp->mUserData, result_code, ext_status);
         }
         delete tmp;
     }
@@ -634,7 +664,7 @@ void LLAssetStorage::downloadCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(gAssetStorage->mVFS, callback_id, callback_type);
+        LLFileSystem vfile(callback_id, callback_type);
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset " << callback_id << LL_ENDL;
@@ -658,7 +688,7 @@ void LLAssetStorage::downloadCompleteCallback(
         }
     }
 
-    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, ext_status, result);
+    removeAndCallbackPendingDownloads(file_id, file_type, callback_id, callback_type, result, ext_status);
 }
 
 void LLAssetStorage::getEstateAsset(
@@ -683,19 +713,19 @@ void LLAssetStorage::getEstateAsset(
         if (callback)
         {
             add(sFailedDownloadCount, 1);
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LL_EXSTAT_NULL_UUID);
+            callback(asset_id, atype, user_data, LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE, LLExtStat::NULL_UUID);
         }
         return;
     }
 
-    // Try static VFS first.
-    if (findInStaticVFSAndInvokeCallback(asset_id,atype,callback,user_data))
+    // Try static first.
+    if (findInCacheAndInvokeCallback(asset_id,atype,callback,user_data))
     {
         return;
     }
     
-    BOOL exists = mVFS->getExists(asset_id, atype);
-    LLVFile file(mVFS, asset_id, atype);
+    BOOL exists = LLFileSystem::getExists(asset_id, atype);
+    LLFileSystem file(asset_id, atype);
     U32 size = exists ? file.getSize() : 0;
 
     if (size > 0)
@@ -705,7 +735,7 @@ void LLAssetStorage::getEstateAsset(
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(asset_id, atype, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
         }
     }
     else
@@ -756,7 +786,7 @@ void LLAssetStorage::getEstateAsset(
             if (callback)
             {
                 add(sFailedDownloadCount, 1);
-                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+                callback(asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::NO_UPSTREAM);
             }
         }
     }
@@ -788,7 +818,7 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(gAssetStorage->mVFS, req->getUUID(), req->getAType());
+        LLFileSystem vfile(req->getUUID(), req->getAType());
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset!" << LL_ENDL;
@@ -802,7 +832,7 @@ void LLAssetStorage::downloadEstateAssetCompleteCallback(
     {
         add(sFailedDownloadCount, 1);
     }
-    req->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getAType(), req->mUserData, result, ext_status);
+    req->mDownCallback(req->getUUID(), req->getAType(), req->mUserData, result, ext_status);
 }
 
 void LLAssetStorage::getInvItemAsset(
@@ -825,14 +855,13 @@ void LLAssetStorage::getInvItemAsset(
 
     if(asset_id.notNull())
     {
-        // Try static VFS first.
-        if (findInStaticVFSAndInvokeCallback( asset_id, atype, callback, user_data))
+        if (findInCacheAndInvokeCallback( asset_id, atype, callback, user_data))
         {
             return;
         }
 
-        exists = mVFS->getExists(asset_id, atype);
-        LLVFile file(mVFS, asset_id, atype);
+        exists = LLFileSystem::getExists(asset_id, atype);
+        LLFileSystem file(asset_id, atype);
         size = exists ? file.getSize() : 0;
         if(exists && size < 1)
         {
@@ -849,7 +878,7 @@ void LLAssetStorage::getInvItemAsset(
         // unless there's a weird error
         if (callback)
         {
-            callback(mVFS, asset_id, atype, user_data, LL_ERR_NOERR, LL_EXSTAT_VFS_CACHED);
+            callback(asset_id, atype, user_data, LL_ERR_NOERR, LLExtStat::CACHE_CACHED);
         }
     }
     else
@@ -900,7 +929,7 @@ void LLAssetStorage::getInvItemAsset(
             if (callback)
             {
                 add(sFailedDownloadCount, 1);
-                callback(mVFS, asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LL_EXSTAT_NO_UPSTREAM);
+                callback(asset_id, atype, user_data, LL_ERR_CIRCUIT_GONE, LLExtStat::NO_UPSTREAM);
             }
         }
     }
@@ -932,7 +961,7 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
     if (LL_ERR_NOERR == result)
     {
         // we might have gotten a zero-size file
-        LLVFile vfile(gAssetStorage->mVFS, req->getUUID(), req->getType());
+        LLFileSystem vfile(req->getUUID(), req->getType());
         if (vfile.getSize() <= 0)
         {
             LL_WARNS("AssetStorage") << "downloadCompleteCallback has non-existent or zero-size asset!" << LL_ENDL;
@@ -946,7 +975,7 @@ void LLAssetStorage::downloadInvItemCompleteCallback(
     {
         add(sFailedDownloadCount, 1);
     }
-    req->mDownCallback(gAssetStorage->mVFS, req->getUUID(), req->getType(), req->mUserData, result, ext_status);
+    req->mDownCallback(req->getUUID(), req->getType(), req->mUserData, result, ext_status);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -998,7 +1027,7 @@ void LLAssetStorage::processUploadComplete(LLMessageSystem *msg, void **user_dat
     msg->getBOOLFast(_PREHASH_AssetBlock, _PREHASH_Success, success);
 
     asset_type = (LLAssetType::EType)asset_type_s8;
-    this_ptr->_callUploadCallbacks(uuid, asset_type, success, LL_EXSTAT_NONE);
+    this_ptr->_callUploadCallbacks(uuid, asset_type, success, LLExtStat::NONE);
 }
 
 void LLAssetStorage::_callUploadCallbacks(const LLUUID &uuid, LLAssetType::EType asset_type, BOOL success, LLExtStat ext_status )
@@ -1252,12 +1281,12 @@ bool LLAssetStorage::deletePendingRequestImpl(LLAssetStorage::request_list_t* re
         // Run callbacks.
         if (req->mUpCallback)
         {
-            req->mUpCallback(req->getUUID(), req->mUserData, error, LL_EXSTAT_REQUEST_DROPPED);
+            req->mUpCallback(req->getUUID(), req->mUserData, error, LLExtStat::REQUEST_DROPPED);
         }
         if (req->mDownCallback)
         {
             add(sFailedDownloadCount, 1);
-            req->mDownCallback(mVFS, req->getUUID(), req->getType(), req->mUserData, error, LL_EXSTAT_REQUEST_DROPPED);
+            req->mDownCallback(req->getUUID(), req->getType(), req->mUserData, error, LLExtStat::REQUEST_DROPPED);
         }
         if (req->mInfoCallback)
         {
@@ -1326,9 +1355,12 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
          iter != mPendingDownloads.end();  )
     {
         LLAssetRequest* tmp = *iter++;
+
+        auto cbptr = tmp->mDownCallback.target<void(*)(const LLUUID &, LLAssetType::EType, void *, S32, LLExtStat)>();
+
         if (type == tmp->getType() && 
             uuid == tmp->getUUID() &&
-            legacyGetDataCallback == tmp->mDownCallback &&
+            (cbptr && (*cbptr == legacyGetDataCallback)) &&
             callback == ((LLLegacyAssetRequest *)tmp->mUserData)->mDownCallback &&
             user_data == ((LLLegacyAssetRequest *)tmp->mUserData)->mUserData)
         {
@@ -1349,8 +1381,7 @@ void LLAssetStorage::getAssetData(const LLUUID uuid,
 }
 
 // static
-void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs,
-                                           const LLUUID &uuid, 
+void LLAssetStorage::legacyGetDataCallback(const LLUUID &uuid, 
                                            LLAssetType::EType type,
                                            void *user_data, 
                                            S32 status, 
@@ -1365,7 +1396,7 @@ void LLAssetStorage::legacyGetDataCallback(LLVFS *vfs,
     if ( !status
          && !toxic )
     {
-        LLVFile file(vfs, uuid, type);
+        LLFileSystem file(uuid, type);
 
         std::string uuid_str;
 

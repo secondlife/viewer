@@ -113,4 +113,23 @@ protected:
 	bool mFresh;
 };
 
+class LLInboxNewItemsStorage : public LLSingleton<LLInboxNewItemsStorage>
+	, public LLDestroyClass<LLInboxNewItemsStorage>
+{
+	LLSINGLETON(LLInboxNewItemsStorage);
+	LOG_CLASS(LLInboxNewItemsStorage);
+public:
+	static void destroyClass();
+	void saveNewItemsIds();
+
+	void load();
+	
+	void addFreshItem(const LLUUID& id) { mNewItemsIDs.insert(id); }
+	void removeItem(const LLUUID& id) { mNewItemsIDs.erase(id); }
+	bool isItemFresh(const LLUUID& id) { return (mNewItemsIDs.find(id) != mNewItemsIDs.end()); }
+
+private:
+	std::set<LLUUID> mNewItemsIDs;
+};
+
 #endif //LL_INBOXINVENTORYPANEL_H

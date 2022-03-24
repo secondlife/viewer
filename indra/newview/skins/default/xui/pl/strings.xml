@@ -15,9 +15,6 @@
 	<string name="StartupInitializingTextureCache">
 		Inicjowanie bufora danych tekstur...
 	</string>
-	<string name="StartupInitializingVFS">
-		Inicjowanie wirtualnego systemu plików...
-	</string>
 	<string name="StartupRequireDriverUpdate">
 		Nie można zainicjować grafiki. Zaktualizuj sterowniki!
 	</string>
@@ -710,6 +707,9 @@ Spróbuj zalogować się ponownie za minutę.
 	<string name="mesh">
 		mesz
 	</string>
+    <string name="settings">
+        ustawień
+    </string>
 	<string name="AvatarEditingAppearance">
 		(Edycja wyglądu)
 	</string>

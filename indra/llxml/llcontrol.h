@@ -34,8 +34,6 @@
 #include "llrefcount.h"
 #include "llinstancetracker.h"
 
-#include "llcontrolgroupreader.h"
-
 #include <vector>
 
 // *NOTE: boost::visit_each<> generates warning 4675 on .net 2003
@@ -67,6 +65,7 @@
 
 class LLVector3;
 class LLVector3d;
+class LLQuaternion;
 class LLColor4;
 class LLColor3;
 
@@ -80,6 +79,7 @@ typedef enum e_control_type
 	TYPE_STRING,
 	TYPE_VEC3,
 	TYPE_VEC3D,
+	TYPE_QUAT,
 	TYPE_RECT,
 	TYPE_COL4,
 	TYPE_COL3,
@@ -200,8 +200,6 @@ public:
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
 	void cleanup();
-	
-	typedef LLInstanceTracker<LLControlGroup, std::string>::instance_iter instance_iter;
 
 	LLControlVariablePtr getControl(const std::string& name);
 
@@ -220,6 +218,7 @@ public:
 	LLControlVariable* declareString(const std::string& name, const std::string &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareVec3(const std::string& name, const LLVector3 &initial_val,const std::string& comment,  LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareVec3d(const std::string& name, const LLVector3d &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
+	LLControlVariable* declareQuat(const std::string& name, const LLQuaternion &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareRect(const std::string& name, const LLRect &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareColor4(const std::string& name, const LLColor4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareColor3(const std::string& name, const LLColor3 &initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
@@ -234,15 +233,17 @@ public:
 	
 	LLWString	getWString(const std::string& name);
 	LLVector3	getVector3(const std::string& name);
-	LLVector3d	getVector3d(const std::string& name);
+	LLVector3d	getVector3d(const std::string& name);	
 	LLRect		getRect(const std::string& name);
 	LLSD        getLLSD(const std::string& name);
-
+	LLQuaternion	getQuaternion(const std::string& name);
 
 	LLColor4	getColor(const std::string& name);
 	LLColor4	getColor4(const std::string& name);
 	LLColor3	getColor3(const std::string& name);
 
+	LLSD		asLLSD(bool diffs_only);
+	
 	// generic getter
 	template<typename T> T get(const std::string& name)
 	{
@@ -270,6 +271,7 @@ public:
 	void	setString(const std::string&  name, const std::string& val);
 	void	setVector3(const std::string& name, const LLVector3 &val);
 	void	setVector3d(const std::string& name, const LLVector3d &val);
+	void	setQuaternion(const std::string& name, const LLQuaternion &val);
 	void	setRect(const std::string& name, const LLRect &val);
 	void	setColor4(const std::string& name, const LLColor4 &val);
 	void    setLLSD(const std::string& name, const LLSD& val);
@@ -436,7 +438,8 @@ template <> eControlType get_control_type<bool>();
 //template <> eControlType get_control_type<BOOL> () 
 template <> eControlType get_control_type<std::string>();
 template <> eControlType get_control_type<LLVector3>();
-template <> eControlType get_control_type<LLVector3d>(); 
+template <> eControlType get_control_type<LLVector3d>();
+template <> eControlType get_control_type<LLQuaternion>();
 template <> eControlType get_control_type<LLRect>();
 template <> eControlType get_control_type<LLColor4>();
 template <> eControlType get_control_type<LLColor3>();
@@ -444,7 +447,8 @@ template <> eControlType get_control_type<LLSD>();
 
 template <> LLSD convert_to_llsd<U32>(const U32& in);
 template <> LLSD convert_to_llsd<LLVector3>(const LLVector3& in);
-template <> LLSD convert_to_llsd<LLVector3d>(const LLVector3d& in); 
+template <> LLSD convert_to_llsd<LLVector3d>(const LLVector3d& in);
+template <> LLSD convert_to_llsd<LLQuaternion>(const LLQuaternion& in);
 template <> LLSD convert_to_llsd<LLRect>(const LLRect& in);
 template <> LLSD convert_to_llsd<LLColor4>(const LLColor4& in);
 template <> LLSD convert_to_llsd<LLColor3>(const LLColor3& in);
@@ -453,6 +457,7 @@ template<> std::string convert_from_llsd<std::string>(const LLSD& sd, eControlTy
 template<> LLWString convert_from_llsd<LLWString>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLVector3 convert_from_llsd<LLVector3>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLVector3d convert_from_llsd<LLVector3d>(const LLSD& sd, eControlType type, const std::string& control_name);
+template<> LLQuaternion convert_from_llsd<LLQuaternion>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> LLRect convert_from_llsd<LLRect>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> bool convert_from_llsd<bool>(const LLSD& sd, eControlType type, const std::string& control_name);
 template<> S32 convert_from_llsd<S32>(const LLSD& sd, eControlType type, const std::string& control_name);

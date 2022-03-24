@@ -43,6 +43,7 @@
 
 // other Linden headers
 #include "llerror.h"
+#include "lleventcoro.h"
 #include "stringize.h"
 #include "llxmlrpctransaction.h"
 #include "llsecapi.h"
@@ -100,34 +101,17 @@ public:
     {
         // from curl.h
 // skip the "CURLE_" prefix for each of these strings
-#define def(sym) (mMap[sym] = #sym + 6)
+#define def(sym) (mMap[sym] = &#sym[6])
         def(CURLE_OK);
         def(CURLE_UNSUPPORTED_PROTOCOL);    /* 1 */
         def(CURLE_FAILED_INIT);             /* 2 */
         def(CURLE_URL_MALFORMAT);           /* 3 */
-        def(CURLE_URL_MALFORMAT_USER);      /* 4 - NOT USED */
         def(CURLE_COULDNT_RESOLVE_PROXY);   /* 5 */
         def(CURLE_COULDNT_RESOLVE_HOST);    /* 6 */
         def(CURLE_COULDNT_CONNECT);         /* 7 */
-        def(CURLE_FTP_WEIRD_SERVER_REPLY);  /* 8 */
-        def(CURLE_FTP_ACCESS_DENIED);       /* 9 a service was denied by the FTP server
-                                          due to lack of access - when login fails
-                                          this is not returned. */
-        def(CURLE_FTP_USER_PASSWORD_INCORRECT); /* 10 - NOT USED */
-        def(CURLE_FTP_WEIRD_PASS_REPLY);    /* 11 */
-        def(CURLE_FTP_WEIRD_USER_REPLY);    /* 12 */
-        def(CURLE_FTP_WEIRD_PASV_REPLY);    /* 13 */
-        def(CURLE_FTP_WEIRD_227_FORMAT);    /* 14 */
-        def(CURLE_FTP_CANT_GET_HOST);       /* 15 */
-        def(CURLE_FTP_CANT_RECONNECT);      /* 16 */
-        def(CURLE_FTP_COULDNT_SET_BINARY);  /* 17 */
         def(CURLE_PARTIAL_FILE);            /* 18 */
-        def(CURLE_FTP_COULDNT_RETR_FILE);   /* 19 */
-        def(CURLE_FTP_WRITE_ERROR);         /* 20 */
-        def(CURLE_FTP_QUOTE_ERROR);         /* 21 */
         def(CURLE_HTTP_RETURNED_ERROR);     /* 22 */
         def(CURLE_WRITE_ERROR);             /* 23 */
-        def(CURLE_MALFORMAT_USER);          /* 24 - NOT USED */
         def(CURLE_UPLOAD_FAILED);           /* 25 - failed upload "command" */
         def(CURLE_READ_ERROR);              /* 26 - could open/read from file */
         def(CURLE_OUT_OF_MEMORY);           /* 27 */
@@ -135,29 +119,18 @@ public:
                  instead of a memory allocation error if CURL_DOES_CONVERSIONS
                  is defined
         */
-        def(CURLE_OPERATION_TIMEOUTED);     /* 28 - the timeout time was reached */
-        def(CURLE_FTP_COULDNT_SET_ASCII);   /* 29 - TYPE A failed */
-        def(CURLE_FTP_PORT_FAILED);         /* 30 - FTP PORT operation failed */
-        def(CURLE_FTP_COULDNT_USE_REST);    /* 31 - the REST command failed */
-        def(CURLE_FTP_COULDNT_GET_SIZE);    /* 32 - the SIZE command failed */
+        def(CURLE_OPERATION_TIMEDOUT);     /* 28 - the timeout time was reached */
         def(CURLE_HTTP_RANGE_ERROR);        /* 33 - RANGE "command" didn't work */
         def(CURLE_HTTP_POST_ERROR);         /* 34 */
         def(CURLE_SSL_CONNECT_ERROR);       /* 35 - wrong when connecting with SSL */
         def(CURLE_BAD_DOWNLOAD_RESUME);     /* 36 - couldn't resume download */
         def(CURLE_FILE_COULDNT_READ_FILE);  /* 37 */
-        def(CURLE_LDAP_CANNOT_BIND);        /* 38 */
-        def(CURLE_LDAP_SEARCH_FAILED);      /* 39 */
         def(CURLE_LIBRARY_NOT_FOUND);       /* 40 */
         def(CURLE_FUNCTION_NOT_FOUND);      /* 41 */
         def(CURLE_ABORTED_BY_CALLBACK);     /* 42 */
         def(CURLE_BAD_FUNCTION_ARGUMENT);   /* 43 */
-        def(CURLE_BAD_CALLING_ORDER);       /* 44 - NOT USED */
         def(CURLE_INTERFACE_FAILED);        /* 45 - CURLOPT_INTERFACE failed */
-        def(CURLE_BAD_PASSWORD_ENTERED);    /* 46 - NOT USED */
         def(CURLE_TOO_MANY_REDIRECTS );     /* 47 - catch endless re-direct loops */
-        def(CURLE_UNKNOWN_TELNET_OPTION);   /* 48 - User specified an unknown option */
-        def(CURLE_TELNET_OPTION_SYNTAX );   /* 49 - Malformed telnet option */
-        def(CURLE_OBSOLETE);                /* 50 - NOT USED */
         def(CURLE_SSL_PEER_CERTIFICATE);    /* 51 - peer's certificate wasn't ok */
         def(CURLE_GOT_NOTHING);             /* 52 - when this is a specific error */
         def(CURLE_SSL_ENGINE_NOTFOUND);     /* 53 - SSL crypto engine not found */
@@ -165,26 +138,19 @@ public:
                                           default */
         def(CURLE_SEND_ERROR);              /* 55 - failed sending network data */
         def(CURLE_RECV_ERROR);              /* 56 - failure in receiving network data */
-        def(CURLE_SHARE_IN_USE);            /* 57 - share is in use */
+
         def(CURLE_SSL_CERTPROBLEM);         /* 58 - problem with the local certificate */
         def(CURLE_SSL_CIPHER);              /* 59 - couldn't use specified cipher */
         def(CURLE_SSL_CACERT);              /* 60 - problem with the CA cert (path?) */
         def(CURLE_BAD_CONTENT_ENCODING);    /* 61 - Unrecognized transfer encoding */
-        def(CURLE_LDAP_INVALID_URL);        /* 62 - Invalid LDAP URL */
+
         def(CURLE_FILESIZE_EXCEEDED);       /* 63 - Maximum file size exceeded */
-        def(CURLE_FTP_SSL_FAILED);          /* 64 - Requested FTP SSL level failed */
+
         def(CURLE_SEND_FAIL_REWIND);        /* 65 - Sending the data requires a rewind
                                           that failed */
         def(CURLE_SSL_ENGINE_INITFAILED);   /* 66 - failed to initialise ENGINE */
         def(CURLE_LOGIN_DENIED);            /* 67 - user); password or similar was not
                                           accepted and we failed to login */
-        def(CURLE_TFTP_NOTFOUND);           /* 68 - file not found on server */
-        def(CURLE_TFTP_PERM);               /* 69 - permission problem on server */
-        def(CURLE_TFTP_DISKFULL);           /* 70 - out of disk space on server */
-        def(CURLE_TFTP_ILLEGAL);            /* 71 - Illegal TFTP operation */
-        def(CURLE_TFTP_UNKNOWNID);          /* 72 - Unknown transfer ID */
-        def(CURLE_TFTP_EXISTS);             /* 73 - File already exists */
-        def(CURLE_TFTP_NOSUCHUSER);         /* 74 - No such user */
         def(CURLE_CONV_FAILED);             /* 75 - conversion failed */
         def(CURLE_CONV_REQD);               /* 76 - caller must register conversion
                                           callbacks using curl_easy_setopt options
@@ -401,6 +367,8 @@ public:
 
         // whether successful or not, send reply on requested LLEventPump
         replyPump.post(data);
+        // need to wake up the loginCoro now
+        llcoro::suspend();
 
         // Because mTransaction is a boost::scoped_ptr, deleting this object
         // frees our LLXMLRPCTransaction object.
@@ -453,59 +421,109 @@ private:
             std::string key(XMLRPC_GetValueID(current));
             LL_DEBUGS("LLXMLRPCListener") << "key: " << key_pfx << key << LL_ENDL;
             XMLRPC_VALUE_TYPE_EASY type = XMLRPC_GetValueTypeEasy(current);
-            if (xmlrpc_type_string == type)
+            switch (type)
             {
-                LLSD::String val(XMLRPC_GetValueString(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_int == type)
-            {
-                LLSD::Integer val(XMLRPC_GetValueInt(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_double == type)
-            {
-                LLSD::Real val(XMLRPC_GetValueDouble(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_array == type)
-            {
-                // We expect this to be an array of submaps. Walk the array,
-                // recursively parsing each submap and collecting them.
-                LLSD array;
-                int i = 0;          // for descriptive purposes
-                for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
-                     row = XMLRPC_VectorNext(current), ++i)
+            case xmlrpc_type_empty:
+                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
+                responses.insert(key, LLSD());
+                break;
+            case xmlrpc_type_base64:
                 {
-                    // Recursive call. For the lower-level key_pfx, if 'key'
-                    // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
-                    // nested call, a subkey "bar" will then be logged as
-                    // "foo[0]:bar", and so forth.
-                    // Parse the scalar subkey/value pairs from this array
-                    // entry into a temp submap. Collect such submaps in 'array'.
-                    array.append(parseValues(status_string,
-                                             STRINGIZE(key_pfx << key << '[' << i << "]:"),
-                                             row));
+                    S32 len = XMLRPC_GetValueStringLen(current);
+                    const char* buf = XMLRPC_GetValueBase64(current);
+                    if ((len > 0) && buf)
+                    {
+                        // During implementation this code was not tested
+                        // If you encounter this, please make sure this is correct,
+                        // then remove llassert
+                        llassert(0);
+
+                        LLSD::Binary data;
+                        data.resize(len);
+                        memcpy((void*)&data[0], (void*)buf, len);
+                        responses.insert(key, data);
+                    }
+                    else
+                    {
+                        LL_WARNS("LLXMLRPCListener") << "Potentially malformed xmlrpc_type_base64 for key "
+                            << key_pfx << key << LL_ENDL;
+                        responses.insert(key, LLSD());
+                    }
+                    break;
                 }
-                // Having collected an 'array' of 'submap's, insert that whole
-                // 'array' as the value of this 'key'.
-                responses.insert(key, array);
-            }
-            else if (xmlrpc_type_struct == type)
-            {
-                LLSD submap = parseValues(status_string,
-                                          STRINGIZE(key_pfx << key << ':'),
-                                          current);
-                responses.insert(key, submap);
-            }
-            else
-            {
+            case xmlrpc_type_boolean:
+                {
+                    LLSD::Boolean val(XMLRPC_GetValueBoolean(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_datetime:
+                {
+                    std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
+                    responses.insert(key, LLSD::Date(iso8601_date));
+                    break;
+                }
+            case xmlrpc_type_double:
+                {
+                    LLSD::Real val(XMLRPC_GetValueDouble(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_int:
+                {
+                    LLSD::Integer val(XMLRPC_GetValueInt(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_string:
+                {
+                    LLSD::String val(XMLRPC_GetValueString(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_mixed:
+            case xmlrpc_type_array:
+                {
+                    // We expect this to be an array of submaps. Walk the array,
+                    // recursively parsing each submap and collecting them.
+                    LLSD array;
+                    int i = 0;          // for descriptive purposes
+                    for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
+                         row = XMLRPC_VectorNext(current), ++i)
+                    {
+                        // Recursive call. For the lower-level key_pfx, if 'key'
+                        // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
+                        // nested call, a subkey "bar" will then be logged as
+                        // "foo[0]:bar", and so forth.
+                        // Parse the scalar subkey/value pairs from this array
+                        // entry into a temp submap. Collect such submaps in 'array'.
+                        array.append(parseValues(status_string,
+                                                 STRINGIZE(key_pfx << key << '[' << i << "]:"),
+                                                 row));
+                    }
+                    // Having collected an 'array' of 'submap's, insert that whole
+                    // 'array' as the value of this 'key'.
+                    responses.insert(key, array);
+                    break;
+                }
+            case xmlrpc_type_struct:
+                {
+                    LLSD submap = parseValues(status_string,
+                                              STRINGIZE(key_pfx << key << ':'),
+                                              current);
+                    responses.insert(key, submap);
+                    break;
+                }
+            case xmlrpc_type_none: // Not expected
+            default:
                 // whoops - unrecognized type
                 LL_WARNS("LLXMLRPCListener") << "Unhandled xmlrpc type " << type << " for key "
-                                             << key_pfx << key << LL_ENDL;
+                    << key_pfx << key << LL_ENDL;
                 responses.insert(key, STRINGIZE("<bad XMLRPC type " << type << '>'));
                 status_string = "BadType";
             }

@@ -35,8 +35,6 @@
 #include "llviewerregion.h"
 #include "llskinningutil.h"
 
-//#pragma optimize("", off)
-
 const F32 LLControlAvatar::MAX_LEGAL_OFFSET = 3.0f;
 const F32 LLControlAvatar::MAX_LEGAL_SIZE = 64.0f;
 
@@ -78,6 +76,24 @@ void LLControlAvatar::initInstance()
 	hideSkirt();
 
     mInitFlags |= 1<<4;
+}
+
+const LLVOAvatar *LLControlAvatar::getAttachedAvatar() const
+{
+	if (mRootVolp && mRootVolp->isAttachment())
+	{
+		return mRootVolp->getAvatarAncestor();
+	}
+	return NULL;
+}
+
+LLVOAvatar *LLControlAvatar::getAttachedAvatar()
+{
+	if (mRootVolp && mRootVolp->isAttachment())
+	{
+		return mRootVolp->getAvatarAncestor();
+	}
+	return NULL;
 }
 
 void LLControlAvatar::getNewConstraintFixups(LLVector3& new_pos_fixup, F32& new_scale_fixup) const
@@ -167,11 +183,14 @@ void LLControlAvatar::matchVolumeTransform()
 
         if (mRootVolp->isAttachment())
         {
-            LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
+            LLVOAvatar *attached_av = getAttachedAvatar();
             if (attached_av)
             {
                 LLViewerJointAttachment *attach = attached_av->getTargetAttachmentPoint(mRootVolp);
-                setPositionAgent(mRootVolp->getRenderPosition());
+                if (getRegion() && !isDead())
+                {
+                    setPositionAgent(mRootVolp->getRenderPosition());
+                }
 				attach->updateWorldPRSParent();
                 LLVector3 joint_pos = attach->getWorldPosition();
                 LLQuaternion joint_rot = attach->getWorldRotation();
@@ -227,7 +246,10 @@ void LLControlAvatar::matchVolumeTransform()
 #endif
 			setRotation(bind_rot*obj_rot);
             mRoot->setWorldRotation(bind_rot*obj_rot);
-			setPositionAgent(vol_pos);
+            if (getRegion() && !isDead())
+            {
+                setPositionAgent(vol_pos);
+            }
 			mRoot->setPosition(vol_pos + mPositionConstraintFixup);
 
             F32 global_scale = gSavedSettings.getF32("AnimatedObjectsGlobalScale");
@@ -257,7 +279,7 @@ void LLControlAvatar::recursiveScaleJoint(LLJoint* joint, F32 factor)
 {
     joint->setScale(factor * joint->getScale());
     
-	for (LLJoint::child_list_t::iterator iter = joint->mChildren.begin();
+	for (LLJoint::joints_t::iterator iter = joint->mChildren.begin();
 		 iter != joint->mChildren.end(); ++iter)
 	{
 		LLJoint* child = *iter;
@@ -356,7 +378,34 @@ void LLControlAvatar::idleUpdate(LLAgent &agent, const F64 &time)
     }
 }
 
-BOOL LLControlAvatar::updateCharacter(LLAgent &agent)
+bool LLControlAvatar::computeNeedsUpdate()
+{
+	computeUpdatePeriod();
+
+	// Animesh attachments are a special case. Should have the same update cadence as their attached parent avatar.
+	LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
+	{
+		// Have to run computeNeedsUpdate() for attached av in
+		// case it hasn't run updateCharacter() already this
+		// frame.  Note this means that the attached av will
+		// run computeNeedsUpdate() multiple times per frame
+		// if it has animesh attachments. Results will be
+		// consistent except for the corner case of exceeding
+		// MAX_IMPOSTOR_INTERVAL in one call but not another,
+		// which should be rare.
+		attached_av->computeNeedsUpdate();
+		mNeedsImpostorUpdate = attached_av->mNeedsImpostorUpdate;
+		if (mNeedsImpostorUpdate)
+		{
+			mLastImpostorUpdateReason = 12;
+		}
+		return mNeedsImpostorUpdate;
+	}
+	return LLVOAvatar::computeNeedsUpdate();
+}
+
+bool LLControlAvatar::updateCharacter(LLAgent &agent)
 {
     return LLVOAvatar::updateCharacter(agent);
 }
@@ -574,12 +623,12 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
         return NULL;
     }
 
-    LLViewerObject* hit = NULL;
+	LLViewerObject* hit = NULL;
 
-    if (lineSegmentBoundingBox(start, end))
-    {
-        LLVector4a local_end = end;
-        LLVector4a local_intersection;
+	if (lineSegmentBoundingBox(start, end))
+	{
+		LLVector4a local_end = end;
+		LLVector4a local_intersection;
         if (mRootVolp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
         {
             local_end = local_intersection;
@@ -598,20 +647,20 @@ LLViewerObject* LLControlAvatar::lineSegmentIntersectRiggedAttachments(const LLV
             {
                 LLVOVolume *volp = *vol_it;
                 if (mRootVolp != volp && volp->lineSegmentIntersect(start, local_end, face, pick_transparent, pick_rigged, face_hit, &local_intersection, tex_coord, normal, tangent))
-                {
-                    local_end = local_intersection;
-                    if (intersection)
-                    {
-                        *intersection = local_intersection;
-                    }
+        {
+            local_end = local_intersection;
+            if (intersection)
+            {
+                *intersection = local_intersection;
+            }
                     hit = volp;
                     break;
                 }
             }
         }
-    }
-
-    return hit;
+	}
+		
+	return hit;
 }
 
 // virtual
@@ -630,29 +679,23 @@ std::string LLControlAvatar::getFullname() const
 // virtual
 bool LLControlAvatar::shouldRenderRigged() const
 {
-    if (mRootVolp && mRootVolp->isAttachment())
-    {
-        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
-        if (attached_av)
-        {
-            return attached_av->shouldRenderRigged();
-        }
-    }
+	const LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
+	{
+		return attached_av->shouldRenderRigged();
+	}
     return true;
 }
 
 // virtual
 BOOL LLControlAvatar::isImpostor()
 {
-    if (mRootVolp && mRootVolp->isAttachment())
-    {
-		// Attached animated objects should match state of their attached av.
-        LLVOAvatar *attached_av = mRootVolp->getAvatarAncestor();
-		if (attached_av)
-		{
-			return attached_av->isImpostor();
-		}
-    }
+	// Attached animated objects should match state of their attached av.
+	LLVOAvatar *attached_av = getAttachedAvatar();
+	if (attached_av)
+	{
+		return attached_av->isImpostor();
+	}
 	return LLVOAvatar::isImpostor();
 }
 

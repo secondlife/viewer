@@ -45,6 +45,9 @@
 	<string name="edit_tattoo_title">
 		Tätowierung bearbeiten
 	</string>
+	<string name="edit_universal_title">
+		Universal bearbeiten
+	</string>
 	<string name="edit_physics_title">
 		Physik bearbeiten
 	</string>
@@ -92,6 +95,9 @@
 	</string>
 	<string name="tattoo_desc_text">
 		Tätowierung:
+	</string>
+	<string name="universal_desc_text">
+		Universal:
 	</string>
 	<string name="physics_desc_text">
 		Physik:

@@ -131,7 +131,7 @@ void setupInputWindow(NSWindowRef window, GLViewRef view);
 // These are all implemented in llwindowmacosx.cpp.
 // This is largely for easier interop between Obj-C and C++ (at least in the viewer's case due to the BOOL vs. BOOL conflict)
 bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask);
-bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask);
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character);
 void callResetKeys();
 bool callUnicodeCallback(wchar_t character, unsigned int mask);
 void callRightMouseDown(float *pos, unsigned int mask);
@@ -142,7 +142,7 @@ void callDoubleClick(float *pos, unsigned int mask);
 void callResize(unsigned int width, unsigned int height);
 void callMouseMoved(float *pos, unsigned int mask);
 void callMouseDragged(float *pos, unsigned int mask);
-void callScrollMoved(float delta);
+void callScrollMoved(float deltaX, float deltaY);
 void callMouseExit();
 void callWindowFocus();
 void callWindowUnfocus();
@@ -150,8 +150,8 @@ void callWindowHide();
 void callWindowUnhide();
 void callWindowDidChangeScreen();
 void callDeltaUpdate(float *delta, unsigned int mask);
-void callMiddleMouseDown(float *pos, unsigned int mask);
-void callMiddleMouseUp(float *pos, unsigned int mask);
+void callOtherMouseDown(float *pos, unsigned int mask, int button);
+void callOtherMouseUp(float *pos, unsigned int mask, int button);
 void callFocus();
 void callFocusLost();
 void callModifier(unsigned int mask);

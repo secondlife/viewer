@@ -79,30 +79,15 @@
 			<menu_item_check label="Parzelleneigenschaften" name="Parcel Properties"/>
 			<menu_item_check label="Menü „Erweitert“" name="Show Advanced Menu"/>
 		</menu>
-		<menu label="Sonne" name="Sun">
+		<menu label="Umgebung" name="Environment">
 			<menu_item_check label="Sonnenaufgang" name="Sunrise"/>
 			<menu_item_check label="Mittag" name="Noon"/>
 			<menu_item_check label="Sonnenuntergang" name="Sunset"/>
 			<menu_item_check label="Mitternacht" name="Midnight"/>
-			<menu_item_check label="Regionseinstellungen verwenden" name="Use Region Settings"/>
-		</menu>
-		<menu label="Umwelt-Editor" name="Environment Editor">
-			<menu_item_call label="Umwelt-Einstellungen..." name="Environment Settings"/>
-			<menu label="Wasser-Voreinstellungen" name="Water Presets">
-				<menu_item_call label="Neue Voreinstellung..." name="new_water_preset"/>
-				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_water_preset"/>
-				<menu_item_call label="Voreinstellung löschen..." name="delete_water_preset"/>
-			</menu>
-			<menu label="Himmel-Voreinstellungen" name="Sky Presets">
-				<menu_item_call label="Neue Voreinstellung..." name="new_sky_preset"/>
-				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_sky_preset"/>
-				<menu_item_call label="Voreinstellung löschen..." name="delete_sky_preset"/>
-			</menu>
-			<menu label="Tag-Voreinstellungen" name="Day Presets">
-				<menu_item_call label="Neue Voreinstellung..." name="new_day_preset"/>
-				<menu_item_call label="Voreinstellung bearbeiten..." name="edit_day_preset"/>
-				<menu_item_call label="Voreinstellung löschen..." name="delete_day_preset"/>
-			</menu>
+			<menu_item_check label="Gemeinsame Umgebung verwenden" name="Use Shared Environment"/>
+			<menu_item_call label="Meine Umgebungen..." name="my_environs"/>
+			<menu_item_call label="Persönliche Beleuchtung..." name="adjustment_tool"/>
+			<menu_item_check label="Wolken pausieren" name="pause_clouds"/>
 		</menu>
 	</menu>
 	<menu label="Bauen" name="BuildTools">
@@ -346,6 +331,9 @@
 			<menu_item_check label="Automatische Alpha-Masken (nicht aufgeschoben)" name="Automatic Alpha Masks (non-deferred)"/>
 			<menu_item_check label="Animationstexturen" name="Animation Textures"/>
 			<menu_item_check label="Texturen deaktivieren" name="Disable Textures"/>
+			<menu_item_check label="Umgebung deaktivieren" name="Disable Ambient"/>
+			<menu_item_check label="Sonnenlicht deaktivieren" name="Disable Sunlight"/>
+			<menu_item_check label="Lokale Lichtquellen deaktivieren" name="Disable Local Lights"/>
 			<menu_item_check label="Voll-Res-Texturen" name="Rull Res Textures"/>
 			<menu_item_check label="Angehängte Lichter rendern" name="Render Attached Lights"/>
 			<menu_item_check label="Angehängte Partikel rendern" name="Render Attached Particles"/>
@@ -477,6 +465,7 @@
 			<menu_item_call label="Rock" name="Skirt"/>
 			<menu_item_call label="Alpha" name="Alpha"/>
 			<menu_item_call label="Tätowierung" name="Tattoo"/>
+			<menu_item_call label="Universal" name="Universal"/>
 			<menu_item_call label="Physik" name="Physics"/>
 			<menu_item_call label="Alle Kleider" name="All Clothes"/>
 		</menu>

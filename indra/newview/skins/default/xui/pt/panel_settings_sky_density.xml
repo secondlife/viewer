@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Densidade" name="panel_settings_sky_density">
+	<layout_stack>
+		<layout_panel>
+			<slider label="Espelhar termo exponencial:" name="rayleigh_exponential"/>
+			<slider label="Espelhar escala exponencial:" name="rayleigh_exponential_scale"/>
+			<slider label="Espelhar termo linear:" name="rayleigh_linear"/>
+			<slider label="Espelhar termo constante:" name="rayleigh_constant"/>
+			<slider label="Espelhar altitude máxima:" name="rayleigh_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Mie termo exponencial:" name="mie_exponential"/>
+			<slider label="Mie escala exponencial:" name="mie_exponential_scale"/>
+			<slider label="Mie termo linear:" name="mie_linear"/>
+			<slider label="Mie termo constante:" name="mie_constant"/>
+			<slider label="Mie fator aniso:" name="mie_aniso_factor"/>
+			<slider label="Mie altitude máxima:" name="mie_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Absorção termo exponencial:" name="absorption_exponential"/>
+			<slider label="Absorção escala exponencial:" name="absorption_exponential_scale"/>
+			<slider label="Absorção termo linear:" name="absorption_linear"/>
+			<slider label="Absorção termo constante:" name="absorption_constant"/>
+			<slider label="Absorção altitude máxima:" name="absorption_max_altitude"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

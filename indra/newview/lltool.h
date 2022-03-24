@@ -49,7 +49,7 @@ public:
 	virtual BOOL isView() const { return FALSE; }
 
 	// Virtual functions inherited from LLMouseHandler
-	virtual BOOL	handleAnyMouseClick(S32 x, S32 y, MASK mask, LLMouseHandler::EClickType clicktype, BOOL down);
+	virtual BOOL	handleAnyMouseClick(S32 x, S32 y, MASK mask, EMouseClickType clicktype, BOOL down);
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
@@ -57,6 +57,7 @@ public:
 
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	virtual BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks);
 	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);

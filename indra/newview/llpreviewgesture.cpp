@@ -30,7 +30,7 @@
 #include "llagent.h"
 #include "llanimstatelabels.h"
 #include "llanimationstates.h"
-#include "llappviewer.h"			// gVFS
+#include "llappviewer.h"
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldatapacker.h"
@@ -47,7 +47,7 @@
 #include "llradiogroup.h"
 #include "llresmgr.h"
 #include "lltrans.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
@@ -373,11 +373,11 @@ BOOL LLPreviewGesture::postBuild()
 	mReplaceEditor = edit;
 
 	combo = getChild<LLComboBox>( "modifier_combo");
-	combo->setCommitCallback(onCommitSetDirty, this);
+	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
 	mModifierCombo = combo;
 
 	combo = getChild<LLComboBox>( "key_combo");
-	combo->setCommitCallback(onCommitSetDirty, this);
+	combo->setCommitCallback(boost::bind(&LLPreviewGesture::onCommitKeyorModifier, this));
 	mKeyCombo = combo;
 
 	list = getChild<LLScrollListCtrl>("library_list");
@@ -841,10 +841,9 @@ void LLPreviewGesture::loadAsset()
 
 
 // static
-void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
-									   const LLUUID& asset_uuid,
-									   LLAssetType::EType type,
-									   void* user_data, S32 status, LLExtStat ext_status)
+void LLPreviewGesture::onLoadComplete(const LLUUID& asset_uuid,
+									  LLAssetType::EType type,
+									  void* user_data, S32 status, LLExtStat ext_status)
 {
 	LLUUID* item_idp = (LLUUID*)user_data;
 
@@ -853,7 +852,7 @@ void LLPreviewGesture::onLoadComplete(LLVFS *vfs,
 	{
 		if (0 == status)
 		{
-			LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+			LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 			S32 size = file.getSize();
 
 			std::vector<char> buffer(size+1);
@@ -937,11 +936,15 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 		break;
 	}
 
+	mModifierCombo->setEnabledByValue(CTRL_LABEL, gesture->mKey != KEY_F10);
+
 	mKeyCombo->setCurrentByIndex(0);
 	if (gesture->mKey != KEY_NONE)
 	{
 		mKeyCombo->setSimple(LLKeyboard::stringFromKey(gesture->mKey));
 	}
+
+	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), gesture->mMask != MASK_CONTROL);
 
 	// Make UI steps for each gesture step
 	S32 i;
@@ -1091,7 +1094,7 @@ void LLPreviewGesture::saveIfNeeded()
         const LLViewerRegion* region = gAgent.getRegion();
         if (!region)
         {
-            LL_WARNS() << "Not connected to a region, cannot save notecard." << LL_ENDL;
+            LL_WARNS() << "Not connected to a region, cannot save gesture." << LL_ENDL;
             return;
         }
         std::string agent_url = region->getCapability("UpdateGestureAgentInventory");
@@ -1111,13 +1114,15 @@ void LLPreviewGesture::saveIfNeeded()
                 refresh();
                 item->setComplete(true);
 
-                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_GESTURE, buffer,
-                    boost::bind(&LLPreviewGesture::finishInventoryUpload, _1, _2)));
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_GESTURE, buffer,
+                    [](LLUUID itemId, LLUUID newAssetId, LLUUID, LLSD) {
+                        LLPreviewGesture::finishInventoryUpload(itemId, newAssetId);
+                    });
                 url = agent_url;
             }
             else if (!mObjectUUID.isNull() && !task_url.empty())
             {
-                uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, NULL));
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_GESTURE, buffer, nullptr);
                 url = task_url;
             }
 
@@ -1136,10 +1141,9 @@ void LLPreviewGesture::saveIfNeeded()
             tid.generate();
             assetId = tid.makeAssetID(gAgent.getSecureSessionID());
 
-            LLVFile file(gVFS, assetId, LLAssetType::AT_GESTURE, LLVFile::APPEND);
+            LLFileSystem file(assetId, LLAssetType::AT_GESTURE, LLFileSystem::APPEND);
 
             S32 size = dp.getCurrentSize();
-            file.setMaxSize(size);
             file.write((U8*)buffer, size);
 
             LLLineEditor* descEditor = getChild<LLLineEditor>("desc");
@@ -1335,6 +1339,17 @@ LLMultiGesture* LLPreviewGesture::createGesture()
 	return gesture;
 }
 
+
+void LLPreviewGesture::onCommitKeyorModifier()
+{
+	// SL-14139: ctrl-F10 is currently used to access top menu,
+	// so don't allow to bound gestures to this combination.
+
+	mKeyCombo->setEnabledByValue(LLKeyboard::stringFromKey(KEY_F10), mModifierCombo->getSimple() != CTRL_LABEL);
+	mModifierCombo->setEnabledByValue(CTRL_LABEL, mKeyCombo->getSimple() != LLKeyboard::stringFromKey(KEY_F10));
+	mDirty = TRUE;
+	refresh();
+}
 
 // static
 void LLPreviewGesture::updateLabel(LLScrollListItem* item)

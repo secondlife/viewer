@@ -10,7 +10,7 @@
 		Descrizione:
 	</text>
 	<text name="dimensions">
-		[WIDTH] px x [HEIGHT] px
+		[WIDTH]px x [HEIGHT]px
 	</text>
 	<text name="aspect_ratio">
 		Antreprima rapporto di visualizzazione

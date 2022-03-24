@@ -515,6 +515,7 @@ LLIMModel::LLIMModel()
 {
 	addNewMsgCallback(boost::bind(&LLFloaterIMSession::newIMCallback, _1));
 	addNewMsgCallback(boost::bind(&on_new_message, _1));
+	LLCallDialogManager::instance();
 }
 
 LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string& name, const EInstantMessage& type, const LLUUID& other_participant_id, const uuid_vec_t& ids, bool voice, bool has_offline_msg)
@@ -843,7 +844,7 @@ void LLIMModel::LLIMSession::loadHistory()
 		std::list<LLSD> chat_history;
 
 		//involves parsing of a chat history
-		LLLogChat::loadChatHistory(mHistoryFileName, chat_history);
+		LLLogChat::loadChatHistory(mHistoryFileName, chat_history, LLSD(), isGroupChat());
 		addMessagesFromHistory(chat_history);
 	}
 }
@@ -899,12 +900,17 @@ bool LLIMModel::LLIMSession::isOutgoingAdHoc() const
 
 bool LLIMModel::LLIMSession::isAdHoc()
 {
-	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
+	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID, TRUE));
 }
 
 bool LLIMModel::LLIMSession::isP2P()
 {
 	return IM_NOTHING_SPECIAL == mType;
+}
+
+bool LLIMModel::LLIMSession::isGroupChat()
+{
+	return IM_SESSION_GROUP_START == mType || (IM_SESSION_INVITE == mType && gAgent.isInGroup(mSessionID, TRUE));
 }
 
 bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
@@ -963,6 +969,13 @@ void LLIMModel::LLIMSession::buildHistoryFileName()
 			// Incoming P2P sessions include a name that we can use to build a history file name
 			mHistoryFileName = LLCacheName::buildUsername(mName);
 		}
+
+        // user's account name can change, but filenames and session names are account name based
+        LLConversationLog::getInstance()->verifyFilename(mSessionID, mHistoryFileName, av_name.getCompleteName());
+	}
+	else if (isGroupChat())
+	{
+		mHistoryFileName = mName + GROUP_CHAT_SUFFIX;
 	}
 }
 
@@ -1688,7 +1701,7 @@ LLUUID LLIMMgr::computeSessionID(
 		}
 	}
 
-	if (gAgent.isInGroup(session_id) && (session_id != other_participant_id))
+	if (gAgent.isInGroup(session_id, TRUE) && (session_id != other_participant_id))
 	{
 		LL_WARNS() << "Group session id different from group id: IM type = " << dialog << ", session id = " << session_id << ", group id = " << other_participant_id << LL_ENDL;
 	}
@@ -2022,7 +2035,7 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them
 	bool participant_is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 
-	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id);
+	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id, TRUE);
 
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
@@ -2244,6 +2257,19 @@ BOOL LLOutgoingCallDialog::postBuild()
 // Class LLIncomingCallDialog
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+const std::array<std::string, 4> voice_call_types =
+{
+    "VoiceInviteP2P",
+    "VoiceInviteGroup",
+    "VoiceInviteAdHoc",
+    "InviteAdHoc"
+};
+
+bool is_voice_call_type(const std::string &value)
+{
+    return std::find(voice_call_types.begin(), voice_call_types.end(), value) != voice_call_types.end();
+}
+
 LLIncomingCallDialog::LLIncomingCallDialog(const LLSD& payload) :
 LLCallDialog(payload),
 mAvatarNameCacheConnection()
@@ -2273,9 +2299,28 @@ BOOL LLIncomingCallDialog::postBuild()
 {
 	LLCallDialog::postBuild();
 
+    if (!mPayload.isMap() || mPayload.size() == 0)
+    {
+        LL_INFOS("IMVIEW") << "IncomingCall: invalid argument" << LL_ENDL;
+        return TRUE;
+    }
+
 	LLUUID session_id = mPayload["session_id"].asUUID();
 	LLSD caller_id = mPayload["caller_id"];
 	std::string caller_name = mPayload["caller_name"].asString();
+
+    if (session_id.isNull() && caller_id.asUUID().isNull())
+    {
+        LL_INFOS("IMVIEW") << "IncomingCall: invalid ids" << LL_ENDL;
+        return TRUE;
+    }
+
+    std::string notify_box_type = mPayload["notify_box_type"].asString();
+    if (!is_voice_call_type(notify_box_type))
+    {
+        LL_INFOS("IMVIEW") << "IncomingCall: notify_box_type was not provided" << LL_ENDL;
+        return TRUE;
+    }
 	
 	// init notification's lifetime
 	std::istringstream ss( getString("lifetime") );
@@ -2285,22 +2330,21 @@ BOOL LLIncomingCallDialog::postBuild()
 	}
 
 	std::string call_type;
-	if (gAgent.isInGroup(session_id))
+	if (gAgent.isInGroup(session_id, TRUE))
 	{
 		LLStringUtil::format_map_t args;
 		LLGroupData data;
 		if (gAgent.getGroupData(session_id, data))
 		{
 			args["[GROUP]"] = data.mName;
-			call_type = getString(mPayload["notify_box_type"], args);
+			call_type = getString(notify_box_type, args);
 		}
 	}
 	else
 	{
-		call_type = getString(mPayload["notify_box_type"]);
+		call_type = getString(notify_box_type);
 	}
-		
-	
+
 	// check to see if this is an Avaline call
 	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 	if (caller_name == "anonymous")
@@ -2330,7 +2374,6 @@ BOOL LLIncomingCallDialog::postBuild()
 	childSetAction("Start IM", onStartIM, this);
 	setDefaultBtn("Accept");
 
-	std::string notify_box_type = mPayload["notify_box_type"].asString();
 	if(notify_box_type != "VoiceInviteGroup" && notify_box_type != "VoiceInviteAdHoc")
 	{
 		// starting notification's timer for P2P and AVALINE invitations
@@ -2464,8 +2507,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 				switch(type){
 				case IM_SESSION_CONFERENCE_START:
 				case IM_SESSION_GROUP_START:
-				case IM_SESSION_INVITE:		
-					if (gAgent.isInGroup(session_id))
+				case IM_SESSION_INVITE:
+					if (gAgent.isInGroup(session_id, TRUE))
 					{
 						LLGroupData data;
 						if (!gAgent.getGroupData(session_id, data)) break;
@@ -2481,10 +2524,10 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 							correct_session_name.append(ADHOC_NAME_SUFFIX); 
 						}
 					}
-					LL_INFOS() << "Corrected session name is " << correct_session_name << LL_ENDL; 
+					LL_INFOS("IMVIEW") << "Corrected session name is " << correct_session_name << LL_ENDL;
 					break;
 				default: 
-					LL_WARNS() << "Received an empty session name from a server and failed to generate a new proper session name" << LL_ENDL;
+					LL_WARNS("IMVIEW") << "Received an empty session name from a server and failed to generate a new proper session name" << LL_ENDL;
 					break;
 				}
 			}
@@ -2674,7 +2717,7 @@ void LLIMMgr::addMessage(
 	}
 	bool skip_message = false;
 	bool from_linden = LLMuteList::getInstance()->isLinden(from);
-	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
+    if (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
 		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
@@ -2684,6 +2727,14 @@ void LLIMMgr::addMessage(
 	bool new_session = !hasSession(new_session_id);
 	if (new_session)
 	{
+		// Group chat session was initiated by muted resident, do not start this session viewerside
+		// do not send leave msg either, so we are able to get group messages from other participants
+		if ((IM_SESSION_INVITE == dialog) && gAgent.isInGroup(new_session_id) &&
+			LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
+		{
+			return;
+		}
+
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
 		{
@@ -2727,13 +2778,13 @@ void LLIMMgr::addMessage(
 				LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
 				if (!gIMMgr->leaveSession(new_session_id))
 				{
-					LL_INFOS() << "Session " << new_session_id << " does not exist." << LL_ENDL;
+					LL_INFOS("IMVIEW") << "Session " << new_session_id << " does not exist." << LL_ENDL;
 				}
 				return;
 			}
 
 			//Play sound for new conversations
-			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
+			if (!skip_message & !gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
 			}
@@ -2938,7 +2989,7 @@ LLUUID LLIMMgr::addSession(
 	//we don't need to show notes about online/offline, mute/unmute users' statuses for existing sessions
 	if (!new_session) return session_id;
 	
-    LL_INFOS() << "LLIMMgr::addSession, new session added, name = " << name << ", session id = " << session_id << LL_ENDL;
+    LL_INFOS("IMVIEW") << "LLIMMgr::addSession, new session added, name = " << name << ", session id = " << session_id << LL_ENDL;
     
 	//Per Plan's suggestion commented "explicit offline status warning" out to make Dessie happier (see EXT-3609)
 	//*TODO After February 2010 remove this commented out line if no one will be missing that warning
@@ -2975,7 +3026,7 @@ void LLIMMgr::removeSession(const LLUUID& session_id)
 
 	LLIMModel::getInstance()->clearSession(session_id);
 
-    LL_INFOS() << "LLIMMgr::removeSession, session removed, session id = " << session_id << LL_ENDL;
+    LL_INFOS("IMVIEW") << "LLIMMgr::removeSession, session removed, session id = " << session_id << LL_ENDL;
 
 	notifyObserverSessionRemoved(session_id);
 }
@@ -3004,7 +3055,7 @@ void LLIMMgr::inviteToSession(
 		notify_box_type = "VoiceInviteP2P";
 		voice_invite = TRUE;
 	}
-	else if ( gAgent.isInGroup(session_id) )
+	else if ( gAgent.isInGroup(session_id, TRUE) )
 	{
 		//only really old school groups have voice invitations
 		notify_box_type = "VoiceInviteGroup";
@@ -3041,13 +3092,13 @@ void LLIMMgr::inviteToSession(
 		if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagVoiceChat)
 			&& voice_invite && "VoiceInviteQuestionDefault" == question_type)
 		{
-			LL_INFOS() << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
+			LL_INFOS("IMVIEW") << "Rejecting voice call from initiating muted resident " << caller_name << LL_ENDL;
 			LLIncomingCallDialog::processCallResponse(1, payload);
 			return;
 		}
 		else if (LLMuteList::getInstance()->isMuted(caller_id, LLMute::flagAll & ~LLMute::flagVoiceChat) && !voice_invite)
 		{
-			LL_INFOS() << "Rejecting session invite from initiating muted resident " << caller_name << LL_ENDL;
+			LL_INFOS("IMVIEW") << "Rejecting session invite from initiating muted resident " << caller_name << LL_ENDL;
 			return;
 		}
 	}
@@ -3063,7 +3114,7 @@ void LLIMMgr::inviteToSession(
 	if (voice_invite)
 	{
 		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
-		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
+        bool isRejectNonFriendCall = (gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
 		if	(isRejectGroupCall || isRejectNonFriendCall || gAgent.isDoNotDisturb())
 		{
 			if (gAgent.isDoNotDisturb() && !isRejectGroupCall && !isRejectNonFriendCall)

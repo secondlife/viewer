@@ -1,5 +1,5 @@
 /** 
- * @file lightAlphaMaskF.glsl
+ * @file class1\lighting\lightAlphaMaskF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -31,6 +31,9 @@ out vec4 frag_color;
 
 uniform float minimum_alpha;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO;
+uniform int no_atmo;
+
 vec3 atmosLighting(vec3 light);
 vec3 scaleSoftClip(vec3 light);
 
@@ -41,16 +44,19 @@ void default_lighting()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 	
-	color *= vertex_color;
-
 	if (color.a < minimum_alpha)
 	{
 		discard;
 	}
+	
+	color *= vertex_color;
 
-	color.rgb = atmosLighting(color.rgb);
-
-	color.rgb = scaleSoftClip(color.rgb);
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 0)
+	{
+		color.rgb = atmosLighting(color.rgb);
+		color.rgb = scaleSoftClip(color.rgb);
+	}
 
 	frag_color = color;
 }

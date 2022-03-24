@@ -570,8 +570,8 @@ void LLTracker::renderBeacon(LLVector3d pos_global,
 		color_frac = 1.f - 0.6f*(dist/LLViewerCamera::getInstance()->getFar());
 	}
 
-	LLColor4 fogged_color = color_frac * color + (1 - color_frac)*gSky.getFogColor();
-	LLColor4 fogged_color_under = color_frac * color_under + (1 - color_frac) * gSky.getFogColor();
+	LLColor4 fogged_color = color_frac * color + (1 - color_frac)*gSky.getSkyFogColor();
+	LLColor4 fogged_color_under = color_frac * color_under + (1 - color_frac) * gSky.getSkyFogColor();
 
 	F32 FADE_DIST = 3.f;
 	fogged_color.mV[3] = llmax(0.2f, llmin(0.5f,(dist-FADE_DIST)/FADE_DIST));

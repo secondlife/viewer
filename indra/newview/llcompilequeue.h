@@ -29,13 +29,10 @@
 
 #include "llinventory.h"
 #include "llviewerobject.h"
-#include "llvoinventorylistener.h"
 #include "lluuid.h"
 
 #include "llfloater.h"
 #include "llscrolllistctrl.h"
-
-#include "llviewerinventory.h"
 
 #include "llevents.h"
 
@@ -138,7 +135,7 @@ protected:
 
     //bool checkAssetId(const LLUUID &assetId);
     static void handleHTTPResponse(std::string pumpName, const LLSD &expresult);
-    static void handleScriptRetrieval(LLVFS *vfs, const LLUUID& assetId, LLAssetType::EType type, void* userData, S32 status, LLExtStat extStatus);
+    static void handleScriptRetrieval(const LLUUID& assetId, LLAssetType::EType type, void* userData, S32 status, LLExtStat extStatus);
 
 private:
     static void processExperienceIdResults(LLSD result, LLUUID parent);

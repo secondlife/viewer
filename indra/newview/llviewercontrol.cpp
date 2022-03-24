@@ -94,6 +94,7 @@ LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warning
 std::string gLastRunVersion;
 
 extern BOOL gResizeScreenTexture;
+extern BOOL gResizeShadowTexture;
 extern BOOL gDebugGL;
 ////////////////////////////////////////////////////////////////////////////
 // Listeners
@@ -142,9 +143,34 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	gBumpImageList.destroyGL();
 	gBumpImageList.restoreGL();
 
+    if (gPipeline.isInit())
+    {
+        // ALM depends onto atmospheric shaders, state might have changed
+        bool old_state = LLPipeline::sRenderDeferred;
+        LLPipeline::refreshCachedSettings();
+        gPipeline.updateRenderDeferred();
+        if (old_state != LLPipeline::sRenderDeferred)
+        {
+            gPipeline.releaseGLBuffers();
+            gPipeline.createGLBuffers();
+            gPipeline.resetVertexBuffers();
+        }
+    }
+
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
+}
+
+static bool handleAvatarVPChanged(const LLSD& newvalue)
+{
+    LLRenderTarget::sUseFBO = newvalue.asBoolean()
+                                && gSavedSettings.getBOOL("RenderObjectBump")
+                                && gSavedSettings.getBOOL("RenderTransparentWater")
+                                && gSavedSettings.getBOOL("RenderDeferred");
+
+    handleSetShaderChanged(LLSD());
+    return true;
 }
 
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
@@ -186,7 +212,33 @@ static bool handleRenderPerfTestChanged(const LLSD& newvalue)
 
 bool handleRenderTransparentWaterChanged(const LLSD& newvalue)
 {
+    LLRenderTarget::sUseFBO = newvalue.asBoolean() 
+                                && gSavedSettings.getBOOL("RenderObjectBump") 
+                                && gSavedSettings.getBOOL("RenderAvatarVP") 
+                                && gSavedSettings.getBOOL("RenderDeferred");
+	if (gPipeline.isInit())
+	{
+		gPipeline.updateRenderTransparentWater();
+		gPipeline.updateRenderDeferred();
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
+		gPipeline.resetVertexBuffers();
+		LLViewerShaderMgr::instance()->setShaders();
+	}
 	LLWorld::getInstance()->updateWaterObjects();
+	return true;
+}
+
+
+static bool handleShadowsResized(const LLSD& newvalue)
+{
+	gPipeline.requestResizeShadowTexture();
+	return true;
+}
+
+static bool handleWindowResized(const LLSD& newvalue)
+{
+	gPipeline.requestResizeScreenTexture();
 	return true;
 }
 
@@ -416,7 +468,10 @@ static bool handleRenderDeferredChanged(const LLSD& newvalue)
 //
 static bool handleRenderBumpChanged(const LLSD& newval)
 {
-	LLRenderTarget::sUseFBO = newval.asBoolean();
+    LLRenderTarget::sUseFBO = newval.asBoolean() 
+                                && gSavedSettings.getBOOL("RenderTransparentWater") 
+                                && gSavedSettings.getBOOL("RenderAvatarVP")
+                                && gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		gPipeline.updateRenderBump();
@@ -486,7 +541,10 @@ bool handleHighResSnapshotChanged(const LLSD& newvalue)
 
 bool handleVoiceClientPrefsChanged(const LLSD& newvalue)
 {
-	LLVoiceClient::getInstance()->updateSettings();
+	if (LLVoiceClient::instanceExists())
+	{
+		LLVoiceClient::getInstance()->updateSettings();
+	}
 	return true;
 }
 
@@ -607,16 +665,15 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("OctreeAttachmentSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("RenderMaxTextureIndex")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUseTriStrips")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderAvatarVP")->getSignal()->connect(boost::bind(&handleAvatarVPChanged, _2));
+	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleWindowResized, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleShadowsResized, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));

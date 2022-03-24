@@ -18,7 +18,7 @@
 	<string name="no_groups_msg" value="Ищете группу, чтобы присоединиться к ней? Воспользуйтесь [secondlife:///app/search/groups поиском]."/>
 	<string name="MiniMapToolTipMsg" value="[REGION](Двойной щелчок открывает карту, shift+перетягивание – обзор)"/>
 	<string name="AltMiniMapToolTipMsg" value="[REGION](Двойной щелчок – телепортация, shift+перетягивание – обзор)"/>
-	<string name="GroupCountWithInfo" value="Вы входите в [COUNT] групп и можете присоединиться еще к [REMAINING].  [secondlife:/// Хотите еще?]"/>
+	<string name="GroupCountWithInfo" value="Вы состоите в [COUNT] группах, и можете присоединиться еще к [REMAINING]. [secondlife:/// Расширить свои лимиты]"/>
 	<tab_container name="tabs">
 		<panel label="РЯДОМ" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">
@@ -51,7 +51,7 @@
 				<dnd_button name="minus_btn" tool_tip="Покинуть выбранную группу"/>
 			</panel>
 			<text name="groupcount">
-				Вы входите в [COUNT] групп и можете присоединиться еще к [REMAINING].
+				Вы состоите в [COUNT] группах, и можете присоединиться еще к [REMAINING].
 			</text>
 		</panel>
 		<panel label="НЕДАВНИЕ" name="recent_panel">

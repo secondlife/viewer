@@ -36,7 +36,6 @@
 #include "lluploaddialog.h"
 #include "llpreviewscript.h"
 #include "llnotificationsutil.h"
-#include "lleconomy.h"
 #include "llagent.h"
 #include "llfloaterreg.h"
 #include "llfloatersnapshot.h"
@@ -46,7 +45,7 @@
 #include "llviewerassetupload.h"
 #include "llappviewer.h"
 #include "llviewerstats.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "llgesturemgr.h"
 #include "llpreviewnotecard.h"
 #include "llpreviewgesture.h"
@@ -170,22 +169,6 @@ void LLResourceUploadInfo::logPreparedUpload()
         "Folder: " << mFolderId << std::endl <<
         "Asset Type: " << LLAssetType::lookup(mAssetType) << LL_ENDL;
 }
-
-S32 LLResourceUploadInfo::getEconomyUploadCost()
-{
-    // Update L$ and ownership credit information
-    // since it probably changed on the server
-    if (getAssetType() == LLAssetType::AT_TEXTURE ||
-        getAssetType() == LLAssetType::AT_SOUND ||
-        getAssetType() == LLAssetType::AT_ANIMATION ||
-        getAssetType() == LLAssetType::AT_MESH)
-    {
-        return LLGlobalEconomy::instance().getPriceUpload();
-    }
-
-    return 0;
-}
-
 
 LLUUID LLResourceUploadInfo::finishUpload(LLSD &result)
 {
@@ -323,6 +306,43 @@ std::string LLResourceUploadInfo::getDisplayName() const
     return (mName.empty()) ? mAssetId.asString() : mName;
 };
 
+bool LLResourceUploadInfo::findAssetTypeOfExtension(const std::string& exten, LLAssetType::EType& asset_type)
+{
+	U32 codec;
+	return findAssetTypeAndCodecOfExtension(exten, asset_type, codec, false);
+}
+
+// static
+bool LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(const std::string& exten, LLAssetType::EType& asset_type, U32& codec, bool bulk_upload)
+{
+	bool succ = false;
+	std::string exten_lc(exten);
+	LLStringUtil::toLower(exten_lc);
+	codec = LLImageBase::getCodecFromExtension(exten_lc);
+	if (codec != IMG_CODEC_INVALID)
+	{
+		asset_type = LLAssetType::AT_TEXTURE; 
+		succ = true;
+	}
+	else if (exten_lc == "wav")
+	{
+		asset_type = LLAssetType::AT_SOUND; 
+		succ = true;
+	}
+	else if (exten_lc == "anim")
+	{
+		asset_type = LLAssetType::AT_ANIMATION; 
+		succ = true;
+	}
+	else if (!bulk_upload && (exten_lc == "bvh"))
+	{
+		asset_type = LLAssetType::AT_ANIMATION;
+		succ = true;
+	}
+
+	return succ;
+}
+
 //=========================================================================
 LLNewFileResourceUploadInfo::LLNewFileResourceUploadInfo(
     std::string fileName,
@@ -360,9 +380,11 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     std::string filename = gDirUtilp->getTempFilename();
 
     std::string exten = gDirUtilp->getExtension(getFileName());
-    U32 codec = LLImageBase::getCodecFromExtension(exten);
 
     LLAssetType::EType assetType = LLAssetType::AT_NONE;
+	U32 codec = IMG_CODEC_INVALID;
+	bool found_type = findAssetTypeAndCodecOfExtension(exten, assetType, codec);
+
     std::string errorMessage;
     std::string errorLabel;
 
@@ -379,10 +401,16 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         errorLabel = "NoFileExtension";
         error = true;
     }
-    else if (codec != IMG_CODEC_INVALID)
+    else if (!found_type)
+    {
+        // Unknown extension
+        errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
+        errorLabel = "ErrorMessage";
+        error = TRUE;;
+    }
+    else if (assetType == LLAssetType::AT_TEXTURE)
     {
         // It's an image file, the upload procedure is the same for all
-        assetType = LLAssetType::AT_TEXTURE;
         if (!LLViewerTextureList::createUploadFile(getFileName(), filename, codec))
         {
             errorMessage = llformat("Problem with file %s:\n\n%s\n",
@@ -391,9 +419,8 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
             error = true;
         }
     }
-    else if (exten == "wav")
+    else if (assetType == LLAssetType::AT_SOUND)
     {
-        assetType = LLAssetType::AT_SOUND;  // tag it as audio
         S32 encodeResult = 0;
 
         LL_INFOS() << "Attempting to encode wav as an ogg file" << LL_ENDL;
@@ -423,17 +450,9 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
         errorLabel = "DoNotSupportBulkAnimationUpload";
         error = true;
     }
-    else if (exten == "anim")
+    else if (assetType == LLAssetType::AT_ANIMATION)
     {
-        assetType = LLAssetType::AT_ANIMATION;
         filename = getFileName();
-    }
-    else
-    {
-        // Unknown extension
-        errorMessage = llformat(LLTrans::getString("UnknownFileExtension").c_str(), exten.c_str());
-        errorLabel = "ErrorMessage";
-        error = TRUE;;
     }
 
     if (error)
@@ -448,15 +467,13 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 
     setAssetType(assetType);
 
-    // copy this file into the vfs for upload
+    // copy this file into the cache for upload
     S32 file_size;
     LLAPRFile infile;
     infile.open(filename, LL_APR_RB, NULL, &file_size);
     if (infile.getFileHandle())
     {
-        LLVFile file(gVFS, getAssetId(), assetType, LLVFile::WRITE);
-
-        file.setMaxSize(file_size);
+        LLFileSystem file(getAssetId(), assetType, LLFileSystem::APPEND);
 
         const S32 buf_size = 65536;
         U8 copy_buf[buf_size];
@@ -487,8 +504,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType:
     mTaskId(LLUUID::null),
     mContents(buffer),
     mInvnFinishFn(finish),
-    mTaskFinishFn(NULL),
-    mStoredToVFS(false)
+    mTaskFinishFn(nullptr),
+    mStoredToCache(false)
 {
     setItemId(itemId);
     setAssetType(assetType);
@@ -501,8 +518,8 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLPointer<LL
     mTaskId(LLUUID::null),
     mContents(),
     mInvnFinishFn(finish),
-    mTaskFinishFn(NULL),
-    mStoredToVFS(false)
+    mTaskFinishFn(nullptr),
+    mStoredToCache(false)
 {
     setItemId(itemId);
 
@@ -534,9 +551,9 @@ LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID taskId, LLUUID itemI
     mTaskUpload(true),
     mTaskId(taskId),
     mContents(buffer),
-    mInvnFinishFn(NULL),
+    mInvnFinishFn(nullptr),
     mTaskFinishFn(finish),
-    mStoredToVFS(false)
+    mStoredToCache(false)
 {
     setItemId(itemId);
     setAssetType(assetType);
@@ -547,13 +564,12 @@ LLSD LLBufferedAssetUploadInfo::prepareUpload()
     if (getAssetId().isNull())
         generateNewAssetId();
 
-    LLVFile file(gVFS, getAssetId(), getAssetType(), LLVFile::APPEND);
+    LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
 
     S32 size = mContents.length() + 1;
-    file.setMaxSize(size);
     file.write((U8*)mContents.c_str(), size);
 
-    mStoredToVFS = true;
+    mStoredToCache = true;
 
     return LLSD().with("success", LLSD::Boolean(true));
 }
@@ -576,10 +592,10 @@ LLUUID LLBufferedAssetUploadInfo::finishUpload(LLSD &result)
     LLUUID newAssetId = result["new_asset"].asUUID();
     LLUUID itemId = getItemId();
 
-    if (mStoredToVFS)
+    if (mStoredToCache)
     {
         LLAssetType::EType assetType(getAssetType());
-        gVFS->renameFile(getAssetId(), assetType, newAssetId, assetType);
+        LLFileSystem::renameFile(getAssetId(), assetType, newAssetId, assetType);
     }
 
     if (mTaskUpload)
@@ -739,8 +755,12 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
                 LLUploadDialog::modalUploadFinished();
             return;
         }
+        if (!result.has("success"))
+        {
+            result["success"] = LLSD::Boolean((ulstate == "complete") && status);
+        }
 
-        S32 uploadPrice = result["upload_price"].asInteger();//uploadInfo->getEconomyUploadCost();
+        S32 uploadPrice = result["upload_price"].asInteger();
 
         if (uploadPrice > 0)
         {
@@ -770,7 +790,7 @@ void LLViewerAssetUpload::AssetInventoryUploadCoproc(LLCoreHttpUtil::HttpCorouti
             // Show the preview panel for textures and sounds to let
             // user know that the image (or snapshot) arrived intact.
             LLInventoryPanel* panel = LLInventoryPanel::getActiveInventoryPanel(FALSE);
-            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, TRUE, TAKE_FOCUS_NO, (panel == NULL));
+            LLInventoryPanel::openInventoryPanelAndSetSelection(TRUE, serverInventoryItem, FALSE, TAKE_FOCUS_NO, (panel == NULL));
 
             // restore keyboard focus
             gFocusMgr.setKeyboardFocus(focus);

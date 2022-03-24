@@ -109,6 +109,12 @@ public:
 		 * Open tabs on hover in drag and drop situations
 		 */
 		Optional<bool>						open_tabs_on_drag_and_drop;
+
+		/**
+		 * Enable tab flashing
+		 */
+		Optional<bool>						enable_tabs_flashing;
+		Optional<LLUIColor>					tabs_flashing_color;
 		
 		/**
 		 *  Paddings for LLIconCtrl in case of LLCustomButtonIconCtrl usage(use_custom_icon_ctrl = true)
@@ -310,6 +316,8 @@ private:
 
 	bool							mCustomIconCtrlUsed;
 	bool							mOpenTabsOnDragAndDrop;
+	bool							mEnableTabsFlashing;
+	LLUIColor						mTabsFlashingColor;
 	S32								mTabIconCtrlPad;
 	bool							mUseTabEllipses;
 };

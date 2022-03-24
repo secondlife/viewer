@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="245"
+ height="310"
  layout="topleft"
  name="beacons"
  help_topic="beacons"
@@ -12,7 +12,7 @@
  width="240">
     <panel
      follows="left|top|right|bottom"
-     height="240"
+     height="305"
      layout="topleft"
      left="10"
      name="beacons_panel"
@@ -140,6 +140,43 @@
          label="Media sources"
          layout="topleft"
          name="moapbeacon" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
+        <view_border
+         bevel_style="in"
+         height="0"
+         layout="topleft"
+         left="0"
+         name="cost_text_border"
+         top_pad="5"
+         width="220"/>
+        <text
+         follows="all"
+         height="16"
+         font="SansSerif"
+         left="0"
+         top_pad="7"
+         name="label_objects"
+         text_color="White"
+         type="string">
+           Show direction to:
+         </text>
+        <check_box
+         control_name="sunbeacon"
+         height="16"
+         label="Sun"
+         layout="topleft"
+         name="sun" >
+          <check_box.commit_callback
+           function="Beacons.UICheck" />
+        </check_box>
+        <check_box
+         control_name="moonbeacon"
+         height="16"
+         label="Moon"
+         layout="topleft"
+         name="moon" >
           <check_box.commit_callback
            function="Beacons.UICheck" />
         </check_box>

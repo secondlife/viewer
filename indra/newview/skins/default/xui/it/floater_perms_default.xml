@@ -37,6 +37,10 @@
 		<text name="label_12" tool_tip="Imposta autorizzazioni predefinite per la creazione di vestiti o parti del corpo">
 			Indossabili
 		</text>
+		<text name="label_13" tool_tip="Imposta autorizzazioni predefinite per la creazione delle impostazioni dell’Ambiente">
+			Impostazioni
+		</text>
+		<check_box name="env_settings_c" value="true"/>
 	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Annulla" label_selected="Annulla" name="cancel"/>

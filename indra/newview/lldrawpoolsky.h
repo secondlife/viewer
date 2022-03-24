@@ -49,8 +49,6 @@ public:
 
 	LLDrawPoolSky();
 
-	/*virtual*/ LLDrawPool *instancePool();
-
 	/*virtual*/ S32 getNumPostDeferredPasses() { return getNumPasses(); }
 	/*virtual*/ void beginPostDeferredPass(S32 pass) { beginRenderPass(pass); }
 	/*virtual*/ void endPostDeferredPass(S32 pass) { endRenderPass(pass); }
@@ -61,7 +59,7 @@ public:
 	/*virtual*/ void endRenderPass(S32 pass);
 	void setSkyTex(LLSkyTex* const st) { mSkyTex = st; }
 
-	void renderSkyCubeFace(U8 side);
+	void renderSkyFace(U8 index);
 	void renderHeavenlyBody(U8 hb, LLFace* face);
 	void renderSunHalo(LLFace* face);
 

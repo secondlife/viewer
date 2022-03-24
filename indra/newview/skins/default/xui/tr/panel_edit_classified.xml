@@ -47,7 +47,7 @@
 				<button label="[LABEL]" name="save_changes_btn"/>
 			</layout_panel>
 			<layout_panel name="show_on_map_btn_lp">
-				<button label="İptal" name="cancel_btn"/>
+				<button label="İptal Et" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>
 	</panel>

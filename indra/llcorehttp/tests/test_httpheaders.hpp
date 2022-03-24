@@ -30,8 +30,6 @@
 
 #include <iostream>
 
-#include "test_allocator.h"
-
 
 using namespace LLCoreInt;
 
@@ -43,7 +41,6 @@ struct HttpHeadersTestData
 {
 	// the test objects inherit from this so the member functions and variables
 	// can be referenced directly inside of the test functions.
-	size_t mMemTotal;
 };
 
 typedef test_group<HttpHeadersTestData> HttpHeadersTestGroupType;
@@ -55,28 +52,18 @@ void HttpHeadersTestObjectType::test<1>()
 {
 	set_test_name("HttpHeaders construction");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted object with an implicit reference
 	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 	ensure("Nothing in headers", 0 == headers->size());
 
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpHeadersTestObjectType::test<2>()
 {
 	set_test_name("HttpHeaders construction");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
@@ -101,18 +88,12 @@ void HttpHeadersTestObjectType::test<2>()
 	
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpHeadersTestObjectType::test<3>()
 {
 	set_test_name("HttpHeaders basic find");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
@@ -151,18 +132,12 @@ void HttpHeadersTestObjectType::test<3>()
 	
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpHeadersTestObjectType::test<4>()
 {
 	set_test_name("HttpHeaders normalized header entry");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
     HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
@@ -251,9 +226,6 @@ void HttpHeadersTestObjectType::test<4>()
 	
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 // Verify forward iterator finds everything as expected
@@ -261,9 +233,6 @@ template <> template <>
 void HttpHeadersTestObjectType::test<5>()
 {
 	set_test_name("HttpHeaders iterator tests");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
     HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
@@ -337,9 +306,6 @@ void HttpHeadersTestObjectType::test<5>()
 	
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 // Reverse iterators find everything as expected
@@ -347,9 +313,6 @@ template <> template <>
 void HttpHeadersTestObjectType::test<6>()
 {
 	set_test_name("HttpHeaders reverse iterator tests");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
     HttpHeaders::ptr_t headers = HttpHeaders::ptr_t(new HttpHeaders());
@@ -421,9 +384,6 @@ void HttpHeadersTestObjectType::test<6>()
 	
 	// release the implicit reference, causing the object to be released
     headers.reset();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 }  // end namespace tut

@@ -7,7 +7,7 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 include(LLXML)
 
 include_directories(
@@ -19,16 +19,20 @@ include_directories(
 
 set(llinventory_SOURCE_FILES
     llcategory.cpp
-    lleconomy.cpp
     llfoldertype.cpp
     llinventory.cpp
     llinventorydefines.cpp
+    llinventorysettings.cpp
     llinventorytype.cpp
     lllandmark.cpp
     llnotecard.cpp
     llparcel.cpp
     llpermissions.cpp
     llsaleinfo.cpp
+    llsettingsbase.cpp
+    llsettingsdaycycle.cpp
+    llsettingssky.cpp
+    llsettingswater.cpp
     lltransactionflags.cpp
     lluserrelations.cpp
     )
@@ -37,11 +41,12 @@ set(llinventory_HEADER_FILES
     CMakeLists.txt
 
     llcategory.h
-    lleconomy.h
     llfoldertype.h
     llinventory.h
     llinventorydefines.h
+    llinventorysettings.h
     llinventorytype.h
+    llinvtranslationbrdg.h
     lllandmark.h
     llnotecard.h
     llparcel.h
@@ -49,6 +54,10 @@ set(llinventory_HEADER_FILES
     llpermissions.h
     llpermissionsflags.h
     llsaleinfo.h
+    llsettingsbase.h
+    llsettingsdaycycle.h
+    llsettingssky.h
+    llsettingswater.h
     lltransactionflags.h
     lltransactiontypes.h
     lluserrelations.h
@@ -72,7 +81,7 @@ if (LL_TESTS)
     LL_ADD_PROJECT_UNIT_TESTS(llinventory "${llinventory_TEST_SOURCE_FILES}")
 
     #set(TEST_DEBUG on)
-    set(test_libs llinventory ${LLMESSAGE_LIBRARIES} ${LLVFS_LIBRARIES} ${LLCOREHTTP_LIBRARIES} ${LLMATH_LIBRARIES} ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+    set(test_libs llinventory ${LLMESSAGE_LIBRARIES} ${LLFILESYSTEM_LIBRARIES} ${LLCOREHTTP_LIBRARIES} ${LLMATH_LIBRARIES} ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
     LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}")
     LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}")
 endif (LL_TESTS)

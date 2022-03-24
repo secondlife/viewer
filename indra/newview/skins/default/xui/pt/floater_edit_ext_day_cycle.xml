@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_edit_extdaycycle" title="Editar ciclo de dias">
+	<string name="title_new">
+		Criar um ciclo de dias
+	</string>
+	<string name="title_edit">
+		Editar ciclo de dia
+	</string>
+	<string name="hint_new">
+		Nomeie o seu ciclo de dias, ajustar os controles para criá-lo e clique em “Salvar”.
+	</string>
+	<string name="hint_edit">
+		Editar o seu ciclo de dias, ajustar os controles para criá-lo e clique em “Salvar”.
+	</string>
+	<string name="time_label">
+		([HH]:[MM])
+	</string>
+	<string name="sky_track_label">
+		Céu [ALT]
+	</string>
+	<string name="sky_label">
+		Céu
+	</string>
+	<string name="water_label">
+		Água
+	</string>
+	<string name="commit_parcel">
+		Aplicar ao lote
+	</string>
+	<string name="commit_region">
+		Aplicar para a região
+	</string>
+	<layout_stack name="outer_stack">
+		<layout_panel name="name_and_import">
+			<text name="label">
+				Nome do ciclo de dias:
+			</text>
+			<button label="Importar" name="btn_import" tool_tip="Importar configurações do legado do disco."/>
+		</layout_panel>
+		<layout_panel name="content">
+			<layout_stack name="content_stack">
+				<layout_panel name="timeline_track_selection">
+					<panel name="timeline_layers">
+						<button label="Céu 4" name="sky4_track"/>
+						<button label="Céu 3" name="sky3_track"/>
+						<button label="Céu 2" name="sky2_track"/>
+						<button label="A nível do chão" name="sky1_track"/>
+						<button label="Água" name="water_track"/>
+					</panel>
+					<panel name="timeline">
+						<text name="p0" value="0%[DSC]"/>
+						<text name="p1" value="25%[DSC]"/>
+						<text name="p2" value="50%[DSC]"/>
+						<text name="p3" value="75%[DSC]"/>
+						<text name="p4" value="100%[DSC]"/>
+						<multi_slider initial_value="0" name="WLTimeSlider"/>
+						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
+						<text name="current_time" value="[PRCNT]%[DSC]"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Clonar Rastreio de" name="copy_track"/>
+								<button label="Carregar rastreio de" name="load_track"/>
+								<button label="Limpar rastreio" name="clear_track"/>
+							</layout_panel>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Passo para trás"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Passo para frente"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="Adicionar [FRAME]" name="add_frame"/>
+								<button label="Carregar [FRAME]" name="btn_load_frame"/>
+								<button label="Excluir [FRAME]" name="delete_frame"/>
+							</layout_panel>
+						</layout_stack>
+					</panel>
+				</layout_panel>
+				<layout_panel name="frame_edit_controls">
+					<text name="icn_lock_edit">
+						Selecionar uma estrutura chave da linha do tempo acima para editar as configurações.
+					</text>
+				</layout_panel>
+				<layout_panel name="frame_settings_water">
+					<tab_container name="water_tabs">
+						<panel label="Água" name="water_panel"/>
+					</tab_container>
+				</layout_panel>
+				<layout_panel name="frame_settings_sky">
+					<tab_container name="sky_tabs">
+						<panel label="Atmosfera e Claridade" name="atmosphere_panel"/>
+						<panel label="Nuvens" name="clouds_panel"/>
+						<panel label="Sol e Lua" name="moon_panel"/>
+					</tab_container>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="buttons">
+			<button label="Salvar" name="save_btn"/>
+			<button label="Cancelar" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

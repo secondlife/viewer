@@ -52,10 +52,12 @@ LLAppViewerListener::LLAppViewerListener(const LLAppViewerGetter& getter):
 
 void LLAppViewerListener::requestQuit(const LLSD& event)
 {
+    LL_INFOS() << "Listener requested quit" << LL_ENDL;
     mAppViewerGetter()->requestQuit();
 }
 
 void LLAppViewerListener::forceQuit(const LLSD& event)
 {
+    LL_INFOS() << "Listener requested force quit" << LL_ENDL;
     mAppViewerGetter()->forceQuit();
 }

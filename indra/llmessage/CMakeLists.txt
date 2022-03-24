@@ -9,7 +9,7 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 include(LLAddBuildTest)
 include(Python)
 include(Tut)
@@ -23,7 +23,7 @@ include_directories(
     ${LLCOREHTTP_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     )
 
@@ -209,7 +209,7 @@ target_link_libraries(
   llmessage
   ${CURL_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
-  ${LLVFS_LIBRARIES}
+  ${LLFILESYSTEM_LIBRARIES}
   ${LLMATH_LIBRARIES}
   ${JSONCPP_LIBRARIES}
   ${OPENSSL_LIBRARIES}
@@ -217,7 +217,7 @@ target_link_libraries(
   ${NGHTTP2_LIBRARIES}
   ${XMLRPCEPI_LIBRARIES}
   ${LLCOREHTTP_LIBRARIES}
-  ${BOOST_COROUTINE_LIBRARY}
+  ${BOOST_FIBER_LIBRARY}
   ${BOOST_CONTEXT_LIBRARY}
   ${BOOST_SYSTEM_LIBRARY}
   rt
@@ -227,7 +227,7 @@ target_link_libraries(
   llmessage
   ${CURL_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
-  ${LLVFS_LIBRARIES}
+  ${LLFILESYSTEM_LIBRARIES}
   ${LLMATH_LIBRARIES}
   ${JSONCPP_LIBRARIES}
   ${OPENSSL_LIBRARIES}
@@ -235,7 +235,7 @@ target_link_libraries(
   ${NGHTTP2_LIBRARIES}
   ${XMLRPCEPI_LIBRARIES}
   ${LLCOREHTTP_LIBRARIES}
-  ${BOOST_COROUTINE_LIBRARY}
+  ${BOOST_FIBER_LIBRARY}
   ${BOOST_CONTEXT_LIBRARY}
   ${BOOST_SYSTEM_LIBRARY}
   )
@@ -244,6 +244,7 @@ endif(LINUX)
 # tests
 if (LL_TESTS)
   SET(llmessage_TEST_SOURCE_FILES
+    llcoproceduremanager.cpp
     llnamevalue.cpp
     lltrustedmessageservice.cpp
     lltemplatemessagedispatcher.cpp
@@ -256,7 +257,7 @@ if (LL_TESTS)
 if (LINUX)
   set(test_libs
     ${WINDOWS_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${CURL_LIBRARIES}
     ${NGHTTP2_LIBRARIES}
@@ -264,7 +265,7 @@ if (LINUX)
     ${LLMESSAGE_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
     ${JSONCPP_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     rt
     ${GOOGLEMOCK_LIBRARIES}
@@ -272,7 +273,7 @@ if (LINUX)
 else (LINUX)
   set(test_libs
     ${WINDOWS_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${CURL_LIBRARIES}
     ${NGHTTP2_LIBRARIES}
@@ -280,7 +281,7 @@ else (LINUX)
     ${LLMESSAGE_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}
     ${JSONCPP_LIBRARIES}
-    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_FIBER_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${GOOGLEMOCK_LIBRARIES}
     )

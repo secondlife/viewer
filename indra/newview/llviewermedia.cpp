@@ -57,6 +57,7 @@
 #include "llviewercontrol.h"
 #include "llviewermenufile.h" // LLFilePickerThread
 #include "llviewernetwork.h"
+#include "llviewerparcelaskplay.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -77,39 +78,10 @@
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>
 
-class LLMediaFilePicker : public LLFilePickerThread // deletes itself when done
-{
-public:
-    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
-        : LLFilePickerThread(filter, get_multiple),
-        mPlugin(plugin->getSharedPrt())
-    {
-    }
-
-    LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
-        : LLFilePickerThread(filter, proposed_name),
-        mPlugin(plugin->getSharedPrt())
-    {
-    }
-
-    virtual void notify(const std::vector<std::string>& filenames)
-    {
-        mPlugin->sendPickFileResponse(mResponses);
-        mPlugin = NULL;
-    }
-
-private:
-    boost::shared_ptr<LLPluginClassMedia> mPlugin;
-};
 
 void init_threaded_picker_load_dialog(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
 {
     (new LLMediaFilePicker(plugin, filter, get_multiple))->getFile(); // will delete itself
-}
-
-void init_threaded_picker_save_dialog(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, std::string &proposed_name)
-{
-    (new LLMediaFilePicker(plugin, filter, proposed_name))->getFile(); // will delete itself
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,7 +165,6 @@ static F32 sGlobalVolume = 1.0f;
 static bool sForceUpdate = false;
 static LLUUID sOnlyAudibleTextureID = LLUUID::null;
 static F64 sLowestLoadableImplInterest = 0.0f;
-static bool sAnyMediaShowing = false;
 
 //////////////////////////////////////////////////////////////////////////////////////////
 static void add_media_impl(LLViewerMediaImpl* media)
@@ -865,7 +836,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 
 			if (!pimpl->getUsedInUI() && pimpl->hasMedia())
 			{
-				sAnyMediaShowing = true;
+				mAnyMediaShowing = true;
 			}
 
 			if (!pimpl->getUsedInUI() && pimpl->hasMedia() && (pimpl->isMediaPlaying() || !pimpl->isMediaTimeBased()))
@@ -1018,12 +989,14 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         }
     }
 
+    LLParcel *agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+
     // Also do Parcel Media and Parcel Audio
     if (!val)
     {
         if (!LLViewerMedia::isParcelMediaPlaying() && LLViewerMedia::hasParcelMedia())
         {
-            LLViewerParcelMedia::getInstance()->play(LLViewerParcelMgr::getInstance()->getAgentParcel());
+            LLViewerParcelMedia::getInstance()->play(agent_parcel);
         }
 
         static LLCachedControl<bool> audio_streaming_music(gSavedSettings, "AudioStreamingMusic", true);
@@ -1050,6 +1023,12 @@ void LLViewerMedia::setAllMediaPaused(bool val)
         {
             LLViewerAudio::getInstance()->stopInternetStreamWithAutoFade();
         }
+    }
+
+    // remove play choice for current parcel
+    if (agent_parcel && gAgent.getRegion())
+    {
+        LLViewerParcelAskPlay::getInstance()->resetSetting(gAgent.getRegion()->getRegionID(), agent_parcel->getLocalID());
     }
 }
 
@@ -1229,6 +1208,7 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
     
     httpOpts->setFollowRedirects(true);
     httpOpts->setWantHeaders(true);
+    httpOpts->setSSLVerifyPeer(false); // viewer's cert bundle doesn't appear to agree with web certs from "https://my.secondlife.com/"
 
     LLURL hostUrl(url.c_str());
     std::string hostAuth = hostUrl.getAuthority();
@@ -1281,7 +1261,13 @@ void LLViewerMedia::getOpenIDCookieCoro(std::string url)
 				// down.
 				std::string cefUrl(std::string(inst->mOpenIDURL.mURI) + "://" + std::string(inst->mOpenIDURL.mAuthority));
 
-				media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host, cookie_path, httponly, secure);
+				media_instance->getMediaPlugin()->setCookie(cefUrl, cookie_name, cookie_value, cookie_host, 
+                    cookie_path, httponly, secure);
+
+                // Now that we have parsed the raw cookie, we must store it so that each new media instance
+                // can also get a copy and faciliate logging into internal SL sites.
+				media_instance->getMediaPlugin()->storeOpenIDCookie(cefUrl, cookie_name, cookie_value, 
+                    cookie_host, cookie_path, httponly, secure);
 			}
 		}
 	}
@@ -1710,22 +1696,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		std::string user_data_path_cache = gDirUtilp->getCacheDir(false);
 		user_data_path_cache += gDirUtilp->getDirDelimiter();
 
-		std::string user_data_path_cookies = gDirUtilp->getOSUserAppDir();
-		user_data_path_cookies += gDirUtilp->getDirDelimiter();
-
 		std::string user_data_path_cef_log = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "cef_log.txt");
-
-		// Fix for EXT-5960 - make browser profile specific to user (cache, cookies etc.)
-		// If the linden username returned is blank, that can only mean we are
-		// at the login page displaying login Web page or Web browser test via Develop menu.
-		// In this case we just use whatever gDirUtilp->getOSUserAppDir() gives us (this
-		// is what we always used before this change)
-		std::string linden_user_dir = gDirUtilp->getLindenUserDir();
-		if ( ! linden_user_dir.empty() )
-		{
-			user_data_path_cookies = linden_user_dir;
-			user_data_path_cookies += gDirUtilp->getDirDelimiter();
-		};
 
 		// See if the plugin executable exists
 		llstat s;
@@ -1743,7 +1714,7 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 		{
 			media_source = new LLPluginClassMedia(owner);
 			media_source->setSize(default_width, default_height);
-			media_source->setUserDataPath(user_data_path_cache, user_data_path_cookies, user_data_path_cef_log);
+			media_source->setUserDataPath(user_data_path_cache, gDirUtilp->getUserName(), user_data_path_cef_log);
 			media_source->setLanguageCode(LLUI::getLanguage());
 			media_source->setZoomFactor(zoom_factor);
 
@@ -1751,19 +1722,31 @@ LLPluginClassMedia* LLViewerMediaImpl::newSourceFromMediaType(std::string media_
 			bool cookies_enabled = gSavedSettings.getBOOL( "CookiesEnabled" );
 			media_source->cookies_enabled( cookies_enabled || clean_browser);
 
-			// collect 'plugins enabled' setting from prefs and send to embedded browser
-			bool plugins_enabled = gSavedSettings.getBOOL( "BrowserPluginsEnabled" );
-			media_source->setPluginsEnabled( plugins_enabled  || clean_browser);
-
 			// collect 'javascript enabled' setting from prefs and send to embedded browser
-			bool javascript_enabled = gSavedSettings.getBOOL( "BrowserJavascriptEnabled" );
-			media_source->setJavascriptEnabled( javascript_enabled || clean_browser);
+			bool javascript_enabled = gSavedSettings.getBOOL("BrowserJavascriptEnabled");
+			media_source->setJavascriptEnabled(javascript_enabled || clean_browser);
+
+			// collect 'web security disabled' (see Chrome --web-security-disabled) setting from prefs and send to embedded browser
+			bool web_security_disabled = gSavedSettings.getBOOL("BrowserWebSecurityDisabled");
+			media_source->setWebSecurityDisabled(web_security_disabled || clean_browser);
+
+			// collect setting indicates if local file access from file URLs is allowed from prefs and send to embedded browser
+			bool file_access_from_file_urls = gSavedSettings.getBOOL("BrowserFileAccessFromFileUrls");
+			media_source->setFileAccessFromFileUrlsEnabled(file_access_from_file_urls || clean_browser);
+
+			// As of SL-15559 PDF files do not load in CEF v91 we enable plugins
+			// but explicitly disable Flash (PDF support in CEF is now treated as a plugin)
+			media_source->setPluginsEnabled(true);
 
 			bool media_plugin_debugging_enabled = gSavedSettings.getBOOL("MediaPluginDebugging");
 			media_source->enableMediaPluginDebugging( media_plugin_debugging_enabled  || clean_browser);
 
 			// need to set agent string here before instance created
 			media_source->setBrowserUserAgent(LLViewerMedia::getInstance()->getCurrentUserAgent());
+
+            // configure and pass proxy setup based on debug settings that are 
+            // configured by UI in prefs -> setup
+            media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
 			media_source->setTarget(target);
 
@@ -1831,6 +1814,7 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 
 	if (media_source)
 	{
+		media_source->injectOpenIDCookie();
 		media_source->setDisableTimeout(gSavedSettings.getBOOL("DebugPluginDisableTimeout"));
 		media_source->setLoop(mMediaLoop);
 		media_source->setAutoScale(mMediaAutoScale);
@@ -1847,8 +1831,6 @@ bool LLViewerMediaImpl::initializePlugin(const std::string& media_type)
 		// Qt/WebKit loads from your system location.
 		std::string ca_path = gDirUtilp->getCAFile();
 		media_source->addCertificateFilePath( ca_path );
-
-		media_source->proxy_setup(gSavedSettings.getBOOL("BrowserProxyEnabled"), gSavedSettings.getString("BrowserProxyAddress"), gSavedSettings.getS32("BrowserProxyPort"));
 
 		if(mClearCache)
 		{
@@ -1910,6 +1892,15 @@ void LLViewerMediaImpl::loadURI()
 			// No relevant previous media play state -- if we're loading the URL, we want to start playing.
 			start();
 		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::executeJavaScript(const std::string& code)
+{
+	if (mMediaSource)
+	{
+		mMediaSource->executeJavaScript(code);
 	}
 }
 
@@ -2285,14 +2276,26 @@ void LLViewerMediaImpl::mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button)
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
-void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, MASK mask)
+void LLViewerMediaImpl::scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask)
+{
+    if (mMediaSource)
+    {
+        S32 x, y;
+        scaleTextureCoords(texture_coords, &x, &y);
+
+        scrollWheel(x, y, scroll_x, scroll_y, mask);
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////
+void LLViewerMediaImpl::scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask)
 {
 	scaleMouse(&x, &y);
 	mLastMouseX = x;
 	mLastMouseY = y;
 	if (mMediaSource)
 	{
-		mMediaSource->scrollEvent(x, y, mask);
+		mMediaSource->scrollEvent(x, y, scroll_x, scroll_y, mask);
 	}
 }
 
@@ -3188,26 +3191,17 @@ void LLViewerMediaImpl::handleMediaEvent(LLPluginClassMedia* plugin, LLPluginCla
 			LL_DEBUGS("Media") <<  "Media event:  MEDIA_EVENT_CURSOR_CHANGED, new cursor is " << plugin->getCursorName() << LL_ENDL;
 
 			std::string cursor = plugin->getCursorName();
-
-			if(cursor == "arrow")
-				mLastSetCursor = UI_CURSOR_ARROW;
-			else if(cursor == "ibeam")
-				mLastSetCursor = UI_CURSOR_IBEAM;
-			else if(cursor == "splith")
-				mLastSetCursor = UI_CURSOR_SIZEWE;
-			else if(cursor == "splitv")
-				mLastSetCursor = UI_CURSOR_SIZENS;
-			else if(cursor == "hand")
-				mLastSetCursor = UI_CURSOR_HAND;
-			else // for anything else, default to the arrow
-				mLastSetCursor = UI_CURSOR_ARROW;
+			mLastSetCursor = getCursorFromString(cursor);
 		}
 		break;
 
 		case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
 		{
-			//llinfos << "Media event - file download requested - filename is " << self->getFileDownloadFilename() << llendl;
-			LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+			LL_DEBUGS("Media") << "Media event - file download requested - filename is " << plugin->getFileDownloadFilename() << LL_ENDL;
+
+            //unblock media plugin
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
 		}
 		break;
 
@@ -3754,7 +3748,7 @@ void LLViewerMediaImpl::setTextureID(LLUUID id)
 bool LLViewerMediaImpl::isAutoPlayable() const
 {
 	return (mMediaAutoPlay &&
-			gSavedSettings.getBOOL(LLViewerMedia::AUTO_PLAY_MEDIA_SETTING) &&
+			gSavedSettings.getS32("ParcelMediaAutoPlayEnable") != 0 &&
 			gSavedSettings.getBOOL("MediaTentativeAutoPlay"));
 }
 

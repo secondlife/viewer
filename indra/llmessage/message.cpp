@@ -46,6 +46,7 @@
 #include "apr_poll.h"
 
 // linden library headers
+#include "llapp.h"
 #include "indra_constants.h"
 #include "lldir.h"
 #include "llerror.h"
@@ -117,8 +118,8 @@ void LLMessageHandlerBridge::post(LLHTTPNode::ResponsePtr response,
 	gMessageSystem->mLastSender = LLHost(input["sender"].asString());
 	gMessageSystem->mPacketsIn += 1;
 	gMessageSystem->mLLSDMessageReader->setMessage(namePtr, input["body"]);
-	gMessageSystem->mMessageReader = gMessageSystem->mLLSDMessageReader;
-	
+	LockMessageReader rdr(gMessageSystem->mMessageReader, gMessageSystem->mLLSDMessageReader);
+
 	if(gMessageSystem->callHandler(namePtr, false, gMessageSystem))
 	{
 		response->result(LLSD());
@@ -189,7 +190,7 @@ void LLMessageSystem::init()
 	mTimingCallbackData = NULL;
 
 	mMessageBuilder = NULL;
-	mMessageReader = NULL;
+	LockMessageReader(mMessageReader, NULL);
 }
 
 // Read file and build message templates
@@ -230,7 +231,6 @@ LLMessageSystem::LLMessageSystem(const std::string& filename, U32 port,
 
 	mTemplateMessageReader = new LLTemplateMessageReader(mMessageNumbers);
 	mLLSDMessageReader = new LLSDMessageReader();
-	mMessageReader = NULL;
 
 	// initialize various bits of net info
 	mSocket = 0;
@@ -330,7 +330,6 @@ LLMessageSystem::~LLMessageSystem()
 	
 	delete mTemplateMessageReader;
 	mTemplateMessageReader = NULL;
-	mMessageReader = NULL;
 
 	delete mTemplateMessageBuilder;
 	mTemplateMessageBuilder = NULL;
@@ -480,11 +479,12 @@ LLCircuitData* LLMessageSystem::findCircuit(const LLHost& host,
 }
 
 // Returns TRUE if a valid, on-circuit message has been received.
-BOOL LLMessageSystem::checkMessages( S64 frame_count )
+// Requiring a non-const LockMessageChecker reference ensures that
+// mMessageReader has been set to mTemplateMessageReader.
+BOOL LLMessageSystem::checkMessages(LockMessageChecker&, S64 frame_count )
 {
 	// Pump 
 	BOOL	valid_packet = FALSE;
-	mMessageReader = mTemplateMessageReader;
 
 	LLTransferTargetVFile::updateQueue();
 	
@@ -748,7 +748,7 @@ S32	LLMessageSystem::getReceiveBytes() const
 }
 
 
-void LLMessageSystem::processAcks(F32 collect_time)
+void LLMessageSystem::processAcks(LockMessageChecker&, F32 collect_time)
 {
 	F64Seconds mt_sec = getMessageTimeSeconds();
 	{
@@ -2062,8 +2062,9 @@ void LLMessageSystem::dispatch(
 		return;
 	}
 	// enable this for output of message names
-	//LL_INFOS("Messaging") << "< \"" << msg_name << "\"" << LL_ENDL;
-	//LL_DEBUGS() << "data: " << LLSDNotationStreamer(message) << LL_ENDL;	   
+	LL_DEBUGS("Messaging") << "< \"" << msg_name << "\"" << LL_ENDL;
+	LL_DEBUGS("Messaging") << "context: " << context << LL_ENDL;
+	LL_DEBUGS("Messaging") << "message: " << message << LL_ENDL;	   
 
 	handler->post(responsep, context, message);
 }
@@ -3268,6 +3269,8 @@ void null_message_callback(LLMessageSystem *msg, void **data)
 // up, and then sending auth messages.
 void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_count )
 {
+	LockMessageChecker lmc(this);
+
 	std::string shared_secret = get_shared_secret();
 	if(shared_secret.empty())
 	{
@@ -3287,7 +3290,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 		addU8Fast(_PREHASH_PingID, 0);
 		addU32Fast(_PREHASH_OldestUnacked, 0);
 		sendMessage(host);
-		if (checkMessages( frame_count ))
+		if (lmc.checkMessages( frame_count ))
 		{
 			if (isMessageFast(_PREHASH_CompletePingCheck) &&
 			    (getSender() == host))
@@ -3295,7 +3298,7 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 				break;
 			}
 		}
-		processAcks();
+		lmc.processAcks();
 		ms_sleep(1);
 	}
 
@@ -3314,8 +3317,8 @@ void LLMessageSystem::establishBidirectionalTrust(const LLHost &host, S64 frame_
 		cdp = mCircuitInfo.findCircuit(host);
 		if(!cdp) break; // no circuit anymore, no point continuing.
 		if(cdp->getTrusted()) break; // circuit is trusted.
-		checkMessages(frame_count);
-		processAcks();
+		lmc.checkMessages(frame_count);
+		lmc.processAcks();
 		ms_sleep(1);
 	}
 }
@@ -3973,11 +3976,18 @@ void LLMessageSystem::setTimeDecodesSpamThreshold( F32 seconds )
 	LLMessageReader::setTimeDecodesSpamThreshold(seconds);
 }
 
+LockMessageChecker::LockMessageChecker(LLMessageSystem* msgsystem):
+    // for the lifespan of this LockMessageChecker instance, use
+    // LLTemplateMessageReader as msgsystem's mMessageReader
+    LockMessageReader(msgsystem->mMessageReader, msgsystem->mTemplateMessageReader),
+    mMessageSystem(msgsystem)
+{}
+
 // HACK! babbage: return true if message rxed via either UDP or HTTP
 // TODO: babbage: move gServicePump in to LLMessageSystem?
-bool LLMessageSystem::checkAllMessages(S64 frame_count, LLPumpIO* http_pump)
+bool LLMessageSystem::checkAllMessages(LockMessageChecker& lmc, S64 frame_count, LLPumpIO* http_pump)
 {
-	if(checkMessages(frame_count))
+	if(lmc.checkMessages(frame_count))
 	{
 		return true;
 	}

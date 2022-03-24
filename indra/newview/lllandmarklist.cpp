@@ -33,11 +33,16 @@
 
 #include "llappviewer.h"
 #include "llagent.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "llviewerstats.h"
 
 // Globals
 LLLandmarkList gLandmarkList;
+
+// number is mostly arbitrary, but it should be below DEFAULT_QUEUE_SIZE pool size,
+// which is 4096, to not overfill the pool if user has more than 4K of landmarks
+// and it should leave some space for other potential simultaneous asset request
+const S32 MAX_SIMULTANEOUS_REQUESTS = 512;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -69,6 +74,21 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 		{
 			return NULL;
 		}
+
+        if (cb)
+        {
+            // Multiple different sources can request same landmark,
+            // mLoadedCallbackMap is a multimap that allows multiple pairs with same key
+            // Todo: this might need to be improved to not hold identical callbacks multiple times
+            loaded_callback_map_t::value_type vt(asset_uuid, cb);
+            mLoadedCallbackMap.insert(vt);
+        }
+
+	    if ( mWaitList.find(asset_uuid) != mWaitList.end() )
+		{
+            // Landmark is sheduled for download, but not requested yet
+			return NULL;
+		}
 		
 		landmark_requested_list_t::iterator iter = mRequestedList.find(asset_uuid);
 		if (iter != mRequestedList.end())
@@ -79,25 +99,31 @@ LLLandmark* LLLandmarkList::getAsset(const LLUUID& asset_uuid, loaded_callback_t
 				return NULL;
 			}
 		}
-		
-		if (cb)
-		{
-			loaded_callback_map_t::value_type vt(asset_uuid, cb);
-			mLoadedCallbackMap.insert(vt);
-		}
 
+        if (mRequestedList.size() > MAX_SIMULTANEOUS_REQUESTS)
+        {
+            // Workarounds for corutines pending list size limit:
+            // Postpone download till queue is emptier.
+            // Coroutines have own built in 'pending' list, but unfortunately
+            // it is too small compared to potential amount of landmarks
+            // or assets.
+            mWaitList.insert(asset_uuid);
+            return NULL;
+        }
+
+        mRequestedList[asset_uuid] = gFrameTimeSeconds;
+
+        // Note that getAssetData can callback immediately and cleans mRequestedList
 		gAssetStorage->getAssetData(asset_uuid,
 									LLAssetType::AT_LANDMARK,
 									LLLandmarkList::processGetAssetReply,
 									NULL);
-		mRequestedList[asset_uuid] = gFrameTimeSeconds;
 	}
 	return NULL;
 }
 
 // static
 void LLLandmarkList::processGetAssetReply(
-	LLVFS *vfs,
 	const LLUUID& uuid,
 	LLAssetType::EType type,
 	void* user_data,
@@ -106,39 +132,52 @@ void LLLandmarkList::processGetAssetReply(
 {
 	if( status == 0 )
 	{
-		LLVFile file(vfs, uuid, type);
+		LLFileSystem file(uuid, type);
 		S32 file_length = file.getSize();
 
-		std::vector<char> buffer(file_length + 1);
-		file.read( (U8*)&buffer[0], file_length);
-		buffer[ file_length ] = 0;
+        if (file_length > 0)
+        {
+            std::vector<char> buffer(file_length + 1);
+            file.read((U8*)&buffer[0], file_length);
+            buffer[file_length] = 0;
 
-		LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0]);
-		if (landmark)
-		{
-			gLandmarkList.mList[ uuid ] = landmark;
-			gLandmarkList.mRequestedList.erase(uuid);
-			
-			LLVector3d pos;
-			if(!landmark->getGlobalPos(pos))
-			{
-				LLUUID region_id;
-				if(landmark->getRegionID(region_id))
-				{
-					LLLandmark::requestRegionHandle(
-						gMessageSystem,
-						gAgent.getRegionHost(),
-						region_id,
-						boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
-				}
+            LLLandmark* landmark = LLLandmark::constructFromString(&buffer[0], buffer.size());
+            if (landmark)
+            {
+                gLandmarkList.mList[uuid] = landmark;
+                gLandmarkList.mRequestedList.erase(uuid);
 
-				// the callback will be called when we get the region handle.
-			}
-			else
-			{
-				gLandmarkList.makeCallbacks(uuid);
-			}
-		}
+                LLVector3d pos;
+                if (!landmark->getGlobalPos(pos))
+                {
+                    LLUUID region_id;
+                    if (landmark->getRegionID(region_id))
+                    {
+                        LLLandmark::requestRegionHandle(
+                            gMessageSystem,
+                            gAgent.getRegionHost(),
+                            region_id,
+                            boost::bind(&LLLandmarkList::onRegionHandle, &gLandmarkList, uuid));
+                    }
+
+                    // the callback will be called when we get the region handle.
+                }
+                else
+                {
+                    gLandmarkList.makeCallbacks(uuid);
+                }
+            }
+            else
+            {
+                // failed to parse, shouldn't happen
+                gLandmarkList.eraseCallbacks(uuid);
+            }
+        }
+        else
+        {
+            // got a good status, but no file, shouldn't happen
+            gLandmarkList.eraseCallbacks(uuid);
+        }
 	}
 	else
 	{
@@ -155,8 +194,36 @@ void LLLandmarkList::processGetAssetReply(
 		}
 
 		gLandmarkList.mBadList.insert(uuid);
+        gLandmarkList.mRequestedList.erase(uuid); //mBadList effectively blocks any load, so no point keeping id in requests
+        gLandmarkList.eraseCallbacks(uuid);
 	}
 
+    // getAssetData can fire callback immediately, causing
+    // a recursion which is suboptimal for very large wait list.
+    // 'scheduling' indicates that we are inside request and
+    // shouldn't be launching more requests.
+    static bool scheduling = false;
+    if (!scheduling && !gLandmarkList.mWaitList.empty())
+    {
+        scheduling = true;
+        while (!gLandmarkList.mWaitList.empty() && gLandmarkList.mRequestedList.size() < MAX_SIMULTANEOUS_REQUESTS)
+        {
+            // start new download from wait list
+            landmark_uuid_list_t::iterator iter = gLandmarkList.mWaitList.begin();
+            LLUUID asset_uuid = *iter;
+            gLandmarkList.mWaitList.erase(iter);
+
+            // add to mRequestedList before calling getAssetData()
+            gLandmarkList.mRequestedList[asset_uuid] = gFrameTimeSeconds;
+
+            // Note that getAssetData can callback immediately and cleans mRequestedList
+            gAssetStorage->getAssetData(asset_uuid,
+                LLAssetType::AT_LANDMARK,
+                LLLandmarkList::processGetAssetReply,
+                NULL);
+        }
+        scheduling = false;
+    }
 }
 
 BOOL LLLandmarkList::isAssetInLoadedCallbackMap(const LLUUID& asset_uuid)
@@ -172,23 +239,30 @@ BOOL LLLandmarkList::assetExists(const LLUUID& asset_uuid)
 void LLLandmarkList::onRegionHandle(const LLUUID& landmark_id)
 {
 	LLLandmark* landmark = getAsset(landmark_id);
-
-	if (!landmark)
-	{
-		LL_WARNS() << "Got region handle but the landmark not found." << LL_ENDL;
-		return;
-	}
+    if (!landmark)
+    {
+        LL_WARNS() << "Got region handle but the landmark " << landmark_id << " not found." << LL_ENDL;
+        eraseCallbacks(landmark_id);
+        return;
+    }
 
 	// Calculate landmark global position.
 	// This should succeed since the region handle is available.
 	LLVector3d pos;
 	if (!landmark->getGlobalPos(pos))
 	{
-		LL_WARNS() << "Got region handle but the landmark global position is still unknown." << LL_ENDL;
-		return;
+        LL_WARNS() << "Got region handle but the landmark " << landmark_id << " global position is still unknown." << LL_ENDL;
+        eraseCallbacks(landmark_id);
+        return;
 	}
 
+    // Call this even if no landmark exists to clean mLoadedCallbackMap
 	makeCallbacks(landmark_id);
+}
+
+void LLLandmarkList::eraseCallbacks(const LLUUID& landmark_id)
+{
+    mLoadedCallbackMap.erase(landmark_id);
 }
 
 void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
@@ -197,7 +271,7 @@ void LLLandmarkList::makeCallbacks(const LLUUID& landmark_id)
 
 	if (!landmark)
 	{
-		LL_WARNS() << "Landmark to make callbacks for not found." << LL_ENDL;
+		LL_WARNS() << "Landmark " << landmark_id << " to make callbacks for not found." << LL_ENDL;
 	}
 
 	// make all the callbacks here.

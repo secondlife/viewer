@@ -1,33 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Ambiente" name="panel_env_info">
-	<text name="water_settings_title">
-		Selecionar a Água e o Céu/Configurações de Ciclo de Dias que você gostaria que todos os visitantes da sua região visse. Mais informações
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Use o padrão Second Life" name="use_sl_default_settings"/>
-		<radio_item label="Use as seguintes configurações" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			Configurações da água
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			Céu / Ciclo de dias
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Céu fixo" name="my_sky_settings"/>
-			<radio_item label="Ciclos de dias" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Selecionar uma prefefinição-" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="Aplicar" name="apply_btn"/>
-	<button label="Cancelar" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		Usar as configurações padrões
+	</string>
+	<string name="str_label_use_region">
+		Usar as configurações da região
+	</string>
+	<string name="str_altitude_desription">
+		Céu [INDEX]([ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		Nenhum lote está selecionado. As configurações do ambiente estão desativadas.
+	</string>
+	<string name="str_cross_region">
+		As configurações do ambiente não estão disponíveis além das fronteiras da região.
+	</string>
+	<string name="str_legacy">
+		As configurações do ambiente não estão disponíveis nesta região.
+	</string>
+	<string name="str_disallowed">
+		O gerente do estado não permite alteração dos ambientes dos lotes nesta região.
+	</string>
+	<string name="str_too_small">
+		O lote deve ter no mínimo 128 metros quadrados para suportar um ambiente.
+	</string>
+	<string name="str_empty">
+		(vazio)
+	</string>
+	<string name="str_region_env">
+		(região ambiente)
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="Usar inventário" name="btn_select_inventory"/>
+							<button label="Customizar" name="btn_edit"/>
+							<check_box label="Os proprietários do lote podem desconsiderar o ambiente" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] ([PRC]%)
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
+				</layout_panel>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							Céu [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							Desconhecido
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="Arraste uma configuração do Inventário para a caixa alvo para selecionar como o céu atual."/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							Céu [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							Desconhecido
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="Arraste uma configuração do Inventário para a caixa alvo para selecionar como o céu atual."/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							Céu [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							Desconhecido
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="Arraste uma configuração do Inventário para a caixa alvo para selecionar como o céu atual."/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							Chão
+						</text>
+						<line_editor name="edt_invname_ground">
+							Desconhecido
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="Arraste uma configuração do Inventário para a caixa alvo para selecionar como o nível do chão do céu."/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							Água
+						</text>
+						<line_editor name="edt_invname_water">
+							Desconhecido
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="Arraste uma configuração do Inventário para a caixa alvo para selecionar como a água atual."/>
+					</panel>
+					<button label="Redefinir" name="btn_rst_altitudes" tool_tip="Redefinir para padrão de altitudes"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
 </panel>

@@ -123,14 +123,12 @@ void log_name_callback(const LLAvatarName& av_name, const std::string& from_name
 }
 
 // static
-void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
+void LLHandlerUtil::logToIMP2P(const LLUUID& from_id, const std::string& message, bool to_file_only)
 {
 	if (!gCacheName)
 	{
 		return;
 	}
-
-	LLUUID from_id = notification->getPayload()["from_id"];
 
 	if (from_id.isNull())
 	{
@@ -141,12 +139,19 @@ void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_fi
 
 	if(to_file_only)
 	{
-		LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, "", notification->getMessage(), LLUUID()));
+		LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, "", message, LLUUID()));
 	}
 	else
 	{
-		LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, notification->getMessage(), from_id));
+		LLAvatarNameCache::get(from_id, boost::bind(&log_name_callback, _2, INTERACTIVE_SYSTEM_FROM, message, from_id));
 	}
+}
+
+// static
+void LLHandlerUtil::logToIMP2P(const LLNotificationPtr& notification, bool to_file_only)
+{
+	LLUUID from_id = notification->getPayload()["from_id"];
+	logToIMP2P(from_id, notification->getMessage(), to_file_only);	
 }
 
 // static

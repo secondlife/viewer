@@ -105,7 +105,8 @@ public:
 	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null, bool show_other_participants_speaking = false);
 
 	//called by mute list
-	virtual void onChange();
+    virtual void onChange() {};
+	virtual void onChangeDetailed(const LLMute& mute);
 
 	/**
 	 * Implementation of LLSpeakingIndicator interface.

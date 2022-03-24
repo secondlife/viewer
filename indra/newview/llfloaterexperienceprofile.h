@@ -51,6 +51,8 @@ public:
 
     LLFloaterExperienceProfile(const LLSD& data);
     virtual ~LLFloaterExperienceProfile();
+    
+    /* virtual */ bool matchesKey(const LLSD& key);
 
     LLUUID getExperienceId() const { return mExperienceId; }
     void setPreferences( const LLSD& content );

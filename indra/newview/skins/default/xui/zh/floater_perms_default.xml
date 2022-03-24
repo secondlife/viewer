@@ -37,6 +37,10 @@
 		<text name="label_12" tool_tip="設定預設權限決定何時建立服裝或身體部位">
 			可穿裝扮
 		</text>
+		<text name="label_13" tool_tip="設定預設權限決定何時建立環境設定">
+			設定
+		</text>
+		<check_box name="env_settings_c" value="true"/>
 	</panel>
 	<button label="確定" label_selected="確定" name="ok"/>
 	<button label="取消" label_selected="取消" name="cancel"/>

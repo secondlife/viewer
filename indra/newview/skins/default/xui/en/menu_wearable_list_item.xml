@@ -4,6 +4,7 @@
     <menu_item_call
      label="Replace"
      layout="topleft"
+     visible="false"
      name="wear_replace">
         <on_click
          function="Wearable.Wear" />
@@ -11,6 +12,7 @@
     <menu_item_call
      label="Wear"
      layout="topleft"
+     visible="false"
      name="wear_wear">
         <on_click
          function="Wearable.Wear" />
@@ -18,13 +20,29 @@
     <menu_item_call
      label="Add"
      layout="topleft"
+     visible="false"
      name="wear_add">
         <on_click
          function="Wearable.Add" />
     </menu_item_call>
     <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="touch"
+     visible="false"
+     on_click.function="Attachment.Touch"
+     />
+    <menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="edit"
+     visible="false"
+     on_click.function="Wearable.Edit"
+     />
+    <menu_item_call
      label="Take Off / Detach"
      layout="topleft"
+     visible="false"
      name="take_off_or_detach">
         <on_click
          function="Wearable.TakeOffDetach" />
@@ -32,6 +50,7 @@
     <menu_item_call
      label="Detach"
      layout="topleft"
+     visible="false"
      name="detach">
         <on_click
          function="Attachment.Detach" />
@@ -47,20 +66,15 @@
     <menu_item_call
      label="Take Off"
      layout="topleft"
+     visible="false"
      name="take_off">
         <on_click
          function="Clothing.TakeOff" />
     </menu_item_call>
     <menu_item_call
-     label="Edit"
-     layout="topleft"
-     name="edit">
-        <on_click
-         function="Wearable.Edit" />
-    </menu_item_call>
-    <menu_item_call
      label="Item Profile"
      layout="topleft"
+     visible="false"
      name="object_profile">
         <on_click
          function="Attachment.Profile" />
@@ -68,6 +82,7 @@
     <menu_item_call
      label="Show Original"
      layout="topleft"
+     visible="false"
      name="show_original">
         <on_click
          function="Wearable.ShowOriginal" />
@@ -75,6 +90,7 @@
     <menu_item_call
      label="Create New"
      layout="topleft"
+     visible="false"
      name="create_new"
      translate="false">
         <on_click
@@ -83,6 +99,7 @@
     <menu_item_call
      label="--no options--"
      layout="topleft"
+     visible="false"
      name="--no options--"
      translate="false">
     </menu_item_call>

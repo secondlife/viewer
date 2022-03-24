@@ -240,16 +240,16 @@ void LLXMLRPCTransaction::Handler::onCompleted(LLCore::HttpHandle handle,
 
 	if (!status)
 	{
+        mImpl->setHttpStatus(status);
+        LLSD errordata = status.getErrorData();
+        mImpl->mErrorCertData = errordata;
+
 		if ((status.toULong() != CURLE_SSL_PEER_CERTIFICATE) &&
 			(status.toULong() != CURLE_SSL_CACERT))
 		{
 			// if we have a curl error that's not already been handled
-			// (a non cert error), then generate the error message as
+			// (a non cert error), then generate the warning message as
 			// appropriate
-			mImpl->setHttpStatus(status);
-			LLSD errordata = status.getErrorData();
-            mImpl->mErrorCertData = errordata;
-
 			LL_WARNS() << "LLXMLRPCTransaction error "
 				<< status.toHex() << ": " << status.toString() << LL_ENDL;
 			LL_WARNS() << "LLXMLRPCTransaction request URI: "

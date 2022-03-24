@@ -288,6 +288,18 @@ void  LLGLTexture::setCategory(S32 category)
 	mGLTexturep->setCategory(category) ;
 }
 
+void LLGLTexture::setTexName(LLGLuint texName)
+{
+    llassert(mGLTexturep.notNull());
+    return mGLTexturep->setTexName(texName); 
+}
+
+void LLGLTexture::setTarget(const LLGLenum target, const LLTexUnit::eTextureType bind_target)
+{
+    llassert(mGLTexturep.notNull());
+    return mGLTexturep->setTarget(target, bind_target); 
+}
+
 LLTexUnit::eTextureAddressMode LLGLTexture::getAddressMode(void) const
 {
 	llassert(mGLTexturep.notNull()) ;
@@ -389,9 +401,11 @@ void LLGLTexture::destroyGLTexture()
 
 void LLGLTexture::setTexelsPerImage()
 {
-	S32 fullwidth = llmin(mFullWidth,(S32)MAX_IMAGE_SIZE_DEFAULT);
-	S32 fullheight = llmin(mFullHeight,(S32)MAX_IMAGE_SIZE_DEFAULT);
-	mTexelsPerImage = (F32)fullwidth * fullheight;
+	U32 fullwidth = llmin(mFullWidth,U32(MAX_IMAGE_SIZE_DEFAULT));
+	U32 fullheight = llmin(mFullHeight,U32(MAX_IMAGE_SIZE_DEFAULT));
+	mTexelsPerImage = (U32)fullwidth * fullheight;
 }
 
+static LLUUID sStubUUID;
 
+const LLUUID& LLGLTexture::getID() const { return sStubUUID; }

@@ -35,6 +35,7 @@
 
 #include "llavatarnamecache.h"
 #include "llcachename.h"
+#include "llregex.h"
 #include "lltrans.h"
 #include "lluicolortable.h"
 #include "message.h"
@@ -176,16 +177,56 @@ void LLUrlEntryBase::callObservers(const std::string &id,
 bool LLUrlEntryBase::isLinkDisabled() const
 {
 	// this allows us to have a global setting to turn off text hyperlink highlighting/action
-	bool globally_disabled = LLUI::getInstance()->mSettingGroups["config"]->getBOOL("DisableTextHyperlinkActions");
+	static LLCachedControl<bool> globally_disabled(*LLUI::getInstance()->mSettingGroups["config"], "DisableTextHyperlinkActions", false);
 
 	return globally_disabled;
 }
 
-bool LLUrlEntryBase::isWikiLinkCorrect(std::string url)
+bool LLUrlEntryBase::isWikiLinkCorrect(const std::string &labeled_url) const
 {
-	LLWString label = utf8str_to_wstring(getLabelFromWikiLink(url));
-	label.erase(std::remove(label.begin(), label.end(), L'\u200B'), label.end());
-	return (LLUrlRegistry::instance().hasUrl(wstring_to_utf8str(label))) ? false : true;
+	LLWString wlabel = utf8str_to_wstring(getLabelFromWikiLink(labeled_url));
+	wlabel.erase(std::remove(wlabel.begin(), wlabel.end(), L'\u200B'), wlabel.end());
+
+    // Unicode URL validation, see SL-15243
+    std::replace_if(wlabel.begin(),
+                    wlabel.end(),
+                    [](const llwchar &chr)
+                    {
+                        return (chr == L'\u2024') // "One Dot Leader"
+                               || (chr == L'\uFE52') // "Small Full Stop"
+                               || (chr == L'\uFF0E') // "Fullwidth Full Stop"
+                               // Not a decomposition, but suficiently similar
+                               || (chr == L'\u05C5'); // "Hebrew Mark Lower Dot"
+                    },
+                    L'\u002E'); // Dot "Full Stop"
+
+    std::replace_if(wlabel.begin(),
+        wlabel.end(),
+        [](const llwchar &chr)
+    {
+        return (chr == L'\u02D0') // "Modifier Letter Colon"
+            || (chr == L'\uFF1A') // "Fullwidth Colon"
+            || (chr == L'\uFE55'); // "Small Colon"
+    },
+        L'\u003A'); // Colon
+
+    std::replace_if(wlabel.begin(),
+        wlabel.end(),
+        [](const llwchar &chr)
+    {
+        return (chr == L'\uFF0F'); // "Fullwidth Solidus"
+    },
+        L'\u002F'); // Solidus
+
+    std::string label = wstring_to_utf8str(wlabel);
+    if ((label.find(".com") != std::string::npos
+         || label.find("www.") != std::string::npos)
+        && label.find("://") == std::string::npos)
+    {
+        label = "http://" + label;
+    }
+
+	return (LLUrlRegistry::instance().hasUrl(label)) ? false : true;
 }
 
 std::string LLUrlEntryBase::urlToLabelWithGreyQuery(const std::string &url) const
@@ -454,13 +495,19 @@ std::string LLUrlEntrySLURL::getLocation(const std::string &url) const
 }
 
 //
-// LLUrlEntrySeconlifeURL Describes *secondlife.com/ and *lindenlab.com/ urls to substitute icon 'hand.png' before link
+// LLUrlEntrySeconlifeURL Describes *secondlife.com/ *lindenlab.com/ *secondlifegrid.net/ and *tilia-inc.com/ urls to substitute icon 'hand.png' before link
 //
 LLUrlEntrySecondlifeURL::LLUrlEntrySecondlifeURL()
 {                              
-	mPattern = boost::regex("((http://([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com)"
+	mPattern = boost::regex("((http://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com)"
 							"|"
-							"(https://([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(:\\d{1,5})?))"
+							"(http://([-\\w\\.]*\\.)?secondlifegrid\\.net)"
+							"|"
+							"(https://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(:\\d{1,5})?)"
+							"|"
+							"(https://([-\\w\\.]*\\.)?secondlifegrid\\.net(:\\d{1,5})?)"
+							"|"
+							"(https?://([-\\w\\.]*\\.)?secondlife\\.io(:\\d{1,5})?))"
 							"\\/\\S*",
 		boost::regex::perl|boost::regex::icase);
 	
@@ -495,12 +542,14 @@ std::string LLUrlEntrySecondlifeURL::getTooltip(const std::string &url) const
 }
 
 //
-// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com and *lindenlab.com urls to substitute icon 'hand.png' before link
+// LLUrlEntrySimpleSecondlifeURL Describes *secondlife.com *lindenlab.com *secondlifegrid.net and *tilia-inc.com urls to substitute icon 'hand.png' before link
 //
 LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
   {
-	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?(secondlife|lindenlab)\\.com(?!\\S)",
-		boost::regex::perl|boost::regex::icase);
+	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?(secondlife|lindenlab|tilia-inc)\\.com(?!\\S)"
+							"|"
+							"https?://([-\\w\\.]*\\.)?secondlifegrid\\.net(?!\\S)",
+							boost::regex::perl|boost::regex::icase);
 
 	mIcon = "Hand";
 	mMenuName = "menu_url_http.xml";
@@ -511,8 +560,7 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 //
-LLUrlEntryAgent::LLUrlEntryAgent() :
-	mAvatarNameCacheConnection()
+LLUrlEntryAgent::LLUrlEntryAgent()
 {
 	mPattern = boost::regex(APP_HEADER_REGEX "/agent/[\\da-f-]+/\\w+",
 							boost::regex::perl|boost::regex::icase);
@@ -543,7 +591,15 @@ void LLUrlEntryAgent::callObservers(const std::string &id,
 void LLUrlEntryAgent::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
+	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
+	if (it != mAvatarNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mAvatarNameCacheConnections.erase(it);
+	}
 	
  	std::string label = av_name.getCompleteName();
 
@@ -630,11 +686,17 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 	}
 	else
 	{
-		if (mAvatarNameCacheConnection.connected())
+		avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
+		if (it != mAvatarNameCacheConnections.end())
 		{
-			mAvatarNameCacheConnection.disconnect();
+			if (it->second.connected())
+			{
+				it->second.disconnect();
+			}
+			mAvatarNameCacheConnections.erase(it);
 		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections[agent_id] = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgent::onAvatarNameCache, this, _1, _2));
+
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
@@ -695,14 +757,21 @@ std::string LLUrlEntryAgent::getIcon(const std::string &url)
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/(completename|displayname|username)
 //
-LLUrlEntryAgentName::LLUrlEntryAgentName() :
-	mAvatarNameCacheConnection()
+LLUrlEntryAgentName::LLUrlEntryAgentName()
 {}
 
 void LLUrlEntryAgentName::onAvatarNameCache(const LLUUID& id,
 										const LLAvatarName& av_name)
 {
-	mAvatarNameCacheConnection.disconnect();
+	avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(id);
+	if (it != mAvatarNameCacheConnections.end())
+	{
+		if (it->second.connected())
+		{
+			it->second.disconnect();
+		}
+		mAvatarNameCacheConnections.erase(it);
+	}
 
 	std::string label = getName(av_name);
 	// received the agent name from the server - tell our observers
@@ -737,11 +806,17 @@ std::string LLUrlEntryAgentName::getLabel(const std::string &url, const LLUrlLab
 	}
 	else
 	{
-		if (mAvatarNameCacheConnection.connected())
+		avatar_name_cache_connection_map_t::iterator it = mAvatarNameCacheConnections.find(agent_id);
+		if (it != mAvatarNameCacheConnections.end())
 		{
-			mAvatarNameCacheConnection.disconnect();
+			if (it->second.connected())
+			{
+				it->second.disconnect();
+			}
+			mAvatarNameCacheConnections.erase(it);
 		}
-		mAvatarNameCacheConnection = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+		mAvatarNameCacheConnections[agent_id] = LLAvatarNameCache::get(agent_id, boost::bind(&LLUrlEntryAgentName::onAvatarNameCache, this, _1, _2));
+
 		addObserver(agent_id_string, url, cb);
 		return LLTrans::getString("LoadingData");
 	}
@@ -1095,7 +1170,7 @@ std::string LLUrlEntryPlace::getLocation(const std::string &url) const
 //
 LLUrlEntryRegion::LLUrlEntryRegion()
 {
-	mPattern = boost::regex("secondlife:///app/region/[^/\\s]+(/\\d+)?(/\\d+)?(/\\d+)?/?",
+	mPattern = boost::regex("secondlife:///app/region/[A-Za-z0-9()_%]+(/\\d+)?(/\\d+)?(/\\d+)?/?",
 							boost::regex::perl|boost::regex::icase);
 	mMenuName = "menu_url_slurl.xml";
 	mTooltip = LLTrans::getString("TooltipSLURL");
@@ -1382,7 +1457,7 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 	// Grep icon info between <icon>...</icon> tags
 	// matches[1] contains the icon name/path
 	boost::match_results<std::string::const_iterator> matches;
-	mIcon = (boost::regex_match(url, matches, mPattern) && matches[1].matched)
+	mIcon = (ll_regex_match(url, matches, mPattern) && matches[1].matched)
 		? matches[1]
 		: LLStringUtil::null;
 	LLStringUtil::trim(mIcon);
@@ -1475,4 +1550,43 @@ void LLUrlEntryExperienceProfile::onExperienceDetails( const LLSD& experience_de
     callObservers(experience_details[LLExperienceCache::EXPERIENCE_ID].asString(), name, LLStringUtil::null);
 }
 
+//
+// LLUrlEntryEmail Describes an IPv6 address
+//
+LLUrlEntryIPv6::LLUrlEntryIPv6()
+	: LLUrlEntryBase()
+{
+	mHostPath = "https?://\\[([a-f0-9:]+:+)+[a-f0-9]+]";
+	mPattern = boost::regex(mHostPath + "(:\\d{1,5})?(/\\S*)?",
+		boost::regex::perl | boost::regex::icase);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
 
+std::string LLUrlEntryIPv6::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	boost::regex regex = boost::regex(mHostPath, boost::regex::perl | boost::regex::icase);
+	boost::match_results<std::string::const_iterator> matches;
+
+	if (boost::regex_search(url, matches, regex))
+	{
+		return  url.substr(0, matches[0].length());
+	}
+	else
+	{
+		return url;
+	}
+}
+
+std::string LLUrlEntryIPv6::getQuery(const std::string &url) const
+{
+	boost::regex regex = boost::regex(mHostPath, boost::regex::perl | boost::regex::icase);
+	boost::match_results<std::string::const_iterator> matches;
+
+	return boost::regex_replace(url, regex, "");
+}
+
+std::string LLUrlEntryIPv6::getUrl(const std::string &string) const
+{
+	return string;
+}

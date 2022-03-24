@@ -79,7 +79,7 @@ const U32 LEFT_PAD_PIXELS = 3;
 const U32 LEFT_WIDTH_PIXELS = 15;
 const U32 LEFT_PLAIN_PIXELS = LEFT_PAD_PIXELS + LEFT_WIDTH_PIXELS;
 
-const U32 RIGHT_PAD_PIXELS = 2;
+const U32 RIGHT_PAD_PIXELS = 7;
 const U32 RIGHT_WIDTH_PIXELS = 15;
 const U32 RIGHT_PLAIN_PIXELS = RIGHT_PAD_PIXELS + RIGHT_WIDTH_PIXELS;
 
@@ -95,7 +95,7 @@ const std::string SEPARATOR_NAME("separator");
 const std::string VERTICAL_SEPARATOR_LABEL( "|" );
 
 const std::string LLMenuGL::BOOLEAN_TRUE_PREFIX( "\xE2\x9C\x94" ); // U+2714 HEAVY CHECK MARK
-const std::string LLMenuGL::BRANCH_SUFFIX( "\xE2\x96\xB6" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
+const std::string LLMenuGL::BRANCH_SUFFIX( "\xe2\x96\xb8" ); // U+25B6 BLACK RIGHT-POINTING TRIANGLE
 const std::string LLMenuGL::ARROW_UP  ("^^^^^^^");
 const std::string LLMenuGL::ARROW_DOWN("vvvvvvv");
 
@@ -213,6 +213,12 @@ LLSD LLMenuItemGL::getValue() const
 }
 
 //virtual
+bool LLMenuItemGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return (mAcceleratorKey == key) && (mAcceleratorMask == mask);
+}
+
+//virtual
 BOOL LLMenuItemGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	if( getEnabled() && (!gKeyboard->getKeyRepeated(key) || mAllowKeyRepeat) && (key == mAcceleratorKey) && (mask == (mAcceleratorMask & MASK_NORMALKEYS)) )
@@ -263,13 +269,13 @@ BOOL LLMenuItemGL::handleRightMouseUp(S32 x, S32 y, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
+BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp)
 {
-	LLKeyBinding *accelerator = NULL;
+	LLMenuKeyboardBinding *accelerator = NULL;
 
 	if (mAcceleratorKey != KEY_NONE)
 	{
-		std::list<LLKeyBinding*>::iterator list_it;
+		std::list<LLMenuKeyboardBinding*>::iterator list_it;
 		for (list_it = listp->begin(); list_it != listp->end(); ++list_it)
 		{
 			accelerator = *list_it;
@@ -293,7 +299,7 @@ BOOL LLMenuItemGL::addToAcceleratorList(std::list <LLKeyBinding*> *listp)
 		}
 		if (!accelerator)
 		{				
-			accelerator = new LLKeyBinding;
+			accelerator = new LLMenuKeyboardBinding;
 			if (accelerator)
 			{
 				accelerator->mKey = mAcceleratorKey;
@@ -788,6 +794,12 @@ void LLMenuItemCallGL::initFromParams(const Params& p)
 			{
 				setEnabledControlVariable(control);
 			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'enabled' control variable to menu " << getName()
+							<< ": control " << p.on_enable.control_name()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 	if (p.on_click.isProvided())
@@ -1011,6 +1023,11 @@ BOOL LLMenuItemBranchGL::handleMouseUp(S32 x, S32 y, MASK mask)
 	return TRUE;
 }
 
+bool LLMenuItemBranchGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	return getBranch() && getBranch()->hasAccelerator(key, mask);
+}
+
 BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	return getBranch() && getBranch()->handleAcceleratorKey(key, mask);
@@ -1018,7 +1035,7 @@ BOOL LLMenuItemBranchGL::handleAcceleratorKey(KEY key, MASK mask)
 
 // This function checks to see if the accelerator key is already in use;
 // if not, it will be added to the list
-BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLKeyBinding*> *listp)
+BOOL LLMenuItemBranchGL::addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp)
 {
 	LLMenuGL* branch = getBranch();
 	if (!branch)
@@ -2717,6 +2734,15 @@ void LLMenuGL::setItemVisible( const std::string& name, BOOL visible )
 	}
 }
 
+
+void LLMenuGL::setItemLabel(const std::string &name, const std::string &label)
+{
+    LLMenuItemGL *item = getItem(name);
+
+    if (item)
+        item->setLabel(label);
+}
+
 void LLMenuGL::setItemLastSelected(LLMenuItemGL* item)
 {
 	if (getVisible())
@@ -2759,6 +2785,19 @@ LLMenuItemGL* LLMenuGL::getItem(S32 number)
 		}
 	}
 	return NULL;
+}
+
+LLMenuItemGL* LLMenuGL::getItem(std::string name)
+{
+    item_list_t::iterator item_iter;
+    for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
+    {
+        if ((*item_iter)->getName() == name)
+        {
+            return (*item_iter);
+        }
+    }
+    return NULL;
 }
 
 LLMenuItemGL* LLMenuGL::getHighlightedItem()
@@ -2995,6 +3034,27 @@ void LLMenuGL::updateParent(LLView* parentp)
 	}
 }
 
+bool LLMenuGL::hasAccelerator(const KEY &key, const MASK &mask) const
+{
+	if (key == KEY_NONE)
+	{
+		return false;
+	}
+	// Note: checking this way because mAccelerators seems to be broken
+	// mAccelerators probably needs to be cleaned up or fixed
+	// It was used for dupplicate accelerator avoidance.
+	item_list_t::const_iterator item_iter;
+	for (item_iter = mItems.begin(); item_iter != mItems.end(); ++item_iter)
+	{
+		LLMenuItemGL* itemp = *item_iter;
+		if (itemp->hasAccelerator(key, mask))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 BOOL LLMenuGL::handleAcceleratorKey(KEY key, MASK mask)
 {
 	// don't handle if not enabled
@@ -3216,7 +3276,7 @@ void hide_top_view( LLView* view )
 // x and y are the desired location for the popup, in the spawning_view's
 // coordinate frame, NOT necessarily the mouse location
 // static
-void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
+void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S32 mouse_x, S32 mouse_y)
 {
 	const S32 CURSOR_HEIGHT = 22;		// Approximate "normal" cursor size
 	const S32 CURSOR_WIDTH = 12;
@@ -3247,12 +3307,6 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 		}
 	}
 
-	// Save click point for detecting cursor moves before mouse-up.
-	// Must be in local coords to compare with mouseUp events.
-	// If the mouse doesn't move, the menu will stay open ala the Mac.
-	// See also LLContextMenu::show()
-	S32 mouse_x, mouse_y;
-
 	// Resetting scrolling position
 	if (menu->isScrollable() && menu->isScrollPositionOnShowReset())
 	{
@@ -3263,7 +3317,18 @@ void LLMenuGL::showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y)
 	menu->needsArrange();
 	menu->arrangeAndClear();
 
-	LLUI::getInstance()->getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
+	if ((mouse_x == 0) || (mouse_y == 0))
+
+	{
+		// Save click point for detecting cursor moves before mouse-up.
+		// Must be in local coords to compare with mouseUp events.
+		// If the mouse doesn't move, the menu will stay open ala the Mac.
+		// See also LLContextMenu::show()
+
+		LLUI::getInstance()->getMousePositionLocal(menu->getParent(), &mouse_x, &mouse_y);
+	}
+	
+	
 	LLMenuHolderGL::sContextMenuSpawnPos.set(mouse_x,mouse_y);
 
 	const LLRect menu_region_rect = LLMenuGL::sMenuContainer->getRect();

@@ -70,6 +70,7 @@
 #include "llfloaterperms.h"
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
+#include "llsettingsvo.h"
 
 // do-nothing ops for use in callbacks.
 void no_op_inventory_func(const LLUUID&) {} 
@@ -79,6 +80,9 @@ void no_op() {}
 static const char * const LOG_INV("Inventory");
 static const char * const LOG_LOCAL("InventoryLocalize");
 static const char * const LOG_NOTECARD("copy_inventory_from_notecard");
+
+static const std::string INV_OWNER_ID("owner_id");
+static const std::string INV_VERSION("version");
 
 #if 1
 // *TODO$: LLInventoryCallback should be deprecated to conform to the new boost::bind/coroutine model.
@@ -518,45 +522,11 @@ void LLViewerInventoryItem::packMessage(LLMessageSystem* msg) const
 }
 
 // virtual
-BOOL LLViewerInventoryItem::importFile(LLFILE* fp)
-{
-	BOOL rv = LLInventoryItem::importFile(fp);
-	mIsComplete = TRUE;
-	return rv;
-}
-
-// virtual
 BOOL LLViewerInventoryItem::importLegacyStream(std::istream& input_stream)
 {
 	BOOL rv = LLInventoryItem::importLegacyStream(input_stream);
 	mIsComplete = TRUE;
 	return rv;
-}
-
-bool LLViewerInventoryItem::importFileLocal(LLFILE* fp)
-{
-	// TODO: convert all functions that return BOOL to return bool
-	bool rv = (LLInventoryItem::importFile(fp) ? true : false);
-	mIsComplete = false;
-	return rv;
-}
-
-bool LLViewerInventoryItem::exportFileLocal(LLFILE* fp) const
-{
-	std::string uuid_str;
-	fprintf(fp, "\tinv_item\t0\n\t{\n");
-	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\titem_id\t%s\n", uuid_str.c_str());
-	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
-	mPermissions.exportFile(fp);
-	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	const std::string inv_type_str = LLInventoryType::lookup(mInventoryType);
-	if(!inv_type_str.empty()) fprintf(fp, "\t\tinv_type\t%s\n", inv_type_str.c_str());
-	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
-	fprintf(fp, "\t\tcreation_date\t%d\n", (S32) mCreationDate);
-	fprintf(fp,"\t}\n");
-	return true;
 }
 
 void LLViewerInventoryItem::updateParentOnServer(BOOL restamp) const
@@ -719,90 +689,26 @@ S32 LLViewerInventoryCategory::getViewerDescendentCount() const
 	return descendents_actual;
 }
 
-bool LLViewerInventoryCategory::importFileLocal(LLFILE* fp)
+LLSD LLViewerInventoryCategory::exportLLSD() const
 {
-	// *NOTE: This buffer size is hard coded into scanf() below.
-	char buffer[MAX_STRING];		/* Flawfinder: ignore */
-	char keyword[MAX_STRING];		/* Flawfinder: ignore */
-	char valuestr[MAX_STRING];		/* Flawfinder: ignore */
+	LLSD cat_data = LLInventoryCategory::exportLLSD();
+	cat_data[INV_OWNER_ID] = mOwnerID;
+	cat_data[INV_VERSION] = mVersion;
 
-	keyword[0] = '\0';
-	valuestr[0] = '\0';
-	while(!feof(fp))
-	{
-		if (fgets(buffer, MAX_STRING, fp) == NULL)
-		{
-			buffer[0] = '\0';
-		}
-		
-		sscanf(	/* Flawfinder: ignore */
-			buffer, " %254s %254s", keyword, valuestr); 
-		if(0 == strcmp("{",keyword))
-		{
-			continue;
-		}
-		if(0 == strcmp("}", keyword))
-		{
-			break;
-		}
-		else if(0 == strcmp("cat_id", keyword))
-		{
-			mUUID.set(valuestr);
-		}
-		else if(0 == strcmp("parent_id", keyword))
-		{
-			mParentUUID.set(valuestr);
-		}
-		else if(0 == strcmp("type", keyword))
-		{
-			mType = LLAssetType::lookup(valuestr);
-		}
-		else if(0 == strcmp("pref_type", keyword))
-		{
-			mPreferredType = LLFolderType::lookup(valuestr);
-		}
-		else if(0 == strcmp("name", keyword))
-		{
-			//strcpy(valuestr, buffer + strlen(keyword) + 3);
-			// *NOTE: Not ANSI C, but widely supported.
-			sscanf(	/* Flawfinder: ignore */
-				buffer, " %254s %254[^|]", keyword, valuestr);
-			mName.assign(valuestr);
-			LLStringUtil::replaceNonstandardASCII(mName, ' ');
-			LLStringUtil::replaceChar(mName, '|', ' ');
-		}
-		else if(0 == strcmp("owner_id", keyword))
-		{
-			mOwnerID.set(valuestr);
-		}
-		else if(0 == strcmp("version", keyword))
-		{
-			sscanf(valuestr, "%d", &mVersion);
-		}
-		else
-		{
-			LL_WARNS(LOG_INV) << "unknown keyword '" << keyword
-							  << "' in inventory import category "  << mUUID << LL_ENDL;
-		}
-	}
-	return true;
+	return cat_data;
 }
 
-bool LLViewerInventoryCategory::exportFileLocal(LLFILE* fp) const
+bool LLViewerInventoryCategory::importLLSD(const LLSD& cat_data)
 {
-	std::string uuid_str;
-	fprintf(fp, "\tinv_category\t0\n\t{\n");
-	mUUID.toString(uuid_str);
-	fprintf(fp, "\t\tcat_id\t%s\n", uuid_str.c_str());
-	mParentUUID.toString(uuid_str);
-	fprintf(fp, "\t\tparent_id\t%s\n", uuid_str.c_str());
-	fprintf(fp, "\t\ttype\t%s\n", LLAssetType::lookup(mType));
-	fprintf(fp, "\t\tpref_type\t%s\n", LLFolderType::lookup(mPreferredType).c_str());
-	fprintf(fp, "\t\tname\t%s|\n", mName.c_str());
-	mOwnerID.toString(uuid_str);
-	fprintf(fp, "\t\towner_id\t%s\n", uuid_str.c_str());
-	fprintf(fp, "\t\tversion\t%d\n", mVersion);
-	fprintf(fp,"\t}\n");
+	LLInventoryCategory::importLLSD(cat_data);
+	if (cat_data.has(INV_OWNER_ID))
+	{
+		mOwnerID = cat_data[INV_OWNER_ID].asUUID();
+	}
+	if (cat_data.has(INV_VERSION))
+	{
+		setVersion(cat_data[INV_VERSION].asInteger());
+	}
 	return true;
 }
 
@@ -1098,7 +1004,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 						   const LLUUID& parent, const LLTransactionID& transaction_id,
 						   const std::string& name,
 						   const std::string& desc, LLAssetType::EType asset_type,
-						   LLInventoryType::EType inv_type, LLWearableType::EType wtype,
+						   LLInventoryType::EType inv_type, U8 subtype,
 						   U32 next_owner_perm,
 						   LLPointer<LLInventoryCallback> cb)
 {
@@ -1133,7 +1039,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 	msg->addU32Fast(_PREHASH_NextOwnerMask, next_owner_perm);
 	msg->addS8Fast(_PREHASH_Type, (S8)asset_type);
 	msg->addS8Fast(_PREHASH_InvType, (S8)inv_type);
-	msg->addU8Fast(_PREHASH_WearableType, (U8)wtype);
+	msg->addU8Fast(_PREHASH_WearableType, (U8)subtype);
 	msg->addStringFast(_PREHASH_Name, server_name);
 	msg->addStringFast(_PREHASH_Description, desc);
 	
@@ -1147,8 +1053,35 @@ void create_inventory_callingcard(const LLUUID& avatar_id, const LLUUID& parent 
 	LLAvatarNameCache::get(avatar_id, &av_name);
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 						  parent, LLTransactionID::tnull, av_name.getUserName(), item_desc, LLAssetType::AT_CALLINGCARD,
-						  LLInventoryType::IT_CALLINGCARD, NOT_WEARABLE, PERM_MOVE | PERM_TRANSFER, cb);
+                          LLInventoryType::IT_CALLINGCARD, NO_INV_SUBTYPE, PERM_MOVE | PERM_TRANSFER, cb);
 }
+
+void create_inventory_wearable(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc, LLAssetType::EType asset_type,
+    LLWearableType::EType wtype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb)
+{
+    create_inventory_item(agent_id, session_id, parent, transaction_id,
+        name, desc, asset_type, LLInventoryType::IT_WEARABLE, static_cast<U8>(wtype),
+        next_owner_perm, cb);
+}
+
+void create_inventory_settings(const LLUUID& agent_id, const LLUUID& session_id,
+    const LLUUID& parent, const LLTransactionID& transaction_id,
+    const std::string& name,
+    const std::string& desc, 
+    LLSettingsType::type_e settype,
+    U32 next_owner_perm,
+    LLPointer<LLInventoryCallback> cb)
+{
+    create_inventory_item(agent_id, session_id, parent, transaction_id,
+        name, desc, LLAssetType::AT_SETTINGS, LLInventoryType::IT_SETTINGS, 
+        static_cast<U8>(settype), next_owner_perm, cb);
+}
+
 
 void copy_inventory_item(
 	const LLUUID& agent_id,
@@ -1701,7 +1634,7 @@ void create_new_item(const std::string& name,
 						  desc,
 						  asset_type,
 						  inv_type,
-						  NOT_WEARABLE,
+                          NO_INV_SUBTYPE,
 						  next_owner_perm,
 						  cb);
 }	
@@ -1745,7 +1678,7 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 {
 	std::string type_name = userdata.asString();
 	
-	if (("inbox" == type_name) || ("outbox" == type_name) || ("category" == type_name) || ("current" == type_name) || ("outfit" == type_name) || ("my_otfts" == type_name))
+	if (("inbox" == type_name) || ("category" == type_name) || ("current" == type_name) || ("outfit" == type_name) || ("my_otfts" == type_name))
 	{
 		LLFolderType::EType preferred_type = LLFolderType::lookup(type_name);
 
@@ -1794,10 +1727,36 @@ void menu_create_inventory_item(LLInventoryPanel* panel, LLFolderBridge *bridge,
 					  LLInventoryType::IT_GESTURE,
 					  PERM_ALL);	// overridden in create_new_item
 	}
+    else if (("sky" == type_name) || ("water" == type_name) || ("daycycle" == type_name))
+    {
+        LLSettingsType::type_e stype(LLSettingsType::ST_NONE);
+
+        if ("sky" == type_name)
+        {
+            stype = LLSettingsType::ST_SKY;
+        }
+        else if ("water" == type_name)
+        {
+            stype = LLSettingsType::ST_WATER;
+        }
+        else if ("daycycle" == type_name)
+        {
+            stype = LLSettingsType::ST_DAYCYCLE;
+        }
+        else
+        {
+            LL_ERRS(LOG_INV) << "Unknown settings type: '" << type_name << "'" << LL_ENDL;
+            return;
+        }
+
+        LLUUID parent_id = bridge ? bridge->getUUID() : gInventory.findCategoryUUIDForType(LLFolderType::FT_SETTINGS);
+
+        LLSettingsVOBase::createNewInventoryItem(stype, parent_id);
+    }
 	else
 	{
 		// Use for all clothing and body parts.  Adding new wearable types requires updating LLWearableDictionary.
-		LLWearableType::EType wearable_type = LLWearableType::typeNameToType(type_name);
+		LLWearableType::EType wearable_type = LLWearableType::getInstance()->typeNameToType(type_name);
 		if (wearable_type >= LLWearableType::WT_SHAPE && wearable_type < LLWearableType::WT_COUNT)
 		{
 			const LLUUID parent_id = bridge ? bridge->getUUID() : LLUUID::null;
@@ -1974,6 +1933,19 @@ LLWearableType::EType LLViewerInventoryItem::getWearableType() const
 	return LLWearableType::inventoryFlagsToWearableType(getFlags());
 }
 
+bool LLViewerInventoryItem::isSettingsType() const
+{
+    return (getInventoryType() == LLInventoryType::IT_SETTINGS);
+}
+
+LLSettingsType::type_e LLViewerInventoryItem::getSettingsType() const
+{
+    if (!isSettingsType())
+    {
+        return LLSettingsType::ST_NONE;
+    }
+    return LLSettingsType::fromInventoryFlags(getFlags());
+}
 
 time_t LLViewerInventoryItem::getCreationDate() const
 {

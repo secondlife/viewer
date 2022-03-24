@@ -319,7 +319,8 @@ namespace tut
 	{
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(defaultBlock(MVT_LLQuaternion, 12));
-		LLQuaternion outValue, inValue = LLQuaternion(0.3713907f, 0.5570861f, 0.7427813f,0.0f);
+        LLQuaternion outValue, inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
+
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addQuat(_PREHASH_Test0, inValue);
 		LLTemplateMessageReader* reader = setReader(messageTemplate, builder);
@@ -786,7 +787,7 @@ namespace tut
 	{
 		LLMessageTemplate messageTemplate = defaultTemplate();
 		messageTemplate.addBlock(defaultBlock(MVT_LLQuaternion, 12));
-		LLQuaternion outValue, inValue = LLQuaternion(0.3713907f, 0.5570861f, 0.7427813f,0.0f);
+		LLQuaternion outValue, inValue = LLQuaternion(0.0f, LLVector3(0.3713907f, 0.5570861f, 0.7427813f));
 		LLTemplateMessageBuilder* builder = defaultBuilder(messageTemplate);
 		builder->addQuat(_PREHASH_Test0, inValue);
 		LLTemplateMessageReader* reader = setReader(

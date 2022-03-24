@@ -49,24 +49,28 @@ const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte
 
 #endif
 
-void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
+// capture std::weak_ptrs to LLLeap instances so we can tell when they expire
+typedef std::vector<std::weak_ptr<LLLeap>> LLLeapVector;
+
+void waitfor(const LLLeapVector& instances, int timeout=60)
 {
     int i;
     for (i = 0; i < timeout; ++i)
     {
         // Every iteration, test whether any of the passed LLLeap instances
         // still exist (are still running).
-        std::vector<LLLeap*>::const_iterator vli(instances.begin()), vlend(instances.end());
-        for ( ; vli != vlend; ++vli)
+        bool found = false;
+        for (auto& ptr : instances)
         {
-            // getInstance() returns NULL if it's terminated/gone, non-NULL if
-            // it's still running
-            if (LLLeap::getInstance(*vli))
+            if (! ptr.expired())
+            {
+                found = true;
                 break;
+            }
         }
         // If we made it through all of 'instances' without finding one that's
         // still running, we're done.
-        if (vli == vlend)
+        if (! found)
         {
 /*==========================================================================*|
             std::cout << instances.size() << " LLLeap instances terminated in "
@@ -86,8 +90,8 @@ void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 
 void waitfor(LLLeap* instance, int timeout=60)
 {
-    std::vector<LLLeap*> instances;
-    instances.push_back(instance);
+    LLLeapVector instances;
+    instances.push_back(instance->getWeak());
     waitfor(instances, timeout);
 }
 
@@ -141,13 +145,13 @@ namespace tut
                    "    data = ''.join(parts)\n"
                    "    assert len(data) == length\n"
                    "    try:\n"
-                   "        return llsd.parse(data)\n"
+                   "        return llsd.parse(data.encode())\n"
                    //   Seems the old indra.base.llsd module didn't properly
                    //   convert IndexError (from running off end of string) to
                    //   LLSDParseError.
-                   "    except (IndexError, llsd.LLSDParseError), e:\n"
+                   "    except (IndexError, llsd.LLSDParseError) as e:\n"
                    "        msg = 'Bad received packet (%s)' % e\n"
-                   "        print >>sys.stderr, '%s, %s bytes:' % (msg, len(data))\n"
+                   "        print('%s, %s bytes:' % (msg, len(data)), file=sys.stderr)\n"
                    "        showmax = 40\n"
                    //       We've observed failures with very large packets;
                    //       dumping the entire packet wastes time and space.
@@ -163,12 +167,12 @@ namespace tut
                    "            data = data[:trunc]\n"
                    "            ellipsis = '... (%s more)' % (length - trunc)\n"
                    "        offset = -showmax\n"
-                   "        for offset in xrange(0, len(data)-showmax, showmax):\n"
-                   "            print >>sys.stderr, '%04d: %r +' % \\\n"
-                   "                  (offset, data[offset:offset+showmax])\n"
+                   "        for offset in range(0, len(data)-showmax, showmax):\n"
+                   "            print('%04d: %r +' % \\\n"
+                   "                  (offset, data[offset:offset+showmax]), file=sys.stderr)\n"
                    "        offset += showmax\n"
-                   "        print >>sys.stderr, '%04d: %r%s' % \\\n"
-                   "              (offset, data[offset:], ellipsis)\n"
+                   "        print('%04d: %r%s' % \\\n"
+                   "              (offset, data[offset:], ellipsis), file=sys.stderr)\n"
                    "        raise ParseError(msg, data)\n"
                    "\n"
                    "# deal with initial stdin message\n"
@@ -185,7 +189,7 @@ namespace tut
                    "    sys.stdout.flush()\n"
                    "\n"
                    "def send(pump, data):\n"
-                   "    put(llsd.format_notation(dict(pump=pump, data=data)))\n"
+                   "    put(llsd.format_notation(dict(pump=pump, data=data)).decode())\n"
                    "\n"
                    "def request(pump, data):\n"
                    "    # we expect 'data' is a dict\n"
@@ -218,11 +222,11 @@ namespace tut
         NamedTempFile script("py",
                              "import time\n"
                              "time.sleep(1)\n");
-        std::vector<LLLeap*> instances;
+        LLLeapVector instances;
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName()))));
+                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName()))));
+                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
         // In this case we're simply establishing that two LLLeap instances
         // can coexist without throwing exceptions or bombing in any other
         // way. Wait for them to terminate.
@@ -249,7 +253,7 @@ namespace tut
     {
         set_test_name("bad stdout protocol");
         NamedTempFile script("py",
-                             "print 'Hello from Python!'\n");
+                             "print('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
                                sv(list_of(PYTHON)(script.getName()))));
@@ -434,8 +438,8 @@ namespace tut
                              // guess how many messages it will take to
                              // accumulate BUFFERED_LENGTH
                              "count = int(" << BUFFERED_LENGTH << "/samplen)\n"
-                             "print >>sys.stderr, 'Sending %s requests' % count\n"
-                             "for i in xrange(count):\n"
+                             "print('Sending %s requests' % count, file=sys.stderr)\n"
+                             "for i in range(count):\n"
                              "    request('" << api.getName() << "', dict(reqid=i))\n"
                              // The assumption in this specific test that
                              // replies will arrive in the same order as
@@ -446,7 +450,7 @@ namespace tut
                              // arbitrary order, and we'd have to tick them
                              // off from a set.
                              "result = ''\n"
-                             "for i in xrange(count):\n"
+                             "for i in range(count):\n"
                              "    resp = get()\n"
                              "    if resp['data']['reqid'] != i:\n"
                              "        result = 'expected reqid=%s in %s' % (i, resp)\n"
@@ -472,13 +476,13 @@ namespace tut
                              "desired = int(sys.argv[1])\n"
                              // 7 chars per item: 6 digits, 1 comma
                              "count = int((desired - 50)/7)\n"
-                             "large = ''.join('%06d,' % i for i in xrange(count))\n"
+                             "large = ''.join('%06d,' % i for i in range(count))\n"
                              // Pass 'large' as reqid because we know the API
                              // will echo reqid, and we want to receive it back.
                              "request('" << api.getName() << "', dict(reqid=large))\n"
                              "try:\n"
                              "    resp = get()\n"
-                             "except ParseError, e:\n"
+                             "except ParseError as e:\n"
                              "    # try to find where e.data diverges from expectation\n"
                              // Normally we'd expect a 'pump' key in there,
                              // too, with value replypump(). But Python
@@ -489,17 +493,18 @@ namespace tut
                              // strange.
                              "    expect = llsd.format_notation(dict(data=dict(reqid=large)))\n"
                              "    chunk = 40\n"
-                             "    for offset in xrange(0, max(len(e.data), len(expect)), chunk):\n"
+                             "    for offset in range(0, max(len(e.data), len(expect)), chunk):\n"
                              "        if e.data[offset:offset+chunk] != \\\n"
                              "           expect[offset:offset+chunk]:\n"
-                             "            print >>sys.stderr, 'Offset %06d: expect %r,\\n'\\\n"
+                             "            print('Offset %06d: expect %r,\\n'\\\n"
                              "                                '                  get %r' %\\\n"
                              "                                (offset,\n"
                              "                                 expect[offset:offset+chunk],\n"
-                             "                                 e.data[offset:offset+chunk])\n"
+                             "                                 e.data[offset:offset+chunk]),\n"
+                             "                                 file=sys.stderr)\n"
                              "            break\n"
                              "    else:\n"
-                             "        print >>sys.stderr, 'incoming data matches expect?!'\n"
+                             "        print('incoming data matches expect?!', file=sys.stderr)\n"
                              "    send('" << result.getName() << "', '%s: %s' % (e.__class__.__name__, e))\n"
                              "    sys.exit(1)\n"
                              "\n"
@@ -508,7 +513,7 @@ namespace tut
                              "    send('" << result.getName() << "', '')\n"
                              "    sys.exit(0)\n"
                              // Here we know echoed did NOT match; try to find where
-                             "for i in xrange(count):\n"
+                             "for i in range(count):\n"
                              "    start = 7*i\n"
                              "    end   = 7*(i+1)\n"
                              "    if end > len(echoed)\\\n"

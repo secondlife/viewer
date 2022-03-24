@@ -30,6 +30,7 @@
 #include "llagentui.h"
 #include "llavatarnamecache.h"
 #include "lllogchat.h"
+#include "llregex.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 
@@ -40,7 +41,6 @@
 
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include <boost/regex.hpp>
 #include <boost/regex/v4/match_results.hpp>
 #include <boost/foreach.hpp>
 
@@ -66,6 +66,8 @@ const std::string LL_IM_TEXT("message");
 const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
+
+const std::string GROUP_CHAT_SUFFIX(" (group)");
 
 const static char IM_SYMBOL_SEPARATOR(':');
 const static std::string IM_SEPARATOR(std::string() + IM_SYMBOL_SEPARATOR + " ");
@@ -129,6 +131,16 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 	std::string im_text = messages.back()[LL_IM_TEXT].asString();
 	im_text.append(line);
 	messages.back()[LL_IM_TEXT] = im_text;
+}
+
+std::string remove_utf8_bom(const char* buf)
+{
+	std::string res(buf);
+	if (res[0] == (char)0xEF && res[1] == (char)0xBB && res[2] == (char)0xBF)
+	{
+		res.erase(0, 3);
+	}
+	return res;
 }
 
 class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
@@ -238,8 +250,8 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 	 **/
 
 	boost::match_results<std::string::const_iterator> matches;
-	bool inboundConf = boost::regex_match(filename, matches, INBOUND_CONFERENCE);
-	bool outboundConf = boost::regex_match(filename, matches, OUTBOUND_CONFERENCE);
+	bool inboundConf = ll_regex_match(filename, matches, INBOUND_CONFERENCE);
+	bool outboundConf = ll_regex_match(filename, matches, OUTBOUND_CONFERENCE);
 	if (!(inboundConf || outboundConf))
 	{
 		if( gSavedPerAccountSettings.getBOOL("LogFileNamewithDate") )
@@ -267,6 +279,28 @@ std::string LLLogChat::makeLogFileName(std::string filename)
 	}
 
 	return filename;
+}
+
+//static
+void LLLogChat::renameLogFile(const std::string& old_filename, const std::string& new_filename)
+{
+    std::string new_name = cleanFileName(new_filename);
+    std::string old_name = cleanFileName(old_filename);
+    new_name = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, new_name);
+    old_name = gDirUtilp->getExpandedFilename(LL_PATH_PER_ACCOUNT_CHAT_LOGS, old_name);
+
+    if (new_name.empty() || old_name.empty())
+    {
+        return;
+    }
+
+    new_name += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+    old_name += '.' + LL_TRANSCRIPT_FILE_EXTENSION;
+
+    if (!LLFile::isfile(new_name) && LLFile::isfile(old_name))
+    {
+        LLFile::rename(old_name, new_name);
+    }
 }
 
 std::string LLLogChat::cleanFileName(std::string filename)
@@ -355,7 +389,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 }
 
 // static
-void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params)
+void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& messages, const LLSD& load_params, bool is_group)
 {
 	if (file_name.empty())
 	{
@@ -368,10 +402,25 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 	LLFILE* fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");/*Flawfinder: ignore*/
 	if (!fptr)
 	{
-		fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+		if (is_group)
+		{
+			std::string old_name(file_name);
+			old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+			if (fptr)
+			{
+				fclose(fptr);
+				LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
+			}
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+		}
 		if (!fptr)
 		{
-			return;						//No previous conversation with this name.
+			fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+			if (!fptr)
+			{
+				return;						//No previous conversation with this name.
+			}
 		}
 	}
 
@@ -400,7 +449,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 			continue;
 		}
 
-		std::string line(buffer);
+		std::string line(remove_utf8_bom(buffer));
 
 		//updated 1.23 plain text log format requires a space added before subsequent lines in a multilined message
 		if (' ' == line[0])
@@ -744,8 +793,8 @@ bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 	{
 		std::string file_name;
 		gCacheName->getGroupName(avatar_id, file_name);
-		file_name = makeLogFileName(file_name);
-		return isTranscriptFileFound(makeLogFileName(file_name));
+		file_name = makeLogFileName(file_name + GROUP_CHAT_SUFFIX);
+		return isTranscriptFileFound(file_name);
 	}
 	return false;
 }
@@ -788,7 +837,7 @@ bool LLLogChat::isTranscriptFileFound(std::string fullname)
 		{
 			//matching a timestamp
 			boost::match_results<std::string::const_iterator> matches;
-			if (boost::regex_match(std::string(buffer), matches, TIMESTAMP))
+			if (ll_regex_match(remove_utf8_bom(buffer), matches, TIMESTAMP))
 			{
 				result = true;
 			}
@@ -868,7 +917,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 
 	//matching a timestamp
 	boost::match_results<std::string::const_iterator> matches;
-	if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
+	if (!ll_regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
 	
 	bool has_timestamp = matches[IDX_TIMESTAMP].matched;
 	if (has_timestamp)
@@ -901,7 +950,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//matching a name and a text
 	std::string stuff = matches[IDX_STUFF];
 	boost::match_results<std::string::const_iterator> name_and_text;
-	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
+	if (!ll_regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
 
 	bool has_name = name_and_text[IDX_NAME].matched;
 	std::string name = LLURI::unescape(name_and_text[IDX_NAME]);
@@ -1053,12 +1102,28 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 
 	if (!fptr)
 	{
-		fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+		bool is_group = load_params.has("is_group") ? load_params["is_group"].asBoolean() : false;
+		if (is_group)
+		{
+			std::string old_name(file_name);
+			old_name.erase(old_name.size() - GROUP_CHAT_SUFFIX.size());
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(old_name), "r");
+			if (fptr)
+			{
+				fclose(fptr);
+				LLFile::copy(LLLogChat::makeLogFileName(old_name), LLLogChat::makeLogFileName(file_name));
+			}
+			fptr = LLFile::fopen(LLLogChat::makeLogFileName(file_name), "r");
+		}
 		if (!fptr)
 		{
-			mNewLoad = false;
-			(*mLoadEndSignal)(messages, file_name);
-			return;						//No previous conversation with this name.
+			fptr = LLFile::fopen(LLLogChat::oldLogFileName(file_name), "r");/*Flawfinder: ignore*/
+			if (!fptr)
+			{
+				mNewLoad = false;
+				(*mLoadEndSignal)(messages, file_name);
+				return;						//No previous conversation with this name.
+			}
 		}
 	}
 
@@ -1093,7 +1158,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 			firstline = FALSE;
 			continue;
 		}
-		std::string line(buffer);
+		std::string line(remove_utf8_bom(buffer));
 
 		//updated 1.23 plaint text log format requires a space added before subsequent lines in a multilined message
 		if (' ' == line[0])

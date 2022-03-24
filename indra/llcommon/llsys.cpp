@@ -43,18 +43,19 @@
 #include "llerrorcontrol.h"
 #include "llevents.h"
 #include "llformat.h"
+#include "llregex.h"
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
 #include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
-#include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/range.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_float.hpp>
+#include "llfasttimer.h"
 
 using namespace llsd;
 
@@ -87,17 +88,6 @@ using namespace llsd;
 #   include <stdexcept>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 #   include <gnu/libc-version.h>
-#elif LL_SOLARIS
-#	include <stdio.h>
-#	include <unistd.h>
-#	include <sys/utsname.h>
-#	define _STRUCTURED_PROC 1
-#	include <sys/procfs.h>
-#	include <sys/types.h>
-#	include <sys/stat.h>
-#	include <fcntl.h>
-#	include <errno.h>
-extern int errno;
 #endif
 
 LLCPUInfo gSysCPU;
@@ -111,46 +101,13 @@ static const F32 MEM_INFO_THROTTLE = 20;
 // dropped below the login framerate, we'd have very little additional data.
 static const F32 MEM_INFO_WINDOW = 10*60;
 
-// Wrap boost::regex_match() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_match_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_match(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error matching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
-// Wrap boost::regex_search() with a function that doesn't throw.
-template <typename S, typename M, typename R>
-static bool regex_search_no_exc(const S& string, M& match, const R& regex)
-{
-    try
-    {
-        return boost::regex_search(string, match, regex);
-    }
-    catch (const std::runtime_error& e)
-    {
-        LL_WARNS("LLMemoryInfo") << "error searching with '" << regex.str() << "': "
-                                 << e.what() << ":\n'" << string << "'" << LL_ENDL;
-        return false;
-    }
-}
-
-
 LLOSInfo::LLOSInfo() :
 	mMajorVer(0), mMinorVer(0), mBuild(0), mOSVersionString("")	 
 {
 
 #if LL_WINDOWS
 
-	if (IsWindowsVersionOrGreater(10, 0, 0))
+    if (IsWindows10OrGreater())
 	{
 		mMajorVer = 10;
 		mMinorVer = 0;
@@ -283,6 +240,21 @@ LLOSInfo::LLOSInfo() :
 				ubr = data;
 			}
 		}
+
+        if (mBuild >= 22000)
+        {
+            // At release Windows 11 version was 10.0.22000.194
+            // Windows 10 version was 10.0.19043.1266
+            // There is no warranty that Win10 build won't increase,
+            // so until better solution is found or Microsoft updates
+            // SDK with IsWindows11OrGreater(), indicate "10/11"
+            //
+            // Current alternatives:
+            // Query WMI's Win32_OperatingSystem for OS string. Slow
+            // and likely to return 'compatibility' string.
+            // Check presence of dlls/libs or may be their version.
+            mOSStringSimple = "Microsoft Windows 10/11";
+        }
 	}
 
 	mOSString = mOSStringSimple;
@@ -387,7 +359,7 @@ LLOSInfo::LLOSInfo() :
 	boost::smatch matched;
 
 	std::string glibc_version(gnu_get_libc_version());
-	if ( regex_match_no_exc(glibc_version, matched, os_version_parse) )
+	if ( ll_regex_match(glibc_version, matched, os_version_parse) )
 	{
 		LL_INFOS("AppInit") << "Using glibc version '" << glibc_version << "' as OS version" << LL_ENDL;
 	
@@ -543,8 +515,6 @@ const std::string& LLOSInfo::getOSVersionString() const
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
 	U32 virtual_size = 0;
-#if LL_WINDOWS
-#endif
 #if LL_LINUX
 #   define STATUS_SIZE 2048	
 	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
@@ -564,24 +534,6 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 		}
 		fclose(status_filep);
 	}
-#elif LL_SOLARIS
-	char proc_ps[LL_MAX_PATH];
-	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	virtual_size = proc_psinfo.pr_size;
 #endif
 	return virtual_size;
 }
@@ -590,8 +542,6 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 U32 LLOSInfo::getProcessResidentSizeKB()
 {
 	U32 resident_size = 0;
-#if LL_WINDOWS
-#endif
 #if LL_LINUX
 	LLFILE* status_filep = LLFile::fopen("/proc/self/status", "rb");
 	if (status_filep != NULL)
@@ -610,24 +560,6 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 		}
 		fclose(status_filep);
 	}
-#elif LL_SOLARIS
-	char proc_ps[LL_MAX_PATH];
-	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	resident_size = proc_psinfo.pr_rssize;
 #endif
 	return resident_size;
 }
@@ -770,11 +702,6 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 #elif LL_LINUX
 	U64 phys = 0;
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
-	return U64Bytes(phys);
-
-#elif LL_SOLARIS
-	U64 phys = 0;
-	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
 	return U64Bytes(phys);
 
 #else
@@ -925,8 +852,12 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	return *this;
 }
 
+static LLTrace::BlockTimerStatHandle FTM_MEMINFO_LOAD_STATS("MemInfo Load Stats");
+
 LLSD LLMemoryInfo::loadStatsMap()
 {
+	LL_RECORD_BLOCK_TIME(FTM_MEMINFO_LOAD_STATS);
+
 	// This implementation is derived from stream() code (as of 2011-06-29).
 	Stats stats;
 
@@ -948,24 +879,11 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("Total Virtual KB",   state.ullTotalVirtual/div);
 	stats.add("Avail Virtual KB",   state.ullAvailVirtual/div);
 
-	PERFORMANCE_INFORMATION perf;
-	perf.cb = sizeof(perf);
-	GetPerformanceInfo(&perf, sizeof(perf));
-
-	SIZE_T pagekb(perf.PageSize/1024);
-	stats.add("CommitTotal KB",     perf.CommitTotal * pagekb);
-	stats.add("CommitLimit KB",     perf.CommitLimit * pagekb);
-	stats.add("CommitPeak KB",      perf.CommitPeak * pagekb);
-	stats.add("PhysicalTotal KB",   perf.PhysicalTotal * pagekb);
-	stats.add("PhysicalAvail KB",   perf.PhysicalAvailable * pagekb);
-	stats.add("SystemCache KB",     perf.SystemCache * pagekb);
-	stats.add("KernelTotal KB",     perf.KernelTotal * pagekb);
-	stats.add("KernelPaged KB",     perf.KernelPaged * pagekb);
-	stats.add("KernelNonpaged KB",  perf.KernelNonpaged * pagekb);
-	stats.add("PageSize KB",        pagekb);
-	stats.add("HandleCount",        perf.HandleCount);
-	stats.add("ProcessCount",       perf.ProcessCount);
-	stats.add("ThreadCount",        perf.ThreadCount);
+	// SL-12122 - Call to GetPerformanceInfo() was removed here. Took
+	// on order of 10 ms, causing unacceptable frame time spike every
+	// second, and results were never used. If this is needed in the
+	// future, must find a way to avoid frame time impact (e.g. move
+	// to another thread, call much less often).
 
 	PROCESS_MEMORY_COUNTERS_EX pmem;
 	pmem.cb = sizeof(pmem);
@@ -1074,13 +992,6 @@ LLSD LLMemoryInfo::loadStatsMap()
 			}
 	}
 
-#elif LL_SOLARIS
-	U64 phys = 0;
-
-	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
-
-	stats.add("Total Physical KB", phys);
-
 #elif LL_LINUX
 	std::ifstream meminfo(MEMINFO_FILE);
 	if (meminfo.is_open())
@@ -1116,7 +1027,7 @@ LLSD LLMemoryInfo::loadStatsMap()
 		while (std::getline(meminfo, line))
 		{
 			LL_DEBUGS("LLMemoryInfo") << line << LL_ENDL;
-			if (regex_match_no_exc(line, matched, stat_rx))
+			if (ll_regex_match(line, matched, stat_rx))
 			{
 				// e.g. "MemTotal:		4108424 kB"
 				LLSD::String key(matched[1].first, matched[1].second);
@@ -1326,7 +1237,12 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *dst = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
-	src = gzopen(srcfile.c_str(), "rb");
+#ifdef LL_WINDOWS
+    llutf16string utf16filename = utf8str_to_utf16str(srcfile);
+    src = gzopen_w(utf16filename.c_str(), "rb");
+#else
+    src = gzopen(srcfile.c_str(), "rb");
+#endif
 	if (! src) goto err;
 	dst = LLFile::fopen(tmpfile, "wb");		/* Flawfinder: ignore */
 	if (! dst) goto err;
@@ -1360,7 +1276,14 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *src = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
-	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
+
+#ifdef LL_WINDOWS
+    llutf16string utf16filename = utf8str_to_utf16str(tmpfile);
+    dst = gzopen_w(utf16filename.c_str(), "wb");
+#else
+    dst = gzopen(tmpfile.c_str(), "wb");
+#endif
+
 	if (! dst) goto err;
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;

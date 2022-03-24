@@ -245,11 +245,11 @@ void LLOutputMonitorCtrl::draw()
 // virtual
 BOOL LLOutputMonitorCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mSpeakerId != gAgentID && !mShowParticipantsSpeaking)
+	if (mSpeakerId != gAgentID)
 	{
 		LLFloaterReg::showInstance("floater_voice_volume", LLSD().with("avatar_id", mSpeakerId));
 	}
-	else if(mShowParticipantsSpeaking)
+	else if (mShowParticipantsSpeaking)
 	{
 		LLFloaterReg::showInstance("chat_voice", LLSD());
 	}
@@ -312,10 +312,14 @@ void LLOutputMonitorCtrl::setSpeakerId(const LLUUID& speaker_id, const LLUUID& s
 	}
 }
 
-void LLOutputMonitorCtrl::onChange()
+void LLOutputMonitorCtrl::onChangeDetailed(const LLMute& mute)
 {
-	// check only blocking on voice. EXT-3542
-	mIsMuted = LLMuteList::getInstance()->isMuted(mSpeakerId, LLMute::flagVoiceChat);
+    if (mute.mID == mSpeakerId)
+    {
+        // Check only blocking on voice.
+        // Logic goes in reverse, if flag is set, action is allowed
+        mIsMuted = !(LLMute::flagVoiceChat & mute.mFlags);
+    }
 }
 
 // virtual

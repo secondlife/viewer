@@ -138,9 +138,6 @@ void LLHUDText::renderText()
 
 	mOffsetY = lltrunc(mHeight * ((mVertAlignment == ALIGN_VERT_CENTER) ? 0.5f : 1.f));
 
-	// *TODO: cache this image
-	LLUIImagePtr imagep = LLUI::getUIImage("Rounded_Square");
-
 	// *TODO: make this a per-text setting
 	LLColor4 bg_color = LLUIColorTable::instance().getColor("ObjectBubbleColor");
 	bg_color.setAlpha(gSavedSettings.getF32("ChatBubbleOpacity") * alpha_factor);
@@ -336,7 +333,7 @@ void LLHUDText::updateVisibility()
 
 	if (!mSourceObject)
 	{
-		//LL_WARNS() << "LLHUDText::updateScreenPos -- mSourceObject is NULL!" << LL_ENDL;
+		LL_WARNS() << "HUD text: mSourceObject is NULL,  mOnHUDAttachment: " << mOnHUDAttachment << LL_ENDL;
 		mVisible = TRUE;
 		if (mOnHUDAttachment)
 		{
@@ -565,7 +562,10 @@ S32 LLHUDText::getMaxLines()
 
 void LLHUDText::markDead()
 {
-	sTextObjects.erase(LLPointer<LLHUDText>(this));
+    // make sure we have at least one pointer
+    // till the end of the function
+	LLPointer<LLHUDText> ptr(this);
+	sTextObjects.erase(ptr);
 	LLHUDObject::markDead();
 }
 
@@ -588,8 +588,6 @@ void LLHUDText::renderAllHUD()
 	}
 	
 	LLVertexBuffer::unbind();
-
-    LLVertexBuffer::unbind();
 
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();

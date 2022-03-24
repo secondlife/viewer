@@ -37,7 +37,7 @@
 #include "llsdserialize.h"
 #include "reader.h" // JSON
 #include "writer.h" // JSON
-#include "llvfile.h"
+#include "llfilesystem.h"
 
 #include "message.h" // for getting the port
 
@@ -597,7 +597,7 @@ LLSD HttpCoroJSONHandler::handleSuccess(LLCore::HttpResponse * response, LLCore:
     {
         bas >> jsonRoot;
     }
-    catch (std::runtime_error e)
+    catch (std::runtime_error& e)
     {   // deserialization failed.  Record the reason and pass back an empty map for markup.
         status = LLCore::HttpStatus(499, std::string(e.what()));
         return result;
@@ -625,7 +625,7 @@ LLSD HttpCoroJSONHandler::parseBody(LLCore::HttpResponse *response, bool &succes
     {
         bas >> jsonRoot;
     }
-    catch (std::runtime_error e)
+    catch (std::runtime_error&)
     {   
         success = false;
         return LLSD();
@@ -784,7 +784,7 @@ LLSD HttpCoroutineAdapter::postFileAndSuspend(LLCore::HttpRequest::ptr_t request
     // scoping for our streams so that they go away when we no longer need them.
     {
         LLCore::BufferArrayStream outs(fileData.get());
-        LLVFile vfile(gVFS, assetId, assetType, LLVFile::READ);
+        LLFileSystem vfile(assetId, assetType, LLFileSystem::READ);
 
         S32 fileSize = vfile.getSize();
         U8* fileBuffer;

@@ -54,6 +54,18 @@ class LLScrollListCtrl : public LLUICtrl, public LLEditMenuHandler,
 	public LLCtrlListInterface, public LLCtrlScrollInterface
 {
 public:
+    typedef enum e_selection_type
+    {
+        ROW, // default
+        CELL, // does not support multi-selection
+        HEADER, // when pointing to cells in column 0 will highlight whole row, otherwise cell, no multi-select
+    } ESelectionType;
+
+    struct SelectionTypeNames : public LLInitParam::TypeValuesHelper<LLScrollListCtrl::ESelectionType, SelectionTypeNames>
+    {
+        static void declareValues();
+    };
+
 	struct Contents : public LLInitParam::Block<Contents>
 	{
 		Multiple<LLScrollListColumn::Params>	columns;
@@ -97,7 +109,10 @@ public:
 		// behavioral flags
 		Optional<bool>	multi_select,
 						commit_on_keyboard_movement,
+						commit_on_selection_change,
 						mouse_wheel_opaque;
+
+		Optional<ESelectionType, SelectionTypeNames> selection_type;
 
 		// display flags
 		Optional<bool>	has_border,
@@ -108,13 +123,15 @@ public:
 
 		// layout
 		Optional<S32>	column_padding,
-							page_lines,
+						row_padding,
+						page_lines,
 						heading_height;
 
 		// sort and search behavior
 		Optional<S32>	search_column,
 						sort_column;
-		Optional<bool>	sort_ascending;
+		Optional<bool>	sort_ascending,
+						can_sort; // whether user is allowed to sort
 
 		// colors
 		Optional<LLUIColor>	fg_unselected_color,
@@ -283,8 +300,10 @@ public:
 
 	void setBackgroundVisible(BOOL b)			{ mBackgroundVisible = b; }
 	void setDrawStripes(BOOL b)					{ mDrawStripes = b; }
-	void setColumnPadding(const S32 c)          { mColumnPadding = c; }
-	S32  getColumnPadding()						{ return mColumnPadding; }
+	void setColumnPadding(const S32 c)			{ mColumnPadding = c; }
+	S32  getColumnPadding() const				{ return mColumnPadding; }
+	void setRowPadding(const S32 c)				{ mColumnPadding = c; }
+	S32  getRowPadding() const					{ return mColumnPadding; }
 	void setCommitOnKeyboardMovement(BOOL b)	{ mCommitOnKeyboardMovement = b; }
 	void setCommitOnSelectionChange(BOOL b)		{ mCommitOnSelectionChange = b; }
 	void setAllowKeyboardMovement(BOOL b)		{ mAllowKeyboardMovement = b; }
@@ -317,6 +336,7 @@ public:
 	/*virtual*/ BOOL	handleKeyHere(KEY key, MASK mask);
 	/*virtual*/ BOOL	handleUnicodeCharHere(llwchar uni_char);
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
+	/*virtual*/ BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks);
 	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
 	/*virtual*/ void	setEnabled(BOOL enabled);
 	/*virtual*/ void	setFocus( BOOL b );
@@ -378,6 +398,8 @@ public:
 	BOOL			hasSortOrder() const;
 	void			clearSortOrder();
 
+	void			setAlternateSort() { mAlternateSort = true; }
+
 	S32		selectMultiple( uuid_vec_t ids );
 	// conceptually const, but mutates mItemList
 	void			updateSort() const;
@@ -428,7 +450,7 @@ private:
 	void            updateLineHeightInsert(LLScrollListItem* item);
 	void			reportInvalidInput();
 	BOOL			isRepeatedChars(const LLWString& string) const;
-	void			selectItem(LLScrollListItem* itemp, BOOL single_select = TRUE);
+	void			selectItem(LLScrollListItem* itemp, S32 cell, BOOL single_select = TRUE);
 	void			deselectItem(LLScrollListItem* itemp);
 	void			commitIfChanged();
 	BOOL			setSort(S32 column, BOOL ascending);
@@ -453,12 +475,16 @@ private:
 	bool			mCommitOnKeyboardMovement;
 	bool			mCommitOnSelectionChange;
 	bool			mSelectionChanged;
+	ESelectionType	mSelectionType;
 	bool			mNeedsScroll;
 	bool			mMouseWheelOpaque;
 	bool			mCanSelect;
+    bool			mCanSort;		// Whether user is allowed to sort
 	bool			mDisplayColumnHeaders;
 	bool			mColumnsDirty;
 	bool			mColumnWidthsDirty;
+
+	bool			mAlternateSort;
 
 	mutable item_list	mItemList;
 
@@ -468,6 +494,7 @@ private:
 
 	LLRect			mItemListRect;
 	S32             mColumnPadding;
+	S32             mRowPadding;
 
 	BOOL			mBackgroundVisible;
 	BOOL			mDrawStripes;

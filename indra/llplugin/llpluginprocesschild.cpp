@@ -33,7 +33,7 @@
 #include "llpluginmessagepipe.h"
 #include "llpluginmessageclasses.h"
 
-static const F32 GOODBYE_SECONDS = 20.0f;
+static const F32 GOODBYE_SECONDS = 12.0f; // Do not set it to be bigger than mPluginLockupTimeout or parent will kill LLPluginProcessChild
 static const F32 HEARTBEAT_SECONDS = 1.0f;
 static const F32 PLUGIN_IDLE_SECONDS = 1.0f / 100.0f;  // Each call to idle will give the plugin this much time.
 
@@ -218,8 +218,25 @@ void LLPluginProcessChild::idle(void)
 			if (mWaitGoodbye.hasExpired())
 			{
 				LL_WARNS() << "Wait for goodbye expired.  Advancing to UNLOADED" << LL_ENDL;
+				if (mInstance != NULL)
+				{
+					// Something went wrong, at least make sure plugin will terminate
+					sendMessageToPlugin(LLPluginMessage("base", "force_exit"));
+				}
 				setState(STATE_UNLOADED);
 			}
+
+            if (mInstance)
+            {
+                // Provide some time to the plugin
+                // example: CEF on "cleanup" sets shutdown request, but it still needs idle loop to actually shutdown
+                LLPluginMessage message("base", "idle");
+                message.setValueReal("time", PLUGIN_IDLE_SECONDS);
+                sendMessageToPlugin(message);
+
+                mInstance->idle();
+            }
+
 			break;
 
 		case STATE_UNLOADED:
@@ -253,7 +270,7 @@ void LLPluginProcessChild::sleep(F64 seconds)
 	}
 	else
 	{
-		ms_sleep((int)(seconds * 1000.0f));
+    ms_sleep((int)(seconds * 1000.0f));
 	}
 }
 

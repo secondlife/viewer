@@ -34,6 +34,7 @@
 
 class LLSpinCtrl;
 class LLSnapshotLivePreview;
+class LLToolset;
 
 class LLFloaterSnapshotBase : public LLFloater
 {
@@ -152,6 +153,7 @@ public:
 	static void update();
 
 	void onExtendFloater();
+    void on360Snapshot();
 
 	static LLFloaterSnapshot* getInstance();
 	static LLFloaterSnapshot* findInstance();

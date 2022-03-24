@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+
+<floater
+        legacy_header_height="0"
+        can_minimize="false"
+        can_resize="true"
+        height="140"
+        layout="topleft"
+        min_height="140"
+        min_width="225"
+        name="track picker"
+        help_topic="track_picker"
+        title="PICK: TRACK"
+        width="225">
+    <layout_stack name="adjuster"
+            follows="all"
+            animate="false"
+            top="0"
+            left="6"
+            right="-6"
+            bottom="-10"
+            orientation="vertical">
+        <layout_panel name="pnl_desc"
+                border="false"
+                auto_resize="false"
+                user_resize="false"
+                height="11"
+                min_height="10"
+                bg_alpha_color="blue"
+                background_visible="false">
+            <text
+                type="string"
+                length="1"
+                follows="left|top"
+                height="10"
+                layout="topleft"
+                left="5"
+                name="select_description"
+                mouse_opaque="false"
+                top="0"
+                width="300">
+                Select source sky:
+            </text>
+        </layout_panel>
+        <layout_panel name="pnl_traks"
+                border="false"
+                auto_resize="true"
+                user_resize="false"
+                height="29"
+                min_height="29"
+                bg_alpha_color="blue"
+                background_visible="false">
+            <radio_group
+                follows="all"
+                height="60"
+                layout="topleft"
+                top="0"
+                left="3"
+                right="-3"
+                bottom="-3"
+                name="track_selection"
+                width="100">
+                <radio_item
+                    height="20"
+                    label="Sky4 [ALT]"
+                    layout="topleft"
+                    left="0"
+                    name="radio_sky4"
+                    value="4"
+                    top="0"
+                    width="90" />
+                <radio_item
+                    height="20"
+                    label="Sky3 [ALT]"
+                    layout="topleft"
+                    left="0"
+                    name="radio_sky3"
+                    value="3"
+                    top_delta="20"
+                    width="90" />
+                <radio_item
+                    height="20"
+                    label="Sky2 [ALT]"
+                    layout="topleft"
+                    left="0"
+                    name="radio_sky2"
+                    value="2"
+                    top_delta="20"
+                    width="90" />
+                <radio_item
+                    height="20"
+                    label="Ground"
+                    layout="topleft"
+                    left="0"
+                    name="radio_sky1"
+                    value="1"
+                    top_delta="20"
+                    width="90" />
+            </radio_group>
+        </layout_panel>
+        <layout_panel name="pnl_ok_cancel"
+                border="false"
+                auto_resize="false"
+                user_resize="false"
+                height="29"
+                min_height="29">
+            <button
+                    follows="top|left"
+                    height="20"
+                    label="OK"
+                    label_selected="OK"
+                    layout="topleft"
+                    left="2"
+                    top="2"
+                    name="btn_select"
+                    width="100" />
+            <button
+                    follows="top|left"
+                    height="20"
+                    label="Cancel"
+                    label_selected="Cancel"
+                    layout="topleft"
+                    left_delta="110"
+                    top_delta="0"
+                    name="btn_cancel"
+                    width="100" />
+        </layout_panel>
+    </layout_stack>
+</floater>

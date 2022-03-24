@@ -127,18 +127,16 @@ void LLNotificationsListener::listChannels(const LLSD& params) const
 {
     LLReqID reqID(params);
     LLSD response(reqID.makeResponse());
-    for (LLNotificationChannel::instance_iter cmi(LLNotificationChannel::beginInstances()),
-                                              cmend(LLNotificationChannel::endInstances());
-         cmi != cmend; ++cmi)
+    for (auto& cm : LLNotificationChannel::instance_snapshot())
     {
         LLSD channelInfo, parents;
-        BOOST_FOREACH(const std::string& parent, cmi->getParents())
+        for (const std::string& parent : cm.getParents())
         {
             parents.append(parent);
         }
         channelInfo["parents"] = parents;
         channelInfo["parent"] = parents.size()? parents[0] : "";
-        response[cmi->getName()] = channelInfo;
+        response[cm.getName()] = channelInfo;
     }
     LLEventPumps::instance().obtain(params["reply"]).post(response);
 }

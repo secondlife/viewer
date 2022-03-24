@@ -1,5 +1,5 @@
 /** 
- * @file WLSkyF.glsl
+ * @file class2/windlight/skyF.glsl
  *
  * $LicenseInfo:firstyear=2005&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -35,17 +35,8 @@ out vec4 frag_color;
 
 VARYING vec4 vary_HazeColor;
 
-uniform sampler2D cloud_noise_texture;
-uniform vec4 gamma;
-
 /// Soft clips the light with a gamma correction
-vec3 scaleSoftClip(vec3 light) {
-	//soft clip effect:
-	light = 1. - clamp(light, vec3(0.), vec3(1.));
-	light = 1. - pow(light, gamma.xxx);
-
-	return light;
-}
+vec3 scaleSoftClip(vec3 light);
 
 void main()
 {
@@ -56,8 +47,7 @@ void main()
 
 	vec4 color;
 	color = vary_HazeColor;
-	color *= 2.;
-
+	color.rgb *= 2.;
 	/// Gamma correct for WL (soft clip effect).
 	frag_color.rgb = scaleSoftClip(color.rgb);
 	frag_color.a = 1.0;

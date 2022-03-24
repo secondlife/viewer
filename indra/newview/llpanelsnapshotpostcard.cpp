@@ -38,6 +38,7 @@
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
 #include "llpanelsnapshot.h"
 #include "llpostcard.h"
+#include "llregex.h"
 #include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
@@ -170,14 +171,16 @@ void LLPanelSnapshotPostcard::sendPostcard()
     std::string url = gAgent.getRegion()->getCapability("SendPostcard");
     if (!url.empty())
     {
-        LLResourceUploadInfo::ptr_t uploadInfo(new LLPostcardUploadInfo(
+        LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLPostcardUploadInfo>(
             getChild<LLUICtrl>("name_form")->getValue().asString(),
             getChild<LLUICtrl>("to_form")->getValue().asString(),
             getChild<LLUICtrl>("subject_form")->getValue().asString(),
             getChild<LLUICtrl>("msg_form")->getValue().asString(),
             mSnapshotFloater->getPosTakenGlobal(),
             mSnapshotFloater->getImageData(),
-            boost::bind(&LLPanelSnapshotPostcard::sendPostcardFinished, _4)));
+            [](LLUUID, LLUUID, LLUUID, LLSD response) {
+                LLPanelSnapshotPostcard::sendPostcardFinished(response);
+            }));
 
         LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
     }
@@ -227,7 +230,7 @@ void LLPanelSnapshotPostcard::onSend()
 
 	boost::regex email_format("[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}(,[ \t]*[A-Za-z0-9.%+-_]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})*");
 
-	if (to.empty() || !boost::regex_match(to, email_format))
+	if (to.empty() || !ll_regex_match(to, email_format))
 	{
 		LLNotificationsUtil::add("PromptRecipientEmail");
 		return;

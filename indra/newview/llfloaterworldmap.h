@@ -33,7 +33,6 @@
 #define LL_LLFLOATERWORLDMAP_H
 
 #include "llfloater.h"
-#include "llhudtext.h"
 #include "llmapimagetype.h"
 #include "lltracker.h"
 #include "llslurl.h"

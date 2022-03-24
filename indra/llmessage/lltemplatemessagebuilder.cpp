@@ -689,14 +689,14 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 					{
 					case 1:
 						sizeb = size;
-						htonmemcpy(&buffer[result], &sizeb, MVT_U8, 1);
+						htolememcpy(&buffer[result], &sizeb, MVT_U8, 1);
 						break;
 					case 2:
 						sizeh = size;
-						htonmemcpy(&buffer[result], &sizeh, MVT_U16, 2);
+						htolememcpy(&buffer[result], &sizeh, MVT_U16, 2);
 						break;
 					case 4:
-						htonmemcpy(&buffer[result], &size, MVT_S32, 4);
+						htolememcpy(&buffer[result], &size, MVT_S32, 4);
 						break;
 					default:
 						LL_ERRS() << "Attempting to build variable field with unknown size of " << size << LL_ENDL;

@@ -35,6 +35,7 @@ ATTRIBUTE vec2 texcoord0;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
+VARYING vec4 vary_position;
 
 
 void calcAtmospherics(vec3 inPositionEye);
@@ -46,6 +47,9 @@ void main()
 	
 	mat = modelview_matrix * mat;
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
+
+    mat4 mvp = modelview_matrix * projection_matrix;
+    vary_position = mvp * vec4(position, 1.0);
 	
 	vec4 norm = vec4(position.xyz, 1.0);
 	norm.xyz += normal.xyz;

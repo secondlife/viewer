@@ -55,7 +55,7 @@ BOOL LLFloaterAvatarTextures::postBuild()
 {
 	for (U32 i=0; i < TEX_NUM_INDICES; i++)
 	{
-		const std::string tex_name = LLAvatarAppearanceDictionary::getInstance()->getTexture(ETextureIndex(i))->mName;
+		const std::string tex_name = LLAvatarAppearance::getDictionary()->getTexture(ETextureIndex(i))->mName;
 		mTextures[i] = getChild<LLTextureCtrl>(tex_name);
 	}
 	mTitle = getTitle();
@@ -77,7 +77,7 @@ static void update_texture_ctrl(LLVOAvatar* avatarp,
 								 ETextureIndex te)
 {
 	LLUUID id = IMG_DEFAULT_AVATAR;
-	const LLAvatarAppearanceDictionary::TextureEntry* tex_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture(te);
+	const LLAvatarAppearanceDictionary::TextureEntry* tex_entry = LLAvatarAppearance::getDictionary()->getTexture(te);
 	if (tex_entry && tex_entry->mIsLocalTexture)
 	{
 		if (avatarp->isSelf())
@@ -165,14 +165,14 @@ void LLFloaterAvatarTextures::onClickDump(void* data)
 			const LLTextureEntry* te = avatarp->getTE(i);
 			if (!te) continue;
 
-			const LLAvatarAppearanceDictionary::TextureEntry* tex_entry = LLAvatarAppearanceDictionary::getInstance()->getTexture((ETextureIndex)(i));
+			const LLAvatarAppearanceDictionary::TextureEntry* tex_entry = LLAvatarAppearance::getDictionary()->getTexture((ETextureIndex)(i));
 			if (!tex_entry)
 				continue;
 
 			if (LLVOAvatar::isIndexLocalTexture((ETextureIndex)i))
 			{
 				LLUUID id = IMG_DEFAULT_AVATAR;
-				LLWearableType::EType wearable_type = LLAvatarAppearanceDictionary::getInstance()->getTEWearableType((ETextureIndex)i);
+				LLWearableType::EType wearable_type = LLAvatarAppearance::getDictionary()->getTEWearableType((ETextureIndex)i);
 				if (avatarp->isSelf())
 				{
 					LLViewerWearable *wearable = gAgentWearables.getViewerWearable(wearable_type, 0);

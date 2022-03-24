@@ -5,9 +5,7 @@
 		<menu_item_call label="聲音（L$[COST]）..." name="Upload Sound"/>
 		<menu_item_call label="動作（L$[COST]）..." name="Upload Animation"/>
 		<menu_item_call label="模型…" name="Upload Model"/>
-		<menu_item_call label="模型精靈…" name="Upload Model Wizard"/>
 		<menu_item_call label="批量（每檔案 L$[COST] ）..." name="Bulk Upload"/>
-		<menu_item_call label="設定預設上傳權限" name="perm prefs"/>
 	</menu>
 	<menu_item_call label="新資料夾" name="New Folder"/>
 	<menu_item_call label="新腳本" name="New Script"/>
@@ -25,6 +23,7 @@
 		<menu_item_call label="新內褲" name="New Underpants"/>
 		<menu_item_call label="新半透明" name="New Alpha"/>
 		<menu_item_call label="新刺青" name="New Tattoo"/>
+		<menu_item_call label="新通用值" name="New Universal"/>
 		<menu_item_call label="新身體物理" name="New Physics"/>
 	</menu>
 	<menu label="新身體部位" name="New Body Parts">
@@ -32,5 +31,10 @@
 		<menu_item_call label="新皮膚" name="New Skin"/>
 		<menu_item_call label="新頭髮" name="New Hair"/>
 		<menu_item_call label="新眼睛" name="New Eyes"/>
+	</menu>
+	<menu label="新的設定" name="New Settings">
+		<menu_item_call label="新的天空" name="New Sky"/>
+		<menu_item_call label="新的水文" name="New Water"/>
+		<menu_item_call label="新的日循環" name="New Day Cycle"/>
 	</menu>
 </menu>

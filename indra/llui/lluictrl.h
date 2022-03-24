@@ -183,6 +183,8 @@ public:
 	void setMakeVisibleControlVariable(LLControlVariable* control);
 	void setMakeInvisibleControlVariable(LLControlVariable* control);
 
+	void setFunctionName(const std::string& function_name);
+	
 	virtual void	setTentative(BOOL b);
 	virtual BOOL	getTentative() const;
 	virtual void	setValue(const LLSD& value);
@@ -213,7 +215,8 @@ public:
 
 	virtual void	setColor(const LLColor4& color);
 
-	F32 			getCurrentTransparency();
+	// Ansariel: Changed to virtual. We might want to change the transparency ourself!
+	virtual F32	getCurrentTransparency();
 
 	void				setTransparencyType(ETypeTransparency type);
 	ETypeTransparency	getTransparencyType() const {return mTransparencyType;}
@@ -308,6 +311,8 @@ protected:
 	boost::signals2::connection mMakeVisibleControlConnection;
 	LLControlVariable* mMakeInvisibleControlVariable;
 	boost::signals2::connection mMakeInvisibleControlConnection;
+
+	std::string mFunctionName;
 
 	static F32 sActiveControlTransparency;
 	static F32 sInactiveControlTransparency;

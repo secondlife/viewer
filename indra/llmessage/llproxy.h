@@ -32,6 +32,7 @@
 #include "llmemory.h"
 #include "llsingleton.h"
 #include "llthread.h"
+#include "llmutex.h"
 #include <curl/curl.h>
 #include <string>
 
@@ -225,6 +226,8 @@ class LLProxy: public LLSingleton<LLProxy>
 	LLSINGLETON(LLProxy);
 	LOG_CLASS(LLProxy);
 
+    /*virtual*/ void initSingleton();
+
 public:
 	// Static check for enabled status for UDP packets. Call from main thread only.
 	static bool isSOCKSProxyEnabled() { return sUDPProxyEnabled; }
@@ -250,7 +253,7 @@ public:
 
 	// Apply the current proxy settings to a curl request. Doesn't do anything if mHTTPProxyEnabled is false.
 	// Safe to call from any thread.
-	void applyProxySettings(CURL* handle);
+	static void applyProxySettings(CURL* handle);
 	// Start a connection to the SOCKS 5 proxy. Call from main thread only.
 	S32 startSOCKSProxy(LLHost host);
 
@@ -343,6 +346,10 @@ private:
 	/*###########################################################################################
 	END OF SHARED MEMBERS
 	###########################################################################################*/
+
+    // A hack to get arround getInstance() and capture_dependency() which are unsafe to use inside threads
+    // set/reset on init/cleanup, strictly for use in applyProxySettings
+    static LLProxy* sProxyInstance;
 };
 
 #endif

@@ -75,6 +75,7 @@
 
 #define CERT_EXTENDED_KEY_USAGE "extendedKeyUsage"
 #define CERT_EKU_SERVER_AUTH SN_server_auth
+#define CERT_EKU_TLS_SERVER_AUTH LN_server_auth
 
 #define CERT_SUBJECT_KEY_IDENTFIER "subjectKeyIdentifier"
 #define CERT_AUTHORITY_KEY_IDENTIFIER "authorityKeyIdentifier"
@@ -263,7 +264,9 @@ public:
 	virtual void validate(int validation_policy,
 						  LLPointer<LLCertificateChain> cert_chain,
 						  const LLSD& validation_params) =0;
-	
+
+    // Clear cache if any
+    virtual void clearSertCache()=0;
 };
 
 
@@ -334,15 +337,21 @@ std::ostream& operator <<(std::ostream& s, const LLCredential& cred);
 class LLCertException: public LLException
 {
 public:
-	LLCertException(const LLSD& cert_data, const std::string& msg): LLException(msg),
-        mCertData(cert_data)
-	{
-		LL_WARNS("SECAPI") << "Certificate Error: " << msg << LL_ENDL;
-	}
+    LLCertException(const LLSD& cert_data, const std::string& msg);
 	virtual ~LLCertException() throw() {}
 	LLSD getCertData() const { return mCertData; }
 protected:
 	LLSD mCertData;
+};
+
+class LLAllocationCertException : public LLCertException
+{
+public:
+    LLAllocationCertException(const LLSD& cert_data) : LLCertException(cert_data, "CertAllocationFailure")
+    {
+    }
+    virtual ~LLAllocationCertException() throw() {}
+protected:
 };
 
 class LLInvalidCertificate : public LLCertException
@@ -445,7 +454,7 @@ public:
 	virtual LLPointer<LLCertificate> getCertificate(X509* openssl_cert)=0;
 	
 	// instantiate a chain from an X509_STORE_CTX
-	virtual LLPointer<LLCertificateChain> getCertificateChain(const X509_STORE_CTX* chain)=0;
+	virtual LLPointer<LLCertificateChain> getCertificateChain(X509_STORE_CTX* chain)=0;
 	
 	// instantiate a cert store given it's id.  if a persisted version
 	// exists, it'll be loaded.  If not, one will be created (but not
@@ -464,7 +473,19 @@ public:
 	// delete a protected data item from the store
 	virtual void deleteProtectedData(const std::string& data_type,
 									 const std::string& data_id)=0;
-	
+
+	// persist data in a protected store's map
+	virtual void addToProtectedMap(const std::string& data_type,
+								   const std::string& data_id,
+								   const std::string& map_elem,
+								   const LLSD& data)=0;
+
+	// remove data from protected store's map
+	virtual void removeFromProtectedMap(const std::string& data_type,
+										const std::string& data_id,
+										const std::string& map_elem)=0;
+
+public:
 	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
 													 const LLSD& identifier, 
 													 const LLSD& authenticator)=0;
@@ -474,10 +495,48 @@ public:
 	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)=0;
 	
 	virtual void deleteCredential(LLPointer<LLCredential> cred)=0;
+
+	// has map of credentials declared as specific storage
+	virtual bool hasCredentialMap(const std::string& storage,
+								  const std::string& grid)=0;
+
+	// returns true if map is empty or does not exist
+	virtual bool emptyCredentialMap(const std::string& storage,
+									const std::string& grid)=0;
+
+	// load map of credentials from specific storage
+	typedef std::map<std::string, LLPointer<LLCredential> > credential_map_t;
+	virtual void loadCredentialMap(const std::string& storage,
+								   const std::string& grid,
+								   credential_map_t& credential_map)=0;
+
+	// load single username from map of credentials from specific storage
+	virtual LLPointer<LLCredential> loadFromCredentialMap(const std::string& storage,
+														  const std::string& grid,
+														  const std::string& userid)=0;
+
+	// add item to map of credentials from specific storage
+	virtual void addToCredentialMap(const std::string& storage,
+									LLPointer<LLCredential> cred,
+									bool save_authenticator)=0;
+
+	// remove item from map of credentials from specific storage
+	virtual void removeFromCredentialMap(const std::string& storage,
+										 LLPointer<LLCredential> cred)=0;
+
+	// remove item from map of credentials from specific storage
+	virtual void removeFromCredentialMap(const std::string& storage,
+										 const std::string& grid,
+										 const std::string& userid)=0;
+
+	virtual void removeCredentialMap(const std::string& storage,
+									 const std::string& grid)=0;
 	
 };
 
 void initializeSecHandler();
+
+void clearSecHandler();
 				
 // retrieve a security api depending on the api type
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type);

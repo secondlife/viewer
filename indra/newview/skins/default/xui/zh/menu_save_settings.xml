@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="save_settings_menu">
+	<menu_item_check label="儲存" name="save_settings"/>
+	<menu_item_check label="另存為" name="save_as_new_settings"/>
+	<menu_item_check label="確定" name="commit_changes"/>
+	<menu_item_check label="僅套用到我自己" name="apply_local"/>
+	<menu_item_check label="套用到地段" name="apply_parcel"/>
+	<menu_item_check label="套用到地區" name="apply_region"/>
+</toggleable_menu>

@@ -35,6 +35,7 @@
 #include "lluictrlfactory.h"
 #include "lltabcontainer.h"
 #include "llaccordionctrltab.h"
+#include "lluiusage.h"
 
 static LLDefaultChildRegistry::Register<LLUICtrl> r("ui_ctrl");
 
@@ -137,13 +138,29 @@ void LLUICtrl::initFromParams(const Params& p)
 		{
 			LLControlVariable* control = findControl(p.enabled_controls.enabled);
 			if (control)
+			{
 				setEnabledControlVariable(control);
+			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'enabled' control variable to " << getName()
+							<< ": control " << p.enabled_controls.enabled()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 		else if(p.enabled_controls.disabled.isChosen())
 		{
 			LLControlVariable* control = findControl(p.enabled_controls.disabled);
 			if (control)
+			{
 				setDisabledControlVariable(control);
+			}
+			else
+			{
+				LL_WARNS() << "Failed to assign 'disabled' control variable to " << getName() 
+							<< ": control " << p.enabled_controls.disabled()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 	if(p.controls_visibility.isProvided())
@@ -152,13 +169,29 @@ void LLUICtrl::initFromParams(const Params& p)
 		{
 			LLControlVariable* control = findControl(p.controls_visibility.visible);
 			if (control)
+			{
 				setMakeVisibleControlVariable(control);
+			}
+			else
+			{
+				LL_WARNS() << "Failed to assign visibility control variable to " << getName()
+							<< ": control " << p.controls_visibility.visible()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 		else if (p.controls_visibility.invisible.isChosen())
 		{
 			LLControlVariable* control = findControl(p.controls_visibility.invisible);
 			if (control)
+			{
 				setMakeInvisibleControlVariable(control);
+			}
+			else
+			{
+				LL_WARNS() << "Failed to assign invisibility control variable to " << getName()
+							<< ": control " << p.controls_visibility.invisible()
+							<< " does not exist." << LL_ENDL;
+			}
 		}
 	}
 
@@ -250,6 +283,7 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 	else
 	{
 		std::string function_name = cb.function_name;
+		setFunctionName(function_name);
 		commit_callback_t* func = (CommitCallbackRegistry::getValue(function_name));
 		if (func)
 		{
@@ -390,7 +424,19 @@ BOOL LLUICtrl::canFocusChildren() const
 void LLUICtrl::onCommit()
 {
 	if (mCommitSignal)
-	(*mCommitSignal)(this, getValue());
+	{
+		if (!mFunctionName.empty())
+		{
+			LL_DEBUGS("UIUsage") << "calling commit function " << mFunctionName << LL_ENDL;
+			LLUIUsage::instance().logCommand(mFunctionName);
+			LLUIUsage::instance().logControl(getPathname());
+		}
+		else
+		{
+			//LL_DEBUGS("UIUsage") << "calling commit function " << "UNKNOWN" << LL_ENDL;
+		}
+		(*mCommitSignal)(this, getValue());
+	}
 }
 
 //virtual
@@ -497,6 +543,11 @@ void LLUICtrl::setControlName(const std::string& control_name, LLView *context)
 	if (!control_name.empty())
 	{
 		LLControlVariable* control = context->findControl(control_name);
+		if (!control)
+		{
+			LL_WARNS() << "Failed to assign control variable to " << getName()
+						<< ": control "<< control_name << " does not exist." << LL_ENDL;
+		}
 		setControlVariable(control);
 	}
 }
@@ -560,6 +611,12 @@ void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
 		setVisible(!(mMakeInvisibleControlVariable->getValue().asBoolean()));
 	}
 }
+
+void LLUICtrl::setFunctionName(const std::string& function_name)
+{
+	mFunctionName = function_name;
+}
+
 // static
 bool LLUICtrl::controlListener(const LLSD& newvalue, LLHandle<LLUICtrl> handle, std::string type)
 {
@@ -684,8 +741,9 @@ void LLUICtrl::resetDirty()
 }
 
 // virtual
-void LLUICtrl::onTabInto()				
+void LLUICtrl::onTabInto()
 {
+    onUpdateScrollToChild(this);
 }
 
 // virtual

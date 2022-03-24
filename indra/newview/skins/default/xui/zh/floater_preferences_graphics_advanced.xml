@@ -82,7 +82,6 @@
 	<check_box initial_value="true" label="清澈透明的水" name="TransparentWater"/>
 	<check_box initial_value="true" label="凹凸映射與光澤效果" name="BumpShiny"/>
 	<check_box initial_value="true" label="本地光線" name="LocalLights"/>
-	<check_box initial_value="true" label="基本著色" name="BasicShaders" tool_tip="關閉此一選項可能避免部分顯示卡驅動程式損毀當機"/>
 	<slider label="地形細節：" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
 		低

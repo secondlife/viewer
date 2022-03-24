@@ -40,6 +40,7 @@
 // incoming packet just to do a simple bool test. The getter for this
 // member is also static
 bool LLProxy::sUDPProxyEnabled = false;
+LLProxy* LLProxy::sProxyInstance = NULL;
 
 // Some helpful TCP static functions.
 static apr_status_t tcp_blocking_handshake(LLSocket::ptr_t handle, char * dataout, apr_size_t outlen, char * datain, apr_size_t maxinlen); // Do a TCP data handshake
@@ -60,11 +61,21 @@ LLProxy::LLProxy():
 
 LLProxy::~LLProxy()
 {
-	if (ll_apr_is_initialized())
-	{
-		stopSOCKSProxy();
-		disableHTTPProxy();
-	}
+    if (ll_apr_is_initialized())
+    {
+        // locks mutex
+        stopSOCKSProxy();
+        disableHTTPProxy();
+    }
+    // The primary safety of sProxyInstance is the fact that by the
+    // point SUBSYSTEM_CLEANUP(LLProxy) gets called, nothing should
+    // be capable of using proxy
+    sProxyInstance = NULL;
+}
+
+void LLProxy::initSingleton()
+{
+    sProxyInstance = this;
 }
 
 /**
@@ -115,9 +126,9 @@ S32 LLProxy::proxyHandshake(LLHost proxy)
 		U32 request_size = socks_username.size() + socks_password.size() + 3;
 		char * password_auth = new char[request_size];
 		password_auth[0] = 0x01;
-		password_auth[1] = socks_username.size();
+		password_auth[1] = (char)(socks_username.size());
 		memcpy(&password_auth[2], socks_username.c_str(), socks_username.size());
-		password_auth[socks_username.size() + 2] = socks_password.size();
+		password_auth[socks_username.size() + 2] = (char)(socks_password.size());
 		memcpy(&password_auth[socks_username.size() + 3], socks_password.c_str(), socks_password.size());
 
 		authmethod_password_reply_t password_reply;
@@ -424,28 +435,28 @@ void LLProxy::cleanupClass()
 void LLProxy::applyProxySettings(CURL* handle)
 {
 	// Do a faster unlocked check to see if we are supposed to proxy.
-	if (mHTTPProxyEnabled)
+	if (sProxyInstance && sProxyInstance->mHTTPProxyEnabled)
 	{
-		// We think we should proxy, lock the proxy mutex.
-		LLMutexLock lock(&mProxyMutex);
+		// We think we should proxy, lock the proxy mutex. sProxyInstance is not protected by mutex
+		LLMutexLock lock(&sProxyInstance->mProxyMutex);
 		// Now test again to verify that the proxy wasn't disabled between the first check and the lock.
-		if (mHTTPProxyEnabled)
+		if (sProxyInstance->mHTTPProxyEnabled)
 		{
-            LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, mHTTPProxy.getIPString().c_str()), CURLOPT_PROXY);
-            LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, mHTTPProxy.getPort()), CURLOPT_PROXYPORT);
+			LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXY, sProxyInstance->mHTTPProxy.getIPString().c_str()), CURLOPT_PROXY);
+			LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYPORT, sProxyInstance->mHTTPProxy.getPort()), CURLOPT_PROXYPORT);
 
-			if (mProxyType == LLPROXY_SOCKS)
+			if (sProxyInstance->mProxyType == LLPROXY_SOCKS)
 			{
-                LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5), CURLOPT_PROXYTYPE);
-				if (mAuthMethodSelected == METHOD_PASSWORD)
+				LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5), CURLOPT_PROXYTYPE);
+				if (sProxyInstance->mAuthMethodSelected == METHOD_PASSWORD)
 				{
-					std::string auth_string = mSocksUsername + ":" + mSocksPassword;
-                    LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()), CURLOPT_PROXYUSERPWD);
+					std::string auth_string = sProxyInstance->mSocksUsername + ":" + sProxyInstance->mSocksPassword;
+					LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYUSERPWD, auth_string.c_str()), CURLOPT_PROXYUSERPWD);
 				}
 			}
 			else
 			{
-                LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP), CURLOPT_PROXYTYPE);
+				LLCore::LLHttp::check_curl_code(curl_easy_setopt(handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP), CURLOPT_PROXYTYPE);
 			}
 		}
 	}

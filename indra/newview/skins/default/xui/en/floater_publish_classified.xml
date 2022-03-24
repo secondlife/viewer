@@ -6,6 +6,7 @@
  layout="topleft"
  name="publish_classified"
  title="Publishing Classified"
+ help_topic="profile_edit_classified"
  width="320">
     <text
      top="20"

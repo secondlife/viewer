@@ -501,10 +501,27 @@ U32 LLRenderTarget::getNumTextures() const
 	return mTex.size();
 }
 
-
-void LLRenderTarget::bindTexture(U32 index, S32 channel)
+void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options)
 {
-	gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index));
+    gGL.getTexUnit(channel)->bindManual(mUsage, getTexture(index));
+
+    bool isSRGB = false;
+    llassert(mInternalFormat.size() > index);
+    switch (mInternalFormat[index])
+    {
+        case GL_SRGB:
+        case GL_SRGB8:
+        case GL_SRGB_ALPHA:
+        case GL_SRGB8_ALPHA8:
+            isSRGB = true;
+            break;
+
+        default:
+            break;
+    }
+
+    gGL.getTexUnit(channel)->setTextureFilteringOption(filter_options);
+    gGL.getTexUnit(channel)->setTextureColorSpace(isSRGB ? LLTexUnit::TCS_SRGB : LLTexUnit::TCS_LINEAR);
 }
 
 void LLRenderTarget::flush(bool fetch_depth)

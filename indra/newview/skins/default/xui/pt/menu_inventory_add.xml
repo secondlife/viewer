@@ -5,9 +5,7 @@
 		<menu_item_call label="Som (L$[COST])..." name="Upload Sound"/>
 		<menu_item_call label="Animação (L$[COST])..." name="Upload Animation"/>
 		<menu_item_call label="Modelar..." name="Upload Model"/>
-		<menu_item_call label="Assistente de modelagem..." name="Upload Model Wizard"/>
-		<menu_item_call label="Volume (L$[COST] per file)..." name="Bulk Upload"/>
-		<menu_item_call label="Autorizações de upload padrão" name="perm prefs"/>
+		<menu_item_call label="Volume..." name="Bulk Upload"/>
 	</menu>
 	<menu_item_call label="Nova pasta" name="New Folder"/>
 	<menu_item_call label="Novo script" name="New Script"/>
@@ -25,6 +23,7 @@
 		<menu_item_call label="Novas roupa de baixo" name="New Underpants"/>
 		<menu_item_call label="Novo alpha" name="New Alpha"/>
 		<menu_item_call label="Nova tatuagem" name="New Tattoo"/>
+		<menu_item_call label="Novo universal" name="New Universal"/>
 		<menu_item_call label="Novo físico" name="New Physics"/>
 	</menu>
 	<menu label="Nova parte do corpo" name="New Body Parts">
@@ -32,5 +31,10 @@
 		<menu_item_call label="Nova pele" name="New Skin"/>
 		<menu_item_call label="Novo cabelo" name="New Hair"/>
 		<menu_item_call label="Novos olhos" name="New Eyes"/>
+	</menu>
+	<menu label="Novas configurações" name="New Settings">
+		<menu_item_call label="Novo céu" name="New Sky"/>
+		<menu_item_call label="Nova água" name="New Water"/>
+		<menu_item_call label="Novo ciclo de dias" name="New Day Cycle"/>
 	</menu>
 </menu>

@@ -269,29 +269,29 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 
 	if (mSourceObject)
 	{
-		htonmemcpy(&(packed_data[SOURCE_AVATAR]), mSourceObject->mID.mData, MVT_LLUUID, 16);
+		htolememcpy(&(packed_data[SOURCE_AVATAR]), mSourceObject->mID.mData, MVT_LLUUID, 16);
 	}
 	else
 	{
-		htonmemcpy(&(packed_data[SOURCE_AVATAR]), LLUUID::null.mData, MVT_LLUUID, 16);
+		htolememcpy(&(packed_data[SOURCE_AVATAR]), LLUUID::null.mData, MVT_LLUUID, 16);
 	}
 
 	// pack both target object and position
 	// position interpreted as offset if target object is non-null
 	if (mTargetObject)
 	{
-		htonmemcpy(&(packed_data[TARGET_OBJECT]), mTargetObject->mID.mData, MVT_LLUUID, 16);
+		htolememcpy(&(packed_data[TARGET_OBJECT]), mTargetObject->mID.mData, MVT_LLUUID, 16);
 	}
 	else
 	{
-		htonmemcpy(&(packed_data[TARGET_OBJECT]), LLUUID::null.mData, MVT_LLUUID, 16);
+		htolememcpy(&(packed_data[TARGET_OBJECT]), LLUUID::null.mData, MVT_LLUUID, 16);
 	}
 
-	htonmemcpy(&(packed_data[TARGET_POS]), mTargetOffsetGlobal.mdV, MVT_LLVector3d, 24);
+	htolememcpy(&(packed_data[TARGET_POS]), mTargetOffsetGlobal.mdV, MVT_LLVector3d, 24);
 
 	U8 lookAtTypePacked = (U8)mTargetType;
 	
-	htonmemcpy(&(packed_data[LOOKAT_TYPE]), &lookAtTypePacked, MVT_U8, 1);
+	htolememcpy(&(packed_data[LOOKAT_TYPE]), &lookAtTypePacked, MVT_U8, 1);
 
 	mesgsys->addBinaryDataFast(_PREHASH_TypeData, packed_data, PKT_SIZE);
 
@@ -325,7 +325,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	}
 	mesgsys->getBinaryDataFast(_PREHASH_Effect, _PREHASH_TypeData, packed_data, PKT_SIZE, blocknum);
 	
-	htonmemcpy(source_id.mData, &(packed_data[SOURCE_AVATAR]), MVT_LLUUID, 16);
+	htolememcpy(source_id.mData, &(packed_data[SOURCE_AVATAR]), MVT_LLUUID, 16);
 
 	LLViewerObject *objp = gObjectList.findObject(source_id);
 	if (objp && objp->isAvatar())
@@ -338,11 +338,11 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 		return;
 	}
 
-	htonmemcpy(target_id.mData, &(packed_data[TARGET_OBJECT]), MVT_LLUUID, 16);
+	htolememcpy(target_id.mData, &(packed_data[TARGET_OBJECT]), MVT_LLUUID, 16);
 
 	objp = gObjectList.findObject(target_id);
 
-	htonmemcpy(new_target.mdV, &(packed_data[TARGET_POS]), MVT_LLVector3d, 24);
+	htolememcpy(new_target.mdV, &(packed_data[TARGET_POS]), MVT_LLVector3d, 24);
 
 	if (objp)
 	{
@@ -358,7 +358,7 @@ void LLHUDEffectLookAt::unpackData(LLMessageSystem *mesgsys, S32 blocknum)
 	}
 
 	U8 lookAtTypeUnpacked = 0;
-	htonmemcpy(&lookAtTypeUnpacked, &(packed_data[LOOKAT_TYPE]), MVT_U8, 1);
+	htolememcpy(&lookAtTypeUnpacked, &(packed_data[LOOKAT_TYPE]), MVT_U8, 1);
 	mTargetType = (ELookAtType)lookAtTypeUnpacked;
 
 	if (mTargetType == LOOKAT_TARGET_NONE)

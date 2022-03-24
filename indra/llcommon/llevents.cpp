@@ -63,51 +63,23 @@
 #endif
 
 /*****************************************************************************
-*   queue_names: specify LLEventPump names that should be instantiated as
-*   LLEventQueue
-*****************************************************************************/
-/**
- * At present, we recognize particular requested LLEventPump names as needing
- * LLEventQueues. Later on we'll migrate this information to an external
- * configuration file.
- */
-const char* queue_names[] =
-{
-    "placeholder - replace with first real name string"
-};
-
-/*****************************************************************************
-*   If there's a "mainloop" pump, listen on that to flush all LLEventQueues
-*****************************************************************************/
-struct RegisterFlush : public LLEventTrackable
-{
-    RegisterFlush():
-        pumps(LLEventPumps::instance())
-    {
-        pumps.obtain("mainloop").listen("flushLLEventQueues", boost::bind(&RegisterFlush::flush, this, _1));
-    }
-    bool flush(const LLSD&)
-    {
-        pumps.flush();
-        return false;
-    }
-    ~RegisterFlush()
-    {
-        // LLEventTrackable handles stopListening for us.
-    }
-    LLEventPumps& pumps;
-};
-static RegisterFlush registerFlush;
-
-/*****************************************************************************
 *   LLEventPumps
 *****************************************************************************/
 LLEventPumps::LLEventPumps():
-    // Until we migrate this information to an external config file,
-    // initialize mQueueNames from the static queue_names array.
-    mQueueNames(boost::begin(queue_names), boost::end(queue_names))
-{
-}
+    mFactories
+    {
+        { "LLEventStream",   [](const std::string& name, bool tweak)
+                             { return new LLEventStream(name, tweak); } },
+        { "LLEventMailDrop", [](const std::string& name, bool tweak)
+                             { return new LLEventMailDrop(name, tweak); } }
+    },
+    mTypes
+    {
+        // LLEventStream is the default for obtain(), so even if somebody DOES
+        // call obtain("placeholder"), this sample entry won't break anything.
+        { "placeholder", "LLEventStream" }
+    }
+{}
 
 LLEventPump& LLEventPumps::obtain(const std::string& name)
 {
@@ -118,14 +90,31 @@ LLEventPump& LLEventPumps::obtain(const std::string& name)
         // name.
         return *found->second;
     }
-    // Here we must instantiate an LLEventPump subclass. 
-    LLEventPump* newInstance;
-    // Should this name be an LLEventQueue?
-    PumpNames::const_iterator nfound = mQueueNames.find(name);
-    if (nfound != mQueueNames.end())
-        newInstance = new LLEventQueue(name);
-    else
-        newInstance = new LLEventStream(name);
+
+    // Here we must instantiate an LLEventPump subclass. Is there a
+    // preregistered class name override for this specific instance name?
+    auto nfound = mTypes.find(name);
+    std::string type;
+    if (nfound != mTypes.end())
+    {
+        type = nfound->second;
+    }
+    // pass tweak=false: we already know there's no existing instance with
+    // this name
+    return make(name, false, type);
+}
+
+LLEventPump& LLEventPumps::make(const std::string& name, bool tweak,
+                                const std::string& type)
+{
+    // find the relevant factory for this (or default) type
+    auto found = mFactories.find(type.empty()? "LLEventStream" : type);
+    if (found == mFactories.end())
+    {
+        // Passing an unrecognized type name is a no-no
+        LLTHROW(BadType(type));
+    }
+    auto newInstance = (found->second)(name, tweak);
     // LLEventPump's constructor implicitly registers each new instance in
     // mPumpMap. But remember that we instantiated it (in mOurPumps) so we'll
     // delete it later.
@@ -143,14 +132,23 @@ bool LLEventPumps::post(const std::string&name, const LLSD&message)
     return (*found).second->post(message);
 }
 
-
 void LLEventPumps::flush()
 {
     // Flush every known LLEventPump instance. Leave it up to each instance to
     // decide what to do with the flush() call.
-    for (PumpMap::iterator pmi = mPumpMap.begin(), pmend = mPumpMap.end(); pmi != pmend; ++pmi)
+    for (PumpMap::value_type& pair : mPumpMap)
     {
-        pmi->second->flush();
+        pair.second->flush();
+    }
+}
+
+void LLEventPumps::clear()
+{
+    // Clear every known LLEventPump instance. Leave it up to each instance to
+    // decide what to do with the clear() call.
+    for (PumpMap::value_type& pair : mPumpMap)
+    {
+        pair.second->clear();
     }
 }
 
@@ -158,9 +156,9 @@ void LLEventPumps::reset()
 {
     // Reset every known LLEventPump instance. Leave it up to each instance to
     // decide what to do with the reset() call.
-    for (PumpMap::iterator pmi = mPumpMap.begin(), pmend = mPumpMap.end(); pmi != pmend; ++pmi)
+    for (PumpMap::value_type& pair : mPumpMap)
     {
-        pmi->second->reset();
+        pair.second->reset();
     }
 }
 
@@ -267,6 +265,9 @@ LLEventPumps::~LLEventPumps()
     {
         delete *mOurPumps.begin();
     }
+    // Reset every remaining registered LLEventPump subclass instance: those
+    // we DIDN'T instantiate using either make() or obtain().
+    reset();
 }
 
 /*****************************************************************************
@@ -283,7 +284,7 @@ LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
     mRegistry(LLEventPumps::instance().getHandle()),
     mName(mRegistry.get()->registerNew(*this, name, tweak)),
-    mSignal(new LLStandardSignal()),
+    mSignal(std::make_shared<LLStandardSignal>()),
     mEnabled(true)
 {}
 
@@ -311,10 +312,28 @@ std::string LLEventPump::inventName(const std::string& pfx)
     return STRINGIZE(pfx << suffix++);
 }
 
+void LLEventPump::clear()
+{
+    // Destroy the original LLStandardSignal instance, replacing it with a
+    // whole new one.
+    mSignal = std::make_shared<LLStandardSignal>();
+    mConnections.clear();
+}
+
 void LLEventPump::reset()
 {
-    mSignal.reset();
+    // Resetting mSignal is supposed to disconnect everything on its own
+    // But due to crash on 'reset' added explicit cleanup to get more data
+    ConnectionMap::const_iterator iter = mConnections.begin();
+    ConnectionMap::const_iterator end = mConnections.end();
+    while (iter!=end)
+    {
+        iter->second.disconnect();
+        iter++;
+    }
     mConnections.clear();
+
+    mSignal.reset();
     //mDeps.clear();
 }
 
@@ -533,7 +552,7 @@ bool LLEventStream::post(const LLSD& event)
     // *stack* instance of the shared_ptr, ensuring that our heap
     // LLStandardSignal object will live at least until post() returns, even
     // if 'this' gets destroyed during the call.
-    boost::shared_ptr<LLStandardSignal> signal(mSignal);
+    std::shared_ptr<LLStandardSignal> signal(mSignal);
     // Let caller know if any one listener handled the event. This is mostly
     // useful when using LLEventStream as a listener for an upstream
     // LLEventPump.
@@ -553,7 +572,7 @@ bool LLEventMailDrop::post(const LLSD& event)
         // be posted to any future listeners when they attach.
         mEventHistory.push_back(event);
     }
-    
+
     return posted;
 }
 
@@ -583,46 +602,9 @@ LLBoundListener LLEventMailDrop::listen_impl(const std::string& name,
     return LLEventStream::listen_impl(name, listener, after, before);
 }
 
-
-/*****************************************************************************
-*   LLEventQueue
-*****************************************************************************/
-bool LLEventQueue::post(const LLSD& event)
+void LLEventMailDrop::discard()
 {
-    if (mEnabled)
-    {
-        // Defer sending this event by queueing it until flush()
-        mEventQueue.push_back(event);
-    }
-    // Unconditionally return false. We won't know until flush() whether a
-    // listener claims to have handled the event -- meanwhile, don't block
-    // other listeners.
-    return false;
-}
-
-void LLEventQueue::flush()
-{
-	if(!mSignal) return;
-		
-    // Consider the case when a given listener on this LLEventQueue posts yet
-    // another event on the same queue. If we loop over mEventQueue directly,
-    // we'll end up processing all those events during the same flush() call
-    // -- rather like an EventStream. Instead, copy mEventQueue and clear it,
-    // so that any new events posted to this LLEventQueue during flush() will
-    // be processed in the *next* flush() call.
-    EventQueue queue(mEventQueue);
-    mEventQueue.clear();
-    // NOTE NOTE NOTE: Any new access to member data beyond this point should
-    // cause us to move our LLStandardSignal object to a pimpl class along
-    // with said member data. Then the local shared_ptr will preserve both.
-
-    // DEV-43463: capture a local copy of mSignal. See LLEventStream::post()
-    // for detailed comments.
-    boost::shared_ptr<LLStandardSignal> signal(mSignal);
-    for ( ; ! queue.empty(); queue.pop_front())
-    {
-        (*signal)(queue.front());
-    }
+    mEventHistory.clear();
 }
 
 /*****************************************************************************

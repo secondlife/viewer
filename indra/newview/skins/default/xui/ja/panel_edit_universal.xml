@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_universal_panel">
+	<scroll_container name="avatar_universal_scroll">
+		<panel name="avatar_universal_color_panel">
+			<texture_picker label="頭部のタトゥー" name="Head Universal Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="上部のタトゥー" name="Upper Universal Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="下部のタトゥー" name="Lower Universal Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="スカートのタトゥー" name="Skirt Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="髪の毛のタトゥー" name="Hair Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="目のタトゥー" name="Eyes Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="左腕のタトゥー" name="Left Arm Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="左脚のタトゥー" name="Left Leg Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="Aux1 のタトゥー" name="Aux1 Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="Aux2 のタトゥー" name="Aux2 Tattoo" tool_tip="クリックして写真を選択する"/>
+			<texture_picker label="Aux3 のタトゥー" name="Aux3 Tattoo" tool_tip="クリックして写真を選択する"/>
+			<color_swatch label="色／明暗" name="Color/Tint" tool_tip="クリックしてカラーピッカーを開きます"/>
+		</panel>
+	</scroll_container>
+</panel>

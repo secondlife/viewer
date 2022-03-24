@@ -47,7 +47,6 @@ class LLInventoryObject;
 class LLInventoryItem;
 class LLMeanCollisionData;
 class LLMessageSystem;
-class LLVFS;
 class LLViewerObject;
 class LLViewerRegion;
 
@@ -189,8 +188,7 @@ void process_script_dialog(LLMessageSystem* msg, void**);
 void process_load_url(LLMessageSystem* msg, void**);
 void process_script_teleport_request(LLMessageSystem* msg, void**);
 void process_covenant_reply(LLMessageSystem* msg, void**);
-void onCovenantLoadComplete(LLVFS *vfs,
-							const LLUUID& asset_uuid,
+void onCovenantLoadComplete(const LLUUID& asset_uuid,
 							LLAssetType::EType type,
 							void* user_data, S32 status, LLExtStat ext_status);
 
@@ -254,7 +252,7 @@ public:
 	/*virtual*/ void fromLLSD(const LLSD& params);
 	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
 
-	void send_auto_receive_response(void);
+	void send_auto_receive_response() { sendReceiveResponse(true, mFolderID); }
 
 	// TODO - replace all references with handleRespond()
 	bool inventory_offer_callback(const LLSD& notification, const LLSD& response);
@@ -264,6 +262,7 @@ private:
 
 	void initRespondFunctionMap();
 	std::string getSanitizedDescription();
+	void sendReceiveResponse(bool accept, const LLUUID &destination_folder_id);
 
 	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
 	typedef std::map<std::string, respond_function_t> respond_function_map_t;

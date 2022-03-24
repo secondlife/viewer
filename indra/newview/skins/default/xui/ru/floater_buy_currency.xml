@@ -59,8 +59,7 @@
 	</text>
 	<button label="Приобрести" name="buy_btn"/>
 	<button label="Отмена" name="cancel_btn"/>
-	<text name="info_cannot_buy">
+	<floater.string name="info_cannot_buy">
 		Нельзя купить
-	</text>
-	<button label="Продолжить в Интернете" name="error_web"/>
+	</floater.string>
 </floater>

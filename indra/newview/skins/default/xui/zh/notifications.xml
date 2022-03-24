@@ -1954,6 +1954,11 @@ SHA1 指紋：[MD5_DIGEST]
 		若不勾選這選項，可能會移除地段所有人為防止惡意騷擾及為維護隱私、保護幼未成年居民不接觸成年限制級內容的限制措施。 若有必要請與地段所有人溝通。
 		<usetemplate name="okbutton" yestext="確定"/>
 	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		取消勾選這選項會移除地段擁有人增設於地段的任何自訂環境設定。 若有必要請與地段所有人溝通。
+你確定要繼續嗎？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		你所欲前往的地區含有超過你目前偏好的分級的內容。  你可以到「我自己 &gt; 偏好設定 &gt; 一般設定」變更你的偏好設定。
 		<usetemplate name="okbutton" yestext="確定"/>
@@ -2433,7 +2438,15 @@ SHA1 指紋：[MD5_DIGEST]
 		這個「一日循環」檔案參考了一個不存在的天空檔案：[SKY]。
 	</notification>
 	<notification name="WLRegionApplyFail">
-		抱歉，設定無法套用到地區。  離開地區再返回也許可以解決這個問題。  所得的原因為：[FAIL_REASON]
+		抱歉，設定無法套用到地區。 原因：[FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		一個本地材質正在使用中：軌跡[TRACK]，幀#[FRAMENO]([FRAME]%)，欄位[FIELD]。
+無法儲存使用本地材質的設定。
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		一個本地材質正在欄位[FIELD]使用中。
+無法儲存使用本地材質的設定。
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		無法刪除此日循環的最後一組設定，日循環不得為空白。  你應該修改最後一組資料，不要試圖刪除，然後再建立新的。
@@ -4379,5 +4392,77 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="確定"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		無法從資料庫載入[NAME]的設定。
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		無法將設定套用到環境。
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		無法將設定套用到環境。
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		這區域不支援環境設定。
+	</notification>
+	<notification label="儲存裝扮" name="SaveSettingAs">
+		把目前的環境設定儲存為：
+		<form name="form">
+			<input name="message">
+				[DESC]（新）
+			</input>
+			<button name="OK" text="確定"/>
+			<button name="Cancel" text="取消"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		無法匯入舊的風光(Windlight)設定[NAME]，來源： 
+[FILE]。
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		無法設定此地段的環境。
+請輸入或選擇一個你有權修改的地段。
+	</notification>
+	<notification name="SettingsUnsuported">
+		這地區不支援設定。 
+請移位到支援設定的地區，再試一次。
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		你即將針對名爲&quot;[NAME]&quot;的[TYPE]放棄變更。
+確定繼續？
+		<usetemplate ignoretext="確定放棄變更？" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		你即將移除所有已用的設定。
+確定繼續？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		你即將移除所有已用的個人照明設定。
+確定繼續？
+		<usetemplate name="okcancelbuttons" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		你即將把無法轉移的設定匯入這個日循環。 如果繼續，將使得你正在編輯的設定也變成無法轉移。 
+
+這個改變無法取消復原。
+
+確定繼續？
+		<usetemplate ignoretext="確定要把設定變成無法轉移？" name="okcancelignore" notext="取消" yestext="確定"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		你不得直接從資源庫編輯設定。  
+請複製到你自己的收納區，然後再試一次。
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		這些設定發生一個問題。  它們此時無法儲存或套用。
+	</notification>
+	<notification name="TrackLoadFailed">
+		無法把軌跡載入[TRACK]。
+	</notification>
+	<notification name="TrackLoadMismatch">
+		無法把軌跡從[TRACK1]載入[TRACK2]。
 	</notification>
 </notifications>

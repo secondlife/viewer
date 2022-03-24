@@ -18,5 +18,7 @@
 		<check_box label="Ses kaynakları" name="sounds"/>
 		<check_box label="Parçacık kaynakları" name="particles"/>
 		<check_box label="Ortam kaynakları" name="moapbeacon"/>
+		<check_box label="Güneş" name="sun"/>
+		<check_box label="Ay" name="moon"/>
 	</panel>
 </floater>

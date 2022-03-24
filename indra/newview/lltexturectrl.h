@@ -36,7 +36,6 @@
 #include "llstring.h"
 #include "lluictrl.h"
 #include "llpermissionsflags.h"
-#include "llradiogroup.h"
 #include "lltextbox.h" // for params
 #include "llviewerinventory.h"
 #include "llviewborder.h" // for params
@@ -44,7 +43,7 @@
 #include "llviewertexture.h"
 #include "llwindow.h"
 
-class LLButton;
+class LLComboBox;
 class LLFloaterTexturePicker;
 class LLInventoryItem;
 class LLViewerFetchedTexture;
@@ -239,7 +238,6 @@ private:
 	BOOL					 	mShowLoadingPlaceholder;
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
-	BOOL						mBakeTextureEnabled;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -367,7 +365,7 @@ protected:
 	LLSaveFolderState	mSavedFolderState;
 	BOOL				mSelectedItemPinned;
 
-	LLRadioGroup*		mModeSelector;
+	LLComboBox*			mModeSelector;
 	LLScrollListCtrl*	mLocalScrollCtrl;
 
 private:

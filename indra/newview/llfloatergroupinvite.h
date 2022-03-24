@@ -37,7 +37,7 @@ class LLFloaterGroupInvite
 public:
 	virtual ~LLFloaterGroupInvite();
 
-	static void showForGroup(const LLUUID &group_id, uuid_vec_t *agent_ids = NULL);
+	static void showForGroup(const LLUUID &group_id, uuid_vec_t *agent_ids = NULL, bool request_update = true);
 
 protected:
 	LLFloaterGroupInvite(const LLUUID& group_id = LLUUID::null);

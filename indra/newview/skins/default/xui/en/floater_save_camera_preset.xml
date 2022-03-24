@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater
+ legacy_header_height="18"
+ height="185"
+ help_topic="floater_save_preset"
+ layout="topleft"
+ name="save_camera_preset"
+ save_rect="true"
+ title="Save Camera Preset"
+ width="280">
+
+    <string name="btn_label_save">Save</string>
+    <string name="btn_label_replace">Replace</string>
+    <radio_group
+     height="85"
+     layout="topleft"
+     left="20"
+     top="15"
+     width="150"
+     name="radio_save_preset">
+     <radio_item
+      label="Save as a new preset"
+      name="new_preset"
+      top="10" 
+      layout="topleft"
+      height="16" 
+      value="0"/>
+     <radio_item
+      label="Replace a preset"
+      name="replace_preset"
+      layout="topleft"
+      top="70" 
+      height="16" 
+      value="1"/>
+    </radio_group> 
+    <line_editor
+     commit_on_focus_lost = "true"
+     follows="top|left"
+     height="23"
+     layout="topleft"
+     left="41"
+     name="preset_txt_editor"
+     width="200"
+     top="45"/>
+    <button
+     follows="top|left"
+     height="25"
+     label="Save"
+     layout="topleft"
+     top="145"
+     left="25"
+     name="save"
+     width="110"/>
+    <button
+     follows="bottom|right"
+     height="25"
+     label="Cancel"
+     layout="topleft"
+     left_pad="20"
+     name="cancel"
+     width="110"/>
+<!-- *HACK to correctly draw drop-down list over the buttons-->
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left="41"
+     name="preset_combo"
+     top_delta="-40"
+     width="200"/>
+</floater>

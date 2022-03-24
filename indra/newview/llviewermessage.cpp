@@ -32,25 +32,25 @@
 #include "llaudioengine.h" 
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
-#include "lleconomy.h"
 #include "lleventtimer.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
 #include "llfollowcamparams.h"
 #include "llinventorydefines.h"
 #include "lllslconstants.h"
+#include "llmaterialtable.h"
 #include "llregionhandle.h"
 #include "llsd.h"
 #include "llsdserialize.h"
 #include "llteleportflags.h"
 #include "lltoastnotifypanel.h"
 #include "lltransactionflags.h"
-#include "llvfile.h"
-#include "llvfs.h"
+#include "llfilesystem.h"
 #include "llxfermanager.h"
 #include "mean_collision_data.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llcallingcard.h"
 #include "llbuycurrencyhtml.h"
@@ -116,7 +116,6 @@
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
 
-#include <boost/algorithm/string/split.hpp> //
 #include <boost/foreach.hpp>
 
 #include "llnotificationmanager.h" //
@@ -374,6 +373,11 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 	LL_INFOS("Messaging") << "give_money(" << uuid << "," << amount << ")"<< LL_ENDL;
 	if(can_afford_transaction(amount))
 	{
+		if (uuid.isNull())
+		{
+			LL_WARNS() << "Failed to send L$ gift to to Null UUID." << LL_ENDL;
+			return;
+		}
 //		gStatusBar->debitBalance(amount);
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_MoneyTransferRequest);
@@ -401,6 +405,7 @@ void give_money(const LLUUID& uuid, LLViewerRegion* region, S32 amount, BOOL is_
 
 void send_complete_agent_movement(const LLHost& sim_host)
 {
+	LL_DEBUGS("Teleport", "Messaging") << "Sending CompleteAgentMovement to sim_host " << sim_host << LL_ENDL;
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_CompleteAgentMovement);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -772,7 +777,6 @@ void response_group_invitation_coro(std::string url, LLUUID group_id, bool notif
             LL_DEBUGS("GroupInvite") << "Successfully sent response to group " << group_id << " invitation" << LL_ENDL;
             if (notify_and_update)
             {
-                LLNotificationsUtil::add("JoinGroupSuccess");
                 gAgent.sendAgentDataUpdateRequest();
 
                 LLGroupMgr::getInstance()->clearGroupData(group_id);
@@ -903,7 +907,7 @@ bool join_group_response(const LLSD& notification, const LLSD& response)
 	if(option == 0 && !group_id.isNull())
 	{
 		// check for promotion or demotion.
-		S32 max_groups = gMaxAgentGroups;
+		S32 max_groups = LLAgentBenefitsMgr::current().getGroupMembershipLimit();
 		if(gAgent.isInGroup(group_id)) ++max_groups;
 
 		if(gAgent.mGroups.size() < max_groups)
@@ -1671,8 +1675,20 @@ void LLOfferInfo::fromLLSD(const LLSD& params)
 	*this = params;
 }
 
-void LLOfferInfo::send_auto_receive_response(void)
-{	
+void LLOfferInfo::sendReceiveResponse(bool accept, const LLUUID &destination_folder_id)
+{
+	if(IM_INVENTORY_OFFERED == mIM)
+	{
+		// add buddy to recent people list
+		LLRecentPeople::instance().add(mFromID);
+	}
+
+	if (mTransactionID.isNull())
+	{
+		// Not provided, message won't work
+		return;
+	}
+
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -1691,23 +1707,42 @@ void LLOfferInfo::send_auto_receive_response(void)
 	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-	
-	// Auto Receive Message. The math for the dialog works, because the accept
+
+	// ACCEPT. The math for the dialog works, because the accept
 	// for inventory_offered, task_inventory_offer or
 	// group_notice_inventory is 1 greater than the offer integer value.
 	// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
 	// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
-	msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-	msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
-						   sizeof(mFolderID.mData));
+	// Decline for inventory_offered, task_inventory_offer or
+	// group_notice_inventory is 2 greater than the offer integer value.
+
+	EInstantMessage im = mIM;
+	if (mIM == IM_GROUP_NOTICE_REQUESTED)
+	{
+		// Request has no responder dialogs
+		im = IM_GROUP_NOTICE;
+	}
+
+	if (accept)
+	{
+		msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 1));
+		msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(destination_folder_id.mData),
+								sizeof(destination_folder_id.mData));
+	}
+	else
+	{
+		msg->addU8Fast(_PREHASH_Dialog, (U8)(im + 2));
+		msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
+	}
 	// send the message
 	msg->sendReliable(mHost);
-	
-	if(IM_INVENTORY_OFFERED == mIM)
-	{
-		// add buddy to recent people list
-		LLRecentPeople::instance().add(mFromID);
-	}
+
+	// transaction id is usable only once
+	// Note: a bit of a hack, clicking group notice attachment will not close notice
+	// so we reset no longer usable transaction id to know not to send message again
+	// Once capabilities for responses will be implemented LLOfferInfo will have to
+	// remember that it already responded in another way and ignore IOR_DECLINE
+	mTransactionID.setNull();
 }
 
 void LLOfferInfo::handleRespond(const LLSD& notification, const LLSD& response)
@@ -1767,7 +1802,10 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 	
 	// TODO: when task inventory offers can also be handled the new way, migrate the code that sets these strings here:
 	from_string = chatHistory_string = mFromName;
-	
+
+	// accept goes to proper folder, decline gets accepted to trash, muted gets declined
+	bool accept_to_trash = true;
+
 	LLNotificationFormPtr modified_form(notification_ptr ? new LLNotificationForm(*notification_ptr->getForm()) : new LLNotificationForm());
 
 	switch(button)
@@ -1799,11 +1837,11 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			}
 			break;
 		case IM_GROUP_NOTICE:
+		case IM_GROUP_NOTICE_REQUESTED:
 			opener = new LLOpenTaskGroupOffer;
-			send_auto_receive_response();
+			sendReceiveResponse(true, mFolderID);
 			break;
 		case IM_TASK_INVENTORY_OFFERED:
-		case IM_GROUP_NOTICE_REQUESTED:
 			// This is an offer from a task or group.
 			// We don't use a new instance of an opener
 			// We instead use the singular observer gOpenTaskOffer
@@ -1838,6 +1876,7 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		{
 			modified_form->setElementEnabled("Mute", false);
 		}
+		accept_to_trash = false; // for notices, but IOR_MUTE normally doesn't happen for notices
 		// MUTE falls through to decline
 	case IOR_DECLINE:
 		{
@@ -1851,21 +1890,32 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 			if( LLMuteList::getInstance()->isMuted(mFromID ) && ! LLMuteList::getInstance()->isLinden(mFromName) )  // muting for SL-42269
 			{
 				chat.mMuted = TRUE;
+				accept_to_trash = false; // will send decline message
 			}
 
 			// *NOTE dzaporozhan
 			// Disabled logging to old chat floater to fix crash in group notices - EXT-4149
 			// LLFloaterChat::addChatHistory(chat);
 			
-			LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
-			discard_agent_offer->startFetch();
-			if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
+			if (mObjectID.notNull()) //make sure we can discard
 			{
-				discard_agent_offer->done();
+				LLDiscardAgentOffer* discard_agent_offer = new LLDiscardAgentOffer(mFolderID, mObjectID);
+				discard_agent_offer->startFetch();
+				if ((catp && gInventory.isCategoryComplete(mObjectID)) || (itemp && itemp->isFinished()))
+				{
+					discard_agent_offer->done();
+				}
+				else
+				{
+					opener = discard_agent_offer;
+				}
 			}
-			else
+			else if (mIM == IM_GROUP_NOTICE)
 			{
-				opener = discard_agent_offer;
+				// group notice needs to request object to trash so that user will see it later
+				// Note: muted agent offers go to trash, not sure if we should do same for notices
+				LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+				sendReceiveResponse(accept_to_trash, trash);
 			}
 
 			if (modified_form != NULL)
@@ -1878,9 +1928,14 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 		}
 	default:
 		// close button probably
-		// The item has already been fetched and is in your inventory, we simply won't highlight it
+		// In case of agent offers item has already been fetched and is in your inventory, we simply won't highlight it
 		// OR delete it if the notification gets killed, since we don't want that to be a vector for 
 		// losing inventory offers.
+		if (mIM == IM_GROUP_NOTICE)
+		{
+			LLUUID trash = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			sendReceiveResponse(true, trash);
+		}
 		break;
 	}
 
@@ -1925,29 +1980,10 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			}
 		}
 	}
-	
-	LLMessageSystem* msg = gMessageSystem;
-	msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
-	msg->nextBlockFast(_PREHASH_AgentData);
-	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	msg->nextBlockFast(_PREHASH_MessageBlock);
-	msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-	msg->addUUIDFast(_PREHASH_ToAgentID, mFromID);
-	msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
-	msg->addUUIDFast(_PREHASH_ID, mTransactionID);
-	msg->addU32Fast(_PREHASH_Timestamp, NO_TIMESTAMP); // no timestamp necessary
-	std::string name;
-	LLAgentUI::buildFullname(name);
-	msg->addStringFast(_PREHASH_FromAgentName, name);
-	msg->addStringFast(_PREHASH_Message, ""); 
-	msg->addU32Fast(_PREHASH_ParentEstateID, 0);
-	msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
-	msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
-	LLInventoryObserver* opener = NULL;
-	
+
 	std::string from_string; // Used in the pop-up.
 	std::string chatHistory_string;  // Used in chat history.
+
 	if (mFromObject == TRUE)
 	{
 		if (mFromGroup)
@@ -1991,23 +2027,15 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 		from_string = chatHistory_string = mFromName;
 	}
 	
-	bool is_do_not_disturb = gAgent.isDoNotDisturb();
-	
+	LLUUID destination;
+	bool accept = true;
+
+	// If user accepted, accept to proper folder, if user discarded, accept to trash.
 	switch(button)
 	{
 		case IOR_ACCEPT:
-			// ACCEPT. The math for the dialog works, because the accept
-			// for inventory_offered, task_inventory_offer or
-			// group_notice_inventory is 1 greater than the offer integer value.
-			// Generates IM_INVENTORY_ACCEPTED, IM_TASK_INVENTORY_ACCEPTED, 
-			// or IM_GROUP_NOTICE_INVENTORY_ACCEPTED
-			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 1));
-			msg->addBinaryDataFast(_PREHASH_BinaryBucket, &(mFolderID.mData),
-								   sizeof(mFolderID.mData));
-			// send the message
-			msg->sendReliable(mHost);
-			
-			//don't spam them if they are getting flooded
+			destination = mFolderID;
+			//don't spam user if flooded
 			if (check_offer_throttle(mFromName, true))
 			{
 				log_message = "<nolink>" + chatHistory_string + "</nolink> " + LLTrans::getString("InvOfferGaveYou") + " " + getSanitizedDescription() + LLTrans::getString(".");
@@ -2015,66 +2043,24 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 				args["MESSAGE"] = log_message;
 				LLNotificationsUtil::add("SystemMessageTip", args);
 			}
-			
-			// we will want to open this item when it comes back.
-			LL_DEBUGS("Messaging") << "Initializing an opener for tid: " << mTransactionID
-			<< LL_ENDL;
-			switch (mIM)
-		{
-			case IM_TASK_INVENTORY_OFFERED:
-			case IM_GROUP_NOTICE:
-			case IM_GROUP_NOTICE_REQUESTED:
-			{
-				// This is an offer from a task or group.
-				// We don't use a new instance of an opener
-				// We instead use the singular observer gOpenTaskOffer
-				// Since it already exists, we don't need to actually do anything
-			}
-				break;
-			default:
-				LL_WARNS("Messaging") << "inventory_offer_callback: unknown offer type" << LL_ENDL;
-				break;
-		}	// end switch (mIM)
 			break;
-			
 		case IOR_MUTE:
 			// MUTE falls through to decline
+			accept = false;
 		case IOR_DECLINE:
-			// DECLINE. The math for the dialog works, because the decline
-			// for inventory_offered, task_inventory_offer or
-			// group_notice_inventory is 2 greater than the offer integer value.
-			// Generates IM_INVENTORY_DECLINED, IM_TASK_INVENTORY_DECLINED,
-			// or IM_GROUP_NOTICE_INVENTORY_DECLINED
 		default:
 			// close button probably (or any of the fall-throughs from above)
-			msg->addU8Fast(_PREHASH_Dialog, (U8)(mIM + 2));
-			msg->addBinaryDataFast(_PREHASH_BinaryBucket, EMPTY_BINARY_BUCKET, EMPTY_BINARY_BUCKET_SIZE);
-			// send the message
-			msg->sendReliable(mHost);
-
-			if (gSavedSettings.getBOOL("LogInventoryDecline"))
+			destination = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+			if (accept && LLMuteList::getInstance()->isMuted(mFromID, mFromName))
 			{
-				LLStringUtil::format_map_t log_message_args;
-				log_message_args["DESC"] = mDesc;
-				log_message_args["NAME"] = mFromName;
-				log_message = LLTrans::getString("InvOfferDecline", log_message_args);
-
-				LLSD args;
-				args["MESSAGE"] = log_message;
-				LLNotificationsUtil::add("SystemMessageTip", args);
-			}
-			
-			if (is_do_not_disturb &&	(!mFromGroup && !mFromObject))
-			{
-				send_do_not_disturb_message(msg,mFromID);
+				// Note: muted offers are usually declined automatically,
+				// but user can mute object after receiving message
+				accept = false;
 			}
 			break;
 	}
-	
-	if(opener)
-	{
-		gInventory.addObserver(opener);
-	}
+
+	sendReceiveResponse(accept, destination);
 
 	if(!mPersist)
 	{
@@ -2233,8 +2219,12 @@ protected:
 	}
 };
 
+static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMPROVED_IM("Process IM");
+
 void process_improved_im(LLMessageSystem *msg, void **user_data)
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_IMPROVED_IM);
+
     LLUUID from_id;
     BOOL from_group;
     LLUUID to_id;
@@ -2886,12 +2876,12 @@ BOOL LLPostTeleportNotifiers::tick()
 // We're going to pretend to be a new agent
 void process_teleport_finish(LLMessageSystem* msg, void**)
 {
-	LL_DEBUGS("Messaging") << "Got teleport location message" << LL_ENDL;
+	LL_DEBUGS("Teleport","Messaging") << "Received TeleportFinish message" << LL_ENDL;
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_Info, _PREHASH_AgentID, agent_id);
 	if (agent_id != gAgent.getID())
 	{
-		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
+		LL_WARNS("Teleport","Messaging") << "Got teleport notification for wrong agent " << agent_id << " expected " << gAgent.getID() << ", ignoring!" << LL_ENDL;
 		return;
 	}
 
@@ -2901,12 +2891,13 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
         {
             // Server either ignored teleport cancel message or did not receive it in time.
             // This message can't be ignored since teleport is complete at server side
+			LL_INFOS("Teleport") << "Restoring canceled teleport request" << LL_ENDL;
             gAgent.restoreCanceledTeleportRequest();
         }
         else
         {
             // Race condition? Make sure all variables are set correctly for teleport to work
-            LL_WARNS("Messaging") << "Teleport 'finish' message without 'start'" << LL_ENDL;
+            LL_WARNS("Teleport","Messaging") << "Teleport 'finish' message without 'start'. Setting state to TELEPORT_REQUESTED" << LL_ENDL;
             gTeleportDisplay = TRUE;
             LLViewerMessage::getInstance()->mTeleportStartedSignal();
             gAgent.setTeleportState(LLAgent::TELEPORT_REQUESTED);
@@ -2915,7 +2906,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
     }
     else if (gAgent.getTeleportState() == LLAgent::TELEPORT_MOVING)
     {
-        LL_WARNS("Messaging") << "Teleport message in the middle of other teleport" << LL_ENDL;
+        LL_WARNS("Teleport","Messaging") << "Teleport message in the middle of other teleport" << LL_ENDL;
     }
 	
 	// Teleport is finished; it can't be cancelled now.
@@ -2943,11 +2934,18 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	msg->getU64Fast(_PREHASH_Info, _PREHASH_RegionHandle, region_handle);
 	U32 teleport_flags;
 	msg->getU32Fast(_PREHASH_Info, _PREHASH_TeleportFlags, teleport_flags);
-	
-	
+
 	std::string seedCap;
 	msg->getStringFast(_PREHASH_Info, _PREHASH_SeedCapability, seedCap);
 
+	LL_DEBUGS("Teleport") << "TeleportFinish message params are:"
+						  << " sim_ip " << sim_ip
+						  << " sim_port " << sim_port
+						  << " region_handle " << region_handle
+						  << " teleport_flags " << teleport_flags
+						  << " seedCap " << seedCap
+						  << LL_ENDL;
+	
 	// update home location if we are teleporting out of prelude - specific to teleporting to welcome area 
 	if((teleport_flags & TELEPORT_FLAGS_SET_HOME_TO_TARGET)
 	   && (!gAgent.isGodlike()))
@@ -2989,7 +2987,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	gAgent.standUp();
 
 	// now, use the circuit info to tell simulator about us!
-	LL_INFOS("Messaging") << "process_teleport_finish() Enabling "
+	LL_INFOS("Teleport","Messaging") << "process_teleport_finish() sending UseCircuitCode to enable sim_host "
 			<< sim_host << " with code " << msg->mOurCircuitCode << LL_ENDL;
 	msg->newMessageFast(_PREHASH_UseCircuitCode);
 	msg->nextBlockFast(_PREHASH_CircuitCode);
@@ -2998,11 +2996,12 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 	msg->addUUIDFast(_PREHASH_ID, gAgent.getID());
 	msg->sendReliable(sim_host);
 
+	LL_INFOS("Teleport") << "Calling send_complete_agent_movement() and setting state to TELEPORT_MOVING" << LL_ENDL;
 	send_complete_agent_movement(sim_host);
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
 	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
-	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from process_teleport_finish(). Seed cap == "
+	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability(). Seed cap == "
 			<< seedCap << LL_ENDL;
 	regionp->setSeedCapability(seedCap);
 
@@ -3035,6 +3034,8 @@ void process_avatar_init_complete(LLMessageSystem* msg, void**)
 
 void process_agent_movement_complete(LLMessageSystem* msg, void**)
 {
+	LL_INFOS("Teleport","Messaging") << "Received ProcessAgentMovementComplete" << LL_ENDL;
+
 	gShiftFrame = true;
 	gAgentMovementCompleted = true;
 
@@ -3044,12 +3045,12 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
 	if((gAgent.getID() != agent_id) || (gAgent.getSessionID() != session_id))
 	{
-		LL_WARNS("Messaging") << "Incorrect id in process_agent_movement_complete()"
-				<< LL_ENDL;
+		LL_WARNS("Teleport", "Messaging") << "Incorrect agent or session id in process_agent_movement_complete()"
+										  << " agent " << agent_id << " expected " << gAgent.getID() 
+										  << " session " << session_id << " expected " << gAgent.getSessionID()
+										  << ", ignoring" << LL_ENDL;
 		return;
 	}
-
-	LL_DEBUGS("Messaging") << "process_agent_movement_complete()" << LL_ENDL;
 
 	// *TODO: check timestamp to make sure the movement compleation
 	// makes sense.
@@ -3067,7 +3068,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		// Could happen if you were immediately god-teleported away on login,
 		// maybe other cases.  Continue, but warn.
-		LL_WARNS("Messaging") << "agent_movement_complete() with NULL avatarp." << LL_ENDL;
+		LL_WARNS("Teleport", "Messaging") << "agent_movement_complete() with NULL avatarp." << LL_ENDL;
 	}
 
 	F32 x, y;
@@ -3077,19 +3078,21 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	{
 		if (gAgent.getRegion())
 		{
-			LL_WARNS("Messaging") << "current region " << gAgent.getRegion()->getOriginGlobal() << LL_ENDL;
+			LL_WARNS("Teleport", "Messaging") << "current region origin "
+											  << gAgent.getRegion()->getOriginGlobal() << " id " << gAgent.getRegion()->getRegionID() << LL_ENDL;
 		}
 
-		LL_WARNS("Messaging") << "Agent being sent to invalid home region: " 
-			<< x << ":" << y 
-			<< " current pos " << gAgent.getPositionGlobal()
-			<< LL_ENDL;
+		LL_WARNS("Teleport", "Messaging") << "Agent being sent to invalid home region: " 
+										  << x << ":" << y 
+										  << " current pos " << gAgent.getPositionGlobal()
+										  << ", calling forceDisconnect()"
+										  << LL_ENDL;
 		LLAppViewer::instance()->forceDisconnect(LLTrans::getString("SentToInvalidRegion"));
 		return;
 
 	}
 
-	LL_INFOS("Messaging") << "Changing home region to " << x << ":" << y << LL_ENDL;
+	LL_INFOS("Teleport","Messaging") << "Changing home region to region id " << regionp->getRegionID() << " handle " << region_handle << " == x,y " << x << "," << y << LL_ENDL;
 
 	// set our upstream host the new simulator and shuffle things as
 	// appropriate.
@@ -3117,6 +3120,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		gAgentCamera.slamLookAt(look_at);
 		gAgentCamera.updateCamera();
 
+		LL_INFOS("Teleport") << "Agent movement complete, setting state to TELEPORT_START_ARRIVAL" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_START_ARRIVAL );
 
 		if (isAgentAvatarValid())
@@ -3130,6 +3134,8 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	else
 	{
 		// This is initial log-in or a region crossing
+		LL_INFOS("Teleport") << "State is not TELEPORT_MOVING, so this is initial log-in or region crossing. "
+							 << "Setting state to TELEPORT_NONE" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 
 		if(LLStartUp::getStartupState() < STATE_STARTED)
@@ -3739,6 +3745,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 				{
 					LLColor4 color(0.f,1.f,0.f,1.f);
 					gPipeline.addDebugBlip(objectp->getPositionAgent(), color);
+					LL_DEBUGS("MessageBlip") << "Kill blip for local " << local_id << " at " << objectp->getPositionAgent() << LL_ENDL;
 				}
 
 				// Do the kill
@@ -3760,6 +3767,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 {
 	LLVector3 sun_direction;
+    LLVector3 moon_direction;
 	LLVector3 sun_ang_velocity;
 	F32 phase;
 	U64	space_time_usec;
@@ -3781,12 +3789,10 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 	LL_DEBUGS("WindlightSync") << "Sun phase: " << phase << " rad = " << fmodf(phase / F_TWO_PI + 0.25, 1.f) * 24.f << " h" << LL_ENDL;
 
-	gSky.setSunPhase(phase);
-	gSky.setSunTargetDirection(sun_direction, sun_ang_velocity);
-	if ( !(gSavedSettings.getBOOL("SkyOverrideSimSunPosition") || gSky.getOverrideSun()) )
-	{
-		gSky.setSunDirection(sun_direction, sun_ang_velocity);
-	}
+	/* LAPRAS
+        We decode these parts of the message but ignore them
+        as the real values are provided elsewhere. */
+    (void)sun_direction, (void)moon_direction, (void)phase;
 }
 
 void process_sound_trigger(LLMessageSystem *msg, void **)
@@ -3845,7 +3851,17 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	}
 		
 	// Don't play sounds from gestures if they are not enabled.
-	if (object_id == owner_id && !gSavedSettings.getBOOL("EnableGestureSounds"))
+	// Do play sounds triggered by avatar, since muting your own
+	// gesture sounds and your own sounds played inworld from 
+	// Inventory can cause confusion.
+	if (object_id == owner_id
+        && owner_id != gAgentID
+        && !gSavedSettings.getBOOL("EnableGestureSounds"))
+	{
+		return;
+	}
+
+	if (LLMaterialTable::basic.isCollisionSound(sound_id) && !gSavedSettings.getBOOL("EnableCollisionSounds"))
 	{
 		return;
 	}
@@ -4045,6 +4061,8 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationList);
 	S32 num_source_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_AnimationSourceList);
 
+	LL_DEBUGS("Messaging", "Motion") << "Processing " << num_blocks << " Animations" << LL_ENDL;
+
 	//clear animation flags
 	avatarp->mSignaledAnimations.clear();
 	
@@ -4056,8 +4074,6 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 		{
 			mesgsys->getUUIDFast(_PREHASH_AnimationList, _PREHASH_AnimID, animation_id, i);
 			mesgsys->getS32Fast(_PREHASH_AnimationList, _PREHASH_AnimSequenceID, anim_sequence_id, i);
-
-			LL_DEBUGS("Messaging") << "Anim sequence ID: " << anim_sequence_id << LL_ENDL;
 
 			avatarp->mSignaledAnimations[animation_id] = anim_sequence_id;
 
@@ -4097,6 +4113,14 @@ void process_avatar_animation(LLMessageSystem *mesgsys, void **user_data)
 						avatarp->mAnimationSources.insert(LLVOAvatar::AnimationSourceMap::value_type(object_id, animation_id));
 					}
 				}
+				LL_DEBUGS("Messaging", "Motion") << "Anim sequence ID: " << anim_sequence_id
+									<< " Animation id: " << animation_id
+									<< " From block: " << object_id << LL_ENDL;
+			}
+			else
+			{
+				LL_DEBUGS("Messaging", "Motion") << "Anim sequence ID: " << anim_sequence_id
+									<< " Animation id: " << animation_id << LL_ENDL;
 			}
 		}
 	}
@@ -5043,6 +5067,15 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 		// notification was specified using the new mechanism, so we can just handle it here
 		std::string notificationID;
 		msgsystem->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, notificationID);
+
+		//SL-13824 skip notification when both joining a group and leaving a group
+		//remove this after server stops sending these messages  
+		if (notificationID == "JoinGroupSuccess" ||
+			notificationID == "GroupDepart")
+		{
+			return true;
+		}
+
 		if (!LLNotifications::getInstance()->templateExists(notificationID))
 		{
 			return false;
@@ -5108,7 +5141,14 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
 			std::string snap_filename = gDirUtilp->getLindenUserDir();
 			snap_filename += gDirUtilp->getDirDelimiter();
 			snap_filename += LLStartUp::getScreenHomeFilename();
-			gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE, LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
+            gViewerWindow->saveSnapshot(snap_filename,
+                                        gViewerWindow->getWindowWidthRaw(),
+                                        gViewerWindow->getWindowHeightRaw(),
+                                        FALSE, //UI
+                                        gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                        FALSE,
+                                        LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+                                        LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 		}
 		
 		if (notificationID == "RegionRestartMinutes" ||
@@ -5163,12 +5203,27 @@ bool attempt_standard_notification(LLMessageSystem* msgsystem)
             }
         }
 
-		// Error Notification can come with and without reason
-		if (notificationID == "JoinGroupError" && llsdBlock.has("reason"))
-		{
-			LLNotificationsUtil::add("JoinGroupErrorReason", llsdBlock);
-			return true;
-		}
+        // Error Notification can come with and without reason
+        if (notificationID == "JoinGroupError")
+        {
+            if (llsdBlock.has("reason"))
+            {
+                LLNotificationsUtil::add("JoinGroupErrorReason", llsdBlock);
+                return true;
+            }
+            if (llsdBlock.has("group_id"))
+            {
+                LLGroupData agent_gdatap;
+                bool is_member = gAgent.getGroupData(llsdBlock["group_id"].asUUID(), agent_gdatap);
+                if (is_member)
+                {
+                    LLSD args;
+                    args["reason"] = LLTrans::getString("AlreadyInGroup");
+                    LLNotificationsUtil::add("JoinGroupErrorReason", args);
+                    return true;
+                }
+            }
+        }
 
 		LLNotificationsUtil::add(notificationID, llsdBlock);
 		return true;
@@ -5191,7 +5246,14 @@ static void process_special_alert_messages(const std::string & message)
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
 		snap_filename += gDirUtilp->getDirDelimiter();
 		snap_filename += LLStartUp::getScreenHomeFilename();
-		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, FALSE, LLSnapshotModel::SNAPSHOT_TYPE_COLOR, LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
+		gViewerWindow->saveSnapshot(snap_filename,
+                                    gViewerWindow->getWindowWidthRaw(),
+                                    gViewerWindow->getWindowHeightRaw(),
+                                    FALSE,
+                                    gSavedSettings.getBOOL("RenderHUDInSnapshot"),
+                                    FALSE,
+                                    LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+                                    LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
 	}
 }
 
@@ -5435,16 +5497,7 @@ void process_frozen_message(LLMessageSystem *msgsystem, void **user_data)
 // do some extra stuff once we get our economy data
 void process_economy_data(LLMessageSystem *msg, void** /*user_data*/)
 {
-	LLGlobalEconomy::processEconomyData(msg, LLGlobalEconomy::getInstance());
-
-	S32 upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
-
-	LL_INFOS_ONCE("Messaging") << "EconomyData message arrived; upload cost is L$" << upload_cost << LL_ENDL;
-
-	gMenuHolder->getChild<LLUICtrl>("Upload Image")->setLabelArg("[COST]", llformat("%d", upload_cost));
-	gMenuHolder->getChild<LLUICtrl>("Upload Sound")->setLabelArg("[COST]", llformat("%d", upload_cost));
-	gMenuHolder->getChild<LLUICtrl>("Upload Animation")->setLabelArg("[COST]", llformat("%d", upload_cost));
-	gMenuHolder->getChild<LLUICtrl>("Bulk Upload")->setLabelArg("[COST]", llformat("%d", upload_cost));
+	LL_DEBUGS("Benefits") << "Received economy data, not currently used" << LL_ENDL;
 }
 
 void notify_cautioned_script_question(const LLSD& notification, const LLSD& response, S32 orig_questions, BOOL granted)
@@ -5701,8 +5754,9 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 	// so we'll reuse the same namespace for both throttle types.
 	std::string throttle_name = owner_name;
 	std::string self_name;
-	LLAgentUI::buildFullname( self_name );
-	if( owner_name == self_name )
+	LLAgentUI::buildFullname( self_name ); // does not include ' Resident'
+	std::string clean_owner_name = LLCacheName::cleanFullName(owner_name); // removes ' Resident'
+	if( clean_owner_name == self_name )
 	{
 		throttle_name = taskid.getString();
 	}
@@ -5737,7 +5791,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 		S32 count = 0;
 		LLSD args;
 		args["OBJECTNAME"] = object_name;
-		args["NAME"] = LLCacheName::cleanFullName(owner_name);
+		args["NAME"] = clean_owner_name;
 		S32 known_questions = 0;
 		bool has_not_only_debit = questions ^ SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_DEBIT].permbit;
 		// check the received permission flags against each permission
@@ -5937,6 +5991,8 @@ std::string formatted_time(const time_t& the_time)
 
 void process_teleport_failed(LLMessageSystem *msg, void**)
 {
+	LL_WARNS("Teleport","Messaging") << "Received TeleportFailed message" << LL_ENDL;
+
 	std::string message_id;		// Tag from server, like "RegionEntryAccessBlocked"
 	std::string big_reason;		// Actual message to display
 	LLSD args;
@@ -5955,6 +6011,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			// Nothing found in the map - use what the server returned in the original message block
 			msg->getStringFast(_PREHASH_Info, _PREHASH_Reason, big_reason);
 		}
+		LL_WARNS("Teleport") << "AlertInfo message_id " << message_id << " reason: " << big_reason << LL_ENDL;
 
 		LLSD llsd_block;
 		std::string llsd_raw;
@@ -5964,10 +6021,11 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			std::istringstream llsd_data(llsd_raw);
 			if (!LLSDSerialize::deserialize(llsd_block, llsd_data, llsd_raw.length()))
 			{
-				LL_WARNS() << "process_teleport_failed: Attempted to read alert parameter data into LLSD but failed:" << llsd_raw << LL_ENDL;
+				LL_WARNS("Teleport") << "process_teleport_failed: Attempted to read alert parameter data into LLSD but failed:" << llsd_raw << LL_ENDL;
 			}
 			else
 			{
+				LL_WARNS("Teleport") << "AlertInfo llsd block received: " << llsd_block << LL_ENDL;
 				if(llsd_block.has("REGION_NAME"))
 				{
 					std::string region_name = llsd_block["REGION_NAME"].asString();
@@ -5983,6 +6041,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 				{
 					if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 					{
+						LL_WARNS("Teleport") << "called handle_teleport_access_blocked, setting state to TELEPORT_NONE" << LL_ENDL;
 						gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 					}
 					return;
@@ -6005,22 +6064,27 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 			args["REASON"] = message_id;
 		}
 	}
+	LL_WARNS("Teleport") << "Displaying CouldNotTeleportReason string, REASON= " << args["REASON"] << LL_ENDL;
 
 	LLNotificationsUtil::add("CouldNotTeleportReason", args);
 
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
+		LL_WARNS("Teleport") << "End of process_teleport_failed(). Reason message arg is " << args["REASON"]
+							 << ". Setting state to TELEPORT_NONE" << LL_ENDL;
 		gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 	}
 }
 
 void process_teleport_local(LLMessageSystem *msg,void**)
 {
+	LL_INFOS("Teleport","Messaging") << "Received TeleportLocal message" << LL_ENDL;
+	
 	LLUUID agent_id;
 	msg->getUUIDFast(_PREHASH_Info, _PREHASH_AgentID, agent_id);
 	if (agent_id != gAgent.getID())
 	{
-		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
+		LL_WARNS("Teleport", "Messaging") << "Got teleport notification for wrong agent " << agent_id << " expected " << gAgent.getID() << ", ignoring!" << LL_ENDL;
 		return;
 	}
 
@@ -6032,6 +6096,7 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 	msg->getVector3Fast(_PREHASH_Info, _PREHASH_LookAt, look_at);
 	msg->getU32Fast(_PREHASH_Info, _PREHASH_TeleportFlags, teleport_flags);
 
+	LL_INFOS("Teleport") << "Message params are location_id " << location_id << " teleport_flags " << teleport_flags << LL_ENDL;
 	if( gAgent.getTeleportState() != LLAgent::TELEPORT_NONE )
 	{
 		if( gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL )
@@ -6044,6 +6109,8 @@ void process_teleport_local(LLMessageSystem *msg,void**)
 		}
 		else
 		{
+			LL_WARNS("Teleport") << "State is not TELEPORT_LOCAL: " << gAgent.getTeleportStateName()
+								 << ", setting state to TELEPORT_NONE" << LL_ENDL;
 			gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 		}
 	}
@@ -6368,15 +6435,12 @@ void process_user_info_reply(LLMessageSystem* msg, void**)
 				<< "wrong agent id." << LL_ENDL;
 	}
 	
-	BOOL im_via_email;
-	msg->getBOOLFast(_PREHASH_UserData, _PREHASH_IMViaEMail, im_via_email);
 	std::string email;
 	msg->getStringFast(_PREHASH_UserData, _PREHASH_EMail, email);
 	std::string dir_visibility;
 	msg->getString( "UserData", "DirectoryVisibility", dir_visibility);
 
-    // For Message based user info information the is_verified is assumed to be false.
-	LLFloaterPreference::updateUserInfo(dir_visibility, im_via_email, false);   
+	LLFloaterPreference::updateUserInfo(dir_visibility);   
 	LLFloaterSnapshot::setAgentEmail(email);
 }
 
@@ -6795,16 +6859,15 @@ void process_covenant_reply(LLMessageSystem* msg, void**)
 	}
 }
 
-void onCovenantLoadComplete(LLVFS *vfs,
-					const LLUUID& asset_uuid,
-					LLAssetType::EType type,
-					void* user_data, S32 status, LLExtStat ext_status)
+void onCovenantLoadComplete(const LLUUID& asset_uuid,
+							LLAssetType::EType type,
+							void* user_data, S32 status, LLExtStat ext_status)
 {
 	LL_DEBUGS("Messaging") << "onCovenantLoadComplete()" << LL_ENDL;
 	std::string covenant_text;
 	if(0 == status)
 	{
-		LLVFile file(vfs, asset_uuid, type, LLVFile::READ);
+		LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
 		
 		S32 file_length = file.getSize();
 		

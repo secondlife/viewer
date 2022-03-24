@@ -38,25 +38,16 @@ enum EKeystate
 {
 	KEYSTATE_DOWN,
 	KEYSTATE_LEVEL,
-	KEYSTATE_UP 
+	KEYSTATE_UP
 };
 
-typedef boost::function<void(EKeystate keystate)> LLKeyFunc;
+typedef boost::function<bool(EKeystate keystate)> LLKeyFunc;
 typedef std::string (LLKeyStringTranslatorFunc)(const char *label);
 	
 enum EKeyboardInsertMode
 {
 	LL_KIM_INSERT,
 	LL_KIM_OVERWRITE
-};
-
-class LLKeyBinding
-{
-public:
-	KEY				mKey;
-	MASK			mMask;
-// 	const char		*mName; // unused
-	LLKeyFunc		mFunction;
 };
 
 class LLWindowCallbacks;
@@ -103,7 +94,8 @@ public:
 
 	static BOOL		maskFromString(const std::string& str, MASK *mask);		// False on failure
 	static BOOL		keyFromString(const std::string& str, KEY *key);			// False on failure
-	static std::string stringFromKey(KEY key);
+	static std::string stringFromKey(KEY key, bool translate = true);
+	static std::string stringFromAccelerator( MASK accel_mask ); // separated for convinience, returns with "+": "Shift+" or "Shift+Alt+"...
 	static std::string stringFromAccelerator( MASK accel_mask, KEY key );
 
 	void setCallbacks(LLWindowCallbacks *cbs) { mCallbacks = cbs; }

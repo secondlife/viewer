@@ -423,8 +423,8 @@ void LLAvatarTexBar::draw()
 	LLColor4 color;
 	
 	U32 line_num = 1;
-	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().begin();
-		 baked_iter != LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::getInstance()->getBakedTextures().end();
+	for (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::BakedTextures::const_iterator baked_iter = LLAvatarAppearance::getDictionary()->getBakedTextures().begin();
+		 baked_iter != LLAvatarAppearance::getDictionary()->getBakedTextures().end();
 		 ++baked_iter)
 	{
 		const LLAvatarAppearanceDefines::EBakedTextureIndex baked_index = baked_iter->first;
@@ -549,7 +549,7 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
 
-	text = llformat("GL Tot: %d/%d MB Bound: %d/%d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
+	text = llformat("GL Tot: %d/%d MB Bound: %4d/%4d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
 					total_mem.value(),
 					max_total_mem.value(),
 					bound_mem.value(),

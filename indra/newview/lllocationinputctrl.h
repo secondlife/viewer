@@ -160,7 +160,6 @@ private:
 	void					onForSaleButtonClicked();
 	void					onAddLandmarkButtonClicked();
 	void					onAgentParcelChange();
-	void					onMaturityButtonClicked();
 	void                    onRegionBoundaryCrossed();
 	void                    onNavMeshStatusChange(const LLPathfindingNavMeshStatus &pNavMeshStatus);
 	// callbacks

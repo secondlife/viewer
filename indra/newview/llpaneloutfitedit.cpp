@@ -58,7 +58,6 @@
 #include "llmenubutton.h"
 #include "llpaneloutfitsinventory.h"
 #include "lluiconstants.h"
-#include "llsaveoutfitcombobtn.h"
 #include "llscrolllistctrl.h"
 #include "lltextbox.h"
 #include "lltoggleablemenu.h"
@@ -80,6 +79,8 @@ const U64 ATTACHMENT_MASK = (1LL << LLInventoryType::IT_ATTACHMENT) | (1LL << LL
 const U64 ALL_ITEMS_MASK = WEARABLE_MASK | ATTACHMENT_MASK;
 
 static const std::string REVERT_BTN("revert_btn");
+static const std::string SAVE_AS_BTN("save_as_btn");
+static const std::string SAVE_BTN("save_btn");
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,7 +98,7 @@ std::string LLShopURLDispatcher::resolveURL(LLWearableType::EType wearable_type,
 {
 	const std::string prefix = "MarketplaceURL";
 	const std::string sex_str = (sex == SEX_MALE) ? "Male" : "Female";
-	const std::string type_str = LLWearableType::getTypeName(wearable_type);
+	const std::string type_str = LLWearableType::getInstance()->getTypeName(wearable_type);
 
 	std::string setting_name = prefix;
 
@@ -173,7 +174,7 @@ public:
 private:
 	static void onCreate(const LLSD& param)
 	{
-		LLWearableType::EType type = LLWearableType::typeNameToType(param.asString());
+		LLWearableType::EType type = LLWearableType::getInstance()->typeNameToType(param.asString());
 		if (type == LLWearableType::WT_NONE)
 		{
 			LL_WARNS() << "Invalid wearable type" << LL_ENDL;
@@ -188,19 +189,20 @@ private:
 	{
 		LLView* menu_clothes	= gMenuHolder->getChildView("COF.Gear.New_Clothes", FALSE);
 		LLView* menu_bp			= gMenuHolder->getChildView("COF.Gear.New_Body_Parts", FALSE);
+		LLWearableType * wearable_type_inst = LLWearableType::getInstance();
 
 		for (U8 i = LLWearableType::WT_SHAPE; i != (U8) LLWearableType::WT_COUNT; ++i)
 		{
 			LLWearableType::EType type = (LLWearableType::EType) i;
-			const std::string& type_name = LLWearableType::getTypeName(type);
+			const std::string& type_name = wearable_type_inst->getTypeName(type);
 
 			LLMenuItemCallGL::Params p;
 			p.name = type_name;
-			p.label = LLTrans::getString(LLWearableType::getTypeDefaultNewName(type));
+			p.label = LLTrans::getString(wearable_type_inst->getTypeDefaultNewName(type));
 			p.on_click.function_name = "Wearable.Create";
 			p.on_click.parameter = LLSD(type_name);
 
-            LLView* parent = LLWearableType::getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
+			LLView* parent = wearable_type_inst->getAssetType(type) == LLAssetType::AT_CLOTHING ? menu_clothes : menu_bp;
 			LLUICtrlFactory::create<LLMenuItemCallGL>(p, parent);
 		}
 	}
@@ -562,7 +564,10 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mGearMenu = LLPanelOutfitEditGearMenu::create();
 	mGearMenuBtn->setMenu(mGearMenu);
 
-	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
+	getChild<LLButton>(SAVE_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveOutfit, this, false));
+	getChild<LLButton>(SAVE_AS_BTN)->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveOutfit, this, true));
+
+	onOutfitChanging(gAgentWearables.isCOFChangeInProgress());
 	return TRUE;
 }
 
@@ -703,6 +708,10 @@ void LLPanelOutfitEdit::onListViewFilterCommitted(LLUICtrl* ctrl)
 	S32 curr_filter_type = mListViewFilterCmbBox->getCurrentIndex();
 	if (curr_filter_type < 0) return;
 
+	if (curr_filter_type >= LVIT_SHAPE)
+	{
+		mWearableItemsList->setMenuWearableType(LLWearableType::EType(curr_filter_type - LVIT_SHAPE));
+	}
 	mWearableListManager->setFilterCollector(mListViewItemTypes[curr_filter_type]->collector);
 }
 
@@ -1233,10 +1242,8 @@ void LLPanelOutfitEdit::updateVerbs()
 	bool outfit_locked = LLAppearanceMgr::getInstance()->isOutfitLocked();
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
-	mSaveComboBtn->setSaveBtnEnabled(!outfit_locked && outfit_is_dirty);
+	getChildView(SAVE_BTN)->setEnabled(!outfit_locked && outfit_is_dirty);
 	getChildView(REVERT_BTN)->setEnabled(outfit_is_dirty && has_baseoutfit);
-
-	mSaveComboBtn->setMenuItemEnabled("save_outfit", !outfit_locked && outfit_is_dirty);
 
 	mStatus->setText(outfit_is_dirty ? getString("unsaved_changes") : getString("now_editing"));
 
@@ -1282,6 +1289,7 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
 	applyListViewFilter(static_cast<EListViewItemType>(LVIT_SHAPE + type));
+	mWearableItemsList->setMenuWearableType(type);
 }
 
 static void update_status_widget_rect(LLView * widget, S32 right_border)
@@ -1420,6 +1428,15 @@ void LLPanelOutfitEdit::saveListSelection()
 		}
 		mInventoryItemsPanel->getRootFolder()->scrollToShowSelection();
 	}
+}
+
+void LLPanelOutfitEdit::saveOutfit(bool as_new)
+{
+	LLPanelOutfitsInventory* panel_outfits_inventory = LLPanelOutfitsInventory::findInstance();
+	if (panel_outfits_inventory)
+	{
+		panel_outfits_inventory->saveOutfit(as_new);
+	} 	
 }
 
 // EOF

@@ -92,7 +92,10 @@
 		<action description="Toggle various About Land &gt; Options settings"
 		     longdescription="Toggle &apos;Safe (no damage)&apos;, &apos;Fly&apos;, and allow other Residents to: &apos;Edit Terrain&apos;, &apos;Build&apos;, &apos;Create Landmarks&apos;, and &apos;Run Scripts&apos; on group-owned land in About Land &gt; Options tab."
 		     name="land options" value="22" />
-	</action_set>
+    <action description="Modify environment settings and day cycle."
+		     longdescription="Change the environment settings and day cycle from the About Land &gt; Environment tab."
+		     name="land change environment" value="46" />
+  </action_set>
 	<action_set
 	     description="These Abilities include powers which allow Members to bypass restrictions on group-owned parcels."
 	     name="Parcel Powers">

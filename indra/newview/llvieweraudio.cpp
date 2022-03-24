@@ -81,8 +81,10 @@ void LLViewerAudio::registerIdleListener()
 	}
 }
 
-void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
+void LLViewerAudio::startInternetStreamWithAutoFade(const std::string &streamURI)
 {
+    LL_DEBUGS("AudioEngine") << "Start with outo fade: " << streamURI << LL_ENDL;
+
 	// Old and new stream are identical
 	if (mNextStreamURI == streamURI)
 	{
@@ -166,6 +168,7 @@ bool LLViewerAudio::onIdleUpdate()
 			if (gAudiop)
 			{
 				// Clear URI
+                LL_DEBUGS("AudioEngine") << "Done with audio fade" << LL_ENDL;
 				gAudiop->startInternetStream(LLStringUtil::null);
 				gAudiop->stopInternetStream();
 			}
@@ -176,6 +179,7 @@ bool LLViewerAudio::onIdleUpdate()
 
 				if (gAudiop)
 				{
+                    LL_DEBUGS("AudioEngine") << "Audio fade in: " << mNextStreamURI << LL_ENDL;
 					LLStreamingAudioInterface *stream = gAudiop->getStreamingAudioImpl();
 					if(stream && stream->supportsAdjustableBufferSizes())
 						stream->setBufferSizes(gSavedSettings.getU32("FMODExStreamBufferSize"),gSavedSettings.getU32("FMODExDecodeBufferSize"));
@@ -219,6 +223,7 @@ void LLViewerAudio::stopInternetStreamWithAutoFade()
 	
 	if (gAudiop)
 	{
+        LL_DEBUGS("AudioEngine") << "Stop audio fade" << LL_ENDL;
 		gAudiop->startInternetStream(LLStringUtil::null);
 		gAudiop->stopInternetStream();
 	}

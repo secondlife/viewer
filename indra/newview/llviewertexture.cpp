@@ -39,8 +39,6 @@
 #include "llimagej2c.h"
 #include "llimagetga.h"
 #include "llstl.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "message.h"
 #include "lltimer.h"
 
@@ -98,8 +96,8 @@ const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
 const S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
 const S32 DEFAULT_ICON_DIMENTIONS = 32;
-S32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
-S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
+U32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
+U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
 F32  LLViewerTexture::sTexelPixelRatio = 1.0f;
@@ -1238,6 +1236,8 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		{
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
             {
+                // Shouldn't do anything usefull since texures in fast cache are 16x16,
+                // it is here in case fast cache changes.
                 S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
                 S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
                 if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
@@ -1485,7 +1485,8 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		mOrigWidth = mRawImage->getWidth();
 		mOrigHeight = mRawImage->getHeight();
 
-			
+        // This is only safe because it's a local image and fetcher doesn't use raw data
+        // from local images, but this might become unsafe in case of changes to fetcher
 		if (mBoostLevel == BOOST_PREVIEW)
 		{ 
 			mRawImage->biasedScaleToPowerOfTwo(1024);
@@ -1540,6 +1541,26 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		destroyRawImage();
 		return FALSE;
 	}
+
+    if (mGLTexturep->getHasExplicitFormat())
+    {
+        LLGLenum format = mGLTexturep->getPrimaryFormat();
+        S8 components = mRawImage->getComponents();
+        if ((format == GL_RGBA && components < 4)
+            || (format == GL_RGB && components < 3))
+        {
+            LL_WARNS() << "Can't create a texture " << mID << ": invalid image format " << std::hex << format << " vs components " << (U32)components << LL_ENDL;
+            // Was expecting specific format but raw texture has insufficient components for
+            // such format, using such texture will result in crash or will display wrongly
+            // if we change format. Texture might be corrupted server side, so just set as
+            // missing and clear cashed texture (do not cause reload loop, will retry&recover
+            // during new session)
+            setIsMissingAsset();
+            destroyRawImage();
+            LLAppViewer::getTextureCache()->removeFromCache(mID);
+            return FALSE;
+        }
+    }
 
 	res = mGLTexturep->createGLTexture(mRawDiscardLevel, mRawImage, usename, TRUE, mBoostLevel);
 
@@ -1989,6 +2010,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		if (mRawImage.notNull()) sRawCount--;
 		if (mAuxRawImage.notNull()) sAuxCount--;
+		// keep in mind that fetcher still might need raw image, don't modify original
 		bool finished = LLAppViewer::getTextureFetch()->getRequestFinished(getID(), fetch_discard, mRawImage, mAuxRawImage,
 																		   mLastHttpGetStatus);
 		if (mRawImage.notNull()) sRawCount++;
@@ -2048,7 +2070,8 @@ bool LLViewerFetchedTexture::updateFetch()
                     if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                     {
                         // scale oversized icon, no need to give more work to gl
-                        mRawImage->scale(expected_width, expected_height);
+                        // since we got mRawImage from thread worker and image may be in use (ex: writing cache), make a copy
+                        mRawImage = mRawImage->scaled(expected_width, expected_height);
                     }
                 }
 
@@ -3289,13 +3312,6 @@ void LLViewerLODTexture::processTextureStats()
 	{
 		mDesiredDiscardLevel = llmin(mDesiredDiscardLevel, (S8)mDesiredSavedRawDiscardLevel);
 	}
-	else if(LLPipeline::sMemAllocationThrottled)//release memory of large textures by decrease their resolutions.
-	{
-		if(scaleDown())
-		{
-			mDesiredDiscardLevel = mCachedRawDiscardLevel;
-		}
-	}
 }
 
 bool LLViewerLODTexture::scaleDown()
@@ -3481,7 +3497,10 @@ BOOL LLViewerMediaTexture::findFaces()
 			U32 end = tex->getNumFaces(ch);
 		for(U32 i = 0; i < end; i++)
 		{
-			mMediaFaceList.push_back((*face_list)[i]);
+			if ((*face_list)[i]->isMediaAllowed())
+			{
+				mMediaFaceList.push_back((*face_list)[i]);
+			}
 		}
 	}
 	}
@@ -3497,11 +3516,22 @@ BOOL LLViewerMediaTexture::findFaces()
 	for(; iter != obj_list->end(); ++iter)
 	{
 		LLVOVolume* obj = *iter;
-		if(obj->mDrawable.isNull())
-		{
-			ret = FALSE;
-			continue;
-		}
+        if (obj->isDead())
+        {
+            // Isn't supposed to happen, objects are supposed to detach
+            // themselves on markDead()
+            // If this happens, viewer is likely to crash
+            llassert(0);
+            LL_WARNS() << "Dead object in mMediaImplp's object list" << LL_ENDL;
+            ret = FALSE;
+            continue;
+        }
+
+        if (obj->mDrawable.isNull() || obj->mDrawable->isDead())
+        {
+            ret = FALSE;
+            continue;
+        }
 
 		S32 face_id = -1;
 		S32 num_faces = obj->mDrawable->getNumFaces();

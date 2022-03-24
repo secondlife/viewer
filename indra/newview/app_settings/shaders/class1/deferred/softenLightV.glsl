@@ -1,5 +1,5 @@
 /** 
- * @file softenLightF.glsl
+ * @file softenLightV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -29,12 +29,17 @@ ATTRIBUTE vec3 position;
 
 uniform vec2 screen_res;
 
+void setAtmosAttenuation(vec3 c);
+void setAdditiveColor(vec3 c);
+
 VARYING vec2 vary_fragcoord;
 void main()
 {
-	//transform vertex
-	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
-	gl_Position = pos; 
-	
-	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
+    //transform vertex
+    vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
+    gl_Position = pos; 
+    // appease OSX GLSL compiler/linker by touching all the varyings we said we would
+    setAtmosAttenuation(vec3(1));
+    setAdditiveColor(vec3(0));
+    vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
 }

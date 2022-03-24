@@ -20,6 +20,7 @@
 		<menu_item_call label="Yeni Alfa" name="New Alpha"/>
 		<menu_item_call label="Yeni Fizik" name="New Physics"/>
 		<menu_item_call label="Yeni Dövme" name="New Tattoo"/>
+		<menu_item_call label="Yeni Evrensel" name="New Universal"/>
 	</menu>
 	<menu label="Yeni Vücut Bölümleri" name="New Body Parts">
 		<menu_item_call label="Yeni Şekil" name="New Shape"/>

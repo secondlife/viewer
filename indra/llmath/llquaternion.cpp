@@ -104,6 +104,11 @@ LLQuaternion::LLQuaternion(const LLVector3 &x_axis,
 	normalize();
 }
 
+LLQuaternion::LLQuaternion(const LLSD &sd)
+{
+    setValue(sd);
+}
+
 // Quatizations
 void	LLQuaternion::quantize16(F32 lower, F32 upper)
 {
@@ -858,6 +863,26 @@ void LLQuaternion::getAngleAxis(F32* angle, LLVector3 &vec) const
 		vec.mV[VY] = 0.0f;
 		vec.mV[VZ] = 1.0f;
 	}
+}
+
+const LLQuaternion& LLQuaternion::setFromAzimuthAndAltitude(F32 azimuthRadians, F32 altitudeRadians)
+{
+    // euler angle inputs are complements of azimuth/altitude which are measured from zenith
+    F32 pitch = llclamp(F_PI_BY_TWO - altitudeRadians, 0.0f, F_PI_BY_TWO);
+    F32 yaw   = llclamp(F_PI_BY_TWO - azimuthRadians,  0.0f, F_PI_BY_TWO);
+    setEulerAngles(0.0f, pitch, yaw);
+    return *this;
+}
+
+void LLQuaternion::getAzimuthAndAltitude(F32 &azimuthRadians, F32 &altitudeRadians)
+{
+    F32 rick_roll;
+    F32 pitch;
+    F32 yaw;
+    getEulerAngles(&rick_roll, &pitch, &yaw);
+    // make these measured from zenith
+    altitudeRadians = llclamp(F_PI_BY_TWO - pitch, 0.0f, F_PI_BY_TWO);
+    azimuthRadians  = llclamp(F_PI_BY_TWO - yaw,   0.0f, F_PI_BY_TWO);
 }
 
 // quaternion does not need to be normalized

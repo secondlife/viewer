@@ -54,7 +54,7 @@ class LLTexturePipelineTester ;
 
 typedef	void	(*loaded_callback_func)( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
 
-class LLVFile;
+class LLFileSystem;
 class LLMessageSystem;
 class LLViewerMediaImpl ;
 class LLVOVolume ;
@@ -125,6 +125,8 @@ public:
 	virtual BOOL isMissingAsset() const ;
 	virtual void dump();	// debug info to LL_INFOS()
 	
+    virtual bool isViewerMediaTexture() const { return false; }
+
 	/*virtual*/ bool bindDefaultImage(const S32 stage = 0) ;
 	/*virtual*/ bool bindDebugImage(const S32 stage = 0) ;
 	/*virtual*/ void forceImmediateUpdate() ;
@@ -228,8 +230,8 @@ public:
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
-	static S32 sMinLargeImageSize ;
-	static S32 sMaxSmallImageSize ;
+	static U32 sMinLargeImageSize ;
+	static U32 sMaxSmallImageSize ;
 	static bool sFreezeImageUpdates;
 	static F32  sCurrentTime ;
 
@@ -413,6 +415,7 @@ public:
 	BOOL		isFullyLoaded() const;
 
 	BOOL        hasFetcher() const { return mHasFetcher;}
+	bool        isFetching() const { return mIsFetching;}
 	void        setCanUseHTTP(bool can_use_http) {mCanUseHTTP = can_use_http;}
 
 	void        forceToDeleteRequest();
@@ -578,6 +581,8 @@ public:
 	void setPlaying(BOOL playing) ;
 	BOOL isPlaying() const {return mIsPlaying;}
 	void setMediaImpl() ;
+
+    virtual bool isViewerMediaTexture() const { return true; }
 
 	void initVirtualSize() ;	
 	void invalidateMediaImpl() ;

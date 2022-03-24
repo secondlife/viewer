@@ -407,5 +407,14 @@
       <integer>1</integer>
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
+
+    <key>skipupdatecheck</key>
+    <map>
+      <key>desc</key>
+      <string>Skips update check at startup.</string>
+      <key>map-to</key>
+      <string>CmdLineSkipUpdater</string>
+    </map>
+
   </map>
 </llsd>

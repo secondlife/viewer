@@ -4,18 +4,16 @@
  legacy_header_height="225"
  can_minimize="true"
  can_close="true"
- can_resize="true"
- min_height="65"
- min_width="515"
- height="65"
+ can_resize="false"
+ height="80"
+ width="515"
  layout="topleft"
  name="HoverHeight"
  single_instance="true"
  help_topic="hover_height"
  save_rect="true"
  save_visibility="true"
- title="SET HOVER HEIGHT"
- width="515">
+ title="SET HOVER HEIGHT">
       <slider
      enabled="false"
      control_name="HoverHeightSlider"
@@ -34,4 +32,13 @@
      can_edit_text="true"
      >
     </slider>
+  <check_box
+     control_name="HoverHeightAffectsCamera"
+     follows="all"
+     height="15"
+     label="Bind Camera view"
+     layout="topleft"
+     name="BindCameraCheck"
+     top_pad="7"
+     width="237"/>
 </floater>

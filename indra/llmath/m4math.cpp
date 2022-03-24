@@ -384,13 +384,6 @@ void LLMatrix4::initRows(const LLVector4 &row0,
 }
 
 
-const LLMatrix4& 	LLMatrix4::initRotation(const F32 angle, const F32 x, const F32 y, const F32 z)
-{
-	LLMatrix3	mat(angle, x, y, z);
-	return initMatrix(mat);
-}
-
-
 const LLMatrix4& 	LLMatrix4::initRotation(F32 angle, const LLVector4 &vec)
 {
 	LLMatrix3	mat(angle, vec);
@@ -411,17 +404,6 @@ const LLMatrix4&  	LLMatrix4::initRotation(const LLQuaternion &q)
 	return initMatrix(mat);
 }
 
-
-// Position and Rotation
-const LLMatrix4&  	LLMatrix4::initRotTrans(const F32 angle, const F32 rx, const F32 ry, const F32 rz,
-											const F32 tx, const F32 ty, const F32 tz)
-{
-	LLMatrix3	mat(angle, rx, ry, rz);
-	LLVector3	translation(tx, ty, tz);
-	initMatrix(mat);
-	setTranslation(translation);
-	return (*this);
-}
 
 const LLMatrix4&  	LLMatrix4::initRotTrans(const F32 angle, const LLVector3 &axis, const LLVector3&translation)
 {
@@ -511,15 +493,6 @@ const LLMatrix4& LLMatrix4::initAll(const LLVector3 &scale, const LLQuaternion &
 
 	// TODO -- should we set the translation portion to zero?
 	return (*this);
-}
-
-// Rotate exisitng mMatrix
-const LLMatrix4&  	LLMatrix4::rotate(const F32 angle, const F32 x, const F32 y, const F32 z)
-{
-	LLVector4	vec4(x, y, z);
-	LLMatrix4	mat(angle, vec4);
-	*this *= mat;
-	return *this;
 }
 
 const LLMatrix4&  	LLMatrix4::rotate(const F32 angle, const LLVector4 &vec)

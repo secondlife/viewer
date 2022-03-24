@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_adjust_snapshot" title="Illuminazione personale">
+	<layout_stack name="outer_stack">
+		<layout_panel name="env_controls">
+			<layout_stack name="settings_stack">
+				<layout_panel>
+					<button label="Reimposta" name="btn_reset" tool_tip="Chiudi e reimposta a Ambiente Condiviso"/>
+					<text name="cloud_map_label">
+						Immagine nuvola:
+					</text>
+				</layout_panel>
+				<layout_panel>
+					<text name="label">
+						Sole:
+					</text>
+					<check_box label="Mostra marcatore" name="sunbeacon"/>
+				</layout_panel>
+				<layout_panel>
+					<check_box label="Mostra marcatore" name="moonbeacon"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
+</floater>

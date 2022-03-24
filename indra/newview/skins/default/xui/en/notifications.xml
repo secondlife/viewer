@@ -214,6 +214,19 @@ Make sure your Internet connection is working properly.
 
   <notification
    icon="alertmodal.tga"
+   name="LoginFailedToParse"
+   type="alertmodal">
+    <tag>fail</tag>
+Viewer received malformed response from server. Please, make sure your Internet connection is working properly and try again later.
+
+If you feel this is in error, please contact Support.
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="MessageTemplateNotFound"
    type="alertmodal">
 Message Template [PATH] not found.
@@ -686,6 +699,18 @@ Do you want to revoke modify rights for the selected Residents?
 
   <notification
    icon="alertmodal.tga"
+   name="GroupNameLengthWarning"
+   type="alertmodal">
+A group name must be between [MIN_LEN] and [MAX_LEN] characters.
+    <tag>group</tag>
+    <tag>fail</tag>
+    <usetemplate
+       name="okbutton"
+       yestext="OK"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="UnableToCreateGroup"
    type="alertmodal">
 Unable to create group.
@@ -920,7 +945,7 @@ You do not have enough L$ to join this group.
    icon="alertmodal.tga"
    name="CreateGroupCost"
    type="alertmodal">
-Creating this group will cost L$100.
+Creating this group will cost L$[COST].
 Groups need more than one member, or they are deleted forever.
 Please invite members within 48 hours.
     <tag>group</tag>
@@ -929,7 +954,7 @@ Please invite members within 48 hours.
      canceltext="Cancel"
      name="okcancelbuttons"
      notext="Cancel"
-     yestext="Create group for L$100"/>
+     yestext="Create group for L$[COST]"/>
   </notification>
 
   <notification
@@ -1010,18 +1035,6 @@ The group no longer has open enrollment.
        yestext="OK"/>
   </notification>
 
-  <notification
-   icon="alertmodal.tga"
-   name="JoinGroupSuccess"
-   type="alertmodal">
-You have been added to the group
-    <tag>group_id</tag>
-    <tag>success</tag>
-    <usetemplate
-       name="okbutton"
-       yestext="OK"/>
-  </notification>
-  
   <notification
    icon="alertmodal.tga"
    name="JoinGroupInsufficientFunds"
@@ -1291,6 +1304,14 @@ Error encoding snapshot.
   
   <notification
    icon="alertmodal.tga"
+   name="ErrorCannotAffordUpload"
+   type="alertmodal">
+    You need L$[COST] to upload this item.
+    <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="ErrorTextureCannotAfford"
    type="alertmodal">
     You need L$[COST] to save a texture to your inventory. You may either buy L$ or save the photo to your computer instead.
@@ -1321,6 +1342,18 @@ There was a problem uploading a report screenshot due to the following reason: [
 You must agree to the Second Life Terms and Conditions, Privacy Policy, and Terms of Service to continue logging into [SECOND_LIFE].
   </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="CouldNotBuyCurrency"
+   type="alertmodal">
+[TITLE]
+[MESSAGE]
+   <tag>fail</tag>
+   <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+  
   <notification
    icon="alertmodal.tga"
    name="CouldNotPutOnOutfit"
@@ -1493,7 +1526,7 @@ Go to the [SECOND_LIFE] events web page?
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			http://secondlife.com/events/
+			https://secondlife.com/my/community/events
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -2180,7 +2213,7 @@ Wrong chunk size in WAV file:
    icon="alertmodal.tga"
    name="SoundFileInvalidTooLong"
    type="alertmodal">
-Audio file is too long (10 second maximum):
+Audio file is too long (30 second maximum):
 [FILE]
   <tag>fail</tag>
   </notification>
@@ -2259,6 +2292,7 @@ Unable to create output file: [FILE]
    icon="alertmodal.tga"
    name="DoNotSupportBulkAnimationUpload"
    type="alertmodal">
+    <unique/>
 [APP_NAME] does not currently support bulk upload of BVH format animation files.
   <tag>fail</tag>
   </notification>
@@ -2296,6 +2330,29 @@ You already have a landmark for this location.
    type="alertmodal">
 You cannot create a landmark here because the owner of the land doesn&apos;t allow it.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ label="Create folder"
+ name="CreateLandmarkFolder"
+ type="alertmodal">
+    <unique/>
+    Choose a name for the folder:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
   </notification>
 
   <notification
@@ -2410,9 +2467,8 @@ Teleport failed.
    icon="alertmodal.tga"
    name="invalid_tport"
    type="alertmodal">
-Problem encountered processing your teleport request. You may need to log back in before you can teleport.
-If you continue to get this message, please check the [SUPPORT_SITE].
-  <tag>fail</tag>
+Teleport attempts are limited to 6 per minute. If you are having trouble, wait one minute and try teleporting again. If the problem persists, log out and log in again.
+    <tag>fail</tag>
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -2477,6 +2533,13 @@ Sorry, but the system was unable to complete your teleport request in a timely f
    type="alertmodal">
    <tag>fail</tag>
 Sorry, but the system was unable to complete your region crossing in a timely fashion. Please try again in a few minutes.
+  </notification>
+  <notification
+   icon="alertmodal.tga"
+   name="preexisting_tport"
+   type="alertmodal">
+   <tag>fail</tag>
+Sorry, but the system was unable to start your teleport. Please try again in a few minutes.
   </notification>
   <notification
    icon="alertmodal.tga"
@@ -2899,6 +2962,14 @@ Darn. You have been logged out of [SECOND_LIFE].
 
   <notification
    icon="alertmodal.tga"
+   name="InventoryUnusable"
+   type="alertmodal">
+There was a problem loading your inventory. First, try logging out and logging in again. If you see this message again, contact Support to correct the problem.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="OnlyOfficerCanBuyLand"
    type="alertmodal">
 Unable to buy land for the group:
@@ -3093,6 +3164,52 @@ See https://wiki.secondlife.com/wiki/Adding_Spelling_Dictionaries
 
   <notification
    icon="alertmodal.tga"
+   label="Rename Gesture"
+   name="RenameGesture"
+   type="alertmodal">
+    New gesture name:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   label="Rename Landmark"
+   name="RenameLandmark"
+   type="alertmodal">
+    Choose a new name for [NAME]
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="new_name" type="text" width="300">
+        [NAME]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="RemoveFromFriends"
    type="alertmodal">
     <tag>friendship</tag>
@@ -3123,7 +3240,7 @@ Do you want to remove multiple friends from your Friends list?
    type="alertmodal">
 Are you sure you want to delete all scripted objects owned by
 ** [AVATAR_NAME] **
-on all others land in this sim?
+on all others land in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3137,7 +3254,7 @@ on all others land in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL scripted objects owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3151,7 +3268,7 @@ on ALL LAND in this sim?
    type="alertmodal">
 Are you sure you want to DELETE ALL objects (scripted or not) owned by
 ** [AVATAR_NAME] **
-on ALL LAND in this sim?
+on ALL LAND in this region?
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -3410,6 +3527,9 @@ Display settings have been set to recommended levels because of a change to the 
    icon="alertmodal.tga"
    name="ErrorMessage"
    type="alertmodal">
+    <unique>
+      <context>ERROR_MESSAGE</context>
+    </unique>
 [ERROR_MESSAGE]
   <tag>fail</tag>
     <usetemplate
@@ -3518,6 +3638,26 @@ If this is your first time using [SECOND_LIFE], you will need to create an accou
 
   <notification
    icon="alertmodal.tga"
+   name="LoginCantRemoveUsername"
+   type="alertmodal">
+    <tag>fail</tag>
+Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginCantRemoveCurUsername"
+   type="alertmodal">
+    <tag>confirm</tag>
+Forgetting the logged-in user requires you to log out.
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm and log out"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LoginPacketNeverReceived"
    type="alertmodal">
    <tag>fail</tag>
@@ -3547,6 +3687,42 @@ You can either check your Internet connection and try again in a few minutes, cl
 
   <notification
    icon="alertmodal.tga"
+   name="LoginPacketNeverReceivedNoTP"
+   type="alertmodal">
+    <tag>fail</tag>
+We&apos;re having trouble connecting. There may be a problem with your Internet connection or the [SECOND_LIFE_GRID].
+
+You can either check your Internet connection and try again in a few minutes or click Help to view the [SUPPORT_SITE].
+    <url option="1" name="url">
+			http://secondlife.com/support/
+    </url>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Help"
+       text="Help"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="LoginRemoveMultiGridUserData"
+   type="alertmodal">
+    <tag>confirm</tag>
+Local Data you are deleting is shared between multiple grids, are you sure you want to delete it?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Confirm"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="WelcomeChooseSex"
    type="alertmodal">
 Your character will appear in a moment.
@@ -3564,6 +3740,17 @@ Please choose the male or female avatar. You can change your mind later.
 		type="alertmodal">
 Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
   <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification icon="alertmodal.tga"
+		name="GeneralCertificateErrorShort"
+		type="alertmodal">
+Could not connect to the server.
+[REASON]
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -3906,6 +4093,8 @@ Finished download of raw terrain file to:
 [DOWNLOAD_PATH].
   </notification>
 
+  <!-- RequiredUpdate does not display release notes URL because we don't get
+       that from login.cgi's login failure message. -->
   <notification
    icon="alertmodal.tga"
    name="RequiredUpdate"
@@ -3923,6 +4112,8 @@ Please download from https://secondlife.com/support/downloads/
    name="PauseForUpdate"
    type="alertmodal">
 Version [VERSION] is required for login.
+Release notes: [URL]
+
 Click OK to download and install.
     <tag>confirm</tag>
     <usetemplate
@@ -3935,6 +4126,8 @@ Click OK to download and install.
    name="OptionalUpdateReady"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
+Release notes: [URL]
+
 Click OK to install.
     <tag>confirm</tag>
     <usetemplate
@@ -3947,6 +4140,8 @@ Click OK to install.
    name="PromptOptionalUpdate"
    type="alertmodal">
 Version [VERSION] has been downloaded and is ready to install.
+Release notes: [URL]
+
 Proceed?
     <tag>confirm</tag>
     <usetemplate
@@ -4116,13 +4311,6 @@ Leave Group?
      yestext="OK"/>
   </notification>
 
-  <notification
-   icon="notify.tga"
-   name="GroupDepart"
-   type="notify">
-You have left the group &apos;&lt;nolink&gt;[group_name]&lt;/nolink&gt;&apos;.
-    <tag>group</tag>
-  </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -4268,11 +4456,21 @@ You have reached your maximum number of groups. Please leave some group before j
    icon="alert.tga"
    name="GroupLimitInfo"
    type="alert">
-The group limit for base accounts is [MAX_BASIC], and for [https://secondlife.com/premium/ premium]
-accounts is [MAX_PREMIUM].
-If you downgraded your account, you will need to get below [MAX_BASIC] group limit before you can join more.
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
+    <tag>group</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="Close"/>
+  </notification>
 
-[https://secondlife.com/my/account/membership.php Upgrade today!]
+  <notification
+   icon="alert.tga"
+   name="GroupLimitInfoPlus"
+   type="alert">
+Residents with Basic memberships may join up to [MAX_BASIC] groups.
+Premium memberships allow up to [MAX_PREMIUM]. Premium Plus
+memberships allow up to [MAX_PREMIUM_PLUS]. [https://secondlife.com/my/account/membership.php? Learn more or upgrade]
     <tag>group</tag>
     <usetemplate
      name="okbutton"
@@ -4898,10 +5096,26 @@ Unchecking this option may remove restrictions that parcel owners have added to 
 
   <notification
    icon="alertmodal.tga"
+   name="EstateParcelEnvironmentOverride"
+   type="alertmodal">
+(Estate-wide change: [ESTATENAME]) Unchecking this option will remove any custom environments that parcel owners have added to their parcels. Please discuss with your parcel owners as needed.
+Do you wish to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+  
+  
+  <notification
+   icon="alertmodal.tga"
    name="RegionEntryAccessBlocked"
    type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -4988,7 +5202,9 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
    name="TeleportEntryAccessBlocked"
    type="alertmodal">
     <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -5137,6 +5353,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandClaimAccessBlocked"
    type="alertmodal">
     The land you're trying to claim has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -5206,6 +5424,8 @@ You won't receive any more notifications that you're about to visit a region wit
    name="LandBuyAccessBlocked"
    type="alertmodal">
     The land you're trying to buy has a maturity rating exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
     <tag>fail</tag>
     <usetemplate
      name="okbutton"
@@ -5999,6 +6219,34 @@ Would you like to turn off Do Not Disturb before completing this transaction?
   </notification>
 
   <notification
+   icon="notify.tga"
+   label="Parcel is Playing Media"
+   name="ParcelPlayingMedia"   
+   persist="false"
+   type="notify">
+This location plays media:
+[URL]
+Would you like to play it?
+    <tag>confirm</tag>
+    <form name="form">
+      <ignore name="ignore"
+       checkbox_only="true"
+       text="Always choose this option for this land."/>
+      <button
+       ignore="Play Media"
+       index="1"
+       name="Yes"
+       text="Play"/>
+      <button
+       default="true"
+       ignore="Ignore Media"
+       index="0"
+       name="No"
+       text="Don't play"/>
+    </form>
+  </notification>
+
+  <notification
    icon="alertmodal.tga"
    name="ConfirmDeleteProtectedCategory"
    type="alertmodal">
@@ -6110,6 +6358,20 @@ Are you sure you want to permanently delete the contents of your Lost And Found?
 
   <notification
    icon="alertmodal.tga"
+   name="ConfirmReplaceLink"
+   type="alertmodal">
+You're about to replace '[TYPE]' body part link with the item which doesn't match the type.
+Are you sure you want to proceed?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Confirm before I replace link"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
+  <notification
+   icon="alertmodal.tga"
    name="CopySLURL"
    type="alertmodal">
 The following SLurl has been copied to your clipboard:
@@ -6155,7 +6417,23 @@ This day cycle file references a missing sky file: [SKY].
    icon="alertmodal.tga"
    name="WLRegionApplyFail"
    type="alertmodal">
-Sorry, the settings couldn't be applied to the region.  Leaving the region and then returning may help rectify the problem.  The reason given was: [FAIL_REASON]
+Sorry, the settings couldn't be applied to the region. Reason: [FAIL_REASON]
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureDayBlock"
+   type="alertmodal">
+A Local texture is in use on track [TRACK], frame #[FRAMENO] ([FRAME]%) in field [FIELD].
+Settings may not be saved using local textures.
+  </notification>
+    
+  <notification
+   icon="alertmodal.tga"
+   name="WLLocalTextureFixedBlock"
+   type="alertmodal">
+A local texture is in use in field [FIELD].
+Settings may not be saved using local textures.
   </notification>
 
   <notification
@@ -6711,20 +6989,6 @@ Please select at least one type of content to search (General, Moderate, or Adul
 
   <notification
    icon="notify.tga"
-   name="FlickrConnect"
-   type="notifytip">
-    [MESSAGE]
-  </notification>
-
-  <notification
-   icon="notify.tga"
-   name="TwitterConnect"
-   type="notifytip">
-    [MESSAGE]
-  </notification>
-
-  <notification
-   icon="notify.tga"
    name="PaymentReceived"
    log_to_im="true"   
    persist="true"
@@ -7026,12 +7290,16 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-   icon="notify.tga"
+   icon="alertmodal.tga"
    name="RegionTPAccessBlocked"
-   persist="false"
-   type="notify">
+   type="alertmodal">
    <tag>fail</tag>
-    The region you're trying to visit contains content exceeding your current preferences.  You can change your preferences using Me &gt; Preferences &gt; General.
+    The region you’re trying to visit has a maturity rating exceeding your maximum maturity preference. Change this preference using Me menu &gt; Preferences &gt; General.
+
+Complete information on maturity ratings can be found [https://community.secondlife.com/knowledgebase/english/maturity-ratings-r52/ here].
+    <usetemplate
+      name="okbutton"
+      yestext="OK"/>
   </notification>
 
   <notification
@@ -8356,6 +8624,18 @@ Can not overwrite default preset.
   </notification>
 
   <notification
+    icon="alertmodal.tga"
+    name="PresetAlreadyExists"
+    type="alertmodal">
+&apos;[NAME]&apos; is in use. You may replace
+this preset or choose another name.
+    <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
     icon="notifytip.tga"
     name="PresetNotDeleted"
     type="notifytip">
@@ -8402,7 +8682,48 @@ Your voice has been muted by moderator.
          name="okbutton"
          yestext="OK"/>
     </notification>
+
+    <notification
+        icon="alertmodal.tga"
+        name="FailedToGetBenefits"
+        type="alertmodal">
+      Unfortunately, we were unable to get benefits information for this session. This should not happen in a normal production environment. Please contact support. This session will not work normally and we recommend that you restart.
+      <usetemplate
+          name="okbutton"
+          yestext="OK"/>
+    </notification>
+
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadCostConfirmation"
+    type="alertmodal">
+This will upload [COUNT] items at a total cost of L$[COST]. Do you wish to continue with the upload?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Upload"/>
+   </notification>
   
+   <notification
+    icon="alertmodal.tga"
+    name="BulkUploadNoCompatibleFiles"
+    type="alertmodal">
+Selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="BulkUploadIncompatibleFiles"
+   type="alertmodal">
+Some of the selected files can not be bulk-uploaded.
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
    <notification
     icon="alertmodal.tga"
     name="UploadCostConfirmation"
@@ -8418,7 +8739,7 @@ This upload will cost L$[PRICE], do you wish to continue with the upload?
    icon="alertmodal.tga"
    name="ConfirmClearTeleportHistory"
    type="alertmodal">
-Are you sure you want to delete your teleport history?
+This will delete the entire list of places you have visited, and cannot be undone. Continue?
   <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
@@ -8464,6 +8785,13 @@ See SecondLife.log for details
     icon="alert.tga"
     type="alert">
     Error while requesting mesh upload permissons.
+  </notification>
+
+  <notification
+    name="MeshUploadProfilerError"
+    icon="alert.tga"
+    type="alert">
+Mesh uploader is incompatible with RenderGLCoreProfile, please turn RenderGLCoreProfile off in debug settings and restart the viewer.
   </notification>
   
   <notification
@@ -9312,10 +9640,22 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
+  <global name="UnsupportedShaderRequirements">
+You do not appear to meet the hardware requirements for [APP_NAME]. [APP_NAME] requires OpenGL 2.0 or later shader support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
+
+If you continue to have problems, please visit the [SUPPORT_SITE].
+  </global>
+
   <global name="UnsupportedGLRequirements">
 You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
 
 If you continue to have problems, please visit the [SUPPORT_SITE].
+  </global>
+
+  <global name="UnsupportedIntelDriver">
+The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
+
+Do you want to check the Intel driver website?
   </global>
 
   <global name="UnsupportedCPUAmount">
@@ -9332,6 +9672,10 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
 
   <global name="UnsupportedRAM">
 - Your system memory does not meet the minimum requirements.
+  </global>
+  
+  <global name="LLLeapUpdaterFailure">
+Failed to launch updater service [UPDATER_APP]. Please verify the viewer is installed correctly and has the necessary permissions to run. If you continue to experience issues, please visit the [SUPPORT_SITE].
   </global>
 
 <!-- these are alert strings from server. the name needs to match entire the server string, and needs to be changed
@@ -9739,6 +10083,15 @@ Removal of the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; from the simulat
 Cannot save your selection because you do not have permission to modify the object &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt;.
   </notification>
 
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoTransNoSaveToContents"
+   type="notify">
+    <tag>fail</tag>
+    Cannot save &lt;nolink&gt;'[OBJ_NAME]'&lt;/nolink&gt; to object contents because you do not have permission to transfer the object's ownership.
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="NoCopyNoSaveSelection"
@@ -10034,7 +10387,7 @@ Unable to add script!
    name="AssetServerTimeoutObjReturn"
    type="notify">
    <tag>fail</tag>
-Asset server didn't respond in a timely fashion.  Object returned to sim.
+Asset server didn't respond in a timely fashion.  Object returned to the region.
   </notification>
 
   <notification
@@ -11175,6 +11528,19 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      notext="Cancel"
      yestext="OK"/>
   </notification>
+  
+  <notification
+   icon="alertmodal.tga"
+   name="PreferenceControlsDefaults"
+   type="alertmodal">
+    Do you want to restore default values for controls?
+    <tag>confirm</tag>
+    <usetemplate
+       canceltext="Cancel"
+       name="yesnocancelbuttons"
+       notext="Current mode"
+       yestext="All modes"/>
+  </notification>
     
   <notification
    icon="alertmodal.tga"
@@ -11220,7 +11586,28 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      name="okbutton"
      yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="AddPaymentMethod"
+   type="alertmodal">
+On the following page, choose a L$ amount
+and click a place Order button. You will be
+able to add a payment method at checkout.
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       default="true"
+       index="0"
+       width="120"
+       name="Continue"
+       text="Continue"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
   
   <notification
    icon="alert.tga"
@@ -11233,4 +11620,200 @@ Cannot create large prims that intersect other residents.  Please re-try when ot
      yestext="OK"/>
   </notification>
 
+  <notification
+   icon="notify.tga"
+   name="FailedToFindSettings"
+   persist="true"
+   type="alertmodal">
+Could not load the settings for [NAME] from the database.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FailedToLoadSettingsApply"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="FailedToBuildSettingsDay"
+   persist="true"
+   type="alertmodal">
+Unable to apply those settings to the environment.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="NoEnvironmentSettings"
+   persist="true"
+   type="alertmodal">
+This Region does not support environmental settings.
+  <tag>fail</tag>
+  </notification>
+ 
+  <notification
+   icon="alertmodal.tga"
+   label="Save Outfit"
+   name="SaveSettingAs"
+   type="alertmodal">
+    <unique/>
+    Save current environmental settings as:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC] (new)
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLImportFail"
+   persist="true"
+   type="alertmodal">
+Unable to import legacy Windlight settings [NAME] from 
+[FILE].
+
+[REASONS]
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="WLParcelApplyFail"
+   persist="true"
+   type="alertmodal">
+Unable to set the environment for this parcel.
+Please enter or select a parcel that you have rights to modify.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notify.tga"
+   name="SettingsUnsuported"
+   persist="true"
+   type="alertmodal">
+Settings are not supported on this region. 
+Please move to a settings enabled region and retry your action.
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsConfirmLoss"
+   type="alertmodal">
+You are about to lose the changes you have made to this [TYPE] named "[NAME]".
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to lose changes?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsConfirmReset"
+   type="alertmodal">
+You are about to remove all applied settings.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="PersonalSettingsConfirmReset"
+ type="alertmodal">
+You are about to remove all applied Personal lighting settings.
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="SettingsMakeNoTrans"
+   type="alertmodal">
+You are about to import non-transferable settings into this daycycle. Continuing will cause the settings you are editing to become non-transferable also. 
+
+This change can not be undone.
+
+Are you sure you want to continue?
+    <tag>confirm</tag>
+    <usetemplate
+     ignoretext="Are you sure you want to make settings non-transferable?"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+  </notification>
+  
+  <notification
+   icon="notify.tga"
+   name="NoEditFromLibrary"
+   persist="true"
+   type="alertmodal">
+You may not edit settings directly from the libary.  
+Please copy to your own inventory and try again.
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="EnvironmentApplyFailed"
+   persist="true"
+   type="alertmodal">
+We have encountered an issue with these settings.  They can not be saved or applied at this time.
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadFailed"
+   persist="true"
+   type="alertmodal">
+Unable to load the track into [TRACK].
+  <tag>fail</tag>
+  </notification>
+
+    <notification
+   icon="notify.tga"
+   name="TrackLoadMismatch"
+   persist="true"
+   type="alertmodal">
+Unable to load the track from [TRACK1] into [TRACK2].
+  <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CompressionTestResults"
+   type="alertmodal">
+Test result for gzip level 6 file compression with [FILE] of size [SIZE] KB:
+Packing: [PACK_TIME]s [PSIZE]KB
+Unpacking: [UNPACK_TIME]s [USIZE]KB
+    <tag>fail</tag>
+  </notification>
+  
 </notifications>

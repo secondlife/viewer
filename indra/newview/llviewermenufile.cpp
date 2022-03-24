@@ -30,6 +30,7 @@
 
 // project includes
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llagentcamera.h"
 #include "llfilepicker.h"
 #include "llfloaterreg.h"
@@ -45,6 +46,7 @@
 #include "llimagejpeg.h"
 #include "llimagetga.h"
 #include "llinventorymodel.h"	// gInventory
+#include "llpluginclassmedia.h"
 #include "llresourcedata.h"
 #include "lltoast.h"
 #include "llfloaterperms.h"
@@ -52,8 +54,6 @@
 #include "llviewercontrol.h"	// gSavedSettings
 #include "llviewertexturelist.h"
 #include "lluictrlfactory.h"
-#include "llvfile.h"
-#include "llvfs.h"
 #include "llviewerinventory.h"
 #include "llviewermenu.h"	// gMenuHolder
 #include "llviewerparcelmgr.h"
@@ -67,7 +67,6 @@
 #include "llviewerassetupload.h"
 
 // linden libraries
-#include "lleconomy.h"
 #include "llnotificationsutil.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -85,8 +84,6 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
-// 		return new_value;
 	}
 };
 
@@ -255,6 +252,25 @@ void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
 	}
 }
 
+
+LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
+    : LLFilePickerThread(filter, get_multiple),
+    mPlugin(plugin->getSharedPrt())
+{
+}
+
+LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
+    : LLFilePickerThread(filter, proposed_name),
+    mPlugin(plugin->getSharedPrt())
+{
+}
+
+void LLMediaFilePicker::notify(const std::vector<std::string>& filenames)
+{
+    mPlugin->sendPickFileResponse(mResponses);
+    mPlugin = NULL;
+}
+
 //============================================================================
 
 #if LL_WINDOWS
@@ -393,7 +409,9 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 		}
 		if (type == LLFilePicker::FFLOAD_ANIM)
 		{
-			if (filename.rfind(".anim") != std::string::npos)
+			std::string filename_lc(filename);
+			LLStringUtil::toLower(filename_lc);
+			if (filename_lc.rfind(".anim") != std::string::npos)
 			{
 				LLFloaterReg::showInstance("upload_anim_anim", LLSD(filename));
 			}
@@ -406,6 +424,77 @@ const void upload_single_file(const std::vector<std::string>& filenames, LLFileP
 	return;
 }
 
+void do_bulk_upload(std::vector<std::string> filenames, const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option != 0)
+	{
+		// Cancel upload
+		return;
+	}
+
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+		
+		std::string name = gDirUtilp->getBaseFileName(filename, true);
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
+
+		std::string ext = gDirUtilp->getExtension(filename);
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 expected_upload_cost;
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, expected_upload_cost))
+		{
+		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+			filename,
+			asset_name,
+			asset_name, 0,
+			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+			LLFloaterPerms::getNextOwnerPerms("Uploads"),
+			LLFloaterPerms::getGroupPerms("Uploads"),
+			LLFloaterPerms::getEveryonePerms("Uploads"),
+			expected_upload_cost));
+
+		upload_new_resource(uploadInfo);
+	}
+}
+}
+
+bool get_bulk_upload_expected_cost(const std::vector<std::string>& filenames, S32& total_cost, S32& file_count, S32& bvh_count)
+{
+	total_cost = 0;
+	file_count = 0;
+	bvh_count = 0;
+	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
+	{
+		std::string filename = (*in_iter);
+		std::string ext = gDirUtilp->getExtension(filename);
+
+		if (ext == "bvh")
+		{
+			bvh_count++;
+		}
+
+		LLAssetType::EType asset_type;
+		U32 codec;
+		S32 cost;
+
+		if (LLResourceUploadInfo::findAssetTypeAndCodecOfExtension(ext, asset_type, codec) &&
+			LLAgentBenefitsMgr::current().findUploadCost(asset_type, cost))
+		{
+			total_cost += cost;
+			file_count++;
+		}
+	}
+	
+    return file_count > 0;
+}
 
 const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter type)
 {
@@ -417,31 +506,50 @@ const void upload_bulk(const std::vector<std::string>& filenames, LLFilePicker::
 	//
 	// Also fix single upload to charge first, then refund
 
-	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
+	// FIXME PREMIUM what about known types that can't be bulk uploaded
+	// (bvh)? These will fail in the item by item upload but won't be
+	// mentioned in the notification.
+	std::vector<std::string> filtered_filenames;
 	for (std::vector<std::string>::const_iterator in_iter = filenames.begin(); in_iter != filenames.end(); ++in_iter)
 	{
-		std::string filename = (*in_iter);
-		if (!check_file_extension(filename, type)) continue;
-		
-		std::string name = gDirUtilp->getBaseFileName(filename, true);
-		std::string asset_name = name;
-		LLStringUtil::replaceNonstandardASCII(asset_name, '?');
-		LLStringUtil::replaceChar(asset_name, '|', '?');
-		LLStringUtil::stripNonprintable(asset_name);
-		LLStringUtil::trim(asset_name);
-
-		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-			filename,
-			asset_name,
-			asset_name, 0,
-			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-			LLFloaterPerms::getNextOwnerPerms("Uploads"),
-			LLFloaterPerms::getGroupPerms("Uploads"),
-			LLFloaterPerms::getEveryonePerms("Uploads"),
-			expected_upload_cost));
-
-		upload_new_resource(uploadInfo, NULL, NULL);
+		const std::string& filename = *in_iter;
+		if (check_file_extension(filename, type))
+		{
+			filtered_filenames.push_back(filename);
+		}
 	}
+
+	S32 expected_upload_cost;
+	S32 expected_upload_count;
+	S32 bvh_count;
+	if (get_bulk_upload_expected_cost(filtered_filenames, expected_upload_cost, expected_upload_count, bvh_count))
+	{
+		LLSD args;
+		args["COST"] = expected_upload_cost;
+		args["COUNT"] = expected_upload_count;
+		LLNotificationsUtil::add("BulkUploadCostConfirmation",  args, LLSD(), boost::bind(do_bulk_upload, filtered_filenames, _1, _2));
+
+		if (filtered_filenames.size() > expected_upload_count)
+		{
+			if (bvh_count == filtered_filenames.size() - expected_upload_count)
+			{
+				LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+			}
+			else
+			{
+				LLNotificationsUtil::add("BulkUploadIncompatibleFiles");
+			}
+		}
+	}
+	else if (bvh_count == filtered_filenames.size())
+	{
+		LLNotificationsUtil::add("DoNotSupportBulkAnimationUpload");
+	}
+	else
+	{
+		LLNotificationsUtil::add("BulkUploadNoCompatibleFiles");
+	}
+
 }
 
 class LLFileUploadImage : public view_listener_t
@@ -461,13 +569,8 @@ class LLFileUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
-		if (fmp && !fmp->isModelLoading())
-		{
-			fmp->loadModel(3);
-		}
-		
-		return TRUE;
+        LLFloaterModelPreview::showModelPreview();
+        return TRUE;
 	}
 };
 	
@@ -595,10 +698,17 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 		S32 width = gViewerWindow->getWindowWidthRaw();
 		S32 height = gViewerWindow->getWindowHeightRaw();
 
-		if (gSavedSettings.getBOOL("HighResSnapshot"))
+		bool render_ui = gSavedSettings.getBOOL("RenderUIInSnapshot");
+		bool render_hud = gSavedSettings.getBOOL("RenderHUDInSnapshot");
+
+		BOOL high_res = gSavedSettings.getBOOL("HighResSnapshot");
+		if (high_res)
 		{
 			width *= 2;
 			height *= 2;
+			// not compatible with UI/HUD
+			render_ui = false;
+			render_hud = false;
 		}
 
 		if (gViewerWindow->rawSnapshot(raw,
@@ -606,8 +716,11 @@ class LLFileTakeSnapshotToDisk : public view_listener_t
 									   height,
 									   TRUE,
 									   FALSE,
-									   gSavedSettings.getBOOL("RenderUIInSnapshot"),
-									   FALSE))
+									   render_ui,
+									   render_hud,
+									   FALSE,
+									   LLSnapshotModel::SNAPSHOT_TYPE_COLOR,
+									   high_res ? S32_MAX : MAX_SNAPSHOT_IMAGE_SIZE)) //per side
 		{
 			LLPointer<LLImageFormatted> formatted;
             LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
@@ -675,6 +788,94 @@ void handle_compress_image(void*)
 	}
 }
 
+// No convinient check in LLFile, and correct way would be something
+// like GetFileSizeEx, which is too OS specific for current purpose
+// so doing dirty, but OS independent fopen and fseek
+size_t get_file_size(std::string &filename)
+{
+    LLFILE* file = LLFile::fopen(filename, "rb");		/*Flawfinder: ignore*/
+    if (!file)
+    {
+        LL_WARNS() << "Error opening " << filename << LL_ENDL;
+        return 0;
+    }
+
+    // read in the whole file
+    fseek(file, 0L, SEEK_END);
+    size_t file_length = (size_t)ftell(file);
+    fclose(file);
+    return file_length;
+}
+
+void handle_compress_file_test(void*)
+{
+    LLFilePicker& picker = LLFilePicker::instance();
+    if (picker.getOpenFile())
+    {
+        std::string infile = picker.getFirstFile();
+        if (!infile.empty())
+        {
+            std::string packfile = infile + ".pack_test";
+            std::string unpackfile = infile + ".unpack_test";
+
+            S64Bytes initial_size = S64Bytes(get_file_size(infile));
+
+            BOOL success;
+
+            F64 total_seconds = LLTimer::getTotalSeconds();
+            success = gzip_file(infile, packfile);
+            F64 result_pack_seconds = LLTimer::getTotalSeconds() - total_seconds;
+
+            if (success)
+            {
+                S64Bytes packed_size = S64Bytes(get_file_size(packfile));
+
+                LL_INFOS() << "Packing complete, time: " << result_pack_seconds << " size: " << packed_size << LL_ENDL;
+                total_seconds = LLTimer::getTotalSeconds();
+                success = gunzip_file(packfile, unpackfile);
+                F64 result_unpack_seconds = LLTimer::getTotalSeconds() - total_seconds;
+
+                if (success)
+                {
+                    S64Bytes unpacked_size = S64Bytes(get_file_size(unpackfile));
+
+                    LL_INFOS() << "Unpacking complete, time: " << result_unpack_seconds << " size: " << unpacked_size << LL_ENDL;
+
+                    LLSD args;
+                    args["FILE"] = infile;
+                    args["PACK_TIME"] = result_pack_seconds;
+                    args["UNPACK_TIME"] = result_unpack_seconds;
+                    args["SIZE"] = LLSD::Integer(initial_size.valueInUnits<LLUnits::Kilobytes>());
+                    args["PSIZE"] = LLSD::Integer(packed_size.valueInUnits<LLUnits::Kilobytes>());
+                    args["USIZE"] = LLSD::Integer(unpacked_size.valueInUnits<LLUnits::Kilobytes>());
+                    LLNotificationsUtil::add("CompressionTestResults", args);
+
+                    LLFile::remove(packfile);
+                    LLFile::remove(unpackfile);
+                }
+                else
+                {
+                    LL_INFOS() << "Failed to uncompress file: " << packfile << LL_ENDL;
+                    LLFile::remove(packfile);
+                }
+
+            }
+            else
+            {
+                LL_INFOS() << "Failed to compres file: " << infile << LL_ENDL;
+            }
+        }
+        else
+        {
+            LL_INFOS() << "Failed to open file" << LL_ENDL;
+        }
+    }
+    else
+    {
+        LL_INFOS() << "Failed to open file" << LL_ENDL;
+    }
+}
+
 
 LLUUID upload_new_resource(
 	const std::string& src_filename,
@@ -693,7 +894,7 @@ LLUUID upload_new_resource(
 	bool show_inventory)
 {	
 
-    LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewFileResourceUploadInfo>(
         src_filename,
         name, desc, compression_info,
         destination_folder_type, inv_type,
@@ -730,10 +931,7 @@ void upload_done_callback(
 				
 				if(!(can_afford_transaction(expected_upload_cost)))
 				{
-					LLStringUtil::format_map_t args;
-					args["NAME"] = data->mAssetInfo.getName();
-					args["AMOUNT"] = llformat("%d", expected_upload_cost);
-					LLBuyCurrencyHTML::openCurrencyFloater( LLTrans::getString("UploadingCosts", args), expected_upload_cost );
+					LLBuyCurrencyHTML::openCurrencyFloater( "", expected_upload_cost );
 					is_balance_sufficient = FALSE;
 				}
 				else if(region)
@@ -776,7 +974,7 @@ void upload_done_callback(
 					create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 							      folder_id, data->mAssetInfo.mTransactionID, data->mAssetInfo.getName(),
 							      data->mAssetInfo.getDescription(), data->mAssetInfo.mType,
-							      data->mInventoryType, NOT_WEARABLE, next_owner_perms,
+                                  data->mInventoryType, NO_INV_SUBTYPE, next_owner_perms,
 							      LLPointer<LLInventoryCallback>(NULL));
 				}
 				else
@@ -812,7 +1010,7 @@ void upload_done_callback(
 		LLStringUtil::trim(asset_name);
 
 		std::string display_name = LLStringUtil::null;
-		LLAssetStorage::LLStoreAssetCallback callback = NULL;
+		LLAssetStorage::LLStoreAssetCallback callback;
 		void *userdata = NULL;
 		upload_new_resource(
 			next_file,
@@ -867,10 +1065,7 @@ void upload_new_resource(
 			if (balance < uploadInfo->getExpectedUploadCost())
 			{
 				// insufficient funds, bail on this upload
-				LLStringUtil::format_map_t args;
-				args["NAME"] = uploadInfo->getName();
-                args["AMOUNT"] = llformat("%d", uploadInfo->getExpectedUploadCost());
-                LLBuyCurrencyHTML::openCurrencyFloater(LLTrans::getString("UploadingCosts", args), uploadInfo->getExpectedUploadCost());
+                LLBuyCurrencyHTML::openCurrencyFloater("", uploadInfo->getExpectedUploadCost());
 				return;
 			}
 		}

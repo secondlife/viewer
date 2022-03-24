@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
  
+/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -37,11 +38,7 @@ uniform sampler2D diffuseMap;
 VARYING vec3 vary_normal;
 VARYING vec2 vary_texcoord0;
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
+vec2 encode_normal(vec3 n);
 
 void main() 
 {

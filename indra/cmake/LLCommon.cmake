@@ -19,7 +19,7 @@ if (LINUX)
     # specify all libraries that llcommon uses.
     # llcommon uses `clock_gettime' which is provided by librt on linux.
     set(LLCOMMON_LIBRARIES llcommon 
-        ${BOOST_COROUTINE_LIBRARY} 
+        ${BOOST_FIBER_LIBRARY} 
         ${BOOST_CONTEXT_LIBRARY} 
         ${BOOST_THREAD_LIBRARY} 
         ${BOOST_SYSTEM_LIBRARY} 
@@ -27,7 +27,7 @@ if (LINUX)
         )
 else (LINUX)
     set(LLCOMMON_LIBRARIES llcommon
-        ${BOOST_COROUTINE_LIBRARY} 
+        ${BOOST_FIBER_LIBRARY} 
         ${BOOST_CONTEXT_LIBRARY} 
         ${BOOST_THREAD_LIBRARY} 
         ${BOOST_SYSTEM_LIBRARY} )

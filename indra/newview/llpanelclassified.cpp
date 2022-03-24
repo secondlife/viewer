@@ -764,6 +764,7 @@ void LLPanelClassifiedEdit::processProperties(void* data, EAvatarProcessorType t
 			setClassifiedName(c_info->name);
 			setDescription(c_info->description);
 			setSnapshotId(c_info->snapshot_id);
+			setParcelId(c_info->parcel_id);
 			setPosGlobal(c_info->pos_global);
 
 			setClassifiedLocation(createLocationText(c_info->parcel_name, c_info->sim_name, c_info->pos_global));

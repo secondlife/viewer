@@ -120,7 +120,7 @@ public:
 	U32 getDepth(void) const { return mDepth; }
 	bool hasStencil() const { return mStencil; }
 
-	void bindTexture(U32 index, S32 channel);
+	void bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilterOptions filter_options = LLTexUnit::TFO_BILINEAR);
 
 	//flush rendering operations
 	//must be called when rendering is complete

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater label="場所" name="my_environments" title="私の環境">
+	<layout_stack>
+		<layout_panel label="フィルター" name="filter_panel">
+			<check_box label="日間" name="chk_days"/>
+			<check_box label="空" name="chk_skies"/>
+			<check_box label="水" name="chk_water"/>
+			<filter_editor label="環境の絞り込み" name="flt_search"/>
+		</layout_panel>
+		<layout_panel label="環境" name="list_panel">
+			<panel label="pnl_inv_wrap" name="pnl_inv_wrap"/>
+		</layout_panel>
+		<layout_panel>
+			<check_box initial_value="false" label="すべてのフォルダを表示" name="chk_showfolders"/>
+		</layout_panel>
+		<layout_panel name="pnl_control">
+			<panel label="bottom_panel" name="pnl_bottom">
+				<menu_button name="btn_gear" tool_tip="その他のオプションを表示"/>
+				<menu_button name="btn_newsettings" tool_tip="新規設定を作成"/>
+				<button name="btn_del" tool_tip="選択したアイテムを削除"/>
+			</panel>
+		</layout_panel>
+	</layout_stack>
+</floater>

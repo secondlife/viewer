@@ -30,7 +30,6 @@
 
 #include <iostream>
 
-#include "test_allocator.h"
 #include "_httpoperation.h"
 
 
@@ -45,7 +44,6 @@ struct HttpRequestqueueTestData
 {
 	// the test objects inherit from this so the member functions and variables
 	// can be referenced directly inside of the test functions.
-	size_t mMemTotal;
 };
 
 typedef test_group<HttpRequestqueueTestData> HttpRequestqueueTestGroupType;
@@ -57,29 +55,19 @@ void HttpRequestqueueTestObjectType::test<1>()
 {
 	set_test_name("HttpRequestQueue construction");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted object with an implicit reference
 	HttpRequestQueue::init();
 	
 	ensure("One ref on construction of HttpRequestQueue", HttpRequestQueue::instanceOf()->getRefCount() == 1);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// release the implicit reference, causing the object to be released
 	HttpRequestQueue::term();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpRequestqueueTestObjectType::test<2>()
 {
 	set_test_name("HttpRequestQueue refcount works");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	HttpRequestQueue::init();
@@ -91,22 +79,15 @@ void HttpRequestqueueTestObjectType::test<2>()
 	HttpRequestQueue::term();
 	
 	ensure("One ref after term() called", rq->getRefCount() == 1);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 
 	// Drop ref
 	rq->release();
-	
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpRequestqueueTestObjectType::test<3>()
 {
 	set_test_name("HttpRequestQueue addOp/fetchOp work");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	HttpRequestQueue::init();
@@ -126,18 +107,12 @@ void HttpRequestqueueTestObjectType::test<3>()
 	
 	// release the singleton, hold on to the object
 	HttpRequestQueue::term();
-	
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void HttpRequestqueueTestObjectType::test<4>()
 {
 	set_test_name("HttpRequestQueue addOp/fetchAll work");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	HttpRequestQueue::init();
@@ -164,9 +139,6 @@ void HttpRequestqueueTestObjectType::test<4>()
 
 		// release the singleton, hold on to the object
 		HttpRequestQueue::term();
-	
-		// We're still holding onto the ops.
-		ensure(mMemTotal < GetMemTotal());
 
 		// Release them
         ops.clear();
@@ -177,9 +149,6 @@ void HttpRequestqueueTestObjectType::test<4>()
 // 			op->release();
 // 		}
 	}
-
-	// Should be clean
-	ensure("All memory returned", mMemTotal == GetMemTotal());
 }
 
 }  // end namespace tut

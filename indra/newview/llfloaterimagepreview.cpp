@@ -35,6 +35,7 @@
 
 #include "llagent.h"
 #include "llbutton.h"
+#include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
@@ -63,8 +64,8 @@
 const S32 PREVIEW_BORDER_WIDTH = 2;
 const S32 PREVIEW_RESIZE_HANDLE_SIZE = S32(RESIZE_HANDLE_WIDTH * OO_SQRT2) + PREVIEW_BORDER_WIDTH;
 const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
-const S32 PREVIEW_VPAD = -24;	// yuk, hard coded
-const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16;
+const S32 PREVIEW_VPAD = -24 + 35;	// yuk, hard coded
+const S32 PREF_BUTTON_HEIGHT = 16 + 7 + 16 + 35;
 const S32 PREVIEW_TEXTURE_HEIGHT = 320;
 
 //-----------------------------------------------------------------------------
@@ -115,8 +116,14 @@ BOOL LLFloaterImagePreview::postBuild()
 		mSculptedPreview = new LLImagePreviewSculpted(256, 256);
 		mSculptedPreview->setPreviewTarget(mRawImagep, 2.0f);
 
-		if (mRawImagep->getWidth() * mRawImagep->getHeight () <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
-			getChildView("lossless_check")->setEnabled(TRUE);
+        if (mRawImagep->getWidth() * mRawImagep->getHeight() <= LL_IMAGE_REZ_LOSSLESS_CUTOFF * LL_IMAGE_REZ_LOSSLESS_CUTOFF)
+        {
+            // We want "lossless_check" to be unchecked when it is disabled, regardless of
+            // LosslessJ2CUpload state, so only assign control when enabling checkbox
+            LLCheckBoxCtrl* check_box = getChild<LLCheckBoxCtrl>("lossless_check");
+            check_box->setEnabled(TRUE);
+            check_box->setControlVariable(gSavedSettings.getControl("LosslessJ2CUpload"));
+        }
 	}
 	else
 	{

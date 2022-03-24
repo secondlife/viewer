@@ -35,10 +35,8 @@ ATTRIBUTE vec2 texcoord0;
 
 void calcAtmospherics(vec3 inPositionEye);
 
-vec3 atmosAmbient(vec3 light);
+vec3 atmosAmbient();
 vec3 atmosAffectDirectionalLight(float lightIntensity);
-vec3 scaleDownLight(vec3 light);
-vec3 scaleUpLight(vec3 light);
 
 #ifdef WATER_FOG
 VARYING vec3 vary_position;

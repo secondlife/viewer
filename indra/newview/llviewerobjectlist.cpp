@@ -1921,7 +1921,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 						 attachment_iter != attachment->mAttachedObjects.end();
 						 ++attachment_iter)
 					{
-						if (LLViewerObject* attached_object = (*attachment_iter))
+						if (LLViewerObject* attached_object = attachment_iter->get())
 						{
 							mSelectPickList.insert(attached_object);
 							LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();

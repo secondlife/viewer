@@ -30,8 +30,6 @@
 
 #include <iostream>
 
-#include "test_allocator.h"
-
 
 using namespace LLCore;
 
@@ -44,7 +42,6 @@ struct BufferArrayTestData
 {
 	// the test objects inherit from this so the member functions and variables
 	// can be referenced directly inside of the test functions.
-	size_t mMemTotal;
 };
 
 typedef test_group<BufferArrayTestData> BufferArrayTestGroupType;
@@ -56,13 +53,9 @@ void BufferArrayTestObjectType::test<1>()
 {
 	set_test_name("BufferArray construction");
 
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
-
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
 	ensure("One ref on construction of BufferArray", ba->getRefCount() == 1);
-	ensure("Memory being used", mMemTotal < GetMemTotal());
 	ensure("Nothing in BA", 0 == ba->size());
 
 	// Try to read
@@ -72,18 +65,12 @@ void BufferArrayTestObjectType::test<1>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<2>()
 {
 	set_test_name("BufferArray single write");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -105,9 +92,6 @@ void BufferArrayTestObjectType::test<2>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 
@@ -115,9 +99,6 @@ template <> template <>
 void BufferArrayTestObjectType::test<3>()
 {
 	set_test_name("BufferArray multiple writes");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -154,18 +135,12 @@ void BufferArrayTestObjectType::test<3>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<4>()
 {
 	set_test_name("BufferArray overwriting");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -208,18 +183,12 @@ void BufferArrayTestObjectType::test<4>()
 
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<5>()
 {
 	set_test_name("BufferArray multiple writes - sequential reads");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -255,18 +224,12 @@ void BufferArrayTestObjectType::test<5>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure(mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<6>()
 {
 	set_test_name("BufferArray overwrite spanning blocks and appending");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -306,18 +269,12 @@ void BufferArrayTestObjectType::test<6>()
 
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure("All memory released", mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<7>()
 {
 	set_test_name("BufferArray overwrite spanning blocks and sequential writes");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -371,18 +328,12 @@ void BufferArrayTestObjectType::test<7>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure("All memory released", mMemTotal == GetMemTotal());
 }
 
 template <> template <>
 void BufferArrayTestObjectType::test<8>()
 {
 	set_test_name("BufferArray zero-length appendBufferAlloc");
-
-	// record the total amount of dynamically allocated memory
-	mMemTotal = GetMemTotal();
 
 	// create a new ref counted object with an implicit reference
 	BufferArray * ba = new BufferArray();
@@ -421,9 +372,6 @@ void BufferArrayTestObjectType::test<8>()
 	
 	// release the implicit reference, causing the object to be released
 	ba->release();
-
-	// make sure we didn't leak any memory
-	ensure("All memory released", mMemTotal == GetMemTotal());
 }
 
 }  // end namespace tut

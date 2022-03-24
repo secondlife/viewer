@@ -23,6 +23,8 @@
  * $/LicenseInfo$
  */
  
+/*[EXTRA_CODE_HERE]*/
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
 #else
@@ -56,84 +58,7 @@ VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
 
-vec3 srgb_to_linear(vec3 cs)
-{
-	vec3 low_range = cs / vec3(12.92);
-	vec3 high_range = pow((cs+vec3(0.055))/vec3(1.055), vec3(2.4));
-	bvec3 lte = lessThanEqual(cs,vec3(0.04045));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lte.r ? low_range.r : high_range.r;
-	result.g = lte.g ? low_range.g : high_range.g;
-	result.b = lte.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lte);
-#endif
-
-}
-
-vec3 linear_to_srgb(vec3 cl)
-{
-	cl = clamp(cl, vec3(0), vec3(1));
-	vec3 low_range  = cl * 12.92;
-	vec3 high_range = 1.055 * pow(cl, vec3(0.41666)) - 0.055;
-	bvec3 lt = lessThan(cl,vec3(0.0031308));
-
-#ifdef OLD_SELECT
-	vec3 result;
-	result.r = lt.r ? low_range.r : high_range.r;
-	result.g = lt.g ? low_range.g : high_range.g;
-	result.b = lt.b ? low_range.b : high_range.b;
-    return result;
-#else
-	return mix(high_range, low_range, lt);
-#endif
-
-}
-
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
-
-vec4 applyWaterFog(vec4 color, vec3 viewVec)
-{
-	//normalize view vector
-	vec3 view = normalize(viewVec);
-	float es = -view.z;
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	//get object depth
-	float depth = length(viewVec);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	//return vec4(1.0, 0.0, 1.0, 1.0);
-	return color * D + kc * L;
-	//depth /= 10.0;
-	//return vec4(depth,depth,depth,0.0);
-}
+vec2 encode_normal(vec3 n);
 
 void main() 
 {
@@ -151,7 +76,7 @@ void main()
 		
 	vec4 fb = texture2D(screenTex, distort);
 
-	frag_data[0] = vec4(linear_to_srgb(fb.rgb), 1.0); // diffuse
+	frag_data[0] = vec4(fb.rgb, 1.0); // diffuse
 	frag_data[1] = vec4(0.5,0.5,0.5, 0.95); // speccolor*spec, spec
-	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, displace
+	frag_data[2] = vec4(encode_normal(wavef), 0.0, 0.0); // normalxyz, env intens, atmo kill
 }

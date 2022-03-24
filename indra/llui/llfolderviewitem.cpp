@@ -122,6 +122,7 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 :	LLView(p),
 	mLabelWidth(0),
 	mLabelWidthDirty(false),
+    mSuffixNeedsRefresh(false),
     mLabelPaddingRight(DEFAULT_LABEL_PADDING_RIGHT),
 	mParentFolder( NULL ),
 	mIsSelected( FALSE ),
@@ -131,7 +132,6 @@ LLFolderViewItem::LLFolderViewItem(const LLFolderViewItem::Params& p)
 	mCutGeneration(0),
 	mLabelStyle( LLFontGL::NORMAL ),
 	mHasVisibleChildren(FALSE),
-	mIsFolderComplete(true),
     mLocalIndentation(p.folder_indentation),
 	mIndentation(0),
 	mItemHeight(p.item_height),
@@ -181,10 +181,24 @@ LLFolderViewItem::~LLFolderViewItem()
 
 BOOL LLFolderViewItem::postBuild()
 {
-	refresh();
+    LLFolderViewModelItem& vmi = *getViewModelItem();
+    // getDisplayName() is expensive (due to internal getLabelSuffix() and name building)
+    // it also sets search strings so it requires a filter reset
+    mLabel = vmi.getDisplayName();
+    setToolTip(vmi.getName());
+
+    // Dirty the filter flag of the model from the view (CHUI-849)
+    vmi.dirtyFilter();
+
+    // Don't do full refresh on constructor if it is possible to avoid
+    // it significantly slows down bulk view creation.
+    // Todo: Ideally we need to move getDisplayName() out of constructor as well.
+    // Like: make a logic that will let filter update search string,
+    // while LLFolderViewItem::arrange() updates visual part
+    mSuffixNeedsRefresh = true;
+    mLabelWidthDirty = true;
 	return TRUE;
 }
-
 
 LLFolderView* LLFolderViewItem::getRoot()
 {
@@ -280,24 +294,51 @@ BOOL LLFolderViewItem::isPotentiallyVisible(S32 filter_generation)
 
 void LLFolderViewItem::refresh()
 {
-	LLFolderViewModelItem& vmi = *getViewModelItem();
+    LLFolderViewModelItem& vmi = *getViewModelItem();
 
-	mLabel = vmi.getDisplayName();
+    mLabel = vmi.getDisplayName();
+    setToolTip(vmi.getName());
+    // icons are slightly expensive to get, can be optimized
+    // see LLInventoryIcon::getIcon()
+    mIcon = vmi.getIcon();
+    mIconOpen = vmi.getIconOpen();
+    mIconOverlay = vmi.getIconOverlay();
 
-	setToolTip(vmi.getName());
-	mIcon = vmi.getIcon();
-	mIconOpen = vmi.getIconOpen();
-	mIconOverlay = vmi.getIconOverlay();
+    if (mRoot->useLabelSuffix())
+    {
+        // Very Expensive!
+        // Can do a number of expensive checks, like checking active motions, wearables or friend list
+        mLabelStyle = vmi.getLabelStyle();
+        mLabelSuffix = vmi.getLabelSuffix();
+    }
+
+    // Dirty the filter flag of the model from the view (CHUI-849)
+    vmi.dirtyFilter();
+
+    mLabelWidthDirty = true;
+    mSuffixNeedsRefresh = false;
+}
+
+void LLFolderViewItem::refreshSuffix()
+{
+	LLFolderViewModelItem const* vmi = getViewModelItem();
+
+    // icons are slightly expensive to get, can be optimized
+    // see LLInventoryIcon::getIcon()
+	mIcon = vmi->getIcon();
+    mIconOpen = vmi->getIconOpen();
+    mIconOverlay = vmi->getIconOverlay();
 
 	if (mRoot->useLabelSuffix())
 	{
-		mLabelStyle = vmi.getLabelStyle();
-		mLabelSuffix = vmi.getLabelSuffix();
+        // Very Expensive!
+        // Can do a number of expensive checks, like checking active motions, wearables or friend list
+        mLabelStyle = vmi->getLabelStyle();
+        mLabelSuffix = vmi->getLabelSuffix();
 	}
 
-	mLabelWidthDirty = true;
-    // Dirty the filter flag of the model from the view (CHUI-849)
-	vmi.dirtyFilter();
+    mLabelWidthDirty = true;
+    mSuffixNeedsRefresh = false;
 }
 
 // Utility function for LLFolderView
@@ -348,6 +389,12 @@ S32 LLFolderViewItem::arrange( S32* width, S32* height )
 		: 0;
 	if (mLabelWidthDirty)
 	{
+        if (mSuffixNeedsRefresh)
+        {
+            // Expensive. But despite refreshing label,
+            // it is purely visual, so it is fine to do at our laisure
+            refreshSuffix();
+        }
 		mLabelWidth = getLabelXPos() + getLabelFontForStyle(mLabelStyle)->getWidth(mLabel) + getLabelFontForStyle(mLabelStyle)->getWidth(mLabelSuffix) + mLabelPaddingRight; 
 		mLabelWidthDirty = false;
 	}
@@ -557,6 +604,7 @@ BOOL LLFolderViewItem::handleHover( S32 x, S32 y, MASK mask )
 			LLFolderView* root = getRoot();
 
 		if( (x - mDragStartX) * (x - mDragStartX) + (y - mDragStartY) * (y - mDragStartY) > drag_and_drop_threshold() * drag_and_drop_threshold() 
+			&& root->getAllowDrag()
 			&& root->getCurSelectedItem()
 			&& root->startDrag())
 		{
@@ -913,9 +961,10 @@ void LLFolderViewItem::draw()
 	//
     if (filter_string_length > 0)
     {
-        F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, mViewModelItem->getFilterStringOffset());
+        S32 filter_offset = mViewModelItem->getFilterStringOffset();
+        F32 match_string_left = text_left + font->getWidthF32(combined_string, 0, filter_offset + filter_string_length) - font->getWidthF32(combined_string, filter_offset, filter_string_length);
         F32 yy = (F32)getRect().getHeight() - font->getLineHeight() - (F32)mTextPad - (F32)TOP_PAD;
-        font->renderUTF8( combined_string, mViewModelItem->getFilterStringOffset(), match_string_left, yy,
+        font->renderUTF8( combined_string, filter_offset, match_string_left, yy,
             sFilterTextColor, LLFontGL::LEFT, LLFontGL::BOTTOM, LLFontGL::NORMAL, LLFontGL::NO_SHADOW,
             filter_string_length, S32_MAX, &right_x, FALSE );
     }
@@ -953,11 +1002,11 @@ LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ):
 	mCurHeight(0.f),
 	mTargetHeight(0.f),
 	mAutoOpenCountdown(0.f),
+	mIsFolderComplete(false), // folder might have children that are not loaded yet.
+	mAreChildrenInited(false), // folder might have children that are not built yet.
 	mLastArrangeGeneration( -1 ),
 	mLastCalculatedWidth(0)
 {
-	// folder might have children that are not loaded yet. Mark it as incomplete until chance to check it.
-	mIsFolderComplete = false;
 }
 
 void LLFolderViewFolder::updateLabelRotation()
@@ -1013,13 +1062,16 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 {
 	// Sort before laying out contents
     // Note that we sort from the root (CHUI-849)
-	getRoot()->getFolderViewModel()->sort(this);
+    if (mAreChildrenInited)
+    {
+        getRoot()->getFolderViewModel()->sort(this);
+    }
 
 	LL_RECORD_BLOCK_TIME(FTM_ARRANGE);
 	
 	// evaluate mHasVisibleChildren
 	mHasVisibleChildren = false;
-	if (getViewModelItem()->descendantsPassedFilter())
+	if (mAreChildrenInited && getViewModelItem()->descendantsPassedFilter())
 	{
 		// We have to verify that there's at least one child that's not filtered out
 		bool found = false;
@@ -1045,7 +1097,7 @@ S32 LLFolderViewFolder::arrange( S32* width, S32* height )
 
 		mHasVisibleChildren = found;
 	}
-	if (!mIsFolderComplete)
+	if (!mIsFolderComplete && mAreChildrenInited)
 	{
 		mIsFolderComplete = getFolderViewModel()->isFolderComplete(this);
 	}
@@ -1558,7 +1610,7 @@ void LLFolderViewFolder::destroyView()
 
 // extractItem() removes the specified item from the folder, but
 // doesn't delete it.
-void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
+void LLFolderViewFolder::extractItem( LLFolderViewItem* item, bool deparent_model )
 {
 	if (item->isSelected())
 		getRoot()->clearSelection();
@@ -1581,7 +1633,11 @@ void LLFolderViewFolder::extractItem( LLFolderViewItem* item )
 		mItems.erase(it);
 	}
 	//item has been removed, need to update filter
-	getViewModelItem()->removeChild(item->getViewModelItem());
+    if (deparent_model)
+    {
+        // in some cases model does not belong to parent view, is shared between views
+        getViewModelItem()->removeChild(item->getViewModelItem());
+    }
 	//because an item is going away regardless of filter status, force rearrange
 	requestArrange();
 	removeChild(item);

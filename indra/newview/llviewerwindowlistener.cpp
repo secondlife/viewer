@@ -50,10 +50,11 @@ LLViewerWindowListener::LLViewerWindowListener(LLViewerWindow* llviewerwindow):
 //  saveSnapshotArgs["width"] = LLSD::Integer();
 //  saveSnapshotArgs["height"] = LLSD::Integer();
 //  saveSnapshotArgs["showui"] = LLSD::Boolean();
+//  saveSnapshotArgs["showhud"] = LLSD::Boolean();
 //  saveSnapshotArgs["rebuild"] = LLSD::Boolean();
 //  saveSnapshotArgs["type"] = LLSD::String();
     add("saveSnapshot",
-        "Save screenshot: [\"filename\"], [\"width\"], [\"height\"], [\"showui\"], [\"rebuild\"], [\"type\"]\n"
+        "Save screenshot: [\"filename\"], [\"width\"], [\"height\"], [\"showui\"], [\"showhud\"], [\"rebuild\"], [\"type\"]\n"
         "type: \"COLOR\", \"DEPTH\"\n"
         "Post on [\"reply\"] an event containing [\"ok\"]",
         &LLViewerWindowListener::saveSnapshot,
@@ -83,6 +84,9 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
     bool showui = true;
     if (event.has("showui"))
         showui = event["showui"].asBoolean();
+    bool showhud = true;
+    if (event.has("showhud"))
+        showhud = event["showhud"].asBoolean();
     bool rebuild(event["rebuild"]); // defaults to false
     LLSnapshotModel::ESnapshotLayerType type(LLSnapshotModel::SNAPSHOT_TYPE_COLOR);
     if (event.has("type"))
@@ -96,7 +100,7 @@ void LLViewerWindowListener::saveSnapshot(const LLSD& event) const
         }
         type = found->second;
     }
-    bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, rebuild, type);
+    bool ok = mViewerWindow->saveSnapshot(event["filename"], width, height, showui, showhud, rebuild, type);
     sendReply(LLSDMap("ok", ok), event);
 }
 

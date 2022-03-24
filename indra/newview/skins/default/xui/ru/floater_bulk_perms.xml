@@ -21,6 +21,7 @@
 	<icon name="icon_script" tool_tip="Скрипты"/>
 	<icon name="icon_sound" tool_tip="Звуки"/>
 	<icon name="icon_texture" tool_tip="Текстуры"/>
+	<icon name="icon_setting" tool_tip="Настройки окружающей среды"/>
 	<button label="√ Все" name="check_all"/>
 	<button label="Очистить" label_selected="Нет" name="check_none"/>
 	<text name="newperms">

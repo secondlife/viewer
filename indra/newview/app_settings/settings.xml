@@ -1252,6 +1252,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BulkChangeIncludeSettings</key>
+    <map>
+      <key>Comment</key>
+      <string>Bulk permission changes affect environment settings</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>BulkChangeEveryoneCopy</key>
     <map>
       <key>Comment</key>
@@ -1350,6 +1361,39 @@
       <string>S32</string>
       <key>Value</key>
       <integer>23</integer>
+    </map>
+    <key>EnableDiskCacheDebugInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>When set, display additional cache debugging information</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DiskCachePercentOfTotal</key>
+    <map>
+      <key>Comment</key>
+      <string>The percent of total cache size (defined by CacheSize) to use for the disk cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>20.0</real>
+    </map>
+    <key>DiskCacheDirName</key>
+    <map>
+      <key>Comment</key>
+      <string>The name of the disk cache (within the standard Viewer disk cache directory)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>cache</string>
     </map>
     <key>CacheLocation</key>
     <map>
@@ -1499,6 +1543,21 @@
         <real>0.5</real>
       </array>
     </map>
+    <key>CameraOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial camera offset from avatar for the custom camera preset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-3.0</real>
+        <real>0.0</real>
+        <real>0.75</real>
+      </array>
+    </map>
     <key>CameraOffsetScale</key>
     <map>
       <key>Comment</key>
@@ -1509,6 +1568,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
+    </map>
+    <key>CameraZoomFraction</key>
+    <map>
+      <key>Comment</key>
+      <string>Mousewheel driven fraction of zoom</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.9</real>
     </map>
     <key>CameraPosOnLogout</key>
     <map>
@@ -1548,9 +1618,10 @@
       <real>1.0</real>
     </map>
     <key>CameraPreset</key>
+    <!-- deprecated (see SL-12429) -->
     <map>
       <key>Comment</key>
-      <string>Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
+      <string>(Deprecated) Preset camera position - view (0 - rear, 1 - front, 2 - group)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -1929,7 +2000,18 @@
       <key>Value</key>
       <string/>
     </map>
-    <key>ConnectAsGod</key>
+    <key>CmdLineSkipUpdater</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line skip updater check.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  <key>ConnectAsGod</key>
     <map>
       <key>Comment</key>
       <string>Log in a god if you have god access.</string>
@@ -2021,6 +2103,17 @@
     <map>
       <key>Comment</key>
       <string>Enable Javascript in the built-in Web browser?</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>BrowserFileAccessFromFileUrls</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow access to local files via file urls in the embedded browser</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2457,10 +2550,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>DEPRECATED: DebugShowPrivateMem</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>DebugShowPrivateMem</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>Show Private Mem Info</string>
+      <string>(Deprecated) Show Private Mem Info</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -2777,17 +2871,6 @@
       <integer>-1</integer>
     </map>
     <key>DebugStatModeActualOut</key>
-    <map>
-      <key>Comment</key>
-      <string>Mode of stat in Statistics floater</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
-    <key>DebugStatModeVFSPendingOps</key>
     <map>
       <key>Comment</key>
       <string>Mode of stat in Statistics floater</string>
@@ -3494,7 +3577,7 @@
     <key>DoubleClickAutoPilot</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click auto pilot</string>
+      <string>(Obsolete)Enable double-click auto pilot</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3505,7 +3588,7 @@
     <key>DoubleClickTeleport</key>
     <map>
       <key>Comment</key>
-      <string>Enable double-click to teleport where allowed</string>
+      <string>Enable double-click to teleport where allowed (afects minimap and people panel)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -3589,17 +3672,6 @@
       <string>S32</string>
       <key>Value</key>
       <integer>4</integer>
-    </map>
-    <key>DumpVFSCaches</key>
-    <map>
-      <key>Comment</key>
-      <string>Dump VFS caches on startup.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>DynamicCameraStrength</key>
     <map>
@@ -3693,6 +3765,17 @@
     <map>
       <key>Comment</key>
       <string>Play sounds from gestures</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>EnableCollisionSounds</key>
+    <map>
+      <key>Comment</key>
+      <string>Play sounds on collision</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -4356,6 +4439,37 @@
         <real>1.0</real>
       </array>
     </map>
+    <key>FocusOffsetCustomPreset</key>
+    <map>
+      <key>Comment</key>
+      <string>Initial focus point offset relative to avatar for the custom camera preset (x-axis is forward)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3D</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>0.0</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>AvatarSitRotation</key>
+    <map>
+      <key>Comment</key>
+      <string>Avatar real sitting rotation used in preset</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array>
+        <real>0</real>
+        <real>0</real>
+        <real>0</real>
+        <real>1</real>
+      </array>
+    </map>
     <key>FocusPosOnLogout</key>
     <map>
       <key>Comment</key>
@@ -4646,6 +4760,17 @@
       <key>Value</key>
       <string>https://search.[GRID]/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
+    <key>GuidebookURL</key>
+    <map>
+      <key>Comment</key>
+      <string>URL for Guidebook content</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>http://guidebooks.secondlife.io/welcome/index.html</string>
+    </map>
     <key>HighResSnapshot</key>
     <map>
       <key>Comment</key>
@@ -4913,7 +5038,7 @@
     <key>InventoryOutboxDisplayBoth</key>
     <map>
         <key>Comment</key>
-        <string>Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
+        <string>(Deprecated) Show the legacy Merchant Outbox UI as well as the Marketplace Listings UI</string>
         <key>Persist</key>
         <integer>1</integer>
         <key>Type</key>
@@ -5163,6 +5288,17 @@
       <key>Value</key>
       <string />
     </map>
+  <key>JoystickDeviceUUID</key>
+  <map>
+    <key>Comment</key>
+    <string>Preffered device ID.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string />
+  </map>
     <key>JoystickMouselookYaw</key>
     <map>
       <key>Comment</key>
@@ -5304,7 +5440,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://secondlife-status.statuspage.io/history.atom</string>
+      <string>https://status.secondlifegrid.net/history.atom</string>
     </map>
     <key>GridStatusUpdateDelay</key>
     <map>
@@ -5707,7 +5843,7 @@
   <key>LoginSRVPump</key>
   <map>
     <key>Comment</key>
-    <string>Name of the message pump that handles SRV request (deprecated)</string>
+    <string>(Deprecated) Name of the message pump that handles SRV request)</string>
     <key>Persist</key>
     <integer>0</integer>
     <key>Type</key>
@@ -5845,7 +5981,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>http://map.secondlife.com.s3.amazonaws.com/</string>
+      <string>https://map.secondlife.com/</string>
     </map>
     <key>CurrentMapServerURL</key>
     <map>
@@ -6496,7 +6632,7 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>MemoryFailurePreventionEnabled</key>
+  <key>MemoryFailurePreventionEnabled</key> <!-- deprecated, only used for obsolete-in-2020 Intel 965 Express GPU -->
   <map>
     <key>Comment</key>
     <string>If set, the viewer will quit to avoid crash when memory failure happens</string>
@@ -6518,10 +6654,11 @@
         <key>Value</key>
             <real>600.0</real>
         </map>
-    <key>MemoryPrivatePoolEnabled</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolEnabled</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Enable the private memory pool management</string>
+      <string>(Deprecated) Enable the private memory pool management</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6529,10 +6666,11 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>MemoryPrivatePoolSize</key>  <!-- deprecated (see MAINT-8091) -->
+    <key>MemoryPrivatePoolSize</key>
+    <!-- deprecated (see MAINT-8091) -->
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Size of the private memory pool in MB (min. value is 256)</string>
+      <string>(Deprecated) Size of the private memory pool in MB (min. value is 256)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -6640,7 +6778,7 @@
     <integer>600</integer>
   </map>
   <key>MigrateCacheDirectory</key>
-    <map>
+  <map>
       <key>Comment</key>
       <string>Check for old version of disk cache to migrate to current location</string>
       <key>Persist</key>
@@ -6706,6 +6844,17 @@
       <integer>0</integer>
     </map>
     <key>MouseSun</key>
+    <map>
+      <key>Comment</key>
+      <string />
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>MouseMoon</key>
     <map>
       <key>Comment</key>
       <string />
@@ -7494,11 +7643,11 @@
     <key>ParcelMediaAutoPlayEnable</key>
     <map>
       <key>Comment</key>
-      <string>Auto play parcel media when available</string>
+      <string>Auto play parcel media when available. 0 - Do not autoplay; 1- Autoplay; 2 - Ask</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
       <integer>1</integer>
     </map>
@@ -7879,7 +8028,6 @@
       <key>Value</key>
 	  <integer>13</integer>
     </map>
-
   <key>PreviewAmbientColor</key>
   <map>
     <key>Comment</key>
@@ -7896,8 +8044,6 @@
       <real>1.0</real>
     </array>
   </map>
-
-
   <key>PreviewDiffuse0</key>
   <map>
     <key>Comment</key>
@@ -8184,7 +8330,7 @@
     <key>PushToTalkButton</key>
     <map>
       <key>Comment</key>
-      <string>Which button or keyboard key is used for push-to-talk</string>
+      <string>(Obsolete)Which button or keyboard key is used for push-to-talk</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8195,7 +8341,7 @@
     <key>PushToTalkToggle</key>
     <map>
       <key>Comment</key>
-      <string>Should the push-to-talk button behave as a toggle</string>
+      <string>Should the push-to-talk toolbar button behave as a toggle</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8217,7 +8363,7 @@
     <key>QAModeEventHostPort</key>
     <map>
       <key>Comment</key>
-      <string>DEPRECATED: Port on which lleventhost should listen</string>
+      <string>(Deprecated) Port on which lleventhost should listen</string>
       <key>Persist</key>
       <integer>0</integer>
       <key>Type</key>
@@ -8239,7 +8385,18 @@
     <key>QAModeMetrics</key>
     <map>
       <key>Comment</key>
-      <string>"Enables QA features (logging, faster cycling) for metrics collector"</string>
+      <string>Enables QA features (logging, faster cycling) for metrics collector</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>QAModeFakeSystemFolderIssues</key>
+    <map>
+      <key>Comment</key>
+      <string>Simulates system folder issues in inventory</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8344,7 +8501,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.125</real>
+    <real>0.02</real>
   </map>
   <key>MediaRollOffMin</key>
   <map>
@@ -8355,7 +8512,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>10.0</real>
+    <real>40.0</real>
   </map>
   <key>MediaRollOffMax</key>
   <map>
@@ -8366,7 +8523,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>30.0</real>
+    <real>80.0</real>
   </map>
   <key>RecentItemsSortOrder</key>
     <map>
@@ -8427,6 +8584,17 @@
     <map>
       <key>Comment</key>
       <string>Don't allow user to set low heights greater than high</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RememberUser</key>
+    <map>
+      <key>Comment</key>
+      <string>Keep user name for next login</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8525,6 +8693,28 @@
     </array>
   </map>
 
+    <key>RenderAlphaBatchFullbrights</key>
+    <map>
+      <key>Comment</key>
+      <string>Render fullbright alpha content more efficiently, but with possible visual differences from prev viewers.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderAlphaBatchEmissives</key>
+    <map>
+      <key>Comment</key>
+      <string>Render emissive alpha content more efficiently, but with possible visual differences from prev viewers.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderAnisotropic</key>
     <map>
       <key>Comment</key>
@@ -8727,7 +8917,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-   <key>RenderHiDPI</key>
+    <key>RenderHiDPI</key>
   <map>
     <key>Comment</key>
     <string>Enable support for HiDPI displays, like Retina (MacOS X ONLY, requires restart)</string>
@@ -8982,7 +9172,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>0.03</real>
+    <real>0.1</real>
   </map>
   <key>RenderDebugPipeline</key>
     <map>
@@ -9154,7 +9344,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <real>-0.008</real>
+    <real>-0.004</real>
   </map>
   <key>RenderShadowOffset</key>
   <map>
@@ -9276,7 +9466,7 @@
   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
-    <string>Scale of shadow map resolution vs. screen resolution</string>
+    <string>Scale of shadow map resolution vs. screen resolution (only positivie values are allowed)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10255,6 +10445,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>RenderUseAdvancedAtmospherics</key>
+  <map>
+    <key>Comment</key>
+    <string>Use fancy precomputed atmospherics and stuff.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderUseTriStrips</key>
   <map>
     <key>Comment</key>
@@ -11219,6 +11420,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>BasicUITooltips</key>
+    <map>
+      <key>Comment</key>
+      <string>Show tooltips for various 2D UI elements like buttons or checkboxes, won't supress tooltips like drag'n'drop, inworld, links or media</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>ShowHoverTips</key>
     <map>
       <key>Comment</key>
@@ -11427,7 +11639,7 @@
             <string>Boolean</string>
         <key>Value</key>
             <integer>0</integer>
-    </map> 
+    </map>
     <key>NearbyListShowMap</key>
     <map>
       <key>Comment</key>
@@ -11959,6 +12171,21 @@
       <key>Value</key>
       <real>0.300000011921</real>
     </map>
+    <key>SkyMoonDefaultPosition</key>
+    <map>
+      <key>Comment</key>
+      <string>Default position of sun in sky (direction in world coordinates)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>-1.0</real>
+        <real>0.0</real>
+        <real>-0.1</real>
+      </array>
+    </map>
     <key>SkyNightColorShift</key>
     <map>
       <key>Comment</key>
@@ -12275,6 +12502,39 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>AmbientDisable</key>
+  <map>
+    <key>Comment</key>
+    <string>If TRUE, ambient light has no effect</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>SunlightDisable</key>
+  <map>
+    <key>Comment</key>
+    <string>If TRUE, sunlight has no effect</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>LocalLightDisable</key>
+  <map>
+    <key>Comment</key>
+    <string>If TRUE, local lights have no effect</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
     <key>TextureDiscardLevel</key>
     <map>
       <key>Comment</key>
@@ -12307,6 +12567,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>TextureFetchMinTimeToLog</key>
+    <map>
+      <key>Comment</key>
+      <string>If texture fetching time exceeds this value, texture fetch tester will log info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
     </map>
   <key>TextureFetchFakeFailureRate</key>
   <map>
@@ -12396,6 +12667,17 @@
       <key>Value</key>
       <integer>32</integer>
     </map>
+    <key>TextureListFetchingThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>If the ratio between fetched and all textures in the list is greater than this threshold, which we assume that almost all textures are fetched</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.97</real>
+    </map>
     <key>TextureLoadFullRes</key>
     <map>
       <key>Comment</key>
@@ -12461,6 +12743,17 @@
       <string>S32</string>
       <key>Value</key>
       <integer>50</integer>
+    </map>
+    <key>TextureSaveLocation</key>
+    <map>
+      <key>Comment</key>
+      <string>Current location for bulk saving textures to disk</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
     </map>
     <key>ThrottleBandwidthKBPS</key>
     <map>
@@ -13132,6 +13425,17 @@
       <string>S32</string>
       <key>Value</key>
       <real>3</real>
+    </map>
+    <key>HUDScaleFactor</key>
+    <map>
+    <key>Comment</key>
+      <string>Scale of HUD attachments</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
     </map>
     <key>UIScaleFactor</key>
     <map>
@@ -13837,10 +14141,11 @@
       <key>Value</key>
       <string>Default</string>
     </map>
-    <key>UseExternalBrowser</key> <!-- deprecated (see MAINT-4127) -->
+    <key>UseExternalBrowser</key>
+    <!-- deprecated (see MAINT-4127) -->
     <map>
       <key>Comment</key>
-      <string>Use default browser when opening web pages instead of in-world browser.</string>
+      <string>(Deprecated) Use default browser when opening web pages instead of in-world browser.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14046,28 +14351,6 @@
       <key>Value</key>
       <string/>
     </map>
-    <key>VFSOldSize</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls resizing of local file cache</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>VFSSalt</key>
-    <map>
-      <key>Comment</key>
-      <string>[DO NOT MODIFY] Controls local file caching behavior</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>VelocityInterpolate</key>
     <map>
       <key>Comment</key>
@@ -14111,17 +14394,6 @@
       <string>F32</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
-    <key>VertexShaderEnable</key>
-    <map>
-      <key>Comment</key>
-      <string>Enable/disable all GLSL shaders (debug)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
     </map>
     <key>VivoxAutoPostCrashDumps</key>
     <map>
@@ -14211,10 +14483,56 @@
       <key>Value</key>
       <integer>44125</integer>
     </map>
-    <key>VoiceCallsFriendsOnly</key>
+
+  <key>VivoxVadAuto</key>
+  <map>
+    <key>Comment</key>
+    <string>A flag indicating if the automatic VAD is enabled (1) or disabled (0). The individual settings are ignored if the auto-mode is enabled</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>VivoxVadHangover</key>
+  <map>
+    <key>Comment</key>
+    <string>The time (in milliseconds) that it takes or the VAD to switch back to silence from speech mode after the last speech frame has been detected</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>2000</integer>
+  </map>
+  <key>VivoxVadNoiseFloor</key>
+  <map>
+    <key>Comment</key>
+    <string>A dimensionless value between 0 and 20000 (default 576) that controls the maximum level at which the noise floor may be set at by the VAD's noise tracking</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>576</integer>
+  </map>
+  <key>VivoxVadSensitivity</key>
+  <map>
+    <key>Comment</key>
+    <string>A dimensionless value between 0 and 100, indicating the 'sensitivity of the VAD'. Increasing this value corresponds to decreasing the sensitivity of the VAD and 0 is turned off altogether</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>VoiceCallsFriendsOnly</key>
+  <!-- deprecated (see SL-12871) -->
     <map>
       <key>Comment</key>
-      <string>Only accept voice calls from residents on your friends list</string>
+      <string>(Deprecated) Only accept voice calls from residents on your friends list</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14805,6 +15123,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>sunbeacon</key>
+    <map>
+      <key>Comment</key>
+      <string>Show direction to the Sun</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>moonbeacon</key>
+    <map>
+      <key>Comment</key>
+      <string>Show direction to the Moon</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>ShowDeviceSettings</key>
     <map>
       <key>Comment</key>
@@ -15331,7 +15671,7 @@
     <key>ClickToWalk</key>
     <map>
       <key>Comment</key>
-      <string>Click in world to walk to location</string>
+      <string>(obsolete)Click in world to walk to location</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -15767,6 +16107,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SettingsNextOwnerModify</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created Environment setting can be modified by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>SettingsNextOwnerTransfer</key>
+    <map>
+      <key>Comment</key>
+      <string>Newly created Environment setting can be resold or given away by next owner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>DefaultUploadPermissionsConverted</key>
     <map>
       <key>Comment</key>
@@ -16134,7 +16496,7 @@
   <key>FMODExProfilerEnable</key>
   <map>
     <key>Comment</key>
-    <string>Enable profiler tool if using FMOD Ex</string>
+    <string>Enable profiler tool if using FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16145,7 +16507,7 @@
   <key>FMODExDecodeBufferSize</key>
   <map>
     <key>Comment</key>
-    <string>Sets the streaming decode buffer size (in milliseconds)</string>
+    <string>Sets the streaming decode buffer size (in milliseconds) for FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16156,7 +16518,7 @@
   <key>FMODExStreamBufferSize</key>
   <map>
     <key>Comment</key>
-    <string>Sets the streaming buffer size (in milliseconds)</string>
+    <string>Sets the streaming buffer size (in milliseconds) for FMOD Ex or FMOD Studio</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -16299,6 +16661,50 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  <key>CameraOpacity</key>
+  <map>
+    <key>Comment</key>
+    <string>Opacity of the Camera Controls floater</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>1.0</real>
+  </map>
+  <key>PresetCameraActive</key>
+  <map>
+    <key>Comment</key>
+    <string>Name of currently selected preference</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>Rear View</string>
+  </map>
+  <key>CameraPresetType</key>
+  <map>
+    <key>Comment</key>
+    <string>Preset camera position - view (0 - rear, 1 - front, 2 - group, 3 - custom)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+   </map>
+  <key>HoverHeightAffectsCamera</key>
+  <map>
+    <key>Comment</key>
+    <string>Camera view is affected by Hover Height setting</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+   </map>
     <key>CefVerboseLog</key>
     <map>
       <key>Comment</key>
@@ -16319,8 +16725,95 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>        
+      <integer>1</integer>
+  </map>
+  <key>360CaptureUseInterestListCap</key>
+  <map>
+    <key>Comment</key>
+    <string>Flag if set, uses the new InterestList cap to ask the simulator for full content</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>360CaptureJPEGEncodeQuality</key>
+  <map>
+    <key>Comment</key>
+    <string>Quality value to use in the JPEG encoder (0..100)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>95</integer>
+  </map>
+  <key>360CaptureDebugSaveImage</key>
+  <map>
+    <key>Comment</key>
+    <string>Flag if set, saves off each cube map as an image, as well as the JavaScript data URL, for debugging purposes</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>360CaptureOutputImageWidth</key>
+  <map>
+    <key>Comment</key>
+    <string>Width of the output 360 equirectangular image</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>4096</integer>
+  </map>
+  <key>360CaptureHideAvatars</key>
+  <map>
+    <key>Comment</key>
+    <string>Flag if set, removes all the avatars from the 360 snapshot</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
     </map>
+  <key>360CaptureCameraFOV</key>
+  <map>
+    <key>Comment</key>
+    <string>Field of view of the WebGL camera that converts the cubemap to an equirectangular image</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>75</integer>
+  </map>
+  <key>360CaptureNumRenderPasses</key>
+  <map>
+    <key>Comment</key>
+    <string>Number of times to render the scene while taking a snapshot</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>3</integer>
+  </map>
+  <key>ResetUIScaleOnFirstRun</key>
+  <map>
+  <key>Comment</key>
+  <string>Resets the UI scale factor on first run due to changed display scaling behavior</string>
+  <key>Persist</key>
+  <integer>1</integer>
+  <key>Type</key>
+  <string>Boolean</string>
+  <key>Value</key>
+  <integer>1</integer>
+  </map>
 </map>
 </llsd>
-

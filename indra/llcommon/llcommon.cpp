@@ -63,7 +63,7 @@ void LLCommon::cleanupClass()
 	sMasterThreadRecorder = NULL;
 	LLTrace::set_master_thread_recorder(NULL);
 	LLThreadSafeRefCount::cleanupThreadSafeRefCount();
-	SUBSYSTEM_CLEANUP(LLTimer);
+	SUBSYSTEM_CLEANUP_DBG(LLTimer);
 	if (sAprInitialized)
 	{
 		ll_cleanup_apr();

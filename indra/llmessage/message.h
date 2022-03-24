@@ -35,10 +35,6 @@
 #include <netinet/in.h>
 #endif
 
-#if LL_SOLARIS
-#include <netinet/in.h>
-#endif
-
 #if LL_WINDOWS
 #include "winsock2.h" // htons etc.
 #endif
@@ -61,6 +57,8 @@
 #include "llstoredmessage.h"
 #include "boost/function.hpp"
 #include "llpounceable.h"
+#include "llcoros.h"
+#include LLCOROS_MUTEX_HEADER
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
 const U32 MESSAGE_NUMBER_OF_HASH_BUCKETS = 8192;
@@ -199,6 +197,91 @@ public:
 	virtual void complete(const LLHost& host, const LLUUID& agent) const = 0;
 };
 
+/**
+ * SL-12204: We've observed crashes when consumer code sets
+ * LLMessageSystem::mMessageReader, assuming that all subsequent processing of
+ * the current message will use the same mMessageReader value -- only to have
+ * a different coroutine sneak in and replace mMessageReader before
+ * completion. This is a limitation of sharing a stateful global resource for
+ * message parsing; instead code receiving a new message should instantiate a
+ * (trivially constructed) local message parser and use that.
+ *
+ * Until then, when one coroutine sets a particular LLMessageReader subclass
+ * as the current message reader, ensure that no other coroutine can replace
+ * it until the first coroutine has finished with its message.
+ *
+ * This is achieved with two helper classes. LLMessageSystem::mMessageReader
+ * is now an LLMessageReaderPointer instance, which can efficiently compare or
+ * dereference its contained LLMessageReader* but which cannot be directly
+ * assigned. To change the value of LLMessageReaderPointer, you must
+ * instantiate LockMessageReader with the LLMessageReader* you wish to make
+ * current. mMessageReader will have that value for the lifetime of the
+ * LockMessageReader instance, then revert to nullptr. Moreover, as its name
+ * implies, LockMessageReader locks the mutex in LLMessageReaderPointer so
+ * that any other coroutine instantiating LockMessageReader will block until
+ * the first coroutine has destroyed its instance.
+ */
+class LLMessageReaderPointer
+{
+public:
+    LLMessageReaderPointer(): mPtr(nullptr) {}
+    // It is essential that comparison and dereferencing must be fast, which
+    // is why we don't check for nullptr when dereferencing.
+    LLMessageReader* operator->() const { return mPtr; }
+    bool operator==(const LLMessageReader* other) const { return mPtr == other; }
+    bool operator!=(const LLMessageReader* other) const { return ! (*this == other); }
+private:
+    // Only LockMessageReader can set mPtr.
+    friend class LockMessageReader;
+    LLMessageReader* mPtr;
+    LLCoros::Mutex mMutex;
+};
+
+/**
+ * To set mMessageReader to nullptr:
+ *
+ * @code
+ * // use an anonymous instance that is destroyed immediately
+ * LockMessageReader(gMessageSystem->mMessageReader, nullptr);
+ * @endcode
+ *
+ * Why do we still require going through LockMessageReader at all? Because it
+ * would be Bad if any coroutine set mMessageReader to nullptr while another
+ * coroutine was still parsing a message.
+ */
+class LockMessageReader
+{
+public:
+    LockMessageReader(LLMessageReaderPointer& var, LLMessageReader* instance):
+        mVar(var.mPtr),
+        mLock(var.mMutex)
+    {
+        mVar = instance;
+    }
+    // Some compilers reportedly fail to suppress generating implicit copy
+    // operations even though we have a move-only LockType data member.
+    LockMessageReader(const LockMessageReader&) = delete;
+    LockMessageReader& operator=(const LockMessageReader&) = delete;
+    ~LockMessageReader()
+    {
+        mVar = nullptr;
+    }
+private:
+    // capture a reference to LLMessageReaderPointer::mPtr
+    decltype(LLMessageReaderPointer::mPtr)& mVar;
+    // while holding a lock on LLMessageReaderPointer::mMutex
+    LLCoros::LockType mLock;
+};
+
+/**
+ * LockMessageReader is great as long as you only need mMessageReader locked
+ * during a single LLMessageSystem function call. However, empirically the
+ * sequence from checkAllMessages() through processAcks() need mMessageReader
+ * locked to LLTemplateMessageReader. Enforce that by making them require an
+ * instance of LockMessageChecker.
+ */
+class LockMessageChecker;
+
 class LLMessageSystem : public LLMessageSenderInterface
 {
  private:
@@ -331,8 +414,8 @@ public:
 	bool addCircuitCode(U32 code, const LLUUID& session_id);
 
 	BOOL	poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
-	BOOL	checkMessages( S64 frame_count = 0 );
-	void	processAcks(F32 collect_time = 0.f);
+	BOOL	checkMessages(LockMessageChecker&, S64 frame_count = 0 );
+	void	processAcks(LockMessageChecker&, F32 collect_time = 0.f);
 
 	BOOL	isMessageFast(const char *msg);
 	BOOL	isMessage(const char *msg)
@@ -730,7 +813,7 @@ public:
 		const LLSD& data);
 
 	// Check UDP messages and pump http_pump to receive HTTP messages.
-	bool checkAllMessages(S64 frame_count, LLPumpIO* http_pump);
+	bool checkAllMessages(LockMessageChecker&, S64 frame_count, LLPumpIO* http_pump);
 
 	// Moved to allow access from LLTemplateMessageDispatcher
 	void clearReceiveState();
@@ -817,12 +900,13 @@ private:
 	LLMessageBuilder* mMessageBuilder;
 	LLTemplateMessageBuilder* mTemplateMessageBuilder;
 	LLSDMessageBuilder* mLLSDMessageBuilder;
-	LLMessageReader* mMessageReader;
+	LLMessageReaderPointer mMessageReader;
 	LLTemplateMessageReader* mTemplateMessageReader;
 	LLSDMessageReader* mLLSDMessageReader;
 
 	friend class LLMessageHandlerBridge;
-	
+	friend class LockMessageChecker;
+
 	bool callHandler(const char *name, bool trustedSource,
 					 LLMessageSystem* msg);
 
@@ -834,6 +918,40 @@ private:
 
 // external hook into messaging system
 extern LLPounceable<LLMessageSystem*, LLPounceableStatic> gMessageSystem;
+
+// Implementation of LockMessageChecker depends on definition of
+// LLMessageSystem, hence must follow it.
+class LockMessageChecker: public LockMessageReader
+{
+public:
+    LockMessageChecker(LLMessageSystem* msgsystem);
+
+    // For convenience, provide forwarding wrappers so you can call (e.g.)
+    // checkAllMessages() on your LockMessageChecker instance instead of
+    // passing the instance to LLMessageSystem::checkAllMessages(). Use
+    // perfect forwarding to avoid having to maintain these wrappers in sync
+    // with the target methods.
+    template <typename... ARGS>
+    bool checkAllMessages(ARGS&&... args)
+    {
+        return mMessageSystem->checkAllMessages(*this, std::forward<ARGS>(args)...);
+    }
+
+    template <typename... ARGS>
+    bool checkMessages(ARGS&&... args)
+    {
+        return mMessageSystem->checkMessages(*this, std::forward<ARGS>(args)...);
+    }
+
+    template <typename... ARGS>
+    void processAcks(ARGS&&... args)
+    {
+        return mMessageSystem->processAcks(*this, std::forward<ARGS>(args)...);
+    }
+
+private:
+    LLMessageSystem* mMessageSystem;
+};
 
 // Must specific overall system version, which is used to determine
 // if a patch is available in the message template checksum verification.
@@ -860,10 +978,10 @@ void null_message_callback(LLMessageSystem *msg, void **data);
 //
 
 #if !defined( LL_BIG_ENDIAN ) && !defined( LL_LITTLE_ENDIAN )
-#error Unknown endianness for htonmemcpy. Did you miss a common include?
+#error Unknown endianness for htolememcpy. Did you miss a common include?
 #endif
 
-static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type, size_t n)
+static inline void *htolememcpy(void *vs, const void *vct, EMsgVariableType type, size_t n)
 {
 	char *s = (char *)vs;
 	const char *ct = (const char *)vct;
@@ -886,7 +1004,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_S16:
 		if (n != 2)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 1) = *(ct);
@@ -901,7 +1019,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_F32:
 		if (n != 4)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 3) = *(ct);
@@ -918,7 +1036,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_F64:
 		if (n != 8)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		*(s + 7) = *(ct);
@@ -938,12 +1056,12 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLQuaternion:  // We only send x, y, z and infer w (we set x, y, z to ensure that w >= 0)
 		if (n != 12)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
-		htonmemcpy(s + 8, ct + 8, MVT_F32, 4);
-		htonmemcpy(s + 4, ct + 4, MVT_F32, 4);
-		return(htonmemcpy(s, ct, MVT_F32, 4));
+		htolememcpy(s + 8, ct + 8, MVT_F32, 4);
+		htolememcpy(s + 4, ct + 4, MVT_F32, 4);
+		return(htolememcpy(s, ct, MVT_F32, 4));
 #else
 		return(memcpy(s,ct,n));	/* Flawfinder: ignore */ 
 #endif
@@ -951,12 +1069,12 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLVector3d:
 		if (n != 24)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
-		htonmemcpy(s + 16, ct + 16, MVT_F64, 8);
-		htonmemcpy(s + 8, ct + 8, MVT_F64, 8);
-		return(htonmemcpy(s, ct, MVT_F64, 8));
+		htolememcpy(s + 16, ct + 16, MVT_F64, 8);
+		htolememcpy(s + 8, ct + 8, MVT_F64, 8);
+		return(htolememcpy(s, ct, MVT_F64, 8));
 #else
 		return(memcpy(s,ct,n));	/* Flawfinder: ignore */ 
 #endif
@@ -964,13 +1082,13 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_LLVector4:
 		if (n != 16)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
-		htonmemcpy(s + 12, ct + 12, MVT_F32, 4);
-		htonmemcpy(s + 8, ct + 8, MVT_F32, 4);
-		htonmemcpy(s + 4, ct + 4, MVT_F32, 4);
-		return(htonmemcpy(s, ct, MVT_F32, 4));
+		htolememcpy(s + 12, ct + 12, MVT_F32, 4);
+		htolememcpy(s + 8, ct + 8, MVT_F32, 4);
+		htolememcpy(s + 4, ct + 4, MVT_F32, 4);
+		return(htolememcpy(s, ct, MVT_F32, 4));
 #else
 		return(memcpy(s,ct,n));	/* Flawfinder: ignore */ 
 #endif
@@ -978,12 +1096,12 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_U16Vec3:
 		if (n != 6)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
-		htonmemcpy(s + 4, ct + 4, MVT_U16, 2);
-		htonmemcpy(s + 2, ct + 2, MVT_U16, 2);
-		return(htonmemcpy(s, ct, MVT_U16, 2));
+		htolememcpy(s + 4, ct + 4, MVT_U16, 2);
+		htolememcpy(s + 2, ct + 2, MVT_U16, 2);
+		return(htolememcpy(s, ct, MVT_U16, 2));
 #else
 		return(memcpy(s,ct,n));	/* Flawfinder: ignore */ 
 #endif
@@ -991,13 +1109,13 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_U16Quat:
 		if (n != 8)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
-		htonmemcpy(s + 6, ct + 6, MVT_U16, 2);
-		htonmemcpy(s + 4, ct + 4, MVT_U16, 2);
-		htonmemcpy(s + 2, ct + 2, MVT_U16, 2);
-		return(htonmemcpy(s, ct, MVT_U16, 2));
+		htolememcpy(s + 6, ct + 6, MVT_U16, 2);
+		htolememcpy(s + 4, ct + 4, MVT_U16, 2);
+		htolememcpy(s + 2, ct + 2, MVT_U16, 2);
+		return(htolememcpy(s, ct, MVT_U16, 2));
 #else
 		return(memcpy(s,ct,n));	/* Flawfinder: ignore */ 
 #endif
@@ -1005,15 +1123,15 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 	case MVT_S16Array:
 		if (n % 2)
 		{
-			LL_ERRS() << "Size argument passed to htonmemcpy doesn't match swizzle type size" << LL_ENDL;
+			LL_ERRS() << "Size argument passed to htolememcpy doesn't match swizzle type size" << LL_ENDL;
 		}
 #ifdef LL_BIG_ENDIAN
 		length = n % 2;
 		for (i = 1; i < length; i++)
 		{
-			htonmemcpy(s + i*2, ct + i*2, MVT_S16, 2);
+			htolememcpy(s + i*2, ct + i*2, MVT_S16, 2);
 		}
-		return(htonmemcpy(s, ct, MVT_S16, 2));
+		return(htolememcpy(s, ct, MVT_S16, 2));
 #else
 		return(memcpy(s,ct,n));
 #endif
@@ -1025,7 +1143,7 @@ static inline void *htonmemcpy(void *vs, const void *vct, EMsgVariableType type,
 
 inline void *ntohmemcpy(void *s, const void *ct, EMsgVariableType type, size_t n)
 {
-	return(htonmemcpy(s,ct,type, n));
+	return(htolememcpy(s,ct,type, n));
 }
 
 inline const LLHost& LLMessageSystem::getReceivingInterface() const {return mLastReceivingIF;}

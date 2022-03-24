@@ -207,6 +207,7 @@ public:
 	bool initializeMedia(const std::string& mime_type);
 	bool initializePlugin(const std::string& media_type);
 	void loadURI();
+	void executeJavaScript(const std::string& code);
 	LLPluginClassMedia* getMediaPlugin() { return mMediaSource.get(); }
 	void setSize(int width, int height);
 
@@ -235,7 +236,8 @@ public:
 	void mouseMove(const LLVector2& texture_coords, MASK mask);
     void mouseDoubleClick(const LLVector2& texture_coords, MASK mask);
     void mouseDoubleClick(S32 x, S32 y, MASK mask, S32 button = 0);
-	void scrollWheel(S32 x, S32 y, MASK mask);
+	void scrollWheel(const LLVector2& texture_coords, S32 scroll_x, S32 scroll_y, MASK mask);
+	void scrollWheel(S32 x, S32 y, S32 scroll_x, S32 scroll_y, MASK mask);
 	void mouseCapture();
 	
 	void navigateBack();
@@ -320,6 +322,7 @@ public:
 	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks) { return FALSE; };
+	/*virtual*/ BOOL	handleScrollHWheel(S32 x, S32 y, S32 clicks) { return FALSE; };
 	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) { return FALSE; };
 	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) { return FALSE; };

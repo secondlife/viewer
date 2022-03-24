@@ -10,12 +10,12 @@
 		Description :
 	</text>
 	<text name="dimensions">
-		[WIDTH] px x [HEIGHT] px
+		[WIDTH]px x [HEIGHT]px
 	</text>
 	<text name="aspect_ratio">
-		Aperçu du rapport hauteur/largeur
+		Rapport d&apos;aspect fixe
 	</text>
-	<combo_box name="combo_aspect_ratio" tool_tip="Aperçu avec un rapport hauteur/largeur fixe">
+	<combo_box name="combo_aspect_ratio" tool_tip="Prévisualiser avec un rapport d&apos;aspect fixe">
 		<combo_item name="Unconstrained">
 			Sans contraintes
 		</combo_item>

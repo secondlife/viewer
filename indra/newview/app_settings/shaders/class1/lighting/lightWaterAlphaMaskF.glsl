@@ -1,5 +1,5 @@
 /** 
- * @file lightWaterAlphaMaskF.glsl
+ * @file class1\lighting\lightWaterAlphaMaskF.glsl
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -41,12 +41,12 @@ void default_lighting_water()
 {
 	vec4 color = diffuseLookup(vary_texcoord0.xy);
 
-	color.rgb *= vertex_color.rgb;
-
 	if (color.a < minimum_alpha)
 	{
 		discard;
 	}
+
+	color.rgb *= vertex_color.rgb;
 
 	color.rgb = atmosLighting(color.rgb);
 

@@ -4,13 +4,10 @@
  height="145"
  help_topic="floater_save_preset"
  layout="topleft"
- name="Save Pref Preset"
+ name="save_pref_preset"
  save_rect="true"
- title="SAVE PREF PRESET"
+ title="Save Graphic Preset"
  width="300">
-
-    <string name="title_graphic">Save Graphic Preset</string>
-    <string name="title_camera">Save Camera Preset</string>
 
     <text
      follows="top|left|right"

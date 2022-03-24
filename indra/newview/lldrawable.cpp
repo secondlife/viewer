@@ -912,22 +912,18 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
             if (volume->getAvatar())
             {
                 const LLVector3* av_box = volume->getAvatar()->getLastAnimExtents();
-                LLVector3d cam_pos = gAgent.getPosGlobalFromAgent(LLViewerCamera::getInstance()->getOrigin());
-                LLVector3 cam_region_pos = LLVector3(cam_pos - volume->getRegion()->getOriginGlobal());
-                
-                LLVector3 cam_to_box_offset = point_to_box_offset(cam_region_pos, av_box);
+                LLVector3 cam_pos_from_agent = LLViewerCamera::getInstance()->getOrigin();
+                LLVector3 cam_to_box_offset = point_to_box_offset(cam_pos_from_agent, av_box);
                 mDistanceWRTCamera = llmax(0.01f, ll_round(cam_to_box_offset.magVec(), 0.01f));
                 LL_DEBUGS("DynamicBox") << volume->getAvatar()->getFullname() 
                                         << " pos (ignored) " << pos
-                                        << " cam pos " << cam_pos
-                                        << " cam region pos " << cam_region_pos
+                                        << " cam pos " << cam_pos_from_agent
                                         << " box " << av_box[0] << "," << av_box[1] 
                                         << " -> dist " << mDistanceWRTCamera
                                         << LL_ENDL;
                 mVObjp->updateLOD();
                 return;
             }
-            
 		}
 		else
 		{
@@ -962,7 +958,7 @@ void LLDrawable::updateTexture()
 BOOL LLDrawable::updateGeometry(BOOL priority)
 {
 	llassert(mVObjp.notNull());
-	BOOL res = mVObjp->updateGeometry(this);
+	BOOL res = mVObjp && mVObjp->updateGeometry(this);
 	return res;
 }
 
@@ -1178,11 +1174,33 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 	}
 	else if (isRoot())
 	{
-		if (mSpatialBridge && (mSpatialBridge->asPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD) != mVObjp->isHUDAttachment())
+		if (mSpatialBridge)
 		{
-			// remove obsolete bridge
-			mSpatialBridge->markDead();
-			setSpatialBridge(NULL);
+			U32 partition_type = mSpatialBridge->asPartition()->mPartitionType;
+			bool is_hud = mVObjp->isHUDAttachment();
+			bool is_animesh = mVObjp->isAnimatedObject() && mVObjp->getControlAvatar() != NULL;
+			bool is_attachment = mVObjp->isAttachment() && !is_hud && !is_animesh;
+			if ((partition_type == LLViewerRegion::PARTITION_HUD) != is_hud)
+			{
+				// Was/became HUD
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
+			else if ((partition_type == LLViewerRegion::PARTITION_CONTROL_AV) != is_animesh)
+			{
+				// Was/became part of animesh
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
+			else if ((partition_type == LLViewerRegion::PARTITION_AVATAR) != is_attachment)
+			{
+				// Was/became part of avatar
+				// remove obsolete bridge
+				mSpatialBridge->markDead();
+				setSpatialBridge(NULL);
+			}
 		}
 		//must be an active volume
 		if (!mSpatialBridge)
@@ -1190,6 +1208,15 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 			if (mVObjp->isHUDAttachment())
 			{
 				setSpatialBridge(new LLHUDBridge(this, getRegion()));
+			}
+			else if (mVObjp->isAnimatedObject() && mVObjp->getControlAvatar())
+			{
+				setSpatialBridge(new LLControlAVBridge(this, getRegion()));
+			}
+			// check HUD first, because HUD is also attachment
+			else if (mVObjp->isAttachment())
+			{
+				setSpatialBridge(new LLAvatarBridge(this, getRegion()));
 			}
 			else
 			{
@@ -1454,7 +1481,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 				LLVOAvatar* avatarp = (LLVOAvatar*) objparent;
 				if (avatarp->isVisible())
 				{
-					impostor = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isImpostor();
+					impostor = objparent->isAvatar() && !LLPipeline::sImpostorRender && ((LLVOAvatar*) objparent)->isImpostor();
 					loaded   = objparent->isAvatar() && ((LLVOAvatar*) objparent)->isFullyLoaded();
 				}
 				else
@@ -1538,7 +1565,8 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 
 	if (mDrawable->getVObj())
 	{
-		if (mDrawable->getVObj()->isAttachment())
+		// Don't update if we are part of impostor, unles it's an impostor pass
+		if (!LLPipeline::sImpostorRender && mDrawable->getVObj()->isAttachment())
 		{
 			LLDrawable* parent = mDrawable->getParent();
 			if (parent && parent->getVObj())
@@ -1698,10 +1726,24 @@ void LLDrawable::updateFaceSize(S32 idx)
 LLBridgePartition::LLBridgePartition(LLViewerRegion* regionp)
 : LLSpatialPartition(0, FALSE, 0, regionp) 
 { 
-	mDrawableType = LLPipeline::RENDER_TYPE_AVATAR; 
+	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME; 
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
 	mLODPeriod = 16;
 	mSlopRatio = 0.25f;
+}
+
+LLAvatarPartition::LLAvatarPartition(LLViewerRegion* regionp)
+	: LLBridgePartition(regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_AVATAR;
+	mPartitionType = LLViewerRegion::PARTITION_AVATAR;
+}
+
+LLControlAVPartition::LLControlAVPartition(LLViewerRegion* regionp)
+	: LLBridgePartition(regionp)
+{
+	mDrawableType = LLPipeline::RENDER_TYPE_CONTROL_AV;
+	mPartitionType = LLViewerRegion::PARTITION_CONTROL_AV;
 }
 
 LLHUDBridge::LLHUDBridge(LLDrawable* drawablep, LLViewerRegion* regionp)

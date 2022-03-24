@@ -283,6 +283,35 @@ void LLSliderCtrl::updateText()
 	}
 }
 
+void LLSliderCtrl::updateSliderRect()
+{
+    S32 right = getRect().getWidth();
+    S32 top = getRect().getHeight();
+    S32 bottom = 0;
+    S32 left = 0;
+    static LLUICachedControl<S32> sliderctrl_spacing("UISliderctrlSpacing", 0);
+    if (mEditor)
+    {
+        LLRect editor_rect = mEditor->getRect();
+        S32 editor_width = editor_rect.getWidth();
+        editor_rect.mRight = right;
+        editor_rect.mLeft = right - editor_width;
+        mEditor->setRect(editor_rect);
+
+        right -= editor_width + sliderctrl_spacing;
+    }
+    if (mTextBox)
+    {
+        right -= mTextBox->getRect().getWidth() + sliderctrl_spacing;
+    }
+    if (mLabelBox)
+    {
+        left += mLabelBox->getRect().getWidth() + sliderctrl_spacing;
+    }
+
+    mSlider->setRect(LLRect(left, top,right,bottom));
+}
+
 // static
 void LLSliderCtrl::onEditorCommit( LLUICtrl* ctrl, const LLSD& userdata )
 {
@@ -404,6 +433,18 @@ void LLSliderCtrl::onCommit()
 	LLF32UICtrl::onCommit();
 }
 
+void LLSliderCtrl::setRect(const LLRect& rect)
+{
+    LLF32UICtrl::setRect(rect);
+    updateSliderRect();
+}
+
+//virtual
+void LLSliderCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
+{
+    LLF32UICtrl::reshape(width, height, called_from_parent);
+    updateSliderRect();
+}
 
 void LLSliderCtrl::setPrecision(S32 precision)
 {
@@ -438,6 +479,7 @@ void LLSliderCtrl::onTabInto()
 	{
 		mEditor->onTabInto(); 
 	}
+    LLF32UICtrl::onTabInto();
 }
 
 void LLSliderCtrl::reportInvalidData()

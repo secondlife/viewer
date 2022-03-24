@@ -174,9 +174,6 @@ BOOL LLSidepanelTaskInfo::postBuild()
 
 void LLSidepanelTaskInfo::disableAll()
 {
-	mDAPermModify->setEnabled(FALSE);
-	mDAPermModify->setValue(LLStringUtil::null);
-
 	mDACreatorName->setValue(LLStringUtil::null);
 	mDACreatorName->setEnabled(FALSE);
 
@@ -184,18 +181,42 @@ void LLSidepanelTaskInfo::disableAll()
 	mDAOwnerName->setValue(LLStringUtil::null);
 	mDAOwnerName->setEnabled(FALSE);
 
-	mDAButtonSetGroup->setEnabled(FALSE);
-
 	mDAObjectName->setValue(LLStringUtil::null);
 	mDAObjectName->setEnabled(FALSE);
 	mDAName->setEnabled(FALSE);
 	mDADescription->setEnabled(FALSE);
 	mDAObjectDescription->setValue(LLStringUtil::null);
 	mDAObjectDescription->setEnabled(FALSE);
-		
+
+	mDAPathfindingAttributes->setEnabled(FALSE);
+	mDAPathfindingAttributes->setValue(LLStringUtil::null);
+
+	mDAButtonSetGroup->setEnabled(FALSE);
+	mDAButtonDeed->setEnabled(FALSE);
+
+	mDAPermModify->setEnabled(FALSE);
+	mDAPermModify->setValue(LLStringUtil::null);
+	mDAEditCost->setValue(LLStringUtil::null);
+	mDAComboSaleType->setValue(LLSaleInfo::FS_COPY);
+
+	disablePermissions();
+
+	mDAB->setVisible(FALSE);
+	mDAO->setVisible(FALSE);
+	mDAG->setVisible(FALSE);
+	mDAE->setVisible(FALSE);
+	mDAN->setVisible(FALSE);
+	mDAF->setVisible(FALSE);
+
+	mOpenBtn->setEnabled(FALSE);
+	mPayBtn->setEnabled(FALSE);
+	mBuyBtn->setEnabled(FALSE);
+}
+
+void LLSidepanelTaskInfo::disablePermissions()
+{
 	mDACheckboxShareWithGroup->setValue(FALSE);
 	mDACheckboxShareWithGroup->setEnabled(FALSE);
-	mDAButtonDeed->setEnabled(FALSE);
 
 	mDACheckboxAllowEveryoneMove->setValue(FALSE);
 	mDACheckboxAllowEveryoneMove->setEnabled(FALSE);
@@ -217,33 +238,17 @@ void LLSidepanelTaskInfo::disableAll()
 	//checkbox include in search
 	mDASearchCheck->setValue(FALSE);
 	mDASearchCheck->setEnabled(FALSE);
-		
-	mDAComboSaleType->setValue(LLSaleInfo::FS_COPY);
+
 	mDAComboSaleType->setEnabled(FALSE);
-	
-	mDAEditCost->setValue(LLStringUtil::null);
+
 	mDAEditCost->setEnabled(FALSE);
-		
+
 	mDALabelClickAction->setEnabled(FALSE);
 	if (mDAComboClickAction)
 	{
 		mDAComboClickAction->setEnabled(FALSE);
 		mDAComboClickAction->clear();
 	}
-
-	mDAPathfindingAttributes->setEnabled(FALSE);
-	mDAPathfindingAttributes->setValue(LLStringUtil::null);
-
-	mDAB->setVisible(FALSE);
-	mDAO->setVisible(FALSE);
-	mDAG->setVisible(FALSE);
-	mDAE->setVisible(FALSE);
-	mDAN->setVisible(FALSE);
-	mDAF->setVisible(FALSE);
-	
-	mOpenBtn->setEnabled(FALSE);
-	mPayBtn->setEnabled(FALSE);
-	mBuyBtn->setEnabled(FALSE);
 }
 
 void LLSidepanelTaskInfo::refresh()
@@ -972,6 +977,12 @@ void LLSidepanelTaskInfo::onCommitPerm(LLUICtrl *ctrl, void *data, U8 field, U32
 	BOOL new_state = check->get();
 	
 	LLSelectMgr::getInstance()->selectionSetObjectPermissions(field, new_state, perm);
+
+    LLSidepanelTaskInfo* self = (LLSidepanelTaskInfo*)data;
+    if (self)
+    {
+        self->disablePermissions();
+    }
 }
 
 // static

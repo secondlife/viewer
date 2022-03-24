@@ -38,7 +38,8 @@ public:
 							LLVertexBuffer::MAP_TEXCOORD0;
 	static const U32 STAR_VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
 		LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0;
-
+    static const U32 ADV_ATMO_SKY_VERTEX_DATA_MASK = LLVertexBuffer::MAP_VERTEX
+                                                   | LLVertexBuffer::MAP_TEXCOORD0;
 	LLDrawPoolWLSky(void);
 	/*virtual*/ ~LLDrawPoolWLSky();
 
@@ -57,12 +58,10 @@ public:
 	/*virtual*/ void prerender();
 	/*virtual*/ U32 getVertexDataMask() { return SKY_VERTEX_DATA_MASK; }
 	/*virtual*/ BOOL verify() const { return TRUE; }		// Verify that all data in the draw pool is correct!
-	/*virtual*/ S32 getVertexShaderLevel() const { return mVertexShaderLevel; }
+	/*virtual*/ S32 getShaderLevel() const { return mShaderLevel; }
 	
 	//static LLDrawPool* createPool(const U32 type, LLViewerTexture *tex0 = NULL);
 
-	// Create an empty new instance of the pool.
-	/*virtual*/ LLDrawPoolWLSky *instancePool();  ///< covariant override
 	/*virtual*/ LLViewerTexture* getTexture();
 	/*virtual*/ BOOL isFacePool() { return FALSE; }
 	/*virtual*/ void resetDrawOrders();
@@ -70,15 +69,18 @@ public:
 	static void cleanupGL();
 	static void restoreGL();
 private:
-	void renderDome(F32 camHeightLocal, LLGLSLShader * shader) const;
-	void renderSkyHaze(F32 camHeightLocal) const;
-	void renderStars(void) const;
-	void renderSkyClouds(F32 camHeightLocal) const;
-	void renderHeavenlyBodies();
+    void renderFsSky(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
+	void renderDome(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader * shader) const;
 
-private:
-	static LLPointer<LLViewerTexture> sCloudNoiseTexture;
-	static LLPointer<LLImageRaw> sCloudNoiseRawImage;
+    void renderSkyHaze(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+    void renderSkyClouds(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const;
+
+	void renderSkyHazeDeferred(const LLVector3& camPosLocal, F32 camHeightLocal) const;
+    void renderSkyCloudsDeferred(const LLVector3& camPosLocal, F32 camHeightLocal, LLGLSLShader* cloudshader) const;
+
+    void renderStarsDeferred(const LLVector3& camPosLocal) const;
+	void renderStars(const LLVector3& camPosLocal) const;
+	void renderHeavenlyBodies();    
 };
 
 #endif // LL_DRAWPOOLWLSKY_H

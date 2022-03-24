@@ -31,6 +31,7 @@
 
 #include "lliosocket.h"
 #include "llthread.h"
+#include "llmutex.h"
 
 class LLPluginMessagePipe;
 

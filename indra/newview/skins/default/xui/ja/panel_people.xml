@@ -18,7 +18,7 @@
 	<string name="no_groups_msg" value="グループをお探しですか？ [secondlife:///app/search/groups 検索] をお試しください。"/>
 	<string name="MiniMapToolTipMsg" value="[地域]（ダブルクリックで地図を開く。Shift‐ドラッグで水平・垂直移動）"/>
 	<string name="AltMiniMapToolTipMsg" value="[地域]（ダブルクリックでテレポート。Shift‐ドラッグで水平・垂直移動）"/>
-	<string name="GroupCountWithInfo" value="あなたは [COUNT] グループに属しているので、まだ [REMAINING] 参加できます。[secondlife:/// 詳細]"/>
+	<string name="GroupCountWithInfo" value="あなたは現在、[COUNT] グループに属しています。あと [REMAINING] グループに参加することができます。[secondlife:/// 上限を増やす]"/>
 	<tab_container name="tabs">
 		<panel label="近く" name="nearby_panel">
 			<panel label="bottom_panel" name="nearby_buttons_panel">
@@ -51,7 +51,7 @@
 				<dnd_button name="minus_btn" tool_tip="選択したグループから脱退"/>
 			</panel>
 			<text name="groupcount">
-				あなたは[COUNT]グループに属しているので、まだ[REMAINING]参加できます。
+				あなたは現在、[COUNT] グループに属しています。あと [REMAINING] グループに参加することができます。
 			</text>
 		</panel>
 		<panel label="最新" name="recent_panel">

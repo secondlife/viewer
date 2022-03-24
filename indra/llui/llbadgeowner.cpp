@@ -56,6 +56,14 @@ void LLBadgeOwner::initBadgeParams(const LLBadge::Params& p)
 	}
 }
 
+void LLBadgeOwner::reshapeBadge(const LLRect& new_rect)
+{
+	if (mBadge)
+	{
+		mBadge->setShape(new_rect);
+	}
+}
+
 void LLBadgeOwner::setBadgeVisibility(bool visible)
 {
 	if (mBadge)

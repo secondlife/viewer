@@ -20,10 +20,13 @@
 #include "llerror.h"
 #include "llerrorcontrol.h"
 
-void log_subsystem_cleanup(const char* file, int line, const char* function,
+void log_subsystem_cleanup(LLError::ELevel level,
+                           const char* file,
+                           int line,
+                           const char* function,
                            const char* classname)
 {
-    LL_INFOS("Cleanup") << LLError::abbreviateFile(file) << "(" << line << "): "
+    LL_VLOGS(level, "Cleanup") << LLError::abbreviateFile(file) << "(" << line << "): "
                         << "calling " << classname << "::cleanupClass() in "
                         << function << LL_ENDL;
 }

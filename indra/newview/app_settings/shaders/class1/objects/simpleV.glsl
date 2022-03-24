@@ -1,4 +1,4 @@
-/** 
+/**
  * @file simpleV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
@@ -28,13 +28,16 @@ uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
+// render_hud_attachments() -> HUD objects set LLShaderMgr::NO_ATMO; used in LLDrawPoolAlpha::beginRenderPass()
+uniform int no_atmo;
+
 ATTRIBUTE vec3 position;
 void passTextureIndex();
 ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec4 diffuse_color;
 
-vec4 calcLighting(vec3 pos, vec3 norm, vec4 color, vec4 baseCol);
+vec4 calcLighting(vec3 pos, vec3 norm, vec4 color);
 void calcAtmospherics(vec3 inPositionEye);
 
 
@@ -46,19 +49,23 @@ void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz,1.0);
-	passTextureIndex();
-	vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+
+	passTextureIndex();
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0, 0, 1)).xy;
-	
-	
-	
-	vec3 norm = normalize(normal_matrix * normal);
 
-	calcAtmospherics(pos.xyz);
+	// SL-9632 HUDs are affected by Atmosphere
+	if (no_atmo == 1)
+	{
+		vertex_color = diffuse_color;
+	}
+	else
+	{
+		vec4 pos = (modelview_matrix * vert);
+		vec3 norm = normalize(normal_matrix * normal);
 
-	vec4 color = calcLighting(pos.xyz, norm, diffuse_color, vec4(0.));
-	vertex_color = color;
+		calcAtmospherics(pos.xyz);
 
-	
+		vertex_color = calcLighting(pos.xyz, norm, diffuse_color);
+	}
 }

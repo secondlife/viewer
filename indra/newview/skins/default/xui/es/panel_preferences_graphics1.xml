@@ -32,10 +32,10 @@
 	</text>
 	<check_box initial_value="true" label="Renderizar siempre los amigos" name="AlwaysRenderFriends"/>
 	<button label="Excepciones..." name="RenderExceptionsButton"/>
-	<button label="Guardar configuración como valor predefinido..." name="PrefSaveButton"/>
-	<button label="Cargar predefinido..." name="PrefLoadButton"/>
+	<button label="Guardar configuración como valor predefinido" name="PrefSaveButton" width="260" left="5"/>
+	<button label="Cargar predefinido" name="PrefLoadButton" left_pad="7"/>
 	min_val=&quot;0.125&quot;
-	<button label="Eliminar predefinido..." name="PrefDeleteButton"/>
-	<button label="Restablecer la configuración recomendada" name="Defaults"/>
+	<button label="Eliminar predefinido" name="PrefDeleteButton"  width="117" left_pad="7"/>
+	<button label="Restablecer la configuración recomendada" name="Defaults" width="248"/>
 	<button label="Configuración avanzada..." name="AdvancedSettings"/>
 </panel>

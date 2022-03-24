@@ -49,13 +49,17 @@ LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 LLSpellChecker::LLSpellChecker()
 	: mHunspell(NULL)
 {
-	// Load initial dictionary information
-	refreshDictionaryMap();
 }
 
 LLSpellChecker::~LLSpellChecker()
 {
 	delete mHunspell;
+}
+
+void LLSpellChecker::initSingleton()
+{
+	// Load initial dictionary information
+	refreshDictionaryMap();
 }
 
 bool LLSpellChecker::checkSpelling(const std::string& word) const

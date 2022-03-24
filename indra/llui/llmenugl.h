@@ -42,6 +42,13 @@
 extern S32 MENU_BAR_HEIGHT;
 extern S32 MENU_BAR_WIDTH;
 
+class LLMenuKeyboardBinding
+{
+public:
+    KEY				mKey;
+    MASK			mMask;
+};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLMenuItemGL
 //
@@ -91,6 +98,7 @@ public:
 	/*virtual*/ void setValue(const LLSD& value);
 	/*virtual*/ LLSD getValue() const;
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLColor4 getHighlightBgColor() { return mHighlightBackground.get(); }
@@ -109,7 +117,7 @@ public:
 	virtual void setBriefItem(BOOL brief);
 	virtual BOOL isBriefItem() const;
 
-	virtual BOOL addToAcceleratorList(std::list<LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list<LLMenuKeyboardBinding*> *listp);
 	void setAllowKeyRepeat(BOOL allow) { mAllowKeyRepeat = allow; }
 	BOOL getAllowKeyRepeat() const { return mAllowKeyRepeat; }
 
@@ -436,7 +444,8 @@ public:
 	/*virtual*/ bool addChild(LLView* view, S32 tab_group = 0);
 	/*virtual*/ void removeChild( LLView* ctrl);
 	/*virtual*/ BOOL postBuild();
-
+	
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	LLMenuGL* findChildMenuByName(const std::string& name, BOOL recurse) const;
@@ -468,6 +477,8 @@ public:
 	void setEnabledSubMenus(BOOL enable);
 
 	void setItemVisible( const std::string& name, BOOL visible);
+
+    void setItemLabel(const std::string &name, const std::string &label);
 	
 	// sets the left,bottom corner of menu, useful for popups
 	void setLeftAndBottom(S32 left, S32 bottom);
@@ -498,6 +509,7 @@ public:
 	void			setItemLastSelected(LLMenuItemGL* item);	// must be in menu
 	U32				getItemCount();				// number of menu items
 	LLMenuItemGL*	getItem(S32 number);		// 0 = first item
+    LLMenuItemGL*   getItem(std::string name);
 	LLMenuItemGL*	getHighlightedItem();				
 
 	LLMenuItemGL*	highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disabled = TRUE);
@@ -507,7 +519,7 @@ public:
 	void createJumpKeys();
 
 	// Show popup at a specific location, in the spawn_view's coordinate frame
-	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y);
+	static void showPopup(LLView* spawning_view, LLMenuGL* menu, S32 x, S32 y, S32 mouse_x = 0, S32 mouse_y = 0);
 
 	// Whether to drop shadow menu bar 
 	void setDropShadowed( const BOOL shadowed );
@@ -625,10 +637,11 @@ public:
 	
 	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
 
+	virtual bool hasAccelerator(const KEY &key, const MASK &mask) const;
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
 
 	// check if we've used these accelerators already
-	virtual BOOL addToAcceleratorList(std::list <LLKeyBinding*> *listp);
+	virtual BOOL addToAcceleratorList(std::list <LLMenuKeyboardBinding*> *listp);
 
 	// called to rebuild the draw label
 	virtual void buildDrawLabel( void );
@@ -794,7 +807,7 @@ private:
 
 	void checkMenuTrigger();
 
-	std::list <LLKeyBinding*>	mAccelerators;
+	std::list <LLMenuKeyboardBinding*>	mAccelerators;
 	BOOL						mAltKeyTrigger;
 };
 

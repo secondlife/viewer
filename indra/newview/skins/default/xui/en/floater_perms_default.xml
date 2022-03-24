@@ -488,6 +488,67 @@
        left_pad="0"
        top_delta="0"
        width="100" />
+      <text
+       name="label_13"
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when Environment settings are created"
+       width="100">
+          Settings
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Settings"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+      <check_box
+       height="16"
+       layout="topleft"
+       name="env_settings_c"
+       left_pad="45"
+       top_delta="0"
+       value="true"
+       enabled="false"
+       width="100">
+      </check_box>
+      <check_box
+       control_name="SettingsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="env_settings_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="SettingsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="env_settings_t"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled="false"
+       height="16"
+       layout="topleft"
+       name="env_settings_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       enabled="false"
+       height="16"
+       layout="topleft"
+       name="env_settings_e"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
   </panel>
   <button
    height="20"

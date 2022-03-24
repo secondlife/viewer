@@ -1,33 +1,116 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Umgebung" name="panel_env_info">
-	<text name="water_settings_title">
-		Wählen Sie die Wasser- und Himmel-/Tageszykluseinstellungen aus, die alle Besucher Ihrer Region sehen sollen. Mehr Infos
-	</text>
-	<radio_group name="region_settings_radio_group">
-		<radio_item label="Second Life-Standard verwenden" name="use_sl_default_settings"/>
-		<radio_item label="Folgende Einstellungen verwenden" name="use_my_settings"/>
-	</radio_group>
-	<panel name="user_environment_settings">
-		<text name="water_settings_title">
-			Wassereinstellung
-		</text>
-		<combo_box name="water_settings_preset_combo">
-			<combo_box.item label="-Voreinstellung auswählen-" name="item0"/>
-		</combo_box>
-		<text name="sky_dayc_settings_title">
-			Himmel/Tageszyklus
-		</text>
-		<radio_group name="sky_dayc_settings_radio_group">
-			<radio_item label="Fester Himmel" name="my_sky_settings"/>
-			<radio_item label="Tageszyklus" name="my_dayc_settings"/>
-		</radio_group>
-		<combo_box name="sky_settings_preset_combo">
-			<combo_box.item label="-Voreinstellung auswählen-" name="item0"/>
-		</combo_box>
-		<combo_box name="dayc_settings_preset_combo">
-			<combo_box.item label="-Voreinstellung auswählen-" name="item0"/>
-		</combo_box>
-	</panel>
-	<button label="Anwenden" name="apply_btn"/>
-	<button label="Abbrechen" name="cancel_btn"/>
+	<string name="str_label_use_default">
+		Standardeinstellungen verwenden
+	</string>
+	<string name="str_label_use_region">
+		Regionseinstellungen verwenden
+	</string>
+	<string name="str_altitude_desription">
+		Himmel [INDEX]([ALTITUDE]m)
+	</string>
+	<string name="str_no_parcel">
+		Es ist keine Parzelle ausgewählt. Umgebungseinstellungen sind deaktiviert.
+	</string>
+	<string name="str_cross_region">
+		Umgebungseinstellungen sind außerhalb der Regionsgrenzen nicht verfügbar.
+	</string>
+	<string name="str_legacy">
+		Umgebungseinstellungen sind für diese Region nicht verfügbar
+	</string>
+	<string name="str_disallowed">
+		Der Grundbesitzverwalter lässt keine Änderung der Parzellenumgebungen in dieser Region zu.
+	</string>
+	<string name="str_too_small">
+		Die Parzellengröße muss mindestens 128 Quadratmeter betragen, um eine Umgebung zu unterstützen.
+	</string>
+	<string name="str_empty">
+		(leer)
+	</string>
+	<string name="str_region_env">
+		(Regionsumgebung)
+	</string>
+	<layout_stack>
+		<layout_panel name="pnl_environment_disabled">
+			<text name="txt_environment_disabled">
+				...
+			</text>
+		</layout_panel>
+		<layout_panel name="pnl_environment_config">
+			<layout_stack>
+				<layout_panel name="pnl_environment_config">
+					<layout_stack>
+						<layout_panel name="pnl_environment_current">
+							<button label="[USEDEFAULT]" name="btn_usedefault"/>
+							<button label="Inventar verwenden" name="btn_select_inventory"/>
+							<button label="Anpassen" name="btn_edit"/>
+							<check_box label="Parzelleneigentümer können die Umgebung außer Kraft setzen" name="chk_allow_override"/>
+						</layout_panel>
+						<layout_panel name="pnl_environment_length">
+							<text name="lbl_apparent_time">
+								[HH]:[MM][AP] ([PRC]%)
+							</text>
+						</layout_panel>
+						<layout_panel name="pnl_environment_buttons"/>
+					</layout_stack>
+				</layout_panel>
+				<layout_panel name="pnl_environment_altitudes">
+					<panel name="pnl_alt1">
+						<text name="txt_alt1">
+							Himmel [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt1">
+							Unbekannt
+						</line_editor>
+						<settings_drop_target name="sdt_alt1" tool_tip="Ziehen Sie eine Einstellung aus dem Inventar auf dieses Zielfeld, um sie als aktuellen Himmel auszuwählen."/>
+					</panel>
+					<panel name="pnl_alt2">
+						<text name="txt_alt2">
+							Himmel [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt2">
+							Unbekannt
+						</line_editor>
+						<settings_drop_target name="sdt_alt2" tool_tip="Ziehen Sie eine Einstellung aus dem Inventar auf dieses Zielfeld, um sie als aktuellen Himmel auszuwählen."/>
+					</panel>
+					<panel name="pnl_alt3">
+						<text name="txt_alt3">
+							Himmel [INDEX]
+                            [ALTITUDE]m
+						</text>
+						<line_editor name="edt_invname_alt3">
+							Unbekannt
+						</line_editor>
+						<settings_drop_target name="sdt_alt3" tool_tip="Ziehen Sie eine Einstellung aus dem Inventar auf dieses Zielfeld, um sie als aktuellen Himmel auszuwählen."/>
+					</panel>
+					<multi_slider initial_value="0" name="sld_altitudes">
+						<slider name="sld1" value="1000"/>
+						<slider name="sld2" value="2000"/>
+						<slider name="sld3" value="3000"/>
+					</multi_slider>
+					<panel name="pnl_ground">
+						<text name="txt_ground">
+							Boden
+						</text>
+						<line_editor name="edt_invname_ground">
+							Unbekannt
+						</line_editor>
+						<settings_drop_target name="sdt_ground" tool_tip="Ziehen Sie eine Einstellung aus dem Inventar auf dieses Zielfeld, um sie als aktuellen Himmel auf Bodenhöhe auszuwählen."/>
+					</panel>
+					<panel name="pnl_water">
+						<text name="txt_water">
+							Wasser
+						</text>
+						<line_editor name="edt_invname_water">
+							Unbekannt
+						</line_editor>
+						<settings_drop_target name="sdt_water" tool_tip="Ziehen Sie eine Einstellung aus dem Inventar auf dieses Zielfeld, um sie als aktuelles Wasser auszuwählen."/>
+					</panel>
+					<button label="Zurücksetzen" name="btn_rst_altitudes" tool_tip="Auf Standardhöhen zurücksetzen"/>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+	</layout_stack>
 </panel>

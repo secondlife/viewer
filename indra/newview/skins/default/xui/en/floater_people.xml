@@ -31,5 +31,11 @@
         filename="panel_group_info_sidetray.xml"
         label="Group Profile"
         font="SansSerifBold"/>
+      <panel
+        class="panel_group_creation_sidetray"
+        name="panel_group_creation_sidetray"
+        filename="panel_group_creation_sidetray.xml"
+        label="Create Group"
+        font="SansSerifBold"/>
     </panel_container>
 </floater>

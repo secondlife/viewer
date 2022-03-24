@@ -92,6 +92,23 @@ LLConversationItem::~LLConversationItem()
 	}
 }
 
+//virtual
+void LLConversationItem::addChild(LLFolderViewModelItem* child)
+{
+    // Avoid duplicates: bail out if that child is already present in the list
+    // Note: this happens when models are created and 'parented' before views
+    // This is performance unfriendly, but conversation can addToFolder multiple times
+    child_list_t::const_iterator iter;
+    for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+    {
+        if (child == *iter)
+        {
+            return;
+        }
+    }
+    LLFolderViewModelItemCommon::addChild(child);
+}
+
 void LLConversationItem::postEvent(const std::string& event_type, LLConversationItemSession* session, LLConversationItemParticipant* participant)
 {
 	LLUUID session_id = (session ? session->getUUID() : LLUUID());
@@ -324,9 +341,34 @@ void LLConversationItemSession::removeParticipant(const LLUUID& participant_id)
 
 void LLConversationItemSession::clearParticipants()
 {
+    // clearParticipants function potentially is malfunctioning since it only cleans children of models,
+    // it does nothing to views that own those models (listeners)
+    // probably needs to post some kind of 'remove all participants' event
 	clearChildren();
 	mIsLoaded = false;
 	mNeedsRefresh = true;
+}
+
+
+void LLConversationItemSession::clearAndDeparentModels()
+{
+    std::for_each(mChildren.begin(), mChildren.end(),
+        [](LLFolderViewModelItem* c)
+        {
+            if (c->getNumRefs() == 0)
+            {
+                // LLConversationItemParticipant can be created but not assigned to any view,
+                // it was waiting for an "add_participant" event to be processed
+                delete c;
+            }
+            else
+            {
+                // Model is still assigned to some view/widget
+                c->setParent(NULL);
+            }
+        }
+    );
+    mChildren.clear();
 }
 
 LLConversationItemParticipant* LLConversationItemSession::findParticipant(const LLUUID& participant_id)
@@ -338,7 +380,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
-		if (participant->hasSameValue(participant_id))
+		if (participant && participant->hasSameValue(participant_id))
 		{
 			break;
 		}
@@ -449,7 +491,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
 		F64 participant_time;
-		if (participant->getTime(participant_time))
+		if (participant && participant->getTime(participant_time))
 		{
 			has_time = true;
 			most_recent_time = llmax(most_recent_time,participant_time);

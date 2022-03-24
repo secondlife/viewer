@@ -46,10 +46,10 @@ class LLRotation;
 // of this writing, July 08, 2010) about getting it implemented before you resort to
 // LLVector3/LLVector4. 
 /////////////////////////////////
-class LLVector4a;
+struct LLVector4a;
 
 LL_ALIGN_PREFIX(16)
-class LLVector4a
+struct LLVector4a
 {
 public:
 
@@ -92,6 +92,7 @@ public:
 	// CONSTRUCTORS 
 	////////////////////////////////////
 	
+	//LLVector4a is plain data which should never have a default constructor or destructor(malloc&free won't trigger it)
 	LLVector4a()
 	{ //DO NOT INITIALIZE -- The overhead is completely unnecessary
 		ll_assert_aligned(this,16);

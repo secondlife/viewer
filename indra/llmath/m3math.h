@@ -60,7 +60,6 @@ class LLMatrix3
 		explicit LLMatrix3(const F32 *mat);					// Initializes Matrix to values in mat
 		explicit LLMatrix3(const LLQuaternion &q);			// Initializes Matrix with rotation q
 
-		LLMatrix3(const F32 angle, const F32 x, const F32 y, const F32 z);	// Initializes Matrix with axis angle
 		LLMatrix3(const F32 angle, const LLVector3 &vec);	// Initializes Matrix with axis angle
 		LLMatrix3(const F32 angle, const LLVector3d &vec);	// Initializes Matrix with axis angle
 		LLMatrix3(const F32 angle, const LLVector4 &vec);	// Initializes Matrix with axis angle
@@ -81,8 +80,7 @@ class LLMatrix3
 		// Matrix setters - set some properties without modifying others
 		//
 
-		// These functions take Rotation arguments
-		const LLMatrix3& setRot(const F32 angle, const F32 x, const F32 y, const F32 z);	// Calculate rotation matrix for rotating angle radians about (x, y, z)
+		// These functions take Rotation arguments		
 		const LLMatrix3& setRot(const F32 angle, const LLVector3 &vec);	// Calculate rotation matrix for rotating angle radians about vec
 		const LLMatrix3& setRot(const F32 roll, const F32 pitch, const F32 yaw);	// Calculate rotation matrix from Euler angles
 		const LLMatrix3& setRot(const LLQuaternion &q);			// Transform matrix by Euler angles and translating by pos

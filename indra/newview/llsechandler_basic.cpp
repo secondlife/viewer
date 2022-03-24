@@ -52,6 +52,7 @@
 #include "llmachineid.h"
 
 
+static const std::string DEFAULT_CREDENTIAL_STORAGE = "credential";
 
 // 128 bits of salt data...
 #define STORE_SALT_SIZE 16 
@@ -77,16 +78,16 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
 	BIO * pem_bio = BIO_new_mem_buf((void*)pem_cert.c_str(), pem_cert.length());
 	if(pem_bio == NULL)
 	{
-		LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
-		LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
+        LL_WARNS("SECAPI") << "Could not allocate an openssl memory BIO." << LL_ENDL;
+        LLTHROW(LLAllocationCertException(LLSD::emptyMap()));
 	}
 	mCert = NULL;
 	PEM_read_bio_X509(pem_bio, &mCert, 0, NULL);
 	BIO_free(pem_bio);
 	if (!mCert)
 	{
-		LL_WARNS("SECAPI") << "Could not decode certificate to x509." << LL_ENDL;
-		LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
+        LL_WARNS("SECAPI") << "Could not decode certificate to x509." << LL_ENDL;
+        LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
 	}
 }
 
@@ -94,7 +95,7 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert,
 LLBasicCertificate::LLBasicCertificate(X509* pCert,
                                        const LLSD* validation_params) 
 {
-	if (!pCert || !pCert->cert_info)
+	if (!pCert)
 	{
 		LLTHROW(LLInvalidCertificate(LLSD::emptyMap()));
 	}	
@@ -354,8 +355,8 @@ LLSD cert_name_from_X509_NAME(X509_NAME* name)
 		char buffer[32];
 		X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, entry_index);
 		
-		std::string name_value = std::string((const char*)M_ASN1_STRING_data(X509_NAME_ENTRY_get_data(entry)), 
-											 M_ASN1_STRING_length(X509_NAME_ENTRY_get_data(entry)));
+		std::string name_value = std::string((const char*)ASN1_STRING_data(X509_NAME_ENTRY_get_data(entry)), 
+											 ASN1_STRING_length(X509_NAME_ENTRY_get_data(entry)));
 
 		ASN1_OBJECT* name_obj = X509_NAME_ENTRY_get_object(entry);		
 		OBJ_obj2txt(buffer, sizeof(buffer), name_obj, 0);
@@ -682,29 +683,29 @@ std::string LLBasicCertificateStore::storeId() const
 // LLBasicCertificateChain
 // This class represents a chain of certs, each cert being signed by the next cert
 // in the chain.  Certs must be properly signed by the parent
-LLBasicCertificateChain::LLBasicCertificateChain(const X509_STORE_CTX* store)
+LLBasicCertificateChain::LLBasicCertificateChain(X509_STORE_CTX* store)
 {
 
 	// we're passed in a context, which contains a cert, and a blob of untrusted
 	// certificates which compose the chain.
-	if((store == NULL) || (store->cert == NULL))
+	if((store == NULL) || X509_STORE_CTX_get0_cert(store) == NULL)
 	{
 		LL_WARNS("SECAPI") << "An invalid store context was passed in when trying to create a certificate chain" << LL_ENDL;
 		return;
 	}
 	// grab the child cert
-	LLPointer<LLCertificate> current = new LLBasicCertificate(store->cert);
+	LLPointer<LLCertificate> current = new LLBasicCertificate(X509_STORE_CTX_get0_cert(store));
 
 	add(current);
-	if(store->untrusted != NULL)
+	if(X509_STORE_CTX_get0_untrusted(store) != NULL)
 	{
 		// if there are other certs in the chain, we build up a vector
 		// of untrusted certs so we can search for the parents of each
 		// consecutive cert.
 		LLBasicCertificateVector untrusted_certs;
-		for(int i = 0; i < sk_X509_num(store->untrusted); i++)
+		for(int i = 0; i < sk_X509_num(X509_STORE_CTX_get0_untrusted(store)); i++)
 		{
-			LLPointer<LLCertificate> cert = new LLBasicCertificate(sk_X509_value(store->untrusted, i));
+			LLPointer<LLCertificate> cert = new LLBasicCertificate(sk_X509_value(X509_STORE_CTX_get0_untrusted(store), i));
 			untrusted_certs.add(cert);
 
 		}		
@@ -914,18 +915,30 @@ void _validateCert(int validation_policy,
 	}
 	if (validation_policy & VALIDATION_POLICY_SSL_KU)
 	{
+		// This stanza of code was changed 2021-06-09 as per details in SL-15370.
+		// Brief summary: a renewed certificate from Akamai only contains the
+		// 'Digital Signature' field and not the 'Key Encipherment' one. This code 
+		// used to look for both and throw an exception at startup (ignored) and 
+		// (for example) when buying L$ in the Viewer (fails with a UI message
+		// and an entry in the Viewer log). This modified code removes the second 
+		// check for the 'Key Encipherment' field. If Akamai can provide a 
+		// replacement certificate that has both fields, then this modified code 
+		// will not be required.
 		if (current_cert_info.has(CERT_KEY_USAGE) && current_cert_info[CERT_KEY_USAGE].isArray() &&
-			(!(_LLSDArrayIncludesValue(current_cert_info[CERT_KEY_USAGE], 
-									   LLSD((std::string)CERT_KU_DIGITAL_SIGNATURE))) ||
 			!(_LLSDArrayIncludesValue(current_cert_info[CERT_KEY_USAGE], 
-									  LLSD((std::string)CERT_KU_KEY_ENCIPHERMENT)))))
+									   LLSD((std::string)CERT_KU_DIGITAL_SIGNATURE)))
+			)
 		{
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}
 		// only validate EKU if the cert has it
-		if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE) && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray() &&	   
-		   (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
-									LLSD((std::string)CERT_EKU_SERVER_AUTH))))
+        if(current_cert_info.has(CERT_EXTENDED_KEY_USAGE)
+           && current_cert_info[CERT_EXTENDED_KEY_USAGE].isArray()
+           && (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE],
+                                         LLSD((std::string)CERT_EKU_TLS_SERVER_AUTH)))
+           && (!_LLSDArrayIncludesValue(current_cert_info[CERT_EXTENDED_KEY_USAGE], 
+                                         LLSD((std::string)CERT_EKU_SERVER_AUTH)))
+           )
 		{
 			LLTHROW(LLCertKeyUsageValidationException(current_cert_info));
 		}
@@ -1297,8 +1310,8 @@ LLSecAPIBasicHandler::~LLSecAPIBasicHandler()
 	_writeProtectedData();
 }
 
-void LLSecAPIBasicHandler::_readProtectedData()
-{	
+void LLSecAPIBasicHandler::_readProtectedData(unsigned char *unique_id, U32 id_len)
+{
 	// attempt to load the file into our map
 	LLPointer<LLSDParser> parser = new LLSDXMLParser();
 	llifstream protected_data_stream(mProtectedDataFilename.c_str(), 
@@ -1309,9 +1322,7 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		U8 buffer[BUFFER_READ_SIZE];
 		U8 decrypted_buffer[BUFFER_READ_SIZE];
 		int decrypted_length;	
-		unsigned char unique_id[MAC_ADDRESS_BYTES];
-        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
-		LLXORCipher cipher(unique_id, sizeof(unique_id));
+		LLXORCipher cipher(unique_id, id_len);
 
 		// read in the salt and key
 		protected_data_stream.read((char *)salt, STORE_SALT_SIZE);
@@ -1335,9 +1346,10 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		
 
 		// read in the rest of the file.
-		EVP_CIPHER_CTX ctx;
-		EVP_CIPHER_CTX_init(&ctx);
-		EVP_DecryptInit(&ctx, EVP_rc4(), salt, NULL);
+		EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
+        // todo: ctx error handling
+
+		EVP_DecryptInit(ctx, EVP_rc4(), salt, NULL);
 		// allocate memory:
 		std::string decrypted_data;	
 		
@@ -1345,14 +1357,14 @@ void LLSecAPIBasicHandler::_readProtectedData()
 			// read data as a block:
 			protected_data_stream.read((char *)buffer, BUFFER_READ_SIZE);
 			
-			EVP_DecryptUpdate(&ctx, decrypted_buffer, &decrypted_length, 
+			EVP_DecryptUpdate(ctx, decrypted_buffer, &decrypted_length, 
 							  buffer, protected_data_stream.gcount());
 			decrypted_data.append((const char *)decrypted_buffer, protected_data_stream.gcount());
 		}
 		
 		// RC4 is a stream cipher, so we don't bother to EVP_DecryptFinal, as there is
 		// no block padding.
-		EVP_CIPHER_CTX_cleanup(&ctx);
+        EVP_CIPHER_CTX_free(ctx);
 		std::istringstream parse_stream(decrypted_data);
 		if (parser->parse(parse_stream, mProtectedDataMap, 
 						  LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
@@ -1360,6 +1372,30 @@ void LLSecAPIBasicHandler::_readProtectedData()
 			LLTHROW(LLProtectedDataException("Config file cannot be decrypted."));
 		}
 	}
+}
+
+void LLSecAPIBasicHandler::_readProtectedData()
+{
+    unsigned char unique_id[MAC_ADDRESS_BYTES];
+    try
+    {
+        // try default id
+        LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+        _readProtectedData(unique_id, sizeof(unique_id));
+    }
+    catch(LLProtectedDataException&)
+    {
+        // try with legacy id, it will return false if it is identical to getUniqueID
+        // or if it is not assigned/not in use
+        if (LLMachineID::getLegacyID(unique_id, sizeof(unique_id)))
+        {
+            _readProtectedData(unique_id, sizeof(unique_id));
+        }
+        else
+        {
+            throw;
+        }
+    }
 }
 
 void LLSecAPIBasicHandler::_writeProtectedData()
@@ -1388,12 +1424,14 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	
 	llofstream protected_data_stream(tmp_filename.c_str(), 
                                      std::ios_base::binary);
+    EVP_CIPHER_CTX *ctx = NULL;
 	try
 	{
 		
-		EVP_CIPHER_CTX ctx;
-		EVP_CIPHER_CTX_init(&ctx);
-		EVP_EncryptInit(&ctx, EVP_rc4(), salt, NULL);
+		ctx = EVP_CIPHER_CTX_new();
+        // todo: ctx error handling
+
+		EVP_EncryptInit(ctx, EVP_rc4(), salt, NULL);
 		unsigned char unique_id[MAC_ADDRESS_BYTES];
         LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
 		LLXORCipher cipher(unique_id, sizeof(unique_id));
@@ -1408,13 +1446,13 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 				break;
 			}
 			int encrypted_length;
-			EVP_EncryptUpdate(&ctx, encrypted_buffer, &encrypted_length, 
+			EVP_EncryptUpdate(ctx, encrypted_buffer, &encrypted_length, 
 						  buffer, formatted_data_istream.gcount());
 			protected_data_stream.write((const char *)encrypted_buffer, encrypted_length);
 		}
 		
 		// no EVP_EncrypteFinal, as this is a stream cipher
-		EVP_CIPHER_CTX_cleanup(&ctx);
+        EVP_CIPHER_CTX_free(ctx);
 
 		protected_data_stream.close();
 	}
@@ -1425,6 +1463,11 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 		// (even though this file isn't really secure.  Perhaps in the future
 		// it may be, however.
 		LLFile::remove(tmp_filename);
+
+        if (ctx)
+        {
+            EVP_CIPHER_CTX_free(ctx);
+        }
 
 		// EXP-1825 crash in LLSecAPIBasicHandler::_writeProtectedData()
 		// Decided throwing an exception here was overkill until we figure out why this happens
@@ -1478,7 +1521,7 @@ LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert
 }
 		
 // instantiate a chain from an X509_STORE_CTX
-LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(const X509_STORE_CTX* chain)
+LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(X509_STORE_CTX* chain)
 {
 	LLPointer<LLCertificateChain> result = new LLBasicCertificateChain(chain);
 	return result;
@@ -1533,6 +1576,38 @@ void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type,
 	mProtectedDataMap[data_type][data_id] = data; 
 }
 
+// persist data in a protected store's map
+void LLSecAPIBasicHandler::addToProtectedMap(const std::string& data_type,
+											 const std::string& data_id,
+											 const std::string& map_elem,
+											 const LLSD& data)
+{
+    if (!mProtectedDataMap.has(data_type) || !mProtectedDataMap[data_type].isMap()) {
+        mProtectedDataMap[data_type] = LLSD::emptyMap();
+    }
+
+    if (!mProtectedDataMap[data_type].has(data_id) || !mProtectedDataMap[data_type][data_id].isMap()) {
+        mProtectedDataMap[data_type][data_id] = LLSD::emptyMap();
+    }
+
+    mProtectedDataMap[data_type][data_id][map_elem] = data;
+}
+
+// remove data from protected store's map
+void LLSecAPIBasicHandler::removeFromProtectedMap(const std::string& data_type,
+												  const std::string& data_id,
+												  const std::string& map_elem)
+{
+    if (mProtectedDataMap.has(data_type) &&
+        mProtectedDataMap[data_type].isMap() &&
+        mProtectedDataMap[data_type].has(data_id) &&
+        mProtectedDataMap[data_type][data_id].isMap() &&
+        mProtectedDataMap[data_type][data_id].has(map_elem))
+    {
+        mProtectedDataMap[data_type][data_id].erase(map_elem);
+    }
+}
+
 //
 // Create a credential object from an identifier and authenticator.  credentials are
 // per grid.
@@ -1545,10 +1620,10 @@ LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string
 	return result;
 }
 
-// Load a credential from the credential store, given the grid
+// Load a credential from default credential store, given the grid
 LLPointer<LLCredential> LLSecAPIBasicHandler::loadCredential(const std::string& grid)
 {
-	LLSD credential = getProtectedData("credential", grid);
+	LLSD credential = getProtectedData(DEFAULT_CREDENTIAL_STORAGE, grid);
 	LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
 	if(credential.isMap() && 
 	   credential.has("identifier"))
@@ -1603,7 +1678,7 @@ void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool sav
 		credential["authenticator"] = cred->getAuthenticator();
 	}
 	LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
-	setProtectedData("credential", cred->getGrid(), credential);
+	setProtectedData(DEFAULT_CREDENTIAL_STORAGE, cred->getGrid(), credential);
 	//*TODO: If we're saving Agni credentials, should we write the
 	// credentials to the legacy password.dat/etc?
 	_writeProtectedData();
@@ -1613,9 +1688,148 @@ void LLSecAPIBasicHandler::saveCredential(LLPointer<LLCredential> cred, bool sav
 void LLSecAPIBasicHandler::deleteCredential(LLPointer<LLCredential> cred)
 {
 	LLSD undefVal;
-	deleteProtectedData("credential", cred->getGrid());
+	deleteProtectedData(DEFAULT_CREDENTIAL_STORAGE, cred->getGrid());
 	cred->setCredentialData(undefVal, undefVal);
 	_writeProtectedData();
+}
+
+// has map of credentials declared as specific storage
+bool LLSecAPIBasicHandler::hasCredentialMap(const std::string& storage, const std::string& grid)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+
+    return credential.isMap();
+}
+
+// returns true if map is empty or does not exist
+bool LLSecAPIBasicHandler::emptyCredentialMap(const std::string& storage, const std::string& grid)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+
+    return !credential.isMap() || credential.size() == 0;
+}
+
+// Load map of credentials from specified credential store, given the grid
+void LLSecAPIBasicHandler::loadCredentialMap(const std::string& storage, const std::string& grid, credential_map_t& credential_map)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD credential = getProtectedData(storage, grid);
+    if (credential.isMap())
+    {
+        LLSD::map_const_iterator crd_it = credential.beginMap();
+        for (; crd_it != credential.endMap(); crd_it++)
+        {
+            LLSD::String name = crd_it->first;
+            const LLSD &link_map = crd_it->second;
+            LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+            if (link_map.has("identifier"))
+            {
+                LLSD identifier = link_map["identifier"];
+                LLSD authenticator;
+                if (link_map.has("authenticator"))
+                {
+                    authenticator = link_map["authenticator"];
+                }
+                result->setCredentialData(identifier, authenticator);
+            }
+            credential_map[name] = result;
+        }
+    }
+}
+
+LLPointer<LLCredential> LLSecAPIBasicHandler::loadFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLPointer<LLSecAPIBasicCredential> result = new LLSecAPIBasicCredential(grid);
+
+    LLSD credential = getProtectedData(storage, grid);
+    if (credential.isMap() && credential.has(userkey) && credential[userkey].has("identifier"))
+    {
+        LLSD identifier = credential[userkey]["identifier"];
+        LLSD authenticator;
+        if (credential[userkey].has("authenticator"))
+        {
+            authenticator = credential[userkey]["authenticator"];
+        }
+        result->setCredentialData(identifier, authenticator);
+    }
+
+    return result;
+}
+
+// add item to map of credentials from specific storage
+void LLSecAPIBasicHandler::addToCredentialMap(const std::string& storage, LLPointer<LLCredential> cred, bool save_authenticator)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    std::string user_id = cred->userID();
+    LLSD credential = LLSD::emptyMap();
+    credential["identifier"] = cred->getIdentifier();
+    if (save_authenticator)
+    {
+        credential["authenticator"] = cred->getAuthenticator();
+    }
+    LL_DEBUGS("SECAPI") << "Saving Credential " << cred->getGrid() << ":" << cred->userID() << " " << save_authenticator << LL_ENDL;
+    addToProtectedMap(storage, cred->getGrid(), user_id, credential);
+
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, LLPointer<LLCredential> cred)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD undefVal;
+    removeFromProtectedMap(storage, cred->getGrid(), cred->userID());
+    cred->setCredentialData(undefVal, undefVal);
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeFromCredentialMap(const std::string& storage, const std::string& grid, const std::string& userkey)
+{
+    if (storage == DEFAULT_CREDENTIAL_STORAGE)
+    {
+        LL_ERRS() << "Storing maps in default, single-items storage is not allowed" << LL_ENDL;
+    }
+
+    LLSD undefVal;
+    LLPointer<LLCredential> cred = loadFromCredentialMap(storage, grid, userkey);
+    removeFromProtectedMap(storage, grid, userkey);
+    cred->setCredentialData(undefVal, undefVal);
+    _writeProtectedData();
+}
+
+// remove item from map of credentials from specific storage
+void LLSecAPIBasicHandler::removeCredentialMap(const std::string& storage, const std::string& grid)
+{
+    deleteProtectedData(storage, grid);
+    _writeProtectedData();
 }
 
 // load the legacy hash for agni, and decrypt it given the 
@@ -1656,15 +1870,18 @@ std::string LLSecAPIBasicCredential::userID() const
 	}
 	else if ((std::string)mIdentifier["type"] == "agent")
 	{
-		return  (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
+		std::string id = (std::string)mIdentifier["first_name"] + "_" + (std::string)mIdentifier["last_name"];
+		LLStringUtil::toLower(id);
+		return id;
 	}
 	else if ((std::string)mIdentifier["type"] == "account")
 	{
-		return (std::string)mIdentifier["account_name"];
+		std::string id = (std::string)mIdentifier["account_name"];
+		LLStringUtil::toLower(id);
+		return id;
 	}
 
 	return "unknown";
-
 }
 
 // return a printable user identifier

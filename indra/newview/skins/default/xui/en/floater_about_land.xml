@@ -123,8 +123,8 @@
                 No parcel selected.
             </panel.string>
             <panel.string name="time_stamp_template">
-				[wkday,datetime,local] [mth,datetime,local] [day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local] [year,datetime,local]
-			</panel.string>
+              [wkday,datetime,slt] [mth,datetime,slt] [day,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [year,datetime,slt]
+            </panel.string>
             <text
              type="string"
              length="1"
@@ -1800,7 +1800,7 @@ Only large parcels can be listed in search.
                 Music URL:
             </text>
             <line_editor
-             follows="left|top"
+             follows="left|top|right"
              height="23"
              layout="topleft"
              left="100"
@@ -2139,6 +2139,18 @@ Only large parcels can be listed in search.
           name="land_experiences_panel"
             class="land_experiences_panel"
           filename="panel_region_experiences.xml">
+       </panel>
+    <panel
+          border="true"
+          follows="all"
+          label="ENVIRONMENT"
+          layout="topleft"
+          left="0"
+          top="0"
+          help_topic="land_environment_tab"
+          name="land_environment_panel"
+          class="land_environment_panel"
+          filename="panel_region_environment.xml">
        </panel>
     </tab_container>
 </floater>

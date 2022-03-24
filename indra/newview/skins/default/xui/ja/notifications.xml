@@ -266,6 +266,10 @@
 		選択した住人から変更権限を取り下げますか？
 		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		グループ名は [MIN_LEN] ～ [MAX_LEN] 文字である必要があります。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		グループを作成できません。
 [MESSAGE]
@@ -367,7 +371,7 @@
 L$ が不足しているのでこのグループに参加することができません。
 	</notification>
 	<notification name="CreateGroupCost">
-		このグループを作るには L$ 100 かかります。
+		このグループ作成にかかる費用：L$[COST]
 一人ではグループにならないので、永久に削除されてしまいます。
 48 時間以内にメンバーを勧誘し、入会してもらってください。
 		<usetemplate canceltext="キャンセル" name="okcancelbuttons" notext="キャンセル" yestext="L$100 でグループを作成"/>
@@ -517,6 +521,9 @@ L$ が不足しているのでこのグループに参加することができ�
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		スナップショットのエンコード化でエラーが出ました！
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		このアイテムをアップロードするためには L$[COST] が必要です。
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		インベントリに写真を保存するには L$[COST] が必要です。L$ を購入するか、代わりに写真をっコンピュータに保存できます。
@@ -1773,11 +1780,14 @@ https://secondlife.com/support/downloads/ からダウンロードしてくだ�
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		ベースアカウントのグループ制限は [MAX_BASIC]、[https://secondlife.com/premium/ プレミアム] アカウントの
-グループ制限は [MAX_PREMIUM] です。
-アカウントをダウングレードした場合、さらにグループに参加する前に、下の [MAX_BASIC] グループ制限を取得する必要があります。
-
-[https://secondlife.com/my/account/membership.php 今すぐアップグレード!]
+		ベーシック会員の住民は、最大 [MAX_BASIC] グループまで参加することができます。
+プレミアム会員は、最大 [MAX_PREMIUM] まで可能です。[https://secondlife.com/my/account/membership.php? 詳細、またはアップグレード]
+		<usetemplate name="okbutton" yestext="閉じる"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		ベーシック会員の住民は、最大 [MAX_BASIC] グループまで参加することができます。
+プレミアム会員は、最大 [MAX_PREMIUM] まで可能です。プレミアムプラス会員は、最大 [MAX_PREMIUM_PLUS] まで可能です。
+[https://secondlife.com/my/account/membership.php? 詳細、またはアップグレード]
 		<usetemplate name="okbutton" yestext="閉じる"/>
 	</notification>
 	<notification name="KickUser">
@@ -1995,6 +2005,11 @@ http://wiki.secondlife.com/wiki/Setting_your_display_name を参照してくだ�
 	<notification name="EstateParcelAccessOverride">
 		このオプションをオフにすると、嫌がらせの防止やプライバシーの維持、18 才以下の住人を Adult コンテンツから守るために区画所有者が加えた制限が解除される可能性があります。必要に応じて区画所有者と相談してください。
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		このオプションをオフにすると、区画所有者がその区画に加えたカスタム環境が削除されます。必要に応じて区画所有者と相談してください。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="キャンセル" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		訪問しようとしている地域（リージョン）には現在の環境設定を超えるコンテンツが含まれています。「ミー」 &gt; 「環境設定」 &gt; 「一般」を選択して、環境設定を変更できます。
@@ -2483,7 +2498,14 @@ Web ページにリンクすると、他人がこの場所に簡単にアクセ�
 		このデイサイクルのファイルは次の存在しない「空」ファイルを参照しています： [SKY]。
 	</notification>
 	<notification name="WLRegionApplyFail">
-		申し訳ございませんが、設定をリージョンに適用できませんでした。一度リージョンを出てから戻ると、問題が解決されるかもしれません。問題の発生した理由：[FAIL_REASON]
+		申し訳ございませんが、設定をリージョンに適用できませんでした。理由： [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		ローカルテクスチャは、フィールド [FIELD] 内のトラック [TRACK]、フレーム #[FRAMENO] ([FRAME]%) で使用されています。ローカルテクスチャを使った設定は保存されない可能性があります。
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		ローカルテクスチャは、フィールド [FIELD] で使用されています。
+ローカルテクスチャを使った設定は保存されない可能性があります。
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		デイサイクルを空にはできないので、このデイサイクルの最後のキーを削除することはできません。最後のキーを削除して新しいキーを作成するのではなく、最後のキーを変更してください。
@@ -3335,6 +3357,22 @@ M キーを押して変更します。
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		モデレーターがあなたのボイスをミュートしました。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		残念ながら、このセッションのベネフィット情報を得ることができませんでした。通常のプロダクション環境で起こることではありません。サポートまでご連絡ください。このセッションは通常通りに作動しませんので、再スタートをお薦めします
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		合計 L$[COST] で [COUNT] アイテムがアップロードされます。 アップロードを続けますか？
+		<usetemplate name="okcancelbuttons" notext="取り消し" yestext="アップロード"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		選択したファイルは、まとめてアップロードできません。
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		選択したファイルのいくつかは、まとめてアップロードできません。
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">
@@ -4428,5 +4466,76 @@ M キーを押して変更します。
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		データベースから [NAME] の設定の読み込みができませんでした。
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		環境にこれらの設定を適用することができません。
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		環境にこれらの設定を適用することができません。
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		このリージョンは環境設定をサポートしていません。
+	</notification>
+	<notification label="アウトフィットを保存する" name="SaveSettingAs">
+		現在の環境設定を次の内容で保存する：
+		<form name="form">
+			<input name="message">
+				[DESC] （新）
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="キャンセル"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		[FILE] から過去のウインドライトの設定 [NAME] をインポートできません。 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		この区画で環境を設定することはできません。
+変更する権限のある区画を入力または選択してください。
+	</notification>
+	<notification name="SettingsUnsuported">
+		このリージョンでは設定をサポートしていません。
+設定に対応しているリージョンに移動し、アクションを再試行してください。
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		&quot;[NAME]&quot;と名付けられたこの [TYPE] に加えられた変更が失われます。
+続けますか？
+		<usetemplate ignoretext="変更を失いますがよろしいですか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		適用されたすべての設定を削除しようとしています。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		適用されたすべての個人的な照明の設定を削除しようとしています。
+続けますか？
+		<usetemplate name="okcancelbuttons" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		このデイサイクルに移行不可の設定をインポートしようとしています。このまま続けると、編集中の設定も移行不可になります。
+
+この変更は元に戻すことができません。
+
+続けますか？
+		<usetemplate ignoretext="設定を移行不可にしますか？" name="okcancelignore" notext="いいえ" yestext="はい"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		ライブラリから直接設定を変更することはできません。
+自分の持ち物からコピーしてやり直してください。
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		この設定で問題が発生しました。この設定は現在保存または適用ができません。
+	</notification>
+	<notification name="TrackLoadFailed">
+		トラックを [TRACK] にロードできません。
+	</notification>
+	<notification name="TrackLoadMismatch">
+		トラックを [TRACK1] から [TRACK2] にロードできません。
 	</notification>
 </notifications>

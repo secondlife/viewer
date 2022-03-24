@@ -435,7 +435,8 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDFormatter();
+	LLSDFormatter(bool boolAlpha=false, const std::string& realFormat="",
+				  EFormatterOptions options=OPTIONS_PRETTY_BINARY);
 
 	/** 
 	 * @brief Set the boolean serialization format.
@@ -459,15 +460,37 @@ public:
 	void realFormat(const std::string& format);
 
 	/** 
-	 * @brief Call this method to format an LLSD to a stream.
+	 * @brief Call this method to format an LLSD to a stream with options as
+	 * set by the constructor.
 	 *
 	 * @param data The data to write.
 	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
+	 * @return Returns The number of LLSD objects formatted out
 	 */
-	virtual S32 format(const LLSD& data, std::ostream& ostr, U32 options = LLSDFormatter::OPTIONS_NONE) const = 0;
+	S32 format(const LLSD& data, std::ostream& ostr) const;
+
+	/** 
+	 * @brief Call this method to format an LLSD to a stream, passing options
+	 * explicitly.
+	 *
+	 * @param data The data to write.
+	 * @param ostr The destination stream for the data.
+	 * @param options OPTIONS_NONE to emit LLSD::Binary as raw bytes
+	 * @return Returns The number of LLSD objects formatted out
+	 */
+	virtual S32 format(const LLSD& data, std::ostream& ostr, EFormatterOptions options) const;
 
 protected:
+	/** 
+	 * @brief Implementation to format the data. This is called recursively.
+	 *
+	 * @param data The data to write.
+	 * @param ostr The destination stream for the data.
+	 * @return Returns The number of LLSD objects formatted out
+	 */
+	virtual S32 format_impl(const LLSD& data, std::ostream& ostr, EFormatterOptions options,
+							U32 level) const = 0;
+
 	/** 
 	 * @brief Helper method which appropriately obeys the real format.
 	 *
@@ -476,9 +499,9 @@ protected:
 	 */
 	void formatReal(LLSD::Real real, std::ostream& ostr) const;
 
-protected:
 	bool mBoolAlpha;
 	std::string mRealFormat;
+	EFormatterOptions mOptions;
 };
 
 
@@ -498,7 +521,8 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDNotationFormatter();
+	LLSDNotationFormatter(bool boolAlpha=false, const std::string& realFormat="",
+						  EFormatterOptions options=OPTIONS_PRETTY_BINARY);
 
 	/** 
 	 * @brief Helper static method to return a notation escaped string
@@ -512,25 +536,16 @@ public:
 	 */
 	static std::string escapeString(const std::string& in);
 
-	/** 
-	 * @brief Call this method to format an LLSD to a stream.
-	 *
-	 * @param data The data to write.
-	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
-	 */
-	virtual S32 format(const LLSD& data, std::ostream& ostr, U32 options = LLSDFormatter::OPTIONS_NONE) const;
-
 protected:
-
 	/** 
 	 * @brief Implementation to format the data. This is called recursively.
 	 *
 	 * @param data The data to write.
 	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
+	 * @return Returns The number of LLSD objects formatted out
 	 */
-	S32 format_impl(const LLSD& data, std::ostream& ostr, U32 options, U32 level) const;
+	S32 format_impl(const LLSD& data, std::ostream& ostr, EFormatterOptions options,
+					U32 level) const override;
 };
 
 
@@ -550,7 +565,8 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDXMLFormatter();
+	LLSDXMLFormatter(bool boolAlpha=false, const std::string& realFormat="",
+					 EFormatterOptions options=OPTIONS_PRETTY_BINARY);
 
 	/** 
 	 * @brief Helper static method to return an xml escaped string
@@ -565,20 +581,23 @@ public:
 	 *
 	 * @param data The data to write.
 	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
+	 * @return Returns The number of LLSD objects formatted out
 	 */
-	virtual S32 format(const LLSD& data, std::ostream& ostr, U32 options = LLSDFormatter::OPTIONS_NONE) const;
+	S32 format(const LLSD& data, std::ostream& ostr, EFormatterOptions options) const override;
+
+	// also pull down base-class format() method that isn't overridden
+	using LLSDFormatter::format;
 
 protected:
-
 	/** 
 	 * @brief Implementation to format the data. This is called recursively.
 	 *
 	 * @param data The data to write.
 	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
+	 * @return Returns The number of LLSD objects formatted out
 	 */
-	S32 format_impl(const LLSD& data, std::ostream& ostr, U32 options, U32 level) const;
+	S32 format_impl(const LLSD& data, std::ostream& ostr, EFormatterOptions options,
+					U32 level) const override;
 };
 
 
@@ -618,18 +637,20 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDBinaryFormatter();
+	LLSDBinaryFormatter(bool boolAlpha=false, const std::string& realFormat="",
+						EFormatterOptions options=OPTIONS_PRETTY_BINARY);
 
+protected:
 	/** 
-	 * @brief Call this method to format an LLSD to a stream.
+	 * @brief Implementation to format the data. This is called recursively.
 	 *
 	 * @param data The data to write.
 	 * @param ostr The destination stream for the data.
-	 * @return Returns The number of LLSD objects fomatted out
+	 * @return Returns The number of LLSD objects formatted out
 	 */
-	virtual S32 format(const LLSD& data, std::ostream& ostr, U32 options = LLSDFormatter::OPTIONS_NONE) const;
+	S32 format_impl(const LLSD& data, std::ostream& ostr, EFormatterOptions options,
+					U32 level) const override;
 
-protected:
 	/** 
 	 * @brief Helper method to serialize strings
 	 *
@@ -669,7 +690,8 @@ public:
 	/** 
 	 * @brief Constructor
 	 */
-	LLSDOStreamer(const LLSD& data, U32 options = LLSDFormatter::OPTIONS_NONE) :
+	LLSDOStreamer(const LLSD& data,
+				  LLSDFormatter::EFormatterOptions options=LLSDFormatter::OPTIONS_PRETTY_BINARY) :
 		mSD(data), mOptions(options) {}
 
 	/**
@@ -681,17 +703,17 @@ public:
 	 * @return Returns the stream passed in after streaming mSD.
 	 */
 	friend std::ostream& operator<<(
-		std::ostream& str,
-		const LLSDOStreamer<Formatter>& formatter)
+		std::ostream& out,
+		const LLSDOStreamer<Formatter>& streamer)
 	{
 		LLPointer<Formatter> f = new Formatter;
-		f->format(formatter.mSD, str, formatter.mOptions);
-		return str;
+		f->format(streamer.mSD, out, streamer.mOptions);
+		return out;
 	}
 
 protected:
 	LLSD mSD;
-	U32 mOptions;
+	LLSDFormatter::EFormatterOptions mOptions;
 };
 
 typedef LLSDOStreamer<LLSDNotationFormatter>	LLSDNotationStreamer;
@@ -706,7 +728,7 @@ class LL_COMMON_API LLSDSerialize
 public:
 	enum ELLSD_Serialize
 	{
-		LLSD_BINARY, LLSD_XML
+        LLSD_BINARY, LLSD_XML, LLSD_NOTATION
 	};
 
 	/**
@@ -724,7 +746,7 @@ public:
 	 * Generic in/outs
 	 */
 	static void serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize,
-		U32 options = LLSDFormatter::OPTIONS_NONE);
+						  LLSDFormatter::EFormatterOptions options=LLSDFormatter::OPTIONS_PRETTY_BINARY);
 
 	/**
 	 * @brief Examine a stream, and parse 1 sd object out based on contents.
@@ -752,9 +774,9 @@ public:
 	static S32 toPrettyBinaryNotation(const LLSD& sd, std::ostream& str)
 	{
 		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
-		return f->format(sd, str, 
-				LLSDFormatter::OPTIONS_PRETTY | 
-				LLSDFormatter::OPTIONS_PRETTY_BINARY);
+		return f->format(sd, str,
+						 LLSDFormatter::EFormatterOptions(LLSDFormatter::OPTIONS_PRETTY | 
+														  LLSDFormatter::OPTIONS_PRETTY_BINARY));
 	}
 	static S32 fromNotation(LLSD& sd, std::istream& str, S32 max_bytes)
 	{

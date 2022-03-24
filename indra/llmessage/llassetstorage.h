@@ -28,6 +28,7 @@
 #ifndef LL_LLASSETSTORAGE_H
 #define LL_LLASSETSTORAGE_H
 #include <string>
+#include <functional>
 
 #include "lluuid.h"
 #include "lltimer.h"
@@ -43,7 +44,6 @@
 class LLMessageSystem;
 class LLXferManager;
 class LLAssetStorage;
-class LLVFS;
 class LLSD;
 
 // anything that takes longer than this to download will abort.
@@ -58,6 +58,14 @@ const int LL_ERR_ASSET_REQUEST_NONEXISTENT_FILE = -3;
 const int LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE = -4;
 const int LL_ERR_INSUFFICIENT_PERMISSIONS = -5;
 const int LL_ERR_PRICE_MISMATCH = -23018;
+
+// *TODO: these typedefs are passed into the cache via a legacy C function pointer
+// future project would be to convert these to C++ callables (std::function<>) so that 
+// we can use bind and remove the userData parameter.
+// 
+typedef std::function<void(const LLUUID &asset_id, LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status)> LLGetAssetCallback;
+typedef std::function<void(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status)> LLStoreAssetCallback;
+
 
 class LLAssetInfo
 {
@@ -110,7 +118,7 @@ protected:
     LLAssetType::EType mType;
 
 public:
-    void(*mDownCallback)(LLVFS*, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat);
+    LLGetAssetCallback mDownCallback;
 
     void	*mUserData;
     LLHost  mHost;
@@ -118,7 +126,7 @@ public:
     F64Seconds		mTime;				// Message system time
     BOOL    mIsPriority;
     BOOL	mDataSentInFirstPacket;
-    BOOL	mDataIsInVFS;
+    BOOL	mDataIsInCache;
 };
 
 class LLAssetRequest : public LLBaseDownloadRequest
@@ -131,7 +139,8 @@ public:
 
     virtual LLBaseDownloadRequest* getCopy();
 
-	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
+    LLStoreAssetCallback mUpCallback;
+//	void	(*mUpCallback)(const LLUUID&, void *, S32, LLExtStat);
 	void	(*mInfoCallback)(LLAssetInfo *, void *, S32);
 
 	BOOL	mIsLocal;
@@ -182,20 +191,13 @@ protected:
 // Map of known bad assets
 typedef std::map<LLUUID,U64,lluuid_less> toxic_asset_map_t;
 
-// *TODO: these typedefs are passed into the VFS via a legacy C function pointer
-// future project would be to convert these to C++ callables (std::function<>) so that 
-// we can use bind and remove the userData parameter.
-// 
-typedef void (*LLGetAssetCallback)(LLVFS *vfs, const LLUUID &asset_id,
-                                   LLAssetType::EType asset_type, void *user_data, S32 status, LLExtStat ext_status);
+
 
 class LLAssetStorage
 {
 public:
-	// VFS member is public because static child methods need it :(
-	LLVFS *mVFS;
-	LLVFS *mStaticVFS;
-	typedef void (*LLStoreAssetCallback)(const LLUUID &asset_id, void *user_data, S32 status, LLExtStat ext_status);
+    typedef ::LLStoreAssetCallback LLStoreAssetCallback;
+    typedef ::LLGetAssetCallback LLGetAssetCallback;
 
 	enum ERequestType
 	{
@@ -223,11 +225,9 @@ protected:
 	toxic_asset_map_t	mToxicAssetMap;		// Objects in this list are known to cause problems and are not loaded
 
 public:
-	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs, const LLHost &upstream_host);
+	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer, const LLHost &upstream_host);
 
-	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer,
-				   LLVFS *vfs, LLVFS *static_vfs);
+	LLAssetStorage(LLMessageSystem *msg, LLXferManager *xfer);
 	virtual ~LLAssetStorage();
 
 	void setUpstream(const LLHost &upstream_host);
@@ -255,7 +255,7 @@ public:
 
     virtual void logAssetStorageInfo() = 0;
     
-	void checkForTimeouts();
+	virtual void checkForTimeouts();
 
 	void getEstateAsset(const LLHost &object_sim, const LLUUID &agent_id, const LLUUID &session_id,
 									const LLUUID &asset_id, LLAssetType::EType atype, EstateAssetType etype,
@@ -277,7 +277,7 @@ public:
 	void		markAssetToxic( const LLUUID& uuid );
 
 protected:
-	bool findInStaticVFSAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
+	bool findInCacheAndInvokeCallback(const LLUUID& uuid, LLAssetType::EType type,
 										  LLGetAssetCallback callback, void *user_data);
 
 	LLSD getPendingDetailsImpl(const request_list_t* requests,
@@ -368,7 +368,7 @@ public:
 		bool user_waiting = false,
 		F64Seconds timeout  = LL_ASSET_STORAGE_TIMEOUT) = 0;
 
-	static void legacyGetDataCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status, LLExtStat ext_status);
+	static void legacyGetDataCallback(const LLUUID &uuid, LLAssetType::EType, void *user_data, S32 status, LLExtStat ext_status);
 	static void legacyStoreDataCallback(const LLUUID &uuid, void *user_data, S32 status, LLExtStat ext_status);
 
 	// add extra methods to handle metadata
@@ -377,16 +377,13 @@ protected:
 	void _cleanupRequests(BOOL all, S32 error);
 	void _callUploadCallbacks(const LLUUID &uuid, const LLAssetType::EType asset_type, BOOL success, LLExtStat ext_status);
 
-	virtual void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type,
-								   void (*callback)(LLVFS *vfs, const LLUUID&, LLAssetType::EType, void *, S32, LLExtStat),
+	virtual void _queueDataRequest(const LLUUID& uuid, LLAssetType::EType type, LLGetAssetCallback callback,
 								   void *user_data, BOOL duplicate,
 								   BOOL is_priority) = 0;
 
 private:
 	void _init(LLMessageSystem *msg,
 			   LLXferManager *xfer,
-			   LLVFS *vfs,
-			   LLVFS *static_vfs,
 			   const LLHost &upstream_host);
 
 protected:
@@ -401,7 +398,7 @@ protected:
 		MR_FILE_NONEXIST	= 3,	// Old format store call - source file does not exist
 		MR_NO_FILENAME		= 4,	// Old format store call - source filename is NULL/0-length
 		MR_NO_UPSTREAM		= 5,	// Upstream provider is missing
-		MR_VFS_CORRUPTION	= 6		// VFS is corrupt - too-large or mismatched stated/returned sizes
+		MR_CACHE_CORRUPTION	= 6		// cache is corrupt - too-large or mismatched stated/returned sizes
 	};
 
 	static class LLMetrics *metric_recipient;
@@ -424,7 +421,7 @@ class LLLegacyAssetRequest
 {
 public:
 	void	(*mDownCallback)(const char *, const LLUUID&, void *, S32, LLExtStat);
-	LLAssetStorage::LLStoreAssetCallback mUpCallback;
+	LLStoreAssetCallback mUpCallback;
 
 	void	*mUserData;
 };

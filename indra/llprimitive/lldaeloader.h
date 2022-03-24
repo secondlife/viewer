@@ -89,7 +89,7 @@ protected:
 	//Verify that a controller matches vertex counts
 	bool verifyController( domController* pController );
 
-	static bool addVolumeFacesFromDomMesh(LLModel* model, domMesh* mesh);
+	static bool addVolumeFacesFromDomMesh(LLModel* model, domMesh* mesh, LLSD& log_msg);
 	static bool createVolumeFacesFromDomMesh(LLModel* model, domMesh *mesh);
 
 	static LLModel* loadModelFromDomMesh(domMesh* mesh);

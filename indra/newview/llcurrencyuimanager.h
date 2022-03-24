@@ -80,6 +80,8 @@ public:
 	bool buying();		// are we in the process of buying?
 	bool bought();		// did the buy() transaction complete successfully
 
+	void clearError();
+
 	bool hasError();
 	std::string errorMessage();
 	std::string errorURI();

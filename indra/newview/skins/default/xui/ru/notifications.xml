@@ -266,6 +266,10 @@
 		Отобрать у выбранных жителей права на изменение?
 		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		Название группы может содержать от [MIN_LEN] до [MAX_LEN] символов.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Невозможно создать группу.
 [MESSAGE]
@@ -360,7 +364,7 @@
 У вас не хватает L$ для вступления.
 	</notification>
 	<notification name="CreateGroupCost">
-		Создание этой группы стоит L$100.
+		Создание этой группы стоит L$[COST].
 В группе должно быть более одного участника, иначе она будет удалена.
 Пригласите участников в ближайшие 48 часов.
 		<usetemplate canceltext="Отмена" name="okcancelbuttons" notext="Отмена" yestext="Создать группу за L$100"/>
@@ -499,6 +503,9 @@
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Ошибка при кодировке снимка.
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Чтобы загрузить этот предмет, вам нужно L$[COST].
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Требуется L$[COST] для сохранения фото в вашем инвентаре. Купите L$ или сохраните фото на компьютере.
@@ -1436,9 +1443,9 @@
 		<usetemplate name="okcancelbuttons" notext="Продолжить" yestext="Создать аккаунт..."/>
 	</notification>
 	<notification name="LoginPacketNeverReceived">
-		Возникли неполадки при подключении. Возможно, проблема с вашим подключением к интернету или [SECOND_LIFE_GRID].
+		Возникли неполадки при подключении. Возможно, проблема с вашим подключением к интернету или [SECOND_LIFE_GRID] временно недоступна.
 
-Варианты ваших действий: проверьте подключение к интернету и повторите попытку через несколько минут, нажмите кнопку «Справка» для перехода к [SUPPORT_SITE] или кнопку «Телепортация», чтобы телепортироваться домой.
+Вы можете проверить подключение к интернету, повторить попытку через несколько минут, нажать кнопку «Справка» для перехода на [SUPPORT_SITE] или нажать кнопку «Телепортация», чтобы телепортироваться домой.
 		<url name="url">
 			http://secondlife.com/support/
 		</url>
@@ -1612,22 +1619,22 @@
 [DOWNLOAD_PATH].
 	</notification>
 	<notification name="RequiredUpdate">
-		Для входа необходима версия \[VERSION]. 
+		Для входа необходима версия [VERSION]. 
 Скачайте обновление с веб-сайта https://secondlife.com/support/downloads/
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PauseForUpdate">
-		Для входа необходима версия \[VERSION]. 
+		Для входа необходима версия [VERSION]. 
 Нажмите OK для загрузки и установки.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="OptionalUpdateReady">
-		Версия \[VERSION] загружена и готова к установке. 
+		Версия [VERSION] загружена и готова к установке. 
 Нажмите OK для установки.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="PromptOptionalUpdate">
-		Версия \[VERSION] загружена и готова к установке. 
+		Версия [VERSION] загружена и готова к установке. 
 Продолжить?
 		<usetemplate canceltext="Не сейчас" name="yesnocancelbuttons" notext="Пропустить" yestext="Установить"/>
 	</notification>
@@ -1738,11 +1745,14 @@
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		Максимальное число групп для пользователя базового аккаунта составляет [MAX_BASIC],
-а для [https://secondlife.com/premium/ премиум]-аккаунта – [MAX_PREMIUM].
-Чтобы вступать в новые группы после возврата к базовому аккаунту, вам придется выйти из части групп, чтобы их общее число было меньше [MAX_BASIC].
-
-[https://secondlife.com/my/account/membership.php Перейдите на премиум-членство!]
+		Резиденты с Базовым аккаунтом могут присоединиться к [MAX_BASIC] группам.
+Премиум аккаунт разрешает до [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Узнайте больше или расширьте свой аккаунт]
+		<usetemplate name="okbutton" yestext="Закрыть"/>
+	</notification>
+	<notification name="GroupLimitInfoPlus">
+		Резиденты с Базовым аккаунтом могут присоединиться к [MAX_BASIC] группам.
+Премиум аккаунт разрешает до [MAX_PREMIUM]. Премиум Плюс аккаунт разрешает до [MAX_PREMIUM_PLUS]. 
+[https://secondlife.com/my/account/membership.php? Узнайте больше или расширьте свой аккаунт]
 		<usetemplate name="okbutton" yestext="Закрыть"/>
 	</notification>
 	<notification name="KickUser">
@@ -1958,6 +1968,11 @@
 	<notification name="EstateParcelAccessOverride">
 		При снятии этой опции вы можете удалить ограничения, которые владельцы участка добавили для предотвращения провокационных сообщений, сохранения конфиденциальности и защиты несовершеннолетных жителей от материала для взрослых. При необходимости обсудите со своими владельцами участков.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		При снятии этой опции вы можете удалить пользовательскую среду, которую владельцы участка добавили для своих участков. При необходимости обсудите со своими владельцами участков. 
+Вы хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		Вы пытаетесь посетить регион, контент в котором не соответствует вашим настройкам.  Попробуйте изменить настройки в меню «Я &gt; Настройки &gt; Общие».
@@ -2438,7 +2453,15 @@
 		Этот файл суточного цикла ссылается на отсутствующий файл неба: [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		Не удалось применить настройки к региону.  Попробуйте покинуть регион, а затем вернуться в него.  Причина неполадки: [FAIL_REASON]
+		К сожалению настройки не применимы к этому региону. Причина: [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Местная текстура используется в режиме редактирования [TRACK], № фрейма [FRAMENO] ([FRAMENO]%) на поле [FIELD]. 
+Настройки невозможно сохранить с использованием местных текстур.
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Местная текстура используется на поле [FIELD]. 
+Настройки невозможно сохранить с использованием местных текстур.
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Невозможно удалить последний ключ в этом суточном цикле: пустой суточный цикл не разрешен.  Следует изменить последний оставшийся ключ, а не удалять его и создавать новый.
@@ -3288,6 +3311,22 @@
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		Ваш голос заглушен модератором.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		К сожалению, в этой сессии мы не смогли получить информацию о преимуществах аккаунта. Такое не должно происходить в нормально работающей среде. Пожалуйста, свяжитесь со службой поддержки. Эта сессия работает некорректно, поэтому мы рекомендуем вам перезапустить программу.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+		<notification name="BulkUploadCostConfirmation">
+		Этим действием загружается [COUNT] предметов на общую стоимость L$[COST]. Вы хотите продолжить загрузку?
+		<usetemplate name="okcancelbuttons" notext="Отмена" yestext="Загрузить"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		Выбранные файлы не могут быть загружены группой.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Некоторые из выбранных файлов не могут быть загружены группой.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">
@@ -4388,5 +4427,77 @@
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Не удалось загрузить настройки для [NAME] из базы данных.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Невозможно применить эти настройки для этой среды.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Невозможно применить эти настройки для этой среды.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Этот регион не поддерживает настройки окружающей среды.
+	</notification>
+	<notification label="Сохранить костюм" name="SaveSettingAs">
+		Сохранить текущие настройки как:
+		<form name="form">
+			<input name="message">
+				[DESC] (новый)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Отмена"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Невозможно импортировать устаревшие установки [NAME] для эффекта Windlight из 
+[FILE]. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Невозможно установить настройки среды для этого участка. 
+Ввести или выбрать участок, который вы можете модифицировать.
+	</notification>
+	<notification name="SettingsUnsuported">
+		Настройки окружающей среды не поддерживаются в этом регионе. 
+Перейдите в регион с поддерживаемыми настройками и повторите действие.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Вы потеряете изменения, внесенные в этот [TYPE] под именем &quot;[NAME]&quot;. 
+Вы уверены, что хотите продолжить?
+		<usetemplate ignoretext="Вы уверены, что хотите сделать настройки непереносимыми?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Вы собираетесь удалить все примененные настройки. 
+Вы уверены, что хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Вы собираетесь удалить все примененные настройки для личного освещения. 
+Вы уверены, что хотите продолжить?
+		<usetemplate name="okcancelbuttons" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Вы собираетесь импортировать непереносимые настройки в этот суточный цикл. В случае дальнейшего изменения в этих параметрах они также станут непереносимыми. 
+
+Это изменение не подлежит отмене. 
+
+Вы уверены, что хотите продолжить?
+		<usetemplate ignoretext="Вы уверены, что хотите сделать настройки непереносимыми?" name="okcancelignore" notext="Нет" yestext="Да"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Вы не можете редактировать настройки непосредственно из библиотеки. 
+Скопировать в свой собственный инвентарь и повторить попытку.
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Мы столкнулись с проблемой с этими настройками. Их невозможно сохранить или применить в данный момент.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Невозможно загрузить режим редактирования в [TRACK].
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Невозможно загрузить режим редактирования из [TRACK1] в [TRACK2].
 	</notification>
 </notifications>

@@ -104,8 +104,6 @@ BOOL LLPanelPlaceProfile::postBuild()
 	mForSalePanel->getChild<LLIconCtrl>("icon_for_sale")->
 				setMouseDownCallback(boost::bind(&LLPanelPlaceProfile::onForSaleBannerClick, this));
 
-	mParcelOwner = getChild<LLTextBox>("owner_value");
-
 	mParcelRatingIcon = getChild<LLIconCtrl>("rating_icon");
 	mParcelRatingText = getChild<LLTextBox>("rating_value");
 	mVoiceIcon = getChild<LLIconCtrl>("voice_icon");
@@ -183,7 +181,6 @@ void LLPanelPlaceProfile::resetLocation()
 	mYouAreHerePanel->setVisible(FALSE);
 
 	std::string loading = LLTrans::getString("LoadingData");
-	mParcelOwner->setValue(loading);
 
 	mParcelRatingIcon->setValue(loading);
 	mParcelRatingText->setText(loading);
@@ -248,14 +245,14 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 		const S32 SEARCH_DESC_HEIGHT = 150;
 
 		// Remember original geometry (once).
-		static const S32 sOrigDescVPad = getChildView("parcel_title")->getRect().mBottom - mDescEditor->getRect().mTop;
+		static const S32 sOrigDescVPad = getChildView("owner_label")->getRect().mBottom - mDescEditor->getRect().mTop;
 		static const S32 sOrigDescHeight = mDescEditor->getRect().getHeight();
 		static const S32 sOrigMRIconVPad = mDescEditor->getRect().mBottom - mMaturityRatingIcon->getRect().mTop;
 		static const S32 sOrigMRTextVPad = mDescEditor->getRect().mBottom - mMaturityRatingText->getRect().mTop;
 
 		// Resize the description.
 		const S32 desc_height = is_info_type_agent ? sOrigDescHeight : SEARCH_DESC_HEIGHT;
-		const S32 desc_top = getChildView("parcel_title")->getRect().mBottom - sOrigDescVPad;
+		const S32 desc_top = getChildView("owner_label")->getRect().mBottom - sOrigDescVPad;
 		LLRect desc_rect = mDescEditor->getRect();
 		desc_rect.setOriginAndSize(desc_rect.mLeft, desc_top - desc_height, desc_rect.getWidth(), desc_height);
 		mDescEditor->reshape(desc_rect.getWidth(), desc_rect.getHeight());
@@ -401,6 +398,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	parcel_data.global_x = pos_global.mdV[VX];
 	parcel_data.global_y = pos_global.mdV[VY];
 	parcel_data.global_z = pos_global.mdV[VZ];
+	parcel_data.owner_id = parcel->getOwnerID();
 
 	std::string on = getString("on");
 	std::string off = getString("off");

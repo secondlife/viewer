@@ -91,6 +91,7 @@ class LLVOAvatar :
 
 public:
 	friend class LLVOAvatarSelf;
+	friend class LLAvatarCheckImpostorMode;
 
 /********************************************************************************
  **                                                                            **
@@ -131,6 +132,7 @@ protected:
 public:
 	/*virtual*/ void			updateGL();
 	/*virtual*/ LLVOAvatar*		asAvatar();
+
 	virtual U32    	 	 	processUpdateMessage(LLMessageSystem *mesgsys,
 													 void **user_data,
 													 U32 block_num,
@@ -252,6 +254,11 @@ public:
 	virtual bool 	isControlAvatar() const { return mIsControlAvatar; } // True if this avatar is a control av (no associated user)
 	virtual bool 	isUIAvatar() const { return mIsUIAvatar; } // True if this avatar is a supplemental av used in some UI views (no associated user)
 
+	// If this is an attachment, return the avatar it is attached to. Otherwise NULL.
+	virtual const LLVOAvatar *getAttachedAvatar() const { return NULL; }
+	virtual LLVOAvatar *getAttachedAvatar() { return NULL; }
+
+
 private: //aligned members
 	LL_ALIGN_16(LLVector4a	mImpostorExtents[2]);
 
@@ -262,7 +269,8 @@ public:
     void			updateAppearanceMessageDebugText();
 	void 			updateAnimationDebugText();
 	virtual void	updateDebugText();
-	virtual BOOL 	updateCharacter(LLAgent &agent);
+	virtual bool 	computeNeedsUpdate();
+	virtual bool 	updateCharacter(LLAgent &agent);
     void			updateFootstepSounds();
     void			computeUpdatePeriod();
     void			updateOrientation(LLAgent &agent, F32 speed, F32 delta_time);
@@ -284,8 +292,9 @@ public:
 	static void		invalidateNameTag(const LLUUID& agent_id);
 	// force all name tags to rebuild, useful when display names turned on/off
 	static void		invalidateNameTags();
-	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font);
+	void			addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font, const bool use_ellipses = false);
 	void 			idleUpdateRenderComplexity();
+	void 			idleUpdateDebugInfo();
     void 			accountRenderComplexityForObject(const LLViewerObject *attached_object,
                                                      const F32 max_attachment_complexity,
                                                      LLVOVolume::texture_cost_t& textures,
@@ -313,12 +322,12 @@ public:
 public:
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
-	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
-									 * slider in panel_preferences_graphics1.xml */
-	static U32		sMaxNonImpostors; //(affected by control "RenderAvatarMaxNonImpostors")
-	static F32		sRenderDistance; //distance at which avatars will render.
+	static const U32 NON_IMPOSTORS_MAX_SLIDER; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
+												* slider in panel_preferences_graphics1.xml */
+	static U32		sMaxNonImpostors; // affected by control "RenderAvatarMaxNonImpostors"
+	static bool		sLimitNonImpostors; // use impostors for far away avatars
+	static F32		sRenderDistance; // distance at which avatars will render.
 	static BOOL		sShowAnimationDebug; // show animation debug info
-	static bool		sUseImpostors; //use impostors for far away avatars
 	static BOOL		sShowFootPlane;	// show foot collision plane reported by server
 	static BOOL		sShowCollisionVolumes;	// show skeletal collision volumes
 	static BOOL		sVisibleInFirstPerson;
@@ -348,7 +357,7 @@ public:
 	BOOL			isFullyTextured() const;
 	BOOL			hasGray() const; 
 	S32				getRezzedStatus() const; // 0 = cloud, 1 = gray, 2 = textured, 3 = textured and fully downloaded.
-	void			updateRezzedStatusTimers();
+	void			updateRezzedStatusTimers(S32 status);
 
 	S32				mLastRezzedStatus;
 
@@ -406,6 +415,7 @@ public:
     void                initAttachmentPoints(bool ignore_hud_joints = false);
 	/*virtual*/ void	buildCharacter();
     void                resetVisualParams();
+	void				applyDefaultParams();
     void				resetSkeleton(bool reset_animations);
 
 	LLVector3			mCurRootToHeadOffset;
@@ -426,9 +436,12 @@ public:
 public:
 	U32 		renderImpostor(LLColor4U color = LLColor4U(255,255,255,255), S32 diffuse_channel = 0);
 	bool		isVisuallyMuted();
-	bool 		isInMuteList();
+	bool 		isInMuteList() const;
 	void		forceUpdateVisualMuteSettings();
 
+	// Visual Mute Setting is an input. Does not necessarily determine
+	// what the avatar looks like, because it interacts with other
+	// settings like muting, complexity threshold. Should be private or protected.
 	enum VisualMuteSettings
 	{
 		AV_RENDER_NORMALLY = 0,
@@ -436,21 +449,50 @@ public:
 		AV_ALWAYS_RENDER   = 2
 	};
 	void		setVisualMuteSettings(VisualMuteSettings set);
+
+protected:
+	// If you think you need to access this outside LLVOAvatar, you probably want getOverallAppearance()
 	VisualMuteSettings  getVisualMuteSettings()						{ return mVisuallyMuteSetting;	};
+
+public:
+
+	// Overall Appearance is an output. Depending on whether the
+	// avatar is blocked/muted, whether it exceeds the complexity
+	// threshold, etc, avatar will want to be displayed in one of
+	// these ways. Rendering code that wants to know how to display an
+	// avatar should be looking at this value, NOT the visual mute
+	// settings
+	enum AvatarOverallAppearance
+	{
+		AOA_NORMAL,
+		AOA_JELLYDOLL,
+		AOA_INVISIBLE
+	};
+
+	AvatarOverallAppearance getOverallAppearance() const;
+	void setOverallAppearanceNormal();
+	void setOverallAppearanceJellyDoll();
+	void setOverallAppearanceInvisible();
+		
+	void updateOverallAppearance();
+	void updateOverallAppearanceAnimations();
+
+	std::set<LLUUID> mJellyAnims;
 
 	U32 		renderRigid();
 	U32 		renderSkinned();
 	F32			getLastSkinTime() { return mLastSkinTime; }
 	U32 		renderTransparent(BOOL first_pass);
 	void 		renderCollisionVolumes();
-	void		renderBones();
+	void		renderBones(const std::string &selected_joint = std::string());
 	void		renderJoints();
 	static void	deleteCachedImages(bool clearAll=true);
 	static void	destroyGL();
 	static void	restoreGL();
 	S32			mSpecialRenderMode; // special lighting
         
-  private:
+private:
+	AvatarOverallAppearance mOverallAppearance;
 	F32			mAttachmentSurfaceArea; //estimated surface area of attachments
     U32			mAttachmentVisibleTriangleCount;
     F32			mAttachmentEstTriangleCount;
@@ -467,8 +509,8 @@ public:
 	mutable bool mVisualComplexityStale;
 	U32          mReportedVisualComplexity; // from other viewers through the simulator
 
-	bool		mCachedInMuteList;
-	F64			mCachedMuteListUpdateTime;
+	mutable bool		mCachedInMuteList;
+	mutable F64			mCachedMuteListUpdateTime;
 
 	VisualMuteSettings		mVisuallyMuteSetting;			// Always or never visually mute this AV
 
@@ -519,7 +561,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	virtual BOOL isImpostor();
-	BOOL 		shouldImpostor(const U32 rank_factor = 1) const;
+	BOOL 		shouldImpostor(const F32 rank_factor = 1.0);
 	BOOL 	    needsImpostorUpdate() const;
 	const LLVector3& getImpostorOffset() const;
 	const LLVector2& getImpostorDim() const;
@@ -530,6 +572,7 @@ public:
 	static void updateImpostors();
 	LLRenderTarget mImpostor;
 	BOOL		mNeedsImpostorUpdate;
+	S32			mLastImpostorUpdateReason;
 	F32SecondsImplicit mLastImpostorUpdateFrameTime;
     const LLVector3*  getLastAnimExtents() const { return mLastAnimExtents; }
 	void		setNeedsExtentUpdate(bool val) { mNeedsExtentUpdate = val; }
@@ -629,6 +672,8 @@ protected:
 
 	LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList ; 
 	BOOL mLoadedCallbacksPaused;
+	S32 mLoadedCallbackTextures; // count of 'loaded' baked textures, filled from mCallbackTextureList
+	LLFrameTimer mLastTexCallbackAddedTime;
 	std::set<LLUUID>	mTextureIDs;
 	//--------------------------------------------------------------------
 	// Local Textures
@@ -674,9 +719,6 @@ public:
 public:
 	static BOOL 	isIndexLocalTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 	static BOOL 	isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
-private:
-	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
-	static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 
 	//--------------------------------------------------------------------
 	// Messaging

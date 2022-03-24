@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="save_settings_menu">
+	<menu_item_check label="Kaydet" name="save_settings"/>
+	<menu_item_check label="Farklı Kaydet" name="save_as_new_settings"/>
+	<menu_item_check label="Yürüt" name="commit_changes"/>
+	<menu_item_check label="Sadece Kendime Uygula" name="apply_local"/>
+	<menu_item_check label="Parsele Uygula" name="apply_parcel"/>
+	<menu_item_check label="Bölgeye Uygula" name="apply_region"/>
+</toggleable_menu>

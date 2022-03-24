@@ -59,14 +59,25 @@ BOOL LLFloaterDeletePrefPreset::postBuild()
 void LLFloaterDeletePrefPreset::onOpen(const LLSD& key)
 {
 	mSubdirectory = key.asString();
-	std::string floater_title = getString(std::string("title_") + mSubdirectory);
-
-	setTitle(floater_title);
+	std::string title_type = std::string("title_") + mSubdirectory;
+    if (hasString(title_type))
+    {
+        std::string floater_title = getString(title_type);
+        setTitle(floater_title);
+    }
+    else
+    {
+        LL_WARNS() << title_type << " not found" << LL_ENDL;
+        setTitle(title_type);
+    }
 
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
-
 	EDefaultOptions option = DEFAULT_HIDE;
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
+	bool action;
+	action = LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
+
+	LLButton* delete_btn = getChild<LLButton>("delete");
+	delete_btn->setEnabled(action);
 }
 
 void LLFloaterDeletePrefPreset::onBtnDelete()
@@ -80,6 +91,13 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 		args["NAME"] = name;
 		LLNotificationsUtil::add("PresetNotDeleted", args);
 	}
+	else if (mSubdirectory == PRESETS_CAMERA)
+	{
+		if (gSavedSettings.getString("PresetCameraActive") == name)
+		{
+			gSavedSettings.setString("PresetCameraActive", "");
+		}
+	}
 
 	closeFloater();
 }
@@ -87,12 +105,10 @@ void LLFloaterDeletePrefPreset::onBtnDelete()
 void LLFloaterDeletePrefPreset::onPresetsListChange()
 {
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
-	LLButton* delete_btn = getChild<LLButton>("delete");
 
 	EDefaultOptions option = DEFAULT_HIDE;
-	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
 
-	delete_btn->setEnabled(0 != combo->getItemCount());
+	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
 }
 
 void LLFloaterDeletePrefPreset::onBtnCancel()

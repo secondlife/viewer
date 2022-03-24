@@ -64,14 +64,17 @@
 #include "llvector4a.h"
 
 // Functions pulled from pipeline.cpp
-glh::matrix4f glh_get_current_modelview();
-glh::matrix4f glh_get_current_projection();
+glh::matrix4f get_current_modelview();
+glh::matrix4f get_current_projection();
 // Functions pulled from llviewerdisplay.cpp
 bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
 const int LLPanelPrimMediaControls::kNumZoomLevels = 2;
+
+const F32 EXCEEDING_ZOOM_DISTANCE = 0.5f;
+const S32 ADDR_LEFT_PAD = 3;
 
 //
 // LLPanelPrimMediaControls
@@ -93,6 +96,7 @@ LLPanelPrimMediaControls::LLPanelPrimMediaControls() :
 	mZoomObjectID(LLUUID::null),
 	mZoomObjectFace(0),
 	mVolumeSliderVisible(0),
+	mZoomedCameraPos(),
 	mWindowShade(NULL),
 	mHideImmediately(false),
     mSecureURL(false),
@@ -154,7 +158,7 @@ BOOL LLPanelPrimMediaControls::postBuild()
 	mMediaProgressPanel		= getChild<LLPanel>("media_progress_indicator");
 	mMediaProgressBar		= getChild<LLProgressBar>("media_progress_bar");
 	mMediaAddressCtrl		= getChild<LLUICtrl>("media_address");
-	mMediaAddress			= getChild<LLUICtrl>("media_address_url");
+	mMediaAddress			= getChild<LLLineEditor>("media_address_url");
 	mMediaPlaySliderPanel	= getChild<LLUICtrl>("media_play_position");
 	mMediaPlaySliderCtrl	= getChild<LLUICtrl>("media_play_slider");
 	mSkipFwdCtrl			= getChild<LLUICtrl>("skip_forward");
@@ -256,7 +260,7 @@ void LLPanelPrimMediaControls::focusOnTarget()
 	LLViewerMediaImpl* media_impl = getTargetMediaImpl();
 	if(media_impl)
 	{
-		if(!media_impl->hasFocus())
+		if (!media_impl->hasFocus())
 		{	
 			// The current target doesn't have media focus -- focus on it.
 			LLViewerObject* objectp = getTargetObject();
@@ -307,7 +311,8 @@ void LLPanelPrimMediaControls::updateShape()
 
 	bool can_navigate = parcel->getMediaAllowNavigate();
 	bool enabled = false;
-	bool is_zoomed = (mCurrentZoom != ZOOM_NONE) && (mTargetObjectID == mZoomObjectID) && (mTargetObjectFace == mZoomObjectFace);
+	bool is_zoomed = (mCurrentZoom != ZOOM_NONE) && (mTargetObjectID == mZoomObjectID) && (mTargetObjectFace == mZoomObjectFace) && !isZoomDistExceeding();
+	
 	// There is no such thing as "has_focus" being different from normal controls set
 	// anymore (as of user feedback from bri 10/09).  So we cheat here and force 'has_focus'
 	// to 'true' (or, actually, we use a setting)
@@ -498,8 +503,10 @@ void LLPanelPrimMediaControls::updateShape()
 			std::string test_prefix = mCurrentURL.substr(0, prefix.length());
 			LLStringUtil::toLower(test_prefix);
             mSecureURL = has_focus && (test_prefix == prefix);
-            mCurrentURL = (mSecureURL ? "      " + mCurrentURL : mCurrentURL);
-			
+
+			S32 left_pad = mSecureURL ? mSecureLockIcon->getRect().getWidth() : ADDR_LEFT_PAD;
+			mMediaAddress->setTextPadding(left_pad, 0);
+
 			if(mCurrentURL!=mPreviousURL)
 			{
 				setCurrentURL();
@@ -547,17 +554,17 @@ void LLPanelPrimMediaControls::updateShape()
 			switch (mScrollState) 
 			{
 				case SCROLL_UP:
-					media_impl->scrollWheel(0, -1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 					break;
 				case SCROLL_DOWN:
-					media_impl->scrollWheel(0, 1, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 					break;
 				case SCROLL_LEFT:
-					media_impl->scrollWheel(1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 					break;
 				case SCROLL_RIGHT:
-					media_impl->scrollWheel(-1, 0, MASK_NONE);
+					media_impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 					//				media_impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 					break;
 				case SCROLL_NONE:
@@ -642,7 +649,7 @@ void LLPanelPrimMediaControls::updateShape()
 		glh::matrix4f mat;
 		if (!is_hud) 
 		{
-			mat = glh_get_current_projection() * glh_get_current_modelview();
+			mat = get_current_projection() * get_current_modelview();
 		}
 		else {
 			glh::matrix4f proj, modelview;
@@ -829,8 +836,32 @@ void LLPanelPrimMediaControls::draw()
 
 BOOL LLPanelPrimMediaControls::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	mInactivityTimer.start();
-	return LLViewerMediaFocus::getInstance()->handleScrollWheel(x, y, clicks);
+    mInactivityTimer.start();
+    BOOL res = FALSE;
+
+    // Unlike other mouse events, we need to handle scroll here otherwise
+    // it will be intercepted by camera and won't reach toolpie
+    if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
+    {
+        // either let toolpie handle this or expose mHoverPick.mUVCoords in some way
+        res = LLToolPie::getInstance()->handleScrollWheel(x, y, clicks);
+    }
+
+    return res;
+}
+
+BOOL LLPanelPrimMediaControls::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+    mInactivityTimer.start();
+    BOOL res = FALSE;
+
+    if (LLViewerMediaFocus::getInstance()->isHoveringOverFocused())
+    {
+        // either let toolpie handle this or expose mHoverPick.mUVCoords in some way
+        res = LLToolPie::getInstance()->handleScrollHWheel(x, y, clicks);
+    }
+
+    return res;
 }
 
 BOOL LLPanelPrimMediaControls::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -1117,7 +1148,7 @@ void LLPanelPrimMediaControls::updateZoom()
 	if (zoom_padding > 0.0f)
 	{	
 		// since we only zoom into medium for now, always set zoom_in constraint to true
-		LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
+		mZoomedCameraPos = LLViewerMediaFocus::setCameraZoom(getTargetObject(), mTargetObjectNormal, zoom_padding, true);
 	}
 	
 	// Remember the object ID/face we zoomed into, so we can update the zoom icon appropriately
@@ -1134,7 +1165,7 @@ void LLPanelPrimMediaControls::onScrollUp(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, -1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, -1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollUpHeld(void* user_data)
@@ -1151,7 +1182,7 @@ void LLPanelPrimMediaControls::onScrollRight(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(-1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, -1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_RIGHT, MASK_NONE);
 	}
 }
@@ -1170,7 +1201,7 @@ void LLPanelPrimMediaControls::onScrollLeft(void* user_data)
 
 	if(impl)
 	{
-		impl->scrollWheel(1, 0, MASK_NONE);
+		impl->scrollWheel(0, 0, 1, 0, MASK_NONE);
 //		impl->handleKeyHere(KEY_LEFT, MASK_NONE);
 	}
 }
@@ -1189,7 +1220,7 @@ void LLPanelPrimMediaControls::onScrollDown(void* user_data)
 	
 	if(impl)
 	{
-		impl->scrollWheel(0, 1, MASK_NONE);
+		impl->scrollWheel(0, 0, 0, 1, MASK_NONE);
 	}
 }
 void LLPanelPrimMediaControls::onScrollDownHeld(void* user_data)
@@ -1377,6 +1408,10 @@ bool LLPanelPrimMediaControls::shouldVolumeSliderBeVisible()
 	return mVolumeSliderVisible > 0;
 }
 
+bool LLPanelPrimMediaControls::isZoomDistExceeding()
+{
+	return (gAgentCamera.getCameraPositionGlobal() - mZoomedCameraPos).normalize() >= EXCEEDING_ZOOM_DISTANCE;
+}
 
 void LLPanelPrimMediaControls::clearFaceOnFade()
 {

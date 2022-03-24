@@ -664,12 +664,14 @@ bool LLPluginClassMedia::keyEvent(EKeyEventType type, int key_code, MASK modifie
 	return result;
 }
 
-void LLPluginClassMedia::scrollEvent(int x, int y, MASK modifiers)
+void LLPluginClassMedia::scrollEvent(int x, int y, int clicks_x, int clicks_y, MASK modifiers)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "scroll_event");
 
 	message.setValueS32("x", x);
 	message.setValueS32("y", y);
+	message.setValueS32("clicks_x", clicks_x);
+	message.setValueS32("clicks_y", clicks_y);
 	message.setValue("modifiers", translateModifiers(modifiers));
 
 	sendMessage(message);
@@ -686,6 +688,66 @@ bool LLPluginClassMedia::textInput(const std::string &text, MASK modifiers, LLSD
 	sendMessage(message);
 
 	return true;
+}
+
+// This function injects a previously stored OpenID cookie into
+// each new media instance - see SL-15867 for details. It appears
+// that the way we use the cache, shared between multiple CEF
+// instances means that sometimes the OpenID cookie cannot be read
+// even though it appears to be there.  The long term solution to
+// this is to create a separate cache directory for each instance 
+// but that has its own set of problems. This short term approach
+// "forces" each new media instance to have a copy of the cookie
+// so that a page that needs it - e.g. Profiles - finds it and
+// can log in successfully.
+void LLPluginClassMedia::injectOpenIDCookie()
+{
+    // can be called before we know who the user is at login
+    // and there is no OpenID cookie at that point so no 
+    // need to try to set it (these values will all be empty)
+    if (sOIDcookieName.length() && sOIDcookieValue.length())
+    {
+        setCookie(sOIDcookieUrl, sOIDcookieName,
+            sOIDcookieValue, sOIDcookieHost, sOIDcookiePath, sOIDcookieHttpOnly, sOIDcookieSecure);
+    }
+}
+
+// We store each component of the OpenI cookie individuality here
+// because previously, there was some significant parsing to
+// break up the raw string into these components and we do not
+// want to have to do that again here. Stored as statics because 
+// we want to share their value between all instances of this 
+// class - the ones that receive it at login and any others 
+// that open afterwards (e.g. the Profiles floater)
+std::string LLPluginClassMedia::sOIDcookieUrl = std::string();
+std::string LLPluginClassMedia::sOIDcookieName = std::string();
+std::string LLPluginClassMedia::sOIDcookieValue = std::string();
+std::string LLPluginClassMedia::sOIDcookieHost = std::string();
+std::string LLPluginClassMedia::sOIDcookiePath = std::string();
+bool LLPluginClassMedia::sOIDcookieHttpOnly = false;
+bool LLPluginClassMedia::sOIDcookieSecure = false;
+
+// Once we receive the OpenID cookie, it is parsed/processed
+// in llViewerMedia::parseRawCookie() and then the component
+// values are stored here so that next time a new media
+// instance is created, we can use injectOpenIDCookie()
+// to "insist" that the cookie store remember its value.
+// One might ask why we need to go via LLViewerMedia (which
+// makes this call) - this is because the raw cookie arrives
+// here in this file but undergoes non-trivial processing
+// in LLViewerMedia.
+void LLPluginClassMedia::storeOpenIDCookie(const std::string url,
+    const std::string name, const std::string value,
+    const std::string host, const std::string path,
+    bool httponly, bool secure)
+{
+    sOIDcookieUrl = url;
+    sOIDcookieName = name;
+    sOIDcookieValue = value;
+    sOIDcookieHost = host;
+    sOIDcookiePath = path;
+    sOIDcookieHttpOnly = httponly;
+    sOIDcookieSecure = secure;
 }
 
 void LLPluginClassMedia::setCookie(std::string uri, std::string name, std::string value, std::string domain, std::string path, bool httponly, bool secure)
@@ -708,6 +770,15 @@ void LLPluginClassMedia::loadURI(const std::string &uri)
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "load_uri");
 
 	message.setValue("uri", uri);
+
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::executeJavaScript(const std::string &code)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "execute_javascript");
+
+	message.setValue("code", code);
 
 	sendMessage(message);
 }
@@ -855,12 +926,12 @@ void LLPluginClassMedia::paste()
 }
 
 void LLPluginClassMedia::setUserDataPath(const std::string &user_data_path_cache,
-										 const std::string &user_data_path_cookies,
+										 const std::string &username,
 										 const std::string &user_data_path_cef_log)
 {
 	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "set_user_data_path");
-	message.setValue("cache_path", user_data_path_cache);
-	message.setValue("cookies_path", user_data_path_cookies);
+    message.setValue("cache_path", user_data_path_cache);
+    message.setValue("username", username); // cef shares cache between users but creates user-based contexts
 	message.setValue("cef_log_file", user_data_path_cef_log);
 
 	bool cef_verbose_log = gSavedSettings.getBOOL("CefVerboseLog");
@@ -889,6 +960,19 @@ void LLPluginClassMedia::setJavascriptEnabled(const bool enabled)
 	sendMessage(message);
 }
 
+void LLPluginClassMedia::setWebSecurityDisabled(const bool disabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "web_security_disabled");
+	message.setValueBoolean("disabled", disabled);
+	sendMessage(message);
+}
+
+void LLPluginClassMedia::setFileAccessFromFileUrlsEnabled(const bool enabled)
+{
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "file_access_from_file_urls");
+	message.setValueBoolean("enabled", enabled);
+	sendMessage(message);
+}
 
 void LLPluginClassMedia::enableMediaPluginDebugging( bool enable )
 {
@@ -1135,6 +1219,10 @@ void LLPluginClassMedia::receivePluginMessage(const LLPluginMessage &message)
 			mDebugMessageText = message.getValue("message_text");
 			mDebugMessageLevel = message.getValue("message_level");
 			mediaEvent(LLPluginClassMediaOwner::MEDIA_EVENT_DEBUG_MESSAGE);
+		}
+		else if (message_name == "tooltip_text")
+		{
+			mHoverText = message.getValue("tooltip");
 		}
 		else
 		{

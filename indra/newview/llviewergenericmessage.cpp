@@ -70,8 +70,6 @@ void send_generic_message(const std::string& method,
 	gAgent.sendReliableMessage();
 }
 
-
-
 void process_generic_message(LLMessageSystem* msg, void**)
 {
 	LLUUID agent_id;
@@ -92,4 +90,26 @@ void process_generic_message(LLMessageSystem* msg, void**)
 		LL_WARNS() << "GenericMessage " << request << " failed to dispatch" 
 			<< LL_ENDL;
 	}
+}
+
+void process_large_generic_message(LLMessageSystem* msg, void**)
+{
+    LLUUID agent_id;
+    msg->getUUID("AgentData", "AgentID", agent_id);
+    if (agent_id != gAgent.getID())
+    {
+        LL_WARNS() << "GenericMessage for wrong agent" << LL_ENDL;
+        return;
+    }
+
+    std::string request;
+    LLUUID invoice;
+    LLDispatcher::sparam_t strings;
+    LLDispatcher::unpackLargeMessage(msg, request, invoice, strings);
+
+    if (!gGenericDispatcher.dispatch(request, invoice, strings))
+    {
+        LL_WARNS() << "GenericMessage " << request << " failed to dispatch"
+            << LL_ENDL;
+    }
 }

@@ -33,6 +33,7 @@
 #include <iphlpapi.h>
 #endif
 
+#include "llapp.h"
 #include "lldefs.h"
 #include "llerror.h"
 
@@ -43,6 +44,7 @@
 #include "llstring.h"
 #include "lltimer.h"
 #include "llthread.h"
+#include "llmutex.h"
 
 const LLUUID LLUUID::null;
 const LLTransactionID LLTransactionID::tnull;
@@ -600,9 +602,7 @@ S32 LLUUID::getNodeID(unsigned char *node_id)
 #define HAVE_NETINET_IN_H
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
-#if LL_SOLARIS
-#include <sys/sockio.h>
-#elif !LL_DARWIN
+#if !LL_DARWIN
 #include <linux/sockios.h>
 #endif
 #endif
@@ -738,7 +738,7 @@ void LLUUID::getCurrentTime(uuid_time_t *timestamp)
       getSystemTime(&time_last);
       uuids_this_tick = uuids_per_tick;
       init = TRUE;
-	  mMutex = new LLMutex();
+      mMutex = new LLMutex();
    }
 
    uuid_time_t time_now = {0,0};

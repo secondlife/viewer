@@ -48,7 +48,6 @@ struct 	LLEntryAndEdCore;
 class LLMenuBarGL;
 class LLFloaterScriptSearch;
 class LLKeywordToken;
-class LLVFS;
 class LLViewerInventoryItem;
 class LLScriptEdContainer;
 class LLFloaterGotoLine;
@@ -143,8 +142,10 @@ public:
 
 	void 			setItemRemoved(bool script_removed){mScriptRemoved = script_removed;};
 
+    void 			setAssetID( const LLUUID& asset_id){ mAssetID = asset_id; };
+    LLUUID 			getAssetID() { return mAssetID; }
+
 private:
-	void		onBtnHelp();
 	void		onBtnDynamicHelp();
 	void		onBtnUndoChanges();
 
@@ -189,6 +190,7 @@ private:
 	LLUUID			mAssociatedExperience;
 	BOOL			mScriptRemoved;
 	BOOL			mSaveDialogShown;
+    LLUUID          mAssetID;
 
 	LLScriptEdContainer* mContainer; // parent view
 
@@ -206,7 +208,7 @@ public:
 	LLScriptEdContainer(const LLSD& key, const bool live);
 
 protected:
-	std::string		getTmpFileName();
+	std::string		getTmpFileName(const std::string& script_name);
 	bool			onExternalChange(const std::string& filename);
 	virtual void	saveIfNeeded(bool sync = true) = 0;
 
@@ -235,7 +237,7 @@ protected:
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 	
-	static void onLoadComplete(LLVFS *vfs, const LLUUID& uuid,
+	static void onLoadComplete(const LLUUID& uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
@@ -296,13 +298,13 @@ private:
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
 
-	static void onLoadComplete(LLVFS *vfs, const LLUUID& asset_uuid,
+	static void onLoadComplete(const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 	static void onRunningCheckboxClicked(LLUICtrl*, void* userdata);
 	static void onReset(void* userdata);
 
-	void loadScriptText(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type);
+	void loadScriptText(const LLUUID &uuid, LLAssetType::EType type);
 
 	static void onErrorList(LLUICtrl*, void* user_data);
 

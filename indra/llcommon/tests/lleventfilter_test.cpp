@@ -36,8 +36,11 @@
 // other Linden headers
 #include "../test/lltut.h"
 #include "stringize.h"
+#include "llsdutil.h"
 #include "listener.h"
 #include "tests/wrapllerrs.h"
+
+#include <typeinfo>
 
 /*****************************************************************************
 *   Test classes
@@ -400,6 +403,78 @@ namespace tut
         throttle.advance(5);
         throttle.post(";17");
         ensure_equals("17", cat.result, "136;12;17"); // "17" delivered
+    }
+
+    template<class PUMP>
+    void test()
+    {
+        PUMP pump(typeid(PUMP).name());
+        LLSD data{LLSD::emptyArray()};
+        bool consumed{true};
+        // listener that appends to 'data'
+        // but that also returns the current value of 'consumed'
+        // Instantiate this separately because we're going to listen()
+        // multiple times with the same lambda: LLEventMailDrop only replays
+        // queued events on a new listen() call.
+        auto lambda =
+            [&data, &consumed](const LLSD& event)->bool
+            {
+                data.append(event);
+                return consumed;
+            };
+        {
+            LLTempBoundListener conn = pump.listen("lambda", lambda);
+            pump.post("first");
+        }
+        // first post() should certainly be received by listener
+        ensure_equals("first", data, llsd::array("first"));
+        // the question is, since consumed was true, did it queue the value?
+        data = LLSD::emptyArray();
+        {
+            // if it queued the value, it would be delivered on subsequent
+            // listen() call
+            LLTempBoundListener conn = pump.listen("lambda", lambda);
+        }
+        ensure_equals("empty1", data, LLSD::emptyArray());
+        data = LLSD::emptyArray();
+        // now let's NOT consume the posted data
+        consumed = false;
+        {
+            LLTempBoundListener conn = pump.listen("lambda", lambda);
+            pump.post("second");
+            pump.post("third");
+        }
+        // the two events still arrive
+        ensure_equals("second,third1", data, llsd::array("second", "third"));
+        data = LLSD::emptyArray();
+        {
+            // when we reconnect, these should be delivered again
+            // but this time they should be consumed
+            consumed = true;
+            LLTempBoundListener conn = pump.listen("lambda", lambda);
+        }
+        // unconsumed events were delivered again
+        ensure_equals("second,third2", data, llsd::array("second", "third"));
+        data = LLSD::emptyArray();
+        {
+            // when we reconnect this time, no more unconsumed events
+            LLTempBoundListener conn = pump.listen("lambda", lambda);
+        }
+        ensure_equals("empty2", data, LLSD::emptyArray());
+    }
+
+    template<> template<>
+    void filter_object::test<6>()
+    {
+        set_test_name("LLEventMailDrop");
+        tut::test<LLEventMailDrop>();
+    }
+
+    template<> template<>
+    void filter_object::test<7>()
+    {
+        set_test_name("LLEventLogProxyFor<LLEventMailDrop>");
+        tut::test< LLEventLogProxyFor<LLEventMailDrop> >();
     }
 } // namespace tut
 

@@ -398,6 +398,24 @@ void LLConversationLog::deleteBackupLogs()
 	}
 }
 
+void LLConversationLog::verifyFilename(const LLUUID& session_id, const std::string &expected_filename, const std::string &new_session_name)
+{
+    conversations_vec_t::iterator conv_it = mConversations.begin();
+    for (; conv_it != mConversations.end(); ++conv_it)
+    {
+        if (conv_it->getSessionID() == session_id)
+        {
+            if (conv_it->getHistoryFileName() != expected_filename)
+            {
+                LLLogChat::renameLogFile(conv_it->getHistoryFileName(), expected_filename);
+                conv_it->updateHistoryFileName(expected_filename);
+                conv_it->setConversationName(new_session_name);
+            }
+            break;
+        }
+    }
+}
+
 bool LLConversationLog::moveLog(const std::string &originDirectory, const std::string &targetDirectory)
 {
 
@@ -482,6 +500,10 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 		conv_it->getSessionID().toString(conversation_id);
 		conv_it->getParticipantID().toString(participant_id);
 
+		bool is_adhoc = (conv_it->getConversationType() == LLIMModel::LLIMSession::ADHOC_SESSION);
+		std::string conv_name = is_adhoc ? conv_it->getConversationName() : LLURI::escape(conv_it->getConversationName());
+		std::string file_name = is_adhoc ? conv_it->getHistoryFileName() : LLURI::escape(conv_it->getHistoryFileName());
+
 		// examples of two file entries
 		// [1343221177] 0 1 0 John Doe| 7e4ec5be-783f-49f5-71dz-16c58c64c145 4ec62a74-c246-0d25-2af6-846beac2aa55 john.doe|
 		// [1343222639] 2 0 0 Ad-hoc Conference| c3g67c89-c479-4c97-b21d-32869bcfe8rc 68f1c33e-4135-3e3e-a897-8c9b23115c09 Ad-hoc Conference hash597394a0-9982-766d-27b8-c75560213b9a|
@@ -490,10 +512,10 @@ bool LLConversationLog::saveToFile(const std::string& filename)
 				(S32)conv_it->getConversationType(),
 				(S32)0,
 				(S32)conv_it->hasOfflineMessages(),
-				conv_it->getConversationName().c_str(),
+				conv_name.c_str(),
 				participant_id.c_str(),
 				conversation_id.c_str(),
-				LLURI::escape(conv_it->getHistoryFileName()).c_str());
+				file_name.c_str());
 	}
 	fclose(fp);
 	return true;
@@ -514,7 +536,9 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	}
 	bool purge_required = false;
 
-	char buffer[MAX_STRING];
+	static constexpr int UTF_BUFFER{ 1024 }; // long enough to handle the most extreme Unicode nonsense and some to spare
+
+	char buffer[UTF_BUFFER];
 	char conv_name_buffer[MAX_STRING];
 	char part_id_buffer[MAX_STRING];
 	char conv_id_buffer[MAX_STRING];
@@ -525,11 +549,14 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 	// before CHUI-348 it was a flag of conversation voice state
 	int prereserved_unused;
 
-	while (!feof(fp) && fgets(buffer, MAX_STRING, fp))
+	memset(buffer, '\0', UTF_BUFFER);
+	while (!feof(fp) && fgets(buffer, UTF_BUFFER, fp))
 	{
-		conv_name_buffer[0] = '\0';
-		part_id_buffer[0]	= '\0';
-		conv_id_buffer[0]	= '\0';
+        // force blank for added safety
+        memset(conv_name_buffer, '\0', MAX_STRING);
+        memset(part_id_buffer, '\0', MAX_STRING);
+        memset(conv_id_buffer, '\0', MAX_STRING);
+        memset(history_file_name, '\0', MAX_STRING);
 
 		sscanf(buffer, "[%lld] %d %d %d %[^|]| %s %s %[^|]|",
 				&time,
@@ -541,14 +568,18 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 				conv_id_buffer,
 				history_file_name);
 
+		bool is_adhoc = ((SessionType)stype == LLIMModel::LLIMSession::ADHOC_SESSION);
+		std::string conv_name = is_adhoc ? conv_name_buffer : LLURI::unescape(conv_name_buffer);
+		std::string file_name = is_adhoc ? history_file_name : LLURI::unescape(history_file_name);
+
 		ConversationParams params;
 		params.time(LLUnits::Seconds::fromValue(time))
 			.conversation_type((SessionType)stype)
 			.has_offline_ims(has_offline_ims)
-			.conversation_name(conv_name_buffer)
+			.conversation_name(conv_name)
 			.participant_id(LLUUID(part_id_buffer))
 			.session_id(LLUUID(conv_id_buffer))
-			.history_filename(LLURI::unescape(history_file_name));
+			.history_filename(file_name);
 
 		LLConversation conversation(params);
 
@@ -562,6 +593,7 @@ bool LLConversationLog::loadFromFile(const std::string& filename)
 		}
 
 		mConversations.push_back(conversation);
+		memset(buffer, '\0', UTF_BUFFER);
 	}
 	fclose(fp);
 

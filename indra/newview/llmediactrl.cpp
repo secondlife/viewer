@@ -46,6 +46,7 @@
 #include "lluictrlfactory.h"	// LLDefaultChildRegistry
 #include "llkeyboard.h"
 #include "llviewermenu.h"
+#include "llviewermenufile.h" // LLFilePickerThread
 
 // linden library includes
 #include "llfocusmgr.h"
@@ -105,7 +106,8 @@ LLMediaCtrl::LLMediaCtrl( const Params& p) :
 	mTrusted(p.trusted_content),
 	mWindowShade(NULL),
 	mHoverTextChanged(false),
-	mContextMenu(NULL)
+	mContextMenu(NULL),
+    mAllowFileDownload(false)
 {
 	{
 		LLColor4 color = p.caret_color().get();
@@ -202,9 +204,26 @@ BOOL LLMediaCtrl::handleScrollWheel( S32 x, S32 y, S32 clicks )
 {
 	if (LLPanel::handleScrollWheel(x, y, clicks)) return TRUE;
 	if (mMediaSource && mMediaSource->hasMedia())
-		mMediaSource->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
+	{
+		convertInputCoords(x, y);
+		mMediaSource->scrollWheel(x, y, 0, clicks, gKeyboard->currentMask(TRUE));
+	}
 
 	return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+BOOL LLMediaCtrl::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+    if (LLPanel::handleScrollHWheel(x, y, clicks)) return TRUE;
+    if (mMediaSource && mMediaSource->hasMedia())
+    {
+        convertInputCoords(x, y);
+        mMediaSource->scrollWheel(x, y, clicks, 0, gKeyboard->currentMask(TRUE));
+    }
+
+    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1112,8 +1131,23 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
 
 		case MEDIA_EVENT_FILE_DOWNLOAD:
 		{
-			//llinfos << "Media event - file download requested - filename is " << self->getFileDownloadFilename() << llendl;
-			//LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+            if (mAllowFileDownload)
+            {
+                // pick a file from SAVE FILE dialog
+                // for now the only thing that should be allowed to save is 360s
+                std::string suggested_filename = self->getFileDownloadFilename();
+                LLFilePicker::ESaveFilter filter = LLFilePicker::FFSAVE_ALL;
+                if (suggested_filename.find(".jpg") != std::string::npos || suggested_filename.find(".jpeg") != std::string::npos)
+                    filter = LLFilePicker::FFSAVE_JPEG;
+                if (suggested_filename.find(".png") != std::string::npos)
+                    filter = LLFilePicker::FFSAVE_PNG;
+
+                (new LLMediaFilePicker(self, filter, suggested_filename))->getFile();
+            }
+            else
+            {
+                LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+            }
 		};
 		break;
 

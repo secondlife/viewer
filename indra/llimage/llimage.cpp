@@ -583,29 +583,39 @@ static void bilinear_scale(const U8 *src, U32 srcW, U32 srcH, U32 srcCh, U32 src
 // LLImage
 //---------------------------------------------------------------------------
 
-LLImage::LLImage(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
+//static
+std::string LLImage::sLastErrorMessage;
+LLMutex* LLImage::sMutex = NULL;
+bool LLImage::sUseNewByteRange = false;
+S32  LLImage::sMinimalReverseByteRangePercent = 75;
+
+//static
+void LLImage::initClass(bool use_new_byte_range, S32 minimal_reverse_byte_range_percent)
 {
-    mMutex = new LLMutex();
-    mUseNewByteRange = use_new_byte_range;
-    mMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
+	sUseNewByteRange = use_new_byte_range;
+    sMinimalReverseByteRangePercent = minimal_reverse_byte_range_percent;
+	sMutex = new LLMutex();
 }
 
-LLImage::~LLImage()
+//static
+void LLImage::cleanupClass()
 {
-    delete mMutex;
-    mMutex = NULL;
+	delete sMutex;
+	sMutex = NULL;
 }
 
-const std::string& LLImage::getLastErrorMessage()
+//static
+const std::string& LLImage::getLastError()
 {
 	static const std::string noerr("No Error");
-	return mLastErrorMessage.empty() ? noerr : mLastErrorMessage;
+	return sLastErrorMessage.empty() ? noerr : sLastErrorMessage;
 }
 
-void LLImage::setLastErrorMessage(const std::string& message)
+//static
+void LLImage::setLastError(const std::string& message)
 {
-	LLMutexLock m(mMutex);
-	mLastErrorMessage = message;
+	LLMutexLock m(sMutex);
+	sLastErrorMessage = message;
 }
 
 //---------------------------------------------------------------------------
@@ -1446,7 +1456,7 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
             setDataAndSize(new_data, new_width, new_height, components); 
 		}
 	}
-	else
+	else try
 	{
 		// copy	out	existing image data
 		S32	temp_data_size = old_width * old_height	* components;
@@ -1480,6 +1490,11 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
             }
         }
 	}
+    catch (std::bad_alloc&) // for temp_buffer
+    {
+        LL_WARNS() << "Failed to allocate temporary image buffer" << LL_ENDL;
+        return false;
+    }
 
 	return true ;
 }
@@ -2168,19 +2183,27 @@ bool LLImageFormatted::load(const std::string &filename, int load_size)
 	}
 	bool res;
 	U8 *data = allocateData(load_size);
-	apr_size_t bytes_read = load_size;
-	apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
-	if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+	if (data)
 	{
-		deleteData();
-		setLastError("Unable to read file",filename);
-		res = false;
+		apr_size_t bytes_read = load_size;
+		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read
+		if (s != APR_SUCCESS || (S32) bytes_read != load_size)
+		{
+			deleteData();
+			setLastError("Unable to read file",filename);
+			res = false;
+		}
+		else
+		{
+			res = updateData();
+		}
 	}
 	else
 	{
-		res = updateData();
+		setLastError("Allocation failure", filename);
+		res = false;
 	}
-	
+
 	return res;
 }
 
@@ -2201,19 +2224,10 @@ bool LLImageFormatted::save(const std::string &filename)
 	return true;
 }
 
-// bool LLImageFormatted::save(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type)
-// Depricated to remove VFS dependency.
-// Use:
-// LLVFile::writeFile(image->getData(), image->getDataSize(), vfs, uuid, type);
-
-//----------------------------------------------------------------------------
-
 S8 LLImageFormatted::getCodec() const
 {
 	return mCodec;
 }
-
-//============================================================================
 
 static void avg4_colors4(const U8* a, const U8* b, const U8* c, const U8* d, U8* dst)
 {

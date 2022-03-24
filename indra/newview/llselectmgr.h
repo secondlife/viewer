@@ -239,6 +239,7 @@ class LLObjectSelection : public LLRefCount
 {
 	friend class LLSelectMgr;
 	friend class LLSafeHandle<LLObjectSelection>;
+	friend class LLSelectionCallbackData;
 
 protected:
 	~LLObjectSelection();
@@ -396,6 +397,16 @@ extern template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance()
 // For use with getFirstTest()
 struct LLSelectGetFirstTest;
 
+// temporary storage, Ex: to attach objects after autopilot
+class LLSelectionCallbackData
+{
+public:
+    LLSelectionCallbackData();
+    LLObjectSelectionHandle	getSelection() { return mSelectedObjects; }
+private:
+    LLObjectSelectionHandle					mSelectedObjects;
+};
+
 class LLSelectMgr : public LLEditMenuHandler, public LLSingleton<LLSelectMgr>
 {
 	LLSINGLETON(LLSelectMgr);
@@ -447,6 +458,13 @@ public:
 	void clearSelections();
 	void update();
 	void updateEffects(); // Update HUD effects
+
+	// When we edit object's position/rotation/scale we set local
+	// overrides and ignore any updates (override received valeus).
+	// When we send data to server, we send local values and reset
+	// overrides
+	void resetObjectOverrides();
+	void resetObjectOverrides(LLObjectSelectionHandle selected_handle);
 	void overrideObjectUpdates();
 
 	// Returns the previous value of mForceSelection
@@ -591,9 +609,9 @@ public:
 	void selectionRevertColors();
 	void selectionRevertShinyColors();
 	BOOL selectionRevertTextures();
-	void selectionSetBumpmap( U8 bumpmap );
+	void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
 	void selectionSetTexGen( U8 texgen );
-	void selectionSetShiny( U8 shiny );
+	void selectionSetShiny( U8 shiny, const LLUUID &image_id );
 	void selectionSetFullbright( U8 fullbright );
 	void selectionSetMedia( U8 media_type, const LLSD &media_data );
 	void selectionSetClickAction(U8 action);
@@ -714,7 +732,7 @@ public:
 
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
-	BOOL isSelfAvatarSelected();
+	BOOL isMovableAvatarSelected();
 
 	void selectDelete();							// Delete on simulator
 	void selectForceDelete();			// just delete, no into trash
@@ -740,6 +758,7 @@ public:
 	// canceled
 	void sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info);
 	void sendAttach(U8 attachment_point, bool replace);
+	void sendAttach(LLObjectSelectionHandle selection_handle, U8 attachment_point, bool replace);
 	void sendDetach();
 	void sendDropAttachment();
 	void sendLink();
@@ -785,6 +804,13 @@ private:
 							void (*pack_header)(void *user_data), 
 							void (*pack_body)(LLSelectNode* node, void *user_data), 
 							void (*log_func)(LLSelectNode* node, void *user_data), 
+							void *user_data,
+							ESendType send_type);
+	void sendListToRegions(	LLObjectSelectionHandle selected_handle,
+							const std::string& message_name,
+							void (*pack_header)(void *user_data),
+							void (*pack_body)(LLSelectNode* node, void *user_data),
+							void (*log_func)(LLSelectNode* node, void *user_data),
 							void *user_data,
 							ESendType send_type);
 

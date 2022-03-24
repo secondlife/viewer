@@ -166,7 +166,7 @@ void LLLayoutPanel::setVisible( BOOL visible )
 
 void LLLayoutPanel::reshape( S32 width, S32 height, BOOL called_from_parent /*= TRUE*/ )
 {
-	if (width == getRect().getWidth() && height == getRect().getHeight()) return;
+	if (width == getRect().getWidth() && height == getRect().getHeight() && !LLView::sForceReshape) return;
 
 	if (!mIgnoreReshape && mAutoResize == false)
 	{
@@ -636,10 +636,10 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 //static 
 void LLLayoutStack::updateClass()
 {
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (auto& layout : instance_snapshot())
 	{
-		it->updateLayout();
-		it->mAnimatedThisFrame = false;
+		layout.updateLayout();
+		layout.mAnimatedThisFrame = false;
 	}
 }
 

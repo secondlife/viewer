@@ -77,7 +77,7 @@ namespace tut
 	template<> template<>
 	void m3math_test_object_t::test<2>()
 	{
-		LLMatrix3 llmat3_obj(30, 1, 2, 3);
+		LLMatrix3 llmat3_obj;
 		llmat3_obj.setZero();
 
 		ensure("LLMatrix3::setZero failed", 0.f == llmat3_obj.setZero().mMatrix[0][0] &&

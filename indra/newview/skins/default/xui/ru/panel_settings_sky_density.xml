@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Плотность" name="panel_settings_sky_density">
+	<layout_stack>
+		<layout_panel>
+			<slider label="Экспоненциальный член Рэлея:" name="rayleigh_exponential"/>
+			<slider label="Экспоненциальная шкала Рэлея:" name="rayleigh_exponential_scale"/>
+			<slider label="Линейный член Рэлея:" name="rayleigh_linear"/>
+			<slider label="Постоянный член Рэлея:" name="rayleigh_constant"/>
+			<slider label="Максимальная высота Рэлея:" name="rayleigh_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Экспоненциальный член Мие:" name="mie_exponential"/>
+			<slider label="Экспоненциальная шкала Мие:" name="mie_exponential_scale"/>
+			<slider label="Линейный член Мие:" name="mie_linear"/>
+			<slider label="Постоянный член Мие:" name="mie_constant"/>
+			<slider label="Анизо-фактор Мие:" name="mie_aniso_factor"/>
+			<slider label="Максимальная высота Мие:" name="mie_max_altitude"/>
+		</layout_panel>
+		<layout_panel>
+			<slider label="Экспоненциальный член абсорбции:" name="absorption_exponential"/>
+			<slider label="Экспоненциальная шкала абсорбции:" name="absorption_exponential_scale"/>
+			<slider label="Линейный член абсорбции:" name="absorption_linear"/>
+			<slider label="Постоянный член абсорбции:" name="absorption_constant"/>
+			<slider label="Максимальная высота абсорбции:" name="absorption_max_altitude"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

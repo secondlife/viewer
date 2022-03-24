@@ -36,14 +36,16 @@
 #include "../lllogin.h"
 // STL headers
 // std headers
+#include <chrono>
 #include <iostream>
 // external library headers
 // other Linden headers
-#include "llsd.h"
-#include "../../../test/lltut.h"
-//#define DEBUG_ON
 #include "../../../test/debug.h"
+#include "../../../test/lltestapp.h"
+#include "../../../test/lltut.h"
 #include "llevents.h"
+#include "lleventcoro.h"
+#include "llsd.h"
 #include "stringize.h"
 
 #if LL_WINDOWS
@@ -66,29 +68,68 @@
 // This is a listener to receive results from lllogin.
 class LoginListener: public LLEventTrackable
 {
-	std::string mName;
-	LLSD mLastEvent;
+    std::string mName;
+    LLSD mLastEvent;
+    size_t mCalls{ 0 };
     Debug mDebug;
 public:
-	LoginListener(const std::string& name) : 
-		mName(name),
+    LoginListener(const std::string& name) : 
+        mName(name),
         mDebug(stringize(*this))
-	{}
+    {}
 
-	bool call(const LLSD& event)
-	{
-		mDebug(STRINGIZE("LoginListener called!: " << event));
-		
-		mLastEvent = event;
-		return false;
-	}
+    bool call(const LLSD& event)
+    {
+        mDebug(STRINGIZE("LoginListener called!: " << event));
+        
+        mLastEvent = event;
+        ++mCalls;
+        return false;
+    }
 
     LLBoundListener listenTo(LLEventPump& pump)
     {
         return pump.listen(mName, boost::bind(&LoginListener::call, this, _1));
-	}
+    }
 
-	LLSD lastEvent() const { return mLastEvent; }
+    LLSD lastEvent() const { return mLastEvent; }
+
+    size_t getCalls() const { return mCalls; }
+
+    // wait for arbitrary predicate to become true
+    template <typename PRED>
+    LLSD waitFor(const std::string& desc, PRED&& pred, double seconds=2.0) const
+    {
+        // remember when we started waiting
+        auto start = std::chrono::system_clock::now();
+        // Break loop when the passed predicate returns true
+        while (! std::forward<PRED>(pred)())
+        {
+            // but if we've been spinning here too long, test failed
+            // how long have we been here, anyway?
+            auto now = std::chrono::system_clock::now();
+            // the default ratio for duration is seconds
+            std::chrono::duration<double> elapsed = (now - start);
+            if (elapsed.count() > seconds)
+            {
+                tut::fail(STRINGIZE("LoginListener::waitFor() took more than "
+                                    << seconds << " seconds waiting for " << desc));
+            }
+            // haven't yet received the new call, nor have we timed out --
+            // just wait
+            llcoro::suspend();
+        }
+        // oh good, we've gotten at least one new call! Return its event.
+        return lastEvent();
+    }
+
+    // wait for any call() calls beyond prevcalls
+    LLSD waitFor(size_t prevcalls, double seconds) const
+    {
+        return waitFor(STRINGIZE("more than " << prevcalls << " calls"),
+                       [this, prevcalls]()->bool{ return getCalls() > prevcalls; },
+                       seconds);
+    }
 
     friend std::ostream& operator<<(std::ostream& out, const LoginListener& listener)
     {
@@ -163,11 +204,16 @@ namespace tut
 {
     struct llviewerlogin_data
     {
-		llviewerlogin_data() :
+        llviewerlogin_data() :
             pumps(LLEventPumps::instance())
-		{}
-		LLEventPumps& pumps;
-	};
+        {}
+        ~llviewerlogin_data()
+        {
+            pumps.clear();
+        }
+        LLEventPumps& pumps;
+        LLTestApp testApp;
+    };
 
     typedef test_group<llviewerlogin_data> llviewerlogin_group;
     typedef llviewerlogin_group::object llviewerlogin_object;
@@ -186,12 +232,12 @@ namespace tut
 
 		// Have dummy XMLRPC respond immediately.
 		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc", respond_immediately);
-		dummyXMLRPC.listenTo(xmlrpcPump);
+		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
 		LLLogin login;
 
 		LoginListener listener("test_ear");
-		listener.listenTo(login.getEventPump());
+		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
 		LLSD credentials;
 		credentials["first"] = "foo";
@@ -199,8 +245,9 @@ namespace tut
 		credentials["passwd"] = "secret";
 
 		login.connect("login.bar.com", credentials);
-
-		ensure_equals("Online state", listener.lastEvent()["state"].asString(), "online");
+		listener.waitFor(
+			"online state",
+			[&listener]()->bool{ return listener.lastEvent()["state"].asString() == "online"; });
 	}
 
     template<> template<>
@@ -214,11 +261,11 @@ namespace tut
 		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
 		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
-		dummyXMLRPC.listenTo(xmlrpcPump);
+		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
 		LLLogin login;
 		LoginListener listener("test_ear");
-		listener.listenTo(login.getEventPump());
+		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
 		LLSD credentials;
 		credentials["first"] = "who";
@@ -226,8 +273,11 @@ namespace tut
 		credentials["passwd"] = "badpasswd";
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
+
+		auto prev = listener.getCalls();
 
 		// Send the failed auth request reponse
 		LLSD data;
@@ -238,6 +288,10 @@ namespace tut
 		data["responses"]["login"] = "false";
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
+		// we happen to know LLLogin uses a 10-second timeout to try to sync
+		// with SLVersionChecker -- allow at least that much time before
+		// giving up
+		listener.waitFor(prev, 11.0);
 
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
 	}
@@ -253,11 +307,11 @@ namespace tut
 		LLEventStream xmlrpcPump("LLXMLRPCTransaction"); // Dummy XMLRPC pump
 
 		LLXMLRPCListener dummyXMLRPC("dummy_xmlrpc");
-		dummyXMLRPC.listenTo(xmlrpcPump);
+		LLTempBoundListener conn1 = dummyXMLRPC.listenTo(xmlrpcPump);
 
 		LLLogin login;
 		LoginListener listener("test_ear");
-		listener.listenTo(login.getEventPump());
+		LLTempBoundListener conn2 = listener.listenTo(login.getEventPump());
 
 		LLSD credentials;
 		credentials["first"] = "these";
@@ -265,8 +319,11 @@ namespace tut
 		credentials["passwd"] = "matter";
 
 		login.connect("login.bar.com", credentials);
+		llcoro::suspend();
 
 		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
+
+		auto prev = listener.getCalls();
 
 		// Send the failed auth request reponse
 		LLSD data;
@@ -276,40 +333,11 @@ namespace tut
 		data["transfer_rate"] = 0;
 		dummyXMLRPC.setResponse(data);
 		dummyXMLRPC.sendReply();
+		// we happen to know LLLogin uses a 10-second timeout to try to sync
+		// with SLVersionChecker -- allow at least that much time before
+		// giving up
+		listener.waitFor(prev, 11.0);
 
 		ensure_equals("Failed to offline", listener.lastEvent()["state"].asString(), "offline");
-	}
-
-	template<> template<>
-    void llviewerlogin_object::test<4>()
-    {
-        DEBUG;
-		// Test SRV request timeout.
-		set_test_name("LLLogin SRV timeout testing");
-
-		// Testing normal login procedure.
-
-		LLLogin login;
-		LoginListener listener("test_ear");
-		listener.listenTo(login.getEventPump());
-
-		LLSD credentials;
-		credentials["first"] = "these";
-		credentials["last"] = "don't";
-		credentials["passwd"] = "matter";
-		credentials["cfg_srv_timeout"] = 0.0f;
-
-		login.connect("login.bar.com", credentials);
-
-		// Get the mainloop eventpump, which needs a pinging in order to drive the 
-		// SRV timeout.
-		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
-		LLSD frame_event;
-		mainloop.post(frame_event);
-
-		ensure_equals("Auth state", listener.lastEvent()["change"].asString(), "authenticating"); 
-		ensure_equals("Attempt", listener.lastEvent()["data"]["attempt"].asInteger(), 1); 
-		ensure_equals("URI", listener.lastEvent()["data"]["request"]["uri"].asString(), "login.bar.com");
-
 	}
 }

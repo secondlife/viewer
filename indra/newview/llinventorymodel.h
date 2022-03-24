@@ -55,7 +55,29 @@ class LLInventoryCategory;
 class LLMessageSystem;
 class LLInventoryCollectFunctor;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+///----------------------------------------------------------------------------
+/// LLInventoryValidationInfo 
+///----------------------------------------------------------------------------
+class LLInventoryValidationInfo: public LLRefCount
+{
+public:
+	LLInventoryValidationInfo();
+	void toOstream(std::ostream& os) const;
+	void asLLSD(LLSD& sd) const;
+	
+
+	S32 mFatalErrorCount;
+	S32 mWarningCount;
+	bool mInitialized;
+	bool mFatalNoRootFolder;
+	bool mFatalNoLibraryRootFolder;
+	bool mFatalQADebugMode;
+	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
+	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
+};
+std::ostream& operator<<(std::ostream& s, const LLInventoryValidationInfo& v);
+
+///----------------------------------------------------------------------------
 // LLInventoryModel
 //
 // Represents a collection of inventory, and provides efficient ways to access 
@@ -63,7 +85,7 @@ class LLInventoryCollectFunctor;
 //   NOTE: This class could in theory be used for any place where you need 
 //   inventory, though it optimizes for time efficiency - not space efficiency, 
 //   probably making it inappropriate for use on tasks.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+///----------------------------------------------------------------------------
 class LLInventoryModel
 {
 	LOG_CLASS(LLInventoryModel);
@@ -538,6 +560,10 @@ private:
 	U32 mModifyMask;
 	changed_items_t mChangedItemIDs;
 	changed_items_t mAddedItemIDs;
+    // Fallback when notifyObservers is in progress
+    U32 mModifyMaskBacklog;
+    changed_items_t mChangedItemIDsBacklog;
+    changed_items_t mAddedItemIDsBacklog;
 	
 	
 	//--------------------------------------------------------------------
@@ -656,7 +682,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void dumpInventory() const;
-	bool validate() const;
+	LLPointer<LLInventoryValidationInfo> validate() const;
+	LLPointer<LLInventoryValidationInfo> mValidationInfo;
+	std::string getFullPath(const LLInventoryObject *obj) const;
 
 /**                    Miscellaneous
  **                                                                            **

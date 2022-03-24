@@ -78,6 +78,7 @@ public:
 	// Extensions used by everyone
 	BOOL mHasMultitexture;
 	BOOL mHasATIMemInfo;
+	BOOL mHasAMDAssociations;
 	BOOL mHasNVXMemInfo;
 	S32	 mNumTextureUnits;
 	BOOL mHasMipMapGeneration;
@@ -118,6 +119,7 @@ public:
 	BOOL mHasDebugOutput;
 	BOOL mHassRGBTexture;
 	BOOL mHassRGBFramebuffer;
+    BOOL mHasTexturesRGBDecode;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;
@@ -140,9 +142,6 @@ public:
 	// Misc extensions
 	BOOL mHasSeparateSpecularColor;
 
-	//whether this GPU is in the debug list.
-	BOOL mDebugGPU;
-	
 	S32 mDriverVersionMajor;
 	S32 mDriverVersionMinor;
 	S32 mDriverVersionRelease;
@@ -163,6 +162,8 @@ public:
 	void printGLInfoString();
 	void getGLInfo(LLSD& info);
 
+	void asLLSD(LLSD& info);
+
 	// In ALL CAPS
 	std::string mGLVendor;
 	std::string mGLVendorShort;
@@ -174,7 +175,6 @@ private:
 	void initExtensions();
 	void initGLStates();
 	void initGLImages();
-	void setToDebugGPU();
 };
 
 extern LLGLManager gGLManager;
@@ -348,6 +348,7 @@ public:
 	~LLGLUserClipPlane();
 
 	void setPlane(F32 a, F32 b, F32 c, F32 d);
+    void disable();
 
 private:
 	bool mApply;
@@ -360,14 +361,17 @@ private:
   Modify and load projection matrix to push depth values to far clip plane.
 
   Restores projection matrix on destruction.
-  GL_MODELVIEW_MATRIX is active whenever program execution
-  leaves this class.
+  Saves/restores matrix mode around projection manipulation.
   Does not stack.
 */
 class LLGLSquashToFarClip
 {
 public:
-	LLGLSquashToFarClip(glh::matrix4f projection, U32 layer = 0);
+    LLGLSquashToFarClip();
+	LLGLSquashToFarClip(glh::matrix4f& projection, U32 layer = 0);
+
+    void setProjectionMatrix(glh::matrix4f& projection, U32 layer);
+
 	~LLGLSquashToFarClip();
 };
 

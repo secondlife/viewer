@@ -54,6 +54,17 @@ enum ETerrainBrushType
 	E_LANDBRUSH_INVALID = 6
 };
 
+enum EMouseClickType{
+    CLICK_NONE = -1,
+    CLICK_LEFT = 0,
+    CLICK_MIDDLE,
+    CLICK_RIGHT,
+    CLICK_BUTTON4,
+    CLICK_BUTTON5,
+    CLICK_DOUBLELEFT,
+    CLICK_COUNT // 'size', CLICK_NONE does not counts
+};
+
 // keys
 // Bit masks for various keyboard modifier keys.
 const MASK MASK_NONE =			0x0000;
@@ -200,7 +211,6 @@ LL_COMMON_API extern const LLUUID IMG_ALPHA_GRAD;
 LL_COMMON_API extern const LLUUID IMG_ALPHA_GRAD_2D;
 LL_COMMON_API extern const LLUUID IMG_TRANSPARENT;
 
-LL_COMMON_API extern const LLUUID IMG_BLOOM1;
 LL_COMMON_API extern const LLUUID TERRAIN_DIRT_DETAIL;
 LL_COMMON_API extern const LLUUID TERRAIN_GRASS_DETAIL;
 LL_COMMON_API extern const LLUUID TERRAIN_MOUNTAIN_DETAIL;

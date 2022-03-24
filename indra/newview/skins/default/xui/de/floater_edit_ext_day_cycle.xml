@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_edit_extdaycycle" title="Tageszyklus bearbeiten">
+	<string name="title_new">
+		Neuen Tageszyklus erstellen
+	</string>
+	<string name="title_edit">
+		Tageszyklus bearbeiten
+	</string>
+	<string name="hint_new">
+		Geben Sie einen Namen für Ihren Tageszyklus ein, passen Sie die Steuerungen an, um den Tageszyklus zu erstellen, und klicken Sie auf &quot;Speichern&quot;.
+	</string>
+	<string name="hint_edit">
+		Um Ihren Tageszyklus zu bearbeiten, passen Sie die unten angezeigten Steuerungen an und klicken Sie auf „Speichern“.
+	</string>
+	<string name="time_label">
+		([HH]:[MM])
+	</string>
+	<string name="sky_track_label">
+		Himmel [ALT]
+	</string>
+	<string name="sky_label">
+		Himmel
+	</string>
+	<string name="water_label">
+		Wasser
+	</string>
+	<string name="commit_parcel">
+		Auf Parzelle anwenden
+	</string>
+	<string name="commit_region">
+		Auf Region anwenden
+	</string>
+	<layout_stack name="outer_stack">
+		<layout_panel name="name_and_import">
+			<text name="label">
+				Name des Tageszyklus:
+			</text>
+			<button label="Importieren" name="btn_import" tool_tip="Alte Einstellungen von Datenträger importieren."/>
+		</layout_panel>
+		<layout_panel name="content">
+			<layout_stack name="content_stack">
+				<layout_panel name="timeline_track_selection">
+					<panel name="timeline_layers">
+						<button label="Himmel 4" name="sky4_track"/>
+						<button label="Himmel 3" name="sky3_track"/>
+						<button label="Himmel 2" name="sky2_track"/>
+						<button label="Bodenhöhe" name="sky1_track"/>
+						<button label="Wasser" name="water_track"/>
+					</panel>
+					<panel name="timeline">
+						<text name="p0" value="0%[DSC]"/>
+						<text name="p1" value="25%[DSC]"/>
+						<text name="p2" value="50%[DSC]"/>
+						<text name="p3" value="75%[DSC]"/>
+						<text name="p4" value="100%[DSC]"/>
+						<multi_slider initial_value="0" name="WLTimeSlider"/>
+						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
+						<text name="current_time" value="[PRCNT]%[DSC]"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="Pfad klonen von" name="copy_track"/>
+								<button label="Pfad laden von" name="load_track"/>
+								<button label="Pfad löschen" name="clear_track"/>
+							</layout_panel>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="Schritt vor"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="Schritt zurück"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="[FRAME] hinzufügen" name="add_frame"/>
+								<button label="[FRAME] laden" name="btn_load_frame"/>
+								<button label="[FRAME] löschen" name="delete_frame"/>
+							</layout_panel>
+						</layout_stack>
+					</panel>
+				</layout_panel>
+				<layout_panel name="frame_edit_controls">
+					<text name="icn_lock_edit">
+						Wählen Sie einen Schlüssel-Frame aus der obigen Zeitlinie, um die Einstellungen zu bearbeiten.
+					</text>
+				</layout_panel>
+				<layout_panel name="frame_settings_water">
+					<tab_container name="water_tabs">
+						<panel label="Wasser" name="water_panel"/>
+					</tab_container>
+				</layout_panel>
+				<layout_panel name="frame_settings_sky">
+					<tab_container name="sky_tabs">
+						<panel label="Atmosphäre und Beleuchtung" name="atmosphere_panel"/>
+						<panel label="Wolken" name="clouds_panel"/>
+						<panel label="Sonne und Mond" name="moon_panel"/>
+					</tab_container>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="buttons">
+			<button label="Speichern" name="save_btn"/>
+			<button label="Abbrechen" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

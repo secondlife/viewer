@@ -2205,7 +2205,6 @@ BOOL LLVolume::generate()
 			{
 				rot_mat.rotate(*profile++, tmp);
 				dst->setAdd(tmp,offset);
-				llassert(dst->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
 				++dst;
 			}
 		}
@@ -2400,9 +2399,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			{ //face has no geometry, continue
 				face.resizeIndices(3);
 				face.resizeVertices(1);
-				memset(face.mPositions, 0, sizeof(LLVector4a));
-				memset(face.mNormals, 0, sizeof(LLVector4a));
-				memset(face.mTexCoords, 0, sizeof(LLVector2));
+				face.mPositions->clear();
+				face.mNormals->clear();
+				face.mTexCoords->setZero();
 				memset(face.mIndices, 0, sizeof(U16)*3);
 				continue;
 			}
@@ -2415,11 +2414,18 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			
 
 			//copy out indices
-			face.resizeIndices(idx.size()/2);
+            S32 num_indices = idx.size() / 2;
+            face.resizeIndices(num_indices);
+
+            if (num_indices > 2 && !face.mIndices)
+            {
+                LL_WARNS() << "Failed to allocate " << num_indices << " indices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                continue;
+            }
 			
 			if (idx.empty() || face.mNumIndices < 3)
 			{ //why is there an empty index list?
-				LL_WARNS() <<"Empty face present!" << LL_ENDL;
+				LL_WARNS() << "Empty face present! Face index: " << i << " Total: " << face_count << LL_ENDL;
 				continue;
 			}
 
@@ -2433,6 +2439,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			//copy out vertices
 			U32 num_verts = pos.size()/(3*2);
 			face.resizeVertices(num_verts);
+
+            if (num_verts > 0 && !face.mPositions)
+            {
+                LL_WARNS() << "Failed to allocate " << num_verts << " vertices for face index: " << i << " Total: " << face_count << LL_ENDL;
+                face.resizeIndices(0);
+                continue;
+            }
 
 			LLVector3 minp;
 			LLVector3 maxp;
@@ -2490,7 +2503,11 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 				else
 				{
-					memset(norm_out, 0, sizeof(LLVector4a)*num_verts);
+					for (U32 j = 0; j < num_verts; ++j)
+					{
+						norm_out->clear();
+						norm_out++; // or just norm_out[j].clear();
+					}
 				}
 			}
 
@@ -2520,13 +2537,24 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 				else
 				{
-					memset(tc_out, 0, sizeof(LLVector2)*num_verts);
+					for (U32 j = 0; j < num_verts; j += 2)
+					{
+						tc_out->clear();
+						tc_out++;
+					}
 				}
 			}
 
 			if (mdl[i].has("Weights"))
 			{
 				face.allocateWeights(num_verts);
+                if (!face.mWeights && num_verts)
+                {
+                    LL_WARNS() << "Failed to allocate " << num_verts << " weights for face index: " << i << " Total: " << face_count << LL_ENDL;
+                    face.resizeIndices(0);
+                    face.resizeVertices(0);
+                    continue;
+                }
 
 				LLSD::Binary weights = mdl[i]["Weights"];
 
@@ -4657,6 +4685,10 @@ LLVolumeFace::LLVolumeFace() :
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    mJustWeights(NULL),
+    mJointIndices(NULL),
+#endif
     mWeightsScrubbed(FALSE),
 	mOctree(NULL),
 	mOptimized(FALSE)
@@ -4683,6 +4715,10 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
 	mTexCoords(NULL),
 	mIndices(NULL),
 	mWeights(NULL),
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    mJustWeights(NULL),
+    mJointIndices(NULL),
+#endif
     mWeightsScrubbed(FALSE),
 	mOctree(NULL)
 { 
@@ -4747,24 +4783,46 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 		if (src.mWeights)
 		{
+            llassert(!mWeights); // don't orphan an old alloc here accidentally
 			allocateWeights(src.mNumVertices);
-			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);
+			LLVector4a::memcpyNonAliased16((F32*) mWeights, (F32*) src.mWeights, vert_size);            
+            mWeightsScrubbed = src.mWeightsScrubbed;
 		}
 		else
 		{
-			ll_aligned_free_16(mWeights);
-			mWeights = NULL;
-		}
-        mWeightsScrubbed = src.mWeightsScrubbed;
-	}
+			ll_aligned_free_16(mWeights);            
+			mWeights = NULL;            
+            mWeightsScrubbed = FALSE;
+		}   
 
+    #if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+        if (src.mJointIndices)
+        {
+            llassert(!mJointIndices); // don't orphan an old alloc here accidentally
+            allocateJointIndices(src.mNumVertices);
+            LLVector4a::memcpyNonAliased16((F32*) mJointIndices, (F32*) src.mJointIndices, src.mNumVertices * sizeof(U8) * 4);
+        }
+        else*/
+        {
+            ll_aligned_free_16(mJointIndices);
+            mJointIndices = NULL;
+        }     
+    #endif
+
+	}
+    
 	if (mNumIndices)
 	{
 		S32 idx_size = (mNumIndices*sizeof(U16)+0xF) & ~0xF;
 		
 		LLVector4a::memcpyNonAliased16((F32*) mIndices, (F32*) src.mIndices, idx_size);
 	}
-	
+	else
+    {
+        ll_aligned_free_16(mIndices);
+        mIndices = NULL;
+    }
+
 	mOptimized = src.mOptimized;
 
 	//delete 
@@ -4795,6 +4853,13 @@ void LLVolumeFace::freeData()
 	mTangents = NULL;
 	ll_aligned_free_16(mWeights);
 	mWeights = NULL;
+
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    ll_aligned_free_16(mJointIndices);
+	mJointIndices = NULL;
+    ll_aligned_free_16(mJustWeights);
+	mJustWeights = NULL;
+#endif
 
 	delete mOctree;
 	mOctree = NULL;
@@ -5197,9 +5262,9 @@ public:
 					LLVCacheTriangleData* tri = *iter;
 					if (tri->mActive)
 					{
-						tri->mScore = tri->mVertex[0]->mScore;
-						tri->mScore += tri->mVertex[1]->mScore;
-						tri->mScore += tri->mVertex[2]->mScore;
+						tri->mScore = tri->mVertex[0] ? tri->mVertex[0]->mScore : 0;
+						tri->mScore += tri->mVertex[1] ? tri->mVertex[1]->mScore : 0;
+						tri->mScore += tri->mVertex[2] ? tri->mVertex[2]->mScore : 0;
 
 						if (!mBestTriangle || mBestTriangle->mScore < tri->mScore)
 						{
@@ -5236,7 +5301,7 @@ bool LLVolumeFace::cacheOptimize()
 
 	LLVCacheLRU cache;
 	
-	if (mNumVertices < 3)
+	if (mNumVertices < 3 || mNumIndices < 3)
 	{ //nothing to do
 		return true;
 	}
@@ -5251,22 +5316,23 @@ bool LLVolumeFace::cacheOptimize()
 	{
 		triangle_data.resize(mNumIndices / 3);
 		vertex_data.resize(mNumVertices);
-	}
-	catch (std::bad_alloc)
-	{
-		LL_WARNS("LLVOLUME") << "Resize failed" << LL_ENDL;
-		return false;
-	}
 
-	for (U32 i = 0; i < mNumIndices; i++)
-	{ //populate vertex data and triangle data arrays
-		U16 idx = mIndices[i];
-		U32 tri_idx = i/3;
+        for (U32 i = 0; i < mNumIndices; i++)
+        { //populate vertex data and triangle data arrays
+            U16 idx = mIndices[i];
+            U32 tri_idx = i / 3;
 
-		vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
-		vertex_data[idx].mIdx = idx;
-		triangle_data[tri_idx].mVertex[i%3] = &(vertex_data[idx]);
-	}
+            vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
+            vertex_data[idx].mIdx = idx;
+            triangle_data[tri_idx].mVertex[i % 3] = &(vertex_data[idx]);
+        }
+    }
+    catch (std::bad_alloc&)
+    {
+        // resize or push_back failed
+        LL_WARNS("LLVOLUME") << "Resize for " << mNumVertices << " vertices failed" << LL_ENDL;
+        return false;
+    }
 
 	/*F32 pre_acmr = 1.f;
 	//measure cache misses from before rebuild
@@ -5406,7 +5472,7 @@ bool LLVolumeFace::cacheOptimize()
 	{
 		new_idx.resize(mNumVertices, -1);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		ll_aligned_free<64>(pos);
 		ll_aligned_free_16(wght);
@@ -5449,11 +5515,17 @@ bool LLVolumeFace::cacheOptimize()
 	// DO NOT free mNormals and mTexCoords as they are part of mPositions buffer
 	ll_aligned_free_16(mWeights);
 	ll_aligned_free_16(mTangents);
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    ll_aligned_free_16(mJointIndices);
+    ll_aligned_free_16(mJustWeights);
+    mJustWeights = NULL;
+    mJointIndices = NULL; // filled in later as necessary by skinning code for acceleration
+#endif
 
 	mPositions = pos;
 	mNormals = norm;
 	mTexCoords = tc;
-	mWeights = wght;
+	mWeights = wght;    
 	mTangents = binorm;
 
 	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
@@ -6292,8 +6364,18 @@ void LLVolumeFace::resizeVertices(S32 num_verts)
 		mTexCoords = NULL;
 	}
 
-	mNumVertices = num_verts;
-	mNumAllocatedVertices = num_verts;
+
+    if (mPositions)
+    {
+        mNumVertices = num_verts;
+        mNumAllocatedVertices = num_verts;
+    }
+    else
+    {
+        // Either num_verts is zero or allocation failure
+        mNumVertices = 0;
+        mNumAllocatedVertices = 0;
+    }
 
     // Force update
     mJointRiggingInfoTab.clear();
@@ -6363,7 +6445,19 @@ void LLVolumeFace::allocateTangents(S32 num_verts)
 void LLVolumeFace::allocateWeights(S32 num_verts)
 {
 	ll_aligned_free_16(mWeights);
-	mWeights = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+	mWeights = (LLVector4a*)ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+    
+}
+
+void LLVolumeFace::allocateJointIndices(S32 num_verts)
+{
+#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
+    ll_aligned_free_16(mJointIndices);
+    ll_aligned_free_16(mJustWeights);
+
+    mJointIndices = (U8*)ll_aligned_malloc_16(sizeof(U8) * 4 * num_verts);    
+    mJustWeights = (LLVector4a*)ll_aligned_malloc_16(sizeof(LLVector4a) * num_verts);    
+#endif
 }
 
 void LLVolumeFace::resizeIndices(S32 num_indices)
@@ -6382,7 +6476,15 @@ void LLVolumeFace::resizeIndices(S32 num_indices)
 		mIndices = NULL;
 	}
 
-	mNumIndices = num_indices;
+    if (mIndices)
+    {
+        mNumIndices = num_indices;
+    }
+    else
+    {
+        // Either num_indices is zero or allocation failure
+        mNumIndices = 0;
+    }
 }
 
 void LLVolumeFace::pushIndex(const U16& idx)
@@ -6914,11 +7016,16 @@ void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVe
 {
     //LLVector4a *tan1 = new LLVector4a[vertexCount * 2];
 	LLVector4a* tan1 = (LLVector4a*) ll_aligned_malloc_16(vertexCount*2*sizeof(LLVector4a));
+	// new(tan1) LLVector4a;
 
     LLVector4a* tan2 = tan1 + vertexCount;
 
-	memset(tan1, 0, vertexCount*2*sizeof(LLVector4a));
-        
+    U32 count = vertexCount * 2;
+    for (U32 i = 0; i < count; i++)
+    {
+        tan1[i].clear();
+    }
+
     for (U32 a = 0; a < triangleCount; a++)
     {
         U32 i1 = *index_array++;

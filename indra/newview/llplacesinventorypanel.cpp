@@ -43,9 +43,8 @@ static LLDefaultChildRegistry::Register<LLPlacesInventoryPanel> r("places_invent
 static const LLPlacesInventoryBridgeBuilder PLACES_INVENTORY_BUILDER;
 
 LLPlacesInventoryPanel::LLPlacesInventoryPanel(const Params& p) : 
-	LLInventoryPanel(p),
+    LLAssetFilteredInventoryPanel(p),
 	mSavedFolderState(NULL)
-
 {
 	mInvFVBridgeBuilder = &PLACES_INVENTORY_BUILDER;
 	mSavedFolderState = new LLSaveFolderState();
@@ -78,6 +77,7 @@ LLFolderView * LLPlacesInventoryPanel::createFolderRoot(LLUUID root_id )
     p.view_model = &mInventoryViewModel;
     p.use_label_suffix = mParams.use_label_suffix;
     p.allow_multiselect = mAllowMultiSelect;
+    p.allow_drag = mAllowDrag;
     p.show_empty_message = mShowEmptyMessage;
     p.show_item_link_overlays = mShowItemLinkOverlays;
     p.root = NULL;

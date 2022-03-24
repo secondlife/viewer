@@ -42,7 +42,8 @@ LLFloaterLoadPrefPreset::LLFloaterLoadPrefPreset(const LLSD &key)
 
 // virtual
 BOOL LLFloaterLoadPrefPreset::postBuild()
-{	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
+{
+	LLFloaterPreference* preferences = LLFloaterReg::getTypedInstance<LLFloaterPreference>("preferences");
 	if (preferences)
 	{
 		preferences->addDependentFloater(this);
@@ -57,14 +58,27 @@ BOOL LLFloaterLoadPrefPreset::postBuild()
 void LLFloaterLoadPrefPreset::onOpen(const LLSD& key)
 {
 	mSubdirectory = key.asString();
-	std::string floater_title = getString(std::string("title_") + mSubdirectory);
-
-	setTitle(floater_title);
+    std::string title_type = std::string("title_") + mSubdirectory;
+    if (hasString(title_type))
+    {
+        std::string floater_title = getString(title_type);
+        setTitle(floater_title);
+    }
+    else
+    {
+        LL_WARNS() << title_type << " not found" << LL_ENDL;
+        setTitle(title_type);
+    }
 
 	LLComboBox* combo = getChild<LLComboBox>("preset_combo");
 
 	EDefaultOptions option = DEFAULT_TOP;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+	if (!preset_graphic_active.empty())
+	{
+		combo->setSimple(preset_graphic_active);
+	}
 }
 
 void LLFloaterLoadPrefPreset::onPresetsListChange()
@@ -73,6 +87,11 @@ void LLFloaterLoadPrefPreset::onPresetsListChange()
 
 	EDefaultOptions option = DEFAULT_TOP;
 	LLPresetsManager::getInstance()->setPresetNamesInComboBox(mSubdirectory, combo, option);
+	std::string preset_graphic_active = gSavedSettings.getString("PresetGraphicActive");
+	if (!preset_graphic_active.empty())
+	{
+		combo->setSimple(preset_graphic_active);
+	}
 }
 
 void LLFloaterLoadPrefPreset::onBtnCancel()

@@ -205,8 +205,9 @@ bool LLViewerMediaFocus::getFocus()
 }
 
 // This function selects an ideal viewing distance based on the focused object, pick normal, and padding value
-void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
+LLVector3d LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal, F32 padding_factor, bool zoom_in_only)
 {
+	LLVector3d camera_pos;
 	if (object)
 	{
 		gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
@@ -254,7 +255,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		distance += depth * 0.5;
 
 		// Finally animate the camera to this new position and focal point
-		LLVector3d camera_pos, target_pos;
+		LLVector3d target_pos;
 		// The target lookat position is the center of the selection (in global coords)
 		target_pos = center;
 		// Target look-from (camera) position is "distance" away from the target along the normal 
@@ -287,7 +288,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		if (zoom_in_only &&
 		    (dist_vec_squared(gAgentCamera.getCameraPositionGlobal(), target_pos) < dist_vec_squared(camera_pos, target_pos)))
 		{
-			return;
+			return camera_pos;
 		}
 
 		gAgentCamera.setCameraPosAndFocusGlobal(camera_pos, target_pos, object->getID() );
@@ -298,6 +299,7 @@ void LLViewerMediaFocus::setCameraZoom(LLViewerObject* object, LLVector3 normal,
 		// If we have no object, focus back on the avatar.
 		gAgentCamera.setFocusOnAvatar(TRUE, ANIMATE);
 	}
+	return camera_pos;
 }
 void LLViewerMediaFocus::onFocusReceived()
 {
@@ -338,15 +340,6 @@ BOOL LLViewerMediaFocus::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 			
 			clearFocus();
 		}
-		
-		if ( KEY_F1 == key && LLUI::getInstance()->mHelpImpl && mMediaControls.get())
-		{
-			std::string help_topic;
-			if (mMediaControls.get()->findHelpTopic(help_topic))
-			{
-				LLUI::getInstance()->mHelpImpl->showTopic(help_topic);
-			}
-		}
 	}
 	
 	return true;
@@ -371,18 +364,26 @@ BOOL LLViewerMediaFocus::handleUnicodeChar(llwchar uni_char, BOOL called_from_pa
 		media_impl->handleUnicodeCharHere(uni_char);
 	return true;
 }
-BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks)
+
+BOOL LLViewerMediaFocus::handleScrollWheel(const LLVector2& texture_coords, S32 clicks_x, S32 clicks_y)
+{
+    BOOL retval = FALSE;
+    LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
+    if (media_impl && media_impl->hasMedia())
+    {
+        media_impl->scrollWheel(texture_coords, clicks_x, clicks_y, gKeyboard->currentMask(TRUE));
+        retval = TRUE;
+    }
+    return retval;
+}
+
+BOOL LLViewerMediaFocus::handleScrollWheel(S32 x, S32 y, S32 clicks_x, S32 clicks_y)
 {
 	BOOL retval = FALSE;
 	LLViewerMediaImpl* media_impl = getFocusedMediaImpl();
 	if(media_impl && media_impl->hasMedia())
 	{
-        // the scrollEvent() API's x and y are not the same as handleScrollWheel's x and y.
-        // The latter is the position of the mouse at the time of the event
-        // The former is the 'scroll amount' in x and y, respectively.
-        // All we have for 'scroll amount' here is 'clicks'.
-		// We're also not passed the keyboard modifier mask, but we can get that from gKeyboard.
-		media_impl->getMediaPlugin()->scrollEvent(0, clicks, gKeyboard->currentMask(TRUE));
+		media_impl->scrollWheel(x, y, clicks_x, clicks_y, gKeyboard->currentMask(TRUE));
 		retval = TRUE;
 	}
 	return retval;

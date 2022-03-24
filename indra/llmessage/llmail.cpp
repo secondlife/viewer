@@ -373,7 +373,7 @@ std::string LLMail::encryptIMEmailAddress(const LLUUID& from_agent_id,
 	// Convert input data into a binary blob
 	std::vector<U8> data;
 	data.resize(data_size);
-	// *NOTE: This may suffer from endian issues.  Could be htonmemcpy.
+	// *NOTE: This may suffer from endian issues.  Could be htolememcpy.
 	memcpy(&data[0], &time, 4);
 	memcpy(&data[4], &from_agent_id.mData[0], UUID_BYTES);
 	memcpy(&data[4 + UUID_BYTES], &to_agent_id.mData[0], UUID_BYTES);

@@ -37,6 +37,10 @@
 		<text name="label_12" tool_tip="Definir permissões padrão para roupas ou partes do corpo criadas">
 			Itens de vestuário
 		</text>
+		<text name="label_13" tool_tip="Definir permissões padrão para quando as configurações do Ambiente forem criadas">
+			Configurações
+		</text>
+		<check_box name="env_settings_c" value="true"/>
 	</panel>
 	<button label="OK" label_selected="OK" name="ok"/>
 	<button label="Cancelar" label_selected="Cancelar" name="cancel"/>

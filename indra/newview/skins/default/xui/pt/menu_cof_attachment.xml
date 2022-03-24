@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <context_menu name="COF Attachment">
+	<menu_item_call label="Tocar" name="touch_attach" />
+	<menu_item_call label="Editar" name="edit_item" />
 	<menu_item_call label="Separar" name="detach"/>
 </context_menu>

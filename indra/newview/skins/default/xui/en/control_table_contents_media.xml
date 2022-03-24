@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<contents>
+    <rows
+     enabled="false"
+     name="media_actions"
+     value="">
+        <columns
+         type="icontext"
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         label="Sound and Media"
+         name="lst_action"
+         value="Audio_Press" />
+    </rows>
+    <rows
+     name="toggle_pause_media"
+     value="toggle_pause_media">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Play/Pause Media" />
+    </rows>
+    <rows
+     name="toggle_enable_media"
+     value="toggle_enable_media">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Play/Stop All Media" />
+    </rows>
+    <rows
+     name="voice_follow_key"
+     value="voice_follow_key">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Voice" />
+    </rows>
+    <rows
+     name="toggle_voice"
+     value="toggle_voice">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Toggle Voice" />
+    </rows>
+    <rows
+     name="start_chat"
+     value="start_chat">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Start Chat" />
+    </rows>
+    <rows
+     name="start_gesture"
+     value="start_gesture">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Start Gesture" />
+    </rows>
+</contents>

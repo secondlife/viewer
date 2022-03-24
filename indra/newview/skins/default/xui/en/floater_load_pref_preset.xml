@@ -4,7 +4,7 @@
  height="130"
  help_topic="floater_load_preset"
  layout="topleft"
- name="Load Pref Preset"
+ name="load_pref_preset"
  save_rect="true"
  title="LOAD PREF PRESET"
  width="300">

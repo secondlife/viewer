@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="env_edit_extdaycycle" title="デイサイクルを編集">
+	<string name="title_new">
+		新しいデイサイクルを作成
+	</string>
+	<string name="title_edit">
+		デイサイクルを編集
+	</string>
+	<string name="hint_new">
+		新しいデイサイクルに名前をつけ、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="hint_edit">
+		自分で作成したデイサイクルを編集するには、希望の設定に調節して、「保存」をクリックします。
+	</string>
+	<string name="time_label">
+		([HH]:[MM])
+	</string>
+	<string name="sky_track_label">
+		空 [ALT]
+	</string>
+	<string name="sky_label">
+		空
+	</string>
+	<string name="water_label">
+		水
+	</string>
+	<string name="commit_parcel">
+		区画に適用
+	</string>
+	<string name="commit_region">
+		リージョンに適用
+	</string>
+	<layout_stack name="outer_stack">
+		<layout_panel name="name_and_import">
+			<text name="label">
+				デイサイクル名：
+			</text>
+			<button label="インポート" name="btn_import" tool_tip="ディスクから過去の設定をインポートする。"/>
+		</layout_panel>
+		<layout_panel name="content">
+			<layout_stack name="content_stack">
+				<layout_panel name="timeline_track_selection">
+					<panel name="timeline_layers">
+						<button label="空 4" name="sky4_track"/>
+						<button label="空 3" name="sky3_track"/>
+						<button label="空 2" name="sky2_track"/>
+						<button label="地表レベル" name="sky1_track"/>
+						<button label="水" name="water_track"/>
+					</panel>
+					<panel name="timeline">
+						<text name="p0" value="0%[DSC]"/>
+						<text name="p1" value="25%[DSC]"/>
+						<text name="p2" value="50%[DSC]"/>
+						<text name="p3" value="75%[DSC]"/>
+						<text name="p4" value="100%[DSC]"/>
+						<multi_slider initial_value="0" name="WLTimeSlider"/>
+						<multi_slider initial_value="0" name="WLDayCycleFrames"/>
+						<text name="current_time" value="[PRCNT]%[DSC]"/>
+						<layout_stack>
+							<layout_panel>
+								<button label="トラックを以下からクローン" name="copy_track"/>
+								<button label="トラックを以下からロード" name="load_track"/>
+								<button label="トラックをクリア" name="clear_track"/>
+							</layout_panel>
+							<layout_panel>
+								<layout_stack name="progress_control">
+									<layout_panel name="skip_back">
+										<button name="skip_back_btn" tool_tip="後ろに移動"/>
+									</layout_panel>
+									<layout_panel name="skip_forward">
+										<button name="skip_forward_btn" tool_tip="前に移動"/>
+									</layout_panel>
+								</layout_stack>
+							</layout_panel>
+							<layout_panel>
+								<button label="[FRAME] を追加" name="add_frame"/>
+								<button label="[FRAME] をロード" name="btn_load_frame"/>
+								<button label="[FRAME] を削除" name="delete_frame"/>
+							</layout_panel>
+						</layout_stack>
+					</panel>
+				</layout_panel>
+				<layout_panel name="frame_edit_controls">
+					<text name="icn_lock_edit">
+						上部のタイムラインからキーフレームを選択し、設定を編集します。
+					</text>
+				</layout_panel>
+				<layout_panel name="frame_settings_water">
+					<tab_container name="water_tabs">
+						<panel label="水" name="water_panel"/>
+					</tab_container>
+				</layout_panel>
+				<layout_panel name="frame_settings_sky">
+					<tab_container name="sky_tabs">
+						<panel label="大気＆光" name="atmosphere_panel"/>
+						<panel label="雲" name="clouds_panel"/>
+						<panel label="太陽＆月" name="moon_panel"/>
+					</tab_container>
+				</layout_panel>
+			</layout_stack>
+		</layout_panel>
+		<layout_panel name="buttons">
+			<button label="保存" name="save_btn"/>
+			<button label="キャンセル" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

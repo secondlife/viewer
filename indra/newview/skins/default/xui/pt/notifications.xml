@@ -265,6 +265,10 @@ Deseja conceder direitos de modificação para os residentes selecionados?
 		Você quer revogar os direitos de edição para os residentes selecionados?
 		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
 	</notification>
+	<notification name="GroupNameLengthWarning">
+		O nome do grupo deve conter entre [MIN_LEN] e [MAX_LEN] caracteres.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
 	<notification name="UnableToCreateGroup">
 		Não foi possível criar um grupo.
 [MESSAGE]
@@ -359,7 +363,7 @@ Deseja continuar?
 Você não tem L$ suficientes para associar-se a este grupo.
 	</notification>
 	<notification name="CreateGroupCost">
-		Criar este grupo custa L$100.
+		Criar este grupo custará L$[COST].
 Grupos ser formados por mais de um membro, caso contrário serão definitivamente excluídos. 
 Convite outros membros dentro de 48 horas.
 		<usetemplate canceltext="Cancelar" name="okcancelbuttons" notext="Cancelar" yestext="Criar grupo por L$100"/>
@@ -497,6 +501,9 @@ Para colocar a mídia em só uma face, selecione Selecionar face e clique na fac
 	</notification>
 	<notification name="ErrorEncodingSnapshot">
 		Erro ao codificar a foto.
+	</notification>
+	<notification name="ErrorCannotAffordUpload">
+		Você precisa de L$[COST] para fazer o upload deste item.
 	</notification>
 	<notification name="ErrorPhotoCannotAfford">
 		Você precisa de L$ [COST] para salvar uma foto em seu inventário. Você pode comprar L$ ou salvar a foto em seu computador.
@@ -1729,12 +1736,15 @@ Deseja prosseguir?
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="GroupLimitInfo">
-		O limite de grupos para as contas básicas é [MAX_BASIC] e para as contas [https://secondlife.com/premium/ premium],
-é [MAX_PREMIUM].
-Se você fizer downgrade de sua conta, precisará ficar abaixo do limite de grupos [MAX_BASIC] antes de entrar em mais.
-
-[https://secondlife.com/my/account/membership.php Faça o upgrade hoje!]
+		Residentes com o plano Básico podem participar de até [MAX_BASIC] grupos.
+O plano Premium permite até [MAX_PREMIUM]. [https://secondlife.com/my/account/membership.php? Saiba mais ou faça um upgrade]
 		<usetemplate name="okbutton" yestext="Fechar"/>
+	</notification>
+		<notification name="GroupLimitInfoPlus">
+			Residentes com o plano Básico podem participar de até [MAX_BASIC] grupos.
+O plano Premium permite até [MAX_PREMIUM]. O plano Premium Plus permite até [MAX_PREMIUM_PLUS]. 
+[https://secondlife.com/my/account/membership.php? Saiba mais ou faça um upgrade]
+			<usetemplate name="okbutton" yestext="Fechar"/>
 	</notification>
 	<notification name="KickUser">
 		Chutar este residente com qual mensagem?
@@ -1950,6 +1960,11 @@ Isto mudará milhares de regiões e fará o spaceserver soluçar.
 	<notification name="EstateParcelAccessOverride">
 		Ao desselecionar esta opção, você pode remover as restrições que os proprietários dos terrenos adicionaram para evitar problemas, manter a privacidade ou proteger residentes menores de idade contra conteúdo adulto. Por favor, discuta com os seus proprietários de terreno conforme necessário.
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="EstateParcelEnvironmentOverride">
+		Desmarcando esta opção pode remover quaisquer ambientes personalizados que os proprietários tenham adicionado aos seus lotes.. 
+Por favor, discuta com os seus proprietários de terreno conforme necessário. Deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="OK"/>
 	</notification>
 	<notification name="RegionEntryAccessBlocked">
 		A região que você está tentando visitar tem conteúdo que excede suas preferências atuais.  Você pode alterar suas preferências acessando Eu &gt; Preferências &gt; Geral.
@@ -2431,7 +2446,15 @@ Inclua um link para facilitar o acesso para visitantes. Teste o link na barra de
 		Este arquivo de ciclo de dia se refere a um arquivo de céu faltando: [SKY].
 	</notification>
 	<notification name="WLRegionApplyFail">
-		As configurações não podem ser aplicadas à região.   Talvez sair e votlar à região resolva.   Motivo:  [FAIL_REASON]
+		As configurações não puderam ser aplicadas para a região. Motivo: [FAIL_REASON]
+	</notification>
+	<notification name="WLLocalTextureDayBlock">
+		Uma textura local está em uso no rastreio [TRACK], moldura #[FRAMENO] ([FRAME]%) no campo [FIELD]. 
+As definições não puderam ser salvas usando as texturas locais.
+	</notification>
+	<notification name="WLLocalTextureFixedBlock">
+		Uma textura local está em uso no campo [FIELD]. 
+As definições não puderam ser salvas usando as texturas locais.
 	</notification>
 	<notification name="EnvCannotDeleteLastDayCycleKey">
 		Impossível excluir a última chave do ciclo pois um ciclo não pode ficar vazio.   Modifique a última chave em vez de tentar apagá-la, depois crie uma chave nova.
@@ -3277,6 +3300,22 @@ Para sua segurança, os SLurls serão bloqueados por alguns instantes.
 	</notification>
 	<notification name="VoiceIsMutedByModerator">
 		Sua voz foi silenciada pelo moderador.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToGetBenefits">
+		Infelizmente, não conseguimos obter as informações de benefícios para esta sessão. Isto não deveria ocorrer em um ambiente de produção normal. Por favor, contate o suporte. Esta sessão não funcionará normalmente e recomendamos que você reinicie.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadCostConfirmation">
+		Será feito o upload de [COUNT] itens, com um custo total de L$[COST]. Você deseja prosseguir com o upload?
+		<usetemplate name="okcancelbuttons" notext="Cancelar" yestext="Carregar"/>
+	</notification>
+	<notification name="BulkUploadNoCompatibleFiles">
+		Não é possível fazer o upload dos arquivos selecionados de uma vez só.
+		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="BulkUploadIncompatibleFiles">
+		Não é possível fazer o upload de alguns dos arquivos selecionados de uma vez só.
 		<usetemplate name="okbutton" yestext="OK"/>
 	</notification>
 	<notification name="UploadCostConfirmation">
@@ -4375,5 +4414,77 @@ Tente selecionar uma quantidade menor de terreno.
 	<notification name="OutfitPhotoLoadError">
 		[REASON]
 		<usetemplate name="okbutton" yestext="OK"/>
+	</notification>
+	<notification name="FailedToFindSettings">
+		Não pode carregar as configurações para [NAME] da base de dados.
+	</notification>
+	<notification name="FailedToLoadSettingsApply">
+		Não foi possível aplicar aquelas configurações para o ambiente.
+	</notification>
+	<notification name="FailedToBuildSettingsDay">
+		Não foi possível aplicar aquelas configurações para o ambiente.
+	</notification>
+	<notification name="NoEnvironmentSettings">
+		Esta Região não suporta as configurações do ambiente.
+	</notification>
+	<notification label="Salvar visual" name="SaveSettingAs">
+		Salve as configurações do ambiente atual como:
+		<form name="form">
+			<input name="message">
+				[DESC] (novo)
+			</input>
+			<button name="OK" text="OK"/>
+			<button name="Cancel" text="Cancelar"/>
+		</form>
+	</notification>
+	<notification name="WLImportFail">
+		Não foi possível imporar as configurações do vento antigo [NAME] de 
+[FILE]. 
+
+[REASONS]
+	</notification>
+	<notification name="WLParcelApplyFail">
+		Não é possível definir o ambiente para este lote. 
+Inserir ou selecionar um lote que você tem direitos para modificar.
+	</notification>
+	<notification name="SettingsUnsuported">
+		As configurações não são suportadas para esta região. 
+Mude para uma configuração permitida para a região ou tente novamente realizar a ação.
+	</notification>
+	<notification name="SettingsConfirmLoss">
+		Você está prestes a perder as alterações que você fez para este [TYPE] com o nome &quot;[NAME]&quot;. 
+Tem certeza de que deseja continuar?
+		<usetemplate ignoretext="Tem certeza de que deseja perder as alterações?" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="SettingsConfirmReset">
+		Você está prestes a remover todas as configurações aplicadas. 
+Tem certeza de que deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="PersonalSettingsConfirmReset">
+		Você está prestes a remover todas as configurações de Iluminação pessoal aplicadas. 
+Tem certeza de que deseja continuar?
+		<usetemplate name="okcancelbuttons" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="SettingsMakeNoTrans">
+		Você está prestes a importar configurações não transferíveis para este ciclo de dias. Caso continue, transformará as configurações que você está editando não transferível também. 
+
+Esta alteração não pode ser desfeita. 
+
+Tem certeza de que deseja continuar?
+		<usetemplate ignoretext="Tem certeza de que deseja tornar as configurações não transferível?" name="okcancelignore" notext="Não" yestext="Sim"/>
+	</notification>
+	<notification name="NoEditFromLibrary">
+		Você não pode editar as configurações diretamente da biblioteca. 
+Copie para o seu próprio inventário e tente novamente.
+	</notification>
+	<notification name="EnvironmentApplyFailed">
+		Encontramos problemas com essas configurações. Eles não podem ser salvos ou aplicados desta vez.
+	</notification>
+	<notification name="TrackLoadFailed">
+		Não foi possível carregar o rastreio para [TRACK].
+	</notification>
+	<notification name="TrackLoadMismatch">
+		Não foi possível carregar rastreio de [TRACK1] em [TRACK2].
 	</notification>
 </notifications>

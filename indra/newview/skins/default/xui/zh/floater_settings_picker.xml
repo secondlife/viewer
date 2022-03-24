@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="settings picker" title="選擇：設定">
+	<floater.string name="pick title">
+		精選地點：
+	</floater.string>
+	<floater.string name="pick_track">
+		選取軌跡
+	</floater.string>
+	<floater.string name="pick_settings">
+		選取設定
+	</floater.string>
+	<floater.string name="track_water">
+		水文
+	</floater.string>
+	<floater.string name="track_ground">
+		地面
+	</floater.string>
+	<floater.string name="track_sky">
+		天空[NUM]
+	</floater.string>
+	<layout_stack name="test_stack">
+		<layout_panel name="inv_list">
+			<filter_editor label="材質過濾器" name="flt_inventory_search"/>
+		</layout_panel>
+		<layout_panel name="temp">
+			<button label="確定" label_selected="確定" name="btn_select"/>
+			<button label="取消" label_selected="取消" name="btn_cancel"/>
+		</layout_panel>
+	</layout_stack>
+</floater>

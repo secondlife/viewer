@@ -10,7 +10,7 @@
 		Açıklama:
 	</text>
 	<text name="dimensions">
-		[WIDTH]px x [HEIGHT]px
+		[WIDTH] pks x [HEIGHT] pks
 	</text>
 	<text name="aspect_ratio">
 		En boy oranını önizle

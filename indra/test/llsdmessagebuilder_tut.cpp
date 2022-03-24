@@ -272,7 +272,7 @@ namespace tut
 	void LLSDMessageBuilderTestObject::test<14>()
 		 // Quaternion
 	{
-	  LLQuaternion outValue, inValue = LLQuaternion(1,2,3,4);
+	  LLQuaternion outValue, inValue = LLQuaternion(1,LLVector3(2,3,4));
 	  LLSDMessageBuilder builder = defaultBuilder();
 	  builder.addQuat("var", inValue);
 	  LLSDMessageReader reader = setReader(builder);

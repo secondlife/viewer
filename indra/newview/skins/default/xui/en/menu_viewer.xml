@@ -15,22 +15,6 @@
          function="ShowAgentProfile"
          parameter="agent" />
       </menu_item_call>
-      <menu_item_call
-       label="Appearance..."
-       name="ChangeOutfit">
-        <menu_item_call.on_click
-         function="CustomizeAvatar" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
-      </menu_item_call>
-      <menu_item_call
-       label="Choose an avatar..."
-       name="Avatar Picker">
-        <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="avatar" />
-      </menu_item_call>
-      <menu_item_separator/>
       <menu_item_check
          label="Inventory..."
          name="Inventory"
@@ -54,10 +38,10 @@
       </menu_item_call>
       <menu_item_call
        label="Places..."
-       name="Places">
+       name="Places"
+       shortcut="control|L">
         <menu_item_call.on_click
-         function="Floater.ToggleOrBringToFront"
-         parameter="places" />
+         function="Tools.Link"/>
       </menu_item_call>
       <menu_item_call
        label="Picks..."
@@ -74,116 +58,31 @@
           parameter="experiences"/>
       </menu_item_call>
       <menu_item_call
-        label="My Scripts..."
-        name="MyScripts">
-        <menu_item_call.on_click
-          function="Floater.ToggleOrBringToFront"
-          parameter="my_scripts"/>
-      </menu_item_call>
-      <menu_item_separator/>
-      <menu_item_call
        label="Camera Controls..."
-       name="Camera Controls">
+       name="Camera Controls"
+       shortcut="control|K">
         <menu_item_call.on_click
          function="Floater.ToggleOrBringToFront"
          parameter="camera" />
       </menu_item_call>
-      <menu
-       create_jump_keys="true"
-       label="Movement"
-       name="Movement"
-       tear_off="true">
-        <menu_item_call
-         label="Sit Down"
-         layout="topleft"
-         shortcut="alt|shift|S"
-         name="Sit Down Here">
-          <menu_item_call.on_click
-           function="Self.SitDown"/>
-          <menu_item_call.on_visible
-           function="Self.ShowSitDown"/>
-          <menu_item_call.on_enable
-           function="Self.EnableSitDown" />
-        </menu_item_call>
-        <menu_item_call
-         label="Stand Up"
-         layout="topleft"
-         shortcut="alt|shift|S"
-         name="Stand up">
-          <menu_item_call.on_click
-           function="Self.StandUp"/>
-          <menu_item_call.on_visible
-           function="Self.EnableStandUp"/>
-          <menu_item_call.on_enable
-           function="Self.EnableStandUp" />
-        </menu_item_call>
-        <menu_item_check
-         label="Fly"
-         name="Fly"
-         shortcut="HOME">
-          <menu_item_check.on_check
-           function="Agent.getFlying" />
-          <menu_item_check.on_click
-           function="Agent.toggleFlying" />
-          <menu_item_check.on_enable
-           function="Agent.enableFlying" />
-        </menu_item_check>
-        <menu_item_call
-         label="Stop flying"
-         name="Stop flying"
-         shortcut="HOME">
-          <menu_item_call.on_click
-           function="Agent.toggleFlying" />
-          <menu_item_call.on_enable
-           function="Agent.getFlying" />
-        </menu_item_call>	
-        <menu_item_check
-         label="Always Run"
-         name="Always Run"
-         shortcut="control|R">
-          <menu_item_check.on_check
-           function="World.CheckAlwaysRun" />
-          <menu_item_check.on_click
-           function="World.AlwaysRun" />
-        </menu_item_check>
-        <menu_item_call
-         label="Stop Animating Me"
-         name="Stop Animating My Avatar">
-          <menu_item_call.on_click
-           function="Tools.StopAllAnimations" />
-        </menu_item_call>
-        <menu_item_call
-         label="Walk / run / fly..."
-         name="WalkRunFly">
-          <menu_item_call.on_click
-           function="Floater.ToggleOrBringToFront"
-           parameter="moveview" />
-        </menu_item_call>
-      </menu>
 
-      <menu
-       create_jump_keys="true"
-       label="Status"
-       name="Status"
-       tear_off="true">
-        <menu_item_check
-         name="Away"
-         label="Away">
-          <menu_item_check.on_check
-           function="View.Status.CheckAway" />
-          <menu_item_check.on_click
-           function="World.SetAway" />
-        </menu_item_check>
-        <menu_item_check
-         name="Do Not Disturb"
-         label="Do Not Disturb">
-          <menu_item_check.on_check
-           function="View.Status.CheckDoNotDisturb" />
-          <menu_item_check.on_click
-           function="World.SetDoNotDisturb"/>
-        </menu_item_check>
-      
-    </menu>
+      <menu_item_separator/>
+      <menu_item_check
+       name="Away"
+       label="Away">
+        <menu_item_check.on_check
+         function="View.Status.CheckAway" />
+        <menu_item_check.on_click
+         function="World.SetAway" />
+      </menu_item_check>
+      <menu_item_check
+       name="Do Not Disturb"
+       label="Do Not Disturb">
+        <menu_item_check.on_check
+         function="View.Status.CheckDoNotDisturb" />
+        <menu_item_check.on_click
+         function="World.SetDoNotDisturb"/>
+      </menu_item_check>
 
       <menu_item_separator/>
 
@@ -207,6 +106,15 @@
          function="PromptShowURL"
          name="ManageMyAccount_url"
          parameter="WebLaunchJoinNow,http://secondlife.com/account/" />
+      </menu_item_call>
+      <menu_item_call
+           label="[Membership]"
+           name="Membership">
+            <menu_item_call.on_click
+             function="Advanced.ShowURL"
+             parameter="https://secondlife.com/my/account/membership.php"/>
+            <menu_item_call.on_visible
+                 function="Membership.UpdateLabel"/>
       </menu_item_call>
 
       <menu_item_separator/>
@@ -252,6 +160,334 @@
             <menu_item_call.on_click
              function="File.Quit" />
         </menu_item_call>
+    </menu>
+    <menu
+     create_jump_keys="true"
+     label="Avatar"
+     name="Avatar"
+     tear_off="true">
+       <menu_item_call
+         label="Now wearing..."
+         name="NowWearing"
+         shortcut="control|O">
+            <menu_item_call.on_click
+             function="NowWearing" />
+            <menu_item_call.on_enable
+             function="Edit.EnableCustomizeAvatar" />
+       </menu_item_call>
+       <menu_item_call
+         label="My outfits..."
+         name="ChangeOutfit">
+            <menu_item_call.on_click
+             function="CustomizeAvatar" />
+            <menu_item_call.on_enable
+             function="Edit.EnableCustomizeAvatar" />
+       </menu_item_call>
+       <menu_item_call label="Hover height..."
+         layout="topleft"
+         shortcut="alt|control|H"
+         name="Hover Height">
+            <menu_item_call.on_click
+             function="HoverHeight" />
+            <menu_item_call.on_enable
+             function="Edit.EnableHoverHeight" />
+      </menu_item_call>
+      <menu_item_call
+        label="Edit shape..."
+        layout="topleft"
+        name="Edit My Shape">
+            <menu_item_call.on_click
+             function="EditShape" />
+            <menu_item_call.on_enable
+             function="Edit.EnableEditShape" />
+      </menu_item_call>
+      <menu_item_call
+        label="Edit outfit parts..."
+        layout="topleft"
+        name="Edit Outfit">
+            <menu_item_call.on_click
+             function="EditOutfit" />
+            <menu_item_call.on_enable
+             function="Edit.EnableCustomizeAvatar" />
+      </menu_item_call>
+      <menu
+        label="Take off"
+        layout="topleft"
+        name="Take Off &gt;">
+        <menu
+         label="Clothes"
+         layout="topleft"
+         name="Clothes &gt;">
+          <menu_item_call
+           enabled="false"
+           label="Shirt"
+           layout="topleft"
+           name="Shirt">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="shirt" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="shirt" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Pants"
+           layout="topleft"
+           name="Pants">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="pants" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="pants" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Skirt"
+           layout="topleft"
+           name="Skirt">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="skirt" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="skirt" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Shoes"
+           layout="topleft"
+           name="Shoes">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="shoes" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="shoes" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Socks"
+           layout="topleft"
+           name="Socks">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="socks" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="socks" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Jacket"
+           layout="topleft"
+           name="Jacket">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="jacket" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="jacket" />
+          </menu_item_call>
+          <menu_item_call
+           enabled="false"
+           label="Gloves"
+           layout="topleft"
+           name="Gloves">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="gloves" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="gloves" />
+          </menu_item_call>
+          <menu_item_call
+                enabled="false"
+                label="Undershirt"
+                layout="topleft"
+                name="Self Undershirt">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="undershirt" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="undershirt" />
+          </menu_item_call>
+          <menu_item_call
+            enabled="false"
+            label="Underpants"
+            layout="topleft"
+            name="Self Underpants">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="underpants" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="underpants" />
+          </menu_item_call>
+          <menu_item_call
+            enabled="false"
+            label="Tattoo"
+            layout="topleft"
+            name="Self Tattoo">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="tattoo" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="tattoo" />
+          </menu_item_call>
+          <menu_item_call
+            enabled="false"
+            label="Physics"
+            layout="topleft"
+            name="Self Physics">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="physics" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="physics" />
+          </menu_item_call>
+          <menu_item_call
+            enabled="false"
+            label="Alpha"
+            layout="topleft"
+            name="Self Alpha">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="alpha" />
+            <menu_item_call.on_enable
+             function="Edit.EnableTakeOff"
+             parameter="alpha" />
+          </menu_item_call>
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_call
+           label="All Clothes"
+           layout="topleft"
+           name="All Clothes">
+            <menu_item_call.on_click
+             function="Edit.TakeOff"
+             parameter="all" />
+          </menu_item_call>
+        </menu>
+        <menu
+         label="HUD"
+         layout="topleft"
+         name="Avatar Detach HUD" />
+        <menu
+         label="Detach"
+         layout="topleft"
+         name="Avatar Detach" />
+        <menu_item_call
+         label="Detach All"
+         layout="topleft"
+         name="Detach All">
+          <menu_item_call.on_click
+           function="Self.RemoveAllAttachments"
+           parameter="" />
+          <menu_item_call.on_enable
+           function="Self.EnableRemoveAllAttachments" />
+        </menu_item_call>
+      </menu>
+      <menu_item_separator/>
+      <menu_item_call
+        label="Complete avatars..."
+        name="Avatar Picker">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="avatar" />
+      </menu_item_call>
+      <menu_item_separator/>
+
+      <menu_item_call
+         label="Sit / stand"
+         layout="topleft"
+         shortcut="alt|shift|S"
+         name="Sit stand">
+          <menu_item_call.on_click
+           function="Self.ToggleSitStand"/>
+          <menu_item_call.on_enable
+           function="Self.EnableSitStand" />
+        </menu_item_call>
+        <menu_item_call
+         label="Fly / land"
+         name="Fly land"
+         shortcut="HOME">
+          <menu_item_call.on_click
+           function="Agent.toggleFlying" />
+          <menu_item_call.on_enable
+           function="Agent.enableFlyLand" />
+        </menu_item_call>       
+        <menu_item_call
+         label="Stop animations"
+         name="Stop Animating My Avatar">
+          <menu_item_call.on_click
+           function="Tools.StopAllAnimations" />
+        </menu_item_call>
+        <menu_item_check
+          label="Walk / run / fly..."
+          name="WalkRunFly">
+          <menu_item_check.on_check
+           function="Floater.Visible"
+           parameter="moveview" />
+          <menu_item_check.on_click
+           function="Floater.ToggleOrBringToFront"
+           parameter="moveview" />
+        </menu_item_check>
+        <menu_item_check
+          label="Always run"
+          name="Always Run"
+          shortcut="control|R">
+          <menu_item_check.on_check
+           function="World.CheckAlwaysRun" />
+          <menu_item_check.on_click
+           function="World.AlwaysRun" />
+        </menu_item_check>
+      <menu_item_separator/>
+      <menu_item_check
+       label="Gestures..."
+       name="Gestures"
+       shortcut="control|G">
+        <menu_item_check.on_check
+         function="Floater.Visible"
+         parameter="gestures" />
+        <menu_item_check.on_click
+         function="Floater.Toggle"
+         parameter="gestures" />
+      </menu_item_check>
+      <menu_item_separator/>
+      <menu_item_call 
+       label="Reset skeleton"
+       layout="topleft"
+       name="Reset Skeleton">
+        <menu_item_call.on_click
+         function="Avatar.ResetSkeleton" />
+      </menu_item_call>
+      <menu_item_call 
+       label="Reset skeleton and animations"
+       layout="topleft"
+       name="Reset Skeleton And Animations">
+        <menu_item_call.on_click
+         function="Avatar.ResetSkeletonAndAnimations" />
+      </menu_item_call>
+      <menu_item_call
+       label="Attachment scripts..."
+       name="MyScripts">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="my_scripts"/>
+      </menu_item_call>
+      <menu_item_separator/>
+      <menu_item_call
+     label="Help with avatars..."
+     name="Help with avatars">
+        <menu_item_call.on_click
+            function="Advanced.ShowURL"
+            parameter="https://community.secondlife.com/search/?type=cms_records3&amp;tags=avatar&amp;nodes=30&amp;search_and_or=or"/>
+      </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
@@ -305,21 +541,6 @@
              function="Floater.Toggle"
              parameter="conversation" />
         </menu_item_check>
-        <menu_item_separator/>
-      <menu_item_call
-        label="Twitter..."
-        name="Twitter">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="twitter"/>
-      </menu_item_call>
-      <menu_item_call
-        label="Flickr..."
-        name="Flickr">
-        <menu_item_call.on_click
-          function="Floater.Toggle"
-          parameter="flickr"/>
-      </menu_item_call>
         <menu_item_separator/>
         <menu
          label="Voice morphing"
@@ -468,10 +689,11 @@
         </menu_item_check>
         <menu_item_call
              label="Events"
-             name="Events">
+             name="Events"
+             shortcut="control|E">
             <menu_item_call.on_click
              function="Advanced.ShowURL"
-             parameter="http://events.secondlife.com"/>
+             parameter="https://secondlife.com/my/community/events"/>
         </menu_item_call>
         <menu_item_check
         label="Search..."
@@ -481,8 +703,7 @@
              function="Floater.Visible"
              parameter="search" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
-             parameter="search" />
+             function="Avatar.ToggleSearch"/>
             </menu_item_check>
         <menu_item_separator/>
         <menu_item_call
@@ -511,6 +732,15 @@
              function="Floater.Show"
              parameter="snapshot" />
         </menu_item_call>
+        
+<menu_item_call
+         label="360 snapshot"
+         name="Capture 360"
+         shortcut="control|alt|shift|s">
+            <menu_item_call.on_click
+             function="Floater.Show"
+             parameter="360capture" />
+        </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
          label="Place profile"
@@ -534,12 +764,18 @@
              parameter="region_info" />
         </menu_item_call>
         <menu_item_call
-         label="My land holdings..."
-         name="My Land">
+         label="My Linden Home..."
+         name="Linden Home">
             <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="land_holdings" />
+             function="World.LindenHome"/>
         </menu_item_call>
+        <menu_item_call
+             label="My land holdings..."
+             name="My Land">
+            <menu_item_call.on_click
+             function="Floater.ShowOrBringToFront"
+             parameter="land_holdings" />
+      </menu_item_call>
         <menu_item_call
          label="Buy this land"
          name="Buy Land">
@@ -616,8 +852,7 @@
           <menu_item_separator />
           <menu_item_check
              label="Advanced Menu"
-             name="Show Advanced Menu"
-             shortcut="control|alt|shift|D">
+             name="Show Advanced Menu">
             <on_check
                function="CheckControl"
                parameter="UseDebugMenus" />
@@ -652,12 +887,13 @@
 
         <menu
          create_jump_keys="true"
-         label="Sun"
-         name="Sun"
+         label="Environment"
+         name="Environment"
          tear_off="true">
             <menu_item_check
              label="Sunrise"
-             name="Sunrise">
+             name="Sunrise"
+             shortcut="control|shift|O">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunrise" />
@@ -689,7 +925,8 @@
             </menu_item_check>
             <menu_item_check
              label="Midnight"
-             name="Midnight">
+             name="Midnight"
+             shortcut="control|shift|Z">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
@@ -697,10 +934,9 @@
                  function="World.EnableEnvSettings" 
                  parameter="midnight" />
             </menu_item_check>
-            <menu_item_separator/>
             <menu_item_check
-             label="Use Region Settings"
-             name="Use Region Settings">
+             label="Use Shared Environment"
+             name="Use Shared Environment">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
@@ -708,113 +944,105 @@
                  function="World.EnableEnvSettings" 
                  parameter="region" />
             </menu_item_check>
-        </menu>
-	    
-   
+        <menu_item_separator/>
+	     	<menu_item_call
+	     	 label="My Environments..."
+	     	 name="my_environs">
+	     	 	<menu_item_call.on_click
+	     	 	 function="World.EnvSettings"
+                 parameter="my_environs" />
+	     	</menu_item_call>
+	     	
+<menu_item_call
+	     	 	 label="Personal Lighting..."
+	     	 	 name="adjustment_tool">
+	     	 	 	<menu_item_call.on_click
+	     	 	 	function="World.EnvSettings"
+	     	 	 	parameter="adjust_tool" />
+	     	 	</menu_item_call>
+	     	 	<menu_item_separator/>
+	     	 	 <menu_item_check
+	     	 	 label="Pause Clouds"
+	     	 	 name="pause_clouds">
+	     	 	 	<menu_item_check.on_click
+	     	 	 	function="World.EnvSettings"
+	     	 	 	parameter="pause_clouds" />
+	     	 	 	<menu_item_check.on_check
+	     	 	 	function="World.EnableEnvSettings" 
+	     	 	 	parameter="pause_clouds" />
+	     	 	</menu_item_check>
+	     	</menu>
+	     	
+<!--   
 	    <menu
 	     create_jump_keys="true"
 	     label="Environment Editor"
 	     name="Environment Editor"
 	     tear_off="true">
-	     	
-	     	<menu_item_call
+	     	 	 		     	<menu_item_call
 	     	 label="Environment Settings..."
 	     	 name="Environment Settings">
-	     	 	<menu_item_call.on_click
+<menu_item_call.on_click
 	     	 	 function="World.EnvSettings"
                  parameter="editor"/>
 	     	</menu_item_call>
-	     	
-	     	<menu_item_separator/>
-	     	
-	     	<menu
+	     		     	<menu_item_separator/>
+<menu
 	     	 name="Water Presets"
 	     	 label="Water Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_water"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_water"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_water_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_water"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	     	
-	     	<menu
-	     	 name="Sky Presets"
+</menu_item_call>
+</menu>
+	     	 	 <menu
+name="Sky Presets"
 	     	 label="Sky Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_sky"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_sky"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_sky_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_sky"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_sky"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	     	
-	     	<menu
-	     	 name="Day Presets"
+</menu_item_call>
+</menu>
+<menu
+name="Day Presets"
 	     	 label="Day Presets">
-	     	 	<menu_item_call
-	     	 	 label="New preset..."
+<menu_item_call
+label="New preset..."
 	     	 	 name="new_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="new_day_cycle"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Edit preset..."
+</menu_item_call>
+<menu_item_call
+label="Edit preset..."
 	     	 	 name="edit_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
+<menu_item_call.on_click
+function="World.EnvPreset"
 	     	 	 	parameter="edit_day_cycle"/>
-	     	 	</menu_item_call>
-	     	 	<menu_item_call
-	     	 	 label="Delete preset..."
-	     	 	 name="delete_day_preset">
-	     	 	 	<menu_item_call.on_click
-	     	 	 	function="World.EnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	 	<menu_item_call.on_enable
-	     	 	 	function="World.EnableEnvPreset"
-	     	 	 	parameter="delete_day_cycle"/>
-	     	 	</menu_item_call>
-	     	</menu>
-	    </menu>
-    
+</menu_item_call>
+</menu>
+</menu>
+-->    
     
     </menu>
     <menu
@@ -1044,8 +1272,7 @@
            shortcut="control|D">
             <menu_item_call.on_click
                function="Object.Duplicate" />
-
-          </menu_item_call>
+                      </menu_item_call>
 		</menu>
         <menu
            create_jump_keys="true"
@@ -1306,7 +1533,7 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Image" />
+                 parameter="Upload Image,texture" />
             </menu_item_call>
             <menu_item_call
              label="Sound (L$[COST])..."
@@ -1319,7 +1546,7 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Sound" />
+                 parameter="Upload Sound,sound" />
             </menu_item_call>
             <menu_item_call
              label="Animation (L$[COST])..."
@@ -1332,12 +1559,13 @@
                  function="File.EnableUpload" />
                 <menu_item_call.on_visible
                  function="Upload.CalculateCosts"
-                 parameter="Upload Animation" />
+                 parameter="Upload Animation,animation" />
             </menu_item_call>
             <menu_item_call
            label="Model..."
            layout="topleft"
-           name="Upload Model">
+           name="Upload Model"
+           shortcut="alt|control|U">
             <menu_item_call.on_click
              function="File.UploadModel"
              parameter="" />
@@ -1347,9 +1575,12 @@
             function="File.VisibleUploadModel"/>
             </menu_item_call>
 	   <menu_item_call
-             label="Bulk (L$[COST] per file)..."
+             label="Bulk..."
              layout="topleft"
              name="Bulk Upload">
+                <menu_item_call.on_visible
+                 function="Upload.CalculateCosts"
+                 parameter="Bulk Upload,texture" />
                 <menu_item_call.on_click
                  function="File.UploadBulk"
                  parameter="" />
@@ -1387,19 +1618,12 @@
      name="Help"
      tear_off="true">
         <menu_item_call
-         label="How to..."
+         label="Guidebook"
          name="How To"
          shortcut="F1">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
-        </menu_item_call>
-        <menu_item_call
-           label="Quickstart"
-           name="Quickstart">
-            <menu_item_call.on_click
-            function="Advanced.ShowURL"
-            parameter="http://community.secondlife.com/t5/English-Knowledge-Base/Second-Life-Quickstart/ta-p/1087919"/>
         </menu_item_call>
 <!--        <menu_item_call
          label="Tutorial"
@@ -1750,6 +1974,16 @@
                  parameter="character" />
             </menu_item_check>
             <menu_item_check
+             label="Animeshes"
+             name="Rendering Type Control Avatar">
+                <menu_item_check.on_check
+                 function="Advanced.CheckRenderType"
+                 parameter="controlAV" />
+                <menu_item_check.on_click
+                 function="Advanced.ToggleRenderType"
+                 parameter="controlAV" />
+            </menu_item_check>
+            <menu_item_check
              label="Surface Patch"
              name="Rendering Type Surface Patch"
              shortcut="control|alt|shift|5">
@@ -1989,20 +2223,6 @@
          name="Shortcuts"
          tear_off="true"
          visible="false">
-            <!-- This second, alternative shortcut for Show Advanced Menu is for backward compatibility.  The main shortcut has been changed so it's Linux-friendly, where the old shortcut is typically eaten by the window manager. -->
-            <menu_item_check
-               label="Show Advanced Menu - legacy shortcut"
-               name="Show Advanced Menu - legacy shortcut"
-               shortcut="control|alt|D">
-              <on_check
-                 function="CheckControl"
-                 parameter="UseDebugMenus" />
-              <on_click
-                 function="ToggleControl"
-                 parameter="UseDebugMenus" />
-            </menu_item_check>
-
-            <menu_item_separator/>
 
             <menu_item_call
              label="Close Window"
@@ -2443,6 +2663,18 @@
              name="Force Software Exception">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorSoftwareException" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Coroutine"
+             name="Force a Crash in a Coroutine">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorCoroutineCrash" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force a Crash in a Thread"
+             name="Force a Crash in a Thread">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorThreadCrash" />
             </menu_item_call>
             <menu_item_call
              label="Force Disconnect Viewer"
@@ -2949,6 +3181,36 @@
                  parameter="TextureDisable" />
             </menu_item_check>
             <menu_item_check
+              label="Disable Ambient"
+             name="Disable Ambient">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="AmbientDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="AmbientDisable" />
+          </menu_item_check>
+          <menu_item_check
+             label="Disable Sunlight"
+             name="Disable Sunlight">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="SunlightDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="SunlightDisable" />
+          </menu_item_check>
+          <menu_item_check
+             label="Disable Local Lights"
+             name="Disable Local Lights">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="LocalLightDisable" />
+            <menu_item_check.on_click
+             function="ToggleShaderControl"
+             parameter="LocalLightDisable" />
+          </menu_item_check>
+            <menu_item_check
               label="Full Res Textures"
              name="Rull Res Textures">
                 <menu_item_check.on_check
@@ -3172,6 +3434,14 @@
              name="Dump Region Object Cache">
                 <menu_item_call.on_click
                  function="Advanced.DumpRegionObjectCache" />
+            </menu_item_call>
+        
+<menu_item_call
+             label="Interest List: Full Update"
+             name="Interest List: Full Update"
+             shortcut="alt|shift|I">
+                <menu_item_call.on_click
+                 function="Advanced.InterestListFullUpdate" />
             </menu_item_call>
         </menu>
         <menu
@@ -3598,7 +3868,7 @@
             <menu_item_call
              label="Debug Avatar Textures"
              name="Debug Avatar Textures"
-             shortcut="control|alt|shift|A">
+             shortcut="control|alt|shift|K">
                 <menu_item_call.on_click
                  function="Advanced.DebugAvatarTextures" />
             </menu_item_call>
@@ -3629,6 +3899,12 @@
             <menu_item_call.on_click
              function="Advanced.CompressImage" />
         </menu_item_call>
+      <menu_item_call
+       label="Compress File Test"
+       name="Compress File Test">
+        <menu_item_call.on_click
+         function="Advanced.CompressFileTest" />
+      </menu_item_call>
 
       <menu_item_call
          label="Enable Visual Leak Detector"

@@ -42,7 +42,7 @@ LLDrawPoolMaterials::LLDrawPoolMaterials()
 
 void LLDrawPoolMaterials::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT); 
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_OBJECT); 
 }
 
 S32 LLDrawPoolMaterials::getNumDeferredPasses()
@@ -80,6 +80,15 @@ void LLDrawPoolMaterials::beginDeferredPass(S32 pass)
 	}
 
 	mShader->bind();
+
+    if (LLPipeline::sRenderingHUDs)
+    {
+        mShader->uniform1i(LLShaderMgr::NO_ATMO, 1);
+    }
+    else
+    {
+        mShader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+    }
 
 	diffuse_channel = mShader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
 		
@@ -194,7 +203,7 @@ void LLDrawPoolMaterials::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, 
 			tex_setup = true;
 		}
 		
-		if (mVertexShaderLevel > 1 && texture)
+		if (mShaderLevel > 1 && texture)
 		{
 			if (params.mTexture.notNull())
 			{

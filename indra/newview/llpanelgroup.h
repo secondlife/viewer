@@ -79,8 +79,6 @@ public:
 
 	virtual void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 
-	static void refreshCreatedGroup(const LLUUID& group_id);
-
 	static void showNotice(const std::string& subject,
 						   const std::string& message,
 						   const LLUUID& group_id,
@@ -92,7 +90,6 @@ public:
 protected:
 	virtual void update(LLGroupChange gc);
 
-	void onBtnCreate();
 	void onBackBtnClick();
 	void onBtnJoin();
 

@@ -3,6 +3,7 @@
 	<menu_item_call label="交換" name="wear_replace"/>
 	<menu_item_call label="装着" name="wear_wear"/>
 	<menu_item_call label="追加" name="wear_add"/>
+	<menu_item_call label="触る" name="touch" />
 	<menu_item_call label="取り外す" name="take_off_or_detach"/>
 	<menu_item_call label="取り外す" name="detach"/>
 	<context_menu label="装着：" name="wearable_attach_to"/>

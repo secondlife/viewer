@@ -35,7 +35,6 @@
 #include "llcachename.h"
 #include "llavatarnamecache.h"
 #include "lldbstrings.h"
-#include "lleconomy.h"
 #include "llgl.h"
 #include "llmediaentry.h"
 #include "llrender.h"
@@ -153,6 +152,53 @@ struct LLDeRezInfo
 // Imports
 //
 
+//-----------------------------------------------------------------------------
+// ~LLSelectionCallbackData()
+//-----------------------------------------------------------------------------
+
+LLSelectionCallbackData::LLSelectionCallbackData()
+{
+    LLSelectMgr *instance = LLSelectMgr::getInstance();
+    LLObjectSelectionHandle selection = instance->getSelection();
+    if (!selection->getNumNodes())
+    {
+        return;
+    }
+    mSelectedObjects = new LLObjectSelection();
+
+    for (LLObjectSelection::iterator iter = selection->begin();
+        iter != selection->end();)
+    {
+        LLObjectSelection::iterator curiter = iter++;
+
+        LLSelectNode *nodep = *curiter;
+        LLViewerObject* objectp = nodep->getObject();
+
+        if (!objectp)
+        {
+            mSelectedObjects->mSelectType = SELECT_TYPE_WORLD;
+        }
+        else
+        {
+            LLSelectNode* new_nodep = new LLSelectNode(*nodep);
+            mSelectedObjects->addNode(new_nodep);
+
+            if (objectp->isHUDAttachment())
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_HUD;
+            }
+            else if (objectp->isAttachment())
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_ATTACHMENT;
+            }
+            else
+            {
+                mSelectedObjects->mSelectType = SELECT_TYPE_WORLD;
+            }
+        }
+    }
+}
+
 
 //
 // Functions
@@ -255,6 +301,27 @@ void LLSelectMgr::updateEffects()
 		mSelectedObjects->updateEffects();
 		mEffectsTimer.reset();
 	}
+}
+
+void LLSelectMgr::resetObjectOverrides()
+{
+    resetObjectOverrides(getSelection());
+}
+
+void LLSelectMgr::resetObjectOverrides(LLObjectSelectionHandle selected_handle)
+{
+    struct f : public LLSelectedNodeFunctor
+    {
+        virtual bool apply(LLSelectNode* node)
+        {
+            node->mLastPositionLocal.setVec(0, 0, 0);
+            node->mLastRotation = LLQuaternion();
+            node->mLastScale.setVec(0, 0, 0);
+            return true;
+        }
+    } func;
+
+    selected_handle->applyToNodes(&func);
 }
 
 void LLSelectMgr::overrideObjectUpdates()
@@ -1301,8 +1368,7 @@ void LLSelectMgr::getGrid(LLVector3& origin, LLQuaternion &rotation, LLVector3 &
 			}
 			break;
 		case SELECT_TYPE_HUD:
-			// use HUD-scaled grid
-			mGridScale = LLVector3(0.25f, 0.25f, 0.25f);
+			mGridScale = LLVector3(1.f, 1.f, 1.f) * llmin(gSavedSettings.getF32("GridResolution"), 0.5f);
 			break;
 		case SELECT_TYPE_WORLD:
 			mGridScale = LLVector3(1.f, 1.f, 1.f) * gSavedSettings.getF32("GridResolution");
@@ -1872,7 +1938,7 @@ BOOL LLSelectMgr::selectionRevertTextures()
 	return revert_successful;
 }
 
-void LLSelectMgr::selectionSetBumpmap(U8 bumpmap)
+void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
 {
 	struct f : public LLSelectedTEFunctor
 	{
@@ -1888,7 +1954,22 @@ void LLSelectMgr::selectionSetBumpmap(U8 bumpmap)
 			return true;
 		}
 	} setfunc(bumpmap);
-	getSelection()->applyToTEs(&setfunc);
+
+    LLViewerInventoryItem* item = gInventory.getItem(image_id);
+    if(item 
+        && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
+        && (mSelectedObjects->getNumNodes() > 1) )
+    {
+        LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
+        return;
+    }
+    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    {
+        LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+        if (!object) return;
+        LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+    }
+    getSelection()->applyToTEs(&setfunc);
 	
 	LLSelectMgrSendFunctor sendfunc;
 	getSelection()->applyToObjects(&sendfunc);
@@ -1917,7 +1998,7 @@ void LLSelectMgr::selectionSetTexGen(U8 texgen)
 }
 
 
-void LLSelectMgr::selectionSetShiny(U8 shiny)
+void LLSelectMgr::selectionSetShiny(U8 shiny, const LLUUID &image_id)
 {
 	struct f : public LLSelectedTEFunctor
 	{
@@ -1933,7 +2014,22 @@ void LLSelectMgr::selectionSetShiny(U8 shiny)
 			return true;
 		}
 	} setfunc(shiny);
-	getSelection()->applyToTEs(&setfunc);
+
+    LLViewerInventoryItem* item = gInventory.getItem(image_id);
+    if(item 
+        && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
+        && (mSelectedObjects->getNumNodes() > 1) )
+    {
+        LL_WARNS() << "Attempted to apply no-copy texture to multiple objects" << LL_ENDL;
+        return;
+    }
+    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    {
+        LLViewerObject *object = mSelectedObjects->getFirstRootObject();
+        if (!object) return;
+        LLToolDragAndDrop::handleDropTextureProtections(object, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+    }
+    getSelection()->applyToTEs(&setfunc);
 
 	LLSelectMgrSendFunctor sendfunc;
 	getSelection()->applyToObjects(&sendfunc);
@@ -3864,11 +3960,11 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	return TRUE;
 }
 
-BOOL LLSelectMgr::isSelfAvatarSelected()
+BOOL LLSelectMgr::isMovableAvatarSelected()
 {
 	if (mAllowSelectAvatar)
 	{
-		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject() == gAgentAvatarp);
+		return (getSelection()->getObjectCount() == 1) && (getSelection()->getFirstRootObject()->isAvatar()) && getSelection()->getFirstMoveableNode(TRUE);
 	}
 	return FALSE;
 }
@@ -4119,20 +4215,20 @@ void LLSelectMgr::packMultipleUpdate(LLSelectNode* node, void *user_data)
 
 	if (type & UPD_POSITION)
 	{
-		htonmemcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getPosition().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	if (type & UPD_ROTATION)
 	{
 		LLQuaternion quat = object->getRotation();
 		LLVector3 vec = quat.packToVector3();
-		htonmemcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
+		htolememcpy(&data[offset], &(vec.mV), MVT_LLQuaternion, 12); 
 		offset += 12;
 	}
 	if (type & UPD_SCALE)
 	{
 		//LL_INFOS() << "Sending object scale " << object->getScale() << LL_ENDL;
-		htonmemcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
+		htolememcpy(&data[offset], &(object->getScale().mV), MVT_LLVector3, 12); 
 		offset += 12;
 	}
 	gMessageSystem->addBinaryDataFast(_PREHASH_Data, data, offset);
@@ -4475,9 +4571,19 @@ void LLSelectMgr::selectionSetObjectSaleInfo(const LLSaleInfo& sale_info)
 
 void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 {
-	LLViewerObject* attach_object = mSelectedObjects->getFirstRootObject();
+    sendAttach(mSelectedObjects, attachment_point, replace);
+}
 
-	if (!attach_object || !isAgentAvatarValid() || mSelectedObjects->mSelectType != SELECT_TYPE_WORLD)
+void LLSelectMgr::sendAttach(LLObjectSelectionHandle selection_handle, U8 attachment_point, bool replace)
+{
+	if (selection_handle.isNull())
+	{
+		return;
+	}
+
+	LLViewerObject* attach_object = selection_handle->getFirstRootObject();
+
+	if (!attach_object || !isAgentAvatarValid() || selection_handle->mSelectType != SELECT_TYPE_WORLD)
 	{
 		return;
 	}
@@ -4495,6 +4601,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 		}
 
 		sendListToRegions(
+			selection_handle,
 			"ObjectAttach",
 			packAgentIDAndSessionAndAttachment, 
 			packObjectIDAndRotation, 
@@ -4506,6 +4613,7 @@ void LLSelectMgr::sendAttach(U8 attachment_point, bool replace)
 			// After "ObjectAttach" server will unsubscribe us from properties updates
 			// so either deselect objects or resend selection after attach packet reaches server
 			// In case of build_mode LLPanelObjectInventory::refresh() will deal with selection
+			// Still unsubscribe even in case selection_handle is not current selection
 			deselectAll();
 		}
 	}
@@ -5047,7 +5155,17 @@ void LLSelectMgr::packPermissions(LLSelectNode* node, void *user_data)
 void LLSelectMgr::sendListToRegions(const std::string& message_name,
 									void (*pack_header)(void *user_data), 
 									void (*pack_body)(LLSelectNode* node, void *user_data), 
-                                    void (*log_func)(LLSelectNode* node, void *user_data), 
+									void (*log_func)(LLSelectNode* node, void *user_data), 
+									void *user_data,
+									ESendType send_type)
+{
+    sendListToRegions(mSelectedObjects, message_name, pack_header, pack_body, log_func, user_data, send_type);
+}
+void LLSelectMgr::sendListToRegions(LLObjectSelectionHandle selected_handle,
+									const std::string& message_name,
+									void (*pack_header)(void *user_data), 
+									void (*pack_body)(LLSelectNode* node, void *user_data), 
+									void (*log_func)(LLSelectNode* node, void *user_data), 
 									void *user_data,
 									ESendType send_type)
 {
@@ -5062,18 +5180,27 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 
 	bool link_operation = message_name == "ObjectLink";
 
-	//clear update override data (allow next update through)
-	struct f : public LLSelectedNodeFunctor
-	{
-		virtual bool apply(LLSelectNode* node)
-		{
-			node->mLastPositionLocal.setVec(0,0,0);
-			node->mLastRotation = LLQuaternion();
-			node->mLastScale.setVec(0,0,0);
-			return true;
-		}
-	} func;
-	getSelection()->applyToNodes(&func);	
+    if (mAllowSelectAvatar)
+    {
+        if (selected_handle->getObjectCount() == 1
+            && selected_handle->getFirstObject() != NULL
+            && selected_handle->getFirstObject()->isAvatar())
+        {
+            // Server doesn't move avatars at the moment, it is a local debug feature,
+            // but server does update position regularly, so do not drop mLastPositionLocal
+            // Position override for avatar gets reset in LLAgentCamera::resetView().
+        }
+        else
+        {
+            // drop mLastPositionLocal (allow next update through)
+            resetObjectOverrides(selected_handle);
+        }
+    }
+    else
+    {
+        //clear update override data (allow next update through)
+        resetObjectOverrides(selected_handle);
+    }
 
 	std::queue<LLSelectNode*> nodes_to_send;
 
@@ -5116,25 +5243,25 @@ void LLSelectMgr::sendListToRegions(const std::string& message_name,
 	{
 	  case SEND_ONLY_ROOTS:
 		  if(message_name == "ObjectBuy")
-			getSelection()->applyToRootNodes(&pushroots);
+			selected_handle->applyToRootNodes(&pushroots);
 		  else
-			getSelection()->applyToRootNodes(&pushall);
+			selected_handle->applyToRootNodes(&pushall);
 		  
 		break;
 	  case SEND_INDIVIDUALS:
-		getSelection()->applyToNodes(&pushall);
+		selected_handle->applyToNodes(&pushall);
 		break;
 	  case SEND_ROOTS_FIRST:
 		// first roots...
-		getSelection()->applyToNodes(&pushroots);
+		selected_handle->applyToNodes(&pushroots);
 		// then children...
-		getSelection()->applyToNodes(&pushnonroots);
+		selected_handle->applyToNodes(&pushnonroots);
 		break;
 	  case SEND_CHILDREN_FIRST:
 		// first children...
-		getSelection()->applyToNodes(&pushnonroots);
+		selected_handle->applyToNodes(&pushnonroots);
 		// then roots...
-		getSelection()->applyToNodes(&pushroots);
+		selected_handle->applyToNodes(&pushroots);
 		break;
 
 	default:
@@ -5357,7 +5484,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 		}
 		else
 		{
-			if (node->mInventorySerial != inv_serial)
+			if (node->mInventorySerial != inv_serial && node->getObject())
 			{
 				node->getObject()->dirtyInventory();
 			}
@@ -6686,8 +6813,7 @@ void LLSelectMgr::updateSelectionCenter()
 		if (mSelectedObjects->mSelectType != SELECT_TYPE_HUD && isAgentAvatarValid())
 		{
 			// reset hud ZOOM
-			gAgentCamera.mHUDTargetZoom = 1.f;
-			gAgentCamera.mHUDCurZoom = 1.f;
+			resetAgentHUDZoom();
 		}
 
 		mShowSelection = FALSE;
@@ -6784,51 +6910,26 @@ void LLSelectMgr::pauseAssociatedAvatars()
 			
         mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-        bool is_attached = false;
-        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && 
-            isAgentAvatarValid())
+        LLVOAvatar* parent_av = NULL;
+        if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT)
         {
             // Selection can be obsolete, confirm that this is an attachment
-            LLViewerObject* parent = (LLViewerObject*)object->getParent();
-            while (parent != NULL)
-            {
-                if (parent->isAvatar())
-                {
-                    is_attached = true;
-                    break;
-                }
-                else
-                {
-                    parent = (LLViewerObject*)parent->getParent();
-                }
-            }
+            // and find parent avatar
+            parent_av = object->getAvatarAncestor();
         }
 
-
-        if (is_attached)
+        // Can be both an attachment and animated object
+        if (parent_av)
         {
-            if (object->isAnimatedObject())
-            {
-                // Is an animated object attachment.
-                // Pause both the control avatar and the avatar it's attached to.
-                if (object->getControlAvatar())
-                {
-                    mPauseRequests.push_back(object->getControlAvatar()->requestPause());
-                }
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
-            else
-            {
-                // Is a regular attachment. Pause the avatar it's attached to.
-                mPauseRequests.push_back(gAgentAvatarp->requestPause());
-            }
+            // It's an attachment. Pause the avatar it's attached to.
+            mPauseRequests.push_back(parent_av->requestPause());
         }
-        else if (object && object->isAnimatedObject() && object->getControlAvatar())
+
+        if (object->isAnimatedObject() && object->getControlAvatar())
         {
-            // Is a non-attached animated object. Pause the control avatar.
+            // It's an animated object. Pause the control avatar.
             mPauseRequests.push_back(object->getControlAvatar()->requestPause());
         }
-
     }
 }
 
@@ -7060,8 +7161,11 @@ BOOL LLSelectMgr::setForceSelection(BOOL force)
 
 void LLSelectMgr::resetAgentHUDZoom()
 {
-	gAgentCamera.mHUDTargetZoom = 1.f;
-	gAgentCamera.mHUDCurZoom = 1.f;
+	if (gAgentCamera.mHUDTargetZoom != 1)
+	{
+		gAgentCamera.mHUDTargetZoom = 1.f;
+		gAgentCamera.mHUDCurZoom = 1.f;
+	}
 }
 
 void LLSelectMgr::getAgentHUDZoom(F32 &target_zoom, F32 &current_zoom) const

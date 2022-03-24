@@ -34,7 +34,6 @@ set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable fo
 set(INCREMENTAL_LINK OFF CACHE BOOL "Use incremental linking on win32 builds (enable for faster links on some machines)")
 set(ENABLE_MEDIA_PLUGINS ON CACHE BOOL "Turn off building media plugins if they are imported by third-party library mechanism")
 set(VIEWER_SYMBOL_FILE "" CACHE STRING "Name of tarball into which to place symbol files")
-set(BUGSPLAT_DB "" CACHE STRING "BugSplat database name, if BugSplat crash reporting is desired")
 
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
@@ -61,7 +60,7 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
   set(INSTALL_PROPRIETARY ON CACHE BOOL "Install proprietary binaries")
 endif (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
 set(TEMPLATE_VERIFIER_OPTIONS "" CACHE STRING "Options for scripts/template_verifier.py")
-set(TEMPLATE_VERIFIER_MASTER_URL "http://bitbucket.org/lindenlab/master-message-template/raw/tip/message_template.msg" CACHE STRING "Location of the master message template")
+set(TEMPLATE_VERIFIER_MASTER_URL "https://bitbucket.org/lindenlab/master-message-template-git/raw/master/message_template.msg" CACHE STRING "Location of the master message template")
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -186,12 +185,17 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   list(GET LL_BUILD_LIST "${sysroot_idx}" CMAKE_OSX_SYSROOT)
   message(STATUS "CMAKE_OSX_SYSROOT = '${CMAKE_OSX_SYSROOT}'")
 
-  set(XCODE_VERSION 7.0)
-
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
   set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
+  # we must hard code this to off for now.  xcode's built in signing does not
+  # handle embedded app bundles such as CEF and others. Any signing for local
+  # development must be done after the build as we do in viewer_manifest.py for
+  # released builds
+  # https://stackoverflow.com/a/54296008
+  # "-" represents "Sign to Run Locally" and empty string represents "Do Not Sign"
+  set(CMAKE_XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "")
 
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")

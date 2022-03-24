@@ -86,13 +86,15 @@ public:
 		PARTITION_GRASS,
 		PARTITION_VOLUME,
 		PARTITION_BRIDGE,
+		PARTITION_AVATAR,
+		PARTITION_CONTROL_AV, // Animesh
 		PARTITION_HUD_PARTICLE,
 		PARTITION_VO_CACHE,
 		PARTITION_NONE,
 		NUM_PARTITIONS
 	} eObjectPartitions;
 
-	typedef boost::signals2::signal<void(const LLUUID& region_id)> caps_received_signal_t;
+	typedef boost::signals2::signal<void(const LLUUID& region_id, LLViewerRegion* regionp)> caps_received_signal_t;
 
 	LLViewerRegion(const U64 &handle,
 				   const LLHost &host,
@@ -131,6 +133,7 @@ public:
 	inline BOOL isPrelude()					const;
 	inline BOOL getAllowTerraform() 		const;
 	inline BOOL getRestrictPushObject()		const;
+    inline BOOL getAllowEnvironmentOverride()   const;
 	inline BOOL getReleaseNotesRequested()		const;
 
 	bool isAlive(); // can become false if circuit disconnects
@@ -228,6 +231,9 @@ public:
 	void setCacheID(const LLUUID& id);
 
 	F32	getWidth() const						{ return mWidth; }
+
+	// regions are expensive to release, this function gradually releases cache from memory
+	static void idleCleanup(F32 max_update_time);
 
 	void idleUpdate(F32 max_update_time);
 	void lightIdleUpdate();
@@ -386,6 +392,8 @@ public:
 
 	BOOL isPaused() const {return mPaused;}
 	S32  getLastUpdate() const {return mLastUpdate;}
+
+	std::string getSimHostName();
 
 	static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
@@ -547,6 +555,9 @@ private:
 
 	LLSD mSimulatorFeatures;
 
+    typedef std::map<U32, LLPointer<LLVOCacheEntry> >	   vocache_entry_map_t;
+    static vocache_entry_map_t sRegionCacheCleanup;
+
 	// the materials capability throttle
 	LLFrameTimer mMaterialsCapThrottleTimer;
 	LLFrameTimer mRenderInfoRequestTimer;
@@ -635,6 +646,11 @@ inline BOOL LLViewerRegion::getAllowTerraform() const
 inline BOOL LLViewerRegion::getRestrictPushObject() const
 {
 	return ((mRegionFlags & REGION_FLAGS_RESTRICT_PUSHOBJECT) != 0);
+}
+
+inline BOOL LLViewerRegion::getAllowEnvironmentOverride() const
+{
+    return ((mRegionFlags & REGION_FLAGS_ALLOW_ENVIRONMENT_OVERRIDE) != 0);
 }
 
 inline BOOL LLViewerRegion::getReleaseNotesRequested() const

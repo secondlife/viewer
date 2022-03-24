@@ -567,16 +567,9 @@ HttpStatus HttpOpRequest::prepareRequest(HttpService * service)
 		// Use the viewer-based thread-safe API which has a
 		// fast/safe check for proxy enable.  Would like to
 		// encapsulate this someway...
-		if (LLProxy::instanceExists())
-		{
-			// Make sure proxy won't be initialized from here,
-			// it might conflict with LLStartUp::startLLProxy()
-			LLProxy::getInstance()->applyProxySettings(mCurlHandle);
-		}
-		else
-		{
-			LL_WARNS() << "Proxy is not initialized!" << LL_ENDL;
-		}
+		// Make sure proxy won't be getInstance() from here,
+		// it is not thread safe
+		LLProxy::applyProxySettings(mCurlHandle);
 
 	}
 	else if (gpolicy.mHttpProxy.size())
@@ -817,6 +810,7 @@ size_t HttpOpRequest::readCallback(void * data, size_t size, size_t nmemb, void 
 
 	const size_t do_size((std::min)(req_size, body_size - op->mCurlBodyPos));
 	const size_t read_size(op->mReqBody->read(op->mCurlBodyPos, static_cast<char *>(data), do_size));
+    // FIXME: singleton's instance() is Thread unsafe! Even if stats accumulators inside are.
     HTTPStats::instance().recordDataUp(read_size);
     op->mCurlBodyPos += read_size;
 	return read_size;
@@ -1007,11 +1001,20 @@ CURLcode HttpOpRequest::curlSslCtxCallback(CURL *curl, void *sslctx, void *userd
 {
     HttpOpRequest::ptr_t op(HttpOpRequest::fromHandle<HttpOpRequest>(userdata));
 
-	if (op->mCallbackSSLVerify)
-	{
-		SSL_CTX * ctx = (SSL_CTX *)sslctx;
-		// disable any default verification for server certs
-		SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+    if (op->mCallbackSSLVerify)
+    {
+        SSL_CTX * ctx = (SSL_CTX *)sslctx;
+        if (op->mReqOptions && op->mReqOptions->getSSLVerifyPeer())
+        {
+            // verification for ssl certs
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+        }
+        else
+        {
+            // disable any default verification for server certs
+            // Ex: setting urls (assume non-SL) for parcel media in LLFloaterURLEntry
+            SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+        }
 		// set the verification callback.
 		SSL_CTX_set_cert_verify_callback(ctx, sslCertVerifyCallback, userdata);
 		// the calls are void

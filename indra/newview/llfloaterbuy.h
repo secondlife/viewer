@@ -63,12 +63,17 @@ protected:
 								 S32 serial_num,
 								 void* data);
 
+	void onSelectionChanged();
+	void showViews(bool show);
+
 	void onClickBuy();
 	void onClickCancel();
 
 private:
 	LLSafeHandle<LLObjectSelection>	mObjectSelection;
 	LLSaleInfo mSaleInfo;
+
+	boost::signals2::connection mSelectionUpdateSlot;
 };
 
 #endif

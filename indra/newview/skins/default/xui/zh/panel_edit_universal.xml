@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_universal_panel">
+	<scroll_container name="avatar_universal_scroll">
+		<panel name="avatar_universal_color_panel">
+			<texture_picker label="頭部刺青" name="Head Universal Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="上半身刺青" name="Upper Universal Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="下半身刺青" name="Lower Universal Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="裙子刺青" name="Skirt Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="頭髮刺青" name="Hair Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="眼睛刺青" name="Eyes Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="左臂刺青" name="Left Arm Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="左腿刺青" name="Left Leg Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="Aux1刺青" name="Aux1 Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="Aux2刺青" name="Aux2 Tattoo" tool_tip="點按以挑選圖片"/>
+			<texture_picker label="Aux3刺青" name="Aux3 Tattoo" tool_tip="點按以挑選圖片"/>
+			<color_swatch label="顏色/色調" name="Color/Tint" tool_tip="點按以開啟顏色挑選器"/>
+		</panel>
+	</scroll_container>
+</panel>

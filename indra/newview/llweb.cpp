@@ -38,6 +38,7 @@
 #include "llfloaterreg.h"
 #include "lllogininstance.h"
 #include "llparcel.h"
+#include "llregex.h"
 #include "llsd.h"
 #include "llui.h"
 #include "lluri.h"
@@ -50,8 +51,6 @@
 #include "llnotificationsutil.h"
 #include "lluriparser.h"
 #include "uriparser/Uri.h"
-
-#include <boost/regex.hpp>
 
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
 
@@ -237,15 +236,15 @@ bool LLWeb::useExternalBrowser(const std::string &url)
 		up.extractParts();
 		std::string uri_string = up.host();
 
-		boost::regex pattern = boost::regex("\\b(lindenlab.com|secondlife.com)$", boost::regex::perl|boost::regex::icase);
+		boost::regex pattern = boost::regex("\\b(lindenlab.com|secondlife.com|secondlife.io)$", boost::regex::perl|boost::regex::icase);
 		boost::match_results<std::string::const_iterator> matches;
-		return !(boost::regex_search(uri_string, matches, pattern));
+		return !(ll_regex_search(uri_string, matches, pattern));
 	}
 	else
 	{
 		boost::regex pattern = boost::regex("^mailto:", boost::regex::perl | boost::regex::icase);
 		boost::match_results<std::string::const_iterator> matches;
-		return boost::regex_search(url, matches, pattern);
+		return ll_regex_search(url, matches, pattern);
 	}
 #endif
 }

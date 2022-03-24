@@ -45,7 +45,7 @@ struct LLParcelData
 	std::string	desc;
 	S32			actual_area;
 	S32			billable_area;
-	U8			flags;
+	U8			flags; // group owned, maturity
 	F32			global_x;
 	F32			global_y;
 	F32			global_z;

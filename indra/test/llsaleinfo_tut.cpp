@@ -107,41 +107,6 @@ namespace tut
 	template<> template<>
 	void llsaleinfo_test_t::test<2>()
 	{
-
-		LLFILE* fp = LLFile::fopen("linden_file.dat","w+");
-		if(!fp)
-		{
-			LL_ERRS() << "file could not be opened\n" << LL_ENDL;
-			return;
-		}
-			
-		S32 sale_price = 43500;
-		LLSaleInfo llsaleinfo(LLSaleInfo::FS_COPY, sale_price);
-		
-		llsaleinfo.exportFile(fp);
-		fclose(fp);
-
-		LLSaleInfo llsaleinfo1;
-		U32 perm_mask;
-		BOOL has_perm_mask;
-		fp = LLFile::fopen("linden_file.dat","r");
-		
-		if(!fp)
-		{
-			LL_ERRS() << "file coudnt be opened\n" << LL_ENDL;
-			return;
-		}
-		
-		llsaleinfo1.importFile(fp, has_perm_mask, perm_mask);
-		fclose(fp);
-		
-		ensure("importFile() fn failed ", llsaleinfo.getSaleType() == llsaleinfo1.getSaleType() &&
-								     llsaleinfo.getSalePrice() == llsaleinfo1.getSalePrice());				
-	}
-
-	template<> template<>
-	void llsaleinfo_test_t::test<3>()
-	{
 		S32 sale_price = 525452;
 		LLSaleInfo llsaleinfo(LLSaleInfo::FS_ORIGINAL, sale_price);
 		
@@ -160,14 +125,7 @@ namespace tut
 	}
 
 	template<> template<>
-	void llsaleinfo_test_t::test<4>()
-	{
-		// Deleted LLSaleInfo::exportFileXML() and LLSaleInfo::importXML()
-		// because I can't find any non-test code references to it. 2009-05-04 JC
-	}
-
-	template<> template<>
-	void llsaleinfo_test_t::test<5>()
+	void llsaleinfo_test_t::test<3>()
 	{	
 		S32 sale_price = 99000;
 		LLSaleInfo saleinfo(LLSaleInfo::FS_ORIGINAL, sale_price);
@@ -186,7 +144,7 @@ namespace tut
 
 	//static EForSale lookup(const char* name) fn test
 	template<> template<>
-	void llsaleinfo_test_t::test<6>()
+	void llsaleinfo_test_t::test<4>()
 	{
 		S32 sale_price = 233223;
 		LLSaleInfo::EForSale ret_type = LLSaleInfo::lookup("orig");
@@ -200,7 +158,7 @@ namespace tut
 
 	//void LLSaleInfo::accumulate(const LLSaleInfo& sale_info) fn test
 	template<> template<>
-	void llsaleinfo_test_t::test<7>()
+	void llsaleinfo_test_t::test<5>()
 	{
 		S32 sale_price = 20;
 		LLSaleInfo saleinfo(LLSaleInfo::FS_COPY, sale_price);
@@ -213,7 +171,7 @@ namespace tut
 	// test cases of bool operator==(const LLSaleInfo &rhs) fn
 	// test case of bool operator!=(const LLSaleInfo &rhs) fn
 	template<> template<>
-	void llsaleinfo_test_t::test<8>()
+	void llsaleinfo_test_t::test<6>()
 	{
 		S32 sale_price = 55000;
 		LLSaleInfo saleinfo(LLSaleInfo::FS_ORIGINAL, sale_price);
@@ -225,7 +183,7 @@ namespace tut
 	}			
 
 	template<> template<>
-	void llsaleinfo_test_t::test<9>()
+	void llsaleinfo_test_t::test<7>()
 	{
 
 		//TBD: void LLSaleInfo::packMessage(LLMessageSystem* msg) const

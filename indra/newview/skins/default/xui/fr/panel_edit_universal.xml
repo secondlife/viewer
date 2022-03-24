@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="edit_universal_panel">
+	<scroll_container name="avatar_universal_scroll">
+		<panel name="avatar_universal_color_panel">
+			<texture_picker label="Tatouage tête" name="Head Universal Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage haut" name="Upper Universal Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage bas" name="Lower Universal Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage jupe" name="Skirt Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage cheveux" name="Hair Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage yeux" name="Eyes Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage bras gauche" name="Left Arm Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Tatouage jambe gauche" name="Left Leg Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Aux1 Tattoo" name="Aux1 Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Aux2 Tattoo" name="Aux2 Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<texture_picker label="Aux3 Tattoo" name="Aux3 Tattoo" tool_tip="Cliquer pour sélectionner une image."/>
+			<color_swatch label="Coul./Teinte" name="Color/Tint" tool_tip="Cliquez pour ouvrir le sélecteur de couleurs"/>
+		</panel>
+	</scroll_container>
+</panel>

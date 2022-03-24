@@ -36,6 +36,10 @@
 #include <set>
 #include <typeinfo>
 
+#ifdef LL_LINUX
+// <ND> For strcmp
+#include <string.h>
+#endif
 // Use to compare the first element only of a pair
 // e.g. typedef std::set<std::pair<int, Data*>, compare_pair<int, Data*> > some_pair_set_t; 
 template <typename T1, typename T2>

@@ -53,6 +53,10 @@ BOOL get_can_item_be_worn(const LLUUID& id);
 
 BOOL get_is_item_removable(const LLInventoryModel* model, const LLUUID& id);
 
+// Performs the appropiate edit action (if one exists) for this item
+bool get_is_item_editable(const LLUUID& inv_item_id);
+void handle_item_edit(const LLUUID& inv_item_id);
+
 BOOL get_is_category_removable(const LLInventoryModel* model, const LLUUID& id);
 
 BOOL get_is_category_renameable(const LLInventoryModel* model, const LLUUID& id);
@@ -64,7 +68,7 @@ void show_item_original(const LLUUID& item_uuid);
 void reset_inventory_filter();
 
 // Nudge the listing categories in the inventory to signal that their marketplace status changed
-void update_marketplace_category(const LLUUID& cat_id, bool perform_consistency_enforcement = true);
+void update_marketplace_category(const LLUUID& cat_id, bool perform_consistency_enforcement = true, bool skip_clear_listing = false);
 // Nudge all listing categories to signal that their marketplace status changed
 void update_all_marketplace_count();
 
@@ -87,6 +91,8 @@ bool validate_marketplacelistings(LLInventoryCategory* inv_cat, validation_callb
 S32  depth_nesting_in_marketplace(LLUUID cur_uuid);
 LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 S32 compute_stock_count(LLUUID cat_uuid, bool force_count = false);
+
+void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id);
 
 /**                    Miscellaneous global functions
  **                                                                            **
@@ -461,6 +467,8 @@ struct LLInventoryAction
 	static void callback_copySelected(const LLSD& notification, const LLSD& response, class LLInventoryModel* model, class LLFolderView* root, const std::string& action);
 	static void onItemsRemovalConfirmation(const LLSD& notification, const LLSD& response, LLHandle<LLFolderView> root);
 	static void removeItemFromDND(LLFolderView* root);
+
+    static void saveMultipleTextures(const std::vector<std::string>& filenames, std::set<LLFolderViewItem*> selected_items, LLInventoryModel* model);
 
 	static const int sConfirmOnDeleteItemsNumber;
 

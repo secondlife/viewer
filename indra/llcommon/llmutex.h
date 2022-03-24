@@ -28,19 +28,11 @@
 #define LL_LLMUTEX_H
 
 #include "stdtypes.h"
+#include "llthread.h"
 #include <boost/noncopyable.hpp>
 
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable:4265)
-#endif
-// 'std::_Pad' : class has virtual functions, but destructor is not virtual
-#include <mutex>
+#include "mutex.h"
 #include <condition_variable>
-
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
 
 //============================================================================
 
@@ -53,11 +45,6 @@
 class LL_COMMON_API LLMutex
 {
 public:
-	typedef enum
-	{
-		NO_THREAD = 0xFFFFFFFF
-	} e_locking_thread;
-
 	LLMutex();
 	virtual ~LLMutex();
 	
@@ -66,15 +53,15 @@ public:
 	void unlock();		// undefined behavior when called on mutex not being held
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
 	bool isSelfLocked(); //return true if locked in a same thread
-	U32 lockingThread() const; //get ID of locking thread
-	
+	LLThread::id_t lockingThread() const; //get ID of locking thread
+
 protected:
 	std::mutex			mMutex;
 	mutable U32			mCount;
-	mutable U32			mLockingThread;
+	mutable LLThread::id_t	mLockingThread;
 	
 #if MUTEX_DEBUG
-	std::map<U32, BOOL> mIsLocked;
+	std::map<LLThread::id_t, BOOL> mIsLocked;
 #endif
 };
 

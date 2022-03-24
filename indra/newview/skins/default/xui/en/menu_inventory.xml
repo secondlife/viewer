@@ -152,6 +152,14 @@
          parameter="category" />
     </menu_item_call>
     <menu_item_call
+     label="New Outfit"
+     layout="topleft"
+     name="New Outfit">
+        <menu_item_call.on_click
+         function="Inventory.DoCreate"
+         parameter="outfit" />
+    </menu_item_call>
+    <menu_item_call
      label="New Script"
      layout="topleft"
      name="New Script">
@@ -319,6 +327,41 @@
             <menu_item_call.on_click
              function="Inventory.DoCreate"
              parameter="eyes" />
+        </menu_item_call>
+    </menu>
+    <menu
+     label="New Settings"
+     layout="topleft"
+     name="New Settings">
+        <menu_item_call
+         label="New Sky"
+         layout="topleft"
+         name="New Sky">
+            <menu_item_call.on_click
+             function="Inventory.DoCreate"
+             parameter="sky"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
+        </menu_item_call>
+        <menu_item_call
+         label="New Water"
+         layout="topleft"
+         name="New Water">
+            <menu_item_call.on_click
+             function="Inventory.DoCreate"
+             parameter="water"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
+        </menu_item_call>
+        <menu_item_call
+         label="New Day Cycle"
+         layout="topleft"
+         name="New Day Cycle">
+            <menu_item_call.on_click
+             function="Inventory.DoCreate"
+             parameter="daycycle"/>
+            <menu_item_call.on_enable
+                    function="Inventory.EnvironmentEnabled" />
         </menu_item_call>
     </menu>
     <menu
@@ -772,17 +815,17 @@
          function="Inventory.DoToSelected"
          parameter="save_as" />
     </menu_item_call>
+  <menu_item_call
+ label="Save Selected As"
+ layout="topleft"
+ name="Save Selected As">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="save_selected_as" />
+  </menu_item_call>
     <menu_item_separator
      layout="topleft" 
      name="Wearable And Object Separator"/>
-    <menu_item_call
-     label="Detach From Yourself"
-     layout="topleft"
-     name="Detach From Yourself">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="detach" />
-    </menu_item_call>
 	<!-- COMMENTED OUT for DEV-32347 -->
 	<!--
     <menu_item_call
@@ -811,6 +854,14 @@
      layout="topleft"
      name="Attach To HUD" />
     <menu_item_call
+     label="Touch"
+     layout="topleft"
+     name="Attachment Touch">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="touch" />
+    </menu_item_call>
+    <menu_item_call
      label="Edit"
      layout="topleft"
      name="Wearable Edit">
@@ -827,12 +878,39 @@
          parameter="wear_add" />
     </menu_item_call>
     <menu_item_call
+     label="Detach From Yourself"
+     layout="topleft"
+     name="Detach From Yourself">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="detach" />
+    </menu_item_call>
+    <menu_item_call
      label="Take Off"
      layout="topleft"
      name="Take Off">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="take_off" />
+    </menu_item_call>
+    <menu_item_separator
+     layout="topleft" 
+     name="Settings Separator" />
+    <menu_item_call
+            name="Settings Apply Local"
+            layout="topleft"
+            label="Apply Only To Myself">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_local" />
+    </menu_item_call>
+    <menu_item_call
+            name="Settings Apply Parcel"
+            layout="topleft"
+            label="Apply To Parcel">
+        <menu_item_call.on_click 
+                function="Inventory.DoToSelected"
+                parameter="apply_settings_parcel" />
     </menu_item_call>
 	<menu_item_separator
 	 layout="topleft"

@@ -29,7 +29,6 @@
 					<stat_bar label="層次" name="layersdatareceived"/>
 					<stat_bar label="實入" name="messagedatain"/>
 					<stat_bar label="實出" name="messagedataout"/>
-					<stat_bar label="VFS 待行作業" name="vfspendingoperations"/>
 				</stat_view>
 			</stat_view>
 			<stat_view label="模擬器" name="sim">

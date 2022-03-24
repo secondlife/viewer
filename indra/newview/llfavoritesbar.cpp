@@ -38,6 +38,7 @@
 #include "lltooltip.h"
 
 #include "llagent.h"
+#include "llagentpicksinfo.h"
 #include "llavatarnamecache.h"
 #include "llclipboard.h"
 #include "llinventorybridge.h"
@@ -384,6 +385,8 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	mUpdateDropDownItems(true),
 	mRestoreOverflowMenu(false),
 	mGetPrevItems(true),
+	mMouseX(0),
+	mMouseY(0),
 	mItemsChangedTimer()
 {
 	// Register callback for menus with current registrar (will be parent panel's registrar)
@@ -399,8 +402,10 @@ LLFavoritesBarCtrl::LLFavoritesBarCtrl(const LLFavoritesBarCtrl::Params& p)
 	//make chevron button                                                                                                                               
 	LLTextBox::Params more_button_params(p.more_button);
 	mMoreTextBox = LLUICtrlFactory::create<LLTextBox> (more_button_params);
-	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::showDropDownMenu, this));
+	mMoreTextBox->setClickedCallback(boost::bind(&LLFavoritesBarCtrl::onMoreTextBoxClicked, this));
 	addChild(mMoreTextBox);
+	LLRect rect = mMoreTextBox->getRect();
+	mMoreTextBox->setRect(LLRect(rect.mLeft - rect.getWidth(), rect.mTop, rect.mRight, rect.mBottom));
 
 	mDropDownItemsCount = 0;
 
@@ -677,8 +682,12 @@ void LLFavoritesBarCtrl::changed(U32 mask)
 //virtual
 void LLFavoritesBarCtrl::reshape(S32 width, S32 height, BOOL called_from_parent)
 {
+    S32 delta_width = width - getRect().getWidth();
+    S32 delta_height = height - getRect().getHeight();
+
+    bool force_update = delta_width || delta_height || sForceReshape;
 	LLUICtrl::reshape(width, height, called_from_parent);
-	updateButtons();
+	updateButtons(force_update);
 }
 
 void LLFavoritesBarCtrl::draw()
@@ -741,8 +750,13 @@ const LLButton::Params& LLFavoritesBarCtrl::getButtonParams()
 	return button_params;
 }
 
-void LLFavoritesBarCtrl::updateButtons()
+void LLFavoritesBarCtrl::updateButtons(bool force_update)
 {
+    if (LLApp::isExiting())
+    {
+        return;
+    }
+
 	mItems.clear();
 
 	if (!collectFavoriteItems(mItems))
@@ -773,28 +787,29 @@ void LLFavoritesBarCtrl::updateButtons()
 	const child_list_t* childs = getChildList();
 	child_list_const_iter_t child_it = childs->begin();
 	int first_changed_item_index = 0;
-	int rightest_point = getRect().mRight - mMoreTextBox->getRect().getWidth();
-	//lets find first changed button
-	while (child_it != childs->end() && first_changed_item_index < mItems.size())
-	{
-		LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
-		if (button)
-		{
-			const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
-			if (item)
-			{
-			    // an child's order  and mItems  should be same
-				if (button->getLandmarkId() != item->getUUID() // sort order has been changed
-					|| button->getLabelSelected() != item->getName() // favorite's name has been changed
-					|| button->getRect().mRight < rightest_point) // favbar's width has been changed
-				{
-					break;
-				}
-			}
-			first_changed_item_index++;
-		}
-		child_it++;
-	}
+    if (!force_update)
+    {
+        //lets find first changed button
+        while (child_it != childs->end() && first_changed_item_index < mItems.size())
+        {
+            LLFavoriteLandmarkButton* button = dynamic_cast<LLFavoriteLandmarkButton*> (*child_it);
+            if (button)
+            {
+                const LLViewerInventoryItem *item = mItems[first_changed_item_index].get();
+                if (item)
+                {
+                    // an child's order  and mItems  should be same
+                    if (button->getLandmarkId() != item->getUUID() // sort order has been changed
+                        || button->getLabelSelected() != item->getName()) // favorite's name has been changed
+                    {
+                        break;
+                    }
+                }
+                first_changed_item_index++;
+            }
+            child_it++;
+        }
+    }
 	// now first_changed_item_index should contains a number of button that need to change
 
 	if (first_changed_item_index <= mItems.size())
@@ -975,6 +990,12 @@ BOOL LLFavoritesBarCtrl::collectFavoriteItems(LLInventoryModel::item_array_t &it
 	return TRUE;
 }
 
+void LLFavoritesBarCtrl::onMoreTextBoxClicked()
+{
+	LLUI::getInstance()->getMousePositionScreen(&mMouseX, &mMouseY);
+	showDropDownMenu();
+}
+
 void LLFavoritesBarCtrl::showDropDownMenu()
 {
 	if (mOverflowMenuHandle.isDead())
@@ -1130,7 +1151,7 @@ void LLFavoritesBarCtrl::positionAndShowMenu(LLToggleableMenu* menu)
 		}
 	}
 
-	LLMenuGL::showPopup(this, menu, menu_x, menu_y);
+	LLMenuGL::showPopup(this, menu, menu_x, menu_y, mMouseX, mMouseY);
 }
 
 void LLFavoritesBarCtrl::onButtonClick(LLUUID item_id)
@@ -1194,6 +1215,10 @@ bool LLFavoritesBarCtrl::enableSelected(const LLSD& userdata)
     {
         return isClipboardPasteable();
     }
+    else if (param == "create_pick")
+    {
+        return !LLAgentPicksInfo::getInstance()->isPickLimitReached();
+    }
 
     return false;
 }
@@ -1242,6 +1267,13 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 			LLFloaterReg::showInstance("world_map", "center");
 		}
 	}
+    else if (action == "create_pick")
+    {
+        LLSD args;
+        args["type"] = "create_pick";
+        args["item_id"] = item->getUUID();
+        LLFloaterSidePanelContainer::showPanel("places", args);
+    }
 	else if (action == "cut")
 	{
 	}
@@ -1257,6 +1289,20 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 	{
 		gInventory.removeItem(mSelectedItemID);
 	}
+    else if (action == "rename")
+    {
+        LLSD args;
+        args["NAME"] = item->getName();
+
+        LLSD payload;
+        payload["id"] = mSelectedItemID;
+
+        LLNotificationsUtil::add("RenameLandmark", args, payload, boost::bind(onRenameCommit, _1, _2));
+    }
+	else if (action == "move_to_landmarks")
+	{
+		change_item_parent(mSelectedItemID, gInventory.findCategoryUUIDForType(LLFolderType::FT_LANDMARK));
+	}
 
 	// Pop-up the overflow menu again (it gets hidden whenever the user clicks a context menu item).
 	// See EXT-4217 and STORM-207.
@@ -1267,6 +1313,28 @@ void LLFavoritesBarCtrl::doToSelected(const LLSD& userdata)
 		showDropDownMenu();
 		menu->resetScrollPositionOnShow(true);
 	}
+}
+
+bool LLFavoritesBarCtrl::onRenameCommit(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        LLUUID id = notification["payload"]["id"].asUUID();
+        LLInventoryItem *item = gInventory.getItem(id);
+        std::string landmark_name = response["new_name"].asString();
+        LLStringUtil::trim(landmark_name);
+
+        if (!landmark_name.empty() && item && item->getName() != landmark_name)
+        {
+            LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
+            new_item->rename(landmark_name);
+            new_item->updateServer(FALSE);
+            gInventory.updateItem(new_item);
+        }
+    }
+
+    return false;
 }
 
 BOOL LLFavoritesBarCtrl::isClipboardPasteable() const
@@ -1493,16 +1561,22 @@ void LLFavoritesOrderStorage::getSLURL(const LLUUID& asset_id)
 }
 
 // static
-std::string LLFavoritesOrderStorage::getStoredFavoritesFilename()
+std::string LLFavoritesOrderStorage::getStoredFavoritesFilename(const std::string &grid)
 {
-	std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
+    std::string user_dir = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, "");
 
     return (user_dir.empty() ? ""
             : gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,
                                              "stored_favorites_"
-                                          + LLGridManager::getInstance()->getGrid()
+                                          + grid
                                           + ".xml")
             );
+}
+
+// static
+std::string LLFavoritesOrderStorage::getStoredFavoritesFilename()
+{
+    return getStoredFavoritesFilename(LLGridManager::getInstance()->getGrid());
 }
 
 // static
@@ -1584,14 +1658,29 @@ void LLFavoritesOrderStorage::load()
 												<< (fav_llsd.isMap() ? "" : "un") << "successfully"
 												<< LL_ENDL;
 				in_file.close();
-				user_llsd = fav_llsd[gAgentUsername];
-
-				S32 index = 0;
-				for (LLSD::array_iterator iter = user_llsd.beginArray();
-						iter != user_llsd.endArray(); ++iter)
+				if (fav_llsd.isMap() && fav_llsd.has(gAgentUsername))
 				{
-					mSortIndexes.insert(std::make_pair(iter->get("id").asUUID(), index));
-					index++;
+					user_llsd = fav_llsd[gAgentUsername];
+
+					S32 index = 0;
+					bool needs_validation = gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin");
+					for (LLSD::array_iterator iter = user_llsd.beginArray();
+						iter != user_llsd.endArray(); ++iter)
+					{
+						// Validation
+						LLUUID fv_id = iter->get("id").asUUID();
+						if (needs_validation
+							&& (fv_id.isNull()
+								|| iter->get("asset_id").asUUID().isNull()
+								|| iter->get("name").asString().empty()
+								|| iter->get("slurl").asString().empty()))
+						{
+							mRecreateFavoriteStorage = true;
+						}
+
+						mSortIndexes.insert(std::make_pair(fv_id, index));
+						index++;
+					}
 				}
 			}
 			else
@@ -1602,6 +1691,64 @@ void LLFavoritesOrderStorage::load()
 	}
 }
 
+// static
+void LLFavoritesOrderStorage::removeFavoritesRecordOfUser(const std::string &user, const std::string &grid)
+{
+    std::string filename = getStoredFavoritesFilename(grid);
+    if (!filename.empty())
+    {
+        LLSD fav_llsd;
+        llifstream file;
+        file.open(filename.c_str());
+        if (file.is_open())
+        {
+            LLSDSerialize::fromXML(fav_llsd, file);
+            file.close();
+
+            // Note : use the "John Doe" and not the "john.doe" version of the name.
+            // See saveFavoritesSLURLs() here above for the reason why.
+            if (fav_llsd.has(user))
+            {
+                LLSD user_llsd = fav_llsd[user];
+
+                if ((user_llsd.beginArray() != user_llsd.endArray()) && user_llsd.beginArray()->has("id"))
+                {
+                    for (LLSD::array_iterator iter = user_llsd.beginArray(); iter != user_llsd.endArray(); ++iter)
+                    {
+                        LLSD value;
+                        value["id"] = iter->get("id").asUUID();
+                        iter->assign(value);
+                    }
+                    fav_llsd[user] = user_llsd;
+                    llofstream file;
+                    file.open(filename.c_str());
+                    if (file.is_open())
+                    {
+                        LLSDSerialize::toPrettyXML(fav_llsd, file);
+                        file.close();
+                    }
+                }
+                else
+                {
+                    LL_INFOS("FavoritesBar") << "Removed favorites for " << user << LL_ENDL;
+                    fav_llsd.erase(user);
+                }
+            }
+
+            llofstream out_file;
+            out_file.open(filename.c_str());
+            if (out_file.is_open())
+            {
+                LLSDSerialize::toPrettyXML(fav_llsd, out_file);
+                LL_INFOS("FavoritesBar") << "saved favorites to '" << filename << "' "
+                    << LL_ENDL;
+                out_file.close();
+            }
+        }
+    }
+}
+
+// static
 void LLFavoritesOrderStorage::removeFavoritesRecordOfUser()
 {
 	std::string filename = getStoredFavoritesFilename();
@@ -1777,10 +1924,20 @@ void LLFavoritesOrderStorage::rearrangeFavoriteLandmarks(const LLUUID& source_it
 
 BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 {
+	pref_changed |= mRecreateFavoriteStorage;
+	mRecreateFavoriteStorage = false;
 
+	// Can get called before inventory is done initializing.
+	if (!gInventory.isInventoryUsable())
+	{
+		return FALSE;
+	}
+	
 	LLUUID favorite_folder= gInventory.findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	if (favorite_folder.isNull())
-			return FALSE;
+	{
+		return FALSE;
+	}
 
 	LLInventoryModel::item_array_t items;
 	LLInventoryModel::cat_array_t cats;

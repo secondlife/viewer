@@ -57,6 +57,7 @@
 #include <fstream>
 
 #include "lldir.h"
+#include "lldiriterator.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
 class LLMediaCtrl;		// for LLURLDispatcher
@@ -68,22 +69,7 @@ namespace
 	int gArgC;
 	char** gArgV;
 	LLAppViewerMacOSX* gViewerAppPtr = NULL;
-
-    void (*gOldTerminateHandler)() = NULL;
     std::string gHandleSLURL;
-}
-
-static void exceptionTerminateHandler()
-{
-	// reinstall default terminate() handler in case we re-terminate.
-	if (gOldTerminateHandler) std::set_terminate(gOldTerminateHandler);
-	// treat this like a regular viewer crash, with nice stacktrace etc.
-    long *null_ptr;
-    null_ptr = 0;
-    *null_ptr = 0xDEADBEEF; //Force an exception that will trigger breakpad.
-	//LLAppViewer::handleViewerCrash();
-	// we've probably been killed-off before now, but...
-	gOldTerminateHandler(); // call old terminate() handler
 }
 
 void constructViewer()
@@ -91,15 +77,12 @@ void constructViewer()
 	// Set the working dir to <bundle>/Contents/Resources
 	if (chdir(gDirUtilp->getAppRODataDir().c_str()) == -1)
 	{
-		LL_WARNS() << "Could not change directory to "
+		LL_WARNS("InitOSX") << "Could not change directory to "
 				<< gDirUtilp->getAppRODataDir() << ": " << strerror(errno)
 				<< LL_ENDL;
 	}
 
 	gViewerAppPtr = new LLAppViewerMacOSX();
-
-    // install unexpected exception handler
-	gOldTerminateHandler = std::set_terminate(exceptionTerminateHandler);
 
 	gViewerAppPtr->setErrorHandler(LLAppViewer::handleViewerCrash);
 }
@@ -109,7 +92,7 @@ bool initViewer()
 	bool ok = gViewerAppPtr->init();
 	if(!ok)
 	{
-		LL_WARNS() << "Application init failed." << LL_ENDL;
+		LL_WARNS("InitOSX") << "Application init failed." << LL_ENDL;
 	}
 	else if (!gHandleSLURL.empty())
 	{
@@ -154,6 +137,14 @@ void cleanupViewer()
 	gViewerAppPtr = NULL;
 }
 
+void clearDumpLogsDir()
+{
+    if (!LLAppViewer::instance()->isSecondInstance())
+    {
+        gDirUtilp->deleteDirAndContents(gDirUtilp->getDumpLogsDirPath());
+    }
+}
+
 // The BugsplatMac API is structured as a number of different method
 // overrides, each returning a different piece of metadata. But since we
 // obtain such metadata by opening and parsing a file, it seems ridiculous to
@@ -172,7 +163,7 @@ class CrashMetadataSingleton: public CrashMetadata, public LLSingleton<CrashMeta
     std::string get_metadata(const LLSD& info, const LLSD::String& key) const
     {
         std::string data(info[key].asString());
-        LL_INFOS() << "  " << key << "='" << data << "'" << LL_ENDL;
+        LL_INFOS("Bugsplat") << "  " << key << "='" << data << "'" << LL_ENDL;
         return data;
     }
 };
@@ -188,25 +179,44 @@ CrashMetadataSingleton::CrashMetadataSingleton()
     LLSD info;
     if (! static_file.is_open())
     {
-        LL_INFOS() << "Can't open '" << staticDebugPathname
+        LL_WARNS("Bugsplat") << "Can't open '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else if (! LLSDSerialize::deserialize(info, static_file, LLSDSerialize::SIZE_UNLIMITED))
     {
-        LL_INFOS() << "Can't parse '" << staticDebugPathname
+        LL_WARNS("Bugsplat") << "Can't parse '" << staticDebugPathname
                    << "'; no metadata about previous run" << LL_ENDL;
     }
     else
     {
-        LL_INFOS() << "Metadata from '" << staticDebugPathname << "':" << LL_ENDL;
+        LL_INFOS("Bugsplat") << "Previous run metadata from '" << staticDebugPathname << "':" << LL_ENDL;
         logFilePathname      = get_metadata(info, "SLLog");
         userSettingsPathname = get_metadata(info, "SettingsFilename");
+        accountSettingsPathname = get_metadata(info, "PerAccountSettingsFilename");
         OSInfo               = get_metadata(info, "OSInfo");
         agentFullname        = get_metadata(info, "LoginName");
         // Translate underscores back to spaces
         LLStringUtil::replaceChar(agentFullname, '_', ' ');
         regionName           = get_metadata(info, "CurrentRegion");
         fatalMessage         = get_metadata(info, "FatalMessage");
+        
+        if (gDirUtilp->fileExists(gDirUtilp->getDumpLogsDirPath()))
+        {
+            LLDirIterator file_iter(gDirUtilp->getDumpLogsDirPath(), "*.log");
+            std::string file_name;
+            bool found = true;
+            while(found)
+            {
+                if((found = file_iter.next(file_name)))
+                {
+                    std::string log_filename = gDirUtilp->getDumpLogsDirPath(file_name);
+                    if(LLError::logFileName() != log_filename)
+                    {
+                        secondLogFilePathname = log_filename;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -218,7 +228,7 @@ CrashMetadata& CrashMetadata_instance()
 
 void infos(const std::string& message)
 {
-    LL_INFOS() << message << LL_ENDL;
+    LL_INFOS("InitOSX", "Bugsplat") << message << LL_ENDL;
 }
 
 int main( int argc, char **argv ) 
@@ -239,17 +249,7 @@ LLAppViewerMacOSX::~LLAppViewerMacOSX()
 
 bool LLAppViewerMacOSX::init()
 {
-	bool success = LLAppViewer::init();
-    
-#if LL_SEND_CRASH_REPORTS
-    if (success)
-    {
-        LLAppViewer* pApp = LLAppViewer::instance();
-        pApp->initCrashReporting();
-    }
-#endif
-    
-    return success;
+    return LLAppViewer::init();
 }
 
 // MacOSX may add and addition command line arguement for the process serial number.
@@ -333,11 +333,12 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	
 	unsigned int reset_count = 0;
 	
-#define SET_SIG(S) 	sigaction(SIGABRT, &act, &old_act); \
-					if(act.sa_sigaction != old_act.sa_sigaction) \
-						++reset_count;
+#define SET_SIG(SIGNAL) sigaction(SIGNAL, &act, &old_act); \
+                        if(act.sa_sigaction != old_act.sa_sigaction) ++reset_count;
 	// Synchronous signals
-	SET_SIG(SIGABRT)
+#   ifndef LL_BUGSPLAT
+	SET_SIG(SIGABRT) // let bugsplat catch this
+#   endif        
 	SET_SIG(SIGALRM)
 	SET_SIG(SIGBUS)
 	SET_SIG(SIGFPE)
@@ -366,21 +367,6 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	return reset_count == 0;
 }
 
-void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
-{
-	std::string command_str = "mac-crash-logger.app";
-    
-    std::stringstream pid_str;
-    pid_str <<  LLApp::getPid();
-    std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
-    std::string appname = gDirUtilp->getExecutableFilename();
-    std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
-    std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
-    LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str()
-               << " " << logdir << " " << appname << LL_ENDL;
-    launchApplication(&command_str, &args);
-}
-
 std::string LLAppViewerMacOSX::generateSerialNumber()
 {
 	char serial_md5[MD5HEX_STR_SIZE];		// Flawfinder: ignore
@@ -390,7 +376,8 @@ std::string LLAppViewerMacOSX::generateSerialNumber()
 	CFStringRef serialNumber = NULL;
 	io_service_t    platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,
 																 IOServiceMatching("IOPlatformExpertDevice"));
-	if (platformExpert) {
+	if (platformExpert)
+    {
 		serialNumber = (CFStringRef) IORegistryEntryCreateCFProperty(platformExpert,
 																	 CFSTR(kIOPlatformSerialNumberKey),
 																	 kCFAllocatorDefault, 0);		

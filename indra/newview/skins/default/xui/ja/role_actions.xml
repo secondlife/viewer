@@ -33,6 +33,7 @@
 		<action description="音楽とメディアの設定を変更" longdescription="ストリーミングミュージックと動画の設定を変更するには、「土地情報」 ＞ 「メディア」タブを使います。" name="land change media" value="20"/>
 		<action description="「地形を編集」に切り替え" longdescription="「地形を編集」に切り替えます。 *警告* 「土地情報」＞「オプション」＞「地形を編集」の順で進むと、誰でもあなたの土地の形の整備や、リンデン製の樹木の設置、移動ができます。  この能力を割り振る前に、このことをよく理解しておいてください。 「土地情報」＞「オプション」タブから「地形を編集」に切り替えられます。" name="land edit" value="21"/>
 		<action description="「土地情報」＞「オプション」タブ内のさまざまな設定を切り替え" longdescription="「安全（ダメージなし）」、「飛行」を切り替え、住人に以下を許可します： グループ所有地の「土地情報」 &gt; 「オプション」タブ内の、「地形を編集」、「制作」、「ランドマークの作成」、「スクリプトの実行」。" name="land options" value="22"/>
+		<action description="自然環境の設定とデイサイクルを修正する。" longdescription="「土地について」 &gt; 「環境」タブから自然環境の設定とデイサイクルを変更する。" name="land change environment" value="46"/>
 	</action_set>
 	<action_set description="これらの能力には、グループ所有の区画に関する規制を迂回することを、メンバーに許可する権限が含まれます。" name="Parcel Powers">
 		<action description="常に「地形を編集」を許可" longdescription="この能力を持つ役割のメンバーは、グループ所有の区画上で地形を編集することができます。その区画が「土地情報」＞「オプション」タブでオフになっていても、地形の編集が可能です。" name="land allow edit land" value="23"/>

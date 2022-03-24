@@ -52,7 +52,7 @@
 #include "lldir.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
-#include "llvfile.h"
+#include "llfilesystem.h"
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 
@@ -116,7 +116,7 @@ namespace
 }
 
 // *NOTE$: A minor specialization of LLScriptAssetUpload, it does not require a buffer 
-// (and does not save a buffer to the vFS) and it finds the compile queue window and 
+// (and does not save a buffer to the cache) and it finds the compile queue window and 
 // displays a compiling message.
 class LLQueuedScriptAssetUpload : public LLScriptAssetUpload
 {
@@ -134,8 +134,8 @@ public:
     virtual LLSD prepareUpload()
     {
         /* *NOTE$: The parent class (LLScriptAssetUpload will attempt to save 
-         * the script buffer into to the VFS.  Since the resource is already in 
-         * the VFS we don't want to do that.  Just put a compiling message in
+         * the script buffer into to the cache.  Since the resource is already in 
+         * the cache we don't want to do that.  Just put a compiling message in
          * the window and move on
          */
         LLFloaterCompileQueue* queue = LLFloaterReg::findTypedInstance<LLFloaterCompileQueue>("compile_queue", LLSD(mQueueId));
@@ -283,11 +283,11 @@ void LLFloaterCompileQueue::handleHTTPResponse(std::string pumpName, const LLSD 
     LLEventPumps::instance().post(pumpName, expresult);
 }
 
-// *TODO: handleSCriptRetrieval is passed into the VFS via a legacy C function pointer
+// *TODO: handleSCriptRetrieval is passed into the cache via a legacy C function pointer
 // future project would be to convert these to C++ callables (std::function<>) so that 
 // we can use bind and remove the userData parameter.
 // 
-void LLFloaterCompileQueue::handleScriptRetrieval(LLVFS *vfs, const LLUUID& assetId, 
+void LLFloaterCompileQueue::handleScriptRetrieval(const LLUUID& assetId, 
     LLAssetType::EType type, void* userData, S32 status, LLExtStat extStatus)
 {
     LLSD result(LLSD::emptyMap());
@@ -347,6 +347,13 @@ void LLFloaterCompileQueue::processExperienceIdResults(LLSD result, LLUUID paren
 bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloater,
     const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
+    if (LLApp::isExiting())
+    {
+        // Reply from coroutine came on shutdown
+        // We are quiting, don't start any more coroutines!
+        return true;
+    }
+
     LLSD result;
     LLCheckedHandle<LLFloaterCompileQueue> floater(hfloater);
     // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
@@ -381,6 +388,8 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout,
             LLSDMap("timeout", LLSD::Boolean(true)));
 
+        floater.check();
+
         if (result.has("timeout"))
         {   // A timeout filed in the result will always be true if present.
             LLStringUtil::format_map_t args;
@@ -402,6 +411,12 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             }
         }
 
+    }
+
+    if (!gAssetStorage)
+    {
+        // viewer likely is shutting down
+        return true;
     }
 
     {
@@ -467,6 +482,8 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     }
 
     result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout, LLSDMap("timeout", LLSD::Boolean(true)));
+
+    floater.check();
 
     if (result.has("timeout"))
     { // A timeout filed in the result will always be true if present.
@@ -797,6 +814,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 // but offers no guarantee of doing so.
                 llcoro::suspend();
             }
+            floater.check();
         }
 
         floater->addStringMessage("Done");

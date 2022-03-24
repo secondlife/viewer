@@ -1,6 +1,6 @@
 /** 
  * @file llfloatersaveprefpreset.h
- * @brief Floater to save a graphics / camera preset
+ * @brief Floater to save a graphics preset
 
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
@@ -45,6 +45,7 @@ public:
 	void onBtnCancel();
 
 private:
+
 	LLComboBox*		mPresetCombo;
 	LLButton*		mSaveButton;
 

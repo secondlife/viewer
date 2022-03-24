@@ -31,12 +31,7 @@ ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec2 texcoord0;
 
-#if !DEPTH_CLAMP
-VARYING float pos_zd2;
-#endif
-
-VARYING float pos_w;
-
+VARYING vec4 post_pos;
 VARYING float target_pos_x;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
@@ -50,11 +45,9 @@ void main()
 	vec4 pos = modelview_projection_matrix * pre_pos;
 	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
 
-	pos_w = pos.w;
+	post_pos = pos;
 
-#if !DEPTH_CLAMP
-	pos_zd2 = pos.z * 0.5;
-	
+#if !defined(DEPTH_CLAMP)
 	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
 #else
 	gl_Position = pos;

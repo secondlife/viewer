@@ -82,7 +82,6 @@
 	<check_box initial_value="true" label="Saydam Su" name="TransparentWater"/>
 	<check_box initial_value="true" label="Tümsek eşleme ve parlaklık" name="BumpShiny"/>
 	<check_box initial_value="true" label="Yerel Işıklar" name="LocalLights"/>
-	<check_box initial_value="true" label="Temel gölgeleyiciler" name="BasicShaders" tool_tip="Bu seçeneğin devre dışı bırakılması bazı grafik kartlarının sürücülerinin kilitlenmesini önleyebilir"/>
 	<slider label="Yüzey Ayrıntısı:" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
 		Düşük

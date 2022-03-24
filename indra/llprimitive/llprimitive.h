@@ -131,8 +131,8 @@ extern const F32 LIGHT_MAX_CUTOFF;
 
 class LLLightParams : public LLNetworkData
 {
-protected:
-	LLColor4 mColor; // alpha = intensity
+private:
+	LLColor4 mColor; // linear color (not gamma corrected), alpha = intensity
 	F32 mRadius;
 	F32 mFalloff;
 	F32 mCutoff;
@@ -149,13 +149,22 @@ public:
 	operator LLSD() const { return asLLSD(); }
 	bool fromLLSD(LLSD& sd);
 
-	
-	void setColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); }
+    // set the color by gamma corrected color value
+    //  color - gamma corrected color value (directly taken from an on-screen color swatch)
+    void setSRGBColor(const LLColor4& color) { setLinearColor(linearColor4(color)); }
+
+    // set the color by linear color value
+    //  color - linear color value (value as it appears in shaders)
+    void setLinearColor(const LLColor4& color)	{ mColor = color; mColor.clamp(); }
 	void setRadius(F32 radius)				{ mRadius = llclamp(radius, LIGHT_MIN_RADIUS, LIGHT_MAX_RADIUS); }
 	void setFalloff(F32 falloff)			{ mFalloff = llclamp(falloff, LIGHT_MIN_FALLOFF, LIGHT_MAX_FALLOFF); }
 	void setCutoff(F32 cutoff)				{ mCutoff = llclamp(cutoff, LIGHT_MIN_CUTOFF, LIGHT_MAX_CUTOFF); }
 
-	LLColor4 getColor() const				{ return mColor; }
+    // get the linear space color of this light.  This value can be fed directly to shaders
+    LLColor4 getLinearColor() const				{ return mColor; }
+    // get the sRGB (gamma corrected) color of this light, this is the value that should be displayed in the UI
+    LLColor4 getSRGBColor() const			{ return srgbColor4(mColor); }
+    
 	F32 getRadius() const					{ return mRadius; }
 	F32 getFalloff() const					{ return mFalloff; }
 	F32 getCutoff() const					{ return mCutoff; }
@@ -321,8 +330,8 @@ struct LLTEContents
 {
 	static const U32 MAX_TES = 45;
 
-	U8     image_data[MAX_TES*16];
-	U8	  colors[MAX_TES*4];
+    LLUUID      image_data[MAX_TES];
+    LLColor4U   colors[MAX_TES];
 	F32    scale_s[MAX_TES];
 	F32    scale_t[MAX_TES];
 	S16    offset_s[MAX_TES];
@@ -414,7 +423,6 @@ public:
 
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
-	S32 unpackTEField(U8 *cur_ptr, U8 *buffer_end, U8 *data_ptr, U8 data_size, U8 face_count, EMsgVariableType type);
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
 	BOOL packTEMessage(LLDataPacker &dp) const;
 	S32 unpackTEMessage(LLMessageSystem* mesgsys, char const* block_name, const S32 block_num); // Variable num of blocks

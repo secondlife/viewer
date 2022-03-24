@@ -43,16 +43,6 @@
 
 #include <boost/thread.hpp>
 
-
-#if	defined(WIN32)
-#define	THROW_BAD_ALLOC()	_THROW1(std::bad_alloc)
-#define	THROW_NOTHING()		_THROW0()
-#else
-#define	THROW_BAD_ALLOC()	throw(std::bad_alloc)
-#define	THROW_NOTHING()		throw()
-#endif
-
-
 struct BlockHeader
 {
 	struct Block * next;
@@ -152,19 +142,19 @@ std::size_t GetMemTotal()
 }
 
 
-void * operator new(std::size_t size) THROW_BAD_ALLOC()
+void * operator new(std::size_t size) //throw(std::bad_alloc)
 {
 	return GetMem( size );
 }
 
 
-void * operator new[](std::size_t size) THROW_BAD_ALLOC()
+void * operator new[](std::size_t size) //throw(std::bad_alloc)
 {
 	return GetMem( size );
 }
 
 
-void operator delete(void * p) THROW_NOTHING()
+void operator delete(void * p) throw()
 {
 	if (p)
 	{
@@ -173,7 +163,7 @@ void operator delete(void * p) THROW_NOTHING()
 }
 
 
-void operator delete[](void * p) THROW_NOTHING()
+void operator delete[](void * p) throw()
 {
 	if (p)
 	{

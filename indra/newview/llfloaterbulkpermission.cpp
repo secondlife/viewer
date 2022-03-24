@@ -75,6 +75,7 @@ BOOL LLFloaterBulkPermission::postBuild()
 	mBulkChangeIncludeScripts = gSavedSettings.getBOOL("BulkChangeIncludeScripts");
 	mBulkChangeIncludeSounds = gSavedSettings.getBOOL("BulkChangeIncludeSounds");
 	mBulkChangeIncludeTextures = gSavedSettings.getBOOL("BulkChangeIncludeTextures");
+	mBulkChangeIncludeSettings = gSavedSettings.getBOOL("BulkChangeIncludeSettings");
 	mBulkChangeShareWithGroup = gSavedSettings.getBOOL("BulkChangeShareWithGroup");
 	mBulkChangeEveryoneCopy = gSavedSettings.getBOOL("BulkChangeEveryoneCopy");
 	mBulkChangeNextOwnerModify = gSavedSettings.getBOOL("BulkChangeNextOwnerModify");
@@ -186,6 +187,7 @@ void LLFloaterBulkPermission::onCloseBtn()
 	gSavedSettings.setBOOL("BulkChangeIncludeScripts", mBulkChangeIncludeScripts);
 	gSavedSettings.setBOOL("BulkChangeIncludeSounds", mBulkChangeIncludeSounds);
 	gSavedSettings.setBOOL("BulkChangeIncludeTextures", mBulkChangeIncludeTextures);
+	gSavedSettings.setBOOL("BulkChangeIncludeSettings", mBulkChangeIncludeSettings);
 	gSavedSettings.setBOOL("BulkChangeShareWithGroup", mBulkChangeShareWithGroup);
 	gSavedSettings.setBOOL("BulkChangeEveryoneCopy", mBulkChangeEveryoneCopy);
 	gSavedSettings.setBOOL("BulkChangeNextOwnerModify", mBulkChangeNextOwnerModify);
@@ -281,6 +283,7 @@ void LLFloaterBulkPermission::doCheckUncheckAll(BOOL check)
 	gSavedSettings.setBOOL("BulkChangeIncludeScripts"   , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeSounds"    , check);
 	gSavedSettings.setBOOL("BulkChangeIncludeTextures"  , check);
+	gSavedSettings.setBOOL("BulkChangeIncludeSettings"  , check);
 }
 
 
@@ -302,6 +305,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 			( asstype == LLAssetType::AT_OBJECT    && gSavedSettings.getBOOL("BulkChangeIncludeObjects"   )) ||
 			( asstype == LLAssetType::AT_LSL_TEXT  && gSavedSettings.getBOOL("BulkChangeIncludeScripts"   )) ||
 			( asstype == LLAssetType::AT_SOUND     && gSavedSettings.getBOOL("BulkChangeIncludeSounds"    )) ||
+			( asstype == LLAssetType::AT_SETTINGS  && gSavedSettings.getBOOL("BulkChangeIncludeSettings"  )) ||
 			( asstype == LLAssetType::AT_TEXTURE   && gSavedSettings.getBOOL("BulkChangeIncludeTextures"  )))
 		{
 			LLViewerObject* object = gObjectList.findObject(viewer_obj->getID());
@@ -333,7 +337,12 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 					//|| something else // for next owner perms
 					)
 				{
-					perm.setMaskNext(LLFloaterPerms::getNextOwnerPerms("BulkChange"));
+					U32 mask_next = LLFloaterPerms::getNextOwnerPerms("BulkChange");
+					if (asstype == LLAssetType::AT_SETTINGS)
+					{
+						mask_next |= PERM_COPY;
+					}
+					perm.setMaskNext(mask_next);
 					perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("BulkChange"));
 					perm.setMaskGroup(LLFloaterPerms::getGroupPerms("BulkChange"));
 					new_item->setPermissions(perm); // here's the beef

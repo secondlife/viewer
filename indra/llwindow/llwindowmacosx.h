@@ -114,6 +114,8 @@ public:
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 	/*virtual*/ F32 getSystemUISize();
 
+	static std::vector<std::string> getDisplaysResolutionList();
+
 	static std::vector<std::string> getDynamicFallbackFontList();
 
 	// Provide native key event data

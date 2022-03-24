@@ -210,7 +210,7 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 		releaseResources();
 		return (FALSE);
 	}
-	catch (std::bad_alloc)
+	catch (std::bad_alloc&)
 	{
 		mErrorMessage = "LLPngWrapper";
 		releaseResources();

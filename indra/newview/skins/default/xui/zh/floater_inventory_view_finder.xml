@@ -12,6 +12,7 @@
 	<check_box label="聲音" name="check_sound"/>
 	<check_box label="材質" name="check_texture"/>
 	<check_box label="快照" name="check_snapshot"/>
+	<check_box label="設定" name="check_settings"/>
 	<button label="全部" label_selected="全部" name="All"/>
 	<button label="無" label_selected="無" name="None"/>
 	<check_box label="固定顯示資料夾" name="check_show_empty"/>

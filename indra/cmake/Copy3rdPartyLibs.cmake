@@ -7,6 +7,21 @@
 include(CMakeCopyIfDifferent)
 include(Linking)
 
+# When we copy our dependent libraries, we almost always want to copy them to
+# both the Release and the RelWithDebInfo staging directories. This has
+# resulted in duplicate (or worse, erroneous attempted duplicate)
+# copy_if_different commands. Encapsulate that usage.
+# Pass FROM_DIR, TARGETS and the files to copy. TO_DIR is implicit.
+# to_staging_dirs diverges from copy_if_different in that it appends to TARGETS.
+MACRO(to_staging_dirs from_dir targets)
+  foreach(staging_dir
+          "${SHARED_LIB_STAGING_DIR_RELEASE}"
+          "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}")
+    copy_if_different("${from_dir}" "${staging_dir}" out_targets ${ARGN})
+    list(APPEND "${targets}" "${out_targets}")
+  endforeach()
+ENDMACRO(to_staging_dirs from_dir to_dir targets)
+
 ###################################################################
 # set up platform specific lists of files that need to be copied
 ###################################################################
@@ -41,16 +56,24 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         nghttp2.dll
         glod.dll
         libhunspell.dll
+        uriparser.dll
         )
+
+    # OpenSSL
+    if(ADDRESS_SIZE EQUAL 64)
+        set(release_files ${release_files} libcrypto-1_1-x64.dll)
+        set(release_files ${release_files} libssl-1_1-x64.dll)
+    else(ADDRESS_SIZE EQUAL 64)
+        set(release_files ${release_files} libcrypto-1_1.dll)
+        set(release_files ${release_files} libssl-1_1.dll)
+    endif(ADDRESS_SIZE EQUAL 64)
 
     # Filenames are different for 32/64 bit BugSplat file and we don't
     # have any control over them so need to branch.
-    if (BUGSPLAT_DB)
+    if (USE_BUGSPLAT)
       if(ADDRESS_SIZE EQUAL 32)
         set(release_files ${release_files} BugSplat.dll)
         set(release_files ${release_files} BugSplatRc.dll)
@@ -60,107 +83,66 @@ if(WINDOWS)
         set(release_files ${release_files} BugSplatRc64.dll)
         set(release_files ${release_files} BsSndRpt64.exe)
       endif(ADDRESS_SIZE EQUAL 32)
-    endif (BUGSPLAT_DB)
+    endif (USE_BUGSPLAT)
 
-    if (FMODEX)
+    if (FMODSTUDIO)
+        set(debug_files ${debug_files} fmodL.dll)
+        set(release_files ${release_files} fmod.dll)
+    endif (FMODSTUDIO)
 
-        if(ADDRESS_SIZE EQUAL 32)
-            set(release_files ${release_files} fmodex.dll)
-        else(ADDRESS_SIZE EQUAL 32)
-            set(release_files ${release_files} fmodex64.dll)
-        endif(ADDRESS_SIZE EQUAL 32)
-    endif (FMODEX)
+    if (OPENAL)
+        list(APPEND release_files openal32.dll alut.dll)
+    endif (OPENAL)
 
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
-    # *TODO - Adapt this to support VC9
     if (MSVC80)
-        list(APPEND LMSVC_VER 80)
-        list(APPEND LMSVC_VERDOT 8.0)
+        set(MSVC_VER 80)
     elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
         MESSAGE(STATUS "MSVC_VERSION ${MSVC_VERSION}")
     elseif (MSVC_VERSION EQUAL 1800) # VisualStudio 2013, which is (sigh) VS 12
-        list(APPEND LMSVC_VER 120)
-        list(APPEND LMSVC_VERDOT 12.0)
+        set(MSVC_VER 120)
+    elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
+        set(MSVC_VER 140)
     else (MSVC80)
         MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
     endif (MSVC80)
 
-    # try to copy VS2010 redist independently of system version
-    # maint-7360 CP
-    # list(APPEND LMSVC_VER 100)
-    # list(APPEND LMSVC_VERDOT 10.0)
-    
-    list(LENGTH LMSVC_VER count)
-    math(EXPR count "${count}-1")
-    foreach(i RANGE ${count})
-        list(GET LMSVC_VER ${i} MSVC_VER)
-        list(GET LMSVC_VERDOT ${i} MSVC_VERDOT)
-        MESSAGE(STATUS "Copying redist libs for VC ${MSVC_VERDOT}")
-        FIND_PATH(debug_msvc_redist_path NAME msvcr${MSVC_VER}d.dll
-            PATHS            
-            [HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\VisualStudio\\${MSVC_VERDOT}\\Setup\\VC;ProductDir]/redist/Debug_NonRedist/x86/Microsoft.VC${MSVC_VER}.DebugCRT
-            [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64
-            [HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32
-            ${MSVC_DEBUG_REDIST_PATH}
-            NO_DEFAULT_PATH
+    if(ADDRESS_SIZE EQUAL 32)
+        # this folder contains the 32bit DLLs.. (yes really!)
+        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64")
+    else(ADDRESS_SIZE EQUAL 32)
+        # this folder contains the 64bit DLLs.. (yes really!)
+        set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
+    endif(ADDRESS_SIZE EQUAL 32)
+
+    # Having a string containing the system registry path is a start, but to
+    # get CMake to actually read the registry, we must engage some other
+    # operation.
+    get_filename_component(registry_path "${registry_find_path}" ABSOLUTE)
+
+    # These are candidate DLL names. Empirically, VS versions before 2015 have
+    # msvcp*.dll and msvcr*.dll. VS 2017 has msvcp*.dll and vcruntime*.dll.
+    # Check each of them.
+    foreach(release_msvc_file
+            msvcp${MSVC_VER}.dll
+            msvcr${MSVC_VER}.dll
+            vcruntime${MSVC_VER}.dll
             )
-
-        if(EXISTS ${debug_msvc_redist_path})
-            set(debug_msvc_files
-                msvcr${MSVC_VER}d.dll
-                msvcp${MSVC_VER}d.dll
-                )
-
-            copy_if_different(
-                ${debug_msvc_redist_path}
-                "${SHARED_LIB_STAGING_DIR_DEBUG}"
-                out_targets
-                ${debug_msvc_files}
-                )
-            set(third_party_targets ${third_party_targets} ${out_targets})
-
-            unset(debug_msvc_redist_path CACHE)
+        if(EXISTS "${registry_path}/${release_msvc_file}")
+            to_staging_dirs(
+                ${registry_path}
+                third_party_targets
+                ${release_msvc_file})
+        else()
+            # This isn't a WARNING because, as noted above, every VS version
+            # we've observed has only a subset of the specified DLL names.
+            MESSAGE(STATUS "Redist lib ${release_msvc_file} not found")
         endif()
-
-        if(ADDRESS_SIZE EQUAL 32)
-            # this folder contains the 32bit DLLs.. (yes really!)
-            set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/SysWOW64")
-        else(ADDRESS_SIZE EQUAL 32)
-            # this folder contains the 64bit DLLs.. (yes really!)
-            set(registry_find_path "[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Windows;Directory]/System32")
-        endif(ADDRESS_SIZE EQUAL 32)
-
-        FIND_PATH(release_msvc_redist_path NAME msvcr${MSVC_VER}.dll
-            PATHS            
-            ${registry_find_path}
-            NO_DEFAULT_PATH
-            )
-
-        if(EXISTS ${release_msvc_redist_path})
-            set(release_msvc_files
-                msvcr${MSVC_VER}.dll
-                msvcp${MSVC_VER}.dll
-                )
-
-            copy_if_different(
-                ${release_msvc_redist_path}
-                "${SHARED_LIB_STAGING_DIR_RELEASE}"
-                out_targets
-                ${release_msvc_files}
-                )
-            set(third_party_targets ${third_party_targets} ${out_targets})
-
-            copy_if_different(
-                ${release_msvc_redist_path}
-                "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-                out_targets
-                ${release_msvc_files}
-                )
-            set(third_party_targets ${third_party_targets} ${out_targets})
-
-            unset(release_msvc_redist_path CACHE)
-        endif()
+    endforeach()
+    MESSAGE(STATUS "Will copy redist files for MSVC ${MSVC_VER}:")
+    foreach(target ${third_party_targets})
+        MESSAGE(STATUS "${target}")
     endforeach()
 
 elseif(DARWIN)
@@ -183,19 +165,22 @@ elseif(DARWIN)
         libapr-1.dylib
         libaprutil-1.0.dylib
         libaprutil-1.dylib
-        libexception_handler.dylib
         ${EXPAT_COPY}
         libGLOD.dylib
+        libhunspell-1.3.0.dylib
         libndofdev.dylib
         libnghttp2.dylib
         libnghttp2.14.dylib
-        libnghttp2.14.14.0.dylib
+        libnghttp2.14.19.0.dylib
+        liburiparser.dylib
+        liburiparser.1.dylib
+        liburiparser.1.0.27.dylib
        )
 
-    if (FMODEX)
-      set(debug_files ${debug_files} libfmodexL.dylib)
-      set(release_files ${release_files} libfmodex.dylib)
-    endif (FMODEX)
+    if (FMODSTUDIO)
+      set(debug_files ${debug_files} libfmodL.dylib)
+      set(release_files ${release_files} libfmod.dylib)
+    endif (FMODSTUDIO)
 
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -242,10 +227,10 @@ elseif(LINUX)
         libfontconfig.so.1
        )
 
-    if (FMODEX)
-      set(debug_files ${debug_files} "libfmodexL.so")
-      set(release_files ${release_files} "libfmodex.so")
-    endif (FMODEX)
+    if (FMODSTUDIO)
+      set(debug_files ${debug_files} "libfmodL.so")
+      set(release_files ${release_files} "libfmod.so")
+    endif (FMODSTUDIO)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
@@ -272,52 +257,28 @@ endif(WINDOWS)
 # Done building the file lists, now set up the copy commands.
 ################################################################
 
-copy_if_different(
-    ${vivox_lib_dir}
-    "${SHARED_LIB_STAGING_DIR_DEBUG}"
-    out_targets 
-    ${vivox_libs}
-    )
-set(third_party_targets ${third_party_targets} ${out_targets})
-
+# Curiously, slvoice_files are only copied to SHARED_LIB_STAGING_DIR_RELEASE.
+# It's unclear whether this is oversight or intentional, but anyway leave the
+# single copy_if_different command rather than using to_staging_dirs.
 copy_if_different(
     ${slvoice_src_dir}
     "${SHARED_LIB_STAGING_DIR_RELEASE}"
     out_targets
     ${slvoice_files}
     )
-copy_if_different(
+list(APPEND third_party_targets ${out_targets})
+
+to_staging_dirs(
     ${vivox_lib_dir}
-    "${SHARED_LIB_STAGING_DIR_RELEASE}"
-    out_targets
+    third_party_targets
     ${vivox_libs}
     )
 
-set(third_party_targets ${third_party_targets} ${out_targets})
-
-copy_if_different(
-    ${vivox_lib_dir}
-    "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-    out_targets
-    ${vivox_libs}
-    )
-set(third_party_targets ${third_party_targets} ${out_targets})
-
-copy_if_different(
+to_staging_dirs(
     ${release_src_dir}
-    "${SHARED_LIB_STAGING_DIR_RELEASE}"
-    out_targets
+    third_party_targets
     ${release_files}
     )
-set(third_party_targets ${third_party_targets} ${out_targets})
-
-copy_if_different(
-    ${release_src_dir}
-    "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}"
-    out_targets
-    ${release_files}
-    )
-set(third_party_targets ${third_party_targets} ${out_targets})
 
 if(NOT USESYSTEMLIBS)
   add_custom_target(

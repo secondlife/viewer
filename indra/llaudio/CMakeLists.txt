@@ -4,19 +4,19 @@ project(llaudio)
 
 include(00-Common)
 include(LLAudio)
-include(FMODEX)
+include(FMODSTUDIO)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
-include(LLVFS)
+include(LLFileSystem)
 
 include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLVFS_INCLUDE_DIRS}
+    ${LLFILESYSTEM_INCLUDE_DIRS}
     ${OGG_INCLUDE_DIRS}
     ${VORBISENC_INCLUDE_DIRS}
     ${VORBISFILE_INCLUDE_DIRS}
@@ -42,24 +42,28 @@ set(llaudio_HEADER_FILES
     llwindgen.h
     )
 
-if (FMODEX)
+if (FMODSTUDIO)
     include_directories(
-        ${FMODEX_INCLUDE_DIR}
+        ${FMODSTUDIO_INCLUDE_DIR}
         )
     list(APPEND llaudio_SOURCE_FILES
-         llaudioengine_fmodex.cpp
-         lllistener_fmodex.cpp
-         llstreamingaudio_fmodex.cpp
+         llaudioengine_fmodstudio.cpp
+         lllistener_fmodstudio.cpp
+         llstreamingaudio_fmodstudio.cpp
          )
 
     list(APPEND llaudio_HEADER_FILES
-         llaudioengine_fmodex.h
-         lllistener_fmodex.h
-         llstreamingaudio_fmodex.h
+         llaudioengine_fmodstudio.h
+         lllistener_fmodstudio.h
+         llstreamingaudio_fmodstudio.h
          )
-endif (FMODEX)
+endif (FMODSTUDIO)
 
 if (OPENAL)
+  include_directories(
+    ${OPENAL_LIBRARIES}
+    )
+
   list(APPEND llaudio_SOURCE_FILES
     llaudioengine_openal.cpp
     lllistener_openal.cpp
@@ -82,7 +86,7 @@ target_link_libraries(
     ${LLCOMMON_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
-    ${LLVFS_LIBRARIES}
+    ${LLFILESYSTEM_LIBRARIES}
     ${VORBISENC_LIBRARIES}
     ${VORBISFILE_LIBRARIES}
     ${VORBIS_LIBRARIES}

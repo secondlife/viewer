@@ -32,6 +32,7 @@
 #include "llmath.h"
 #include "llstl.h"
 #include "llthread.h"
+#include "llmutex.h"
 #include <iterator>
 
 #define ASSERT_LLBUFFERARRAY_MUTEX_LOCKED() llassert(!mMutexp || mMutexp->isSelfLocked())

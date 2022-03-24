@@ -82,7 +82,6 @@
 	<check_box initial_value="true" label="Água transparente" name="TransparentWater"/>
 	<check_box initial_value="true" label="Mapeamento de relevo e brilho" name="BumpShiny"/>
 	<check_box initial_value="true" label="Luzes locais" name="LocalLights"/>
-	<check_box initial_value="true" label="Sombreamento simples" name="BasicShaders" tool_tip="Desativar essa opção pode evitar o travamento de alguns drivers de placas gráficas"/>
 	<slider label="Detalhes do terreno:" name="TerrainDetail"/>
 	<text name="TerrainDetailText">
 		Baixo

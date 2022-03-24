@@ -78,16 +78,6 @@ U32 LLSaleInfo::getCRC32() const
 	return rv;
 }
 
-
-BOOL LLSaleInfo::exportFile(LLFILE* fp) const
-{
-	fprintf(fp, "\tsale_info\t0\n\t{\n");
-	fprintf(fp, "\t\tsale_type\t%s\n", lookup(mSaleType));
-	fprintf(fp, "\t\tsale_price\t%d\n", mSalePrice);
-	fprintf(fp,"\t}\n");
-	return TRUE;
-}
-
 BOOL LLSaleInfo::exportLegacyStream(std::ostream& output_stream) const
 {
 	output_stream << "\tsale_info\t0\n\t{\n";
@@ -127,69 +117,6 @@ bool LLSaleInfo::fromLLSD(const LLSD& sd, BOOL& has_perm_mask, U32& perm_mask)
 		perm_mask = ll_U32_from_sd(sd[w]);
 	}
 	return true;
-}
-
-// Deleted LLSaleInfo::exportFileXML() and LLSaleInfo::importXML()
-// because I can't find any non-test code references to it. 2009-05-04 JC
-
-BOOL LLSaleInfo::importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask)
-{
-	has_perm_mask = FALSE;
-
-	// *NOTE: Changing the buffer size will require changing the scanf
-	// calls below.
-	char buffer[MAX_STRING];	/* Flawfinder: ignore */
-	char keyword[MAX_STRING];	/* Flawfinder: ignore */
-	char valuestr[MAX_STRING];	/* Flawfinder: ignore */
-	BOOL success = TRUE;
-
-	keyword[0] = '\0';
-	valuestr[0] = '\0';
-	while(success && (!feof(fp)))
-	{
-		if (fgets(buffer, MAX_STRING, fp) == NULL)
-		{
-			buffer[0] = '\0';
-		}
-
-		sscanf(	/* Flawfinder: ignore */
-			buffer,
-			" %254s %254s",
-			keyword, valuestr);
-		if(!keyword[0])
-		{
-			continue;
-		}
-		if(0 == strcmp("{",keyword))
-		{
-			continue;
-		}
-		if(0 == strcmp("}", keyword))
-		{
-			break;
-		}
-		else if(0 == strcmp("sale_type", keyword))
-		{
-			mSaleType = lookup(valuestr);
-		}
-		else if(0 == strcmp("sale_price", keyword))
-		{
-			sscanf(valuestr, "%d", &mSalePrice);
-			mSalePrice = llclamp(mSalePrice, 0, S32_MAX);
-		}
-		else if (!strcmp("perm_mask", keyword))
-		{
-			//LL_INFOS() << "found deprecated keyword perm_mask" << LL_ENDL;
-			has_perm_mask = TRUE;
-			sscanf(valuestr, "%x", &perm_mask);
-		}
-		else
-		{
-			LL_WARNS() << "unknown keyword '" << keyword
-					<< "' in sale info import" << LL_ENDL;
-		}
-	}
-	return success;
 }
 
 BOOL LLSaleInfo::importLegacyStream(std::istream& input_stream, BOOL& has_perm_mask, U32& perm_mask)

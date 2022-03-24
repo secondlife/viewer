@@ -660,6 +660,9 @@ void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVecto
 
 void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_offset) const
 {
+    llassert(start < (U32)mNumVerts);
+    llassert(end < (U32)mNumVerts);
+
 	if (start >= (U32) mNumVerts ||
 	    end >= (U32) mNumVerts)
 	{
@@ -679,6 +682,9 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 		U16* idx = ((U16*) getIndicesPointer())+indices_offset;
 		for (U32 i = 0; i < count; ++i)
 		{
+            llassert(idx[i] >= start);
+            llassert(idx[i] <= end);
+
 			if (idx[i] < start || idx[i] > end)
 			{
 				LL_ERRS() << "Index out of range: " << idx[i] << " not in [" << start << ", " << end << "]" << LL_ENDL;
@@ -697,6 +703,7 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 			for (U32 i = start; i < end; i++)
 			{
 				S32 idx = (S32) (v[i][3]+0.25f);
+                llassert(idx >= 0);
 				if (idx < 0 || idx >= shader->mFeatures.mIndexedTextureChannels)
 				{
 					LL_ERRS() << "Bad texture index found in vertex data stream." << LL_ENDL;
@@ -942,15 +949,15 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
 		if (ret_usage != GL_DYNAMIC_COPY_ARB)
 		{
-		if (sDisableVBOMapping)
-		{ //always use stream draw if VBO mapping is disabled
-			ret_usage = GL_STREAM_DRAW_ARB;
-		}
-		else
-		{
-			ret_usage = GL_DYNAMIC_DRAW_ARB;
-		}
-	}
+		    if (sDisableVBOMapping)
+		    { //always use stream draw if VBO mapping is disabled
+			    ret_usage = GL_STREAM_DRAW_ARB;
+		    }
+		    else
+		    {
+			    ret_usage = GL_DYNAMIC_DRAW_ARB;
+		    }
+	    }
 	}
 	
 	return ret_usage;
@@ -1186,7 +1193,7 @@ bool LLVertexBuffer::createGLBuffer(U32 size)
 		return true;
 	}
 
-	bool sucsess = true;
+	bool success = true;
 
 	mEmpty = true;
 
@@ -1208,9 +1215,9 @@ bool LLVertexBuffer::createGLBuffer(U32 size)
 
 	if (!mMappedData)
 	{
-		sucsess = false;
+		success = false;
 	}
-	return sucsess;
+	return success;
 }
 
 bool LLVertexBuffer::createGLIndices(U32 size)
@@ -1225,7 +1232,7 @@ bool LLVertexBuffer::createGLIndices(U32 size)
 		return true;
 	}
 
-	bool sucsess = true;
+	bool success = true;
 
 	mEmpty = true;
 
@@ -1250,9 +1257,9 @@ bool LLVertexBuffer::createGLIndices(U32 size)
 
 	if (!mMappedIndexData)
 	{
-		sucsess = false;
+		success = false;
 	}
-	return sucsess;
+	return success;
 }
 
 void LLVertexBuffer::destroyGLBuffer()
@@ -1299,7 +1306,7 @@ bool LLVertexBuffer::updateNumVerts(S32 nverts)
 {
 	llassert(nverts >= 0);
 
-	bool sucsess = true;
+	bool success = true;
 
 	if (nverts > 65536)
 	{
@@ -1311,34 +1318,34 @@ bool LLVertexBuffer::updateNumVerts(S32 nverts)
 
 	if (needed_size > mSize || needed_size <= mSize/2)
 	{
-		sucsess &= createGLBuffer(needed_size);
+		success &= createGLBuffer(needed_size);
 	}
 
 	sVertexCount -= mNumVerts;
 	mNumVerts = nverts;
 	sVertexCount += mNumVerts;
 
-	return sucsess;
+	return success;
 }
 
 bool LLVertexBuffer::updateNumIndices(S32 nindices)
 {
 	llassert(nindices >= 0);
 
-	bool sucsess = true;
+	bool success = true;
 
 	U32 needed_size = sizeof(U16) * nindices;
 
 	if (needed_size > mIndicesSize || needed_size <= mIndicesSize/2)
 	{
-		sucsess &= createGLIndices(needed_size);
+		success &= createGLIndices(needed_size);
 	}
 
 	sIndexCount -= mNumIndices;
 	mNumIndices = nindices;
 	sIndexCount += mNumIndices;
 
-	return sucsess;
+	return success;
 }
 
 bool LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
@@ -1351,10 +1358,10 @@ bool LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		LL_ERRS() << "Bad vertex buffer allocation: " << nverts << " : " << nindices << LL_ENDL;
 	}
 
-	bool sucsess = true;
+	bool success = true;
 
-	sucsess &= updateNumVerts(nverts);
-	sucsess &= updateNumIndices(nindices);
+	success &= updateNumVerts(nverts);
+	success &= updateNumIndices(nindices);
 	
 	if (create && (nverts || nindices))
 	{
@@ -1370,7 +1377,7 @@ bool LLVertexBuffer::allocateBuffer(S32 nverts, S32 nindices, bool create)
 		}
 	}
 
-	return sucsess;
+	return success;
 }
 
 static LLTrace::BlockTimerStatHandle FTM_SETUP_VERTEX_ARRAY("Setup VAO");
@@ -1471,7 +1478,12 @@ void LLVertexBuffer::setupVertexArray()
 				//glVertexattribIPointer requires GLSL 1.30 or later
 				if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 				{
-					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i], (const GLvoid*) mOffsets[i]); 
+					// nat 2018-10-24: VS 2017 also notices the issue
+					// described below, and warns even with reinterpret_cast.
+					// Cast via intptr_t to make it painfully obvious to the
+					// compiler that we're doing this intentionally.
+					glVertexAttribIPointer(i, attrib_size[i], attrib_type[i], sTypeSize[i],
+										   reinterpret_cast<const GLvoid*>(intptr_t(mOffsets[i]))); 
 				}
 #endif
 			}
@@ -1486,7 +1498,7 @@ void LLVertexBuffer::setupVertexArray()
 				// rather than as an actual pointer, so it's okay.
 				glVertexAttribPointerARB(i, attrib_size[i], attrib_type[i],
 										 attrib_normalized[i], sTypeSize[i],
-										 reinterpret_cast<GLvoid*>(mOffsets[i])); 
+										 reinterpret_cast<GLvoid*>(intptr_t(mOffsets[i]))); 
 			}
 		}
 		else
@@ -1506,10 +1518,10 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 	llassert(newnverts >= 0);
 	llassert(newnindices >= 0);
 
-	bool sucsess = true;
+	bool success = true;
 
-	sucsess &= updateNumVerts(newnverts);		
-	sucsess &= updateNumIndices(newnindices);
+	success &= updateNumVerts(newnverts);		
+	success &= updateNumIndices(newnindices);
 	
 	if (useVBOs())
 	{
@@ -1521,7 +1533,7 @@ bool LLVertexBuffer::resizeBuffer(S32 newnverts, S32 newnindices)
 		}
 	}
 
-	return sucsess;
+	return success;
 }
 
 bool LLVertexBuffer::useVBOs() const
@@ -2319,34 +2331,35 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				
 				U32 unsatisfied_mask = (required_mask & ~data_mask);
-				U32 i = 0;
 
-				while (i < TYPE_MAX)
-				{
+                for (U32 i = 0; i < TYPE_MAX; i++)
+                {
                     U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
-					switch (unsatisfied_flag)
-					{
-						case MAP_VERTEX: LL_INFOS() << "Missing vert pos" << LL_ENDL; break;
-						case MAP_NORMAL: LL_INFOS() << "Missing normals" << LL_ENDL; break;
-						case MAP_TEXCOORD0: LL_INFOS() << "Missing TC 0" << LL_ENDL; break;
-						case MAP_TEXCOORD1: LL_INFOS() << "Missing TC 1" << LL_ENDL; break;
-						case MAP_TEXCOORD2: LL_INFOS() << "Missing TC 2" << LL_ENDL; break;
-						case MAP_TEXCOORD3: LL_INFOS() << "Missing TC 3" << LL_ENDL; break;
-						case MAP_COLOR: LL_INFOS() << "Missing vert color" << LL_ENDL; break;
-						case MAP_EMISSIVE: LL_INFOS() << "Missing emissive" << LL_ENDL; break;
-						case MAP_TANGENT: LL_INFOS() << "Missing tangent" << LL_ENDL; break;
-						case MAP_WEIGHT: LL_INFOS() << "Missing weight" << LL_ENDL; break;
-						case MAP_WEIGHT4: LL_INFOS() << "Missing weightx4" << LL_ENDL; break;
-						case MAP_CLOTHWEIGHT: LL_INFOS() << "Missing clothweight" << LL_ENDL; break;
-						case MAP_TEXTURE_INDEX: LL_INFOS() << "Missing tex index" << LL_ENDL; break;
-						default: LL_INFOS() << "Missing who effin knows: " << unsatisfied_flag << LL_ENDL;
-					}					
-				}
+                    switch (unsatisfied_flag)
+                    {
+                        case 0: break;
+                        case MAP_VERTEX: LL_INFOS() << "Missing vert pos" << LL_ENDL; break;
+                        case MAP_NORMAL: LL_INFOS() << "Missing normals" << LL_ENDL; break;
+                        case MAP_TEXCOORD0: LL_INFOS() << "Missing TC 0" << LL_ENDL; break;
+                        case MAP_TEXCOORD1: LL_INFOS() << "Missing TC 1" << LL_ENDL; break;
+                        case MAP_TEXCOORD2: LL_INFOS() << "Missing TC 2" << LL_ENDL; break;
+                        case MAP_TEXCOORD3: LL_INFOS() << "Missing TC 3" << LL_ENDL; break;
+                        case MAP_COLOR: LL_INFOS() << "Missing vert color" << LL_ENDL; break;
+                        case MAP_EMISSIVE: LL_INFOS() << "Missing emissive" << LL_ENDL; break;
+                        case MAP_TANGENT: LL_INFOS() << "Missing tangent" << LL_ENDL; break;
+                        case MAP_WEIGHT: LL_INFOS() << "Missing weight" << LL_ENDL; break;
+                        case MAP_WEIGHT4: LL_INFOS() << "Missing weightx4" << LL_ENDL; break;
+                        case MAP_CLOTHWEIGHT: LL_INFOS() << "Missing clothweight" << LL_ENDL; break;
+                        case MAP_TEXTURE_INDEX: LL_INFOS() << "Missing tex index" << LL_ENDL; break;
+                        default: LL_INFOS() << "Missing who effin knows: " << unsatisfied_flag << LL_ENDL;
+                    }
+                }
 
-            if (unsatisfied_mask & (1 << TYPE_INDEX))
-            {
-               LL_INFOS() << "Missing indices" << LL_ENDL;
-            }
+                // TYPE_INDEX is beyond TYPE_MAX, so check for it individually
+                if (unsatisfied_mask & (1 << TYPE_INDEX))
+                {
+                   LL_INFOS() << "Missing indices" << LL_ENDL;
+                }
 
 				LL_ERRS() << "Shader consumption mismatches data provision." << LL_ENDL;
 			}

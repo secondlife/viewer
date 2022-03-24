@@ -58,11 +58,12 @@
 #include "llevents.h"
 #include "llappviewer.h"
 #include "llsdserialize.h"
+#include "lltrans.h"
 
 #include <boost/scoped_ptr.hpp>
 #include <sstream>
 
-const S32 LOGIN_MAX_RETRIES = 3;
+const S32 LOGIN_MAX_RETRIES = 0; // Viewer should not autmatically retry login
 const F32 LOGIN_SRV_TIMEOUT_MIN = 10;
 const F32 LOGIN_SRV_TIMEOUT_MAX = 120;
 const F32 LOGIN_DNS_TIMEOUT_FACTOR = 0.9; // make DNS wait shorter then retry time
@@ -332,7 +333,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         {
             data["certificate"] = response["certificate"];
         }
-        
+
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
@@ -349,13 +350,36 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
         // login.cgi is insisting on a required update. We were called with an
         // event that bundles both the login.cgi 'response' and the
         // synchronization event from the 'updater'.
-        std::string required_version = response["message_args"]["VERSION"];
-        LL_WARNS("LLLogin") << "Login failed because an update to version " << required_version << " is required." << LL_ENDL;
+        std::string login_version = response["message_args"]["VERSION"];
+        std::string vvm_version   = updater["VERSION"];
+        std::string relnotes      = updater["URL"];
+        LL_WARNS("LLLogin") << "Login failed because an update to version " << login_version << " is required." << LL_ENDL;
+        // vvm_version might be empty because we might not have gotten
+        // SLVersionChecker's LoginSync handshake. But if it IS populated, it
+        // should (!) be the same as the version we got from login.cgi.
+        if ((! vvm_version.empty()) && vvm_version != login_version)
+        {
+            LL_WARNS("LLLogin") << "VVM update version " << vvm_version
+                                << " differs from login version " << login_version
+                                << "; presenting VVM version to match release notes URL"
+                                << LL_ENDL;
+            login_version = vvm_version;
+        }
+        if (relnotes.empty() || relnotes.find("://") == std::string::npos)
+        {
+            relnotes = LLTrans::getString("RELEASE_NOTES_BASE_URL");
+            if (!LLStringUtil::endsWith(relnotes, "/"))
+                relnotes += "/";
+            relnotes += LLURI::escape(login_version) + ".html";
+        }
 
         if (gViewerWindow)
             gViewerWindow->setShowProgress(FALSE);
 
-        LLSD args(LLSDMap("VERSION", required_version));
+        LLSD args;
+        args["VERSION"] = login_version;
+        args["URL"] = relnotes;
+
         if (updater.isUndefined())
         {
             // If the updater failed to shake hands, better advise the user to
@@ -427,6 +451,7 @@ void LLLoginInstance::handleLoginSuccess(const LLSD& event)
 	LL_INFOS("LLLogin") << "LLLoginInstance::handleLoginSuccess" << LL_ENDL;
 
 	attemptComplete();
+	mRequestData.clear();
 }
 
 void LLLoginInstance::handleDisconnect(const LLSD& event)

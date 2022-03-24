@@ -44,8 +44,7 @@
 #include "llnotificationsutil.h"
 #include "llstring.h"
 #include "llsys.h"
-#include "llvfile.h"
-#include "llvfs.h"
+#include "llfilesystem.h"
 #include "mean_collision_data.h"
 #include "message.h"
 #include "v3math.h"
@@ -102,7 +101,6 @@ public:
 
     virtual LLSD        prepareUpload();
     virtual LLSD        generatePostBody();
-    virtual S32         getEconomyUploadCost();
     virtual LLUUID      finishUpload(LLSD &result);
 
     virtual bool        showInventoryPanel() const { return false; }
@@ -127,11 +125,6 @@ LLSD LLARScreenShotUploader::prepareUpload()
 LLSD LLARScreenShotUploader::generatePostBody()
 {   // The report was pregenerated and passed in the constructor.
     return mReport;
-}
-
-S32 LLARScreenShotUploader::getEconomyUploadCost()
-{   // Abuse report screen shots do not cost anything to upload.
-    return 0;
 }
 
 LLUUID LLARScreenShotUploader::finishUpload(LLSD &result)
@@ -752,9 +745,6 @@ LLSD LLFloaterReporter::gatherReport()
 	const char* platform = "Mac";
 #elif LL_LINUX
 	const char* platform = "Lnx";
-#elif LL_SOLARIS
-	const char* platform = "Sol";
-	const char* short_platform = "O:S";
 #else
 	const char* platform = "???";
 #endif
@@ -905,12 +895,9 @@ void LLFloaterReporter::takeScreenshot(bool use_prev_screenshot)
 	mResourceDatap->mAssetInfo.setName("screenshot_name");
 	mResourceDatap->mAssetInfo.setDescription("screenshot_descr");
 
-	// store in VFS
-	LLVFile::writeFile(upload_data->getData(), 
-						upload_data->getDataSize(), 
-						gVFS, 
-						mResourceDatap->mAssetInfo.mUuid, 
-						mResourceDatap->mAssetInfo.mType);
+	// store in cache
+    LLFileSystem j2c_file(mResourceDatap->mAssetInfo.mUuid, mResourceDatap->mAssetInfo.mType, LLFileSystem::WRITE);
+    j2c_file.write(upload_data->getData(), upload_data->getDataSize());
 
 	// store in the image list so it doesn't try to fetch from the server
 	LLPointer<LLViewerFetchedTexture> image_in_list = 
@@ -936,7 +923,7 @@ void LLFloaterReporter::takeNewSnapshot()
 
 	// Take a screenshot, but don't draw this floater.
 	setVisible(FALSE);
-	if( !gViewerWindow->rawSnapshot(mImageRaw, IMAGE_WIDTH, IMAGE_HEIGHT, TRUE, FALSE, TRUE, FALSE))
+    if (!gViewerWindow->rawSnapshot(mImageRaw,IMAGE_WIDTH, IMAGE_HEIGHT, TRUE, FALSE, TRUE /*UI*/, TRUE, FALSE))
 	{
 		LL_WARNS() << "Unable to take screenshot" << LL_ENDL;
 		setVisible(TRUE);

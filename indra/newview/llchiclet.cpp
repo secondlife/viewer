@@ -36,6 +36,7 @@
 #include "llsingleton.h"
 #include "llsyswellwindow.h"
 #include "llfloaternotificationstabbed.h"
+#include "llviewermenu.h"
 
 static LLDefaultChildRegistry::Register<LLChicletPanel> t1("chiclet_panel");
 static LLDefaultChildRegistry::Register<LLNotificationChiclet> t2("chiclet_notification");
@@ -1091,6 +1092,10 @@ void LLScriptChiclet::onMenuItemClicked(const LLSD& user_data)
 	if("end" == action)
 	{
 		LLScriptFloaterManager::instance().removeNotification(getSessionId());
+	}
+	else if ("close all" == action)
+	{
+		LLIMWellWindow::getInstance()->closeAll();
 	}
 }
 

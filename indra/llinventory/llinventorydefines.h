@@ -81,9 +81,10 @@ public:
 		II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS			= 0x200000,
 			// Whether a returned object is composed of multiple items.
 
-		II_FLAGS_WEARABLES_MASK = 0xff,
-			// Wearables use the low order byte of flags to store the
-			// LLWearableType::EType enumeration found in newview/llwearable.h
+		II_FLAGS_SUBTYPE_MASK                       = 0x0000ff,
+			// Some items like Wearables and settings use the low order byte 
+			// of flags to store the sub type of the inventory item.
+			// see LLWearableType::EType enumeration found in newview/llwearable.h
 
 		II_FLAGS_PERM_OVERWRITE_MASK = 				(II_FLAGS_OBJECT_SLAM_PERM |
 													 II_FLAGS_OBJECT_SLAM_SALE |

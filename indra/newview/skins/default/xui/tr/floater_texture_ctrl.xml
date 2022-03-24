@@ -9,17 +9,13 @@
 	<text name="Multiple">
 		Birden çok doku
 	</text>
-	<radio_group name="mode_selection">
-		<radio_item label="Envanter" name="inventory" value="0"/>
-		<radio_item label="Yerel" name="local" value="1"/>
-	</radio_group>
-	<text name="unknown">
-		Büyüklük: [DIMENSIONS]
-	</text>
+	<combo_box name="mode_selection">
+		<combo_box.item label="Envanter" name="inventory" value="0"/>
+		<combo_box.item label="Yerel" name="local" value="1"/>
+	</combo_box>
 	<button label="Varsayılan" label_selected="Varsayılan" name="Default"/>
 	<button label="Boş" label_selected="Boş" name="Blank"/>
 	<button label="Hiçbiri" label_selected="Hiçbiri" name="None"/>
-	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
 	<text name="preview_disabled" value="Önizleme Devre Dışı"/>
 	<filter_editor label="Dokuları Filtrele" name="inventory search editor"/>
 	<check_box initial_value="false" label="Klasörleri göster" name="show_folders_check"/>
@@ -30,6 +26,22 @@
 		<column label="Ad" name="unit_name"/>
 		<column label="Kimlik" name="unit_id_HIDDEN"/>
 	</scroll_list>
+	<combo_box name="l_bake_use_texture_combo_box" tool_tip="Kurutma dokusunu seçin">
+		<combo_box.item label="Yok" name="None"/>
+		<combo_box.item label="BAKED_HEAD" name="BAKED_HEAD"/>
+		<combo_box.item label="BAKED_UPPER" name="BAKED_UPPER"/>
+		<combo_box.item label="BAKED_LOWER" name="BAKED_LOWER"/>
+		<combo_box.item label="BAKED_EYES" name="BAKED_EYES"/>
+		<combo_box.item label="BAKED_SKIRT" name="BAKED_SKIRT"/>
+		<combo_box.item label="BAKED_HAIR" name="BAKED_HAIR"/>
+		<combo_box.item label="BAKED_LEFTARM" name="BAKED_LEFTARM"/>
+		<combo_box.item label="BAKED_LEFTLEG" name="BAKED_LEFTLEG"/>
+		<combo_box.item label="BAKED_AUX1" name="BAKED_AUX1"/>
+		<combo_box.item label="BAKED_AUX2" name="BAKED_AUX2"/>
+		<combo_box.item label="BAKED_AUX3" name="BAKED_AUX3"/>
+	</combo_box>
+	<check_box initial_value="false" label="Temel Ağ Bölgesini Gizle" name="hide_base_mesh_region"/>
 	<button label="Tamam" label_selected="Tamam" name="Select"/>
 	<button label="İptal" label_selected="İptal" name="Cancel"/>
+	<check_box initial_value="true" label="Şimdi uygula" name="apply_immediate_check"/>
 </floater>

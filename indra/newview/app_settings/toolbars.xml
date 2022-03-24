@@ -7,6 +7,7 @@
     <command name="destinations"/>
     <command name="people"/>
     <command name="profile"/>
+    <command name="map"/>
     <command name="move"/>
     <command name="view"/>
     <command name="howto"/>

@@ -291,8 +291,8 @@ void EventAccumulator::reset( const EventAccumulator* other )
 {
 	mNumSamples = 0;
 	mSum = 0;
-	mMin = NaN;
-	mMax = NaN;
+	mMin = F32(NaN);
+	mMax = F32(NaN);
 	mMean = NaN;
 	mSumOfSquares = 0;
 	mLastValue = other ? other->mLastValue : NaN;

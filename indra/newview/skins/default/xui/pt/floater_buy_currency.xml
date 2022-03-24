@@ -59,8 +59,7 @@
 	</text>
 	<button label="Comprar já!" name="buy_btn"/>
 	<button label="Fechar" name="cancel_btn"/>
-	<text name="info_cannot_buy" font="SansSerifBig">
+	<floater.string name="info_cannot_buy">
 		Transação incompleta
-	</text>
-	<button label="Prosseguir para a web" name="error_web"/>
+	</floater.string>
 </floater>

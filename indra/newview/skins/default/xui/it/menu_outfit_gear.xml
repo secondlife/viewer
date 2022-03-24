@@ -20,6 +20,7 @@
 		<menu_item_call label="Nuovo Alpha (trasparenza)" name="New Alpha"/>
 		<menu_item_call label="Nuova fisica" name="New Physics"/>
 		<menu_item_call label="Nuovo tatuaggio" name="New Tattoo"/>
+		<menu_item_call label="Nuovo Universale" name="New Universal"/>
 	</menu>
 	<menu label="Nuove parti del corpo" name="New Body Parts">
 		<menu_item_call label="Nuova figura corporea" name="New Shape"/>

@@ -10,7 +10,6 @@
 	<menu_item_call label="Etkinleştir" name="Marketplace Activate"/>
 	<menu_item_call label="Devre Dışı Bırak" name="Marketplace Deactivate"/>
 	<menu_item_call label="Paylaş" name="Share"/>
-	<menu_item_call label="Satın Al" name="Task Buy"/>
 	<menu_item_call label="Aç" name="Task Open"/>
 	<menu_item_call label="Oyna" name="Task Play"/>
 	<menu_item_call label="Özellikler" name="Task Properties"/>
@@ -34,6 +33,7 @@
 		<menu_item_call label="Yeni Külot" name="New Underpants"/>
 		<menu_item_call label="Yeni Alfa Maskesi" name="New Alpha Mask"/>
 		<menu_item_call label="Yeni Dövme" name="New Tattoo"/>
+		<menu_item_call label="Yeni Evrensel" name="New Universal"/>
 		<menu_item_call label="Yeni Fizik" name="New Physics"/>
 	</menu>
 	<menu label="Yeni Vücut Bölümleri" name="New Body Parts">
@@ -41,6 +41,11 @@
 		<menu_item_call label="Yeni Dış Katman" name="New Skin"/>
 		<menu_item_call label="Yeni Saç" name="New Hair"/>
 		<menu_item_call label="Yeni Gözler" name="New Eyes"/>
+	</menu>
+	<menu label="Yeni Ayarlar" name="New Settings">
+		<menu_item_call label="Yeni Gökyüzü" name="New Sky"/>
+		<menu_item_call label="Yeni Su" name="New Water"/>
+		<menu_item_call label="Yeni Gün Döngüsü" name="New Day Cycle"/>
 	</menu>
 	<menu label="Şunun için varsayılan olarak kullan" name="upload_def">
 		<menu_item_call label="Karşıya yüklenen görüntüler" name="Image uploads"/>
@@ -100,9 +105,12 @@
 	<menu_item_call label="Giy" name="Wearable And Object Wear"/>
 	<menu label="Şuna Ekle:" name="Attach To"/>
 	<menu label="BÜG&apos;e Ekle" name="Attach To HUD"/>
+	<menu_item_call label="Dokun" name="Attachment Touch" />
 	<menu_item_call label="Düzenle" name="Wearable Edit"/>
 	<menu_item_call label="Ekle" name="Wearable Add"/>
 	<menu_item_call label="Çıkar" name="Take Off"/>
+	<menu_item_call label="Sadece Kendime Uygula" name="Settings Apply Local"/>
+	<menu_item_call label="Parsele Uygula" name="Settings Apply Parcel"/>
 	<menu_item_call label="Pazaryeri İlanlarına Kopyala" name="Marketplace Copy"/>
 	<menu_item_call label="Pazaryeri İlanlarına Taşı" name="Marketplace Move"/>
 	<menu_item_call label="--seçenek yok--" name="--no options--"/>

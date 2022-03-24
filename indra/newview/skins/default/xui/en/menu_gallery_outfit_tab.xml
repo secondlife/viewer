@@ -42,7 +42,7 @@
         parameter="take_off" />
     </menu_item_call>
     <menu_item_call
-        label="Upload Photo (L$10)"
+        label="Upload Photo (L$[UPLOAD_COST])"
         layout="topleft"
         name="upload_photo">
         <on_click

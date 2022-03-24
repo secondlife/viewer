@@ -151,7 +151,7 @@ public:
 	LLXmlTreeNode*	getParent()							{ return mParent; }
 	LLXmlTreeNode*	getFirstChild();
 	LLXmlTreeNode*	getNextChild();
-	S32				getChildCount()						{ return (S32)mChildList.size(); }
+	S32				getChildCount()						{ return (S32)mChildren.size(); }
 	LLXmlTreeNode*  getChildByName( const std::string& name );	// returns first child with name, NULL if none
 	LLXmlTreeNode*  getNextNamedChild();				// returns next child with name, NULL if none
 
@@ -177,9 +177,9 @@ private:
 	std::string							mName;
 	std::string							mContents;
 	
-	typedef std::list<class LLXmlTreeNode *> child_list_t;
-	child_list_t						mChildList;
-	child_list_t::iterator				mChildListIter;
+	typedef std::vector<class LLXmlTreeNode *> children_t;
+	children_t                          mChildren;
+	children_t::iterator				mChildrenIter;
 	
 	typedef std::multimap<LLStdStringHandle, LLXmlTreeNode *> child_map_t;
 	child_map_t							mChildMap;		// for fast name lookups

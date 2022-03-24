@@ -55,6 +55,7 @@ LLAccordionCtrl::LLAccordionCtrl(const Params& params):LLPanel(params)
  , mTabComparator( NULL )
  , mNoVisibleTabsHelpText(NULL)
  , mNoVisibleTabsOrigString(params.no_visible_tabs_text.initial_value().asString())
+ , mSkipScrollToChild(false)
 {
 	initNoTabsWidget(params.no_matched_tabs_text);
 
@@ -338,7 +339,7 @@ void LLAccordionCtrl::addCollapsibleCtrl(LLView* view)
 		addChild(accordion_tab);
 	mAccordionTabs.push_back(accordion_tab);
 
-	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, mAccordionTabs.size() - 1) );
+	accordion_tab->setDropDownStateChangedCallback( boost::bind(&LLAccordionCtrl::onCollapseCtrlCloseOpen, this, (S16)(mAccordionTabs.size() - 1)) );
 	arrange();	
 }
 
@@ -655,6 +656,37 @@ void	LLAccordionCtrl::onScrollPosChangeCallback(S32, LLScrollbar*)
 {
 	updateLayout(getRect().getWidth(),getRect().getHeight());
 }
+
+// virtual
+void LLAccordionCtrl::onUpdateScrollToChild(const LLUICtrl *cntrl)
+{
+    if (mScrollbar && mScrollbar->getVisible() && !mSkipScrollToChild)
+    {
+        // same as scrollToShowRect
+        LLRect rect;
+        cntrl->localRectToOtherView(cntrl->getLocalRect(), &rect, this);
+
+        // Translate to parent coordinatess to check if we are in visible rectangle
+        rect.translate(getRect().mLeft, getRect().mBottom);
+
+        if (!getRect().contains(rect))
+        {
+            // for accordition's scroll, height is in pixels
+            // Back to local coords and calculate position for scroller
+            S32 bottom = mScrollbar->getDocPos() - rect.mBottom + getRect().mBottom;
+            S32 top = mScrollbar->getDocPos() - rect.mTop + getRect().mTop;
+
+            S32 scroll_pos = llclamp(mScrollbar->getDocPos(),
+                bottom, // min vertical scroll
+                top); // max vertical scroll 
+
+            mScrollbar->setDocPos(scroll_pos);
+        }
+    }
+
+    LLUICtrl::onUpdateScrollToChild(cntrl);
+}
+
 void	LLAccordionCtrl::onOpen		(const LLSD& key)
 {
 	for(size_t i=0;i<mAccordionTabs.size();++i)

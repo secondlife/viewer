@@ -1,6 +1,6 @@
 /** 
  * @file llimagefiltersmanager.h
- * @brief Load image filters list and retrieve their path. Mostly used for Flickr UI at the moment.
+ * @brief Load image filters list and retrieve their path.
  *
  * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code

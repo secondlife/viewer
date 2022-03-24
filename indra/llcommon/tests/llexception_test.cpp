@@ -305,4 +305,19 @@ namespace tut
         std::cout << center("int", '=', margin) << std::endl;
         catch_several(throw_int, "throw_int");
     }
+
+    template<> template<>
+    void object::test<2>()
+    {
+        set_test_name("reporting exceptions");
+
+        try
+        {
+            LLTHROW(LLException("badness"));
+        }
+        catch (...)
+        {
+            LOG_UNHANDLED_EXCEPTION("llexception test<2>()");
+        }
+    }
 } // namespace tut

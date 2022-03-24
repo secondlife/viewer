@@ -411,6 +411,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
 
     httpOpts->setTimeout(timeout);
+    httpOpts->setSSLVerifyPeer(false);
 
 	for(int i = 0; i < retries; ++i)
 	{
@@ -595,7 +596,7 @@ bool LLCrashLogger::init()
 #if LL_WINDOWS
 		Sleep(1000);
 #else
-        sleep(1);
+        ::sleep(1);
 #endif 
         locked = mKeyMaster.checkMaster();
     }
@@ -642,7 +643,7 @@ void LLCrashLogger::init_curl()
         }
 
         CRYPTO_set_locking_callback(ssl_locking_callback);
-        CRYPTO_set_id_callback(ssl_thread_id_callback);
+        CRYPTO_THREADID_set_callback(ssl_thread_id_callback);
     }
 }
 
@@ -658,12 +659,12 @@ void LLCrashLogger::term_curl()
 }
 
 
-unsigned long LLCrashLogger::ssl_thread_id_callback(void)
+void LLCrashLogger::ssl_thread_id_callback(CRYPTO_THREADID* pthreadid)
 {
 #if LL_WINDOWS
-    return (unsigned long)GetCurrentThread();
+    CRYPTO_THREADID_set_pointer(pthreadid, GetCurrentThread());
 #else
-    return (unsigned long)pthread_self();
+    CRYPTO_THREADID_set_pointer(pthreadid, reinterpret_cast<void*>(pthread_self()));
 #endif
 }
 

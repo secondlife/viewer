@@ -50,6 +50,19 @@ class LLCheckBoxCtrl
 , public ll::ui::SearchableControl
 {
 public:
+
+    enum EWordWrap
+    {
+        WRAP_NONE,
+        WRAP_UP,
+        WRAP_DOWN
+    };
+
+    struct WordWrap : public LLInitParam::TypeValuesHelper<EWordWrap, WordWrap>
+    {
+        static void declareValues();
+    };
+
 	struct Params 
 	:	public LLInitParam::Block<Params, LLUICtrl::Params>
 	{
@@ -57,6 +70,8 @@ public:
 
 		Optional<LLTextBox::Params> label_text;
 		Optional<LLButton::Params> check_button;
+
+		Optional<EWordWrap, WordWrap>	word_wrap;
 
 		Ignored					radio_style;
 
@@ -129,6 +144,8 @@ protected:
 
 	LLUIColor		mTextEnabledColor;
 	LLUIColor		mTextDisabledColor;
+
+	EWordWrap		mWordWrap; // off, shifts text up, shifts text down
 };
 
 // Build time optimization, generate once in .cpp file

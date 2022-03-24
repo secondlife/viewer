@@ -52,10 +52,10 @@ LLAudioEngine_OpenAL::~LLAudioEngine_OpenAL()
 }
 
 // virtual
-bool LLAudioEngine_OpenAL::init(const S32 num_channels, void* userdata)
+bool LLAudioEngine_OpenAL::init(const S32 num_channels, void* userdata, const std::string &app_title)
 {
 	mWindGen = NULL;
-	LLAudioEngine::init(num_channels, userdata);
+	LLAudioEngine::init(num_channels, userdata, app_title);
 
 	if(!alutInit(NULL, NULL))
 	{
@@ -239,6 +239,13 @@ bool LLAudioChannelOpenAL::isPlaying()
 
 bool LLAudioChannelOpenAL::updateBuffer()
 {
+    if (!mCurrentSourcep)
+    {
+        // This channel isn't associated with any source, nothing
+        // to be updated
+        return false;
+    }
+
 	if (LLAudioChannel::updateBuffer())
 	{
 		// Base class update returned true, which means that we need to actually

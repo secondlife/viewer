@@ -31,6 +31,7 @@
 #include "llassetstorage.h"
 #include "llpreviewscript.h"
 #include "lliconctrl.h"
+#include "llvoinventorylistener.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPreviewNotecard
@@ -41,7 +42,7 @@
 class LLViewerTextEditor;
 class LLButton;
 
-class LLPreviewNotecard : public LLPreview
+class LLPreviewNotecard : public LLPreview, public LLVOInventoryListener
 {
 public:
 	LLPreviewNotecard(const LLSD& key);
@@ -75,6 +76,11 @@ public:
 
 	void syncExternal();
 
+    void inventoryChanged(LLViewerObject* object,
+        LLInventoryObject::object_list_t* inventory,
+        S32 serial_num,
+        void* user_data) override;
+
 protected:
 
 	void updateTitleButtons() override;
@@ -83,8 +89,7 @@ protected:
 
 	void deleteNotecard();
 
-	static void onLoadComplete(LLVFS *vfs,
-							   const LLUUID& asset_uuid,
+	static void onLoadComplete(const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 

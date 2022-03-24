@@ -36,6 +36,7 @@
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryfunctions.h"
 #include "llmarketplacefunctions.h"
+#include "llregex.h"
 #include "llviewercontrol.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -53,6 +54,7 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 :	mFilterObjectTypes(p.object_types),
 	mFilterCategoryTypes(p.category_types),
 	mFilterWearableTypes(p.wearable_types),
+    mFilterSettingsTypes(p.settings_types),
 	mMinDate(p.date_range.min_date),
 	mMaxDate(p.date_range.max_date),
 	mHoursAgo(p.hours_ago),
@@ -62,7 +64,8 @@ LLInventoryFilter::FilterOps::FilterOps(const Params& p)
 	mPermissions(p.permissions),
 	mFilterTypes(p.types),
 	mFilterUUID(p.uuid),
-	mFilterLinks(p.links)
+	mFilterLinks(p.links),
+	mSearchVisibility(p.search_visibility)
 {
 }
 
@@ -73,6 +76,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 :	mName(p.name),
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
+	mDefaultEmptyLookupMessage(""),
 	mFilterOps(p.filter_ops),
 	mBackupFilterOps(mFilterOps),
 	mFilterSubString(p.substring),
@@ -116,11 +120,44 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 			break;
 	}
 
-	bool passed = (mFilterSubString.size() ? desc.find(mFilterSubString) != std::string::npos : true);
+
+	bool passed = true;
+	if (!mExactToken.empty() && (mSearchType == SEARCHTYPE_NAME))
+	{
+		passed = false;
+		typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+		boost::char_separator<char> sep(" ");
+		tokenizer tokens(desc, sep);
+
+		for (auto token_iter : tokens)
+		{
+			if (token_iter == mExactToken)
+			{
+				passed = true;
+				break;
+			}
+		}	
+	}
+	else if ((mFilterTokens.size() > 0) && (mSearchType == SEARCHTYPE_NAME))
+	{
+		for (auto token_iter : mFilterTokens)
+		{
+			if (desc.find(token_iter) == std::string::npos)
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		passed = (mFilterSubString.size() ? desc.find(mFilterSubString) != std::string::npos : true);
+	}
+
 	passed = passed && checkAgainstFilterType(listener);
 	passed = passed && checkAgainstPermissions(listener);
 	passed = passed && checkAgainstFilterLinks(listener);
 	passed = passed && checkAgainstCreator(listener);
+	passed = passed && checkAgainstSearchVisibility(listener);
 
 	return passed;
 }
@@ -159,10 +196,15 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	// when applying a filter, matching folders get their contents downloaded first
 	// but make sure we are not interfering with pre-download
 	if (isNotDefault()
-		&& !gInventory.isCategoryComplete(folder_id)
 		&& LLStartUp::getStartupState() > STATE_WEARABLES_WAIT)
-	{
-		LLInventoryModelBackgroundFetch::instance().start(folder_id);
+    {
+        LLViewerInventoryCategory* cat = gInventory.getCategory(folder_id);
+        if (!cat || (cat->getVersion() == LLViewerInventoryCategory::VERSION_UNKNOWN))
+        {
+            // At the moment background fetch only cares about VERSION_UNKNOWN,
+            // so do not check isCategoryComplete that compares descendant count
+            LLInventoryModelBackgroundFetch::instance().start(folder_id);
+        }
 	}
 
 	// Marketplace folder filtering
@@ -254,21 +296,34 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
-
-		// If it has no type, pass it, unless it's a link.
-		if (object_type == LLInventoryType::IT_NONE)
-		{
-			if (object && object->getIsLinkType())
-			{
-				return FALSE;
-			}
-		}
-		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
-		{
-			return FALSE;
-		}
+        switch (object_type)
+        {
+        case LLInventoryType::IT_NONE:
+            // If it has no type, pass it, unless it's a link.
+            if (object && object->getIsLinkType())
+            {
+                return FALSE;
+            }
+            break;
+        case LLInventoryType::IT_UNKNOWN:
+            {
+                // Unknows are only shown when we show every type. 
+                // Unknows are 255 and won't fit in 64 bits.
+                if (mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL)
+                {
+                    return FALSE;
+                }
+                break;
+            }
+        default:
+            if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+            {
+                return FALSE;
+            }
+            break;
+        }
 	}
-	
+
 	if(filterTypes & FILTERTYPE_WORN)
 	{
 		if (!get_is_item_worn(object_id))
@@ -325,7 +380,21 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLFolderViewModelItemInvent
 	if (filterTypes & FILTERTYPE_WEARABLE)
 	{
 		LLWearableType::EType type = listener->getWearableType();
-		if ((0x1LL << type & mFilterOps.mFilterWearableTypes) == 0)
+        if ((object_type == LLInventoryType::IT_WEARABLE) &&
+                (((0x1LL << type) & mFilterOps.mFilterWearableTypes) == 0))
+		{
+			return FALSE;
+		}
+	}
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // FILTERTYPE_SETTINGS
+    // Pass if this item is a setting of the appropriate type
+    if (filterTypes & FILTERTYPE_SETTINGS)
+    {
+        LLSettingsType::type_e type = listener->getSettingsType();
+        if ((object_type == LLInventoryType::IT_SETTINGS) &&
+            (((0x1LL << type) & mFilterOps.mFilterSettingsTypes) == 0))
 		{
 			return FALSE;
 		}
@@ -379,18 +448,32 @@ bool LLInventoryFilter::checkAgainstFilterType(const LLInventoryItem* item) cons
 	// Pass if this item's type is of the correct filter type
 	if (filterTypes & FILTERTYPE_OBJECT)
 	{
-		// If it has no type, pass it, unless it's a link.
-		if (object_type == LLInventoryType::IT_NONE)
-		{
-			if (item && item->getIsLinkType())
-			{
-				return false;
-			}
-		}
-		else if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
-		{
-			return false;
-		}
+        switch (object_type)
+        {
+        case LLInventoryType::IT_NONE:
+            // If it has no type, pass it, unless it's a link.
+            if (item && item->getIsLinkType())
+            {
+                return FALSE;
+            }
+            break;
+        case LLInventoryType::IT_UNKNOWN:
+            {
+                // Unknows are only shown when we show every type. 
+                // Unknows are 255 and won't fit in 64 bits.
+                if (mFilterOps.mFilterObjectTypes != 0xffffffffffffffffULL)
+                {
+                    return FALSE;
+                }
+                break;
+            }
+        default:
+            if ((1LL << object_type & mFilterOps.mFilterObjectTypes) == U64(0))
+            {
+                return FALSE;
+            }
+            break;
+        }
 	}
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -501,6 +584,27 @@ bool LLInventoryFilter::checkAgainstCreator(const LLFolderViewModelItemInventory
 		default:
 			return TRUE;
 	}
+}
+
+bool LLInventoryFilter::checkAgainstSearchVisibility(const LLFolderViewModelItemInventory* listener) const
+{
+	if (!listener || !hasFilterString()) return TRUE;
+
+	const LLUUID object_id = listener->getUUID();
+	const LLInventoryObject *object = gInventory.getObject(object_id);
+	if (!object) return TRUE;
+
+	const BOOL is_link = object->getIsLinkType();
+	if (is_link && ((mFilterOps.mSearchVisibility & VISIBILITY_LINKS) == 0))
+		return FALSE;
+
+	if (listener->isItemInTrash() && ((mFilterOps.mSearchVisibility & VISIBILITY_TRASH) == 0))
+		return FALSE;
+
+	if (!listener->isAgentInventory() && ((mFilterOps.mSearchVisibility & VISIBILITY_LIBRARY) == 0))
+		return FALSE;
+
+	return TRUE;
 }
 
 const std::string& LLInventoryFilter::getFilterSubString(BOOL trim) const
@@ -626,6 +730,12 @@ void LLInventoryFilter::setFilterWearableTypes(U64 types)
 	mFilterOps.mFilterTypes |= FILTERTYPE_WEARABLE;
 }
 
+void LLInventoryFilter::setFilterSettingsTypes(U64 types)
+{
+    updateFilterTypes(types, mFilterOps.mFilterSettingsTypes);
+    mFilterOps.mFilterTypes |= FILTERTYPE_SETTINGS;
+}
+
 void LLInventoryFilter::setFilterEmptySystemFolders()
 {
 	mFilterOps.mFilterTypes |= FILTERTYPE_EMPTYFOLDERS;
@@ -665,6 +775,61 @@ void LLInventoryFilter::setFilterMarketplaceListingFolders(bool select_only_list
     }
 }
 
+
+void LLInventoryFilter::toggleSearchVisibilityLinks()
+{
+	bool hide_links = mFilterOps.mSearchVisibility & VISIBILITY_LINKS;
+	if (hide_links)
+	{
+		mFilterOps.mSearchVisibility &= ~VISIBILITY_LINKS;
+	}
+	else
+	{
+		mFilterOps.mSearchVisibility |= VISIBILITY_LINKS;
+	}
+
+	if (hasFilterString())
+	{
+		setModified(hide_links ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
+	}
+}
+
+void LLInventoryFilter::toggleSearchVisibilityTrash()
+{
+	bool hide_trash = mFilterOps.mSearchVisibility & VISIBILITY_TRASH;
+	if (hide_trash)
+	{
+		mFilterOps.mSearchVisibility &= ~VISIBILITY_TRASH;
+	}
+	else
+	{
+		mFilterOps.mSearchVisibility |= VISIBILITY_TRASH;
+	}
+
+	if (hasFilterString())
+	{
+		setModified(hide_trash ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
+	}
+}
+
+void LLInventoryFilter::toggleSearchVisibilityLibrary()
+{
+	bool hide_library = mFilterOps.mSearchVisibility & VISIBILITY_LIBRARY;
+	if (hide_library)
+	{
+		mFilterOps.mSearchVisibility &= ~VISIBILITY_LIBRARY;
+	}
+	else
+	{
+		mFilterOps.mSearchVisibility |= VISIBILITY_LIBRARY;
+	}
+
+	if (hasFilterString())
+	{
+		setModified(hide_library ? FILTER_MORE_RESTRICTIVE : FILTER_LESS_RESTRICTIVE);
+	}
+}
+
 void LLInventoryFilter::setFilterNoMarketplaceFolder()
 {
     mFilterOps.mFilterTypes |= FILTERTYPE_NO_MARKETPLACE_ITEMS;
@@ -693,6 +858,38 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 
 	if (mFilterSubString != filter_sub_string_new)
 	{
+		
+		mFilterTokens.clear();
+		if (filter_sub_string_new.find_first_of("+") != std::string::npos)
+		{
+			typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+			boost::char_separator<char> sep("+");
+			tokenizer tokens(filter_sub_string_new, sep);
+
+			for (auto token_iter : tokens)
+			{
+				mFilterTokens.push_back(token_iter);
+			}
+		}
+
+		std::string old_token = mExactToken;
+		mExactToken.clear();
+		bool exact_token_changed = false;
+		if (mFilterTokens.empty() && filter_sub_string_new.size() > 2)
+		{
+			boost::regex mPattern = boost::regex("\"\\s*([^<]*)?\\s*\"",
+				boost::regex::perl | boost::regex::icase);
+			boost::match_results<std::string::const_iterator> matches;
+			mExactToken = (ll_regex_match(filter_sub_string_new, matches, mPattern) && matches[1].matched)
+				? matches[1]
+				: LLStringUtil::null;
+			if ((old_token.empty() && !mExactToken.empty()) 
+				|| (!old_token.empty() && mExactToken.empty()))
+			{
+				exact_token_changed = true;
+			}
+		}
+
 		// hitting BACKSPACE, for example
 		const BOOL less_restrictive = mFilterSubString.size() >= filter_sub_string_new.size()
 			&& !mFilterSubString.substr(0, filter_sub_string_new.size()).compare(filter_sub_string_new);
@@ -702,7 +899,11 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			&& !filter_sub_string_new.substr(0, mFilterSubString.size()).compare(mFilterSubString);
 
 		mFilterSubString = filter_sub_string_new;
-		if (less_restrictive)
+		if (exact_token_changed)
+		{
+			setModified(FILTER_RESTART);
+		}
+		else if (less_restrictive)
 		{
 			setModified(FILTER_LESS_RESTRICTIVE);
 		}
@@ -737,6 +938,44 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 			mFilterOps.mFilterUUID = LLUUID::null;
 			setModified(FILTER_RESTART);
 		}
+	}
+}
+
+void LLInventoryFilter::setSearchVisibilityTypes(U32 types)
+{
+	if (mFilterOps.mSearchVisibility != types)
+	{
+		// keep current items only if no perm bits getting turned off
+		BOOL fewer_bits_set = (mFilterOps.mSearchVisibility & ~types);
+		BOOL more_bits_set = (~mFilterOps.mSearchVisibility & types);
+		mFilterOps.mSearchVisibility = types;
+
+		if (more_bits_set && fewer_bits_set)
+		{
+			setModified(FILTER_RESTART);
+		}
+		else if (more_bits_set)
+		{
+			// target must have all requested permission bits, so more bits == more restrictive
+			setModified(FILTER_MORE_RESTRICTIVE);
+		}
+		else if (fewer_bits_set)
+		{
+			setModified(FILTER_LESS_RESTRICTIVE);
+		}
+	}
+}
+
+void LLInventoryFilter::setSearchVisibilityTypes(const Params& params)
+{
+	if (!params.validateBlock())
+	{
+		return;
+	}
+
+	if (params.filter_ops.search_visibility.isProvided())
+	{
+		setSearchVisibilityTypes(params.filter_ops.search_visibility);
 	}
 }
 
@@ -1141,6 +1380,18 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
+	if (isFilterObjectTypesWith(LLInventoryType::IT_SETTINGS))
+	{
+		filtered_types +=  LLTrans::getString("Settings");
+		filtered_by_type = TRUE;
+		num_filter_types++;
+	}
+	else
+	{
+		not_filtered_types +=  LLTrans::getString("Settings");
+		filtered_by_all_types = FALSE;
+	}
+
 	if (!LLInventoryModelBackgroundFetch::instance().folderFetchActive()
 		&& filtered_by_type
 		&& !filtered_by_all_types)
@@ -1196,6 +1447,7 @@ void LLInventoryFilter::toParams(Params& params) const
 	params.filter_ops.show_folder_state = getShowFolderState();
 	params.filter_ops.creator_type = getFilterCreatorType();
 	params.filter_ops.permissions = getFilterPermissions();
+	params.filter_ops.search_visibility = getSearchVisibilityTypes();
 	params.substring = getFilterSubString();
 	params.since_logoff = isSinceLogoff();
 }
@@ -1219,6 +1471,7 @@ void LLInventoryFilter::fromParams(const Params& params)
 	setShowFolderState(params.filter_ops.show_folder_state);
 	setFilterCreator(params.filter_ops.creator_type);
 	setFilterPermissions(params.filter_ops.permissions);
+	setSearchVisibilityTypes(params.filter_ops.search_visibility);
 	setFilterSubString(params.substring);
 	setDateRangeLastLogoff(params.since_logoff);
 }
@@ -1241,6 +1494,16 @@ U64 LLInventoryFilter::getFilterCategoryTypes() const
 U64 LLInventoryFilter::getFilterWearableTypes() const
 {
 	return mFilterOps.mFilterWearableTypes;
+}
+
+U64 LLInventoryFilter::getFilterSettingsTypes() const
+{
+    return mFilterOps.mFilterSettingsTypes;
+}
+
+U64 LLInventoryFilter::getSearchVisibilityTypes() const
+{
+	return mFilterOps.mSearchVisibility;
 }
 
 bool LLInventoryFilter::hasFilterString() const
@@ -1315,12 +1578,24 @@ void LLInventoryFilter::setEmptyLookupMessage(const std::string& message)
 	mEmptyLookupMessage = message;
 }
 
+void LLInventoryFilter::setDefaultEmptyLookupMessage(const std::string& message)
+{
+	mDefaultEmptyLookupMessage = message;
+}
+
 std::string LLInventoryFilter::getEmptyLookupMessage() const
 {
-	LLStringUtil::format_map_t args;
-	args["[SEARCH_TERM]"] = LLURI::escape(getFilterSubStringOrig());
+	if (isDefault() && !mDefaultEmptyLookupMessage.empty())
+	{
+		return LLTrans::getString(mDefaultEmptyLookupMessage);
+	}
+	else
+	{
+		LLStringUtil::format_map_t args;
+		args["[SEARCH_TERM]"] = LLURI::escape(getFilterSubStringOrig());
 
-	return LLTrans::getString(mEmptyLookupMessage, args);
+		return LLTrans::getString(mEmptyLookupMessage, args);
+	}
 
 }
 

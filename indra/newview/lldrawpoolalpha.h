@@ -75,6 +75,17 @@ private:
 	LLGLSLShader* fullbright_shader;	
 	LLGLSLShader* emissive_shader;
 
+    void renderSimples(U32 mask, std::vector<LLDrawInfo*>& simples);
+    void renderFullbrights(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
+    void renderMaterials(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
+    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+
+    void drawEmissive(U32 mask, LLDrawInfo* draw);
+    void drawEmissiveInline(U32 mask, LLDrawInfo* draw);
+
+    bool TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_material, LLGLSLShader* current_shader);
+    void RestoreTexSetup(bool tex_setup);
+
 	// our 'normal' alpha blend function for this pass
 	LLRender::eBlendFactor mColorSFactor;
 	LLRender::eBlendFactor mColorDFactor;	

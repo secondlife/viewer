@@ -242,7 +242,7 @@
     top_delta="24"
     width="280">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
 
   <check_box
@@ -256,7 +256,7 @@
     top_delta="24"
     width="256">
     <check_box.commit_callback
-      function="Pref.VertexShaderEnable" />
+      function="Pref.RenderOptionUpdate" />
   </check_box>
   
   <slider
@@ -293,6 +293,21 @@
     width="65">
        0
   </text>
+<text
+type="string"
+length="1"
+follows="left|top"
+height="16"
+layout="topleft"
+left_delta="68"
+name="IndirectMaxComplexityLink"
+mouse_opaque="false"
+top_delta="0"
+width="120">
+[https://community.secondlife.com/t5/Featured-News/Why-are-all-these-people-made-of-colored-jelly/ba-p/3031255 What's this?]
+</text>
+
+
   <check_box
     control_name="AlwaysRenderFriends"
     height="16"
@@ -345,7 +360,6 @@
       function="Pref.PrefLoad"
 	  parameter="graphic"/>
   </button>
-         min_val="0.125"
 
   <button
     follows="top|left"

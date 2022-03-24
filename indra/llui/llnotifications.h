@@ -84,8 +84,6 @@
 #include <sstream>
 
 #include <boost/utility.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/signals2.hpp>
 #include <boost/range.hpp>
@@ -132,7 +130,7 @@ public:
 
 typedef boost::function<void (const LLSD&, const LLSD&)> LLNotificationResponder;
 
-typedef boost::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
+typedef std::shared_ptr<LLNotificationResponderInterface> LLNotificationResponderPtr;
 
 typedef LLFunctorRegistry<LLNotificationResponder> LLNotificationFunctorRegistry;
 typedef LLFunctorRegistration<LLNotificationResponder> LLNotificationFunctorRegistration;
@@ -180,6 +178,7 @@ public:
 		Optional<std::string>	control;
 		Optional<bool>			invert_control;
 		Optional<bool>			session_only;
+		Optional<bool>			checkbox_only;
 
 		FormIgnore();
 	};
@@ -190,6 +189,7 @@ public:
 		Mandatory<std::string>	text;
 		Optional<std::string>	ignore;
 		Optional<bool>			is_default;
+		Optional<S32>			width;
 
 		Mandatory<std::string>	type;
 
@@ -232,7 +232,8 @@ public:
 
 	typedef enum e_ignore_type
 	{ 
-		IGNORE_NO,
+		IGNORE_CHECKBOX_ONLY = -1, // ignore won't be handled, will set value/checkbox only
+		IGNORE_NO = 0,
 		IGNORE_WITH_DEFAULT_RESPONSE,
 		IGNORE_WITH_DEFAULT_RESPONSE_SESSION_ONLY,
 		IGNORE_WITH_LAST_RESPONSE, 
@@ -274,19 +275,19 @@ private:
 	bool								mInvertSetting;
 };
 
-typedef boost::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
+typedef std::shared_ptr<LLNotificationForm> LLNotificationFormPtr;
 
 
 struct LLNotificationTemplate;
 
 // we want to keep a map of these by name, and it's best to manage them
 // with smart pointers
-typedef boost::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
+typedef std::shared_ptr<LLNotificationTemplate> LLNotificationTemplatePtr;
 
 
 struct LLNotificationVisibilityRule;
 
-typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
+typedef std::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibilityRulePtr;
 
 /**
  * @class LLNotification
@@ -302,7 +303,7 @@ typedef boost::shared_ptr<LLNotificationVisibilityRule> LLNotificationVisibility
  */
 class LLNotification  : 
 	boost::noncopyable,
-	public boost::enable_shared_from_this<LLNotification>
+	public std::enable_shared_from_this<LLNotification>
 {
 LOG_CLASS(LLNotification);
 friend class LLNotifications;
@@ -741,45 +742,34 @@ public:
 	:	mFilter(filter), 
 		mItems() 
 	{}
-	virtual ~LLNotificationChannelBase() {}
+    virtual ~LLNotificationChannelBase()
+    {
+        // explicit cleanup for easier issue detection
+        mChanged.disconnect_all_slots();
+        mPassedFilter.disconnect_all_slots();
+        mFailedFilter.disconnect_all_slots();
+        mItems.clear();
+    }
 	// you can also connect to a Channel, so you can be notified of
 	// changes to this channel
-	template <typename LISTENER>
-    LLBoundListener connectChanged(const LISTENER& slot)
+    LLBoundListener connectChanged(const LLEventListener& slot)
     {
-        // Examine slot to see if it binds an LLEventTrackable subclass, or a
-        // boost::shared_ptr to something, or a boost::weak_ptr to something.
         // Call this->connectChangedImpl() to actually connect it.
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectChangedImpl,
-                                              this,
-                                              _1));
+        return connectChangedImpl(slot);
     }
-	template <typename LISTENER>
-    LLBoundListener connectAtFrontChanged(const LISTENER& slot)
+    LLBoundListener connectAtFrontChanged(const LLEventListener& slot)
     {
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectAtFrontChangedImpl,
-                                              this,
-                                              _1));
+        return connectAtFrontChangedImpl(slot);
     }
-    template <typename LISTENER>
-	LLBoundListener connectPassedFilter(const LISTENER& slot)
+    LLBoundListener connectPassedFilter(const LLEventListener& slot)
     {
         // see comments in connectChanged()
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectPassedFilterImpl,
-                                              this,
-                                              _1));
+        return connectPassedFilterImpl(slot);
     }
-    template <typename LISTENER>
-	LLBoundListener connectFailedFilter(const LISTENER& slot)
+    LLBoundListener connectFailedFilter(const LLEventListener& slot)
     {
         // see comments in connectChanged()
-        return LLEventDetail::visit_and_connect(slot,
-                                  boost::bind(&LLNotificationChannelBase::connectFailedFilterImpl,
-                                              this,
-                                              _1));
+        return connectFailedFilterImpl(slot);
     }
 
 	// use this when items change or to add a new one
@@ -889,6 +879,7 @@ class LLNotifications :
 {
 	LLSINGLETON(LLNotifications);
 	LOG_CLASS(LLNotifications);
+	virtual ~LLNotifications() {}
 
 public:
 
@@ -926,6 +917,7 @@ public:
 	LLNotificationPtr add(const LLNotification::Params& p);
 
 	void add(const LLNotificationPtr pNotif);
+	void load(const LLNotificationPtr pNotif);
 	void cancel(LLNotificationPtr pNotif);
 	void cancelByName(const std::string& name);
 	void cancelByOwner(const LLUUID ownerId);
@@ -973,6 +965,7 @@ public:
 	
 private:
 	/*virtual*/ void initSingleton();
+	/*virtual*/ void cleanupSingleton();
 	
 	void loadPersistentNotifications();
 
@@ -1086,6 +1079,11 @@ public:
 		:	LLNotificationChannel("Persistent", "Visible", &notificationFilter)
 	{}
 
+    virtual ~LLPersistentNotificationChannel()
+    {
+        mHistory.clear();
+    }
+
 	typedef std::vector<LLNotificationPtr> history_list_t;
 	history_list_t::iterator beginHistory() { sortHistory(); return mHistory.begin(); }
 	history_list_t::iterator endHistory() { return mHistory.end(); }
@@ -1116,6 +1114,11 @@ private:
 	}
 
 	void onAdd(LLNotificationPtr p) 
+	{
+		mHistory.push_back(p);
+	}
+
+	void onLoad(LLNotificationPtr p) 
 	{
 		mHistory.push_back(p);
 	}

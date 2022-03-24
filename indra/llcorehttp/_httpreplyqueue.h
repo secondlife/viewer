@@ -30,6 +30,7 @@
 
 #include "_refcounted.h"
 #include "_mutex.h"
+#include "boost/noncopyable.hpp"
 
 
 namespace LLCore
@@ -97,7 +98,6 @@ protected:
 
 	OpContainer							mQueue;
 	LLCoreInt::HttpMutex				mQueueMutex;
-	LLCoreInt::HttpConditionVariable	mQueueCV;
 	
 }; // end class HttpReplyQueue
 

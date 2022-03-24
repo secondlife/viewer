@@ -87,7 +87,11 @@ HttpService::~HttpService()
 		// is a bit tricky.
 		if (mRequestQueue)
 		{
-			mRequestQueue->stopQueue();
+            if (mRequestQueue->stopQueue())
+            {
+                // Give mRequestQueue a chance to finish
+                ms_sleep(10);
+            }
 		}
 		
 		if (mThread)
@@ -318,7 +322,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
         {
             LOG_UNHANDLED_EXCEPTION("");
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc&)
         {
             LLMemory::logMemoryInfo(TRUE);
 

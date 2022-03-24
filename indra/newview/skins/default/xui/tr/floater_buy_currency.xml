@@ -59,8 +59,7 @@
 	</text>
 	<button label="Şimdi Satın Al" name="buy_btn"/>
 	<button label="İptal" name="cancel_btn"/>
-	<text name="info_cannot_buy">
+	<floater.string name="info_cannot_buy">
 		Satın Alınamıyor
-	</text>
-	<button label="Web&apos;e devam et" name="error_web"/>
+	</floater.string>
 </floater>

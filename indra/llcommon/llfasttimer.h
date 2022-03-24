@@ -31,6 +31,10 @@
 #include "lltrace.h"
 #include "lltreeiterators.h"
 
+#if LL_WINDOWS
+#include <intrin.h>
+#endif
+
 #define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
 
@@ -85,6 +89,8 @@ public:
 	//	return __rdtsc();
 	//}
 
+	
+
 	// shift off lower 8 bits for lower resolution but longer term timing
 	// on 1Ghz machine, a 32-bit word will hold ~1000 seconds of timing
 #if LL_FASTTIMER_USE_RDTSC
@@ -119,9 +125,9 @@ public:
 #endif
 
 
-#if (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+#if (LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
 	//
-	// Linux and Solaris implementation of CPU clock - non-x86.
+	// Linux implementation of CPU clock - non-x86.
 	// This is accurate but SLOW!  Only use out of desperation.
 	//
 	// Try to use the MONOTONIC clock if available, this is a constant time counter
@@ -147,12 +153,12 @@ public:
 		return (U32)(getCPUClockCount64() >> 8);
 	}
 
-#endif // (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+#endif // (LL_LINUX) && !(defined(__i386__) || defined(__amd64__))
 
 
-#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+#if (LL_LINUX || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
 	//
-	// Mac+Linux+Solaris FAST x86 implementation of CPU clock
+	// Mac+Linux FAST x86 implementation of CPU clock
 	static U32 getCPUClockCount32()
 	{
 		U32 low(0),high(0);

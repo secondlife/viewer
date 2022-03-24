@@ -116,6 +116,7 @@ static const struct
 };
 
 static void setting_changed();
+static void ssl_verification_changed();
 
 
 LLAppCoreHttp::HttpClass::HttpClass()
@@ -195,6 +196,23 @@ void LLAppCoreHttp::init()
 		LL_WARNS("Init") << "Failed to set SSL Verification.  Reason:  " << status.toString() << LL_ENDL;
 	}
 
+    // Set up Default SSL Verification option.
+    const std::string no_verify_ssl("NoVerifySSLCert");
+    if (gSavedSettings.controlExists(no_verify_ssl))
+    {
+        LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(no_verify_ssl);
+        if (cntrl_ptr.isNull())
+        {
+            LL_WARNS("Init") << "Unable to set signal on global setting '" << no_verify_ssl
+                << "'" << LL_ENDL;
+        }
+        else
+        {
+            mSSLNoVerifySignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&ssl_verification_changed));
+            LLCore::HttpOptions::setDefaultSSLVerifyPeer(!cntrl_ptr->getValue().asBoolean());
+        }
+    }
+
 	// Tracing levels for library & libcurl (note that 2 & 3 are beyond spammy):
 	// 0 - None
 	// 1 - Basic start, stop simple transitions
@@ -253,20 +271,13 @@ void LLAppCoreHttp::init()
 						<< LL_ENDL;
 	}
 
-	// Signal for global pipelining preference from settings
+	// Global pipelining setting
 	static const std::string http_pipelining("HttpPipelining");
 	if (gSavedSettings.controlExists(http_pipelining))
 	{
-		LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(http_pipelining);
-		if (cntrl_ptr.isNull())
-		{
-			LL_WARNS("Init") << "Unable to set signal on global setting '" << http_pipelining
-							 << "'" << LL_ENDL;
-		}
-		else
-		{
-			mPipelinedSignal = cntrl_ptr->getCommitSignal()->connect(boost::bind(&setting_changed));
-		}
+		// Default to true (in ctor) if absent.
+		mPipelined = gSavedSettings.getBOOL(http_pipelining);
+		LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
 	}
 
 	// Register signals for settings and state changes
@@ -294,6 +305,11 @@ void LLAppCoreHttp::init()
 void setting_changed()
 {
 	LLAppViewer::instance()->getAppCoreHttp().refreshSettings(false);
+}
+
+void ssl_verification_changed()
+{
+    LLCore::HttpOptions::setDefaultSSLVerifyPeer(!gSavedSettings.getBOOL("NoVerifySSLCert"));
 }
 
 namespace
@@ -355,6 +371,7 @@ void LLAppCoreHttp::cleanup()
 	{
 		mHttpClasses[i].mSettingsSignal.disconnect();
 	}
+    mSSLNoVerifySignal.disconnect();
 	mPipelinedSignal.disconnect();
 	
 	delete mRequest;
@@ -374,21 +391,6 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 {
 	LLCore::HttpStatus status;
 
-	// Global pipelining setting
-	bool pipeline_changed(false);
-	static const std::string http_pipelining("HttpPipelining");
-	if (gSavedSettings.controlExists(http_pipelining))
-	{
-		// Default to true (in ctor) if absent.
-		bool pipelined(gSavedSettings.getBOOL(http_pipelining));
-		if (pipelined != mPipelined)
-		{
-			mPipelined = pipelined;
-			pipeline_changed = true;
-		}
-        LL_INFOS("Init") << "HTTP Pipelining " << (mPipelined ? "enabled" : "disabled") << "!" << LL_ENDL;
-	}
-	
 	for (int i(0); i < LL_ARRAY_SIZE(init_data); ++i)
 	{
 		const EAppPolicy app_policy(static_cast<EAppPolicy>(i));
@@ -417,7 +419,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 		// Init- or run-time settings.  Must use the queued request API.
 
 		// Pipelining changes
-		if (initial || pipeline_changed)
+		if (initial)
 		{
 			const bool to_pipeline(mPipelined && init_data[i].mPipelined);
 			if (to_pipeline != mHttpClasses[app_policy].mPipelined)
@@ -460,7 +462,7 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 			}
 		}
 
-		if (initial || setting != mHttpClasses[app_policy].mConnLimit || pipeline_changed)
+		if (initial || setting != mHttpClasses[app_policy].mConnLimit)
 		{
 			// Set it and report.  Strategies depend on pipelining:
 			//
@@ -522,20 +524,25 @@ void LLAppCoreHttp::refreshSettings(bool initial)
 LLCore::HttpStatus LLAppCoreHttp::sslVerify(const std::string &url, 
 	const LLCore::HttpHandler::ptr_t &handler, void *appdata)
 {
-	X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
-	LLCore::HttpStatus result;
-	LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
-	LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
-	LLSD validation_params = LLSD::emptyMap();
-	LLURI uri(url);
+    if (gDisconnected)
+    {
+        return LLCore::HttpStatus(LLCore::HttpStatus::EXT_CURL_EASY, CURLE_OPERATION_TIMEDOUT);
+    }
 
-	validation_params[CERT_HOSTNAME] = uri.hostName();
+    LLCore::HttpStatus result;
+    try
+    {
+        X509_STORE_CTX *ctx = static_cast<X509_STORE_CTX *>(appdata);
+        LLPointer<LLCertificateStore> store = gSecAPIHandler->getCertificateStore("");
+        LLPointer<LLCertificateChain> chain = gSecAPIHandler->getCertificateChain(ctx);
+        LLSD validation_params = LLSD::emptyMap();
+        LLURI uri(url);
 
-	// *TODO: In the case of an exception while validating the cert, we need a way
-	// to pass the offending(?) cert back out. *Rider*
+        validation_params[CERT_HOSTNAME] = uri.hostName();
 
-	try
-	{
+        // *TODO: In the case of an exception while validating the cert, we need a way
+        // to pass the offending(?) cert back out. *Rider*
+
 		// don't validate hostname.  Let libcurl do it instead.  That way, it'll handle redirects
 		store->validate(VALIDATION_POLICY_SSL & (~VALIDATION_POLICY_HOSTNAME), chain, validation_params);
 	}

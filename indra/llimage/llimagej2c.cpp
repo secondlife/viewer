@@ -281,7 +281,7 @@ S32 LLImageJ2C::calcDataSizeJ2C(S32 w, S32 h, S32 comp, S32 discard_level, F32 r
 	S32 bytes;
 	S32 new_bytes = (S32) (sqrt((F32)(w*h))*(F32)(comp)*rate*1000.f/layer_factor);
 	S32 old_bytes = (S32)((F32)(w*h*comp)*rate);
-	bytes = (LLImage::getInstance()->useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
+	bytes = (LLImage::useNewByteRange() && (new_bytes < old_bytes) ? new_bytes : old_bytes);
 	bytes = llmax(bytes, calcHeaderSizeJ2C());
 	return bytes;
 }
@@ -322,7 +322,7 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	{
 		S32 bytes_needed = calcDataSize(discard_level);
 		// Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level
-		if (bytes >= (bytes_needed*LLImage::getInstance()->getReverseByteRangePercent()/100))
+		if (bytes >= (bytes_needed*LLImage::getReverseByteRangePercent()/100))
 		{
 			break;
 		}

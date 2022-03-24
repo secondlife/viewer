@@ -46,14 +46,9 @@ LLDrawPoolGround::LLDrawPoolGround() :
 {
 }
 
-LLDrawPool *LLDrawPoolGround::instancePool()
-{
-	return new LLDrawPoolGround();
-}
-
 void LLDrawPoolGround::prerender()
 {
-	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
+	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
 }
 
 void LLDrawPoolGround::render(S32 pass)
@@ -63,12 +58,8 @@ void LLDrawPoolGround::render(S32 pass)
 		return;
 	}	
 	
-	LLGLSPipelineSkyBox gls_skybox;
+	LLGLSPipelineDepthTestSkyBox gls_skybox(true, false);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-
-	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
 	F32 water_height = gAgent.getRegion()->getWaterHeight();
 	gGL.pushMatrix();
@@ -76,8 +67,6 @@ void LLDrawPoolGround::render(S32 pass)
 	gGL.translatef(origin.mV[0], origin.mV[1], llmax(origin.mV[2], water_height));
 
 	LLFace *facep = mDrawFace[0];
-
-	gPipeline.disableLights();
 
 	LLOverrideFaceColor col(this, gSky.mVOSkyp->getGLFogColor());
 	facep->renderIndexed();

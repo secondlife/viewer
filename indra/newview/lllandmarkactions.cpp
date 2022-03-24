@@ -228,23 +228,6 @@ LLViewerInventoryItem* LLLandmarkActions::findLandmarkForAgentPos()
 	return findLandmarkForGlobalPos(gAgent.getPositionGlobal());
 }
 
-bool LLLandmarkActions::canCreateLandmarkHere()
-{
-	LLParcel* agent_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-	if(!agent_parcel)
-	{
-		LL_WARNS() << "No agent region" << LL_ENDL;
-		return false;
-	}
-	if (agent_parcel->getAllowLandmark()
-		|| LLViewerParcelMgr::isParcelOwnedByAgent(agent_parcel, GP_LAND_ALLOW_LANDMARK))
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void LLLandmarkActions::createLandmarkHere(
 	const std::string& name, 
 	const std::string& desc, 
@@ -261,18 +244,13 @@ void LLLandmarkActions::createLandmarkHere(
 		LL_WARNS() << "No agent parcel" << LL_ENDL;
 		return;
 	}
-	if (!canCreateLandmarkHere())
-	{
-		LLNotificationsUtil::add("CannotCreateLandmarkNotOwner");
-		return;
-	}
 
 	create_inventory_item(gAgent.getID(), gAgent.getSessionID(),
 		folder_id, LLTransactionID::tnull,
 		name, desc,
 		LLAssetType::AT_LANDMARK,
 		LLInventoryType::IT_LANDMARK,
-		NOT_WEARABLE, PERM_ALL, 
+        NO_INV_SUBTYPE, PERM_ALL,
 		NULL);
 }
 

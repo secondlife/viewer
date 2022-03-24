@@ -31,6 +31,7 @@
 
 #include "llbuffer.h"
 #include "llthread.h"
+#include "llmutex.h"
 
 static const S32 DEFAULT_OUTPUT_SEGMENT_SIZE = 1024 * 4;
 

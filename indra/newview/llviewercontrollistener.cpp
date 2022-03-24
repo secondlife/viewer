@@ -50,11 +50,9 @@ LLViewerControlListener::LLViewerControlListener()
 	std::ostringstream groupnames;
 	groupnames << "[\"group\"] is one of ";
 	const char* delim = "";
-	for (LLControlGroup::key_iter cgki(LLControlGroup::beginKeys()),
-								  cgkend(LLControlGroup::endKeys());
-		 cgki != cgkend; ++cgki)
+	for (const auto& key : LLControlGroup::key_snapshot())
 	{
-		groupnames << delim << '"' << *cgki << '"';
+		groupnames << delim << '"' << key << '"';
 		delim = ", ";
 	}
 	groupnames << '\n';
@@ -181,11 +179,9 @@ void LLViewerControlListener::groups(LLSD const & request)
 {
 	// No Info, we're not looking up either a group or a control name.
 	Response response(LLSD(), request);
-	for (LLControlGroup::key_iter cgki(LLControlGroup::beginKeys()),
-								  cgkend(LLControlGroup::endKeys());
-		 cgki != cgkend; ++cgki)
+	for (const auto& key : LLControlGroup::key_snapshot())
 	{
-		response["groups"].append(*cgki);
+		response["groups"].append(key);
 	}
 }
 

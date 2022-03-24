@@ -95,6 +95,7 @@ protected:
 	LLPointer<LLFolderViewModelItem> mViewModelItem;
 	LLFontGL::StyleFlags		mLabelStyle;
 	std::string					mLabelSuffix;
+	bool						mSuffixNeedsRefresh; //suffix and icons
 	LLUIImagePtr				mIcon,
 								mIconOpen,
 								mIconOverlay;
@@ -115,7 +116,6 @@ protected:
 	F32							mControlLabelRotation;
 	LLFolderView*				mRoot;
 	bool						mHasVisibleChildren,
-								mIsFolderComplete, // indicates that some children were not loaded/added yet
 								mIsCurSelection,
 								mDragAndDropTarget,
 								mIsMouseOverTitle,
@@ -218,7 +218,10 @@ public:
 	BOOL hasVisibleChildren() { return mHasVisibleChildren; }
 
 	// true if object can't have children
-	BOOL isFolderComplete() { return mIsFolderComplete; }
+	virtual bool isFolderComplete() { return true; }
+    // true if object can't have children
+    virtual bool areChildrenInited() { return true; }
+    virtual void setChildrenInited(bool inited) { }
 
 	// Call through to the viewed object and return true if it can be
 	// removed. Returns true if it's removed.
@@ -266,8 +269,13 @@ public:
 	virtual BOOL	passedFilter(S32 filter_generation = -1);
 	virtual BOOL	isPotentiallyVisible(S32 filter_generation = -1);
 
-	// refresh information from the object being viewed.
-	virtual void refresh();
+    // refresh information from the object being viewed.
+    // refreshes label, suffixes and sets icons. Expensive!
+    // Causes filter update
+    virtual void refresh();
+    // refreshes suffixes and sets icons. Expensive!
+    // Does not need filter update
+	virtual void refreshSuffix();
 
 	// LLView functionality
 	virtual BOOL handleRightMouseDown( S32 x, S32 y, MASK mask );
@@ -328,6 +336,8 @@ protected:
 	S32			mLastArrangeGeneration;
 	S32			mLastCalculatedWidth;
 	bool		mNeedsSort;
+	bool		mIsFolderComplete; // indicates that some children were not loaded/added yet
+	bool		mAreChildrenInited; // indicates that no children were initialized
 
 public:
 	typedef enum e_recurse_type
@@ -379,9 +389,16 @@ public:
 	// destroys this folder, and all children
 	virtual void destroyView();
 
+    // whether known children are fully loaded (arrange sets to true)
+    virtual bool isFolderComplete() { return mIsFolderComplete; }
+
+    // whether known children are fully built
+    virtual bool areChildrenInited() { return mAreChildrenInited; }
+    virtual void setChildrenInited(bool inited) { mAreChildrenInited = inited; }
+
 	// extractItem() removes the specified item from the folder, but
 	// doesn't delete it.
-	virtual void extractItem( LLFolderViewItem* item );
+	virtual void extractItem( LLFolderViewItem* item, bool deparent_model = true);
 
 	// This function is called by a child that needs to be resorted.
 	void resort(LLFolderViewItem* item);

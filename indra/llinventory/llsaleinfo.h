@@ -84,11 +84,6 @@ public:
 	void setSalePrice(S32 price);
 	//void setNextOwnerPermMask(U32 mask)	{ mNextOwnerPermMask = mask; }
 
-
-	// file serialization
-	BOOL exportFile(LLFILE* fp) const;
-	BOOL importFile(LLFILE* fp, BOOL& has_perm_mask, U32& perm_mask);
-
 	BOOL exportLegacyStream(std::ostream& output_stream) const;
 	LLSD asLLSD() const;
 	operator LLSD() const { return asLLSD(); }

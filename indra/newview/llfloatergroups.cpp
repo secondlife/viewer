@@ -38,6 +38,7 @@
 #include "roles_constants.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llbutton.h"
 #include "llgroupactions.h"
 #include "llscrolllistctrl.h"
@@ -172,7 +173,7 @@ void LLPanelGroups::reset()
 		group_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
 	}
 	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.size()));
-	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",gMaxAgentGroups));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",LLAgentBenefitsMgr::current().getGroupMembershipLimit()));
 
 	init_group_list(getChild<LLScrollListCtrl>("group list"), gAgent.getGroupID());
 	enableButtons();
@@ -183,7 +184,7 @@ BOOL LLPanelGroups::postBuild()
 	childSetCommitCallback("group list", onGroupList, this);
 
 	getChild<LLUICtrl>("groupcount")->setTextArg("[COUNT]", llformat("%d",gAgent.mGroups.size()));
-	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",gMaxAgentGroups));
+	getChild<LLUICtrl>("groupcount")->setTextArg("[MAX]", llformat("%d",LLAgentBenefitsMgr::current().getGroupMembershipLimit()));
 
 	LLScrollListCtrl *list = getChild<LLScrollListCtrl>("group list");
 	if (list)

@@ -60,6 +60,8 @@ static const S32 LINE_HEIGHT = 15;
 
 S32		LLView::sDepth = 0;
 bool	LLView::sDebugRects = false;
+bool	LLView::sIsRectDirty = false;
+LLRect	LLView::sDirtyRect;
 bool	LLView::sDebugRectsShowNames = true;
 bool	LLView::sDebugKeys = false;
 bool	LLView::sDebugMouseHandling = false;
@@ -85,6 +87,11 @@ template class LLView* LLView::getChild<class LLView>(
 	const std::string& name, BOOL recurse) const;
 
 static LLDefaultChildRegistry::Register<LLView> r("view");
+
+void deleteView(LLView *aView)
+{
+	delete aView;
+}
 
 namespace LLInitParam
 {
@@ -641,6 +648,16 @@ void LLView::onVisibilityChange ( BOOL new_visibility )
 }
 
 // virtual
+void LLView::onUpdateScrollToChild(const LLUICtrl * cntrl)
+{
+    LLView* parent_view = getParent();
+    if (parent_view)
+    {
+        parent_view->onUpdateScrollToChild(cntrl);
+    }
+}
+
+// virtual
 void LLView::translate(S32 x, S32 y)
 {
 	mRect.translate(x, y);
@@ -870,15 +887,23 @@ BOOL LLView::handleToolTip(S32 x, S32 y, MASK mask)
 	std::string tooltip = getToolTip();
 	if (!tooltip.empty())
 	{
+        static LLCachedControl<F32> tooltip_fast_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipFastDelay", 0.1f);
+        static LLCachedControl<F32> tooltip_delay(*LLUI::getInstance()->mSettingGroups["config"], "ToolTipDelay", 0.7f);
+        static LLCachedControl<bool> allow_ui_tooltips(*LLUI::getInstance()->mSettingGroups["config"], "BasicUITooltips", true);
 		// allow "scrubbing" over ui by showing next tooltip immediately
 		// if previous one was still visible
 		F32 timeout = LLToolTipMgr::instance().toolTipVisible() 
-		              ? LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipFastDelay" )
-		              : LLUI::getInstance()->mSettingGroups["config"]->getF32( "ToolTipDelay" );
-		LLToolTipMgr::instance().show(LLToolTip::Params()
-		                              .message(tooltip)
-		                              .sticky_rect(calcScreenRect())
-		                              .delay_time(timeout));
+		              ? tooltip_fast_delay
+		              : tooltip_delay;
+
+		// Even if we don't show tooltips, consume the event, nothing below should show tooltip
+		if (allow_ui_tooltips)
+		{
+			LLToolTipMgr::instance().show(LLToolTip::Params()
+			                              .message(tooltip)
+			                              .sticky_rect(calcScreenRect())
+			                              .delay_time(timeout));
+		}
 		handled = TRUE;
 	}
 
@@ -1054,6 +1079,11 @@ BOOL LLView::handleScrollWheel(S32 x, S32 y, S32 clicks)
 	return childrenHandleScrollWheel( x, y, clicks ) != NULL;
 }
 
+BOOL LLView::handleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	return childrenHandleScrollHWheel( x, y, clicks ) != NULL;
+}
+
 BOOL LLView::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	return childrenHandleRightMouseDown( x, y, mask ) != NULL;
@@ -1077,6 +1107,11 @@ BOOL LLView::handleMiddleMouseUp(S32 x, S32 y, MASK mask)
 LLView* LLView::childrenHandleScrollWheel(S32 x, S32 y, S32 clicks)
 {
 	return childrenHandleMouseEvent(&LLView::handleScrollWheel, x, y, clicks, false);
+}
+
+LLView* LLView::childrenHandleScrollHWheel(S32 x, S32 y, S32 clicks)
+{
+	return childrenHandleMouseEvent(&LLView::handleScrollHWheel, x, y, clicks, false);
 }
 
 // Called during downward traversal
@@ -1158,7 +1193,7 @@ void LLView::drawChildren()
 			if (viewp->getVisible() && viewp->getRect().isValid())
 			{
 				LLRect screen_rect = viewp->calcScreenRect();
-				if ( rootp->getLocalRect().overlaps(screen_rect)  && LLUI::getInstance()->mDirtyRect.overlaps(screen_rect))
+				if ( rootp->getLocalRect().overlaps(screen_rect)  && sDirtyRect.overlaps(screen_rect))
 				{
 					LLUI::pushMatrix();
 					{
@@ -1200,7 +1235,15 @@ void LLView::dirtyRect()
 		parent = parent->getParent();
 	}
 
-	LLUI::getInstance()->dirtyRect(cur->calcScreenRect());
+    if (!sIsRectDirty)
+    {
+        sDirtyRect = cur->calcScreenRect();
+        sIsRectDirty = true;
+    }
+    else
+    {
+        sDirtyRect.unionWith(cur->calcScreenRect());
+    }
 }
 
 //Draw a box for debugging.
@@ -1371,7 +1414,9 @@ void LLView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			S32 delta_x = child_rect.mLeft - viewp->getRect().mLeft;
 			S32 delta_y = child_rect.mBottom - viewp->getRect().mBottom;
 			viewp->translate( delta_x, delta_y );
-			if (child_rect.getWidth() != viewp->getRect().getWidth() || child_rect.getHeight() != viewp->getRect().getHeight())
+			if (child_rect.getWidth() != viewp->getRect().getWidth()
+                || child_rect.getHeight() != viewp->getRect().getHeight()
+                || sForceReshape)
 			{
 				viewp->reshape(child_rect.getWidth(), child_rect.getHeight());
 			}

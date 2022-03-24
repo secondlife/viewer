@@ -28,6 +28,7 @@
 #include "lltracethreadrecorder.h"
 #include "llfasttimer.h"
 #include "lltrace.h"
+#include "llstl.h"
 
 namespace LLTrace
 {
@@ -64,16 +65,15 @@ void ThreadRecorder::init()
 	activate(&mThreadRecordingBuffers);
 
 	// initialize time block parent pointers
-	for (BlockTimerStatHandle::instance_tracker_t::instance_iter it = BlockTimerStatHandle::instance_tracker_t::beginInstances(), end_it = BlockTimerStatHandle::instance_tracker_t::endInstances(); 
-		it != end_it; 
-		++it)
+	for (auto& base : BlockTimerStatHandle::instance_snapshot())
 	{
-		BlockTimerStatHandle& time_block = static_cast<BlockTimerStatHandle&>(*it);
-		TimeBlockTreeNode& tree_node = mTimeBlockTreeNodes[it->getIndex()];
+		// because of indirect derivation from LLInstanceTracker, have to downcast
+		BlockTimerStatHandle& time_block = static_cast<BlockTimerStatHandle&>(base);
+		TimeBlockTreeNode& tree_node = mTimeBlockTreeNodes[time_block.getIndex()];
 		tree_node.mBlock = &time_block;
 		tree_node.mParent = &root_time_block;
 
-		it->getCurrentAccumulator().mParent = &root_time_block;
+		time_block.getCurrentAccumulator().mParent = &root_time_block;
 	}
 
 	mRootTimer = new BlockTimer(root_time_block);

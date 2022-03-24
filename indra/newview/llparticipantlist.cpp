@@ -259,11 +259,7 @@ LLParticipantList::~LLParticipantList()
 */
 void LLParticipantList::onAvalineCallerFound(const LLUUID& participant_id)
 {
-	LLConversationItemParticipant* participant = findParticipant(participant_id);
-	if (participant)
-	{
-		removeParticipant(participant);
-	}
+	removeParticipant(participant_id);
 	// re-add avaline caller with a correct class instance.
 	addAvatarIDExceptAgent(participant_id);
 }
@@ -397,6 +393,7 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 	// Hack for this: LLAvatarTracker::instance().isBuddyOnline(avatar_id))
 	
 	// Add the participant model to the session's children list
+	// This will post "add_participant" event
 	addParticipant(participant);
 
 	adjustParticipant(avatar_id);

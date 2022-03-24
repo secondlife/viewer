@@ -62,10 +62,9 @@ public:
 	static std::string getPermissionString(const LLSD& message, const std::string& base);
 	void setEventsToSave(LLSD new_events){mEventsToSave = new_events; }
 	bool isNotExpired(std::string& date);
-protected:
 	void handleExperienceMessage(LLSD& message);
 
-
+protected:
 	void loadEvents();
 	void saveEvents();
 	void eraseExpired();

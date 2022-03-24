@@ -184,34 +184,47 @@ void LLImageGL::cleanupClass()
 //static
 S32 LLImageGL::dataFormatBits(S32 dataformat)
 {
-	switch (dataformat)
-	{
-	  case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return 4;
-	  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return 8;
-	  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return 8;
-	  case GL_LUMINANCE:						return 8;
-	  case GL_ALPHA:							return 8;
-	  case GL_COLOR_INDEX:						return 8;
-	  case GL_LUMINANCE_ALPHA:					return 16;
-	  case GL_RGB:								return 24;
-	  case GL_RGB8:								return 24;
-	  case GL_RGBA:								return 32;
-	  case GL_BGRA:								return 32;		// Used for QuickTime media textures on the Mac
-	  default:
-		LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
-		return 0;
-	}
+    switch (dataformat)
+    {
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	        return 4;
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:    return 4;
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	        return 8;
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:    return 8;
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	        return 8;
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:    return 8;
+    case GL_LUMINANCE:						        return 8;
+    case GL_ALPHA:							        return 8;
+    case GL_COLOR_INDEX:						    return 8;
+    case GL_LUMINANCE_ALPHA:					    return 16;
+    case GL_RGB:								    return 24;
+    case GL_SRGB:								    return 24;
+    case GL_RGB8:								    return 24;
+    case GL_RGBA:								    return 32;
+    case GL_SRGB_ALPHA:						        return 32;
+    case GL_BGRA:								    return 32;		// Used for QuickTime media textures on the Mac
+    default:
+        LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
+        return 0;
+    }
 }
 
 //static
 S32 LLImageGL::dataFormatBytes(S32 dataformat, S32 width, S32 height)
 {
-	if (dataformat >= GL_COMPRESSED_RGB_S3TC_DXT1_EXT &&
-		dataformat <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
-	{
-		if (width < 4) width = 4;
-		if (height < 4) height = 4;
-	}
+    switch (dataformat)
+    {
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+        if (width < 4) width = 4;
+        if (height < 4) height = 4;
+        break;
+    default:
+        break;
+    }
 	S32 bytes ((width*height*dataFormatBits(dataformat)+7)>>3);
 	S32 aligned = (bytes+3)&~3;
 	return aligned;
@@ -223,14 +236,19 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 	switch (dataformat)
 	{
 	  case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return 3;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT: return 3;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return 4;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT: return 4;
 	  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return 4;
+	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: return 4;
 	  case GL_LUMINANCE:						return 1;
 	  case GL_ALPHA:							return 1;
 	  case GL_COLOR_INDEX:						return 1;
 	  case GL_LUMINANCE_ALPHA:					return 2;
 	  case GL_RGB:								return 3;
+	  case GL_SRGB:								return 3;
 	  case GL_RGBA:								return 4;
+	  case GL_SRGB_ALPHA:						return 4;
 	  case GL_BGRA:								return 4;		// Used for QuickTime media textures on the Mac
 	  default:
 		LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
@@ -355,7 +373,7 @@ BOOL LLImageGL::create(LLPointer<LLImageGL>& dest, const LLImageRaw* imageraw, B
 
 LLImageGL::LLImageGL(BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -365,7 +383,7 @@ LLImageGL::LLImageGL(BOOL usemipmaps)
 
 LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	llassert( components <= 4 );
 	init(usemipmaps);
@@ -376,7 +394,7 @@ LLImageGL::LLImageGL(U32 width, U32 height, U8 components, BOOL usemipmaps)
 
 LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 :	LLTrace::MemTrackable<LLImageGL>("LLImageGL"),
-	mSaveData(0)
+    mSaveData(0), mExternalTexture(FALSE)
 {
 	init(usemipmaps);
 	setSize(0, 0, 0);
@@ -386,12 +404,36 @@ LLImageGL::LLImageGL(const LLImageRaw* imageraw, BOOL usemipmaps)
 	createGLTexture(0, imageraw); 
 }
 
+LLImageGL::LLImageGL(
+    LLGLuint texName,
+    U32 components,
+    LLGLenum target,
+    LLGLint  formatInternal,
+    LLGLenum formatPrimary,
+    LLGLenum formatType,
+    LLTexUnit::eTextureAddressMode addressMode)
+    : LLTrace::MemTrackable<LLImageGL>("LLImageGL"), mSaveData(0), mExternalTexture(TRUE)
+{
+    init(false);
+    mTexName = texName;
+    mTarget = target;
+    mComponents = components;
+    mAddressMode = addressMode;
+    mFormatType = formatType;
+    mFormatInternal = formatInternal;
+    mFormatPrimary = formatPrimary;
+}
+
+
 LLImageGL::~LLImageGL()
 {
-	LLImageGL::cleanup();
-	sImageList.erase(this);
-	freePickMask();
-	sCount--;
+    if (!mExternalTexture)
+    {
+	    LLImageGL::cleanup();
+	    sImageList.erase(this);
+	    freePickMask();
+	    sCount--;
+    }
 }
 
 void LLImageGL::init(BOOL usemipmaps)
@@ -626,10 +668,20 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SET_IMAGE);
 	bool is_compressed = false;
-	if (mFormatPrimary >= GL_COMPRESSED_RGBA_S3TC_DXT1_EXT && mFormatPrimary <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
-	{
-		is_compressed = true;
-	}
+
+    switch (mFormatPrimary)
+    {
+    case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT:
+    case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+    case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:
+        is_compressed = true;
+        break;
+    default:
+        break;
+    }
 	
 	
 	
@@ -933,38 +985,56 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
 		return FALSE;
 	}
 
-	if( !mHasExplicitFormat )
-	{
-		switch (mComponents)
-		{
-			case 1:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8;
-			mFormatPrimary = GL_LUMINANCE;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 2:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8_ALPHA8;
-			mFormatPrimary = GL_LUMINANCE_ALPHA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 3:
-			mFormatInternal = GL_RGB8;
-			mFormatPrimary = GL_RGB;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 4:
-			mFormatInternal = GL_RGBA8;
-			mFormatPrimary = GL_RGBA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			default:
-			LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
-		}
-	}
+    if (!mHasExplicitFormat)
+    {
+        switch (mComponents)
+        {
+            case 1:
+                // Use luminance alpha (for fonts)
+                mFormatInternal = GL_LUMINANCE8;
+                mFormatPrimary  = GL_LUMINANCE;
+                mFormatType     = GL_UNSIGNED_BYTE;
+                break;
+            case 2:
+                // Use luminance alpha (for fonts)
+                mFormatInternal = GL_LUMINANCE8_ALPHA8;
+                mFormatPrimary  = GL_LUMINANCE_ALPHA;
+                mFormatType     = GL_UNSIGNED_BYTE;
+                break;
+            case 3:
+#if USE_SRGB_DECODE
+                if (gGLManager.mHasTexturesRGBDecode)
+                {
+                    mFormatInternal = GL_SRGB8;
+                }
+                else
+#endif
+                {
+                    mFormatInternal = GL_RGB8;
+                }
+                mFormatPrimary = GL_RGB;
+                mFormatType    = GL_UNSIGNED_BYTE;
+                break;
+            case 4:
+#if USE_SRGB_DECODE
+                if (gGLManager.mHasTexturesRGBDecode)
+                {
+                    mFormatInternal = GL_SRGB8_ALPHA8;
+                }
+                else
+#endif
+                {
+                    mFormatInternal = GL_RGBA8;
+                }
+                mFormatPrimary = GL_RGBA;
+                mFormatType    = GL_UNSIGNED_BYTE;
+                break;
+            default:
+                LL_ERRS() << "Bad number of components for texture: " << (U32) getComponents() << LL_ENDL;
+        }
+    }
 
-	mCurrentDiscardLevel = discard_level;	
+    mCurrentDiscardLevel = discard_level;	
 	mDiscardLevelInAtlas = discard_level;
 	mTexelsInAtlas = raw_image->getWidth() * raw_image->getHeight() ;
 	mLastBindTime = sLastFrameTime;
@@ -1203,10 +1273,18 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 			case GL_RGB8:
 				intformat = GL_COMPRESSED_RGB; 
 				break;
+            case GL_SRGB:
+            case GL_SRGB8:
+                intformat = GL_COMPRESSED_SRGB;
+                break;
 			case GL_RGBA:
 			case GL_RGBA8:
 				intformat = GL_COMPRESSED_RGBA; 
 				break;
+            case GL_SRGB_ALPHA:
+            case GL_SRGB8_ALPHA8:
+                intformat = GL_COMPRESSED_SRGB_ALPHA;
+                break;
 			case GL_LUMINANCE:
 			case GL_LUMINANCE8:
 				intformat = GL_COMPRESSED_LUMINANCE;
@@ -1308,35 +1386,62 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
 		return FALSE;
 	}
 
+	if (mHasExplicitFormat && 
+		((mFormatPrimary == GL_RGBA && mComponents < 4) ||
+		 (mFormatPrimary == GL_RGB  && mComponents < 3)))
+
+	{
+		LL_WARNS()  << "Incorrect format: " << std::hex << mFormatPrimary << " components: " << (U32)mComponents <<  LL_ENDL;		
+		mHasExplicitFormat = FALSE;
+	}
+
 	if( !mHasExplicitFormat )
 	{
-		switch (mComponents)
-		{
-			case 1:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8;
-			mFormatPrimary = GL_LUMINANCE;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 2:
-			// Use luminance alpha (for fonts)
-			mFormatInternal = GL_LUMINANCE8_ALPHA8;
-			mFormatPrimary = GL_LUMINANCE_ALPHA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 3:
-			mFormatInternal = GL_RGB8;
-			mFormatPrimary = GL_RGB;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			case 4:
-			mFormatInternal = GL_RGBA8;
-			mFormatPrimary = GL_RGBA;
-			mFormatType = GL_UNSIGNED_BYTE;
-			break;
-			default:
-			LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
-		}
+        switch (mComponents)
+        {
+        case 1:
+            // Use luminance alpha (for fonts)
+            mFormatInternal = GL_LUMINANCE8;
+            mFormatPrimary = GL_LUMINANCE;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 2:
+            // Use luminance alpha (for fonts)
+            mFormatInternal = GL_LUMINANCE8_ALPHA8;
+            mFormatPrimary = GL_LUMINANCE_ALPHA;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 3:
+        #if USE_SRGB_DECODE
+            if (gGLManager.mHasTexturesRGBDecode)
+            {
+                mFormatInternal = GL_SRGB8;
+            }
+            else
+        #endif
+            {
+                mFormatInternal = GL_RGB8;
+            }
+            mFormatPrimary = GL_RGB;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        case 4:
+        #if USE_SRGB_DECODE
+            if (gGLManager.mHasTexturesRGBDecode)
+            {
+                mFormatInternal = GL_SRGB8_ALPHA8;
+            }
+            else
+        #endif
+            {
+                mFormatInternal = GL_RGBA8;
+            }
+            mFormatPrimary = GL_RGBA;
+            mFormatType = GL_UNSIGNED_BYTE;
+            break;
+        default:
+            LL_ERRS() << "Bad number of components for texture: " << (U32)getComponents() << LL_ENDL;
+        }
 
 		calcAlphaChannelOffsetAndStride() ;
 	}
@@ -1764,28 +1869,30 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
 	}
 
 	mAlphaStride = -1 ;
-	switch (mFormatPrimary)
-	{
-	case GL_LUMINANCE:
-	case GL_ALPHA:
-		mAlphaStride = 1;
-		break;
-	case GL_LUMINANCE_ALPHA:
-		mAlphaStride = 2;
-		break;
-	case GL_RGB:
-		mNeedsAlphaAndPickMask = FALSE ;
-		mIsMask = FALSE;
-		return ; //no alpha channel.
-	case GL_RGBA:
-		mAlphaStride = 4;
-		break;
-	case GL_BGRA_EXT:
-		mAlphaStride = 4;
-		break;
-	default:
-		break;
-	}
+    switch (mFormatPrimary)
+    {
+    case GL_LUMINANCE:
+    case GL_ALPHA:
+        mAlphaStride = 1;
+        break;
+    case GL_LUMINANCE_ALPHA:
+        mAlphaStride = 2;
+        break;
+    case GL_RGB:
+    case GL_SRGB:
+        mNeedsAlphaAndPickMask = FALSE;
+        mIsMask = FALSE;
+        return; //no alpha channel.
+    case GL_RGBA:
+    case GL_SRGB_ALPHA:
+        mAlphaStride = 4;
+        break;
+    case GL_BGRA_EXT:
+        mAlphaStride = 4;
+        break;
+    default:
+        break;
+    }
 
 	mAlphaOffset = -1 ;
 	if (mFormatType == GL_UNSIGNED_BYTE)
@@ -1968,12 +2075,13 @@ void LLImageGL::updatePickMask(S32 width, S32 height, const U8* data_in)
 
 	freePickMask();
 
-	if (mFormatType != GL_UNSIGNED_BYTE ||
-	    mFormatPrimary != GL_RGBA)
-	{
-		//cannot generate a pick mask for this texture
-		return;
-	}
+    if (mFormatType != GL_UNSIGNED_BYTE ||
+        ((mFormatPrimary != GL_RGBA)
+      && (mFormatPrimary != GL_SRGB_ALPHA)))
+    {
+        //cannot generate a pick mask for this texture
+        return;
+    }
 
 #ifdef SHOW_ASSERT
 	const U32 pickSize = createPickMask(width, height);

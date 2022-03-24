@@ -1,5 +1,5 @@
 /** 
- * @file lightF.glsl
+ * @file class1\lighting\lightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

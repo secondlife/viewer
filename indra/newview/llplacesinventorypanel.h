@@ -32,14 +32,16 @@
 class LLLandmarksPanel;
 class LLFolderView;
 
-class LLPlacesInventoryPanel : public LLInventoryPanel
+class LLPlacesInventoryPanel : public LLAssetFilteredInventoryPanel
 {
 public:
 	struct Params 
-		:	public LLInitParam::Block<Params, LLInventoryPanel::Params>
+		:	public LLInitParam::Block<Params, LLAssetFilteredInventoryPanel::Params>
 	{
 		Params()
-		{}
+		{
+           filter_asset_type = "landmark";
+       }
 	};
 
 	LLPlacesInventoryPanel(const Params& p);

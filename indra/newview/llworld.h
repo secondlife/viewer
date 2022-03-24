@@ -138,6 +138,9 @@ public:
 
 	LLViewerTexture *getDefaultWaterTexture();
 	void updateWaterObjects();
+
+    void precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water);
+
 	void waterHeightRegionInfo(std::string const& sim_name, F32 water_height);
 	void shiftRegions(const LLVector3& offset);
 

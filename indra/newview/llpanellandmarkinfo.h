@@ -28,6 +28,7 @@
 #define LL_LLPANELLANDMARKINFO_H
 
 #include "llpanelplaceinfo.h"
+#include "llinventorymodel.h"
 
 class LLComboBox;
 class LLLineEditor;
@@ -43,7 +44,11 @@ public:
 
 	/*virtual*/ void resetLocation();
 
+    // If landmark doesn't exists, will create it at default folder
 	/*virtual*/ void setInfoType(EInfoType type);
+
+    // Sets CREATE_LANDMARK infotype and creates landmark at desired folder
+    void setInfoAndCreateLandmark(const LLUUID& fodler_id);
 
 	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
 
@@ -51,6 +56,7 @@ public:
 	void displayItemInfo(const LLInventoryItem* pItem);
 
 	void toggleLandmarkEditMode(BOOL enabled);
+	void setCanEdit(BOOL enabled);
 
 	const std::string& getLandmarkTitle() const;
 	const std::string getLandmarkNotes() const;
@@ -59,22 +65,41 @@ public:
 	// Select current landmark folder in combobox.
 	BOOL setLandmarkFolder(const LLUUID& id);
 
-	// Create a landmark for the current location
-	// in a folder specified by folder_id.
-	void createLandmark(const LLUUID& folder_id);
-
+	typedef std::vector<LLPointer<LLViewerInventoryCategory> > cat_array_t;
 	static std::string getFullFolderName(const LLViewerInventoryCategory* cat);
+	static void collectLandmarkFolders(LLInventoryModel::cat_array_t& cats);
 
 private:
+    // Create a landmark for the current location
+    // in a folder specified by folder_id.
+    // Expects title and description to be initialized
+    void createLandmark(const LLUUID& folder_id);
+
+    // If landmark doesn't exists, will create it at specified folder
+    void setInfoType(EInfoType type, const LLUUID &folder_id);
+
 	void populateFoldersList();
 
 	LLTextBox*			mOwner;
 	LLTextBox*			mCreator;
 	LLTextBox*			mCreated;
-	LLTextBox*			mLandmarkTitle;
+	LLLineEditor*		mLandmarkTitle;
 	LLLineEditor*		mLandmarkTitleEditor;
 	LLTextEditor*		mNotesEditor;
 	LLComboBox*			mFolderCombo;
 };
 
+class LLUpdateLandmarkParent : public LLInventoryCallback
+{
+public:
+	LLUpdateLandmarkParent(LLPointer<LLViewerInventoryItem> item, LLUUID new_parent) :
+		mItem(item),
+		mNewParentId(new_parent)
+	{};
+	/* virtual */ void fire(const LLUUID& inv_item_id);
+
+private:
+	LLPointer<LLViewerInventoryItem> mItem;
+	LLUUID mNewParentId;
+};
 #endif // LL_LLPANELLANDMARKINFO_H

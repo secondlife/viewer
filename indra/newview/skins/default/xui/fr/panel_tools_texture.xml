@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="Texture" name="Texture">
-	<panel.string name="string repeats per meter">
-		Répétitions au mètre
-	</panel.string>
-	<panel.string name="string repeats per face">
-		Répétitions par face
-	</panel.string>
 	<text name="color label">
 		Couleur
 	</text>
@@ -114,4 +108,5 @@
 	<spinner label="Décalage horizontal" name="shinyOffsetU"/>
 	<spinner label="Décalage vertical" name="shinyOffsetV"/>
 	<check_box initial_value="false" label="Aligner les faces Plan" name="checkbox planar align" tool_tip="Aligner les textures sur toutes les faces sélectionnées avec la dernière face sélectionnée. Application de la texture Plan requise."/>
+	<button label="Aligner" label_selected="Aligner les couches de texture actuelles" name="button align textures" tool_tip="Aligner les couches de texture actuelles"/>
 </panel>

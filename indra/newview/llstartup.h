@@ -80,7 +80,6 @@ typedef enum {
 
 // exported symbols
 extern bool gAgentMovementCompleted;
-extern S32  gMaxAgentGroups;
 extern LLPointer<LLViewerTexture> gStartTexture;
 
 class LLStartUp
@@ -111,10 +110,8 @@ public:
 	static void loadInitialOutfit( const std::string& outfit_folder_name,
 								   const std::string& gender_name );
 
-	//save loaded initial outfit into My Outfits category
-	static void saveInitialOutfit();
-
 	static std::string& getInitialOutfitName();
+	static std::string getUserId();
 	
 	static bool dispatchURL();
 		// if we have a SLURL or sim string ("Ahern/123/45") that started

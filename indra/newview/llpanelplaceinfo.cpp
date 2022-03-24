@@ -43,6 +43,7 @@
 #include "llagent.h"
 #include "llexpandabletextbox.h"
 #include "llpanelpick.h"
+#include "llslurl.h"
 #include "lltexturectrl.h"
 #include "llviewerregion.h"
 #include "llhttpconstants.h"
@@ -78,6 +79,7 @@ BOOL LLPanelPlaceInfo::postBuild()
 	mSnapshotCtrl = getChild<LLTextureCtrl>("logo");
 	mRegionName = getChild<LLTextBox>("region_title");
 	mParcelName = getChild<LLTextBox>("parcel_title");
+	mParcelOwner = getChild<LLTextBox>("parcel_owner");
 	mDescEditor = getChild<LLExpandableTextBox>("description");
 
 	mMaturityRatingIcon = getChild<LLIconCtrl>("maturity_icon");
@@ -98,11 +100,13 @@ void LLPanelPlaceInfo::resetLocation()
 	mParcelID.setNull();
 	mRequestedID.setNull();
 	mPosRegion.clearVec();
+	mRegionTitle.clear();
 
 	std::string loading = LLTrans::getString("LoadingData");
 	mMaturityRatingText->setValue(loading);
-	mRegionName->setText(loading);
+	mRegionName->setTextArg("[REGIONAMEPOS]", loading);
 	mParcelName->setText(loading);
+	mParcelOwner->setText(loading);
 	mDescEditor->setText(loading);
 	mMaturityRatingIcon->setValue(LLUUID::null);
 
@@ -182,9 +186,11 @@ void LLPanelPlaceInfo::setErrorStatus(S32 status, const std::string& reason)
 
 	std::string not_available = getString("not_available");
 	mMaturityRatingText->setValue(not_available);
-	mRegionName->setText(not_available);
+	mRegionName->setTextArg("[REGIONAMEPOS]", not_available);
 	mParcelName->setText(not_available);
+	mParcelOwner->setText(not_available);
 	mMaturityRatingIcon->setValue(LLUUID::null);
+	mRegionTitle.clear();
 
 	// Enable "Back" button that was disabled when parcel request was sent.
 	getChild<LLButton>("back_btn")->setEnabled(TRUE);
@@ -198,12 +204,34 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mSnapshotCtrl->setImageAssetID(parcel_data.snapshot_id);
 	}
 
-	if(!parcel_data.sim_name.empty())
-	{
-		mRegionName->setText(parcel_data.sim_name);
+    S32 region_x;
+    S32 region_y;
+    S32 region_z;
+
+    // If the region position is zero, grab position from the global
+    if (mPosRegion.isExactlyZero())
+    {
+        region_x = ll_round(parcel_data.global_x) % REGION_WIDTH_UNITS;
+        region_y = ll_round(parcel_data.global_y) % REGION_WIDTH_UNITS;
+        region_z = ll_round(parcel_data.global_z);
+    }
+    else
+    {
+        region_x = ll_round(mPosRegion.mV[VX]);
+        region_y = ll_round(mPosRegion.mV[VY]);
+        region_z = ll_round(mPosRegion.mV[VZ]);
+    }
+
+    if (!parcel_data.sim_name.empty())
+    {
+        mRegionTitle = parcel_data.sim_name;
+        std::string name_and_pos = llformat("%s (%d, %d, %d)",
+                                   mRegionTitle.c_str(), region_x, region_y, region_z);
+        mRegionName->setTextArg("[REGIONAMEPOS]", name_and_pos);
 	}
 	else
 	{
+		mRegionTitle.clear();
 		mRegionName->setText(LLStringUtil::null);
 	}
 
@@ -216,30 +244,11 @@ void LLPanelPlaceInfo::processParcelInfo(const LLParcelData& parcel_data)
 		mDescEditor->setText(getString("not_available"));
 	}
 
-	S32 region_x;
-	S32 region_y;
-	S32 region_z;
-
-	// If the region position is zero, grab position from the global
-	if(mPosRegion.isExactlyZero())
-	{
-		region_x = ll_round(parcel_data.global_x) % REGION_WIDTH_UNITS;
-		region_y = ll_round(parcel_data.global_y) % REGION_WIDTH_UNITS;
-		region_z = ll_round(parcel_data.global_z);
-	}
-	else
-	{
-		region_x = ll_round(mPosRegion.mV[VX]);
-		region_y = ll_round(mPosRegion.mV[VY]);
-		region_z = ll_round(mPosRegion.mV[VZ]);
-	}
-
 	if (!parcel_data.name.empty())
 	{
 		mParcelTitle = parcel_data.name;
 
-		mParcelName->setText(llformat("%s (%d, %d, %d)",
-							 mParcelTitle.c_str(), region_x, region_y, region_z));
+		mParcelName->setText(mParcelTitle);
 	}
 	else
 	{
@@ -280,12 +289,10 @@ void LLPanelPlaceInfo::reshape(S32 width, S32 height, BOOL called_from_parent)
 
 void LLPanelPlaceInfo::createPick(const LLVector3d& pos_global, LLPanelPickEdit* pick_panel)
 {
-	std::string region_name = mRegionName->getText();
-
 	LLPickData data;
 	data.pos_global = pos_global;
-	data.name = mParcelTitle.empty() ? region_name : mParcelTitle;
-	data.sim_name = region_name;
+	data.name = mParcelTitle.empty() ? mRegionTitle : mParcelTitle;
+	data.sim_name = mRegionTitle;
 	data.desc = mDescEditor->getText();
 	data.snapshot_id = mSnapshotCtrl->getImageAssetID();
 	data.parcel_id = mParcelID;

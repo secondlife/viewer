@@ -91,6 +91,7 @@ public:
 		bool isOutgoingAdHoc() const;
 		bool isAdHoc();
 		bool isP2P();
+		bool isGroupChat();
 		bool isOtherParticipantAvaline();
 
 		bool isP2PSessionType() const { return mSessionType == P2P_SESSION;}

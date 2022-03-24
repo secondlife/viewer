@@ -52,6 +52,10 @@ mMediaParcelLocalID(0)
 	LLMessageSystem* msg = gMessageSystem;
 	msg->setHandlerFunc("ParcelMediaCommandMessage", parcelMediaCommandMessageHandler );
 	msg->setHandlerFunc("ParcelMediaUpdate", parcelMediaUpdateHandler );
+
+    // LLViewerParcelMediaAutoPlay will regularly check and autoplay media,
+    // might be good idea to just integrate it into LLViewerParcelMedia
+    LLSingleton<LLViewerParcelMediaAutoPlay>::getInstance();
 }
 
 LLViewerParcelMedia::~LLViewerParcelMedia()
@@ -80,11 +84,13 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			S32 parcelid = parcel->getLocalID();						
 
 			LLUUID regionid = gAgent.getRegion()->getRegionID();
+			bool location_changed = false;
 			if (parcelid != mMediaParcelLocalID || regionid != mMediaRegionID)
 			{
 				LL_DEBUGS("Media") << "New parcel, parcel id = " << parcelid << ", region id = " << regionid << LL_ENDL;
 				mMediaParcelLocalID = parcelid;
 				mMediaRegionID = regionid;
+				location_changed = true;
 			}
 
 			std::string mediaUrl = std::string ( parcel->getMediaURL () );
@@ -102,6 +108,7 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			if(mMediaImpl.isNull())
 
 			{
+				// media will be autoplayed by LLViewerParcelMediaAutoPlay
 				return;
 			}
 
@@ -110,8 +117,9 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 				|| ( mMediaImpl->getMediaTextureID() != parcel->getMediaID() )
 				|| ( mMediaImpl->getMimeType() != parcel->getMediaType() ))
 			{
-				// Only play if the media types are the same.
-				if(mMediaImpl->getMimeType() == parcel->getMediaType())
+				// Only play if the media types are the same and parcel stays same.
+				if(mMediaImpl->getMimeType() == parcel->getMediaType()
+					&& !location_changed)
 				{
 					play(parcel);
 				}
@@ -127,25 +135,6 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			stop();
 		}
 	}
-	/*
-	else
-	{
-		// no audio player, do a first use dialog if there is media here
-		if (parcel)
-		{
-			std::string mediaUrl = std::string ( parcel->getMediaURL () );
-			if (!mediaUrl.empty ())
-			{
-				if (gWarningSettings.getBOOL("QuickTimeInstalled"))
-				{
-					gWarningSettings.setBOOL("QuickTimeInstalled", FALSE);
-
-					LLNotificationsUtil::add("NoQuickTime" );
-				};
-			}
-		}
-	}
-	*/
 }
 
 // static

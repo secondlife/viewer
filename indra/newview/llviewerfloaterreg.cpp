@@ -33,7 +33,9 @@
 #include "llcommandhandler.h"
 #include "llcompilequeue.h"
 #include "llfasttimerview.h"
+#include "llfloater360capture.h"
 #include "llfloaterabout.h"
+#include "llfloateraddpaymentmethod.h"
 #include "llfloaterauction.h"
 #include "llfloaterautoreplacesettings.h"
 #include "llfloateravatar.h"
@@ -53,28 +55,29 @@
 #include "llfloaterbuyland.h"
 #include "llfloaterbvhpreview.h"
 #include "llfloatercamera.h"
+#include "llfloatercamerapresets.h"
 #include "llfloaterchatvoicevolume.h"
 #include "llfloaterconversationlog.h"
 #include "llfloaterconversationpreview.h"
-#include "llfloaterdeleteenvpreset.h"
+#include "llfloatercreatelandmark.h"
 #include "llfloaterdeleteprefpreset.h"
 #include "llfloaterdestinations.h"
-#include "llfloatereditdaycycle.h"
-#include "llfloatereditsky.h"
-#include "llfloatereditwater.h"
-#include "llfloaterenvironmentsettings.h"
+#include "llfloatereditextdaycycle.h"
+#include "llfloaterenvironmentadjust.h"
 #include "llfloaterexperienceprofile.h"
 #include "llfloaterexperiences.h"
 #include "llfloaterexperiencepicker.h"
 #include "llfloaterevent.h"
-#include "llfloaterflickr.h"
+#include "llfloaterfixedenvironment.h"
 #include "llfloaterfonttest.h"
+#include "llfloaterforgetuser.h"
 #include "llfloatergesture.h"
 #include "llfloatergodtools.h"
 #include "llfloatergridstatus.h"
 #include "llfloatergroups.h"
 #include "llfloaterhelpbrowser.h"
 #include "llfloaterhoverheight.h"
+#include "llfloaterhowto.h"
 #include "llfloaterhud.h"
 #include "llfloaterimagepreview.h"
 #include "llfloaterimsession.h"
@@ -91,6 +94,7 @@
 #include "llfloatermemleak.h"
 #include "llfloatermodelpreview.h"
 #include "llfloatermyscripts.h"
+#include "llfloatermyenvironment.h"
 #include "llfloaternamedesc.h"
 #include "llfloaternotificationsconsole.h"
 #include "llfloaternotificationstabbed.h"
@@ -105,12 +109,14 @@
 #include "llfloaterperms.h"
 #include "llfloaterpostprocess.h"
 #include "llfloaterpreference.h"
+#include "llfloaterpreferenceviewadvanced.h"
 #include "llfloaterpreviewtrash.h"
 #include "llfloaterproperties.h"
 #include "llfloaterregiondebugconsole.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterregionrestarting.h"
 #include "llfloaterreporter.h"
+#include "llfloatersavecamerapreset.h"
 #include "llfloatersaveprefpreset.h"
 #include "llfloatersceneloadstats.h"
 #include "llfloaterscriptdebug.h"
@@ -132,7 +138,6 @@
 #include "llfloatertos.h"
 #include "llfloatertoybox.h"
 #include "llfloatertranslationsettings.h"
-#include "llfloatertwitter.h"
 #include "llfloateruipreview.h"
 #include "llfloatervoiceeffect.h"
 #include "llfloaterwebcontent.h"
@@ -191,8 +196,10 @@ void LLViewerFloaterReg::registerFloaters()
 	// *NOTE: Please keep these alphabetized for easier merges
 
 	LLFloaterAboutUtil::registerFloater();
+	LLFloaterReg::add("360capture", "floater_360capture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloater360Capture>);
 	LLFloaterReg::add("block_timers", "floater_fast_timers.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFastTimerView>);
 	LLFloaterReg::add("about_land", "floater_about_land.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLand>);
+	LLFloaterReg::add("add_payment_method", "floater_add_payment_method.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAddPaymentMethod>);
 	LLFloaterReg::add("appearance", "floater_my_appearance.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("associate_listing", "floater_associate_listing.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAssociateListing>);
 	LLFloaterReg::add("auction", "floater_auction.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterAuction>);
@@ -214,20 +221,25 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("bumps", "floater_bumps.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBump>);
 
 	LLFloaterReg::add("camera", "floater_camera.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCamera>);
+	LLFloaterReg::add("camera_presets", "floater_camera_presets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCameraPresets>);
 	LLFloaterReg::add("chat_voice", "floater_voice_chat_volume.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterChatVoiceVolume>);
 	LLFloaterReg::add("nearby_chat", "floater_im_session.xml", (LLFloaterBuildFunc)&LLFloaterIMNearbyChat::buildFloater);
 	LLFloaterReg::add("compile_queue", "floater_script_queue.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCompileQueue>);
 	LLFloaterReg::add("conversation", "floater_conversation_log.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterConversationLog>);
+	LLFloaterReg::add("add_landmark", "floater_create_landmark.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterCreateLandmark>);
 
 	LLFloaterReg::add("delete_pref_preset", "floater_delete_pref_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDeletePrefPreset>);
 	LLFloaterReg::add("destinations", "floater_destinations.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDestinations>);
 
 	LLFloaterReg::add("env_post_process", "floater_post_process.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPostProcess>);
-	LLFloaterReg::add("env_settings", "floater_environment_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentSettings>);
-	LLFloaterReg::add("env_delete_preset", "floater_delete_env_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterDeleteEnvPreset>);
-	LLFloaterReg::add("env_edit_sky", "floater_edit_sky_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditSky>);
-	LLFloaterReg::add("env_edit_water", "floater_edit_water_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditWater>);
-	LLFloaterReg::add("env_edit_day_cycle", "floater_edit_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditDayCycle>);
+
+    LLFloaterReg::add("env_fixed_environmentent_water", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentWater>);
+    LLFloaterReg::add("env_fixed_environmentent_sky", "floater_fixedenvironment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFixedEnvironmentSky>);
+
+    LLFloaterReg::add("env_adjust_snapshot", "floater_adjust_environment.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEnvironmentAdjust>);
+
+    LLFloaterReg::add("env_edit_extdaycycle", "floater_edit_ext_day_cycle.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEditExtDayCycle>);
+    LLFloaterReg::add("my_environments", "floater_my_environments.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMyEnvironment>);
 
     LLFloaterReg::add("event", "floater_event.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterEvent>);
     LLFloaterReg::add("experiences", "floater_experiences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiences>);
@@ -235,6 +247,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("experience_search", "floater_experience_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterExperiencePicker>);
 
 	LLFloaterReg::add("font_test", "floater_font_test.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFontTest>);
+	LLFloaterReg::add("forget_username", "floater_forget_user.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterForgetUser>);
 
 	LLFloaterReg::add("gestures", "floater_gesture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGesture>);
 	LLFloaterReg::add("god_tools", "floater_god_tools.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterGodTools>);
@@ -297,6 +310,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("places", "floater_places.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("preferences", "floater_preferences.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreference>);
 	LLFloaterReg::add("prefs_graphics_advanced", "floater_preferences_graphics_advanced.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreferenceGraphicsAdvanced>);
+	LLFloaterReg::add("prefs_view_advanced", "floater_preferences_view_advanced.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreferenceViewAdvanced>);
 	LLFloaterReg::add("prefs_proxy", "floater_preferences_proxy.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreferenceProxy>);
 	LLFloaterReg::add("prefs_spellchecker_import", "floater_spellcheck_import.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSpellCheckerImport>);
 	LLFloaterReg::add("prefs_translation", "floater_translation_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTranslationSettings>);
@@ -316,6 +330,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("properties", "floater_inventory_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProperties>);
 	LLFloaterReg::add("publish_classified", "floater_publish_classified.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPublishClassifiedFloater>);
 	LLFloaterReg::add("save_pref_preset", "floater_save_pref_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSavePrefPreset>);
+	LLFloaterReg::add("save_camera_preset", "floater_save_camera_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSaveCameraPreset>);
 	LLFloaterReg::add("script_colors", "floater_script_ed_prefs.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptEdPrefs>);
 
 	LLFloaterReg::add("telehubs", "floater_telehub.xml",&LLFloaterReg::build<LLFloaterTelehub>);
@@ -350,13 +365,8 @@ void LLViewerFloaterReg::registerFloaters()
     LLFloaterReg::add("search", "floater_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSearch>);
 	LLFloaterReg::add("my_profile", "floater_my_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
 	LLFloaterReg::add("profile", "floater_web_profile.xml", (LLFloaterBuildFunc)&LLFloaterWebProfile::create);
-	LLFloaterReg::add("how_to", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
+	LLFloaterReg::add("guidebook", "floater_how_to.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterHowTo>);
 
-	LLFloaterReg::add("flickr_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
-	LLFloaterReg::add("twitter_web", "floater_fbc_web.xml", (LLFloaterBuildFunc)&LLFloaterWebContent::create);
-	
-	LLFloaterReg::add("flickr", "floater_flickr.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterFlickr>);
-	LLFloaterReg::add("twitter", "floater_twitter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTwitter>);
 	LLFloaterReg::add("big_preview", "floater_big_preview.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterBigPreview>);
 	
 	LLFloaterUIPreviewUtil::registerFloater();

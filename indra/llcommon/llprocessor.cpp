@@ -195,6 +195,8 @@ namespace
 	
 	std::string amd_CPUFamilyName(int composed_family) 
 	{
+        // https://en.wikipedia.org/wiki/List_of_AMD_CPU_microarchitectures
+        // https://developer.amd.com/resources/developer-guides-manuals/
 		switch(composed_family)
 		{
 		case 4: return "AMD 80486/5x86";
@@ -202,6 +204,13 @@ namespace
 		case 6: return "AMD K7";
 		case 0xF: return "AMD K8";
 		case 0x10: return "AMD K8L";
+		case 0x12: return "AMD K10";
+		case 0x14: return "AMD Bobcat";
+		case 0x15: return "AMD Bulldozer";
+		case 0x16: return "AMD Jaguar";
+		case 0x17: return "AMD Zen/Zen+/Zen2";
+		case 0x18: return "AMD Hygon Dhyana";
+		case 0x19: return "AMD Zen 3";
 		}
 		return STRINGIZE("AMD <unknown 0x" << std::hex << composed_family << ">");
 	}

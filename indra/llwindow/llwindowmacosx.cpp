@@ -41,6 +41,7 @@
 #include <OpenGL/OpenGL.h>
 #include <Carbon/Carbon.h>
 #include <CoreServices/CoreServices.h>
+#include <CoreGraphics/CGDisplayConfiguration.h>
 
 extern BOOL gDebugWindowProc;
 BOOL gHiDPISupport = TRUE;
@@ -207,8 +208,17 @@ bool callKeyUp(NSKeyEventRef event, unsigned short key, unsigned int mask)
     return retVal;
 }
 
-bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask)
+bool callKeyDown(NSKeyEventRef event, unsigned short key, unsigned int mask, wchar_t character)
 {
+    if((key == gKeyboard->inverseTranslateKey('Z')) && (character == 'y'))
+    {
+        key = gKeyboard->inverseTranslateKey('Y');
+    }
+    else if ((key == gKeyboard->inverseTranslateKey('Y')) && (character == 'z'))
+    {
+        key = gKeyboard->inverseTranslateKey('Z');
+    }
+
     mRawKeyEvent = event;
 	bool retVal = gKeyboard->handleKeyDown(key, mask);
     mRawKeyEvent = NULL;
@@ -356,9 +366,13 @@ void callMouseDragged(float *pos, MASK mask)
     gWindowImplementation->getCallbacks()->handleMouseDragged(gWindowImplementation, outCoords, gKeyboard->currentMask(TRUE));
 }
 
-void callScrollMoved(float delta)
+void callScrollMoved(float deltaX, float deltaY)
 {
-	gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, delta);
+	if ( gWindowImplementation && gWindowImplementation->getCallbacks() )
+	{
+		gWindowImplementation->getCallbacks()->handleScrollHWheel(gWindowImplementation, deltaX);
+		gWindowImplementation->getCallbacks()->handleScrollWheel(gWindowImplementation, deltaY);
+	}
 }
 
 void callMouseExit()
@@ -417,7 +431,7 @@ void callDeltaUpdate(float *delta, MASK mask)
 	gWindowImplementation->updateMouseDeltas(delta);
 }
 
-void callMiddleMouseDown(float *pos, MASK mask)
+void callOtherMouseDown(float *pos, MASK mask, int button)
 {
 	LLCoordGL		outCoords;
 	outCoords.mX = ll_round(pos[0]);
@@ -426,10 +440,18 @@ void callMiddleMouseDown(float *pos, MASK mask)
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
 	outCoords.mY += deltas[1];
-	gWindowImplementation->getCallbacks()->handleMiddleMouseDown(gWindowImplementation, outCoords, mask);
+
+    if (button == 2)
+    {
+        gWindowImplementation->getCallbacks()->handleMiddleMouseDown(gWindowImplementation, outCoords, mask);
+    }
+    else
+    {
+        gWindowImplementation->getCallbacks()->handleOtherMouseDown(gWindowImplementation, outCoords, mask, button + 1);
+    }
 }
 
-void callMiddleMouseUp(float *pos, MASK mask)
+void callOtherMouseUp(float *pos, MASK mask, int button)
 {
 	LLCoordGL outCoords;
 	outCoords.mX = ll_round(pos[0]);
@@ -437,8 +459,15 @@ void callMiddleMouseUp(float *pos, MASK mask)
 	float deltas[2];
 	gWindowImplementation->getMouseDeltas(deltas);
 	outCoords.mX += deltas[0];
-	outCoords.mY += deltas[1];
-	gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
+    outCoords.mY += deltas[1];
+    if (button == 2)
+    {
+        gWindowImplementation->getCallbacks()->handleMiddleMouseUp(gWindowImplementation, outCoords, mask);
+    }
+    else
+    {
+        gWindowImplementation->getCallbacks()->handleOtherMouseUp(gWindowImplementation, outCoords, mask, button + 1);
+    }
 }
 
 void callModifier(MASK mask)
@@ -1403,6 +1432,7 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_SIZENESW:						return "UI_CURSOR_SIZENESW";
 		case UI_CURSOR_SIZEWE:							return "UI_CURSOR_SIZEWE";
 		case UI_CURSOR_SIZENS:							return "UI_CURSOR_SIZENS";
+		case UI_CURSOR_SIZEALL:							return "UI_CURSOR_SIZEALL";
 		case UI_CURSOR_NO:								return "UI_CURSOR_NO";
 		case UI_CURSOR_WORKING:							return "UI_CURSOR_WORKING";
 		case UI_CURSOR_TOOLGRAB:						return "UI_CURSOR_TOOLGRAB";
@@ -1422,6 +1452,7 @@ const char* cursorIDToName(int id)
 		case UI_CURSOR_TOOLCAMERA:						return "UI_CURSOR_TOOLCAMERA";
 		case UI_CURSOR_TOOLPAN:							return "UI_CURSOR_TOOLPAN";
 		case UI_CURSOR_TOOLZOOMIN:						return "UI_CURSOR_TOOLZOOMIN";
+		case UI_CURSOR_TOOLZOOMOUT:						return "UI_CURSOR_TOOLZOOMOUT";
 		case UI_CURSOR_TOOLPICKOBJECT3:					return "UI_CURSOR_TOOLPICKOBJECT3";
 		case UI_CURSOR_TOOLPLAY:						return "UI_CURSOR_TOOLPLAY";
 		case UI_CURSOR_TOOLPAUSE:						return "UI_CURSOR_TOOLPAUSE";
@@ -1591,6 +1622,7 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_TOOLCAMERA, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLPAN, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLZOOMIN, 7, 6);
+    initPixmapCursor(UI_CURSOR_TOOLZOOMOUT, 7, 6);
 	initPixmapCursor(UI_CURSOR_TOOLPICKOBJECT3, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPLAY, 1, 1);
 	initPixmapCursor(UI_CURSOR_TOOLPAUSE, 1, 1);
@@ -1609,6 +1641,7 @@ void LLWindowMacOSX::initCursors()
 	initPixmapCursor(UI_CURSOR_SIZENESW, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZEWE, 10, 10);
 	initPixmapCursor(UI_CURSOR_SIZENS, 10, 10);
+    initPixmapCursor(UI_CURSOR_SIZEALL, 10, 10);
 
 }
 
@@ -1890,6 +1923,35 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 void LLWindowMacOSX::interruptLanguageTextInput()
 {
 	commitCurrentPreedit(mGLView);
+}
+
+std::vector<std::string> LLWindowMacOSX::getDisplaysResolutionList()
+{
+	std::vector<std::string> resolution_list;
+	
+	CGDirectDisplayID display_ids[10];
+	uint32_t found_displays = 0;
+	CGError err = CGGetActiveDisplayList(10, display_ids, &found_displays);
+	
+	if (kCGErrorSuccess != err)
+	{
+		LL_WARNS() << "Couldn't get a list of active displays" << LL_ENDL;
+		return std::vector<std::string>();
+	}
+	
+	for (uint32_t i = 0; i < found_displays; i++)
+	{
+		S32 monitor_width = CGDisplayPixelsWide(display_ids[i]);
+		S32 monitor_height = CGDisplayPixelsHigh(display_ids[i]);
+		
+		std::ostringstream sstream;
+		sstream << monitor_width << "x" << monitor_height;;
+		std::string res = sstream.str();
+		
+		resolution_list.push_back(res);
+	}
+	
+	return resolution_list;
 }
 
 //static

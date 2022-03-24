@@ -30,7 +30,7 @@
 	<floater.string name="Always">
 		Immer
 	</floater.string>
-	<tab_container name="landtab" tab_min_width="40" width="489">
+	<tab_container name="landtab" tab_min_width="40">
 		<panel label="ALLGEMEIN" name="land_general_panel">
 			<panel.string name="new users only">
 				Nur neue Benutzer

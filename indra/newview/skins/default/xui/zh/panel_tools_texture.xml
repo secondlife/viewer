@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <panel label="材質" name="Texture">
-	<panel.string name="string repeats per meter">
-		每公尺重覆次數
-	</panel.string>
-	<panel.string name="string repeats per face">
-		每一面重覆次數
-	</panel.string>
 	<text name="color label">
 		顏色
 	</text>
@@ -114,4 +108,5 @@
 	<spinner label="水平偏距" name="shinyOffsetU"/>
 	<spinner label="垂直偏距" name="shinyOffsetV"/>
 	<check_box initial_value="false" label="對齊平面" name="checkbox planar align" tool_tip="以最後所選擇的面為基準，對齊全部所選擇的面上的材質。 這必須使用平面材質映射方式。"/>
+	<button label="對齊" label_selected="對齊目前的材質層次" name="button align textures" tool_tip="對齊目前的材質層次"/>
 </panel>

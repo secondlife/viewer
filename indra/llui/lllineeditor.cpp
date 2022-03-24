@@ -96,6 +96,8 @@ LLLineEditor::Params::Params()
 	ignore_tab("ignore_tab", true),
 	is_password("is_password", false),
 	cursor_color("cursor_color"),
+	use_bg_color("use_bg_color", false),
+	bg_color("bg_color"),
 	text_color("text_color"),
 	text_readonly_color("text_readonly_color"),
 	text_tentative_color("text_tentative_color"),
@@ -150,10 +152,12 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mBgImageDisabled( p.background_image_disabled ),
 	mBgImageFocused( p.background_image_focused ),
 	mShowImageFocused( p.bg_image_always_focused ),
+	mUseBgColor(p.use_bg_color),
 	mHaveHistory(FALSE),
 	mReplaceNewlinesWithSpaces( TRUE ),
 	mLabel(p.label),
 	mCursorColor(p.cursor_color()),
+	mBgColor(p.bg_color()),
 	mFgColor(p.text_color()),
 	mReadOnlyFgColor(p.text_readonly_color()),
 	mTentativeFgColor(p.text_tentative_color()),
@@ -1688,37 +1692,42 @@ void LLLineEditor::doDelete()
 
 void LLLineEditor::drawBackground()
 {
-	bool has_focus = hasFocus();
-	LLUIImage* image;
-	if ( mReadOnly )
+	F32 alpha = getCurrentTransparency();
+	if (mUseBgColor)
 	{
-		image = mBgImageDisabled;
-	}
-	else if ( has_focus || mShowImageFocused)
-	{
-		image = mBgImageFocused;
+		gl_rect_2d(getLocalRect(), mBgColor % alpha, TRUE);
 	}
 	else
 	{
-		image = mBgImage;
-	}
+		bool has_focus = hasFocus();
+		LLUIImage* image;
+		if (mReadOnly)
+		{
+			image = mBgImageDisabled;
+		}
+		else if (has_focus || mShowImageFocused)
+		{
+			image = mBgImageFocused;
+		}
+		else
+		{
+			image = mBgImage;
+		}
 
-	if (!image) return;
-	
-	F32 alpha = getCurrentTransparency();
-
-	// optionally draw programmatic border
-	if (has_focus)
-	{
-		LLColor4 tmp_color = gFocusMgr.getFocusColor();
+		if (!image) return;
+		// optionally draw programmatic border
+		if (has_focus)
+		{
+			LLColor4 tmp_color = gFocusMgr.getFocusColor();
+			tmp_color.setAlpha(alpha);
+			image->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(),
+				tmp_color,
+				gFocusMgr.getFocusFlashWidth());
+		}
+		LLColor4 tmp_color = UI_VERTEX_COLOR;
 		tmp_color.setAlpha(alpha);
-		image->drawBorder(0, 0, getRect().getWidth(), getRect().getHeight(),
-						  tmp_color,
-						  gFocusMgr.getFocusFlashWidth());
+		image->draw(getLocalRect(), tmp_color);
 	}
-	LLColor4 tmp_color = UI_VERTEX_COLOR;
-	tmp_color.setAlpha(alpha);
-	image->draw(getLocalRect(), tmp_color);
 }
 
 void LLLineEditor::draw()
@@ -2142,6 +2151,7 @@ void LLLineEditor::clear()
 void LLLineEditor::onTabInto()
 {
 	selectAll();
+    LLUICtrl::onTabInto();
 }
 
 //virtual

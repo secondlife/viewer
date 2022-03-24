@@ -29,42 +29,64 @@
 #if ! defined(LL_DEBUG_H)
 #define LL_DEBUG_H
 
-#include <iostream>
+#include "print.h"
 
 /*****************************************************************************
 *   Debugging stuff
 *****************************************************************************/
-// This class is intended to illuminate entry to a given block, exit from the
-// same block and checkpoints along the way. It also provides a convenient
-// place to turn std::cout output on and off.
+/**
+ * This class is intended to illuminate entry to a given block, exit from the
+ * same block and checkpoints along the way. It also provides a convenient
+ * place to turn std::cerr output on and off.
+ *
+ * If the environment variable LOGTEST is non-empty, each Debug instance will
+ * announce its construction and destruction, presumably at entry and exit to
+ * the block in which it's declared. Moreover, any arguments passed to its
+ * operator()() will be streamed to std::cerr, prefixed by the block
+ * description.
+ *
+ * The variable LOGTEST is used because that's the environment variable
+ * checked by test.cpp, our TUT main() program, to turn on LLError logging. It
+ * is expected that Debug is solely for use in test programs.
+ */
 class Debug
 {
 public:
     Debug(const std::string& block):
-        mBlock(block)
+        mBlock(block),
+        mLOGTEST(getenv("LOGTEST")),
+        // debug output enabled when LOGTEST is set AND non-empty
+        mEnabled(mLOGTEST && *mLOGTEST)
     {
         (*this)("entry");
     }
+
+    // non-copyable
+    Debug(const Debug&) = delete;
 
     ~Debug()
     {
         (*this)("exit");
     }
 
-    void operator()(const std::string& status)
+    template <typename... ARGS>
+    void operator()(ARGS&&... args)
     {
-#if defined(DEBUG_ON)
-        std::cout << mBlock << ' ' << status << std::endl;
-#endif
+        if (mEnabled)
+        {
+            print(mBlock, ' ', std::forward<ARGS>(args)...);
+        }
     }
 
 private:
     const std::string mBlock;
+    const char* mLOGTEST;
+    bool mEnabled;
 };
 
 // It's often convenient to use the name of the enclosing function as the name
 // of the Debug block.
-#define DEBUG Debug debug(__FUNCTION__)
+#define DEBUG Debug debug(LL_PRETTY_FUNCTION)
 
 // These BEGIN/END macros are specifically for debugging output -- please
 // don't assume you must use such for coroutines in general! They only help to

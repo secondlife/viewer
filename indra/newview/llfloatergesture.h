@@ -95,6 +95,9 @@ private:
 	void onCommitList();
 	void onCopyPasteAction(const LLSD& command);
 	void onDeleteSelected();
+	void onRenameSelected();
+
+	static void onGestureRename(const LLSD& notification, const LLSD& response);
 
 	LLUUID mSelectedID;
 	LLUUID mGestureFolderID;

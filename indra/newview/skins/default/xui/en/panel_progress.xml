@@ -44,68 +44,129 @@
                  width="670" />
                 <layout_panel
                  auto_resize="false"
-                 height="250"
+                 height="275"
                  layout="topleft"
-                 min_height="250"
+                 min_height="275"
                  name="panel4"
                  width="670">
                     <icon
                      color="LoginProgressBoxCenterColor"
                      follows="left|right|bottom|top"
-                     height="250"
+                     height="275"
                      image_name="Rounded_Square"
                      layout="topleft"
                      left="0"
                      top="0"
                      width="670" />
-                    <text
-                     follows="left|right|top"
-                     font="SansSerifHuge"
-                     font_shadow="none"
-                     halign="left"
-                     height="20"
-                     layout="topleft"
-                     left_delta="47"
-                     name="title_text"
-                     text_color="LoginProgressBoxTextColor"
-                     top_delta="50"
-                     right="-47"/>
-                    <text
-                     follows="left|right|top"
-                     font="SansSerif"
-                     font_shadow="none"
-                     halign="left"
-                     height="20"
-                     layout="topleft"
-                     left_delta="0"
-                     name="progress_text"
-                     text_color="LoginProgressBoxTextColor"
-                     top_pad="5"
-                     right="-47"
-                     word_wrap="true"/>
-                    <progress_bar
-                     bottom="115"
-                     color_bar="1 1 1 0.96"
-                     follows="left|right|top"
-                     height="16"
-                     layout="topleft"
-                     left="45"
-                     name="login_progress_bar"
-                     right="-45" />
-                    <text
+                    <layout_stack
                      follows="left|right|top|bottom"
-                     font="SansSerifLarge"
-                     font_shadow="none"
-                     halign="left"
-                     height="100"
+                     height="275"
                      layout="topleft"
-                     left="45"
-                     line_spacing.pixels="2"
-                     name="message_text"
-                     text_color="LoginProgressBoxTextColor"
-                     top="145"
-                     right="-90"
-                     word_wrap="true"/>
+                     left="0"
+                     orientation="vertical"
+                     name="vertical_centering"
+                     animate="false"
+                     top="0"
+                     width="670">
+                      <layout_panel
+                       auto_resize="false"
+                       height="30"
+                       layout="topleft"
+                       min_height="30"
+                       name="panel_top_spacer"
+                       width="670">
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="100"
+                       layout="topleft"
+                       min_height="100"
+                       name="panel_login"
+                       width="670">
+                        <text
+                         follows="left|right|top"
+                         layout="topleft"
+                         font="SansSerifHuge"
+                         font_shadow="none"
+                         halign="left"
+                         height="20"
+                         left="47"
+                         top="32"
+                         right="-47"
+                         name="title_text"
+                         text_color="LoginProgressBoxTextColor"/>
+                        <text
+                         follows="left|right|top"
+                         layout="topleft"
+                         font="SansSerif"
+                         font_shadow="none"
+                         halign="left"
+                         height="20"
+                         top_pad="5"
+                         right="-47"
+                         left_delta="0"
+                         name="progress_text"
+                         text_color="LoginProgressBoxTextColor"
+                         word_wrap="true"/>
+                        <progress_bar
+                         color_bar="0 0.67 0.9 0.96"
+                         follows="left|right|top"
+                         layout="topleft"
+                         image_fill="ProgressBarSolid"
+                         height="16"
+                         left="45"
+                         top_pad="5"
+                         name="login_progress_bar"
+                         right="-45" />
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="110"
+                       layout="topleft"
+                       min_height="110"
+                       name="panel_motd"
+                       width="670">
+                        <text
+                         follows="left|right|top|bottom"
+                         font="SansSerifLarge"
+                         font_shadow="none"
+                         halign="left"
+                         valign="center"
+                         height="100"
+                         layout="topleft"
+                         left="45"
+                         line_spacing.pixels="2"
+                         name="message_text"
+                         text_color="LoginProgressBoxTextColor"
+                         top="7"
+                         right="-90"
+                         word_wrap="true"/>
+                      </layout_panel>
+                      <layout_panel
+                       auto_resize="false"
+                       height="40"
+                       layout="topleft"
+                       min_height="40"
+                       name="panel_icons"
+                       width="670">
+                        <!--Logos are tied to following label from code-->
+                        <text
+                         follows="left|right|top"
+                         layout="topleft"
+                         font="SansSerifLarge"
+                         font_shadow="none"
+                         halign="left"
+                         height="16"
+                         width="240"
+                         left="47"
+                         top="6"
+                         line_spacing.pixels="2"
+                         name="logos_lbl"
+                         text_color="LoginProgressBoxTextColor">
+                          Second Life uses
+                        </text>
+                      </layout_panel>
+                    </layout_stack>
                 </layout_panel>
                 <layout_panel
                  height="200"

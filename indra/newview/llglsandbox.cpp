@@ -44,6 +44,7 @@
 #include "llviewercamera.h"
 
 #include "llvoavatarself.h"
+#include "llsky.h"
 #include "llagent.h"
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
@@ -771,6 +772,16 @@ void draw_line_cube(F32 width, const LLVector3& center)
 	gGL.vertex3f(center.mV[VX] + width ,center.mV[VY] - width,center.mV[VZ] - width);
 }
 
+void draw_cross_lines(const LLVector3& center, F32 dx, F32 dy, F32 dz)
+{
+	gGL.vertex3f(center.mV[VX] - dx, center.mV[VY], center.mV[VZ]);
+	gGL.vertex3f(center.mV[VX] + dx, center.mV[VY], center.mV[VZ]);
+	gGL.vertex3f(center.mV[VX], center.mV[VY] - dy, center.mV[VZ]);
+	gGL.vertex3f(center.mV[VX], center.mV[VY] + dy, center.mV[VZ]);
+	gGL.vertex3f(center.mV[VX], center.mV[VY], center.mV[VZ] - dz);
+	gGL.vertex3f(center.mV[VX], center.mV[VY], center.mV[VZ] + dz);
+}
+
 void LLViewerObjectList::renderObjectBeacons()
 {
 	if (mDebugBeacons.empty())
@@ -808,13 +819,7 @@ void LLViewerObjectList::renderObjectBeacons()
 		
 			gGL.begin(LLRender::LINES);
 			gGL.color4fv(color.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
-			gGL.vertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
-
+			draw_cross_lines(thisline, 2.0f, 2.0f, 50.f);
 			draw_line_cube(0.10f, thisline);
 			
 			gGL.end();
@@ -843,13 +848,7 @@ void LLViewerObjectList::renderObjectBeacons()
 			const LLVector3 &thisline = debug_beacon.mPositionAgent;
 			gGL.begin(LLRender::LINES);
 			gGL.color4fv(debug_beacon.mColor.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
-			gGL.vertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
-
+			draw_cross_lines(thisline, 0.5f, 0.5f, 0.5f);
 			draw_line_cube(0.10f, thisline);
 
 			gGL.end();
@@ -880,6 +879,34 @@ void LLViewerObjectList::renderObjectBeacons()
 	}
 }
 
+void LLSky::renderSunMoonBeacons(const LLVector3& pos_agent, const LLVector3& direction, LLColor4 color)
+{
+	LLGLSUIDefault gls_ui;
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+	LLVector3 pos_end;
+	for (S32 i = 0; i < 3; ++i)
+	{
+		pos_end.mV[i] = pos_agent.mV[i] + (50 * direction.mV[i]);
+	}
+	glLineWidth(LLPipeline::DebugBeaconLineWidth);
+	gGL.begin(LLRender::LINES);
+	color.mV[3] *= 0.5f;
+	gGL.color4fv(color.mV);
+	draw_cross_lines(pos_agent, 0.5f, 0.5f, 0.5f);
+	draw_cross_lines(pos_end, 2.f, 2.f, 2.f);
+	gGL.vertex3fv(pos_agent.mV);
+	gGL.vertex3fv(pos_end.mV);
+	gGL.end();
+
+	gGL.flush();
+	glLineWidth(1.f);
+
+}
 
 //-----------------------------------------------------------------------------
 // gpu_benchmark() helper classes
@@ -1005,7 +1032,7 @@ F32 gpu_benchmark()
 
 	//number of samples to take
 	const S32 samples = 64;
-
+		
 	//time limit, allocation operations shouldn't take longer then 30 seconds, same for actual benchmark.
 	const F32 time_limit = 30;
 
@@ -1133,7 +1160,7 @@ F32 gpu_benchmark()
 	F32 gbps = results[results.size()/2];
 
 	LL_INFOS("Benchmark") << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers, " << (F32)results.size() << " tests took " << time_passed << " seconds" << LL_ENDL;
-
+  
 #if LL_DARWIN
     if (gbps > 512.f)
     { 

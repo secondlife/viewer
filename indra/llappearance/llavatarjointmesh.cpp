@@ -379,7 +379,7 @@ void LLAvatarJointMesh::setupJoint(LLAvatarJoint* current_joint)
 	}
 
 	// depth-first traversal
-	for (LLJoint::child_list_t::iterator iter = current_joint->mChildren.begin();
+	for (LLJoint::joints_t::iterator iter = current_joint->mChildren.begin();
 		 iter != current_joint->mChildren.end(); ++iter)
 	{
 		LLAvatarJoint* child_joint = (LLAvatarJoint*)(*iter);

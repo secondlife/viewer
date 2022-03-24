@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   run_build_test.py
 @author Nat Goodspeed
@@ -17,7 +17,7 @@ line.
 
 Example:
 
-python run_build_test.py -DFOO=bar myprog somearg otherarg
+python3 run_build_test.py -DFOO=bar myprog somearg otherarg
 
 sets environment variable FOO=bar, then runs:
 myprog somearg otherarg
@@ -47,7 +47,7 @@ $/LicenseInfo$
 import os
 import sys
 import errno
-import HTMLParser
+import html.parser
 import re
 import signal
 import subprocess
@@ -87,7 +87,6 @@ def main(command, arguments=[], libpath=[], vars={}):
         # might not exist; instead of KeyError, just use an empty string.
         dirs = os.environ.get(var, "").split(os.pathsep)
         # Append the sequence in libpath
-        log.info("%s += %r" % (var, libpath))
         for dir in libpath:
             # append system paths at the end
             if dir in ('/lib', '/usr/lib'):
@@ -105,16 +104,21 @@ def main(command, arguments=[], libpath=[], vars={}):
         # Now rebuild the path string. This way we use a minimum of separators
         # -- and we avoid adding a pointless separator when libpath is empty.
         os.environ[var] = os.pathsep.join(clean_dirs)
-        log.info("%s = %r" % (var, os.environ[var]))
+        # This output format is intended to make it straightforward to copy
+        # the variable settings and the command itself from the build output
+        # and paste the whole thing at a command prompt to rerun it manually.
+        log.info("%s='%s' \\" % (var, os.environ[var]))
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:
-         log.info("Setting: %s" % ("\n".join(["%s=%s" % (key, value) for key, value in vars.iteritems()])))
-    os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
+        for key, value in list(vars.items()):
+            # As noted a few lines above, facilitate copy-paste rerunning.
+            log.info("%s='%s' \\" % (key, value))
+    os.environ.update(dict([(str(key), str(value)) for key, value in vars.items()]))
     # Run the child process.
     command_list = [command]
     command_list.extend(arguments)
-    log.info("Running: %s" % " ".join(command_list))
+    log.info(" ".join((("'%s'" % w) if ' ' in w else w) for w in command_list))
     # Make sure we see all relevant output *before* child-process output.
     sys.stdout.flush()
     try:
@@ -173,7 +177,7 @@ def translate_rc(rc):
         try:
             table = get_windows_table()
             symbol, desc = table[hexrc]
-        except Exception, err:
+        except Exception as err:
             log.error("(%s -- carrying on)" % err)
             log.error("terminated with rc %s (%s)" % (rc, hexrc))
         else:
@@ -190,7 +194,7 @@ def translate_rc(rc):
             strc = str(rc)
         return "terminated by signal %s" % strc
 
-class TableParser(HTMLParser.HTMLParser):
+class TableParser(html.parser.HTMLParser):
     """
     This HTMLParser subclass is designed to parse the table we know exists
     in windows-rcs.html, hopefully without building in too much knowledge of
@@ -200,9 +204,7 @@ class TableParser(HTMLParser.HTMLParser):
     whitespace = re.compile(r'\s*$')
 
     def __init__(self):
-        # Because Python 2.x's HTMLParser is an old-style class, we must use
-        # old-style syntax to forward the __init__() call -- not super().
-        HTMLParser.HTMLParser.__init__(self)
+        super().__init__()
         # this will collect all the data, eventually
         self.table = []
         # Stack whose top (last item) indicates where to append current
@@ -305,8 +307,11 @@ def get_windows_table():
 
     return _windows_table
 
-log=logging.getLogger(__name__)
-logging.basicConfig()
+# Use this instead of logging.basicConfig() because the latter prefixes
+# every line of output with INFO:__main__:...
+log=logging.getLogger()
+log.setLevel(logging.INFO)
+log.addHandler(logging.StreamHandler())
 
 if __name__ == "__main__":
     import argparse

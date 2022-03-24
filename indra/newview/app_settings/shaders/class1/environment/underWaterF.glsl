@@ -1,5 +1,5 @@
 /**
- * @file underWaterF.glsl
+ * @file class1\environment\underWaterF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -47,7 +47,6 @@ uniform float kd;
 uniform vec4 waterPlane;
 uniform vec3 eyeVec;
 uniform vec4 waterFogColor;
-uniform float waterFogDensity;
 uniform float waterFogKS;
 uniform vec2 screenRes;
 
@@ -56,41 +55,7 @@ VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
 
-vec4 applyWaterFog(vec4 color, vec3 viewVec)
-{
-	//normalize view vector
-	vec3 view = normalize(viewVec);
-	float es = -view.z;
-
-	//find intersection point with water plane and eye vector
-	
-	//get eye depth
-	float e0 = max(-waterPlane.w, 0.0);
-	
-	//get object depth
-	float depth = length(viewVec);
-		
-	//get "thickness" of water
-	float l = max(depth, 0.1);
-
-	float kd = waterFogDensity;
-	float ks = waterFogKS;
-	vec4 kc = waterFogColor;
-	
-	float F = 0.98;
-	
-	float t1 = -kd * pow(F, ks * e0);
-	float t2 = kd + ks * es;
-	float t3 = pow(F, t2*l) - 1.0;
-	
-	float L = min(t1/t2*t3, 1.0);
-	
-	float D = pow(0.98, l*kd);
-	//return vec4(1.0, 0.0, 1.0, 1.0);
-	return color * D + kc * L;
-	//depth /= 10.0;
-	//return vec4(depth,depth,depth,0.0);
-}
+vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 void main() 
 {
@@ -108,5 +73,5 @@ void main()
 		
 	vec4 fb = texture2D(screenTex, distort);
 	
-	frag_color = applyWaterFog(fb,view.xyz);
+	frag_color = applyWaterFogView(view.xyz, fb);
 }

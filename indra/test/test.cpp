@@ -37,6 +37,7 @@
 #include "linden_common.h"
 #include "llerrorcontrol.h"
 #include "lltut.h"
+#include "chained_callback.h"
 #include "stringize.h"
 #include "namedtempfile.h"
 #include "lltrace.h"
@@ -71,7 +72,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
-#include <boost/lambda/lambda.hpp>
 
 #include <fstream>
 
@@ -172,8 +172,10 @@ private:
 	LLError::RecorderPtr mRecorder;
 };
 
-class LLTestCallback : public tut::callback
+class LLTestCallback : public chained_callback
 {
+	typedef chained_callback super;
+
 public:
 	LLTestCallback(bool verbose_mode, std::ostream *stream,
 				   boost::shared_ptr<LLReplayLog> replayer) :
@@ -184,7 +186,7 @@ public:
 		mSkippedTests(0),
 		// By default, capture a shared_ptr to std::cout, with a no-op "deleter"
 		// so that destroying the shared_ptr makes no attempt to delete std::cout.
-		mStream(boost::shared_ptr<std::ostream>(&std::cout, boost::lambda::_1)),
+		mStream(boost::shared_ptr<std::ostream>(&std::cout, [](std::ostream*){})),
 		mReplayer(replayer)
 	{
 		if (stream)
@@ -205,22 +207,25 @@ public:
 
 	~LLTestCallback()
 	{
-	}	
+	}
 
 	virtual void run_started()
 	{
 		//std::cout << "run_started" << std::endl;
 		LL_INFOS("TestRunner")<<"Test Started"<< LL_ENDL;
+		super::run_started();
 	}
 
 	virtual void group_started(const std::string& name) {
 		LL_INFOS("TestRunner")<<"Unit test group_started name=" << name << LL_ENDL;
 		*mStream << "Unit test group_started name=" << name << std::endl;
+		super::group_started(name);
 	}
 
 	virtual void group_completed(const std::string& name) {
 		LL_INFOS("TestRunner")<<"Unit test group_completed name=" << name << LL_ENDL;
 		*mStream << "Unit test group_completed name=" << name << std::endl;
+		super::group_completed(name);
 	}
 
 	virtual void test_completed(const tut::test_result& tr)
@@ -282,6 +287,7 @@ public:
 			*mStream << std::endl;
 		}
 		LL_INFOS("TestRunner")<<out.str()<<LL_ENDL;
+		super::test_completed(tr);
 	}
 
 	virtual int getFailedTests() const { return mFailedTests; }
@@ -309,6 +315,7 @@ public:
 			*mStream << "Please report or fix the problem." << std::endl;
 			*mStream << "*********************************" << std::endl;
 		}
+		super::run_completed();
 	}
 
 protected:
@@ -474,9 +481,8 @@ void stream_usage(std::ostream& s, const char* app)
 	  << "LOGTEST=level : for all tests, emit log messages at level 'level'\n"
 	  << "LOGFAIL=level : only for failed tests, emit log messages at level 'level'\n"
 	  << "where 'level' is one of ALL, DEBUG, INFO, WARN, ERROR, NONE.\n"
-	  << "--debug is like LOGTEST=DEBUG, but --debug overrides LOGTEST.\n"
-	  << "Setting LOGFAIL overrides both LOGTEST and --debug: the only log\n"
-	  << "messages you will see will be for failed tests.\n\n";
+	  << "--debug is like LOGTEST=DEBUG, but --debug overrides LOGTEST,\n"
+	  << "while LOGTEST overrides LOGFAIL.\n\n";
 
 	s << "Examples:" << std::endl;
 	s << "  " << app << " --verbose" << std::endl;
@@ -520,35 +526,8 @@ int main(int argc, char **argv)
 #ifndef LL_WINDOWS
 	::testing::InitGoogleMock(&argc, argv);
 #endif
-	// LOGTEST overrides default, but can be overridden by --debug or LOGFAIL.
-	const char* LOGTEST = getenv("LOGTEST");
-	if (LOGTEST)
-	{
-		LLError::initForApplication(".", ".", true /* log to stderr */);
-		LLError::setDefaultLevel(LLError::decodeLevel(LOGTEST));
-	}
-	else
-	{
-		LLError::initForApplication(".", ".", false /* do not log to stderr */);
-		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
-	}	
-	LLError::setFatalFunction(wouldHaveCrashed);
-	std::string test_app_name(argv[0]);
-	std::string test_log = test_app_name + ".log";
-	LLFile::remove(test_log);
-	LLError::logToFile(test_log);
-
-#ifdef CTYPE_WORKAROUND
-	ctype_workaround();
-#endif
 
 	ll_init_apr();
-	
-	if (!sMasterThreadRecorder)
-	{
-		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
-		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
-	}
 	apr_getopt_t* os = NULL;
 	if(APR_SUCCESS != apr_getopt_init(&os, gAPRPoolp, argc, argv))
 	{
@@ -562,7 +541,10 @@ int main(int argc, char **argv)
 	std::string test_group;
 	std::string suite_name;
 
-	// values use for options parsing
+	// LOGTEST overrides default, but can be overridden by --debug.
+	const char* LOGTEST = getenv("LOGTEST");
+
+	// values used for options parsing
 	apr_status_t apr_err;
 	const char* opt_arg = NULL;
 	int opt_id = 0;
@@ -611,7 +593,7 @@ int main(int argc, char **argv)
 				wait_at_exit = true;
 				break;
 			case 'd':
-				LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+				LOGTEST = "DEBUG";
 				break;
 			case 'x':
 				suite_name.assign(opt_arg);
@@ -623,21 +605,44 @@ int main(int argc, char **argv)
 		}
 	}
 
-	// run the tests
-
+	// set up logging
 	const char* LOGFAIL = getenv("LOGFAIL");
-	boost::shared_ptr<LLReplayLog> replayer;
-	// As described in stream_usage(), LOGFAIL overrides both --debug and
-	// LOGTEST.
-	if (LOGFAIL)
+	boost::shared_ptr<LLReplayLog> replayer{boost::make_shared<LLReplayLog>()};
+
+	// Testing environment variables for both 'set' and 'not empty' allows a
+	// user to suppress a pre-existing environment variable by forcing empty.
+	if (LOGTEST && *LOGTEST)
 	{
-		LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
-		replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
+		LLError::initForApplication(".", ".", true /* log to stderr */);
+		LLError::setDefaultLevel(LLError::decodeLevel(LOGTEST));
 	}
 	else
 	{
-		replayer.reset(new LLReplayLog());
+		LLError::initForApplication(".", ".", false /* do not log to stderr */);
+		LLError::setDefaultLevel(LLError::LEVEL_DEBUG);
+		if (LOGFAIL && *LOGFAIL)
+		{
+			LLError::ELevel level = LLError::decodeLevel(LOGFAIL);
+			replayer.reset(new LLReplayLogReal(level, gAPRPoolp));
+		}
 	}
+	LLError::setFatalFunction(wouldHaveCrashed);
+	std::string test_app_name(argv[0]);
+	std::string test_log = test_app_name + ".log";
+	LLFile::remove(test_log);
+	LLError::logToFile(test_log);
+
+#ifdef CTYPE_WORKAROUND
+	ctype_workaround();
+#endif
+
+	if (!sMasterThreadRecorder)
+	{
+		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
+	}
+
+	// run the tests
 
 	LLTestCallback* mycallback;
 	if (getenv("TEAMCITY_PROJECT_NAME"))
@@ -649,7 +654,8 @@ int main(int argc, char **argv)
 		mycallback = new LLTestCallback(verbose_mode, output.get(), replayer);
 	}
 
-	tut::runner.get().set_callback(mycallback);
+	// a chained_callback subclass must be linked with previous
+	mycallback->link();
 
 	if(test_group.empty())
 	{

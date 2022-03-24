@@ -29,6 +29,8 @@
 #ifndef LL_LLVIEWERPRECOMPILEDHEADERS_H
 #define LL_LLVIEWERPRECOMPILEDHEADERS_H
 
+#include "llwin32headers.h"
+
 // This file MUST be the first one included by each .cpp file
 // in viewer.
 // It is used to precompile headers for improved build speed.
@@ -99,7 +101,6 @@
 #include "v4math.h"
 #include "xform.h"
 
-// Library includes from llvfs
 #include "lldir.h"
 
 // Library includes from llmessage project

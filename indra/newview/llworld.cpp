@@ -730,11 +730,20 @@ void LLWorld::updateRegions(F32 max_update_time)
 		{
 			//perform some necessary but very light updates.
 			(*iter)->lightIdleUpdate();
-		}		
+		}
+	}
+
+	if(max_time > 0.f)
+	{
+		max_time = llmin((F32)(max_update_time - update_timer.getElapsedTimeF32()), max_update_time * 0.25f);
+	}
+	if(max_time > 0.f)
+	{
+		LLViewerRegion::idleCleanup(max_time);
 	}
 
 	sample(sNumActiveCachedObjects, mNumOfActiveCachedObjects);
-		}
+}
 
 void LLWorld::clearAllVisibleObjects()
 {
@@ -869,6 +878,57 @@ void LLWorld::waterHeightRegionInfo(std::string const& sim_name, F32 water_heigh
 		{
 			(*iter)->setWaterHeight(water_height);
 			break;
+		}
+	}
+}
+
+void LLWorld::precullWaterObjects(LLCamera& camera, LLCullResult* cull, bool include_void_water)
+{
+	if (!gAgent.getRegion())
+	{
+		return;
+	}
+
+	if (mRegionList.empty())
+	{
+		LL_WARNS() << "No regions!" << LL_ENDL;
+		return;
+	}
+
+	for (region_list_t::iterator iter = mRegionList.begin();
+		 iter != mRegionList.end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		LLVOWater* waterp = regionp->getLand().getWaterObj();
+		if (waterp && waterp->mDrawable)
+		{
+			waterp->mDrawable->setVisible(camera);
+		    cull->pushDrawable(waterp->mDrawable);
+		}
+	}
+
+    if (include_void_water)
+    {
+		for (std::list<LLPointer<LLVOWater> >::iterator iter = mHoleWaterObjects.begin();
+			 iter != mHoleWaterObjects.end(); ++ iter)
+		{
+			LLVOWater* waterp = (*iter).get();
+		    if (waterp && waterp->mDrawable)
+            {
+                waterp->mDrawable->setVisible(camera);
+		        cull->pushDrawable(waterp->mDrawable);
+            }
+	    }
+    }
+
+	S32 dir;
+	for (dir = 0; dir < 8; dir++)
+	{
+		LLVOWater* waterp = mEdgeWaterObjects[dir];
+		if (waterp && waterp->mDrawable)
+		{
+            waterp->mDrawable->setVisible(camera);
+		    cull->pushDrawable(waterp->mDrawable);
 		}
 	}
 }
@@ -1134,6 +1194,11 @@ public:
 
 	virtual void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
 	{
+        if (LLApp::isExiting())
+        {
+            return;
+        }
+
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
 			!input["body"].has("seed-capability"))
@@ -1157,11 +1222,14 @@ public:
 	}
 };
 
+static LLTrace::BlockTimerStatHandle FTM_DISABLE_REGION("Disable Region");
 // disable the circuit to this simulator
 // Called in response to "DisableSimulator" message.
 void process_disable_simulator(LLMessageSystem *mesgsys, void **user_data)
-{	
-	LLHost host = mesgsys->getSender();
+{
+    LL_RECORD_BLOCK_TIME(FTM_DISABLE_REGION);
+
+    LLHost host = mesgsys->getSender();
 
 	//LL_INFOS() << "Disabling simulator with message from " << host << LL_ENDL;
 	LLWorld::getInstance()->removeRegion(host);

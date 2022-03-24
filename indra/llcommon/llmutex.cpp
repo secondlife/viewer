@@ -32,8 +32,7 @@
 //============================================================================
 
 LLMutex::LLMutex() :
- mCount(0),
- mLockingThread(NO_THREAD)
+ mCount(0)
 {
 }
 
@@ -55,7 +54,7 @@ void LLMutex::lock()
 	
 #if MUTEX_DEBUG
 	// Have to have the lock before we can access the debug info
-	U32 id = LLThread::currentID();
+	auto id = LLThread::currentID();
 	if (mIsLocked[id] != FALSE)
 		LL_ERRS() << "Already locked in Thread: " << id << LL_ENDL;
 	mIsLocked[id] = TRUE;
@@ -74,13 +73,13 @@ void LLMutex::unlock()
 	
 #if MUTEX_DEBUG
 	// Access the debug info while we have the lock
-	U32 id = LLThread::currentID();
+	auto id = LLThread::currentID();
 	if (mIsLocked[id] != TRUE)
 		LL_ERRS() << "Not locked in Thread: " << id << LL_ENDL;	
 	mIsLocked[id] = FALSE;
 #endif
 
-	mLockingThread = NO_THREAD;
+	mLockingThread = LLThread::id_t();
 	mMutex.unlock();
 }
 
@@ -102,7 +101,7 @@ bool LLMutex::isSelfLocked()
 	return mLockingThread == LLThread::currentID();
 }
 
-U32 LLMutex::lockingThread() const
+LLThread::id_t LLMutex::lockingThread() const
 {
 	return mLockingThread;
 }
@@ -122,7 +121,7 @@ bool LLMutex::trylock()
 	
 #if MUTEX_DEBUG
 	// Have to have the lock before we can access the debug info
-	U32 id = LLThread::currentID();
+	auto id = LLThread::currentID();
 	if (mIsLocked[id] != FALSE)
 		LL_ERRS() << "Already locked in Thread: " << id << LL_ENDL;
 	mIsLocked[id] = TRUE;

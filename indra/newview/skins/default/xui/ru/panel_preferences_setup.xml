@@ -14,7 +14,7 @@
 	<text name="Web:">
 		Браузер:
 	</text>
-	<radio_group name="preferred_browser_behavior">
+	<radio_group name="preferred_browser_behavior" left_delta="30">
 		<radio_item label="Используйте встроенный браузер для всех ссылок" name="internal" tool_tip="Будет использоваться браузер, заданный в системе по умолчанию. Не рекомендуется, если [APP_NAME] работает в полноэкранном режиме." value="0"/>
 		<radio_item label="Для ссылок Second Life следует использовать только встроенный браузер" name="external" tool_tip="Используйте встроенный браузер для справки, веб-ссылок и т.д. Для ссылок LindenLab/Second Life следует использовать только встроенный браузер." value="1"/>
 		<radio_item label="Для всех ссылок следует использовать встроенный браузер" name="external_all" tool_tip="Для просмотра справки, ссылок на веб-страницы и т. д. будет использоваться встроенный браузер. Этот браузер открывается как новое окно в [APP_NAME]." value="2"/>

@@ -134,7 +134,7 @@ LLAvatarNameCache::~LLAvatarNameCache()
 
 void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLUUID> agentIds)
 {
-    LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::instance().getName()
+    LL_DEBUGS("AvNameCache") << "Entering coroutine " << LLCoros::getName()
         << " with url '" << url << "', requesting " << agentIds.size() << " Agent Ids" << LL_ENDL;
 
     // Check pointer that can be cleaned up by cleanupClass()
@@ -145,10 +145,10 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
     }
 
     LLSD httpResults;
+    bool success = true;
 
     try
     {
-        bool success = true;
 
         LLCoreHttpUtil::HttpCoroutineAdapter httpAdapter("NameCache", sHttpPolicy);
         LLSD results = httpAdapter.getAndSuspend(sHttpRequest, url);
@@ -163,35 +163,47 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
         else
         {
             httpResults = results["http_result"];
-            success = httpResults["success"].asBoolean();
+            if (!httpResults.isMap())
+            {
+                success = false;
+                LL_WARNS("AvNameCache") << " Invalid http_result returned from LLCoreHttpUtil::HttpCoroHandler." << LL_ENDL;
+            }
+            else
+            {
+                success = httpResults["success"].asBoolean();
+                if (!success)
+                {
+                    LL_WARNS("AvNameCache") << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
+                        << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+                }
+            }
+        }
+
+        if (LLAvatarNameCache::instanceExists())
+        {
             if (!success)
-            {
-                LL_WARNS("AvNameCache") << "Error result from LLCoreHttpUtil::HttpCoroHandler. Code "
-                    << httpResults["status"] << ": '" << httpResults["message"] << "'" << LL_ENDL;
+            {   // on any sort of failure add dummy records for any agent IDs 
+                // in this request that we do not have cached already
+                std::vector<LLUUID>::const_iterator it = agentIds.begin();
+                for (; it != agentIds.end(); ++it)
+                {
+                    const LLUUID& agent_id = *it;
+                    LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
+                }
+                return;
             }
+
+            LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(results, httpResults);
         }
-
-        if (!success)
-        {   // on any sort of failure add dummy records for any agent IDs 
-            // in this request that we do not have cached already
-            std::vector<LLUUID>::const_iterator it = agentIds.begin();
-            for ( ; it != agentIds.end(); ++it)
-            {
-                const LLUUID& agent_id = *it;
-                LLAvatarNameCache::getInstance()->handleAgentError(agent_id);
-            }
-            return;
-        }
-
-        LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(results, httpResults);
-
     }
     catch (...)
     {
-        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::instance().getName()
-                                          << "('" << url << "', " << agentIds.size()
-                                          << " http result: " << httpResults.asString()
-                                          << " Agent Ids)"));
+        LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::getName()
+                                          << "('" << url << "', "
+                                          << agentIds.size() << "Agent Ids,"
+                                          << " http result: " << S32(success)
+                                          << " has response: " << S32(httpResults.size())
+                                          << ")"));
         throw;
     }
 }
@@ -285,11 +297,26 @@ void LLAvatarNameCache::processName(const LLUUID& agent_id, const LLAvatarName& 
 		return;
 	}
 
+    bool updated_account = true; // assume obsolete value for new arrivals by default
+
+    std::map<LLUUID, LLAvatarName>::iterator it = mCache.find(agent_id);
+    if (it != mCache.end()
+        && (*it).second.getAccountName() == av_name.getAccountName())
+    {
+        updated_account = false;
+    }
+
 	// Add to the cache
 	mCache[agent_id] = av_name;
 
 	// Suppress request from the queue
 	mPendingQueue.erase(agent_id);
+
+	// notify mute list about changes
+    if (updated_account && mAccountNameChangedCallback)
+    {
+        mAccountNameChangedCallback(agent_id, av_name);
+    }
 
 	// Signal everyone waiting on this name
 	signal_map_t::iterator sig_it =	mSignalMap.find(agent_id);
@@ -303,6 +330,8 @@ void LLAvatarNameCache::processName(const LLUUID& agent_id, const LLAvatarName& 
 		delete signal;
 		signal = NULL;
 	}
+
+
 }
 
 void LLAvatarNameCache::requestNamesViaCapability()

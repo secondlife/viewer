@@ -31,12 +31,19 @@ uniform vec2 screen_res;
 
 VARYING vec2 vary_fragcoord;
 
+// forwards
+void setAtmosAttenuation(vec3 c);
+void setAdditiveColor(vec3 c);
+
 void main()
 {
 	//transform vertex
 	vec4 pos = modelview_projection_matrix * vec4(position.xyz, 1.0);
 	gl_Position = pos; 
-	
-	
+
+    // appease OSX GLSL compiler/linker by touching all the varyings we said we would
+    setAtmosAttenuation(vec3(1));
+    setAdditiveColor(vec3(0));
+
 	vary_fragcoord = (pos.xy*0.5+0.5)*screen_res;
 }

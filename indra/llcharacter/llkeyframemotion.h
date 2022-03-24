@@ -44,7 +44,6 @@
 #include "llbvhconsts.h"
 
 class LLKeyframeDataCache;
-class LLVFS;
 class LLDataPacker;
 
 #define MIN_REQUIRED_PIXEL_AREA_KEYFRAME (40.f)
@@ -116,6 +115,15 @@ public:
 		else return LLJoint::LOW_PRIORITY;
 	}
 
+    virtual S32 getNumJointMotions()
+    {
+        if (mJointMotionList)
+        {
+            return mJointMotionList->getNumJointMotions();
+        }
+        return 0;
+    }
+
 	virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
 
 	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
@@ -141,10 +149,7 @@ public:
 
 	virtual void setStopTime(F32 time);
 
-	static void setVFS(LLVFS* vfs) { sVFS = vfs; }
-
-	static void onLoadComplete(LLVFS *vfs,
-							   const LLUUID& asset_uuid,
+	static void onLoadComplete(const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
 							   void* user_data, S32 status, LLExtStat ext_status);
 
@@ -416,13 +421,7 @@ public:
 		U32 getNumJointMotions() const { return mJointMotionArray.size(); }
 	};
 
-
 protected:
-	static LLVFS*				sVFS;
-
-	//-------------------------------------------------------------------------
-	// Member Data
-	//-------------------------------------------------------------------------
 	JointMotionList*				mJointMotionList;
 	std::vector<LLPointer<LLJointState> > mJointStates;
 	LLJoint*						mPelvisp;

@@ -71,8 +71,9 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
-#include "llviewerwindow.h"
+#include "llviewereventrecorder.h"
 #include "llviewermessage.h"
+#include "llviewerwindow.h"
 #include "llviewershadermgr.h"
 #include "llviewerthrottle.h"
 #include "llvoavatarself.h"
@@ -124,7 +125,9 @@ char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
 
 //control value for middle mouse as talk2push button
-const static std::string MIDDLE_MOUSE_CV = "MiddleMouse";
+const static std::string MIDDLE_MOUSE_CV = "MiddleMouse"; // for voice client and redability
+const static std::string MOUSE_BUTTON_4_CV = "MouseButton4";
+const static std::string MOUSE_BUTTON_5_CV = "MouseButton5";
 
 /// This must equal the maximum value set for the IndirectMaxComplexity slider in panel_preferences_graphics1.xml
 static const U32 INDIRECT_MAX_ARC_OFF = 101; // all the way to the right == disabled
@@ -156,67 +159,6 @@ struct LabelTable : public LLInitParam::Block<LabelTable>
         : labels("label")
     {}
 };
-
-class LLVoiceSetKeyDialog : public LLModalDialog
-{
-public:
-	LLVoiceSetKeyDialog(const LLSD& key);
-	~LLVoiceSetKeyDialog();
-	
-	/*virtual*/ BOOL postBuild();
-	
-	void setParent(LLFloaterPreference* parent) { mParent = parent; }
-	
-	BOOL handleKeyHere(KEY key, MASK mask);
-	static void onCancel(void* user_data);
-		
-private:
-	LLFloaterPreference* mParent;
-};
-
-LLVoiceSetKeyDialog::LLVoiceSetKeyDialog(const LLSD& key)
-  : LLModalDialog(key),
-	mParent(NULL)
-{
-}
-
-//virtual
-BOOL LLVoiceSetKeyDialog::postBuild()
-{
-	childSetAction("Cancel", onCancel, this);
-	getChild<LLUICtrl>("Cancel")->setFocus(TRUE);
-	
-	gFocusMgr.setKeystrokesOnly(TRUE);
-	
-	return TRUE;
-}
-
-LLVoiceSetKeyDialog::~LLVoiceSetKeyDialog()
-{
-}
-
-BOOL LLVoiceSetKeyDialog::handleKeyHere(KEY key, MASK mask)
-{
-	BOOL result = TRUE;
-	
-	if (key == 'Q' && mask == MASK_CONTROL)
-	{
-		result = FALSE;
-	}
-	else if (mParent)
-	{
-		mParent->setKey(key);
-	}
-	closeFloater();
-	return result;
-}
-
-//static
-void LLVoiceSetKeyDialog::onCancel(void* user_data)
-{
-	LLVoiceSetKeyDialog* self = (LLVoiceSetKeyDialog*)user_data;
-	self->closeFloater();
-}
 
 
 // global functions 
@@ -297,37 +239,6 @@ void handleAppearanceCameraMovementChanged(const LLSD& newvalue)
 	}
 }
 
-/*bool callback_skip_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if (0 == option && floater )
-	{
-		if ( floater )
-		{
-			floater->setAllIgnored();
-		//	LLFirstUse::disableFirstUse();
-			floater->buildPopupLists();
-		}
-	}
-	return false;
-}
-
-bool callback_reset_dialogs(const LLSD& notification, const LLSD& response, LLFloaterPreference* floater)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	if ( 0 == option && floater )
-	{
-		if ( floater )
-		{
-			floater->resetAllIgnored();
-			//LLFirstUse::resetFirstUse();
-			floater->buildPopupLists();
-		}
-	}
-	return false;
-}
-*/
-
 void fractionFromDecimal(F32 decimal_val, S32& numerator, S32& denominator)
 {
 	numerator = 0;
@@ -350,10 +261,9 @@ std::string LLFloaterPreference::sSkin = "";
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
 	mGotPersonalInfo(false),
-	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
 	mAvatarDataInitialized(false),
-	mClickActionDirty(false)
+	mSearchDataDirty(true)
 {
 	LLConversationLog::instance().addObserver(this);
 
@@ -362,7 +272,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	static bool registered_dialog = false;
 	if (!registered_dialog)
 	{
-		LLFloaterReg::add("voice_set_key", "floater_select_key.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLVoiceSetKeyDialog>);
+		LLFloaterReg::add("keybind_dialog", "floater_select_key.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLSetKeyBindDialog>);
 		registered_dialog = true;
 	}
 	
@@ -375,8 +285,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ResetCache",				boost::bind(&LLFloaterPreference::onClickResetCache, this));
 	mCommitCallbackRegistrar.add("Pref.ClickSkin",				boost::bind(&LLFloaterPreference::onClickSkin, this,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.SelectSkin",				boost::bind(&LLFloaterPreference::onSelectSkin, this));
-	mCommitCallbackRegistrar.add("Pref.VoiceSetKey",			boost::bind(&LLFloaterPreference::onClickSetKey, this));
-	mCommitCallbackRegistrar.add("Pref.VoiceSetMiddleMouse",	boost::bind(&LLFloaterPreference::onClickSetMiddleMouse, this));
 	mCommitCallbackRegistrar.add("Pref.SetSounds",				boost::bind(&LLFloaterPreference::onClickSetSounds, this));
 	mCommitCallbackRegistrar.add("Pref.ClickEnablePopup",		boost::bind(&LLFloaterPreference::onClickEnablePopup, this));
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
@@ -385,7 +293,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
-	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",     boost::bind(&LLFloaterPreference::onRenderOptionEnable, this));
 	mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
 	mCommitCallbackRegistrar.add("Pref.QualityPerformance",		boost::bind(&LLFloaterPreference::onChangeQuality, this, _2));
@@ -397,6 +305,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.TranslationSettings",	boost::bind(&LLFloaterPreference::onClickTranslationSettings, this));
 	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
 	mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
+	mCommitCallbackRegistrar.add("Pref.RememberedUsernames",    boost::bind(&LLFloaterPreference::onClickRememberedUsernames, this));
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
 	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
 
@@ -647,11 +556,9 @@ void LLFloaterPreference::apply()
 	
 	if (mGotPersonalInfo)
 	{ 
-		bool new_im_via_email = getChild<LLUICtrl>("send_im_to_email")->getValue().asBoolean();
 		bool new_hide_online = getChild<LLUICtrl>("online_visibility")->getValue().asBoolean();		
 	
-		if ((new_im_via_email != mOriginalIMViaEmail)
-			||(new_hide_online != mOriginalHideOnlineStatus))
+		if (new_hide_online != mOriginalHideOnlineStatus)
 		{
 			// This hack is because we are representing several different 	 
 			// possible strings with a single checkbox. Since most users 	 
@@ -665,17 +572,11 @@ void LLFloaterPreference::apply()
 			 //Update showonline value, otherwise multiple applys won't work
 				mOriginalHideOnlineStatus = new_hide_online;
 			}
-			gAgent.sendAgentUpdateUserInfo(new_im_via_email,mDirectoryVisibility);
+			gAgent.sendAgentUpdateUserInfo(mDirectoryVisibility);
 		}
 	}
 
 	saveAvatarProperties();
-
-	if (mClickActionDirty)
-	{
-		updateClickActionSettings();
-		mClickActionDirty = false;
-	}
 }
 
 void LLFloaterPreference::cancel()
@@ -702,17 +603,13 @@ void LLFloaterPreference::cancel()
 	// hide spellchecker settings folder
 	LLFloaterReg::hideInstance("prefs_spellchecker");
 
-	// hide advancede floater
+	// hide advanced graphics floater
 	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
 
-	if (mClickActionDirty)
-	{
-		updateClickActionControls();
-		mClickActionDirty = false;
-	}
+	updateClickActionViews();
 
 	LLFloaterPreferenceProxy * advanced_proxy_settings = LLFloaterReg::findTypedInstance<LLFloaterPreferenceProxy>("prefs_proxy");
 	if (advanced_proxy_settings)
@@ -797,7 +694,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	onChangeAnimationFolder();
 
 	// Load (double-)click to walk/teleport settings.
-	updateClickActionControls();
+	updateClickActionViews();
 	
 	// Enabled/disabled popups, might have been changed by user actions
 	// while preferences floater was closed.
@@ -821,7 +718,8 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	saveSettings();
 
 	// Make sure there is a default preference file
-	LLPresetsManager::getInstance()->createMissingDefault();
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_CAMERA);
+	LLPresetsManager::getInstance()->createMissingDefault(PRESETS_GRAPHIC);
 
 	bool started = (LLStartUp::getStartupState() == STATE_STARTED);
 
@@ -830,12 +728,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 	LLButton* exceptions_btn = findChild<LLButton>("RenderExceptionsButton");
 
-	load_btn->setEnabled(started);
-	save_btn->setEnabled(started);
-	delete_btn->setEnabled(started);
-	exceptions_btn->setEnabled(started);
+	if (load_btn && save_btn && delete_btn && exceptions_btn)
+	{
+		load_btn->setEnabled(started);
+		save_btn->setEnabled(started);
+		delete_btn->setEnabled(started);
+		exceptions_btn->setEnabled(started);
+	}
 
-	collectSearchableItems();
+    collectSearchableItems();
 	if (!mFilterEdit->getText().empty())
 	{
 		mFilterEdit->setText(LLStringExplicit(""));
@@ -843,12 +744,23 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	}
 }
 
-void LLFloaterPreference::onVertexShaderEnable()
+void LLFloaterPreference::onRenderOptionEnable()
 {
 	refreshEnabledGraphics();
 }
 
-void LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable()
+void LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable()
+{
+	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+	if (instance)
+	{
+		instance->refresh();
+	}
+
+	refreshEnabledGraphics();
+}
+
+void LLFloaterPreferenceGraphicsAdvanced::onAdvancedAtmosphericsEnable()
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
@@ -1056,6 +968,7 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 	if (userdata.asString() == "closeadvanced")
 	{
 		LLFloaterReg::hideInstance("prefs_graphics_advanced");
+		updateMaxComplexity();
 	}
 	else
 	{
@@ -1064,12 +977,12 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 }
 
 // static 
-void LLFloaterPreference::updateUserInfo(const std::string& visibility, bool im_via_email, bool is_verified_email)
+void LLFloaterPreference::updateUserInfo(const std::string& visibility)
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
 	if (instance)
 	{
-        instance->setPersonalInfo(visibility, im_via_email, is_verified_email);
+        instance->setPersonalInfo(visibility);
 	}
 }
 
@@ -1219,7 +1132,7 @@ void LLFloaterPreference::buildPopupLists()
 		LLNotificationFormPtr formp = templatep->mForm;
 		
 		LLNotificationForm::EIgnoreType ignore = formp->getIgnoreType();
-		if (ignore == LLNotificationForm::IGNORE_NO)
+		if (ignore <= LLNotificationForm::IGNORE_NO)
 			continue;
 		
 		LLSD row;
@@ -1244,12 +1157,12 @@ void LLFloaterPreference::buildPopupLists()
 						if (it->second.asBoolean())
 						{
 							row["columns"][1]["value"] = formp->getElement(it->first)["ignore"].asString();
+							row["columns"][1]["font"] = "SANSSERIF_SMALL";
+							row["columns"][1]["width"] = 360;
 							break;
 						}
 					}
 				}
-				row["columns"][1]["font"] = "SANSSERIF_SMALL";
-				row["columns"][1]["width"] = 360;
 			}
 			item = disabled_popups.addElement(row);
 		}
@@ -1271,22 +1184,23 @@ void LLFloaterPreference::refreshEnabledState()
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 
 	// if vertex shaders off, disable all shader related products
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") ||
-		!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
 	{
 		ctrl_wind_light->setEnabled(FALSE);
 		ctrl_wind_light->setValue(FALSE);
 	}
 	else
 	{
-		ctrl_wind_light->setEnabled(gSavedSettings.getBOOL("VertexShaderEnable"));
+		ctrl_wind_light->setEnabled(TRUE);
 	}
 
 	//Deferred/SSAO/Shadows
 	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders") && gSavedSettings.getBOOL("VertexShaderEnable");
+	BOOL transparent_water = LLFeatureManager::getInstance()->isFeatureAvailable("RenderTransparentWater") && gSavedSettings.getBOOL("RenderTransparentWater");
+	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						bumpshiny &&
+						transparent_water &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
 						gSavedSettings.getBOOL("RenderAvatarVP") &&
@@ -1306,12 +1220,13 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
 	// Reflections
-	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
-		&& gGLManager.mHasCubeMap
-		&& LLCubeMap::sUseCubeMaps;
+    BOOL reflections = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
 	reflections_text->setEnabled(reflections);
-	
+
+    // Transparent Water
+    LLCheckBoxCtrl* transparent_water_ctrl = getChild<LLCheckBoxCtrl>("TransparentWater");
+
 	// Bump & Shiny	
 	LLCheckBoxCtrl* bumpshiny_ctrl = getChild<LLCheckBoxCtrl>("BumpShiny");
 	bool bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump");
@@ -1332,59 +1247,42 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
 	
-	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
-		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-	} 
-	else
-	{
-		ctrl_avatar_cloth->setEnabled(TRUE);
-	}
-	
-	// Vertex Shaders
-	// Global Shader Enable
-	LLCheckBoxCtrl* ctrl_shader_enable   = getChild<LLCheckBoxCtrl>("BasicShaders");
-	LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
-	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
+    if (gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
+    {
+        ctrl_avatar_cloth->setEnabled(FALSE);
+    } 
+    else
+    {
+        ctrl_avatar_cloth->setEnabled(TRUE);
+    }
 
-	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-	
-	BOOL shaders = ctrl_shader_enable->get();
-	if (shaders)
-	{
-		terrain_detail->setEnabled(FALSE);
-		terrain_text->setEnabled(FALSE);
-	}
-	else
-	{
-		terrain_detail->setEnabled(TRUE);
-		terrain_text->setEnabled(TRUE);
-	}
-	
-	// WindLight
-	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
-	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
-	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+    // Vertex Shaders, Global Shader Enable
+    // SL-12594 Basic shaders are always enabled. DJH TODO clean up now-orphaned state handling code
+    LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
+    LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
 
-	// *HACK just checks to see if we can use shaders... 
-	// maybe some cards that use shaders, but don't support windlight
-	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+    terrain_detail->setEnabled(FALSE);
+    terrain_text->setEnabled(FALSE);
 
-	sky->setEnabled(ctrl_wind_light->get() && shaders);
-	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
+    // WindLight
+    LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
+    LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
+    LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
+    ctrl_wind_light->setEnabled(TRUE);
+    sky->setEnabled(TRUE);
+    sky_text->setEnabled(TRUE);
 
-	//Deferred/SSAO/Shadows
-	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
-	
-	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
-						shaders && 
-						gGLManager.mHasFramebufferObject &&
-						gSavedSettings.getBOOL("RenderAvatarVP") &&
-						(ctrl_wind_light->get()) ? TRUE : FALSE;
+    //Deferred/SSAO/Shadows
+    LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+    
+    BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
+                        ((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
+                        ((transparent_water_ctrl && transparent_water_ctrl->get()) ? TRUE : FALSE) &&
+                        gGLManager.mHasFramebufferObject &&
+                        gSavedSettings.getBOOL("RenderAvatarVP") &&
+                        (ctrl_wind_light->get()) ? TRUE : FALSE;
 
-	ctrl_deferred->setEnabled(enabled);
+    ctrl_deferred->setEnabled(enabled);
 
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
@@ -1455,7 +1353,7 @@ void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 {
 	U32 max_non_impostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
 	// for this one, we just need to make zero, which means off, the max value of the slider
-	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::IMPOSTORS_OFF : max_non_impostors;
+	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER : max_non_impostors;
 	gSavedSettings.setU32("IndirectMaxNonImpostors", indirect_max_non_impostors);
 }
 
@@ -1482,7 +1380,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	LLCheckBoxCtrl* ctrl_avatar_vp     = getChild<LLCheckBoxCtrl>("AvatarVertexProgram");
 	LLCheckBoxCtrl* ctrl_avatar_cloth  = getChild<LLCheckBoxCtrl>("AvatarCloth");
-	LLCheckBoxCtrl* ctrl_shader_enable = getChild<LLCheckBoxCtrl>("BasicShaders");
 	LLCheckBoxCtrl* ctrl_wind_light    = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
@@ -1492,42 +1389,6 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
 	LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
 
-	// if vertex shaders off, disable all shader related products
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"))
-	{
-		ctrl_shader_enable->setEnabled(FALSE);
-		ctrl_shader_enable->setValue(FALSE);
-		
-		ctrl_wind_light->setEnabled(FALSE);
-		ctrl_wind_light->setValue(FALSE);
-
-		sky->setEnabled(FALSE);
-		sky_text->setEnabled(FALSE);
-
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(0);
-		reflections_text->setEnabled(FALSE);
-		
-		ctrl_avatar_vp->setEnabled(FALSE);
-		ctrl_avatar_vp->setValue(FALSE);
-		
-		ctrl_avatar_cloth->setEnabled(FALSE);
-		ctrl_avatar_cloth->setValue(FALSE);
-
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-		
-		ctrl_ssao->setEnabled(FALSE);
-		ctrl_ssao->setValue(FALSE);
-
-		ctrl_dof->setEnabled(FALSE);
-		ctrl_dof->setValue(FALSE);
-
-		ctrl_deferred->setEnabled(FALSE);
-		ctrl_deferred->setValue(FALSE);
-	}
-	
 	// disabled windlight
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
 	{
@@ -1637,6 +1498,7 @@ void LLFloaterPreference::refresh()
 	{
 		advanced->refresh();
 	}
+    updateClickActionViews();
 }
 
 void LLFloaterPreferenceGraphicsAdvanced::refresh()
@@ -1678,55 +1540,12 @@ void LLFloaterPreference::onChangeQuality(const LLSD& data)
 	refresh();
 }
 
-void LLFloaterPreference::onClickSetKey()
-{
-	LLVoiceSetKeyDialog* dialog = LLFloaterReg::showTypedInstance<LLVoiceSetKeyDialog>("voice_set_key", LLSD(), TRUE);
-	if (dialog)
-	{
-		dialog->setParent(this);
-	}
-}
-
-void LLFloaterPreference::setKey(KEY key)
-{
-	getChild<LLUICtrl>("modifier_combo")->setValue(LLKeyboard::stringFromKey(key));
-	// update the control right away since we no longer wait for apply
-	getChild<LLUICtrl>("modifier_combo")->onCommit();
-}
-
-void LLFloaterPreference::onClickSetMiddleMouse()
-{
-	LLUICtrl* p2t_line_editor = getChild<LLUICtrl>("modifier_combo");
-
-	// update the control right away since we no longer wait for apply
-	p2t_line_editor->setControlValue(MIDDLE_MOUSE_CV);
-
-	//push2talk button "middle mouse" control value is in English, need to localize it for presentation
-	LLPanel* advanced_preferences = dynamic_cast<LLPanel*>(p2t_line_editor->getParent());
-	if (advanced_preferences)
-	{
-		p2t_line_editor->setValue(advanced_preferences->getString("middle_mouse"));
-	}
-}
-
 void LLFloaterPreference::onClickSetSounds()
 {
 	// Disable Enable gesture sounds checkbox if the master sound is disabled 
 	// or if sound effects are disabled.
 	getChild<LLCheckBoxCtrl>("gesture_audio_play_btn")->setEnabled(!gSavedSettings.getBOOL("MuteSounds"));
 }
-
-/*
-void LLFloaterPreference::onClickSkipDialogs()
-{
-	LLNotificationsUtil::add("SkipShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_skip_dialogs, _1, _2, this));
-}
-
-void LLFloaterPreference::onClickResetDialogs()
-{
-	LLNotificationsUtil::add("ResetShowNextTimeDialogs", LLSD(), LLSD(), boost::bind(&callback_reset_dialogs, _1, _2, this));
-}
- */
 
 void LLFloaterPreference::onClickEnablePopup()
 {	
@@ -1766,7 +1585,7 @@ void LLFloaterPreference::resetAllIgnored()
 		 iter != LLNotifications::instance().templatesEnd();
 		 ++iter)
 	{
-		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+		if (iter->second->mForm->getIgnoreType() > LLNotificationForm::IGNORE_NO)
 		{
 			iter->second->mForm->setIgnored(false);
 		}
@@ -1779,7 +1598,7 @@ void LLFloaterPreference::setAllIgnored()
 		 iter != LLNotifications::instance().templatesEnd();
 		 ++iter)
 	{
-		if (iter->second->mForm->getIgnoreType() != LLNotificationForm::IGNORE_NO)
+		if (iter->second->mForm->getIgnoreType() > LLNotificationForm::IGNORE_NO)
 		{
 			iter->second->mForm->setIgnored(true);
 		}
@@ -1872,10 +1691,9 @@ bool LLFloaterPreference::moveTranscriptsAndLog()
 	return true;
 }
 
-void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im_via_email, bool is_verified_email)
+void LLFloaterPreference::setPersonalInfo(const std::string& visibility)
 {
 	mGotPersonalInfo = true;
-	mOriginalIMViaEmail = im_via_email;
 	mDirectoryVisibility = visibility;
 	
 	if (visibility == VISIBILITY_DEFAULT)
@@ -1897,20 +1715,13 @@ void LLFloaterPreference::setPersonalInfo(const std::string& visibility, bool im
 	getChildView("friends_online_notify_checkbox")->setEnabled(TRUE);
 	getChild<LLUICtrl>("online_visibility")->setValue(mOriginalHideOnlineStatus); 	 
 	getChild<LLUICtrl>("online_visibility")->setLabelArg("[DIR_VIS]", mDirectoryVisibility);
-	getChildView("send_im_to_email")->setEnabled(is_verified_email);
 
-    std::string tooltip;
-    if (!is_verified_email)
-        tooltip = getString("email_unverified_tooltip");
-
-    getChildView("send_im_to_email")->setToolTip(tooltip);
-
-    // *TODO: Show or hide verify email text here based on is_verified_email
-    getChild<LLUICtrl>("send_im_to_email")->setValue(im_via_email);
 	getChildView("favorites_on_login_check")->setEnabled(TRUE);
 	getChildView("log_path_button")->setEnabled(TRUE);
 	getChildView("chat_font_size")->setEnabled(TRUE);
 	getChildView("conversation_log_combo")->setEnabled(TRUE);
+	getChild<LLUICtrl>("voice_call_friends_only_check")->setEnabled(TRUE);
+	getChild<LLUICtrl>("voice_call_friends_only_check")->setValue(gSavedPerAccountSettings.getBOOL("VoiceCallsFriendsOnly"));
 }
 
 
@@ -1955,7 +1766,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 	LLSliderCtrl* ctrl = getChild<LLSliderCtrl>("IndirectMaxNonImpostors",true);
 	U32 value = ctrl->getValue().asInteger();
 
-	if (0 == value || LLVOAvatar::IMPOSTORS_OFF <= value)
+	if (0 == value || LLVOAvatar::NON_IMPOSTORS_MAX_SLIDER <= value)
 	{
 		value=0;
 	}
@@ -2019,6 +1830,14 @@ void LLFloaterPreference::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreferenceGraphicsAdvanced* floater_graphics_advanced = LLFloaterReg::findTypedInstance<LLFloaterPreferenceGraphicsAdvanced>("prefs_graphics_advanced");
+    if (floater_graphics_advanced)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_graphics_advanced->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_graphics_advanced->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map<std::string, std::string> &label_map)
@@ -2066,6 +1885,14 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
     LLAvatarComplexityControls::updateMax(
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
+
+    LLFloaterPreference* floater_preferences = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+    if (floater_preferences)
+    {
+        LLAvatarComplexityControls::updateMax(
+            floater_preferences->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
+            floater_preferences->getChild<LLTextBox>("IndirectMaxComplexityText"));
+    }
 }
 
 void LLFloaterPreference::onChangeMaturity()
@@ -2191,12 +2018,17 @@ void LLFloaterPreference::onClickAdvanced()
 
 void LLFloaterPreference::onClickActionChange()
 {
-	mClickActionDirty = true;
+    updateClickActionControls();
 }
 
 void LLFloaterPreference::onClickPermsDefault()
 {
 	LLFloaterReg::showInstance("perms_default");
+}
+
+void LLFloaterPreference::onClickRememberedUsernames()
+{
+    LLFloaterReg::showInstance("forget_username");
 }
 
 void LLFloaterPreference::onDeleteTranscripts()
@@ -2226,24 +2058,89 @@ void LLFloaterPreference::onLogChatHistorySaved()
 	}
 }
 
-void LLFloaterPreference::updateClickActionSettings()
-{
-	const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
-	const int double_clk_action = getChild<LLComboBox>("double_click_action_combo")->getValue().asInteger();
-
-	gSavedSettings.setBOOL("ClickToWalk",			single_clk_action == 1);
-	gSavedSettings.setBOOL("DoubleClickAutoPilot",	double_clk_action == 1);
-	gSavedSettings.setBOOL("DoubleClickTeleport",	double_clk_action == 2);
-}
-
 void LLFloaterPreference::updateClickActionControls()
 {
-	const bool click_to_walk = gSavedSettings.getBOOL("ClickToWalk");
-	const bool dbl_click_to_walk = gSavedSettings.getBOOL("DoubleClickAutoPilot");
-	const bool dbl_click_to_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
+    const int single_clk_action = getChild<LLComboBox>("single_click_action_combo")->getValue().asInteger();
+    const int double_clk_action = getChild<LLComboBox>("double_click_action_combo")->getValue().asInteger();
+
+    // Todo: This is a very ugly way to get access to keybindings.
+    // Reconsider possible options.
+    // Potential option: make constructor of LLKeyConflictHandler private
+    // but add a getter that will return shared pointer for specific
+    // mode, pointer should only exist so long as there are external users.
+    // In such case we won't need to do this 'dynamic_cast' nightmare.
+    // updateTable() can also be avoided
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+        iter != tabcontainer->getChildList()->end(); ++iter)
+    {
+        LLView* view = *iter;
+        LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view);
+        if (panel)
+        {
+            panel->setKeyBind("walk_to",
+                              EMouseClickType::CLICK_LEFT,
+                              KEY_NONE,
+                              MASK_NONE,
+                              single_clk_action == 1);
+            
+            panel->setKeyBind("walk_to",
+                              EMouseClickType::CLICK_DOUBLELEFT,
+                              KEY_NONE,
+                              MASK_NONE,
+                              double_clk_action == 1);
+            
+            panel->setKeyBind("teleport_to",
+                              EMouseClickType::CLICK_DOUBLELEFT,
+                              KEY_NONE,
+                              MASK_NONE,
+                              double_clk_action == 2);
+
+            panel->updateAndApply();
+        }
+    }
+}
+
+void LLFloaterPreference::updateClickActionViews()
+{
+    bool click_to_walk = false;
+    bool dbl_click_to_walk = false;
+    bool dbl_click_to_teleport = false;
+
+    // Todo: This is a very ugly way to get access to keybindings.
+    // Reconsider possible options.
+    LLTabContainer* tabcontainer = getChild<LLTabContainer>("pref core");
+    for (child_list_t::const_iterator iter = tabcontainer->getChildList()->begin();
+        iter != tabcontainer->getChildList()->end(); ++iter)
+    {
+        LLView* view = *iter;
+        LLPanelPreferenceControls* panel = dynamic_cast<LLPanelPreferenceControls*>(view);
+        if (panel)
+        {
+            click_to_walk = panel->canKeyBindHandle("walk_to",
+                EMouseClickType::CLICK_LEFT,
+                KEY_NONE,
+                MASK_NONE);
+
+            dbl_click_to_walk = panel->canKeyBindHandle("walk_to",
+                EMouseClickType::CLICK_DOUBLELEFT,
+                KEY_NONE,
+                MASK_NONE);
+
+            dbl_click_to_teleport = panel->canKeyBindHandle("teleport_to",
+                EMouseClickType::CLICK_DOUBLELEFT,
+                KEY_NONE,
+                MASK_NONE);
+        }
+    }
 
 	getChild<LLComboBox>("single_click_action_combo")->setValue((int)click_to_walk);
 	getChild<LLComboBox>("double_click_action_combo")->setValue(dbl_click_to_teleport ? 2 : (int)dbl_click_to_walk);
+}
+
+void LLFloaterPreference::updateSearchableItems()
+{
+    mSearchDataDirty = true;
 }
 
 void LLFloaterPreference::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
@@ -2427,18 +2324,8 @@ BOOL LLPanelPreference::postBuild()
 		getChild<LLTextBox>("mute_chb_label")->setClickedCallback(boost::bind(&toggleMuteWhenMinimized));
 	}
 
-	//////////////////////PanelAdvanced ///////////////////
-	if (hasChild("modifier_combo", TRUE))
-	{
-		//localizing if push2talk button is set to middle mouse
-		if (MIDDLE_MOUSE_CV == getChild<LLUICtrl>("modifier_combo")->getValue().asString())
-		{
-			getChild<LLUICtrl>("modifier_combo")->setValue(getString("middle_mouse"));
-		}
-	}
-
 	//////////////////////PanelSetup ///////////////////
-	if (hasChild("max_bandwidth"), TRUE)
+	if (hasChild("max_bandwidth", TRUE))
 	{
 		mBandWidthUpdater = new LLPanelPreference::Updater(boost::bind(&handleBandwidthChanged, _1), BANDWIDTH_UPDATER_TIMEOUT);
 		gSavedSettings.getControl("ThrottleBandwidthKBPS")->getSignal()->connect(boost::bind(&LLPanelPreference::Updater::update, mBandWidthUpdater, _2));
@@ -2525,9 +2412,13 @@ void LLPanelPreference::showMultipleViewersWarning(LLUICtrl* checkbox, const LLS
 
 void LLPanelPreference::showFriendsOnlyWarning(LLUICtrl* checkbox, const LLSD& value)
 {
-	if (checkbox && checkbox->getValue())
+	if (checkbox)
 	{
-		LLNotificationsUtil::add("FriendsAndGroupsOnly");
+		gSavedPerAccountSettings.setBOOL("VoiceCallsFriendsOnly", checkbox->getValue().asBoolean());
+		if (checkbox->getValue())
+		{
+			LLNotificationsUtil::add("FriendsAndGroupsOnly");
+		}
 	}
 }
 
@@ -2602,26 +2493,23 @@ void LLPanelPreference::updateMediaAutoPlayCheckbox(LLUICtrl* ctrl)
 		bool music_enabled = getChild<LLCheckBoxCtrl>("enable_music")->get();
 		bool media_enabled = getChild<LLCheckBoxCtrl>("enable_media")->get();
 
-		getChild<LLCheckBoxCtrl>("media_auto_play_btn")->setEnabled(music_enabled || media_enabled);
+		getChild<LLCheckBoxCtrl>("media_auto_play_combo")->setEnabled(music_enabled || media_enabled);
 	}
 }
 
 void LLPanelPreference::deletePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("delete_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("delete_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::savePreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("save_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("save_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::loadPreset(const LLSD& user_data)
 {
-	std::string subdirectory = user_data.asString();
-	LLFloaterReg::showInstance("load_pref_preset", subdirectory);
+	LLFloaterReg::showInstance("load_pref_preset", user_data.asString());
 }
 
 void LLPanelPreference::setHardwareDefaults()
@@ -2633,7 +2521,6 @@ class LLPanelPreferencePrivacy : public LLPanelPreference
 public:
 	LLPanelPreferencePrivacy()
 	{
-		mAccountIndependentSettings.push_back("VoiceCallsFriendsOnly");
 		mAccountIndependentSettings.push_back("AutoDisengageMic");
 	}
 
@@ -2679,7 +2566,7 @@ BOOL LLPanelPreferenceGraphics::postBuild()
 
 	LLPresetsManager* presetsMgr = LLPresetsManager::getInstance();
     presetsMgr->setPresetListChangeCallback(boost::bind(&LLPanelPreferenceGraphics::onPresetsListChange, this));
-    presetsMgr->createMissingDefault(); // a no-op after the first time, but that's ok
+    presetsMgr->createMissingDefault(PRESETS_GRAPHIC); // a no-op after the first time, but that's ok
     
 	return LLPanelPreference::postBuild();
 }
@@ -2700,11 +2587,6 @@ void LLPanelPreferenceGraphics::onPresetsListChange()
 	{
 		instance->saveSettings(); //make cancel work correctly after changing the preset
 	}
-	else
-	{
-		std::string dummy;
-		instance->saveGraphicsPreset(dummy);
-	}
 }
 
 void LLPanelPreferenceGraphics::setPresetText()
@@ -2722,7 +2604,7 @@ void LLPanelPreferenceGraphics::setPresetText()
 		}
 	}
 
-	if (hasDirtyChilds() && !preset_graphic_active.empty())
+    if (hasDirtyChilds() && !preset_graphic_active.empty())
 	{
 		gSavedSettings.setString("PresetGraphicActive", "");
 		preset_graphic_active.clear();
@@ -2842,10 +2724,613 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	resetDirtyChilds();
 }
 
+//------------------------LLPanelPreferenceControls--------------------------------
+static LLPanelInjector<LLPanelPreferenceControls> t_pref_contrls("panel_preference_controls");
+
+LLPanelPreferenceControls::LLPanelPreferenceControls()
+    :LLPanelPreference(),
+    mEditingColumn(-1),
+    mEditingMode(0)
+{
+    // MODE_COUNT - 1 because there are currently no settings assigned to 'saved settings'.
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+    {
+        mConflictHandler[i].setLoadMode((LLKeyConflictHandler::ESourceMode)i);
+    }
+}
+
+LLPanelPreferenceControls::~LLPanelPreferenceControls()
+{
+}
+
+BOOL LLPanelPreferenceControls::postBuild()
+{
+    // populate list of controls
+    pControlsTable = getChild<LLScrollListCtrl>("controls_list");
+    pKeyModeBox = getChild<LLComboBox>("key_mode");
+
+    pControlsTable->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onListCommit, this));
+    pKeyModeBox->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onModeCommit, this));
+    getChild<LLButton>("restore_defaults")->setCommitCallback(boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsBtn, this));
+
+    return TRUE;
+}
+
+void LLPanelPreferenceControls::regenerateControls()
+{
+    mEditingMode = pKeyModeBox->getValue().asInteger();
+    mConflictHandler[mEditingMode].loadFromSettings((LLKeyConflictHandler::ESourceMode)mEditingMode);
+    populateControlTable();
+}
+
+bool LLPanelPreferenceControls::addControlTableColumns(const std::string &filename)
+{
+    LLXMLNodePtr xmlNode;
+    LLScrollListCtrl::Contents contents;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+        return false;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
+        return false;
+    }
+
+    for (LLInitParam::ParamIterator<LLScrollListColumn::Params>::const_iterator col_it = contents.columns.begin();
+        col_it != contents.columns.end();
+        ++col_it)
+    {
+        pControlsTable->addColumn(*col_it);
+    }
+
+    return true;
+}
+
+bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
+{
+    LLXMLNodePtr xmlNode;
+    LLScrollListCtrl::Contents contents;
+    if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
+    {
+        LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+        return false;
+    }
+    LLXUIParser parser;
+    parser.readXUI(xmlNode, contents, filename);
+
+    if (!contents.validateBlock())
+    {
+        return false;
+    }
+
+    LLScrollListCell::Params cell_params;
+    // init basic cell params
+    cell_params.font = LLFontGL::getFontSansSerif();
+    cell_params.font_halign = LLFontGL::LEFT;
+    cell_params.column = "";
+    cell_params.value = "";
+
+
+    for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = contents.rows.begin();
+        row_it != contents.rows.end();
+        ++row_it)
+    {
+        std::string control = row_it->value.getValue().asString();
+        if (!control.empty() && control != "menu_separator")
+        {
+            bool show = true;
+            bool enabled = mConflictHandler[mEditingMode].canAssignControl(control);
+            if (!enabled)
+            {
+                // If empty: this is a placeholder to make sure user won't assign
+                // value by accident, don't show it
+                // If not empty: predefined control combination user should see
+                // to know that combination is reserved
+                show = !mConflictHandler[mEditingMode].isControlEmpty(control);
+                // example: teleport_to and walk_to in first person view, and
+                // sitting related functions, see generatePlaceholders()
+            }
+
+            if (show)
+            {
+                // At the moment viewer is hardcoded to assume that columns are named as lst_ctrl%d
+                LLScrollListItem::Params item_params(*row_it);
+                item_params.enabled.setValue(enabled);
+
+                S32 num_columns = pControlsTable->getNumColumns();
+                for (S32 col = 1; col < num_columns; col++)
+                {
+                    cell_params.column = llformat("lst_ctrl%d", col);
+                    cell_params.value = mConflictHandler[mEditingMode].getControlString(control, col - 1);
+                    item_params.columns.add(cell_params);
+                }
+                pControlsTable->addRow(item_params, EAddPosition::ADD_BOTTOM);
+            }
+        }
+        else
+        {
+            // Separator example:
+            // <rows
+            //  enabled = "false">
+            //  <columns
+            //   type = "icon"
+            //   color = "0 0 0 0.7"
+            //   halign = "center"
+            //   value = "menu_separator"
+            //   column = "lst_action" / >
+            //</rows>
+            pControlsTable->addRow(*row_it, EAddPosition::ADD_BOTTOM);
+        }
+    }
+    return true;
+}
+
+void LLPanelPreferenceControls::addControlTableSeparator()
+{
+    LLScrollListItem::Params separator_params;
+    separator_params.enabled(false);
+    LLScrollListCell::Params column_params;
+    column_params.type = "icon";
+    column_params.value = "menu_separator";
+    column_params.column = "lst_action";
+    column_params.color = LLColor4(0.f, 0.f, 0.f, 0.7f);
+    column_params.font_halign = LLFontGL::HCENTER;
+    separator_params.columns.add(column_params);
+    pControlsTable->addRow(separator_params, EAddPosition::ADD_BOTTOM);
+}
+
+void LLPanelPreferenceControls::populateControlTable()
+{
+    pControlsTable->clearRows();
+    pControlsTable->clearColumns();
+
+    // Add columns
+    std::string filename;
+    switch ((LLKeyConflictHandler::ESourceMode)mEditingMode)
+    {
+    case LLKeyConflictHandler::MODE_THIRD_PERSON:
+    case LLKeyConflictHandler::MODE_FIRST_PERSON:
+    case LLKeyConflictHandler::MODE_EDIT_AVATAR:
+    case LLKeyConflictHandler::MODE_SITTING:
+        filename = "control_table_contents_columns_basic.xml";
+        break;
+    default:
+        {
+            // Either unknown mode or MODE_SAVED_SETTINGS
+            // It doesn't have UI or actual settings yet
+            LL_WARNS() << "Unimplemented mode" << LL_ENDL;
+
+            // Searchable columns were removed, mark searchables for an update
+            LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+            if (instance)
+            {
+                instance->updateSearchableItems();
+            }
+            return;
+        }
+    }
+    addControlTableColumns(filename);
+
+    // Add rows.
+    // Each file represents individual visual group (movement/camera/media...)
+    if (mEditingMode == LLKeyConflictHandler::MODE_FIRST_PERSON)
+    {
+        // Don't display whole camera and editing groups
+        addControlTableRows("control_table_contents_movement.xml");
+        addControlTableSeparator();
+        addControlTableRows("control_table_contents_media.xml");
+    }
+    // MODE_THIRD_PERSON; MODE_EDIT_AVATAR; MODE_SITTING
+    else if (mEditingMode < LLKeyConflictHandler::MODE_SAVED_SETTINGS)
+    {
+        // In case of 'sitting' mode, movements still apply due to vehicles
+        // but walk_to is not supported and will be hidden by addControlTableRows
+        addControlTableRows("control_table_contents_movement.xml");
+        addControlTableSeparator();
+
+        addControlTableRows("control_table_contents_camera.xml");
+        addControlTableSeparator();
+
+        addControlTableRows("control_table_contents_editing.xml");
+        addControlTableSeparator();
+
+        addControlTableRows("control_table_contents_media.xml");
+    }
+    else
+    {
+        LL_WARNS() << "Unimplemented mode" << LL_ENDL;
+    }
+
+    // explicit update to make sure table is ready for llsearchableui
+    pControlsTable->updateColumns();
+
+    // Searchable columns were removed and readded, mark searchables for an update
+    // Note: at the moment tables/lists lack proper llsearchableui support
+    LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+    if (instance)
+    {
+        instance->updateSearchableItems();
+    }
+}
+
+void LLPanelPreferenceControls::updateTable()
+{
+    mEditingControl.clear();
+    std::vector<LLScrollListItem*> list = pControlsTable->getAllData();
+    for (S32 i = 0; i < list.size(); ++i)
+    {
+        std::string control = list[i]->getValue();
+        if (!control.empty())
+        {
+            LLScrollListCell* cell = NULL;
+
+            S32 num_columns = pControlsTable->getNumColumns();
+            for (S32 col = 1; col < num_columns; col++)
+            {
+                cell = list[i]->getColumn(col);
+                cell->setValue(mConflictHandler[mEditingMode].getControlString(control, col - 1));
+            }
+        }
+    }
+    pControlsTable->deselectAllItems();
+}
+
+void LLPanelPreferenceControls::apply()
+{
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+    {
+        if (mConflictHandler[i].hasUnsavedChanges())
+        {
+            mConflictHandler[i].saveToSettings();
+        }
+    }
+}
+
+void LLPanelPreferenceControls::cancel()
+{
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+    {
+        if (mConflictHandler[i].hasUnsavedChanges())
+        {
+            mConflictHandler[i].clear();
+        }
+    }
+    pControlsTable->clearRows();
+    pControlsTable->clearColumns();
+}
+
+void LLPanelPreferenceControls::saveSettings()
+{
+    for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+    {
+        if (mConflictHandler[i].hasUnsavedChanges())
+        {
+            mConflictHandler[i].saveToSettings();
+            mConflictHandler[i].clear();
+        }
+    }
+
+    S32 mode = pKeyModeBox->getValue().asInteger();
+    if (mConflictHandler[mode].empty() || pControlsTable->isEmpty())
+    {
+        regenerateControls();
+    }
+}
+
+void LLPanelPreferenceControls::resetDirtyChilds()
+{
+    regenerateControls();
+}
+
+void LLPanelPreferenceControls::onListCommit()
+{
+    LLScrollListItem* item = pControlsTable->getFirstSelected();
+    if (item == NULL)
+    {
+        return;
+    }
+
+    std::string control = item->getValue();
+
+    if (control.empty())
+    {
+        pControlsTable->deselectAllItems();
+        return;
+    }
+
+    if (!mConflictHandler[mEditingMode].canAssignControl(control))
+    {
+        pControlsTable->deselectAllItems();
+        return;
+    }
+
+    S32 cell_ind = item->getSelectedCell();
+    if (cell_ind <= 0)
+    {
+        pControlsTable->deselectAllItems();
+        return;
+    }
+
+    // List does not tell us what cell was clicked, so we have to figure it out manually, but
+    // fresh mouse coordinates are not yet accessible during onCommit() and there are other issues,
+    // so we cheat: remember item user clicked at, trigger 'key dialog' on hover that comes next,
+    // use coordinates from hover to calculate cell
+
+    LLScrollListCell* cell = item->getColumn(cell_ind);
+    if (cell)
+    {
+        LLSetKeyBindDialog* dialog = LLFloaterReg::getTypedInstance<LLSetKeyBindDialog>("keybind_dialog", LLSD());
+        if (dialog)
+        {
+            mEditingControl = control;
+            mEditingColumn = cell_ind;
+            dialog->setParent(this, pControlsTable, DEFAULT_KEY_FILTER);
+
+            LLFloater* root_floater = gFloaterView->getParentFloater(this);
+            if (root_floater)
+                root_floater->addDependentFloater(dialog);
+            dialog->openFloater();
+            dialog->setFocus(TRUE);
+        }
+    }
+    else
+    {
+        pControlsTable->deselectAllItems();
+    }
+}
+
+void LLPanelPreferenceControls::onModeCommit()
+{
+    mEditingMode = pKeyModeBox->getValue().asInteger();
+    if (mConflictHandler[mEditingMode].empty())
+    {
+        // opening for first time
+        mConflictHandler[mEditingMode].loadFromSettings((LLKeyConflictHandler::ESourceMode)mEditingMode);
+    }
+    populateControlTable();
+}
+
+void LLPanelPreferenceControls::onRestoreDefaultsBtn()
+{
+    LLNotificationsUtil::add("PreferenceControlsDefaults", LLSD(), LLSD(), boost::bind(&LLPanelPreferenceControls::onRestoreDefaultsResponse, this, _1, _2));
+}
+
+void LLPanelPreferenceControls::onRestoreDefaultsResponse(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    switch(option)
+    {
+    case 0: // All
+        for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+        {
+            mConflictHandler[i].resetToDefaults();
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[i].saveToSettings(true);
+
+            // notify comboboxes in move&view about potential change
+            LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+            if (instance)
+            {
+                instance->updateClickActionViews();
+            }
+        }
+
+        updateTable();
+        break;
+    case 1: // Current
+        mConflictHandler[mEditingMode].resetToDefaults();
+        // Apply changes to viewer as 'temporary'
+        mConflictHandler[mEditingMode].saveToSettings(true);
+
+        if (mEditingMode == LLKeyConflictHandler::MODE_THIRD_PERSON)
+        {
+            // notify comboboxes in move&view about potential change
+            LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+            if (instance)
+            {
+                instance->updateClickActionViews();
+            }
+        }
+
+        updateTable();
+        break;
+    case 2: // Cancel
+    default:
+        //exit;
+        break;
+    }
+}
+
+// Bypass to let Move & view read values without need to create own key binding handler
+// Assumes third person view
+// Might be better idea to just move whole mConflictHandler into LLFloaterPreference
+bool LLPanelPreferenceControls::canKeyBindHandle(const std::string &control, EMouseClickType click, KEY key, MASK mask)
+{
+    S32 mode = LLKeyConflictHandler::MODE_THIRD_PERSON;
+    if (mConflictHandler[mode].empty())
+    {
+        // opening for first time
+        mConflictHandler[mode].loadFromSettings(LLKeyConflictHandler::MODE_THIRD_PERSON);
+    }
+
+    return mConflictHandler[mode].canHandleControl(control, click, key, mask);
+}
+
+// Bypass to let Move & view modify values without need to create own key binding handler
+// Assumes third person view
+// Might be better idea to just move whole mConflictHandler into LLFloaterPreference
+void LLPanelPreferenceControls::setKeyBind(const std::string &control, EMouseClickType click, KEY key, MASK mask, bool set)
+{
+    S32 mode = LLKeyConflictHandler::MODE_THIRD_PERSON;
+    if (mConflictHandler[mode].empty())
+    {
+        // opening for first time
+        mConflictHandler[mode].loadFromSettings(LLKeyConflictHandler::MODE_THIRD_PERSON);
+    }
+
+    if (!mConflictHandler[mode].canAssignControl(mEditingControl))
+    {
+        return;
+    }
+
+    bool already_recorded = mConflictHandler[mode].canHandleControl(control, click, key, mask);
+    if (set)
+    {
+        if (already_recorded)
+        {
+            // nothing to do
+            return;
+        }
+
+        // find free spot to add data, if no free spot, assign to first
+        S32 index = 0;
+        for (S32 i = 0; i < 3; i++)
+        {
+            if (mConflictHandler[mode].getControl(control, i).isEmpty())
+            {
+                index = i;
+                break;
+            }
+        }
+        // At the moment 'ignore_mask' mask is mostly ignored, a placeholder
+        // Todo: implement it since it's preferable for things like teleport to match
+        // mask exactly but for things like running to ignore additional masks
+        // Ideally this needs representation in keybindings UI
+        bool ignore_mask = true;
+        mConflictHandler[mode].registerControl(control, index, click, key, mask, ignore_mask);
+    }
+    else if (!set)
+    {
+        if (!already_recorded)
+        {
+            // nothing to do
+            return;
+        }
+
+        // find specific control and reset it
+        for (S32 i = 0; i < 3; i++)
+        {
+            LLKeyData data = mConflictHandler[mode].getControl(control, i);
+            if (data.mMouse == click && data.mKey == key && data.mMask == mask)
+            {
+                mConflictHandler[mode].clearControl(control, i);
+            }
+        }
+    }
+}
+
+void LLPanelPreferenceControls::updateAndApply()
+{
+    S32 mode = LLKeyConflictHandler::MODE_THIRD_PERSON;
+    mConflictHandler[mode].saveToSettings(true);
+    updateTable();
+}
+
+// from LLSetKeybindDialog's interface
+bool LLPanelPreferenceControls::onSetKeyBind(EMouseClickType click, KEY key, MASK mask, bool all_modes)
+{
+    if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
+    {
+        return true;
+    }
+
+    if ( mEditingColumn > 0)
+    {
+        if (all_modes)
+        {
+            for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+            {
+                if (mConflictHandler[i].empty())
+                {
+                    mConflictHandler[i].loadFromSettings((LLKeyConflictHandler::ESourceMode)i);
+                }
+                mConflictHandler[i].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
+                // Apply changes to viewer as 'temporary'
+                mConflictHandler[i].saveToSettings(true);
+            }
+        }
+        else
+        {
+            mConflictHandler[mEditingMode].registerControl(mEditingControl, mEditingColumn - 1, click, key, mask, true);
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[mEditingMode].saveToSettings(true);
+        }
+    }
+
+    updateTable();
+
+    if ((mEditingMode == LLKeyConflictHandler::MODE_THIRD_PERSON || all_modes)
+        && (mEditingControl == "walk_to"
+            || mEditingControl == "teleport_to"
+            || click == CLICK_LEFT
+            || click == CLICK_DOUBLELEFT))
+    {
+        // notify comboboxes in move&view about potential change
+        LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+        if (instance)
+        {
+            instance->updateClickActionViews();
+        }
+    }
+
+    return true;
+}
+
+void LLPanelPreferenceControls::onDefaultKeyBind(bool all_modes)
+{
+    if (!mConflictHandler[mEditingMode].canAssignControl(mEditingControl))
+    {
+        return;
+    }
+    
+    if (mEditingColumn > 0)
+    {
+        if (all_modes)
+        {
+            for (U32 i = 0; i < LLKeyConflictHandler::MODE_COUNT - 1; ++i)
+            {
+                if (mConflictHandler[i].empty())
+                {
+                    mConflictHandler[i].loadFromSettings((LLKeyConflictHandler::ESourceMode)i);
+                }
+                mConflictHandler[i].resetToDefault(mEditingControl, mEditingColumn - 1);
+                // Apply changes to viewer as 'temporary'
+                mConflictHandler[i].saveToSettings(true);
+            }
+        }
+        else
+        {
+            mConflictHandler[mEditingMode].resetToDefault(mEditingControl, mEditingColumn - 1);
+            // Apply changes to viewer as 'temporary'
+            mConflictHandler[mEditingMode].saveToSettings(true);
+        }
+    }
+    updateTable();
+
+    if (mEditingMode == LLKeyConflictHandler::MODE_THIRD_PERSON || all_modes)
+    {
+        // notify comboboxes in move&view about potential change
+        LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
+        if (instance)
+        {
+            instance->updateClickActionViews();
+        }
+    }
+}
+
+void LLPanelPreferenceControls::onCancelKeyBind()
+{
+    pControlsTable->deselectAllItems();
+}
+
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
 	: LLFloater(key)
 {
-	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable, this));
+    mCommitCallbackRegistrar.add("Pref.RenderOptionUpdate",            boost::bind(&LLFloaterPreferenceGraphicsAdvanced::onRenderOptionEnable, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors,this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",   boost::bind(&LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity,this));
 }
@@ -2895,6 +3380,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
 	{
 		instance->cancel();
 	}
+	updateMaxComplexity();
 }
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
@@ -3090,6 +3576,12 @@ void LLFloaterPreference::onUpdateFilterTerm(bool force)
 	if( !mSearchData || (mSearchData->mLastFilter == seachValue && !force))
 		return;
 
+    if (mSearchDataDirty)
+    {
+        // Data exists, but is obsolete, regenerate
+        collectSearchableItems();
+    }
+
 	mSearchData->mLastFilter = seachValue;
 
 	if( !mSearchData->mRootTab )
@@ -3187,4 +3679,5 @@ void LLFloaterPreference::collectSearchableItems()
 
 		collectChildren( this, ll::prefs::PanelDataPtr(), pRootTabcontainer );
 	}
+	mSearchDataDirty = false;
 }

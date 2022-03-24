@@ -85,6 +85,7 @@ public:
 	
 	static void add(const std::string& name, const std::string& file, const LLFloaterBuildFunc& func,
 					const std::string& groupname = LLStringUtil::null);
+	static bool isRegistered(const std::string& name);
 
 	// Helpers
 	static LLFloater* getLastFloaterInGroup(const std::string& name);
@@ -128,6 +129,7 @@ public:
 
 	// Callback wrappers
 	static void toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
+	static void showInstanceOrBringToFront(const LLSD& sdname, const LLSD& key = LLSD());
 	
 	// Typed find / get / show
 	template <class T>

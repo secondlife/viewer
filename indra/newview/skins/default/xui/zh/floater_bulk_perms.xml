@@ -21,6 +21,7 @@
 	<icon name="icon_script" tool_tip="腳本"/>
 	<icon name="icon_sound" tool_tip="聲音"/>
 	<icon name="icon_texture" tool_tip="材質"/>
+	<icon name="icon_setting" tool_tip="環境設定"/>
 	<button label="√ 全部" name="check_all"/>
 	<button label="清除" label_selected="無" name="check_none"/>
 	<text name="newperms">

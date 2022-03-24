@@ -75,13 +75,6 @@ LLMatrix3::LLMatrix3(const F32 angle, const LLVector4 &vec)
 	setRot(quat);
 }
 
-LLMatrix3::LLMatrix3(const F32 angle, const F32 x, const F32 y, const F32 z)
-{
-	LLVector3 vec(x, y, z);
-	LLQuaternion	quat(angle, vec);
-	setRot(quat);
-}
-
 LLMatrix3::LLMatrix3(const F32 roll, const F32 pitch, const F32 yaw)
 {
 	setRot(roll,pitch,yaw);
@@ -294,14 +287,6 @@ LLQuaternion	LLMatrix3::quaternion() const
 	return quat;
 }
 
-
-// These functions take Rotation arguments
-const LLMatrix3&	LLMatrix3::setRot(const F32 angle, const F32 x, const F32 y, const F32 z)
-{
-	setRot(LLQuaternion(angle,x,y,z));
-	return *this;
-}
-
 const LLMatrix3&	LLMatrix3::setRot(const F32 angle, const LLVector3 &vec)
 {
 	setRot(LLQuaternion(angle, vec));
@@ -394,15 +379,6 @@ const LLMatrix3& LLMatrix3::setCol( U32 colIndex, const LLVector3& col )
 
 	return *this;
 }
-		
-// Rotate exisitng mMatrix
-const LLMatrix3&	LLMatrix3::rotate(const F32 angle, const F32 x, const F32 y, const F32 z)
-{
-	LLMatrix3	mat(angle, x, y, z);
-	*this *= mat;
-	return *this;
-}
-
 
 const LLMatrix3&	LLMatrix3::rotate(const F32 angle, const LLVector3 &vec)
 {

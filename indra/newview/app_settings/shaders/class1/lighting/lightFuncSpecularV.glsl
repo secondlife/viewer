@@ -1,5 +1,5 @@
 /** 
- * @file lightFuncSpecularV.glsl
+ * @file class1/lighting\lightFuncSpecularV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,14 +23,6 @@
  * $/LicenseInfo$
  */
  
-
-
-float calcDirectionalLight(vec3 n, vec3 l)
-{
-	float a = max(dot(n,l),0.0);
-	return a;
-}
-
 float calcDirectionalSpecular(vec3 view, vec3 n, vec3 l)
 {
 	return pow(max(dot(reflect(view, n),l), 0.0),8.0);
