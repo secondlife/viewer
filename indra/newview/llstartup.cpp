@@ -310,6 +310,12 @@ void update_texture_fetch()
 	LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
+
+    if (LLImageGLThread::sEnabled)
+    {
+        std::shared_ptr<LL::WorkQueue> main_queue = LL::WorkQueue::getInstance("mainloop");
+        main_queue->runFor(std::chrono::milliseconds(1));
+    }
 }
 
 void set_flags_and_update_appearance()
@@ -1518,7 +1524,11 @@ bool idle_startup()
 		display_startup();
 
 		LL_DEBUGS("AppInit") << "Decoding images..." << LL_ENDL;
-		// For all images pre-loaded into viewer cache, decode them.
+		// For all images pre-loaded into viewer cache, init
+        // priorities and fetching using decodeAllImages.
+        // Most of the fetching and decoding likely to be done
+        // by update_texture_fetch() later, while viewer waits.
+        //
 		// Need to do this AFTER we init the sky
 		const S32 DECODE_TIME_SEC = 2;
 		for (int i = 0; i < DECODE_TIME_SEC; i++)
