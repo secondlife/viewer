@@ -215,6 +215,11 @@ void main()
     float final_alpha = diffuse_linear.a;
 
 #ifdef USE_VERTEX_COLOR
+    if (vertex_color.a <= 0.0)
+    { // TODO: figure out how to get invisible faces out of 
+        // render batches without breaking glow
+        discard;
+    }
     final_alpha *= vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
@@ -308,7 +313,7 @@ vec3 post_atmo = color.rgb;
 #endif // WATER_FOG
 
 #endif
-    
+
     frag_color = color;
 }
 

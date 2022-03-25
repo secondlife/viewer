@@ -3285,6 +3285,14 @@ BOOL LLModelPreview::render()
 
                                 if (!physics.mMesh.empty())
                                 { //render hull instead of mesh
+                                    // SL-16993 physics.mMesh[i].mNormals were being used to light the exploded
+                                    // analyzed physics shape but the drawArrays() interface changed
+                                    //  causing normal data <0,0,0> to be passed to the shader.
+                                    // The Phyics Preview shader uses plain vertex coloring so the physics hull is full lit.
+                                    // We could also use interface/ui shaders.
+                                    gObjectPreviewProgram.unbind();
+                                    gPhysicsPreviewProgram.bind();
+
                                     for (U32 i = 0; i < physics.mMesh.size(); ++i)
                                     {
                                         if (explode > 0.f)
@@ -3312,6 +3320,9 @@ BOOL LLModelPreview::render()
                                             gGL.popMatrix();
                                         }
                                     }
+
+                                    gPhysicsPreviewProgram.unbind();
+                                    gObjectPreviewProgram.bind();
                                 }
                             }
                         }

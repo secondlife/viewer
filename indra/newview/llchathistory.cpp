@@ -752,7 +752,7 @@ public:
 		if ( chat.mSourceType == CHAT_SOURCE_OBJECT)
 		{
 			std::string slurl = args["slurl"].asString();
-			if (slurl.empty())
+			if (slurl.empty() && LLWorld::instanceExists())
 			{
 				LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
 				if(region)
