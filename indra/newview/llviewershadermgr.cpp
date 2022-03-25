@@ -102,6 +102,7 @@ LLGLSLShader        gSkinnedObjectSimpleProgram;
 LLGLSLShader		gObjectSimpleImpostorProgram;
 LLGLSLShader        gSkinnedObjectSimpleImpostorProgram;
 LLGLSLShader		gObjectPreviewProgram;
+LLGLSLShader        gPhysicsPreviewProgram;
 LLGLSLShader		gObjectSimpleWaterProgram;
 LLGLSLShader        gSkinnedObjectSimpleWaterProgram;
 LLGLSLShader		gObjectSimpleAlphaMaskProgram;
@@ -758,6 +759,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gObjectSimpleImpostorProgram.unload();
     gSkinnedObjectSimpleImpostorProgram.unload();
 	gObjectPreviewProgram.unload();
+    gPhysicsPreviewProgram.unload();
 	gImpostorProgram.unload();
 	gObjectSimpleAlphaMaskProgram.unload();
     gSkinnedObjectSimpleAlphaMaskProgram.unload();
@@ -3019,6 +3021,24 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectPreviewProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
 		success = gObjectPreviewProgram.createShader(NULL, NULL);
 		gObjectPreviewProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
+		gPhysicsPreviewProgram.mName = "Preview Physics Shader";
+		gPhysicsPreviewProgram.mFeatures.calculatesLighting = false;
+		gPhysicsPreviewProgram.mFeatures.calculatesAtmospherics = false;
+		gPhysicsPreviewProgram.mFeatures.hasGamma = false;
+		gPhysicsPreviewProgram.mFeatures.hasAtmospherics = false;
+		gPhysicsPreviewProgram.mFeatures.hasLighting = false;
+		gPhysicsPreviewProgram.mFeatures.mIndexedTextureChannels = 0;
+		gPhysicsPreviewProgram.mFeatures.disableTextureIndex = true;
+		gPhysicsPreviewProgram.mShaderFiles.clear();
+		gPhysicsPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewPhysicsV.glsl", GL_VERTEX_SHADER_ARB));
+		gPhysicsPreviewProgram.mShaderFiles.push_back(make_pair("objects/previewPhysicsF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gPhysicsPreviewProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+		success = gPhysicsPreviewProgram.createShader(NULL, NULL);
+		gPhysicsPreviewProgram.mFeatures.hasLighting = false;
 	}
 
 	if (success)

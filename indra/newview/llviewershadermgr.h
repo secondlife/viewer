@@ -181,6 +181,7 @@ extern LLGLSLShader			gOneTextureNoColorProgram;
 extern LLGLSLShader			gObjectSimpleProgram;
 extern LLGLSLShader			gObjectSimpleImpostorProgram;
 extern LLGLSLShader			gObjectPreviewProgram;
+extern LLGLSLShader			gPhysicsPreviewProgram;
 extern LLGLSLShader			gObjectSimpleAlphaMaskProgram;
 extern LLGLSLShader			gObjectSimpleWaterProgram;
 extern LLGLSLShader			gObjectSimpleWaterAlphaMaskProgram;
