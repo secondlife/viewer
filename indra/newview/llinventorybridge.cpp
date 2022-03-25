@@ -3982,11 +3982,16 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 	const LLUUID &favorites = model->findCategoryUUIDForType(LLFolderType::FT_FAVORITE);
 	const LLUUID &marketplace_listings_id = model->findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
 	const LLUUID &outfits_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+    const bool is_in_my_outfits = (mUUID == outfits_id) || model->isObjectDescendentOf(mUUID, outfits_id);
 
-    if (outfits_id == mUUID)
+    if (is_in_my_outfits)
     {
-        items.push_back(std::string("New Folder"));
-        items.push_back(std::string("New Outfit"));
+        LLViewerInventoryCategory *cat = getCategory();
+        if (cat && cat->getPreferredType() != LLFolderType::FT_OUTFIT)
+        {
+            items.push_back(std::string("New Folder"));
+            items.push_back(std::string("New Outfit"));
+        }
     }
 
 	if (lost_and_found_id == mUUID)
@@ -4087,7 +4092,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		if (!isCOFFolder() && cat && (cat->getPreferredType() != LLFolderType::FT_OUTFIT))
 		{
 			if (!isInboxFolder() // don't allow creation in inbox
-				&& outfits_id != mUUID)
+                && !is_in_my_outfits)
 			{
 				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
