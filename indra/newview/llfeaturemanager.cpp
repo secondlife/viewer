@@ -381,7 +381,10 @@ F32 gpu_benchmark();
 
 F32 logExceptionBenchmark()
 {
-    // Todo: make a wrapper/class for SEH exceptions
+    // FIXME: gpu_benchmark uses many C++ classes on the stack to control state.
+    //  SEH exceptions with our current exception handling options do not call 
+    //  destructors for these classes, resulting in an undefined state should
+    //  this handler be invoked.  
     F32 gbps = -1;
     __try
     {
@@ -389,6 +392,9 @@ F32 logExceptionBenchmark()
     }
     __except (msc_exception_filter(GetExceptionCode(), GetExceptionInformation()))
     {
+        // HACK - ensure that profiling is disabled
+        LLGLSLShader::finishProfile(false);
+
         // convert to C++ styled exception
         char integer_string[32];
         sprintf(integer_string, "SEH, code: %lu\n", GetExceptionCode());
