@@ -3774,15 +3774,14 @@ void LLFolderBridge::perform_pasteFromClipboard()
                         LLNotificationsUtil::add("MyOutfitsPasteFailed");
                     }
                 }
-#if 1
-                else if (move_is_into_current_outfit)
-                {
-                // *TODO: Decide if we want to allow copy/pasting wearables into outfits in My Outfits (SL-17078)
-#else
                 else if (move_is_into_outfit || move_is_into_current_outfit)
                 {
-#endif
+                    // *TODO: Decide if we want to allow copy/pasting wearables into outfits in My Outfits (SL-17078)
+#if 0
                     if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+#else
+                    if (item && move_is_into_current_outfit && can_move_to_outfit(item, move_is_into_current_outfit))
+#endif
                     {
                         dropToOutfit(item, move_is_into_current_outfit);
                     }
