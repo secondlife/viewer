@@ -2469,12 +2469,10 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		const LLUUID &my_outfits_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
 		const LLUUID &lost_and_found_id = model->findCategoryUUIDForType(LLFolderType::FT_LOST_AND_FOUND, false);
 
-                const bool move_is_from_my_outfits = (cat_id == my_outfits_id) || model->isObjectDescendentOf(cat_id, my_outfits_id);
-
-                const bool move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
-                // Assume the outfit doesn't have folders
-                const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
-                const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
+        const bool move_is_into_trash = (mUUID == trash_id) || model->isObjectDescendentOf(mUUID, trash_id);
+        // Assume the outfit doesn't have folders
+        const BOOL move_is_into_outfit = getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_OUTFIT;
+        const BOOL move_is_into_my_outfits = (mUUID == my_outfits_id) || model->isObjectDescendentOf(mUUID, my_outfits_id);
 		const bool move_is_into_current_outfit = (getCategory() && getCategory()->getPreferredType()==LLFolderType::FT_CURRENT_OUTFIT);
 		const bool move_is_into_landmarks = (mUUID == landmarks_id) || model->isObjectDescendentOf(mUUID, landmarks_id);
 		const bool move_is_into_lost_and_found = model->isObjectDescendentOf(mUUID, lost_and_found_id);
@@ -2514,27 +2512,27 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 		}
 
 		U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
-                if (is_movable && move_is_into_my_outfits && !move_is_into_outfit)
-                {
-                    if (source != LLToolDragAndDrop::SOURCE_AGENT || move_is_from_marketplacelistings)
-                    {
-                        tooltip_msg = LLTrans::getString("TooltipOutfitNotInInventory");
-                        is_movable = false;
-                    }
-                    else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
-                    {
-                        is_movable = ((inv_cat->getPreferredType() == LLFolderType::FT_NONE) || (inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT));
-                    }
-                    else
-                    {
-                        tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
-                        is_movable = false;
-                    }
-                }
-                if (is_movable && move_is_into_outfit)
-                {
-                    is_movable = false;
-                }
+        if (is_movable && move_is_into_my_outfits && !move_is_into_outfit)
+        {
+            if (source != LLToolDragAndDrop::SOURCE_AGENT || move_is_from_marketplacelistings)
+            {
+                tooltip_msg = LLTrans::getString("TooltipOutfitNotInInventory");
+                is_movable = false;
+            }
+            else if (can_move_to_my_outfits(model, inv_cat, max_items_to_wear))
+            {
+                is_movable = ((inv_cat->getPreferredType() == LLFolderType::FT_NONE) || (inv_cat->getPreferredType() == LLFolderType::FT_OUTFIT));
+            }
+            else
+            {
+                tooltip_msg = LLTrans::getString("TooltipCantCreateOutfit");
+                is_movable = false;
+            }
+        }
+        if (is_movable && move_is_into_outfit)
+        {
+            is_movable = false;
+        }
 		if(is_movable && move_is_into_current_outfit && is_link)
 		{
 			is_movable = FALSE;
@@ -2725,11 +2723,11 @@ BOOL LLFolderBridge::dragCategoryIntoFolder(LLInventoryCategory* inv_cat,
 				}
 			}
 
-                        if (move_is_into_my_outfits & !move_is_into_outfit && !move_is_from_my_outfits)
+            if (move_is_into_my_outfits & !move_is_into_outfit)
 			{
-                            // Category can contains objects,
-                            // create a new folder and populate it with links to original objects
-                            dropToMyOutfits(mUUID, inv_cat);
+                LLViewerInventoryCategory* vicat = (LLViewerInventoryCategory*)inv_cat;
+                llassert(vicat);
+                dropToMyOutfits(mUUID, vicat, true);
 			}
 			// if target is current outfit folder we use link
 			else if (move_is_into_current_outfit &&
@@ -3760,11 +3758,11 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 {
                     if (LLAssetType::AT_CATEGORY == obj->getType())
                     {
-                        LLInventoryCategory* cat = model->getCategory(item_id);
+						LLViewerInventoryCategory* cat = model->getCategory(item_id);
                         U32 max_items_to_wear = gSavedSettings.getU32("WearFolderLimit");
                         if (cat && can_move_to_my_outfits(model, cat, max_items_to_wear))
                         {
-                            dropToMyOutfits(mUUID, cat);
+                            dropToMyOutfits(mUUID, cat, LLClipboard::instance().isCutMode());
                         }
                         else
                         {
@@ -4878,20 +4876,33 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	}
 }
 
-void LLFolderBridge::dropToMyOutfits(const LLUUID& dest_id, const LLInventoryCategory* copy_category)
+// If try_move is false, copy the contents of target_category to the new category at dest_id, converting all items in the original target_category to links recursively.
+// If try_move is true, check if it is sensible to move the target_category without copying it, otherwise fall back to doing a copy.
+void LLFolderBridge::dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* target_category, bool try_move)
 {
-    // TODO: (but not to do here)Tighten up restrictions of where this can be copied to. Drag/dropping folders into outfits should not be allowed
-    // TODO: (but not to do here)Do not allow dragging outfit parts into a folder in "MY OUTFITS" which itself contains folders - only allow dragging into an empty folder or an outfit containing only outfit items
-    const LLUUID& copy_id = copy_category->getUUID();
-    // make a folder in the My Outfits directory.
     LLInventoryModel* model = getInventoryModel();
+    // TODO: (but not to do here)Tighten up restrictions of where this can be copied to. Drag/dropping folders into outfits should not be allowed
+    // TODO: (but not to do here)Do not allow dragging outfit parts into a folder in "MY OUTFITS" which itself contains folders
+    if (try_move)
+    {
+		const LLUUID &my_outfits_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
+        const bool move_is_from_my_outfits = (target_category->getUUID() == my_outfits_id) || model->isObjectDescendentOf(target_category->getUUID(), my_outfits_id);
+        if (move_is_from_my_outfits)
+        {
+            // Move this folder to elsewhere in the My Outfits directory.
+            // stamp=false because we're not moving this into the trash
+            changeCategoryParent(model, target_category, dest_id, false);
+            return;
+        }
+    }
 
+    // make a folder in the My Outfits directory.
+    const LLUUID& target_id = target_category->getUUID();
     // Decide if an outfit folder should be created, or just a regular folder
     LLFolderType::EType type;
     LLInventoryModel::cat_array_t *cats;
     LLInventoryModel::item_array_t *items;
-    // TODO: Is there a function to just count the items?
-    model->getDirectDescendentsOf(copy_id, cats, items);
+    model->getDirectDescendentsOf(target_id, cats, items);
     if (items->size() == 0)
     {
         type = LLFolderType::FT_NONE;
@@ -4903,8 +4914,8 @@ void LLFolderBridge::dropToMyOutfits(const LLUUID& dest_id, const LLInventoryCat
 
     // Note: creation will take time, so passing folder id to callback is slightly unreliable,
     // but so is collecting and passing descendants' ids
-    inventory_func_type func = boost::bind(&LLFolderBridge::outfitFolderCreatedCallback, this, copy_id, _1);
-    model->createNewCategory(dest_id, type, copy_category->getName(), func);
+    inventory_func_type func = boost::bind(&LLFolderBridge::outfitFolderCreatedCallback, this, target_id, _1);
+    model->createNewCategory(dest_id, type, target_category->getName(), func);
 }
 
 void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id)
@@ -4946,8 +4957,8 @@ void LLFolderBridge::outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID ca
     LLInventoryModel::cat_array_t::iterator cat_end = categories->end();
     while (cat_iter != cat_end)
     {
-        const LLInventoryCategory* category = (*cat_iter);
-        dropToMyOutfits(cat_dest_id, category);
+        LLViewerInventoryCategory* category = (*cat_iter);
+        dropToMyOutfits(cat_dest_id, category, false);
         ++cat_iter;
     }
 }
