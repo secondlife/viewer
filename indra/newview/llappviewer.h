@@ -98,7 +98,7 @@ public:
     bool quitRequested() { return mQuitRequested; }
     bool logoutRequestSent() { return mLogoutRequestSent; }
 	bool isSecondInstance() { return mSecondInstance; }
-    bool isUpdaterMissing() { return mUpdaterNotFound; }
+    bool isUpdaterMissing(); // In use by tests
 
 	void writeDebugInfo(bool isStatic=true);
 
