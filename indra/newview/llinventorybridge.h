@@ -361,7 +361,8 @@ protected:
 	void determineFolderType();
 
 	void dropToFavorites(LLInventoryItem* inv_item);
-    void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+    bool isInsideOutfit();
+    void dropToOutfit(LLInventoryCategory* outfit_cat, LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
     void dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* copy_category, bool try_move);
 
 	//--------------------------------------------------------------------
