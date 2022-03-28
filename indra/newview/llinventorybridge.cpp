@@ -110,7 +110,7 @@ using namespace LLOldEvents;
 bool move_task_inventory_callback(const LLSD& notification, const LLSD& response, boost::shared_ptr<LLMoveInv>);
 bool confirm_attachment_rez(const LLSD& notification, const LLSD& response);
 void teleport_via_landmark(const LLUUID& asset_id);
-static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+static BOOL can_move_to_outfit(LLInventoryCategory* outfit_cat, LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
 static bool can_move_to_my_outfits(LLInventoryModel* model, LLInventoryCategory* inv_cat, U32 wear_limit);
 static BOOL can_move_to_landmarks(LLInventoryItem* inv_item);
 static bool check_category(LLInventoryModel* model,
@@ -3778,9 +3778,9 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 {
                     // *TODO: Decide if we want to allow copy/pasting wearables into outfits in My Outfits (SL-17078)
 #if 0
-                    if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+                    if (item && can_move_to_outfit(getCategory(), item, move_is_into_current_outfit))
 #else
-                    if (item && move_is_into_current_outfit && can_move_to_outfit(item, move_is_into_current_outfit))
+                    if (item && move_is_into_current_outfit && can_move_to_outfit(getCategory(), item, move_is_into_current_outfit))
 #endif
                     {
                         dropToOutfit(item, move_is_into_current_outfit);
@@ -3934,7 +3934,7 @@ void LLFolderBridge::pasteLinkFromClipboard()
                         if (move_is_into_current_outfit || move_is_into_outfit)
 			{
 				LLInventoryItem *item = model->getItem(object_id);
-				if (item && can_move_to_outfit(item, move_is_into_current_outfit))
+                if (item && can_move_to_outfit(getCategory(), item, move_is_into_current_outfit))
 				{
 					dropToOutfit(item, move_is_into_current_outfit);
 				}
@@ -4723,8 +4723,30 @@ bool move_task_inventory_callback(const LLSD& notification, const LLSD& response
 }
 
 // Returns true if the item can be moved to Current Outfit or any outfit folder.
-static BOOL can_move_to_outfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
+static BOOL can_move_to_outfit(LLInventoryCategory* outfit_cat, LLInventoryItem* inv_item, BOOL move_is_into_current_outfit)
 {
+    bool move_is_into_outfit = false;
+    if (outfit_cat)
+    {
+        move_is_into_outfit = outfit_cat->getPreferredType() == LLFolderType::FT_OUTFIT;
+        if (!move_is_into_outfit)
+        {
+            LLInventoryModel::cat_array_t child_cats;
+            LLInventoryModel::item_array_t child_items;
+            model->collectDescendents(cat_id, child_cats, child_items, true);
+            // TODO: Decide if we actually want this. Plain folders in My Outfits can already be populated freely in release viewer
+            // Allow items to be added to existing plain folder outfits, but avoid creating new outfits in this way
+            if (child_cats.size() == 0 && child_items.size() != 0)
+            {
+                move_is_into_outfit = true;
+            }
+        }
+    }
+    if (!move_is_into_outfit)
+    {
+        return FALSE;
+    }
+
 	LLInventoryType::EType inv_type = inv_item->getInventoryType();
 	if ((inv_type != LLInventoryType::IT_WEARABLE) &&
 		(inv_type != LLInventoryType::IT_GESTURE) &&
@@ -4856,7 +4878,6 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 	if((inv_item->getInventoryType() == LLInventoryType::IT_TEXTURE) || (inv_item->getInventoryType() == LLInventoryType::IT_SNAPSHOT))
 	{
 		const LLUUID &my_outifts_id = getInventoryModel()->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
-                // TODO: Now that outfit folders are a thing, there's no guarantee here that this will be an outfit. Check the type of this category and return early if it's not an oufit category.
 		if(mUUID != my_outifts_id)
 		{
 			LLFloaterOutfitPhotoPreview* photo_preview  = LLFloaterReg::showTypedInstance<LLFloaterOutfitPhotoPreview>("outfit_photo_preview", inv_item->getUUID());
@@ -4885,8 +4906,7 @@ void LLFolderBridge::dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_c
 void LLFolderBridge::dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* target_category, bool try_move)
 {
     LLInventoryModel* model = getInventoryModel();
-    // TODO: (but not to do here)Tighten up restrictions of where this can be copied to. Drag/dropping folders into outfits should not be allowed
-    // TODO: (but not to do here)Do not allow dragging outfit parts into a folder in "MY OUTFITS" which itself contains folders
+    // TODO: (but not to do here)Do not allow copying/pasting outfit parts into a folder in "MY OUTFITS" which itself contains folders (this is probably only an issue if we allow copying/pasting in the first place, which we currently do, but we might do in the feature if we decide the lack of said feature is a bug)
     if (try_move)
     {
 		const LLUUID &my_outfits_id = model->findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS, false);
@@ -5091,7 +5111,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 		}
         else if (user_confirm && (move_is_into_current_outfit || move_is_into_outfit || move_is_into_my_outfits))
 		{
-			accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+            accept = can_move_to_outfit(getCategory(), inv_item, move_is_into_current_outfit);
 		}
 		else if (user_confirm && (move_is_into_favorites || move_is_into_landmarks))
 		{
@@ -5354,7 +5374,7 @@ BOOL LLFolderBridge::dragItemIntoFolder(LLInventoryItem* inv_item,
 			}
 			else if (move_is_into_current_outfit || move_is_into_outfit)
 			{
-				accept = can_move_to_outfit(inv_item, move_is_into_current_outfit);
+                accept = can_move_to_outfit(getCategory(), inv_item, move_is_into_current_outfit);
 			}
 			// Don't allow to move a single item to Favorites or Landmarks
 			// if it is not a landmark or a link to a landmark.
