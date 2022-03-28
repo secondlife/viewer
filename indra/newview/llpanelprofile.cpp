@@ -296,7 +296,7 @@ enum EProfileImageType
     PROFILE_IMAGE_FL,
 };
 
-void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::string &path_to_image)
+void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::string path_to_image)
 {
     LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
@@ -340,69 +340,28 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
         return;
     }
 
-    // Load the image
-
-
-    // Convert and validate: the upload procedure is the same for all images, 
-    U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(path_to_image));
-
-    LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
-    if (image.isNull())
-    {
-        LL_WARNS("AvatarProperties") << "Couldn't open the image to be uploaded." << LL_ENDL;
-        return;
-    }
-    if (!image->load(path_to_image))
-    {
-        LL_WARNS("AvatarProperties") << "Couldn't load the image to be uploaded." << LL_ENDL;
-        return;
-    }
-    // Decompress or expand it in a raw image structure
-    LLPointer<LLImageRaw> raw_image = new LLImageRaw;
-    if (!image->decode(raw_image, 0.0f))
-    {
-        LL_WARNS("AvatarProperties") << "Couldn't decode the image to be uploaded." << LL_ENDL;
-        return;
-    }
-
-    // Check the image constraints
-    if ((image->getComponents() != 3) && (image->getComponents() != 4))
-    {
-        LL_WARNS("AvatarProperties") << "Image files with less than 3 or more than 4 components are not supported." << LL_ENDL;
-        return;
-    }
-
-    const S32 MAX_DIM = 256;
-    raw_image->biasedScaleToPowerOfTwo(MAX_DIM); // should it actually be power of two?
-
-    // Convert to j2c (JPEG2000)
-    LLPointer<LLImageJ2C> j2cImage = LLViewerTextureList::convertToUploadFile(raw_image);
-    if (j2cImage.isNull())
-    {
-        LL_WARNS("AvatarProperties") << "Couldn't convert the image to jpeg2000." << LL_ENDL;
-        return;
-    }
-    S32 data_size = j2cImage->getDataSize();
-    /*U8 *data_start = compressedImage->getData();
-    LLSD::Binary bin_data(data_start, data_start + data_size);*/
-    LLCore::BufferArray::ptr_t bin_data(new LLCore::BufferArray);
-    LLCore::BufferArrayStream bas(bin_data.get());
-
-    U8* image_data = j2cImage->getData();
-    for (S32 i = 0; i < j2cImage->getDataSize(); ++i)
-    {
-        bas << image_data[i];
-    }
+    // Upload the image
 
     LLCore::HttpRequest::ptr_t uploaderhttpRequest(new LLCore::HttpRequest);
     LLCore::HttpHeaders::ptr_t uploaderhttpHeaders(new LLCore::HttpHeaders);
     LLCore::HttpOptions::ptr_t uploaderhttpOpts(new LLCore::HttpOptions);
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2");
-    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, llformat("%d", data_size));
+    S64 length;
+
+    {
+        llifstream instream(path_to_image.c_str(), std::iostream::binary | std::iostream::ate);
+        if (!instream.is_open())
+        {
+            LL_WARNS("AvatarProperties") << "Failed to open file " << path_to_image << LL_ENDL;
+            return;
+        }
+        length = instream.tellg();
+    }
+
+    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "application/jp2"); // optional
+    uploaderhttpHeaders->append(HTTP_OUT_HEADER_CONTENT_LENGTH, llformat("%d", length)); // required!
     uploaderhttpOpts->setFollowRedirects(true);
 
-
-    result = httpAdapter->postAndSuspend(uploaderhttpRequest, uploader_cap, bin_data, uploaderhttpOpts, uploaderhttpHeaders);
+    result = httpAdapter->postFileAndSuspend(uploaderhttpRequest, uploader_cap, path_to_image, uploaderhttpOpts, uploaderhttpHeaders);
 
     httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -413,11 +372,44 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
         return;
     }
 
-    // Todo:
-    // handle 'message':'No Error','state':'failure'
-    // handle 'state':'complete'
+    if (result["state"].asString() != "complete")
+    {
+        if (result.has("message"))
+        {
+            LL_WARNS("AvatarProperties") << "Failed to upload image, state " << result["state"] << " message: " << result["message"] << LL_ENDL;
+        }
+        else
+        {
+            LL_WARNS("AvatarProperties") << "Failed to upload image " << result << LL_ENDL;
+        }
+        return;
+    }
 
-    LL_WARNS() << result << LL_ENDL;
+    LLFile::remove(path_to_image);
+}
+
+void launch_profile_image_coro(EProfileImageType type, const std::string &file_path)
+{
+    std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
+    if (!cap_url.empty())
+    {
+        // todo: createUploadFile needs to be done when user picks up a file,
+        // not when user clicks 'ok', but coroutine should happen on 'ok'.
+        // but this waits for a UI update, the main point is a functional coroutine
+        std::string temp_file = gDirUtilp->getTempFilename();
+        U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
+        const S32 MAX_DIM = 256;
+
+        if (LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
+        {
+            LLCoros::instance().launch("postAgentUserImageCoro",
+                boost::bind(post_profile_image_coro, cap_url, type, temp_file));
+        }
+    }
+    else
+    {
+        LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", no cap found" << LL_ENDL;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -726,7 +718,7 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
             }
             else
             {
-                LL_WARNS() << "Failed to update profile data, no cap found" << LL_ENDL;
+                LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
             }
         }
 
@@ -734,18 +726,9 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
         if (data->image_id != mSecondLifePic->getImageAssetID()
             && LLLocalBitmapMgr::getInstance()->isLocal(mSecondLifePic->getImageAssetID()))
         {
-            std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
-            if (!cap_url.empty())
-            {
-                // Temp path, will add a proper one once UI updates to support this
-                std::string full_path = gDirUtilp->findSkinnedFilename("textures", "icons/Default_Outfit_Photo.png");
-                LLCoros::instance().launch("postAgentUserImageCoro",
-                    boost::bind(post_profile_image_coro, cap_url, PROFILE_IMAGE_SL, full_path));
-            }
-            else
-            {
-                LL_WARNS() << "Failed to upload sl profile image, no cap found" << LL_ENDL;
-            }
+            // todo: temporary file, connect to UI
+            std::string file_path = gDirUtilp->findSkinnedFilename("textures", "icons/Default_Outfit_Photo.png");
+            launch_profile_image_coro(PROFILE_IMAGE_SL, file_path);
         }
     }
 }
@@ -1606,28 +1589,37 @@ void LLPanelProfileFirstLife::resetData()
 
 void LLPanelProfileFirstLife::apply(LLAvatarData* data)
 {
-
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (getIsLoaded() && !cap_url.empty())
+    LLSD params = LLSDMap();
+    if (data->fl_image_id != mPicture->getImageAssetID()
+        && !LLLocalBitmapMgr::getInstance()->isLocal(mPicture->getImageAssetID()))
     {
-        LLSD params = LLSDMap();
-        if (data->fl_image_id != mPicture->getImageAssetID())
-        {
-            params["fl_image_id"] = mPicture->getImageAssetID();
-        }
-        if (data->fl_about_text != mDescriptionEdit->getValue().asString())
-        {
-            params["fl_about_text"] = mDescriptionEdit->getValue().asString();
-        }
-        if (!params.emptyMap())
+        params["fl_image_id"] = mPicture->getImageAssetID();
+    }
+    if (data->fl_about_text != mDescriptionEdit->getValue().asString())
+    {
+        params["fl_about_text"] = mDescriptionEdit->getValue().asString();
+    }
+    if (!params.emptyMap())
+    {
+        std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
+        if (getIsLoaded() && !cap_url.empty())
         {
             LLCoros::instance().launch("putAgentUserInfoCoro",
                 boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
         }
+        else
+        {
+            LL_WARNS("AvatarProperties") << "Failed to upload profile data " << PROFILE_PROPERTIES_CAP << " cap not found" << LL_ENDL;
+        }
     }
 
-    data->fl_image_id = mPicture->getImageAssetID();
-    data->fl_about_text = mDescriptionEdit->getValue().asString();
+    if (data->fl_image_id != mPicture->getImageAssetID()
+        && LLLocalBitmapMgr::getInstance()->isLocal(mPicture->getImageAssetID()))
+    {
+        // todo: temporary file, connect to UI
+        std::string file_path = gDirUtilp->findSkinnedFilename("textures", "icons/Default_Outfit_Photo.png");
+        launch_profile_image_coro(PROFILE_IMAGE_FL, file_path);
+    }
 }
 
 void LLPanelProfileFirstLife::updateButtons()
