@@ -8613,6 +8613,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>UpdateRememberPasswordSetting</key>
+    <map>
+      <key>Comment</key>
+      <string>Save 'rememeber password' setting for current user.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   <key>OctreeMaxNodeCapacity</key>
   <map>
     <key>Comment</key>
