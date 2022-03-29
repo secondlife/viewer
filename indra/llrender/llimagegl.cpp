@@ -1615,51 +1615,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     return TRUE;
 }
 
-void LLImageGLThread::updateClass()
-{
-    LL_PROFILE_ZONE_SCOPED;
-
-    // update available vram one per second
-    static LLFrameTimer sTimer;
-
-    if (sTimer.getElapsedSeconds() < 1.f)
-    {
-        return;
-    }
-    
-    sTimer.reset();
-
-    auto func = []()
-    {
-        if (gGLManager.mHasATIMemInfo)
-        {
-            S32 meminfo[4];
-            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-            LLImageGLThread::sFreeVRAMMegabytes = meminfo[0];
-
-        }
-        else if (gGLManager.mHasNVXMemInfo)
-        {
-            S32 free_memory;
-            glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-            LLImageGLThread::sFreeVRAMMegabytes = free_memory / 1024;
-        }
-    };
-
-    
-    // post update to background thread if available, otherwise execute immediately
-    auto queue = LL::WorkQueue::getInstance("LLImageGL");
-    if (sEnabled)
-    {
-        queue->post(func);
-    }
-    else
-    {
-        llassert(queue == nullptr);
-        func();
-    }
-}
-
 void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -2389,8 +2344,6 @@ void LLImageGL::checkActiveThread()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,  nummips);
 */  
 
-std::atomic<S32> LLImageGLThread::sFreeVRAMMegabytes(4096); //if free vram is unknown, default to 4GB
-
 LLImageGLThread::LLImageGLThread(LLWindow* window)
     // We want exactly one thread, but a very large capacity: we never want
     // anyone, especially inner-loop render code, to have to block on post()
@@ -2416,10 +2369,5 @@ void LLImageGLThread::run()
     ThreadPool::run();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
-}
-
-S32 LLImageGLThread::getFreeVRAMMegabytes()
-{
-    return sFreeVRAMMegabytes;
 }
 

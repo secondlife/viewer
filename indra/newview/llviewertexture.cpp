@@ -58,6 +58,8 @@
 #include "llvovolume.h"
 #include "llviewermedia.h"
 #include "lltexturecache.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
@@ -523,7 +525,7 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     timer.reset();
 
     {
-        gpu_res = (S32Megabytes) LLImageGLThread::getFreeVRAMMegabytes();
+        gpu_res = (S32Megabytes)gViewerWindow->getWindow()->getAvailableVRAMMegabytes();
         
         //check main memory, only works for windows.
         LLMemory::updateMemoryInfo();

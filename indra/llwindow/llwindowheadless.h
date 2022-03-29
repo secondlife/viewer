@@ -96,6 +96,8 @@ public:
 	/*virtual*/ F32 getPixelAspectRatio() { return 1.0f; };
 	/*virtual*/ void setNativeAspectRatio(F32 ratio) {}
 
+    U32 getAvailableVRAMMegabytes() override { return 4096; }
+
 	/*virtual*/ void *getPlatformWindow() { return 0; };
 	/*virtual*/ void bringToFront() {};
 	

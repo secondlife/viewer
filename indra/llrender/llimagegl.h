@@ -321,12 +321,6 @@ public:
     // follows gSavedSettings "RenderGLMultiThreaded"
     static bool sEnabled;
     
-    // app should call this function periodically
-    static void updateClass();
-
-    // free video memory in megabytes
-    static std::atomic<S32> sFreeVRAMMegabytes;
-
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
@@ -337,8 +331,6 @@ public:
     }
 
     void run() override;
-
-    static S32 getFreeVRAMMegabytes();
 
 private:
     LLWindow* mWindow;
