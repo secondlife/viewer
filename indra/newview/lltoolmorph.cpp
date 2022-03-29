@@ -239,7 +239,15 @@ BOOL LLVisualParamHint::render()
 
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
-    gPipeline.previewAvatar(gAgentAvatarp);
+    if (gAgentAvatarp->mDrawable.notNull())
+    {
+        LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+        gGL.flush();
+        gGL.setSceneBlendType(LLRender::BT_REPLACE);
+        gPipeline.generateImpostor(gAgentAvatarp, true);
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+        gGL.flush();
+    }
 
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
 	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);

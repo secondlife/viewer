@@ -134,8 +134,7 @@ public:
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
-	void generateImpostor(LLVOAvatar* avatar);
-    void previewAvatar(LLVOAvatar* avatar);
+	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
 	void renderFinalize();
 
