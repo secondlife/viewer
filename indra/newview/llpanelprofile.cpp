@@ -75,7 +75,6 @@
 
 static LLPanelInjector<LLPanelProfileSecondLife> t_panel_profile_secondlife("panel_profile_secondlife");
 static LLPanelInjector<LLPanelProfileWeb> t_panel_web("panel_profile_web");
-static LLPanelInjector<LLPanelProfileInterests> t_panel_interests("panel_profile_interests");
 static LLPanelInjector<LLPanelProfilePicks> t_panel_picks("panel_profile_picks");
 static LLPanelInjector<LLPanelProfileFirstLife> t_panel_firstlife("panel_profile_firstlife");
 static LLPanelInjector<LLPanelProfileNotes> t_panel_notes("panel_profile_notes");
@@ -83,7 +82,6 @@ static LLPanelInjector<LLPanelProfile>          t_panel_profile("panel_profile")
 
 static const std::string PANEL_SECONDLIFE   = "panel_profile_secondlife";
 static const std::string PANEL_WEB          = "panel_profile_web";
-static const std::string PANEL_INTERESTS    = "panel_profile_interests";
 static const std::string PANEL_PICKS        = "panel_profile_picks";
 static const std::string PANEL_CLASSIFIEDS  = "panel_profile_classifieds";
 static const std::string PANEL_FIRSTLIFE    = "panel_profile_firstlife";
@@ -1354,162 +1352,6 @@ void LLPanelProfileWeb::updateButtons()
     LLPanelProfileTab::updateButtons();
 }
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-static const S32 WANT_CHECKS = 8;
-static const S32 SKILL_CHECKS = 6;
-
-LLPanelProfileInterests::LLPanelProfileInterests()
- : LLPanelProfileTab()
-{
-}
-
-LLPanelProfileInterests::~LLPanelProfileInterests()
-{
-}
-
-void LLPanelProfileInterests::onOpen(const LLSD& key)
-{
-    LLPanelProfileTab::onOpen(key);
-
-    resetData();
-}
-
-BOOL LLPanelProfileInterests::postBuild()
-{
-    mWantToEditor = getChild<LLLineEditor>("want_to_edit");
-    mSkillsEditor = getChild<LLLineEditor>("skills_edit");
-    mLanguagesEditor = getChild<LLLineEditor>("languages_edit");
-
-    for (S32 i = 0; i < WANT_CHECKS; ++i)
-    {
-        std::string check_name = llformat("chk%d", i);
-        mWantChecks[i] = getChild<LLCheckBoxCtrl>(check_name);
-    }
-
-    for (S32 i = 0; i < SKILL_CHECKS; ++i)
-    {
-        std::string check_name = llformat("schk%d", i);
-        mSkillChecks[i] = getChild<LLCheckBoxCtrl>(check_name);
-    }
-
-    return TRUE;
-}
-
-
-void LLPanelProfileInterests::processProperties(void* data, EAvatarProcessorType type)
-{
-    if (APT_INTERESTS_INFO == type)
-    {
-        const LLInterestsData* interests_data = static_cast<const LLInterestsData*>(data);
-        if (interests_data && getAvatarId() == interests_data->avatar_id)
-        {
-            for (S32 i = 0; i < WANT_CHECKS; ++i)
-            {
-                if (interests_data->want_to_mask & (1<<i))
-                {
-                    mWantChecks[i]->setValue(TRUE);
-                }
-                else
-                {
-                    mWantChecks[i]->setValue(FALSE);
-                }
-            }
-
-            for (S32 i = 0; i < SKILL_CHECKS; ++i)
-            {
-                if (interests_data->skills_mask & (1<<i))
-                {
-                    mSkillChecks[i]->setValue(TRUE);
-                }
-                else
-                {
-                    mSkillChecks[i]->setValue(FALSE);
-                }
-            }
-
-            mWantToEditor->setText(interests_data->want_to_text);
-            mSkillsEditor->setText(interests_data->skills_text);
-            mLanguagesEditor->setText(interests_data->languages_text);
-
-            updateButtons();
-        }
-    }
-}
-
-void LLPanelProfileInterests::resetData()
-{
-    mWantToEditor->setValue(LLStringUtil::null);
-    mSkillsEditor->setValue(LLStringUtil::null);
-    mLanguagesEditor->setValue(LLStringUtil::null);
-
-    for (S32 i = 0; i < WANT_CHECKS; ++i)
-    {
-        mWantChecks[i]->setValue(FALSE);
-    }
-
-    for (S32 i = 0; i < SKILL_CHECKS; ++i)
-    {
-        mSkillChecks[i]->setValue(FALSE);
-    }
-}
-
-void LLPanelProfileInterests::apply()
-{
-    if (getIsLoaded() && getSelfProfile())
-    {
-        LLInterestsData interests_data = LLInterestsData();
-
-        interests_data.want_to_mask = 0;
-        for (S32 i = 0; i < WANT_CHECKS; ++i)
-        {
-            if (mWantChecks[i]->getValue().asBoolean())
-            {
-                interests_data.want_to_mask |= (1 << i);
-            }
-        }
-
-        interests_data.skills_mask = 0;
-        for (S32 i = 0; i < SKILL_CHECKS; ++i)
-        {
-            if (mSkillChecks[i]->getValue().asBoolean())
-            {
-                interests_data.skills_mask |= (1 << i);
-            }
-        }
-
-        interests_data.want_to_text = mWantToEditor->getText();
-        interests_data.skills_text = mSkillsEditor->getText();
-        interests_data.languages_text = mLanguagesEditor->getText();
-
-        LLAvatarPropertiesProcessor::getInstance()->sendInterestsInfoUpdate(&interests_data);
-    }
-
-}
-
-void LLPanelProfileInterests::updateButtons()
-{
-    LLPanelProfileTab::updateButtons();
-
-    if (getSelfProfile() && !getEmbedded())
-    {
-        mWantToEditor->setEnabled(TRUE);
-        mSkillsEditor->setEnabled(TRUE);
-        mLanguagesEditor->setEnabled(TRUE);
-
-        for (S32 i = 0; i < WANT_CHECKS; ++i)
-        {
-            mWantChecks[i]->setEnabled(TRUE);
-        }
-
-        for (S32 i = 0; i < SKILL_CHECKS; ++i)
-        {
-            mSkillChecks[i]->setEnabled(TRUE);
-        }
-    }
-}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -1945,7 +1787,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
     mTabContainer       = getChild<LLTabContainer>("panel_profile_tabs");
     mPanelSecondlife    = findChild<LLPanelProfileSecondLife>(PANEL_SECONDLIFE);
     mPanelWeb           = findChild<LLPanelProfileWeb>(PANEL_WEB);
-    mPanelInterests     = findChild<LLPanelProfileInterests>(PANEL_INTERESTS);
     mPanelPicks         = findChild<LLPanelProfilePicks>(PANEL_PICKS);
     mPanelClassifieds   = findChild<LLPanelProfileClassifieds>(PANEL_CLASSIFIEDS);
     mPanelFirstlife     = findChild<LLPanelProfileFirstLife>(PANEL_FIRSTLIFE);
@@ -1953,7 +1794,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
 
     mPanelSecondlife->onOpen(avatar_id);
     mPanelWeb->onOpen(avatar_id);
-    mPanelInterests->onOpen(avatar_id);
     mPanelPicks->onOpen(avatar_id);
     mPanelClassifieds->onOpen(avatar_id);
     mPanelFirstlife->onOpen(avatar_id);
@@ -1961,7 +1801,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
 
     mPanelSecondlife->setEmbedded(getEmbedded());
     mPanelWeb->setEmbedded(getEmbedded());
-    mPanelInterests->setEmbedded(getEmbedded());
     mPanelPicks->setEmbedded(getEmbedded());
     mPanelClassifieds->setEmbedded(getEmbedded());
     mPanelFirstlife->setEmbedded(getEmbedded());
@@ -2006,7 +1845,6 @@ void LLPanelProfile::apply()
         mPanelWeb->apply(&mAvatarData);
         mPanelSecondlife->apply(&mAvatarData);
 
-        mPanelInterests->apply();
         mPanelPicks->apply();
         mPanelNotes->apply();
         mPanelClassifieds->apply();

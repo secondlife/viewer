@@ -51,14 +51,6 @@
              help_topic="profile_web_tab"
             />
             <panel
-             name="panel_profile_interests"
-             label="Interests"
-             layout="topleft"
-             class="panel_profile_interests"
-             filename="panel_profile_interests.xml"
-             help_topic="profile_interests_tab"
-            />
-            <panel
              name="panel_profile_picks"
              label="Picks"
              layout="topleft"

@@ -40,7 +40,6 @@
 
 // class LLPanelProfileSecondLife;
 // class LLPanelProfileWeb;
-// class LLPanelProfileInterests;
 // class LLPanelProfilePicks;
 // class LLPanelProfileFirstLife;
 // class LLPanelProfileNotes;
@@ -264,41 +263,6 @@ private:
 };
 
 /**
-* Panel for displaying Avatar's interests.
-*/
-class LLPanelProfileInterests
-	: public LLPanelProfileTab
-{
-public:
-	LLPanelProfileInterests();
-	/*virtual*/ ~LLPanelProfileInterests();
-
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	/*virtual*/ BOOL postBuild();
-
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
-	void resetData();
-
-	/**
-	 * Saves changes.
-	 */
-	virtual void apply();
-
-protected:
-	/*virtual*/ void updateButtons();
-
-private:
-	LLCheckBoxCtrl*	mWantChecks[8];
-	LLCheckBoxCtrl*	mSkillChecks[6];
-	LLLineEditor*	mWantToEditor;
-	LLLineEditor*	mSkillsEditor;
-	LLLineEditor*	mLanguagesEditor;
-};
-
-
-/**
 * Panel for displaying Avatar's first life related info.
 */
 class LLPanelProfileFirstLife
@@ -436,7 +400,6 @@ private:
 
     LLPanelProfileSecondLife*   mPanelSecondlife;
     LLPanelProfileWeb*          mPanelWeb;
-    LLPanelProfileInterests*    mPanelInterests;
     LLPanelProfilePicks*        mPanelPicks;
     LLPanelProfileClassifieds*  mPanelClassifieds;
     LLPanelProfileFirstLife*    mPanelFirstlife;
