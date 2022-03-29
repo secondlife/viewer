@@ -15,6 +15,6 @@
      name="hide_beacon_btn"
      tool_tip="Stop tracking and hide beacon"
      top="2"
-     visible="true"
+     visible="false"
      width="113" />
 </panel>

@@ -1689,8 +1689,10 @@ void LLPanelHideBeacon::draw()
 {
 	if (!LLTracker::isTracking(NULL))
 	{
-		return;
+        mHideButton->setVisible(false);
+        return;
 	}
+    mHideButton->setVisible(true);
 	updatePosition(); 
 	LLPanel::draw();
 }
