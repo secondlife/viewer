@@ -362,8 +362,8 @@ protected:
 
 	void dropToFavorites(LLInventoryItem* inv_item);
     bool isInsideOutfit();
-    void dropToOutfit(LLInventoryCategory* outfit_cat, LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-    void dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* copy_category, bool try_move);
+    void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
+    void dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* copy_category, U32 wear_limit, bool try_move);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
@@ -373,7 +373,7 @@ public:
 	static void staticFolderOptionsMenu();
 
 protected:
-    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id);
+    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, U32 wear_limit);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
