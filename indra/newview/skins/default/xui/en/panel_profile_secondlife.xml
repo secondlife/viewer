@@ -177,19 +177,16 @@
          auto_resize="false"
          user_resize="false"
         >
-            <!-- 23 pixels (BTN_HEIGHT_SMALL) are reserved by label field of texture and shouldn't be visible-->
-            <texture_picker
+
+            <icon
              name="2nd_life_pic"
+             image_name="Generic_Person_Large"
+             layout="topleft"
+             follows="all"
              top="0"
              left="0"
-             right="-1"
-             height="180"
-             follows="all"
-             layout="topleft"
-             allow_no_texture="true"
-             default_image_name="None"
-             fallback_image="Generic_Person_Large"
-             />
+             width="157"
+             height="157"/>
         </layout_panel>
         <layout_panel
          name="label_stack"

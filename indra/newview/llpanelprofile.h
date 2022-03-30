@@ -46,6 +46,7 @@
 
 class LLAvatarName;
 class LLCheckBoxCtrl;
+class LLIconCtrl;
 class LLTabContainer;
 class LLTextBox;
 class LLTextureCtrl;
@@ -101,6 +102,9 @@ public:
 	/*virtual*/ void updateData();
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+
+    void setUploadProfileImagePath(const std::string &path, const std::string &orig_path);
+    void clearUploadProfileImagePath();
 
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
@@ -178,7 +182,7 @@ protected:
 private:
     /*virtual*/ void updateButtons();
 	void onClickSetName();
-	void onCommitTexture();
+	void onPickTexture();
 	void onCommitMenu(const LLSD& userdata);
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
 
@@ -190,7 +194,7 @@ private:
 	LLTextBox*			mStatusText;
 	LLGroupList*		mGroupList;
 	LLCheckBoxCtrl*		mShowInSearchCheckbox;
-	LLTextureCtrl*		mSecondLifePic;
+    LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
 	LLTextBase*			mDescriptionEdit;
 	LLButton*			mTeleportButton;
@@ -207,6 +211,8 @@ private:
 	LLPanel*			mGiveInvPanel;
 
 	bool				mVoiceStatus;
+    std::string mImageFile;
+    LLUUID mImageAssetId;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };

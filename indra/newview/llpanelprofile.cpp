@@ -58,6 +58,7 @@
 #include "llcallingcard.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
+#include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llgroupactions.h"
 #include "llmutelist.h"
@@ -68,6 +69,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewermenu.h" //is_agent_mappable
+#include "llviewermenufile.h"
 #include "llviewertexturelist.h"
 #include "llvoiceclient.h"
 #include "llweb.h"
@@ -324,17 +326,20 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
     if (!status)
     {
         LL_WARNS("AvatarProperties") << "Failed to get uploader cap " << status.toString() << LL_ENDL;
+        LLFile::remove(path_to_image);
         return;
     }
     if (!result.has("uploader"))
     {
         LL_WARNS("AvatarProperties") << "Failed to get uploader cap, response contains no data." << LL_ENDL;
+        LLFile::remove(path_to_image);
         return;
     }
     std::string uploader_cap = result["uploader"].asString();
     if (uploader_cap.empty())
     {
         LL_WARNS("AvatarProperties") << "Failed to get uploader cap, cap invalid." << LL_ENDL;
+        LLFile::remove(path_to_image);
         return;
     }
 
@@ -350,6 +355,7 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
         if (!instream.is_open())
         {
             LL_WARNS("AvatarProperties") << "Failed to open file " << path_to_image << LL_ENDL;
+            LLFile::remove(path_to_image);
             return;
         }
         length = instream.tellg();
@@ -367,6 +373,7 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
     if (!status)
     {
         LL_WARNS("AvatarProperties") << "Failed to upload image " << status.toString() << LL_ENDL;
+        LLFile::remove(path_to_image);
         return;
     }
 
@@ -380,6 +387,7 @@ void post_profile_image_coro(std::string cap_url, EProfileImageType type, std::s
         {
             LL_WARNS("AvatarProperties") << "Failed to upload image " << result << LL_ENDL;
         }
+        LLFile::remove(path_to_image);
         return;
     }
 
@@ -575,6 +583,8 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
     {
         mAvatarNameCacheConnection.disconnect();
     }
+
+    clearUploadProfileImagePath();
 }
 
 BOOL LLPanelProfileSecondLife::postBuild()
@@ -582,7 +592,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mStatusText             = getChild<LLTextBox>("status");
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCheckbox   = getChild<LLCheckBoxCtrl>("show_in_search_checkbox");
-    mSecondLifePic          = getChild<LLTextureCtrl>("2nd_life_pic");
+    mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
     mDescriptionEdit        = getChild<LLTextBase>("sl_description_edit");
     mTeleportButton         = getChild<LLButton>("teleport");
@@ -610,7 +620,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mUnblockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
     mGroupInviteButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onGroupInvite,this));
     mDisplayNameButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickSetName, this));
-    mSecondLifePic->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onCommitTexture, this));
+    mSecondLifePic->setMouseUpCallback(boost::bind(&LLPanelProfileSecondLife::onPickTexture, this));
 
     LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit;
     commit.add("Profile.CopyName", [this](LLUICtrl*, const LLSD& userdata) { onCommitMenu(userdata); });
@@ -649,8 +659,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     mUnblockButton->setVisible(!own_profile);
     mGroupList->setShowNone(!own_profile);
     mGiveInvPanel->setVisible(!own_profile);
-
-    mSecondLifePic->setOpenTexPreview(!own_profile);
 
     if (own_profile && !getEmbedded())
     {
@@ -693,10 +701,11 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
 
         LLSD params = LLSDMap();
         // we have an image, check if it is local. Server won't recognize local ids.
-        if (data->image_id != mSecondLifePic->getImageAssetID()
-            && !LLLocalBitmapMgr::getInstance()->isLocal(mSecondLifePic->getImageAssetID()))
+        if (data->image_id != mImageAssetId
+            && mImageFile.empty()
+            && !LLLocalBitmapMgr::getInstance()->isLocal(mImageAssetId))
         {
-            params["sl_image_id"] = mSecondLifePic->getImageAssetID();
+            params["sl_image_id"] = mImageAssetId;
         }
         if (data->about_text != mDescriptionEdit->getValue().asString())
         {
@@ -721,12 +730,19 @@ void LLPanelProfileSecondLife::apply(LLAvatarData* data)
         }
 
         // Only if image is local
-        if (data->image_id != mSecondLifePic->getImageAssetID()
-            && LLLocalBitmapMgr::getInstance()->isLocal(mSecondLifePic->getImageAssetID()))
+        if (!mImageFile.empty())
         {
-            // todo: temporary file, connect to UI
-            std::string file_path = gDirUtilp->findSkinnedFilename("textures", "icons/Default_Outfit_Photo.png");
-            launch_profile_image_coro(PROFILE_IMAGE_SL, file_path);
+            std::string cap_url = gAgent.getRegionCapability(PROFILE_IMAGE_UPLOAD_CAP);
+            if (!cap_url.empty())
+            {
+                LLCoros::instance().launch("postAgentUserImageCoro",
+                    boost::bind(post_profile_image_coro, cap_url, PROFILE_IMAGE_SL, mImageFile));
+                mImageFile.clear(); // coro should do the deleting
+            }
+            else
+            {
+                LL_WARNS("AvatarProperties") << "Failed to upload profile image of type " << (S32)PROFILE_IMAGE_SL << ", no cap found" << LL_ENDL;
+            }
         }
     }
 }
@@ -773,7 +789,7 @@ void LLPanelProfileSecondLife::resetData()
     getChild<LLUICtrl>("partner_text")->setValue(LLStringUtil::null);
 
     // Set default image and 1:1 dimensions for it
-    mSecondLifePic->setValue(mSecondLifePic->getDefaultImageAssetID());
+    mSecondLifePic->setValue("Generic_Person_Large");
     LLRect imageRect = mSecondLifePicLayout->getRect();
     mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
 
@@ -782,6 +798,7 @@ void LLPanelProfileSecondLife::resetData()
     mCopyMenuButton->setVisible(FALSE);
     mGroups.clear();
     mGroupList->setGroups(mGroups);
+    clearUploadProfileImagePath();
 }
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
@@ -845,6 +862,37 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
     mCopyMenuButton->setVisible(TRUE);
 }
 
+void LLPanelProfileSecondLife::setUploadProfileImagePath(const std::string &path, const std::string &orig_path)
+{
+    clearUploadProfileImagePath();
+    // todo: display this in floater,
+    // LLIconCtrl can't show a path, only by id or name, so may be draw directly or add as a local bitmap?
+    // LLLocalBitmap* unit = new LLLocalBitmap(path);
+
+    // assign a local texture to view in viewer
+    // Todo: remove LLLocalBitmap and just draw texture instead
+    // orig_path was used instead of path, since LLLocalBitmapMgr does not support j2c
+    LLUUID tracking_id = LLLocalBitmapMgr::getInstance()->addUnit(orig_path);
+    if (tracking_id.isNull())
+    {
+        // todo: error handling
+        return;
+    }
+
+    mImageFile = path;
+    mImageAssetId = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+    mSecondLifePic->setValue(mImageAssetId);
+}
+
+void LLPanelProfileSecondLife::clearUploadProfileImagePath()
+{
+    if (!mImageFile.empty())
+    {
+        LLFile::remove(mImageFile); //todo: supress errors, may be not need to remove if it becomes a LLLocalBitmap
+    }
+    mImageFile.clear();
+}
+
 void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 {
     // Refresh avatar id in cache with new info to prevent re-requests
@@ -862,7 +910,8 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     std::string register_date = getString("RegisterDateFormat", args);
     getChild<LLUICtrl>("register_date")->setValue(register_date );
     mDescriptionEdit->setValue(avatar_data->about_text);
-    mSecondLifePic->setValue(avatar_data->image_id);
+    mImageAssetId = avatar_data->image_id;
+    mSecondLifePic->setValue(mImageAssetId);
 
     //Don't bother about boost level, picker will set it
     LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(avatar_data->image_id);
@@ -1119,23 +1168,63 @@ void LLPanelProfileSecondLife::onClickSetName()
     LLFirstUse::setDisplayName(false);
 }
 
-void LLPanelProfileSecondLife::onCommitTexture()
+
+
+class LLProfileImagePicker : public LLFilePickerThread
 {
-    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(mSecondLifePic->getImageAssetID());
-    if (imagep->getFullHeight())
+public:
+    LLProfileImagePicker(LLHandle<LLPanel> *handle);
+    ~LLProfileImagePicker();
+    virtual void notify(const std::vector<std::string>& filenames);
+
+private:
+    LLHandle<LLPanel> *mHandle;
+};
+
+LLProfileImagePicker::LLProfileImagePicker(LLHandle<LLPanel> *handle)
+    : LLFilePickerThread(LLFilePicker::FFLOAD_IMAGE),
+    mHandle(handle)
+{
+}
+
+LLProfileImagePicker::~LLProfileImagePicker()
+{
+    delete mHandle;
+}
+
+void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
+{
+    /*if (LLAppViewer::instance()->quitRequested())
     {
-        onImageLoaded(true, imagep);
-    }
-    else
+        return;
+    }*/
+    if (mHandle->isDead())
     {
-        imagep->setLoadedCallback(onImageLoaded,
-            MAX_DISCARD_LEVEL,
-            FALSE,
-            FALSE,
-            new LLHandle<LLPanel>(getHandle()),
-            NULL,
-            FALSE);
+        return;
     }
+    std::string file_path = filenames[0];
+    if (file_path.empty())
+    {
+        return;
+    }
+
+    // generate a temp texture file for coroutine
+    std::string temp_file = gDirUtilp->getTempFilename();
+    U32 codec = LLImageBase::getCodecFromExtension(gDirUtilp->getExtension(file_path));
+    const S32 MAX_DIM = 256;
+    if (!LLViewerTextureList::createUploadFile(file_path, temp_file, codec, MAX_DIM))
+    {
+        // todo: error handling
+        return;
+    }
+
+    LLPanelProfileSecondLife* panel = static_cast<LLPanelProfileSecondLife*>(mHandle->get());
+    panel->setUploadProfileImagePath(temp_file, file_path);
+}
+
+void LLPanelProfileSecondLife::onPickTexture()
+{
+    (new LLProfileImagePicker(new LLHandle<LLPanel>(getHandle())))->getFile();
 }
 
 void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
