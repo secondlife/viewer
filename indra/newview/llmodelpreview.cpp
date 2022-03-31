@@ -1286,7 +1286,14 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else // indices_decimator can be zero for error_threshold based calculations
+    {
+        target_indices = 3;
+    }
     new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
         combined_indices,
@@ -1490,7 +1497,14 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else
+    {
+        target_indices = 3;
+    }
     new_indices = LLMeshOptimizer::simplify(
         output,
         face.mIndices,
@@ -1627,7 +1641,8 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
-            indices_decimator = (F32)base_triangle_count / triangle_limit;
+            // triangle_limit can be 0.
+            indices_decimator = (F32)base_triangle_count / llmax(triangle_limit, 1.f);
         }
         else
         {
