@@ -333,6 +333,13 @@ public:
 	bool isLoading() { return mIsLoading; }
 
 protected:
+    enum class LLInvAddAction
+    {
+        COPY_PASTE,
+        CUT_PASTE,
+        DRAG_DROP
+    };
+
 	void buildContextMenuOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
 	void buildContextMenuFolderOptions(U32 flags, menuentry_vec_t& items,   menuentry_vec_t& disabled_items);
 
@@ -363,7 +370,7 @@ protected:
 	void dropToFavorites(LLInventoryItem* inv_item);
     bool isInsideOutfit();
     void dropToOutfit(LLInventoryItem* inv_item, BOOL move_is_into_current_outfit);
-    void dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* copy_category, U32 wear_limit, bool try_move);
+    void dropToMyOutfits(const LLUUID& dest_id, LLViewerInventoryCategory* copy_category, U32 wear_limit, const LLInvAddAction action);
 
 	//--------------------------------------------------------------------
 	// Messy hacks for handling folder options
@@ -373,7 +380,7 @@ public:
 	static void staticFolderOptionsMenu();
 
 protected:
-    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, U32 wear_limit);
+    void outfitFolderCreatedCallback(LLUUID cat_source_id, LLUUID cat_dest_id, U32 wear_limit, const LLInvAddAction action, const LLFolderType::EType type);
     void callback_pasteFromClipboard(const LLSD& notification, const LLSD& response);
     void perform_pasteFromClipboard();
     void gatherMessage(std::string& message, S32 depth, LLError::ELevel log_level);
