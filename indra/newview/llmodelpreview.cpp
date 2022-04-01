@@ -1646,7 +1646,8 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         }
         else
         {
-            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
+            // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
+            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
         }
     }
     else
@@ -1682,7 +1683,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
         }
 
         mRequestedTriangleCount[lod] = triangle_limit;
-        mRequestedErrorThreshold[lod] = lod_error_threshold;
+        mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
         mRequestedLoDMode[lod] = lod_mode;
 
         mModel[lod].clear();
