@@ -6953,6 +6953,17 @@
       <key>Value</key>
       <integer>1000</integer>
     </map>
+	<key>FakeInitialOutfitName</key>
+	<map>
+		<key>Comment</key>
+		<string>Pretend that this is first time login and specified name was chosen</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string />
+	</map>
 	<key>MyOutfitsAutofill</key>
 	<map>
 		<key>Comment</key>
