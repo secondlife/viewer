@@ -172,13 +172,12 @@ void LLNetMap::draw()
     static LLUICachedControl<bool> auto_center("MiniMapAutoCenter", true);
     bool auto_centering = auto_center && !mPanning;
     mCentering = mCentering && !mPanning;
-    bool centered = mCurPan.mV[VX] == 0.0f && mCurPan.mV[VY] == 0.0f;
 
     if (auto_centering || mCentering)
 	{
         mCurPan = lerp(mCurPan, LLVector2(0.0f, 0.0f) , LLSmoothInterpolation::getInterpolant(0.1f));
 	}
-    centered = abs(mCurPan.mV[VX]) < 0.5f && abs(mCurPan.mV[VY]) < 0.5f;
+    bool centered = abs(mCurPan.mV[VX]) < 0.5f && abs(mCurPan.mV[VY]) < 0.5f;
     if (centered)
     {
         mCurPan.mV[0] = 0.0f;
