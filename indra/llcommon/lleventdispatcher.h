@@ -254,28 +254,28 @@ public:
     /// Unregister a callable
     bool remove(const std::string& name);
 
-    /// Call a registered callable with an explicitly-specified name. If no
-    /// such callable exists, die with LL_ERRS. If the @a event fails to match
-    /// the @a required prototype specified at add() time, die with LL_ERRS.
+    /// Call a registered callable with an explicitly-specified name. It is an
+    /// error if no such callable exists. It is an error if the @a event fails
+    /// to match the @a required prototype specified at add() time.
     void operator()(const std::string& name, const LLSD& event) const;
 
     /// Call a registered callable with an explicitly-specified name and
     /// return <tt>true</tt>. If no such callable exists, return
-    /// <tt>false</tt>. If the @a event fails to match the @a required
-    /// prototype specified at add() time, die with LL_ERRS.
+    /// <tt>false</tt>. It is an error if the @a event fails to match the @a
+    /// required prototype specified at add() time.
     bool try_call(const std::string& name, const LLSD& event) const;
 
     /// Extract the @a key value from the incoming @a event, and call the
-    /// callable whose name is specified by that map @a key. If no such
-    /// callable exists, die with LL_ERRS. If the @a event fails to match the
-    /// @a required prototype specified at add() time, die with LL_ERRS.
+    /// callable whose name is specified by that map @a key. It is an error if
+    /// no such callable exists. It is an error if the @a event fails to match
+    /// the @a required prototype specified at add() time.
     void operator()(const LLSD& event) const;
 
     /// Extract the @a key value from the incoming @a event, call the callable
     /// whose name is specified by that map @a key and return <tt>true</tt>.
-    /// If no such callable exists, return <tt>false</tt>. If the @a event
-    /// fails to match the @a required prototype specified at add() time, die
-    /// with LL_ERRS.
+    /// If no such callable exists, return <tt>false</tt>. It is an error if
+    /// the @a event fails to match the @a required prototype specified at
+    /// add() time.
     bool try_call(const LLSD& event) const;
 
     /// @name Iterate over defined names
@@ -340,6 +340,13 @@ private:
         }
     }
     void addFail(const std::string& name, const std::string& classname) const;
+    std::string try_call_log(const std::string& key, const std::string& name,
+                             const LLSD& event) const;
+    std::string try_call(const std::string& key, const std::string& name,
+                         const LLSD& event) const;
+    // Implement "it is an error" semantics for attempted call operations: if
+    // the incoming event includes a "reply" key, log and send an error reply.
+    void callFail(const LLSD& event, const std::string& msg) const;
 
     std::string mDesc, mKey;
     DispatchMap mDispatch;
