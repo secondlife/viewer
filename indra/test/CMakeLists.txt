@@ -11,24 +11,6 @@ include(LLAddBuildTest)
 include(bugsplat)
 include(GoogleMock)
 
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    ${LLDATABASE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LSCRIPT_INCLUDE_DIRS}
-    ${GOOGLEMOCK_INCLUDE_DIRS}
-    ${TUT_INCLUDE_DIR}
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
-
 set(test_SOURCE_FILES
     io.cpp
     llapp_tut.cpp
