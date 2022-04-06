@@ -4,6 +4,11 @@ include(Variables)
 include(GLEXT)
 include(Prebuilt)
 
+if( TARGET sdl::sdl)
+  return()
+endif()
+create_target(sdl::sdl)
+
 if (USESYSTEMLIBS)
   include(FindSDL)
 
@@ -16,15 +21,10 @@ if (USESYSTEMLIBS)
 else (USESYSTEMLIBS)
   if (LINUX)
     use_prebuilt_binary(SDL)
-    set (SDL_FOUND TRUE)
-    set (SDL_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/i686-linux)
-    set (SDL_LIBRARY SDL directfb fusion direct X11)
+    set_target_include_dirs( sdl::sdl ${LIBS_PREBUILT_DIR}/i686-linux)
+    set_target_libraries( sdl::sdl SDL directfb fusion direct X11)
+    target_compile_definitions( sdl::sdl INTERFACE LL_SDL=1)
   endif (LINUX)
 endif (USESYSTEMLIBS)
-
-if (SDL_FOUND)
-  include_directories(${SDL_INCLUDE_DIR})
-endif (SDL_FOUND)
-
 
 
