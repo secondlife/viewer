@@ -1688,7 +1688,6 @@ endif (OPENAL)
 
 if (FMODSTUDIO)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
-  set(FMODWRAPPER_LIBRARY ${FMODSTUDIO_LIBRARY})
 endif (FMODSTUDIO)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
@@ -1988,6 +1987,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llappearance
         ${LLPHYSICS_LIBRARIES}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
+        bugsplat::bugsplat
         )
 
 if( TARGET nvapi::nvapi )
@@ -1996,9 +1996,7 @@ endif()
 
 
 if (USE_BUGSPLAT)
-  target_link_libraries(${VIEWER_BINARY_NAME}
-    ${BUGSPLAT_LIBRARIES}
-    )
+
 endif (USE_BUGSPLAT)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
