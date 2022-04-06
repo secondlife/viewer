@@ -290,6 +290,7 @@ target_link_libraries(
     )
 
 set_target_include_dirs( llcommon ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llcommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
 if (DARWIN)
   include(CMakeFindFrameworks)
@@ -307,10 +308,10 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_libs llcommon 
-      ${WINDOWS_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES} 
-  )
+  set(test_libs llcommon
+          ${WINDOWS_LIBRARIES}
+          googlemock::googlemock
+          )
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
