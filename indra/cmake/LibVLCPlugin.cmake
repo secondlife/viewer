@@ -24,8 +24,8 @@ if (WINDOWS)
     )
 elseif (DARWIN)
     set_target_libraries( libvlc::libvlc
-``      libvlc.dylib
-        libvlccore.dylib
+            libvlc.dylib
+            libvlccore.dylib
     )
 elseif (LINUX)
     # Specify a full path to make sure we get a static link
