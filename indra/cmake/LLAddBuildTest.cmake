@@ -45,7 +45,7 @@ INCLUDE(GoogleMock)
           )
   SET(alltest_LIBRARIES
           llcommon
-          ${GOOGLEMOCK_LIBRARIES}
+          googlemock::googlemock
           ${PTHREAD_LIBRARY}
           ${WINDOWS_LIBRARIES}
           )
@@ -206,14 +206,11 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     )
 
   SET(libraries
-    ${LEGACY_STDIO_LIBS}
-    ${library_dependencies}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    )
+          ${LEGACY_STDIO_LIBS}
+          ${library_dependencies}
+          googlemock::googlemock
+          ${PTHREAD_LIBRARY}
+          )
 
   # Add test executable build target
   if(TEST_DEBUG)

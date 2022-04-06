@@ -7,11 +7,6 @@ include(LLCommon)
 include(bugsplat)
 include(Boost)
 
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    )
-
 set(llmath_SOURCE_FILES
     llbbox.cpp
     llbboxlocal.cpp
