@@ -325,6 +325,7 @@ private:
         CLASS* downcast = static_cast<CLASS*>(this);
         add(name, desc, boost::bind(method, downcast, _1), required);
     }
+    void addFail(const std::string& name, const std::string& classname) const;
     std::string try_call_log(const std::string& key, const std::string& name,
                              const LLSD& event) const;
     std::string try_call(const std::string& key, const std::string& name,
