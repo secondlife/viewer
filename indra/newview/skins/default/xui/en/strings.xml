@@ -2332,6 +2332,14 @@ The [[MARKETPLACE_CREATE_STORE_URL] Marketplace store] is returning errors.
 An error occurred while opening Marketplace Listings.
 If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
 	</string>
+	<string name="InventoryMarketplaceConnectionError">
+Marketplace Listings failed to connect.
+If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
+	</string>
+	<string name="InventoryMarketplaceConnectionErrorReason">
+Marketplace Listings failed to connect. Reason: [REASON]
+If you continue to receive this message, please contact Second Life support for assistance at http://support.secondlife.com
+	</string>
 	<string name="InventoryMarketplaceListingsNoItemsTitle">Your Marketplace Listings folder is empty.</string>
 	<string name="InventoryMarketplaceListingsNoItemsTooltip"></string>
 	<string name="InventoryMarketplaceListingsNoItems">
