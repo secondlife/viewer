@@ -70,12 +70,6 @@ if (WINDOWS)
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zo"
-      CACHE STRING "C++ compiler release-with-debug options" FORCE)
-  set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} ${LL_CXX_FLAGS} /Zo"
-      CACHE STRING "C++ compiler release options" FORCE)
   # zlib has assembly-language object files incompatible with SAFESEH
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
 
@@ -87,15 +81,16 @@ if (WINDOWS)
 #      /DDOM_DYNAMIC            # For shared library colladadom
       )
   add_compile_options(
-      /GS
-      /TP
-      /W3
-      /c
-      /Zc:forScope
-      /nologo
-      /Oy-
-#      /arch:SSE2
-      /fp:fast
+
+          /Zo
+          /GS
+          /TP
+          /W3
+          /c
+          /Zc:forScope
+          /nologo
+          /Oy-
+          /fp:fast
       )
 
   # Nicky: x64 implies SSE2

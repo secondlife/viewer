@@ -2,19 +2,8 @@ project(SLPlugin)
 
 include(00-Common)
 include(LLCommon)
-include(LLPlugin)
 include(Linking)
 include(PluginAPI)
-include(LLMessage)
-
-include_directories(
-    ${LLPLUGIN_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-)
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    )
 
 if (DARWIN)
     include(CMakeFindFrameworks)
@@ -63,10 +52,10 @@ set_target_properties(SLPlugin
 endif ()
 
 target_link_libraries(SLPlugin
-  ${LEGACY_STDIO_LIBS}
-  ${LLPLUGIN_LIBRARIES}
-  ${LLMESSAGE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
+      ${LEGACY_STDIO_LIBS}
+      llplugin
+      llmessage
+      llcommon
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
 

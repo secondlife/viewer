@@ -7,23 +7,6 @@ include(LLAudio)
 include(FMODSTUDIO)
 include(OPENAL)
 include(LLCommon)
-include(LLMath)
-include(LLMessage)
-include(LLFileSystem)
-
-include_directories(
-    ${LLAUDIO_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${OGG_INCLUDE_DIRS}
-    ${VORBISENC_INCLUDE_DIRS}
-    ${VORBISFILE_INCLUDE_DIRS}
-    ${VORBIS_INCLUDE_DIRS}
-    ${OPENAL_LIB_INCLUDE_DIRS}
-    ${FREEAULT_LIB_INCLUDE_DIRS}
-    )
 
 set(llaudio_SOURCE_FILES
     llaudioengine.cpp
@@ -43,9 +26,6 @@ set(llaudio_HEADER_FILES
     )
 
 if (FMODSTUDIO)
-    include_directories(
-        ${FMODSTUDIO_INCLUDE_DIR}
-        )
     list(APPEND llaudio_SOURCE_FILES
          llaudioengine_fmodstudio.cpp
          lllistener_fmodstudio.cpp
@@ -60,10 +40,6 @@ if (FMODSTUDIO)
 endif (FMODSTUDIO)
 
 if (OPENAL)
-  include_directories(
-    ${OPENAL_LIBRARIES}
-    )
-
   list(APPEND llaudio_SOURCE_FILES
     llaudioengine_openal.cpp
     lllistener_openal.cpp
@@ -81,14 +57,18 @@ set_source_files_properties(${llaudio_HEADER_FILES}
 list(APPEND llaudio_SOURCE_FILES ${llaudio_HEADER_FILES})
 
 add_library (llaudio ${llaudio_SOURCE_FILES})
-target_link_libraries(
-    llaudio
-    ${LLCOMMON_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${VORBISENC_LIBRARIES}
-    ${VORBISFILE_LIBRARIES}
-    ${VORBIS_LIBRARIES}
-    ${OGG_LIBRARIES}
+set_target_include_dirs( llaudio ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries( llaudio
+        llcommon
+        llmath
+        llmessage
+        llfilesystem
+        vorbis::vorbis
     )
+
+if( TARGET openal::openal )
+    target_link_libraries( llaudio openal::openal )
+endif()
+if( TARGET fmodstudio::fmodstudio )
+    target_link_libraries( llaudio fmodstudio::fmodstudio )
+endif()

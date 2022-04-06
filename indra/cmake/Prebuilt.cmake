@@ -61,4 +61,15 @@ macro (use_prebuilt_binary _binary)
   endif (NOT USESYSTEMLIBS_${_binary})
 endmacro (use_prebuilt_binary _binary)
 
+function( create_target name )
+  add_library( ${name} INTERFACE IMPORTED )
+endfunction()
+function( set_target_libraries target )
+  set_property( TARGET ${target} PROPERTY INTERFACE_LINK_LIBRARIES ${ARGN} )
+endfunction()
+function( set_target_include_dirs target)
+  set_property( TARGET ${target} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${ARGN} )
+endfunction()
+
+
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

@@ -7,26 +7,7 @@ include(OpenGL)
 include(FreeType)
 include(LLCommon)
 include(LLImage)
-include(LLMath)
-include(LLRender)
 include(LLWindow)
-include(LLXML)
-include(LLFileSystem)
-
-include_directories(
-    ${FREETYPE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llrender_SOURCE_FILES
     llatmosphere.cpp
@@ -98,18 +79,17 @@ if (BUILD_HEADLESS)
       )
 
   target_link_libraries(llrenderheadless
-    ${LLCOMMON_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLRENDER_HEADLESS_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLWINDOW_HEADLESS_LIBRARIES}
-    ${OPENGL_HEADLESS_LIBRARIES})
-
+          llcommon
+          llimage
+          llmath
+          llrender
+          llxml
+          llfilesystem
+          )
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
+set_target_include_dirs(llrender ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (SDL_FOUND)
   set_property(TARGET llrender
@@ -119,13 +99,15 @@ endif (SDL_FOUND)
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
-target_link_libraries(llrender 
-    ${LLCOMMON_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-    ${OPENGL_LIBRARIES})
+target_link_libraries(llrender
+        llcommon
+        llimage
+        llmath
+        llfilesystem
+        llxml
+        llwindow
+        freetype::freetype
+        OpenGL::GL
+        OpenGL::GLU
+        )
 

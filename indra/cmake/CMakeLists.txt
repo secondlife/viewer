@@ -39,37 +39,22 @@ set(cmake_SOURCE_FILES
     GLEXT.cmake
     GLH.cmake
     GLOD.cmake
-##  GStreamer010Plugin.cmake
     GoogleMock.cmake
     Havok.cmake
     Hunspell.cmake
-    JPEG.cmake
-    JsonCpp.cmake
+        JsonCpp.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
     LLAudio.cmake
-    LLCharacter.cmake
     LLCommon.cmake
-    LLCrashLogger.cmake
     LLImage.cmake
-    LLImageJ2COJ.cmake
-    LLInventory.cmake
     LLKDU.cmake
-    LLLogin.cmake
-    LLMath.cmake
-    LLMessage.cmake
     LLPhysicsExtensions.cmake
-    LLPlugin.cmake
     LLPrimitive.cmake
-    LLRender.cmake
     LLSharedLibs.cmake
     LLTestCommand.cmake
-    LLUI.cmake
-    LLFileSystem.cmake
     LLWindow.cmake
-    LLXML.cmake
     Linking.cmake
-    MediaPluginBase.cmake
     NDOF.cmake
     OPENAL.cmake
     OpenGL.cmake

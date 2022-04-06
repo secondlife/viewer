@@ -2,6 +2,11 @@
 include(Linking)
 include(Prebuilt)
 
+if( TARGET libvlc::libvlc )
+    return()
+endif()
+create_target( libvlc::libvlc )
+
 if (USESYSTEMLIBS)
     set(LIBVLCPLUGIN OFF CACHE BOOL
         "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
@@ -13,18 +18,18 @@ else (USESYSTEMLIBS)
 endif (USESYSTEMLIBS)
 
 if (WINDOWS)
-    set(VLC_PLUGIN_LIBRARIES
-        libvlc.lib
-        libvlccore.lib
+    set_target_libraries( libvlc::libvlc
+            libvlc.lib
+            libvlccore.lib
     )
 elseif (DARWIN)
-    set(VLC_PLUGIN_LIBRARIES
-        libvlc.dylib
+    set_target_libraries( libvlc::libvlc
+``      libvlc.dylib
         libvlccore.dylib
     )
 elseif (LINUX)
     # Specify a full path to make sure we get a static link
-    set(VLC_PLUGIN_LIBRARIES
+    set_target_libraries( liblvc::libvlc
         ${LIBS_PREBUILT_DIR}/lib/libvlc.a
         ${LIBS_PREBUILT_DIR}/lib/libvlccore.a
     )

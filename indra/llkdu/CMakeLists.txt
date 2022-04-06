@@ -13,15 +13,7 @@ include(00-Common)
 include(LLCommon)
 include(LLImage)
 include(LLKDU)
-include(LLMath)
 
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${KDU_INCLUDE_DIR}
-    ${LLKDU_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    )
 
 set(llkdu_SOURCE_FILES
     llimagej2ckdu.cpp
@@ -51,9 +43,8 @@ set_source_files_properties(${llkdu_SOURCE_FILES}
 if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
 
-  target_link_libraries(llkdu
-    ${KDU_LIBRARY})
-  
+  target_link_libraries(llkdu kdu::kdu )
+
   # Add tests
   if (LL_TESTS)
     include(LLAddBuildTest)
@@ -66,10 +57,7 @@ if (USE_KDU)
       llkdumem.h
       lltut.h
       )
-    SET(llkdu_test_additional_INCLUDE_DIRS
-      ${KDU_INCLUDE_DIR}
-      ${LLKDU_INCLUDE_DIRS}
-    )
+
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")
   endif (LL_TESTS)
 

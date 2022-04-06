@@ -36,30 +36,29 @@ INCLUDE(GoogleMock)
     )
   SET(alltest_DEP_TARGETS
     # needed by the test harness itself
-    ${APRUTIL_LIBRARIES}
-    ${APR_LIBRARIES}
     llcommon
     )
+
+  SET(alltest_INCLUDE_DIRS
+          ${LIBS_OPEN_DIR}/test
+          ${GOOGLEMOCK_INCLUDE_DIRS}
+          )
+  SET(alltest_LIBRARIES
+          llcommon
+          ${GOOGLEMOCK_LIBRARIES}
+          ${PTHREAD_LIBRARY}
+          ${WINDOWS_LIBRARIES}
+          )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
     LIST(APPEND alltest_DEP_TARGETS
-      llmath
-      )
+            llmath
+            )
+    LIST(APPEND alltest_LIBRARIES
+            llmath
+            )
   ENDIF(NOT "${project}" STREQUAL "llmath")
-  SET(alltest_INCLUDE_DIRS
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LIBS_OPEN_DIR}/test
-    ${GOOGLEMOCK_INCLUDE_DIRS}
-    )
-  SET(alltest_LIBRARIES
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    ${WINDOWS_LIBRARIES}
-    )
+
   # Headers, for convenience in targets.
   SET(alltest_HEADER_FILES
     ${CMAKE_SOURCE_DIR}/test/test.h
@@ -126,7 +125,8 @@ INCLUDE(GoogleMock)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_LIBRARIES ${${name}_test_additional_LIBRARIES}")
     ENDIF(LL_TEST_VERBOSE)
     # Add to project
-    TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${alltest_DEP_TARGETS} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
+    TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
+    add_dependencies( PROJECT_${project}_TEST_${name} ${alltest_DEP_TARGETS})
     # Compile-time Definitions
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
     SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name}

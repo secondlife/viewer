@@ -24,24 +24,13 @@ include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
 include(LLCA)
-include(LLCharacter)
 include(LLCommon)
 include(LLCoreHttp)
 include(LLImage)
-include(LLImageJ2COJ)
-include(LLInventory)
 include(LLKDU)
-include(LLLogin)
-include(LLMath)
-include(LLMessage)
 include(LLPhysicsExtensions)
-include(LLPlugin)
 include(LLPrimitive)
-include(LLRender)
-include(LLUI)
-include(LLFileSystem)
 include(LLWindow)
-include(LLXML)
 include(NDOF)
 include(NVAPI)
 include(OPENAL)
@@ -57,57 +46,17 @@ include(ViewerManager)
 include(VisualLeakDetector)
 include(ZLIBNG)
 include(URIPARSER)
+include(LLPrimitive)
+
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+   cmake_policy( SET CMP0079 NEW)
+   target_link_libraries(llphysicsextensionsstub llcommon llmath)
 endif (NOT HAVOK_TPV)
 
-if(FMODSTUDIO)
-  include_directories(${FMODSTUDIO_INCLUDE_DIR})
-endif(FMODSTUDIO)
-
-include_directories(
-    ${DBUSGLIB_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIR}
-    ${GLOD_INCLUDE_DIR}
-    ${LLAUDIO_INCLUDE_DIRS}
-    ${LLCHARACTER_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    ${LLPHYSICS_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLKDU_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLPLUGIN_INCLUDE_DIRS}
-    ${LLPRIMITIVE_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLUI_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LLLOGIN_INCLUDE_DIRS}
-    ${LIBS_PREBUILT_DIR}/include/collada
-    ${LIBS_PREBUILD_DIR}/include/hunspell
-    ${OPENAL_LIB_INCLUDE_DIRS}
-    ${LIBS_PREBUILT_DIR}/include/collada/1.4
-    ${LLAPPEARANCE_INCLUDE_DIRS}
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    )
-
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
-    )
-
-if (USE_BUGSPLAT)
-  include_directories(AFTER
-    ${BUGSPLAT_INCLUDE_DIR}
-    )
-endif (USE_BUGSPLAT)
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -1428,7 +1377,7 @@ if (DARWIN)
 
   if (USE_BUGSPLAT)
     list(APPEND viewer_LIBRARIES
-      ${BUGSPLAT_LIBRARIES}
+      bugsplat::bugsplat
       )
   endif (USE_BUGSPLAT)
 
@@ -2023,54 +1972,41 @@ endif (WINDOWS)
 # modern version.
 
 target_link_libraries(${VIEWER_BINARY_NAME}
-    ${LEGACY_STDIO_LIBS}
-    ${PNG_PRELOAD_ARCHIVES}
-    ${ZLIBNG_PRELOAD_ARCHIVES}
-    ${URIPARSER_PRELOAD_ARCHIVES}
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${LLAUDIO_LIBRARIES}
-    ${LLCHARACTER_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLINVENTORY_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLPLUGIN_LIBRARIES}
-    ${LLPRIMITIVE_LIBRARIES}
-    ${LLRENDER_LIBRARIES}
-    ${FREETYPE_LIBRARIES}
-    ${LLUI_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLWINDOW_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${NDOF_LIBRARY}
-    ${NVAPI_LIBRARY}
-    ${HUNSPELL_LIBRARY}
-    ${viewer_LIBRARIES}
-    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
-    ${BOOST_REGEX_LIBRARY}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${DBUSGLIB_LIBRARIES}
-    ${OPENGL_LIBRARIES}
-    ${FMODWRAPPER_LIBRARY} # must come after LLAudio
-    ${GLOD_LIBRARIES}
-    ${OPENGL_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
-    ${SDL_LIBRARY}
-    ${SMARTHEAP_LIBRARY}
-    ${UI_LIBRARIES}
-    ${WINDOWS_LIBRARIES}
-    ${EXPAT_LIBRARIES}
-    ${XMLRPCEPI_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${CRYPTO_LIBRARIES}
-    ${LLLOGIN_LIBRARIES}
-    ${LLPHYSICS_LIBRARIES}
-    ${LLPHYSICSEXTENSIONS_LIBRARIES}
-    ${LLAPPEARANCE_LIBRARIES}
-    )
+        ${LEGACY_STDIO_LIBS}
+        llaudio
+        llcharacter
+        llimage
+        llinventory
+        llmessage
+        llplugin
+        llprimitive
+        llrender
+        llui
+        llfilesystem
+        llwindow
+        llxml
+        llmath
+        llcorehttp
+        llcommon
+        ${viewer_LIBRARIES}
+        ${FMODWRAPPER_LIBRARY} # must come after LLAudio
+        glod::glod
+        ndof::ndof
+        ${SDL_LIBRARY}
+        ${SMARTHEAP_LIBRARY}
+        ${UI_LIBRARIES}
+        ${WINDOWS_LIBRARIES}
+        lllogin
+        llprimitive
+        llappearance
+        ${LLPHYSICS_LIBRARIES}
+        ${LLPHYSICSEXTENSIONS_LIBRARIES}
+        )
+
+if( TARGET nvapi::nvapi )
+   target_link_libraries(${VIEWER_BINARY_NAME} nvapi::nvapi )
+endif()
+
 
 if (USE_BUGSPLAT)
   target_link_libraries(${VIEWER_BINARY_NAME}
@@ -2386,10 +2322,15 @@ if (LL_TESTS)
   )
 
   set(test_libs
-    ${LLCOMMON_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
-    ${CURL_LIBRARIES}
-    ${NGHTTP2_LIBRARIES}
+          llcommon
+          llfilesystem
+          llxml
+          llmessage
+          llcharacter
+          llui
+          lllogin
+          llplugin
+          llappearance
     )
 
   set_source_files_properties(
@@ -2398,17 +2339,6 @@ if (LL_TESTS)
     LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
   )
 
-  set_source_files_properties(
-    llviewerhelputil.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
-  )
-
-  set_source_files_properties(
-    llremoteparcelrequest.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
-  )
 
   set_source_files_properties(
     llworldmap.cpp
@@ -2416,27 +2346,23 @@ if (LL_TESTS)
     PROPERTIES
     LL_TEST_ADDITIONAL_SOURCE_FILES
     tests/llviewertexture_stub.cpp
-    #llviewertexturelist.cpp
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
   )
 
   set_source_files_properties(
     llmediadataclient.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${LLPRIMITIVE_LIBRARIES}"
-  )
-
-  set_source_files_properties(
-    llagentaccess.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+    LL_TEST_ADDITIONAL_LIBRARIES llprimitive
   )
 
   set_source_files_properties(
     lllogininstance.cpp
     PROPERTIES
     LL_TEST_ADDITIONAL_SOURCE_FILES llversioninfo.cpp
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
+  )
+  set_property( SOURCE
+          ${viewer_TEST_SOURCE_FILES}
+          PROPERTY
+          LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
   )
 
   ##################################################
@@ -2458,41 +2384,29 @@ if (LL_TESTS)
   # if(USE_PRECOMPILED_HEADERS)
   #     set(test_sources "${test_sources}" llviewerprecompiledheaders.cpp)
   # endif(USE_PRECOMPILED_HEADERS)
-  set(test_libs
-    ${LLMESSAGE_LIBRARIES}
-    ${WINDOWS_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${GOOGLEMOCK_LIBRARIES}
-    )
 
-  if (LINUX)
-    # llcommon uses `clock_gettime' which is provided by librt on linux.
-    set(LIBRT_LIBRARY
-      rt
-      )
-  endif (LINUX)
 
   set(test_libs
-    ${WINDOWS_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${OPENSSL_LIBRARIES}
-    ${CRYPTO_LIBRARIES}
-    ${LIBRT_LIBRARY}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-  )
+          ${WINDOWS_LIBRARIES}
+          llfilesystem
+          llmath
+          llcommon
+          llmessage
+          llcorehttp
+          llxml
+          llui
+          llplugin
+          llappearance
+          lllogin
+          llprimitive
+          lllogin
+          )
 
   LL_ADD_INTEGRATION_TEST(cppfeatures
     ""
     "${test_libs}"
     )
+
   LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
@@ -2507,7 +2421,6 @@ if (LL_TESTS)
       llslurl.cpp
       llviewernetwork.cpp
   )
-
 
   LL_ADD_INTEGRATION_TEST(llslurl
      "${llslurl_test_sources}"
@@ -2531,15 +2444,6 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
 
-include(LLAddBuildTest)
-SET(viewer_TEST_SOURCE_FILES
-  llagentaccess.cpp
-  )
-set_source_files_properties(
-  ${viewer_TEST_SOURCE_FILES}
-  PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
-  )
 
 endif (LL_TESTS)
 

@@ -26,17 +26,5 @@ if (SDL_FOUND)
   include_directories(${SDL_INCLUDE_DIR})
 endif (SDL_FOUND)
 
-set(LLWINDOW_INCLUDE_DIRS
-    ${GLEXT_INCLUDE_DIR}
-    ${LIBS_OPEN_DIR}/llwindow
-    )
 
-if (BUILD_HEADLESS)
-  set(LLWINDOW_HEADLESS_LIBRARIES
-      llwindowheadless
-      )
-endif (BUILD_HEADLESS)
 
-  set(LLWINDOW_LIBRARIES
-      llwindow
-      )

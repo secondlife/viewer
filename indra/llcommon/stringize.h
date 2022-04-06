@@ -30,7 +30,7 @@
 #define LL_STRINGIZE_H
 
 #include <sstream>
-#include <llstring.h>
+#include "llstring.h"
 
 /**
  * gstringize(item) encapsulates an idiom we use constantly, using

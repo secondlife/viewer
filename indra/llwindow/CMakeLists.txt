@@ -14,26 +14,9 @@ include(00-Common)
 include(DragDrop)
 include(LLCommon)
 include(LLImage)
-include(LLMath)
-include(LLRender)
-include(LLFileSystem)
 include(LLWindow)
-include(LLXML)
 include(UI)
 
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llwindow_SOURCE_FILES
     llcursortypes.cpp
@@ -64,17 +47,18 @@ set(viewer_HEADER_FILES
     llmousehandler.h
     )
 
+set(llwindow_LINK_LIBRARIES
+        llcommon
+        llimage
+        llmath
+        llrender
+        llfilesystem
+        llxml
+        )
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  set(llwindow_LINK_LIBRARIES
-      ${LLCOMMON_LIBRARIES}
-      ${LLIMAGE_LIBRARIES}
-      ${LLMATH_LIBRARIES}
-      ${LLRENDER_LIBRARIES}
-      ${LLFILESYSTEM_LIBRARIES}
-      ${LLWINDOW_LIBRARIES}
-      ${LLXML_LIBRARIES}
+  set(llwindow_LINK_LIBRARIES APPEND
       ${UI_LIBRARIES}     # for GTK
       ${SDL_LIBRARY}
       fontconfig          # For FCInit and other FC* functions.
@@ -196,5 +180,5 @@ if (SDL_FOUND)
     )
 endif (SDL_FOUND)
 
-  target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
-
+target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
+set_target_include_dirs(llwindow ${CMAKE_CURRENT_SOURCE_DIR})

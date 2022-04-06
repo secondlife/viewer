@@ -4,18 +4,6 @@ project(llxml)
 
 include(00-Common)
 include(LLCommon)
-include(LLMath)
-include(LLFileSystem)
-include(LLXML)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    )
-include_directories(
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llxml_SOURCE_FILES
     llcontrol.cpp
@@ -42,11 +30,13 @@ add_library (llxml ${llxml_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries( llxml
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${EXPAT_LIBRARIES}
+        llfilesystem
+        llmath
+        llcommon
+        expat::expat
     )
+set_target_include_dirs( llxml ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # tests
 
@@ -62,11 +52,11 @@ if (LL_TESTS)
 
     #    set(TEST_DEBUG on)
     set(test_libs
-      ${LLXML_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMATH_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      )
+            llxml
+            llmath
+            llcommon
+            ${WINDOWS_LIBRARIES}
+            )
 
     LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")
 endif (LL_TESTS)

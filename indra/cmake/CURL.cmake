@@ -1,19 +1,19 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-set(CURL_FIND_QUIETLY ON)
-set(CURL_FIND_REQUIRED ON)
+if( TARGET libcurl::libcurl )
+  return()
+endif()
+create_target(libcurl::libcurl)
 
 if (USESYSTEMLIBS)
   include(FindCURL)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(curl)
   if (WINDOWS)
-    set(CURL_LIBRARIES 
-    debug libcurld.lib
-    optimized libcurl.lib)
+    set_target_libraries(libcurl::libcurl libcurl.lib)
   else (WINDOWS)
-    set(CURL_LIBRARIES libcurl.a)
+    set_target_libraries(libcurl::libcurl libcurl.a)
   endif (WINDOWS)
-  set(CURL_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
+  set_target_include_dirs( libcurl::libcurl ${LIBS_PREBUILT_DIR}/include)
 endif (USESYSTEMLIBS)

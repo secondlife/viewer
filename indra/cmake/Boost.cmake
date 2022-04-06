@@ -1,6 +1,11 @@
 # -*- cmake -*-
 include(Prebuilt)
 
+if( TARGET boost::boost )
+  return()
+endif()
+create_target( boost::boost )
+
 set(Boost_FIND_QUIETLY ON)
 set(Boost_FIND_REQUIRED ON)
 
@@ -24,80 +29,34 @@ else (USESYSTEMLIBS)
   set(addrsfx "-x${ADDRESS_SIZE}")
 
   if (WINDOWS)
-    set(BOOST_CONTEXT_LIBRARY
-        optimized libboost_context-mt${addrsfx}
-        debug libboost_context-mt${addrsfx}-gd)
-    set(BOOST_FIBER_LIBRARY
-        optimized libboost_fiber-mt${addrsfx}
-        debug libboost_fiber-mt${addrsfx}-gd)
-    set(BOOST_FILESYSTEM_LIBRARY
-        optimized libboost_filesystem-mt${addrsfx}
-        debug libboost_filesystem-mt${addrsfx}-gd)
-    set(BOOST_PROGRAM_OPTIONS_LIBRARY
-        optimized libboost_program_options-mt${addrsfx}
-        debug libboost_program_options-mt${addrsfx}-gd)
-    set(BOOST_REGEX_LIBRARY
-        optimized libboost_regex-mt${addrsfx}
-        debug libboost_regex-mt${addrsfx}-gd)
-    set(BOOST_SIGNALS_LIBRARY
-        optimized libboost_signals-mt${addrsfx}
-        debug libboost_signals-mt${addrsfx}-gd)
-    set(BOOST_SYSTEM_LIBRARY
-        optimized libboost_system-mt${addrsfx}
-        debug libboost_system-mt${addrsfx}-gd)
-    set(BOOST_THREAD_LIBRARY
-        optimized libboost_thread-mt${addrsfx}
-        debug libboost_thread-mt${addrsfx}-gd)
+      set_target_libraries( boost::boost
+              libboost_context-mt${addrsfx}
+              libboost_fiber-mt${addrsfx}
+              libboost_filesystem-mt${addrsfx}
+              libboost_program_options-mt${addrsfx}
+              libboost_regex-mt${addrsfx}
+              libboost_system-mt${addrsfx}
+              libboost_thread-mt${addrsfx})
   elseif (LINUX)
-    set(BOOST_CONTEXT_LIBRARY
-        optimized boost_context-mt${addrsfx}
-        debug boost_context-mt${addrsfx}-d)
-    set(BOOST_FIBER_LIBRARY
-        optimized boost_fiber-mt${addrsfx}
-        debug boost_fiber-mt${addrsfx}-d)
-    set(BOOST_FILESYSTEM_LIBRARY
-        optimized boost_filesystem-mt${addrsfx}
-        debug boost_filesystem-mt${addrsfx}-d)
-    set(BOOST_PROGRAM_OPTIONS_LIBRARY
-        optimized boost_program_options-mt${addrsfx}
-        debug boost_program_options-mt${addrsfx}-d)
-    set(BOOST_REGEX_LIBRARY
-        optimized boost_regex-mt${addrsfx}
-        debug boost_regex-mt${addrsfx}-d)
-    set(BOOST_SIGNALS_LIBRARY
-        optimized boost_signals-mt${addrsfx}
-        debug boost_signals-mt${addrsfx}-d)
-    set(BOOST_SYSTEM_LIBRARY
-        optimized boost_system-mt${addrsfx}
-        debug boost_system-mt${addrsfx}-d)
-    set(BOOST_THREAD_LIBRARY
-        optimized boost_thread-mt${addrsfx}
-        debug boost_thread-mt${addrsfx}-d)
+    set_target_libraries( boost::boost
+            boost_context-mt${addrsfx}
+            boost_fiber-mt${addrsfx}
+            boost_filesystem-mt${addrsfx}
+            boost_program_options-mt${addrsfx}
+            boost_regex-mt${addrsfx}
+            boost_signals-mt${addrsfx}
+            boost_system-mt${addrsfx}
+            boost_thread-mt${addrsfx})
   elseif (DARWIN)
-    set(BOOST_CONTEXT_LIBRARY
-        optimized boost_context-mt${addrsfx}
-        debug boost_context-mt${addrsfx}-d)
-    set(BOOST_FIBER_LIBRARY
-        optimized boost_fiber-mt${addrsfx}
-        debug boost_fiber-mt${addrsfx}-d)
-    set(BOOST_FILESYSTEM_LIBRARY
-        optimized boost_filesystem-mt${addrsfx}
-        debug boost_filesystem-mt${addrsfx}-d)
-    set(BOOST_PROGRAM_OPTIONS_LIBRARY
-        optimized boost_program_options-mt${addrsfx}
-        debug boost_program_options-mt${addrsfx}-d)
-    set(BOOST_REGEX_LIBRARY
-        optimized boost_regex-mt${addrsfx}
-        debug boost_regex-mt${addrsfx}-d)
-    set(BOOST_SIGNALS_LIBRARY
-        optimized boost_signals-mt${addrsfx}
-        debug boost_signals-mt${addrsfx}-d)
-    set(BOOST_SYSTEM_LIBRARY
-        optimized boost_system-mt${addrsfx}
-        debug boost_system-mt${addrsfx}-d)
-    set(BOOST_THREAD_LIBRARY
-        optimized boost_thread-mt${addrsfx}
-        debug boost_thread-mt${addrsfx}-d)
+    set_target_libraries( boost::boost
+            boost_context-mt${addrsfx}
+            boost_fiber-mt${addrsfx}
+            boost_filesystem-mt${addrsfx}
+            boost_program_options-mt${addrsfx}
+            boost_regex-mt${addrsfx}
+            boost_signals-mt${addrsfx}
+            boost_system-mt${addrsfx}
+            boost_thread-mt${addrsfx})
   endif (WINDOWS)
 endif (USESYSTEMLIBS)
 

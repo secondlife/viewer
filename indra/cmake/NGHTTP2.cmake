@@ -1,20 +1,20 @@
 include(Prebuilt)
 
-set(NGHTTP2_FIND_QUIETLY ON)
-set(NGHTTP2_FIND_REQUIRED ON)
+if( TARGET nghttp2::nghttp2 )
+  return()
+endif()
+create_target( nghttp2::nghttp2 )
 
 if (USESYSTEMLIBS)
   include(FindNGHTTP2)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(nghttp2)
   if (WINDOWS)
-    set(NGHTTP2_LIBRARIES 
-      ${ARCH_PREBUILT_DIRS_RELEASE}/nghttp2.lib
-      )
+    set_target_libraries( nghttp2::nghttp2 ${ARCH_PREBUILT_DIRS_RELEASE}/nghttp2.lib)
   elseif (DARWIN)
-    set(NGHTTP2_LIBRARIES libnghttp2.dylib)
+    set_target_libraries( nghttp2::nghttp2 libnghttp2.dylib)
   else (WINDOWS)
-    set(NGHTTP2_LIBRARIES libnghttp2.a)
+    set_target_libraries( nghttp2::nghttp2 libnghttp2.a )
   endif (WINDOWS)
-  set(NGHTTP2_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/nghttp2)
+  set_target_include_dirs( nghttp2::nghttp2 ${LIBS_PREBUILT_DIR}/include/nghttp2)
 endif (USESYSTEMLIBS)

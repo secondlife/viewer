@@ -2,18 +2,21 @@
 include(Linking)
 include(Prebuilt)
 
+if(TARGET cef::cef)
+    return()
+endif()
+create_target( cef::cef )
+
 if (USESYSTEMLIBS)
     set(CEFPLUGIN OFF CACHE BOOL
         "CEFPLUGIN support for the llplugin/llmedia test apps.")
 else (USESYSTEMLIBS)
     use_prebuilt_binary(dullahan)
-    set(CEFPLUGIN ON CACHE BOOL
-        "CEFPLUGIN support for the llplugin/llmedia test apps.")
-        set(CEF_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/cef)
+    set_target_include_dirs( cef::cef ${LIBS_PREBUILT_DIR}/include/cef)
 endif (USESYSTEMLIBS)
 
 if (WINDOWS)
-    set(CEF_PLUGIN_LIBRARIES
+    set_target_libraries( cef::cef
         libcef.lib
         libcef_dll_wrapper.lib
         dullahan.lib
@@ -29,7 +32,7 @@ elseif (DARWIN)
         message(FATAL_ERROR "CEF not found")
     endif()
 
-    set(CEF_PLUGIN_LIBRARIES
+    set_target_libraries( cef::cef
         ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
         ${ARCH_PREBUILT_DIRS_RELEASE}/libdullahan.a
         ${APPKIT_LIBRARY}

@@ -9,7 +9,12 @@ else (LINUX)
 endif (LINUX)
 
 if (OPENAL)
-  set(OPENAL_LIB_INCLUDE_DIRS "${LIBS_PREBUILT_DIR}/include/AL")
+  if( TARGET openal::openal )
+    return()
+  endif()
+  create_target( openal::openal )
+  set_target_include_dirs( openal::openal "${LIBS_PREBUILT_DIR}/include/AL")
+
   if (USESYSTEMLIBS)
     include(FindPkgConfig)
     include(FindOpenAL)
@@ -18,13 +23,14 @@ if (OPENAL)
   else (USESYSTEMLIBS)
     use_prebuilt_binary(openal)
   endif (USESYSTEMLIBS)
+
   if(WINDOWS)
-    set(OPENAL_LIBRARIES 
+    set_target_libraries( openal::openal
       OpenAL32
       alut
     )
   else()
-    set(OPENAL_LIBRARIES 
+    set_target_libraries( openal::openal
       openal
       alut
     )

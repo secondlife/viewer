@@ -13,14 +13,6 @@ include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
 
-include_directories(
-    ${EXPAT_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${JSONCPP_INCLUDE_DIR}
-    ${ZLIBNG_INCLUDE_DIRS}
-    ${URIPARSER_INCLUDE_DIRS}
-    )
-
 # add_executable(lltreeiterators lltreeiterators.cpp)
 # 
 # target_link_libraries(lltreeiterators
@@ -286,21 +278,18 @@ else(LLCOMMON_LINK_SHARED)
 endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
-    llcommon
-    ${APRUTIL_LIBRARIES}
-    ${APR_LIBRARIES}
-    ${EXPAT_LIBRARIES}
-    ${JSONCPP_LIBRARIES}
-    ${ZLIBNG_LIBRARIES}
+        llcommon
+        apr::apr
+        expat::expat
+        jsoncpp::jsoncpp
+        zlib-ng::zlib-ng
     ${WINDOWS_LIBRARIES}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
-    ${BOOST_REGEX_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
+        boost::boost
     ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${URIPARSER_LIBRARIES}
+        uriparser::uriparser
     )
+
+set_target_include_dirs( llcommon ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DARWIN)
   include(CMakeFindFrameworks)
@@ -319,13 +308,9 @@ if (LL_TESTS)
 
   #set(TEST_DEBUG on)
   set(test_libs llcommon 
-      ${LLCOMMON_LIBRARIES} 
-      ${WINDOWS_LIBRARIES} 
+      ${WINDOWS_LIBRARIES}
       ${GOOGLEMOCK_LIBRARIES} 
-      ${BOOST_FIBER_LIBRARY} 
-      ${BOOST_CONTEXT_LIBRARY} 
-      ${BOOST_THREAD_LIBRARY} 
-      ${BOOST_SYSTEM_LIBRARY})
+  )
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")

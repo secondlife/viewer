@@ -5,11 +5,6 @@ project (lltest)
 include(00-Common)
 include(LLCommon)
 include(LLCoreHttp)
-include(LLInventory)
-include(LLMath)
-include(LLMessage)
-include(LLFileSystem)
-include(LLXML)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
@@ -88,27 +83,18 @@ if (USE_BUGSPLAT)
 endif (USE_BUGSPLAT)
 
 target_link_libraries(lltest
-    ${LEGACY_STDIO_LIBS}
-    ${LLDATABASE_LIBRARIES}
-    ${LLINVENTORY_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LSCRIPT_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${EXPAT_LIBRARIES}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    ${WINDOWS_LIBRARIES}
-    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
-    ${BOOST_REGEX_LIBRARY}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${DL_LIBRARY}
-    )
+        ${LEGACY_STDIO_LIBS}
+        ${LLDATABASE_LIBRARIES}
+        llinventory
+        llmessage
+        llmath
+        llfilesystem
+        llxml
+        llcommon
+        llcorehttp
+        ${WINDOWS_LIBRARIES}
+        ${DL_LIBRARY}
+        )
 
 if (WINDOWS)
   set_target_properties(lltest

@@ -107,9 +107,8 @@ list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
 
-target_link_libraries(llmath
-    ${LLCOMMON_LIBRARIES}
-    )
+target_link_libraries(llmath llcommon)
+set_target_include_dirs( llmath ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add tests
 if (LL_TESTS)
@@ -124,15 +123,11 @@ if (LL_TESTS)
     v4color.cpp
     v4coloru.cpp
     )
-  set_source_files_properties(
-    ${llmath_TEST_SOURCE_FILES}
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_THREAD_LIBRARY}"
-  )
+
   LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
   # INTEGRATION TESTS
-  set(test_libs llmath llcommon ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+  set(test_libs llmath llcommon ${WINDOWS_LIBRARIES})
   # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
   LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")

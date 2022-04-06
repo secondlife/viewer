@@ -10,18 +10,11 @@ include(NGHTTP2)
 include(ZLIBNG)
 include(LLCoreHttp)
 include(LLAddBuildTest)
-include(LLMessage)
 include(LLCommon)
 include(Tut)
 include(bugsplat)
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
-include_directories(
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    )
+include_directories (${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage )
 
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
@@ -92,14 +85,14 @@ list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 
 add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
-  llcorehttp
-  ${CURL_LIBRARIES}
-  ${OPENSSL_LIBRARIES}
-  ${CRYPTO_LIBRARIES}
-  ${NGHTTP2_LIBRARIES}
-  ${BOOST_THREAD_LIBRARY}
-  ${BOOST_SYSTEM_LIBRARY}
+        llcorehttp
+        llcommon
+        libcurl::libcurl
+        openssl::openssl
+        nghttp2::nghttp2
   )
+set_target_include_dirs( llcorehttp ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # tests
 set(LLCOREHTTP_TESTS ON CACHE BOOL
@@ -128,17 +121,10 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
 
   #    set(TEST_DEBUG on)
   set(test_libs
-      ${LLCOREHTTP_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
-      ${CURL_LIBRARIES}
-      ${OPENSSL_LIBRARIES}
-      ${CRYPTO_LIBRARIES}
-      ${NGHTTP2_LIBRARIES}
-      ${BOOST_THREAD_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
+          llcorehttp
+          ${WINDOWS_LIBRARIES}
+          llmessage
+          llcommon
       )
 
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
@@ -201,17 +187,10 @@ endif (DARWIN)
 
   set(example_libs
       ${LEGACY_STDIO_LIBS}
-      ${LLCOREHTTP_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
-      ${CURL_LIBRARIES}
-      ${OPENSSL_LIBRARIES}
-      ${CRYPTO_LIBRARIES}
-      ${NGHTTP2_LIBRARIES}
-      ${BOOST_THREAD_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
+          llcorehttp
+          ${WINDOWS_LIBRARIES}
+          llmessage
+          llcommon
       )
 
   add_executable(http_texture_load

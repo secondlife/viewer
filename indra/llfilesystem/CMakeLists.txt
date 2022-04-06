@@ -60,15 +60,10 @@ list(APPEND llfilesystem_SOURCE_FILES ${llfilesystem_HEADER_FILES})
 
 add_library (llfilesystem ${llfilesystem_SOURCE_FILES})
 
-set(cache_BOOST_LIBRARIES
-    ${BOOST_FILESYSTEM_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    )
-
 target_link_libraries(llfilesystem
-    ${LLCOMMON_LIBRARIES}
-    ${cache_BOOST_LIBRARIES}
+        llcommon
     )
+set_target_include_dirs( llfilesystem ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (DARWIN)
   include(CMakeFindFrameworks)
@@ -92,7 +87,7 @@ if (LL_TESTS)
     LL_ADD_PROJECT_UNIT_TESTS(llfilesystem "${llfilesystem_TEST_SOURCE_FILES}")
 
     # INTEGRATION TESTS
-    set(test_libs llmath llcommon llfilesystem ${LLCOMMON_LIBRARIES} ${WINDOWS_LIBRARIES})
+    set(test_libs llmath llcommon llfilesystem  ${WINDOWS_LIBRARIES})
 
     # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
     LL_ADD_INTEGRATION_TEST(lldir "" "${test_libs}")
