@@ -562,7 +562,6 @@ LLAgentHandler gAgentHandler;
 
 LLPanelProfileSecondLife::LLPanelProfileSecondLife()
  : LLPanelProfileTab()
- , mStatusText(NULL)
  , mAvatarNameCacheConnection()
 {
 }
@@ -589,41 +588,12 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
 
 BOOL LLPanelProfileSecondLife::postBuild()
 {
-    mStatusText             = getChild<LLTextBox>("status");
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCheckbox   = getChild<LLCheckBoxCtrl>("show_in_search_checkbox");
     mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
     mDescriptionEdit        = getChild<LLTextBase>("sl_description_edit");
-    mTeleportButton         = getChild<LLButton>("teleport");
-    mShowOnMapButton        = getChild<LLButton>("show_on_map_btn");
-    mBlockButton            = getChild<LLButton>("block");
-    mUnblockButton          = getChild<LLButton>("unblock");
-    mNameLabel              = getChild<LLUICtrl>("name_label");
-    mDisplayNameButton      = getChild<LLButton>("set_name");
-    mAddFriendButton        = getChild<LLButton>("add_friend");
-    mGroupInviteButton      = getChild<LLButton>("group_invite");
-    mPayButton              = getChild<LLButton>("pay");
-    mIMButton               = getChild<LLButton>("im");
-    mCopyMenuButton         = getChild<LLMenuButton>("copy_btn");
     mGiveInvPanel           = getChild<LLPanel>("give_stack");
-
-    mStatusText->setVisible(FALSE);
-    mCopyMenuButton->setVisible(FALSE);
-
-    mAddFriendButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onAddFriendButtonClick, this));
-    mIMButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onIMButtonClick, this));
-    mTeleportButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onTeleportButtonClick, this));
-    mShowOnMapButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onMapButtonClick, this));
-    mPayButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::pay, this));
-    mBlockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
-    mUnblockButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickToggleBlock, this));
-    mGroupInviteButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onGroupInvite,this));
-    mDisplayNameButton->setCommitCallback(boost::bind(&LLPanelProfileSecondLife::onClickSetName, this));
-    mSecondLifePic->setMouseUpCallback(boost::bind(&LLPanelProfileSecondLife::onPickTexture, this));
-
-    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit;
-    commit.add("Profile.CopyName", [this](LLUICtrl*, const LLSD& userdata) { onCommitMenu(userdata); });
 
     LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
     enable.add("Profile.EnableCall",                [this](LLUICtrl*, const LLSD&) { return mVoiceStatus; });
@@ -632,8 +602,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList->setDoubleClickCallback(boost::bind(&LLPanelProfileSecondLife::openGroupProfile, this));
     mGroupList->setReturnCallback(boost::bind(&LLPanelProfileSecondLife::openGroupProfile, this));
 
-    LLVoiceClient::getInstance()->addObserver((LLVoiceClientStatusObserver*)this);
-    mCopyMenuButton->setMenu("menu_name_field.xml", LLMenuButton::MP_BOTTOM_RIGHT);
+    //mAgentActionMenuButton->setMenu("menu_name_field.xml", LLMenuButton::MP_BOTTOM_RIGHT);
 
     return TRUE;
 }
@@ -649,16 +618,11 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     BOOL own_profile = getSelfProfile();
 
-    mGroupInviteButton->setVisible(!own_profile);
-    mShowOnMapButton->setVisible(!own_profile);
-    mPayButton->setVisible(!own_profile);
-    mTeleportButton->setVisible(!own_profile);
-    mIMButton->setVisible(!own_profile);
-    mAddFriendButton->setVisible(!own_profile);
-    mBlockButton->setVisible(!own_profile);
-    mUnblockButton->setVisible(!own_profile);
     mGroupList->setShowNone(!own_profile);
-    mGiveInvPanel->setVisible(!own_profile);
+    //mGiveInvPanel->setVisible(!own_profile);
+
+    childSetVisible("notes_panel", !own_profile);
+    childSetVisible("settings_panel", own_profile);
 
     if (own_profile && !getEmbedded())
     {
@@ -667,11 +631,8 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         mGroupList->enableForAgent(false);
     }
 
-    if (own_profile && !getEmbedded() )
+    if (own_profile)
     {
-        mNameLabel->setVisible(FALSE);
-        mDisplayNameButton->setVisible(TRUE);
-        mDisplayNameButton->setEnabled(TRUE);
     }
 
     mDescriptionEdit->setParseHTML(!own_profile && !getEmbedded());
@@ -794,11 +755,10 @@ void LLPanelProfileSecondLife::resetData()
     mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
 
     mDescriptionEdit->setValue(LLStringUtil::null);
-    mStatusText->setVisible(FALSE);
-    mCopyMenuButton->setVisible(FALSE);
     mGroups.clear();
     mGroupList->setGroups(mGroups);
     clearUploadProfileImagePath();
+    //mAgentActionMenuButton set menu
 }
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
@@ -858,8 +818,7 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
 {
     mAvatarNameCacheConnection.disconnect();
 
-    getChild<LLUICtrl>("complete_name")->setValue( av_name.getCompleteName() );
-    mCopyMenuButton->setVisible(TRUE);
+    //getChild<LLUICtrl>("complete_name")->setValue( av_name.getCompleteName() );
 }
 
 void LLPanelProfileSecondLife::setUploadProfileImagePath(const std::string &path, const std::string &orig_path)
@@ -900,14 +859,8 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     LLAvatarIconIDCache::getInstance()->add(avatar_data->avatar_id, avatar_data->image_id);
 
     LLStringUtil::format_map_t args;
-    {
-        std::string birth_date = LLTrans::getString("AvatarBirthDateFormat");
-        LLStringUtil::format(birth_date, LLSD().with("datetime", (S32) avatar_data->born_on.secondsSinceEpoch()));
-        args["[REG_DATE]"] = birth_date;
-    }
-
     args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
-    std::string register_date = getString("RegisterDateFormat", args);
+    std::string register_date = getString("AgeFormat", args);
     getChild<LLUICtrl>("register_date")->setValue(register_date );
     mDescriptionEdit->setValue(avatar_data->about_text);
     mImageAssetId = avatar_data->image_id;
@@ -956,53 +909,7 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
     args["[PAYMENTINFO]"] = LLAvatarPropertiesProcessor::paymentInfo(avatar_data);
 
     std::string caption_text = getString("CaptionTextAcctInfo", args);
-    getChild<LLUICtrl>("acc_status_text")->setValue(caption_text);
-}
-
-void LLPanelProfileSecondLife::onMapButtonClick()
-{
-    LLAvatarActions::showOnMap(getAvatarId());
-}
-
-void LLPanelProfileSecondLife::pay()
-{
-    LLAvatarActions::pay(getAvatarId());
-}
-
-void LLPanelProfileSecondLife::onClickToggleBlock()
-{
-    bool blocked = LLAvatarActions::toggleBlock(getAvatarId());
-
-    updateButtons();
-    // we are hiding one button and showing another, set focus
-    if (blocked)
-    {
-        mUnblockButton->setFocus(true);
-    }
-    else
-    {
-        mBlockButton->setFocus(true);
-    }
-}
-
-void LLPanelProfileSecondLife::onAddFriendButtonClick()
-{
-    LLAvatarActions::requestFriendshipDialog(getAvatarId());
-}
-
-void LLPanelProfileSecondLife::onIMButtonClick()
-{
-    LLAvatarActions::startIM(getAvatarId());
-}
-
-void LLPanelProfileSecondLife::onTeleportButtonClick()
-{
-    LLAvatarActions::offerTeleport(getAvatarId());
-}
-
-void LLPanelProfileSecondLife::onGroupInvite()
-{
-    LLAvatarActions::inviteToGroup(getAvatarId());
+    getChild<LLUICtrl>("account_info")->setValue(caption_text);
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
@@ -1112,14 +1019,6 @@ void LLPanelProfileSecondLife::updateOnlineStatus()
 
 void LLPanelProfileSecondLife::processOnlineStatus(bool online)
 {
-    mStatusText->setVisible(isGrantedToSeeOnlineStatus());
-
-    std::string status = getString(online ? "status_online" : "status_offline");
-
-    mStatusText->setValue(status);
-    mStatusText->setColor(online ?
-    LLUIColorTable::instance().getColor("StatusUserOnline") :
-    LLUIColorTable::instance().getColor("StatusUserOffline"));
 }
 
 void LLPanelProfileSecondLife::updateButtons()
@@ -1131,33 +1030,6 @@ void LLPanelProfileSecondLife::updateButtons()
         mShowInSearchCheckbox->setVisible(TRUE);
         mShowInSearchCheckbox->setEnabled(TRUE);
         mDescriptionEdit->setEnabled(TRUE);
-    }
-
-    if (!getSelfProfile())
-    {
-        LLUUID av_id = getAvatarId();
-        bool is_buddy_online = LLAvatarTracker::instance().isBuddyOnline(getAvatarId());
-
-        if (LLAvatarActions::isFriend(av_id))
-        {
-            mTeleportButton->setEnabled(is_buddy_online);
-            //Disable "Add Friend" button for friends.
-            mAddFriendButton->setEnabled(false);
-        }
-        else
-        {
-            mTeleportButton->setEnabled(true);
-            mAddFriendButton->setEnabled(true);
-        }
-
-        bool enable_map_btn = (is_buddy_online && is_agent_mappable(av_id)) || gAgent.isGodlike();
-        mShowOnMapButton->setEnabled(enable_map_btn);
-
-        bool enable_block_btn = LLAvatarActions::canBlock(av_id) && !LLAvatarActions::isBlocked(av_id);
-        mBlockButton->setVisible(enable_block_btn);
-
-        bool enable_unblock_btn = LLAvatarActions::isBlocked(av_id);
-        mUnblockButton->setVisible(enable_unblock_btn);
     }
 }
 
@@ -1857,8 +1729,6 @@ void LLPanelProfile::onTabChange()
 
 void LLPanelProfile::updateBtnsVisibility()
 {
-    getChild<LLUICtrl>("ok_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
-    getChild<LLUICtrl>("cancel_btn")->setVisible(((getSelfProfile() && !getEmbedded()) || isNotesTabSelected()));
 }
 
 void LLPanelProfile::onOpen(const LLSD& key)

@@ -36,7 +36,7 @@
         >
             <panel
              name="panel_profile_secondlife"
-             label="Second Life"
+             label="BIO"
              layout="topleft"
              class="panel_profile_secondlife"
              filename="panel_profile_secondlife.xml"
@@ -83,30 +83,5 @@
              help_topic="profile_notes_tab"
             />
         </tab_container>
-        <button
-         name="ok_btn"
-         label="OK"
-         tool_tip="Save changes to profile and close"
-         bottom_delta="0"
-         left="10"
-         height="20"
-         width="90"
-         follows="left|bottom"
-         layout="topleft"
-         visible="false"
-        />
-        <button
-         name="cancel_btn"
-         label="Cancel"
-         tool_tip="Discard unsaved changes and close"
-         bottom_delta="0"
-         right="-10"
-         height="20"
-         width="90"
-         follows="right|bottom"
-         layout="topleft"
-         label_selected="Cancel"
-         visible="false"
-        />
     </panel>
 </floater>

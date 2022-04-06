@@ -134,25 +134,6 @@ protected:
 	 */
 	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
 
-	void onMapButtonClick();
-
-	/**
-	 * Opens "Pay Resident" dialog.
-	 */
-	void pay();
-
-	/**
-	 * Add/remove resident to/from your block list.
-	 * Updates button focus
-	 */
-	void onClickToggleBlock();
-
-	void onAddFriendButtonClick();
-	void onIMButtonClick();
-	void onTeleportButtonClick();
-
-	void onGroupInvite();
-
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
     static void onImageLoaded(BOOL success,
                               LLViewerFetchedTexture *src_vi,
@@ -191,23 +172,11 @@ private:
 	group_map_t				mGroups;
 	void					openGroupProfile();
 
-	LLTextBox*			mStatusText;
 	LLGroupList*		mGroupList;
 	LLCheckBoxCtrl*		mShowInSearchCheckbox;
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
 	LLTextBase*			mDescriptionEdit;
-	LLButton*			mTeleportButton;
-	LLButton*			mShowOnMapButton;
-	LLButton*			mBlockButton;
-	LLButton*			mUnblockButton;
-    LLUICtrl*           mNameLabel;
-	LLButton*			mDisplayNameButton;
-	LLButton*			mAddFriendButton;
-	LLButton*			mGroupInviteButton;
-	LLButton*			mPayButton;
-	LLButton*			mIMButton;
-	LLMenuButton*		mCopyMenuButton;
 	LLPanel*			mGiveInvPanel;
 
 	bool				mVoiceStatus;

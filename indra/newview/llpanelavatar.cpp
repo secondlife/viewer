@@ -120,7 +120,7 @@ void LLPanelProfileTab::setApplyProgress(bool started)
 
     if (indicator)
     {
-        indicator->setVisible(started);
+        indicator->setVisible(true);
 
         if (started)
         {

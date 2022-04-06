@@ -62,9 +62,6 @@ BOOL LLFloaterProfile::postBuild()
 {
     mPanelProfile = findChild<LLPanelProfile>(PANEL_PROFILE_VIEW);
 
-    childSetAction("ok_btn", boost::bind(&LLFloaterProfile::onOKBtn, this));
-    childSetAction("cancel_btn", boost::bind(&LLFloaterProfile::onCancelBtn, this));
-
     return TRUE;
 }
 
