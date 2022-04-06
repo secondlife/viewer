@@ -19,8 +19,7 @@ elseif(WINDOWS)
     set_target_libraries( googlemock::googlemock gmock)
     set_target_include_dirs( googlemock::googlemock
             ${LIBS_PREBUILT_DIR}/include
-            ${LIBS_PREBUILT_DIR}/include/gmock
-            ${LIBS_PREBUILT_DIR}/include/gmock/boost/tr1/tr1 )
+            ${LIBS_PREBUILT_DIR}/include/gmock)
 
 elseif(DARWIN)
     set_target_libraries( googlemock::googlemock gmock gtest)
