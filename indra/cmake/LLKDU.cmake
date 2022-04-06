@@ -20,7 +20,6 @@ if (USE_KDU)
   else (WINDOWS)
     set_target_libraries( kdu::kdu libkdu.a)
   endif (WINDOWS)
-      set_target_libraries( kdu::kdu kdu.lib)
 
   set_target_include_dirs( kdu::kdu
           ${AUTOBUILD_INSTALL_DIR}/include/kdu

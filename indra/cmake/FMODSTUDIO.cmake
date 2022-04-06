@@ -12,7 +12,6 @@ if (FMODSTUDIO)
     return()
   endif()
   create_target( fmodstudio::fmodstudio )
-  set_target_include_dirs( openal::openal "${LIBS_PREBUILT_DIR}/include/AL")
 
   if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
     # If the path have been specified in the arguments, use that
