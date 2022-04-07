@@ -61,7 +61,6 @@ static const auto& nil(nil_);
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/function_types/function_arity.hpp>
@@ -167,10 +166,11 @@ public:
      * converted to the corresponding parameter type using LLSDParam.
      */
     template<typename Function>
-    typename boost::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>
-                               >::type add(const std::string& name,
-                                           const std::string& desc,
-                                           Function f);
+    typename std::enable_if<
+        boost::function_types::is_nonmember_callable_builtin<Function>::value
+        >::type add(const std::string& name,
+                    const std::string& desc,
+                    Function f);
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
@@ -190,11 +190,14 @@ public:
      * converted to the corresponding parameter type using LLSDParam.
      */
     template<typename Method, typename InstanceGetter>
-    typename boost::enable_if< boost::function_types::is_member_function_pointer<Method>
-                               >::type add(const std::string& name,
-                                           const std::string& desc,
-                                           Method f,
-                                           const InstanceGetter& getter);
+    typename std::enable_if<
+        boost::function_types::is_member_function_pointer<Method>::value &&
+        ! std::is_same<InstanceGetter, LLSD>::value &&
+        ! std::is_same<InstanceGetter, LLSDMap>::value
+        >::type add(const std::string& name,
+                    const std::string& desc,
+                    Method f,
+                    const InstanceGetter& getter);
 
     /**
      * Register a free function with arbitrary parameters. (This also works
@@ -212,12 +215,13 @@ public:
      * to the corresponding parameter type using LLSDParam.
      */
     template<typename Function>
-    typename boost::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>
-                               >::type add(const std::string& name,
-                                           const std::string& desc,
-                                           Function f,
-                                           const LLSD& params,
-                                           const LLSD& defaults=LLSD());
+    typename std::enable_if<
+        boost::function_types::is_nonmember_callable_builtin<Function>::value
+        >::type add(const std::string& name,
+                    const std::string& desc,
+                    Function f,
+                    const LLSD& params,
+                    const LLSD& defaults=LLSD());
 
     /**
      * Register a nonstatic class method with arbitrary parameters.
@@ -241,13 +245,16 @@ public:
      * to the corresponding parameter type using LLSDParam.
      */
     template<typename Method, typename InstanceGetter>
-    typename boost::enable_if< boost::function_types::is_member_function_pointer<Method>
-                               >::type add(const std::string& name,
-                                           const std::string& desc,
-                                           Method f,
-                                           const InstanceGetter& getter,
-                                           const LLSD& params,
-                                           const LLSD& defaults=LLSD());
+    typename std::enable_if<
+        boost::function_types::is_member_function_pointer<Method>::value &&
+        ! std::is_same<InstanceGetter, LLSD>::value &&
+        ! std::is_same<InstanceGetter, LLSDMap>::value
+        >::type add(const std::string& name,
+                    const std::string& desc,
+                    Method f,
+                    const InstanceGetter& getter,
+                    const LLSD& params,
+                    const LLSD& defaults=LLSD());
 
     //@}    
 
@@ -434,7 +441,25 @@ struct LLEventDispatcher::invoker
         // Instead of grabbing the first item from argsrc and making an
         // LLSDParam of it, call getter() and pass that as the instance param.
         invoker<Function, next_iter_type, To>::apply
-        ( func, argsrc, boost::fusion::push_back(boost::fusion::nil(), boost::ref(getter())));
+        ( func, argsrc, boost::fusion::push_back(boost::fusion::nil(), bindable(getter())));
+    }
+
+    template <typename T>
+    static inline
+    auto bindable(T&& value,
+                  typename std::enable_if<std::is_pointer<T>::value, bool>::type=true)
+    {
+        // if passed a pointer, just return that pointer
+        return std::forward<T>(value);
+    }
+
+    template <typename T>
+    static inline
+    auto bindable(T&& value,
+                  typename std::enable_if<! std::is_pointer<T>::value, bool>::type=true)
+    {
+        // if passed a reference, wrap it for binding
+        return std::ref(std::forward<T>(value));
     }
 };
 
@@ -454,7 +479,7 @@ struct LLEventDispatcher::invoker<Function,To,To>
 };
 
 template<typename Function>
-typename boost::enable_if< boost::function_types::is_nonmember_callable_builtin<Function> >::type
+typename std::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>::value >::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f)
 {
     // Construct an invoker_function, a callable accepting const args_source&.
@@ -465,7 +490,11 @@ LLEventDispatcher::add(const std::string& name, const std::string& desc, Functio
 }
 
 template<typename Method, typename InstanceGetter>
-typename boost::enable_if< boost::function_types::is_member_function_pointer<Method> >::type
+typename std::enable_if<
+    boost::function_types::is_member_function_pointer<Method>::value &&
+    ! std::is_same<InstanceGetter, LLSD>::value &&
+    ! std::is_same<InstanceGetter, LLSDMap>::value
+>::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
                        const InstanceGetter& getter)
 {
@@ -476,7 +505,7 @@ LLEventDispatcher::add(const std::string& name, const std::string& desc, Method 
 }
 
 template<typename Function>
-typename boost::enable_if< boost::function_types::is_nonmember_callable_builtin<Function> >::type
+typename std::enable_if< boost::function_types::is_nonmember_callable_builtin<Function>::value >::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Function f,
                        const LLSD& params, const LLSD& defaults)
 {
@@ -485,7 +514,11 @@ LLEventDispatcher::add(const std::string& name, const std::string& desc, Functio
 }
 
 template<typename Method, typename InstanceGetter>
-typename boost::enable_if< boost::function_types::is_member_function_pointer<Method> >::type
+typename std::enable_if<
+    boost::function_types::is_member_function_pointer<Method>::value &&
+    ! std::is_same<InstanceGetter, LLSD>::value &&
+    ! std::is_same<InstanceGetter, LLSDMap>::value
+>::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
                        const InstanceGetter& getter,
                        const LLSD& params, const LLSD& defaults)
