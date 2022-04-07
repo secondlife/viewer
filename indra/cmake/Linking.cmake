@@ -18,6 +18,11 @@ elseif (LINUX)
 elseif (DARWIN)
   set(SHARED_LIB_STAGING_DIR ${CMAKE_BINARY_DIR}/sharedlibs)
   set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs")
+  if( ${CMAKE_GENERATOR} STREQUAL "Ninja")
+    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs/${CMAKE_BUILD_TYPE} ")
+  else()
+    set(EXE_STAGING_DIR "${CMAKE_BINARY_DIR}/sharedlibs")
+  endif()
 endif (WINDOWS)
 
 # Autobuild packages must provide 'release' versions of libraries, but may provide versions for
@@ -30,7 +35,13 @@ endif (WINDOWS)
 if(WINDOWS OR DARWIN)
   # the cmake xcode and VS generators implicitly append ${CMAKE_CFG_INTDIR} to the library paths for us
   # fortunately both windows and darwin are case insensitive filesystems so this works.
-  set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
+  # Ninja on the other hand needs the the full path
+  if( ${CMAKE_GENERATOR} STREQUAL "Ninja")
+    string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
+    set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
+  else()
+    set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
+  endif()
 else(WINDOWS OR DARWIN)
   # else block is for linux and any other makefile based generators
   string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
