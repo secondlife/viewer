@@ -216,8 +216,7 @@ public:
     template<typename Method, typename InstanceGetter>
     typename std::enable_if<
         boost::function_types::is_member_function_pointer<Method>::value &&
-        ! std::is_same<InstanceGetter, LLSD>::value &&
-        ! std::is_same<InstanceGetter, LLSDMap>::value
+        ! std::is_convertible<InstanceGetter, LLSD>::value
         >::type add(const std::string& name,
                     const std::string& desc,
                     Method f,
@@ -306,8 +305,7 @@ public:
     template<typename Method, typename InstanceGetter>
     typename std::enable_if<
         boost::function_types::is_member_function_pointer<Method>::value &&
-        ! std::is_same<InstanceGetter, LLSD>::value &&
-        ! std::is_same<InstanceGetter, LLSDMap>::value
+        ! std::is_convertible<InstanceGetter, LLSD>::value
         >::type add(const std::string& name,
                     const std::string& desc,
                     Method f,
@@ -561,8 +559,7 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc, Me
 template<typename Method, typename InstanceGetter>
 typename std::enable_if<
     boost::function_types::is_member_function_pointer<Method>::value &&
-    ! std::is_same<InstanceGetter, LLSD>::value &&
-    ! std::is_same<InstanceGetter, LLSDMap>::value
+    ! std::is_convertible<InstanceGetter, LLSD>::value
 >::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
                        const InstanceGetter& getter)
@@ -608,8 +605,7 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc, Me
 template<typename Method, typename InstanceGetter>
 typename std::enable_if<
     boost::function_types::is_member_function_pointer<Method>::value &&
-    ! std::is_same<InstanceGetter, LLSD>::value &&
-    ! std::is_same<InstanceGetter, LLSDMap>::value
+    ! std::is_convertible<InstanceGetter, LLSD>::value
 >::type
 LLEventDispatcher::add(const std::string& name, const std::string& desc, Method f,
                        const InstanceGetter& getter,
