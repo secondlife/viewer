@@ -61,6 +61,7 @@
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llgroupactions.h"
+#include "lllogchat.h"
 #include "llmutelist.h"
 #include "llnotificationsutil.h"
 #include "llpanelblockedlist.h"
@@ -148,7 +149,6 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     avatar_data->image_id = result["sl_image_id"].asUUID();
     avatar_data->fl_image_id = result["fl_image_id"].asUUID();
     avatar_data->partner_id = result["partner_id"].asUUID();
-    // Todo: new descriptio size is 65536, check if it actually fits or has scroll
     avatar_data->about_text = result["sl_about_text"].asString();
     // Todo: new descriptio size is 65536, check if it actually fits or has scroll
     avatar_data->fl_about_text = result["fl_about_text"].asString();
@@ -250,6 +250,7 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
 
     avatar_notes.agent_id = agent_id;
     avatar_notes.target_id = agent_id;
+    // Todo: new notes size is 65536, check that field has a scroll
     avatar_notes.notes = result["notes"].asString();
 
     panel = floater_profile->findChild<LLPanel>(PANEL_NOTES, TRUE);
@@ -594,15 +595,10 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
     mDescriptionEdit        = getChild<LLTextBase>("sl_description_edit");
     mGiveInvPanel           = getChild<LLPanel>("give_stack");
-
-    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
-    enable.add("Profile.EnableCall",                [this](LLUICtrl*, const LLSD&) { return mVoiceStatus; });
-    enable.add("Profile.EnableGod",                 [](LLUICtrl*, const LLSD&) { return gAgent.isGodlike(); });
+    mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
 
     mGroupList->setDoubleClickCallback(boost::bind(&LLPanelProfileSecondLife::openGroupProfile, this));
     mGroupList->setReturnCallback(boost::bind(&LLPanelProfileSecondLife::openGroupProfile, this));
-
-    //mAgentActionMenuButton->setMenu("menu_name_field.xml", LLMenuButton::MP_BOTTOM_RIGHT);
 
     return TRUE;
 }
@@ -623,6 +619,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
 
     childSetVisible("notes_panel", !own_profile);
     childSetVisible("settings_panel", own_profile);
+    childSetVisible("permissions_panel", !own_profile);
 
     if (own_profile && !getEmbedded())
     {
@@ -631,8 +628,23 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         mGroupList->enableForAgent(false);
     }
 
+    // Init menu, menu needs to be created in scope of a registar to work correctly.
+    LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit;
+    commit.add("Profile.Commit", [this](LLUICtrl*, const LLSD& userdata) { onCommitMenu(userdata); });
+
+    LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable;
+    enable.add("Profile.EnableItem", [this](LLUICtrl*, const LLSD& userdata) { return onEnableMenu(userdata); });
+    enable.add("Profile.CheckItem", [this](LLUICtrl*, const LLSD& userdata) { return onCheckMenu(userdata); });
+
     if (own_profile)
     {
+        //mAgentActionMenuButton->setMenu("menu_profile_self.xml", LLMenuButton::MP_BOTTOM_RIGHT);
+    }
+    else
+    {
+        // Todo: use PeopleContextMenu instead?
+        // Todo: add options to copy name, display name, id, may be slurl
+        mAgentActionMenuButton->setMenu("menu_profile_other.xml", LLMenuButton::MP_BOTTOM_RIGHT);
     }
 
     mDescriptionEdit->setParseHTML(!own_profile && !getEmbedded());
@@ -817,8 +829,9 @@ void LLPanelProfileSecondLife::openGroupProfile()
 void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
     mAvatarNameCacheConnection.disconnect();
-
-    //getChild<LLUICtrl>("complete_name")->setValue( av_name.getCompleteName() );
+    // Should be possible to get this from AgentProfile capability
+    getChild<LLUICtrl>("display_name")->setValue( av_name.getDisplayName() );
+    getChild<LLUICtrl>("user_name")->setValue(av_name.getUserName() );
 }
 
 void LLPanelProfileSecondLife::setUploadProfileImagePath(const std::string &path, const std::string &orig_path)
@@ -861,7 +874,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     LLStringUtil::format_map_t args;
     args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
     std::string register_date = getString("AgeFormat", args);
-    getChild<LLUICtrl>("register_date")->setValue(register_date );
+    getChild<LLUICtrl>("user_age")->setValue(register_date );
     mDescriptionEdit->setValue(avatar_data->about_text);
     mImageAssetId = avatar_data->image_id;
     mSecondLifePic->setValue(mImageAssetId);
@@ -891,14 +904,17 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
 void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
 {
-    LLTextEditor* partner_text = getChild<LLTextEditor>("partner_text");
+    LLTextBox* partner_text_ctrl = getChild<LLTextBox>("partner_link");
     if (avatar_data->partner_id.notNull())
     {
-        partner_text->setText(LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString());
+        LLStringUtil::format_map_t args;
+        args["[LINK]"] = LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString();
+        std::string partner_text = getString("partner_text", args);
+        partner_text_ctrl->setText(partner_text);
     }
     else
     {
-        partner_text->setText(getString("no_partner_text"));
+        partner_text_ctrl->setText(getString("no_partner_text"));
     }
 }
 
@@ -1101,29 +1117,106 @@ void LLPanelProfileSecondLife::onPickTexture()
 
 void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
 {
-    LLAvatarName av_name;
-    if (!LLAvatarNameCache::get(getAvatarId(), &av_name))
+    const std::string item_name = userdata.asString();
+    const LLUUID agent_id = getAvatarId();
+    // todo: consider moving this into LLAvatarActions::onCommit(name, id)
+    // and making all other flaoters, like people menu do the same
+    if (item_name == "im")
     {
-        // shouldn't happen, button(menu) is supposed to be invisible while name is fetching
-        LL_WARNS() << "Failed to get agent data" << LL_ENDL;
-        return;
+        LLAvatarActions::startIM(agent_id);
+    }
+    else if (item_name == "offer_teleport")
+    {
+        LLAvatarActions::offerTeleport(agent_id);
+    }
+    else if (item_name == "request_teleport")
+    {
+        LLAvatarActions::teleportRequest(agent_id);
+    }
+    else if (item_name == "voice_call")
+    {
+        LLAvatarActions::startCall(agent_id);
+    }
+    else if (item_name == "callog")
+    {
+        LLAvatarActions::viewChatHistory(agent_id);
+    }
+    else if (item_name == "add_friend")
+    {
+        LLAvatarActions::requestFriendshipDialog(agent_id);
+    }
+    else if (item_name == "remove_friend")
+    {
+        LLAvatarActions::removeFriendDialog(agent_id);
+    }
+    else if (item_name == "invite_to_group")
+    {
+        LLAvatarActions::inviteToGroup(agent_id);
+    }
+    else if (item_name == "can_show_on_map")
+    {
+        LLAvatarActions::showOnMap(agent_id);
+    }
+    else if (item_name == "share")
+    {
+        LLAvatarActions::share(agent_id);
+    }
+    else if (item_name == "pay")
+    {
+        LLAvatarActions::pay(agent_id);
+    }
+    else if (item_name == "toggle_block_agent")
+    {
+        LLAvatarActions::toggleBlock(agent_id);
+    }
+}
+
+bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
+{
+    const std::string item_name = userdata.asString();
+    const LLUUID agent_id = getAvatarId();
+    if (item_name == "offer_teleport" || item_name == "request_teleport")
+    {
+        return LLAvatarActions::canOfferTeleport(agent_id);
+    }
+    else if (item_name == "voice_call")
+    {
+        return LLAvatarActions::canCall();
+    }
+    else if (item_name == "callog")
+    {
+        return LLLogChat::isTranscriptExist(agent_id);
+    }
+    else if (item_name == "add_friend")
+    {
+        return !LLAvatarActions::isFriend(agent_id);
+    }
+    else if (item_name == "remove_friend")
+    {
+        return LLAvatarActions::isFriend(agent_id);
+    }
+    else if (item_name == "can_show_on_map")
+    {
+        return (LLAvatarTracker::instance().isBuddyOnline(agent_id) && is_agent_mappable(agent_id))
+        || gAgent.isGodlike();
+    }
+    else if (item_name == "toggle_block_agent")
+    {
+        return LLAvatarActions::canBlock(agent_id);
     }
 
+    return false;
+}
+
+bool LLPanelProfileSecondLife::onCheckMenu(const LLSD& userdata)
+{
     const std::string item_name = userdata.asString();
-    LLWString wstr;
-    if (item_name == "display")
+    const LLUUID agent_id = getAvatarId();
+    if (item_name == "toggle_block_agent")
     {
-        wstr = utf8str_to_wstring(av_name.getDisplayName(true));
+        return LLAvatarActions::isBlocked(agent_id);
     }
-    else if (item_name == "name")
-    {
-        wstr = utf8str_to_wstring(av_name.getAccountName());
-    }
-    else if (item_name == "id")
-    {
-        wstr = utf8str_to_wstring(getAvatarId().asString());
-    }
-    LLClipboard::instance().copyToClipboard(wstr, 0, wstr.size());
+    return false;
 }
 
 void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, const LLAvatarName& av_name)

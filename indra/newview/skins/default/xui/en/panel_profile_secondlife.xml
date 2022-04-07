@@ -14,7 +14,10 @@
     value="[AGE]" />
    <string
     name="no_partner_text"
-    value="None" />
+    value="Partner: None" />
+   <string
+    name="partner_text"
+    value="Partner: [LINK]" />
    <string
     name="CaptionTextAcctInfo">
 Account: [ACCTTYPE]
@@ -78,6 +81,7 @@ Account: [ACCTTYPE]
           <text
            name="display_name"
            value="(loading...)"
+           font="SansSerifBigLarge"
            top="0"
            left="2"
            right="-1"
@@ -88,40 +92,43 @@ Account: [ACCTTYPE]
           <text
            name="user_name"
            value="(loading...)"
-           top_pad="3"
+           top_pad="0"
            left="2"
            right="-1"
-           height="20"
+           height="16"
            follows="left|top|right"
            layout="topleft"/>
 
           <text
            name="user_age"
            value="(loading...)"
-           top_pad="3"
+           top_pad="0"
            left="2"
            right="-1"
-           height="20"
+           height="16"
            follows="left|top|right"
            layout="topleft"/>
 
           <text
+           type="string"
            name="partner_link"
            value="Partner: (loading...)"
-           top_pad="3"
+           top_pad="0"
            left="2"
            right="-1"
-           height="20"
+           height="16"
            follows="left|top|right"
-           layout="topleft"/>
+           layout="topleft"
+           translate="false"
+           use_ellipses="true" />
 
           <text
            name="account_info"
            value="Account: (loading...)"
-           top_pad="3"
+           top_pad="0"
            left="2"
            right="-1"
-           height="20"
+           height="16"
            follows="left|top|right"
            layout="topleft"/>
 
@@ -139,7 +146,7 @@ Account: [ACCTTYPE]
            image_pressed="DropDown_Press" 
            image_pressed_selected="DropDown_Press"
            image_disabled="DropDown_Disabled"
-           name="agent_actions" />
+           name="agent_actions_menu" />
         </layout_panel>
         
         <layout_panel
@@ -149,6 +156,7 @@ Account: [ACCTTYPE]
          width="26"
          auto_resize="false"
          user_resize="false">
+          <!--Todo: progress indicator-->
           <!--Probably should be borderless buttons-->
           <icon
            name="allow_to_see_online"
@@ -272,7 +280,7 @@ Account: [ACCTTYPE]
          user_resize="false">
           <text
            name="group_label"
-           value="(loading...) is a member of:"
+           value="Group membership"
            top="1"
            left="1"
            right="-1"
@@ -300,8 +308,7 @@ Account: [ACCTTYPE]
          width="200"
          auto_resize="true"
          user_resize="false">
-          <!-- notes are only for other agents -->
-        
+          <!-- notes are only for other agents -->        
           <text
            name="notes_label"
            value="My private notes:"
@@ -328,27 +335,7 @@ Account: [ACCTTYPE]
            h_pad="2"
            max_length="65000"
            parse_urls="true"
-           word_wrap="true"/>         
-          <button
-           name="save_notes_changes"
-           label="Save"
-           bottom="-1"
-           right="-105"
-           height="20"
-           width="80"
-           follows="bottom|right"
-           layout="topleft"
-           label_selected="Find on Map"/>
-          <button
-           name="discard_notes_changes"
-           label="Discard"
-           bottom="-1"
-           right="-1"
-           height="20"
-           width="100"
-           follows="bottom|right"
-           layout="topleft"
-           label_selected="Find on Map"/>
+           word_wrap="true"/>
         </layout_panel>
 
         <layout_panel

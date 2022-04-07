@@ -164,7 +164,9 @@ private:
     /*virtual*/ void updateButtons();
 	void onClickSetName();
 	void onPickTexture();
-	void onCommitMenu(const LLSD& userdata);
+    void onCommitMenu(const LLSD& userdata);
+    bool onEnableMenu(const LLSD& userdata);
+    bool onCheckMenu(const LLSD& userdata);
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
 
 private:
@@ -178,6 +180,7 @@ private:
 	LLPanel*			mSecondLifePicLayout;
 	LLTextBase*			mDescriptionEdit;
 	LLPanel*			mGiveInvPanel;
+    LLMenuButton*		mAgentActionMenuButton;
 
 	bool				mVoiceStatus;
     std::string mImageFile;
