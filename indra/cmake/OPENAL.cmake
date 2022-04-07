@@ -12,6 +12,7 @@ if (OPENAL)
   if( TARGET openal::openal )
     return()
   endif()
+
   create_target( openal::openal )
   set_target_include_dirs( openal::openal "${LIBS_PREBUILT_DIR}/include/AL")
 
@@ -26,13 +27,15 @@ if (OPENAL)
 
   if(WINDOWS)
     set_target_libraries( openal::openal
-      OpenAL32
-      alut
-    )
-  else()
+            OpenAL32
+            alut
+            )
+  elseif(LINUX)
     set_target_libraries( openal::openal
-      openal
-      alut
-    )
+            openal
+            alut
+            )
+  else()
+    message(FATAL_ERROR "OpenAL is not available for this platform")
   endif()
 endif (OPENAL)
