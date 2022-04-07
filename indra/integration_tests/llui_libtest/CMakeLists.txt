@@ -93,25 +93,17 @@ if (WINDOWS)
     set_target_properties(llui_libtest
         PROPERTIES 
         LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:MSVCRT /NODEFAULTLIB:LIBCMTD"
         )
 
     # Copy over OpenJPEG.dll
     # *NOTE: On Windows with VS2005, only the first comment prints
     set(OPENJPEG_RELEASE
-        "${ARCH_PREBUILT_DIRS_RELEASE}/openjpeg.dll")
+            "${ARCH_PREBUILT_DIRS_RELEASE}/openjpeg.dll")
     add_custom_command( TARGET llui_libtest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
             ${OPENJPEG_RELEASE} ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Copying OpenJPEG DLLs to binary directory"
-        )
-    set(OPENJPEG_DEBUG
-        "${ARCH_PREBUILT_DIRS_DEBUG}/openjpegd.dll")
-    add_custom_command( TARGET llui_libtest POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-            ${OPENJPEG_DEBUG} ${CMAKE_CURRENT_BINARY_DIR}
-        )
-  
+            COMMENT "Copying OpenJPEG DLLs to binary directory"
+            )
 endif (WINDOWS)
 
 # Ensure people working on the viewer don't break this library
