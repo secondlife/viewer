@@ -483,8 +483,13 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 
 	mActive[base_item_id] = new_gesture;
 
-	delete old_gesture;
-	old_gesture = NULL;
+    // replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
+    // replaces ids without repalcing gesture
+    if (old_gesture != new_gesture)
+    {
+        delete old_gesture;
+        old_gesture = NULL;
+    }
 
 	if (asset_id.notNull())
 	{
@@ -1107,7 +1112,7 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
             else
             {
                 LLMultiGesture* old_gesture = (*it).second;
-                if (old_gesture)
+                if (old_gesture && old_gesture != gesture)
                 {
                     LL_DEBUGS("GestureMgr") << "Received dupplicate " << item_id << " callback" << LL_ENDL;
                     // In case somebody managest to activate, deactivate and

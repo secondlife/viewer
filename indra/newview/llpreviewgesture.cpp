@@ -1029,7 +1029,6 @@ void LLPreviewGesture::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId)
     // active map with the new pointer.				
     if (LLGestureMgr::instance().isGestureActive(itemId))
     {
-        //*TODO: This is crashing for some reason.  Fix it.
         // Active gesture edited from menu.
         LLGestureMgr::instance().replaceGesture(itemId, newAssetId);
         gInventory.notifyObservers();
