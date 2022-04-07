@@ -796,6 +796,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
 {
+    if (params.mAvatar.isNull())
+    {
+        return false;
+    }
     const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
     U32 count = mpc.mMatrixPalette.size();
 

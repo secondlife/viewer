@@ -596,6 +596,10 @@ bool LLRenderPass::uploadMatrixPalette(LLDrawInfo& params)
 //static
 bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo)
 {
+    if (!avatar)
+    {
+        return false;
+    }
     const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
     U32 count = mpc.mMatrixPalette.size();
 
