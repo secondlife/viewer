@@ -1264,7 +1264,6 @@ BOOL LLViewerTextureList::createUploadFile(const std::string& filename,
 	LLPointer<LLImageFormatted> image = LLImageFormatted::createFromType(codec);
 	if (image.isNull())
 	{
-		image->setLastError("Couldn't open the image to be uploaded.");
 		return FALSE;
 	}	
 	if (!image->load(filename))

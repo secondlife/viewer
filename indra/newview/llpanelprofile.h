@@ -45,6 +45,7 @@
 // class LLPanelProfileNotes;
 
 class LLAvatarName;
+class LLButton;
 class LLCheckBoxCtrl;
 class LLIconCtrl;
 class LLTabContainer;
@@ -103,8 +104,8 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-    void setUploadProfileImagePath(const std::string &path, const std::string &orig_path);
-    void clearUploadProfileImagePath();
+    void setProfileImageUploading(bool loading);
+    void setProfileImageUploaded(const LLUUID &image_asset_id);
 
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
@@ -162,12 +163,13 @@ protected:
 
 private:
     /*virtual*/ void updateButtons();
-	void onClickSetName();
-	void onPickTexture();
     void onCommitMenu(const LLSD& userdata);
     bool onEnableMenu(const LLSD& userdata);
     bool onCheckMenu(const LLSD& userdata);
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
+
+    void onSaveDescriptionChanges();
+    void onDiscardDescriptionChanges();
 
 private:
 	typedef std::map<std::string, LLUUID> group_map_t;
@@ -179,11 +181,12 @@ private:
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
 	LLTextBase*			mDescriptionEdit;
-	LLPanel*			mGiveInvPanel;
     LLMenuButton*		mAgentActionMenuButton;
+    LLButton*			mSaveDescriptionChanges;
+    LLButton*			mDiscardDescriptionChanges;
 
 	bool				mVoiceStatus;
-    std::string mImageFile;
+    bool				mWaitingForImageUpload;
     LLUUID mImageAssetId;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
