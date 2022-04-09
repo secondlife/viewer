@@ -504,7 +504,7 @@ class WindowsManifest(ViewerManifest):
         
         # Get shared libs from the shared libs staging directory
         with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                          'sharedlibs', self.args['configuration'])):
+                                          'sharedlibs', self.args['buildtype'])):
 
             # Mesh 3rd party libs needed for auto LOD and collada reading
             try:
