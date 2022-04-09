@@ -132,8 +132,6 @@ if (LINUX)
           -pthread
           -Wno-parentheses
           -Wno-deprecated
-          -Wno-unused-but-set-variable
-          -Wno-unused-variable
           -fvisibility=hidden
   )
 
@@ -183,19 +181,15 @@ if (LINUX OR DARWIN)
     set(CMAKE_COMPILER_IS_CLANGXX 1)
   endif (CMAKE_CXX_COMPILER MATCHES ".*clang")
 
-  if (CMAKE_COMPILER_IS_GNUCXX)
-    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
-  elseif (CMAKE_COMPILER_IS_CLANGXX)
-    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
-  endif()
+  set(GCC_WARNINGS -Wall -Wno-sign-compare -Wno-trigraphs)
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
+    list(APPEND GCC_WARNINGS -Werror)
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
-  set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")
+  list(APPEND GCC_WARNINGS -Wno-reorder -Wno-non-virtual-dtor -Wno-unused-but-set-variable  -Wno-unused-variable )
 
-  add_compile_options(${GCC_CXX_WARNINGS})
+  add_compile_options(${GCC_WARNINGS})
   add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
 
