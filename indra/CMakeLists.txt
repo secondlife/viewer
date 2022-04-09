@@ -4,7 +4,8 @@
 # other commands to guarantee full compatibility
 # with the version specified
 ## 3.8 added VS_DEBUGGER_WORKING_DIRECTORY support
-cmake_minimum_required(VERSION 3.8.0 FATAL_ERROR)
+# 3.13/12 is needed for add_link_options/add_compile_definitions
+cmake_minimum_required(VERSION 3.13.0 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
