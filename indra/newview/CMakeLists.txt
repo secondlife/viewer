@@ -1454,11 +1454,7 @@ if (WINDOWS)
     # All sources added to viewer_SOURCE_FILES
     # at this point use it.
     if(USE_PRECOMPILED_HEADERS)
-        set_source_files_properties(llviewerprecompiledheaders.cpp
-            PROPERTIES
-            COMPILE_FLAGS "/Ycllviewerprecompiledheaders.h"
-            )
-        set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
+       set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
     endif(USE_PRECOMPILED_HEADERS)
 
     # Replace the icons with the appropriate ones for the channel
@@ -1742,11 +1738,7 @@ if (WINDOWS)
         )
 
     if(USE_PRECOMPILED_HEADERS)
-        set_target_properties(
-            ${VIEWER_BINARY_NAME}
-            PROPERTIES
-            COMPILE_FLAGS "/Yullviewerprecompiledheaders.h"
-            )
+       target_precompile_headers( ${VIEWER_BINARY_NAME} PRIVATE llviewerprecompiledheaders.h )
     endif(USE_PRECOMPILED_HEADERS)
 
     # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
