@@ -27,24 +27,22 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{LL_BUILD}")
 # as well?
 
 # Portable compilation flags.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DADDRESS_SIZE=${ADDRESS_SIZE}")
+add_compile_definitions( ADDRESS_SIZE=${ADDRESS_SIZE})
 
 # Configure crash reporting
 set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
 set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
 
 if(RELEASE_CRASH_REPORTING)
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DLL_SEND_CRASH_REPORTS=1")
+  add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
 endif()
 
 if(NON_RELEASE_CRASH_REPORTING)
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DLL_SEND_CRASH_REPORTS=1")
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLL_SEND_CRASH_REPORTS=1")
-endif()  
+  add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
+endif()
 
 # Don't bother with a MinSizeRel or Debug build.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
-
 
 # Platform-specific compilation flags.
 
@@ -65,22 +63,20 @@ if (WINDOWS)
   # CP changed to only append the flag for 32bit builds - on 64bit builds,
   # locally at least, the build output is spammed with 1000s of 'D9002'
   # warnings about this switch being ignored.
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
   if( ADDRESS_SIZE EQUAL 32 )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /p:PreferredToolArchitecture=x64")  
   endif()
   # zlib has assembly-language object files incompatible with SAFESEH
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE /SAFESEH:NO /NODEFAULTLIB:LIBCMT /IGNORE:4099")
-
-  set(CMAKE_CXX_STANDARD_LIBRARIES "")
-  set(CMAKE_C_STANDARD_LIBRARIES "")
+  add_link_options(/LARGEADDRESSAWARE
+          /SAFESEH:NO
+          /NODEFAULTLIB:LIBCMT
+          /IGNORE:4099)
 
   add_definitions(
-      /DNOMINMAX
+      -DNOMINMAX
 #      /DDOM_DYNAMIC            # For shared library colladadom
       )
   add_compile_options(
-
           /Zo
           /GS
           /TP
@@ -90,57 +86,61 @@ if (WINDOWS)
           /nologo
           /Oy-
           /fp:fast
+          /MP
       )
 
   # Nicky: x64 implies SSE2
   if( ADDRESS_SIZE EQUAL 32 )
-    add_definitions( /arch:SSE2 )
+    add_compile_options( /arch:SSE2 )
   endif()
      
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
-    add_definitions(/WX)
+    add_compile_options(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
+
+  #ND: When using something like buildcache (https://github.com/mbitsnbites/buildcache)
+  # to make those wrappers work /Zi must be changed to /Z7, as /Zi due to it's nature is not compatible with caching
+  if( ${CMAKE_CXX_COMPILER_LAUNCHER} MATCHES ".*cache.*")
+    add_compile_options( /Z7 )
+    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
+    string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+    string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+  endif()
 endif (WINDOWS)
 
 
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
-  add_definitions(-D_FORTIFY_SOURCE=2)
-
-  set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable ${CMAKE_CXX_FLAGS}")
-
-  # gcc 4.3 and above don't like the LL boost and also
-  # cause warnings due to our use of deprecated headers
-  add_definitions(-Wno-parentheses)
-
-  add_definitions(
-      -D_REENTRANT
-      )
+  add_compile_definitions(
+          -D_REENTRANT
+          -D_FORTIFY_SOURCE=2
+          -DEXTERNAL_TOS
+          -DAPPID=secondlife
+          -DLL_IGNORE_SIGCHLD
+  )
   add_compile_options(
-      -fexceptions
-      -fno-math-errno
-      -fno-strict-aliasing
-      -fsigned-char
-      -msse2
-      -mfpmath=sse
-      -pthread
-      )
+          -fexceptions
+          -fno-math-errno
+          -fno-strict-aliasing
+          -fsigned-char
+          -msse2
+          -mfpmath=sse
+          -pthread
+          -Wno-parentheses
+          -Wno-deprecated
+          -Wno-unused-but-set-variable
+          -Wno-unused-variable
+          -fvisibility=hidden
+  )
 
-  # force this platform to accept TOS via external browser
-  add_definitions(-DEXTERNAL_TOS)
-
-  add_definitions(-DAPPID=secondlife)
-  add_compile_options(-fvisibility=hidden)
-  # don't catch SIGCHLD in our base application class for the viewer - some of
-  # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
-  # viewer doesn't need to catch SIGCHLD anyway.
-  add_definitions(-DLL_IGNORE_SIGCHLD)
   if (ADDRESS_SIZE EQUAL 32)
     add_compile_options(-march=pentium4)
   endif (ADDRESS_SIZE EQUAL 32)
-  #add_compile_options(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
+
   if (NOT USESYSTEMLIBS)
     # this stops us requiring a really recent glibc at runtime
     add_compile_options(-fno-stack-protector)
@@ -195,11 +195,8 @@ if (LINUX OR DARWIN)
 
   set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")
 
-  set(CMAKE_C_FLAGS "${GCC_WARNINGS} ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${GCC_CXX_WARNINGS} ${CMAKE_CXX_FLAGS}")
-
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m${ADDRESS_SIZE}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m${ADDRESS_SIZE}")
+  add_compile_options(${GCC_CXX_WARNINGS})
+  add_compile_options(-m${ADDRESS_SIZE})
 endif (LINUX OR DARWIN)
 
 
@@ -207,7 +204,7 @@ if (USESYSTEMLIBS)
   add_definitions(-DLL_USESYSTEMLIBS=1)
 
   if (LINUX AND ADDRESS_SIZE EQUAL 32)
-    add_definitions(-march=pentiumpro)
+    add_compile_options(-march=pentiumpro)
   endif (LINUX AND ADDRESS_SIZE EQUAL 32)
 
 else (USESYSTEMLIBS)
