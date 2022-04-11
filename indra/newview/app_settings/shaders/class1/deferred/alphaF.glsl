@@ -56,6 +56,10 @@ VARYING vec3 vary_norm;
 VARYING vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
+#ifdef FOR_IMPOSTOR
+uniform float minimum_alpha;
+#endif
+
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -204,10 +208,13 @@ void main()
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
-    if (final_alpha < 0.01)
+    if (final_alpha <  minimum_alpha)
     {
         discard;
     }
+
+    color.rgb = diffuse_srgb.rgb;
+    color.a = final_alpha;
 #else
     
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;

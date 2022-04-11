@@ -106,7 +106,7 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
 
     if (LLPipeline::sImpostorRender)
     {
-        shader->setMinimumAlpha(0.5f);
+        shader->setMinimumAlpha(0.1f);
     }
     else
     {
@@ -130,14 +130,15 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     deferred_render = TRUE;
 
     // prepare shaders
-    emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+    emissive_shader = (LLPipeline::sRenderDeferred)   ? &gDeferredEmissiveProgram    :
+                      (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
     prepare_alpha_shader(emissive_shader, true, false);
 
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
+    fullbright_shader   = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
     prepare_alpha_shader(fullbright_shader, true, false);
 
-    simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+    simple_shader   = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
@@ -207,7 +208,7 @@ void LLDrawPoolAlpha::render(S32 pass)
     F32 minimum_alpha = 0.f;
     if (LLPipeline::sImpostorRender)
     {
-        minimum_alpha = 0.5f;
+        minimum_alpha = 0.1f;
     }
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
