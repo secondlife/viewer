@@ -168,6 +168,8 @@ private:
     bool onCheckMenu(const LLSD& userdata);
 	void onAvatarNameCacheSetName(const LLUUID& id, const LLAvatarName& av_name);
 
+    void setDescriptionText(const std::string &text);
+    void onSetDescriptionDirty();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
 
@@ -180,13 +182,14 @@ private:
 	LLCheckBoxCtrl*		mShowInSearchCheckbox;
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
-	LLTextBase*			mDescriptionEdit;
+    LLTextEditor*		mDescriptionEdit;
     LLMenuButton*		mAgentActionMenuButton;
     LLButton*			mSaveDescriptionChanges;
     LLButton*			mDiscardDescriptionChanges;
 
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
+    std::string			mDescriptionText;
     LLUUID mImageAssetId;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
@@ -275,6 +278,10 @@ protected:
 
 	LLTextEditor*	mDescriptionEdit;
     LLTextureCtrl*  mPicture;
+    LLButton* mChangePhoto;
+    LLButton* mRemovePhoto;
+    LLButton* mSaveChanges;
+    LLButton* mDiscardChanges;
 
 	bool			mIsEditing;
 	std::string		mCurrentDescription;
@@ -384,7 +391,7 @@ private:
     LLPanelProfilePicks*        mPanelPicks;
     LLPanelProfileClassifieds*  mPanelClassifieds;
     LLPanelProfileFirstLife*    mPanelFirstlife;
-    LLPanelProfileNotes*         mPanelNotes;
+    LLPanelProfileNotes*        mPanelNotes;
     LLTabContainer*             mTabContainer;
 
     // Todo: due to server taking minutes to update this needs a more long term storage

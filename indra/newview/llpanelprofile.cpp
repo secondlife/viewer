@@ -46,6 +46,7 @@
 #include "lltexturectrl.h"
 #include "lltoggleablemenu.h"
 #include "llgrouplist.h"
+#include "llurlaction.h"
 
 // Image
 #include "llimagej2c.h"
@@ -622,7 +623,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mShowInSearchCheckbox   = getChild<LLCheckBoxCtrl>("show_in_search_checkbox");
     mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
-    mDescriptionEdit        = getChild<LLTextBase>("sl_description_edit");
+    mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
     mSaveDescriptionChanges = getChild<LLButton>("save_description_changes");
     mDiscardDescriptionChanges = getChild<LLButton>("discard_description_changes");
@@ -631,6 +632,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
     mDiscardDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardDescriptionChanges(); }, nullptr);
+    mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
 
     return TRUE;
 }
@@ -781,7 +783,7 @@ void LLPanelProfileSecondLife::resetData()
     LLRect imageRect = mSecondLifePicLayout->getRect();
     mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
 
-    mDescriptionEdit->setValue(LLStringUtil::null);
+    setDescriptionText(LLStringUtil::null);
     mGroups.clear();
     mGroupList->setGroups(mGroups);
 }
@@ -887,7 +889,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
     std::string register_date = getString("AgeFormat", args);
     getChild<LLUICtrl>("user_age")->setValue(register_date );
-    mDescriptionEdit->setValue(avatar_data->about_text);
+    setDescriptionText(avatar_data->about_text);
     mImageAssetId = avatar_data->image_id;
     mSecondLifePic->setValue(mImageAssetId);
 
@@ -1058,10 +1060,6 @@ void LLPanelProfileSecondLife::updateButtons()
         mShowInSearchCheckbox->setVisible(TRUE);
         mShowInSearchCheckbox->setEnabled(TRUE);
         mDescriptionEdit->setEnabled(TRUE);
-
-        // todo: enable/disble buttons based on text changes
-        //mSaveDescriptionChanges->
-        //mDiscardDescriptionChanges->
     }
 }
 
@@ -1217,7 +1215,10 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     }
     else if (item_name == "edit_partner")
     {
-        // todo: open https://secondlife.com/my/account/partners.php or whatever link is correct for the grid
+        std::string url = "https://[GRID]/my/account/partners.php";
+        LLSD subs;
+        url = LLWeb::expandURLSubstitutions(url, subs);
+        LLUrlAction::openURL(url);
     }
     else if (item_name == "change_photo")
     {
@@ -1334,13 +1335,28 @@ void LLPanelProfileSecondLife::onAvatarNameCacheSetName(const LLUUID& agent_id, 
     LLFloaterReg::showInstance("display_name");
 }
 
+void LLPanelProfileSecondLife::setDescriptionText(const std::string &text)
+{
+    mSaveDescriptionChanges->setEnabled(FALSE);
+    mDiscardDescriptionChanges->setEnabled(FALSE);
+    mDescriptionText = text;
+    mDescriptionEdit->setValue(mDescriptionText);
+}
+
+void LLPanelProfileSecondLife::onSetDescriptionDirty()
+{
+    mSaveDescriptionChanges->setEnabled(TRUE);
+    mDiscardDescriptionChanges->setEnabled(TRUE);
+}
+
 void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 {
     // todo: force commit changes in mDescriptionEdit, reset dirty flags
     // todo: check if mDescriptionEdit can be made to not commit immediately
 
+    mDescriptionText = mDescriptionEdit->getValue().asString();
     LLSD params;
-    params["sl_about_text"] = mDescriptionEdit->getValue().asString();
+    params["sl_about_text"] = mDescriptionText;
 
     std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
     if (!cap_url.empty())
@@ -1358,9 +1374,7 @@ void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 
 void LLPanelProfileSecondLife::onDiscardDescriptionChanges()
 {
-    // todo: restore mDescriptionEdit
-
-    updateButtons();
+    setDescriptionText(mDescriptionText);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1547,6 +1561,11 @@ BOOL LLPanelProfileFirstLife::postBuild()
     mDescriptionEdit = getChild<LLTextEditor>("fl_description_edit");
     mPicture = getChild<LLTextureCtrl>("real_world_pic");
 
+    mChangePhoto = getChild<LLButton>("fl_upload_image");
+    mRemovePhoto = getChild<LLButton>("fl_remove_image");
+    mSaveChanges = getChild<LLButton>("fl_save_changes");
+    mDiscardChanges = getChild<LLButton>("fl_discard_changes");
+
     mDescriptionEdit->setFocusReceivedCallback(boost::bind(&LLPanelProfileFirstLife::onDescriptionFocusReceived, this));
 
     return TRUE;
@@ -1597,6 +1616,11 @@ void LLPanelProfileFirstLife::resetData()
 {
     mDescriptionEdit->setValue(LLStringUtil::null);
     mPicture->setValue(mPicture->getDefaultImageAssetID());
+    
+    mChangePhoto->setVisible(getSelfProfile());
+    mRemovePhoto->setVisible(getSelfProfile());
+    mSaveChanges->setVisible(getSelfProfile());
+    mDiscardChanges->setVisible(getSelfProfile());
 }
 
 void LLPanelProfileFirstLife::apply(LLAvatarData* data)

@@ -32,6 +32,7 @@ Account: [ACCTTYPE]
    bottom="-1"
    follows="all"
    layout="topleft"
+   animate="false"
    orientation="vertical">
 
     <layout_panel
@@ -50,6 +51,7 @@ Account: [ACCTTYPE]
        bottom="-1"
        follows="all"
        layout="topleft"
+       animate="false"
        orientation="horizontal">
 
         <layout_panel
@@ -202,6 +204,7 @@ Account: [ACCTTYPE]
        name="sl_description_edit"
        trusted_content="false"
        always_show_icons="true"
+       commit_on_focus_lost="false"
        enabled="false"
        top="1"
        left="1"
@@ -232,9 +235,9 @@ Account: [ACCTTYPE]
          right="-105"
          height="20"
          width="80"
+         enabled="false"
          follows="top|right"
-         layout="topleft"
-         label_selected="Find on Map"/>
+         layout="topleft"/>
         <button
          name="discard_description_changes"
          label="Discard"
@@ -242,9 +245,9 @@ Account: [ACCTTYPE]
          right="-1"
          height="20"
          width="100"
+         enabled="false"
          follows="top|right"
-         layout="topleft"
-         label_selected="Find on Map"/>
+         layout="topleft"/>
         <view_border
          bevel_style="none"
          height="0"
@@ -270,12 +273,14 @@ Account: [ACCTTYPE]
        height="159"
        follows="all"
        layout="topleft"
+       animate="false"
        orientation="horizontal">
         <layout_panel
          name="groups_panel"
          follows="all"
          layout="topleft"
          width="200"
+         height="159"
          auto_resize="true"
          user_resize="false">
           <text
@@ -289,7 +294,7 @@ Account: [ACCTTYPE]
            layout="topleft"/>
           <group_list
            name="group_list"
-           top_pad="1"
+           top="18"
            left="1"
            right="-1"
            bottom="-1"
@@ -319,7 +324,7 @@ Account: [ACCTTYPE]
            follows="left|top|right"
            layout="topleft"/>
           <text_editor
-           name="notes_edit"
+           name="notes_snippet"
            trusted_content="false"
            always_show_icons="true"
            enabled="false"
