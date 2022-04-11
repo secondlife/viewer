@@ -85,8 +85,8 @@ public:
 	typedef LLOctreeTraveler<T>									oct_traveler;
 	typedef LLTreeTraveler<T>									tree_traveler;
 	typedef std::vector< LLPointer<T> >							element_list;		// note:  don't remove the whitespace between "> >"
-	typedef LLPointer<T>*										element_iter;
-	typedef const LLPointer<T>*									const_element_iter;
+    typedef typename element_list::iterator                     element_iter;
+    typedef typename element_list::const_iterator               const_element_iter;
 	typedef typename std::vector<LLTreeListener<T>*>::iterator	tree_listener_iter;
 	typedef LLOctreeNode<T>**									child_list;
 	typedef LLOctreeNode<T>**									child_iter;
@@ -108,9 +108,6 @@ public:
 		mOctant(octant) 
 	{ 
 		llassert(size[0] >= gOctreeMinSize*0.5f);
-		//always keep a NULL terminated list to avoid out of bounds exceptions in debug builds
-		mData.push_back(NULL);
-		mDataEnd = &mData[0];
 
 		mCenter = center;
 		mSize = size;
@@ -121,8 +118,6 @@ public:
 			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
 
-		mElementCount = 0;
-
 		clearChildren();
 	}
 
@@ -130,15 +125,14 @@ public:
 	{ 
 		BaseType::destroyListeners();
 		
-		for (U32 i = 0; i < mElementCount; ++i)
+        const U32 element_count = getElementCount();
+        for (U32 i = 0; i < element_count; ++i)
 		{
 			mData[i]->setBinIndex(-1);
 			mData[i] = NULL;
 		}
 
 		mData.clear();
-		mData.push_back(NULL);
-		mDataEnd = &mData[0];
 
 		for (U32 i = 0; i < getChildCount(); i++)
 		{
@@ -238,14 +232,12 @@ public:
 	void accept(oct_traveler* visitor)				{ visitor->visit(this); }
 	virtual bool isLeaf() const						{ return mChildCount == 0; }
 	
-	U32 getElementCount() const						{ return mElementCount; }
-	bool isEmpty() const							{ return mElementCount == 0; }
-	element_list& getData()							{ return mData; }
-	const element_list& getData() const				{ return mData; }
-	element_iter getDataBegin()						{ return &mData[0]; }
-	element_iter getDataEnd()						{ return mDataEnd; }
-	const_element_iter getDataBegin() const			{ return &mData[0]; }
-	const_element_iter getDataEnd() const			{ return mDataEnd; }
+    U32 getElementCount() const                     { return (U32)mData.size(); }
+    bool isEmpty() const                            { return mData.empty(); }
+    element_iter getDataBegin()                     { return mData.begin(); }
+    element_iter getDataEnd()                       { return mData.end(); }
+    const_element_iter getDataBegin() const         { return mData.cbegin(); }
+    const_element_iter getDataEnd() const           { return mData.cend(); }
 		
 	U32 getChildCount()	const						{ return mChildCount; }
 	oct_node* getChild(U32 index)					{ return mChild[index]; }
@@ -326,11 +318,8 @@ public:
 			if ((((getElementCount() < gOctreeMaxCapacity || getSize()[0] <= gOctreeMinSize) && contains(data->getBinRadius())) ||
 				(data->getBinRadius() > getSize()[0] &&	parent && parent->getElementCount() >= gOctreeMaxCapacity))) 
 			{ //it belongs here
-				mData.push_back(NULL);
-				mData[mElementCount] = data;
-				mElementCount++;
-				mDataEnd = &mData[mElementCount];
-				data->setBinIndex(mElementCount-1);
+                mData.push_back(data);
+                data->setBinIndex(getElementCount() - 1);
 				BaseType::insert(data);
 				return true;
 			}
@@ -366,11 +355,8 @@ public:
 
 				if( lt == 0x7 )
 				{
-					mData.push_back(NULL);
-					mData[mElementCount] = data;
-					mElementCount++;
-					mDataEnd = &mData[mElementCount];
-					data->setBinIndex(mElementCount-1);
+                    mData.push_back(data);
+                    data->setBinIndex(getElementCount() - 1);
 					BaseType::insert(data);
 					return true;
 				}
@@ -429,28 +415,25 @@ public:
 	}
 
 	void _remove(T* data, S32 i)
-	{ //precondition -- mElementCount > 0, idx is in range [0, mElementCount)
+    { //precondition -- getElementCount() > 0, idx is in range [0, getElementCount())
 
-		mElementCount--;
 		data->setBinIndex(-1); 
 		
-		if (mElementCount > 0)
+        const U32 new_element_count = getElementCount() - 1;
+		if (new_element_count > 0)
 		{
-			if (mElementCount != i)
+			if (new_element_count != i)
 			{
-				mData[i] = mData[mElementCount]; //might unref data, do not access data after this point
+				mData[i] = mData[new_element_count]; //might unref data, do not access data after this point
 				mData[i]->setBinIndex(i);
 			}
 
-			mData[mElementCount] = NULL;
+			mData[new_element_count] = NULL;
 			mData.pop_back();
-			mDataEnd = &mData[mElementCount];
 		}
 		else
 		{
 			mData.clear();
-			mData.push_back(NULL);
-			mDataEnd = &mData[0];
 		}
 
 		this->notifyRemoval(data);
@@ -463,7 +446,7 @@ public:
 
 		S32 i = data->getBinIndex();
 
-		if (i >= 0 && i < mElementCount)
+        if (i >= 0 && i < getElementCount())
 		{
 			if (mData[i] == data)
 			{ //found it
@@ -506,7 +489,8 @@ public:
 
 	void removeByAddress(T* data)
 	{
-        for (U32 i = 0; i < mElementCount; ++i)
+        const U32 element_count = getElementCount();
+        for (U32 i = 0; i < element_count; ++i)
 		{
 			if (mData[i] == data)
 			{ //we have data
@@ -677,8 +661,6 @@ protected:
 	U32 mChildCount;
 
 	element_list mData;
-	element_iter mDataEnd;
-	U32 mElementCount;
 }; 
 
 //just like a regular node, except it might expand on insert and compress on balance
