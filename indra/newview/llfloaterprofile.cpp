@@ -80,17 +80,6 @@ void LLFloaterProfile::showClassified(const LLUUID& classified_id, bool edit)
     mPanelProfile->showClassified(classified_id, edit);
 }
 
-void LLFloaterProfile::onOKBtn()
-{
-    mPanelProfile->apply();
-    closeFloater();
-}
-
-void LLFloaterProfile::onCancelBtn()
-{
-    closeFloater();
-}
-
 void LLFloaterProfile::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
     mNameCallbackConnection.disconnect();

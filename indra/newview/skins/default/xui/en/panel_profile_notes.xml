@@ -42,6 +42,7 @@
      max_length="65530"
      word_wrap="true"
     />
+  <!--Placeholder, will be moved into BIO's clickable icons-->
     <text
      name="status_message2"
      value="Allow this avatar to:"
@@ -84,4 +85,24 @@
      follows="left|bottom|right"
      layout="topleft"
     />
+    <button
+     name="notes_save_changes"
+     label="Save"
+     top="429"
+     right="-108"
+     height="20"
+     width="80"
+     enabled="false"
+     follows="top|right"
+     layout="topleft"/>
+    <button
+     name="notes_discard_changes"
+     label="Discard"
+     top_delta="0"
+     right="-4"
+     height="20"
+     width="100"
+     enabled="false"
+     follows="top|right"
+     layout="topleft"/>
 </panel>

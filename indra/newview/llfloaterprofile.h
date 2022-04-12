@@ -47,10 +47,6 @@ public:
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 
-protected:
-    void onOKBtn();
-    void onCancelBtn();
-
 private:
     LLAvatarNameCache::callback_connection_t mNameCallbackConnection;
     void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);

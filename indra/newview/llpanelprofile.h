@@ -61,6 +61,7 @@ class LLPanelProfileClassifieds;
 class LLPanelProfilePicks;
 class LLViewerFetchedTexture;
 
+
 /**
 * Panel for displaying Avatar's second life related info.
 */
@@ -74,11 +75,6 @@ public:
 	/*virtual*/ ~LLPanelProfileSecondLife();
 
 	/*virtual*/ void onOpen(const LLSD& key);
-
-	/**
-	 * Saves changes.
-	 */
-	void apply(LLAvatarData* data);
 
 	/**
 	 * LLFriendObserver trigger
@@ -190,7 +186,6 @@ private:
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
     std::string			mDescriptionText;
-    LLUUID mImageAssetId;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };
@@ -214,11 +209,6 @@ public:
 	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
 	void resetData();
-
-	/**
-	 * Saves changes.
-	 */
-	void apply(LLAvatarData* data);
 
 	/**
 	 * Loads web profile.
@@ -265,25 +255,28 @@ public:
 
 	void resetData();
 
-	/**
-	 * Saves changes.
-	 */
-	void apply(LLAvatarData* data);
+    void setProfileImageUploading(bool loading);
+    void setProfileImageUploaded(const LLUUID &image_asset_id);
 
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 protected:
 	/*virtual*/ void updateButtons();
-	void onDescriptionFocusReceived();
+
+    void onChangePhoto();
+    void onRemovePhoto();
+    void setDescriptionText(const std::string &text);
+    void onSetDescriptionDirty();
+    void onSaveDescriptionChanges();
+    void onDiscardDescriptionChanges();
 
 	LLTextEditor*	mDescriptionEdit;
-    LLTextureCtrl*  mPicture;
+    LLIconCtrl*		mPicture;
     LLButton* mChangePhoto;
     LLButton* mRemovePhoto;
     LLButton* mSaveChanges;
     LLButton* mDiscardChanges;
 
-	bool			mIsEditing;
 	std::string		mCurrentDescription;
 };
 
@@ -316,13 +309,6 @@ public:
 
 	/*virtual*/ void updateData();
 
-	/**
-	 * Saves changes.
-	 */
-	virtual void apply();
-
-    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-
 protected:
 	/**
 	 * Fills rights data for friends.
@@ -334,6 +320,10 @@ protected:
 	void onCommitRights();
 	void onCommitNotes();
 	void enableCheckboxes(bool enable);
+    void setNotesText(const std::string &text);
+    void onSetNotesDirty();
+    void onSaveNotesChanges();
+    void onDiscardNotesChanges();
 
 	void applyRights();
 
@@ -341,10 +331,10 @@ protected:
 	LLCheckBoxCtrl*     mMapRights;
 	LLCheckBoxCtrl*     mEditObjectRights;
 	LLTextEditor*       mNotesEditor;
+    LLButton* mSaveChanges;
+    LLButton* mDiscardChanges;
 
-    std::string			mURLWebProfile;
-
-    boost::signals2::connection	mAvatarNameCacheConnection;
+    std::string		mCurrentNotes;
 };
 
 
@@ -365,11 +355,6 @@ public:
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
     /*virtual*/ void onOpen(const LLSD& key);
-
-    /**
-     * Saves changes.
-     */
-    void apply();
 
     void showPick(const LLUUID& pick_id = LLUUID::null);
     bool isPickTabSelected();
