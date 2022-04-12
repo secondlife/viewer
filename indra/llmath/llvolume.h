@@ -35,7 +35,8 @@ class LLVolumeParams;
 class LLProfile;
 class LLPath;
 
-template <class T> class LLOctreeNode;
+template<class T> class LLPointer;
+template <class T, typename T_PTR> class LLOctreeNode;
 
 class LLVolumeFace;
 class LLVolume;
@@ -974,7 +975,9 @@ public:
     // vertices per joint.
     LLJointRiggingInfoTab mJointRiggingInfoTab;
     
-	LLOctreeNode<LLVolumeTriangle>* mOctree;
+    // This octree stores raw pointer references to triangles in mOctreeTriangles
+    LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
+    std::vector<LLVolumeTriangle> mOctreeTriangles;
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
