@@ -1876,6 +1876,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
             shader->clearPermutations();
             shader->addPermutation("USE_VERTEX_COLOR", "1");
+            shader->addPermutation("HAS_ALPHA_MASK", "1");
             shader->addPermutation("USE_INDEXED_TEX", "1");
             if (use_sun_shadow)
             {
@@ -1952,6 +1953,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->clearPermutations();
             shader->addPermutation("USE_INDEXED_TEX", "1");
             shader->addPermutation("FOR_IMPOSTOR", "1");
+            shader->addPermutation("HAS_ALPHA_MASK", "1");
             shader->addPermutation("USE_VERTEX_COLOR", "1");
             if (rigged)
             {
@@ -2023,6 +2025,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader[i]->addPermutation("USE_INDEXED_TEX", "1");
             shader[i]->addPermutation("WATER_FOG", "1");
             shader[i]->addPermutation("USE_VERTEX_COLOR", "1");
+            shader[i]->addPermutation("HAS_ALPHA_MASK", "1");
             if (use_sun_shadow)
             {
                 shader[i]->addPermutation("HAS_SHADOW", "1");

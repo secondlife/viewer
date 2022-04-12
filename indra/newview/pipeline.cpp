@@ -361,10 +361,12 @@ static LLCullResult* sCull = NULL;
 
 void validate_framebuffer_object();
 
-
-bool addDeferredAttachments(LLRenderTarget& target)
+// Add color attachments for deferred rendering
+// target -- RenderTarget to add attachments to
+// for_impostor -- whether or not these render targets are for an impostor (if true, avoids implicit sRGB conversions)
+bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
-	return target.addColorAttachment(GL_SRGB8_ALPHA8) && //specular
+	return target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -10974,14 +10976,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 
 		if (!avatar->mImpostor.isComplete())
 		{
+            avatar->mImpostor.allocate(resX, resY, GL_RGBA, TRUE, FALSE);
+
 			if (LLPipeline::sRenderDeferred)
 			{
-				avatar->mImpostor.allocate(resX,resY,GL_SRGB8_ALPHA8,TRUE,FALSE);
-				addDeferredAttachments(avatar->mImpostor);
-			}
-			else
-			{
-				avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE,FALSE);
+				addDeferredAttachments(avatar->mImpostor, true);
 			}
 		
 			gGL.getTexUnit(0)->bind(&avatar->mImpostor);
