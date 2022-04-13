@@ -32,7 +32,7 @@ add_library(media_plugin_libvlc
 
 target_link_libraries(media_plugin_libvlc
         media_plugin_base
-        libvlc::libvlc
+        ll::libvlc
 )
 
 if (WINDOWS)

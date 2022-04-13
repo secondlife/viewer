@@ -42,7 +42,7 @@ set_source_files_properties(${llkdu_SOURCE_FILES}
 if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
 
-  target_link_libraries(llkdu kdu::kdu llimage llcommon)
+  target_link_libraries(llkdu ll::kdu llimage llcommon)
   set_target_include_dirs( llkdu ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Add tests
@@ -62,7 +62,7 @@ if (USE_KDU)
       )
 
     get_property( llimage_include_dir TARGET llimage PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
-    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES  kdu::kdu llcommon)
+    set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_LIBRARIES  ll::kdu llcommon)
     set_property( SOURCE ${llkdu_TEST_SOURCE_FILES} PROPERTY LL_TEST_ADDITIONAL_INCLUDE_DIRS ${llimage_include_dir})
 
     LL_ADD_PROJECT_UNIT_TESTS(llkdu "${llkdu_TEST_SOURCE_FILES}")

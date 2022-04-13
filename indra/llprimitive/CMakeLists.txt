@@ -63,8 +63,8 @@ target_link_libraries(llprimitive
         llxml
         llcharacter
         llphysicsextensions
-        colladadom::colladadom
-        pcre::pcre
+        ll::colladadom
+        ll::pcre
         )
 
 #add unit tests

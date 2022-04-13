@@ -200,14 +200,10 @@ add_library (llmessage ${llmessage_SOURCE_FILES})
 
 target_link_libraries(
         llmessage
-        libcurl::libcurl
         llcommon
         llfilesystem
         llmath
-        openssl::openssl
-        xmlrpc-epi::xmlrpc-epi
         llcorehttp
-        nghttp2::nghttp2
 )
 set_target_include_dirs( llmessage ${CMAKE_CURRENT_SOURCE_DIR})
 

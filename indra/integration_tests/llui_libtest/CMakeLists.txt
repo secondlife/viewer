@@ -75,19 +75,16 @@ endif (DARWIN)
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
-    ${LEGACY_STDIO_LIBS}
-    llui
-    llinventory
-    llmessage
-    ${LLRENDER_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLKDU_LIBRARIES}
-    ${KDU_LIBRARY}
-    ${LLIMAGEJ2COJ_LIBRARIES}
-    ${OS_LIBRARIES}
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${HUNSPELL_LIBRARY}
-    )
+        ${LEGACY_STDIO_LIBS}
+        llui
+        llinventory
+        llmessage
+        llrender
+        llimage
+        llkdu
+        llimagej2coj
+        ${OS_LIBRARIES}
+        )
 
 if (WINDOWS)
     set_target_properties(llui_libtest

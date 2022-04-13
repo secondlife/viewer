@@ -1,23 +1,17 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if( TARGET boost::boost )
-  return()
-endif()
-create_target( boost::boost )
-
-set(Boost_FIND_QUIETLY ON)
-set(Boost_FIND_REQUIRED ON)
+include_guard()
+create_target( ll::boost )
 
 use_prebuilt_binary(boost)
-set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
 
 # As of sometime between Boost 1.67 and 1.72, Boost libraries are suffixed
 # with the address size.
 set(addrsfx "-x${ADDRESS_SIZE}")
 
 if (WINDOWS)
-  set_target_libraries( boost::boost
+  set_target_libraries( ll::boost
           libboost_context-mt${addrsfx}
           libboost_fiber-mt${addrsfx}
           libboost_filesystem-mt${addrsfx}
@@ -26,7 +20,7 @@ if (WINDOWS)
           libboost_system-mt${addrsfx}
           libboost_thread-mt${addrsfx})
 elseif (LINUX)
-  set_target_libraries( boost::boost
+  set_target_libraries( ll::boost
           boost_context-mt${addrsfx}
           boost_fiber-mt${addrsfx}
           boost_filesystem-mt${addrsfx}
@@ -36,7 +30,7 @@ elseif (LINUX)
           boost_system-mt${addrsfx}
           boost_thread-mt${addrsfx})
 elseif (DARWIN)
-  set_target_libraries( boost::boost
+  set_target_libraries( ll::boost
           boost_context-mt${addrsfx}
           boost_fiber-mt${addrsfx}
           boost_filesystem-mt${addrsfx}

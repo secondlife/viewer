@@ -13,11 +13,6 @@ include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
 
-# add_executable(lltreeiterators lltreeiterators.cpp)
-# 
-# target_link_libraries(lltreeiterators
-#     ${LLCOMMON_LIBRARIES})
-
 set(llcommon_SOURCE_FILES
     indra_constants.cpp
     llallocator.cpp
@@ -279,14 +274,14 @@ endif(LLCOMMON_LINK_SHARED)
 
 target_link_libraries(
         llcommon
-        apr::apr
-        expat::expat
-        jsoncpp::jsoncpp
-        zlib-ng::zlib-ng
+        ll::apr
+        ll::expat
+        ll::jsoncpp
+        ll::zlib-ng
     ${WINDOWS_LIBRARIES}
-        boost::boost
+        ll::boost
     ${GOOGLE_PERFTOOLS_LIBRARIES}
-        uriparser::uriparser
+        ll::uriparser
     )
 
 set_target_include_dirs( llcommon ${CMAKE_CURRENT_SOURCE_DIR})
@@ -310,7 +305,7 @@ if (LL_TESTS)
   #set(TEST_DEBUG on)
   set(test_libs llcommon
           ${WINDOWS_LIBRARIES}
-          googlemock::googlemock
+          ll::googlemock
           )
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")

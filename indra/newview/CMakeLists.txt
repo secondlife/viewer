@@ -1968,8 +1968,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcorehttp
         llcommon
         ${viewer_LIBRARIES}
-        glod::glod
-        ndof::ndof
+        ll::glod
+        ll::ndof
         ${SMARTHEAP_LIBRARY}
         ${UI_LIBRARIES}
         ${WINDOWS_LIBRARIES}
@@ -1978,17 +1978,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llappearance
         ${LLPHYSICS_LIBRARIES}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
-        bugsplat::bugsplat
+        ll::bugsplat
         )
 
-if( TARGET nvapi::nvapi )
-   target_link_libraries(${VIEWER_BINARY_NAME} nvapi::nvapi )
+if( TARGET ll::nvapi )
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )
 endif()
-
-
-if (USE_BUGSPLAT)
-
-endif (USE_BUGSPLAT)
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")

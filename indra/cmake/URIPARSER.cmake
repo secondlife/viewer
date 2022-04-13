@@ -1,18 +1,16 @@
 # -*- cmake -*-
 
-if( TARGET uriparser::uriparser )
-  return()
-endif()
-create_target( uriparser::uriparser )
+include_guard()
+create_target( ll::uriparser )
 
 include(Prebuilt)
 
 use_prebuilt_binary(uriparser)
 if (WINDOWS)
-  set_target_libraries( uriparser::uriparser uriparser)
+  set_target_libraries( ll::uriparser uriparser)
 elseif (LINUX)
-  set_target_libraries( uriparser::uriparser uriparser)
+  set_target_libraries( ll::uriparser uriparser)
 elseif (DARWIN)
-  set_target_libraries( uriparser::uriparser liburiparser.dylib)
+  set_target_libraries( ll::uriparser liburiparser.dylib)
 endif (WINDOWS)
-set_target_include_dirs( uriparser::uriparser ${LIBS_PREBUILT_DIR}/include/uriparser)
+set_target_include_dirs( ll::uriparser ${LIBS_PREBUILT_DIR}/include/uriparser)

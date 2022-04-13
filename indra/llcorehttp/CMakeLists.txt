@@ -87,9 +87,9 @@ add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
         llcorehttp
         llcommon
-        libcurl::libcurl
-        openssl::openssl
-        nghttp2::nghttp2
+        ll::libcurl
+        ll::openssl
+        ll::nghttp2
   )
 set_target_include_dirs( llcorehttp ${CMAKE_CURRENT_SOURCE_DIR})
 

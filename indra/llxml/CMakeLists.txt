@@ -33,7 +33,7 @@ target_link_libraries( llxml
         llfilesystem
         llmath
         llcommon
-        expat::expat
+        ll::expat
     )
 set_target_include_dirs( llxml ${CMAKE_CURRENT_SOURCE_DIR})
 

@@ -9,10 +9,8 @@ else (INSTALL_PROPRIETARY)
     set(USE_BUGSPLAT OFF CACHE BOOL "Use the BugSplat crash reporting system")
 endif (INSTALL_PROPRIETARY)
 
-if( TARGET bugsplat::bugsplat)
-    return()
-endif()
-create_target(bugsplat::bugsplat)
+include_guard()
+create_target(ll::bugsplat)
 
 if (USE_BUGSPLAT)
     include(Prebuilt)
@@ -33,7 +31,7 @@ if (USE_BUGSPLAT)
 
     set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")
 
-    set_target_include_dirs( bugsplat::bugsplat ${LIBS_PREBUILT_DIR}/include/bugsplat)
-    set_property( TARGET bugsplat::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
+    set_target_include_dirs( ll::bugsplat ${LIBS_PREBUILT_DIR}/include/bugsplat)
+    set_property( TARGET ll::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
 endif (USE_BUGSPLAT)
 

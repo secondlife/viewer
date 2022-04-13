@@ -2,6 +2,8 @@
 include(Linking)
 include(Prebuilt)
 
+include_guard()
+
 if (LINUX)
   set(OPENAL ON CACHE BOOL "Enable OpenAL")
 else (LINUX)
@@ -9,22 +11,18 @@ else (LINUX)
 endif (LINUX)
 
 if (OPENAL)
-  if( TARGET openal::openal )
-    return()
-  endif()
-
-  create_target( openal::openal )
-  set_target_include_dirs( openal::openal "${LIBS_PREBUILT_DIR}/include/AL")
+  create_target( ll::openal )
+  set_target_include_dirs( ll::openal "${LIBS_PREBUILT_DIR}/include/AL")
 
   use_prebuilt_binary(openal)
 
   if(WINDOWS)
-    set_target_libraries( openal::openal
+    set_target_libraries( ll::openal
             OpenAL32
             alut
             )
   elseif(LINUX)
-    set_target_libraries( openal::openal
+    set_target_libraries( ll::openal
             openal
             alut
             )

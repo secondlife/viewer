@@ -45,7 +45,7 @@ INCLUDE(GoogleMock)
           )
   SET(alltest_LIBRARIES
           llcommon
-          googlemock::googlemock
+          ll::googlemock
           ${PTHREAD_LIBRARY}
           ${WINDOWS_LIBRARIES}
           )
@@ -208,7 +208,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   SET(libraries
           ${LEGACY_STDIO_LIBS}
           ${library_dependencies}
-          googlemock::googlemock
+          ll::googlemock
           ${PTHREAD_LIBRARY}
           )
 

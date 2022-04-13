@@ -62,9 +62,8 @@ target_link_libraries(llimage
         llfilesystem
         llmath
         llcommon
-        zlib-ng::zlib-ng
-        libpng::libpng
-        jpeglib::jpeglib
+        ll::libpng
+        ll::jpeglib
     )
 
 # Add tests

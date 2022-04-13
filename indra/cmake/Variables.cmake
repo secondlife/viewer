@@ -15,11 +15,9 @@
 if ("$ENV{LL_BUILD}" STREQUAL "")
   message(FATAL_ERROR "Environment variable LL_BUILD must be set")
 endif ()
+include_guard()
 
 # Relative and absolute paths to subtrees.
-
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 if(NOT DEFINED COMMON_CMAKE_DIR)
     set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
@@ -219,4 +217,3 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

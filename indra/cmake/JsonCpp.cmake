@@ -1,17 +1,15 @@
 # -*- cmake -*-
 
 include(Prebuilt)
-if( TARGET jsoncpp::jsoncpp )
-  return()
-endif()
-create_target( jsoncpp::jsoncpp)
+include_guard()
+create_target( ll::jsoncpp)
 
 use_prebuilt_binary(jsoncpp)
 if (WINDOWS)
-  set_target_libraries( jsoncpp::jsoncpp json_libmd.lib )
+  set_target_libraries( ll::jsoncpp json_libmd.lib )
 elseif (DARWIN)
-  set_target_libraries( jsoncpp::jsoncpp libjson_darwin_libmt.a )
+  set_target_libraries( ll::jsoncpp libjson_darwin_libmt.a )
 elseif (LINUX)
-  set_target_libraries( jsoncpp::jsoncpp libjson_linux-gcc-4.1.3_libmt.a )
+  set_target_libraries( ll::jsoncpp libjson_linux-gcc-4.1.3_libmt.a )
 endif (WINDOWS)
-set_target_include_dirs( jsoncpp::jsoncpp ${LIBS_PREBUILT_DIR}/include/json)
+set_target_include_dirs( ll::jsoncpp ${LIBS_PREBUILT_DIR}/include/json)

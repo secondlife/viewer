@@ -63,12 +63,12 @@ target_link_libraries( llaudio
         llmath
         llmessage
         llfilesystem
-        vorbis::vorbis
+        ll::vorbis
     )
 
-if( TARGET openal::openal )
-    target_link_libraries( llaudio openal::openal )
+if( TARGET ll::openal )
+    target_link_libraries( llaudio ll::openal )
 endif()
-if( TARGET fmodstudio::fmodstudio )
-    target_link_libraries( llaudio fmodstudio::fmodstudio )
+if( TARGET ll::fmodstudio )
+    target_link_libraries( llaudio ll::fmodstudio )
 endif()

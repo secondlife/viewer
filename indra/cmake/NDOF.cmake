@@ -3,10 +3,8 @@ include(Prebuilt)
 
 set(NDOF ON CACHE BOOL "Use NDOF space navigator joystick library.")
 
-if ( TARGET ndof::ndof )
-  return()
-endif()
-create_target( ndof::ndof )
+include_guard()
+create_target( ll::ndof )
 
 if (NDOF)
   if (WINDOWS OR DARWIN)
@@ -16,11 +14,11 @@ if (NDOF)
   endif (WINDOWS OR DARWIN)
 
   if (WINDOWS)
-    set_target_libraries( ndof::ndof libndofdev)
+    set_target_libraries( ll::ndof libndofdev)
   elseif (DARWIN OR LINUX)
-    set_target_libraries( ndof::ndof ndofdev)
+    set_target_libraries( ll::ndof ndofdev)
   endif (WINDOWS)
-  target_compile_definitions( ndof::ndof INTERFACE LIB_NDOF=1)
+  target_compile_definitions( ll::ndof INTERFACE LIB_NDOF=1)
 endif (NDOF)
 
 if (NOT NDOF_FOUND)

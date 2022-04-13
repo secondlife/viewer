@@ -12,9 +12,7 @@
 #   Also realize that CMAKE_CXX_FLAGS may already be partially populated on
 #   entry to this file.
 #*****************************************************************************
-
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+include_guard()
 
 include(Variables)
 
@@ -200,4 +198,3 @@ set(${ARCH}_linux_INCLUDES
         pango-1.0
         )
 
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

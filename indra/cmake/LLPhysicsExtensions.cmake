@@ -10,9 +10,7 @@ if (INSTALL_PROPRIETARY)
    set(HAVOK ON CACHE BOOL "Use Havok physics library")
 endif (INSTALL_PROPRIETARY)
 
-if(TARGET llphysicsextensions )
-   return()
-endif()
+include_guard()
 create_target(llphysicsextensions)
 
 

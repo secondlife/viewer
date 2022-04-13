@@ -2,9 +2,7 @@
 include(Linking)
 include(Prebuilt)
 
-if(TARGET cef::cef)
-    return()
-endif()
+include_guard()
 create_target( cef::cef )
 
 use_prebuilt_binary(dullahan)

@@ -74,7 +74,7 @@ target_link_libraries(lltest
         llxml
         llcommon
         llcorehttp
-        googlemock::googlemock
+        ll::googlemock
         ${WINDOWS_LIBRARIES}
         ${DL_LIBRARY}
         )

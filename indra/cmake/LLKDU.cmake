@@ -7,21 +7,19 @@ if (INSTALL_PROPRIETARY)
   set(USE_KDU ON CACHE BOOL "Use Kakadu library.")
 endif (INSTALL_PROPRIETARY)
 
-if( TARGET kdu::kdu )
-  return()
-endif()
-create_target( kdu::kdu )
+include_guard()
+create_target( ll::kdu )
 
 if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
   if (WINDOWS)
-    set_target_libraries( kdu::kdu kdu.lib)
+    set_target_libraries( ll::kdu kdu.lib)
   else (WINDOWS)
-    set_target_libraries( kdu::kdu libkdu.a)
+    set_target_libraries( ll::kdu libkdu.a)
   endif (WINDOWS)
 
-  set_target_include_dirs( kdu::kdu
+  set_target_include_dirs( ll::kdu
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
           ${LIBS_OPEN_DIR}/llkdu
           )

@@ -64,16 +64,15 @@ endif (DARWIN)
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
-    ${LEGACY_STDIO_LIBS}
-    ${LLCOMMON_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLKDU_LIBRARIES}
-    ${KDU_LIBRARY}
-    ${LLIMAGEJ2COJ_LIBRARIES}
-    ${OS_LIBRARIES}
-    )
+        ${LEGACY_STDIO_LIBS}
+        llcommon
+        llfilesystem
+        llmath
+        llimage
+        llkdu
+        llimagej2coj
+        ${OS_LIBRARIES}
+        )
     
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries

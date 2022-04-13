@@ -1,5 +1,7 @@
 # -*- cmake -*-
 
+include_guard()
+
 # FMODSTUDIO can be set when launching the make using the argument -DFMODSTUDIO:BOOL=ON
 # When building using proprietary binaries though (i.e. having access to LL private servers),
 # we always build with FMODSTUDIO.
@@ -8,10 +10,7 @@ if (INSTALL_PROPRIETARY)
 endif (INSTALL_PROPRIETARY)
 
 if (FMODSTUDIO)
-  if( TARGET fmodstudio::fmodstudio )
-    return()
-  endif()
-  create_target( fmodstudio::fmodstudio )
+  create_target( ll::fmodstudio )
 
   if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
     # If the path have been specified in the arguments, use that
@@ -25,15 +24,15 @@ if (FMODSTUDIO)
     include(Prebuilt)
     use_prebuilt_binary(fmodstudio)
     if (WINDOWS)
-      set_target_libraries( fmodstudio::fmodstudio  fmod_vc)
+      set_target_libraries( ll::fmodstudio  fmod_vc)
     elseif (DARWIN)
       #despite files being called libfmod.dylib, we are searching for fmod
-      set_target_libraries( fmodstudio::fmodstudio  fmod)
+      set_target_libraries( ll::fmodstudio  fmod)
     elseif (LINUX)
-      set_target_libraries( fmodstudio::fmodstudio  fmod)
+      set_target_libraries( ll::fmodstudio  fmod)
     endif (WINDOWS)
 
-    set_target_include_dirs(fmodstudio::fmodstudio ${LIBS_PREBUILT_DIR}/include/fmodstudio)
+    set_target_include_dirs(ll::fmodstudio ${LIBS_PREBUILT_DIR}/include/fmodstudio)
   endif (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
 endif (FMODSTUDIO)
 

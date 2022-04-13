@@ -1,7 +1,5 @@
 # -*- cmake -*-
-
-if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
-set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+include_guard()
 
 include(FindAutobuild)
 if(INSTALL_PROPRIETARY)
@@ -71,5 +69,3 @@ function( set_target_include_dirs target)
   set_property( TARGET ${target} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${ARGN} )
 endfunction()
 
-
-endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
