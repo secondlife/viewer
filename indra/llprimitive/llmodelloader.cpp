@@ -160,7 +160,8 @@ bool LLModelLoader::getSLMFilename(const std::string& model_filename, std::strin
     std::string::size_type i = model_filename.rfind(".");
     if (i != std::string::npos)
     {
-        slm_filename.replace(i, model_filename.size()-1, ".slm");
+        slm_filename.resize(i, '\0');
+        slm_filename.append(".slm");
         return true;
     }
     else
@@ -172,7 +173,7 @@ bool LLModelLoader::getSLMFilename(const std::string& model_filename, std::strin
 bool LLModelLoader::doLoadModel()
 {
 	//first, look for a .slm file of the same name that was modified later
-	//than the .dae
+	//than the specified model file
 
 	if (mTrySLM)
 	{
@@ -182,13 +183,13 @@ bool LLModelLoader::doLoadModel()
 			llstat slm_status;
 			if (LLFile::stat(slm_filename, &slm_status) == 0)
 			{ //slm file exists
-				llstat dae_status;
-				if (LLFile::stat(mFilename, &dae_status) != 0 ||
-					dae_status.st_mtime < slm_status.st_mtime)
+				llstat model_file_status;
+				if (LLFile::stat(mFilename, &model_file_status) != 0 ||
+					model_file_status.st_mtime < slm_status.st_mtime)
 				{
 					if (loadFromSLM(slm_filename))
 					{ //slm successfully loaded, if this fails, fall through and
-						//try loading from dae
+						//try loading from model file
 
 						mLod = -1; //successfully loading from an slm implicitly sets all 
 									//LoDs

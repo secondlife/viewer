@@ -28,6 +28,7 @@ include_directories(SYSTEM
 
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp
+    llgltfloader.cpp
     llmaterialid.cpp
     llmaterial.cpp
     llmaterialtable.cpp
@@ -46,6 +47,7 @@ set(llprimitive_SOURCE_FILES
 set(llprimitive_HEADER_FILES
     CMakeLists.txt
     lldaeloader.h
+    llgltfloader.h
     legacy_object_types.h
     llmaterial.h
     llmaterialid.h

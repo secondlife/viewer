@@ -30,6 +30,7 @@
 
 #include "llmodelloader.h"
 #include "lldaeloader.h"
+#include "llgltfloader.h"
 #include "llfloatermodelpreview.h"
 
 #include "llagent.h"
@@ -732,20 +733,41 @@ void LLModelPreview::loadModel(std::string filename, S32 lod, bool force_disable
     std::map<std::string, std::string> joint_alias_map;
     getJointAliases(joint_alias_map);
 
-    mModelLoader = new LLDAELoader(
-        filename,
-        lod,
-        &LLModelPreview::loadedCallback,
-        &LLModelPreview::lookupJointByName,
-        &LLModelPreview::loadTextures,
-        &LLModelPreview::stateChangedCallback,
-        this,
-        mJointTransformMap,
-        mJointsFromNode,
-        joint_alias_map,
-        LLSkinningUtil::getMaxJointCount(),
-        gSavedSettings.getU32("ImporterModelLimit"),
-        gSavedSettings.getBOOL("ImporterPreprocessDAE"));
+    // three possible file extensions, .dae .gltf .glb
+    // check for .dae and if not then assume one of the .gl??
+    if (std::string::npos != filename.rfind(".dae"))
+    {
+        mModelLoader = new LLDAELoader(
+            filename,
+            lod,
+            &LLModelPreview::loadedCallback,
+            &LLModelPreview::lookupJointByName,
+            &LLModelPreview::loadTextures,
+            &LLModelPreview::stateChangedCallback,
+            this,
+            mJointTransformMap,
+            mJointsFromNode,
+            joint_alias_map,
+            LLSkinningUtil::getMaxJointCount(),
+            gSavedSettings.getU32("ImporterModelLimit"),
+            gSavedSettings.getBOOL("ImporterPreprocessDAE"));
+    }
+    else
+    {
+        mModelLoader = new LLGLTFLoader(
+            filename,
+            lod,
+            &LLModelPreview::loadedCallback,
+            &LLModelPreview::lookupJointByName,
+            &LLModelPreview::loadTextures,
+            &LLModelPreview::stateChangedCallback,
+            this,
+            mJointTransformMap,
+            mJointsFromNode,
+            joint_alias_map,
+            LLSkinningUtil::getMaxJointCount(),
+            gSavedSettings.getU32("ImporterModelLimit"));
+    }
 
     if (force_disable_slm)
     {

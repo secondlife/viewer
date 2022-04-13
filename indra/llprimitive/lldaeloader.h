@@ -92,7 +92,7 @@ protected:
 	static bool addVolumeFacesFromDomMesh(LLModel* model, domMesh* mesh, LLSD& log_msg);
 	static bool createVolumeFacesFromDomMesh(LLModel* model, domMesh *mesh);
 
-	static LLModel* loadModelFromDomMesh(domMesh* mesh);
+	//static LLModel* loadModelFromDomMesh(domMesh* mesh);
 
 	// Loads a mesh breaking it into one or more models as necessary
 	// to get around volume face limitations while retaining >8 materials

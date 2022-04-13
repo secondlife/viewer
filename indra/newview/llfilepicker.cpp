@@ -55,13 +55,11 @@ LLFilePicker LLFilePicker::sInstance;
 #define IMAGE_FILTER L"Images (*.tga; *.bmp; *.jpg; *.jpeg; *.png)\0*.tga;*.bmp;*.jpg;*.jpeg;*.png\0"
 #define ANIM_FILTER L"Animations (*.bvh; *.anim)\0*.bvh;*.anim\0"
 #define COLLADA_FILTER L"Scene (*.dae)\0*.dae\0"
-#ifdef _CORY_TESTING
-#define GEOMETRY_FILTER L"SL Geometry (*.slg)\0*.slg\0"
-#endif
+#define GLTF_FILTER L"glTF (*.gltf; *.glb)\0*.gltf;*.glb\0"
 #define XML_FILTER L"XML files (*.xml)\0*.xml\0"
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
-#define MODEL_FILTER L"Model files (*.dae)\0*.dae\0"
+#define MODEL_FILTER L"Model files (*.dae; *.gltf; *.glb)\0*.dae;*.gltf;*.glb\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
@@ -193,16 +191,14 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		mOFN.lpstrFilter = ANIM_FILTER \
 			L"\0";
 		break;
-	case FFLOAD_COLLADA:
+    case FFLOAD_GLTF:
+        mOFN.lpstrFilter = GLTF_FILTER \
+            L"\0";
+        break;
+    case FFLOAD_COLLADA:
 		mOFN.lpstrFilter = COLLADA_FILTER \
 			L"\0";
 		break;
-#ifdef _CORY_TESTING
-	case FFLOAD_GEOMETRY:
-		mOFN.lpstrFilter = GEOMETRY_FILTER \
-			L"\0";
-		break;
-#endif
 	case FFLOAD_XML:
 		mOFN.lpstrFilter = XML_FILTER \
 			L"\0";
@@ -480,18 +476,16 @@ BOOL LLFilePicker::getSaveFile(ESaveFilter filter, const std::string& filename, 
 			L"XAF Anim File (*.xaf)\0*.xaf\0" \
 			L"\0";
 		break;
-#ifdef _CORY_TESTING
-	case FFSAVE_GEOMETRY:
+	case FFSAVE_GLTF:
 		if (filename.empty())
 		{
-			wcsncpy( mFilesW,L"untitled.slg", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
+			wcsncpy( mFilesW,L"untitled.glb", FILENAME_BUFFER_SIZE);	/*Flawfinder: ignore*/
 		}
-		mOFN.lpstrDefExt = L"slg";
+		mOFN.lpstrDefExt = L"glb";
 		mOFN.lpstrFilter =
-			L"SLG SL Geometry File (*.slg)\0*.slg\0" \
+			L"glTF Asset File (*.gltf *.glb)\0*.gltf;*.glb\0" \
 			L"\0";
 		break;
-#endif
 	case FFSAVE_XML:
 		if (filename.empty())
 		{
@@ -621,14 +615,13 @@ std::vector<std::string>* LLFilePicker::navOpenFilterProc(ELoadFilter filter) //
             allowedv->push_back("bvh");
             allowedv->push_back("anim");
             break;
+        case FFLOAD_GLTF:
+            allowedv->push_back("gltf");
+            allowedv->push_back("glb");
+            break;
         case FFLOAD_COLLADA:
             allowedv->push_back("dae");
             break;
-#ifdef _CORY_TESTING
-        case FFLOAD_GEOMETRY:
-            allowedv->push_back("slg");
-            break;
-#endif
         case FFLOAD_XML:
             allowedv->push_back("xml");
             break;
@@ -728,13 +721,11 @@ bool	LLFilePicker::doNavSaveDialog(ESaveFilter filter, const std::string& filena
 			extension = "xaf";
 			break;
 
-#ifdef _CORY_TESTING
-		case FFSAVE_GEOMETRY:
+		case FFSAVE_GLTF:
 			type = "\?\?\?\?";
 			creator = "\?\?\?\?";
-			extension = "slg";
+			extension = "glb";
 			break;
-#endif	
 			
 		case FFSAVE_XML:
 			type = "\?\?\?\?";
@@ -1354,10 +1345,13 @@ BOOL LLFilePicker::getOpenFile( ELoadFilter filter, bool blocking )
 		case FFLOAD_XML:
 			filtername = add_xml_filter_to_gtkchooser(picker);
 			break;
-		case FFLOAD_COLLADA:
-			filtername = add_collada_filter_to_gtkchooser(picker);
-			break;
-		case FFLOAD_IMAGE:
+        case FFLOAD_GLTF:
+            filtername = dead_code_should_blow_up_here(picker);
+            break;
+        case FFLOAD_COLLADA:
+            filtername = add_collada_filter_to_gtkchooser(picker);
+            break;
+        case FFLOAD_IMAGE:
 			filtername = add_imageload_filter_to_gtkchooser(picker);
 			break;
 		case FFLOAD_SCRIPT:
