@@ -204,6 +204,7 @@ target_link_libraries(
         llfilesystem
         llmath
         llcorehttp
+        ll::xmlrpc-epi
 )
 set_target_include_dirs( llmessage ${CMAKE_CURRENT_SOURCE_DIR})
 
