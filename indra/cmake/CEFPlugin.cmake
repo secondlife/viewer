@@ -7,13 +7,8 @@ if(TARGET cef::cef)
 endif()
 create_target( cef::cef )
 
-if (USESYSTEMLIBS)
-    set(CEFPLUGIN OFF CACHE BOOL
-        "CEFPLUGIN support for the llplugin/llmedia test apps.")
-else (USESYSTEMLIBS)
-    use_prebuilt_binary(dullahan)
-    set_target_include_dirs( cef::cef ${LIBS_PREBUILT_DIR}/include/cef)
-endif (USESYSTEMLIBS)
+use_prebuilt_binary(dullahan)
+set_target_include_dirs( cef::cef ${LIBS_PREBUILT_DIR}/include/cef)
 
 if (WINDOWS)
     set_target_libraries( cef::cef

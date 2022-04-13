@@ -1553,9 +1553,7 @@ if (WINDOWS)
 
     SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    if (NOT USESYSTEMLIBS)
-        list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT USESYSTEMLIBS)
+    list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 
 # see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
@@ -1673,9 +1671,7 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if (NOT USESYSTEMLIBS)
-    list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
-endif (NOT USESYSTEMLIBS)
+list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
 
 if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)

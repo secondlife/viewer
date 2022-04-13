@@ -6,11 +6,7 @@ if( TARGET glod::glod )
 endif()
 create_target( glod::glod )
 
-if (NOT USESYSTEMLIBS)
-  use_prebuilt_binary(glod)
-endif (NOT USESYSTEMLIBS)
-
-
+use_prebuilt_binary(glod)
 
 set(GLODLIB ON CACHE BOOL "Using GLOD library")
 

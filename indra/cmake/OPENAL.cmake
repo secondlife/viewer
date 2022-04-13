@@ -16,14 +16,7 @@ if (OPENAL)
   create_target( openal::openal )
   set_target_include_dirs( openal::openal "${LIBS_PREBUILT_DIR}/include/AL")
 
-  if (USESYSTEMLIBS)
-    include(FindPkgConfig)
-    include(FindOpenAL)
-    pkg_check_modules(OPENAL_LIB REQUIRED openal)
-    pkg_check_modules(FREEALUT_LIB REQUIRED freealut)
-  else (USESYSTEMLIBS)
-    use_prebuilt_binary(openal)
-  endif (USESYSTEMLIBS)
+  use_prebuilt_binary(openal)
 
   if(WINDOWS)
     set_target_libraries( openal::openal

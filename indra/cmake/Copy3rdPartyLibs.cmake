@@ -280,9 +280,7 @@ to_staging_dirs(
     ${release_files}
     )
 
-if(NOT USESYSTEMLIBS)
-  add_custom_target(
-      stage_third_party_libs ALL
-      DEPENDS ${third_party_targets}
-      )
-endif(NOT USESYSTEMLIBS)
+add_custom_target(
+        stage_third_party_libs ALL
+        DEPENDS ${third_party_targets}
+)

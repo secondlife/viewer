@@ -7,15 +7,10 @@ if( TARGET libvlc::libvlc )
 endif()
 create_target( libvlc::libvlc )
 
-if (USESYSTEMLIBS)
-    set(LIBVLCPLUGIN OFF CACHE BOOL
+use_prebuilt_binary(vlc-bin)
+set(LIBVLCPLUGIN ON CACHE BOOL
         "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
-else (USESYSTEMLIBS)
-    use_prebuilt_binary(vlc-bin)
-    set(LIBVLCPLUGIN ON CACHE BOOL
-        "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
-        set(VLC_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/vlc)
-endif (USESYSTEMLIBS)
+set(VLC_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/vlc)
 
 if (WINDOWS)
     set_target_libraries( libvlc::libvlc

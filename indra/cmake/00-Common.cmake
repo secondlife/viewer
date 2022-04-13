@@ -139,12 +139,10 @@ if (LINUX)
     add_compile_options(-march=pentium4)
   endif (ADDRESS_SIZE EQUAL 32)
 
-  if (NOT USESYSTEMLIBS)
-    # this stops us requiring a really recent glibc at runtime
-    add_compile_options(-fno-stack-protector)
-    # linking can be very memory-hungry, especially the final viewer link
-    set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
-  endif (NOT USESYSTEMLIBS)
+  # this stops us requiring a really recent glibc at runtime
+  add_compile_options(-fno-stack-protector)
+  # linking can be very memory-hungry, especially the final viewer link
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
 endif (LINUX)
@@ -194,21 +192,12 @@ if (LINUX OR DARWIN)
 endif (LINUX OR DARWIN)
 
 
-if (USESYSTEMLIBS)
-  add_definitions(-DLL_USESYSTEMLIBS=1)
-
-  if (LINUX AND ADDRESS_SIZE EQUAL 32)
-    add_compile_options(-march=pentiumpro)
-  endif (LINUX AND ADDRESS_SIZE EQUAL 32)
-
-else (USESYSTEMLIBS)
-  set(${ARCH}_linux_INCLUDES
-      atk-1.0
-      glib-2.0
-      gstreamer-0.10
-      gtk-2.0
-      pango-1.0
-      )
-endif (USESYSTEMLIBS)
+set(${ARCH}_linux_INCLUDES
+        atk-1.0
+        glib-2.0
+        gstreamer-0.10
+        gtk-2.0
+        pango-1.0
+        )
 
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

@@ -23,18 +23,8 @@ set(cmake_SOURCE_FILES
     DeploySharedLibs.cmake
     DragDrop.cmake
     EXPAT.cmake
-    FindAPR.cmake
-    FindAutobuild.cmake
-    FindGLH.cmake
-    FindHUNSPELL.cmake
-    FindJsonCpp.cmake
-    FindNDOF.cmake
-    FindOpenJPEG.cmake
-    FindSCP.cmake
-    FindURIPARSER.cmake
-    FindXmlRpcEpi.cmake
-    FindZLIBNG.cmake
-    FMODSTUDIO.cmake
+        FindAutobuild.cmake
+        FMODSTUDIO.cmake
     FreeType.cmake
     GLEXT.cmake
     GLH.cmake

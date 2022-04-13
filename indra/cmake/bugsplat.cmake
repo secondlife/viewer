@@ -15,25 +15,21 @@ endif()
 create_target(bugsplat::bugsplat)
 
 if (USE_BUGSPLAT)
-    if (NOT USESYSTEMLIBS)
-        include(Prebuilt)
-        use_prebuilt_binary(bugsplat)
-        if (WINDOWS)
-            set_target_libraries( bugsplat::bugsplat
+    include(Prebuilt)
+    use_prebuilt_binary(bugsplat)
+    if (WINDOWS)
+        set_target_libraries( bugsplat::bugsplat
                 ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat.lib
                 )
-        elseif (DARWIN)
-            find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
+    elseif (DARWIN)
+        find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
                 NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
-            set_target_libraries( bugsplat::bugsplat
-                    ${BUGSPLAT_LIBRARIES}
-                    )
-        else (WINDOWS)
-            message(FATAL_ERROR "BugSplat is not supported; add -DUSE_BUGSPLAT=OFF")
-        endif (WINDOWS)
-    else (NOT USESYSTEMLIBS)
-        include(FindBUGSPLAT)
-    endif (NOT USESYSTEMLIBS)
+        set_target_libraries( bugsplat::bugsplat
+                ${BUGSPLAT_LIBRARIES}
+                )
+    else (WINDOWS)
+        message(FATAL_ERROR "BugSplat is not supported; add -DUSE_BUGSPLAT=OFF")
+    endif (WINDOWS)
 
     set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")
 
