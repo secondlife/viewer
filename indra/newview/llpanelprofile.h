@@ -109,27 +109,29 @@ protected:
 	/**
 	 * Process profile related data received from server.
 	 */
-	virtual void processProfileProperties(const LLAvatarData* avatar_data);
+	void processProfileProperties(const LLAvatarData* avatar_data);
 
 	/**
 	 * Processes group related data received from server.
 	 */
-	virtual void processGroupProperties(const LLAvatarGroups* avatar_groups);
+	void processGroupProperties(const LLAvatarGroups* avatar_groups);
 
 	/**
 	 * Fills common for Avatar profile and My Profile fields.
 	 */
-	virtual void fillCommonData(const LLAvatarData* avatar_data);
+	void fillCommonData(const LLAvatarData* avatar_data);
 
 	/**
 	 * Fills partner data.
 	 */
-	virtual void fillPartnerData(const LLAvatarData* avatar_data);
+	void fillPartnerData(const LLAvatarData* avatar_data);
 
 	/**
 	 * Fills account status.
 	 */
-	virtual void fillAccountStatus(const LLAvatarData* avatar_data);
+	void fillAccountStatus(const LLAvatarData* avatar_data);
+
+    void fillRightsData();
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
     static void onImageLoaded(BOOL success,
@@ -168,6 +170,7 @@ private:
     void onSetDescriptionDirty();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
+    void onShowAgentPermissionsDialog();
 
 private:
 	typedef std::map<std::string, LLUUID> group_map_t;
@@ -182,6 +185,11 @@ private:
     LLMenuButton*		mAgentActionMenuButton;
     LLButton*			mSaveDescriptionChanges;
     LLButton*			mDiscardDescriptionChanges;
+    LLButton*			mSeeOnlineToggle;
+    LLButton*			mSeeOnMapToggle;
+    LLButton*			mEditObjectsToggle;
+
+    LLHandle<LLFloater>	mFloaterPermissionsHandle;
 
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
@@ -285,18 +293,12 @@ protected:
  */
 class LLPanelProfileNotes
 	: public LLPanelProfileTab
-	, public LLFriendObserver
 {
 public:
 	LLPanelProfileNotes();
 	/*virtual*/ ~LLPanelProfileNotes();
 
 	virtual void setAvatarId(const LLUUID& avatar_id);
-
-	/**
-	 * LLFriendObserver trigger
-	 */
-	virtual void changed(U32 mask);
 
 	/*virtual*/ void onOpen(const LLSD& key);
 
@@ -310,26 +312,12 @@ public:
 	/*virtual*/ void updateData();
 
 protected:
-	/**
-	 * Fills rights data for friends.
-	 */
-	void fillRightsData();
-
-	void rightsConfirmationCallback(const LLSD& notification, const LLSD& response);
-	void confirmModifyRights(bool grant);
-	void onCommitRights();
 	void onCommitNotes();
-	void enableCheckboxes(bool enable);
     void setNotesText(const std::string &text);
     void onSetNotesDirty();
     void onSaveNotesChanges();
     void onDiscardNotesChanges();
 
-	void applyRights();
-
-    LLCheckBoxCtrl*     mOnlineStatus;
-	LLCheckBoxCtrl*     mMapRights;
-	LLCheckBoxCtrl*     mEditObjectRights;
 	LLTextEditor*       mNotesEditor;
     LLButton* mSaveChanges;
     LLButton* mDiscardChanges;

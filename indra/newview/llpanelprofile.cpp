@@ -574,6 +574,163 @@ public:
 LLAgentHandler gAgentHandler;
 
 
+///----------------------------------------------------------------------------
+/// LLFloaterInventoryFinder
+///----------------------------------------------------------------------------
+
+class LLFloaterProfilePermissions
+    : public LLFloater
+    , public LLFriendObserver
+{
+public:
+    LLFloaterProfilePermissions(const LLUUID &avatar_id);
+    ~LLFloaterProfilePermissions();
+    BOOL postBuild() override;
+    void changed(U32 mask) override; // LLFriendObserver
+    // todo: check if this (and inventory filters) need a drawFrustum()
+
+private:
+    void fillRightsData();
+    void rightsConfirmationCallback(const LLSD& notification, const LLSD& response);
+    void confirmModifyRights(bool grant);
+    void onCommitRights();
+
+    void onApplyRights();
+    void onCancel();
+
+    LLCheckBoxCtrl*     mOnlineStatus;
+    LLCheckBoxCtrl*     mMapRights;
+    LLCheckBoxCtrl*     mEditObjectRights;
+    LLButton*           mOkBtn;
+    LLButton*           mCancelBtn;
+
+    LLUUID mAvatarID;
+};
+
+LLFloaterProfilePermissions::LLFloaterProfilePermissions(const LLUUID &avatar_id)
+    : LLFloater(LLSD())
+    , mAvatarID(avatar_id)
+{
+    buildFromFile("floater_profile_permissions.xml");
+}
+
+LLFloaterProfilePermissions::~LLFloaterProfilePermissions()
+{
+}
+
+BOOL LLFloaterProfilePermissions::postBuild()
+{
+    mOnlineStatus = getChild<LLCheckBoxCtrl>("online_check");
+    mMapRights = getChild<LLCheckBoxCtrl>("map_check");
+    mEditObjectRights = getChild<LLCheckBoxCtrl>("objects_check");
+    mOkBtn = getChild<LLButton>("perms_btn_ok");
+    mCancelBtn = getChild<LLButton>("perms_btn_cancel");
+
+    mEditObjectRights->setCommitCallback([this](LLUICtrl*, void*) { onCommitRights(); }, nullptr);
+    mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
+    mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
+
+    fillRightsData(); // is it possible to not be friends at this point? This might need to be onOpen()
+
+    return TRUE;
+}
+
+void LLFloaterProfilePermissions::changed(U32 mask)
+{
+    //todo
+}
+
+void LLFloaterProfilePermissions::fillRightsData()
+{
+    const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(mAvatarID);
+    // If true - we are viewing friend's profile, enable check boxes and set values.
+    if (relation)
+    {
+        S32 rights = relation->getRightsGrantedTo();
+
+        mOnlineStatus->setValue(LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
+        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
+        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
+    }
+    else
+    {
+        closeFloater();
+        LL_INFOS("ProfilePermissions") << "Floater closing since agent is no longer a friend" << LL_ENDL;
+    }
+}
+
+void LLFloaterProfilePermissions::rightsConfirmationCallback(const LLSD& notification,
+    const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (option != 0)
+    {
+        mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? FALSE : TRUE);
+    }
+}
+
+void LLFloaterProfilePermissions::confirmModifyRights(bool grant)
+{
+    LLSD args;
+    args["NAME"] = LLSLURL("agent", mAvatarID, "completename").getSLURLString();
+    LLNotificationsUtil::add(grant ? "GrantModifyRights" : "RevokeModifyRights", args, LLSD(),
+        boost::bind(&LLFloaterProfilePermissions::rightsConfirmationCallback, this, _1, _2));
+}
+
+void LLFloaterProfilePermissions::onCommitRights()
+{
+    const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(mAvatarID);
+
+    if (!buddy_relationship)
+    {
+        LL_WARNS("ProfilePermissions") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
+        return;
+    }
+
+    bool allow_modify_objects = mEditObjectRights->getValue().asBoolean();
+
+    // if modify objects checkbox clicked
+    if (buddy_relationship->isRightGrantedTo(
+        LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
+    {
+        confirmModifyRights(allow_modify_objects);
+    }
+}
+
+void LLFloaterProfilePermissions::onApplyRights()
+{
+    const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(mAvatarID);
+
+    if (!buddy_relationship)
+    {
+        LL_WARNS("ProfilePermissions") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
+        return;
+    }
+
+    S32 rights = 0;
+
+    if (mOnlineStatus->getValue().asBoolean())
+    {
+        rights |= LLRelationship::GRANT_ONLINE_STATUS;
+    }
+    if (mMapRights->getValue().asBoolean())
+    {
+        rights |= LLRelationship::GRANT_MAP_LOCATION;
+    }
+    if (mEditObjectRights->getValue().asBoolean())
+    {
+        rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
+    }
+
+    LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(mAvatarID, rights);
+
+    closeFloater();
+}
+
+void LLFloaterProfilePermissions::onCancel()
+{
+    closeFloater();
+}
 
 //////////////////////////////////////////////////////////////////////////
 // LLPanelProfileSecondLife
@@ -613,12 +770,21 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
     mSaveDescriptionChanges = getChild<LLButton>("save_description_changes");
     mDiscardDescriptionChanges = getChild<LLButton>("discard_description_changes");
+    mSeeOnlineToggle        = getChild<LLButton>("allow_to_see_online");
+    mSeeOnMapToggle         = getChild<LLButton>("allow_to_see_on_map");
+    mEditObjectsToggle      = getChild<LLButton>("allow_edit_my_objects");
 
     mGroupList->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { LLPanelProfileSecondLife::openGroupProfile(); });
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
     mDiscardDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardDescriptionChanges(); }, nullptr);
     mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
+    //mSeeOnlineToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
+    mSeeOnlineToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
+   // mSeeOnMapToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
+    mSeeOnMapToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
+    //mEditObjectsToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
+    mEditObjectsToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
 
     return TRUE;
 }
@@ -639,7 +805,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     childSetVisible("notes_panel", !own_profile);
     childSetVisible("settings_panel", own_profile);
     childSetVisible("about_buttons_panel", own_profile);
-    childSetVisible("permissions_panel", !own_profile);
 
     if (own_profile && !getEmbedded())
     {
@@ -672,6 +837,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     {
         mVoiceStatus = LLAvatarActions::canCall() && (LLAvatarActions::isFriend(avatar_id) ? LLAvatarTracker::instance().isBuddyOnline(avatar_id) : TRUE);
         updateOnlineStatus();
+        fillRightsData();
     }
 
     updateButtons();
@@ -715,10 +881,6 @@ void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorTyp
 void LLPanelProfileSecondLife::resetData()
 {
     resetLoading();
-    getChild<LLUICtrl>("complete_name")->setValue(LLStringUtil::null);
-    getChild<LLUICtrl>("register_date")->setValue(LLStringUtil::null);
-    getChild<LLUICtrl>("acc_status_text")->setValue(LLStringUtil::null);
-    getChild<LLUICtrl>("partner_text")->setValue(LLStringUtil::null);
 
     // Set default image and 1:1 dimensions for it
     mSecondLifePic->setValue("Generic_Person_Large");
@@ -728,6 +890,11 @@ void LLPanelProfileSecondLife::resetData()
     setDescriptionText(LLStringUtil::null);
     mGroups.clear();
     mGroupList->setGroups(mGroups);
+
+    mSeeOnlineToggle->setToggleState(false);
+    mSeeOnMapToggle->setToggleState(false);
+    mEditObjectsToggle->setToggleState(false);
+    childSetVisible("permissions_panel", false);
 }
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
@@ -891,6 +1058,28 @@ void LLPanelProfileSecondLife::fillAccountStatus(const LLAvatarData* avatar_data
     getChild<LLUICtrl>("account_info")->setValue(caption_text);
 }
 
+void LLPanelProfileSecondLife::fillRightsData()
+{
+    const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+    // If true - we are viewing friend's profile, enable check boxes and set values.
+    if (relation)
+    {
+        S32 rights = relation->getRightsGrantedTo();
+
+        mSeeOnlineToggle->setToggleState(LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
+        mSeeOnMapToggle->setToggleState(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
+        mEditObjectsToggle->setToggleState(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
+    }
+    else
+    {
+        mSeeOnlineToggle->setToggleState(false);
+        mSeeOnMapToggle->setToggleState(false);
+        mEditObjectsToggle->setToggleState(false);
+    }
+
+    childSetVisible("permissions_panel", NULL != relation);
+}
+
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
 {
     LLRect imageRect = mSecondLifePicLayout->getRect();
@@ -936,7 +1125,14 @@ void LLPanelProfileSecondLife::onImageLoaded(BOOL success,
 // virtual, called by LLAvatarTracker
 void LLPanelProfileSecondLife::changed(U32 mask)
 {
-    updateOnlineStatus();
+    if (mask & LLFriendObserver::ONLINE)
+    {
+        updateOnlineStatus();
+    }
+    if (mask != LLFriendObserver::ONLINE)
+    {
+        fillRightsData();
+    }
     updateButtons();
 }
 
@@ -1000,6 +1196,7 @@ void LLPanelProfileSecondLife::processOnlineStatus(bool online)
 {
 }
 
+//todo: remove?
 void LLPanelProfileSecondLife::updateButtons()
 {
     LLPanelProfileTab::updateButtons();
@@ -1019,7 +1216,7 @@ class LLProfileImagePicker : public LLFilePickerThread
 public:
     LLProfileImagePicker(EProfileImageType type, LLHandle<LLPanel> *handle);
     ~LLProfileImagePicker();
-    virtual void notify(const std::vector<std::string>& filenames);
+    void notify(const std::vector<std::string>& filenames) override;
 
 private:
     LLHandle<LLPanel> *mHandle;
@@ -1319,6 +1516,25 @@ void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 void LLPanelProfileSecondLife::onDiscardDescriptionChanges()
 {
     setDescriptionText(mDescriptionText);
+}
+
+void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
+{
+    LLFloater *floater = mFloaterPermissionsHandle.get();
+    if (!floater)
+    {
+        LLFloaterProfilePermissions * perms = new LLFloaterProfilePermissions(getAvatarId());
+        mFloaterPermissionsHandle = perms->getHandle();
+        perms->openFloater();
+
+        LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+        if (parent_floater)
+            parent_floater->addDependentFloater(mFloaterPermissionsHandle);
+    }
+    else // already open
+    {
+        floater->closeFloater();
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -1658,10 +1874,6 @@ LLPanelProfileNotes::LLPanelProfileNotes()
 
 LLPanelProfileNotes::~LLPanelProfileNotes()
 {
-    if (getAvatarId().notNull())
-    {
-        LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-    }
 }
 
 void LLPanelProfileNotes::updateData()
@@ -1682,14 +1894,10 @@ void LLPanelProfileNotes::updateData()
 
 BOOL LLPanelProfileNotes::postBuild()
 {
-    mOnlineStatus = getChild<LLCheckBoxCtrl>("status_check");
-    mMapRights = getChild<LLCheckBoxCtrl>("map_check");
-    mEditObjectRights = getChild<LLCheckBoxCtrl>("objects_check");
     mNotesEditor = getChild<LLTextEditor>("notes_edit");
     mSaveChanges = getChild<LLButton>("notes_save_changes");
     mDiscardChanges = getChild<LLButton>("notes_discard_changes");
 
-    mEditObjectRights->setCommitCallback(boost::bind(&LLPanelProfileNotes::onCommitRights, this));
     mSaveChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveNotesChanges(); }, nullptr);
     mDiscardChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardNotesChanges(); }, nullptr);
     mNotesEditor->setKeystrokeCallback([this](LLTextEditor* caller) { onSetNotesDirty(); });
@@ -1702,28 +1910,6 @@ void LLPanelProfileNotes::onOpen(const LLSD& key)
     LLPanelProfileTab::onOpen(key);
 
     resetData();
-
-    fillRightsData();
-}
-
-void LLPanelProfileNotes::fillRightsData()
-{
-    mOnlineStatus->setValue(FALSE);
-    mMapRights->setValue(FALSE);
-    mEditObjectRights->setValue(FALSE);
-
-    const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    // If true - we are viewing friend's profile, enable check boxes and set values.
-    if(relation)
-    {
-        S32 rights = relation->getRightsGrantedTo();
-
-        mOnlineStatus->setValue(LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
-        mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
-        mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
-    }
-
-    enableCheckboxes(NULL != relation);
 }
 
 void LLPanelProfileNotes::onCommitNotes()
@@ -1781,76 +1967,6 @@ void LLPanelProfileNotes::onDiscardNotesChanges()
     setNotesText(mCurrentNotes);
 }
 
-void LLPanelProfileNotes::rightsConfirmationCallback(const LLSD& notification,
-        const LLSD& response)
-{
-    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option != 0)
-    {
-        mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? FALSE : TRUE);
-    }
-}
-
-void LLPanelProfileNotes::confirmModifyRights(bool grant)
-{
-    LLSD args;
-    args["NAME"] = LLSLURL("agent", getAvatarId(), "completename").getSLURLString();
-
-
-    LLNotificationsUtil::add(grant ? "GrantModifyRights" : "RevokeModifyRights", args, LLSD(),
-        boost::bind(&LLPanelProfileNotes::rightsConfirmationCallback, this, _1, _2));
-
-}
-
-void LLPanelProfileNotes::onCommitRights()
-{
-	const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-
-	if (!buddy_relationship)
-	{
-		LL_WARNS("LegacyProfile") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
-		return;
-	}
-
-	bool allow_modify_objects = mEditObjectRights->getValue().asBoolean();
-
-	// if modify objects checkbox clicked
-	if (buddy_relationship->isRightGrantedTo(
-		LLRelationship::GRANT_MODIFY_OBJECTS) != allow_modify_objects)
-	{
-		confirmModifyRights(allow_modify_objects);
-	}
-}
-
-void LLPanelProfileNotes::applyRights()
-{
-    const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-
-    if (!buddy_relationship)
-    {
-        // Lets have a warning log message instead of having a crash. EXT-4947.
-        LL_WARNS("LegacyProfile") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
-        return;
-    }
-
-    S32 rights = 0;
-
-    if (mOnlineStatus->getValue().asBoolean())
-    {
-        rights |= LLRelationship::GRANT_ONLINE_STATUS;
-    }
-    if (mMapRights->getValue().asBoolean())
-    {
-        rights |= LLRelationship::GRANT_MAP_LOCATION;
-    }
-    if (mEditObjectRights->getValue().asBoolean())
-    {
-        rights |= LLRelationship::GRANT_MODIFY_OBJECTS;
-    }
-
-    LLAvatarPropertiesProcessor::getInstance()->sendFriendRights(getAvatarId(), rights);
-}
-
 void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType type)
 {
     if (APT_NOTES == type)
@@ -1875,35 +1991,13 @@ void LLPanelProfileNotes::resetData()
 {
     resetLoading();
     mNotesEditor->setValue(LLStringUtil::null);
-    mOnlineStatus->setValue(FALSE);
-    mMapRights->setValue(FALSE);
-    mEditObjectRights->setValue(FALSE);
-}
-
-void LLPanelProfileNotes::enableCheckboxes(bool enable)
-{
-    mOnlineStatus->setEnabled(enable);
-    mMapRights->setEnabled(enable);
-    mEditObjectRights->setEnabled(enable);
-}
-
-// virtual, called by LLAvatarTracker
-void LLPanelProfileNotes::changed(U32 mask)
-{
-    // update rights to avoid have checkboxes enabled when friendship is terminated. EXT-4947.
-    fillRightsData();
 }
 
 void LLPanelProfileNotes::setAvatarId(const LLUUID& avatar_id)
 {
     if (avatar_id.notNull())
     {
-        if (getAvatarId().notNull())
-        {
-            LLAvatarTracker::instance().removeParticularFriendObserver(getAvatarId(), this);
-        }
         LLPanelProfileTab::setAvatarId(avatar_id);
-        LLAvatarTracker::instance().addParticularFriendObserver(getAvatarId(), this);
     }
 }
 

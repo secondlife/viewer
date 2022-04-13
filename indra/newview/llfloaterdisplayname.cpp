@@ -47,7 +47,6 @@ public:
 	virtual ~LLFloaterDisplayName() { }
 	/*virtual*/	BOOL	postBuild();
 	void onSave();
-	void onReset();
 	void onCancel();
 	/*virtual*/ void onOpen(const LLSD& key);
 	
@@ -102,7 +101,6 @@ void LLFloaterDisplayName::onOpen(const LLSD& key)
 
 BOOL LLFloaterDisplayName::postBuild()
 {
-	getChild<LLUICtrl>("reset_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onReset, this));	
 	getChild<LLUICtrl>("cancel_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onCancel, this));	
 	getChild<LLUICtrl>("save_btn")->setCommitCallback(boost::bind(&LLFloaterDisplayName::onSave, this));	
 	
@@ -157,21 +155,6 @@ void LLFloaterDisplayName::onCancel()
 {
 	setVisible(false);
 }
-
-void LLFloaterDisplayName::onReset()
-{
-    if (LLAvatarNameCache::getInstance()->hasNameLookupURL())
-	{
-		LLViewerDisplayName::set("",boost::bind(&LLFloaterDisplayName::onCacheSetName, this, _1, _2, _3));
-	}	
-	else
-	{
-		LLNotificationsUtil::add("SetDisplayNameFailedGeneric");
-	}
-	
-	setVisible(false);
-}
-
 
 void LLFloaterDisplayName::onSave()
 {

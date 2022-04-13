@@ -42,49 +42,6 @@
      max_length="65530"
      word_wrap="true"
     />
-  <!--Placeholder, will be moved into BIO's clickable icons-->
-    <text
-     name="status_message2"
-     value="Allow this avatar to:"
-     top_pad="11"
-     left="6"
-     right="-6"
-     height="16"
-     follows="left|bottom|right"
-     layout="topleft"
-     font.style="BOLD"
-    />
-    <check_box
-     name="status_check"
-     label="See when I am online"
-     enabled="false"
-     top_pad="0"
-     left="10"
-     height="16"
-     width="293"
-     follows="left|bottom|right"
-     layout="topleft"
-    />
-    <check_box
-     name="map_check"
-     label="Find me on the world map"
-     enabled="false"
-     left="10"
-     height="16"
-     width="293"
-     follows="left|bottom|right"
-     layout="topleft"
-    />
-    <check_box
-     name="objects_check"
-     label="Edit, delete or take my objects"
-     enabled="false"
-     left="10"
-     height="16"
-     width="293"
-     follows="left|bottom|right"
-     layout="topleft"
-    />
     <button
      name="notes_save_changes"
      label="Save"

@@ -159,28 +159,40 @@ Account: [ACCTTYPE]
          auto_resize="false"
          user_resize="false">
           <!--Todo: progress indicator-->
-          <!--Probably should be borderless buttons-->
-          <icon
+          <!--Todo: Waits for icons. Current behavior is suboptimal and is a placeholder-->
+
+          <button
            name="allow_to_see_online"
-           image_name="Generic_Person_Large"
+           image_hover_unselected="Toolbar_Middle_Over"
+           image_overlay="Command_Speak_Icon"
+           image_selected="Toolbar_Middle_Selected"
+           image_unselected="Generic_Person_Large"
            layout="topleft"
            follows="left|top"
            top="0"
            left="0"
            width="24"
            height="24"/>
-          <icon
+
+          <button
            name="allow_to_see_on_map"
-           image_name="Generic_Person_Large"
+           image_hover_unselected="Toolbar_Middle_Over"
+           image_overlay="Command_Speak_Icon"
+           image_selected="Toolbar_Middle_Selected"
+           image_unselected="Generic_Person_Large"
            layout="topleft"
            follows="left|top"
            top_pad="7"
            left="0"
            width="24"
            height="24"/>
-          <icon
+
+          <button
            name="allow_edit_my_objects"
-           image_name="Generic_Person_Large"
+           image_hover_unselected="Toolbar_Middle_Over"
+           image_overlay="Command_Speak_Icon"
+           image_selected="Toolbar_Middle_Selected"
+           image_unselected="Generic_Person_Large"
            layout="topleft"
            follows="left|top"
            top_pad="7"
