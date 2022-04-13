@@ -326,6 +326,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
     LLCheckBoxCtrl* remember_name = getChild<LLCheckBoxCtrl>("remember_name");
     remember_name->setCommitCallback(boost::bind(&LLPanelLogin::onRememberUserCheck, this));
+    getChild<LLCheckBoxCtrl>("remember_password")->setCommitCallback(boost::bind(&LLPanelLogin::onRememberPasswordCheck, this));
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
@@ -398,10 +399,22 @@ void LLPanelLogin::addFavoritesToStartLocation()
 		combo->addSeparator();
 		LL_DEBUGS() << "Loading favorites for " << iter->first << LL_ENDL;
 		LLSD user_llsd = iter->second;
+        bool update_password_setting = true;
 		for (LLSD::array_const_iterator iter1 = user_llsd.beginArray();
 			iter1 != user_llsd.endArray(); ++iter1)
 		{
-			std::string label = (*iter1)["name"].asString();
+            if ((*iter1).has("save_password"))
+            {
+                bool save_password = (*iter1)["save_password"].asBoolean();
+                gSavedSettings.setBOOL("RememberPassword", save_password);
+                if (!save_password)
+                {
+                    getChild<LLButton>("connect_btn")->setEnabled(false);
+                }
+                update_password_setting = false;
+            }
+
+            std::string label = (*iter1)["name"].asString();
 			std::string value = (*iter1)["slurl"].asString();
 			if(label != "" && value != "")
 			{
@@ -413,6 +426,10 @@ void LLPanelLogin::addFavoritesToStartLocation()
 				}
 			}
 		}
+        if (update_password_setting)
+        {
+            gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
+        }
 		break;
 	}
 	if (combo->getValue().asString().empty())
@@ -1078,6 +1095,14 @@ void LLPanelLogin::onRememberUserCheck(void*)
             remember_psswrd->setValue(false);
         }
         remember_psswrd->setEnabled(remember);        
+    }
+}
+
+void LLPanelLogin::onRememberPasswordCheck(void*)
+{
+    if (sInstance)
+    {
+        gSavedSettings.setBOOL("UpdateRememberPasswordSetting", TRUE);
     }
 }
 
