@@ -583,11 +583,14 @@ class LLFloaterProfilePermissions
     , public LLFriendObserver
 {
 public:
-    LLFloaterProfilePermissions(const LLUUID &avatar_id);
+    LLFloaterProfilePermissions(LLView * owner, const LLUUID &avatar_id);
     ~LLFloaterProfilePermissions();
     BOOL postBuild() override;
+    void onOpen(const LLSD& key) override;
+    void draw() override;
     void changed(U32 mask) override; // LLFriendObserver
-    // todo: check if this (and inventory filters) need a drawFrustum()
+
+    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 private:
     void fillRightsData();
@@ -598,28 +601,41 @@ private:
     void onApplyRights();
     void onCancel();
 
+    LLTextBase*         mDescription;
     LLCheckBoxCtrl*     mOnlineStatus;
     LLCheckBoxCtrl*     mMapRights;
     LLCheckBoxCtrl*     mEditObjectRights;
     LLButton*           mOkBtn;
     LLButton*           mCancelBtn;
 
-    LLUUID mAvatarID;
+    LLUUID              mAvatarID;
+    F32                 mContextConeOpacity;
+    LLHandle<LLView>    mOwnerHandle;
+
+    boost::signals2::connection	mAvatarNameCacheConnection;
 };
 
-LLFloaterProfilePermissions::LLFloaterProfilePermissions(const LLUUID &avatar_id)
+LLFloaterProfilePermissions::LLFloaterProfilePermissions(LLView * owner, const LLUUID &avatar_id)
     : LLFloater(LLSD())
     , mAvatarID(avatar_id)
+    , mContextConeOpacity(0.0f)
+    , mOwnerHandle(owner->getHandle())
 {
     buildFromFile("floater_profile_permissions.xml");
 }
 
 LLFloaterProfilePermissions::~LLFloaterProfilePermissions()
 {
+    mAvatarNameCacheConnection.disconnect();
+    if (mAvatarID.notNull())
+    {
+        LLAvatarTracker::instance().removeParticularFriendObserver(mAvatarID, this);
+    }
 }
 
 BOOL LLFloaterProfilePermissions::postBuild()
 {
+    mDescription = getChild<LLTextBase>("perm_description");
     mOnlineStatus = getChild<LLCheckBoxCtrl>("online_check");
     mMapRights = getChild<LLCheckBoxCtrl>("map_check");
     mEditObjectRights = getChild<LLCheckBoxCtrl>("objects_check");
@@ -630,14 +646,45 @@ BOOL LLFloaterProfilePermissions::postBuild()
     mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
     mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
 
-    fillRightsData(); // is it possible to not be friends at this point? This might need to be onOpen()
-
     return TRUE;
+}
+
+void LLFloaterProfilePermissions::onOpen(const LLSD& key)
+{
+    if (LLAvatarActions::isFriend(mAvatarID))
+    {
+        LLAvatarTracker::instance().addParticularFriendObserver(mAvatarID, this);
+        fillRightsData();
+    }
+
+    mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterProfilePermissions::onAvatarNameCache, this, _1, _2));
+}
+
+void LLFloaterProfilePermissions::draw()
+{
+    // drawFrustum
+    LLView *owner = mOwnerHandle.get();
+    static LLCachedControl<F32> max_opacity(gSavedSettings, "PickerContextOpacity", 0.4f);
+    drawConeToOwner(mContextConeOpacity, max_opacity, owner);
+    LLFloater::draw();
 }
 
 void LLFloaterProfilePermissions::changed(U32 mask)
 {
-    //todo
+    if (mask != LLFriendObserver::ONLINE)
+    {
+        fillRightsData();
+    }
+}
+
+void LLFloaterProfilePermissions::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
+{
+    mAvatarNameCacheConnection.disconnect();
+
+    LLStringUtil::format_map_t args;
+    args["[AGENT_NAME]"] = av_name.getDisplayName();
+    std::string descritpion = getString("description_string", args);
+    mDescription->setValue(descritpion);
 }
 
 void LLFloaterProfilePermissions::fillRightsData()
@@ -779,11 +826,8 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
     mDiscardDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onDiscardDescriptionChanges(); }, nullptr);
     mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
-    //mSeeOnlineToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
     mSeeOnlineToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
-   // mSeeOnMapToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
     mSeeOnMapToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
-    //mEditObjectsToggle->setMouseDownCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
     mEditObjectsToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
 
     return TRUE;
@@ -1523,13 +1567,15 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
     LLFloater *floater = mFloaterPermissionsHandle.get();
     if (!floater)
     {
-        LLFloaterProfilePermissions * perms = new LLFloaterProfilePermissions(getAvatarId());
-        mFloaterPermissionsHandle = perms->getHandle();
-        perms->openFloater();
-
         LLFloater* parent_floater = gFloaterView->getParentFloater(this);
         if (parent_floater)
+        {
+            LLFloaterProfilePermissions * perms = new LLFloaterProfilePermissions(parent_floater, getAvatarId());
+            mFloaterPermissionsHandle = perms->getHandle();
+            perms->openFloater();
+
             parent_floater->addDependentFloater(mFloaterPermissionsHandle);
+        }
     }
     else // already open
     {
