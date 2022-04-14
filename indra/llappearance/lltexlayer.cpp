@@ -472,20 +472,6 @@ const std::string LLTexLayerSet::getBodyRegionName() const
 	return mInfo->mBodyRegion; 
 }
 
-
-// virtual
-void LLTexLayerSet::asLLSD(LLSD& sd) const
-{
-	sd["visible"] = LLSD::Boolean(isVisible());
-	LLSD layer_list_sd;
-	LLSD mask_list_sd;
-	LLSD info_sd;
-	sd["layers"] = layer_list_sd;
-	sd["masks"] = mask_list_sd;
-	sd["info"] = info_sd;
-}
-
-
 void LLTexLayerSet::destroyComposite()
 {
 	if( mComposite )
