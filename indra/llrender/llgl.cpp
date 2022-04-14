@@ -98,12 +98,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
 	LL_WARNS() << "Message: " << message << LL_ENDL;
 	LL_WARNS() << "-----------------------" << LL_ENDL;
-#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
 	{
 		LL_ERRS() << "Halting on GL Error" << LL_ENDL;
 	}
-#endif //LL_RELEASE_FOR_DOWNLOAD
 }
 #endif
 
