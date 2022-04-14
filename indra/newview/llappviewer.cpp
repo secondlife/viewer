@@ -604,7 +604,7 @@ static void settings_modify()
     LLRenderTarget::sUseFBO = LLPipeline::sRenderDeferred && gSavedSettings.getBOOL("RenderAvatarVP");
 	LLVOSurfacePatch::sLODFactor		= gSavedSettings.getF32("RenderTerrainLODFactor");
 	LLVOSurfacePatch::sLODFactor *= LLVOSurfacePatch::sLODFactor; //square lod factor to get exponential range of [1,4]
-	gDebugGL = gSavedSettings.getBOOL("RenderDebugGL") || gDebugSession;
+	gDebugGL = gDebugGLSession || gDebugSession;
 	gDebugPipeline = gSavedSettings.getBOOL("RenderDebugPipeline");
 }
 
@@ -2707,6 +2707,15 @@ bool LLAppViewer::initConfiguration()
 
 		ll_init_fail_log(gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "test_failures.log"));
 	}
+
+    if (gSavedSettings.getBOOL("RenderDebugGLSession"))
+    {
+        gDebugGLSession = TRUE;
+        gDebugGL = TRUE;
+        // gDebugGL can cause excessive logging
+        // so it's limited to a single session
+        gSavedSettings.setBOOL("RenderDebugGLSession", FALSE);
+    }
 
 	const LLControlVariable* skinfolder = gSavedSettings.getControl("SkinCurrent");
 	if(skinfolder && LLStringUtil::null != skinfolder->getValue().asString())

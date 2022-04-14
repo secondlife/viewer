@@ -107,8 +107,6 @@ static LLTrace::BlockTimerStatHandle FTM_GEN_TRIANGLES("Generate Triangles");
 static LLTrace::BlockTimerStatHandle FTM_GEN_VOLUME("Generate Volumes");
 static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
 
-extern BOOL gGLDebugLoggingEnabled;
-
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {

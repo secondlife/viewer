@@ -9163,10 +9163,10 @@
       <key>Value</key>
       <real>0.5</real>
     </map>
-    <key>RenderDebugGL</key>
+    <key>RenderDebugGLSession</key>
     <map>
       <key>Comment</key>
-      <string>Enable strict GL debugging.</string>
+      <string>Enable strict GL debugging on the start of next session.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
