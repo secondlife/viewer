@@ -34,6 +34,7 @@
 #include "lltrans.h"
 #include "llerror.h"
 #include "lldate.h"
+#include "stringize.h"
 
 
 class LLExperienceLogDispatchHandler : public LLDispatchHandler
@@ -140,29 +141,18 @@ std::string LLExperienceLog::getFilename()
 
 std::string LLExperienceLog::getPermissionString( const LLSD& message, const std::string& base )
 {
-	std::ostringstream buf;
+	std::string entry;
 	if(message.has("Permission"))
 	{
-		buf << base << message["Permission"].asInteger();
-		std::string entry;
-		if(LLTrans::findString(entry, buf.str()))
-		{
-			buf.str(entry);
-		}
-		else
-		{
-			buf.str();
-		}
+		LLTrans::findString(entry, STRINGIZE(base << message["Permission"].asInteger()));
 	}
 
-	if(buf.str().empty())
+	if(entry.empty())
 	{
-		buf << base << "Unknown";
-
-		buf.str(LLTrans::getString(buf.str(), message));
+		entry = LLTrans::getString(STRINGIZE(base << "Unknown"), message);
 	}
 
-	return buf.str();
+	return entry;
 }
 
 void LLExperienceLog::notify( LLSD& message )
