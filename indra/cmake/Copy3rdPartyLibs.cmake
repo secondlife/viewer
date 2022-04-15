@@ -94,19 +94,9 @@ if(WINDOWS)
         list(APPEND release_files openal32.dll alut.dll)
     endif (OPENAL)
 
+
     #*******************************
-    # Copy MS C runtime dlls, required for packaging.
-    if (MSVC80)
-        set(MSVC_VER 80)
-    elseif (MSVC_VERSION EQUAL 1600) # VisualStudio 2010
-        MESSAGE(STATUS "MSVC_VERSION ${MSVC_VERSION}")
-    elseif (MSVC_VERSION EQUAL 1800) # VisualStudio 2013, which is (sigh) VS 12
-        set(MSVC_VER 120)
-    elseif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
-        set(MSVC_VER 140)
-    else (MSVC80)
-        MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
-    endif (MSVC80)
+    # Find directory to copy MS C runtime DLLs from using the registry
 
     if(ADDRESS_SIZE EQUAL 32)
         # this folder contains the 32bit DLLs.. (yes really!)
@@ -121,13 +111,40 @@ if(WINDOWS)
     # operation.
     get_filename_component(registry_path "${registry_find_path}" ABSOLUTE)
 
-    # These are candidate DLL names. Empirically, VS versions before 2015 have
-    # msvcp*.dll and msvcr*.dll. VS 2017 has msvcp*.dll and vcruntime*.dll.
-    # Check each of them.
+
+    #*******************************
+    # Copy MS C runtime dlls, required for packaging.
+
+    # default values
+    set(MSVC_VER 150)
+    set(MSVC_VER_RUNTIME 140)
+    
+    # Update MSVC_VER_RUNTIME based on active version of Vsiaul Studio. Note that
+    # these are all identical for the moment and whilst that is historically valid
+    # for VS 2017, one day, it may not be true for VS 2019 and beyond so I think it makes
+    # send to maintain the flexibility to change easily.
+    # Note: we also capture the MSVC_VER (mirrors AUTOBUILD_VSVER) and display it in the log
+    # to confirm to the user what is happening but do not (currently) use it for anything
+    if (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) # Visual Studio 2017
+        set(MSVC_VER 150)
+        set(MSVC_VER_RUNTIME 140)
+    elseif (MSVC_VERSION GREATER_EQUAL 1920 AND MSVC_VERSION LESS 1930) # Visual Studio 2019
+        set(MSVC_VER 160)
+        set(MSVC_VER_RUNTIME 140)
+    elseif (MSVC_VERSION GREATER_EQUAL 1930 AND MSVC_VERSION LESS 1939) # Visual Studio 2022
+        set(MSVC_VER 170)
+        set(MSVC_VER_RUNTIME 140)
+    else (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) 
+        MESSAGE(WARNING "New MSVC_VERSION ${MSVC_VERSION} of MSVC: adapt Copy3rdPartyLibs.cmake")
+    endif (MSVC_VERSION GREATER_EQUAL 1910 AND MSVC_VERSION LESS 1920) 
+    
+    MESSAGE(STATUS "Building projects/solution for MSVC version ${MSVC_VER} and using version ${MSVC_VER_RUNTIME} as the basis for copying runtime DLLs")
+
+    # These are candidate DLL names. Empirically, VS versions including 
+    # VS 2017 and later require msvcp*.dll and vcruntime*.dll
     foreach(release_msvc_file
-            msvcp${MSVC_VER}.dll
-            msvcr${MSVC_VER}.dll
-            vcruntime${MSVC_VER}.dll
+            msvcp${MSVC_VER_RUNTIME}.dll
+            vcruntime${MSVC_VER_RUNTIME}.dll
             )
         if(EXISTS "${registry_path}/${release_msvc_file}")
             to_staging_dirs(
@@ -140,7 +157,7 @@ if(WINDOWS)
             MESSAGE(STATUS "Redist lib ${release_msvc_file} not found")
         endif()
     endforeach()
-    MESSAGE(STATUS "Will copy redist files for MSVC ${MSVC_VER}:")
+    MESSAGE(STATUS "Will copy redist files for MSVC ${MSVC_VER_RUNTIME}:")
     foreach(target ${third_party_targets})
         MESSAGE(STATUS "${target}")
     endforeach()
