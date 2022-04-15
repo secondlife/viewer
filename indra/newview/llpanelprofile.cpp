@@ -840,7 +840,6 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     resetData();
 
     LLUUID avatar_id = getAvatarId();
-    LLAvatarPropertiesProcessor::getInstance()->addObserver(avatar_id, this);
 
     BOOL own_profile = getSelfProfile();
 
@@ -907,19 +906,6 @@ void LLPanelProfileSecondLife::updateData()
     }
 }
 
-void LLPanelProfileSecondLife::processProperties(void* data, EAvatarProcessorType type)
-{
-
-    if (APT_PROPERTIES == type)
-    {
-        const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
-        if(avatar_data && getAvatarId() == avatar_data->avatar_id)
-        {
-            processProfileProperties(avatar_data);
-        }
-    }
-}
-
 void LLPanelProfileSecondLife::resetData()
 {
     resetLoading();
@@ -944,9 +930,6 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
     LLUUID avatar_id = getAvatarId();
     if (!LLAvatarActions::isFriend(avatar_id) && !getSelfProfile())
     {
-        // this is non-friend avatar. Status will be updated from LLAvatarPropertiesProcessor.
-        // in LLPanelProfileSecondLife::processOnlineStatus()
-
         // subscribe observer to get online status. Request will be sent by LLPanelProfileSecondLife itself.
         // do not subscribe for friend avatar because online status can be wrong overridden
         // via LLAvatarData::flags if Preferences: "Only Friends & Groups can see when I am online" is set.
@@ -1622,18 +1605,6 @@ BOOL LLPanelProfileWeb::postBuild()
     return TRUE;
 }
 
-void LLPanelProfileWeb::processProperties(void* data, EAvatarProcessorType type)
-{
-    if (APT_PROPERTIES == type)
-    {
-        const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
-        if (avatar_data && getAvatarId() == avatar_data->avatar_id)
-        {
-            setLoaded();
-        }
-    }
-}
-
 void LLPanelProfileWeb::resetData()
 {
     mWebBrowser->navigateHome();
@@ -1859,18 +1830,6 @@ void LLPanelProfileFirstLife::onDiscardDescriptionChanges()
     setDescriptionText(mCurrentDescription);
 }
 
-void LLPanelProfileFirstLife::processProperties(void* data, EAvatarProcessorType type)
-{
-    if (APT_PROPERTIES == type)
-    {
-        const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
-        if (avatar_data && getAvatarId() == avatar_data->avatar_id)
-        {
-            processProperties(avatar_data);
-        }
-    }
-}
-
 void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
 {
     setDescriptionText(avatar_data->fl_about_text);
@@ -2012,19 +1971,6 @@ void LLPanelProfileNotes::onDiscardNotesChanges()
     setNotesText(mCurrentNotes);
 }
 
-void LLPanelProfileNotes::processProperties(void* data, EAvatarProcessorType type)
-{
-    if (APT_NOTES == type)
-    {
-        LLAvatarNotes* avatar_notes = static_cast<LLAvatarNotes*>(data);
-        if (avatar_notes && getAvatarId() == avatar_notes->target_id)
-        {
-            processProperties(avatar_notes);
-            LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-        }
-    }
-}
-
 void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
 {
     mNotesEditor->setValue(avatar_notes->notes);
@@ -2062,15 +2008,6 @@ LLPanelProfile::~LLPanelProfile()
 BOOL LLPanelProfile::postBuild()
 {
     return TRUE;
-}
-
-void LLPanelProfile::processProperties(void* data, EAvatarProcessorType type)
-{
-    //*TODO: figure out what this does
-    mTabContainer->setCommitCallback(boost::bind(&LLPanelProfile::onTabChange, this));
-
-    // Load data on currently opened tab as well
-    onTabChange();
 }
 
 void LLPanelProfile::onTabChange()
@@ -2120,9 +2057,8 @@ void LLPanelProfile::onOpen(const LLSD& key)
 
     updateBtnsVisibility();
 
-    // KC - Not handling pick and classified opening thru onOpen
-    // because this would make unique profile floaters per slurl
-    // and result in multiple profile floaters for the same avatar
+    // Some tabs only request data when opened
+    mTabContainer->setCommitCallback(boost::bind(&LLPanelProfile::onTabChange, this));
 }
 
 void LLPanelProfile::updateData()

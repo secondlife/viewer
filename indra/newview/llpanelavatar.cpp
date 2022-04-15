@@ -76,23 +76,13 @@ LLPanelProfileTab::LLPanelProfileTab()
 
 LLPanelProfileTab::~LLPanelProfileTab()
 {
-    if(getAvatarId().notNull())
-    {
-        LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(),this);
-    }
 }
 
 void LLPanelProfileTab::setAvatarId(const LLUUID& avatar_id)
 {
     if (avatar_id.notNull())
     {
-        if (getAvatarId().notNull())
-        {
-            LLAvatarPropertiesProcessor::getInstance()->removeObserver(mAvatarId, this);
-        }
         mAvatarId = avatar_id;
-        LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
-
         mSelfProfile = (getAvatarId() == gAgentID);
     }
 }
@@ -128,5 +118,31 @@ void LLPanelProfileTab::setApplyProgress(bool started)
         {
             indicator->stop();
         }
+    }
+}
+
+LLPanelProfilePropertiesPeocessorTab::LLPanelProfilePropertiesPeocessorTab()
+    : LLPanelProfileTab()
+{
+}
+
+LLPanelProfilePropertiesPeocessorTab::~LLPanelProfilePropertiesPeocessorTab()
+{
+    if (getAvatarId().notNull())
+    {
+        LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+    }
+}
+
+void LLPanelProfilePropertiesPeocessorTab::setAvatarId(const LLUUID & avatar_id)
+{
+    if (avatar_id.notNull())
+    {
+        if (getAvatarId().notNull())
+        {
+            LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
+        }
+        LLPanelProfileTab::setAvatarId(avatar_id);
+        LLAvatarPropertiesProcessor::getInstance()->addObserver(getAvatarId(), this);
     }
 }

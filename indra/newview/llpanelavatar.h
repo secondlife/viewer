@@ -81,7 +81,6 @@ protected:
 */
 class LLPanelProfileTab
     : public LLPanel
-    , public LLAvatarPropertiesObserver
 {
 public:
 
@@ -104,11 +103,6 @@ public:
      * Clears panel data if viewing avatar info for first time and sends update data request.
      */
     virtual void onOpen(const LLSD& key);
-
-    /**
-     * Processes data received from server.
-     */
-    virtual void processProperties(void* data, EAvatarProcessorType type) = 0;
 
     /**
      * Clears all data received from server.
@@ -150,6 +144,22 @@ private:
     LLUUID  mAvatarId;
     ELoadingState    mLoadingState;
     bool    mSelfProfile;
+};
+
+class LLPanelProfilePropertiesPeocessorTab
+    : public LLPanelProfileTab
+    , public LLAvatarPropertiesObserver
+{
+public:
+    LLPanelProfilePropertiesPeocessorTab();
+    ~LLPanelProfilePropertiesPeocessorTab();
+
+    /*virtual*/ void setAvatarId(const LLUUID& avatar_id);
+
+    /**
+     * Processes data received from server via LLAvatarPropertiesObserver.
+     */
+    virtual void processProperties(void* data, EAvatarProcessorType type) = 0;
 };
 
 #endif // LL_LLPANELAVATAR_H

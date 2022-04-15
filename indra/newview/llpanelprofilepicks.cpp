@@ -120,7 +120,7 @@ LLPickHandler gPickHandler;
 //-----------------------------------------------------------------------------
 
 LLPanelProfilePicks::LLPanelProfilePicks()
- : LLPanelProfileTab()
+ : LLPanelProfilePropertiesPeocessorTab()
  , mPickToSelectOnLoad(LLUUID::null)
 {
 }
@@ -370,7 +370,7 @@ bool LLPanelProfilePicks::canDeletePick()
 //-----------------------------------------------------------------------------
 
 LLPanelProfilePick::LLPanelProfilePick()
- : LLPanelProfileTab()
+ : LLPanelProfilePropertiesPeocessorTab()
  , LLRemoteParcelInfoObserver()
  , mSnapshotCtrl(NULL)
  , mPickId(LLUUID::null)

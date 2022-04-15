@@ -191,7 +191,7 @@ LLClassifiedHandler gClassifiedHandler;
 //-----------------------------------------------------------------------------
 
 LLPanelProfileClassifieds::LLPanelProfileClassifieds()
- : LLPanelProfileTab()
+ : LLPanelProfilePropertiesPeocessorTab()
  , mClassifiedToSelectOnLoad(LLUUID::null)
  , mClassifiedEditOnLoad(false)
 {
@@ -473,7 +473,7 @@ static const S32 CB_ITEM_MATURE = 0;
 static const S32 CB_ITEM_PG    = 1;
 
 LLPanelProfileClassified::LLPanelProfileClassified()
- : LLPanelProfileTab()
+ : LLPanelProfilePropertiesPeocessorTab()
  , mInfoLoaded(false)
  , mTeleportClicksOld(0)
  , mMapClicksOld(0)

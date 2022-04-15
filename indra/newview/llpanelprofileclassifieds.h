@@ -68,7 +68,7 @@ public:
 * Panel for displaying Avatar's picks.
 */
 class LLPanelProfileClassifieds
-    : public LLPanelProfileTab
+    : public LLPanelProfilePropertiesPeocessorTab
 {
 public:
     LLPanelProfileClassifieds();
@@ -109,7 +109,7 @@ private:
 
 
 class LLPanelProfileClassified
-    : public LLPanelProfileTab
+    : public LLPanelProfilePropertiesPeocessorTab
 {
 public:
 

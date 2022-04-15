@@ -89,8 +89,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
 	void resetData();
 
 	/**
@@ -214,8 +212,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
 	void resetData();
 
 	/**
@@ -257,7 +253,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
     void processProperties(const LLAvatarData* avatar_data);
 
 	void resetData();
@@ -303,7 +298,6 @@ public:
 
 	/*virtual*/ BOOL postBuild();
 
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
     void processProperties(LLAvatarNotes* avatar_notes);
 
 	void resetData();
@@ -338,8 +332,6 @@ public:
     /*virtual*/ BOOL postBuild();
 
     /*virtual*/ void updateData();
-
-    /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
 
     /*virtual*/ void onOpen(const LLSD& key);
 
