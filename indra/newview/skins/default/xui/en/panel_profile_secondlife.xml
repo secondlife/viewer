@@ -71,6 +71,16 @@ Account: [ACCTTYPE]
            left="2"
            bottom="-1"
            right="-1"/>
+
+          <loading_indicator
+           name="image_upload_indicator"
+           top="69"
+           left="69"
+           height="23"
+           width="23"
+           follows="top|left"
+           layout="topleft"
+           visible="false"/>
           
         </layout_panel>
         <layout_panel
@@ -133,6 +143,16 @@ Account: [ACCTTYPE]
            height="16"
            follows="left|top|right"
            layout="topleft"/>
+
+          <loading_indicator
+           name="progress_indicator"
+           left="56"
+           bottom="-30"
+           height="23"
+           width="23"
+           follows="left|bottom"
+           layout="topleft"
+           visible="false"/>
 
           <menu_button
            layout="topleft"
@@ -323,6 +343,7 @@ Account: [ACCTTYPE]
          follows="all"
          layout="topleft"
          width="200"
+         height="159"
          auto_resize="true"
          user_resize="false">
           <!-- notes are only for other agents -->        
@@ -340,10 +361,10 @@ Account: [ACCTTYPE]
            trusted_content="false"
            always_show_icons="true"
            enabled="false"
-           top_pad="1"
+           top="18"
            left="1"
            right="-1"
-           bottom="-27"
+           bottom="-1"
            follows="all"
            layout="topleft"
            bg_readonly_color="Transparent"

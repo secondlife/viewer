@@ -26,13 +26,22 @@
      layout="topleft"
      top="10"
      left="8"
-     height="202"
-     width="202"/>
+     height="160"
+     width="160"/>
+    <loading_indicator
+     name="image_upload_indicator"
+     top="79"
+     left="77"
+     height="23"
+     width="23"
+     follows="top|left"
+     layout="topleft"
+     visible="false"/>
     <button
      name="fl_upload_image"
      label="Change Photo"
-     top="167"
-     left_pad="5"
+     top="127"
+     left="175"
      height="20"
      width="120"
      follows="top|left"
@@ -50,7 +59,7 @@
      name="fl_description_edit"
      trusted_content="false"
      enabled="false"
-     top="220"
+     top="180"
      left="6"
      right="-6"
      height="224"
@@ -65,7 +74,7 @@
     <button
      name="fl_save_changes"
      label="Save"
-     top="429"
+     top="389"
      right="-108"
      height="20"
      width="80"

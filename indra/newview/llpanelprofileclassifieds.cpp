@@ -207,7 +207,7 @@ void LLPanelProfileClassifieds::onOpen(const LLSD& key)
 
     resetData();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setVisible(TRUE);
         mNewButton->setEnabled(FALSE);
@@ -373,6 +373,7 @@ void LLPanelProfileClassifieds::processProperties(void* data, EAvatarProcessorTy
                 mTabContainer->selectFirstTab();
             }
 
+            setLoaded();
             updateButtons();
         }
     }
@@ -386,9 +387,7 @@ void LLPanelProfileClassifieds::resetData()
 
 void LLPanelProfileClassifieds::updateButtons()
 {
-    LLPanelProfileTab::updateButtons();
-
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setEnabled(canAddNewClassified());
         mDeleteButton->setEnabled(canDeleteClassified());
@@ -399,7 +398,7 @@ void LLPanelProfileClassifieds::updateData()
 {
     // Send picks request only once
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull())
+    if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
         mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
@@ -732,6 +731,7 @@ void LLPanelProfileClassified::processProperties(void* data, EAvatarProcessorTyp
         // for just created classified - in case user opened edit panel before processProperties() callback
         mSaveButton->setLabelArg("[LABEL]", getString("save_label"));
 
+        setLoaded();
         updateButtons();
 
         if (mEditOnLoad)

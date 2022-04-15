@@ -69,9 +69,7 @@ static LLDefaultChildRegistry::Register<LLProfileDropTarget> r("profile_drop_tar
 LLPanelProfileTab::LLPanelProfileTab()
 : LLPanel()
 , mAvatarId(LLUUID::null)
-, mLoading(false)
-, mLoaded(false)
-, mEmbedded(false)
+, mLoadingState(PROFILE_INIT)
 , mSelfProfile(false)
 {
 }
@@ -107,11 +105,11 @@ void LLPanelProfileTab::onOpen(const LLSD& key)
     setApplyProgress(true);
 }
 
-void LLPanelProfileTab::updateButtons()
+void LLPanelProfileTab::setLoaded()
 {
     setApplyProgress(false);
 
-    mLoaded = true;
+    mLoadingState = PROFILE_LOADED;
 }
 
 void LLPanelProfileTab::setApplyProgress(bool started)
@@ -120,7 +118,7 @@ void LLPanelProfileTab::setApplyProgress(bool started)
 
     if (indicator)
     {
-        indicator->setVisible(true);
+        indicator->setVisible(started);
 
         if (started)
         {

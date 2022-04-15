@@ -188,7 +188,7 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     LLPanelProfileWeb *panel_web = dynamic_cast<LLPanelProfileWeb*>(panel);
     if (panel_web)
     {
-        panel_web->updateButtons();
+        panel_web->setLoaded();
     }
 
     panel = floater_profile->findChild<LLPanel>(PANEL_FIRSTLIFE, TRUE);
@@ -850,7 +850,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
     childSetVisible("settings_panel", own_profile);
     childSetVisible("about_buttons_panel", own_profile);
 
-    if (own_profile && !getEmbedded())
+    if (own_profile)
     {
         // Group list control cannot toggle ForAgent loading
         // Less than ideal, but viewing own profile via search is edge case
@@ -875,7 +875,7 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         mAgentActionMenuButton->setMenu("menu_profile_other.xml", LLMenuButton::MP_BOTTOM_RIGHT);
     }
 
-    mDescriptionEdit->setParseHTML(!own_profile && !getEmbedded());
+    mDescriptionEdit->setParseHTML(!own_profile);
 
     if (!own_profile)
     {
@@ -884,15 +884,13 @@ void LLPanelProfileSecondLife::onOpen(const LLSD& key)
         fillRightsData();
     }
 
-    updateButtons();
-
     mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
 }
 
 void LLPanelProfileSecondLife::updateData()
 {
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull() && !(getSelfProfile() && !getEmbedded()))
+    if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
 
@@ -961,20 +959,11 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
 
     fillAccountStatus(avatar_data);
 
-    updateButtons();
+    setLoaded();
 }
 
 void LLPanelProfileSecondLife::processGroupProperties(const LLAvatarGroups* avatar_groups)
 {
-    //KC: the group_list ctrl can handle all this for us on our own profile
-    if (getSelfProfile() && !getEmbedded())
-    {
-        return;
-    }
-
-    // *NOTE dzaporozhan
-    // Group properties may arrive in two callbacks, we need to save them across
-    // different calls. We can't do that in textbox as textbox may change the text.
 
     LLAvatarGroups::group_list_t::const_iterator it = avatar_groups->group_list.begin();
     const LLAvatarGroups::group_list_t::const_iterator it_end = avatar_groups->group_list.end();
@@ -1004,7 +993,16 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
 
 void LLPanelProfileSecondLife::setProfileImageUploading(bool loading)
 {
-    // Todo: loading indicator here
+    LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("image_upload_indicator");
+    indicator->setVisible(loading);
+    if (loading)
+    {
+        indicator->start();
+    }
+    else
+    {
+        indicator->stop();
+    }
     mWaitingForImageUpload = loading;
 }
 
@@ -1028,8 +1026,7 @@ void LLPanelProfileSecondLife::setProfileImageUploaded(const LLUUID &image_asset
             FALSE);
     }
 
-    mWaitingForImageUpload = false;
-    // Todo: reset loading indicator here
+    setProfileImageUploading(false);
 }
 
 void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
@@ -1177,7 +1174,6 @@ void LLPanelProfileSecondLife::changed(U32 mask)
     {
         fillRightsData();
     }
-    updateButtons();
 }
 
 // virtual, called by LLVoiceClient
@@ -1240,12 +1236,11 @@ void LLPanelProfileSecondLife::processOnlineStatus(bool online)
 {
 }
 
-//todo: remove?
-void LLPanelProfileSecondLife::updateButtons()
+void LLPanelProfileSecondLife::setLoaded()
 {
-    LLPanelProfileTab::updateButtons();
+    LLPanelProfileTab::setLoaded();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mShowInSearchCheckbox->setVisible(TRUE);
         mShowInSearchCheckbox->setEnabled(TRUE);
@@ -1377,6 +1372,10 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
         LLWString wstr = utf8str_to_wstring(getAvatarId().asString());
         LLClipboard::instance().copyToClipboard(wstr, 0, wstr.size());
     }
+    else if (item_name == "agent_permissions")
+    {
+        onShowAgentPermissionsDialog();
+    }
     else if (item_name == "copy_display_name"
         || item_name == "copy_username")
     {
@@ -1466,6 +1465,10 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     else if (item_name == "toggle_block_agent")
     {
         return LLAvatarActions::canBlock(agent_id);
+    }
+    else if (item_name == "agent_permissions")
+    {
+        return LLAvatarActions::isFriend(agent_id);
     }
     else if (item_name == "copy_display_name"
         || item_name == "copy_username")
@@ -1626,7 +1629,7 @@ void LLPanelProfileWeb::processProperties(void* data, EAvatarProcessorType type)
         const LLAvatarData* avatar_data = static_cast<const LLAvatarData*>(data);
         if (avatar_data && getAvatarId() == avatar_data->avatar_id)
         {
-            updateButtons();
+            setLoaded();
         }
     }
 }
@@ -1639,7 +1642,7 @@ void LLPanelProfileWeb::resetData()
 void LLPanelProfileWeb::updateData()
 {
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull() && !mURLWebProfile.empty())
+    if (!getStarted() && avatar_id.notNull() && !mURLWebProfile.empty())
     {
         setIsLoading();
 
@@ -1732,16 +1735,6 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
     }
 }
 
-void LLPanelProfileWeb::updateButtons()
-{
-    LLPanelProfileTab::updateButtons();
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -1784,19 +1777,25 @@ void LLPanelProfileFirstLife::onOpen(const LLSD& key)
 
 void LLPanelProfileFirstLife::setProfileImageUploading(bool loading)
 {
-    mChangePhoto->setEnabled(loading);
-    mRemovePhoto->setEnabled(loading);
+    mChangePhoto->setEnabled(!loading);
+    mRemovePhoto->setEnabled(!loading);
 
-    // Todo: loading indicator here
+    LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("image_upload_indicator");
+    indicator->setVisible(loading);
+    if (loading)
+    {
+        indicator->start();
+    }
+    else
+    {
+        indicator->stop();
+    }
 }
 
 void LLPanelProfileFirstLife::setProfileImageUploaded(const LLUUID &image_asset_id)
 {
     mPicture->setValue(image_asset_id);
-    mChangePhoto->setEnabled(TRUE);
-    mRemovePhoto->setEnabled(TRUE);
-
-    // Todo: reset loading indicator here
+    setProfileImageUploading(false);
 }
 
 void LLPanelProfileFirstLife::onChangePhoto()
@@ -1883,7 +1882,7 @@ void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
     {
         mPicture->setValue("Generic_Person_Large");
     }
-    updateButtons();
+    setLoaded();
 }
 
 void LLPanelProfileFirstLife::resetData()
@@ -1897,11 +1896,11 @@ void LLPanelProfileFirstLife::resetData()
     mDiscardChanges->setVisible(getSelfProfile());
 }
 
-void LLPanelProfileFirstLife::updateButtons()
+void LLPanelProfileFirstLife::setLoaded()
 {
-    LLPanelProfileTab::updateButtons();
+    LLPanelProfileTab::setLoaded();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mDescriptionEdit->setEnabled(TRUE);
         mPicture->setEnabled(TRUE);
@@ -1925,7 +1924,7 @@ LLPanelProfileNotes::~LLPanelProfileNotes()
 void LLPanelProfileNotes::updateData()
 {
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull())
+    if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
 
@@ -2030,7 +2029,7 @@ void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
 {
     mNotesEditor->setValue(avatar_notes->notes);
     mNotesEditor->setEnabled(TRUE);
-    updateButtons();
+    setLoaded();
 }
 
 void LLPanelProfileNotes::resetData()
@@ -2115,13 +2114,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
     mPanelFirstlife->onOpen(avatar_id);
     mPanelNotes->onOpen(avatar_id);
 
-    mPanelSecondlife->setEmbedded(getEmbedded());
-    mPanelWeb->setEmbedded(getEmbedded());
-    mPanelPicks->setEmbedded(getEmbedded());
-    mPanelClassifieds->setEmbedded(getEmbedded());
-    mPanelFirstlife->setEmbedded(getEmbedded());
-    mPanelNotes->setEmbedded(getEmbedded());
-
     // Always request the base profile info
     resetLoading();
     updateData();
@@ -2138,7 +2130,7 @@ void LLPanelProfile::updateData()
     LLUUID avatar_id = getAvatarId();
     // Todo: getIsloading functionality needs to be expanded to
     // include 'inited' or 'data_provided' state to not rerequest
-    if (!getIsLoading() && avatar_id.notNull())
+    if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
 

@@ -84,7 +84,7 @@ public:
 
     /*virtual*/ void resetData();
 
-    /*virtual*/ void updateButtons();
+    void updateButtons();
 
     /*virtual*/ void updateData();
 
@@ -213,7 +213,7 @@ protected:
 
     void resetControls();
 
-    /*virtual*/ void updateButtons();
+    void updateButtons();
     void updateInfoRect();
 
     static std::string createLocationText(

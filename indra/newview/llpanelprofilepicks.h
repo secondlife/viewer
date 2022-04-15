@@ -61,7 +61,7 @@ public:
 
     /*virtual*/ void resetData();
 
-    /*virtual*/ void updateButtons();
+    void updateButtons();
 
     /**
      * Saves changes.

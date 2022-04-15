@@ -160,7 +160,7 @@ protected:
 	void processOnlineStatus(bool online);
 
 private:
-    /*virtual*/ void updateButtons();
+    /*virtual*/ void setLoaded();
     void onCommitMenu(const LLSD& userdata);
     bool onEnableMenu(const LLSD& userdata);
     bool onCheckMenu(const LLSD& userdata);
@@ -230,7 +230,6 @@ public:
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 protected:
-	/*virtual*/ void updateButtons();
 	void onCommitLoad(LLUICtrl* ctrl);
 
 private:
@@ -269,7 +268,7 @@ public:
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
 protected:
-	/*virtual*/ void updateButtons();
+	/*virtual*/ void setLoaded();
 
     void onChangePhoto();
     void onRemovePhoto();

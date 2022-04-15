@@ -135,7 +135,7 @@ void LLPanelProfilePicks::onOpen(const LLSD& key)
 
     resetData();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setVisible(TRUE);
         mNewButton->setEnabled(FALSE);
@@ -305,6 +305,7 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
         mTabContainer->selectFirstTab();
     }
 
+    setLoaded();
     updateButtons();
 }
 
@@ -316,9 +317,7 @@ void LLPanelProfilePicks::resetData()
 
 void LLPanelProfilePicks::updateButtons()
 {
-    LLPanelProfileTab::updateButtons();
-
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mNewButton->setEnabled(canAddNewPick());
         mDeleteButton->setEnabled(canDeletePick());
@@ -344,7 +343,7 @@ void LLPanelProfilePicks::updateData()
 {
     // Send picks request only once
     LLUUID avatar_id = getAvatarId();
-    if (!getIsLoading() && avatar_id.notNull())
+    if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
         mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
@@ -450,7 +449,7 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
 
     resetDirty();
 
-    if (getSelfProfile() && !getEmbedded())
+    if (getSelfProfile())
     {
         mPickName->setEnabled(TRUE);
         mPickDescription->setEnabled(TRUE);
@@ -518,7 +517,7 @@ void LLPanelProfilePick::processProperties(void* data, EAvatarProcessorType type
     mPickDescription->setParseHTML(true);
     mParcelId = pick_info->parcel_id;
     setSnapshotId(pick_info->snapshot_id);
-    if (!getSelfProfile() || getEmbedded())
+    if (!getSelfProfile())
     {
         mSnapshotCtrl->setEnabled(FALSE);
     }
@@ -535,7 +534,7 @@ void LLPanelProfilePick::processProperties(void* data, EAvatarProcessorType type
     // edit the Pick and we have to update Pick info panel.
     // revomeObserver is called from onClickBack
 
-    updateButtons();
+    setLoaded();
 }
 
 void LLPanelProfilePick::apply()
