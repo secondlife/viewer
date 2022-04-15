@@ -2873,7 +2873,12 @@ void LLPanelFace::onCopyTexture()
                             // as result it is Hightly unreliable, leaves little control to user, borderline hack
                             // but there are little options to preserve permissions - multiple inventory
                             // items might reference same asset and inventory search is expensive.
-                            item_id = get_copy_free_item_by_asset_id(id);
+                            bool no_transfer = false;
+                            if (objectp->getInventoryItemByAsset(id))
+                            {
+                                no_transfer = !objectp->getInventoryItemByAsset(id)->getIsFullPerm();
+                            }
+                            item_id = get_copy_free_item_by_asset_id(id, no_transfer);
                             // record value to avoid repeating inventory search when possible
                             asset_item_map[id] = item_id;
                         }

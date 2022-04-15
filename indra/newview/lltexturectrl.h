@@ -60,7 +60,7 @@ bool get_is_predefined_texture(LLUUID asset_id);
 // for textures in inventory by asset ids
 // This search can be performance unfriendly and doesn't warranty
 // that the texture is original source of asset
-LLUUID get_copy_free_item_by_asset_id(LLUUID image_id);
+LLUUID get_copy_free_item_by_asset_id(LLUUID image_id, bool no_trans_perm = false);
 bool get_can_copy_texture(LLUUID image_id);
 
 //////////////////////////////////////////////////////////////////////////////////////////
