@@ -1409,12 +1409,6 @@ if (LINUX)
     LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
-    set(viewer_LIBRARIES
-        Xinerama
-        )
-    if (OPENAL)
-      LIST(APPEND viewer_LIBRARIES ${OPENAL_LIBRARIES})
-    endif (OPENAL)
 endif (LINUX)
 
 if (WINDOWS)
@@ -1540,21 +1534,6 @@ if (WINDOWS)
 
     list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 
-# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
-    set(viewer_LIBRARIES
-        opengl32
-        comdlg32
-        dxguid
-        kernel32
-        odbc32
-        odbccp32
-        oleaut32
-        shell32
-        Vfw32
-        wer
-        winspool
-        )
-
     find_library(INTEL_MEMOPS_LIBRARY
                  NAMES ll_intel_memops
                  PATHS
@@ -1563,8 +1542,10 @@ if (WINDOWS)
                  )
     mark_as_advanced(INTEL_MEMOPS_LIBRARY)
 
+
     if (INTEL_MEMOPS_LIBRARY)
-      list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
+      create_target( ll::intel_memops )
+      set_target_libraries( ll::intel_memops ${INTEL_MEMOPS_LIBRARY} )
     endif (INTEL_MEMOPS_LIBRARY)
 
     if (ADDRESS_SIZE EQUAL 64)
@@ -1576,9 +1557,6 @@ if (WINDOWS)
         LIST(APPEND viewer_SOURCE_FILES windows.manifest)
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (OPENAL)
-      LIST(APPEND viewer_LIBRARIES ${OPENAL_LIBRARIES})
-    endif (OPENAL)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
@@ -1950,11 +1928,9 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llmath
         llcorehttp
         llcommon
-        ${viewer_LIBRARIES}
         ll::glod
         ll::ndof
-        ${SMARTHEAP_LIBRARY}
-        ${UI_LIBRARIES}
+        ll::uilibraries
         lllogin
         llprimitive
         llappearance
@@ -1962,6 +1938,10 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         )
+
+if( TARGET ll::intel_memops )
+   target_link_libraries(${VIEWER_BINARY_NAME} ll::intel_memops )
+endif()
 
 if( TARGET ll::nvapi )
    target_link_libraries(${VIEWER_BINARY_NAME} ll::nvapi )

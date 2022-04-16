@@ -68,9 +68,7 @@ target_link_libraries(linux-crash-logger
         llmath
         llcorehttp
         llcommon
-    ${UI_LIBRARIES}
-    ll::freetype
-    ${LIBRT_LIBRARY}
+        ll::uilibraries
     )
 
 add_custom_target(linux-crash-logger-target ALL

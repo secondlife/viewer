@@ -59,9 +59,9 @@ set(llwindow_LINK_LIBRARIES
 # Sort by high-level to low-level
 if (LINUX)
   set(llwindow_LINK_LIBRARIES APPEND
-      ${UI_LIBRARIES}     # for GTK
-      ${SDL_LIBRARY}
-      fontconfig          # For FCInit and other FC* functions.
+          ll::uilibraries
+          ll::sdl
+          ll::fontconfig          # For FCInit and other FC* functions.
       )
 
   list(APPEND viewer_SOURCE_FILES 

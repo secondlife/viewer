@@ -122,7 +122,7 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llmath "${llmath_TEST_SOURCE_FILES}")
 
   # INTEGRATION TESTS
-  set(test_libs llmath llcommon ${WINDOWS_LIBRARIES})
+  set(test_libs llmath llcommon)
   # TODO: Some of these need refactoring to be proper Unit tests rather than Integration tests.
   LL_ADD_INTEGRATION_TEST(alignment "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbbox llbbox.cpp "${test_libs}")

@@ -6,8 +6,10 @@ if (LINUX)
   use_prebuilt_binary(gtk-atk-pango-glib)
 endif (LINUX)
 
+create_target( ll::uilibraries )
+
 if (LINUX)
-  set(UI_LIBRARIES
+  set_target_libraries( ll::uilibraries
           atk-1.0
           gdk-x11-2.0
           gdk_pixbuf-2.0
@@ -21,12 +23,27 @@ if (LINUX)
           pangoft2-1.0
           pangox-1.0
           pangoxft-1.0
-          ${FREETYPE_LIBRARIES}
+          Xinerama
+          ll::freetype
           )
 endif (LINUX)
+if( WINDOWS )
+  set_target_libraries( ll::uilibraries
+          opengl32
+          comdlg32
+          dxguid
+          kernel32
+          odbc32
+          odbccp32
+          oleaut32
+          shell32
+          Vfw32
+          wer
+          winspool
+          )
+endif()
 
-include_directories (
-        ${LIBS_PREBUILT_DIR}/include
+set_target_include_dirs( ll::uilibraries
         ${LIBS_PREBUILT_DIR}/include
         )
 
@@ -51,5 +68,5 @@ include_directories (
 #endforeach(include)
 
 if (LINUX)
-  add_definitions(-DLL_GTK=1 -DLL_X11=1)
+  set_target_properties(ll::uilibraries PROPERTIES COMPILE_DEFINITIONS LL_GTK=1 LL_X11=1 )
 endif (LINUX)
