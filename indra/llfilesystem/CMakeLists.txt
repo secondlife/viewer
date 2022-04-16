@@ -4,12 +4,6 @@ project(llfilesystem)
 
 include(00-Common)
 include(LLCommon)
-include(UnixInstall)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(llfilesystem_SOURCE_FILES
     lldir.cpp
@@ -73,10 +67,6 @@ if (LL_TESTS)
     lldiriterator.cpp
     )
 
-    set_source_files_properties(lldiriterator.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${cache_BOOST_LIBRARIES}"
-    )
     LL_ADD_PROJECT_UNIT_TESTS(llfilesystem "${llfilesystem_TEST_SOURCE_FILES}")
 
     # INTEGRATION TESTS

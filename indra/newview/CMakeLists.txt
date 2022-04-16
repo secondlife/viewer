@@ -40,7 +40,6 @@ include(PNG)
 include(TemplateCheck)
 include(ThreeJS)
 include(UI)
-include(UnixInstall)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
@@ -1369,12 +1368,6 @@ if (DARWIN)
     # warnings.
     COMPILE_FLAGS "-fmodules -fcxx-modules -Wno-nullability-completeness"
     )
-
-  if (USE_BUGSPLAT)
-    list(APPEND viewer_LIBRARIES
-      bugsplat::bugsplat
-      )
-  endif (USE_BUGSPLAT)
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES

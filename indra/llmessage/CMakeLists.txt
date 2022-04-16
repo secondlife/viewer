@@ -15,12 +15,6 @@ include(JsonCpp)
 
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
-include_directories(
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    )
-
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp
     llavatarname.cpp
