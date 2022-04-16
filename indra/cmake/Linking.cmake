@@ -95,7 +95,7 @@ else()
           ${COREFOUNDATION_LIBRARY}
           ${CARBON_LIBRARY}
           ${AGL_LIBRARY}
-          ${APPKITT_LIBRARY}
+          ${APPKIT_LIBRARY}
           ${COREAUDIO_LIBRARY}
           )
 endif()
