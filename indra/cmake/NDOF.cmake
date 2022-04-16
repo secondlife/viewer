@@ -21,7 +21,4 @@ if (NDOF)
   target_compile_definitions( ll::ndof INTERFACE LIB_NDOF=1)
 endif (NDOF)
 
-if (NOT NDOF_FOUND)
-  message(STATUS "Building without N-DoF joystick support")
-endif ()
 
