@@ -57,14 +57,12 @@ if (NOT HAVOK_TPV)
    # which includes a CMakeList.txt and then this whole source tree gets pushed into out build ... :/
    # To make matters worse there is a internal assumption about the structure of the viewers CMake layout,
    # which means we need to duct tape this togther ...
-   get_property( LLCOMMON_INCLUDE_DIRS TARGET llcommon PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
-   get_property( LLMATH_INCLUDE_DIRS TARGET llmath PROPERTY INTERFACE_INCLUDE_DIRECTORIES )
 
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
 
    # Another hack that works with newer cmake versions:
-   #cmake_policy( SET CMP0079 NEW)
-   #target_link_libraries(llphysicsextensionsstub llcommon llmath)
+   cmake_policy( SET CMP0079 NEW)
+   target_link_libraries(llphysicsextensionsstub llcommon llmath)
 endif (NOT HAVOK_TPV)
 
 
