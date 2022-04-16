@@ -1724,7 +1724,6 @@ if (WINDOWS)
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
       ${AUTOBUILD_INSTALL_DIR}/ca-bundle.crt
-      ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${viewer_APPSETTINGS_FILES}
@@ -1925,7 +1924,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         lllogin
         llprimitive
         llappearance
-        ${LLPHYSICS_LIBRARIES}
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
         )
