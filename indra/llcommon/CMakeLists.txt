@@ -279,7 +279,6 @@ target_link_libraries(
         ll::jsoncpp
         ll::zlib-ng
         ll::boost
-    ${GOOGLE_PERFTOOLS_LIBRARIES}
         ll::uriparser
         ll::oslibraries
     )
