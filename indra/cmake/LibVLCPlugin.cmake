@@ -8,7 +8,6 @@ create_target( ll::libvlc )
 use_prebuilt_binary(vlc-bin)
 set(LIBVLCPLUGIN ON CACHE BOOL
         "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
-set(VLC_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/vlc)
 
 if (WINDOWS)
     set_target_libraries( ll::libvlc
