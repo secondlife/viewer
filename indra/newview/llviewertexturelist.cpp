@@ -89,8 +89,6 @@ LLTextureKey::LLTextureKey(LLUUID id, ETexListType tex_type)
 
 LLViewerTextureList::LLViewerTextureList() 
 	: mForceResetTextureStats(FALSE),
-	mMaxResidentTexMemInMegaBytes(0),
-	mMaxTotalTextureMemInMegaBytes(0),
 	mInitialized(FALSE)
 {
 }
@@ -99,12 +97,6 @@ void LLViewerTextureList::init()
 {			
 	mInitialized = TRUE ;
 	sNumImages = 0;
-	mMaxResidentTexMemInMegaBytes = (U32Bytes)0;
-	mMaxTotalTextureMemInMegaBytes = (U32Bytes)0;
-	
-	// Update how much texture RAM we're allowed to use.
-	updateMaxResidentTexMem(S32Megabytes(0)); // 0 = use current
-	
 	doPreloadImages();
 }
 
@@ -342,7 +334,7 @@ void LLViewerTextureList::dump()
 	{
 		LLViewerFetchedTexture* image = *it;
 
-		LL_INFOS() << "priority " << image->getDecodePriority()
+		LL_INFOS() << "priority " << image->getMaxVirtualSize()
 		<< " boost " << image->getBoostLevel()
 		<< " size " << image->getWidth() << "x" << image->getHeight()
 		<< " discard " << image->getDiscardLevel()
@@ -667,13 +659,14 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	assert_main_thread();
 	llassert_always(mInitialized) ;
 	llassert(image);
+    image->validateRefCount();
 
 	S32 count = 0;
 	if (image->isInImageList())
 	{
 		count = mImageList.erase(image) ;
 		if(count != 1) 
-	{
+	    {
 			LL_INFOS() << "Image  " << image->getID() 
 				<< " had mInImageList set but mImageList.erase() returned " << count
 				<< LL_ENDL;
@@ -699,6 +692,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 			LL_INFOS() << "Image  " << image->getID() << " was in mUUIDMap with same pointer" << LL_ENDL ;
 		}
 		count = mImageList.erase(image) ;
+        llassert(count != 0);
 		if(count != 0) 
 		{	// it was in the list already?
 			LL_WARNS() << "Image  " << image->getID() 
@@ -822,7 +816,6 @@ void LLViewerTextureList::updateImages(F32 max_time)
 			didone = image->doLoadedCallbacks();
 		}
 	}
-	
 
 	updateImagesUpdateStats();
 }
@@ -847,118 +840,102 @@ void LLViewerTextureList::clearFetchingRequests()
 
 void LLViewerTextureList::updateImagesDecodePriorities()
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	// Update the decode priority for N images each frame
-	{
-		F32 lazy_flush_timeout = 30.f; // stop decoding
-		F32 max_inactive_time  = 20.f; // actually delete
-		S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
+    // Update the decode priority for N images each frame
+    
+    /*static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
+    const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
+    S32 update_counter = llmin(max_update_count, mUUIDMap.size());
+    uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateKey);*/
+    //while ((update_counter-- > 0) && !mUUIDMap.empty())
+    for (uuid_map_t::iterator iter = mUUIDMap.begin(); iter != mUUIDMap.end(); ++iter)
+    {
+        /*if (iter == mUUIDMap.end())
+        {
+            iter = mUUIDMap.begin();
+        }*/
+        mLastUpdateKey = iter->first;
+        LLPointer<LLViewerFetchedTexture> imagep = iter->second;
+        //++iter; // safe to increment now
 
-		//reset imagep->getLastReferencedTimer() when screen is showing the progress view to avoid removing pre-fetched textures too soon.
-		bool reset_timer = gViewerWindow->getProgressView()->getVisible();
-        
-        static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
-		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
-		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
-		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateKey);
-		while ((update_counter-- > 0) && !mUUIDMap.empty())
-		{
-			if (iter == mUUIDMap.end())
-			{
-				iter = mUUIDMap.begin();
+        updateImageDecodePriority(imagep);
+    }
+#endif
+}
+
+void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
+{
+    if (imagep->isInDebug() || imagep->isUnremovable())
+    {
+        //update_counter--;
+        return; //is in debug, ignore.
+    }
+
+    F32 lazy_flush_timeout = 30.f; // stop decoding
+    F32 max_inactive_time = 20.f; // actually delete
+    S32 min_refs = 3; // 1 for mImageList, 1 for mUUIDMap, 1 for local reference
+
+    //
+    // Flush formatted images using a lazy flush
+    //
+    S32 num_refs = imagep->getNumRefs();
+    if (num_refs == min_refs)
+    {
+        if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
+        {
+            // Remove the unused image from the image list
+            deleteImage(imagep);
+            imagep = NULL; // should destroy the image								
+        }
+        return;
+    }
+    else
+    {
+        if (imagep->hasSavedRawImage())
+        {
+            if (imagep->getElapsedLastReferencedSavedRawImageTime() > max_inactive_time)
+            {
+                imagep->destroySavedRawImage();
             }
-            mLastUpdateKey = iter->first;
-			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
-			++iter; // safe to increment now
+        }
 
-			if(imagep->isInDebug() || imagep->isUnremovable())
-			{
-				update_counter--;
-				continue; //is in debug, ignore.
-			}
+        if (imagep->isDeleted())
+        {
+            return;
+        }
+        else if (imagep->isDeletionCandidate())
+        {
+            imagep->destroyTexture();
+            return;
+        }
+        else if (imagep->isInactive())
+        {
+            if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
+            {
+                imagep->setDeletionCandidate();
+            }
+            return;
+        }
+        else
+        {
+            imagep->getLastReferencedTimer()->reset();
 
-			//
-			// Flush formatted images using a lazy flush
-			//
-			S32 num_refs = imagep->getNumRefs();
-			if (num_refs == min_refs)
-			{
-				if(reset_timer)
-				{
-					imagep->getLastReferencedTimer()->reset();
-				}
-				else if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > lazy_flush_timeout)
-				{
-					// Remove the unused image from the image list
-					deleteImage(imagep);
-					imagep = NULL; // should destroy the image								
-				}
-				continue;
-			}
-			else
-			{
-				if(imagep->hasSavedRawImage())
-				{
-					if(imagep->getElapsedLastReferencedSavedRawImageTime() > max_inactive_time)
-					{
-						imagep->destroySavedRawImage() ;
-					}
-				}
+            //reset texture state.
+            imagep->setInactive();
+        }
+    }
 
-				if(imagep->isDeleted())
-				{
-					continue ;
-				}
-				else if(imagep->isDeletionCandidate())
-				{
-					imagep->destroyTexture() ;																
-					continue ;
-				}
-				else if(imagep->isInactive())
-				{
-					if(reset_timer)
-					{
-						imagep->getLastReferencedTimer()->reset();
-					}
-					else if (imagep->getLastReferencedTimer()->getElapsedTimeF32() > max_inactive_time)
-					{
-						imagep->setDeletionCandidate() ;
-					}
-					continue ;
-				}
-				else
-				{
-					imagep->getLastReferencedTimer()->reset();
+    if (!imagep->isInImageList())
+    {
+        return;
+    }
+    if (imagep->isInFastCacheList())
+    {
+        return; //wait for loading from the fast cache.
+    }
 
-					//reset texture state.
-					imagep->setInactive() ;										
-				}
-			}
-
-			if (!imagep->isInImageList())
-			{
-				continue;
-			}
-			if(imagep->isInFastCacheList())
-			{
-				continue; //wait for loading from the fast cache.
-			}
-
-			imagep->processTextureStats();
-			F32 old_priority = imagep->getDecodePriority();
-			F32 old_priority_test = llmax(old_priority, 0.0f);
-			F32 decode_priority = imagep->calcDecodePriority();
-			F32 decode_priority_test = llmax(decode_priority, 0.0f);
-			// Ignore < 20% difference
-			if ((decode_priority_test < old_priority_test * .8f) ||
-				(decode_priority_test > old_priority_test * 1.25f))
-			{
-				mImageList.erase(imagep) ;
-				imagep->setDecodePriority(decode_priority);
-				mImageList.insert(imagep);
-			}
-		}
-	}
+    imagep->processTextureStats();
 }
 
 void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level)
@@ -970,17 +947,9 @@ void LLViewerTextureList::setDebugFetching(LLViewerFetchedTexture* tex, S32 debu
 	}
 
 	const F32 DEBUG_PRIORITY = 100000.f;
-	F32 old_priority_test = llmax(tex->getDecodePriority(), 0.0f);
-	F32 decode_priority_test = DEBUG_PRIORITY;
-	
-	// Ignore < 20% difference
-	if ((decode_priority_test < old_priority_test * .8f) ||
-		(decode_priority_test > old_priority_test * 1.25f))
-	{
-		removeImageFromList(tex);
-		tex->setDecodePriority(decode_priority_test);
-		addImageToList(tex);
-	}
+	removeImageFromList(tex);
+    tex->mMaxVirtualSize = DEBUG_PRIORITY;
+	addImageToList(tex);
 }
 
 /*
@@ -1030,10 +999,6 @@ F32 LLViewerTextureList::updateImagesCreateTextures(F32 max_time)
 		LLViewerFetchedTexture *imagep = *curiter;
 		imagep->createTexture();
         imagep->postCreateTexture();
-		if (create_timer.getElapsedTimeF32() > max_time)
-		{
-			break;
-		}
 	}
 	mCreateTextureList.erase(mCreateTextureList.begin(), enditer);
 	return create_timer.getElapsedTimeF32();
@@ -1061,10 +1026,6 @@ F32 LLViewerTextureList::updateImagesLoadingFastCache(F32 max_time)
 		enditer = iter;
 		LLViewerFetchedTexture *imagep = *curiter;
 		imagep->loadFromFastCache();
-		if (timer.getElapsedTimeF32() > max_time)
-		{
-			break;
-		}
 	}
 	mFastCacheList.erase(mFastCacheList.begin(), enditer);
 	return timer.getElapsedTimeF32();
@@ -1083,8 +1044,7 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 	}
 
 	imagep->processTextureStats();
-	F32 decode_priority = LLViewerFetchedTexture::maxDecodePriority() ;
-	imagep->setDecodePriority(decode_priority);
+    imagep->sMaxVirtualSize = LLViewerFetchedTexture::sMaxVirtualSize;
 	addImageToList(imagep);
 	
 	return ;
@@ -1093,12 +1053,17 @@ void LLViewerTextureList::forceImmediateUpdate(LLViewerFetchedTexture* imagep)
 F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	LLTimer image_op_timer;
-	
+    LLTimer image_op_timer;
+
+    typedef std::vector<LLViewerFetchedTexture*> entries_list_t;
+    entries_list_t entries;
+
 	// Update fetch for N images each frame
 	static const S32 MAX_HIGH_PRIO_COUNT = gSavedSettings.getS32("TextureFetchUpdateHighPriority");         // default: 32
+    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinMediumPriority");       // default: 32
+#if 0
 	static const S32 MAX_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMaxMediumPriority");       // default: 256
-	static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinMediumPriority");       // default: 32
+	
 	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
 	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
 
@@ -1110,9 +1075,9 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	max_update_count = llmin(max_update_count, total_update_count);	
 	
 	// MAX_HIGH_PRIO_COUNT high priority entries
-	typedef std::vector<LLViewerFetchedTexture*> entries_list_t;
-	entries_list_t entries;
-	size_t update_counter = max_priority_count;
+	
+	//size_t update_counter = max_priority_count;
+    size_t update_counter = mImageList.size();
 	image_priority_list_t::iterator iter1 = mImageList.begin();
 	while(update_counter > 0)
 	{
@@ -1123,7 +1088,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	}
 	
 	// MAX_UPDATE_COUNT cycled entries
-	update_counter = max_update_count;	
+	update_counter = max_update_count;
 	if(update_counter > 0)
 	{
 		uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
@@ -1147,22 +1112,65 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	}
 	
 	S32 fetch_count = 0;
-	size_t min_update_count = llmin(MIN_UPDATE_COUNT,(S32)(entries.size()-max_priority_count));
-	S32 min_count = max_priority_count + min_update_count;
+	//size_t min_update_count = llmin(MIN_UPDATE_COUNT,(S32)(entries.size()-max_priority_count));
+	//S32 min_count = max_priority_count + min_update_count;
 	for (entries_list_t::iterator iter3 = entries.begin();
 		 iter3 != entries.end(); )
 	{
 		LLViewerFetchedTexture* imagep = *iter3++;
+        updateImageDecodePriority(imagep);
 		fetch_count += (imagep->updateFetch() ? 1 : 0);
-		if (min_count <= min_update_count)
+		//if (min_count <= min_update_count)
 		{
 			mLastFetchKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
 		}
-		if ((min_count-- <= 0) && (image_op_timer.getElapsedTimeF32() > max_time))
+		/*if ((min_count-- <= 0) && (image_op_timer.getElapsedTimeF32() > max_time))
 		{
 			break;
-		}
+		}*/
 	}
+#else
+
+    // update N textures at beginning of mImageList
+    U32 update_count = 0;
+
+    /*for (auto& imagep : mImageList)
+    {
+        if (update_count++ > MAX_HIGH_PRIO_COUNT)
+        {
+            break;
+        }
+
+        entries.push_back(imagep);
+    }*/
+
+    // WIP -- dumb code here
+    //update MIN_UPDATE_COUNT or 10% of other textures, whichever is greater
+    //update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/10);
+    //update_count = llmin(update_count, (U32) mUUIDMap.size());
+    update_count -= mUUIDMap.size();
+
+    entries.reserve(update_count);
+    //uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
+    //while (update_count-- > 0)
+    for (auto iter2 = mUUIDMap.begin(); iter2 != mUUIDMap.end(); ++iter2)
+    {
+        entries.push_back(iter2->second);
+    }
+
+    for (auto* imagep : entries)
+    {
+        updateImageDecodePriority(imagep);
+        imagep->updateFetch();
+    }
+
+    if (entries.size() > 0)
+    {
+        LLViewerFetchedTexture* imagep = *entries.rbegin();
+        mLastFetchKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
+    }
+
+#endif
 	return image_op_timer.getElapsedTimeF32();
 }
 
@@ -1206,8 +1214,6 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	{
 		LLViewerFetchedTexture* imagep = *iter;
 		imagep->processTextureStats();
-		F32 decode_priority = imagep->calcDecodePriority();
-		imagep->setDecodePriority(decode_priority);
 		addImageToList(imagep);
 	}
 	image_list.clear();
@@ -1346,69 +1352,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 	return compressedImage;
 }
 
-// Returns min setting for TextureMemory (in MB)
-S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	U32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
-	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > U32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
-}
-
-//static
-// Returns max setting for TextureMemory (in MB)
-S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	S32Megabytes max_texmem;
-	if (gGLManager.mVRAM != 0)
-	{
-		// Treat any card with < 32 MB (shudder) as having 32 MB
-		//  - it's going to be swapping constantly regardless
-		S32Megabytes max_vram(gGLManager.mVRAM);
-
-		if(gGLManager.mIsAMD)
-		{
-			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
-			max_vram = max_vram * 0.75f; 
-		}
-
-		max_vram = llmax(max_vram, getMinVideoRamSetting());
-		max_texmem = max_vram;
-		if (!get_recommended)
-			max_texmem *= 2;
-	}
-	else
-	{
-		if (!get_recommended)
-		{
-			max_texmem = (S32Megabytes)512;
-		}
-		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
-		{
-			max_texmem = (S32Megabytes)512;
-		}
-		else
-		{
-			max_texmem = (S32Megabytes)128;
-		}
-	}
-
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB(); // In MB
-	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
-	if (get_recommended)
-		max_texmem = llmin(max_texmem, system_ram/2);
-	else
-		max_texmem = llmin(max_texmem, system_ram);
-		
-    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
-
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
-	
-	return max_texmem;
-}
-
 bool LLViewerTextureList::isPrioRequestsFetched()
 {
 	static LLCachedControl<F32> prio_threshold(gSavedSettings, "TextureFetchUpdatePriorityThreshold", 0.0f);
@@ -1420,7 +1363,7 @@ bool LLViewerTextureList::isPrioRequestsFetched()
 		iter != gTextureList.mImageList.end(); )
 	{
 		LLPointer<LLViewerFetchedTexture> imagep = *iter++;
-		if (imagep->getDecodePriority() > prio_threshold)
+		if (imagep->getMaxVirtualSize() > prio_threshold)
 		{
 			if (imagep->hasFetcher() || imagep->isFetching())
 			{
@@ -1434,66 +1377,6 @@ bool LLViewerTextureList::isPrioRequestsFetched()
 	}
 
 	return true;
-}
-
-const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
-const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
-void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
-{
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	// Initialize the image pipeline VRAM settings
-	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
-	if (mem == (S32Bytes)0)
-	{
-		mem = cur_mem > (S32Bytes)0 ? cur_mem : default_mem;
-	}
-	else if (mem < (S32Bytes)0)
-	{
-		mem = default_mem;
-	}
-
-	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
-	if (mem != cur_mem)
-	{
-		gSavedSettings.setS32("TextureMemory", mem.value());
-		return; //listener will re-enter this function
-	}
-
-	if (gGLManager.mVRAM == 0)
-	{
-		LL_WARNS() << "VRAM amount not detected, defaulting to " << mem << " MB" << LL_ENDL;
-	}
-
-	// TODO: set available resident texture mem based on use by other subsystems
-	// currently max(12MB, VRAM/4) assumed...
-	
-	S32Megabytes vb_mem = mem;
-	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
-	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
-	
-	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
-	if (mMaxResidentTexMemInMegaBytes > (S32Megabytes)640)
-	{
-		mMaxTotalTextureMemInMegaBytes -= (mMaxResidentTexMemInMegaBytes / 4);
-	}
-
-	//system mem
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryKB();
-
-	//minimum memory reserved for non-texture use.
-	//if system_raw >= 1GB, reserve at least 512MB for non-texture use;
-	//otherwise reserve half of the system_ram for non-texture use.
-	S32Megabytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE) ; 
-
-	if (mMaxTotalTextureMemInMegaBytes > system_ram - min_non_texture_mem)
-	{
-		mMaxTotalTextureMemInMegaBytes = system_ram - min_non_texture_mem ;
-	}
-	
-	LL_INFOS() << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
-	LL_INFOS() << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

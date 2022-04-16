@@ -194,14 +194,14 @@ private:
 public:
     static bool isMemoryForTextureLow();
 protected:
+    friend class LLViewerTextureList;
 	LLUUID mID;
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
 
 	F32 mSelectedTime;				// time texture was last selected
 	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
-	mutable S32  mMaxVirtualSizeResetCounter ;
+	mutable S32  mMaxVirtualSizeResetCounter;
 	mutable S32  mMaxVirtualSizeResetInterval;
-	mutable F32 mAdditionalDecodePriority;  // priority add to mDecodePriority.
 	LLFrameTimer mLastReferencedTimer;	
 
 	ll_face_list_t    mFaceList[LLRender::NUM_TEXTURE_CHANNELS]; //reverse pointer pointing to the faces using this image as texture
@@ -281,7 +281,6 @@ public:
 	LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps = TRUE);
 
 public:
-	static F32 maxDecodePriority();
 	
 	struct Compare
 	{
@@ -290,9 +289,10 @@ public:
 		{
 			const LLViewerFetchedTexture* lhsp = (const LLViewerFetchedTexture*)lhs;
 			const LLViewerFetchedTexture* rhsp = (const LLViewerFetchedTexture*)rhs;
+            
 			// greater priority is "less"
-			const F32 lpriority = lhsp->getDecodePriority();
-			const F32 rpriority = rhsp->getDecodePriority();
+			const F32 lpriority = lhsp->mMaxVirtualSize;
+			const F32 rpriority = rhsp->mMaxVirtualSize;
 			if (lpriority > rpriority) // higher priority
 				return true;
 			if (lpriority < rpriority)
@@ -331,22 +331,12 @@ public:
 	void destroyTexture() ;
 
 	virtual void processTextureStats() ;
-	F32  calcDecodePriority() ;
 
 	BOOL needsAux() const { return mNeedsAux; }
 
 	// Host we think might have this image, used for baked av textures.
 	void setTargetHost(LLHost host)			{ mTargetHost = host; }
 	LLHost getTargetHost() const			{ return mTargetHost; }
-	
-	// Set the decode priority for this image...
-	// DON'T CALL THIS UNLESS YOU KNOW WHAT YOU'RE DOING, it can mess up
-	// the priority list, and cause horrible things to happen.
-	void setDecodePriority(F32 priority = -1.0f);
-	F32 getDecodePriority() const { return mDecodePriority; };
-	F32 getAdditionalDecodePriority() const { return mAdditionalDecodePriority; };
-
-	void setAdditionalDecodePriority(F32 priority) ;
 	
 	void updateVirtualSize() ;
 
@@ -366,6 +356,10 @@ public:
 	// size of the image.  Used for UI textures to not decode, even if we have
 	// more data.
 	/*virtual*/ void setKnownDrawSize(S32 width, S32 height);
+
+    // Set the debug text of all Viewer Objects associated with this texture
+    // to the specified text
+    void setDebugText(const std::string& text);
 
 	void setIsMissingAsset(BOOL is_missing = true);
 	/*virtual*/ BOOL isMissingAsset() const { return mIsMissingAsset; }
@@ -468,11 +462,11 @@ protected:
 	S32 mRequestedDiscardLevel;
 	F32 mRequestedDownloadPriority;
 	S32 mFetchState;
+    S32 mLastFetchState = -1; // DEBUG
 	U32 mFetchPriority;
 	F32 mDownloadProgress;
 	F32 mFetchDeltaTime;
 	F32 mRequestDeltaTime;
-	F32 mDecodePriority;			// The priority for decoding this image.
 	S32	mMinDiscardLevel;
 	S8  mDesiredDiscardLevel;			// The discard level we'd LIKE to have - if we have it and there's space	
 	S8  mMinDesiredDiscardLevel;	// The minimum discard level we'd like to have
@@ -530,6 +524,7 @@ protected:
 	BOOL   mIsFetched ; //is loaded from remote or from cache, not generated locally.
 
 public:
+    static F32 sMaxVirtualSize; //maximum possible value of mMaxVirtualSize
 	static LLPointer<LLViewerFetchedTexture> sMissingAssetImagep;	// Texture to show for an image asset that is not in the database
 	static LLPointer<LLViewerFetchedTexture> sWhiteImagep;	// Texture to show NOTHING (whiteness)
 	static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.

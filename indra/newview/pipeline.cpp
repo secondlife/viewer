@@ -3776,25 +3776,47 @@ void LLPipeline::postSort(LLCamera& camera)
 			group->rebuildGeom();
 		}
 
-		for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
-		{
-			LLSpatialGroup::drawmap_elem_t& src_vec = j->second;	
-			if (!hasRenderType(j->first))
-			{
-				continue;
-			}
-			
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
-			{
+        for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
+        {
+            LLSpatialGroup::drawmap_elem_t& src_vec = j->second;
+            if (!hasRenderType(j->first))
+            {
+                continue;
+            }
+
+            // DEBUG -- force a texture virtual size update every frame
+            /*if (group->getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("plps - update vsize");
+                auto& entries = group->getData();
+                for (auto& entry : entries)
+                {
+                    if (entry)
+                    {
+                        auto* data = entry->getDrawable();
+                        if (data)
+                        {
+                            LLVOVolume* volume = ((LLDrawable*)data)->getVOVolume();
+                            if (volume)
+                            {
+                                volume->updateTextureVirtualSize(true);
+                            }
+                        }
+                    }
+                }
+            }*/
+
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
+            {
                 LLDrawInfo* info = *k;
-				
-				sCull->pushDrawInfo(j->first, info);
+
+                sCull->pushDrawInfo(j->first, info);
                 if (!sShadowRender && !sReflectionRender)
                 {
                     touchTextures(info);
                     addTrianglesDrawn(info->mCount, info->mDrawMode);
                 }
-			}
+            }
 		}
 
 		if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))

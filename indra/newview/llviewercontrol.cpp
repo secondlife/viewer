@@ -341,12 +341,6 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool handleVideoMemoryChanged(const LLSD& newvalue)
-{
-	gTextureList.updateMaxResidentTexMem(S32Megabytes(newvalue.asInteger()));
-	return true;
-}
-
 static bool handleChatFontSizeChanged(const LLSD& newvalue)
 {
 	if(gConsole)
@@ -697,7 +691,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
-	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&handleChatFontSizeChanged, _2));
 	gSavedSettings.getControl("ChatPersistTime")->getSignal()->connect(boost::bind(&handleChatPersistTimeChanged, _2));
 	gSavedSettings.getControl("ConsoleMaxLines")->getSignal()->connect(boost::bind(&handleConsoleMaxLinesChanged, _2));

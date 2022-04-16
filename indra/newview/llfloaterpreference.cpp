@@ -1275,12 +1275,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	shadow_text->setEnabled(enabled);
 
 	// Hardware settings
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
-
+	
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
 	{

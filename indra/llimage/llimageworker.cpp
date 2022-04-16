@@ -49,33 +49,22 @@ LLImageDecodeThread::~LLImageDecodeThread()
 S32 LLImageDecodeThread::update(F32 max_time_ms)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	LLMutexLock lock(mCreationMutex);
-	for (creation_list_t::iterator iter = mCreationList.begin();
-		 iter != mCreationList.end(); ++iter)
-	{
-		creation_info& info = *iter;
-		ImageRequest* req = new ImageRequest(info.handle, info.image,
-						     info.priority, info.discard, info.needs_aux,
-						     info.responder);
-
-		bool res = addRequest(req);
-		if (!res)
-		{
-			LL_ERRS() << "request added after LLLFSThread::cleanupClass()" << LL_ENDL;
-		}
-	}
-	mCreationList.clear();
 	S32 res = LLQueuedThread::update(max_time_ms);
 	return res;
 }
 
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted* image, 
-	U32 priority, S32 discard, BOOL needs_aux, Responder* responder)
+	S32 discard, BOOL needs_aux, Responder* responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	LLMutexLock lock(mCreationMutex);
 	handle_t handle = generateHandle();
-	mCreationList.push_back(creation_info(handle, image, priority, discard, needs_aux, responder));
+
+    ImageRequest* req = new ImageRequest(handle, image,
+        discard, needs_aux,
+        responder);
+
+    addRequest(req);
+
 	return handle;
 }
 
@@ -84,8 +73,7 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted*
 S32 LLImageDecodeThread::tut_size()
 {
 	LLMutexLock lock(mCreationMutex);
-	S32 res = mCreationList.size();
-	return res;
+	return 0;
 }
 
 LLImageDecodeThread::Responder::~Responder()
@@ -95,9 +83,9 @@ LLImageDecodeThread::Responder::~Responder()
 //----------------------------------------------------------------------------
 
 LLImageDecodeThread::ImageRequest::ImageRequest(handle_t handle, LLImageFormatted* image, 
-												U32 priority, S32 discard, BOOL needs_aux,
+												S32 discard, BOOL needs_aux,
 												LLImageDecodeThread::Responder* responder)
-	: LLQueuedThread::QueuedRequest(handle, priority, FLAG_AUTO_COMPLETE),
+	: LLQueuedThread::QueuedRequest(handle, FLAG_AUTO_COMPLETE),
 	  mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),
@@ -121,7 +109,7 @@ LLImageDecodeThread::ImageRequest::~ImageRequest()
 bool LLImageDecodeThread::ImageRequest::processRequest()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	const F32 decode_time_slice = .1f;
+	const F32 decode_time_slice = 0.f; //disable time slicing
 	bool done = true;
 	if (!mDecodedRaw && mFormattedImage.notNull())
 	{

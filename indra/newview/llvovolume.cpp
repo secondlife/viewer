@@ -668,12 +668,13 @@ void LLVOVolume::animateTextures()
 
 void LLVOVolume::updateTextures()
 {
-	const F32 TEXTURE_AREA_REFRESH_TIME = 5.f; // seconds
-	if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+	//const F32 TEXTURE_AREA_REFRESH_TIME = 1.f; // seconds
+	//if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
 	{
 		updateTextureVirtualSize();
 
-		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
+		/*if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
 			if (group && (group->mVertexBuffer.notNull() || !group->mBufferMap.empty() || !group->mDrawMap.empty()))
@@ -684,9 +685,7 @@ void LLVOVolume::updateTextures()
 				//it becomes visible
 				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 			}
-		}
-
-
+		}*/
     }
 }
 
@@ -760,6 +759,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	const S32 num_faces = mDrawable->getNumFaces();
 	F32 min_vsize=999999999.f, max_vsize=0.f;
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
+    std::stringstream debug_text;
 	for (S32 i = 0; i < num_faces; i++)
 	{
 		LLFace* face = mDrawable->getFace(i);
@@ -786,10 +786,14 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		else
 		{
 			vsize = face->getTextureVirtualSize();
+            imagep->addTextureStats(vsize);
 		}
 
-		mPixelArea = llmax(mPixelArea, face->getPixelArea());		
+		mPixelArea = llmax(mPixelArea, face->getPixelArea());
 
+        // if the face has gotten small enough to turn off texture animation and texture
+        // animation is running, rebuild the render batch for this face to turn off
+        // texture animation
 		if (face->mTextureMatrix != NULL)
 		{
 			if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
@@ -809,10 +813,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
 			{
-				F32 pri = img->getDecodePriority();
+                debug_text << img->getDiscardLevel() << ":" << img->getDesiredDiscardLevel() << ":" << img->getWidth() << ":" << (S32) sqrtf(vsize) << ":" << (S32) sqrtf(img->getMaxVirtualSize()) << "\n";
+				/*F32 pri = img->getDecodePriority();
 				pri = llmax(pri, 0.0f);
 				if (pri < min_vsize) min_vsize = pri;
-				if (pri > max_vsize) max_vsize = pri;
+				if (pri > max_vsize) max_vsize = pri;*/
 			}
 		}
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
@@ -844,14 +849,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 				F32 lodf = ((F32)(lod + 1.0f)/4.f);
 				F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
 				mSculptTexture->addTextureStats(2.f * tex_size * tex_size, FALSE);
-			
-				//if the sculpty very close to the view point, load first
-				{				
-					LLVector3 lookAt = getPositionAgent() - camera->getOrigin();
-					F32 dist = lookAt.normVec() ;
-					F32 cos_angle_to_view_dir = lookAt * camera->getXAxis() ;				
-					mSculptTexture->setAdditionalDecodePriority(0.8f * LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist)) ;
-				}
 			}
 	
 			S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
@@ -895,7 +892,8 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	}
  	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
  	{
- 		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+ 		//setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+        setDebugText(debug_text.str());
  	}
 	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
 	{

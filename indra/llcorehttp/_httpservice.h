@@ -147,15 +147,6 @@ public:
 	void shutdown();
 
 	/// Try to find the given request handle on any of the request
-	/// queues and reset the priority (and queue position) of the
-	/// request if found.
-	///
-	/// @return			True if the request was found somewhere.
-	///
-	/// Threading:  callable by worker thread.
-	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
-	
-	/// Try to find the given request handle on any of the request
 	/// queues and cancel the operation.
 	///
 	/// @return			True if the request was found and canceled.

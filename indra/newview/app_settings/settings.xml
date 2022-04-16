@@ -3913,7 +3913,7 @@
         <key>Type</key>
         <string>F32</string>
         <key>Value</key>
-        <real>0.1</real>
+        <real>1.0</real>
     </map>
     <key>QueueInventoryFetchTimeout</key>
     <map>
@@ -10368,17 +10368,6 @@
       <key>Value</key>
       <real>12.0</real>
     </map>
-    <key>RenderTextureMemoryMultiple</key>
-    <map>
-      <key>Comment</key>
-      <string>Multiple of texture memory value to use (should fit: 0 &lt; value &lt;= 1.0)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>RenderTrackerBeacon</key>
     <map>
       <key>Comment</key>
@@ -12456,7 +12445,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1.0</real>
+      <real>2.0</real>
     </map>
     <key>TextureCameraMotionThreshold</key>
     <map>
@@ -12683,20 +12672,9 @@
       <key>Comment</key>
       <string>If TRUE, always load textures at full resolution (discard = 0)</string>
       <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>TextureMemory</key>
-    <map>
-      <key>Comment</key>
-      <string>Amount of memory to use for textures in MB (0 = autodetect)</string>
-      <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>

@@ -5687,15 +5687,6 @@ void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel
 	mMinPixelArea = llmin(pixel_area, mMinPixelArea);	
 	imagep->addTextureStats(pixel_area / texel_area_ratio);
 	imagep->setBoostLevel(boost_level);
-	
-	if(boost_level != LLGLTexture::BOOST_AVATAR_BAKED_SELF)
-	{
-		imagep->setAdditionalDecodePriority(ADDITIONAL_PRI) ;
-	}
-	else
-	{
-		imagep->setAdditionalDecodePriority(SELF_ADDITIONAL_PRI) ;
-	}
 }
 
 //virtual	
