@@ -1639,14 +1639,6 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if (TARGET ll::openal )
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
-endif ()
-
-if (TARGET ll::fmodstudio)
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
-endif ()
-
 if (HAVOK OR HAVOK_TPV)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_HAVOK")
 endif (HAVOK OR HAVOK_TPV)
@@ -1749,20 +1741,20 @@ if (WINDOWS)
             )
     endif (ADDRESS_SIZE EQUAL 64)
 
-    if (FMODSTUDIO)
+    if (TARGET ll::fmodstudio)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
            ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
           )
-    endif (FMODSTUDIO)
+    endif ()
 
-    if (OPENAL)
+    if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/OpenAL32.dll
            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/alut.dll
           )
-    endif (OPENAL)
+    endif ()
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
@@ -1773,8 +1765,8 @@ if (WINDOWS)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${FMODSTUDIO}"
-        "--openal=${OPENAL}"
+        "--fmodstudio=${USE_FMODSTUDIO}"
+        "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
@@ -1835,8 +1827,8 @@ if (WINDOWS)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodstudio=${FMODSTUDIO}"
-          "--openal=${OPENAL}"
+          "--fmodstudio=${USE_FMODSTUDIO}"
+          "--openal=${USE_OPENAL}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"
@@ -1963,8 +1955,8 @@ if (LINUX)
         --arch=${ARCH}
         --artwork=${ARTWORK_DIR}
         "--bugsplat=${BUGSPLAT_DB}"
-        "--fmodstudio=${FMODSTUDIO}"
-        "--openal=${OPENAL}"
+        "--fmodstudio=${USE_FMODSTUDIO}"
+        "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
         --buildtype=${CMAKE_BUILD_TYPE}
         "--channel=${VIEWER_CHANNEL}"
@@ -1991,8 +1983,8 @@ if (LINUX)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${FMODSTUDIO}"
-      "--openal=${OPENAL}"
+      "--fmodstudio=${USE_FMODSTUDIO}"
+      "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       "--channel=${VIEWER_CHANNEL}"
@@ -2069,8 +2061,8 @@ if (DARWIN)
       --arch=${ARCH}
       --artwork=${ARTWORK_DIR}
       "--bugsplat=${BUGSPLAT_DB}"
-      "--fmodstudio=${FMODSTUDIO}"
-      "--openal=${OPENAL}"
+      "--fmodstudio=${USE_FMODSTUDIO}"
+      "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
       --buildtype=${CMAKE_BUILD_TYPE}
       --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
@@ -2104,8 +2096,8 @@ if (DARWIN)
           --arch=${ARCH}
           --artwork=${ARTWORK_DIR}
           "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodstudio=${FMODSTUDIO}"
-          "--openal=${OPENAL}"
+          "--fmodstudio=${USE_FMODSTUDIO}"
+          "--openal=${USE_OPENAL}"
           --build=${CMAKE_CURRENT_BINARY_DIR}
           --buildtype=${CMAKE_BUILD_TYPE}
           "--channel=${VIEWER_CHANNEL}"

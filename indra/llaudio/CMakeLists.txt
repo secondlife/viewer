@@ -25,7 +25,7 @@ set(llaudio_HEADER_FILES
     llwindgen.h
     )
 
-if (FMODSTUDIO)
+if (TARGET ll::fmodstudio)
     list(APPEND llaudio_SOURCE_FILES
          llaudioengine_fmodstudio.cpp
          lllistener_fmodstudio.cpp
@@ -37,9 +37,9 @@ if (FMODSTUDIO)
          lllistener_fmodstudio.h
          llstreamingaudio_fmodstudio.h
          )
-endif (FMODSTUDIO)
+endif ()
 
-if (OPENAL)
+if (TARGET ll::openal)
   list(APPEND llaudio_SOURCE_FILES
     llaudioengine_openal.cpp
     lllistener_openal.cpp
@@ -49,7 +49,7 @@ if (OPENAL)
     llaudioengine_openal.h
     lllistener_openal.h
     )
-endif (OPENAL)
+endif ()
 
 set_source_files_properties(${llaudio_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)

@@ -4,16 +4,17 @@ include(Prebuilt)
 
 include_guard()
 
-if (LINUX)
-  set(OPENAL ON CACHE BOOL "Enable OpenAL")
-else (LINUX)
-  set(OPENAL OFF CACHE BOOL "Enable OpenAL")
-endif (LINUX)
+# ND: To streamline arguments passed, switch from OPENAL to USE_OPENAL
+# To not break all old build scripts convert old arguments but warn about it
+if(OPENAL)
+  message( WARNING "Use of the OPENAL argument is deprecated, please switch to USE_OPENAL")
+  set(USE_OPENAL ${OPENAL})
+endif()
 
-if (OPENAL)
+if (USE_OPENAL)
   create_target( ll::openal )
   set_target_include_dirs( ll::openal "${LIBS_PREBUILT_DIR}/include/AL")
-
+  target_compile_definitions( ll::openal INTERFACE LL_OPENAL=1)
   use_prebuilt_binary(openal)
 
   if(WINDOWS)
@@ -29,4 +30,4 @@ if (OPENAL)
   else()
     message(FATAL_ERROR "OpenAL is not available for this platform")
   endif()
-endif (OPENAL)
+endif ()

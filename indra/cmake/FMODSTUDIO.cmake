@@ -6,11 +6,19 @@ include_guard()
 # When building using proprietary binaries though (i.e. having access to LL private servers),
 # we always build with FMODSTUDIO.
 if (INSTALL_PROPRIETARY)
-  set(FMODSTUDIO ON CACHE BOOL "Using FMODSTUDIO sound library.")
+  set(USE_FMODSTUDIO ON CACHE BOOL "Using FMODSTUDIO sound library.")
 endif (INSTALL_PROPRIETARY)
 
-if (FMODSTUDIO)
+# ND: To streamline arguments passed, switch from FMODSTUDIO to USE_FMODSTUDIO
+# To not break all old build scripts convert old arguments but warn about it
+if(FMODSTUDIO)
+  message( WARNING "Use of the FMODSTUDIO argument is deprecated, please switch to USE_FMODSTUDIO")
+  set(USE_FMODSTUDIO ${FMODSTUDIO})
+endif()
+
+if (USE_FMODSTUDIO)
   create_target( ll::fmodstudio )
+  target_compile_definitions( ll::fmodstudio INTERFACE LL_FMODSTUDIO=1)
 
   if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
     # If the path have been specified in the arguments, use that
@@ -35,6 +43,6 @@ if (FMODSTUDIO)
     set_target_include_dirs(ll::fmodstudio ${LIBS_PREBUILT_DIR}/include/fmodstudio)
   endif (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
 else()
-  set( FMODSTUDIO "OFF")
-endif (FMODSTUDIO)
+  set( USE_FMODSTUDIO "OFF")
+endif ()
 

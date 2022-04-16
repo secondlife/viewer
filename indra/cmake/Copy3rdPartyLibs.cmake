@@ -6,6 +6,8 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+include(OpenAL)
+include(FMODSTUDIO)
 
 # When we copy our dependent libraries, we almost always want to copy them to
 # both the Release and the RelWithDebInfo staging directories. This has
@@ -91,14 +93,14 @@ if(WINDOWS)
       endif(ADDRESS_SIZE EQUAL 32)
     endif (USE_BUGSPLAT)
 
-    if (FMODSTUDIO)
+    if (TARGET ll::fmodstudio)
         set(debug_files ${debug_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
-    endif (FMODSTUDIO)
+    endif ()
 
-    if (OPENAL)
+    if (TARGET ll::openal)
         list(APPEND release_files openal32.dll alut.dll)
-    endif (OPENAL)
+    endif ()
 
     #*******************************
     # Copy MS C runtime dlls, required for packaging.
@@ -183,10 +185,10 @@ elseif(DARWIN)
         liburiparser.1.0.27.dylib
        )
 
-    if (FMODSTUDIO)
+    if (TARGET ll::fmodstudio)
       set(debug_files ${debug_files} libfmodL.dylib)
       set(release_files ${release_files} libfmod.dylib)
-    endif (FMODSTUDIO)
+    endif ()
 
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -233,10 +235,10 @@ elseif(LINUX)
         libfontconfig.so.1
        )
 
-    if (FMODSTUDIO)
+    if (TARGET ll::fmodstudio)
       set(debug_files ${debug_files} "libfmodL.so")
       set(release_files ${release_files} "libfmod.so")
-    endif (FMODSTUDIO)
+    endif ()
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
