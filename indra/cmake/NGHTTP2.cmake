@@ -1,3 +1,4 @@
+include(Linking)
 include(Prebuilt)
 
 include_guard()
