@@ -260,13 +260,16 @@ endif(WINDOWS)
 # Curiously, slvoice_files are only copied to SHARED_LIB_STAGING_DIR_RELEASE.
 # It's unclear whether this is oversight or intentional, but anyway leave the
 # single copy_if_different command rather than using to_staging_dirs.
-copy_if_different(
-    ${slvoice_src_dir}
-    "${SHARED_LIB_STAGING_DIR_RELEASE}"
-    out_targets
-    ${slvoice_files}
+
+if( slvoice_src_dir )
+    copy_if_different(
+            ${slvoice_src_dir}
+            "${SHARED_LIB_STAGING_DIR_RELEASE}"
+            out_targets
+            ${slvoice_files}
     )
-list(APPEND third_party_targets ${out_targets})
+    list(APPEND third_party_targets ${out_targets})
+endif()
 
 to_staging_dirs(
     ${vivox_lib_dir}
