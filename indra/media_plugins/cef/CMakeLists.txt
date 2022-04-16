@@ -63,7 +63,6 @@ add_library(media_plugin_cef
 target_link_libraries(media_plugin_cef
         media_plugin_base
         cef::cef
-        ${media_plugin_cef_LINK_LIBRARIES}
 )
 
 if (WINDOWS)

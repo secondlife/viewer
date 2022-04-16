@@ -20,10 +20,9 @@ if (DARWIN)
   )
 endif (DARWIN)
 
-set_source_files_properties(${SLPlugin_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 if (SLPlugin_HEADER_FILES)
+  set_source_files_properties(${SLPlugin_HEADER_FILES}
+          PROPERTIES HEADER_FILE_ONLY TRUE)
   list(APPEND SLPlugin_SOURCE_FILES ${SLPlugin_HEADER_FILES})
 endif (SLPlugin_HEADER_FILES)
 
@@ -46,11 +45,11 @@ set_target_properties(SLPlugin
 endif ()
 
 target_link_libraries(SLPlugin
-      llplugin
-      llmessage
-      llcommon
-  ${PLUGIN_API_WINDOWS_LIBRARIES}
-)
+        llplugin
+        llmessage
+        llcommon
+        ll::pluginlibraries
+        )
 
 if (DARWIN)
   # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)

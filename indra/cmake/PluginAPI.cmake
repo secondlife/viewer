@@ -1,7 +1,9 @@
 # -*- cmake -*-
 
+create_target( ll::pluginlibraries)
+
 if (WINDOWS)
-  set(PLUGIN_API_WINDOWS_LIBRARIES
+  set_target_libraries( ll::pluginlibraries
       wsock32
       ws2_32
       psapi
@@ -9,8 +11,6 @@ if (WINDOWS)
       advapi32
       user32
       )
-else (WINDOWS)
-  set(PLUGIN_API_WINDOWS_LIBRARIES "")
 endif (WINDOWS)
 
 
