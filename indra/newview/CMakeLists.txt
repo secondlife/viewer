@@ -1639,22 +1639,24 @@ if (WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if (OPENAL)
+if (TARGET ll::openal )
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
-endif (OPENAL)
+endif ()
 
-if (FMODSTUDIO)
+if (TARGET ll::fmodstudio)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
-endif (FMODSTUDIO)
-
-set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+endif ()
 
 if (HAVOK OR HAVOK_TPV)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_HAVOK")
 endif (HAVOK OR HAVOK_TPV)
 
-# progress view disables/enables icons based on available packages
-set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+if( DEFINED LLSTARTUP_COMPILE_FLAGS )
+   # progress view disables/enables icons based on available packages
+   set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+
+   set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+endif()
 
 if (GLODLIB)
   set_source_files_properties(llfloatermodelpreview.cpp PROPERTIES COMPILE_FLAGS "-DLL_GLOD")
