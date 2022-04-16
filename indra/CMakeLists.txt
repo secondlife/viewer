@@ -13,6 +13,7 @@ set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
 project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CXX_STANDARD 14)
 
 include(Variables)
 include(BuildVersion)
