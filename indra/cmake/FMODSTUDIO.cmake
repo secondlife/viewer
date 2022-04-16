@@ -34,5 +34,7 @@ if (FMODSTUDIO)
 
     set_target_include_dirs(ll::fmodstudio ${LIBS_PREBUILT_DIR}/include/fmodstudio)
   endif (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
+else()
+  set( FMODSTUDIO "OFF")
 endif (FMODSTUDIO)
 

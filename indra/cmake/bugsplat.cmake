@@ -33,5 +33,7 @@ if (USE_BUGSPLAT)
 
     set_target_include_dirs( ll::bugsplat ${LIBS_PREBUILT_DIR}/include/bugsplat)
     set_property( TARGET ll::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
+else()
+    set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")
 endif (USE_BUGSPLAT)
 
