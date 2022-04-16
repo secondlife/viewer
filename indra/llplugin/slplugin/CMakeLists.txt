@@ -5,12 +5,6 @@ include(LLCommon)
 include(Linking)
 include(PluginAPI)
 
-if (DARWIN)
-    include(CMakeFindFrameworks)
-    find_library(COCOA_LIBRARY Cocoa)
-endif (DARWIN)
-
-
 ### SLPlugin
 
 set(SLPlugin_SOURCE_FILES
@@ -60,8 +54,6 @@ target_link_libraries(SLPlugin
 )
 
 if (DARWIN)
-  # Mac version needs to link against Carbon
-  target_link_libraries(SLPlugin ${COCOA_LIBRARY})
   # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
   add_custom_command(
     TARGET SLPlugin POST_BUILD

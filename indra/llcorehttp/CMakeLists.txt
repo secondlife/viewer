@@ -122,7 +122,6 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
   #    set(TEST_DEBUG on)
   set(test_libs
           llcorehttp
-          ${WINDOWS_LIBRARIES}
           llmessage
           llcommon
       )
@@ -188,7 +187,6 @@ endif (DARWIN)
   set(example_libs
       ${LEGACY_STDIO_LIBS}
           llcorehttp
-          ${WINDOWS_LIBRARIES}
           llmessage
           llcommon
       )

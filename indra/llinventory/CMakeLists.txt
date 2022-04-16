@@ -71,7 +71,7 @@ if (LL_TESTS)
     LL_ADD_PROJECT_UNIT_TESTS(llinventory "${llinventory_TEST_SOURCE_FILES}")
 
     #set(TEST_DEBUG on)
-    set(test_libs llinventory llmath llcorehttp llfilesystem ${WINDOWS_LIBRARIES})
+    set(test_libs llinventory llmath llcorehttp llfilesystem )
     LL_ADD_INTEGRATION_TEST(inventorymisc "" "${test_libs}")
     LL_ADD_INTEGRATION_TEST(llparcel "" "${test_libs}")
 endif (LL_TESTS)

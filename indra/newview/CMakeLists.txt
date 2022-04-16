@@ -1372,19 +1372,6 @@ if (DARWIN)
     COMPILE_FLAGS "-fmodules -fcxx-modules -Wno-nullability-completeness"
     )
 
-  find_library(AGL_LIBRARY AGL)
-  find_library(APPKIT_LIBRARY AppKit)
-  find_library(COCOA_LIBRARY Cocoa)
-  find_library(IOKIT_LIBRARY IOKit)
-  find_library(COREAUDIO_LIBRARY CoreAudio)
-
-  set(viewer_LIBRARIES
-    ${COCOA_LIBRARY}
-    ${AGL_LIBRARY}
-    ${IOKIT_LIBRARY}
-    ${COREAUDIO_LIBRARY}
-    )
-
   if (USE_BUGSPLAT)
     list(APPEND viewer_LIBRARIES
       bugsplat::bugsplat
@@ -1558,7 +1545,6 @@ if (WINDOWS)
 # see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
     set(viewer_LIBRARIES
         opengl32
-        ${WINDOWS_LIBRARIES}
         comdlg32
         dxguid
         kernel32
@@ -1972,7 +1958,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         ll::ndof
         ${SMARTHEAP_LIBRARY}
         ${UI_LIBRARIES}
-        ${WINDOWS_LIBRARIES}
         lllogin
         llprimitive
         llappearance
@@ -2358,7 +2343,6 @@ if (LL_TESTS)
 
 
   set(test_libs
-          ${WINDOWS_LIBRARIES}
           llfilesystem
           llmath
           llcommon

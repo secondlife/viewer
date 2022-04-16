@@ -48,19 +48,6 @@ set_target_properties(llimage_libtest
     FALSE
 )
 
-# OS-specific libraries
-if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-  set(OS_LIBRARIES ${COREFOUNDATION_LIBRARY})
-elseif (WINDOWS)
-  set(OS_LIBRARIES)
-elseif (LINUX)
-  set(OS_LIBRARIES)
-else (DARWIN)
-  message(FATAL_ERROR "Unknown platform")
-endif (DARWIN)
-
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
@@ -71,7 +58,6 @@ target_link_libraries(llimage_libtest
         llimage
         llkdu
         llimagej2coj
-        ${OS_LIBRARIES}
         )
     
 if (DARWIN)

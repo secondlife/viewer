@@ -55,7 +55,6 @@ if (LL_TESTS)
             llxml
             llmath
             llcommon
-            ${WINDOWS_LIBRARIES}
             )
 
     LL_ADD_INTEGRATION_TEST(llcontrol "" "${test_libs}")

@@ -220,27 +220,14 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llmessage "${llmessage_TEST_SOURCE_FILES}")
 
   #    set(TEST_DEBUG on)
-  
-if (LINUX)
+
   set(test_libs
-          ${WINDOWS_LIBRARIES}
           llfilesystem
           llmath
           llcorehttp
           llmessage
           llcommon
-          rt
-    )
-else (LINUX)
-  set(test_libs
-          ${WINDOWS_LIBRARIES}
-          llfilesystem
-          llmath
-          llcorehttp
-          llmessage
-          llcommon
-    )
-endif(LINUX)
+          )
 
   #LL_ADD_INTEGRATION_TEST(llavatarnamecache "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llhost "" "${test_libs}")

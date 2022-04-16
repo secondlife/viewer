@@ -46,8 +46,6 @@ INCLUDE(GoogleMock)
   SET(alltest_LIBRARIES
           llcommon
           ll::googlemock
-          ${PTHREAD_LIBRARY}
-          ${WINDOWS_LIBRARIES}
           )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!

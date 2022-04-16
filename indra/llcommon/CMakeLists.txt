@@ -278,20 +278,14 @@ target_link_libraries(
         ll::expat
         ll::jsoncpp
         ll::zlib-ng
-    ${WINDOWS_LIBRARIES}
         ll::boost
     ${GOOGLE_PERFTOOLS_LIBRARIES}
         ll::uriparser
+        ll::oslibraries
     )
 
 set_target_include_dirs( llcommon ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories( llcommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
-
-if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
-  target_link_libraries(llcommon ${CARBON_LIBRARY})
-endif (DARWIN)
 
 add_dependencies(llcommon stage_third_party_libs)
 
@@ -303,10 +297,7 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(llcommon "${llcommon_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_libs llcommon
-          ${WINDOWS_LIBRARIES}
-          ll::googlemock
-          )
+  set(test_libs llcommon)
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(classic_callback "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")

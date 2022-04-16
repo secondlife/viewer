@@ -75,8 +75,6 @@ target_link_libraries(lltest
         llcommon
         llcorehttp
         ll::googlemock
-        ${WINDOWS_LIBRARIES}
-        ${DL_LIBRARY}
         )
 
 if (WINDOWS)

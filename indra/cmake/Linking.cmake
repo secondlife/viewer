@@ -55,32 +55,50 @@ endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 
-if (LINUX)
-  set(DL_LIBRARY dl)
-  set(PTHREAD_LIBRARY pthread)
-else (LINUX)
-  set(DL_LIBRARY "")
-  set(PTHREAD_LIBRARY "")
-endif (LINUX)
+create_target(ll::oslibraries)
 
-if (WINDOWS)
-  set(WINDOWS_LIBRARIES
-      advapi32
-      shell32
-      ws2_32
-      mswsock
-      psapi
-      winmm
-      netapi32
-      wldap32
-      gdi32
-      user32
-      ole32
-      dbghelp
-      )
-else (WINDOWS)
-  set(WINDOWS_LIBRARIES "")
-endif (WINDOWS)
-    
-mark_as_advanced(DL_LIBRARY PTHREAD_LIBRARY WINDOWS_LIBRARIES)
+if (LINUX)
+  set_target_libraries( ll::oslibraries
+          dl
+          pthread
+          rt)
+elseif (WINDOWS)
+  set_target_libraries( ll::oslibraries
+          advapi32
+          shell32
+          ws2_32
+          mswsock
+          psapi
+          winmm
+          netapi32
+          wldap32
+          gdi32
+          user32
+          ole32
+          dbghelp
+          legacy_stdio_definitions
+          )
+else()
+  include(CMakeFindFrameworks)
+  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
+  find_library(CARBON_LIBRARY Carbon)
+  find_library(COCOA_LIBRARY Cocoa)
+  find_library(IOKIT_LIBRARY IOKit)
+
+  find_library(AGL_LIBRARY AGL)
+  find_library(APPKIT_LIBRARY AppKit)
+  find_library(COREAUDIO_LIBRARY CoreAudio)
+  
+  set_target_libraries( ll::oslibraries
+          ${COCOA_LIBRARY}
+          ${IOKIT_LIBRARY}
+          ${COREFOUNDATION_LIBRARY}
+          ${CARBON_LIBRARY}
+          ${AGL_LIBRARY}
+          ${APPKITT_LIBRARY}
+          ${COREAUDIO_LIBRARY}
+          )
+endif()
+
+
 

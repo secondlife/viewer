@@ -57,21 +57,6 @@ list(APPEND llui_libtest_SOURCE_FILES ${llui_libtest_HEADER_FILES})
 
 add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
 
-# Link with OS-specific libraries for LLWindow dependency
-if (DARWIN)
-  find_library(COCOA_LIBRARY Cocoa)
-  find_library(IOKIT_LIBRARY IOKit)
-  set(OS_LIBRARIES ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
-elseif (WINDOWS)
-  #ll_stack_trace needs this now...
-  list(APPEND WINDOWS_LIBRARIES dbghelp)
-  set(OS_LIBRARIES ${WINDOWS_LIBRARIES})
-elseif (LINUX)
-  set(OS_LIBRARIES)
-else (DARWIN)
-  message(FATAL_ERROR "unknown platform")
-endif (DARWIN)
-
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
@@ -83,7 +68,6 @@ target_link_libraries(llui_libtest
         llimage
         llkdu
         llimagej2coj
-        ${OS_LIBRARIES}
         )
 
 if (WINDOWS)
