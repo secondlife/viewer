@@ -41,7 +41,6 @@ INCLUDE(GoogleMock)
 
   SET(alltest_INCLUDE_DIRS
           ${LIBS_OPEN_DIR}/test
-          ${GOOGLEMOCK_INCLUDE_DIRS}
           )
   SET(alltest_LIBRARIES
           llcommon
