@@ -1937,7 +1937,6 @@ endif (WINDOWS)
 # modern version.
 
 target_link_libraries(${VIEWER_BINARY_NAME}
-        ${LEGACY_STDIO_LIBS}
         llaudio
         llcharacter
         llimage

@@ -204,10 +204,8 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     )
 
   SET(libraries
-          ${LEGACY_STDIO_LIBS}
           ${library_dependencies}
           ll::googlemock
-          ${PTHREAD_LIBRARY}
           )
 
   # Add test executable build target

@@ -185,7 +185,6 @@ endif (DARWIN)
       )
 
   set(example_libs
-      ${LEGACY_STDIO_LIBS}
           llcorehttp
           llmessage
           llcommon

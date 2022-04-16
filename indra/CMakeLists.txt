@@ -17,10 +17,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(Variables)
 include(BuildVersion)
 
-set(LEGACY_STDIO_LIBS)
-if (WINDOWS)
-      set(LEGACY_STDIO_LIBS legacy_stdio_definitions)
-endif (WINDOWS)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

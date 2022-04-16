@@ -88,7 +88,7 @@ else()
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
-  
+
   set_target_libraries( ll::oslibraries
           ${COCOA_LIBRARY}
           ${IOKIT_LIBRARY}

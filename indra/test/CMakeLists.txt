@@ -65,8 +65,6 @@ if (USE_BUGSPLAT)
 endif (USE_BUGSPLAT)
 
 target_link_libraries(lltest
-        ${LEGACY_STDIO_LIBS}
-        ${LLDATABASE_LIBRARIES}
         llinventory
         llmessage
         llmath

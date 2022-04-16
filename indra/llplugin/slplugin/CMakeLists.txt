@@ -46,7 +46,6 @@ set_target_properties(SLPlugin
 endif ()
 
 target_link_libraries(SLPlugin
-      ${LEGACY_STDIO_LIBS}
       llplugin
       llmessage
       llcommon

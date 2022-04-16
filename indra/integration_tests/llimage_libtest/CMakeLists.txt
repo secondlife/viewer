@@ -51,7 +51,6 @@ set_target_properties(llimage_libtest
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
-        ${LEGACY_STDIO_LIBS}
         llcommon
         llfilesystem
         llmath

@@ -60,7 +60,6 @@ add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui_libtest
-        ${LEGACY_STDIO_LIBS}
         llui
         llinventory
         llmessage
