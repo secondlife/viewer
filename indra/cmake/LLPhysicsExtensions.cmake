@@ -32,4 +32,4 @@ else (HAVOK)
    target_link_libraries( llphysicsextensions INTERFACE llphysicsextensionsstub)
 endif (HAVOK)
 
-set_target_include_dirs(llphysicsextensions ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
+target_include_directories( llphysicsextensions  INTERFACE   ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)

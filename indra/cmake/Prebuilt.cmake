@@ -61,7 +61,3 @@ function( create_target name )
   add_library( ${name} INTERFACE IMPORTED )
 endfunction()
 
-function( set_target_include_dirs target)
-  set_property( TARGET ${target} PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${ARGN} )
-endfunction()
-

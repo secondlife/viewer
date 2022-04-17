@@ -46,7 +46,7 @@ endif(NOT ADDRESS_SIZE EQUAL 32)
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
-set_target_include_dirs(llplugin ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llplugin  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries( llplugin llcommon llmath llrender llmessage )
 add_subdirectory(slplugin)
 

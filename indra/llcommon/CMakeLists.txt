@@ -279,7 +279,7 @@ target_link_libraries(
         ll::oslibraries
     )
 
-set_target_include_dirs( llcommon ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llcommon  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories( llcommon PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
 add_dependencies(llcommon stage_third_party_libs)

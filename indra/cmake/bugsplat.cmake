@@ -33,7 +33,7 @@ if (USE_BUGSPLAT)
         message( FATAL_ERROR "You need to set BUGSPLAT_DB when setting USE_BUGSPLAT" )
     endif()
 
-    set_target_include_dirs( ll::bugsplat ${LIBS_PREBUILT_DIR}/include/bugsplat)
+    target_include_directories( ll::bugsplat SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/bugsplat)
     set_property( TARGET ll::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
 else()
     set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")

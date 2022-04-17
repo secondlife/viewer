@@ -60,7 +60,7 @@ list(APPEND llinventory_SOURCE_FILES ${llinventory_HEADER_FILES})
 add_library (llinventory ${llinventory_SOURCE_FILES})
 
 target_link_libraries( llinventory llcommon llmath llmessage llxml )
-set_target_include_dirs( llinventory ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llinventory  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 #add unit tests
 if (LL_TESTS)

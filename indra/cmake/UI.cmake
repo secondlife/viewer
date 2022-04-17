@@ -43,7 +43,7 @@ if( WINDOWS )
           )
 endif()
 
-set_target_include_dirs( ll::uilibraries
+target_include_directories( ll::uilibraries SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include
         )
 
@@ -62,7 +62,7 @@ set_target_include_dirs( ll::uilibraries
 #        pango-1.0
 #        )
 #foreach(include ${${LL_ARCH}_INCLUDES})
-#  set_target_include_dirs( ll::uilibraries
+#  target_include_directories( ll::uilibraries SYSTEM INTERFACE
 #          ${LIBS_PREBUILT_DIR}/include/${include}
 #          )
 #endforeach(include)

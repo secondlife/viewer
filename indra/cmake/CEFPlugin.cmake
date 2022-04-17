@@ -3,13 +3,13 @@ include(Linking)
 include(Prebuilt)
 
 include_guard()
-create_target( cef::cef )
+create_target( ll::cef )
 
 use_prebuilt_binary(dullahan)
-set_target_include_dirs( cef::cef ${LIBS_PREBUILT_DIR}/include/cef)
+target_include_directories( ll::cef SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/cef)
 
 if (WINDOWS)
-    target_link_libraries( cef::cef INTERFACE
+    target_link_libraries( ll::cef INTERFACE
         libcef.lib
         libcef_dll_wrapper.lib
         dullahan.lib
@@ -25,7 +25,7 @@ elseif (DARWIN)
         message(FATAL_ERROR "CEF not found")
     endif()
 
-    target_link_libraries( cef::cef INTERFACE
+    target_link_libraries( ll::cef INTERFACE
         ${ARCH_PREBUILT_DIRS_RELEASE}/libcef_dll_wrapper.a
         ${ARCH_PREBUILT_DIRS_RELEASE}/libdullahan.a
         ${APPKIT_LIBRARY}

@@ -7,7 +7,7 @@ include_guard()
 use_prebuilt_binary(googlemock)
 
 create_target( ll::googlemock )
-set_target_include_dirs( ll::googlemock
+target_include_directories( ll::googlemock SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include
         )
 
@@ -16,7 +16,7 @@ if (LINUX)
     target_link_libraries( ll::googlemock INTERFACE gmock gtest)
 elseif(WINDOWS)
     target_link_libraries( ll::googlemock INTERFACE gmock)
-    set_target_include_dirs( ll::googlemock
+    target_include_directories( ll::googlemock SYSTEM INTERFACE
             ${LIBS_PREBUILT_DIR}/include
             ${LIBS_PREBUILT_DIR}/include/gmock)
 elseif(DARWIN)

@@ -175,4 +175,4 @@ endif (llwindow_HEADER_FILES)
     )
 
 target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES} ll::sdl)
-set_target_include_dirs(llwindow ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llwindow  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})

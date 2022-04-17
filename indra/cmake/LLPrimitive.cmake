@@ -29,7 +29,7 @@ else()
 endif()
 
 create_target( ll::colladadom )
-set_target_include_dirs( ll::colladadom
+target_include_directories( ll::colladadom SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include/collada
         ${LIBS_PREBUILT_DIR}/include/collada/1.4
         )

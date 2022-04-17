@@ -43,7 +43,7 @@ if (USE_KDU)
   add_library (llkdu ${llkdu_SOURCE_FILES})
 
   target_link_libraries(llkdu ll::kdu llimage llcommon)
-  set_target_include_dirs( llkdu ${CMAKE_CURRENT_SOURCE_DIR})
+  target_include_directories( llkdu  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Add tests
   # ND: llkdu tests are very strange as they include stubs for KDU classes/methods

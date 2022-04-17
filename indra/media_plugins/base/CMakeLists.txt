@@ -35,4 +35,4 @@ add_library(media_plugin_base
         )
 
 target_link_libraries( media_plugin_base llplugin )
-set_target_include_dirs(media_plugin_base ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( media_plugin_base  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})

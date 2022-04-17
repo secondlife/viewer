@@ -53,7 +53,7 @@ set_source_files_properties(${llprimitive_HEADER_FILES}
 list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
 
 add_library (llprimitive ${llprimitive_SOURCE_FILES})
-set_target_include_dirs( llprimitive ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llprimitive  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_link_libraries(llprimitive
         llcommon

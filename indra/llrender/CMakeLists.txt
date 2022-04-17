@@ -89,7 +89,7 @@ if (BUILD_HEADLESS)
 endif (BUILD_HEADLESS)
 
 add_library (llrender ${llrender_SOURCE_FILES})
-set_target_include_dirs(llrender ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llrender  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level

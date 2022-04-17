@@ -49,7 +49,7 @@ set_source_files_properties(${llimage_HEADER_FILES}
 list(APPEND llimage_SOURCE_FILES ${llimage_HEADER_FILES})
 
 add_library (llimage ${llimage_SOURCE_FILES})
-set_target_include_dirs( llimage ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llimage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (USE_KDU)

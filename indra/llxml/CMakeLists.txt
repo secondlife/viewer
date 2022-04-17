@@ -35,7 +35,7 @@ target_link_libraries( llxml
         llcommon
         ll::expat
     )
-set_target_include_dirs( llxml ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llxml  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 # tests

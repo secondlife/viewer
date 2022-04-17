@@ -57,7 +57,7 @@ add_library (llfilesystem ${llfilesystem_SOURCE_FILES})
 target_link_libraries(llfilesystem
         llcommon
     )
-set_target_include_dirs( llfilesystem ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llfilesystem  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Add tests
 if (LL_TESTS)

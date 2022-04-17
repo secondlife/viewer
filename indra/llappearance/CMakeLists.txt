@@ -71,11 +71,11 @@ target_link_libraries(llappearance
         llcorehttp
         llcommon
     )
-set_target_include_dirs( llappearance ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llappearance  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (BUILD_HEADLESS)
   add_library (llappearanceheadless ${llappearance_SOURCE_FILES})
-  set_target_include_dirs( llappearanceheadless ${CMAKE_CURRENT_SOURCE_DIR})
+  target_include_directories( llappearanceheadless  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
   target_link_libraries(llappearanceheadless
           llcharacter

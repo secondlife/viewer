@@ -252,7 +252,7 @@ set_source_files_properties(llurlentry.cpp
 list(APPEND llui_SOURCE_FILES ${llui_HEADER_FILES})
 
 add_library (llui ${llui_SOURCE_FILES})
-set_target_include_dirs( llui ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llui  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 target_link_libraries(llui

@@ -91,7 +91,7 @@ target_link_libraries(
         ll::openssl
         ll::nghttp2
   )
-set_target_include_dirs( llcorehttp ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llcorehttp  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 
 # tests

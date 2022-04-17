@@ -40,4 +40,4 @@ else (WINDOWS)
           rt
           )
 endif (WINDOWS)
-set_target_include_dirs(  ll::apr  ${LIBS_PREBUILT_DIR}/include/apr-1 )
+target_include_directories( ll::apr SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/apr-1 )

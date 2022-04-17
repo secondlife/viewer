@@ -19,7 +19,7 @@ if (USE_KDU)
     target_link_libraries( ll::kdu INTERFACE libkdu.a)
   endif (WINDOWS)
 
-  set_target_include_dirs( ll::kdu
+  target_include_directories( ll::kdu SYSTEM INTERFACE
           ${AUTOBUILD_INSTALL_DIR}/include/kdu
           ${LIBS_OPEN_DIR}/llkdu
           )

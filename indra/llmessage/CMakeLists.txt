@@ -200,7 +200,7 @@ target_link_libraries(
         llcorehttp
         ll::xmlrpc-epi
 )
-set_target_include_dirs( llmessage ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories( llmessage  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
 
 # tests
 if (LL_TESTS)
