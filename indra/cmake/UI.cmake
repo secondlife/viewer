@@ -9,7 +9,7 @@ endif (LINUX)
 create_target( ll::uilibraries )
 
 if (LINUX)
-  set_target_libraries( ll::uilibraries
+  target_link_libraries( ll::uilibraries INTERFACE
           atk-1.0
           gdk-x11-2.0
           gdk_pixbuf-2.0
@@ -28,7 +28,7 @@ if (LINUX)
           )
 endif (LINUX)
 if( WINDOWS )
-  set_target_libraries( ll::uilibraries
+  target_link_libraries( ll::uilibraries INTERFACE
           opengl32
           comdlg32
           dxguid

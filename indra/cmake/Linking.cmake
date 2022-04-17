@@ -58,12 +58,12 @@ link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 create_target(ll::oslibraries)
 
 if (LINUX)
-  set_target_libraries( ll::oslibraries
+  target_link_libraries( ll::oslibraries INTERFACE
           dl
           pthread
           rt)
 elseif (WINDOWS)
-  set_target_libraries( ll::oslibraries
+  target_link_libraries( ll::oslibraries INTERFACE
           advapi32
           shell32
           ws2_32
@@ -89,7 +89,7 @@ else()
   find_library(APPKIT_LIBRARY AppKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
 
-  set_target_libraries( ll::oslibraries
+  target_link_libraries( ll::oslibraries INTERFACE
           ${COCOA_LIBRARY}
           ${IOKIT_LIBRARY}
           ${COREFOUNDATION_LIBRARY}

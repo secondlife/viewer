@@ -12,7 +12,7 @@ if (WINDOWS)
   else (LLCOMMON_LINK_SHARED)
     set(APR_selector "")
   endif (LLCOMMON_LINK_SHARED)
-  set_target_libraries( ll::apr
+  target_link_libraries( ll::apr INTERFACE
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}apr-1.lib
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}apriconv-1.lib
           ${ARCH_PREBUILT_DIRS_RELEASE}/${APR_selector}aprutil-1.lib
@@ -26,13 +26,13 @@ elseif (DARWIN)
     set(APRUTIL_selector "a")
   endif (LLCOMMON_LINK_SHARED)
 
-  set_target_libraries( ll::apr
+  target_link_libraries( ll::apr INTERFACE
           libapr-1.${APR_selector}
           libaprutil-1.${APRUTIL_selector}
           iconv
           )
 else (WINDOWS)
-  set_target_libraries( ll::apr
+  target_link_libraries( ll::apr INTERFACE
           apr-1
           aprutil-1
           iconv

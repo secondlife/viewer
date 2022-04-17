@@ -10,18 +10,18 @@ set(LIBVLCPLUGIN ON CACHE BOOL
         "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
 
 if (WINDOWS)
-    set_target_libraries( ll::libvlc
+    target_link_libraries( ll::libvlc INTERFACE
             libvlc.lib
             libvlccore.lib
     )
 elseif (DARWIN)
-    set_target_libraries( ll::libvlc
+    target_link_libraries( ll::libvlc INTERFACE
             libvlc.dylib
             libvlccore.dylib
     )
 elseif (LINUX)
     # Specify a full path to make sure we get a static link
-    set_target_libraries( ll::libvlc
+    target_link_libraries( ll::libvlc INTERFACE
         ${LIBS_PREBUILT_DIR}/lib/libvlc.a
         ${LIBS_PREBUILT_DIR}/lib/libvlccore.a
     )

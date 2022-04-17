@@ -11,7 +11,7 @@ use_prebuilt_binary(boost)
 set(addrsfx "-x${ADDRESS_SIZE}")
 
 if (WINDOWS)
-  set_target_libraries( ll::boost
+  target_link_libraries( ll::boost INTERFACE
           libboost_context-mt${addrsfx}
           libboost_fiber-mt${addrsfx}
           libboost_filesystem-mt${addrsfx}
@@ -20,7 +20,7 @@ if (WINDOWS)
           libboost_system-mt${addrsfx}
           libboost_thread-mt${addrsfx})
 elseif (LINUX)
-  set_target_libraries( ll::boost
+  target_link_libraries( ll::boost INTERFACE
           boost_context-mt${addrsfx}
           boost_fiber-mt${addrsfx}
           boost_filesystem-mt${addrsfx}
@@ -30,7 +30,7 @@ elseif (LINUX)
           boost_system-mt${addrsfx}
           boost_thread-mt${addrsfx})
 elseif (DARWIN)
-  set_target_libraries( ll::boost
+  target_link_libraries( ll::boost INTERFACE
           boost_context-mt${addrsfx}
           boost_fiber-mt${addrsfx}
           boost_filesystem-mt${addrsfx}

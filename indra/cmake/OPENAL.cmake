@@ -18,12 +18,12 @@ if (USE_OPENAL)
   use_prebuilt_binary(openal)
 
   if(WINDOWS)
-    set_target_libraries( ll::openal
+    target_link_libraries( ll::openal INTERFACE
             OpenAL32
             alut
             )
   elseif(LINUX)
-    set_target_libraries( ll::openal
+    target_link_libraries( ll::openal INTERFACE
             openal
             alut
             )

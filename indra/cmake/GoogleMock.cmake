@@ -13,15 +13,14 @@ set_target_include_dirs( ll::googlemock
 
 if (LINUX)
     # VWR-24366: gmock is underlinked, it needs gtest.
-    set_target_libraries( ll::googlemock gmock gtest)
+    target_link_libraries( ll::googlemock INTERFACE gmock gtest)
 elseif(WINDOWS)
-    set_target_libraries( ll::googlemock gmock)
+    target_link_libraries( ll::googlemock INTERFACE gmock)
     set_target_include_dirs( ll::googlemock
             ${LIBS_PREBUILT_DIR}/include
             ${LIBS_PREBUILT_DIR}/include/gmock)
-
 elseif(DARWIN)
-    set_target_libraries( ll::googlemock gmock gtest)
+    target_link_libraries( ll::googlemock INTERFACE gmock gtest)
 endif(LINUX)
 
 

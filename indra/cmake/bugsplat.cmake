@@ -16,13 +16,13 @@ if (USE_BUGSPLAT)
     include(Prebuilt)
     use_prebuilt_binary(bugsplat)
     if (WINDOWS)
-        set_target_libraries( ll::bugsplat
+        target_link_libraries( ll::bugsplat INTERFACE
                 ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat.lib
                 )
     elseif (DARWIN)
         find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
                 NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
-        set_target_libraries( ll::bugsplat
+        target_link_libraries( ll::bugsplat INTERFACE
                 ${BUGSPLAT_LIBRARIES}
                 )
     else (WINDOWS)

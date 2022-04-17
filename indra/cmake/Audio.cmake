@@ -8,8 +8,8 @@ use_prebuilt_binary(ogg_vorbis)
 set_target_include_dirs( ll::vorbis ${LIBS_PREBUILT_DIR}/include )
 
 if (WINDOWS)
-  set_target_libraries(ll::vorbis ogg_static vorbis_static vorbisenc_static vorbisfile_static )
+  target_link_libraries(ll::vorbis INTERFACE ogg_static vorbis_static vorbisenc_static vorbisfile_static )
 else (WINDOWS)
-  set_target_libraries(ll::vorbis ogg vorbis vorbisenc vorbisfile )
+  target_link_libraries(ll::vorbis INTERFACE ogg vorbis vorbisenc vorbisfile )
 endif (WINDOWS)
 

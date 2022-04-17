@@ -6,5 +6,5 @@ create_target( ll::freetype)
 
 use_prebuilt_binary(freetype)
 set_target_include_dirs( ll::freetype  ${LIBS_PREBUILT_DIR}/include/freetype2/)
-set_target_libraries( ll::freetype freetype )
+target_link_libraries( ll::freetype INTERFACE freetype )
 

@@ -3,7 +3,7 @@
 create_target( ll::pluginlibraries)
 
 if (WINDOWS)
-  set_target_libraries( ll::pluginlibraries
+  target_link_libraries( ll::pluginlibraries INTERFACE
       wsock32
       ws2_32
       psapi

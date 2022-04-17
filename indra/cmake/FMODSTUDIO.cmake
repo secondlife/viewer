@@ -23,7 +23,7 @@ if (USE_FMODSTUDIO)
   if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
     # If the path have been specified in the arguments, use that
 
-    set_target_libraries(fmodstudio::fmodstudio ${FMODSTUDIO_LIBRARY})
+    target_link_libraries(fmodstudio::fmodstudio INTERFACE ${FMODSTUDIO_LIBRARY})
     set_target_include_dirs(fmodstudio::fmodstudio ${FMODSTUDIO_INCLUDE_DIR})
   else (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
     # If not, we're going to try to get the package listed in autobuild.xml
@@ -32,12 +32,12 @@ if (USE_FMODSTUDIO)
     include(Prebuilt)
     use_prebuilt_binary(fmodstudio)
     if (WINDOWS)
-      set_target_libraries( ll::fmodstudio  fmod_vc)
+      target_link_libraries( ll::fmodstudio INTERFACE  fmod_vc)
     elseif (DARWIN)
       #despite files being called libfmod.dylib, we are searching for fmod
-      set_target_libraries( ll::fmodstudio  fmod)
+      target_link_libraries( ll::fmodstudio INTERFACE  fmod)
     elseif (LINUX)
-      set_target_libraries( ll::fmodstudio  fmod)
+      target_link_libraries( ll::fmodstudio INTERFACE  fmod)
     endif (WINDOWS)
 
     set_target_include_dirs(ll::fmodstudio ${LIBS_PREBUILT_DIR}/include/fmodstudio)

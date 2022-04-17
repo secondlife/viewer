@@ -14,9 +14,9 @@ if (USE_KDU)
   include(Prebuilt)
   use_prebuilt_binary(kdu)
   if (WINDOWS)
-    set_target_libraries( ll::kdu kdu.lib)
+    target_link_libraries( ll::kdu INTERFACE kdu.lib)
   else (WINDOWS)
-    set_target_libraries( ll::kdu libkdu.a)
+    target_link_libraries( ll::kdu INTERFACE libkdu.a)
   endif (WINDOWS)
 
   set_target_include_dirs( ll::kdu
