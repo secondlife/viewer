@@ -4,7 +4,7 @@ include(Prebuilt)
 include(Linking)
 
 include_guard()
-create_target(ll::jpeglib)
+add_library( ll::jpeglib INTERFACE IMPORTED )
 
 use_prebuilt_binary(jpeglib)
 if (LINUX)

@@ -2,7 +2,7 @@ include(Linking)
 include(Prebuilt)
 
 include_guard()
-create_target( ll::nghttp2 )
+add_library( ll::nghttp2 INTERFACE IMPORTED )
 
 use_prebuilt_binary(nghttp2)
 if (WINDOWS)

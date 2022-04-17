@@ -17,7 +17,7 @@ if(FMODSTUDIO)
 endif()
 
 if (USE_FMODSTUDIO)
-  create_target( ll::fmodstudio )
+  add_library( ll::fmodstudio INTERFACE IMPORTED )
   target_compile_definitions( ll::fmodstudio INTERFACE LL_FMODSTUDIO=1)
 
   if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)

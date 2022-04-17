@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-create_target( ll::pluginlibraries)
+add_library( ll::pluginlibraries INTERFACE IMPORTED )
 
 if (WINDOWS)
   target_link_libraries( ll::pluginlibraries INTERFACE

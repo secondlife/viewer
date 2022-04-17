@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::hunspell )
+add_library( ll::hunspell INTERFACE IMPORTED )
 
 use_prebuilt_binary(libhunspell)
 if (WINDOWS)

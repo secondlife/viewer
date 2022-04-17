@@ -8,7 +8,7 @@ if (INSTALL_PROPRIETARY)
 endif (INSTALL_PROPRIETARY)
 
 include_guard()
-create_target( ll::kdu )
+add_library( ll::kdu INTERFACE IMPORTED )
 
 if (USE_KDU)
   include(Prebuilt)

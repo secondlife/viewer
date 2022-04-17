@@ -11,7 +11,7 @@ if (INSTALL_PROPRIETARY)
 endif (INSTALL_PROPRIETARY)
 
 include_guard()
-create_target(llphysicsextensions)
+add_library( llphysicsextensions INTERFACE IMPORTED )
 
 
 # Note that the use_prebuilt_binary macros below do not in fact include binaries;

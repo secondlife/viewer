@@ -5,7 +5,7 @@ include(GLEXT)
 include(Prebuilt)
 
 include_guard()
-create_target(ll::sdl)
+add_library( ll::sdl INTERFACE IMPORTED )
 
 if (LINUX)
   use_prebuilt_binary(SDL)

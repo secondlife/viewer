@@ -6,7 +6,7 @@ include_guard()
 
 use_prebuilt_binary(googlemock)
 
-create_target( ll::googlemock )
+add_library( ll::googlemock INTERFACE IMPORTED )
 target_include_directories( ll::googlemock SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include
         )

@@ -6,7 +6,7 @@ if (LINUX)
   use_prebuilt_binary(gtk-atk-pango-glib)
 endif (LINUX)
 
-create_target( ll::uilibraries )
+add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
   target_link_libraries( ll::uilibraries INTERFACE
@@ -68,5 +68,5 @@ target_include_directories( ll::uilibraries SYSTEM INTERFACE
 #endforeach(include)
 
 if (LINUX)
-  set_target_properties(ll::uilibraries PROPERTIES COMPILE_DEFINITIONS LL_GTK=1 LL_X11=1 )
+  target_compile_definitions(ll::uilibraries INTERFACE LL_GTK=1 LL_X11=1 )
 endif (LINUX)

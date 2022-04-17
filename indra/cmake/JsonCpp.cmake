@@ -2,7 +2,7 @@
 
 include(Prebuilt)
 include_guard()
-create_target( ll::jsoncpp)
+add_library( ll::jsoncpp INTERFACE IMPORTED )
 
 use_prebuilt_binary(jsoncpp)
 if (WINDOWS)

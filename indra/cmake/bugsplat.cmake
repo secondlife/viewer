@@ -10,7 +10,7 @@ else (INSTALL_PROPRIETARY)
 endif (INSTALL_PROPRIETARY)
 
 include_guard()
-create_target(ll::bugsplat)
+add_library( ll::bugsplat INTERFACE IMPORTED )
 
 if (USE_BUGSPLAT)
     include(Prebuilt)

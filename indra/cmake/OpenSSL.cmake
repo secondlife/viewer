@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target(ll::openssl)
+add_library( ll::openssl INTERFACE IMPORTED )
 
 use_prebuilt_binary(openssl)
 if (WINDOWS)

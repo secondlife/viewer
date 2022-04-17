@@ -12,7 +12,7 @@ if(OPENAL)
 endif()
 
 if (USE_OPENAL)
-  create_target( ll::openal )
+  add_library( ll::openal INTERFACE IMPORTED )
   target_include_directories( ll::openal SYSTEM INTERFACE "${LIBS_PREBUILT_DIR}/include/AL")
   target_compile_definitions( ll::openal INTERFACE LL_OPENAL=1)
   use_prebuilt_binary(openal)

@@ -55,7 +55,7 @@ endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
 
 link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 
-create_target(ll::oslibraries)
+add_library( ll::oslibraries INTERFACE IMPORTED )
 
 if (LINUX)
   target_link_libraries( ll::oslibraries INTERFACE

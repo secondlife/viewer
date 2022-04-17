@@ -3,7 +3,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target(ll::zlib-ng)
+add_library( ll::zlib-ng INTERFACE IMPORTED )
 
 use_prebuilt_binary(zlib-ng)
 if (WINDOWS)

@@ -1,7 +1,7 @@
 # -*- cmake -*-
 
 include_guard()
-create_target( ll::uriparser )
+add_library( ll::uriparser INTERFACE IMPORTED )
 
 include(Prebuilt)
 

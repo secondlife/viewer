@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target(ll::libpng)
+add_library( ll::libpng INTERFACE IMPORTED )
 
 use_prebuilt_binary(libpng)
 if (WINDOWS)

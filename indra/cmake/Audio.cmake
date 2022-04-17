@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target(ll::vorbis)
+add_library( ll::vorbis INTERFACE IMPORTED )
 
 use_prebuilt_binary(ogg_vorbis)
 target_include_directories( ll::vorbis SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )

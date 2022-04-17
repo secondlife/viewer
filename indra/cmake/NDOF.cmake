@@ -4,7 +4,7 @@ include(Prebuilt)
 set(NDOF ON CACHE BOOL "Use NDOF space navigator joystick library.")
 
 include_guard()
-create_target( ll::ndof )
+add_library( ll::ndof INTERFACE IMPORTED )
 
 if (NDOF)
   if (WINDOWS OR DARWIN)

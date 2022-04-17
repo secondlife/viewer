@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::glod )
+add_library( ll::glod INTERFACE IMPORTED )
 
 use_prebuilt_binary(glod)
 

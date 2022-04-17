@@ -57,7 +57,3 @@ macro (use_prebuilt_binary _binary)
     endif (NOT ${_binary}_installed EQUAL 0)
 endmacro (use_prebuilt_binary _binary)
 
-function( create_target name )
-  add_library( ${name} INTERFACE IMPORTED )
-endfunction()
-

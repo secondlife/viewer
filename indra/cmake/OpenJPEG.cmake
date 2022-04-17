@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::openjpeg )
+add_library( ll::openjpeg INTERFACE IMPORTED )
 
 use_prebuilt_binary(openjpeg)
 

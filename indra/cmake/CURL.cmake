@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target(ll::libcurl)
+add_library( ll::libcurl INTERFACE IMPORTED )
 
 use_prebuilt_binary(curl)
 if (WINDOWS)

@@ -3,7 +3,7 @@ include(Linking)
 include(Prebuilt)
 
 include_guard()
-create_target( ll::libvlc )
+add_library( ll::libvlc INTERFACE IMPORTED )
 
 use_prebuilt_binary(vlc-bin)
 set(LIBVLCPLUGIN ON CACHE BOOL

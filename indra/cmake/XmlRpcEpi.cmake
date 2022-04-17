@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::xmlrpc-epi )
+add_library( ll::xmlrpc-epi INTERFACE IMPORTED )
 
 use_prebuilt_binary(xmlrpc-epi)
 target_link_libraries(ll::xmlrpc-epi INTERFACE xmlrpc-epi )

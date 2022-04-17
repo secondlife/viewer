@@ -1537,7 +1537,7 @@ if (WINDOWS)
 
 
     if (INTEL_MEMOPS_LIBRARY)
-      create_target( ll::intel_memops )
+      add_library( ll::intel_memops INTERFACE IMPORTED )
       target_link_libraries( ll::intel_memops ${INTEL_MEMOPS_LIBRARY} )
     endif (INTEL_MEMOPS_LIBRARY)
 

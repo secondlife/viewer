@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::expat INTERFACE IMPORTED )
+add_library( ll::expat INTERFACE IMPORTED )
 
 use_prebuilt_binary(expat)
 if (WINDOWS)

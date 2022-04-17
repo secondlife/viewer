@@ -3,7 +3,7 @@ include(Linking)
 include(Prebuilt)
 
 include_guard()
-create_target( ll::cef )
+add_library( ll::cef INTERFACE IMPORTED )
 
 use_prebuilt_binary(dullahan)
 target_include_directories( ll::cef SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/cef)

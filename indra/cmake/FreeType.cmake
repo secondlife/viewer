@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::freetype)
+add_library( ll::freetype INTERFACE IMPORTED )
 
 use_prebuilt_binary(freetype)
 target_include_directories( ll::freetype SYSTEM INTERFACE  ${LIBS_PREBUILT_DIR}/include/freetype2/)

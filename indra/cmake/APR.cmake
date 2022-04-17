@@ -3,7 +3,7 @@ include(Prebuilt)
 
 include_guard()
 
-create_target( ll::apr)
+add_library( ll::apr INTERFACE IMPORTED )
 
 use_prebuilt_binary(apr_suite)
 if (WINDOWS)

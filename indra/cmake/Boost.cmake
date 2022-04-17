@@ -2,7 +2,7 @@
 include(Prebuilt)
 
 include_guard()
-create_target( ll::boost )
+add_library( ll::boost INTERFACE IMPORTED )
 
 use_prebuilt_binary(boost)
 

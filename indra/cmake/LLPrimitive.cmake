@@ -11,24 +11,24 @@ use_prebuilt_binary(minizip-ng) # needed for colladadom
 use_prebuilt_binary(pcre)
 use_prebuilt_binary(libxml2)
 
-create_target( ll::pcre )
+add_library( ll::pcre INTERFACE IMPORTED )
 target_link_libraries( ll::pcre INTERFACE pcrecpp pcre )
 
-create_target( ll::minizip-ng )
+add_library( ll::minizip-ng INTERFACE IMPORTED )
 if (WINDOWS)
     target_link_libraries( ll::minizip-ng INTERFACE libminizip )
 else()
     target_link_libraries( ll::minizip-ng INTERFACE minizip )
 endif()
 
-create_target( ll::libxml )
+add_library( ll::libxml INTERFACE IMPORTED )
 if (WINDOWS)
     target_link_libraries( ll::libxml INTERFACE libxml2_a)
 else()
     target_link_libraries( ll::libxml INTERFACE xml2)
 endif()
 
-create_target( ll::colladadom )
+add_library( ll::colladadom INTERFACE IMPORTED )
 target_include_directories( ll::colladadom SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include/collada
         ${LIBS_PREBUILT_DIR}/include/collada/1.4
