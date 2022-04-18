@@ -20,9 +20,10 @@
      name="message">
         Listing ID:
     </text>
+    <!--listing_id is a positive S32-->
     <line_editor
      type="string"
-     length="1"
+     max_length_bytes="10"
      follows="top|right"
      font="SansSerif"
      height="20"
