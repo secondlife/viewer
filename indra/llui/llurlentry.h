@@ -370,6 +370,17 @@ public:
 private:
 };
 
+//
+// LLUrlEntryChat Describes a Second Life chat Url, e.g.,
+// secondlife:///app/chat/42/This%20Is%20a%20test
+//
+class LLUrlEntryChat : public LLUrlEntryBase
+{
+public:
+    LLUrlEntryChat();
+    /*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+};
+
 ///
 /// LLUrlEntryParcel Describes a Second Life parcel Url, e.g.,
 /// secondlife:///app/parcel/0000060e-4b39-e00b-d0c3-d98b1934e3a8/about

@@ -2222,10 +2222,6 @@ bool idle_startup()
 
 		// Have the agent start watching the friends list so we can update proxies
 		gAgent.observeFriends();
-		if (gSavedSettings.getBOOL("LoginAsGod"))
-		{
-			gAgent.requestEnterGodMode();
-		}
 		
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun") || gAgentPilot.getReplaySession())
@@ -2705,19 +2701,34 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	gAgentAvatarp->setSex(gender);
 
-	// try to find the outfit - if not there, create some default
-	// wearables.
+	// try to find the requested outfit or folder
+
+	// -- check for existing outfit in My Outfits
+	bool do_copy = false;
 	LLUUID cat_id = findDescendentCategoryIDByName(
-		gInventory.getLibraryRootFolderID(),
+		gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS),
 		outfit_folder_name);
+
+	// -- check for existing folder in Library
 	if (cat_id.isNull())
 	{
+		cat_id = findDescendentCategoryIDByName(
+			gInventory.getLibraryRootFolderID(),
+			outfit_folder_name);
+		if (!cat_id.isNull())
+		{
+			do_copy = true;
+		}
+	}
+
+	if (cat_id.isNull())
+	{
+		// -- final fallback: create standard wearables
 		LL_DEBUGS() << "standard wearables" << LL_ENDL;
 		gAgentWearables.createStandardWearables();
 	}
 	else
 	{
-		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		// Need to fetch cof contents before we can wear.
@@ -3590,6 +3601,19 @@ bool process_login_success_response()
 		{
 			sInitialOutfitGender = flag;
 		}
+	}
+
+	std::string fake_initial_outfit_name = gSavedSettings.getString("FakeInitialOutfitName");
+	if (!fake_initial_outfit_name.empty())
+	{
+		gAgent.setFirstLogin(TRUE);
+		sInitialOutfit = fake_initial_outfit_name;
+		if (sInitialOutfitGender.empty())
+		{
+			sInitialOutfitGender = "female"; // just guess, will get overridden when outfit is worn anyway.
+		}
+
+		LL_WARNS() << "Faking first-time login with initial outfit " << sInitialOutfit << LL_ENDL;
 	}
 
 	// set the location of the Agent Appearance service, from which we can request

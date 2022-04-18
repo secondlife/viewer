@@ -73,4 +73,14 @@
          name="lst_action"
          value="Start Gesture" />
     </rows>
+    <rows
+     name="script_trigger_lbutton"
+     value="script_trigger_lbutton">
+        <columns
+         column="lst_action"
+         font="SansSerif"
+         halign="left"
+         name="lst_action"
+         value="Interact (Script LMB)" />
+    </rows>
 </contents>
