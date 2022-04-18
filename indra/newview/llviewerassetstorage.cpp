@@ -353,7 +353,7 @@ void LLViewerAssetStorage::checkForTimeouts()
     // Restore requests
     LLCoprocedureManager* manager = LLCoprocedureManager::getInstance();
     while (mCoroWaitList.size() > 0
-           && manager->count(VIEWER_ASSET_STORAGE_CORO_POOL) < LLCoprocedureManager::DEFAULT_QUEUE_SIZE)
+           && manager->count(VIEWER_ASSET_STORAGE_CORO_POOL) < (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
     {
         CoroWaitList &request = mCoroWaitList.front();
         
@@ -425,13 +425,14 @@ void LLViewerAssetStorage::queueRequestHttp(
     if (!duplicate)
     {
         // Coroutine buffer has fixed size (synchronization buffer, so we have no alternatives), so buffer any request above limit
-        if (LLCoprocedureManager::instance().count(VIEWER_ASSET_STORAGE_CORO_POOL) < LLCoprocedureManager::DEFAULT_QUEUE_SIZE)
+        LLCoprocedureManager* manager = LLCoprocedureManager::getInstance();
+        if (manager->count(VIEWER_ASSET_STORAGE_CORO_POOL) < (LLCoprocedureManager::DEFAULT_QUEUE_SIZE - 1))
         {
             bool with_http = true;
             bool is_temp = false;
             LLViewerAssetStatsFF::record_enqueue(atype, with_http, is_temp);
 
-            LLCoprocedureManager::instance().enqueueCoprocedure(VIEWER_ASSET_STORAGE_CORO_POOL, "LLViewerAssetStorage::assetRequestCoro",
+            manager->enqueueCoprocedure(VIEWER_ASSET_STORAGE_CORO_POOL, "LLViewerAssetStorage::assetRequestCoro",
                 boost::bind(&LLViewerAssetStorage::assetRequestCoro, this, req, uuid, atype, callback, user_data));
         }
         else

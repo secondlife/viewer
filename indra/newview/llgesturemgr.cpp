@@ -483,8 +483,13 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 
 	mActive[base_item_id] = new_gesture;
 
-	delete old_gesture;
-	old_gesture = NULL;
+    // replaceGesture(const LLUUID& item_id, const LLUUID& new_asset_id)
+    // replaces ids without repalcing gesture
+    if (old_gesture != new_gesture)
+    {
+        delete old_gesture;
+        old_gesture = NULL;
+    }
 
 	if (asset_id.notNull())
 	{
@@ -910,7 +915,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 			else if (gesture->mWaitTimer.getElapsedTimeF32() > MAX_WAIT_ANIM_SECS)
 			{
 				// we've waited too long for an animation
-				LL_INFOS() << "Waited too long for animations to stop, continuing gesture."
+				LL_INFOS("GestureMgr") << "Waited too long for animations to stop, continuing gesture."
 					<< LL_ENDL;
 				gesture->mWaitingAnimations = FALSE;
 				gesture->mCurrentStep++;
@@ -1097,6 +1102,34 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 				self.setFetchID(item_id);
 				self.startFetch();
 			}
+
+            item_map_t::iterator it = self.mActive.find(item_id);
+            if (it == self.mActive.end())
+            {
+                // Gesture is supposed to be present, active, but NULL
+                LL_DEBUGS("GestureMgr") << "Gesture " << item_id << " not found in active list" << LL_ENDL;
+            }
+            else
+            {
+                LLMultiGesture* old_gesture = (*it).second;
+                if (old_gesture && old_gesture != gesture)
+                {
+                    LL_DEBUGS("GestureMgr") << "Received dupplicate " << item_id << " callback" << LL_ENDL;
+                    // In case somebody managest to activate, deactivate and
+                    // then activate gesture again, before asset finishes loading.
+                    // LLLoadInfo will have a different pointer, asset storage will
+                    // see it as a different request, resulting in two callbacks.
+
+                    // deactivateSimilarGestures() did not turn this one off
+                    // because of matching item_id
+                    self.stopGesture(old_gesture);
+
+                    self.mActive.erase(item_id);
+                    delete old_gesture;
+                    old_gesture = NULL;
+                }
+            }
+
 			self.mActive[item_id] = gesture;
 
 			// Everything has been successful.  Add to the active list.
@@ -1131,9 +1164,23 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 		}
 		else
 		{
-			LL_WARNS() << "Unable to load gesture" << LL_ENDL;
+			LL_WARNS("GestureMgr") << "Unable to load gesture" << LL_ENDL;
 
-			self.mActive.erase(item_id);
+            item_map_t::iterator it = self.mActive.find(item_id);
+            if (it != self.mActive.end())
+            {
+                LLMultiGesture* old_gesture = (*it).second;
+                if (old_gesture)
+                {
+                    // Shouldn't happen, just in case
+                    LL_WARNS("GestureMgr") << "Gesture " << item_id << " existed when it shouldn't" << LL_ENDL;
+
+                    self.stopGesture(old_gesture);
+                    delete old_gesture;
+                    old_gesture = NULL;
+                }
+                self.mActive.erase(item_id);
+            }
 			
 			delete gesture;
 			gesture = NULL;
@@ -1151,9 +1198,23 @@ void LLGestureMgr::onLoadComplete(const LLUUID& asset_uuid,
 			LLDelayedGestureError::gestureFailedToLoad( item_id );
 		}
 
-		LL_WARNS() << "Problem loading gesture: " << status << LL_ENDL;
-		
-		LLGestureMgr::instance().mActive.erase(item_id);			
+		LL_WARNS("GestureMgr") << "Problem loading gesture: " << status << LL_ENDL;
+        
+        item_map_t::iterator it = self.mActive.find(item_id);
+        if (it != self.mActive.end())
+        {
+            LLMultiGesture* old_gesture = (*it).second;
+            if (old_gesture)
+            {
+                // Shouldn't happen, just in case
+                LL_WARNS("GestureMgr") << "Gesture " << item_id << " existed when it shouldn't" << LL_ENDL;
+
+                self.stopGesture(old_gesture);
+                delete old_gesture;
+                old_gesture = NULL;
+            }
+            self.mActive.erase(item_id);
+        }
 	}
 }
 
