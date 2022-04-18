@@ -1565,7 +1565,7 @@ void LLFloaterWorldMap::onTeleportFinished()
 {
     if(isInVisibleChain())
     {
-        LLWorldMapView::setPan(0, 0, TRUE);
+        mMapView->setPan(0, 0, TRUE);
     }
 }
 
