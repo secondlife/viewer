@@ -97,6 +97,8 @@ public:
 	LLPanelFace();
 	virtual ~LLPanelFace();
 
+    void draw();
+
 	void			refresh();
 	void			setMediaURL(const std::string& url);
 	void			setMediaType(const std::string& mime_type);
@@ -128,6 +130,8 @@ protected:
 	void        sendGlow();
 	void			sendMedia();
     void            alignTestureLayer();
+
+    void            updateCopyTexButton();
 
 	// this function is to return TRUE if the drag should succeed.
 	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);

@@ -330,6 +330,13 @@ LLPanelFace::~LLPanelFace()
 }
 
 
+void LLPanelFace::draw()
+{
+    updateCopyTexButton();
+
+    LLPanel::draw();
+}
+
 void LLPanelFace::sendTexture()
 {
 	LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("texture control");
@@ -1522,7 +1529,6 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
         BOOL single_volume = (selected_count == 1);
         mMenuClipboardColor->setEnabled(editable && single_volume);
-        mMenuClipboardTexture->setEnabled(editable && single_volume);
 
 		// Set variable values for numeric expressions
 		LLCalc* calcp = LLCalc::getInstance();
@@ -1582,6 +1588,17 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 	}
 }
 
+
+void LLPanelFace::updateCopyTexButton()
+{
+    LLViewerObject* objectp = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
+    mMenuClipboardTexture->setEnabled(objectp && objectp->getPCode() == LL_PCODE_VOLUME && objectp->permModify() 
+                                                    && !objectp->isPermanentEnforced() && !objectp->isInventoryPending() 
+                                                    && (LLSelectMgr::getInstance()->getSelection()->getObjectCount() == 1));
+    std::string tooltip = (objectp && objectp->isInventoryPending()) ? LLTrans::getString("LoadingContents") : getString("paste_options");
+    mMenuClipboardTexture->setToolTip(tooltip);
+
+}
 
 void LLPanelFace::refresh()
 {

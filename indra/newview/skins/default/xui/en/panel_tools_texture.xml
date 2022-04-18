@@ -23,6 +23,10 @@
              name="paste_error_inventory_not_found">
               One or more texture not found in inventory.
             </panel.string>
+            <panel.string
+             name="paste_options">
+              Paste options
+            </panel.string>
 
             <menu_button
              menu_filename="menu_copy_paste_color.xml"
