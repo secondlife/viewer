@@ -193,6 +193,7 @@ private:
 
 	bool				mVoiceStatus;
     bool				mWaitingForImageUpload;
+    bool				mAllowPublish;
     std::string			mDescriptionText;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;

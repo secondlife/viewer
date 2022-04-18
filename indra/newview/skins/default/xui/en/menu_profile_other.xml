@@ -86,6 +86,17 @@
   </menu_item_call>
   <menu_item_separator name="separator_invite_to_group"/>
   <menu_item_call
+   label="Permissions"
+   layout="topleft"
+   name="agent_permissions">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="agent_permissions"/>
+    <menu_item_call.on_visible
+     function="Profile.EnableItem"
+     parameter="agent_permissions"/>
+  </menu_item_call>
+  <menu_item_call
    label="Map"
    layout="topleft"
    name="map">
@@ -127,17 +138,6 @@
      parameter="toggle_block_agent"/>
   </menu_item_check>
   <menu_item_separator name="separator_copy_options"/>
-  <menu_item_call
-   label="Permissions"
-   layout="topleft"
-   name="agent_permissions">
-    <menu_item_call.on_click
-     function="Profile.Commit"
-     parameter="agent_permissions"/>
-    <menu_item_call.on_visible
-     function="Profile.EnableItem"
-     parameter="agent_permissions"/>
-  </menu_item_call>
   <menu_item_call
    label="Copy Display Name"
    layout="topleft"

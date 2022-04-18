@@ -786,9 +786,10 @@ void LLFloaterProfilePermissions::onCancel()
 // LLPanelProfileSecondLife
 
 LLPanelProfileSecondLife::LLPanelProfileSecondLife()
- : LLPanelProfileTab()
- , mAvatarNameCacheConnection()
- , mWaitingForImageUpload(false)
+    : LLPanelProfileTab()
+    , mAvatarNameCacheConnection()
+    , mWaitingForImageUpload(false)
+    , mAllowPublish(false)
 {
 }
 
@@ -1056,7 +1057,8 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     if (getSelfProfile())
     {
-        mShowInSearchCombo->setValue((BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
+        mAllowPublish = avatar_data->flags & AVATAR_ALLOW_PUBLISH;
+        mShowInSearchCombo->setValue((BOOL)mAllowPublish);
     }
 }
 
@@ -1530,11 +1532,16 @@ void LLPanelProfileSecondLife::onSetDescriptionDirty()
 
 void LLPanelProfileSecondLife::onShowInSearchCallback()
 {
+    if (mAllowPublish == mShowInSearchCombo->getValue().asBoolean())
+    {
+        return;
+    }
     std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
     if (!cap_url.empty())
     {
+        mAllowPublish = mShowInSearchCombo->getValue().asBoolean();
         LLSD data;
-        data["allow_publish"] = mShowInSearchCombo->getValue().asBoolean();
+        data["allow_publish"] = mAllowPublish;
         LLCoros::instance().launch("putAgentUserInfoCoro",
             boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data));
     }

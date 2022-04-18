@@ -380,7 +380,7 @@ Account: [ACCTTYPE]
          name="settings_panel"
          follows="all"
          layout="topleft"
-         width="200"
+         width="190"
          auto_resize="false"
          user_resize="false">
           <!-- only for self -->
@@ -399,7 +399,7 @@ Account: [ACCTTYPE]
            left="1"
            top="18"
            height="23"
-           width="140"
+           width="180"
            follows="left|top"
            layout="topleft"
            visible="true"

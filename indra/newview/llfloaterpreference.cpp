@@ -381,10 +381,13 @@ void LLFloaterPreference::saveAvatarProperties( void )
 	//       "allow publish" flag, the last remaining profile setting in the viewer
 	//       that doesn't exist in the web profile.
 	//
+
 	if ((LLStartUp::getStartupState() == STATE_STARTED) && mAvatarDataInitialized && (allowPublish != mAvatarProperties.allow_publish))
 	{
 		mAvatarProperties.allow_publish = allowPublish;
 
+        // TODO!!!: replace with an AgentProfile cap, once allow_publish works correctly
+        // otherwise this will trim long descritions/reset profile
 		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
 	}
 }

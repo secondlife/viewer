@@ -21,7 +21,7 @@
     />
     <text
      name="status_message"
-     value="Private notes on this avatar:"
+     value="Make notes about this person here. No one else can see your notes."
      top="6"
      left="6"
      right="-6"
@@ -33,10 +33,10 @@
     <text_editor
      name="notes_edit"
      enabled="false"
-     top_pad="4"
+     top="28"
      left="6"
      right="-6"
-     height="311"
+     bottom="-26"
      follows="all"
      layout="topleft"
      max_length="65530"
@@ -45,21 +45,21 @@
     <button
      name="notes_save_changes"
      label="Save"
-     top="429"
+     bottom="-1"
      right="-108"
      height="20"
      width="80"
      enabled="false"
-     follows="top|right"
+     follows="bottom|right"
      layout="topleft"/>
     <button
      name="notes_discard_changes"
      label="Discard"
-     top_delta="0"
+     bottom="-1"
      right="-4"
      height="20"
      width="100"
      enabled="false"
-     follows="top|right"
+     follows="bottom|right"
      layout="topleft"/>
 </panel>
