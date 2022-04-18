@@ -5,17 +5,13 @@ project(media_plugin_gstreamer010)
 include(00-Common)
 include(LLCommon)
 include(LLImage)
-include(LLPlugin)
 include(LLMath)
-include(LLRender)
 include(LLWindow)
 include(Linking)
 include(PluginAPI)
-include(MediaPluginBase)
 include(OpenGL)
 
 include(GStreamer010Plugin)
-
 
 ### media_plugin_gstreamer010
 
