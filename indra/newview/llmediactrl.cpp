@@ -1146,6 +1146,11 @@ void LLMediaCtrl::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event)
             }
             else
             {
+                // Media might be blocked, waiting for a file,
+                // send an empty response to unblock it
+                const std::vector<std::string> empty_response;
+                self->sendPickFileResponse(empty_response);
+
                 LLNotificationsUtil::add("MediaFileDownloadUnsupported");
             }
 		};

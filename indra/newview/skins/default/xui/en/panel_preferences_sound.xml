@@ -28,7 +28,7 @@
      height="15"
      increment="0.025"
      initial_value="0.5"
-     label="Master volume"
+     label="All volume"
 	   label_width="120"
      layout="topleft"
      left="0"
@@ -386,7 +386,7 @@
      left="25"
      name="voice_chat_settings"
      width="200"
-     top_pad="7">
+     top_pad="16">
 	  Voice Chat Settings
     </text>
     <text

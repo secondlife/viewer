@@ -574,18 +574,8 @@ void LLDrawPoolWater::shade2(bool edge, LLGLSLShader* shader, const LLColor3& li
 	shader->uniform3fv(LLShaderMgr::WATER_EYEVEC, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 	shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
 	shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);
-    if (LLEnvironment::instance().isCloudScrollPaused())
-    {
-        static const std::array<F32, 2> zerowave{ {0.0f, 0.0f} };
-        
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, zerowave.data());
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, zerowave.data());
-    }
-    else
-    {
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
-        shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
-    }
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR1, 1, pwater->getWave1Dir().mV);
+    shader->uniform2fv(LLShaderMgr::WATER_WAVE_DIR2, 1, pwater->getWave2Dir().mV);
 	shader->uniform3fv(LLShaderMgr::WATER_LIGHT_DIR, 1, light_dir.mV);
 
 	shader->uniform3fv(LLShaderMgr::WATER_NORM_SCALE, 1, pwater->getNormalScale().mV);

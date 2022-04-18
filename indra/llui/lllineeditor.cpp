@@ -175,6 +175,14 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mTripleClickTimer.reset();
 	setText(p.default_text());
 
+    if (p.initial_value.isProvided()
+        && !p.control_name.isProvided())
+    {
+        // Initial value often is descriptive, like "Type some ID here"
+        // and can be longer than size limitation, ignore size
+        setText(p.initial_value.getValue().asString(), false);
+    }
+
 	// Initialize current history line iterator
 	mCurrentHistoryLine = mLineHistory.begin();
 
@@ -390,6 +398,11 @@ void LLLineEditor::updateTextPadding()
 
 void LLLineEditor::setText(const LLStringExplicit &new_text)
 {
+    setText(new_text, true);
+}
+
+void LLLineEditor::setText(const LLStringExplicit &new_text, bool use_size_limit)
+{
 	// If new text is identical, don't copy and don't move insertion point
 	if (mText.getString() == new_text)
 	{
@@ -407,13 +420,13 @@ void LLLineEditor::setText(const LLStringExplicit &new_text)
 	all_selected = all_selected || (len == 0 && hasFocus() && mSelectAllonFocusReceived);
 
 	std::string truncated_utf8 = new_text;
-	if (truncated_utf8.size() > (U32)mMaxLengthBytes)
+	if (use_size_limit && truncated_utf8.size() > (U32)mMaxLengthBytes)
 	{	
 		truncated_utf8 = utf8str_truncate(new_text, mMaxLengthBytes);
 	}
 	mText.assign(truncated_utf8);
 
-	if (mMaxLengthChars)
+	if (use_size_limit && mMaxLengthChars)
 	{
 		mText.assign(utf8str_symbol_truncate(truncated_utf8, mMaxLengthChars));
 	}
