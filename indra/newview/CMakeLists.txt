@@ -1939,13 +1939,12 @@ if (LINUX)
     ${VIEWER_BINARY_NAME}
     SLPlugin
     media_plugin_gstreamer010
-    media_plugin_libvlc
     llcommon
     )
 
-  if (NOT USE_BUGSPLAT)
-      LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
-  endif (NOT USE_BUGSPLAT)
+  #if (NOT USE_BUGSPLAT)
+  #    LIST(APPEND COPY_INPUT_DEPENDENCIES linux-crash-logger)
+  #endif (NOT USE_BUGSPLAT)
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
