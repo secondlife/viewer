@@ -100,7 +100,6 @@ target_link_libraries(llrender
         llfilesystem
         llxml
         llwindow
-        ll::sdl
         ll::freetype
         OpenGL::GL
         OpenGL::GLU

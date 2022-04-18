@@ -59,11 +59,6 @@
 # include "GL/glh_extensions.h"
 # undef __APPLE__
 
-/* Although SDL very likely ends up calling glXGetProcAddress() itself,
-   if we use SDL_GL_GetProcAddress() then we get bogus addresses back on
-   some systems.  Weird. */
-/*# include "SDL/SDL.h"
-  # define GLH_EXT_GET_PROC_ADDRESS(p) SDL_GL_GetProcAddress(p) */
 #define GLX_GLXEXT_PROTOTYPES 1
 # include "GL/glx.h"
 # include "GL/glxext.h"
