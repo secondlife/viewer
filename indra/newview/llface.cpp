@@ -63,7 +63,6 @@
 #pragma GCC diagnostic ignored "-Wuninitialized"
 #endif
 
-extern BOOL gGLDebugLoggingEnabled;
 #define LL_MAX_INDICES_COUNT 1000000
 
 static LLStaticHashedString sTextureIndexIn("texture_index_in");
@@ -1027,12 +1026,12 @@ void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_po
 {
 	const LLMatrix4& vol_mat = getWorldMatrix();
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
-	const LLVector4a& normal4a = vf.mNormals[0];
-	const LLVector4a& tangent = vf.mTangents[0];
-	if (!&tangent)
+	if (! (vf.mNormals && vf.mTangents))
 	{
 		return;
 	}
+	const LLVector4a& normal4a = *vf.mNormals;
+	const LLVector4a& tangent  = *vf.mTangents;
 
 	LLVector4a binormal4a;
 	binormal4a.setCross3(normal4a, tangent);
@@ -1522,7 +1521,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-		//gGLDebugLoggingEnabled = TRUE;
 		LL_RECORD_BLOCK_TIME(FTM_FACE_GEOM_FEEDBACK);
 		LLGLEnable discard(GL_RASTERIZER_DISCARD);
 		LLVertexBuffer* buff = (LLVertexBuffer*) vf.mVertexBuffer.get();

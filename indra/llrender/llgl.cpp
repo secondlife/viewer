@@ -60,10 +60,10 @@
 
 
 BOOL gDebugSession = FALSE;
+BOOL gDebugGLSession = FALSE;
 BOOL gClothRipple = FALSE;
 BOOL gHeadlessClient = FALSE;
 BOOL gGLActive = FALSE;
-BOOL gGLDebugLoggingEnabled = TRUE;
 
 static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
 static const std::string HEADLESS_RENDERER_STRING("Headless");
@@ -85,8 +85,6 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-	if (gGLDebugLoggingEnabled)
-	{
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
 	{
 		LL_WARNS() << "----- GL ERROR --------" << LL_ENDL;
@@ -104,7 +102,6 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		LL_ERRS() << "Halting on GL Error" << LL_ENDL;
 	}
-}
 }
 #endif
 

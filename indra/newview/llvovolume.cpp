@@ -71,6 +71,8 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llmeshrepository.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
 #include "lldatapacker.h"
@@ -106,8 +108,6 @@ LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = 
 static LLTrace::BlockTimerStatHandle FTM_GEN_TRIANGLES("Generate Triangles");
 static LLTrace::BlockTimerStatHandle FTM_GEN_VOLUME("Generate Volumes");
 static LLTrace::BlockTimerStatHandle FTM_VOLUME_TEXTURES("Volume Textures");
-
-extern BOOL gGLDebugLoggingEnabled;
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
@@ -2960,6 +2960,17 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			}
 		}
 		break;
+
+        case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+        {
+            // Media might be blocked, waiting for a file,
+            // send an empty response to unblock it
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
+
+            LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+        }
+        break;
 		
 		default:
 		break;
