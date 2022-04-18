@@ -47,6 +47,7 @@
 class LLAvatarName;
 class LLButton;
 class LLCheckBoxCtrl;
+class LLComboBox;
 class LLIconCtrl;
 class LLTabContainer;
 class LLTextBox;
@@ -166,6 +167,7 @@ private:
 
     void setDescriptionText(const std::string &text);
     void onSetDescriptionDirty();
+    void onShowInSearchCallback();
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
@@ -176,7 +178,7 @@ private:
 	void					openGroupProfile();
 
 	LLGroupList*		mGroupList;
-	LLCheckBoxCtrl*		mShowInSearchCheckbox;
+    LLComboBox*			mShowInSearchCombo;
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;

@@ -121,12 +121,12 @@ void LLPanelProfileTab::setApplyProgress(bool started)
     }
 }
 
-LLPanelProfilePropertiesPeocessorTab::LLPanelProfilePropertiesPeocessorTab()
+LLPanelProfilePropertiesProcessorTab::LLPanelProfilePropertiesProcessorTab()
     : LLPanelProfileTab()
 {
 }
 
-LLPanelProfilePropertiesPeocessorTab::~LLPanelProfilePropertiesPeocessorTab()
+LLPanelProfilePropertiesProcessorTab::~LLPanelProfilePropertiesProcessorTab()
 {
     if (getAvatarId().notNull())
     {
@@ -134,7 +134,7 @@ LLPanelProfilePropertiesPeocessorTab::~LLPanelProfilePropertiesPeocessorTab()
     }
 }
 
-void LLPanelProfilePropertiesPeocessorTab::setAvatarId(const LLUUID & avatar_id)
+void LLPanelProfilePropertiesProcessorTab::setAvatarId(const LLUUID & avatar_id)
 {
     if (avatar_id.notNull())
     {

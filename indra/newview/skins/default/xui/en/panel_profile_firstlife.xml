@@ -74,12 +74,12 @@
     <button
      name="fl_save_changes"
      label="Save"
-     top="389"
+     top_pad="5"
      right="-108"
      height="20"
      width="80"
      enabled="false"
-     follows="top|right"
+     follows="right|bottom"
      layout="topleft"/>
     <button
      name="fl_discard_changes"
@@ -89,6 +89,6 @@
      height="20"
      width="100"
      enabled="false"
-     follows="top|right"
+     follows="right|bottom"
      layout="topleft"/>
 </panel>

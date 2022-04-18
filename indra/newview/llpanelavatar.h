@@ -146,13 +146,13 @@ private:
     bool    mSelfProfile;
 };
 
-class LLPanelProfilePropertiesPeocessorTab
+class LLPanelProfilePropertiesProcessorTab
     : public LLPanelProfileTab
     , public LLAvatarPropertiesObserver
 {
 public:
-    LLPanelProfilePropertiesPeocessorTab();
-    ~LLPanelProfilePropertiesPeocessorTab();
+    LLPanelProfilePropertiesProcessorTab();
+    ~LLPanelProfilePropertiesProcessorTab();
 
     /*virtual*/ void setAvatarId(const LLUUID& avatar_id);
 

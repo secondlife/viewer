@@ -381,26 +381,41 @@ Account: [ACCTTYPE]
          follows="all"
          layout="topleft"
          width="200"
-         auto_resize="true"
+         auto_resize="false"
          user_resize="false">
-          <!-- settings will be here -->
-          <check_box
-           name="show_in_search_checkbox"
-           label="Show in search"
+          <!-- only for self -->
+          <text
+           name="search_label"
+           value="Show my profile in search:"
+           top="1"
+           left="1"
+           right="-1"
+           height="16"
+           follows="left|top|right"
+           layout="topleft"/>
+          <combo_box
+           name="show_in_search"
            tool_tip="Let people see you in search results"
            left="1"
-           top="1"
-           height="16"
-           width="130"
+           top="18"
+           height="23"
+           width="140"
            follows="left|top"
            layout="topleft"
            visible="true"
-           enabled="false"/>
+           enabled="false">
+            <combo_box.item
+               name="Hide"
+               label="Hide"
+               value="0" />
+            <combo_box.item
+               name="Show"
+               label="Show"
+               value="1" />
+          </combo_box>
         </layout_panel>
 
-
       </layout_stack>
-      
     </layout_panel>
   </layout_stack>
   

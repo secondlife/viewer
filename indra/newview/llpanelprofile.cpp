@@ -37,6 +37,7 @@
 #include "llavatariconctrl.h"
 #include "llclipboard.h"
 #include "llcheckboxctrl.h"
+#include "llcombobox.h"
 #include "lllineeditor.h"
 #include "llloadingindicator.h"
 #include "llmenubutton.h"
@@ -116,6 +117,8 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
+    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Result: " << httpResults << LL_ENDL;
+
     if (!status
         || !result.has("id")
         || agent_id != result["id"].asUUID())
@@ -151,7 +154,6 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     avatar_data->fl_image_id = result["fl_image_id"].asUUID();
     avatar_data->partner_id = result["partner_id"].asUUID();
     avatar_data->about_text = result["sl_about_text"].asString();
-    // Todo: new descriptio size is 65536, check if it actually fits or has scroll
     avatar_data->fl_about_text = result["fl_about_text"].asString();
     avatar_data->born_on = result["member_since"].asDate();
     avatar_data->profile_url = getProfileURL(agent_id.asString());
@@ -248,7 +250,6 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
 
     avatar_notes.agent_id = agent_id;
     avatar_notes.target_id = agent_id;
-    // Todo: new notes size is 65536, check that field has a scroll
     avatar_notes.notes = result["notes"].asString();
 
     panel = floater_profile->findChild<LLPanel>(PANEL_NOTES, TRUE);
@@ -284,9 +285,11 @@ void put_avatar_properties_coro(std::string cap_url, LLUUID agent_id, LLSD data)
 
     if (!status)
     {
-        LL_WARNS("AvatarProperties") << "Failed to put agent information for id " << agent_id << LL_ENDL;
+        LL_WARNS("AvatarProperties") << "Failed to put agent information " << data << " for id " << agent_id << LL_ENDL;
         return;
     }
+
+    LL_DEBUGS("AvatarProperties") << "Agent id: " << agent_id << " Data: " << data << " Result: " << httpResults << LL_ENDL;
 }
 
 LLUUID post_profile_image(std::string cap_url, const LLSD &first_data, std::string path_to_image, LLHandle<LLPanel> *handle)
@@ -810,7 +813,7 @@ LLPanelProfileSecondLife::~LLPanelProfileSecondLife()
 BOOL LLPanelProfileSecondLife::postBuild()
 {
     mGroupList              = getChild<LLGroupList>("group_list");
-    mShowInSearchCheckbox   = getChild<LLCheckBoxCtrl>("show_in_search_checkbox");
+    mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
     mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
     mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
@@ -821,6 +824,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mSeeOnMapToggle         = getChild<LLButton>("allow_to_see_on_map");
     mEditObjectsToggle      = getChild<LLButton>("allow_edit_my_objects");
 
+    mShowInSearchCombo->setCommitCallback([this](LLUICtrl*, void*) { onShowInSearchCallback(); }, nullptr);
     mGroupList->setDoubleClickCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { LLPanelProfileSecondLife::openGroupProfile(); });
     mGroupList->setReturnCallback([this](LLUICtrl*, const LLSD&) { LLPanelProfileSecondLife::openGroupProfile(); });
     mSaveDescriptionChanges->setCommitCallback([this](LLUICtrl*, void*) { onSaveDescriptionChanges(); }, nullptr);
@@ -1052,7 +1056,7 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
 
     if (getSelfProfile())
     {
-        mShowInSearchCheckbox->setValue((BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
+        mShowInSearchCombo->setValue((BOOL)(avatar_data->flags & AVATAR_ALLOW_PUBLISH));
     }
 }
 
@@ -1225,8 +1229,7 @@ void LLPanelProfileSecondLife::setLoaded()
 
     if (getSelfProfile())
     {
-        mShowInSearchCheckbox->setVisible(TRUE);
-        mShowInSearchCheckbox->setEnabled(TRUE);
+        mShowInSearchCombo->setEnabled(TRUE);
         mDescriptionEdit->setEnabled(TRUE);
     }
 }
@@ -1525,6 +1528,22 @@ void LLPanelProfileSecondLife::onSetDescriptionDirty()
     mDiscardDescriptionChanges->setEnabled(TRUE);
 }
 
+void LLPanelProfileSecondLife::onShowInSearchCallback()
+{
+    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
+    if (!cap_url.empty())
+    {
+        LLSD data;
+        data["allow_publish"] = mShowInSearchCombo->getValue().asBoolean();
+        LLCoros::instance().launch("putAgentUserInfoCoro",
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), data));
+    }
+    else
+    {
+        LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
+    }
+}
+
 void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 {
     mDescriptionText = mDescriptionEdit->getValue().asString();
@@ -1814,7 +1833,7 @@ void LLPanelProfileFirstLife::onSaveDescriptionChanges()
     if (!cap_url.empty())
     {
         LLCoros::instance().launch("putAgentUserInfoCoro",
-            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("sl_about_text", mCurrentDescription)));
+            boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("fl_about_text", mCurrentDescription)));
     }
     else
     {
