@@ -12,7 +12,15 @@ set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
+
+
+include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
+if( USE_CONAN )
+  conan_basic_setup(TARGETS)
+  add_compile_definitions(LL_USESYSTEMLIBS USE_CONAN)
+endif()
+
 set(CXX_STANDARD 14)
 
 include(Variables)
@@ -57,8 +65,10 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
+if( LL_TESTS )
 # Legacy C++ tests. Build always, run if LL_TESTS is true.
 add_subdirectory(${VIEWER_PREFIX}test)
+endif()
 
 if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins

@@ -216,22 +216,28 @@ elseif(LINUX)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     # *FIX - figure out what to do with duplicate libalut.so here -brad
     set(release_files
-        libapr-1.so.0
-        libaprutil-1.so.0
-        libatk-1.0.so
-        ${EXPAT_COPY}
-        libfreetype.so.6.6.2
-        libfreetype.so.6
-        libGLOD.so
-        libgmodule-2.0.so
-        libgobject-2.0.so
-        libhunspell-1.3.so.0.0.0
-        libuuid.so.16
-        libuuid.so.16.0.22
-        libfontconfig.so.1.8.0
-        libfontconfig.so.1
-       )
+            ${EXPAT_COPY}
+            )
 
+     if( NOT USE_CONAN )
+         list( APPEND release_files
+                 libapr-1.so.0
+                 libaprutil-1.so.0
+				 libatk-1.0.so
+                 libfreetype.so.6.6.2
+                 libfreetype.so.6
+                 libGLOD.so
+                 libhunspell-1.3.so.0.0.0
+                 libuuid.so.16
+                 libuuid.so.16.0.22
+                 libfontconfig.so.1.8.0
+                 libfontconfig.so.1
+				 libgmodule-2.0.so
+				 libgobject-2.0.so
+                 )
+	 endif()
+	   
+	 
     if (TARGET ll::fmodstudio)
       set(debug_files ${debug_files} "libfmodL.so")
       set(release_files ${release_files} "libfmod.so")

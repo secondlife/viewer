@@ -5,13 +5,18 @@ include(GLEXT)
 include(Prebuilt)
 
 include_guard()
-add_library( ll::sdl INTERFACE IMPORTED )
+add_library( ll::SDL INTERFACE IMPORTED )
+
 
 if (LINUX)
+  #Must come first as use_conan_binary can exit this file early
+  target_compile_definitions( ll::SDL INTERFACE LL_SDL=1)
+
+  use_conan_binary(SDL)
   use_prebuilt_binary(SDL)
-  target_include_directories( ll::sdl SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)
-  target_link_libraries( ll::sdl INTERFACE SDL directfb fusion direct X11)
-  target_compile_definitions( ll::sdl INTERFACE LL_SDL=1)
+  
+  target_include_directories( ll::SDL SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)
+  target_link_libraries( ll::SDL INTERFACE SDL directfb fusion direct X11)
 endif (LINUX)
 
 

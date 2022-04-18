@@ -42,4 +42,5 @@ add_library(media_plugin_gstreamer010
 
 target_link_libraries(media_plugin_gstreamer010
         media_plugin_base
+        ll::gstreamer
   )

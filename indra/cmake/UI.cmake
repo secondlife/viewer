@@ -2,13 +2,17 @@
 include(Prebuilt)
 include(FreeType)
 
-if (LINUX)
-  use_prebuilt_binary(gtk-atk-pango-glib)
-endif (LINUX)
-
 add_library( ll::uilibraries INTERFACE IMPORTED )
 
 if (LINUX)
+  target_compile_definitions(ll::uilibraries INTERFACE LL_GTK=1 LL_X11=1 )
+
+  if( USE_CONAN )
+	target_link_libraries( ll::uilibraries INTERFACE CONAN_PKG::gtk )
+	return()
+  endif()
+  use_prebuilt_binary(gtk-atk-pango-glib)
+  
   target_link_libraries( ll::uilibraries INTERFACE
           atk-1.0
           gdk-x11-2.0
@@ -67,6 +71,3 @@ target_include_directories( ll::uilibraries SYSTEM INTERFACE
 #          )
 #endforeach(include)
 
-if (LINUX)
-  target_compile_definitions(ll::uilibraries INTERFACE LL_GTK=1 LL_X11=1 )
-endif (LINUX)

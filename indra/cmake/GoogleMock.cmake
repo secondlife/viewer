@@ -4,9 +4,13 @@ include(Linking)
 
 include_guard()
 
-use_prebuilt_binary(googlemock)
+if(USE_CONAN)
+    return()
+endif()
 
 add_library( ll::googlemock INTERFACE IMPORTED )
+use_prebuilt_binary(googlemock)
+
 target_include_directories( ll::googlemock SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include
         )

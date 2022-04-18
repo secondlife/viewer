@@ -2,10 +2,19 @@
 include(Prebuilt)
 
 if (LINUX)
-  use_prebuilt_binary(libuuid)
-  use_prebuilt_binary(fontconfig)
+  #use_prebuilt_binary(libuuid)
   add_library( ll::fontconfig INTERFACE IMPORTED )
+
+  if( NOT USE_CONAN )
+    use_prebuilt_binary(fontconfig)
+  else()
+    target_link_libraries( ll::fontconfig INTERFACE CONAN_PKG::fontconfig )
+  endif()
 endif (LINUX)
-use_prebuilt_binary(libhunspell)
+
+if( NOT USE_CONAN )
+  use_prebuilt_binary(libhunspell)
+endif()
+
 use_prebuilt_binary(slvoice)
 

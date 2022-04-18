@@ -1938,7 +1938,7 @@ if (LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     SLPlugin
-    media_plugin_gstreamer010
+    #media_plugin_gstreamer010
     llcommon
     )
 

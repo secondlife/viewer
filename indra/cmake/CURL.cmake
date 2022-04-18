@@ -4,6 +4,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::libcurl INTERFACE IMPORTED )
 
+use_conan_binary(libcurl)
 use_prebuilt_binary(curl)
 if (WINDOWS)
   target_link_libraries(ll::libcurl INTERFACE libcurl.lib)

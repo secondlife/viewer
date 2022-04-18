@@ -4,6 +4,8 @@ include(Prebuilt)
 include_guard()
 add_library( ll::jsoncpp INTERFACE IMPORTED )
 
+use_conan_binary(jsoncpp)
+
 use_prebuilt_binary(jsoncpp)
 if (WINDOWS)
   target_link_libraries( ll::jsoncpp INTERFACE json_libmd.lib )

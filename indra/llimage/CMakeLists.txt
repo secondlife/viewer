@@ -63,7 +63,7 @@ target_link_libraries(llimage
         llmath
         llcommon
         ll::libpng
-        ll::jpeglib
+        ll::libjpeg
     )
 
 # Add tests

@@ -2,7 +2,13 @@
 include(Prebuilt)
 
 include_guard()
+
 add_library( ll::boost INTERFACE IMPORTED )
+if( USE_CONAN )
+  target_link_libraries( ll::boost INTERFACE CONAN_PKG::boost )
+  target_compile_definitions( ll::boost INTERFACE BOOST_ALLOW_DEPRECATED_HEADERS BOOST_BIND_GLOBAL_PLACEHOLDERS )
+  return()
+endif()
 
 use_prebuilt_binary(boost)
 

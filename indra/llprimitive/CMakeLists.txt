@@ -7,6 +7,7 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
+include(GLH)
 
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp
@@ -65,6 +66,7 @@ target_link_libraries(llprimitive
         llphysicsextensions
         ll::colladadom
         ll::pcre
+		ll::glh_linear
         )
 
 #add unit tests

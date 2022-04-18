@@ -3,7 +3,7 @@ include(Prebuilt)
 
 include_guard()
 add_library( ll::hunspell INTERFACE IMPORTED )
-
+use_conan_binary(hunspell)
 use_prebuilt_binary(libhunspell)
 if (WINDOWS)
   target_link_libraries( ll::hunspell INTERFACE libhunspell)

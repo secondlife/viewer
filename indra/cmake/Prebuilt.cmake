@@ -57,3 +57,16 @@ macro (use_prebuilt_binary _binary)
     endif (NOT ${_binary}_installed EQUAL 0)
 endmacro (use_prebuilt_binary _binary)
 
+#Sadly we need a macro here, otherwise the return() will not properly work
+macro ( use_conan_binary package )
+  if( USE_CONAN )
+	target_link_libraries( ll::${package} INTERFACE CONAN_PKG::${package} )
+	foreach( extra_pkg "${ARGN}" )
+	  if( extra_pkg )
+		target_link_libraries( ll::${package} INTERFACE CONAN_PKG::${extra_pkg} )
+	  endif()
+	endforeach()
+    return()
+  endif()
+endmacro()
+  

@@ -54,14 +54,15 @@ set(llwindow_LINK_LIBRARIES
         llrender
         llfilesystem
         llxml
+		ll::glh_linear
+		ll::glext
         )
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
   list( APPEND llwindow_LINK_LIBRARIES
           ll::uilibraries
-          ll::sdl
-          ll::fontconfig          # For FCInit and other FC* functions.
+          ll::SDL
       )
 
   list(APPEND viewer_SOURCE_FILES 
@@ -174,5 +175,5 @@ endif (llwindow_HEADER_FILES)
     ${viewer_SOURCE_FILES}
     )
 
-target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES} ll::sdl)
+target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
 target_include_directories( llwindow  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
