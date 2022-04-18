@@ -56,10 +56,12 @@
 #include "llscrolllistctrl.h"
 #include "llslurl.h"
 #include "lltextbox.h"
+#include "lltoolbarview.h"
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llviewerinventory.h"	// LLViewerInventoryItem
 #include "llviewermenu.h"
+#include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewertexture.h"
@@ -86,6 +88,9 @@ static const F32 MAP_ZOOM_TIME = 0.2f;
 // sessions and doesn't prevent the user to pan the world if it was to grow a lot beyond that limit.
 // Currently (01/26/09), this value allows the whole grid to be visible in a 1024x1024 window.
 static const S32 MAX_VISIBLE_REGIONS = 512;
+
+
+const S32 HIDE_BEACON_PAD = 133;
 
 // It would be more logical to have this inside the method where it is used but to compile under gcc this
 // struct has to be here.
@@ -326,6 +331,8 @@ LLFloaterWorldMap::~LLFloaterWorldMap()
 	mFriendObserver = NULL;
 	
 	gFloaterWorldMap = NULL;
+
+    mTeleportFinishConnection.disconnect();
 }
 
 //static
@@ -339,12 +346,16 @@ void LLFloaterWorldMap::onClose(bool app_quitting)
 {
 	// While we're not visible, discard the overlay images we're using
 	LLWorldMap::getInstance()->clearImageRefs();
+    mTeleportFinishConnection.disconnect();
 }
 
 // virtual
 void LLFloaterWorldMap::onOpen(const LLSD& key)
 {
-	bool center_on_target = (key.asString() == "center");
+    mTeleportFinishConnection = LLViewerParcelMgr::getInstance()->
+        setTeleportFinishedCallback(boost::bind(&LLFloaterWorldMap::onTeleportFinished, this));
+ 
+    bool center_on_target = (key.asString() == "center");
 	
 	mIsClosing = FALSE;
 	
@@ -1566,6 +1577,13 @@ void LLFloaterWorldMap::updateSims(bool found_null_sim)
 	}
 }
 
+void LLFloaterWorldMap::onTeleportFinished()
+{
+    if(isInVisibleChain())
+    {
+        LLWorldMapView::setPan(0, 0, TRUE);
+    }
+}
 
 void LLFloaterWorldMap::onCommitSearchResult()
 {
@@ -1641,4 +1659,104 @@ void LLFloaterWorldMap::onFocusLost()
 	gViewerWindow->showCursor();
 	LLWorldMapView* map_panel = (LLWorldMapView*)gFloaterWorldMap->mPanel;
 	map_panel->mPanning = FALSE;
+}
+
+LLPanelHideBeacon::LLPanelHideBeacon() :
+	mHideButton(NULL)
+{
+}
+
+// static
+LLPanelHideBeacon* LLPanelHideBeacon::getInstance()
+{
+	static LLPanelHideBeacon* panel = getPanelHideBeacon();
+	return panel;
+}
+
+
+BOOL LLPanelHideBeacon::postBuild()
+{
+	mHideButton = getChild<LLButton>("hide_beacon_btn");
+	mHideButton->setCommitCallback(boost::bind(&LLPanelHideBeacon::onHideButtonClick, this));
+
+	gViewerWindow->setOnWorldViewRectUpdated(boost::bind(&LLPanelHideBeacon::updatePosition, this));
+
+	return TRUE;
+}
+
+//virtual
+void LLPanelHideBeacon::draw()
+{
+	if (!LLTracker::isTracking(NULL))
+	{
+        mHideButton->setVisible(false);
+        return;
+	}
+    mHideButton->setVisible(true);
+	updatePosition(); 
+	LLPanel::draw();
+}
+
+//virtual
+void LLPanelHideBeacon::setVisible(BOOL visible)
+{
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK) visible = false;
+
+	if (visible)
+	{
+		updatePosition();
+	}
+
+	LLPanel::setVisible(visible);
+}
+
+
+//static
+LLPanelHideBeacon* LLPanelHideBeacon::getPanelHideBeacon()
+{
+	LLPanelHideBeacon* panel = new LLPanelHideBeacon();
+	panel->buildFromFile("panel_hide_beacon.xml");
+
+	LL_INFOS() << "Build LLPanelHideBeacon panel" << LL_ENDL;
+
+	panel->updatePosition();
+	return panel;
+}
+
+void LLPanelHideBeacon::onHideButtonClick()
+{
+	LLFloaterWorldMap* instance = LLFloaterWorldMap::getInstance();
+	if (instance)
+	{
+		instance->onClearBtn();
+	}
+}
+
+/**
+* Updates position of the panel (similar to Stand & Stop Flying panel).
+*/
+void LLPanelHideBeacon::updatePosition()
+{
+	S32 bottom_tb_center = 0;
+	if (LLToolBar* toolbar_bottom = gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_BOTTOM))
+	{
+		bottom_tb_center = toolbar_bottom->getRect().getCenterX();
+	}
+
+	S32 left_tb_width = 0;
+	if (LLToolBar* toolbar_left = gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT))
+	{
+		left_tb_width = toolbar_left->getRect().getWidth();
+	}
+
+	if (gToolBarView != NULL && gToolBarView->getToolbar(LLToolBarEnums::TOOLBAR_LEFT)->hasButtons())
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2 - left_tb_width;
+		setOrigin( x_pos + HIDE_BEACON_PAD, 0);
+	}
+	else 
+	{
+		S32 x_pos = bottom_tb_center - getRect().getWidth() / 2;
+		setOrigin( x_pos + HIDE_BEACON_PAD, 0);
+	}
 }

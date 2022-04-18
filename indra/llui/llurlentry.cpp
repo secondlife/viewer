@@ -1017,6 +1017,24 @@ std::string LLUrlEntryObjectIM::getLocation(const std::string &url) const
 	return LLUrlEntryBase::getLocation(url);
 }
 
+//
+// LLUrlEntryChat Describes a Second Life chat Url, e.g.,
+// secondlife:///app/chat/42/This%20Is%20a%20test
+//
+
+LLUrlEntryChat::LLUrlEntryChat()
+{
+    mPattern = boost::regex("secondlife:///app/chat/\\d+/\\S+",
+        boost::regex::perl|boost::regex::icase);
+    mMenuName = "menu_url_slapp.xml";
+    mTooltip = LLTrans::getString("TooltipSLAPP");
+}
+
+std::string LLUrlEntryChat::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+    return unescapeUrl(url);
+}
+
 // LLUrlEntryParcel statics.
 LLUUID	LLUrlEntryParcel::sAgentID(LLUUID::null);
 LLUUID	LLUrlEntryParcel::sSessionID(LLUUID::null);

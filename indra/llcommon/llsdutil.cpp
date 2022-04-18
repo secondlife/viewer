@@ -29,6 +29,7 @@
 #include "linden_common.h"
 
 #include "llsdutil.h"
+#include <sstream>
 
 #if LL_WINDOWS
 #	define WIN32_LEAN_AND_MEAN
@@ -862,7 +863,7 @@ bool llsd_equals(const LLSD& lhs, const LLSD& rhs, int bits)
 namespace llsd
 {
 
-LLSD& drill(LLSD& blob, const LLSD& rawPath)
+LLSD& drill_ref(LLSD& blob, const LLSD& rawPath)
 {
     // Treat rawPath uniformly as an array. If it's not already an array,
     // store it as the only entry in one. (But let's say Undefined means an
@@ -917,9 +918,9 @@ LLSD& drill(LLSD& blob, const LLSD& rawPath)
 
 LLSD drill(const LLSD& blob, const LLSD& path)
 {
-    // non-const drill() does exactly what we want. Temporarily cast away
+    // drill_ref() does exactly what we want. Temporarily cast away
     // const-ness and use that.
-    return drill(const_cast<LLSD&>(blob), path);
+    return drill_ref(const_cast<LLSD&>(blob), path);
 }
 
 } // namespace llsd

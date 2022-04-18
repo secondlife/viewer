@@ -615,12 +615,12 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
 
 void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 {
-    BOOL batch_fullbrights = gSavedSettings.getBOOL("RenderAlphaBatchFullbrights");
-    BOOL batch_emissives   = gSavedSettings.getBOOL("RenderAlphaBatchEmissives");
-	BOOL initialized_lighting = FALSE;
-	BOOL light_enabled = TRUE;
+    static LLCachedControl<bool> batch_fullbrights(gSavedSettings, "RenderAlphaBatchFullbrights");
+    static LLCachedControl<bool> batch_emissives(gSavedSettings, "RenderAlphaBatchEmissives");
+	bool initialized_lighting = FALSE;
+	bool light_enabled = TRUE;
 	
-	BOOL use_shaders = gPipeline.canUseVertexShaders();
+	bool use_shaders = gPipeline.canUseVertexShaders();
 		
 	for (LLCullResult::sg_iterator i = gPipeline.beginAlphaGroups(); i != gPipeline.endAlphaGroups(); ++i)
 	{

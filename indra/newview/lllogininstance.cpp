@@ -165,13 +165,12 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	//requested_options.append("inventory-meat");
 	//requested_options.append("inventory-skel-targets");
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
-	if(FALSE == gSavedSettings.getBOOL("NoInventoryLibrary"))
-	{
-		requested_options.append("inventory-lib-root");
-		requested_options.append("inventory-lib-owner");
-		requested_options.append("inventory-skel-lib");
+
+    // Not requesting library will trigger mFatalNoLibraryRootFolder
+	requested_options.append("inventory-lib-root");
+	requested_options.append("inventory-lib-owner");
+	requested_options.append("inventory-skel-lib");
 	//	requested_options.append("inventory-meat-lib");
-	}
 
 	requested_options.append("initial-outfit");
 	requested_options.append("gestures");
