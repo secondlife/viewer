@@ -207,14 +207,6 @@
     <map>
       <key>map-to</key>
       <string>NoAudio</string>
-    </map>    
-
-    <key>noinvlib</key>
-    <map>
-      <key>desc</key>
-      <string>Do not request the inventory library.</string>
-      <key>map-to</key>
-      <string>NoInventoryLibrary</string>
     </map>
 
     <key>nonotifications</key>

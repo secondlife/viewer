@@ -1313,9 +1313,8 @@ class DarwinManifest(ViewerManifest):
                         ]
                     for attempt in range(3):
                         if attempt: # second or subsequent iteration
-                            print >> sys.stderr, \
-                                ("codesign failed, waiting %d seconds before retrying" %
-                                 sign_retry_wait)
+                            print("codesign failed, waiting {:d} seconds before retrying".format(sign_retry_wait),
+                                  file=sys.stderr)
                             time.sleep(sign_retry_wait)
                             sign_retry_wait*=2
 
@@ -1345,7 +1344,7 @@ class DarwinManifest(ViewerManifest):
                             # 'err' goes out of scope
                             sign_failed = err
                     else:
-                        print >> sys.stderr, "Maximum codesign attempts exceeded; giving up"
+                        print("Maximum codesign attempts exceeded; giving up", file=sys.stderr)
                         raise sign_failed
                     self.run_command(['spctl', '-a', '-texec', '-vvvv', app_in_dmg])
                     self.run_command([self.src_path_of("installers/darwin/apple-notarize.sh"), app_in_dmg])
