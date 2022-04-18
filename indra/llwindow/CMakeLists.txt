@@ -58,7 +58,7 @@ set(llwindow_LINK_LIBRARIES
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  set(llwindow_LINK_LIBRARIES APPEND
+  list( APPEND llwindow_LINK_LIBRARIES
           ll::uilibraries
           ll::sdl
           ll::fontconfig          # For FCInit and other FC* functions.
