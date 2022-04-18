@@ -114,11 +114,11 @@ if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
   add_compile_definitions(
-          -D_REENTRANT
-          -D_FORTIFY_SOURCE=2
-          -DEXTERNAL_TOS
-          -DAPPID=secondlife
-          -DLL_IGNORE_SIGCHLD
+          _REENTRANT
+          _FORTIFY_SOURCE=2
+          EXTERNAL_TOS
+          APPID=secondlife
+          LL_IGNORE_SIGCHLD
   )
   add_compile_options(
           -fexceptions
