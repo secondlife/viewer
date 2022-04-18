@@ -6,7 +6,7 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
-include(OpenAL)
+include(OPENAL)
 include(FMODSTUDIO)
 
 # When we copy our dependent libraries, we almost always want to copy them to
@@ -219,7 +219,6 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
-        libdb-5.1.so
         ${EXPAT_COPY}
         libfreetype.so.6.6.2
         libfreetype.so.6
@@ -227,8 +226,6 @@ elseif(LINUX)
         libgmodule-2.0.so
         libgobject-2.0.so
         libhunspell-1.3.so.0.0.0
-        libopenal.so
-        libopenjpeg.so
         libuuid.so.16
         libuuid.so.16.0.22
         libfontconfig.so.1.8.0
