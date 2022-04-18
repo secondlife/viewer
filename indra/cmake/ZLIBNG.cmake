@@ -11,4 +11,7 @@ if (WINDOWS)
 else()
   target_link_libraries( ll::zlib-ng INTERFACE z )
 endif (WINDOWS)
-target_include_directories( ll::zlib-ng SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/zlib-ng)
+
+if( NOT LINUX )
+  target_include_directories( ll::zlib-ng SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/zlib-ng)
+endif()
