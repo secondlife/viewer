@@ -1750,6 +1750,10 @@ endif (HAVOK OR HAVOK_TPV)
 # progress view disables/enables icons based on available packages
 set_source_files_properties(llprogressview.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
+if (GLODLIB)
+  set_source_files_properties(llfloatermodelpreview.cpp PROPERTIES COMPILE_FLAGS "-DLL_GLOD")
+endif (GLODLIB)
+
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
 set_source_files_properties(${viewer_HEADER_FILES}
@@ -1917,9 +1921,7 @@ if (WINDOWS)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
-    add_dependencies(${VIEWER_BINARY_NAME}
-      SLPlugin
-    )
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin)
 
     # sets the 'working directory' for debugging from visual studio.
     # Condition for version can be moved to requirements once build agents will be updated (see TOOL-3865)
@@ -2269,7 +2271,7 @@ endif (INSTALL)
 
 # Note that the conventional VIEWER_SYMBOL_FILE is set by ../../build.sh
 if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIEWER_SYMBOL_FILE)
-  if (BUGSPLAT_DB)
+  if (USE_BUGSPLAT)
     # BugSplat symbol-file generation
     if (WINDOWS)
       # Just pack up a tarball containing only the .pdb file for the
@@ -2353,7 +2355,7 @@ if (PACKAGE AND (RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING) AND VIE
     if (LINUX)
       # TBD
     endif (LINUX)
-  endif (BUGSPLAT_DB)
+  endif (USE_BUGSPLAT)
 
   # for both Bugsplat and Breakpad
   add_dependencies(llpackage generate_symbols)

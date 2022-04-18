@@ -40,7 +40,7 @@ def get_metrics_record(infiles):
         context = iter(context)
 
         # get the root element
-        event, root = context.next()
+        event, root = next(context)
         try:
             for event, elem in context:
                 if event == "end" and elem.tag == "llsd":
@@ -48,7 +48,7 @@ def get_metrics_record(infiles):
                     sd = llsd.parse_xml(xmlstr)
                     yield sd
         except etree.XMLSyntaxError:
-            print "Fell off end of document"
+            print("Fell off end of document")
 
         f.close()
 
@@ -56,7 +56,7 @@ def update_stats(stats,rec):
     for region in rec["regions"]:
         region_key = (region["grid_x"],region["grid_y"])
         #print "region",region_key
-        for field, val in region.iteritems():
+        for field, val in region.items():
             if field in ["duration","grid_x","grid_y"]:
                 continue
             if field == "fps":
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     for key in sorted(stats.keys()):
         val = stats[key]
         if val["count"] > 0:
-            print key,"count",val["count"],"mean_time",val["sum"]/val["count"],"mean_bytes",val["sum_bytes"]/val["count"],"net bytes/sec",val["sum_bytes"]/val["sum"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
+            print(key,"count",val["count"],"mean_time",val["sum"]/val["count"],"mean_bytes",val["sum_bytes"]/val["count"],"net bytes/sec",val["sum_bytes"]/val["sum"],"enqueued",val["enqueued"],"dequeued",val["dequeued"])
         else:
-            print key,"count",val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"]
+            print(key,"count",val["count"],"enqueued",val["enqueued"],"dequeued",val["dequeued"])
 

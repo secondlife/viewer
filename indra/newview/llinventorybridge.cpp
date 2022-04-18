@@ -1888,7 +1888,8 @@ void LLItemBridge::buildDisplayName() const
 	LLStringUtil::toUpper(mSearchableName);
 	
 	//Name set, so trigger a sort
-	if(mParent)
+    LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
+	if(mParent && !sorter.isByDate())
 	{
 		mParent->requestSort();
 	}
@@ -2187,7 +2188,8 @@ void LLFolderBridge::buildDisplayName() const
 	LLStringUtil::toUpper(mSearchableName);
 
     //Name set, so trigger a sort
-    if(mParent)
+    LLInventorySort sorter = static_cast<LLFolderViewModelInventory&>(mRootViewModel).getSorter();
+    if(mParent && sorter.isFoldersByName())
     {
         mParent->requestSort();
     }
@@ -3420,9 +3422,22 @@ void LLFolderBridge::copyOutfitToClipboard()
 void LLFolderBridge::openItem()
 {
 	LL_DEBUGS() << "LLFolderBridge::openItem()" << LL_ENDL;
-	LLInventoryModel* model = getInventoryModel();
-	if(!model) return;
-	if(mUUID.isNull()) return;
+
+    LLInventoryPanel* panel = mInventoryPanel.get();
+    if (!panel)
+    {
+        return;
+    }
+    LLInventoryModel* model = getInventoryModel();
+    if (!model)
+    {
+        return;
+    }
+    if (mUUID.isNull())
+    {
+        return;
+    }
+    panel->onFolderOpening(mUUID);
 	bool fetching_inventory = model->fetchDescendentsOf(mUUID);
 	// Only change folder type if we have the folder contents.
 	if (!fetching_inventory)

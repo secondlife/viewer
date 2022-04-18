@@ -7154,6 +7154,7 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 		{
 			if ((j == LLViewerRegion::PARTITION_VOLUME) || 
 				(j == LLViewerRegion::PARTITION_BRIDGE) ||
+                (j == LLViewerRegion::PARTITION_AVATAR) || // for attachments
 				(j == LLViewerRegion::PARTITION_CONTROL_AV) ||
 				(j == LLViewerRegion::PARTITION_TERRAIN) ||
 				(j == LLViewerRegion::PARTITION_TREE) ||

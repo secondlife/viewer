@@ -227,23 +227,25 @@
      height="10"
      layout="topleft"
      left="30"
-     name="Proxy Settings 1"
-     mouse_opaque="false"
-     top_pad="10"
-     width="300">
-    Proxy Settings:
-  </text>
-  <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="80"
-     name="Proxy Settings 2"
+     name="Proxy Settings:"
      mouse_opaque="false"
      top_pad="5"
      width="300">
-    Your system's existing proxy settings will be used
+    Proxy Settings:
   </text>
+  <button
+	label="Adjust proxy settings"
+    follows="left|top"
+    height="23"
+	width="140"
+    label_selected="Browse"
+    layout="topleft"
+    left_delta="50"
+    name="set_proxy"
+    top_pad="5"
+    >
+    <button.commit_callback
+		  function="Pref.Proxy" />
+  </button>
 </panel>
+

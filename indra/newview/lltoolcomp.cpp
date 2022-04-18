@@ -44,6 +44,7 @@
 #include "lltoolmgr.h"
 #include "lltoolselectrect.h"
 #include "lltoolplacer.h"
+#include "llviewerinput.h"
 #include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
@@ -343,7 +344,9 @@ BOOL LLToolCompTranslate::handleDoubleClick(S32 x, S32 y, MASK mask)
 	}
 	// Nothing selected means the first mouse click was probably
 	// bad, so try again.
-	return FALSE;
+	// This also consumes the event to prevent things like double-click
+	// teleport from triggering.
+	return handleMouseDown(x, y, mask);
 }
 
 
@@ -743,7 +746,7 @@ BOOL LLToolCompGun::handleHover(S32 x, S32 y, MASK mask)
 BOOL LLToolCompGun::handleMouseDown(S32 x, S32 y, MASK mask)
 { 
 	// if the left button is grabbed, don't put up the pie menu
-	if (gAgent.leftButtonGrabbed())
+	if (gAgent.leftButtonGrabbed() && gViewerInput.isLMouseHandlingDefault(MODE_FIRST_PERSON))
 	{
 		gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_DOWN);
 		return FALSE;
@@ -760,7 +763,7 @@ BOOL LLToolCompGun::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLToolCompGun::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
 	// if the left button is grabbed, don't put up the pie menu
-	if (gAgent.leftButtonGrabbed())
+	if (gAgent.leftButtonGrabbed() && gViewerInput.isLMouseHandlingDefault(MODE_FIRST_PERSON))
 	{
 		gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_DOWN);
 		return FALSE;
@@ -794,7 +797,10 @@ BOOL LLToolCompGun::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL LLToolCompGun::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_UP);
+    if (gViewerInput.isLMouseHandlingDefault(MODE_FIRST_PERSON))
+    {
+        gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_UP);
+    }
 	setCurrentTool( (LLTool*) mGun );
 	return TRUE;
 }
