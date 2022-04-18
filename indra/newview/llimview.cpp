@@ -900,7 +900,7 @@ bool LLIMModel::LLIMSession::isOutgoingAdHoc() const
 
 bool LLIMModel::LLIMSession::isAdHoc()
 {
-	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID));
+	return IM_SESSION_CONFERENCE_START == mType || (IM_SESSION_INVITE == mType && !gAgent.isInGroup(mSessionID, TRUE));
 }
 
 bool LLIMModel::LLIMSession::isP2P()
@@ -910,7 +910,7 @@ bool LLIMModel::LLIMSession::isP2P()
 
 bool LLIMModel::LLIMSession::isGroupChat()
 {
-	return IM_SESSION_GROUP_START == mType || (IM_SESSION_INVITE == mType && gAgent.isInGroup(mSessionID));
+	return IM_SESSION_GROUP_START == mType || (IM_SESSION_INVITE == mType && gAgent.isInGroup(mSessionID, TRUE));
 }
 
 bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
@@ -1701,7 +1701,7 @@ LLUUID LLIMMgr::computeSessionID(
 		}
 	}
 
-	if (gAgent.isInGroup(session_id) && (session_id != other_participant_id))
+	if (gAgent.isInGroup(session_id, TRUE) && (session_id != other_participant_id))
 	{
 		LL_WARNS() << "Group session id different from group id: IM type = " << dialog << ", session id = " << session_id << ", group id = " << other_participant_id << LL_ENDL;
 	}
@@ -2035,7 +2035,7 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them
 	bool participant_is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 
-	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id);
+	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id, TRUE);
 
 	LLAvatarIconCtrl* avatar_icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 	LLGroupIconCtrl* group_icon = getChild<LLGroupIconCtrl>("group_icon");
@@ -2330,7 +2330,7 @@ BOOL LLIncomingCallDialog::postBuild()
 	}
 
 	std::string call_type;
-	if (gAgent.isInGroup(session_id))
+	if (gAgent.isInGroup(session_id, TRUE))
 	{
 		LLStringUtil::format_map_t args;
 		LLGroupData data;
@@ -2507,8 +2507,8 @@ void LLIncomingCallDialog::processCallResponse(S32 response, const LLSD &payload
 				switch(type){
 				case IM_SESSION_CONFERENCE_START:
 				case IM_SESSION_GROUP_START:
-				case IM_SESSION_INVITE:		
-					if (gAgent.isInGroup(session_id))
+				case IM_SESSION_INVITE:
+					if (gAgent.isInGroup(session_id, TRUE))
 					{
 						LLGroupData data;
 						if (!gAgent.getGroupData(session_id, data)) break;
@@ -3055,7 +3055,7 @@ void LLIMMgr::inviteToSession(
 		notify_box_type = "VoiceInviteP2P";
 		voice_invite = TRUE;
 	}
-	else if ( gAgent.isInGroup(session_id) )
+	else if ( gAgent.isInGroup(session_id, TRUE) )
 	{
 		//only really old school groups have voice invitations
 		notify_box_type = "VoiceInviteGroup";

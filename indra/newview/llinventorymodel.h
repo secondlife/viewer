@@ -55,7 +55,31 @@ class LLInventoryCategory;
 class LLMessageSystem;
 class LLInventoryCollectFunctor;
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+///----------------------------------------------------------------------------
+/// LLInventoryValidationInfo 
+///----------------------------------------------------------------------------
+class LLInventoryValidationInfo: public LLRefCount
+{
+public:
+	LLInventoryValidationInfo();
+	void toOstream(std::ostream& os) const;
+	void asLLSD(LLSD& sd) const;
+	
+
+	S32 mFatalErrorCount;
+	S32 mWarningCount;
+    S32 mLoopCount; // Presence of folders whose ansestors loop onto themselves
+    S32 mOrphanedCount; // Missing or orphaned items, links and folders
+	bool mInitialized;
+	bool mFatalNoRootFolder;
+	bool mFatalNoLibraryRootFolder;
+	bool mFatalQADebugMode;
+	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
+	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
+};
+std::ostream& operator<<(std::ostream& s, const LLInventoryValidationInfo& v);
+
+///----------------------------------------------------------------------------
 // LLInventoryModel
 //
 // Represents a collection of inventory, and provides efficient ways to access 
@@ -63,7 +87,7 @@ class LLInventoryCollectFunctor;
 //   NOTE: This class could in theory be used for any place where you need 
 //   inventory, though it optimizes for time efficiency - not space efficiency, 
 //   probably making it inappropriate for use on tasks.
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+///----------------------------------------------------------------------------
 class LLInventoryModel
 {
 	LOG_CLASS(LLInventoryModel);
@@ -261,9 +285,14 @@ public:
 
 	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
-
+    
+    enum EAnscestorResult{
+        ANSCESTOR_OK = 0,
+        ANSCESTOR_MISSING = 1,
+        ANSCESTOR_LOOP = 2,
+    };
 	// Follow parent chain to the top.
-	bool getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
+    EAnscestorResult getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
 
 	//--------------------------------------------------------------------
 	// Find
@@ -660,7 +689,9 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void dumpInventory() const;
-	bool validate() const;
+	LLPointer<LLInventoryValidationInfo> validate() const;
+	LLPointer<LLInventoryValidationInfo> mValidationInfo;
+	std::string getFullPath(const LLInventoryObject *obj) const;
 
 /**                    Miscellaneous
  **                                                                            **

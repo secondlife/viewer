@@ -63,6 +63,7 @@ LLUrlRegistry::LLUrlRegistry()
 	// LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since 
 	// LLUrlEntryAgent is a less specific (catchall for agent urls)
 	registerUrl(new LLUrlEntryAgent());
+    registerUrl(new LLUrlEntryChat());
 	registerUrl(new LLUrlEntryGroup());
 	registerUrl(new LLUrlEntryParcel());
 	registerUrl(new LLUrlEntryTeleport());
@@ -71,7 +72,6 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
-	registerUrl(new LLUrlEntryObjectIM());
     registerUrl(new LLUrlEntryExperienceProfile());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list

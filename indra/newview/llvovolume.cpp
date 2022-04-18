@@ -71,6 +71,8 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llmeshrepository.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
 #include "lldatapacker.h"
@@ -2960,6 +2962,17 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			}
 		}
 		break;
+
+        case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+        {
+            // Media might be blocked, waiting for a file,
+            // send an empty response to unblock it
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
+
+            LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+        }
+        break;
 		
 		default:
 		break;
@@ -6089,14 +6102,25 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 				LLVOVolume* vobj = drawablep->getVOVolume();
                 if (debugLoggingEnabled("AnimatedObjectsLinkset"))
                 {
-                    if (vobj->isAnimatedObject() && vobj->isRiggedMesh())
+                    if (vobj && vobj->isAnimatedObject() && vobj->isRiggedMesh())
                     {
                         std::string vobj_name = llformat("Vol%p", vobj);
                         F32 est_tris = vobj->getEstTrianglesMax();
-                        LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL; 
+                        LL_DEBUGS("AnimatedObjectsLinkset") << vobj_name << " rebuildMesh, tris " << est_tris << LL_ENDL;
                     }
                 }
-				if (vobj->isNoLOD()) continue;
+
+                if (!vobj || vobj->isNoLOD())
+                {
+                    continue;
+                }
+
+                LLVolume* volume = vobj->getVolume();
+
+                if (!volume)
+                {
+                    continue;
+                }
 
 				vobj->preRebuild();
 
@@ -6105,7 +6129,6 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 					vobj->updateRelativeXform(true);
 				}
 
-				LLVolume* volume = vobj->getVolume();
 				for (S32 i = 0; i < drawablep->getNumFaces(); ++i)
 				{
 					LLFace* face = drawablep->getFace(i);

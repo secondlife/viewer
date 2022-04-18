@@ -421,59 +421,109 @@ private:
             std::string key(XMLRPC_GetValueID(current));
             LL_DEBUGS("LLXMLRPCListener") << "key: " << key_pfx << key << LL_ENDL;
             XMLRPC_VALUE_TYPE_EASY type = XMLRPC_GetValueTypeEasy(current);
-            if (xmlrpc_type_string == type)
+            switch (type)
             {
-                LLSD::String val(XMLRPC_GetValueString(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_int == type)
-            {
-                LLSD::Integer val(XMLRPC_GetValueInt(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_double == type)
-            {
-                LLSD::Real val(XMLRPC_GetValueDouble(current));
-                LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
-                responses.insert(key, val);
-            }
-            else if (xmlrpc_type_array == type)
-            {
-                // We expect this to be an array of submaps. Walk the array,
-                // recursively parsing each submap and collecting them.
-                LLSD array;
-                int i = 0;          // for descriptive purposes
-                for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
-                     row = XMLRPC_VectorNext(current), ++i)
+            case xmlrpc_type_empty:
+                LL_INFOS("LLXMLRPCListener") << "Empty result for key " << key_pfx << key << LL_ENDL;
+                responses.insert(key, LLSD());
+                break;
+            case xmlrpc_type_base64:
                 {
-                    // Recursive call. For the lower-level key_pfx, if 'key'
-                    // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
-                    // nested call, a subkey "bar" will then be logged as
-                    // "foo[0]:bar", and so forth.
-                    // Parse the scalar subkey/value pairs from this array
-                    // entry into a temp submap. Collect such submaps in 'array'.
-                    array.append(parseValues(status_string,
-                                             STRINGIZE(key_pfx << key << '[' << i << "]:"),
-                                             row));
+                    S32 len = XMLRPC_GetValueStringLen(current);
+                    const char* buf = XMLRPC_GetValueBase64(current);
+                    if ((len > 0) && buf)
+                    {
+                        // During implementation this code was not tested
+                        // If you encounter this, please make sure this is correct,
+                        // then remove llassert
+                        llassert(0);
+
+                        LLSD::Binary data;
+                        data.resize(len);
+                        memcpy((void*)&data[0], (void*)buf, len);
+                        responses.insert(key, data);
+                    }
+                    else
+                    {
+                        LL_WARNS("LLXMLRPCListener") << "Potentially malformed xmlrpc_type_base64 for key "
+                            << key_pfx << key << LL_ENDL;
+                        responses.insert(key, LLSD());
+                    }
+                    break;
                 }
-                // Having collected an 'array' of 'submap's, insert that whole
-                // 'array' as the value of this 'key'.
-                responses.insert(key, array);
-            }
-            else if (xmlrpc_type_struct == type)
-            {
-                LLSD submap = parseValues(status_string,
-                                          STRINGIZE(key_pfx << key << ':'),
-                                          current);
-                responses.insert(key, submap);
-            }
-            else
-            {
+            case xmlrpc_type_boolean:
+                {
+                    LLSD::Boolean val(XMLRPC_GetValueBoolean(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_datetime:
+                {
+                    std::string iso8601_date(XMLRPC_GetValueDateTime_ISO8601(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << iso8601_date << LL_ENDL;
+                    responses.insert(key, LLSD::Date(iso8601_date));
+                    break;
+                }
+            case xmlrpc_type_double:
+                {
+                    LLSD::Real val(XMLRPC_GetValueDouble(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_int:
+                {
+                    LLSD::Integer val(XMLRPC_GetValueInt(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_string:
+                {
+                    LLSD::String val(XMLRPC_GetValueString(current));
+                    LL_DEBUGS("LLXMLRPCListener") << "val: " << val << LL_ENDL;
+                    responses.insert(key, val);
+                    break;
+                }
+            case xmlrpc_type_mixed:
+            case xmlrpc_type_array:
+                {
+                    // We expect this to be an array of submaps. Walk the array,
+                    // recursively parsing each submap and collecting them.
+                    LLSD array;
+                    int i = 0;          // for descriptive purposes
+                    for (XMLRPC_VALUE row = XMLRPC_VectorRewind(current); row;
+                         row = XMLRPC_VectorNext(current), ++i)
+                    {
+                        // Recursive call. For the lower-level key_pfx, if 'key'
+                        // is "foo", pass "foo[0]:", then "foo[1]:", etc. In the
+                        // nested call, a subkey "bar" will then be logged as
+                        // "foo[0]:bar", and so forth.
+                        // Parse the scalar subkey/value pairs from this array
+                        // entry into a temp submap. Collect such submaps in 'array'.
+                        array.append(parseValues(status_string,
+                                                 STRINGIZE(key_pfx << key << '[' << i << "]:"),
+                                                 row));
+                    }
+                    // Having collected an 'array' of 'submap's, insert that whole
+                    // 'array' as the value of this 'key'.
+                    responses.insert(key, array);
+                    break;
+                }
+            case xmlrpc_type_struct:
+                {
+                    LLSD submap = parseValues(status_string,
+                                              STRINGIZE(key_pfx << key << ':'),
+                                              current);
+                    responses.insert(key, submap);
+                    break;
+                }
+            case xmlrpc_type_none: // Not expected
+            default:
                 // whoops - unrecognized type
                 LL_WARNS("LLXMLRPCListener") << "Unhandled xmlrpc type " << type << " for key "
-                                             << key_pfx << key << LL_ENDL;
+                    << key_pfx << key << LL_ENDL;
                 responses.insert(key, STRINGIZE("<bad XMLRPC type " << type << '>'));
                 status_string = "BadType";
             }

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """\
 @file   run_build_test.py
 @author Nat Goodspeed
@@ -17,7 +17,7 @@ line.
 
 Example:
 
-python run_build_test.py -DFOO=bar myprog somearg otherarg
+python3 run_build_test.py -DFOO=bar myprog somearg otherarg
 
 sets environment variable FOO=bar, then runs:
 myprog somearg otherarg
@@ -47,7 +47,7 @@ $/LicenseInfo$
 import os
 import sys
 import errno
-import HTMLParser
+import html.parser
 import re
 import signal
 import subprocess
@@ -111,10 +111,10 @@ def main(command, arguments=[], libpath=[], vars={}):
     # Now handle arbitrary environment variables. The tricky part is ensuring
     # that all the keys and values we try to pass are actually strings.
     if vars:
-        for key, value in vars.items():
+        for key, value in list(vars.items()):
             # As noted a few lines above, facilitate copy-paste rerunning.
             log.info("%s='%s' \\" % (key, value))
-    os.environ.update(dict([(str(key), str(value)) for key, value in vars.iteritems()]))
+    os.environ.update(dict([(str(key), str(value)) for key, value in vars.items()]))
     # Run the child process.
     command_list = [command]
     command_list.extend(arguments)
@@ -177,7 +177,7 @@ def translate_rc(rc):
         try:
             table = get_windows_table()
             symbol, desc = table[hexrc]
-        except Exception, err:
+        except Exception as err:
             log.error("(%s -- carrying on)" % err)
             log.error("terminated with rc %s (%s)" % (rc, hexrc))
         else:
@@ -194,7 +194,7 @@ def translate_rc(rc):
             strc = str(rc)
         return "terminated by signal %s" % strc
 
-class TableParser(HTMLParser.HTMLParser):
+class TableParser(html.parser.HTMLParser):
     """
     This HTMLParser subclass is designed to parse the table we know exists
     in windows-rcs.html, hopefully without building in too much knowledge of
@@ -204,9 +204,7 @@ class TableParser(HTMLParser.HTMLParser):
     whitespace = re.compile(r'\s*$')
 
     def __init__(self):
-        # Because Python 2.x's HTMLParser is an old-style class, we must use
-        # old-style syntax to forward the __init__() call -- not super().
-        HTMLParser.HTMLParser.__init__(self)
+        super().__init__()
         # this will collect all the data, eventually
         self.table = []
         # Stack whose top (last item) indicates where to append current

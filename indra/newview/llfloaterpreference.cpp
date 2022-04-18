@@ -2399,7 +2399,16 @@ void LLPanelPreference::saveSettings()
 		{
 			view_stack.push_back(*iter);
 		}
-	}	
+	}
+
+    if (LLStartUp::getStartupState() == STATE_STARTED)
+    {
+        LLControlVariable* control = gSavedPerAccountSettings.getControl("VoiceCallsFriendsOnly");
+        if (control)
+        {
+            mSavedValues[control] = control->getValue();
+        }
+    }
 }
 
 void LLPanelPreference::showMultipleViewersWarning(LLUICtrl* checkbox, const LLSD& value)
@@ -2944,6 +2953,9 @@ void LLPanelPreferenceControls::populateControlTable()
     {
         LL_WARNS() << "Unimplemented mode" << LL_ENDL;
     }
+
+    // explicit update to make sure table is ready for llsearchableui
+    pControlsTable->updateColumns();
 
     // Searchable columns were removed and readded, mark searchables for an update
     // Note: at the moment tables/lists lack proper llsearchableui support

@@ -196,7 +196,7 @@ LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
 // static
 void LLGroupActions::search()
 {
-	LLFloaterReg::showInstance("search", LLSD().with("category", "groups"));
+	LLFloaterReg::showInstance("search");
 }
 
 // static
@@ -372,6 +372,11 @@ void LLGroupActions::show(const LLUUID& group_id)
 	params["open_tab_name"] = "panel_group_info_sidetray";
 
 	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+    LLFloater *floater = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("people");
+    if (!floater->isFrontmost())
+    {
+        floater->setVisibleAndFrontmost(TRUE, params);
+    }
 }
 
 void LLGroupActions::refresh_notices()

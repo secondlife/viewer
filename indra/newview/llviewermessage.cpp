@@ -3851,7 +3851,12 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	}
 		
 	// Don't play sounds from gestures if they are not enabled.
-	if (object_id == owner_id && !gSavedSettings.getBOOL("EnableGestureSounds"))
+	// Do play sounds triggered by avatar, since muting your own
+	// gesture sounds and your own sounds played inworld from 
+	// Inventory can cause confusion.
+	if (object_id == owner_id
+        && owner_id != gAgentID
+        && !gSavedSettings.getBOOL("EnableGestureSounds"))
 	{
 		return;
 	}

@@ -1915,8 +1915,9 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_CROSS ]		= LoadCursor(NULL, IDC_CROSS);
 	mCursor[ UI_CURSOR_SIZENWSE ]	= LoadCursor(NULL, IDC_SIZENWSE);
 	mCursor[ UI_CURSOR_SIZENESW ]	= LoadCursor(NULL, IDC_SIZENESW);
-	mCursor[ UI_CURSOR_SIZEWE ]		= LoadCursor(NULL, IDC_SIZEWE);  
-	mCursor[ UI_CURSOR_SIZENS ]		= LoadCursor(NULL, IDC_SIZENS);  
+	mCursor[ UI_CURSOR_SIZEWE ]		= LoadCursor(NULL, IDC_SIZEWE);
+	mCursor[ UI_CURSOR_SIZENS ]		= LoadCursor(NULL, IDC_SIZENS);
+	mCursor[ UI_CURSOR_SIZEALL ]	= LoadCursor(NULL, IDC_SIZEALL);
 	mCursor[ UI_CURSOR_NO ]			= LoadCursor(NULL, IDC_NO);
 	mCursor[ UI_CURSOR_WORKING ]	= LoadCursor(NULL, IDC_APPSTARTING); 
 
@@ -1938,6 +1939,7 @@ void LLWindowWin32::initCursors()
 	mCursor[ UI_CURSOR_TOOLCAMERA ]	= LoadCursor(module, TEXT("TOOLCAMERA"));
 	mCursor[ UI_CURSOR_TOOLPAN ]	= LoadCursor(module, TEXT("TOOLPAN"));
 	mCursor[ UI_CURSOR_TOOLZOOMIN ] = LoadCursor(module, TEXT("TOOLZOOMIN"));
+	mCursor[ UI_CURSOR_TOOLZOOMOUT ] = LoadCursor(module, TEXT("TOOLZOOMOUT"));
 	mCursor[ UI_CURSOR_TOOLPICKOBJECT3 ] = LoadCursor(module, TEXT("TOOLPICKOBJECT3"));
 	mCursor[ UI_CURSOR_PIPETTE ] = LoadCursor(module, TEXT("TOOLPIPETTE"));
 	mCursor[ UI_CURSOR_TOOLSIT ]	= LoadCursor(module, TEXT("TOOLSIT"));
@@ -4260,7 +4262,8 @@ BOOL LLWindowWin32::handleImeRequests(WPARAM request, LPARAM param, LRESULT *res
 				S32 context_offset;
 				LLWString context = find_context(wtext, preedit, preedit_length, &context_offset);
 				preedit -= context_offset;
-				if (preedit_length)
+				preedit_length = llmin(preedit_length, (S32)context.length() - preedit);
+				if (preedit_length && preedit >= 0)
 				{
 					// IMR_DOCUMENTFEED may be called when we have an active preedit.
 					// We should pass the context string *excluding* the preedit string.

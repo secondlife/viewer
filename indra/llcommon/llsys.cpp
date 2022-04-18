@@ -107,7 +107,7 @@ LLOSInfo::LLOSInfo() :
 
 #if LL_WINDOWS
 
-	if (IsWindowsVersionOrGreater(10, 0, 0))
+    if (IsWindows10OrGreater())
 	{
 		mMajorVer = 10;
 		mMinorVer = 0;
@@ -195,18 +195,6 @@ LLOSInfo::LLOSInfo() :
 		GetSystemInfo(&si); //if it fails get regular system info 
 	//(Warning: If GetSystemInfo it may result in incorrect information in a WOW64 machine, if the kernel fails to load)
 
-	//msdn microsoft finds 32 bit and 64 bit flavors this way..
-	//http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
-	//of windows than this code does (in case it is needed for the future)
-	if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) //check for 64 bit
-	{
-		mOSStringSimple += "64-bit ";
-	}
-	else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-	{
-		mOSStringSimple += "32-bit ";
-	}
-
 	// Try calling GetVersionEx using the OSVERSIONINFOEX structure.
 	OSVERSIONINFOEX osvi;
 	ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
@@ -240,7 +228,34 @@ LLOSInfo::LLOSInfo() :
 				ubr = data;
 			}
 		}
-	}
+
+        if (mBuild >= 22000)
+        {
+            // At release Windows 11 version was 10.0.22000.194
+            // Windows 10 version was 10.0.19043.1266
+            // There is no warranty that Win10 build won't increase,
+            // so until better solution is found or Microsoft updates
+            // SDK with IsWindows11OrGreater(), indicate "10/11"
+            //
+            // Current alternatives:
+            // Query WMI's Win32_OperatingSystem for OS string. Slow
+            // and likely to return 'compatibility' string.
+            // Check presence of dlls/libs or may be their version.
+            mOSStringSimple = "Microsoft Windows 10/11 ";
+        }
+    }
+
+    //msdn microsoft finds 32 bit and 64 bit flavors this way..
+    //http://msdn.microsoft.com/en-us/library/ms724429(VS.85).aspx (example code that contains quite a few more flavors
+    //of windows than this code does (in case it is needed for the future)
+    if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) //check for 64 bit
+    {
+        mOSStringSimple += "64-bit ";
+    }
+    else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
+    {
+        mOSStringSimple += "32-bit ";
+    }
 
 	mOSString = mOSStringSimple;
 	if (mBuild > 0)
@@ -1222,7 +1237,12 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *dst = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
-	src = gzopen(srcfile.c_str(), "rb");
+#ifdef LL_WINDOWS
+    llutf16string utf16filename = utf8str_to_utf16str(srcfile);
+    src = gzopen_w(utf16filename.c_str(), "rb");
+#else
+    src = gzopen(srcfile.c_str(), "rb");
+#endif
 	if (! src) goto err;
 	dst = LLFile::fopen(tmpfile, "wb");		/* Flawfinder: ignore */
 	if (! dst) goto err;
@@ -1256,7 +1276,14 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	LLFILE *src = NULL;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
-	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
+
+#ifdef LL_WINDOWS
+    llutf16string utf16filename = utf8str_to_utf16str(tmpfile);
+    dst = gzopen_w(utf16filename.c_str(), "wb");
+#else
+    dst = gzopen(tmpfile.c_str(), "wb");
+#endif
+
 	if (! dst) goto err;
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;
