@@ -61,7 +61,7 @@
 
 #define CAP_SERVICE_NAVMESH_STATUS          "NavMeshGenerationStatus"
 
-#define CAP_SERVICE_OBJECT_LINKSETS         "ObjectNavMeshProperties"
+#define CAP_SERVICE_OBJECT_LINKSETS         "RegionObjects"
 #define CAP_SERVICE_TERRAIN_LINKSETS        "TerrainNavMeshProperties"
 
 #define CAP_SERVICE_CHARACTERS              "CharacterProperties"

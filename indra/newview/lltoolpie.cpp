@@ -394,8 +394,9 @@ BOOL LLToolPie::handleLeftClickPick()
 		gFocusMgr.setKeyboardFocus(NULL);
 	}
 
-	BOOL touchable = (object && object->flagHandleTouch()) 
-					 || (parent && parent->flagHandleTouch());
+    bool touchable = object
+                     && (object->getClickAction() != CLICK_ACTION_DISABLED)
+                     && (object->flagHandleTouch() || (parent && parent->flagHandleTouch()));
 
 	// Switch to grab tool if physical or triggerable
 	if (object && 
@@ -656,6 +657,12 @@ bool LLToolPie::teleportToClickedLocation()
     LLViewerObject* objp = mHoverPick.getObject();
     LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
 
+    if (objp && (objp->getAvatar() == gAgentAvatarp || objp == gAgentAvatarp)) // ex: nametag
+    {
+        // Don't teleport to self, teleporting to other avatars is fine
+        return false;
+    }
+
     bool is_in_world = mHoverPick.mObjectID.notNull() && objp && !objp->isHUDAttachment();
     bool is_land = mHoverPick.mPickType == LLPickInfo::PICK_LAND;
     bool pos_non_zero = !mHoverPick.mPosGlobal.isExactlyZero();
@@ -750,7 +757,7 @@ BOOL LLToolPie::handleHover(S32 x, S32 y, MASK mask)
 	else if (!mMouseOutsideSlop 
 		&& mMouseButtonDown
 		// disable camera steering if click on land is not used for moving
-		&& gViewerInput.isMouseBindUsed(CLICK_LEFT))
+		&& gViewerInput.isMouseBindUsed(CLICK_LEFT, MASK_NONE, MODE_THIRD_PERSON))
 	{
 		S32 delta_x = x - mMouseDownX;
 		S32 delta_y = y - mMouseDownY;
