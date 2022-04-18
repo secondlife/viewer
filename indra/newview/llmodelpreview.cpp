@@ -2813,7 +2813,9 @@ void LLModelPreview::lookupLODModelFiles(S32 lod)
 
     std::string lod_filename = mLODFile[LLModel::LOD_HIGH];
     std::string ext = ".dae";
-    std::string::size_type i = lod_filename.rfind(ext);
+    std::string lod_filename_lower(lod_filename);
+    LLStringUtil::toLower(lod_filename_lower);
+    std::string::size_type i = lod_filename_lower.rfind(ext);
     if (i != std::string::npos)
     {
         lod_filename.replace(i, lod_filename.size() - ext.size(), getLodSuffix(next_lod) + ext);

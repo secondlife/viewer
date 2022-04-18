@@ -1200,6 +1200,16 @@ public:
             return;
         }
 
+        if (gDisconnected)
+        {
+            return;
+        }
+
+        if (!LLWorld::instanceExists())
+        {
+            return;
+        }
+
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
 			!input["body"].has("seed-capability"))
@@ -1208,8 +1218,13 @@ public:
             return;
 		}
 
-		LLHost sim(input["body"]["sim-ip-and-port"].asString());
-	
+        LLHost sim(input["body"]["sim-ip-and-port"].asString());
+        if (sim.isInvalid())
+        {
+            LL_WARNS() << "Got EstablishAgentCommunication with invalid host" << LL_ENDL;
+            return;
+        }
+
 		LLViewerRegion* regionp = LLWorld::getInstance()->getRegion(sim);
 		if (!regionp)
 		{
@@ -1218,7 +1233,7 @@ public:
 			return;
 		}
 		LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from LLEstablishAgentCommunication::post. Seed cap == "
-				<< input["body"]["seed-capability"] << LL_ENDL;
+				<< input["body"]["seed-capability"] << " for region " << regionp->getRegionID() << LL_ENDL;
 		regionp->setSeedCapability(input["body"]["seed-capability"]);
 	}
 };

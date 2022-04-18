@@ -66,6 +66,7 @@ public:
     };
 
     const U32 CONFLICT_NOTHING = 0;
+    const U32 CONFLICT_LMOUSE = 0x1 << 1;
     // at the moment this just means that key will conflict with everything that is identical
     const U32 CONFLICT_ANY = U32_MAX;
 
@@ -128,23 +129,24 @@ public:
     // resets current mode to defaults
     void resetToDefaults();
 
-    bool empty() { return mControlsMap.empty(); }
+    bool empty() const { return mControlsMap.empty(); }
     void clear();
 
     // reloads bindings from last valid user's xml or from default xml
     // to keyboard's handler
     static void resetKeyboardBindings();
 
-    bool hasUnsavedChanges() { return mHasUnsavedChanges; }
+    bool hasUnsavedChanges() const { return mHasUnsavedChanges; }
     void setLoadMode(ESourceMode mode) { mLoadMode = mode; }
-    ESourceMode getLoadMode() { return mLoadMode; }
+    ESourceMode getLoadMode() const { return mLoadMode; }
 
 private:
     void resetToDefaultAndResolve(const std::string &control_name, bool ignore_conflicts);
-    void resetToDefaults(ESourceMode mode);
+    void resetToDefaultsAndResolve();
 
     // at the moment these kind of control is not savable, but takes part in conflict resolution
     void registerTemporaryControl(const std::string &control_name, EMouseClickType mouse_ind, KEY key, MASK mask, U32 conflict_mask);
+    // conflict mask 0 means that any conflicts will be ignored
     void registerTemporaryControl(const std::string &control_name, U32 conflict_mask = 0);
 
     typedef std::map<std::string, LLKeyConflict> control_map_t;
@@ -152,7 +154,7 @@ private:
     bool loadFromSettings(const ESourceMode &load_mode, const std::string &filename, control_map_t *destination);
     void generatePlaceholders(ESourceMode load_mode); //E.x. non-assignable values
     // returns false in case user is trying to reuse control that can't be reassigned
-    bool removeConflicts(const LLKeyData &data, const U32 &conlict_mask);
+    bool removeConflicts(const LLKeyData &data, U32 conlict_mask);
 
     // removes flags and removes temporary file, returns 'true' if file was removed
     bool clearUnsavedChanges();
