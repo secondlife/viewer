@@ -1496,19 +1496,7 @@ bool idle_startup()
 		display_startup();
 
 		// start up the ThreadPool we'll use for textures et al.
-		{
-			LLSD poolSizes{ gSavedSettings.getLLSD("ThreadPoolSizes") };
-			LLSD sizeSpec{ poolSizes["General"] };
-			LLSD::Integer poolSize{ sizeSpec.isInteger()? sizeSpec.asInteger() : 3 };
-			LL_DEBUGS("ThreadPool") << "Instantiating General pool with "
-									<< poolSize << " threads" << LL_ENDL;
-			// We don't want anyone, especially the main thread, to have to block
-			// due to this ThreadPool being full.
-			auto pool = new LL::ThreadPool("General", poolSize, 1024*1024);
-			pool->start();
-			// Once we start shutting down, destroy this ThreadPool.
-			LLAppViewer::instance()->onCleanup([pool](){ delete pool; });
-		}
+        LLAppViewer::instance()->initGeneralThread();
 
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
