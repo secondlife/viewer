@@ -4660,7 +4660,9 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 				continue;
 			}
 
-            updateRiggedVolume(true, i);
+            // This calculates the bounding box of the skinned mesh from scratch. It's actually quite expensive, but not nearly as expensive as building a full octree.
+            // rebuild_face_octrees = false because an octree for this face will be built later only if needed for narrow phase picking.
+            updateRiggedVolume(true, i, false);
 			face_hit = volume->lineSegmentIntersect(local_start, local_end, i,
 													&p, &tc, &n, &tn);
 			
@@ -4784,7 +4786,7 @@ void LLVOVolume::clearRiggedVolume()
 	}
 }
 
-void LLVOVolume::updateRiggedVolume(bool force_update, LLRiggedVolume::FaceIndex face_index)
+void LLVOVolume::updateRiggedVolume(bool force_update, LLRiggedVolume::FaceIndex face_index, bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	//Update mRiggedVolume to match current animation frame of avatar. 
@@ -4819,10 +4821,10 @@ void LLVOVolume::updateRiggedVolume(bool force_update, LLRiggedVolume::FaceIndex
 		updateRelativeXform();
 	}
 
-    mRiggedVolume->update(skin, avatar, volume, face_index);
+    mRiggedVolume->update(skin, avatar, volume, face_index, rebuild_face_octrees);
 }
 
-void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume, FaceIndex face_index)
+void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* volume, FaceIndex face_index, bool rebuild_face_octrees)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	bool copy = false;
@@ -4974,15 +4976,12 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 			}
 
+            if (rebuild_face_octrees)
 			{
     			delete dst_face.mOctree;
 				dst_face.mOctree = NULL;
 
-				LLVector4a size;
-				size.setSub(dst_face.mExtents[1], dst_face.mExtents[0]);
-				size.splat(size.getLength3().getF32()*0.5f);
-			
-				dst_face.createOctree(1.f);
+                dst_face.createOctree();
 			}
 		}
 	}
