@@ -65,7 +65,10 @@ public:
 	{
 	}
 
-	void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume);
+    using FaceIndex = S32;
+    static const FaceIndex UPDATE_ALL_FACES = -1;
+    static const FaceIndex DO_NOT_UPDATE_FACES = -2;
+    void update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, const LLVolume* src_volume, FaceIndex face_index = UPDATE_ALL_FACES);
 
     std::string mExtraDebugText;
 };
@@ -363,7 +366,7 @@ public:
 	
 
 	//rigged volume update (for raycasting)
-	void updateRiggedVolume(bool force_update = false);
+    void updateRiggedVolume(bool force_update = false, LLRiggedVolume::FaceIndex face_index = LLRiggedVolume::UPDATE_ALL_FACES);
 	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume
