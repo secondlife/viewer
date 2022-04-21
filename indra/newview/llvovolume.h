@@ -367,7 +367,7 @@ public:
 
     // Rigged volume update (for raycasting)
     // By default, this updates the bounding boxes of all the faces and builds an octree for precise per-triangle raycasting
-    void updateRiggedVolume(bool force_update = false, LLRiggedVolume::FaceIndex face_index = LLRiggedVolume::UPDATE_ALL_FACES, bool rebuild_face_octrees = true);
+    void updateRiggedVolume(bool force_treat_as_rigged, LLRiggedVolume::FaceIndex face_index = LLRiggedVolume::UPDATE_ALL_FACES, bool rebuild_face_octrees = true);
 	LLRiggedVolume* getRiggedVolume();
 
 	//returns true if volume should be treated as a rigged volume
