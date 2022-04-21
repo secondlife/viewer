@@ -2161,6 +2161,7 @@ bool LLAppViewer::cleanup()
 	LLEnvironment::deleteSingleton();
 	LLSelectMgr::deleteSingleton();
 	LLViewerEventRecorder::deleteSingleton();
+    LLWorld::deleteSingleton();
 
 	// It's not at first obvious where, in this long sequence, a generic cleanup
 	// call OUGHT to go. So let's say this: as we migrate cleanup from
@@ -5421,7 +5422,7 @@ void LLAppViewer::disconnectViewer()
 	// Now we just ask the LLWorld singleton to cleanly shut down.
 	if(LLWorld::instanceExists())
 	{
-		LLWorld::getInstance()->destroyClass();
+		LLWorld::getInstance()->resetClass();
 	}
 	LLVOCache::deleteSingleton();
 

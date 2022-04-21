@@ -2841,7 +2841,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
-	LLWorld::getInstance()->destroyClass();
+	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons

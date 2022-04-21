@@ -113,7 +113,7 @@ LLWorld::LLWorld() :
 }
 
 
-void LLWorld::destroyClass()
+void LLWorld::resetClass()
 {
 	mHoleWaterObjects.clear();
 	gObjectList.destroy();
@@ -135,7 +135,6 @@ void LLWorld::destroyClass()
 	LLDrawable::incrementVisible();
 
 	LLSceneMonitor::deleteSingleton();
-    LLWorld::deleteSingleton();
 }
 
 
