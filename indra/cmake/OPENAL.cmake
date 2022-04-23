@@ -4,6 +4,11 @@ include(Prebuilt)
 
 include_guard()
 
+# ND: Turn this off by default, the openal code in the viewer isn't very well maintained, seems
+# to have memory leaks, has no option to play music streams
+# It probably makes sense to to completely remove it
+
+set(USE_OPENAL OFF CACHE BOOL "Enable OpenAL")
 # ND: To streamline arguments passed, switch from OPENAL to USE_OPENAL
 # To not break all old build scripts convert old arguments but warn about it
 if(OPENAL)
