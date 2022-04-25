@@ -3671,6 +3671,8 @@ bool process_login_success_response()
 		std::string grid(LLGridManager::getInstance()->getGridId());
 		std::string user_id(gUserCredential->userID());
 		gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
+		// TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
+		gSecAPIHandler->syncProtectedMap();
 	}
 
 	bool success = false;
