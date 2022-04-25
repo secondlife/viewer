@@ -5943,7 +5943,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
-        alpha_sort = FALSE;
         rigged = TRUE;
     }
 
@@ -6198,8 +6197,11 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
         
         if (rigged)
         {
-            //sort faces by things that break batches, including avatar and mesh id
-            std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+            if (!distance_sort) // <--- alpha "sort" rigged faces by maintaining original draw order
+            {
+                //sort faces by things that break batches, including avatar and mesh id
+                std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+            }
         }
         else if (!distance_sort)
         {
@@ -6234,11 +6236,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
     
-    if (rigged)
-    { //don't attempt distance sorting on rigged meshes, not likely to succeed and breaks batches
-        distance_sort = FALSE;
-    }
-
     if (distance_sort)
     {
         buffer_index = -1;
