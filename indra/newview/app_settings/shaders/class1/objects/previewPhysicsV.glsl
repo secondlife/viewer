@@ -1,9 +1,9 @@
 /** 
- * @file impostorF.glsl
+ * @file previewPhysicsV.glsl
  *
- * $LicenseInfo:firstyear=2011&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,38 +23,20 @@
  * $/LicenseInfo$
  */
 
-/*[EXTRA_CODE_HERE]*/
+uniform mat4 texture_matrix0;
+uniform mat4 modelview_matrix;
+uniform mat4 modelview_projection_matrix;
 
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
-
-uniform float minimum_alpha;
-
-
-uniform sampler2D diffuseMap;
-uniform sampler2D normalMap;
-uniform sampler2D specularMap;
+ATTRIBUTE vec3 position;
+ATTRIBUTE vec2 texcoord0;
 
 VARYING vec2 vary_texcoord0;
 
-vec3 linear_to_srgb(vec3 c);
+//====================================================================================================
 
-void main() 
+void main()
 {
-	vec4 col = texture2D(diffuseMap, vary_texcoord0.xy);
-
-	if (col.a < minimum_alpha)
-	{
-		discard;
-	}
-
-	vec4 norm = texture2D(normalMap,   vary_texcoord0.xy);
-	vec4 spec = texture2D(specularMap, vary_texcoord0.xy);
-
-	frag_data[0] = vec4(col.rgb, 0.0);
-	frag_data[1] = spec;
-	frag_data[2] = norm;
+	//transform vertex
+	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 }

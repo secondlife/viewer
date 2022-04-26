@@ -1222,6 +1222,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		LLViewerFetchedTexture* imagep = *iter++;
 		imagep->updateFetch();
 	}
+    std::shared_ptr<LL::WorkQueue> main_queue = LLImageGLThread::sEnabled ? LL::WorkQueue::getInstance("mainloop") : NULL;
 	// Run threads
 	S32 fetch_pending = 0;
 	while (1)
@@ -1229,6 +1230,13 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 		LLAppViewer::instance()->getTextureCache()->update(1); // unpauses the texture cache thread
 		LLAppViewer::instance()->getImageDecodeThread()->update(1); // unpauses the image thread
 		fetch_pending = LLAppViewer::instance()->getTextureFetch()->update(1); // unpauses the texture fetch thread
+
+        if (LLImageGLThread::sEnabled)
+        {
+            main_queue->runFor(std::chrono::milliseconds(1));
+            fetch_pending += main_queue->size();
+        }
+
 		if (fetch_pending == 0 || timer.getElapsedTimeF32() > max_time)
 		{
 			break;
@@ -1968,9 +1976,18 @@ bool LLUIImageList::initFromFile()
 			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip, image.scale_type);
 		}
 
-		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))
+		if (!gSavedSettings.getBOOL("NoPreload"))
 		{
-			gTextureList.decodeAllImages(10.f); // decode preloaded images
+            if (cur_pass == PASS_DECODE_NOW)
+            {
+                // init fetching and decoding of preloaded images
+                gTextureList.decodeAllImages(9.f);
+            }
+            else
+            {
+                // decodeAllImages needs two passes to refresh stats and priorities on second pass
+                gTextureList.decodeAllImages(1.f);
+            }
 		}
 	}
 	return true;

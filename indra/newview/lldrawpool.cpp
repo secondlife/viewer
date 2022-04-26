@@ -451,7 +451,7 @@ void LLRenderPass::pushRiggedBatches(U32 type, U32 mask, BOOL texture, BOOL batc
         LLDrawInfo* pparams = *i;
         if (pparams)
         {
-            if (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash)
+            if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
             {
                 uploadMatrixPalette(*pparams);
                 lastAvatar = pparams->mAvatar;
@@ -596,6 +596,10 @@ bool LLRenderPass::uploadMatrixPalette(LLDrawInfo& params)
 //static
 bool LLRenderPass::uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo)
 {
+    if (!avatar)
+    {
+        return false;
+    }
     const LLVOAvatar::MatrixPaletteCache& mpc = avatar->updateSkinInfoMatrixPalette(skinInfo);
     U32 count = mpc.mMatrixPalette.size();
 

@@ -211,6 +211,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT:    return 8;
     case GL_LUMINANCE:						        return 8;
     case GL_ALPHA:							        return 8;
+    case GL_RED:                                    return 8;
     case GL_COLOR_INDEX:						    return 8;
     case GL_LUMINANCE_ALPHA:					    return 16;
     case GL_RGB:								    return 24;
@@ -260,6 +261,7 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 	  case GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT: return 4;
 	  case GL_LUMINANCE:						return 1;
 	  case GL_ALPHA:							return 1;
+      case GL_RED:                              return 1;
 	  case GL_COLOR_INDEX:						return 1;
 	  case GL_LUMINANCE_ALPHA:					return 2;
 	  case GL_RGB:								return 3;
@@ -1199,7 +1201,29 @@ BOOL LLImageGL::setSubImageFromFrameBuffer(S32 fb_x, S32 fb_y, S32 x_pos, S32 y_
 void LLImageGL::generateTextures(S32 numTextures, U32 *textures)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	glGenTextures(numTextures, textures);
+    static constexpr U32 pool_size = 1024;
+    static thread_local U32 name_pool[pool_size]; // pool of texture names
+    static thread_local U32 name_count = 0; // number of available names in the pool
+
+    if (name_count == 0)
+    {
+        LL_PROFILE_ZONE_NAMED("iglgt - reup pool");
+        // pool is emtpy, refill it
+        glGenTextures(pool_size, name_pool);
+        name_count = pool_size;
+    }
+
+    if (numTextures <= name_count)
+    {
+        //copy teture names off the end of the pool
+        memcpy(textures, name_pool + name_count - numTextures, sizeof(U32) * numTextures);
+        name_count -= numTextures;
+    }
+    else
+    {
+        LL_PROFILE_ZONE_NAMED("iglgt - pool miss");
+        glGenTextures(numTextures, textures);
+    }
 }
 
 // static
@@ -1221,15 +1245,18 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     {
         if (pixformat == GL_ALPHA && pixtype == GL_UNSIGNED_BYTE)
         { //GL_ALPHA is deprecated, convert to RGBA
-            use_scratch = true;
-            scratch = new U32[width * height];
-
-            U32 pixel_count = (U32)(width * height);
-            for (U32 i = 0; i < pixel_count; i++)
+            if (pixels != nullptr)
             {
-                U8* pix = (U8*)&scratch[i];
-                pix[0] = pix[1] = pix[2] = 0;
-                pix[3] = ((U8*)pixels)[i];
+                use_scratch = true;
+                scratch = new U32[width * height];
+
+                U32 pixel_count = (U32)(width * height);
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    U8* pix = (U8*)&scratch[i];
+                    pix[0] = pix[1] = pix[2] = 0;
+                    pix[3] = ((U8*)pixels)[i];
+                }
             }
 
             pixformat = GL_RGBA;
@@ -1238,18 +1265,21 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
         if (pixformat == GL_LUMINANCE_ALPHA && pixtype == GL_UNSIGNED_BYTE)
         { //GL_LUMINANCE_ALPHA is deprecated, convert to RGBA
-            use_scratch = true;
-            scratch = new U32[width * height];
-
-            U32 pixel_count = (U32)(width * height);
-            for (U32 i = 0; i < pixel_count; i++)
+            if (pixels != nullptr)
             {
-                U8 lum = ((U8*)pixels)[i * 2 + 0];
-                U8 alpha = ((U8*)pixels)[i * 2 + 1];
+                use_scratch = true;
+                scratch = new U32[width * height];
 
-                U8* pix = (U8*)&scratch[i];
-                pix[0] = pix[1] = pix[2] = lum;
-                pix[3] = alpha;
+                U32 pixel_count = (U32)(width * height);
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    U8 lum = ((U8*)pixels)[i * 2 + 0];
+                    U8 alpha = ((U8*)pixels)[i * 2 + 1];
+
+                    U8* pix = (U8*)&scratch[i];
+                    pix[0] = pix[1] = pix[2] = lum;
+                    pix[3] = alpha;
+                }
             }
 
             pixformat = GL_RGBA;
@@ -1258,19 +1288,21 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
 
         if (pixformat == GL_LUMINANCE && pixtype == GL_UNSIGNED_BYTE)
         { //GL_LUMINANCE_ALPHA is deprecated, convert to RGB
-            use_scratch = true;
-            scratch = new U32[width * height];
-
-            U32 pixel_count = (U32)(width * height);
-            for (U32 i = 0; i < pixel_count; i++)
+            if (pixels != nullptr)
             {
-                U8 lum = ((U8*)pixels)[i];
+                use_scratch = true;
+                scratch = new U32[width * height];
 
-                U8* pix = (U8*)&scratch[i];
-                pix[0] = pix[1] = pix[2] = lum;
-                pix[3] = 255;
+                U32 pixel_count = (U32)(width * height);
+                for (U32 i = 0; i < pixel_count; i++)
+                {
+                    U8 lum = ((U8*)pixels)[i];
+
+                    U8* pix = (U8*)&scratch[i];
+                    pix[0] = pix[1] = pix[2] = lum;
+                    pix[3] = 255;
+                }
             }
-
             pixformat = GL_RGBA;
             intformat = GL_RGB8;
         }
@@ -1307,6 +1339,10 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
         case GL_ALPHA:
         case GL_ALPHA8:
             intformat = GL_COMPRESSED_ALPHA;
+            break;
+        case GL_RED:
+        case GL_R8:
+            intformat = GL_COMPRESSED_RED;
             break;
         default:
             LL_WARNS() << "Could not compress format: " << std::hex << intformat << LL_ENDL;
@@ -2010,6 +2046,7 @@ void LLImageGL::calcAlphaChannelOffsetAndStride()
     case GL_LUMINANCE_ALPHA:
         mAlphaStride = 2;
         break;
+    case GL_RED:
     case GL_RGB:
     case GL_SRGB:
         mNeedsAlphaAndPickMask = FALSE;

@@ -1,9 +1,9 @@
 /** 
- * @file normgenF.glsl
+ * @file previewPhysicsF.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,10 +22,6 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
-#extension GL_ARB_texture_rectangle : enable
-
-/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -33,28 +29,14 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2D alphaMap;
+uniform sampler2D diffuseMap;
+uniform vec4 color;
 
 VARYING vec2 vary_texcoord0;
 
-uniform float stepX;
-uniform float stepY;
-uniform float norm_scale;
+//====================================================================================================
 
 void main()
 {
-	float c = texture2D(alphaMap, vary_texcoord0).r;
-
-	vec3 right = vec3(norm_scale, 0, (texture2D(alphaMap, vary_texcoord0+vec2(stepX, 0)).r-c)*255);
-	vec3 left = vec3(-norm_scale, 0, (texture2D(alphaMap, vary_texcoord0-vec2(stepX, 0)).r-c)*255);
-	vec3 up = vec3(0, -norm_scale, (texture2D(alphaMap, vary_texcoord0-vec2(0, stepY)).r-c)*255);
-	vec3 down = vec3(0, norm_scale, (texture2D(alphaMap, vary_texcoord0+vec2(0, stepY)).r-c)*255);
-	
-	vec3 norm = cross(right, down) + cross(down, left) + cross(left,up) + cross(up, right);
-	
-	norm = normalize(norm);
-	norm *= 0.5;
-	norm += 0.5;	
-
-	frag_color = vec4(norm, c);
+    frag_color = texture2D(diffuseMap,vary_texcoord0.xy) * color;
 }

@@ -56,6 +56,11 @@ BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
 
+// minimum alpha before discarding a fragment
+static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+// minimum alpha before discarding a fragment when rendering impostors
+static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
+
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), target_shader(NULL),
 		mColorSFactor(LLRender::BF_UNDEF), mColorDFactor(LLRender::BF_UNDEF),
@@ -106,11 +111,11 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
 
     if (LLPipeline::sImpostorRender)
     {
-        shader->setMinimumAlpha(0.5f);
+        shader->setMinimumAlpha(MINIMUM_IMPOSTOR_ALPHA);
     }
     else
     {
-        shader->setMinimumAlpha(0.f);
+        shader->setMinimumAlpha(MINIMUM_ALPHA);
     }
     if (textureGamma)
     {
@@ -130,14 +135,15 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     deferred_render = TRUE;
 
     // prepare shaders
-    emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+    emissive_shader = (LLPipeline::sRenderDeferred)   ? &gDeferredEmissiveProgram    :
+                      (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
     prepare_alpha_shader(emissive_shader, true, false);
 
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
+    fullbright_shader   = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightAlphaMaskProgram;
     prepare_alpha_shader(fullbright_shader, true, false);
 
-    simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+    simple_shader   = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
@@ -196,18 +202,18 @@ void LLDrawPoolAlpha::render(S32 pass)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
     simple_shader = (LLPipeline::sImpostorRender) ? &gObjectSimpleImpostorProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleProgram;
+        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleAlphaMaskProgram;
 
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightProgram;
+    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightAlphaMaskProgram :
+        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightAlphaMaskProgram;
 
     emissive_shader = (LLPipeline::sImpostorRender) ? &gObjectEmissiveProgram :
         (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 
-    F32 minimum_alpha = 0.f;
+    F32 minimum_alpha = MINIMUM_ALPHA;
     if (LLPipeline::sImpostorRender)
     {
-        minimum_alpha = 0.5f;
+        minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
     }
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
@@ -228,8 +234,8 @@ void LLDrawPoolAlpha::forwardRender(bool rigged)
     //enable writing to alpha for emissive effects
     gGL.setColorMask(true, true);
 
-    bool write_depth = rigged
-        || LLDrawPoolWater::sSkipScreenCopy
+    bool write_depth = rigged || 
+        LLDrawPoolWater::sSkipScreenCopy
         // we want depth written so that rendered alpha will
         // contribute to the alpha mask used for impostors
         || LLPipeline::sImpostorRenderAlphaDepthPass;
@@ -484,6 +490,7 @@ void LLDrawPoolAlpha::renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissi
 
 void LLDrawPoolAlpha::renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives)
 {
+    LLGLDepthTest depth(GL_TRUE, GL_FALSE); //disable depth writes since "emissive" is additive so sorting doesn't matter
     LLGLSLShader* shader = emissive_shader->mRiggedVariant;
     shader->bind();
     shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, 1.f);
@@ -587,7 +594,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 						const LLTextureEntry* tep = face->getTextureEntry();
 						if(tep)
 						{ // don't render faces that are more than 90% transparent
-							if(tep->getColor().mV[3] < 0.1f)
+							if(tep->getColor().mV[3] < MINIMUM_IMPOSTOR_ALPHA)
 								continue;
 						}
 					}
@@ -795,6 +802,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
 {
+    if (params.mAvatar.isNull())
+    {
+        return false;
+    }
     const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
     U32 count = mpc.mMatrixPalette.size();
 

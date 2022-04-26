@@ -266,7 +266,14 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             return;
         }
 
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        LLWorld *world_inst = LLWorld::getInstance(); // Not a singleton!
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
@@ -314,6 +321,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
 
         regionp = NULL;
         impl = NULL;
+        world_inst = NULL;
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
         if (STATE_WORLD_INIT > LLStartUp::getStartupState())
@@ -327,7 +335,14 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCoro(U64 regionHandle)
             return;
         }
 
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        world_inst = LLWorld::getInstance();
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
@@ -411,7 +426,14 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
     // This loop is used for retrying a capabilities request.
     do
     {
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        LLWorld *world_inst = LLWorld::getInstance(); // Not a singleton!
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "Capabilities") << "Attempting to get capabilities for region that no longer exists!" << LL_ENDL;
@@ -434,6 +456,7 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
         LL_INFOS("AppInit", "Capabilities") << "Requesting second Seed from " << url << " for region " << regionp->getRegionID() << LL_ENDL;
 
         regionp = NULL;
+        world_inst = NULL;
         result = httpAdapter->postAndSuspend(httpRequest, url, capabilityNames);
 
         LLSD httpResults = result["http_result"];
@@ -449,7 +472,14 @@ void LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro(U64 regionHandle)
             break;
         }
 
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        world_inst = LLWorld::getInstance();
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Received capabilities, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "Capabilities") << "Received capabilities for region that no longer exists!" << LL_ENDL;
@@ -533,7 +563,14 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
             break;
         }
 
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        LLWorld *world_inst = LLWorld::getInstance(); // Not a singleton!
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to request Sim Feature, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "SimulatorFeatures") << "Attempting to request Sim Feature for region that no longer exists!" << LL_ENDL;
@@ -541,6 +578,7 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
         }
 
         regionp = NULL;
+        world_inst = NULL;
         LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
         LLSD httpResults = result["http_result"];
@@ -559,7 +597,14 @@ void LLViewerRegionImpl::requestSimulatorFeatureCoro(std::string url, U64 region
         // remove the http_result from the llsd
         result.erase("http_result");
 
-        regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+        world_inst = LLWorld::getInstance();
+        if (!world_inst)
+        {
+            LL_WARNS("AppInit", "Capabilities") << "Attempting to request Sim Feature, but world no longer exists!" << LL_ENDL;
+            return;
+        }
+
+        regionp = world_inst->getRegionFromHandle(regionHandle);
         if (!regionp) //region was removed
         {
             LL_WARNS("AppInit", "SimulatorFeatures") << "Attempting to set Sim Feature for region that no longer exists!" << LL_ENDL;
@@ -2092,7 +2137,14 @@ public:
 		const LLSD& input) const
 	{
 		LLHost host(input["sender"].asString());
-		LLViewerRegion* region = LLWorld::getInstance()->getRegion(host);
+
+        LLWorld *world_inst = LLWorld::getInstance(); // Not a singleton!
+        if (!world_inst)
+        {
+            return;
+        }
+
+		LLViewerRegion* region = world_inst->getRegion(host);
 		if( !region )
 		{
 			return;
@@ -3008,12 +3060,12 @@ void LLViewerRegionImpl::buildCapabilityNames(LLSD& capabilityNames)
 	capabilityNames.append("ObjectAnimation");
 	capabilityNames.append("ObjectMedia");
 	capabilityNames.append("ObjectMediaNavigate");
-	capabilityNames.append("ObjectNavMeshProperties");
 	capabilityNames.append("ParcelPropertiesUpdate");
 	capabilityNames.append("ParcelVoiceInfoRequest");
 	capabilityNames.append("ProductInfoRequest");
 	capabilityNames.append("ProvisionVoiceAccountRequest");
 	capabilityNames.append("ReadOfflineMsgs"); // Requires to respond reliably: AcceptFriendship, AcceptGroupInvite, DeclineFriendship, DeclineGroupInvite
+	capabilityNames.append("RegionObjects");
 	capabilityNames.append("RemoteParcelRequest");
 	capabilityNames.append("RenderMaterials");
 	capabilityNames.append("RequestTextureDownload");

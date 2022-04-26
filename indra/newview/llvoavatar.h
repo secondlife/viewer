@@ -282,9 +282,9 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
-	void			idleUpdateNameTagText(BOOL new_name);
+	void			idleUpdateNameTagText(bool new_name);
 	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
-	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
+	void			idleUpdateNameTagAlpha(bool new_name, F32 alpha);
 	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
 	static void		invalidateNameTag(const LLUUID& agent_id);
@@ -939,7 +939,7 @@ public:
 	void	   		startTyping() { mTyping = TRUE; mTypingTimer.reset(); }
 	void			stopTyping() { mTyping = FALSE; }
 private:
-	BOOL			mVisibleChat;
+	bool			mVisibleChat;
 
 	//--------------------------------------------------------------------
 	// Lip synch morphs

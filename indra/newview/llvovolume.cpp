@@ -71,6 +71,8 @@
 #include "llmediaentry.h"
 #include "llmediadataclient.h"
 #include "llmeshrepository.h"
+#include "llnotifications.h"
+#include "llnotificationsutil.h"
 #include "llagent.h"
 #include "llviewermediafocus.h"
 #include "lldatapacker.h"
@@ -2993,6 +2995,17 @@ void LLVOVolume::mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin,
 			}
 		}
 		break;
+
+        case LLViewerMediaObserver::MEDIA_EVENT_FILE_DOWNLOAD:
+        {
+            // Media might be blocked, waiting for a file,
+            // send an empty response to unblock it
+            const std::vector<std::string> empty_response;
+            plugin->sendPickFileResponse(empty_response);
+
+            LLNotificationsUtil::add("MediaFileDownloadUnsupported");
+        }
+        break;
 		
 		default:
 		break;
@@ -5467,6 +5480,7 @@ static inline void add_face(T*** list, U32* count, T* face)
     {
         if (count[1] < MAX_FACE_COUNT)
         {
+            face->setDrawOrderIndex(count[1]);
             list[1][count[1]++] = face;
         }
     }
@@ -5474,6 +5488,7 @@ static inline void add_face(T*** list, U32* count, T* face)
     {
         if (count[0] < MAX_FACE_COUNT)
         {
+            face->setDrawOrderIndex(count[0]);
             list[0][count[0]++] = face;
         }
     }
@@ -5689,6 +5704,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
                             pool->removeFace(facep);
                         }
                         facep->clearState(LLFace::RIGGED);
+                        facep->mAvatar = NULL;
+                        facep->mSkinInfo = NULL;
                     }
                 }
 
@@ -5926,7 +5943,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
-        alpha_sort = FALSE;
         rigged = TRUE;
     }
 
@@ -6086,7 +6102,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 	} 
 }
 
-struct CompareBatchBreakerModified
+struct CompareBatchBreaker
 {
 	bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
 	{
@@ -6101,18 +6117,23 @@ struct CompareBatchBreakerModified
 		{
 			return lte->getFullbright() < rte->getFullbright();
 		}
-		else if (LLPipeline::sRenderDeferred && lte->getMaterialParams() != rte->getMaterialParams())
-		{
-			return lte->getMaterialParams() < rte->getMaterialParams();
-		}
-		else if (LLPipeline::sRenderDeferred && (lte->getMaterialParams() == rte->getMaterialParams()) && (lte->getShiny() != rte->getShiny()))
+        else if (LLPipeline::sRenderDeferred && lte->getMaterialID() != rte->getMaterialID())
+        {
+            return lte->getMaterialID() < rte->getMaterialID();
+        }
+		else if (lte->getShiny() != rte->getShiny())
 		{
 			return lte->getShiny() < rte->getShiny();
 		}
-		else
+        else if (lhs->getTexture() != rhs->getTexture())
 		{
 			return lhs->getTexture() < rhs->getTexture();
 		}
+        else 
+        {
+            // all else being equal, maintain consistent draw order
+            return lhs->getDrawOrderIndex() < rhs->getDrawOrderIndex();
+        }
 	}
 };
 
@@ -6120,9 +6141,6 @@ struct CompareBatchBreakerRigged
 {
     bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
     {
-        const LLTextureEntry* lte = lhs->getTextureEntry();
-        const LLTextureEntry* rte = rhs->getTextureEntry();
-
         if (lhs->mAvatar != rhs->mAvatar)
         {
             return lhs->mAvatar < rhs->mAvatar;
@@ -6131,23 +6149,12 @@ struct CompareBatchBreakerRigged
         {
             return lhs->mSkinInfo->mHash < rhs->mSkinInfo->mHash;
         }
-        else if (lhs->getTexture() != rhs->getTexture())
+        else
         {
-            return lhs->getTexture() < rhs->getTexture();
+            // "inherit" non-rigged behavior
+            CompareBatchBreaker comp;
+            return comp(lhs, rhs);
         }
-        else if (lte->getBumpmap() != rte->getBumpmap())
-        {
-            return lte->getBumpmap() < rte->getBumpmap();
-        }
-        else if (LLPipeline::sRenderDeferred && lte->getMaterialID() != rte->getMaterialID())
-        {
-            return lte->getMaterialID() < rte->getMaterialID();
-        }
-        else // if (LLPipeline::sRenderDeferred && (lte->getMaterialParams() == rte->getMaterialParams()) && (lte->getShiny() != rte->getShiny()))
-        {
-            return lte->getShiny() < rte->getShiny();
-        }
-        
     }
 };
 
@@ -6190,13 +6197,16 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
         
         if (rigged)
         {
-            //sort faces by things that break batches, including avatar and mesh id
-            std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+            if (!distance_sort) // <--- alpha "sort" rigged faces by maintaining original draw order
+            {
+                //sort faces by things that break batches, including avatar and mesh id
+                std::sort(faces, faces + face_count, CompareBatchBreakerRigged());
+            }
         }
         else if (!distance_sort)
         {
             //sort faces by things that break batches, not including avatar and mesh id
-            std::sort(faces, faces + face_count, CompareBatchBreakerModified());
+            std::sort(faces, faces + face_count, CompareBatchBreaker());
         }
 		else
 		{
@@ -6226,11 +6236,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
     
-    if (rigged)
-    { //don't attempt distance sorting on rigged meshes, not likely to succeed and breaks batches
-        distance_sort = FALSE;
-    }
-
     if (distance_sort)
     {
         buffer_index = -1;

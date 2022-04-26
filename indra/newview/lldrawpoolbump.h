@@ -163,6 +163,7 @@ private:
 	bump_image_map_t mDarknessEntries;
     static LL::WorkQueue::weak_t sMainQueue;
     static LL::WorkQueue::weak_t sTexUpdateQueue;
+    static LLRenderTarget sRenderTarget;
 };
 
 extern LLBumpImageList gBumpImageList;

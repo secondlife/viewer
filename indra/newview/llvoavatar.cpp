@@ -1334,7 +1334,8 @@ void LLVOAvatar::calculateSpatialExtents(LLVector4a& newMin, LLVector4a& newMax)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 
-    S32 box_detail = gSavedSettings.getS32("AvatarBoundingBoxComplexity");
+    static LLCachedControl<S32> box_detail_cache(gSavedSettings, "AvatarBoundingBoxComplexity");
+    S32 box_detail = box_detail_cache;
     if (getOverallAppearance() != AOA_NORMAL)
     {
         if (isControlAvatar())
@@ -2539,16 +2540,13 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 	{
 		LL_INFOS() << "Warning!  Idle on dead avatar" << LL_ENDL;
 		return;
-	}	
+	}
 
+	static LLCachedControl<bool> disable_all_render_types(gSavedSettings, "DisableAllRenderTypes");
 	if (!(gPipeline.hasRenderType(mIsControlAvatar ? LLPipeline::RENDER_TYPE_CONTROL_AV : LLPipeline::RENDER_TYPE_AVATAR))
-		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")) && !isSelf())
+		&& !disable_all_render_types && !isSelf())
 	{
-        if (!mIsControlAvatar)
-        {
-            idleUpdateNameTag( mLastRootPos );
-        }
-        return;
+		return;
 	}
 
     // Update should be happening max once per frame.
@@ -2684,7 +2682,8 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	// Don't render the user's own voice visualizer when in mouselook, or when opening the mic is disabled.
 	if(isSelf())
 	{
-		if(gAgentCamera.cameraMouselook() || gSavedSettings.getBOOL("VoiceDisableMic"))
+        static LLCachedControl<bool> voice_disable_mic(gSavedSettings, "VoiceDisableMic");
+		if(gAgentCamera.cameraMouselook() || voice_disable_mic)
 		{
 			render_visualizer = false;
 		}
@@ -2821,11 +2820,15 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				 ++attachment_iter)
 			{
 				LLViewerObject* attached_object = attachment_iter->get();
-				BOOL visibleAttachment = visible || (attached_object && 
+				BOOL visibleAttachment = visible || (attached_object && attached_object->mDrawable.notNull() &&
 													 !(attached_object->mDrawable->getSpatialBridge() &&
 													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0));
 				
-				if (visibleAttachment && attached_object && !attached_object->isDead() && attachment->getValid())
+				if (visibleAttachment
+                    && attached_object
+                    && !attached_object->isDead()
+                    && attachment->getValid()
+                    && attached_object->mDrawable.notNull())
 				{
 
                     //override rigged attachments' octree spatial extents with this avatar's bounding box
@@ -3181,20 +3184,26 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	}
 	
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
-	const F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
-	const F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
-	BOOL visible_chat = gSavedSettings.getBOOL("UseChatBubbles") && (mChats.size() || mTyping);
-	BOOL render_name =	visible_chat ||
-		(((sRenderName == RENDER_NAME_ALWAYS) ||
+
+    static LLCachedControl<F32> NAME_SHOW_TIME(gSavedSettings, "RenderNameShowTime"); // seconds
+    static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
+    static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
+
+	bool visible_avatar = isVisible() || mNeedsAnimUpdate;
+	bool visible_chat = use_chat_bubbles && (mChats.size() || mTyping);
+	bool render_name =	visible_chat ||
+		(visible_avatar &&
+		 ((sRenderName == RENDER_NAME_ALWAYS) ||
 		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
 	{
+        static LLCachedControl<bool> render_name_show_self(gSavedSettings, "RenderNameShowSelf");
+        static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
 		render_name = render_name
 			&& !gAgentCamera.cameraMouselook()
-			&& (visible_chat || (gSavedSettings.getBOOL("RenderNameShowSelf") 
-								 && gSavedSettings.getS32("AvatarNameTagMode") ));
+			&& (visible_chat || (render_name_show_self && name_tag_mode));
 	}
 
 	if ( !render_name )
@@ -3209,7 +3218,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		return;
 	}
 
-	BOOL new_name = FALSE;
+	bool new_name = FALSE;
 	if (visible_chat != mVisibleChat)
 	{
 		mVisibleChat = visible_chat;
@@ -3274,7 +3283,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
-void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
+void LLVOAvatar::idleUpdateNameTagText(bool new_name)
 {
 	LLNameValue *title = getNVPair("Title");
 	LLNameValue* firstname = getNVPair("FirstName");
@@ -3584,7 +3593,7 @@ void LLVOAvatar::idleUpdateNameTagPosition(const LLVector3& root_pos_last)
 	mNameText->setPositionAgent(name_position);				
 }
 
-void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
+void LLVOAvatar::idleUpdateNameTagAlpha(bool new_name, F32 alpha)
 {
 	llassert(mNameText);
 
@@ -3727,7 +3736,8 @@ void LLVOAvatar::updateAppearanceMessageDebugText()
 		{
 			debug_line += llformat(" - cof: %d req: %d rcv:%d",
 								   curr_cof_version, last_request_cof_version, last_received_cof_version);
-			if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+			static LLCachedControl<bool> debug_force_failure(gSavedSettings, "DebugForceAppearanceRequestFailure");
+			if (debug_force_failure)
 			{
 				debug_line += " FORCING ERRS";
 			}
@@ -5943,7 +5953,8 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 					//}
 					//else
 					{
-						LLUUID sound_id = LLUUID(gSavedSettings.getString("UISndTyping"));
+                        static LLCachedControl<std::string> ui_snd_string(gSavedSettings, "UISndTyping");
+						LLUUID sound_id = LLUUID(ui_snd_string);
 						gAudiop->triggerSound(sound_id, getID(), 1.0f, LLAudioEngine::AUDIO_TYPE_SFX, char_pos_global);
 					}
 				}
@@ -6011,7 +6022,7 @@ void LLVOAvatar::resetAnimations()
 // animations.
 LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 {
-	BOOL use_new_walk_run = gSavedSettings.getBOOL("UseNewWalkRun");
+    static LLCachedControl<bool> use_new_walk_run(gSavedSettings, "UseNewWalkRun");
 	LLUUID result = id;
 
 	// start special case female walk for female avatars
@@ -8232,7 +8243,8 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && gSavedSettings.getBOOL("AlwaysRenderFriends"));
+    static LLCachedControl<bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
+	bool render_friend =  (LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends);
 
 	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
@@ -9089,7 +9101,8 @@ void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMe
 	
 	// Parse visual params, if any.
 	S32 num_blocks = mesgsys->getNumberOfBlocksFast(_PREHASH_VisualParam);
-	bool drop_visual_params_debug = gSavedSettings.getBOOL("BlockSomeAvatarAppearanceVisualParams") && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
+    static LLCachedControl<bool> block_some_avatars(gSavedSettings, "BlockSomeAvatarAppearanceVisualParams");
+	bool drop_visual_params_debug = block_some_avatars && (ll_rand(2) == 0); // pretend that ~12% of AvatarAppearance messages arrived without a VisualParam block, for testing
 	if( num_blocks > 1 && !drop_visual_params_debug)
 	{
 		//LL_DEBUGS("Avatar") << avString() << " handle visual params, num_blocks " << num_blocks << LL_ENDL;
@@ -9194,10 +9207,12 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
-	
-	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+
+    static LLCachedControl<bool> enable_verbose_dumps(gSavedSettings, "DebugAvatarAppearanceMessage");
+    static LLCachedControl<bool> block_avatar_appearance_messages(gSavedSettings, "BlockAvatarAppearanceMessages");
+
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
-	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
+	if (block_avatar_appearance_messages)
 	{
 		LL_WARNS() << "Blocking AvatarAppearance message" << LL_ENDL;
 		return;
@@ -10648,12 +10663,12 @@ void LLVOAvatar::accountRenderComplexityForObject(
                             F32 attachment_volume_cost = 0;
                             F32 attachment_texture_cost = 0;
                             F32 attachment_children_cost = 0;
-                            const F32 animated_object_attachment_surcharge = 1000;
+                const F32 animated_object_attachment_surcharge = 1000;
 
-                            if (attached_object->isAnimatedObject())
-                            {
-                                attachment_volume_cost += animated_object_attachment_surcharge;
-                            }
+                if (attached_object->isAnimatedObject())
+                {
+                    attachment_volume_cost += animated_object_attachment_surcharge;
+                }
 							attachment_volume_cost += volume->getRenderCost(textures);
 
 							const_child_list_t children = volume->getChildren();
@@ -10901,13 +10916,13 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 		mVisualComplexity = cost;
 		mVisualComplexityStale = false;
 
-        if (isSelf())
+        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
+
+        if (isSelf() && show_my_complexity_changes)
         {
             // Avatar complexity
             LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
-
             LLAvatarRenderNotifier::getInstance()->setObjectComplexityList(object_complexity_list);
-
             // HUD complexity
             LLHUDRenderNotifier::getInstance()->updateNotificationHUD(hud_complexity_list);
         }

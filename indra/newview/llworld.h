@@ -65,7 +65,9 @@ class LLWorld : public LLSimpleton<LLWorld>
 public:
     LLWorld();
 
-    void destroyClass();
+    // Clear any objects, regions
+    // Prepares class to be reused or destroyed
+    void resetClass();
 
 	LLViewerRegion*	addRegion(const U64 &region_handle, const LLHost &host);
 		// safe to call if already present, does the "right thing" if

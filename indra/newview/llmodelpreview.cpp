@@ -180,7 +180,6 @@ LLModelPreview::LLModelPreview(S32 width, S32 height, LLFloater* fmp)
     mPreviewLOD = 0;
     mModelLoader = NULL;
     mMaxTriangleLimit = 0;
-    mMinTriangleLimit = 0;
     mDirty = false;
     mGenLOD = false;
     mLoading = false;
@@ -1287,7 +1286,14 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else // indices_decimator can be zero for error_threshold based calculations
+    {
+        target_indices = 3;
+    }
     new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
         combined_indices,
@@ -1377,7 +1383,28 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                             << " original count: " << size_indices
                             << " error treshold: " << error_threshold
                             << LL_ENDL;
-                        return -1;
+
+                        // U16 vertices overflow shouldn't happen, but just in case
+                        new_indices = 0;
+                        valid_faces = 0;
+                        for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
+                        {
+                            genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, false);
+                            const LLVolumeFace &face = target_model->getVolumeFace(face_idx);
+                            new_indices += face.mNumIndices;
+                            if (face.mNumIndices >= 3)
+                            {
+                                valid_faces++;
+                            }
+                        }
+                        if (valid_faces)
+                        {
+                            return (F32)size_indices / (F32)new_indices;
+                        }
+                        else
+                        {
+                            return -1;
+                        }
                     }
 
                     // Copy vertice, normals, tcs
@@ -1447,20 +1474,6 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     if (new_indices < 3 || valid_faces == 0)
     {
         // Model should have at least one visible triangle
-
-        if (!sloppy)
-        {
-            // Should only happen with sloppy
-            // non sloppy shouldn't be capable of optimizing mesh away
-            LL_WARNS() << "Failed to generate triangles"
-                << " model " << target_model->mLabel
-                << " target Indices: " << target_indices
-                << " new Indices: " << new_indices
-                << " original count: " << size_indices
-                << " error treshold: " << error_threshold
-                << LL_ENDL;
-        }
-
         return -1;
     }
 
@@ -1484,7 +1497,14 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
 
-    target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    if (indices_decimator > 0)
+    {
+        target_indices = llclamp(llfloor(size_indices / indices_decimator), 3, (S32)size_indices); // leave at least one triangle
+    }
+    else
+    {
+        target_indices = 3;
+    }
     new_indices = LLMeshOptimizer::simplify(
         output,
         face.mIndices,
@@ -1621,11 +1641,13 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             }
             // meshoptimizer doesn't use triangle limit, it uses indices limit, so convert it to aproximate ratio
-            indices_decimator = (F32)base_triangle_count / triangle_limit;
+            // triangle_limit can be 0.
+            indices_decimator = (F32)base_triangle_count / llmax(triangle_limit, 1.f);
         }
         else
         {
-            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal();
+            // UI shows 0 to 100%, but meshoptimizer works with 0 to 1
+            lod_error_threshold = mFMP->childGetValue("lod_error_threshold_" + lod_name[which_lod]).asReal() / 100.f;
         }
     }
     else
@@ -1636,7 +1658,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
     }
 
     mMaxTriangleLimit = base_triangle_count;
-    mMinTriangleLimit = mBaseModel.size();
 
     // Build models
 
@@ -1661,8 +1682,8 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
             }
         }
 
-        mRequestedTriangleCount[lod] = llmax(mMinTriangleLimit, (S32)triangle_limit);
-        mRequestedErrorThreshold[lod] = lod_error_threshold;
+        mRequestedTriangleCount[lod] = triangle_limit;
+        mRequestedErrorThreshold[lod] = lod_error_threshold * 100;
         mRequestedLoDMode[lod] = lod_mode;
 
         mModel[lod].clear();
@@ -1699,11 +1720,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 F32 res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
                 if (res < 0)
                 {
-                    // U16 vertices overflow, shouldn't happen, but just in case
-                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                    {
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                    }
+                    target_model->copyVolumeFaces(base);
                 }
             }
 
@@ -1726,15 +1743,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 F32 allowed_ratio_drift = 2.f;
                 F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
                 
-                if (precise_ratio < 0)
-                {
-                    // U16 vertices overflow, shouldn't happen, but just in case
-                    for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
-                    {
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
-                    }
-                }
-                else if (precise_ratio * allowed_ratio_drift < indices_decimator)
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
                 {
                     // Try sloppy variant if normal one failed to simplify model enough.
                     // Sloppy variant can fail entirely and has issues with precision,
@@ -1815,9 +1824,18 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     {
                         // Sloppy variant failed to generate triangles or is worse.
                         // Can happen with models that are too simple as is.
-                        // Fallback to normal method
 
-                        precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                        if (precise_ratio < 0)
+                        {
+                            // Precise method failed as well, just copy face over
+                            target_model->copyVolumeFaces(base);
+                            precise_ratio = 1.f;
+                        }
+                        else
+                        {
+                            // Fallback to normal method
+                            precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                        }
 
                         LL_INFOS() << "Model " << target_model->getName()
                             << " lod " << which_lod
@@ -1999,7 +2017,6 @@ void LLModelPreview::updateStatusMessages()
     if (mMaxTriangleLimit == 0)
     {
         mMaxTriangleLimit = total_tris[LLModel::LOD_HIGH];
-        mMinTriangleLimit = mUploadData.size();
     }
 
     mHasDegenerate = false;
@@ -2502,7 +2519,6 @@ void LLModelPreview::updateLodControls(S32 lod)
         LLSpinCtrl* limit = mFMP->getChild<LLSpinCtrl>("lod_triangle_limit_" + lod_name[lod]);
 
         limit->setMaxValue(mMaxTriangleLimit);
-        limit->setMinValue(mMinTriangleLimit);
         limit->forceSetValue(mRequestedTriangleCount[lod]);
 
         threshold->forceSetValue(mRequestedErrorThreshold[lod]);
@@ -2515,7 +2531,6 @@ void LLModelPreview::updateLodControls(S32 lod)
             threshold->setVisible(false);
 
             limit->setMaxValue(mMaxTriangleLimit);
-            limit->setMinValue(mMinTriangleLimit);
             limit->setIncrement(llmax((U32)1, mMaxTriangleLimit / 32));
         }
         else
@@ -2798,7 +2813,9 @@ void LLModelPreview::lookupLODModelFiles(S32 lod)
 
     std::string lod_filename = mLODFile[LLModel::LOD_HIGH];
     std::string ext = ".dae";
-    std::string::size_type i = lod_filename.rfind(ext);
+    std::string lod_filename_lower(lod_filename);
+    LLStringUtil::toLower(lod_filename_lower);
+    std::string::size_type i = lod_filename_lower.rfind(ext);
     if (i != std::string::npos)
     {
         lod_filename.replace(i, lod_filename.size() - ext.size(), getLodSuffix(next_lod) + ext);
@@ -3281,6 +3298,14 @@ BOOL LLModelPreview::render()
 
                                 if (!physics.mMesh.empty())
                                 { //render hull instead of mesh
+                                    // SL-16993 physics.mMesh[i].mNormals were being used to light the exploded
+                                    // analyzed physics shape but the drawArrays() interface changed
+                                    //  causing normal data <0,0,0> to be passed to the shader.
+                                    // The Phyics Preview shader uses plain vertex coloring so the physics hull is full lit.
+                                    // We could also use interface/ui shaders.
+                                    gObjectPreviewProgram.unbind();
+                                    gPhysicsPreviewProgram.bind();
+
                                     for (U32 i = 0; i < physics.mMesh.size(); ++i)
                                     {
                                         if (explode > 0.f)
@@ -3308,6 +3333,9 @@ BOOL LLModelPreview::render()
                                             gGL.popMatrix();
                                         }
                                     }
+
+                                    gPhysicsPreviewProgram.unbind();
+                                    gObjectPreviewProgram.bind();
                                 }
                             }
                         }
@@ -3730,6 +3758,7 @@ void LLModelPreview::onLODMeshOptimizerParamCommit(S32 requested_lod, bool enfor
     {
         genMeshOptimizerLODs(requested_lod, mode, 3, enforce_tri_limit);
         refresh();
+        mDirty = true;
     }
 }
 

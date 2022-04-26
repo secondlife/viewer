@@ -56,6 +56,7 @@
 LLStandardBumpmap gStandardBumpmapList[TEM_BUMPMAP_COUNT]; 
 LL::WorkQueue::weak_t LLBumpImageList::sMainQueue;
 LL::WorkQueue::weak_t LLBumpImageList::sTexUpdateQueue;
+LLRenderTarget LLBumpImageList::sRenderTarget;
 
 // static
 U32 LLStandardBumpmap::sStandardBumpmapCount = 0;
@@ -76,7 +77,7 @@ static S32 cube_channel = -1;
 static S32 diffuse_channel = -1;
 static S32 bump_channel = -1;
 
-#define LL_BUMPLIST_MULTITHREADED 0
+#define LL_BUMPLIST_MULTITHREADED 0 // TODO -- figure out why this doesn't work
 
 // static 
 void LLStandardBumpmap::init()
@@ -776,6 +777,8 @@ void LLBumpImageList::clear()
 	mBrightnessEntries.clear();
 	mDarknessEntries.clear();
 
+    sRenderTarget.release();
+
 	LLStandardBumpmap::clear();
 }
 
@@ -1032,6 +1035,8 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 // static
 void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLImageRaw* src, LLUUID& source_asset_id, EBumpEffect bump_code )
 {
+    LL_PROFILE_ZONE_SCOPED;
+
 	if( success )
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -1201,145 +1206,111 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 			}
 			else 
 			{ //convert to normal map
-				
-				//disable compression on normal maps to prevent errors below
-				bump->getGLTexture()->setAllowCompression(false);
-                bump->getGLTexture()->setUseMipMaps(TRUE);
+                LL_PROFILE_ZONE_NAMED("bil - create normal map");
+                LLImageGL* img = bump->getGLTexture();
+                LLImageRaw* dst_ptr = dst_image.get();
+                LLGLTexture* bump_ptr = bump.get();
 
-                auto* bump_ptr = bump.get();
-                auto* dst_ptr = dst_image.get();
-
-#if LL_BUMPLIST_MULTITHREADED
-                bump_ptr->ref();
                 dst_ptr->ref();
-#endif
-
-                bump_ptr->setExplicitFormat(GL_RGBA8, GL_ALPHA);
-
-                auto create_texture = [=]()
+                img->ref();
+                bump_ptr->ref();
+                auto create_func = [=]()
                 {
-#if LL_IMAGEGL_THREAD_CHECK
-                    bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
-#endif
-                    LL_PROFILE_ZONE_NAMED("bil - create texture deferred");
+                    img->setUseMipMaps(TRUE);
+                    // upload dst_image to GPU (greyscale in red channel)
+                    img->setExplicitFormat(GL_RED, GL_RED);
+
                     bump_ptr->createGLTexture(0, dst_ptr);
-                };
-
-                auto gen_normal_map = [=]()
-                {
-#if LL_IMAGEGL_THREAD_CHECK
-                    bump_ptr->getGLTexture()->mActiveThread = LLThread::currentID();
-#endif
-                    LL_PROFILE_ZONE_NAMED("bil - generate normal map");
-                    if (gNormalMapGenProgram.mProgramObject == 0)
-                    {
-#if LL_BUMPLIST_MULTITHREADED
-                        bump_ptr->unref();
-                        dst_ptr->unref();
-#endif
-                        return;
-                    }
-                    gPipeline.mScreen.bindTarget();
-
-                    LLGLDepthTest depth(GL_FALSE);
-                    LLGLDisable cull(GL_CULL_FACE);
-                    LLGLDisable blend(GL_BLEND);
-                    gGL.setColorMask(TRUE, TRUE);
-                    gNormalMapGenProgram.bind();
-
-                    static LLStaticHashedString sNormScale("norm_scale");
-                    static LLStaticHashedString sStepX("stepX");
-                    static LLStaticHashedString sStepY("stepY");
-
-                    gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
-                    gNormalMapGenProgram.uniform1f(sStepX, 1.f / bump_ptr->getWidth());
-                    gNormalMapGenProgram.uniform1f(sStepY, 1.f / bump_ptr->getHeight());
-
-                    LLVector2 v((F32)bump_ptr->getWidth() / gPipeline.mScreen.getWidth(),
-                        (F32)bump_ptr->getHeight() / gPipeline.mScreen.getHeight());
-
-                    gGL.getTexUnit(0)->bind(bump_ptr);
-
-                    S32 width = bump_ptr->getWidth();
-                    S32 height = bump_ptr->getHeight();
-
-                    S32 screen_width = gPipeline.mScreen.getWidth();
-                    S32 screen_height = gPipeline.mScreen.getHeight();
-
-                    glViewport(0, 0, screen_width, screen_height);
-
-                    for (S32 left = 0; left < width; left += screen_width)
-                    {
-                        S32 right = left + screen_width;
-                        right = llmin(right, width);
-
-                        F32 left_tc = (F32)left / width;
-                        F32 right_tc = (F32)right / width;
-
-                        for (S32 bottom = 0; bottom < height; bottom += screen_height)
-                        {
-                            S32 top = bottom + screen_height;
-                            top = llmin(top, height);
-
-                            F32 bottom_tc = (F32)bottom / height;
-                            F32 top_tc = (F32)(bottom + screen_height) / height;
-                            top_tc = llmin(top_tc, 1.f);
-
-                            F32 screen_right = (F32)(right - left) / screen_width;
-                            F32 screen_top = (F32)(top - bottom) / screen_height;
-
-                            gGL.begin(LLRender::TRIANGLE_STRIP);
-                            gGL.texCoord2f(left_tc, bottom_tc);
-                            gGL.vertex2f(0, 0);
-
-                            gGL.texCoord2f(left_tc, top_tc);
-                            gGL.vertex2f(0, screen_top);
-
-                            gGL.texCoord2f(right_tc, bottom_tc);
-                            gGL.vertex2f(screen_right, 0);
-
-                            gGL.texCoord2f(right_tc, top_tc);
-                            gGL.vertex2f(screen_right, screen_top);
-
-                            gGL.end();
-
-                            gGL.flush();
-
-                            S32 w = right - left;
-                            S32 h = top - bottom;
-
-                            glCopyTexSubImage2D(GL_TEXTURE_2D, 0, left, bottom, 0, 0, w, h);
-                        }
-                    }
-
-                    glGenerateMipmap(GL_TEXTURE_2D);
-
-                    gPipeline.mScreen.flush();
-
-                    gNormalMapGenProgram.unbind();
-
-                    //generateNormalMapFromAlpha(dst_image, nrm_image);
-#if LL_BUMPLIST_MULTITHREADED
-                    bump_ptr->unref();
                     dst_ptr->unref();
-#endif
+                };
+
+                auto generate_func = [=]()
+                {
+                    // Allocate an empty RGBA texture at "tex_name" the same size as bump
+                    //  Note: bump will still point at GPU copy of dst_image
+                    bump_ptr->setExplicitFormat(GL_RGBA, GL_RGBA);
+                    LLGLuint tex_name;
+                    img->createGLTexture(0, nullptr, 0, 0, true, &tex_name);
+
+                    // point render target at empty buffer
+                    sRenderTarget.setColorAttachment(img, tex_name);
+
+                    // generate normal map in empty texture
+                    {
+                        sRenderTarget.bindTarget();
+
+                        LLGLDepthTest depth(GL_FALSE);
+                        LLGLDisable cull(GL_CULL_FACE);
+                        LLGLDisable blend(GL_BLEND);
+                        gGL.setColorMask(TRUE, TRUE);
+
+                        gNormalMapGenProgram.bind();
+
+                        static LLStaticHashedString sNormScale("norm_scale");
+                        static LLStaticHashedString sStepX("stepX");
+                        static LLStaticHashedString sStepY("stepY");
+
+                        gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
+                        gNormalMapGenProgram.uniform1f(sStepX, 1.f / bump_ptr->getWidth());
+                        gNormalMapGenProgram.uniform1f(sStepY, 1.f / bump_ptr->getHeight());
+
+                        gGL.getTexUnit(0)->bind(bump_ptr);
+
+                        gGL.begin(LLRender::TRIANGLE_STRIP);
+                        gGL.texCoord2f(0, 0);
+                        gGL.vertex2f(0, 0);
+
+                        gGL.texCoord2f(0, 1);
+                        gGL.vertex2f(0, 1);
+
+                        gGL.texCoord2f(1, 0);
+                        gGL.vertex2f(1, 0);
+
+                        gGL.texCoord2f(1, 1);
+                        gGL.vertex2f(1, 1);
+
+                        gGL.end();
+
+                        gGL.flush();
+
+                        gNormalMapGenProgram.unbind();
+
+                        sRenderTarget.flush();
+                        sRenderTarget.releaseColorAttachment();
+                    }
+
+                    // point bump at normal map and free gpu copy of dst_image
+                    img->syncTexName(tex_name);
+
+                    // generate mipmap
+                    gGL.getTexUnit(0)->bind(img);
+                    glGenerateMipmap(GL_TEXTURE_2D);
+                    gGL.getTexUnit(0)->disable();
+
+                    bump_ptr->unref();
+                    img->unref();
                 };
 
 #if LL_BUMPLIST_MULTITHREADED
-                auto main_queue = sMainQueue.lock();
+                auto main_queue = LLImageGLThread::sEnabled ? sMainQueue.lock() : nullptr;
 
-                if (LLImageGLThread::sEnabled)
-                { //dispatch creation to background thread
-                    main_queue->postTo(sTexUpdateQueue, create_texture, gen_normal_map);
+                if (main_queue)
+                { //dispatch texture upload to background thread, issue GPU commands to generate normal map on main thread
+                    main_queue->postTo(
+                        sTexUpdateQueue,
+                        create_func,
+                        generate_func);
                 }
                 else
 #endif
-                {
-                    create_texture();
-                    gen_normal_map();
+                { // immediate upload texture and generate normal map
+                    create_func();
+                    generate_func();
                 }
+
+
 			}
-		
+
 			iter->second = bump; // derefs (and deletes) old image
 			//---------------------------------------------------
 		}

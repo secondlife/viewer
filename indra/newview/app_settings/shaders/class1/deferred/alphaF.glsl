@@ -56,6 +56,10 @@ VARYING vec3 vary_norm;
 VARYING vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
+#ifdef HAS_ALPHA_MASK
+uniform float minimum_alpha;
+#endif
+
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -191,7 +195,6 @@ void main()
 #endif
 
     vec4 diffuse_srgb = diffuse_tap;
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #ifdef FOR_IMPOSTOR
     vec4 color;
@@ -200,25 +203,37 @@ void main()
 
     float final_alpha = diffuse_srgb.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb); 
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
-    if (final_alpha < 0.01)
+    if (final_alpha < minimum_alpha)
     {
         discard;
     }
-#else
-    
+
+    color.rgb = diffuse_srgb.rgb;
+    color.a = final_alpha;
+
+#else // FOR_IMPOSTOR
+
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
+
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
 
     float final_alpha = diffuse_linear.a;
 
 #ifdef USE_VERTEX_COLOR
     final_alpha *= vertex_color.a;
+
+    if (final_alpha < minimum_alpha)
+    { // TODO: figure out how to get invisible faces out of 
+        // render batches without breaking glow
+        discard;
+    }
+
     diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
-#endif
+#endif // USE_VERTEX_COLOR
 
     vec3 sunlit;
     vec3 amblit;
@@ -250,13 +265,13 @@ void main()
 #if !defined(AMBIENT_KILL)
     color.rgb = amblit;
     color.rgb *= ambient;
-#endif
+#endif // !defined(AMBIENT_KILL)
 
 vec3 post_ambient = color.rgb;
 
 #if !defined(SUNLIGHT_KILL)
     color.rgb += sun_contrib;
-#endif
+#endif // !defined(SUNLIGHT_KILL)
 
 vec3 post_sunlight = color.rgb;
 
@@ -288,7 +303,7 @@ vec3 post_atmo = color.rgb;
     // sum local light contrib in linear colorspace
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
-#endif
+#endif // !defined(LOCAL_LIGHT_KILL)
     // back to sRGB as we're going directly to the final RT post-deferred gamma correction
     color.rgb = linear_to_srgb(color.rgb);
 
@@ -307,8 +322,8 @@ vec3 post_atmo = color.rgb;
     color = applyWaterFogView(pos.xyz, color);
 #endif // WATER_FOG
 
-#endif
-    
+#endif // #else // FOR_IMPOSTOR
+
     frag_color = color;
 }
 

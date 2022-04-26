@@ -363,10 +363,12 @@ static LLCullResult* sCull = NULL;
 
 void validate_framebuffer_object();
 
-
-bool addDeferredAttachments(LLRenderTarget& target)
+// Add color attachments for deferred rendering
+// target -- RenderTarget to add attachments to
+// for_impostor -- whether or not these render targets are for an impostor (if true, avoids implicit sRGB conversions)
+bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
-	return target.addColorAttachment(GL_SRGB8_ALPHA8) && //specular
+	return target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) && //specular
 			target.addColorAttachment(GL_RGB10_A2); //normal+z
 }
 
@@ -10818,7 +10820,7 @@ void LLPipeline::renderRiggedGroups(LLRenderPass* pass, U32 type, U32 mask, bool
 
 static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
 
-void LLPipeline::generateImpostor(LLVOAvatar* avatar)
+void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 {
     LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
 	LLGLState::checkStates();
@@ -10837,11 +10839,12 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	assertInitialized();
 
-	bool visually_muted = avatar->isVisuallyMuted();		
+    // previews can't be muted or impostered
+	bool visually_muted = !preview_avatar && avatar->isVisuallyMuted();
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( visually_muted ? "" : "not ") << "visually muted"
                               << LL_ENDL;
-	bool too_complex = avatar->isTooComplex();		
+	bool too_complex = !preview_avatar && avatar->isTooComplex();
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
@@ -10915,6 +10918,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	U32 resY = 0;
 	U32 resX = 0;
 
+    if (!preview_avatar)
 	{
 		const LLVector4a* ext = avatar->mDrawable->getSpatialExtents();
 		LLVector3 pos(avatar->getRenderPosition()+avatar->getImpostorOffset());
@@ -10972,14 +10976,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		if (!avatar->mImpostor.isComplete())
 		{
+            avatar->mImpostor.allocate(resX, resY, GL_RGBA, TRUE, FALSE);
+
 			if (LLPipeline::sRenderDeferred)
 			{
-				avatar->mImpostor.allocate(resX,resY,GL_SRGB8_ALPHA8,TRUE,FALSE);
-				addDeferredAttachments(avatar->mImpostor);
-			}
-			else
-			{
-				avatar->mImpostor.allocate(resX,resY,GL_RGBA,TRUE,FALSE);
+				addDeferredAttachments(avatar->mImpostor, true);
 			}
 		
 			gGL.getTexUnit(0)->bind(&avatar->mImpostor);
@@ -11001,7 +11002,20 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
 	}
 
-	if (LLPipeline::sRenderDeferred)
+    if (preview_avatar)
+    {
+        // previews don't care about imposters
+        if (LLPipeline::sRenderDeferred)
+        {
+            renderGeomDeferred(camera);
+            renderGeomPostDeferred(camera);
+        }
+        else
+        {
+            renderGeom(camera);
+        }
+    }
+    else if (LLPipeline::sRenderDeferred)
 	{
 		avatar->mImpostor.clear();
 		renderGeomDeferred(camera);
@@ -11089,7 +11103,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
             LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set solid color " << muted_color << LL_ENDL;
 			gGL.diffuseColor4fv( muted_color.mV );
 		}
-		else
+		else if (!preview_avatar)
 		{ //grey muted avatar
             LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set grey" << LL_ENDL;
 			gGL.diffuseColor4fv(LLColor4::pink.mV );
@@ -11110,9 +11124,11 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		gGL.popMatrix();
 	}
 
-	avatar->mImpostor.flush();
-
-	avatar->setImpostorDim(tdim);
+    if (!preview_avatar)
+    {
+        avatar->mImpostor.flush();
+        avatar->setImpostorDim(tdim);
+    }
 
 	sUseOcclusion = occlusion;
 	sReflectionRender = false;
@@ -11125,174 +11141,16 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 
-	avatar->mNeedsImpostorUpdate = FALSE;
-	avatar->cacheImpostorValues();
-	avatar->mLastImpostorUpdateFrameTime = gFrameTimeSeconds;
+    if (!preview_avatar)
+    {
+        avatar->mNeedsImpostorUpdate = FALSE;
+        avatar->cacheImpostorValues();
+        avatar->mLastImpostorUpdateFrameTime = gFrameTimeSeconds;
+    }
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
-}
-
-static LLTrace::BlockTimerStatHandle FTM_PREVIEW_AVATAR("Preview Avatar");
-
-void LLPipeline::previewAvatar(LLVOAvatar* avatar)
-{
-    LL_RECORD_BLOCK_TIME(FTM_PREVIEW_AVATAR);
-
-    LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
-    gGL.flush();
-    gGL.setSceneBlendType(LLRender::BT_REPLACE);
-
-    LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
-
-    static LLCullResult result;
-    result.clear();
-    grabReferences(result);
-
-    if (!avatar || !avatar->mDrawable)
-    {
-        LL_WARNS_ONCE("AvatarRenderPipeline") << "Avatar is " << (avatar ? "not drawable" : "null") << LL_ENDL;
-        return;
-    }
-    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " is drawable" << LL_ENDL;
-
-    assertInitialized();
-
-    pushRenderTypeMask();
-
-    {
-        //hide world geometry
-        clearRenderTypeMask(
-            RENDER_TYPE_SKY,
-            RENDER_TYPE_WL_SKY,
-            RENDER_TYPE_GROUND,
-            RENDER_TYPE_TERRAIN,
-            RENDER_TYPE_GRASS,
-            RENDER_TYPE_CONTROL_AV, // Animesh
-            RENDER_TYPE_TREE,
-            RENDER_TYPE_VOIDWATER,
-            RENDER_TYPE_WATER,
-            RENDER_TYPE_PASS_GRASS,
-            RENDER_TYPE_HUD,
-            RENDER_TYPE_PARTICLES,
-            RENDER_TYPE_CLOUDS,
-            RENDER_TYPE_HUD_PARTICLES,
-            END_RENDER_TYPES
-        );
-    }
-
-    S32 occlusion = sUseOcclusion;
-    sUseOcclusion = 0;
-
-    sReflectionRender = !sRenderDeferred;
-
-    sShadowRender = true;
-    sImpostorRender = true; // Likely not needed for previews
-
-    LLViewerCamera* viewer_camera = LLViewerCamera::getInstance();
-
-    {
-        markVisible(avatar->mDrawable, *viewer_camera);
-
-        LLVOAvatar::attachment_map_t::iterator iter;
-        for (iter = avatar->mAttachmentPoints.begin();
-            iter != avatar->mAttachmentPoints.end();
-            ++iter)
-        {
-            LLViewerJointAttachment *attachment = iter->second;
-            for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-                attachment_iter != attachment->mAttachedObjects.end();
-                ++attachment_iter)
-            {
-                if (LLViewerObject* attached_object = attachment_iter->get())
-                {
-                    markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
-                }
-            }
-        }
-    }
-
-    stateSort(*LLViewerCamera::getInstance(), result);
-
-    LLCamera camera = *viewer_camera;
-
-    F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
-
-    if (LLPipeline::sRenderDeferred)
-    {
-        renderGeomDeferred(camera);
-
-        renderGeomPostDeferred(camera);
-    }
-    else
-    {
-        renderGeom(camera);
-    }
-
-    LLDrawPoolAvatar::sMinimumAlpha = old_alpha;
-
-    { //create alpha mask based on depth buffer
-        if (LLPipeline::sRenderDeferred)
-        {
-            GLuint buff = GL_COLOR_ATTACHMENT0;
-            LL_PROFILER_GPU_ZONEC("gl.DrawBuffersARB", 0x8000FF);
-            glDrawBuffersARB(1, &buff);
-        }
-
-        LLGLDisable blend(GL_BLEND);
-
-        gGL.setColorMask(false, true);
-
-        gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-        LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_GREATER);
-
-        gGL.flush();
-
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-        gGL.matrixMode(LLRender::MM_PROJECTION);
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-
-        static const F32 clip_plane = 0.99999f;
-
-        gDebugProgram.bind();
-
-        gGL.begin(LLRender::QUADS);
-        gGL.vertex3f(-1, -1, clip_plane);
-        gGL.vertex3f(1, -1, clip_plane);
-        gGL.vertex3f(1, 1, clip_plane);
-        gGL.vertex3f(-1, 1, clip_plane);
-        gGL.end();
-        gGL.flush();
-
-        gDebugProgram.unbind();
-
-        gGL.popMatrix();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.popMatrix();
-    }
-
-    sUseOcclusion = occlusion;
-    sReflectionRender = false;
-    sImpostorRender = false;
-    sShadowRender = false;
-    popRenderTypeMask();
-
-    gGL.matrixMode(LLRender::MM_PROJECTION);
-    gGL.popMatrix();
-    gGL.matrixMode(LLRender::MM_MODELVIEW);
-    gGL.popMatrix();
-
-    LLVertexBuffer::unbind();
-    LLGLState::checkStates();
-    LLGLState::checkTextureChannels();
-
-    gGL.setSceneBlendType(LLRender::BT_ALPHA);
-    gGL.flush();
 }
 
 bool LLPipeline::hasRenderBatches(const U32 type) const
