@@ -3217,7 +3217,8 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
                             te,
                             itemp_res,
                             from_library ? LLToolDragAndDrop::SOURCE_LIBRARY : LLToolDragAndDrop::SOURCE_AGENT,
-                            LLUUID::null);
+                            LLUUID::null,
+                            0);
                     }
                 }
                 // not an inventory item or no complete items
