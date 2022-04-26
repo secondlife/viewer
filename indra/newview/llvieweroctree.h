@@ -352,6 +352,10 @@ public:
 	virtual S32 cull(LLCamera &camera, bool do_occlusion) = 0;
 	BOOL isOcclusionEnabled();
 
+protected:
+    // MUST call from destructor of any derived classes (SL-17276)
+    void cleanup();
+
 public:	
 	U32              mPartitionType;
 	U32              mDrawableType;
