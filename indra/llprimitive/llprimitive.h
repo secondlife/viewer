@@ -107,6 +107,7 @@ public:
 		PARAMS_RESERVED = 0x50, // Used on server-side
 		PARAMS_MESH     = 0x60,
         PARAMS_EXTENDED_MESH = 0x70,
+        PARAMS_RENDER_MATERIAL = 0x80,
 	};
 	
 public:
@@ -318,6 +319,25 @@ public:
 	void setFlags(const U32& flags) { mFlags = flags; }
     U32 getFlags() const { return mFlags; }
 	
+};
+
+class LLRenderMaterialParams : public LLNetworkData
+{
+private:
+    LLUUID mMaterial;
+
+public:
+    LLRenderMaterialParams();
+    BOOL pack(LLDataPacker &dp) const override;
+    BOOL unpack(LLDataPacker &dp) override;
+    bool operator==(const LLNetworkData& data) const override;
+    void copy(const LLNetworkData& data) override;
+    LLSD asLLSD() const;
+    operator LLSD() const { return asLLSD(); }
+    bool fromLLSD(LLSD& sd);
+
+    void setMaterial(const LLUUID & id);
+    LLUUID getMaterial() const;
 };
 
 // This code is not naming-standards compliant. Leaving it like this for

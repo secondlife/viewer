@@ -6006,6 +6006,11 @@ LLViewerObject::ExtraParameter* LLViewerObject::createNewParameterEntry(U16 para
 		  new_block = new LLExtendedMeshParams();
 		  break;
       }
+      case LLNetworkData::PARAMS_RENDER_MATERIAL:
+      {
+          new_block = new LLRenderMaterialParams();
+          break;
+      }
 	  default:
 	  {
 		  LL_INFOS() << "Unknown param type." << LL_ENDL;

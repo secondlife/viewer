@@ -25,7 +25,7 @@
 
 #include "linden_common.h"
 
-char * _PREHASH_TextureEntry;
+const char * const _PREHASH_TextureEntry = "TextureEntry";
 
 S32 LLMessageSystem::getSizeFast(char const*, char const*) const
 {
