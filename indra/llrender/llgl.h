@@ -94,9 +94,6 @@ public:
 	BOOL mHasMapBufferRange;
 	BOOL mHasFlushBufferRange;
 	BOOL mHasPBuffer;
-	BOOL mHasShaderObjects;
-	BOOL mHasVertexShader;
-	BOOL mHasFragmentShader;
 	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
 	BOOL mHasTimerQuery;
@@ -122,14 +119,9 @@ public:
     BOOL mHasTexturesRGBDecode;
 
 	// Vendor-specific extensions
-	BOOL mIsATI;
+	BOOL mIsAMD;
 	BOOL mIsNVIDIA;
 	BOOL mIsIntel;
-	BOOL mIsGF2or4MX;
-	BOOL mIsGF3;
-	BOOL mIsGFFX;
-	BOOL mATIOffsetVerticalLines;
-	BOOL mATIOldDriver;
 
 #if LL_DARWIN
 	// Needed to distinguish problem cards on older Macs that break with Materials
@@ -269,7 +261,6 @@ public:
 	static void dumpStates();
 	static void checkStates(const std::string& msg = "");
 	static void checkTextureChannels(const std::string& msg = "");
-	static void checkClientArrays(const std::string& msg = "", U32 data_mask = 0);
 	
 protected:
 	static boost::unordered_map<LLGLenum, LLGLboolean> sStateMap;
@@ -376,51 +367,6 @@ public:
 };
 
 /*
-	Generic pooling scheme for things which use GL names (used for occlusion queries and vertex buffer objects).
-	Prevents thrashing of GL name caches by avoiding calls to glGenFoo and glDeleteFoo.
-*/
-class LLGLNamePool : public LLInstanceTracker<LLGLNamePool>
-{
-public:
-	typedef LLInstanceTracker<LLGLNamePool> tracker_t;
-
-	struct NameEntry
-	{
-		GLuint name;
-		BOOL used;
-	};
-
-	struct CompareUsed
-	{
-		bool operator()(const NameEntry& lhs, const NameEntry& rhs)
-		{
-			return lhs.used < rhs.used;  //FALSE entries first
-		}
-	};
-
-	typedef std::vector<NameEntry> name_list_t;
-	name_list_t mNameList;
-
-	LLGLNamePool();
-	virtual ~LLGLNamePool();
-	
-	void upkeep();
-	void cleanup();
-	
-	GLuint allocate();
-	void release(GLuint name);
-	
-	static void upkeepPools();
-	static void cleanupPools();
-
-protected:
-	typedef std::vector<LLGLNamePool*> pool_list_t;
-	
-	virtual GLuint allocateName() = 0;
-	virtual void releaseName(GLuint name) = 0;
-};
-
-/*
 	Interface for objects that need periodic GL updates applied to them.
 	Used to synchronize GL updates with GL thread.
 */
@@ -488,6 +434,7 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;
+extern BOOL gNonInteractive;
 extern BOOL gGLActive;
 
 // Deal with changing glext.h definitions for newer SDK versions, specifically

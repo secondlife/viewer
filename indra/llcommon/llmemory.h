@@ -101,6 +101,29 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 #define LL_ALIGN_16(var) LL_ALIGN_PREFIX(16) var LL_ALIGN_POSTFIX(16)
 
+#define LL_ALIGN_NEW                        \
+public:                                     \
+    void* operator new(size_t size)         \
+    {                                       \
+        return ll_aligned_malloc_16(size);  \
+    }                                       \
+                                            \
+    void operator delete(void* ptr)         \
+    {                                       \
+        ll_aligned_free_16(ptr);            \
+    }                                       \
+                                            \
+    void* operator new[](size_t size)       \
+    {                                       \
+        return ll_aligned_malloc_16(size);  \
+    }                                       \
+                                            \
+    void operator delete[](void* ptr)       \
+    {                                       \
+        ll_aligned_free_16(ptr);            \
+    }
+
+
 //------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------
 	// for enable buffer overrun detection predefine LL_DEBUG_BUFFER_OVERRUN in current library
@@ -113,8 +136,9 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 #else
 	inline void* ll_aligned_malloc_fallback( size_t size, int align )
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	#if defined(LL_WINDOWS)
-		return _aligned_malloc(size, align);
+        void* ret = _aligned_malloc(size, align);
 	#else
         char* aligned = NULL;
 		void* mem = malloc( size + (align - 1) + sizeof(void*) );
@@ -125,12 +149,16 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
             ((void**)aligned)[-1] = mem;
         }
-		return aligned;
+		void* ret = aligned;
 	#endif
+        LL_PROFILE_ALLOC(ret, size);
+        return ret;
 	}
 
 	inline void ll_aligned_free_fallback( void* ptr )
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+        LL_PROFILE_FREE(ptr);
 	#if defined(LL_WINDOWS)
 		_aligned_free(ptr);
 	#else
@@ -146,21 +174,24 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
-	return _aligned_malloc(size, 16);
+	void* ret = _aligned_malloc(size, 16);
 #elif defined(LL_DARWIN)
-	return malloc(size); // default osx malloc is 16 byte aligned.
+	void* ret = malloc(size); // default osx malloc is 16 byte aligned.
 #else
-	void *rtn;
-	if (LL_LIKELY(0 == posix_memalign(&rtn, 16, size)))
-		return rtn;
-	else // bad alignment requested, or out of memory
-		return NULL;
+	void *ret;
+    if (0 != posix_memalign(&ret, 16, size))
+        return nullptr;
 #endif
+    LL_PROFILE_ALLOC(ret, size);
+    return ret;
 }
 
 inline void ll_aligned_free_16(void *p)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+    LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
 #elif defined(LL_DARWIN)
@@ -172,10 +203,12 @@ inline void ll_aligned_free_16(void *p)
 
 inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+    LL_PROFILE_FREE(ptr);
 #if defined(LL_WINDOWS)
-	return _aligned_realloc(ptr, size, 16);
+	void* ret = _aligned_realloc(ptr, size, 16);
 #elif defined(LL_DARWIN)
-	return realloc(ptr,size); // default osx malloc is 16 byte aligned.
+	void* ret = realloc(ptr,size); // default osx malloc is 16 byte aligned.
 #else
 	//FIXME: memcpy is SLOW
 	void* ret = ll_aligned_malloc_16(size);
@@ -188,27 +221,31 @@ inline void* ll_aligned_realloc_16(void* ptr, size_t size, size_t old_size) // r
 		}
 		ll_aligned_free_16(ptr);
 	}
-	return ret;
 #endif
+    LL_PROFILE_ALLOC(ptr, size);
+    return ret;
 }
 
 inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed with ll_aligned_free_32().
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if defined(LL_WINDOWS)
-	return _aligned_malloc(size, 32);
+	void* ret = _aligned_malloc(size, 32);
 #elif defined(LL_DARWIN)
-	return ll_aligned_malloc_fallback( size, 32 );
+	void* ret = ll_aligned_malloc_fallback( size, 32 );
 #else
-	void *rtn;
-	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
-		return rtn;
-	else // bad alignment requested, or out of memory
-		return NULL;
+	void *ret;
+    if (0 != posix_memalign(&ret, 32, size))
+        return nullptr;
 #endif
+    LL_PROFILE_ALLOC(ret, size);
+    return ret;
 }
 
 inline void ll_aligned_free_32(void *p)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+    LL_PROFILE_FREE(p);
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
 #elif defined(LL_DARWIN)
@@ -222,29 +259,35 @@ inline void ll_aligned_free_32(void *p)
 template<size_t ALIGNMENT>
 LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+    void* ret;
 	if (LL_DEFAULT_HEAP_ALIGN % ALIGNMENT == 0)
 	{
-		return malloc(size);
+		ret = malloc(size);
+        LL_PROFILE_ALLOC(ret, size);
 	}
 	else if (ALIGNMENT == 16)
 	{
-		return ll_aligned_malloc_16(size);
+		ret = ll_aligned_malloc_16(size);
 	}
 	else if (ALIGNMENT == 32)
 	{
-		return ll_aligned_malloc_32(size);
+		ret = ll_aligned_malloc_32(size);
 	}
 	else
 	{
-		return ll_aligned_malloc_fallback(size, ALIGNMENT);
+		ret = ll_aligned_malloc_fallback(size, ALIGNMENT);
 	}
+    return ret;
 }
 
 template<size_t ALIGNMENT>
 LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	if (ALIGNMENT == LL_DEFAULT_HEAP_ALIGN)
 	{
+        LL_PROFILE_FREE(ptr);
 		free(ptr);
 	}
 	else if (ALIGNMENT == 16)
@@ -266,6 +309,7 @@ LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 //
 inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __restrict src, size_t bytes)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 	assert(src != NULL);
 	assert(dst != NULL);
 	assert(bytes > 0);

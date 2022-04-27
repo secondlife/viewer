@@ -27,7 +27,7 @@
 #ifndef LL_LLSTARTUP_H
 #define LL_LLSTARTUP_H
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>                   // unique_ptr
 
 class LLViewerTexture ;
 class LLEventPump;
@@ -130,9 +130,9 @@ private:
 
 	static std::string startupStateToString(EStartupState state);
 	static EStartupState gStartupState; // Do not set directly, use LLStartup::setStartupState
-	static boost::scoped_ptr<LLEventPump> sStateWatcher;
-	static boost::scoped_ptr<LLStartupListener> sListener;
-	static boost::scoped_ptr<LLViewerStats::PhaseMap> sPhases;
+	static std::unique_ptr<LLEventPump> sStateWatcher;
+	static std::unique_ptr<LLStartupListener> sListener;
+	static std::unique_ptr<LLViewerStats::PhaseMap> sPhases;
 };
 
 

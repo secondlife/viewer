@@ -42,7 +42,7 @@ class LLFontGL ;
 //
 //this is an abstract class as the parent for the class LLGLTexture
 //
-class LLTexture : public virtual LLRefCount, public LLTrace::MemTrackable<LLTexture>
+class LLTexture : public virtual LLRefCount
 {
 	friend class LLTexUnit ;
 	friend class LLFontGL ;
@@ -52,7 +52,6 @@ protected:
 
 public:
 	LLTexture()
-	:	LLTrace::MemTrackable<LLTexture>("LLTexture")
 	{}
 
 	//
@@ -67,11 +66,9 @@ public:
 	virtual S32	       getWidth(S32 discard_level = -1) const;
 	virtual S32	       getHeight(S32 discard_level = -1) const;
 	virtual bool       isActiveFetching();
+    virtual LLImageGL* getGLTexture() const;
 
 private:
-	//note: do not make this function public.
-	virtual LLImageGL* getGLTexture() const;
-
 	virtual void updateBindStatsForTester();
 };
 #endif

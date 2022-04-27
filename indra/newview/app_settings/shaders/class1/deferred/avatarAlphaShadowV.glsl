@@ -30,7 +30,6 @@ uniform float shadow_target_width;
 mat4 getSkinnedTransform();
 void passTextureIndex();
 
-ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
@@ -41,7 +40,6 @@ VARYING vec4 post_pos;
 VARYING float pos_w;
 VARYING float target_pos_x;
 VARYING vec2 vary_texcoord0;
-VARYING vec4 vertex_color;
 
 void main()
 {
@@ -68,7 +66,6 @@ void main()
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 
-	vertex_color = diffuse_color;
 #if !DEPTH_CLAMP
 	post_pos = pos;
 

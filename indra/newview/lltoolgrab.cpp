@@ -542,8 +542,8 @@ void LLToolGrabBase::handleHoverActive(S32 x, S32 y, MASK mask)
 	const F32 RADIANS_PER_PIXEL_X = 0.01f;
 	const F32 RADIANS_PER_PIXEL_Y = 0.01f;
 
-	S32 dx = x - (gViewerWindow->getWorldViewWidthScaled() / 2);
-	S32 dy = y - (gViewerWindow->getWorldViewHeightScaled() / 2);
+    S32 dx = gViewerWindow->getCurrentMouseDX();
+    S32 dy = gViewerWindow->getCurrentMouseDY();
 
 	if (dx != 0 || dy != 0)
 	{

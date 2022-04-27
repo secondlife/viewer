@@ -261,10 +261,9 @@ BOOL LLTexLayerParamAlpha::getSkip() const
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_TEX_LAYER_PARAM_ALPHA("alpha render");
 BOOL LLTexLayerParamAlpha::render(S32 x, S32 y, S32 width, S32 height)
 {
-	LL_RECORD_BLOCK_TIME(FTM_TEX_LAYER_PARAM_ALPHA);
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL success = TRUE;
 
 	if (!mTexLayer)

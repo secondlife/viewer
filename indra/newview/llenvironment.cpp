@@ -105,7 +105,6 @@ namespace
 
     //---------------------------------------------------------------------
     LLTrace::BlockTimerStatHandle   FTM_ENVIRONMENT_UPDATE("Update Environment Tick");
-    LLTrace::BlockTimerStatHandle   FTM_SHADER_PARAM_UPDATE("Update Shader Parameters");
 
     LLSettingsBase::Seconds         DEFAULT_UPDATE_THRESHOLD(10.0);
     const LLSettingsBase::Seconds   MINIMUM_SPANLENGTH(0.01f);
@@ -612,6 +611,7 @@ namespace
             specialSet.insert(SETTING_CLOUD_TEXTUREID);
             specialSet.insert(SETTING_MOON_TEXTUREID);
             specialSet.insert(SETTING_SUN_TEXTUREID);
+            specialSet.insert(SETTING_CLOUD_SHADOW); // due to being part of skips
         }
         return specialSet;
     }
@@ -652,6 +652,7 @@ namespace
     template<>
     void LLSettingsInjected<LLSettingsVOSky>::updateSpecial(const typename LLSettingsInjected<LLSettingsVOSky>::Injection::ptr_t &injection, typename LLSettingsBase::BlendFactor mix)
     {
+        bool is_texture = true;
         if (injection->mKeyName == SETTING_SUN_TEXTUREID)
         {
             mNextSunTextureId = injection->mValue.asUUID();
@@ -676,9 +677,29 @@ namespace
         {
             mNextHaloTextureId = injection->mValue.asUUID();
         }
+        else if (injection->mKeyName == LLSettingsSky::SETTING_CLOUD_SHADOW)
+        {
+            // Special case due to being texture dependent and part of skips
+            is_texture = false;
+            if (!injection->mBlendIn)
+                mix = 1.0 - mix;
+            stringset_t dummy;
+            LLUUID cloud_noise_id = getCloudNoiseTextureId();
+            F64 value = this->mSettings[injection->mKeyName].asReal();
+            if (this->getCloudNoiseTextureId().isNull())
+            {
+                value = 0; // there was no texture so start from zero coverage
+            }
+            // Ideally we need to check for texture in injection, but
+            // in this case user is setting value explicitly, potentially
+            // with different transitions, don't ignore it
+            F64 result = lerp(value, injection->mValue.asReal(), mix);
+            injection->mLastValue = LLSD::Real(result);
+            this->mSettings[injection->mKeyName] = injection->mLastValue;
+        }
 
         // Unfortunately I don't have a per texture blend factor.  We'll just pick the one that is furthest along.
-        if (getBlendFactor() < mix)
+        if (is_texture && getBlendFactor() < mix)
         {
             setBlendFactor(mix);
         }
@@ -825,7 +846,6 @@ std::string env_selection_to_string(LLEnvironment::EnvSelection_t sel)
 #undef RTNENUM
 }
 
-
 //-------------------------------------------------------------------------
 LLEnvironment::LLEnvironment():
     mCloudScrollDelta(),
@@ -879,6 +899,7 @@ void LLEnvironment::cleanupSingleton()
 
 LLEnvironment::~LLEnvironment()
 {
+    cleanupSingleton();
 }
 
 bool LLEnvironment::canEdit() const
@@ -1134,6 +1155,10 @@ void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, const LLSe
         mSignalEnvChanged(env, env_version);
 }
 
+void LLEnvironment::setCurrentEnvironmentSelection(LLEnvironment::EnvSelection_t env)
+{
+    mCurrentEnvironment->setEnvironmentSelection(env);
+}
 
 void LLEnvironment::setEnvironment(LLEnvironment::EnvSelection_t env, LLEnvironment::fixedEnvironment_t fixed, S32 env_version)
 {
@@ -1471,6 +1496,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::getSharedEnvironmentInstance()
 
 void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool forced)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     DayInstance::ptr_t pinstance = getSelectedEnvironmentInstance();
 
     if ((mCurrentEnvironment != pinstance) || forced)
@@ -1488,6 +1514,8 @@ void LLEnvironment::updateEnvironment(LLSettingsBase::Seconds transition, bool f
         {
             mCurrentEnvironment = pinstance;
         }
+
+        updateSettingsUniforms();
     }
 }
 
@@ -1594,7 +1622,7 @@ LLVector4 LLEnvironment::getRotatedLightNorm() const
 //-------------------------------------------------------------------------
 void LLEnvironment::update(const LLViewerCamera * cam)
 {
-    LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT; //LL_RECORD_BLOCK_TIME(FTM_ENVIRONMENT_UPDATE);
     //F32Seconds now(LLDate::now().secondsSinceEpoch());
     static LLFrameTimer timer;
 
@@ -1613,6 +1641,8 @@ void LLEnvironment::update(const LLViewerCamera * cam)
     mLastCamYaw = cam->getYaw() + SUN_DELTA_YAW;
 
     stop_glerror();
+
+    updateSettingsUniforms();
 
     // *TODO: potential optimization - this block may only need to be
     // executed some of the time.  For example for water shaders only.
@@ -1648,10 +1678,16 @@ void LLEnvironment::updateCloudScroll()
 }
 
 // static
-void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLSettingsBase::ptr_t &psetting)
+void LLEnvironment::updateGLVariablesForSettings(LLShaderUniforms* uniforms, const LLSettingsBase::ptr_t &psetting)
 {
-    LL_RECORD_BLOCK_TIME(FTM_SHADER_PARAM_UPDATE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
+    for (int i = 0; i < LLGLSLShader::SG_COUNT; ++i)
+    {
+        uniforms[i].clear();
+    }
+
+    LLShaderUniforms* shader = &uniforms[LLGLSLShader::SG_ANY];
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
     LLSettingsBase::parammapping_t params = psetting->getParameterMap();
     for (auto &it: params)
@@ -1694,7 +1730,7 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         {
             LLVector4 vect4(value);
             //_WARNS("RIDER") << "pushing '" << (*it).first << "' as " << vect4 << LL_ENDL;
-            shader->uniform4fv(it.second.getShaderKey(), 1, vect4.mV);
+            shader->uniform4fv(it.second.getShaderKey(), vect4 );
             break;
         }
 
@@ -1707,17 +1743,44 @@ void LLEnvironment::updateGLVariablesForSettings(LLGLSLShader *shader, const LLS
         default:
             break;
         }
-        stop_glerror();
     }
     //_WARNS("RIDER") << "----------------------------------------------------------------" << LL_ENDL;
 
-    psetting->applySpecial(shader);
+    psetting->applySpecial(uniforms);
 }
 
-void LLEnvironment::updateShaderUniforms(LLGLSLShader *shader)
+void LLEnvironment::updateShaderUniforms(LLGLSLShader* shader)
 {
-    updateGLVariablesForSettings(shader, mCurrentEnvironment->getWater());
-    updateGLVariablesForSettings(shader, mCurrentEnvironment->getSky());
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+
+    // apply uniforms that should be applied to all shaders
+    mSkyUniforms[LLGLSLShader::SG_ANY].apply(shader);
+    mWaterUniforms[LLGLSLShader::SG_ANY].apply(shader);
+
+    // apply uniforms specific to the given shader's shader group
+    auto group = shader->mShaderGroup;
+    mSkyUniforms[group].apply(shader);
+    mWaterUniforms[group].apply(shader);
+}
+
+void LLEnvironment::updateSettingsUniforms()
+{
+    if (mCurrentEnvironment->getWater())
+    {
+        updateGLVariablesForSettings(mWaterUniforms, mCurrentEnvironment->getWater());
+    }
+    else
+    {
+        LL_WARNS("ENVIRONMENT") << "Failed to update GL variable for water settings, environment is not properly set" << LL_ENDL;
+    }
+    if (mCurrentEnvironment->getSky())
+    {
+        updateGLVariablesForSettings(mSkyUniforms, mCurrentEnvironment->getSky());
+    }
+    else
+    {
+        LL_WARNS("ENVIRONMENT") << "Failed to update GL variable for sky settings, environment is not properly set" << LL_ENDL;
+    }
 }
 
 void LLEnvironment::recordEnvironment(S32 parcel_id, LLEnvironment::EnvironmentInfo::ptr_t envinfo, LLSettingsBase::Seconds transition)
@@ -2634,6 +2697,7 @@ LLEnvironment::DayInstance::ptr_t LLEnvironment::DayInstance::clone() const
 
 bool LLEnvironment::DayInstance::applyTimeDelta(const LLSettingsBase::Seconds& delta)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     ptr_t keeper(shared_from_this());   // makes sure that this does not go away while it is being worked on.
 
     bool changed(false);

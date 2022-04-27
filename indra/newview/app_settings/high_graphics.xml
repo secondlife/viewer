@@ -6,8 +6,6 @@
 	<RenderAvatarLODFactor value="1.0"/>
 	<!--Default for now-->
 	<RenderAvatarPhysicsLODFactor value="0.9"/>
-	<!--NO SHADERS-->
-	<RenderAvatarVP value="TRUE"/>
 	<!--Short Range-->
 	<RenderFarClip value="128"/>
 	<!--Default for now-->

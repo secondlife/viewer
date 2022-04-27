@@ -137,6 +137,7 @@ void LLFloaterFixedEnvironment::onClose(bool app_quitting)
     doCloseInventoryFloater(app_quitting);
 
     LLEnvironment::instance().setSelectedEnvironment(LLEnvironment::ENV_LOCAL);
+    LLEnvironment::instance().setCurrentEnvironmentSelection(LLEnvironment::ENV_LOCAL);
     LLEnvironment::instance().clearEnvironment(LLEnvironment::ENV_EDIT);
 
     mSettings.reset();

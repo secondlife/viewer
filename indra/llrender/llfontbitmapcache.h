@@ -32,7 +32,7 @@
 
 // Maintain a collection of bitmaps containing rendered glyphs.
 // Generalizes the single-bitmap logic from LLFontFreetype and LLFontGL.
-class LLFontBitmapCache : public LLTrace::MemTrackable<LLFontBitmapCache>
+class LLFontBitmapCache
 {
 public:
 	LLFontBitmapCache();

@@ -48,6 +48,7 @@ LLImageDecodeThread::~LLImageDecodeThread()
 // virtual
 S32 LLImageDecodeThread::update(F32 max_time_ms)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLMutexLock lock(mCreationMutex);
 	for (creation_list_t::iterator iter = mCreationList.begin();
 		 iter != mCreationList.end(); ++iter)
@@ -71,6 +72,7 @@ S32 LLImageDecodeThread::update(F32 max_time_ms)
 LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted* image, 
 	U32 priority, S32 discard, BOOL needs_aux, Responder* responder)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLMutexLock lock(mCreationMutex);
 	handle_t handle = generateHandle();
 	mCreationList.push_back(creation_info(handle, image, priority, discard, needs_aux, responder));
@@ -118,6 +120,7 @@ LLImageDecodeThread::ImageRequest::~ImageRequest()
 // Returns true when done, whether or not decode was successful.
 bool LLImageDecodeThread::ImageRequest::processRequest()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	const F32 decode_time_slice = .1f;
 	bool done = true;
 	if (!mDecodedRaw && mFormattedImage.notNull())
@@ -164,6 +167,7 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 
 void LLImageDecodeThread::ImageRequest::finishRequest(bool completed)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	if (mResponder.notNull())
 	{
 		bool success = completed && mDecodedRaw && (!mNeedsAux || mDecodedAux);

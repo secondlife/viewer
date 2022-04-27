@@ -257,13 +257,11 @@ public:
     void setCloudDensity(F32 cloud_density)          { mCloudDensity = cloud_density; }
     void setWind ( const LLVector3& wind )           { mWind = wind.length(); }
 
-    LLColor4 calcSkyColorInDir(AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false);
-    LLColor4 calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false);
+    LLColor4 calcSkyColorInDir(const LLSettingsSky::ptr_t &psky, AtmosphericsVars& vars, const LLVector3& dir, bool isShiny = false, const bool low_end = false);
 
-protected:    
+protected:
 
     void     calcSkyColorWLVert(const LLSettingsSky::ptr_t &psky, LLVector3 & Pn, AtmosphericsVars& vars);
-    LLColor3 getHazeColor(LLSettingsSky::ptr_t psky, AtmosphericsVars& vars, F32 costheta, F32 cloud_shadow);
 
     LLHaze              mHaze;
     F32                 mHazeConcentration;
