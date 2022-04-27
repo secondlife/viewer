@@ -191,6 +191,7 @@ protected:
 	static void		onCommitMaterialGloss(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialEnv(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialMaskCutoff(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialID( LLUICtrl* ctrl, void* userdata);
 
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
