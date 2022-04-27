@@ -31,7 +31,8 @@
          follows="all"
          layout="topleft"
          halign="center"
-         tab_min_width="55"
+         tab_min_width="70"
+         tab_height="30"
          tab_position="top"
         >
             <panel
@@ -44,7 +45,7 @@
             />
             <panel
              name="panel_profile_web"
-             label="Feed"
+             label="FEED"
              layout="topleft"
              class="panel_profile_web"
              filename="panel_profile_web.xml"
@@ -52,7 +53,7 @@
             />
             <panel
              name="panel_profile_picks"
-             label="Picks"
+             label="PICKS"
              layout="topleft"
              class="panel_profile_picks"
              filename="panel_profile_picks.xml"
@@ -60,7 +61,7 @@
             />
             <panel
              name="panel_profile_classifieds"
-             label="Classified"
+             label="CLASSIFIEDS"
              layout="topleft"
              class="panel_profile_classifieds"
              filename="panel_profile_classifieds.xml"
@@ -68,7 +69,7 @@
             />
             <panel
              name="panel_profile_firstlife"
-             label="Real Life"
+             label="REAL LIFE"
              layout="topleft"
              class="panel_profile_firstlife"
              filename="panel_profile_firstlife.xml"
@@ -76,7 +77,7 @@
             />
             <panel
              name="panel_profile_notes"
-             label="Notes"
+             label="MY NOTES"
              layout="topleft"
              class="panel_profile_notes"
              filename="panel_profile_notes.xml"
