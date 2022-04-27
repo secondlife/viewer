@@ -204,6 +204,7 @@ protected:
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
+    static void		onSaveMaterial(void*);
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
 

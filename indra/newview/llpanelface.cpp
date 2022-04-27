@@ -157,6 +157,7 @@ BOOL	LLPanelFace::postBuild()
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
+	childSetAction("button save material", &LLPanelFace::onSaveMaterial, this);
 
 	LLTextureCtrl*	mTextureCtrl;
 	LLTextureCtrl*	mShinyTextureCtrl;
@@ -1409,7 +1410,10 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLMaterialPtr material;
 			LLSelectedTEMaterial::getCurrent(material, identical);
 
-			if (material && editable)
+            // QUICKHACK - enable this UI box, indiscriminatly.  TODO discriminate DJH 2022-04
+            childSetEnabled("button save material", true);
+            
+            if (material && editable)
 			{
 				LL_DEBUGS("Materials") << material->asLLSD() << LL_ENDL;
 
@@ -2536,6 +2540,16 @@ void LLPanelFace::onAlignTexture(void* userdata)
 {
     LLPanelFace* self = (LLPanelFace*)userdata;
     self->alignTestureLayer();
+}
+
+void LLPanelFace::onSaveMaterial(void* userdata)
+{
+    LLPanelFace* self = (LLPanelFace*)userdata;
+    
+    // DRTVWR-559, Q&D material picker - save to inventory goes here
+    auto bound = self->getBoundingRect();
+    self->setUseBoundingRect(self->getUseBoundingRect());
+    //self->saveMaterialToInventory();
 }
 
 
