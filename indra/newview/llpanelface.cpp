@@ -123,6 +123,7 @@ F32		LLPanelFace::getCurrentShinyScaleU()		{ return getChild<LLUICtrl>("shinySca
 F32		LLPanelFace::getCurrentShinyScaleV()		{ return getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();					}
 F32		LLPanelFace::getCurrentShinyOffsetU()		{ return getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal();					}
 F32		LLPanelFace::getCurrentShinyOffsetV()		{ return getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal();					}
+LLUUID	LLPanelFace::getCurrentMaterialID()			{ return getChild<LLUICtrl>("materialID")->getValue().asUUID(); 					}
 
 //
 // Methods
@@ -2308,7 +2309,8 @@ void LLPanelFace::onCommitMaterialMaskCutoff(LLUICtrl* ctrl, void* userdata)
 //static
 void LLPanelFace::onCommitMaterialID(LLUICtrl* ctrl, void* userdata)
 {
-    LLPanelFace* self [[maybe_unused]] = (LLPanelFace*) userdata;
+	LLPanelFace* self = static_cast<LLPanelFace*>(userdata);
+	LLSelectedTEMaterial::setMaterialID(self, self->getCurrentMaterialID());
 }
 
 // static
