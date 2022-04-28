@@ -8191,7 +8191,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	if (channel > -1)
 	{
-		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
+		LLCubeMap* cube_map = mEnvironmentMap.mCubeMap.notNull() ? mEnvironmentMap.mCubeMap : gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 		if (cube_map)
 		{
 			cube_map->enable(channel);
@@ -11465,5 +11465,10 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 			unhideDrawable( pDrawable );			
 		}
 	}
+}
+
+void LLPipeline::overrideEnvironmentMap()
+{
+    mEnvironmentMap.update(LLViewerCamera::instance().getOrigin(), 1024);
 }
 

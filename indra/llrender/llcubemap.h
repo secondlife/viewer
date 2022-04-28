@@ -40,6 +40,13 @@ class LLCubeMap : public LLRefCount
 public:
 	LLCubeMap(bool init_as_srgb);
 	void init(const std::vector<LLPointer<LLImageRaw> >& rawimages);
+
+    // init from environment map images
+    // Similar to init, but takes ownership of rawimages and makes this cubemap
+    // respect the resolution of rawimages
+    // Raw images must point to array of six square images that are all the same resolution
+    // For example usage, see LLEnvironmentMap
+    void initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 	void initGL();
 	void initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 	void initGLData();
@@ -54,18 +61,9 @@ public:
 	void disableTexture(void);
 	void setMatrix(S32 stage);
 	void restoreMatrix();
-	void setReflection (void);
-
-	void finishPaint();
 
 	GLuint getGLName();
 
-	LLVector3 map(U8 side, U16 v_val, U16 h_val) const;
-	BOOL project(F32& v_val, F32& h_val, BOOL& outside,
-						U8 side, const LLVector3& dir) const;
-	BOOL project(F32& v_min, F32& v_max, F32& h_min, F32& h_max, 
-						U8 side, LLVector3 dir[4]) const;
-	void paintIn(LLVector3 dir[4], const LLColor4U& col);
 	void destroyGL();
 
 public:

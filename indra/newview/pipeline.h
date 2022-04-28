@@ -38,6 +38,7 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
+#include "llenvironmentmap.h"
 
 #include <stack>
 
@@ -425,6 +426,9 @@ public:
 	void skipRenderingOfTerrain( bool flag );
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
+
+    LLEnvironmentMap mEnvironmentMap;
+    void overrideEnvironmentMap();
 
 private:
 	void unloadShaders();
