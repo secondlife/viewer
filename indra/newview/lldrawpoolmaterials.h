@@ -55,21 +55,21 @@ public:
 		LLVertexBuffer::MAP_TANGENT
 	};
 	
-	/*virtual*/ U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+	U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 	
-	/*virtual*/ void render(S32 pass = 0) { }
-	/*virtual*/ S32	 getNumPasses() {return 0;}
-	/*virtual*/ void prerender();
+	void render(S32 pass = 0) override { }
+	S32	 getNumPasses() override {return 0;}
+	void prerender() override;
 	
-	/*virtual*/ S32 getNumDeferredPasses();
-	/*virtual*/ void beginDeferredPass(S32 pass);
-	/*virtual*/ void endDeferredPass(S32 pass);
-	/*virtual*/ void renderDeferred(S32 pass);
+	S32 getNumDeferredPasses() override;
+	void beginDeferredPass(S32 pass) override;
+	void endDeferredPass(S32 pass) override;
+	void renderDeferred(S32 pass) override;
 	
 	void bindSpecularMap(LLViewerTexture* tex);
 	void bindNormalMap(LLViewerTexture* tex);
 	
-	/*virtual*/ void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
+	void pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool rigged);
 };
 
 #endif //LL_LLDRAWPOOLMATERIALS_H

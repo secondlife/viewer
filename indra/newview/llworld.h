@@ -59,11 +59,14 @@ class LLVOAvatar;
 // as simulators are connected to, viewer_regions are popped off the stack and connected as required
 // as simulators are removed, they are pushed back onto the stack
 
-class LLWorld : public LLSingleton<LLWorld>
+class LLWorld : public LLSimpleton<LLWorld>
 {
-	LLSINGLETON(LLWorld);
 public:
-	void destroyClass();
+    LLWorld();
+
+    // Clear any objects, regions
+    // Prepares class to be reused or destroyed
+    void resetClass();
 
 	LLViewerRegion*	addRegion(const U64 &region_handle, const LLHost &host);
 		// safe to call if already present, does the "right thing" if

@@ -793,6 +793,18 @@
              height="4"
              start_url="about:blank"
              decouple_texture_size="true" />
+      <button
+       left="90"
+       top="222"
+       height="20"
+       label="Save as Material"
+       label_selected="Save current face as a Material"
+       layout="topleft"
+       name="button save material"
+       top_delta="0"
+       tool_tip="Save material to inventory"
+       width="110" />
+
             <line_editor
              enabled="true"
              follows="top|left"
@@ -806,4 +818,4 @@
              width="200"
              tool_tip="UUID for a material asset"
              />
-	   </panel>
+</panel>

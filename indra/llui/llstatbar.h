@@ -44,9 +44,10 @@ public:
 								bar_max,
 								tick_spacing;
 
-		Optional<bool>			show_bar,
+		Optional<bool> 			show_bar,
 								show_history,
-								scale_range;
+								scale_range,
+								show_median; // default is mean
 
 		Optional<S32>			decimal_digits,
 								num_frames,
@@ -112,6 +113,7 @@ private:
 
 	bool         mDisplayBar,			// Display the bar graph.
 				 mDisplayHistory,
+				 mShowMedian,
 				 mAutoScaleMax,
 				 mAutoScaleMin;
 };

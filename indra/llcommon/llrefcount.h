@@ -37,6 +37,10 @@ class LLMutex;
 // see llthread.h for LLThreadSafeRefCount
 //----------------------------------------------------------------------------
 
+//nonsense but recognizable value for freed LLRefCount (aids in debugging)
+#define LL_REFCOUNT_FREE 1234567890
+extern const S32 gMaxRefCount;
+
 class LL_COMMON_API LLRefCount
 {
 protected:
@@ -47,17 +51,25 @@ protected:
 public:
 	LLRefCount();
 
+    inline void validateRefCount() const
+    {
+        llassert(mRef > 0); // ref count below 0, likely corrupted
+        llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
+    }
+
 	inline void ref() const
 	{ 
 		mRef++; 
+        validateRefCount();
 	} 
 
 	inline S32 unref() const
 	{
-		llassert(mRef >= 1);
+        validateRefCount();
 		if (0 == --mRef)
 		{
-			delete this; 
+            mRef = LL_REFCOUNT_FREE; // set to nonsense yet recognizable value to aid in debugging
+			delete this;
 			return 0;
 		}
 		return mRef;

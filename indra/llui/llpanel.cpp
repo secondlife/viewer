@@ -800,14 +800,12 @@ boost::signals2::connection LLPanel::setVisibleCallback( const commit_signal_t::
 	return mVisibleSignal->connect(cb);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUILD_PANELS("Build Panels");
-
 //-----------------------------------------------------------------------------
 // buildPanel()
 //-----------------------------------------------------------------------------
 BOOL LLPanel::buildFromFile(const std::string& filename, const LLPanel::Params& default_params)
 {
-	LL_RECORD_BLOCK_TIME(FTM_BUILD_PANELS);
+    LL_PROFILE_ZONE_SCOPED;
 	BOOL didPost = FALSE;
 	LLXMLNodePtr root;
 

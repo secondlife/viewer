@@ -66,7 +66,6 @@ bool setup_hud_matrices(const LLRect& screen_region); // specify portion of scre
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_INVISIBLE;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_OCCLUSION;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_SHINY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_SIMPLE;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_TERRAIN;
@@ -87,8 +86,6 @@ extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_HUD;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_3D;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_2D;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_DEBUG_TEXT;
-extern LLTrace::BlockTimerStatHandle FTM_RENDER_UI_SCENE_MON;
 
 class LLPipeline
 {
@@ -137,7 +134,7 @@ public:
 	void allocatePhysicsBuffer();
 	
 	void resetVertexBuffers(LLDrawable* drawable);
-	void generateImpostor(LLVOAvatar* avatar);
+	void generateImpostor(LLVOAvatar* avatar, bool preview_avatar = false);
 	void bindScreenToTexture();
 	void renderFinalize();
 
@@ -228,9 +225,7 @@ public:
 	S32			getLightingDetail() const { return mLightingDetail; }
 	S32			getMaxLightingDetail() const;
 		
-	void		setUseVertexShaders(bool use_shaders);
-	bool		getUseVertexShaders() const { return mVertexShadersEnabled; }
-	bool		canUseVertexShaders();
+	bool		shadersLoaded();
 	bool		canUseWindLightShaders() const;
 	bool		canUseWindLightShadersOnObjects() const;
 	bool		canUseAntiAliasing() const;
@@ -245,7 +240,7 @@ public:
 	bool visibleObjectsInFrustum(LLCamera& camera);
 	bool getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	bool getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
-	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
+	void updateCull(LLCamera& camera, LLCullResult& result, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
 	void processPartitionQ();
@@ -265,13 +260,20 @@ public:
 	void stateSort(LLSpatialBridge* bridge, LLCamera& camera, BOOL fov_changed = FALSE);
 	void stateSort(LLDrawable* drawablep, LLCamera& camera);
 	void postSort(LLCamera& camera);
+    
+    //update stats for textures in given DrawInfo
+    void touchTextures(LLDrawInfo* info);
+    void touchTexture(LLViewerTexture* tex, F32 vsize);
+
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
-	void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
-	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
-    void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false);
+    void renderObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderAlphaObjects(U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+	void renderMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
+    void renderFullbrightMaskedObjects(U32 type, U32 mask, bool texture = true, bool batch_texture = false, bool rigged = false);
 
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
+    void renderRiggedGroups(LLRenderPass* pass, U32 type, U32 mask, bool texture);
 
 	void grabReferences(LLCullResult& result);
 	void clearReferences();
@@ -336,6 +338,8 @@ public:
 	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
 	LLCullResult::sg_iterator beginAlphaGroups();
 	LLCullResult::sg_iterator endAlphaGroups();
+    LLCullResult::sg_iterator beginRiggedAlphaGroups();
+    LLCullResult::sg_iterator endRiggedAlphaGroups();
 	
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
@@ -458,34 +462,61 @@ public:
  		RENDER_TYPE_ALPHA						= LLDrawPool::POOL_ALPHA,
 		RENDER_TYPE_GLOW						= LLDrawPool::POOL_GLOW,
 		RENDER_TYPE_PASS_SIMPLE 				= LLRenderPass::PASS_SIMPLE,
+        RENDER_TYPE_PASS_SIMPLE_RIGGED = LLRenderPass::PASS_SIMPLE_RIGGED,
 		RENDER_TYPE_PASS_GRASS					= LLRenderPass::PASS_GRASS,
 		RENDER_TYPE_PASS_FULLBRIGHT				= LLRenderPass::PASS_FULLBRIGHT,
+        RENDER_TYPE_PASS_FULLBRIGHT_RIGGED = LLRenderPass::PASS_FULLBRIGHT,
 		RENDER_TYPE_PASS_INVISIBLE				= LLRenderPass::PASS_INVISIBLE,
+        RENDER_TYPE_PASS_INVISIBLE_RIGGED = LLRenderPass::PASS_INVISIBLE_RIGGED,
 		RENDER_TYPE_PASS_INVISI_SHINY			= LLRenderPass::PASS_INVISI_SHINY,
+        RENDER_TYPE_PASS_INVISI_SHINY_RIGGED = LLRenderPass::PASS_INVISI_SHINY_RIGGED,
 		RENDER_TYPE_PASS_FULLBRIGHT_SHINY		= LLRenderPass::PASS_FULLBRIGHT_SHINY,
+        RENDER_TYPE_PASS_FULLBRIGHT_SHINY_RIGGED = LLRenderPass::PASS_FULLBRIGHT_SHINY_RIGGED,
 		RENDER_TYPE_PASS_SHINY					= LLRenderPass::PASS_SHINY,
+        RENDER_TYPE_PASS_SHINY_RIGGED = LLRenderPass::PASS_SHINY_RIGGED,
 		RENDER_TYPE_PASS_BUMP					= LLRenderPass::PASS_BUMP,
+        RENDER_TYPE_PASS_BUMP_RIGGED = LLRenderPass::PASS_BUMP_RIGGED,
 		RENDER_TYPE_PASS_POST_BUMP				= LLRenderPass::PASS_POST_BUMP,
+        RENDER_TYPE_PASS_POST_BUMP_RIGGED = LLRenderPass::PASS_POST_BUMP_RIGGED,
 		RENDER_TYPE_PASS_GLOW					= LLRenderPass::PASS_GLOW,
+        RENDER_TYPE_PASS_GLOW_RIGGED = LLRenderPass::PASS_GLOW_RIGGED,
 		RENDER_TYPE_PASS_ALPHA					= LLRenderPass::PASS_ALPHA,
 		RENDER_TYPE_PASS_ALPHA_MASK				= LLRenderPass::PASS_ALPHA_MASK,
+        RENDER_TYPE_PASS_ALPHA_MASK_RIGGED = LLRenderPass::PASS_ALPHA_MASK_RIGGED,
 		RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK	= LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK,
+        RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK_RIGGED = LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK_RIGGED,
 		RENDER_TYPE_PASS_MATERIAL				= LLRenderPass::PASS_MATERIAL,
+        RENDER_TYPE_PASS_MATERIAL_RIGGED = LLRenderPass::PASS_MATERIAL_RIGGED,
 		RENDER_TYPE_PASS_MATERIAL_ALPHA			= LLRenderPass::PASS_MATERIAL_ALPHA,
+        RENDER_TYPE_PASS_MATERIAL_ALPHA_RIGGED = LLRenderPass::PASS_MATERIAL_ALPHA_RIGGED,
 		RENDER_TYPE_PASS_MATERIAL_ALPHA_MASK	= LLRenderPass::PASS_MATERIAL_ALPHA_MASK,
+        RENDER_TYPE_PASS_MATERIAL_ALPHA_MASK_RIGGED = LLRenderPass::PASS_MATERIAL_ALPHA_MASK_RIGGED,
 		RENDER_TYPE_PASS_MATERIAL_ALPHA_EMISSIVE= LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE,
+        RENDER_TYPE_PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED = LLRenderPass::PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED,
 		RENDER_TYPE_PASS_SPECMAP				= LLRenderPass::PASS_SPECMAP,
+        RENDER_TYPE_PASS_SPECMAP_RIGGED = LLRenderPass::PASS_SPECMAP_RIGGED,
 		RENDER_TYPE_PASS_SPECMAP_BLEND			= LLRenderPass::PASS_SPECMAP_BLEND,
+        RENDER_TYPE_PASS_SPECMAP_BLEND_RIGGED = LLRenderPass::PASS_SPECMAP_BLEND_RIGGED,
 		RENDER_TYPE_PASS_SPECMAP_MASK			= LLRenderPass::PASS_SPECMAP_MASK,
+        RENDER_TYPE_PASS_SPECMAP_MASK_RIGGED = LLRenderPass::PASS_SPECMAP_MASK_RIGGED,
 		RENDER_TYPE_PASS_SPECMAP_EMISSIVE		= LLRenderPass::PASS_SPECMAP_EMISSIVE,
+        RENDER_TYPE_PASS_SPECMAP_EMISSIVE_RIGGED = LLRenderPass::PASS_SPECMAP_EMISSIVE_RIGGED,
 		RENDER_TYPE_PASS_NORMMAP				= LLRenderPass::PASS_NORMMAP,
+        RENDER_TYPE_PASS_NORMMAP_RIGGED = LLRenderPass::PASS_NORMMAP_RIGGED,
 		RENDER_TYPE_PASS_NORMMAP_BLEND			= LLRenderPass::PASS_NORMMAP_BLEND,
+        RENDER_TYPE_PASS_NORMMAP_BLEND_RIGGED = LLRenderPass::PASS_NORMMAP_BLEND_RIGGED,
 		RENDER_TYPE_PASS_NORMMAP_MASK			= LLRenderPass::PASS_NORMMAP_MASK,
+        RENDER_TYPE_PASS_NORMMAP_MASK_RIGGED = LLRenderPass::PASS_NORMMAP_MASK_RIGGED,
 		RENDER_TYPE_PASS_NORMMAP_EMISSIVE		= LLRenderPass::PASS_NORMMAP_EMISSIVE,
+        RENDER_TYPE_PASS_NORMMAP_EMISSIVE_RIGGED = LLRenderPass::PASS_NORMMAP_EMISSIVE_RIGGED,
 		RENDER_TYPE_PASS_NORMSPEC				= LLRenderPass::PASS_NORMSPEC,
+        RENDER_TYPE_PASS_NORMSPEC_RIGGED = LLRenderPass::PASS_NORMSPEC_RIGGED,
 		RENDER_TYPE_PASS_NORMSPEC_BLEND			= LLRenderPass::PASS_NORMSPEC_BLEND,
+        RENDER_TYPE_PASS_NORMSPEC_BLEND_RIGGED = LLRenderPass::PASS_NORMSPEC_BLEND_RIGGED,
 		RENDER_TYPE_PASS_NORMSPEC_MASK			= LLRenderPass::PASS_NORMSPEC_MASK,
+        RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED = LLRenderPass::PASS_NORMSPEC_MASK_RIGGED,
 		RENDER_TYPE_PASS_NORMSPEC_EMISSIVE		= LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+        RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED = LLRenderPass::PASS_NORMSPEC_EMISSIVE_RIGGED,
 		// Following are object types (only used in drawable mRenderType)
 		RENDER_TYPE_HUD = LLRenderPass::NUM_RENDER_TYPES,
 		RENDER_TYPE_VOLUME,
@@ -574,7 +605,6 @@ public:
 	static bool				sDelayVBUpdate;
 	static bool				sAutoMaskAlphaDeferred;
 	static bool				sAutoMaskAlphaNonDeferred;
-	static bool				sDisableShaders; // if true, rendering will be done without shaders
 	static bool				sRenderTransparentWater;
 	static bool				sRenderBump;
 	static bool				sBakeSunlight;
@@ -597,7 +627,6 @@ public:
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
 	static S32				sVisibleLightCount;
-	static F32				sMinRenderSize;
 	static bool				sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;
 
@@ -676,8 +705,7 @@ public:
     LLVector4			mTransformedMoonDir;
 
 	bool					mInitialized;
-	bool					mVertexShadersEnabled;
-	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
+	bool					mShadersLoaded;
 
 	U32						mTransformFeedbackPrimitives; //number of primitives expected to be generated by transform feedback
 protected:
@@ -878,7 +906,6 @@ public:
 
 	//cached settings
 	static bool WindLightUseAtmosShaders;
-	static bool RenderAvatarVP;
 	static bool RenderDeferred;
 	static F32 RenderDeferredSunWash;
 	static U32 RenderFSAASamples;

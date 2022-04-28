@@ -171,7 +171,9 @@
 #define LL_DLLIMPORT
 #endif // LL_WINDOWS
 
-#if ! defined(LL_WINDOWS)
+#if __clang__ || ! defined(LL_WINDOWS)
+// Only on Windows, and only with the Microsoft compiler (vs. clang) is
+// wchar_t potentially not a distinct type.
 #define LL_WCHAR_T_NATIVE 1
 #else  // LL_WINDOWS
 // https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros

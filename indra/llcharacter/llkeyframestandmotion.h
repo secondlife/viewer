@@ -37,9 +37,11 @@
 //-----------------------------------------------------------------------------
 // class LLKeyframeStandMotion
 //-----------------------------------------------------------------------------
+LL_ALIGN_PREFIX(16)
 class LLKeyframeStandMotion :
 	public LLKeyframeMotion
 {
+    LL_ALIGN_NEW
 public:
 	// Constructor
 	LLKeyframeStandMotion(const LLUUID &id);
@@ -69,6 +71,18 @@ public:
 	//-------------------------------------------------------------------------
 	// Member Data
 	//-------------------------------------------------------------------------
+    LLJoint				mPelvisJoint;
+
+    LLJoint				mHipLeftJoint;
+    LLJoint				mKneeLeftJoint;
+    LLJoint				mAnkleLeftJoint;
+    LLJoint				mTargetLeft;
+
+    LLJoint				mHipRightJoint;
+    LLJoint				mKneeRightJoint;
+    LLJoint				mAnkleRightJoint;
+    LLJoint				mTargetRight;
+
 	LLCharacter	*mCharacter;
 
 	BOOL				mFlipFeet;
@@ -82,18 +96,6 @@ public:
 	LLPointer<LLJointState>	mHipRightState;
 	LLPointer<LLJointState>	mKneeRightState;
 	LLPointer<LLJointState>	mAnkleRightState;
-
-	LLJoint				mPelvisJoint;
-
-	LLJoint				mHipLeftJoint;
-	LLJoint				mKneeLeftJoint;
-	LLJoint				mAnkleLeftJoint;
-	LLJoint				mTargetLeft;
-
-	LLJoint				mHipRightJoint;
-	LLJoint				mKneeRightJoint;
-	LLJoint				mAnkleRightJoint;
-	LLJoint				mTargetRight;
 
 	LLJointSolverRP3	mIKLeft;
 	LLJointSolverRP3	mIKRight;
@@ -110,7 +112,7 @@ public:
 	BOOL				mTrackAnkles;
 
 	S32					mFrameNum;
-};
+} LL_ALIGN_POSTFIX(16);
 
 #endif // LL_LLKEYFRAMESTANDMOTION_H
 

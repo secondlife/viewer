@@ -1,8 +1,9 @@
 /** 
- * @file diffuseSkinnedV.glsl
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * @file previewPhysicsF.glsl
+ *
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,38 +23,20 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 projection_matrix;
-uniform mat4 texture_matrix0;
-uniform mat4 modelview_matrix;
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
 
-ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
+uniform sampler2D diffuseMap;
+uniform vec4 color;
 
-VARYING vec3 vary_normal;
-VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-mat4 getObjectSkinnedTransform();
+//====================================================================================================
 
 void main()
 {
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-		
-	mat4 mat = getObjectSkinnedTransform();
-	
-	mat = modelview_matrix * mat;
-	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
-	
-	vec4 norm = vec4(position.xyz, 1.0);
-	norm.xyz += normal.xyz;
-	norm.xyz = (mat*norm).xyz;
-	norm.xyz = normalize(norm.xyz-pos.xyz);
-
-	vary_normal = norm.xyz;
-			
-	vertex_color = diffuse_color;
-	
-	gl_Position = projection_matrix*vec4(pos, 1.0);
+    frag_color = texture2D(diffuseMap,vary_texcoord0.xy) * color;
 }
