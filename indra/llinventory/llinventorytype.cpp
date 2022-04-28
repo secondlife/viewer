@@ -154,6 +154,7 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
     LLInventoryType::IT_NONE,			// 54   AT_RESERVED_5
 
     LLInventoryType::IT_SETTINGS,       // 55   AT_SETTINGS
+    LLInventoryType::IT_MATERIAL,       // 56   AT_MATERIAL
 };
 
 // static

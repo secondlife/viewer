@@ -65,7 +65,8 @@ public:
 		IT_WIDGET = 23,
 		IT_PERSON = 24,
         IT_SETTINGS = 25,
-		IT_COUNT = 26,
+        IT_MATERIAL = 26,
+		IT_COUNT = 27,
 
 		IT_UNKNOWN = 255,
 		IT_NONE = -1

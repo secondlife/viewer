@@ -2542,14 +2542,58 @@ void LLPanelFace::onAlignTexture(void* userdata)
     self->alignTestureLayer();
 }
 
+#include "llagent.h"
+#include "llfilesystem.h"
+#include "llfloaterperms.h"
+#include "llviewerassetupload.h"
+#include "llviewermenufile.h"
+#include "llsd.h"
+#pragma warning (disable: 4189)
 void LLPanelFace::onSaveMaterial(void* userdata)
 {
-    LLPanelFace* self = (LLPanelFace*)userdata;
-    
     // DRTVWR-559, Q&D material picker - save to inventory goes here
-    auto bound = self->getBoundingRect();
-    self->setUseBoundingRect(self->getUseBoundingRect());
-    //self->saveMaterialToInventory();
+    LL_DEBUGS("Material") << "saving material to inventory" << LL_ENDL;
+
+    LLPanelFace* self = (LLPanelFace*)userdata;
+
+    std::string name = "New Material";
+
+    LLSD* mat_llsd = new LLSD("Surely you jest...");
+    // TBD populate mat_llsd with material data
+    self->onCloseTexturePicker(*mat_llsd);   // certainly wrong, but something like this?
+
+    // gen a new uuid for this asset
+    LLTransactionID tid;
+    tid.generate();
+    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+
+    LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_MATERIAL, LLFileSystem::WRITE);
+    fmt_file.write(mat_llsd->asBinary().data(), mat_llsd->size());
+
+    S32 expected_upload_cost = 0;// LLAgentBenefitsMgr::current().getTextureUploadCost();
+    
+    std::string res_name = name;
+    std::string res_desc = "Saved Material";
+    LLFolderType::EType folder_type = LLFolderType::FT_MATERIAL;
+    LLInventoryType::EType inv_type = LLInventoryType::IT_MATERIAL;
+
+    auto upload_info = new LLResourceUploadInfo( 
+        tid, 
+        LLAssetType::AT_MATERIAL,
+        res_name, 
+        res_desc, 
+        0,
+        folder_type,
+        inv_type,
+        PERM_ALL, 
+        LLFloaterPerms::getGroupPerms("Uploads"), 
+        LLFloaterPerms::getEveryonePerms("Uploads"),
+        expected_upload_cost, 
+        false);
+
+    LLResourceUploadInfo::ptr_t p_upload_info(upload_info);
+        
+    upload_new_resource(p_upload_info);
 }
 
 
