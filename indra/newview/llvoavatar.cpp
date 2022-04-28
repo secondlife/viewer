@@ -2819,22 +2819,22 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-				LLViewerObject* attached_object = attachment_iter->get();
-				BOOL visibleAttachment = visible || (attached_object && attached_object->mDrawable.notNull() &&
-													 !(attached_object->mDrawable->getSpatialBridge() &&
-													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0));
-				
-				if (visibleAttachment
-                    && attached_object
-                    && !attached_object->isDead()
-                    && attachment->getValid()
-                    && attached_object->mDrawable.notNull())
-				{
+                LLViewerObject* attached_object = attachment_iter->get();
+                if (!attached_object
+                    || attached_object->isDead()
+                    || !attachment->getValid()
+                    || attached_object->mDrawable.isNull())
+                {
+                    continue;
+                }
 
+                LLSpatialBridge* bridge = attached_object->mDrawable->getSpatialBridge();
+				
+				if (visible || !(bridge && bridge->getRadius() < 2.0))
+				{
                     //override rigged attachments' octree spatial extents with this avatar's bounding box
-                    LLSpatialBridge* bridge = attached_object->mDrawable->getSpatialBridge();
                     bool rigged = false;
-                    if (bridge && !bridge->isDead())
+                    if (bridge)
                     {
                         //transform avatar bounding box into attachment's coordinate frame
                         LLVector4a extents[2];
@@ -2850,8 +2850,12 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                     
                     attached_object->mDrawable->makeActive();
                     attached_object->mDrawable->updateXform(TRUE);
-                    
-                    if (bridge && !bridge->isDead())
+
+                    // override_bbox calls movePartition() and getSpatialPartition(),
+                    // so bridge might no longer be valid, get it again.
+                    // ex: animesh stops being an animesh
+                    bridge = attached_object->mDrawable->getSpatialBridge();
+                    if (bridge)
                     {
                         if (!rigged)
                         {
