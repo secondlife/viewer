@@ -1412,9 +1412,14 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLMaterialPtr material;
 			LLSelectedTEMaterial::getCurrent(material, identical);
 
-            // QUICKHACK - enable this UI box, indiscriminatly.  TODO discriminate DJH 2022-04
-            childSetEnabled("button save material", true);
-            
+            // enable this UI box if a single face is selected.
+            BOOL is_single_face = !LLSelectMgr::getInstance()->getSelection()->isMultipleTESelected();
+            childSetEnabled("button save material", static_cast<bool>(is_single_face));
+            childSetEnabled("materialID", static_cast<bool>(is_single_face));   // doesn't work - why?
+
+            // TODO: 2022-04 conflicts with media button placement. hide the button if applying media
+            // i.e.  childSetVisible("button save material", !applying_media);
+
             if (material && editable)
 			{
 				LL_DEBUGS("Materials") << material->asLLSD() << LL_ENDL;
