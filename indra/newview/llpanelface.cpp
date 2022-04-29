@@ -2559,57 +2559,74 @@ void LLPanelFace::onAlignTexture(void* userdata)
 }
 
 #include "llagent.h"
-#include "llfilesystem.h"
-#include "llfloaterperms.h"
 #include "llviewerassetupload.h"
 #include "llviewermenufile.h"
 #include "llsd.h"
-#pragma warning (disable: 4189)
+#include "llsdutil.h"
+#include "llsdserialize.h"
+#include "llinventorymodel.h"
+
 void LLPanelFace::onSaveMaterial(void* userdata)
 {
     // DRTVWR-559, Q&D material picker - save to inventory goes here
     LL_DEBUGS("Material") << "saving material to inventory" << LL_ENDL;
 
-    LLPanelFace* self = (LLPanelFace*)userdata;
+    //LLPanelFace* self = static_cast<LLPanelFace*>(userdata);
 
     std::string name = "New Material";
 
-    LLSD* mat_llsd = new LLSD("Surely you jest...");
-    // TBD populate mat_llsd with material data
-    self->onCloseTexturePicker(*mat_llsd);   // certainly wrong, but something like this?
+	LLSD material_data = llsd::map(
+		"version", "1",
+		"material", LLSD::emptyMap()
+	);
 
     // gen a new uuid for this asset
     LLTransactionID tid;
     tid.generate();
     LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 
-    LLFileSystem fmt_file(new_asset_id, LLAssetType::AT_MATERIAL, LLFileSystem::WRITE);
-    fmt_file.write(mat_llsd->asBinary().data(), mat_llsd->size());
+	std::stringstream output;
+    LLSDSerialize::toNotation(material_data, output);
 
-    S32 expected_upload_cost = 0;// LLAgentBenefitsMgr::current().getTextureUploadCost();
+    //S32 expected_upload_cost = 0;// LLAgentBenefitsMgr::current().getTextureUploadCost();
     
     std::string res_name = name;
     std::string res_desc = "Saved Material";
-    LLFolderType::EType folder_type = LLFolderType::FT_MATERIAL;
-    LLInventoryType::EType inv_type = LLInventoryType::IT_MATERIAL;
+    //LLFolderType::EType folder_type = LLFolderType::FT_MATERIAL;
+    //LLInventoryType::EType inv_type = LLInventoryType::IT_MATERIAL;
+    U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
 
-    auto upload_info = new LLResourceUploadInfo( 
-        tid, 
-        LLAssetType::AT_MATERIAL,
-        res_name, 
-        res_desc, 
-        0,
-        folder_type,
-        inv_type,
-        PERM_ALL, 
-        LLFloaterPerms::getGroupPerms("Uploads"), 
-        LLFloaterPerms::getEveryonePerms("Uploads"),
-        expected_upload_cost, 
-        false);
+    LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+    const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
-    LLResourceUploadInfo::ptr_t p_upload_info(upload_info);
-        
-    upload_new_resource(p_upload_info);
+    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, res_name, res_desc,
+        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
+        new LLBoostFuncInventoryCallback([output=output.str()](LLUUID const & inv_item_id){
+            // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
+            LLResourceUploadInfo::ptr_t uploadInfo =
+                std::make_shared<LLBufferedAssetUploadInfo>(
+                    inv_item_id,
+                    LLAssetType::AT_SETTINGS, // TODO switch to AT_MATERIAL
+                    output,
+                    [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response) {
+                        LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+                        LLSD params = llsd::map("ASSET_ID", new_asset_id);
+                        LLNotificationsUtil::add("MaterialCreated", params);
+                    });
+
+            const LLViewerRegion* region = gAgent.getRegion();
+            if (region)
+            {
+                 std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
+                 if (agent_url.empty())
+                 {
+                     LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                 }
+                 LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+            }
+        })
+    );
+
 }
 
 
