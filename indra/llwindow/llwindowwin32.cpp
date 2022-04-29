@@ -907,6 +907,10 @@ void LLWindowWin32::close()
             }
 
         });
+    // Window thread might be waiting for a getMessage(), give it
+    // a push to enshure it will process destroy_window_handler
+    kickWindowThread();
+
     // Even though the above lambda might not yet have run, we've already
     // bound mWindowHandle into it by value, which should suffice for the
     // operations we're asking. That's the last time WE should touch it.
