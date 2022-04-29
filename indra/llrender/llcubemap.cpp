@@ -183,8 +183,7 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
         llassert(rawimages[i]->getHeight() == resolution);
         llassert(rawimages[i]->getComponents() == components);
 
-
-        mImages[i] = new LLImageGL(resolution, resolution, components, FALSE);
+        mImages[i] = new LLImageGL(resolution, resolution, components, TRUE);
         mImages[i]->setTarget(mTargets[i], LLTexUnit::TT_CUBE_MAP);
         mRawImages[i] = rawimages[i];
         mImages[i]->createGLTexture(0, mRawImages[i], texname);
@@ -195,6 +194,11 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
 
         mImages[i]->setSubImage(mRawImages[i], 0, 0, resolution, resolution);
     }
+    enableTexture(0);
+    bind();
+    mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     gGL.getTexUnit(0)->disable();
     disable();
 }

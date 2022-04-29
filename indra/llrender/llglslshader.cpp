@@ -832,6 +832,9 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	As example where this situation appear see: "Deferred Material Shader 28/29/30/31"
 	And tickets: MAINT-4165, MAINT-4839, MAINT-3568, MAINT-6437
+
+    --- davep TODO -- pretty sure the entire block here is superstitious and that the uniform index has nothing to do with the texture channel
+                texture channel should follow the uniform VALUE
 	*/
 
 
@@ -840,6 +843,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
     S32 altDiffuseMap = glGetUniformLocationARB(mProgramObject, "altDiffuseMap");
 	S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
+    S32 reflectionMap = glGetUniformLocationARB(mProgramObject, "reflectionMap");
 
 	std::set<S32> skip_index;
 
@@ -882,6 +886,12 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 				continue;
 			}
 
+            if (-1 == reflectionMap && std::string(name) == "reflectionMap")
+            {
+                reflectionMap = i;
+                continue;
+            }
+
             if (-1 == altDiffuseMap && std::string(name) == "altDiffuseMap")
 			{
 				altDiffuseMap = i;
@@ -892,8 +902,9 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 		bool specularDiff = specularMap < diffuseMap && -1 != specularMap;
 		bool bumpLessDiff = bumpMap < diffuseMap && -1 != bumpMap;
 		bool envLessDiff = environmentMap < diffuseMap && -1 != environmentMap;
+        bool refLessDiff = reflectionMap < diffuseMap && -1 != reflectionMap;
 
-		if (specularDiff || bumpLessDiff || envLessDiff)
+		if (specularDiff || bumpLessDiff || envLessDiff || refLessDiff)
 		{
 			mapUniform(diffuseMap, uniforms);
 			skip_index.insert(diffuseMap);
@@ -912,6 +923,11 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 				mapUniform(environmentMap, uniforms);
 				skip_index.insert(environmentMap);
 			}
+
+            if (-1 != reflectionMap) {
+                mapUniform(reflectionMap, uniforms);
+                skip_index.insert(reflectionMap);
+            }
 		}
 	}
 

@@ -36,7 +36,6 @@ out vec4 frag_color;
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
-uniform samplerCube environmentMap;
 uniform sampler2D noiseMap;
 uniform sampler2D lightFunc;
 uniform sampler2DRect depthMap;

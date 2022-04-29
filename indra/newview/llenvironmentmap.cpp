@@ -67,7 +67,7 @@ void LLEnvironmentMap::update(const LLVector3& origin, U32 resolution)
         LLVector3(0, -1, 0), 
         LLVector3(0, 0, -1), 
         LLVector3(0, 0, 1), 
-        LLVector3(0, 1, 0), 
+        LLVector3(0, -1, 0), 
         LLVector3(0, -1, 0) 
     };
 

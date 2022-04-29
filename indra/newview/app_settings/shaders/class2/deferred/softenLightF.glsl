@@ -40,6 +40,7 @@ uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
 uniform samplerCube   environmentMap;
+uniform samplerCube   reflectionMap;
 uniform sampler2D     lightFunc;
 
 uniform float blur_size;
@@ -119,6 +120,8 @@ void main()
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
+    vec3 env_vec         = env_mat * refnormpersp;
+
     if (spec.a > 0.0)  // specular reflection
     {
         float sa        = dot(refnormpersp, light_dir.xyz);
@@ -128,13 +131,28 @@ void main()
         vec3 spec_contrib = dumbshiny * spec.rgb;
         bloom             = dot(spec_contrib, spec_contrib) / 6;
         color.rgb += spec_contrib;
+
+        // add reflection map - EXPERIMENTAL WORK IN PROGRESS
+        float reflection_lods = 11; // TODO -- base this on resolution of reflection map instead of hard coding
+        float min_lod = textureQueryLod(reflectionMap,env_vec).y; // lower is higher res
+
+        //vec3 reflected_color = texture(reflectionMap, env_vec, (1.0-spec.a)*reflection_lod).rgb;
+        vec3 reflected_color = textureLod(reflectionMap, env_vec, max(min_lod, (1.0-spec.a)*reflection_lods)).rgb;
+        //vec3 reflected_color = texture(reflectionMap, env_vec).rgb;
+        //vec3 reflected_color = normalize(env_vec)*0.5+0.5;
+        reflected_color *= spec.rgb;
+        vec3 mixer = clamp(color.rgb + vec3(1,1,1) - spec.rgb, vec3(0,0,0), vec3(1,1,1));
+
+        color.rgb = mix(reflected_color*sqrt(spec.a*0.8), color, mixer);
+                         
+        //color.rgb = mix(reflected_color * spec.rgb * sqrt(spec.a*0.8), color.rgb, color.rgb);
+        //color.rgb += reflected_color * spec.rgb; // * sqrt(spec.a*0.8), color.rgb, color.rgb);
     }
 
     color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
 
     if (envIntensity > 0.0)
     {  // add environmentmap
-        vec3 env_vec         = env_mat * refnormpersp;
         vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
         color                = mix(color.rgb, reflected_color, envIntensity);
     }
@@ -154,5 +172,6 @@ void main()
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
     frag_color.rgb = srgb_to_linear(color.rgb);
+    //frag_color.r = 1.0;
     frag_color.a   = bloom;
 }
