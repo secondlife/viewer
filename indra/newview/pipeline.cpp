@@ -8188,23 +8188,41 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
 	stop_glerror();
 
+    bool setup_env_mat = false;
 	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	if (channel > -1)
 	{
 		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 		if (cube_map)
 		{
+            setup_env_mat = true;
 			cube_map->enable(channel);
 			cube_map->bind();
-			F32* m = gGLModelView;
-						
-			F32 mat[] = { m[0], m[1], m[2],
-						  m[4], m[5], m[6],
-						  m[8], m[9], m[10] };
-		
-			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
 		}
 	}
+
+    channel = shader.enableTexture(LLShaderMgr::REFLECTION_MAP, LLTexUnit::TT_CUBE_MAP);
+    if (channel > -1)
+    {
+        LLCubeMap* cube_map = mEnvironmentMap.mCubeMap;
+        if (cube_map)
+        {
+            setup_env_mat = true;
+            cube_map->enable(channel);
+            cube_map->bind();
+        }
+    }
+
+    if (setup_env_mat)
+    {
+        F32* m = gGLModelView;
+
+        F32 mat[] = { m[0], m[1], m[2],
+                      m[4], m[5], m[6],
+                      m[8], m[9], m[10] };
+
+        shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+    }
 
     if (gAtmosphere)
     {
@@ -9103,6 +9121,17 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 			cube_map->disable();
 		}
 	}
+
+    channel = shader.disableTexture(LLShaderMgr::REFLECTION_MAP, LLTexUnit::TT_CUBE_MAP);
+    if (channel > -1)
+    {
+        LLCubeMap* cube_map = mEnvironmentMap.mCubeMap;
+        if (cube_map)
+        {
+            cube_map->disable();
+        }
+    }
+
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	gGL.getTexUnit(0)->activate();
 	shader.unbind();
@@ -11465,5 +11494,10 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 			unhideDrawable( pDrawable );			
 		}
 	}
+}
+
+void LLPipeline::overrideEnvironmentMap()
+{
+    mEnvironmentMap.update(LLViewerCamera::instance().getOrigin(), 1024);
 }
 

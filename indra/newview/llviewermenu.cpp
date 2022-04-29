@@ -8304,6 +8304,12 @@ void handle_cache_clear_immediately()
 	LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache_immediately);
 }
 
+void handle_override_environment_map()
+{
+    gPipeline.overrideEnvironmentMap();
+}
+
+
 void handle_web_content_test(const LLSD& param)
 {
 	std::string url = param.asString();
@@ -9402,6 +9408,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLDevelopTextureFetchDebugger(), "Develop.SetTexFetchDebugger");
 	//Develop (clear cache immediately)
 	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
+    //Develop (override environment map)
+    commit.add("Develop.OverrideEnvironmentMap", boost::bind(&handle_override_environment_map));
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

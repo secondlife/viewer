@@ -3250,6 +3250,13 @@ function="World.EnvPreset"
                  function="ToggleControl"
                  parameter="RenderHoverGlowEnable" />
             </menu_item_check>
+            <menu_item_call
+              enabled="true"
+              label="Override Environment Map"
+              name="Override Environment Map">
+              <menu_item_call.on_click
+               function="Develop.OverrideEnvironmentMap" />
+            </menu_item_call>
           <menu_item_separator />
           
           <menu_item_call
