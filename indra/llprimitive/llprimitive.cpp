@@ -39,6 +39,7 @@
 #include "llsdutil_math.h"
 #include "llprimtexturelist.h"
 #include "llmaterialid.h"
+#include "llsdutil.h"
 
 /**
  * exported constants
@@ -1690,6 +1691,8 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
 		return (size == 28);
     case PARAMS_EXTENDED_MESH:
         return (size == 4);
+    case PARAMS_RENDER_MATERIAL:
+        return (size == 16);
 	}
 	
 	return FALSE;
@@ -2180,4 +2183,70 @@ bool LLExtendedMeshParams::fromLLSD(LLSD& sd)
 	} 
 	
 	return false;
+}
+
+//============================================================================
+
+LLRenderMaterialParams::LLRenderMaterialParams()
+{
+    mType = PARAMS_RENDER_MATERIAL;
+}
+
+BOOL LLRenderMaterialParams::pack(LLDataPacker &dp) const
+{
+    return dp.packUUID(mMaterial, "material");
+
+//    return TRUE;
+}
+
+BOOL LLRenderMaterialParams::unpack(LLDataPacker &dp)
+{
+    return dp.unpackUUID(mMaterial, "material");
+
+//    return TRUE;
+}
+
+bool LLRenderMaterialParams::operator==(const LLNetworkData& data) const
+{
+    if (data.mType != PARAMS_RENDER_MATERIAL)
+    {
+        return false;
+    }
+
+    const LLRenderMaterialParams &param = static_cast<const LLRenderMaterialParams&>(data);
+
+    return param.mMaterial == mMaterial;
+}
+
+void LLRenderMaterialParams::copy(const LLNetworkData& data)
+{
+    llassert_always(data.mType == PARAMS_RENDER_MATERIAL);
+    const LLRenderMaterialParams &param = static_cast<const LLRenderMaterialParams&>(data);
+    mMaterial = param.mMaterial;
+}
+
+LLSD LLRenderMaterialParams::asLLSD() const
+{
+    return llsd::map("material", mMaterial);
+}
+
+bool LLRenderMaterialParams::fromLLSD(LLSD& sd)
+{
+    if (sd.has("material"))
+    {
+        setMaterial(sd["material"]);
+        return true;
+    }
+
+    return false;
+}
+
+void LLRenderMaterialParams::setMaterial(const LLUUID & id)
+{
+    mMaterial = id;
+}
+
+LLUUID LLRenderMaterialParams::getMaterial() const
+{
+    return mMaterial;
 }

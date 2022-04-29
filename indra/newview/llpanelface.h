@@ -191,6 +191,7 @@ protected:
 	static void		onCommitMaterialGloss(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialEnv(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialMaskCutoff(	LLUICtrl* ctrl, void* userdata);
+	static void		onCommitMaterialID( LLUICtrl* ctrl, void* userdata);
 
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
@@ -234,6 +235,7 @@ private:
 	F32		getCurrentShinyScaleV();
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
+	LLUUID	getCurrentMaterialID();
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -498,6 +500,7 @@ public:
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setNormalID);
 		DEF_EDIT_MAT_STATE(LLUUID,const LLUUID&,setSpecularID);
 		DEF_EDIT_MAT_STATE(LLColor4U,	const LLColor4U&,setSpecularLightColor);
+		DEF_EDIT_MAT_STATE(LLUUID, const LLUUID&, setMaterialID);
 	};
 
 	class LLSelectedTE

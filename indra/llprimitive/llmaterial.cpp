@@ -331,6 +331,17 @@ void LLMaterial::setAlphaMaskCutoff(U8 cutoff)
     mAlphaMaskCutoff = cutoff;
 }
 
+LLUUID LLMaterial::getMaterialID() const
+{
+    // TODO - not null
+    return LLUUID::null;
+}
+
+void LLMaterial::setMaterialID(const LLUUID &material_id)
+{
+    // TODO - set
+}
+
 LLSD LLMaterial::asLLSD() const
 {
     LLSD material_data;

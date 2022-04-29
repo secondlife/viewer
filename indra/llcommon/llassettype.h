@@ -127,9 +127,8 @@ public:
         AT_RESERVED_6 = 55,
 
         AT_SETTINGS = 56,   // Collection of settings
+        AT_MATERIAL = 57,   // Render Material
 
-        AT_MATERIAL = 57,
-            
 		AT_COUNT = 58,
 
 			// +*********************************************************+

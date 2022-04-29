@@ -27,8 +27,6 @@
 #ifndef LL_LLMATERIAL_H
 #define LL_LLMATERIAL_H
 
-#include <boost/shared_ptr.hpp>
-
 #include "llmaterialid.h"
 #include "llsd.h"
 #include "v4coloru.h"
@@ -54,8 +52,6 @@ public:
         ALPHA_SHADER_COUNT = 4
     } eShaderCount;
 
-    
-    
     static const U8         DEFAULT_SPECULAR_LIGHT_EXPONENT = ((U8)(0.2f * 255));
     static const LLColor4U  DEFAULT_SPECULAR_LIGHT_COLOR;
     static const U8         DEFAULT_ENV_INTENSITY = 0;
@@ -119,6 +115,8 @@ public:
     void        setDiffuseAlphaMode(U8 alpha_mode);
     U8          getAlphaMaskCutoff() const;
     void        setAlphaMaskCutoff(U8 cutoff);
+    LLUUID      getMaterialID() const;
+    void        setMaterialID(LLUUID const & material_id);
 
     bool        isNull() const;
     static const LLMaterial null;

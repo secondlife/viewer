@@ -123,6 +123,7 @@ F32		LLPanelFace::getCurrentShinyScaleU()		{ return getChild<LLUICtrl>("shinySca
 F32		LLPanelFace::getCurrentShinyScaleV()		{ return getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();					}
 F32		LLPanelFace::getCurrentShinyOffsetU()		{ return getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal();					}
 F32		LLPanelFace::getCurrentShinyOffsetV()		{ return getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal();					}
+LLUUID	LLPanelFace::getCurrentMaterialID()			{ return getChild<LLUICtrl>("materialID")->getValue().asUUID(); 					}
 
 //
 // Methods
@@ -154,6 +155,7 @@ BOOL	LLPanelFace::postBuild()
 	childSetCommitCallback("glossiness",&LLPanelFace::onCommitMaterialGloss, this);
 	childSetCommitCallback("environment",&LLPanelFace::onCommitMaterialEnv, this);
 	childSetCommitCallback("maskcutoff",&LLPanelFace::onCommitMaterialMaskCutoff, this);
+	childSetCommitCallback("materialID", &LLPanelFace::onCommitMaterialID, this);
 
 	childSetAction("button align",&LLPanelFace::onClickAutoFix,this);
 	childSetAction("button align textures", &LLPanelFace::onAlignTexture, this);
@@ -299,7 +301,7 @@ BOOL	LLPanelFace::postBuild()
 	{
 		mCtrlGlow->setCommitCallback(LLPanelFace::onCommitGlow, this);
 	}
-	
+
 
 	clearCtrls();
 
@@ -1522,6 +1524,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		calcp->setVar(LLCalc::TEX_ROTATION, childGetValue("TexRot").asReal());
 		calcp->setVar(LLCalc::TEX_TRANSPARENCY, childGetValue("ColorTrans").asReal());
 		calcp->setVar(LLCalc::TEX_GLOW, childGetValue("glow").asReal());
+
+		getChildView("materialID")->setEnabled(editable);
 	}
 	else
 	{
@@ -2304,6 +2308,13 @@ void LLPanelFace::onCommitMaterialMaskCutoff(LLUICtrl* ctrl, void* userdata)
 {
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	LLSelectedTEMaterial::setAlphaMaskCutoff(self,self->getCurrentAlphaMaskCutoff());
+}
+
+//static
+void LLPanelFace::onCommitMaterialID(LLUICtrl* ctrl, void* userdata)
+{
+	LLPanelFace* self = static_cast<LLPanelFace*>(userdata);
+	LLSelectedTEMaterial::setMaterialID(self, self->getCurrentMaterialID());
 }
 
 // static

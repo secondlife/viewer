@@ -153,8 +153,8 @@ DEFAULT_ASSET_FOR_INV_TYPE[LLAssetType::AT_COUNT] =
     LLInventoryType::IT_NONE,			// 53   AT_RESERVED_4
     LLInventoryType::IT_NONE,			// 54   AT_RESERVED_5
 
-    LLInventoryType::IT_SETTINGS,       // 55   AT_SETTINGS
-    LLInventoryType::IT_MATERIAL,       // 56   AT_MATERIAL
+    LLInventoryType::IT_SETTINGS,       // 55   AT_SETTINGS <- why doesnt this match the value in llassettype.h? -brad
+    LLInventoryType::IT_MATERIAL,       // 57   AT_MATERIAL
 };
 
 // static

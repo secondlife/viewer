@@ -2,7 +2,7 @@
 <panel
          border="false"
          follows="all"
-         height="420"
+         height="500"
          label="Texture"
          layout="topleft"
          left="0"
@@ -772,7 +772,7 @@
              width="260" />
 			<button
 			 left="10"
-			 top="222"
+			 top="257"
 			 height="20"
 			 label="Align"
 			 label_selected="Align current texture layers"
@@ -805,4 +805,17 @@
        tool_tip="Save material to inventory"
        width="110" />
 
+            <line_editor
+             enabled="true"
+             follows="top|left"
+             height="16"
+             layout="topleft"
+             left="7"
+             label="Material UUID"
+             name="materialID"
+             select_on_focus="true"
+             top="380"
+             width="200"
+             tool_tip="UUID for a material asset"
+             />
 </panel>
