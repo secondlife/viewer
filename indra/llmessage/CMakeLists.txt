@@ -185,9 +185,6 @@ set(llmessage_HEADER_FILES
     sound_ids.h
     )
 
-set_source_files_properties(${llmessage_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llmessage_SOURCE_FILES ${llmessage_HEADER_FILES})
 
 add_library (llmessage ${llmessage_SOURCE_FILES})

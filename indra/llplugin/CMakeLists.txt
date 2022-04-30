@@ -20,7 +20,6 @@ set(llplugin_SOURCE_FILES
 
 set(llplugin_HEADER_FILES
     CMakeLists.txt
-
     llpluginclassmedia.h
     llpluginclassmediaowner.h
     llplugininstance.h
@@ -31,9 +30,6 @@ set(llplugin_HEADER_FILES
     llpluginprocessparent.h
     llpluginsharedmemory.h
     )
-
-set_source_files_properties(${llplugin_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 if(NOT ADDRESS_SIZE EQUAL 32)
   if(WINDOWS)

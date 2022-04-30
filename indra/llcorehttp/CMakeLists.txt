@@ -73,8 +73,6 @@ set(llcorehttp_HEADER_FILES
     _thread.h
     )
 
-set_source_files_properties(${llcorehttp_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 if (DARWIN OR LINUX)
   # Boost headers define unused members in condition_variable so...
   set_source_files_properties(${llcorehttp_SOURCE_FILES}
@@ -111,9 +109,6 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
       tests/test_bufferarray.hpp
       tests/test_bufferstream.hpp
       )
-
-  set_source_files_properties(${llcorehttp_TEST_HEADER_FILES}
-                              PROPERTIES HEADER_FILE_ONLY TRUE)
 
   list(APPEND llcorehttp_TEST_SOURCE_FILES ${llcorehttp_TEST_HEADER_FILES})
 

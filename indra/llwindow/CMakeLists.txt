@@ -142,9 +142,6 @@ if (SOLARIS)
        )
 endif (SOLARIS)
 
-set_source_files_properties(${llwindow_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 if (BUILD_HEADLESS)
   set(llwindowheadless_SOURCE_FILES
        llwindowmesaheadless.cpp

@@ -47,9 +47,6 @@ if (WINDOWS)
   LIST(APPEND llfilesystem_HEADER_FILES lldir_win32.h)
 endif (WINDOWS)
 
-set_source_files_properties(${llfilesystem_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llfilesystem_SOURCE_FILES ${llfilesystem_HEADER_FILES})
 
 add_library (llfilesystem ${llfilesystem_SOURCE_FILES})

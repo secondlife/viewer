@@ -75,9 +75,6 @@ set(master_SOURCE_FILES
 
 source_group("Master Rules" FILES ${master_SOURCE_FILES})
 
-set_source_files_properties(${cmake_SOURCE_FILES} ${master_SOURCE_FILES}
-        PROPERTIES HEADER_FILE_ONLY TRUE)
-
 add_library(cmake
         cmake_dummy.cpp
         ${cmake_SOURCE_FILES}

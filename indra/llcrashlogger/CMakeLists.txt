@@ -17,9 +17,6 @@ set(llcrashlogger_HEADER_FILES
     llcrashlock.h
     )
 
-set_source_files_properties(${llcrashlogger_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llcrashlogger_SOURCE_FILES ${llcrashlogger_HEADER_FILES})
 
 add_library(llcrashlogger ${llcrashlogger_SOURCE_FILES})

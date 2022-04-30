@@ -1382,12 +1382,7 @@ if (DARWIN)
     Japanese.lproj/language.txt
     Korean.lproj/language.txt
     )
-  set_source_files_properties(
-    ${viewer_RESOURCE_FILES}
-    PROPERTIES
-    HEADER_FILE_ONLY TRUE
-    #MACOSX_PACKAGE_LOCATION Resources #don't do this! this tells cmake to copy the files.
-    )
+
   SOURCE_GROUP("Resources" FILES ${viewer_RESOURCE_FILES})
   list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 endif (DARWIN)
@@ -1651,9 +1646,6 @@ if( DEFINED LLSTARTUP_COMPILE_FLAGS )
 endif()
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
-
-set_source_files_properties(${viewer_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 add_executable(${VIEWER_BINARY_NAME}
     WIN32

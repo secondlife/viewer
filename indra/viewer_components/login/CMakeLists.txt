@@ -17,9 +17,6 @@ set(login_HEADER_FILES
     lllogin.h
     )
 
-set_source_files_properties(${login_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND 
     login_SOURCE_FILES 
     ${login_HEADER_FILES} 

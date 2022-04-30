@@ -47,9 +47,6 @@ set(llprimitive_HEADER_FILES
     material_codes.h
     object_flags.h
     )
-        
-set_source_files_properties(${llprimitive_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND llprimitive_SOURCE_FILES ${llprimitive_HEADER_FILES})
 

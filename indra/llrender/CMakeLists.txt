@@ -64,9 +64,6 @@ set(llrender_HEADER_FILES
     llglcommonfunc.h
     )
 
-set_source_files_properties(${llrender_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llrender_SOURCE_FILES ${llrender_HEADER_FILES})
 
 if (BUILD_HEADLESS)

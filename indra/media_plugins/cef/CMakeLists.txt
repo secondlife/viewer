@@ -46,9 +46,6 @@ elseif (WINDOWS)
   list(APPEND media_plugin_cef_SOURCE_FILES windows_volume_catcher.cpp)
 endif (LINUX)
 
-set_source_files_properties(${media_plugin_cef_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND media_plugin_cef_SOURCE_FILES ${media_plugin_cef_HEADER_FILES})
 
 add_library(media_plugin_cef

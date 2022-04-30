@@ -43,9 +43,6 @@ set(llimage_HEADER_FILES
     llpngwrapper.h
     )
 
-set_source_files_properties(${llimage_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llimage_SOURCE_FILES ${llimage_HEADER_FILES})
 
 add_library (llimage ${llimage_SOURCE_FILES})

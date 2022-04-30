@@ -45,9 +45,6 @@ set(linux_crash_logger_HEADER_FILES
     llcrashloggerlinux.h
     )
 
-set_source_files_properties(${linux_crash_logger_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND linux_crash_logger_SOURCE_FILES
      ${linux_crash_logger_HEADER_FILES}
      )

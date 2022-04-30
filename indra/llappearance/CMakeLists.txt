@@ -52,9 +52,6 @@ set(llappearance_HEADER_FILES
     llavatarappearancedefines.h
     )
 
-set_source_files_properties(${llappearance_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llappearance_SOURCE_FILES ${llappearance_HEADER_FILES})
 
 add_library (llappearance ${llappearance_SOURCE_FILES})

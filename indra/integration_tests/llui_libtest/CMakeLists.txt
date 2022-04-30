@@ -50,9 +50,6 @@ set(llui_libtest_HEADER_FILES
     llwidgetreg.h
     )
 
-set_source_files_properties(${llui_libtest_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llui_libtest_SOURCE_FILES ${llui_libtest_HEADER_FILES})
 
 add_executable(llui_libtest ${llui_libtest_SOURCE_FILES})

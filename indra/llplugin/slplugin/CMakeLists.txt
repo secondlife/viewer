@@ -21,8 +21,6 @@ if (DARWIN)
 endif (DARWIN)
 
 if (SLPlugin_HEADER_FILES)
-  set_source_files_properties(${SLPlugin_HEADER_FILES}
-          PROPERTIES HEADER_FILE_ONLY TRUE)
   list(APPEND SLPlugin_SOURCE_FILES ${SLPlugin_HEADER_FILES})
 endif (SLPlugin_HEADER_FILES)
 

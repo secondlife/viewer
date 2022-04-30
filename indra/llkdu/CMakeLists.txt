@@ -21,13 +21,9 @@ set(llkdu_SOURCE_FILES
 
 set(llkdu_HEADER_FILES
     CMakeLists.txt
-    
     llimagej2ckdu.h
     llkdumem.h
     )
-
-set_source_files_properties(${llkdu_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND llkdu_SOURCE_FILES ${llkdu_HEADER_FILES})
 

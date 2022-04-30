@@ -87,7 +87,6 @@ INCLUDE(GoogleMock)
     # Headers
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_HEADER_FILES ${source} LL_TEST_ADDITIONAL_HEADER_FILES)
     SET(${name}_test_HEADER_FILES ${name}.h ${${name}_test_additional_HEADER_FILES})
-    set_source_files_properties(${${name}_test_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
     LIST(APPEND ${name}_test_SOURCE_FILES ${${name}_test_HEADER_FILES})
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_HEADER_FILES ${${name}_test_HEADER_FILES}")

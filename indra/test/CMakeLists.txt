@@ -53,9 +53,6 @@ if (NOT WINDOWS)
        )
 endif (NOT WINDOWS)
 
-set_source_files_properties(${test_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})

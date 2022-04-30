@@ -57,9 +57,6 @@ set(llcharacter_HEADER_FILES
     llvisualparam.h
     )
 
-set_source_files_properties(${llcharacter_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llcharacter_SOURCE_FILES ${llcharacter_HEADER_FILES})
 
 add_library (llcharacter ${llcharacter_SOURCE_FILES})

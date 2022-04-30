@@ -31,9 +31,6 @@ set(llimage_libtest_HEADER_FILES
     llimage_libtest.h
     )
 
-set_source_files_properties(${llimage_libtest_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llimage_libtest_SOURCE_FILES ${llimage_libtest_HEADER_FILES})
 
 add_executable(llimage_libtest

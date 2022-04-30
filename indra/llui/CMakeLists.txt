@@ -236,9 +236,6 @@ set(llui_HEADER_FILES
     llxyvector.h
     )
 
-set_source_files_properties(${llui_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 SET(llurlentry_TEST_DEPENDENCIES
     llurlmatch.cpp
     llurlregistry.cpp

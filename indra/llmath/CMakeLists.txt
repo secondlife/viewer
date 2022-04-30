@@ -95,9 +95,6 @@ set(llmath_HEADER_FILES
     xform.h
     )
 
-set_source_files_properties(${llmath_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llmath_SOURCE_FILES ${llmath_HEADER_FILES})
 
 add_library (llmath ${llmath_SOURCE_FILES})
