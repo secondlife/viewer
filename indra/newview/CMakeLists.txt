@@ -1802,21 +1802,21 @@ if (WINDOWS)
         OUTPUT ${CMAKE_CFG_INTDIR}/touched.bat
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-          --arch=${ARCH}
-          --artwork=${ARTWORK_DIR}
-          "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodstudio=${USE_FMODSTUDIO}"
-          "--openal=${USE_OPENAL}"
-          --build=${CMAKE_CURRENT_BINARY_DIR}
-          --buildtype=${CMAKE_BUILD_TYPE}
-          "--channel=${VIEWER_CHANNEL}"
-          --configuration=${CMAKE_CFG_INTDIR}
-          --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-          --grid=${GRID}
-          --source=${CMAKE_CURRENT_SOURCE_DIR}
-          --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/touched.bat
-          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+              ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+              --arch=${ARCH}
+              --artwork=${ARTWORK_DIR}
+              "--bugsplat=${BUGSPLAT_DB}"
+              "--fmodstudio=${USE_FMODSTUDIO}"
+              "--openal=${USE_OPENAL}"
+              --build=${CMAKE_CURRENT_BINARY_DIR}
+              --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+              "--channel=${VIEWER_CHANNEL}"
+              --configuration=${CMAKE_CFG_INTDIR}
+              --dest=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+              --grid=${GRID}
+              --source=${CMAKE_CURRENT_SOURCE_DIR}
+              --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/touched.bat
+              --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
         DEPENDS
             ${VIEWER_BINARY_NAME}
             ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
@@ -1825,7 +1825,7 @@ if (WINDOWS)
         )
 
       add_custom_target(llpackage ALL DEPENDS
-        ${CMAKE_CFG_INTDIR}/touched.bat
+              ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/touched.bat
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
