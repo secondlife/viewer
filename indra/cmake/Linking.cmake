@@ -32,6 +32,7 @@ endif (WINDOWS)
 # CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
 
 link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
+link_directories(${AUTOBUILD_INSTALL_DIR}/lib/release)
 
 add_library( ll::oslibraries INTERFACE IMPORTED )
 
