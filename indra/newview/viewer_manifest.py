@@ -609,7 +609,7 @@ class WindowsManifest(ViewerManifest):
 
             # MSVC DLLs needed for CEF and have to be in same directory as plugin
             with self.prefix(src=os.path.join(self.args['build'], os.pardir,
-                                              'sharedlibs', 'Release')):
+                                              'sharedlibs', self.args['buildtype'])):
                 self.path("msvcp140.dll")
                 self.path("vcruntime140.dll")
 
