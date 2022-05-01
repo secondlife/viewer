@@ -16,12 +16,8 @@ include(FMODSTUDIO)
 # Pass FROM_DIR, TARGETS and the files to copy. TO_DIR is implicit.
 # to_staging_dirs diverges from copy_if_different in that it appends to TARGETS.
 MACRO(to_staging_dirs from_dir targets)
-  foreach(staging_dir
-          "${SHARED_LIB_STAGING_DIR_RELEASE}"
-          "${SHARED_LIB_STAGING_DIR_RELWITHDEBINFO}")
-    copy_if_different("${from_dir}" "${staging_dir}" out_targets ${ARGN})
+    copy_if_different("${from_dir}" "${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>" out_targets ${ARGN})
     list(APPEND "${targets}" "${out_targets}")
-  endforeach()
 ENDMACRO(to_staging_dirs from_dir to_dir targets)
 
 ###################################################################

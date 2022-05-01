@@ -3,7 +3,7 @@ include(Prebuilt)
 
 add_library( ll::dbus INTERFACE IMPORTED)
 
-# Only define this when using conan, lls prebuild is brokenb
+# Only define this when using conan, lls prebuild is broken
 if( USE_CONAN )
   target_compile_definitions( ll::dbus INTERFACE LL_DBUS_ENABLED )
 endif()

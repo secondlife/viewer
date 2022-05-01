@@ -1686,24 +1686,14 @@ if (WINDOWS)
     # stores a list in the variable myfile in which each item is a line from the input file."
     # And of course it's straightforward to read a text file in Python.
 
-    if( ${CMAKE_GENERATOR} STREQUAL "Ninja")
-       set(LL_INTDIR ${CMAKE_BUILD_TYPE})
-    else()
-       set(LL_INTDIR ${CMAKE_CFG_INTDIR})
-    endif()
-
     set(COPY_INPUT_DEPENDENCIES
       # The following commented dependencies are determined at variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/Release/glod.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/glod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/libhunspell.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libhunspell.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/uriparser.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/uriparser.dll
+      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/glod.dll
+      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/openjpeg.dll
+      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/libhunspell.dll
+      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/uriparser.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
@@ -1718,33 +1708,32 @@ if (WINDOWS)
       )
 
     if (ADDRESS_SIZE EQUAL 64)
-        list(APPEND COPY_INPUT_DEPENDENCIES
-            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxsdk_x64.dll
-            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/ortp_x64.dll
-           ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1-x64.dll
-           ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1-x64.dll
-            )
+       list(APPEND COPY_INPUT_DEPENDENCIES
+               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/vivoxsdk_x64.dll
+               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/ortp_x64.dll
+               ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1-x64.dll
+               ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1-x64.dll
+               )
     else (ADDRESS_SIZE EQUAL 64)
-        list(APPEND COPY_INPUT_DEPENDENCIES
-            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxsdk.dll
-            ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/ortp.dll
-            ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1.dll
-            ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1.dll
-            )
+       list(APPEND COPY_INPUT_DEPENDENCIES
+               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/vivoxsdk.dll
+               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/ortp.dll
+               ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1.dll
+               ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1.dll
+               )
     endif (ADDRESS_SIZE EQUAL 64)
 
     if (TARGET ll::fmodstudio)
       list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
-           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/fmod.dll
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
           )
     endif ()
 
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/OpenAL32.dll
-           ${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/alut.dll
+           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/OpenAL32.dll
+           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/alut.dll
           )
     endif ()
 
@@ -1760,13 +1749,13 @@ if (WINDOWS)
         "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
-        --buildtype=${CMAKE_BUILD_TYPE}
+        --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
         "--channel=${VIEWER_CHANNEL}"
         --configuration=${CMAKE_CFG_INTDIR}
-        --dest=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+        --dest=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
-        --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/copy_touched.bat
+        --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/copy_touched.bat
         --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py

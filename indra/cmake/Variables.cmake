@@ -217,3 +217,5 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
+get_property(LL_GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+MESSAGE( "Multi config generator: ${LL_GENERATOR_IS_MULTI_CONFIG}" )

@@ -30,30 +30,8 @@ endif (WINDOWS)
 # windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
 # that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
 # CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-if(WINDOWS OR DARWIN)
-  # the cmake xcode and VS generators implicitly append ${CMAKE_CFG_INTDIR} to the library paths for us
-  # fortunately both windows and darwin are case insensitive filesystems so this works.
-  # Ninja on the other hand needs the the full path
-  if( ${CMAKE_GENERATOR} STREQUAL "Ninja")
-    string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
-    set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
-  else()
-    set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
-  endif()
-else(WINDOWS OR DARWIN)
-  # else block is for linux and any other makefile based generators
-  string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
-  set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
-endif(WINDOWS OR DARWIN)
 
-if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-  # When we're building something other than Release, append the
-  # packages/lib/release directory to deal with autobuild packages that don't
-  # provide (e.g.) lib/debug libraries.
-  list(APPEND AUTOBUILD_LIBS_INSTALL_DIRS ${ARCH_PREBUILT_DIRS_RELEASE})
-endif (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
-
-link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
+link_directories(${AUTOBUILD_INSTALL_DIR}/lib/$<LOWER_CASE:$<CONFIG>>)
 
 add_library( ll::oslibraries INTERFACE IMPORTED )
 
