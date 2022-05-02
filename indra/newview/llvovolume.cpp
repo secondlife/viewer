@@ -5674,6 +5674,14 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					continue;
 				}
 
+#if LL_RELEASE_WITH_DEBUG_INFO
+                const LLUUID pbr_id( "49c88210-7238-2a6b-70ac-92d4f35963cf" );
+                const LLUUID obj_id( vobj->getID() );
+                bool is_pbr = (obj_id == pbr_id);
+#else
+                bool is_pbr = false;
+#endif
+
 				//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
 				// batch, it will recover its vertex buffer reference from the spatial group
 				facep->setVertexBuffer(NULL);
@@ -5739,6 +5747,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 					BOOL force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
 					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
+
+                    if (is_pbr)
+                    {
+                        type = LLDrawPool::POOL_PBR_OPAQUE;
+                    }
+                    else
 					if (type != LLDrawPool::POOL_ALPHA && force_simple)
 					{
 						type = LLDrawPool::POOL_SIMPLE;

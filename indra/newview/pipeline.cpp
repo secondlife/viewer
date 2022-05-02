@@ -462,6 +462,7 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_MATERIALS);
 	getPool(LLDrawPool::POOL_GLOW);
+	getPool(LLDrawPool::POOL_PBR_OPAQUE);
 
 	resetFrameStats();
 
@@ -1595,6 +1596,10 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 
 	case LLDrawPool::POOL_WL_SKY:
 		poolp = mWLSkyPool;
+		break;
+
+	case LLDrawPool::POOL_PBR_OPAQUE:
+		poolp = mPBROpaquePool;
 		break;
 
 	default:
@@ -5698,6 +5703,18 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
+    case LLDrawPool::POOL_PBR_OPAQUE:
+        if( mPBROpaquePool )
+        {
+            llassert(0);
+            LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate PBR Opaque Pool" << LL_ENDL;
+        }
+        else
+        {
+            mPBROpaquePool = new_poolp;
+        }
+        break;
+
 	default:
 		llassert(0);
 		LL_WARNS() << "Invalid Pool Type in  LLPipeline::addPool()" << LL_ENDL;
@@ -5813,6 +5830,11 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		llassert( poolp == mGroundPool );
 		mGroundPool = NULL;
 		break;
+
+    case LLDrawPool::POOL_PBR_OPAQUE:
+        llassert( poolp == mPBROpaquePool );
+        mPBROpaquePool = NULL;
+        break;
 
 	default:
 		llassert(0);
