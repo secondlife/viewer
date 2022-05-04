@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ title="MFA Token Requred"
+ legacy_header_height="18"
+ can_minimize="false"
+ can_close="false"
+ height="110"
+ layout="topleft"
+ name="mfa_challenge"
+ help_topic="mfa_challenge"
+ width="550">
+    <text
+     type="string"
+     word_wrap="true"
+     length="1"
+     follows="top|left"
+     height="15"
+     layout="topleft"
+     left="10"
+     name="token_prompt_text"
+     top="20">
+        token prompt
+    </text>
+    <line_editor
+     follows="left|top|right"
+     height="19"
+     layout="topleft"
+     bottom_delta="40"
+     name="token_edit"
+     width="100" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Continue"
+     layout="topleft"
+     left="10"
+     name="continue_btn"
+     bottom_delta="30"
+     width="64" />
+    <button
+     follows="top|left"
+     height="20"
+     label="Cancel"
+     layout="topleft"
+     left_pad="5"
+     name="cancel_btn"
+     bottom_delta="0"
+     width="64" />
+</floater>
