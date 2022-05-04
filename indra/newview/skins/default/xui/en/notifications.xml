@@ -11840,4 +11840,25 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
     <tag>fail</tag>
   </notification>
   
+  <notification
+   icon="alertmodal.tga"
+   label="Prompt for MFA Token"
+   name="PromptMFAToken"
+   type="alertmodal">
+    [MESSAGE]
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="token" type="text" width="400" />
+      <button
+       default="true"
+       index="0"
+       name="continue"
+       text="Continue"/>
+      <button
+       index="1"
+       name="cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
 </notifications>
