@@ -40,8 +40,9 @@
 
 #include "llglheaders.h"
 
-const F32 epsilon = 1e-7f;
-const U16 RESOLUTION = 64;
+namespace {
+    const U16 RESOLUTION = 64;
+}
 
 bool LLCubeMap::sUseCubeMaps = true;
 
