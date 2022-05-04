@@ -767,35 +767,8 @@ void LLPipeline::allocatePhysicsBuffer()
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
-	refreshCachedSettings();
-	
-	bool save_settings = sRenderDeferred;
-	if (save_settings)
-	{
-		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
-		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-	}
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
-
-	if (save_settings)
-	{
-		// don't disable shaders on next session
-		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
-	}
-	
-	if (ret == FBO_FAILURE)
-	{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
-		//NOTE: if the session closes successfully after this call, deferred rendering will be 
-		// disabled on future sessions
-		if (LLPipeline::sRenderDeferred)
-		{
-			gSavedSettings.setBOOL("RenderDeferred", FALSE);
-			LLPipeline::refreshCachedSettings();
-		}
-	}
 
 	return ret == FBO_SUCCESS_FULLRES;
 }
@@ -803,6 +776,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 
 LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	// try to allocate screen buffers at requested resolution and samples
 	// - on failure, shrink number of samples and try again
 	// - if not multisampled, shrink resolution and try again (favor X resolution over Y)
@@ -856,8 +830,7 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
-	refreshCachedSettings();
-
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	// remember these dimensions
 	mScreenWidth = resX;
 	mScreenHeight = resY;
@@ -961,8 +934,7 @@ inline U32 BlurHappySize(U32 x, F32 scale) { return U32( x * scale + 16.0f) & ~0
 
 bool LLPipeline::allocateShadowBuffer(U32 resX, U32 resY)
 {
-	refreshCachedSettings();
-	
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	if (LLPipeline::sRenderDeferred)
 	{
 		S32 shadow_detail = RenderShadowDetail;
@@ -1053,6 +1025,7 @@ void LLPipeline::updateRenderDeferred()
 // static
 void LLPipeline::refreshCachedSettings()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
 	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
 	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
@@ -8204,12 +8177,41 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     channel = shader.enableTexture(LLShaderMgr::REFLECTION_MAP, LLTexUnit::TT_CUBE_MAP);
     if (channel > -1)
     {
-        LLCubeMap* cube_map = mEnvironmentMap.mCubeMap;
-        if (cube_map)
+        mReflectionMaps.resize(8); //TODO -- declare the number of reflection maps the shader knows about somewhere sane
+        mReflectionMapManager.getReflectionMaps(mReflectionMaps);
+        LLVector3 origin[8]; //origin of refmaps in clip space
+
+        // load modelview matrix into matrix 4a
+        LLMatrix4a modelview;
+        modelview.loadu(gGLModelView);
+        LLVector4a oa; // scratch space for transformed origin
+
+        S32 count = 0;
+        for (auto* refmap : mReflectionMaps)
         {
+            if (refmap)
+            {
+                LLCubeMap* cubemap = refmap->mCubeMap;
+                if (cubemap)
+                {
+                    cubemap->enable(channel + count);
+                    cubemap->bind();
+
+                    modelview.affineTransform(refmap->mOrigin, oa);
+                    origin[count].set(oa.getF32ptr());
+
+                    count++;
+                }
+            }
+        }
+
+        if (count > 0)
+        {
+            LLStaticHashedString refmapCount("refmapCount");
+            LLStaticHashedString refOrigin("refOrigin");
+            shader.uniform1i(refmapCount, count);
+            shader.uniform3fv(refOrigin, count, (F32*)origin);
             setup_env_mat = true;
-            cube_map->enable(channel);
-            cube_map->bind();
         }
     }
 
@@ -9125,10 +9127,14 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
     channel = shader.disableTexture(LLShaderMgr::REFLECTION_MAP, LLTexUnit::TT_CUBE_MAP);
     if (channel > -1)
     {
-        LLCubeMap* cube_map = mEnvironmentMap.mCubeMap;
-        if (cube_map)
+        for (int i = 0; i < mReflectionMaps.size(); ++i)
         {
-            cube_map->disable();
+            gGL.getTexUnit(channel + i)->disable();
+        }
+
+        if (channel == 0)
+        {
+            gGL.getTexUnit(channel)->enable(LLTexUnit::TT_TEXTURE);
         }
     }
 
@@ -11498,6 +11504,7 @@ void LLPipeline::restoreHiddenObject( const LLUUID& id )
 
 void LLPipeline::overrideEnvironmentMap()
 {
-    mEnvironmentMap.update(LLViewerCamera::instance().getOrigin(), 1024);
+    mReflectionMapManager.mProbes.clear();
+    mReflectionMapManager.addProbe(LLViewerCamera::instance().getOrigin());
 }
 

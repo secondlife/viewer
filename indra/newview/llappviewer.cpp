@@ -1512,22 +1512,23 @@ bool LLAppViewer::doFrame()
 
 			// Render scene.
 			// *TODO: Should we run display() even during gHeadlessClient?  DK 2011-02-18
-			if (!LLApp::isExiting() && !gHeadlessClient && gViewerWindow)
-			{
-				LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df Display" )
-				pingMainloopTimeout("Main:Display");
-				gGLActive = TRUE;
+            if (!LLApp::isExiting() && !gHeadlessClient && gViewerWindow)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df Display");
+                pingMainloopTimeout("Main:Display");
+                gGLActive = TRUE;
 
-				display();
+                display();
 
-				{
-					LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df Snapshot" )
-				pingMainloopTimeout("Main:Snapshot");
-				LLFloaterSnapshot::update(); // take snapshots
-					LLFloaterOutfitSnapshot::update();
-				gGLActive = FALSE;
-			}
-		}
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_APP("df Snapshot");
+                    pingMainloopTimeout("Main:Snapshot");
+                    gPipeline.mReflectionMapManager.update();
+                    LLFloaterSnapshot::update(); // take snapshots
+                    LLFloaterOutfitSnapshot::update();
+                    gGLActive = FALSE;
+                }
+            }
 		}
 
 		{

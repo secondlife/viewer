@@ -1,6 +1,6 @@
 /**
- * @file llenvironmentmap.h
- * @brief LLEnvironmentMap class declaration
+ * @file llreflectionmapmanager.h
+ * @brief LLReflectionMapManager class declaration
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -26,23 +26,26 @@
 
 #pragma once
 
-#include "llcubemap.h"
+#include "llreflectionmap.h"
 
-class LLEnvironmentMap
+class LLReflectionMapManager
 {
 public:
     // allocate an environment map of the given resolution 
-    LLEnvironmentMap();
-
-    // update this environment map
-    // origin - position in agent space to generate environment map from in agent space
-    // resolution - size of cube map to generate
-    void update(const LLVector3& origin, U32 resolution);
+    LLReflectionMapManager();
     
-    // cube map used to sample this environment map
-    LLPointer<LLCubeMap> mCubeMap;
+    // maintain reflection probes
+    void update();
 
-    // point at which environment map was generated from (in agent space)
-    LLVector3 mOrigin;
+    // drop a reflection probe at the specified position in agent space
+    void addProbe(const LLVector3& pos);
+
+    // Populate "maps" with the N most relevant Reflection Maps where N is no more than maps.size()
+    // If less than maps.size() ReflectionMaps are available, will assign trailing elements to nullptr.
+    //  maps -- presized array of Reflection Map pointers
+    void getReflectionMaps(std::vector<LLReflectionMap*>& maps);
+
+    // list of active reflection maps
+    std::vector<LLReflectionMap> mProbes;
 };
 

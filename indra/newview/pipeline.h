@@ -38,7 +38,7 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
-#include "llenvironmentmap.h"
+#include "llreflectionmapmanager.h"
 
 #include <stack>
 
@@ -427,7 +427,7 @@ public:
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
 
-    LLEnvironmentMap mEnvironmentMap;
+    LLReflectionMapManager mReflectionMapManager;
     void overrideEnvironmentMap();
 
 private:
@@ -660,6 +660,9 @@ public:
 
 	//utility buffer for rendering cubes, 8 vertices are corners of a cube [-1, 1]
 	LLPointer<LLVertexBuffer> mCubeVB;
+
+    //list of currently bound reflection maps
+    std::vector<LLReflectionMap*> mReflectionMaps;
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];

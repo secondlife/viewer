@@ -196,7 +196,6 @@ set(viewer_SOURCE_FILES
     lldynamictexture.cpp
     llemote.cpp
     llenvironment.cpp
-    llenvironmentmap.cpp
     llestateinfomodel.cpp
     lleventnotifier.cpp
     lleventpoll.cpp
@@ -546,6 +545,8 @@ set(viewer_SOURCE_FILES
     llproductinforequest.cpp
     llprogressview.cpp
     llrecentpeople.cpp
+    llreflectionmap.cpp
+    llreflectionmapmanager.cpp
     llregioninfomodel.cpp
     llregionposition.cpp
     llremoteparcelrequest.cpp
@@ -833,7 +834,6 @@ set(viewer_HEADER_FILES
     lldynamictexture.h
     llemote.h
     llenvironment.h
-    llenvironmentmap.h
     llestateinfomodel.h
     lleventnotifier.h
     lleventpoll.h
@@ -1171,6 +1171,8 @@ set(viewer_HEADER_FILES
     llproductinforequest.h
     llprogressview.h
     llrecentpeople.h
+    llreflectionmap.h
+    llreflectionmapmanager.h
     llregioninfomodel.h
     llregionposition.h
     llremoteparcelrequest.h

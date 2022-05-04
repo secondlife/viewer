@@ -166,6 +166,19 @@ void LLCubeMap::init(const std::vector<LLPointer<LLImageRaw> >& rawimages)
 	}
 }
 
+void LLCubeMap::initReflectionMap(U32 resolution, U32 components)
+{
+    U32 texname = 0;
+
+    LLImageGL::generateTextures(1, &texname);
+
+    mImages[0] = new LLImageGL(resolution, resolution, components, TRUE);
+    mImages[0]->setTexName(texname);
+    mImages[0]->setTarget(mTargets[0], LLTexUnit::TT_CUBE_MAP);
+    gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_CUBE_MAP, texname);
+    mImages[0]->setAddressMode(LLTexUnit::TAM_CLAMP);
+}
+
 void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& rawimages)
 {
     llassert(rawimages.size() == 6);
@@ -194,6 +207,19 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
 
         mImages[i]->setSubImage(mRawImages[i], 0, 0, resolution, resolution);
     }
+    enableTexture(0);
+    bind();
+    mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    gGL.getTexUnit(0)->disable();
+    disable();
+}
+
+void LLCubeMap::generateMipMaps()
+{
+    mImages[0]->setUseMipMaps(TRUE);
+    mImages[0]->setHasMipMaps(TRUE);
     enableTexture(0);
     bind();
     mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);

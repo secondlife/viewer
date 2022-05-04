@@ -207,7 +207,7 @@ public:
 	GLint getUniformLocation(U32 index);
 
 	GLint getAttribLocation(U32 attrib);
-	GLint mapUniformTextureChannel(GLint location, GLenum type);
+	GLint mapUniformTextureChannel(GLint location, GLenum type, GLint size);
 	
     void clearPermutations();
 	void addPermutation(std::string name, std::string value);

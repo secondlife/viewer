@@ -119,6 +119,7 @@ void LLRenderTarget::resize(U32 resx, U32 resy)
 
 bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, bool stencil, LLTexUnit::eTextureType usage, bool use_fbo, S32 samples)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	resx = llmin(resx, (U32) gGLManager.mGLMaxTextureSize);
 	resy = llmin(resy, (U32) gGLManager.mGLMaxTextureSize);
 
@@ -219,6 +220,7 @@ void LLRenderTarget::releaseColorAttachment()
 
 bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	if (color_fmt == 0)
 	{
 		return true;
@@ -315,6 +317,7 @@ bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 
 bool LLRenderTarget::allocateDepth()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	if (mStencil)
 	{
 		//use render buffers where stencil buffers are in play
@@ -395,6 +398,7 @@ void LLRenderTarget::shareDepthBuffer(LLRenderTarget& target)
 
 void LLRenderTarget::release()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 	if (mDepth)
 	{
 		if (mStencil)

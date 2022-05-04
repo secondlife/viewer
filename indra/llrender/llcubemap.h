@@ -41,11 +41,15 @@ public:
 	LLCubeMap(bool init_as_srgb);
 	void init(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 
+    // initialize as an undefined cubemap at the given resolution
+    //  used for render-to-cubemap operations
+    //  avoids usage of LLImageRaw
+    void initReflectionMap(U32 resolution, U32 components = 3);
+
     // init from environment map images
     // Similar to init, but takes ownership of rawimages and makes this cubemap
     // respect the resolution of rawimages
     // Raw images must point to array of six square images that are all the same resolution
-    // For example usage, see LLEnvironmentMap
     void initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& rawimages);
 	void initGL();
 	void initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages);
@@ -61,6 +65,12 @@ public:
 	void disableTexture(void);
 	void setMatrix(S32 stage);
 	void restoreMatrix();
+
+    U32 getResolution() { return mImages[0].notNull() ? mImages[0]->getWidth(0) : 0; }
+    
+    // generate mip maps for this Cube Map using GL
+    // NOTE: Cube Map MUST already be resident in VRAM
+    void generateMipMaps();
 
 	GLuint getGLName();
 

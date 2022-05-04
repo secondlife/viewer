@@ -738,7 +738,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
             {
                 //found it
                 mUniform[i] = location;
-                mTexture[i] = mapUniformTextureChannel(location, type);
+                mTexture[i] = mapUniformTextureChannel(location, type, size);
                 return;
             }
         }
@@ -752,7 +752,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
                 {
                     //found it
                     mUniform[i+LLShaderMgr::instance()->mReservedUniforms.size()] = location;
-                    mTexture[i+LLShaderMgr::instance()->mReservedUniforms.size()] = mapUniformTextureChannel(location, type);
+                    mTexture[i+LLShaderMgr::instance()->mReservedUniforms.size()] = mapUniformTextureChannel(location, type, size);
                     return;
                 }
             }
@@ -775,16 +775,37 @@ void LLGLSLShader::removePermutation(std::string name)
     mDefines[name].erase();
 }
 
-GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
+GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint size)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
         type == GL_SAMPLER_2D_MULTISAMPLE)
     {   //this here is a texture
-        glUniform1iARB(location, mActiveTextureChannels);
-        LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
-        return mActiveTextureChannels++;
+        GLint ret = mActiveTextureChannels;
+        if (size == 1)
+        {
+            glUniform1iARB(location, mActiveTextureChannels);
+            LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
+            mActiveTextureChannels++;
+        }
+        else
+        {
+            //is array of textures, make sequential after this texture
+            GLint channel[32]; // <=== only support up to 32 texture channels
+            llassert(size <= 32);
+            size = llmin(size, 32);
+            for (int i = 0; i < size; ++i)
+            {
+                channel[i] = mActiveTextureChannels++;
+            }
+            glUniform1ivARB(location, size, channel);
+            LL_DEBUGS("ShaderUniform") << "Assigned to texture channel " << 
+                (mActiveTextureChannels-size) << " through " << (mActiveTextureChannels-1) << LL_ENDL;
+        }
+
+        llassert(mActiveTextureChannels <= 32); // too many textures (probably)
+        return ret;
     }
     return -1;
 }

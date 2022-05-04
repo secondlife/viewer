@@ -5170,6 +5170,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_height, const int num_render_passes)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     gDisplaySwapBuffers = FALSE;
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -5262,6 +5263,152 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     scratch_space.flush();
     scratch_space.release();
     gPipeline.allocateScreenBuffer(original_width, original_height);
+
+    return true;
+}
+
+BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMap* cubemap)
+{
+    // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+    llassert(LLPipeline::sRenderDeferred);
+    
+    U32 res = cubemap->getResolution();
+
+    llassert(res <= gPipeline.mDeferredScreen.getWidth());
+    llassert(res <= gPipeline.mDeferredScreen.getHeight());
+
+    
+
+    // save current view/camera settings so we can restore them afterwards
+    S32 old_occlusion = LLPipeline::sUseOcclusion;
+
+    // set new parameters specific to the 360 requirements
+    LLPipeline::sUseOcclusion = 0;
+    LLViewerCamera* camera = LLViewerCamera::getInstance();
+    LLVector3 old_origin = camera->getOrigin();
+    F32 old_fov = camera->getView();
+    F32 old_aspect = camera->getAspect();
+    F32 old_yaw = camera->getYaw();
+
+    // camera constants for the square, cube map capture image
+    camera->setAspect(1.0); // must set aspect ratio first to avoid undesirable clamping of vertical FoV
+    camera->setView(F_PI_BY_TWO);
+    camera->yaw(0.0);
+    camera->setOrigin(origin);
+
+    gDisplaySwapBuffers = FALSE;
+
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    
+    BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
+    if (prev_draw_ui != false)
+    {
+        LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+    }
+
+    LLPipeline::sShowHUDAttachments = FALSE;
+    LLRect window_rect = getWorldViewRectRaw();
+
+    LLRenderTarget scratch_space;  // TODO: hold onto "scratch space" render target and allocate oncer per session (allocate takes > 1ms)
+    U32 color_fmt = GL_RGBA;
+    const bool use_depth_buffer = true;
+    const bool use_stencil_buffer = true;
+    if (scratch_space.allocate(res, res, color_fmt, use_depth_buffer, use_stencil_buffer))
+    {
+        mWorldViewRectRaw.set(0, res, res, 0);
+        scratch_space.bindTarget();
+    }
+    else
+    {
+        return FALSE;
+    }
+
+    // "target" parameter of glCopyTexImage2D for each side of cubemap
+    U32 targets[6] = {
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB
+    };
+
+    // these are the 6 directions we will point the camera, see LLCubeMap::mTargets
+    LLVector3 look_dirs[6] = {
+        LLVector3(-1, 0, 0),
+        LLVector3(1, 0, 0),
+        LLVector3(0, -1, 0),
+        LLVector3(0, 1, 0),
+        LLVector3(0, 0, -1),
+        LLVector3(0, 0, 1)
+    };
+
+    LLVector3 look_upvecs[6] = {
+        LLVector3(0, -1, 0),
+        LLVector3(0, -1, 0),
+        LLVector3(0, 0, -1),
+        LLVector3(0, 0, 1),
+        LLVector3(0, -1, 0),
+        LLVector3(0, -1, 0)
+    };
+
+    // for each of six sides of cubemap
+    for (int i = 0; i < 6; ++i)
+    {
+        // set up camera to look in each direction
+        camera->lookDir(look_dirs[i], look_upvecs[i]);
+
+        // turning this flag off here prohibits the screen swap
+        // to present the new page to the viewer - this stops
+        // the black flash in between captures when the number
+        // of render passes is more than 1. We need to also
+        // set it here because code in LLViewerDisplay resets
+        // it to TRUE each time.
+        gDisplaySwapBuffers = FALSE;
+
+        // actually render the scene
+        const U32 subfield = 0;
+        const bool do_rebuild = true;
+        const F32 zoom = 1.0;
+        const bool for_snapshot = TRUE;
+        display(do_rebuild, zoom, subfield, for_snapshot);
+
+        // copy results to cube map face
+        cubemap->enable(0);
+        cubemap->bind();
+        glCopyTexImage2D(targets[i], 0, GL_RGB, 0, 0, res, res, 0);
+        gGL.getTexUnit(0)->disable();
+        cubemap->disable();
+    }
+
+    gDisplaySwapBuffers = FALSE;
+    gDepthDirty = TRUE;
+
+    if (!gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+    {
+        if (prev_draw_ui != false)
+        {
+            LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+        }
+    }
+
+    LLPipeline::sShowHUDAttachments = TRUE;
+
+    gPipeline.resetDrawOrders();
+    mWorldViewRectRaw = window_rect;
+    scratch_space.flush();
+    scratch_space.release();
+    
+    // restore original view/camera/avatar settings settings
+    camera->setAspect(old_aspect);
+    camera->setView(old_fov);
+    camera->yaw(old_yaw);
+    camera->setOrigin(old_origin);
+
+    LLPipeline::sUseOcclusion = old_occlusion;
+
+    // ====================================================
 
     return true;
 }
