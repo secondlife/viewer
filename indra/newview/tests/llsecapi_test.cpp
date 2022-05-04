@@ -62,6 +62,7 @@ LLPointer<LLCertificateStore> LLSecAPIBasicHandler::getCertificateStore(const st
 void LLSecAPIBasicHandler::setProtectedData(const std::string& data_type, const std::string& data_id, const LLSD& data) {}
 void LLSecAPIBasicHandler::addToProtectedMap(const std::string& data_type, const std::string& data_id, const std::string& map_elem, const LLSD& data) {}
 void LLSecAPIBasicHandler::removeFromProtectedMap(const std::string& data_type, const std::string& data_id, const std::string& map_elem) {}
+void LLSecAPIBasicHandler::syncProtectedMap() {}
 LLSD LLSecAPIBasicHandler::getProtectedData(const std::string& data_type, const std::string& data_id) { return LLSD(); }
 void LLSecAPIBasicHandler::deleteProtectedData(const std::string& data_type, const std::string& data_id) {}
 LLPointer<LLCredential> LLSecAPIBasicHandler::createCredential(const std::string& grid, const LLSD& identifier, const LLSD& authenticator) { return NULL; }
