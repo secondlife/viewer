@@ -1608,6 +1608,11 @@ void LLSecAPIBasicHandler::removeFromProtectedMap(const std::string& data_type,
     }
 }
 
+void LLSecAPIBasicHandler::syncProtectedMap()
+{
+    // TODO - consider unifing these functions
+    _writeProtectedData();
+}
 //
 // Create a credential object from an identifier and authenticator.  credentials are
 // per grid.
