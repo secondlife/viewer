@@ -316,6 +316,7 @@ void LLFloaterCreateLandmark::setItem(const uuid_set_t& items)
 			{
 				removeObserver();
 				mItem = item;
+                setVisibleAndFrontmost(true);
 				break;
 			}
 		}

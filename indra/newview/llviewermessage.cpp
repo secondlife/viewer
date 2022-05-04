@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llavatarnamecache.h"		// IDEVO HACK
 #include "lleventtimer.h"
+#include "llfloatercreatelandmark.h"
 #include "llfloaterreg.h"
 #include "llfolderview.h"
 #include "llfollowcamparams.h"
@@ -1559,6 +1560,17 @@ bool highlight_offered_object(const LLUUID& obj_id)
 			}
 		}
 	}
+
+    if (obj->getType() == LLAssetType::AT_LANDMARK)
+    {
+        LLFloaterCreateLandmark *floater = LLFloaterReg::findTypedInstance<LLFloaterCreateLandmark>("add_landmark");
+        if (floater && floater->getItem() && floater->getItem()->getUUID() == obj_id)
+        {
+            // LLFloaterCreateLandmark is supposed to handle this,
+            // keep landmark creation floater at the front
+            return false;
+        }
+    }
 
 	return true;
 }
