@@ -957,13 +957,7 @@ bool LLAppViewer::init()
 	// If we don't have the right GL requirements, exit.
 	if (!gGLManager.mHasRequirements)
 	{
-		// can't use an alert here since we're exiting and
-		// all hell breaks lose.
-		LLUIString details = LLNotifications::instance().getGlobalString("UnsupportedGLRequirements");
-		OSMessageBox(
-			details.getString(),
-			LLStringUtil::null,
-			OSMB_OK);
+        // already handled with a MBVideoDrvErr
 		return 0;
 	}
 
@@ -3136,6 +3130,11 @@ bool LLAppViewer::initWindow()
 	LL_INFOS("AppInit") << "Window initialization done." << LL_ENDL;
 
 	return true;
+}
+
+bool LLAppViewer::isUpdaterMissing()
+{
+    return mUpdaterNotFound;
 }
 
 void LLAppViewer::writeDebugInfo(bool isStatic)

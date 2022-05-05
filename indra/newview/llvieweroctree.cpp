@@ -1325,14 +1325,20 @@ LLViewerOctreePartition::LLViewerOctreePartition() :
 	
 LLViewerOctreePartition::~LLViewerOctreePartition()
 {
-	delete mOctree;
-	mOctree = NULL;
+    cleanup();
+}
+
+void LLViewerOctreePartition::cleanup()
+{
+    delete mOctree;
+    mOctree = nullptr;
 }
 
 BOOL LLViewerOctreePartition::isOcclusionEnabled()
 {
 	return mOcclusionEnabled || LLPipeline::sUseOcclusion > 2;
 }
+
 
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeCull definitions

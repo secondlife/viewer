@@ -134,6 +134,7 @@
 #include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llqueryflags.h"
+#include "llsecapi.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstatview.h"
@@ -1116,10 +1117,10 @@ bool idle_startup()
 			}
 			else 
 			{
-				if (reason_response != "tos") 
+				if (reason_response != "tos"  && reason_response != "mfa_challenge")
 				{
-					// Don't pop up a notification in the TOS case because
-					// LLFloaterTOS::onCancel() already scolded the user.
+					// Don't pop up a notification in the TOS or MFA cases because
+					// the specialized floater has already scolded the user.
 					std::string error_code;
 					if(response.has("errorcode"))
 					{
@@ -2367,8 +2368,31 @@ void show_release_notes_if_required()
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
-        LLSD info(LLAppViewer::instance()->getViewerInfo());
-        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+
+#if LL_RELEASE_FOR_DOWNLOAD
+        if (!gSavedSettings.getBOOL("CmdLineSkipUpdater")
+            && !LLAppViewer::instance()->isUpdaterMissing())
+        {
+            // Instantiate a "relnotes" listener which assumes any arriving event
+            // is the release notes URL string. Since "relnotes" is an
+            // LLEventMailDrop, this listener will be invoked whether or not the
+            // URL has already been posted. If so, it will fire immediately;
+            // otherwise it will fire whenever the URL is (later) posted. Either
+            // way, it will display the release notes as soon as the URL becomes
+            // available.
+            LLEventPumps::instance().obtain("relnotes").listen(
+                "showrelnotes",
+                [](const LLSD& url) {
+                LLWeb::loadURLInternal(url.asString());
+                return false;
+            });
+        }
+        else
+#endif // LL_RELEASE_FOR_DOWNLOAD
+        {
+            LLSD info(LLAppViewer::instance()->getViewerInfo());
+            LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+        }
         release_notes_shown = true;
     }
 }
@@ -3656,6 +3680,17 @@ bool process_login_success_response()
 	{
 		std::string openid_token = response["openid_token"];
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
+	}
+
+
+	// Only save mfa_hash for future logins if the user wants their info remembered.
+	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
+	{
+		std::string grid(LLGridManager::getInstance()->getGridId());
+		std::string user_id(gUserCredential->userID());
+		gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
+		// TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
+		gSecAPIHandler->syncProtectedMap();
 	}
 
 	bool success = false;

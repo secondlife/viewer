@@ -189,6 +189,7 @@ class LLVOCachePartition : public LLViewerOctreePartition
 {
 public:
 	LLVOCachePartition(LLViewerRegion* regionp);
+    virtual ~LLVOCachePartition();
 
 	bool addEntry(LLViewerOctreeEntry* entry);
 	void removeEntry(LLViewerOctreeEntry* entry);

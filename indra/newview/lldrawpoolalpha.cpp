@@ -717,6 +717,16 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 					LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
 					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+
+                    bool reset_minimum_alpha = false;
+                    if (!LLPipeline::sImpostorRender &&
+                        params.mBlendFuncDst != LLRender::BF_SOURCE_ALPHA &&
+                        params.mBlendFuncSrc != LLRender::BF_SOURCE_ALPHA)
+                    { // this draw call has a custom blend function that may require rendering of "invisible" fragments
+                        current_shader->setMinimumAlpha(0.f);
+                        reset_minimum_alpha = true;
+                    }
+                    
                     U32 drawMask = mask;
                     if (params.mFullbright)
                     {
@@ -729,6 +739,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     params.mVertexBuffer->setBufferFast(drawMask);
                     params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+                    if (reset_minimum_alpha)
+                    {
+                        current_shader->setMinimumAlpha(MINIMUM_ALPHA);
+                    }
 				}
 
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls is expensive, but glow must be drawn Z-sorted with alpha.

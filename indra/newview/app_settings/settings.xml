@@ -8110,9 +8110,9 @@
     <string>Color4</string>
     <key>Value</key>
     <array>
-      <real>1.0</real>
-      <real>1.0</real>
-      <real>1.0</real>
+      <real>0.33</real>
+      <real>0.33</real>
+      <real>0.33</real>
       <real>1.0</real>
     </array>
   </map>
@@ -16918,6 +16918,17 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>MFAHash</key>
+  <map>
+    <key>Comment</key>
+    <string>Override MFA state hash for authentication</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string></string>
   </map>
 </map>
 </llsd>
