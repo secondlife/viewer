@@ -278,6 +278,9 @@ public:
 										const std::string& data_id,
 										const std::string& map_elem);
 
+	// ensure protected store's map is written to storage
+	virtual void syncProtectedMap();
+
 	// credential management routines
 	
 	virtual LLPointer<LLCredential> createCredential(const std::string& grid,
