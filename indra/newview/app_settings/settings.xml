@@ -6797,7 +6797,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>MiniMapScale</key>
     <map>
@@ -6808,7 +6808,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>64.0</real>
+      <real>128.0</real>
     </map>
     <key>MiniMapShowPropertyLines</key>
     <map>
