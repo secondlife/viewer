@@ -564,7 +564,7 @@ void LLViewerOctreeGroup::rebound()
 		
 		group->setState(SKIP_FRUSTUM_CHECK);
 	}
-	else if (mOctreeNode->isLeaf())
+	else if (mOctreeNode->getChildCount() == 0)
 	{ //copy object bounding box if this is a leaf
 		boundObjects(TRUE, mExtents[0], mExtents[1]);
 		mBounds[0] = mObjectBounds[0];
