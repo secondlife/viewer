@@ -1090,9 +1090,9 @@ void LLPanelPeople::onGroupLimitInfo()
 	args["MAX_BASIC"] = max_basic;
 	args["MAX_PREMIUM"] = max_premium;
 
-	if (LLAgentBenefitsMgr::has("Premium Plus"))
+	if (LLAgentBenefitsMgr::has("Premium_Plus"))
 	{
-		S32 max_premium_plus = LLAgentBenefitsMgr::get("Premium Plus").getGroupMembershipLimit();
+		S32 max_premium_plus = LLAgentBenefitsMgr::get("Premium_Plus").getGroupMembershipLimit();
 		args["MAX_PREMIUM_PLUS"] = max_premium_plus;
 		LLNotificationsUtil::add("GroupLimitInfoPlus", args);
 	}
