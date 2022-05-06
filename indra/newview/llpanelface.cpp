@@ -2564,10 +2564,13 @@ void LLPanelFace::onAlignTexture(void* userdata)
 
 #include "llagent.h"
 #include "llfilesystem.h"
-#include "llfloaterperms.h"
 #include "llviewerassetupload.h"
 #include "llviewermenufile.h"
 #include "llsd.h"
+#include "llsdutil.h"
+#include "llsdserialize.h"
+#include "llinventorymodel.h"
+
 void LLPanelFace::onSaveMaterial(void* userdata)
 {
     // DRTVWR-559, Q&D material picker - save to inventory goes here
@@ -2575,110 +2578,133 @@ void LLPanelFace::onSaveMaterial(void* userdata)
 
     std::string name = "New Material";
 
+	LLSD material_data = llsd::map(
+		"version", "1",
+		"material", LLSD::emptyMap()
+	);
+
     // gen a new uuid for this asset
     LLTransactionID tid;
     tid.generate();     // timestamp-based randomization + uniquification
     LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 
-    // populate mat_llsd with material data
-    LLSD* mat_llsd = new LLSD();
-    renderMaterialToLLSD(mat_llsd, new_asset_id, userdata);
+    material_data["material"] = renderMaterialToLLSD(new_asset_id, userdata);
+    std::stringstream output;
+    LLSDSerialize::toNotation(material_data, output);
 
-    LLFileSystem material_file(new_asset_id, LLAssetType::AT_MATERIAL, LLFileSystem::WRITE);
-    material_file.write(mat_llsd->asBinary().data(), mat_llsd->size());
-
-    delete(mat_llsd);
-
-    S32 expected_upload_cost = 0;// LLAgentBenefitsMgr::current().getTextureUploadCost();
+    //S32 expected_upload_cost = 0;// LLAgentBenefitsMgr::current().getTextureUploadCost();
     
     std::string res_name = name;
     std::string res_desc = "Saved Material";
-    LLFolderType::EType folder_type = LLFolderType::FT_MATERIAL;
-    LLInventoryType::EType inv_type = LLInventoryType::IT_MATERIAL;
+    //LLFolderType::EType folder_type = LLFolderType::FT_MATERIAL;
+    //LLInventoryType::EType inv_type = LLInventoryType::IT_MATERIAL;
+    U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
 
-    auto upload_info = new LLResourceUploadInfo( 
-        tid, 
-        LLAssetType::AT_MATERIAL,
-        res_name, 
-        res_desc, 
-        0,
-        folder_type,
-        inv_type,
-        PERM_ALL, 
-        LLFloaterPerms::getGroupPerms("Uploads"), 
-        LLFloaterPerms::getEveryonePerms("Uploads"),
-        expected_upload_cost, 
-        false);
+    LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+    const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
-    LLResourceUploadInfo::ptr_t p_upload_info(upload_info);
-        
-    upload_new_resource(p_upload_info);
+    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, res_name, res_desc,
+        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
+        new LLBoostFuncInventoryCallback([output=output.str()](LLUUID const & inv_item_id){
+            // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
+            LLResourceUploadInfo::ptr_t uploadInfo =
+                std::make_shared<LLBufferedAssetUploadInfo>(
+                    inv_item_id,
+                    LLAssetType::AT_SETTINGS, // TODO switch to AT_MATERIAL
+                    output,
+                    [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response) {
+                        LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+                        LLSD params = llsd::map("ASSET_ID", new_asset_id);
+                        LLNotificationsUtil::add("MaterialCreated", params);
+                    });
+
+            const LLViewerRegion* region = gAgent.getRegion();
+            if (region)
+            {
+                 std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
+                 if (agent_url.empty())
+                 {
+                     LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                 }
+                 LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+            }
+        })
+    );
+
 }
 
 // Fill an LLSD with data describing the current face's texture settings
 // TODO 2022-05 FUBAR there are both colliding and different data in LLPanelFace vs the TE.  Also, neither one has the diffuse tex settings.
 //              
-void LLPanelFace::renderMaterialToLLSD(LLSD* sd, LLUUID uuid, void* userdata)
+LLSD LLPanelFace::renderMaterialToLLSD(LLUUID uuid, void* userdata)
 {
     llassert(userdata != nullptr);
 
-    sd->insert("RenderMaterialUUID",    LLSD(uuid));
+    LLSD sd;
 
-    /* pf stuff is probably useless
-    // pull data from the LLPanelFace
-    LLPanelFace* instance = static_cast<LLPanelFace*>(userdata);
-    sd->insert("pfNormalMap",         LLSD(instance->getCurrentNormalMap()));
-    sd->insert("pfSpecularMap",       LLSD(instance->getCurrentSpecularMap()));
-    sd->insert("pfShininess",         LLSD(static_cast<S32>(instance->getCurrentShininess())));
-    sd->insert("pfBumpiness",         LLSD(static_cast<S32>(instance->getCurrentBumpiness())));
-    sd->insert("pfAlphaMode",         LLSD(static_cast<S32>(instance->getCurrentDiffuseAlphaMode())));
-    sd->insert("pfAlphaCutoff",       LLSD(static_cast<S32>(instance->getCurrentAlphaMaskCutoff())));
-    sd->insert("pfEnvIntensity",      LLSD(static_cast<S32>(instance->getCurrentEnvIntensity())));
-    sd->insert("pfGlossiness",        LLSD(static_cast<S32>(instance->getCurrentGlossiness())));
-    sd->insert("pfNormalRotation",    LLSD(instance->getCurrentBumpyRot()));
-    sd->insert("pfNormalScaleU",      LLSD(instance->getCurrentBumpyScaleU()));
-    sd->insert("pfNormalScaleV",      LLSD(instance->getCurrentBumpyScaleV()));
-    sd->insert("pfNormalOffsetU",     LLSD(instance->getCurrentBumpyOffsetU()));
-    sd->insert("pfNormalOffsetV",     LLSD(instance->getCurrentBumpyOffsetV()));
-    sd->insert("pfSpecularRotation",  LLSD(instance->getCurrentShinyRot()));
-    sd->insert("pfSpecularScaleU",    LLSD(instance->getCurrentShinyScaleU()));
-    sd->insert("pfSpecularScaleV",    LLSD(instance->getCurrentShinyScaleV()));
-    sd->insert("pfSpecularOffsetU",   LLSD(instance->getCurrentShinyOffsetU()));
-    sd->insert("pfSpecularOffsetV",   LLSD(instance->getCurrentShinyOffsetV()));
-    sd->insert("pfMaterialID",        LLSD(instance->getCurrentMaterialID()));
-    */
+    sd.insert("RenderMaterialUUID",    LLSD(uuid));
 
     // now pull same data from the selected TE (same but different. W T F?) 
     LLMaterialPtr mat = nullptr;
     bool ident; // ?
     LLSelectedTEMaterial::getCurrent(mat, ident);
 
-    sd->insert("teMaterialID", LLSD(mat->getMaterialID()));
+    if (mat)
+    {
+        sd.insert("teMaterialID", LLSD(mat->getMaterialID()));
 
-    sd->insert("teNormalMap", LLSD(mat->getNormalID()));
-    sd->insert("teNormalOffsetX", LLSD(mat->getNormalOffsetX()));
-    sd->insert("teNormalOffsetY", LLSD(mat->getNormalOffsetY()));
-    sd->insert("teNormalRepeatX", LLSD(mat->getNormalRepeatX()));
-    sd->insert("teNormalRepeatY", LLSD(mat->getNormalRepeatY()));
-    sd->insert("teNormalRotation", LLSD(mat->getNormalRotation()));
+        sd.insert("teNormalMap", LLSD(mat->getNormalID()));
+        sd.insert("teNormalOffsetX", LLSD(mat->getNormalOffsetX()));
+        sd.insert("teNormalOffsetY", LLSD(mat->getNormalOffsetY()));
+        sd.insert("teNormalRepeatX", LLSD(mat->getNormalRepeatX()));
+        sd.insert("teNormalRepeatY", LLSD(mat->getNormalRepeatY()));
+        sd.insert("teNormalRotation", LLSD(mat->getNormalRotation()));
 
-    sd->insert("teSpecularMap", LLSD(mat->getSpecularID()));
-    LLColor4U color = mat->getSpecularLightColor();
-    sd->insert("teSpecularColorR", LLSD(static_cast<S32>(color.mV[0])));
-    sd->insert("teSpecularColorG", LLSD(static_cast<S32>(color.mV[1])));
-    sd->insert("teSpecularColorB", LLSD(static_cast<S32>(color.mV[2])));
-    sd->insert("teSpecularColorA", LLSD(static_cast<S32>(color.mV[3])));
-    sd->insert("teSpecularExponent", LLSD(static_cast<S32>(mat->getSpecularLightExponent())));
-    sd->insert("teSpecularOffsetX", LLSD(mat->getSpecularOffsetX()));
-    sd->insert("teSpecularOffsetY", LLSD(mat->getSpecularOffsetY()));
-    sd->insert("teSpecularRepeatX", LLSD(mat->getSpecularRepeatX()));
-    sd->insert("teSpecularRepeatY", LLSD(mat->getSpecularRepeatY()));
-    sd->insert("teSpecularRotation", LLSD(mat->getSpecularRotation()));
+        sd.insert("teSpecularMap", LLSD(mat->getSpecularID()));
+        LLColor4U color = mat->getSpecularLightColor();
 
-    sd->insert("teAlphaMode", LLSD(static_cast<S32>(mat->getDiffuseAlphaMode())));
-    sd->insert("teAlphaCutoff", LLSD(static_cast<S32>(mat->getAlphaMaskCutoff())));
-    sd->insert("teEnvIntensity", LLSD(static_cast<S32>(mat->getEnvironmentIntensity())));
-    sd->insert("teShaderMask", LLSD(static_cast<S32>(mat->getShaderMask())));
+        sd.insert("teSpecularColorR", LLSD(static_cast<S32>(color.mV[0])));
+        sd.insert("teSpecularColorG", LLSD(static_cast<S32>(color.mV[1])));
+        sd.insert("teSpecularColorB", LLSD(static_cast<S32>(color.mV[2])));
+        sd.insert("teSpecularColorA", LLSD(static_cast<S32>(color.mV[3])));
+        sd.insert("teSpecularExponent", LLSD(static_cast<S32>(mat->getSpecularLightExponent())));
+        sd.insert("teSpecularOffsetX", LLSD(mat->getSpecularOffsetX()));
+        sd.insert("teSpecularOffsetY", LLSD(mat->getSpecularOffsetY()));
+        sd.insert("teSpecularRepeatX", LLSD(mat->getSpecularRepeatX()));
+        sd.insert("teSpecularRepeatY", LLSD(mat->getSpecularRepeatY()));
+        sd.insert("teSpecularRotation", LLSD(mat->getSpecularRotation()));
+
+        sd.insert("teAlphaMode", LLSD(static_cast<S32>(mat->getDiffuseAlphaMode())));
+        sd.insert("teAlphaCutoff", LLSD(static_cast<S32>(mat->getAlphaMaskCutoff())));
+        sd.insert("teEnvIntensity", LLSD(static_cast<S32>(mat->getEnvironmentIntensity())));
+        sd.insert("teShaderMask", LLSD(static_cast<S32>(mat->getShaderMask())));
+    }
+    else
+    {
+        // pull data from the LLPanelFace
+        LLPanelFace* instance = static_cast<LLPanelFace*>(userdata);
+        sd.insert("pfNormalMap",         LLSD(instance->getCurrentNormalMap()));
+        sd.insert("pfSpecularMap",       LLSD(instance->getCurrentSpecularMap()));
+        sd.insert("pfShininess",         LLSD(static_cast<S32>(instance->getCurrentShininess())));
+        sd.insert("pfBumpiness",         LLSD(static_cast<S32>(instance->getCurrentBumpiness())));
+        sd.insert("pfAlphaMode",         LLSD(static_cast<S32>(instance->getCurrentDiffuseAlphaMode())));
+        sd.insert("pfAlphaCutoff",       LLSD(static_cast<S32>(instance->getCurrentAlphaMaskCutoff())));
+        sd.insert("pfEnvIntensity",      LLSD(static_cast<S32>(instance->getCurrentEnvIntensity())));
+        sd.insert("pfGlossiness",        LLSD(static_cast<S32>(instance->getCurrentGlossiness())));
+        sd.insert("pfNormalRotation",    LLSD(instance->getCurrentBumpyRot()));
+        sd.insert("pfNormalScaleU",      LLSD(instance->getCurrentBumpyScaleU()));
+        sd.insert("pfNormalScaleV",      LLSD(instance->getCurrentBumpyScaleV()));
+        sd.insert("pfNormalOffsetU",     LLSD(instance->getCurrentBumpyOffsetU()));
+        sd.insert("pfNormalOffsetV",     LLSD(instance->getCurrentBumpyOffsetV()));
+        sd.insert("pfSpecularRotation",  LLSD(instance->getCurrentShinyRot()));
+        sd.insert("pfSpecularScaleU",    LLSD(instance->getCurrentShinyScaleU()));
+        sd.insert("pfSpecularScaleV",    LLSD(instance->getCurrentShinyScaleV()));
+        sd.insert("pfSpecularOffsetU",   LLSD(instance->getCurrentShinyOffsetU()));
+        sd.insert("pfSpecularOffsetV",   LLSD(instance->getCurrentShinyOffsetV()));
+        sd.insert("pfMaterialID",        LLSD(instance->getCurrentMaterialID()));
+    }
+
+    return sd;
 }
 
 // Take the individual texture settings from the material and apply to current face & TE
@@ -2690,43 +2716,51 @@ void LLPanelFace::applyMaterialUUID(LLUUID uuid, void* userdata)
     LLFileSystem material_file(uuid, LLAssetType::AT_MATERIAL, LLFileSystem::READ);
     S32 bufsize = material_file.getSize();
     llassert(bufsize > 0);
-    U8* buffer = new U8(bufsize);
-    material_file.read(buffer, bufsize);
-    LLSD* matSD = (LLSD*) buffer;   // static_cast complains here (?)
+    std::vector<U8> buffer(bufsize);
+    material_file.read(&buffer[0], bufsize);
+    std::istringstream input(std::string(buffer.begin(), buffer.end()));  // TODO - extend LLFileSystem to expose iostream interface
+    LLSD matSD;
 
-    llassert(uuid == matSD->get("MaterialUUID").asUUID());      // if not, whoo boy
+    LLSDSerialize::fromNotation(matSD, input, bufsize);
+
+    LL_INFOS() << "dump matSD: " << matSD << LL_ENDL;
+
+    // strip off the versioning wrapper for now
+    matSD = matSD["material"];
+
+    // wrong, oops. llassert(uuid == matSD.get("RenderMaterialUUID").asUUID());      // if not, whoo boy
 
     LLMaterialPtr mat = nullptr;
     bool ident; // ?
     LLSelectedTEMaterial::getCurrent(mat, ident);
 
-    mat->setMaterialID(matSD->get("teMaterialID").asUUID());
+    mat->setMaterialID(matSD.get("teMaterialID").asUUID());
 
-    mat->setNormalID(matSD->get("teNormalMap").asUUID());
-    mat->setNormalOffsetX(matSD->get("teNormalOffsetX").asReal());
-    mat->setNormalOffsetY(matSD->get("teNormalOffsetY").asReal());
-    mat->setNormalRepeatX(matSD->get("teNormalRepeatX").asReal());
-    mat->setNormalRepeatY(matSD->get("teNormalRepeatY").asReal());
-    mat->setNormalRotation(matSD->get("teNormalRotation").asReal());
+    mat->setNormalID(matSD.get("teNormalMap").asUUID());
+    mat->setNormalOffsetX(matSD.get("teNormalOffsetX").asReal());
+    mat->setNormalOffsetY(matSD.get("teNormalOffsetY").asReal());
+    mat->setNormalRepeatX(matSD.get("teNormalRepeatX").asReal());
+    mat->setNormalRepeatY(matSD.get("teNormalRepeatY").asReal());
+    mat->setNormalRotation(matSD.get("teNormalRotation").asReal());
 
-    mat->setSpecularID(matSD->get("teSpecularMap").asUUID());
+    mat->setSpecularID(matSD.get("teSpecularMap").asUUID());
     LLColor4U color;
-    color.mV[0] = static_cast<U8>(matSD->get("teSecularColorR").asInteger());
-    color.mV[1] = static_cast<U8>(matSD->get("teSecularColorG").asInteger());
-    color.mV[2] = static_cast<U8>(matSD->get("teSecularColorB").asInteger());
-    color.mV[3] = static_cast<U8>(matSD->get("teSecularColorA").asInteger());
+    color.mV[0] = static_cast<U8>(matSD.get("teSecularColorR").asInteger());
+    color.mV[1] = static_cast<U8>(matSD.get("teSecularColorG").asInteger());
+    color.mV[2] = static_cast<U8>(matSD.get("teSecularColorB").asInteger());
+    color.mV[3] = static_cast<U8>(matSD.get("teSecularColorA").asInteger());
     mat->setSpecularLightColor(color);
-    mat->setSpecularLightExponent(static_cast<U8>(matSD->get("teSpecularExponent").asInteger()));
-    mat->setSpecularOffsetX(matSD->get("teSpecularOffsetX").asReal());
-    mat->setSpecularOffsetY(matSD->get("teSpecularOffsetY").asReal());
-    mat->setSpecularRepeatX(matSD->get("teSpecularRepeatX").asReal());
-    mat->setSpecularRepeatY(matSD->get("teSpecularRepeatY").asReal());
-    mat->setSpecularRotation(matSD->get("teSpecularRotation").asReal());
+    mat->setSpecularLightExponent(static_cast<U8>(matSD.get("teSpecularExponent").asInteger()));
+    mat->setSpecularOffsetX(matSD.get("teSpecularOffsetX").asReal());
+    mat->setSpecularOffsetY(matSD.get("teSpecularOffsetY").asReal());
+    mat->setSpecularRepeatX(matSD.get("teSpecularRepeatX").asReal());
+    mat->setSpecularRepeatY(matSD.get("teSpecularRepeatY").asReal());
+    mat->setSpecularRotation(matSD.get("teSpecularRotation").asReal());
 
-    mat->setDiffuseAlphaMode(static_cast<U8>(matSD->get("teAlphaMode").asInteger()));
-    mat->setAlphaMaskCutoff(static_cast<U8>(matSD->get("teAlphaCutoff").asInteger()));
-    mat->setEnvironmentIntensity(static_cast<U8>(matSD->get("teEnvIntensity").asInteger()));
-    //mat->setShaderMask(static_cast<U32>(matSD->get(teShaderMask").asInteger());
+    mat->setDiffuseAlphaMode(static_cast<U8>(matSD.get("teAlphaMode").asInteger()));
+    mat->setAlphaMaskCutoff(static_cast<U8>(matSD.get("teAlphaCutoff").asInteger()));
+    mat->setEnvironmentIntensity(static_cast<U8>(matSD.get("teEnvIntensity").asInteger()));
+    //mat->setShaderMask(static_cast<U32>(matSD.get(teShaderMask").asInteger());
 }
 
 

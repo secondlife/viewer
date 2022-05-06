@@ -207,7 +207,7 @@ protected:
     static void		onAlignTexture(void*);
 
     static void		onSaveMaterial(void*);
-    static void     renderMaterialToLLSD(LLSD* sd, LLUUID uuid, void* userdata);
+    static LLSD     renderMaterialToLLSD(LLUUID uuid, void* userdata);
     static void     applyMaterialUUID(LLUUID uuid, void*);
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
