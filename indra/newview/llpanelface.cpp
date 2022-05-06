@@ -2716,43 +2716,51 @@ void LLPanelFace::applyMaterialUUID(LLUUID uuid, void* userdata)
     LLFileSystem material_file(uuid, LLAssetType::AT_MATERIAL, LLFileSystem::READ);
     S32 bufsize = material_file.getSize();
     llassert(bufsize > 0);
-    U8* buffer = new U8(bufsize);
-    material_file.read(buffer, bufsize);
-    LLSD* matSD = (LLSD*) buffer;   // static_cast complains here (?)
+    std::vector<U8> buffer(bufsize);
+    material_file.read(&buffer[0], bufsize);
+    std::istringstream input(std::string(buffer.begin(), buffer.end()));  // TODO - extend LLFileSystem to expose iostream interface
+    LLSD matSD;
 
-    llassert(uuid == matSD->get("MaterialUUID").asUUID());      // if not, whoo boy
+    LLSDSerialize::fromNotation(matSD, input, bufsize);
+
+    LL_INFOS() << "dump matSD: " << matSD << LL_ENDL;
+
+    // strip off the versioning wrapper for now
+    matSD = matSD["material"];
+
+    // wrong, oops. llassert(uuid == matSD.get("RenderMaterialUUID").asUUID());      // if not, whoo boy
 
     LLMaterialPtr mat = nullptr;
     bool ident; // ?
     LLSelectedTEMaterial::getCurrent(mat, ident);
 
-    mat->setMaterialID(matSD->get("teMaterialID").asUUID());
+    mat->setMaterialID(matSD.get("teMaterialID").asUUID());
 
-    mat->setNormalID(matSD->get("teNormalMap").asUUID());
-    mat->setNormalOffsetX(matSD->get("teNormalOffsetX").asReal());
-    mat->setNormalOffsetY(matSD->get("teNormalOffsetY").asReal());
-    mat->setNormalRepeatX(matSD->get("teNormalRepeatX").asReal());
-    mat->setNormalRepeatY(matSD->get("teNormalRepeatY").asReal());
-    mat->setNormalRotation(matSD->get("teNormalRotation").asReal());
+    mat->setNormalID(matSD.get("teNormalMap").asUUID());
+    mat->setNormalOffsetX(matSD.get("teNormalOffsetX").asReal());
+    mat->setNormalOffsetY(matSD.get("teNormalOffsetY").asReal());
+    mat->setNormalRepeatX(matSD.get("teNormalRepeatX").asReal());
+    mat->setNormalRepeatY(matSD.get("teNormalRepeatY").asReal());
+    mat->setNormalRotation(matSD.get("teNormalRotation").asReal());
 
-    mat->setSpecularID(matSD->get("teSpecularMap").asUUID());
+    mat->setSpecularID(matSD.get("teSpecularMap").asUUID());
     LLColor4U color;
-    color.mV[0] = static_cast<U8>(matSD->get("teSecularColorR").asInteger());
-    color.mV[1] = static_cast<U8>(matSD->get("teSecularColorG").asInteger());
-    color.mV[2] = static_cast<U8>(matSD->get("teSecularColorB").asInteger());
-    color.mV[3] = static_cast<U8>(matSD->get("teSecularColorA").asInteger());
+    color.mV[0] = static_cast<U8>(matSD.get("teSecularColorR").asInteger());
+    color.mV[1] = static_cast<U8>(matSD.get("teSecularColorG").asInteger());
+    color.mV[2] = static_cast<U8>(matSD.get("teSecularColorB").asInteger());
+    color.mV[3] = static_cast<U8>(matSD.get("teSecularColorA").asInteger());
     mat->setSpecularLightColor(color);
-    mat->setSpecularLightExponent(static_cast<U8>(matSD->get("teSpecularExponent").asInteger()));
-    mat->setSpecularOffsetX(matSD->get("teSpecularOffsetX").asReal());
-    mat->setSpecularOffsetY(matSD->get("teSpecularOffsetY").asReal());
-    mat->setSpecularRepeatX(matSD->get("teSpecularRepeatX").asReal());
-    mat->setSpecularRepeatY(matSD->get("teSpecularRepeatY").asReal());
-    mat->setSpecularRotation(matSD->get("teSpecularRotation").asReal());
+    mat->setSpecularLightExponent(static_cast<U8>(matSD.get("teSpecularExponent").asInteger()));
+    mat->setSpecularOffsetX(matSD.get("teSpecularOffsetX").asReal());
+    mat->setSpecularOffsetY(matSD.get("teSpecularOffsetY").asReal());
+    mat->setSpecularRepeatX(matSD.get("teSpecularRepeatX").asReal());
+    mat->setSpecularRepeatY(matSD.get("teSpecularRepeatY").asReal());
+    mat->setSpecularRotation(matSD.get("teSpecularRotation").asReal());
 
-    mat->setDiffuseAlphaMode(static_cast<U8>(matSD->get("teAlphaMode").asInteger()));
-    mat->setAlphaMaskCutoff(static_cast<U8>(matSD->get("teAlphaCutoff").asInteger()));
-    mat->setEnvironmentIntensity(static_cast<U8>(matSD->get("teEnvIntensity").asInteger()));
-    //mat->setShaderMask(static_cast<U32>(matSD->get(teShaderMask").asInteger());
+    mat->setDiffuseAlphaMode(static_cast<U8>(matSD.get("teAlphaMode").asInteger()));
+    mat->setAlphaMaskCutoff(static_cast<U8>(matSD.get("teAlphaCutoff").asInteger()));
+    mat->setEnvironmentIntensity(static_cast<U8>(matSD.get("teEnvIntensity").asInteger()));
+    //mat->setShaderMask(static_cast<U32>(matSD.get(teShaderMask").asInteger());
 }
 
 
