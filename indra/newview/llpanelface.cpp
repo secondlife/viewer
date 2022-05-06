@@ -2588,7 +2588,7 @@ void LLPanelFace::onSaveMaterial(void* userdata)
     tid.generate();     // timestamp-based randomization + uniquification
     LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
 
-    renderMaterialToLLSD(&material_data, new_asset_id, userdata);
+    material_data["material"] = renderMaterialToLLSD(new_asset_id, userdata);
     std::stringstream output;
     LLSDSerialize::toNotation(material_data, output);
 
@@ -2636,67 +2636,75 @@ void LLPanelFace::onSaveMaterial(void* userdata)
 // Fill an LLSD with data describing the current face's texture settings
 // TODO 2022-05 FUBAR there are both colliding and different data in LLPanelFace vs the TE.  Also, neither one has the diffuse tex settings.
 //              
-void LLPanelFace::renderMaterialToLLSD(LLSD* sd, LLUUID uuid, void* userdata)
+LLSD LLPanelFace::renderMaterialToLLSD(LLUUID uuid, void* userdata)
 {
     llassert(userdata != nullptr);
 
-    sd->insert("RenderMaterialUUID",    LLSD(uuid));
+    LLSD sd;
 
-    /* pf stuff is probably useless
-    // pull data from the LLPanelFace
-    LLPanelFace* instance = static_cast<LLPanelFace*>(userdata);
-    sd->insert("pfNormalMap",         LLSD(instance->getCurrentNormalMap()));
-    sd->insert("pfSpecularMap",       LLSD(instance->getCurrentSpecularMap()));
-    sd->insert("pfShininess",         LLSD(static_cast<S32>(instance->getCurrentShininess())));
-    sd->insert("pfBumpiness",         LLSD(static_cast<S32>(instance->getCurrentBumpiness())));
-    sd->insert("pfAlphaMode",         LLSD(static_cast<S32>(instance->getCurrentDiffuseAlphaMode())));
-    sd->insert("pfAlphaCutoff",       LLSD(static_cast<S32>(instance->getCurrentAlphaMaskCutoff())));
-    sd->insert("pfEnvIntensity",      LLSD(static_cast<S32>(instance->getCurrentEnvIntensity())));
-    sd->insert("pfGlossiness",        LLSD(static_cast<S32>(instance->getCurrentGlossiness())));
-    sd->insert("pfNormalRotation",    LLSD(instance->getCurrentBumpyRot()));
-    sd->insert("pfNormalScaleU",      LLSD(instance->getCurrentBumpyScaleU()));
-    sd->insert("pfNormalScaleV",      LLSD(instance->getCurrentBumpyScaleV()));
-    sd->insert("pfNormalOffsetU",     LLSD(instance->getCurrentBumpyOffsetU()));
-    sd->insert("pfNormalOffsetV",     LLSD(instance->getCurrentBumpyOffsetV()));
-    sd->insert("pfSpecularRotation",  LLSD(instance->getCurrentShinyRot()));
-    sd->insert("pfSpecularScaleU",    LLSD(instance->getCurrentShinyScaleU()));
-    sd->insert("pfSpecularScaleV",    LLSD(instance->getCurrentShinyScaleV()));
-    sd->insert("pfSpecularOffsetU",   LLSD(instance->getCurrentShinyOffsetU()));
-    sd->insert("pfSpecularOffsetV",   LLSD(instance->getCurrentShinyOffsetV()));
-    sd->insert("pfMaterialID",        LLSD(instance->getCurrentMaterialID()));
-    */
+    sd.insert("RenderMaterialUUID",    LLSD(uuid));
 
     // now pull same data from the selected TE (same but different. W T F?) 
     LLMaterialPtr mat = nullptr;
     bool ident; // ?
     LLSelectedTEMaterial::getCurrent(mat, ident);
 
-    sd->insert("teMaterialID", LLSD(mat->getMaterialID()));
+    if (mat)
+    {
+        sd.insert("teMaterialID", LLSD(mat->getMaterialID()));
 
-    sd->insert("teNormalMap", LLSD(mat->getNormalID()));
-    sd->insert("teNormalOffsetX", LLSD(mat->getNormalOffsetX()));
-    sd->insert("teNormalOffsetY", LLSD(mat->getNormalOffsetY()));
-    sd->insert("teNormalRepeatX", LLSD(mat->getNormalRepeatX()));
-    sd->insert("teNormalRepeatY", LLSD(mat->getNormalRepeatY()));
-    sd->insert("teNormalRotation", LLSD(mat->getNormalRotation()));
+        sd.insert("teNormalMap", LLSD(mat->getNormalID()));
+        sd.insert("teNormalOffsetX", LLSD(mat->getNormalOffsetX()));
+        sd.insert("teNormalOffsetY", LLSD(mat->getNormalOffsetY()));
+        sd.insert("teNormalRepeatX", LLSD(mat->getNormalRepeatX()));
+        sd.insert("teNormalRepeatY", LLSD(mat->getNormalRepeatY()));
+        sd.insert("teNormalRotation", LLSD(mat->getNormalRotation()));
 
-    sd->insert("teSpecularMap", LLSD(mat->getSpecularID()));
-    LLColor4U color = mat->getSpecularLightColor();
-    sd->insert("teSpecularColorR", LLSD(static_cast<S32>(color.mV[0])));
-    sd->insert("teSpecularColorG", LLSD(static_cast<S32>(color.mV[1])));
-    sd->insert("teSpecularColorB", LLSD(static_cast<S32>(color.mV[2])));
-    sd->insert("teSpecularColorA", LLSD(static_cast<S32>(color.mV[3])));
-    sd->insert("teSpecularExponent", LLSD(static_cast<S32>(mat->getSpecularLightExponent())));
-    sd->insert("teSpecularOffsetX", LLSD(mat->getSpecularOffsetX()));
-    sd->insert("teSpecularOffsetY", LLSD(mat->getSpecularOffsetY()));
-    sd->insert("teSpecularRepeatX", LLSD(mat->getSpecularRepeatX()));
-    sd->insert("teSpecularRepeatY", LLSD(mat->getSpecularRepeatY()));
-    sd->insert("teSpecularRotation", LLSD(mat->getSpecularRotation()));
+        sd.insert("teSpecularMap", LLSD(mat->getSpecularID()));
+        LLColor4U color = mat->getSpecularLightColor();
 
-    sd->insert("teAlphaMode", LLSD(static_cast<S32>(mat->getDiffuseAlphaMode())));
-    sd->insert("teAlphaCutoff", LLSD(static_cast<S32>(mat->getAlphaMaskCutoff())));
-    sd->insert("teEnvIntensity", LLSD(static_cast<S32>(mat->getEnvironmentIntensity())));
-    sd->insert("teShaderMask", LLSD(static_cast<S32>(mat->getShaderMask())));
+        sd.insert("teSpecularColorR", LLSD(static_cast<S32>(color.mV[0])));
+        sd.insert("teSpecularColorG", LLSD(static_cast<S32>(color.mV[1])));
+        sd.insert("teSpecularColorB", LLSD(static_cast<S32>(color.mV[2])));
+        sd.insert("teSpecularColorA", LLSD(static_cast<S32>(color.mV[3])));
+        sd.insert("teSpecularExponent", LLSD(static_cast<S32>(mat->getSpecularLightExponent())));
+        sd.insert("teSpecularOffsetX", LLSD(mat->getSpecularOffsetX()));
+        sd.insert("teSpecularOffsetY", LLSD(mat->getSpecularOffsetY()));
+        sd.insert("teSpecularRepeatX", LLSD(mat->getSpecularRepeatX()));
+        sd.insert("teSpecularRepeatY", LLSD(mat->getSpecularRepeatY()));
+        sd.insert("teSpecularRotation", LLSD(mat->getSpecularRotation()));
+
+        sd.insert("teAlphaMode", LLSD(static_cast<S32>(mat->getDiffuseAlphaMode())));
+        sd.insert("teAlphaCutoff", LLSD(static_cast<S32>(mat->getAlphaMaskCutoff())));
+        sd.insert("teEnvIntensity", LLSD(static_cast<S32>(mat->getEnvironmentIntensity())));
+        sd.insert("teShaderMask", LLSD(static_cast<S32>(mat->getShaderMask())));
+    }
+    else
+    {
+        // pull data from the LLPanelFace
+        LLPanelFace* instance = static_cast<LLPanelFace*>(userdata);
+        sd.insert("pfNormalMap",         LLSD(instance->getCurrentNormalMap()));
+        sd.insert("pfSpecularMap",       LLSD(instance->getCurrentSpecularMap()));
+        sd.insert("pfShininess",         LLSD(static_cast<S32>(instance->getCurrentShininess())));
+        sd.insert("pfBumpiness",         LLSD(static_cast<S32>(instance->getCurrentBumpiness())));
+        sd.insert("pfAlphaMode",         LLSD(static_cast<S32>(instance->getCurrentDiffuseAlphaMode())));
+        sd.insert("pfAlphaCutoff",       LLSD(static_cast<S32>(instance->getCurrentAlphaMaskCutoff())));
+        sd.insert("pfEnvIntensity",      LLSD(static_cast<S32>(instance->getCurrentEnvIntensity())));
+        sd.insert("pfGlossiness",        LLSD(static_cast<S32>(instance->getCurrentGlossiness())));
+        sd.insert("pfNormalRotation",    LLSD(instance->getCurrentBumpyRot()));
+        sd.insert("pfNormalScaleU",      LLSD(instance->getCurrentBumpyScaleU()));
+        sd.insert("pfNormalScaleV",      LLSD(instance->getCurrentBumpyScaleV()));
+        sd.insert("pfNormalOffsetU",     LLSD(instance->getCurrentBumpyOffsetU()));
+        sd.insert("pfNormalOffsetV",     LLSD(instance->getCurrentBumpyOffsetV()));
+        sd.insert("pfSpecularRotation",  LLSD(instance->getCurrentShinyRot()));
+        sd.insert("pfSpecularScaleU",    LLSD(instance->getCurrentShinyScaleU()));
+        sd.insert("pfSpecularScaleV",    LLSD(instance->getCurrentShinyScaleV()));
+        sd.insert("pfSpecularOffsetU",   LLSD(instance->getCurrentShinyOffsetU()));
+        sd.insert("pfSpecularOffsetV",   LLSD(instance->getCurrentShinyOffsetV()));
+        sd.insert("pfMaterialID",        LLSD(instance->getCurrentMaterialID()));
+    }
+
+    return sd;
 }
 
 // Take the individual texture settings from the material and apply to current face & TE
