@@ -625,10 +625,11 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	// Enable/disable the plugin read thread
 	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
 
-	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
-	// 2017-04-19 Removed CP - this doesn't appear to buy us much and consumes a lot of resources so
-	// removing it for now.
-	//createSpareBrowserMediaSource();
+    // SL-17175 - Original comment was classic famous last words!
+    // There *IS* an appreciable amount of time required to spin up a new instance
+    // of the CEF media plugin so we ressurect the idea of keeping a spare around
+    // that can quickly be used.
+	createSpareBrowserMediaSource();
 
 	mAnyMediaShowing = false;
 	mAnyMediaPlaying = false;
@@ -2598,7 +2599,13 @@ void LLViewerMediaImpl::mimeDiscoveryCoro(std::string url)
 
     mMimeProbe = httpAdapter;
 
-    httpOpts->setFollowRedirects(true);
+    // SL-17175 - can take 3+ seconds because of the vast number of redirects to follow
+    // so we turn this option off. We only need to know the MIME type of media and we
+    // know this from the initial page (text/html) so there is no need to complete the follow
+    // E.G. note the difference if time taken for:
+    // Get HEAD only, do not follow redirects: curl -I https://marketplace.secondlife.com/products/search
+    // Get HEAD only, follow redirects: curl -I -L https://marketplace.secondlife.com/products/search
+    httpOpts->setFollowRedirects(false); 
     httpOpts->setHeadersOnly(true);
 
     httpHeaders->append(HTTP_OUT_HEADER_ACCEPT, "*/*");
