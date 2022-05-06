@@ -867,6 +867,7 @@ protected:
 	LLDrawPool*					mBumpPool;
 	LLDrawPool*					mMaterialsPool;
 	LLDrawPool*					mWLSkyPool;
+	LLDrawPool*					mPBROpaquePool;
 	// Note: no need to keep an quick-lookup to avatar pools, since there's only one per avatar
 	
 public:

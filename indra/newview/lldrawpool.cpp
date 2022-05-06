@@ -37,6 +37,7 @@
 #include "lldrawpoolbump.h"
 #include "lldrawpoolmaterials.h"
 #include "lldrawpoolground.h"
+#include "lldrawpoolpbropaque.h"
 #include "lldrawpoolsimple.h"
 #include "lldrawpoolsky.h"
 #include "lldrawpooltree.h"
@@ -116,6 +117,9 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	case POOL_WL_SKY:
 		poolp = new LLDrawPoolWLSky();
+		break;
+	case POOL_PBR_OPAQUE:
+		poolp = new LLDrawPoolPBROpaque();
 		break;
 	default:
 		LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;

@@ -187,6 +187,7 @@ set(viewer_SOURCE_FILES
     lldrawpoolbump.cpp
     lldrawpoolground.cpp
     lldrawpoolmaterials.cpp
+    lldrawpoolpbropaque.cpp
     lldrawpoolsimple.cpp
     lldrawpoolsky.cpp
     lldrawpoolterrain.cpp
@@ -824,6 +825,7 @@ set(viewer_HEADER_FILES
     lldrawpoolavatar.h
     lldrawpoolbump.h
     lldrawpoolmaterials.h
+    lldrawpoolpbropaque.h
     lldrawpoolground.h
     lldrawpoolsimple.h
     lldrawpoolsky.h

@@ -313,4 +313,6 @@ extern LLGLSLShader			gNormalMapGenProgram;
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 extern LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
+
+extern LLGLSLShader			gDeferredPBROpaqueProgram;
 #endif
