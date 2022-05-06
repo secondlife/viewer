@@ -4996,8 +4996,7 @@ void LLAppViewer::idle()
 			audio_update_wind(false);
 
 			// this line actually commits the changes we've made to source positions, etc.
-			const F32 max_audio_decode_time = 0.002f; // 2 ms decode time
-			gAudiop->idle(max_audio_decode_time);
+			gAudiop->idle();
 		}
 	}
 
