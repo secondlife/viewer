@@ -1749,7 +1749,7 @@ if (WINDOWS)
         "--fmodstudio=${USE_FMODSTUDIO}"
         "--openal=${USE_OPENAL}"
         --build=${CMAKE_CURRENT_BINARY_DIR}
-        --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+        --buildtype=$<CONFIG>
         "--channel=${VIEWER_CHANNEL}"
         --configuration=${CMAKE_CFG_INTDIR}
         --dest=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
@@ -1809,7 +1809,7 @@ if (WINDOWS)
               "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
-              --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+              --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
               --configuration=${CMAKE_CFG_INTDIR}
               --dest=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
@@ -2042,7 +2042,7 @@ if (DARWIN)
       "--fmodstudio=${USE_FMODSTUDIO}"
       "--openal=${USE_OPENAL}"
       --build=${CMAKE_CURRENT_BINARY_DIR}
-      --buildtype=${CMAKE_BUILD_TYPE}
+      --buildtype=$<CONFIG>
       --bundleid=${MACOSX_BUNDLE_GUI_IDENTIFIER}
       "--channel=${VIEWER_CHANNEL}"
       --configuration=${CMAKE_CFG_INTDIR}
@@ -2077,7 +2077,7 @@ if (DARWIN)
               "--fmodstudio=${USE_FMODSTUDIO}"
               "--openal=${USE_OPENAL}"
               --build=${CMAKE_CURRENT_BINARY_DIR}
-              --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+              --buildtype=$<CONFIG>
               "--channel=${VIEWER_CHANNEL}"
               --configuration=${CMAKE_CFG_INTDIR}
               --dest=${VIEWER_APP_BUNDLE}

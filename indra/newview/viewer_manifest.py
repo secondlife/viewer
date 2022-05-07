@@ -435,7 +435,7 @@ class WindowsManifest(ViewerManifest):
             self.cmakedirs(os.path.dirname(dst))
             self.created_paths.append(dst)
             if not os.path.isdir(src):
-                if(self.args['configuration'].lower() == 'debug'):
+                if(self.args['buildtype'].lower() == 'debug'):
                     test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
                 else:
                     test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
@@ -458,7 +458,7 @@ class WindowsManifest(ViewerManifest):
             self.created_paths.append(dst)
             if not os.path.isdir(src):
                 try:
-                    if(self.args['configuration'].lower() == 'debug'):
+                    if(self.args['buildtype'].lower() == 'debug'):
                         test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
                     else:
                         test_assembly_binding(src, "Microsoft.VC80.CRT", "")
@@ -515,7 +515,7 @@ class WindowsManifest(ViewerManifest):
 
             # Get fmodstudio dll if needed
             if self.args['fmodstudio'] == 'ON':
-                if(self.args['configuration'].lower() == 'debug'):
+                if(self.args['buildtype'].lower() == 'debug'):
                     self.path("fmodL.dll")
                 else:
                     self.path("fmod.dll")
@@ -1045,7 +1045,7 @@ class DarwinManifest(ViewerManifest):
 
                 # Fmod studio dylibs (vary based on configuration)
                 if self.args['fmodstudio'] == 'ON':
-                    if self.args['configuration'].lower() == 'debug':
+                    if self.args['buildtype'].lower() == 'debug':
                         for libfile in (
                                     "libfmodL.dylib",
                                     ):
