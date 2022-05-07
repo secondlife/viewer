@@ -15,19 +15,17 @@ include(FMODSTUDIO)
 # copy_if_different commands. Encapsulate that usage.
 # Pass FROM_DIR, TARGETS and the files to copy. TO_DIR is implicit.
 # to_staging_dirs diverges from copy_if_different in that it appends to TARGETS.
-MACRO(to_staging_dirs from_dir targets)
-    copy_if_different("${from_dir}" "${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>" out_targets ${ARGN})
+macro(to_staging_dirs from_dir targets)
+    set( targetDir "${SHARED_LIB_STAGING_DIR}")
+    copy_if_different("${from_dir}" "${targetDir}" out_targets ${ARGN})
+
     list(APPEND "${targets}" "${out_targets}")
-ENDMACRO(to_staging_dirs from_dir to_dir targets)
+endmacro()
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
 ###################################################################
 if(WINDOWS)
-    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug")
-    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo")
-    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release")
-
     #*******************************
     # VIVOX - *NOTE: no debug version
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -150,10 +148,6 @@ if(WINDOWS)
     endforeach()
 
 elseif(DARWIN)
-    set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
-    set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
-    set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release/Resources")
-
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(slvoice_files SLVoice)
     set(vivox_libs

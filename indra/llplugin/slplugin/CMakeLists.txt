@@ -56,7 +56,7 @@ if (DARWIN)
     COMMAND mkdir
     ARGS
       -p
-      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/SLPlugin.app/Contents/Resources
+      ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/SLPlugin.app/Contents/Resources
   )
 endif (DARWIN)
 

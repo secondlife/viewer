@@ -59,7 +59,7 @@ target_link_libraries(llimage_libtest
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LLIMAGE_LIBTEST_DESTINATION_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llimage_libtest.app/Contents/Resources
+    ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/llimage_libtest.app/Contents/Resources
   )
   # Create the Contents/Resources directory
   add_custom_command(

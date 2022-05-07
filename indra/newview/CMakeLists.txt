@@ -1690,10 +1690,10 @@ if (WINDOWS)
       # The following commented dependencies are determined at variably at build time. Can't do this here.
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/glod.dll
-      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/openjpeg.dll
-      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/libhunspell.dll
-      ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/uriparser.dll
+      ${SHARED_LIB_STAGING_DIR}/glod.dll
+      ${SHARED_LIB_STAGING_DIR}/openjpeg.dll
+      ${SHARED_LIB_STAGING_DIR}/libhunspell.dll
+      ${SHARED_LIB_STAGING_DIR}/uriparser.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/SLVoice.exe
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/libsndfile-1.dll
       #${SHARED_LIB_STAGING_DIR}/${LL_INTDIR}/vivoxoal.dll
@@ -1709,15 +1709,15 @@ if (WINDOWS)
 
     if (ADDRESS_SIZE EQUAL 64)
        list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/vivoxsdk_x64.dll
-               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/ortp_x64.dll
+               ${SHARED_LIB_STAGING_DIR}/vivoxsdk_x64.dll
+               ${SHARED_LIB_STAGING_DIR}/ortp_x64.dll
                ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1-x64.dll
                ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1-x64.dll
                )
     else (ADDRESS_SIZE EQUAL 64)
        list(APPEND COPY_INPUT_DEPENDENCIES
-               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/vivoxsdk.dll
-               ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/ortp.dll
+               ${SHARED_LIB_STAGING_DIR}/vivoxsdk.dll
+               ${SHARED_LIB_STAGING_DIR}/ortp.dll
                ${ARCH_PREBUILT_DIRS_RELEASE}/libcrypto-1_1.dll
                ${ARCH_PREBUILT_DIRS_RELEASE}/libssl-1_1.dll
                )
@@ -1725,15 +1725,15 @@ if (WINDOWS)
 
     if (TARGET ll::fmodstudio)
       list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/fmod.dll
+           ${SHARED_LIB_STAGING_DIR}/fmod.dll
            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
           )
     endif ()
 
     if (TARGET ll::openal)
       list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/OpenAL32.dll
-           ${SHARED_LIB_STAGING_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/alut.dll
+           ${SHARED_LIB_STAGING_DIR}/OpenAL32.dll
+           ${SHARED_LIB_STAGING_DIR}/alut.dll
           )
     endif ()
 
@@ -2020,7 +2020,7 @@ if (DARWIN)
     XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "${MACOSX_BUNDLE_GUI_IDENTIFIER}"
     )
 
-  set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app")
+  set(VIEWER_APP_BUNDLE "${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/${product}.app")
   set(VIEWER_APP_EXE "${VIEWER_APP_BUNDLE}/Contents/MacOS/${product}")
   set(VIEWER_APP_DSYM "${VIEWER_APP_EXE}.dSYM")
   set(VIEWER_APP_XCARCHIVE "${VIEWER_APP_BUNDLE}/../${product}.xcarchive.zip")
@@ -2070,22 +2070,22 @@ if (DARWIN)
         TARGET llpackage POST_BUILD
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
-          ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
-          --arch=${ARCH}
-          --artwork=${ARTWORK_DIR}
-          "--bugsplat=${BUGSPLAT_DB}"
-          "--fmodstudio=${USE_FMODSTUDIO}"
-          "--openal=${USE_OPENAL}"
-          --build=${CMAKE_CURRENT_BINARY_DIR}
-          --buildtype=${CMAKE_BUILD_TYPE}
-          "--channel=${VIEWER_CHANNEL}"
-          --configuration=${CMAKE_CFG_INTDIR}
-          --dest=${VIEWER_APP_BUNDLE}
-          --grid=${GRID}
-          --source=${CMAKE_CURRENT_SOURCE_DIR}
-          --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
-          --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-          ${SIGNING_SETTING}
+              ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
+              --arch=${ARCH}
+              --artwork=${ARTWORK_DIR}
+              "--bugsplat=${BUGSPLAT_DB}"
+              "--fmodstudio=${USE_FMODSTUDIO}"
+              "--openal=${USE_OPENAL}"
+              --build=${CMAKE_CURRENT_BINARY_DIR}
+              --buildtype=$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>
+              "--channel=${VIEWER_CHANNEL}"
+              --configuration=${CMAKE_CFG_INTDIR}
+              --dest=${VIEWER_APP_BUNDLE}
+              --grid=${GRID}
+              --source=${CMAKE_CURRENT_SOURCE_DIR}
+              --touch=${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/.${product}.bat
+              --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+              ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )

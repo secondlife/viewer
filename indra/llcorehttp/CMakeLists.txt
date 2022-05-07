@@ -135,7 +135,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LL_TEST_DESTINATION_DIR
-    ${CMAKE_BINARY_DIR}/sharedlibs/Resources
+    ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,,../>Resources
   )
 
   # Create the Contents/Resources directory
