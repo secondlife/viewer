@@ -12,8 +12,13 @@
 # Switches set here and in 00-Common.cmake must agree with
 # https://bitbucket.org/lindenlab/viewer-build-variables/src/tip/variables
 # Reading $LL_BUILD is an attempt to directly use those switches.
-if ("$ENV{LL_BUILD}" STREQUAL "")
+if ("$ENV{LL_BUILD}" STREQUAL "" AND "${LL_BUILD_ENV}" STREQUAL "" )
   message(FATAL_ERROR "Environment variable LL_BUILD must be set")
+elseif("$ENV{LL_BUILD}" STREQUAL "")
+  set( ENV{LL_BUILD} "${LL_BUILD_ENV}" )
+  message( "Setting ENV{LL_BUILD} to cached variable ${LL_BUILD_ENV}" )
+else()
+  set( LL_BUILD_ENV "$ENV{LL_BUILD}" CACHE STRING "Save environment" FORCE )
 endif ()
 include_guard()
 
