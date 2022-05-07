@@ -255,13 +255,13 @@ void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
 
 LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ELoadFilter filter, bool get_multiple)
     : LLFilePickerThread(filter, get_multiple),
-    mPlugin(plugin->getSharedPrt())
+    mPlugin(plugin->getSharedPtr())
 {
 }
 
 LLMediaFilePicker::LLMediaFilePicker(LLPluginClassMedia* plugin, LLFilePicker::ESaveFilter filter, const std::string &proposed_name)
     : LLFilePickerThread(filter, proposed_name),
-    mPlugin(plugin->getSharedPrt())
+    mPlugin(plugin->getSharedPtr())
 {
 }
 
