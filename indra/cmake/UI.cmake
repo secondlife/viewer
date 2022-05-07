@@ -51,23 +51,3 @@ target_include_directories( ll::uilibraries SYSTEM INTERFACE
         ${LIBS_PREBUILT_DIR}/include
         )
 
-
-# The following made no real sense
-# - ${ARCH}_linux_INCLUDES was set in 00-Common.cmake,
-# - Here ist is used, but as ${${LL_ARCH}_INCLUDES}
-# It would make more sense to use one form ($LL_ARCH)
-# Leave this out for the moment, but come back when looking at the Linux build
-
-#set(${ARCH}_linux_INCLUDES
-#        atk-1.0
-#        glib-2.0
-#        gstreamer-0.10
-#        gtk-2.0
-#        pango-1.0
-#        )
-#foreach(include ${${LL_ARCH}_INCLUDES})
-#  target_include_directories( ll::uilibraries SYSTEM INTERFACE
-#          ${LIBS_PREBUILT_DIR}/include/${include}
-#          )
-#endforeach(include)
-

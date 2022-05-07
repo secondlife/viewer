@@ -73,13 +73,11 @@ endif (NOT CMAKE_BUILD_TYPE)
 # If someone has specified an address size, use that to determine the
 # architecture.  Otherwise, let the architecture specify the address size.
 if (ADDRESS_SIZE EQUAL 32)
-  #message(STATUS "ADDRESS_SIZE is 32")
   set(ARCH i686)
 elseif (ADDRESS_SIZE EQUAL 64)
-  #message(STATUS "ADDRESS_SIZE is 64")
   set(ARCH x86_64)
 else (ADDRESS_SIZE EQUAL 32)
-  # Note we cannnot use if(DARWIN) here, this variable is set way lower
+  # Note we cannot use if(DARWIN) here, this variable is set way lower
   if( ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" )
     set(ADDRESS_SIZE 64)
     set(ARCH x86_64)
@@ -105,8 +103,6 @@ endif (ADDRESS_SIZE EQUAL 32)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON BOOL FORCE)
-  set(LL_ARCH ${ARCH}_win32)
-  set(LL_ARCH_DIR ${ARCH}-win32)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
@@ -132,9 +128,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   endif (DPKG_RESULT EQUAL 0)
 
   include(ConfigurePkgConfig)
-
-  set(LL_ARCH ${ARCH}_linux)
-  set(LL_ARCH_DIR ${ARCH}-linux)
 
   if (INSTALL_PROPRIETARY)
     # Only turn on headless if we can find osmesa libraries.
@@ -204,9 +197,6 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_OSX_ARCHITECTURES "${ARCH}")
   string(REPLACE "i686"  "i386"   CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
   string(REPLACE "AMD64" "x86_64" CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}")
-
-  set(LL_ARCH ${ARCH}_darwin)
-  set(LL_ARCH_DIR universal-darwin)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid
