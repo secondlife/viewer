@@ -236,7 +236,7 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesUpdate(const LLAvatarData*
 		return;
 	}
 
-	LL_INFOS() << "Sending avatarinfo update" << LL_ENDL;
+	LL_WARNS() << "Sending avatarinfo update. This trims profile descriptions!!!" << LL_ENDL;
 
 	// This value is required by sendAvatarPropertiesUpdate method.
 	//A profile should never be mature. (From the original code)
