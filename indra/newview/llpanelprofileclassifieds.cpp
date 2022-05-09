@@ -203,7 +203,7 @@ LLPanelProfileClassifieds::~LLPanelProfileClassifieds()
 
 void LLPanelProfileClassifieds::onOpen(const LLSD& key)
 {
-    LLPanelProfileTab::onOpen(key);
+    LLPanelProfilePropertiesProcessorTab::onOpen(key);
 
     resetData();
 
@@ -592,7 +592,7 @@ void LLPanelProfileClassified::onOpen(const LLSD& key)
 
     if(is_new)
     {
-        LLPanelProfileTab::setAvatarId(gAgent.getID());
+        LLPanelProfilePropertiesProcessorTab::setAvatarId(gAgent.getID());
 
         setPosGlobal(gAgent.getPositionGlobal());
 
@@ -634,7 +634,7 @@ void LLPanelProfileClassified::onOpen(const LLSD& key)
         {
             return;
         }
-        LLPanelProfileTab::setAvatarId(avatar_id);
+        LLPanelProfilePropertiesProcessorTab::setAvatarId(avatar_id);
 
         setClassifiedId(key["classified_id"]);
         setClassifiedName(key["classified_name"]);

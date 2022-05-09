@@ -131,7 +131,7 @@ LLPanelProfilePicks::~LLPanelProfilePicks()
 
 void LLPanelProfilePicks::onOpen(const LLSD& key)
 {
-    LLPanelProfileTab::onOpen(key);
+    LLPanelProfilePropertiesProcessorTab::onOpen(key);
 
     resetData();
 
@@ -405,7 +405,7 @@ void LLPanelProfilePick::setAvatarId(const LLUUID& avatar_id)
     {
         return;
     }
-    LLPanelProfileTab::setAvatarId(avatar_id);
+    LLPanelProfilePropertiesProcessorTab::setAvatarId(avatar_id);
 
     // creating new Pick
     if (getPickId().isNull() && getSelfProfile())

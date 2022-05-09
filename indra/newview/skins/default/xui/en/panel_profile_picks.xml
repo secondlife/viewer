@@ -66,6 +66,7 @@
      bottom="-5"
      left="4"
      right="-4"
+     tab_width="150"
      follows="all"
      layout="topleft"
      halign="left"

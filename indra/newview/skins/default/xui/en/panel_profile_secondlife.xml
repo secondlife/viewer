@@ -371,7 +371,7 @@ Account: [ACCTTYPE]
            border_visible="true"
            font="SansSerifSmall"
            h_pad="2"
-           max_length="65000"
+           max_length="1000"
            parse_urls="true"
            word_wrap="true"/>
         </layout_panel>

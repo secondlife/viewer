@@ -115,6 +115,11 @@ protected:
 	 */
 	void processGroupProperties(const LLAvatarGroups* avatar_groups);
 
+    /**
+     * Processes notes related data received from server.
+     */
+    void processNotesProperties(LLAvatarNotes* avatar_notes);
+
 	/**
 	 * Fills common for Avatar profile and My Profile fields.
 	 */
@@ -182,6 +187,7 @@ private:
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
+    LLTextEditor*		mNotesSnippet;
     LLMenuButton*		mAgentActionMenuButton;
     LLButton*			mSaveDescriptionChanges;
     LLButton*			mDiscardDescriptionChanges;
