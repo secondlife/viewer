@@ -170,7 +170,7 @@ namespace LL
         template <typename CALLABLE>
         bool tryPost(CALLABLE&& callable)
         {
-            return mQueue.tryPost(TimePoint::clock::now(), std::move(callable));
+            return mQueue.tryPush(TimePoint::clock::now(), std::move(callable));
         }
 
         /*------------------------- handshake API --------------------------*/
