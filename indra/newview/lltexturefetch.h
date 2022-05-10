@@ -59,7 +59,7 @@ class LLTextureFetch : public LLWorkerThread
 	friend class LLTextureFetchWorker;
 	
 public:
-    static const char* getStateString(S32 state);
+    static std::string getStateString(S32 state);
 
 	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
 	~LLTextureFetch();
