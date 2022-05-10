@@ -1059,8 +1059,6 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     entries_list_t entries;
 
 	// Update fetch for N images each frame
-	static const S32 MAX_HIGH_PRIO_COUNT = gSavedSettings.getS32("TextureFetchUpdateHighPriority");         // default: 32
-    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinMediumPriority");       // default: 32
 #if 0
 	static const S32 MAX_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMaxMediumPriority");       // default: 256
 	

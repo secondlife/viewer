@@ -1779,14 +1779,6 @@ void LLViewerFetchedTexture::processTextureStats()
 	}
 }
 
-const F32 MAX_PRIORITY_PIXEL                         = 999.f;     //pixel area
-const F32 PRIORITY_BOOST_LEVEL_FACTOR                = 1000.f;    //boost level
-const F32 PRIORITY_DELTA_DISCARD_LEVEL_FACTOR        = 100000.f;  //delta discard
-const S32 MAX_DELTA_DISCARD_LEVEL_FOR_PRIORITY       = 4;
-const F32 PRIORITY_ADDITIONAL_FACTOR                 = 1000000.f; //additional 
-const S32 MAX_ADDITIONAL_LEVEL_FOR_PRIORITY          = 8;
-const F32 PRIORITY_BOOST_HIGH_FACTOR                 = 10000000.f;//boost high
-
 //============================================================================
 
 void LLViewerFetchedTexture::updateVirtualSize() 

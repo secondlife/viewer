@@ -4115,7 +4115,6 @@ bool
 TFReqSendMetrics::doWork(LLTextureFetch * fetcher)
 {
     LL_PROFILE_ZONE_SCOPED;
-	static const U32 report_priority(1);
 	
 	//if (! gViewerAssetStatsThread1)
 	//	return true;

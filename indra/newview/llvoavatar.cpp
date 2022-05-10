@@ -5672,7 +5672,6 @@ void LLVOAvatar::checkTextureLoading()
 }
 
 const F32  SELF_ADDITIONAL_PRI = 0.75f ;
-const F32  ADDITIONAL_PRI = 0.5f;
 void LLVOAvatar::addBakedTextureStats( LLViewerFetchedTexture* imagep, F32 pixel_area, F32 texel_area_ratio, S32 boost_level)
 {
 	//Note:
