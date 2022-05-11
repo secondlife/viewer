@@ -2807,8 +2807,8 @@ If you continue to receive this message, please contact Second Life support for 
     <string name="NoPicksText">You haven't created any Picks. Click the New button to create a Pick.</string>
     <string name="NoClassifiedsText">You haven't created any Classifieds. Click the New button to create a Classified.</string>
     <string name="NoAvatarPicksClassifiedsText">User has no picks or classifieds</string>
-    <string name="NoAvatarPicksText">User has no picks</string>
-    <string name="NoAvatarClassifiedsText">User has no classifieds</string>
+    <string name="NoAvatarPicksText">This person has no picks</string>
+    <string name="NoAvatarClassifiedsText">This person has no classifieds</string>
     <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->

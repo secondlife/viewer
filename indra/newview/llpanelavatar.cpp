@@ -119,6 +119,12 @@ void LLPanelProfileTab::setApplyProgress(bool started)
             indicator->stop();
         }
     }
+
+    LLPanel* panel = findChild<LLPanel>("indicator_stack");
+    if (panel)
+    {
+        panel->setVisible(started);
+    }
 }
 
 LLPanelProfilePropertiesProcessorTab::LLPanelProfilePropertiesProcessorTab()

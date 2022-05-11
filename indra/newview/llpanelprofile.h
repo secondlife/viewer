@@ -99,6 +99,7 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
+    void setNotesSnippet(std::string &notes);
     void setProfileImageUploading(bool loading);
     void setProfileImageUploaded(const LLUUID &image_asset_id);
 
@@ -314,7 +315,6 @@ public:
 	/*virtual*/ void updateData();
 
 protected:
-	void onCommitNotes();
     void setNotesText(const std::string &text);
     void onSetNotesDirty();
     void onSaveNotesChanges();

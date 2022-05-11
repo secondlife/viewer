@@ -13,9 +13,6 @@
     name="AgeFormat"
     value="[AGE]" />
    <string
-    name="no_partner_text"
-    value="Partner: None" />
-   <string
     name="partner_text"
     value="Partner: [LINK]" />
    <string
@@ -95,7 +92,7 @@ Account: [ACCTTYPE]
            value="(loading...)"
            font="SansSerifBigLarge"
            top="0"
-           left="2"
+           left="10"
            right="-1"
            height="20"
            follows="left|top|right"
@@ -105,7 +102,7 @@ Account: [ACCTTYPE]
            name="user_name"
            value="(loading...)"
            top_pad="0"
-           left="2"
+           left_delta="0"
            right="-1"
            height="16"
            follows="left|top|right"
@@ -115,34 +112,64 @@ Account: [ACCTTYPE]
            name="user_age"
            value="(loading...)"
            top_pad="0"
-           left="2"
+           left_delta="0"
            right="-1"
            height="16"
            follows="left|top|right"
            layout="topleft"/>
 
-          <text
-           type="string"
-           name="partner_link"
-           value="Partner: (loading...)"
+          <layout_stack
+           name="partner_stack"
            top_pad="0"
-           left="2"
+           left_delta="0"
            right="-1"
-           height="16"
+           height="64"
            follows="left|top|right"
            layout="topleft"
-           translate="false"
-           use_ellipses="true" />
+           animate="false"
+           orientation="vertical">
+            <layout_panel
+             name="partner_layout"
+             follows="all"
+             layout="topleft"
+             height="16"
+             auto_resize="false"
+             user_resize="false"
+             visible="false">
+              <text
+               type="string"
+               name="partner_link"
+               value="Partner: (loading...)"
+               top="0"
+               left="0"
+               right="-1"
+               height="16"
+               follows="left|top|right"
+               layout="topleft"
+               translate="false"
+               use_ellipses="true"
+               visible="true"/>
+            </layout_panel>
 
-          <text
-           name="account_info"
-           value="Account: (loading...)"
-           top_pad="0"
-           left="2"
-           right="-1"
-           height="16"
-           follows="left|top|right"
-           layout="topleft"/>
+            <layout_panel
+             name="account_layout"
+             follows="all"
+             layout="topleft"
+             height="48"
+             auto_resize="false"
+             user_resize="false">
+              <text
+               name="account_info"
+               value="Account: (loading...)"
+               top="15"
+               left="0"
+               right="-1"
+               height="16"
+               follows="left|top|right"
+               layout="topleft"/>
+            </layout_panel>
+          </layout_stack>
+
 
           <loading_indicator
            name="progress_indicator"
@@ -157,7 +184,7 @@ Account: [ACCTTYPE]
           <menu_button
            layout="topleft"
            follows="left|bottom"
-           left="2"
+           left="10"
            bottom="-1"
            height="25"
            width="140"
@@ -373,7 +400,9 @@ Account: [ACCTTYPE]
            h_pad="2"
            max_length="1000"
            parse_urls="true"
-           word_wrap="true"/>
+           word_wrap="true"
+           use_ellipses="true"
+           allow_scroll="false"/>
         </layout_panel>
 
         <layout_panel

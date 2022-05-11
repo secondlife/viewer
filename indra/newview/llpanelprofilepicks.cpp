@@ -135,7 +135,8 @@ void LLPanelProfilePicks::onOpen(const LLSD& key)
 
     resetData();
 
-    if (getSelfProfile())
+    bool own_profile = getSelfProfile();
+    if (own_profile)
     {
         mNewButton->setVisible(TRUE);
         mNewButton->setEnabled(FALSE);
@@ -143,6 +144,8 @@ void LLPanelProfilePicks::onOpen(const LLSD& key)
         mDeleteButton->setVisible(TRUE);
         mDeleteButton->setEnabled(FALSE);
     }
+
+    childSetVisible("buttons_header", own_profile);
 }
 
 void LLPanelProfilePicks::selectPick(const LLUUID& pick_id)

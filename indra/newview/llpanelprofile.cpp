@@ -217,6 +217,8 @@ void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id)
     LLPanelProfilePicks *panel_picks = dynamic_cast<LLPanelProfilePicks*>(panel);
     if (panel_picks)
     {
+        // Refresh pick limit before processing
+        LLAgentPicksInfo::getInstance()->onServerRespond(&avatar_picks);
         panel_picks->processProperties(&avatar_picks);
     }
 
@@ -820,7 +822,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mGroupList              = getChild<LLGroupList>("group_list");
     mShowInSearchCombo      = getChild<LLComboBox>("show_in_search");
     mSecondLifePic          = getChild<LLIconCtrl>("2nd_life_pic");
-    mSecondLifePicLayout    = getChild<LLPanel>("image_stack");
+    mSecondLifePicLayout    = getChild<LLPanel>("image_panel");
     mDescriptionEdit        = getChild<LLTextEditor>("sl_description_edit");
     mNotesSnippet           = getChild<LLTextEditor>("notes_snippet");
     mAgentActionMenuButton  = getChild<LLMenuButton>("agent_actions_menu");
@@ -989,6 +991,11 @@ void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const L
     getChild<LLUICtrl>("user_name")->setValue(av_name.getAccountName());
 }
 
+void LLPanelProfileSecondLife::setNotesSnippet(std::string &notes)
+{
+    mNotesSnippet->setValue(notes);
+}
+
 void LLPanelProfileSecondLife::setProfileImageUploading(bool loading)
 {
     LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("image_upload_indicator");
@@ -1077,6 +1084,7 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     LLTextBox* partner_text_ctrl = getChild<LLTextBox>("partner_link");
     if (avatar_data->partner_id.notNull())
     {
+        childSetVisible("partner_layout", TRUE);
         LLStringUtil::format_map_t args;
         args["[LINK]"] = LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString();
         std::string partner_text = getString("partner_text", args);
@@ -1084,7 +1092,7 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     }
     else
     {
-        partner_text_ctrl->setText(getString("no_partner_text"));
+        childSetVisible("partner_layout", FALSE);
     }
 }
 
@@ -1333,7 +1341,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
     {
         LLAvatarActions::startCall(agent_id);
     }
-    else if (item_name == "callog")
+    else if (item_name == "chat_history")
     {
         LLAvatarActions::viewChatHistory(agent_id);
     }
@@ -1443,7 +1451,7 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     {
         return mVoiceStatus;
     }
-    else if (item_name == "callog")
+    else if (item_name == "chat_history")
     {
         return LLLogChat::isTranscriptExist(agent_id);
     }
@@ -1780,6 +1788,12 @@ void LLPanelProfileFirstLife::onOpen(const LLSD& key)
 {
     LLPanelProfileTab::onOpen(key);
 
+    if (!getSelfProfile())
+    {
+        // Otherwise as the only focusable element it will be selected
+        mDescriptionEdit->setTabStop(FALSE);
+    }
+
     resetData();
 }
 
@@ -1953,24 +1967,6 @@ void LLPanelProfileNotes::onOpen(const LLSD& key)
     resetData();
 }
 
-void LLPanelProfileNotes::onCommitNotes()
-{
-    std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-    if (getIsLoaded())
-    {
-        if (!cap_url.empty())
-        {
-            std::string notes = mNotesEditor->getValue().asString();
-            LLCoros::instance().launch("putAgentUserInfoCoro",
-                boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", notes)));
-        }
-        else
-        {
-            LL_WARNS() << "Failed to update notes, no cap found" << LL_ENDL;
-        }
-    }
-}
-
 void LLPanelProfileNotes::setNotesText(const std::string &text)
 {
     mSaveChanges->setEnabled(FALSE);
@@ -1993,6 +1989,20 @@ void LLPanelProfileNotes::onSaveNotesChanges()
     {
         LLCoros::instance().launch("putAgentUserInfoCoro",
             boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes)));
+        
+
+        LLFloater* floater_profile = LLFloaterReg::findInstance("profile", LLSD().with("id", getAvatarId()));
+        if (!floater_profile)
+        {
+            return;
+        }
+
+        LLPanel* panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
+        LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
+        if (panel_sl)
+        {
+            panel_sl->setNotesSnippet(mCurrentNotes);
+        }
     }
     else
     {
