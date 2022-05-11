@@ -66,14 +66,31 @@ public:
 	void asLLSD(LLSD& sd) const;
 	
 
-	S32 mFatalErrorCount;
-	S32 mWarningCount;
-    S32 mLoopCount; // Presence of folders whose ansestors loop onto themselves
-    S32 mOrphanedCount; // Missing or orphaned items, links and folders
-	bool mInitialized;
-	bool mFatalNoRootFolder;
-	bool mFatalNoLibraryRootFolder;
-	bool mFatalQADebugMode;
+	S32 mWarningCount{0};
+	S32 mWarningCategoryMapSize{0};
+	S32 mWarningNullCat{0};
+	S32 mWarningUnknownAncestorStatus{0};
+	S32 mWarningCatIDIndexMismatch{0};
+	S32 mWarningNullParent{0};
+	S32 mWarningDirectDescendents{0};
+	S32 mWarningInvalidDescendentCount{0};
+	S32 mWarningNullItemAtIndex{0};
+	S32 mWarningWrongParentForItem{0};
+	S32 mWarningItemNotInTopMap{0};
+	S32 mWarningTopmostAncestorNotFound{0};
+	S32 mWarningTopmostAncestorNotRecognized{0};
+	S32 mWarningItemIDMismatch{0};
+	S32 mWarningMissingSystemFolderCanCreate{0};
+	S32 mWarningNonFatalSystemDuplicateUnderRoot{0};
+	S32 mWarningSystemDuplicateElsewhere{0};
+    S32 mLoopCount{0}; // Presence of folders whose ancestors loop onto themselves
+    S32 mOrphanedCount{0}; // Missing or orphaned items, links and folders
+	bool mInitialized{false};
+	S32 mFatalErrorCount{0};
+	bool mFatalNoRootFolder{false};
+	S32 mFatalSystemDuplicate{0};
+	bool mFatalNoLibraryRootFolder{false};
+	bool mFatalQADebugMode{false};
 	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
 	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
 };
@@ -286,13 +303,13 @@ public:
 	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
     
-    enum EAnscestorResult{
-        ANSCESTOR_OK = 0,
-        ANSCESTOR_MISSING = 1,
-        ANSCESTOR_LOOP = 2,
+    enum EAncestorResult{
+        ANCESTOR_OK = 0,
+        ANCESTOR_MISSING = 1,
+        ANCESTOR_LOOP = 2,
     };
 	// Follow parent chain to the top.
-    EAnscestorResult getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
+    EAncestorResult getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
 
 	//--------------------------------------------------------------------
 	// Find
