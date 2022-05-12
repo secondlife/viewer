@@ -157,7 +157,6 @@ std::ostream& operator<<(std::ostream& os, const LLInventoryValidationInfo& v)
 void LLInventoryValidationInfo::asLLSD(LLSD& sd) const
 {
 	sd["fatal_error_count"] = mFatalErrorCount;
-	sd["warning_count"] = mWarningCount;
     sd["loop_count"] = mLoopCount;
     sd["orphaned_count"] = mOrphanedCount;
 	sd["initialized"] = mInitialized;
@@ -165,25 +164,19 @@ void LLInventoryValidationInfo::asLLSD(LLSD& sd) const
 	sd["fatal_no_root_folder"] = mFatalNoRootFolder;
 	sd["fatal_no_library_root_folder"] = mFatalNoLibraryRootFolder;
 	sd["fatal_qa_debug_mode"] = mFatalQADebugMode;
+
+	sd["warning_count"] = mWarningCount;
 	if (mWarningCount>0)
 	{
 		sd["warnings"] = LLSD::emptyArray();
-		sd["warnings"]["category_map_size"] = mWarningCategoryMapSize;
-		sd["warnings"]["null_cat"] = mWarningNullCat;
-		sd["warnings"]["unknown_ancestor_status"] = mWarningUnknownAncestorStatus;
-		sd["warnings"]["cat_id_index_mismatch"] = mWarningCatIDIndexMismatch;
-		sd["warnings"]["null_parent"] = mWarningNullParent;
-		sd["warnings"]["direct_descendents"] = mWarningDirectDescendents;
-		sd["warnings"]["invalid_descendent_count"] = mWarningInvalidDescendentCount;
-		sd["warnings"]["null_item_at_index"] = mWarningNullItemAtIndex;
-		sd["warnings"]["wrong_parent_for_item"] = mWarningWrongParentForItem;
-		sd["warnings"]["item_not_in_top_map"] = mWarningItemNotInTopMap;
-		sd["warnings"]["topmost_ancestor_not_found"] = mWarningTopmostAncestorNotFound;
-		sd["warnings"]["topmost_ancestor_not_recognized"] = mWarningTopmostAncestorNotRecognized;
-		sd["warnings"]["item_id_mismatch"] = mWarningItemIDMismatch;
-		sd["warnings"]["missing_system_folder_can_create"] = mWarningMissingSystemFolderCanCreate;
-		sd["warnings"]["non_fatal_system_duplicate_under_root"] = mWarningNonFatalSystemDuplicateUnderRoot;
-		sd["warnings"]["non_fatal_system_duplicate_elsewhere"] = mWarningSystemDuplicateElsewhere;
+		for (auto const& it : mWarnings)
+		{
+			S32 val =LLSD::Integer(it.second);
+			if (val>0)
+			{
+				sd["warnings"][it.first] = val;
+			}
+		}
 	}
 	if (mMissingRequiredSystemFolders.size()>0)
 	{
@@ -3912,8 +3905,8 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 	LLPointer<LLInventoryValidationInfo> validation_info = new LLInventoryValidationInfo;
 	S32 fatal_errs = 0;
 	S32 warning_count= 0;
-    S32 loops = 0;
-    S32 orphaned = 0;
+    S32 loop_count = 0;
+    S32 orphaned_count = 0;
 
 	if (getRootFolderID().isNull())
 	{
@@ -3935,7 +3928,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		LL_INFOS("Inventory") << "unexpected sizes: cat map size " << mCategoryMap.size()
 							  << " parent/child " << mParentChildCategoryTree.size() << LL_ENDL;
 
-		validation_info->mWarningCategoryMapSize++;
+		validation_info->mWarnings["category_map_size"]++;
 		warning_count++;
 	}
 	S32 cat_lock = 0;
@@ -3955,7 +3948,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		if (!cat)
 		{
 			LL_WARNS("Inventory") << "null cat" << LL_ENDL;
-			validation_info->mWarningNullCat++;
+			validation_info->mWarnings["null_cat"]++;
 			warning_count++;
 			continue;
 		}
@@ -3965,16 +3958,16 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
         switch (res)
         {
         case ANCESTOR_MISSING:
-            orphaned++;
+            orphaned_count++;
             break;
         case ANCESTOR_LOOP:
-            loops++;
+            loop_count++;
             break;
         case ANCESTOR_OK:
             break;
         default:
             LL_WARNS("Inventory") << "Unknown ancestor error for " << cat_id << LL_ENDL;
-			validation_info->mWarningUnknownAncestorStatus++;
+			validation_info->mWarnings["unknown_ancestor_status"]++;
             warning_count++;
             break;
         }
@@ -3982,7 +3975,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		if (cat_id != cat->getUUID())
 		{
 			LL_WARNS("Inventory") << "cat id/index mismatch " << cat_id << " " << cat->getUUID() << LL_ENDL;
-			validation_info->mWarningCatIDIndexMismatch++;
+			validation_info->mWarnings["cat_id_index_mismatch"]++;
 			warning_count++;
 		}
 
@@ -3993,7 +3986,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				LL_WARNS("Inventory") << "cat " << cat_id << " has no parent, but is not root ("
 									  << getRootFolderID() << ") or library root ("
 									  << getLibraryRootFolderID() << ")" << LL_ENDL;
-				validation_info->mWarningNullParent++;
+				validation_info->mWarnings["null_parent"]++;
 				warning_count++;
 			}
 		}
@@ -4003,7 +3996,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		if (!cats || !items)
 		{
 			LL_WARNS("Inventory") << "invalid direct descendents for " << cat_id << LL_ENDL;
-			validation_info->mWarningDirectDescendents++;
+			validation_info->mWarnings["direct_descendents"]++;
 			warning_count++;
 			continue;
 		}
@@ -4022,7 +4015,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 									  << " cached " << cat->getDescendentCount()
 									  << " expected " << cats->size() << "+" << items->size()
 									  << "=" << cats->size() +items->size() << LL_ENDL;
-				validation_info->mWarningInvalidDescendentCount++;
+				validation_info->mWarnings["invalid_descendent_count"]++;
 				warning_count++;
 			}
 		}
@@ -4047,7 +4040,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			if (!item)
 			{
 				LL_WARNS("Inventory") << "null item at index " << i << " for cat " << cat_id << LL_ENDL;
-				validation_info->mWarningNullItemAtIndex++;
+				validation_info->mWarnings["null_item_at_index"]++;
 				warning_count++;
 				continue;
 			}
@@ -4059,7 +4052,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				LL_WARNS("Inventory") << "wrong parent for " << item_id << " found "
 									  << item->getParentUUID() << " expected " << cat_id
 									  << LL_ENDL;
-				validation_info->mWarningWrongParentForItem++;
+				validation_info->mWarnings["wrong_parent_for_item"]++;
 				warning_count++;
 			}
 
@@ -4070,7 +4063,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			{
 				LL_WARNS("Inventory") << "item " << item_id << " found as child of "
 									  << cat_id << " but not in top level mItemMap" << LL_ENDL;
-				validation_info->mWarningItemNotInTopMap++;
+				validation_info->mWarnings["item_not_in_top_map"]++;
 				warning_count++;
 			}
 			else
@@ -4089,7 +4082,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			if (found != ANCESTOR_OK)
 			{
 				LL_WARNS("Inventory") << "unable to find topmost ancestor for " << item_id << LL_ENDL;
-				validation_info->mWarningTopmostAncestorNotFound++;
+				validation_info->mWarnings["topmost_ancestor_not_found"]++;
 				warning_count++;
 			}
 			else
@@ -4101,7 +4094,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 										  << " got " << topmost_ancestor_id
 										  << " expected " << getRootFolderID()
 										  << " or " << getLibraryRootFolderID() << LL_ENDL;
-					validation_info->mWarningTopmostAncestorNotRecognized++;
+					validation_info->mWarnings["topmost_ancestor_not_recognized"]++;
 					warning_count++;
 				}
 			}
@@ -4118,7 +4111,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			{
 				LL_WARNS("Inventory") << "cat " << cat_id << " name [" << cat->getName()
 									  << "] orphaned - no child cat array for alleged parent " << parent_id << LL_ENDL;
-                orphaned++;
+                orphaned_count++;
 			}
 			else
 			{
@@ -4136,7 +4129,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				{
 					LL_WARNS("Inventory") << "cat " << cat_id << " name [" << cat->getName()
 										  << "] orphaned - not found in child cat array of alleged parent " << parent_id << LL_ENDL;
-                    orphaned++;
+                    orphaned_count++;
 				}
 			}
 		}
@@ -4178,7 +4171,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		if (item->getUUID() != item_id)
 		{
 			LL_WARNS("Inventory") << "item_id " << item_id << " does not match " << item->getUUID() << LL_ENDL;
-			validation_info->mWarningItemIDMismatch++;
+			validation_info->mWarnings["item_id_mismatch"]++;
 			warning_count++;
 		}
 
@@ -4186,7 +4179,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		if (parent_id.isNull())
 		{
 			LL_WARNS("Inventory") << "item " << item_id << " name [" << item->getName() << "] has null parent id!" << LL_ENDL;
-            orphaned++;
+            orphaned_count++;
 		}
 		else
 		{
@@ -4197,7 +4190,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			{
 				LL_WARNS("Inventory") << "item " << item_id << " name [" << item->getName()
 									  << "] orphaned - alleged parent has no child items list " << parent_id << LL_ENDL;
-                orphaned++;
+                orphaned_count++;
 			}
 			else
 			{
@@ -4214,7 +4207,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				{
 					LL_WARNS("Inventory") << "item " << item_id << " name [" << item->getName()
 										  << "] orphaned - not found as child of alleged parent " << parent_id << LL_ENDL;
-                    orphaned++;
+                    orphaned_count++;
 				}
 			}
 				
@@ -4232,18 +4225,18 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				LL_WARNS("Inventory") << "link " << item->getUUID() << " type " << item->getActualType()
 									  << " missing backlink info at target_id " << target_id
 									  << LL_ENDL;
-                orphaned++;
+                orphaned_count++;
 			}
 			// Links should have referents.
 			if (item->getActualType() == LLAssetType::AT_LINK && !target_item)
 			{
 				LL_WARNS("Inventory") << "broken item link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
-                orphaned++;
+                orphaned_count++;
 			}
 			else if (item->getActualType() == LLAssetType::AT_LINK_FOLDER && !target_cat)
 			{
 				LL_WARNS("Inventory") << "broken folder link " << item->getName() << " id " << item->getUUID() << LL_ENDL;
-                orphaned++;
+                orphaned_count++;
 			}
 			if (target_item && target_item->getIsLinkType())
 			{
@@ -4322,7 +4315,7 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 				{
 					// Can create, and will when needed.
 					// (Not sure this is really a warning, but worth logging)
-					validation_info->mWarningMissingSystemFolderCanCreate++;
+					validation_info->mWarnings["missing_system_folder_can_create"]++;
 					warning_count++;
 				}
 			}
@@ -4342,14 +4335,14 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
                     // For automatic folders it's not a fatal issue and shouldn't
                     // break inventory or other functionality further
                     // Exception: FT_SETTINGS is not automatic, but only deserves a warning.
-					validation_info->mWarningNonFatalSystemDuplicateUnderRoot++;
+					validation_info->mWarnings["non_fatal_system_duplicate_under_root"]++;
                     warning_count++;
                 }
 			}
 			if (count_elsewhere > 0)
 			{
 				LL_WARNS("Inventory") << "Found " << count_elsewhere << " extra folders of type " << ft << " outside of root" << LL_ENDL;
-				validation_info->mWarningSystemDuplicateElsewhere++;
+				validation_info->mWarnings["non_fatal_system_duplicate_elsewhere"]++;
 				warning_count++;
 			}
 		}
@@ -4376,8 +4369,8 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 
 	validation_info->mFatalErrorCount = fatal_errs;
 	validation_info->mWarningCount = warning_count;
-    validation_info->mLoopCount = loops;
-    validation_info->mOrphanedCount = orphaned;
+    validation_info->mLoopCount = loop_count;
+    validation_info->mOrphanedCount = orphaned_count;
 
 	return validation_info; 
 }

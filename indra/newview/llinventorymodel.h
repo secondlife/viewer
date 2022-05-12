@@ -65,32 +65,19 @@ public:
 	void toOstream(std::ostream& os) const;
 	void asLLSD(LLSD& sd) const;
 	
-
+	bool mInitialized{false};
 	S32 mWarningCount{0};
-	S32 mWarningCategoryMapSize{0};
-	S32 mWarningNullCat{0};
-	S32 mWarningUnknownAncestorStatus{0};
-	S32 mWarningCatIDIndexMismatch{0};
-	S32 mWarningNullParent{0};
-	S32 mWarningDirectDescendents{0};
-	S32 mWarningInvalidDescendentCount{0};
-	S32 mWarningNullItemAtIndex{0};
-	S32 mWarningWrongParentForItem{0};
-	S32 mWarningItemNotInTopMap{0};
-	S32 mWarningTopmostAncestorNotFound{0};
-	S32 mWarningTopmostAncestorNotRecognized{0};
-	S32 mWarningItemIDMismatch{0};
-	S32 mWarningMissingSystemFolderCanCreate{0};
-	S32 mWarningNonFatalSystemDuplicateUnderRoot{0};
-	S32 mWarningSystemDuplicateElsewhere{0};
+	std::map<std::string,U32> mWarnings;
+
     S32 mLoopCount{0}; // Presence of folders whose ancestors loop onto themselves
     S32 mOrphanedCount{0}; // Missing or orphaned items, links and folders
-	bool mInitialized{false};
+
 	S32 mFatalErrorCount{0};
 	bool mFatalNoRootFolder{false};
 	S32 mFatalSystemDuplicate{0};
 	bool mFatalNoLibraryRootFolder{false};
 	bool mFatalQADebugMode{false};
+
 	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
 	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
 };
