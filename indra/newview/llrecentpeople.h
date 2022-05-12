@@ -62,9 +62,7 @@ public:
 	 * @param id avatar to add.
 	 *
 	 * @param userdata additional information about last interaction party.
-	 *				   For example when last interaction party is not an avatar
-	 *				   but an avaline caller, additional info (such as phone
-	 *				   number, session id and etc.) should be added.
+	 *				   For example session id can be added.
 	 *
 	 * @return false if the avatar is in the list already, true otherwise
 	 */
@@ -97,13 +95,6 @@ public:
 	const LLSD& getData(const LLUUID& id) const;
 
 	/**
-	 * Checks whether specific participant is an avaline caller
-	 *
-	 * @param id identifier of specific participant
-	 */
-	bool isAvalineCaller(const LLUUID& id) const;
-
-	/**
 	 * Set callback to be called when the list changed.
 	 * 
 	 * Multiple callbacks can be set.
@@ -121,8 +112,6 @@ public:
 	F32 getArrivalTimeByID(const LLUUID& id);
 
 private:
-
-	const LLUUID& getIDByPhoneNumber(const LLSD& userdata);
 
 	typedef std::map<LLUUID, LLSD> recent_people_t;
 	recent_people_t		mPeople;

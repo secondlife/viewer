@@ -33,10 +33,11 @@
 #include "llviewermenu.h" 
 
 // linden library includes
-#include "llavatarnamecache.h"	// IDEVO
+#include "llavatarnamecache.h"  // IDEVO (I Are Not Men!)
+#include "llcombobox.h"
+#include "llcoros.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llcombobox.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -93,6 +94,7 @@
 #include "llmarketplacefunctions.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h"
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
@@ -2395,6 +2397,7 @@ class LLAdvancedForceErrorLlerror : public view_listener_t
 		return true;
 	}
 };
+
 class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2402,6 +2405,22 @@ class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 		force_error_bad_memory_access(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorBadMemoryAccessCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorBadMemoryAccessCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_bad_memory_access(NULL);
+            });
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorInfiniteLoop : public view_listener_t
@@ -2422,6 +2441,22 @@ class LLAdvancedForceErrorSoftwareException : public view_listener_t
 	}
 };
 
+class LLAdvancedForceErrorSoftwareExceptionCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorSoftwareExceptionCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_software_exception(NULL);
+            });
+        return true;
+    }
+};
+
 class LLAdvancedForceErrorDriverCrash : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2429,15 +2464,6 @@ class LLAdvancedForceErrorDriverCrash : public view_listener_t
 		force_error_driver_crash(NULL);
 		return true;
 	}
-};
-
-class LLAdvancedForceErrorCoroutineCrash : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-        force_error_coroutine_crash(NULL);
-        return true;
-    }
 };
 
 class LLAdvancedForceErrorThreadCrash : public view_listener_t
@@ -5306,12 +5332,10 @@ class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
 	{
 		bool returnValue = false;
 
-		if (LLPathfindingManager::getInstance() != NULL)
-		{
-			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
-			returnValue = (rebakeInstance->canRebakeRegion() &&
-				(rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available));
-		}
+        if (LLNavigationBar::instanceExists())
+        {
+            returnValue = LLNavigationBar::getInstance()->isRebakeNavMeshAvailable();
+        }
 		return returnValue;
 	}
 };
@@ -8192,11 +8216,6 @@ void force_error_driver_crash(void *)
     LLAppViewer::instance()->forceErrorDriverCrash();
 }
 
-void force_error_coroutine_crash(void *)
-{
-    LLAppViewer::instance()->forceErrorCoroutineCrash();
-}
-
 void force_error_thread_crash(void *)
 {
     LLAppViewer::instance()->forceErrorThreadCrash();
@@ -9372,10 +9391,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
 	view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
+	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
+	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
-    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
 

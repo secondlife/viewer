@@ -1469,6 +1469,8 @@ bool LLAppViewer::doFrame()
 		mainloop.post(newFrame);
 		// give listeners a chance to run
 		llcoro::suspend();
+		// if one of our coroutines threw an uncaught exception, rethrow it now
+		LLCoros::instance().rethrow();
 
 		if (!LLApp::isExiting())
 		{
@@ -3214,9 +3216,18 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : "Undefined";
 	if(LLVoiceClient::getInstance()->voiceEnabled())
 	{
-		LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        LLVoiceVersionInfo version = LLVoiceClient::getInstance()->getVersion();
+        const std::string build_version = version.mBuildVersion;
 		std::ostringstream version_string;
-		version_string << version.serverType << " " << version.serverVersion << std::endl;
+        if (std::equal(build_version.begin(), build_version.begin() + version.serverVersion.size(),
+                       version.serverVersion.begin()))
+        {  // Normal case: Show type and build version.
+            version_string << version.serverType << " " << build_version << std::endl;
+        }
+        else
+        {  // Mismatch: Show both versions.
+            version_string << version.serverVersion << "/" << build_version << std::endl;
+        }
 		info["VOICE_VERSION"] = version_string.str();
 	}
 	else
@@ -4177,6 +4188,15 @@ U32 LLAppViewer::getTextureCacheVersion()
 }
 
 //static
+U32 LLAppViewer::getDiskCacheVersion()
+{
+    // Viewer disk cache version intorduced in Simple Cache Viewer, change if the cache format changes.
+    const U32 DISK_CACHE_VERSION = 1;
+
+    return DISK_CACHE_VERSION ;
+}
+
+//static
 U32 LLAppViewer::getObjectCacheVersion()
 {
 	// Viewer object cache version, change if object update
@@ -4205,12 +4225,16 @@ bool LLAppViewer::initCache()
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
+    bool remove_vfs_files = false;
 	if (gSavedSettings.getS32("LocalCacheVersion") != LLAppViewer::getTextureCacheVersion())
 	{
 		texture_cache_mismatch = true;
 		if(!read_only)
 		{
 			gSavedSettings.setS32("LocalCacheVersion", LLAppViewer::getTextureCacheVersion());
+
+            //texture cache version was bumped up in Simple Cache Viewer, and at this point old vfs files are not needed
+            remove_vfs_files = true;   
 		}
 	}
 
@@ -4256,7 +4280,19 @@ bool LLAppViewer::initCache()
 
 	if (!read_only)
 	{
-		if (mPurgeCache)
+        if (gSavedSettings.getS32("DiskCacheVersion") != LLAppViewer::getDiskCacheVersion())
+        {
+            LLDiskCache::getInstance()->clearCache();
+            remove_vfs_files = true;
+            gSavedSettings.setS32("DiskCacheVersion", LLAppViewer::getDiskCacheVersion());
+        }
+
+        if (remove_vfs_files)
+        {
+            LLDiskCache::getInstance()->removeOldVFSFiles();
+        }
+        
+        if (mPurgeCache)
 		{
 			LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 			purgeCache();
@@ -5318,7 +5354,7 @@ void LLAppViewer::disconnectViewer()
 		gFloaterView->restoreAll();
 	}
 
-	if (LLSelectMgr::getInstance())
+	if (LLSelectMgr::instanceExists())
 	{
 		LLSelectMgr::getInstance()->deselectAll();
 	}
@@ -5429,12 +5465,6 @@ void LLAppViewer::forceErrorDriverCrash()
 {
    	LL_WARNS() << "Forcing a deliberate driver crash" << LL_ENDL;
 	glDeleteTextures(1, NULL);
-}
-
-void LLAppViewer::forceErrorCoroutineCrash()
-{
-    LL_WARNS() << "Forcing a crash in LLCoros" << LL_ENDL;
-    LLCoros::instance().launch("LLAppViewer::crashyCoro", [] {throw LLException("A deliberate crash from LLCoros"); });
 }
 
 void LLAppViewer::forceErrorThreadCrash()

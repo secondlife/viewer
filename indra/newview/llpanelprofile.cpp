@@ -30,6 +30,7 @@
 #include "llagent.h"
 #include "llavataractions.h"
 #include "llfloaterreg.h"
+#include "llfloaterreporter.h"
 #include "llcommandhandler.h"
 #include "llnotificationsutil.h"
 #include "llpanelpicks.h"
@@ -178,6 +179,22 @@ public:
 			}
 			return true;
 		}
+
+        // reportAbuse is here due to convoluted avatar handling
+        // in LLScrollListCtrl and LLTextBase
+        if (verb == "reportAbuse" && web == NULL) 
+        {
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get(avatar_id, &av_name))
+            {
+                LLFloaterReporter::showFromAvatar(avatar_id, av_name.getCompleteName());
+            }
+            else
+            {
+                LLFloaterReporter::showFromAvatar(avatar_id, "not avaliable");
+            }
+            return true;
+        }
 		return false;
 	}
 };

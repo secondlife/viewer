@@ -122,6 +122,7 @@ public:
 
 	static U32 getTextureCacheVersion() ;
 	static U32 getObjectCacheVersion() ;
+    static U32 getDiskCacheVersion() ;
 
 	const std::string& getSerialNumber() { return mSerialNumber; }
 	
@@ -153,7 +154,6 @@ public:
     virtual void forceErrorInfiniteLoop();
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
-    virtual void forceErrorCoroutineCrash();
     virtual void forceErrorThreadCrash();
 
 	// The list is found in app_settings/settings_files.xml

@@ -19,7 +19,7 @@
      layout="topleft"
      left="60"
      name="screenshot"
-     top="15"
+     top="20"
      width="220" />
     <text
      type="string"
