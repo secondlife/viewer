@@ -23,7 +23,7 @@
      use_ellipses="true"
      width="380"
      wrap="true">
-      The name you give your avatar is called your Display Name. You can change it once a week.
+      Your display name is what other people see above your head. It is different from your login name. You can change it once a week.
     </text>
 	<text
      type="string"

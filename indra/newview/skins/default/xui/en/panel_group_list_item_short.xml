@@ -54,11 +54,25 @@
      use_ellipses="true"
     />
     <button
+     name="visibility_btn"
+     tool_tip="Toogle visibility in profile"
+     top_delta="-1"
+     left_pad="3"
+     right="-53"
+     height="14"
+     width="20"
+     follows="right"
+     image_pressed="Profile_Search_Visibility_Dark"
+     image_unselected="Profile_Search_Visibility_Light"
+     tab_stop="false"
+     visible="false"
+    />
+    <button
      name="info_btn"
      tool_tip="More info"
-     top_delta="-2"
+     top_delta="-1"
      left_pad="3"
-     right="-31"
+     right="-30"
      height="16"
      width="16"
      follows="right"

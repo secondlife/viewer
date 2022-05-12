@@ -506,6 +506,9 @@ with the same filename but different name
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
   
+  <texture name="Profile_Search_Visibility_Dark" file_name="icons/Profile_Search_Visibility_Dark.png" preload="true"/>
+  <texture name="Profile_Search_Visibility_Light" file_name="icons/Profile_Search_Visibility_Light.png" preload="true"/>
+  
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />

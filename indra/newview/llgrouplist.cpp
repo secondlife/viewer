@@ -400,6 +400,8 @@ LLGroupListItem::LLGroupListItem(bool for_agent, bool show_icons)
 mGroupIcon(NULL),
 mGroupNameBox(NULL),
 mInfoBtn(NULL),
+mProfileBtn(NULL),
+mVisibilityBtn(NULL),
 mGroupID(LLUUID::null),
 mForAgent(for_agent)
 {
@@ -434,7 +436,11 @@ BOOL  LLGroupListItem::postBuild()
 	mInfoBtn = getChild<LLButton>("info_btn");
 	mInfoBtn->setClickedCallback(boost::bind(&LLGroupListItem::onInfoBtnClick, this));
 
-	childSetAction("profile_btn", boost::bind(&LLGroupListItem::onProfileBtnClick, this));
+    mProfileBtn = getChild<LLButton>("profile_btn");
+    mProfileBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onProfileBtnClick(); });
+
+    mVisibilityBtn = getChild<LLButton>("visibility_btn");
+    mVisibilityBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onVisibilityBtnClick(); });
 
 	return TRUE;
 }
@@ -453,7 +459,11 @@ void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 	if (mGroupID.notNull()) // don't show the info button for the "none" group
 	{
 		mInfoBtn->setVisible(true);
-		getChildView("profile_btn")->setVisible( true);
+        mProfileBtn->setVisible(true);
+        if (mForAgent)
+        {
+            mVisibilityBtn->setVisible(true);
+        }
 	}
 
 	LLPanel::onMouseEnter(x, y, mask);
@@ -463,7 +473,8 @@ void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	getChildView("hovered_icon")->setVisible( false);
 	mInfoBtn->setVisible(false);
-	getChildView("profile_btn")->setVisible( false);
+    mVisibilityBtn->setVisible(false);
+    mProfileBtn->setVisible(false);
 
 	LLPanel::onMouseLeave(x, y, mask);
 }
@@ -551,6 +562,17 @@ void LLGroupListItem::onInfoBtnClick()
 void LLGroupListItem::onProfileBtnClick()
 {
 	LLGroupActions::show(mGroupID);
+}
+
+void LLGroupListItem::onVisibilityBtnClick()
+{
+    LLGroupData agent_gdatap;
+    if (gAgent.getGroupData(mGroupID, agent_gdatap))
+    {
+        bool new_visibility = !agent_gdatap.mListInProfile;
+        gAgent.setUserGroupFlags(mGroupID, agent_gdatap.mAcceptNotices, new_visibility);
+        setVisibleInProfile(new_visibility);
+    }
 }
 
 void LLGroupListItem::changed(LLGroupChange gc)
