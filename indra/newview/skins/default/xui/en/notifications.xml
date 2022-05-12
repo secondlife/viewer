@@ -3907,7 +3907,7 @@ Are you sure you want to return objects owned by [USER_NAME]?
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] has an invalid bit depth of [TEXTURE_BIT_DEPTH].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   <tag>fail</tag>
   </notification>
 
@@ -3918,7 +3918,7 @@ Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click 
 Couldn&apos;t set region textures:
 Terrain texture [TEXTURE_NUM] is too large at [TEXTURE_SIZE_X]x[TEXTURE_SIZE_Y].
 
-Replace texture [TEXTURE_NUM] with a 24-bit 512x512 or smaller image then click &quot;Apply&quot; again.
+Replace texture [TEXTURE_NUM] with a 24-bit [MAX_SIZE]x[MAX_SIZE] or smaller image then click &quot;Apply&quot; again.
   </notification>
 
   <notification
