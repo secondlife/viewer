@@ -842,6 +842,8 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mSeeOnMapToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
     mEditObjectsToggle->setMouseUpCallback([this](LLUICtrl*, const LLSD&) { onShowAgentPermissionsDialog(); });
 
+    getChild<LLButton>("open_notes")->setCommitCallback([this](LLUICtrl*, void*) { onOpenNotes(); }, nullptr);
+
     return TRUE;
 }
 
@@ -1614,6 +1616,23 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
     }
 }
 
+void LLPanelProfileSecondLife::onOpenNotes()
+{
+    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+    if (!parent_floater)
+    {
+        return;
+    }
+
+    LLTabContainer* tab_container = parent_floater->findChild<LLTabContainer>("panel_profile_tabs", TRUE);
+    if (!tab_container)
+    {
+        return;
+    }
+
+    tab_container->selectTabByName(PANEL_NOTES);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // LLPanelProfileWeb
 
@@ -1991,13 +2010,13 @@ void LLPanelProfileNotes::onSaveNotesChanges()
             boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), LLSD().with("notes", mCurrentNotes)));
         
 
-        LLFloater* floater_profile = LLFloaterReg::findInstance("profile", LLSD().with("id", getAvatarId()));
-        if (!floater_profile)
+        LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+        if (!parent_floater)
         {
             return;
         }
 
-        LLPanel* panel = floater_profile->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
+        LLPanel* panel = parent_floater->findChild<LLPanel>(PANEL_SECONDLIFE, TRUE);
         LLPanelProfileSecondLife *panel_sl = dynamic_cast<LLPanelProfileSecondLife*>(panel);
         if (panel_sl)
         {

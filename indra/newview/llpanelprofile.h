@@ -177,6 +177,7 @@ private:
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
+    void onOpenNotes();
 
 private:
 	typedef std::map<std::string, LLUUID> group_map_t;

@@ -403,6 +403,16 @@ Account: [ACCTTYPE]
            word_wrap="true"
            use_ellipses="true"
            allow_scroll="false"/>
+          <button
+           follows="right|bottom"
+           layout="topleft"
+           name="open_notes"
+           tooltip="Show notes"
+           image_overlay="ForwardArrow_Off"
+           height="18"
+           bottom="-5"
+           right="-5"
+           width="20" />
         </layout_panel>
 
         <layout_panel
