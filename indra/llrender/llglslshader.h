@@ -178,6 +178,7 @@ public:
 	void uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z);
 	void uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat w);
 	void uniform1iv(U32 index, U32 count, const GLint* i);
+    void uniform4iv(U32 index, U32 count, const GLint* i);
 	void uniform1fv(U32 index, U32 count, const GLfloat* v);
 	void uniform2fv(U32 index, U32 count, const GLfloat* v);
 	void uniform3fv(U32 index, U32 count, const GLfloat* v);
@@ -188,6 +189,8 @@ public:
 	void uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniform1i(const LLStaticHashedString& uniform, GLint i);
+    void uniform1iv(const LLStaticHashedString& uniform, U32 count, const GLint* v);
+    void uniform4iv(const LLStaticHashedString& uniform, U32 count, const GLint* v);
 	void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
 	void uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y);
 	void uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLfloat y, GLfloat z);

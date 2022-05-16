@@ -219,13 +219,17 @@ void LLCubeMap::initEnvironmentMap(const std::vector<LLPointer<LLImageRaw> >& ra
 
 void LLCubeMap::generateMipMaps()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
     mImages[0]->setUseMipMaps(TRUE);
     mImages[0]->setHasMipMaps(TRUE);
     enableTexture(0);
     bind();
-    mImages[0]->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    mImages[0]->setFilteringOption(LLTexUnit::TFO_BILINEAR);
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("cmgmm - glGenerateMipmap");
+        glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+    }
     gGL.getTexUnit(0)->disable();
     disable();
 }

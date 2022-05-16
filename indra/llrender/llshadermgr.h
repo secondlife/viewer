@@ -80,7 +80,7 @@ public:
         BUMP_MAP,                           //  "bumpMap"
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
-        REFLECTION_MAP,                     //  "reflectionMap"
+        REFLECTION_PROBES,                     //  "reflectionProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"

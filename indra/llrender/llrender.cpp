@@ -71,6 +71,7 @@ static const GLenum sGLTextureType[] =
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
 	GL_TEXTURE_CUBE_MAP_ARB,
+    GL_TEXTURE_CUBE_MAP_ARRAY_ARB,
 	GL_TEXTURE_2D_MULTISAMPLE,
     GL_TEXTURE_3D
 };
@@ -887,6 +888,9 @@ void LLRender::init()
     gGL.setAmbientLightColor(LLColor4::black);
 
     glCullFace(GL_BACK);
+
+    // necessary for reflection maps
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
 	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
 	{ //bind a dummy vertex array object so we're core profile compliant

@@ -780,7 +780,8 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type, GLint 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
 
     if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
-        type == GL_SAMPLER_2D_MULTISAMPLE)
+        type == GL_SAMPLER_2D_MULTISAMPLE ||
+        type == GL_SAMPLER_CUBE_MAP_ARRAY_ARB)
     {   //this here is a texture
         GLint ret = mActiveTextureChannels;
         if (size == 1)
@@ -1289,6 +1290,30 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
     }
 }
 
+void LLGLSLShader::uniform4iv(U32 index, U32 count, const GLint* v)
+{
+    if (mProgramObject)
+    {
+        if (mUniform.size() <= index)
+        {
+            LL_SHADER_UNIFORM_ERRS() << "Uniform index out of bounds." << LL_ENDL;
+            return;
+        }
+
+        if (mUniform[index] >= 0)
+        {
+            const auto& iter = mValue.find(mUniform[index]);
+            LLVector4 vec(v[0], v[1], v[2], v[3]);
+            if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+            {
+                glUniform1ivARB(mUniform[index], count, v);
+                mValue[mUniform[index]] = vec;
+            }
+        }
+    }
+}
+
+
 void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
 {
     if (mProgramObject)
@@ -1521,6 +1546,40 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
             glUniform1iARB(location, v);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform1iv(const LLStaticHashedString& uniform, U32 count, const GLint* v)
+{
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        LLVector4 vec(v[0], 0, 0, 0);
+        const auto& iter = mValue.find(location);
+        if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+            glUniform1ivARB(location, count, v);
+            mValue[location] = vec;
+        }
+    }
+}
+
+void LLGLSLShader::uniform4iv(const LLStaticHashedString& uniform, U32 count, const GLint* v)
+{
+    GLint location = getUniformLocation(uniform);
+
+    if (location >= 0)
+    {
+        LLVector4 vec(v[0], v[1], v[2], v[3]);
+        const auto& iter = mValue.find(location);
+        if (iter == mValue.end() || shouldChange(iter->second, vec) || count != 1)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_SHADER;
+            glUniform4ivARB(location, count, v);
             mValue[location] = vec;
         }
     }

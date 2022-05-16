@@ -26,9 +26,10 @@
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
 
-/*[EXTRA_CODE_HERE]*/
+#define FLT_MAX 3.402823466e+38
 
-#define REFMAP_COUNT 8
+#define REFMAP_COUNT 256
+#define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -42,12 +43,26 @@ uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
 uniform samplerCube   environmentMap;
-uniform samplerCube   reflectionMap[REFMAP_COUNT];
+uniform samplerCubeArray   reflectionProbes;
 uniform sampler2D     lightFunc;
 
-uniform int refmapCount;
+layout (std140, binding = 1) uniform ReflectionProbes
+{
+    // list of sphere based reflection probes sorted by distance to camera (closest first)
+    vec4 refSphere[REFMAP_COUNT];
+    // index  of cube map in reflectionProbes for a corresponding reflection probe
+    // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
+    // refIndex.x - cubemap channel in reflectionProbes
+    // refIndex.y - index in refNeighbor of neighbor list (index is ivec4 index, not int index)
+    // refIndex.z - number of neighbors
+    ivec4 refIndex[REFMAP_COUNT];
 
-uniform vec3 refOrigin[REFMAP_COUNT];
+    // neighbor list data (refSphere indices, not cubemap array layer)
+    ivec4 refNeighbor[1024];
+
+    // number of reflection probes present in refSphere
+    int refmapCount;
+};
 
 uniform float blur_size;
 uniform float blur_fidelity;
@@ -80,7 +95,116 @@ vec3 srgb_to_linear(vec3 c);
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
+// list of probeIndexes shader will actually use after "getRefIndex" is called
+// (stores refIndex/refSphere indices, NOT rerflectionProbes layer)
+int probeIndex[REF_SAMPLE_COUNT];
 
+// number of probes stored in probeIndex
+int probeInfluences = 0;
+
+
+// return true if probe at index i influences position pos
+bool shouldSampleProbe(int i, vec3 pos)
+{
+    vec3 delta = pos.xyz - refSphere[i].xyz;
+    float d = dot(delta, delta);
+    float r2 = refSphere[i].w;
+    r2 *= r2;
+    return d < r2;
+}
+
+// populate "probeIndex" with N probe indices that influence pos where N is REF_SAMPLE_COUNT
+// overall algorithm -- 
+void getRefIndex(vec3 pos)
+{
+    // TODO: make some sort of structure that reduces the number of distance checks
+
+    for (int i = 0; i < refmapCount; ++i)
+    {
+        // found an influencing probe
+        if (shouldSampleProbe(i, pos))
+        {
+            probeIndex[probeInfluences] = i;
+            ++probeInfluences;
+
+            int neighborIdx = refIndex[i].y;
+            if (neighborIdx != -1)
+            {
+                int neighborCount = min(refIndex[i].z, REF_SAMPLE_COUNT-1);
+
+                int count = 0;
+                while (count < neighborCount)
+                {
+                    // check up to REF_SAMPLE_COUNT-1 neighbors (neighborIdx is ivec4 index)
+
+                    int idx = refNeighbor[neighborIdx].x;
+                    if (shouldSampleProbe(idx, pos))
+                    {
+                        probeIndex[probeInfluences++] = idx;
+                        if (probeInfluences == REF_SAMPLE_COUNT)
+                        {
+                            return;
+                        }
+                    }
+                    count++;
+                    if (count == neighborCount)
+                    {
+                        return;
+                    }
+
+                    idx = refNeighbor[neighborIdx].y;
+                    if (shouldSampleProbe(idx, pos))
+                    {
+                        probeIndex[probeInfluences++] = idx;
+                        if (probeInfluences == REF_SAMPLE_COUNT)
+                        {
+                            return;
+                        }
+                    }
+                    count++;
+                    if (count == neighborCount)
+                    {
+                        return;
+                    }
+
+                    idx = refNeighbor[neighborIdx].z;
+                    if (shouldSampleProbe(idx, pos))
+                    {
+                        probeIndex[probeInfluences++] = idx;
+                        if (probeInfluences == REF_SAMPLE_COUNT)
+                        {
+                            return;
+                        }
+                    }
+                    count++;
+                    if (count == neighborCount)
+                    {
+                        return;
+                    }
+
+                    idx = refNeighbor[neighborIdx].w;
+                    if (shouldSampleProbe(idx, pos))
+                    {
+                        probeIndex[probeInfluences++] = idx;
+                        if (probeInfluences == REF_SAMPLE_COUNT)
+                        {
+                            return;
+                        }
+                    }
+                    count++;
+                    if (count == neighborCount)
+                    {
+                        return;
+                    }
+
+                    ++neighborIdx;
+                }
+
+                return;
+            }
+        }
+    }
+}
 
 // from https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
 
@@ -120,12 +244,9 @@ bool intersect(const Ray &ray) const
 } */
 
 // adapted -- assume that origin is inside sphere, return distance from origin to edge of sphere
-float sphereIntersect(vec3 origin, vec3 dir, vec4 sph )
+float sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
 { 
         float t0, t1; // solutions for t if the ray intersects 
-
-        vec3 center = sph.xyz;
-        float radius2 = sph.w * sph.w;
 
         vec3 L = center - origin; 
         float tca = dot(L,dir);
@@ -139,33 +260,78 @@ float sphereIntersect(vec3 origin, vec3 dir, vec4 sph )
         return t1; 
 } 
 
+// Tap a sphere based reflection probe
+// pos - position of pixel
+// dir - pixel normal
+// lod - which mip to bias towards (lower is higher res, sharper reflections)
+// c - center of probe
+// r2 - radius of probe squared
+// i - index of probe 
+// vi - point at which reflection vector struck the influence volume, in clip space
+vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i, out vec3 vi)
+{
+    //lod = max(lod, 1);
+// parallax adjustment
+    float d = sphereIntersect(pos, dir, c, r2);
+
+    {
+        vec3 v = pos + dir * d;
+        vi = v;
+        v -= c.xyz;
+        v = env_mat * v;
+
+        float min_lod = textureQueryLod(reflectionProbes,v).y; // lower is higher res
+        return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), max(min_lod, lod)).rgb;
+        //return texture(reflectionProbes, vec4(v.xyz, refIndex[i].x)).rgb;
+    }
+}
+
 vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
 {
     float wsum = 0.0;
-
     vec3 col = vec3(0,0,0);
+    float vd2 = dot(pos,pos); // view distance squared
 
-    for (int i = 0; i < refmapCount; ++i)
-    //int i = 0;
+    for (int idx = 0; idx < probeInfluences; ++idx)
     {
-        float r = 16.0;
-        vec3 delta = pos.xyz-refOrigin[i].xyz;
-        if (length(delta) < r)
+        int i = probeIndex[idx];
+        float r = refSphere[i].w; // radius of sphere volume
+        float rr = r*r; // radius squred
+        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
+        vec3 delta = pos.xyz-refSphere[i].xyz;
+        float d2 = dot(delta,delta);
+        float r2 = r1*r1; 
+        
         {
-            float w = 1.0/max(dot(delta, delta), r);
-            w *= w;
-            w *= w;
+            vec3 vi;
+            vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, rr, i, vi);
+            
+            float w = 1.0/d2;
 
-            // parallax adjustment
-            float d = sphereIntersect(pos, dir, vec4(refOrigin[i].xyz, r));
+            float atten = 1.0-max(d2-r2, 0.0)/(rr-r2);
+            w *= atten;
 
+            col += refcol*w;
+            
+            wsum += w;
+        }
+    }
+
+    if (probeInfluences <= 1)
+    { //edge-of-scene probe or no probe influence, mix in with embiggened version of probes closest to camera 
+        for (int idx = 0; idx < 8; ++idx)
+        {
+            int i = idx;
+            vec3 delta = pos.xyz-refSphere[i].xyz;
+            float d2 = dot(delta,delta);
+            
             {
-                vec3 v = pos + dir * d;
-                v -= refOrigin[i].xyz;
-                v = env_mat * v;
-
-                float min_lod = textureQueryLod(reflectionMap[i],v).y; // lower is higher res
-                col += textureLod(reflectionMap[i], v, max(min_lod, lod)).rgb*w;
+                vec3 vi;
+                vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, d2, i, vi);
+                
+                float w = 1.0/d2;
+                w *= w;
+                col += refcol*w;
                 wsum += w;
             }
         }
@@ -174,13 +340,6 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
     if (wsum > 0.0)
     {
         col *= 1.0/wsum;
-    }
-    else
-    {
-        // this pixel not covered by a probe, fallback to "full scene" environment map
-        vec3 v = env_mat * dir;
-        float min_lod = textureQueryLod(environmentMap, v).y; // lower is higher res
-        col = textureLod(environmentMap, v, max(min_lod, lod)).rgb;
     }
     
     return col;
@@ -202,13 +361,26 @@ vec3 sampleAmbient(vec3 pos, vec3 dir, float lod)
     
     col *= 0.333333;
 
-    return col*0.6; // fudge darker
+    return col*0.8; // fudge darker
 
+}
+
+// brighten a color so that at least one component is 1
+vec3 brighten(vec3 c)
+{
+    float m = max(max(c.r, c.g), c.b);
+
+    if (m == 0)
+    {
+        return vec3(1,1,1);
+    }
+
+    return c * 1.0/m;
 }
 
 void main()
 {
-    float reflection_lods = 11; // TODO -- base this on resolution of reflection map instead of hard coding
+    float reflection_lods = 8; // TODO -- base this on resolution of reflection map instead of hard coding
 
     vec2  tc           = vary_fragcoord.xy;
     float depth        = texture2DRect(depthMap, tc.xy).r;
@@ -238,14 +410,16 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
+
+    getRefIndex(pos.xyz);
+
     calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
 
     //vec3 amb_vec = env_mat * norm.xyz;
 
-    vec3 ambenv = sampleAmbient(pos.xyz, norm.xyz, reflection_lods-1);
-    amblit = mix(ambenv, amblit, amblit);
-    color.rgb = amblit;
-    
+    vec3 ambenv = sampleAmbient(pos.xyz, norm.xyz, reflection_lods);
+    amblit = max(ambenv, amblit);
+    color.rgb = amblit*ambocc;
 
     //float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
     //ambient *= 0.5;
@@ -255,6 +429,7 @@ void main()
 
     vec3 sun_contrib = min(da, scol) * sunlit;
     color.rgb += sun_contrib;
+    color.rgb = min(color.rgb, vec3(1,1,1));
     color.rgb *= diffuse.rgb;
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
@@ -274,26 +449,23 @@ void main()
         
         float lod = (1.0-spec.a)*reflection_lods;
         vec3 reflected_color = sampleRefMap(pos.xyz, normalize(refnormpersp), lod);
-        reflected_color *= 0.5; // fudge darker, not sure where there's a multiply by two and it's late
+        reflected_color *= 0.35; // fudge darker
         float fresnel = 1.0+dot(normalize(pos.xyz), norm.xyz);
-        fresnel += spec.a;
-        fresnel *= fresnel;
-        //fresnel *= spec.a;
+        float minf = spec.a * 0.1;
+        fresnel = fresnel * (1.0-minf) + minf;
         reflected_color *= spec.rgb*min(fresnel, 1.0);
-        //reflected_color = srgb_to_linear(reflected_color);
-        vec3 mixer = clamp(color.rgb + vec3(1,1,1) - spec.rgb, vec3(0,0,0), vec3(1,1,1));
-        color.rgb = mix(reflected_color, color, mixer);
+        color.rgb += reflected_color;
     }
 
     color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
 
     if (envIntensity > 0.0)
     {  // add environmentmap
-        vec3 reflected_color = sampleRefMap(pos.xyz, normalize(refnormpersp), 0.0);
+        vec3 reflected_color = sampleRefMap(pos.xyz, normalize(refnormpersp), 0.0)*0.5; //fudge darker
         float fresnel = 1.0+dot(normalize(pos.xyz), norm.xyz);
         fresnel *= fresnel;
-        fresnel = fresnel * 0.95 + 0.05;
-        reflected_color *= fresnel;
+        fresnel = min(fresnel+envIntensity, 1.0);
+        reflected_color *= (envIntensity*fresnel)*brighten(spec.rgb);
         color = mix(color.rgb, reflected_color, envIntensity);
     }
 
@@ -311,5 +483,7 @@ void main()
 
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
+    //color = vec3(ambocc);
+    //color = ambenv;    
     frag_color.rgb = srgb_to_linear(color.rgb);
 }

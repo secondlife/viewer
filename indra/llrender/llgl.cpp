@@ -89,9 +89,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	if (gGLDebugLoggingEnabled)
 	{
 
-        if (severity != GL_DEBUG_SEVERITY_HIGH_ARB &&
-            severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
-            severity != GL_DEBUG_SEVERITY_LOW_ARB)
+        if (severity != GL_DEBUG_SEVERITY_HIGH_ARB // &&
+            //severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
+            //severity != GL_DEBUG_SEVERITY_LOW_ARB
+            )
         { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
             return;
         }
@@ -316,6 +317,15 @@ PFNGLGETUNIFORMIVARBPROC glGetUniformivARB = NULL;
 PFNGLGETSHADERSOURCEARBPROC glGetShaderSourceARB = NULL;
 PFNGLVERTEXATTRIBIPOINTERPROC glVertexAttribIPointer = NULL;
 
+// GL_ARB_uniform_buffer_object
+PFNGLGETUNIFORMINDICESPROC glGetUniformIndices = NULL;
+PFNGLGETACTIVEUNIFORMSIVPROC glGetActiveUniformsiv = NULL;
+PFNGLGETACTIVEUNIFORMNAMEPROC glGetActiveUniformName = NULL;
+PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndex = NULL;
+PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv = NULL;
+PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC glGetActiveUniformBlockName = NULL;
+PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding = NULL;
+
 #if LL_WINDOWS
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB = NULL;
 #endif
@@ -436,6 +446,7 @@ LLGLManager::LLGLManager() :
 	mHasTextureRectangle(FALSE),
 	mHasTextureMultisample(FALSE),
 	mHasTransformFeedback(FALSE),
+    mHasUniformBufferObject(FALSE),
 	mMaxSampleMaskWords(0),
 	mMaxColorTextureSamples(0),
 	mMaxDepthTextureSamples(0),
@@ -1054,6 +1065,7 @@ void LLGLManager::initExtensions()
 	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
 	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
 	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
+    mHasUniformBufferObject = ExtensionExists("GL_ARB_uniform_buffer_object", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -1286,6 +1298,10 @@ void LLGLManager::initExtensions()
 		mGLMaxVertexRange = 0;
 		mGLMaxIndexRange = 0;
 	}
+
+    // same with glTexImage3D et al
+    glTexImage3D = (PFNGLTEXIMAGE3DPROC)GLH_EXT_GET_PROC_ADDRESS("glTexImage3D");
+    glCopyTexSubImage3D = (PFNGLCOPYTEXSUBIMAGE3DPROC)GLH_EXT_GET_PROC_ADDRESS("glCopyTexSubImage3D");
 #endif // !LL_LINUX || LL_LINUX_NV_GL_HEADERS
 #if LL_LINUX_NV_GL_HEADERS
 	// nvidia headers are critically different from mesa-esque
@@ -1318,6 +1334,17 @@ void LLGLManager::initExtensions()
 		glPointParameterfARB = (PFNGLPOINTPARAMETERFARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfARB");
 		glPointParameterfvARB = (PFNGLPOINTPARAMETERFVARBPROC)GLH_EXT_GET_PROC_ADDRESS("glPointParameterfvARB");
 	}
+
+    if (mHasUniformBufferObject)
+    {
+       glGetUniformIndices = (PFNGLGETUNIFORMINDICESPROC)GLH_EXT_GET_PROC_ADDRESS("glGetUniformIndices");
+       glGetActiveUniformsiv = (PFNGLGETACTIVEUNIFORMSIVPROC)GLH_EXT_GET_PROC_ADDRESS("glGetUniformIndices");
+       glGetActiveUniformName = (PFNGLGETACTIVEUNIFORMNAMEPROC)GLH_EXT_GET_PROC_ADDRESS("glGetActiveUniformName");
+       glGetUniformBlockIndex = (PFNGLGETUNIFORMBLOCKINDEXPROC)GLH_EXT_GET_PROC_ADDRESS("glGetUniformBlockIndex");
+       glGetActiveUniformBlockiv = (PFNGLGETACTIVEUNIFORMBLOCKIVPROC)GLH_EXT_GET_PROC_ADDRESS("glGetActiveUniformBlockiv");
+       glGetActiveUniformBlockName = (PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC)GLH_EXT_GET_PROC_ADDRESS("glGetActiveUniformBlockName");
+       glUniformBlockBinding = (PFNGLUNIFORMBLOCKBINDINGPROC)GLH_EXT_GET_PROC_ADDRESS("glUniformBlockBinding");
+    }
 
     // Assume shader capabilities
     glDeleteObjectARB         = (PFNGLDELETEOBJECTARBPROC) GLH_EXT_GET_PROC_ADDRESS("glDeleteObjectARB");

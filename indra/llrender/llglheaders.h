@@ -564,6 +564,15 @@ extern PFNGLDEBUGMESSAGEINSERTARBPROC glDebugMessageInsertARB;
 extern PFNGLDEBUGMESSAGECALLBACKARBPROC glDebugMessageCallbackARB;
 extern PFNGLGETDEBUGMESSAGELOGARBPROC glGetDebugMessageLogARB;
 
+// GL_ARB_uniform_buffer_object
+extern PFNGLGETUNIFORMINDICESPROC glGetUniformIndices;
+extern PFNGLGETACTIVEUNIFORMSIVPROC glGetActiveUniformsiv;
+extern PFNGLGETACTIVEUNIFORMNAMEPROC glGetActiveUniformName;
+extern PFNGLGETUNIFORMBLOCKINDEXPROC glGetUniformBlockIndex;
+extern PFNGLGETACTIVEUNIFORMBLOCKIVPROC glGetActiveUniformBlockiv;
+extern PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC glGetActiveUniformBlockName;
+extern PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding;
+
 #elif LL_DARWIN
 //----------------------------------------------------------------------------
 // LL_DARWIN

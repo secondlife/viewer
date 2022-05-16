@@ -1010,9 +1010,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1bd3214ac23474ea4c869e386970a1be</string>
+              <string>c5e9a59c7cf03c88a5cb4ab0a9c21091</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/54835/510029/glext-68-darwin64-538965.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/99835/880141/glext-68-darwin64-571812.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>

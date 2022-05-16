@@ -161,6 +161,7 @@ extern LLGLSLShader			gOcclusionCubeProgram;
 extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
 extern LLGLSLShader			gSplatTextureRectProgram;
+extern LLGLSLShader			gReflectionMipProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;

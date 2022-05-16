@@ -129,6 +129,8 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
     }
 }
 
+extern BOOL gCubeSnapshot;
+
 void LLDrawPoolAlpha::renderPostDeferred(S32 pass) 
 { 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -155,7 +157,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     forwardRender();
 
     // final pass, render to depth for depth of field effects
-    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField"))
+    if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot)
     { 
         //update depth buffer sampler
         gPipeline.mScreen.flush();

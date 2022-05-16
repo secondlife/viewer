@@ -554,9 +554,12 @@ LLSpatialGroup::LLSpatialGroup(OctreeNode* node, LLSpatialPartition* part) : LLO
 	sg_assert(mOctreeNode->getListenerCount() == 0);
 	setState(SG_INITIAL_STATE_MASK);
 	gPipeline.markRebuild(this, TRUE);
+    
+    // let the reflection map manager know about this spatial group
+    mReflectionProbe = gPipeline.mReflectionMapManager.registerSpatialGroup(this);
 
-	mRadius = 1;
-	mPixelArea = 1024.f;
+    mRadius = 1;
+    mPixelArea = 1024.f;
 }
 
 void LLSpatialGroup::updateDistance(LLCamera &camera)
@@ -735,8 +738,17 @@ BOOL LLSpatialGroup::changeLOD()
 	return FALSE;
 }
 
+void LLSpatialGroup::dirtyReflectionProbe()
+{
+    if (mReflectionProbe != nullptr)
+    {
+        mReflectionProbe->dirty();
+    }
+}
+
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
+    dirtyReflectionProbe();
 	addObject((LLDrawable*)entry->getDrawable());
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -744,6 +756,7 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* 
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
+    dirtyReflectionProbe();
 	removeObject((LLDrawable*)entry->getDrawable(), TRUE);
 	LLViewerOctreeGroup::handleRemoval(node, entry);
 }
@@ -780,6 +793,8 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
+    dirtyReflectionProbe();
+
 	if (child->getListenerCount() == 0)
 	{
 		new LLSpatialGroup(child, getSpatialPartition());
@@ -792,6 +807,11 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	unbound();
 
 	assert_states_valid(this);
+}
+
+void LLSpatialGroup::handleChildRemoval(const oct_node* parent, const oct_node* child)
+{
+    dirtyReflectionProbe();
 }
 
 void LLSpatialGroup::destroyGL(bool keep_occlusion) 
@@ -1398,7 +1418,9 @@ S32 LLSpatialPartition::cull(LLCamera &camera, std::vector<LLDrawable *>* result
 	
 	return 0;
 	}
-	
+
+extern BOOL gCubeSnapshot;
+
 S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL;
@@ -1417,7 +1439,7 @@ S32 LLSpatialPartition::cull(LLCamera &camera, bool do_occlusion)
         LLOctreeCullShadow culler(&camera);
         culler.traverse(mOctree);
     }
-    else if (mInfiniteFarClip || !LLPipeline::sUseFarClip)
+    else if (mInfiniteFarClip || (!LLPipeline::sUseFarClip && !gCubeSnapshot))
     {
         LLOctreeCullNoFarClip culler(&camera);
         culler.traverse(mOctree);
@@ -1737,12 +1759,71 @@ void renderOctree(LLSpatialGroup* group)
 			}
 		}*/
 	}
-	
+
 //	LLSpatialGroup::OctreeNode* node = group->mOctreeNode;
 //	gGL.diffuseColor4f(0,1,0,1);
 //	drawBoxOutline(LLVector3(node->getCenter()), LLVector3(node->getSize()));
 }
 
+void renderReflectionProbes(LLSpatialGroup* group)
+{
+    if (group->mReflectionProbe)
+    { // draw lines from corners of object aabb to reflection probe
+
+        const LLVector4a* bounds = group->getBounds();
+        LLVector4a o = bounds[0];
+
+        gGL.flush();
+        gGL.diffuseColor4f(0, 0, 1, 1);
+        F32* c = o.getF32ptr();
+
+        const F32* bc = bounds[0].getF32ptr();
+        const F32* bs = bounds[1].getF32ptr();
+
+        // daaw blue lines from corners to center of node
+        gGL.begin(gGL.LINES);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] + bs[2]);
+
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] - bs[2]);
+        gGL.end();
+
+        F32* po = group->mReflectionProbe->mOrigin.getF32ptr();
+        //draw yellow line from center of node to reflection probe origin
+        gGL.flush();
+        gGL.diffuseColor4f(1, 1, 0, 1);
+        gGL.begin(gGL.LINES);
+        gGL.vertex3fv(c);
+        gGL.vertex3fv(po);
+        gGL.end();
+        gGL.flush();
+
+        //draw orange line from probe to neighbors
+        gGL.flush();
+        gGL.diffuseColor4f(1, 0.5f, 0, 1);
+        gGL.begin(gGL.LINES);
+        for (auto& probe : group->mReflectionProbe->mNeighbors)
+        {
+            gGL.vertex3fv(po);
+            gGL.vertex3fv(probe->mOrigin.getF32ptr());
+        }
+        gGL.end();
+        gGL.flush();
+    }
+}
 std::set<LLSpatialGroup*> visible_selected_groups;
 
 void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
@@ -3289,6 +3370,12 @@ public:
 				stop_glerror();
 			}
 
+            //draw reflection probes and links between them
+            if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_REFLECTION_PROBES))
+            {
+                renderReflectionProbes(group);
+            }
+
 			//render visibility wireframe
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 			{
@@ -3703,7 +3790,8 @@ void LLSpatialPartition::renderDebug()
 									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
 									  LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY |
-									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY)) 
+									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY |
+                                      LLPipeline::RENDER_DEBUG_REFLECTION_PROBES))
 	{
 		return;
 	}
@@ -3945,6 +4033,23 @@ LLDrawable* LLSpatialPartition::lineSegmentIntersect(const LLVector4a& start, co
 	LLDrawable* drawable = intersect.check(mOctree);
 
 	return drawable;
+}
+
+LLDrawable* LLSpatialGroup::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end,
+    BOOL pick_transparent,
+    BOOL pick_rigged,
+    S32* face_hit,                   // return the face hit
+    LLVector4a* intersection,         // return the intersection point
+    LLVector2* tex_coord,            // return the texture coordinates of the intersection point
+    LLVector4a* normal,               // return the surface normal at the intersection point
+    LLVector4a* tangent			// return the surface tangent at the intersection point
+)
+
+{
+    LLOctreeIntersect intersect(start, end, pick_transparent, pick_rigged, face_hit, intersection, tex_coord, normal, tangent);
+    LLDrawable* drawable = intersect.check(getOctreeNode());
+
+    return drawable;
 }
 
 LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset, 

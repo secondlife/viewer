@@ -31,6 +31,7 @@ include_directories(SYSTEM
 set(llrender_SOURCE_FILES
     llatmosphere.cpp
     llcubemap.cpp
+    llcubemaparray.cpp
     llfontbitmapcache.cpp
     llfontfreetype.cpp
     llfontgl.cpp
@@ -58,6 +59,7 @@ set(llrender_HEADER_FILES
 
     llatmosphere.h
     llcubemap.h
+    llcubemaparray.h
     llfontgl.h
     llfontfreetype.h
     llfontbitmapcache.h

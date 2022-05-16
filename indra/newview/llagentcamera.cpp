@@ -1188,12 +1188,18 @@ void LLAgentCamera::updateLookAt(const S32 mouse_x, const S32 mouse_y)
 
 static LLTrace::BlockTimerStatHandle FTM_UPDATE_CAMERA("Camera");
 
+extern BOOL gCubeSnapshot;
+
 //-----------------------------------------------------------------------------
 // updateCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::updateCamera()
 {
 	LL_RECORD_BLOCK_TIME(FTM_UPDATE_CAMERA);
+    if (gCubeSnapshot)
+    {
+        return;
+    }
 
 	// - changed camera_skyward to the new global "mCameraUpVector"
 	mCameraUpVector = LLVector3::z_axis;

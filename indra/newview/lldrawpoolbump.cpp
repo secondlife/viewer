@@ -735,6 +735,7 @@ void LLDrawPoolBump::renderDeferred(S32 pass)
 
 void LLDrawPoolBump::renderPostDeferred(S32 pass)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL
     for (int i = 0; i < 2; ++i)
     { // two passes -- static and rigged
         mRigged = (i == 1);

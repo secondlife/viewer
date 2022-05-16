@@ -82,6 +82,7 @@ LLGLSLShader	gOcclusionCubeProgram;
 LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
+LLGLSLShader	gReflectionMipProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gTwoTextureCompareProgram;
@@ -635,7 +636,6 @@ void LLViewerShaderMgr::setShaders()
     }
 
     if (loaded)
-
     {
         loaded = loadTransformShaders();
         if (loaded)
@@ -746,6 +746,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gCustomAlphaProgram.unload();
 	gGlowCombineProgram.unload();
 	gSplatTextureRectProgram.unload();
+    gReflectionMipProgram.unload();
 	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
 	gTwoTextureCompareProgram.unload();
@@ -3587,7 +3588,6 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		}
 	}
 
-
 	if (success)
 	{
 		gTwoTextureAddProgram.mName = "Two Texture Add Shader";
@@ -3762,6 +3762,22 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 		gAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
 		success = gAlphaMaskProgram.createShader(NULL, NULL);
 	}
+
+    if (success)
+    {
+        gReflectionMipProgram.mName = "Reflection Mip Shader";
+        gReflectionMipProgram.mShaderFiles.clear();
+        gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER_ARB));
+        gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/reflectionmipF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gReflectionMipProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gReflectionMipProgram.createShader(NULL, NULL);
+        if (success)
+        {
+            gReflectionMipProgram.bind();
+            gReflectionMipProgram.uniform1i(sScreenMap, 0);
+            gReflectionMipProgram.unbind();
+        }
+    }
 
 	if( !success )
 	{

@@ -712,8 +712,15 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	{  
         if (major_version >= 4)
         {
-            //set version to 400
-			shader_code_text[shader_code_count++] = strdup("#version 400\n");
+            //set version to 400 or 420
+            if (minor_version >= 20)
+            {
+                shader_code_text[shader_code_count++] = strdup("#version 420\n");
+            }
+            else
+            {
+                shader_code_text[shader_code_count++] = strdup("#version 400\n");
+            }
         }
         else if (major_version == 3)
         {
@@ -1155,7 +1162,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
 	mReservedUniforms.push_back("environmentMap");
-    mReservedUniforms.push_back("reflectionMap");
+    mReservedUniforms.push_back("reflectionProbes");
 	mReservedUniforms.push_back("cloud_noise_texture");
     mReservedUniforms.push_back("cloud_noise_texture_next");
 	mReservedUniforms.push_back("fullbright");

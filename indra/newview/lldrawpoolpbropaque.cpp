@@ -87,6 +87,6 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
     // TODO: handle under water?
     // if (LLPipeline::sUnderWaterRender)
     // PASS_SIMPLE or PASS_MATERIAL
-    pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    //pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 }
 

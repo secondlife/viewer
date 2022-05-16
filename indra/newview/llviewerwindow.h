@@ -69,6 +69,7 @@ class LLViewerWindowListener;
 class LLVOPartGroup;
 class LLPopupView;
 class LLCubeMap;
+class LLCubeMapArray;
 
 #define PICK_HALF_WIDTH 5
 #define PICK_DIAMETER (2 * PICK_HALF_WIDTH + 1)
@@ -365,8 +366,9 @@ public:
     
     // take a cubemap snapshot
     // origin - vantage point to take the snapshot from
-    // cubemap - cubemap to store the results
-    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMap* cubemap);
+    // cubearray - cubemap array for storing the results
+    // index - cube index in the array to use (cube index, not face-layer)
+    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face);
 
     
     // special implementation of simpleSnapshot for reflection maps

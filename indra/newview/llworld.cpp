@@ -820,7 +820,7 @@ void LLWorld::updateNetStats()
 
 void LLWorld::printPacketsLost()
 {
-	LL_INFOS() << "Simulators:" << LL_ENDL;
+	LL_INFOS() << "Simulators:" << LL_ENDL; 
 	LL_INFOS() << "----------" << LL_ENDL;
 
 	LLCircuitData *cdp = NULL;
@@ -855,6 +855,7 @@ F32 LLWorld::getLandFarClip() const
 
 void LLWorld::setLandFarClip(const F32 far_clip)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
 	static S32 const rwidth = (S32)REGION_WIDTH_U32;
 	S32 const n1 = (llceil(mLandFarClip) - 1) / rwidth;
 	S32 const n2 = (llceil(far_clip) - 1) / rwidth;

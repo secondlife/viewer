@@ -104,6 +104,7 @@ public:
 	BOOL mHasTextureRectangle;
 	BOOL mHasTextureMultisample;
 	BOOL mHasTransformFeedback;
+    BOOL mHasUniformBufferObject;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;

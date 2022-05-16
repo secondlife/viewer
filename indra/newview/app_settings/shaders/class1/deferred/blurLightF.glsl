@@ -69,36 +69,47 @@ void main()
     tc_mod *= 2.0;
     tc += ( (tc_mod - 0.5) * kern[1].z * dlt * 0.5 );
 
-    for (int i = 1; i < 4; i++)
+    // TODO: move this to kern instead of building kernel per pixel
+    vec3 k[7];
+    k[0] = kern[0];
+    k[2] = kern[1];
+    k[4] = kern[2];
+    k[6] = kern[3];
+
+    k[1] = (k[0]+k[2])*0.5f;
+    k[3] = (k[2]+k[4])*0.5f;
+    k[5] = (k[4]+k[6])*0.5f;
+    
+    for (int i = 1; i < 7; i++)
     {
-        vec2 samptc = tc + kern[i].z*dlt;
+        vec2 samptc = tc + k[i].z*dlt*2.0;
         vec3 samppos = getPosition(samptc).xyz; 
 
         float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
-            defined_weight += kern[i].xy;
+            col += texture2DRect(lightMap, samptc)*k[i].xyxx;
+            defined_weight += k[i].xy;
         }
     }
 
-    for (int i = 1; i < 4; i++)
+    for (int i = 1; i < 7; i++)
     {
-        vec2 samptc = tc - kern[i].z*dlt;
+        vec2 samptc = tc - k[i].z*dlt*2.0;
         vec3 samppos = getPosition(samptc).xyz; 
 
         float d = dot(norm.xyz, samppos.xyz-pos.xyz);// dist from plane
         
         if (d*d <= pointplanedist_tolerance_pow2)
         {
-            col += texture2DRect(lightMap, samptc)*kern[i].xyxx;
-            defined_weight += kern[i].xy;
+            col += texture2DRect(lightMap, samptc)*k[i].xyxx;
+            defined_weight += k[i].xy;
         }
     }
 
     col /= defined_weight.xyxx;
-    col.y *= col.y;
+    //col.y *= max(col.y, 0.75);
     
     frag_color = col;
 

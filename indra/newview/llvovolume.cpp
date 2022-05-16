@@ -106,6 +106,7 @@ LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
 extern BOOL gGLDebugLoggingEnabled;
+extern BOOL gCubeSnapshot;
 
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
@@ -718,7 +719,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	// Update the pixel area of all faces
 
-    if (mDrawable.isNull())
+    if (mDrawable.isNull() || gCubeSnapshot)
     {
         return;
     }
@@ -3388,6 +3389,11 @@ F32 LLVOVolume::getSpotLightPriority() const
 
 void LLVOVolume::updateSpotLightPriority()
 {
+    if (gCubeSnapshot)
+    {
+        return;
+    }
+
     F32 r = getLightRadius();
 	LLVector3 pos = mDrawable->getPositionAgent();
 
@@ -5497,6 +5503,8 @@ static inline void add_face(T*** list, U32* count, T* face)
 void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
+    llassert(!gCubeSnapshot);
+
 	if (group->changeLOD())
 	{
 		group->mLastUpdateDistance = group->mDistance;

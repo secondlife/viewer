@@ -1081,6 +1081,10 @@ U64 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_IMPOSTORS;
 	}
+    else if ("reflection probes" == info_display)
+    {
+    return LLPipeline::RENDER_DEBUG_REFLECTION_PROBES;
+    }
 	else
 	{
 		LL_WARNS() << "unrecognized feature name '" << info_display << "'" << LL_ENDL;
@@ -8304,9 +8308,9 @@ void handle_cache_clear_immediately()
 	LLNotificationsUtil::add("ConfirmClearCache", LLSD(), LLSD(), callback_clear_cache_immediately);
 }
 
-void handle_override_environment_map()
+void handle_rebuild_reflection_probes()
 {
-    gPipeline.overrideEnvironmentMap();
+    gPipeline.mReflectionMapManager.rebuild();
 }
 
 
@@ -9409,7 +9413,7 @@ void initialize_menus()
 	//Develop (clear cache immediately)
 	commit.add("Develop.ClearCache", boost::bind(&handle_cache_clear_immediately) );
     //Develop (override environment map)
-    commit.add("Develop.OverrideEnvironmentMap", boost::bind(&handle_override_environment_map));
+    commit.add("Develop.RebuildReflectionProbes", boost::bind(&handle_rebuild_reflection_probes));
 
 	// Admin >Object
 	view_listener_t::addMenu(new LLAdminForceTakeCopy(), "Admin.ForceTakeCopy");

@@ -97,6 +97,7 @@ BOOL gResizeScreenTexture = FALSE;
 BOOL gResizeShadowTexture = FALSE;
 BOOL gWindowResized = FALSE;
 BOOL gSnapshot = FALSE;
+BOOL gCubeSnapshot = FALSE;
 BOOL gShaderProfileFrame = FALSE;
 
 // This is how long the sim will try to teleport you before giving up.
@@ -193,15 +194,23 @@ void display_update_camera()
 	// Cut draw distance in half when customizing avatar,
 	// but on the viewer only.
 	F32 final_far = gAgentCamera.mDrawDistance;
-	if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode())
+    if (gCubeSnapshot)
+    {
+        final_far = gSavedSettings.getF32("RenderReflectionProbeDrawDistance");
+    }
+    else if (CAMERA_MODE_CUSTOMIZE_AVATAR == gAgentCamera.getCameraMode())
+        
 	{
 		final_far *= 0.5f;
 	}
 	LLViewerCamera::getInstance()->setFar(final_far);
 	gViewerWindow->setup3DRender();
 	
-	// Update land visibility too
-	LLWorld::getInstance()->setLandFarClip(final_far);
+    if (!gCubeSnapshot)
+    {
+        // Update land visibility too
+        LLWorld::getInstance()->setLandFarClip(final_far);
+    }
 }
 
 // Write some stats to LL_INFOS()
@@ -1046,6 +1055,112 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		gShaderProfileFrame = FALSE;
 		LLGLSLShader::finishProfile();
 	}
+}
+
+// WIP simplified copy of display() that does minimal work
+void display_cube_face()
+{
+    LL_RECORD_BLOCK_TIME(FTM_RENDER);
+    llassert(!gSnapshot);
+    llassert(!gTeleportDisplay);
+    llassert(LLPipeline::sRenderDeferred);
+    llassert(LLStartUp::getStartupState() >= STATE_PRECACHE);
+    llassert(!LLAppViewer::instance()->logoutRequestSent());
+    llassert(!gRestoreGL);
+    llassert(!gUseWireframe);
+
+    bool rebuild = false;
+
+    LLGLSDefault gls_default;
+    LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE, GL_LEQUAL);
+
+    LLVertexBuffer::unbind();
+
+    gPipeline.disableLights();
+
+    gPipeline.mBackfaceCull = TRUE;
+
+    LLViewerCamera::getInstance()->setNear(MIN_NEAR_PLANE);
+    gViewerWindow->setup3DViewport();
+
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
+    { //don't draw hud objects in this frame
+        gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD);
+    }
+
+    if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES))
+    { //don't draw hud particles in this frame
+        gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
+    }
+
+    display_update_camera();
+
+    LLSpatialGroup::sNoDelete = TRUE;
+        
+    S32 occlusion = LLPipeline::sUseOcclusion;
+    LLPipeline::sUseOcclusion = 0; // occlusion data is from main camera point of view, don't read or write it during cube snapshots
+    //gDepthDirty = TRUE; //let "real" render pipe know it can't trust the depth buffer for occlusion data
+
+    static LLCullResult result;
+    LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+    LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater();
+    gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
+
+    gGL.setColorMask(true, true);
+    glClearColor(0, 0, 0, 0);
+    gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
+        
+    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    {
+        LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+        gPipeline.stateSort(*LLViewerCamera::getInstance(), result);
+
+        if (rebuild)
+        {
+            //////////////////////////////////////
+            //
+            // rebuildPools
+            //
+            //
+            gPipeline.rebuildPools();
+            stop_glerror();
+        }
+    }
+    
+    LLPipeline::sUseOcclusion = occlusion;
+
+    LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
+
+    LLPipeline::sUnderWaterRender = LLViewerCamera::getInstance()->cameraUnderWater() ? TRUE : FALSE;
+
+    gGL.setColorMask(true, true);
+
+    gPipeline.mDeferredScreen.bindTarget();
+    glClearColor(1, 0, 1, 1);
+    gPipeline.mDeferredScreen.clear();
+        
+    gGL.setColorMask(true, false);
+
+    LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
+
+    gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
+
+    gGL.setColorMask(true, true);
+
+    gPipeline.mDeferredScreen.flush();
+       
+    gPipeline.renderDeferredLighting(&gPipeline.mScreen);
+
+    LLPipeline::sUnderWaterRender = FALSE;
+
+    // Finalize scene
+    gPipeline.renderFinalize();
+
+    LLSpatialGroup::sNoDelete = FALSE;
+    gPipeline.clearReferences();
+
+    gPipeline.rebuildGroups();
 }
 
 void render_hud_attachments()
