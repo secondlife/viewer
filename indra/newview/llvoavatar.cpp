@@ -763,6 +763,13 @@ std::string LLVOAvatar::avString() const
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
+    if (gDisconnected)
+    {
+        // If we disconected, these values are likely to be invalid and
+        // avString() might crash due to a dead sAvatarDictionary
+        return;
+    }
+
 	LL_INFOS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
 					   << "sec ]"
 					   << avString() 
