@@ -428,6 +428,13 @@ void LLViewerShaderMgr::setShaders()
         return;
     }
 
+    if (!gGLManager.mHasRequirements)
+    {
+        // Viewer will show 'hardware requirements' warning later
+        LL_INFOS("ShaderLoading") << "Not supported hardware/software" << LL_ENDL;
+        return;
+    }
+
     static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
     LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) max_texture_index), 1);
 

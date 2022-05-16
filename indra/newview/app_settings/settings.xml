@@ -8110,9 +8110,9 @@
     <string>Color4</string>
     <key>Value</key>
     <array>
-      <real>1.0</real>
-      <real>1.0</real>
-      <real>1.0</real>
+      <real>0.33</real>
+      <real>0.33</real>
+      <real>0.33</real>
       <real>1.0</real>
     </array>
   </map>

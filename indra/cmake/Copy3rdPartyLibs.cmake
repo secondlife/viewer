@@ -129,6 +129,7 @@ if(WINDOWS)
             msvcp${MSVC_VER}.dll
             msvcr${MSVC_VER}.dll
             vcruntime${MSVC_VER}.dll
+            vcruntime${MSVC_VER}_1.dll
             )
         if(EXISTS "${registry_path}/${release_msvc_file}")
             to_staging_dirs(

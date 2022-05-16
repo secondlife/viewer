@@ -733,20 +733,23 @@ bool LLGLManager::initGL()
 	glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
 	mNumTextureImageUnits = llmin(num_tex_image_units, 32);
 
-	if (LLRender::sGLCoreProfile)
-	{
-		mNumTextureUnits = llmin(mNumTextureImageUnits, MAX_GL_TEXTURE_UNITS);
-	}
-	else if (mHasMultitexture)
-	{
-		GLint num_tex_units;		
-		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num_tex_units);
-		mNumTextureUnits = llmin(num_tex_units, (GLint)MAX_GL_TEXTURE_UNITS);
-		if (mIsIntel)
-		{
-			mNumTextureUnits = llmin(mNumTextureUnits, 2);
-		}
-	}
+    if (mHasMultitexture)
+    {
+        if (LLRender::sGLCoreProfile)
+        {
+            mNumTextureUnits = llmin(mNumTextureImageUnits, MAX_GL_TEXTURE_UNITS);
+        }
+        else
+        {
+            GLint num_tex_units;
+            glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num_tex_units);
+            mNumTextureUnits = llmin(num_tex_units, (GLint)MAX_GL_TEXTURE_UNITS);
+            if (mIsIntel)
+            {
+                mNumTextureUnits = llmin(mNumTextureUnits, 2);
+            }
+        }
+    }
 	else
 	{
 		mHasRequirements = FALSE;

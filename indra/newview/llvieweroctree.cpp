@@ -564,7 +564,7 @@ void LLViewerOctreeGroup::rebound()
 		
 		group->setState(SKIP_FRUSTUM_CHECK);
 	}
-	else if (mOctreeNode->isLeaf())
+	else if (mOctreeNode->getChildCount() == 0)
 	{ //copy object bounding box if this is a leaf
 		boundObjects(TRUE, mExtents[0], mExtents[1]);
 		mBounds[0] = mObjectBounds[0];
@@ -1325,14 +1325,20 @@ LLViewerOctreePartition::LLViewerOctreePartition() :
 	
 LLViewerOctreePartition::~LLViewerOctreePartition()
 {
-	delete mOctree;
-	mOctree = NULL;
+    cleanup();
+}
+
+void LLViewerOctreePartition::cleanup()
+{
+    delete mOctree;
+    mOctree = nullptr;
 }
 
 BOOL LLViewerOctreePartition::isOcclusionEnabled()
 {
 	return mOcclusionEnabled || LLPipeline::sUseOcclusion > 2;
 }
+
 
 //-----------------------------------------------------------------------------------
 //class LLViewerOctreeCull definitions
