@@ -2847,9 +2847,17 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                         }
                     }
 
-                    
-                    attached_object->mDrawable->makeActive();
-                    attached_object->mDrawable->updateXform(TRUE);
+                    // if selecting any attachments, update all of them as non-damped
+                    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment())
+                    {
+                        gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
+                    }
+                    else
+                    {
+                        // Note: SL-17415; While most objects follow joints,
+                        // some objects get position updates from server
+                        gPipeline.updateMoveDampedAsync(attached_object->mDrawable);
+                    }
 
                     // override_bbox calls movePartition() and getSpatialPartition(),
                     // so bridge might no longer be valid, get it again.
