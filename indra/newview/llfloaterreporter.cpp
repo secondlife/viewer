@@ -663,7 +663,17 @@ void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::strin
 void LLFloaterReporter::showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description)
 {
     show(avatar_id, avatar_name);
-    setDescription(time + "\n" + description);
+
+    LLStringUtil::format_map_t args;
+    args["[MSG_TIME]"] = time;
+    args["[MSG_DESCRIPTION]"] = description;
+
+    LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
+    if (self)
+    {
+        std::string description = self->getString("chat_report_format", args);
+        self->getChild<LLUICtrl>("details_edit")->setValue(description);
+    }
 }
 
 void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
@@ -1032,14 +1042,4 @@ void LLFloaterReporter::onClose(bool app_quitting)
 {
 	mSnapshotTimer.stop();
 	gSavedPerAccountSettings.setBOOL("PreviousScreenshotForReport", app_quitting);
-}
-
-// static
-void LLFloaterReporter::setDescription(const std::string& description)
-{
-    LLFloaterReporter *self = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
-    if (self)
-    {
-        self->getChild<LLUICtrl>("details_edit")->setValue(description);
-    }
 }

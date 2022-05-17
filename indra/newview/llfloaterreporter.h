@@ -113,10 +113,8 @@ private:
 	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
 
 	void takeScreenshot(bool use_prev_screenshot = false);
-	void sendReportViaCaps(std::string url);
 	void uploadImage();
 	bool validateReport();
-	void setReporterID();
 	LLSD gatherReport();
 	void sendReportViaLegacy(const LLSD & report);
 	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
@@ -127,8 +125,6 @@ private:
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
 	void setFromAvatarID(const LLUUID& avatar_id);
 	void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
-
-    static void setDescription(const std::string& description);
 
 	static void requestAbuseCategoriesCoro(std::string url, LLHandle<LLFloater> handle);
     static void finishedARPost(const LLSD &);
