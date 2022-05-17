@@ -5150,7 +5150,6 @@ void LLPipeline::renderDebug()
 		glPointSize(1.f);
 	}
 
-
 	// Debug stuff.
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -5203,6 +5202,12 @@ void LLPipeline::renderDebug()
 	}
 
 	visible_selected_groups.clear();
+
+    //draw reflection probes and links between them
+    if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_REFLECTION_PROBES) && !hud_only)
+    {
+        mReflectionMapManager.renderDebug();
+    }
 
 	gUIProgram.bind();
 

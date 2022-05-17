@@ -10280,7 +10280,19 @@
     <key>Value</key>
     <real>64</real>
   </map>
-    <key>RenderReflectionRes</key>
+  <key>RenderReflectionProbeTextureHackID</key>
+  <map>
+    <key>Comment</key>
+    <string>HACK -- Any object with a diffuse texture with this ID will be treated as a user override reflection probe. (default is "Violet Info Hub" photo from Library)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string>6b186931-05da-eafa-a3ed-a012a33bbfb6</string>
+  </map>
+  
+  <key>RenderReflectionRes</key>
     <map>
       <key>Comment</key>
       <string>Reflection map resolution.</string>

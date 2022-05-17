@@ -1766,65 +1766,6 @@ void renderOctree(LLSpatialGroup* group)
 //	drawBoxOutline(LLVector3(node->getCenter()), LLVector3(node->getSize()));
 }
 
-void renderReflectionProbes(LLSpatialGroup* group)
-{
-    if (group->mReflectionProbe)
-    { // draw lines from corners of object aabb to reflection probe
-
-        const LLVector4a* bounds = group->getBounds();
-        LLVector4a o = bounds[0];
-
-        gGL.flush();
-        gGL.diffuseColor4f(0, 0, 1, 1);
-        F32* c = o.getF32ptr();
-
-        const F32* bc = bounds[0].getF32ptr();
-        const F32* bs = bounds[1].getF32ptr();
-
-        // daaw blue lines from corners to center of node
-        gGL.begin(gGL.LINES);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] + bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] + bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] + bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] + bs[2]);
-
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] - bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] - bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] - bs[2]);
-        gGL.vertex3fv(c);
-        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] - bs[2]);
-        gGL.end();
-
-        F32* po = group->mReflectionProbe->mOrigin.getF32ptr();
-        //draw yellow line from center of node to reflection probe origin
-        gGL.flush();
-        gGL.diffuseColor4f(1, 1, 0, 1);
-        gGL.begin(gGL.LINES);
-        gGL.vertex3fv(c);
-        gGL.vertex3fv(po);
-        gGL.end();
-        gGL.flush();
-
-        //draw orange line from probe to neighbors
-        gGL.flush();
-        gGL.diffuseColor4f(1, 0.5f, 0, 1);
-        gGL.begin(gGL.LINES);
-        for (auto& probe : group->mReflectionProbe->mNeighbors)
-        {
-            gGL.vertex3fv(po);
-            gGL.vertex3fv(probe->mOrigin.getF32ptr());
-        }
-        gGL.end();
-        gGL.flush();
-    }
-}
 std::set<LLSpatialGroup*> visible_selected_groups;
 
 void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
@@ -3371,12 +3312,6 @@ public:
 				stop_glerror();
 			}
 
-            //draw reflection probes and links between them
-            if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_REFLECTION_PROBES))
-            {
-                renderReflectionProbes(group);
-            }
-
 			//render visibility wireframe
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 			{
@@ -3791,8 +3726,7 @@ void LLSpatialPartition::renderDebug()
 									  //LLPipeline::RENDER_DEBUG_BUILD_QUEUE |
 									  LLPipeline::RENDER_DEBUG_SHADOW_FRUSTA |
 									  LLPipeline::RENDER_DEBUG_RENDER_COMPLEXITY |
-									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY |
-                                      LLPipeline::RENDER_DEBUG_REFLECTION_PROBES))
+									  LLPipeline::RENDER_DEBUG_TEXEL_DENSITY))
 	{
 		return;
 	}
@@ -3825,7 +3759,6 @@ void LLSpatialPartition::renderDebug()
 
 	LLOctreeRenderNonOccluded render_debug(camera);
 	render_debug.traverse(mOctree);
-
 
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_OCCLUSION))
 	{

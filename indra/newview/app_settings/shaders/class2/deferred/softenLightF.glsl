@@ -55,6 +55,7 @@ layout (std140, binding = 1) uniform ReflectionProbes
     // refIndex.x - cubemap channel in reflectionProbes
     // refIndex.y - index in refNeighbor of neighbor list (index is ivec4 index, not int index)
     // refIndex.z - number of neighbors
+    // refIndex.w - priority
     ivec4 refIndex[REFMAP_COUNT];
 
     // neighbor list data (refSphere indices, not cubemap array layer)
@@ -296,6 +297,7 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
     {
         int i = probeIndex[idx];
         float r = refSphere[i].w; // radius of sphere volume
+        float p = float(refIndex[i].w); // priority
         float rr = r*r; // radius squred
         float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
         vec3 delta = pos.xyz-refSphere[i].xyz;
@@ -310,7 +312,7 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
 
             float atten = 1.0-max(d2-r2, 0.0)/(rr-r2);
             w *= atten;
-
+            w *= p; // boost weight based on priority
             col += refcol*w;
             
             wsum += w;

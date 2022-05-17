@@ -274,6 +274,28 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
     return nullptr;
 }
 
+LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vobj)
+{
+    llassert(vobj != nullptr);
+
+    LLReflectionMap* probe = new LLReflectionMap();
+    probe->mViewerObject = vobj;
+    probe->mOrigin.load3(vobj->getPositionAgent().mV);
+    probe->mDirty = true;
+
+    if (gCubeSnapshot)
+    { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
+        mCreateList.push_back(probe);
+    }
+    else
+    {
+        mProbes.push_back(probe);
+    }
+
+    return probe;
+}
+
+
 S32 LLReflectionMapManager::allocateCubeIndex()
 {
     for (int i = 0; i < LL_REFLECTION_PROBE_COUNT; ++i)
@@ -513,6 +535,7 @@ void LLReflectionMapManager::setUniforms()
         rpd.refIndex[count][0] = refmap->mCubeIndex;
         llassert(nc % 4 == 0);
         rpd.refIndex[count][1] = nc / 4;
+        rpd.refIndex[count][3] = refmap->mViewerObject ? 10 : 1;
 
         S32 ni = nc; // neighbor ("index") - index into refNeighbor to write indices for current reflection probe's neighbors
         {
@@ -573,4 +596,82 @@ void LLReflectionMapManager::setUniforms()
     }
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
+}
+
+
+void renderReflectionProbe(LLReflectionMap* probe)
+{
+
+    F32* po = probe->mOrigin.getF32ptr();
+
+    //draw orange line from probe to neighbors
+    gGL.flush();
+    gGL.diffuseColor4f(1, 0.5f, 0, 1);
+    gGL.begin(gGL.LINES);
+    for (auto& neighbor : probe->mNeighbors)
+    {
+        gGL.vertex3fv(po);
+        gGL.vertex3fv(neighbor->mOrigin.getF32ptr());
+    }
+    gGL.end();
+    gGL.flush();
+
+#if 0
+    LLSpatialGroup* group = probe->mGroup;
+    if (group)
+    { // draw lines from corners of object aabb to reflection probe
+
+        const LLVector4a* bounds = group->getBounds();
+        LLVector4a o = bounds[0];
+
+        gGL.flush();
+        gGL.diffuseColor4f(0, 0, 1, 1);
+        F32* c = o.getF32ptr();
+
+        const F32* bc = bounds[0].getF32ptr();
+        const F32* bs = bounds[1].getF32ptr();
+
+        // daaw blue lines from corners to center of node
+        gGL.begin(gGL.LINES);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] + bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] + bs[2]);
+
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] + bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] + bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] + bs[0], bc[1] - bs[1], bc[2] - bs[2]);
+        gGL.vertex3fv(c);
+        gGL.vertex3f(bc[0] - bs[0], bc[1] - bs[1], bc[2] - bs[2]);
+        gGL.end();
+
+        //draw yellow line from center of node to reflection probe origin
+        gGL.flush();
+        gGL.diffuseColor4f(1, 1, 0, 1);
+        gGL.begin(gGL.LINES);
+        gGL.vertex3fv(c);
+        gGL.vertex3fv(po);
+        gGL.end();
+        gGL.flush();
+    }
+#endif
+}
+
+void LLReflectionMapManager::renderDebug()
+{
+    gDebugProgram.bind();
+
+    for (auto& probe : mProbes)
+    {
+        renderReflectionProbe(probe);
+    }
+
+    gDebugProgram.unbind();
 }

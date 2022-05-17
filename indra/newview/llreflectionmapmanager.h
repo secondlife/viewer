@@ -31,12 +31,16 @@
 #include "llcubemaparray.h"
 
 class LLSpatialGroup;
+class LLViewerObject;
 
 // number of reflection probes to keep in vram
 #define LL_REFLECTION_PROBE_COUNT 256
 
 // reflection probe resolution
 #define LL_REFLECTION_PROBE_RESOLUTION 256
+
+// reflection probe mininum scale
+#define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
 
 class alignas(16) LLReflectionMapManager
 {
@@ -63,11 +67,20 @@ public:
     // If spatial group should receive a Reflection Probe, will create one for the specified spatial group
     LLReflectionMap* registerSpatialGroup(LLSpatialGroup* group);
 
+    // presently hacked into LLViewerObject::setTE
+    // Used by LLViewerObjects that are Reflection Probes
+    // Guaranteed to not return null
+    LLReflectionMap* registerViewerObject(LLViewerObject* vobj);
+
     // force an update of all probes
     void rebuild();
 
     // called on region crossing to "shift" probes into new coordinate frame
     void shift(const LLVector4a& offset);
+
+    // debug display, called from llspatialpartition if reflection
+    // probe debug display is active
+    void renderDebug();
 
 private:
     friend class LLPipeline;
@@ -82,6 +95,7 @@ private:
     // update the neighbors of the given probe 
     void updateNeighbors(LLReflectionMap* probe);
 
+    // update UBO used for rendering
     void setUniforms();
 
     // render target for cube snapshots

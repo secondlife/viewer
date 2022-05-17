@@ -2157,7 +2157,7 @@ void LLVOVolume::setNumTEs(const U8 num_tes)
 	return ;
 }
 
-//virtual     
+//virtual
 void LLVOVolume::changeTEImage(S32 index, LLViewerTexture* imagep)
 {
 	BOOL changed = (mTEImages[index] != imagep);
@@ -5689,6 +5689,24 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 #else
                 bool is_pbr = false;
 #endif
+
+                // HACK - make this object a Reflection Probe if a certain UUID is detected
+                static LLCachedControl<std::string> reflection_probe_id(gSavedSettings, "RenderReflectionProbeTextureHackID", "");
+                if (facep->getTextureEntry()->getID() == LLUUID(reflection_probe_id))
+                {
+                    if (!vobj->mIsReflectionProbe)
+                    {
+                        vobj->mIsReflectionProbe = true;
+                        vobj->mReflectionProbe = gPipeline.mReflectionMapManager.registerViewerObject(vobj);
+                    }
+                }
+                else
+                {
+                    // not a refleciton probe any more
+                    vobj->mIsReflectionProbe = false;
+                    vobj->mReflectionProbe = nullptr;
+                }
+                // END HACK
 
 				//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
 				// batch, it will recover its vertex buffer reference from the spatial group

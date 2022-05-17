@@ -30,6 +30,7 @@
 #include "llmemory.h"
 
 class LLSpatialGroup;
+class LLViewerObject;
 
 class alignas(16) LLReflectionMap : public LLRefCount
 {
@@ -80,7 +81,12 @@ public:
     // set of any LLReflectionMaps that intersect this map (maintained by LLReflectionMapManager
     std::vector<LLReflectionMap*> mNeighbors;
 
+    // spatial group this probe is tracking (if any)
     LLSpatialGroup* mGroup = nullptr;
+
+    // viewer object this probe is tracking (if any)
+    LLViewerObject* mViewerObject = nullptr;
+
     bool mDirty = true;
 };
 

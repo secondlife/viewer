@@ -343,6 +343,13 @@ LLViewerObject::~LLViewerObject()
 {
 	deleteTEImages();
 
+    // unhook from reflection probe manager
+    if (mReflectionProbe.notNull())
+    {
+        mReflectionProbe->mViewerObject = nullptr;
+        mReflectionProbe = nullptr;
+    }
+
 	if(mInventory)
 	{
 		mInventory->clear();  // will deref and delete entries
@@ -4862,7 +4869,7 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 		
 	LLPrimitive::setTE(te, texture_entry);
 
-		const LLUUID& image_id = getTE(te)->getID();
+	const LLUUID& image_id = getTE(te)->getID();
 	LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
 	mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 

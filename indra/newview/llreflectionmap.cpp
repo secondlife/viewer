@@ -194,6 +194,11 @@ void LLReflectionMap::autoAdjustOrigin()
             }
         }
     }
+    else if (mViewerObject)
+    {
+        mOrigin.load3(mViewerObject->getPositionAgent().mV);
+        mRadius = mViewerObject->getScale().mV[0];
+    }
 }
 
 bool LLReflectionMap::intersects(LLReflectionMap* other)

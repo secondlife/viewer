@@ -43,6 +43,7 @@
 #include "llvertexbuffer.h"
 #include "llbbox.h"
 #include "llrigginginfo.h"
+#include "llreflectionmap.h"
 
 class LLAgent;			// TODO: Get rid of this.
 class LLAudioSource;
@@ -845,7 +846,7 @@ protected:
 	F32 mLinksetCost;
 	F32 mPhysicsCost;
 	F32 mLinksetPhysicsCost;
-
+    
 	bool mCostStale;
 	mutable bool mPhysicsShapeUnknown;
 
@@ -904,6 +905,11 @@ private:
 	LLUUID mAttachmentItemID; // ItemID of the associated object is in user inventory.
 	EObjectUpdateType	mLastUpdateType;
 	BOOL	mLastUpdateCached;
+
+public:
+    // reflection probe state
+    bool mIsReflectionProbe = false;  // if true, this object should register itself with LLReflectionProbeManager
+    LLPointer<LLReflectionMap> mReflectionProbe = nullptr; // reflection probe coupled to this viewer object.  If not null, should be deregistered when this object is destroyed
 };
 
 ///////////////////
