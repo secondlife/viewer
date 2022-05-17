@@ -11,6 +11,11 @@
      name="Screenshot">
         Screenshot
     </floater.string>
+    <floater.string
+     name="chat_report_format">
+Time: [MSG_TIME]
+Text: [MSG_DESCRIPTION]
+    </floater.string>
     <texture_picker
      allow_no_texture="true"
      default_image_name="None"
