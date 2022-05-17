@@ -211,9 +211,9 @@ bool LLGLTFLoader::parseMaterials()
     mSamplers.clear();
     for (auto in_sampler : mGltfModel.samplers)
     {
-        gltf_sampler sampler{ 0 };
-        sampler.magFilter = in_sampler.magFilter;
-        sampler.minFilter = in_sampler.minFilter;
+        gltf_sampler sampler;
+        sampler.magFilter = in_sampler.magFilter > 0 ? in_sampler.magFilter : GL_LINEAR;
+        sampler.minFilter = in_sampler.minFilter > 0 ? in_sampler.minFilter : GL_LINEAR;;
         sampler.wrapS     = in_sampler.wrapS;
         sampler.wrapT     = in_sampler.wrapT;
         sampler.name      = in_sampler.name; // unused
@@ -223,10 +223,10 @@ bool LLGLTFLoader::parseMaterials()
     mImages.clear();
     for (auto in_image : mGltfModel.images)
     {
-        gltf_image image{ 0 };
+        gltf_image image;
         image.numChannels     = in_image.component;
-        image.bytesPerChannel = in_image.bits >> 3;
-        image.pixelType       = in_image.pixel_type;
+        image.bytesPerChannel = in_image.bits >> 3;     // Convert bits to bytes
+        image.pixelType       = in_image.pixel_type;    // Maps exactly, i.e. TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE == GL_UNSIGNED_BYTE, etc
         image.size            = in_image.image.size();
         image.height          = in_image.height;
         image.width           = in_image.width;
@@ -250,7 +250,7 @@ bool LLGLTFLoader::parseMaterials()
     mTextures.clear();
     for (auto in_tex : mGltfModel.textures)
     {
-        gltf_texture tex{ 0 };
+        gltf_texture tex;
         tex.image_idx   = in_tex.source;
         tex.sampler_idx = in_tex.sampler;
 
@@ -266,18 +266,21 @@ bool LLGLTFLoader::parseMaterials()
     // parse each material
     for (tinygltf::Material gltf_material : mGltfModel.materials)
     {
-        gltf_render_material mat{ 0 };
+        gltf_render_material mat;
         mat.name = gltf_material.name;
 
         mat.normalScale = gltf_material.normalTexture.scale;
+        mat.hasNormalTex = gltf_material.normalTexture.index > 0;
         mat.normalTexIdx = gltf_material.normalTexture.index;
         mat.normalTexCoordIdx = gltf_material.normalTexture.texCoord;
 
         mat.occlusionScale = gltf_material.occlusionTexture.strength;
+        mat.hasOcclusionTex = gltf_material.occlusionTexture.index > 0;
         mat.occlusionTexIdx = gltf_material.occlusionTexture.index;
         mat.occlusionTexCoordIdx = gltf_material.occlusionTexture.texCoord;
 
         mat.emissiveColor.set(gltf_material.emissiveFactor.data());
+        mat.hasEmissiveTex = gltf_material.emissiveTexture.index > 0;
         mat.emissiveColorTexIdx = gltf_material.emissiveTexture.index;
         mat.emissiveColorTexCoordIdx = gltf_material.emissiveTexture.texCoord;
 
@@ -288,29 +291,31 @@ bool LLGLTFLoader::parseMaterials()
         mat.hasPBR = true;
 
         mat.pbr.baseColor.set(pbr.baseColorFactor.data());
+        mat.pbr.hasBaseTex = pbr.baseColorTexture.index > 0;
         mat.pbr.baseColorTexIdx = pbr.baseColorTexture.index;
         mat.pbr.baseColorTexCoordIdx = pbr.baseColorTexture.texCoord;
 
         mat.pbr.metalness = pbr.metallicFactor;
         mat.pbr.roughness = pbr.roughnessFactor;
+        mat.pbr.hasMRTex = pbr.metallicRoughnessTexture.index > 0;
         mat.pbr.metalRoughTexIdx = pbr.metallicRoughnessTexture.index;
         mat.pbr.metalRoughTexCoordIdx = pbr.metallicRoughnessTexture.texCoord;
 
-        if (mat.normalTexIdx         >= mTextures.size() ||
-            mat.occlusionTexIdx      >= mTextures.size() ||
-            mat.emissiveColorTexIdx  >= mTextures.size() ||
-            mat.pbr.baseColorTexIdx  >= mTextures.size() ||
-            mat.pbr.metalRoughTexIdx >= mTextures.size())
+        if ((mat.hasNormalTex    && (mat.normalTexIdx         >= mTextures.size())) ||
+            (mat.hasOcclusionTex && (mat.occlusionTexIdx      >= mTextures.size())) ||
+            (mat.hasEmissiveTex  && (mat.emissiveColorTexIdx  >= mTextures.size())) ||
+            (mat.pbr.hasBaseTex  && (mat.pbr.baseColorTexIdx  >= mTextures.size())) ||
+            (mat.pbr.hasMRTex    && (mat.pbr.metalRoughTexIdx >= mTextures.size())))
         {
             LL_WARNS("GLTF_IMPORT") << "Texture resource index error" << LL_ENDL;
             return false;
         }
 
-        if (mat.normalTexCoordIdx         > 0 ||    // May have to loosen this condition
-            mat.occlusionTexCoordIdx      > 0 ||
-            mat.emissiveColorTexCoordIdx  > 0 ||
-            mat.pbr.baseColorTexCoordIdx  > 0 ||
-            mat.pbr.metalRoughTexCoordIdx > 0)
+        if ((mat.hasNormalTex    && (mat.normalTexCoordIdx         > 2)) ||    // mesh can have up to 3 sets of UV
+            (mat.hasOcclusionTex && (mat.occlusionTexCoordIdx      > 2)) ||
+            (mat.hasEmissiveTex  && (mat.emissiveColorTexCoordIdx  > 2)) ||
+            (mat.pbr.hasBaseTex  && (mat.pbr.baseColorTexCoordIdx  > 2)) ||
+            (mat.pbr.hasMRTex    && (mat.pbr.metalRoughTexCoordIdx > 2)))
         {
             LL_WARNS("GLTF_IMPORT") << "Image texcoord index error" << LL_ENDL;
             return false;
@@ -331,6 +336,7 @@ void LLGLTFLoader::uploadMeshes()
 // TODO: convert raw index buffers to UUIDs
 void LLGLTFLoader::uploadMaterials()
 {
-    llassert(0);
+    //llassert(0);
+
 }
 

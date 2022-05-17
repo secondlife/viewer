@@ -27,8 +27,9 @@
 #ifndef LL_LLGLTFLoader_H
 #define LL_LLGLTFLoader_H
 
-#include "tinygltf\tiny_gltf.h"
+#include "tinygltf/tiny_gltf.h"
 
+#include "llglheaders.h"
 #include "llmodelloader.h"
 
 typedef struct // gltf sampler
@@ -74,6 +75,8 @@ typedef struct  // gltf_pbrMR_material
 
     U32 metalRoughTexIdx;       // always linear, roughness in G channel, metalness in B channel
     U32 metalRoughTexCoordIdx;
+
+    bool    hasBaseTex, hasMRTex;
 } gltf_pbr;
 
 typedef struct // render material
@@ -100,6 +103,7 @@ typedef struct // render material
     // TODO: Add traditional (diffuse, normal, specular) UUIDs here, or add this struct to LL_TextureEntry??
 
     bool        hasPBR;
+    bool        hasNormalTex, hasOcclusionTex, hasEmissiveTex;
     gltf_pbr    pbr;
 
 } gltf_render_material;

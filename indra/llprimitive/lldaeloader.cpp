@@ -2504,20 +2504,6 @@ bool LLDAELoader::addVolumeFacesFromDomMesh(LLModel* pModel,domMesh* mesh, LLSD&
 	return (status == LLModel::NO_ERRORS);
 }
 
-////static 
-//LLModel* LLDAELoader::loadModelFromDomMesh(domMesh *mesh)
-//{
-//	LLVolumeParams volume_params;
-//	volume_params.setType(LL_PCODE_PROFILE_SQUARE, LL_PCODE_PATH_LINE);
-//	LLModel* ret = new LLModel(volume_params, 0.f); 
-//	createVolumeFacesFromDomMesh(ret, mesh);
-//    if (ret->mLabel.empty())
-//    {
-//	    ret->mLabel = getElementLabel(mesh);
-//    }
-//    return ret;
-//}
-
 //static diff version supports creating multiple models when material counts spill
 // over the 8 face server-side limit
 //
@@ -2607,32 +2593,4 @@ bool LLDAELoader::loadModelsFromDomMesh(domMesh* mesh, std::vector<LLModel*>& mo
 	} while (volume_faces);	
 
 	return true;
-}
-
-bool LLDAELoader::createVolumeFacesFromDomMesh(LLModel* pModel, domMesh* mesh)
-{
-	if (mesh)
-	{
-		pModel->ClearFacesAndMaterials();
-
-		LLSD placeholder;
-		addVolumeFacesFromDomMesh(pModel, mesh, placeholder);
-
-		if (pModel->getNumVolumeFaces() > 0)
-		{
-			pModel->normalizeVolumeFaces();
-			pModel->optimizeVolumeFaces();
-
-			if (pModel->getNumVolumeFaces() > 0)
-			{
-				return true;
-			}
-		}
-	}
-	else
-	{	
-		LL_WARNS() << "no mesh found" << LL_ENDL;
-	}
-
-	return false;
 }
