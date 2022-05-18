@@ -210,10 +210,10 @@ Account: [ACCTTYPE]
 
           <button
            name="allow_to_see_online"
-           image_hover_unselected="Toolbar_Middle_Over"
-           image_overlay="Command_Speak_Icon"
-           image_selected="Toolbar_Middle_Selected"
-           image_unselected="Generic_Person_Large"
+           image_pressed="Profile_Perm_Online_Disabled"
+           image_pressed_selected="Profile_Perm_Online_Enabled"
+           image_unselected="Profile_Perm_Online_Disabled"
+           image_selected="Profile_Perm_Online_Enabled"
            layout="topleft"
            follows="left|top"
            top="0"
@@ -223,10 +223,10 @@ Account: [ACCTTYPE]
 
           <button
            name="allow_to_see_on_map"
-           image_hover_unselected="Toolbar_Middle_Over"
-           image_overlay="Command_Speak_Icon"
-           image_selected="Toolbar_Middle_Selected"
-           image_unselected="Generic_Person_Large"
+           image_pressed="Profile_Perm_Find_Disabled"
+           image_pressed_selected="Profile_Perm_Find_Enabled"
+           image_unselected="Profile_Perm_Find_Disabled"
+           image_selected="Profile_Perm_Find_Enabled"
            layout="topleft"
            follows="left|top"
            top_pad="7"
@@ -236,10 +236,10 @@ Account: [ACCTTYPE]
 
           <button
            name="allow_edit_my_objects"
-           image_hover_unselected="Toolbar_Middle_Over"
-           image_overlay="Command_Speak_Icon"
-           image_selected="Toolbar_Middle_Selected"
-           image_unselected="Generic_Person_Large"
+           image_pressed="Profile_Perm_Objects_Disabled"
+           image_pressed_selected="Profile_Perm_Objects_Enabled"
+           image_unselected="Profile_Perm_Objects_Disabled"
+           image_selected="Profile_Perm_Objects_Enabled"
            layout="topleft"
            follows="left|top"
            top_pad="7"

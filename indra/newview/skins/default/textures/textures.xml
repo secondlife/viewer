@@ -508,6 +508,12 @@ with the same filename but different name
   
   <texture name="Profile_Search_Visibility_Dark" file_name="icons/Profile_Search_Visibility_Dark.png" preload="true"/>
   <texture name="Profile_Search_Visibility_Light" file_name="icons/Profile_Search_Visibility_Light.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Disabled" file_name="icons/Profile_Perm_Find_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Enabled" file_name="icons/Profile_Perm_Find_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Disabled" file_name="icons/Profile_Perm_Objects_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Enabled" file_name="icons/Profile_Perm_Objects_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Disabled" file_name="icons/Profile_Perm_Online_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Enabled" file_name="icons/Profile_Perm_Online_Enabled.png" preload="true"/>
   
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />

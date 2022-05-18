@@ -439,8 +439,11 @@ BOOL  LLGroupListItem::postBuild()
     mProfileBtn = getChild<LLButton>("profile_btn");
     mProfileBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onProfileBtnClick(); });
 
-    mVisibilityBtn = getChild<LLButton>("visibility_btn");
-    mVisibilityBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onVisibilityBtnClick(); });
+    mVisibilityBtn = findChild<LLButton>("visibility_btn");
+    if (mVisibilityBtn)
+    {
+        mVisibilityBtn->setClickedCallback([this](LLUICtrl *, const LLSD &) { onVisibilityBtnClick(); });
+    }
 
 	return TRUE;
 }
@@ -460,7 +463,7 @@ void LLGroupListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 	{
 		mInfoBtn->setVisible(true);
         mProfileBtn->setVisible(true);
-        if (mForAgent)
+        if (mForAgent && mVisibilityBtn)
         {
             mVisibilityBtn->setVisible(true);
         }
@@ -473,8 +476,11 @@ void LLGroupListItem::onMouseLeave(S32 x, S32 y, MASK mask)
 {
 	getChildView("hovered_icon")->setVisible( false);
 	mInfoBtn->setVisible(false);
-    mVisibilityBtn->setVisible(false);
     mProfileBtn->setVisible(false);
+    if (mVisibilityBtn)
+    {
+        mVisibilityBtn->setVisible(false);
+    }
 
 	LLPanel::onMouseLeave(x, y, mask);
 }

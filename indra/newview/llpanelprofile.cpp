@@ -1614,6 +1614,10 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
     {
         floater->closeFloater();
     }
+
+    mSeeOnlineToggle->setFocus(false);
+    mSeeOnMapToggle->setFocus(false);
+    mEditObjectsToggle->setFocus(false);
 }
 
 void LLPanelProfileSecondLife::onOpenNotes()
