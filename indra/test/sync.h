@@ -89,25 +89,26 @@ public:
     /// suspend until "somebody else" has bumped mCond by n steps
     void yield(int n=1)
     {
-        return yield_until(STRINGIZE("Sync::yield_for(" << n << ") timed out after "
-                                     << int(mTimeout.value()) << "ms"),
-                           mCond.get() + n);
+        return yield_until("Sync::yield_for", n, mCond.get() + n);
     }
 
     /// suspend until "somebody else" has bumped mCond to a specific value
     void yield_until(int until)
     {
-        return yield_until(STRINGIZE("Sync::yield_until(" << until << ") timed out after "
-                                     << int(mTimeout.value()) << "ms"),
-                           until);
+        return yield_until("Sync::yield_until", until, until);
     }
 
 private:
-    void yield_until(const std::string& desc, int until)
+    void yield_until(const char* func, int arg, int until)
     {
         std::string name(llcoro::logname());
         LL_DEBUGS() << name << " yield_until(" << until << ") suspending" << LL_ENDL;
-        tut::ensure(name + ' ' + desc, mCond.wait_for_equal(mTimeout, until));
+        if (! mCond.wait_for_equal(mTimeout, until))
+        {
+            tut::fail(STRINGIZE(name << ' ' << func << '(' << arg << ") timed out after "
+                                << int(mTimeout.value()) << "ms (expected " << until
+                                << ", actual " << mCond.get() << ')'));
+        }
         // each time we wake up, bump mCond
         bump();
     }

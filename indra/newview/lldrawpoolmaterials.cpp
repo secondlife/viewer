@@ -243,7 +243,7 @@ void LLDrawPoolMaterials::pushMaterialsBatch(LLDrawInfo& params, U32 mask, bool 
 	}
 
     // upload matrix palette to shader
-    if (rigged)
+    if (rigged && params.mAvatar.notNull())
     {
         const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar->updateSkinInfoMatrixPalette(params.mSkinInfo);
         U32 count = mpc.mMatrixPalette.size();

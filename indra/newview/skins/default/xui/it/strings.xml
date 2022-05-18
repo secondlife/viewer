@@ -5017,7 +5017,7 @@ Consulta la pagina http://status.secondlifegrid.net per determinare se il proble
 	<string name="PremiumMembership">
 		Premium
 	</string>
-	<string name="Premium PlusMembership">
+	<string name="Premium_PlusMembership">
 		Premium Plus
 	</string>
 	<string name="DeleteItems">

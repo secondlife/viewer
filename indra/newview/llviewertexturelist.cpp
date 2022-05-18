@@ -1854,9 +1854,18 @@ bool LLUIImageList::initFromFile()
 			preloadUIImage(image.name, file_name, image.use_mips, image.scale, image.clip, image.scale_type);
 		}
 
-		if (cur_pass == PASS_DECODE_NOW && !gSavedSettings.getBOOL("NoPreload"))
+		if (!gSavedSettings.getBOOL("NoPreload"))
 		{
-			gTextureList.decodeAllImages(10.f); // decode preloaded images
+            if (cur_pass == PASS_DECODE_NOW)
+            {
+                // init fetching and decoding of preloaded images
+                gTextureList.decodeAllImages(9.f);
+            }
+            else
+            {
+                // decodeAllImages needs two passes to refresh stats and priorities on second pass
+                gTextureList.decodeAllImages(1.f);
+            }
 		}
 	}
 	return true;

@@ -63,6 +63,11 @@ class LLViewerJoystick;
 class LLPurgeDiskCacheThread;
 class LLViewerRegion;
 
+namespace LL
+{
+    class ThreadPool;
+}
+
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
 class LLAppViewer : public LLApp
@@ -100,7 +105,7 @@ public:
 	bool quitRequested() { return mQuitRequested; }
 	bool logoutRequestSent() { return mLogoutRequestSent; }
 	bool isSecondInstance() { return mSecondInstance; }
-	bool isUpdaterMissing() { return mUpdaterNotFound; }
+    bool isUpdaterMissing(); // In use by tests
 
 	void writeDebugInfo(bool isStatic=true);
 
@@ -201,13 +206,7 @@ public:
 
 	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
 
-	typedef boost::signals2::signal<void()> cleanup_signal_t;
-	cleanup_signal_t mOnCleanup;
-	boost::signals2::connection onCleanup(const cleanup_signal_t::slot_type& cb)
-	{
-		return mOnCleanup.connect(cb);
-	}
-
+    void initGeneralThread();
 	void purgeUserDataOnExit() { mPurgeUserDataOnExit = true; }
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
@@ -269,7 +268,6 @@ private:
 	void idle(); 
 	void idleShutdown();
 	// update avatar SLID and display name caches
-	void idleExperienceCache();
 	void idleNameCache();
 	void idleNetwork();
 
@@ -298,6 +296,7 @@ private:
 	static LLImageDecodeThread* sImageDecodeThread; 
 	static LLTextureFetch* sTextureFetch;
 	static LLPurgeDiskCacheThread* sPurgeDiskCacheThread;
+    LL::ThreadPool* mGeneralThreadPool;
 
 	S32 mNumSessions;
 

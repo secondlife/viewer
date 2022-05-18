@@ -632,6 +632,13 @@ LLVOCachePartition::LLVOCachePartition(LLViewerRegion* regionp)
 	new LLVOCacheGroup(mOctree, this);
 }
 
+LLVOCachePartition::~LLVOCachePartition()
+{
+    // SL-17276 make sure to do base class cleanup while this instance
+    // can still be treated as an LLVOCachePartition 
+    cleanup();
+}
+
 bool LLVOCachePartition::addEntry(LLViewerOctreeEntry* entry)
 {
 	llassert(entry->hasVOCacheEntry());

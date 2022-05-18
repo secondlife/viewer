@@ -158,6 +158,8 @@ public:
 
     static void                 logEnvironment(EnvSelection_t env, const LLSettingsBase::ptr_t &settings, S32 env_version = NO_VERSION);
 
+    void                        setCurrentEnvironmentSelection(LLEnvironment::EnvSelection_t env);
+
 
     LLSettingsDay::ptr_t        getEnvironmentDay(EnvSelection_t env);
     LLSettingsDay::Seconds      getEnvironmentDayLength(EnvSelection_t env);

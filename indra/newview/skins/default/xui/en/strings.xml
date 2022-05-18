@@ -133,6 +133,7 @@ http://secondlife.com/viewer-access-faq</string>
 Please check to make sure you entered the right
     * Username (like bobsmith12 or steller.sunshine)
     * Password
+    * Second Factor Token (if enabled)
 Also, please make sure your Caps Lock key is off.</string>
 	<string name="LoginFailedPasswordChanged">As a security precaution your password has been changed.
 Please go to your account page at http://secondlife.com/password
@@ -192,7 +193,8 @@ Please try logging in again in a minute.</string>
 Please try logging in again in a minute.</string>
 	<string name="LoginFailedLoggingOutSession">The system has begun logging out your last session.
 Please try logging in again in a minute.</string>
-
+        <string name="LoginFailedAuthenticationMFARequired">To continue logging in, enter a new token from your multifactor authentication app.
+If you feel this is an error, please contact support@secondlife.com</string>
 
 	<!-- Disconnection -->
 	<string name="AgentLostConnection">This region may be experiencing trouble.  Please check your connection to the Internet.</string>
@@ -3962,7 +3964,7 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <!-- SL Membership -->
   <string name="BaseMembership">Base</string>
   <string name="PremiumMembership">Premium</string>
-  <string name="Premium PlusMembership">Premium Plus</string>
+  <string name="Premium_PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
   <string name="MembershipUpgradeText">Upgrade to Premium</string>

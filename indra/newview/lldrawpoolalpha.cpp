@@ -56,6 +56,11 @@ BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 static BOOL deferred_render = FALSE;
 
+// minimum alpha before discarding a fragment
+static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+// minimum alpha before discarding a fragment when rendering impostors
+static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
+
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), target_shader(NULL),
 		mColorSFactor(LLRender::BF_UNDEF), mColorDFactor(LLRender::BF_UNDEF),
@@ -106,11 +111,11 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
 
     if (LLPipeline::sImpostorRender)
     {
-        shader->setMinimumAlpha(0.5f);
+        shader->setMinimumAlpha(MINIMUM_IMPOSTOR_ALPHA);
     }
     else
     {
-        shader->setMinimumAlpha(0.f);
+        shader->setMinimumAlpha(MINIMUM_ALPHA);
     }
     if (textureGamma)
     {
@@ -130,14 +135,15 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     deferred_render = TRUE;
 
     // prepare shaders
-    emissive_shader = (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
+    emissive_shader = (LLPipeline::sRenderDeferred)   ? &gDeferredEmissiveProgram    :
+                      (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
     prepare_alpha_shader(emissive_shader, true, false);
 
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightProgram :
-        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightProgram;
+    fullbright_shader   = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
+        (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightAlphaMaskProgram;
     prepare_alpha_shader(fullbright_shader, true, false);
 
-    simple_shader = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
+    simple_shader   = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
@@ -196,18 +202,18 @@ void LLDrawPoolAlpha::render(S32 pass)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 
     simple_shader = (LLPipeline::sImpostorRender) ? &gObjectSimpleImpostorProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleProgram;
+        (LLPipeline::sUnderWaterRender) ? &gObjectSimpleWaterProgram : &gObjectSimpleAlphaMaskProgram;
 
-    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightProgram :
-        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightProgram;
+    fullbright_shader = (LLPipeline::sImpostorRender) ? &gObjectFullbrightAlphaMaskProgram :
+        (LLPipeline::sUnderWaterRender) ? &gObjectFullbrightWaterProgram : &gObjectFullbrightAlphaMaskProgram;
 
     emissive_shader = (LLPipeline::sImpostorRender) ? &gObjectEmissiveProgram :
         (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 
-    F32 minimum_alpha = 0.f;
+    F32 minimum_alpha = MINIMUM_ALPHA;
     if (LLPipeline::sImpostorRender)
     {
-        minimum_alpha = 0.5f;
+        minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
     }
     prepare_forward_shader(fullbright_shader, minimum_alpha);
     prepare_forward_shader(simple_shader, minimum_alpha);
@@ -588,7 +594,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 						const LLTextureEntry* tep = face->getTextureEntry();
 						if(tep)
 						{ // don't render faces that are more than 90% transparent
-							if(tep->getColor().mV[3] < 0.1f)
+							if(tep->getColor().mV[3] < MINIMUM_IMPOSTOR_ALPHA)
 								continue;
 						}
 					}
@@ -711,6 +717,16 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 					LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
 					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
+
+                    bool reset_minimum_alpha = false;
+                    if (!LLPipeline::sImpostorRender &&
+                        params.mBlendFuncDst != LLRender::BF_SOURCE_ALPHA &&
+                        params.mBlendFuncSrc != LLRender::BF_SOURCE_ALPHA)
+                    { // this draw call has a custom blend function that may require rendering of "invisible" fragments
+                        current_shader->setMinimumAlpha(0.f);
+                        reset_minimum_alpha = true;
+                    }
+                    
                     U32 drawMask = mask;
                     if (params.mFullbright)
                     {
@@ -723,6 +739,11 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
                     params.mVertexBuffer->setBufferFast(drawMask);
                     params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+
+                    if (reset_minimum_alpha)
+                    {
+                        current_shader->setMinimumAlpha(MINIMUM_ALPHA);
+                    }
 				}
 
 				// If this alpha mesh has glow, then draw it a second time to add the destination-alpha (=glow).  Interleaving these state-changing calls is expensive, but glow must be drawn Z-sorted with alpha.
@@ -796,6 +817,10 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
 
 bool LLDrawPoolAlpha::uploadMatrixPalette(const LLDrawInfo& params)
 {
+    if (params.mAvatar.isNull())
+    {
+        return false;
+    }
     const LLVOAvatar::MatrixPaletteCache& mpc = params.mAvatar.get()->updateSkinInfoMatrixPalette(params.mSkinInfo);
     U32 count = mpc.mMatrixPalette.size();
 

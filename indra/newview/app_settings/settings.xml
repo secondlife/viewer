@@ -4758,7 +4758,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://search.[GRID]/viewer/[CATEGORY]/?q=[QUERY]&amp;p=[AUTH_TOKEN]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>https://search.[GRID]/viewer/[CATEGORY]/?q=[QUERY]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>GuidebookURL</key>
     <map>
@@ -5895,17 +5895,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>LoginAsGod</key>
-    <map>
-      <key>Comment</key>
-      <string>Attempt to login with god powers (Linden accounts only)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>LoginLocation</key>
     <map>
       <key>Comment</key>
@@ -6975,6 +6964,17 @@
       <key>Value</key>
       <integer>1000</integer>
     </map>
+	<key>FakeInitialOutfitName</key>
+	<map>
+		<key>Comment</key>
+		<string>Pretend that this is first time login and specified name was chosen</string>
+		<key>Persist</key>
+		<integer>1</integer>
+		<key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string />
+	</map>
 	<key>MyOutfitsAutofill</key>
 	<map>
 		<key>Comment</key>
@@ -7077,7 +7077,7 @@
     <key>NoInventoryLibrary</key>
     <map>
       <key>Comment</key>
-      <string>Do not request inventory library.</string>
+      <string>(Deprecated) Do not request inventory library.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8110,9 +8110,9 @@
     <string>Color4</string>
     <key>Value</key>
     <array>
-      <real>1.0</real>
-      <real>1.0</real>
-      <real>1.0</real>
+      <real>0.33</real>
+      <real>0.33</real>
+      <real>0.33</real>
       <real>1.0</real>
     </array>
   </map>
@@ -16806,6 +16806,17 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
+  </map>
+  <key>MFAHash</key>
+  <map>
+    <key>Comment</key>
+    <string>Override MFA state hash for authentication</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>String</string>
+    <key>Value</key>
+    <string></string>
   </map>
 </map>
 </llsd>

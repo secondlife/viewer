@@ -257,6 +257,7 @@ S32 LLAvatarTracker::addBuddyList(const LLAvatarTracker::buddy_map_t& buds)
 			LLAvatarName av_name;
 			LLAvatarNameCache::get(agent_id, &av_name);
 
+			addChangedMask(LLFriendObserver::ADD, agent_id);
 			LL_DEBUGS() << "Added buddy " << agent_id
 					<< ", " << (mBuddyInfo[agent_id]->isOnline() ? "Online" : "Offline")
 					<< ", TO: " << mBuddyInfo[agent_id]->getRightsGrantedTo()
@@ -645,7 +646,8 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 		{
 			if(mBuddyInfo.find(agent_id) != mBuddyInfo.end())
 			{
-				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
+                if (((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
+                    && !gAgent.isDoNotDisturb())
 				{
 					LLSD args;
 					args["NAME"] = LLSLURL("agent", agent_id, "displayname").getSLURLString();

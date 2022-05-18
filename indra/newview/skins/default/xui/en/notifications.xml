@@ -2309,6 +2309,7 @@ Please try again later.
   <notification
    icon="notifytip.tga"
    name="LandmarkCreated"
+   log_to_chat="false"
    type="notifytip">
 You have added "[LANDMARK_NAME]" to your [FOLDER_NAME] folder.
   </notification>
@@ -9633,18 +9634,6 @@ Do you wish to continue?
      yestext="OK"/>
   </notification>
 
-  <global name="UnsupportedShaderRequirements">
-You do not appear to meet the hardware requirements for [APP_NAME]. [APP_NAME] requires OpenGL 2.0 or later shader support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
-
-If you continue to have problems, please visit the [SUPPORT_SITE].
-  </global>
-
-  <global name="UnsupportedGLRequirements">
-You do not appear to have the proper hardware requirements for [APP_NAME]. [APP_NAME] requires an OpenGL graphics card that has multitexture support. If this is the case, you may want to make sure that you have the latest drivers for your graphics card, and service packs and patches for your operating system.
-
-If you continue to have problems, please visit the [SUPPORT_SITE].
-  </global>
-
   <global name="UnsupportedIntelDriver">
 The installed Intel graphics driver for [GPUNAME], version [VERSION], is significantly out of date and is known to cause excessive rates of program crashes. You are strongly advised to update to a current Intel driver
 
@@ -11809,4 +11798,25 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
     <tag>fail</tag>
   </notification>
   
+  <notification
+   icon="alertmodal.tga"
+   label="Prompt for MFA Token"
+   name="PromptMFAToken"
+   type="alertmodal">
+    [MESSAGE]
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="token" type="text" width="400" />
+      <button
+       default="true"
+       index="0"
+       name="continue"
+       text="Continue"/>
+      <button
+       index="1"
+       name="cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
 </notifications>

@@ -1172,6 +1172,11 @@ bool LLFace::canRenderAsMask()
 		return true;
 	}
 
+    if (isState(LLFace::RIGGED))
+    { // never auto alpha-mask rigged faces
+        return false;
+    }
+
 	const LLTextureEntry* te = getTextureEntry();
 	if( !te || !getViewerObject() || !getTexture() )
 	{
@@ -2360,14 +2365,35 @@ F32 LLFace::getTextureVirtualSize()
 
 BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
 {
-	LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_FACE;
 
 	//VECTORIZE THIS
 	//get area of circle around face
-	LLVector4a center;
-	center.load3(getPositionAgent().mV);
-	LLVector4a size;
-	size.setSub(mExtents[1], mExtents[0]);
+
+    LLVector4a center;
+    LLVector4a size;
+
+
+    if (isState(LLFace::RIGGED))
+    {
+        //override with avatar bounding box
+        LLVOAvatar* avatar = mVObjp->getAvatar();
+        if (avatar && avatar->mDrawable)
+        {
+            center.load3(avatar->getPositionAgent().mV);
+            const LLVector4a* exts = avatar->mDrawable->getSpatialExtents();
+            size.setSub(exts[1], exts[0]);
+        }
+        else
+        {
+            return false;
+        }
+    }
+    else
+    {
+        center.load3(getPositionAgent().mV);
+        size.setSub(mExtents[1], mExtents[0]);
+    }
 	size.mul(0.5f);
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();

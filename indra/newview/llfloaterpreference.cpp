@@ -2341,7 +2341,16 @@ void LLPanelPreference::saveSettings()
 		{
 			view_stack.push_back(*iter);
 		}
-	}	
+	}
+
+    if (LLStartUp::getStartupState() == STATE_STARTED)
+    {
+        LLControlVariable* control = gSavedPerAccountSettings.getControl("VoiceCallsFriendsOnly");
+        if (control)
+        {
+            mSavedValues[control] = control->getValue();
+        }
+    }
 }
 
 void LLPanelPreference::showMultipleViewersWarning(LLUICtrl* checkbox, const LLSD& value)

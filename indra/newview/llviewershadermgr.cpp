@@ -426,6 +426,13 @@ void LLViewerShaderMgr::setShaders()
         return;
     }
 
+    if (!gGLManager.mHasRequirements)
+    {
+        // Viewer will show 'hardware requirements' warning later
+        LL_INFOS("ShaderLoading") << "Not supported hardware/software" << LL_ENDL;
+        return;
+    }
+
     static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
     LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) max_texture_index), 1);
 
@@ -1876,6 +1883,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
             shader->clearPermutations();
             shader->addPermutation("USE_VERTEX_COLOR", "1");
+            shader->addPermutation("HAS_ALPHA_MASK", "1");
             shader->addPermutation("USE_INDEXED_TEX", "1");
             if (use_sun_shadow)
             {
@@ -1952,6 +1960,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->clearPermutations();
             shader->addPermutation("USE_INDEXED_TEX", "1");
             shader->addPermutation("FOR_IMPOSTOR", "1");
+            shader->addPermutation("HAS_ALPHA_MASK", "1");
             shader->addPermutation("USE_VERTEX_COLOR", "1");
             if (rigged)
             {
@@ -2023,6 +2032,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader[i]->addPermutation("USE_INDEXED_TEX", "1");
             shader[i]->addPermutation("WATER_FOG", "1");
             shader[i]->addPermutation("USE_VERTEX_COLOR", "1");
+            shader[i]->addPermutation("HAS_ALPHA_MASK", "1");
             if (use_sun_shadow)
             {
                 shader[i]->addPermutation("HAS_SHADOW", "1");

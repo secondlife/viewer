@@ -61,6 +61,7 @@
 #include "lltrans.h"
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/regex.hpp>
 #include <sstream>
 
 const S32 LOGIN_MAX_RETRIES = 0; // Viewer should not autmatically retry login
@@ -165,13 +166,12 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	//requested_options.append("inventory-meat");
 	//requested_options.append("inventory-skel-targets");
 #if (!defined LL_MINIMIAL_REQUESTED_OPTIONS)
-	if(FALSE == gSavedSettings.getBOOL("NoInventoryLibrary"))
-	{
-		requested_options.append("inventory-lib-root");
-		requested_options.append("inventory-lib-owner");
-		requested_options.append("inventory-skel-lib");
+
+    // Not requesting library will trigger mFatalNoLibraryRootFolder
+	requested_options.append("inventory-lib-root");
+	requested_options.append("inventory-lib-owner");
+	requested_options.append("inventory-skel-lib");
 	//	requested_options.append("inventory-meat-lib");
-	}
 
 	requested_options.append("initial-outfit");
 	requested_options.append("gestures");
@@ -225,8 +225,9 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	request_params["id0"] = mSerialNumber;
 	request_params["host_id"] = gSavedSettings.getString("HostID");
 	request_params["extended_errors"] = true; // request message_id and message_args
+	request_params["token"] = "";
 
-    // log request_params _before_ adding the credentials   
+    // log request_params _before_ adding the credentials or sensitive MFA hash data
     LL_DEBUGS("LLLogin") << "Login parameters: " << LLSDOStreamer<LLSDNotationFormatter>(request_params) << LL_ENDL;
 
     // Copy the credentials into the request after logging the rest
@@ -238,6 +239,33 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
     {
         request_params[it->first] = it->second;
     }
+
+    std::string mfa_hash = gSavedSettings.getString("MFAHash"); //non-persistent to enable testing
+    std::string grid(LLGridManager::getInstance()->getGridId());
+    std::string user_id = user_credential->userID();
+    if (gSecAPIHandler)
+    {
+        if (mfa_hash.empty())
+        {
+            // normal execution, mfa_hash was not set from debug setting so load from protected store
+            LLSD data_map = gSecAPIHandler->getProtectedData("mfa_hash", grid);
+            if (data_map.isMap() && data_map.has(user_id))
+            {
+                mfa_hash = data_map[user_id].asString();
+            }
+        }
+        else
+        {
+            // SL-16888 the mfa_hash is being overridden for testing so save it for consistency for future login requests
+            gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, mfa_hash);
+        }
+    }
+    else
+    {
+        LL_WARNS() << "unable to access protected store for mfa_hash" << LL_ENDL;
+    }
+
+    request_params["mfa_hash"] = mfa_hash;
 
 	// Specify desired timeout/retry options
 	LLSD http_params;
@@ -251,6 +279,11 @@ void LLLoginInstance::constructAuthParams(LLPointer<LLCredential> user_credentia
 	mRequestData["params"] = request_params;
 	mRequestData["options"] = requested_options;
 	mRequestData["http_params"] = http_params;
+#if LL_RELEASE_FOR_DOWNLOAD
+    mRequestData["wait_for_updater"] = !gSavedSettings.getBOOL("CmdLineSkipUpdater") && !LLAppViewer::instance()->isUpdaterMissing();
+#else
+    mRequestData["wait_for_updater"] = false;
+#endif
 }
 
 bool LLLoginInstance::handleLoginEvent(const LLSD& event)
@@ -406,6 +439,38 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
                 updater,
                 boost::bind(&LLLoginInstance::syncWithUpdater, this, resp, _1, _2));
         }
+    }
+    else if(reason_response == "mfa_challenge")
+    {
+        LL_DEBUGS("LLLogin") << " MFA challenge" << LL_ENDL;
+
+        if (gViewerWindow)
+        {
+            gViewerWindow->setShowProgress(FALSE);
+        }
+
+        LLSD args(llsd::map( "MESSAGE", LLTrans::getString(response["message_id"]) ));
+        LLSD payload;
+        LLNotificationsUtil::add("PromptMFAToken", args, payload, [=](LLSD const & notif, LLSD const & response) {
+            bool continue_clicked = response["continue"].asBoolean();
+            std::string token = response["token"].asString();
+            LL_DEBUGS("LLLogin") << "PromptMFAToken: response: " << response << " continue_clicked" << continue_clicked << LL_ENDL;
+
+            // strip out whitespace - SL-17034/BUG-231938
+            token = boost::regex_replace(token, boost::regex("\\s"), "");
+
+            if (continue_clicked && !token.empty())
+            {
+                LL_INFOS("LLLogin") << "PromptMFAToken: token submitted" << LL_ENDL;
+
+                // Set the request data to true and retry login.
+                mRequestData["params"]["token"] = token;
+                reconnect();
+            } else {
+                LL_INFOS("LLLogin") << "PromptMFAToken: no token, attemptComplete" << LL_ENDL;
+                attemptComplete();
+            }
+        });
     }
     else if(   reason_response == "key"
             || reason_response == "presence"

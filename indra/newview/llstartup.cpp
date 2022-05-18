@@ -134,6 +134,7 @@
 #include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llqueryflags.h"
+#include "llsecapi.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "llstatview.h"
@@ -1116,10 +1117,10 @@ bool idle_startup()
 			}
 			else 
 			{
-				if (reason_response != "tos") 
+				if (reason_response != "tos"  && reason_response != "mfa_challenge")
 				{
-					// Don't pop up a notification in the TOS case because
-					// LLFloaterTOS::onCancel() already scolded the user.
+					// Don't pop up a notification in the TOS or MFA cases because
+					// the specialized floater has already scolded the user.
 					std::string error_code;
 					if(response.has("errorcode"))
 					{
@@ -1496,19 +1497,7 @@ bool idle_startup()
 		display_startup();
 
 		// start up the ThreadPool we'll use for textures et al.
-		{
-			LLSD poolSizes{ gSavedSettings.getLLSD("ThreadPoolSizes") };
-			LLSD sizeSpec{ poolSizes["General"] };
-			LLSD::Integer poolSize{ sizeSpec.isInteger()? sizeSpec.asInteger() : 3 };
-			LL_DEBUGS("ThreadPool") << "Instantiating General pool with "
-									<< poolSize << " threads" << LL_ENDL;
-			// We don't want anyone, especially the main thread, to have to block
-			// due to this ThreadPool being full.
-			auto pool = new LL::ThreadPool("General", poolSize, 1024*1024);
-			pool->start();
-			// Once we start shutting down, destroy this ThreadPool.
-			LLAppViewer::instance()->onCleanup([pool](){ delete pool; });
-		}
+        LLAppViewer::instance()->initGeneralThread();
 
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
@@ -2248,10 +2237,6 @@ bool idle_startup()
 
 		// Have the agent start watching the friends list so we can update proxies
 		gAgent.observeFriends();
-		if (gSavedSettings.getBOOL("LoginAsGod"))
-		{
-			gAgent.requestEnterGodMode();
-		}
 		
 		// Start automatic replay if the flag is set.
 		if (gSavedSettings.getBOOL("StatsAutoRun") || gAgentPilot.getReplaySession())
@@ -2379,8 +2364,31 @@ void show_release_notes_if_required()
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
         && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
     {
-        LLSD info(LLAppViewer::instance()->getViewerInfo());
-        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+
+#if LL_RELEASE_FOR_DOWNLOAD
+        if (!gSavedSettings.getBOOL("CmdLineSkipUpdater")
+            && !LLAppViewer::instance()->isUpdaterMissing())
+        {
+            // Instantiate a "relnotes" listener which assumes any arriving event
+            // is the release notes URL string. Since "relnotes" is an
+            // LLEventMailDrop, this listener will be invoked whether or not the
+            // URL has already been posted. If so, it will fire immediately;
+            // otherwise it will fire whenever the URL is (later) posted. Either
+            // way, it will display the release notes as soon as the URL becomes
+            // available.
+            LLEventPumps::instance().obtain("relnotes").listen(
+                "showrelnotes",
+                [](const LLSD& url) {
+                LLWeb::loadURLInternal(url.asString());
+                return false;
+            });
+        }
+        else
+#endif // LL_RELEASE_FOR_DOWNLOAD
+        {
+            LLSD info(LLAppViewer::instance()->getViewerInfo());
+            LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+        }
         release_notes_shown = true;
     }
 }
@@ -2732,19 +2740,34 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 
 	gAgentAvatarp->setSex(gender);
 
-	// try to find the outfit - if not there, create some default
-	// wearables.
+	// try to find the requested outfit or folder
+
+	// -- check for existing outfit in My Outfits
+	bool do_copy = false;
 	LLUUID cat_id = findDescendentCategoryIDByName(
-		gInventory.getLibraryRootFolderID(),
+		gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS),
 		outfit_folder_name);
+
+	// -- check for existing folder in Library
 	if (cat_id.isNull())
 	{
+		cat_id = findDescendentCategoryIDByName(
+			gInventory.getLibraryRootFolderID(),
+			outfit_folder_name);
+		if (!cat_id.isNull())
+		{
+			do_copy = true;
+		}
+	}
+
+	if (cat_id.isNull())
+	{
+		// -- final fallback: create standard wearables
 		LL_DEBUGS() << "standard wearables" << LL_ENDL;
 		gAgentWearables.createStandardWearables();
 	}
 	else
 	{
-		bool do_copy = true;
 		bool do_append = false;
 		LLViewerInventoryCategory *cat = gInventory.getCategory(cat_id);
 		// Need to fetch cof contents before we can wear.
@@ -2842,7 +2865,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
-	LLWorld::getInstance()->destroyClass();
+	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons
@@ -3310,12 +3333,6 @@ bool init_benefits(LLSD& response)
 		succ = false;
 	}
 
-	// FIXME PREMIUM - for testing if login does not yet provide Premium Plus. Should be removed thereafter.
-	//if (succ && !LLAgentBenefitsMgr::has("Premium Plus"))
-	//{
-	//	LLAgentBenefitsMgr::init("Premium Plus", packages_sd["Premium"]["benefits"]);
-	//	llassert(LLAgentBenefitsMgr::has("Premium Plus"));
-	//}
 	return succ;
 }
 
@@ -3619,6 +3636,19 @@ bool process_login_success_response()
 		}
 	}
 
+	std::string fake_initial_outfit_name = gSavedSettings.getString("FakeInitialOutfitName");
+	if (!fake_initial_outfit_name.empty())
+	{
+		gAgent.setFirstLogin(TRUE);
+		sInitialOutfit = fake_initial_outfit_name;
+		if (sInitialOutfitGender.empty())
+		{
+			sInitialOutfitGender = "female"; // just guess, will get overridden when outfit is worn anyway.
+		}
+
+		LL_WARNS() << "Faking first-time login with initial outfit " << sInitialOutfit << LL_ENDL;
+	}
+
 	// set the location of the Agent Appearance service, from which we can request
 	// avatar baked textures if they are supported by the current region
 	std::string agent_appearance_url = response["agent_appearance_service"];
@@ -3640,6 +3670,17 @@ bool process_login_success_response()
 	{
 		std::string openid_token = response["openid_token"];
 		LLViewerMedia::getInstance()->openIDSetup(openid_url, openid_token);
+	}
+
+
+	// Only save mfa_hash for future logins if the user wants their info remembered.
+	if(response.has("mfa_hash") && gSavedSettings.getBOOL("RememberUser") && gSavedSettings.getBOOL("RememberPassword"))
+	{
+		std::string grid(LLGridManager::getInstance()->getGridId());
+		std::string user_id(gUserCredential->userID());
+		gSecAPIHandler->addToProtectedMap("mfa_hash", grid, user_id, response["mfa_hash"]);
+		// TODO(brad) - related to SL-17223 consider building a better interface that sync's automatically
+		gSecAPIHandler->syncProtectedMap();
 	}
 
 	bool success = false;
