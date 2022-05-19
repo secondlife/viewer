@@ -32,6 +32,7 @@
 #include "llviewerregion.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
+#include "llviewercontrol.h"
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -514,12 +515,16 @@ void LLReflectionMapManager::setUniforms()
         GLint refIndex[LL_REFLECTION_PROBE_COUNT][4];
         GLint refNeighbor[4096];
         GLint refmapCount;
+        GLfloat reflectionAmbiance;
     };
 
     mReflectionMaps.resize(LL_REFLECTION_PROBE_COUNT);
     getReflectionMaps(mReflectionMaps);
 
     ReflectionProbeData rpd;
+
+    static LLCachedControl<F32> ambiance(gSavedSettings, "RenderReflectionProbeAmbiance", 0.f);
+    rpd.reflectionAmbiance = ambiance;
 
     // load modelview matrix into matrix 4a
     LLMatrix4a modelview;

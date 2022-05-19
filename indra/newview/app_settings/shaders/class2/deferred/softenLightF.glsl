@@ -69,6 +69,9 @@ layout (std140, binding = 1) uniform ReflectionProbes
 
     // number of reflection probes present in refSphere
     int refmapCount;
+
+    // intensity of ambient light from reflection probes
+    float reflectionAmbiance;
 };
 
 uniform float blur_size;
@@ -451,7 +454,7 @@ vec3 sampleAmbient(vec3 pos, vec3 dir, float lod)
     
     col *= 0.333333;
 
-    return col*0.8; // fudge darker
+    return col*reflectionAmbiance;
 
 }
 
@@ -507,7 +510,7 @@ void main()
 
     //vec3 amb_vec = env_mat * norm.xyz;
 
-    vec3 ambenv = sampleAmbient(pos.xyz, norm.xyz, reflection_lods);
+    vec3 ambenv = sampleAmbient(pos.xyz, norm.xyz, reflection_lods-1);
     amblit = max(ambenv, amblit);
     color.rgb = amblit*ambocc;
 

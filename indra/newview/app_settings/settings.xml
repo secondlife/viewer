@@ -10280,6 +10280,17 @@
     <key>Value</key>
     <real>64</real>
   </map>
+  <key>RenderReflectionProbeAmbiance</key>
+  <map>
+    <key>Comment</key>
+    <string>Amount reflection probes contribute to ambient light.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>0</real>
+  </map>
   <key>RenderReflectionProbeTextureHackID</key>
   <map>
     <key>Comment</key>
