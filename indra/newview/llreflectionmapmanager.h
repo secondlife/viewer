@@ -52,9 +52,6 @@ public:
     // maintain reflection probes
     void update();
 
-    // drop a reflection probe at the specified position in agent space
-    void addProbe(const LLVector3& pos);
-
     // add a probe for the given spatial group
     LLReflectionMap* addProbe(LLSpatialGroup* group);
     

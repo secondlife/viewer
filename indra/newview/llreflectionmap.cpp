@@ -106,6 +106,7 @@ void LLReflectionMap::autoAdjustOrigin()
         }
         else if (mGroup->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
+            mPriority = 8;
             // cast a ray towards 8 corners of bounding box
             // nudge origin towards center of empty space
 
@@ -182,6 +183,9 @@ void LLReflectionMap::autoAdjustOrigin()
             }
             else
             {
+                // user placed probe
+                mPriority = 64;
+
                 // use center of octree node volume for nodes that are just branches without data
                 mOrigin = node->getCenter();
 
@@ -196,13 +200,15 @@ void LLReflectionMap::autoAdjustOrigin()
     }
     else if (mViewerObject)
     {
+        mPriority = 64;
         mOrigin.load3(mViewerObject->getPositionAgent().mV);
-        mRadius = mViewerObject->getScale().mV[0];
+        mRadius = mViewerObject->getScale().mV[0]*0.5f;
     }
 }
 
 bool LLReflectionMap::intersects(LLReflectionMap* other)
 {
+    // TODO: incorporate getBox
     LLVector4a delta;
     delta.setSub(other->mOrigin, mOrigin);
 
@@ -213,4 +219,57 @@ bool LLReflectionMap::intersects(LLReflectionMap* other)
     r2 *= r2;
 
     return dist < r2;
+}
+
+bool LLReflectionMap::getBox(LLMatrix4& box)
+{ 
+    if (mViewerObject)
+    {
+        LLVolume* volume = mViewerObject->getVolume();
+        if (volume)
+        {
+            LLVOVolume* vobjp = (LLVOVolume*)mViewerObject;
+
+            U8 profile = volume->getProfileType();
+            U8 path = volume->getPathType();
+
+            if (profile == LL_PCODE_PROFILE_SQUARE &&
+                path == LL_PCODE_PATH_LINE)
+            {
+                // nope
+                /*box = vobjp->getRelativeXform();
+                box *= vobjp->mDrawable->getRenderMatrix();
+                LLMatrix4 modelview(gGLModelView);
+                box *= modelview;
+                box.invert();*/
+
+                // nope
+                /*box = LLMatrix4(gGLModelView);
+                box *= vobjp->mDrawable->getRenderMatrix();
+                box *= vobjp->getRelativeXform();
+                box.invert();*/
+
+                glh::matrix4f mv(gGLModelView);
+                glh::matrix4f scale;
+                LLVector3 s = vobjp->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));
+                mRadius = s.magVec();
+                scale.set_scale(glh::vec3f(s.mV));
+                if (vobjp->mDrawable != nullptr)
+                {
+                    glh::matrix4f rm((F32*)vobjp->mDrawable->getWorldMatrix().mMatrix);
+
+                    glh::matrix4f rt((F32*)vobjp->getRelativeXform().mMatrix);
+
+                    mv = mv * rm * scale; // *rt;
+                    mv = mv.inverse();
+
+                    box = LLMatrix4(mv.m);
+
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
 }

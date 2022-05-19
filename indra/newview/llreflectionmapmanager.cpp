@@ -141,9 +141,15 @@ void LLReflectionMapManager::update()
 
     mCreateList.clear();
 
-    const F32 UPDATE_INTERVAL = 10.f;  //update no more than once every 5 seconds
+    if (mProbes.empty())
+    {
+        return;
+    }
+    const F32 UPDATE_INTERVAL = 5.f;  //update no more than once every 5 seconds
 
     bool did_update = false;
+
+    LLReflectionMap* oldestProbe = mProbes[0];
 
     if (mUpdatingProbe != nullptr)
     {
@@ -181,19 +187,28 @@ void LLReflectionMapManager::update()
             probe->mDirty = false;
         }
 
+        if (probe->mCubeArray.notNull() && 
+            probe->mCubeIndex != -1 && 
+            probe->mLastUpdateTime < oldestProbe->mLastUpdateTime)
+        {
+            oldestProbe = probe;
+        }
+
         d.setSub(camera_pos, probe->mOrigin);
         probe->mDistance = d.getLength3().getF32()-probe->mRadius;
     }
 
+#if 0
+    if (mUpdatingProbe == nullptr &&
+        oldestProbe->mCubeArray.notNull() &&
+        oldestProbe->mCubeIndex != -1)
+    { // didn't find any probes to update, update the most out of date probe that's currently in use on next frame
+        mUpdatingProbe = oldestProbe;
+    }
+#endif
+
     // update distance to camera for all probes
     std::sort(mProbes.begin(), mProbes.end(), CompareProbeDistance());
-}
-
-void LLReflectionMapManager::addProbe(const LLVector3& pos)
-{
-    //LLReflectionMap* probe = new LLReflectionMap();
-    //probe->update(pos, 1024);
-    //mProbes.push_back(probe);
 }
 
 LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
@@ -251,6 +266,7 @@ void LLReflectionMapManager::getReflectionMaps(std::vector<LLReflectionMap*>& ma
 
 LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* group)
 {
+#if 1
     if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
     {
         OctreeNode* node = group->getOctreeNode();
@@ -270,7 +286,7 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
             return addProbe(group);
         }
     }
-
+#endif
     return nullptr;
 }
 
@@ -493,6 +509,7 @@ void LLReflectionMapManager::setUniforms()
     // see class2/deferred/softenLightF.glsl
     struct ReflectionProbeData
     {
+        LLMatrix4 refBox[LL_REFLECTION_PROBE_COUNT]; // object bounding box as needed
         LLVector4 refSphere[LL_REFLECTION_PROBE_COUNT]; //origin and radius of refmaps in clip space
         GLint refIndex[LL_REFLECTION_PROBE_COUNT][4];
         GLint refNeighbor[4096];
@@ -535,7 +552,14 @@ void LLReflectionMapManager::setUniforms()
         rpd.refIndex[count][0] = refmap->mCubeIndex;
         llassert(nc % 4 == 0);
         rpd.refIndex[count][1] = nc / 4;
-        rpd.refIndex[count][3] = refmap->mViewerObject ? 10 : 1;
+        rpd.refIndex[count][3] = refmap->mPriority;
+
+        // for objects that are reflection probes, use the volume as the influence volume of the probe
+        // only possibile influence volumes are boxes and spheres, so detect boxes and treat everything else as spheres
+        if (refmap->getBox(rpd.refBox[count]))
+        { // negate priority to indicate this probe has a box influence volume
+            rpd.refIndex[count][3] = -rpd.refIndex[count][3];
+        }
 
         S32 ni = nc; // neighbor ("index") - index into refNeighbor to write indices for current reflection probe's neighbors
         {

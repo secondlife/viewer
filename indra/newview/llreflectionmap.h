@@ -55,6 +55,12 @@ public:
     // return true if given Reflection Map's influence volume intersect's with this one's
     bool intersects(LLReflectionMap* other);
 
+    // get the encoded bounding box of this probe's influence volume
+    // will only return a box if this probe has a volume with a square
+    // profile and a linear path
+    // return false if no bounding box (treat as sphere influence volume)
+    bool getBox(LLMatrix4& box);
+
     // point at which environment map was last generated from (in agent space)
     LLVector4a mOrigin;
     
@@ -86,6 +92,9 @@ public:
 
     // viewer object this probe is tracking (if any)
     LLViewerObject* mViewerObject = nullptr;
+
+    // what priority should this probe have (higher is higher priority)
+    U32 mPriority = 1;
 
     bool mDirty = true;
 };

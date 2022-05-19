@@ -48,14 +48,20 @@ uniform sampler2D     lightFunc;
 
 layout (std140, binding = 1) uniform ReflectionProbes
 {
-    // list of sphere based reflection probes sorted by distance to camera (closest first)
+    // list of OBBs for user override probes
+    // box is a set of 3 planes outward facing planes and the depth of the box along that plane
+    // for each box refBox[i]...
+    /// box[0..2] - plane 0 .. 2 in [A,B,C,D] notation
+    //  box[3][0..2] - plane thickness
+    mat4 refBox[REFMAP_COUNT];
+    // list of bounding spheres for reflection probes sorted by distance to camera (closest first)
     vec4 refSphere[REFMAP_COUNT];
     // index  of cube map in reflectionProbes for a corresponding reflection probe
     // e.g. cube map channel of refSphere[2] is stored in refIndex[2]
     // refIndex.x - cubemap channel in reflectionProbes
     // refIndex.y - index in refNeighbor of neighbor list (index is ivec4 index, not int index)
     // refIndex.z - number of neighbors
-    // refIndex.w - priority
+    // refIndex.w - priority, if negative, this probe has a box influence
     ivec4 refIndex[REFMAP_COUNT];
 
     // neighbor list data (refSphere indices, not cubemap array layer)
@@ -103,15 +109,38 @@ int probeIndex[REF_SAMPLE_COUNT];
 // number of probes stored in probeIndex
 int probeInfluences = 0;
 
+bool isAbove(vec3 pos, vec4 plane)
+{
+    return (dot(plane.xyz, pos) + plane.w) > 0;
+}
 
 // return true if probe at index i influences position pos
 bool shouldSampleProbe(int i, vec3 pos)
 {
-    vec3 delta = pos.xyz - refSphere[i].xyz;
-    float d = dot(delta, delta);
-    float r2 = refSphere[i].w;
-    r2 *= r2;
-    return d < r2;
+    if (refIndex[i].w < 0)
+    {
+        vec4 v = refBox[i] * vec4(pos, 1.0);
+        if (abs(v.x) > 1 || 
+            abs(v.y) > 1 ||
+            abs(v.z) > 1)
+        {
+            return false;
+        }
+    }
+    else
+    {
+        vec3 delta = pos.xyz - refSphere[i].xyz;
+        float d = dot(delta, delta);
+        float r2 = refSphere[i].w;
+        r2 *= r2;
+
+        if (d > r2)
+        { //outside bounding sphere
+            return false;
+        }
+    }
+
+    return true;
 }
 
 // populate "probeIndex" with N probe indices that influence pos where N is REF_SAMPLE_COUNT
@@ -245,7 +274,7 @@ bool intersect(const Ray &ray) const
 } */
 
 // adapted -- assume that origin is inside sphere, return distance from origin to edge of sphere
-float sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
+vec3 sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
 { 
         float t0, t1; // solutions for t if the ray intersects 
 
@@ -258,8 +287,59 @@ float sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
         t0 = tca - thc; 
         t1 = tca + thc; 
  
-        return t1; 
+        vec3 v = origin + dir * t1;
+        return v; 
 } 
+
+// from https://seblagarde.wordpress.com/2012/09/29/image-based-lighting-approaches-and-parallax-corrected-cubemap/
+/*
+vec3 DirectionWS = normalize(PositionWS - CameraWS);
+vec3 ReflDirectionWS = reflect(DirectionWS, NormalWS);
+
+// Intersection with OBB convertto unit box space
+// Transform in local unit parallax cube space (scaled and rotated)
+vec3 RayLS = MulMatrix( float(3x3)WorldToLocal, ReflDirectionWS);
+vec3 PositionLS = MulMatrix( WorldToLocal, PositionWS);
+
+vec3 Unitary = vec3(1.0f, 1.0f, 1.0f);
+vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
+vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
+vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
+float Distance = min(FurthestPlane.x, min(FurthestPlane.y, FurthestPlane.z));
+
+// Use Distance in WS directly to recover intersection
+vec3 IntersectPositionWS = PositionWS + ReflDirectionWS * Distance;
+vec3 ReflDirectionWS = IntersectPositionWS - CubemapPositionWS;
+
+return texCUBE(envMap, ReflDirectionWS);
+*/
+
+// get point of intersection with given probe's box influence volume
+// origin - ray origin in clip space
+// dir - ray direction in clip space
+// i - probe index in refBox/refSphere
+vec3 boxIntersect(vec3 origin, vec3 dir, int i)
+{
+    // Intersection with OBB convertto unit box space
+    // Transform in local unit parallax cube space (scaled and rotated)
+    mat4 clipToLocal = refBox[i];
+
+    vec3 RayLS = mat3(clipToLocal) * dir;
+    vec3 PositionLS = (clipToLocal * vec4(origin, 1.0)).xyz;
+
+    vec3 Unitary = vec3(1.0f, 1.0f, 1.0f);
+    vec3 FirstPlaneIntersect  = (Unitary - PositionLS) / RayLS;
+    vec3 SecondPlaneIntersect = (-Unitary - PositionLS) / RayLS;
+    vec3 FurthestPlane = max(FirstPlaneIntersect, SecondPlaneIntersect);
+    float Distance = min(FurthestPlane.x, min(FurthestPlane.y, FurthestPlane.z));
+
+    // Use Distance in CS directly to recover intersection
+    vec3 IntersectPositionCS = origin + dir * Distance;
+
+    return IntersectPositionCS;
+}
+
+
 
 // Tap a sphere based reflection probe
 // pos - position of pixel
@@ -269,18 +349,24 @@ float sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
 // r2 - radius of probe squared
 // i - index of probe 
 // vi - point at which reflection vector struck the influence volume, in clip space
-vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i, out vec3 vi)
+vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i)
 {
     //lod = max(lod, 1);
-// parallax adjustment
-    float d = sphereIntersect(pos, dir, c, r2);
+    // parallax adjustment
 
+    vec3 v;
+    if (refIndex[i].w < 0)
     {
-        vec3 v = pos + dir * d;
-        vi = v;
-        v -= c.xyz;
-        v = env_mat * v;
+        v = boxIntersect(pos, dir, i);
+    }
+    else
+    {
+        v = sphereIntersect(pos, dir, c, r2);
+    }
 
+    v -= c;
+    v = env_mat * v;
+    {
         float min_lod = textureQueryLod(reflectionProbes,v).y; // lower is higher res
         return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), max(min_lod, lod)).rgb;
         //return texture(reflectionProbes, vec4(v.xyz, refIndex[i].x)).rgb;
@@ -297,7 +383,7 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
     {
         int i = probeIndex[idx];
         float r = refSphere[i].w; // radius of sphere volume
-        float p = float(refIndex[i].w); // priority
+        float p = float(abs(refIndex[i].w)); // priority
         float rr = r*r; // radius squred
         float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
         vec3 delta = pos.xyz-refSphere[i].xyz;
@@ -305,8 +391,7 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
         float r2 = r1*r1; 
         
         {
-            vec3 vi;
-            vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, rr, i, vi);
+            vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, rr, i);
             
             float w = 1.0/d2;
 
@@ -323,13 +408,16 @@ vec3 sampleRefMap(vec3 pos, vec3 dir, float lod)
     { //edge-of-scene probe or no probe influence, mix in with embiggened version of probes closest to camera 
         for (int idx = 0; idx < 8; ++idx)
         {
+            if (refIndex[idx].w < 0)
+            { // don't fallback to box probes, they are *very* specific
+                continue;
+            }
             int i = idx;
             vec3 delta = pos.xyz-refSphere[i].xyz;
             float d2 = dot(delta,delta);
             
             {
-                vec3 vi;
-                vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, d2, i, vi);
+                vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, d2, i);
                 
                 float w = 1.0/d2;
                 w *= w;
