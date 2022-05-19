@@ -4779,7 +4779,7 @@ void LLVivoxVoiceClient::sessionState::VerifySessions()
         if ((*it).expired())
         {
             LL_WARNS("Voice") << "Expired session found! removing" << LL_ENDL;
-            mSession.erase(it++);
+            it = mSession.erase(it);
         }
         else
             ++it;
@@ -6834,7 +6834,7 @@ void LLVivoxVoiceClient::deleteVoiceFont(const LLUUID& id)
 		if (list_iter->second == id)
 		{
 			LL_DEBUGS("VoiceFont") << "Removing " << id << " from the voice font list." << LL_ENDL;
-			mVoiceFontList.erase(list_iter++);
+            list_iter = mVoiceFontList.erase(list_iter);
 			mVoiceFontListDirty = true;
 		}
 		else

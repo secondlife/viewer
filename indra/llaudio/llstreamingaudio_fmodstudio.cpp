@@ -138,7 +138,7 @@ void LLStreamingAudio_FMODSTUDIO::killDeadStreams()
         {
             LL_INFOS("FMOD") << "Closed dead stream" << LL_ENDL;
             delete streamp;
-            mDeadStreams.erase(iter++);
+            iter = mDeadStreams.erase(iter);
         }
         else
         {

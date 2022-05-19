@@ -276,7 +276,7 @@ void LLAudioEngine::idle(F32 max_decode_time)
 		{
 			// The source is done playing, clean it up.
 			delete sourcep;
-			mAllSources.erase(iter++);
+            iter = mAllSources.erase(iter);
 			continue;
 		}
 
