@@ -650,18 +650,24 @@ void LLFloaterRegionInfo::onTabSelected(const LLSD& param)
 
 void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 {
-	if (!region)
-	{
-		return; 
-	}
+    if (!region)
+    {
+        return; 
+    }
+    // call refresh from region on all panels
+    //std::for_each(
+    //    mInfoPanels.begin(),
+    //    mInfoPanels.end(),
+    //    llbind2nd(
+    //        std::mem_fun(&LLPanelRegionInfo::refreshFromRegion),
+    //        region));
 
-	// call refresh from region on all panels
-	std::for_each(
-		mInfoPanels.begin(),
-		mInfoPanels.end(),
-		llbind2nd(
-			std::mem_fun(&LLPanelRegionInfo::refreshFromRegion),
-			region));
+   for (auto &panel : mInfoPanels)
+    {
+        panel->LLPanelRegionInfo::refreshFromRegion(region);
+    }
+
+
     mEnvironmentPanel->refreshFromRegion(region);
 }
 

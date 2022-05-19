@@ -131,7 +131,7 @@ protected:
 	boost::function<BOOL ()> mIsDockedStateForcedCallback;
 
 private:
-	std::auto_ptr<LLDockControl> mDockControl;
+	std::unique_ptr<LLDockControl> mDockControl;
 	LLUIImagePtr mDockTongue;
 	static LLHandle<LLFloater> sInstanceHandle;
 	/**
