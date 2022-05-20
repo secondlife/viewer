@@ -6797,7 +6797,10 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <!-- *HACK: On first run, set this to 0 for new users,
+           otherwise the default is 1 to maintain consistent experience
+           for existing users. Hardcoded in llnetmap.cpp -->
+      <integer>1</integer>
     </map>
     <key>MiniMapScale</key>
     <map>
