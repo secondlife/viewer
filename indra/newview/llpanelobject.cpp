@@ -1661,13 +1661,13 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 
 	if (!regionp) return;
 
-	// Clamp the Z height
-	const F32 height = newpos.mV[VZ];
-	const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
-	const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
-
 	if (!mObject->isAttachment())
 	{
+        // Clamp the Z height
+        const F32 height = newpos.mV[VZ];
+        const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
+        const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
+
 		if ( height < min_height)
 		{
 			newpos.mV[VZ] = min_height;

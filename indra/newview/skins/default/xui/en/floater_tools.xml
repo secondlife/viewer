@@ -1505,6 +1505,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="0"
              max_val="4096"
+             min_val="-32"
              name="Pos Z"
              text_enabled_color="0 0.8 1 .65"
              top_pad="3"
