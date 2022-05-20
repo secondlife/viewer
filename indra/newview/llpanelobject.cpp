@@ -1644,13 +1644,13 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 	LLVector3 newpos(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
 	LLViewerRegion* regionp = mObject->getRegion();
 
-	// Clamp the Z height
-	const F32 height = newpos.mV[VZ];
-	const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
-	const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
-
 	if (!mObject->isAttachment())
 	{
+        // Clamp the Z height
+        const F32 height = newpos.mV[VZ];
+        const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
+        const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
+
 		if ( height < min_height)
 		{
 			newpos.mV[VZ] = min_height;
