@@ -3142,11 +3142,11 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b649ee6591e67d2341e886b3fc3484a7</string>
+              <string>dff3dd1db6a4cb0b73f60a5db3ee0de2</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/86974/801642/tracy-v0.7.8.563351-windows64-563351.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/100101/882119/tracy-v0.8.1.571983-windows64-571983.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

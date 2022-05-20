@@ -4251,7 +4251,7 @@ U32 LLPipeline::sCurRenderPoolType = 0 ;
 void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
-
+    LL_PROFILE_GPU_ZONE("renderGeom");
 	assertInitialized();
 
 	F32 saved_modelview[16];
@@ -4501,8 +4501,9 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
-
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
+    LL_PROFILE_GPU_ZONE("renderGeomDeferred");
+
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
@@ -4601,6 +4602,8 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
+    LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
+
 	U32 cur_type = 0;
 
 	LLGLEnable cull(GL_CULL_FACE);
@@ -4697,6 +4700,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 void LLPipeline::renderGeomShadow(LLCamera& camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("renderGeomShadow");
     U32 cur_type = 0;
 	
 	LLGLEnable cull(GL_CULL_FACE);
@@ -9202,6 +9206,7 @@ inline float sgn(float a)
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("generateWaterReflection");
 
     if (!assertInitialized() || gCubeSnapshot)
     {
@@ -10082,6 +10087,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_GEN_SUN_SHADOW);
+    LL_PROFILE_GPU_ZONE("generateSunShadow");
 
 	bool skip_avatar_update = false;
 	if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
@@ -10932,6 +10938,7 @@ static LLTrace::BlockTimerStatHandle FTM_GENERATE_IMPOSTOR("Generate Impostor");
 void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 {
     LL_RECORD_BLOCK_TIME(FTM_GENERATE_IMPOSTOR);
+    LL_PROFILE_GPU_ZONE("generateImpostor");
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
@@ -11175,7 +11182,6 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;
-			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffersARB", 0x8000FF );
 			glDrawBuffersARB(1, &buff);
 		}
 

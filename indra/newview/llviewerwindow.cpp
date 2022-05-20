@@ -5274,6 +5274,7 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
+    LL_PROFILE_GPU_ZONE("cubeSnapshot");
     llassert(LLPipeline::sRenderDeferred);
     llassert(!gCubeSnapshot); //assert a snapshot isn't already in progress
     
