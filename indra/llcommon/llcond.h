@@ -53,6 +53,8 @@ private:
     LLCoros::Mutex mMutex;
     // Use LLCoros::ConditionVariable for the same reason.
     LLCoros::ConditionVariable mCond;
+    using LockType = LLCoros::LockType;
+    using cv_status = LLCoros::cv_status;
 
 public:
     /// LLCond can be explicitly initialized with a specific value for mData if
@@ -65,10 +67,29 @@ public:
     LLCond(const LLCond&) = delete;
     LLCond& operator=(const LLCond&) = delete;
 
-    /// get() returns a const reference to the stored DATA. The only way to
-    /// get a non-const reference -- to modify the stored DATA -- is via
-    /// update_one() or update_all().
-    const value_type& get() const { return mData; }
+    /**
+     * get() returns the stored DATA by value -- so to use get(), DATA must
+     * be copyable. The only way to get a non-const reference -- to modify
+     * the stored DATA -- is via update_one() or update_all().
+     */
+    value_type get()
+    {
+        LockType lk(mMutex);
+        return mData;
+    }
+
+    /**
+     * get(functor) returns whatever the functor returns. It allows us to peek
+     * at the stored DATA without copying the whole thing. The functor must
+     * accept a const reference to DATA. If you want to modify DATA, call
+     * update_one() or update_all() instead.
+     */
+    template <typename FUNC>
+    auto get(FUNC&& func)
+    {
+        LockType lk(mMutex);
+        return std::forward<FUNC>(func)(const_data());
+    }
 
     /**
      * Pass update_one() an invocable accepting non-const (DATA&). The
@@ -80,11 +101,11 @@ public:
      * update_one() when DATA is a struct or class.
      */
     template <typename MODIFY>
-    void update_one(MODIFY modify)
+    void update_one(MODIFY&& modify)
     {
         { // scope of lock can/should end before notify_one()
-            LLCoros::LockType lk(mMutex);
-            modify(mData);
+            LockType lk(mMutex);
+            std::forward<MODIFY>(modify)(mData);
         }
         mCond.notify_one();
     }
@@ -99,11 +120,11 @@ public:
      * update_all() when DATA is a struct or class.
      */
     template <typename MODIFY>
-    void update_all(MODIFY modify)
+    void update_all(MODIFY&& modify)
     {
         { // scope of lock can/should end before notify_all()
-            LLCoros::LockType lk(mMutex);
-            modify(mData);
+            LockType lk(mMutex);
+            std::forward<MODIFY>(modify)(mData);
         }
         mCond.notify_all();
     }
@@ -116,9 +137,9 @@ public:
      * wait() on the condition_variable.
      */
     template <typename Pred>
-    void wait(Pred pred)
+    void wait(Pred&& pred)
     {
-        LLCoros::LockType lk(mMutex);
+        LockType lk(mMutex);
         // We must iterate explicitly since the predicate accepted by
         // condition_variable::wait() requires a different signature:
         // condition_variable::wait() calls its predicate with no arguments.
@@ -127,7 +148,7 @@ public:
         // But what if they instead pass a predicate accepting non-const
         // (DATA&)? Such a predicate could modify mData, which would be Bad.
         // Forbid that.
-        while (! pred(const_cast<const value_type&>(mData)))
+        while (! std::forward<Pred>(pred)(const_data()))
         {
             mCond.wait(lk);
         }
@@ -144,7 +165,7 @@ public:
      * returning true.
      */
     template <typename Rep, typename Period, typename Pred>
-    bool wait_for(const std::chrono::duration<Rep, Period>& timeout_duration, Pred pred)
+    bool wait_for(const std::chrono::duration<Rep, Period>& timeout_duration, Pred&& pred)
     {
         // Instead of replicating wait_until() logic, convert duration to
         // time_point and just call wait_until().
@@ -153,7 +174,8 @@ public:
         // wrong! We'd keep pushing the timeout time farther and farther into
         // the future. This way, we establish a definite timeout time and
         // stick to it.
-        return wait_until(std::chrono::steady_clock::now() + timeout_duration, pred);
+        return wait_until(std::chrono::steady_clock::now() + timeout_duration,
+                          std::forward<Pred>(pred));
     }
 
     /**
@@ -163,9 +185,9 @@ public:
      * generic wait_for() method.
      */
     template <typename Pred>
-    bool wait_for(F32Milliseconds timeout_duration, Pred pred)
+    bool wait_for(F32Milliseconds timeout_duration, Pred&& pred)
     {
-        return wait_for(convert(timeout_duration), pred);
+        return wait_for(convert(timeout_duration), std::forward<Pred>(pred));
     }
 
 protected:
@@ -183,6 +205,10 @@ protected:
     }
 
 private:
+    // It's important to pass a const ref to certain user-specified functors
+    // that aren't supposed to be able to modify mData.
+    const value_type& const_data() const { return mData; }
+
     /**
      * Pass wait_until() a chrono::time_point, indicating the time at which we
      * should stop waiting, and a predicate accepting (const DATA&), returning
@@ -203,21 +229,21 @@ private:
      * honoring a fixed timeout.
      */
     template <typename Clock, typename Duration, typename Pred>
-    bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred pred)
+    bool wait_until(const std::chrono::time_point<Clock, Duration>& timeout_time, Pred&& pred)
     {
-        LLCoros::LockType lk(mMutex);
+        LockType lk(mMutex);
         // We advise the caller to pass a predicate accepting (const DATA&).
         // But what if they instead pass a predicate accepting non-const
         // (DATA&)? Such a predicate could modify mData, which would be Bad.
         // Forbid that.
-        while (! pred(const_cast<const value_type&>(mData)))
+        while (! std::forward<Pred>(pred)(const_data()))
         {
-            if (LLCoros::cv_status::timeout == mCond.wait_until(lk, timeout_time))
+            if (cv_status::timeout == mCond.wait_until(lk, timeout_time))
             {
                 // It's possible that wait_until() timed out AND the predicate
                 // became true more or less simultaneously. Even though
                 // wait_until() timed out, check the predicate one more time.
-                return pred(const_cast<const value_type&>(mData));
+                return std::forward<Pred>(pred)(const_data());
             }
         }
         return true;

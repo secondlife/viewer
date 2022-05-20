@@ -37,6 +37,8 @@ class LLViewerTexture;
 class LLViewerFetchedTexture;
 class LLSpatialGroup;
 class LLDrawInfo;
+class LLVOAvatar;
+class LLMeshSkinInfo;
 
 class LLDrawPool
 {
@@ -125,38 +127,69 @@ protected:
 class LLRenderPass : public LLDrawPool
 {
 public:
+    // list of possible LLRenderPass types to assign a render batch to
+    // NOTE: "rigged" variant MUST be non-rigged variant + 1
 	enum
 	{
 		PASS_SIMPLE = NUM_POOL_TYPES,
+        PASS_SIMPLE_RIGGED,
 		PASS_GRASS,
 		PASS_FULLBRIGHT,
+        PASS_FULLBRIGHT_RIGGED,
 		PASS_INVISIBLE,
-		PASS_INVISI_SHINY,
+        PASS_INVISIBLE_RIGGED,
+		PASS_INVISI_SHINY, 
+        PASS_INVISI_SHINY_RIGGED,
 		PASS_FULLBRIGHT_SHINY,
+        PASS_FULLBRIGHT_SHINY_RIGGED,
 		PASS_SHINY,
+        PASS_SHINY_RIGGED,
 		PASS_BUMP,
+        PASS_BUMP_RIGGED,
 		PASS_POST_BUMP,
+        PASS_POST_BUMP_RIGGED,
 		PASS_MATERIAL,
+        PASS_MATERIAL_RIGGED,
 		PASS_MATERIAL_ALPHA,
+        PASS_MATERIAL_ALPHA_RIGGED,
 		PASS_MATERIAL_ALPHA_MASK,              // Diffuse texture used as alpha mask
+        PASS_MATERIAL_ALPHA_MASK_RIGGED,
 		PASS_MATERIAL_ALPHA_EMISSIVE,
+        PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED,
 		PASS_SPECMAP,
+        PASS_SPECMAP_RIGGED,
 		PASS_SPECMAP_BLEND,
+        PASS_SPECMAP_BLEND_RIGGED,
 		PASS_SPECMAP_MASK,                     // Diffuse texture used as alpha mask and specular texture(map)
+        PASS_SPECMAP_MASK_RIGGED,
 		PASS_SPECMAP_EMISSIVE,
+        PASS_SPECMAP_EMISSIVE_RIGGED,
 		PASS_NORMMAP,
+        PASS_NORMMAP_RIGGED,
 		PASS_NORMMAP_BLEND,
+        PASS_NORMMAP_BLEND_RIGGED,
 		PASS_NORMMAP_MASK,                     // Diffuse texture used as alpha mask and normal map
+        PASS_NORMMAP_MASK_RIGGED,
 		PASS_NORMMAP_EMISSIVE,
+        PASS_NORMMAP_EMISSIVE_RIGGED,
 		PASS_NORMSPEC,
-		PASS_NORMSPEC_BLEND,
+        PASS_NORMSPEC_RIGGED,
+		PASS_NORMSPEC_BLEND, 
+        PASS_NORMSPEC_BLEND_RIGGED,
 		PASS_NORMSPEC_MASK,                    // Diffuse texture used as alpha mask with normal and specular map
+        PASS_NORMSPEC_MASK_RIGGED,
 		PASS_NORMSPEC_EMISSIVE,
+        PASS_NORMSPEC_EMISSIVE_RIGGED,
 		PASS_GLOW,
+        PASS_GLOW_RIGGED,
 		PASS_ALPHA,
+        PASS_ALPHA_RIGGED,
 		PASS_ALPHA_MASK,
+        PASS_ALPHA_MASK_RIGGED,
 		PASS_FULLBRIGHT_ALPHA_MASK,            // Diffuse texture used as alpha mask and fullbright
+        PASS_FULLBRIGHT_ALPHA_MASK_RIGGED,
 		PASS_ALPHA_INVISIBLE,
+        PASS_ALPHA_INVISIBLE_RIGGED,
 		NUM_RENDER_TYPES,
 	};
 
@@ -169,12 +202,14 @@ public:
 
 	static void applyModelMatrix(const LLDrawInfo& params);
 	virtual void pushBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
+    virtual void pushRiggedBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 	virtual void pushMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
+    virtual void pushRiggedMaskBatches(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_textures = FALSE);
 	virtual void pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL batch_textures = FALSE);
+    static bool uploadMatrixPalette(LLDrawInfo& params);
+    static bool uploadMatrixPalette(LLVOAvatar* avatar, LLMeshSkinInfo* skinInfo);
 	virtual void renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderGroups(U32 type, U32 mask, BOOL texture = TRUE);
-	virtual void renderTexture(U32 type, U32 mask, BOOL batch_textures = TRUE);
-
+    virtual void renderRiggedGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
 };
 
 class LLFacePool : public LLDrawPool

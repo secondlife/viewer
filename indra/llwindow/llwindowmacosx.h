@@ -41,85 +41,84 @@
 #undef verify
 #undef require
 
-
 class LLWindowMacOSX : public LLWindow
 {
 public:
-	/*virtual*/ void show();
-	/*virtual*/ void hide();
-	/*virtual*/ void close();
-	/*virtual*/ BOOL getVisible();
-	/*virtual*/ BOOL getMinimized();
-	/*virtual*/ BOOL getMaximized();
-	/*virtual*/ BOOL maximize();
-	/*virtual*/ void minimize();
-	/*virtual*/ void restore();
-	/*virtual*/ BOOL getFullscreen();
-	/*virtual*/ BOOL getPosition(LLCoordScreen *position);
-	/*virtual*/ BOOL getSize(LLCoordScreen *size);
-	/*virtual*/ BOOL getSize(LLCoordWindow *size);
-	/*virtual*/ BOOL setPosition(LLCoordScreen position);
-	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
-	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
-	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
-	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
-	/*virtual*/ void showCursor();
-	/*virtual*/ void hideCursor();
-	/*virtual*/ void showCursorFromMouseMove();
-	/*virtual*/ void hideCursorUntilMouseMove();
-	/*virtual*/ BOOL isCursorHidden();
-	/*virtual*/ void updateCursor();
-	/*virtual*/ ECursorType getCursor() const;
-	/*virtual*/ void captureMouse();
-	/*virtual*/ void releaseMouse();
-	/*virtual*/ void setMouseClipping( BOOL b );
-	/*virtual*/ BOOL isClipboardTextAvailable();
-	/*virtual*/ BOOL pasteTextFromClipboard(LLWString &dst);
-	/*virtual*/ BOOL copyTextToClipboard(const LLWString & src);
-	/*virtual*/ void flashIcon(F32 seconds);
-	/*virtual*/ F32 getGamma();
-	/*virtual*/ BOOL setGamma(const F32 gamma); // Set the gamma
-	/*virtual*/ U32 getFSAASamples();
-	/*virtual*/ void setFSAASamples(const U32 fsaa_samples);
-	/*virtual*/ BOOL restoreGamma();			// Restore original gamma table (before updating gamma)
-	/*virtual*/ ESwapMethod getSwapMethod() { return mSwapMethod; }
-	/*virtual*/ void gatherInput();
-	/*virtual*/ void delayInputProcessing() {};
-	/*virtual*/ void swapBuffers();
+	void show() override;
+	void hide() override;
+	void close() override;
+	BOOL getVisible() override;
+	BOOL getMinimized() override;
+	BOOL getMaximized() override;
+	BOOL maximize() override;
+	void minimize() override;
+	void restore() override;
+	BOOL getFullscreen();
+	BOOL getPosition(LLCoordScreen *position) override;
+	BOOL getSize(LLCoordScreen *size) override;
+	BOOL getSize(LLCoordWindow *size) override;
+	BOOL setPosition(LLCoordScreen position) override;
+	BOOL setSizeImpl(LLCoordScreen size) override;
+	BOOL setSizeImpl(LLCoordWindow size) override;
+	BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) override;
+	BOOL setCursorPosition(LLCoordWindow position) override;
+	BOOL getCursorPosition(LLCoordWindow *position) override;
+	void showCursor() override;
+	void hideCursor() override;
+	void showCursorFromMouseMove() override;
+	void hideCursorUntilMouseMove() override;
+	BOOL isCursorHidden() override;
+	void updateCursor() override;
+	ECursorType getCursor() const override;
+	void captureMouse() override;
+	void releaseMouse() override;
+	void setMouseClipping( BOOL b ) override;
+	BOOL isClipboardTextAvailable() override;
+	BOOL pasteTextFromClipboard(LLWString &dst) override;
+	BOOL copyTextToClipboard(const LLWString & src) override;
+	void flashIcon(F32 seconds) override;
+	F32 getGamma() override;
+	BOOL setGamma(const F32 gamma) override; // Set the gamma
+	U32 getFSAASamples() override;
+	void setFSAASamples(const U32 fsaa_samples) override;
+	BOOL restoreGamma() override;			// Restore original gamma table (before updating gamma)
+	ESwapMethod getSwapMethod() override { return mSwapMethod; }
+	void gatherInput() override;
+	void delayInputProcessing() override {};
+	void swapBuffers() override;
 	
 	// handy coordinate space conversion routines
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to);
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to);
-	/*virtual*/ BOOL convertCoords(LLCoordWindow from, LLCoordGL *to);
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordWindow *to);
-	/*virtual*/ BOOL convertCoords(LLCoordScreen from, LLCoordGL *to);
-	/*virtual*/ BOOL convertCoords(LLCoordGL from, LLCoordScreen *to);
+	BOOL convertCoords(LLCoordScreen from, LLCoordWindow *to) override;
+	BOOL convertCoords(LLCoordWindow from, LLCoordScreen *to) override;
+	BOOL convertCoords(LLCoordWindow from, LLCoordGL *to) override;
+	BOOL convertCoords(LLCoordGL from, LLCoordWindow *to) override;
+	BOOL convertCoords(LLCoordScreen from, LLCoordGL *to) override;
+	BOOL convertCoords(LLCoordGL from, LLCoordScreen *to) override;
 
-	/*virtual*/ LLWindowResolution* getSupportedResolutions(S32 &num_resolutions);
-	/*virtual*/ F32	getNativeAspectRatio();
-	/*virtual*/ F32 getPixelAspectRatio();
-	/*virtual*/ void setNativeAspectRatio(F32 ratio) { mOverrideAspectRatio = ratio; }
+	LLWindowResolution* getSupportedResolutions(S32 &num_resolutions) override;
+	F32	getNativeAspectRatio() override;
+	F32 getPixelAspectRatio() override;
+	void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
-	/*virtual*/ void beforeDialog();
-	/*virtual*/ void afterDialog();
+	void beforeDialog() override;
+	void afterDialog() override;
 
-	/*virtual*/ BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b);
+	BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b) override;
 
-	/*virtual*/ void *getPlatformWindow();
-	/*virtual*/ void bringToFront() {};
+	void *getPlatformWindow() override;
+	void bringToFront() override {};
 	
-	/*virtual*/ void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b);
-	/*virtual*/ void interruptLanguageTextInput();
-	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
-	/*virtual*/ F32 getSystemUISize();
+	void allowLanguageTextInput(LLPreeditor *preeditor, BOOL b) override;
+	void interruptLanguageTextInput() override;
+	void spawnWebBrowser(const std::string& escaped_url, bool async) override;
+	F32 getSystemUISize() override;
 
 	static std::vector<std::string> getDisplaysResolutionList();
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
 	// Provide native key event data
-	/*virtual*/ LLSD getNativeKeyData();
+	LLSD getNativeKeyData() override;
 	
 	void* getWindow() { return mWindow; }
 	LLWindowCallbacks* getCallbacks() { return mCallbacks; }
@@ -132,16 +131,27 @@ public:
     
     bool allowsLanguageInput() { return mLanguageTextInputAllowed; }
 
+    //create a new GL context that shares a namespace with this Window's main GL context and make it current on the current thread
+    // returns a pointer to be handed back to destroySharedConext/makeContextCurrent
+    void* createSharedContext() override;
+    //make the given context current on the current thread
+    void makeContextCurrent(void* context) override;
+    //destroy the given context that was retrieved by createSharedContext()
+    //Must be called on the same thread that called createSharedContext()
+    void destroySharedContext(void* context) override;
+
+    void toggleVSync(bool enable_vsync) override;
+
 protected:
 	LLWindowMacOSX(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags,
-		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
+		BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth,
 		U32 fsaa_samples);
 		~LLWindowMacOSX();
 
 	void	initCursors();
-	BOOL	isValid();
+	BOOL	isValid() override;
 	void	moveWindow(const LLCoordScreen& position,const LLCoordScreen& size);
 
 
@@ -157,7 +167,7 @@ protected:
 	BOOL	shouldPostQuit() { return mPostQuit; }
     
     //Satisfy MAINT-3135 and MAINT-3288 with a flag.
-    /*virtual */ void setOldResize(bool oldresize) {setResizeMode(oldresize, mGLView); }
+    /*virtual */ void setOldResize(bool oldresize) override {setResizeMode(oldresize, mGLView); }
 
 private:
     void restoreGLContext();
@@ -168,7 +178,7 @@ protected:
 	//
 
 	// create or re-create the GL context/window.  Called from the constructor and switchContext().
-	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync);
+	BOOL createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync);
 	void destroyContext();
 	void setupFailure(const std::string& text, const std::string& caption, U32 type);
 	void adjustCursorDecouple(bool warpingMouse = false);
@@ -231,9 +241,9 @@ public:
 	LLSplashScreenMacOSX();
 	virtual ~LLSplashScreenMacOSX();
 
-	/*virtual*/ void showImpl();
-	/*virtual*/ void updateImpl(const std::string& mesg);
-	/*virtual*/ void hideImpl();
+	void showImpl();
+	void updateImpl(const std::string& mesg);
+	void hideImpl();
 
 private:
 	WindowRef   mWindow;

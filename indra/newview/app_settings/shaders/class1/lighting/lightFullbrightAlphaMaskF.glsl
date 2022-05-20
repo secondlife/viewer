@@ -43,14 +43,14 @@ VARYING vec2 vary_texcoord0;
 
 void fullbright_lighting()
 {
-	vec4 color = diffuseLookup(vary_texcoord0.xy);
+	vec4 color = diffuseLookup(vary_texcoord0.xy) * vertex_color;
 	
 	if (color.a < minimum_alpha)
 	{
 		discard;
 	}
 
-	color.rgb *= vertex_color.rgb;
+	//color.rgb *= vertex_color.rgb;
 
 	color.rgb = pow(color.rgb, vec3(texture_gamma));
 

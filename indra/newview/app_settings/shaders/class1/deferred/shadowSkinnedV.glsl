@@ -1,7 +1,7 @@
 /** 
- * @file emissiveSkinnedV.glsl
+ * @file shadowSkinnedV.glsl
  *
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
  * 
@@ -23,34 +23,30 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 projection_matrix;
-uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
 
 ATTRIBUTE vec3 position;
-ATTRIBUTE vec4 emissive;
-ATTRIBUTE vec2 texcoord0;
 
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+VARYING vec4 post_pos;
 
-
-void calcAtmospherics(vec3 inPositionEye);
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
 	//transform vertex
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
 	mat4 mat = getObjectSkinnedTransform();
 	
 	mat = modelview_matrix * mat;
-	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
-	
-	vertex_color = emissive;
+	vec4 pos = (mat*vec4(position.xyz, 1.0));
+	pos = projection_matrix*pos;
 
-	calcAtmospherics(pos.xyz);
+	post_pos = pos;
 
-	gl_Position = projection_matrix*vec4(pos, 1.0);
+#if !defined(DEPTH_CLAMP)
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+#else
+	gl_Position = pos;
+#endif
+
 }

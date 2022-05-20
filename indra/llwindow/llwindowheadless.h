@@ -48,9 +48,16 @@ public:
 	/*virtual*/ BOOL setPosition(LLCoordScreen position) {return FALSE;};
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size) {return FALSE;};
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size) {return FALSE;};
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
-	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
-	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
+	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL) {return FALSE;};
+    void* createSharedContext()  { return nullptr; }
+    void makeContextCurrent(void*)  {}
+    void destroySharedContext(void*)  {}
+    /*virtual*/ void toggleVSync(bool enable_vsync) { }
+    /*virtual*/ BOOL setCursorPosition(LLCoordWindow position) {return FALSE;};
+    /*virtual*/ BOOL getCursorPosition(LLCoordWindow *position) {return FALSE;};
+#if LL_WINDOWS
+    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta) { return FALSE; }
+#endif
 	/*virtual*/ void showCursor() {};
 	/*virtual*/ void hideCursor() {};
 	/*virtual*/ void showCursorFromMouseMove() {};
@@ -97,7 +104,7 @@ public:
 		S32 x, S32 y, 
 		S32 width, S32 height,
 		U32 flags,  BOOL fullscreen, BOOL clear_background,
-		BOOL disable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
+		BOOL enable_vsync, BOOL use_gl, BOOL ignore_pixel_depth);
 	virtual ~LLWindowHeadless();
 
 private:

@@ -127,7 +127,7 @@ struct Info
 
 	LLEventAPI::Response response;
 	std::string groupname;
-	LLControlGroup* group;
+	LLControlGroup::ptr_t group;
 	std::string key;
 	LLControlVariable* control;
 };
@@ -187,7 +187,7 @@ void LLViewerControlListener::groups(LLSD const & request)
 
 struct CollectVars: public LLControlGroup::ApplyFunctor
 {
-	CollectVars(LLControlGroup* g):
+	CollectVars(LLControlGroup::ptr_t g):
 		mGroup(g)
 	{}
 
@@ -200,7 +200,7 @@ struct CollectVars: public LLControlGroup::ApplyFunctor
 					("comment", control->getComment()));
 	}
 
-	LLControlGroup* mGroup;
+	LLControlGroup::ptr_t mGroup;
 	LLSD vars;
 };
 
@@ -210,7 +210,7 @@ void LLViewerControlListener::vars(LLSD const & request)
 	// control name.
 	Response response(LLSD(), request);
 	std::string groupname(request["group"]);
-	LLControlGroup* group(LLControlGroup::getInstance(groupname));
+	auto group(LLControlGroup::getInstance(groupname));
 	if (! group)
 	{
 		return response.error(STRINGIZE("Unrecognized group '" << groupname << "'"));

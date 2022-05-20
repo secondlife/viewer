@@ -28,14 +28,18 @@
 #define LL_LLDRAWPOOLAVATAR_H
 
 #include "lldrawpool.h"
+#include "llmodel.h"
+
+#include <unordered_map>
 
 class LLVOAvatar;
+class LLVOVolume;
 class LLGLSLShader;
 class LLFace;
-class LLMeshSkinInfo;
 class LLVolume;
 class LLVolumeFace;
 
+extern U32 gFrameCount;
 
 class LLDrawPoolAvatar : public LLFacePool
 {
@@ -58,119 +62,11 @@ public:
     ~LLDrawPoolAvatar();
     /*virtual*/ BOOL isDead();
 
-    typedef enum
-	{
-		RIGGED_MATERIAL=0,
-		RIGGED_MATERIAL_ALPHA,
-		RIGGED_MATERIAL_ALPHA_MASK,
-		RIGGED_MATERIAL_ALPHA_EMISSIVE,
-		RIGGED_SPECMAP,
-		RIGGED_SPECMAP_BLEND,
-		RIGGED_SPECMAP_MASK,
-		RIGGED_SPECMAP_EMISSIVE,
-		RIGGED_NORMMAP,
-		RIGGED_NORMMAP_BLEND,
-		RIGGED_NORMMAP_MASK,
-		RIGGED_NORMMAP_EMISSIVE,
-		RIGGED_NORMSPEC,
-		RIGGED_NORMSPEC_BLEND,
-		RIGGED_NORMSPEC_MASK,
-		RIGGED_NORMSPEC_EMISSIVE,
-		RIGGED_SIMPLE,
-		RIGGED_FULLBRIGHT,
-		RIGGED_SHINY,
-		RIGGED_FULLBRIGHT_SHINY,
-		RIGGED_GLOW,
-		RIGGED_ALPHA,
-		RIGGED_FULLBRIGHT_ALPHA,
-		RIGGED_DEFERRED_BUMP,
-		RIGGED_DEFERRED_SIMPLE,
-		NUM_RIGGED_PASSES,
-		RIGGED_UNKNOWN,
-	} eRiggedPass;
-
-	typedef enum
-	{
-		RIGGED_MATERIAL_MASK =
-						LLVertexBuffer::MAP_VERTEX | 
-						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_TEXCOORD0 |
-						LLVertexBuffer::MAP_COLOR |
-						LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_MATERIAL_ALPHA_VMASK = RIGGED_MATERIAL_MASK,
-		RIGGED_MATERIAL_ALPHA_MASK_MASK = RIGGED_MATERIAL_MASK,
-		RIGGED_MATERIAL_ALPHA_EMISSIVE_MASK = RIGGED_MATERIAL_MASK,
-		RIGGED_SPECMAP_VMASK =
-						LLVertexBuffer::MAP_VERTEX | 
-						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_TEXCOORD0 |
-						LLVertexBuffer::MAP_TEXCOORD2 |
-						LLVertexBuffer::MAP_COLOR |
-						LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_SPECMAP_BLEND_MASK = RIGGED_SPECMAP_VMASK,
-		RIGGED_SPECMAP_MASK_MASK = RIGGED_SPECMAP_VMASK,
-		RIGGED_SPECMAP_EMISSIVE_MASK = RIGGED_SPECMAP_VMASK,
-		RIGGED_NORMMAP_VMASK =
-						LLVertexBuffer::MAP_VERTEX | 
-						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_TANGENT | 
-						LLVertexBuffer::MAP_TEXCOORD0 |
-						LLVertexBuffer::MAP_TEXCOORD1 |
-						LLVertexBuffer::MAP_COLOR |
-						LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_NORMMAP_BLEND_MASK = RIGGED_NORMMAP_VMASK,
-		RIGGED_NORMMAP_MASK_MASK = RIGGED_NORMMAP_VMASK,
-		RIGGED_NORMMAP_EMISSIVE_MASK = RIGGED_NORMMAP_VMASK,
-		RIGGED_NORMSPEC_VMASK =
-						LLVertexBuffer::MAP_VERTEX | 
-						LLVertexBuffer::MAP_NORMAL | 
-						LLVertexBuffer::MAP_TANGENT | 
-						LLVertexBuffer::MAP_TEXCOORD0 |
-						LLVertexBuffer::MAP_TEXCOORD1 |
-						LLVertexBuffer::MAP_TEXCOORD2 |
-						LLVertexBuffer::MAP_COLOR |
-						LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_NORMSPEC_BLEND_MASK = RIGGED_NORMSPEC_VMASK,
-		RIGGED_NORMSPEC_MASK_MASK = RIGGED_NORMSPEC_VMASK,
-		RIGGED_NORMSPEC_EMISSIVE_MASK = RIGGED_NORMSPEC_VMASK,
-		RIGGED_SIMPLE_MASK = LLVertexBuffer::MAP_VERTEX | 
-							 LLVertexBuffer::MAP_NORMAL | 
-							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_COLOR |
-							 LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_FULLBRIGHT_MASK = LLVertexBuffer::MAP_VERTEX | 
-							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_COLOR |
-							 LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_SHINY_MASK = RIGGED_SIMPLE_MASK,
-		RIGGED_FULLBRIGHT_SHINY_MASK = RIGGED_SIMPLE_MASK,							 
-		RIGGED_GLOW_MASK = LLVertexBuffer::MAP_VERTEX | 
-							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_EMISSIVE |
-							 LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_ALPHA_MASK = RIGGED_SIMPLE_MASK,
-		RIGGED_FULLBRIGHT_ALPHA_MASK = RIGGED_FULLBRIGHT_MASK,
-		RIGGED_DEFERRED_BUMP_MASK = LLVertexBuffer::MAP_VERTEX | 
-							 LLVertexBuffer::MAP_NORMAL | 
-							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_TANGENT |
-							 LLVertexBuffer::MAP_COLOR |
-							 LLVertexBuffer::MAP_WEIGHT4,
-		RIGGED_DEFERRED_SIMPLE_MASK = LLVertexBuffer::MAP_VERTEX | 
-							 LLVertexBuffer::MAP_NORMAL | 
-							 LLVertexBuffer::MAP_TEXCOORD0 |
-							 LLVertexBuffer::MAP_COLOR |
-							 LLVertexBuffer::MAP_WEIGHT4,
-	} eRiggedDataMask;
-
 typedef enum
 	{
 		SHADOW_PASS_AVATAR_OPAQUE,
         SHADOW_PASS_AVATAR_ALPHA_BLEND,
         SHADOW_PASS_AVATAR_ALPHA_MASK,
-        SHADOW_PASS_ATTACHMENT_ALPHA_BLEND,
-        SHADOW_PASS_ATTACHMENT_ALPHA_MASK,
-        SHADOW_PASS_ATTACHMENT_OPAQUE,
         NUM_SHADOW_PASSES
 	} eShadowPass;
 
@@ -211,77 +107,18 @@ typedef enum
 	void endImpostor();
 	void endSkinned();
 
-	void beginDeferredImpostor();
-	void beginDeferredRigid();
-	void beginDeferredSkinned();
-	
-	void endDeferredImpostor();
-	void endDeferredRigid();
-	void endDeferredSkinned();
-	
-	void beginPostDeferredAlpha();
-	void endPostDeferredAlpha();
+    void beginDeferredRigid();
+    void beginDeferredImpostor();
+    void beginDeferredSkinned();
 
-	void beginRiggedSimple();
-	void beginRiggedFullbright();
-	void beginRiggedFullbrightShiny();
-	void beginRiggedShinySimple();
-	void beginRiggedAlpha();
-	void beginRiggedFullbrightAlpha();
-	void beginRiggedGlow();
-	void beginDeferredRiggedAlpha();
-	void beginDeferredRiggedMaterial(S32 pass);
-	void beginDeferredRiggedMaterialAlpha(S32 pass);
-
-	void endRiggedSimple();
-	void endRiggedFullbright();
-	void endRiggedFullbrightShiny();
-	void endRiggedShinySimple();
-	void endRiggedAlpha();
-	void endRiggedFullbrightAlpha();
-	void endRiggedGlow();
-	void endDeferredRiggedAlpha();
-	void endDeferredRiggedMaterial(S32 pass);
-	void endDeferredRiggedMaterialAlpha(S32 pass);
-
-	void beginDeferredRiggedSimple();
-	void beginDeferredRiggedBump();
-	
-	void endDeferredRiggedSimple();
-	void endDeferredRiggedBump();
-		
-	void getRiggedGeometry(LLFace* face, LLPointer<LLVertexBuffer>& buffer, U32 data_mask, const LLMeshSkinInfo* skin, LLVolume* volume, const LLVolumeFace& vol_face);
-	void updateRiggedFaceVertexBuffer(LLVOAvatar* avatar,
-									  LLFace* facep, 
-									  const LLMeshSkinInfo* skin, 
-									  LLVolume* volume,
-									  LLVolumeFace& vol_face);
-	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
-
-	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
-	void renderRiggedSimple(LLVOAvatar* avatar);
-	void renderRiggedAlpha(LLVOAvatar* avatar);
-	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);
-	void renderRiggedFullbright(LLVOAvatar* avatar);
-	void renderRiggedShinySimple(LLVOAvatar* avatar);
-	void renderRiggedFullbrightShiny(LLVOAvatar* avatar);
-	void renderRiggedGlow(LLVOAvatar* avatar);
-	void renderDeferredRiggedSimple(LLVOAvatar* avatar);
-	void renderDeferredRiggedBump(LLVOAvatar* avatar);
-	void renderDeferredRiggedMaterial(LLVOAvatar* avatar, S32 pass);
-	
-	
-
-	void addRiggedFace(LLFace* facep, U32 type);
-	void removeRiggedFace(LLFace* facep); 
-
-	std::vector<LLFace*> mRiggedFace[NUM_RIGGED_PASSES];
+    void endDeferredRigid();
+    void endDeferredImpostor();
+    void endDeferredSkinned();
 
 	/*virtual*/ LLViewerTexture *getDebugTexture();
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderAvatars(LLVOAvatar *single_avatar, S32 pass = -1); // renders only one avatar if single_avatar is not null.
-
 
 	static BOOL sSkipOpaque;
 	static BOOL sSkipTransparent;

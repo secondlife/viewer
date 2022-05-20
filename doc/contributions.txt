@@ -278,6 +278,7 @@ Beq Janus
 	SL-14766
 	SL-14927
 	SL-11300
+	SL-15709
 	SL-16021
 Beth Walcher
 Bezilon Kasei
@@ -1370,7 +1371,7 @@ Sovereign Engineer
     MAINT-7343
     SL-11079
     OPEN-343
-    SL-11625
+	SL-11625
     BUG-229030
 	SL-14705
 	SL-14706
@@ -1378,6 +1379,7 @@ Sovereign Engineer
 	SL-14731
 	SL-14732
 	SL-15096
+	SL-16127
 SpacedOut Frye
 	VWR-34
 	VWR-45

@@ -30,6 +30,7 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llstaticstringtable.h"
+#include <unordered_map>
 
 class LLShaderFeatures
 {
@@ -64,16 +65,79 @@ public:
 	LLShaderFeatures();
 };
 
+// ============= Structure for caching shader uniforms ===============
+class LLGLSLShader;
+
+class LLShaderUniforms
+{
+public:
+
+    template<typename T>
+    struct UniformSetting
+    {
+        S32 mUniform;
+        T mValue;
+    };
+
+    typedef UniformSetting<S32> IntSetting;
+    typedef UniformSetting<F32> FloatSetting;
+    typedef UniformSetting<LLVector4> VectorSetting;
+    typedef UniformSetting<LLVector3> Vector3Setting;
+
+    void clear()
+    {
+        mIntegers.resize(0);
+        mFloats.resize(0);
+        mVectors.resize(0);
+        mVector3s.resize(0);
+    }
+
+    void uniform1i(S32 index, S32 value)
+    {
+        mIntegers.push_back({ index, value });
+    }
+
+    void uniform1f(S32 index, F32 value)
+    {
+        mFloats.push_back({ index, value });
+    }
+
+    void uniform4fv(S32 index, const LLVector4& value)
+    {
+        mVectors.push_back({ index, value });
+    }
+    
+    void uniform4fv(S32 index, const F32* value)
+    {
+        mVectors.push_back({ index, LLVector4(value) });
+    }
+
+    void uniform3fv(S32 index, const LLVector3& value)
+    {
+        mVector3s.push_back({ index, value });
+    }
+
+    void apply(LLGLSLShader* shader);
+   
+
+    std::vector<IntSetting> mIntegers;
+    std::vector<FloatSetting> mFloats;
+    std::vector<VectorSetting> mVectors;
+    std::vector<Vector3Setting> mVector3s;
+};
 class LLGLSLShader
 {
 public:
 
-	enum 
+    // enum primarily used to control application sky settings uniforms
+	typedef enum 
 	{
-		SG_DEFAULT = 0,
-		SG_SKY,
-		SG_WATER
-	};
+		SG_DEFAULT = 0,  // not sky or water specific
+		SG_SKY,  //
+		SG_WATER,
+        SG_ANY,
+        SG_COUNT
+	} eGroup;
 	
 	static std::set<LLGLSLShader*> sInstances;
 	static bool sProfileEnabled;
@@ -84,7 +148,6 @@ public:
 	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
-	static bool sNoFixedFunction;
 
 	static void initProfile();
 	static void finishProfile(bool emit_report = true);
@@ -166,6 +229,8 @@ public:
 	
     BOOL link(BOOL suppress_errors = FALSE);
 	void bind();
+    //helper to conditionally bind mRiggedVariant instead of this
+    void bind(bool rigged);
 	void unbind();
 
 	// Unbinds any previously bound shader by explicitly binding no shader.
@@ -190,18 +255,21 @@ public:
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location
 	LLStaticStringTable<GLint> mUniformMap; //lookup map of uniform name to uniform location
-	std::map<GLint, std::string> mUniformNameMap; //lookup map of uniform location to uniform name
-	std::map<GLint, LLVector4> mValue; //lookup map of uniform location to last known value
+    typedef std::unordered_map<GLint, std::string> uniform_name_map_t;
+    typedef std::unordered_map<GLint, LLVector4> uniform_value_map_t;
+    uniform_name_map_t mUniformNameMap; //lookup map of uniform location to uniform name
+	uniform_value_map_t mValue; //lookup map of uniform location to last known value
 	std::vector<GLint> mTexture;
 	S32 mTotalUniformSize;
 	S32 mActiveTextureChannels;
 	S32 mShaderLevel;
-	S32 mShaderGroup;
+	S32 mShaderGroup; // see LLGLSLShader::eGroup
 	BOOL mUniformsDirty;
 	LLShaderFeatures mFeatures;
 	std::vector< std::pair< std::string, GLenum > > mShaderFiles;
 	std::string mName;
-	boost::unordered_map<std::string, std::string> mDefines;
+    typedef std::unordered_map<std::string, std::string> defines_map_t;
+	defines_map_t mDefines;
 
 	//statistcis for profiling shader performance
 	U32 mTimerQuery;
@@ -218,6 +286,9 @@ public:
 	bool mTextureStateFetched;
 	std::vector<U32> mTextureMagFilter;
 	std::vector<U32> mTextureMinFilter;
+
+    // this pointer should be set to whichever shader represents this shader's rigged variant
+    LLGLSLShader* mRiggedVariant = nullptr;
 
 private:
 	void unloadInternal();

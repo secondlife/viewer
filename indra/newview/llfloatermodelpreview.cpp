@@ -138,10 +138,10 @@ mAvatarTabIndex(0)
 	mStatusLock = new LLMutex();
 	mModelPreview = NULL;
 
-	mLODMode[LLModel::LOD_HIGH] = 0;
+	mLODMode[LLModel::LOD_HIGH] = LLModelPreview::LOD_FROM_FILE;
 	for (U32 i = 0; i < LLModel::LOD_HIGH; i++)
 	{
-		mLODMode[i] = 1;
+		mLODMode[i] = LLModelPreview::MESH_OPTIMIZER_AUTO;
 	}
 }
 
@@ -351,15 +351,6 @@ void LLFloaterModelPreview::initModelPreview()
 //static
 bool LLFloaterModelPreview::showModelPreview()
 {
-#ifdef LL_GLOD
-    if (LLRender::sGLCoreProfile)
-    {
-        // GLOD is incompatible with RenderGLCoreProfile, will crash on init
-        LLNotificationsUtil::add("MeshUploadProfilerError");
-        return false;
-    }
-#endif
-
     LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)LLFloaterReg::getInstance("upload_model");
     if (fmp && !fmp->isModelLoading())
     {
@@ -744,7 +735,19 @@ void LLFloaterModelPreview::onAutoFillCommit(LLUICtrl* ctrl, void* userdata)
 
 void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
 {
-	mModelPreview->onLODParamCommit(lod, enforce_tri_limit);
+    LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
+    S32 mode = lod_source_combo->getCurrentIndex();
+    switch (mode)
+    {
+    case LLModelPreview::MESH_OPTIMIZER_AUTO:
+    case LLModelPreview::MESH_OPTIMIZER_SLOPPY:
+    case LLModelPreview::MESH_OPTIMIZER_COMBINE:
+        mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
+        break;
+    default:
+        LL_ERRS() << "Only supposed to be called to generate models" << LL_ENDL;
+        break;
+    }
 
 	//refresh LoDs that reference this one
 	for (S32 i = lod - 1; i >= 0; --i)
@@ -1376,31 +1379,31 @@ void LLFloaterModelPreview::clearAvatarTab()
 			}
 
 void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
-			{
+{
     S32 display_lod = mModelPreview->mPreviewLOD;
     if (mModelPreview->mModel[display_lod].empty())
-				{
+    {
         mSelectedJointName.clear();
         return;
-					}
+    }
 
     // Joints will be listed as long as they are listed in mAlternateBindMatrix
     // even if they are for some reason identical to defaults.
     // Todo: Are overrides always identical for all lods? They normally are, but there might be situations where they aren't.
     if (mJointOverrides[display_lod].empty())
-					{
+    {
         // populate map
         for (LLModelLoader::scene::iterator iter = mModelPreview->mScene[display_lod].begin(); iter != mModelPreview->mScene[display_lod].end(); ++iter)
-					{
+        {
             for (LLModelLoader::model_instance_list::iterator model_iter = iter->second.begin(); model_iter != iter->second.end(); ++model_iter)
-					{
+            {
                 LLModelInstance& instance = *model_iter;
                 LLModel* model = instance.mModel;
                 const LLMeshSkinInfo *skin = &model->mSkinInfo;
                 U32 joint_count = LLSkinningUtil::getMeshJointCount(skin);
                 U32 bind_count = highlight_overrides ? skin->mAlternateBindMatrix.size() : 0; // simply do not include overrides if data is not needed
                 if (bind_count > 0 && bind_count != joint_count)
-						{
+                {
                     std::ostringstream out;
                     out << "Invalid joint overrides for model " << model->getName();
                     out << ". Amount of joints " << joint_count;
@@ -1409,68 +1412,68 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
                     addStringToLog(out.str(), true);
                     // Disable overrides for this model
                     bind_count = 0;
-						}
+                }
                 if (bind_count > 0)
-						{
+                {
                     for (U32 j = 0; j < joint_count; ++j)
-							{
-                        const LLVector3& joint_pos = skin->mAlternateBindMatrix[j].getTranslation();
+                    {
+                        const LLVector3& joint_pos = LLVector3(skin->mAlternateBindMatrix[j].getTranslation());
                         LLJointOverrideData &data = mJointOverrides[display_lod][skin->mJointNames[j]];
 
                         LLJoint* pJoint = LLModelPreview::lookupJointByName(skin->mJointNames[j], mModelPreview);
                         if (pJoint)
-							{
+                        {
                             // see how voavatar uses aboveJointPosThreshold
                             if (pJoint->aboveJointPosThreshold(joint_pos))
-				{
+                            {
                                 // valid override
                                 if (data.mPosOverrides.size() > 0
                                     && (data.mPosOverrides.begin()->second - joint_pos).lengthSquared() > (LL_JOINT_TRESHOLD_POS_OFFSET * LL_JOINT_TRESHOLD_POS_OFFSET))
-					{
+                                {
                                     // File contains multiple meshes with conflicting joint offsets
                                     // preview may be incorrect, upload result might wary (depends onto
                                     // mesh_id that hasn't been generated yet).
                                     data.mHasConflicts = true;
-							}
+                                }
                                 data.mPosOverrides[model->getName()] = joint_pos;
-						}
-						else
-						{
+                            }
+                            else
+                            {
                                 // default value, it won't be accounted for by avatar
                                 data.mModelsNoOverrides.insert(model->getName());
-					}
-					}
-				}
-			}
-			else
-			{
+                            }
+                        }
+                    }
+                }
+                else
+                {
                     for (U32 j = 0; j < joint_count; ++j)
-				{				
+                    {
                         LLJointOverrideData &data = mJointOverrides[display_lod][skin->mJointNames[j]];
                         data.mModelsNoOverrides.insert(model->getName());
                     }
                 }
-			}
-		}
-	}
+            }
+        }
+    }
 
     LLPanel *panel = mTabContainer->getPanelByName("rigging_panel");
     LLScrollListCtrl *joints_list = panel->getChild<LLScrollListCtrl>("joints_list");
 
     if (joints_list->isEmpty())
-	{
+    {
         // Populate table
 
-    std::map<std::string, std::string> joint_alias_map;
+        std::map<std::string, std::string> joint_alias_map;
         mModelPreview->getJointAliases(joint_alias_map);
-    
+
         S32 conflicts = 0;
         joint_override_data_map_t::iterator joint_iter = mJointOverrides[display_lod].begin();
         joint_override_data_map_t::iterator joint_end = mJointOverrides[display_lod].end();
         while (joint_iter != joint_end)
-	{
+        {
             const std::string& listName = joint_iter->first;
-        
+
             LLScrollListItem::Params item_params;
             item_params.value(listName);
 
@@ -1478,38 +1481,38 @@ void LLFloaterModelPreview::updateAvatarTab(bool highlight_overrides)
             cell_params.font = LLFontGL::getFontSansSerif();
             cell_params.value = listName;
             if (joint_alias_map.find(listName) == joint_alias_map.end())
-	{
+            {
                 // Missing names
                 cell_params.color = LLColor4::red;
-	}
+            }
             if (joint_iter->second.mHasConflicts)
-	{
+            {
                 // Conflicts
                 cell_params.color = LLColor4::orange;
                 conflicts++;
-	}
+            }
             if (highlight_overrides && joint_iter->second.mPosOverrides.size() > 0)
-	{
+            {
                 cell_params.font.style = "BOLD";
-	}
+            }
 
             item_params.columns.add(cell_params);
 
             joints_list->addRow(item_params, ADD_BOTTOM);
             joint_iter++;
-	}
+        }
         joints_list->selectFirstItem();
         LLScrollListItem *selected = joints_list->getFirstSelected();
         if (selected)
-{
+        {
             mSelectedJointName = selected->getValue().asString();
-	}
+        }
 
         LLTextBox *joint_conf_descr = panel->getChild<LLTextBox>("conflicts_description");
         joint_conf_descr->setTextArg("[CONFLICTS]", llformat("%d", conflicts));
         joint_conf_descr->setTextArg("[JOINTS_COUNT]", llformat("%d", mJointOverrides[display_lod].size()));
-		}
-	}
+    }
+}
 
 //-----------------------------------------------------------------------------
 // addStringToLogTab()
@@ -1739,19 +1742,10 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
 	mModelPreview->updateLodControls(lod);
 
 	LLComboBox* lod_source_combo = getChild<LLComboBox>("lod_source_" + lod_name[lod]);
-
-    if (lod_source_combo->getCurrentIndex() == LLModelPreview::LOD_FROM_FILE
-        && mModelPreview->mLODFile[lod].empty())
-    {
-        // File wasn't selected, so nothing to do yet, refreshing
-        // hovewer will cause a small freeze with large meshes
-        // Might be good idea to open filepicker here
-        return;
-    }
-
-	refresh();
-
-	if (lod_source_combo->getCurrentIndex() == LLModelPreview::GENERATE)
+    S32 index = lod_source_combo->getCurrentIndex();
+	if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
+        || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
+        || index == LLModelPreview::MESH_OPTIMIZER_COMBINE)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);
 	}
@@ -1782,7 +1776,7 @@ void LLFloaterModelPreview::resetUploadOptions()
 	getChild<LLComboBox>("lod_source_" + lod_name[NUM_LOD - 1])->setCurrentByIndex(LLModelPreview::LOD_FROM_FILE);
 	for (S32 lod = 0; lod < NUM_LOD - 1; ++lod)
 	{
-		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::GENERATE);
+		getChild<LLComboBox>("lod_source_" + lod_name[lod])->setCurrentByIndex(LLModelPreview::MESH_OPTIMIZER_AUTO);
 		childSetValue("lod_file_" + lod_name[lod], "");
 	}
 

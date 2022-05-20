@@ -1,8 +1,9 @@
 /** 
- * @file bumpV.glsl
- * $LicenseInfo:firstyear=2007&license=viewerlgpl$
+ * @file shadowAlphaMaskSkinnedV.glsl
+ *
+ * $LicenseInfo:firstyear=2021&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2007, Linden Research, Inc.
+ * Copyright (C) 2011, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,43 +23,48 @@
  * $/LicenseInfo$
  */
 
-uniform mat4 projection_matrix;
 uniform mat4 texture_matrix0;
 uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+uniform float shadow_target_width;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
-ATTRIBUTE vec3 normal;
 ATTRIBUTE vec2 texcoord0;
-ATTRIBUTE vec4 tangent;
 
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
+VARYING vec4 post_pos;
+VARYING float target_pos_x;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+
+void passTextureIndex();
 
 mat4 getObjectSkinnedTransform();
 
 void main()
 {
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
+	//transform vertex
+	vec4 pre_pos = vec4(position.xyz, 1.0);
+
 	mat4 mat = getObjectSkinnedTransform();
 	
 	mat = modelview_matrix * mat;
 	
-	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
+	vec4 pos = mat * pre_pos;
+	pos = projection_matrix * pos;
+
+	target_pos_x = 0.5 * (shadow_target_width - 1.0) * pos.x;
+
+	post_pos = pos;
+
+#if !defined(DEPTH_CLAMP)
+	gl_Position = vec4(pos.x, pos.y, pos.w*0.5, pos.w);
+#else
+	gl_Position = pos;
+#endif
 	
-	
-	vec3 n = normalize((mat * vec4(normal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
-	vec3 t = normalize((mat * vec4(tangent.xyz+position.xyz, 1.0)).xyz-pos.xyz);
-	vec3 b = cross(n, t) * tangent.w;
-	
-	vary_mat0 = vec3(t.x, b.x, n.x);
-	vary_mat1 = vec3(t.y, b.y, n.y);
-	vary_mat2 = vec3(t.z, b.z, n.z);
-	
-	gl_Position = projection_matrix*vec4(pos, 1.0);
+	passTextureIndex();
+
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	vertex_color = diffuse_color;
 }
