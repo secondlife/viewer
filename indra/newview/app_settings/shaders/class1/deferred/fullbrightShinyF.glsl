@@ -35,10 +35,11 @@ out vec4 frag_color;
 uniform sampler2D diffuseMap;
 #endif
 
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
-VARYING vec4 vary_position;
+VARYING vec3 vary_position;
 
 uniform samplerCube environmentMap;
 
@@ -53,6 +54,14 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
+
+#ifdef HAS_REFLECTION_PROBES
+// reflection probe interface
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
+        vec3 pos, vec3 norm, float glossiness, float envIntensity);
+void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
+void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
+#endif
 
 // See:
 //   class1\deferred\fullbrightShinyF.glsl
@@ -70,21 +79,29 @@ void main()
 	// SL-9632 HUDs are affected by Atmosphere
 	if (no_atmo == 0)
 	{
-	vec3 sunlit;
-	vec3 amblit;
-	vec3 additive;
-	vec3 atten;
-		vec3 pos = vary_position.xyz/vary_position.w;
+        vec3 sunlit;
+        vec3 amblit;
+        vec3 additive;
+        vec3 atten;
+        vec3 pos = vary_position;
+        calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
 
-	calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
-	
-	vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-	float env_intensity = vertex_color.a;
-
-	//color.rgb = srgb_to_linear(color.rgb);
-		color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
-	color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
-	color.rgb = fullbrightScaleSoftClip(color.rgb);
+        float env_intensity = vertex_color.a;
+#ifndef HAS_REFLECTION_PROBES
+        vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
+        color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
+#else
+        vec3 ambenv;
+        vec3 glossenv;
+        vec3 legacyenv;
+        vec3 norm = normalize(vary_texcoord1.xyz);
+        vec4 spec = vec4(0,0,0,0);
+        sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, env_intensity);
+        legacyenv *= 1.5; // fudge brighter
+        applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
+#endif
+        color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
+        color.rgb = fullbrightScaleSoftClip(color.rgb);
 	}
 
 /*
@@ -98,7 +115,6 @@ void main()
 */
 
 	color.a = 1.0;
-
 	//color.rgb = linear_to_srgb(color.rgb);
 
 	frag_color = color;

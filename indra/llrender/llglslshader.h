@@ -58,6 +58,7 @@ public:
 	S32 mIndexedTextureChannels;
 	bool disableTextureIndex;
 	bool hasAlphaMask;
+    bool hasReflectionProbes = false;
 	bool attachNothing;
 
 	// char numLights;

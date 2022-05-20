@@ -8208,30 +8208,16 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 
 	stop_glerror();
 
-    bool setup_env_mat = false;
 	channel = shader.enableTexture(LLShaderMgr::ENVIRONMENT_MAP, LLTexUnit::TT_CUBE_MAP);
 	if (channel > -1)
 	{
 		LLCubeMap* cube_map = gSky.mVOSkyp ? gSky.mVOSkyp->getCubeMap() : NULL;
 		if (cube_map)
 		{
-            setup_env_mat = true;
 			cube_map->enable(channel);
 			cube_map->bind();
 		}
-	}
 
-    channel = shader.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
-    if (channel > -1 && mReflectionMapManager.mTexture.notNull())
-    {
-        // see comments in class2/deferred/softenLightF.glsl for what these uniforms mean
-        mReflectionMapManager.mTexture->bind(channel);
-        mReflectionMapManager.setUniforms();
-        setup_env_mat = true;
-    }
-
-    if (setup_env_mat)
-    {
         F32* m = gGLModelView;
 
         F32 mat[] = { m[0], m[1], m[2],
@@ -8239,8 +8225,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
                       m[8], m[9], m[10] };
 
         shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
-    }
+	}
 
+    bindReflectionProbes(shader);
+    
     if (gAtmosphere)
     {
         // bind precomputed textures necessary for calculating sun and sky luminance
@@ -9163,7 +9151,35 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 		}
 	}
 
-    channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP);
+    unbindReflectionProbes(shader);
+
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	gGL.getTexUnit(0)->activate();
+	shader.unbind();
+}
+
+void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
+{
+    S32 channel = shader.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+    if (channel > -1 && mReflectionMapManager.mTexture.notNull())
+    {
+        // see comments in class2/deferred/softenLightF.glsl for what these uniforms mean
+        mReflectionMapManager.mTexture->bind(channel);
+        mReflectionMapManager.setUniforms();
+
+        F32* m = gGLModelView;
+
+        F32 mat[] = { m[0], m[1], m[2],
+                      m[4], m[5], m[6],
+                      m[8], m[9], m[10] };
+
+        shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+    }
+}
+
+void LLPipeline::unbindReflectionProbes(LLGLSLShader& shader)
+{
+    S32 channel = shader.disableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP);
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
     {
         mReflectionMapManager.mTexture->unbind();
@@ -9172,11 +9188,8 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
             gGL.getTexUnit(channel)->enable(LLTexUnit::TT_TEXTURE);
         }
     }
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.getTexUnit(0)->activate();
-	shader.unbind();
 }
+
 
 inline float sgn(float a)
 {

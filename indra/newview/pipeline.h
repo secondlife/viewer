@@ -294,6 +294,10 @@ public:
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader);
+
+    void bindReflectionProbes(LLGLSLShader& shader);
+    void unbindReflectionProbes(LLGLSLShader& shader);
+
 	void renderDeferredLighting(LLRenderTarget* light_target);
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 

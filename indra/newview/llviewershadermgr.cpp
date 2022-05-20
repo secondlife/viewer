@@ -977,6 +977,7 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                llmax(mShaderLevel[SHADER_DEFERRED], 1)) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",          mShaderLevel[SHADER_LIGHTING] ) );
@@ -1503,6 +1504,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredMaterialProgram[i].mFeatures.hasGamma = true;
             gDeferredMaterialProgram[i].mFeatures.hasShadows = use_sun_shadow;
             
+            if (mShaderLevel[SHADER_DEFERRED] > 1)
+            {
+                gDeferredMaterialProgram[i].mFeatures.hasReflectionProbes = true;
+                gDeferredMaterialProgram[i].addPermutation("HAS_REFLECTION_PROBES", "1");
+            }
+
             if (has_skin)
             {
                 gDeferredMaterialProgram[i].addPermutation("HAS_SKIN", "1");
@@ -2202,6 +2209,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        if (gDeferredFullbrightShinyProgram.mShaderLevel >= 2) // TODO : make this a 3 when reflection probes are restricted to class 3
+        {
+            gDeferredFullbrightShinyProgram.addPermutation("HAS_REFLECTION_PROBES", "1");
+            gDeferredFullbrightShinyProgram.mFeatures.hasReflectionProbes = true;
+        }
         success = make_rigged_variant(gDeferredFullbrightShinyProgram, gDeferredSkinnedFullbrightShinyProgram);
 		success = success && gDeferredFullbrightShinyProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2274,6 +2286,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mFeatures.hasGamma = true;
 		gDeferredSoftenProgram.mFeatures.isDeferred = true;
 		gDeferredSoftenProgram.mFeatures.hasShadows = use_sun_shadow;
+        gDeferredSoftenProgram.mFeatures.hasReflectionProbes = true;
 
         gDeferredSoftenProgram.clearPermutations();
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
@@ -2324,6 +2337,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
         gDeferredSoftenWaterProgram.mFeatures.isDeferred = true;
         gDeferredSoftenWaterProgram.mFeatures.hasShadows = use_sun_shadow;
+        gDeferredSoftenWaterProgram.mFeatures.hasReflectionProbes = true;
 
         if (ambient_kill)
         {

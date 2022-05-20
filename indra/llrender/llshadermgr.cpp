@@ -218,6 +218,14 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
+    if (features->hasReflectionProbes)
+    {
+        if (!shader->attachFragmentObject("deferred/reflectionProbeF.glsl"))
+        {
+            return FALSE;
+        }
+    }
+
     if (features->hasAmbientOcclusion)
 	{
         if (!shader->attachFragmentObject("deferred/aoUtil.glsl"))

@@ -506,6 +506,8 @@ void LLReflectionMapManager::setUniforms()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
+    // TODO -- avoid repacking UBO unnecessarily
+    
     // structure for packing uniform buffer object
     // see class2/deferred/softenLightF.glsl
     struct ReflectionProbeData

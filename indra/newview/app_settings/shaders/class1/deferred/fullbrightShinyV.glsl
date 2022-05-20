@@ -44,7 +44,7 @@ ATTRIBUTE vec2 texcoord0;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
-VARYING vec4 vary_position;
+VARYING vec3 vary_position;
 
 #ifdef HAS_SKIN
 mat4 getObjectSkinnedTransform();
@@ -61,17 +61,23 @@ void main()
     mat4 mat = getObjectSkinnedTransform();
     mat = modelview_matrix * mat;
     vec4 pos = mat * vert;
-    vary_position = gl_Position = projection_matrix * pos;
+    gl_Position = projection_matrix * pos;
 	vec3 norm = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
 #else
 	vec4 pos = (modelview_matrix * vert);
-	vary_position = gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
+	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
 	vec3 norm = normalize(normal_matrix * normal);
 #endif
-	vec3 ref = reflect(pos.xyz, -norm);
 
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+    vary_position = pos.xyz;
+    vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+
+#ifndef HAS_REFLECTION_PROBES	
+    vec3 ref = reflect(pos.xyz, -norm);
 	vary_texcoord1 = transpose(normal_matrix) * ref.xyz;
+#else
+    vary_texcoord1 = norm;
+#endif
 
 	calcAtmospherics(pos.xyz);
 
