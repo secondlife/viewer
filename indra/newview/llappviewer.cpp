@@ -4679,13 +4679,20 @@ void LLAppViewer::idle()
 	// Smoothly weight toward current frame
 	gFPSClamped = (frame_rate_clamped + (4.f * gFPSClamped)) / 5.f;
 
-	F32 qas = gSavedSettings.getF32("QuitAfterSeconds");
-	if (qas > 0.f)
+	F32 quit_after_seconds = gSavedSettings.getF32("QuitAfterSeconds");
+	if (quit_after_seconds > 0.f)
 	{
-		if (gRenderStartTime.getElapsedTimeF32() > qas)
+		if (gRenderStartTime.getElapsedTimeF32() > quit_after_seconds + 5.0)
 		{
-			LL_INFOS() << "Quitting after " << qas << " seconds. See setting \"QuitAfterSeconds\"." << LL_ENDL;
+			LL_INFOS() << "Force quitting after " << quit_after_seconds << " seconds. See setting \"QuitAfterSeconds\"." << LL_ENDL;
+			// Quit immediately.
 			LLAppViewer::instance()->forceQuit();
+		}
+		else if (gRenderStartTime.getElapsedTimeF32() > quit_after_seconds)
+		{
+			LL_INFOS() << "Quitting after " << quit_after_seconds << " seconds. See setting \"QuitAfterSeconds\"." << LL_ENDL;
+			// Try to quit nicely
+			mQuitRequested = true;
 		}
 	}
 
