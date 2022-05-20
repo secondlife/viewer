@@ -502,12 +502,10 @@ void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
     }
 }
 
-void LLReflectionMapManager::setUniforms()
+void LLReflectionMapManager::updateUniforms()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
-    // TODO -- avoid repacking UBO unnecessarily
-    
     // structure for packing uniform buffer object
     // see class2/deferred/softenLightF.glsl
     struct ReflectionProbeData
@@ -578,7 +576,7 @@ void LLReflectionMapManager::setUniforms()
                 { // out of space
                     break;
                 }
-                
+
                 GLint idx = neighbor->mProbeIndex;
                 if (idx == -1)
                 {
@@ -589,7 +587,7 @@ void LLReflectionMapManager::setUniforms()
                 rpd.refNeighbor[ni++] = idx;
             }
         }
-        
+
         if (nc == ni)
         {
             //no neighbors, tag as empty
@@ -606,8 +604,8 @@ void LLReflectionMapManager::setUniforms()
                 nc += 4 - (nc % 4);
             }
         }
-        
-        
+
+
         count++;
     }
 
@@ -625,7 +623,14 @@ void LLReflectionMapManager::setUniforms()
         glBufferDataARB(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeData), &rpd, GL_STREAM_DRAW);
         glBindBufferARB(GL_UNIFORM_BUFFER, 0);
     }
+}
 
+void LLReflectionMapManager::setUniforms()
+{
+    if (mUBO == 0)
+    { 
+        updateUniforms();
+    }
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, mUBO);
 }
 

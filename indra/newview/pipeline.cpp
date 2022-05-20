@@ -4504,11 +4504,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
 	{
-		// SL-15709 -- NOTE: Tracy only allows one ZoneScoped per function.
-		// Solutions are:
-		// 1. Use a new scope
-		// 2. Use named zones
-		// 3. Use transient zones
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
 
 		LLGLEnable cull(GL_CULL_FACE);
@@ -4528,6 +4523,12 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 
 		LLGLState::checkStates();
 		LLGLState::checkTextureChannels();
+
+        if (LLViewerShaderMgr::instance()->mShaderLevel[LLViewerShaderMgr::SHADER_DEFERRED] > 1)
+        {
+            //update reflection probe uniform
+            mReflectionMapManager.updateUniforms();
+        }
 
 		U32 cur_type = 0;
 

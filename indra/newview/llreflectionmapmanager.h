@@ -92,7 +92,10 @@ private:
     // update the neighbors of the given probe 
     void updateNeighbors(LLReflectionMap* probe);
 
-    // update UBO used for rendering
+    // update UBO used for rendering (call only once per render pipe flush)
+    void updateUniforms();
+
+    // bind UBO used for rendering
     void setUniforms();
 
     // render target for cube snapshots
