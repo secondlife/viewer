@@ -54,7 +54,7 @@ public:
     inline void validateRefCount() const
     {
         llassert(mRef > 0); // ref count below 0, likely corrupted
-        llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
+        //llassert(mRef < gMaxRefCount); // ref count excessive, likely memory leak
     }
 
 	inline void ref() const

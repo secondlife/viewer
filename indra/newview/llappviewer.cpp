@@ -2261,11 +2261,11 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
     if (mSecondInstance)
     {
-        LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
- 
-        LLUUID uid;
-        uid.generate();
-        LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
+		LLFile::mkdir(gDirUtilp->getDumpLogsDirPath());
+		
+		LLUUID uid;
+		uid.generate();
+		LLError::logToFile(gDirUtilp->getDumpLogsDirPath(uid.asString() + ".log"));
     }
     else
     {
@@ -2713,6 +2713,30 @@ bool LLAppViewer::initConfiguration()
 		LLTrace::BlockTimer::sLogName = test_name;
 	}
 
+	// Handle override of log file name, which could have been set via command line above.
+	std::string override_log_file = gSavedSettings.getString("UserLogFile");
+	if (!override_log_file.empty())
+	{
+		std::string dir_name = gDirUtilp->getDirName(override_log_file);
+		if (dir_name.empty())
+		{
+			// Set path if we don't already have one.
+			override_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,override_log_file);
+		}
+		LLFile::remove(override_log_file,true); // remove any previous session log, ignore errors.
+		LLError::logToFile(override_log_file);
+		LL_WARNS() << "Using override log file name " << override_log_file;
+		if (clp.hasOption("logfile"))
+		{
+			LL_CONT << " from command line option --logfile";
+		}
+		else
+		{
+			LL_CONT << " from settings option UserLogFile";
+		}
+		LL_ENDL;
+	}
+	
 	if (clp.hasOption("graphicslevel"))
 	{
 		// User explicitly requested --graphicslevel on the command line. We
@@ -2772,6 +2796,7 @@ bool LLAppViewer::initConfiguration()
 		tempSetControl("FlyingAtExit", "FALSE");
 		tempSetControl("WindowWidth", "1024");
 		tempSetControl("WindowHeight", "200");
+		tempSetControl("CmdLineSkipUpdater", "TRUE");
 		LLError::setEnabledLogTypesMask(0);
 		llassert_always(!gSavedSettings.getBOOL("SLURLPassToOtherInstance"));
 	}
@@ -4005,13 +4030,6 @@ void LLAppViewer::removeDumpDir()
     {
         std::string dump_dir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
         gDirUtilp->deleteDirAndContents(dump_dir);
-    }
-
-    if (mSecondInstance && !isError())
-    {
-        std::string log_filename = LLError::logFileName();
-        LLError::logToFile("");
-        LLFile::remove(log_filename);
     }
 }
 
