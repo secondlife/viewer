@@ -263,6 +263,16 @@
       <string>OutBandwidth</string>
     </map>
 
+    <key>outfit</key>
+    <map>
+      <key>count</key>
+      <integer>1</integer>
+      <key>desc</key>
+      <string>Use specified outfit name for initial appearance</string>
+      <key>map-to</key>
+      <string>OutfitName</string>
+    </map>
+
     <key>port</key>
     <map>
       <key>count</key>

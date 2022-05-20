@@ -2094,10 +2094,17 @@ bool idle_startup()
 		// compute appearance from that.
 		if (isAgentAvatarValid() && !gAgent.isFirstLogin() && !gAgent.isOutfitChosen())
 		{
-			gAgentWearables.notifyLoadingStarted();
-			gAgent.setOutfitChosen(TRUE);
-			gAgentWearables.sendDummyAgentWearablesUpdate();
-			callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
+			if (!sInitialOutfit.empty())
+			{
+				LLStartUp::loadInitialOutfit( sInitialOutfit, sInitialOutfitGender );
+			}
+			else
+			{
+				gAgentWearables.notifyLoadingStarted();
+				gAgent.setOutfitChosen(TRUE);
+				gAgentWearables.sendDummyAgentWearablesUpdate();
+				callAfterCategoryFetch(LLAppearanceMgr::instance().getCOF(), set_flags_and_update_appearance);
+			}
 		}
 
 		display_startup();
@@ -2734,7 +2741,7 @@ void LLStartUp::loadInitialOutfit( const std::string& outfit_folder_name,
 		gInventory.findCategoryUUIDForType(LLFolderType::FT_MY_OUTFITS),
 		outfit_folder_name);
 
-	// -- check for existing folder in Library
+	// -- fallback: check for existing folder in Library
 	if (cat_id.isNull())
 	{
 		cat_id = findDescendentCategoryIDByName(
@@ -3629,6 +3636,7 @@ bool process_login_success_response()
 	}
 
 	std::string fake_initial_outfit_name = gSavedSettings.getString("FakeInitialOutfitName");
+	std::string outfit_name = gSavedSettings.getString("OutfitName");
 	if (!fake_initial_outfit_name.empty())
 	{
 		gAgent.setFirstLogin(TRUE);
@@ -3639,6 +3647,11 @@ bool process_login_success_response()
 		}
 
 		LL_WARNS() << "Faking first-time login with initial outfit " << sInitialOutfit << LL_ENDL;
+	}
+	else if (!outfit_name.empty())
+	{
+		sInitialOutfit = outfit_name;
+		sInitialOutfitGender = "female";
 	}
 
 	// set the location of the Agent Appearance service, from which we can request
