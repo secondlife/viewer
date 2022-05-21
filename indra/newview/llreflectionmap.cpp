@@ -47,8 +47,8 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     llassert(LLPipeline::sRenderDeferred);
     
     // make sure we don't walk off the edge of the render target
-    while (resolution > gPipeline.mDeferredScreen.getWidth() ||
-        resolution > gPipeline.mDeferredScreen.getHeight())
+    while (resolution > gPipeline.mRT->deferredScreen.getWidth() ||
+        resolution > gPipeline.mRT->deferredScreen.getHeight())
     {
         resolution /= 2;
     }
@@ -57,17 +57,11 @@ void LLReflectionMap::update(U32 resolution, U32 face)
 
 bool LLReflectionMap::shouldUpdate()
 {
-    const F32 UPDATE_INTERVAL = 10.f; // update no more than this often
     const F32 TIMEOUT_INTERVAL = 30.f; // update no less than this often
     const F32 RENDER_TIMEOUT = 1.f; // don't update if hasn't been used for rendering for this long
     
     if (mLastBindTime > gFrameTimeSeconds - RENDER_TIMEOUT)
     {   
-        if (mDirty && mLastUpdateTime < gFrameTimeSeconds - UPDATE_INTERVAL)
-        {
-            return true;
-        }
-
         if (mLastUpdateTime < gFrameTimeSeconds - TIMEOUT_INTERVAL)
         {
             return true;

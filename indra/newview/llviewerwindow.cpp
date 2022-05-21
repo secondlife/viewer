@@ -4927,8 +4927,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 			U32 color_fmt = type == LLSnapshotModel::SNAPSHOT_TYPE_DEPTH ? GL_DEPTH_COMPONENT : GL_RGBA;
 			if (scratch_space.allocate(image_width, image_height, color_fmt, true, true))
 			{
-				original_width = gPipeline.mDeferredScreen.getWidth();
-				original_height = gPipeline.mDeferredScreen.getHeight();
+				original_width = gPipeline.mRT->deferredScreen.getWidth();
+				original_height = gPipeline.mRT->deferredScreen.getHeight();
 
 				if (gPipeline.allocateScreenBuffer(image_width, image_height))
 				{
@@ -5186,8 +5186,8 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     LLPipeline::sShowHUDAttachments = FALSE;
     LLRect window_rect = getWorldViewRectRaw();
 
-    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
-    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mDeferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
+    S32 original_width = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getWidth() : gViewerWindow->getWorldViewWidthRaw();
+    S32 original_height = LLPipeline::sRenderDeferred ? gPipeline.mRT->deferredScreen.getHeight() : gViewerWindow->getWorldViewHeightRaw();
 
     LLRenderTarget scratch_space;
     U32 color_fmt = GL_RGBA;
@@ -5280,8 +5280,8 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     
     U32 res = LLRenderTarget::sCurResX;
 
-    llassert(res <= gPipeline.mDeferredScreen.getWidth());
-    llassert(res <= gPipeline.mDeferredScreen.getHeight());
+    llassert(res <= gPipeline.mRT->deferredScreen.getWidth());
+    llassert(res <= gPipeline.mRT->deferredScreen.getHeight());
 
     // save current view/camera settings so we can restore them afterwards
     S32 old_occlusion = LLPipeline::sUseOcclusion;

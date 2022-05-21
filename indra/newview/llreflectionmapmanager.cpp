@@ -39,6 +39,9 @@ extern BOOL gTeleportDisplay;
 
 //#pragma optimize("", off)
 
+// experimental pipeline render target override, if this works, do something less hacky
+LLPipeline::RenderTargetPack gProbeRT;
+
 LLReflectionMapManager::LLReflectionMapManager()
 {
     for (int i = 0; i < LL_REFLECTION_PROBE_COUNT; ++i)
@@ -89,13 +92,20 @@ void LLReflectionMapManager::update()
         U32 color_fmt = GL_RGBA;
         const bool use_depth_buffer = true;
         const bool use_stencil_buffer = true;
-        U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 4; // super sample
+        U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_RECT_TEXTURE);
+
+        // hack to allocate render targets using gPipeline code
+        auto* old_rt = gPipeline.mRT;
+        gPipeline.mRT = &gProbeRT;
+        gPipeline.allocateScreenBuffer(targetRes, targetRes);
+        gPipeline.allocateShadowBuffer(targetRes, targetRes);
+        gPipeline.mRT = old_rt;
     }
 
     if (mMipChain.empty())
     {
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION*2;
+        U32 res = LL_REFLECTION_PROBE_RESOLUTION;
         U32 count = log2((F32)res) + 0.5f;
         
         mMipChain.resize(count);
@@ -150,7 +160,7 @@ void LLReflectionMapManager::update()
 
     bool did_update = false;
 
-    LLReflectionMap* oldestProbe = mProbes[0];
+    LLReflectionMap* oldestProbe = nullptr;
 
     if (mUpdatingProbe != nullptr)
     {
@@ -172,25 +182,9 @@ void LLReflectionMapManager::update()
 
         LLVector4a d;
         
-        if (probe->shouldUpdate() && !did_update && i < LL_REFLECTION_PROBE_COUNT)
-        {
-            if (probe->mCubeIndex == -1)
-            {
-                probe->mCubeArray = mTexture;
-                probe->mCubeIndex = allocateCubeIndex();
-            }
-
-            did_update = true; // only update one probe per frame
-            probe->autoAdjustOrigin();
-
-            mUpdatingProbe = probe;
-            doProbeUpdate();
-            probe->mDirty = false;
-        }
-
-        if (probe->mCubeArray.notNull() && 
-            probe->mCubeIndex != -1 && 
-            probe->mLastUpdateTime < oldestProbe->mLastUpdateTime)
+        if (!did_update && 
+            i < LL_REFLECTION_PROBE_COUNT &&
+            (oldestProbe == nullptr || probe->mLastUpdateTime < oldestProbe->mLastUpdateTime))
         {
             oldestProbe = probe;
         }
@@ -199,12 +193,21 @@ void LLReflectionMapManager::update()
         probe->mDistance = d.getLength3().getF32()-probe->mRadius;
     }
 
-#if 0
-    if (mUpdatingProbe == nullptr &&
-        oldestProbe->mCubeArray.notNull() &&
-        oldestProbe->mCubeIndex != -1)
-    { // didn't find any probes to update, update the most out of date probe that's currently in use on next frame
-        mUpdatingProbe = oldestProbe;
+#if 1
+    if (!did_update && oldestProbe != nullptr)
+    {
+        LLReflectionMap* probe = oldestProbe;
+        if (probe->mCubeIndex == -1)
+        {
+            probe->mCubeArray = mTexture;
+            probe->mCubeIndex = allocateCubeIndex();
+        }
+
+        probe->autoAdjustOrigin();
+
+        mUpdatingProbe = probe;
+        doProbeUpdate();
+        probe->mDirty = false;
     }
 #endif
 
@@ -372,7 +375,10 @@ void LLReflectionMapManager::doProbeUpdate()
     llassert(mUpdatingProbe != nullptr);
 
     mRenderTarget.bindTarget();
+    auto* old_rt = gPipeline.mRT;
+    gPipeline.mRT = &gProbeRT;
     mUpdatingProbe->update(mRenderTarget.getWidth(), mUpdatingFace);
+    gPipeline.mRT = old_rt;
     mRenderTarget.flush();
 
     // generate mipmaps
@@ -390,12 +396,13 @@ void LLReflectionMapManager::doProbeUpdate()
         gGL.loadIdentity();
 
         gGL.flush();
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION*4;
+        U32 res = LL_REFLECTION_PROBE_RESOLUTION*2;
 
         S32 mips = log2((F32) LL_REFLECTION_PROBE_RESOLUTION)+0.5f;
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
+            LL_PROFILE_GPU_ZONE("probe mip");
             mMipChain[i].bindTarget();
 
             if (i == 0)

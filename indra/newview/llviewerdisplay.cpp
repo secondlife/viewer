@@ -916,19 +916,19 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
         if (LLPipeline::sRenderDeferred)
         {
-            gPipeline.mDeferredScreen.bindTarget();
+            gPipeline.mRT->deferredScreen.bindTarget();
             glClearColor(1, 0, 1, 1);
-            gPipeline.mDeferredScreen.clear();
+            gPipeline.mRT->deferredScreen.clear();
         }
         else
         {
-            gPipeline.mScreen.bindTarget();
+            gPipeline.mRT->screen.bindTarget();
             if (LLPipeline::sUnderWaterRender && !gPipeline.canUseWindLightShaders())
             {
                 const LLColor4 &col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
                 glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
             }
-            gPipeline.mScreen.clear();
+            gPipeline.mRT->screen.clear();
         }
 
         gGL.setColorMask(true, false);
@@ -998,7 +998,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderFlush");
 
-        LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mDeferredScreen : gPipeline.mScreen);
+        LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mRT->deferredScreen : gPipeline.mRT->screen);
         rt.flush();
 
         if (rt.sUseFBO)
@@ -1010,7 +1010,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
         if (LLPipeline::sRenderDeferred)
         {
-			gPipeline.renderDeferredLighting(&gPipeline.mScreen);
+			gPipeline.renderDeferredLighting(&gPipeline.mRT->screen);
 		}
 
 		LLPipeline::sUnderWaterRender = FALSE;
@@ -1061,6 +1061,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 void display_cube_face()
 {
     LL_RECORD_BLOCK_TIME(FTM_RENDER);
+    LL_PROFILE_GPU_ZONE("display cube face");
+
     llassert(!gSnapshot);
     llassert(!gTeleportDisplay);
     llassert(LLPipeline::sRenderDeferred);
@@ -1136,9 +1138,9 @@ void display_cube_face()
 
     gGL.setColorMask(true, true);
 
-    gPipeline.mDeferredScreen.bindTarget();
+    gPipeline.mRT->deferredScreen.bindTarget();
     glClearColor(1, 0, 1, 1);
-    gPipeline.mDeferredScreen.clear();
+    gPipeline.mRT->deferredScreen.clear();
         
     gGL.setColorMask(true, false);
 
@@ -1148,9 +1150,9 @@ void display_cube_face()
 
     gGL.setColorMask(true, true);
 
-    gPipeline.mDeferredScreen.flush();
+    gPipeline.mRT->deferredScreen.flush();
        
-    gPipeline.renderDeferredLighting(&gPipeline.mScreen);
+    gPipeline.renderDeferredLighting(&gPipeline.mRT->screen);
 
     LLPipeline::sUnderWaterRender = FALSE;
 
@@ -1357,7 +1359,7 @@ bool setup_hud_matrices(const LLRect& screen_region)
 void render_ui(F32 zoom_factor, int subfield)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI);
-
+    LL_PROFILE_GPU_ZONE("ui");
 	LLGLState::checkStates();
 	
 	glh::matrix4f saved_view = get_current_modelview();
@@ -1440,7 +1442,7 @@ static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");
 void swap()
 {
 	LL_RECORD_BLOCK_TIME(FTM_SWAP);
-
+    LL_PROFILE_GPU_ZONE("swap");
 	if (gDisplaySwapBuffers)
 	{
 		gViewerWindow->getWindow()->swapBuffers();
@@ -1602,7 +1604,7 @@ void render_ui_2d()
             LLView::sIsRectDirty = false;
 			LLRect t_rect;
 
-			gPipeline.mUIScreen.bindTarget();
+			gPipeline.mRT->uiScreen.bindTarget();
 			gGL.setColorMask(true, true);
 			{
 				static const S32 pad = 8;
@@ -1634,7 +1636,7 @@ void render_ui_2d()
 				gViewerWindow->draw();
 			}
 
-			gPipeline.mUIScreen.flush();
+			gPipeline.mRT->uiScreen.flush();
 			gGL.setColorMask(true, false);
 
             LLView::sDirtyRect = t_rect;
@@ -1644,7 +1646,7 @@ void render_ui_2d()
 		LLGLDisable blend(GL_BLEND);
 		S32 width = gViewerWindow->getWindowWidthScaled();
 		S32 height = gViewerWindow->getWindowHeightScaled();
-		gGL.getTexUnit(0)->bind(&gPipeline.mUIScreen);
+		gGL.getTexUnit(0)->bind(&gPipeline.mRT->uiScreen);
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.color4f(1,1,1,1);
 		gGL.texCoord2f(0, 0);			gGL.vertex2i(0, 0);

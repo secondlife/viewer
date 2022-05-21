@@ -513,6 +513,7 @@ void LLRenderTarget::bindTarget()
 
 void LLRenderTarget::clear(U32 mask_in)
 {
+    LL_PROFILE_GPU_ZONE("clear");
 	U32 mask = GL_COLOR_BUFFER_BIT;
 	if (mUseDepth)
 	{
@@ -677,6 +678,7 @@ void LLRenderTarget::copyContentsToFramebuffer(LLRenderTarget& source, S32 srcX0
 	}
 
 	{
+        LL_PROFILE_GPU_ZONE("copyContentsToFramebuffer");
 		GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
 
 		LLGLDepthTest depth(write_depth, write_depth);

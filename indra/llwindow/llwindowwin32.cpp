@@ -3575,7 +3575,10 @@ void LLWindowWin32::swapBuffers()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_WIN32;
     ASSERT_MAIN_THREAD();
-    glFlush(); //superstitious flush for maybe frame stall removal?
+    {
+        LL_PROFILE_GPU_ZONE("flush");
+        glFlush(); //superstitious flush for maybe frame stall removal?
+    }
 	SwapBuffers(mhDC);
 
     LL_PROFILER_GPU_COLLECT;

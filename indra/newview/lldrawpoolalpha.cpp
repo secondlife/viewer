@@ -160,10 +160,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot)
     { 
         //update depth buffer sampler
-        gPipeline.mScreen.flush();
-        gPipeline.mDeferredDepth.copyContents(gPipeline.mDeferredScreen, 0, 0, gPipeline.mDeferredScreen.getWidth(), gPipeline.mDeferredScreen.getHeight(),
-            0, 0, gPipeline.mDeferredDepth.getWidth(), gPipeline.mDeferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        gPipeline.mDeferredDepth.bindTarget();
+        gPipeline.mRT->screen.flush();
+        gPipeline.mRT->deferredDepth.copyContents(gPipeline.mRT->deferredScreen, 0, 0, gPipeline.mRT->deferredScreen.getWidth(), gPipeline.mRT->deferredScreen.getHeight(),
+            0, 0, gPipeline.mRT->deferredDepth.getWidth(), gPipeline.mRT->deferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        gPipeline.mRT->deferredDepth.bindTarget();
         simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
 
         simple_shader->bind();
@@ -177,8 +177,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, 
             true); // <--- discard mostly transparent faces
 
-        gPipeline.mDeferredDepth.flush();
-        gPipeline.mScreen.bindTarget();
+        gPipeline.mRT->deferredDepth.flush();
+        gPipeline.mRT->screen.bindTarget();
         gGL.setColorMask(true, false);
     }
 

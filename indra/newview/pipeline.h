@@ -641,20 +641,31 @@ public:
 
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
-	//screen texture
-	U32 					mScreenWidth;
-	U32 					mScreenHeight;
-	
-	LLRenderTarget			mScreen;
-	LLRenderTarget			mUIScreen;
-	LLRenderTarget			mDeferredScreen;
-	LLRenderTarget			mFXAABuffer;
-	LLRenderTarget			mEdgeMap;
-	LLRenderTarget			mDeferredDepth;
-	LLRenderTarget			mOcclusionDepth;
-	LLRenderTarget			mDeferredLight;
-	LLRenderTarget			mHighlight;
-	LLRenderTarget			mPhysicsDisplay;
+    class RenderTargetPack
+    {
+    public:
+        U32 					width = 0;
+        U32 					height = 0;
+
+        //screen texture
+        LLRenderTarget			screen;
+        LLRenderTarget			uiScreen;
+        LLRenderTarget			deferredScreen;
+        LLRenderTarget			fxaaBuffer;
+        LLRenderTarget			edgeMap;
+        LLRenderTarget			deferredDepth;
+        LLRenderTarget			occlusionDepth;
+        LLRenderTarget			deferredLight;
+
+        //sun shadow map
+        LLRenderTarget			shadow[6];
+        LLRenderTarget			shadowOcclusion[6];
+    };
+
+    RenderTargetPack* mRT;
+
+    LLRenderTarget			mHighlight;
+    LLRenderTarget			mPhysicsDisplay;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;
@@ -669,9 +680,6 @@ public:
     //list of currently bound reflection maps
     std::vector<LLReflectionMap*> mReflectionMaps;
 
-	//sun shadow map
-	LLRenderTarget			mShadow[6];
-	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 	LLVector4				mShadowError;
 	LLVector4				mShadowFOV;

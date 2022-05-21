@@ -48,7 +48,7 @@ class alignas(16) LLReflectionMapManager
 public:
     // allocate an environment map of the given resolution 
     LLReflectionMapManager();
-    
+
     // maintain reflection probes
     void update();
 

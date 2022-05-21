@@ -812,6 +812,7 @@ BOOL LLImageGL::setImage(const U8* data_in, BOOL data_hasmips /* = FALSE */, S32
 
 					if (LLRender::sGLCoreProfile)
 					{
+                        LL_PROFILE_GPU_ZONE("generate mip map");
 						glGenerateMipmap(mTarget);
 					}	
 					stop_glerror();
@@ -1519,6 +1520,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 // Call with void data, vmem is allocated but unitialized
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    LL_PROFILE_GPU_ZONE("createGLTexture");
     checkActiveThread();
 
     bool main_thread = on_main_thread();
@@ -1736,6 +1738,8 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
             syncTexName(new_tex_name);
             unref();
         });
+
+    LL_PROFILER_GPU_COLLECT;
 }
 
 
