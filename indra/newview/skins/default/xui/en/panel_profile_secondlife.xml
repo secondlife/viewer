@@ -205,48 +205,85 @@ Account: [ACCTTYPE]
          width="26"
          auto_resize="false"
          user_resize="false">
-          <!--Todo: progress indicator-->
-          <!--Todo: Waits for icons. Current behavior is suboptimal and is a placeholder-->
 
-          <button
-           name="allow_to_see_online"
-           image_pressed="Profile_Perm_Online_Disabled"
-           image_pressed_selected="Profile_Perm_Online_Enabled"
-           image_unselected="Profile_Perm_Online_Disabled"
-           image_selected="Profile_Perm_Online_Enabled"
+          <icon
+           tool_tip="Can see online status"
+           mouse_opaque="true"
+           name="can_see_online"
+           image_name="Profile_Perm_Online_Enabled"
            layout="topleft"
            follows="left|top"
            top="0"
            left="0"
+           height="24"
            width="24"
-           height="24"/>
+           left_pad="2" />
+          
+          <icon
+           tool_tip="Can not see online status"
+           mouse_opaque="true"
+           name="cant_see_online"
+           image_name="Profile_Perm_Online_Disabled"
+           layout="topleft"
+           follows="left|top"
+           top="0"
+           left="0"
+           height="24"
+           width="24"
+           left_pad="2" />
 
-          <button
-           name="allow_to_see_on_map"
-           image_pressed="Profile_Perm_Find_Disabled"
-           image_pressed_selected="Profile_Perm_Find_Enabled"
-           image_unselected="Profile_Perm_Find_Disabled"
-           image_selected="Profile_Perm_Find_Enabled"
+          <icon
+           tool_tip="Can see on map"
+           mouse_opaque="true"
+           name="can_see_on_map"
+           image_name="Profile_Perm_Find_Enabled"
            layout="topleft"
            follows="left|top"
            top_pad="7"
            left="0"
+           height="24"
            width="24"
-           height="24"/>
+           left_pad="2" />
 
-          <button
-           name="allow_edit_my_objects"
-           image_pressed="Profile_Perm_Objects_Disabled"
-           image_pressed_selected="Profile_Perm_Objects_Enabled"
-           image_unselected="Profile_Perm_Objects_Disabled"
-           image_selected="Profile_Perm_Objects_Enabled"
+          <icon
+           tool_tip="Can not see on map"
+           mouse_opaque="true"
+           name="cant_see_on_map"
+           image_name="Profile_Perm_Find_Disabled"
+           layout="topleft"
+           follows="left|top"
+           top_delta="0"
+           left="0"
+           height="24"
+           width="24"
+           left_pad="2" />
+
+          <icon
+           tool_tip="Can edit my objects"
+           mouse_opaque="true"
+           name="can_edit_objects"
+           image_name="Profile_Perm_Objects_Enabled"
            layout="topleft"
            follows="left|top"
            top_pad="7"
            left="0"
+           height="24"
            width="24"
-           height="24"/>
-        
+           left_pad="2" />
+
+          <icon
+           tool_tip="Can not edit my objects"
+           mouse_opaque="true"
+           name="cant_edit_objects"
+           image_name="Profile_Perm_Objects_Disabled"
+           layout="topleft"
+           follows="left|top"
+           top_delta="0"
+           left="0"
+           height="24"
+           width="24"
+           left_pad="2" />
+
         </layout_panel>
       </layout_stack>
 

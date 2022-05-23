@@ -193,9 +193,12 @@ private:
     LLMenuButton*		mAgentActionMenuButton;
     LLButton*			mSaveDescriptionChanges;
     LLButton*			mDiscardDescriptionChanges;
-    LLButton*			mSeeOnlineToggle;
-    LLButton*			mSeeOnMapToggle;
-    LLButton*			mEditObjectsToggle;
+    LLIconCtrl*			mCanSeeOnlineIcon;
+    LLIconCtrl*			mCantSeeOnlineIcon;
+    LLIconCtrl*			mCanSeeOnMapIcon;
+    LLIconCtrl*			mCantSeeOnMapIcon;
+    LLIconCtrl*			mCanEditObjectsIcon;
+    LLIconCtrl*			mCantEditObjectsIcon;
 
     LLHandle<LLFloater>	mFloaterPermissionsHandle;
 
