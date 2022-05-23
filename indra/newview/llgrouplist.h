@@ -123,14 +123,15 @@ private:
 	void setBold(bool bold);
 	void onInfoBtnClick();
 	void onProfileBtnClick();
-    void onVisibilityBtnClick();
+    void onVisibilityBtnClick(bool new_visibility);
 
 	LLTextBox*	mGroupNameBox;
 	LLUUID		mGroupID;
 	LLGroupIconCtrl* mGroupIcon;
     LLButton*	mInfoBtn;
     LLButton*	mProfileBtn;
-    LLButton*	mVisibilityBtn;
+    LLButton*	mVisibilityHideBtn;
+    LLButton*	mVisibilityShowBtn;
 
 	std::string	mGroupName;
     bool        mForAgent;
