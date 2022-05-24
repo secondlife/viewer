@@ -67,7 +67,7 @@ struct CompareProbeDistance
 // helper class to seed octree with probes
 void LLReflectionMapManager::update()
 {
-    if (!LLPipeline::sRenderDeferred || gTeleportDisplay)
+    if (!LLPipeline::sRenderPBR || gTeleportDisplay)
     {
         return;
     }
@@ -634,6 +634,7 @@ void LLReflectionMapManager::updateUniforms()
 
 void LLReflectionMapManager::setUniforms()
 {
+    llassert(LLPipeline::sRenderPBR);
     if (mUBO == 0)
     { 
         updateUniforms();
@@ -644,7 +645,6 @@ void LLReflectionMapManager::setUniforms()
 
 void renderReflectionProbe(LLReflectionMap* probe)
 {
-
     F32* po = probe->mOrigin.getF32ptr();
 
     //draw orange line from probe to neighbors
