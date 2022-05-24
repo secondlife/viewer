@@ -399,7 +399,7 @@ void LLVOCacheEntry::updateDebugSettings()
 
     // a percentage of draw distance beyond which all objects outside of view frustum will be unloaded, regardless of pixel threshold
     static LLCachedControl<F32> rear_max_radius_frac(gSavedSettings,"SceneLoadRearMaxRadiusFraction");
-    const F32 min_radius_plus_one = sNearRadius;
+    const F32 min_radius_plus_one = sNearRadius + 1.f;
     const F32 max_radius = rear_max_radius_frac * gAgentCamera.mDrawDistance;
     const F32 clamped_max_radius = llclamp(max_radius, min_radius_plus_one, draw_radius); // [sNearRadius, mDrawDistance]
     sRearFarRadius = min_radius_plus_one + ((clamped_max_radius - min_radius_plus_one) * adjust_factor);
