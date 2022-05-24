@@ -30,6 +30,9 @@
 
 #include "u64.h"
 
+#include <chrono>
+#include <thread>
+
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_DARWIN
