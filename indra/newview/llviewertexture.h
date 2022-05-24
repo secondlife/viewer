@@ -199,7 +199,7 @@ protected:
 	S32 mTextureListType; // along with mID identifies where to search for this texture in TextureList
 
 	F32 mSelectedTime;				// time texture was last selected
-	mutable F32 mMaxVirtualSize;	// The largest virtual size of the image, in pixels - how much data to we need?	
+	mutable F32 mMaxVirtualSize = 0.f;	// The largest virtual size of the image, in pixels - how much data to we need?	
 	mutable S32  mMaxVirtualSizeResetCounter;
 	mutable S32  mMaxVirtualSizeResetInterval;
 	LLFrameTimer mLastReferencedTimer;	
@@ -490,7 +490,7 @@ protected:
 	F32             mLastCallBackActiveTime;
 
 	LLPointer<LLImageRaw> mRawImage;
-	S32 mRawDiscardLevel;
+	S32 mRawDiscardLevel = -1;
 
 	// Used ONLY for cloth meshes right now.  Make SURE you know what you're 
 	// doing if you use it for anything else! - djs

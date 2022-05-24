@@ -714,6 +714,12 @@ void LLViewerTexture::setBoostLevel(S32 level)
 		}
 	}
 
+    // strongly encourage anything boosted to load at full res
+    if (mBoostLevel >= LLViewerTexture::BOOST_HIGH)
+    {
+        mMaxVirtualSize = 2048.f * 2048.f;
+    }
+
 	if (mBoostLevel == LLViewerTexture::BOOST_SELECTED)
 	{
 		mSelectedTime = gFrameTimeSeconds;
@@ -1963,11 +1969,11 @@ bool LLViewerFetchedTexture::updateFetch()
 		{
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
 																		mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
-            if (mFetchState != mLastFetchState)
+            /*if (mFetchState != mLastFetchState)
             {
                 setDebugText(LLTextureFetch::getStateString(mFetchState));
                 mLastFetchState = mFetchState;
-            }
+            }*/
 		}
 		
 		// We may have data ready regardless of whether or not we are finished (e.g. waiting on write)
@@ -2031,7 +2037,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		if (!mIsFetching)
 		{
-			if ((decode_priority > 0) && (mRawDiscardLevel < 0 || mRawDiscardLevel == INVALID_DISCARD_LEVEL))
+			if ((decode_priority > 0) && (mRawDiscardLevel < 0))
 			{
 				// We finished but received no data
 				if (getDiscardLevel() < 0)
