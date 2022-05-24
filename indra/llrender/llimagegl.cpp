@@ -57,9 +57,6 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32Bytes LLImageGL::sGlobalTextureMemory(0);
-S32Bytes LLImageGL::sBoundTextureMemory(0);
-S32Bytes LLImageGL::sCurBoundTextureMemory(0);
 S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -282,15 +279,6 @@ void LLImageGL::updateStats(F32 current_time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	sLastFrameTime = current_time;
-	sBoundTextureMemory = sCurBoundTextureMemory;
-	sCurBoundTextureMemory = S32Bytes(0);
-}
-
-//static
-S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
-{
-	LLImageGL::sCurBoundTextureMemory += mem ;
-	return LLImageGL::sCurBoundTextureMemory.value();
 }
 
 //----------------------------------------------------------------------------
@@ -623,7 +611,7 @@ void LLImageGL::forceUpdateBindStats(void) const
 	mLastBindTime = sLastFrameTime;
 }
 
-BOOL LLImageGL::updateBindStats(S32Bytes tex_mem) const
+BOOL LLImageGL::updateBindStats() const
 {	
 	if (mTexName != 0)
 	{
@@ -635,7 +623,6 @@ BOOL LLImageGL::updateBindStats(S32Bytes tex_mem) const
 		{
 			// we haven't accounted for this texture yet this frame
 			sUniqueCount++;
-			updateBoundTexMem(tex_mem, mComponents, mCategory);
 			mLastBindTime = sLastFrameTime;
 
 			return TRUE ;
@@ -1599,11 +1586,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
     // things will break if we don't unbind after creation
     gGL.getTexUnit(0)->unbind(mBindTarget);
 
-    if (old_texname != 0)
-    {
-        sGlobalTextureMemory -= mTextureMemory;
-    }
-
     //if we're on the image loading thread, be sure to delete old_texname and update mTexName on the main thread
     if (!defer_copy)
     {
@@ -1624,7 +1606,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
     
     mTextureMemory = (S32Bytes)getMipBytes(mCurrentDiscardLevel);
-    sGlobalTextureMemory += mTextureMemory;
     mTexelsInGLTexture = getWidth() * getHeight();
 
     // mark this as bound at this point, so we don't throw it out immediately
@@ -1632,51 +1613,6 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
     checkActiveThread();
     return TRUE;
-}
-
-void LLImageGLThread::updateClass()
-{
-    LL_PROFILE_ZONE_SCOPED;
-
-    // update available vram one per second
-    static LLFrameTimer sTimer;
-
-    if (sTimer.getElapsedSeconds() < 1.f)
-    {
-        return;
-    }
-    
-    sTimer.reset();
-
-    auto func = []()
-    {
-        if (gGLManager.mHasATIMemInfo)
-        {
-            S32 meminfo[4];
-            glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-            LLImageGLThread::sFreeVRAMMegabytes = meminfo[0];
-
-        }
-        else if (gGLManager.mHasNVXMemInfo)
-        {
-            S32 free_memory;
-            glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
-            LLImageGLThread::sFreeVRAMMegabytes = free_memory / 1024;
-        }
-    };
-
-    
-    // post update to background thread if available, otherwise execute immediately
-    auto queue = LL::WorkQueue::getInstance("LLImageGL");
-    if (sEnabled)
-    {
-        queue->post(func);
-    }
-    else
-    {
-        llassert(queue == nullptr);
-        func();
-    }
 }
 
 void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
@@ -1688,26 +1624,38 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
         LL_PROFILE_ZONE_NAMED("cglt - sync");
         if (gGLManager.mHasSync)
         {
-            // post a sync to the main thread (will execute before tex name swap lambda below)
-            // glFlush calls here are partly superstitious and partly backed by observation
-            // on AMD hardware
-            glFlush();
-            auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-            glFlush();
-            LL::WorkQueue::postMaybe(
-                mMainQueue,
-                [=]()
-                {
-                    LL_PROFILE_ZONE_NAMED("cglt - wait sync");
+            if (gGLManager.mIsNVIDIA)
+            {
+                // wait for texture upload to finish before notifying main thread
+                // upload is complete
+                auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+                glFlush();
+                glClientWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+                glDeleteSync(sync);
+            }
+            else
+            {
+                // post a sync to the main thread (will execute before tex name swap lambda below)
+                // glFlush calls here are partly superstitious and partly backed by observation
+                // on AMD hardware
+                glFlush();
+                auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+                glFlush();
+                LL::WorkQueue::postMaybe(
+                    mMainQueue,
+                    [=]()
                     {
-                        LL_PROFILE_ZONE_NAMED("glWaitSync");
-                        glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
-                    }
-                    {
-                        LL_PROFILE_ZONE_NAMED("glDeleteSync");
-                        glDeleteSync(sync);
-                    }
-                });
+                        LL_PROFILE_ZONE_NAMED("cglt - wait sync");
+                        {
+                            LL_PROFILE_ZONE_NAMED("glWaitSync");
+                            glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+                        }
+                        {
+                            LL_PROFILE_ZONE_NAMED("glDeleteSync");
+                            glDeleteSync(sync);
+                        }
+                    });
+            }
         }
         else
         {
@@ -1857,7 +1805,6 @@ void LLImageGL::destroyGLTexture()
 	{
 		if(mTextureMemory != S32Bytes(0))
 		{
-			sGlobalTextureMemory -= mTextureMemory;
 			mTextureMemory = (S32Bytes)0;
 		}
 		
@@ -2409,8 +2356,6 @@ void LLImageGL::checkActiveThread()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL,  nummips);
 */  
 
-std::atomic<S32> LLImageGLThread::sFreeVRAMMegabytes(4096); //if free vram is unknown, default to 4GB
-
 LLImageGLThread::LLImageGLThread(LLWindow* window)
     // We want exactly one thread, but a very large capacity: we never want
     // anyone, especially inner-loop render code, to have to block on post()
@@ -2436,10 +2381,5 @@ void LLImageGLThread::run()
     ThreadPool::run();
     gGL.shutdown();
     mWindow->destroySharedContext(mContext);
-}
-
-S32 LLImageGLThread::getFreeVRAMMegabytes()
-{
-    return sFreeVRAMMegabytes;
 }
 

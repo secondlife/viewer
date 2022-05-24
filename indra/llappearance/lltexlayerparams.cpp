@@ -151,7 +151,7 @@ LLTexLayerParamAlpha::LLTexLayerParamAlpha(const LLTexLayerParamAlpha& pOther)
 	mCachedProcessedTexture(pOther.mCachedProcessedTexture),
 	mStaticImageTGA(pOther.mStaticImageTGA),
 	mStaticImageRaw(pOther.mStaticImageRaw),
-	mNeedsCreateTexture(pOther.mNeedsCreateTexture),
+	mNeedsCreateTexture(pOther.mNeedsCreateTexture.load()),
 	mStaticImageInvalid(pOther.mStaticImageInvalid),
 	mAvgDistortionVec(pOther.mAvgDistortionVec),
 	mCachedEffectiveWeight(pOther.mCachedEffectiveWeight)

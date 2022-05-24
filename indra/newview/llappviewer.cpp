@@ -3247,7 +3247,7 @@ LLSD LLAppViewer::getViewerInfo() const
     info["LOD_FACTOR"] = gSavedSettings.getF32("RenderVolumeLODFactor");
     info["RENDER_QUALITY"] = (F32)gSavedSettings.getU32("RenderQualityPerformance");
     info["GPU_SHADERS"] = gSavedSettings.getBOOL("RenderDeferred") ? "Enabled" : "Disabled";
-    info["TEXTURE_MEMORY"] = gSavedSettings.getS32("TextureMemory");
+    info["TEXTURE_MEMORY"] = gGLManager.mVRAM;
 
 #if LL_DARWIN
     info["HIDPI"] = gHiDPISupport;

@@ -49,7 +49,7 @@ public:
 		
 	public:
 		ImageRequest(handle_t handle, LLImageFormatted* image,
-					 U32 priority, S32 discard, BOOL needs_aux,
+					 S32 discard, BOOL needs_aux,
 					 LLImageDecodeThread::Responder* responder);
 
 		/*virtual*/ bool processRequest();
@@ -76,7 +76,7 @@ public:
 	virtual ~LLImageDecodeThread();
 
 	handle_t decodeImage(LLImageFormatted* image,
-						 U32 priority, S32 discard, BOOL needs_aux,
+						 S32 discard, BOOL needs_aux,
 						 Responder* responder);
 	S32 update(F32 max_time_ms);
 
@@ -88,16 +88,13 @@ private:
 	{
 		handle_t handle;
 		LLPointer<LLImageFormatted> image;
-		U32 priority;
 		S32 discard;
 		BOOL needs_aux;
 		LLPointer<Responder> responder;
 		creation_info(handle_t h, LLImageFormatted* i, U32 p, S32 d, BOOL aux, Responder* r)
-			: handle(h), image(i), priority(p), discard(d), needs_aux(aux), responder(r)
+			: handle(h), image(i), discard(d), needs_aux(aux), responder(r)
 		{}
 	};
-	typedef std::list<creation_info> creation_list_t;
-	creation_list_t mCreationList;
 	LLMutex* mCreationMutex;
 };
 

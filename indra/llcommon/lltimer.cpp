@@ -64,7 +64,8 @@ LLTimer* LLTimer::sTimer = NULL;
 #if LL_WINDOWS
 void ms_sleep(U32 ms)
 {
-	Sleep(ms);
+    LL_PROFILE_ZONE_SCOPED;
+    std::this_thread::sleep_for(std::chrono::microseconds(ms));
 }
 
 U32 micro_sleep(U64 us, U32 max_yields)

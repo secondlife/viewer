@@ -59,6 +59,8 @@ class LLTextureFetch : public LLWorkerThread
 	friend class LLTextureFetchWorker;
 	
 public:
+    static std::string getStateString(S32 state);
+
 	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
 	~LLTextureFetch();
 
@@ -116,10 +118,11 @@ public:
     // Threads:  T*
 	BOOL isFromLocalCache(const LLUUID& id);
 
-	// @return	Magic number giving the internal state of the
-	//			request.  We should make these codes public if we're
-	//			going to return them as a status value.
-	//
+    // get the current fetch state, if any, from the given UUID
+    S32 getFetchState(const LLUUID& id);
+
+	// @return	Fetch state of given image and associates statistics
+	//          See also getStateString
     // Threads:  T*
 	S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
 					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);

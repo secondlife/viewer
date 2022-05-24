@@ -124,25 +124,24 @@ public:
 
 	void handleIRCallback(void **data, const S32 number);
 
-	S32Megabytes	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
-	S32Megabytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32Megabytes mem);
-	
 	void doPreloadImages();
 	void doPrefetchImages();
 
 	void clearFetchingRequests();
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-	static S32Megabytes getMinVideoRamSetting();
-	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
-
 	static bool isPrioRequestsFetched();
 	
 private:
 	void updateImagesDecodePriorities();
+
+    // do some book keeping on the specified texture
+    // - updates decode priority
+    // - updates desired discard level
+    // - cleans up textures that haven't been referenced in awhile
+    void updateImageDecodePriority(LLViewerFetchedTexture* imagep);
 	F32  updateImagesCreateTextures(F32 max_time);
 	F32  updateImagesFetchTextures(F32 max_time);
 	void updateImagesUpdateStats();
@@ -217,15 +216,13 @@ private:
     LLTextureKey mLastUpdateKey;
     LLTextureKey mLastFetchKey;
 	
-	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
+    typedef std::set < LLPointer<LLViewerFetchedTexture> > image_priority_list_t;
 	image_priority_list_t mImageList;
 
 	// simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
 	std::set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
 
 	BOOL mInitialized ;
-	S32Megabytes	mMaxResidentTexMemInMegaBytes;
-	S32Megabytes mMaxTotalTextureMemInMegaBytes;
 	LLFrameTimer mForceDecodeTimer;
 	
 private:

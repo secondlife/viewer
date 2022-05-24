@@ -47,6 +47,7 @@
 #include "llglslshader.h"
 #include "llthreadsafequeue.h"
 #include "stringize.h"
+#include "llframetimer.h"
 
 // System includes
 #include <commdlg.h>
@@ -60,6 +61,10 @@
 #include <future>
 #include <sstream>
 #include <utility>                  // std::pair
+
+#include <d3d9.h>
+#include <dxgi1_4.h>
+
 
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
@@ -347,6 +352,20 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     void run() override;
 
+    // initialzie DXGI adapter (for querying available VRAM)
+    void initDX();
+    
+    // initialize D3D (if DXGI cannot be used)
+    void initD3D();
+
+    // call periodically to update available VRAM
+    void updateVRAMUsage();
+
+    U32 getAvailableVRAMMegabytes()
+    {
+        return mAvailableVRAM;
+    }
+
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
     void post(CALLABLE&& func)
@@ -395,6 +414,12 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     void gatherInput();
     HWND mWindowHandle = NULL;
     HDC mhDC = 0;
+
+    std::atomic<U32> mAvailableVRAM;
+
+    IDXGIAdapter3* mDXGIAdapter = nullptr;
+    LPDIRECT3D9 mD3D = nullptr;
+    LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
 
 
@@ -4515,6 +4540,10 @@ std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()
 	return std::vector<std::string>();
 }
 
+U32 LLWindowWin32::getAvailableVRAMMegabytes()
+{
+    return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
+}
 
 #endif // LL_WINDOWS
 
@@ -4570,10 +4599,87 @@ private:
     std::string mPrev;
 };
 
+void LLWindowWin32::LLWindowWin32Thread::initDX()
+{
+    if (mDXGIAdapter == NULL)
+    {
+        IDXGIFactory4* pFactory = nullptr;
+
+        HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
+
+        if (FAILED(res))
+        {
+            LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
+        }
+        else
+        {
+            res = pFactory->EnumAdapters(0, reinterpret_cast<IDXGIAdapter**>(&mDXGIAdapter));
+            if (FAILED(res))
+            {
+                LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
+            }
+        }
+
+        pFactory->Release();
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::initD3D()
+{
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
+    {
+        mD3D = Direct3DCreate9(D3D_SDK_VERSION);
+        
+        D3DPRESENT_PARAMETERS d3dpp;
+
+        ZeroMemory(&d3dpp, sizeof(d3dpp));
+        d3dpp.Windowed = TRUE;
+        d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+
+        mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandle, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+    }
+}
+
+void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    if (mDXGIAdapter != nullptr)
+    {
+        DXGI_QUERY_VIDEO_MEMORY_INFO info;
+        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
+
+        // try to use no more than the available reserve minus 10%
+        U32 target = info.AvailableForReservation / 1024 / 1024;
+        target -= target / 10;
+
+        U32 used_vram = info.CurrentUsage / 1024 / 1024;
+
+        mAvailableVRAM = used_vram < target ? target - used_vram : 0;
+
+        /*LL_INFOS() << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
+            << "\nBudget: " << info.Budget / 1024 / 1024
+            << "\nCR: " << info.CurrentReservation / 1024 / 1024
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;
+
+        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
+        LL_INFOS() << "\nNon-Local\nAFR: " << info.AvailableForReservation / 1024 / 1024
+            << "\nBudget: " << info.Budget / 1024 / 1024
+            << "\nCR: " << info.CurrentReservation / 1024 / 1024
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;*/
+    }
+    else if (mD3DDevice != NULL)
+    { // fallback to D3D9
+        mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
+    }
+
+}
+
 void LLWindowWin32::LLWindowWin32Thread::run()
 {
     sWindowThreadId = std::this_thread::get_id();
     LogChange logger("Window");
+
+    initDX();
 
     while (! getQueue().done())
     {
@@ -4581,6 +4687,9 @@ void LLWindowWin32::LLWindowWin32Thread::run()
 
         if (mWindowHandle != 0)
         {
+            // lazily call initD3D inside this loop to catch when mWindowHandle has been set
+            initD3D();
+
             MSG msg;
             BOOL status;
             if (mhDC == 0)
@@ -4613,6 +4722,13 @@ void LLWindowWin32::LLWindowWin32Thread::run()
             getQueue().runPending();
         }
         
+        // update available vram once every 3 seconds
+        static LLFrameTimer vramTimer;
+        if (vramTimer.getElapsedTimeF32() > 3.f)
+        {
+            updateVRAMUsage();
+            vramTimer.reset();
+        }
 #if 0
         {
             LL_PROFILE_ZONE_NAMED_CATEGORY_WIN32("w32t - Sleep");
@@ -4621,6 +4737,26 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         }
 #endif
     }
+
+    //clean up DXGI/D3D resources
+    if (mDXGIAdapter)
+    {
+        mDXGIAdapter->Release();
+        mDXGIAdapter = nullptr;
+    }
+
+    if (mD3DDevice)
+    {
+        mD3DDevice->Release();
+        mD3DDevice = nullptr;
+    }
+
+    if (mD3D)
+    {
+        mD3D->Release();
+        mD3D = nullptr;
+    }
+
 }
 
 void LLWindowWin32::post(const std::function<void()>& func)

@@ -95,14 +95,13 @@ private:
 	};
 	
 public:
-	LLTextureCacheWorker(LLTextureCache* cache, U32 priority, const LLUUID& id,
+	LLTextureCacheWorker(LLTextureCache* cache, const LLUUID& id,
 						 U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLTextureCache::Responder* responder)
 		: LLWorkerClass(cache, "LLTextureCacheWorker"),
 		  mID(id),
 		  mCache(cache),
-		  mPriority(priority),
 		  mReadData(NULL),
 		  mWriteData(data),
 		  mDataSize(datasize),
@@ -115,7 +114,6 @@ public:
 		  mBytesToRead(0),
 		  mBytesRead(0)
 	{
-		mPriority &= LLWorkerThread::PRIORITY_LOWBITS;
 	}
 	~LLTextureCacheWorker()
 	{
@@ -129,13 +127,12 @@ public:
 
 	virtual bool doWork(S32 param); // Called from LLWorkerThread::processRequest()
 
-	handle_t read() { addWork(0, LLWorkerThread::PRIORITY_HIGH | mPriority); return mRequestHandle; }
-	handle_t write() { addWork(1, LLWorkerThread::PRIORITY_HIGH | mPriority); return mRequestHandle; }
+	handle_t read() { addWork(0); return mRequestHandle; }
+	handle_t write() { addWork(1); return mRequestHandle; }
 	bool complete() { return checkWork(); }
 	void ioComplete(S32 bytes)
 	{
 		mBytesRead = bytes;
-		setPriority(LLWorkerThread::PRIORITY_HIGH | mPriority);
 	}
 
 private:
@@ -145,7 +142,6 @@ private:
 
 protected:
 	LLTextureCache* mCache;
-	U32 mPriority;
 	LLUUID	mID;
 	
 	U8* mReadData;
@@ -164,11 +160,11 @@ protected:
 class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker
 {
 public:
-	LLTextureCacheLocalFileWorker(LLTextureCache* cache, U32 priority, const std::string& filename, const LLUUID& id,
+	LLTextureCacheLocalFileWorker(LLTextureCache* cache, const std::string& filename, const LLUUID& id,
 						 U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLTextureCache::Responder* responder) 
-			: LLTextureCacheWorker(cache, priority, id, data, datasize, offset, imagesize, responder),
+			: LLTextureCacheWorker(cache, id, data, datasize, offset, imagesize, responder),
 			mFileName(filename)
 
 	{
@@ -183,6 +179,7 @@ private:
 
 bool LLTextureCacheLocalFileWorker::doRead()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	S32 local_size = LLAPRFile::size(mFileName, mCache->getLocalAPRFilePool());
 
 	if (local_size > 0 && mFileName.size() > 4)
@@ -207,50 +204,6 @@ bool LLTextureCacheLocalFileWorker::doRead()
 		return true;
 	}
 
-#if USE_LFS_READ
-	if (mFileHandle == LLLFSThread::nullHandle())
-	{
-		mImageLocal = TRUE;
-		mImageSize = local_size;
-		if (!mDataSize || mDataSize + mOffset > local_size)
-		{
-			mDataSize = local_size - mOffset;
-		}
-		if (mDataSize <= 0)
-		{
-			// no more data to read
-			mDataSize = 0;
-			return true;
-		}
-		mReadData = (U8*)ALLOCATE_MEM(LLImageBase::getPrivatePool(), mDataSize);
-		mBytesRead = -1;
-		mBytesToRead = mDataSize;
-		setPriority(LLWorkerThread::PRIORITY_LOW | mPriority);
-		mFileHandle = LLLFSThread::sLocal->read(local_filename, mReadData, mOffset, mDataSize,
-												new ReadResponder(mCache, mRequestHandle));
-		return false;
-	}
-	else
-	{
-		if (mBytesRead >= 0)
-		{
-			if (mBytesRead != mBytesToRead)
-			{
-// 				LL_WARNS() << "Error reading file from local cache: " << local_filename
-// 						<< " Bytes: " << mDataSize << " Offset: " << mOffset
-// 						<< " / " << mDataSize << LL_ENDL;
-				mDataSize = 0; // failed
-				ll_aligned_free_16(mReadData);
-				mReadData = NULL;
-			}
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-#else
 	if (!mDataSize || mDataSize > local_size)
 	{
 		mDataSize = local_size;
@@ -274,7 +227,6 @@ bool LLTextureCacheLocalFileWorker::doRead()
 		mImageLocal = TRUE;
 	}
 	return true;
-#endif
 }
 
 bool LLTextureCacheLocalFileWorker::doWrite()
@@ -286,12 +238,12 @@ bool LLTextureCacheLocalFileWorker::doWrite()
 class LLTextureCacheRemoteWorker : public LLTextureCacheWorker
 {
 public:
-	LLTextureCacheRemoteWorker(LLTextureCache* cache, U32 priority, const LLUUID& id,
+	LLTextureCacheRemoteWorker(LLTextureCache* cache, const LLUUID& id,
 						 U8* data, S32 datasize, S32 offset,
 						 S32 imagesize, // for writes
 						 LLPointer<LLImageRaw> raw, S32 discardlevel,
 						 LLTextureCache::Responder* responder) 
-			: LLTextureCacheWorker(cache, priority, id, data, datasize, offset, imagesize, responder),
+			: LLTextureCacheWorker(cache, id, data, datasize, offset, imagesize, responder),
 			mState(INIT),
 			mRawImage(raw),
 			mRawDiscardLevel(discardlevel)
@@ -329,6 +281,7 @@ void LLTextureCacheWorker::startWork(S32 param)
 // - the code supports offset reading but this is actually never exercised in the viewer
 bool LLTextureCacheRemoteWorker::doRead()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	bool done = false;
 	S32 idx = -1;
 
@@ -580,6 +533,7 @@ bool LLTextureCacheRemoteWorker::doRead()
 // - the code *does not* support offset writing so there are no difference between buffer addresses and start of data
 bool LLTextureCacheRemoteWorker::doWrite()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	bool done = false;
 	S32 idx = -1;	
 
@@ -756,6 +710,7 @@ bool LLTextureCacheRemoteWorker::doWrite()
 //virtual
 bool LLTextureCacheWorker::doWork(S32 param)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	bool res = false;
 	if (param == 0) // read
 	{
@@ -775,11 +730,13 @@ bool LLTextureCacheWorker::doWork(S32 param)
 //virtual (WORKER THREAD)
 void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	if (mResponder.notNull())
 	{
 		bool success = (completed && mDataSize > 0);
 		if (param == 0)
 		{
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("tcwfw - read");
 			// read
 			if (success)
 			{
@@ -789,12 +746,14 @@ void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 			}
 			else
 			{
+                LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("tcwfw - read fail");
 				ll_aligned_free_16(mReadData);
 				mReadData = NULL;
 			}
 		}
 		else
 		{
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("tcwfw - write");
 			// write
 			mWriteData = NULL; // we never owned data
 			mDataSize = 0;
@@ -806,6 +765,7 @@ void LLTextureCacheWorker::finishWork(S32 param, bool completed)
 //virtual (MAIN THREAD)
 void LLTextureCacheWorker::endWork(S32 param, bool aborted)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (aborted)
 	{
 		// Let the destructor handle any cleanup
@@ -861,6 +821,7 @@ LLTextureCache::~LLTextureCache()
 //virtual
 S32 LLTextureCache::update(F32 max_time_ms)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	static LLFrameTimer timer ;
 	static const F32 MAX_TIME_INTERVAL = 300.f ; //seconds.
 
@@ -873,22 +834,6 @@ S32 LLTextureCache::update(F32 max_time_ms)
 	responder_list_t completed_list = mCompletedList; // copy list
 	mCompletedList.clear();
 	mListMutex.unlock();
-	
-	lockWorkers();
-	
-	for (handle_list_t::iterator iter1 = priorty_list.begin();
-		 iter1 != priorty_list.end(); ++iter1)
-	{
-		handle_t handle = *iter1;
-		handle_map_t::iterator iter2 = mWriters.find(handle);
-		if(iter2 != mWriters.end())
-		{
-			LLTextureCacheWorker* worker = iter2->second;
-			worker->setPriority(LLWorkerThread::PRIORITY_HIGH | worker->mPriority);
-		}
-	}
-
-	unlockWorkers(); 
 	
 	// call 'completed' with workers list unlocked (may call readComplete() or writeComplete()
 	for (responder_list_t::iterator iter1 = completed_list.begin();
@@ -1323,6 +1268,7 @@ void LLTextureCache::updateEntryTimeStamp(S32 idx, Entry& entry)
 //update an existing entry, write to header file immediately.
 bool LLTextureCache::updateEntry(S32& idx, Entry& entry, S32 new_image_size, S32 new_data_size)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	S32 new_body_size = llmax(0, new_data_size - TEXTURE_CACHE_ENTRY_SIZE) ;
 	
 	if(new_image_size == entry.mImageSize && new_body_size == entry.mBodySize)
@@ -1872,6 +1818,7 @@ void LLTextureCache::purgeTextures(bool validate)
 // call lockWorkers() first!
 LLTextureCacheWorker* LLTextureCache::getReader(handle_t handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLTextureCacheWorker* res = NULL;
 	handle_map_t::iterator iter = mReaders.find(handle);
 	if (iter != mReaders.end())
@@ -1883,6 +1830,7 @@ LLTextureCacheWorker* LLTextureCache::getReader(handle_t handle)
 
 LLTextureCacheWorker* LLTextureCache::getWriter(handle_t handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLTextureCacheWorker* res = NULL;
 	handle_map_t::iterator iter = mWriters.find(handle);
 	if (iter != mWriters.end())
@@ -1898,6 +1846,7 @@ LLTextureCacheWorker* LLTextureCache::getWriter(handle_t handle)
 // Reads imagesize from the header, updates timestamp
 S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, Entry& entry)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	LLMutexLock lock(&mHeaderMutex);	
 	S32 idx = openAndReadEntry(id, entry, false);
 	if (idx >= 0)
@@ -1910,6 +1859,7 @@ S32 LLTextureCache::getHeaderCacheEntry(const LLUUID& id, Entry& entry)
 // Writes imagesize to the header, updates timestamp
 S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imagesize, S32 datasize)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	mHeaderMutex.lock();
 	S32 idx = openAndReadEntry(id, entry, true); // read or create
 	mHeaderMutex.unlock();
@@ -1942,13 +1892,14 @@ S32 LLTextureCache::setHeaderCacheEntry(const LLUUID& id, Entry& entry, S32 imag
 
 // Calls from texture pipeline thread (i.e. LLTextureFetch)
 
-LLTextureCache::handle_t LLTextureCache::readFromCache(const std::string& filename, const LLUUID& id, U32 priority,
+LLTextureCache::handle_t LLTextureCache::readFromCache(const std::string& filename, const LLUUID& id,
 													   S32 offset, S32 size, ReadResponder* responder)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// Note: checking to see if an entry exists can cause a stall,
 	//  so let the thread handle it
 	LLMutexLock lock(&mWorkersMutex);
-	LLTextureCacheWorker* worker = new LLTextureCacheLocalFileWorker(this, priority, filename, id,
+	LLTextureCacheWorker* worker = new LLTextureCacheLocalFileWorker(this, filename, id,
 																	 NULL, size, offset, 0,
 																	 responder);
 	handle_t handle = worker->read();
@@ -1956,13 +1907,14 @@ LLTextureCache::handle_t LLTextureCache::readFromCache(const std::string& filena
 	return handle;
 }
 
-LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id, U32 priority,
+LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id,
 													   S32 offset, S32 size, ReadResponder* responder)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	// Note: checking to see if an entry exists can cause a stall,
 	//  so let the thread handle it
 	LLMutexLock lock(&mWorkersMutex);
-	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
+	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, id,
 																  NULL, size, offset,
 																  0, NULL, 0, responder);
 	handle_t handle = worker->read();
@@ -1973,6 +1925,7 @@ LLTextureCache::handle_t LLTextureCache::readFromCache(const LLUUID& id, U32 pri
 
 bool LLTextureCache::readComplete(handle_t handle, bool abort)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	lockWorkers();
 	handle_map_t::iterator iter = mReaders.find(handle);
 	LLTextureCacheWorker* worker = NULL;
@@ -2000,7 +1953,7 @@ bool LLTextureCache::readComplete(handle_t handle, bool abort)
 	return (complete || abort);
 }
 
-LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 priority,
+LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id,
 													  U8* data, S32 datasize, S32 imagesize,
 													  LLPointer<LLImageRaw> rawimage, S32 discardlevel,
 													  WriteResponder* responder)
@@ -2018,7 +1971,7 @@ LLTextureCache::handle_t LLTextureCache::writeToCache(const LLUUID& id, U32 prio
 		mDoPurge = !mPurgeEntryList.empty();
 	}
 	LLMutexLock lock(&mWorkersMutex);
-	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, priority, id,
+	LLTextureCacheWorker* worker = new LLTextureCacheRemoteWorker(this, id,
 																  data, datasize, 0,
 																  imagesize, rawimage, discardlevel, responder);
 	handle_t handle = worker->write();
@@ -2086,6 +2039,7 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 //return the fast cache location
 bool LLTextureCache::writeToFastCache(LLUUID image_id, S32 id, LLPointer<LLImageRaw> raw, S32 discardlevel)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	//rescale image if needed
 	if (raw.isNull() || raw->isBufferInvalid() || !raw->getData())
 	{
