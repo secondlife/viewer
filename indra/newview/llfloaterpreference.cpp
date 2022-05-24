@@ -1182,6 +1182,7 @@ void LLFloaterPreference::refreshEnabledState()
 {
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
+    LLCheckBoxCtrl* ctrl_pbr = getChild<LLCheckBoxCtrl>("UsePBRShaders");
 
 	// if vertex shaders off, disable all shader related products
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders"))
@@ -1204,6 +1205,11 @@ void LLFloaterPreference::refreshEnabledState()
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
+
+    //PBR
+    BOOL deferred = gSavedSettings.getBOOL("RenderDeferred");
+    // TODO: add "RenderPBR" to LLFeatureManager
+    ctrl_pbr->setEnabled(deferred);
 
 	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);

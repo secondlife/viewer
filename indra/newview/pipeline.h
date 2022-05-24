@@ -635,6 +635,7 @@ public:
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
+    static bool				sRenderPBR;
 	static S32				sVisibleLightCount;
 	static bool				sRenderingHUDs;
     static F32              sDistortionWaterClipPlaneMargin;

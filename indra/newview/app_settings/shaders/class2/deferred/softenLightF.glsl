@@ -26,10 +26,7 @@
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
 
-#define FLT_MAX 3.402823466e+38
-
-#define REFMAP_COUNT 256
-#define REF_SAMPLE_COUNT 64 //maximum number of samples to consider
+/*[EXTRA_CODE_HERE]*/
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -42,6 +39,7 @@ uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect lightMap;
 uniform sampler2DRect depthMap;
+uniform samplerCube   environmentMap;
 uniform sampler2D     lightFunc;
 
 uniform float blur_size;
@@ -67,12 +65,6 @@ vec3  atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3  scaleSoftClipFrag(vec3 l);
 vec3  fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
 vec3  fullbrightScaleSoftClip(vec3 light);
-
-// reflection probe interface
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
-        vec3 pos, vec3 norm, float glossiness, float envIntensity);
-void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
-void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
@@ -111,53 +103,40 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
-
     calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
 
-    //vec3 amb_vec = env_mat * norm.xyz;
+    color.rgb = amblit;
 
-    vec3 ambenv;
-    vec3 glossenv;
-    vec3 legacyenv;
-    sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
-
-    amblit = max(ambenv, amblit);
-    color.rgb = amblit*ambocc;
-
-    //float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
-    //ambient *= 0.5;
-    //ambient *= ambient;
-    //ambient = (1.0 - ambient);
-    //color.rgb *= ambient;
+    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+    ambient *= 0.5;
+    ambient *= ambient;
+    ambient = (1.0 - ambient);
+    color.rgb *= ambient;
 
     vec3 sun_contrib = min(da, scol) * sunlit;
     color.rgb += sun_contrib;
-    color.rgb = min(color.rgb, vec3(1,1,1));
     color.rgb *= diffuse.rgb;
 
-    vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+    vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
     if (spec.a > 0.0)  // specular reflection
     {
-        float sa        = dot(normalize(refnormpersp), light_dir.xyz);
+        float sa        = dot(refnormpersp, light_dir.xyz);
         vec3  dumbshiny = sunlit * scol * (texture2D(lightFunc, vec2(sa, spec.a)).r);
 
         // add the two types of shiny together
         vec3 spec_contrib = dumbshiny * spec.rgb;
         bloom             = dot(spec_contrib, spec_contrib) / 6;
         color.rgb += spec_contrib;
-
-        // add reflection map - EXPERIMENTAL WORK IN PROGRESS
-        applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
     }
 
     color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
 
     if (envIntensity > 0.0)
     {  // add environmentmap
-        //fudge darker
-        legacyenv *= 0.5*diffuse.a+0.5;;
-        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
+        vec3 env_vec         = env_mat * refnormpersp;
+        vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
+        color                = mix(color.rgb, reflected_color, envIntensity);
     }
 
     if (norm.w < 0.5)
@@ -174,9 +153,6 @@ void main()
 
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
-    //color = vec3(ambocc);
-    //color = ambenv;
-    //color.b = diffuse.a;
     frag_color.rgb = srgb_to_linear(color.rgb);
-    frag_color.a = bloom;
+    frag_color.a   = bloom;
 }

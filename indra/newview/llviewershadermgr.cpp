@@ -49,6 +49,8 @@
 #include "lljoint.h"
 #include "llskinningutil.h"
 
+//#pragma optimize("", off)
+
 static LLStaticHashedString sTexture0("texture0");
 static LLStaticHashedString sTexture1("texture1");
 static LLStaticHashedString sTex0("tex0");
@@ -491,6 +493,7 @@ void LLViewerShaderMgr::setShaders()
     bool canRenderDeferred       = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
     bool hasWindLightShaders     = LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
+    bool pbr = gSavedSettings.getBOOL("RenderPBR");
     bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
     bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
 
@@ -528,6 +531,11 @@ void LLViewerShaderMgr::setShaders()
                 deferred_class = 1; // no shadows
             break; 
         }
+    }
+
+    if (deferred_class > 0 && pbr)
+    {
+        deferred_class = 3;
     }
 
     if (doingWindLight)
@@ -661,8 +669,8 @@ void LLViewerShaderMgr::setShaders()
         // Load max avatar shaders to set the max level
         mShaderLevel[SHADER_AVATAR] = 3;
         mMaxAvatarShaderLevel = 3;
-                
-            if (loadShadersObject())
+
+        if (loadShadersObject())
         { //hardware skinning is enabled and rigged attachment shaders loaded correctly
             BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
 
@@ -1221,7 +1229,8 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 
 BOOL LLViewerShaderMgr::loadShadersDeferred()
 {
-    bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1;
+    bool use_sun_shadow = mShaderLevel[SHADER_DEFERRED] > 1 && 
+        gSavedSettings.getS32("RenderShadowDetail") > 0;
 
     BOOL ambient_kill = gSavedSettings.getBOOL("AmbientDisable");
 	BOOL sunlight_kill = gSavedSettings.getBOOL("SunlightDisable");
@@ -1504,7 +1513,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredMaterialProgram[i].mFeatures.hasGamma = true;
             gDeferredMaterialProgram[i].mFeatures.hasShadows = use_sun_shadow;
             
-            if (mShaderLevel[SHADER_DEFERRED] > 1)
+            if (mShaderLevel[SHADER_DEFERRED] > 2)
             {
                 gDeferredMaterialProgram[i].mFeatures.hasReflectionProbes = true;
                 gDeferredMaterialProgram[i].addPermutation("HAS_REFLECTION_PROBES", "1");
@@ -2209,7 +2218,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER_ARB));
 		gDeferredFullbrightShinyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        if (gDeferredFullbrightShinyProgram.mShaderLevel >= 2) // TODO : make this a 3 when reflection probes are restricted to class 3
+        if (gDeferredFullbrightShinyProgram.mShaderLevel > 2)
         {
             gDeferredFullbrightShinyProgram.addPermutation("HAS_REFLECTION_PROBES", "1");
             gDeferredFullbrightShinyProgram.mFeatures.hasReflectionProbes = true;
@@ -2286,13 +2295,18 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mFeatures.hasGamma = true;
 		gDeferredSoftenProgram.mFeatures.isDeferred = true;
 		gDeferredSoftenProgram.mFeatures.hasShadows = use_sun_shadow;
-        gDeferredSoftenProgram.mFeatures.hasReflectionProbes = true;
+        gDeferredSoftenProgram.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED] > 2;
 
         gDeferredSoftenProgram.clearPermutations();
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER_ARB));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER_ARB));
 
 		gDeferredSoftenProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+
+        if (use_sun_shadow)
+        {
+            gDeferredSoftenProgram.addPermutation("HAS_SUN_SHADOW", "1");
+        }
 
         if (ambient_kill)
         {
@@ -2312,6 +2326,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{ //if using SSAO, take screen space light map into account as if shadows are enabled
 			gDeferredSoftenProgram.mShaderLevel = llmax(gDeferredSoftenProgram.mShaderLevel, 2);
+            gDeferredSoftenProgram.addPermutation("HAS_SSAO", "1");
 		}
 				
 		success = gDeferredSoftenProgram.createShader(NULL, NULL);
@@ -2337,7 +2352,12 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenWaterProgram.mFeatures.hasGamma = true;
         gDeferredSoftenWaterProgram.mFeatures.isDeferred = true;
         gDeferredSoftenWaterProgram.mFeatures.hasShadows = use_sun_shadow;
-        gDeferredSoftenWaterProgram.mFeatures.hasReflectionProbes = true;
+        gDeferredSoftenWaterProgram.mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED] > 2;
+
+        if (use_sun_shadow)
+        {
+            gDeferredSoftenWaterProgram.addPermutation("HAS_SUN_SHADOW", "1");
+        }
 
         if (ambient_kill)
         {
@@ -2352,6 +2372,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         if (local_light_kill)
         {
             gDeferredSoftenWaterProgram.addPermutation("LOCAL_LIGHT_KILL", "1");
+            gDeferredSoftenWaterProgram.addPermutation("HAS_SSAO", "1");
         }
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))

@@ -9599,6 +9599,18 @@
     <real>368.0</real>
   </map>
 
+  <key>RenderPBR</key>
+  <map>
+    <key>Comment</key>
+    <string>Use PBR rendering pipeline (Physically Based Rendering).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+
   <key>RenderDeferred</key>
   <map>
     <key>Comment</key>

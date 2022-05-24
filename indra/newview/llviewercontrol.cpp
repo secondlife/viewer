@@ -440,9 +440,10 @@ static bool handleRenderLocalLightsChanged(const LLSD& newvalue)
 	return true;
 }
 
+// NOTE: may be triggered by RenderDeferred OR RenderPBR changing, don't trust "newvalue"
 static bool handleRenderDeferredChanged(const LLSD& newvalue)
 {
-	LLRenderTarget::sUseFBO = newvalue.asBoolean();
+    LLRenderTarget::sUseFBO = gSavedSettings.getBOOL("RenderDeferred");
 	if (gPipeline.isInit())
 	{
 		LLPipeline::refreshCachedSettings();
@@ -694,6 +695,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDebugPipeline")->getSignal()->connect(boost::bind(&handleRenderDebugPipelineChanged, _2));
 	gSavedSettings.getControl("RenderResolutionDivisor")->getSignal()->connect(boost::bind(&handleRenderResolutionDivisorChanged, _2));
 	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleRenderDeferredChanged, _2));
+    gSavedSettings.getControl("RenderPBR")->getSignal()->connect(boost::bind(&handleRenderDeferredChanged, _2));
 	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));

@@ -351,6 +351,7 @@ bool	LLPipeline::sRenderFrameTest = false;
 bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
+bool    LLPipeline::sRenderPBR = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 bool	LLPipeline::sRenderingHUDs;
 F32     LLPipeline::sDistortionWaterClipPlaneMargin = 1.0125f;
@@ -541,6 +542,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("UseOcclusion");
 	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
 	connectRefreshCachedSettingsSafe("RenderDeferred");
+    connectRefreshCachedSettingsSafe("RenderPBR");
 	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
 	connectRefreshCachedSettingsSafe("RenderFSAASamples");
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
@@ -1025,6 +1027,7 @@ void LLPipeline::updateRenderDeferred()
                       LLPipeline::sRenderBump &&
                       WindLightUseAtmosShaders &&
                       (bool) LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
+    sRenderPBR = sRenderDeferred && gSavedSettings.getBOOL("RenderPBR");
 }
 
 // static
@@ -2597,6 +2600,7 @@ void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderT
 void LLPipeline::doOcclusion(LLCamera& camera)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
+    LL_PROFILE_GPU_ZONE("doOcclusion");
     if (LLPipeline::sUseOcclusion > 1 && !LLSpatialPartition::sTeleportRequested &&
 		(sCull->hasOcclusionGroups() || LLVOCachePartition::sNeedsOcclusionCheck))
 	{
@@ -9633,7 +9637,7 @@ static LLTrace::BlockTimerStatHandle FTM_SHADOW_FULLBRIGHT_ALPHA_MASKED("Fullbri
 void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult& result, bool use_shader, bool use_occlusion, U32 target_width)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_SHADOW_RENDER);
-
+    LL_PROFILE_GPU_ZONE("renderShadow");
     //disable occlusion culling for shadow passes (save setting to restore later)
     S32 occlude = LLPipeline::sUseOcclusion;
     if (!use_occlusion)
@@ -9720,7 +9724,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         }
 
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow simple"); //LL_RECORD_BLOCK_TIME(FTM_SHADOW_SIMPLE);
-
+        LL_PROFILE_GPU_ZONE("shadow simple");
         gGL.getTexUnit(0)->disable();
         for (U32 i = 0; i < sizeof(types) / sizeof(U32); ++i)
         {
@@ -9753,7 +9757,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("shadow alpha"); //LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
-
+        LL_PROFILE_GPU_ZONE("shadow alpha");
         for (int i = 0; i < 2; ++i)
         {
             bool rigged = i == 1;
