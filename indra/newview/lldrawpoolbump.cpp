@@ -464,6 +464,7 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		LLVector4 vec4(vec, gShinyOrigin.mV[3]);
 		shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);
 
+        cube_map->setMatrix(1);
 		// Make sure that texture coord generation happens for tex unit 1, as that's the one we use for 
 		// the cube map in the one pass shiny shaders
 		gGL.getTexUnit(1)->disable();
@@ -524,6 +525,7 @@ void LLDrawPoolBump::endFullbrightShiny()
 	if( cube_map )
 	{
 		cube_map->disable();
+        cube_map->restoreMatrix();
 		shader->unbind();
 	}
 	

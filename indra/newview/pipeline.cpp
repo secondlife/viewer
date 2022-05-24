@@ -3899,7 +3899,11 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	if (!sShadowRender)
 	{
+        // order alpha groups by distance
 		std::sort(sCull->beginAlphaGroups(), sCull->endAlphaGroups(), LLSpatialGroup::CompareDepthGreater());
+
+        // order rigged alpha groups by avatar attachment order
+        std::sort(sCull->beginRiggedAlphaGroups(), sCull->endRiggedAlphaGroups(), LLSpatialGroup::CompareRenderOrder());
 	}
 
 	LL_PUSH_CALLSTACKS();
