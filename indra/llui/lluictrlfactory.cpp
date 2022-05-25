@@ -44,10 +44,6 @@
 // this library includes
 #include "llpanel.h"
 
-LLTrace::BlockTimerStatHandle FTM_WIDGET_CONSTRUCTION("Widget Construction");
-LLTrace::BlockTimerStatHandle FTM_INIT_FROM_PARAMS("Widget InitFromParams");
-LLTrace::BlockTimerStatHandle FTM_WIDGET_SETUP("Widget Setup");
-
 //-----------------------------------------------------------------------------
 
 // UI Ctrl class for padding
@@ -117,12 +113,10 @@ void LLUICtrlFactory::loadWidgetTemplate(const std::string& widget_tag, LLInitPa
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_CHILDREN("Create XUI Children");
-
 //static 
 void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_CHILDREN);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	if (node.isNull()) return;
 
 	for (LLXMLNodePtr child_node = node->getFirstChild(); child_node.notNull(); child_node = child_node->getNextSibling())
@@ -159,14 +153,13 @@ void LLUICtrlFactory::createChildren(LLView* viewp, LLXMLNodePtr node, const wid
 
 }
 
-static LLTrace::BlockTimerStatHandle FTM_XML_PARSE("XML Reading/Parsing");
 //-----------------------------------------------------------------------------
 // getLayeredXMLNode()
 //-----------------------------------------------------------------------------
 bool LLUICtrlFactory::getLayeredXMLNode(const std::string &xui_filename, LLXMLNodePtr& root,
                                         LLDir::ESkinConstraint constraint)
 {
-	LL_RECORD_BLOCK_TIME(FTM_XML_PARSE);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	std::vector<std::string> paths =
 		gDirUtilp->findSkinnedFilenames(LLDir::XUI, xui_filename, constraint);
 
@@ -191,11 +184,9 @@ S32 LLUICtrlFactory::saveToXML(LLView* viewp, const std::string& filename)
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-static LLTrace::BlockTimerStatHandle FTM_CREATE_FROM_XML("Create child widget");
-
 LLView *LLUICtrlFactory::createFromXML(LLXMLNodePtr node, LLView* parent, const std::string& filename, const widget_registry_t& registry, LLXMLNodePtr output_node)
 {
-	LL_RECORD_BLOCK_TIME(FTM_CREATE_FROM_XML);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	std::string ctrl_type = node->getName()->mString;
 	LLStringUtil::toLower(ctrl_type);
 

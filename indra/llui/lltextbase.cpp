@@ -1532,11 +1532,9 @@ S32 LLTextBase::getLeftOffset(S32 width)
 	}
 }
 
-
-static LLTrace::BlockTimerStatHandle FTM_TEXT_REFLOW ("Text Reflow");
 void LLTextBase::reflow()
 {
-	LL_RECORD_BLOCK_TIME(FTM_TEXT_REFLOW);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
 	updateSegments();
 
@@ -1884,10 +1882,9 @@ void LLTextBase::removeDocumentChild(LLView* view)
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_TEXT_SEGMENTS("Update Text Segments");
 void LLTextBase::updateSegments()
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TEXT_SEGMENTS);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	createDefaultSegment();
 }
 
@@ -2147,19 +2144,16 @@ static LLUIImagePtr image_from_icon_name(const std::string& icon_name)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PARSE_HTML("Parse HTML");
-
-
 
 void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Params& input_params)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	LLStyle::Params style_params(input_params);
 	style_params.fillFrom(getStyleParams());
 
 	S32 part = (S32)LLTextParser::WHOLE;
 	if (mParseHTML && !style_params.is_link) // Don't search for URLs inside a link segment (STORM-358).
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PARSE_HTML);
 		S32 start=0,end=0;
 		LLUrlMatch match;
 		std::string text = new_text;
@@ -2253,11 +2247,9 @@ void LLTextBase::setLastSegmentToolTip(const std::string &tooltip)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_APPEND_TEXT("Append Text");
-
 void LLTextBase::appendText(const std::string &new_text, bool prepend_newline, const LLStyle::Params& input_params)
 {
-	LL_RECORD_BLOCK_TIME(FTM_APPEND_TEXT);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	if (new_text.empty()) 
 		return;
 

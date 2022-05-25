@@ -188,20 +188,15 @@ void LLCharacter::requestStopMotion( LLMotion* motion)
 //-----------------------------------------------------------------------------
 // updateMotions()
 //-----------------------------------------------------------------------------
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_ANIMATION("Update Animation");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_HIDDEN_ANIMATION("Update Hidden Anim");
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_MOTIONS("Update Motions");
-
 void LLCharacter::updateMotions(e_update_t update_type)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (update_type == HIDDEN_UPDATE)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_UPDATE_HIDDEN_ANIMATION);
 		mMotionController.updateMotionsMinimal();
 	}
 	else
 	{
-		LL_RECORD_BLOCK_TIME(FTM_UPDATE_ANIMATION);
 		// unpause if the number of outstanding pause requests has dropped to the initial one
 		if (mMotionController.isPaused() && mPauseRequest->getNumRefs() == 1)
 		{
@@ -209,7 +204,6 @@ void LLCharacter::updateMotions(e_update_t update_type)
 		}
 		bool force_update = (update_type == FORCE_UPDATE);
 		{
-			LL_RECORD_BLOCK_TIME(FTM_UPDATE_MOTIONS);
 			mMotionController.updateMotions(force_update);
 		}
 	}

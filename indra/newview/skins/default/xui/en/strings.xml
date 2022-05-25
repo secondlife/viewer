@@ -3968,7 +3968,7 @@ Please check http://status.secondlifegrid.net to see if there is a known problem
   <!-- SL Membership -->
   <string name="BaseMembership">Base</string>
   <string name="PremiumMembership">Premium</string>
-  <string name="Premium PlusMembership">Premium Plus</string>
+  <string name="Premium_PlusMembership">Premium Plus</string>
   <string name="InternalMembership">Internal</string> <!-- No need to translate -->
 
   <string name="MembershipUpgradeText">Upgrade to Premium</string>

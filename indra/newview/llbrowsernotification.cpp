@@ -43,14 +43,14 @@ LLBrowserNotification::LLBrowserNotification()
 bool LLBrowserNotification::processNotification(const LLNotificationPtr& notification, bool should_log)
 {
 	LLUUID media_id = notification->getPayload()["media_id"].asUUID();
-	LLMediaCtrl* media_instance = LLMediaCtrl::getInstance(media_id);
+	auto media_instance = LLMediaCtrl::getInstance(media_id);
 	if (media_instance)
 	{
 		media_instance->showNotification(notification);
 	}
 	else if (LLViewerMediaFocus::instance().getControlsMediaID() == media_id)
 	{
-		LLViewerMediaImpl* impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(media_id);
+		auto impl = LLViewerMedia::getInstance()->getMediaImplFromTextureID(media_id);
 		if (impl)
 		{
 			impl->showNotification(notification);

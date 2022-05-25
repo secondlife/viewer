@@ -427,7 +427,7 @@ public:
 	void			requestResolutionUpdate();
 	void			checkSettings();
 	void			restartDisplay(BOOL show_progress_bar);
-	BOOL			changeDisplaySettings(LLCoordScreen size, BOOL disable_vsync, BOOL show_progress_bar);
+	BOOL			changeDisplaySettings(LLCoordScreen size, BOOL enable_vsync, BOOL show_progress_bar);
 	BOOL			getIgnoreDestroyWindow() { return mIgnoreActivate; }
 	F32				getWorldViewAspectRatio() const;
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }

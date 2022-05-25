@@ -1,4 +1,4 @@
-version 37
+version 38
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -70,37 +70,8 @@ RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-
-//
-// Low Graphics Settings (fixed function)
-//
-list LowFixedFunction
-RenderAnisotropic			1	0
-RenderAvatarCloth			1	0
-RenderAvatarLODFactor		1	0
-RenderAvatarPhysicsLODFactor 1	0
-RenderAvatarMaxNonImpostors 1   3
-RenderAvatarMaxComplexity          1	25000
-RenderAvatarVP				1	0
-RenderFarClip				1	64
-RenderFlexTimeFactor		1	0
-RenderGlowResolutionPow		1	8
-RenderLocalLights			1	0
-RenderMaxPartCount			1	0
-RenderObjectBump			1	0
-RenderReflectionDetail		1	0
-RenderTerrainDetail			1	0
-RenderTerrainLODFactor		1	1
-RenderTransparentWater		1	0
-RenderTreeLODFactor			1	0
-RenderVolumeLODFactor		1	0.5
-WindLightUseAtmosShaders	1	0
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderUseAdvancedAtmospherics 1 0
-RenderShadowDetail			1	0
-WLSkyDetail					1	48
-RenderFSAASamples			1	0
+RenderGLContextCoreProfile         1   0
+RenderGLMultiThreaded       1   0
 
 //
 // Low Graphics Settings
@@ -112,7 +83,6 @@ RenderAvatarLODFactor		1	0
 RenderAvatarPhysicsLODFactor 1	0
 RenderAvatarMaxNonImpostors 1   3
 RenderAvatarMaxComplexity          1	35000
-RenderAvatarVP				1	0
 RenderFarClip				1	64
 RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
@@ -142,7 +112,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	0.75
-RenderAvatarVP				1	1
 RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
@@ -172,7 +141,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	200000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -202,7 +170,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	250000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -232,7 +199,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	300000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -262,7 +228,6 @@ RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	350000
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -291,7 +256,6 @@ RenderAnisotropic			1	1
 RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
-RenderAvatarVP				1	1
 RenderFarClip				1	256
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -316,73 +280,11 @@ RenderFSAASamples			1	2
 // Class Unknown Hardware (unknown)
 //
 list Unknown
-RenderVBOEnable				1	0
 RenderShadowDetail			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
 
-//
-// Class 0 Hardware (just old)
-//
-list Class0
-RenderVBOEnable				1	1
-
-//
-// Class 1 Hardware
-//
-list Class1
-RenderVBOEnable				1	1
-
-//
-// Class 2 Hardware
-//
-list Class2
-RenderVBOEnable				1	1
-
-//
-// Class 3 Hardware
-//
-list Class3
-RenderVBOEnable				1	1
-
-//
-// Class 4 Hardware
-//
-list Class4
-RenderVBOEnable				1	1
-
-//
-// Class 5 Hardware
-//
-list Class5
-RenderVBOEnable				1	1
-
-//
-// No Pixel Shaders available
-//
-list NoPixelShaders
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-RenderReflectionDetail		0	0
-WindLightUseAtmosShaders	0	0
-RenderDeferred				0	0
-RenderDeferredSSAO			0	0
-RenderUseAdvancedAtmospherics 0 0
-RenderShadowDetail			0	0
-
-//
-// No Vertex Shaders available
-//
-list NoVertexShaders
-RenderAvatarVP				0	0
-RenderAvatarCloth			0	0
-RenderReflectionDetail		0	0
-WindLightUseAtmosShaders	0	0
-RenderDeferred				0	0
-RenderDeferredSSAO			0	0
-RenderUseAdvancedAtmospherics 0 0
-RenderShadowDetail			0	0
 
 //
 // VRAM > 512MB
@@ -396,14 +298,12 @@ RenderCompressTextures		1	0
 list safe
 RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
-RenderAvatarVP				0	0
 RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
 RenderObjectBump			0	0
 RenderLocalLights			1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
-RenderVBOEnable				1	0
 RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
@@ -411,226 +311,16 @@ RenderDeferredSSAO			0	0
 RenderUseAdvancedAtmospherics 0 0
 RenderShadowDetail			0	0
 
-//
-// CPU based feature masks
-//
-
-// 1Ghz or less (equiv)
-list CPUSlow
-RenderMaxPartCount			1	1024
-
-//
-// RAM based feature masks
-//
-list RAM256MB
-RenderObjectBump			0	0
-
-//
-// Graphics card based feature masks
-//
-list OpenGLPre15
-RenderVBOEnable				1	0
-
-
 list TexUnit8orLess
 RenderDeferredSSAO			0	0
 
-list ATI
+list AMD
 RenderDeferredSSAO			1	0
 
 list Intel
 RenderAnisotropic			1	0
 RenderLocalLights			1	0
 RenderFSAASamples			1	0
-
-list GeForce2
-RenderAnisotropic			1	0
-RenderLocalLights			1	0
-RenderMaxPartCount			1	2048
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	1
-
-list Intel_830M
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_845G					
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_855GM				
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_865G			
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_900		
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_915GM	
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_915G					
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_945GM			
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_945G
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_950
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-RenderGround				1	0
-
-list Intel_965
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-UseOcclusion				0	0
-
-list Intel_G33
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_Bear_Lake	
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_Broadwater 
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_Brookdale	
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_X3100
-WindLightUseAtmosShaders	0	0
-
-list Intel_Montara
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list Intel_Springdale
-RenderTerrainDetail			1	0
-RenderVBOEnable				1	0
-
-list ATI_Mobility_Radeon_9600
-Disregard96DefaultDrawDistance	1	0
-
-list NVIDIA_GeForce_8600
-RenderTextureMemoryMultiple			1	1	
-UseOcclusion				0	0
-
-/// tweaked ATI to 96 Draw distance
-
-list ATI_Radeon_9000
-Disregard96DefaultDrawDistance	1	0
-list ATI_Radeon_9200
-Disregard96DefaultDrawDistance	1	0
-list ATI_Radeon_9500
-Disregard96DefaultDrawDistance	1	0
-list ATI_Radeon_9600
-Disregard96DefaultDrawDistance	1	0
-
-/// tweaked ATI to 128 draw distance
-
-list ATI_Radeon_X300 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X400 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X500 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X600 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X700 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X1300 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X1400 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X1500 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X1600 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Radeon_X1700 
-Disregard128DefaultDrawDistance	1	0
-list ATI_Mobility_Radeon_X1xxx
-Disregard128DefaultDrawDistance	1	0
-
-/// Tweaked NVIDIA
-
-list NVIDIA_GeForce_FX_5100
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_5200
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_5500
-Disregard96DefaultDrawDistance	1	0
-
-list NVIDIA_GeForce_FX_Go5100
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_Go5200
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_Go5300
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_Go5500
-Disregard96DefaultDrawDistance	1	0
-list NVIDIA_GeForce_FX_Go5600
-Disregard96DefaultDrawDistance	1	0
-
-list NVIDIA_GeForce_6100
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_6200
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_6500
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_6600
-Disregard128DefaultDrawDistance	1	0
-
-
-list NVIDIA_GeForce_Go_6100
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6200
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6500
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6600
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6700
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6800
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_6
-RenderVBOEnable				1	0
-Disregard128DefaultDrawDistance	1	0
-
-list NVIDIA_GeForce_7200
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_7300
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_7400
-Disregard128DefaultDrawDistance	1	0
-
-list NVIDIA_GeForce_Go_7200
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_7300
-Disregard128DefaultDrawDistance	1	0
-list NVIDIA_GeForce_Go_7400
-Disregard128DefaultDrawDistance	1	0
 
 list OSX_10_6_8
 RenderDeferred 0 0
