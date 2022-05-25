@@ -1348,9 +1348,10 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp, const LLUUID& asset_id, boo
 
 	//SL-17206 hack to alter Female_land loop setting, while current behavior won't be changed serverside
 	LLUUID const female_land_anim("ca1baf4d-0a18-5a1f-0330-e4bd1e71f09e");
-	if (female_land_anim == asset_id)
+	LLUUID const formal_female_land_anim("6a9a173b-61fa-3ad5-01fa-a851cfc5f66a");
+	if (female_land_anim == asset_id || formal_female_land_anim == asset_id)
 	{
-		LL_WARNS() << "Animation(" << female_land_anim << ") won't be looped." << LL_ENDL;
+		LL_WARNS() << "Animation(" << asset_id << ") won't be looped." << LL_ENDL;
 		mJointMotionList->mLoop = FALSE;
 	}
 
