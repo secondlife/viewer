@@ -227,6 +227,7 @@ public:
 
 	void setName(const char* name)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		mName = name;
 		setKey(name);
 	}
@@ -234,12 +235,14 @@ public:
 	/*virtual*/ const char* getUnitLabel() const { return "KB"; }
 
 	StatType<MemAccumulator::AllocationFacet>& allocations() 
-	{ 
+	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		return static_cast<StatType<MemAccumulator::AllocationFacet>&>(*(StatType<MemAccumulator>*)this);
 	}
 
 	StatType<MemAccumulator::DeallocationFacet>& deallocations() 
-	{ 
+	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		return static_cast<StatType<MemAccumulator::DeallocationFacet>&>(*(StatType<MemAccumulator>*)this);
 	}
 };
@@ -261,6 +264,7 @@ struct MeasureMem<T, typename T::mem_trackable_tag_t, IS_BYTES>
 {
 	static size_t measureFootprint(const T& value)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		return sizeof(T) + value.getMemFootprint();
 	}
 };
@@ -270,6 +274,7 @@ struct MeasureMem<T, IS_MEM_TRACKABLE, typename T::is_unit_t>
 {
 	static size_t measureFootprint(const T& value)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		return U32Bytes(value).value();
 	}
 };
@@ -279,6 +284,7 @@ struct MeasureMem<T*, IS_MEM_TRACKABLE, IS_BYTES>
 {
 	static size_t measureFootprint(const T* value)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		if (!value)
 		{
 			return 0;
@@ -323,6 +329,7 @@ struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
 {
 	static size_t measureFootprint(const std::basic_string<T>& value)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 		return value.capacity() * sizeof(T);
 	}
 };
@@ -331,6 +338,7 @@ struct MeasureMem<std::basic_string<T>, IS_MEM_TRACKABLE, IS_BYTES>
 template<typename T>
 inline void claim_alloc(MemStatHandle& measurement, const T& value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
@@ -343,6 +351,7 @@ inline void claim_alloc(MemStatHandle& measurement, const T& value)
 template<typename T>
 inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_STATS;
 #if LL_TRACE_ENABLED
 	S32 size = MeasureMem<T>::measureFootprint(value);
 	if(size == 0) return;
@@ -352,141 +361,6 @@ inline void disclaim_alloc(MemStatHandle& measurement, const T& value)
 #endif
 }
 
-template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
-class MemTrackableNonVirtual
-{
-public:
-	typedef void mem_trackable_tag_t;
-
-	MemTrackableNonVirtual(const char* name)
-#if LL_TRACE_ENABLED
-	:	mMemFootprint(0)
-#endif
-	{
-#if LL_TRACE_ENABLED
-		static bool name_initialized = false;
-		if (!name_initialized)
-		{
-			name_initialized = true;
-			sMemStat.setName(name);
-		}
-#endif
-	}
-
-#if LL_TRACE_ENABLED
-	~MemTrackableNonVirtual()
-	{
-		disclaimMem(mMemFootprint);
-	}
-
-	static MemStatHandle& getMemStatHandle()
-	{
-		return sMemStat;
-	}
-
-	S32 getMemFootprint() const	{ return mMemFootprint; }
-#endif
-
-	void* operator new(size_t size) 
-	{
-#if LL_TRACE_ENABLED
-		claim_alloc(sMemStat, size);
-#endif
-		return ll_aligned_malloc<ALIGNMENT>(size);
-	}
-
-	template<int CUSTOM_ALIGNMENT>
-	static void* aligned_new(size_t size)
-	{
-#if LL_TRACE_ENABLED
-		claim_alloc(sMemStat, size);
-#endif
-		return ll_aligned_malloc<CUSTOM_ALIGNMENT>(size);
-	}
-
-	void operator delete(void* ptr, size_t size)
-	{
-#if LL_TRACE_ENABLED
-		disclaim_alloc(sMemStat, size);
-#endif
-		ll_aligned_free<ALIGNMENT>(ptr);
-	}
-
-	template<int CUSTOM_ALIGNMENT>
-	static void aligned_delete(void* ptr, size_t size)
-	{
-#if LL_TRACE_ENABLED
-		disclaim_alloc(sMemStat, size);
-#endif
-		ll_aligned_free<CUSTOM_ALIGNMENT>(ptr);
-	}
-
-	void* operator new [](size_t size)
-	{
-#if LL_TRACE_ENABLED
-		claim_alloc(sMemStat, size);
-#endif
-		return ll_aligned_malloc<ALIGNMENT>(size);
-	}
-
-	void operator delete[](void* ptr, size_t size)
-	{
-#if LL_TRACE_ENABLED
-		disclaim_alloc(sMemStat, size);
-#endif
-		ll_aligned_free<ALIGNMENT>(ptr);
-	}
-
-	// claim memory associated with other objects/data as our own, adding to our calculated footprint
-	template<typename CLAIM_T>
-	void claimMem(const CLAIM_T& value) const
-	{
-#if LL_TRACE_ENABLED
-		S32 size = MeasureMem<CLAIM_T>::measureFootprint(value);
-		claim_alloc(sMemStat, size);
-		mMemFootprint += size;
-#endif
-	}
-
-	// remove memory we had claimed from our calculated footprint
-	template<typename CLAIM_T>
-	void disclaimMem(const CLAIM_T& value) const
-	{
-#if LL_TRACE_ENABLED
-		S32 size = MeasureMem<CLAIM_T>::measureFootprint(value);
-		disclaim_alloc(sMemStat, size);
-		mMemFootprint -= size;
-#endif
-	}
-
-private:
-#if LL_TRACE_ENABLED
-	// use signed values so that we can temporarily go negative
-	// and reconcile in destructor
-	// NB: this assumes that no single class is responsible for > 2GB of allocations
-	mutable S32 mMemFootprint;
-	
-	static	MemStatHandle	sMemStat;
-#endif
-
-};
-
-#if LL_TRACE_ENABLED
-template<typename DERIVED, size_t ALIGNMENT>
-MemStatHandle MemTrackableNonVirtual<DERIVED, ALIGNMENT>::sMemStat(typeid(MemTrackableNonVirtual<DERIVED, ALIGNMENT>).name());
-#endif
-
-template<typename DERIVED, size_t ALIGNMENT = LL_DEFAULT_HEAP_ALIGN>
-class MemTrackable : public MemTrackableNonVirtual<DERIVED, ALIGNMENT>
-{
-public:
-	MemTrackable(const char* name)
-	:	MemTrackableNonVirtual<DERIVED, ALIGNMENT>(name)
-	{}
-
-	virtual ~MemTrackable()
-	{}
-};
 }
 
 #endif // LL_LLTRACE_H

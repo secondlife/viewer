@@ -843,6 +843,7 @@ LLSD LLMemoryInfo::getStatsMap() const
 
 LLMemoryInfo& LLMemoryInfo::refresh()
 {
+	LL_PROFILE_ZONE_SCOPED
 	mStatsMap = loadStatsMap();
 
 	LL_DEBUGS("LLMemoryInfo") << "Populated mStatsMap:\n";
@@ -852,11 +853,9 @@ LLMemoryInfo& LLMemoryInfo::refresh()
 	return *this;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_MEMINFO_LOAD_STATS("MemInfo Load Stats");
-
 LLSD LLMemoryInfo::loadStatsMap()
 {
-	LL_RECORD_BLOCK_TIME(FTM_MEMINFO_LOAD_STATS);
+    LL_PROFILE_ZONE_SCOPED;
 
 	// This implementation is derived from stream() code (as of 2011-06-29).
 	Stats stats;

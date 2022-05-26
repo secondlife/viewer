@@ -533,6 +533,8 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_MESSAGES("Process Messages");
 // decode a given message
 BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender )
 {
+    LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
+
 	llassert( mReceiveSize >= 0 );
 	llassert( mCurrentRMessageTemplate);
 	llassert( !mCurrentRMessageData );
@@ -707,12 +709,9 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			decode_timer.reset();
 		}
 
+		if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
 		{
-			LL_RECORD_BLOCK_TIME(FTM_PROCESS_MESSAGES);
-			if( !mCurrentRMessageTemplate->callHandlerFunc(gMessageSystem) )
-			{
-				LL_WARNS() << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << LL_ENDL;
-			}
+			LL_WARNS() << "Message from " << sender << " with no handler function received: " << mCurrentRMessageTemplate->mName << LL_ENDL;
 		}
 
 		if(LLMessageReader::getTimeDecodes() || gMessageSystem->getTimingCallback())

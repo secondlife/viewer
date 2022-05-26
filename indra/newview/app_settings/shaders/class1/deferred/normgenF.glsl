@@ -43,18 +43,18 @@ uniform float norm_scale;
 
 void main()
 {
-	float alpha = texture2D(alphaMap, vary_texcoord0).a;
+	float c = texture2D(alphaMap, vary_texcoord0).r;
 
-	vec3 right = vec3(norm_scale, 0, (texture2D(alphaMap, vary_texcoord0+vec2(stepX, 0)).a-alpha)*255);
-	vec3 left = vec3(-norm_scale, 0, (texture2D(alphaMap, vary_texcoord0-vec2(stepX, 0)).a-alpha)*255);
-	vec3 up = vec3(0, -norm_scale, (texture2D(alphaMap, vary_texcoord0-vec2(0, stepY)).a-alpha)*255);
-	vec3 down = vec3(0, norm_scale, (texture2D(alphaMap, vary_texcoord0+vec2(0, stepY)).a-alpha)*255);
+	vec3 right = vec3(norm_scale, 0, (texture2D(alphaMap, vary_texcoord0+vec2(stepX, 0)).r-c)*255);
+	vec3 left = vec3(-norm_scale, 0, (texture2D(alphaMap, vary_texcoord0-vec2(stepX, 0)).r-c)*255);
+	vec3 up = vec3(0, -norm_scale, (texture2D(alphaMap, vary_texcoord0-vec2(0, stepY)).r-c)*255);
+	vec3 down = vec3(0, norm_scale, (texture2D(alphaMap, vary_texcoord0+vec2(0, stepY)).r-c)*255);
 	
 	vec3 norm = cross(right, down) + cross(down, left) + cross(left,up) + cross(up, right);
 	
 	norm = normalize(norm);
 	norm *= 0.5;
 	norm += 0.5;	
-	
-	frag_color = vec4(norm, alpha);
+
+	frag_color = vec4(norm, c);
 }

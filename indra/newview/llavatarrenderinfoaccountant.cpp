@@ -82,7 +82,15 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
 
     LLSD result = httpAdapter->getAndSuspend(httpRequest, url);
 
-    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    LLWorld *world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight info received but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    LLViewerRegion * regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight info received but region not found for " 
@@ -183,7 +191,15 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("AvatarRenderInfoAccountant", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
 
-    LLViewerRegion * regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    LLWorld *world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight calculation but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    LLViewerRegion * regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight calculation but region not found for "
@@ -239,9 +255,18 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
     report[KEY_AGENTS] = agents;
 
     regionp = NULL;
+    world_inst = NULL;
     LLSD result = httpAdapter->postAndSuspend(httpRequest, url, report);
 
-    regionp = LLWorld::getInstance()->getRegionFromHandle(regionHandle);
+    world_inst = LLWorld::getInstance();
+    if (!world_inst)
+    {
+        LL_WARNS("AvatarRenderInfoAccountant") << "Avatar render weight POST result but world no longer exists "
+            << regionHandle << LL_ENDL;
+        return;
+    }
+
+    regionp = world_inst->getRegionFromHandle(regionHandle);
     if (!regionp)
     {
         LL_INFOS("AvatarRenderInfoAccountant") << "Avatar render weight POST result received but region not found for "

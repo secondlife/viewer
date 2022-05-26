@@ -81,6 +81,24 @@ public:
 	// DO use for render targets that resize often and aren't likely to ruin someone's day if they break
 	void resize(U32 resx, U32 resy);
 
+    //point this render target at a particular LLImageGL
+    //   Intended usage:
+    //      LLRenderTarget target;
+    //      target.addColorAttachment(image);
+    //      target.bindTarget();
+    //      < issue GL calls>
+    //      target.flush();
+    //      target.releaseColorAttachment();
+    // 
+    // attachment -- LLImageGL to render into
+    // use_name -- optional texture name to target instead of attachment->getTexName()
+    // NOTE: setColorAttachment and releaseColorAttachment cannot be used in conjuction with
+    // addColorAttachment, allocateDepth, resize, etc.
+    void setColorAttachment(LLImageGL* attachment, LLGLuint use_name = 0);
+
+    // detach from current color attachment
+    void releaseColorAttachment();
+
 	//add color buffer attachment
 	//limit of 4 color attachments per render target
 	bool addColorAttachment(U32 color_fmt);

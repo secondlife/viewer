@@ -33,34 +33,44 @@
 #include "m4math.h"
 #include <queue>
 
+#include <boost/align/aligned_allocator.hpp>
+
 class daeElement;
 class domMesh;
 
 #define MAX_MODEL_FACES 8
 
+LL_ALIGN_PREFIX(16)
 class LLMeshSkinInfo 
 {
+    LL_ALIGN_NEW
 public:
 	LLMeshSkinInfo();
 	LLMeshSkinInfo(LLSD& data);
 	void fromLLSD(LLSD& data);
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
+    void updateHash();
 
 	LLUUID mMeshID;
 	std::vector<std::string> mJointNames;
     mutable std::vector<S32> mJointNums;
-	std::vector<LLMatrix4> mInvBindMatrix;
-	std::vector<LLMatrix4> mAlternateBindMatrix;
+    typedef std::vector<LLMatrix4a, boost::alignment::aligned_allocator<LLMatrix4a, 16>> matrix_list_t;
+	matrix_list_t mInvBindMatrix;
+	matrix_list_t mAlternateBindMatrix;
 
-	LLMatrix4 mBindShapeMatrix;
+	LL_ALIGN_16(LLMatrix4a mBindShapeMatrix);
+
 	float mPelvisOffset;
     bool mLockScaleIfJointPosition;
     bool mInvalidJointsScrubbed;
     bool mJointNumsInitialized;
-};
+    U64 mHash = 0;
+} LL_ALIGN_POSTFIX(16);
 
+LL_ALIGN_PREFIX(16)
 class LLModel : public LLVolume
 {
+    LL_ALIGN_NEW
 public:
 
 	enum
@@ -281,8 +291,10 @@ public:
 
 	EModelStatus mStatus ;
 
+    // A model/object can only have 8 faces, spillover faces will
+    // be moved to new model/object and assigned a submodel id.
 	int mSubmodelID;
-};
+} LL_ALIGN_POSTFIX(16);
 
 typedef std::vector<LLPointer<LLModel> >	model_list;
 typedef std::queue<LLPointer<LLModel> >	model_queue;

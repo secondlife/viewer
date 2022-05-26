@@ -493,11 +493,9 @@ LLDrawable* LLVOTree::createDrawable(LLPipeline *pipeline)
 const S32 LEAF_INDICES = 24;
 const S32 LEAF_VERTICES = 16;
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_TREE("Update Tree");
-
 BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_TREE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	if(mTrunkLOD >= sMAX_NUM_TREE_LOD_LEVELS) //do not display the tree.
 	{

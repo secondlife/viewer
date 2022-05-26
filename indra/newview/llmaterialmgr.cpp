@@ -580,11 +580,9 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_MATERIALS_IDLE("Idle Materials");
-
 void LLMaterialMgr::onIdle(void*)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MATERIALS_IDLE);
+    LL_PROFILE_ZONE_SCOPED;
 
 	LLMaterialMgr* instancep = LLMaterialMgr::getInstance();
 

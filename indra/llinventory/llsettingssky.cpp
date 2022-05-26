@@ -66,11 +66,6 @@ namespace {
     }
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BLEND_SKYVALUES("Blending Sky Environment");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_SKYVALUES("Recalculate Sky");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_BODIES("Recalculate Heavenly Bodies");
-static LLTrace::BlockTimerStatHandle FTM_RECALCULATE_LIGHTING("Recalculate Lighting");
-
 //=========================================================================
 const std::string LLSettingsSky::SETTING_AMBIENT("ambient");
 const std::string LLSettingsSky::SETTING_BLUE_DENSITY("blue_density");
@@ -444,6 +439,7 @@ void LLSettingsSky::replaceWithSky(LLSettingsSky::ptr_t pother)
 
 void LLSettingsSky::blend(const LLSettingsBase::ptr_t &end, F64 blendf) 
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     llassert(getSettingsType() == end->getSettingsType());
 
     LLSettingsSky::ptr_t other = PTR_NAMESPACE::dynamic_pointer_cast<LLSettingsSky>(end);
@@ -939,7 +935,7 @@ LLSD LLSettingsSky::translateLegacySettings(const LLSD& legacy)
 
 void LLSettingsSky::updateSettings()
 {
-    LL_RECORD_BLOCK_TIME(FTM_RECALCULATE_SKYVALUES);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
 
     // base class clears dirty flag so as to not trigger recursive update
     LLSettingsBase::updateSettings();
@@ -1022,6 +1018,7 @@ LLColor3 LLSettingsSky::getLightDiffuse() const
 
 LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default_value) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
     {
         return LLColor3(mSettings[SETTING_LEGACY_HAZE][key]);
@@ -1035,6 +1032,7 @@ LLColor3 LLSettingsSky::getColor(const std::string& key, const LLColor3& default
 
 F32 LLSettingsSky::getFloat(const std::string& key, F32 default_value) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mSettings.has(SETTING_LEGACY_HAZE) && mSettings[SETTING_LEGACY_HAZE].has(key))
     {
         return mSettings[SETTING_LEGACY_HAZE][key].asReal();
@@ -1206,11 +1204,19 @@ LLColor3 LLSettingsSky::getLightTransmittance(F32 distance) const
     return transmittance;
 }
 
+// SL-16127: getTotalDensity() and getDensityMultiplier() call LLSettingsSky::getColor() and LLSettingsSky::getFloat() respectively which are S-L-O-W
+LLColor3 LLSettingsSky::getLightTransmittanceFast( const LLColor3& total_density, const F32 density_multiplier, const F32 distance ) const
+{
+    // Transparency (-> density) from Beer's law
+    LLColor3 transmittance = componentExp(total_density * -(density_multiplier * distance));
+    return transmittance;
+}
+
 // performs soft scale clip and gamma correction ala the shader implementation
 // scales colors down to 0 - 1 range preserving relative ratios
-LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in) const
+LLColor3 LLSettingsSky::gammaCorrect(const LLColor3& in,const F32 &gamma) const
 {
-    F32 gamma = getGamma();
+    //F32 gamma = getGamma(); // SL-16127: Use cached gamma from atmospheric vars
 
     LLColor3 v(in);
     // scale down to 0 to 1 range preserving relative ratio (aka homegenize)

@@ -290,9 +290,17 @@ public:
 		LLSD& with(const String&, const LLSD&);
 		
 		LLSD& operator[](const String&);
-		LLSD& operator[](const char* c)			{ return (*this)[String(c)]; }
+		LLSD& operator[](const char* c)
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+            return (*this)[String(c)];
+        }
 		const LLSD& operator[](const String&) const;
-		const LLSD& operator[](const char* c) const	{ return (*this)[String(c)]; }
+		const LLSD& operator[](const char* c) const	
+        {
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
+            return (*this)[String(c)];
+        }
 	//@}
 	
 	/** @name Array Values */

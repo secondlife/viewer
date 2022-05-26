@@ -97,6 +97,11 @@ static const U32 STATUS_MSC_EXCEPTION = 0xE06D7363; // compiler specific
 
 U32 msc_exception_filter(U32 code, struct _EXCEPTION_POINTERS *exception_infop)
 {
+    const auto stack = to_string(boost::stacktrace::stacktrace());
+    LL_WARNS() << "SEH Exception handled (that probably shouldn't be): Code " << code 
+        << "\n Stack trace: \n" 
+        << stack << LL_ENDL;
+
     if (code == STATUS_MSC_EXCEPTION)
     {
         // C++ exception, go on

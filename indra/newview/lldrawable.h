@@ -59,14 +59,15 @@ const U32 SILHOUETTE_HIGHLIGHT = 0;
 
 // All data for new renderer goes into this class.
 LL_ALIGN_PREFIX(16)
-class LLDrawable 
-:	public LLViewerOctreeEntryData,
-	public LLTrace::MemTrackable<LLDrawable, 16>
+class LLDrawable
+    : public LLViewerOctreeEntryData
 {
+    LL_ALIGN_NEW;
 public:
+    typedef std::vector<LLFace*> face_list_t;
+
 	LLDrawable(const LLDrawable& rhs) 
-	:	LLTrace::MemTrackable<LLDrawable, 16>("LLDrawable"),
-		LLViewerOctreeEntryData(rhs)
+        : LLViewerOctreeEntryData(rhs)
 	{
 		*this = rhs;
 	}
@@ -120,6 +121,7 @@ public:
 
 	BOOL				isAvatar()	const			{ return mVObjp.notNull() && mVObjp->isAvatar(); }
 	BOOL				isRoot() const				{ return !mParent || mParent->isAvatar(); }
+    LLDrawable*         getRoot();
 	BOOL				isSpatialRoot() const		{ return !mParent || mParent->isAvatar(); }
 	virtual BOOL		isSpatialBridge() const		{ return FALSE; }
 	virtual LLSpatialPartition* asPartition()		{ return NULL; }
@@ -130,6 +132,7 @@ public:
 	
 	inline LLFace*      getFace(const S32 i) const;
 	inline S32			getNumFaces()      	 const;
+    face_list_t& getFaces() { return mFaces; }
 
 	//void                removeFace(const S32 i); // SJB: Avoid using this, it's slow
 	LLFace*				addFace(LLFacePool *poolp, LLViewerTexture *texturep);
@@ -253,38 +256,34 @@ public:
 	{
  		IN_REBUILD_Q1	= 0x00000001,
  		IN_REBUILD_Q2	= 0x00000002,
- 		IN_LIGHT_Q		= 0x00000004,
-		EARLY_MOVE		= 0x00000008,
-		MOVE_UNDAMPED	= 0x00000010,
-		ON_MOVE_LIST	= 0x00000020,
-		USE_BACKLIGHT	= 0x00000040,
-		UV				= 0x00000080,
-		UNLIT			= 0x00000100,
-		LIGHT			= 0x00000200,
-		LIGHTING_BUILT	= 0x00000400,
-		REBUILD_VOLUME  = 0x00000800,	//volume changed LOD or parameters, or vertex buffer changed
-		REBUILD_TCOORD	= 0x00001000,	//texture coordinates changed
-		REBUILD_COLOR	= 0x00002000,	//color changed
-		REBUILD_POSITION= 0x00004000,	//vertex positions/normals changed
+		EARLY_MOVE		= 0x00000004,
+		MOVE_UNDAMPED	= 0x00000008,
+		ON_MOVE_LIST	= 0x00000010,
+		UV				= 0x00000020,
+		UNLIT			= 0x00000040,
+		LIGHT			= 0x00000080,
+		REBUILD_VOLUME  = 0x00000100,	//volume changed LOD or parameters, or vertex buffer changed
+		REBUILD_TCOORD	= 0x00000200,	//texture coordinates changed
+		REBUILD_COLOR	= 0x00000400,	//color changed
+		REBUILD_POSITION= 0x00000800,	//vertex positions/normals changed
 		REBUILD_GEOMETRY= REBUILD_POSITION|REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_MATERIAL= REBUILD_TCOORD|REBUILD_COLOR,
 		REBUILD_ALL		= REBUILD_GEOMETRY|REBUILD_VOLUME,
-		REBUILD_RIGGED	= 0x00008000,
-		ON_SHIFT_LIST	= 0x00010000,
-		BLOCKER			= 0x00020000,
-		ACTIVE			= 0x00040000,
-		DEAD			= 0x00080000,
-		INVISIBLE		= 0x00100000, // stay invisible until flag is cleared
- 		NEARBY_LIGHT	= 0x00200000, // In gPipeline.mNearbyLightSet
-		BUILT			= 0x00400000,
-		FORCE_INVISIBLE = 0x00800000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
-		REBUILD_SHADOW =  0x02000000,
-		HAS_ALPHA		= 0x04000000,
-		RIGGED			= 0x08000000,
-		PARTITION_MOVE	= 0x10000000,
-		ANIMATED_CHILD  = 0x20000000,
-		ACTIVE_CHILD	= 0x40000000,
-		FOR_UNLOAD		= 0x80000000, //should be unload from memory
+		REBUILD_RIGGED	= 0x00001000,
+		ON_SHIFT_LIST	= 0x00002000,
+		ACTIVE			= 0x00004000,
+		DEAD			= 0x00008000,
+		INVISIBLE		= 0x00010000, // stay invisible until flag is cleared
+ 		NEARBY_LIGHT	= 0x00020000, // In gPipeline.mNearbyLightSet
+		BUILT			= 0x00040000,
+		FORCE_INVISIBLE = 0x00080000, // stay invis until CLEAR_INVISIBLE is set (set of orphaned)
+		HAS_ALPHA		= 0x00100000,
+		RIGGED			= 0x00200000, //has a rigged face
+        RIGGED_CHILD    = 0x00400000, //has a child with a rigged face
+		PARTITION_MOVE	= 0x00800000,
+		ANIMATED_CHILD  = 0x01000000,
+		ACTIVE_CHILD	= 0x02000000,
+		FOR_UNLOAD		= 0x04000000, //should be unload from memory
 	} EDrawableFlags;
 
 public:
@@ -298,8 +297,6 @@ public:
 	static F32 sCurPixelAngle; //current pixels per radian
 
 private:
-	typedef std::vector<LLFace*> face_list_t;
-	
 	U32				mState;
 	S32				mRenderType;
 	LLPointer<LLViewerObject> mVObjp;
