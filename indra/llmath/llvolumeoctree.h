@@ -34,19 +34,10 @@
 #include "llvolume.h"
 #include "llvector4a.h"
 
-class LLVolumeTriangle : public LLRefCount
+class alignas(16) LLVolumeTriangle : public LLRefCount
 {
+    LL_ALIGN_NEW
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLVolumeTriangle()
 	{
 		mBinIndex = -1;	
@@ -86,20 +77,10 @@ public:
 
 };
 
-class LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
+class alignas(16) LLVolumeOctreeListener : public LLOctreeListener<LLVolumeTriangle>
 {
+    LL_ALIGN_NEW
 public:
-	
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLVolumeOctreeListener(LLOctreeNode<LLVolumeTriangle>* node);
 	~LLVolumeOctreeListener();
 	

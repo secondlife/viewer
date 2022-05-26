@@ -33,6 +33,10 @@
 #include "llwindow.h"
 #include "llwindowcallbacks.h"
 #include "lldragdropwin32.h"
+#include "llthread.h"
+#include "llthreadsafequeue.h"
+#include "llmutex.h"
+#include "workqueue.h"
 
 // Hack for async host by name
 #define LL_WM_HOST_RESOLVED      (WM_APP + 1)
@@ -57,9 +61,15 @@ public:
 	/*virtual*/ BOOL setPosition(LLCoordScreen position);
 	/*virtual*/ BOOL setSizeImpl(LLCoordScreen size);
 	/*virtual*/ BOOL setSizeImpl(LLCoordWindow size);
-	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp = NULL);
+	/*virtual*/ BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp = NULL);
+    /*virtual*/ void setTitle(const std::string title);
+    void* createSharedContext() override;
+    void makeContextCurrent(void* context) override;
+    void destroySharedContext(void* context) override;
+    /*virtual*/ void toggleVSync(bool enable_vsync);
 	/*virtual*/ BOOL setCursorPosition(LLCoordWindow position);
 	/*virtual*/ BOOL getCursorPosition(LLCoordWindow *position);
+    /*virtual*/ BOOL getCursorDelta(LLCoordCommon* delta);
 	/*virtual*/ void showCursor();
 	/*virtual*/ void hideCursor();
 	/*virtual*/ void showCursorFromMouseMove();
@@ -126,7 +136,7 @@ public:
 protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 
-		BOOL fullscreen, BOOL clearBg, BOOL disable_vsync, BOOL use_gl,
+		BOOL fullscreen, BOOL clearBg, BOOL enable_vsync, BOOL use_gl,
 		BOOL ignore_pixel_depth, U32 fsaa_samples);
 	~LLWindowWin32();
 
@@ -175,17 +185,24 @@ protected:
 	WCHAR		*mWindowTitle;
 	WCHAR		*mWindowClassName;
 
-	HWND		mWindowHandle;	// window handle
-	HGLRC		mhRC;			// OpenGL rendering context
-	HDC			mhDC;			// Windows Device context handle
+	HWND	    mWindowHandle = 0;	// window handle
+	HGLRC		mhRC = 0;			// OpenGL rendering context
+	HDC			mhDC = 0;			// Windows Device context handle
 	HINSTANCE	mhInstance;		// handle to application instance
-	WNDPROC		mWndProc;		// user-installable window proc
 	RECT		mOldMouseClip;  // Screen rect to which the mouse cursor was globally constrained before we changed it in clipMouse()
 	WPARAM		mLastSizeWParam;
 	F32			mOverrideAspectRatio;
 	F32			mNativeAspectRatio;
 
 	HCURSOR		mCursor[ UI_CURSOR_COUNT ];  // Array of all mouse cursors
+    LLCoordWindow mCursorPosition;  // mouse cursor position, should only be mutated on main thread
+    LLMutex mRawMouseMutex;
+    RAWINPUTDEVICE mRawMouse;
+    LLCoordWindow mLastCursorPosition; // mouse cursor position from previous frame
+    LLCoordCommon mRawMouseDelta; // raw mouse delta according to window thread
+    LLCoordCommon mMouseFrameDelta; // how much the mouse moved between the last two calls to gatherInput
+
+    MASK        mMouseMask;
 
 	static BOOL sIsClassRegistered; // has the window class been registered?
 
@@ -196,7 +213,6 @@ protected:
 	BOOL		mCustomGammaSet;
 
 	LPWSTR		mIconResource;
-	BOOL		mMousePositionModified;
 	BOOL		mInputProcessingPaused;
 
 	// The following variables are for Language Text Input control.
@@ -223,6 +239,20 @@ protected:
 	U32				mRawLParam;
 
 	BOOL			mMouseVanish;
+
+    // Cached values of GetWindowRect and GetClientRect to be used by app thread
+    void updateWindowRect();
+    RECT mRect; 
+    RECT mClientRect;
+
+	struct LLWindowWin32Thread;
+	LLWindowWin32Thread* mWindowThread = nullptr;
+	LLThreadSafeQueue<std::function<void()>> mFunctionQueue;
+	LLThreadSafeQueue<std::function<void()>> mMouseQueue;
+	void post(const std::function<void()>& func);
+	void postMouseButtonEvent(const std::function<void()>& func);
+	void recreateWindow(RECT window_rect, DWORD dw_ex_style, DWORD dw_style);
+	void kickWindowThread(HWND windowHandle=0);
 
 	friend class LLWindowManager;
 };

@@ -34,6 +34,9 @@
 
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 
+#define OCTREE_DEBUG_COLOR_REMOVE   0x0000FF // r
+#define OCTREE_DEBUG_COLOR_INSERT   0x00FF00 // g
+#define OCTREE_DEBUG_COLOR_BALANCE  0xFF0000 // b
 
 extern U32 gOctreeMaxCapacity;
 extern float gOctreeMinSize;
@@ -70,12 +73,13 @@ template <class T>
 class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
 {
 public:
-	virtual void traverse(const LLOctreeNode<T>* node);
+	virtual void traverse(const LLOctreeNode<T>* node) override;
 };
 
 template <class T>
-class LLOctreeNode : public LLTreeNode<T>
+class alignas(16) LLOctreeNode : public LLTreeNode<T>
 {
+    LL_ALIGN_NEW
 public:
 
 	typedef LLOctreeTraveler<T>									oct_traveler;
@@ -91,20 +95,15 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
+    enum
+    {
+        NO_CHILD_NODES = 255 // Note: This is an U8 to match the max value in mChildMap[]
+    };
 
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
 					BaseType* parent, 
-					U8 octant = 255)
+					U8 octant = NO_CHILD_NODES)
 	:	mParent((oct_node*)parent), 
 		mOctant(octant) 
 	{ 
@@ -117,7 +116,7 @@ public:
 		mSize = size;
 
 		updateMinMax();
-		if ((mOctant == 255) && mParent)
+		if ((mOctant == NO_CHILD_NODES) && mParent)
 		{
 			mOctant = ((oct_node*) mParent)->getOctant(mCenter);
 		}
@@ -127,9 +126,9 @@ public:
 		clearChildren();
 	}
 
-	virtual ~LLOctreeNode()								
+	virtual ~LLOctreeNode()
 	{ 
-		BaseType::destroyListeners(); 
+		BaseType::destroyListeners();
 		
 		for (U32 i = 0; i < mElementCount; ++i)
 		{
@@ -168,7 +167,7 @@ public:
 		return rad <= mSize[0]*2.f && isInside(pos); 
 	}
 
-	inline bool isInside(T* data) const			
+	inline bool isInside(T* data) const
 	{ 
 		return isInside(data->getPositionGroup(), data->getBinRadius());
 	}
@@ -262,7 +261,7 @@ public:
 		for (U32 i = 0; i < 8; i++)
 		{
 			U8 idx = mChildMap[i];
-			if (idx != 255)
+			if (idx != NO_CHILD_NODES)
 			{
 				LLOctreeNode<T>* child = mChild[idx];
 
@@ -285,7 +284,7 @@ public:
 		LLOctreeNode<T>* node = this;
 
 		if (node->isInside(pos, rad))
-		{		
+		{
 			//do a quick search by octant
 			U8 octant = node->getOctant(pos);
 			
@@ -295,7 +294,7 @@ public:
 			// the data
 			U8 next_node = node->mChildMap[octant];
 			
-			while (next_node != 255 && node->getSize()[0] >= rad)
+			while (next_node != NO_CHILD_NODES && node->getSize()[0] >= rad)
 			{	
 				node = node->getChild(next_node);
 				octant = node->getOctant(pos);
@@ -312,6 +311,8 @@ public:
 	
 	virtual bool insert(T* data)
 	{
+        //LL_PROFILE_ZONE_NAMED_COLOR("Octree::insert()",OCTREE_DEBUG_COLOR_INSERT);
+
 		if (data == NULL || data->getBinIndex() != -1)
 		{
 			OCT_ERRS << "!!! INVALID ELEMENT ADDED TO OCTREE BRANCH !!!" << LL_ENDL;
@@ -458,6 +459,8 @@ public:
 
 	bool remove(T* data)
 	{
+        //LL_PROFILE_ZONE_NAMED_COLOR("Octree::remove()", OCTREE_DEBUG_COLOR_REMOVE);
+
 		S32 i = data->getBinIndex();
 
 		if (i >= 0 && i < mElementCount)
@@ -523,9 +526,7 @@ public:
 	void clearChildren()
 	{
 		mChildCount = 0;
-
-		U32* foo = (U32*) mChildMap;
-		foo[0] = foo[1] = 0xFFFFFFFF;
+		memset(mChildMap, NO_CHILD_NODES, sizeof(mChildMap));
 	}
 
 	void validate()
@@ -616,11 +617,9 @@ public:
 		--mChildCount;
 
 		mChild[index] = mChild[mChildCount];
-		
 
 		//rebuild child map
-		U32* foo = (U32*) mChildMap;
-		foo[0] = foo[1] = 0xFFFFFFFF;
+		memset(mChildMap, NO_CHILD_NODES, sizeof(mChildMap));
 
 		for (U32 i = 0; i < mChildCount; ++i)
 		{
@@ -656,7 +655,7 @@ public:
 		OCT_ERRS << "Octree failed to delete requested child." << LL_ENDL;
 	}
 
-protected:	
+protected:
 	typedef enum
 	{
 		CENTER = 0,
@@ -680,7 +679,6 @@ protected:
 	element_list mData;
 	element_iter mDataEnd;
 	U32 mElementCount;
-		
 }; 
 
 //just like a regular node, except it might expand on insert and compress on balance
@@ -689,7 +687,7 @@ class LLOctreeRoot : public LLOctreeNode<T>
 {
 public:
 	typedef LLOctreeNode<T>	BaseType;
-	typedef LLOctreeNode<T>		oct_node;
+	typedef LLOctreeNode<T>	oct_node;
 
 	LLOctreeRoot(const LLVector4a& center, 
 				 const LLVector4a& size, 
@@ -698,11 +696,13 @@ public:
 	{
 	}
 	
-	bool balance()
+	bool balance() override
 	{	
+        //LL_PROFILE_ZONE_NAMED_COLOR("Octree::balance()",OCTREE_DEBUG_COLOR_BALANCE);
+
 		if (this->getChildCount() == 1 && 
 			!(this->mChild[0]->isLeaf()) &&
-			this->mChild[0]->getElementCount() == 0) 
+			this->mChild[0]->getElementCount() == 0)
 		{ //if we have only one child and that child is an empty branch, make that child the root
 			oct_node* child = this->mChild[0];
 					
@@ -732,7 +732,7 @@ public:
 	}
 
 	// LLOctreeRoot::insert
-	bool insert(T* data)
+	bool insert(T* data) override
 	{
 		if (data == NULL) 
 		{
@@ -835,6 +835,12 @@ public:
 
 		return false;
 	}
+
+    bool isLeaf() const override
+    {
+        // root can't be a leaf
+        return false;
+    }
 };
 
 //========================

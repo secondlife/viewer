@@ -677,6 +677,7 @@ BOOL LLKeyframeMotion::onActivate()
 //-----------------------------------------------------------------------------
 BOOL LLKeyframeMotion::onUpdate(F32 time, U8* joint_mask)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// llassert(time >= 0.f);		// This will fire
 	time = llmax(0.f, time);
 

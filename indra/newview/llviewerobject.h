@@ -110,8 +110,7 @@ struct PotentialReturnableObject
 class LLViewerObject 
 :	public LLPrimitive, 
 	public LLRefCount, 
-	public LLGLUpdate,
-	public LLTrace::MemTrackable<LLViewerObject>
+	public LLGLUpdate
 {
 protected:
 	virtual ~LLViewerObject(); // use unref()
