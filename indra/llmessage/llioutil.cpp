@@ -45,7 +45,6 @@ LLIOPipe::EStatus LLIOFlush::process_impl(
 }
 
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_SLEEP("IO Sleep");
 /** 
  * @class LLIOSleep
  */
@@ -56,7 +55,7 @@ LLIOPipe::EStatus LLIOSleep::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_SLEEP);
+    LL_PROFILE_ZONE_SCOPED;
 	if(mSeconds > 0.0)
 	{
 		if(pump) pump->sleepChain(mSeconds);
@@ -66,7 +65,6 @@ LLIOPipe::EStatus LLIOSleep::process_impl(
 	return STATUS_DONE;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PROCESS_ADD_CHAIN("Add Chain");
 /** 
  * @class LLIOAddChain
  */
@@ -77,7 +75,7 @@ LLIOPipe::EStatus LLIOAddChain::process_impl(
 	LLSD& context,
 	LLPumpIO* pump)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PROCESS_ADD_CHAIN);
+    LL_PROFILE_ZONE_SCOPED;
 	pump->addChain(mChain, mTimeout);
 	return STATUS_DONE;
 }

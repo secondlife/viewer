@@ -63,8 +63,7 @@ U8* LLImageRaw::reallocateData(S32 ) { return NULL; }
 bool LLImageRaw::resize(U16, U16, S8) { return true; } // this method always returns true...
 
 LLImageBase::LLImageBase()
-: LLTrace::MemTrackable<LLImageBase>("LLImageBase"),
-mData(NULL),
+: mData(NULL),
 mDataSize(0),
 mWidth(0),
 mHeight(0),

@@ -47,7 +47,6 @@ bool LLCubeMap::sUseCubeMaps = true;
 
 LLCubeMap::LLCubeMap(bool init_as_srgb)
 	: mTextureStage(0),
-	  mTextureCoordStage(0),
 	  mMatrixStage(0),
 	  mIssRGB(init_as_srgb)
 {
@@ -150,6 +149,7 @@ void LLCubeMap::initRawData(const std::vector<LLPointer<LLImageRaw> >& rawimages
 
 void LLCubeMap::initGLData()
 {
+    LL_PROFILE_ZONE_SCOPED;
 	for (int i = 0; i < 6; i++)
 	{
 		mImages[i]->setSubImage(mRawImages[i], 0, 0, RESOLUTION, RESOLUTION);
@@ -179,7 +179,6 @@ void LLCubeMap::bind()
 void LLCubeMap::enable(S32 stage)
 {
 	enableTexture(stage);
-	enableTextureCoords(stage);
 }
 
 void LLCubeMap::enableTexture(S32 stage)
@@ -191,35 +190,9 @@ void LLCubeMap::enableTexture(S32 stage)
 	}
 }
 
-void LLCubeMap::enableTextureCoords(S32 stage)
-{
-	mTextureCoordStage = stage;
-	if (!LLGLSLShader::sNoFixedFunction && gGLManager.mHasCubeMap && stage >= 0 && LLCubeMap::sUseCubeMaps)
-	{
-		if (stage > 0)
-		{
-			gGL.getTexUnit(stage)->activate();
-		}
-		
-		glEnable(GL_TEXTURE_GEN_R);
-		glEnable(GL_TEXTURE_GEN_S);
-		glEnable(GL_TEXTURE_GEN_T);
-
-		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-		glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_REFLECTION_MAP);
-		
-		if (stage > 0)
-		{
-			gGL.getTexUnit(0)->activate();
-		}
-	}
-}
-
 void LLCubeMap::disable(void)
 {
 	disableTexture();
-	disableTextureCoords();
 }
 
 void LLCubeMap::disableTexture(void)
@@ -230,24 +203,6 @@ void LLCubeMap::disableTexture(void)
 		if (mTextureStage == 0)
 		{
 			gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
-		}
-	}
-}
-
-void LLCubeMap::disableTextureCoords(void)
-{
-	if (!LLGLSLShader::sNoFixedFunction && gGLManager.mHasCubeMap && mTextureCoordStage >= 0 && LLCubeMap::sUseCubeMaps)
-	{
-		if (mTextureCoordStage > 0)
-		{
-			gGL.getTexUnit(mTextureCoordStage)->activate();
-		}
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		glDisable(GL_TEXTURE_GEN_R);
-		if (mTextureCoordStage > 0)
-		{
-			gGL.getTexUnit(0)->activate();
 		}
 	}
 }
@@ -453,6 +408,7 @@ BOOL LLCubeMap::project(F32& v_min, F32& v_max, F32& h_min, F32& h_max,
 
 void LLCubeMap::paintIn(LLVector3 dir[4], const LLColor4U& col)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	F32 v_min, v_max, h_min, h_max;
 	LLVector3 center = dir[0] + dir[1] + dir[2] + dir[3];
 	center.normVec();

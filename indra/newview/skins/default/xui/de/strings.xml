@@ -5101,7 +5101,7 @@ Bitte überprüfen Sie http://status.secondlifegrid.net, um herauszufinden, ob e
 	<string name="PremiumMembership">
 		Premium
 	</string>
-	<string name="Premium PlusMembership">
+	<string name="Premium_PlusMembership">
 		Premium Plus
 	</string>
 	<string name="DeleteItems">

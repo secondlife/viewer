@@ -416,9 +416,6 @@ void LLPumpIO::pump()
 	pump(DEFAULT_POLL_TIMEOUT);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PUMP_IO("Pump IO");
-static LLTrace::BlockTimerStatHandle FTM_PUMP_POLL("Pump Poll");
-
 LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t& run_chain) 
 {
 	std::for_each(
@@ -431,7 +428,7 @@ LLPumpIO::current_chain_t LLPumpIO::removeRunningChain(LLPumpIO::current_chain_t
 //timeout is in microseconds
 void LLPumpIO::pump(const S32& poll_timeout)
 {
-	LL_RECORD_BLOCK_TIME(FTM_PUMP_IO);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	//LL_INFOS() << "LLPumpIO::pump()" << LL_ENDL;
 
 	// Run any pending runners.
@@ -509,7 +506,7 @@ void LLPumpIO::pump(const S32& poll_timeout)
 		S32 count = 0;
 		S32 client_id = 0;
         {
-			LL_RECORD_BLOCK_TIME(FTM_PUMP_POLL);
+            LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
             apr_pollset_poll(mPollset, poll_timeout, &count, &poll_fd);
         }
 		PUMP_DEBUG;
@@ -737,10 +734,9 @@ bool LLPumpIO::respond(
 	return true;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_PUMP_CALLBACK_CHAIN("Chain");
-
 void LLPumpIO::callback()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	//LL_INFOS() << "LLPumpIO::callback()" << LL_ENDL;
 	if(true)
 	{
@@ -756,7 +752,6 @@ void LLPumpIO::callback()
 		callbacks_t::iterator end = mCallbacks.end();
 		for(; it != end; ++it)
 		{
-			LL_RECORD_BLOCK_TIME(FTM_PUMP_CALLBACK_CHAIN);
 			// it's always the first and last time for respone chains
 			(*it).mHead = (*it).mChainLinks.begin();
 			(*it).mInit = true;

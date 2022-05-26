@@ -34,9 +34,9 @@
 
 // Extents are in joint space
 // isRiggedTo is based on the state of all currently associated rigged meshes
-LL_ALIGN_PREFIX(16)
-class LLJointRiggingInfo
+class alignas(16) LLJointRiggingInfo
 {
+    LL_ALIGN_NEW
 public:
     LLJointRiggingInfo();
     bool isRiggedTo() const;
@@ -45,31 +45,10 @@ public:
     const LLVector4a *getRiggedExtents() const;
     void merge(const LLJointRiggingInfo& other);
 
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
-	void* operator new[](size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete[](void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
-
 private:
-	LL_ALIGN_16(LLVector4a mRiggedExtents[2]);
+	LLVector4a mRiggedExtents[2];
     bool mIsRiggedTo;
-} LL_ALIGN_POSTFIX(16);
+};
 
 // For storing all the rigging info associated with a given avatar or
 // object, keyed by joint_num.

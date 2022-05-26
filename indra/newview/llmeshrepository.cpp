@@ -1972,7 +1972,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 		LLMeshSkinInfo info(skin);
 		info.mMeshID = mesh_id;
 
-		// LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
+        // LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
 		{
 			LLMutexLock lock(mMutex);
 			mSkinInfoQ.push_back(info);
@@ -3639,7 +3639,7 @@ S32 LLMeshRepository::update()
 
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 	
 	// Manage time-to-load metrics for mesh download operations.
 	metricsProgress(1);
@@ -3722,7 +3722,7 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 
 void LLMeshRepository::notifyLoadedMeshes()
 { //called from main thread
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
     // GetMesh2 operation with keepalives, etc.  With pipelining,
     // we'll increase this.  See llappcorehttp and llcorehttp for
@@ -4070,35 +4070,34 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 
 const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
+    if (mesh_id.notNull())
+    {
+        skin_map::iterator iter = mSkinMap.find(mesh_id);
+        if (iter != mSkinMap.end())
+        {
+            return &(iter->second);
+        }
 
-	if (mesh_id.notNull())
-	{
-		skin_map::iterator iter = mSkinMap.find(mesh_id);
-		if (iter != mSkinMap.end())
-		{
-			return &(iter->second);
-		}
-		
-		//no skin info known about given mesh, try to fetch it
-		{
-			LLMutexLock lock(mMeshMutex);
-			//add volume to list of loading meshes
-			skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
-			if (iter == mLoadingSkins.end())
-			{ //no request pending for this skin info
-				mPendingSkinRequests.push(mesh_id);
-			}
-			mLoadingSkins[mesh_id].insert(requesting_obj->getID());
-		}
-	}
-
+        //no skin info known about given mesh, try to fetch it
+        if (requesting_obj != nullptr)
+        {
+            LLMutexLock lock(mMeshMutex);
+            //add volume to list of loading meshes
+            skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
+            if (iter == mLoadingSkins.end())
+            { //no request pending for this skin info
+                mPendingSkinRequests.push(mesh_id);
+            }
+            mLoadingSkins[mesh_id].insert(requesting_obj->getID());
+        }
+    }
 	return NULL;
 }
 
 void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	if (mesh_id.notNull())
 	{
@@ -4127,7 +4126,7 @@ void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
 
 LLModel::Decomposition* LLMeshRepository::getDecomposition(const LLUUID& mesh_id)
 {
-	LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
 
 	LLModel::Decomposition* ret = NULL;
 

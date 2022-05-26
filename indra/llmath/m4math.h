@@ -32,6 +32,7 @@
 class LLVector4;
 class LLMatrix3;
 class LLQuaternion;
+class LLMatrix4a;
 
 // NOTA BENE: Currently assuming a right-handed, x-forward, y-left, z-up universe
 
@@ -104,6 +105,7 @@ public:
 	explicit LLMatrix4(const F32 *mat);								// Initializes Matrix to values in mat
 	explicit LLMatrix4(const LLMatrix3 &mat);						// Initializes Matrix to values in mat and sets position to (0,0,0)
 	explicit LLMatrix4(const LLQuaternion &q);						// Initializes Matrix with rotation q and sets position to (0,0,0)
+    explicit LLMatrix4(const LLMatrix4a& mat);
 
 	LLMatrix4(const LLMatrix3 &mat, const LLVector4 &pos);	// Initializes Matrix to values in mat and pos
 

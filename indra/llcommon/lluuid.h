@@ -184,6 +184,17 @@ struct boost::hash<LLUUID>
     }
 };
 
+// Adapt boost hash to std hash
+namespace std
+{
+    template<> struct hash<LLUUID>
+    {
+        std::size_t operator()(LLUUID const& s) const noexcept
+        {
+            return boost::hash<LLUUID>()(s);
+        }
+    };
+}
 #endif
 
 

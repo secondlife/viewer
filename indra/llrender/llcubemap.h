@@ -48,12 +48,10 @@ public:
 	void enable(S32 stage);
 	
 	void enableTexture(S32 stage);
-	void enableTextureCoords(S32 stage);
 	S32	 getStage(void) { return mTextureStage; }
 	
 	void disable(void);
 	void disableTexture(void);
-	void disableTextureCoords(void);
 	void setMatrix(S32 stage);
 	void restoreMatrix();
 	void setReflection (void);
@@ -80,7 +78,6 @@ protected:
 	LLPointer<LLImageGL> mImages[6];
 	LLPointer<LLImageRaw> mRawImages[6];
 	S32 mTextureStage;
-	S32 mTextureCoordStage;
 	S32 mMatrixStage;
 };
 
