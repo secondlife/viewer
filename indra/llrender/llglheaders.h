@@ -812,4 +812,23 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #define GL_RENDERBUFFER_FREE_MEMORY_ATI            0x87FD
 #endif
 
+#if defined(TRACY_ENABLE) && LL_PROFILER_ENABLE_TRACY_OPENGL
+    // Tracy uses the following:
+    //    glGenQueries
+    //    glGetQueryiv
+    //    glGetQueryObjectiv
+    #define glGenQueries        glGenQueriesARB
+    #define glGetQueryiv        glGetQueryivARB
+    #define glGetQueryObjectiv  glGetQueryObjectivARB
+    #include <tracy/TracyOpenGL.hpp>
+
+    #define LL_PROFILER_GPU_ZONEC(name,color) TracyGpuZoneC(name,color);
+    #define LL_PROFILER_GPU_COLLECT           TracyGpuCollect
+    #define LL_PROFILER_GPU_CONTEXT           TracyGpuContext
+#else
+    #define LL_PROFILER_GPU_ZONEC(name,color) (void)name;(void)color;
+    #define LL_PROFILER_GPU_COLLECT
+    #define LL_PROFILER_GPU_CONTEXT
+#endif
+
 #endif // LL_LLGLHEADERS_H

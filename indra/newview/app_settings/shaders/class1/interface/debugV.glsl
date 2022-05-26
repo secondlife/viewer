@@ -27,8 +27,21 @@ uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+#endif
+
 void main()
 {
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec4 pos = mat * vec4(position.xyz,1.0);
+    gl_Position = projection_matrix * pos;
+#else
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0);
+#endif
 }
 

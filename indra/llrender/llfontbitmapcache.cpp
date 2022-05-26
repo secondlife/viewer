@@ -30,8 +30,7 @@
 #include "llfontbitmapcache.h"
 
 LLFontBitmapCache::LLFontBitmapCache()
-:	LLTrace::MemTrackable<LLFontBitmapCache>("LLFontBitmapCache"),
-	mNumComponents(0),
+:	mNumComponents(0),
 	mBitmapWidth(0),
 	mBitmapHeight(0),
 	mBitmapNum(-1),
@@ -124,9 +123,6 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32 &pos_x, S32 &pos_y, S32& bitm
 			image_gl->createGLTexture(0, image_raw);
 			gGL.getTexUnit(0)->bind(image_gl);
 			image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(TRUE, TRUE);
-
-			claimMem(image_raw);
-			claimMem(image_gl);
 		}
 		else
 		{
@@ -156,20 +152,8 @@ void LLFontBitmapCache::destroyGL()
 
 void LLFontBitmapCache::reset()
 {
-	for (std::vector<LLPointer<LLImageRaw> >::iterator it = mImageRawVec.begin(), end_it = mImageRawVec.end();
-		it != end_it;
-		++it)
-	{
-		disclaimMem(**it);
-	}
 	mImageRawVec.clear();
 
-	for (std::vector<LLPointer<LLImageGL> >::iterator it = mImageGLVec.begin(), end_it = mImageGLVec.end();
-		it != end_it;
-		++it)
-	{
-		disclaimMem(**it);
-	}
 	mImageGLVec.clear();
 	
 	mBitmapWidth = 0;

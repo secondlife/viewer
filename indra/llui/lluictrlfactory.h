@@ -79,10 +79,6 @@ class LLWidgetNameRegistry
 //	LLSINGLETON(LLDefaultParamBlockRegistry);
 //};
 
-extern LLTrace::BlockTimerStatHandle FTM_WIDGET_SETUP;
-extern LLTrace::BlockTimerStatHandle FTM_WIDGET_CONSTRUCTION;
-extern LLTrace::BlockTimerStatHandle FTM_INIT_FROM_PARAMS;
-
 // Build time optimization, generate this once in .cpp file
 #ifndef LLUICTRLFACTORY_CPP
 extern template class LLUICtrlFactory* LLSingleton<class LLUICtrlFactory>::getInstance();
@@ -213,6 +209,7 @@ private:
 	template<typename T>
 	static T* createWidgetImpl(const typename T::Params& params, LLView* parent = NULL)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 		T* widget = NULL;
 
 		if (!params.validateBlock())
@@ -221,12 +218,9 @@ private:
 			//return NULL;
 		}
 
-		{ LL_RECORD_BLOCK_TIME(FTM_WIDGET_CONSTRUCTION);
-			widget = new T(params);	
-		}
-		{ LL_RECORD_BLOCK_TIME(FTM_INIT_FROM_PARAMS);
-			widget->initFromParams(params);
-		}
+		widget = new T(params);	
+		
+		widget->initFromParams(params);
 
 		if (parent)
 		{
@@ -239,7 +233,7 @@ private:
 	template<typename T>
 	static T* defaultBuilder(LLXMLNodePtr node, LLView *parent, LLXMLNodePtr output_node)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_WIDGET_SETUP);
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
 		typename T::Params params(getDefaultParams<T>());
 

@@ -80,8 +80,10 @@ public:
 
 const S32 JSB_NUM_JOINT_STATES = 6;
 
+LL_ALIGN_PREFIX(16)
 class LLJointStateBlender
 {
+    LL_ALIGN_NEW
 protected:
 	LLPointer<LLJointState>	mJointStates[JSB_NUM_JOINT_STATES];
 	S32				mPriorities[JSB_NUM_JOINT_STATES];
@@ -96,8 +98,8 @@ public:
 	void resetCachedJoint();
 
 public:
-	LLJoint mJointCache;
-};
+	LL_ALIGN_16(LLJoint mJointCache);
+} LL_ALIGN_POSTFIX(16);
 
 class LLMotion;
 

@@ -661,11 +661,9 @@ void LLGrassPartition::addGeometryCount(LLSpatialGroup* group, U32& vertex_count
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_REBUILD_GRASS_VB("Grass VB");
-
 void LLGrassPartition::getGeometry(LLSpatialGroup* group)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REBUILD_GRASS_VB);
+    LL_PROFILE_ZONE_SCOPED;
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
