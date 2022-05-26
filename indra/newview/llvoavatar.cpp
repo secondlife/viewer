@@ -2809,6 +2809,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	// update attachments positions
 	if (detailed_update)
 	{
+        U32 draw_order = 0;
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			 iter != mAttachmentPoints.end();
 			 ++iter)
@@ -2847,9 +2848,17 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                         }
                     }
 
-                    
-                    attached_object->mDrawable->makeActive();
-                    attached_object->mDrawable->updateXform(TRUE);
+                    // if selecting any attachments, update all of them as non-damped
+                    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment())
+                    {
+                        gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
+                    }
+                    else
+                    {
+                        // Note: SL-17415; While most objects follow joints,
+                        // some objects get position updates from server
+                        gPipeline.updateMoveDampedAsync(attached_object->mDrawable);
+                    }
 
                     // override_bbox calls movePartition() and getSpatialPartition(),
                     // so bridge might no longer be valid, get it again.
@@ -2867,6 +2876,13 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                             bridge->setState(LLDrawable::MOVE_UNDAMPED);
                             bridge->updateMove();
                             bridge->setState(LLDrawable::EARLY_MOVE);
+
+                            LLSpatialGroup* group = attached_object->mDrawable->getSpatialGroup();
+                            if (group)
+                            { //set draw order of group
+                                group->mAvatarp = this;
+                                group->mRenderOrder = draw_order++;
+                            }
                         }
                     }
 

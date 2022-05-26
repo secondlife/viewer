@@ -50,7 +50,7 @@ void fullbright_lighting()
 		discard;
 	}
 
-	color.rgb *= vertex_color.rgb;
+	color *= vertex_color;
 
 	color.rgb = pow(color.rgb, vec3(texture_gamma));
 
