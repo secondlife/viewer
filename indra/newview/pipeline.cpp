@@ -7243,6 +7243,7 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	mResetVertexBuffers = false;
 
 	mCubeVB = NULL;
+    mDeferredVB = NULL;
 
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -7276,10 +7277,11 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 		LLPathingLib::getInstance()->cleanupVBOManager();
 	}
 	LLVOPartGroup::destroyGL();
+    gGL.resetVertexBuffer();
 
 	SUBSYSTEM_CLEANUP(LLVertexBuffer);
 	
-	if (LLVertexBuffer::sGLCount > 0)
+	if (LLVertexBuffer::sGLCount != 0)
 	{
 		LL_WARNS() << "VBO wipe failed -- " << LLVertexBuffer::sGLCount << " buffers remaining." << LL_ENDL;
 	}
@@ -7300,6 +7302,10 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLPipeline::sTextureBindTest = gSavedSettings.getBOOL("RenderDebugTextureBind");
 
 	LLVertexBuffer::initClass(LLVertexBuffer::sEnableVBOs, LLVertexBuffer::sDisableVBOMapping);
+    gGL.initVertexBuffer();
+
+    mDeferredVB = new LLVertexBuffer(DEFERRED_VB_MASK, 0);
+    mDeferredVB->allocateBuffer(8, 0, true);
 
 	LLVOPartGroup::restoreGL();
 }
