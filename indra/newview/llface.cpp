@@ -2377,7 +2377,7 @@ BOOL LLFace::calcPixelArea(F32& cos_angle_to_view_dir, F32& radius)
     {
         //override with avatar bounding box
         LLVOAvatar* avatar = mVObjp->getAvatar();
-        if (avatar)
+        if (avatar && avatar->mDrawable)
         {
             center.load3(avatar->getPositionAgent().mV);
             const LLVector4a* exts = avatar->mDrawable->getSpatialExtents();

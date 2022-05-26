@@ -73,7 +73,7 @@ template <class T>
 class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
 {
 public:
-	virtual void traverse(const LLOctreeNode<T>* node);
+	virtual void traverse(const LLOctreeNode<T>* node) override;
 };
 
 template <class T>
@@ -696,7 +696,7 @@ public:
 	{
 	}
 	
-	bool balance()
+	bool balance() override
 	{	
         //LL_PROFILE_ZONE_NAMED_COLOR("Octree::balance()",OCTREE_DEBUG_COLOR_BALANCE);
 
@@ -732,7 +732,7 @@ public:
 	}
 
 	// LLOctreeRoot::insert
-	bool insert(T* data)
+	bool insert(T* data) override
 	{
 		if (data == NULL) 
 		{
@@ -835,6 +835,12 @@ public:
 
 		return false;
 	}
+
+    bool isLeaf() const override
+    {
+        // root can't be a leaf
+        return false;
+    }
 };
 
 //========================
