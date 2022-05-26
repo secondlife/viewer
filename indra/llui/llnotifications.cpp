@@ -1387,7 +1387,7 @@ bool LLNotifications::failedUniquenessTest(const LLSD& payload)
 
 LLNotificationChannelPtr LLNotifications::getChannel(const std::string& channelName)
 {
-	return LLNotificationChannelPtr(LLNotificationChannel::getInstance(channelName));
+	return LLNotificationChannelPtr(LLNotificationChannel::getInstance(channelName).get());
 }
 
 

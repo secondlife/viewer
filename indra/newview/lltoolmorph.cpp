@@ -195,10 +195,7 @@ BOOL LLVisualParamHint::render()
 	gGL.pushMatrix();
 	gGL.loadIdentity();
 
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
+	gUIProgram.bind();
 
 	LLGLSUIDefault gls_ui;
 	//LLGLState::verify(TRUE);
@@ -242,17 +239,16 @@ BOOL LLVisualParamHint::render()
 
 	LLViewerCamera::getInstance()->setPerspective(FALSE, mOrigin.mX, mOrigin.mY, mFullWidth, mFullHeight, FALSE);
 
-	if (gAgentAvatarp->mDrawable.notNull() &&
-		gAgentAvatarp->mDrawable->getFace(0))
-	{
-		LLDrawPoolAvatar *avatarPoolp = (LLDrawPoolAvatar *)gAgentAvatarp->mDrawable->getFace(0)->getPool();
-		LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
-		gGL.setAlphaRejectSettings(LLRender::CF_ALWAYS);
-		gGL.setSceneBlendType(LLRender::BT_REPLACE);
-		avatarPoolp->renderAvatars(gAgentAvatarp);  // renders only one avatar
-		gGL.setSceneBlendType(LLRender::BT_ALPHA);
-		gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-	}
+    if (gAgentAvatarp->mDrawable.notNull())
+    {
+        LLGLDepthTest gls_depth(GL_TRUE, GL_TRUE);
+        gGL.flush();
+        gGL.setSceneBlendType(LLRender::BT_REPLACE);
+        gPipeline.generateImpostor(gAgentAvatarp, true);
+        gGL.setSceneBlendType(LLRender::BT_ALPHA);
+        gGL.flush();
+    }
+
 	gAgentAvatarp->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
 	mWearablePtr->setVisualParamWeight(mVisualParam->getID(), mLastParamWeight);
 	LLViewerWearable* wearable = (LLViewerWearable*)mWearablePtr;

@@ -131,12 +131,6 @@ private:
 	/** Camera preset in Third Person Mode */
 	ECameraPreset mCameraPreset; 
 
-	/** Initial camera offset */
-	LLPointer<LLControlVariable> mCameraOffsetInitial;
-
-	/** Initial focus offset */
-	LLPointer<LLControlVariable> mFocusOffsetInitial;
-
 	LLQuaternion mInitSitRot;
 
 	//--------------------------------------------------------------------

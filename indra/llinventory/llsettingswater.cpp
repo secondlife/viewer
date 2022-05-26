@@ -33,14 +33,6 @@
 #include "v3colorutil.h"
 #include "indra_constants.h"
 
-//=========================================================================
-namespace
-{
-     LLTrace::BlockTimerStatHandle FTM_BLEND_WATERVALUES("Blending Water Environment");
-     LLTrace::BlockTimerStatHandle FTM_UPDATE_WATERVALUES("Update Water Environment");
-}
-
-//=========================================================================
 const std::string LLSettingsWater::SETTING_BLUR_MULTIPLIER("blur_multiplier");
 const std::string LLSettingsWater::SETTING_FOG_COLOR("water_fog_color");
 const std::string LLSettingsWater::SETTING_FOG_DENSITY("water_fog_density");

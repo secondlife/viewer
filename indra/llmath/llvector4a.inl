@@ -58,13 +58,13 @@ inline void LLVector4a::store4a(F32* dst) const
 // BASIC GET/SET 
 ////////////////////////////////////
 
-// Return a "this" as an F32 pointer. Do not use unless you have a very good reason.  (Not sure? Ask Falcon)
+// Return a "this" as an F32 pointer.
 F32* LLVector4a::getF32ptr()
 {
 	return (F32*) &mQ;
 }
 
-// Return a "this" as a const F32 pointer. Do not use unless you have a very good reason.  (Not sure? Ask Falcon)
+// Return a "this" as a const F32 pointer.
 const F32* const LLVector4a::getF32ptr() const
 {
 	return (const F32* const) &mQ;

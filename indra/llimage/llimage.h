@@ -112,8 +112,7 @@ protected:
 // Image base class
 
 class LLImageBase 
-:	public LLThreadSafeRefCount,
-	public LLTrace::MemTrackable<LLImageBase>
+:	public LLThreadSafeRefCount
 {
 protected:
 	virtual ~LLImageBase();
@@ -192,6 +191,12 @@ public:
 	/*virtual*/ void deleteData();
 	/*virtual*/ U8* allocateData(S32 size = -1);
 	/*virtual*/ U8* reallocateData(S32 size);
+
+    // use in conjunction with "no_copy" constructor to release data pointer before deleting
+    // so that deletion of this LLImageRaw will not free the memory at the "data" parameter 
+    // provided to "no_copy" constructor
+    void releaseData();
+
 	
 	bool resize(U16 width, U16 height, S8 components);
 

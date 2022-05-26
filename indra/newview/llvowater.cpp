@@ -114,11 +114,9 @@ LLDrawable *LLVOWater::createDrawable(LLPipeline *pipeline)
 	return mDrawable;
 }
 
-static LLTrace::BlockTimerStatHandle FTM_UPDATE_WATER("Update Water");
-
 BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 {
-	LL_RECORD_BLOCK_TIME(FTM_UPDATE_WATER);
+    LL_PROFILE_ZONE_SCOPED;
 	LLFace *face;
 
 	if (drawable->getNumFaces() < 1)
@@ -145,7 +143,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	static const unsigned int vertices_per_quad = 4;
 	static const unsigned int indices_per_quad = 6;
 
-	const S32 size = LLPipeline::sRenderTransparentWater && LLGLSLShader::sNoFixedFunction ? 16 : 1;
+	const S32 size = LLPipeline::sRenderTransparentWater ? 16 : 1;
 
 	const S32 num_quads = size * size;
 	face->setSize(vertices_per_quad * num_quads,

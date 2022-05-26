@@ -170,6 +170,53 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 	return addColorAttachment(color_fmt);
 }
 
+void LLRenderTarget::setColorAttachment(LLImageGL* img, LLGLuint use_name)
+{
+    LL_PROFILE_ZONE_SCOPED;
+    llassert(img != nullptr); // img must not be null
+    llassert(sUseFBO); // FBO support must be enabled
+    llassert(mDepth == 0); // depth buffers not supported with this mode
+    llassert(mTex.empty()); // mTex must be empty with this mode (binding target should be done via LLImageGL)
+
+    if (mFBO == 0)
+    {
+        glGenFramebuffers(1, (GLuint*)&mFBO);
+    }
+
+    mResX = img->getWidth();
+    mResY = img->getHeight();
+    mUsage = img->getTarget();
+
+    if (use_name == 0)
+    {
+        use_name = img->getTexName();
+    }
+
+    mTex.push_back(use_name);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            LLTexUnit::getInternalType(mUsage), use_name, 0);
+        stop_glerror();
+
+    check_framebuffer_status();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
+}
+
+void LLRenderTarget::releaseColorAttachment()
+{
+    LL_PROFILE_ZONE_SCOPED;
+    llassert(mTex.size() == 1); //cannot use releaseColorAttachment with LLRenderTarget managed color targets
+    llassert(mFBO != 0);  // mFBO must be valid
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, LLTexUnit::getInternalType(mUsage), 0, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, sCurFBO);
+
+    mTex.clear();
+}
+
 bool LLRenderTarget::addColorAttachment(U32 color_fmt)
 {
 	if (color_fmt == 0)
@@ -437,11 +484,13 @@ void LLRenderTarget::bindTarget()
 									GL_COLOR_ATTACHMENT1,
 									GL_COLOR_ATTACHMENT2,
 									GL_COLOR_ATTACHMENT3};
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffersARB", 0x4000FF )
 			glDrawBuffersARB(mTex.size(), drawbuffers);
 		}
 			
 		if (mTex.empty())
 		{ //no color buffer to draw to
+			LL_PROFILER_GPU_ZONEC( "gl.DrawBuffer", 0x0000FF )
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 		}

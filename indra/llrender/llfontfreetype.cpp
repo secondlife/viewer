@@ -104,8 +104,7 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 }
 
 LLFontFreetype::LLFontFreetype()
-:	LLTrace::MemTrackable<LLFontFreetype>("LLFontFreetype"),
-	mFontBitmapCachep(new LLFontBitmapCache),
+:	mFontBitmapCachep(new LLFontBitmapCache),
 	mAscender(0.f),
 	mDescender(0.f),
 	mLineHeight(0.f),
@@ -222,8 +221,6 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 	S32 max_char_height = ll_round(0.5f + (y_max - y_min));
 
 	mFontBitmapCachep->init(components, max_char_width, max_char_height);
-	claimMem(mFontBitmapCachep);
-
 
 	if (!mFTFace->charmap)
 	{
@@ -238,7 +235,6 @@ BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 v
 	}
 
 	mName = filename;
-	claimMem(mName);
 	mPointSize = point_size;
 
 	mStyle = LLFontGL::NORMAL;
@@ -460,6 +456,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 
 LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, llwchar wch, U32 glyph_index) const
 {
+    LL_PROFILE_ZONE_SCOPED;
 	if (mFTFace == NULL)
 		return NULL;
 
@@ -585,7 +582,6 @@ void LLFontFreetype::insertGlyphInfo(llwchar wch, LLFontGlyphInfo* gi) const
 	}
 	else
 	{
-		claimMem(gi);
 		mCharGlyphInfoMap[wch] = gi;
 	}
 }
@@ -631,11 +627,9 @@ void LLFontFreetype::resetBitmapCache()
 		it != end_it;
 		++it)
 	{
-		disclaimMem(it->second);
 		delete it->second;
 	}
 	mCharGlyphInfoMap.clear();
-	disclaimMem(mFontBitmapCachep);
 	mFontBitmapCachep->reset();
 
 	// Adding default glyph is skipped for fallback fonts here as well as in loadFace(). 
