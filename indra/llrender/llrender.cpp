@@ -869,7 +869,7 @@ LLRender::~LLRender()
 	shutdown();
 }
 
-void LLRender::init()
+void LLRender::init(bool needs_vertex_buffer)
 {
 #if LL_WINDOWS
     if (gGLManager.mHasDebugOutput && gDebugGL)
@@ -897,15 +897,27 @@ void LLRender::init()
 #endif
 	}
 
+    if (needs_vertex_buffer)
+    {
+        initVertexBuffer();
+    }
+}
 
-	llassert_always(mBuffer.isNull()) ;
-	stop_glerror();
-	mBuffer = new LLVertexBuffer(immediate_mask, 0);
-	mBuffer->allocateBuffer(4096, 0, TRUE);
-	mBuffer->getVertexStrider(mVerticesp);
-	mBuffer->getTexCoord0Strider(mTexcoordsp);
-	mBuffer->getColorStrider(mColorsp);
-	stop_glerror();
+void LLRender::initVertexBuffer()
+{
+    llassert_always(mBuffer.isNull());
+    stop_glerror();
+    mBuffer = new LLVertexBuffer(immediate_mask, 0);
+    mBuffer->allocateBuffer(4096, 0, TRUE);
+    mBuffer->getVertexStrider(mVerticesp);
+    mBuffer->getTexCoord0Strider(mTexcoordsp);
+    mBuffer->getColorStrider(mColorsp);
+    stop_glerror();
+}
+
+void LLRender::resetVertexBuffer()
+{
+    mBuffer = NULL;
 }
 
 void LLRender::shutdown()
@@ -923,7 +935,7 @@ void LLRender::shutdown()
 		delete mLightState[i];
 	}
 	mLightState.clear();
-	mBuffer = NULL ;
+    resetVertexBuffer();
 }
 
 void LLRender::refreshState(void)
@@ -1625,25 +1637,34 @@ void LLRender::flush()
 
 		mCount = 0;
 
-		if (mBuffer->useVBOs() && !mBuffer->isLocked())
-		{ //hack to only flush the part of the buffer that was updated (relies on stream draw using buffersubdata)
-			mBuffer->getVertexStrider(mVerticesp, 0, count);
-			mBuffer->getTexCoord0Strider(mTexcoordsp, 0, count);
-			mBuffer->getColorStrider(mColorsp, 0, count);
-		}
-		
-		mBuffer->flush();
-		mBuffer->setBuffer(immediate_mask);
+        if (mBuffer)
+        {
+            if (mBuffer->useVBOs() && !mBuffer->isLocked())
+            { //hack to only flush the part of the buffer that was updated (relies on stream draw using buffersubdata)
+                mBuffer->getVertexStrider(mVerticesp, 0, count);
+                mBuffer->getTexCoord0Strider(mTexcoordsp, 0, count);
+                mBuffer->getColorStrider(mColorsp, 0, count);
+            }
 
-		if (mMode == LLRender::QUADS && sGLCoreProfile)
-		{
-			mBuffer->drawArrays(LLRender::TRIANGLES, 0, count);
-			mQuadCycle = 1;
-		}
-		else
-		{
-			mBuffer->drawArrays(mMode, 0, count);
-		}
+            mBuffer->flush();
+            mBuffer->setBuffer(immediate_mask);
+
+            if (mMode == LLRender::QUADS && sGLCoreProfile)
+            {
+                mBuffer->drawArrays(LLRender::TRIANGLES, 0, count);
+                mQuadCycle = 1;
+            }
+            else
+            {
+                mBuffer->drawArrays(mMode, 0, count);
+            }
+        }
+        else
+        {
+            // mBuffer is present in main thread and not present in an image thread
+            LL_ERRS() << "A flush call from outside main rendering thread" << LL_ENDL;
+        }
+
 		
 		mVerticesp[0] = mVerticesp[count];
 		mTexcoordsp[0] = mTexcoordsp[count];
