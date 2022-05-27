@@ -1214,6 +1214,7 @@ F32 LLSurface::getWaterHeight() const
 BOOL LLSurface::generateWaterTexture(const F32 x, const F32 y,
 									 const F32 width, const F32 height)
 {
+	LL_PROFILE_ZONE_SCOPED
 	if (!getWaterTexture())
 	{
 		return FALSE;

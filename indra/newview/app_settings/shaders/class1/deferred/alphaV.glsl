@@ -105,9 +105,9 @@ void main()
 	vec4 vert = vec4(position.xyz, 1.0);
 	pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
-#endif
+#endif //IS_AVATAR_SKIN
 	
-#endif
+#endif // HAS_SKIN
 
 #ifdef USE_INDEXED_TEX
 	passTextureIndex();

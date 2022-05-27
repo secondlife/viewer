@@ -113,6 +113,10 @@ LLComboBox::LLComboBox(const LLComboBox::Params& p)
 	}
 
 	mArrowImage = button_params.image_unselected;
+    if (mArrowImage.notNull())
+    {
+        mImageLoadedConnection = mArrowImage->addLoadedCallback(boost::bind(&LLComboBox::imageLoaded, this));
+    }
 
 	mButton = LLUICtrlFactory::create<LLButton>(button_params);
 
@@ -183,6 +187,7 @@ LLComboBox::~LLComboBox()
 
 	// explicitly disconect this signal, since base class destructor might fire top lost
 	mTopLostSignalConnection.disconnect();
+    mImageLoadedConnection.disconnect();
 }
 
 
@@ -1071,6 +1076,30 @@ void LLComboBox::onSetHighlight() const
     if (mButton)
     {
         mButton->ll::ui::SearchableControl::setHighlighted(ll::ui::SearchableControl::getHighlighted());
+    }
+}
+
+void LLComboBox::imageLoaded()
+{
+    static LLUICachedControl<S32> drop_shadow_button("DropShadowButton", 0);
+
+    if (mAllowTextEntry)
+    {
+        LLRect rect = getLocalRect();
+        S32 arrow_width = mArrowImage ? mArrowImage->getWidth() : 0;
+        S32 shadow_size = drop_shadow_button;
+        mButton->setRect(LLRect(getRect().getWidth() - llmax(8, arrow_width) - 2 * shadow_size,
+            rect.mTop, rect.mRight, rect.mBottom));
+        if (mButton->getVisible())
+        {
+            // recalculate field size
+            if (mTextEntry)
+            {
+                LLRect text_entry_rect(0, getRect().getHeight(), getRect().getWidth(), 0);
+                text_entry_rect.mRight -= llmax(8, arrow_width) + 2 * drop_shadow_button;
+                mTextEntry->reshape(text_entry_rect.getWidth(), text_entry_rect.getHeight(), TRUE);
+            }
+        }
     }
 }
 

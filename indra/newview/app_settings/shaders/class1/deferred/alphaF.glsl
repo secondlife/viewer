@@ -56,6 +56,10 @@ VARYING vec3 vary_norm;
 VARYING vec4 vertex_color; //vertex color should be treated as sRGB
 #endif
 
+#ifdef HAS_ALPHA_MASK
+uniform float minimum_alpha;
+#endif
+
 uniform mat4 proj_mat;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
@@ -86,6 +90,14 @@ float getAmbientClamp();
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
+    // SL-14895 inverted attenuation work-around
+    // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
+    // that previous value now that the inversion is corrected, we reverse the calculations in LLPipeline::setupHWLights()
+    // to recover the `adjusted_radius` value previously being sent as la.
+    float falloff_factor = (12.0 * fa) - 9.0;
+    float inverted_la = falloff_factor / la;
+    // Yes, it makes me want to cry as well. DJH
+    
     vec3 col = vec3(0);
 
 	//get light vector
@@ -95,7 +107,7 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
 	float dist = length(lv);
 	float da = 1.0;
 
-    /*if (dist > la)
+    /*if (dist > inverted_la)
     {
         return col;
     }
@@ -113,9 +125,9 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec
         return col;
     }*/
 
-	if (dist > 0.0 && la > 0.0)
+	if (dist > 0.0 && inverted_la > 0.0)
 	{
-        dist /= la;
+        dist /= inverted_la;
 
 		//normalize light vector
 		lv = normalize(lv);
@@ -183,7 +195,6 @@ void main()
 #endif
 
     vec4 diffuse_srgb = diffuse_tap;
-    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
 
 #ifdef FOR_IMPOSTOR
     vec4 color;
@@ -192,25 +203,37 @@ void main()
 
     float final_alpha = diffuse_srgb.a * vertex_color.a;
     diffuse_srgb.rgb *= vertex_color.rgb;
-    diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb); 
     
     // Insure we don't pollute depth with invis pixels in impostor rendering
     //
-    if (final_alpha < 0.01)
+    if (final_alpha < minimum_alpha)
     {
         discard;
     }
-#else
-    
+
+    color.rgb = diffuse_srgb.rgb;
+    color.a = final_alpha;
+
+#else // FOR_IMPOSTOR
+
+    vec4 diffuse_linear = vec4(srgb_to_linear(diffuse_srgb.rgb), diffuse_srgb.a);
+
     vec3 light_dir = (sun_up_factor == 1) ? sun_dir: moon_dir;
 
     float final_alpha = diffuse_linear.a;
 
 #ifdef USE_VERTEX_COLOR
     final_alpha *= vertex_color.a;
+
+    if (final_alpha < minimum_alpha)
+    { // TODO: figure out how to get invisible faces out of 
+        // render batches without breaking glow
+        discard;
+    }
+
     diffuse_srgb.rgb *= vertex_color.rgb;
     diffuse_linear.rgb = srgb_to_linear(diffuse_srgb.rgb);
-#endif
+#endif // USE_VERTEX_COLOR
 
     vec3 sunlit;
     vec3 amblit;
@@ -242,13 +265,13 @@ void main()
 #if !defined(AMBIENT_KILL)
     color.rgb = amblit;
     color.rgb *= ambient;
-#endif
+#endif // !defined(AMBIENT_KILL)
 
 vec3 post_ambient = color.rgb;
 
 #if !defined(SUNLIGHT_KILL)
     color.rgb += sun_contrib;
-#endif
+#endif // !defined(SUNLIGHT_KILL)
 
 vec3 post_sunlight = color.rgb;
 
@@ -280,7 +303,7 @@ vec3 post_atmo = color.rgb;
     // sum local light contrib in linear colorspace
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
-#endif
+#endif // !defined(LOCAL_LIGHT_KILL)
     // back to sRGB as we're going directly to the final RT post-deferred gamma correction
     color.rgb = linear_to_srgb(color.rgb);
 
@@ -299,8 +322,8 @@ vec3 post_atmo = color.rgb;
     color = applyWaterFogView(pos.xyz, color);
 #endif // WATER_FOG
 
-#endif
-    
+#endif // #else // FOR_IMPOSTOR
+
     frag_color = color;
 }
 

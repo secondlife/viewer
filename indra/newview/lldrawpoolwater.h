@@ -78,8 +78,7 @@ public:
 	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderReflection(LLFace* face);
-	void shade();
-    void shade2(bool edge, LLGLSLShader* shader, const LLColor3& light_diffuse, const LLVector3& light_dir, F32 light_exp);
+	void renderWater();
 
     void setTransparentTextures(const LLUUID& transparentTextureId, const LLUUID& nextTransparentTextureId);
     void setOpaqueTexture(const LLUUID& opaqueTextureId);

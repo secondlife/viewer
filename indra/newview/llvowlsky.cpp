@@ -36,8 +36,8 @@
 #include "llenvironment.h"
 #include "llsettingssky.h"
 
-static const U32 MIN_SKY_DETAIL = 8;
-static const U32 MAX_SKY_DETAIL = 180;
+constexpr U32 MIN_SKY_DETAIL = 8;
+constexpr U32 MAX_SKY_DETAIL = 180;
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
@@ -97,13 +97,14 @@ LLDrawable * LLVOWLSky::createDrawable(LLPipeline * pipeline)
 	return mDrawable;
 }
 
-inline F32 LLVOWLSky::calcPhi(U32 i)
+// a tiny helper function for controlling the sky dome tesselation.
+inline F32 calcPhi(const U32 &i, const F32 &reciprocal_num_stacks)
 {
     // Calc: PI/8 * 1-((1-t^4)*(1-t^4))  { 0<t<1 }
     // Demos: \pi/8*\left(1-((1-x^{4})*(1-x^{4}))\right)\ \left\{0<x\le1\right\}
 
 	// i should range from [0..SKY_STACKS] so t will range from [0.f .. 1.f]
-	F32 t = float(i) / float(getNumStacks());
+	F32 t = float(i) * reciprocal_num_stacks; //SL-16127: remove: / float(getNumStacks());
 
 	// ^4 the parameter of the tesselation to bias things toward 0 (the dome's apex)
 	t *= t;
@@ -141,11 +142,9 @@ void LLVOWLSky::restoreGL()
 	gPipeline.markRebuild(mDrawable, LLDrawable::REBUILD_ALL, TRUE);
 }
 
-static LLTrace::BlockTimerStatHandle FTM_GEO_SKY("Windlight Sky Geometry");
-
 BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 {
-    LL_RECORD_BLOCK_TIME(FTM_GEO_SKY);
+    LL_PROFILE_ZONE_SCOPED;
 	LLStrider<LLVector3>	vertices;
 	LLStrider<LLVector2>	texCoords;
 	LLStrider<U16>			indices;
@@ -189,6 +188,8 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
     }
 
 	{
+        const F32 dome_radius = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
+
 		const U32 max_buffer_bytes = gSavedSettings.getS32("RenderMaxVBOSize")*1024;
 		const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
 		const U32 max_verts = max_buffer_bytes / LLVertexBuffer::calcVertexSize(data_mask);
@@ -204,12 +205,14 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 		// round up to a whole number of segments
 		const U32 strips_segments = (total_stacks+stacks_per_seg-1) / stacks_per_seg;
 
-		LL_INFOS() << "WL Skydome strips in " << strips_segments << " batches." << LL_ENDL;
-
 		mStripsVerts.resize(strips_segments, NULL);
+
+#if RELEASE_SHOW_DEBUG
+		LL_INFOS() << "WL Skydome strips in " << strips_segments << " batches." << LL_ENDL;
 
 		LLTimer timer;
 		timer.start();
+#endif
 
 		for (U32 i = 0; i < strips_segments ;++i)
 		{
@@ -234,34 +237,42 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 			const U32 num_indices_this_seg = 1+num_stacks_this_seg*(2+2*verts_per_stack);
 			llassert(num_indices_this_seg * sizeof(U16) <= max_buffer_bytes);
 
-			if (!segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg, TRUE))
+			bool allocated = segment->allocateBuffer(num_verts_this_seg, num_indices_this_seg, TRUE);
+#if RELEASE_SHOW_WARNS
+			if( !allocated )
 			{
 				LL_WARNS() << "Failed to allocate Vertex Buffer on update to "
 					<< num_verts_this_seg << " vertices and "
 					<< num_indices_this_seg << " indices" << LL_ENDL;
 			}
+#else
+			(void) allocated;
+#endif
 
 			// lock the buffer
 			BOOL success = segment->getVertexStrider(vertices)
 				&& segment->getTexCoord0Strider(texCoords)
 				&& segment->getIndexStrider(indices);
 
-			if(!success) 
+#if RELEASE_SHOW_DEBUG
+			if(!success)
 			{
 				LL_ERRS() << "Failed updating WindLight sky geometry." << LL_ENDL;
 			}
-
-            U32 vertex_count = 0;
-            U32 index_count  = 0;
+#else
+			(void) success;
+#endif
 
 			// fill it
-			buildStripsBuffer(begin_stack, end_stack, vertex_count, index_count, vertices, texCoords, indices);
+			buildStripsBuffer(begin_stack, end_stack, vertices, texCoords, indices, dome_radius, verts_per_stack, total_stacks);
 
 			// and unlock the buffer
 			segment->flush();
 		}
 	
+#if RELEASE_SHOW_DEBUG
 		LL_INFOS() << "completed in " << llformat("%.2f", timer.getElapsedTimeF32().value()) << "seconds" << LL_ENDL;
+#endif
 	}
 
 	updateStarColors();
@@ -366,23 +377,16 @@ void LLVOWLSky::initStars()
 
 void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
                                   U32 end_stack,
-                                  U32& vertex_count,
-                                  U32& index_count,
-								  LLStrider<LLVector3> & vertices,
-								  LLStrider<LLVector2> & texCoords,
-								  LLStrider<U16> & indices)
+                                  LLStrider<LLVector3> & vertices,
+                                  LLStrider<LLVector2> & texCoords,
+                                  LLStrider<U16> & indices,
+                                  const F32 dome_radius,
+                                  const U32& num_slices,
+                                  const U32& num_stacks)
 {
-    const F32 RADIUS = LLEnvironment::instance().getCurrentSky()->getDomeRadius();
-
-	U32 i, j, num_slices, num_stacks;
+	U32 i, j;
 	F32 phi0, theta, x0, y0, z0;
-
-	// paranoia checking for SL-55986/SL-55833
-	U32 count_verts = 0;
-	U32 count_indices = 0;
-
-	num_slices = getNumSlices();
-	num_stacks = getNumStacks();
+	const F32 reciprocal_num_stacks = 1.f / num_stacks;
 
 	llassert(end_stack <= num_stacks);
 
@@ -393,7 +397,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
     for(i = begin_stack + 1; i <= end_stack+1; ++i) 
 #endif
 	{
-		phi0 = calcPhi(i);
+		phi0 = calcPhi(i, reciprocal_num_stacks);
 
 		for(j = 0; j < num_slices; ++j)
 		{
@@ -406,23 +410,21 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 			z0 = sin(phi0) * sin(theta);
 
 #if NEW_TESS
-            *vertices++ = LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
+            *vertices++ = LLVector3(x0 * dome_radius, y0 * dome_radius, z0 * dome_radius);
 #else
             if (i == num_stacks-2)
 			{
-				*vertices++ = LLVector3(x0*RADIUS, y0*RADIUS-1024.f*2.f, z0*RADIUS);
+				*vertices++ = LLVector3(x0*dome_radius, y0*dome_radius-1024.f*2.f, z0*dome_radius);
 			}
 			else if (i == num_stacks-1)
 			{
-				*vertices++ = LLVector3(0, y0*RADIUS-1024.f*2.f, 0);
+				*vertices++ = LLVector3(0, y0*dome_radius-1024.f*2.f, 0);
 			}
 			else
 			{
-				*vertices++		= LLVector3(x0 * RADIUS, y0 * RADIUS, z0 * RADIUS);
+				*vertices++		= LLVector3(x0 * dome_radius, y0 * dome_radius, z0 * dome_radius);
 			}
 #endif
-
-			++count_verts;
 
 			// generate planar uv coordinates
 			// note: x and z are transposed in order for things to animate
@@ -434,20 +436,17 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 
 	//build triangle strip...
 	*indices++ = 0 ;
-	count_indices++ ;
+
 	S32 k = 0 ;
 	for(i = 1; i <= end_stack - begin_stack; ++i) 
 	{
 		*indices++ = i * num_slices + k ;
-		count_indices++ ;
 
 		k = (k+1) % num_slices ;
 		for(j = 0; j < num_slices ; ++j) 
 		{
 			*indices++ = (i-1) * num_slices + k ;
 			*indices++ = i * num_slices + k ;
-
-			count_indices += 2 ;
 
 			k = (k+1) % num_slices ;
 		}
@@ -458,11 +457,7 @@ void LLVOWLSky::buildStripsBuffer(U32 begin_stack,
 		}
 
 		*indices++ = i * num_slices + k ;
-		count_indices++ ;
 	}
-
-    vertex_count = count_verts;
-    index_count = count_indices;
 }
 
 void LLVOWLSky::updateStarColors()

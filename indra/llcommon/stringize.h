@@ -31,58 +31,109 @@
 
 #include <sstream>
 #include <llstring.h>
+#include <boost/call_traits.hpp>
 
 /**
- * gstringize(item) encapsulates an idiom we use constantly, using
- * operator<<(std::ostringstream&, TYPE) followed by std::ostringstream::str()
- * or their wstring equivalents
- * to render a string expressing some item.
+ * stream_to(std::ostream&, items, ...) streams each item in the parameter list
+ * to the passed std::ostream using the insertion operator <<. This can be
+ * used, for instance, to make a simple print() function, e.g.:
+ *
+ * @code
+ * template <typename... Items>
+ * void print(Items&&... items)
+ * {
+ *     stream_to(std::cout, std::forward<Items>(items)...);
+ * }
+ * @endcode
  */
-template <typename CHARTYPE, typename T>
-std::basic_string<CHARTYPE> gstringize(const T& item)
+// recursion tail
+template <typename CHARTYPE>
+void stream_to(std::basic_ostream<CHARTYPE>& out) {}
+// stream one or more items
+template <typename CHARTYPE, typename T, typename... Items>
+void stream_to(std::basic_ostream<CHARTYPE>& out, T&& item, Items&&... items)
+{
+    out << std::forward<T>(item);
+    stream_to(out, std::forward<Items>(items)...);
+}
+
+// why we use function overloads, not function template specializations:
+// http://www.gotw.ca/publications/mill17.htm
+
+/**
+ * gstringize(item, ...) encapsulates an idiom we use constantly, using
+ * operator<<(std::ostringstream&, TYPE) followed by std::ostringstream::str()
+ * or their wstring equivalents to render a string expressing one or more items.
+ */
+// two or more args - the case of a single argument is handled separately
+template <typename CHARTYPE, typename T0, typename T1, typename... Items>
+auto gstringize(T0&& item0, T1&& item1, Items&&... items)
 {
     std::basic_ostringstream<CHARTYPE> out;
-    out << item;
+    stream_to(out, std::forward<T0>(item0), std::forward<T1>(item1),
+              std::forward<Items>(items)...);
     return out.str();
 }
 
-/**
- *partial specialization of stringize for handling wstring
- *TODO: we should have similar specializations for wchar_t[] but not until it is needed.
- */
-inline std::string stringize(const std::wstring& item)
+// generic single argument: stream to out, as above
+template <typename CHARTYPE, typename T>
+struct gstringize_impl
 {
-    return wstring_to_utf8str(item);
+    auto operator()(typename boost::call_traits<T>::param_type arg)
+    {
+        std::basic_ostringstream<CHARTYPE> out;
+        out << arg;
+        return out.str();
+    }
+};
+
+// partially specialize for a single STRING argument -
+// note that ll_convert<T>(T) already handles the trivial case
+template <typename OUTCHAR, typename INCHAR>
+struct gstringize_impl<OUTCHAR, std::basic_string<INCHAR>>
+{
+    auto operator()(const std::basic_string<INCHAR>& arg)
+    {
+        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+    }
+};
+
+// partially specialize for a single CHARTYPE* argument -
+// since it's not a basic_string and we do want to optimize this common case
+template <typename OUTCHAR, typename INCHAR>
+struct gstringize_impl<OUTCHAR, INCHAR*>
+{
+    auto operator()(const INCHAR* arg)
+    {
+        return ll_convert<std::basic_string<OUTCHAR>>(arg);
+    }
+};
+
+// gstringize(single argument)
+template <typename CHARTYPE, typename T>
+auto gstringize(T&& item)
+{
+    // use decay<T> so we don't require separate specializations
+    // for T, const T, T&, const T& ...
+    return gstringize_impl<CHARTYPE, std::decay_t<T>>()(std::forward<T>(item));
 }
 
 /**
  * Specialization of gstringize for std::string return types
  */
-template <typename T>
-std::string stringize(const T& item)
+template <typename... Items>
+auto stringize(Items&&... items)
 {
-    return gstringize<char>(item);
-}
-
-/**
- * Specialization for generating wstring from string.
- * Both a convenience function and saves a miniscule amount of overhead.
- */
-inline std::wstring wstringize(const std::string& item)
-{
-    // utf8str_to_wstring() returns LLWString, which isn't necessarily the
-    // same as std::wstring
-    LLWString s(utf8str_to_wstring(item));
-    return std::wstring(s.begin(), s.end());
+    return gstringize<char>(std::forward<Items>(items)...);
 }
 
 /**
  * Specialization of gstringize for std::wstring return types
  */
-template <typename T>
-std::wstring wstringize(const T& item)
+template <typename... Items>
+auto wstringize(Items&&... items)
 {
-    return gstringize<wchar_t>(item);
+    return gstringize<wchar_t>(std::forward<Items>(items)...);
 }
 
 /**
@@ -146,11 +197,9 @@ void destringize_f(std::basic_string<CHARTYPE> const & str, Functor const & f)
  * std::istringstream in(str);
  * in >> item1 >> item2 >> item3 ... ;
  * @endcode
- * @NOTE - once we get generic lambdas, we shouldn't need DEWSTRINGIZE() any
- * more since DESTRINGIZE() should do the right thing with a std::wstring. But
- * until then, the lambda we pass must accept the right std::basic_istream.
  */
-#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](std::istream& in){in >> EXPRESSION;}))
-#define DEWSTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](std::wistream& in){in >> EXPRESSION;}))
+#define DESTRINGIZE(STR, EXPRESSION) (destringize_f((STR), [&](auto& in){in >> EXPRESSION;}))
+// legacy name, just use DESTRINGIZE() going forward
+#define DEWSTRINGIZE(STR, EXPRESSION) DESTRINGIZE(STR, EXPRESSION)
 
 #endif /* ! defined(LL_STRINGIZE_H) */

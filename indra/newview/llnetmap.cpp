@@ -147,6 +147,11 @@ void LLNetMap::setScale( F32 scale )
 
 void LLNetMap::draw()
 {
+    if (!LLWorld::instanceExists())
+    {
+        return;
+    }
+    LL_PROFILE_ZONE_SCOPED;
  	static LLFrameTimer map_timer;
 	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
 	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
@@ -258,7 +263,7 @@ void LLNetMap::draw()
 			gGL.end();
 
 			// Draw water
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
+            gGL.flush();
 			{
 				if (regionp->getLand().getWaterTexture())
 				{
@@ -275,7 +280,7 @@ void LLNetMap::draw()
 					gGL.end();
 				}
 			}
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            gGL.flush();
 		}
 
 		// Redraw object layer periodically

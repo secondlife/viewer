@@ -36,6 +36,26 @@ class LLMatrix4a
 public:
 	LL_ALIGN_16(LLVector4a mMatrix[4]);
 
+    LLMatrix4a()
+    {
+
+    }
+
+    explicit LLMatrix4a(const LLMatrix4& val)
+    {
+        loadu(val);
+    }
+
+    inline F32* getF32ptr()
+    {
+        return (F32*) &mMatrix;
+    }
+
+    inline const F32* getF32ptr() const
+    {
+        return (F32*)&mMatrix;
+    }
+
 	inline void clear()
 	{
 		mMatrix[0].clear();
@@ -44,14 +64,29 @@ public:
 		mMatrix[3].clear();
 	}
 
+    inline void setIdentity()
+    {
+        mMatrix[0].set(1.f, 0.f, 0.f, 0.f);
+        mMatrix[1].set(0.f, 1.f, 0.f, 0.f);
+        mMatrix[2].set(0.f, 0.f, 1.f, 0.f);
+        mMatrix[3].set(0.f, 0.f, 0.f, 1.f);
+    }
+
 	inline void loadu(const LLMatrix4& src)
 	{
 		mMatrix[0] = _mm_loadu_ps(src.mMatrix[0]);
 		mMatrix[1] = _mm_loadu_ps(src.mMatrix[1]);
 		mMatrix[2] = _mm_loadu_ps(src.mMatrix[2]);
 		mMatrix[3] = _mm_loadu_ps(src.mMatrix[3]);
-		
 	}
+    
+    inline void loadu(const F32* src)
+    {
+        mMatrix[0] = _mm_loadu_ps(src);
+        mMatrix[1] = _mm_loadu_ps(src+4);
+        mMatrix[2] = _mm_loadu_ps(src+8);
+        mMatrix[3] = _mm_loadu_ps(src+12);
+    }
 
 	inline void loadu(const LLMatrix3& src)
 	{
@@ -105,7 +140,7 @@ public:
 		mMatrix[3].setAdd(a.mMatrix[3],d3);
 	}
 
-	inline void rotate(const LLVector4a& v, LLVector4a& res)
+	inline void rotate(const LLVector4a& v, LLVector4a& res) const
 	{
 		LLVector4a y,z;
 
@@ -151,6 +186,8 @@ public:
     {
         affineTransformSSE(v,res);
     }
+
+    const LLVector4a& getTranslation() const { return mMatrix[3]; }
 };
 
 inline LLVector4a rowMul(const LLVector4a &row, const LLMatrix4a &mat)
@@ -174,6 +211,15 @@ inline void matMul(const LLMatrix4a &a, const LLMatrix4a &b, LLMatrix4a &res)
     res.mMatrix[1] = row1;
     res.mMatrix[2] = row2;
     res.mMatrix[3] = row3;
+}
+
+//Faster version of matMul wehere res must not be a or b
+inline void matMulUnsafe(const LLMatrix4a &a, const LLMatrix4a &b, LLMatrix4a &res)
+{
+    res.mMatrix[0] = rowMul(a.mMatrix[0], b);
+    res.mMatrix[1] = rowMul(a.mMatrix[1], b);
+    res.mMatrix[2] = rowMul(a.mMatrix[2], b);
+    res.mMatrix[3] = rowMul(a.mMatrix[3], b);
 }
 
 inline std::ostream& operator<<(std::ostream& s, const LLMatrix4a& m)
