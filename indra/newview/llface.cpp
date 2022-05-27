@@ -1541,7 +1541,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		!rebuild_weights && //TODO: add support for weights
 		!volume.isUnique()) //source volume is NOT flexi
 	{ //use transform feedback to pack vertex buffer
-		//gGLDebugLoggingEnabled = TRUE;
 
         LL_PROFILE_ZONE_NAMED_CATEGORY_FACE("getGeometryVolume - transform feedback");
 		LLGLEnable discard(GL_RASTERIZER_DISCARD);
