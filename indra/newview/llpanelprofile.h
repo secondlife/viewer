@@ -147,8 +147,6 @@ protected:
                               BOOL final,
                               void* userdata);
 
-	bool isGrantedToSeeOnlineStatus();
-
 	/**
 	 * Displays avatar's online status if possible.
 	 *
@@ -162,7 +160,7 @@ protected:
 	 *	- Else: Offline
 	 */
 	void updateOnlineStatus();
-	void processOnlineStatus(bool online);
+	void processOnlineStatus(bool show_online, bool online);
 
 private:
     /*virtual*/ void setLoaded();

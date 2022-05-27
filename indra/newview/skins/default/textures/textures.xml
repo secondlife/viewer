@@ -510,6 +510,8 @@ with the same filename but different name
   <texture name="Profile_Group_Visibility_Off_Pressed" file_name="icons/profile_group_visibility_eye_off_pressed.png" preload="true"/>
   <texture name="Profile_Group_Visibility_On" file_name="icons/profile_group_visibility_eye_on.png" preload="true"/>
   <texture name="Profile_Group_Visibility_On_Pressed" file_name="icons/profile_group_visibility_eye_on_pressed.png" preload="true"/>
+  <texture name="Profile_Friend_Offline" file_name="icons/Profile_Friend_Offline.png" preload="true"/>
+  <texture name="Profile_Friend_Online" file_name="icons/Profile_Friend_Online.png" preload="true"/>
   <texture name="Profile_Perm_Find_Disabled" file_name="icons/Profile_Perm_Find_Disabled.png" preload="true"/>
   <texture name="Profile_Perm_Find_Enabled" file_name="icons/Profile_Perm_Find_Enabled.png" preload="true"/>
   <texture name="Profile_Perm_Objects_Disabled" file_name="icons/Profile_Perm_Objects_Disabled.png" preload="true"/>

@@ -946,12 +946,13 @@ void LLPanelProfileSecondLife::resetData()
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
 {
     LLUUID avatar_id = getAvatarId();
-    if (!LLAvatarActions::isFriend(avatar_id) && !getSelfProfile())
+    const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
+    if (relationship != NULL && !getSelfProfile())
     {
         // subscribe observer to get online status. Request will be sent by LLPanelProfileSecondLife itself.
         // do not subscribe for friend avatar because online status can be wrong overridden
         // via LLAvatarData::flags if Preferences: "Only Friends & Groups can see when I am online" is set.
-        processOnlineStatus(avatar_data->flags & AVATAR_ONLINE);
+        processOnlineStatus(relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS), avatar_data->flags & AVATAR_ONLINE);
     }
 
     fillCommonData(avatar_data);
@@ -1141,6 +1142,10 @@ void LLPanelProfileSecondLife::fillRightsData()
     }
 
     childSetVisible("permissions_panel", NULL != relation);
+    childSetVisible("spacer_layout", NULL == relation);
+    childSetVisible("frind_layout", NULL != relation);
+    childSetVisible("online_layout", false);
+    childSetVisible("offline_layout", false);
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
@@ -1188,10 +1193,7 @@ void LLPanelProfileSecondLife::onImageLoaded(BOOL success,
 // virtual, called by LLAvatarTracker
 void LLPanelProfileSecondLife::changed(U32 mask)
 {
-    if (mask & LLFriendObserver::ONLINE)
-    {
-        updateOnlineStatus();
-    }
+    updateOnlineStatus();
     if (mask != LLFriendObserver::ONLINE)
     {
         fillRightsData();
@@ -1227,35 +1229,32 @@ void LLPanelProfileSecondLife::setAvatarId(const LLUUID& avatar_id)
     }
 }
 
-bool LLPanelProfileSecondLife::isGrantedToSeeOnlineStatus()
-{
-    // set text box visible to show online status for non-friends who has not set in Preferences
-    // "Only Friends & Groups can see when I am online"
-    if (!LLAvatarActions::isFriend(getAvatarId()))
-    {
-        return true;
-    }
-
-    // *NOTE: GRANT_ONLINE_STATUS is always set to false while changing any other status.
-    // When avatar disallow me to see her online status processOfflineNotification Message is received by the viewer
-    // see comments for ChangeUserRights template message. EXT-453.
-    // If GRANT_ONLINE_STATUS flag is changed it will be applied when viewer restarts. EXT-3880
-    const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    return relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
-}
-
 // method was disabled according to EXT-2022. Re-enabled & improved according to EXT-3880
 void LLPanelProfileSecondLife::updateOnlineStatus()
 {
-    if (!LLAvatarActions::isFriend(getAvatarId())) return;
-    // For friend let check if he allowed me to see his status
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    bool online = relationship->isOnline();
-    processOnlineStatus(online);
+    if (relationship != NULL)
+    {
+        // For friend let check if he allowed me to see his status
+        bool online = relationship->isOnline();
+        bool perm_granted = relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
+        processOnlineStatus(perm_granted, online);
+    }
+    else
+    {
+        childSetVisible("spacer_layout", true);
+        childSetVisible("frind_layout", false);
+        childSetVisible("online_layout", false);
+        childSetVisible("offline_layout", false);
+    }
 }
 
-void LLPanelProfileSecondLife::processOnlineStatus(bool online)
+void LLPanelProfileSecondLife::processOnlineStatus(bool show_online, bool online)
 {
+    childSetVisible("spacer_layout", false);
+    childSetVisible("frind_layout", true);
+    childSetVisible("online_layout", online && show_online);
+    childSetVisible("offline_layout", !online && show_online);
 }
 
 void LLPanelProfileSecondLife::setLoaded()
