@@ -788,10 +788,7 @@ BOOL LLVolumeImplFlexible::doUpdateGeometry(LLDrawable *drawable)
 
 	volume->updateRelativeXform();
 
-	if (mRenderRes > -1)
-	{
-		doFlexibleUpdate();
-	}
+	doFlexibleUpdate();
 	
 	// Object may have been rotated, which means it needs a rebuild.  See SL-47220
 	BOOL	rotated = FALSE;
