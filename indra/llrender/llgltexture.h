@@ -124,13 +124,22 @@ public:
 	BOOL       hasGLTexture() const ;
 	LLGLuint   getTexName() const ;		
 	BOOL       createGLTexture() ;
-	BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLGLTexture::OTHER);
+	
+    // Create a GL Texture from an image raw
+    // discard_level - mip level, 0 for highest resultion mip
+    // imageraw - the image to copy from
+    // usename - explicit GL name override
+    // to_create - set to FALSE to force gl texture to not be created
+    // category - LLGLTexture category for this LLGLTexture
+    // defer_copy - set to true to allocate GL texture but NOT initialize with imageraw data
+    // tex_name - if not null, will be set to the GL name of the texture created
+    BOOL       createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S32 usename = 0, BOOL to_create = TRUE, S32 category = LLGLTexture::OTHER, bool defer_copy = false, LLGLuint* tex_name = nullptr);
 
 	void       setFilteringOption(LLTexUnit::eTextureFilterOptions option);
 	void       setExplicitFormat(LLGLint internal_format, LLGLenum primary_format, LLGLenum type_format = 0, BOOL swap_bytes = FALSE);
 	void       setAddressMode(LLTexUnit::eTextureAddressMode mode);
-	BOOL       setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height);
-	BOOL       setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height);
+	BOOL       setSubImage(const LLImageRaw* imageraw, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
+	BOOL       setSubImage(const U8* datap, S32 data_width, S32 data_height, S32 x_pos, S32 y_pos, S32 width, S32 height, LLGLuint use_name = 0);
 	void       setGLTextureCreated (bool initialized);
 	void       setCategory(S32 category) ;
     void       setTexName(LLGLuint); // for forcing w/ externally created textures only
@@ -176,7 +185,7 @@ private:
 protected:
 	void setTexelsPerImage();
 
-	//note: do not make this function public.
+public:
 	/*virtual*/ LLImageGL* getGLTexture() const ;
 
 protected:

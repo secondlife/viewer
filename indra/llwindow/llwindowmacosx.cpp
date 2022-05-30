@@ -111,7 +111,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 							   const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							   S32 height, U32 flags,
 							   BOOL fullscreen, BOOL clearBg,
-							   BOOL disable_vsync, BOOL use_gl,
+							   BOOL enable_vsync, BOOL use_gl,
 							   BOOL ignore_pixel_depth,
 							   U32 fsaa_samples)
 	: LLWindow(NULL, fullscreen, flags)
@@ -165,7 +165,7 @@ LLWindowMacOSX::LLWindowMacOSX(LLWindowCallbacks* callbacks,
 	// Stash an object pointer for OSMessageBox()
 	gWindowImplementation = this;
 	// Create the GL context and set it up for windowed or fullscreen, as appropriate.
-	if(createContext(x, y, width, height, 32, fullscreen, disable_vsync))
+	if(createContext(x, y, width, height, 32, fullscreen, enable_vsync))
 	{
 		if(mWindow != NULL)
 		{
@@ -619,7 +619,7 @@ void LLWindowMacOSX::getMouseDeltas(float* delta)
 	delta[1] = mCursorLastEventDeltaY;
 }
 
-BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL disable_vsync)
+BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits, BOOL fullscreen, BOOL enable_vsync)
 {
 	BOOL			glNeedsInit = FALSE;
 
@@ -634,7 +634,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	{
 		// Our OpenGL view is already defined within SecondLife.xib.
 		// Get the view instead.
-		mGLView = createOpenGLView(mWindow, mFSAASamples, !disable_vsync);
+		mGLView = createOpenGLView(mWindow, mFSAASamples, enable_vsync);
 		mContext = getCGLContextObj(mGLView);
 		
 		// Since we just created the context, it needs to be set up.
@@ -661,17 +661,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	}
 
 	// Disable vertical sync for swap
-	GLint frames_per_swap = 0;
-	if (disable_vsync)
-	{
-		frames_per_swap = 0;
-	}
-	else
-	{
-		frames_per_swap = 1;
-	}
-	
-	CGLSetParameter(mContext, kCGLCPSwapInterval, &frames_per_swap);
+    toggleVSync(enable_vsync);
 
 	//enable multi-threaded OpenGL
 	if (sUseMultGL)
@@ -698,7 +688,7 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 
 // We only support OS X 10.7's fullscreen app mode which is literally a full screen window that fills a virtual desktop.
 // This makes this method obsolete.
-BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp)
+BOOL LLWindowMacOSX::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL enable_vsync, const LLCoordScreen * const posp)
 {
 	return FALSE;
 }
@@ -1918,6 +1908,49 @@ void LLWindowMacOSX::allowLanguageTextInput(LLPreeditor *preeditor, BOOL b)
 	}
 	mLanguageTextInputAllowed = b;
     allowDirectMarkedTextInput(b, mGLView); // mLanguageTextInputAllowed and mMarkedTextAllowed should be updated at once (by Pell Smit
+}
+
+class sharedContext 
+{
+public:
+    CGLContextObj mContext;
+};
+
+void* LLWindowMacOSX::createSharedContext()
+{
+    sharedContext* sc = new sharedContext();
+    CGLCreateContext(mPixelFormat, mContext, &(sc->mContext));
+
+    return (void *)sc;
+}
+
+void LLWindowMacOSX::makeContextCurrent(void* context)
+{
+    CGLSetCurrentContext(((sharedContext*)context)->mContext);
+}
+
+void LLWindowMacOSX::destroySharedContext(void* context)
+{
+    sharedContext* sc = (sharedContext*)context;
+
+    CGLDestroyContext(sc->mContext);
+
+    delete sc;
+}
+
+void LLWindowMacOSX::toggleVSync(bool enable_vsync)
+{
+    GLint frames_per_swap = 0;
+    if (!enable_vsync)
+    {
+        frames_per_swap = 0;
+    }
+    else
+    {
+        frames_per_swap = 1;
+    }
+    
+    CGLSetParameter(mContext, kCGLCPSwapInterval, &frames_per_swap);
 }
 
 void LLWindowMacOSX::interruptLanguageTextInput()

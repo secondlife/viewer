@@ -38,7 +38,10 @@
 #define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
 
+// NOTE: Also see llprofiler.h
+#if !defined(LL_PROFILER_CONFIGURATION)
 #define LL_RECORD_BLOCK_TIME(timer_stat) const LLTrace::BlockTimer& LL_GLUE_TOKENS(block_time_recorder, __LINE__)(LLTrace::timeThisBlock(timer_stat)); (void)LL_GLUE_TOKENS(block_time_recorder, __LINE__);
+#endif // LL_PROFILER_CONFIGURATION
 
 namespace LLTrace
 {

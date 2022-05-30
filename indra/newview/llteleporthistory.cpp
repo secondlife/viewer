@@ -39,6 +39,11 @@
 #include "llviewerregion.h"
 #include "llworldmap.h"
 #include "llagentui.h"
+#include "llwindow.h"
+#include "llviewerwindow.h"
+#include "llavatarname.h"
+#include "llavatarnamecache.h"
+
 
 //////////////////////////////////////////////////////////////////////////////
 // LLTeleportHistoryItem
@@ -113,6 +118,20 @@ void LLTeleportHistory::handleLoginComplete()
 	updateCurrentLocation(gAgent.getPositionGlobal());
 }
 
+static void on_avatar_name_update_title(const LLAvatarName& av_name)
+{
+	if (gAgent.getRegion() && gViewerWindow && gViewerWindow->getWindow())
+	{
+		std::string region = gAgent.getRegion()->getName();
+		std::string username = av_name.getUserName();
+
+		// this first pass simply displays username and region name
+		// but could easily be extended to include other details like
+		// X/Y/Z location within a region etc.
+		std::string new_title = STRINGIZE(username << " @ " << region);
+		gViewerWindow->getWindow()->setTitle(new_title);
+	}	
+}
 
 void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 {
@@ -173,6 +192,14 @@ void LLTeleportHistory::updateCurrentLocation(const LLVector3d& new_pos)
 	
 	if (!mGotInitialUpdate)
 		mGotInitialUpdate = true;
+
+    // update Viewer window title with username and region name
+    // if we are in "non-interactive mode" (SL-15999) or the debug 
+    // setting to allow it is enabled (may be useful in other situations)
+    if (gNonInteractive || gSavedSettings.getBOOL("UpdateAppWindowTitleBar"))
+    {
+		LLAvatarNameCache::get(gAgent.getID(), boost::bind(&on_avatar_name_update_title, _2));
+    }
 
 	// Signal the interesting party that we've changed. 
 	onHistoryChanged();

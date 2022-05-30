@@ -8431,6 +8431,7 @@ class LLViewHighlightTransparent : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLDrawPoolAlpha::sShowDebugAlpha = !LLDrawPoolAlpha::sShowDebugAlpha;
+        gPipeline.resetVertexBuffers();
 		return true;
 	}
 };
