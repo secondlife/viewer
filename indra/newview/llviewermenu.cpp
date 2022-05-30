@@ -2466,6 +2466,15 @@ class LLAdvancedForceErrorDriverCrash : public view_listener_t
 	}
 };
 
+class LLAdvancedForceErrorCoroutineCrash : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        force_error_coroutine_crash(NULL);
+        return true;
+    }
+};
+
 class LLAdvancedForceErrorThreadCrash : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
@@ -8216,6 +8225,11 @@ void force_error_driver_crash(void *)
     LLAppViewer::instance()->forceErrorDriverCrash();
 }
 
+void force_error_coroutine_crash(void *)
+{
+    LLAppViewer::instance()->forceErrorCoroutineCrash();
+}
+
 void force_error_thread_crash(void *)
 {
     LLAppViewer::instance()->forceErrorThreadCrash();
@@ -9397,6 +9411,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
+    view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDisconnectViewer(), "Advanced.ForceErrorDisconnectViewer");
 

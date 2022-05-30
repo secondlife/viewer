@@ -2673,10 +2673,10 @@ function="World.EnvPreset"
                  function="Advanced.ForceErrorSoftwareException" />
             </menu_item_call>
             <menu_item_call
-             label="Force Software Exception in Coroutine"
-             name="Force Software Exception in Coroutine">
+             label="Force a Crash in a Coroutine"
+             name="Force a Crash in a Coroutine">
                 <menu_item_call.on_click
-                 function="Advanced.ForceErrorSoftwareExceptionCoro" />
+                 function="Advanced.ForceErrorCoroutineCrash" />
             </menu_item_call>
             <menu_item_call
              label="Force a Crash in a Thread"
