@@ -2,9 +2,9 @@
  * @file llpanelprofileclassifieds.cpp
  * @brief LLPanelProfileClassifieds and related class implementations
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -36,6 +36,7 @@
 #include "llcommandhandler.h" // for classified HTML detail page click tracking
 #include "llcorehttputil.h"
 #include "lldispatcher.h"
+#include "llfloaterclassified.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
@@ -146,15 +147,19 @@ public:
             {
                 LLSD params;
                 params["id"] = c_info->creator_id;
-                params["open_tab_name"] = "panel_picks";
-                params["show_tab_panel"] = "classified_details";
                 params["classified_id"] = c_info->classified_id;
                 params["classified_creator_id"] = c_info->creator_id;
                 params["classified_snapshot_id"] = c_info->snapshot_id;
                 params["classified_name"] = c_info->name;
                 params["classified_desc"] = c_info->description;
                 params["from_search"] = true;
-                LLFloaterSidePanelContainer::showPanel("picks", params);
+
+                LLFloaterClassified* floaterp = LLFloaterReg::getTypedInstance<LLFloaterClassified>("classified", params);
+                if (floaterp)
+                {
+                    floaterp->openFloater(params);
+                    floaterp->setVisibleAndFrontmost();
+                }
             }
         }
     }

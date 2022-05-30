@@ -128,16 +128,17 @@ protected:
     // mLoaded:  false: Initial state, show loading indicator
     //           true:  Data recieved, which comes in a single message, hide indicator
     ELoadingState getLoadingState() { return mLoadingState; }
-    void setIsLoading() { mLoadingState = PROFILE_LOADING; }
     virtual void setLoaded();
+    void setApplyProgress(bool started);
+
+    const bool getSelfProfile() const { return mSelfProfile; }
+
+public:
+    void setIsLoading() { mLoadingState = PROFILE_LOADING; }
     void resetLoading() { mLoadingState = PROFILE_INIT; }
 
     bool getStarted() { return mLoadingState != PROFILE_INIT; }
     bool getIsLoaded() { return mLoadingState == PROFILE_LOADED; }
-
-    const bool getSelfProfile() const { return mSelfProfile; }
-
-    void setApplyProgress(bool started);
 
 private:
 

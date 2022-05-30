@@ -2,9 +2,9 @@
  * @file llpanelprofilepicks.h
  * @brief LLPanelProfilePicks and related class definitions
  *
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -54,6 +54,7 @@ public:
 
     /*virtual*/ void onOpen(const LLSD& key);
 
+    void createPick(const LLPickData &data);
     void selectPick(const LLUUID& pick_id);
 
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
@@ -89,6 +90,7 @@ private:
     LLButton*       mDeleteButton;
 
     LLUUID          mPickToSelectOnLoad;
+    std::list<LLPickData> mSheduledPickCreation;
 };
 
 
@@ -116,6 +118,7 @@ public:
     const std::string getPickName();
 
     /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(const LLPickData* pick_data);
 
     /**
      * Saves changes.

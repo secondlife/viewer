@@ -116,22 +116,15 @@ void LLAvatarPropertiesProcessor::sendRequest(const LLUUID& avatar_id, EAvatarPr
 		return;
 	}
 
-    // Cap is not ready for global use
-    //std::string cap = gAgent.getRegionCapability("AgentProfile");
     std::string cap;
 
     switch (type)
     {
     case APT_PROPERTIES:
-        if (cap.empty())
-        {
-            // indicate we're going to make a request
-            sendAvatarPropertiesRequestMessage(avatar_id);
-        }
-        else
-        {
-            initAgentProfileCapRequest(avatar_id, cap);
-        }
+        // indicate we're going to make a request
+        sendAvatarPropertiesRequestMessage(avatar_id);
+        // can use getRegionCapability("AgentProfile"), but it is heavy
+        // initAgentProfileCapRequest(avatar_id, cap);
         break;
     case APT_PICKS:
     case APT_GROUPS:
@@ -193,17 +186,7 @@ void LLAvatarPropertiesProcessor::sendAvatarPropertiesRequest(const LLUUID& avat
 
 void LLAvatarPropertiesProcessor::sendAvatarPicksRequest(const LLUUID& avatar_id)
 {
-    std::string cap = gAgent.getRegionCapability("AgentProfile");
-
-    if (!cap.empty())
-    {
-        // AgentProfile capability covers picks
-        sendAvatarPropertiesRequest(avatar_id);
-    }
-    else
-    {
-        sendGenericRequest(avatar_id, APT_PICKS, "avatarpicksrequest");
-    }
+    sendGenericRequest(avatar_id, APT_PICKS, "avatarpicksrequest");
 }
 
 void LLAvatarPropertiesProcessor::sendAvatarNotesRequest(const LLUUID& avatar_id)

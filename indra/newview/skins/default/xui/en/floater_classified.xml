@@ -7,11 +7,10 @@
  help_topic="sidebar_me"
  min_width="333"
  min_height="440"
- name="floater_picks"
+ name="floater_classified"
  save_rect="true"
  save_visibility="false"
- reuse_instance="true"
- title="Picks"
+ title="Classified"
  width="333" >
    <panel
     class="panel_classified_info"

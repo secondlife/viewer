@@ -74,7 +74,7 @@
        layout="topleft"
        halign="left"
        tab_position="left"
-       tab_width="85"
+       tab_width="150"
        use_ellipses="true"
       />
 

@@ -148,6 +148,27 @@ void LLPanelProfilePicks::onOpen(const LLSD& key)
     childSetVisible("buttons_header", own_profile);
 }
 
+void LLPanelProfilePicks::createPick(const LLPickData &data)
+{
+    if (getIsLoaded())
+    {
+        mNoItemsLabel->setVisible(FALSE);
+        LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
+        pick_panel->setAvatarId(getAvatarId());
+        pick_panel->processProperties(&data);
+        mTabContainer->addTabPanel(
+            LLTabContainer::TabPanelParams().
+            panel(pick_panel).
+            select_tab(true).
+            label(pick_panel->getPickName()));
+        updateButtons();
+    }
+    else
+    {
+        mSheduledPickCreation.push_back(data);
+    }
+}
+
 void LLPanelProfilePicks::selectPick(const LLUUID& pick_id)
 {
     if (getIsLoaded())
@@ -252,6 +273,7 @@ void LLPanelProfilePicks::processProperties(void* data, EAvatarProcessorType typ
 void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
 {
     LLUUID selected_id = mPickToSelectOnLoad;
+    bool has_selection = false;
     if (mPickToSelectOnLoad.isNull())
     {
         if (mTabContainer->getTabCount() > 0)
@@ -287,7 +309,26 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
         if (selected_id == pick_id)
         {
             mPickToSelectOnLoad = LLUUID::null;
+            has_selection = true;
         }
+    }
+
+    while (!mSheduledPickCreation.empty())
+    {
+        const LLPickData data =
+            mSheduledPickCreation.back();
+
+        LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
+        pick_panel->setAvatarId(getAvatarId());
+        pick_panel->processProperties(&data);
+        mTabContainer->addTabPanel(
+            LLTabContainer::TabPanelParams().
+            panel(pick_panel).
+            select_tab(!has_selection).
+            label(pick_panel->getPickName()));
+
+        mSheduledPickCreation.pop_back();
+        has_selection = true;
     }
 
     BOOL no_data = !mTabContainer->getTabCount();
@@ -303,7 +344,7 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
             mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksText"));
         }
     }
-    else if (selected_id.isNull())
+    else if (!has_selection)
     {
         mTabContainer->selectFirstTab();
     }
@@ -349,10 +390,13 @@ void LLPanelProfilePicks::updateData()
     if (!getStarted() && avatar_id.notNull())
     {
         setIsLoading();
-        mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
-        mNoItemsLabel->setVisible(TRUE);
 
         LLAvatarPropertiesProcessor::getInstance()->sendAvatarPicksRequest(avatar_id);
+    }
+    if (!getIsLoaded())
+    {
+        mNoItemsLabel->setValue(LLTrans::getString("PicksClassifiedsLoadingText"));
+        mNoItemsLabel->setVisible(TRUE);
     }
 }
 
@@ -516,6 +560,11 @@ void LLPanelProfilePick::processProperties(void* data, EAvatarProcessorType type
         return;
     }
 
+    processProperties(pick_info);
+}
+
+void LLPanelProfilePick::processProperties(const LLPickData* pick_info)
+{
     mIsEditing = false;
     mPickDescription->setParseHTML(true);
     mParcelId = pick_info->parcel_id;

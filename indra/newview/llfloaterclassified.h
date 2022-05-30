@@ -1,5 +1,5 @@
 /**
- * @file llfloaterprofile.h
+ * @file llfloaterclassified.h
  * @brief Avatar profile floater.
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
@@ -24,38 +24,22 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPROFILE_H
-#define LL_LLFLOATERPROFILE_H
+#ifndef LL_LLFLOATERCLASSIFIED_H
+#define LL_LLFLOATERCLASSIFIED_H
 
-#include "llavatarnamecache.h"
-#include "llavatarpropertiesprocessor.h"
 #include "llfloater.h"
 
-class LLPanelProfile;
-
-class LLFloaterProfile : public LLFloater
+class LLFloaterClassified : public LLFloater
 {
-    LOG_CLASS(LLFloaterProfile);
+    LOG_CLASS(LLFloaterClassified);
 public:
-    LLFloaterProfile(const LLSD& key);
-    virtual ~LLFloaterProfile();
+    LLFloaterClassified(const LLSD& key);
+    virtual ~LLFloaterClassified();
 
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ BOOL postBuild();
+    void onOpen(const LLSD& key) override;
+    BOOL postBuild() override;
 
-    void createPick(const LLPickData &data);
-    void showPick(const LLUUID& pick_id = LLUUID::null);
-    bool isPickTabSelected();
-
-    void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
-
-private:
-    LLAvatarNameCache::callback_connection_t mNameCallbackConnection;
-    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
-
-    LLPanelProfile* mPanelProfile;
-
-    LLUUID mAvatarId;
+    bool matchesKey(const LLSD& key) override;
 };
 
-#endif // LL_LLFLOATERPROFILE_H
+#endif // LL_LLFLOATERCLASSIFIED_H

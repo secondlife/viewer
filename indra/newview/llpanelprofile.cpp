@@ -2,9 +2,9 @@
 * @file llpanelprofile.cpp
 * @brief Profile panel implementation
 *
-* $LicenseInfo:firstyear=2009&license=viewerlgpl$
+* $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2022, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -947,12 +947,14 @@ void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avat
 {
     LLUUID avatar_id = getAvatarId();
     const LLRelationship* relationship = LLAvatarTracker::instance().getBuddyInfo(getAvatarId());
-    if (relationship != NULL && !getSelfProfile())
+    if ((relationship != NULL || gAgent.isGodlike()) && !getSelfProfile())
     {
-        // subscribe observer to get online status. Request will be sent by LLPanelProfileSecondLife itself.
-        // do not subscribe for friend avatar because online status can be wrong overridden
-        // via LLAvatarData::flags if Preferences: "Only Friends & Groups can see when I am online" is set.
-        processOnlineStatus(relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS), avatar_data->flags & AVATAR_ONLINE);
+        // Relies onto friend observer to get information about online status updates.
+        // Once SL-17506 gets implemented, condition might need to become:
+        // (gAgent.isGodlike() || isRightGrantedFrom || flags & AVATAR_ONLINE)
+        processOnlineStatus(relationship != NULL,
+                            gAgent.isGodlike() || relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS),
+                            (avatar_data->flags & AVATAR_ONLINE));
     }
 
     fillCommonData(avatar_data);
@@ -1238,7 +1240,7 @@ void LLPanelProfileSecondLife::updateOnlineStatus()
         // For friend let check if he allowed me to see his status
         bool online = relationship->isOnline();
         bool perm_granted = relationship->isRightGrantedFrom(LLRelationship::GRANT_ONLINE_STATUS);
-        processOnlineStatus(perm_granted, online);
+        processOnlineStatus(true, perm_granted, online);
     }
     else
     {
@@ -1249,10 +1251,10 @@ void LLPanelProfileSecondLife::updateOnlineStatus()
     }
 }
 
-void LLPanelProfileSecondLife::processOnlineStatus(bool show_online, bool online)
+void LLPanelProfileSecondLife::processOnlineStatus(bool is_friend, bool show_online, bool online)
 {
     childSetVisible("spacer_layout", false);
-    childSetVisible("frind_layout", true);
+    childSetVisible("frind_layout", is_friend);
     childSetVisible("online_layout", online && show_online);
     childSetVisible("offline_layout", !online && show_online);
 }
@@ -2095,11 +2097,6 @@ void LLPanelProfile::onTabChange()
     {
         active_panel->updateData();
     }
-    updateBtnsVisibility();
-}
-
-void LLPanelProfile::updateBtnsVisibility()
-{
 }
 
 void LLPanelProfile::onOpen(const LLSD& key)
@@ -2133,8 +2130,6 @@ void LLPanelProfile::onOpen(const LLSD& key)
     resetLoading();
     updateData();
 
-    updateBtnsVisibility();
-
     // Some tabs only request data when opened
     mTabContainer->setCommitCallback(boost::bind(&LLPanelProfile::onTabChange, this));
 }
@@ -2148,6 +2143,11 @@ void LLPanelProfile::updateData()
     {
         setIsLoading();
 
+        mPanelSecondlife->setIsLoading();
+        mPanelPicks->setIsLoading();
+        mPanelFirstlife->setIsLoading();
+        mPanelNotes->setIsLoading();
+
         std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
         if (!cap_url.empty())
         {
@@ -2155,6 +2155,12 @@ void LLPanelProfile::updateData()
                 boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
         }
     }
+}
+
+void LLPanelProfile::createPick(const LLPickData &data)
+{
+    mTabContainer->selectTabPanel(mPanelPicks);
+    mPanelPicks->createPick(data);
 }
 
 void LLPanelProfile::showPick(const LLUUID& pick_id)

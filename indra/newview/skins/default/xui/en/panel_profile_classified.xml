@@ -78,7 +78,7 @@
          left="0"
          height="562"
          width="290"
-         follows="left|top"
+         follows="left|top|right"
          layout="topleft"
          background_visible="false"
          min_height="200"
@@ -88,9 +88,9 @@
              enabled="false"
              top="0"
              left="10"
-             height="197"
-             width="275"
-             follows="left|top|right"
+             height="161"
+             width="260"
+             follows="left|top"
              layout="topleft"
              fallback_image="default_land_picture.j2c"
             />
@@ -109,7 +109,7 @@
             />
             <layout_stack
              name="info_panel"
-             top="180"
+             top="145"
              left="0"
              height="375"
              width="320"

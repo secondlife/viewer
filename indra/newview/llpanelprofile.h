@@ -2,9 +2,9 @@
 * @file llpanelprofile.h
 * @brief Profile panel
 *
-* $LicenseInfo:firstyear=2009&license=viewerlgpl$
+* $LicenseInfo:firstyear=2022&license=viewerlgpl$
 * Second Life Viewer Source Code
-* Copyright (C) 2010, Linden Research, Inc.
+* Copyright (C) 2022, Linden Research, Inc.
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -160,7 +160,7 @@ protected:
 	 *	- Else: Offline
 	 */
 	void updateOnlineStatus();
-	void processOnlineStatus(bool show_online, bool online);
+	void processOnlineStatus(bool is_friend, bool show_online, bool online);
 
 private:
     /*virtual*/ void setLoaded();
@@ -346,11 +346,10 @@ public:
 
     /*virtual*/ void onOpen(const LLSD& key);
 
+    void createPick(const LLPickData &data);
     void showPick(const LLUUID& pick_id = LLUUID::null);
     bool isPickTabSelected();
     bool isNotesTabSelected();
-
-    void updateBtnsVisibility();
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 

@@ -1,5 +1,5 @@
 /**
- * @file llfloaterprofile.h
+ * @file llfloaterclassified.cpp
  * @brief Avatar profile floater.
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
@@ -24,38 +24,48 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LLFLOATERPROFILE_H
-#define LL_LLFLOATERPROFILE_H
+#include "llviewerprecompiledheaders.h"
 
-#include "llavatarnamecache.h"
-#include "llavatarpropertiesprocessor.h"
-#include "llfloater.h"
+#include "llfloaterclassified.h"
 
-class LLPanelProfile;
-
-class LLFloaterProfile : public LLFloater
+LLFloaterClassified::LLFloaterClassified(const LLSD& key)
+ : LLFloater(key)
 {
-    LOG_CLASS(LLFloaterProfile);
-public:
-    LLFloaterProfile(const LLSD& key);
-    virtual ~LLFloaterProfile();
+}
 
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ BOOL postBuild();
+LLFloaterClassified::~LLFloaterClassified()
+{
+}
 
-    void createPick(const LLPickData &data);
-    void showPick(const LLUUID& pick_id = LLUUID::null);
-    bool isPickTabSelected();
+void LLFloaterClassified::onOpen(const LLSD& key)
+{
+    LLPanel* panel = findChild<LLPanel>("main_panel", true);
+    if (panel)
+    {
+        panel->onOpen(key);
+    }
+    if (key.has("classified_name"))
+    {
+        setTitle(key["classified_name"].asString());
+    }
+    LLFloater::onOpen(key);
+}
 
-    void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
+BOOL LLFloaterClassified::postBuild()
+{
+    return TRUE;
+}
 
-private:
-    LLAvatarNameCache::callback_connection_t mNameCallbackConnection;
-    void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-    LLPanelProfile* mPanelProfile;
+bool LLFloaterClassified::matchesKey(const LLSD& key)
+{
+    bool is_mkey_valid = mKey.has("classified_id");
+    bool is_key_valid = key.has("classified_id");
+    if (is_mkey_valid && is_key_valid)
+    {
+        return key["classified_id"].asUUID() == mKey["classified_id"].asUUID();
+    }
+    return is_mkey_valid == is_key_valid;
+}
 
-    LLUUID mAvatarId;
-};
-
-#endif // LL_LLFLOATERPROFILE_H
+// eof
