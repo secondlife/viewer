@@ -468,123 +468,8 @@ public:
 };
 LLProfileHandler gProfileHandler;
 
-
-//////////////////////////////////////////////////////////////////////////
-// LLAgentHandler
-
-class LLAgentHandler : public LLCommandHandler
-{
-public:
-	// requires trusted browser to trigger
-	LLAgentHandler() : LLCommandHandler("agent", UNTRUSTED_THROTTLE) { }
-
-	bool handle(const LLSD& params, const LLSD& query_map,
-		LLMediaCtrl* web)
-	{
-		if (params.size() < 2) return false;
-		LLUUID avatar_id;
-		if (!avatar_id.set(params[0], FALSE))
-		{
-			return false;
-		}
-
-		const std::string verb = params[1].asString();
-		if (verb == "about")
-		{
-			LLAvatarActions::showProfile(avatar_id);
-			return true;
-		}
-
-		if (verb == "inspect")
-		{
-			LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", avatar_id));
-			return true;
-		}
-
-		if (verb == "im")
-		{
-			LLAvatarActions::startIM(avatar_id);
-			return true;
-		}
-
-		if (verb == "pay")
-		{
-			if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarPay"))
-			{
-				LLNotificationsUtil::add("NoAvatarPay", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
-				return true;
-			}
-
-			LLAvatarActions::pay(avatar_id);
-			return true;
-		}
-
-		if (verb == "offerteleport")
-		{
-			LLAvatarActions::offerTeleport(avatar_id);
-			return true;
-		}
-
-		if (verb == "requestfriend")
-		{
-			LLAvatarActions::requestFriendshipDialog(avatar_id);
-			return true;
-		}
-
-		if (verb == "removefriend")
-		{
-			LLAvatarActions::removeFriendDialog(avatar_id);
-			return true;
-		}
-
-		if (verb == "mute")
-		{
-			if (! LLAvatarActions::isBlocked(avatar_id))
-			{
-				LLAvatarActions::toggleBlock(avatar_id);
-			}
-			return true;
-		}
-
-		if (verb == "unmute")
-		{
-			if (LLAvatarActions::isBlocked(avatar_id))
-			{
-				LLAvatarActions::toggleBlock(avatar_id);
-			}
-			return true;
-		}
-
-		if (verb == "block")
-		{
-			if (params.size() > 2)
-			{
-				const std::string object_name = LLURI::unescape(params[2].asString());
-				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
-				LLMuteList::getInstance()->add(mute);
-				LLPanelBlockedList::showPanelAndSelect(mute.mID);
-			}
-			return true;
-		}
-
-		if (verb == "unblock")
-		{
-			if (params.size() > 2)
-			{
-				const std::string object_name = params[2].asString();
-				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
-				LLMuteList::getInstance()->remove(mute);
-			}
-			return true;
-		}
-		return false;
-	}
-};
-LLAgentHandler gAgentHandler;
-
-
 ///----------------------------------------------------------------------------
-/// LLFloaterInventoryFinder
+/// LLFloaterProfilePermissions
 ///----------------------------------------------------------------------------
 
 class LLFloaterProfilePermissions
@@ -605,7 +490,8 @@ private:
     void fillRightsData();
     void rightsConfirmationCallback(const LLSD& notification, const LLSD& response);
     void confirmModifyRights(bool grant);
-    void onCommitRights();
+    void onCommitSeeOnlineRights();
+    void onCommitEditRights();
 
     void onApplyRights();
     void onCancel();
@@ -651,7 +537,8 @@ BOOL LLFloaterProfilePermissions::postBuild()
     mOkBtn = getChild<LLButton>("perms_btn_ok");
     mCancelBtn = getChild<LLButton>("perms_btn_cancel");
 
-    mEditObjectRights->setCommitCallback([this](LLUICtrl*, void*) { onCommitRights(); }, nullptr);
+    mOnlineStatus->setCommitCallback([this](LLUICtrl*, void*) { onCommitSeeOnlineRights(); }, nullptr);
+    mEditObjectRights->setCommitCallback([this](LLUICtrl*, void*) { onCommitEditRights(); }, nullptr);
     mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
     mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
 
@@ -704,7 +591,9 @@ void LLFloaterProfilePermissions::fillRightsData()
     {
         S32 rights = relation->getRightsGrantedTo();
 
-        mOnlineStatus->setValue(LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE);
+        BOOL see_online = LLRelationship::GRANT_ONLINE_STATUS & rights ? TRUE : FALSE;
+        mOnlineStatus->setValue(see_online);
+        mMapRights->setEnabled(see_online);
         mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
         mEditObjectRights->setValue(LLRelationship::GRANT_MODIFY_OBJECTS & rights ? TRUE : FALSE);
     }
@@ -733,13 +622,38 @@ void LLFloaterProfilePermissions::confirmModifyRights(bool grant)
         boost::bind(&LLFloaterProfilePermissions::rightsConfirmationCallback, this, _1, _2));
 }
 
-void LLFloaterProfilePermissions::onCommitRights()
+void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
+{
+    bool see_online = mOnlineStatus->getValue().asBoolean();
+    mMapRights->setEnabled(see_online);
+    if (see_online)
+    {
+        const LLRelationship* relation = LLAvatarTracker::instance().getBuddyInfo(mAvatarID);
+        if (relation)
+        {
+            S32 rights = relation->getRightsGrantedTo();
+            mMapRights->setValue(LLRelationship::GRANT_MAP_LOCATION & rights ? TRUE : FALSE);
+        }
+        else
+        {
+            closeFloater();
+            LL_INFOS("ProfilePermissions") << "Floater closing since agent is no longer a friend" << LL_ENDL;
+        }
+    }
+    else
+    {
+        mMapRights->setValue(FALSE);
+    }
+}
+
+void LLFloaterProfilePermissions::onCommitEditRights()
 {
     const LLRelationship* buddy_relationship = LLAvatarTracker::instance().getBuddyInfo(mAvatarID);
 
     if (!buddy_relationship)
     {
-        LL_WARNS("ProfilePermissions") << "Trying to modify rights for non-friend avatar. Skipped." << LL_ENDL;
+        LL_WARNS("ProfilePermissions") << "Trying to modify rights for non-friend avatar. Closing floater." << LL_ENDL;
+        closeFloater();
         return;
     }
 
@@ -843,6 +757,13 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mDescriptionEdit->setKeystrokeCallback([this](LLTextEditor* caller) { onSetDescriptionDirty(); });
 
     getChild<LLButton>("open_notes")->setCommitCallback([this](LLUICtrl*, void*) { onOpenNotes(); }, nullptr);
+
+    mCanSeeOnlineIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mCantSeeOnlineIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mCanSeeOnMapIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mCantSeeOnMapIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mCanEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mCantEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
 
     return TRUE;
 }
@@ -995,9 +916,10 @@ void LLPanelProfileSecondLife::openGroupProfile()
 void LLPanelProfileSecondLife::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
     mAvatarNameCacheConnection.disconnect();
-    // Should be possible to get this from AgentProfile capability
-    getChild<LLUICtrl>("display_name")->setValue( av_name.getDisplayName() );
-    getChild<LLUICtrl>("user_name")->setValue(av_name.getAccountName());
+    if (getIsLoaded())
+    {
+        fillNameAgeData(av_name, mBornOn);
+    }
 }
 
 void LLPanelProfileSecondLife::setNotesSnippet(std::string &notes)
@@ -1049,10 +971,21 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     // and to make sure icons in text will be up to date
     LLAvatarIconIDCache::getInstance()->add(avatar_data->avatar_id, avatar_data->image_id);
 
-    LLStringUtil::format_map_t args;
-    args["[AGE]"] = LLDateUtil::ageFromDate( avatar_data->born_on, LLDate::now());
-    std::string register_date = getString("AgeFormat", args);
-    getChild<LLUICtrl>("user_age")->setValue(register_date);
+    mBornOn = avatar_data->born_on;
+
+    // Should be possible to get user and display names from AgentProfile capability
+    // but at the moment contraining this to limits of LLAvatarData
+    LLAvatarName av_name;
+    if (LLAvatarNameCache::get(avatar_data->avatar_id, &av_name))
+    {
+        fillNameAgeData(av_name, mBornOn);
+    }
+    else if (!mAvatarNameCacheConnection.connected())
+    {
+        // shouldn't happen, but just in case
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+    }
+
     setDescriptionText(avatar_data->about_text);
 
     if (avatar_data->image_id.notNull())
@@ -1144,10 +1077,16 @@ void LLPanelProfileSecondLife::fillRightsData()
     }
 
     childSetVisible("permissions_panel", NULL != relation);
-    childSetVisible("spacer_layout", NULL == relation);
-    childSetVisible("frind_layout", NULL != relation);
-    childSetVisible("online_layout", false);
-    childSetVisible("offline_layout", false);
+}
+
+void LLPanelProfileSecondLife::fillNameAgeData(const LLAvatarName &av_name, const LLDate &born_on)
+{
+    LLStringUtil::format_map_t args;
+    args["[AGE]"] = LLDateUtil::ageFromDate(born_on, LLDate::now());
+    args["[NAME]"] = av_name.getAccountName();
+    std::string register_date = getString("NameAgeFormat", args);
+    getChild<LLUICtrl>("user_name_age")->setValue(register_date);
+    getChild<LLUICtrl>("display_name")->setValue(av_name.getDisplayName());
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)
@@ -1620,13 +1559,15 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
             LLFloaterProfilePermissions * perms = new LLFloaterProfilePermissions(parent_floater, getAvatarId());
             mFloaterPermissionsHandle = perms->getHandle();
             perms->openFloater();
+            perms->setVisibleAndFrontmost(TRUE);
 
             parent_floater->addDependentFloater(mFloaterPermissionsHandle);
         }
     }
     else // already open
     {
-        floater->closeFloater();
+        floater->setMinimized(FALSE);
+        floater->setVisibleAndFrontmost(TRUE);
     }
 }
 

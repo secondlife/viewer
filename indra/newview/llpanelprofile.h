@@ -136,7 +136,15 @@ protected:
 	 */
 	void fillAccountStatus(const LLAvatarData* avatar_data);
 
+    /**
+     * Sets permissions specific icon
+     */
     void fillRightsData();
+
+    /**
+     * Fills user name, display name, age.
+     */
+    void fillNameAgeData(const LLAvatarName &av_name, const LLDate &born_on);
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
     static void onImageLoaded(BOOL success,
@@ -204,6 +212,7 @@ private:
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
     std::string			mDescriptionText;
+    LLDate				mBornOn;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };

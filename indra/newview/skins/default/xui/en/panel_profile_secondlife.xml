@@ -10,8 +10,8 @@
  layout="topleft"
 >
    <string 
-    name="AgeFormat"
-    value="[AGE]" />
+    name="NameAgeFormat"
+    value="[NAME] ([AGE])" />
    <string
     name="partner_text"
     value="Partner: [LINK]" />
@@ -99,17 +99,7 @@ Account: [ACCTTYPE]
            layout="topleft"/>
           
           <text
-           name="user_name"
-           value="(loading...)"
-           top_pad="0"
-           left_delta="0"
-           right="-1"
-           height="16"
-           follows="left|top|right"
-           layout="topleft"/>
-
-          <text
-           name="user_age"
+           name="user_name_age"
            value="(loading...)"
            top_pad="0"
            left_delta="0"
@@ -171,7 +161,7 @@ Account: [ACCTTYPE]
               <text
                name="frind_text"
                value="You are friends"
-               text_color="Green"
+               text_color="ConversationFriendColor"
                top="0"
                left="0"
                right="-1"
