@@ -45,8 +45,7 @@ void LLLFSThread::initClass(bool local_is_threaded)
 //static
 S32 LLLFSThread::updateClass(U32 ms_elapsed)
 {
-	sLocal->update((F32)ms_elapsed);
-	return sLocal->getPending();
+	return sLocal->update((F32)ms_elapsed);
 }
 
 //static
@@ -58,6 +57,7 @@ void LLLFSThread::cleanupClass()
 	{
 		sLocal->update(0);
 	}
+    sLocal->shutdown();
 	delete sLocal;
 	sLocal = NULL;
 }

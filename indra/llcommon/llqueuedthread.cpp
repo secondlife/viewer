@@ -37,12 +37,13 @@
 // MAIN THREAD
 LLQueuedThread::LLQueuedThread(const std::string& name, bool threaded, bool should_pause) :
     LLThread(name),
-    mThreaded(threaded),
     mIdleThread(TRUE),
     mNextHandle(0),
     mStarted(FALSE),
+    mThreaded(threaded),
     mRequestQueue(name, 1024 * 1024)
 {
+    llassert(threaded); // not threaded implementation is deprecated
     mMainQueue = LL::WorkQueue::getInstance("mainloop");
 
 	if (mThreaded)
@@ -138,14 +139,18 @@ S32 LLQueuedThread::updateQueue(F32 max_time_ms)
 	if (mThreaded)
 	{
         // schedule a call to threadedUpdate for every call to updateQueue
-        mRequestQueue.post([=]() 
-            {
-                LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qt - update");
-                mIdleThread = FALSE;
-                threadedUpdate(); 
-                mIdleThread = TRUE;
-            }
-        );
+        if (!isQuitting())
+        {
+            mRequestQueue.post([=]()
+                {
+                    LL_PROFILE_ZONE_NAMED_CATEGORY_THREAD("qt - update");
+                    mIdleThread = FALSE;
+                    threadedUpdate();
+                    mIdleThread = TRUE;
+                }
+            );
+        }
+
 		if(getPending() > 0)
 		{
 		    unpause();

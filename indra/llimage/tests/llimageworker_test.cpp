@@ -191,34 +191,9 @@ namespace tut
 	template<> template<>
 	void imagedecodethread_object_t::test<1>()
 	{
-		// Test a *non threaded* instance of the class
-		mThread = new LLImageDecodeThread(false);
-		ensure("LLImageDecodeThread: non threaded constructor failed", mThread != NULL);
-		// Test that we start with an empty list right at creation
-		ensure("LLImageDecodeThread: non threaded init state incorrect", mThread->tut_size() == 0);
-		// Insert something in the queue
-		bool done = false;
-		LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, FALSE, new responder_test(&done));
-		// Verifies we got a valid handle
-		ensure("LLImageDecodeThread: non threaded decodeImage(), returned handle is null", decodeHandle != 0);
-		// Verifies that we do now have something in the queued list
-		ensure("LLImageDecodeThread: non threaded decodeImage() insertion in threaded list failed", mThread->tut_size() == 1);
-		// Trigger queue handling "manually" (on a threaded instance, this is done on the thread loop)
-		S32 res = mThread->update(0);
-		// Verifies that we successfully handled the list
-		ensure("LLImageDecodeThread: non threaded update() list handling test failed", res == 0);
-		// Verifies that the list is now empty
-		ensure("LLImageDecodeThread: non threaded update() list emptying test failed", mThread->tut_size() == 0);
-	}
-
-	template<> template<>
-	void imagedecodethread_object_t::test<2>()
-	{
 		// Test a *threaded* instance of the class
 		mThread = new LLImageDecodeThread(true);
 		ensure("LLImageDecodeThread: threaded constructor failed", mThread != NULL);
-		// Test that we start with an empty list right at creation
-		ensure("LLImageDecodeThread: threaded init state incorrect", mThread->tut_size() == 0);
 		// Insert something in the queue
 		bool done = false;
 		LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, FALSE, new responder_test(&done));

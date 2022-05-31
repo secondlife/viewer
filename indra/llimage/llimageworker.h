@@ -80,9 +80,6 @@ public:
 						 Responder* responder);
 	S32 update(F32 max_time_ms);
 
-	// Used by unit tests to check the consistency of the thread instance
-	S32 tut_size();
-	
 private:
 	struct creation_info
 	{
