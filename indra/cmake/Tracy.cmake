@@ -12,6 +12,7 @@ if (USE_TRACY)
 
   if (WINDOWS)
     MESSAGE(STATUS "Including Tracy for Windows: '${TRACY_INCLUDE_DIR}'")
+    set(TRACY_LIBRARY "TracyClient")
   endif (WINDOWS)
 
   if (DARWIN)

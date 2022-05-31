@@ -138,8 +138,10 @@ extern thread_local bool gProfilerEnabled;
         #define LL_PROFILE_ZONE_ERR(name)               LL_PROFILE_ZONE_NAMED_COLOR( name, 0XFF0000  )  // RGB yellow
         #define LL_PROFILE_ZONE_INFO(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0X00FFFF  )  // RGB cyan
         #define LL_PROFILE_ZONE_WARN(name)              LL_PROFILE_ZONE_NAMED_COLOR( name, 0x0FFFF00 )  // RGB red
-        #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
-        #define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
+        //#define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size) // memory allocation tracking currently not working
+        //#define LL_PROFILE_FREE(ptr)                    TracyFree(ptr)
+        #define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
+        #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
     #endif
 #else
     #define LL_PROFILER_FRAME_END
