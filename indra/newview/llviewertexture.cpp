@@ -463,11 +463,6 @@ void LLViewerTextureManager::cleanup()
 void LLViewerTexture::initClass()
 {
 	LLImageGL::sDefaultGLTexture = LLViewerFetchedTexture::sDefaultImagep->getGLTexture();
-	
-	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
-	{
-		sTexelPixelRatio = gSavedSettings.getF32("TexelPixelRatio");
-	}
 }
 
 // tuning params
@@ -4014,7 +4009,6 @@ void LLTexturePipelineTester::compareTestSessions(llofstream* os)
 	*os << llformat("%s\n", getTesterName().c_str());
 	*os << llformat("AggregateResults\n");
 
-	compareTestResults(os, "TotalFetchingTime", base_sessionp->mTotalFetchingTime, current_sessionp->mTotalFetchingTime);
 	compareTestResults(os, "TotalGrayTime", base_sessionp->mTotalGrayTime, current_sessionp->mTotalGrayTime);
 	compareTestResults(os, "TotalStablizingTime", base_sessionp->mTotalStablizingTime, current_sessionp->mTotalStablizingTime);
 	compareTestResults(os, "StartTimeLoadingSculpties", base_sessionp->mStartTimeLoadingSculpties, current_sessionp->mStartTimeLoadingSculpties);		
@@ -4074,7 +4068,6 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 		return NULL;
 	}
 	
-	F32 total_fetching_time = 0.f;
 	F32 total_gray_time = 0.f;
 	F32 total_stablizing_time = 0.f;
 	F32 total_loading_sculpties_time = 0.f;
@@ -4109,7 +4102,6 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 		F32 cur_time   = (*log)[label]["Time"].asReal();
 		if(start_time - start_fetching_time > F_ALMOST_ZERO) //fetching has paused for a while
 		{
-			sessionp->mTotalFetchingTime += total_fetching_time;
 			sessionp->mTotalGrayTime += total_gray_time;
 			sessionp->mTotalStablizingTime += total_stablizing_time;
 
@@ -4117,14 +4109,12 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 			sessionp->mTotalTimeLoadingSculpties += total_loading_sculpties_time;
 
 			start_fetching_time = start_time;
-			total_fetching_time = 0.0f;
 			total_gray_time = 0.f;
 			total_stablizing_time = 0.f;
 			total_loading_sculpties_time = 0.f;
 		}
 		else
 		{
-			total_fetching_time = cur_time - start_time;
 			total_gray_time = (*log)[label]["TotalGrayTime"].asReal();
 			total_stablizing_time = (*log)[label]["TotalStablizingTime"].asReal();
 
@@ -4170,7 +4160,6 @@ LLMetricPerformanceTesterWithSession::LLTestSession* LLTexturePipelineTester::lo
 		in_log = (*log).has(currentLabel);
 	}
 
-	sessionp->mTotalFetchingTime += total_fetching_time;
 	sessionp->mTotalGrayTime += total_gray_time;
 	sessionp->mTotalStablizingTime += total_stablizing_time;
 
@@ -4192,8 +4181,6 @@ LLTexturePipelineTester::LLTextureTestSession::~LLTextureTestSession()
 }
 void LLTexturePipelineTester::LLTextureTestSession::reset() 
 {
-	mTotalFetchingTime = 0.0f;
-
 	mTotalGrayTime = 0.0f;
 	mTotalStablizingTime = 0.0f;
 

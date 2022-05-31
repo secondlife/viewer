@@ -763,7 +763,6 @@ private:
 
 		void reset() ;
 
-		F32 mTotalFetchingTime ;
 		F32 mTotalGrayTime ;
 		F32 mTotalStablizingTime ;
 		F32 mStartTimeLoadingSculpties ; 

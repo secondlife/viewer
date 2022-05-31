@@ -294,7 +294,6 @@ void update_statistics();
 void send_viewer_stats(bool include_preferences);
 void update_texture_time();
 
-extern LLFrameTimer gTextureTimer;
 extern U32Bytes	gTotalTextureData;
 extern U32Bytes  gTotalObjectData;
 extern U32Bytes  gTotalTextureBytesPerBoostLevel[] ;

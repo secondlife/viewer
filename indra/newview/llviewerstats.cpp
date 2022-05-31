@@ -316,8 +316,6 @@ U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGOR
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
-LLFrameTimer gTextureTimer;
-
 void update_statistics()
 {
 	gTotalWorldData += gVLManager.getTotalBytes();
@@ -413,19 +411,6 @@ void update_statistics()
 	}
 }
 
-void update_texture_time()
-{
-	if (gTextureList.isPrioRequestsFetched())
-	{
-		gTextureTimer.pause();
-	}
-	else
-	{		
-		gTextureTimer.unpause();
-	}
-
-	record(LLStatViewer::TEXTURE_FETCH_TIME, gTextureTimer.getElapsedTimeF32());
-}
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *

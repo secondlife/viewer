@@ -132,11 +132,7 @@ public:
 	void clearFetchingRequests();
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-	static bool isPrioRequestsFetched();
-	
 private:
-	void updateImagesDecodePriorities();
-
     // do some book keeping on the specified texture
     // - updates decode priority
     // - updates desired discard level
@@ -214,7 +210,6 @@ private:
     typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
     uuid_map_t mUUIDMap;
     LLTextureKey mLastUpdateKey;
-    LLTextureKey mLastFetchKey;
 	
     typedef std::set < LLPointer<LLViewerFetchedTexture> > image_priority_list_t;
 	image_priority_list_t mImageList;

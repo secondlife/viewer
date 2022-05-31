@@ -196,10 +196,8 @@ static std::string get_texture_list_name()
 void LLViewerTextureList::doPrefetchImages()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-	gTextureTimer.start();
-	gTextureTimer.pause();
 
-	if (LLAppViewer::instance()->getPurgeCache())
+    if (LLAppViewer::instance()->getPurgeCache())
 	{
 		// cache was purged, no point
 		return;
@@ -784,8 +782,6 @@ void LLViewerTextureList::updateImages(F32 max_time)
 	//loading from fast cache 
 	max_time -= updateImagesLoadingFastCache(max_time);
 	
-	updateImagesDecodePriorities();
-	
     F32 total_max_time = max_time;
 
 	max_time -= updateImagesFetchTextures(max_time);
@@ -836,32 +832,6 @@ void LLViewerTextureList::clearFetchingRequests()
 		LLViewerFetchedTexture* imagep = *iter;
 		imagep->forceToDeleteRequest() ;
 	}
-}
-
-void LLViewerTextureList::updateImagesDecodePriorities()
-{
-#if 0
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    // Update the decode priority for N images each frame
-    
-    /*static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
-    const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
-    S32 update_counter = llmin(max_update_count, mUUIDMap.size());
-    uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateKey);*/
-    //while ((update_counter-- > 0) && !mUUIDMap.empty())
-    for (uuid_map_t::iterator iter = mUUIDMap.begin(); iter != mUUIDMap.end(); ++iter)
-    {
-        /*if (iter == mUUIDMap.end())
-        {
-            iter = mUUIDMap.begin();
-        }*/
-        mLastUpdateKey = iter->first;
-        LLPointer<LLViewerFetchedTexture> imagep = iter->second;
-        //++iter; // safe to increment now
-
-        updateImageDecodePriority(imagep);
-    }
-#endif
 }
 
 void LLViewerTextureList::updateImageDecodePriority(LLViewerFetchedTexture* imagep)
@@ -1058,102 +1028,29 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     typedef std::vector<LLViewerFetchedTexture*> entries_list_t;
     entries_list_t entries;
 
-	// Update fetch for N images each frame
-#if 0
-	static const S32 MAX_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMaxMediumPriority");       // default: 256
-	
-	static const F32 MIN_PRIORITY_THRESHOLD = gSavedSettings.getF32("TextureFetchUpdatePriorityThreshold"); // default: 0.0
-	static const bool SKIP_LOW_PRIO = gSavedSettings.getBOOL("TextureFetchUpdateSkipLowPriority");          // default: false
-
-	size_t max_priority_count = llmin((S32) (MAX_HIGH_PRIO_COUNT*MAX_HIGH_PRIO_COUNT*gFrameIntervalSeconds.value())+1, MAX_HIGH_PRIO_COUNT);
-	max_priority_count = llmin(max_priority_count, mImageList.size());
-	
-	size_t total_update_count = mUUIDMap.size();
-	size_t max_update_count = llmin((S32) (MAX_UPDATE_COUNT*MAX_UPDATE_COUNT*gFrameIntervalSeconds.value())+1, MAX_UPDATE_COUNT);
-	max_update_count = llmin(max_update_count, total_update_count);	
-	
-	// MAX_HIGH_PRIO_COUNT high priority entries
-	
-	//size_t update_counter = max_priority_count;
-    size_t update_counter = mImageList.size();
-	image_priority_list_t::iterator iter1 = mImageList.begin();
-	while(update_counter > 0)
-	{
-		entries.push_back(*iter1);
-		
-		++iter1;
-		update_counter--;
-	}
-	
-	// MAX_UPDATE_COUNT cycled entries
-	update_counter = max_update_count;
-	if(update_counter > 0)
-	{
-		uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
-		while ((update_counter > 0) && (total_update_count > 0))
-		{
-			if (iter2 == mUUIDMap.end())
-			{
-				iter2 = mUUIDMap.begin();
-			}
-			LLViewerFetchedTexture* imagep = iter2->second;
-            // Skip the textures where there's really nothing to do so to give some times to others. Also skip the texture if it's already in the high prio set.
-            if (!SKIP_LOW_PRIO || (SKIP_LOW_PRIO && ((imagep->getDecodePriority() > MIN_PRIORITY_THRESHOLD) || imagep->hasFetcher())))
-            {
-                entries.push_back(imagep);
-                update_counter--;
-            }
-
-			iter2++;
-			total_update_count--;
-		}
-	}
-	
-	S32 fetch_count = 0;
-	//size_t min_update_count = llmin(MIN_UPDATE_COUNT,(S32)(entries.size()-max_priority_count));
-	//S32 min_count = max_priority_count + min_update_count;
-	for (entries_list_t::iterator iter3 = entries.begin();
-		 iter3 != entries.end(); )
-	{
-		LLViewerFetchedTexture* imagep = *iter3++;
-        updateImageDecodePriority(imagep);
-		fetch_count += (imagep->updateFetch() ? 1 : 0);
-		//if (min_count <= min_update_count)
-		{
-			mLastFetchKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
-		}
-		/*if ((min_count-- <= 0) && (image_op_timer.getElapsedTimeF32() > max_time))
-		{
-			break;
-		}*/
-	}
-#else
-
     // update N textures at beginning of mImageList
     U32 update_count = 0;
-
-    /*for (auto& imagep : mImageList)
-    {
-        if (update_count++ > MAX_HIGH_PRIO_COUNT)
-        {
-            break;
-        }
-
-        entries.push_back(imagep);
-    }*/
-
+    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
     // WIP -- dumb code here
     //update MIN_UPDATE_COUNT or 10% of other textures, whichever is greater
-    //update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/10);
-    //update_count = llmin(update_count, (U32) mUUIDMap.size());
-    update_count -= mUUIDMap.size();
-
-    entries.reserve(update_count);
-    //uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
-    //while (update_count-- > 0)
-    for (auto iter2 = mUUIDMap.begin(); iter2 != mUUIDMap.end(); ++iter2)
+    update_count = llmax((U32) MIN_UPDATE_COUNT, (U32) mUUIDMap.size()/10);
+    update_count = llmin(update_count, (U32) mUUIDMap.size());
+    
     {
-        entries.push_back(iter2->second);
+        LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vtluift - copy");
+
+        // copy entries out of UUID map for updating
+        entries.reserve(update_count);
+        uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateKey);
+        while (update_count-- > 0)
+        {
+            if (iter == mUUIDMap.end())
+            {
+                iter = mUUIDMap.begin();
+            }
+            entries.push_back(iter->second);
+            ++iter;
+        }
     }
 
     for (auto* imagep : entries)
@@ -1165,10 +1062,9 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     if (entries.size() > 0)
     {
         LLViewerFetchedTexture* imagep = *entries.rbegin();
-        mLastFetchKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
+        mLastUpdateKey = LLTextureKey(imagep->getID(), (ETexListType)imagep->getTextureListType());
     }
 
-#endif
 	return image_op_timer.getElapsedTimeF32();
 }
 
@@ -1348,33 +1244,6 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 	}
 	
 	return compressedImage;
-}
-
-bool LLViewerTextureList::isPrioRequestsFetched()
-{
-	static LLCachedControl<F32> prio_threshold(gSavedSettings, "TextureFetchUpdatePriorityThreshold", 0.0f);
-	static LLCachedControl<F32> fetching_textures_threshold(gSavedSettings, "TextureListFetchingThreshold", 0.97f);
-	S32 fetching_tex_count = 0;
-	S32 tex_count_threshold = gTextureList.mImageList.size() * (1 - fetching_textures_threshold);
-
-	for (LLViewerTextureList::image_priority_list_t::iterator iter = gTextureList.mImageList.begin();
-		iter != gTextureList.mImageList.end(); )
-	{
-		LLPointer<LLViewerFetchedTexture> imagep = *iter++;
-		if (imagep->getMaxVirtualSize() > prio_threshold)
-		{
-			if (imagep->hasFetcher() || imagep->isFetching())
-			{
-				fetching_tex_count++;
-				if (fetching_tex_count >= tex_count_threshold)
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
