@@ -57,10 +57,10 @@ public:
 		const size_t parts = tokens.size();
 
 		// get the (optional) category for the search
-		std::string category;
+		std::string collection;
 		if (parts > 0)
 		{
-			category = tokens[0].asString();
+            collection = tokens[0].asString();
 		}
 
 		// get the (optional) search string
@@ -72,7 +72,7 @@ public:
 
 		// create the LLSD arguments for the search floater
 		LLFloaterSearch::Params p;
-		p.search.category = category;
+		p.search.collection = collection;
 		p.search.query = LLURI::unescape(search_text);
 
 		// open the search floater and perform the requested search
