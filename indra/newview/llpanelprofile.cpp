@@ -468,6 +468,121 @@ public:
 };
 LLProfileHandler gProfileHandler;
 
+
+//////////////////////////////////////////////////////////////////////////
+// LLAgentHandler
+
+class LLAgentHandler : public LLCommandHandler
+{
+public:
+	// requires trusted browser to trigger
+	LLAgentHandler() : LLCommandHandler("agent", UNTRUSTED_THROTTLE) { }
+
+	bool handle(const LLSD& params, const LLSD& query_map,
+		LLMediaCtrl* web)
+	{
+		if (params.size() < 2) return false;
+		LLUUID avatar_id;
+		if (!avatar_id.set(params[0], FALSE))
+		{
+			return false;
+		}
+
+		const std::string verb = params[1].asString();
+		if (verb == "about")
+		{
+			LLAvatarActions::showProfile(avatar_id);
+			return true;
+		}
+
+		if (verb == "inspect")
+		{
+			LLFloaterReg::showInstance("inspect_avatar", LLSD().with("avatar_id", avatar_id));
+			return true;
+		}
+
+		if (verb == "im")
+		{
+			LLAvatarActions::startIM(avatar_id);
+			return true;
+		}
+
+		if (verb == "pay")
+		{
+			if (!LLUI::getInstance()->mSettingGroups["config"]->getBOOL("EnableAvatarPay"))
+			{
+				LLNotificationsUtil::add("NoAvatarPay", LLSD(), LLSD(), std::string("SwitchToStandardSkinAndQuit"));
+				return true;
+			}
+
+			LLAvatarActions::pay(avatar_id);
+			return true;
+		}
+
+		if (verb == "offerteleport")
+		{
+			LLAvatarActions::offerTeleport(avatar_id);
+			return true;
+		}
+
+		if (verb == "requestfriend")
+		{
+			LLAvatarActions::requestFriendshipDialog(avatar_id);
+			return true;
+		}
+
+		if (verb == "removefriend")
+		{
+			LLAvatarActions::removeFriendDialog(avatar_id);
+			return true;
+		}
+
+		if (verb == "mute")
+		{
+			if (! LLAvatarActions::isBlocked(avatar_id))
+			{
+				LLAvatarActions::toggleBlock(avatar_id);
+			}
+			return true;
+		}
+
+		if (verb == "unmute")
+		{
+			if (LLAvatarActions::isBlocked(avatar_id))
+			{
+				LLAvatarActions::toggleBlock(avatar_id);
+			}
+			return true;
+		}
+
+		if (verb == "block")
+		{
+			if (params.size() > 2)
+			{
+				const std::string object_name = LLURI::unescape(params[2].asString());
+				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
+				LLMuteList::getInstance()->add(mute);
+				LLPanelBlockedList::showPanelAndSelect(mute.mID);
+			}
+			return true;
+		}
+
+		if (verb == "unblock")
+		{
+			if (params.size() > 2)
+			{
+				const std::string object_name = params[2].asString();
+				LLMute mute(avatar_id, object_name, LLMute::OBJECT);
+				LLMuteList::getInstance()->remove(mute);
+			}
+			return true;
+		}
+		return false;
+	}
+};
+LLAgentHandler gAgentHandler;
+
+
 ///----------------------------------------------------------------------------
 /// LLFloaterProfilePermissions
 ///----------------------------------------------------------------------------
