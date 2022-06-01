@@ -52,6 +52,10 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
+
+    // For OS X use only -- get an estimate of how many bytes have been allocated in vram for textures
+    static U64 getTextureBytesAllocated();
+
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(S32 numTextures, U32 *textures);
 	static void deleteTextures(S32 numTextures, const U32 *textures);
@@ -162,7 +166,7 @@ public:
 	void updatePickMask(S32 width, S32 height, const U8* data_in);
 	BOOL getMask(const LLVector2 &tc);
 
-	void checkTexSize(bool forced = false) const ;
+    void checkTexSize(bool forced = false) const ;
 	
 	// Sets the addressing mode used to sample the texture 
 	//  (such as wrapping, mirrored wrapping, and clamp)

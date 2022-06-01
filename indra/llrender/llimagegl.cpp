@@ -53,6 +53,88 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 //assumes i is a power of 2 > 0
 U32 wpo2(U32 i);
 
+
+#if LL_DARWIN
+// texture memory accounting (for OS X)
+static LLMutex sTexMemMutex;
+static std::unordered_map<U32, U32> sTextureAllocs;
+static U64 sTextureBytes = 0;
+
+// track a texture alloc on the currently bound texture.
+// asserts that no currently tracked alloc exists
+static void alloc_tex_image(U32 width, U32 height, U32 pixformat)
+{
+    U32 texUnit = gGL.getCurrentTexUnitIndex();
+    U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
+    S32 size = LLImageGL::dataFormatBytes(pixformat, width, height);
+
+    llassert(size >= 0);
+
+    sTexMemMutex.lock();
+    llassert(sTextureAllocs.find(texName) == sTextureAllocs.end());
+
+    sTextureAllocs[texName] = size;
+    sTextureBytes += size;
+
+    sTexMemMutex.unlock();
+}
+
+// track texture free on given texName
+static void free_tex_image(U32 texName)
+{
+    sTexMemMutex.lock();
+    auto iter = sTextureAllocs.find(texName);
+    if (iter != sTextureAllocs.end())
+    {
+        llassert(iter->second <= sTextureBytes); // sTextureBytes MUST NOT go below zero
+
+        sTextureBytes -= iter->second;
+
+        sTextureAllocs.erase(iter);
+    }
+
+    sTexMemMutex.unlock();
+}
+
+// track texture free on given texNames
+static void free_tex_images(U32 count, const U32* texNames)
+{
+    for (int i = 0; i < count; ++i)
+    {
+        free_tex_image(texNames[i]);
+    }
+}
+
+// track texture free on currently bound texture
+static void free_cur_tex_image()
+{
+    U32 texUnit = gGL.getCurrentTexUnitIndex();
+    U32 texName = gGL.getTexUnit(texUnit)->getCurrTexture();
+    free_tex_image(texName);
+}
+
+// static 
+U64 LLImageGL::getTextureBytesAllocated()
+{
+    return sTextureBytes;
+}
+
+#else
+
+#define alloc_tex_image(width, height, pixformat) (void) width; (void) height; (void) pixformat;
+#define free_tex_image(texName) (void) texName;
+#define free_tex_images(count, texNames) (void) count; (void) texNames;
+#define free_cur_tex_image()
+
+// static 
+U64 LLImageGL::getTextureBytesAllocated()
+{
+    // UNIMPLEMENTED OUTSIDE OF OS X, DO NOT CALL
+    llassert(false);
+    return 0;
+}
+#endif
+
 //statics
 
 U32 LLImageGL::sUniqueCount				= 0;
@@ -217,6 +299,7 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
     case GL_RGBA:								    return 32;
     case GL_SRGB_ALPHA:						        return 32;
     case GL_BGRA:								    return 32;		// Used for QuickTime media textures on the Mac
+    case GL_DEPTH_COMPONENT:                        return 24;
     default:
         LL_ERRS() << "LLImageGL::Unknown format: " << dataformat << LL_ENDL;
         return 0;
@@ -1218,6 +1301,7 @@ void LLImageGL::deleteTextures(S32 numTextures, const U32 *textures)
 {
 	if (gGLManager.mInited)
 	{
+        free_tex_images(numTextures, textures);
 		glDeleteTextures(numTextures, textures);
 	}
 }
@@ -1340,7 +1424,10 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
     stop_glerror();
     {
         LL_PROFILE_ZONE_NAMED("glTexImage2D");
+
+        free_cur_tex_image();
         glTexImage2D(target, miplevel, intformat, width, height, 0, pixformat, pixtype, use_scratch ? scratch : pixels);
+        alloc_tex_image(width, height, pixformat);
     }
     stop_glerror();
 
