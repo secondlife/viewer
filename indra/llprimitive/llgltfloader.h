@@ -32,19 +32,21 @@
 #include "llglheaders.h"
 #include "llmodelloader.h"
 
+// gltf_* structs are temporary, used to organize the subset of data that eventually goes into the material LLSD
+
 typedef struct // gltf sampler
 {   // Uses GL enums
     S32 minFilter;      // GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR or GL_LINEAR_MIPMAP_LINEAR
     S32 magFilter;      // GL_NEAREST or GL_LINEAR
     S32 wrapS;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
     S32 wrapT;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
-    //S32 wrapR;        // seen in some sample files, but not part of glTF 2.0 spec. Ignored.
+    //S32 wrapR;        // Found in some sample files, but not part of glTF 2.0 spec. Ignored.
     std::string name;   // optional, currently unused
     // extensions and extras are sampler optional fields that we don't support - at least initially 
 } gltf_sampler;
 
 typedef struct // gltf image
-{   // Note that glTF images are defined with row 0 at the top
+{   // Note that glTF images are defined with row 0 at the top (opposite of OpenGL)
     U8* data;               // ptr to decoded image data
     U32 size;               // in bytes, regardless of channel width
     U32 width;
@@ -56,34 +58,19 @@ typedef struct // gltf image
 
 typedef struct // texture
 {
-    U32 image_idx;
-    U32 sampler_idx;
+    U32 imageIdx;
+    U32 samplerIdx;
+    LLUUID imageUuid = LLUUID::null;
 } gltf_texture;
-
-
-// TODO: 2022-05 DJH add UUIDs for each texture
-typedef struct  // gltf_pbrMR_material
-{
-    // scalar values
-    LLColor4    baseColor;      // linear encoding. Multiplied with vertex color, if present.
-    double      metalness;
-    double      roughness;
-
-    // textures
-    U32 baseColorTexIdx;        // always sRGB encoded
-    U32 baseColorTexCoordIdx;
-
-    U32 metalRoughTexIdx;       // always linear, roughness in G channel, metalness in B channel
-    U32 metalRoughTexCoordIdx;
-
-    bool    hasBaseTex, hasMRTex;
-} gltf_pbr;
 
 typedef struct // render material
 {
     std::string name;
 
     // scalar values
+    LLColor4    baseColor;      // linear encoding. Multiplied with vertex color, if present.
+    double      metalness;
+    double      roughness;
     double      normalScale;    // scale applies only to X,Y components of normal
     double      occlusionScale; // strength multiplier for occlusion
     LLColor4    emissiveColor;  // emissive mulitiplier, assumed linear encoding (spec 2.0 is silent)
@@ -91,20 +78,26 @@ typedef struct // render material
     double      alphaMask;      
 
     // textures
-    U32 normalTexIdx;           // linear, valid range R[0-1], G[0-1], B[0.5-1]. Normal = texel * 2 - vec3(1.0)   
-    U32 normalTexCoordIdx;
+    U32 baseColorTexIdx;    // always sRGB encoded
+    U32 metalRoughTexIdx;   // always linear, roughness in G channel, metalness in B channel
+    U32 normalTexIdx;       // linear, valid range R[0-1], G[0-1], B[0.5-1]. Normal = texel * 2 - vec3(1.0)   
+    U32 occlusionTexIdx;    // linear, occlusion in R channel, 0 meaning fully occluded, 1 meaning not occluded
+    U32 emissiveTexIdx;     // always stored as sRGB, in nits (candela / meter^2)
 
-    U32 occlusionTexIdx;        // linear, occlusion in R channel, 0 meaning fully occluded, 1 meaning not occluded
-    U32 occlusionTexCoordIdx;
-
-    U32 emissiveColorTexIdx;    // always stored as sRGB, in nits (candela / meter^2)
-    U32 emissiveColorTexCoordIdx;
+    // texture coordinates
+    U32 baseColorTexCoords;
+    U32 metalRoughTexCoords;
+    U32 normalTexCoords;
+    U32 occlusionTexCoords;
+    U32 emissiveTexCoords;
 
     // TODO: Add traditional (diffuse, normal, specular) UUIDs here, or add this struct to LL_TextureEntry??
 
     bool        hasPBR;
-    bool        hasNormalTex, hasOcclusionTex, hasEmissiveTex;
-    gltf_pbr    pbr;
+    bool        hasBaseTex, hasMRTex, hasNormalTex, hasOcclusionTex, hasEmissiveTex;
+
+    // This field is populated after upload
+    LLUUID      material_uuid = LLUUID::null;
 
 } gltf_render_material;
 
@@ -112,7 +105,7 @@ typedef struct  // gltf_mesh
 {
     std::string name;
 
-    // TODO DJH 2022-04
+    // TODO add mesh import DJH 2022-04
 
 } gltf_mesh;
 
@@ -157,16 +150,17 @@ protected:
     std::vector<gltf_sampler>           mSamplers;
 
 private:
-    U32  mGeneratedModelLimit;  // Attempt to limit amount of generated submodels
-//    bool mPreprocessGLTF;
-    
     bool parseMeshes();
     void uploadMeshes();
     bool parseMaterials();
     void uploadMaterials();
     bool populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &mesh);
+    LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
-    /*
+    U32  mGeneratedModelLimit;  // Attempt to limit amount of generated submodels
+    //    bool mPreprocessGLTF;
+
+    /*  Inherited from dae loader - unknown how useful here
     void processElement(gltfElement *element, bool &badElement, GLTF *gltf);
     void processGltfModel(LLModel *model, GLTF *gltf, gltfElement *pRoot, gltfMesh *mesh, gltfSkin *skin);
 
