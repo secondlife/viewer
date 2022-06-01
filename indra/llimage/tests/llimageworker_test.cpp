@@ -199,12 +199,6 @@ namespace tut
 		LLImageDecodeThread::handle_t decodeHandle = mThread->decodeImage(NULL, 0, FALSE, new responder_test(&done));
 		// Verifies we get back a valid handle
 		ensure("LLImageDecodeThread:  threaded decodeImage(), returned handle is null", decodeHandle != 0);
-		// Wait a little so to simulate the main thread doing something on its main loop...
-		ms_sleep(500);		// 500 milliseconds
-		// Verifies that the responder has *not* been called yet in the meantime
-		ensure("LLImageDecodeThread: responder creation failed", done == false);
-		// Ask the thread to update: that means tells the queue to check itself and creates work requests
-		mThread->update(1);
 		// Wait till the thread has time to handle the work order (though it doesn't do much per work order...)
 		const U32 INCREMENT_TIME = 500;				// 500 milliseconds
 		const U32 MAX_TIME = 20 * INCREMENT_TIME;	// Do the loop 20 times max, i.e. wait 10 seconds but no more

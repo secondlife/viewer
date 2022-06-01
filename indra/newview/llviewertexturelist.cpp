@@ -1048,7 +1048,11 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
             {
                 iter = mUUIDMap.begin();
             }
-            entries.push_back(iter->second);
+            
+            if (iter->second->getGLTexture())
+            {
+                entries.push_back(iter->second);
+            }
             ++iter;
         }
     }

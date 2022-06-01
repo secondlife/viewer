@@ -75,6 +75,11 @@ void LLQueuedThread::shutdown()
 	unpause(); // MAIN THREAD
 	if (mThreaded)
 	{
+        if (mRequestQueue.size() == 0)
+        {
+            mRequestQueue.close();
+        }
+
 		S32 timeout = 100;
 		for ( ; timeout>0; timeout--)
 		{
