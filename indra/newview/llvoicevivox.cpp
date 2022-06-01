@@ -1606,8 +1606,21 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
         }
         else
         {
-            LL_WARNS("Voice") << "No voice channel credentials" << LL_ENDL;
-
+            LLVoiceChannel* channel = LLVoiceChannel::getCurrentVoiceChannel();
+            if (channel != NULL)
+            {
+                if (channel->getSessionName().empty() && channel->getSessionID().isNull())
+                {
+                    if (LLViewerParcelMgr::getInstance()->allowAgentVoice())
+                    {
+                        LL_WARNS("Voice") << "No channel credentials for default channel" << LL_ENDL;
+                    }
+                }
+                else
+                {
+                    LL_WARNS("Voice") << "No voice channel credentials" << LL_ENDL;
+                }
+            }
         }
     }
     else
