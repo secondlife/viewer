@@ -50,17 +50,17 @@ public:
     LLPanelProfilePicks();
     /*virtual*/ ~LLPanelProfilePicks();
 
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 
-    /*virtual*/ void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
     void createPick(const LLPickData &data);
     void selectPick(const LLUUID& pick_id);
 
-    /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(void* data, EAvatarProcessorType type) override;
     void processProperties(const LLAvatarPicks* avatar_picks);
 
-    /*virtual*/ void resetData();
+    void resetData() override;
 
     void updateButtons();
 
@@ -72,7 +72,10 @@ public:
     /**
      * Sends update data request to server.
      */
-    /*virtual*/ void updateData();
+    void updateData() override;
+
+    bool hasUnsavedChanges() override;
+    void commitUnsavedChanges() override;
 
     friend void request_avatar_properties_coro(std::string cap_url, LLUUID agent_id);
 
@@ -107,7 +110,7 @@ public:
 
     /*virtual*/ ~LLPanelProfilePick();
 
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 
     void setAvatarId(const LLUUID& avatar_id);
 
@@ -117,8 +120,13 @@ public:
     virtual void setPickName(const std::string& name);
     const std::string getPickName();
 
-    /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(void* data, EAvatarProcessorType type) override;
     void processProperties(const LLPickData* pick_data);
+
+    /**
+     * Returns true if any of Pick properties was changed by user.
+     */
+    BOOL isDirty() const override;
 
     /**
      * Saves changes.
@@ -128,9 +136,9 @@ public:
     void updateTabLabel(const std::string& title);
 
     //This stuff we got from LLRemoteParcelObserver, in the last one we intentionally do nothing
-    /*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
-    /*virtual*/ void setParcelID(const LLUUID& parcel_id) { mParcelId = parcel_id; }
-    /*virtual*/ void setErrorStatus(S32 status, const std::string& reason) {};
+    void processParcelInfo(const LLParcelData& parcel_data) override;
+    void setParcelID(const LLUUID& parcel_id) override { mParcelId = parcel_id; }
+    void setErrorStatus(S32 status, const std::string& reason) override {};
 
 protected:
 
@@ -191,12 +199,7 @@ protected:
     /**
      * Resets panel and all cantrols to unedited state
      */
-    /*virtual*/ void resetDirty();
-
-    /**
-     * Returns true if any of Pick properties was changed by user.
-     */
-    /*virtual*/ BOOL isDirty() const;
+    void resetDirty() override;
 
     /**
      * Callback for "Set Location" button click

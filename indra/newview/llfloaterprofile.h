@@ -40,8 +40,11 @@ public:
     LLFloaterProfile(const LLSD& key);
     virtual ~LLFloaterProfile();
 
-    /*virtual*/ void onOpen(const LLSD& key);
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
+
+    void onOpen(const LLSD& key) override;
+    void onClickCloseBtn(bool app_quitting = false) override;
+    void onUnsavedChangesCallback(const LLSD& notification, const LLSD& response, bool can_save);
 
     void createPick(const LLPickData &data);
     void showPick(const LLUUID& pick_id = LLUUID::null);

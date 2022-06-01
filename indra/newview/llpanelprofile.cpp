@@ -600,6 +600,9 @@ public:
     void changed(U32 mask) override; // LLFriendObserver
 
     void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
+    bool hasUnsavedChanges() { return mHasUnsavedPermChanges; }
+
+    void onApplyRights();
 
 private:
     void fillRightsData();
@@ -607,8 +610,6 @@ private:
     void confirmModifyRights(bool grant);
     void onCommitSeeOnlineRights();
     void onCommitEditRights();
-
-    void onApplyRights();
     void onCancel();
 
     LLTextBase*         mDescription;
@@ -620,6 +621,7 @@ private:
 
     LLUUID              mAvatarID;
     F32                 mContextConeOpacity;
+    bool                mHasUnsavedPermChanges;
     LLHandle<LLView>    mOwnerHandle;
 
     boost::signals2::connection	mAvatarNameCacheConnection;
@@ -629,6 +631,7 @@ LLFloaterProfilePermissions::LLFloaterProfilePermissions(LLView * owner, const L
     : LLFloater(LLSD())
     , mAvatarID(avatar_id)
     , mContextConeOpacity(0.0f)
+    , mHasUnsavedPermChanges(false)
     , mOwnerHandle(owner->getHandle())
 {
     buildFromFile("floater_profile_permissions.xml");
@@ -653,6 +656,7 @@ BOOL LLFloaterProfilePermissions::postBuild()
     mCancelBtn = getChild<LLButton>("perms_btn_cancel");
 
     mOnlineStatus->setCommitCallback([this](LLUICtrl*, void*) { onCommitSeeOnlineRights(); }, nullptr);
+    mMapRights->setCommitCallback([this](LLUICtrl*, void*) { mHasUnsavedPermChanges = true; }, nullptr);
     mEditObjectRights->setCommitCallback([this](LLUICtrl*, void*) { onCommitEditRights(); }, nullptr);
     mOkBtn->setCommitCallback([this](LLUICtrl*, void*) { onApplyRights(); }, nullptr);
     mCancelBtn->setCommitCallback([this](LLUICtrl*, void*) { onCancel(); }, nullptr);
@@ -723,9 +727,13 @@ void LLFloaterProfilePermissions::rightsConfirmationCallback(const LLSD& notific
     const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-    if (option != 0)
+    if (option != 0) // canceled
     {
         mEditObjectRights->setValue(mEditObjectRights->getValue().asBoolean() ? FALSE : TRUE);
+    }
+    else
+    {
+        mHasUnsavedPermChanges = true;
     }
 }
 
@@ -759,6 +767,7 @@ void LLFloaterProfilePermissions::onCommitSeeOnlineRights()
     {
         mMapRights->setValue(FALSE);
     }
+    mHasUnsavedPermChanges = true;
 }
 
 void LLFloaterProfilePermissions::onCommitEditRights()
@@ -823,6 +832,7 @@ void LLFloaterProfilePermissions::onCancel()
 LLPanelProfileSecondLife::LLPanelProfileSecondLife()
     : LLPanelProfileTab()
     , mAvatarNameCacheConnection()
+    , mHasUnsavedDescriptionChanges(false)
     , mWaitingForImageUpload(false)
     , mAllowPublish(false)
 {
@@ -1078,6 +1088,38 @@ void LLPanelProfileSecondLife::setProfileImageUploaded(const LLUUID &image_asset
     }
 
     setProfileImageUploading(false);
+}
+
+bool LLPanelProfileSecondLife::hasUnsavedChanges()
+{
+    LLFloater *floater = mFloaterPermissionsHandle.get();
+    if (floater)
+    {
+        LLFloaterProfilePermissions* perm = dynamic_cast<LLFloaterProfilePermissions*>(floater);
+        if (perm && perm->hasUnsavedChanges())
+        {
+            return true;
+        }
+    }
+    // if floater
+    return mHasUnsavedDescriptionChanges;
+}
+
+void LLPanelProfileSecondLife::commitUnsavedChanges()
+{
+    LLFloater *floater = mFloaterPermissionsHandle.get();
+    if (floater)
+    {
+        LLFloaterProfilePermissions* perm = dynamic_cast<LLFloaterProfilePermissions*>(floater);
+        if (perm && perm->hasUnsavedChanges())
+        {
+            perm->onApplyRights();
+        }
+    }
+    if (mHasUnsavedDescriptionChanges)
+    {
+        onSaveDescriptionChanges();
+    }
 }
 
 void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
@@ -1608,6 +1650,8 @@ void LLPanelProfileSecondLife::setDescriptionText(const std::string &text)
 {
     mSaveDescriptionChanges->setEnabled(FALSE);
     mDiscardDescriptionChanges->setEnabled(FALSE);
+    mHasUnsavedDescriptionChanges = false;
+
     mDescriptionText = text;
     mDescriptionEdit->setValue(mDescriptionText);
 }
@@ -1616,6 +1660,7 @@ void LLPanelProfileSecondLife::onSetDescriptionDirty()
 {
     mSaveDescriptionChanges->setEnabled(TRUE);
     mDiscardDescriptionChanges->setEnabled(TRUE);
+    mHasUnsavedDescriptionChanges = true;
 }
 
 void LLPanelProfileSecondLife::onShowInSearchCallback()
@@ -1656,6 +1701,7 @@ void LLPanelProfileSecondLife::onSaveDescriptionChanges()
 
     mSaveDescriptionChanges->setEnabled(FALSE);
     mDiscardDescriptionChanges->setEnabled(FALSE);
+    mHasUnsavedDescriptionChanges = false;
 }
 
 void LLPanelProfileSecondLife::onDiscardDescriptionChanges()
@@ -1847,6 +1893,7 @@ void LLPanelProfileWeb::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent e
 
 LLPanelProfileFirstLife::LLPanelProfileFirstLife()
  : LLPanelProfileTab()
+ , mHasUnsavedChanges(false)
 {
 }
 
@@ -1909,6 +1956,14 @@ void LLPanelProfileFirstLife::setProfileImageUploaded(const LLUUID &image_asset_
     setProfileImageUploading(false);
 }
 
+void LLPanelProfileFirstLife::commitUnsavedChanges()
+{
+    if (mHasUnsavedChanges)
+    {
+        onSaveDescriptionChanges();
+    }
+}
+
 void LLPanelProfileFirstLife::onChangePhoto()
 {
     (new LLProfileImagePicker(PROFILE_IMAGE_FL, new LLHandle<LLPanel>(getHandle())))->getFile();
@@ -1937,6 +1992,8 @@ void LLPanelProfileFirstLife::setDescriptionText(const std::string &text)
 {
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
+    mHasUnsavedChanges = false;
+
     mCurrentDescription = text;
     mDescriptionEdit->setValue(mCurrentDescription);
 }
@@ -1945,6 +2002,7 @@ void LLPanelProfileFirstLife::onSetDescriptionDirty()
 {
     mSaveChanges->setEnabled(TRUE);
     mDiscardChanges->setEnabled(TRUE);
+    mHasUnsavedChanges = true;
 }
 
 void LLPanelProfileFirstLife::onSaveDescriptionChanges()
@@ -1963,6 +2021,7 @@ void LLPanelProfileFirstLife::onSaveDescriptionChanges()
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
+    mHasUnsavedChanges = false;
 }
 
 void LLPanelProfileFirstLife::onDiscardDescriptionChanges()
@@ -2012,6 +2071,7 @@ void LLPanelProfileFirstLife::setLoaded()
 
 LLPanelProfileNotes::LLPanelProfileNotes()
 : LLPanelProfileTab()
+ , mHasUnsavedChanges(false)
 {
 
 }
@@ -2033,6 +2093,14 @@ void LLPanelProfileNotes::updateData()
             LLCoros::instance().launch("requestAgentUserInfoCoro",
                 boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
         }
+    }
+}
+
+void LLPanelProfileNotes::commitUnsavedChanges()
+{
+    if (mHasUnsavedChanges)
+    {
+        onSaveNotesChanges();
     }
 }
 
@@ -2060,6 +2128,8 @@ void LLPanelProfileNotes::setNotesText(const std::string &text)
 {
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
+    mHasUnsavedChanges = false;
+
     mCurrentNotes = text;
     mNotesEditor->setValue(mCurrentNotes);
 }
@@ -2068,6 +2138,7 @@ void LLPanelProfileNotes::onSetNotesDirty()
 {
     mSaveChanges->setEnabled(TRUE);
     mDiscardChanges->setEnabled(TRUE);
+    mHasUnsavedChanges = true;
 }
 
 void LLPanelProfileNotes::onSaveNotesChanges()
@@ -2100,6 +2171,7 @@ void LLPanelProfileNotes::onSaveNotesChanges()
 
     mSaveChanges->setEnabled(FALSE);
     mDiscardChanges->setEnabled(FALSE);
+    mHasUnsavedChanges = false;
 }
 
 void LLPanelProfileNotes::onDiscardNotesChanges()
@@ -2236,6 +2308,29 @@ bool LLPanelProfile::isPickTabSelected()
 bool LLPanelProfile::isNotesTabSelected()
 {
 	return (mTabContainer->getCurrentPanel() == mPanelNotes);
+}
+
+bool LLPanelProfile::hasUnsavedChanges()
+{
+    return mPanelSecondlife->hasUnsavedChanges()
+        || mPanelPicks->hasUnsavedChanges()
+        || mPanelClassifieds->hasUnsavedChanges()
+        || mPanelFirstlife->hasUnsavedChanges()
+        || mPanelNotes->hasUnsavedChanges();
+}
+
+bool LLPanelProfile::hasUnpublishedClassifieds()
+{
+    return mPanelClassifieds->hasNewClassifieds();
+}
+
+void LLPanelProfile::commitUnsavedChanges()
+{
+    mPanelSecondlife->commitUnsavedChanges();
+    mPanelPicks->commitUnsavedChanges();
+    mPanelClassifieds->commitUnsavedChanges();
+    mPanelFirstlife->commitUnsavedChanges();
+    mPanelNotes->commitUnsavedChanges();
 }
 
 void LLPanelProfile::showClassified(const LLUUID& classified_id, bool edit)

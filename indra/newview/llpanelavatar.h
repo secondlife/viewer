@@ -140,6 +140,9 @@ public:
     bool getStarted() { return mLoadingState != PROFILE_INIT; }
     bool getIsLoaded() { return mLoadingState == PROFILE_LOADED; }
 
+    virtual bool hasUnsavedChanges() { return false; }
+    virtual void commitUnsavedChanges() {}
+
 private:
 
     LLUUID  mAvatarId;

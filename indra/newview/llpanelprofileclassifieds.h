@@ -54,7 +54,7 @@ public:
     LLPublishClassifiedFloater(const LLSD& key);
     virtual ~LLPublishClassifiedFloater();
 
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 
     void setPrice(S32 price);
     S32 getPrice();
@@ -74,21 +74,24 @@ public:
     LLPanelProfileClassifieds();
     /*virtual*/ ~LLPanelProfileClassifieds();
 
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 
-    /*virtual*/ void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
     void selectClassified(const LLUUID& classified_id, bool edit);
 
-    /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(void* data, EAvatarProcessorType type) override;
 
-    /*virtual*/ void resetData();
+    void resetData() override;
 
     void updateButtons();
 
-    /*virtual*/ void updateData();
+    void updateData() override;
 
-    /*virtual*/ void apply();
+    bool hasNewClassifieds();
+    bool hasUnsavedChanges() override;
+    // commits changes to existing classifieds, but does not publish new classified!
+    void commitUnsavedChanges() override;
 
 private:
     void onClickNewBtn();
@@ -119,11 +122,11 @@ public:
 
     /*virtual*/ ~LLPanelProfileClassified();
 
-    /*virtual*/ BOOL postBuild();
+    BOOL postBuild() override;
 
     void onOpen(const LLSD& key);
 
-    /*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
+    void processProperties(void* data, EAvatarProcessorType type) override;
 
     void setSnapshotId(const LLUUID& id);
 
@@ -165,9 +168,9 @@ public:
 
     void setInfoLoaded(bool loaded) { mInfoLoaded = loaded; }
 
-    /*virtual*/ BOOL isDirty() const;
+    BOOL isDirty() const override;
 
-    /*virtual*/ void resetDirty();
+    void resetDirty() override;
 
     bool isNew() { return mIsNew; }
 
@@ -209,7 +212,7 @@ public:
 
 protected:
 
-    /*virtual*/ void resetData();
+    void resetData() override;
 
     void resetControls();
 
@@ -258,46 +261,6 @@ protected:
     void onTexturePickerMouseLeave();
 
     void onTextureSelected();
-
-
-
-
-    /**
-     * Callback for "Map" button, opens Map
-     */
-    void onClickMap();
-
-    /**
-     * Callback for "Teleport" button, teleports user to Pick location.
-     */
-    void onClickTeleport();
-
-    /**
-     * Enables/disables "Save" button
-     */
-    void enableSaveButton(BOOL enable);
-
-    /**
-     * Called when snapshot image changes.
-     */
-    void onSnapshotChanged();
-
-    /**
-     * Callback for Pick snapshot, name and description changed event.
-     */
-    void onPickChanged(LLUICtrl* ctrl);
-
-    /**
-     * Callback for "Set Location" button click
-     */
-    void onClickSetLocation();
-
-    /**
-     * Callback for "Save" button click
-     */
-    void onClickSave();
-
-    void onDescriptionFocusReceived();
 
     void updateTabLabel(const std::string& title);
 

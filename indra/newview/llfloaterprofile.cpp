@@ -28,9 +28,10 @@
 
 #include "llfloaterprofile.h"
 
+#include "llagent.h" //gAgent
+#include "llnotificationsutil.h"
 #include "llpanelavatar.h"
 #include "llpanelprofile.h"
-#include "llagent.h" //gAgent
 
 static const std::string PANEL_PROFILE_VIEW = "panel_profile_view";
 
@@ -63,6 +64,62 @@ BOOL LLFloaterProfile::postBuild()
     mPanelProfile = findChild<LLPanelProfile>(PANEL_PROFILE_VIEW);
 
     return TRUE;
+}
+
+void LLFloaterProfile::onClickCloseBtn(bool app_quitting)
+{
+    if (!app_quitting)
+    {
+        if (mPanelProfile->hasUnpublishedClassifieds())
+        {
+            LLNotificationsUtil::add("ProfileUnpublishedClassified", LLSD(), LLSD(),
+                boost::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, false));
+        }
+        else if (mPanelProfile->hasUnsavedChanges())
+        {
+            LLNotificationsUtil::add("ProfileUnsavedChanges", LLSD(), LLSD(),
+                boost::bind(&LLFloaterProfile::onUnsavedChangesCallback, this, _1, _2, true));
+        }
+        else
+        {
+            closeFloater();
+        }
+    }
+    else
+    {
+        closeFloater();
+    }
+}
+
+void LLFloaterProfile::onUnsavedChangesCallback(const LLSD& notification, const LLSD& response, bool can_save)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (can_save)
+    {
+        // savable content
+
+        if (option == 0) // Save
+        {
+            mPanelProfile->commitUnsavedChanges();
+            closeFloater();
+        }
+        if (option == 1) // Discard
+        {
+            closeFloater();
+        }
+        // else cancel
+    }
+    else
+    {
+        // classifieds
+
+        if (option == 0) // Ok
+        {
+            closeFloater();
+        }
+        // else cancel
+    }
+
 }
 
 void LLFloaterProfile::createPick(const LLPickData &data)
