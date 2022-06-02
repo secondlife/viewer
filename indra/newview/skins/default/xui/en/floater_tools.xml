@@ -2353,7 +2353,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="Light Intensity"
-             top_pad="3"
+             top_delta="32"
              width="128" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
@@ -2420,7 +2420,61 @@ even though the user gets a free copy.
                    mouse_opaque="true"
                    name="Light Ambiance"
                    width="120" />
-            <text
+          <check_box
+             height="16"
+             label="Reflection Probe"
+             layout="topleft"
+             left="10"
+             name="Reflection Probe Checkbox Ctrl"
+             tool_tip="Adjusts how objects within this volume receive reflections when PBR is enabled"
+             top_pad="15"
+             width="60" />
+          <combo_box
+			   height="19"
+			   top_delta="0"
+         left="144"
+			   follows="left|top"
+			   name="Probe Volume Type Ctrl"
+			   tool_tip="Choose the probe influence volume"
+			   width="108">
+            <combo_box.item
+             label="Sphere"
+             name="Sphere"
+             value="Sphere" />
+            <combo_box.item
+             label="Box"
+             name="Box"
+             value="Box"/>
+          </combo_box>
+          <spinner bottom_delta="19"
+                   decimal_digits="3"
+                   follows="left|top"
+                   height="16"
+                   increment="0.05"
+                   initial_value="0"
+                   label="Ambiance"
+                   label_width="55"
+                   left="10"
+                   max_val="1"
+                   min_val="0"
+                   mouse_opaque="true"
+                   name="Probe Ambiance"
+                   width="120" />
+          <spinner bottom_delta="0"
+                   decimal_digits="3"
+                   follows="left|top"
+                   height="16"
+                   increment="0.05"
+                   initial_value="0"
+                   label="Near Clip"
+                   label_width="55"
+                   left="144"
+                   max_val="1024"
+                   min_val="0"
+                   mouse_opaque="true"
+                   name="Probe Near Clip"
+                   width="120" />
+          <text
              type="string"
              length="1"
              follows="left|top"

@@ -35,7 +35,6 @@ extern F32SecondsImplicit gFrameTimeSeconds;
 
 LLReflectionMap::LLReflectionMap()
 {
-    mLastUpdateTime = gFrameTimeSeconds;
 }
 
 void LLReflectionMap::update(U32 resolution, U32 face)
@@ -52,7 +51,7 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     {
         resolution /= 2;
     }
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face);
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip());
 }
 
 bool LLReflectionMap::shouldUpdate()
@@ -215,6 +214,35 @@ bool LLReflectionMap::intersects(LLReflectionMap* other)
     return dist < r2;
 }
 
+extern LLControlGroup gSavedSettings;
+
+F32 LLReflectionMap::getAmbiance()
+{
+    static LLCachedControl<F32> minimum_ambiance(gSavedSettings, "RenderReflectionProbeAmbiance", 0.f);
+
+    F32 ret = 0.f;
+    if (mViewerObject && mViewerObject->getVolume())
+    {
+        ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeAmbiance();
+    }
+
+    return llmax(ret, minimum_ambiance());
+}
+
+F32 LLReflectionMap::getNearClip()
+{
+    const F32 MINIMUM_NEAR_CLIP = 0.1f;
+
+    F32 ret = 0.f;
+
+    if (mViewerObject && mViewerObject->getVolume())
+    {
+        ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeNearClip();
+    }
+
+    return llmax(ret, MINIMUM_NEAR_CLIP);
+}
+
 bool LLReflectionMap::getBox(LLMatrix4& box)
 { 
     if (mViewerObject)
@@ -224,25 +252,8 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
         {
             LLVOVolume* vobjp = (LLVOVolume*)mViewerObject;
 
-            U8 profile = volume->getProfileType();
-            U8 path = volume->getPathType();
-
-            if (profile == LL_PCODE_PROFILE_SQUARE &&
-                path == LL_PCODE_PATH_LINE)
+            if (vobjp->getReflectionProbeVolumeType() == LLReflectionProbeParams::VOLUME_TYPE_BOX)
             {
-                // nope
-                /*box = vobjp->getRelativeXform();
-                box *= vobjp->mDrawable->getRenderMatrix();
-                LLMatrix4 modelview(gGLModelView);
-                box *= modelview;
-                box.invert();*/
-
-                // nope
-                /*box = LLMatrix4(gGLModelView);
-                box *= vobjp->mDrawable->getRenderMatrix();
-                box *= vobjp->getRelativeXform();
-                box.invert();*/
-
                 glh::matrix4f mv(gGLModelView);
                 glh::matrix4f scale;
                 LLVector3 s = vobjp->getScale().scaledVec(LLVector3(0.5f, 0.5f, 0.5f));

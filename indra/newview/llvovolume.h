@@ -178,6 +178,9 @@ public:
 	/*virtual*/ void	parameterChanged(U16 param_type, bool local_origin);
 	/*virtual*/ void	parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_use, bool local_origin);
 
+    // update mReflectionProbe based on isReflectionProbe()
+    void updateReflectionProbePtr();
+
 	/*virtual*/ U32		processUpdateMessage(LLMessageSystem *mesgsys,
 											void **user_data,
 											U32 block_num, const EObjectUpdateType update_type,
@@ -281,6 +284,17 @@ public:
 	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
 	
+    // Reflection Probes
+    void setIsReflectionProbe(BOOL is_probe);
+    void setReflectionProbeAmbiance(F32 ambiance);
+    void setReflectionProbeNearClip(F32 near_clip);
+    void setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenceVolumeType volume_type);
+
+    BOOL getIsReflectionProbe() const;
+    F32 getReflectionProbeAmbiance() const;
+    F32 getReflectionProbeNearClip() const;
+    LLReflectionProbeParams::EInfluenceVolumeType getReflectionProbeVolumeType() const;
+
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;
 	virtual BOOL isFlexible() const;

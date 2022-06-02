@@ -56,12 +56,15 @@ public:
 	void			refresh();
 
 	void			sendIsLight();
+    void            sendIsReflectionProbe();
 	void			sendIsFlexible();
 
 	static bool		precommitValidate(const LLSD& data);
 	
 	static void 	onCommitIsLight(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitLight(			LLUICtrl* ctrl, void* userdata);
+    static void 	onCommitIsReflectionProbe(LLUICtrl* ctrl, void* userdata);
+    static void     onCommitProbe(LLUICtrl* ctrl, void* userdata);
 	void 			onCommitIsFlexible(		LLUICtrl* ctrl, void* userdata);
 	static void 	onCommitFlexible(		LLUICtrl* ctrl, void* userdata);
     void            onCommitAnimatedMeshCheckbox(LLUICtrl* ctrl, void* userdata);

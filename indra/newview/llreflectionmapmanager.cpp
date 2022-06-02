@@ -127,18 +127,12 @@ void LLReflectionMapManager::update()
     camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
 
     // process kill list
-    for (int i = 0; i < mProbes.size(); )
+    for (auto& probe : mKillList)
     {
-        auto& iter = std::find(mKillList.begin(), mKillList.end(), mProbes[i]);
-        if (iter != mKillList.end())
+        auto& iter = std::find(mProbes.begin(), mProbes.end(), probe);
+        if (iter != mProbes.end())
         {
-            deleteProbe(i);
-            mProbes.erase(mProbes.begin() + i);
-            mKillList.erase(iter);
-        }
-        else
-        {
-            ++i;
+            deleteProbe(iter - mProbes.begin());
         }
     }
 
@@ -275,7 +269,7 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
     {
         OctreeNode* node = group->getOctreeNode();
         F32 size = node->getSize().getF32ptr()[0];
-        if (size >= 7.f && size <= 17.f)
+        if (size >= 15.f && size <= 17.f)
         {
             return addProbe(group);
         }
@@ -514,24 +508,21 @@ void LLReflectionMapManager::updateUniforms()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
     // structure for packing uniform buffer object
-    // see class2/deferred/softenLightF.glsl
+    // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
         LLMatrix4 refBox[LL_REFLECTION_PROBE_COUNT]; // object bounding box as needed
         LLVector4 refSphere[LL_REFLECTION_PROBE_COUNT]; //origin and radius of refmaps in clip space
+        LLVector4 refParams[LL_REFLECTION_PROBE_COUNT]; //extra parameters (currently only ambiance)
         GLint refIndex[LL_REFLECTION_PROBE_COUNT][4];
         GLint refNeighbor[4096];
         GLint refmapCount;
-        GLfloat reflectionAmbiance;
     };
 
     mReflectionMaps.resize(LL_REFLECTION_PROBE_COUNT);
     getReflectionMaps(mReflectionMaps);
 
     ReflectionProbeData rpd;
-
-    static LLCachedControl<F32> ambiance(gSavedSettings, "RenderReflectionProbeAmbiance", 0.f);
-    rpd.reflectionAmbiance = ambiance;
 
     // load modelview matrix into matrix 4a
     LLMatrix4a modelview;
@@ -572,6 +563,8 @@ void LLReflectionMapManager::updateUniforms()
         { // negate priority to indicate this probe has a box influence volume
             rpd.refIndex[count][3] = -rpd.refIndex[count][3];
         }
+
+        rpd.refParams[count].set(refmap->getAmbiance(), 0.f, 0.f, 0.f);
 
         S32 ni = nc; // neighbor ("index") - index into refNeighbor to write indices for current reflection probe's neighbors
         {

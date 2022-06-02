@@ -55,9 +55,15 @@ public:
     // return true if given Reflection Map's influence volume intersect's with this one's
     bool intersects(LLReflectionMap* other);
 
+    // Get the ambiance value to use for this probe
+    F32 getAmbiance();
+
+    // Get the near clip plane distance to use for this probe
+    F32 getNearClip();
+
     // get the encoded bounding box of this probe's influence volume
-    // will only return a box if this probe has a volume with a square
-    // profile and a linear path
+    // will only return a box if this probe is associated with a VOVolume
+    // with its reflection probe influence volume to to VOLUME_TYPE_BOX
     // return false if no bounding box (treat as sphere influence volume)
     bool getBox(LLMatrix4& box);
 

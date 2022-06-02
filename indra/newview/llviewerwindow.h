@@ -368,7 +368,9 @@ public:
     // origin - vantage point to take the snapshot from
     // cubearray - cubemap array for storing the results
     // index - cube index in the array to use (cube index, not face-layer)
-    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face);
+    // face - which cube face to update
+    // near_clip - near clip setting to use
+    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face, F32 near_clip);
 
     
     // special implementation of simpleSnapshot for reflection maps

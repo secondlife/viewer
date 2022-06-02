@@ -81,6 +81,14 @@ const F32 LIGHT_MIN_CUTOFF = 0.0f;
 const F32 LIGHT_DEFAULT_CUTOFF = 0.0f;
 const F32 LIGHT_MAX_CUTOFF = 180.f;
 
+// reflection probes
+const F32 REFLECTION_PROBE_MIN_AMBIANCE = 0.f;
+const F32 REFLECTION_PROBE_MAX_AMBIANCE = 1.f;
+const F32 REFLECTION_PROBE_DEFAULT_AMBIANCE = 0.f;
+const F32 REFLECTION_PROBE_MIN_CLIP_DISTANCE = 0.f;
+const F32 REFLECTION_PROBE_MAX_CLIP_DISTANCE = 1024.f;
+const F32 REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE = 0.f;
+
 // "Tension" => [0,10], increments of 0.1
 const F32 FLEXIBLE_OBJECT_MIN_TENSION = 0.0f;
 const F32 FLEXIBLE_OBJECT_DEFAULT_TENSION = 1.0f;
@@ -1811,6 +1819,93 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 
 //============================================================================
 
+LLReflectionProbeParams::LLReflectionProbeParams()
+{
+    mType = PARAMS_REFLECTION_PROBE;
+}
+
+BOOL LLReflectionProbeParams::pack(LLDataPacker& dp) const
+{
+    dp.packF32(mAmbiance, "ambiance");
+    dp.packF32(mClipDistance, "clip_distance");
+    dp.packU8(mVolumeType, "volume_type");
+    return TRUE;
+}
+
+BOOL LLReflectionProbeParams::unpack(LLDataPacker& dp)
+{
+    F32 ambiance;
+    F32 clip_distance;
+    U8 volume_type;
+
+    dp.unpackF32(ambiance, "ambiance");
+    setAmbiance(ambiance);
+
+    dp.unpackF32(clip_distance, "clip_distance");
+    setClipDistance(clip_distance);
+
+    dp.unpackU8(volume_type, "volume_type");
+    setVolumeType((EInfluenceVolumeType)volume_type);
+
+    return TRUE;
+}
+
+bool LLReflectionProbeParams::operator==(const LLNetworkData& data) const
+{
+    if (data.mType != PARAMS_REFLECTION_PROBE)
+    {
+        return false;
+    }
+    const LLReflectionProbeParams* param = (const LLReflectionProbeParams*)&data;
+    if (param->mAmbiance != mAmbiance)
+    {
+        return false;
+    }
+    if (param->mClipDistance != mClipDistance)
+    {
+        return false;
+    }
+    if (param->mVolumeType != mVolumeType)
+    {
+        return false;
+    }
+    return true;
+}
+
+void LLReflectionProbeParams::copy(const LLNetworkData& data)
+{
+    const LLReflectionProbeParams* param = (LLReflectionProbeParams*)&data;
+    mType = param->mType;
+    mAmbiance = param->mAmbiance;
+    mClipDistance = param->mClipDistance;
+    mVolumeType = param->mVolumeType;
+}
+
+LLSD LLReflectionProbeParams::asLLSD() const
+{
+    LLSD sd;
+    sd["ambiance"] = getAmbiance();
+    sd["clip_distance"] = getClipDistance();
+    sd["volume_type"] = getVolumeType();
+    return sd;
+}
+
+bool LLReflectionProbeParams::fromLLSD(LLSD& sd)
+{
+    if (!sd.has("ambiance") ||
+        !sd.has("clip_distance") ||
+        !sd.has("volume_type"))
+    {
+        return false;
+    }
+
+    setAmbiance((F32)sd["ambiance"].asReal());
+    setClipDistance((F32)sd["clip_distance"].asReal());
+    setVolumeType((EInfluenceVolumeType)sd["volume_type"].asInteger());
+
+    return true;
+}
+//============================================================================
 LLFlexibleObjectData::LLFlexibleObjectData()
 {
 	mSimulateLOD				= FLEXIBLE_OBJECT_DEFAULT_NUM_SECTIONS;

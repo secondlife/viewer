@@ -3400,6 +3400,7 @@ void LLTextureFetch::sendRequestListToSimulators()
 					gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 				}
 				S32 packet = req->mLastPacket + 1;
+                LL_INFOS() << req->mID << ": " << req->mImagePriority << LL_ENDL;
 				gMessageSystem->nextBlockFast(_PREHASH_RequestImage);
 				gMessageSystem->addUUIDFast(_PREHASH_Image, req->mID);
 				gMessageSystem->addS8Fast(_PREHASH_DiscardLevel, (S8)req->mDesiredDiscard);

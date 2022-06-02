@@ -985,7 +985,12 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 		// Add it to the pipeline mLightSet
 		gPipeline.setLight(mDrawable, TRUE);
 	}
-	
+
+    if (getIsReflectionProbe())
+    {
+        updateReflectionProbePtr();
+    }
+
 	updateRadius();
 	bool force_update = true; // avoid non-alpha mDistance update being optimized away
 	mDrawable->updateDistance(*LLViewerCamera::getInstance(), force_update);
@@ -3496,6 +3501,121 @@ F32 LLVOVolume::getLightCutoff() const
 	}
 }
 
+void LLVOVolume::setIsReflectionProbe(BOOL is_probe)
+{
+    BOOL was_probe = getIsReflectionProbe();
+    if (is_probe != was_probe)
+    {
+        if (is_probe)
+        {
+            setParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE, TRUE, true);
+        }
+        else
+        {
+            setParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE, FALSE, true);
+        }
+    }
+
+    updateReflectionProbePtr();
+}
+
+void LLVOVolume::setReflectionProbeAmbiance(F32 ambiance)
+{
+    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getAmbiance() != ambiance)
+        {
+            param_block->setAmbiance(ambiance);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+        }
+    }
+}
+
+void LLVOVolume::setReflectionProbeNearClip(F32 near_clip)
+{
+    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getClipDistance() != near_clip)
+        {
+            param_block->setClipDistance(near_clip);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+        }
+    }
+}
+
+void LLVOVolume::setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenceVolumeType volume_type)
+{
+    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getVolumeType() != volume_type)
+        {
+            param_block->setVolumeType(volume_type);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+        }
+    }
+}
+
+
+BOOL LLVOVolume::getIsReflectionProbe() const
+{
+    // HACK - make this object a Reflection Probe if a certain UUID is detected
+    static LLCachedControl<std::string> reflection_probe_id(gSavedSettings, "RenderReflectionProbeTextureHackID", "");
+    LLUUID probe_id(reflection_probe_id);
+
+    for (U8 i = 0; i < getNumTEs(); ++i)
+    {
+        if (getTE(i)->getID() == probe_id)
+        {
+            return true;
+        }
+    }
+    // END HACK
+
+    return getParameterEntryInUse(LLNetworkData::PARAMS_REFLECTION_PROBE);
+}
+
+F32 LLVOVolume::getReflectionProbeAmbiance() const
+{
+    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        return param_block->getAmbiance();
+    }
+    else
+    {
+        return 0.f;
+    }
+}
+
+F32 LLVOVolume::getReflectionProbeNearClip() const
+{
+    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        return param_block->getClipDistance();
+    }
+    else
+    {
+        return 0.f;
+    }
+}
+
+LLReflectionProbeParams::EInfluenceVolumeType LLVOVolume::getReflectionProbeVolumeType() const
+{
+    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        return param_block->getVolumeType();
+    }
+    else
+    {
+        return LLReflectionProbeParams::DEFAULT_VOLUME_TYPE;
+    }
+}
+
 U32 LLVOVolume::getVolumeInterfaceID() const
 {
 	if (mVolumeImpl)
@@ -4381,6 +4501,23 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 			gPipeline.setLight(mDrawable, is_light);
 		}
 	}
+   
+    updateReflectionProbePtr();
+}
+
+void LLVOVolume::updateReflectionProbePtr()
+{
+    if (getIsReflectionProbe())
+    {
+        if (mReflectionProbe.isNull())
+        {
+            mReflectionProbe = gPipeline.mReflectionMapManager.registerViewerObject(this);
+        }
+    }
+    else if (mReflectionProbe.notNull())
+    {
+        mReflectionProbe = nullptr;
+    }
 }
 
 void LLVOVolume::setSelected(BOOL sel)
@@ -5689,24 +5826,6 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 #else
                 bool is_pbr = false;
 #endif
-
-                // HACK - make this object a Reflection Probe if a certain UUID is detected
-                static LLCachedControl<std::string> reflection_probe_id(gSavedSettings, "RenderReflectionProbeTextureHackID", "");
-                if (facep->getTextureEntry()->getID() == LLUUID(reflection_probe_id))
-                {
-                    if (!vobj->mIsReflectionProbe)
-                    {
-                        vobj->mIsReflectionProbe = true;
-                        vobj->mReflectionProbe = gPipeline.mReflectionMapManager.registerViewerObject(vobj);
-                    }
-                }
-                else
-                {
-                    // not a refleciton probe any more
-                    vobj->mIsReflectionProbe = false;
-                    vobj->mReflectionProbe = nullptr;
-                }
-                // END HACK
 
 				//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render
 				// batch, it will recover its vertex buffer reference from the spatial group
