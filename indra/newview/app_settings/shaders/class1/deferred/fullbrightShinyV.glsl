@@ -25,6 +25,7 @@
 
 uniform mat3 normal_matrix;
 uniform mat4 texture_matrix0;
+uniform mat4 texture_matrix1;
 uniform mat4 modelview_matrix;
 uniform mat4 modelview_projection_matrix;
 
@@ -70,7 +71,7 @@ void main()
 #endif
 
     vary_position = pos.xyz;
-    vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 
 #ifndef HAS_REFLECTION_PROBES	
     vec3 ref = reflect(pos.xyz, -norm);
