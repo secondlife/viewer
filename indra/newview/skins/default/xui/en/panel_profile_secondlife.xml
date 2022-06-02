@@ -10,8 +10,11 @@
  layout="topleft"
 >
    <string 
-    name="NameAgeFormat"
-    value="[NAME] ([AGE])" />
+    name="name_date_format"
+    value="[NAME], [mth,datetime,slt] [day,datetime,slt], [year,datetime,slt]" />
+   <string
+    name="age_format"
+    value="[AGE]" />
    <string
     name="partner_text"
     value="Partner: [LINK]" />
@@ -99,7 +102,17 @@ Account: [ACCTTYPE]
            layout="topleft"/>
           
           <text
-           name="user_name_age"
+           name="user_name_date"
+           value="(loading...)"
+           top_pad="0"
+           left_delta="0"
+           right="-1"
+           height="16"
+           follows="left|top|right"
+           layout="topleft"/>
+
+          <text
+           name="user_age"
            value="(loading...)"
            top_pad="0"
            left_delta="0"

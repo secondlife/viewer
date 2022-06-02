@@ -1238,12 +1238,20 @@ void LLPanelProfileSecondLife::fillRightsData()
 
 void LLPanelProfileSecondLife::fillNameAgeData(const LLAvatarName &av_name, const LLDate &born_on)
 {
-    LLStringUtil::format_map_t args;
-    args["[AGE]"] = LLDateUtil::ageFromDate(born_on, LLDate::now());
-    args["[NAME]"] = av_name.getAccountName();
-    std::string register_date = getString("NameAgeFormat", args);
-    getChild<LLUICtrl>("user_name_age")->setValue(register_date);
     getChild<LLUICtrl>("display_name")->setValue(av_name.getDisplayName());
+
+    std::string name_and_date = getString("name_date_format");
+    LLSD args_name;
+    args_name["datetime"] = (S32)born_on.secondsSinceEpoch();
+    args_name["[NAME]"] = av_name.getAccountName();
+    LLStringUtil::format(name_and_date, args_name);
+    getChild<LLUICtrl>("user_name_date")->setValue(name_and_date);
+
+    std::string register_date = getString("age_format");
+    LLSD args_age;
+    args_age["[AGE]"] = LLDateUtil::ageFromDate(born_on, LLDate::now());
+    LLStringUtil::format(register_date, args_age);
+    getChild<LLUICtrl>("user_age")->setValue(register_date);
 }
 
 void LLPanelProfileSecondLife::onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep)

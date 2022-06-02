@@ -152,16 +152,25 @@ void LLPanelProfilePicks::createPick(const LLPickData &data)
 {
     if (getIsLoaded())
     {
-        mNoItemsLabel->setVisible(FALSE);
-        LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
-        pick_panel->setAvatarId(getAvatarId());
-        pick_panel->processProperties(&data);
-        mTabContainer->addTabPanel(
-            LLTabContainer::TabPanelParams().
-            panel(pick_panel).
-            select_tab(true).
-            label(pick_panel->getPickName()));
-        updateButtons();
+        if (canAddNewPick())
+        {
+            mNoItemsLabel->setVisible(FALSE);
+            LLPanelProfilePick* pick_panel = LLPanelProfilePick::create();
+            pick_panel->setAvatarId(getAvatarId());
+            pick_panel->processProperties(&data);
+            mTabContainer->addTabPanel(
+                LLTabContainer::TabPanelParams().
+                panel(pick_panel).
+                select_tab(true).
+                label(pick_panel->getPickName()));
+            updateButtons();
+        }
+        else
+        {
+            // This means that something doesn't properly check limits
+            // before creating a pick
+            LL_WARNS() << "failed to add pick" << LL_ENDL;
+        }
     }
     else
     {
@@ -313,7 +322,7 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
         }
     }
 
-    while (!mSheduledPickCreation.empty())
+    while (!mSheduledPickCreation.empty() && canAddNewPick())
     {
         const LLPickData data =
             mSheduledPickCreation.back();
@@ -330,6 +339,8 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
         mSheduledPickCreation.pop_back();
         has_selection = true;
     }
+
+    mSheduledPickCreation.clear();
 
     BOOL no_data = !mTabContainer->getTabCount();
     mNoItemsLabel->setVisible(no_data);
