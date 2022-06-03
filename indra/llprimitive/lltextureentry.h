@@ -211,13 +211,13 @@ public:
 
 protected:
 	bool                mSelected;
-	LLUUID				mID;					// Texture GUID
+	LLUUID				mID;					// Diffuse Texture GUID
 	LLColor4			mColor;
 	U8					mBump;					// Bump map, shiny, and fullbright
 	U8					mMediaFlags;			// replace with web page, movie, etc.
 	F32                 mGlow;
 	bool                mMaterialUpdatePending;
-	LLMaterialID        mMaterialID;
+	LLMaterialID        mMaterialID;			// Hash diffuse specular ID
 	LLMaterialPtr		mMaterial;
 
 	// Note the media data is not sent via the same message structure as the rest of the TE
