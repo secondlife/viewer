@@ -4,7 +4,7 @@
  top="0"
  left="0"
  height="420"
- width="325"
+ width="315"
  follows="all"
  layout="topleft"
  help_topic="panel_profile_classified"
@@ -60,24 +60,43 @@
     >
         Save
     </string>
-    <scroll_container
-     name="profile_scroll"
-     top="0"
-     left="0"
-     bottom="-35"
-     width="320"
-     follows="all"
-     layout="topleft"
-     color="DkGray2"
-     opaque="true"
-     reserve_scroll_corner="false"
+
+  <layout_stack
+   name="main_classifieds_stack"
+   top="0"
+   bottom="-1"
+   left="0"
+   width="310"
+   follows="all"
+   layout="topleft"
+   orientation="vertical"
+   animate="false"
     >
+    <layout_panel
+     follows="all"
+     width="310"
+     height="300"
+     layout="topleft"
+     name="scroll_layout_panel"
+     auto_resize="true">
+      <scroll_container
+       name="profile_scroll"
+       top="0"
+       left="0"
+       height="300"
+       width="310"
+       follows="all"
+       layout="topleft"
+       color="DkGray2"
+       opaque="true"
+       reserve_scroll_corner="false"
+      >
         <panel
          name="info_scroll_content_panel"
          top="0"
          left="0"
          height="562"
-         width="290"
+         width="280"
          follows="left|top|right"
          layout="topleft"
          background_visible="false"
@@ -112,7 +131,7 @@
              top="145"
              left="0"
              height="375"
-             width="320"
+             width="310"
              follows="all"
              layout="topleft"
              visible="true"
@@ -124,7 +143,7 @@
                  top="0"
                  left="0"
                  height="160"
-                 width="290"
+                 width="280"
                  follows="all"
                  layout="topleft"
                  auto_resize="false"
@@ -134,7 +153,7 @@
                      top="0"
                      left="10"
                      height="35"
-                     width="280"
+                     width="270"
                      follows="left|top|right"
                      layout="topleft"
                      allow_scroll="false"
@@ -167,7 +186,7 @@
                      top_pad="5"
                      left="10"
                      height="30"
-                     width="290"
+                     width="280"
                      follows="left|top"
                      layout="topleft"
                      allow_scroll="false"
@@ -622,33 +641,52 @@
                 />
               </panel>
         </panel>
-    </scroll_container>
-    <layout_stack
-     name="edit_btns_pnl"
-     bottom="-1"
-     left="9"
+      </scroll_container>
+    </layout_panel>
+
+    <layout_panel
+     follows="all"
+     width="310"
      height="25"
-     follows="left|right|bottom"
      layout="topleft"
-     orientation="horizontal"
-     animate="false"
-    >
+     name="util_buttons_lp"
+     auto_resize="true">
+      <layout_stack
+       name="util_buttons_stack"
+       bottom="-1"
+       left="1"
+       right="-1"
+       height="25"
+       follows="left|bottom|right"
+       layout="topleft"
+       orientation="horizontal"
+       animate="false"
+      >
+        <layout_panel
+         follows="all"
+         layout="topleft"
+         name="util_resizer_left"
+         auto_resize="true"
+         user_resize="false"
+         width="1"/>
+        
         <layout_panel
             follows="all"
             height="25"
             layout="topleft"
             left="0"
             name="teleport_btn_lp"
-            auto_resize="true"
+            auto_resize="false"
             top="0"
-            width="101">
+            width="85">
             <button
              name="teleport_btn"
              label="Teleport"
              top="0"
              left="0"
              height="23"
-             width="101"
+             max_width="101"
+             width="85"
              follows="bottom|left|right"
              layout="topleft"
              />
@@ -660,15 +698,16 @@
             layout="bottomleft"
             left_pad="2"
             name="map_btn_lp"
-            auto_resize="true"
-            width="100">
+            auto_resize="false"
+            max_width="101"
+            width="85">
             <button
              name="show_on_map_btn"
              label="Map"
              top="0"
              left="0"
              height="23"
-             width="100"
+             width="85"
              follows="bottom|left|right"
              layout="topleft"
              />
@@ -680,60 +719,112 @@
             layout="bottomleft"
             left_pad="2"
             name="edit_btn_lp"
-            auto_resize="true"
-            width="101">
+            auto_resize="false"
+            max_width="101"
+            width="85">
             <button
              name="edit_btn"
              label="Edit"
              top="0"
              left="0"
              height="23"
-             width="101"
+             width="85"
              follows="bottom|left|right"
              layout="topleft"
              />
         </layout_panel>
 
         <layout_panel
-            follows="all"
-            height="25"
-            layout="topleft"
-            left="0"
-            name="save_btn_lp"
-            auto_resize="true"
-            top="0"
-            width="155">
-            <button
-             name="save_changes_btn"
-             label="[LABEL]"
-             top="0"
-             left="0"
-             left_pad="5"
-             height="23"
-             width="155"
-             follows="bottom|left|right"
-             layout="topleft"
+         follows="all"
+         layout="topleft"
+         name="util_resizer_right"
+         auto_resize="true"
+         width="1">
+        </layout_panel>
+      </layout_stack>
+    </layout_panel>
+    <layout_panel
+     follows="all"
+     width="310"
+     height="40"
+     layout="topleft"
+     name="publish_layout_panel"
+     auto_resize="false">
+      <view_border
+          bevel_style="none"
+          height="0"
+          follows="left|top|right"
+          layout="topleft"
+          left="0"
+          name="publish_emphasis_border"
+          top="4"
+          width="310"/>
+      <layout_stack
+       name="publish_stack"
+       left="1"
+       right="-1"
+       top="10"
+       height="25"
+       follows="left|top|right"
+       layout="topleft"
+       orientation="horizontal"
+       animate="false"
+      >
+        <layout_panel
+         follows="all"
+         layout="topleft"
+         name="pbl_resizer_left"
+         auto_resize="true"
+         user_resize="false"
+         width="1"/>
+        
+        <layout_panel
+         follows="all"
+         layout="topleft"
+         name="save_btn_lp"
+         auto_resize="false"
+         width="134">
+          <button
+           name="save_changes_btn"
+           label="[LABEL]"
+           top="0"
+           left="0"
+           left_pad="5"
+           height="23"
+           width="134"
+           follows="left|top"
+           layout="topleft"
              />
         </layout_panel>
 
         <layout_panel
-            follows="all"
-            height="25"
-            layout="bottomleft"
-            left_pad="2"
-            name="cancel_btn_lp"
-            auto_resize="true"
-            width="156">
-            <button
-             name="cancel_btn"
-             label="Cancel"
-             top="0"
-             left="0"
-             height="23"
-             width="156"
-             follows="bottom|left|right"
-             layout="topleft"
+         follows="all"
+         layout="bottomleft"
+         left_pad="2"
+         name="cancel_btn_lp"
+         auto_resize="false"
+         width="134">
+          <button
+           name="cancel_btn"
+           label="Cancel"
+           top="0"
+           left="0"
+           height="23"
+           width="134"
+           follows="left|top"
+           layout="topleft"
              />
         </layout_panel>
-    </layout_stack>
+
+        <layout_panel
+         follows="all"
+         layout="topleft"
+         name="pbl_resizer_right"
+         auto_resize="true"
+         width="1">
+        </layout_panel>
+        
+      </layout_stack>
+    </layout_panel>
+  </layout_stack>
 </panel>

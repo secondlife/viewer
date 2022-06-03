@@ -67,7 +67,7 @@
       <tab_container
        name="tab_classifieds"
        top="0"
-       bottom="-21"
+       bottom="-2"
        left="4"
        right="-4"
        follows="all"

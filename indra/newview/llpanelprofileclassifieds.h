@@ -291,9 +291,8 @@ private:
     LLButton*           mSetLocationButton;
     LLButton*           mCancelButton;
 
-    LLPanel*            mMapBtnCnt;
-    LLPanel*            mTeleportBtnCnt;
-    LLPanel*            mEditBtnCnt;
+    LLPanel*            mUtilityBtnCnt;
+    LLPanel*            mPublishBtnsCnt;
     LLPanel*            mSaveBtnCnt;
     LLPanel*            mCancelBtnCnt;
 

@@ -579,9 +579,8 @@ BOOL LLPanelProfileClassified::postBuild()
     mSetLocationButton  = getChild<LLButton>("set_to_curr_location_btn");
     mCancelButton       = getChild<LLButton>("cancel_btn");
 
-    mTeleportBtnCnt = getChild<LLPanel>("teleport_btn_lp");
-    mMapBtnCnt = getChild<LLPanel>("map_btn_lp");
-    mEditBtnCnt = getChild<LLPanel>("edit_btn_lp");
+    mUtilityBtnCnt = getChild<LLPanel>("util_buttons_lp");
+    mPublishBtnsCnt = getChild<LLPanel>("publish_layout_panel");
     mCancelBtnCnt = getChild<LLPanel>("cancel_btn_lp");
     mSaveBtnCnt = getChild<LLPanel>("save_btn_lp");
 
@@ -797,13 +796,12 @@ void LLPanelProfileClassified::setEditMode(BOOL edit_mode)
 void LLPanelProfileClassified::updateButtons()
 {
     bool edit_mode = getEditMode();
-    mTeleportBtnCnt->setVisible(!edit_mode);
-    mMapBtnCnt->setVisible(!edit_mode);
-    mEditBtnCnt->setVisible(!edit_mode);
+    mUtilityBtnCnt->setVisible(!edit_mode);
 
     // cancel button should either delete unpublished
     // classified or not be there at all
     mCancelBtnCnt->setVisible(edit_mode && !mIsNew);
+    mPublishBtnsCnt->setVisible(edit_mode);
     mSaveBtnCnt->setVisible(edit_mode);
     mEditButton->setVisible(!edit_mode && getSelfProfile());
 }
