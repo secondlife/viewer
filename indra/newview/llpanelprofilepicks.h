@@ -207,9 +207,14 @@ protected:
     void onClickSetLocation();
 
     /**
-     * Callback for "Save" button click
+     * Callback for "Save" and "Create" button click
      */
     void onClickSave();
+
+    /**
+     * Callback for "Save" button click
+     */
+    void onClickCancel();
 
     std::string getLocationNotice();
 
@@ -225,6 +230,8 @@ protected:
     LLTextEditor*       mPickDescription;
     LLButton*           mSetCurrentLocationButton;
     LLButton*           mSaveButton;
+    LLButton*           mCreateButton;
+    LLButton*           mCancelButton;
 
     LLVector3d mPosGlobal;
     LLUUID mParcelId;

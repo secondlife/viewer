@@ -549,6 +549,8 @@ BOOL LLPanelProfilePick::postBuild()
     mPickName = getChild<LLLineEditor>("pick_name");
     mPickDescription = getChild<LLTextEditor>("pick_desc");
     mSaveButton = getChild<LLButton>("save_changes_btn");
+    mCreateButton = getChild<LLButton>("create_changes_btn");
+    mCancelButton = getChild<LLButton>("cancel_changes_btn");
     mSetCurrentLocationButton = getChild<LLButton>("set_to_curr_location_btn");
 
     mSnapshotCtrl = getChild<LLTextureCtrl>("pick_snapshot");
@@ -558,6 +560,8 @@ BOOL LLPanelProfilePick::postBuild()
     childSetAction("show_on_map_btn", boost::bind(&LLPanelProfilePick::onClickMap, this));
 
     mSaveButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
+    mCreateButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSave, this));
+    mCancelButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickCancel, this));
     mSetCurrentLocationButton->setCommitCallback(boost::bind(&LLPanelProfilePick::onClickSetLocation, this));
 
     mPickName->setKeystrokeCallback(boost::bind(&LLPanelProfilePick::onPickChanged, this, _1), NULL);
@@ -676,8 +680,11 @@ void LLPanelProfilePick::onClickTeleport()
 
 void LLPanelProfilePick::enableSaveButton(BOOL enable)
 {
-    mSaveButton->setEnabled(enable);
-    mSaveButton->setVisible(enable);
+    childSetVisible("save_changes_lp", enable);
+
+    childSetVisible("save_btn_lp", enable && !mNewPick);
+    childSetVisible("create_btn_lp", enable && mNewPick);
+    childSetVisible("cancel_btn_lp", enable && !mNewPick);
 }
 
 void LLPanelProfilePick::onSnapshotChanged()
@@ -750,6 +757,13 @@ void LLPanelProfilePick::onClickSave()
     sendUpdate();
 
     mLocationChanged = false;
+}
+
+void LLPanelProfilePick::onClickCancel()
+{
+    LLAvatarPropertiesProcessor::getInstance()->sendPickInfoRequest(getAvatarId(), getPickId());
+    mLocationChanged = false;
+    enableSaveButton(FALSE);
 }
 
 std::string LLPanelProfilePick::getLocationNotice()
