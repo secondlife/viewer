@@ -118,6 +118,9 @@ public:
     LLUUID      getMaterialID() const;
     void        setMaterialID(LLUUID const & material_id);
 
+    void        setIsPBR(bool is_pbr);
+    bool        getIsPBR() const;
+
     bool        isNull() const;
     static const LLMaterial null;
 
@@ -146,6 +149,8 @@ protected:
     U8          mEnvironmentIntensity;
     U8          mDiffuseAlphaMode;
     U8          mAlphaMaskCutoff;
+
+    U8          mIsPBR;
 };
 
 typedef LLPointer<LLMaterial> LLMaterialPtr;
