@@ -281,6 +281,7 @@ static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
 
 //----------------------------------------
+#if 0
 std::string gPoolNames[LLDrawPool::NUM_POOL_TYPES] =
 {
 	// Correspond to LLDrawpool enum render type
@@ -306,6 +307,7 @@ std::string gPoolNames[LLDrawPool::NUM_POOL_TYPES] =
 	, "POOL_ALPHA"
 	, "POOL_PBR_OPAQUE"
 };
+#endif
 
 void drawBox(const LLVector4a& c, const LLVector4a& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
