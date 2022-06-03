@@ -11,6 +11,7 @@ include(LLXML)
 include(LLPhysicsExtensions)
 include(LLCharacter)
 include(LLRender)
+include(TinyGLTF)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -21,6 +22,7 @@ include_directories(
     ${LIBS_PREBUILT_DIR}/include/collada
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLCHARACTER_INCLUDE_DIRS}
+    ${TINYGLTF_INCLUDE_DIR}
     )
 include_directories(SYSTEM
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
