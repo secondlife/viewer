@@ -151,6 +151,63 @@ LLViewerObject *LLViewerObject::createObject(const LLUUID &id, const LLPCode pco
 {
     LL_PROFILE_ZONE_SCOPED;
     LL_DEBUGS("ObjectUpdate") << "creating " << id << LL_ENDL;
+
+#if 0
+    const char *PCODE_BASE[16] =
+    {
+          "0 -none-  " // ???
+        , "1 CUBE    " // LL_PCODE_CUBE             = 1;
+        , "2 PRISM   " // LL_PCODE_PRISM            = 2;
+        , "3 TETRA   " // LL_PCODE_TETRAHEDRON      = 3;
+        , "4 PRYAMID " // LL_PCODE_PYRAMID          = 4;
+        , "5 CYLINDER" // LL_PCODE_CYLINDER         = 5;
+        , "6 CONE    " // LL_PCODE_CONE             = 6;
+        , "7 SPHERE  " // LL_PCODE_SPHERE           = 7;
+        , "8 TORUS   " // LL_PCODE_TORUS            = 8;
+        , "9 VOLUME  " // LL_PCODE_VOLUME           = 9;
+        , "A SUR_TRI " // LL_PCODE_SURFACE_TRIANGLE = 10;
+        , "B SUR_SQR " // LL_PCODE_SURFACE_SQUARE   = 11;
+        , "C SUR_DISC" // LL_PCODE_SURFACE_DISC     = 12;
+        , "D ???     " // ???                       = 13;
+        , "E APP     " // LL_PCODE_APP              = 14; // App specific pcode (for viewer/sim side only objects)
+        , "F LEGACY  " // LL_PCODE_LEGACY           = 15;
+    };
+
+    const char *PCODE_LEGACY[16] =
+    {
+          "0 -unused-"
+        , "1 ATOR    " // LL_PCODE_LEGACY_ATOR        = 0x10 | LL_PCODE_LEGACY;
+        , "2 AVATAR  " // LL_PCODE_LEGACY_AVATAR      = 0x20 | LL_PCODE_LEGACY; // PLAYER
+        , "3 BIRD    " // LL_PCODE_LEGACY_BIRD        = 0x30 | LL_PCODE_LEGACY;
+        , "4 DEMON   " // LL_PCODE_LEGACY_DEMON       = 0x40 | LL_PCODE_LEGACY;
+        , "5 GRASS   " // LL_PCODE_LEGACY_GRASS       = 0x50 | LL_PCODE_LEGACY;
+        , "6 TREE    " // LL_PCODE_TREE_NEW           = 0x60 | LL_PCODE_LEGACY;
+        , "7 ORACLE  " // LL_PCODE_LEGACY_ORACLE      = 0x70 | LL_PCODE_LEGACY;
+        , "8 PARTICLE" // LL_PCODE_LEGACY_PART_SYS    = 0x80 | LL_PCODE_LEGACY;
+        , "9 ROCK    " // LL_PCODE_LEGACY_ROCK        = 0x90 | LL_PCODE_LEGACY;
+        , "A SHOT    " // LL_PCODE_LEGACY_SHOT        = 0xA0 | LL_PCODE_LEGACY;
+        , "B SHOT_BIG" // LL_PCODE_LEGACY_SHOT_BIG    = 0xB0 | LL_PCODE_LEGACY;
+        , "C SMOKE   " // LL_PCODE_LEGACY_SMOKE       = 0xC0 | LL_PCODE_LEGACY;
+        , "D SPARK   " // LL_PCODE_LEGACY_SPARK       = 0xD0 | LL_PCODE_LEGACY;
+        , "E TEXT BUB" // LL_PCODE_LEGACY_TEXT_BUBBLE = 0xE0 | LL_PCODE_LEGACY;
+        , "F TREE    " // LL_PCODE_LEGACY_TREE        = 0xF0 | LL_PCODE_LEGACY;
+    };
+
+    int  base     = (pcode >> 0) & LL_PCODE_BASE_MASK;
+    int  legacy   = (base == LL_PCODE_LEGACY)
+                  ? (pcode >> 4) & LL_PCODE_BASE_MASK
+                  : 0;
+
+    if (base != LL_PCODE_APP)
+    {
+        LL_INFOS("createObject") << "creating pcode: 0x" << std::hex << (int)pcode << " base: " << PCODE_BASE[base] << std::dec << LL_ENDL;
+    }
+    if (base == LL_PCODE_LEGACY)
+    {
+        LL_INFOS("createObject") << "Legacy: " << PCODE_LEGACY[legacy] << LL_ENDL;
+    }
+#endif
+
     dumpStack("ObjectUpdateStack");
     
 	LLViewerObject *res = NULL;
