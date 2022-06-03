@@ -1886,7 +1886,7 @@ LLSD LLReflectionProbeParams::asLLSD() const
     LLSD sd;
     sd["ambiance"] = getAmbiance();
     sd["clip_distance"] = getClipDistance();
-    sd["volume_type"] = getVolumeType();
+    sd["volume_type"] = (U8) getVolumeType();
     return sd;
 }
 
