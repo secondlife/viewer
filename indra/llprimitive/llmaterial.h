@@ -48,7 +48,11 @@ public:
 
     typedef enum
     {
-        SHADER_COUNT = 16,
+                           //  Norm
+                           //   Spec
+                           //    Diffuse Alpha Modes
+                           //  nsdd
+        SHADER_COUNT = 16, //  8421 Bitmask for shaders, see: getShaderMask()
         ALPHA_SHADER_COUNT = 4
     } eShaderCount;
 
