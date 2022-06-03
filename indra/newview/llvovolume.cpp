@@ -6106,17 +6106,17 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
     // generate render batches for static geometry
     U32 extra_mask = LLVertexBuffer::MAP_TEXTURE_INDEX;
     BOOL alpha_sort = TRUE;
+
     BOOL rigged = FALSE;
     for (int i = 0; i < 2; ++i) //two sets, static and rigged)
     {
-        geometryBytes += genDrawInfo(group, simple_mask | extra_mask, sSimpleFaces[i], simple_count[i], FALSE, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[i], fullbright_count[i], FALSE, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, alpha_mask | extra_mask, sAlphaFaces[i], alpha_count[i], alpha_sort, batch_textures, rigged);
-        geometryBytes += genDrawInfo(group, bump_mask | extra_mask, sBumpFaces[i], bump_count[i], FALSE, FALSE, rigged);
-        geometryBytes += genDrawInfo(group, norm_mask | extra_mask, sNormFaces[i], norm_count[i], FALSE, FALSE, rigged);
-        geometryBytes += genDrawInfo(group, spec_mask | extra_mask, sSpecFaces[i], spec_count[i], FALSE, FALSE, rigged);
-        geometryBytes += genDrawInfo(group, normspec_mask | extra_mask, sNormSpecFaces[i], normspec_count[i], FALSE, FALSE, rigged);
-
+        geometryBytes += genDrawInfo(group, simple_mask     | extra_mask, sSimpleFaces[i]    , simple_count[i]    , FALSE     , batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, fullbright_mask | extra_mask, sFullbrightFaces[i], fullbright_count[i], FALSE     , batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, alpha_mask      | extra_mask, sAlphaFaces[i]     , alpha_count[i]     , alpha_sort, batch_textures, rigged);
+        geometryBytes += genDrawInfo(group, bump_mask       | extra_mask, sBumpFaces[i]      , bump_count[i]      , FALSE     , FALSE         , rigged);
+        geometryBytes += genDrawInfo(group, norm_mask       | extra_mask, sNormFaces[i]      , norm_count[i]      , FALSE     , FALSE         , rigged);
+        geometryBytes += genDrawInfo(group, spec_mask       | extra_mask, sSpecFaces[i]      , spec_count[i]      , FALSE     , FALSE         , rigged);
+        geometryBytes += genDrawInfo(group, normspec_mask   | extra_mask, sNormSpecFaces[i]  , normspec_count[i]  , FALSE     , FALSE         , rigged);
         // for rigged set, add weights and disable alpha sorting (rigged items use depth buffer)
         extra_mask |= LLVertexBuffer::MAP_WEIGHT4;
         rigged = TRUE;
