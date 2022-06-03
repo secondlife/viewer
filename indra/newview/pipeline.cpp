@@ -1648,12 +1648,22 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		
 	LLMaterial* mat = te->getMaterialParams().get();
 
+    if (LLPipeline::sRenderDeferred && mat->getIsPBR())
+    {
+        return LLDrawPool::POOL_PBR_OPAQUE;
+    }
+
 	bool color_alpha = te->getColor().mV[3] < 0.999f;
 	bool alpha = color_alpha;
 	if (imagep)
 	{
 		alpha = alpha || (imagep->getComponents() == 4 && imagep->getType() != LLViewerTexture::MEDIA_TEXTURE) || (imagep->getComponents() == 2);
 	}
+
+    if(!alpha && mat && mat->getIsPBR())
+    {
+        return LLDrawPool::POOL_PBR_OPAQUE;
+    }
 
 	if (alpha && mat)
 	{
@@ -9680,6 +9690,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
         LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+        LLRenderPass::PASS_PBR_OPAQUE, // NOTE: Assumes PASS_PBR_OPAQUE_RIGGED is consecutive
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -10221,6 +10232,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_BLEND_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED,
+                    LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE,
 					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);
@@ -11048,6 +11060,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
             RENDER_TYPE_PARTICLES,
             RENDER_TYPE_CLOUDS,
             RENDER_TYPE_HUD_PARTICLES,
+            RENDER_TYPE_PASS_PBR_OPAQUE,
             END_RENDER_TYPES
          );
 	}

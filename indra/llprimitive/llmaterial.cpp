@@ -106,6 +106,7 @@ LLMaterial::LLMaterial()
     , mEnvironmentIntensity(LLMaterial::DEFAULT_ENV_INTENSITY)
     , mDiffuseAlphaMode(LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
     , mAlphaMaskCutoff(0)
+    , mIsPBR(0)
 {
 }
 
@@ -413,6 +414,18 @@ void LLMaterial::fromLLSD(const LLSD& material_data)
     mEnvironmentIntensity  = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ENV_INTENSITY_FIELD,      LLSD::TypeInteger);
     mDiffuseAlphaMode      = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_DIFFUSE_ALPHA_MODE_FIELD, LLSD::TypeInteger);
     mAlphaMaskCutoff       = (U8)getMaterialField<LLSD::Integer>(material_data, MATERIALS_CAP_ALPHA_MASK_CUTOFF_FIELD,  LLSD::TypeInteger);
+
+    mIsPBR = (U8)0;
+}
+
+void LLMaterial::setIsPBR(bool is_pbr)
+{
+    mIsPBR = is_pbr;
+}
+
+bool LLMaterial::getIsPBR() const
+{
+    return mIsPBR;
 }
 
 bool LLMaterial::isNull() const

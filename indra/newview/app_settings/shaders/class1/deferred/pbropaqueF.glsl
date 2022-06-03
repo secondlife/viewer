@@ -31,12 +31,17 @@
 #define DEBUG_POSITION      0
 #define DEBUG_REFLECT_VEC   0
 #define DEBUG_REFLECT_COLOR 0
+#define DEBUG_REFLECT_MAP   0
 
+#ifdef HAS_NORMAL_MAP
+uniform sampler2D bumpMap;
+#endif
 #ifdef HAS_SPECULAR_MAP
 uniform sampler2D specularMap;
 #endif
 uniform samplerCube environmentMap;
 uniform mat3        env_mat;
+uniform samplerCube reflectionMap;
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[3];
@@ -48,6 +53,9 @@ VARYING vec3 vary_position;
 VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+#ifdef HAS_NORMAL_MAP
+VARYING vec2 vary_texcoord1;
+#endif
 #ifdef HAS_SPECULAR_MAP
 VARYING vec2 vary_texcoord2;
 #endif
@@ -68,6 +76,11 @@ const float M_PI = 3.141592653589793;
 void main()
 {
     vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
+
+#ifdef HAS_NORMAL_MAP
+    vec4 norm = texture2D(bumpMap, vary_texcoord1.xy)
+    vec3 tnorm = norm.xyz * 2 - 1;
+#endif
 
 //#ifdef HAS_SPECULAR_MAP
 //#else
@@ -101,6 +114,9 @@ void main()
 #endif
 #if DEBUG_REFLECT_COLOR
     col.rgb = reflected_color;
+#endif
+#if DEBUG_REFLECT_MAP
+    col.rgb = textureCube(reflectionMap, env_vec).rgb;
 #endif
 
     frag_data[0] = vec4(col, 0.0);
