@@ -37,6 +37,8 @@ VARYING vec3 vary_position;
 VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1; // normal map
+VARYING vec2 vary_texcoord2; // specular map
 
 void passTextureIndex();
 
@@ -49,6 +51,12 @@ void main()
 
     passTextureIndex();
     vary_normal = normalize(normal_matrix * normal);
+#ifdef HAS_NORMAL_MAP
+    vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
+#endif
+#ifdef HAS_SPECULAR_MAP
+   vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+#endif
 
     vertex_color = diffuse_color;
 }

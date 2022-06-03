@@ -1239,7 +1239,8 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_SHINY);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISIBLE);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY);
-		
+		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE);
+
 		gPipeline.stateSort(hud_cam, result);
 
 		gPipeline.renderGeom(hud_cam);

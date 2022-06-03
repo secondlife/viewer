@@ -73,6 +73,11 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
          return;
     }
 
+    if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE))
+    {
+        return;
+    }
+
     gGL.flush();
 
     LLGLDisable blend(GL_BLEND);
@@ -86,7 +91,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
     // TODO: handle under water?
     // if (LLPipeline::sUnderWaterRender)
-    // PASS_SIMPLE or PASS_MATERIAL
-    //pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushBatches(LLRenderPass::PASS_PBR_OPAQUE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    pushBatches(LLDrawPool::POOL_PBR_OPAQUE  , getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 }
 
