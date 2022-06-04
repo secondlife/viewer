@@ -99,7 +99,6 @@ public:
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
-    void setNotesSnippet(std::string &notes);
     void setProfileImageUploading(bool loading);
     void setProfileImageUploaded(const LLUUID &image_asset_id);
 
@@ -118,11 +117,6 @@ protected:
 	 * Processes group related data received from server.
 	 */
 	void processGroupProperties(const LLAvatarGroups* avatar_groups);
-
-    /**
-     * Processes notes related data received from server.
-     */
-    void processNotesProperties(LLAvatarNotes* avatar_notes);
 
 	/**
 	 * Fills common for Avatar profile and My Profile fields.
@@ -147,7 +141,7 @@ protected:
     /**
      * Fills user name, display name, age.
      */
-    void fillNameAgeData(const LLAvatarName &av_name, const LLDate &born_on);
+    void fillAgeData(const LLDate &born_on);
 
     void onImageLoaded(BOOL success, LLViewerFetchedTexture *imagep);
     static void onImageLoaded(BOOL success,
@@ -198,7 +192,6 @@ private:
     LLIconCtrl*			mSecondLifePic;
 	LLPanel*			mSecondLifePicLayout;
     LLTextEditor*		mDescriptionEdit;
-    LLTextEditor*		mNotesSnippet;
     LLMenuButton*		mAgentActionMenuButton;
     LLButton*			mSaveDescriptionChanges;
     LLButton*			mDiscardDescriptionChanges;
@@ -216,7 +209,6 @@ private:
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
     std::string			mDescriptionText;
-    LLDate				mBornOn;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };
