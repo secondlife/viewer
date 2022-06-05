@@ -37,7 +37,6 @@ set(cmake_SOURCE_FILES
         LLCommon.cmake
         LLImage.cmake
         LLKDU.cmake
-        LLMeshOptimizer.cmake
         LLPhysicsExtensions.cmake
         LLPrimitive.cmake
         LLSharedLibs.cmake

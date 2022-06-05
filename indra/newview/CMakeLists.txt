@@ -27,7 +27,7 @@ include(LLCommon)
 include(LLCoreHttp)
 include(LLImage)
 include(LLKDU)
-include(LLMeshOptimizer)
+include(MESHOPTIMIZER)
 include(LLPhysicsExtensions)
 include(LLPrimitive)
 include(LLWindow)
@@ -1884,7 +1884,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llmath
         llcorehttp
         llcommon
-        ll::glod
+        llmeshoptimizer
         ll::ndof
         ll::uilibraries
         lllogin
@@ -1892,7 +1892,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llappearance
         ${LLPHYSICSEXTENSIONS_LIBRARIES}
         ll::bugsplat
-    ${TRACY_LIBRARY}
+        ll::tracy
         )
 
 if( TARGET ll::intel_memops )
