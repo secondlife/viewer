@@ -113,6 +113,14 @@ endif (WINDOWS)
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
 
+   # EXTERNAL_TOS
+   # force this platform to accept TOS via external browser
+
+   # LL_IGNORE_SIGCHLD
+   # don't catch SIGCHLD in our base application class for the viewer - some of
+   # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
+   # viewer doesn't need to catch SIGCHLD anyway.
+
   add_compile_definitions(
           _REENTRANT
           _FORTIFY_SOURCE=2
