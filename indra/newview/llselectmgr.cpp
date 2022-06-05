@@ -209,8 +209,6 @@ void LLSelectMgr::cleanupGlobals()
 	LLSelectMgr::getInstance()->clearSelections();
 }
 
-// Build time optimization, generate this function once here
-template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 //-----------------------------------------------------------------------------
 // LLSelectMgr()
 //-----------------------------------------------------------------------------
@@ -5898,8 +5896,6 @@ void LLSelectMgr::updateSilhouettes()
 		LLViewerObject* objectp = *iter;
 		objectp->clearChanged(LLXform::MOVED | LLXform::SILHOUETTE);
 	}
-	
-	//gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 }
 
 void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handle, S32& num_sils_genned, std::vector<LLViewerObject*>& changed_objects)
@@ -6624,7 +6620,7 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			glFogfv(GL_FOG_COLOR, fogCol.mV);
 
 			LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE, GL_GEQUAL);
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
+            gGL.flush();
 			gGL.begin(LLRender::LINES);
 			{
 				gGL.color4f(color.mV[VRED], color.mV[VGREEN], color.mV[VBLUE], 0.4f);

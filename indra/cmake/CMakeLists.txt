@@ -27,7 +27,6 @@ set(cmake_SOURCE_FILES
         FreeType.cmake
         GLEXT.cmake
         GLH.cmake
-        GLOD.cmake
         GoogleMock.cmake
         Havok.cmake
         Hunspell.cmake
@@ -38,12 +37,14 @@ set(cmake_SOURCE_FILES
         LLCommon.cmake
         LLImage.cmake
         LLKDU.cmake
+        LLMeshOptimizer.cmake
         LLPhysicsExtensions.cmake
         LLPrimitive.cmake
         LLSharedLibs.cmake
         LLTestCommand.cmake
         LLWindow.cmake
         Linking.cmake
+        MESHOPTIMIZER.cmake
         NDOF.cmake
         OPENAL.cmake
         OpenGL.cmake

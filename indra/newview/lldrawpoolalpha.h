@@ -51,39 +51,34 @@ public:
 	/*virtual*/ ~LLDrawPoolAlpha();
 
 	/*virtual*/ S32 getNumPostDeferredPasses();
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
 	/*virtual*/ void renderPostDeferred(S32 pass);
-
-	/*virtual*/ void beginRenderPass(S32 pass = 0);
-	/*virtual*/ void endRenderPass( S32 pass );
 	/*virtual*/ S32	 getNumPasses() { return 1; }
 
 	virtual void render(S32 pass = 0);
+    void forwardRender(bool write_depth = false);
 	/*virtual*/ void prerender();
 
+    void renderDebugAlpha();
+
 	void renderGroupAlpha(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture = TRUE);
-	void renderAlpha(U32 mask, S32 pass);
+	void renderAlpha(U32 mask, bool depth_only = false, bool rigged = false);
 	void renderAlphaHighlight(U32 mask);
-		
+    bool uploadMatrixPalette(const LLDrawInfo& params);
+
 	static BOOL sShowDebugAlpha;
 
 private:
-	LLGLSLShader* current_shader;
 	LLGLSLShader* target_shader;
-	LLGLSLShader* simple_shader;
-	LLGLSLShader* fullbright_shader;	
-	LLGLSLShader* emissive_shader;
 
-    void renderSimples(U32 mask, std::vector<LLDrawInfo*>& simples);
-    void renderFullbrights(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
-    void renderMaterials(U32 mask, std::vector<LLDrawInfo*>& fullbrights);
-    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    // setup by beginFooPass, [0] is static variant, [1] is rigged variant
+    LLGLSLShader* simple_shader = nullptr;
+    LLGLSLShader* fullbright_shader = nullptr;
+    LLGLSLShader* emissive_shader = nullptr;
 
     void drawEmissive(U32 mask, LLDrawInfo* draw);
-    void drawEmissiveInline(U32 mask, LLDrawInfo* draw);
-
-    bool TexSetup(LLDrawInfo* draw, bool use_shaders, bool use_material, LLGLSLShader* current_shader);
+    void renderEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    void renderRiggedEmissives(U32 mask, std::vector<LLDrawInfo*>& emissives);
+    bool TexSetup(LLDrawInfo* draw, bool use_material);
     void RestoreTexSetup(bool tex_setup);
 
 	// our 'normal' alpha blend function for this pass
@@ -91,6 +86,9 @@ private:
 	LLRender::eBlendFactor mColorDFactor;	
 	LLRender::eBlendFactor mAlphaSFactor;
 	LLRender::eBlendFactor mAlphaDFactor;
+
+    // if true, we're executing a rigged render pass
+    bool mRigged = false;
 };
 
 class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha

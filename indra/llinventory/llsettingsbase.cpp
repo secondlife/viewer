@@ -683,6 +683,7 @@ bool LLSettingsBase::Validator::verifyStringLength(LLSD &value, U32, S32 length)
 //=========================================================================
 void LLSettingsBlender::update(const LLSettingsBase::BlendFactor& blendf)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     F64 res = setBlendFactor(blendf);
     llassert(res >= 0.0 && res <= 1.0);
     (void)res;
@@ -713,6 +714,7 @@ F64 LLSettingsBlender::setBlendFactor(const LLSettingsBase::BlendFactor& blendf_
 
 void LLSettingsBlender::triggerComplete()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     if (mTarget)
         mTarget->replaceSettings(mFinal->getSettings());
     LLSettingsBlender::ptr_t hold = shared_from_this();   // prevents this from deleting too soon
@@ -725,11 +727,13 @@ const LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::MIN_BLEND_DELTA(FL
 
 LLSettingsBase::BlendFactor LLSettingsBlenderTimeDelta::calculateBlend(const LLSettingsBase::TrackPosition& spanpos, const LLSettingsBase::TrackPosition& spanlen) const
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     return LLSettingsBase::BlendFactor(fmod((F64)spanpos, (F64)spanlen) / (F64)spanlen);
 }
 
 bool LLSettingsBlenderTimeDelta::applyTimeDelta(const LLSettingsBase::Seconds& timedelta)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_ENVIRONMENT;
     mTimeSpent += timedelta;
 
     if (mTimeSpent > mBlendSpan)

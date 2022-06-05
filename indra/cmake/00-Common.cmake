@@ -39,7 +39,7 @@ if(NON_RELEASE_CRASH_REPORTING)
   add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
 endif()
 
-# Don't bother with a MinSizeRel or Debug build.
+# Don't bother with a MinSizeRel or Debug builds.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
 
 # Platform-specific compilation flags.

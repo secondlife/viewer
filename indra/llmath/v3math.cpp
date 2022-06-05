@@ -316,6 +316,12 @@ LLVector3::LLVector3(const LLVector4 &vec)
 	mV[VZ] = (F32)vec.mV[VZ];
 }
 
+LLVector3::LLVector3(const LLVector4a& vec)
+    : LLVector3(vec.getF32ptr())
+{
+
+}
+
 LLVector3::LLVector3(const LLSD& sd)
 {
 	setValue(sd);

@@ -45,8 +45,7 @@
 // * A simulator for a class can be implemented here. Please comment and document thoroughly.
 
 LLImageBase::LLImageBase() 
-: LLTrace::MemTrackable<LLImageBase>("LLImageBase"),
-mData(NULL),
+: mData(NULL),
 mDataSize(0),
 mWidth(0),
 mHeight(0),

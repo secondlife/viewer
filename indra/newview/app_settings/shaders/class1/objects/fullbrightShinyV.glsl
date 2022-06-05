@@ -46,20 +46,32 @@ VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+#endif
 
 void main()
 {
 	//transform vertex
 	vec4 vert = vec4(position.xyz,1.0);
 	passTextureIndex();
+
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+    mat = modelview_matrix * mat;
+    vec4 pos = mat * vert;
+    gl_Position = projection_matrix * pos;
+	vec3 norm = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
+#else
 	vec4 pos = (modelview_matrix * vert);
 	gl_Position = modelview_projection_matrix*vec4(position.xyz, 1.0);
-	
 	vec3 norm = normalize(normal_matrix * normal);
+#endif
 	vec3 ref = reflect(pos.xyz, -norm);
 
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	vary_texcoord1 = (texture_matrix1*vec4(ref,1.0)).xyz;
+	vary_texcoord1 = (texture_matrix1 * vec4(ref,1.0)).xyz;
 
 	calcAtmospherics(pos.xyz);
 
