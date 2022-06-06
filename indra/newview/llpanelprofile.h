@@ -209,6 +209,7 @@ private:
     bool				mWaitingForImageUpload;
     bool				mAllowPublish;
     std::string			mDescriptionText;
+    LLUUID				mImageId;
 
 	boost::signals2::connection	mAvatarNameCacheConnection;
 };

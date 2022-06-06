@@ -1,6 +1,6 @@
 /**
  * @file llfloaterclassified.h
- * @brief Avatar profile floater.
+ * @brief LLFloaterClassified for displaying classifieds.
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code

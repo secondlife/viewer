@@ -9,7 +9,7 @@
  bg_alpha_image="Window_NoTitle_Background"
  height="115"
  layout="topleft"
- name="profile_permissiona"
+ name="profile_permissions"
  width="300">
   <string
    name="description_string"

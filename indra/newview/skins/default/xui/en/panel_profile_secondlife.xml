@@ -497,7 +497,7 @@ Account: [ACCTTYPE]
      user_resize="false">
       <text
        name="group_label"
-       value="Group membership"
+       value="Group memberships"
        top="1"
        left="1"
        right="-1"

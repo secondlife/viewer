@@ -967,6 +967,8 @@ void LLPanelProfileSecondLife::resetData()
 
     // Set default image and 1:1 dimensions for it
     mSecondLifePic->setValue("Generic_Person_Large");
+    mImageId = LLUUID::null;
+
     LLRect imageRect = mSecondLifePicLayout->getRect();
     mSecondLifePicLayout->reshape(imageRect.getHeight(), imageRect.getHeight());
 
@@ -1055,6 +1057,7 @@ void LLPanelProfileSecondLife::setProfileImageUploading(bool loading)
 void LLPanelProfileSecondLife::setProfileImageUploaded(const LLUUID &image_asset_id)
 {
     mSecondLifePic->setValue(image_asset_id);
+    mImageId = image_asset_id;
 
     LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(image_asset_id);
     if (imagep->getFullHeight())
@@ -1120,10 +1123,12 @@ void LLPanelProfileSecondLife::fillCommonData(const LLAvatarData* avatar_data)
     if (avatar_data->image_id.notNull())
     {
         mSecondLifePic->setValue(avatar_data->image_id);
+        mImageId = avatar_data->image_id;
     }
     else
     {
         mSecondLifePic->setValue("Generic_Person_Large");
+        mImageId = LLUUID::null;
     }
 
     // Will be loaded as a LLViewerFetchedTexture::BOOST_UI due to mSecondLifePic
@@ -1523,6 +1528,7 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
                 boost::bind(put_avatar_properties_coro, cap_url, getAvatarId(), params));
 
             mSecondLifePic->setValue("Generic_Person_Large");
+            mImageId = LLUUID::null;
         }
         else
         {
@@ -1581,7 +1587,7 @@ bool LLPanelProfileSecondLife::onEnableMenu(const LLSD& userdata)
     else if (item_name == "remove_photo")
     {
         std::string cap_url = gAgent.getRegionCapability(PROFILE_PROPERTIES_CAP);
-        return !cap_url.empty() && !mWaitingForImageUpload;
+        return mImageId.notNull() && !cap_url.empty() && !mWaitingForImageUpload;
     }
 
     return false;
