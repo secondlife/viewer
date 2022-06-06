@@ -137,6 +137,6 @@ private:
     bool        mForAgent;
 	LLStyle::Params mGroupNameStyle;
 
-	static S32	sIconWidth; // icon width + padding
+	S32	mIconWidth;
 };
 #endif // LL_LLGROUPLIST_H

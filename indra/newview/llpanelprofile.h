@@ -90,7 +90,7 @@ public:
 
 	BOOL postBuild() override;
 
-	void resetData();
+	void resetData() override;
 
 	/**
 	 * Sends update data request to server.
@@ -228,18 +228,18 @@ public:
 	LLPanelProfileWeb();
 	/*virtual*/ ~LLPanelProfileWeb();
 
-	/*virtual*/ void onOpen(const LLSD& key);
+	void onOpen(const LLSD& key) override;
 
-	/*virtual*/ BOOL postBuild();
+	BOOL postBuild() override;
 
-	void resetData();
+	void resetData() override;
 
 	/**
 	 * Loads web profile.
 	 */
-	/*virtual*/ void updateData();
+	void updateData() override;
 
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
@@ -275,7 +275,7 @@ public:
 
     void processProperties(const LLAvatarData* avatar_data);
 
-	void resetData();
+	void resetData() override;
 
     void setProfileImageUploading(bool loading);
     void setProfileImageUploaded(const LLUUID &image_asset_id);
@@ -324,7 +324,7 @@ public:
 
     void processProperties(LLAvatarNotes* avatar_notes);
 
-	void resetData();
+	void resetData() override;
 
 	void updateData() override;
 

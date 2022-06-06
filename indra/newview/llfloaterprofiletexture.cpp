@@ -38,10 +38,6 @@
 #include "llviewertexturelist.h"
 
 
-const S32 CLIENT_RECT_VPAD = 4;
-const F32 PREVIEW_TEXTURE_MAX_ASPECT = 20.f;
-const F32 PREVIEW_TEXTURE_MIN_ASPECT = 0.5f;
-
 
 LLFloaterProfileTexture::LLFloaterProfileTexture(LLView* owner)
     : LLFloater(LLSD())
@@ -67,9 +63,10 @@ LLFloaterProfileTexture::~LLFloaterProfileTexture()
 // virtual
 BOOL LLFloaterProfileTexture::postBuild()
 {
-    pProfileIcon = getChild<LLIconCtrl>("profile_pic");
+    mProfileIcon = getChild<LLIconCtrl>("profile_pic");
 
-    getChild<LLButton>("close_btn")->setCommitCallback([this](LLUICtrl*, void*) { closeFloater(); }, nullptr);
+    mCloseButton = getChild<LLButton>("close_btn");
+    mCloseButton->setCommitCallback([this](LLUICtrl*, void*) { closeFloater(); }, nullptr);
 
 	return TRUE;
 }
@@ -114,7 +111,7 @@ void LLFloaterProfileTexture::updateDimensions()
         mUpdateDimensions = FALSE;
 
         LLRect old_floater_rect = getRect();
-        LLRect old_image_rect = pProfileIcon->getRect();
+        LLRect old_image_rect = mProfileIcon->getRect();
         S32 width = old_floater_rect.getWidth() - old_image_rect.getWidth() + mLastWidth;
         S32 height = old_floater_rect.getHeight() - old_image_rect.getHeight() + mLastHeight;
 
@@ -135,9 +132,14 @@ void LLFloaterProfileTexture::draw()
     LLFloater::draw();
 }
 
+void LLFloaterProfileTexture::onOpen(const LLSD& key)
+{
+    mCloseButton->setFocus(true);
+}
+
 void LLFloaterProfileTexture::resetAsset()
 {
-    pProfileIcon->setValue("Generic_Person_Large");
+    mProfileIcon->setValue("Generic_Person_Large");
     mImageID = LLUUID::null;
     if (mImage.notNull())
     {
@@ -160,7 +162,7 @@ void LLFloaterProfileTexture::loadAsset(const LLUUID &image_id)
         return;
     }
 
-    pProfileIcon->setValue(image_id);
+    mProfileIcon->setValue(image_id);
     mImageID = image_id;
     mImage = LLViewerTextureManager::getFetchedTexture(mImageID, FTT_DEFAULT, MIPMAP_TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
     mImageOldBoostLevel = mImage->getBoostLevel();

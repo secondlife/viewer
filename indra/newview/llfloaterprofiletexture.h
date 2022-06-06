@@ -30,6 +30,7 @@
 #include "llfloater.h"
 #include "llviewertexture.h"
 
+class LLButton;
 class LLImageRaw;
 class LLIconCtrl;
 
@@ -39,7 +40,8 @@ public:
     LLFloaterProfileTexture(LLView* owner);
     ~LLFloaterProfileTexture();
 
-    virtual void		draw();
+    void draw() override;
+    void onOpen(const LLSD& key) override;
 
     void resetAsset();
     void loadAsset(const LLUUID &image_id);
@@ -54,12 +56,12 @@ public:
         BOOL final,
         void* userdata);
 
-    virtual void		reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+    void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 protected:
-    /* virtual */ BOOL	postBuild();
+    BOOL postBuild() override;
 
 private:
-    void				updateDimensions();
+    void updateDimensions();
 
     LLUUID mImageID;
     LLPointer<LLViewerFetchedTexture> mImage;
@@ -71,7 +73,8 @@ private:
     BOOL mUpdateDimensions;
 
     LLHandle<LLView> mOwnerHandle;
-    LLIconCtrl* pProfileIcon;
+    LLIconCtrl* mProfileIcon;
+    LLButton* mCloseButton;
 
     LLLoadedCallbackEntry::source_callback_list_t mCallbackTextureList;
 };

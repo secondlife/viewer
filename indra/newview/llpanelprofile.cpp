@@ -669,6 +669,8 @@ void LLFloaterProfilePermissions::onOpen(const LLSD& key)
         fillRightsData();
     }
 
+    mCancelBtn->setFocus(true);
+
     mAvatarNameCacheConnection = LLAvatarNameCache::get(mAvatarID, boost::bind(&LLFloaterProfilePermissions::onAvatarNameCache, this, _1, _2));
 }
 
@@ -986,6 +988,13 @@ void LLPanelProfileSecondLife::resetData()
     mCanEditObjectsIcon->setVisible(false);
     mCantEditObjectsIcon->setVisible(!own_profile);
 
+    mCanSeeOnlineIcon->setEnabled(false);
+    mCantSeeOnlineIcon->setEnabled(false);
+    mCanSeeOnMapIcon->setEnabled(false);
+    mCantSeeOnMapIcon->setEnabled(false);
+    mCanEditObjectsIcon->setEnabled(false);
+    mCantEditObjectsIcon->setEnabled(false);
+
     childSetVisible("partner_layout", FALSE);
     childSetVisible("partner_spacer_layout", TRUE);
 }
@@ -1222,15 +1231,22 @@ void LLPanelProfileSecondLife::fillRightsData()
         mCantSeeOnMapIcon->setVisible(!can_see_on_map);
         mCanEditObjectsIcon->setVisible(can_edit_objects);
         mCantEditObjectsIcon->setVisible(!can_edit_objects);
+
+        mCanSeeOnlineIcon->setEnabled(true);
+        mCantSeeOnlineIcon->setEnabled(true);
+        mCanSeeOnMapIcon->setEnabled(true);
+        mCantSeeOnMapIcon->setEnabled(true);
+        mCanEditObjectsIcon->setEnabled(true);
+        mCantEditObjectsIcon->setEnabled(true);
     }
     else
     {
         mCanSeeOnlineIcon->setVisible(false);
-        mCantSeeOnlineIcon->setVisible(true);
+        mCantSeeOnlineIcon->setVisible(false);
         mCanSeeOnMapIcon->setVisible(false);
-        mCantSeeOnMapIcon->setVisible(true);
+        mCantSeeOnMapIcon->setVisible(false);
         mCanEditObjectsIcon->setVisible(false);
-        mCantEditObjectsIcon->setVisible(true);
+        mCantEditObjectsIcon->setVisible(false);
     }
 }
 
