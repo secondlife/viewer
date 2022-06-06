@@ -301,6 +301,7 @@ set(viewer_SOURCE_FILES
     llfloaterpreference.cpp
     llfloaterpreferenceviewadvanced.cpp
     llfloaterpreviewtrash.cpp
+    llfloaterprofiletexture.cpp
     llfloaterproperties.cpp
     llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
@@ -942,6 +943,7 @@ set(viewer_HEADER_FILES
     llfloaterpreference.h
     llfloaterpreferenceviewadvanced.h
     llfloaterpreviewtrash.h
+    llfloaterprofiletexture.h
     llfloaterproperties.h
     llfloaterregiondebugconsole.h
     llfloaterregioninfo.h

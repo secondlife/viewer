@@ -180,6 +180,7 @@ private:
     void onSaveDescriptionChanges();
     void onDiscardDescriptionChanges();
     void onShowAgentPermissionsDialog();
+    void onShowAgentProfileTexture();
     void onOpenNotes();
 
 private:
@@ -203,6 +204,7 @@ private:
     LLIconCtrl*			mCantEditObjectsIcon;
 
     LLHandle<LLFloater>	mFloaterPermissionsHandle;
+    LLHandle<LLFloater>	mFloaterProfileTextureHandle;
 
     bool				mHasUnsavedDescriptionChanges;
 	bool				mVoiceStatus;

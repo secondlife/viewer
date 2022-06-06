@@ -59,6 +59,7 @@
 #include "llavatarpropertiesprocessor.h"
 #include "llcallingcard.h"
 #include "llcommandhandler.h"
+#include "llfloaterprofiletexture.h"
 #include "llfloaterreg.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
@@ -884,6 +885,7 @@ BOOL LLPanelProfileSecondLife::postBuild()
     mCantSeeOnMapIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
     mCanEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
     mCantEditObjectsIcon->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentPermissionsDialog(); });
+    mSecondLifePic->setMouseUpCallback([this](LLUICtrl*, S32 x, S32 y, MASK mask) { onShowAgentProfileTexture(); });
 
     return TRUE;
 }
@@ -1073,6 +1075,20 @@ void LLPanelProfileSecondLife::setProfileImageUploaded(const LLUUID &image_asset
             new LLHandle<LLPanel>(getHandle()),
             NULL,
             FALSE);
+    }
+
+    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    if (floater)
+    {
+        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        if (mImageId.notNull())
+        {
+            texture_view->loadAsset(mImageId);
+        }
+        else
+        {
+            texture_view->resetAsset();
+        }
     }
 
     setProfileImageUploading(false);
@@ -1529,6 +1545,13 @@ void LLPanelProfileSecondLife::onCommitMenu(const LLSD& userdata)
 
             mSecondLifePic->setValue("Generic_Person_Large");
             mImageId = LLUUID::null;
+
+            LLFloater *floater = mFloaterProfileTextureHandle.get();
+            if (floater)
+            {
+                LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+                texture_view->resetAsset();
+            }
         }
         else
         {
@@ -1715,6 +1738,51 @@ void LLPanelProfileSecondLife::onShowAgentPermissionsDialog()
     {
         floater->setMinimized(FALSE);
         floater->setVisibleAndFrontmost(TRUE);
+    }
+}
+
+void LLPanelProfileSecondLife::onShowAgentProfileTexture()
+{
+    if (!getIsLoaded())
+    {
+        return;
+    }
+
+    LLFloater *floater = mFloaterProfileTextureHandle.get();
+    if (!floater)
+    {
+        LLFloater* parent_floater = gFloaterView->getParentFloater(this);
+        if (parent_floater)
+        {
+            LLFloaterProfileTexture * texture_view = new LLFloaterProfileTexture(parent_floater);
+            mFloaterProfileTextureHandle = texture_view->getHandle();
+            if (mImageId.notNull())
+            {
+                texture_view->loadAsset(mImageId);
+            }
+            else
+            {
+                texture_view->resetAsset();
+            }
+            texture_view->openFloater();
+            texture_view->setVisibleAndFrontmost(TRUE);
+
+            parent_floater->addDependentFloater(mFloaterProfileTextureHandle);
+        }
+    }
+    else // already open
+    {
+        LLFloaterProfileTexture * texture_view = dynamic_cast<LLFloaterProfileTexture*>(floater);
+        texture_view->setMinimized(FALSE);
+        texture_view->setVisibleAndFrontmost(TRUE);
+        if (mImageId.notNull())
+        {
+            texture_view->loadAsset(mImageId);
+        }
+        else
+        {
+            texture_view->resetAsset();
+        }
     }
 }
 
