@@ -1348,7 +1348,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					if (mFTType != FTT_DEFAULT)
 					{
-						LL_WARNS(LOG_TXT) << "trying to seek a non-default texture on the sim. Bad!" << LL_ENDL;
+                        LL_WARNS(LOG_TXT) << "Trying to fetch a texture of non-default type by UUID. This probably won't work!" << LL_ENDL;
 					}
 					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
 					LL_DEBUGS(LOG_TXT) << "Texture URL: " << mUrl << LL_ENDL;
