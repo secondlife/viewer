@@ -1567,6 +1567,62 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 	}
 }
 
+// return false if drawable is rigged and:
+//  - a linked rigged drawable has a different spatial group
+//  - a linked rigged drawable face has the wrong draw order index
+bool check_rigged_group(LLDrawable* drawable)
+{
+    if (drawable->isState(LLDrawable::RIGGED))
+    {
+        LLSpatialGroup* group = drawable->getSpatialGroup();
+        LLDrawable* root = drawable->getRoot();
+
+        if (root->isState(LLDrawable::RIGGED) && root->getSpatialGroup() != group)
+        {
+            llassert(false);
+            return false;
+        }
+
+        S32 last_draw_index = -1;
+        if (root->isState(LLDrawable::RIGGED))
+        {
+            for (auto& face : root->getFaces())
+            {
+                if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                {
+                    llassert(false);
+                    return false;
+                }
+                last_draw_index = face->getDrawOrderIndex();
+            }
+        }
+
+        for (auto& child : root->getVObj()->getChildren())
+        {
+            if (child->mDrawable->isState(LLDrawable::RIGGED))
+            {
+                for (auto& face : child->mDrawable->getFaces())
+                {
+                    if ((S32) face->getDrawOrderIndex() <= last_draw_index)
+                    {
+                        llassert(false);
+                        return false;
+                    }
+                    last_draw_index = face->getDrawOrderIndex();
+                }
+            }
+            
+            if (child->mDrawable->getSpatialGroup() != group)
+            {
+                llassert(false);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void renderOctree(LLSpatialGroup* group)
 {
 	//render solid object bounding box, color
@@ -1611,6 +1667,9 @@ void renderOctree(LLSpatialGroup* group)
 				{
 					continue;
 				}
+
+                llassert(check_rigged_group(drawable));
+
 				if (!group->getSpatialPartition()->isBridge())
 				{
 					gGL.pushMatrix();

@@ -50,6 +50,8 @@
 #include "llglcommonfunc.h"
 #include "llvoavatar.h"
 
+#pragma optimize("", off)
+
 BOOL LLDrawPoolAlpha::sShowDebugAlpha = FALSE;
 
 #define current_shader (LLGLSLShader::sCurBoundShaderPtr)
@@ -58,8 +60,11 @@ static BOOL deferred_render = FALSE;
 
 // minimum alpha before discarding a fragment
 static const F32 MINIMUM_ALPHA = 0.004f; // ~ 1/255
+static const F32 MINIMUM_RIGGED_ALPHA = MINIMUM_ALPHA;
+
 // minimum alpha before discarding a fragment when rendering impostors
 static const F32 MINIMUM_IMPOSTOR_ALPHA = 0.1f;
+static const F32 MINIMUM_IMPOSTOR_RIGGED_ALPHA = 0.1f;
 
 LLDrawPoolAlpha::LLDrawPoolAlpha(U32 type) :
 		LLRenderPass(type), target_shader(NULL),
@@ -111,11 +116,25 @@ static void prepare_alpha_shader(LLGLSLShader* shader, bool textureGamma, bool d
 
     if (LLPipeline::sImpostorRender)
     {
-        shader->setMinimumAlpha(MINIMUM_IMPOSTOR_ALPHA);
+        if (shader->mRiggedVariant == shader)
+        {
+            shader->setMinimumAlpha(MINIMUM_IMPOSTOR_RIGGED_ALPHA);
+        }
+        else
+        {
+            shader->setMinimumAlpha(MINIMUM_IMPOSTOR_ALPHA);
+        }
     }
     else
     {
-        shader->setMinimumAlpha(MINIMUM_ALPHA);
+        if (shader->mRiggedVariant == shader)
+        {
+            shader->setMinimumAlpha(MINIMUM_RIGGED_ALPHA);
+        }
+        else
+        {
+            shader->setMinimumAlpha(MINIMUM_ALPHA);
+        }
     }
     if (textureGamma)
     {
@@ -147,6 +166,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;
     prepare_alpha_shader(simple_shader, false, true); //prime simple shader (loads shadow relevant uniforms)
 
+    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+    {
+        prepare_alpha_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], false, false); // note: bindDeferredShader will get called during render loop for materials
+    }
 
     // first pass, render rigged objects only and render to depth buffer
     forwardRender(true);
@@ -184,7 +207,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 }
 
 //set some generic parameters for forward (non-deferred) rendering
-static void prepare_forward_shader(LLGLSLShader* shader, F32 minimum_alpha)
+static void prepare_forward_shader(LLGLSLShader* shader, F32 minimum_alpha, F32 minimum_rigged_alpha)
 {
     shader->bind();
     shader->setMinimumAlpha(minimum_alpha);
@@ -193,7 +216,7 @@ static void prepare_forward_shader(LLGLSLShader* shader, F32 minimum_alpha)
     //also prepare rigged variant
     if (shader->mRiggedVariant && shader->mRiggedVariant != shader)
     {
-        prepare_forward_shader(shader->mRiggedVariant, minimum_alpha);
+        prepare_forward_shader(shader->mRiggedVariant, minimum_rigged_alpha, minimum_rigged_alpha);
     }
 }
 
@@ -211,12 +234,20 @@ void LLDrawPoolAlpha::render(S32 pass)
         (LLPipeline::sUnderWaterRender) ? &gObjectEmissiveWaterProgram : &gObjectEmissiveProgram;
 
     F32 minimum_alpha = MINIMUM_ALPHA;
+    F32 minimum_rigged_alpha = MINIMUM_RIGGED_ALPHA;
     if (LLPipeline::sImpostorRender)
     {
         minimum_alpha = MINIMUM_IMPOSTOR_ALPHA;
+        minimum_rigged_alpha = MINIMUM_IMPOSTOR_RIGGED_ALPHA;
     }
-    prepare_forward_shader(fullbright_shader, minimum_alpha);
-    prepare_forward_shader(simple_shader, minimum_alpha);
+
+    prepare_forward_shader(fullbright_shader, minimum_alpha, minimum_rigged_alpha);
+    prepare_forward_shader(simple_shader, minimum_alpha, minimum_rigged_alpha);
+
+    for (int i = 0; i < LLMaterial::SHADER_COUNT; ++i)
+    {
+        prepare_forward_shader(LLPipeline::sUnderWaterRender ? &gDeferredMaterialWaterProgram[i] : &gDeferredMaterialProgram[i], minimum_alpha, minimum_rigged_alpha);
+    }
 
     //first pass -- rigged only and drawn to depth buffer
     forwardRender(true);
