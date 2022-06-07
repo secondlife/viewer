@@ -1671,7 +1671,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 									  << LL_ENDL;
 				}
 
-				if (mFTType != FTT_SERVER_BAKE)
+                if (mFTType != FTT_SERVER_BAKE && mFTType != FTT_MAP_TILE)
 				{
 					mUrl.clear();
 				}
@@ -2695,6 +2695,11 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 			return false; // need to wait for previous aborted request to complete
 		}
 		worker->lockWorkMutex();										// +Mw
+        if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
+			worker->unlockWorkMutex();									// -Mw
+
+            return false; // similar request has failed or is in a transitional state
+        }
 		worker->mActiveCount++;
 		worker->mNeedsAux = needs_aux;
 		worker->setImagePriority(priority);
