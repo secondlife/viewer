@@ -5505,7 +5505,7 @@ U32 get_linkset_index(LLVOVolume* vobj)
 
     LLViewerObject* root = vobj->getRootEdit();
     U32 idx = 1;
-    for (auto& child : root->getChildren())
+    for (const auto& child : root->getChildren())
     {
         if (child == vobj)
         {
