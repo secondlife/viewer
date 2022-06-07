@@ -38,7 +38,7 @@ uniform sampler2D diffuseMap;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 VARYING vec3 vary_texcoord1;
-VARYING vec4 vary_position;
+VARYING vec3 vary_position;
 
 uniform samplerCube environmentMap;
 
@@ -74,7 +74,7 @@ void main()
 	vec3 amblit;
 	vec3 additive;
 	vec3 atten;
-		vec3 pos = vary_position.xyz/vary_position.w;
+	vec3 pos = vary_position.xyz;
 
 	calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
 	
