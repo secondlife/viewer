@@ -2212,8 +2212,11 @@ bool LLViewerFetchedTexture::updateFetch()
 													   mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
 		}
 
-		// if createRequest() failed, we're finishing up a request for this UUID,
-		// wait for it to complete
+        // If createRequest() failed, that means one of two things:
+        // 1. We're finishing up a request for this UUID, so we
+        //    should wait for it to complete
+        // 2. We've failed a request for this UUID, so there is
+        //    no need to create another request
 	}
 	else if (mHasFetcher && !mIsFetching)
 	{
