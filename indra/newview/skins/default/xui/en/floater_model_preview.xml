@@ -101,7 +101,7 @@
       follows="top|left"
       top_pad="10"
       left="0"
-      height="330"
+      height="335"
       width="635"
       name="import_tab"
       tab_position="top"
@@ -119,12 +119,12 @@
             <view_border
              bevel_style="none"
              follows="top|left"
-             height="306"
+             height="311"
              layout="topleft"
              left="3"
              name="lod_tab_border"
              top_pad="0"
-             width="628" />
+             width="618" />
           <text
            follows="left|top"
            height="18"
@@ -778,6 +778,22 @@
              name="crease_angle"
              value="75"
              width="60" />
+            <check_box
+             follows="top|left"
+             height="10"
+             label="Use Model Pivot as Object center"
+             layout="topleft"
+             left="10"
+             name="use_model_pivot"
+             top_pad="20" />
+            <check_box
+             follows="top|left"
+             height="10"
+             label="Clamp Pivot to Object Bound Box"
+             layout="topleft"
+             left="250"
+             name="clamp_model_pivot"
+             top_delta="0" />
         </panel>
       <!-- PHYSYCS PANEL -->
         <panel
@@ -789,7 +805,7 @@
             <view_border
               bevel_style="none"
               follows="top|left"
-              height="306"
+              height="311"
               layout="topleft"
               left="3"
               name="physics_tab_border"
@@ -1164,7 +1180,7 @@
          <view_border
           bevel_style="none"  
           follows="top|left"
-          height="306"
+          height="311"
           layout="topleft"
           left="3"
           name="border"
@@ -1734,6 +1750,15 @@ Analysed:
       width="50">
       Display...
     </text>
+    <check_box
+      follows="top|left"
+      label="Pivot"
+      label_text.text_color="White"
+      layout="topleft"
+      left_delta="0"
+      name="show_pivot"
+      top_pad="8">
+    </check_box>
     <check_box
       follows="top|left"
       label="Edges"

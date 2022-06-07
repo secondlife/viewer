@@ -27,6 +27,7 @@
 #ifndef LL_BBOX_H
 #define LL_BBOX_H
 
+#include <functional>
 #include "v3math.h"
 #include "llquaternion.h"
 
@@ -97,5 +98,25 @@ private:
 
 //LLBBox operator*(const LLBBox &a, const LLMatrix4 &b);
 
+namespace LLBBoxHelper
+{
+/*
+        B +-------+C
+        / |     / |
+       /  |    /  |
+      /  F+---/---+G
+    A+---/---+D  /
+     |  /    |  /
+     | /     | /
+     |/      |/
+    E+-------+H
+
+*/
+    enum points : unsigned char {
+        A = 1 << 0, B = 1 << 1, C = 1 << 2, D = 1 << 3, E = 1 << 4, F = 1 << 5, G = 1 << 6, H = 1 << 7
+    };
+
+    void getBoundTriangle(unsigned char flag, LLVector3 &t0, LLVector3 &t1, LLVector3 &t2, std::function<void(LLVector3 &pos)> opfn);
+};
 
 #endif  // LL_BBOX_H

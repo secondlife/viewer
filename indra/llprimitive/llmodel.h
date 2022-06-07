@@ -269,7 +269,8 @@ public:
 	std::string mRequestedLabel; // name requested in UI, if any.
 	std::string mLabel; // name computed from dae.
 
-	LLVector3 mNormalizedScale;
+    LLVector3 mScale;
+    LLVector3 mNormalizedScale;
 	LLVector3 mNormalizedTranslation;
 
 	float	mPelvisOffset;

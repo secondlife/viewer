@@ -463,7 +463,7 @@ public:
 
 	void wholeModelToLLSD(LLSD& dest, bool include_textures);
 
-	void decomposeMeshMatrix(LLMatrix4& transformation,
+	void decomposeMeshMatrix(const LLMatrix4& transformation,
 							 LLVector3& result_pos,
 							 LLQuaternion& result_rot,
 							 LLVector3& result_scale);

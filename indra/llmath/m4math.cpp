@@ -279,6 +279,13 @@ const LLMatrix4&	LLMatrix4::invert(void)
 	return *this;
 }
 
+LLMatrix4 LLMatrix4::inverted() const
+{
+    LLMatrix4 ret(*this);
+    ret.invert();
+    return ret;
+}
+
 // Convenience func for simplifying comparison-heavy code by
 // intentionally stomping values in [-FLT_EPS,FLT_EPS] to 0.0f
 //
@@ -617,6 +624,24 @@ LLMatrix3  	LLMatrix4::getMat3() const
 	retmat.mMatrix[2][2] = mMatrix[2][2];
 
 	return retmat;
+}
+
+LLVector3 LLMatrix4::getScale() const
+{
+    return LLVector3(
+        LLVector3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2]).length(),
+        LLVector3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2]).length(),
+        LLVector3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]).length()
+    );
+}
+
+LLVector3 LLMatrix4::getScaleSquared() const
+{
+    return LLVector3(
+        LLVector3(mMatrix[0][0], mMatrix[0][1], mMatrix[0][2]).lengthSquared(),
+        LLVector3(mMatrix[1][0], mMatrix[1][1], mMatrix[1][2]).lengthSquared(),
+        LLVector3(mMatrix[2][0], mMatrix[2][1], mMatrix[2][2]).lengthSquared()
+    );
 }
 
 const LLMatrix4&  	LLMatrix4::initMatrix(const LLMatrix3 &mat)

@@ -197,6 +197,8 @@ public:
 	LLMatrix3 getMat3() const;
 
 	const LLVector3& getTranslation() const { return *(LLVector3*)&mMatrix[3][0]; }
+    LLVector3 getScale() const;
+    LLVector3 getScaleSquared() const;
 
 	///////////////////////////
 	//
@@ -205,6 +207,7 @@ public:
 
 	const LLMatrix4& transpose();						// Transpose LLMatrix4
 	const LLMatrix4& invert();						// Invert LLMatrix4
+    LLMatrix4 inverted() const;
 
 	// Rotate existing matrix
 	// These are really, really, inefficient as implemented! - djs

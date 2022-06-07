@@ -176,3 +176,25 @@ LLBBox operator*(const LLBBox &a, const LLMatrix4 &b)
 	return LLBBox( a.mMin * b, a.mMax * b );
 }
 */
+
+void LLBBoxHelper::getBoundTriangle(unsigned char flag, LLVector3 &t0, LLVector3 &t1, LLVector3 &t2, std::function<void(LLVector3 &pos)> opfn)
+{
+    static const unsigned char one_bits[] = { 0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4 };
+    unsigned char nbits = one_bits[flag & 0x0f] + one_bits[flag >> 4];
+    llassert_always_msg(3 == nbits, "The number of requested point should be equel 3");
+
+    static const LLVector3 vertices[] = {
+        {1,1,1}, {1,1,-1}, {-1,1,-1}, {-1,1,1}, {1,-1,1}, {1,-1,-1}, {-1,-1,-1}, {-1,-1,1}
+    };
+
+    LLVector3 * t_arr[] = { &t0, &t1, &t2 };
+
+    for (unsigned char c = 0, n = 1, k = 0; k < 3; n <<= 1, ++c)
+    {
+        if (flag & n) {
+            *t_arr[k] = vertices[c];
+            opfn(*t_arr[k]);
+            k++;
+        }
+    }
+}

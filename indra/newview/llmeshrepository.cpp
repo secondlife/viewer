@@ -4247,7 +4247,7 @@ S32 LLMeshRepository::getMeshSize(const LLUUID& mesh_id, S32 lod)
 	return -1;
 }
 
-void LLMeshUploadThread::decomposeMeshMatrix(LLMatrix4& transformation,
+void LLMeshUploadThread::decomposeMeshMatrix(const LLMatrix4& transformation,
 											 LLVector3& result_pos,
 											 LLQuaternion& result_rot,
 											 LLVector3& result_scale)

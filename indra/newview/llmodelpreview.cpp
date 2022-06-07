@@ -3623,6 +3623,82 @@ BOOL LLModelPreview::render()
         }
     }
 
+    if (mViewOption["show_pivot"])
+    {
+        gUIProgram.bind();
+        LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
+        glLineWidth(3.f);
+        bool use_model_pivot =  mViewOption["use_model_pivot"];
+        bool clamp_model_pivot = mViewOption["clamp_model_pivot"];
+
+        for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
+        {
+            LLModelInstance& instance = *iter;
+            LLVector3 pivot;
+
+            if (!use_model_pivot)
+            {
+                pivot = instance.mTransform.getTranslation();
+            }
+            else
+            {
+                LLModel* base_model = instance.mModel;
+                pivot = base_model->mNormalizedTranslation;
+                pivot *= base_model->mScale;
+                pivot = rotate_vector(pivot, instance.mTransform);
+                pivot = instance.mTransform.getTranslation() - pivot;
+
+                if (clamp_model_pivot)
+                {
+                    //model center
+                    const LLVector3& c = instance.mTransform.getTranslation();
+
+                    LLVector3 t0, t1, t2;
+                    for (unsigned int n = 0; n < sizeof(fmp->mTriangles); ++n)
+                    {
+                        LLBBoxHelper::getBoundTriangle(fmp->mTriangles[n], t0, t1, t2, [&instance](LLVector3 &pos)
+                            {
+                                pos = rotate_vector(pos, instance.mTransform) *.5;
+                                pos += instance.mTransform.getTranslation();
+                            });
+                        LLVector3 r;
+                        if (get_intersection_segment_with_plane(pivot, c, t0, t1, t2, r))
+                        {
+                            pivot = r;
+                            break;
+                        }
+                    }
+                }
+            }
+
+
+            gGL.pushMatrix();
+            gGL.translatef(pivot[0], pivot[1], pivot[2]);
+
+            gGL.begin(LLRender::LINES);
+                gGL.color3f(1.0f, 0.f, 0.f);
+                gGL.vertex3f(-.5, 0, 0);
+                gGL.vertex3f(.5, 0, 0);
+            gGL.end();
+
+            gGL.begin(LLRender::LINES);
+                gGL.color3f(0.0f, 1.f, 0.f);
+                gGL.vertex3f(0, -.5, 0);
+                gGL.vertex3f(0, .5, 0);
+            gGL.end();
+
+            gGL.begin(LLRender::LINES);
+                gGL.color3f(0.0f, 0.f, 1.f);
+                gGL.vertex3f(0, 0, -.5);
+                gGL.vertex3f(0, 0, .5);
+            gGL.end();
+
+            gGL.popMatrix();
+        } // mUploadData instance
+        glLineWidth(1.f);
+        gUIProgram.unbind();
+    } // show_pivot
+
     gObjectPreviewProgram.unbind();
 
     gGL.popMatrix();

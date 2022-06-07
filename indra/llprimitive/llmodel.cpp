@@ -310,7 +310,10 @@ void LLModel::normalizeVolumeFaces()
 		normalized_scale.div(scale);
 		mNormalizedScale.set(normalized_scale.getF32ptr());
 		mNormalizedTranslation.set(trans.getF32ptr());
-		mNormalizedTranslation *= -1.f; 
+		mNormalizedTranslation *= -1.f;
+
+        // capture model scale
+        mScale.set(scale.getF32ptr());
 	}
 }
 

@@ -27,6 +27,7 @@
 #ifndef LL_LLFLOATERMODELPREVIEW_H
 #define LL_LLFLOATERMODELPREVIEW_H
 
+#include "llbox.h"
 #include "llfloaternamedesc.h"
 #include "llfloatermodeluploadbase.h"
 #include "llmeshrepository.h"
@@ -168,6 +169,8 @@ protected:
 	static void onPhysicsDecomposeBack(LLUICtrl* ctrl, void* userdata);
 	static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
 		
+    void togglePivotFromModel();
+    void toggleClampPivot();
 	void			draw();
 	
 	void initDecompControls();
@@ -203,6 +206,9 @@ protected:
 	LLMutex* mStatusLock;
 
 	LLSD mModelPhysicsFee;
+
+    //bb triangles
+    const unsigned char mTriangles[11];
 
 private:
     void onClickCalculateBtn();

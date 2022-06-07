@@ -168,6 +168,7 @@ LLVector3 orthogonal_component(const LLVector3 &a, const LLVector3 &b); // Retur
 LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u); // Returns a vector that is a linear interpolation between a and b
 LLVector3 point_to_box_offset(LLVector3& pos, const LLVector3* box); // Displacement from query point to nearest point on bounding box.
 bool box_valid_and_non_zero(const LLVector3* box);
+bool get_intersection_segment_with_plane(const LLVector3 &p0, const LLVector3 &p1, const LLVector3 &a, const LLVector3 &b, const LLVector3 &c, LLVector3 &point);
 
 inline LLVector3::LLVector3(void)
 {
@@ -538,6 +539,63 @@ inline LLVector3 lerp(const LLVector3 &a, const LLVector3 &b, F32 u)
 		a.mV[VZ] + (b.mV[VZ] - a.mV[VZ]) * u);
 }
 
+
+inline bool get_intersection_segment_with_plane(const LLVector3 &p0, const LLVector3 &p1, const LLVector3 &a, const LLVector3 &b, const LLVector3 &c, LLVector3 &point)
+{
+    LLVector3 n;
+
+    // Calculate the parameters for the plane
+    n[0] = (b[1] - a[1])*(c[2] - a[2]) - (b[2] - a[2])*(c[1] - a[1]);
+    n[1] = (b[2] - a[2])*(c[0] - a[0]) - (b[0] - a[0])*(c[2] - a[2]);
+    n[2] = (b[0] - a[0])*(c[1] - a[1]) - (b[1] - a[1])*(c[0] - a[0]);
+    n.normalize();
+    double d = -n[0] * a[0] - n[1] * a[1] - n[2] * a[2];
+
+    // Calculate the position on the line that intersects the plane
+    double denom = n[0] * (p1[0] - p0[0]) + n[1] * (p1[1] - p0[1]) + n[2] * (p1[2] - p0[2]);
+    if (fabs(denom) < F_APPROXIMATELY_ZERO)
+    { // Line and plane don't intersect
+        return false;
+    }
+
+    double mu = -(d + n[0] * p0[0] + n[1] * p0[1] + n[2] * p0[2]) / denom;
+    point[0] = p0[0] + mu * (p1[0] - p0[0]);
+    point[1] = p0[1] + mu * (p1[1] - p0[1]);
+    point[2] = p0[2] + mu * (p1[2] - p0[2]);
+
+    if (mu < 0 || mu > 1)
+    { // Intersection not along line segment
+        return false;
+    }
+
+    // Determine whether or not the intersection point is bounded by a,b,c
+    LLVector3 pa1, pa2, pa3;
+
+    pa1[0] = a[0] - point[0];
+    pa1[1] = a[1] - point[1];
+    pa1[2] = a[2] - point[2];
+    pa1.normalize();
+    pa2[0] = b[0] - point[0];
+    pa2[1] = b[1] - point[1];
+    pa2[2] = b[2] - point[2];
+    pa2.normalize();
+    pa3[0] = c[0] - point[0];
+    pa3[1] = c[1] - point[1];
+    pa3[2] = c[2] - point[2];
+    pa3.normalize();
+    double a1 = pa1[0]*pa2[0] + pa1[1]*pa2[1] + pa1[2]*pa2[2];
+    double a2 = pa2[0]*pa3[0] + pa2[1]*pa3[1] + pa2[2]*pa3[2];
+    double a3 = pa3[0]*pa1[0] + pa3[1]*pa1[1] + pa3[2]*pa1[2];
+    double total = (acos(a1) + acos(a2) + acos(a3));
+
+    // Sum of angles not more than F_TWO_PI
+    if (fabs(total - F_TWO_PI) > 0.001f)
+    {
+        return false;
+    }
+
+    return true;
+}
 
 inline BOOL	LLVector3::isNull() const
 {
