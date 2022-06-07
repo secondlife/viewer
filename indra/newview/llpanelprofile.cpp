@@ -996,7 +996,6 @@ void LLPanelProfileSecondLife::resetData()
     mCantEditObjectsIcon->setEnabled(false);
 
     childSetVisible("partner_layout", FALSE);
-    childSetVisible("partner_spacer_layout", TRUE);
 }
 
 void LLPanelProfileSecondLife::processProfileProperties(const LLAvatarData* avatar_data)
@@ -1186,7 +1185,6 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     if (avatar_data->partner_id.notNull())
     {
         childSetVisible("partner_layout", TRUE);
-        childSetVisible("partner_spacer_layout", FALSE);
         LLStringUtil::format_map_t args;
         args["[LINK]"] = LLSLURL("agent", avatar_data->partner_id, "inspect").getSLURLString();
         std::string partner_text = getString("partner_text", args);
@@ -1195,7 +1193,6 @@ void LLPanelProfileSecondLife::fillPartnerData(const LLAvatarData* avatar_data)
     else
     {
         childSetVisible("partner_layout", FALSE);
-        childSetVisible("partner_spacer_layout", TRUE);
     }
 }
 
