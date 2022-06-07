@@ -134,7 +134,7 @@ public:
 	/*virtual*/ bool isActiveFetching();
 	
 	/*virtual*/ const LLUUID& getID() const { return mID; }
-	void setBoostLevel(S32 level);
+	virtual void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
 	void setTextureListType(S32 tex_type) { mTextureListType = tex_type; }
 	S32 getTextureListType() { return mTextureListType; }
@@ -343,6 +343,7 @@ public:
 	S32  getDesiredDiscardLevel()			 { return mDesiredDiscardLevel; }
 	void setMinDiscardLevel(S32 discard) 	{ mMinDesiredDiscardLevel = llmin(mMinDesiredDiscardLevel,(S8)discard); }
 
+    void setBoostLevel(S32 level) override;
 	bool updateFetch();
 	bool setDebugFetching(S32 debug_level);
 	bool isInDebug() const { return mInDebug; }

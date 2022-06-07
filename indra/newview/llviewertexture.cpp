@@ -1884,6 +1884,16 @@ bool LLViewerFetchedTexture::isActiveFetching()
 	return mFetchState > 7 && mFetchState < 10 && monitor_enabled; //in state of WAIT_HTTP_REQ or DECODE_IMAGE.
 }
 
+void LLViewerFetchedTexture::setBoostLevel(S32 level)
+{
+    LLViewerTexture::setBoostLevel(level);
+
+    if (level >= LLViewerTexture::BOOST_HIGH)
+    {
+        mDesiredDiscardLevel = 0;
+    }
+}
+
 bool LLViewerFetchedTexture::updateFetch()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
