@@ -75,7 +75,7 @@ typedef struct // render material
     double      occlusionScale; // strength multiplier for occlusion
     LLColor4    emissiveColor;  // emissive mulitiplier, assumed linear encoding (spec 2.0 is silent)
     std::string alphaMode;      // "OPAQUE", "MASK" or "BLEND"
-    double      alphaMask;      
+    double      alphaMask;      // alpha cut-off
 
     // textures
     U32 baseColorTexIdx;    // always sRGB encoded
@@ -113,11 +113,6 @@ class LLGLTFLoader : public LLModelLoader
 {
   public:
     typedef std::map<std::string, LLImportMaterial> material_map;
-    typedef void gltfElement;   // TBD
-    typedef void GLTF;          // TBD
-
-    // typedef std::map<gltfElement*, std::vector<LLPointer<LLModel> > >	gltf_model_map;
-    // gltf_model_map	mModelsMap;
 
     LLGLTFLoader(std::string filename,
                     S32                                 lod,
@@ -160,7 +155,8 @@ private:
     U32  mGeneratedModelLimit;  // Attempt to limit amount of generated submodels
     //    bool mPreprocessGLTF;
 
-    /*  Inherited from dae loader - unknown how useful here
+    /*  Below inherited from dae loader - unknown if/how useful here
+
     void processElement(gltfElement *element, bool &badElement, GLTF *gltf);
     void processGltfModel(LLModel *model, GLTF *gltf, gltfElement *pRoot, gltfMesh *mesh, gltfSkin *skin);
 
