@@ -653,6 +653,8 @@ void LLViewerTexture::cleanup()
 {
 	notifyAboutMissingAsset();
 
+    LLAppViewer::getTextureFetch()->updateRequestPriority(mID, 0.f);
+
 	mFaceList[LLRender::DIFFUSE_MAP].clear();
 	mFaceList[LLRender::NORMAL_MAP].clear();
 	mFaceList[LLRender::SPECULAR_MAP].clear();
@@ -1941,6 +1943,11 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - in fast cache");
 		return false;
 	}
+    if (mGLTexturep.isNull())
+    { // fix for crash inside getCurrentDiscardLevelForFetching (shouldn't happen but appears to be happening)
+        llassert(false);
+        return false;
+    }
 	
 	S32 current_discard = getCurrentDiscardLevelForFetching();
 	S32 desired_discard = getDesiredDiscardLevel();

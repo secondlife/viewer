@@ -1071,7 +1071,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 // Locks:  Mw
 void LLTextureFetchWorker::setImagePriority(F32 priority)
 {
-	mImagePriority = priority; //should map to max virtual size
+	mImagePriority = priority; //should map to max virtual size, abort if zero
 }
 
 // Locks:  Mw
@@ -1397,7 +1397,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else
 		{
 			// Shouldn't need to do anything here
-			llassert(mFetcher->mNetworkQueue.find(mID) != mFetcher->mNetworkQueue.end());
+			//llassert(mFetcher->mNetworkQueue.find(mID) != mFetcher->mNetworkQueue.end());
 			return false;
 		}
 	}
@@ -3011,16 +3011,18 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-	bool res = false;
-	LLTextureFetchWorker* worker = getWorker(id);
-	if (worker)
-	{
-		worker->lockWorkMutex();										// +Mw
-		worker->setImagePriority(priority);
-		worker->unlockWorkMutex();										// -Mw
-		res = true;
-	}
-	return res;
+    mRequestQueue.post([=]()
+        {
+            LLTextureFetchWorker* worker = getWorker(id);
+            if (worker)
+            {
+                worker->lockWorkMutex();										// +Mw
+                worker->setImagePriority(priority);
+                worker->unlockWorkMutex();										// -Mw
+            }
+        });
+	
+	return true;
 }
 
 // Replicates and expands upon the base class's
