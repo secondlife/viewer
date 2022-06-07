@@ -653,7 +653,10 @@ void LLViewerTexture::cleanup()
 {
 	notifyAboutMissingAsset();
 
-    LLAppViewer::getTextureFetch()->updateRequestPriority(mID, 0.f);
+    if (LLAppViewer::getTextureFetch())
+    {
+        LLAppViewer::getTextureFetch()->updateRequestPriority(mID, 0.f);
+    }
 
 	mFaceList[LLRender::DIFFUSE_MAP].clear();
 	mFaceList[LLRender::NORMAL_MAP].clear();
