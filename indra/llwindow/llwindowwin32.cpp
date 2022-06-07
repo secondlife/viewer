@@ -583,7 +583,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	{
 		current_refresh = 60;
 	}
-
+    mRefreshRate = current_refresh;
 	//-----------------------------------------------------------------------
 	// Drop resolution and go fullscreen
 	// use a display mode with our desired size and depth, with a refresh
@@ -1061,6 +1061,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
     {
         current_refresh = 60;
     }
+    mRefreshRate = current_refresh;
 
     gGLManager.shutdownGL();
     //destroy gl context

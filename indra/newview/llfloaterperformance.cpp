@@ -43,6 +43,7 @@
 #include "lltextbox.h"
 #include "lltrans.h"
 #include "llviewerobjectlist.h"
+#include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
@@ -162,11 +163,9 @@ void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
 
 void LLFloaterPerformance::draw()
 {
-    const S32 NUM_PERIODS = 50;
-
     if (mUpdateTimer->hasExpired())
     {
-        getChild<LLTextBox>("fps_value")->setValue((S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS)));
+        setFPSText();
         if (mHUDsPanel->getVisible())
         {
             populateHUDList();
@@ -407,6 +406,21 @@ void LLFloaterPerformance::populateNearbyList()
     mNearbyList->sortByColumnIndex(1, FALSE);
     mNearbyList->setScrollPos(prev_pos);
     mNearbyList->selectByID(prev_selected_id);
+}
+
+void LLFloaterPerformance::setFPSText()
+{
+    const S32 NUM_PERIODS = 50;
+    S32 current_fps = (S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, NUM_PERIODS));
+    getChild<LLTextBox>("fps_value")->setValue(current_fps);
+
+    std::string fps_text = getString("fps_text");
+    static LLCachedControl<bool> vsync_enabled(gSavedSettings, "RenderVSyncEnable", true);
+    if (vsync_enabled && (current_fps >= gViewerWindow->getWindow()->getRefreshRate()))
+    {
+        fps_text += getString("max_text");
+    }
+    getChild<LLTextBox>("fps_lbl")->setValue(fps_text);
 }
 
 void LLFloaterPerformance::detachItem(const LLUUID& item_id)

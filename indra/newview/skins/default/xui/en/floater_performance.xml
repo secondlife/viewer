@@ -6,6 +6,12 @@
  save_rect="true"
  title="IMPROVE GRAPHICS SPEED"
  width="580">
+  <string
+   name="fps_text"
+   value="frames per second"/>
+  <string
+   name="max_text"
+   value=" (maximum)"/>
   <panel
    bevel_style="none"
    follows="left|top"
@@ -35,7 +41,7 @@
        text_color="White"
        height="20"
        layout="topleft"
-       left="20"
+       left="10"
        top="8"
        name="fps_value"
        width="42">

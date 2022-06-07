@@ -57,6 +57,7 @@ private:
     void populateHUDList();
     void populateObjectList();
     void populateNearbyList();
+    void setFPSText();
 
     void onClickAdvanced();
     void onChangeQuality(const LLSD& data);
