@@ -124,7 +124,7 @@ public:
 
     BOOL postBuild() override;
 
-    void onOpen(const LLSD& key);
+    void onOpen(const LLSD& key) override;
 
     void processProperties(void* data, EAvatarProcessorType type) override;
 

@@ -112,7 +112,7 @@ public:
 
     BOOL postBuild() override;
 
-    void setAvatarId(const LLUUID& avatar_id);
+    void setAvatarId(const LLUUID& avatar_id) override;
 
     void setPickId(const LLUUID& id) { mPickId = id; }
     virtual LLUUID& getPickId() { return mPickId; }
