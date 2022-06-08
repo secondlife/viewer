@@ -3147,6 +3147,11 @@ bool LLAppViewer::isUpdaterMissing()
     return mUpdaterNotFound;
 }
 
+bool LLAppViewer::waitForUpdater()
+{
+    return !gSavedSettings.getBOOL("CmdLineSkipUpdater") && !mUpdaterNotFound && !gNonInteractive;
+}
+
 void LLAppViewer::writeDebugInfo(bool isStatic)
 {
 #if LL_WINDOWS && LL_BUGSPLAT
