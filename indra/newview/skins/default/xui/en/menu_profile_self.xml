@@ -19,6 +19,17 @@
      parameter="edit_partner"/>
   </menu_item_call>
   <menu_item_call
+   label="Upload Photo"
+   layout="topleft"
+   name="upload_photo">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="upload_photo"/>
+    <menu_item_call.on_enable
+    function="Profile.EnableItem"
+     parameter="upload_photo"/>
+  </menu_item_call>
+  <menu_item_call
    label="Change Photo"
    layout="topleft"
    name="change_photo">

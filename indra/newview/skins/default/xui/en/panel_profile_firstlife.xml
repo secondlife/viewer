@@ -39,8 +39,17 @@
      visible="false"/>
     <button
      name="fl_upload_image"
+     label="Upload Photo"
+     top="102"
+     left="175"
+     height="20"
+     width="120"
+     follows="top|left"
+     layout="topleft"/>
+    <button
+     name="fl_change_image"
      label="Change Photo"
-     top="127"
+     top_pad="5"
      left="175"
      height="20"
      width="120"
