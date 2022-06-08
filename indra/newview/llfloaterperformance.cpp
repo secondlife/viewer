@@ -416,7 +416,8 @@ void LLFloaterPerformance::setFPSText()
 
     std::string fps_text = getString("fps_text");
     static LLCachedControl<bool> vsync_enabled(gSavedSettings, "RenderVSyncEnable", true);
-    if (vsync_enabled && (current_fps >= gViewerWindow->getWindow()->getRefreshRate()))
+    S32 refresh_rate = gViewerWindow->getWindow()->getRefreshRate();
+    if (vsync_enabled && (refresh_rate > 0) && (current_fps >= refresh_rate))
     {
         fps_text += getString("max_text");
     }
