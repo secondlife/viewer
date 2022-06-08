@@ -97,7 +97,7 @@ private:
 };
 
 LLMeshFilePicker::LLMeshFilePicker(LLModelPreview* mp, S32 lod)
-: LLFilePickerThread(LLFilePicker::FFLOAD_COLLADA)
+: LLFilePickerThread(LLFilePicker::FFLOAD_MODEL)
 	{
 		mMP = mp;
 		mLOD = lod;
