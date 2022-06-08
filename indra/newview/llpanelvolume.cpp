@@ -148,7 +148,7 @@ BOOL	LLPanelVolume::postBuild()
     // REFLECTION PROBE Parameters
     {
         childSetCommitCallback("Reflection Probe Checkbox Ctrl", onCommitIsReflectionProbe, this);
-        childSetCommitCallback("Probe Shape Type Combo Ctrl", onCommitProbe, this);
+        childSetCommitCallback("Probe Volume Type Ctrl", onCommitProbe, this);
         childSetCommitCallback("Probe Ambiance", onCommitProbe, this);
         childSetCommitCallback("Probe Near Clip", onCommitProbe, this);
 
