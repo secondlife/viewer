@@ -1847,8 +1847,6 @@ bool LLAppViewer::cleanup()
 
 	LL_INFOS() << "Cache files removed" << LL_ENDL;
 
-	// Wait for any pending LFS IO
-	flushLFSIO();
 	LL_INFOS() << "Shutting down Views" << LL_ENDL;
 
 	// Destroy the UI
@@ -2055,6 +2053,7 @@ bool LLAppViewer::cleanup()
 
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
+    LLLFSThread::sLocal->shutdown();
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();

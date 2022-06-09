@@ -1025,7 +1025,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     LLTimer image_op_timer;
 
-    typedef std::vector<LLViewerFetchedTexture*> entries_list_t;
+    typedef std::vector<LLPointer<LLViewerFetchedTexture> > entries_list_t;
     entries_list_t entries;
 
     // update N textures at beginning of mImageList
@@ -1057,10 +1057,13 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
         }
     }
 
-    for (auto* imagep : entries)
+    for (auto& imagep : entries)
     {
-        updateImageDecodePriority(imagep);
-        imagep->updateFetch();
+        if (imagep->getNumRefs() > 1) // make sure this image hasn't been deleted before attempting to update (may happen as a side effect of some other image updating)
+        {
+            updateImageDecodePriority(imagep);
+            imagep->updateFetch();
+        }
     }
 
     if (entries.size() > 0)

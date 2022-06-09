@@ -65,7 +65,6 @@
 #include <d3d9.h>
 #include <dxgi1_4.h>
 
-
 // Require DirectInput version 8
 #define DIRECTINPUT_VERSION 0x0800
 
@@ -4649,23 +4648,34 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
         mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
 
         // try to use no more than the available reserve minus 10%
-        U32 target = info.AvailableForReservation / 1024 / 1024;
-        target -= target / 10;
+        U32 target = info.Budget / 1024 / 1024;
+
+        // EXPERIMENTAL
+        // Trying to zero in on a good target usage, code here should be tuned against observed behavior
+        // of various hardware.
+        if (target > 4096)  // if 4GB are installed, try to leave 2GB free 
+        {
+            target -= 2048;
+        }
+        else // if less than 4GB are installed, try not to use more than half of it
+        {
+            target /= 2;
+        }
 
         U32 used_vram = info.CurrentUsage / 1024 / 1024;
 
         mAvailableVRAM = used_vram < target ? target - used_vram : 0;
 
-        /*LL_INFOS() << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
+        LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
             << "\nBudget: " << info.Budget / 1024 / 1024
             << "\nCR: " << info.CurrentReservation / 1024 / 1024
             << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;
 
         mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
-        LL_INFOS() << "\nNon-Local\nAFR: " << info.AvailableForReservation / 1024 / 1024
+        LL_INFOS("Window") << "\nNon-Local\nAFR: " << info.AvailableForReservation / 1024 / 1024
             << "\nBudget: " << info.Budget / 1024 / 1024
             << "\nCR: " << info.CurrentReservation / 1024 / 1024
-            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;*/
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;
     }
     else if (mD3DDevice != NULL)
     { // fallback to D3D9

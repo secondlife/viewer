@@ -1071,7 +1071,7 @@ void LLTextureFetchWorker::setDesiredDiscard(S32 discard, S32 size)
 // Locks:  Mw
 void LLTextureFetchWorker::setImagePriority(F32 priority)
 {
-	mImagePriority = priority; //should map to max virtual size
+	mImagePriority = priority; //should map to max virtual size, abort if zero
 }
 
 // Locks:  Mw
@@ -1348,7 +1348,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				{
 					if (mFTType != FTT_DEFAULT)
 					{
-						LL_WARNS(LOG_TXT) << "trying to seek a non-default texture on the sim. Bad!" << LL_ENDL;
+                        LL_WARNS(LOG_TXT) << "Trying to fetch a texture of non-default type by UUID. This probably won't work!" << LL_ENDL;
 					}
 					setUrl(http_url + "/?texture_id=" + mID.asString().c_str());
 					LL_DEBUGS(LOG_TXT) << "Texture URL: " << mUrl << LL_ENDL;
@@ -1397,7 +1397,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		else
 		{
 			// Shouldn't need to do anything here
-			llassert(mFetcher->mNetworkQueue.find(mID) != mFetcher->mNetworkQueue.end());
+			//llassert(mFetcher->mNetworkQueue.find(mID) != mFetcher->mNetworkQueue.end());
 			return false;
 		}
 	}
@@ -1671,7 +1671,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 									  << LL_ENDL;
 				}
 
-				if (mFTType != FTT_SERVER_BAKE)
+                if (mFTType != FTT_SERVER_BAKE && mFTType != FTT_MAP_TILE)
 				{
 					mUrl.clear();
 				}
@@ -2695,6 +2695,11 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 			return false; // need to wait for previous aborted request to complete
 		}
 		worker->lockWorkMutex();										// +Mw
+        if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
+			worker->unlockWorkMutex();									// -Mw
+
+            return false; // similar request has failed or is in a transitional state
+        }
 		worker->mActiveCount++;
 		worker->mNeedsAux = needs_aux;
 		worker->setImagePriority(priority);
@@ -3011,16 +3016,18 @@ bool LLTextureFetch::getRequestFinished(const LLUUID& id, S32& discard_level,
 bool LLTextureFetch::updateRequestPriority(const LLUUID& id, F32 priority)
 {
     LL_PROFILE_ZONE_SCOPED;
-	bool res = false;
-	LLTextureFetchWorker* worker = getWorker(id);
-	if (worker)
-	{
-		worker->lockWorkMutex();										// +Mw
-		worker->setImagePriority(priority);
-		worker->unlockWorkMutex();										// -Mw
-		res = true;
-	}
-	return res;
+    mRequestQueue.tryPost([=]()
+        {
+            LLTextureFetchWorker* worker = getWorker(id);
+            if (worker)
+            {
+                worker->lockWorkMutex();										// +Mw
+                worker->setImagePriority(priority);
+                worker->unlockWorkMutex();										// -Mw
+            }
+        });
+	
+	return true;
 }
 
 // Replicates and expands upon the base class's
