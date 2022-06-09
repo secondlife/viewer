@@ -4573,6 +4573,7 @@ BOOL LLViewerObject::lineSegmentIntersect(const LLVector4a& start, const LLVecto
 										  S32 face,
 										  BOOL pick_transparent,
 										  BOOL pick_rigged,
+                                          BOOL pick_unselectable,
 										  S32* face_hit,
 										  LLVector4a* intersection,
 										  LLVector2* tex_coord,
@@ -5507,18 +5508,6 @@ S32 LLViewerObject::countInventoryContents(LLAssetType::EType type)
 		}
 	}
 	return count;
-}
-
-
-void LLViewerObject::setCanSelect(BOOL canSelect)
-{
-	mbCanSelect = canSelect;
-	for (child_list_t::iterator iter = mChildList.begin();
-		 iter != mChildList.end(); iter++)
-	{
-		LLViewerObject* child = *iter;
-		child->mbCanSelect = canSelect;
-	}
 }
 
 void LLViewerObject::setDebugText(const std::string &utf8text)

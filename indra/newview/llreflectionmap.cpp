@@ -139,7 +139,7 @@ void LLReflectionMap::autoAdjustOrigin()
                 {
                     int face = -1;
                     LLVector4a intersection;
-                    LLDrawable* drawable = mGroup->lineSegmentIntersect(bounds[0], corners[i], true, false, &face, &intersection);
+                    LLDrawable* drawable = mGroup->lineSegmentIntersect(bounds[0], corners[i], true, false, true, &face, &intersection);
                     if (drawable != nullptr)
                     {
                         hit = true;

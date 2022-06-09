@@ -986,7 +986,7 @@ LLDrawable *LLVOVolume::createDrawable(LLPipeline *pipeline)
 		gPipeline.setLight(mDrawable, TRUE);
 	}
 
-    if (getIsReflectionProbe())
+    if (isReflectionProbe())
     {
         updateReflectionProbePtr();
     }
@@ -3503,7 +3503,7 @@ F32 LLVOVolume::getLightCutoff() const
 
 void LLVOVolume::setIsReflectionProbe(BOOL is_probe)
 {
-    BOOL was_probe = getIsReflectionProbe();
+    BOOL was_probe = isReflectionProbe();
     if (is_probe != was_probe)
     {
         if (is_probe)
@@ -3559,7 +3559,7 @@ void LLVOVolume::setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenc
 }
 
 
-BOOL LLVOVolume::getIsReflectionProbe() const
+BOOL LLVOVolume::isReflectionProbe() const
 {
     // HACK - make this object a Reflection Probe if a certain UUID is detected
     static LLCachedControl<std::string> reflection_probe_id(gSavedSettings, "RenderReflectionProbeTextureHackID", "");
@@ -4507,7 +4507,7 @@ void LLVOVolume::parameterChanged(U16 param_type, LLNetworkData* data, BOOL in_u
 
 void LLVOVolume::updateReflectionProbePtr()
 {
-    if (getIsReflectionProbe())
+    if (isReflectionProbe())
     {
         if (mReflectionProbe.isNull())
         {
@@ -4717,7 +4717,7 @@ LLVector3 LLVOVolume::volumeDirectionToAgent(const LLVector3& dir) const
 }
 
 
-BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, S32 *face_hitp,
+BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& end, S32 face, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_unselectable, S32 *face_hitp,
 									  LLVector4a* intersection,LLVector2* tex_coord, LLVector4a* normal, LLVector4a* tangent)
 	
 {
@@ -4727,6 +4727,14 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	{
 		return FALSE;
 	}
+
+    if (!pick_unselectable)
+    {
+        if (!LLSelectMgr::instance().canSelectObject(this))
+        {
+            return FALSE;
+        }
+    }
 
 	BOOL ret = FALSE;
 

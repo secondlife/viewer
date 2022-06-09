@@ -1066,8 +1066,9 @@ void LLSelectMgr::highlightObjectOnly(LLViewerObject* objectp)
 		return;
 	}
 	
-	if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !objectp->permYouOwner()) 
-		|| (gSavedSettings.getBOOL("SelectMovableOnly") && (!objectp->permMove() ||  objectp->isPermanentEnforced())))
+    if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !objectp->permYouOwner())
+        || (gSavedSettings.getBOOL("SelectMovableOnly") && (!objectp->permMove() || objectp->isPermanentEnforced()))
+        || (!gSavedSettings.getBOOL("SelectReflectionProbes") && !objectp->isReflectionProbe()))
 	{
 		// only select my own objects
 		return;
@@ -7127,7 +7128,8 @@ BOOL LLSelectMgr::canSelectObject(LLViewerObject* object, BOOL ignore_select_own
 	if(!ignore_select_owned)
 	{
 		if ((gSavedSettings.getBOOL("SelectOwnedOnly") && !object->permYouOwner()) ||
-				(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())))
+				(gSavedSettings.getBOOL("SelectMovableOnly") && (!object->permMove() ||  object->isPermanentEnforced())) ||
+                (!gSavedSettings.getBOOL("SelectReflectionProbes") && object->isReflectionProbe()))
 		{
 			// only select my own objects
 			return FALSE;

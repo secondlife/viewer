@@ -1838,6 +1838,8 @@ void LLViewerObjectList::renderObjectBounds(const LLVector3 &center)
 
 void LLViewerObjectList::generatePickList(LLCamera &camera)
 {
+    llassert(false);
+#if 0 //deprecated
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
 		LLViewerObject *objectp;
@@ -1961,10 +1963,13 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 
 			LLHUDIcon::generatePickIDs(i * step, step);
 	}
+#endif 
 }
 
 LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
 {
+    llassert(false);
+#if 0
 	std::set<LLViewerObject*>::iterator pick_it;
 	for (pick_it = mSelectPickList.begin(); pick_it != mSelectPickList.end(); ++pick_it)
 	{
@@ -1973,6 +1978,7 @@ LLViewerObject *LLViewerObjectList::getSelectedObject(const U32 object_id)
 			return (*pick_it);
 		}
 	}
+#endif
 	return NULL;
 }
 

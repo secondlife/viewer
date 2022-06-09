@@ -371,7 +371,7 @@ void LLPanelVolume::getState( )
 	}
 
     // Reflection Probe
-    BOOL is_probe = volobjp && volobjp->getIsReflectionProbe();
+    BOOL is_probe = volobjp && volobjp->isReflectionProbe();
     getChild<LLUICtrl>("Reflection Probe Checkbox Ctrl")->setValue(is_probe);
     getChildView("Reflection Probe Checkbox Ctrl")->setEnabled(editable && single_volume && volobjp);
 

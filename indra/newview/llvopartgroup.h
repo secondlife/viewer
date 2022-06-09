@@ -74,6 +74,7 @@ public:
 										  S32 face,
 										  BOOL pick_transparent,
 										  BOOL pick_rigged,
+                                          BOOL pick_unselectable,
 										  S32* face_hit,
 										  LLVector4a* intersection,
 										  LLVector2* tex_coord,

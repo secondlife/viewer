@@ -151,6 +151,7 @@ public:
 										  S32 face = -1,                        // which face to check, -1 = ALL_SIDES
 										  BOOL pick_transparent = FALSE,
 										  BOOL pick_rigged = FALSE,
+                                          BOOL pick_unselectable = TRUE,
 										  S32* face_hit = NULL,                 // which face was hit
 										  LLVector4a* intersection = NULL,       // return the intersection point
 										  LLVector2* tex_coord = NULL,          // return the texture coordinates of the intersection point
@@ -290,7 +291,7 @@ public:
     void setReflectionProbeNearClip(F32 near_clip);
     void setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenceVolumeType volume_type);
 
-    BOOL getIsReflectionProbe() const;
+    BOOL isReflectionProbe() const override;
     F32 getReflectionProbeAmbiance() const;
     F32 getReflectionProbeNearClip() const;
     LLReflectionProbeParams::EInfluenceVolumeType getReflectionProbeVolumeType() const;

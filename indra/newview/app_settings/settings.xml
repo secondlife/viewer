@@ -11191,6 +11191,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>SelectReflectionProbes</key>
+    <map>
+      <key>Comment</key>
+      <string>Select reflection probes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>SelectOwnedOnly</key>
     <map>
       <key>Comment</key>

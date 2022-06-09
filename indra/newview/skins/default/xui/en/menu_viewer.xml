@@ -1417,6 +1417,15 @@ function="World.EnvPreset"
                      function="Tools.SelectOnlyMovableObjects"
                      parameter="movable" />
                 </menu_item_check>
+            <menu_item_check
+                 label="Select Reflection Probes"
+                 name="Select Reflection Probes">
+                    <menu_item_check.on_check
+                     control="SelectReflectionProbes" />
+                    <menu_item_check.on_click
+                     function="Tools.SelectReflectionProbes"
+                     parameter="probes" />
+            </menu_item_check>
                 <menu_item_check
                  label="Select By Surrounding"
                  name="Select By Surrounding">
