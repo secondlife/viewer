@@ -51,6 +51,8 @@ LLSD LL::CommonControl::access(const LLSD& params)
     {
         LLTHROW(ParamError(error));
     }
+    response.erase("error");
+    response.erase("reqid");
     return response;
 }
 
