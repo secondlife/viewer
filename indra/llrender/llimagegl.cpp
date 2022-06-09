@@ -2412,10 +2412,8 @@ void LLImageGL::checkActiveThread()
 std::atomic<S32> LLImageGLThread::sFreeVRAMMegabytes(4096); //if free vram is unknown, default to 4GB
 
 LLImageGLThread::LLImageGLThread(LLWindow* window)
-    // We want exactly one thread, but a very large capacity: we never want
-    // anyone, especially inner-loop render code, to have to block on post()
-    // because we're full.
-    : ThreadPool("LLImageGL", 1, 1024*1024)
+    // We want exactly one thread.
+    : ThreadPool("LLImageGL", 1)
     , mWindow(window)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
