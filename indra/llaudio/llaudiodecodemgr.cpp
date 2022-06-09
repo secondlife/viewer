@@ -576,10 +576,8 @@ void LLAudioDecodeMgr::Impl::startMoreDecodes()
     // *NOTE: main_queue->postTo casts this refcounted smart pointer to a weak
     // pointer
     LL::WorkQueue::ptr_t general_queue = LL::WorkQueue::getInstance("General");
-    const LL::ThreadPool::ptr_t general_thread_pool = LL::ThreadPool::getInstance("General");
     llassert_always(main_queue);
     llassert_always(general_queue);
-    llassert_always(general_thread_pool);
     // Set max decodes to double the thread count of the general work queue.
     // This ensures the general work queue is full, but prevents theoretical
     // buildup of buffers in memory due to disk writes once the
@@ -588,7 +586,8 @@ void LLAudioDecodeMgr::Impl::startMoreDecodes()
     // without modifying/removing LLVorbisDecodeState, at which point we should
     // consider decoding the audio during the asset download process.
     // -Cosmic,2022-05-11
-    const size_t max_decodes = general_thread_pool->getWidth() * 2;
+    const size_t general_thread_pool_width = LL::ThreadPool::getWidth("General", 1);
+    const size_t max_decodes = general_thread_pool_width * 2;
 
     while (!mDecodeQueue.empty() && mDecodes.size() < max_decodes)
     {
