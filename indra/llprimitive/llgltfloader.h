@@ -34,8 +34,10 @@
 
 // gltf_* structs are temporary, used to organize the subset of data that eventually goes into the material LLSD
 
-typedef struct // gltf sampler
-{   // Uses GL enums
+class gltf_sampler
+{   
+public:
+    // Uses GL enums
     S32 minFilter;      // GL_NEAREST, GL_LINEAR, GL_NEAREST_MIPMAP_NEAREST, GL_LINEAR_MIPMAP_NEAREST, GL_NEAREST_MIPMAP_LINEAR or GL_LINEAR_MIPMAP_LINEAR
     S32 magFilter;      // GL_NEAREST or GL_LINEAR
     S32 wrapS;          // GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT or GL_REPEAT
@@ -43,10 +45,11 @@ typedef struct // gltf sampler
     //S32 wrapR;        // Found in some sample files, but not part of glTF 2.0 spec. Ignored.
     std::string name;   // optional, currently unused
     // extensions and extras are sampler optional fields that we don't support - at least initially 
-} gltf_sampler;
+};
 
-typedef struct // gltf image
-{   // Note that glTF images are defined with row 0 at the top (opposite of OpenGL)
+class gltf_image
+{
+public:// Note that glTF images are defined with row 0 at the top (opposite of OpenGL)
     U8* data;               // ptr to decoded image data
     U32 size;               // in bytes, regardless of channel width
     U32 width;
@@ -54,17 +57,19 @@ typedef struct // gltf image
     U32 numChannels;        // range 1..4
     U32 bytesPerChannel;    // converted from gltf "bits", expects only 8, 16 or 32 as input
     U32 pixelType;          // one of (TINYGLTF_COMPONENT_TYPE)_UNSIGNED_BYTE, _UNSIGNED_SHORT, _UNSIGNED_INT, or _FLOAT
-} gltf_image;
+};
 
-typedef struct // texture
+class gltf_texture
 {
+public:
     U32 imageIdx;
     U32 samplerIdx;
     LLUUID imageUuid = LLUUID::null;
-} gltf_texture;
+};
 
-typedef struct // render material
+class gltf_render_material
 {
+public:
     std::string name;
 
     // scalar values
@@ -99,15 +104,16 @@ typedef struct // render material
     // This field is populated after upload
     LLUUID      material_uuid = LLUUID::null;
 
-} gltf_render_material;
+};
 
-typedef struct  // gltf_mesh
+class gltf_mesh
 {
+public:
     std::string name;
 
     // TODO add mesh import DJH 2022-04
 
-} gltf_mesh;
+};
 
 class LLGLTFLoader : public LLModelLoader
 {
