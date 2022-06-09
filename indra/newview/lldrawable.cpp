@@ -249,12 +249,9 @@ void LLDrawable::cleanupReferences()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE;
 	
-	
 	std::for_each(mFaces.begin(), mFaces.end(), DeletePointer());
 	mFaces.clear();
 
-	gObjectList.removeDrawable(this);
-	
 	gPipeline.unlinkDrawable(this);
 	
 	removeFromOctree();

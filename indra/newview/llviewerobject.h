@@ -676,9 +676,9 @@ public:
 	LLPointer<LLViewerTexture> *mTENormalMaps;
 	LLPointer<LLViewerTexture> *mTESpecularMaps;
 
-	// Selection, picking and rendering variables
-	U32				mGLName;			// GL "name" used by selection code
-	BOOL			mbCanSelect;		// true if user can select this object by clicking under any circumstances (even if pick_unselectable is true)
+    // true if user can select this object by clicking under any circumstances (even if pick_unselectable is true)
+    // can likely be factored out
+    BOOL			mbCanSelect;
 
 private:
 	// Grabbed from UPDATE_FLAGS

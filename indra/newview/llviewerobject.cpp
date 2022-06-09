@@ -259,7 +259,6 @@ LLViewerObject::LLViewerObject(const LLUUID &id, const LLPCode pcode, LLViewerRe
 	mTEImages(NULL),
 	mTENormalMaps(NULL),
 	mTESpecularMaps(NULL),
-	mGLName(0),
 	mbCanSelect(TRUE),
 	mFlags(0),
 	mPhysicsShapeType(0),
