@@ -91,7 +91,7 @@ void LL::ThreadPool::run()
 }
 
 //static
-size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft=0)
+size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft)
 {
     LLSD poolSizes{ LL::CommonControl::get("Global", "ThreadPoolSizes") };
     // "ThreadPoolSizes" is actually a map containing the sizes of interest --
@@ -112,8 +112,7 @@ size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft=0)
     }
     else
     {
-        //LL_DEBUGS
-        LL_INFOS("ThreadPool") << "ThreadPoolSizes = " << poolSizes << LL_ENDL;
+        LL_DEBUGS("ThreadPool") << "ThreadPoolSizes = " << poolSizes << LL_ENDL;
     }
     // LLSD treats an undefined value as an empty map when asked to retrieve a
     // key, so we don't need this to be conditional.
