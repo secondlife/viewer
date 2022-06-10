@@ -4,12 +4,14 @@ project(llmath)
 
 include(00-Common)
 include(LLCommon)
+include(LLMeshOptimizer)
 include(bugsplat)
 include(Boost)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
+    ${LLMESHOPTIMIZER_INCLUDE_DIRS}
     )
 
 set(llmath_SOURCE_FILES
@@ -109,6 +111,7 @@ add_library (llmath ${llmath_SOURCE_FILES})
 
 target_link_libraries(llmath
     ${LLCOMMON_LIBRARIES}
+    ${LLMESHOPTIMIZER_LIBRARIES}
     )
 
 # Add tests

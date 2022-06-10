@@ -741,7 +741,7 @@ void LLFloaterModelPreview::onLODParamCommit(S32 lod, bool enforce_tri_limit)
     {
     case LLModelPreview::MESH_OPTIMIZER_AUTO:
     case LLModelPreview::MESH_OPTIMIZER_SLOPPY:
-    case LLModelPreview::MESH_OPTIMIZER_COMBINE:
+    case LLModelPreview::MESH_OPTIMIZER_PRECISE:
         mModelPreview->onLODMeshOptimizerParamCommit(lod, enforce_tri_limit, mode);
         break;
     default:
@@ -1745,7 +1745,7 @@ void LLFloaterModelPreview::onLoDSourceCommit(S32 lod)
     S32 index = lod_source_combo->getCurrentIndex();
 	if (index == LLModelPreview::MESH_OPTIMIZER_AUTO
         || index == LLModelPreview::MESH_OPTIMIZER_SLOPPY
-        || index == LLModelPreview::MESH_OPTIMIZER_COMBINE)
+        || index == LLModelPreview::MESH_OPTIMIZER_PRECISE)
 	{ //rebuild LoD to update triangle counts
 		onLODParamCommit(lod, true);
 	}

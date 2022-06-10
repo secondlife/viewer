@@ -1223,6 +1223,7 @@ void LLModelPreview::restoreNormals()
 // returns -1 in case of failure
 F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_decimator, F32 error_threshold, bool sloppy)
 {
+    // I. Weld faces together
     // Figure out buffer size
     S32 size_indices = 0;
     S32 size_vertices = 0;
@@ -1281,7 +1282,35 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         indices_idx_shift += face.mNumVertices;
     }
 
-    // Now that we have buffers, optimize
+    // II. Remap.
+    std::vector<unsigned int> remap(size_indices);
+    S32 size_remap_vertices = LLMeshOptimizer::generateRemapMulti(&remap[0],
+        combined_indices,
+        size_indices,
+        combined_positions,
+        combined_normals,
+        combined_tex_coords,
+        size_vertices);
+
+    // Allocate new buffers
+    U32* remap_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+
+    S32 remap_tc_bytes_size = ((size_remap_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
+    LLVector4a* remap_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_remap_vertices + remap_tc_bytes_size);
+    LLVector4a* remap_normals = remap_positions + size_remap_vertices;
+    LLVector2* remap_tex_coords = (LLVector2*)(remap_normals + size_remap_vertices);
+
+    // fill the buffers
+    LLMeshOptimizer::remapIndexBufferU32(remap_indices, combined_indices, size_indices, &remap[0]);
+    LLMeshOptimizer::remapPositionsBuffer(remap_positions, combined_positions, size_vertices, &remap[0]);
+    LLMeshOptimizer::remapNormalsBuffer(remap_normals, combined_normals, size_vertices, &remap[0]);
+    LLMeshOptimizer::remapUVBuffer(remap_tex_coords, combined_tex_coords, size_vertices, &remap[0]);
+
+    // free unused buffers
+    ll_aligned_free<64>(combined_positions);
+    ll_aligned_free_32(combined_indices);
+
+    // III. Simplify
     S32 target_indices = 0;
     F32 result_error = 0; // how far from original the model is, 1 == 100%
     S32 new_indices = 0;
@@ -1294,18 +1323,18 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     {
         target_indices = 3;
     }
+
     new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
-        combined_indices,
+        remap_indices,
         size_indices,
-        combined_positions,
-        size_vertices,
+        remap_positions,
+        size_remap_vertices,
         LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
         target_indices,
         error_threshold,
         sloppy,
         &result_error);
-
 
     if (result_error < 0)
     {
@@ -1315,24 +1344,25 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
             << " original count: " << size_indices << LL_ENDL;
     }
 
+    ll_aligned_free_32(remap_indices);
+
     if (new_indices < 3)
     {
         // Model should have at least one visible triangle
-        ll_aligned_free<64>(combined_positions);
+        ll_aligned_free<64>(remap_positions);
         ll_aligned_free_32(output_indices);
-        ll_aligned_free_32(combined_indices);
 
         return -1;
     }
 
-    // repack back into individual faces
+    // IV. Repack back into individual faces
 
-    LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
-    LLVector4a* buffer_normals = buffer_positions + size_vertices;
-    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
+    LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_remap_vertices + tc_bytes_size);
+    LLVector4a* buffer_normals = buffer_positions + size_remap_vertices;
+    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_remap_vertices);
     S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
-    S32* old_to_new_positions_map = new S32[size_vertices];
+    S32* old_to_new_positions_map = new S32[size_remap_vertices];
 
     S32 buf_positions_copied = 0;
     S32 buf_indices_copied = 0;
@@ -1350,7 +1380,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         bool copy_triangle = false;
         S32 range = indices_idx_shift + face.mNumVertices;
 
-        for (S32 i = 0; i < size_vertices; i++)
+        for (S32 i = 0; i < size_remap_vertices; i++)
         {
             old_to_new_positions_map[i] = -1;
         }
@@ -1408,9 +1438,9 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                     }
 
                     // Copy vertice, normals, tcs
-                    buffer_positions[buf_positions_copied] = combined_positions[idx];
-                    buffer_normals[buf_positions_copied] = combined_normals[idx];
-                    buffer_tex_coords[buf_positions_copied] = combined_tex_coords[idx];
+                    buffer_positions[buf_positions_copied] = remap_positions[idx];
+                    buffer_normals[buf_positions_copied] = remap_normals[idx];
+                    buffer_tex_coords[buf_positions_copied] = remap_tex_coords[idx];
 
                     old_to_new_positions_map[idx] = buf_positions_copied;
 
@@ -1465,11 +1495,10 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     }
 
     delete[]old_to_new_positions_map;
-    ll_aligned_free<64>(combined_positions);
+    ll_aligned_free<64>(remap_positions);
     ll_aligned_free<64>(buffer_positions);
     ll_aligned_free_32(output_indices);
     ll_aligned_free_16(buffer_indices);
-    ll_aligned_free_32(combined_indices);
 
     if (new_indices < 3 || valid_faces == 0)
     {
@@ -1488,10 +1517,9 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     {
         return -1;
     }
-    // todo: do not allocate per each face, add one large buffer somewhere
-    // faces have limited amount of indices
+
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
-    U16* output = (U16*)ll_aligned_malloc_16(size);
+    U16* output_indices = (U16*)ll_aligned_malloc_16(size);
 
     S32 target_indices = 0;
     F32 result_error = 0; // how far from original the model is, 1 == 100%
@@ -1505,8 +1533,9 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     {
         target_indices = 3;
     }
+
     new_indices = LLMeshOptimizer::simplify(
-        output,
+        output_indices,
         face.mIndices,
         size_indices,
         face.mPositions,
@@ -1516,7 +1545,6 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         error_threshold,
         sloppy,
         &result_error);
-
 
     if (result_error < 0)
     {
@@ -1533,7 +1561,6 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
 
     // Copy old values
     new_face = face;
-
 
     if (new_indices < 3)
     {
@@ -1563,13 +1590,13 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
         // Assign new values
         new_face.resizeIndices(new_indices); // will wipe out mIndices, so new_face can't substitute output
         S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output_indices, idx_size);
 
         // clear unused values
         new_face.optimize();
     }
 
-    ll_aligned_free_16(output);
+    ll_aligned_free_16(output_indices);
      
     if (new_indices < 3)
     {
@@ -1711,7 +1738,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             // Ideally this should run not per model,
             // but combine all submodels with origin model as well
-            if (model_meshopt_mode == MESH_OPTIMIZER_COMBINE)
+            if (model_meshopt_mode == MESH_OPTIMIZER_PRECISE)
             {
                 // Run meshoptimizer for each model/object, up to 8 faces in one model.
 
