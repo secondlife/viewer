@@ -738,17 +738,8 @@ BOOL LLSpatialGroup::changeLOD()
 	return FALSE;
 }
 
-void LLSpatialGroup::dirtyReflectionProbe()
-{
-    if (mReflectionProbe != nullptr)
-    {
-        mReflectionProbe->dirty();
-    }
-}
-
 void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-    dirtyReflectionProbe();
 	addObject((LLDrawable*)entry->getDrawable());
 	unbound();
 	setState(OBJECT_DIRTY);
@@ -756,7 +747,6 @@ void LLSpatialGroup::handleInsertion(const TreeNode* node, LLViewerOctreeEntry* 
 
 void LLSpatialGroup::handleRemoval(const TreeNode* node, LLViewerOctreeEntry* entry)
 {
-    dirtyReflectionProbe();
 	removeObject((LLDrawable*)entry->getDrawable(), TRUE);
 	LLViewerOctreeGroup::handleRemoval(node, entry);
 }
@@ -793,8 +783,6 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_SPATIAL
 
-    dirtyReflectionProbe();
-
 	if (child->getListenerCount() == 0)
 	{
 		new LLSpatialGroup(child, getSpatialPartition());
@@ -807,11 +795,6 @@ void LLSpatialGroup::handleChildAddition(const OctreeNode* parent, OctreeNode* c
 	unbound();
 
 	assert_states_valid(this);
-}
-
-void LLSpatialGroup::handleChildRemoval(const oct_node* parent, const oct_node* child)
-{
-    dirtyReflectionProbe();
 }
 
 void LLSpatialGroup::destroyGL(bool keep_occlusion) 

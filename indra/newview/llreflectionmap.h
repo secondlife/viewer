@@ -43,12 +43,6 @@ public:
     // resolution - size of cube map to generate
     void update(U32 resolution, U32 face);
 
-    // return true if this probe should update *now*
-    bool shouldUpdate();
-
-    // Mark this reflection map as needing an update (resets last update time, so spamming this call will cause a cube map to never update)
-    void dirty();
-
     // for volume partition probes, try to place this probe in the best spot
     void autoAdjustOrigin();
 
@@ -104,7 +98,5 @@ public:
 
     // what priority should this probe have (higher is higher priority)
     U32 mPriority = 1;
-
-    bool mDirty = true;
 };
 

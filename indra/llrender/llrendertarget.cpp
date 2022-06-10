@@ -473,6 +473,8 @@ void LLRenderTarget::release()
 
 void LLRenderTarget::bindTarget()
 {
+    llassert(mFBO);
+
 	if (mFBO)
 	{
 		stop_glerror();
@@ -514,6 +516,7 @@ void LLRenderTarget::bindTarget()
 void LLRenderTarget::clear(U32 mask_in)
 {
     LL_PROFILE_GPU_ZONE("clear");
+    llassert(mFBO);
 	U32 mask = GL_COLOR_BUFFER_BIT;
 	if (mUseDepth)
 	{
@@ -579,6 +582,7 @@ void LLRenderTarget::bindTexture(U32 index, S32 channel, LLTexUnit::eTextureFilt
 void LLRenderTarget::flush(bool fetch_depth)
 {
 	gGL.flush();
+    llassert(mFBO);
 	if (!mFBO)
 	{
 		gGL.getTexUnit(0)->bind(this);

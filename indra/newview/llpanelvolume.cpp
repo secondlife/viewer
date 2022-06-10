@@ -152,8 +152,6 @@ BOOL	LLPanelVolume::postBuild()
         childSetCommitCallback("Probe Volume Type", onCommitProbe, this);
         childSetCommitCallback("Probe Ambiance", onCommitProbe, this);
         childSetCommitCallback("Probe Near Clip", onCommitProbe, this);
-
-
     }
 
 	// PHYSICS Parameters
@@ -695,7 +693,7 @@ void LLPanelVolume::clearCtrls()
 	getChildView("Light Radius")->setEnabled(false);
 	getChildView("Light Falloff")->setEnabled(false);
 
-    getChildView("Reflection Probe Checkbox Ctrl")->setEnabled(false);;
+    getChildView("Reflection Probe")->setEnabled(false);;
     getChildView("Probe Volume Type")->setEnabled(false);
     getChildView("Probe Dynamic")->setEnabled(false);
     getChildView("Probe Ambiance")->setEnabled(false);
@@ -746,7 +744,7 @@ void LLPanelVolume::sendIsReflectionProbe()
     }
     LLVOVolume* volobjp = (LLVOVolume*)objectp;
 
-    BOOL value = getChild<LLUICtrl>("Reflection Probe Checkbox Ctrl")->getValue();
+    BOOL value = getChild<LLUICtrl>("Reflection Probe")->getValue();
     volobjp->setIsReflectionProbe(value);
     LL_INFOS() << "update reflection probe sent" << LL_ENDL;
 }

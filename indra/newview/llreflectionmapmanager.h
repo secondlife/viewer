@@ -46,6 +46,13 @@ class alignas(16) LLReflectionMapManager
 {
     LL_ALIGN_NEW
 public:
+    enum class DetailLevel 
+    {
+        STATIC_ONLY = 0,
+        STATIC_AND_DYNAMIC,
+        REALTIME = 2
+    };
+
     // allocate an environment map of the given resolution 
     LLReflectionMapManager();
 
@@ -115,6 +122,9 @@ private:
     
     // perform an update on the currently updating Probe
     void doProbeUpdate();
+
+    // update the specified face of the specified probe
+    void updateProbeFace(LLReflectionMap* probe, U32 face);
     
     // list of active reflection maps
     std::vector<LLPointer<LLReflectionMap> > mProbes;
@@ -133,6 +143,5 @@ private:
 
     LLReflectionMap* mUpdatingProbe = nullptr;
     U32 mUpdatingFace = 0;
-
 };
 

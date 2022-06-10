@@ -10280,6 +10280,17 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
+  <key>RenderReflectionProbeDetail</key>
+  <map>
+    <key>Comment</key>
+    <string>Detail of reflections.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>S32</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
 
   <key>RenderReflectionProbeDrawDistance</key>
   <map>

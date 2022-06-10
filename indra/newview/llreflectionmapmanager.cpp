@@ -96,11 +96,13 @@ void LLReflectionMapManager::update()
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_RECT_TEXTURE);
 
         // hack to allocate render targets using gPipeline code
+        gCubeSnapshot = TRUE;
         auto* old_rt = gPipeline.mRT;
         gPipeline.mRT = &gProbeRT;
         gPipeline.allocateScreenBuffer(targetRes, targetRes);
         gPipeline.allocateShadowBuffer(targetRes, targetRes);
         gPipeline.mRT = old_rt;
+        gCubeSnapshot = FALSE;
     }
 
     if (mMipChain.empty())
@@ -154,6 +156,10 @@ void LLReflectionMapManager::update()
 
     bool did_update = false;
 
+    bool realtime = gSavedSettings.getS32("RenderReflectionProbeDetail") >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
+    
+    LLReflectionMap* closestDynamic = nullptr;
+
     LLReflectionMap* oldestProbe = nullptr;
 
     if (mUpdatingProbe != nullptr)
@@ -183,11 +189,30 @@ void LLReflectionMapManager::update()
             oldestProbe = probe;
         }
 
+        if (realtime && 
+            closestDynamic == nullptr && 
+            probe->mCubeArray.notNull() &&
+            probe->getIsDynamic())
+        {
+            closestDynamic = probe;
+        }
+
         d.setSub(camera_pos, probe->mOrigin);
         probe->mDistance = d.getLength3().getF32()-probe->mRadius;
     }
 
-#if 1
+    if (realtime && closestDynamic != nullptr)
+    {
+        LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmu - realtime");
+        // update the closest dynamic probe realtime
+        closestDynamic->autoAdjustOrigin();
+        for (U32 i = 0; i < 6; ++i)
+        {
+            updateProbeFace(closestDynamic, i);
+        }
+    }
+
+    // switch to updating the next oldest probe
     if (!did_update && oldestProbe != nullptr)
     {
         LLReflectionMap* probe = oldestProbe;
@@ -201,9 +226,7 @@ void LLReflectionMapManager::update()
 
         mUpdatingProbe = probe;
         doProbeUpdate();
-        probe->mDirty = false;
     }
-#endif
 
     // update distance to camera for all probes
     std::sort(mProbes.begin(), mProbes.end(), CompareProbeDistance());
@@ -214,7 +237,6 @@ LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mGroup = group;
     probe->mOrigin = group->getOctreeNode()->getCenter();
-    probe->mDirty = true;
 
     if (gCubeSnapshot)
     { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
@@ -295,7 +317,6 @@ LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vo
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mViewerObject = vobj;
     probe->mOrigin.load3(vobj->getPositionAgent().mV);
-    probe->mDirty = true;
 
     if (gCubeSnapshot)
     { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
@@ -368,10 +389,23 @@ void LLReflectionMapManager::doProbeUpdate()
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(mUpdatingProbe != nullptr);
 
+    updateProbeFace(mUpdatingProbe, mUpdatingFace);
+    
+    if (++mUpdatingFace == 6)
+    {
+        updateNeighbors(mUpdatingProbe);
+        mUpdatingProbe = nullptr;
+        mUpdatingFace = 0;
+    }
+}
+
+void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
+{
     mRenderTarget.bindTarget();
+    // hacky hot-swap of camera specific render targets
     auto* old_rt = gPipeline.mRT;
     gPipeline.mRT = &gProbeRT;
-    mUpdatingProbe->update(mRenderTarget.getWidth(), mUpdatingFace);
+    probe->update(mRenderTarget.getWidth(), face);
     gPipeline.mRT = old_rt;
     mRenderTarget.flush();
 
@@ -390,9 +424,9 @@ void LLReflectionMapManager::doProbeUpdate()
         gGL.loadIdentity();
 
         gGL.flush();
-        U32 res = LL_REFLECTION_PROBE_RESOLUTION*2;
+        U32 res = LL_REFLECTION_PROBE_RESOLUTION * 2;
 
-        S32 mips = log2((F32) LL_REFLECTION_PROBE_RESOLUTION)+0.5f;
+        S32 mips = log2((F32)LL_REFLECTION_PROBE_RESOLUTION) + 0.5f;
 
         for (int i = 0; i < mMipChain.size(); ++i)
         {
@@ -409,10 +443,10 @@ void LLReflectionMapManager::doProbeUpdate()
             }
 
             gGL.begin(gGL.QUADS);
-            
+
             gGL.texCoord2f(0, 0);
             gGL.vertex2f(-1, -1);
-            
+
             gGL.texCoord2f(res, 0);
             gGL.vertex2f(1, -1);
 
@@ -431,7 +465,7 @@ void LLReflectionMapManager::doProbeUpdate()
             if (mip >= 0)
             {
                 mTexture->bind(0);
-                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, mUpdatingProbe->mCubeIndex * 6 + mUpdatingFace, 0, 0, res, res);
+                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
                 mTexture->unbind();
             }
             mMipChain[i].flush();
@@ -442,13 +476,6 @@ void LLReflectionMapManager::doProbeUpdate()
         gGL.popMatrix();
 
         gReflectionMipProgram.unbind();
-    }
-    
-    if (++mUpdatingFace == 6)
-    {
-        updateNeighbors(mUpdatingProbe);
-        mUpdatingProbe = nullptr;
-        mUpdatingFace = 0;
     }
 }
 

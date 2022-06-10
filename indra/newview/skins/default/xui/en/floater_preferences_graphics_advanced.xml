@@ -863,8 +863,42 @@
        name="2"
        value="2"/>
   </combo_box>
-  
-<!-- End of Advanced Settings block -->
+  <text
+    type="string"
+    length="1"
+    follows="left|top"
+    height="16"
+    layout="topleft"
+    left="480"
+    name="RenderReflectionDetailText"
+    text_readonly_color="LabelDisabledColor"
+    top_delta="16"
+    width="128">
+    Reflections:
+  </text>
+  <combo_box
+   control_name="RenderReflectionProbeDetail"
+   height="18"
+   layout="topleft"
+   left_delta="130"
+   top_delta="0"
+   name="ReflectionDetial"
+   width="150">
+    <combo_box.item
+      label="Static Only"
+      name="0"
+      value="0"/>
+    <combo_box.item
+      label="Static+Dynamic"
+      name="1"
+      value="1"/>
+    <combo_box.item
+      label="Realtime"
+      name="2"
+      value="2"/>
+  </combo_box>
+
+  <!-- End of Advanced Settings block -->
 	<view_border
       bevel_style="in"
       height="0"

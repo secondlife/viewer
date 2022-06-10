@@ -54,28 +54,6 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic());
 }
 
-bool LLReflectionMap::shouldUpdate()
-{
-    const F32 TIMEOUT_INTERVAL = 30.f; // update no less than this often
-    const F32 RENDER_TIMEOUT = 1.f; // don't update if hasn't been used for rendering for this long
-    
-    if (mLastBindTime > gFrameTimeSeconds - RENDER_TIMEOUT)
-    {   
-        if (mLastUpdateTime < gFrameTimeSeconds - TIMEOUT_INTERVAL)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void LLReflectionMap::dirty()
-{
-    mDirty = true;
-    mLastUpdateTime = gFrameTimeSeconds;
-}
-
 void LLReflectionMap::autoAdjustOrigin()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
@@ -245,7 +223,9 @@ F32 LLReflectionMap::getNearClip()
 
 bool LLReflectionMap::getIsDynamic()
 {
-    if (mViewerObject && mViewerObject->getVolume())
+    if (gSavedSettings.getS32("RenderReflectionProbeDetail") > (S32) LLReflectionMapManager::DetailLevel::STATIC_ONLY &&
+        mViewerObject && 
+        mViewerObject->getVolume())
     {
         return ((LLVOVolume*)mViewerObject)->getReflectionProbeIsDynamic();
     }

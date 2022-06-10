@@ -333,15 +333,12 @@ public:
 	virtual void handleRemoval(const TreeNode* node, LLViewerOctreeEntry* face);
 	virtual void handleDestruction(const TreeNode* node);
 	virtual void handleChildAddition(const OctreeNode* parent, OctreeNode* child);
-    virtual void handleChildRemoval(const oct_node* parent, const oct_node* child);
 
 public:
 	LL_ALIGN_16(LLVector4a mViewAngle);
 	LL_ALIGN_16(LLVector4a mLastUpdateViewAngle);
 
 	F32 mObjectBoxSize; //cached mObjectBounds[1].getLength3()
-
-    void dirtyReflectionProbe();
 
 protected:
 	virtual ~LLSpatialGroup();

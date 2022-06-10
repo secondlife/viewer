@@ -74,6 +74,8 @@ bool isAbove(vec3 pos, vec4 plane)
     return (dot(plane.xyz, pos) + plane.w) > 0;
 }
 
+int max_priority = 0;
+
 // return true if probe at index i influences position pos
 bool shouldSampleProbe(int i, vec3 pos)
 {
@@ -86,6 +88,8 @@ bool shouldSampleProbe(int i, vec3 pos)
         {
             return false;
         }
+
+        max_priority = max(max_priority, -refIndex[i].w);
     }
     else
     {
@@ -98,6 +102,8 @@ bool shouldSampleProbe(int i, vec3 pos)
         { //outside bounding sphere
             return false;
         }
+
+        max_priority = max(max_priority, refIndex[i].w);
     }
 
     return true;
@@ -343,8 +349,13 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, float minweight)
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
+        if (refIndex[i].w < max_priority)
+        {
+            continue;
+        }
         float r = refSphere[i].w; // radius of sphere volume
         float p = float(abs(refIndex[i].w)); // priority
+        
         float rr = r*r; // radius squred
         float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
         vec3 delta = pos.xyz-refSphere[i].xyz;
@@ -358,7 +369,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, float minweight)
 
             float atten = 1.0-max(d2-r2, 0.0)/(rr-r2);
             w *= atten;
-            w *= p; // boost weight based on priority
+            //w *= p; // boost weight based on priority
             col += refcol*w*max(minweight, refParams[i].x);
             
             wsum += w;
