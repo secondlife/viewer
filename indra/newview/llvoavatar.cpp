@@ -8340,10 +8340,6 @@ void LLVOAvatar::updateMeshVisibility()
 					LLViewerObject *objectp = attachment_iter->get();
 					if (objectp)
 					{
-						if (objectp->isAnimatedObject())
-						{
-							continue;
-						}
 						for (int face_index = 0; face_index < objectp->getNumTEs(); face_index++)
 						{
 							LLTextureEntry* tex_entry = objectp->getTE(face_index);
