@@ -3545,14 +3545,27 @@ void LLVOVolume::setReflectionProbeNearClip(F32 near_clip)
     }
 }
 
-void LLVOVolume::setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenceVolumeType volume_type)
+void LLVOVolume::setReflectionProbeIsBox(bool is_box)
 {
     LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
     if (param_block)
     {
-        if (param_block->getVolumeType() != volume_type)
+        if (param_block->getIsBox() != is_box)
         {
-            param_block->setVolumeType(volume_type);
+            param_block->setIsBox(is_box);
+            parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
+        }
+    }
+}
+
+void LLVOVolume::setReflectionProbeIsDynamic(bool is_dynamic)
+{
+    LLReflectionProbeParams* param_block = (LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
+    {
+        if (param_block->getIsDynamic() != is_dynamic)
+        {
+            param_block->setIsDynamic(is_dynamic);
             parameterChanged(LLNetworkData::PARAMS_REFLECTION_PROBE, true);
         }
     }
@@ -3603,17 +3616,26 @@ F32 LLVOVolume::getReflectionProbeNearClip() const
     }
 }
 
-LLReflectionProbeParams::EInfluenceVolumeType LLVOVolume::getReflectionProbeVolumeType() const
+bool LLVOVolume::getReflectionProbeIsBox() const
 {
     const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
     if (param_block)
     {
-        return param_block->getVolumeType();
+        return param_block->getIsBox();
     }
-    else
+    
+    return false;
+}
+
+bool LLVOVolume::getReflectionProbeIsDynamic() const
+{
+    const LLReflectionProbeParams* param_block = (const LLReflectionProbeParams*)getParameterEntry(LLNetworkData::PARAMS_REFLECTION_PROBE);
+    if (param_block)
     {
-        return LLReflectionProbeParams::DEFAULT_VOLUME_TYPE;
+        return param_block->getIsDynamic();
     }
+
+    return false;
 }
 
 U32 LLVOVolume::getVolumeInterfaceID() const

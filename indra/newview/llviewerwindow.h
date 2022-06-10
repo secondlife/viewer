@@ -370,7 +370,7 @@ public:
     // index - cube index in the array to use (cube index, not face-layer)
     // face - which cube face to update
     // near_clip - near clip setting to use
-    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face, F32 near_clip);
+    BOOL cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 index, S32 face, F32 near_clip, bool render_avatars);
 
     
     // special implementation of simpleSnapshot for reflection maps

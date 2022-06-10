@@ -4196,9 +4196,14 @@ void LLViewerWindow::pickAsync( S32 x,
 								BOOL pick_unselectable)
 {
 	// "Show Debug Alpha" means no object actually transparent
+    BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
     if (LLDrawPoolAlpha::sShowDebugAlpha)
     {
         pick_transparent = TRUE;
+    }
+    else if (in_build_mode && !gSavedSettings.getBOOL("SelectInvisibleObjects"))
+    {
+        pick_transparent = FALSE;
     }
 
 	LLPickInfo pick_info(LLCoordGL(x, y_from_bot), mask, pick_transparent, pick_rigged, FALSE, TRUE, pick_unselectable, callback);
@@ -4260,7 +4265,7 @@ void LLViewerWindow::returnEmptyPicks()
 LLPickInfo LLViewerWindow::pickImmediate(S32 x, S32 y_from_bot, BOOL pick_transparent, BOOL pick_rigged, BOOL pick_particle, BOOL pick_unselectable)
 {
 	BOOL in_build_mode = LLFloaterReg::instanceVisible("build");
-	if (in_build_mode || LLDrawPoolAlpha::sShowDebugAlpha)
+	if ((in_build_mode && gSavedSettings.getBOOL("SelectInvisibleObjects")) || LLDrawPoolAlpha::sShowDebugAlpha)
 	{
 		// build mode allows interaction with all transparent objects
 		// "Show Debug Alpha" means no object actually transparent
@@ -5267,7 +5272,7 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
 
 void display_cube_face();
 
-BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip)
+BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubearray, S32 cubeIndex, S32 face, F32 near_clip, bool dynamic_render)
 {
     // NOTE: implementation derived from LLFloater360Capture::capture360Images() and simpleSnapshot
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
@@ -5300,16 +5305,33 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
 
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     
+    U32 dynamic_render_types[] = {
+        LLPipeline::RENDER_TYPE_AVATAR,
+        LLPipeline::RENDER_TYPE_CONTROL_AV,
+        LLPipeline::RENDER_TYPE_PARTICLES
+    };
+    constexpr U32 dynamic_render_type_count = sizeof(dynamic_render_types) / sizeof(U32);
+    bool prev_dynamic_render_type[dynamic_render_type_count];
+
+    
+    if (!dynamic_render)
+    {
+        for (int i = 0; i < dynamic_render_type_count; ++i)
+        {
+            prev_dynamic_render_type[i] = gPipeline.hasRenderType(dynamic_render_types[i]);
+            if (prev_dynamic_render_type[i])
+            {
+                gPipeline.toggleRenderType(dynamic_render_types[i]);
+            }
+        }
+    }
+
     BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
     if (prev_draw_ui != false)
     {
         LLPipeline::toggleRenderDebugFeature(LLPipeline::RENDER_DEBUG_FEATURE_UI);
     }
-    BOOL prev_draw_particles = gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-    if (prev_draw_particles)
-    {
-        gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
-    }
+    
     LLPipeline::sShowHUDAttachments = FALSE;
     LLRect window_rect = getWorldViewRectRaw();
 
@@ -5365,9 +5387,15 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
         }
     }
 
-    if (prev_draw_particles)
+    if (!dynamic_render)
     {
-        gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PARTICLES);
+        for (int i = 0; i < dynamic_render_type_count; ++i)
+        {
+            if (prev_dynamic_render_type[i])
+            {
+                gPipeline.toggleRenderType(dynamic_render_types[i]);
+            }
+        }
     }
 
     LLPipeline::sShowHUDAttachments = TRUE;

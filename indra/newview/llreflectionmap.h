@@ -61,6 +61,9 @@ public:
     // Get the near clip plane distance to use for this probe
     F32 getNearClip();
 
+    // Return true if this probe should include avatars in its reflection map
+    bool getIsDynamic();
+
     // get the encoded bounding box of this probe's influence volume
     // will only return a box if this probe is associated with a VOVolume
     // with its reflection probe influence volume to to VOLUME_TYPE_BOX

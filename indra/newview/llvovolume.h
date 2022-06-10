@@ -289,12 +289,14 @@ public:
     void setIsReflectionProbe(BOOL is_probe);
     void setReflectionProbeAmbiance(F32 ambiance);
     void setReflectionProbeNearClip(F32 near_clip);
-    void setReflectionProbeVolumeType(LLReflectionProbeParams::EInfluenceVolumeType volume_type);
+    void setReflectionProbeIsBox(bool is_box);
+    void setReflectionProbeIsDynamic(bool is_dynamic);
 
     BOOL isReflectionProbe() const override;
     F32 getReflectionProbeAmbiance() const;
     F32 getReflectionProbeNearClip() const;
-    LLReflectionProbeParams::EInfluenceVolumeType getReflectionProbeVolumeType() const;
+    bool getReflectionProbeIsBox() const;
+    bool getReflectionProbeIsDynamic() const;
 
 	// Flexible Objects
 	U32 getVolumeInterfaceID() const;

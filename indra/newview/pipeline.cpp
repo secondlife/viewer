@@ -6734,15 +6734,6 @@ void LLPipeline::toggleRenderType(U32 type)
 //static
 void LLPipeline::toggleRenderTypeControl(U32 type)
 {
-	U32 bit = (1<<type);
-	if (gPipeline.hasRenderType(type))
-	{
-		LL_INFOS() << "Toggling render type mask " << std::hex << bit << " off" << std::dec << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS() << "Toggling render type mask " << std::hex << bit << " on" << std::dec << LL_ENDL;
-	}
 	gPipeline.toggleRenderType(type);
 }
 

@@ -11191,10 +11191,10 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>SelectReflectionProbes</key>
+    <key>SelectInvisibleObjects</key>
     <map>
       <key>Comment</key>
-      <string>Select reflection probes</string>
+      <string>Select invisible objects</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

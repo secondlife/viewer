@@ -51,7 +51,7 @@ void LLReflectionMap::update(U32 resolution, U32 face)
     {
         resolution /= 2;
     }
-    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip());
+    gViewerWindow->cubeSnapshot(LLVector3(mOrigin), mCubeArray, mCubeIndex, face, getNearClip(), getIsDynamic());
 }
 
 bool LLReflectionMap::shouldUpdate()
@@ -243,6 +243,16 @@ F32 LLReflectionMap::getNearClip()
     return llmax(ret, MINIMUM_NEAR_CLIP);
 }
 
+bool LLReflectionMap::getIsDynamic()
+{
+    if (mViewerObject && mViewerObject->getVolume())
+    {
+        return ((LLVOVolume*)mViewerObject)->getReflectionProbeIsDynamic();
+    }
+
+    return false;
+}
+
 bool LLReflectionMap::getBox(LLMatrix4& box)
 { 
     if (mViewerObject)
@@ -252,7 +262,7 @@ bool LLReflectionMap::getBox(LLMatrix4& box)
         {
             LLVOVolume* vobjp = (LLVOVolume*)mViewerObject;
 
-            if (vobjp->getReflectionProbeVolumeType() == LLReflectionProbeParams::VOLUME_TYPE_BOX)
+            if (vobjp->getReflectionProbeIsBox())
             {
                 glh::matrix4f mv(gGLModelView);
                 glh::matrix4f scale;

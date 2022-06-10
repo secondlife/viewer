@@ -1418,13 +1418,13 @@ function="World.EnvPreset"
                      parameter="movable" />
                 </menu_item_check>
             <menu_item_check
-                 label="Select Reflection Probes"
-                 name="Select Reflection Probes">
+                 label="Select Invisible Objects"
+                 name="Select Invisible Objects">
                     <menu_item_check.on_check
-                     control="SelectReflectionProbes" />
+                     control="SelectInvisibleObjects" />
                     <menu_item_check.on_click
-                     function="Tools.SelectReflectionProbes"
-                     parameter="probes" />
+                     function="Tools.SelectInvisibleObjects"
+                     parameter="invisible" />
             </menu_item_check>
                 <menu_item_check
                  label="Select By Surrounding"

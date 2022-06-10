@@ -182,17 +182,16 @@ extern const F32 REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE;
 class LLReflectionProbeParams : public LLNetworkData
 {
 public:
-    enum EInfluenceVolumeType : U8
+    enum EFlags : U8
     {
-        VOLUME_TYPE_SPHERE = 0,  // use a sphere influence volume
-        VOLUME_TYPE_BOX = 1,      // use a box influence volume
-        DEFAULT_VOLUME_TYPE = VOLUME_TYPE_SPHERE
+        FLAG_BOX_VOLUME     = 0x01, // use a box influence volume
+        FLAG_DYNAMIC        = 0x02, // render dynamic objects (avatars) into this Reflection Probe
     };
 
 protected:
     F32 mAmbiance = REFLECTION_PROBE_DEFAULT_AMBIANCE;
     F32 mClipDistance = REFLECTION_PROBE_DEFAULT_CLIP_DISTANCE;
-    EInfluenceVolumeType mVolumeType = DEFAULT_VOLUME_TYPE;
+    U8 mFlags = 0;
 
 public:
     LLReflectionProbeParams();
@@ -208,11 +207,13 @@ public:
 
     void setAmbiance(F32 ambiance) { mAmbiance = llclamp(ambiance, REFLECTION_PROBE_MIN_AMBIANCE, REFLECTION_PROBE_MAX_AMBIANCE); }
     void setClipDistance(F32 distance) { mClipDistance = llclamp(distance, REFLECTION_PROBE_MIN_CLIP_DISTANCE, REFLECTION_PROBE_MAX_CLIP_DISTANCE); }
-    void setVolumeType(EInfluenceVolumeType type) { mVolumeType = llclamp(type, VOLUME_TYPE_SPHERE, VOLUME_TYPE_BOX); }
+    void setIsBox(bool is_box);
+    void setIsDynamic(bool is_dynamic);
 
     F32 getAmbiance() const { return mAmbiance; }
     F32 getClipDistance() const { return mClipDistance; }
-    EInfluenceVolumeType getVolumeType() const { return mVolumeType; }
+    bool getIsBox() const { return (mFlags & FLAG_BOX_VOLUME) != 0; }
+    bool getIsDynamic() const { return (mFlags & FLAG_DYNAMIC) != 0; }
 };
 
 //-------------------------------------------------

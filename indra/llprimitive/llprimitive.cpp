@@ -1819,92 +1819,117 @@ bool LLLightParams::fromLLSD(LLSD& sd)
 
 //============================================================================
 
+//============================================================================
+
 LLReflectionProbeParams::LLReflectionProbeParams()
 {
     mType = PARAMS_REFLECTION_PROBE;
 }
 
-BOOL LLReflectionProbeParams::pack(LLDataPacker& dp) const
+BOOL LLReflectionProbeParams::pack(LLDataPacker &dp) const
 {
-    dp.packF32(mAmbiance, "ambiance");
+	dp.packF32(mAmbiance, "ambiance");
     dp.packF32(mClipDistance, "clip_distance");
-    dp.packU8(mVolumeType, "volume_type");
-    return TRUE;
+    dp.packU8(mFlags, "flags");
+	return TRUE;
 }
 
-BOOL LLReflectionProbeParams::unpack(LLDataPacker& dp)
+BOOL LLReflectionProbeParams::unpack(LLDataPacker &dp)
 {
-    F32 ambiance;
+	F32 ambiance;
     F32 clip_distance;
-    U8 volume_type;
 
-    dp.unpackF32(ambiance, "ambiance");
-    setAmbiance(ambiance);
-
+	dp.unpackF32(ambiance, "ambiance");
+	setAmbiance(ambiance);
+	
     dp.unpackF32(clip_distance, "clip_distance");
-    setClipDistance(clip_distance);
-
-    dp.unpackU8(volume_type, "volume_type");
-    setVolumeType((EInfluenceVolumeType)volume_type);
-
-    return TRUE;
+	setClipDistance(clip_distance);
+	
+    dp.unpackU8(mFlags, "flags");
+	
+	return TRUE;
 }
 
 bool LLReflectionProbeParams::operator==(const LLNetworkData& data) const
 {
-    if (data.mType != PARAMS_REFLECTION_PROBE)
-    {
-        return false;
-    }
-    const LLReflectionProbeParams* param = (const LLReflectionProbeParams*)&data;
-    if (param->mAmbiance != mAmbiance)
-    {
-        return false;
-    }
+	if (data.mType != PARAMS_REFLECTION_PROBE)
+	{
+		return false;
+	}
+	const LLReflectionProbeParams *param = (const LLReflectionProbeParams*)&data;
+	if (param->mAmbiance != mAmbiance)
+	{
+		return false;
+	}
     if (param->mClipDistance != mClipDistance)
     {
         return false;
     }
-    if (param->mVolumeType != mVolumeType)
+    if (param->mFlags != mFlags)
     {
         return false;
     }
-    return true;
+	return true;
 }
 
 void LLReflectionProbeParams::copy(const LLNetworkData& data)
 {
-    const LLReflectionProbeParams* param = (LLReflectionProbeParams*)&data;
-    mType = param->mType;
-    mAmbiance = param->mAmbiance;
+	const LLReflectionProbeParams *param = (LLReflectionProbeParams*)&data;
+	mType = param->mType;
+	mAmbiance = param->mAmbiance;
     mClipDistance = param->mClipDistance;
-    mVolumeType = param->mVolumeType;
+    mFlags = param->mFlags;
 }
 
 LLSD LLReflectionProbeParams::asLLSD() const
 {
-    LLSD sd;
-    sd["ambiance"] = getAmbiance();
+	LLSD sd;
+	sd["ambiance"] = getAmbiance();
     sd["clip_distance"] = getClipDistance();
-    sd["volume_type"] = (U8) getVolumeType();
-    return sd;
+    sd["flags"] = mFlags;
+	return sd;
 }
 
 bool LLReflectionProbeParams::fromLLSD(LLSD& sd)
 {
     if (!sd.has("ambiance") ||
         !sd.has("clip_distance") ||
-        !sd.has("volume_type"))
+        !sd.has("flags"))
     {
         return false;
     }
 
-    setAmbiance((F32)sd["ambiance"].asReal());
+	setAmbiance((F32)sd["ambiance"].asReal());
     setClipDistance((F32)sd["clip_distance"].asReal());
-    setVolumeType((EInfluenceVolumeType)sd["volume_type"].asInteger());
-
+    mFlags = (U8) sd["flags"].asInteger();
+	
     return true;
 }
+
+void LLReflectionProbeParams::setIsBox(bool is_box)
+{
+    if (is_box)
+    {
+        mFlags |= FLAG_BOX_VOLUME;
+    }
+    else
+    {
+        mFlags &= ~FLAG_BOX_VOLUME;
+    }
+}
+
+void LLReflectionProbeParams::setIsDynamic(bool is_dynamic)
+{
+    if (is_dynamic)
+    {
+        mFlags |= FLAG_DYNAMIC;
+    }
+    else
+    {
+        mFlags &= ~FLAG_DYNAMIC;
+    }
+}
+
 //============================================================================
 LLFlexibleObjectData::LLFlexibleObjectData()
 {

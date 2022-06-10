@@ -2317,7 +2317,7 @@ even though the user gets a free copy.
              left="10"
              name="Light Checkbox Ctrl"
              tool_tip="Causes object to emit light"
-             top_pad="15"
+             top_pad="10"
              width="60" />
             <color_swatch
              can_apply_immediately="true"
@@ -2425,16 +2425,16 @@ even though the user gets a free copy.
              label="Reflection Probe"
              layout="topleft"
              left="10"
-             name="Reflection Probe Checkbox Ctrl"
+             name="Reflection Probe"
              tool_tip="Adjusts how objects within this volume receive reflections when PBR is enabled"
-             top_pad="15"
+             top_pad="10"
              width="60" />
           <combo_box
 			   height="19"
 			   top_delta="0"
          left="144"
 			   follows="left|top"
-			   name="Probe Volume Type Ctrl"
+			   name="Probe Volume Type"
 			   tool_tip="Choose the probe influence volume"
 			   width="108">
             <combo_box.item
@@ -2446,6 +2446,15 @@ even though the user gets a free copy.
              name="Box"
              value="Box"/>
           </combo_box>
+          <check_box
+             height="16"
+             label="Dynamic"
+             layout="topleft"
+             left="10"
+             name="Probe Dynamic"
+             tool_tip="When enabled, Avatars will appear in reflections within this probe's influence volume."
+             bottom_delta="19"
+             width="60" />
           <spinner bottom_delta="19"
                    decimal_digits="3"
                    follows="left|top"
