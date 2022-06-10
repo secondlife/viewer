@@ -349,7 +349,7 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, float minweight)
     for (int idx = 0; idx < probeInfluences; ++idx)
     {
         int i = probeIndex[idx];
-        if (refIndex[i].w < max_priority)
+        if (abs(refIndex[i].w) < max_priority)
         {
             continue;
         }
