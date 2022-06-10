@@ -1342,6 +1342,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("halo_map");
     mReservedUniforms.push_back("moon_brightness");
     mReservedUniforms.push_back("cloud_variance");
+    mReservedUniforms.push_back("reflection_probe_ambiance");
 
     mReservedUniforms.push_back("sh_input_r");
     mReservedUniforms.push_back("sh_input_g");

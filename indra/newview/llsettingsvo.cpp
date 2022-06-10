@@ -758,6 +758,7 @@ LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const
         param_map[SETTING_SKY_DROPLET_RADIUS] = DefaultParam(LLShaderMgr::DROPLET_RADIUS, sky_defaults[SETTING_SKY_DROPLET_RADIUS]);
         param_map[SETTING_SKY_ICE_LEVEL] = DefaultParam(LLShaderMgr::ICE_LEVEL, sky_defaults[SETTING_SKY_ICE_LEVEL]);
 
+        param_map[SETTING_REFLECTION_PROBE_AMBIANCE] = DefaultParam(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, sky_defaults[SETTING_REFLECTION_PROBE_AMBIANCE]);
 // AdvancedAtmospherics TODO
 // Provide mappings for new shader params here
     }

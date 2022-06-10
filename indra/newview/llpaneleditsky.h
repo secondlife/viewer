@@ -79,6 +79,7 @@ private:
     void                    onMoistureLevelChanged();
     void                    onDropletRadiusChanged();
     void                    onIceLevelChanged();
+    void                    onReflectionProbeAmbianceChanged();
 
 };
 

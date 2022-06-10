@@ -33,6 +33,7 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llviewercontrol.h"
+#include "llenvironment.h"
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -559,6 +560,11 @@ void LLReflectionMapManager::updateUniforms()
     S32 count = 0;
     U32 nc = 0; // neighbor "cursor" - index into refNeighbor to start writing the next probe's list of neighbors
 
+    LLEnvironment& environment = LLEnvironment::instance();
+    LLSettingsSky::ptr_t psky = environment.getCurrentSky();
+
+    F32 minimum_ambiance = psky->getReflectionProbeAmbiance();
+
     for (auto* refmap : mReflectionMaps)
     {
         if (refmap == nullptr)
@@ -591,7 +597,7 @@ void LLReflectionMapManager::updateUniforms()
             rpd.refIndex[count][3] = -rpd.refIndex[count][3];
         }
 
-        rpd.refParams[count].set(refmap->getAmbiance(), 0.f, 0.f, 0.f);
+        rpd.refParams[count].set(llmax(minimum_ambiance, refmap->getAmbiance()), 0.f, 0.f, 0.f);
 
         S32 ni = nc; // neighbor ("index") - index into refNeighbor to write indices for current reflection probe's neighbors
         {

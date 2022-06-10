@@ -196,15 +196,13 @@ extern LLControlGroup gSavedSettings;
 
 F32 LLReflectionMap::getAmbiance()
 {
-    static LLCachedControl<F32> minimum_ambiance(gSavedSettings, "RenderReflectionProbeAmbiance", 0.f);
-
     F32 ret = 0.f;
     if (mViewerObject && mViewerObject->getVolume())
     {
         ret = ((LLVOVolume*)mViewerObject)->getReflectionProbeAmbiance();
     }
 
-    return llmax(ret, minimum_ambiance());
+    return ret;
 }
 
 F32 LLReflectionMap::getNearClip()

@@ -131,6 +131,8 @@ const std::string LLSettingsSky::SETTING_SKY_MOISTURE_LEVEL("moisture_level");
 const std::string LLSettingsSky::SETTING_SKY_DROPLET_RADIUS("droplet_radius");
 const std::string LLSettingsSky::SETTING_SKY_ICE_LEVEL("ice_level");
 
+const std::string LLSettingsSky::SETTING_REFLECTION_PROBE_AMBIANCE("reflection_probe_ambiance");
+
 const LLUUID LLSettingsSky::DEFAULT_ASSET_ID("3ae23978-ac82-bcf3-a9cb-ba6e52dcb9ad");
 
 static const LLUUID DEFAULT_SUN_ID("32bfbcea-24b1-fb9d-1ef9-48a28a63730f"); // dataserver
@@ -630,6 +632,9 @@ LLSettingsSky::validation_list_t LLSettingsSky::validationList()
         validation.push_back(Validator(SETTING_SKY_ICE_LEVEL,      false,  LLSD::TypeReal,  
             boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(1.0f)))));
 
+        validation.push_back(Validator(SETTING_REFLECTION_PROBE_AMBIANCE, false, LLSD::TypeReal,
+            boost::bind(&Validator::verifyFloatRange, _1, _2, LLSD(LLSDArray(0.0f)(1.0f)))));
+
         validation.push_back(Validator(SETTING_RAYLEIGH_CONFIG, true, LLSD::TypeArray, &validateRayleighLayers));
         validation.push_back(Validator(SETTING_ABSORPTION_CONFIG, true, LLSD::TypeArray, &validateAbsorptionLayers));
         validation.push_back(Validator(SETTING_MIE_CONFIG, true, LLSD::TypeArray, &validateMieLayers));
@@ -754,6 +759,8 @@ LLSD LLSettingsSky::defaults(const LLSettingsBase::TrackPosition& position)
         dfltsetting[SETTING_SKY_MOISTURE_LEVEL] = 0.0f;
         dfltsetting[SETTING_SKY_DROPLET_RADIUS] = 800.0f;
         dfltsetting[SETTING_SKY_ICE_LEVEL]      = 0.0f;
+
+        dfltsetting[SETTING_REFLECTION_PROBE_AMBIANCE] = 0.0f;
 
         dfltsetting[SETTING_RAYLEIGH_CONFIG]    = rayleighConfigDefault();
         dfltsetting[SETTING_MIE_CONFIG]         = mieConfigDefault();
@@ -1132,6 +1139,11 @@ void LLSettingsSky::setSkyIceLevel(F32 ice_level)
     setValue(SETTING_SKY_ICE_LEVEL, ice_level);
 }
 
+void LLSettingsSky::setReflectionProbeAmbiance(F32 ambiance)
+{
+    setValue(SETTING_REFLECTION_PROBE_AMBIANCE, ambiance);
+}
+
 void LLSettingsSky::setAmbientColor(const LLColor3 &val)
 {
     mSettings[SETTING_LEGACY_HAZE][SETTING_AMBIENT] = val.getValue();
@@ -1418,6 +1430,11 @@ F32 LLSettingsSky::getSkyDropletRadius() const
 F32 LLSettingsSky::getSkyIceLevel() const
 {
     return mSettings[SETTING_SKY_ICE_LEVEL].asReal();
+}
+
+F32 LLSettingsSky::getReflectionProbeAmbiance() const
+{
+    return mSettings[SETTING_REFLECTION_PROBE_AMBIANCE].asReal();
 }
 
 F32 LLSettingsSky::getSkyBottomRadius() const
