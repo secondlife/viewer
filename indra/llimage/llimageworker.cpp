@@ -34,15 +34,17 @@
 class ImageRequest
 {
 public:
-	ImageRequest(LLPointer<LLImageFormatted> image,
+	ImageRequest(const LLPointer<LLImageFormatted>& image,
 				 S32 discard, BOOL needs_aux,
-				 LLPointer<LLImageDecodeThread::Responder> responder);
+				 const LLPointer<LLImageDecodeThread::Responder>& responder);
 	virtual ~ImageRequest();
 
 	/*virtual*/ bool processRequest();
 	/*virtual*/ void finishRequest(bool completed);
 
 private:
+	// LLPointers stored in ImageRequest MUST be LLPointer instances rather
+	// than references: we need to increment the refcount when storing these.
 	// input
 	LLPointer<LLImageFormatted> mFormattedImage;
 	S32 mDiscardLevel;
@@ -82,8 +84,11 @@ S32 LLImageDecodeThread::getPending()
     return mThreadPool->getQueue().size();
 }
 
-LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLPointer<LLImageFormatted> image, 
-    S32 discard, BOOL needs_aux, LLPointer<LLImageDecodeThread::Responder> responder)
+LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(
+    const LLPointer<LLImageFormatted>& image, 
+    S32 discard,
+    BOOL needs_aux,
+    const LLPointer<LLImageDecodeThread::Responder>& responder)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 
@@ -113,9 +118,9 @@ LLImageDecodeThread::Responder::~Responder()
 
 //----------------------------------------------------------------------------
 
-ImageRequest::ImageRequest(LLPointer<LLImageFormatted> image, 
+ImageRequest::ImageRequest(const LLPointer<LLImageFormatted>& image, 
 							S32 discard, BOOL needs_aux,
-							LLPointer<LLImageDecodeThread::Responder> responder)
+							const LLPointer<LLImageDecodeThread::Responder>& responder)
 	: mFormattedImage(image),
 	  mDiscardLevel(discard),
 	  mNeedsAux(needs_aux),

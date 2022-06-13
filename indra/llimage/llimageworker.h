@@ -52,9 +52,9 @@ public:
 
 	// meant to resemble LLQueuedThread::handle_t
 	typedef U32 handle_t;
-	handle_t decodeImage(LLPointer<LLImageFormatted> image,
+	handle_t decodeImage(const LLPointer<LLImageFormatted>& image,
 						 S32 discard, BOOL needs_aux,
-						 LLPointer<Responder> responder);
+						 const LLPointer<Responder>& responder);
 	S32 getPending();
 	S32 update(F32 max_time_ms);
 	void shutdown();
