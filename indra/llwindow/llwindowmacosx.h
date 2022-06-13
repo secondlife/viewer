@@ -101,8 +101,7 @@ public:
 	void setNativeAspectRatio(F32 ratio) override { mOverrideAspectRatio = ratio; }
 
 	// query VRAM usage
-	// FIXME FIXME
-	virtual U32 getAvailableVRAMMegabytes() override { return 0; }
+    /*virtual*/ U32 getAvailableVRAMMegabytes() override;
 
 	void beforeDialog() override;
 	void afterDialog() override;
