@@ -2113,10 +2113,10 @@ void LLTextureFetchWorker::onCompleted(LLCore::HttpHandle handle, LLCore::HttpRe
 // Threads:  Tmain
 void LLTextureFetchWorker::endWork(S32 param, bool aborted)
 {
-    LL_PROFILE_ZONE_SCOPED;
+	LL_PROFILE_ZONE_SCOPED;
 	if (mDecodeHandle != 0)
 	{
-		mFetcher->mImageDecodeThread->abortRequest(mDecodeHandle, false);
+		// LL::ThreadPool has no operation to cancel a particular work item
 		mDecodeHandle = 0;
 	}
 	mFormattedImage = NULL;
@@ -3176,7 +3176,7 @@ void LLTextureFetch::shutDownImageDecodeThread()
 {
 	if(mImageDecodeThread)
 	{
-		llassert_always(mImageDecodeThread->isQuitting() || mImageDecodeThread->isStopped()) ;
+		delete mImageDecodeThread;
 		mImageDecodeThread = NULL ;
 	}
 }

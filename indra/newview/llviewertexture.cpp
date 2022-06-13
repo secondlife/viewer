@@ -803,14 +803,8 @@ void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) co
 	}
 
 	virtual_size *= sTexelPixelRatio;
-	/*if (!mMaxVirtualSizeResetCounter)
-	{
-		//flag to reset the values because the old values are used.
-		resetMaxVirtualSizeResetCounter();
-		mMaxVirtualSize = virtual_size;
-		mNeedsGLTexture = needs_gltexture;
-	}
-	else*/ if (virtual_size > mMaxVirtualSize)
+
+	if (virtual_size > mMaxVirtualSize)
 	{
 		mMaxVirtualSize = virtual_size;
 	}
@@ -1799,6 +1793,12 @@ void LLViewerFetchedTexture::updateVirtualSize()
     { //always load boosted textures at highest priority full res
         addTextureStats(sMaxVirtualSize);
         return;
+    }
+
+    if (sDesiredDiscardBias > 0.f)
+    {
+        // running out of video memory, don't hold onto high res textures in the background
+        mMaxVirtualSize = 0.f;
     }
 
 	for (U32 ch = 0; ch < LLRender::NUM_TEXTURE_CHANNELS; ++ch)

@@ -1548,7 +1548,6 @@ bool LLAppViewer::doFrame()
 			{
 				S32 non_interactive_ms_sleep_time = 100;
 				LLAppViewer::getTextureCache()->pause();
-				LLAppViewer::getImageDecodeThread()->pause();
 				ms_sleep(non_interactive_ms_sleep_time);
 			}
 
@@ -1568,7 +1567,6 @@ bool LLAppViewer::doFrame()
 					ms_sleep(milliseconds_to_sleep);
 					// also pause worker threads during this wait period
 					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
 				}
 			}
 
@@ -1617,7 +1615,6 @@ bool LLAppViewer::doFrame()
 			{
 				LL_PROFILE_ZONE_NAMED_CATEGORY_APP( "df getTextureCache" )
 				LLAppViewer::getTextureCache()->pause();
-				LLAppViewer::getImageDecodeThread()->pause();
 				LLAppViewer::getTextureFetch()->pause();
 			}
 			if(!total_io_pending) //pause file threads if nothing to process.
@@ -2049,10 +2046,10 @@ bool LLAppViewer::cleanup()
 	sTextureCache->shutdown();
 	sImageDecodeThread->shutdown();
 	sPurgeDiskCacheThread->shutdown();
-    if (mGeneralThreadPool)
-    {
-        mGeneralThreadPool->close();
-    }
+	if (mGeneralThreadPool)
+	{
+		mGeneralThreadPool->close();
+	}
 
 	sTextureFetch->shutDownTextureCacheThread() ;
 	sTextureFetch->shutDownImageDecodeThread() ;
@@ -2173,14 +2170,7 @@ void LLAppViewer::initGeneralThread()
         return;
     }
 
-    LLSD poolSizes{ gSavedSettings.getLLSD("ThreadPoolSizes") };
-    LLSD sizeSpec{ poolSizes["General"] };
-    LLSD::Integer poolSize{ sizeSpec.isInteger() ? sizeSpec.asInteger() : 3 };
-    LL_DEBUGS("ThreadPool") << "Instantiating General pool with "
-        << poolSize << " threads" << LL_ENDL;
-    // We don't want anyone, especially the main thread, to have to block
-    // due to this ThreadPool being full.
-    mGeneralThreadPool = new LL::ThreadPool("General", poolSize, 1024 * 1024);
+    mGeneralThreadPool = new LL::ThreadPool("General", 3);
     mGeneralThreadPool->start();
 }
 
