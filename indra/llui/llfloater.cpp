@@ -3268,11 +3268,9 @@ boost::signals2::connection LLFloater::setCloseCallback( const commit_signal_t::
 	return mCloseSignal.connect(cb);
 }
 
-LLTrace::BlockTimerStatHandle POST_BUILD("Floater Post Build");
-static LLTrace::BlockTimerStatHandle FTM_EXTERNAL_FLOATER_LOAD("Load Extern Floater Reference");
-
 bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::string& filename, LLXMLNodePtr output_node)
 {
+    LL_PROFILE_ZONE_SCOPED;
 	Params default_params(LLUICtrlFactory::getDefaultParams<LLFloater>());
 	Params params(default_params);
 
@@ -3299,7 +3297,6 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 
 		LLUICtrlFactory::instance().pushFileName(xml_filename);
 
-		LL_RECORD_BLOCK_TIME(FTM_EXTERNAL_FLOATER_LOAD);
 		if (!LLUICtrlFactory::getLayeredXMLNode(xml_filename, referenced_xml))
 		{
 			LL_WARNS() << "Couldn't parse panel from: " << xml_filename << LL_ENDL;
@@ -3375,12 +3372,8 @@ bool LLFloater::initFloaterXML(LLXMLNodePtr node, LLView *parent, const std::str
 	}
 
 	BOOL result;
-	{
-		LL_RECORD_BLOCK_TIME(POST_BUILD);
-
-		result = postBuild();
-	}
-
+	result = postBuild();
+	
 	if (!result)
 	{
 		LL_ERRS() << "Failed to construct floater " << getName() << LL_ENDL;
@@ -3424,11 +3417,9 @@ bool LLFloater::isVisible(const LLFloater* floater)
     return floater && floater->getVisible();
 }
 
-static LLTrace::BlockTimerStatHandle FTM_BUILD_FLOATERS("Build Floaters");
-
 bool LLFloater::buildFromFile(const std::string& filename)
 {
-	LL_RECORD_BLOCK_TIME(FTM_BUILD_FLOATERS);
+    LL_PROFILE_ZONE_SCOPED;
 	LLXMLNodePtr root;
 
 	if (!LLUICtrlFactory::getLayeredXMLNode(filename, root))

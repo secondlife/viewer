@@ -597,6 +597,11 @@ LLFontGL *LLFontRegistry::getFont(const LLFontDescriptor& desc)
 					<<" style=[" << ((S32) desc.getStyle()) << "]"
 					<< " size=[" << desc.getSize() << "]" << LL_ENDL;
 		}
+		else
+		{
+			//generate glyphs for ASCII chars to avoid stalls later
+			fontp->generateASCIIglyphs();
+		}
 		return fontp;
 	}
 }

@@ -41,23 +41,13 @@ class LLWearable;
 //-----------------------------------------------------------------------------
 // LLPolyMorphData()
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLPolyMorphData
+class alignas(16) LLPolyMorphData
 {
+    LL_ALIGN_NEW
 public:
 	LLPolyMorphData(const std::string& morph_name);
 	~LLPolyMorphData();
 	LLPolyMorphData(const LLPolyMorphData &rhs);
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
 
 	BOOL			loadBinary(LLFILE* fp, LLPolyMeshSharedData *mesh);
 	const std::string& getName() { return mName; }
@@ -76,7 +66,7 @@ public:
 
 	F32					mTotalDistortion;	// vertex distortion summed over entire morph
 	F32					mMaxDistortion;		// maximum single vertex distortion in a given morph
-	LL_ALIGN_16(LLVector4a			mAvgDistortion);		// average vertex distortion, to infer directionality of the morph
+	LLVector4a			mAvgDistortion;		// average vertex distortion, to infer directionality of the morph
 	LLPolyMeshSharedData*	mMesh;
 
 private:
@@ -154,8 +144,9 @@ protected:
 // These morph targets must be topologically consistent with a given Polymesh
 // (share face sets)
 //-----------------------------------------------------------------------------
-class LLPolyMorphTarget : public LLViewerVisualParam
+class alignas(16) LLPolyMorphTarget : public LLViewerVisualParam
 {
+    LL_ALIGN_NEW
 public:
 	LLPolyMorphTarget(LLPolyMesh *poly_mesh);
 	~LLPolyMorphTarget();
@@ -183,16 +174,6 @@ public:
 	void	addPendingMorphMask() { mNumMorphMasksPending++; }
 
     void    applyVolumeChanges(F32 delta_weight); // SL-315 - for resetSkeleton()
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
 
 protected:
 	LLPolyMorphTarget(const LLPolyMorphTarget& pOther);

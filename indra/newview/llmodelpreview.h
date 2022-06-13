@@ -124,9 +124,17 @@ public:
     typedef enum
     {
         LOD_FROM_FILE = 0,
-        GENERATE,
+        MESH_OPTIMIZER_AUTO, // automatically selects method based on model or face
+        MESH_OPTIMIZER_COMBINE, // combines faces into a single model, simplifies, then splits back into faces
+        MESH_OPTIMIZER_SLOPPY, // uses sloppy method, works per face
         USE_LOD_ABOVE,
     } eLoDMode;
+
+    typedef enum
+    {
+        LIMIT_TRIANGLES = 0,
+        LIMIT_ERROR_TRESHOLD,
+    } eLoDLimit;
 
 public:
     // Todo: model preview shouldn't need floater dependency, it
@@ -155,7 +163,7 @@ public:
     void loadModelCallback(S32 lod);
     bool lodsReady() { return !mGenLOD && mLodsQuery.empty(); }
     void queryLODs() { mGenLOD = true; };
-    void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
+    void genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation = 3, bool enforce_tri_limit = false);
     void generateNormals();
     void restoreNormals();
     void updateDimentionsAndOffsets();
@@ -165,8 +173,7 @@ public:
     void clearIncompatible(S32 lod);
     void updateStatusMessages();
     void updateLodControls(S32 lod);
-    void clearGLODGroup();
-    void onLODParamCommit(S32 lod, bool enforce_tri_limit);
+    void onLODMeshOptimizerParamCommit(S32 lod, bool enforce_tri_limit, S32 mode);
     void addEmptyFace(LLModel* pTarget);
 
     const bool getModelPivot(void) const { return mHasPivot; }
@@ -218,6 +225,14 @@ private:
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
 
+    // Merges faces into single mesh, simplifies using mesh optimizer,
+    // then splits back into faces.
+    // Returns reached simplification ratio. -1 in case of a failure.
+    F32 genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_ratio, F32 error_threshold, bool sloppy);
+    // Simplifies specified face using mesh optimizer.
+    // Returns reached simplification ratio. -1 in case of a failure.
+    F32 genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_ratio, F32 error_threshold, bool sloppy);
+
 protected:
     friend class LLModelLoader;
     friend class LLFloaterModelPreview;
@@ -248,19 +263,11 @@ protected:
 
     std::map<std::string, bool> mViewOption;
 
-    //GLOD object parameters (must rebuild object if these change)
+    // Model generation parameters (must rebuild object if these change)
     bool mLODFrozen;
-    F32 mBuildShareTolerance;
-    U32 mBuildQueueMode;
-    U32 mBuildOperator;
-    U32 mBuildBorderMode;
     U32 mRequestedLoDMode[LLModel::NUM_LODS];
     S32 mRequestedTriangleCount[LLModel::NUM_LODS];
     F32 mRequestedErrorThreshold[LLModel::NUM_LODS];
-    U32 mRequestedBuildOperator[LLModel::NUM_LODS];
-    U32 mRequestedQueueMode[LLModel::NUM_LODS];
-    U32 mRequestedBorderMode[LLModel::NUM_LODS];
-    F32 mRequestedShareTolerance[LLModel::NUM_LODS];
     F32 mRequestedCreaseAngle[LLModel::NUM_LODS];
 
     LLModelLoader* mModelLoader;
@@ -279,6 +286,8 @@ protected:
 
     U32 mGroup;
     std::map<LLPointer<LLModel>, U32> mObject;
+
+    // Amount of triangles in original(base) model
     U32 mMaxTriangleLimit;
 
     LLMeshUploadThread::instance_list mUploadData;

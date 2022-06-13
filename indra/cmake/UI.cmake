@@ -44,6 +44,7 @@ if( WINDOWS )
           Vfw32
           wer
           winspool
+          imm32
           )
 endif()
 

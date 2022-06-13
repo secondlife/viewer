@@ -62,9 +62,9 @@ struct LLPolySkeletalBoneInfo
 	BOOL mHasPositionDeformation;
 };
 
-LL_ALIGN_PREFIX(16)
-class LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
+class alignas(16) LLPolySkeletalDistortionInfo : public LLViewerVisualParamInfo
 {
+    LL_ALIGN_NEW
 	friend class LLPolySkeletalDistortion;
 public:
 	
@@ -72,19 +72,6 @@ public:
 	/*virtual*/ ~LLPolySkeletalDistortionInfo() {};
 	
 	/*virtual*/ BOOL parseXml(LLXmlTreeNode* node);
-
-
-
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 
 protected:
 	typedef std::vector<LLPolySkeletalBoneInfo> bone_info_list_t;
@@ -95,19 +82,10 @@ protected:
 // LLPolySkeletalDeformation
 // A set of joint scale data for deforming the avatar mesh
 //-----------------------------------------------------------------------------
-class LLPolySkeletalDistortion : public LLViewerVisualParam
+class alignas(16) LLPolySkeletalDistortion : public LLViewerVisualParam
 {
+    LL_ALIGN_NEW
 public:
-	void* operator new(size_t size)
-	{
-		return ll_aligned_malloc_16(size);
-	}
-
-	void operator delete(void* ptr)
-	{
-		ll_aligned_free_16(ptr);
-	}
-
 	LLPolySkeletalDistortion(LLAvatarAppearance *avatarp);
 	~LLPolySkeletalDistortion();
 

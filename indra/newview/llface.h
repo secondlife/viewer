@@ -47,18 +47,18 @@ class LLTextureEntry;
 class LLVertexProgram;
 class LLViewerTexture;
 class LLGeometryManager;
-class LLTextureAtlasSlot;
 class LLDrawInfo;
+class LLMeshSkinInfo;
 
 const F32 MIN_ALPHA_SIZE = 1024.f;
 const F32 MIN_TEX_ANIM_SIZE = 512.f;
 const U8 FACE_DO_NOT_BATCH_TEXTURES = 255;
 
-class LLFace : public LLTrace::MemTrackableNonVirtual<LLFace, 16>
+class alignas(16) LLFace
 {
+    LL_ALIGN_NEW
 public:
 	LLFace(const LLFace& rhs)
-	:	LLTrace::MemTrackableNonVirtual<LLFace, 16>("LLFace")
 	{
 		*this = rhs;
 	}
@@ -85,8 +85,8 @@ public:
 
 public:
 	LLFace(LLDrawable* drawablep, LLViewerObject* objp)
-	:	LLTrace::MemTrackableNonVirtual<LLFace, 16>("LLFace")
 	{
+        LL_PROFILE_ZONE_SCOPED;
 		init(drawablep, objp);
 	}
 	~LLFace()  { destroy(); }
@@ -143,7 +143,7 @@ public:
 	LLViewerObject*	getViewerObject()	const	{ return mVObjp; }
 	S32				getLOD()			const	{ return mVObjp.notNull() ? mVObjp->getLOD() : 0; }
 	void			setPoolType(U32 type)		{ mPoolType = type; }
-	S32				getTEOffset()				{ return mTEOffset; }
+	S32				getTEOffset()       const   { return mTEOffset; }
 	LLViewerTexture*	getTexture(U32 ch = LLRender::DIFFUSE_MAP) const;
 
 	void			setViewerObject(LLViewerObject* object);
@@ -228,14 +228,16 @@ public:
 	void setVertexBuffer(LLVertexBuffer* buffer);
 	void clearVertexBuffer(); //sets mVertexBuffer to NULL
 	LLVertexBuffer* getVertexBuffer()	const	{ return mVertexBuffer; }
-	U32 getRiggedVertexBufferDataMask() const;
 	S32 getRiggedIndex(U32 type) const;
-	void setRiggedIndex(U32 type, S32 index);
-
-	static U32 getRiggedDataMask(U32 type);
 
 	void	notifyAboutCreatingTexture(LLViewerTexture *texture);
 	void	notifyAboutMissingAsset(LLViewerTexture *texture);
+
+    // used to preserve draw order of faces that are batched together. 
+    // Allows content creators to manipulate linked sets and face ordering 
+    // for consistent alpha sorting results, particularly for rigged attachments
+    void setDrawOrderIndex(U32 index) { mDrawOrderIndex = index; }
+    U32 getDrawOrderIndex() const { return mDrawOrderIndex; }
 
 public: //aligned members
 	LLVector4a		mExtents[2];
@@ -261,6 +263,11 @@ public:
 	LLMatrix4*	mSpecMapMatrix;
 	LLMatrix4*	mNormalMapMatrix;
 	LLDrawInfo* mDrawInfo;
+    LLVOAvatar* mAvatar = nullptr;
+    LLMeshSkinInfo* mSkinInfo = nullptr;
+    
+    // return mSkinInfo->mHash or 0 if mSkinInfo is null
+    U64 getSkinHash();
 
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;
@@ -271,10 +278,10 @@ private:
 	LLColor4	mFaceColor;			// overrides material color if state |= USE_FACE_COLOR
 	
 	U16			mGeomCount;			// vertex count for this face
-	U16			mGeomIndex;			// index into draw pool
+	U16			mGeomIndex;			// starting index into mVertexBuffer's vertex array
 	U8			mTextureIndex;		// index of texture channel to use for pseudo-atlasing
 	U32			mIndicesCount;
-	U32			mIndicesIndex;		// index into draw pool for indices (yeah, I know!)
+	U32			mIndicesIndex;		// index into mVertexBuffer's index array
 	S32         mIndexInTex[LLRender::NUM_TEXTURE_CHANNELS];
 
 	LLXformMatrix* mXform;
@@ -304,6 +311,7 @@ private:
 	bool        mHasMedia ;
 	bool        mIsMediaAllowed;
 
+    U32 mDrawOrderIndex = 0; // see setDrawOrderIndex
 	
 protected:
 	static BOOL	sSafeRenderSelect;

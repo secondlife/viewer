@@ -40,11 +40,11 @@ VARYING vec4 post_pos;
 VARYING float pos_w;
 VARYING float target_pos_x;
 VARYING vec2 vary_texcoord0;
-VARYING vec4 vertex_color;
+uniform vec4 color;
 
 void main() 
 {
-	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * vertex_color.a;
+	float alpha = texture2D(diffuseMap, vary_texcoord0.xy).a * color.a;
 
 	if (alpha < 0.05) // treat as totally transparent
 	{

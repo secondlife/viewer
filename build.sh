@@ -155,7 +155,11 @@ pre_build()
     fi
     set -x
 
-    "$autobuild" configure --quiet -c $variant -- \
+    # honor autobuild_configure_parameters same as sling-buildscripts
+    eval_autobuild_configure_parameters=$(eval $(echo echo $autobuild_configure_parameters))
+
+    "$autobuild" configure --quiet -c $variant \
+     ${eval_autobuild_configure_parameters:---} \
      -DPACKAGE:BOOL=ON \
      -DHAVOK:BOOL="$HAVOK" \
      -DRELEASE_CRASH_REPORTING:BOOL="$RELEASE_CRASH_REPORTING" \
@@ -205,7 +209,11 @@ build()
   if $build_viewer
   then
     begin_section "autobuild $variant"
-    "$autobuild" build --no-configure -c $variant || fatal "failed building $variant"
+    # honor autobuild_build_parameters same as sling-buildscripts
+    eval_autobuild_build_parameters=$(eval $(echo echo $autobuild_build_parameters))
+    "$autobuild" build --no-configure -c $variant \
+         $eval_autobuild_build_parameters \
+    || fatal "failed building $variant"
     echo true >"$build_dir"/build_ok
     end_section "autobuild $variant"
     

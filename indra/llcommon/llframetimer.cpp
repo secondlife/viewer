@@ -29,6 +29,11 @@
 
 #include "llframetimer.h"
 
+// We don't bother building a stand alone lib; we just need to include the one source file for Tracy support
+#if LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY || LL_PROFILER_CONFIGURATION == LL_PROFILER_CONFIG_TRACY_FAST_TIMER
+	#include "TracyClient.cpp"
+#endif // LL_PROFILER_CONFIGURATION
+
 // Static members
 //LLTimer	LLFrameTimer::sInternalTimer;
 U64 LLFrameTimer::sStartTotalTime = totalTime();

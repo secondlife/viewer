@@ -33,6 +33,66 @@
 #include "lltracethreadrecorder.h"
 #include "llcleanup.h"
 
+thread_local bool gProfilerEnabled = false;
+
+#if (TRACY_ENABLE)
+// Override new/delete for tracy memory profiling
+void *operator new(size_t size)
+{
+    void* ptr;
+    if (gProfilerEnabled)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+        ptr = (malloc)(size);
+    }
+    else
+    {
+        ptr = (malloc)(size);
+    }
+    if (!ptr)
+    {
+        throw std::bad_alloc();
+    }
+    TracyAlloc(ptr, size);
+    return ptr;
+}
+
+void operator delete(void *ptr) noexcept
+{
+    TracyFree(ptr);
+    if (gProfilerEnabled)
+    {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
+        (free)(ptr);
+    }
+    else
+    {
+        (free)(ptr);
+    }
+}
+
+// C-style malloc/free can't be so easily overridden, so we define tracy versions and use
+// a pre-processor #define in linden_common.h to redirect to them. The parens around the native
+// functions below prevents recursive substitution by the preprocessor.
+//
+// Unaligned mallocs are rare in LL code but hooking them causes problems in 3p lib code (looking at
+// you, Havok), so we'll only capture the aligned version.
+
+void *tracy_aligned_malloc(size_t size, size_t alignment)
+{
+    auto ptr = ll_aligned_malloc_fallback(size, alignment);
+    if (ptr) TracyAlloc(ptr, size);
+    return ptr;
+}
+
+void tracy_aligned_free(void *memblock)
+{
+    TracyFree(memblock);
+    ll_aligned_free_fallback(memblock);
+}
+
+#endif
+
 //static
 BOOL LLCommon::sAprInitialized = FALSE;
 

@@ -35,6 +35,7 @@
 #else
 #	include <sys/stat.h>		// mkdir()
 #endif
+#include <memory>                   // std::unique_ptr
 
 #include "llviewermedia_streamingaudio.h"
 #include "llaudioengine.h"
@@ -179,7 +180,6 @@
 #include "pipeline.h"
 #include "llappviewer.h"
 #include "llfasttimerview.h"
-#include "lltelemetry.h"
 #include "llfloatermap.h"
 #include "llweb.h"
 #include "llvoiceclient.h"
@@ -205,6 +205,9 @@
 #include "llenvironment.h"
 
 #include "llstacktrace.h"
+
+#include "threadpool.h"
+
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -253,9 +256,9 @@ static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
 
-boost::scoped_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
-boost::scoped_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
-boost::scoped_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
+std::unique_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
+std::unique_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
+std::unique_ptr<LLViewerStats::PhaseMap> LLStartUp::sPhases(new LLViewerStats::PhaseMap);
 
 //
 // local function declaration
@@ -308,6 +311,12 @@ void update_texture_fetch()
 	LLAppViewer::getImageDecodeThread()->update(1); // unpauses the image thread
 	LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 	gTextureList.updateImages(0.10f);
+
+    if (LLImageGLThread::sEnabled)
+    {
+        std::shared_ptr<LL::WorkQueue> main_queue = LL::WorkQueue::getInstance("mainloop");
+        main_queue->runFor(std::chrono::milliseconds(1));
+    }
 }
 
 void set_flags_and_update_appearance()
@@ -530,8 +539,6 @@ bool idle_startup()
 			}
 
 			#if LL_WINDOWS
-                LLPROFILE_STARTUP();
-
 				// On the windows dev builds, unpackaged, the message.xml file will 
 				// be located in indra/build-vc**/newview/<config>/app_settings.
 				std::string message_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"message.xml");
@@ -1515,6 +1522,9 @@ bool idle_startup()
 		gAgentCamera.resetCamera();
 		display_startup();
 
+		// start up the ThreadPool we'll use for textures et al.
+        LLAppViewer::instance()->initGeneralThread();
+
 		// Initialize global class data needed for surfaces (i.e. textures)
 		LL_DEBUGS("AppInit") << "Initializing sky..." << LL_ENDL;
 		// Initialize all of the viewer object classes for the first time (doing things like texture fetches.
@@ -1529,7 +1539,11 @@ bool idle_startup()
 		display_startup();
 
 		LL_DEBUGS("AppInit") << "Decoding images..." << LL_ENDL;
-		// For all images pre-loaded into viewer cache, decode them.
+		// For all images pre-loaded into viewer cache, init
+        // priorities and fetching using decodeAllImages.
+        // Most of the fetching and decoding likely to be done
+        // by update_texture_fetch() later, while viewer waits.
+        //
 		// Need to do this AFTER we init the sky
 		const S32 DECODE_TIME_SEC = 2;
 		for (int i = 0; i < DECODE_TIME_SEC; i++)
@@ -2877,7 +2891,7 @@ void reset_login()
 	gAgentWearables.cleanup();
 	gAgentCamera.cleanup();
 	gAgent.cleanup();
-	LLWorld::getInstance()->destroyClass();
+	LLWorld::getInstance()->resetClass();
 
 	if ( gViewerWindow )
 	{	// Hide menus and normal buttons

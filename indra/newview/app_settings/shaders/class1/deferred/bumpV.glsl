@@ -39,16 +39,32 @@ VARYING vec3 vary_mat2;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
+#ifdef HAS_SKIN
+mat4 getObjectSkinnedTransform();
+uniform mat4 projection_matrix;
+uniform mat4 modelview_matrix;
+#endif
+
 void main()
 {
 	//transform vertex
+#ifdef HAS_SKIN
+    mat4 mat = getObjectSkinnedTransform();
+	mat = modelview_matrix * mat;
+	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
+	gl_Position = projection_matrix*vec4(pos, 1.0);
+
+	vec3 n = normalize((mat * vec4(normal.xyz+position.xyz, 1.0)).xyz-pos.xyz);
+	vec3 t = normalize((mat * vec4(tangent.xyz+position.xyz, 1.0)).xyz-pos.xyz);
+#else
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
-	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
 	vec3 n = normalize(normal_matrix * normal);
 	vec3 t = normalize(normal_matrix * tangent.xyz);
+#endif
+
 	vec3 b = cross(n, t) * tangent.w;
-	
+	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
+
 	vary_mat0 = vec3(t.x, b.x, n.x);
 	vary_mat1 = vec3(t.y, b.y, n.y);
 	vary_mat2 = vec3(t.z, b.z, n.z);

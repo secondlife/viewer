@@ -39,7 +39,7 @@ if(NON_RELEASE_CRASH_REPORTING)
   add_compile_definitions( LL_SEND_CRASH_REPORTS=1)
 endif()
 
-# Don't bother with a MinSizeRel or Debug build.
+# Don't bother with a MinSizeRel or Debug builds.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release" CACHE STRING "Supported build types." FORCE)
 
 # Platform-specific compilation flags.
@@ -112,6 +112,14 @@ endif (WINDOWS)
 
 if (LINUX)
   set(CMAKE_SKIP_RPATH TRUE)
+
+   # EXTERNAL_TOS
+   # force this platform to accept TOS via external browser
+
+   # LL_IGNORE_SIGCHLD
+   # don't catch SIGCHLD in our base application class for the viewer - some of
+   # our 3rd party libs may need their *own* SIGCHLD handler to work. Sigh! The
+   # viewer doesn't need to catch SIGCHLD anyway.
 
   add_compile_definitions(
           _REENTRANT

@@ -224,6 +224,7 @@ BOOL LLHUDNameTag::lineSegmentIntersect(const LLVector4a& start, const LLVector4
 
 void LLHUDNameTag::render()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	if (sDisplayText)
 	{
 		LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
@@ -322,8 +323,6 @@ void LLHUDNameTag::renderText(BOOL for_select)
 		
 	// Render label
 	{
-		//gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
-
 		for(std::vector<LLHUDTextSegment>::iterator segment_iter = mLabelSegments.begin();
 			segment_iter != mLabelSegments.end(); ++segment_iter )
 		{
@@ -731,6 +730,7 @@ void LLHUDNameTag::updateSize()
 
 void LLHUDNameTag::updateAll()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 	// iterate over all text objects, calculate their restoration forces,
 	// and add them to the visible set if they are on screen and close enough
 	sVisibleTextObjects.clear();

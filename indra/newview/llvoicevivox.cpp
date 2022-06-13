@@ -5584,7 +5584,9 @@ void LLVivoxVoiceClient::setVoiceEnabled(bool enabled)
 
 bool LLVivoxVoiceClient::voiceEnabled()
 {
-	return gSavedSettings.getBOOL("EnableVoiceChat") && !gSavedSettings.getBOOL("CmdLineDisableVoice");
+    return gSavedSettings.getBOOL("EnableVoiceChat") &&
+          !gSavedSettings.getBOOL("CmdLineDisableVoice") &&
+          !gNonInteractive;
 }
 
 void LLVivoxVoiceClient::setLipSyncEnabled(BOOL enabled)

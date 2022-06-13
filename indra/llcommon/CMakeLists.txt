@@ -12,6 +12,8 @@ include(JsonCpp)
 include(Copy3rdPartyLibs)
 include(ZLIBNG)
 include(URIPARSER)
+include(Tracy)
+
 
 set(llcommon_SOURCE_FILES
     indra_constants.cpp
@@ -104,14 +106,16 @@ set(llcommon_SOURCE_FILES
     lluriparser.cpp
     lluuid.cpp
     llworkerthread.cpp
-    timing.cpp
     u64.cpp
+    threadpool.cpp
+    workqueue.cpp
     StackWalker.cpp
     )
     
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    chrono.h
     classic_callback.h
     ctype_workaround.h
     fix_macros.h
@@ -185,6 +189,8 @@ set(llcommon_HEADER_FILES
     llmortician.h
     llnametable.h
     llpointer.h
+    llprofiler.h
+    llprofilercategories.h
     llpounceable.h
     llpredicate.h
     llpreprocessor.h
@@ -239,8 +245,12 @@ set(llcommon_HEADER_FILES
     lockstatic.h
     stdtypes.h
     stringize.h
+    threadpool.h
+    threadsafeschedule.h
     timer.h
+    tuple.h
     u64.h
+    workqueue.h
     StackWalker.h
     )
 
@@ -258,6 +268,8 @@ target_link_libraries(
         ll::boost
         ll::uriparser
         ll::oslibraries
+	ll::tracy
+   
     )
 
 target_include_directories( llcommon  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
@@ -305,6 +317,9 @@ if (LL_TESTS)
   LL_ADD_INTEGRATION_TEST(llunits "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lluri "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(stringize "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(threadsafeschedule "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(tuple "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(workqueue "" "${test_libs}")
 
 ## llexception_test.cpp isn't a regression test, and doesn't need to be run
 ## every build. It's to help a developer make implementation choices about

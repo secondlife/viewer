@@ -64,10 +64,10 @@ public:
 	const U32 mType;
 
 	//size MUST be a power of 2
-	volatile U8* allocate(U32& name, U32 size, bool for_seed = false);
+	U8* allocate(U32& name, U32 size, bool for_seed = false);
 	
 	//size MUST be the size provided to allocate that returned the given name
-	void release(U32 name, volatile U8* buffer, U32 size);
+	void release(U32 name, U8* buffer, U32 size);
 	
 	//batch allocate buffers to be provided to the application on demand
 	void seedPool();
@@ -82,20 +82,23 @@ public:
 	{
 	public:
 		U32 mGLName;
-		volatile U8* mClientData;
+		U8* mClientData;
 	};
 
 	typedef std::list<Record> record_list_t;
 	std::vector<record_list_t> mFreeList;
 	std::vector<U32> mMissCount;
 
+	//used to avoid calling glGenBuffers for every VBO creation
+	static U32 sNamePool[1024];
+	static U32 sNameIdx;
 };
 
 
 //============================================================================
 // base class 
 class LLPrivateMemoryPool;
-class LLVertexBuffer : public LLRefCount, public LLTrace::MemTrackable<LLVertexBuffer>
+class LLVertexBuffer : public LLRefCount
 {
 public:
 	class MappedRegion
@@ -110,8 +113,7 @@ public:
 	};
 
 	LLVertexBuffer(const LLVertexBuffer& rhs)
-	:	LLTrace::MemTrackable<LLVertexBuffer>("LLVertexBuffer"),
-		mUsage(rhs.mUsage)
+	:	mUsage(rhs.mUsage)
 	{
 		*this = rhs;
 	}
@@ -127,7 +129,7 @@ public:
 	static LLVBOPool sDynamicCopyVBOPool;
 	static LLVBOPool sStreamIBOPool;
 	static LLVBOPool sDynamicIBOPool;
-	
+
 	static std::list<U32> sAvailableVAOName;
 	static U32 sCurVAOName;
 
@@ -143,8 +145,7 @@ public:
 	static void initClass(bool use_vbo, bool no_vbo_mapping);
 	static void cleanupClass();
 	static void setupClientArrays(U32 data_mask);
-	static void pushPositions(U32 mode, const LLVector4a* pos, U32 count);
-	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm);
+	static void drawArrays(U32 mode, const std::vector<LLVector3>& pos);
 	static void drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp);
 
  	static void unbind(); //unbind any bound vertex buffer
@@ -207,13 +208,17 @@ protected:
 
 	virtual ~LLVertexBuffer(); // use unref()
 
-	virtual void setupVertexBuffer(U32 data_mask); // pure virtual, called from mapBuffer()
+	virtual void setupVertexBuffer(U32 data_mask);
+    void setupVertexBufferFast(U32 data_mask);
+
 	void setupVertexArray();
 	
 	void	genBuffer(U32 size);
 	void	genIndices(U32 size);
 	bool	bindGLBuffer(bool force_bind = false);
+    bool	bindGLBufferFast();
 	bool	bindGLIndices(bool force_bind = false);
+    bool    bindGLIndicesFast();
 	bool	bindGLArray();
 	void	releaseBuffer();
 	void	releaseIndices();
@@ -229,13 +234,15 @@ public:
 	LLVertexBuffer(U32 typemask, S32 usage);
 	
 	// map for data access
-	volatile U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
-	volatile U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
+	U8*		mapVertexBuffer(S32 type, S32 index, S32 count, bool map_range);
+	U8*		mapIndexBuffer(S32 index, S32 count, bool map_range);
 
 	void bindForFeedback(U32 channel, U32 type, U32 index, U32 count);
 
 	// set for rendering
 	virtual void	setBuffer(U32 data_mask); 	// calls  setupVertexBuffer() if data_mask is not 0
+    void	setBufferFast(U32 data_mask); 	// calls setupVertexBufferFast(), assumes data_mask is not 0 among other assumptions
+
 	void flush(); //flush pending data to GL memory
 	// allocate buffer
 	bool	allocateBuffer(S32 nverts, S32 nindices, bool create);
@@ -271,14 +278,14 @@ public:
 	S32 getNumVerts() const					{ return mNumVerts; }
 	S32 getNumIndices() const				{ return mNumIndices; }
 	
-	volatile U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
-	volatile U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
+	U8* getIndicesPointer() const			{ return useVBOs() ? (U8*) mAlignedIndexOffset : mMappedIndexData; }
+	U8* getVerticesPointer() const			{ return useVBOs() ? (U8*) mAlignedOffset : mMappedData; }
 	U32 getTypeMask() const					{ return mTypeMask; }
 	bool hasDataType(S32 type) const		{ return ((1 << type) & getTypeMask()); }
 	S32 getSize() const;
 	S32 getIndicesSize() const				{ return mIndicesSize; }
-	volatile U8* getMappedData() const				{ return mMappedData; }
-	volatile U8* getMappedIndices() const			{ return mMappedIndexData; }
+	U8* getMappedData() const				{ return mMappedData; }
+	U8* getMappedIndices() const			{ return mMappedIndexData; }
 	S32 getOffset(S32 type) const			{ return mOffsets[type]; }
 	S32 getUsage() const					{ return mUsage; }
 	bool isWriteable() const				{ return (mMappable || mUsage == GL_STREAM_DRAW_ARB) ? true : false; }
@@ -286,6 +293,9 @@ public:
 	void draw(U32 mode, U32 count, U32 indices_offset) const;
 	void drawArrays(U32 mode, U32 offset, U32 count) const;
 	void drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
+
+    //implementation for inner loops that does no safety checking
+    void drawRangeFast(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const;
 
 	//for debugging, validate data in given range is valid
 	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
@@ -308,8 +318,8 @@ protected:
 	U32		mGLIndices;		// GL IBO handle
 	U32		mGLArray;		// GL VAO handle
 	
-	volatile U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
-	volatile U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
+	U8* mMappedData;	// pointer to currently mapped data (NULL if unmapped)
+	U8* mMappedIndexData;	// pointer to currently mapped indices (NULL if unmapped)
 
 	U32		mMappedDataUsingVBOs : 1;
 	U32		mMappedIndexDataUsingVBOs : 1;
