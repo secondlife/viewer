@@ -2506,6 +2506,19 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
+  set(llviewercontrollistener_test_sources
+    llviewercontrollistener.cpp
+    ../llxml/llcontrol.cpp
+    ../llxml/llxmltree.cpp
+    ../llxml/llxmlparser.cpp
+    ../llcommon/commoncontrol.cpp
+    )
+
+  LL_ADD_INTEGRATION_TEST(llviewercontrollistener
+    "${llviewercontrollistener_test_sources}"
+    "${test_libs}"
+    )
+
   LL_ADD_INTEGRATION_TEST(llviewernetwork
      llviewernetwork.cpp
     "${test_libs}"

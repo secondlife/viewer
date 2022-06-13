@@ -29,9 +29,13 @@
 
 #include "llimage.h"
 #include "llpointer.h"
-#include "llworkerthread.h"
 
-class LLImageDecodeThread : public LLQueuedThread
+namespace LL
+{
+    class ThreadPool;
+} // namespace LL
+
+class LLImageDecodeThread
 {
 public:
 	class Responder : public LLThreadSafeRefCount
@@ -42,57 +46,24 @@ public:
 		virtual void completed(bool success, LLImageRaw* raw, LLImageRaw* aux) = 0;
 	};
 
-	class ImageRequest : public LLQueuedThread::QueuedRequest
-	{
-	protected:
-		virtual ~ImageRequest(); // use deleteRequest()
-		
-	public:
-		ImageRequest(handle_t handle, LLImageFormatted* image,
-					 S32 discard, BOOL needs_aux,
-					 LLImageDecodeThread::Responder* responder);
-
-		/*virtual*/ bool processRequest();
-		/*virtual*/ void finishRequest(bool completed);
-
-		// Used by unit tests to check the consitency of the request instance
-		bool tut_isOK();
-		
-	private:
-		// input
-		LLPointer<LLImageFormatted> mFormattedImage;
-		S32 mDiscardLevel;
-		BOOL mNeedsAux;
-		// output
-		LLPointer<LLImageRaw> mDecodedImageRaw;
-		LLPointer<LLImageRaw> mDecodedImageAux;
-		BOOL mDecodedRaw;
-		BOOL mDecodedAux;
-		LLPointer<LLImageDecodeThread::Responder> mResponder;
-	};
-	
 public:
 	LLImageDecodeThread(bool threaded = true);
 	virtual ~LLImageDecodeThread();
 
-	handle_t decodeImage(LLImageFormatted* image,
+	// meant to resemble LLQueuedThread::handle_t
+	typedef U32 handle_t;
+	handle_t decodeImage(const LLPointer<LLImageFormatted>& image,
 						 S32 discard, BOOL needs_aux,
-						 Responder* responder);
+						 const LLPointer<Responder>& responder);
+	S32 getPending();
 	S32 update(F32 max_time_ms);
+	void shutdown();
 
 private:
-	struct creation_info
-	{
-		handle_t handle;
-		LLPointer<LLImageFormatted> image;
-		S32 discard;
-		BOOL needs_aux;
-		LLPointer<Responder> responder;
-		creation_info(handle_t h, LLImageFormatted* i, U32 p, S32 d, BOOL aux, Responder* r)
-			: handle(h), image(i), discard(d), needs_aux(aux), responder(r)
-		{}
-	};
-	LLMutex* mCreationMutex;
+	// As of SL-17483, LLImageDecodeThread is no longer itself an
+	// LLQueuedThread - instead this is the API by which we submit work to the
+	// "ImageDecode" ThreadPool.
+	std::unique_ptr<LL::ThreadPool> mThreadPool;
 };
 
 #endif

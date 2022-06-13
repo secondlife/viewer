@@ -12645,7 +12645,9 @@
       <key>Value</key>
       <map>
         <key>General</key>
-        <integer>4</integer>
+        <integer>1</integer>
+        <key>ImageDecode</key>
+        <integer>9</integer>
       </map>
     </map>
     <key>ThrottleBandwidthKBPS</key>

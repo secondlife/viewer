@@ -125,41 +125,10 @@ namespace tut
 		}
 	};
 
-	// Test wrapper declaration : image worker
-	// Note: this class is not meant to be instantiated outside an LLImageDecodeThread instance
-	// but it's not a bad idea to get its public API a good shake as part of a thorough unit test set.
-	// Some gotcha with the destructor though (see below).
-	struct imagerequest_test
-	{
-		// Instance to be tested
-		LLImageDecodeThread::ImageRequest* mRequest;
-		bool done;
-
-		// Constructor and destructor of the test wrapper
-		imagerequest_test()
-		{
-			done = false;
-
-			mRequest = new LLImageDecodeThread::ImageRequest(0, 0,
-											 0, FALSE,
-											 new responder_test(&done));
-		}
-		~imagerequest_test()
-		{
-			// We should delete the object *but*, because its destructor is protected, that cannot be
-			// done from outside an LLImageDecodeThread instance... So we leak memory here... It's fine...
-			//delete mRequest;
-		}
-	};
-
 	// Tut templating thingamagic: test group, object and test instance
 	typedef test_group<imagedecodethread_test> imagedecodethread_t;
 	typedef imagedecodethread_t::object imagedecodethread_object_t;
 	tut::imagedecodethread_t tut_imagedecodethread("LLImageDecodeThread");
-
-	typedef test_group<imagerequest_test> imagerequest_t;
-	typedef imagerequest_t::object imagerequest_object_t;
-	tut::imagerequest_t tut_imagerequest("LLImageRequest");
 
 	// ---------------------------------------------------------------------------------------
 	// Test functions
@@ -171,21 +140,6 @@ namespace tut
 
 	// ---------------------------------------------------------------------------------------
 	// Test the LLImageDecodeThread interface
-	// ---------------------------------------------------------------------------------------
-	//
-	// Note on Unit Testing Queued Thread Classes
-	//
-	// Since methods on such a class are called on a separate loop and that we can't insert tut
-	// ensure() calls in there, we exercise the class with 2 sets of tests:
-	// - 1: Test as a single threaded instance: We declare the class but ask for no thread
-	//   to be spawned (easy with LLThreads since there's a boolean argument on the constructor
-	//   just for that). We can then unit test each public method like we do on a normal class.
-	// - 2: Test as a threaded instance: We let the thread launch and check that its external 
-	//   behavior is as expected (i.e. it runs, can accept a work order and processes
-	//   it). Typically though there's no guarantee that this exercises all the methods of the
-	//   class which is why we also need the previous "non threaded" set of unit tests for
-	//   complete coverage.
-	//
 	// ---------------------------------------------------------------------------------------
 
 	template<> template<>
@@ -210,25 +164,5 @@ namespace tut
 		}
 		// Verifies that the responder has now been called
 		ensure("LLImageDecodeThread: threaded work unit not processed", done == true);
-	}
-
-	// ---------------------------------------------------------------------------------------
-	// Test the LLImageDecodeThread::ImageRequest interface
-	// ---------------------------------------------------------------------------------------
-	
-	template<> template<>
-	void imagerequest_object_t::test<1>()
-	{
-		// Test that we start with a correct request at creation
-		ensure("LLImageDecodeThread::ImageRequest::ImageRequest() constructor test failed", mRequest->tut_isOK());
-		bool res = mRequest->processRequest();
-		// Verifies that we processed the request successfully
-		ensure("LLImageDecodeThread::ImageRequest::processRequest() processing request test failed", res == true);
-		// Check that we can call the finishing call safely
-		try {
-			mRequest->finishRequest(false);
-		} catch (...) {
-			fail("LLImageDecodeThread::ImageRequest::finishRequest() test failed");
-		}
 	}
 }
