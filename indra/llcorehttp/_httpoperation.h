@@ -181,7 +181,6 @@ protected:
 public:
 	// Request Data
 	HttpRequest::policy_t		mReqPolicy;
-	HttpRequest::priority_t		mReqPriority;
 
 	// Reply Data
 	HttpStatus					mStatus;

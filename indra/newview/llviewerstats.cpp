@@ -155,10 +155,7 @@ LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> >
 static LLTrace::SampleStatHandle<bool> 
 							CHAT_BUBBLES("chatbubbles", "Chat Bubbles Enabled");
 
-LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM("gltexmemstat"),
-															GL_BOUND_MEM("glboundmemstat"),
-															RAW_MEM("rawmemstat"),
-															FORMATTED_MEM("formattedmemstat");
+LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM("formattedmemstat");
 LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH("deltabandwidth", "Increase/Decrease in bandwidth based on packet loss"),
 															MAX_BANDWIDTH("maxbandwidth", "Max bandwidth setting");
 
@@ -319,8 +316,6 @@ U32Bytes			gTotalTextureBytesPerBoostLevel[LLViewerTexture::MAX_GL_IMAGE_CATEGOR
 extern U32  gVisCompared;
 extern U32  gVisTested;
 
-LLFrameTimer gTextureTimer;
-
 void update_statistics()
 {
 	gTotalWorldData += gVLManager.getTotalBytes();
@@ -416,19 +411,6 @@ void update_statistics()
 	}
 }
 
-void update_texture_time()
-{
-	if (gTextureList.isPrioRequestsFetched())
-	{
-		gTextureTimer.pause();
-	}
-	else
-	{		
-		gTextureTimer.unpause();
-	}
-
-	record(LLStatViewer::TEXTURE_FETCH_TIME, gTextureTimer.getElapsedTimeF32());
-}
 /*
  * The sim-side LLSD is in newsim/llagentinfo.cpp:forwardViewerStats.
  *

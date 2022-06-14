@@ -68,7 +68,7 @@ public:
 		
 	public:
 		Request(LLLFSThread* thread,
-				handle_t handle, U32 priority, 
+				handle_t handle,
 				operation_t op, const std::string& filename,
 				U8* buffer, S32 offset, S32 numbytes,
 				Responder* responder);
@@ -120,22 +120,15 @@ public:
 	// Return a Request handle
 	handle_t read(const std::string& filename,	/* Flawfinder: ignore */ 
 				  U8* buffer, S32 offset, S32 numbytes,
-				  Responder* responder, U32 pri=0);
+				  Responder* responder);
 	handle_t write(const std::string& filename,
 				   U8* buffer, S32 offset, S32 numbytes,
-				   Responder* responder, U32 pri=0);
-	
-	// Misc
-	U32 priorityCounter() { return mPriorityCounter-- & PRIORITY_LOWBITS; } // Use to order IO operations
+				   Responder* responder);
 	
 	// static initializers
 	static void initClass(bool local_is_threaded = TRUE); // Setup sLocal
 	static S32 updateClass(U32 ms_elapsed);
 	static void cleanupClass();		// Delete sLocal
-
-	
-private:
-	U32 mPriorityCounter;
 	
 public:
 	static LLLFSThread* sLocal;		// Default local file thread

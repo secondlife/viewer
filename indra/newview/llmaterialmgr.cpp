@@ -133,8 +133,7 @@ LLMaterialMgr::LLMaterialMgr():
 	mHttpRequest(),
 	mHttpHeaders(),
 	mHttpOptions(),
-	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpPriority(0)
+	mHttpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
 {
 	LLAppCoreHttp & app_core_http(LLAppViewer::instance()->getAppCoreHttp());
 
@@ -699,7 +698,7 @@ void LLMaterialMgr::processGetQueue()
 			<< "\ndata: " << ll_pretty_print_sd(materialsData) << LL_ENDL;
 
 		LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(mHttpRequest, 
-				mHttpPolicy, mHttpPriority, capURL, 
+				mHttpPolicy, capURL, 
 				postData, mHttpOptions, mHttpHeaders, handler);
 
 		if (handle == LLCORE_HTTP_HANDLE_INVALID)
@@ -985,7 +984,7 @@ void LLMaterialMgr::processPutQueue()
 										));
 
 			LLCore::HttpHandle handle = LLCoreHttpUtil::requestPutWithLLSD(
-				mHttpRequest, mHttpPolicy, mHttpPriority, capURL,
+				mHttpRequest, mHttpPolicy, capURL,
 				putData, mHttpOptions, mHttpHeaders, handler);
 
 			if (handle == LLCORE_HTTP_HANDLE_INVALID)

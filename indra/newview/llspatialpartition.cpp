@@ -3424,10 +3424,10 @@ public:
 				}
 			}	
 
-			if (drawable->getVOVolume() && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
+			/*if (drawable->getVOVolume() && gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
 			{
 				renderTexturePriority(drawable);
-			}
+			}*/
 
 			if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_POINTS))
 			{
@@ -3754,7 +3754,7 @@ void LLSpatialPartition::renderDebug()
 									  LLPipeline::RENDER_DEBUG_BBOXES |
 									  LLPipeline::RENDER_DEBUG_NORMALS |
 									  LLPipeline::RENDER_DEBUG_POINTS |
-									  LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
+									  //LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY |
 									  LLPipeline::RENDER_DEBUG_TEXTURE_ANIM |
 									  LLPipeline::RENDER_DEBUG_RAYCAST |
 									  LLPipeline::RENDER_DEBUG_AVATAR_VOLUME |

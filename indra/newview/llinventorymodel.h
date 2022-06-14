@@ -617,8 +617,6 @@ private:
 	LLCore::HttpOptions::ptr_t			mHttpOptions;
 	LLCore::HttpHeaders::ptr_t			mHttpHeaders;
 	LLCore::HttpRequest::policy_t		mHttpPolicyClass;
-	LLCore::HttpRequest::priority_t		mHttpPriorityFG;
-	LLCore::HttpRequest::priority_t		mHttpPriorityBG;
 	
 /**                    HTTP Transport
  **                                                                            **

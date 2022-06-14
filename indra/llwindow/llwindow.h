@@ -162,7 +162,10 @@ public:
 	virtual F32	getNativeAspectRatio() = 0;
 	virtual F32 getPixelAspectRatio() = 0;
 	virtual void setNativeAspectRatio(F32 aspect) = 0;
-	
+
+	// query VRAM usage
+	virtual U32 getAvailableVRAMMegabytes() = 0;
+
 	virtual void beforeDialog() {};	// prepare to put up an OS dialog (if special measures are required, such as in fullscreen mode)
 	virtual void afterDialog() {};	// undo whatever was done in beforeDialog()
 

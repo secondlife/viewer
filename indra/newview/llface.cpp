@@ -2316,6 +2316,7 @@ void LLFace::resetVirtualSize()
 
 F32 LLFace::getTextureVirtualSize()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	F32 radius;
 	F32 cos_angle_to_view_dir;	
 	BOOL in_frustum = calcPixelArea(cos_angle_to_view_dir, radius);

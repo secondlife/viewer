@@ -273,23 +273,6 @@
   </text>
 
   <slider
-    control_name="TextureMemory"
-    decimal_digits="0"
-    follows="left|top"
-    height="16"
-    increment="16"
-    initial_value="32"
-    label="Texture Memory (MB):"
-    label_width="185"
-    layout="topleft"
-    left="30"
-    max_val="4096"
-    name="GraphicsCardTextureMemory"
-    tool_tip="Amount of memory to allocate for textures. Defaults to video card memory. Reducing this may improve performance but may also make textures blurry."
-    top_delta="16"
-    width="335" />
-
-  <slider
     control_name="RenderFogRatio"
     follows="left|top"
     height="16"

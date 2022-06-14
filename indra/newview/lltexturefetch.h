@@ -48,7 +48,6 @@ class LLTextureFetchWorker;
 class LLImageDecodeThread;
 class LLHost;
 class LLViewerAssetStats;
-class LLTextureFetchDebugger;
 class LLTextureCache;
 class LLTextureFetchTester;
 
@@ -59,6 +58,8 @@ class LLTextureFetch : public LLWorkerThread
 	friend class LLTextureFetchWorker;
 	
 public:
+    static std::string getStateString(S32 state);
+
 	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
 	~LLTextureFetch();
 
@@ -116,10 +117,11 @@ public:
     // Threads:  T*
 	BOOL isFromLocalCache(const LLUUID& id);
 
-	// @return	Magic number giving the internal state of the
-	//			request.  We should make these codes public if we're
-	//			going to return them as a status value.
-	//
+    // get the current fetch state, if any, from the given UUID
+    S32 getFetchState(const LLUUID& id);
+
+	// @return	Fetch state of given image and associates statistics
+	//          See also getStateString
     // Threads:  T*
 	S32 getFetchState(const LLUUID& id, F32& decode_progress_p, F32& requested_priority_p,
 					  U32& fetch_priority_p, F32& fetch_dtime_p, F32& request_dtime_p, bool& can_use_http);
@@ -409,10 +411,6 @@ public:
 	static LLTextureFetchTester* sTesterp;
 
 private:
-	//debug use
-	LLTextureFetchDebugger* mFetchDebugger;
-	bool mFetcherLocked;
-	
 	e_tex_source mFetchSource;
 	e_tex_source mOriginFetchSource;
 
@@ -420,10 +418,6 @@ private:
 	//LLAdaptiveRetryPolicy mFetchRetryPolicy;
 	
 public:
-	//debug use
-	LLTextureFetchDebugger* getFetchDebugger() { return mFetchDebugger;}
-	void lockFetcher(bool lock) { mFetcherLocked = lock;}
-
 	void setLoadSource(e_tex_source source) {mFetchSource = source;}
 	void resetLoadSource() {mFetchSource = mOriginFetchSource;}
 	bool canLoadFromCache() { return mFetchSource != FROM_HTTP_ONLY;}
@@ -431,216 +425,6 @@ public:
 
 //debug use
 class LLViewerFetchedTexture;
-class LLTextureFetchDebugger : public LLCore::HttpHandler
-{
-	friend class LLTextureFetch;
-public:
-	LLTextureFetchDebugger(LLTextureFetch* fetcher, LLTextureCache* cache, LLImageDecodeThread* imagedecodethread) ;
-	~LLTextureFetchDebugger();
-
-public:
-	enum e_debug_state
-	{
-		IDLE = 0,
-		START_DEBUG,
-		READ_CACHE,
-		WRITE_CACHE,
-		DECODING,
-		HTTP_FETCHING,
-		GL_TEX,
-		REFETCH_VIS_CACHE,
-		REFETCH_VIS_HTTP,
-		REFETCH_ALL_CACHE,
-		REFETCH_ALL_HTTP,
-		INVALID
-	};
-
-private:	
-	struct FetchEntry
-	{
-		enum e_curl_state
-		{
-			CURL_NOT_DONE = 0,
-			CURL_IN_PROGRESS,
-			CURL_DONE
-		};
-		LLUUID mID;
-		S32 mRequestedSize;
-		S32 mDecodedLevel;
-		S32 mFetchedSize;
-		S32 mDecodedSize;
-		BOOL mNeedsAux;
-		U32 mCacheHandle;
-		LLPointer<LLImageFormatted> mFormattedImage;
-		LLPointer<LLImageRaw> mRawImage;
-		e_curl_state mCurlState;
-		S32 mCurlReceivedSize;
-		LLCore::HttpHandle mHttpHandle;
-
-		FetchEntry() :
-			mDecodedLevel(-1),
-			mFetchedSize(0),
-			mDecodedSize(0),
-			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
-			{}
-		FetchEntry(LLUUID& id, S32 r_size, /*S32 f_discard, S32 c,*/ S32 level, S32 f_size, S32 d_size) :
-			mID(id),
-			mRequestedSize(r_size),
-			mDecodedLevel(level),
-			mFetchedSize(f_size),
-			mDecodedSize(d_size),
-			mNeedsAux(false),
-			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
-			{}
-	};
-	typedef std::vector<FetchEntry> fetch_list_t;
-	fetch_list_t mFetchingHistory;
-
-	typedef std::map<LLCore::HttpHandle, S32> handle_fetch_map_t;
-	handle_fetch_map_t mHandleToFetchIndex;
-
-	void setDebuggerState(e_debug_state new_state) { mDebuggerState = new_state; }
-	e_debug_state mDebuggerState;
-	
-	F32 mCacheReadTime;
-	F32 mCacheWriteTime;
-	F32 mDecodingTime;
-	F32 mHTTPTime;
-	F32 mGLCreationTime;
-
-	F32 mTotalFetchingTime;
-	F32 mRefetchVisCacheTime;
-	F32 mRefetchVisHTTPTime;
-	F32 mRefetchAllCacheTime;
-	F32 mRefetchAllHTTPTime;
-
-	LLTimer mTimer;
-	
-	LLTextureFetch* mFetcher;
-	LLTextureCache* mTextureCache;
-	LLImageDecodeThread* mImageDecodeThread;
-	LLCore::HttpHeaders::ptr_t mHttpHeaders;
-	LLCore::HttpRequest::policy_t mHttpPolicyClass;
-	
-	S32 mNumFetchedTextures;
-	S32 mNumCacheHits;
-	S32 mNumVisibleFetchedTextures;
-	S32 mNumVisibleFetchingRequests;
-	U32 mFetchedData;
-	U32 mDecodedData;
-	U32 mVisibleFetchedData;
-	U32 mVisibleDecodedData;
-	U32 mRenderedData;
-	U32 mRenderedDecodedData;
-	U32 mFetchedPixels;
-	U32 mRenderedPixels;
-	U32 mRefetchedVisData;
-	U32 mRefetchedVisPixels;
-	U32 mRefetchedAllData;
-	U32 mRefetchedAllPixels;
-
-	BOOL mFreezeHistory;
-	BOOL mStopDebug;
-	BOOL mClearHistory;
-	BOOL mRefetchNonVis;
-
-	std::string mHTTPUrl;
-	S32 mNbCurlRequests;
-	S32 mNbCurlCompleted;
-
-	std::map< LLPointer<LLViewerFetchedTexture>, std::vector<S32> > mRefetchList; // treats UI textures as normal textures
-	std::vector< LLPointer<LLViewerFetchedTexture> > mTempTexList;
-	S32 mTempIndex;
-	S32 mHistoryListIndex;
-
-public:
-	bool update(F32 max_time); //called in the main thread once per frame
-
-	//fetching history
-	void clearHistory();
-	void addHistoryEntry(LLTextureFetchWorker* worker);
-	
-	// Inherited from LLCore::HttpHandler
-	// Threads:  Ttf
-	virtual void onCompleted(LLCore::HttpHandle handle, LLCore::HttpResponse * response);
-
-	void startWork(e_debug_state state);
-	void setStopDebug() {mStopDebug = TRUE;}
-	void tryToStopDebug(); //stop everything
-	void callbackCacheRead(S32 id, bool success, LLImageFormatted* image,
-						   S32 imagesize, BOOL islocal);
-	void callbackCacheWrite(S32 id, bool success);
-	void callbackDecoded(S32 id, bool success, LLImageRaw* raw, LLImageRaw* aux);
-	void callbackHTTP(FetchEntry & fetch, LLCore::HttpResponse * response);
-
-	e_debug_state getState()             {return mDebuggerState;}
-	S32  getNumFetchedTextures()         {return mNumFetchedTextures;}
-	S32  getNumFetchingRequests()        {return mFetchingHistory.size();}
-	S32  getNumCacheHits()               {return mNumCacheHits;}
-	S32  getNumVisibleFetchedTextures()  {return mNumVisibleFetchedTextures;}
-	S32  getNumVisibleFetchingRequests() {return mNumVisibleFetchingRequests;}
-	U32  getFetchedData()                {return mFetchedData;}
-	U32  getDecodedData()                {return mDecodedData;}
-	U32  getVisibleFetchedData()         {return mVisibleFetchedData;}
-	U32  getVisibleDecodedData()         {return mVisibleDecodedData;}
-	U32  getRenderedData()               {return mRenderedData;}
-	U32  getRenderedDecodedData()        {return mRenderedDecodedData;}
-	U32  getFetchedPixels()              {return mFetchedPixels;}
-	U32  getRenderedPixels()             {return mRenderedPixels;}
-	U32  getRefetchedVisData()              {return mRefetchedVisData;}
-	U32  getRefetchedVisPixels()            {return mRefetchedVisPixels;}
-	U32  getRefetchedAllData()              {return mRefetchedAllData;}
-	U32  getRefetchedAllPixels()            {return mRefetchedAllPixels;}
-
-	F32  getCacheReadTime()     {return mCacheReadTime;}
-	F32  getCacheWriteTime()    {return mCacheWriteTime;}
-	F32  getDecodeTime()        {return mDecodingTime;}
-	F32  getGLCreationTime()    {return mGLCreationTime;}
-	F32  getHTTPTime()          {return mHTTPTime;}
-	F32  getTotalFetchingTime() {return mTotalFetchingTime;}
-	F32  getRefetchVisCacheTime() {return mRefetchVisCacheTime;}
-	F32  getRefetchVisHTTPTime()  {return mRefetchVisHTTPTime;}
-	F32  getRefetchAllCacheTime() {return mRefetchAllCacheTime;}
-	F32  getRefetchAllHTTPTime()  {return mRefetchAllHTTPTime;}
-
-private:
-	void init();
-	void clearTextures();//clear fetching results of all textures.
-	void clearCache();
-	void makeRefetchList();
-	void scanRefetchList();
-
-	void lockFetcher();
-	void unlockFetcher();
-
-	void lockCache();
-	void unlockCache();
-
-	void lockDecoder();
-	void unlockDecoder();
-	
-	S32 fillCurlQueue();
-
-	void startDebug();
-	void debugCacheRead();
-	void debugCacheWrite();	
-	void debugHTTP();
-	void debugDecoder();
-	void debugGLTextureCreation();
-	void debugRefetchVisibleFromCache();
-	void debugRefetchVisibleFromHTTP();
-	void debugRefetchAllFromCache();
-	void debugRefetchAllFromHTTP();
-
-	bool processStartDebug(F32 max_time);
-	bool processGLCreation(F32 max_time);
-
-private:
-	static bool sDebuggerEnabled;
-public:
-	static bool isEnabled() {return sDebuggerEnabled;}
-};
-
 
 class LLTextureFetchTester : public LLMetricPerformanceTesterBasic
 {
