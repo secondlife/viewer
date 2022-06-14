@@ -184,12 +184,6 @@ size_t LLMeshOptimizer::generateRemapMultiU16(
     const LLVector2 * text_coords,
     U64 vertex_count)
 {
-    meshopt_Stream streams[] = {
-       {(const float*)vertex_positions, sizeof(F32) * 3, sizeof(F32) * 4},
-       {(const float*)normals, sizeof(F32) * 3, sizeof(F32) * 4},
-       {(const float*)text_coords, sizeof(F32) * 2, sizeof(F32) * 2},
-    };
-
     S32 out_of_range_count = 0;
     U32* indices_u32 = NULL;
     if (indices)
@@ -199,7 +193,7 @@ size_t LLMeshOptimizer::generateRemapMultiU16(
         {
             if (indices[i] < vertex_count)
             {
-                indices_u32[i] = indices[i];
+                indices_u32[i] = (U32)indices[i];
             }
             else
             {
@@ -211,14 +205,10 @@ size_t LLMeshOptimizer::generateRemapMultiU16(
 
     if (out_of_range_count)
     {
-        LL_WARNS() << out_of_range_count << " indexes are out of range." << LL_ENDL;
+        LL_WARNS() << out_of_range_count << " indices are out of range." << LL_ENDL;
     }
 
-    // Remap can function without indices,
-    // but providing indices helps with removing unused vertices
-    U64 indeces_cmp = indices_u32 ? index_count : vertex_count;
-
-    size_t unique =  meshopt_generateVertexRemapMulti(&remap[0], indices_u32, indeces_cmp, vertex_count, streams, sizeof(streams) / sizeof(streams[0]));
+    size_t unique = generateRemapMultiU32(remap, indices_u32, index_count, vertex_positions, normals, text_coords, vertex_count);
 
     ll_aligned_free_32(indices_u32);
 

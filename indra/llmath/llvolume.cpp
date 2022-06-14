@@ -4955,7 +4955,7 @@ bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a
 
 void LLVolumeFace::remap()
 {
-    // generate a remap buffer
+    // Generate a remap buffer
     std::vector<unsigned int> remap(mNumIndices);
     S32 remap_vertices_count = LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
@@ -4966,26 +4966,29 @@ void LLVolumeFace::remap()
         mNumVertices);
 
     // Allocate new buffers
-    U16* remap_indices = (U16*)ll_aligned_malloc_16(mNumIndices * sizeof(U16));
+    S32 size = ((mNumIndices * sizeof(U16)) + 0xF) & ~0xF;
+    U16* remap_indices = (U16*)ll_aligned_malloc_16(size);
 
     S32 tc_bytes_size = ((remap_vertices_count * sizeof(LLVector2)) + 0xF) & ~0xF;
     LLVector4a* remap_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * remap_vertices_count + tc_bytes_size);
     LLVector4a* remap_normals = remap_positions + remap_vertices_count;
     LLVector2* remap_tex_coords = (LLVector2*)(remap_normals + remap_vertices_count);
 
-    // fill the buffers
+    // Fill the buffers
     LLMeshOptimizer::remapIndexBufferU16(remap_indices, mIndices, mNumIndices, &remap[0]);
     LLMeshOptimizer::remapPositionsBuffer(remap_positions, mPositions, mNumVertices, &remap[0]);
     LLMeshOptimizer::remapNormalsBuffer(remap_normals, mNormals, mNumVertices, &remap[0]);
     LLMeshOptimizer::remapUVBuffer(remap_tex_coords, mTexCoords, mNumVertices, &remap[0]);
 
-    // free unused buffers
+    // Free unused buffers
     ll_aligned_free_16(mIndices);
     ll_aligned_free<64>(mPositions);
-    ll_aligned_free_16(mTangents);
 
+    // Tangets are now invalid
+    ll_aligned_free_16(mTangents);
     mTangents = NULL;
 
+    // Assign new values
     mIndices = remap_indices;
     mPositions = remap_positions;
     mNormals = remap_normals;
