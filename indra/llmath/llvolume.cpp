@@ -4957,8 +4957,8 @@ void LLVolumeFace::remap()
 {
     // generate a remap buffer
     std::vector<unsigned int> remap(mNumIndices);
-    S32 remap_vertices_count = LLMeshOptimizer::generateRemapMulti(&remap[0],
-        NULL,
+    S32 remap_vertices_count = LLMeshOptimizer::generateRemapMultiU16(&remap[0],
+        mIndices,
         mNumIndices,
         mPositions,
         mNormals,

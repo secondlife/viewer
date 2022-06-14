@@ -1284,7 +1284,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     // II. Remap.
     std::vector<unsigned int> remap(size_indices);
-    S32 size_remap_vertices = LLMeshOptimizer::generateRemapMulti(&remap[0],
+    S32 size_remap_vertices = LLMeshOptimizer::generateRemapMultiU32(&remap[0],
         combined_indices,
         size_indices,
         combined_positions,

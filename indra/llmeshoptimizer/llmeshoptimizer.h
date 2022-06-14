@@ -68,10 +68,21 @@ public:
         U64 vertex_count);
 
     // Remap functions
+    // Welds indentical vertexes together.
+    // Removes unused vertices if indices were provided.
 
-    static size_t generateRemapMulti(
+    static size_t generateRemapMultiU32(
         unsigned int* remap,
         const U32 * indices,
+        U64 index_count,
+        const LLVector4a * vertex_positions,
+        const LLVector4a * normals,
+        const LLVector2 * text_coords,
+        U64 vertex_count);
+
+    static size_t generateRemapMultiU16(
+        unsigned int* remap,
+        const U16 * indices,
         U64 index_count,
         const LLVector4a * vertex_positions,
         const LLVector4a * normals,

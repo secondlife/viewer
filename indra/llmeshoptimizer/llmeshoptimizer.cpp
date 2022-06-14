@@ -152,7 +152,7 @@ void LLMeshOptimizer::optimizeVertexCacheU16(U16 * destination, const U16 * indi
     meshopt_optimizeVertexCache<unsigned short>(destination, indices, index_count, vertex_count);
 }
 
-size_t LLMeshOptimizer::generateRemapMulti(
+size_t LLMeshOptimizer::generateRemapMultiU32(
     unsigned int* remap,
     const U32 * indices,
     U64 index_count,
@@ -167,7 +167,62 @@ size_t LLMeshOptimizer::generateRemapMulti(
        {(const float*)text_coords, sizeof(F32) * 2, sizeof(F32) * 2},
     };
 
-    return meshopt_generateVertexRemapMulti(&remap[0], indices, index_count, vertex_count, streams, sizeof(streams) / sizeof(streams[0]));
+    // Remap can function without indices,
+    // but providing indices helps with removing unused vertices
+    U64 indeces_cmp = indices ? index_count : vertex_count;
+
+    // meshopt_generateVertexRemapMulti will throw an assert if (indices[i] >= vertex_count)
+    return meshopt_generateVertexRemapMulti(&remap[0], indices, indeces_cmp, vertex_count, streams, sizeof(streams) / sizeof(streams[0]));
+}
+
+size_t LLMeshOptimizer::generateRemapMultiU16(
+    unsigned int* remap,
+    const U16 * indices,
+    U64 index_count,
+    const LLVector4a * vertex_positions,
+    const LLVector4a * normals,
+    const LLVector2 * text_coords,
+    U64 vertex_count)
+{
+    meshopt_Stream streams[] = {
+       {(const float*)vertex_positions, sizeof(F32) * 3, sizeof(F32) * 4},
+       {(const float*)normals, sizeof(F32) * 3, sizeof(F32) * 4},
+       {(const float*)text_coords, sizeof(F32) * 2, sizeof(F32) * 2},
+    };
+
+    S32 out_of_range_count = 0;
+    U32* indices_u32 = NULL;
+    if (indices)
+    {
+        indices_u32 = (U32*)ll_aligned_malloc_32(index_count * sizeof(U32));
+        for (U64 i = 0; i < index_count; i++)
+        {
+            if (indices[i] < vertex_count)
+            {
+                indices_u32[i] = indices[i];
+            }
+            else
+            {
+                out_of_range_count++;
+                indices_u32[i] = 0;
+            }
+        }
+    }
+
+    if (out_of_range_count)
+    {
+        LL_WARNS() << out_of_range_count << " indexes are out of range." << LL_ENDL;
+    }
+
+    // Remap can function without indices,
+    // but providing indices helps with removing unused vertices
+    U64 indeces_cmp = indices_u32 ? index_count : vertex_count;
+
+    size_t unique =  meshopt_generateVertexRemapMulti(&remap[0], indices_u32, indeces_cmp, vertex_count, streams, sizeof(streams) / sizeof(streams[0]));
+
+    ll_aligned_free_32(indices_u32);
+
+    return unique;
 }
 
 void LLMeshOptimizer::remapIndexBufferU32(U32 * destination_indices,
