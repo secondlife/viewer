@@ -533,7 +533,7 @@ void LLVorbisDecodeState::flushBadFile()
 class LLAudioDecodeMgr::Impl
 {
     friend class LLAudioDecodeMgr;
-    LLAudioDecodeMgr::Impl();
+    Impl();
   public:
 
     void processQueue();
@@ -609,7 +609,7 @@ void LLAudioDecodeMgr::Impl::startMoreDecodes()
         mDecodes[decode_id] = LLPointer<LLVorbisDecodeState>(NULL);
         main_queue->postTo(
             general_queue,
-            [decode_id, this]() // Work done on general queue
+            [decode_id]() // Work done on general queue
             {
                 LLPointer<LLVorbisDecodeState> decode_state = beginDecodingAndWritingAudio(decode_id);
 
