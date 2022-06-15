@@ -268,6 +268,43 @@ public:
     LLEventPump& make(const std::string& name, bool tweak=false,
                       const std::string& type=std::string());
 
+    /// function passed to registerTypeFactory()
+    typedef std::function<LLEventPump*(const std::string& name, bool tweak, const std::string& type)> TypeFactory;
+
+    /**
+     * Register a TypeFactory for use with make(). When make() is called with
+     * the specified @a type string, call @a factory(name, tweak, type) to
+     * instantiate it.
+     *
+     * Returns true if successfully registered, false if there already exists
+     * a TypeFactory for the specified @a type name.
+     */
+    bool registerTypeFactory(const std::string& type, const TypeFactory& factory);
+
+    /// function passed to registerPumpFactory()
+    typedef std::function<LLEventPump*(const std::string&)> PumpFactory;
+
+    /**
+     * Register a PumpFactory for use with obtain(). When obtain() is called
+     * with the specified @a name string, if an LLEventPump with the specified
+     * @a name doesn't already exist, call @a factory(name) to instantiate it.
+     *
+     * Returns true if successfully registered, false if there already exists
+     * a factory override for the specified @a name.
+     *
+     * PumpFactory does not support @a tweak because it's only called when
+     * <i>that particular</i> @a name is passed to obtain(). Bear in mind that
+     * <tt>obtain(name)</tt> might still bypass the caller's PumpFactory for a
+     * couple different reasons:
+     *
+     * * registerPumpFactory() returns false because there's already a factory
+     *   override for the specified @name
+     * * between a successful <tt>registerPumpFactory(name)</tt> call (returns
+     *   true) and a call to <tt>obtain(name)</tt>, someone explicitly
+     *   instantiated an LLEventPump(name), so obtain(name) returned that.
+     */
+    bool registerPumpFactory(const std::string& name, const PumpFactory& factory);
+
     /**
      * Find the named LLEventPump instance. If it exists post the message to it.
      * If the pump does not exist, do nothing.
@@ -325,7 +362,7 @@ testable:
     typedef std::set<LLEventPump*> PumpSet;
     PumpSet mOurPumps;
     // for make(), map string type name to LLEventPump subclass factory function
-    typedef std::map<std::string, std::function<LLEventPump*(const std::string&, bool)>> PumpFactories;
+    typedef std::map<std::string, PumpFactory> PumpFactories;
     // Data used by make().
     // One might think mFactories and mTypes could reasonably be static. So
     // they could -- if not for the fact that make() or obtain() might be
