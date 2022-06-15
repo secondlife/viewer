@@ -37,6 +37,7 @@
 #include "llbuycurrencyhtml.h"
 #include "llfloatermap.h"
 #include "llfloatermodelpreview.h"
+#include "llmaterialeditor.h"
 #include "llfloatersnapshot.h"
 #include "llfloateroutfitsnapshot.h"
 #include "llimage.h"
@@ -99,6 +100,20 @@ class LLFileEnableUploadModel : public view_listener_t
 
 		return true;
 	}
+};
+
+class LLFileEnableUploadMaterial : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::findInstance("material_editor");
+        if (me && me->isShown())
+        {
+            return false;
+        }
+
+        return true;
+    }
 };
 
 class LLMeshEnabled : public view_listener_t
@@ -282,6 +297,7 @@ static std::string SLOBJECT_EXTENSIONS = "slobject";
 #endif
 static std::string ALL_FILE_EXTENSIONS = "*.*";
 static std::string MODEL_EXTENSIONS = "dae";
+static std::string MATERIAL_EXTENSIONS = "gltf glb";
 
 std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 {
@@ -298,6 +314,8 @@ std::string build_extensions_string(LLFilePicker::ELoadFilter filter)
 		return SLOBJECT_EXTENSIONS;
 	case LLFilePicker::FFLOAD_MODEL:
 		return MODEL_EXTENSIONS;
+    case LLFilePicker::FFLOAD_MATERIAL:
+        return MATERIAL_EXTENSIONS;
 	case LLFilePicker::FFLOAD_XML:
 	    return XML_EXTENSIONS;
     case LLFilePicker::FFLOAD_ALL:
@@ -566,7 +584,20 @@ class LLFileUploadModel : public view_listener_t
         return TRUE;
 	}
 };
-	
+
+class LLFileUploadMaterial : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        if (me)
+        {
+            me->importMaterial();
+        }
+        return TRUE;
+    }
+};
+
 class LLFileUploadSound : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -1097,6 +1128,7 @@ void init_menu_file()
 	view_listener_t::addCommit(new LLFileUploadSound(), "File.UploadSound");
 	view_listener_t::addCommit(new LLFileUploadAnim(), "File.UploadAnim");
 	view_listener_t::addCommit(new LLFileUploadModel(), "File.UploadModel");
+    view_listener_t::addCommit(new LLFileUploadMaterial(), "File.UploadMaterial");
 	view_listener_t::addCommit(new LLFileUploadBulk(), "File.UploadBulk");
 	view_listener_t::addCommit(new LLFileCloseWindow(), "File.CloseWindow");
 	view_listener_t::addCommit(new LLFileCloseAllWindows(), "File.CloseAllWindows");

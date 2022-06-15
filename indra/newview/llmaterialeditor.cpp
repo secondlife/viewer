@@ -28,6 +28,9 @@
 
 #include "llmaterialeditor.h"
 #include "llcombobox.h"
+#include "llviewermenufile.h"
+#include "llappviewer.h"
+#include "llviewertexture.h"
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -52,6 +55,11 @@ LLUUID LLMaterialEditor::getAlbedoId()
     return childGetValue("albedo texture").asUUID();
 }
 
+void LLMaterialEditor::setAlbedoId(const LLUUID& id)
+{
+    childSetValue("albedo texture", id);
+}
+
 LLColor4 LLMaterialEditor::getAlbedoColor()
 {
     LLColor4 ret = LLColor4(childGetValue("albedo color"));
@@ -59,6 +67,12 @@ LLColor4 LLMaterialEditor::getAlbedoColor()
     return ret;
 }
 
+
+void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
+{
+    childSetValue("albedo color", color.getValue());
+    childSetValue("transparency", color.mV[3]);
+}
 
 F32 LLMaterialEditor::getTransparency()
 {
@@ -70,9 +84,19 @@ std::string LLMaterialEditor::getAlphaMode()
     return childGetValue("alpha mode").asString();
 }
 
+void LLMaterialEditor::setAlphaMode(const std::string& alpha_mode)
+{
+    childSetValue("alpha mode", alpha_mode);
+}
+
 F32 LLMaterialEditor::getAlphaCutoff()
 {
     return childGetValue("alpha cutoff").asReal();
+}
+
+void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
+{
+    childSetValue("alpha cutoff", alpha_cutoff);
 }
 
 LLUUID LLMaterialEditor::getMetallicRoughnessId()
@@ -80,9 +104,19 @@ LLUUID LLMaterialEditor::getMetallicRoughnessId()
     return childGetValue("metallic-roughness texture").asUUID();
 }
 
+void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
+{
+    childSetValue("metallic-roughness texture", id);
+}
+
 F32 LLMaterialEditor::getMetalnessFactor()
 {
     return childGetValue("metalness factor").asReal();
+}
+
+void LLMaterialEditor::setMetalnessFactor(F32 factor)
+{
+    childSetValue("metalness factor", factor);
 }
 
 F32 LLMaterialEditor::getRoughnessFactor()
@@ -90,9 +124,19 @@ F32 LLMaterialEditor::getRoughnessFactor()
     return childGetValue("roughness factor").asReal();
 }
 
+void LLMaterialEditor::setRoughnessFactor(F32 factor)
+{
+    childSetValue("roughness factor", factor);
+}
+
 LLUUID LLMaterialEditor::getEmissiveId()
 {
     return childGetValue("emissive texture").asUUID();
+}
+
+void LLMaterialEditor::setEmissiveId(const LLUUID& id)
+{
+    childSetValue("emissive texture", id);
 }
 
 LLColor4 LLMaterialEditor::getEmissiveColor()
@@ -100,14 +144,29 @@ LLColor4 LLMaterialEditor::getEmissiveColor()
     return LLColor4(childGetValue("emissive color"));
 }
 
+void LLMaterialEditor::setEmissiveColor(const LLColor4& color)
+{
+    childSetValue("emissive color", color.getValue());
+}
+
 LLUUID LLMaterialEditor::getNormalId()
 {
     return childGetValue("normal texture").asUUID();
 }
 
+void LLMaterialEditor::setNormalId(const LLUUID& id)
+{
+    childSetValue("normal texture", id);
+}
+
 bool LLMaterialEditor::getDoubleSided()
 {
     return childGetValue("double sided").asBoolean();
+}
+
+void LLMaterialEditor::setDoubleSided(bool double_sided)
+{
+    childSetValue("double sided", double_sided);
 }
 
 
@@ -205,3 +264,185 @@ void LLMaterialEditor::onClickSave()
     LL_INFOS() << dump << LL_ENDL;
 }
 
+class LLMaterialFilePicker : public LLFilePickerThread
+{
+public:
+    LLMaterialFilePicker(LLMaterialEditor* me);
+    virtual void notify(const std::vector<std::string>& filenames);
+    void loadMaterial(const std::string& filename);
+    static void	textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
+private:
+    LLMaterialEditor* mME;
+};
+
+LLMaterialFilePicker::LLMaterialFilePicker(LLMaterialEditor* me)
+    : LLFilePickerThread(LLFilePicker::FFLOAD_MODEL)
+{
+    mME = me;
+}
+
+void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
+{
+    if (LLAppViewer::instance()->quitRequested())
+    {
+        return;
+    }
+
+    
+    if (filenames.size() > 0)
+    {
+        loadMaterial(filenames[0]);
+    }
+}
+
+static std::string get_texture_uri(const tinygltf::Model& model, S32 texture_index)
+{
+    std::string ret;
+
+    if (texture_index >= 0)
+    {
+        S32 source_idx = model.textures[texture_index].source;
+        if (source_idx >= 0)
+        {
+            ret = model.images[source_idx].uri;
+        }
+    }
+
+    return ret;
+}
+
+static LLViewerFetchedTexture* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
+{
+    LLViewerFetchedTexture* ret = nullptr;
+    std::string file = get_texture_uri(model, texture_index);
+    if (!file.empty())
+    {
+        std::string uri = folder;
+        gDirUtilp->append(uri, file);
+
+        ret = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(uri), FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
+        //ret->setLoadedCallback(LLMaterialFilePicker::textureLoadedCallback, 0, TRUE, FALSE, opaque, NULL, FALSE);
+        ret->forceToSaveRawImage(0, F32_MAX);
+    }
+    return ret;
+}
+
+static LLColor4 get_color(const std::vector<double>& in)
+{
+    LLColor4 out;
+    for (S32 i = 0; i < llmin((S32) in.size(), 4); ++i)
+    {
+        out.mV[i] = in[i];
+    }
+
+    return out;
+}
+
+void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata)
+{
+}
+
+
+void LLMaterialFilePicker::loadMaterial(const std::string& filename)
+{
+    tinygltf::TinyGLTF loader;
+    std::string        error_msg;
+    std::string        warn_msg;
+
+    bool loaded = false;
+    tinygltf::Model model_in;
+
+    std::string filename_lc = filename;
+    LLStringUtil::toLower(filename_lc);
+
+    // Load a tinygltf model fom a file. Assumes that the input filename has already been
+    // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
+    if (std::string::npos == filename_lc.rfind(".gltf"))
+    {  // file is binary
+        loaded = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename);
+    }
+    else
+    {  // file is ascii
+        loaded = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename);
+    }
+
+    if (!loaded)
+    {
+        // TODO: show error_msg to user
+        return;
+    }
+
+    if (model_in.materials.empty())
+    {
+        // TODO: show error message that materials are missing
+        return;
+    }
+
+    std::string folder = gDirUtilp->getDirName(filename);
+
+
+    tinygltf::Material material_in = model_in.materials[0];
+
+    tinygltf::Model  model_out;
+    model_out.asset.version = "2.0";
+    model_out.materials.resize(1);
+
+    // get albedo texture
+    LLPointer<LLViewerFetchedTexture> albedo_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+
+    LLUUID albedo_id;
+    if (albedo_tex != nullptr)
+    {
+        albedo_id = albedo_tex->getID();
+    }
+
+    // get metallic-roughness texture
+    LLPointer<LLViewerFetchedTexture> mr_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+
+    LLUUID mr_id;
+    if (mr_tex != nullptr)
+    {
+        mr_id = mr_tex->getID();
+    }
+
+    // get emissive texture
+    LLPointer<LLViewerFetchedTexture> emissive_tex = get_texture(folder, model_in, material_in.emissiveTexture.index);
+
+    LLUUID emissive_id;
+    if (emissive_tex != nullptr)
+    {
+        emissive_id = emissive_tex->getID();
+    }
+
+    // get normal map
+    LLPointer<LLViewerFetchedTexture> normal_tex = get_texture(folder, model_in, material_in.normalTexture.index);
+
+    LLUUID normal_id;
+    if (normal_tex != nullptr)
+    {
+        normal_id = normal_tex->getID();
+    }
+
+    mME->setAlbedoId(albedo_id);
+    mME->setMetallicRoughnessId(mr_id);
+    mME->setEmissiveId(emissive_id);
+    mME->setNormalId(normal_id);
+
+    mME->setAlphaMode(material_in.alphaMode);
+    mME->setAlphaCutoff(material_in.alphaCutoff);
+    
+    mME->setAlbedoColor(get_color(material_in.pbrMetallicRoughness.baseColorFactor));
+    mME->setEmissiveColor(get_color(material_in.emissiveFactor));
+    
+    mME->setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
+    mME->setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
+    
+    mME->setDoubleSided(material_in.doubleSided);
+
+    mME->openFloater();
+}
+
+void LLMaterialEditor::importMaterial()
+{
+    (new LLMaterialFilePicker(this))->getFile();
+}

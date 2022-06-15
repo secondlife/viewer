@@ -60,6 +60,7 @@ LLFilePicker LLFilePicker::sInstance;
 #define SLOBJECT_FILTER L"Objects (*.slobject)\0*.slobject\0"
 #define RAW_FILTER L"RAW files (*.raw)\0*.raw\0"
 #define MODEL_FILTER L"Model files (*.dae; *.gltf; *.glb)\0*.dae;*.gltf;*.glb\0"
+#define MATERIAL_FILTER L"GLTF Files (*.gltf; *.glb)\0*.gltf;*.glb\0"
 #define SCRIPT_FILTER L"Script files (*.lsl)\0*.lsl\0"
 #define DICTIONARY_FILTER L"Dictionary files (*.dic; *.xcu)\0*.dic;*.xcu\0"
 #endif
@@ -215,6 +216,10 @@ BOOL LLFilePicker::setupFilter(ELoadFilter filter)
 		mOFN.lpstrFilter = MODEL_FILTER \
 			L"\0";
 		break;
+    case FFLOAD_MATERIAL:
+        mOFN.lpstrFilter = MATERIAL_FILTER \
+            L"\0";
+        break;
 	case FFLOAD_SCRIPT:
 		mOFN.lpstrFilter = SCRIPT_FILTER \
 			L"\0";

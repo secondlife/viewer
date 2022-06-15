@@ -1583,6 +1583,16 @@ function="World.EnvPreset"
             <menu_item_call.on_visible
             function="File.VisibleUploadModel"/>
             </menu_item_call>
+          <menu_item_call
+           label="Material..."
+           layout="topleft"
+           name="Upload Material">
+            <menu_item_call.on_click
+             function="File.UploadMaterial"
+             parameter="" />
+            <menu_item_call.on_enable
+             function="File.EnableUploadMaterial" />
+          </menu_item_call>
 	   <menu_item_call
              label="Bulk..."
              layout="topleft"
