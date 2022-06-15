@@ -404,6 +404,7 @@ set(viewer_SOURCE_FILES
     llmaniptranslate.cpp
     llmarketplacefunctions.cpp
     llmarketplacenotifications.cpp
+    llmaterialeditor.cpp
     llmaterialmgr.cpp
     llmediactrl.cpp
     llmediadataclient.cpp
@@ -1044,6 +1045,7 @@ set(viewer_HEADER_FILES
     llmaniptranslate.h
     llmarketplacefunctions.h
     llmarketplacenotifications.h
+    llmaterialeditor.h
     llmaterialmgr.h
     llmediactrl.h
     llmediadataclient.h

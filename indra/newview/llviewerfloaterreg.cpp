@@ -152,6 +152,7 @@
 #include "llinspectobject.h"
 #include "llinspectremoteobject.h"
 #include "llinspecttoast.h"
+#include "llmaterialeditor.h"
 #include "llmoveview.h"
 #include "llfloaterimnearbychat.h"
 #include "llpanelblockedlist.h"
@@ -337,6 +338,8 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("save_camera_preset", "floater_save_camera_preset.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSaveCameraPreset>);
 	LLFloaterReg::add("script_colors", "floater_script_ed_prefs.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterScriptEdPrefs>);
 
+    LLFloaterReg::add("material_editor", "floater_material_editor.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLMaterialEditor>);
+    
 	LLFloaterReg::add("telehubs", "floater_telehub.xml",&LLFloaterReg::build<LLFloaterTelehub>);
 	LLFloaterReg::add("test_inspectors", "floater_test_inspectors.xml", &LLFloaterReg::build<LLFloaterTestInspectors>);
 	//LLFloaterReg::add("test_list_view", "floater_test_list_view.xml",&LLFloaterReg::build<LLFloaterTestListView>);

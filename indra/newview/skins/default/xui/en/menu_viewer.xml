@@ -1595,7 +1595,15 @@ function="World.EnvPreset"
                  parameter="" />
             </menu_item_call>
         </menu>
-        <menu_item_separator/>
+        <menu_item_call
+            label="Material Editor"
+            name="material_editor_menu_item">
+          <menu_item_call.on_click
+              function="Floater.ToggleOrBringToFront"
+              parameter="material_editor" />
+        </menu_item_call>
+
+      <menu_item_separator/>
         <menu_item_call
          enabled="false"
          label="Undo"

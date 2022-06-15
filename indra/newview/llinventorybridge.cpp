@@ -4011,6 +4011,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Note"));
 		disabled_items.push_back(std::string("New Settings"));
 		disabled_items.push_back(std::string("New Gesture"));
+        disabled_items.push_back(std::string("New Material"));
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
@@ -4038,6 +4039,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 		disabled_items.push_back(std::string("New Script"));
 		disabled_items.push_back(std::string("New Note"));
 		disabled_items.push_back(std::string("New Gesture"));
+        disabled_items.push_back(std::string("New Material"));
 		disabled_items.push_back(std::string("New Clothes"));
 		disabled_items.push_back(std::string("New Body Parts"));
 		disabled_items.push_back(std::string("upload_def"));
@@ -4102,6 +4104,7 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Script"));
                     items.push_back(std::string("New Note"));
                     items.push_back(std::string("New Gesture"));
+                    items.push_back(std::string("New Material"));
                     items.push_back(std::string("New Clothes"));
                     items.push_back(std::string("New Body Parts"));
                     items.push_back(std::string("New Settings"));
