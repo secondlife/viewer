@@ -668,6 +668,8 @@ public:
 	static LLPointer<LLViewerTexture> getLocalTexture(const LLImageRaw* raw, BOOL usemipmaps) ;
 	static LLPointer<LLViewerTexture> getLocalTexture(const U32 width, const U32 height, const U8 components, BOOL usemipmaps, BOOL generate_gl_tex = TRUE) ;
 
+    static LLViewerFetchedTexture* getFetchedTexture(const LLImageRaw* raw, FTType type, bool usemipmaps);
+
 	static LLViewerFetchedTexture* getFetchedTexture(const LLUUID &image_id,									 
 									 FTType f_type = FTT_DEFAULT,
 									 BOOL usemipmap = TRUE,

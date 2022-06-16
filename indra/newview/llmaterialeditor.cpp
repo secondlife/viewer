@@ -295,35 +295,40 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
     }
 }
 
-static std::string get_texture_uri(const tinygltf::Model& model, S32 texture_index)
+const tinygltf::Image* get_image_from_texture_index(const tinygltf::Model& model, S32 texture_index)
 {
-    std::string ret;
-
     if (texture_index >= 0)
     {
         S32 source_idx = model.textures[texture_index].source;
         if (source_idx >= 0)
         {
-            ret = model.images[source_idx].uri;
+            return &(model.images[source_idx]);
         }
     }
 
-    return ret;
+    return nullptr;
 }
 
 static LLViewerFetchedTexture* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
 {
     LLViewerFetchedTexture* ret = nullptr;
-    std::string file = get_texture_uri(model, texture_index);
-    if (!file.empty())
-    {
-        std::string uri = folder;
-        gDirUtilp->append(uri, file);
 
-        ret = LLViewerTextureManager::getFetchedTextureFromUrl("file://" + LLURI::unescape(uri), FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_PREVIEW);
-        //ret->setLoadedCallback(LLMaterialFilePicker::textureLoadedCallback, 0, TRUE, FALSE, opaque, NULL, FALSE);
+    const tinygltf::Image* image = get_image_from_texture_index(model, texture_index);
+
+    if (image != nullptr && 
+        image->bits == 8 &&
+        !image->image.empty() &&
+        image->component <= 4)
+    {
+        LLPointer<LLImageRaw> rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
+        
+        ret = LLViewerTextureManager::getFetchedTexture(rawImage, FTType::FTT_LOCAL_FILE, true);
+
         ret->forceToSaveRawImage(0, F32_MAX);
     }
+
+    // TODO: provide helpful error message if image fails to load
+
     return ret;
 }
 

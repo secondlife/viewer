@@ -287,6 +287,13 @@ LLPointer<LLViewerTexture> LLViewerTextureManager::getLocalTexture(const U32 wid
 	return tex;
 }
 
+LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(const LLImageRaw* raw, FTType type, bool usemipmaps)
+{
+    LLViewerFetchedTexture* ret = new LLViewerFetchedTexture(raw, type, usemipmaps);
+    gTextureList.addImage(ret, TEX_LIST_STANDARD);
+    return ret;
+}
+
 LLViewerFetchedTexture* LLViewerTextureManager::getFetchedTexture(
 	                                               const LLUUID &image_id,											       
 												   FTType f_type,
