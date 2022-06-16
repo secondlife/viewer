@@ -622,6 +622,8 @@ Function RemoveProgFilesOnInst
 Push $0
 StrCpy $0 0
 
+ClearErrors
+
 PREINSTALLREMOVE:
 
 # Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575

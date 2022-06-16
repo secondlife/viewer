@@ -2489,10 +2489,24 @@ bool LLAppViewer::initConfiguration()
 	//Load settings files list
 	std::string settings_file_list = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "settings_files.xml");
 	LLXMLNodePtr root;
-	BOOL success  = LLXMLNode::parseFile(settings_file_list, root, NULL);
+	BOOL success = LLXMLNode::parseFile(settings_file_list, root, NULL);
 	if (!success)
 	{
-        LL_ERRS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        LL_WARNS() << "Cannot load default configuration file " << settings_file_list << LL_ENDL;
+        if (gDirUtilp->fileExists(settings_file_list))
+        {
+            LL_ERRS() << "Cannot load default configuration file settings_files.xml. "
+                << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                << "and contact https://support.secondlife.com if issue persists after reinstall."
+                << LL_ENDL;
+        }
+        else
+        {
+            LL_ERRS() << "Default configuration file settings_files.xml not found. "
+                << "Please reinstall viewer from https://secondlife.com/support/downloads/ "
+                << "and contact https://support.secondlife.com if issue persists after reinstall."
+                << LL_ENDL;
+        }
 	}
 
 	mSettingsLocationList = new SettingsFiles();
