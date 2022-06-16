@@ -1127,7 +1127,7 @@ void LLFloaterTools::onClickGridOptions()
 {
 	LLFloater* floaterp = LLFloaterReg::showInstance("build_options");
 	// position floater next to build tools, not over
-	floaterp->setRect(gFloaterView->findNeighboringPosition(this, floaterp));
+	floaterp->setShape(gFloaterView->findNeighboringPosition(this, floaterp), true);
 }
 
 // static
