@@ -4956,7 +4956,7 @@ bool LLVolumeFace::VertexMapData::ComparePosition::operator()(const LLVector3& a
 void LLVolumeFace::remap()
 {
     // Generate a remap buffer
-    std::vector<unsigned int> remap(mNumIndices);
+    std::vector<unsigned int> remap(mNumVertices);
     S32 remap_vertices_count = LLMeshOptimizer::generateRemapMultiU16(&remap[0],
         mIndices,
         mNumIndices,
