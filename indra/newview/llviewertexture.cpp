@@ -524,7 +524,7 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
     {
         gpu_res = (S32Megabytes)gViewerWindow->getWindow()->getAvailableVRAMMegabytes();
         
-        //check main memory, only works for windows.
+        //check main memory, only works for windows and macos.
         LLMemory::updateMemoryInfo();
         physical_res = LLMemory::getAvailableMemKB();
 

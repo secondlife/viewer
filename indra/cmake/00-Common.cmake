@@ -201,7 +201,7 @@ if (LINUX OR DARWIN)
   endif()
 
   if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
+    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror -Wno-error=unused-but-set-variable")
   endif (NOT GCC_DISABLE_FATAL_WARNINGS)
 
   set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")

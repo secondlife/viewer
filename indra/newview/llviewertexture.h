@@ -302,7 +302,7 @@ public:
 	};
 
 public:
-	/*virtual*/ S8 getType() const override ;
+	/*virtual*/ S8 getType() const override;
 	FTType getFTType() const;
 	/*virtual*/ void forceImmediateUpdate() override;
 	/*virtual*/ void dump() override;
