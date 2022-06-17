@@ -47,9 +47,6 @@
 #include "lltrace.h"
 #include "llerror.h"
 //----------------------------------------------------------------------------
-#if defined(LL_DARWIN)
-extern LLMemoryInfo gSysMemory;
-#endif
 
 //static
 U32Kilobytes LLMemory::sAvailPhysicalMemInKB(U32_MAX);
@@ -150,8 +147,7 @@ void LLMemory::updateMemoryInfo()
         // This is what Chrome reports as 'the "Physical Memory Free" value reported by the Memory Monitor in Instruments.'
         // Note though that inactive pages are not included here and not yet free, but could become so under memory pressure.
         sAvailPhysicalMemInKB = U32Bytes(vmstat.free_count * page_size);
-
-        sMaxPhysicalMemInKB = gSysMemory.getPhysicalMemoryKB();
+        sMaxPhysicalMemInKB = LLMemoryInfo::getHardwareMemSize();
       }
     else
     {
