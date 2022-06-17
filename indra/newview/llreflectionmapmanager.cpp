@@ -38,11 +38,6 @@
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
 
-//#pragma optimize("", off)
-
-// experimental pipeline render target override, if this works, do something less hacky
-LLPipeline::RenderTargetPack gProbeRT;
-
 LLReflectionMapManager::LLReflectionMapManager()
 {
     for (int i = 0; i < LL_REFLECTION_PROBE_COUNT; ++i)
@@ -95,15 +90,6 @@ void LLReflectionMapManager::update()
         const bool use_stencil_buffer = true;
         U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
         mRenderTarget.allocate(targetRes, targetRes, color_fmt, use_depth_buffer, use_stencil_buffer, LLTexUnit::TT_RECT_TEXTURE);
-
-        // hack to allocate render targets using gPipeline code
-        gCubeSnapshot = TRUE;
-        auto* old_rt = gPipeline.mRT;
-        gPipeline.mRT = &gProbeRT;
-        gPipeline.allocateScreenBuffer(targetRes, targetRes);
-        gPipeline.allocateShadowBuffer(targetRes, targetRes);
-        gPipeline.mRT = old_rt;
-        gCubeSnapshot = FALSE;
     }
 
     if (mMipChain.empty())
@@ -404,10 +390,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
 {
     mRenderTarget.bindTarget();
     // hacky hot-swap of camera specific render targets
-    auto* old_rt = gPipeline.mRT;
-    gPipeline.mRT = &gProbeRT;
+    gPipeline.mRT = &gPipeline.mAuxillaryRT;
     probe->update(mRenderTarget.getWidth(), face);
-    gPipeline.mRT = old_rt;
+    gPipeline.mRT = &gPipeline.mMainRT;
     mRenderTarget.flush();
 
     // generate mipmaps

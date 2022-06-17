@@ -436,7 +436,7 @@ void LLPipeline::init()
 {
 	refreshCachedSettings();
 
-    mRT = new RenderTargetPack();
+    mRT = &mMainRT;
 
 	gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
 	gOctreeMinSize = gSavedSettings.getF32("OctreeMinimumNodeSize");
@@ -696,9 +696,6 @@ void LLPipeline::cleanup()
 	mDeferredVB = NULL;
 
 	mCubeVB = NULL;
-
-    delete mRT;
-    mRT = nullptr;
 }
 
 //============================================================================
@@ -840,6 +837,16 @@ LLPipeline::eFBOStatus LLPipeline::doAllocateScreenBuffer(U32 resX, U32 resY)
 bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    if (mRT == &mMainRT)
+    { // hacky -- allocate auxillary buffer
+        gCubeSnapshot = TRUE;
+        mRT = &mAuxillaryRT;
+        U32 res = LL_REFLECTION_PROBE_RESOLUTION * 2;
+        allocateScreenBuffer(res, res, 0);
+        mRT = &mMainRT;
+        gCubeSnapshot = FALSE;
+    }
+
 	// remember these dimensions
 	mRT->width = resX;
 	mRT->height = resY;

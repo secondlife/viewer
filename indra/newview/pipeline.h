@@ -666,6 +666,13 @@ public:
         LLRenderTarget			shadowOcclusion[4];
     };
 
+    // main full resoltuion render target
+    RenderTargetPack mMainRT;
+
+    // auxillary 512x512 render target pack
+    RenderTargetPack mAuxillaryRT;
+
+    // currently used render target pack
     RenderTargetPack* mRT;
 
     LLRenderTarget          mSpotShadow[2];
