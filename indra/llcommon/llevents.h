@@ -280,6 +280,7 @@ public:
      * a TypeFactory for the specified @a type name.
      */
     bool registerTypeFactory(const std::string& type, const TypeFactory& factory);
+    void unregisterTypeFactory(const std::string& type);
 
     /// function passed to registerPumpFactory()
     typedef std::function<LLEventPump*(const std::string&)> PumpFactory;
@@ -304,6 +305,7 @@ public:
      *   instantiated an LLEventPump(name), so obtain(name) returned that.
      */
     bool registerPumpFactory(const std::string& name, const PumpFactory& factory);
+    void unregisterPumpFactory(const std::string& name);
 
     /**
      * Find the named LLEventPump instance. If it exists post the message to it.
@@ -362,13 +364,13 @@ testable:
     typedef std::set<LLEventPump*> PumpSet;
     PumpSet mOurPumps;
     // for make(), map string type name to LLEventPump subclass factory function
-    typedef std::map<std::string, PumpFactory> PumpFactories;
+    typedef std::map<std::string, TypeFactory> TypeFactories;
     // Data used by make().
     // One might think mFactories and mTypes could reasonably be static. So
     // they could -- if not for the fact that make() or obtain() might be
     // called before this module's static variables have been initialized.
     // This is why we use singletons in the first place.
-    PumpFactories mFactories;
+    TypeFactories mFactories;
 
     // for obtain(), map desired string instance name to string type when
     // obtain() must create the instance

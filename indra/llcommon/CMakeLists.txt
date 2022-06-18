@@ -30,6 +30,7 @@ include_directories(
 
 set(llcommon_SOURCE_FILES
     indra_constants.cpp
+    lazyeventapi.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
     llapp.cpp
@@ -128,10 +129,12 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
+    apply.h
     chrono.h
     ctype_workaround.h
     fix_macros.h
     indra_constants.h
+    lazyeventapi.h
     linden_common.h
     llalignedarray.h
     llallocator.h
@@ -338,6 +341,7 @@ if (LL_TESTS)
       ${BOOST_SYSTEM_LIBRARY})
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
+  LL_ADD_INTEGRATION_TEST(lazyeventapi "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llcond "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(lldate "" "${test_libs}")

@@ -90,6 +90,13 @@ bool LLEventPumps::registerTypeFactory(const std::string& type, const TypeFactor
     return true;
 }
 
+void LLEventPumps::unregisterTypeFactory(const std::string& type)
+{
+    auto found = mFactories.find(type);
+    if (found != mFactories.end())
+        mFactories.erase(found);
+}
+
 bool LLEventPumps::registerPumpFactory(const std::string& name, const PumpFactory& factory)
 {
     // Do we already have a pump by this name?
@@ -109,8 +116,28 @@ bool LLEventPumps::registerPumpFactory(const std::string& name, const PumpFactor
     static std::string nul(1, '\0');
     std::string type_name{ nul + name };
     mTypes[name] = type_name;
-    mFactories[type_name] = factory;
+    // TypeFactory is called with (name, tweak, type), whereas PumpFactory
+    // accepts only name. We could adapt with std::bind(), but this lambda
+    // does the trick.
+    mFactories[type_name] =
+        [factory]
+        (const std::string& name, bool /*tweak*/, const std::string& /*type*/)
+        { return factory(name); };
     return true;
+}
+
+void LLEventPumps::unregisterPumpFactory(const std::string& name)
+{
+    auto tfound = mTypes.find(name);
+    if (tfound != mTypes.end())
+    {
+        auto ffound = mFactories.find(tfound->second);
+        if (ffound != mFactories.end())
+        {
+            mFactories.erase(ffound);
+        }
+        mTypes.erase(tfound);
+    }
 }
 
 LLEventPump& LLEventPumps::obtain(const std::string& name)
