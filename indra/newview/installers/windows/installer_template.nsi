@@ -365,6 +365,9 @@ IfErrors 0 INSTALL_FILES_DONE
     Goto INSTALL_FILES_DONE
 
 INSTALL_FILES_CANCEL:
+  # We are quiting, cleanup.
+  # Silence warnings from RemoveProgFilesOnInst.
+  StrCpy $SKIP_DIALOGS "true"
   Call RemoveProgFilesOnInst
   MessageBox MB_OK $(ErrorSecondLifeInstallSupport)
   Quit
