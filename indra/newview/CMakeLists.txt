@@ -1886,7 +1886,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
         llcommon
         llmeshoptimizer
         ll::ndof
-        ll::uilibraries
         lllogin
         llprimitive
         llappearance

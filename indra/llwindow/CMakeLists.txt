@@ -56,15 +56,12 @@ set(llwindow_LINK_LIBRARIES
         llxml
 		ll::glh_linear
 		ll::glext
+        ll::uilibraries
+        ll::SDL
         )
 # Libraries on which this library depends, needed for Linux builds
 # Sort by high-level to low-level
 if (LINUX)
-  list( APPEND llwindow_LINK_LIBRARIES
-          ll::uilibraries
-          ll::SDL
-      )
-
   list(APPEND viewer_SOURCE_FILES 
        llkeyboardsdl.cpp 
        llwindowsdl.cpp
