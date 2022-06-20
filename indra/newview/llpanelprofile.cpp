@@ -1448,8 +1448,21 @@ void LLProfileImagePicker::notify(const std::vector<std::string>& filenames)
         return;
     }
 
-    LLPanelProfileSecondLife* panel = static_cast<LLPanelProfileSecondLife*>(mHandle->get());
-    panel->setProfileImageUploading(true);
+    switch (mType)
+    {
+    case PROFILE_IMAGE_SL:
+        {
+            LLPanelProfileSecondLife* panel = static_cast<LLPanelProfileSecondLife*>(mHandle->get());
+            panel->setProfileImageUploading(true);
+        }
+        break;
+    case PROFILE_IMAGE_FL:
+        {
+            LLPanelProfileFirstLife* panel = static_cast<LLPanelProfileFirstLife*>(mHandle->get());
+            panel->setProfileImageUploading(true);
+        }
+        break;
+    }
 
     LLCoros::instance().launch("postAgentUserImageCoro",
         boost::bind(post_profile_image_coro, cap_url, mType, temp_file, mHandle));
@@ -2156,6 +2169,12 @@ void LLPanelProfileFirstLife::commitUnsavedChanges()
 void LLPanelProfileFirstLife::onUploadPhoto()
 {
     (new LLProfileImagePicker(PROFILE_IMAGE_FL, new LLHandle<LLPanel>(getHandle())))->getFile();
+
+    LLFloater* floaterp = mFloaterTexturePickerHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
+    }
 }
 
 void LLPanelProfileFirstLife::onChangePhoto()
@@ -2226,6 +2245,12 @@ void LLPanelProfileFirstLife::onChangePhoto()
 void LLPanelProfileFirstLife::onRemovePhoto()
 {
     onCommitPhoto(LLUUID::null);
+
+    LLFloater* floaterp = mFloaterTexturePickerHandle.get();
+    if (floaterp)
+    {
+        floaterp->closeFloater();
+    }
 }
 
 void LLPanelProfileFirstLife::onCommitPhoto(const LLUUID& id)
