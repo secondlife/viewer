@@ -2141,6 +2141,7 @@ void LLPanelProfileFirstLife::setProfileImageUploading(bool loading)
 void LLPanelProfileFirstLife::setProfileImageUploaded(const LLUUID &image_asset_id)
 {
     mPicture->setValue(image_asset_id);
+    mImageId = image_asset_id;
     setProfileImageUploading(false);
 }
 
@@ -2323,6 +2324,7 @@ void LLPanelProfileFirstLife::resetData()
 {
     mDescriptionEdit->setValue(LLStringUtil::null);
     mPicture->setValue("Generic_Person_Large");
+    mImageId = LLUUID::null;
 
     mUploadPhoto->setVisible(getSelfProfile());
     mChangePhoto->setVisible(getSelfProfile());
