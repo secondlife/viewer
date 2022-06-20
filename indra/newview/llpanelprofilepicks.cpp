@@ -342,20 +342,18 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
 
     mSheduledPickCreation.clear();
 
-    BOOL no_data = !mTabContainer->getTabCount();
-    mNoItemsLabel->setVisible(no_data);
-    if (no_data)
+    if (getSelfProfile())
     {
-        if (getSelfProfile())
-        {
-            mNoItemsLabel->setValue(LLTrans::getString("NoPicksText"));
-        }
-        else
-        {
-            mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksText"));
-        }
+        mNoItemsLabel->setValue(LLTrans::getString("NoPicksText"));
     }
-    else if (!has_selection)
+    else
+    {
+        mNoItemsLabel->setValue(LLTrans::getString("NoAvatarPicksText"));
+    }
+
+    bool has_data = mTabContainer->getTabCount() > 0;
+    mNoItemsLabel->setVisible(!has_data);
+    if (has_data && !has_selection)
     {
         mTabContainer->selectFirstTab();
     }

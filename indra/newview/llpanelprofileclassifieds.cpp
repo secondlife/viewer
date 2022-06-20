@@ -364,20 +364,20 @@ void LLPanelProfileClassifieds::processProperties(void* data, EAvatarProcessorTy
                 }
             }
 
-            BOOL no_data = !mTabContainer->getTabCount();
-            mNoItemsLabel->setVisible(no_data);
-            if (no_data)
+            // set even if not visible, user might delete own
+            // calassified and this string will need to be shown
+            if (getSelfProfile())
             {
-                if(getSelfProfile())
-                {
-                    mNoItemsLabel->setValue(LLTrans::getString("NoClassifiedsText"));
-                }
-                else
-                {
-                    mNoItemsLabel->setValue(LLTrans::getString("NoAvatarClassifiedsText"));
-                }
+                mNoItemsLabel->setValue(LLTrans::getString("NoClassifiedsText"));
             }
-            else if (selected_id.isNull())
+            else
+            {
+                mNoItemsLabel->setValue(LLTrans::getString("NoAvatarClassifiedsText"));
+            }
+
+            bool has_data = mTabContainer->getTabCount() > 0;
+            mNoItemsLabel->setVisible(!has_data);
+            if (has_data && selected_id.isNull())
             {
                 mTabContainer->selectFirstTab();
             }
