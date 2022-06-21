@@ -42,30 +42,6 @@ namespace LL
         boost::signals2::signal<void(LLEventAPI*)> init;
     };
 
-    // The tricky part is: can we capture a sequence of add() calls in the
-    // LazyEventAPI subclass constructor and then, in effect, replay those
-    // add() calls on instantiation of the registered LLEventAPI subclass? so
-    // we don't have to duplicate the add() calls in both constructors?
-
-    // Derive a subclass from LazyEventAPI. Its constructor must pass
-    // LazyEventAPI's constructor the name, desc, field params. Moreover the
-    // constructor body must call add(name, desc, *args) for any of the
-    // LLEventDispatcher add() methods, referencing the LLEventAPI subclass
-    // methods.
-
-    // LazyEventAPI will store the name, desc, field params for the overall
-    // LLEventAPI. It will support a single generic add() call accepting name,
-    // desc, parameter pack.
-
-    // It will hold a std::vector<std::pair<name, desc>> for each operation.
-    // It will make all these strings available to LLLeapListener.
-
-    // Maybe what we want is to store a vector of callables (a
-    // boost::signals2!) and populate it with lambdas, each of which accepts
-    // LLEventAPI* and calls the relevant add() method by forwarding exactly
-    // the name, desc and parameter pack. Then, on constructing the target
-    // LLEventAPI, we just fire the signal, passing the new instance pointer.
-
     /**
      * LazyEventAPIBase implements most of the functionality of LazyEventAPI
      * (q.v.), but we need the LazyEventAPI template subclass so we can accept
