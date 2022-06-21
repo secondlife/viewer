@@ -1748,16 +1748,6 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
         }
     }
 
-    bool rigged = false;
-
-    if (!isAnimatedObject())
-    {
-        rigged = isRiggedMesh() && isAttachment();
-    }
-    else
-    {
-        rigged = isRiggedMesh() && getControlAvatar() && getControlAvatar()->mPlaying;
-    }
 
     if (any_valid_boxes)
     {
