@@ -586,13 +586,6 @@ void LLEventDispatcher::add(const std::string& name, const std::string& desc,
                                     new LLSDDispatchEntry(desc, callable, required))));
 }
 
-void LLEventDispatcher::addFail(const std::string& name, const std::string& classname) const
-{
-    LL_ERRS("LLEventDispatcher") << "LLEventDispatcher(" << mDesc << ")::add(" << name
-                                 << "): " << classname << " is not a subclass "
-                                 << "of LLEventDispatcher" << LL_ENDL;
-}
-
 /// Unregister a callable
 bool LLEventDispatcher::remove(const std::string& name)
 {
