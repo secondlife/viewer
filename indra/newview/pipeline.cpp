@@ -8596,6 +8596,12 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform4fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
+            if(LLPipeline::sRenderPBR)
+            {
+                LLVector3 cameraAtAxis = LLViewerCamera::getInstance()->getAtAxis();
+                soften_shader.uniform3fv(LLShaderMgr::DEFERRED_VIEW_DIR, 1, cameraAtAxis.mV);
+            }
+
             {
                 LLGLDepthTest depth(GL_FALSE);
                 LLGLDisable   blend(GL_BLEND);

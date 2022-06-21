@@ -1,5 +1,5 @@
 /**
- * @file class2/deferred/softenLightF.glsl
+ * @file class3/deferred/softenLightF.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -84,6 +84,8 @@ vec3 srgb_to_linear(vec3 c);
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
+
+uniform vec3 view_dir; // PBR
 
 void main()
 {
