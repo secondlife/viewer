@@ -37,8 +37,6 @@
 
 namespace LL
 {
-    template <class EVENTAPI>
-    class LazyEventAPI;
     class LazyEventAPIParams;
 }
 
@@ -52,8 +50,6 @@ class LL_COMMON_API LLEventAPI: public LLDispatchListener,
 {
     typedef LLDispatchListener lbase;
     typedef LLInstanceTracker<LLEventAPI, std::string> ibase;
-    template <class EVENTAPI>
-    friend class LL::LazyEventAPI;
 
 public:
 
