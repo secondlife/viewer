@@ -74,10 +74,11 @@ void LLReflectionMap::autoAdjustOrigin()
             d.setAdd(bounds[0], bounds[1]);
             d.sub(mOrigin);
             mRadius = d.getLength3().getF32();
+            mPriority = 1;
         }
         else if (mGroup->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_VOLUME)
         {
-            mPriority = 8;
+            mPriority = 1;
             // cast a ray towards 8 corners of bounding box
             // nudge origin towards center of empty space
 
@@ -155,7 +156,7 @@ void LLReflectionMap::autoAdjustOrigin()
             else
             {
                 // user placed probe
-                mPriority = 64;
+                mPriority = 2;
 
                 // use center of octree node volume for nodes that are just branches without data
                 mOrigin = node->getCenter();
