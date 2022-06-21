@@ -329,7 +329,7 @@ private:
     void addMethod(const std::string& name, const std::string& desc,
                    const METHOD& method, const LLSD& required)
     {
-        CLASS* downcast = dynamic_cast<CLASS*>(this);
+        CLASS* downcast = static_cast<CLASS*>(this);
         if (! downcast)
         {
             addFail(name, typeid(CLASS).name());
