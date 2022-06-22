@@ -29,6 +29,7 @@
 #include "llreflectionmap.h"
 #include "llrendertarget.h"
 #include "llcubemaparray.h"
+#include "llcubemap.h"
 
 class LLSpatialGroup;
 class LLViewerObject;

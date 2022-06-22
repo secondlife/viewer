@@ -334,8 +334,9 @@ vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i)
     v -= c;
     v = env_mat * v;
     {
-        float min_lod = textureQueryLod(reflectionProbes,v).y; // lower is higher res
-        return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), max(min_lod, lod)).rgb;
+        //float min_lod = textureQueryLod(reflectionProbes,v).y; // lower is higher res
+        //return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), max(min_lod, lod)).rgb;
+        return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod).rgb;
         //return texture(reflectionProbes, vec4(v.xyz, refIndex[i].x)).rgb;
     }
 }
@@ -450,7 +451,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 l
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    ambenv = sampleProbeAmbient(pos, norm, reflection_lods-1);
+    ambenv = sampleProbeAmbient(pos, norm, reflection_lods-2);
 
     if (glossiness > 0.0)
     {

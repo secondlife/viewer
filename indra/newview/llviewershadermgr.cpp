@@ -85,6 +85,7 @@ LLGLSLShader	gCustomAlphaProgram;
 LLGLSLShader	gGlowCombineProgram;
 LLGLSLShader	gSplatTextureRectProgram;
 LLGLSLShader	gReflectionMipProgram;
+LLGLSLShader	gRadianceGenProgram;
 LLGLSLShader	gGlowCombineFXAAProgram;
 LLGLSLShader	gTwoTextureAddProgram;
 LLGLSLShader	gTwoTextureCompareProgram;
@@ -762,6 +763,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gGlowCombineProgram.unload();
 	gSplatTextureRectProgram.unload();
     gReflectionMipProgram.unload();
+    gRadianceGenProgram.unload();
 	gGlowCombineFXAAProgram.unload();
 	gTwoTextureAddProgram.unload();
 	gTwoTextureCompareProgram.unload();
@@ -3819,6 +3821,16 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
             gReflectionMipProgram.uniform1i(sScreenMap, 0);
             gReflectionMipProgram.unbind();
         }
+    }
+
+    if (success)
+    {
+        gRadianceGenProgram.mName = "Radiance Gen Shader";
+        gRadianceGenProgram.mShaderFiles.clear();
+        gRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenV.glsl", GL_VERTEX_SHADER_ARB));
+        gRadianceGenProgram.mShaderFiles.push_back(make_pair("interface/radianceGenF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gRadianceGenProgram.mShaderLevel = mShaderLevel[SHADER_INTERFACE];
+        success = gRadianceGenProgram.createShader(NULL, NULL);
     }
 
 	if( !success )

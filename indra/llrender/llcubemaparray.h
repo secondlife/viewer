@@ -32,13 +32,20 @@
 
 class LLVector3;
 
-// Environment map hack!
 class LLCubeMapArray : public LLRefCount
 {
 public:
 	LLCubeMapArray();
 
     static GLenum sTargets[6];
+    
+    // look and up vectors for each cube face (agent space)
+    static LLVector3 sLookVecs[6];
+    static LLVector3 sUpVecs[6];
+
+    // look and up vectors for each cube face (clip space)
+    static LLVector3 sClipToCubeLookVecs[6];
+    static LLVector3 sClipToCubeUpVecs[6];
 
     // allocate a cube map array 
     // res - resolution of each cube face

@@ -80,7 +80,8 @@ void LLReflectionMapManager::update()
     if (mTexture.isNull())
     {
         mTexture = new LLCubeMapArray();
-        mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 3, LL_REFLECTION_PROBE_COUNT);
+        // store LL_REFLECTION_PROBE_COUNT+1 cube maps, final cube map is used for render target and radiance map generation source)
+        mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 3, LL_REFLECTION_PROBE_COUNT+2);
     }
 
     if (!mRenderTarget.isComplete())
@@ -395,7 +396,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     gPipeline.mRT = &gPipeline.mMainRT;
     mRenderTarget.flush();
 
-    // generate mipmaps
+    // downsample to placeholder map
     {
         LLGLDepthTest depth(GL_FALSE, GL_FALSE);
         LLGLDisable cull(GL_CULL_FACE);
@@ -451,7 +452,8 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             if (mip >= 0)
             {
                 mTexture->bind(0);
-                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
+                //glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, probe->mCubeIndex * 6 + face, 0, 0, res, res);
+                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, mip, 0, 0, LL_REFLECTION_PROBE_COUNT * 6 + face, 0, 0, res, res);
                 mTexture->unbind();
             }
             mMipChain[i].flush();
@@ -462,6 +464,48 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         gGL.popMatrix();
 
         gReflectionMipProgram.unbind();
+    }
+
+    if (face == 5)
+    {
+        //generate radiance map
+        gRadianceGenProgram.bind();
+        S32 channel = gRadianceGenProgram.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+        mTexture->bind(channel);
+    
+        for (int cf = 0; cf < 6; ++cf)
+        { // for each cube face
+            LLCoordFrame frame;
+            frame.lookAt(LLVector3(0, 0, 0), LLCubeMapArray::sClipToCubeLookVecs[cf], LLCubeMapArray::sClipToCubeUpVecs[cf]);
+
+            F32 mat[16];
+            frame.getOpenGLRotation(mat);
+            gGL.loadMatrix(mat);
+
+            for (int i = 0; i < mMipChain.size(); ++i)
+            {
+                mMipChain[i].bindTarget();
+                static LLStaticHashedString sRoughness("roughness");
+                static LLStaticHashedString sNumSamples("numSamples");
+
+                gRadianceGenProgram.uniform1i(sNumSamples, 32);
+                gRadianceGenProgram.uniform1f(sRoughness, (F32)i / (F32)(mMipChain.size() - 1));
+
+                gGL.begin(gGL.QUADS);
+                gGL.vertex3f(-1, -1, -1);
+                gGL.vertex3f(1, -1, -1);
+                gGL.vertex3f(1, 1, -1);
+                gGL.vertex3f(-1, 1, -1);
+                gGL.end();
+                gGL.flush();
+
+                
+                
+                S32 res = mMipChain[i].getWidth();
+                glCopyTexSubImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, i, 0, 0, probe->mCubeIndex * 6 + cf, 0, 0, res, res);
+                mMipChain[i].flush();
+            }
+        }
     }
 }
 
