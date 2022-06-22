@@ -81,6 +81,7 @@ public:
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
         REFLECTION_PROBES,                     //  "reflectionProbes"
+        IRRADIANCE_PROBES,                     //  "irradianceProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"

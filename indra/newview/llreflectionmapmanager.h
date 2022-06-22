@@ -39,6 +39,7 @@ class LLViewerObject;
 
 // reflection probe resolution
 #define LL_REFLECTION_PROBE_RESOLUTION 256
+#define LL_IRRADIANCE_MAP_RESOLUTION 64
 
 // reflection probe mininum scale
 #define LL_REFLECTION_PROBE_MINIMUM_SCALE 1.f;
@@ -112,8 +113,11 @@ private:
 
     std::vector<LLRenderTarget> mMipChain;
 
-    // storage for reflection probes
+    // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;
+
+    // storage for reflection probe irradiance maps
+    LLPointer<LLCubeMapArray> mIrradianceMaps;
 
     // array indicating if a particular cubemap is free
     bool mCubeFree[LL_REFLECTION_PROBE_COUNT];

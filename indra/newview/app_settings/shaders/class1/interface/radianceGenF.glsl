@@ -26,8 +26,6 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define REFMAP_COUNT 256
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -35,6 +33,7 @@ out vec4 frag_color;
 #endif
 
 uniform samplerCubeArray   reflectionProbes;
+uniform int sourceIdx;
 
 VARYING vec3 vary_dir;
 
@@ -150,7 +149,7 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
 			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
-			color += textureLod(reflectionProbes, vec4(L,REFMAP_COUNT), mipLevel).rgb * dotNL;
+			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mipLevel).rgb * dotNL;
 			totalWeight += dotNL;
 
 		}

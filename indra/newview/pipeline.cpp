@@ -9205,10 +9205,22 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 {
     S32 channel = shader.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+    bool bound = false;
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
     {
-        // see comments in class2/deferred/softenLightF.glsl for what these uniforms mean
         mReflectionMapManager.mTexture->bind(channel);
+        bound = true;
+    }
+
+    channel = shader.enableTexture(LLShaderMgr::IRRADIANCE_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
+    if (channel > -1 && mReflectionMapManager.mIrradianceMaps.notNull())
+    {
+        mReflectionMapManager.mIrradianceMaps->bind(channel);
+        bound = true;
+    }
+
+    if (bound)
+    {
         mReflectionMapManager.setUniforms();
 
         F32* m = gGLModelView;
