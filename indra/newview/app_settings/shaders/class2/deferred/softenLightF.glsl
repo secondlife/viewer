@@ -139,7 +139,7 @@ void main()
         color                = mix(color.rgb, reflected_color, envIntensity);
     }
 
-    if (norm.w < 0.5)
+    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
         color = mix(atmosFragLighting(color, additive, atten), fullbrightAtmosTransportFrag(color, additive, atten), diffuse.a);
         color = mix(scaleSoftClipFrag(color), fullbrightScaleSoftClip(color), diffuse.a);
