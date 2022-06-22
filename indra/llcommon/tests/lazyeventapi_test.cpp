@@ -109,16 +109,28 @@ namespace tut
     {
         set_test_name("LazyEventAPI metadata");
         MyRegistrar regster;
+        // Of course we have 'regster' in hand; we don't need to search for
+        // it. But this next test verifies that we can find (all) LazyEventAPI
+        // instances using LazyEventAPIBase::instance_snapshot. Normally we
+        // wouldn't search; normally we'd just look at each instance in the
+        // loop body.
         const MyRegistrar* found = nullptr;
         for (const auto& registrar : LL::LazyEventAPIBase::instance_snapshot())
             if ((found = dynamic_cast<const MyRegistrar*>(&registrar)))
                 break;
         ensure("Failed to find MyRegistrar via LLInstanceTracker", found);
-        ensure_equals("wrong API name", found->mParams.name, "Test");
-        ensure_contains("wrong API desc", found->mParams.desc, "test LLEventAPI");
-        ensure_equals("wrong API field", found->mParams.field, "op");
-        ensure_equals("failed to find operations", found->mOperations.size(), 1);
-        ensure_equals("wrong operation name", found->mOperations[0].first, "set");
-        ensure_contains("wrong operation desc", found->mOperations[0].second, "set operation");
+
+        ensure_equals("wrong API name", found->getName(), "Test");
+        ensure_contains("wrong API desc", found->getDesc(), "test LLEventAPI");
+        ensure_equals("wrong API field", found->getDispatchKey(), "op");
+        // Normally we'd just iterate over *found. But for test purposes,
+        // actually capture the range of NameDesc pairs in a vector.
+        std::vector<LL::LazyEventAPIBase::NameDesc> ops{ found->begin(), found->end() };
+        ensure_equals("failed to find operations", ops.size(), 1);
+        ensure_equals("wrong operation name", ops[0].first, "set");
+        ensure_contains("wrong operation desc", ops[0].second, "set operation");
+        LLSD metadata{ found->getMetadata(ops[0].first) };
+        ensure_equals("bad metadata name", metadata["name"].asString(), ops[0].first);
+        ensure_equals("bad metadata desc", metadata["desc"].asString(), ops[0].second);
     }
 } // namespace tut

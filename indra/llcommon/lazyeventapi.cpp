@@ -15,9 +15,11 @@
 #include "lazyeventapi.h"
 // STL headers
 // std headers
+#include <algorithm>                // std::find_if
 // external library headers
 // other Linden headers
 #include "llevents.h"
+#include "llsdutil.h"
 
 LL::LazyEventAPIBase::LazyEventAPIBase(
     const std::string& name, const std::string& desc, const std::string& field)
@@ -50,4 +52,21 @@ LL::LazyEventAPIBase::~LazyEventAPIBase()
         // unregister the callback to this doomed instance
         LLEventPumps::instance().unregisterPumpFactory(mParams.name);
     }
+}
+
+LLSD LL::LazyEventAPIBase::getMetadata(const std::string& name) const
+{
+    // Since mOperations is a vector rather than a map, just search.
+    auto found = std::find_if(mOperations.begin(), mOperations.end(),
+                              [&name](const auto& namedesc)
+                              { return (namedesc.first == name); });
+    if (found == mOperations.end())
+        return {};
+
+    // LLEventDispatcher() supplements the returned metadata in different
+    // ways, depending on metadata provided to the specific add() method.
+    // Don't try to emulate all that. At some point we might consider more
+    // closely unifying LLEventDispatcher machinery with LazyEventAPI, but for
+    // now this will have to do.
+    return llsd::map("name", found->first, "desc", found->second);
 }

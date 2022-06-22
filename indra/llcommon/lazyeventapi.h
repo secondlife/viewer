@@ -63,9 +63,6 @@ namespace LL
         LazyEventAPIBase& operator=(const LazyEventAPIBase&) = delete;
         LazyEventAPIBase& operator=(LazyEventAPIBase&&) = delete;
 
-        // actually instantiate the companion LLEventAPI subclass
-        virtual LLEventPump* construct(const std::string& name) = 0;
-
         // capture add() calls we want to play back on LLEventAPI construction
         template <typename... ARGS>
         void add(const std::string& name, const std::string& desc, ARGS&&... rest)
@@ -96,12 +93,40 @@ namespace LL
                 });
         }
 
+        // The following queries mimic the LLEventAPI / LLEventDispatcher
+        // query API.
+
+        // Get the string name of the subject LLEventAPI
+        std::string getName() const { return mParams.name; }
+        // Get the documentation string
+        std::string getDesc() const { return mParams.desc; }
+        // Retrieve the LLSD key we use for dispatching
+        std::string getDispatchKey() const { return mParams.field; }
+
+        // operations
+        using NameDesc = std::pair<std::string, std::string>;
+
+    private:
         // metadata that might be queried by LLLeapListener
-        std::vector<std::pair<std::string, std::string>> mOperations;
+        std::vector<NameDesc> mOperations;
+
+    public:
+        using const_iterator = decltype(mOperations)::const_iterator;
+        const_iterator begin() const { return mOperations.begin(); }
+        const_iterator end()   const { return mOperations.end(); }
+        LLSD getMetadata(const std::string& name) const;
+
+    protected:
         // Params with which to instantiate the companion LLEventAPI subclass
         LazyEventAPIParams mParams;
 
     private:
+        // true if we successfully registered our LLEventAPI on construction
+        bool mRegistered;
+
+        // actually instantiate the companion LLEventAPI subclass
+        virtual LLEventPump* construct(const std::string& name) = 0;
+
         // Passing an overloaded function to any function that accepts an
         // arbitrary callable is a PITB because you have to specify the
         // correct overload. What we want is for the compiler to select the
@@ -117,8 +142,6 @@ namespace LL
         {
             instance->add(std::forward<ARGS>(args)...);
         }
-
-        bool mRegistered;
     };
 
     /**
@@ -168,6 +191,7 @@ namespace LL
             LazyEventAPIBase(name, desc, field)
         {}
 
+    private:
         LLEventPump* construct(const std::string& /*name*/) override
         {
             // base class has carefully assembled LazyEventAPIParams embedded
