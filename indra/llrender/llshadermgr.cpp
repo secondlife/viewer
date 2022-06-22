@@ -787,7 +787,12 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 			extra_code_text[extra_code_count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 		}
 	}
-	
+
+    // Use alpha float to store bit flags
+    // See: C++: addDeferredAttachment(), shader: frag_data[2]
+    extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_SKIP_ATMOS   1.0\n"); // atmo kill
+    extra_code_text[extra_code_count++] = strdup("#define GBUFFER_FLAG_HAS_ATMOS    0.0\n");
+
 	if (defines)
 	{
 		for (std::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)

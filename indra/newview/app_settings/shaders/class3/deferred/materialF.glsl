@@ -446,10 +446,10 @@ void main()
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
 
-    // deferred path
-    frag_data[0] = final_color; //gbuffer is sRGB
+    // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
+    frag_data[0] = final_color;    // gbuffer is sRGB
     frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
-    frag_data[2] = final_normal; // XY = Normal.  Z = Env. intensity.
+    frag_data[2] = final_normal;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
 #endif
 }
 

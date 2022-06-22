@@ -56,5 +56,5 @@ void main()
 
 	frag_data[0] = vec4(col.rgb, 0.0);
 	frag_data[1] = spec;
-	frag_data[2] = norm;
+	frag_data[2] = norm; // TODO: Should .w be set?
 }
