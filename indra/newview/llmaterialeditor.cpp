@@ -280,7 +280,7 @@ private:
 };
 
 LLMaterialFilePicker::LLMaterialFilePicker(LLMaterialEditor* me)
-    : LLFilePickerThread(LLFilePicker::FFLOAD_MODEL)
+    : LLFilePickerThread(LLFilePicker::FFLOAD_MATERIAL)
 {
     mME = me;
 }
@@ -325,6 +325,7 @@ static LLViewerFetchedTexture* get_texture(const std::string& folder, const tiny
         image->component <= 4)
     {
         LLPointer<LLImageRaw> rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
+        rawImage->verticalFlip();
         
         ret = LLViewerTextureManager::getFetchedTexture(rawImage, FTType::FTT_LOCAL_FILE, true);
 
@@ -449,6 +450,8 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     mME->setDoubleSided(material_in.doubleSided);
 
     mME->openFloater();
+
+    mME->applyToSelection();
 }
 
 void LLMaterialEditor::importMaterial()
@@ -484,5 +487,7 @@ void LLMaterialEditor::applyToSelection()
             vobjp->getTE(i)->setGLTFMaterial(mat);
             vobjp->updateTEMaterialTextures(i);
         }
+
+        vobjp->markForUpdate(TRUE);
     }
 }
