@@ -30,19 +30,18 @@
 #define DEBUG_NORMAL        0
 #define DEBUG_POSITION      0
 
-// 
 uniform sampler2D diffuseMap;  //always in sRGB space
 
 #ifdef HAS_NORMAL_MAP
     uniform sampler2D bumpMap;
 #endif
 
+#ifdef HAS_NORMAL_MAP
+uniform sampler2D bumpMap;
+#endif
 #ifdef HAS_SPECULAR_MAP
     uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 #endif
-
-uniform samplerCube environmentMap;
-uniform mat3        env_mat;
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[4];
@@ -69,12 +68,9 @@ const float M_PI = 3.141592653589793;
 
 void main()
 {
-// IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-//    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
-// else
     vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
 
-    vec3 emissive = vec3(0);
+    vec3 emissive = vec3(0); // TODO: Need RGB emissive map
 
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);

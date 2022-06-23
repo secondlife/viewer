@@ -1658,6 +1658,11 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
         return LLDrawPool::POOL_PBR_OPAQUE;
     }
 
+    if (LLPipeline::sRenderDeferred && mat->getIsPBR())
+    {
+        return LLDrawPool::POOL_PBR_OPAQUE;
+    }
+
 	bool color_alpha = te->getColor().mV[3] < 0.999f;
 	bool alpha = color_alpha;
 	if (imagep)

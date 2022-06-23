@@ -63,6 +63,12 @@ void main()
 
     passTextureIndex();
     vary_normal = normalize(normal_matrix * normal);
+#ifdef HAS_NORMAL_MAP
+    vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
+#endif
+#ifdef HAS_SPECULAR_MAP
+   vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
+#endif
 
 #ifdef HAS_NORMAL_MAP
     //vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
