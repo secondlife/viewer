@@ -1622,9 +1622,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredPBROpaqueProgram.mShaderFiles.clear();
             gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER_ARB));
             gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER_ARB));
-            gDeferredPBROpaqueProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
             gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-            //gDeferredPBROpaqueProgram.addPermutation("HAS_NORMAL_MAP", "1");
+            gDeferredPBROpaqueProgram.addPermutation("HAS_NORMAL_MAP", "1");
+            gDeferredPBROpaqueProgram.addPermutation("HAS_SPECULAR_MAP", "1"); // PBR Packed OcclusionRoughMetal
             success = gDeferredPBROpaqueProgram.createShader(NULL, NULL);
             llassert(success);
         }

@@ -1651,8 +1651,9 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	}
 		
 	LLMaterial* mat = te->getMaterialParams().get();
+    bool pbr = gSavedSettings.getBOOL("RenderPBR");
 
-    if (LLPipeline::sRenderDeferred && mat->getIsPBR())
+    if (pbr && mat && mat->getIsPBR())
     {
         return LLDrawPool::POOL_PBR_OPAQUE;
     }

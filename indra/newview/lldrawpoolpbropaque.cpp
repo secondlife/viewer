@@ -73,7 +73,8 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
          return;
     }
 
-    if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE))
+    const U32 type = LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE;
+    if (!gPipeline.hasRenderType(type))
     {
         return;
     }
@@ -91,7 +92,38 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
     // TODO: handle under water?
     // if (LLPipeline::sUnderWaterRender)
-    pushBatches(LLRenderPass::PASS_PBR_OPAQUE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
-    pushBatches(LLDrawPool::POOL_PBR_OPAQUE  , getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
+    LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
+    LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
+
+    for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
+    {
+        LLDrawInfo& params = **i;
+
+//gGL.getTexUnit(0)->activate();
+
+        if (mShaderLevel > 1)
+        {
+            if (params.mTexture.notNull())
+            {
+                gGL.getTexUnit(-1)->bindFast(params.mTexture); // diffuse
+            }
+        }
+
+        if (params.mNormalMap)
+        {
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+        }
+
+        if (params.mSpecularMap)
+        {
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // Packed Occlusion Roughness Metal
+        }
+
+        // Similar to LLDrawPooLMaterials::pushMaterialsBatch(params, getVertexDataMask(), false);
+
+        LLRenderPass::applyModelMatrix(params);
+        params.mVertexBuffer->setBufferFast(getVertexDataMask());
+        params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+    }
 }
 
