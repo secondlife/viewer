@@ -1413,14 +1413,12 @@ if (DARWIN)
   find_library(COCOA_LIBRARY Cocoa)
   find_library(IOKIT_LIBRARY IOKit)
   find_library(COREAUDIO_LIBRARY CoreAudio)
-  find_library(CARBON_LIBRARY Carbon)
 
   set(viewer_LIBRARIES
     ${COCOA_LIBRARY}
     ${AGL_LIBRARY}
     ${IOKIT_LIBRARY}
     ${COREAUDIO_LIBRARY}
-    ${CARBON_LIBRARY}
     )
 
   if (USE_BUGSPLAT)
