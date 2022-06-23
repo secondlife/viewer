@@ -48,6 +48,7 @@ public:
 	enum
 	{
 		// Correspond to LLPipeline render type
+        // NOTE: Keep in sync with gPoolNames
 		POOL_SIMPLE = 1,
 		POOL_GROUND,
 		POOL_FULLBRIGHT,
@@ -130,6 +131,7 @@ class LLRenderPass : public LLDrawPool
 public:
     // list of possible LLRenderPass types to assign a render batch to
     // NOTE: "rigged" variant MUST be non-rigged variant + 1
+    // see LLVolumeGeometryManager::registerFace()
 	enum
 	{
 		PASS_SIMPLE = NUM_POOL_TYPES,
@@ -191,6 +193,8 @@ public:
         PASS_FULLBRIGHT_ALPHA_MASK_RIGGED,
 		PASS_ALPHA_INVISIBLE,
         PASS_ALPHA_INVISIBLE_RIGGED,
+        PASS_PBR_OPAQUE,
+        PASS_PBR_OPAQUE_RIGGED,
 		NUM_RENDER_TYPES,
 	};
 
