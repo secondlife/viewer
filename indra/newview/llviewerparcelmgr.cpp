@@ -1881,8 +1881,13 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 	}
 	else
 	{
-		// Check for video
-		LLViewerParcelMedia::getInstance()->update(parcel);
+        if (gNonInteractive)
+        {
+            return;
+        }
+    
+        // Check for video
+        LLViewerParcelMedia::getInstance()->update(parcel);
 
 		// Then check for music
 		if (gAudiop)
