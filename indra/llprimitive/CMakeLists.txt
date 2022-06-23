@@ -52,6 +52,7 @@ set(llprimitive_HEADER_FILES
     CMakeLists.txt
     lldaeloader.h
     llgltfloader.h
+    llgltfmaterial.h
     legacy_object_types.h
     llmaterial.h
     llmaterialid.h

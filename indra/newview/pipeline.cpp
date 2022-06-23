@@ -1651,6 +1651,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	}
 		
 	LLMaterial* mat = te->getMaterialParams().get();
+    LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
 
 	bool color_alpha = te->getColor().mV[3] < 0.999f;
 	bool alpha = color_alpha;
@@ -1684,6 +1685,10 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_BUMP;
 	}
+    else if (gltf_mat && !alpha)
+    {
+        return LLDrawPool::POOL_PBR_OPAQUE;
+    }
 	else if (mat && !alpha)
 	{
 		return LLDrawPool::POOL_MATERIALS;
