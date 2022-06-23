@@ -162,6 +162,8 @@ extern LLGLSLShader			gCustomAlphaProgram;
 extern LLGLSLShader			gGlowCombineProgram;
 extern LLGLSLShader			gSplatTextureRectProgram;
 extern LLGLSLShader			gReflectionMipProgram;
+extern LLGLSLShader         gRadianceGenProgram;
+extern LLGLSLShader         gIrradianceGenProgram;
 extern LLGLSLShader			gGlowCombineFXAAProgram;
 extern LLGLSLShader			gDebugProgram;
 extern LLGLSLShader			gClipProgram;

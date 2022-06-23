@@ -53,6 +53,50 @@ GLenum LLCubeMapArray::sTargets[6] =
     GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB
 };
 
+LLVector3 LLCubeMapArray::sLookVecs[6] =
+{
+        LLVector3(1, 0, 0),
+        LLVector3(-1, 0, 0),
+        LLVector3(0, 1, 0),
+        LLVector3(0, -1, 0),
+        LLVector3(0, 0, 1),
+        LLVector3(0, 0, -1)
+};
+
+LLVector3 LLCubeMapArray::sUpVecs[6] = 
+{
+    LLVector3(0, -1, 0),
+    LLVector3(0, -1, 0),
+    LLVector3(0, 0, 1),
+    LLVector3(0, 0, -1),
+    LLVector3(0, -1, 0),
+    LLVector3(0, -1, 0)
+};
+
+LLVector3 LLCubeMapArray::sClipToCubeLookVecs[6] =
+{
+        LLVector3(0, 0, -1), //GOOD
+        LLVector3(0, 0, 1), //GOOD
+        
+        LLVector3(1, 0, 0), // GOOD
+        LLVector3(1, 0, 0), // GOOD
+
+        LLVector3(1, 0, 0),
+        LLVector3(-1, 0, 0),
+};
+
+LLVector3 LLCubeMapArray::sClipToCubeUpVecs[6] =
+{
+    LLVector3(-1, 0, 0), //GOOD
+    LLVector3(1, 0, 0), //GOOD
+
+    LLVector3(0, 1, 0), // GOOD
+    LLVector3(0, -1, 0), // GOOD
+
+    LLVector3(0, 0, -1),
+    LLVector3(0, 0, 1)
+};
+
 LLCubeMapArray::LLCubeMapArray()
 	: mTextureStage(0)
 {

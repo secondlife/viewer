@@ -56,6 +56,7 @@ include(UnixInstall)
 include(ViewerMiscLibs)
 include(ViewerManager)
 include(VisualLeakDetector)
+include(VulkanGltf)
 include(ZLIB)
 include(URIPARSER)
 
