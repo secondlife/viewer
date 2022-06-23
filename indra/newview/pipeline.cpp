@@ -281,29 +281,33 @@ static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
 
 //----------------------------------------
-std::string gPoolNames[] = 
+#if 0
+std::string gPoolNames[LLDrawPool::NUM_POOL_TYPES] =
 {
 	// Correspond to LLDrawpool enum render type
-	"NONE",
-	"POOL_SIMPLE",
-	"POOL_GROUND",
-	"POOL_FULLBRIGHT",
-	"POOL_BUMP",
-	"POOL_MATERIALS",
-	"POOL_TERRAIN,"	
-	"POOL_SKY",
-	"POOL_WL_SKY",
-	"POOL_TREE",
-	"POOL_ALPHA_MASK",
-	"POOL_FULLBRIGHT_ALPHA_MASK",
-	"POOL_GRASS",
-	"POOL_INVISIBLE",
-	"POOL_AVATAR",
-	"POOL_VOIDWATER",
-	"POOL_WATER",
-	"POOL_GLOW",
-	"POOL_ALPHA"
+	  "NONE"
+	, "POOL_SIMPLE"
+	, "POOL_GROUND"
+	, "POOL_FULLBRIGHT"
+	, "POOL_BUMP"
+	, "POOL_MATERIALS"
+	, "POOL_TERRAIN"
+	, "POOL_SKY"
+	, "POOL_WL_SKY"
+	, "POOL_TREE"
+	, "POOL_ALPHA_MASK"
+	, "POOL_FULLBRIGHT_ALPHA_MASK"
+	, "POOL_GRASS"
+	, "POOL_INVISIBLE"
+	, "POOL_AVATAR"
+	, "POOL_CONTROL_AV" // Animesh
+	, "POOL_VOIDWATER"
+	, "POOL_WATER"
+	, "POOL_GLOW"
+	, "POOL_ALPHA"
+	, "POOL_PBR_OPAQUE"
 };
+#endif
 
 void drawBox(const LLVector4a& c, const LLVector4a& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
