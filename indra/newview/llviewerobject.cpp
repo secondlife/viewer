@@ -406,6 +406,11 @@ void LLViewerObject::deleteTEImages()
 		delete[] mTESpecularMaps;
 		mTESpecularMaps = NULL;
 	}	
+
+    mGLTFAlbedoMaps.clear();
+    mGLTFNormalMaps.clear();
+    mGLTFMetallicRoughnessMaps.clear();
+    mGLTFEmissiveMaps.clear();
 }
 
 void LLViewerObject::markDead()
@@ -4731,6 +4736,11 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 			mTEImages = new_images;
 			mTENormalMaps = new_normmaps;
 			mTESpecularMaps = new_specmaps;
+
+            mGLTFAlbedoMaps.resize(num_tes);
+            mGLTFNormalMaps.resize(num_tes);
+            mGLTFMetallicRoughnessMaps.resize(num_tes);
+            mGLTFEmissiveMaps.resize(num_tes);
 		}
 		else
 		{
@@ -4859,23 +4869,28 @@ void LLViewerObject::updateAvatarMeshVisibility(const LLUUID& id, const LLUUID& 
 	}
 }
 
-void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
+
+void LLViewerObject::setTE(const U8 te, const LLTextureEntry& texture_entry)
 {
-	LLUUID old_image_id;
-	if (getTE(te))
-	{
-		old_image_id = getTE(te)->getID();
-	}
-		
-	LLPrimitive::setTE(te, texture_entry);
+    LLUUID old_image_id;
+    if (getTE(te))
+    {
+        old_image_id = getTE(te)->getID();
+    }
 
-	const LLUUID& image_id = getTE(te)->getID();
-	LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
-	mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
+    LLPrimitive::setTE(te, texture_entry);
 
-	
-	updateAvatarMeshVisibility(image_id,old_image_id);
+    const LLUUID& image_id = getTE(te)->getID();
+    LLViewerTexture* bakedTexture = getBakedTextureForMagicId(image_id);
+    mTEImages[te] = bakedTexture ? bakedTexture : LLViewerTextureManager::getFetchedTexture(image_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_NONE, LLViewerTexture::LOD_TEXTURE);
 
+    updateAvatarMeshVisibility(image_id, old_image_id);
+
+    updateTEMaterialTextures(te);
+}
+
+void LLViewerObject::updateTEMaterialTextures(U8 te)
+{
 	if (getTE(te)->getMaterialParams().notNull())
 	{
 		const LLUUID& norm_id = getTE(te)->getMaterialParams()->getNormalID();
@@ -4884,6 +4899,20 @@ void LLViewerObject::setTE(const U8 te, const LLTextureEntry &texture_entry)
 		const LLUUID& spec_id = getTE(te)->getMaterialParams()->getSpecularID();
 		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
 	}
+
+    auto fetch_texture = [](const LLUUID& id)
+    {
+        return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
+    };
+
+    LLGLTFMaterial* mat = getTE(te)->getGLTFMaterial();
+    if (mat != nullptr)
+    {
+        mGLTFAlbedoMaps[te] = fetch_texture(mat->mAlbedoId);
+        mGLTFNormalMaps[te] = fetch_texture(mat->mNormalId);
+        mGLTFMetallicRoughnessMaps[te] = fetch_texture(mat->mMetallicRoughnessId);
+        mGLTFEmissiveMaps[te] = fetch_texture(mat->mEmissiveId);
+    }
 }
 
 void LLViewerObject::refreshBakeTexture()
@@ -5423,7 +5452,6 @@ void LLViewerObject::fitFaceTexture(const U8 face)
 {
 	LL_INFOS() << "fitFaceTexture not implemented" << LL_ENDL;
 }
-
 
 LLBBox LLViewerObject::getBoundingBoxAgent() const
 {

@@ -5390,10 +5390,26 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	LLViewerTexture* tex = facep->getTexture();
 
+    
 	U8 index = facep->getTextureIndex();
 
-	LLMaterial* mat = facep->getTextureEntry()->getMaterialParams().get(); 
-	LLMaterialID mat_id = facep->getTextureEntry()->getMaterialID();
+    LLMaterial* mat = nullptr;
+    
+    LLUUID mat_id;
+
+    LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFMaterial();
+    if (gltf_mat != nullptr)
+    {
+        mat_id = gltf_mat->getHash(); // TODO: cache this hash
+    }
+    else
+    {
+        mat = facep->getTextureEntry()->getMaterialParams().get();
+        if (mat)
+        {
+            mat_id = facep->getTextureEntry()->getMaterialID().asUUID();
+        }
+    }
 
 	bool batchable = false;
 
@@ -5415,7 +5431,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
 	if (index < FACE_DO_NOT_BATCH_TEXTURES && idx >= 0)
 	{
-		if (mat || draw_vec[idx]->mMaterial)
+		if (mat || gltf_mat || draw_vec[idx]->mMaterial)
 		{ //can't batch textures when materials are present (yet)
 			batchable = false;
 		}
@@ -5447,7 +5463,6 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_vec[idx]->mEnd - draw_vec[idx]->mStart + facep->getGeomCount() <= (U32) gGLManager.mGLMaxVertexRange &&
 		draw_vec[idx]->mCount + facep->getIndicesCount() <= (U32) gGLManager.mGLMaxIndexRange &&
 #endif
-		//draw_vec[idx]->mMaterial == mat &&
 		draw_vec[idx]->mMaterialID == mat_id &&
 		draw_vec[idx]->mFullbright == fullbright &&
 		draw_vec[idx]->mBump == bump &&
@@ -5504,11 +5519,22 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		draw_info->mEnvIntensity = spec;
 		draw_info->mSpecularMap = NULL;
 		draw_info->mMaterial = mat;
+        draw_info->mGLTFMaterial = gltf_mat;
 		draw_info->mShaderMask = shader_mask;
         draw_info->mAvatar = facep->mAvatar;
         draw_info->mSkinInfo = facep->mSkinInfo;
 
-		if (mat)
+        if (gltf_mat)
+        {
+            LLViewerObject* vobj = facep->getViewerObject();
+            U8 te = facep->getTEOffset();
+
+            draw_info->mTexture = vobj->getGLTFAlbedoMap(te);
+            draw_info->mNormalMap = vobj->getGLTFNormalMap(te);
+            draw_info->mSpecularMap = vobj->getGLTFMetallicRoughnessMap(te);
+            draw_info->mEmissiveMap = vobj->getGLTFEmissiveMap(te);
+        }
+        else if (mat)
 		{
 			draw_info->mMaterialID = mat_id;
 
@@ -5849,12 +5875,16 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					continue;
 				}
 
+#if 0
 #if LL_RELEASE_WITH_DEBUG_INFO
                 const LLUUID pbr_id( "49c88210-7238-2a6b-70ac-92d4f35963cf" );
                 const LLUUID obj_id( vobj->getID() );
                 bool is_pbr = (obj_id == pbr_id);
 #else
                 bool is_pbr = false;
+#endif
+#else
+                bool is_pbr = facep->getTextureEntry()->getGLTFMaterial() != nullptr;
 #endif
 
 				//ALWAYS null out vertex buffer on rebuild -- if the face lands in a render

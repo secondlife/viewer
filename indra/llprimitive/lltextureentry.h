@@ -32,6 +32,7 @@
 #include "llsd.h"
 #include "llmaterialid.h"
 #include "llmaterial.h"
+#include "llgltfmaterial.h"
 
 // These bits are used while unpacking TEM messages to tell which aspects of
 // the texture entry changed.
@@ -134,6 +135,10 @@ public:
 	S32  setMaterialID(const LLMaterialID& pMaterialID);
 	S32  setMaterialParams(const LLMaterialPtr pMaterialParams);
 	
+    void setGLTFMaterial(LLGLTFMaterial* material) { mGLTFMaterial = material; }
+    LLGLTFMaterial* getGLTFMaterial() { return mGLTFMaterial; }
+
+
 	virtual const LLUUID &getID() const { return mID; }
 	const LLColor4 &getColor() const { return mColor; }
     const F32 getAlpha() const { return mColor.mV[VALPHA]; }
@@ -161,6 +166,8 @@ public:
     F32  getGlow() const { return mGlow; }
 	const LLMaterialID& getMaterialID() const { return mMaterialID; };
 	const LLMaterialPtr getMaterialParams() const { return mMaterial; };
+
+    LLGLTFMaterial* getGLTFMaterial() const { return mGLTFMaterial; }
 
     // *NOTE: it is possible for hasMedia() to return true, but getMediaData() to return NULL.
     // CONVERSELY, it is also possible for hasMedia() to return false, but getMediaData()
@@ -219,6 +226,7 @@ protected:
 	bool                mMaterialUpdatePending;
 	LLMaterialID        mMaterialID;
 	LLMaterialPtr		mMaterial;
+    LLPointer<LLGLTFMaterial> mGLTFMaterial;  // if present, ignore mMaterial
 
 	// Note the media data is not sent via the same message structure as the rest of the TE
 	LLMediaEntry*		mMediaEntry;			// The media data for the face

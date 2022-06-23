@@ -36,6 +36,9 @@ public:
     // open a file dialog and select a gltf/glb file for import
     void importMaterial();
 
+    // for live preview, apply current material to currently selected object
+    void applyToSelection();
+
     void onClickSave();
 
 	// llpanel

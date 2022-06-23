@@ -321,6 +321,7 @@ public:
 
 	/*virtual*/	void	setNumTEs(const U8 num_tes);
 	/*virtual*/	void	setTE(const U8 te, const LLTextureEntry &texture_entry);
+    void updateTEMaterialTextures(U8 te);
 	/*virtual*/ S32		setTETexture(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTENormalMap(const U8 te, const LLUUID &uuid);
 	/*virtual*/ S32		setTESpecularMap(const U8 te, const LLUUID &uuid);
@@ -359,6 +360,12 @@ public:
 	LLViewerTexture		*getTEImage(const U8 te) const;
 	LLViewerTexture		*getTENormalMap(const U8 te) const;
 	LLViewerTexture		*getTESpecularMap(const U8 te) const;
+
+    LLViewerTexture* getGLTFAlbedoMap(U8 te) const { return mGLTFAlbedoMaps[te]; }
+    LLViewerTexture* getGLTFNormalMap(U8 te) const { return mGLTFNormalMaps[te]; }
+    LLViewerTexture* getGLTFEmissiveMap(U8 te) const { return mGLTFEmissiveMaps[te]; }
+    LLViewerTexture* getGLTFMetallicRoughnessMap(U8 te) const { return mGLTFMetallicRoughnessMaps[te]; }
+
 	
 	bool 						isImageAlphaBlended(const U8 te) const;
 
@@ -675,6 +682,13 @@ public:
 	LLPointer<LLViewerTexture> *mTEImages;
 	LLPointer<LLViewerTexture> *mTENormalMaps;
 	LLPointer<LLViewerTexture> *mTESpecularMaps;
+    
+    std::vector<LLPointer<LLViewerTexture> > mGLTFAlbedoMaps;
+    std::vector<LLPointer<LLViewerTexture> > mGLTFNormalMaps;
+    std::vector<LLPointer<LLViewerTexture> > mGLTFMetallicRoughnessMaps;
+    std::vector<LLPointer<LLViewerTexture> > mGLTFEmissiveMaps;
+
+
 
     // true if user can select this object by clicking under any circumstances (even if pick_unselectable is true)
     // can likely be factored out
