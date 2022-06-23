@@ -34,11 +34,14 @@ class LLDrawPoolPBROpaque : public LLRenderPass
 public:
     enum
     {
-       VERTEX_DATA_MASK = 0
-                        | LLVertexBuffer::MAP_VERTEX
-                        | LLVertexBuffer::MAP_NORMAL
-                        | LLVertexBuffer::MAP_TEXCOORD0
-                        | LLVertexBuffer::MAP_COLOR
+        // See: DEFERRED_VB_MASK
+        VERTEX_DATA_MASK = 0
+                         | LLVertexBuffer::MAP_VERTEX
+                         | LLVertexBuffer::MAP_NORMAL
+                         | LLVertexBuffer::MAP_TEXCOORD0 // Diffuse
+                         | LLVertexBuffer::MAP_TEXCOORD1 // Normal
+                         | LLVertexBuffer::MAP_TEXCOORD2 // Spec <-- ORM Occlusion Roughness Metal
+                         | LLVertexBuffer::MAP_COLOR
     };
     virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
