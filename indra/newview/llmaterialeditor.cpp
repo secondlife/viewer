@@ -27,9 +27,12 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmaterialeditor.h"
-#include "llcombobox.h"
-#include "llviewermenufile.h"
+
 #include "llappviewer.h"
+#include "llcombobox.h"
+#include "llnotificationsutil.h"
+#include "lltrans.h"
+#include "llviewermenufile.h"
 #include "llviewertexture.h"
 #include "llselectmgr.h"
 #include "llvovolume.h"
@@ -99,6 +102,11 @@ F32 LLMaterialEditor::getAlphaCutoff()
 void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
 {
     childSetValue("alpha cutoff", alpha_cutoff);
+}
+
+void LLMaterialEditor::setMaterialName(const std::string &name)
+{
+    setTitle(name);
 }
 
 LLUUID LLMaterialEditor::getMetallicRoughnessId()
@@ -378,13 +386,14 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
 
     if (!loaded)
     {
-        // TODO: show error_msg to user
+        LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
     if (model_in.materials.empty())
     {
-        // TODO: show error message that materials are missing
+        // materials are missing
+        LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
@@ -446,8 +455,11 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     
     mME->setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
     mME->setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
-    
+
     mME->setDoubleSided(material_in.doubleSided);
+
+    std::string new_material = LLTrans::getString("New Material");
+    mME->setMaterialName(new_material);
 
     mME->openFloater();
 

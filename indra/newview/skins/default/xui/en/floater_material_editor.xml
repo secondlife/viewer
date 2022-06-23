@@ -7,8 +7,16 @@
  layout="topleft"
  name="material editor"
  help_topic="material_editor"
- title="Material: [MATERIAL_NAME]"
+ title="[MATERIAL_NAME]"
  width="256">
+  <check_box
+          follows="left|top"
+          label="Double Sided"
+          left="14"
+          top="14"
+          name="double sided"
+          height="25"
+          width="120" />
   <panel
     border="true"
          follows="left|top"
@@ -18,7 +26,7 @@
          left="5"
          mouse_opaque="false"
          name="Texture"
-         top="20"
+         top_pad="5"
          >
   <text
              type="string"
@@ -31,10 +39,11 @@
              width="64">
     Albedo:
   </text>
-  <texture_picker
-             can_apply_immediately="true"
+    <texture_picker
+             can_apply_immediately="false"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
+             allow_no_texture="true"
              follows="left|top"
              top_pad="8"
              height="151"
@@ -55,7 +64,7 @@
     Tint
   </text>
   <color_swatch
-                    can_apply_immediately="true"
+                    can_apply_immediately="false"
                     follows="left|top"
                     height="40"
                     label_height="0"
@@ -170,10 +179,11 @@
              >
     Metallic-Roughness:
   </text>
-  <texture_picker
-             can_apply_immediately="true"
+    <texture_picker
+             can_apply_immediately="false"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
+             allow_no_texture="true"
              follows="left|top"
              width="128" 
              height="151"
@@ -256,9 +266,10 @@
       Emissive:
     </text>
     <texture_picker
-               can_apply_immediately="true"
+               can_apply_immediately="false"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
+               allow_no_texture="true"
                follows="left|top"
                top_pad="8"
                height="151"
@@ -278,7 +289,7 @@
       Tint
     </text>
     <color_swatch
-                      can_apply_immediately="true"
+                      can_apply_immediately="false"
                       follows="left|top"
                       height="40"
                       label_height="0"
@@ -334,9 +345,10 @@
       Normal:
     </text>
     <texture_picker
-               can_apply_immediately="true"
+               can_apply_immediately="false"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
+               allow_no_texture="true"
                follows="left|top"
                top_pad="8"
                height="151"
@@ -352,14 +364,6 @@
           height="25"
           width="120" />-->
   </panel>
-  <check_box
-          follows="left|top"
-          label="Double Sided"
-          left="5"
-          top_pad="5"
-          name="double sided"
-          height="25"
-          width="120" />
   <button
              follows="right|bottom"
              height="25"

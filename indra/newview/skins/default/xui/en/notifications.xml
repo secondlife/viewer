@@ -9025,6 +9025,14 @@ Unable to upload texture.
 [REASON]   
   <tag>fail</tag>  
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadMaterial"
+   type="alertmodal">
+There was a problem uploading the file
+    <tag>fail</tag>
+  </notification>
   
   <notification
    icon="alertmodal.tga"

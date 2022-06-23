@@ -59,6 +59,8 @@ public:
 
     F32 getAlphaCutoff();
     void setAlphaCutoff(F32 alpha_cutoff);
+    
+    void setMaterialName(const std::string &name);
 
     LLUUID getMetallicRoughnessId();
     void setMetallicRoughnessId(const LLUUID& id);
