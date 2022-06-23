@@ -81,6 +81,7 @@ public:
         BUMP_MAP2,                          //  "bumpMap2"
         ENVIRONMENT_MAP,                    //  "environmentMap"
         REFLECTION_PROBES,                     //  "reflectionProbes"
+        IRRADIANCE_PROBES,                     //  "irradianceProbes"
         CLOUD_NOISE_MAP,                    //  "cloud_noise_texture"
         CLOUD_NOISE_MAP_NEXT,               //  "cloud_noise_texture_next"
         FULLBRIGHT,                         //  "fullbright"
@@ -143,6 +144,7 @@ public:
         DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
+        DEFERRED_VIEW_DIR,                  //  "view_dir"
 
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
