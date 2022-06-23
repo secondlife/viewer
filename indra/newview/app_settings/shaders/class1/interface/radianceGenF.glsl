@@ -68,7 +68,7 @@ SOFTWARE.
 
 uniform float roughness;
 
-uniform int numSamples;
+uniform float mipLevel;
 
 const float PI = 3.1415926536;
 
@@ -130,6 +130,8 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 	vec3 color = vec3(0.0);
 	float totalWeight = 0.0;
 	float envMapDim = 256.0;
+    int numSamples = 32/max(int(mipLevel), 1);
+
 	for(uint i = 0u; i < numSamples; i++) {
 		vec2 Xi = hammersley2d(i, numSamples);
 		vec3 H = importanceSample_GGX(Xi, roughness, N);
@@ -148,7 +150,7 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 			// Solid angle of 1 pixel across all cube faces
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
-			float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
+			//float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
 			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mipLevel).rgb * dotNL;
 			totalWeight += dotNL;
 
