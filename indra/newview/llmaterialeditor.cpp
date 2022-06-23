@@ -31,6 +31,7 @@
 #include "llappviewer.h"
 #include "llcombobox.h"
 #include "llnotificationsutil.h"
+#include "lltexturectrl.h"
 #include "lltrans.h"
 #include "llviewermenufile.h"
 #include "llviewertexture.h"
@@ -51,18 +52,41 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
 
 BOOL LLMaterialEditor::postBuild()
 {
+    mAlbedoTextureCtrl = getChild<LLTextureCtrl>("albedo_texture");
+    mMetallicTextureCtrl = getChild<LLTextureCtrl>("metallic_roughness_texture");
+    mEmissiveTextureCtrl = getChild<LLTextureCtrl>("emissive_texture");
+    mNormalTextureCtrl = getChild<LLTextureCtrl>("normal_texture");
+
+    mAlbedoTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitAlbedoTexture, this, _1, _2));
+    mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitMetallicTexture, this, _1, _2));
+    mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitEmissiveTexture, this, _1, _2));
+    mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitNormalTexture, this, _1, _2));
+
     childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
+    childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
+    childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+
 	return LLFloater::postBuild();
 }
 
 LLUUID LLMaterialEditor::getAlbedoId()
 {
-    return childGetValue("albedo texture").asUUID();
+    return mAlbedoTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setAlbedoId(const LLUUID& id)
 {
-    childSetValue("albedo texture", id);
+    mAlbedoTextureCtrl->setValue(id);
+    mAlbedoTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+        // Only set if we will need to upload this texture
+        mAlbedoTextureUploadId = id;
+    }
 }
 
 LLColor4 LLMaterialEditor::getAlbedoColor()
@@ -71,7 +95,6 @@ LLColor4 LLMaterialEditor::getAlbedoColor()
     ret.mV[3] = getTransparency();
     return ret;
 }
-
 
 void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
 {
@@ -107,16 +130,26 @@ void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
 void LLMaterialEditor::setMaterialName(const std::string &name)
 {
     setTitle(name);
+    mMaterialName = name;
 }
 
 LLUUID LLMaterialEditor::getMetallicRoughnessId()
 {
-    return childGetValue("metallic-roughness texture").asUUID();
+    return mMetallicTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
-    childSetValue("metallic-roughness texture", id);
+    mMetallicTextureCtrl->setValue(id);
+    mMetallicTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("metallic_upload_fee", getString("upload_fee_string"));
+        mMetallicTextureUploadId = id;
+    }
 }
 
 F32 LLMaterialEditor::getMetalnessFactor()
@@ -141,12 +174,21 @@ void LLMaterialEditor::setRoughnessFactor(F32 factor)
 
 LLUUID LLMaterialEditor::getEmissiveId()
 {
-    return childGetValue("emissive texture").asUUID();
+    return mEmissiveTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
-    childSetValue("emissive texture", id);
+    mEmissiveTextureCtrl->setValue(id);
+    mEmissiveTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("emissive_upload_fee", getString("upload_fee_string"));
+        mEmissiveTextureUploadId = id;
+    }
 }
 
 LLColor4 LLMaterialEditor::getEmissiveColor()
@@ -161,12 +203,21 @@ void LLMaterialEditor::setEmissiveColor(const LLColor4& color)
 
 LLUUID LLMaterialEditor::getNormalId()
 {
-    return childGetValue("normal texture").asUUID();
+    return mNormalTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
-    childSetValue("normal texture", id);
+    mNormalTextureCtrl->setValue(id);
+    mNormalTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("normal_upload_fee", getString("upload_fee_string"));
+        mNormalTextureUploadId = id;
+    }
 }
 
 bool LLMaterialEditor::getDoubleSided()
@@ -177,6 +228,60 @@ bool LLMaterialEditor::getDoubleSided()
 void LLMaterialEditor::setDoubleSided(bool double_sided)
 {
     childSetValue("double sided", double_sided);
+}
+
+void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    // might be better to use arrays, to have a single callback
+    // and not to repeat the same thing for each tecture controls
+    LLUUID new_val = mAlbedoTextureCtrl->getValue().asUUID();
+    if (new_val == mAlbedoTextureUploadId && mAlbedoTextureUploadId.notNull())
+    {
+        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
+    }
+}
+
+void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mMetallicTextureCtrl->getValue().asUUID();
+    if (new_val == mMetallicTextureUploadId && mMetallicTextureUploadId.notNull())
+    {
+        childSetValue("metallic_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
+    }
+}
+
+void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mEmissiveTextureCtrl->getValue().asUUID();
+    if (new_val == mEmissiveTextureUploadId && mEmissiveTextureUploadId.notNull())
+    {
+        childSetValue("emissive_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
+    }
+}
+
+void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mNormalTextureCtrl->getValue().asUUID();
+    if (new_val == mNormalTextureUploadId && mNormalTextureUploadId.notNull())
+    {
+        childSetValue("normal_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
+    }
 }
 
 
@@ -273,7 +378,40 @@ void LLMaterialEditor::onClickSave()
     
     std::string dump = str.str();
 
-    LL_INFOS() << dump << LL_ENDL;
+    LL_INFOS() << mMaterialName << ": " << dump << LL_ENDL;
+}
+
+void LLMaterialEditor::onClickSaveAs()
+{
+    LLSD args;
+    args["DESC"] = mMaterialName;
+
+    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), boost::bind(&LLMaterialEditor::onSaveAsCommitCallback, this, _1, _2));
+}
+
+void LLMaterialEditor::onSaveAsCommitCallback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        std::string new_name = response["message"].asString();
+        LLStringUtil::trim(new_name);
+        if (!new_name.empty())
+        {
+            setMaterialName(new_name);
+            onClickSave();
+        }
+        else
+        {
+            LLNotificationsUtil::add("InvalidMaterialName");
+        }
+    }
+}
+
+void LLMaterialEditor::onClickCancel()
+{
+    // Todo: confirm usaved changes
+    closeFloater();
 }
 
 class LLMaterialFilePicker : public LLFilePickerThread
