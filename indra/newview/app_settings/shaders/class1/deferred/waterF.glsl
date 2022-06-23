@@ -180,5 +180,5 @@ void main()
 
 
     frag_data[1] = vec4(0);		// speccolor, spec
-	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
+	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, GBUFFER_FLAG_HAS_ATMOS);// normalxy, env intens, flags (atmo kill)
 }

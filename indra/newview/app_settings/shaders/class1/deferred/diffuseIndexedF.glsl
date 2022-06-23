@@ -48,5 +48,5 @@ void main()
 	frag_data[0] = vec4(col, 0.0);
 	frag_data[1] = vec4(spec, vertex_color.a); // spec
 	vec3 nvn = normalize(vary_normal);
-	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, 0.0);
+	frag_data[2] = vec4(encode_normal(nvn.xyz), vertex_color.a, GBUFFER_FLAG_HAS_ATMOS);
 }
