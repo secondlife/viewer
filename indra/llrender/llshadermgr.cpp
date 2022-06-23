@@ -1218,6 +1218,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("minimum_alpha");
 	mReservedUniforms.push_back("emissive_brightness");
 
+    // Deferred
 	mReservedUniforms.push_back("shadow_matrix");
 	mReservedUniforms.push_back("env_mat");
 	mReservedUniforms.push_back("shadow_clip");
@@ -1242,8 +1243,9 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("depth_cutoff");
 	mReservedUniforms.push_back("norm_cutoff");
 	mReservedUniforms.push_back("shadow_target_width");
+    mReservedUniforms.push_back("view_dir"); // DEFERRED_VIEW_DIR
 	
-	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_VIEW_DIR+1);
 
 	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");

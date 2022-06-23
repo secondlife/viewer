@@ -144,6 +144,7 @@ public:
         DEFERRED_DEPTH_CUTOFF,              //  "depth_cutoff"
         DEFERRED_NORM_CUTOFF,               //  "norm_cutoff"
         DEFERRED_SHADOW_TARGET_WIDTH,       //  "shadow_target_width"
+        DEFERRED_VIEW_DIR,                  //  "view_dir"
 
         FXAA_TC_SCALE,                      //  "tc_scale"
         FXAA_RCP_SCREEN_RES,                //  "rcp_screen_res"
