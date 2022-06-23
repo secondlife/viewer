@@ -113,9 +113,14 @@ public:
 	LL_ALIGN_16(LLFace* mFace); //associated face
 	F32 mDistance;
 	U32 mDrawMode;
-	LLMaterialPtr mMaterial; // If this is null, the following parameters are unused.
-	LLMaterialID mMaterialID;
-	U32 mShaderMask;
+
+    // Material points here are likely for debugging only and are immaterial (zing!)
+    LLMaterialPtr mMaterial; 
+    LLPointer<LLGLTFMaterial> mGLTFMaterial;
+	
+    LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
+
+    U32 mShaderMask;
 	U32 mBlendFuncSrc;
 	U32 mBlendFuncDst;
 	BOOL mHasGlow;
@@ -123,6 +128,8 @@ public:
 	const LLMatrix4* mSpecularMapMatrix;
 	LLPointer<LLViewerTexture> mNormalMap;
 	const LLMatrix4* mNormalMapMatrix;
+    LLPointer<LLViewerTexture> mEmissiveMap;
+
 	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
 	F32  mEnvIntensity;
 	F32  mAlphaMaskCutoff;

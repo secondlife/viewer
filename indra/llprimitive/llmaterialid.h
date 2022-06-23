@@ -61,6 +61,7 @@ public:
 
 	LLSD          asLLSD() const;
 	std::string   asString() const;
+    LLUUID        asUUID() const;
 
 	friend std::ostream& operator<<(std::ostream& s, const LLMaterialID &material_id);
 

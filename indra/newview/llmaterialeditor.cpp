@@ -31,6 +31,8 @@
 #include "llviewermenufile.h"
 #include "llappviewer.h"
 #include "llviewertexture.h"
+#include "llselectmgr.h"
+#include "llvovolume.h"
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -195,6 +197,8 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
 
 void LLMaterialEditor::onClickSave()
 {
+    applyToSelection();
+
     tinygltf::Model model;
     model.materials.resize(1);
     tinygltf::PbrMetallicRoughness& pbrMaterial = model.materials[0].pbrMetallicRoughness;
@@ -450,4 +454,35 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
 void LLMaterialEditor::importMaterial()
 {
     (new LLMaterialFilePicker(this))->getFile();
+}
+
+void LLMaterialEditor::applyToSelection()
+{
+    LLViewerObject* objectp = LLSelectMgr::instance().getSelection()->getFirstObject();
+    if (objectp && objectp->getVolume())
+    {
+        LLGLTFMaterial* mat = new LLGLTFMaterial();
+        mat->mAlbedoColor = getAlbedoColor();
+        mat->mAlbedoColor.mV[3] = getTransparency();
+        mat->mAlbedoId = getAlbedoId();
+        
+        mat->mNormalId = getNormalId();
+
+        mat->mMetallicRoughnessId = getMetallicRoughnessId();
+        mat->mMetallicFactor = getMetalnessFactor();
+        mat->mRoughnessFactor = getRoughnessFactor();
+        
+        mat->mEmissiveColor = getEmissiveColor();
+        mat->mEmissiveId = getEmissiveId();
+        
+        mat->mDoubleSided = getDoubleSided();
+        mat->setAlphaMode(getAlphaMode());
+
+        LLVOVolume* vobjp = (LLVOVolume*)objectp;
+        for (int i = 0; i < vobjp->getNumTEs(); ++i)
+        {
+            vobjp->getTE(i)->setGLTFMaterial(mat);
+            vobjp->updateTEMaterialTextures(i);
+        }
+    }
 }
