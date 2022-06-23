@@ -25,69 +25,81 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_BASIC         1
-#define DEBUG_COLOR         0
+#define DEBUG_BASIC         0
+#define DEBUG_VERTEX        0
 #define DEBUG_NORMAL        0
 #define DEBUG_POSITION      0
-#define DEBUG_REFLECT_VEC   0
-#define DEBUG_REFLECT_COLOR 0
+
+uniform sampler2D diffuseMap;  //always in sRGB space
+
+#ifdef HAS_NORMAL_MAP
+    uniform sampler2D bumpMap;
+#endif
 
 #ifdef HAS_SPECULAR_MAP
-uniform sampler2D specularMap;
+    uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 #endif
+
 uniform samplerCube environmentMap;
 uniform mat3        env_mat;
 
 #ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
+out vec4 frag_data[4];
 #else
 #define frag_data gl_FragData
 #endif
 
 VARYING vec3 vary_position;
-VARYING vec3 vary_normal;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+#ifdef HAS_NORMAL_MAP
+    VARYING vec3 vary_normal;
+    VARYING vec2 vary_texcoord1;
+#endif
+
 #ifdef HAS_SPECULAR_MAP
-VARYING vec2 vary_texcoord2;
+    VARYING vec2 vary_texcoord2;
 #endif
 
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
 
-struct PBR
-{
-    float LdotH; // Light and Half
-    float NdotL; // Normal and Light
-    float NdotH; // Normal and Half
-    float VdotH; // View and Half
-};
-
 const float M_PI = 3.141592653589793;
 
 void main()
 {
-    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
+// IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+//    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
+// else
+    vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
 
-//#ifdef HAS_SPECULAR_MAP
-//#else
-    vec4 norm  = vec4(0,0,0,1.0);
-    vec3 tnorm = vary_normal;
-//#endif
+    vec3 emissive = vec3(0);
+
+#ifdef HAS_NORMAL_MAP
+    vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
+    vec3 tnorm = norm.xyz * 2 - 1;
+#else
+    vec4 norm = vec4(0,0,0,1.0);
+//    vec3 tnorm = vary_normal;
+    vec3 tnorm = vec3(0,0,1);
+#endif
+
+    // RGB = Occlusion, Roughness, Metal
+    // default values
+    //   occlusion ?
+    //   roughness 1.0
+    //   metal     1.0
+#ifdef HAS_SPECULAR_MAP
+    vec3 spec = texture2D(specularMap, vary_texcoord0.xy).rgb; // TODO: FIXME: vary_texcoord2
+#else
+    vec3 spec = vec3(0,1,1);
+#endif
     norm.xyz = normalize(tnorm.xyz);
 
-    vec3 spec;
-    spec.rgb = vec3(vertex_color.a);
-
-    vec3 pos = vary_position;
-    vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
-    vec3 env_vec = env_mat * refnormpersp;
-    vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
-
 #if DEBUG_BASIC
-    col.rgb = vec3( 1, 0, 1 ); // DEBUG
+    col.rgb = vec3( 1, 0, 1 );
 #endif
-#if DEBUG_COLOR
+#if DEBUG_VERTEX
     col.rgb = vertex_color.rgb;
 #endif
 #if DEBUG_NORMAL
@@ -96,14 +108,9 @@ void main()
 #if DEBUG_POSITION
     col.rgb = vary_position.xyz;
 #endif
-#if DEBUG_REFLECT_VEC
-    col.rgb = refnormpersp;
-#endif
-#if DEBUG_REFLECT_COLOR
-    col.rgb = reflected_color;
-#endif
 
     frag_data[0] = vec4(col, 0.0);
-    frag_data[1] = vec4(spec, vertex_color.a); // spec
-    frag_data[2] = vec4(encode_normal(norm.xyz), vertex_color.a, 0.0);
+    frag_data[1] = vec4(spec.rgb, vertex_color.a);                                      // Occlusion, Roughness, Metal
+    frag_data[2] = vec4(encode_normal(norm.xyz), vertex_color.a, GBUFFER_FLAG_HAS_PBR); //
+    frag_data[3] = vec4(emissive,0);                                                    // Emissive
 }
