@@ -6730,15 +6730,24 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
-			LLMaterial* mat = te->getMaterialParams().get();
+            LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
 
-			bool can_be_shiny = true;
-			if (mat)
-			{
-				U8 mode = mat->getDiffuseAlphaMode();
-				can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
-								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
-			}
+            LLMaterial* mat = nullptr;
+            bool can_be_shiny = false;
+
+            // ignore traditional material if GLTF material is present
+            if (gltf_mat == nullptr)
+            {
+                mat = te->getMaterialParams().get();
+
+                can_be_shiny = true;
+                if (mat)
+                {
+                    U8 mode = mat->getDiffuseAlphaMode();
+                    can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
+                        mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
+                }
+            }
 
             F32 te_alpha = te->getColor().mV[3]; 
 			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
@@ -6747,10 +6756,15 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
             is_alpha = (is_alpha || transparent) ? TRUE : FALSE;
 
-			if (mat && LLPipeline::sRenderDeferred && !hud_group)
+			if ((gltf_mat || mat) && LLPipeline::sRenderDeferred && !hud_group)
 			{
 				bool material_pass = false;
 
+                if (gltf_mat)
+                { // all other parameters ignored if gltf material is present
+                    registerFace(group, facep, LLRenderPass::PASS_PBR_OPAQUE);
+                }
+                else
 				// do NOT use 'fullbright' for this logic or you risk sending
 				// things without normals down the materials pipeline and will
 				// render poorly if not crash NORSPEC-240,314
