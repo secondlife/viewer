@@ -36,12 +36,14 @@
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 #define DEBUG_PBR_METAL            0 // Output: grayscale metal
 #define DEBUG_PBR_REFLECTANCE      0 // Output: diffuse reflectance
+#define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
+#define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: reflection
 #define DEBUG_PBR_NORMAL           0 // Output: passed in normal
 #define DEBUG_PBR_VIEW             0 // Output: view_dir
 #define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
-#define DEBUG_PBR_DOT_NV           0 // Output:
+#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal,ViewDir)
 #define DEBUG_PBR_DOT_TV           0 // Output:
 #define DEBUG_PBR_DOT_BV           0 // Output:
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
@@ -255,8 +257,11 @@ void main()
 
         color.rgb  = colorDiffuse + colorEmissive + colorSpec;
 
-    #if DEBUG_PBR_BRDF
-        color.rgb = vec3(vScaleBias,0);
+    #if DEBUG_PBR_BRDF_UV
+        color.rgb = vec3(brdfPoint,0.0);
+    #endif
+    #if DEBUG_PBR_BRDF_SCALE_BIAS
+        color.rgb = vec3(vScaleBias,0.0);
     #endif
     #if DEBUG_PBR_FRESNEL
         color.rgb = fresnelR;
