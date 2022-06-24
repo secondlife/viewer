@@ -120,7 +120,7 @@ void main()
 #endif
 
     frag_data[0] = vec4(col, 0.0);
-    frag_data[1] = vec4(spec.rgb, vertex_color.a);                                      // Occlusion, Roughness, Metal
-    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); //
-    frag_data[3] = vec4(emissive,0);                                                    // Emissive
+    frag_data[1] = vec4(spec.rgb, vertex_color.a);                                   // Occlusion, Roughness, Metal
+    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+    frag_data[3] = vec4(emissive,0);                                                 // Emissive
 }
