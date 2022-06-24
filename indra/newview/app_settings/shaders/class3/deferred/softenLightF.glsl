@@ -40,7 +40,7 @@
 #define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: reflection
-#define DEBUG_PBR_NORMAL           0 // Output: passed in normal
+#define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_RAW_DIFF 1, and in pbropaqueF set DEBUG_NORMAL_RAW
 #define DEBUG_PBR_VIEW             0 // Output: view_dir
 #define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
 #define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal,ViewDir)
