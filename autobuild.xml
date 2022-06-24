@@ -1010,9 +1010,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3fe4e2f975a39ddd5719ce0b0ed677a0</string>
+              <string>4f8dc85863fec36e8d872c31f4abcd05</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/101462/892321/glext-68-common-572823.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/101480/892402/glext-68-common-572829.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
