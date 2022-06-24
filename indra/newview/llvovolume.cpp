@@ -6022,28 +6022,39 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
+                            LLGLTFMaterial* gltf_mat = te->getGLTFMaterial();
+
+							if (LLPipeline::sRenderDeferred && 
+                                (gltf_mat != nullptr || (te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())))
 							{
-								LLMaterial* mat = te->getMaterialParams().get();
-								if (mat->getNormalID().notNull())
-								{
-									if (mat->getSpecularID().notNull())
-									{ //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
-                                        add_face(sNormSpecFaces, normspec_count, facep);
-									}
-									else
-									{ //has normal map (needs texcoord1 and tangent)
-                                        add_face(sNormFaces, norm_count, facep);
-									}
-								}
-								else if (mat->getSpecularID().notNull())
-								{ //has specular map but no normal map, needs texcoord2
-                                    add_face(sSpecFaces, spec_count, facep);
-								}
-								else
-								{ //has neither specular map nor normal map, only needs texcoord0
-                                    add_face(sSimpleFaces, simple_count, facep);
-								}									
+                                if (gltf_mat != nullptr)
+                                {
+                                    // all gltf materials have all vertex attributes for now
+                                    add_face(sNormSpecFaces, normspec_count, facep);
+                                }
+                                else
+                                {
+                                    LLMaterial* mat = te->getMaterialParams().get();
+                                    if (mat->getNormalID().notNull())
+                                    {
+                                        if (mat->getSpecularID().notNull())
+                                        { //has normal and specular maps (needs texcoord1, texcoord2, and tangent)
+                                            add_face(sNormSpecFaces, normspec_count, facep);
+                                        }
+                                        else
+                                        { //has normal map (needs texcoord1 and tangent)
+                                            add_face(sNormFaces, norm_count, facep);
+                                        }
+                                    }
+                                    else if (mat->getSpecularID().notNull())
+                                    { //has specular map but no normal map, needs texcoord2
+                                        add_face(sSpecFaces, spec_count, facep);
+                                    }
+                                    else
+                                    { //has neither specular map nor normal map, only needs texcoord0
+                                        add_face(sSimpleFaces, simple_count, facep);
+                                    }
+                                }
 							}
 							else if (te->getBumpmap())
 							{ //needs normal + tangent

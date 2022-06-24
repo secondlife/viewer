@@ -1794,10 +1794,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			scalea.load3(scale.mV);
 
 			LLMaterial* mat = tep->getMaterialParams().get();
+            LLGLTFMaterial* gltf_mat = tep->getGLTFMaterial();
 
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 
-			if (mat && !do_bump)
+			if ((mat || gltf_mat) && !do_bump)
 			{
 				do_bump  = mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1)
 					     || mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD2);
