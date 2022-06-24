@@ -1170,10 +1170,14 @@ void LLShaderMgr::initAttribsAndUniforms()
 	llassert(mReservedUniforms.size() == LLShaderMgr::PROJECTOR_AMBIENT_LOD+1);
 
 	mReservedUniforms.push_back("color");
-		
+    mReservedUniforms.push_back("emissiveColor");
+    mReservedUniforms.push_back("metallicFactor");
+    mReservedUniforms.push_back("roughnessFactor");
+    
 	mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
 	mReservedUniforms.push_back("specularMap");
+    mReservedUniforms.push_back("emissiveMap");
 	mReservedUniforms.push_back("bumpMap");
     mReservedUniforms.push_back("bumpMap2");
 	mReservedUniforms.push_back("environmentMap");
