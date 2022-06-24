@@ -459,28 +459,115 @@ const tinygltf::Image* get_image_from_texture_index(const tinygltf::Model& model
     return nullptr;
 }
 
-static LLViewerFetchedTexture* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
+static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
 {
-    LLViewerFetchedTexture* ret = nullptr;
-
     const tinygltf::Image* image = get_image_from_texture_index(model, texture_index);
+
+    LLImageRaw* rawImage = nullptr;
 
     if (image != nullptr && 
         image->bits == 8 &&
         !image->image.empty() &&
         image->component <= 4)
     {
-        LLPointer<LLImageRaw> rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
+        rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
         rawImage->verticalFlip();
-        
-        ret = LLViewerTextureManager::getFetchedTexture(rawImage, FTType::FTT_LOCAL_FILE, true);
-
-        ret->forceToSaveRawImage(0, F32_MAX);
     }
 
-    // TODO: provide helpful error message if image fails to load
+    return rawImage;
+}
 
-    return ret;
+static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
+{
+    if (img->getComponents() == 4)
+    {
+        LLImageRaw* tmp = new LLImageRaw(img->getWidth(), img->getHeight(), 3);
+        tmp->copyUnscaled4onto3(img);
+        img = tmp;
+    }
+}
+
+// copy red channel from src_img to dst_img
+// PRECONDITIONS:
+// dst_img must be 3 component
+// src_img and dst_image must have the same dimensions
+static void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
+{
+    llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
+    llassert(dst_img->getComponents() == 3);
+
+    U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
+    U8* src = src_img->getData();
+    U8* dst = dst_img->getData();
+    S8 src_components = src_img->getComponents();
+
+    for (U32 i = 0; i < pixel_count; ++i)
+    {
+        dst[i * 3] = src[i * src_components];
+    }
+}
+
+static void pack_textures(tinygltf::Model& model, tinygltf::Material& material, 
+    LLPointer<LLImageRaw>& albedo_img,
+    LLPointer<LLImageRaw>& normal_img,
+    LLPointer<LLImageRaw>& mr_img,
+    LLPointer<LLImageRaw>& emissive_img,
+    LLPointer<LLImageRaw>& occlusion_img,
+    LLPointer<LLViewerFetchedTexture>& albedo_tex,
+    LLPointer<LLViewerFetchedTexture>& normal_tex,
+    LLPointer<LLViewerFetchedTexture>& mr_tex,
+    LLPointer<LLViewerFetchedTexture>& emissive_tex)
+{
+    // TODO: downscale if needed
+    if (albedo_img)
+    {
+        albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (normal_img)
+    {
+        strip_alpha_channel(normal_img);
+        normal_tex = LLViewerTextureManager::getFetchedTexture(normal_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (mr_img)
+    {
+        strip_alpha_channel(mr_img);
+
+        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
+        {
+            // occlusion is a distinct texture from pbrMetallicRoughness
+            // pack into mr red channel
+            int occlusion_idx = material.occlusionTexture.index;
+            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+            if (occlusion_idx != mr_idx)
+            {
+                //scale occlusion image to match resolution of mr image
+                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
+             
+                copy_red_channel(occlusion_img, mr_img);
+            }
+        }
+    }
+    else if (occlusion_img)
+    {
+        //no mr but occlusion exists, make a white mr_img and copy occlusion red channel over
+        mr_img = new LLImageRaw(occlusion_img->getWidth(), occlusion_img->getHeight(), 3);
+        mr_img->clear(255, 255, 255);
+        copy_red_channel(occlusion_img, mr_img);
+
+    }
+
+    if (mr_img)
+    {
+        mr_tex = LLViewerTextureManager::getFetchedTexture(mr_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (emissive_img)
+    {
+        strip_alpha_channel(emissive_img);
+        emissive_tex = LLViewerTextureManager::getFetchedTexture(emissive_img, FTType::FTT_LOCAL_FILE, true);
+    }
 }
 
 static LLColor4 get_color(const std::vector<double>& in)
@@ -545,39 +632,54 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     model_out.materials.resize(1);
 
     // get albedo texture
-    LLPointer<LLViewerFetchedTexture> albedo_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    LLPointer<LLImageRaw> albedo_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    // get normal map
+    LLPointer<LLImageRaw> normal_img = get_texture(folder, model_in, material_in.normalTexture.index);
+    // get metallic-roughness texture
+    LLPointer<LLImageRaw> mr_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    // get emissive texture
+    LLPointer<LLImageRaw> emissive_img = get_texture(folder, model_in, material_in.emissiveTexture.index);
+    // get occlusion map if needed
+    LLPointer<LLImageRaw> occlusion_img;
+    if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
+    {
+        occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index);
+    }
 
+    LLPointer<LLViewerFetchedTexture> albedo_tex;
+    LLPointer<LLViewerFetchedTexture> normal_tex;
+    LLPointer<LLViewerFetchedTexture> mr_tex;
+    LLPointer<LLViewerFetchedTexture> emissive_tex;
+    
+    pack_textures(model_in, material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
+        albedo_tex, normal_tex, mr_tex, emissive_tex);
+    
     LLUUID albedo_id;
     if (albedo_tex != nullptr)
     {
+        albedo_tex->forceToSaveRawImage(0, F32_MAX);        
         albedo_id = albedo_tex->getID();
     }
-
-    // get metallic-roughness texture
-    LLPointer<LLViewerFetchedTexture> mr_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
-
-    LLUUID mr_id;
-    if (mr_tex != nullptr)
-    {
-        mr_id = mr_tex->getID();
-    }
-
-    // get emissive texture
-    LLPointer<LLViewerFetchedTexture> emissive_tex = get_texture(folder, model_in, material_in.emissiveTexture.index);
-
-    LLUUID emissive_id;
-    if (emissive_tex != nullptr)
-    {
-        emissive_id = emissive_tex->getID();
-    }
-
-    // get normal map
-    LLPointer<LLViewerFetchedTexture> normal_tex = get_texture(folder, model_in, material_in.normalTexture.index);
 
     LLUUID normal_id;
     if (normal_tex != nullptr)
     {
+        normal_tex->forceToSaveRawImage(0, F32_MAX);
         normal_id = normal_tex->getID();
+    }
+
+    LLUUID mr_id;
+    if (mr_tex != nullptr)
+    {
+        mr_tex->forceToSaveRawImage(0, F32_MAX);
+        mr_id = mr_tex->getID();
+    }
+
+    LLUUID emissive_id;
+    if (emissive_tex != nullptr)
+    {
+        emissive_tex->forceToSaveRawImage(0, F32_MAX);
+        emissive_id = emissive_tex->getID();
     }
 
     mME->setAlbedoId(albedo_id);

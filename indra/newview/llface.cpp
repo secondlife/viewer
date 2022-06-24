@@ -1384,6 +1384,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
 	LLColor4U color = tep->getColor();
 
+    if (tep->getGLTFMaterial())
+    {
+        color = tep->getGLTFMaterial()->mAlbedoColor;
+    }
+
 	if (rebuild_color)
 	{ //decide if shiny goes in alpha channel of color
 		if (tep && 

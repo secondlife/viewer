@@ -32,8 +32,16 @@
 
 uniform sampler2D diffuseMap;  //always in sRGB space
 
+uniform float metallicFactor;
+uniform float roughnessFactor;
+uniform vec3 emissiveColor;
+
 #ifdef HAS_NORMAL_MAP
     uniform sampler2D bumpMap;
+#endif
+
+#ifdef HAS_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
 #endif
 
 #ifdef HAS_SPECULAR_MAP
@@ -76,8 +84,6 @@ void main()
 // else
     vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
 
-    vec3 emissive = vec3(0);
-
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
     norm.xyz = norm.xyz * 2 - 1;
@@ -105,6 +111,14 @@ void main()
     vec3 spec = vec3(1,1,1);
 #endif
     
+    spec.g *= roughnessFactor;
+    spec.b *= metallicFactor;
+
+    vec3 emissive = emissiveColor;
+#ifdef HAS_EMISSIVE_MAP
+    emissive *= texture2D(emissiveMap, vary_texcoord0.xy).rgb;
+#endif
+
 
 #if DEBUG_BASIC
     col.rgb = vec3( 1, 0, 1 );

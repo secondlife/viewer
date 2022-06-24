@@ -577,11 +577,13 @@ extern PFNGLUNIFORMBLOCKBINDINGPROC glUniformBlockBinding;
 //----------------------------------------------------------------------------
 // LL_DARWIN
 
+#define GL_GLEXT_LEGACY
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 
 #define GL_EXT_separate_specular_color 1
-#include <OpenGL/glext.h>
+#define GL_GLEXT_PROTOTYPES
+#include "GL/glext.h"
 
 #include "GL/glh_extensions.h"
 
