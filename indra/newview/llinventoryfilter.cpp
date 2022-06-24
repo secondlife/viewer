@@ -1306,6 +1306,18 @@ const std::string& LLInventoryFilter::getFilterText()
 		filtered_by_all_types = FALSE;
 	}
 
+	if (isFilterObjectTypesWith(LLInventoryType::IT_MATERIAL))
+	{
+		filtered_types +=  LLTrans::getString("Materials");
+		filtered_by_type = TRUE;
+		num_filter_types++;
+	}
+	else
+	{
+		not_filtered_types +=  LLTrans::getString("Materials");
+		filtered_by_all_types = FALSE;
+	}
+
 	if (isFilterObjectTypesWith(LLInventoryType::IT_NOTECARD))
 	{
 		filtered_types +=  LLTrans::getString("Notecards");
