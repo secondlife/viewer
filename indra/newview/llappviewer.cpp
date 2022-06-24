@@ -4260,16 +4260,16 @@ bool LLAppViewer::initCache()
 	const std::string cache_dir_name = gSavedSettings.getString("DiskCacheDirName");
 
 	const U32 MB = 1024 * 1024;
-    const U64 MIN_CACHE_SIZE = 256 * MB;
-	const U64 MAX_CACHE_SIZE = 9984ll * MB;
-    const uintmax_t setting_cache_total_size = (uintmax_t)gSavedSettings.getU32("CacheSize") * MB;
+    const uintmax_t MIN_CACHE_SIZE = 256 * MB;
+	const uintmax_t MAX_CACHE_SIZE = 9984ll * MB;
+    const uintmax_t setting_cache_total_size = uintmax_t(gSavedSettings.getU32("CacheSize")) * MB;
     const uintmax_t cache_total_size = llclamp(setting_cache_total_size, MIN_CACHE_SIZE, MAX_CACHE_SIZE);
-    const F32 disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
-    const F32 texture_cache_percent = 100.0 - disk_cache_percent;
+    const F64 disk_cache_percent = gSavedSettings.getF32("DiskCachePercentOfTotal");
+    const F64 texture_cache_percent = 100.0 - disk_cache_percent;
 
     // note that the maximum size of this cache is defined as a percentage of the 
     // total cache size - the 'CacheSize' pref - for all caches. 
-    const uintmax_t disk_cache_size = cache_total_size * disk_cache_percent / 100;
+    const uintmax_t disk_cache_size = uintmax_t(cache_total_size * disk_cache_percent / 100);
 	const bool enable_cache_debug_info = gSavedSettings.getBOOL("EnableDiskCacheDebugInfo");
 
 	bool texture_cache_mismatch = false;
