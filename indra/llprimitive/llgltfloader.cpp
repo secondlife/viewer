@@ -24,7 +24,7 @@
  * $/LicenseInfo$
  */
 
-#include "LLGLTFLoader.h"
+#include "llgltfloader.h"
 
 // Import & define single-header gltf import/export lib
 #define TINYGLTF_IMPLEMENTATION
@@ -43,7 +43,7 @@
 // Additionally, disable inclusion of STB header files entirely with
 // TINYGLTF_NO_INCLUDE_STB_IMAGE
 // TINYGLTF_NO_INCLUDE_STB_IMAGE_WRITE
-#include "tinygltf\tiny_gltf.h"
+#include "tinygltf/tiny_gltf.h"
 
 
 // TODO: includes inherited from dae loader.  Validate / prune
@@ -68,7 +68,6 @@ static const std::string lod_suffix[LLModel::NUM_LODS] =
 	"_PHYS",
 };
 
-const U32 LIMIT_MATERIALS_OUTPUT = 12;
 
 LLGLTFLoader::LLGLTFLoader(std::string filename,
     S32                                 lod,
@@ -94,7 +93,6 @@ LLGLTFLoader::LLGLTFLoader(std::string filename,
                      jointsFromNodes,
                      jointAliasMap,
                      maxJointsPerMesh ),
-    mGeneratedModelLimit(modelLimit),
     //mPreprocessGLTF(preprocess),
     mMeshesLoaded(false),
     mMaterialsLoaded(false)
