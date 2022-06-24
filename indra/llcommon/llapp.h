@@ -233,7 +233,7 @@ public:
 	// between any type derived from LLUnits::LLUnit<T, LLUnits::Seconds> and
 	// any std::chrono::duration -- but that doesn't yet exist.
 	template <typename Rep, typename Period>
-	bool sleep(const std::chrono::duration<Rep, Period>& duration)
+	static bool sleep(const std::chrono::duration<Rep, Period>& duration)
 	{
 		// wait_for_unequal() has the opposite bool return convention
 		return ! sStatus.wait_for_unequal(duration, APP_STATUS_RUNNING);
@@ -298,8 +298,8 @@ protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
 	static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
-	static BOOL sErrorThreadRunning; // Set while the error thread is running
-	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
+	static std::atomic<BOOL> sErrorThreadRunning; // Set while the error thread is running
+	static std::atomic<BOOL> sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
 	std::string mDumpPath;	//output path for google breakpad.	Dependency workaround.
@@ -322,7 +322,7 @@ private:
 	// exception handler when some evil driver has taken it over for
 	// their own purposes
 	typedef int(*signal_handler_func)(int signum);
-	static LLAppErrorHandler sErrorHandler;
+	static std::atomic<LLAppErrorHandler> sErrorHandler;
 
 	// Default application threads
 	LLErrorThread* mThreadErrorp;		// Waits for app to go to status ERROR, then runs the error callback
@@ -342,14 +342,14 @@ private:
 
 private:
 	// the static application instance if it was created.
-	static LLApp* sApplication;
+	static std::atomic<LLApp*> sApplication;
 
 #if !LL_WINDOWS
 	friend void default_unix_signal_handler(int signum, siginfo_t *info, void *);
 #endif
 
 public:
-	static BOOL sLogInSignal;
+	static std::atomic<BOOL> sLogInSignal;
 };
 
 #endif // LL_LLAPP_H

@@ -95,21 +95,21 @@ S32 LL_HEARTBEAT_SIGNAL = (SIGRTMAX >= 0) ? (SIGRTMAX-0) : SIGUSR2;
 #endif // LL_WINDOWS
 
 // the static application instance
-LLApp* LLApp::sApplication = NULL;
+std::atomic<LLApp*> LLApp::sApplication;
 
 // Allows the generation of core files for post mortem under gdb
 // and disables crashlogger
-BOOL LLApp::sDisableCrashlogger = FALSE; 
+std::atomic<BOOL> LLApp::sDisableCrashlogger; 
 
 // Local flag for whether or not to do logging in signal handlers.
 //static
-BOOL LLApp::sLogInSignal = FALSE;
+std::atomic<BOOL> LLApp::sLogInSignal;
 
 // static
 // Keeps track of application status
 LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
-LLAppErrorHandler LLApp::sErrorHandler = NULL;
-BOOL LLApp::sErrorThreadRunning = FALSE;
+std::atomic<LLAppErrorHandler> LLApp::sErrorHandler;
+std::atomic<BOOL> LLApp::sErrorThreadRunning;
 
 
 LLApp::LLApp() : mThreadErrorp(NULL)
@@ -428,9 +428,10 @@ void LLApp::setErrorHandler(LLAppErrorHandler handler)
 // static
 void LLApp::runErrorHandler()
 {
-	if (LLApp::sErrorHandler)
+	auto handler = sErrorHandler.load();
+	if (handler)
 	{
-		LLApp::sErrorHandler();
+		handler();
 	}
 
 	//LL_INFOS() << "App status now STOPPED" << LL_ENDL;
