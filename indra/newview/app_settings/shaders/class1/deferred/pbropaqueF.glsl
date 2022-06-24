@@ -53,8 +53,11 @@ VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 #ifdef HAS_NORMAL_MAP
-    VARYING vec3 vary_normal;
-    VARYING vec2 vary_texcoord1;
+VARYING vec3 vary_normal;
+VARYING vec3 vary_mat0;
+VARYING vec3 vary_mat1;
+VARYING vec3 vary_mat2;
+VARYING vec2 vary_texcoord1;
 #endif
 
 #ifdef HAS_SPECULAR_MAP
@@ -77,24 +80,31 @@ void main()
 
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    vec3 tnorm = norm.xyz * 2 - 1;
+    norm.xyz = norm.xyz * 2 - 1;
+
+	vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
+			  dot(norm.xyz,vary_mat1),
+			  dot(norm.xyz,vary_mat2));
 #else
     vec4 norm = vec4(0,0,0,1.0);
 //    vec3 tnorm = vary_normal;
     vec3 tnorm = vec3(0,0,1);
 #endif
 
+    tnorm = normalize(tnorm.xyz);
+
+    norm.xyz = normalize(tnorm.xyz);
     // RGB = Occlusion, Roughness, Metal
     // default values
     //   occlusion ?
     //   roughness 1.0
     //   metal     1.0
 #ifdef HAS_SPECULAR_MAP
-    vec3 spec = texture2D(specularMap, vary_texcoord0.xy).rgb; // TODO: FIXME: vary_texcoord2
+    vec3 spec = texture2D(specularMap, vary_texcoord2.xy).rgb;
 #else
-    vec3 spec = vec3(0,1,1);
+    vec3 spec = vec3(1,1,1);
 #endif
-    norm.xyz = normalize(tnorm.xyz);
+    
 
 #if DEBUG_BASIC
     col.rgb = vec3( 1, 0, 1 );
@@ -111,6 +121,6 @@ void main()
 
     frag_data[0] = vec4(col, 0.0);
     frag_data[1] = vec4(spec.rgb, vertex_color.a);                                      // Occlusion, Roughness, Metal
-    frag_data[2] = vec4(encode_normal(norm.xyz), vertex_color.a, GBUFFER_FLAG_HAS_PBR); //
+    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); //
     frag_data[3] = vec4(emissive,0);                                                    // Emissive
 }

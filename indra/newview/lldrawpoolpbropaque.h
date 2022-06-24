@@ -41,6 +41,7 @@ public:
                          | LLVertexBuffer::MAP_TEXCOORD0 // Diffuse
                          | LLVertexBuffer::MAP_TEXCOORD1 // Normal
                          | LLVertexBuffer::MAP_TEXCOORD2 // Spec <-- ORM Occlusion Roughness Metal
+                         | LLVertexBuffer::MAP_TANGENT
                          | LLVertexBuffer::MAP_COLOR
     };
     virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }

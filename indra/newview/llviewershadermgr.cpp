@@ -264,6 +264,7 @@ LLGLSLShader			gNormalMapGenProgram;
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredPBROpaqueProgram;
+LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -1325,6 +1326,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		}
 
         gDeferredPBROpaqueProgram.unload();
+        gDeferredSkinnedPBROpaqueProgram.unload();
 
 		return TRUE;
 	}
@@ -1616,22 +1618,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             success = gDeferredMaterialWaterProgram[i].createShader(NULL, NULL);//&mWLUniforms);
             llassert(success);
 		}
-
-        if (success)
-        {
-            gDeferredPBROpaqueProgram.mName = "Deferred PBR Opaque Shader";
-            gDeferredPBROpaqueProgram.mFeatures.encodesNormal = true;
-            gDeferredPBROpaqueProgram.mFeatures.hasSrgb = true;
-
-            gDeferredPBROpaqueProgram.mShaderFiles.clear();
-            gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER_ARB));
-            gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER_ARB));
-            gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-            gDeferredPBROpaqueProgram.addPermutation("HAS_NORMAL_MAP", "1");
-            gDeferredPBROpaqueProgram.addPermutation("HAS_SPECULAR_MAP", "1");
-            success = gDeferredPBROpaqueProgram.createShader(NULL, NULL);
-            llassert(success);
-        }
 	}
 
 	gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
@@ -1652,6 +1638,27 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
 
+    if (success)
+    {
+        gDeferredPBROpaqueProgram.mName = "Deferred PBR Opaque Shader";
+        gDeferredPBROpaqueProgram.mFeatures.encodesNormal = true;
+        gDeferredPBROpaqueProgram.mFeatures.hasSrgb = true;
+
+        gDeferredPBROpaqueProgram.mShaderFiles.clear();
+        gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueV.glsl", GL_VERTEX_SHADER_ARB));
+        gDeferredPBROpaqueProgram.mShaderFiles.push_back(make_pair("deferred/pbropaqueF.glsl", GL_FRAGMENT_SHADER_ARB));
+        gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        gDeferredPBROpaqueProgram.addPermutation("HAS_NORMAL_MAP", "1");
+        gDeferredPBROpaqueProgram.addPermutation("HAS_SPECULAR_MAP", "1");
+        gDeferredPBROpaqueProgram.addPermutation("DIFFUSE_ALPHA_MODE", "0");
+
+        success = make_rigged_variant(gDeferredPBROpaqueProgram, gDeferredSkinnedPBROpaqueProgram);
+        if (success)
+        {
+            success = gDeferredPBROpaqueProgram.createShader(NULL, NULL);
+        }
+        llassert(success);
+    }
 	
 	if (success)
 	{

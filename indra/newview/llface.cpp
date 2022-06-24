@@ -2024,10 +2024,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 					mVertexBuffer->flush();
 				}
 
-				if (!mat && do_bump)
+				if ((!mat && !gltf_mat) && do_bump)
 				{
 					mVertexBuffer->getTexCoord1Strider(tex_coords1, mGeomIndex, mGeomCount, map_range);
 		
+                    mVObjp->getVolume()->genTangents(f);
+
 					for (S32 i = 0; i < num_vertices; i++)
 					{
 						LLVector4a tangent = vf.mTangents[i];

@@ -105,7 +105,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
         {
             if (params.mTexture.notNull())
             {
-                gGL.getTexUnit(-1)->bindFast(params.mTexture); // diffuse
+                gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
             }
         }
 
@@ -120,9 +120,9 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
         }
 
         // Similar to LLDrawPooLMaterials::pushMaterialsBatch(params, getVertexDataMask(), false);
-
-        LLRenderPass::applyModelMatrix(params);
-        params.mVertexBuffer->setBufferFast(getVertexDataMask());
-        params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
+        LLRenderPass::pushBatch(params, getVertexDataMask(), FALSE, FALSE);
+        //LLRenderPass::applyModelMatrix(params);
+        //params.mVertexBuffer->setBufferFast(getVertexDataMask());
+        //params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
     }
 }
