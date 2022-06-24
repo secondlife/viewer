@@ -158,7 +158,6 @@ private:
     bool populateModelFromMesh(LLModel* pModel, const tinygltf::Mesh &mesh);
     LLUUID imageBufferToTextureUUID(const gltf_texture& tex);
 
-    U32  mGeneratedModelLimit;  // Attempt to limit amount of generated submodels
     //    bool mPreprocessGLTF;
 
     /*  Below inherited from dae loader - unknown if/how useful here

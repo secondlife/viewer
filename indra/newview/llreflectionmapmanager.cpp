@@ -109,12 +109,6 @@ void LLReflectionMapManager::update()
         }
     }
 
-    // =============== TODO -- move to an init function  =================
-
-    // naively drop probes every 16m as we move the camera around for now
-    // later, use LLSpatialPartition to manage probes
-    const F32 PROBE_SPACING = 16.f;
-    const U32 MAX_PROBES = 8;
 
     LLVector4a camera_pos;
     camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
@@ -122,7 +116,7 @@ void LLReflectionMapManager::update()
     // process kill list
     for (auto& probe : mKillList)
     {
-        auto& iter = std::find(mProbes.begin(), mProbes.end(), probe);
+        auto const & iter = std::find(mProbes.begin(), mProbes.end(), probe);
         if (iter != mProbes.end())
         {
             deleteProbe(iter - mProbes.begin());
@@ -143,7 +137,6 @@ void LLReflectionMapManager::update()
     {
         return;
     }
-    const F32 UPDATE_INTERVAL = 5.f;  //update no more than once every 5 seconds
 
     bool did_update = false;
 
@@ -366,7 +359,7 @@ void LLReflectionMapManager::deleteProbe(U32 i)
     // remove from any Neighbors lists
     for (auto& other : probe->mNeighbors)
     {
-        auto& iter = std::find(other->mNeighbors.begin(), other->mNeighbors.end(), probe);
+        auto const & iter = std::find(other->mNeighbors.begin(), other->mNeighbors.end(), probe);
         llassert(iter != other->mNeighbors.end());
         other->mNeighbors.erase(iter);
     }
@@ -599,7 +592,7 @@ void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
     
         for (auto& other : probe->mNeighbors)
         {
-            auto& iter = std::find(other->mNeighbors.begin(), other->mNeighbors.end(), probe);
+            auto const & iter = std::find(other->mNeighbors.begin(), other->mNeighbors.end(), probe);
             llassert(iter != other->mNeighbors.end()); // <--- bug davep if this ever happens, something broke badly
             other->mNeighbors.erase(iter);
         }

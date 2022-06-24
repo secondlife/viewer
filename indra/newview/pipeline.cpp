@@ -372,8 +372,12 @@ void validate_framebuffer_object();
 // for_impostor -- whether or not these render targets are for an impostor (if true, avoids implicit sRGB conversions)
 bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
-	return target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) && //specular
-			target.addColorAttachment(GL_RGB10_A2); //normal+z
+    bool pbr = gSavedSettings.getBOOL("RenderPBR");
+    bool valid = true
+        && target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) // frag-data[1] specular or PBR packed OcclusionRoughnessMetal
+        && target.addColorAttachment(GL_RGB10_A2)                              // frag_data[2] normal+z+fogmask, See: class1\deferred\materialF.glsl & softenlight
+        && (pbr ? target.addColorAttachment(GL_RGBA) : true);                  // frag_data[3] emissive
+    return valid;
 }
 
 LLPipeline::LLPipeline() :
