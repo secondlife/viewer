@@ -130,6 +130,7 @@ set(llcommon_HEADER_FILES
 
     chrono.h
     ctype_workaround.h
+    dummystat.h
     fix_macros.h
     indra_constants.h
     linden_common.h

@@ -30,6 +30,7 @@
 #include "linden_common.h"
 #include "llsd.h"
 
+#include "dummystat.h"
 #include "llerror.h"
 #include "../llmath/llmath.h"
 #include "llformat.h"
@@ -40,6 +41,17 @@
 #define NAME_UNNAMED_NAMESPACE
 #endif
 
+// uncomment, or provide the symbol via command line, if you really want stats tracking
+//#define LLSD_STATS
+#if defined(LLSD_STATS)
+// LLSD objects are passed across threads, so static stats must be thread-safe.
+using Counter = std::atomic<U32>;
+#else
+// In the spirit of only paying for what you use, only keep statistics if we
+// intend to look at them.
+using Counter = LL::DummyCount;
+#endif
+
 #ifdef NAME_UNNAMED_NAMESPACE
 namespace LLSDUnnamedNamespace 
 #else
@@ -48,6 +60,10 @@ namespace
 {
 	class ImplMap;
 	class ImplArray;
+
+	// statics
+	Counter sLLSDAllocationCount;
+	Counter sLLSDNetObjects;
 }
 
 #ifdef NAME_UNNAMED_NAMESPACE
@@ -57,14 +73,13 @@ using namespace LLSDUnnamedNamespace;
 namespace llsd
 {
 
-// statics
-S32	sLLSDAllocationCount = 0;
-S32 sLLSDNetObjects = 0;
+    U32 LLSDAllocationCount() { return sLLSDAllocationCount; }
+    U32 LLSDNetObjects()      { return sLLSDNetObjects; }
 
 } // namespace llsd
 
-#define	ALLOC_LLSD_OBJECT			{ llsd::sLLSDNetObjects++;	llsd::sLLSDAllocationCount++;	}
-#define	FREE_LLSD_OBJECT			{ llsd::sLLSDNetObjects--;									}
+#define	ALLOC_LLSD_OBJECT			{ sLLSDNetObjects++;	sLLSDAllocationCount++;	}
+#define	FREE_LLSD_OBJECT			{ sLLSDNetObjects--;							}
 
 class LLSD::Impl
 	/**< This class is the abstract base class of the implementation of LLSD
@@ -160,8 +175,8 @@ public:
 
 	static const LLSD& undef();
 	
-	static U32 sAllocationCount;
-	static U32 sOutstandingCount;
+	static Counter sAllocationCount;
+	static Counter sOutstandingCount;
 };
 
 #ifdef NAME_UNNAMED_NAMESPACE
@@ -472,8 +487,8 @@ namespace
 	{
 		std::cout << "Map size: " << mData.size() << std::endl;
 
-		std::cout << "LLSD Net Objects: " << llsd::sLLSDNetObjects << std::endl;
-		std::cout << "LLSD allocations: " << llsd::sLLSDAllocationCount << std::endl;
+		std::cout << "LLSD Net Objects: " << sLLSDNetObjects << std::endl;
+		std::cout << "LLSD allocations: " << sLLSDAllocationCount << std::endl;
 
 		std::cout << "LLSD::Impl Net Objects: " << sOutstandingCount << std::endl;
 		std::cout << "LLSD::Impl allocations: " << sAllocationCount << std::endl;
@@ -798,8 +813,8 @@ void LLSD::Impl::calcStats(S32 type_counts[], S32 share_counts[]) const
 }
 
 
-U32 LLSD::Impl::sAllocationCount = 0;
-U32 LLSD::Impl::sOutstandingCount = 0;
+Counter LLSD::Impl::sAllocationCount;
+Counter LLSD::Impl::sOutstandingCount;
 
 
 

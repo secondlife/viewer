@@ -64,6 +64,9 @@ namespace tut
 			{ }
 		~SDAllocationCheck()
 		{
+#if ! defined(LLSD_STATS)
+			mExpectedAllocations = 0;
+#endif // LLSD_STATS
 			ensure_equals(mMessage + " SDAllocationCheck",
 				llsd::allocationCount() - mAllocationAtStart,
 				mExpectedAllocations);
@@ -100,17 +103,17 @@ namespace tut
 	typedef SDTestGroup::object		SDTestObject;
 
 	SDTestGroup sdTestGroup("LLSD(new)");
-	
-	// template<> template<>
-	// void SDTestObject::test<1>()
-	// 	// construction and test of undefined
-	// {
-	// 	SDCleanupCheck check;
-		
-	// 	LLSD u;
-	// 	ensure("is undefined", u.isUndefined());
-	// }
-	
+
+	template<> template<>
+	void SDTestObject::test<1>()
+		// construction and test of undefined
+	{
+		SDCleanupCheck check;
+
+		LLSD u;
+		ensure("is undefined", u.isUndefined());
+	}
+
 	template<> template<>
 	void SDTestObject::test<2>()
 		// setting and fetching scalar types

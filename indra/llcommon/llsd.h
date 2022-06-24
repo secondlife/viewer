@@ -478,12 +478,12 @@ namespace llsd
 	/// ENVIRONMENT.
 	///
 	/// These counts track LLSD::Impl (hidden) objects.
-	LL_COMMON_API U32 allocationCount();	///< how many Impls have been made
-	LL_COMMON_API U32 outstandingCount();	///< how many Impls are still alive
+	LL_COMMON_API U32 allocationCount();  ///< how many Impls have been made
+	LL_COMMON_API U32 outstandingCount(); ///< how many Impls are still alive
 
 	/// These counts track LLSD (public) objects.
-	LL_COMMON_API extern S32 sLLSDAllocationCount;	///< Number of LLSD objects ever created
-	LL_COMMON_API extern S32 sLLSDNetObjects;		///< Number of LLSD objects that exist
+	LL_COMMON_API U32 LLSDAllocationCount(); ///< Number of LLSD objects ever created
+	LL_COMMON_API U32 LLSDNetObjects();      ///< Number of LLSD objects that exist
 #endif
 //@}
 
