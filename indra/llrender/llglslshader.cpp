@@ -452,7 +452,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
 #ifdef GL_INTERLEAVED_ATTRIBS
     if (varying_count > 0 && varyings)
     {
-        glTransformFeedbackVaryings(mProgramObject, varying_count, varyings, GL_INTERLEAVED_ATTRIBS);
+        glTransformFeedbackVaryings((GLuint64) mProgramObject, varying_count, varyings, GL_INTERLEAVED_ATTRIBS);
     }
 #endif
 

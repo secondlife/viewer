@@ -455,6 +455,7 @@ LLGLManager::LLGLManager() :
 	mHasAnisotropic(FALSE),
 	mHasARBEnvCombine(FALSE),
 	mHasCubeMap(FALSE),
+	mHasCubeMapArray(FALSE),
 	mHasDebugOutput(FALSE),
 
 	mIsAMD(FALSE),
@@ -1069,6 +1070,7 @@ void LLGLManager::initExtensions()
 	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
 	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
     mHasUniformBufferObject = ExtensionExists("GL_ARB_uniform_buffer_object", gGLHExts.mSysExts);
+    mHasCubeMapArray = ExtensionExists("GL_ARB_texture_cube_map_array", gGLHExts.mSysExts);
 #if !LL_DARWIN
 	mHasPointParameters = ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
@@ -1180,6 +1182,10 @@ void LLGLManager::initExtensions()
 	if (!mHasDrawBuffers)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_draw_buffers" << LL_ENDL;
+	}
+	if (!mHasCubeMapArray)
+	{
+		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_texture_cube_map_array" << LL_ENDL;
 	}
 
 	// Disable certain things due to known bugs

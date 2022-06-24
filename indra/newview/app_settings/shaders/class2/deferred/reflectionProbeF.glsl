@@ -474,3 +474,4 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
     reflected_color *= (envIntensity*fresnel)*brighten(spec.rgb);
     color = mix(color.rgb, reflected_color, envIntensity);
  }
+
