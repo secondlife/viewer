@@ -1,25 +1,25 @@
-/** 
+/**
  * @file llapp.h
  * @brief Declaration of the LLApp class.
  *
  * $LicenseInfo:firstyear=2003&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
@@ -71,15 +71,15 @@ protected:
 	LLApp(LLErrorThread* error_thread);
 	void commonCtor();
 public:
-	
-	/** 
+
+	/**
 	 * @brief Return the static app instance if one was created.
 	 */
 	static LLApp* instance();
 
 	/** @name Runtime options */
 	//@{
-	/** 
+	/**
 	 * @brief Enumeration to specify option priorities in highest to
 	 * lowest order.
 	 */
@@ -102,7 +102,7 @@ public:
 	 */
 	LLSD getOption(const std::string& name) const;
 
-	/** 
+	/**
 	 * @brief Parse ASCII command line options and insert them into
 	 * application command line options.
 	 *
@@ -116,7 +116,7 @@ public:
 	 */
 	bool parseCommandOptions(int argc, char** argv);
 
-	/** 
+	/**
 	 * @brief Parse Unicode command line options and insert them into
 	 * application command line options.
 	 *
@@ -244,7 +244,7 @@ public:
 	/**
 	 * @brief Do our generic platform-specific error-handling setup --
 	 * signals on unix, structured exceptions on windows.
-	 * 
+	 *
 	 * DO call this method if your app will either spawn children or be
 	 * spawned by a launcher.
 	 * Call just after app object construction.
@@ -259,12 +259,12 @@ public:
 	void setErrorHandler(LLAppErrorHandler handler);
 	static void runErrorHandler(); // run shortly after we detect an error, ran in the relatively robust context of the LLErrorThread - preferred.
 	//@}
-	
+
 	// the maximum length of the minidump filename returned by getMiniDumpFilename()
 	static const U32 MAX_MINDUMP_PATH_LENGTH = 256;
 
 	// change the directory where Breakpad minidump files are written to
-    void setDebugFileNames(const std::string &path);
+	void setDebugFileNames(const std::string &path);
 
 	// Return the Google Breakpad minidump filename after a crash.
 	char *getMiniDumpFilename() { return mMinidumpPath; }
@@ -287,7 +287,7 @@ public:
 	LLRunner& getRunner() { return mRunner; }
 
 #ifdef LL_WINDOWS
-    virtual void reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { }
+	virtual void reportCrashToBugsplat(void* pExcepInfo /*EXCEPTION_POINTERS*/) { }
 #endif
 
 public:
@@ -302,7 +302,7 @@ protected:
 	static BOOL sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
-    std::string mDumpPath;  //output path for google breakpad.  Dependency workaround.
+	std::string mDumpPath;	//output path for google breakpad.	Dependency workaround.
 
 	/**
 	  * @brief This method is called once a frame to do once a frame tasks.
@@ -311,12 +311,12 @@ protected:
 
 private:
 	void startErrorThread();
-	
+
 	// Contains the filename of the minidump file after a crash.
 	char mMinidumpPath[MAX_MINDUMP_PATH_LENGTH];
-    
-    std::string mStaticDebugFileName;
-    std::string mDynamicDebugFileName;
+
+	std::string mStaticDebugFileName;
+	std::string mDynamicDebugFileName;
 
 	// *NOTE: On Windows, we need a routine to reset the structured
 	// exception handler when some evil driver has taken it over for
