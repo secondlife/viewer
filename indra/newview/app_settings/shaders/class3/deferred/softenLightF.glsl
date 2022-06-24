@@ -27,23 +27,24 @@
 #define DEBUG_PBR_PACKORM1        0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
 
-#define DEBUG_PBR_RAW_DIFF        0 // Output: use diffuse in G-Buffer
-#define DEBUG_PBR_RAW_SPEC        0 // Output: use spec in G-Buffer
-#define DEBUG_PBR_IRRADIANCE      0 // Output: Diffuse Irradiance
-#define DEBUG_PBR_DIFFUSE         0 // Output: Radiance Lambertian
-#define DEBUG_PBR_ORM             0 // Output: Packed Occlusion Roughness Metal
-#define DEBUG_PBR_ROUGH           0 // Output: grayscale roughenss
-#define DEBUG_PBR_METAL           0 // Output: grayscale metal
-#define DEBUG_PBR_REFLECTANCE     0 // Output: diffuse reflectance
-#define DEBUG_PBR_SPEC            0 // Output: Final spec
-#define DEBUG_PBR_SPEC_REFLECTION 0 // Output: reflection
-#define DEBUG_PBR_NORMAL          0 // Output: passed in normal
-#define DEBUG_PBR_VIEW            0 // Output: view_dir
-#define DEBUG_PBR_BRDF            0 // Output: Environment BRDF
-#define DEBUG_PBR_DOT_NV          0 // Output:
-#define DEBUG_PBR_DOT_TV          0 // Output:
-#define DEBUG_PBR_DOT_BV          0 // Output:
-#define DEBUG_PBR_FRESNEL         0 // Output: roughness dependent fresnel
+#define DEBUG_PBR_RAW_DIFF         0 // Output: use diffuse in G-Buffer
+#define DEBUG_PBR_RAW_SPEC         0 // Output: use spec in G-Buffer
+#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
+#define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
+#define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
+#define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughenss
+#define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
+#define DEBUG_PBR_METAL            0 // Output: grayscale metal
+#define DEBUG_PBR_REFLECTANCE      0 // Output: diffuse reflectance
+#define DEBUG_PBR_SPEC             0 // Output: Final spec
+#define DEBUG_PBR_SPEC_REFLECTION  0 // Output: reflection
+#define DEBUG_PBR_NORMAL           0 // Output: passed in normal
+#define DEBUG_PBR_VIEW             0 // Output: view_dir
+#define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
+#define DEBUG_PBR_DOT_NV           0 // Output:
+#define DEBUG_PBR_DOT_TV           0 // Output:
+#define DEBUG_PBR_DOT_BV           0 // Output:
+#define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -281,8 +282,11 @@ void main()
     #if DEBUG_PBR_METAL
         color.rgb = vec3(metal);
     #endif
-    #if DEBUG_PBR_ROUGH
+    #if DEBUG_PBR_ROUGH_PERCEPTUAL
         color.rgb = vec3(perceptualRough);
+    #endif
+    #if DEBUG_PBR_ROUGH_ALPHA
+        color.rgb = vec3(alphaRough);
     #endif
     #if DEBUG_PBR_SPEC
         color.rgb = colorSpec;
