@@ -28,7 +28,7 @@
 #define DEBUG_BASIC         0
 #define DEBUG_VERTEX        0
 #define DEBUG_NORMAL_RAW    0 // Output packed normal map "as is" to diffuse
-#dfeine DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
+#define DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
 #define DEBUG_POSITION      0
 
 uniform sampler2D diffuseMap;  //always in sRGB space
@@ -137,7 +137,7 @@ void main()
     col.rgb = vary_position.xyz;
 #endif
 
-    frag_data[0] = vec4(col, 0.0);
+    frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
     frag_data[1] = vec4(spec.rgb, vertex_color.a);                                   // Occlusion, Roughness, Metal
     frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
     frag_data[3] = vec4(emissive,0);                                                 // Emissive
