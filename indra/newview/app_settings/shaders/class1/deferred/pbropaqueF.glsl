@@ -27,7 +27,8 @@
 
 #define DEBUG_BASIC         0
 #define DEBUG_VERTEX        0
-#define DEBUG_NORMAL        0
+#define DEBUG_NORMAL_RAW    0 // Output packed normal map "as is" to diffuse
+#dfeine DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
 #define DEBUG_POSITION      0
 
 uniform sampler2D diffuseMap;  //always in sRGB space
@@ -126,7 +127,10 @@ void main()
 #if DEBUG_VERTEX
     col.rgb = vertex_color.rgb;
 #endif
-#if DEBUG_NORMAL
+#if DEBUG_NORMAL_RAW
+    col.rgb = texture2D(bumpMap, vary_texcoord1.xy).rgb;
+#endif
+#if DEBUG_NORMAL_OUT
     col.rgb = vary_normal;
 #endif
 #if DEBUG_POSITION
