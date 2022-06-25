@@ -9068,6 +9068,23 @@ Please enter a non-empty name
 
   <notification
    icon="alertmodal.tga"
+   name="UsavedMaterialChanges"
+   type="alertmodal">
+    You have unsaved changes.
+    <form name="form">
+      <button
+       index="0"
+       name="discard"
+       text="Discard changes"/>
+      <button
+       index="1"
+       name="keep"
+       text="Keep editing"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="LivePreviewUnavailable"
    type="alert">
    

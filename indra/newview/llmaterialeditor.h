@@ -43,11 +43,13 @@ public:
 
     void onClickSave();
     void onClickSaveAs();
-    void onSaveAsCommitCallback(const LLSD& notification, const LLSD& response);
+    void onSaveAsMsgCallback(const LLSD& notification, const LLSD& response);
     void onClickCancel();
+    void onCancelMsgCallback(const LLSD& notification, const LLSD& response);
 
 	// llpanel
 	BOOL postBuild() override;
+    void onClickCloseBtn(bool app_quitting = false) override;
 
     LLUUID getAlbedoId();
     void setAlbedoId(const LLUUID& id);
@@ -88,6 +90,8 @@ public:
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
 
+    void setHasUnsavedChanges(bool value);
+
     void onCommitAlbedoTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
@@ -105,6 +109,7 @@ private:
     LLUUID mEmissiveTextureUploadId;
     LLUUID mNormalTextureUploadId;
 
+    bool mHasUnsavedChanges;
     std::string mMaterialName;
 };
 

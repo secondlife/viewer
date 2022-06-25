@@ -47,6 +47,7 @@
 // Default constructor
 LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     : LLFloater(key)
+    , mHasUnsavedChanges(false)
 {
 }
 
@@ -66,7 +67,42 @@ BOOL LLMaterialEditor::postBuild()
     childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
     childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
 
+    boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void*) { setHasUnsavedChanges(true); };
+ 
+    childSetCommitCallback("double sided", changes_callback, NULL);
+
+    // Albedo
+    childSetCommitCallback("albedo color", changes_callback, NULL);
+    childSetCommitCallback("transparency", changes_callback, NULL);
+    childSetCommitCallback("alpha mode", changes_callback, NULL);
+    childSetCommitCallback("alpha cutoff", changes_callback, NULL);
+
+    // Metallic-Roughness
+    childSetCommitCallback("metalness factor", changes_callback, NULL);
+    childSetCommitCallback("roughness factor", changes_callback, NULL);
+
+    // Metallic-Roughness
+    childSetCommitCallback("metalness factor", changes_callback, NULL);
+    childSetCommitCallback("roughness factor", changes_callback, NULL);
+
+    // Emissive
+    childSetCommitCallback("emissive color", changes_callback, NULL);
+
+    childSetVisible("unsaved_changes", mHasUnsavedChanges);
+
 	return LLFloater::postBuild();
+}
+
+void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
+{
+    if (app_quitting)
+    {
+        closeFloater(app_quitting);
+    }
+    else
+    {
+        onClickCancel();
+    }
 }
 
 LLUUID LLMaterialEditor::getAlbedoId()
@@ -230,10 +266,19 @@ void LLMaterialEditor::setDoubleSided(bool double_sided)
     childSetValue("double sided", double_sided);
 }
 
+void LLMaterialEditor::setHasUnsavedChanges(bool value)
+{
+    if (value != mHasUnsavedChanges)
+    {
+        mHasUnsavedChanges = value;
+        childSetVisible("unsaved_changes", value);
+    }
+}
+
 void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
 {
     // might be better to use arrays, to have a single callback
-    // and not to repeat the same thing for each tecture controls
+    // and not to repeat the same thing for each tecture control
     LLUUID new_val = mAlbedoTextureCtrl->getValue().asUUID();
     if (new_val == mAlbedoTextureUploadId && mAlbedoTextureUploadId.notNull())
     {
@@ -243,6 +288,7 @@ void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
     {
         childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
     }
+    setHasUnsavedChanges(true);
 }
 
 void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -256,6 +302,7 @@ void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & dat
     {
         childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
     }
+    setHasUnsavedChanges(true);
 }
 
 void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -269,6 +316,7 @@ void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & dat
     {
         childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
     }
+    setHasUnsavedChanges(true);
 }
 
 void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -282,6 +330,7 @@ void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
     {
         childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
     }
+    setHasUnsavedChanges(true);
 }
 
 
@@ -386,10 +435,10 @@ void LLMaterialEditor::onClickSaveAs()
     LLSD args;
     args["DESC"] = mMaterialName;
 
-    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), boost::bind(&LLMaterialEditor::onSaveAsCommitCallback, this, _1, _2));
+    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), boost::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
 }
 
-void LLMaterialEditor::onSaveAsCommitCallback(const LLSD& notification, const LLSD& response)
+void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD& response)
 {
     S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
     if (0 == option)
@@ -410,8 +459,23 @@ void LLMaterialEditor::onSaveAsCommitCallback(const LLSD& notification, const LL
 
 void LLMaterialEditor::onClickCancel()
 {
-    // Todo: confirm usaved changes
-    closeFloater();
+    if (mHasUnsavedChanges)
+    {
+        LLNotificationsUtil::add("UsavedMaterialChanges", LLSD(), LLSD(), boost::bind(&LLMaterialEditor::onCancelMsgCallback, this, _1, _2));
+    }
+    else
+    {
+        closeFloater();
+    }
+}
+
+void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        closeFloater();
+    }
 }
 
 class LLMaterialFilePicker : public LLFilePickerThread
@@ -701,6 +765,7 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     std::string new_material = LLTrans::getString("New Material");
     mME->setMaterialName(new_material);
 
+    mME->setHasUnsavedChanges(true);
     mME->openFloater();
 
     mME->applyToSelection();
