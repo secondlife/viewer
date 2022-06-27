@@ -51,6 +51,7 @@
 #define DEBUG_PBR_DOT_TV           0 // Output:
 #define DEBUG_PBR_DOT_BV           0 // Output:
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
+#define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -205,11 +206,14 @@ void main()
 #if DEBUG_PBR_PACK_ORM1
              packedORM        = vec3(1,1,1);
 #endif
-        float IOR             = 1.5;         // default Index Of Reflection 1.5
+        float IOR             = 1.5;         // default Index Of Refraction 1.5 (dielectrics)
         vec3  reflect0        = vec3(0.04);  // -> incidence reflectance 0.04
-
-        IOR = 0.0; // TODO: Set from glb
-        reflect0 = calcBaseReflect0(IOR);
+#if HAS_IOR
+              reflect0        = calcBaseReflect0(IOR);
+#endif
+#if DEBUG_PBR_REFLECT0_BASE
+        vec3  debug_reflect0  = reflect0;
+#endif
 
         float metal      = packedORM.b;
         vec3  reflect90  = vec3(0);
@@ -272,6 +276,12 @@ void main()
     #endif
     #if DEBUG_PBR_FRESNEL
         color.rgb = fresnelR;
+    #endif
+    #if DEBUG_PBR_IOR
+        color.rgb = vec3(IOR);
+    #endif
+    #if DEBUG_PBR_KSPEC
+        color.rgb = kSpec;
     #endif
     #if DEBUG_PBR_RAW_DIFF
         color.rgb = diffuse.rgb;
