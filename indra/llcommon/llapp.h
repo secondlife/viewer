@@ -302,8 +302,6 @@ protected:
 	static std::atomic<BOOL> sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
-	std::string mDumpPath;	//output path for google breakpad.	Dependency workaround.
-
 	/**
 	  * @brief This method is called once a frame to do once a frame tasks.
 	  */

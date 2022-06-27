@@ -662,8 +662,6 @@ LLAppViewer::LLAppViewer()
 		LL_ERRS() << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << LL_ENDL;
 	}
 
-    mDumpPath ="";
-
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs("SecondLife");
@@ -695,7 +693,6 @@ LLAppViewer::LLAppViewer()
 	// write Google Breakpad minidump files to a per-run dump directory to avoid multiple viewer issues.
 	std::string logdir = gDirUtilp->getExpandedFilename(LL_PATH_DUMP, "");
 #   endif // ! LL_BUGSPLAT
-	mDumpPath = logdir;
 
 	setDebugFileNames(logdir);
 }
