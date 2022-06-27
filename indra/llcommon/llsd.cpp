@@ -30,7 +30,7 @@
 #include "linden_common.h"
 #include "llsd.h"
 
-#include "dummystat.h"
+#include "dummyscalar.h"
 #include "llerror.h"
 #include "../llmath/llmath.h"
 #include "llformat.h"

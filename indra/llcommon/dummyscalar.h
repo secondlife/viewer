@@ -1,5 +1,5 @@
 /**
- * @file   dummystat.h
+ * @file   dummyscalar.h
  * @author Nat Goodspeed
  * @date   2022-06-24
  * @brief  Drop-in replacement for statistics-gathering scalar types
@@ -9,8 +9,8 @@
  * $/LicenseInfo$
  */
 
-#if ! defined(LL_DUMMYSTAT_H)
-#define LL_DUMMYSTAT_H
+#if ! defined(LL_DUMMYSCALAR_H)
+#define LL_DUMMYSCALAR_H
 
 #include "stdtypes.h"
 #include <iostream>
@@ -19,7 +19,7 @@ namespace LL
 {
 
     /**
-     * DummyStat is a template class that presents the API of a numeric
+     * DummyScalar is a template class that presents the API of a numeric
      * scalar, but stores nothing and performs no operations.
      *
      * Certain classes are coded to track internal usage statistics. When
@@ -35,12 +35,12 @@ namespace LL
      * fragile.
      *
      * #if logic can be used to replace the declaration of a statistics
-     * variable with DummyStat, allowing references in code to remain as-is.
+     * variable with DummyScalar, allowing references in code to remain as-is.
      */
     template <typename SCALAR=U32, SCALAR DEFAULT=SCALAR()>
-    struct DummyStat
+    struct DummyScalar
     {
-        DummyStat(SCALAR init=DEFAULT) {}
+        DummyScalar(SCALAR init=DEFAULT) {}
         operator SCALAR()  const { return DEFAULT; }
         SCALAR operator+() const { return DEFAULT; }
         SCALAR operator-() const { return DEFAULT; }
@@ -86,15 +86,15 @@ namespace LL
         SCALAR operator<<=(SCALAR other) { return DEFAULT; }
         SCALAR operator>>=(SCALAR other) { return DEFAULT; }
 
-        friend std::ostream& operator<<(std::ostream& out, const DummyStat& self)
+        friend std::ostream& operator<<(std::ostream& out, const DummyScalar& self)
         {
             return out << DEFAULT;
         }
     };
 
-    // A little less ugly than writing DummyStat<>
-    using DummyCount = DummyStat<>;
+    // A little less ugly than writing DummyScalar<>
+    using DummyCount = DummyScalar<>;
 
 } // namespace LL
 
-#endif /* ! defined(LL_DUMMYSTAT_H) */
+#endif /* ! defined(LL_DUMMYSCALAR_H) */
