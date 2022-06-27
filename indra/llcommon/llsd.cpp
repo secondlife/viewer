@@ -109,32 +109,31 @@ public:
 	static void reset(Impl*& var, Impl* impl);
 		///< safely set var to refer to the new impl (possibly shared)
 
-	static       Impl& safe(      Impl*);
-	static const Impl& safe(const Impl*);
+	static const Impl& safe(Impl*);
 		///< since a NULL Impl* is used for undefined, this ensures there is
 		//	 always an object you call virtual member functions on
 
-	virtual ImplMap& makeMap(Impl*& var);
-	virtual ImplArray& makeArray(Impl*& var);
+	virtual ImplMap& makeMap(Impl*& var) const;
+	virtual ImplArray& makeArray(Impl*& var) const;
 		///< sure var is a modifiable, non-shared map or array
 	
 	virtual LLSD::Type type() const				{ return LLSD::TypeUndefined; }
 	
 	static  void assignUndefined(LLSD::Impl*& var);
 	static  void assign(LLSD::Impl*& var, const LLSD::Impl* other);
-	
-	virtual void assign(Impl*& var, LLSD::Boolean);
-	virtual void assign(Impl*& var, LLSD::Integer);
-	virtual void assign(Impl*& var, LLSD::Real);
-	virtual void assign(Impl*& var, const LLSD::String&);
-	virtual void assign(Impl*& var, const LLSD::UUID&);
-	virtual void assign(Impl*& var, const LLSD::Date&);
-	virtual void assign(Impl*& var, const LLSD::URI&);
-	virtual void assign(Impl*& var, const LLSD::Binary&);
+
+	virtual void assign(Impl*& var, LLSD::Boolean) const;
+	virtual void assign(Impl*& var, LLSD::Integer) const;
+	virtual void assign(Impl*& var, LLSD::Real) const;
+	virtual void assign(Impl*& var, const LLSD::String&) const;
+	virtual void assign(Impl*& var, const LLSD::UUID&) const;
+	virtual void assign(Impl*& var, const LLSD::Date&) const;
+	virtual void assign(Impl*& var, const LLSD::URI&) const;
+	virtual void assign(Impl*& var, const LLSD::Binary&) const;
 		///< If the receiver is the right type and unshared, these are simple
-		//   data assignments, othewise the default implementation handless
+		//   data assignments, otherwise the default implementation handles
 		//   constructing the proper Impl subclass
-		 
+
 	virtual Boolean	asBoolean() const			{ return false; }
 	virtual Integer	asInteger() const			{ return 0; }
 	virtual Real	asReal() const				{ return 0.0; }
@@ -172,7 +171,6 @@ public:
 	}
 
 	static const Impl& getImpl(const LLSD& llsd)	{ return safe(llsd.impl); }
-	static Impl& getImpl(LLSD& llsd)				{ return safe(llsd.impl); }
 
 	static const LLSD& undef();
 	
@@ -203,14 +201,14 @@ namespace
 		virtual LLSD::Type type() const { return T; }
 
 		using LLSD::Impl::assign; // Unhiding base class virtuals...
-		virtual void assign(LLSD::Impl*& var, DataRef value) {
+		virtual void assign(LLSD::Impl*& var, DataRef value) const {
 			if (shared())
 			{
 				Impl::assign(var, value);
 			}
 			else
 			{
-				mValue = value;
+				const_cast<ImplBase*>(this)->mValue = value;
 			}
 		}
 	};
@@ -385,7 +383,7 @@ namespace
 	public:
 		ImplMap() { }
 		
-		virtual ImplMap& makeMap(LLSD::Impl*&);
+		virtual ImplMap& makeMap(LLSD::Impl*&) const;
 
 		virtual LLSD::Type type() const { return LLSD::TypeMap; }
 
@@ -414,7 +412,7 @@ namespace
 		virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
 	};
 	
-	ImplMap& ImplMap::makeMap(LLSD::Impl*& var)
+	ImplMap& ImplMap::makeMap(LLSD::Impl*& var) const
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 		if (shared())
@@ -425,10 +423,12 @@ namespace
 		}
 		else
 		{
-			return *this;
+			// only once we've determined that 'this' is already an ImplMap
+			// that's not shared do we cast away its const-ness
+			return const_cast<ImplMap&>(*this);
 		}
 	}
-	
+
 	bool ImplMap::has(const LLSD::String& k) const
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
@@ -525,7 +525,7 @@ namespace
 	public:
 		ImplArray() { }
 		
-		virtual ImplArray& makeArray(Impl*&);
+		virtual ImplArray& makeArray(Impl*&) const;
 
 		virtual LLSD::Type type() const { return LLSD::TypeArray; }
 
@@ -553,7 +553,7 @@ namespace
 		virtual void calcStats(S32 type_counts[], S32 share_counts[]) const;
 	};
 
-	ImplArray& ImplArray::makeArray(Impl*& var)
+	ImplArray& ImplArray::makeArray(Impl*& var) const
 	{
 		if (shared())
 		{
@@ -563,7 +563,9 @@ namespace
 		}
 		else
 		{
-			return *this;
+			// only once we've determined that 'this' is already an ImplArray
+			// that's not shared do we cast away its const-ness
+			return const_cast<ImplArray&>(*this);
 		}
 	}
 	
@@ -692,19 +694,13 @@ void LLSD::Impl::reset(Impl*& var, Impl* impl)
 	var = impl;
 }
 
-LLSD::Impl& LLSD::Impl::safe(Impl* impl)
+const LLSD::Impl& LLSD::Impl::safe(Impl* impl)
 {
-	static Impl theUndefined(STATIC_USAGE_COUNT);
+	static const Impl theUndefined(STATIC_USAGE_COUNT);
 	return impl ? *impl : theUndefined;
 }
 
-const LLSD::Impl& LLSD::Impl::safe(const Impl* impl)
-{
-	static Impl theUndefined(STATIC_USAGE_COUNT);
-	return impl ? *impl : theUndefined;
-}
-
-ImplMap& LLSD::Impl::makeMap(Impl*& var)
+ImplMap& LLSD::Impl::makeMap(Impl*& var) const
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_LLSD;
 	ImplMap* im = new ImplMap;
@@ -712,7 +708,7 @@ ImplMap& LLSD::Impl::makeMap(Impl*& var)
 	return *im;
 }
 
-ImplArray& LLSD::Impl::makeArray(Impl*& var)
+ImplArray& LLSD::Impl::makeArray(Impl*& var) const
 {
 	ImplArray* ia = new ImplArray;
 	reset(var, ia);
@@ -730,42 +726,42 @@ void LLSD::Impl::assignUndefined(Impl*& var)
 	reset(var, 0);
 }
 
-void LLSD::Impl::assign(Impl*& var, LLSD::Boolean v)
+void LLSD::Impl::assign(Impl*& var, LLSD::Boolean v) const
 {
 	reset(var, new ImplBoolean(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, LLSD::Integer v)
+void LLSD::Impl::assign(Impl*& var, LLSD::Integer v) const
 {
 	reset(var, new ImplInteger(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, LLSD::Real v)
+void LLSD::Impl::assign(Impl*& var, LLSD::Real v) const
 {
 	reset(var, new ImplReal(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, const LLSD::String& v)
+void LLSD::Impl::assign(Impl*& var, const LLSD::String& v) const
 {
 	reset(var, new ImplString(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, const LLSD::UUID& v)
+void LLSD::Impl::assign(Impl*& var, const LLSD::UUID& v) const
 {
 	reset(var, new ImplUUID(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, const LLSD::Date& v)
+void LLSD::Impl::assign(Impl*& var, const LLSD::Date& v) const
 {
 	reset(var, new ImplDate(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, const LLSD::URI& v)
+void LLSD::Impl::assign(Impl*& var, const LLSD::URI& v) const
 {
 	reset(var, new ImplURI(v));
 }
 
-void LLSD::Impl::assign(Impl*& var, const LLSD::Binary& v)
+void LLSD::Impl::assign(Impl*& var, const LLSD::Binary& v) const
 {
 	reset(var, new ImplBinary(v));
 }
@@ -825,12 +821,12 @@ namespace LLSDUnnamedNamespace
 namespace 
 #endif
 {
-	inline LLSD::Impl& safe(LLSD::Impl* impl)
+	inline const LLSD::Impl& safe(LLSD::Impl* impl)
 		{ return LLSD::Impl::safe(impl); }
 
 	inline ImplMap& makeMap(LLSD::Impl*& var)
 		{ return safe(var).makeMap(var); }
-		
+
 	inline ImplArray& makeArray(LLSD::Impl*& var)
 		{ return safe(var).makeArray(var); }
 }
