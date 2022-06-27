@@ -27,11 +27,18 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llmaterialeditor.h"
+
+#include "llagent.h"
 #include "llcombobox.h"
+#include "llinventorymodel.h"
 #include "llviewermenufile.h"
 #include "llappviewer.h"
 #include "llviewertexture.h"
+#include "llnotificationsutil.h"
+#include "llsdutil.h"
 #include "llselectmgr.h"
+#include "llviewerinventory.h"
+#include "llviewerregion.h"
 #include "llvovolume.h"
 
 #include "tinygltf/tiny_gltf.h"
@@ -266,6 +273,44 @@ void LLMaterialEditor::onClickSave()
     std::string dump = str.str();
 
     LL_INFOS() << dump << LL_ENDL;
+
+    // gen a new uuid for this asset
+    LLTransactionID tid;
+    tid.generate();     // timestamp-based randomization + uniquification
+    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+    std::string res_name = "New Material";
+    std::string res_desc = "Saved Material";
+    U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
+    LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+    const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
+
+    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, res_name, res_desc,
+        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
+        new LLBoostFuncInventoryCallback([output=dump](LLUUID const & inv_item_id){
+            // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
+            LLResourceUploadInfo::ptr_t uploadInfo =
+                std::make_shared<LLBufferedAssetUploadInfo>(
+                    inv_item_id,
+                    LLAssetType::AT_SETTINGS, // TODO switch to AT_MATERIAL
+                    output,
+                    [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response) {
+                        LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+                        LLSD params = llsd::map("ASSET_ID", new_asset_id);
+                        LLNotificationsUtil::add("MaterialCreated", params);
+                    });
+
+            const LLViewerRegion* region = gAgent.getRegion();
+            if (region)
+            {
+                 std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
+                 if (agent_url.empty())
+                 {
+                     LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                 }
+                 LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+            }
+        })
+    );
 }
 
 class LLMaterialFilePicker : public LLFilePickerThread
