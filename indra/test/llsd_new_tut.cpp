@@ -65,6 +65,14 @@ namespace tut
 		~SDAllocationCheck()
 		{
 #if ! defined(LLSD_STATS)
+			// Unless we're collecting statistics, zero out
+			// mExpectedAllocations, since both allocationCount() and
+			// mAllocationAtStart are zero and the test would otherwise fail.
+			// If we simply #if out the ensure_equals() call, the compiler
+			// gripes about unused data members -- we'd have to make a lot
+			// more of this little class conditional. Simpler to assign zero.
+			// When we *are* collecting statistics, of course, skip this
+			// assignment.
 			mExpectedAllocations = 0;
 #endif // LLSD_STATS
 			ensure_equals(mMessage + " SDAllocationCheck",
