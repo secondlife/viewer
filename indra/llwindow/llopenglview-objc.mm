@@ -256,6 +256,7 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		NSOpenGLPFADepthSize, 24,
 		NSOpenGLPFAAlphaSize, 8,
 		NSOpenGLPFAColorSize, 24,
+		NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
 		0
     };
 	
