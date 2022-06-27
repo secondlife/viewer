@@ -121,8 +121,8 @@ LLFloaterTexturePicker::LLFloaterTexturePicker(
 	mOnUpdateImageStatsCallback(NULL),
 	mBakeTextureEnabled(FALSE)
 {
-	buildFromFile("floater_texture_ctrl.xml");
 	mCanApplyImmediately = can_apply_immediately;
+	buildFromFile("floater_texture_ctrl.xml");
 	setCanMinimize(FALSE);
 }
 

@@ -43,7 +43,7 @@
     Albedo:
   </text>
     <texture_picker
-             can_apply_immediately="false"
+             can_apply_immediately="true"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
              allow_no_texture="true"
@@ -81,7 +81,7 @@
     Tint
   </text>
   <color_swatch
-                    can_apply_immediately="false"
+                    can_apply_immediately="true"
                     follows="left|top"
                     height="40"
                     label_height="0"
@@ -198,7 +198,7 @@
     Metallic-Roughness:
   </text>
     <texture_picker
-             can_apply_immediately="false"
+             can_apply_immediately="true"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
              allow_no_texture="true"
@@ -299,7 +299,7 @@
       Emissive:
     </text>
     <texture_picker
-               can_apply_immediately="false"
+               can_apply_immediately="true"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
                allow_no_texture="true"
@@ -336,7 +336,7 @@
       Tint
     </text>
     <color_swatch
-                      can_apply_immediately="false"
+                      can_apply_immediately="true"
                       follows="left|top"
                       height="40"
                       label_height="0"
@@ -394,7 +394,7 @@
       Normal:
     </text>
     <texture_picker
-               can_apply_immediately="false"
+               can_apply_immediately="true"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
                allow_no_texture="true"

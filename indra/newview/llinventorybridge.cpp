@@ -785,7 +785,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	if (obj)
 	{
 		
-		items.push_back(std::string("Copy Separator"));
+		if (obj->getType() != LLInventoryType::IT_CATEGORY)
+		{
+			items.push_back(std::string("Copy Separator"));
+		}
 		items.push_back(std::string("Copy"));
 		if (!isItemCopyable())
 		{
@@ -878,7 +881,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	items.push_back(std::string("Paste Separator"));
+	if (obj->getType() != LLInventoryType::IT_CATEGORY)
+	{
+		items.push_back(std::string("Paste Separator"));
+	}
 
 	addDeleteContextMenuOptions(items, disabled_items);
 
@@ -1418,6 +1424,14 @@ LLInvFVBridge* LLInvFVBridge::createBridge(LLAssetType::EType asset_type,
                 LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
             }
             new_listener = new LLSettingsBridge(inventory, root, uuid, LLSettingsType::fromInventoryFlags(flags));
+            break;
+
+        case LLAssetType::AT_MATERIAL:
+            if (inv_type != LLInventoryType::IT_MATERIAL)
+            {
+                LL_WARNS() << LLAssetType::lookup(asset_type) << " asset has inventory type " << LLInventoryType::lookupHumanReadable(inv_type) << " on uuid " << uuid << LL_ENDL;
+            }
+            new_listener = new LLMaterialBridge(inventory, root, uuid);
             break;
 
 		default:
@@ -4094,10 +4108,12 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			if (!isInboxFolder() // don't allow creation in inbox
 				&& outfits_id != mUUID)
 			{
+				bool menu_items_added = false;
 				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
 				{
 					items.push_back(std::string("New Folder"));
+					menu_items_added = true;
 				}
                 if (!isMarketplaceListingsFolder())
                 {
@@ -4109,12 +4125,18 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Body Parts"));
                     items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
+                    
+                    menu_items_added = true;
 
                     if (!LLEnvironment::instance().isInventoryEnabled())
                     {
                         disabled_items.push_back("New Settings");
                     }
 
+                }
+                if (menu_items_added)
+                {
+                    items.push_back(std::string("Create Separator"));
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
@@ -7201,6 +7223,39 @@ bool LLSettingsBridge::canUpdateRegion() const
 
 
 // +=================================================+
+// |        LLMaterialBridge                         |
+// +=================================================+
+
+void LLMaterialBridge::openItem()
+{
+    LLViewerInventoryItem* item = getItem();
+    if (item)
+    {
+        LLInvFVBridgeAction::doAction(item->getType(),mUUID,getInventoryModel());
+    }
+}
+
+void LLMaterialBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+    LL_DEBUGS() << "LLMaterialBridge::buildContextMenu()" << LL_ENDL;
+
+    if (isMarketplaceListingsFolder())
+    {
+        menuentry_vec_t items;
+        menuentry_vec_t disabled_items;
+        addMarketplaceContextMenuOptions(flags, items, disabled_items);
+        items.push_back(std::string("Properties"));
+        getClipboardEntries(false, items, disabled_items, flags);
+        hide_context_entries(menu, items, disabled_items);
+    }
+    else
+    {
+        LLItemBridge::buildContextMenu(menu, flags);
+    }
+}
+
+
+// +=================================================+
 // |        LLLinkBridge                             |
 // +=================================================+
 // For broken folder links.
@@ -7587,6 +7642,25 @@ protected:
     LLSettingsBridgeAction(const LLUUID& id, LLInventoryModel* model) : LLInvFVBridgeAction(id, model) {}
 };
 
+class LLMaterialBridgeAction : public LLInvFVBridgeAction
+{
+    friend class LLInvFVBridgeAction;
+public:
+    void doIt() override
+    {
+        LLViewerInventoryItem* item = getItem();
+        if (item)
+        {
+            // TODO - show UI for material preview?
+            LL_INFOS() << "inventory action performed on material: " << item->getName() << " " << item->getUUID() << LL_ENDL;
+        }
+        LLInvFVBridgeAction::doIt();
+    }
+    ~LLMaterialBridgeAction() = default;
+private:
+    LLMaterialBridgeAction(const LLUUID& id,LLInventoryModel* model) : LLInvFVBridgeAction(id,model) {}
+};
+
 
 LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_type,
 													   const LLUUID& uuid,
@@ -7628,6 +7702,9 @@ LLInvFVBridgeAction* LLInvFVBridgeAction::createAction(LLAssetType::EType asset_
 			break;
         case LLAssetType::AT_SETTINGS:
             action = new LLSettingsBridgeAction(uuid, model);
+            break;
+        case LLAssetType::AT_MATERIAL:
+            action = new LLMaterialBridgeAction(uuid, model);
             break;
 		default:
 			break;

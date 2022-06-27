@@ -116,7 +116,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
         }
         else
         {
-            // TODO: bind default normal map (???? WTF is it ???)
+            // TODO: bind default normal map (???? WTF is it ??? )
         }
 
         if (params.mSpecularMap)
