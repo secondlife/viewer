@@ -785,7 +785,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 	if (obj)
 	{
 		
-		items.push_back(std::string("Copy Separator"));
+		if (obj->getType() != LLInventoryType::IT_CATEGORY)
+		{
+			items.push_back(std::string("Copy Separator"));
+		}
 		items.push_back(std::string("Copy"));
 		if (!isItemCopyable())
 		{
@@ -878,7 +881,10 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 		}
 	}
 
-	items.push_back(std::string("Paste Separator"));
+	if (obj->getType() != LLInventoryType::IT_CATEGORY)
+	{
+		items.push_back(std::string("Paste Separator"));
+	}
 
 	addDeleteContextMenuOptions(items, disabled_items);
 
@@ -4094,10 +4100,12 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
 			if (!isInboxFolder() // don't allow creation in inbox
 				&& outfits_id != mUUID)
 			{
+				bool menu_items_added = false;
 				// Do not allow to create 2-level subfolder in the Calling Card/Friends folder. EXT-694.
 				if (!LLFriendCardsManager::instance().isCategoryInFriendFolder(cat))
 				{
 					items.push_back(std::string("New Folder"));
+					menu_items_added = true;
 				}
                 if (!isMarketplaceListingsFolder())
                 {
@@ -4109,12 +4117,18 @@ void LLFolderBridge::buildContextMenuOptions(U32 flags, menuentry_vec_t&   items
                     items.push_back(std::string("New Body Parts"));
                     items.push_back(std::string("New Settings"));
                     items.push_back(std::string("upload_def"));
+                    
+                    menu_items_added = true;
 
                     if (!LLEnvironment::instance().isInventoryEnabled())
                     {
                         disabled_items.push_back("New Settings");
                     }
 
+                }
+                if (menu_items_added)
+                {
+                    items.push_back(std::string("Create Separator"));
                 }
 			}
 			getClipboardEntries(false, items, disabled_items, flags);
