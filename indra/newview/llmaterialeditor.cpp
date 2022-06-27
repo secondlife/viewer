@@ -42,7 +42,6 @@
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
-#include "llcolorswatch.h"
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -73,13 +72,17 @@ BOOL LLMaterialEditor::postBuild()
     childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
     childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
 
-    boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void*) { setHasUnsavedChanges(true); };
+    boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void*)
+    {
+        setHasUnsavedChanges(true);
+        // Apply changes to object live
+        applyToSelection();
+    };
  
     childSetCommitCallback("double sided", changes_callback, NULL);
 
     // Albedo
     childSetCommitCallback("albedo color", changes_callback, NULL);
-    getChild<LLColorSwatchCtrl>("albedo color")->setCanApplyImmediately(TRUE);
     childSetCommitCallback("transparency", changes_callback, NULL);
     childSetCommitCallback("alpha mode", changes_callback, NULL);
     childSetCommitCallback("alpha cutoff", changes_callback, NULL);
@@ -94,9 +97,12 @@ BOOL LLMaterialEditor::postBuild()
 
     // Emissive
     childSetCommitCallback("emissive color", changes_callback, NULL);
-    getChild<LLColorSwatchCtrl>("emissive color")->setCanApplyImmediately(TRUE);
 
     childSetVisible("unsaved_changes", mHasUnsavedChanges);
+
+    // Todo:
+    // Disable/enable setCanApplyImmediately() based on
+    // working from inventory, upload or editing inworld
 
 	return LLFloater::postBuild();
 }
@@ -281,9 +287,6 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
         mHasUnsavedChanges = value;
         childSetVisible("unsaved_changes", value);
     }
-
-    // HACK -- apply any changes to selection immediately
-    applyToSelection();
 }
 
 void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -300,6 +303,7 @@ void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
         childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
+    applyToSelection();
 }
 
 void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -314,6 +318,7 @@ void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & dat
         childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
+    applyToSelection();
 }
 
 void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -328,6 +333,7 @@ void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & dat
         childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
+    applyToSelection();
 }
 
 void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -342,6 +348,7 @@ void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
         childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
+    applyToSelection();
 }
 
 
@@ -444,13 +451,12 @@ void LLMaterialEditor::onClickSave()
     LLTransactionID tid;
     tid.generate();     // timestamp-based randomization + uniquification
     LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-    std::string res_name = "New Material";
     std::string res_desc = "Saved Material";
     U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
     LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
     const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
-    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, res_name, res_desc,
+    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, mMaterialName, res_desc,
         LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
         new LLBoostFuncInventoryCallback([output=dump](LLUUID const & inv_item_id){
             // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
@@ -827,6 +833,10 @@ void LLMaterialEditor::importMaterial()
 
 void LLMaterialEditor::applyToSelection()
 {
+    // Todo: associate with a specific 'selection' instead
+    // of modifying something that is selected
+    // This should be disabled when working from agent's
+    // inventory and for initial upload
     LLViewerObject* objectp = LLSelectMgr::instance().getSelection()->getFirstObject();
     if (objectp && objectp->getVolume())
     {
