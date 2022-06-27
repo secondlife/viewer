@@ -1070,10 +1070,10 @@ namespace LLError
     // mRecorders. The shared_ptr might be empty (operator!() returns true) if
     // there was no such RECORDER subclass instance in mRecorders.
     //
-    // NOTE!!! Requires external mutex lock!!!
+    // NOTE!!! Requires external mutex lock, passed as first param!!!
     template <typename RECORDER>
     std::pair<boost::shared_ptr<RECORDER>, Recorders::iterator>
-    findRecorderPos(SettingsConfigPtr &s)
+    findRecorderPos(LLMutexLock&, SettingsConfigPtr &s)
     {
         // Since we promise to return an iterator, use a classic iterator
         // loop.
@@ -1107,7 +1107,7 @@ namespace LLError
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
         LLMutexLock lock(&s->mRecorderMutex);
-        return findRecorderPos<RECORDER>(s).first;
+        return findRecorderPos<RECORDER>(lock, s).first;
     }
 
     // Remove an entry from SettingsConfig::mRecorders whose RecorderPtr
@@ -1118,7 +1118,7 @@ namespace LLError
     {
         SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
         LLMutexLock lock(&s->mRecorderMutex);
-        auto found = findRecorderPos<RECORDER>(s);
+        auto found = findRecorderPos<RECORDER>(lock, s);
         if (found.first)
         {
             s->mRecorders.erase(found.second);
@@ -1352,12 +1352,8 @@ namespace LLError
 
 	bool Log::shouldLog(CallSite& site)
 	{
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
-		if (!lock.isLocked())
-		{
-			return false;
-		}
+		LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+		LLMutexLock lock(getMutex<LOG_MUTEX>());
 
 		Globals *g = Globals::getInstance();
 		SettingsConfigPtr s = g->getSettingsConfig();
@@ -1397,12 +1393,8 @@ namespace LLError
 
 	void Log::flush(const std::ostringstream& out, const CallSite& site)
 	{
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
-		LLMutexTrylock lock(getMutex<LOG_MUTEX>(),5);
-		if (!lock.isLocked())
-		{
-			return;
-		}
+		LL_PROFILE_ZONE_SCOPED_CATEGORY_LOGGING
+		LLMutexLock lock(getMutex<LOG_MUTEX>());
 
 		Globals* g = Globals::getInstance();
 		SettingsConfigPtr s = g->getSettingsConfig();
@@ -1529,11 +1521,7 @@ namespace LLError
     //static
     void LLCallStacks::push(const char* function, const int line)
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
-        {
-            return;
-        }
+        LLMutexLock lock(getMutex<STACKS_MUTEX>());
 
         if(sBuffer.size() > 511)
         {
@@ -1554,11 +1542,7 @@ namespace LLError
     //static
     void LLCallStacks::end(const std::ostringstream& out)
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
-        {
-            return;
-        }
+        LLMutexLock lock(getMutex<STACKS_MUTEX>());
 
         if(sBuffer.size() > 511)
         {
@@ -1571,11 +1555,7 @@ namespace LLError
     //static
     void LLCallStacks::print()
     {
-        LLMutexTrylock lock(getMutex<STACKS_MUTEX>(), 5);
-        if (!lock.isLocked())
-        {
-            return;
-        }
+        LLMutexLock lock(getMutex<STACKS_MUTEX>());
 
         if(! sBuffer.empty())
         {
@@ -1611,11 +1591,7 @@ namespace LLError
 
 bool debugLoggingEnabled(const std::string& tag)
 {
-    LLMutexTrylock lock(getMutex<LOG_MUTEX>(), 5);
-    if (!lock.isLocked())
-    {
-        return false;
-    }
+    LLMutexLock lock(getMutex<LOG_MUTEX>());
 
     SettingsConfigPtr s = Globals::getInstance()->getSettingsConfig();
     LLError::ELevel level = LLError::LEVEL_DEBUG;
