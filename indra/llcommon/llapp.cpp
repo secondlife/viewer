@@ -99,17 +99,17 @@ std::atomic<LLApp*> LLApp::sApplication;
 
 // Allows the generation of core files for post mortem under gdb
 // and disables crashlogger
-std::atomic<BOOL> LLApp::sDisableCrashlogger; 
+std::atomic<bool> LLApp::sDisableCrashlogger; 
 
 // Local flag for whether or not to do logging in signal handlers.
 //static
-std::atomic<BOOL> LLApp::sLogInSignal;
+std::atomic<bool> LLApp::sLogInSignal;
 
 // static
 // Keeps track of application status
 LLScalarCond<LLApp::EAppStatus> LLApp::sStatus{LLApp::APP_STATUS_STOPPED};
 std::atomic<LLAppErrorHandler> LLApp::sErrorHandler;
-std::atomic<BOOL> LLApp::sErrorThreadRunning;
+std::atomic<bool> LLApp::sErrorThreadRunning;
 
 
 LLApp::LLApp() : mThreadErrorp(NULL)
@@ -549,13 +549,13 @@ bool LLApp::isExiting()
 
 void LLApp::disableCrashlogger()
 {
-	sDisableCrashlogger = TRUE;
+	sDisableCrashlogger = true;
 }
 
 // static
 bool LLApp::isCrashloggerDisabled()
 {
-	return (sDisableCrashlogger == TRUE); 
+	return sDisableCrashlogger; 
 }
 
 // static

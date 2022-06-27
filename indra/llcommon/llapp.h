@@ -298,8 +298,8 @@ protected:
 
 	static void setStatus(EAppStatus status);		// Use this to change the application status.
 	static LLScalarCond<EAppStatus> sStatus; // Reflects current application status
-	static std::atomic<BOOL> sErrorThreadRunning; // Set while the error thread is running
-	static std::atomic<BOOL> sDisableCrashlogger; // Let the OS handle crashes for us.
+	static std::atomic<bool> sErrorThreadRunning; // Set while the error thread is running
+	static std::atomic<bool> sDisableCrashlogger; // Let the OS handle crashes for us.
 	std::wstring mCrashReportPipeStr;  //Name of pipe to use for crash reporting.
 
 	/**
@@ -347,7 +347,7 @@ private:
 #endif
 
 public:
-	static std::atomic<BOOL> sLogInSignal;
+	static std::atomic<bool> sLogInSignal;
 };
 
 #endif // LL_LLAPP_H

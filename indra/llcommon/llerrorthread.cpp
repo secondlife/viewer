@@ -102,7 +102,7 @@ void get_child_status(const int waitpid_status, int &process_status, bool &exite
 
 void LLErrorThread::run()
 {
-	LLApp::sErrorThreadRunning = TRUE;
+	LLApp::sErrorThreadRunning = true;
 	// This thread sits and waits for the sole purpose
 	// of waiting for the signal/exception handlers to flag the
 	// application state as APP_STATUS_ERROR.
@@ -128,6 +128,6 @@ void LLErrorThread::run()
 	}
 	
 	//LL_INFOS() << "thread_error - Exiting" << LL_ENDL;
-	LLApp::sErrorThreadRunning = FALSE;
+	LLApp::sErrorThreadRunning = false;
 }
 
