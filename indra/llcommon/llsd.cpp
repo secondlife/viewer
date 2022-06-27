@@ -94,25 +94,26 @@ protected:
 
 	enum StaticAllocationMarker { STATIC_USAGE_COUNT = 0xFFFFFFFF };
 	Impl(StaticAllocationMarker);
-		///< This constructor is used for static objects and causes the
+		///< This constructor is used for static objects and
 		//   suppresses adjusting the debugging counters when they are
-		//	 finally initialized.
+		//   finally initialized.
 		
 	virtual ~Impl();
-	
-	bool shared() const							{ return (mUseCount > 1) && (mUseCount != STATIC_USAGE_COUNT); }
-	
-	U32 mUseCount;
+
+	bool shared() const { return (mUseCount > 1) && (mUseCount != STATIC_USAGE_COUNT); }
+
+	// LLSD objects are passed between threads
+	std::atomic<U32> mUseCount;
 
 public:
 	static void reset(Impl*& var, Impl* impl);
 		///< safely set var to refer to the new impl (possibly shared)
-		
+
 	static       Impl& safe(      Impl*);
 	static const Impl& safe(const Impl*);
 		///< since a NULL Impl* is used for undefined, this ensures there is
 		//	 always an object you call virtual member functions on
-		
+
 	virtual ImplMap& makeMap(Impl*& var);
 	virtual ImplArray& makeArray(Impl*& var);
 		///< sure var is a modifiable, non-shared map or array
