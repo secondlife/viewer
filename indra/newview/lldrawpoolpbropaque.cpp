@@ -130,7 +130,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
         if (params.mEmissiveMap)
         {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap); // Packed Occlusion Roughness Metal
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);
         }
         else
         {
