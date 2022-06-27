@@ -35,7 +35,7 @@
 #include "llmutex.h"
 #include <iterator>
 
-#define ASSERT_LLBUFFERARRAY_MUTEX_LOCKED() llassert(!mMutexp || mMutexp->isSelfLocked())
+#define ASSERT_LLBUFFERARRAY_MUTEX_LOCKED() llassert(!mMutexp || mMutexp->isLocked())
 
 /** 
  * LLSegment

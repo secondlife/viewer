@@ -40,12 +40,14 @@
 #include <string>
 
 // e.g. #include LLCOROS_MUTEX_HEADER
-#define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
 #define LLCOROS_CONDVAR_HEADER <boost/fiber/condition_variable.hpp>
+#define LLCOROS_MUTEX_HEADER <boost/fiber/mutex.hpp>
+#define LLCOROS_RECURSIVE_MUTEX_HEADER <boost/fiber/recursive_mutex.hpp>
 
 namespace boost {
     namespace fibers {
         class mutex;
+        class recursive_mutex;
         enum class cv_status;
         class condition_variable;
     }
@@ -282,9 +284,10 @@ public:
 
     // use mutex, lock, condition_variable suitable for coroutines
     using Mutex = boost::fibers::mutex;
+    using RecursiveMutex = boost::fibers::recursive_mutex;
     using LockType = std::unique_lock<Mutex>;
     using cv_status = boost::fibers::cv_status;
-    using ConditionVariable = boost::fibers::condition_variable;
+    using ConditionVariable = boost::fibers::condition_variable_any;
 
     /// for data local to each running coroutine
     template <typename T>
