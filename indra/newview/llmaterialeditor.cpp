@@ -37,6 +37,7 @@
 #include "llviewertexture.h"
 #include "llselectmgr.h"
 #include "llvovolume.h"
+#include "llcolorswatch.h"
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -73,6 +74,7 @@ BOOL LLMaterialEditor::postBuild()
 
     // Albedo
     childSetCommitCallback("albedo color", changes_callback, NULL);
+    getChild<LLColorSwatchCtrl>("albedo color")->setCanApplyImmediately(TRUE);
     childSetCommitCallback("transparency", changes_callback, NULL);
     childSetCommitCallback("alpha mode", changes_callback, NULL);
     childSetCommitCallback("alpha cutoff", changes_callback, NULL);
@@ -87,6 +89,7 @@ BOOL LLMaterialEditor::postBuild()
 
     // Emissive
     childSetCommitCallback("emissive color", changes_callback, NULL);
+    getChild<LLColorSwatchCtrl>("emissive color")->setCanApplyImmediately(TRUE);
 
     childSetVisible("unsaved_changes", mHasUnsavedChanges);
 
@@ -273,6 +276,9 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
         mHasUnsavedChanges = value;
         childSetVisible("unsaved_changes", value);
     }
+
+    // HACK -- apply any changes to selection immediately
+    applyToSelection();
 }
 
 void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
