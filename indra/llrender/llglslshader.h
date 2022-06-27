@@ -52,7 +52,7 @@ public:
     bool hasShadows;
     bool hasAmbientOcclusion;
 	bool hasSrgb;
-    bool encodesNormal;
+    bool encodesNormal; // include: shaders\class1\environment\encodeNormF.glsl
     bool isDeferred;
     bool hasIndirect;
 	S32 mIndexedTextureChannels;
