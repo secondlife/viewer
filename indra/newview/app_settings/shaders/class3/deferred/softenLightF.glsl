@@ -26,6 +26,7 @@
 #define DEBUG_PBR_PACKORM0        0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1        0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
+#define DEBUG_PBR_VERT2CAM1       0 // vertex2camera = 0,0,1
 
 #define DEBUG_PBR_RAW_DIFF         0 // Output: use diffuse in G-Buffer
 #define DEBUG_PBR_RAW_SPEC         0 // Output: use spec in G-Buffer
@@ -41,7 +42,10 @@
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: reflection
 #define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_RAW_DIFF 1, and in pbropaqueF set DEBUG_NORMAL_RAW
-#define DEBUG_PBR_VIEW             0 // Output: view_dir
+#define DEBUG_PBR_TANGENT          0 // Output: Tangent
+#define DEBUG_PBR_BITANGET         0 // Output: Bitangnet
+#define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
+#define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
 #define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal,ViewDir)
 #define DEBUG_PBR_DOT_TV           0 // Output:
@@ -209,7 +213,10 @@ void main()
 
         float metal      = packedORM.b;
         vec3  reflect90  = vec3(0);
-        vec3  v          = view_dir;
+        vec3  v          = -normalize(pos.xyz);
+#if DEBUG_PBR_VERT2CAM1
+              v = vec3(0,0,1);
+#endif
         vec3  n          = norm.xyz;
 //      vec3  t          = texture2DRect(tangentMap, tc).rgb;
 #if DEBUG_PBR_TANGENT1
@@ -219,8 +226,8 @@ void main()
         vec3  reflectVN  = normalize(reflect(-v,n));
 
         float dotNV = clamp(dot(n,v),0,1);
-        float dotTV = clamp(dot(n,t),0,1);
-        float dotBV = clamp(dot(n,b),0,1);
+        float dotTV = clamp(dot(t,v),0,1);
+        float dotBV = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
         float perceptualRough = packedORM.g;
@@ -305,8 +312,17 @@ void main()
     #if DEBUG_PBR_NORMAL
         color.rgb = norm.xyz;
     #endif
-    #if DEBUG_PBR_VIEW
-        color.rgb = view_dir;
+    #if DEBUG_PBR_TANGENT
+        color.rgb = t;
+    #endif
+    #if DEBUG_PBR_BITANGENT
+        color.rgb = b;
+    #endif
+    #if DEBUG_PBR_V2C_RAW
+        color.rgb = v;
+    #endif
+    #if DEBUG_PBR_V2C_REMAP
+        color.rgb = v*0.5 + vec3(0.5);
     #endif
     #if DEBUG_PBR_DOT_NV
         color.rgb = vec3(dotNV);
