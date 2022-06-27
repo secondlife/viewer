@@ -3,12 +3,22 @@
  legacy_header_height="18"
  can_resize="false"
  default_tab_group="1"
- height="777"
+ height="887"
  layout="topleft"
  name="material editor"
  help_topic="material_editor"
- title="Material: [MATERIAL_NAME]"
+ title="[MATERIAL_NAME]"
  width="256">
+  <string name="no_upload_fee_string">no upload fee</string>
+  <string name="upload_fee_string">L$10 upload fee</string>
+  <check_box
+          follows="left|top"
+          label="Double Sided"
+          left="14"
+          top="14"
+          name="double sided"
+          height="25"
+          width="120" />
   <panel
     border="true"
          follows="left|top"
@@ -17,11 +27,12 @@
          layout="topleft"
          left="5"
          mouse_opaque="false"
-         name="Texture"
-         top="20"
+         name="albedo_texture_pnl"
+         top_pad="5"
          >
   <text
              type="string"
+             font.style="BOLD"
              length="1"
              follows="left|top"
              height="10"
@@ -31,18 +42,33 @@
              width="64">
     Albedo:
   </text>
-  <texture_picker
-             can_apply_immediately="true"
+    <texture_picker
+             can_apply_immediately="false"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
+             allow_no_texture="true"
              follows="left|top"
              top_pad="8"
              height="151"
              layout="topleft"
              left="10"
-             name="albedo texture"
+             name="albedo_texture"
              tool_tip="Albedo map.  Alpha channel is optional and used for transparency."
              width="128" />
+    <text
+               type="string"
+               font.style="BOLD"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="128"
+               layout="topleft"
+               left="10"
+               top_pad="-17"
+               name="albedo_upload_fee"
+             >
+      No upload fee
+    </text>
   <text
              type="string"
              length="1"
@@ -50,12 +76,12 @@
              height="10"
              layout="topleft"
              left_pad="5"
-             top_delta="-15"
+             top="8"
              >
     Tint
   </text>
   <color_swatch
-                    can_apply_immediately="true"
+                    can_apply_immediately="false"
                     follows="left|top"
                     height="40"
                     label_height="0"
@@ -152,37 +178,53 @@
     border="true"
          follows="left|top"
          width="246"
-         height="160"
+         height="175"
          layout="topleft"
          left="5"
          mouse_opaque="false"
-         name="Texture"
+         name="metallic_texture_pnl"
          top_pad="5"
          >
     <text
              type="string"
+             font.style="BOLD"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
              left="10"
-             top_pad="5"
+             top="5"
              >
     Metallic-Roughness:
   </text>
-  <texture_picker
-             can_apply_immediately="true"
+    <texture_picker
+             can_apply_immediately="false"
              default_image_name="Default"
              fallback_image="materials_ui_x_24.png"
+             allow_no_texture="true"
              follows="left|top"
              width="128" 
              height="151"
              layout="topleft"
              left="10"
-             name="metallic-roughness texture"
+             name="metallic_roughness_texture"
              tool_tip="GLTF metallic-roughness map with optional occlusion.  Red channel is occlusion, green channel is roughness, blue channel is metalness."
              top_pad="8"
              />
+  <text
+             type="string"
+             font.style="BOLD"
+             length="1"
+             follows="left|top"
+             height="10"
+             width="128"
+             layout="topleft"
+             left="10"
+             top_pad="-17"
+             name="metallic_upload_fee"
+           >
+    No upload fee
+  </text>
   <text
              type="string"
              length="1"
@@ -190,7 +232,7 @@
              height="10"
              layout="topleft"
              left_pad="5"
-             top_delta="-15"
+             top="8"
              >
     Metallic Factor
   </text>
@@ -237,15 +279,16 @@
     border="true"
          follows="left|top"
          width="246"
-         height="160"
+         height="175"
          layout="topleft"
          left="5"
          mouse_opaque="false"
-         name="Texture"
+         name="emissive_texture_pnl"
          top_pad="5"
          >
     <text
                type="string"
+               font.style="BOLD"
                length="1"
                follows="left|top"
                height="10"
@@ -256,16 +299,31 @@
       Emissive:
     </text>
     <texture_picker
-               can_apply_immediately="true"
+               can_apply_immediately="false"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
+               allow_no_texture="true"
                follows="left|top"
                top_pad="8"
                height="151"
                layout="topleft"
                left="10"
-               name="emissive texture"
+               name="emissive_texture"
                width="128" />
+    <text
+               type="string"
+               font.style="BOLD"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="128"
+               layout="topleft"
+               left="10"
+               top_pad="-17"
+               name="emissive_upload_fee"
+           >
+      No upload fee
+    </text>
     <text
                type="string"
                length="1"
@@ -273,12 +331,12 @@
                height="10"
                layout="topleft"
                left_pad="5"
-               top_delta="-15"
+               top="8"
              >
       Tint
     </text>
     <color_swatch
-                      can_apply_immediately="true"
+                      can_apply_immediately="false"
                       follows="left|top"
                       height="40"
                       label_height="0"
@@ -316,14 +374,16 @@
     border="true"
          follows="left|top"
          width="246"
-         height="160"
+         height="175"
          layout="topleft"
          left="5"
          mouse_opaque="false"
          top_pad="5"
+         name="normal_texture_pnl"
          >
     <text
                type="string"
+               font.style="BOLD"
                length="1"
                follows="left|top"
                height="10"
@@ -334,41 +394,106 @@
       Normal:
     </text>
     <texture_picker
-               can_apply_immediately="true"
+               can_apply_immediately="false"
                default_image_name="Default"
                fallback_image="materials_ui_x_24.png"
+               allow_no_texture="true"
                follows="left|top"
                top_pad="8"
                height="151"
                layout="topleft"
                left="10"
-               name="normal texture"
+               name="normal_texture"
                width="128" />
-    <!--<check_box
-          follows="left|top"
-          label="Mikkt Space"
-          left_pad="10"
-          top_delta="0"
-          height="25"
-          width="120" />-->
+    <text
+               type="string"
+               font.style="BOLD"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="128"
+               layout="topleft"
+               left="10"
+               top_pad="-17"
+               name="normal_upload_fee"
+           >
+      No upload fee
+    </text>
   </panel>
-  <check_box
-          follows="left|top"
-          label="Double Sided"
-          left="5"
-          top_pad="5"
-          name="double sided"
-          height="25"
-          width="120" />
-  <button
-             follows="right|bottom"
-             height="25"
-             label="Save"
-             layout="bottomright"
-             name="save"
-             tool_tip="Browse for an editor (executable) to edit floater XML files"
-             top_delta="-2"
-             left="5"
-             width="246" />
-  
+
+  <panel
+         follows="right|bottom"
+         width="246"
+         height="97"
+         layout="bottomright"
+         top_delta="-2"
+         left="5"
+         name="button_panel"
+         >
+    <text
+               type="string"
+               name="unsaved_changes"
+               font.style="BOLD"
+               text_color="DrYellow"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="200"
+               layout="topleft"
+               left="10"
+               top="0"
+           >
+      Usaved changes
+    </text>
+    <button
+               follows="left|top"
+               height="25"
+               label="Save"
+               layout="topleft"
+               name="save"
+               top_pad="7"
+               left="0"
+               width="120" />
+    <button
+               follows="left|top"
+               height="25"
+               label="Save As..."
+               layout="topleft"
+               name="save_as"
+               top_delta="0"
+               left_pad="6"
+               width="120" />
+    <text
+               type="string"
+               font.style="BOLD"
+               length="1"
+               follows="left|top"
+               height="10"
+               width="220"
+               layout="topleft"
+               left="10"
+               top_pad="5"
+           >
+      Total upload fee: L$ [FEE]
+    </text>
+    
+    <view_border
+        bevel_style="none"
+        height="0"
+        layout="topleft"
+        left="0"
+        name="button_border"
+        top_pad="7"
+        width="246"/>
+    
+    <button
+               follows="left|top"
+               height="25"
+               label="Cancel"
+               layout="topleft"
+               name="cancel"
+               top_pad="7"
+               left="61"
+               width="121" />
+  </panel>
 </floater>

@@ -28,6 +28,8 @@
 
 #include "llfloater.h"
 
+class LLTextureCtrl;
+
 class LLMaterialEditor : public LLFloater
 {
 public:
@@ -40,9 +42,14 @@ public:
     void applyToSelection();
 
     void onClickSave();
+    void onClickSaveAs();
+    void onSaveAsMsgCallback(const LLSD& notification, const LLSD& response);
+    void onClickCancel();
+    void onCancelMsgCallback(const LLSD& notification, const LLSD& response);
 
 	// llpanel
 	BOOL postBuild() override;
+    void onClickCloseBtn(bool app_quitting = false) override;
 
     LLUUID getAlbedoId();
     void setAlbedoId(const LLUUID& id);
@@ -59,6 +66,8 @@ public:
 
     F32 getAlphaCutoff();
     void setAlphaCutoff(F32 alpha_cutoff);
+    
+    void setMaterialName(const std::string &name);
 
     LLUUID getMetallicRoughnessId();
     void setMetallicRoughnessId(const LLUUID& id);
@@ -80,5 +89,27 @@ public:
 
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
+
+    void setHasUnsavedChanges(bool value);
+
+    void onCommitAlbedoTexture(LLUICtrl* ctrl, const LLSD& data);
+    void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);
+    void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
+    void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
+
+private:
+    LLTextureCtrl* mAlbedoTextureCtrl;
+    LLTextureCtrl* mMetallicTextureCtrl;
+    LLTextureCtrl* mEmissiveTextureCtrl;
+    LLTextureCtrl* mNormalTextureCtrl;
+
+    // 'Default' texture, unless it's null or from inventory is the one with the fee
+    LLUUID mAlbedoTextureUploadId;
+    LLUUID mMetallicTextureUploadId;
+    LLUUID mEmissiveTextureUploadId;
+    LLUUID mNormalTextureUploadId;
+
+    bool mHasUnsavedChanges;
+    std::string mMaterialName;
 };
 

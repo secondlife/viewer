@@ -1650,6 +1650,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredPBROpaqueProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredPBROpaqueProgram.addPermutation("HAS_NORMAL_MAP", "1");
         gDeferredPBROpaqueProgram.addPermutation("HAS_SPECULAR_MAP", "1");
+        gDeferredPBROpaqueProgram.addPermutation("HAS_EMISSIVE_MAP", "1");
         gDeferredPBROpaqueProgram.addPermutation("DIFFUSE_ALPHA_MODE", "0");
 
         success = make_rigged_variant(gDeferredPBROpaqueProgram, gDeferredSkinnedPBROpaqueProgram);

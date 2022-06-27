@@ -193,10 +193,8 @@ void LLFloaterTexturePicker::setActive( BOOL active )
 void LLFloaterTexturePicker::setCanApplyImmediately(BOOL b)
 {
 	mCanApplyImmediately = b;
-	if (!mCanApplyImmediately)
-	{
-		getChild<LLUICtrl>("apply_immediate_check")->setValue(FALSE);
-	}
+
+	getChild<LLUICtrl>("apply_immediate_check")->setValue(mCanApplyImmediately);
 	updateFilterPermMask();
 }
 
@@ -413,11 +411,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	getChild<LLUICtrl>("apply_immediate_check")->setValue(gSavedSettings.getBOOL("TextureLivePreview"));
 	childSetCommitCallback("apply_immediate_check", onApplyImmediateCheck, this);
-
-	if (!mCanApplyImmediately)
-	{
-		getChildView("show_folders_check")->setEnabled(FALSE);
-	}
+    getChildView("apply_immediate_check")->setEnabled(mCanApplyImmediately);
 
 	getChild<LLUICtrl>("Pipette")->setCommitCallback( boost::bind(&LLFloaterTexturePicker::onBtnPipette, this));
 	childSetAction("Cancel", LLFloaterTexturePicker::onBtnCancel,this);
@@ -483,7 +477,7 @@ void LLFloaterTexturePicker::draw()
 		}
 
 		getChildView("Default")->setEnabled(mImageAssetID != mDefaultImageAssetID || mTentative);
-		getChildView("Blank")->setEnabled(mImageAssetID != mBlankImageAssetID || mTentative);
+		getChildView("Blank")->setEnabled((mImageAssetID != mBlankImageAssetID && mBlankImageAssetID != mDefaultImageAssetID) || mTentative);
 		getChildView("None")->setEnabled(mAllowNoTexture && (!mImageAssetID.isNull() || mTentative));
 
 		LLFloater::draw();
@@ -1146,7 +1140,7 @@ LLTextureCtrl::LLTextureCtrl(const LLTextureCtrl::Params& p)
 	mOnCloseCallback(NULL),
 	mOnSelectCallback(NULL),
 	mBorderColor( p.border_color() ),
-	mAllowNoTexture( FALSE ),
+	mAllowNoTexture( p.allow_no_texture ),
 	mAllowLocalTexture( TRUE ),
 	mImmediateFilterPermMask( PERM_NONE ),
 	mNonImmediateFilterPermMask( PERM_NONE ),

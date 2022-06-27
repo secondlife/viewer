@@ -27,13 +27,22 @@
 
 #define DEBUG_BASIC         0
 #define DEBUG_VERTEX        0
-#define DEBUG_NORMAL        0
+#define DEBUG_NORMAL_RAW    0 // Output packed normal map "as is" to diffuse
+#define DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
 #define DEBUG_POSITION      0
 
 uniform sampler2D diffuseMap;  //always in sRGB space
 
+uniform float metallicFactor;
+uniform float roughnessFactor;
+uniform vec3 emissiveColor;
+
 #ifdef HAS_NORMAL_MAP
     uniform sampler2D bumpMap;
+#endif
+
+#ifdef HAS_EMISSIVE_MAP
+    uniform sampler2D emissiveMap;
 #endif
 
 #ifdef HAS_SPECULAR_MAP
@@ -76,8 +85,6 @@ void main()
 // else
     vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
 
-    vec3 emissive = vec3(0);
-
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
     norm.xyz = norm.xyz * 2 - 1;
@@ -105,6 +112,14 @@ void main()
     vec3 spec = vec3(1,1,1);
 #endif
     
+    spec.g *= roughnessFactor;
+    spec.b *= metallicFactor;
+
+    vec3 emissive = emissiveColor;
+#ifdef HAS_EMISSIVE_MAP
+    emissive *= texture2D(emissiveMap, vary_texcoord0.xy).rgb;
+#endif
+
 
 #if DEBUG_BASIC
     col.rgb = vec3( 1, 0, 1 );
@@ -112,15 +127,18 @@ void main()
 #if DEBUG_VERTEX
     col.rgb = vertex_color.rgb;
 #endif
-#if DEBUG_NORMAL
+#if DEBUG_NORMAL_RAW
+    col.rgb = texture2D(bumpMap, vary_texcoord1.xy).rgb;
+#endif
+#if DEBUG_NORMAL_OUT
     col.rgb = vary_normal;
 #endif
 #if DEBUG_POSITION
     col.rgb = vary_position.xyz;
 #endif
 
-    frag_data[0] = vec4(col, 0.0);
-    frag_data[1] = vec4(spec.rgb, vertex_color.a);                                      // Occlusion, Roughness, Metal
-    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); //
-    frag_data[3] = vec4(emissive,0);                                                    // Emissive
+    frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
+    frag_data[1] = vec4(spec.rgb, vertex_color.a);                                   // Occlusion, Roughness, Metal
+    frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
+    frag_data[3] = vec4(emissive,0);                                                 // Emissive
 }

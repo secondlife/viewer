@@ -29,17 +29,20 @@
 #include "llmaterialeditor.h"
 
 #include "llagent.h"
+#include "llappviewer.h"
 #include "llcombobox.h"
 #include "llinventorymodel.h"
-#include "llviewermenufile.h"
-#include "llappviewer.h"
-#include "llviewertexture.h"
 #include "llnotificationsutil.h"
+#include "lltexturectrl.h"
+#include "lltrans.h"
+#include "llviewermenufile.h"
+#include "llviewertexture.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
+#include "llcolorswatch.h"
 
 #include "tinygltf/tiny_gltf.h"
 
@@ -50,23 +53,84 @@
 // Default constructor
 LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     : LLFloater(key)
+    , mHasUnsavedChanges(false)
 {
 }
 
 BOOL LLMaterialEditor::postBuild()
 {
+    mAlbedoTextureCtrl = getChild<LLTextureCtrl>("albedo_texture");
+    mMetallicTextureCtrl = getChild<LLTextureCtrl>("metallic_roughness_texture");
+    mEmissiveTextureCtrl = getChild<LLTextureCtrl>("emissive_texture");
+    mNormalTextureCtrl = getChild<LLTextureCtrl>("normal_texture");
+
+    mAlbedoTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitAlbedoTexture, this, _1, _2));
+    mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitMetallicTexture, this, _1, _2));
+    mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitEmissiveTexture, this, _1, _2));
+    mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitNormalTexture, this, _1, _2));
+
     childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
+    childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
+    childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+
+    boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void*) { setHasUnsavedChanges(true); };
+ 
+    childSetCommitCallback("double sided", changes_callback, NULL);
+
+    // Albedo
+    childSetCommitCallback("albedo color", changes_callback, NULL);
+    getChild<LLColorSwatchCtrl>("albedo color")->setCanApplyImmediately(TRUE);
+    childSetCommitCallback("transparency", changes_callback, NULL);
+    childSetCommitCallback("alpha mode", changes_callback, NULL);
+    childSetCommitCallback("alpha cutoff", changes_callback, NULL);
+
+    // Metallic-Roughness
+    childSetCommitCallback("metalness factor", changes_callback, NULL);
+    childSetCommitCallback("roughness factor", changes_callback, NULL);
+
+    // Metallic-Roughness
+    childSetCommitCallback("metalness factor", changes_callback, NULL);
+    childSetCommitCallback("roughness factor", changes_callback, NULL);
+
+    // Emissive
+    childSetCommitCallback("emissive color", changes_callback, NULL);
+    getChild<LLColorSwatchCtrl>("emissive color")->setCanApplyImmediately(TRUE);
+
+    childSetVisible("unsaved_changes", mHasUnsavedChanges);
+
 	return LLFloater::postBuild();
+}
+
+void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
+{
+    if (app_quitting)
+    {
+        closeFloater(app_quitting);
+    }
+    else
+    {
+        onClickCancel();
+    }
 }
 
 LLUUID LLMaterialEditor::getAlbedoId()
 {
-    return childGetValue("albedo texture").asUUID();
+    return mAlbedoTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setAlbedoId(const LLUUID& id)
 {
-    childSetValue("albedo texture", id);
+    mAlbedoTextureCtrl->setValue(id);
+    mAlbedoTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+        // Only set if we will need to upload this texture
+        mAlbedoTextureUploadId = id;
+    }
 }
 
 LLColor4 LLMaterialEditor::getAlbedoColor()
@@ -75,7 +139,6 @@ LLColor4 LLMaterialEditor::getAlbedoColor()
     ret.mV[3] = getTransparency();
     return ret;
 }
-
 
 void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
 {
@@ -108,14 +171,29 @@ void LLMaterialEditor::setAlphaCutoff(F32 alpha_cutoff)
     childSetValue("alpha cutoff", alpha_cutoff);
 }
 
+void LLMaterialEditor::setMaterialName(const std::string &name)
+{
+    setTitle(name);
+    mMaterialName = name;
+}
+
 LLUUID LLMaterialEditor::getMetallicRoughnessId()
 {
-    return childGetValue("metallic-roughness texture").asUUID();
+    return mMetallicTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
-    childSetValue("metallic-roughness texture", id);
+    mMetallicTextureCtrl->setValue(id);
+    mMetallicTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("metallic_upload_fee", getString("upload_fee_string"));
+        mMetallicTextureUploadId = id;
+    }
 }
 
 F32 LLMaterialEditor::getMetalnessFactor()
@@ -140,12 +218,21 @@ void LLMaterialEditor::setRoughnessFactor(F32 factor)
 
 LLUUID LLMaterialEditor::getEmissiveId()
 {
-    return childGetValue("emissive texture").asUUID();
+    return mEmissiveTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
-    childSetValue("emissive texture", id);
+    mEmissiveTextureCtrl->setValue(id);
+    mEmissiveTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("emissive_upload_fee", getString("upload_fee_string"));
+        mEmissiveTextureUploadId = id;
+    }
 }
 
 LLColor4 LLMaterialEditor::getEmissiveColor()
@@ -160,12 +247,21 @@ void LLMaterialEditor::setEmissiveColor(const LLColor4& color)
 
 LLUUID LLMaterialEditor::getNormalId()
 {
-    return childGetValue("normal texture").asUUID();
+    return mNormalTextureCtrl->getValue().asUUID();
 }
 
 void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
-    childSetValue("normal texture", id);
+    mNormalTextureCtrl->setValue(id);
+    mNormalTextureCtrl->setDefaultImageAssetID(id);
+
+    if (id.notNull())
+    {
+        // todo: this does not account for posibility of texture
+        // being from inventory, need to check that
+        childSetValue("normal_upload_fee", getString("upload_fee_string"));
+        mNormalTextureUploadId = id;
+    }
 }
 
 bool LLMaterialEditor::getDoubleSided()
@@ -176,6 +272,76 @@ bool LLMaterialEditor::getDoubleSided()
 void LLMaterialEditor::setDoubleSided(bool double_sided)
 {
     childSetValue("double sided", double_sided);
+}
+
+void LLMaterialEditor::setHasUnsavedChanges(bool value)
+{
+    if (value != mHasUnsavedChanges)
+    {
+        mHasUnsavedChanges = value;
+        childSetVisible("unsaved_changes", value);
+    }
+
+    // HACK -- apply any changes to selection immediately
+    applyToSelection();
+}
+
+void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    // might be better to use arrays, to have a single callback
+    // and not to repeat the same thing for each tecture control
+    LLUUID new_val = mAlbedoTextureCtrl->getValue().asUUID();
+    if (new_val == mAlbedoTextureUploadId && mAlbedoTextureUploadId.notNull())
+    {
+        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
+    }
+    setHasUnsavedChanges(true);
+}
+
+void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mMetallicTextureCtrl->getValue().asUUID();
+    if (new_val == mMetallicTextureUploadId && mMetallicTextureUploadId.notNull())
+    {
+        childSetValue("metallic_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
+    }
+    setHasUnsavedChanges(true);
+}
+
+void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mEmissiveTextureCtrl->getValue().asUUID();
+    if (new_val == mEmissiveTextureUploadId && mEmissiveTextureUploadId.notNull())
+    {
+        childSetValue("emissive_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
+    }
+    setHasUnsavedChanges(true);
+}
+
+void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
+{
+    LLUUID new_val = mNormalTextureCtrl->getValue().asUUID();
+    if (new_val == mNormalTextureUploadId && mNormalTextureUploadId.notNull())
+    {
+        childSetValue("normal_upload_fee", getString("upload_fee_string"));
+    }
+    else
+    {
+        childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
+    }
+    setHasUnsavedChanges(true);
 }
 
 
@@ -272,7 +438,7 @@ void LLMaterialEditor::onClickSave()
     
     std::string dump = str.str();
 
-    LL_INFOS() << dump << LL_ENDL;
+    LL_INFOS() << mMaterialName << ": " << dump << LL_ENDL;
 
     // gen a new uuid for this asset
     LLTransactionID tid;
@@ -311,6 +477,54 @@ void LLMaterialEditor::onClickSave()
             }
         })
     );
+}
+
+void LLMaterialEditor::onClickSaveAs()
+{
+    LLSD args;
+    args["DESC"] = mMaterialName;
+
+    LLNotificationsUtil::add("SaveMaterialAs", args, LLSD(), boost::bind(&LLMaterialEditor::onSaveAsMsgCallback, this, _1, _2));
+}
+
+void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        std::string new_name = response["message"].asString();
+        LLStringUtil::trim(new_name);
+        if (!new_name.empty())
+        {
+            setMaterialName(new_name);
+            onClickSave();
+        }
+        else
+        {
+            LLNotificationsUtil::add("InvalidMaterialName");
+        }
+    }
+}
+
+void LLMaterialEditor::onClickCancel()
+{
+    if (mHasUnsavedChanges)
+    {
+        LLNotificationsUtil::add("UsavedMaterialChanges", LLSD(), LLSD(), boost::bind(&LLMaterialEditor::onCancelMsgCallback, this, _1, _2));
+    }
+    else
+    {
+        closeFloater();
+    }
+}
+
+void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD& response)
+{
+    S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+    if (0 == option)
+    {
+        closeFloater();
+    }
 }
 
 class LLMaterialFilePicker : public LLFilePickerThread
@@ -358,28 +572,115 @@ const tinygltf::Image* get_image_from_texture_index(const tinygltf::Model& model
     return nullptr;
 }
 
-static LLViewerFetchedTexture* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
+static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
 {
-    LLViewerFetchedTexture* ret = nullptr;
-
     const tinygltf::Image* image = get_image_from_texture_index(model, texture_index);
+
+    LLImageRaw* rawImage = nullptr;
 
     if (image != nullptr && 
         image->bits == 8 &&
         !image->image.empty() &&
         image->component <= 4)
     {
-        LLPointer<LLImageRaw> rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
+        rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
         rawImage->verticalFlip();
-        
-        ret = LLViewerTextureManager::getFetchedTexture(rawImage, FTType::FTT_LOCAL_FILE, true);
-
-        ret->forceToSaveRawImage(0, F32_MAX);
     }
 
-    // TODO: provide helpful error message if image fails to load
+    return rawImage;
+}
 
-    return ret;
+static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
+{
+    if (img->getComponents() == 4)
+    {
+        LLImageRaw* tmp = new LLImageRaw(img->getWidth(), img->getHeight(), 3);
+        tmp->copyUnscaled4onto3(img);
+        img = tmp;
+    }
+}
+
+// copy red channel from src_img to dst_img
+// PRECONDITIONS:
+// dst_img must be 3 component
+// src_img and dst_image must have the same dimensions
+static void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
+{
+    llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
+    llassert(dst_img->getComponents() == 3);
+
+    U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
+    U8* src = src_img->getData();
+    U8* dst = dst_img->getData();
+    S8 src_components = src_img->getComponents();
+
+    for (U32 i = 0; i < pixel_count; ++i)
+    {
+        dst[i * 3] = src[i * src_components];
+    }
+}
+
+static void pack_textures(tinygltf::Model& model, tinygltf::Material& material, 
+    LLPointer<LLImageRaw>& albedo_img,
+    LLPointer<LLImageRaw>& normal_img,
+    LLPointer<LLImageRaw>& mr_img,
+    LLPointer<LLImageRaw>& emissive_img,
+    LLPointer<LLImageRaw>& occlusion_img,
+    LLPointer<LLViewerFetchedTexture>& albedo_tex,
+    LLPointer<LLViewerFetchedTexture>& normal_tex,
+    LLPointer<LLViewerFetchedTexture>& mr_tex,
+    LLPointer<LLViewerFetchedTexture>& emissive_tex)
+{
+    // TODO: downscale if needed
+    if (albedo_img)
+    {
+        albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (normal_img)
+    {
+        strip_alpha_channel(normal_img);
+        normal_tex = LLViewerTextureManager::getFetchedTexture(normal_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (mr_img)
+    {
+        strip_alpha_channel(mr_img);
+
+        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
+        {
+            // occlusion is a distinct texture from pbrMetallicRoughness
+            // pack into mr red channel
+            int occlusion_idx = material.occlusionTexture.index;
+            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+            if (occlusion_idx != mr_idx)
+            {
+                //scale occlusion image to match resolution of mr image
+                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
+             
+                copy_red_channel(occlusion_img, mr_img);
+            }
+        }
+    }
+    else if (occlusion_img)
+    {
+        //no mr but occlusion exists, make a white mr_img and copy occlusion red channel over
+        mr_img = new LLImageRaw(occlusion_img->getWidth(), occlusion_img->getHeight(), 3);
+        mr_img->clear(255, 255, 255);
+        copy_red_channel(occlusion_img, mr_img);
+
+    }
+
+    if (mr_img)
+    {
+        mr_tex = LLViewerTextureManager::getFetchedTexture(mr_img, FTType::FTT_LOCAL_FILE, true);
+    }
+
+    if (emissive_img)
+    {
+        strip_alpha_channel(emissive_img);
+        emissive_tex = LLViewerTextureManager::getFetchedTexture(emissive_img, FTType::FTT_LOCAL_FILE, true);
+    }
 }
 
 static LLColor4 get_color(const std::vector<double>& in)
@@ -423,13 +724,14 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
 
     if (!loaded)
     {
-        // TODO: show error_msg to user
+        LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
     if (model_in.materials.empty())
     {
-        // TODO: show error message that materials are missing
+        // materials are missing
+        LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
@@ -443,39 +745,54 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     model_out.materials.resize(1);
 
     // get albedo texture
-    LLPointer<LLViewerFetchedTexture> albedo_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    LLPointer<LLImageRaw> albedo_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    // get normal map
+    LLPointer<LLImageRaw> normal_img = get_texture(folder, model_in, material_in.normalTexture.index);
+    // get metallic-roughness texture
+    LLPointer<LLImageRaw> mr_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    // get emissive texture
+    LLPointer<LLImageRaw> emissive_img = get_texture(folder, model_in, material_in.emissiveTexture.index);
+    // get occlusion map if needed
+    LLPointer<LLImageRaw> occlusion_img;
+    if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
+    {
+        occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index);
+    }
 
+    LLPointer<LLViewerFetchedTexture> albedo_tex;
+    LLPointer<LLViewerFetchedTexture> normal_tex;
+    LLPointer<LLViewerFetchedTexture> mr_tex;
+    LLPointer<LLViewerFetchedTexture> emissive_tex;
+    
+    pack_textures(model_in, material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
+        albedo_tex, normal_tex, mr_tex, emissive_tex);
+    
     LLUUID albedo_id;
     if (albedo_tex != nullptr)
     {
+        albedo_tex->forceToSaveRawImage(0, F32_MAX);        
         albedo_id = albedo_tex->getID();
     }
-
-    // get metallic-roughness texture
-    LLPointer<LLViewerFetchedTexture> mr_tex = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
-
-    LLUUID mr_id;
-    if (mr_tex != nullptr)
-    {
-        mr_id = mr_tex->getID();
-    }
-
-    // get emissive texture
-    LLPointer<LLViewerFetchedTexture> emissive_tex = get_texture(folder, model_in, material_in.emissiveTexture.index);
-
-    LLUUID emissive_id;
-    if (emissive_tex != nullptr)
-    {
-        emissive_id = emissive_tex->getID();
-    }
-
-    // get normal map
-    LLPointer<LLViewerFetchedTexture> normal_tex = get_texture(folder, model_in, material_in.normalTexture.index);
 
     LLUUID normal_id;
     if (normal_tex != nullptr)
     {
+        normal_tex->forceToSaveRawImage(0, F32_MAX);
         normal_id = normal_tex->getID();
+    }
+
+    LLUUID mr_id;
+    if (mr_tex != nullptr)
+    {
+        mr_tex->forceToSaveRawImage(0, F32_MAX);
+        mr_id = mr_tex->getID();
+    }
+
+    LLUUID emissive_id;
+    if (emissive_tex != nullptr)
+    {
+        emissive_tex->forceToSaveRawImage(0, F32_MAX);
+        emissive_id = emissive_tex->getID();
     }
 
     mME->setAlbedoId(albedo_id);
@@ -491,9 +808,13 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     
     mME->setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
     mME->setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
-    
+
     mME->setDoubleSided(material_in.doubleSided);
 
+    std::string new_material = LLTrans::getString("New Material");
+    mME->setMaterialName(new_material);
+
+    mME->setHasUnsavedChanges(true);
     mME->openFloater();
 
     mME->applyToSelection();

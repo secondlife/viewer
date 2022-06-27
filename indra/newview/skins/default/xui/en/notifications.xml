@@ -9025,7 +9025,64 @@ Unable to upload texture.
 [REASON]   
   <tag>fail</tag>  
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="CannotUploadMaterial"
+   type="alertmodal">
+There was a problem uploading the file
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ label="Save Material"
+ name="SaveMaterialAs"
+ type="alertmodal">
+    <unique/>
+    Name this material:
+    <tag>confirm</tag>
+    <form name="form">
+      <input name="message" type="text">
+        [DESC]
+      </input>
+      <button
+       default="true"
+       index="0"
+       name="OK"
+       text="OK"/>
+      <button
+       index="1"
+       name="Cancel"
+       text="Cancel"/>
+    </form>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="InvalidMaterialName"
+   type="alertmodal">
+Please enter a non-empty name
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="UsavedMaterialChanges"
+   type="alertmodal">
+    You have unsaved changes.
+    <form name="form">
+      <button
+       index="0"
+       name="discard"
+       text="Discard changes"/>
+      <button
+       index="1"
+       name="keep"
+       text="Keep editing"/>
+    </form>
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="LivePreviewUnavailable"

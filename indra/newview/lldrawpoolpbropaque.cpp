@@ -99,30 +99,48 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
     {
         LLDrawInfo& params = **i;
 
-//gGL.getTexUnit(0)->activate();
+        //gGL.getTexUnit(0)->activate();
 
-        if (mShaderLevel > 1)
+        if (params.mTexture.notNull())
         {
-            if (params.mTexture.notNull())
-            {
-                gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
-            }
+            gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
+        }
+        else
+        {
+            gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
         }
 
         if (params.mNormalMap)
         {
             gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
         }
+        else
+        {
+            // TODO: bind default normal map (???? WTF is it ???)
+        }
 
         if (params.mSpecularMap)
         {
             gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // Packed Occlusion Roughness Metal
         }
+        else
+        {
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
 
-        // Similar to LLDrawPooLMaterials::pushMaterialsBatch(params, getVertexDataMask(), false);
+        if (params.mEmissiveMap)
+        {
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap); // Packed Occlusion Roughness Metal
+        }
+        else
+        {
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
+        
+        gDeferredPBROpaqueProgram.uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
+        gDeferredPBROpaqueProgram.uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
+        gDeferredPBROpaqueProgram.uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
+
         LLRenderPass::pushBatch(params, getVertexDataMask(), FALSE, FALSE);
-        //LLRenderPass::applyModelMatrix(params);
-        //params.mVertexBuffer->setBufferFast(getVertexDataMask());
-        //params.mVertexBuffer->drawRangeFast(params.mDrawMode, params.mStart, params.mEnd, params.mCount, params.mOffset);
     }
 }
