@@ -32,6 +32,7 @@
 #define DEBUG_PBR_RAW_SPEC         0 // Output: use spec in G-Buffer
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
+#define DEBUG_PBR_EMISSIVE         0 // Output: Emissive
 #define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
 #define DEBUG_PBR_OCCLUSION        0 // Output: Occlusion map
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughenss
@@ -203,7 +204,7 @@ void main()
     if (hasPBR)
     {
         vec3 colorDiffuse      = vec3(0);
-        vec3 colorEmissive     = vec3(0);
+        vec3 colorEmissive     = texture2DRect(emissiveRect, tc).rgb;
         vec3 colorSpec         = vec3(0);
 //      vec3 colorClearCoat    = vec3(0);
 //      vec3 colorSheen        = vec3(0);
