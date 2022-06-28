@@ -239,12 +239,12 @@ void main()
 
         // Reference: getMetallicRoughnessInfo
         float perceptualRough = packedORM.g;
-        float alphaRough     = perceptualRough * perceptualRough;
-        vec3  colorDiff      = mix( diffuse.rgb, vec3(0)    , metal);
-              reflect0       = mix( reflect0   , diffuse.rgb, metal); // reflect at 0 degrees
-              reflect90      = vec3(1);                               // reflect at 90 degrees
+        float alphaRough      = perceptualRough * perceptualRough;
+        vec3  colorDiff       = mix( diffuse.rgb, vec3(0)    , metal);
+              reflect0        = mix( reflect0   , diffuse.rgb, metal); // reflect at 0 degrees
+              reflect90       = vec3(1);                               // reflect at 90 degrees
 #if DEBUG_PBR_REFLECTANCE
-        float reflectance    = max( max( reflect0.r, reflect0.g ), reflect0.b );
+        float reflectance     = max( max( reflect0.r, reflect0.g ), reflect0.b );
 #endif
 
         // Common to RadianceGGX and RadianceLambertian
@@ -270,12 +270,12 @@ void main()
 
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
-        float Ems          = (1.0 - vScaleBias.x + vScaleBias.y);
-        vec3  avg          = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
-        vec3  AvgEms       = avg * Ems;
-        vec3  FmsEms       = AvgEms * FssEssLambert / (1.0 - AvgEms);
-        vec3  kDiffuse     = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
-        colorDiffuse      += (FmsEms + kDiffuse) * irradiance;
+        float Ems           = (1.0 - vScaleBias.x + vScaleBias.y);
+        vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
+        vec3  AvgEms        = avg * Ems;
+        vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
+        vec3  kDiffuse      = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
+        colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
 
         float occlusion_strength = 1.0; // TODO: From glb
         float ao     = packedORM.r;
