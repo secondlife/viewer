@@ -230,6 +230,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
+    mServerVolumeUpdateCount = 0;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
 	mLastRiggingInfoLOD = -1;
@@ -400,6 +401,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
+                onVolumeUpdateFromServer();
 			}
 		}
 
@@ -436,6 +438,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
+                onVolumeUpdateFromServer();
 			}
 			S32 res2 = unpackTEMessage(*dp);
 			if (TEM_INVALID == res2)
@@ -551,6 +554,15 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
+void LLVOVolume::onVolumeUpdateFromServer()
+{
+    constexpr U32 UPDATES_UNTIL_ACTIVE = 8;
+    ++mServerVolumeUpdateCount;
+    if (mDrawable && !mDrawable->isActive() && mServerVolumeUpdateCount > UPDATES_UNTIL_ACTIVE)
+    {
+        mDrawable->makeActive();
+    }
+}
 
 void LLVOVolume::animateTextures()
 {

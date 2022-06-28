@@ -170,6 +170,7 @@ public:
 				const LLMatrix4& getWorldMatrix(LLXformMatrix* xform) const;
 
 				void	markForUpdate(BOOL priority);
+                void    onVolumeUpdateFromServer();
 				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
 				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
 
@@ -424,6 +425,7 @@ private:
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
+    U64         mServerVolumeUpdateCount;
 	S32 mIndexInTex[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
 	S32 mMDCImplCount;
 
