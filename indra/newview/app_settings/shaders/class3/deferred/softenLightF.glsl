@@ -56,6 +56,7 @@
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
 #define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
 #define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
+#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -312,6 +313,9 @@ void main()
     #endif
     #if DEBUG_PBR_DIFFUSE
         color.rgb = colorDiffuse;
+    #endif
+    #if DEBUG_PBR_DIFFUSE_K
+        color.rgb = kDiffuse;
     #endif
     #if DEBUG_PBR_EMISSIVE
         color.rgb = colorEmissive;
