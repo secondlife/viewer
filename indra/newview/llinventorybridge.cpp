@@ -7651,8 +7651,7 @@ public:
         LLViewerInventoryItem* item = getItem();
         if (item)
         {
-            // TODO - show UI for material preview?
-            LL_INFOS() << "inventory action performed on material: " << item->getName() << " " << item->getUUID() << LL_ENDL;
+            LLFloaterReg::showInstance("material_editor", LLSD(item->getUUID()), TAKE_FOCUS_YES);
         }
         LLInvFVBridgeAction::doIt();
     }

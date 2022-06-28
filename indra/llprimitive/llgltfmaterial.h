@@ -83,6 +83,16 @@ public:
             mAlphaMode = ALPHA_MODE_OPAQUE;
         }
     }
+
+    const char* getAlphaMode()
+    {
+        switch (mAlphaMode)
+        {
+        case ALPHA_MODE_MASK: return "MASK";
+        case ALPHA_MODE_BLEND: return "BLEND";
+        default: return "OPAQUE";
+        }
+    }
 };
 
 

@@ -1414,7 +1414,8 @@ bool check_asset_previewable(const LLAssetType::EType asset_type)
 			(asset_type == LLAssetType::AT_TEXTURE)   ||
 			(asset_type == LLAssetType::AT_ANIMATION) ||
 			(asset_type == LLAssetType::AT_SCRIPT)    ||
-			(asset_type == LLAssetType::AT_SOUND);
+			(asset_type == LLAssetType::AT_SOUND) ||
+            (asset_type == LLAssetType::AT_MATERIAL);
 }
 
 void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_name)
@@ -1519,6 +1520,9 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 					case LLAssetType::AT_SOUND:
 						LLFloaterReg::showInstance("preview_sound", LLSD(obj_id), take_focus);
 						break;
+                    case LLAssetType::AT_MATERIAL:
+                        LLFloaterReg::showInstance("material editor", LLSD(obj_id), take_focus);
+                        break;
 					default:
 						LL_DEBUGS("Messaging") << "No preview method for previewable asset type : " << LLAssetType::lookupHumanReadable(asset_type)  << LL_ENDL;
 						break;

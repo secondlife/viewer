@@ -42,8 +42,14 @@
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
-
+#include "roles_constants.h"
 #include "tinygltf/tiny_gltf.h"
+#include "llviewerobjectlist.h"
+#include "llfloaterreg.h"
+#include "llfilesystem.h"
+#include "llsdserialize.h"
+
+#include <strstream>
 
 ///----------------------------------------------------------------------------
 /// Class LLPreviewNotecard
@@ -51,9 +57,14 @@
 
 // Default constructor
 LLMaterialEditor::LLMaterialEditor(const LLSD& key)
-    : LLFloater(key)
+    : LLPreview(key)
     , mHasUnsavedChanges(false)
 {
+    const LLInventoryItem* item = getItem();
+    if (item)
+    {
+        mAssetID = item->getAssetUUID();
+    }
 }
 
 BOOL LLMaterialEditor::postBuild()
@@ -104,7 +115,7 @@ BOOL LLMaterialEditor::postBuild()
     // Disable/enable setCanApplyImmediately() based on
     // working from inventory, upload or editing inworld
 
-	return LLFloater::postBuild();
+	return LLPreview::postBuild();
 }
 
 void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
@@ -149,12 +160,17 @@ LLColor4 LLMaterialEditor::getAlbedoColor()
 void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
 {
     childSetValue("albedo color", color.getValue());
-    childSetValue("transparency", color.mV[3]);
+    setTransparency(color.mV[3]);
 }
 
 F32 LLMaterialEditor::getTransparency()
 {
     return childGetValue("transparency").asReal();
+}
+
+void LLMaterialEditor::setTransparency(F32 transparency)
+{
+    childSetValue("transparency", transparency);
 }
 
 std::string LLMaterialEditor::getAlphaMode()
@@ -375,11 +391,51 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
     return texture_idx;
 }
 
+
 void LLMaterialEditor::onClickSave()
 {
     applyToSelection();
+    
+    saveIfNeeded();
+}
 
+
+std::string LLMaterialEditor::getGLTFJson(bool prettyprint)
+{
     tinygltf::Model model;
+    getGLTFModel(model);
+
+    std::ostringstream str;
+
+    tinygltf::TinyGLTF gltf;
+    
+    gltf.WriteGltfSceneToStream(&model, str, prettyprint, false);
+
+    std::string dump = str.str();
+
+    return dump;
+}
+
+void LLMaterialEditor::getGLBData(std::vector<U8>& data)
+{
+    tinygltf::Model model;
+    getGLTFModel(model);
+
+    std::ostringstream str;
+
+    tinygltf::TinyGLTF gltf;
+
+    gltf.WriteGltfSceneToStream(&model, str, false, true);
+
+    std::string dump = str.str();
+
+    data.resize(dump.length());
+
+    memcpy(&data[0], dump.c_str(), dump.length());
+}
+
+void LLMaterialEditor::getGLTFModel(tinygltf::Model& model)
+{
     model.materials.resize(1);
     tinygltf::PbrMetallicRoughness& pbrMaterial = model.materials[0].pbrMetallicRoughness;
 
@@ -392,11 +448,11 @@ void LLMaterialEditor::onClickSave()
     model.materials[0].alphaMode = getAlphaMode();
 
     LLUUID albedo_id = getAlbedoId();
-    
+
     if (albedo_id.notNull())
     {
         U32 texture_idx = write_texture(albedo_id, model);
-        
+
         pbrMaterial.baseColorTexture.index = texture_idx;
     }
 
@@ -406,14 +462,14 @@ void LLMaterialEditor::onClickSave()
 
     pbrMaterial.metallicFactor = metalness;
     pbrMaterial.roughnessFactor = roughness;
-    
+
     LLUUID mr_id = getMetallicRoughnessId();
     if (mr_id.notNull())
     {
         U32 texture_idx = write_texture(mr_id, model);
         pbrMaterial.metallicRoughnessTexture.index = texture_idx;
     }
-    
+
     //write emissive
     LLColor4 emissive_color = getEmissiveColor();
     model.materials[0].emissiveFactor.resize(3);
@@ -437,53 +493,212 @@ void LLMaterialEditor::onClickSave()
     //write doublesided
     model.materials[0].doubleSided = getDoubleSided();
 
-    std::ostringstream str;
-
-    tinygltf::TinyGLTF gltf;
     model.asset.version = "2.0";
-    gltf.WriteGltfSceneToStream(&model, str, true, false);
-    
-    std::string dump = str.str();
-
-    LL_INFOS() << mMaterialName << ": " << dump << LL_ENDL;
-
-    // gen a new uuid for this asset
-    LLTransactionID tid;
-    tid.generate();     // timestamp-based randomization + uniquification
-    LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-    std::string res_desc = "Saved Material";
-    U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
-    LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
-    const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
-
-    create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, mMaterialName, res_desc,
-        LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
-        new LLBoostFuncInventoryCallback([output=dump](LLUUID const & inv_item_id){
-            // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
-            LLResourceUploadInfo::ptr_t uploadInfo =
-                std::make_shared<LLBufferedAssetUploadInfo>(
-                    inv_item_id,
-                    LLAssetType::AT_SETTINGS, // TODO switch to AT_MATERIAL
-                    output,
-                    [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response) {
-                        LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
-                        LLSD params = llsd::map("ASSET_ID", new_asset_id);
-                        LLNotificationsUtil::add("MaterialCreated", params);
-                    });
-
-            const LLViewerRegion* region = gAgent.getRegion();
-            if (region)
-            {
-                 std::string agent_url(region->getCapability("UpdateSettingsAgentInventory"));
-                 if (agent_url.empty())
-                 {
-                     LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
-                 }
-                 LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
-            }
-        })
-    );
 }
+
+std::string LLMaterialEditor::getEncodedAsset()
+{
+    LLSD asset;
+    asset["version"] = "1.0";
+    asset["type"] = "GLTF 2.0";
+    asset["data"] = getGLTFJson(false);
+
+    std::ostringstream str;
+    LLSDSerialize::serialize(asset, str, LLSDSerialize::LLSD_BINARY);
+
+    return str.str();
+}
+
+bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
+{
+    LLSD asset;
+    
+    std::istrstream str(&buffer[0], buffer.size());
+    if (LLSDSerialize::deserialize(asset, str, buffer.size()))
+    {
+        if (asset.has("version") && asset["version"] == "1.0")
+        {
+            if (asset.has("type") && asset["type"] == "GLTF 2.0")
+            {
+                if (asset.has("data") && asset["data"].isString())
+                {
+                    std::string data = asset["data"];
+
+                    tinygltf::TinyGLTF gltf;
+                    tinygltf::TinyGLTF loader;
+                    std::string        error_msg;
+                    std::string        warn_msg;
+
+                    tinygltf::Model model_in;
+
+                    if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
+                    {
+                        return setFromGltfModel(model_in, true);
+                    }
+                    else
+                    {
+                        LL_WARNS() << "Failed to decode material asset: " << LL_ENDL;
+                        LL_WARNS() << warn_msg << LL_ENDL;
+                        LL_WARNS() << error_msg << LL_ENDL;
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
+    }
+
+    return false;
+}
+
+bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
+{
+    std::string buffer = getEncodedAsset();
+    
+    const LLInventoryItem* item = getItem();
+    // save it out to database
+    if (item)
+    {
+        const LLViewerRegion* region = gAgent.getRegion();
+        if (!region)
+        {
+            LL_WARNS() << "Not connected to a region, cannot save material." << LL_ENDL;
+            return false;
+        }
+        std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
+        std::string task_url = region->getCapability("UpdateMaterialTaskInventory");
+
+        if (!agent_url.empty() && !task_url.empty())
+        {
+            std::string url;
+            LLResourceUploadInfo::ptr_t uploadInfo;
+
+            if (mObjectUUID.isNull() && !agent_url.empty())
+            {
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_MATERIAL, buffer,
+                    [](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD) {
+                        LLMaterialEditor::finishInventoryUpload(itemId, newAssetId, newItemId);
+                    });
+                url = agent_url;
+            }
+            else if (!mObjectUUID.isNull() && !task_url.empty())
+            {
+                LLUUID object_uuid(mObjectUUID);
+                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_MATERIAL, buffer,
+                    [object_uuid](LLUUID itemId, LLUUID, LLUUID newAssetId, LLSD) {
+                        LLMaterialEditor::finishTaskUpload(itemId, newAssetId, object_uuid);
+                    });
+                url = task_url;
+            }
+
+            if (!url.empty() && uploadInfo)
+            {
+                mAssetStatus = PREVIEW_ASSET_LOADING;
+                setEnabled(false);
+
+                LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+            }
+
+        }
+        else // !gAssetStorage
+        {
+            LL_WARNS() << "Not connected to an materials capable region." << LL_ENDL;
+            return false;
+        }
+
+        if (mCloseAfterSave)
+        {
+            closeFloater();
+        }
+    }
+    else
+    { //make a new inventory item
+        // gen a new uuid for this asset
+        LLTransactionID tid;
+        tid.generate();     // timestamp-based randomization + uniquification
+        LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
+        std::string res_desc = "Saved Material";
+        U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
+        LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+        const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
+
+        create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, mMaterialName, res_desc,
+            LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
+            new LLBoostFuncInventoryCallback([output = buffer](LLUUID const& inv_item_id) {
+                // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
+                LLResourceUploadInfo::ptr_t uploadInfo =
+                    std::make_shared<LLBufferedAssetUploadInfo>(
+                        inv_item_id,
+                        LLAssetType::AT_MATERIAL,
+                        output,
+                        [](LLUUID item_id, LLUUID new_asset_id, LLUUID new_item_id, LLSD response) {
+                            LL_INFOS("Material") << "inventory item uploaded.  item: " << item_id << " asset: " << new_asset_id << " new_item_id: " << new_item_id << " response: " << response << LL_ENDL;
+                            LLSD params = llsd::map("ASSET_ID", new_asset_id);
+                            LLNotificationsUtil::add("MaterialCreated", params);
+                        });
+
+                const LLViewerRegion* region = gAgent.getRegion();
+                if (region)
+                {
+                    std::string agent_url(region->getCapability("UpdateMaterialAgentInventory"));
+                    if (agent_url.empty())
+                    {
+                        LL_ERRS() << "missing required agent inventory cap url" << LL_ENDL;
+                    }
+                    LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
+                }
+                })
+        );
+    }
+    
+    return true;
+}
+
+void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId)
+{
+    // Update the UI with the new asset.
+    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(itemId));
+    if (me)
+    {
+        if (newItemId.isNull())
+        {
+            me->setAssetId(newAssetId);
+            me->refreshFromInventory();
+        }
+        else
+        {
+            me->refreshFromInventory(newItemId);
+        }
+    }
+}
+
+void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId)
+{
+
+    LLSD floater_key;
+    floater_key["taskid"] = taskId;
+    floater_key["itemid"] = itemId;
+    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(itemId));
+    if (me)
+    {
+        me->setAssetId(newAssetId);
+        me->refreshFromInventory();
+    }
+}
+
+void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
+{
+    if (new_item_id.notNull())
+    {
+        mItemUUID = new_item_id;
+        setKey(LLSD(new_item_id));
+    }
+    LL_DEBUGS() << "LLPreviewNotecard::refreshFromInventory()" << LL_ENDL;
+    loadAsset();
+}
+
 
 void LLMaterialEditor::onClickSaveAs()
 {
@@ -806,16 +1021,7 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     mME->setEmissiveId(emissive_id);
     mME->setNormalId(normal_id);
 
-    mME->setAlphaMode(material_in.alphaMode);
-    mME->setAlphaCutoff(material_in.alphaCutoff);
-    
-    mME->setAlbedoColor(get_color(material_in.pbrMetallicRoughness.baseColorFactor));
-    mME->setEmissiveColor(get_color(material_in.emissiveFactor));
-    
-    mME->setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
-    mME->setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
-
-    mME->setDoubleSided(material_in.doubleSided);
+    mME->setFromGltfModel(model_in);
 
     std::string new_material = LLTrans::getString("New Material");
     mME->setMaterialName(new_material);
@@ -824,6 +1030,81 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     mME->openFloater();
 
     mME->applyToSelection();
+}
+
+bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_textures)
+{
+    if (model.materials.size() > 0)
+    {
+        tinygltf::Material& material_in = model.materials[0];
+
+        if (set_textures)
+        {
+            S32 index;
+            LLUUID id;
+
+            // get albedo texture
+            index = material_in.pbrMetallicRoughness.baseColorTexture.index;
+            if (index >= 0)
+            {
+                id.set(model.images[index].uri);
+                setAlbedoId(id);
+            }
+            else
+            {
+                setAlbedoId(LLUUID::null);
+            }
+
+            // get normal map
+            index = material_in.normalTexture.index;
+            if (index >= 0)
+            {
+                id.set(model.images[index].uri);
+                setNormalId(id);
+            }
+            else
+            {
+                setNormalId(LLUUID::null);
+            }
+
+            // get metallic-roughness texture
+            index = material_in.pbrMetallicRoughness.metallicRoughnessTexture.index;
+            if (index >= 0)
+            {
+                id.set(model.images[index].uri);
+                setMetallicRoughnessId(id);
+            }
+            else
+            {
+                setMetallicRoughnessId(LLUUID::null);
+            }
+
+            // get emissive texture
+            index = material_in.emissiveTexture.index;
+            if (index >= 0)
+            {
+                id.set(model.images[index].uri);
+                setEmissiveId(id);
+            }
+            else
+            {
+                setEmissiveId(LLUUID::null);
+            }
+        }
+
+        setAlphaMode(material_in.alphaMode);
+        setAlphaCutoff(material_in.alphaCutoff);
+
+        setAlbedoColor(get_color(material_in.pbrMetallicRoughness.baseColorFactor));
+        setEmissiveColor(get_color(material_in.emissiveFactor));
+
+        setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
+        setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
+
+        setDoubleSided(material_in.doubleSided);
+    }
+
+    return true;
 }
 
 void LLMaterialEditor::importMaterial()
@@ -841,22 +1122,7 @@ void LLMaterialEditor::applyToSelection()
     if (objectp && objectp->getVolume())
     {
         LLGLTFMaterial* mat = new LLGLTFMaterial();
-        mat->mAlbedoColor = getAlbedoColor();
-        mat->mAlbedoColor.mV[3] = getTransparency();
-        mat->mAlbedoId = getAlbedoId();
-        
-        mat->mNormalId = getNormalId();
-
-        mat->mMetallicRoughnessId = getMetallicRoughnessId();
-        mat->mMetallicFactor = getMetalnessFactor();
-        mat->mRoughnessFactor = getRoughnessFactor();
-        
-        mat->mEmissiveColor = getEmissiveColor();
-        mat->mEmissiveId = getEmissiveId();
-        
-        mat->mDoubleSided = getDoubleSided();
-        mat->setAlphaMode(getAlphaMode());
-
+        getGLTFMaterial(mat);
         LLVOVolume* vobjp = (LLVOVolume*)objectp;
         for (int i = 0; i < vobjp->getNumTEs(); ++i)
         {
@@ -867,3 +1133,223 @@ void LLMaterialEditor::applyToSelection()
         vobjp->markForUpdate(TRUE);
     }
 }
+
+void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
+{
+    mat->mAlbedoColor = getAlbedoColor();
+    mat->mAlbedoColor.mV[3] = getTransparency();
+    mat->mAlbedoId = getAlbedoId();
+
+    mat->mNormalId = getNormalId();
+
+    mat->mMetallicRoughnessId = getMetallicRoughnessId();
+    mat->mMetallicFactor = getMetalnessFactor();
+    mat->mRoughnessFactor = getRoughnessFactor();
+
+    mat->mEmissiveColor = getEmissiveColor();
+    mat->mEmissiveId = getEmissiveId();
+
+    mat->mDoubleSided = getDoubleSided();
+    mat->setAlphaMode(getAlphaMode());
+}
+
+void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
+{
+    setAlbedoColor(mat->mAlbedoColor);
+    setAlbedoId(mat->mAlbedoId);
+    setNormalId(mat->mNormalId);
+
+    setMetallicRoughnessId(mat->mMetallicRoughnessId);
+    setMetalnessFactor(mat->mMetallicFactor);
+    setRoughnessFactor(mat->mRoughnessFactor);
+
+    setEmissiveColor(mat->mEmissiveColor);
+    setEmissiveId(mat->mEmissiveId);
+
+    setDoubleSided(mat->mDoubleSided);
+    setAlphaMode(mat->getAlphaMode());
+}
+
+void LLMaterialEditor::loadAsset()
+{
+    // derived from LLPreviewNotecard::loadAsset
+    
+    // TODO: see commented out "editor" references and make them do something appropriate to the UI
+   
+    // request the asset.
+    const LLInventoryItem* item = getItem();
+    
+    bool fail = false;
+
+    if (item)
+    {
+        LLPermissions perm(item->getPermissions());
+        BOOL is_owner = gAgent.allowOperation(PERM_OWNER, perm, GP_OBJECT_MANIPULATE);
+        BOOL allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
+        BOOL allow_modify = canModify(mObjectUUID, item);
+        BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+
+        if (allow_copy || gAgent.isGodlike())
+        {
+            mAssetID = item->getAssetUUID();
+            if (mAssetID.isNull())
+            {
+                mAssetStatus = PREVIEW_ASSET_LOADED;
+            }
+            else
+            {
+                LLHost source_sim = LLHost();
+                LLSD* user_data = new LLSD();
+
+                if (mObjectUUID.notNull())
+                {
+                    LLViewerObject* objectp = gObjectList.findObject(mObjectUUID);
+                    if (objectp && objectp->getRegion())
+                    {
+                        source_sim = objectp->getRegion()->getHost();
+                    }
+                    else
+                    {
+                        // The object that we're trying to look at disappeared, bail.
+                        LL_WARNS() << "Can't find object " << mObjectUUID << " associated with notecard." << LL_ENDL;
+                        mAssetID.setNull();
+                        /*editor->setText(getString("no_object"));
+                        editor->makePristine();
+                        editor->setEnabled(FALSE);*/
+                        mAssetStatus = PREVIEW_ASSET_LOADED;
+                        return;
+                    }
+                    user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
+                }
+                else
+                {
+                    user_data = new LLSD(mItemUUID);
+                }
+
+                gAssetStorage->getInvItemAsset(source_sim,
+                    gAgent.getID(),
+                    gAgent.getSessionID(),
+                    item->getPermissions().getOwner(),
+                    mObjectUUID,
+                    item->getUUID(),
+                    item->getAssetUUID(),
+                    item->getType(),
+                    &onLoadComplete,
+                    (void*)user_data,
+                    TRUE);
+                mAssetStatus = PREVIEW_ASSET_LOADING;
+            }
+        }
+        else
+        {
+            mAssetID.setNull();
+            /*editor->setText(getString("not_allowed"));
+            editor->makePristine();
+            editor->setEnabled(FALSE);*/
+            mAssetStatus = PREVIEW_ASSET_LOADED;
+        }
+
+        if (!allow_modify)
+        {
+            //editor->setEnabled(FALSE);
+            //getChildView("lock")->setVisible(TRUE);
+            //getChildView("Edit")->setEnabled(FALSE);
+        }
+
+        if ((allow_modify || is_owner) && !source_library)
+        {
+            //getChildView("Delete")->setEnabled(TRUE);
+        }
+    }
+    else if (mObjectUUID.notNull() && mItemUUID.notNull())
+    {
+        LLViewerObject* objectp = gObjectList.findObject(mObjectUUID);
+        if (objectp && (objectp->isInventoryPending() || objectp->isInventoryDirty()))
+        {
+            // It's a material in object's inventory and we failed to get it because inventory is not up to date.
+            // Subscribe for callback and retry at inventoryChanged()
+            registerVOInventoryListener(objectp, NULL); //removes previous listener
+
+            if (objectp->isInventoryDirty())
+            {
+                objectp->requestInventory();
+            }
+        }
+        else
+        {
+            fail = true;
+        }
+    }
+    else
+    {
+        fail = true;
+    }
+
+    if (fail)
+    {
+        /*editor->setText(LLStringUtil::null);
+        editor->makePristine();
+        editor->setEnabled(TRUE);*/
+        // Don't set asset status here; we may not have set the item id yet
+        // (e.g. when this gets called initially)
+        //mAssetStatus = PREVIEW_ASSET_LOADED;
+    }
+}
+
+// static
+void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
+    LLAssetType::EType type,
+    void* user_data, S32 status, LLExtStat ext_status)
+{
+    LL_INFOS() << "LLMaterialEditor::onLoadComplete()" << LL_ENDL;
+    LLSD* floater_key = (LLSD*)user_data;
+    LLMaterialEditor* editor = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", *floater_key);
+    if (editor)
+    {
+        if (0 == status)
+        {
+            LLFileSystem file(asset_uuid, type, LLFileSystem::READ);
+
+            S32 file_length = file.getSize();
+
+            std::vector<char> buffer(file_length + 1);
+            file.read((U8*)&buffer[0], file_length);
+
+            editor->decodeAsset(buffer);
+
+            BOOL modifiable = editor->canModify(editor->mObjectID, editor->getItem());
+            editor->setEnabled(modifiable);
+            editor->mAssetStatus = PREVIEW_ASSET_LOADED;
+        }
+        else
+        {
+            if (LL_ERR_ASSET_REQUEST_NOT_IN_DATABASE == status ||
+                LL_ERR_FILE_EMPTY == status)
+            {
+                LLNotificationsUtil::add("MaterialMissing");
+            }
+            else if (LL_ERR_INSUFFICIENT_PERMISSIONS == status)
+            {
+                LLNotificationsUtil::add("MaterialNoPermissions");
+            }
+            else
+            {
+                LLNotificationsUtil::add("UnableToLoadMaterial");
+            }
+
+            LL_WARNS() << "Problem loading material: " << status << LL_ENDL;
+            editor->mAssetStatus = PREVIEW_ASSET_ERROR;
+        }
+    }
+    delete floater_key;
+}
+
+void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
+    LLInventoryObject::object_list_t* inventory,
+    S32 serial_num,
+    void* user_data)
+{
+    removeVOInventoryListener();
+    loadAsset();
+}
+

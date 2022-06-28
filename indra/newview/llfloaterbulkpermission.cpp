@@ -306,6 +306,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 			( asstype == LLAssetType::AT_LSL_TEXT  && gSavedSettings.getBOOL("BulkChangeIncludeScripts"   )) ||
 			( asstype == LLAssetType::AT_SOUND     && gSavedSettings.getBOOL("BulkChangeIncludeSounds"    )) ||
 			( asstype == LLAssetType::AT_SETTINGS  && gSavedSettings.getBOOL("BulkChangeIncludeSettings"  )) ||
+            ( asstype == LLAssetType::AT_MATERIAL  && gSavedSettings.getBOOL("BulkChangeIncludeMaterials")) ||
 			( asstype == LLAssetType::AT_TEXTURE   && gSavedSettings.getBOOL("BulkChangeIncludeTextures"  )))
 		{
 			LLViewerObject* object = gObjectList.findObject(viewer_obj->getID());

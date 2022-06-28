@@ -209,6 +209,7 @@ const std::string LLDiskCache::assetTypeToString(LLAssetType::EType at)
         { LLAssetType::AT_PERSON, "PERSON" },
         { LLAssetType::AT_MESH, "MESH" },
         { LLAssetType::AT_SETTINGS, "SETTINGS" },
+        { LLAssetType::AT_MATERIAL, "MATERIAL" },
         { LLAssetType::AT_UNKNOWN, "UNKNOWN" }
     };
 

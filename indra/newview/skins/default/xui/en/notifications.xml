@@ -6764,6 +6764,22 @@ You don&apos;t have permission to view this notecard.
 
   <notification
    icon="notifytip.tga"
+   name="MaterialMissing"
+   type="notifytip">
+    Material is missing from database.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="MaterialNoPermissions"
+   type="notifytip">
+    You don&apos;t have permission to view this material.
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
    name="RezItemNoPermissions"
    type="notifytip">
 Insufficient permissions to rez object.
@@ -6791,6 +6807,15 @@ Unable to transfer inventory across parent estates.
 Unable to load notecard.
 Please try again.
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="UnableToLoadMaterial"
+   type="notifytip">
+    Unable to load material.
+    Please try again.
+    <tag>fail</tag>
   </notification>
 
   <notification
