@@ -54,6 +54,8 @@
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
+#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
+#define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -260,8 +262,8 @@ void main()
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
-        vec3 FssEssRadiance = kSpec*vScaleBias.x + vScaleBias.y;
-        colorSpec += specWeight * specLight * FssEssRadiance;
+        vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
+        colorSpec += specWeight * specLight * FssEssGGX;
 
         // Reference: getIBLRadianceLambertian
         vec3  irradiance    = getDiffuseLightPBR(n);
@@ -362,15 +364,6 @@ void main()
     #if DEBUG_PBR_FE_LAMBERT
         color.rgb = FssEssLambert; // diffuse
     #endif
-color.rgb = vec3(dotNV);
-color.rgb = vec3(brdfPoint,0.0);
-color.rgb = vec3(vScaleBias,0.0);
-color.rgb = fresnelR;
-color.rgb = kSpec;
-color.rgb = reflection;
-color.rgb = specLight;
-//color.rgb = FssEssGGX;
-
     }
 else
 {
