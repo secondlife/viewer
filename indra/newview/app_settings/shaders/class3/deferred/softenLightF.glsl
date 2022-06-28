@@ -253,6 +253,7 @@ void main()
         vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - dotNV, 5.0);
 
         // Reference: getIBLRadianceGGX
+        vec3 reflection = normalize(reflect(-v,n));
         vec3 specLight  = getSpecularPBR(reflection);
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
