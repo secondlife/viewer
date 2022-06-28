@@ -52,6 +52,8 @@
 #define DEBUG_PBR_DOT_BV           0 // Output:
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
+#define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
+#define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -293,6 +295,12 @@ void main()
     #endif
     #if DEBUG_PBR_RAW_SPEC
         color.rgb = spec.rgb;
+    #endif
+    #if DEBUG_PBR_REFLECT0_BASE
+        color.rgb = vec3(debug_reflect0);
+    #endif
+    #if DEBUG_PBR_REFLECT0_MIX
+        color.rgb = vec3(reflect0);
     #endif
     #if DEBUG_PBR_REFLECTANCE
         color.rgb = vec3(reflectance);
