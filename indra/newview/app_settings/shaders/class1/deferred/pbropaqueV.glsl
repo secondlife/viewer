@@ -78,23 +78,24 @@ VARYING vec2 vary_texcoord0;
 
 void main()
 {
+	vec4 pos4 = vec4(position,1.0);
 #ifdef HAS_SKIN
 	mat4 mat = getObjectSkinnedTransform();
 
 	mat = modelview_matrix * mat;
 
-	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
+	vec3 pos = (mat*pos4).xyz;
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
 #endif
 
-	gl_Position = projection_matrix*vec4(pos,1.0);
+	gl_Position = projection_matrix*pos4;
 
 #else
 	//transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
 
+	gl_Position = modelview_projection_matrix * pos4;
 #endif
 	
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;

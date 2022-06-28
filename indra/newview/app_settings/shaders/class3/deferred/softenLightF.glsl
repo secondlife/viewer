@@ -26,12 +26,14 @@
 #define DEBUG_PBR_PACKORM0        0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1        0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
+#define DEBUG_PBR_VERT2CAM1       0 // vertex2camera = 0,0,1
 
 #define DEBUG_PBR_RAW_DIFF         0 // Output: use diffuse in G-Buffer
 #define DEBUG_PBR_RAW_SPEC         0 // Output: use spec in G-Buffer
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
 #define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
+#define DEBUG_PBR_OCCLUSION        0 // Output: Occlusion map
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughenss
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 #define DEBUG_PBR_METAL            0 // Output: grayscale metal
@@ -41,12 +43,22 @@
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: reflection
 #define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_RAW_DIFF 1, and in pbropaqueF set DEBUG_NORMAL_RAW
-#define DEBUG_PBR_VIEW             0 // Output: view_dir
+#define DEBUG_PBR_TANGENT          0 // Output: Tangent
+#define DEBUG_PBR_BITANGET         0 // Output: Bitangnet
+#define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
+#define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
-#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal,ViewDir)
-#define DEBUG_PBR_DOT_TV           0 // Output:
-#define DEBUG_PBR_DOT_BV           0 // Output:
+#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
+#define DEBUG_PBR_DOT_TV           0 // Output: grayscale dot(Tangent  ,Vertex2Camera)
+#define DEBUG_PBR_DOT_BV           0 // Output: graysacle dot(Bitangent,Vertex2Camera)
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
+#define DEBUG_PBR_KSPEC            0 // Output: K spec
+#define DEBUG_PBR_IOR              0 // Output: grayscale IOR
+#define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
+#define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
+#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
+#define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
+#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
 
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -184,6 +196,8 @@ void main()
     vec3 legacyenv;
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
 
+    amblit = max(ambenv, amblit);
+
     bool hasPBR = GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR);
     if (hasPBR)
     {
@@ -201,15 +215,21 @@ void main()
 #if DEBUG_PBR_PACK_ORM1
              packedORM        = vec3(1,1,1);
 #endif
-        float IOR             = 1.5;         // default Index Of Reflection 1.5
+        float IOR             = 1.5;         // default Index Of Refraction 1.5 (dielectrics)
         vec3  reflect0        = vec3(0.04);  // -> incidence reflectance 0.04
-
-        IOR = 0.0; // TODO: Set from glb
-        reflect0 = calcBaseReflect0(IOR);
+#if HAS_IOR
+              reflect0        = calcBaseReflect0(IOR);
+#endif
+#if DEBUG_PBR_REFLECT0_BASE
+        vec3  debug_reflect0  = reflect0;
+#endif
 
         float metal      = packedORM.b;
         vec3  reflect90  = vec3(0);
-        vec3  v          = view_dir;
+        vec3  v          = -normalize(pos.xyz);
+#if DEBUG_PBR_VERT2CAM1
+              v = vec3(0,0,1);
+#endif
         vec3  n          = norm.xyz;
 //      vec3  t          = texture2DRect(tangentMap, tc).rgb;
 #if DEBUG_PBR_TANGENT1
@@ -219,8 +239,8 @@ void main()
         vec3  reflectVN  = normalize(reflect(-v,n));
 
         float dotNV = clamp(dot(n,v),0,1);
-        float dotTV = clamp(dot(n,t),0,1);
-        float dotBV = clamp(dot(n,b),0,1);
+        float dotTV = clamp(dot(t,v),0,1);
+        float dotBV = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
         float perceptualRough = packedORM.g;
@@ -228,7 +248,9 @@ void main()
         vec3  colorDiff      = mix( diffuse.rgb, vec3(0)    , metal);
               reflect0       = mix( reflect0   , diffuse.rgb, metal); // reflect at 0 degrees
               reflect90      = vec3(1);                               // reflect at 90 degrees
+#if DEBUG_PBR_REFLECTANCE
         float reflectance    = max( max( reflect0.r, reflect0.g ), reflect0.b );
+#endif
 
         // Common to RadianceGGX and RadianceLambertian
         float specWeight = 1.0;
@@ -238,12 +260,13 @@ void main()
         vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - dotNV, 5.0);
 
         // Reference: getIBLRadianceGGX
+        vec3 reflection = normalize(reflect(-v,n));
         vec3 specLight  = getSpecularPBR(reflection);
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
-        vec3 FssEssRadiance = kSpec*vScaleBias.x + vScaleBias.y;
-        colorSpec += specWeight * specLight * FssEssRadiance;
+        vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
+        colorSpec += specWeight * specLight * FssEssGGX;
 
         // Reference: getIBLRadianceLambertian
         vec3  irradiance    = getDiffuseLightPBR(n);
@@ -255,7 +278,11 @@ void main()
         vec3  kDiffuse     = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse      += (FmsEms + kDiffuse) * irradiance;
 
-        color.rgb  = colorDiffuse + colorEmissive + colorSpec;
+        float occlusion_strength = 1.0; // TODO: From glb
+        float ao     = packedORM.r;
+        colorDiffuse = mix(colorDiffuse, colorDiffuse * ao, occlusion_strength);
+
+        color.rgb = colorDiffuse + colorEmissive + colorSpec;
 
     #if DEBUG_PBR_BRDF_UV
         color.rgb = vec3(brdfPoint,0.0);
@@ -266,11 +293,23 @@ void main()
     #if DEBUG_PBR_FRESNEL
         color.rgb = fresnelR;
     #endif
+    #if DEBUG_PBR_IOR
+        color.rgb = vec3(IOR);
+    #endif
+    #if DEBUG_PBR_KSPEC
+        color.rgb = kSpec;
+    #endif
     #if DEBUG_PBR_RAW_DIFF
         color.rgb = diffuse.rgb;
     #endif
     #if DEBUG_PBR_RAW_SPEC
         color.rgb = spec.rgb;
+    #endif
+    #if DEBUG_PBR_REFLECT0_BASE
+        color.rgb = vec3(debug_reflect0);
+    #endif
+    #if DEBUG_PBR_REFLECT0_MIX
+        color.rgb = vec3(reflect0);
     #endif
     #if DEBUG_PBR_REFLECTANCE
         color.rgb = vec3(reflectance);
@@ -280,6 +319,9 @@ void main()
     #endif
     #if DEBUG_PBR_DIFFUSE
         color.rgb = colorDiffuse;
+    #endif
+    #if DEBUG_PBR_DIFFUSE_K
+        color.rgb = kDiffuse;
     #endif
     #if DEBUG_PBR_EMISSIVE
         color.rgb = colorEmissive;
@@ -299,14 +341,26 @@ void main()
     #if DEBUG_PBR_SPEC_REFLECTION
         color.rgb = specLight;
     #endif
+    #if DEBUG_PBR_OCCLUSION
+        color.rgb = vec3(packedORM.r);
+    #endif
     #if DEBUG_PBR_ORM
         color.rgb = packedORM;
     #endif
     #if DEBUG_PBR_NORMAL
         color.rgb = norm.xyz;
     #endif
-    #if DEBUG_PBR_VIEW
-        color.rgb = view_dir;
+    #if DEBUG_PBR_TANGENT
+        color.rgb = t;
+    #endif
+    #if DEBUG_PBR_BITANGENT
+        color.rgb = b;
+    #endif
+    #if DEBUG_PBR_V2C_RAW
+        color.rgb = v;
+    #endif
+    #if DEBUG_PBR_V2C_REMAP
+        color.rgb = v*0.5 + vec3(0.5);
     #endif
     #if DEBUG_PBR_DOT_NV
         color.rgb = vec3(dotNV);
@@ -317,10 +371,15 @@ void main()
     #if DEBUG_PBR_DOT_BV
         color.rgb = vec3(dotBV);
     #endif
+    #if DEBUG_PBR_FE_GGX
+        color.rgb = FssEssGGX; // spec
+    #endif
+    #if DEBUG_PBR_FE_LAMBERT
+        color.rgb = FssEssLambert; // diffuse
+    #endif
     }
 else
 {
-    amblit = max(ambenv, amblit);
     color.rgb = amblit*ambocc;
 
     //float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
