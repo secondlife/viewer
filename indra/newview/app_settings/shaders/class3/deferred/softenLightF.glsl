@@ -126,9 +126,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 uniform vec3 view_dir; // PBR
 
-#define getDiffuseLightPBR(n)      ambenv
-#define getSpecularPBR(reflection) glossenv
-
 // Approximate Environment BRDF
 vec2 getGGXApprox( vec2 uv )
 {
@@ -196,9 +193,6 @@ void main()
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
-
-    amblit = max(ambenv, amblit);
 
     bool hasPBR = GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR);
     if (hasPBR)
@@ -262,8 +256,13 @@ void main()
         vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - dotNV, 5.0);
 
         // Reference: getIBLRadianceGGX
-        vec3 reflection = normalize(reflect(-v,n));
-        vec3 specLight  = getSpecularPBR(reflection);
+        // https://forum.substance3d.com/index.php?topic=3243.0
+        // Glossiness
+        // This map is the inverse of the roughness map.
+        vec3  irradiance = vec3(0);
+        vec3  specLight  = vec3(0);
+        float gloss      = 1.0 - perceptualRough;
+        sampleReflectionProbes(irradiance, specLight, legacyenv, pos.xyz, norm.xyz, gloss, 0.0);
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
@@ -271,7 +270,6 @@ void main()
         colorSpec += specWeight * specLight * FssEssGGX;
 
         // Reference: getIBLRadianceLambertian
-        vec3  irradiance    = getDiffuseLightPBR(n);
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
         float Ems          = (1.0 - vScaleBias.x + vScaleBias.y);
         vec3  avg          = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
@@ -382,6 +380,9 @@ void main()
     }
 else
 {
+    sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+
+    amblit = max(ambenv, amblit);
     color.rgb = amblit*ambocc;
 
     //float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
