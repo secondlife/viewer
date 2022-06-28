@@ -3628,8 +3628,9 @@ BOOL LLModelPreview::render()
         gUIProgram.bind();
         LLGLDepthTest gls_depth(GL_FALSE, GL_FALSE);
         glLineWidth(3.f);
-        bool use_model_pivot =  mViewOption["use_model_pivot"];
-        bool clamp_model_pivot = mViewOption["clamp_model_pivot"];
+        LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)mFMP;
+        bool use_model_pivot =  fmp->mUseModelPivot;
+        bool clamp_model_pivot = fmp->mClampModelPivot;
 
         for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
         {

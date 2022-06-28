@@ -134,6 +134,8 @@ public:
 	/*virtual*/ void onModelUploadFailure();
 
 	bool isModelUploadAllowed();
+    bool mUseModelPivot{false};
+    bool mClampModelPivot{false};
 
 protected:
 	friend class LLModelPreview;

@@ -510,10 +510,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	addStringToLog("Calculating model data.", false);
 	mModelPreview->rebuildUploadData();
 
-    bool use_model_pivot = getChild<LLCheckBoxCtrl>("use_model_pivot")->get();
-    bool clamp_model_pivot = getChild<LLCheckBoxCtrl>("clamp_model_pivot")->get();
-
-    if (use_model_pivot)
+    if (mUseModelPivot)
     {
         for (LLModelLoader::scene::iterator it = mModelPreview->mBaseScene.begin(), itE = mModelPreview->mBaseScene.end(); it != itE; ++it)
         { //for each transform in scene
@@ -527,7 +524,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
                         LLVector3 pivot = model_iter->mModel->mNormalizedTranslation;
                         pivot *= model_iter->mModel->mScale;
 
-                        if (clamp_model_pivot)
+                        if (mClampModelPivot)
                         {
                             //pivot
                             LLVector3 _pivot = rotate_vector(pivot, mi.mTransform);
@@ -879,12 +876,14 @@ void LLFloaterModelPreview::draw3dPreview()
 
 void LLFloaterModelPreview::togglePivotFromModel()
 {
-    getChild<LLCheckBoxCtrl>("clamp_model_pivot")->setEnabled(getChild<LLCheckBoxCtrl>("use_model_pivot")->get());
+    mUseModelPivot = !mUseModelPivot;
+    getChild<LLCheckBoxCtrl>("clamp_model_pivot")->setEnabled(mUseModelPivot);
     refresh();
 }
 
 void LLFloaterModelPreview::toggleClampPivot()
 {
+    mClampModelPivot = !mClampModelPivot;
     refresh();
 }
 
