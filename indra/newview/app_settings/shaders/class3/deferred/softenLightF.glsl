@@ -47,9 +47,9 @@
 #define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
 #define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #define DEBUG_PBR_BRDF             0 // Output: Environment BRDF
-#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal,ViewDir)
-#define DEBUG_PBR_DOT_TV           0 // Output:
-#define DEBUG_PBR_DOT_BV           0 // Output:
+#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
+#define DEBUG_PBR_DOT_TV           0 // Output: grayscale dot(Tangent  ,Vertex2Camera)
+#define DEBUG_PBR_DOT_BV           0 // Output: graysacle dot(Bitangent,Vertex2Camera)
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
