@@ -33,6 +33,7 @@
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
 #define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
+#define DEBUG_PBR_OCCLUSION        0 // Output: Occlusion map
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughenss
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 #define DEBUG_PBR_METAL            0 // Output: grayscale metal
@@ -277,7 +278,11 @@ void main()
         vec3  kDiffuse     = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse      += (FmsEms + kDiffuse) * irradiance;
 
-        color.rgb  = colorDiffuse + colorEmissive + colorSpec;
+        float occlusion_strength = 1.0; // TODO: From glb
+        float ao     = packedORM.r;
+        colorDiffuse = mix(colorDiffuse, colorDiffuse * ao, occlusion_strength);
+
+        color.rgb = colorDiffuse + colorEmissive + colorSpec;
 
     #if DEBUG_PBR_BRDF_UV
         color.rgb = vec3(brdfPoint,0.0);
@@ -335,6 +340,9 @@ void main()
     #endif
     #if DEBUG_PBR_SPEC_REFLECTION
         color.rgb = specLight;
+    #endif
+    #if DEBUG_PBR_OCCLUSION
+        color.rgb = vec3(packedORM.r);
     #endif
     #if DEBUG_PBR_ORM
         color.rgb = packedORM;
