@@ -28,41 +28,27 @@
 #define LL_LLMUTEX_H
 
 #include "stdtypes.h"
-#include "llthread.h"
 #include <boost/noncopyable.hpp>
-
 #include "mutex.h"
 #include <condition_variable>
 
 //============================================================================
 
-#define MUTEX_DEBUG (LL_DEBUG || LL_RELEASE_WITH_DEBUG_INFO)
-
-#if MUTEX_DEBUG
-#include <map>
-#endif
-
 class LL_COMMON_API LLMutex
 {
 public:
+	using mutex_t = std::recursive_mutex;
+
 	LLMutex();
 	virtual ~LLMutex();
-	
+
 	void lock();		// blocks
 	bool trylock();		// non-blocking, returns true if lock held.
 	void unlock();		// undefined behavior when called on mutex not being held
 	bool isLocked(); 	// non-blocking, but does do a lock/unlock so not free
-	bool isSelfLocked(); //return true if locked in a same thread
-	LLThread::id_t lockingThread() const; //get ID of locking thread
 
 protected:
-	std::mutex			mMutex;
-	mutable U32			mCount;
-	mutable LLThread::id_t	mLockingThread;
-	
-#if MUTEX_DEBUG
-	std::map<LLThread::id_t, BOOL> mIsLocked;
-#endif
+	mutex_t					mMutex;
 };
 
 // Actually a condition/mutex pair (since each condition needs to be associated with a mutex).
@@ -71,13 +57,13 @@ class LL_COMMON_API LLCondition : public LLMutex
 public:
 	LLCondition();
 	~LLCondition();
-	
+
 	void wait();		// blocks
 	void signal();
 	void broadcast();
-	
+
 protected:
-	std::condition_variable mCond;
+	std::condition_variable_any mCond;
 };
 
 class LLMutexLock
@@ -127,13 +113,14 @@ private:
 };
 
 /**
-* @class LLScopedLock
+* @class LLScopedLockFor
 * @brief Small class to help lock and unlock mutexes.
 *
 * The constructor handles the lock, and the destructor handles
 * the unlock. Instances of this class are <b>not</b> thread safe.
 */
-class LL_COMMON_API LLScopedLock : private boost::noncopyable
+template <class MUTEX>
+class LL_COMMON_API LLScopedLockFor : private boost::noncopyable
 {
 public:
     /**
@@ -142,12 +129,12 @@ public:
     * @param mutex An allocated mutex. If you pass in NULL,
     * this wrapper will not lock.
     */
-    LLScopedLock(std::mutex* mutex);
+    LLScopedLockFor(MUTEX* mutex);
 
     /**
     * @brief Destructor which unlocks the mutex if still locked.
     */
-    ~LLScopedLock();
+    ~LLScopedLockFor();
 
     /**
     * @brief Check lock.
@@ -161,7 +148,47 @@ public:
 
 protected:
     bool mLocked;
-    std::mutex* mMutex;
+    MUTEX* mMutex;
 };
+
+//---------------------------------------------------------------------
+//
+// LLScopedLockFor
+//
+template <class MUTEX>
+LLScopedLockFor<MUTEX>::LLScopedLockFor(MUTEX* mutex) : mMutex(mutex)
+{
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+	if(mutex)
+	{
+		mutex->lock();
+		mLocked = true;
+	}
+	else
+	{
+		mLocked = false;
+	}
+}
+
+template <class MUTEX>
+LLScopedLockFor<MUTEX>::~LLScopedLockFor()
+{
+	unlock();
+}
+
+template <class MUTEX>
+void LLScopedLockFor<MUTEX>::unlock()
+{
+	LL_PROFILE_ZONE_SCOPED_CATEGORY_THREAD
+	if(mLocked)
+	{
+		mMutex->unlock();
+		mLocked = false;
+	}
+}
+
+// In C++17, LLScopedLockFor() should be able to infer the MUTEX template
+// param from its constructor argument. Until then...
+using LLScopedLock = LLScopedLockFor<std::mutex>;
 
 #endif // LL_LLMUTEX_H
