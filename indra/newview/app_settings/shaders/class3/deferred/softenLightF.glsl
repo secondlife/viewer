@@ -189,6 +189,8 @@ void main()
     vec3 legacyenv;
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
 
+    amblit = max(ambenv, amblit);
+
     bool hasPBR = GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR);
     if (hasPBR)
     {
@@ -345,10 +347,24 @@ void main()
     #if DEBUG_PBR_DOT_BV
         color.rgb = vec3(dotBV);
     #endif
+    #if DEBUG_PBR_FE_GGX
+        color.rgb = FssEssGGX; // spec
+    #endif
+    #if DEBUG_PBR_FE_LAMBERT
+        color.rgb = FssEssLambert; // diffuse
+    #endif
+color.rgb = vec3(dotNV);
+color.rgb = vec3(brdfPoint,0.0);
+color.rgb = vec3(vScaleBias,0.0);
+color.rgb = fresnelR;
+color.rgb = kSpec;
+color.rgb = reflection;
+color.rgb = specLight;
+//color.rgb = FssEssGGX;
+
     }
 else
 {
-    amblit = max(ambenv, amblit);
     color.rgb = amblit*ambocc;
 
     //float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
