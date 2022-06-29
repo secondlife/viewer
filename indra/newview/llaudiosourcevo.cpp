@@ -34,6 +34,7 @@
 #include "llmutelist.h"
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
+#include "llvoavatarself.h"
 
 LLAudioSourceVO::LLAudioSourceVO(const LLUUID &sound_id, const LLUUID& owner_id, const F32 gain, LLViewerObject *objectp)
 	:	LLAudioSource(sound_id, owner_id, gain, LLAudioEngine::AUDIO_TYPE_SFX), 
@@ -141,11 +142,36 @@ void LLAudioSourceVO::updateMute()
 	LLVector3d pos_global = getPosGlobal();
 
 	F32 cutoff = mObjectp->getSoundCutOffRadius();
-	if ((cutoff > 0.1f && !isInCutOffRadius(pos_global, cutoff)) // consider cutoff below 0.1m as off
-		|| !LLViewerParcelMgr::getInstance()->canHearSound(pos_global))
-	{
-		mute = true;
-	}
+    // Object can specify radius at which it turns off
+    // consider cutoff below 0.1m as 'cutoff off'
+    if (cutoff > 0.1f && !isInCutOffRadius(pos_global, cutoff))
+    {
+        mute = true;
+    }
+    // check if parcel allows sounds to pass border
+    else if (!LLViewerParcelMgr::getInstance()->canHearSound(pos_global))
+    {
+        if (isAgentAvatarValid() && gAgentAvatarp->getParent())
+        {
+            // Check if agent is riding this object
+            // Agent can ride something out of region border and canHearSound
+            // will treat object as not being part of agent's parcel.
+            LLViewerObject *sound_root = (LLViewerObject*)mObjectp->getRoot();
+            LLViewerObject *agent_root = (LLViewerObject*)gAgentAvatarp->getRoot();
+            if (sound_root != agent_root)
+            {
+                mute = true;
+            }
+            else
+            {
+                LL_INFOS() << "roots identical" << LL_ENDL;
+            }
+        }
+        else
+        {
+            mute = true;
+        }
+    }
 
 	if (!mute)
 	{

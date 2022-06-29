@@ -507,6 +507,7 @@ void send_viewer_stats(bool include_preferences)
 	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
 	system["address_size"] = ADDRESS_SIZE;
+	system["os_bitness"] = LLOSInfo::instance().getOSBitness();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];
 	LLUUID::getNodeID(MACAddress);
 	std::string macAddressString = llformat("%02x-%02x-%02x-%02x-%02x-%02x",

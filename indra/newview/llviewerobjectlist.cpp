@@ -72,7 +72,7 @@
 #ifdef LL_USESYSTEMLIBS
 #include <zlib.h>
 #else
-#include "zlib/zlib.h"
+#include "zlib-ng/zlib.h"
 #endif
 #include "object_flags.h"
 
