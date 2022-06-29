@@ -51,6 +51,8 @@ public:
 	const std::string& getOSStringSimple() const;
 
 	const std::string& getOSVersionString() const;
+
+	const S32 getOSBitness() const;
 	
 	S32 mMajorVer;
 	S32 mMinorVer;
@@ -59,6 +61,7 @@ public:
 #ifndef LL_WINDOWS
 	static S32 getMaxOpenFiles();
 #endif
+	static bool is64Bit();
 
 	static U32 getProcessVirtualSizeKB();
 	static U32 getProcessResidentSizeKB();
@@ -66,6 +69,7 @@ private:
 	std::string mOSString;
 	std::string mOSStringSimple;
 	std::string mOSVersionString;
+	S32 mOSBitness;
 };
 
 

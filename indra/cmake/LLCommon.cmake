@@ -4,7 +4,7 @@ include(APR)
 include(Boost)
 include(EXPAT)
 include(Tracy)
-include(ZLIB)
+include(ZLIBNG)
 
 set(LLCOMMON_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llcommon

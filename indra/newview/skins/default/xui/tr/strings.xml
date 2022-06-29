@@ -187,7 +187,7 @@ Ses Sunucusu Sürümü: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Ağ hatası: Bağlantı kurulamadı, lütfen ağ bağlantınızı kontrol edin.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Oturum açılamadı.
 	</string>
 	<string name="Quit">
