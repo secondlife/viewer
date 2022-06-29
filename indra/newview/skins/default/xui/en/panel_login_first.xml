@@ -98,7 +98,7 @@
           auto_resize="false"
           follows="left|right|top"
           name="widget_container"
-          width="532"
+          width="730"
           left="0"
           top="0"
           height="80">
@@ -106,7 +106,7 @@
             allow_text_entry="true"
             follows="left|bottom"
             height="32"
-            left="2"
+            left="42"
             label="Username"
             combo_editor.font="SansSerifLarge"
             max_chars="128"
@@ -126,7 +126,7 @@
             follows="left|top"
             width="200"
             height="32"
-            left="220"
+            left="262"
             max_length_chars="16"
             name="password_edit"
             label="Password"
@@ -145,42 +145,58 @@
             label_color="White"
             font="SansSerifLarge"
             name="connect_btn"
-            left="432"
-            width="100"
+  	        left_pad="15"
+            width="120"
             height="32"
             top="0" />
+          <text
+            follows="left|top"
+            font="SansSerifLarge"
+            font.style="BOLD"
+            text_color="EmphasisColor"
+            height="34"
+            name="sign_up_text"
+            left_pad="10"
+            top="0"
+            width="200"
+            valign="center">
+            Sign up
+          </text>
+          <check_box
+            follows="left|top"
+            font="SansSerifLarge"
+            left="42"
+            top="32"
+            height="24"
+            label="Remember me"
+            word_wrap="down"
+            check_button.bottom="3"
+            name="remember_name"
+            tool_tip="Already remembered user can be forgotten from Me &gt; Preferences &gt; Advanced &gt; Remembered Usernames."
+            width="198" />
           <check_box
             control_name="RememberPassword"
             follows="left|top"
             font="SansSerifLarge"
-            left="0"
-            top="32"
+            text_color="EmphasisColor"
             height="24"
-            label="Remember me"
+            left="262"
+            bottom_delta="0"
+            label="Remember password"
+            word_wrap="down"
             check_button.bottom="3"
-            name="remember_check"
-            width="145" />
+            name="remember_password"
+            width="198" />
           <text
             follows="left|top"
             font="SansSerifLarge"
             text_color="EmphasisColor"
             height="16"
             name="forgot_password_text"
-            left="219"
+            left="492"
             top="34"
             width="200">
             Forgotten password
-          </text>
-          <text
-            follows="left|top"
-            font="SansSerifLarge"
-            text_color="EmphasisColor"
-            height="16"
-            name="sign_up_text"
-            left="432"
-            top="34"
-            width="200">
-            Sign up
           </text>
         </layout_panel>
         <layout_panel
@@ -216,23 +232,16 @@
           auto_resize="false"
           follows="left|right|top"
           name="images_container"
-          width="832"
+          width="675"
           left="0"
           top="0"
           height="500">
           <icon
-            height="400"
-            width="400"
-            image_name="first_login_image_left"
+            height="450"
+            width="675"
+            image_name="first_login_image"
             left="0"
             name="image_left"
-            top="0" />
-          <icon
-            height="400"
-            width="400"
-            image_name="first_login_image_right"
-            left_pad="32"
-            name="image_right"
             top="0" />
         </layout_panel>
         <layout_panel

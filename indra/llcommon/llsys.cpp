@@ -36,7 +36,7 @@
 #ifdef LL_USESYSTEMLIBS
 # include <zlib.h>
 #else
-# include "zlib/zlib.h"
+# include "zlib-ng/zlib.h"
 #endif
 
 #include "llprocessor.h"
@@ -456,6 +456,8 @@ LLOSInfo::LLOSInfo() :
 	dotted_version_string << mMajorVer << "." << mMinorVer << "." << mBuild;
 	mOSVersionString.append(dotted_version_string.str());
 
+	mOSBitness = is64Bit() ? 64 : 32;
+	LL_INFOS("LLOSInfo") << "OS bitness: " << mOSBitness << LL_ENDL;
 }
 
 #ifndef LL_WINDOWS
@@ -511,6 +513,11 @@ const std::string& LLOSInfo::getOSVersionString() const
 	return mOSVersionString;
 }
 
+const S32 LLOSInfo::getOSBitness() const
+{
+	return mOSBitness;
+}
+
 //static
 U32 LLOSInfo::getProcessVirtualSizeKB()
 {
@@ -562,6 +569,25 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 	}
 #endif
 	return resident_size;
+}
+
+//static
+bool LLOSInfo::is64Bit()
+{
+#if LL_WINDOWS
+#if defined(_WIN64)
+    return true;
+#elif defined(_WIN32)
+    // 32-bit viewer may be run on both 32-bit and 64-bit Windows, need to elaborate
+    BOOL f64 = FALSE;
+    return IsWow64Process(GetCurrentProcess(), &f64) && f64;
+#else
+    return false;
+#endif
+#else // ! LL_WINDOWS
+    // we only build a 64-bit mac viewer and currently we don't build for linux at all
+    return true; 
+#endif
 }
 
 LLCPUInfo::LLCPUInfo()

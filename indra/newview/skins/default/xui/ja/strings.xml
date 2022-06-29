@@ -186,7 +186,7 @@ LOD 係数: [LOD_FACTOR]
 	<string name="LoginFailedNoNetwork">
 		ネットワークエラー：接続を確立できませんでした。お使いのネットワーク接続をご確認ください。
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		ログインに失敗しました。
 	</string>
 	<string name="Quit">

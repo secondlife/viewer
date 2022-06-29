@@ -183,7 +183,7 @@ Versione server voce: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Errore di rete: Non è stato possibile stabilire un collegamento, controlla la tua connessione.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Accesso non riuscito.
 	</string>
 	<string name="Quit">

@@ -1363,6 +1363,9 @@ public:
 	virtual BOOL handleKeyHere(KEY key, MASK mask);
 	
 	virtual BOOL handleAcceleratorKey(KEY key, MASK mask);
+    
+    virtual void onFocusLost();
+    virtual void setFocus(BOOL b);
 };
 
 LLMenuItemBranchDownGL::LLMenuItemBranchDownGL( const Params& p) :
@@ -1516,6 +1519,21 @@ BOOL LLMenuItemBranchDownGL::handleAcceleratorKey(KEY key, MASK mask)
 	}
 
 	return handled;
+}
+void LLMenuItemBranchDownGL::onFocusLost()
+{
+    // needed for tab-based selection
+    LLMenuItemBranchGL::onFocusLost();
+    LLMenuGL::setKeyboardMode(FALSE);
+    setHighlight(FALSE);
+}
+
+void LLMenuItemBranchDownGL::setFocus(BOOL b)
+{
+    // needed for tab-based selection
+    LLMenuItemBranchGL::setFocus(b);
+    LLMenuGL::setKeyboardMode(b);
+    setHighlight(b);
 }
 
 BOOL LLMenuItemBranchDownGL::handleKeyHere(KEY key, MASK mask)
