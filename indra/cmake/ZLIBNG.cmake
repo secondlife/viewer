@@ -1,17 +1,17 @@
 # -*- cmake -*-
 
-set(ZLIB_FIND_QUIETLY ON)
-set(ZLIB_FIND_REQUIRED ON)
+set(ZLIBNG_FIND_QUIETLY ON)
+set(ZLIBNG_FIND_REQUIRED ON)
 
 include(Prebuilt)
 
 if (USESYSTEMLIBS)
-  include(FindZLIB)
+  include(FindZLIBNG)
 else (USESYSTEMLIBS)
-  use_prebuilt_binary(zlib)
+  use_prebuilt_binary(zlib-ng)
   if (WINDOWS)
-    set(ZLIB_LIBRARIES 
-      debug zlibd
+    set(ZLIBNG_LIBRARIES 
+      debug zlib
       optimized zlib)
   elseif (LINUX)
     #
@@ -26,10 +26,10 @@ else (USESYSTEMLIBS)
     # second whole-archive load of the archive.  See viewer's
     # CMakeLists.txt for more information.
     #
-    set(ZLIB_PRELOAD_ARCHIVES -Wl,--whole-archive z -Wl,--no-whole-archive)
-    set(ZLIB_LIBRARIES z)
+    set(ZLIBNG_PRELOAD_ARCHIVES -Wl,--whole-archive z -Wl,--no-whole-archive)
+    set(ZLIBNG_LIBRARIES z)
   elseif (DARWIN)
-    set(ZLIB_LIBRARIES z)
+    set(ZLIBNG_LIBRARIES z)
   endif (WINDOWS)
-  set(ZLIB_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/zlib)
+  set(ZLIBNG_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/zlib-ng)
 endif (USESYSTEMLIBS)

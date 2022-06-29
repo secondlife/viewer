@@ -223,6 +223,7 @@ bool llHashedUniqueID(unsigned char* id)
 #include "../llappviewer.h"
 void LLAppViewer::forceQuit(void) {}
 bool LLAppViewer::isUpdaterMissing() { return true; }
+bool LLAppViewer::waitForUpdater() { return false; }
 LLAppViewer * LLAppViewer::sInstance = 0;
 
 //-----------------------------------------------------------------------------

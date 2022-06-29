@@ -178,7 +178,7 @@ Versión del servidor de voz: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Error de red: no se ha podido conectar; por favor, revisa tu conexión a internet.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Error en el inicio de sesión.
 	</string>
 	<string name="Quit">
