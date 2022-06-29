@@ -168,6 +168,36 @@ private:
 };
 
 //-------------------------------------------------------------------------
+// use when you have a resource in memory and you want to make a new inventory item
+class LLNewBufferedResourceUploadInfo : public LLResourceUploadInfo
+{
+public:
+    LLNewBufferedResourceUploadInfo(
+        const std::string& buffer,
+        const LLAssetID& asset_id,
+        std::string name,
+        std::string description,
+        S32 compressionInfo,
+        LLFolderType::EType destinationType,
+        LLInventoryType::EType inventoryType,
+        LLAssetType::EType assetType,
+        U32 nextOWnerPerms,
+        U32 groupPerms,
+        U32 everyonePerms,
+        S32 expectedCost,
+        bool show_inventory = true);
+
+    virtual LLSD        prepareUpload();
+
+protected:
+
+    virtual LLSD        exportTempFile();
+
+private:
+    std::string mBuffer;
+};
+
+//-------------------------------------------------------------------------
 class LLBufferedAssetUploadInfo : public LLResourceUploadInfo
 {
 public:

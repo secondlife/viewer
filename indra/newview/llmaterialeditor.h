@@ -28,6 +28,7 @@
 
 #include "llpreview.h"
 #include "llvoinventorylistener.h"
+#include "llimagej2c.h"
 
 class LLTextureCtrl;
 
@@ -60,6 +61,11 @@ public:
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
     void inventoryChanged(LLViewerObject* object, LLInventoryObject::object_list_t* inventory, S32 serial_num, void* user_data) override;
+
+    void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id);
+
+    // save textures to inventory if needed
+    void saveTextures();
 
     void onClickSave();
 
@@ -139,6 +145,8 @@ public:
     void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
 
 private:
+    friend class LLMaterialFilePicker;
+
     LLUUID mAssetID;
     LLUUID mObjectID;
 
@@ -152,6 +160,18 @@ private:
     LLUUID mMetallicTextureUploadId;
     LLUUID mEmissiveTextureUploadId;
     LLUUID mNormalTextureUploadId;
+
+    // last known name of each texture
+    std::string mAlbedoName;
+    std::string mNormalName;
+    std::string mMetallicRoughnessName;
+    std::string mEmissiveName;
+
+    // J2C versions of packed buffers for uploading
+    LLPointer<LLImageJ2C> mAlbedoJ2C;
+    LLPointer<LLImageJ2C> mNormalJ2C;
+    LLPointer<LLImageJ2C> mMetallicRoughnessJ2C;
+    LLPointer<LLImageJ2C> mEmissiveJ2C;
 
     bool mHasUnsavedChanges;
     std::string mMaterialName;
