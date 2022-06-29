@@ -497,6 +497,53 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
 }
 
 //=========================================================================
+LLNewBufferedResourceUploadInfo::LLNewBufferedResourceUploadInfo(
+    const std::string& buffer,
+    const LLAssetID& asset_id,
+    std::string name,
+    std::string description,
+    S32 compressionInfo,
+    LLFolderType::EType destinationType,
+    LLInventoryType::EType inventoryType,
+    LLAssetType::EType assetType,
+    U32 nextOWnerPerms,
+    U32 groupPerms,
+    U32 everyonePerms,
+    S32 expectedCost,
+    bool show_inventory) :
+    LLResourceUploadInfo(name, description, compressionInfo,
+        destinationType, inventoryType,
+        nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
+    mBuffer(buffer)
+{
+    setAssetType(assetType);
+    setAssetId(asset_id);
+}
+
+LLSD LLNewBufferedResourceUploadInfo::prepareUpload()
+{
+    if (getAssetId().isNull())
+        generateNewAssetId();
+
+    LLSD result = exportTempFile();
+    if (result.has("error"))
+        return result;
+
+    return LLResourceUploadInfo::prepareUpload();
+}
+
+LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
+{
+    std::string filename = gDirUtilp->getTempFilename();
+
+    // copy buffer to the cache for upload    
+    LLFileSystem file(getAssetId(), getAssetType(), LLFileSystem::APPEND);
+    file.write((U8*) mBuffer.c_str(), mBuffer.size());
+        
+    return LLSD();
+}
+
+//=========================================================================
 LLBufferedAssetUploadInfo::LLBufferedAssetUploadInfo(LLUUID itemId, LLAssetType::EType assetType, std::string buffer, invnUploadFinish_f finish) :
     LLResourceUploadInfo(std::string(), std::string(), 0, LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
         0, 0, 0, 0),

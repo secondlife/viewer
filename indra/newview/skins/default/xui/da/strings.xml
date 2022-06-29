@@ -106,7 +106,7 @@
 	<string name="LoginFailedNoNetwork">
 		Netværksfejl: Kunne ikke etablere forbindelse, check venligst din netværksforbindelse.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Login fejlede.
 	</string>
 	<string name="Quit">

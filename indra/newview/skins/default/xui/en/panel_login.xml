@@ -145,7 +145,7 @@
     follows="left|top"
     font="SansSerifMedium"
     text_color="EmphasisColor"
-    height="16"
+    height="24"
     left="408"
     bottom_delta="0"
     label="Remember password"

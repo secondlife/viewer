@@ -48,6 +48,9 @@
 #include "llfloaterreg.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
+#include "llimagej2c.h"
+#include "llviewertexturelist.h"
+#include "llfloaterperms.h"
 
 #include <strstream>
 
@@ -316,6 +319,7 @@ void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
     }
     else
     {
+        mAlbedoJ2C = nullptr;
         childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -331,6 +335,7 @@ void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & dat
     }
     else
     {
+        mMetallicRoughnessJ2C = nullptr;
         childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -346,6 +351,7 @@ void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & dat
     }
     else
     {
+        mEmissiveJ2C = nullptr;
         childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -361,6 +367,7 @@ void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
     }
     else
     {
+        mNormalJ2C = nullptr;
         childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -395,7 +402,6 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
 void LLMaterialEditor::onClickSave()
 {
     applyToSelection();
-    
     saveIfNeeded();
 }
 
@@ -557,6 +563,8 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
 {
     std::string buffer = getEncodedAsset();
     
+    saveTextures();
+
     const LLInventoryItem* item = getItem();
     // save it out to database
     if (item)
@@ -615,6 +623,7 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
     }
     else
     { //make a new inventory item
+#if 1
         // gen a new uuid for this asset
         LLTransactionID tid;
         tid.generate();     // timestamp-based randomization + uniquification
@@ -651,6 +660,7 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                 }
                 })
         );
+#endif
     }
     
     return true;
@@ -793,10 +803,9 @@ const tinygltf::Image* get_image_from_texture_index(const tinygltf::Model& model
     return nullptr;
 }
 
-static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index)
+static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name)
 {
     const tinygltf::Image* image = get_image_from_texture_index(model, texture_index);
-
     LLImageRaw* rawImage = nullptr;
 
     if (image != nullptr && 
@@ -804,6 +813,7 @@ static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model&
         !image->image.empty() &&
         image->component <= 4)
     {
+        name = image->name;
         rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
         rawImage->verticalFlip();
     }
@@ -850,18 +860,23 @@ static void pack_textures(tinygltf::Model& model, tinygltf::Material& material,
     LLPointer<LLViewerFetchedTexture>& albedo_tex,
     LLPointer<LLViewerFetchedTexture>& normal_tex,
     LLPointer<LLViewerFetchedTexture>& mr_tex,
-    LLPointer<LLViewerFetchedTexture>& emissive_tex)
+    LLPointer<LLViewerFetchedTexture>& emissive_tex,
+    LLPointer<LLImageJ2C>& albedo_j2c,
+    LLPointer<LLImageJ2C>& normal_j2c,
+    LLPointer<LLImageJ2C>& mr_j2c,
+    LLPointer<LLImageJ2C>& emissive_j2c)
 {
-    // TODO: downscale if needed
     if (albedo_img)
     {
         albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
+        albedo_j2c = LLViewerTextureList::convertToUploadFile(albedo_img);
     }
 
     if (normal_img)
     {
         strip_alpha_channel(normal_img);
         normal_tex = LLViewerTextureManager::getFetchedTexture(normal_img, FTType::FTT_LOCAL_FILE, true);
+        normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img);
     }
 
     if (mr_img)
@@ -895,12 +910,14 @@ static void pack_textures(tinygltf::Model& model, tinygltf::Material& material,
     if (mr_img)
     {
         mr_tex = LLViewerTextureManager::getFetchedTexture(mr_img, FTType::FTT_LOCAL_FILE, true);
+        mr_j2c = LLViewerTextureList::convertToUploadFile(mr_img);
     }
 
     if (emissive_img)
     {
         strip_alpha_channel(emissive_img);
         emissive_tex = LLViewerTextureManager::getFetchedTexture(emissive_img, FTType::FTT_LOCAL_FILE, true);
+        emissive_j2c = LLViewerTextureList::convertToUploadFile(emissive_img);
     }
 }
 
@@ -966,18 +983,19 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     model_out.materials.resize(1);
 
     // get albedo texture
-    LLPointer<LLImageRaw> albedo_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+    LLPointer<LLImageRaw> albedo_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mME->mAlbedoName);
     // get normal map
-    LLPointer<LLImageRaw> normal_img = get_texture(folder, model_in, material_in.normalTexture.index);
+    LLPointer<LLImageRaw> normal_img = get_texture(folder, model_in, material_in.normalTexture.index, mME->mNormalName);
     // get metallic-roughness texture
-    LLPointer<LLImageRaw> mr_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index);
+    LLPointer<LLImageRaw> mr_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, mME->mMetallicRoughnessName);
     // get emissive texture
-    LLPointer<LLImageRaw> emissive_img = get_texture(folder, model_in, material_in.emissiveTexture.index);
+    LLPointer<LLImageRaw> emissive_img = get_texture(folder, model_in, material_in.emissiveTexture.index, mME->mEmissiveName);
     // get occlusion map if needed
     LLPointer<LLImageRaw> occlusion_img;
     if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
     {
-        occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index);
+        std::string tmp;
+        occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index, tmp);
     }
 
     LLPointer<LLViewerFetchedTexture> albedo_tex;
@@ -986,12 +1004,12 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     LLPointer<LLViewerFetchedTexture> emissive_tex;
     
     pack_textures(model_in, material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        albedo_tex, normal_tex, mr_tex, emissive_tex);
+        albedo_tex, normal_tex, mr_tex, emissive_tex, mME->mAlbedoJ2C, mME->mNormalJ2C, mME->mMetallicRoughnessJ2C, mME->mEmissiveJ2C);
     
     LLUUID albedo_id;
     if (albedo_tex != nullptr)
     {
-        albedo_tex->forceToSaveRawImage(0, F32_MAX);        
+        albedo_tex->forceToSaveRawImage(0, F32_MAX);
         albedo_id = albedo_tex->getID();
     }
 
@@ -1351,5 +1369,53 @@ void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
 {
     removeVOInventoryListener();
     loadAsset();
+}
+
+
+void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id)
+{
+    if (img == nullptr || img->getDataSize() == 0)
+    {
+        return;
+    }
+
+    // copy image bytes into string
+    std::string buffer;
+    buffer.assign((const char*) img->getData(), img->getDataSize());
+
+    U32 expected_upload_cost = 10; // TODO: where do we get L$10 for textures from?
+
+    LLAssetStorage::LLStoreAssetCallback callback;
+
+    LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
+        buffer,
+        asset_id,
+        name, 
+        name, 
+        0,
+        LLFolderType::FT_TEXTURE, 
+        LLInventoryType::IT_TEXTURE,
+        LLAssetType::AT_TEXTURE,
+        LLFloaterPerms::getNextOwnerPerms("Uploads"),
+        LLFloaterPerms::getGroupPerms("Uploads"),
+        LLFloaterPerms::getEveryonePerms("Uploads"),
+        expected_upload_cost, 
+        false));
+
+    upload_new_resource(uploadInfo, callback, nullptr);
+}
+
+void LLMaterialEditor::saveTextures()
+{
+    saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId);
+    saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId);
+    saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId);
+    saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId);
+
+    // discard upload buffers once textures have been saved
+    mAlbedoJ2C = nullptr;
+    mNormalJ2C = nullptr;
+    mEmissiveJ2C = nullptr;
+    mMetallicRoughnessJ2C = nullptr;
 }
 
