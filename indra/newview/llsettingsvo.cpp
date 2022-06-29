@@ -1026,12 +1026,39 @@ LLSettingsDay::ptr_t LLSettingsVODay::buildFromLegacyPreset(const std::string &n
     std::set<std::string> framenames;
     std::set<std::string> notfound;
 
+    // expected and correct folder sctructure is to have
+    // three folders in widnlight's root: days, water, skies 
     std::string base_path(gDirUtilp->getDirName(path));
     std::string water_path(base_path);
     std::string sky_path(base_path);
+    std::string day_path(base_path);
 
     gDirUtilp->append(water_path, "water");
     gDirUtilp->append(sky_path, "skies");
+    gDirUtilp->append(day_path, "days");
+
+    if (!gDirUtilp->fileExists(day_path))
+    {
+        LL_WARNS("SETTINGS") << "File " << name << ".xml is not in \"days\" folder." << LL_ENDL;
+    }
+
+    if (!gDirUtilp->fileExists(water_path))
+    {
+        LL_WARNS("SETTINGS") << "Failed to find accompaniying water folder for file " << name
+            << ".xml. Falling back to using default folder" << LL_ENDL;
+
+        water_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight");
+        gDirUtilp->append(water_path, "water");
+    }
+
+    if (!gDirUtilp->fileExists(sky_path))
+    {
+        LL_WARNS("SETTINGS") << "Failed to find accompaniying skies folder for file " << name
+            << ".xml. Falling back to using default folder" << LL_ENDL;
+
+        sky_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, "windlight");
+        gDirUtilp->append(sky_path, "skies");
+    }
 
     newsettings[SETTING_NAME] = name;
 

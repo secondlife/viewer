@@ -713,6 +713,12 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 		setControlFlags(AGENT_CONTROL_YAW_NEG);
 	}
 
+    U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
+    if ((getControlFlags() & mask) == mask)
+    {
+        gAgentCamera.setYawKey(0);
+    }
+
     if (reset_view)
 	{
         gAgentCamera.resetView();
@@ -2005,6 +2011,27 @@ void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32
 	//
 
 	gAgentCamera.updateLookAt(mouse_x, mouse_y);
+
+    // When agent has no parents, position updates come from setPositionAgent()
+    // But when agent has a parent (ex: is seated), position remains unchanged
+    // relative to parent and no parent's position update trigger
+    // setPositionAgent().
+    // But EEP's sky track selection still needs an update if agent has a parent
+    // and parent moves (ex: vehicles).
+    if (isAgentAvatarValid()
+        && gAgentAvatarp->getParent()
+        && !mOnPositionChanged.empty()
+        )
+    {
+        LLVector3d new_position = getPositionGlobal();
+        if ((mLastTestGlobal - new_position).lengthSquared() > 1.0)
+        {
+            // If the position has changed by more than 1 meter since the last time we triggered.
+            // filters out some noise. 
+            mLastTestGlobal = new_position;
+            mOnPositionChanged(mFrameAgent.getOrigin(), new_position);
+        }
+    }
 }
 
 // friends and operators

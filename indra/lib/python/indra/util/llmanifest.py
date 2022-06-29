@@ -83,8 +83,7 @@ def proper_windows_path(path, current_platform = sys.platform):
         return drive_letter.upper() + ':\\' + rel.replace('/', '\\')
 
 def get_default_platform(dummy):
-    return {'linux2':'linux',
-            'linux1':'linux',
+    return {'linux':'linux',
             'cygwin':'windows',
             'win32':'windows',
             'darwin':'darwin'
