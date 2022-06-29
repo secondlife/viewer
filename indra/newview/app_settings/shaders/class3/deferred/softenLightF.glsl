@@ -163,7 +163,7 @@ void main()
     da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
-         diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14025
+         diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
     vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy);
 
 
@@ -277,9 +277,7 @@ void main()
         vec3  kDiffuse      = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
 
-        float occlusion_strength = 1.0; // TODO: From glb
-        float ao     = packedORM.r;
-        colorDiffuse = mix(colorDiffuse, colorDiffuse * ao, occlusion_strength);
+        colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
 
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
 
@@ -293,7 +291,7 @@ void main()
         color.rgb = vec3(metal);
     #endif
     #if DEBUG_PBR_OCCLUSION
-        color.rgb = vec3(ao);
+        color.rgb = vec3(packedORM.r);
     #endif
     #if DEBUG_PBR_ORM
         color.rgb = packedORM;
