@@ -187,7 +187,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Erreur réseau : impossible d&apos;établir la connexion. Veuillez vérifier votre connexion réseau.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Échec de la connexion.
 	</string>
 	<string name="Quit">

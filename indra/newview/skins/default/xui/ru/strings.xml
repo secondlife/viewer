@@ -187,7 +187,7 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 	<string name="LoginFailedNoNetwork">
 		Ошибка сети: не удалось установить соединение. Проверьте подключение к сети.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Ошибка входа.
 	</string>
 	<string name="Quit">

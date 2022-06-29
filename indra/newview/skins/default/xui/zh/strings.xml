@@ -187,7 +187,7 @@ LibVLC版本：[LIBVLC_VERSION]N]
 	<string name="LoginFailedNoNetwork">
 		網路錯誤：無法建立連線，請檢查網路連線是否正常。
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		登入失敗。
 	</string>
 	<string name="Quit">

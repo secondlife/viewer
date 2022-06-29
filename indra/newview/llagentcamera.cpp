@@ -401,10 +401,9 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 	LLQuaternion obj_rot = object->getRenderRotation();
 	LLVector3 obj_pos = object->getRenderPosition();
 
-	BOOL is_avatar = object->isAvatar();
 	// if is avatar - don't do any funk heuristics to position the focal point
 	// see DEV-30589
-	if (is_avatar)
+	if (object->isAvatar() || (object->isAnimatedObject() && object->getControlAvatar()))
 	{
 		return original_focus_point - obj_pos;
 	}
@@ -529,7 +528,6 @@ LLVector3 LLAgentCamera::calcFocusOffset(LLViewerObject *object, LLVector3 origi
 	// or keep the focus point in the object middle when (relatively) far
 	// NOTE: leave focus point in middle of avatars, since the behavior you want when alt-zooming on avatars
 	// is almost always "tumble about middle" and not "spin around surface point"
-	if (!is_avatar) 
 	{
 		LLVector3 obj_rel = original_focus_point - object->getRenderPosition();
 		
@@ -1417,7 +1415,7 @@ void LLAgentCamera::updateCamera()
 			
 			F32 smoothing = LLSmoothInterpolation::getInterpolant(gSavedSettings.getF32("CameraPositionSmoothing") * SMOOTHING_HALF_LIFE, FALSE);
 					
-			if (!mFocusObject)  // we differentiate on avatar mode 
+			if (mFocusOnAvatar && !mFocusObject) // we differentiate on avatar mode 
 			{
 				// for avatar-relative focus, we smooth in avatar space -
 				// the avatar moves too jerkily w/r/t global space to smooth there.

@@ -106,6 +106,7 @@ public:
 	bool logoutRequestSent() { return mLogoutRequestSent; }
 	bool isSecondInstance() { return mSecondInstance; }
     bool isUpdaterMissing(); // In use by tests
+    bool waitForUpdater();
 
 	void writeDebugInfo(bool isStatic=true);
 

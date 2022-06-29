@@ -61,7 +61,8 @@
 
 #define CAP_SERVICE_NAVMESH_STATUS          "NavMeshGenerationStatus"
 
-#define CAP_SERVICE_OBJECT_LINKSETS         "RegionObjects"
+#define CAP_SERVICE_GET_OBJECT_LINKSETS     "RegionObjects"
+#define CAP_SERVICE_SET_OBJECT_LINKSETS     "ObjectNavMeshProperties"
 #define CAP_SERVICE_TERRAIN_LINKSETS        "TerrainNavMeshProperties"
 
 #define CAP_SERVICE_CHARACTERS              "CharacterProperties"
@@ -244,7 +245,7 @@ void LLPathfindingManager::requestGetLinksets(request_id_t pRequestId, object_re
 	}
 	else
 	{
-		std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
+		std::string objectLinksetsURL = getRetrieveObjectLinksetsURLForCurrentRegion();
 		std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
 		if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 		{
@@ -273,7 +274,7 @@ void LLPathfindingManager::requestSetLinksets(request_id_t pRequestId, const LLP
 {
 	LLPathfindingObjectListPtr emptyLinksetListPtr;
 
-	std::string objectLinksetsURL = getObjectLinksetsURLForCurrentRegion();
+	std::string objectLinksetsURL = getChangeObjectLinksetsURLForCurrentRegion();
 	std::string terrainLinksetsURL = getTerrainLinksetsURLForCurrentRegion();
 	if (objectLinksetsURL.empty() || terrainLinksetsURL.empty())
 	{
@@ -755,9 +756,14 @@ std::string LLPathfindingManager::getRetrieveNavMeshURLForRegion(LLViewerRegion 
 	return getCapabilityURLForRegion(pRegion, CAP_SERVICE_RETRIEVE_NAVMESH);
 }
 
-std::string LLPathfindingManager::getObjectLinksetsURLForCurrentRegion() const
+std::string LLPathfindingManager::getRetrieveObjectLinksetsURLForCurrentRegion() const
 {
-	return getCapabilityURLForCurrentRegion(CAP_SERVICE_OBJECT_LINKSETS);
+	return getCapabilityURLForCurrentRegion(CAP_SERVICE_GET_OBJECT_LINKSETS);
+}
+
+std::string LLPathfindingManager::getChangeObjectLinksetsURLForCurrentRegion() const
+{
+    return getCapabilityURLForCurrentRegion(CAP_SERVICE_SET_OBJECT_LINKSETS);
 }
 
 std::string LLPathfindingManager::getTerrainLinksetsURLForCurrentRegion() const
