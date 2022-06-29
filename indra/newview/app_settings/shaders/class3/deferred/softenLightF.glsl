@@ -56,6 +56,7 @@
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
 #define DEBUG_PBR_REFLECTANCE      0 // Output: diffuse reflectance -- NOT USED
+#define DEBUG_PBR_REFLECTION       0 // Output: reflection dir
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
 #define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
@@ -360,6 +361,9 @@ void main()
     #endif
     #if DEBUG_PBR_REFLECTANCE
         color.rgb = vec3(reflectance);
+    #endif
+    #if DEBUG_PBR_REFLECTION
+        color.rgb = reflect(-v, n);  // NOTE: equivalent to normalize(reflect(pos.xyz, norm.xyz));
     #endif
     #if DEBUG_PBR_SPEC
         color.rgb = colorSpec;
