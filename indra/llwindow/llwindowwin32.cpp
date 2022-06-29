@@ -3057,8 +3057,20 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 if (raw->header.dwType == RIM_TYPEMOUSE)
                 {
                     LLMutexLock lock(&window_imp->mRawMouseMutex);
-                    window_imp->mRawMouseDelta.mX += raw->data.mouse.lLastX;
-                    window_imp->mRawMouseDelta.mY -= raw->data.mouse.lLastY;
+
+                    S32 speed;
+                    const S32 DEFAULT_SPEED(10);
+                    SystemParametersInfo(SPI_GETMOUSESPEED, 0, &speed, 0);
+                    if (speed == DEFAULT_SPEED)
+                    {
+                        window_imp->mRawMouseDelta.mX += raw->data.mouse.lLastX;
+                        window_imp->mRawMouseDelta.mY -= raw->data.mouse.lLastY;
+                    }
+                    else
+                    {
+                        window_imp->mRawMouseDelta.mX += round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
+                        window_imp->mRawMouseDelta.mY -= round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
+                    }
                 }
             }
         }
