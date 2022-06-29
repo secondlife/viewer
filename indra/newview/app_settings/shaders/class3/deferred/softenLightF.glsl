@@ -28,7 +28,8 @@
 #define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
 #define DEBUG_PBR_VERT2CAM1       0 // vertex2camera = 0,0,1
 
-#define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
+// Pass input through "as is"
+#define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
 #define DEBUG_PBR_EMISSIVE         0 // Output: Emissive
 #define DEBUG_PBR_METAL            0 // Output: grayscale Metal map
 #define DEBUG_PBR_OCCLUSION        0 // Output: grayscale Occlusion map
@@ -36,6 +37,7 @@
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughness map
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 
+#define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
 #define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_DIFFUSE_MAP 1, and in pbropaqueF set DEBUG_NORMAL_RAW
 #define DEBUG_PBR_TANGENT          0 // Output: Tangent
 #define DEBUG_PBR_BITANGENT        0 // Output: Bitangent
@@ -46,7 +48,6 @@
 #define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
 #define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
-#define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
 #define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
 #define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
