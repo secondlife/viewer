@@ -95,6 +95,7 @@ Hover your mouse over the options for more help.
      layout="topleft"
      max_length="511"
      name="charter"
+     parse_urls="true"
      top="105"
      right="-4"
     bg_readonly_color="DkGray2"
