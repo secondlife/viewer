@@ -1700,7 +1700,7 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
     case PARAMS_EXTENDED_MESH:
         return (size == 4);
     case PARAMS_RENDER_MATERIAL:
-        return (size == 16);
+        return (size > 1);
 	}
 	
 	return FALSE;
@@ -2312,18 +2312,32 @@ LLRenderMaterialParams::LLRenderMaterialParams()
     mType = PARAMS_RENDER_MATERIAL;
 }
 
-BOOL LLRenderMaterialParams::pack(LLDataPacker &dp) const
+BOOL LLRenderMaterialParams::pack(LLDataPacker& dp) const
 {
-    return dp.packUUID(mMaterial, "material");
+    U8 count = (U8)llmin((S32)mEntries.size(), 14); //limited to 255 bytes, no more than 14 material ids
 
-//    return TRUE;
+    dp.packU8(count, "count");
+    for (auto& entry : mEntries)
+    {
+        dp.packU8(entry.te_idx, "te_idx");
+        dp.packUUID(entry.id, "id");
+    }
+
+    return TRUE;
 }
 
-BOOL LLRenderMaterialParams::unpack(LLDataPacker &dp)
+BOOL LLRenderMaterialParams::unpack(LLDataPacker& dp)
 {
-    return dp.unpackUUID(mMaterial, "material");
+    U8 count;
+    dp.unpackU8(count, "count");
+    mEntries.resize(count);
+    for (auto& entry : mEntries)
+    {
+        dp.unpackU8(entry.te_idx, "te_idx");
+        dp.unpackUUID(entry.id, "te_id");
+    }
 
-//    return TRUE;
+    return TRUE;
 }
 
 bool LLRenderMaterialParams::operator==(const LLNetworkData& data) const
@@ -2333,40 +2347,99 @@ bool LLRenderMaterialParams::operator==(const LLNetworkData& data) const
         return false;
     }
 
-    const LLRenderMaterialParams &param = static_cast<const LLRenderMaterialParams&>(data);
+    const LLRenderMaterialParams& param = static_cast<const LLRenderMaterialParams&>(data);
 
-    return param.mMaterial == mMaterial;
+    if (param.mEntries.size() != mEntries.size())
+    {
+        return false;
+    }
+
+    for (auto& entry : mEntries)
+    {
+        if (param.getMaterial(entry.te_idx) != entry.id)
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void LLRenderMaterialParams::copy(const LLNetworkData& data)
 {
     llassert_always(data.mType == PARAMS_RENDER_MATERIAL);
-    const LLRenderMaterialParams &param = static_cast<const LLRenderMaterialParams&>(data);
-    mMaterial = param.mMaterial;
+    const LLRenderMaterialParams& param = static_cast<const LLRenderMaterialParams&>(data);
+    mEntries = param.mEntries;
 }
 
 LLSD LLRenderMaterialParams::asLLSD() const
 {
-    return llsd::map("material", mMaterial);
+    LLSD ret;
+
+    for (int i = 0; i < mEntries.size(); ++i)
+    {
+        ret[i]["te_idx"] = mEntries[i].te_idx;
+        ret[i]["id"] = mEntries[i].id;
+    }
+
+    return ret;
 }
 
 bool LLRenderMaterialParams::fromLLSD(LLSD& sd)
 {
-    if (sd.has("material"))
+    if (sd.isArray())
     {
-        setMaterial(sd["material"]);
+        mEntries.resize(sd.size());
+        for (int i = 0; i < sd.size(); ++i)
+        {
+            if (sd[i].has("te_idx") && sd.has("id"))
+            {
+                mEntries[i].te_idx = sd[i]["te_idx"].asInteger();
+                mEntries[i].id = sd[i]["id"].asUUID();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
     return false;
 }
 
-void LLRenderMaterialParams::setMaterial(const LLUUID & id)
+void LLRenderMaterialParams::setMaterial(U8 te, const LLUUID& id)
 {
-    mMaterial = id;
+    for (int i = 0; i < mEntries.size(); ++i)
+    {
+        if (mEntries[i].te_idx == te)
+        {
+            if (id.isNull())
+            {
+                mEntries.erase(mEntries.begin() + i);
+            }
+            else
+            {
+                mEntries[i].id = id;
+            }
+            return;
+        }
+    }
+
+    mEntries.push_back({ te, id });
 }
 
-LLUUID LLRenderMaterialParams::getMaterial() const
+LLUUID LLRenderMaterialParams::getMaterial(U8 te) const
 {
-    return mMaterial;
+    for (int i = 0; i < mEntries.size(); ++i)
+    {
+        if (mEntries[i].te_idx == te)
+        {
+            return mEntries[i].id;
+        }
+    }
+
+    return LLUUID::null;
 }
+

@@ -179,6 +179,13 @@ public:
 	const std::string& getAttachmentItemName() const;
 
 	virtual LLVOAvatar* getAvatar() const;  //get the avatar this object is attached to, or NULL if object is not an attachment
+    
+    bool hasRenderMaterialParams() const;
+    void setHasRenderMaterialParams(bool has_params);
+
+    const LLUUID& getRenderMaterialID(U8 te) const;
+    void setRenderMaterialID(U8 te, const LLUUID& id);
+
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual BOOL	isTempAttachment() const;
 

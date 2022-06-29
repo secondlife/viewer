@@ -256,7 +256,8 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 	//      										|-------------------------------|----------------------------------------------|-----------------------------------------------|---------------------------------------------------|--------------------------------|
 	addEntry(DAD_NONE, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,						&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_TEXTURE, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,			&LLToolDragAndDrop::dad3dTextureObject,				&LLToolDragAndDrop::dad3dNULL));
-	addEntry(DAD_SOUND, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,			&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
+    addEntry(DAD_MATERIAL,      new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL, &LLToolDragAndDrop::dad3dNULL,                  &LLToolDragAndDrop::dad3dGiveInventory,         &LLToolDragAndDrop::dad3dMaterialObject,            &LLToolDragAndDrop::dad3dNULL));
+    addEntry(DAD_SOUND, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,			&LLToolDragAndDrop::dad3dUpdateInventory,			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_CALLINGCARD, 	new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory, 		&LLToolDragAndDrop::dad3dUpdateInventory, 			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_LANDMARK, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL, &LLToolDragAndDrop::dad3dNULL, 					&LLToolDragAndDrop::dad3dGiveInventory, 		&LLToolDragAndDrop::dad3dUpdateInventory, 			&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_SCRIPT, 		new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL, &LLToolDragAndDrop::dad3dNULL, 					&LLToolDragAndDrop::dad3dGiveInventory, 		&LLToolDragAndDrop::dad3dRezScript, 				&LLToolDragAndDrop::dad3dNULL));
@@ -271,6 +272,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 	addEntry(DAD_LINK, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dNULL,						&LLToolDragAndDrop::dad3dNULL));
 	addEntry(DAD_MESH, 			new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL,	&LLToolDragAndDrop::dad3dNULL,					&LLToolDragAndDrop::dad3dGiveInventory,			&LLToolDragAndDrop::dad3dMeshObject,				&LLToolDragAndDrop::dad3dNULL));
     addEntry(DAD_SETTINGS,      new DragAndDropEntry(&LLToolDragAndDrop::dad3dNULL, &LLToolDragAndDrop::dad3dNULL,                  &LLToolDragAndDrop::dad3dGiveInventory,         &LLToolDragAndDrop::dad3dUpdateInventory,           &LLToolDragAndDrop::dad3dNULL));
+    
     // TODO: animation on self could play it?  edit it?
 	// TODO: gesture on self could play it?  edit it?
 };
@@ -1062,6 +1064,66 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 	hit_obj->sendTEUpdate();
 }
 
+
+void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
+    S32 hit_face,
+    LLInventoryItem* item,
+    LLToolDragAndDrop::ESource source,
+    const LLUUID& src_id)
+{
+    if (hit_face == -1) return;
+    if (!item || item->getInventoryType() != LLInventoryType::IT_MATERIAL)
+    {
+        LL_WARNS() << "LLToolDragAndDrop::dropTextureOneFace no material item." << LL_ENDL;
+        return;
+    }
+    LLUUID asset_id = item->getAssetUUID();
+    BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+    if (!success)
+    {
+        return;
+    }
+    
+    LLTextureEntry* tep = hit_obj ? (hit_obj->getTE(hit_face)) : NULL;
+
+    hit_obj->setRenderMaterialID(hit_face, asset_id);
+
+    dialog_refresh_all();
+
+    // send the update to the simulator
+    hit_obj->sendTEUpdate();
+}
+
+
+void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
+    LLInventoryItem* item,
+    LLToolDragAndDrop::ESource source,
+    const LLUUID& src_id)
+{
+    if (!item || item->getInventoryType() != LLInventoryType::IT_MATERIAL)
+    {
+        LL_WARNS() << "LLToolDragAndDrop::dropTextureAllFaces no material item." << LL_ENDL;
+        return;
+    }
+    LLUUID asset_id = item->getAssetUUID();
+    BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+    if (!success)
+    {
+        return;
+    }
+    
+    S32 num_faces = hit_obj->getNumTEs();
+    for (S32 face = 0; face < num_faces; face++)
+    {
+        // update viewer side material in anticipation of update from simulator
+        hit_obj->setRenderMaterialID(face, asset_id);
+        dialog_refresh_all();
+    }
+    // send the update to the simulator
+    hit_obj->sendTEUpdate();
+}
+
+
 void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 								 LLInventoryItem* item,
 								 LLToolDragAndDrop::ESource source,
@@ -1628,6 +1690,7 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 	case DAD_MESH:
 	case DAD_CATEGORY:
     case DAD_SETTINGS:
+    case DAD_MATERIAL:
 	{
 		LLInventoryObject* inv_obj = (LLInventoryObject*)cargo_data;
 		if(gInventory.getCategory(inv_obj->getUUID()) || (gInventory.getItem(inv_obj->getUUID())
@@ -1982,6 +2045,17 @@ EAcceptance LLToolDragAndDrop::dad3dApplyToObject(
 				dropTextureOneFace(obj, face, item, mSource, mSourceID);
 			}
 		}
+        else if (cargo_type == DAD_MATERIAL)
+        {
+            if ((mask & MASK_SHIFT))
+            {
+                dropMaterialAllFaces(obj, item, mSource, mSourceID);
+            }
+            else
+            {
+                dropMaterialOneFace(obj, face, item, mSource, mSourceID);
+            }
+        }
 		else if (cargo_type == DAD_MESH)
 		{
 			dropMesh(obj, item, mSource, mSourceID);
@@ -2008,6 +2082,12 @@ EAcceptance LLToolDragAndDrop::dad3dTextureObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	return dad3dApplyToObject(obj, face, mask, drop, DAD_TEXTURE);
+}
+
+EAcceptance LLToolDragAndDrop::dad3dMaterialObject(
+    LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
+{
+    return dad3dApplyToObject(obj, face, mask, drop, DAD_MATERIAL);
 }
 
 EAcceptance LLToolDragAndDrop::dad3dMeshObject(
