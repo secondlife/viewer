@@ -33,7 +33,7 @@
 #define DEBUG_PBR_METAL            0 // Output: grayscale Metal map
 #define DEBUG_PBR_OCCLUSION        0 // Output: grayscale Occlusion map
 #define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
-#define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughenss map
+#define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughness map
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 
 #define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_DIFFUSE_MAP 1, and in pbropaqueF set DEBUG_NORMAL_RAW
