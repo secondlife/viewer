@@ -508,76 +508,6 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 	addStringToLog("Calculating model data.", false);
 	mModelPreview->rebuildUploadData();
 
-    if (mUseModelPivot)
-    {
-        for (LLModelLoader::scene::iterator it = mModelPreview->mBaseScene.begin(), itE = mModelPreview->mBaseScene.end(); it != itE; ++it)
-        { //for each transform in scene
-            for (LLModelLoader::model_instance_list::iterator model_iter = it->second.begin(), model_iterE = it->second.end(); model_iter != model_iterE; ++model_iter)
-            { //for each model
-                for (LLMeshUploadThread::instance_list::iterator it = mModelPreview->mUploadData.begin(), itE = mModelPreview->mUploadData.end(); it != itE; ++it)
-                {//lookup model
-                    LLModelInstance &mi = *it;
-                    if (model_iter->mLabel == mi.mLabel)
-                    {
-                        LLVector3 pivot = model_iter->mModel->mNormalizedTranslation;
-                        pivot *= model_iter->mModel->mScale;
-
-                        // always clamp
-                        {
-                            //pivot
-                            LLVector3 _pivot = rotate_vector(pivot, mi.mTransform);
-                            _pivot = mi.mTransform.getTranslation() - _pivot;
-                            //model center
-                            const LLVector3& c = mi.mTransform.getTranslation();
-
-                            LLVector3 t0, t1, t2;
-                            LLVector3 cross;
-                            for (unsigned int n = 0; n < sizeof(mTriangles); ++n)
-                            {
-                                LLBBoxHelper::getBoundTriangle(mTriangles[n], t0, t1, t2, [&mi](LLVector3 &pos)
-                                {
-                                    pos = rotate_vector(pos, mi.mTransform) * BBOX_SIZE;
-                                    pos += mi.mTransform.getTranslation();
-                                });
-
-                                if (get_intersection_segment_with_plane(_pivot, c, t0, t1, t2, cross))
-                                {
-                                    const LLVector3 &scale_sq = mi.mTransform.getScaleSquared();
-
-                                    pivot = -cross;
-                                    pivot += c;
-                                    pivot = rotate_vector(pivot, mi.mTransform.inverted());
-
-                                    pivot[0] /= scale_sq[0];
-                                    pivot[1] /= scale_sq[1];
-                                    pivot[2] /= scale_sq[2];
-
-                                    break;
-                                }
-                            }
-                        }
-
-                        LLVector3 t = rotate_vector(pivot, mi.mTransform);
-                        mi.mTransform.translate(-t);
-
-                        //apply to each LOD
-                        std::set<LLPointer<LLModel> > offset_models;
-                        for (unsigned int lod = 0; lod < sizeof(mi.mLOD) / sizeof(mi.mLOD[0]); ++lod)
-                        {
-                            LLPointer<LLModel> lod_model = mi.mLOD[lod];
-                            if (lod_model && offset_models.end() == offset_models.find(lod_model)) {
-                                lod_model->offsetMesh(pivot);
-                                offset_models.insert(lod_model);
-                            }
-                        }
-
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
 	bool upload_skinweights = childGetValue("upload_skin").asBoolean();
 	bool upload_joint_positions = childGetValue("upload_joints").asBoolean();
     bool lock_scale_if_joint_position = childGetValue("lock_scale_if_joint_position").asBoolean();
@@ -1715,6 +1645,77 @@ void LLFloaterModelPreview::onUpload(void* user_data)
 	mp->mUploadBtn->setEnabled(false);
 
 	mp->mModelPreview->rebuildUploadData();
+
+    if (mp->mUseModelPivot)
+    {
+        LLModelPreview* mModelPreview = mp->mModelPreview;
+        for (LLModelLoader::scene::iterator it = mModelPreview->mBaseScene.begin(), itE = mModelPreview->mBaseScene.end(); it != itE; ++it)
+        { //for each transform in scene
+            for (LLModelLoader::model_instance_list::iterator model_iter = it->second.begin(), model_iterE = it->second.end(); model_iter != model_iterE; ++model_iter)
+            { //for each model
+                for (LLMeshUploadThread::instance_list::iterator it = mModelPreview->mUploadData.begin(), itE = mModelPreview->mUploadData.end(); it != itE; ++it)
+                {//lookup model
+                    LLModelInstance &mi = *it;
+                    if (model_iter->mLabel == mi.mLabel)
+                    {
+                        LLVector3 pivot = model_iter->mModel->mNormalizedTranslation;
+                        pivot *= model_iter->mModel->mScale;
+
+                        // always clamp
+                        {
+                            //pivot
+                            LLVector3 _pivot = rotate_vector(pivot, mi.mTransform);
+                            _pivot = mi.mTransform.getTranslation() - _pivot;
+                            //model center
+                            const LLVector3& c = mi.mTransform.getTranslation();
+
+                            LLVector3 t0, t1, t2;
+                            LLVector3 cross;
+                            for (unsigned int n = 0; n < sizeof(mTriangles); ++n)
+                            {
+                                LLBBoxHelper::getBoundTriangle(mp->mTriangles[n], t0, t1, t2, [&mi](LLVector3 &pos)
+                                {
+                                    pos = rotate_vector(pos, mi.mTransform) * BBOX_SIZE;
+                                    pos += mi.mTransform.getTranslation();
+                                });
+
+                                if (get_intersection_segment_with_plane(_pivot, c, t0, t1, t2, cross))
+                                {
+                                    const LLVector3 &scale_sq = mi.mTransform.getScaleSquared();
+
+                                    pivot = -cross;
+                                    pivot += c;
+                                    pivot = rotate_vector(pivot, mi.mTransform.inverted());
+
+                                    pivot[0] /= scale_sq[0];
+                                    pivot[1] /= scale_sq[1];
+                                    pivot[2] /= scale_sq[2];
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        LLVector3 t = rotate_vector(pivot, mi.mTransform);
+                        mi.mTransform.translate(-t);
+
+                        //apply to each LOD
+                        std::set<LLPointer<LLModel> > offset_models;
+                        for (unsigned int lod = 0; lod < sizeof(mi.mLOD) / sizeof(mi.mLOD[0]); ++lod)
+                        {
+                            LLPointer<LLModel> lod_model = mi.mLOD[lod];
+                            if (lod_model && offset_models.end() == offset_models.find(lod_model)) {
+                                lod_model->offsetMesh(pivot);
+                                offset_models.insert(lod_model);
+                            }
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+    }
 
 	bool upload_skinweights = mp->childGetValue("upload_skin").asBoolean();
 	bool upload_joint_positions = mp->childGetValue("upload_joints").asBoolean();
