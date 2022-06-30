@@ -168,6 +168,8 @@ protected:
 							   MASK mask, BOOL drop);
 	EAcceptance dad3dTextureObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
+    EAcceptance dad3dMaterialObject(LLViewerObject* obj, S32 face,
+        MASK mask, BOOL drop);
 	EAcceptance dad3dMeshObject(LLViewerObject* obj, S32 face,
 								   MASK mask, BOOL drop);
 //	EAcceptance dad3dTextureSelf(LLViewerObject* obj, S32 face,
@@ -249,6 +251,14 @@ public:
 									LLInventoryItem* item,
 									ESource source,
 									const LLUUID& src_id);
+    static void dropMaterialOneFace(LLViewerObject* hit_obj, S32 hit_face,
+                                    LLInventoryItem* item,
+                                    ESource source,
+                                    const LLUUID& src_id);
+    static void dropMaterialAllFaces(LLViewerObject* hit_obj,
+                                    LLInventoryItem* item,
+                                    ESource source,
+                                    const LLUUID& src_id);
 	static void dropMesh(LLViewerObject* hit_obj,
 						 LLInventoryItem* item,
 						 ESource source,

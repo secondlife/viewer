@@ -107,6 +107,7 @@
 #include "llcleanup.h"
 #include "llcallstack.h"
 #include "llmeshrepository.h"
+#include "llgltfmateriallist.h"
 #include "llgl.h"
 
 //#define DEBUG_UPDATE_TYPE
@@ -4906,6 +4907,18 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
     };
 
     LLGLTFMaterial* mat = getTE(te)->getGLTFMaterial();
+    LLUUID mat_id = getRenderMaterialID(te);
+    if (mat == nullptr && mat_id.notNull())
+    {
+        mat = gGLTFMaterialList.getMaterial(mat_id);
+        getTE(te)->setGLTFMaterial(mat);
+    }
+    else if (mat_id.isNull() && mat != nullptr)
+    {
+        mat = nullptr;
+        getTE(te)->setGLTFMaterial(nullptr);
+    }
+
     if (mat != nullptr)
     {
         mGLTFAlbedoMaps[te] = fetch_texture(mat->mAlbedoId);
@@ -4913,6 +4926,14 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
         mGLTFMetallicRoughnessMaps[te] = fetch_texture(mat->mMetallicRoughnessId);
         mGLTFEmissiveMaps[te] = fetch_texture(mat->mEmissiveId);
     }
+    else
+    {
+        mGLTFAlbedoMaps[te] = nullptr;
+        mGLTFNormalMaps[te] = nullptr;
+        mGLTFMetallicRoughnessMaps[te] = nullptr;
+        mGLTFEmissiveMaps[te] = nullptr;
+    }
+
 }
 
 void LLViewerObject::refreshBakeTexture()
@@ -6991,6 +7012,69 @@ LLVOAvatar* LLViewerObject::getAvatar() const
 	return NULL;
 }
 
+bool LLViewerObject::hasRenderMaterialParams() const
+{
+    return getParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL);
+}
+
+void LLViewerObject::setHasRenderMaterialParams(bool has_materials)
+{
+    bool had_materials = hasRenderMaterialParams();
+
+    if (had_materials != has_materials)
+    {
+        if (has_materials)
+        {
+            setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, true);
+        }
+        else
+        {
+            setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, FALSE, true);
+        }
+    }
+}
+
+const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
+{
+    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    if (param_block)
+    {
+        return param_block->getMaterial(te);
+    }
+
+    return LLUUID::null;
+}
+
+void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
+{
+    if (id.notNull())
+    {
+        getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
+        setHasRenderMaterialParams(true);
+    }
+    else
+    {
+        getTE(te)->setGLTFMaterial(nullptr);
+    }
+
+    faceMappingChanged();
+    gPipeline.markTextured(mDrawable);
+
+    LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    if (param_block)
+    {
+        param_block->setMaterial(te, id);
+
+        if (param_block->isEmpty())
+        { // might be empty if id is null
+            setHasRenderMaterialParams(false);
+        }
+        else
+        {
+            parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+        }
+    }
+}
 
 class ObjectPhysicsProperties : public LLHTTPNode
 {

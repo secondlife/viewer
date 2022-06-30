@@ -29,6 +29,7 @@
 #include "llmaterialeditor.h"
 
 #include "llagent.h"
+#include "llagentbenefits.h"
 #include "llappviewer.h"
 #include "llcombobox.h"
 #include "llinventorymodel.h"
@@ -43,7 +44,6 @@
 #include "llviewerregion.h"
 #include "llvovolume.h"
 #include "roles_constants.h"
-#include "tinygltf/tiny_gltf.h"
 #include "llviewerobjectlist.h"
 #include "llfloaterreg.h"
 #include "llfilesystem.h"
@@ -52,6 +52,7 @@
 #include "llviewertexturelist.h"
 #include "llfloaterperms.h"
 
+#include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
 ///----------------------------------------------------------------------------
@@ -85,6 +86,12 @@ BOOL LLMaterialEditor::postBuild()
     childSetAction("save", boost::bind(&LLMaterialEditor::onClickSave, this));
     childSetAction("save_as", boost::bind(&LLMaterialEditor::onClickSaveAs, this));
     childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
+
+    S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
+    getChild<LLUICtrl>("albedo_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
 
     boost::function<void(LLUICtrl*, void*)> changes_callback = [this](LLUICtrl * ctrl, void*)
     {
@@ -142,7 +149,12 @@ void LLMaterialEditor::setAlbedoId(const LLUUID& id)
 {
     mAlbedoTextureCtrl->setValue(id);
     mAlbedoTextureCtrl->setDefaultImageAssetID(id);
+}
 
+void LLMaterialEditor::setAlbedoUploadId(const LLUUID& id)
+{
+    // Might be better to use local textures and
+    // assign a fee in case of a local texture
     if (id.notNull())
     {
         // todo: this does not account for posibility of texture
@@ -151,6 +163,7 @@ void LLMaterialEditor::setAlbedoId(const LLUUID& id)
         // Only set if we will need to upload this texture
         mAlbedoTextureUploadId = id;
     }
+    setHasUnsavedChanges(true);
 }
 
 LLColor4 LLMaterialEditor::getAlbedoColor()
@@ -211,7 +224,10 @@ void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
 {
     mMetallicTextureCtrl->setValue(id);
     mMetallicTextureCtrl->setDefaultImageAssetID(id);
+}
 
+void LLMaterialEditor::setMetallicRoughnessUploadId(const LLUUID& id)
+{
     if (id.notNull())
     {
         // todo: this does not account for posibility of texture
@@ -219,6 +235,7 @@ void LLMaterialEditor::setMetallicRoughnessId(const LLUUID& id)
         childSetValue("metallic_upload_fee", getString("upload_fee_string"));
         mMetallicTextureUploadId = id;
     }
+    setHasUnsavedChanges(true);
 }
 
 F32 LLMaterialEditor::getMetalnessFactor()
@@ -250,7 +267,10 @@ void LLMaterialEditor::setEmissiveId(const LLUUID& id)
 {
     mEmissiveTextureCtrl->setValue(id);
     mEmissiveTextureCtrl->setDefaultImageAssetID(id);
+}
 
+void LLMaterialEditor::setEmissiveUploadId(const LLUUID& id)
+{
     if (id.notNull())
     {
         // todo: this does not account for posibility of texture
@@ -258,6 +278,7 @@ void LLMaterialEditor::setEmissiveId(const LLUUID& id)
         childSetValue("emissive_upload_fee", getString("upload_fee_string"));
         mEmissiveTextureUploadId = id;
     }
+    setHasUnsavedChanges(true);
 }
 
 LLColor4 LLMaterialEditor::getEmissiveColor()
@@ -279,7 +300,10 @@ void LLMaterialEditor::setNormalId(const LLUUID& id)
 {
     mNormalTextureCtrl->setValue(id);
     mNormalTextureCtrl->setDefaultImageAssetID(id);
+}
 
+void LLMaterialEditor::setNormalUploadId(const LLUUID& id)
+{
     if (id.notNull())
     {
         // todo: this does not account for posibility of texture
@@ -287,6 +311,7 @@ void LLMaterialEditor::setNormalId(const LLUUID& id)
         childSetValue("normal_upload_fee", getString("upload_fee_string"));
         mNormalTextureUploadId = id;
     }
+    setHasUnsavedChanges(true);
 }
 
 bool LLMaterialEditor::getDoubleSided()
@@ -306,6 +331,27 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
         mHasUnsavedChanges = value;
         childSetVisible("unsaved_changes", value);
     }
+
+    S32 upload_texture_count = 0;
+    if (mAlbedoTextureUploadId.notNull() && mAlbedoTextureUploadId == getAlbedoId())
+    {
+        upload_texture_count++;
+    }
+    if (mMetallicTextureUploadId.notNull() && mMetallicTextureUploadId == getMetallicRoughnessId())
+    {
+        upload_texture_count++;
+    }
+    if (mEmissiveTextureUploadId.notNull() && mEmissiveTextureUploadId == getEmissiveId())
+    {
+        upload_texture_count++;
+    }
+    if (mNormalTextureUploadId.notNull() && mNormalTextureUploadId == getNormalId())
+    {
+        upload_texture_count++;
+    }
+
+    S32 upload_cost = upload_texture_count * LLAgentBenefitsMgr::current().getTextureUploadCost();
+    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
 }
 
 void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -866,6 +912,8 @@ static void pack_textures(tinygltf::Model& model, tinygltf::Material& material,
     LLPointer<LLImageJ2C>& mr_j2c,
     LLPointer<LLImageJ2C>& emissive_j2c)
 {
+    // todo: consider using LLLocalBitmapMgr or storing textures' pointers somewhere in floater
+    // otherwise images won't exist for long if texture ctrl temporaly switches to something else
     if (albedo_img)
     {
         albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
@@ -1035,9 +1083,13 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     }
 
     mME->setAlbedoId(albedo_id);
+    mME->setAlbedoUploadId(albedo_id);
     mME->setMetallicRoughnessId(mr_id);
+    mME->setMetallicRoughnessUploadId(mr_id);
     mME->setEmissiveId(emissive_id);
+    mME->setEmissiveUploadId(emissive_id);
     mME->setNormalId(normal_id);
+    mME->setNormalUploadId(normal_id);
 
     mME->setFromGltfModel(model_in);
 
@@ -1383,7 +1435,7 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
     std::string buffer;
     buffer.assign((const char*) img->getData(), img->getDataSize());
 
-    U32 expected_upload_cost = 10; // TODO: where do we get L$10 for textures from?
+    U32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 
     LLAssetStorage::LLStoreAssetCallback callback;
 

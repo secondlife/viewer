@@ -172,7 +172,7 @@ public:
 
 				void	markForUpdate(BOOL priority) override;
 				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
-				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
+				void    faceMappingChanged() override           { mFaceMappingChanged=TRUE; }
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector) override; // Called when the drawable shifts
 
@@ -284,7 +284,7 @@ public:
 	F32 getLightRadius() const;
 	F32 getLightFalloff(const F32 fudge_factor = 1.f) const;
 	F32 getLightCutoff() const;
-	
+
     // Reflection Probes
     void setIsReflectionProbe(BOOL is_probe);
     void setReflectionProbeAmbiance(F32 ambiance);

@@ -4403,6 +4403,7 @@ BOOL LLFolderBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_GESTURE:
 		case DAD_MESH:
         case DAD_SETTINGS:
+        case DAD_MATERIAL:
 			accept = dragItemIntoFolder(inv_item, drop, tooltip_msg);
 			break;
 		case DAD_LINK:
@@ -6032,6 +6033,7 @@ BOOL LLCallingCardBridge::dragOrDrop(MASK mask, BOOL drop,
 			case DAD_GESTURE:
 			case DAD_MESH:
             case DAD_SETTINGS:
+            case DAD_MATERIAL:
 			{
 				LLInventoryItem* inv_item = (LLInventoryItem*)cargo_data;
 				const LLPermissions& perm = inv_item->getPermissions();

@@ -704,6 +704,7 @@ BOOL LLTaskCategoryBridge::dragOrDrop(MASK mask, BOOL drop,
 		case DAD_CALLINGCARD:
 		case DAD_MESH:
         case DAD_SETTINGS:
+        case DAD_MATERIAL:
 			accept = LLToolDragAndDrop::isInventoryDropAcceptable(object, (LLViewerInventoryItem*)cargo_data);
 			if(accept && drop)
 			{

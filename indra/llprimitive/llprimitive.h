@@ -369,21 +369,29 @@ public:
 class LLRenderMaterialParams : public LLNetworkData
 {
 private:
-    LLUUID mMaterial;
+    struct Entry
+    {
+        U8 te_idx;
+        LLUUID id;
+    };
+    std::vector< Entry > mEntries;
 
 public:
     LLRenderMaterialParams();
-    BOOL pack(LLDataPacker &dp) const override;
-    BOOL unpack(LLDataPacker &dp) override;
+    BOOL pack(LLDataPacker& dp) const override;
+    BOOL unpack(LLDataPacker& dp) override;
     bool operator==(const LLNetworkData& data) const override;
     void copy(const LLNetworkData& data) override;
     LLSD asLLSD() const;
     operator LLSD() const { return asLLSD(); }
     bool fromLLSD(LLSD& sd);
 
-    void setMaterial(const LLUUID & id);
-    LLUUID getMaterial() const;
+    void setMaterial(U8 te_idx, const LLUUID& id);
+    const LLUUID& getMaterial(U8 te_idx) const;
+
+    bool isEmpty() { return mEntries.empty(); }
 };
+
 
 // This code is not naming-standards compliant. Leaving it like this for
 // now to make the connection to code in
@@ -480,12 +488,12 @@ public:
 	virtual S32 setTEMediaFlags(const U8 te, const U8 flags);
 	virtual S32 setTEGlow(const U8 te, const F32 glow);
 	virtual S32 setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID);
-	virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
+    virtual S32 setTEMaterialParams(const U8 index, const LLMaterialPtr pMaterialParams);
 	virtual BOOL setMaterial(const U8 material); // returns TRUE if material changed
 	virtual void setTESelected(const U8 te, bool sel);
 
 	LLMaterialPtr getTEMaterialParams(const U8 index);
-
+    
 	void copyTEs(const LLPrimitive *primitive);
 	S32 packTEField(U8 *cur_ptr, U8 *data_ptr, U8 data_size, U8 last_face_index, EMsgVariableType type) const;
 	BOOL packTEMessage(LLMessageSystem *mesgsys) const;
@@ -563,6 +571,8 @@ public:
 	static LLPCode legacyToPCode(const U8 legacy);
 	static U8 pCodeToLegacy(const LLPCode pcode);
 	static bool getTESTAxes(const U8 face, U32* s_axis, U32* t_axis);
+
+    BOOL hasRenderMaterialParams() const;
 	
 	inline static BOOL isPrimitive(const LLPCode pcode);
 	inline static BOOL isApp(const LLPCode pcode);
