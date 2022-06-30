@@ -39,6 +39,8 @@ class LLModelPreview;
 class LLTabContainer;
 class LLViewerTextEditor;
 
+// 0.5 would be shrink wrapped. 1.0 is twice the extents from center.
+#define BBOX_SIZE 1.0f
 
 class LLJointOverrideData
 {

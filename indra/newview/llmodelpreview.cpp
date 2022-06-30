@@ -3658,7 +3658,7 @@ BOOL LLModelPreview::render()
                     {
                         LLBBoxHelper::getBoundTriangle(fmp->mTriangles[n], t0, t1, t2, [&instance](LLVector3 &pos)
                             {
-                                pos = rotate_vector(pos, instance.mTransform) *.5;
+                                pos = rotate_vector(pos, instance.mTransform) * BBOX_SIZE;
                                 pos += instance.mTransform.getTranslation();
                             });
                         LLVector3 r;

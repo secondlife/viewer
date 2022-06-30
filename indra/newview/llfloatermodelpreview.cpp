@@ -536,7 +536,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
                             {
                                 LLBBoxHelper::getBoundTriangle(mTriangles[n], t0, t1, t2, [&mi](LLVector3 &pos)
                                 {
-                                    pos = rotate_vector(pos, mi.mTransform) *.5;
+                                    pos = rotate_vector(pos, mi.mTransform) * BBOX_SIZE;
                                     pos += mi.mTransform.getTranslation();
                                 });
 
