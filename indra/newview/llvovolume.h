@@ -233,7 +233,7 @@ public:
 
 				void	updateFaceFlags();
 				void	regenFaces();
-				BOOL	genBBoxes(BOOL force_global);
+				BOOL    genBBoxes(BOOL force_global);
 				void	preRebuild();
 	virtual		void	updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual		F32		getBinRadius();
@@ -393,7 +393,7 @@ protected:
 	void removeMediaImpl(S32 texture_index) ;
 
 private:
-	bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled);
+    bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled, BOOL &shouldUpdateOctreeBounds);
 
 public:
 

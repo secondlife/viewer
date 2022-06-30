@@ -1758,17 +1758,6 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
         }
     }
 
-    bool rigged = false;
-
-    if (!isAnimatedObject())
-    {
-        rigged = isRiggedMesh() && isAttachment();
-    }
-    else
-    {
-        rigged = isRiggedMesh() && getControlAvatar() && getControlAvatar()->mPlaying;
-    }
-
     if (any_valid_boxes)
     {
         if (rebuild)
@@ -1933,7 +1922,7 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 	}
 }
 
-bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
+bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled, BOOL &should_update_octree_bounds)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	bool regen_faces = false;
@@ -1965,6 +1954,9 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
         }
 
 		compiled = TRUE;
+        // new_lod > old_lod breaks a feedback loop between LOD updates and
+        // bounding box updates.
+        should_update_octree_bounds = should_update_octree_bounds || mSculptChanged || new_lod > old_lod;
 		sNumLODChanges += new_num_faces;
 
 		if ((S32)getNumTEs() != getVolume()->getNumFaces())
@@ -2024,8 +2016,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		group->dirtyMesh();
 	}
 
-	BOOL compiled = FALSE;
-			
 	updateRelativeXform();
 	
 	if (mDrawable.isNull()) // Not sure why this is happening, but it is...
@@ -2033,48 +2023,55 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return TRUE; // No update to complete
 	}
 
+	BOOL compiled = FALSE;
+    BOOL should_update_octree_bounds = bool(getRiggedVolume());
+
 	if (mVolumeChanged || mFaceMappingChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 
 		bool was_regen_faces = false;
+        should_update_octree_bounds = true;
 
 		if (mVolumeChanged)
 		{
-			was_regen_faces = lodOrSculptChanged(drawable, compiled);
+            was_regen_faces = lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
 		else if (mSculptChanged || mLODChanged || mColorChanged)
 		{
 			compiled = TRUE;
-			was_regen_faces = lodOrSculptChanged(drawable, compiled);
+            was_regen_faces = lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 		}
 
 		if (!was_regen_faces) {
 			regenFaces();
 		}
-
-		genBBoxes(FALSE);
 	}
 	else if (mLODChanged || mSculptChanged || mColorChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
-		lodOrSculptChanged(drawable, compiled);
+        lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 		
 		if(drawable->isState(LLDrawable::REBUILD_RIGGED | LLDrawable::RIGGED)) 
 		{
 			updateRiggedVolume(false);
 		}
-		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
 	else
 	{
 		compiled = TRUE;
 		// All it did was move or we changed the texture coordinate offset
-		genBBoxes(FALSE);
 	}
+
+    if (should_update_octree_bounds || !mDrawable->getSpatialExtents()->isFinite3())
+    {
+        // Generate bounding boxes if needed, and update the object's size in the
+        // octree
+        genBBoxes(FALSE);
+    }
 
 	// Update face flags
 	updateFaceFlags();
