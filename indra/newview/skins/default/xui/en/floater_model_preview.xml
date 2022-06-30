@@ -101,7 +101,7 @@
       follows="top|left"
       top_pad="10"
       left="0"
-      height="335"
+      height="330"
       width="635"
       name="import_tab"
       tab_position="top"
@@ -119,12 +119,12 @@
             <view_border
              bevel_style="none"
              follows="top|left"
-             height="311"
+             height="306"
              layout="topleft"
              left="3"
              name="lod_tab_border"
              top_pad="0"
-             width="618" />
+             width="628" />
           <text
            follows="left|top"
            height="18"
@@ -786,14 +786,6 @@
              left="10"
              name="use_model_pivot"
              top_pad="20" />
-            <check_box
-             follows="top|left"
-             height="10"
-             label="Clamp Pivot to Object Bound Box"
-             layout="topleft"
-             left="250"
-             name="clamp_model_pivot"
-             top_delta="0" />
         </panel>
       <!-- PHYSYCS PANEL -->
         <panel
@@ -805,7 +797,7 @@
             <view_border
               bevel_style="none"
               follows="top|left"
-              height="311"
+              height="306"
               layout="topleft"
               left="3"
               name="physics_tab_border"
@@ -1180,7 +1172,7 @@
          <view_border
           bevel_style="none"  
           follows="top|left"
-          height="311"
+          height="306"
           layout="topleft"
           left="3"
           name="border"

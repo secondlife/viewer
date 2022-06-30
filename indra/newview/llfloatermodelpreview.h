@@ -135,7 +135,6 @@ public:
 
 	bool isModelUploadAllowed();
     bool mUseModelPivot{false};
-    bool mClampModelPivot{false};
 
 protected:
 	friend class LLModelPreview;
@@ -172,7 +171,6 @@ protected:
 	static void onPhysicsSimplifyBack(LLUICtrl* ctrl, void* userdata);
 		
     void togglePivotFromModel();
-    void toggleClampPivot();
 	void			draw();
 	
 	void initDecompControls();

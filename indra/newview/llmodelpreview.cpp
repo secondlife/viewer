@@ -3630,7 +3630,6 @@ BOOL LLModelPreview::render()
         glLineWidth(3.f);
         LLFloaterModelPreview* fmp = (LLFloaterModelPreview*)mFMP;
         bool use_model_pivot =  fmp->mUseModelPivot;
-        bool clamp_model_pivot = fmp->mClampModelPivot;
 
         for (LLMeshUploadThread::instance_list::iterator iter = mUploadData.begin(); iter != mUploadData.end(); ++iter)
         {
@@ -3649,7 +3648,7 @@ BOOL LLModelPreview::render()
                 pivot = rotate_vector(pivot, instance.mTransform);
                 pivot = instance.mTransform.getTranslation() - pivot;
 
-                if (clamp_model_pivot)
+                // always clamp
                 {
                     //model center
                     const LLVector3& c = instance.mTransform.getTranslation();

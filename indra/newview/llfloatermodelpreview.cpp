@@ -225,8 +225,6 @@ BOOL LLFloaterModelPreview::postBuild()
     childSetVisible("warning_message", false);
 
     getChild<LLCheckBoxCtrl>("use_model_pivot")->setCommitCallback(boost::bind(&LLFloaterModelPreview::togglePivotFromModel, this));
-    getChild<LLCheckBoxCtrl>("clamp_model_pivot")->setCommitCallback(boost::bind(&LLFloaterModelPreview::toggleClampPivot, this));
-    getChild<LLCheckBoxCtrl>("clamp_model_pivot")->setEnabled(false);
 
 	initDecompControls();
 
@@ -524,7 +522,7 @@ void LLFloaterModelPreview::onClickCalculateBtn()
                         LLVector3 pivot = model_iter->mModel->mNormalizedTranslation;
                         pivot *= model_iter->mModel->mScale;
 
-                        if (mClampModelPivot)
+                        // always clamp
                         {
                             //pivot
                             LLVector3 _pivot = rotate_vector(pivot, mi.mTransform);
@@ -877,13 +875,6 @@ void LLFloaterModelPreview::draw3dPreview()
 void LLFloaterModelPreview::togglePivotFromModel()
 {
     mUseModelPivot = !mUseModelPivot;
-    getChild<LLCheckBoxCtrl>("clamp_model_pivot")->setEnabled(mUseModelPivot);
-    refresh();
-}
-
-void LLFloaterModelPreview::toggleClampPivot()
-{
-    mClampModelPivot = !mClampModelPivot;
     refresh();
 }
 
