@@ -222,6 +222,7 @@ void main()
 #endif
 
         float metal      = packedORM.b;
+        vec3  c_diff     = mix(diffuse.rgb,vec3(0),metal);
         vec3  reflect90  = vec3(0);
         vec3  v          = -normalize(pos.xyz);
 #if DEBUG_PBR_VERT2CAM1
@@ -276,7 +277,7 @@ void main()
         vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
         vec3  AvgEms        = avg * Ems;
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
-        vec3  kDiffuse      = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
+        vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
 
         colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
@@ -329,6 +330,9 @@ void main()
     #endif
     #if DEBUG_PBR_BRDF_SCALE_BIAS
         color.rgb = vec3(vScaleBias,0.0);
+    #endif
+    #if DEBUG_PBR_DIFFUSE_C
+        color.rgb = c_diff;
     #endif
     #if DEBUG_PBR_DIFFUSE_K
         color.rgb = kDiffuse;
