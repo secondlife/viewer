@@ -2725,6 +2725,32 @@ void handle_object_touch()
 	send_ObjectDeGrab_message(object, pick);
 }
 
+void handle_object_show_original()
+{
+    LLViewerObject* object = LLSelectMgr::getInstance()->getSelection()->getPrimaryObject();
+    if (!object)
+    {
+        return;
+    }
+
+    LLViewerObject *parent = (LLViewerObject*)object->getParent();
+    while (parent)
+    {
+        if(parent->isAvatar())
+        {
+            break;
+        }
+        object = parent;
+        parent = (LLViewerObject*)parent->getParent();
+    }
+
+    if (!object || object->isAvatar())
+    {
+        return;
+    }
+
+    show_item_original(object->getAttachmentItemID());
+}
 
 
 static void init_default_item_label(const std::string& item_name)
@@ -9510,6 +9536,7 @@ void initialize_menus()
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
 	commit.add("Object.Touch", boost::bind(&handle_object_touch));
+	commit.add("Object.ShowOriginal", boost::bind(&handle_object_show_original));
 	commit.add("Object.SitOrStand", boost::bind(&handle_object_sit_or_stand));
 	commit.add("Object.Delete", boost::bind(&handle_object_delete));
 	view_listener_t::addMenu(new LLObjectAttachToAvatar(true), "Object.AttachToAvatar");
