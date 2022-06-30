@@ -99,6 +99,7 @@ public:
 
     LLUUID getAlbedoId();
     void setAlbedoId(const LLUUID& id);
+    void setAlbedoUploadId(const LLUUID& id);
 
     LLColor4 getAlbedoColor();
 
@@ -118,6 +119,7 @@ public:
 
     LLUUID getMetallicRoughnessId();
     void setMetallicRoughnessId(const LLUUID& id);
+    void setMetallicRoughnessUploadId(const LLUUID& id);
 
     F32 getMetalnessFactor();
     void setMetalnessFactor(F32 factor);
@@ -127,12 +129,14 @@ public:
 
     LLUUID getEmissiveId();
     void setEmissiveId(const LLUUID& id);
+    void setEmissiveUploadId(const LLUUID& id);
 
     LLColor4 getEmissiveColor();
     void setEmissiveColor(const LLColor4& color);
 
     LLUUID getNormalId();
     void setNormalId(const LLUUID& id);
+    void setNormalUploadId(const LLUUID& id);
 
     bool getDoubleSided();
     void setDoubleSided(bool double_sided);
