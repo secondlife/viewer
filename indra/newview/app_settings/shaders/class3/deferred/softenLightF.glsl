@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+#define PBR_GGX_APPROX            1
 #define DEBUG_PBR_PACKORM0        0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1        0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
@@ -47,12 +48,20 @@
 
 #define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
-#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
-#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
+
+// Diffuse
+#define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
+#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
+#define DEBUG_PBR_EMS              0 // Output: Ems
+#define DEBUG_PBR_AVG              0 // Output: Avg
+#define DEBUG_PBR_EMS_FMS          0 // Output: FmsEms
+#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
+#define DEBUG_PBR_DIFFUSE_PRE_AO   0 // Output: diffuse pre AO
+
+#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
-#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_KSPEC            0 // Output: K spec
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
@@ -60,6 +69,7 @@
 #define DEBUG_PBR_REFLECTION       0 // Output: reflection dir
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
+#define DEBUG_PBR_SPEC_WEIGHT      0 // Output: specWeight
 #define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
 #define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #extension GL_ARB_texture_rectangle : enable
@@ -141,7 +151,9 @@ vec2 getGGX( vec2 brdfPoint )
 {
     // TODO: use GGXLUT
     // texture2D(GGXLUT, brdfPoint).rg;
+#if PBR_GGX_APPROX
     return getGGXApprox( brdfPoint);
+#endif
 }
 
 vec3 calcBaseReflect0(float ior)
@@ -222,6 +234,7 @@ void main()
 #endif
 
         float metal      = packedORM.b;
+        vec3  c_diff     = mix(diffuse.rgb,vec3(0),metal);
         vec3  reflect90  = vec3(0);
         vec3  v          = -normalize(pos.xyz);
 #if DEBUG_PBR_VERT2CAM1
@@ -273,12 +286,17 @@ void main()
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
         float Ems           = (1.0 - vScaleBias.x + vScaleBias.y);
+#if PBR_GGX_APPROX
+              Ems           = alphaRough; // With GGX approximation Ems = 0 so use substitute
+#endif
         vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
         vec3  AvgEms        = avg * Ems;
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
-        vec3  kDiffuse      = colorDiffuse * (1.0 - FssEssLambert + FmsEms);
+        vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
-
+    #if DEBUG_PBR_DIFFUSE_PRE_AO
+        vec3 debug_diffuse  = colorDiffuse;
+    #endif
         colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
 
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
@@ -324,17 +342,35 @@ void main()
         color.rgb = vec3(dotBV);
     #endif
 
+    #if DEBUG_PBR_AVG
+        color.rgb = avg;
+    #endif
     #if DEBUG_PBR_BRDF_UV
         color.rgb = vec3(brdfPoint,0.0);
     #endif
     #if DEBUG_PBR_BRDF_SCALE_BIAS
         color.rgb = vec3(vScaleBias,0.0);
     #endif
+    #if DEBUG_PBR_DIFFUSE_C
+        color.rgb = c_diff;
+    #endif
     #if DEBUG_PBR_DIFFUSE_K
         color.rgb = kDiffuse;
     #endif
     #if DEBUG_PBR_DIFFUSE_MAP
         color.rgb = diffuse.rgb;
+    #endif
+    #if DEBUG_PBR_DIFFUSE_PRE_AO
+        color.rgb = debug_diffuse;
+    #endif
+    #if DEBUG_PBR_EMS
+        color.rgb = vec3(Ems);
+    #endif
+    #if DEBUG_PBR_EMS_AVG
+        color.rgb = AvgEms;
+    #endif
+    #if DEBUG_PBR_EMS_FMS
+        color.rgb = FmsEms;
     #endif
     #if DEBUG_PBR_FE_GGX
         color.rgb = FssEssGGX; // spec
@@ -371,6 +407,9 @@ void main()
     #endif
     #if DEBUG_PBR_SPEC_REFLECTION
         color.rgb = specLight;
+    #endif
+    #if DEBUG_PBR_SPEC_WEIGHT
+        color.rgb = vec3(specWeight);
     #endif
     #if DEBUG_PBR_V2C_RAW
         color.rgb = v;
