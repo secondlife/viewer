@@ -69,6 +69,7 @@
 #define DEBUG_PBR_REFLECTION       0 // Output: reflection dir
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
+#define DEBUG_PBR_SPEC_WEIGHT      0 // Output: specWeight
 #define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
 #define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #extension GL_ARB_texture_rectangle : enable
@@ -406,6 +407,9 @@ void main()
     #endif
     #if DEBUG_PBR_SPEC_REFLECTION
         color.rgb = specLight;
+    #endif
+    #if DEBUG_PBR_SPEC_WEIGHT
+        color.rgb = vec3(specWeight);
     #endif
     #if DEBUG_PBR_V2C_RAW
         color.rgb = v;
