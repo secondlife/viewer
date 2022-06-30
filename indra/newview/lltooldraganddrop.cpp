@@ -1083,8 +1083,6 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
     {
         return;
     }
-    
-    LLTextureEntry* tep = hit_obj ? (hit_obj->getTE(hit_face)) : NULL;
 
     hit_obj->setRenderMaterialID(hit_face, asset_id);
 

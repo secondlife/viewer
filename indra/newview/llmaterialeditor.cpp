@@ -43,7 +43,6 @@
 #include "llviewerregion.h"
 #include "llvovolume.h"
 #include "roles_constants.h"
-#include "tinygltf/tiny_gltf.h"
 #include "llviewerobjectlist.h"
 #include "llfloaterreg.h"
 #include "llfilesystem.h"
@@ -52,6 +51,7 @@
 #include "llviewertexturelist.h"
 #include "llfloaterperms.h"
 
+#include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
 ///----------------------------------------------------------------------------

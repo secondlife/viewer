@@ -2430,7 +2430,7 @@ void LLRenderMaterialParams::setMaterial(U8 te, const LLUUID& id)
     mEntries.push_back({ te, id });
 }
 
-LLUUID LLRenderMaterialParams::getMaterial(U8 te) const
+const LLUUID& LLRenderMaterialParams::getMaterial(U8 te) const
 {
     for (int i = 0; i < mEntries.size(); ++i)
     {

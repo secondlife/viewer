@@ -387,7 +387,7 @@ public:
     bool fromLLSD(LLSD& sd);
 
     void setMaterial(U8 te_idx, const LLUUID& id);
-    LLUUID getMaterial(U8 te_idx) const;
+    const LLUUID& getMaterial(U8 te_idx) const;
 
     bool isEmpty() { return mEntries.empty(); }
 };

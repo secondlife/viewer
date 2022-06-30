@@ -172,7 +172,7 @@ public:
 
 				void	markForUpdate(BOOL priority) override;
 				void	markForUnload()							{ LLViewerObject::markForUnload(TRUE); mVolumeChanged = TRUE; }
-				void    faceMappingChanged()                    { mFaceMappingChanged=TRUE; };
+				void    faceMappingChanged() override           { mFaceMappingChanged=TRUE; }
 
 	/*virtual*/ void	onShift(const LLVector4a &shift_vector) override; // Called when the drawable shifts
 

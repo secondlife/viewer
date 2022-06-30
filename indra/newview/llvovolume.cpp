@@ -5861,6 +5861,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					continue;
 				}
 
+                // HACK -- brute force this check every time a drawable gets rebuilt
+                vobj->updateTEMaterialTextures(i);
 #if 0
 #if LL_RELEASE_WITH_DEBUG_INFO
                 const LLUUID pbr_id( "49c88210-7238-2a6b-70ac-92d4f35963cf" );

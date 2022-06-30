@@ -53,6 +53,8 @@ public:
 
     F32 mMetallicFactor = 0.f;
     F32 mRoughnessFactor = 0.f;
+    F32 mAlphaCutoff = 0.f;
+
     bool mDoubleSided = false;
     AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
 
