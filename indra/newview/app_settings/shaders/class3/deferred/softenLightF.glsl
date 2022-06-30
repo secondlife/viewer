@@ -48,12 +48,20 @@
 
 #define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
-#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
-#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
+
+// Diffuse
+#define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
+#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
+#define DEBUG_PBR_EMS              0 // Output: Ems
+#define DEBUG_PBR_AVG              0 // Output: Avg
+#define DEBUG_PBR_EMS_FMS          0 // Output: FmsEms
+#define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
+#define DEBUG_PBR_DIFFUSE_PRE_AO   0 // Output: diffuse pre AO
+
+#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
-#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_KSPEC            0 // Output: K spec
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
@@ -285,7 +293,9 @@ void main()
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
         vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
         colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
-
+    #if DEBUG_PBR_DIFFUSE_PRE_AO
+        vec3 debug_diffuse  = colorDiffuse;
+    #endif
         colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
 
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
@@ -331,6 +341,9 @@ void main()
         color.rgb = vec3(dotBV);
     #endif
 
+    #if DEBUG_PBR_AVG
+        color.rgb = avg;
+    #endif
     #if DEBUG_PBR_BRDF_UV
         color.rgb = vec3(brdfPoint,0.0);
     #endif
@@ -345,6 +358,18 @@ void main()
     #endif
     #if DEBUG_PBR_DIFFUSE_MAP
         color.rgb = diffuse.rgb;
+    #endif
+    #if DEBUG_PBR_DIFFUSE_PRE_AO
+        color.rgb = debug_diffuse;
+    #endif
+    #if DEBUG_PBR_EMS
+        color.rgb = vec3(Ems);
+    #endif
+    #if DEBUG_PBR_EMS_AVG
+        color.rgb = AvgEms;
+    #endif
+    #if DEBUG_PBR_EMS_FMS
+        color.rgb = FmsEms;
     #endif
     #if DEBUG_PBR_FE_GGX
         color.rgb = FssEssGGX; // spec
