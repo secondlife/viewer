@@ -29,6 +29,7 @@
 #include "llpreview.h"
 #include "llvoinventorylistener.h"
 #include "llimagej2c.h"
+#include "llviewertexture.h"
 
 class LLTextureCtrl;
 
@@ -170,6 +171,13 @@ private:
     std::string mNormalName;
     std::string mMetallicRoughnessName;
     std::string mEmissiveName;
+
+    // keep pointers to fetched textures or viewer will remove them
+    // if user temporary selects something else with 'apply now'
+    LLPointer<LLViewerFetchedTexture> mAlbedoFetched;
+    LLPointer<LLViewerFetchedTexture> mNormalFetched;
+    LLPointer<LLViewerFetchedTexture> mMetallicRoughnessFetched;
+    LLPointer<LLViewerFetchedTexture> mEmissiveFetched;
 
     // J2C versions of packed buffers for uploading
     LLPointer<LLImageJ2C> mAlbedoJ2C;

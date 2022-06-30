@@ -365,7 +365,11 @@ void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
     }
     else
     {
-        mAlbedoJ2C = nullptr;
+        // Texture picker has 'apply now' with 'cancel' support.
+        // Keep mAlbedoJ2C and mAlbedoFetched, it's our storage in
+        // case user decides to cancel changes.
+        // Without mAlbedoFetched, viewer will eventually cleanup
+        // the texture that is not in use
         childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -381,7 +385,6 @@ void LLMaterialEditor::onCommitMetallicTexture(LLUICtrl * ctrl, const LLSD & dat
     }
     else
     {
-        mMetallicRoughnessJ2C = nullptr;
         childSetValue("metallic_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -397,7 +400,6 @@ void LLMaterialEditor::onCommitEmissiveTexture(LLUICtrl * ctrl, const LLSD & dat
     }
     else
     {
-        mEmissiveJ2C = nullptr;
         childSetValue("emissive_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -413,7 +415,6 @@ void LLMaterialEditor::onCommitNormalTexture(LLUICtrl * ctrl, const LLSD & data)
     }
     else
     {
-        mNormalJ2C = nullptr;
         childSetValue("normal_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
@@ -666,6 +667,10 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
         {
             closeFloater();
         }
+        else
+        {
+            setHasUnsavedChanges(false);
+        }
     }
     else
     { //make a new inventory item
@@ -706,6 +711,9 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                 }
                 })
         );
+
+        // We do not update floater with uploaded asset yet, so just close it.
+        closeFloater();
 #endif
     }
     
@@ -912,8 +920,6 @@ static void pack_textures(tinygltf::Model& model, tinygltf::Material& material,
     LLPointer<LLImageJ2C>& mr_j2c,
     LLPointer<LLImageJ2C>& emissive_j2c)
 {
-    // todo: consider using LLLocalBitmapMgr or storing textures' pointers somewhere in floater
-    // otherwise images won't exist for long if texture ctrl temporaly switches to something else
     if (albedo_img)
     {
         albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
@@ -1046,40 +1052,36 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
         occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index, tmp);
     }
 
-    LLPointer<LLViewerFetchedTexture> albedo_tex;
-    LLPointer<LLViewerFetchedTexture> normal_tex;
-    LLPointer<LLViewerFetchedTexture> mr_tex;
-    LLPointer<LLViewerFetchedTexture> emissive_tex;
-    
     pack_textures(model_in, material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        albedo_tex, normal_tex, mr_tex, emissive_tex, mME->mAlbedoJ2C, mME->mNormalJ2C, mME->mMetallicRoughnessJ2C, mME->mEmissiveJ2C);
+        mME->mAlbedoFetched, mME->mNormalFetched, mME->mMetallicRoughnessFetched, mME->mEmissiveFetched,
+        mME->mAlbedoJ2C, mME->mNormalJ2C, mME->mMetallicRoughnessJ2C, mME->mEmissiveJ2C);
     
     LLUUID albedo_id;
-    if (albedo_tex != nullptr)
+    if (mME->mAlbedoFetched.notNull())
     {
-        albedo_tex->forceToSaveRawImage(0, F32_MAX);
-        albedo_id = albedo_tex->getID();
+        mME->mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
+        albedo_id = mME->mAlbedoFetched->getID();
     }
 
     LLUUID normal_id;
-    if (normal_tex != nullptr)
+    if (mME->mNormalFetched.notNull())
     {
-        normal_tex->forceToSaveRawImage(0, F32_MAX);
-        normal_id = normal_tex->getID();
+        mME->mNormalFetched->forceToSaveRawImage(0, F32_MAX);
+        normal_id = mME->mNormalFetched->getID();
     }
 
     LLUUID mr_id;
-    if (mr_tex != nullptr)
+    if (mME->mMetallicRoughnessFetched.notNull())
     {
-        mr_tex->forceToSaveRawImage(0, F32_MAX);
-        mr_id = mr_tex->getID();
+        mME->mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
+        mr_id = mME->mMetallicRoughnessFetched->getID();
     }
 
     LLUUID emissive_id;
-    if (emissive_tex != nullptr)
+    if (mME->mEmissiveFetched.notNull())
     {
-        emissive_tex->forceToSaveRawImage(0, F32_MAX);
-        emissive_id = emissive_tex->getID();
+        mME->mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
+        emissive_id = mME->mEmissiveFetched->getID();
     }
 
     mME->setAlbedoId(albedo_id);
@@ -1426,7 +1428,9 @@ void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
 
 void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id)
 {
-    if (img == nullptr || img->getDataSize() == 0)
+    if (asset_id.isNull()
+        || img == nullptr
+        || img->getDataSize() == 0)
     {
         return;
     }
@@ -1459,15 +1463,37 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
 
 void LLMaterialEditor::saveTextures()
 {
-    saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId);
-    saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId);
-    saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId);
-    saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId);
+    if (mAlbedoTextureUploadId == getAlbedoId())
+    {
+        saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId);
+    }
+    if (mNormalTextureUploadId == getNormalId())
+    {
+        saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId);
+    }
+    if (mMetallicTextureUploadId == getMetallicRoughnessId())
+    {
+        saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId);
+    }
+    if (mEmissiveTextureUploadId == getEmissiveId())
+    {
+        saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId);
+    }
 
     // discard upload buffers once textures have been saved
     mAlbedoJ2C = nullptr;
     mNormalJ2C = nullptr;
     mEmissiveJ2C = nullptr;
     mMetallicRoughnessJ2C = nullptr;
+
+    mAlbedoFetched = nullptr;
+    mNormalFetched = nullptr;
+    mMetallicRoughnessFetched = nullptr;
+    mEmissiveFetched = nullptr;
+
+    mAlbedoTextureUploadId.setNull();
+    mNormalTextureUploadId.setNull();
+    mMetallicTextureUploadId.setNull();
+    mEmissiveTextureUploadId.setNull();
 }
 
