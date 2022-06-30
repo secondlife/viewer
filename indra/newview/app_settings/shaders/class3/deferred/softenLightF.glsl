@@ -177,7 +177,6 @@ void main()
     da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
-         diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
     vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy);
 
 
@@ -210,8 +209,17 @@ void main()
     bool hasPBR = GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR);
     if (hasPBR)
     {
+        // 5.22.2. material.pbrMetallicRoughness.baseColorTexture
+        // The first three components (RGB) MUST be encoded with the sRGB transfer function.
+        //
+        // 5.19.7. material.emissiveTexture
+        // This texture contains RGB components encoded with the sRGB transfer function.
+        //
+        // 5.22.5. material.pbrMetallicRoughness.metallicRoughnessTexture
+        // These values MUST be encoded with a linear transfer function.
+
         vec3 colorDiffuse      = vec3(0);
-        vec3 colorEmissive     = texture2DRect(emissiveRect, tc).rgb;
+        vec3 colorEmissive     = srgb_to_linear(texture2DRect(emissiveRect, tc).rgb);
         vec3 colorSpec         = vec3(0);
 //      vec3 colorClearCoat    = vec3(0);
 //      vec3 colorSheen        = vec3(0);
@@ -417,9 +425,12 @@ void main()
     #if DEBUG_PBR_V2C_REMAP
         color.rgb = v*0.5 + vec3(0.5);
     #endif
+        frag_color.rgb = color.rgb; // PBR is done in linear
     }
 else
 {
+    diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
+
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
 
     amblit = max(ambenv, amblit);
@@ -472,12 +483,12 @@ else
     color       = fogged.rgb;
     bloom       = fogged.a;
 #endif
-}
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
     //color = vec3(ambocc);
     //color = ambenv;
     //color.b = diffuse.a;
     frag_color.rgb = srgb_to_linear(color.rgb);
+}
     frag_color.a = bloom;
 }
