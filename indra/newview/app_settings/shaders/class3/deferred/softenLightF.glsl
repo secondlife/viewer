@@ -40,18 +40,25 @@
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughness map
 #define DEBUG_PBR_ROUGH_ALPHA      0 // Output: grayscale Alpha Roughness
 
-#define DEBUG_PBR_DIFFUSE          0 // Output: Radiance Lambertian
-#define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_DIFFUSE_MAP 1, and in pbropaqueF set DEBUG_NORMAL_RAW
 #define DEBUG_PBR_TANGENT          0 // Output: Tangent
 #define DEBUG_PBR_BITANGENT        0 // Output: Bitangent
 #define DEBUG_PBR_DOT_BV           0 // Output: graysacle dot(Bitangent,Vertex2Camera)
-#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
 #define DEBUG_PBR_DOT_TV           0 // Output: grayscale dot(Tangent  ,Vertex2Camera)
 
-#define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
+// IBL Spec
+#define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_DIFFUSE_MAP 1, and in pbropaqueF set DEBUG_NORMAL_RAW
+#define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
+#define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
+#define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
+#define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
+#define DEBUG_PBR_KSPEC            0 // Output: K spec
+#define DEBUG_PBR_REFLECTION_DIR   0 // Output: reflection dir
+#define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
+#define DEBUG_PBR_FSS_ESS_GGX      0 // Output: FssEssGGX
+#define DEBUG_PBR_SPEC             0 // Output: Final spec
 
-// Diffuse
+// IBL Diffuse
 #define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
@@ -60,19 +67,13 @@
 #define DEBUG_PBR_FMS_EMS          0 // Output: FmsEms
 #define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
 #define DEBUG_PBR_DIFFUSE_PRE_AO   0 // Output: diffuse pre AO
+#define DEBUG_PBR_DIFFUSE          0 // Output: diffuse post AO
 
-#define DEBUG_PBR_FE_GGX           0 // Output: FssEssGGX
-#define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
-#define DEBUG_PBR_KSPEC            0 // Output: K spec
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
 #define DEBUG_PBR_REFLECTANCE      0 // Output: diffuse reflectance -- NOT USED
-#define DEBUG_PBR_REFLECTION       0 // Output: reflection dir
-#define DEBUG_PBR_SPEC             0 // Output: Final spec
-#define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
 #define DEBUG_PBR_SPEC_WEIGHT      0 // Output: specWeight
-#define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
 #define DEBUG_PBR_V2C_REMAP        0 // Output: vertex2camera (remap [-1,1] -> [0,1])
 #extension GL_ARB_texture_rectangle : enable
 #extension GL_ARB_shader_texture_lod : enable
@@ -383,7 +384,7 @@ void main()
     #if DEBUG_PBR_FMS_EMS
         color.rgb = FmsEms;
     #endif
-    #if DEBUG_PBR_FE_GGX
+    #if DEBUG_PBR_FSS_ESS_GGX
         color.rgb = FssEssGGX; // spec
     #endif
     #if DEBUG_PBR_FSS_ESS_LAMBERT
@@ -410,7 +411,7 @@ void main()
     #if DEBUG_PBR_REFLECTANCE
         color.rgb = vec3(reflectance);
     #endif
-    #if DEBUG_PBR_REFLECTION
+    #if DEBUG_PBR_REFLECTION_DIR
         color.rgb = reflect(-v, n);  // NOTE: equivalent to normalize(reflect(pos.xyz, norm.xyz));
     #endif
     #if DEBUG_PBR_SPEC
