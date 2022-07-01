@@ -287,6 +287,7 @@ void main()
         vec3  specLight  = vec3(0);
         float gloss      = 1.0 - perceptualRough;
         sampleReflectionProbes(irradiance, specLight, legacyenv, pos.xyz, norm.xyz, gloss, 0.0);
+        irradiance       = max(amblit,irradiance);
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
