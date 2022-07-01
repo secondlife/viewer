@@ -54,7 +54,7 @@
 // Diffuse
 #define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
-#define DEBUG_PBR_FE_LAMBERT       0 // Output: FssEssLambert
+#define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
 #define DEBUG_PBR_EMS              0 // Output: Ems
 #define DEBUG_PBR_AVG              0 // Output: Avg
 #define DEBUG_PBR_EMS_FMS          0 // Output: FmsEms
@@ -386,7 +386,7 @@ void main()
     #if DEBUG_PBR_FE_GGX
         color.rgb = FssEssGGX; // spec
     #endif
-    #if DEBUG_PBR_FE_LAMBERT
+    #if DEBUG_PBR_FSS_ESS_LAMBERT
         color.rgb = FssEssLambert; // diffuse
     #endif
     #if DEBUG_PBR_FRESNEL
