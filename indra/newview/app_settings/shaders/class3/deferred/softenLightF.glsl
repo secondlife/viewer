@@ -57,7 +57,7 @@
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
 #define DEBUG_PBR_EMS              0 // Output: Ems
 #define DEBUG_PBR_AVG              0 // Output: Avg
-#define DEBUG_PBR_EMS_FMS          0 // Output: FmsEms
+#define DEBUG_PBR_FMS_EMS          0 // Output: FmsEms
 #define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
 #define DEBUG_PBR_DIFFUSE_PRE_AO   0 // Output: diffuse pre AO
 
@@ -380,7 +380,7 @@ void main()
     #if DEBUG_PBR_EMS_AVG
         color.rgb = AvgEms;
     #endif
-    #if DEBUG_PBR_EMS_FMS
+    #if DEBUG_PBR_FMS_EMS
         color.rgb = FmsEms;
     #endif
     #if DEBUG_PBR_FE_GGX
