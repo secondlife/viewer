@@ -23,11 +23,13 @@
  * $/LicenseInfo$
  */
 
-#define PBR_GGX_APPROX            1
-#define DEBUG_PBR_PACKORM0        0 // Rough=0, Metal=0
-#define DEBUG_PBR_PACKORM1        0 // Rough=1, Metal=1
-#define DEBUG_PBR_TANGENT1        1 // Tangent = 1,0,0
-#define DEBUG_PBR_VERT2CAM1       0 // vertex2camera = 0,0,1
+#define PBR_USE_GGX_APPROX         1
+#define PBR_USE_GGX_EMS_HACK       1
+
+#define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
+#define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
+#define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
+#define DEBUG_PBR_VERT2CAM1        0 // vertex2camera = 0,0,1
 
 // Pass input through "as is"
 #define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
@@ -151,7 +153,7 @@ vec2 getGGX( vec2 brdfPoint )
 {
     // TODO: use GGXLUT
     // texture2D(GGXLUT, brdfPoint).rg;
-#if PBR_GGX_APPROX
+#if PBR_USE_GGX_APPROX
     return getGGXApprox( brdfPoint);
 #endif
 }
@@ -294,7 +296,7 @@ void main()
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
         float Ems           = (1.0 - vScaleBias.x + vScaleBias.y);
-#if PBR_GGX_APPROX
+#if PBR_USE_GGX_EMS_HACK
               Ems           = alphaRough; // With GGX approximation Ems = 0 so use substitute
 #endif
         vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
