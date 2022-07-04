@@ -725,6 +725,11 @@ void LLPanelProfileClassified::processProperties(void* data, EAvatarProcessorTyp
     if(c_info && getClassifiedId() == c_info->classified_id)
     {
         // see LLPanelProfileClassified::sendUpdate() for notes
+        if (mIsNewWithErrors)
+        {
+            // We just published it
+            setEditMode(FALSE);
+        }
         mIsNewWithErrors = false;
         mIsNew = false;
 
