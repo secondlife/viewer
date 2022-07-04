@@ -816,8 +816,10 @@ void LLModelPreview::clearIncompatible(S32 lod)
     // at this point we don't care about sub-models,
     // different amount of sub-models means face count mismatch, not incompatibility
     U32 lod_size = countRootModels(mModel[lod]);
+    bool replaced_base_model = (lod == LLModel::LOD_HIGH);
     for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
-    { //clear out any entries that aren't compatible with this model
+    {
+        // Clear out any entries that aren't compatible with this model
         if (i != lod)
         {
             if (countRootModels(mModel[i]) != lod_size)
@@ -831,8 +833,43 @@ void LLModelPreview::clearIncompatible(S32 lod)
                     mBaseModel = mModel[lod];
                     mBaseScene = mScene[lod];
                     mVertexBuffer[5].clear();
+                    replaced_base_model = true;
                 }
             }
+        }
+    }
+
+    if (replaced_base_model)
+    {
+        // In case base was replaced, we might need to restart generation
+        bool subscribe_for_generation = mLodsQuery.empty();
+        if (lod == LLModel::LOD_HIGH)
+        {
+            mLodsQuery.clear();
+        }
+
+        LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+        if (!fmp) return;
+
+        for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
+        {
+            if (mModel[i].empty())
+            {
+                // Base model was replaced, regenerate this lod if applicable
+                LLComboBox* lod_combo = mFMP->findChild<LLComboBox>("lod_source_" + lod_name[i]);
+                if (!lod_combo) return;
+
+                S32 lod_mode = lod_combo->getCurrentIndex();
+                if (lod_mode != LOD_FROM_FILE)
+                {
+                    mLodsQuery.push_back(i);
+                }
+            }
+        }
+
+        if (!mLodsQuery.empty() && subscribe_for_generation)
+        {
+            doOnIdleRepeating(lodQueryCallback);
         }
     }
 }
