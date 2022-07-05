@@ -337,7 +337,8 @@ void main()
     #endif
 
     #if DEBUG_PBR_NORMAL
-        color.rgb = norm.xyz;
+        color.rgb = norm.xyz*0.5 + vec3(0.5);
+        color.rgb = srgb_to_linear(color.rgb);
     #endif
     #if DEBUG_PBR_TANGENT
         color.rgb = t;
