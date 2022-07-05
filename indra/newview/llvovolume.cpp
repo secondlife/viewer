@@ -2024,7 +2024,9 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 	}
 
 	BOOL compiled = FALSE;
-    BOOL should_update_octree_bounds = bool(getRiggedVolume());
+    // This should be true in most cases, unless we're sure no octree update is
+    // needed.
+    BOOL should_update_octree_bounds = bool(getRiggedVolume()) || mDrawable->isState(LLDrawable::REBUILD_POSITION) || !mDrawable->getSpatialExtents()->isFinite3();
 
 	if (mVolumeChanged || mFaceMappingChanged)
 	{
@@ -2066,7 +2068,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		// All it did was move or we changed the texture coordinate offset
 	}
 
-    should_update_octree_bounds = should_update_octree_bounds || !mDrawable->getSpatialExtents()->isFinite3();
     // Generate bounding boxes if needed, and update the object's size in the
     // octree
     genBBoxes(FALSE, should_update_octree_bounds);
