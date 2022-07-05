@@ -361,6 +361,7 @@ void main()
     #endif
     #if DEBUG_PBR_BRDF_UV
         color.rgb = vec3(brdfPoint,0.0);
+        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_BRDF_SCALE_BIAS
         color.rgb = vec3(vScaleBias,0.0);
