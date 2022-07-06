@@ -332,6 +332,7 @@ void main()
     #endif
     #if DEBUG_PBR_ROUGH_PERCEPTUAL
         color.rgb = vec3(perceptualRough);
+        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_ROUGH_ALPHA
         color.rgb = vec3(alphaRough);
