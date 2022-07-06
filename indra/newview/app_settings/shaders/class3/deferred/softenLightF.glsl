@@ -399,7 +399,6 @@ void main()
     #endif
     #if DEBUG_PBR_FRESNEL
         color.rgb = fresnelR;
-        color.rgb = srgb_to_linear(color.rgb);
     #endif
     #if DEBUG_PBR_IOR
         color.rgb = vec3(IOR);
