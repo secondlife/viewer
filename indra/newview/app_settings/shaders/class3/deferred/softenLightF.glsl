@@ -322,6 +322,7 @@ void main()
     #endif
     #if DEBUG_PBR_METAL
         color.rgb = vec3(metal);
+        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_OCCLUSION
         color.rgb = vec3(packedORM.r);
