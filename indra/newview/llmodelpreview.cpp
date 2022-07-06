@@ -839,7 +839,7 @@ void LLModelPreview::clearIncompatible(S32 lod)
         }
     }
 
-    if (replaced_base_model)
+    if (replaced_base_model && !mGenLOD)
     {
         // In case base was replaced, we might need to restart generation
         bool subscribe_for_generation = mLodsQuery.empty();
