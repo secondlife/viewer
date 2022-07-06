@@ -683,7 +683,7 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F3
 
 	Face *face = addFace(mTotalOut, mTotal-mTotalOut,0,LL_FACE_INNER_SIDE, flat);
 
-	static LLAlignedArray<LLVector4a,64> pt;
+	static thread_local LLAlignedArray<LLVector4a,64> pt;
 	pt.resize(mTotal) ;
 
 	for (S32 i=mTotalOut;i<mTotal;i++)
