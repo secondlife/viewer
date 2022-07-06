@@ -35,6 +35,7 @@
 #define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
 #define DEBUG_PBR_EMISSIVE         0 // Output: Emissive
 #define DEBUG_PBR_METAL            0 // Output: grayscale Metal map
+#define DEBUG_PBR_NORMAL_MAP       0 // Output: Normal -- also need to set DEBUG_NORMAL_MAP in pbropaqueF
 #define DEBUG_PBR_OCCLUSION        0 // Output: grayscale Occlusion map
 #define DEBUG_PBR_ORM              0 // Output: Packed Occlusion Roughness Metal
 #define DEBUG_PBR_ROUGH_PERCEPTUAL 0 // Output: grayscale Perceptual Roughness map
@@ -46,7 +47,7 @@
 #define DEBUG_PBR_DOT_TV           0 // Output: grayscale dot(Tangent  ,Vertex2Camera)
 
 // IBL Spec
-#define DEBUG_PBR_NORMAL           0 // Output: passed in normal. To see raw normal map: set DEBUG_PBR_DIFFUSE_MAP 1, and in pbropaqueF set DEBUG_NORMAL_RAW
+#define DEBUG_PBR_NORMAL           0 // Output: passed in normal
 #define DEBUG_PBR_V2C_RAW          0 // Output: vertex2camera
 #define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
@@ -323,6 +324,9 @@ void main()
     #if DEBUG_PBR_METAL
         color.rgb = vec3(metal);
         color.rgb = linear_to_srgb(color.rgb);
+    #endif
+    #if DEBUG_PBR_NORMAL_MAP
+        color.rgb = diffuse.rgb;
     #endif
     #if DEBUG_PBR_OCCLUSION
         color.rgb = vec3(packedORM.r);
