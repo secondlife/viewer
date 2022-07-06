@@ -374,9 +374,9 @@ bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
     bool pbr = gSavedSettings.getBOOL("RenderPBR");
     bool valid = true
-        && target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) // frag-data[1] specular or PBR packed OcclusionRoughnessMetal
+        && target.addColorAttachment(for_impostor ? GL_RGBA : GL_SRGB8_ALPHA8) // frag-data[1] specular or PBR sRGB Emissive
         && target.addColorAttachment(GL_RGB10_A2)                              // frag_data[2] normal+z+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && (pbr ? target.addColorAttachment(GL_RGBA) : true);                  // frag_data[3] emissive
+        && (pbr ? target.addColorAttachment(GL_RGBA) : true);                  // frag_data[3] PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
     return valid;
 }
 
@@ -8124,25 +8124,27 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, deferred_target->getUsage());
 	if (channel > -1)
 	{
-        deferred_target->bindTexture(0,channel, LLTexUnit::TFO_POINT);
+        deferred_target->bindTexture(0,channel, LLTexUnit::TFO_POINT); // frag_data[0]
 	}
 
+    // NOTE: PBR sRGB Emissive -- See: C++: addDeferredAttachments(), GLSL: pbropaqueF.glsl
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_SPECULAR, deferred_target->getUsage());
 	if (channel > -1)
 	{
-        deferred_target->bindTexture(1, channel, LLTexUnit::TFO_POINT);
+        deferred_target->bindTexture(1, channel, LLTexUnit::TFO_POINT); // frag_data[1]
 	}
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_NORMAL, deferred_target->getUsage());
 	if (channel > -1)
 	{
-        deferred_target->bindTexture(2, channel, LLTexUnit::TFO_POINT);
+        deferred_target->bindTexture(2, channel, LLTexUnit::TFO_POINT); // frag_data[2]
 	}
 
+    // NOTE: PBR linear packed Occlusion, Roughness, Metal -- See: C++: addDeferredAttachments(), GLSL: pbropaqueF.glsl
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_EMISSIVE, deferred_target->getUsage());
     if (channel > -1)
     {
-        deferred_target->bindTexture(3, channel, LLTexUnit::TFO_POINT);
+        deferred_target->bindTexture(3, channel, LLTexUnit::TFO_POINT); // frag_data[3]
     }
 
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());

@@ -121,7 +121,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
         if (params.mSpecularMap)
         {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // Packed Occlusion Roughness Metal
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
         }
         else
         {
@@ -130,7 +130,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
         if (params.mEmissiveMap)
         {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);
+            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);  // PBR sRGB Emissive
         }
         else
         {

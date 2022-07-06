@@ -223,13 +223,13 @@ void main()
         // These values MUST be encoded with a linear transfer function.
 
         vec3 colorDiffuse      = vec3(0);
-        vec3 colorEmissive     = srgb_to_linear(texture2DRect(emissiveRect, tc).rgb);
+        vec3 colorEmissive     = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 colorSpec         = vec3(0);
 //      vec3 colorClearCoat    = vec3(0);
 //      vec3 colorSheen        = vec3(0);
 //      vec3 colorTransmission = vec3(0);
 
-        vec3 packedORM        = spec.rgb; // Packed: Occlusion Roughness Metal
+        vec3 packedORM        = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 #if DEBUG_PBR_PACK_ORM0
              packedORM        = vec3(0,0,0);
 #endif
@@ -323,21 +323,18 @@ void main()
     #endif
     #if DEBUG_PBR_METAL
         color.rgb = vec3(metal);
-        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_NORMAL_MAP
         color.rgb = diffuse.rgb;
     #endif
     #if DEBUG_PBR_OCCLUSION
         color.rgb = vec3(packedORM.r);
-        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_ORM
         color.rgb = packedORM;
     #endif
     #if DEBUG_PBR_ROUGH_PERCEPTUAL
         color.rgb = vec3(perceptualRough);
-        color.rgb = linear_to_srgb(color.rgb);
     #endif
     #if DEBUG_PBR_ROUGH_ALPHA
         color.rgb = vec3(alphaRough);
