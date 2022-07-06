@@ -81,11 +81,14 @@ public:
 
     bool decodeAsset(const std::vector<char>& buffer);
 
-    bool saveIfNeeded(LLInventoryItem* copyitem = nullptr, bool sync = true);
+    bool saveIfNeeded();
+    static bool saveToInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id);
 
     static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId);
 
     static void finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId);
+
+    static void finishSaveAs(const LLUUID &oldItemId, const LLUUID &newItemId, const std::string &buffer);
 
     void refreshFromInventory(const LLUUID& new_item_id = LLUUID::null);
 
@@ -143,6 +146,8 @@ public:
     void setDoubleSided(bool double_sided);
 
     void setHasUnsavedChanges(bool value);
+    void setCanSaveAs(BOOL value);
+    void setCanSave(BOOL value);
 
     void onCommitAlbedoTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);

@@ -55,8 +55,24 @@
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
+
+class LLMaterialEditorCopiedCallback : public LLInventoryCallback
+{
+public:
+    LLMaterialEditorCopiedCallback(const std::string &buffer, const LLUUID &old_item_id) : mBuffer(buffer), mOldItemId(old_item_id) {}
+
+    virtual void fire(const LLUUID& inv_item_id)
+    {
+        LLMaterialEditor::finishSaveAs(mOldItemId, inv_item_id, mBuffer);
+    }
+
+private:
+    std::string mBuffer;
+    LLUUID mOldItemId;
+};
+
 ///----------------------------------------------------------------------------
-/// Class LLPreviewNotecard
+/// Class LLMaterialEditor
 ///----------------------------------------------------------------------------
 
 // Default constructor
@@ -354,6 +370,16 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
     getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
 }
 
+void LLMaterialEditor::setCanSaveAs(BOOL value)
+{
+    childSetEnabled("save_as", value);
+}
+
+void LLMaterialEditor::setCanSave(BOOL value)
+{
+    childSetEnabled("save", value);
+}
+
 void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
 {
     // might be better to use arrays, to have a single callback
@@ -606,7 +632,7 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
     return false;
 }
 
-bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
+bool LLMaterialEditor::saveIfNeeded()
 {
     std::string buffer = getEncodedAsset();
     
@@ -616,50 +642,8 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
     // save it out to database
     if (item)
     {
-        const LLViewerRegion* region = gAgent.getRegion();
-        if (!region)
+        if (!saveToInventoryItem(buffer, mItemUUID, mObjectUUID))
         {
-            LL_WARNS() << "Not connected to a region, cannot save material." << LL_ENDL;
-            return false;
-        }
-        std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
-        std::string task_url = region->getCapability("UpdateMaterialTaskInventory");
-
-        if (!agent_url.empty() && !task_url.empty())
-        {
-            std::string url;
-            LLResourceUploadInfo::ptr_t uploadInfo;
-
-            if (mObjectUUID.isNull() && !agent_url.empty())
-            {
-                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_MATERIAL, buffer,
-                    [](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD) {
-                        LLMaterialEditor::finishInventoryUpload(itemId, newAssetId, newItemId);
-                    });
-                url = agent_url;
-            }
-            else if (!mObjectUUID.isNull() && !task_url.empty())
-            {
-                LLUUID object_uuid(mObjectUUID);
-                uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_MATERIAL, buffer,
-                    [object_uuid](LLUUID itemId, LLUUID, LLUUID newAssetId, LLSD) {
-                        LLMaterialEditor::finishTaskUpload(itemId, newAssetId, object_uuid);
-                    });
-                url = task_url;
-            }
-
-            if (!url.empty() && uploadInfo)
-            {
-                mAssetStatus = PREVIEW_ASSET_LOADING;
-                setEnabled(false);
-
-                LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
-            }
-
-        }
-        else // !gAssetStorage
-        {
-            LL_WARNS() << "Not connected to an materials capable region." << LL_ENDL;
             return false;
         }
 
@@ -669,7 +653,8 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
         }
         else
         {
-            setHasUnsavedChanges(false);
+            mAssetStatus = PREVIEW_ASSET_LOADING;
+            setEnabled(false);
         }
     }
     else
@@ -699,6 +684,8 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
                             LLNotificationsUtil::add("MaterialCreated", params);
                         });
 
+                // todo: apply permissions from textures here if server doesn't
+                // if any texture is 'no transfer', material should be 'no transfer' as well
                 const LLViewerRegion* region = gAgent.getRegion();
                 if (region)
                 {
@@ -720,6 +707,63 @@ bool LLMaterialEditor::saveIfNeeded(LLInventoryItem* copyitem, bool sync)
     return true;
 }
 
+// static
+bool LLMaterialEditor::saveToInventoryItem(const std::string &buffer, const LLUUID &item_id, const LLUUID &task_id)
+{
+    const LLViewerRegion* region = gAgent.getRegion();
+    if (!region)
+    {
+        LL_WARNS() << "Not connected to a region, cannot save material." << LL_ENDL;
+        return false;
+    }
+    std::string agent_url = region->getCapability("UpdateMaterialAgentInventory");
+    std::string task_url = region->getCapability("UpdateMaterialTaskInventory");
+
+    if (!agent_url.empty() && !task_url.empty())
+    {
+        std::string url;
+        LLResourceUploadInfo::ptr_t uploadInfo;
+
+        if (task_id.isNull() && !agent_url.empty())
+        {
+            uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(item_id, LLAssetType::AT_MATERIAL, buffer,
+                [](LLUUID itemId, LLUUID newAssetId, LLUUID newItemId, LLSD) {
+                LLMaterialEditor::finishInventoryUpload(itemId, newAssetId, newItemId);
+            });
+            url = agent_url;
+        }
+        else if (!task_id.isNull() && !task_url.empty())
+        {
+            LLUUID object_uuid(task_id);
+            uploadInfo = std::make_shared<LLBufferedAssetUploadInfo>(task_id, item_id, LLAssetType::AT_MATERIAL, buffer,
+                [object_uuid](LLUUID itemId, LLUUID, LLUUID newAssetId, LLSD) {
+                LLMaterialEditor::finishTaskUpload(itemId, newAssetId, object_uuid);
+            });
+            url = task_url;
+        }
+
+        if (!url.empty() && uploadInfo)
+        {
+            LLViewerAssetUpload::EnqueueInventoryUpload(url, uploadInfo);
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+    else // !gAssetStorage
+    {
+        LL_WARNS() << "Not connected to an materials capable region." << LL_ENDL;
+        return false;
+    }
+
+    // todo: apply permissions from textures here if server doesn't
+    // if any texture is 'no transfer', material should be 'no transfer' as well
+
+    return true;
+}
+
 void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId)
 {
     // Update the UI with the new asset.
@@ -731,24 +775,53 @@ void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, L
             me->setAssetId(newAssetId);
             me->refreshFromInventory();
         }
+        else if (newItemId.notNull())
+        {
+            // Not supposed to happen?
+            me->refreshFromInventory(newItemId);
+        }
         else
         {
-            me->refreshFromInventory(newItemId);
+            me->refreshFromInventory(itemId);
         }
     }
 }
 
 void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId)
 {
-
-    LLSD floater_key;
-    floater_key["taskid"] = taskId;
-    floater_key["itemid"] = itemId;
     LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(itemId));
     if (me)
     {
         me->setAssetId(newAssetId);
         me->refreshFromInventory();
+    }
+}
+
+void LLMaterialEditor::finishSaveAs(const LLUUID &oldItemId, const LLUUID &newItemId, const std::string &buffer)
+{
+    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(oldItemId));
+    LLViewerInventoryItem* item = gInventory.getItem(newItemId);
+    if (item)
+    {
+        if (me)
+        {
+            me->mItemUUID = newItemId;
+            me->setKey(LLSD(newItemId)); // for findTypedInstance
+            me->setMaterialName(item->getName());
+            if (!saveToInventoryItem(buffer, newItemId, LLUUID::null))
+            {
+                me->setEnabled(true);
+            }
+        }
+        else
+        {
+            saveToInventoryItem(buffer, newItemId, LLUUID::null);
+        }
+    }
+    else if (me)
+    {
+        me->setEnabled(true);
+        LL_WARNS() << "Item does not exist" << LL_ENDL;
     }
 }
 
@@ -778,11 +851,38 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
     if (0 == option)
     {
         std::string new_name = response["message"].asString();
-        LLStringUtil::trim(new_name);
+        LLInventoryObject::correctInventoryName(new_name);
         if (!new_name.empty())
         {
-            setMaterialName(new_name);
-            onClickSave();
+            const LLInventoryItem* item = getItem();
+            if (item)
+            {
+                const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+                LLUUID parent_id = item->getParentUUID();
+                if (mObjectUUID.notNull() || marketplacelistings_id == parent_id || gInventory.isObjectDescendentOf(item->getUUID(), gInventory.getLibraryRootFolderID()))
+                {
+                    parent_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
+                }
+
+                // A two step process, first copy an existing item, then create new asset
+                std::string buffer = getEncodedAsset();
+                LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(buffer, item->getUUID());
+                copy_inventory_item(
+                    gAgent.getID(),
+                    item->getPermissions().getOwner(),
+                    item->getUUID(),
+                    parent_id,
+                    new_name,
+                    cb);
+
+                mAssetStatus = PREVIEW_ASSET_LOADING;
+                setEnabled(false);
+            }
+            else
+            {
+                setMaterialName(new_name);
+                onClickSave();
+            }
         }
         else
         {
@@ -1256,17 +1356,20 @@ void LLMaterialEditor::loadAsset()
     if (item)
     {
         LLPermissions perm(item->getPermissions());
-        BOOL is_owner = gAgent.allowOperation(PERM_OWNER, perm, GP_OBJECT_MANIPULATE);
         BOOL allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
         BOOL allow_modify = canModify(mObjectUUID, item);
         BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
 
-        if (allow_copy || gAgent.isGodlike())
+        setCanSaveAs(allow_copy);
+        setCanSave(allow_modify && !source_library);
+        setMaterialName(item->getName());
+
         {
             mAssetID = item->getAssetUUID();
             if (mAssetID.isNull())
             {
                 mAssetStatus = PREVIEW_ASSET_LOADED;
+                setHasUnsavedChanges(false);
             }
             else
             {
@@ -1285,10 +1388,8 @@ void LLMaterialEditor::loadAsset()
                         // The object that we're trying to look at disappeared, bail.
                         LL_WARNS() << "Can't find object " << mObjectUUID << " associated with notecard." << LL_ENDL;
                         mAssetID.setNull();
-                        /*editor->setText(getString("no_object"));
-                        editor->makePristine();
-                        editor->setEnabled(FALSE);*/
                         mAssetStatus = PREVIEW_ASSET_LOADED;
+                        setHasUnsavedChanges(false);
                         return;
                     }
                     user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
@@ -1311,26 +1412,6 @@ void LLMaterialEditor::loadAsset()
                     TRUE);
                 mAssetStatus = PREVIEW_ASSET_LOADING;
             }
-        }
-        else
-        {
-            mAssetID.setNull();
-            /*editor->setText(getString("not_allowed"));
-            editor->makePristine();
-            editor->setEnabled(FALSE);*/
-            mAssetStatus = PREVIEW_ASSET_LOADED;
-        }
-
-        if (!allow_modify)
-        {
-            //editor->setEnabled(FALSE);
-            //getChildView("lock")->setVisible(TRUE);
-            //getChildView("Edit")->setEnabled(FALSE);
-        }
-
-        if ((allow_modify || is_owner) && !source_library)
-        {
-            //getChildView("Delete")->setEnabled(TRUE);
         }
     }
     else if (mObjectUUID.notNull() && mItemUUID.notNull())
@@ -1391,6 +1472,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
 
             BOOL modifiable = editor->canModify(editor->mObjectID, editor->getItem());
             editor->setEnabled(modifiable);
+            editor->setHasUnsavedChanges(false);
             editor->mAssetStatus = PREVIEW_ASSET_LOADED;
         }
         else
