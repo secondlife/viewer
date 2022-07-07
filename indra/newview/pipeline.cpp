@@ -9720,6 +9720,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
         LLRenderPass::PASS_NORMMAP_EMISSIVE,
         LLRenderPass::PASS_NORMSPEC,
         LLRenderPass::PASS_NORMSPEC_EMISSIVE,
+        LLRenderPass::PASS_PBR_OPAQUE, // NOTE: Assumes PASS_PBR_OPAQUE_RIGGED is consecutive
+        //LLRenderPass::PASS_PBR_OPAQUE_RIGGED,
     };
 
     LLGLEnable cull(GL_CULL_FACE);
@@ -10261,6 +10263,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_BLEND_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED,
+                    LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE,
+                    //LLRenderPass::PASS_PBR_OPAQUE_RIGGED,
 					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);
