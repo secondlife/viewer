@@ -61,6 +61,7 @@
 
 // IBL Diffuse
 #define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
+#define DEBUG_PBR_IRRADIANCE_RAW   0 // Output: Diffuse Irradiance pre-mix
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
 #define DEBUG_PBR_EMS              0 // Output: Ems
@@ -289,6 +290,9 @@ void main()
         vec3  specLight  = vec3(0);
         float gloss      = 1.0 - perceptualRough;
         sampleReflectionProbes(irradiance, specLight, legacyenv, pos.xyz, norm.xyz, gloss, 0.0);
+#if DEBUG_PBR_IRRADIANCE_RAW
+        vec3 debug_irradiance = irradiance;
+#endif
         irradiance       = max(amblit,irradiance);
         specLight        = srgb_to_linear(specLight);
 #if HAS_IBL
@@ -402,6 +406,9 @@ void main()
     #endif
     #if DEBUG_PBR_IOR
         color.rgb = vec3(IOR);
+    #endif
+    #if DEBUG_PBR_IRRADIANCE_RAW
+        color.rgb = debug_irradiance;
     #endif
     #if DEBUG_PBR_IRRADIANCE
         color.rgb = irradiance;
