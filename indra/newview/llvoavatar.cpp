@@ -4619,7 +4619,12 @@ bool LLVOAvatar::updateCharacter(LLAgent &agent)
 	}
 	else if (!getParent() && isSitting() && !isMotionActive(ANIM_AGENT_SIT_GROUND_CONSTRAINED))
 	{
-		getOffObject();
+        // If we are starting up, motion might be loading
+        LLMotion *motionp = mMotionController.findMotion(ANIM_AGENT_SIT_GROUND_CONSTRAINED);
+        if (!motionp || !mMotionController.isMotionLoading(motionp))
+        {
+            getOffObject();
+        }
 	}
 
 	//--------------------------------------------------------------------
