@@ -73,6 +73,14 @@
 #define DEBUG_PBR_DIFFUSE_PRE_AO   0 // Output: diffuse pre AO
 #define DEBUG_PBR_DIFFUSE          0 // Output: diffuse post AO
 
+// Atmospheric Lighting
+#define DEBUG_PBR_AMBOCC           0 // Output: ambient occlusion
+#define DEBUG_PBR_DIRECT_AMBIENT   0 // Output: da
+#define DEBUG_PBR_SUN_LIT          0 // Ouput: sunlit
+#define DEBUG_PBR_SUN_CONTRIB      0 // Output: sun_contrib
+#define DEBUG_PBR_SKY_ADDITIVE     0 // Output: additive
+#define DEBUG_PBR_SKY_ATTEN        0 // Output: atten
+
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
@@ -442,6 +450,27 @@ void main()
     #if DEBUG_PBR_SPEC_WEIGHT
         color.rgb = vec3(specWeight);
     #endif
+
+#if DEBUG_PBR_AMBOCC
+        color.rgb = vec3(ambocc);
+#endif
+#if DEBUG_PBR_DIRECT_AMBIENT
+        color.rgb = vec3(da);
+#endif
+#if DEBUG_PBR_SKY_ADDITIVE
+        color.rgb = additive;
+#endif
+#if DEBUG_PBR_SKY_ATTEN
+        color.rgb = atten;
+#endif
+
+#if DEBUG_PBR_SUN_LIT
+        color.rgb = sunlit;
+color = srgb_to_linear(color);
+#endif
+#if DEBUG_PBR_SUN_CONTRIB
+        color.rgb = sun_contrib;
+#endif
     #if DEBUG_PBR_V2C_RAW
         color.rgb = v;
     #endif
