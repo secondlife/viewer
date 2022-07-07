@@ -810,6 +810,8 @@ with the same filename but different name
   <texture name="map_infohub.tga" />
   <texture name="map_telehub.tga" />
   <texture name="map_track_16.tga" />
+  <texture name="map_ui_collapse_icon.png" />
+  <texture name="map_ui_expand_icon.png" />
 
   <texture name="notify_caution_icon.tga" />
 
