@@ -842,15 +842,17 @@ void LLModelPreview::clearIncompatible(S32 lod)
     if (replaced_base_model && !mGenLOD)
     {
         // In case base was replaced, we might need to restart generation
+
+        // Check if already started
         bool subscribe_for_generation = mLodsQuery.empty();
-        if (lod == LLModel::LOD_HIGH)
-        {
-            mLodsQuery.clear();
-        }
+        
+        // Remove previously scheduled work
+        mLodsQuery.clear();
 
         LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
         if (!fmp) return;
 
+        // Schedule new work
         for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
         {
             if (mModel[i].empty())
@@ -867,6 +869,7 @@ void LLModelPreview::clearIncompatible(S32 lod)
             }
         }
 
+        // Subscribe if we have pending work and not subscribed yet
         if (!mLodsQuery.empty() && subscribe_for_generation)
         {
             doOnIdleRepeating(lodQueryCallback);
@@ -3860,7 +3863,7 @@ bool LLModelPreview::lodQueryCallback()
             }
 
             // return false to continue cycle
-            return false;
+            return preview->mLodsQuery.empty();
         }
     }
     // nothing to process
