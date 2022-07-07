@@ -25,6 +25,8 @@
 
 #define PBR_USE_GGX_APPROX         1
 #define PBR_USE_GGX_EMS_HACK       1
+#define PBR_USE_IRRADIANCE_HACK    1
+
 
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
@@ -294,6 +296,9 @@ void main()
         vec3 debug_irradiance = irradiance;
 #endif
         irradiance       = max(amblit,irradiance);
+#if PBR_USE_IRRADIANCE_HACK
+        irradiance      += amblit*0.5*vec3(dot(n, light_dir));
+#endif
         specLight        = srgb_to_linear(specLight);
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
