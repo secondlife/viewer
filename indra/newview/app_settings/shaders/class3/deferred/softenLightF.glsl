@@ -23,6 +23,7 @@
  * $/LicenseInfo$
  */
 
+#define PBR_USE_ATMOS              1
 #define PBR_USE_GGX_APPROX         1
 #define PBR_USE_GGX_EMS_HACK       1
 #define PBR_USE_IRRADIANCE_HACK    1
@@ -335,6 +336,14 @@ void main()
         colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
 
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
+
+        vec3 sun_contrib = min(da, scol) * sunlit;
+#if PBR_USE_ATMOS
+        color += sun_contrib;
+        color *= atten.r;
+        color += 0.5*additive;
+        color  = scaleSoftClipFrag(color);
+#endif // PBR_USE_ATMOS
 
     #if DEBUG_PBR_DIFFUSE
         color.rgb = colorDiffuse;
