@@ -230,7 +230,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
-    mServerVolumeUpdateCount = 0;
+    mServerDrawableUpdateCount = 0;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
 	mLastRiggingInfoLOD = -1;
@@ -388,6 +388,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                     }
 
 					gPipeline.markTextured(mDrawable);
+                    onDrawableUpdateFromServer();
 					mFaceMappingChanged = TRUE;
 					mTexAnimMode = 0;
 				}
@@ -401,7 +402,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
-                onVolumeUpdateFromServer();
+                onDrawableUpdateFromServer();
 			}
 		}
 
@@ -412,6 +413,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 		//
 
 		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+        onDrawableUpdateFromServer();
 		if (result & teDirtyBits)
 		{
 			updateTEData();
@@ -438,9 +440,10 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
-                onVolumeUpdateFromServer();
+                onDrawableUpdateFromServer();
 			}
 			S32 res2 = unpackTEMessage(*dp);
+            onDrawableUpdateFromServer();
 			if (TEM_INVALID == res2)
 			{
 				// There's something bogus in the data that we're unpacking.
@@ -501,6 +504,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
                 }
 
 				gPipeline.markTextured(mDrawable);
+                onDrawableUpdateFromServer();
 				mFaceMappingChanged = TRUE;
 				mTexAnimMode = 0;
 			}
@@ -519,6 +523,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 				LLDataPackerBinaryBuffer	tdp(tdpbuffer, 1024);
 				mesgsys->getBinaryDataFast(_PREHASH_ObjectData, _PREHASH_TextureEntry, tdpbuffer, 0, block_num, 1024);
 				S32 result = unpackTEMessage(tdp);
+                onDrawableUpdateFromServer();
 				if (result & teDirtyBits)
 				{
 					updateTEData();
@@ -554,11 +559,15 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	return retval;
 }
 
-void LLVOVolume::onVolumeUpdateFromServer()
+// Called when a volume, material, etc is updated by the server, possibly by a
+// script. If this occurs too often for this object, mark it as active so that
+// it doesn't disrupt the octree/render batches, thereby potentially causing a
+// big performance penalty.
+void LLVOVolume::onDrawableUpdateFromServer()
 {
     constexpr U32 UPDATES_UNTIL_ACTIVE = 8;
-    ++mServerVolumeUpdateCount;
-    if (mDrawable && !mDrawable->isActive() && mServerVolumeUpdateCount > UPDATES_UNTIL_ACTIVE)
+    ++mServerDrawableUpdateCount;
+    if (mDrawable && !mDrawable->isActive() && mServerDrawableUpdateCount > UPDATES_UNTIL_ACTIVE)
     {
         mDrawable->makeActive();
     }
