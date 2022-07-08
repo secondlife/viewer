@@ -43,6 +43,7 @@ uniform float sun_moon_glow_factor;
 
 float getAmbientClamp() { return 1.0f; }
 
+// Returns colors in sRGB
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten, bool use_ao)
 {

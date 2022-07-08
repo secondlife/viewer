@@ -339,10 +339,12 @@ void main()
 
         vec3 sun_contrib = min(da, scol) * sunlit;
 #if PBR_USE_ATMOS
-        color += sun_contrib;
+        color  = linear_to_srgb(color);
+        color += 2.0*sun_contrib;       // 2x = Undo legacy hack of calcAtmosphericVars() returning sunlight.rgb * 0.5;
         color *= atten.r;
-        color += 0.5*additive;
+        color += 2.0*additive;
         color  = scaleSoftClipFrag(color);
+        color  = srgb_to_linear(color);
 #endif // PBR_USE_ATMOS
 
     #if DEBUG_PBR_DIFFUSE
