@@ -75,11 +75,12 @@
 
 // Atmospheric Lighting
 #define DEBUG_PBR_AMBOCC           0 // Output: ambient occlusion
-#define DEBUG_PBR_DIRECT_AMBIENT   0 // Output: da
+#define DEBUG_PBR_DA_RAW           0 // Output: da pre pow()
+#define DEBUG_PBR_DA_POW           0 // Output: da post pow()
 #define DEBUG_PBR_SUN_LIT          0 // Ouput: sunlit
 #define DEBUG_PBR_SUN_CONTRIB      0 // Output: sun_contrib
 #define DEBUG_PBR_SKY_ADDITIVE     0 // Output: additive
-#define DEBUG_PBR_SKY_ATTEN        0 // Output: atten
+#define DEBUG_PBR_SKY_ATTEN        0 // Output: greyscale atten.r
 
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
@@ -188,6 +189,9 @@ void main()
 
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
+#if DEBUG_PBR_DA_RAW
+    float debug_da    = da;
+#endif
     float light_gamma = 1.0 / 1.3;
     da                = pow(da, light_gamma);
 
@@ -450,32 +454,33 @@ void main()
     #if DEBUG_PBR_SPEC_WEIGHT
         color.rgb = vec3(specWeight);
     #endif
-
-#if DEBUG_PBR_AMBOCC
-        color.rgb = vec3(ambocc);
-#endif
-#if DEBUG_PBR_DIRECT_AMBIENT
-        color.rgb = vec3(da);
-#endif
-#if DEBUG_PBR_SKY_ADDITIVE
-        color.rgb = additive;
-#endif
-#if DEBUG_PBR_SKY_ATTEN
-        color.rgb = atten;
-#endif
-
-#if DEBUG_PBR_SUN_LIT
-        color.rgb = sunlit;
-color = srgb_to_linear(color);
-#endif
-#if DEBUG_PBR_SUN_CONTRIB
-        color.rgb = sun_contrib;
-#endif
     #if DEBUG_PBR_V2C_RAW
         color.rgb = v;
     #endif
     #if DEBUG_PBR_V2C_REMAP
         color.rgb = v*0.5 + vec3(0.5);
+    #endif
+
+    #if DEBUG_PBR_AMBOCC
+        color.rgb = vec3(ambocc);
+    #endif
+    #if DEBUG_PBR_DA_RAW
+        color.rgb = vec3(debug_da);
+    #endif
+    #if DEBUG_PBR_DA_POW
+        color.rgb = vec3(da);
+    #endif
+    #if DEBUG_PBR_SKY_ADDITIVE
+        color.rgb = additive;
+    #endif
+    #if DEBUG_PBR_SKY_ATTEN
+      color.rgb = vec3(atten.r);
+    #endif
+    #if DEBUG_PBR_SUN_LIT
+        color.rgb = sunlit;
+    #endif
+    #if DEBUG_PBR_SUN_CONTRIB
+        color.rgb = sun_contrib;
     #endif
         frag_color.rgb = color.rgb; // PBR is done in linear
     }
