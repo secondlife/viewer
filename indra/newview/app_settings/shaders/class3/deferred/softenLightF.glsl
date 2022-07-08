@@ -28,11 +28,11 @@
 #define PBR_USE_GGX_EMS_HACK       1
 #define PBR_USE_IRRADIANCE_HACK    1
 
-
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
 #define DEBUG_PBR_VERT2CAM1        0 // vertex2camera = 0,0,1
+#define DEBUG_PBR_SPECLIGHT051     1 // Force specLigh to be 0,0.5,1
 
 // Pass input through "as is"
 #define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
@@ -313,6 +313,10 @@ void main()
         irradiance      += amblit*0.5*vec3(dot(n, light_dir));
 #endif
         specLight        = srgb_to_linear(specLight);
+#if DEBUG_PBR_SPECLIGHT051
+        specLight        = vec3(0,0.5,1.0);
+        irradiance       = specLight;
+#endif
 #if HAS_IBL
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
