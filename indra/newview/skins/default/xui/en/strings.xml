@@ -405,6 +405,7 @@ http://secondlife.com/support for help fixing this problem.
 	<string name="symbolic link">link</string>
 	<string name="symbolic folder link">folder link</string>
 	<string name="settings blob">settings</string>
+	<string name="render material">material</string>
 	<string name="mesh">mesh</string>
 
 	<!-- llvoavatar. Displayed in the avatar chat bubble -->
