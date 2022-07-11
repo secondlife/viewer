@@ -1880,7 +1880,7 @@ void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected
         else
         {
             LLInventoryCategory* inv_cat = gInventory.getCategory(*it);
-            if (inv_cat)
+            if (inv_cat && !LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
             {
                 gInventory.changeCategoryParent((LLViewerInventoryCategory*)inv_cat, new_cat_uuid, false);
             }
@@ -2646,7 +2646,7 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
         if (selected_uuid_set.size() == 1)
         {
             LLInventoryCategory* inv_cat = gInventory.getCategory(*ids.begin());
-            if (!inv_cat)
+            if (!inv_cat || LLFolderType::lookupIsProtectedType(inv_cat->getPreferredType()))
             {
                 return;
             }

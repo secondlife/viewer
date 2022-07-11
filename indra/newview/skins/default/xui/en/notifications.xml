@@ -11663,7 +11663,7 @@ This Region does not support environmental settings.
  
   <notification
    icon="alertmodal.tga"
-   label="Save Outfit"
+   label="Save Environmental Settings"
    name="SaveSettingAs"
    type="alertmodal">
     <unique/>
@@ -11844,7 +11844,7 @@ Unpacking: [UNPACK_TIME]s [USIZE]KB
 
   <notification
    icon="alertmodal.tga"
-   label="Save Outfit"
+   label="Create subfolder"
    name="CreateSubfolder"
    type="alertmodal">
     <unique/>
