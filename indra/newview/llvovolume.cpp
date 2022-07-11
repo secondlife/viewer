@@ -105,8 +105,6 @@ S32 LLVOVolume::mRenderComplexity_current = 0;
 LLPointer<LLObjectMediaDataClient> LLVOVolume::sObjectMediaClient = NULL;
 LLPointer<LLObjectMediaNavigateClient> LLVOVolume::sObjectMediaNavigateClient = NULL;
 
-extern BOOL gGLDebugLoggingEnabled;
-
 // Implementation class of LLMediaDataClientObject.  See llmediadataclient.h
 class LLMediaDataClientObjectImpl : public LLMediaDataClientObject
 {

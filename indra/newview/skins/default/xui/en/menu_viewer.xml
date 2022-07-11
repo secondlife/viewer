@@ -471,7 +471,7 @@
        layout="topleft"
        name="Reset Skeleton And Animations">
         <menu_item_call.on_click
-         function="Avatar.ResetSkeletonAndAnimations" />
+         function="Avatar.ResetSelfSkeletonAndAnimations" />
       </menu_item_call>
       <menu_item_call
        label="Attachment scripts..."
@@ -3121,14 +3121,14 @@ function="World.EnvPreset"
           <menu_item_separator />
 
           <menu_item_check
-             label="Debug GL"
+             label="Start Debug GL on next run"
              name="Debug GL">
                 <menu_item_check.on_check
                  function="CheckControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugGLSession" />
                 <menu_item_check.on_click
                  function="ToggleControl"
-                 parameter="RenderDebugGL" />
+                 parameter="RenderDebugGLSession" />
             </menu_item_check>
             <menu_item_check
              label="Debug Pipeline"

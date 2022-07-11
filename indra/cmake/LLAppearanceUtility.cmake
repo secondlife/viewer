@@ -10,5 +10,3 @@ if (INSTALL_PROPRIETARY)
         set(LLAPPEARANCEUTILITY_BIN_DIR ${CMAKE_BINARY_DIR}/llappearanceutility)
     endif (LINUX)
 endif (INSTALL_PROPRIETARY)
-
-

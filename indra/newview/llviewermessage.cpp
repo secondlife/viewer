@@ -3334,6 +3334,13 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
+    // Rotation into both directions should cancel out
+    U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
+    if ((control_flags & mask) == mask)
+    {
+        control_flags &= ~mask;
+    }
+
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
 
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)
@@ -5805,15 +5812,15 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 				if (("ScriptTakeMoney" == script_perm.question) && has_not_only_debit)
 					continue;
 
-                if (script_perm.question == "JoinAnExperience")
-                { // Some experience only permissions do not have an explicit permission bit.  Add them here.
-                    script_question += "    " + LLTrans::getString("ForceSitAvatar") + "\n";
+                if (LLTrans::getString(script_perm.question).empty())
+                {
+                    continue;
                 }
 
 				script_question += "    " + LLTrans::getString(script_perm.question) + "\n";
 			}
 		}
-	
+
 		args["QUESTIONS"] = script_question;
 
 		if (known_questions != questions)

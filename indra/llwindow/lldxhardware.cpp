@@ -229,7 +229,7 @@ S32 LLDXHardware::getMBVideoMemoryViaWMI()
 }
 
 //Getting the version of graphics controller driver via WMI
-std::string LLDXHardware::getDriverVersionWMI()
+std::string LLDXHardware::getDriverVersionWMI(EGPUVendor vendor)
 {
 	std::string mDriverVersion;
 	HRESULT hrCoInitialize = S_OK;
@@ -325,15 +325,68 @@ std::string LLDXHardware::getDriverVersionWMI()
 		{
 			break;               // If quantity less then 1.
 		}
+        
+        if (vendor != GPU_ANY)
+        {
+            VARIANT vtCaptionProp;
+            // Might be preferable to check "AdapterCompatibility" here instead of caption.
+            hr = pclsObj->Get(L"Caption", 0, &vtCaptionProp, 0, 0);
 
-		VARIANT vtProp;
+            if (FAILED(hr))
+            {
+                LL_WARNS("AppInit") << "Query for Caption property failed." << " Error code = 0x" << hr << LL_ENDL;
+                pSvc->Release();
+                pLoc->Release();
+                CoUninitialize();
+                return std::string();               // Program has failed.
+            }
 
-		// Get the value of the Name property
-		hr = pclsObj->Get(L"DriverVersion", 0, &vtProp, 0, 0);
+            // use characters in the returned driver version
+            BSTR caption(vtCaptionProp.bstrVal);
+
+            //convert BSTR to std::string
+            std::wstring ws(caption, SysStringLen(caption));
+            std::string caption_str(ws.begin(), ws.end());
+            LLStringUtil::toLower(caption_str);
+
+            bool found = false;
+            switch (vendor)
+            {
+            case GPU_INTEL:
+                found = caption_str.find("intel") != std::string::npos;
+                break;
+            case GPU_NVIDIA:
+                found = caption_str.find("nvidia") != std::string::npos;
+                break;
+            case GPU_AMD:
+                found = caption_str.find("amd") != std::string::npos
+                        || caption_str.find("ati ") != std::string::npos
+                        || caption_str.find("radeon") != std::string::npos;
+                break;
+            default:
+                break;
+            }
+
+            if (found)
+            {
+                VariantClear(&vtCaptionProp);
+            }
+            else
+            {
+                VariantClear(&vtCaptionProp);
+                pclsObj->Release();
+                continue;
+            }
+        }
+
+        VARIANT vtVersionProp;
+
+		// Get the value of the DriverVersion property
+		hr = pclsObj->Get(L"DriverVersion", 0, &vtVersionProp, 0, 0);
 
 		if (FAILED(hr))
 		{
-			LL_WARNS("AppInit") << "Query for name property failed." << " Error code = 0x" << hr << LL_ENDL;
+			LL_WARNS("AppInit") << "Query for DriverVersion property failed." << " Error code = 0x" << hr << LL_ENDL;
 			pSvc->Release();
 			pLoc->Release();
 			CoUninitialize();
@@ -341,7 +394,7 @@ std::string LLDXHardware::getDriverVersionWMI()
 		}
 
 		// use characters in the returned driver version
-		BSTR driverVersion(vtProp.bstrVal);
+		BSTR driverVersion(vtVersionProp.bstrVal);
 
 		//convert BSTR to std::string
 		std::wstring ws(driverVersion, SysStringLen(driverVersion));
@@ -354,10 +407,19 @@ std::string LLDXHardware::getDriverVersionWMI()
 		}
 		else if (mDriverVersion != str)
 		{
-			LL_WARNS("DriverVersion") << "Different versions of drivers. Version of second driver : " << str << LL_ENDL;
+            if (vendor == GPU_ANY)
+            {
+                // Expected from systems with gpus from different vendors
+                LL_INFOS("DriverVersion") << "Multiple video drivers detected. Version of second driver: " << str << LL_ENDL;
+            }
+            else
+            {
+                // Not Expected!
+                LL_WARNS("DriverVersion") << "Multiple video drivers detected from same vendor. Version of second driver : " << str << LL_ENDL;
+            }
 		}
 
-		VariantClear(&vtProp);
+		VariantClear(&vtVersionProp);
 		pclsObj->Release();
 	}
 

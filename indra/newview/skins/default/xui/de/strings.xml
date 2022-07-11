@@ -186,7 +186,7 @@ Voice-Server-Version: [VOICE_VERSION]
 	<string name="LoginFailedNoNetwork">
 		Netzwerkfehler: Verbindung konnte nicht hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.
 	</string>
-	<string name="LoginFailed">
+	<string name="LoginFailedHeader">
 		Anmeldung fehlgeschlagen
 	</string>
 	<string name="Quit">

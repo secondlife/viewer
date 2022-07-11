@@ -10897,22 +10897,47 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 	{
 		markVisible(avatar->mDrawable, *viewer_camera);
 
-		LLVOAvatar::attachment_map_t::iterator iter;
-		for (iter = avatar->mAttachmentPoints.begin();
-			iter != avatar->mAttachmentPoints.end();
-			++iter)
-		{
-			LLViewerJointAttachment *attachment = iter->second;
-			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
-				 attachment_iter != attachment->mAttachedObjects.end();
-				 ++attachment_iter)
-			{
-				if (LLViewerObject* attached_object = attachment_iter->get())
-				{
-					markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
-				}
-			}
-		}
+        if (preview_avatar)
+        {
+            // Only show rigged attachments for preview
+            LLVOAvatar::attachment_map_t::iterator iter;
+            for (iter = avatar->mAttachmentPoints.begin();
+                iter != avatar->mAttachmentPoints.end();
+                ++iter)
+            {
+                LLViewerJointAttachment *attachment = iter->second;
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                    attachment_iter != attachment->mAttachedObjects.end();
+                    ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (attached_object && attached_object->isRiggedMesh())
+                    {
+                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                    }
+                }
+            }
+        }
+        else
+        {
+            LLVOAvatar::attachment_map_t::iterator iter;
+            for (iter = avatar->mAttachmentPoints.begin();
+                iter != avatar->mAttachmentPoints.end();
+                ++iter)
+            {
+                LLViewerJointAttachment *attachment = iter->second;
+                for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
+                    attachment_iter != attachment->mAttachedObjects.end();
+                    ++attachment_iter)
+                {
+                    LLViewerObject* attached_object = attachment_iter->get();
+                    if (attached_object)
+                    {
+                        markVisible(attached_object->mDrawable->getSpatialBridge(), *viewer_camera);
+                    }
+                }
+            }
+        }
 	}
 
 	stateSort(*LLViewerCamera::getInstance(), result);

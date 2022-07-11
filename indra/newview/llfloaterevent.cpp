@@ -108,11 +108,12 @@ void LLFloaterEvent::setEventID(const U32 event_id)
 		LLSD subs;
 		subs["EVENT_ID"] = (S32)event_id;
         // get the search URL and expand all of the substitutions                                                       
-        // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)                                                    
-		std::ostringstream url;
-		url <<  gSavedSettings.getString("EventURL") << event_id << std::endl;
+        // (also adds things like [LANGUAGE], [VERSION], [OS], etc.)              
+
+        std::string expanded_url = LLWeb::expandURLSubstitutions(gSavedSettings.getString("EventURL"), subs);
+
 		// and load the URL in the web view                                                                             
-        mBrowser->navigateTo(url.str());
+        mBrowser->navigateTo(expanded_url);
 		
 	}
 }

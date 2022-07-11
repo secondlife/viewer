@@ -398,7 +398,19 @@ void set_merchant_SLM_menu()
     // All other cases (new merchant, not merchant, migrated merchant): show the new Marketplace Listings menu and enable the tool
     gMenuHolder->getChild<LLView>("MarketplaceListings")->setVisible(TRUE);
     LLCommand* command = LLCommandManager::instance().getCommand("marketplacelistings");
-	gToolBarView->enableCommand(command->id(), true);
+    gToolBarView->enableCommand(command->id(), true);
+
+    const LLUUID marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+    if (marketplacelistings_id.isNull())
+    {
+        U32 mkt_status = LLMarketplaceData::instance().getSLMStatus();
+        bool is_merchant = (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MERCHANT) || (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_MIGRATED_MERCHANT);
+        if (is_merchant)
+        {
+            gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, true);
+            LL_WARNS("SLM") << "Creating the marketplace listings folder for a merchant" << LL_ENDL;
+        }
+    }
 }
 
 void check_merchant_status(bool force)
@@ -4177,23 +4189,9 @@ bool is_object_sittable()
 	}
 }
 
-
 // only works on pie menu
-void handle_object_sit_or_stand()
+void handle_object_sit(LLViewerObject *object, const LLVector3 &offset)
 {
-	LLPickInfo pick = LLToolPie::getInstance()->getPick();
-	LLViewerObject *object = pick.getObject();;
-	if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
-	{
-		return;
-	}
-
-	if (sitting_on_selection())
-	{
-		gAgent.standUp();
-		return;
-	}
-
 	// get object selection offset 
 
 	if (object && object->getPCode() == LL_PCODE_VOLUME)
@@ -4205,10 +4203,40 @@ void handle_object_sit_or_stand()
 		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 		gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
-		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
+		gMessageSystem->addVector3Fast(_PREHASH_Offset, offset);
 
 		object->getRegion()->sendReliableMessage();
 	}
+}
+
+void handle_object_sit_or_stand()
+{
+    LLPickInfo pick = LLToolPie::getInstance()->getPick();
+    LLViewerObject *object = pick.getObject();
+    if (!object || pick.mPickType == LLPickInfo::PICK_FLORA)
+    {
+        return;
+    }
+
+    if (sitting_on_selection())
+    {
+        gAgent.standUp();
+        return;
+    }
+
+    handle_object_sit(object, pick.mObjectOffset);
+}
+
+void handle_object_sit(const LLUUID& object_id)
+{
+    LLViewerObject* obj = gObjectList.findObject(object_id);
+    if (!obj)
+    {
+        return;
+    }
+
+    LLVector3 offset(0, 0, 0);
+    handle_object_sit(obj, offset);
 }
 
 void near_sit_down_point(BOOL success, void *)
@@ -6344,6 +6372,24 @@ class LLAvatarResetSkeletonAndAnimations : public view_listener_t
 		return true;
 	}
 };
+
+class LLAvatarResetSelfSkeletonAndAnimations : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		if (avatar)
+		{
+			avatar->resetSkeleton(true);
+		}
+		else
+		{
+			gAgentAvatarp->resetSkeleton(true);
+		}
+		return true;
+	}
+};
+
 
 class LLAvatarAddContact : public view_listener_t
 {
@@ -9453,6 +9499,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
+	view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
 	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
 
 	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
