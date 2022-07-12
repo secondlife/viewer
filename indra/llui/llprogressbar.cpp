@@ -69,16 +69,22 @@ void LLProgressBar::draw()
 	static LLTimer timer;
 	F32 alpha = getDrawContext().mAlpha;
 	
-	LLColor4 image_bar_color = mColorBackground.get();
-	image_bar_color.setAlpha(alpha);
-	mImageBar->draw(getLocalRect(), image_bar_color);
+    if (mImageBar) // optional according to parameters
+    {
+        LLColor4 image_bar_color = mColorBackground.get();
+        image_bar_color.setAlpha(alpha);
+        mImageBar->draw(getLocalRect(), image_bar_color);
+    }
 
-	alpha *= 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
-	LLColor4 bar_color = mColorBar.get();
-	bar_color.mV[VALPHA] *= alpha; // modulate alpha
-	LLRect progress_rect = getLocalRect();
-	progress_rect.mRight = ll_round(getRect().getWidth() * (mPercentDone / 100.f));
-	mImageFill->draw(progress_rect, bar_color);
+    if (mImageFill)
+    {
+        alpha *= 0.5f + 0.5f*0.5f*(1.f + (F32)sin(3.f*timer.getElapsedTimeF32()));
+        LLColor4 bar_color = mColorBar.get();
+        bar_color.mV[VALPHA] *= alpha; // modulate alpha
+        LLRect progress_rect = getLocalRect();
+        progress_rect.mRight = ll_round(getRect().getWidth() * (mPercentDone / 100.f));
+        mImageFill->draw(progress_rect, bar_color);
+    }
 }
 
 void LLProgressBar::setValue(const LLSD& value)
