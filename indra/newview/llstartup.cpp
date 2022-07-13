@@ -2526,8 +2526,6 @@ void use_circuit_callback(void**, S32 result)
 void register_viewer_callbacks(LLMessageSystem* msg)
 {
 	msg->setHandlerFuncFast(_PREHASH_LayerData,				process_layer_data );
-	msg->setHandlerFuncFast(_PREHASH_ImageData,				LLViewerTextureList::receiveImageHeader );
-	msg->setHandlerFuncFast(_PREHASH_ImagePacket,				LLViewerTextureList::receiveImagePacket );
 	msg->setHandlerFuncFast(_PREHASH_ObjectUpdate,				process_object_update );
 	msg->setHandlerFunc("ObjectUpdateCompressed",				process_compressed_object_update );
 	msg->setHandlerFunc("ObjectUpdateCached",					process_cached_object_update );

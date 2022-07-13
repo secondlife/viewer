@@ -223,7 +223,6 @@ void LLTextureBar::draw()
 		{ "DSK", LLColor4::cyan },	// LOAD_FROM_TEXTURE_CACHE
 		{ "DSK", LLColor4::blue },	// CACHE_POST
 		{ "NET", LLColor4::green },	// LOAD_FROM_NETWORK
-		{ "SIM", LLColor4::green },	// LOAD_FROM_SIMULATOR
 		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE
 		{ "HTW", LLColor4::green },	// WAIT_HTTP_RESOURCE2
 		{ "REQ", LLColor4::yellow },// SEND_HTTP_REQ
