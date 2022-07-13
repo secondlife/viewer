@@ -230,7 +230,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
-    mServerVolumeUpdateCount = 0;
+    mServerDrawableUpdateCount = 0;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
 	mLastRiggingInfoLOD = -1;
@@ -326,6 +326,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	 	
 	LLColor4U color;
 	const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
+    const bool previously_volume_changed = mVolumeChanged;
+    const bool previously_face_mapping_changed = mFaceMappingChanged;
+    const bool previously_color_changed = mColorChanged;
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
@@ -401,7 +404,6 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
-                onVolumeUpdateFromServer();
 			}
 		}
 
@@ -438,7 +440,6 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (setVolume(volume_params, 0))
 			{
 				markForUpdate(TRUE);
-                onVolumeUpdateFromServer();
 			}
 			S32 res2 = unpackTEMessage(*dp);
 			if (TEM_INVALID == res2)
@@ -551,14 +552,27 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
 
+    if ((
+            (mVolumeChanged && !previously_volume_changed) ||
+            (mFaceMappingChanged && !previously_face_mapping_changed) ||
+            (mColorChanged && !previously_color_changed)
+        )
+        && !mLODChanged) {
+        onDrawableUpdateFromServer();
+    }
+
 	return retval;
 }
 
-void LLVOVolume::onVolumeUpdateFromServer()
+// Called when a volume, material, etc is updated by the server, possibly by a
+// script. If this occurs too often for this object, mark it as active so that
+// it doesn't disrupt the octree/render batches, thereby potentially causing a
+// big performance penalty.
+void LLVOVolume::onDrawableUpdateFromServer()
 {
     constexpr U32 UPDATES_UNTIL_ACTIVE = 8;
-    ++mServerVolumeUpdateCount;
-    if (mDrawable && !mDrawable->isActive() && mServerVolumeUpdateCount > UPDATES_UNTIL_ACTIVE)
+    ++mServerDrawableUpdateCount;
+    if (mDrawable && !mDrawable->isActive() && mServerDrawableUpdateCount > UPDATES_UNTIL_ACTIVE)
     {
         mDrawable->makeActive();
     }
