@@ -2347,7 +2347,7 @@ void LLPanelProfileFirstLife::processProperties(const LLAvatarData* avatar_data)
 
 void LLPanelProfileFirstLife::resetData()
 {
-    mDescriptionEdit->setValue(LLStringUtil::null);
+    setDescriptionText(std::string());
     mPicture->setValue("Generic_Person_Large");
     mImageId = LLUUID::null;
 
