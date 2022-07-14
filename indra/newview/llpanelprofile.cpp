@@ -2472,7 +2472,7 @@ void LLPanelProfileNotes::onDiscardNotesChanges()
 
 void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
 {
-    mNotesEditor->setValue(avatar_notes->notes);
+    setNotesText(avatar_notes->notes);
     mNotesEditor->setEnabled(TRUE);
     setLoaded();
 }
@@ -2480,7 +2480,7 @@ void LLPanelProfileNotes::processProperties(LLAvatarNotes* avatar_notes)
 void LLPanelProfileNotes::resetData()
 {
     resetLoading();
-    mNotesEditor->setValue(LLStringUtil::null);
+    setNotesText(std::string());
 }
 
 void LLPanelProfileNotes::setAvatarId(const LLUUID& avatar_id)
