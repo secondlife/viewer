@@ -57,7 +57,7 @@ public:
 
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
 
-    void loadAsset();
+    void loadAsset() override;
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
