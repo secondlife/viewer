@@ -38,6 +38,7 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
+uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 uniform samplerCube environmentMap;
 uniform sampler2DRect lightMap;
 uniform sampler2D noiseMap;
@@ -180,8 +181,10 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorDiffuse = vec3(0);
-        vec3 colorSpec    = vec3(0);
+        vec3 colorDiffuse  = vec3(0);
+        vec3 colorSpec     = vec3(0);
+        vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
+        vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
         final_color = colorDiffuse + colorSpec;
     }

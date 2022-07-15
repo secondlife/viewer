@@ -106,7 +106,7 @@ out vec4 frag_color;
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
-uniform sampler2DRect emissiveRect;
+uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
 uniform sampler2DRect lightMap;
