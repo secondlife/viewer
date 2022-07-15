@@ -2096,7 +2096,7 @@ BOOL LLItemBridge::confirmRemoveItem(const LLSD& notification, const LLSD& respo
 bool LLItemBridge::isItemCopyable(bool can_copy_as_link) const
 {
     LLViewerInventoryItem* item = getItem();
-    if (item)
+    if (!item)
     {
         return false;
     }
