@@ -57,10 +57,13 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 uniform vec4 viewport;
 
+vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
+vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 h, vec3 n, vec3 v, out float nh, out float nv, out float vh);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
+void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
 
 void main()
@@ -88,9 +91,7 @@ void main()
     }
 
     lv = normalize(lv);
-    da = dot(n, lv);
-
-    float noise = texture2D(noiseMap, tc/128.0).b;
+    da = dot(n, lv); // alias for: nl
 
     vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
     vec4 spec    = texture2DRect(specularRect, tc);
@@ -108,6 +109,20 @@ void main()
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+        vec3  l    = lv; // already normalized
+        float nl   = clamp(dot(n, l), 0.0, 1.0);
+
+        if (nl > 0.0 || nv > 0.0)
+        {
+            vec3 intensity = size * color;
+            colorDiffuse += intensity * nl * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
+            colorSpec    += intensity * nl * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+        }
+
         final_color = colorDiffuse + colorSpec;
     }
     else
@@ -116,7 +131,8 @@ void main()
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
         dist_atten *= 2.0;
-    
+
+        float noise = texture2D(noiseMap, tc/128.0).b;
         float lit = da * dist_atten * noise;
 
         final_color = color.rgb*lit*diffuse;

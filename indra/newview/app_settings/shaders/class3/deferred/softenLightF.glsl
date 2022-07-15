@@ -23,16 +23,15 @@
  * $/LicenseInfo$
  */
 
-#define PBR_USE_ATMOS              1
-#define PBR_USE_GGX_APPROX         1
-#define PBR_USE_GGX_EMS_HACK       1
+#define PBR_USE_ATMOS              0
+#define PBR_USE_GGX_EMS_HACK       0
 #define PBR_USE_IRRADIANCE_HACK    1
 
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
 #define DEBUG_PBR_VERT2CAM1        0 // vertex2camera = 0,0,1
-#define DEBUG_PBR_SPECLIGHT051     1 // Force specLigh to be 0,0.5,1
+#define DEBUG_PBR_SPECLIGHT051     0 // Force specLigh to be 0,0.5,1
 
 // Pass input through "as is"
 #define DEBUG_PBR_DIFFUSE_MAP      0 // Output: use diffuse in G-Buffer
@@ -134,6 +133,7 @@ vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 float getAmbientClamp();
+vec2 getGGX( vec2 brdfPoint );
 vec3  atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3  scaleSoftClipFrag(vec3 l);
 vec3  fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
@@ -153,25 +153,6 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
 uniform vec3 view_dir; // PBR
-
-// Approximate Environment BRDF
-vec2 getGGXApprox( vec2 uv )
-{
-    vec2  st    = vec2(1.) - uv;
-    float d     = (st.x * st.x * 0.5) * (st.y * st.y);
-    float scale = 1.0 - d;
-    float bias  = d;
-    return vec2( scale, bias );
-}
-
-vec2 getGGX( vec2 brdfPoint )
-{
-    // TODO: use GGXLUT
-    // texture2D(GGXLUT, brdfPoint).rg;
-#if PBR_USE_GGX_APPROX
-    return getGGXApprox( brdfPoint);
-#endif
-}
 
 vec3 calcBaseReflect0(float ior)
 {
