@@ -99,9 +99,9 @@ void main()
 
         if (nl > 0.0 || nv > 0.0)
         {
-            vec3 intensity = size * color;
-            colorDiffuse += intensity * nl * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
-            colorSpec    += intensity * nl * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+            vec3 intensity = getLightIntensityPoint(color, size, lightDist);
+            colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }
 
         final_color = colorDiffuse + colorSpec;

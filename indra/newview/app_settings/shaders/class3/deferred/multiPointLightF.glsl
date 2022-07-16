@@ -88,6 +88,24 @@ void main()
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
 
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+        for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
+        {
+            vec3  lightColor = light_col[ light_idx ].rgb;
+            float lightSize  = light    [ light_idx ].w;
+            vec3  lv         =(light    [ light_idx ].xyz - pos);
+            calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
+
+            if (nl > 0.0 || nv > 0.0)
+            {
+                vec3 intensity = getLightIntensityPoint(lightColor, lightSize, lightDist);
+                colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+                colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            }
+        }
         final_color = colorDiffuse + colorSpec;
     }
     else
