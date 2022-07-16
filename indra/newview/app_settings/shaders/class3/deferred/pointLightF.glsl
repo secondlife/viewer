@@ -59,7 +59,8 @@ uniform vec4 viewport;
 
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
-void calcHalfVectors(vec3 h, vec3 n, vec3 v, out float nh, out float nv, out float vh);
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
@@ -72,35 +73,18 @@ void main()
     vec2 tc          = getScreenXY(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
 
-    vec3 lv = trans_center.xyz-pos;
-    float dist = length(lv);
-    if (dist >= size)
-    {
-        discard;
-    }
-    dist /= size;
-
     float envIntensity;
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
-
-    float da = dot(n, lv);
-    if (da < 0.0)
-    {
-        discard;
-    }
-
-    lv = normalize(lv);
-    da = dot(n, lv); // alias for: nl
 
     vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
     vec4 spec    = texture2DRect(specularRect, tc);
 
     // Common half vectors calcs
-    vec3  v = -normalize(pos);
-    vec3  h = normalize(lv + v);
-    float nh, nv, vh;
-    calcHalfVectors(h, n, v, nh, nv, vh);
+    vec3  lv = trans_center.xyz-pos;
+    vec3  h, l, v = -normalize(pos);
+    float nh, nl, nv, vh, lightDist;
+    calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
@@ -113,9 +97,6 @@ void main()
         float alphaRough, specWeight;
         initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 
-        vec3  l    = lv; // already normalized
-        float nl   = clamp(dot(n, l), 0.0, 1.0);
-
         if (nl > 0.0 || nv > 0.0)
         {
             vec3 intensity = size * color;
@@ -127,28 +108,40 @@ void main()
     }
     else
     {
+        float dist = lightDist;
+        if (dist >= size)
+        {
+            discard;
+        }
+        dist /= size;
+
+        if (nl < 0.0)
+        {
+            discard;
+        }
+
         float fa = falloff+1.0;
         float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
         dist_atten *= 2.0;
 
         float noise = texture2D(noiseMap, tc/128.0).b;
-        float lit = da * dist_atten * noise;
+        float lit = nl * dist_atten * noise;
 
         final_color = color.rgb*lit*diffuse;
 
         if (spec.a > 0.0)
         {
-            lit = min(da*6.0, 1.0) * dist_atten;
+            lit = min(nl*6.0, 1.0) * dist_atten;
 
             float sa = nh;
-            float fres = pow(1 - dot(h, v), 5) * 0.4+0.5;
+            float fres = pow(1 - vh, 5) * 0.4+0.5;
             float gtdenom = 2 * nh;
-            float gt = max(0,(min(gtdenom * nv / vh, gtdenom * da / vh)));
+            float gt = max(0,(min(gtdenom * nv / vh, gtdenom * nl / vh)));
 
             if (nh > 0.0)
             {
-                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
                 final_color += lit*scol*color.rgb*spec.rgb;
             }
         }

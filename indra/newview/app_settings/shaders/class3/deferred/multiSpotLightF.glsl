@@ -62,6 +62,7 @@ uniform float sun_wash;
 uniform int proj_shadow_idx;
 uniform float shadow_fade;
 
+// Light params
 uniform vec3 center;
 uniform float size;
 uniform vec3 color;
@@ -72,9 +73,13 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-void calcHalfVectors(vec3 h, vec3 n, vec3 v, out float nh, out float nv, out float vh);
+vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
+vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec2 getScreenXY(vec4 clip);
+void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 cs);
 
 vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
@@ -182,8 +187,9 @@ void main()
     }
 
     lv = proj_origin-pos.xyz;
-    lv = normalize(lv);
-    float da = dot(n, lv);
+    vec3  h, l, v = -normalize(pos);
+    float nh, nl, nv, vh, lightDist;
+    calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
     vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
     vec4 spec    = texture2DRect(specularRect, tc);
@@ -210,9 +216,9 @@ void main()
             float amb_da = proj_ambiance;
             float lit = 0.0;
 
-            if (da > 0.0)
+            if (nl > 0.0)
             {
-                lit = da * dist_atten * noise;
+                lit = nl * dist_atten * noise;
 
                 float diff = clamp((l_dist-proj_focus)/proj_range, 0.0, 1.0);
                 float lod = diff * proj_lod;
@@ -224,14 +230,14 @@ void main()
                 final_color = dlit*lit*diffuse*shadow;
 
                 // unshadowed for consistency between forward and deferred?
-                amb_da += (da*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
+                amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
         
             //float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
             vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
 
             // use unshadowed for consistency between forward and deferred?
-            amb_da += (da*da*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
+            amb_da += (nl*nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             amb_da *= dist_atten * noise;
             amb_da = min(amb_da, 1.0-lit);
 
@@ -241,22 +247,16 @@ void main()
 
         if (spec.a > 0.0)
         {
-            vec3 v = -normalize(pos);
-            dlit *= min(da*6.0, 1.0) * dist_atten;
+            dlit *= min(nl*6.0, 1.0) * dist_atten;
 
-            //vec3 ref = dot(pos+lv, n);
-            vec3 h = normalize(lv + v);
-            float nh, nv, vh;
-            calcHalfVectors(h, n, v, nh, nv, vh);
-            float sa = nh;
-            float fres = pow(1 - dot(h, v), 5)*0.4+0.5;
+            float fres = pow(1 - vh, 5)*0.4+0.5;
 
             float gtdenom = 2 * nh;
-            float gt = max(0, min(gtdenom * nv / vh, gtdenom * da / vh));
+            float gt = max(0, min(gtdenom * nv / vh, gtdenom * nl / vh));
                                 
             if (nh > 0.0)
             {
-                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*da);
+                float scol = fres*texture2D(lightFunc, vec2(nh, spec.a)).r*gt/(nh*nl);
                 vec3 speccol = dlit*scol*spec.rgb*shadow;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 final_color += speccol;

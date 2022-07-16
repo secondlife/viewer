@@ -31,13 +31,25 @@ uniform vec2 screen_res;
 
 const float M_PI = 3.14159265;
 
-void calcHalfVectors(vec3 h, vec3 n, vec3 v, out float nh, out float nv, out float vh)
+// In:
+//   lv  unnormalized surface to light vector
+//   n   normal of the surface
+//   pos unnormalized camera to surface vector
+// Out:
+//   l   normalized surace to light vector
+//   nl  diffuse angle
+//   nh  specular angle
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v,
+    out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist)
 {
-//  l  = normalize(lv);
-//  h  = normalize(l + v);
+    l  = normalize(lv);
+    h  = normalize(l + v);
     nh = clamp(dot(n, h), 0.0, 1.0);
+    nl = clamp(dot(n, l), 0.0, 1.0);
     nv = clamp(dot(n, v), 0.0, 1.0);
     vh = clamp(dot(v, h), 0.0, 1.0);
+
+    lightDist = length(lv);
 }
 
 vec2 getScreenCoordinate(vec2 screenpos)
