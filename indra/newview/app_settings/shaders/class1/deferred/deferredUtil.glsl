@@ -157,6 +157,42 @@ vec2 getGGX( vec2 brdfPoint )
 #endif
 }
 
+
+// Reference: float getRangeAttenuation(float range, float distance)
+float getLightAttenuationPointSpot(float range, float distance)
+{
+#if 1
+    return range;
+#else
+    float range2 = pow(range, 2.0);
+
+    // support negative range as unlimited
+    if (range <= 0.0)
+    {
+        return 1.0 / range2;
+    }
+
+    return max(min(1.0 - pow(distance / range, 4.0), 1.0), 0.0) / range2;
+#endif
+}
+
+vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance)
+{
+    float  rangeAttenuation = getLightAttenuationPointSpot(lightRange, lightDistance);
+    return rangeAttenuation * lightColor;
+}
+
+float getLightAttenuationSpot(vec3 spotDirection)
+{
+    return 1.0;
+}
+
+vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v)
+{
+    float  spotAttenuation = getLightAttenuationSpot(-v);
+    return spotAttenuation * getLightIntensityPoint( lightColor, lightRange, lightDistance );
+}
+
 // NOTE: This is different from the GGX texture
 float D_GGX( float nh, float alphaRough )
 {
