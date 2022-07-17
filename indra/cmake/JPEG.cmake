@@ -6,7 +6,7 @@ include(Linking)
 include_guard()
 add_library( ll::libjpeg INTERFACE IMPORTED )
 
-use_conan_binary(libjpeg)
+use_system_binary(libjpeg)
 use_prebuilt_binary(jpeglib)
 if (LINUX)
   target_link_libraries( ll::libjpeg INTERFACE jpeg)

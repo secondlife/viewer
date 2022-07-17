@@ -4,7 +4,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::nghttp2 INTERFACE IMPORTED )
 
-use_conan_binary(nghttp2)
+use_system_binary(nghttp2)
 use_prebuilt_binary(nghttp2)
 if (WINDOWS)
   target_link_libraries( ll::nghttp2 INTERFACE ${ARCH_PREBUILT_DIRS_RELEASE}/nghttp2.lib)

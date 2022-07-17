@@ -5,7 +5,7 @@ include_guard()
 
 add_library( ll::apr INTERFACE IMPORTED )
 
-use_conan_binary( apr apr-util )
+use_system_binary( apr apr-util )
 use_prebuilt_binary(apr_suite)
 
 if (WINDOWS)

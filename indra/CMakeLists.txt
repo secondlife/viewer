@@ -17,11 +17,13 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}"
 
 include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
 if( USE_CONAN )
-  set( USE_CONAN ON )
-  conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
-  add_compile_definitions(LL_USESYSTEMLIBS USE_CONAN)
+    set( USE_CONAN ON )
+    set( USE_AUTOBUILD_3P OFF )
+    conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
+    add_compile_definitions(LL_USESYSTEMLIBS USE_CONAN NO_AUTOBUILD_3P)
 else()
   set( USE_CONAN OFF )
+  set( USE_AUTOBUILD_3P ON )
 endif()
 
 set(CXX_STANDARD 14)

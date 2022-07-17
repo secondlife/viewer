@@ -4,7 +4,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::vorbis INTERFACE IMPORTED )
 
-use_conan_binary(vorbis)
+use_system_binary(vorbis)
 use_prebuilt_binary(ogg_vorbis)
 target_include_directories( ll::vorbis SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include )
 

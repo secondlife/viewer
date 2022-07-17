@@ -6,7 +6,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::meshoptimizer INTERFACE IMPORTED )
 
-use_conan_binary(meshoptimizer)
+use_system_binary(meshoptimizer)
 use_prebuilt_binary(meshoptimizer)
 
 if (WINDOWS)

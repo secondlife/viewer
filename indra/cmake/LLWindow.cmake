@@ -9,10 +9,10 @@ add_library( ll::SDL INTERFACE IMPORTED )
 
 
 if (LINUX)
-  #Must come first as use_conan_binary can exit this file early
+  #Must come first as use_system_binary can exit this file early
   target_compile_definitions( ll::SDL INTERFACE LL_SDL=1)
 
-  use_conan_binary(SDL)
+  use_system_binary(SDL)
   use_prebuilt_binary(SDL)
   
   target_include_directories( ll::SDL SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include)

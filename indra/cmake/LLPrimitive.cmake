@@ -18,7 +18,7 @@ if( USE_CONAN )
 	"${CONAN_INCLUDE_DIRS_COLLADADOM}/collada-dom/1.4/" )
 endif()
 
-use_conan_binary( colladadom )
+use_system_binary( colladadom )
 
 use_prebuilt_binary(colladadom)
 use_prebuilt_binary(minizip-ng) # needed for colladadom

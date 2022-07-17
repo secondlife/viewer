@@ -4,7 +4,7 @@ include(Prebuilt)
 include_guard()
 add_library( ll::openssl INTERFACE IMPORTED )
 
-use_conan_binary(openssl)
+use_system_binary(openssl)
 use_prebuilt_binary(openssl)
 if (WINDOWS)
   target_link_libraries(ll::openssl INTERFACE libssl libcrypto)

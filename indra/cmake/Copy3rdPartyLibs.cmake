@@ -210,7 +210,7 @@ elseif(LINUX)
             ${EXPAT_COPY}
             )
 
-     if( NOT USE_CONAN )
+     if( USE_AUTOBUILD_3P )
          list( APPEND release_files
                  libapr-1.so.0
                  libaprutil-1.so.0

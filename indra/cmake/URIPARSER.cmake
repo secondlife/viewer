@@ -6,7 +6,7 @@ include(Prebuilt)
 
 add_library( ll::uriparser INTERFACE IMPORTED )
 
-use_conan_binary( uriparser )
+use_system_binary( uriparser )
 
 use_prebuilt_binary(uriparser)
 if (WINDOWS)

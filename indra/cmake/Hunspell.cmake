@@ -5,7 +5,7 @@ include_guard()
 use_prebuilt_binary(dictionaries)
 
 add_library( ll::hunspell INTERFACE IMPORTED )
-use_conan_binary(hunspell)
+use_system_binary(hunspell)
 use_prebuilt_binary(libhunspell)
 if (WINDOWS)
   target_link_libraries( ll::hunspell INTERFACE libhunspell)
