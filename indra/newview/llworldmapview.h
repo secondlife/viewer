@@ -80,6 +80,7 @@ public:
     // Pan is in pixels relative to the center of the map.
 	void translatePan( S32 delta_x, S32 delta_y );
     void setPan( S32 x, S32 y, BOOL snap = TRUE );
+    void setPanWithInterpTime(S32 x, S32 y, BOOL snap, F32 interp_time);
 	// Return true if the current scale level is above the threshold for accessing region info
     bool showRegionInfo();
 
@@ -212,6 +213,8 @@ private:
     static F32 sMapScaleSetting;
     static LLVector2 sZoomPivot;
     static LLFrameTimer sZoomTimer;
+
+    F32 mMapIterpTime;
 };
 
 #endif

@@ -1333,9 +1333,9 @@ void LLFloaterWorldMap::centerOnTarget(BOOL animate)
 	}
 	
     F64 map_scale = (F64)mMapView->getScale();
-    mMapView->setPan(-llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
+    mMapView->setPanWithInterpTime(-llfloor((F32)(pos_global.mdV[VX] * map_scale / REGION_WIDTH_METERS)),
                            -llfloor((F32)(pos_global.mdV[VY] * map_scale / REGION_WIDTH_METERS)),
-                           !animate);
+                           !animate, 0.1f);
 	mWaitingForTracker = FALSE;
 }
 
