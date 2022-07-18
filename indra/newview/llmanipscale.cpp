@@ -1251,9 +1251,18 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 			LLVector3 delta_pos;
 			if( !getUniform() )
 			{
-				LLVector3 delta_pos_local = axis * (0.5f * desired_delta_size);
+                // Origin/pivot might not be centered in bounding box.
+                // Find the fraction of manipulator movement that we ought to apply to origin/pivot. 0.5 for centered bbox.
+                F32 start_to_origin_distance = end_local.mV[axis_index] * axis[axis_index];
+                F32 fraction = 1 - (start_to_origin_distance / desired_scale);
+                LLVector3 delta_pos_local = axis * (fraction * desired_delta_size);
+                LLVector3 center_local = LLVector3::zero;
+                // Convert to agent space.
+                LLVector3 delta_pos_agent = cur_bbox.localToAgent( delta_pos_local );
+                LLVector3 center_agent = cur_bbox.localToAgent(center_local);
+                LLVector3 new_center_agent = delta_pos_agent - center_agent;
 				LLVector3d delta_pos_global;
-				delta_pos_global.set(cur_bbox.localToAgent( delta_pos_local ) - cur_bbox.getCenterAgent());
+                delta_pos_global.set(new_center_agent);
 				LLVector3 cur_pos = cur->getPositionEdit();
 
 				if (cur->isRootEdit() && !cur->isAttachment())
