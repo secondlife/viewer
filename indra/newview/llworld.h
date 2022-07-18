@@ -198,8 +198,6 @@ private:
 	U32 mNumOfActiveCachedObjects;
 	U64MicrosecondsImplicit mSpaceTimeUSec;
 
-	BOOL mClassicCloudsEnabled;
-
 	////////////////////////////
 	//
 	// Data for "Fake" objects
