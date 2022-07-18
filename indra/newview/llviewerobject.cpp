@@ -5424,6 +5424,7 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
 	LLQuaternion rot;
 	LLViewerObject* avatar_parent = NULL;
 	LLViewerObject* root_edit = (LLViewerObject*)getRootEdit();
+    LLVector3 min, max;
 	if (root_edit)
 	{
 		avatar_parent = (LLViewerObject*)root_edit->getParent();
@@ -5435,14 +5436,39 @@ LLBBox LLViewerObject::getBoundingBoxAgent() const
 		LLXform* parent_xform = root_edit->mDrawable->getXform()->getParent();
 		position_agent = (getPositionEdit() * parent_xform->getWorldRotation()) + parent_xform->getWorldPosition();
 		rot = getRotationEdit() * parent_xform->getWorldRotation();
+        min = getScale() * -0.5f;
+        max = getScale() * 0.5f;
 	}
 	else
 	{
 		position_agent = getPositionAgent();
 		rot = getRotationRegion();
+        S32 number_of_faces = mDrawable->getNumFaces();
+        if (number_of_faces == 0)
+        {
+            min = getScale() * -0.5f;
+            max = getScale() * 0.5f;
+        }
+        else
+        {   // If there are faces, their min/max might not be centered. They will include any offset pivot point.
+            LLQuaternion irot = ~rot;
+            min = LLVector3::all_one * std::numeric_limits<float>::max();
+            max = LLVector3::all_one * std::numeric_limits<float>::min();
+            for (int face_index = 0; face_index < number_of_faces; face_index++)
+            {
+                LLFace* face = mDrawable->getFace(face_index);
+                LLVector3 face_min{face->mExtents[0]}, face_max{face->mExtents[1]};
+                if (!mDrawable->isActive())
+                {   // After editing, face->mExtents are local. But they are initially loaded in agent coordinates. Go figure.
+                    face_min = (face_min - position_agent) * irot;
+                    face_max = (face_max - position_agent) * irot;
+                }
+                update_min_max(min, max, face_min);
+                update_min_max(min, max, face_max);
+            }
+        }
 	}
-	
-	return LLBBox( position_agent, rot, getScale() * -0.5f, getScale() * 0.5f );
+    return LLBBox(position_agent, rot, min, max);
 }
 
 U32 LLViewerObject::getNumVertices() const
