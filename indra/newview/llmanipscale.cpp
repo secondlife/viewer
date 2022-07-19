@@ -1249,44 +1249,54 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 			cur->setScale(scale, FALSE);
 			rebuild(cur);
 			LLVector3 delta_pos;
-			if( !getUniform() )
+
+            LLVector3d delta_pos_global;
+            LLVector3 cur_pos = cur->getPositionEdit();
+            F32 fraction;
+
+            // Origin/pivot might not be centered in bounding box.
+            // Find the fraction of manipulator movement that we ought to apply to origin/pivot. 0.5 for centered bbox.
+            if( getUniform() )
+            {
+                fraction = start_center_local.mV[axis_index] / -desired_scale * axis.mV[axis_index];
+            }
+            else
 			{
                 // Origin/pivot might not be centered in bounding box.
                 // Find the fraction of manipulator movement that we ought to apply to origin/pivot. 0.5 for centered bbox.
                 F32 manipulator_to_origin_distance = end_local.mV[axis_index] * axis[axis_index];
-                F32 fraction = 1 - (manipulator_to_origin_distance / desired_scale);
-                LLVector3 delta_pos_local = axis * (fraction * desired_delta_size);
-                LLVector3 center_local = LLVector3::zero;
-                // Convert to agent space.
-                LLVector3 delta_pos_agent = cur_bbox.localToAgent( delta_pos_local );
-                LLVector3 center_agent = cur_bbox.localToAgent(center_local);
-                LLVector3 new_center_agent = delta_pos_agent - center_agent;
-				LLVector3d delta_pos_global;
-                delta_pos_global.set(new_center_agent);
-				LLVector3 cur_pos = cur->getPositionEdit();
+                fraction = 1 - (manipulator_to_origin_distance / desired_scale);
+            }
+            LLVector3 delta_pos_local = axis * (fraction * desired_delta_size);
+            LLVector3 center_local = LLVector3::zero;
+            // Convert to agent space.
+            LLVector3 delta_pos_agent = cur_bbox.localToAgent( delta_pos_local );
+            LLVector3 center_agent = cur_bbox.localToAgent(center_local);
+            LLVector3 new_center_agent = delta_pos_agent - center_agent;
+            delta_pos_global.set(new_center_agent);
 
-				if (cur->isRootEdit() && !cur->isAttachment())
-				{
-					LLVector3d new_pos_global = LLWorld::getInstance()->clipToVisibleRegions(selectNode->mSavedPositionGlobal, selectNode->mSavedPositionGlobal + delta_pos_global);
-					cur->setPositionGlobal( new_pos_global );
-				}
-				else
-				{
-					LLXform* parent_xform = cur->mDrawable->getXform()->getParent();
-					LLVector3 new_pos_local;
-					// this works in attachment point space using world space delta
-					if (parent_xform)
-					{
-						new_pos_local = selectNode->mSavedPositionLocal + (LLVector3(delta_pos_global) * ~parent_xform->getWorldRotation());
-					}
-					else
-					{
-						new_pos_local = selectNode->mSavedPositionLocal + LLVector3(delta_pos_global);
-					}
-					cur->setPosition(new_pos_local);
-				}
-				delta_pos = cur->getPositionEdit() - cur_pos;
-			}
+            if (cur->isRootEdit() && !cur->isAttachment())
+            {
+                LLVector3d new_pos_global = LLWorld::getInstance()->clipToVisibleRegions(selectNode->mSavedPositionGlobal, selectNode->mSavedPositionGlobal + delta_pos_global);
+                cur->setPositionGlobal( new_pos_global );
+            }
+            else
+            {
+                LLXform* parent_xform = cur->mDrawable->getXform()->getParent();
+                LLVector3 new_pos_local;
+                // this works in attachment point space using world space delta
+                if (parent_xform)
+                {
+                    new_pos_local = selectNode->mSavedPositionLocal + (LLVector3(delta_pos_global) * ~parent_xform->getWorldRotation());
+                }
+                else
+                {
+                    new_pos_local = selectNode->mSavedPositionLocal + LLVector3(delta_pos_global);
+                }
+                cur->setPosition(new_pos_local);
+            }
+            delta_pos = cur->getPositionEdit() - cur_pos;
+
 			if (cur->isRootEdit() && selectNode->mIndividualSelection)
 			{
 				// counter-translate child objects if we are moving the root as an individual
