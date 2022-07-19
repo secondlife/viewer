@@ -191,6 +191,7 @@ private:
     LLPointer<LLImageJ2C> mEmissiveJ2C;
 
     bool mHasUnsavedChanges;
+    S32 mExpectedUploadCost;
     std::string mMaterialName;
 };
 

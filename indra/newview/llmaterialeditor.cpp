@@ -40,6 +40,7 @@
 #include "llviewertexture.h"
 #include "llsdutil.h"
 #include "llselectmgr.h"
+#include "llstatusbar.h"	// can_afford_transaction()
 #include "llviewerinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
@@ -79,6 +80,7 @@ private:
 LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     : LLPreview(key)
     , mHasUnsavedChanges(false)
+    , mExpectedUploadCost(0)
 {
     const LLInventoryItem* item = getItem();
     if (item)
@@ -366,8 +368,8 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
         upload_texture_count++;
     }
 
-    S32 upload_cost = upload_texture_count * LLAgentBenefitsMgr::current().getTextureUploadCost();
-    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    mExpectedUploadCost = upload_texture_count * LLAgentBenefitsMgr::current().getTextureUploadCost();
+    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
 }
 
 void LLMaterialEditor::setCanSaveAs(BOOL value)
@@ -474,6 +476,14 @@ static U32 write_texture(const LLUUID& id, tinygltf::Model& model)
 
 void LLMaterialEditor::onClickSave()
 {
+    if (!can_afford_transaction(mExpectedUploadCost))
+    {
+        LLSD args;
+        args["COST"] = llformat("%d", mExpectedUploadCost);
+        LLNotificationsUtil::add("ErrorCannotAffordUpload", args);
+        return;
+    }
+
     applyToSelection();
     saveIfNeeded();
 }
@@ -839,6 +849,14 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
 
 void LLMaterialEditor::onClickSaveAs()
 {
+    if (!can_afford_transaction(mExpectedUploadCost))
+    {
+        LLSD args;
+        args["COST"] = llformat("%d", mExpectedUploadCost);
+        LLNotificationsUtil::add("ErrorCannotAffordUpload", args);
+        return;
+    }
+
     LLSD args;
     args["DESC"] = mMaterialName;
 
