@@ -172,6 +172,8 @@ private:
 class LLNewBufferedResourceUploadInfo : public LLResourceUploadInfo
 {
 public:
+    typedef std::function<void(LLUUID newAssetId, LLSD response)> uploadFinish_f;
+
     LLNewBufferedResourceUploadInfo(
         const std::string& buffer,
         const LLAssetID& asset_id,
@@ -185,15 +187,18 @@ public:
         U32 groupPerms,
         U32 everyonePerms,
         S32 expectedCost,
-        bool show_inventory = true);
+        bool show_inventory,
+        uploadFinish_f finish);
 
     virtual LLSD        prepareUpload();
 
 protected:
 
     virtual LLSD        exportTempFile();
+    virtual LLUUID      finishUpload(LLSD &result);
 
 private:
+    uploadFinish_f  mFinishFn;
     std::string mBuffer;
 };
 

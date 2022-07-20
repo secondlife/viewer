@@ -57,6 +57,11 @@
 #include <strstream>
 
 
+const std::string MATERIAL_ALBEDO_DEFAULT_NAME = "Albedo";
+const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
+const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
+const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
+
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
@@ -81,6 +86,7 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     : LLPreview(key)
     , mHasUnsavedChanges(false)
     , mExpectedUploadCost(0)
+    , mUploadingTexturesCount(0)
 {
     const LLInventoryItem* item = getItem();
     if (item)
@@ -644,9 +650,22 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
 
 bool LLMaterialEditor::saveIfNeeded()
 {
+    if (mUploadingTexturesCount > 0)
+    {
+        // upload already in progress
+        // wait until textures upload
+        // will retry saving on callback
+        return true;
+    }
+
+    if (saveTextures() > 0)
+    {
+        // started texture upload
+        setEnabled(false);
+        return true;
+    }
+
     std::string buffer = getEncodedAsset();
-    
-    saveTextures();
 
     const LLInventoryItem* item = getItem();
     // save it out to database
@@ -1179,6 +1198,11 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     {
         mME->mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
         albedo_id = mME->mAlbedoFetched->getID();
+        
+        if (mME->mAlbedoName.empty())
+        {
+            mME->mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+        }
     }
 
     LLUUID normal_id;
@@ -1186,6 +1210,11 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     {
         mME->mNormalFetched->forceToSaveRawImage(0, F32_MAX);
         normal_id = mME->mNormalFetched->getID();
+
+        if (mME->mNormalName.empty())
+        {
+            mME->mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
+        }
     }
 
     LLUUID mr_id;
@@ -1193,6 +1222,11 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     {
         mME->mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
         mr_id = mME->mMetallicRoughnessFetched->getID();
+
+        if (mME->mMetallicRoughnessName.empty())
+        {
+            mME->mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
+        }
     }
 
     LLUUID emissive_id;
@@ -1200,6 +1234,11 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     {
         mME->mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
         emissive_id = mME->mEmissiveFetched->getID();
+
+        if (mME->mEmissiveName.empty())
+        {
+            mME->mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
+        }
     }
 
     mME->setAlbedoId(albedo_id);
@@ -1526,7 +1565,7 @@ void LLMaterialEditor::inventoryChanged(LLViewerObject* object,
 }
 
 
-void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id)
+void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb)
 {
     if (asset_id.isNull()
         || img == nullptr
@@ -1541,7 +1580,6 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
 
     U32 expected_upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
 
-    LLAssetStorage::LLStoreAssetCallback callback;
 
     LLResourceUploadInfo::ptr_t uploadInfo(std::make_shared<LLNewBufferedResourceUploadInfo>(
         buffer,
@@ -1556,28 +1594,114 @@ void LLMaterialEditor::saveTexture(LLImageJ2C* img, const std::string& name, con
         LLFloaterPerms::getGroupPerms("Uploads"),
         LLFloaterPerms::getEveryonePerms("Uploads"),
         expected_upload_cost, 
-        false));
+        false,
+        cb));
 
-    upload_new_resource(uploadInfo, callback, nullptr);
+    upload_new_resource(uploadInfo);
 }
 
-void LLMaterialEditor::saveTextures()
+S32 LLMaterialEditor::saveTextures()
 {
-    if (mAlbedoTextureUploadId == getAlbedoId())
+    S32 work_count = 0;
+    LLSD key = getKey(); // must be locally declared for lambda's capture to work
+    if (mAlbedoTextureUploadId == getAlbedoId() && mAlbedoTextureUploadId.notNull())
     {
-        saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId);
+        mUploadingTexturesCount++;
+        work_count++;
+        saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+        {
+            LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
+            if (me)
+            {
+                if (response["success"].asBoolean())
+                {
+                    me->setAlbedoId(newAssetId);
+                }
+                else
+                {
+                    // To make sure that we won't retry (some failures can cb immediately)
+                    me->setAlbedoId(LLUUID::null);
+                }
+                me->mUploadingTexturesCount--;
+
+                // try saving
+                me->saveIfNeeded();
+            }
+        });
     }
-    if (mNormalTextureUploadId == getNormalId())
+    if (mNormalTextureUploadId == getNormalId() && mNormalTextureUploadId.notNull())
     {
-        saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId);
+        mUploadingTexturesCount++;
+        work_count++;
+        saveTexture(mNormalJ2C, mNormalName, mNormalTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+        {
+            LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
+            if (me)
+            {
+                if (response["success"].asBoolean())
+                {
+                    me->setNormalId(newAssetId);
+                }
+                else
+                {
+                    me->setNormalId(LLUUID::null);
+                }
+                me->setNormalId(newAssetId);
+                me->mUploadingTexturesCount--;
+
+                // try saving
+                me->saveIfNeeded();
+            }
+        });
     }
-    if (mMetallicTextureUploadId == getMetallicRoughnessId())
+    if (mMetallicTextureUploadId == getMetallicRoughnessId() && mMetallicTextureUploadId.notNull())
     {
-        saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId);
+        mUploadingTexturesCount++;
+        work_count++;
+        saveTexture(mMetallicRoughnessJ2C, mMetallicRoughnessName, mMetallicTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+        {
+            LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
+            if (me)
+            {
+                if (response["success"].asBoolean())
+                {
+                    me->setMetallicRoughnessId(newAssetId);
+                }
+                else
+                {
+                    me->setMetallicRoughnessId(LLUUID::null);
+                }
+                me->mUploadingTexturesCount--;
+
+                // try saving
+                me->saveIfNeeded();
+            }
+        });
     }
-    if (mEmissiveTextureUploadId == getEmissiveId())
+
+    if (mEmissiveTextureUploadId == getEmissiveId() && mEmissiveTextureUploadId.notNull())
     {
-        saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId);
+        mUploadingTexturesCount++;
+        work_count++;
+        saveTexture(mEmissiveJ2C, mEmissiveName, mEmissiveTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+        {
+            LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(key));
+            if (me)
+            {
+                if (response["success"].asBoolean())
+                {
+                    me->setEmissiveId(newAssetId);
+                }
+                else
+                {
+                    me->setEmissiveId(LLUUID::null);
+                }
+                me->mUploadingTexturesCount--;
+
+                // try saving
+                me->saveIfNeeded();
+            }
+        });
     }
 
     // discard upload buffers once textures have been saved
@@ -1595,5 +1719,10 @@ void LLMaterialEditor::saveTextures()
     mNormalTextureUploadId.setNull();
     mMetallicTextureUploadId.setNull();
     mEmissiveTextureUploadId.setNull();
+
+    // asset storage can callback immediately, causing a decrease
+    // of mUploadingTexturesCount, report amount of work scheduled
+    // not amount of work remaining
+    return work_count;
 }
 

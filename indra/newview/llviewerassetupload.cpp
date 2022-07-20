@@ -510,11 +510,13 @@ LLNewBufferedResourceUploadInfo::LLNewBufferedResourceUploadInfo(
     U32 groupPerms,
     U32 everyonePerms,
     S32 expectedCost,
-    bool show_inventory) :
-    LLResourceUploadInfo(name, description, compressionInfo,
+    bool show_inventory,
+    uploadFinish_f finish)
+    : LLResourceUploadInfo(name, description, compressionInfo,
         destinationType, inventoryType,
-        nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory),
-    mBuffer(buffer)
+        nextOWnerPerms, groupPerms, everyonePerms, expectedCost, show_inventory)
+    , mBuffer(buffer)
+    , mFinishFn(finish)
 {
     setAssetType(assetType);
     setAssetId(asset_id);
@@ -541,6 +543,18 @@ LLSD LLNewBufferedResourceUploadInfo::exportTempFile()
     file.write((U8*) mBuffer.c_str(), mBuffer.size());
         
     return LLSD();
+}
+
+LLUUID LLNewBufferedResourceUploadInfo::finishUpload(LLSD &result)
+{
+    LLUUID newItemId = LLResourceUploadInfo::finishUpload(result);
+
+    if (mFinishFn)
+    {
+        mFinishFn(result["new_asset"].asUUID(), result);
+    }
+
+    return newItemId;
 }
 
 //=========================================================================

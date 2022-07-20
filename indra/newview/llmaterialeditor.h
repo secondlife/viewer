@@ -63,10 +63,12 @@ public:
 
     void inventoryChanged(LLViewerObject* object, LLInventoryObject::object_list_t* inventory, S32 serial_num, void* user_data) override;
 
-    void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id);
+    typedef std::function<void(LLUUID newAssetId, LLSD response)> upload_callback_f;
+    void saveTexture(LLImageJ2C* img, const std::string& name, const LLUUID& asset_id, upload_callback_f cb);
 
     // save textures to inventory if needed
-    void saveTextures();
+    // returns amount of scheduled uploads
+    S32 saveTextures();
 
     void onClickSave();
 
@@ -191,6 +193,7 @@ private:
     LLPointer<LLImageJ2C> mEmissiveJ2C;
 
     bool mHasUnsavedChanges;
+    S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
     std::string mMaterialName;
 };
