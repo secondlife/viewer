@@ -365,6 +365,11 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
         return mAvailableVRAM;
     }
 
+    U32 getTotalVRAMMegabytes()
+    {
+        return mTotalVRAM;
+    }
+
     /// called by main thread to post work to this window thread
     template <typename CALLABLE>
     void post(CALLABLE&& func)
@@ -415,6 +420,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     HDC mhDC = 0;
 
     std::atomic<U32> mAvailableVRAM;
+    std::atomic<U32> mTotalVRAM;
 
     IDXGIAdapter3* mDXGIAdapter = nullptr;
     LPDIRECT3D9 mD3D = nullptr;
@@ -4544,6 +4550,11 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
     return mWindowThread ? mWindowThread->getAvailableVRAMMegabytes() : 0;
 }
 
+U32 LLWindowWin32::getTotalVRAMMegabytes()
+{
+    return mWindowThread ? mWindowThread->getTotalVRAMMegabytes() : 512;
+}
+
 #endif // LL_WINDOWS
 
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
@@ -4665,6 +4676,7 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
         U32 used_vram = info.CurrentUsage / 1024 / 1024;
 
         mAvailableVRAM = used_vram < target ? target - used_vram : 0;
+        mTotalVRAM = target;
 
         LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
             << "\nBudget: " << info.Budget / 1024 / 1024
@@ -4680,6 +4692,7 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
     else if (mD3DDevice != NULL)
     { // fallback to D3D9
         mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
+        mTotalVRAM = S32(512 * 0.8); // TODO
     }
 
 }

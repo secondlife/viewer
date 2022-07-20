@@ -466,7 +466,8 @@ void LLViewerTexture::initClass()
 }
 
 // tuning params
-const F32 discard_bias_delta = .25f;
+const F32 discard_bias_delta_allocate_per_sec = .05f;
+const F32 discard_bias_delta_free_per_sec = .2f;
 const F32 discard_delta_time = 0.5f;
 const F32 GPU_MEMORY_CHECK_WAIT_TIME = 1.0f;
 // non-const (used externally
@@ -480,49 +481,115 @@ bool LLViewerTexture::isMemoryForTextureLow()
     // Note: we need to figure out a better source for 'min' values,
     // what is free for low end at minimal settings is 'nothing left'
     // for higher end gpus at high settings.
-    const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
+    //const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
     const S32Megabytes MIN_FREE_MAIN_MEMORY(100);
 
     S32Megabytes gpu;
     S32Megabytes physical;
-    getGPUMemoryForTextures(gpu, physical);
+    S32Megabytes gpu_total;
+    S32Megabytes gpu_change;
+    getGPUMemoryForTextures(gpu, physical, gpu_total, gpu_change);
+    S32Megabytes MIN_FREE_TEXTURE_MEMORY = S32Megabytes(0.1f * gpu_total);
+    S32Megabytes MIN_TEXTURE_MEMORY_GAIN = S32Megabytes(-0.05f * gpu);
 
-    return (gpu < MIN_FREE_TEXTURE_MEMORY); // || (physical < MIN_FREE_MAIN_MEMORY);
+    return (gpu < MIN_FREE_TEXTURE_MEMORY || gpu_change < MIN_TEXTURE_MEMORY_GAIN); // || (physical < MIN_FREE_MAIN_MEMORY);
+}
+
+float LLViewerTexture::getBiasRampupSteps()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    //const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(100);
+
+    S32Megabytes gpu;
+    S32Megabytes physical;
+    S32Megabytes gpu_total;
+    S32Megabytes gpu_change;
+    getGPUMemoryForTextures(gpu, physical, gpu_total, gpu_change);
+
+    if (gpu == 0)
+    {
+        return 5.0f;
+    }
+    else if (gpu_change >= 0)
+    {
+        return 10.0f;
+    }
+    else
+    {
+        return llmax(5.0f, -gpu / float(gpu_change));
+    }
+}
+
+float LLViewerTexture::getBiasRampdownSteps()
+{
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+    //const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
+    const S32Megabytes MIN_FREE_MAIN_MEMORY(100);
+
+    S32Megabytes gpu;
+    S32Megabytes physical;
+    S32Megabytes gpu_total;
+    S32Megabytes gpu_change;
+    getGPUMemoryForTextures(gpu, physical, gpu_total, gpu_change);
+    S32Megabytes gpu_used = gpu_total - gpu;
+
+    if (gpu_used == 0)
+    {
+        return 100.0f;
+    }
+    else if (gpu_change <= 0)
+    {
+        return 20.0f;
+    }
+    else
+    {
+        return llmax(10.0f, float(gpu_used) / float(gpu_change));
+    }
 }
 
 //static
 bool LLViewerTexture::isMemoryForTextureSuficientlyFree()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-    const S32Megabytes DESIRED_FREE_TEXTURE_MEMORY(50);
+    //const S32Megabytes DESIRED_FREE_TEXTURE_MEMORY(50);
     const S32Megabytes DESIRED_FREE_MAIN_MEMORY(200);
 
     S32Megabytes gpu;
     S32Megabytes physical;
-    getGPUMemoryForTextures(gpu, physical);
+    S32Megabytes gpu_total;
+    S32Megabytes gpu_change;
+    getGPUMemoryForTextures(gpu, physical, gpu_total, gpu_change);
+    S32Megabytes DESIRED_FREE_TEXTURE_MEMORY = S32Megabytes(0.15f * gpu_total);
 
     return (gpu > DESIRED_FREE_TEXTURE_MEMORY); // && (physical > DESIRED_FREE_MAIN_MEMORY);
 }
 
 //static
-void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical)
+void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical, S32Megabytes &gpu_total, S32Megabytes &gpu_change)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     static LLFrameTimer timer;
 
+    static S32Megabytes last_gpu_res = S32Megabytes(S32_MAX);
     static S32Megabytes gpu_res = S32Megabytes(S32_MAX);
     static S32Megabytes physical_res = S32Megabytes(S32_MAX);
+    static S32Megabytes gpu_tot = S32Megabytes(S32_MAX);
     
     if (timer.getElapsedTimeF32() < GPU_MEMORY_CHECK_WAIT_TIME) //call this once per second.
     {
         gpu = gpu_res;
         physical = physical_res;
+        gpu_total = gpu_tot;
+        gpu_change = gpu_res - last_gpu_res;
         return;
     }
     timer.reset();
 
     {
+        last_gpu_res = gpu_res;
         gpu_res = (S32Megabytes)gViewerWindow->getWindow()->getAvailableVRAMMegabytes();
+        gpu_tot = (S32Megabytes)gViewerWindow->getWindow()->getTotalVRAMMegabytes();
         
         //check main memory, only works for windows and macos.
         LLMemory::updateMemoryInfo();
@@ -530,6 +597,8 @@ void LLViewerTexture::getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &p
 
         gpu = gpu_res;
         physical = physical_res;
+        gpu_total = gpu_tot;
+        gpu_change = gpu_res - last_gpu_res;
     }
 }
 
@@ -547,25 +616,67 @@ void LLViewerTexture::updateClass()
 
 	LLViewerMediaTexture::updateClass();
 
+    // TODO: Test
+    bool evaluated = false;
+
+    const F32 VRAM_USAGE_CHECK_INTERVAL = 3.0f;
 	if(isMemoryForTextureLow())
 	{
-		// Note: isMemoryForTextureLow() uses 1s delay, make sure we waited enough for it to recheck
-		if (sEvaluationTimer.getElapsedTimeF32() > GPU_MEMORY_CHECK_WAIT_TIME)
+		// Note: updateVRAMUsage() uses 3s delay, make sure we waited enough for it to recheck
+        if (sEvaluationTimer.getElapsedTimeF32() > VRAM_USAGE_CHECK_INTERVAL)
 		{
-			sDesiredDiscardBias += discard_bias_delta;
+            // TODO: Test
+#if 1
+            evaluated = true;
+#endif
+            // TODO: Test
+            const F32 available_bias = desired_discard_bias_max - sDesiredDiscardBias;
+            sDesiredDiscardBias += available_bias / getBiasRampupSteps();
+            //sDesiredDiscardBias += discard_bias_delta_free_per_sec * 10.0f / getBiasRampupSteps();
+            //sDesiredDiscardBias += discard_bias_delta_free_per_sec * VRAM_USAGE_CHECK_INTERVAL;
 			sEvaluationTimer.reset();
 		}
 	}
+    // TODO: Test
+#if 0
 	else if (sDesiredDiscardBias > 0.0f
 			 && isMemoryForTextureSuficientlyFree())
+#else
+    else if (isMemoryForTextureSuficientlyFree())
+#endif
 	{
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
+        // TODO: Test
+#if 1
+        static LLFrameTimer free_evaluation_timer;
+		// Note: updateVRAMUsage() uses 3s delay, make sure we waited enough for it to recheck
+        if (free_evaluation_timer.getElapsedTimeF32() > VRAM_USAGE_CHECK_INTERVAL)
+        {
+            evaluated = true;
+            const F32 available_bias = sDesiredDiscardBias - desired_discard_bias_min;
+            sDesiredDiscardBias -= llmax(discard_bias_delta_allocate_per_sec, available_bias / getBiasRampdownSteps());
+            //sDesiredDiscardBias -= discard_bias_delta_allocate_per_sec * VRAM_USAGE_CHECK_INTERVAL;
+			free_evaluation_timer.reset();
+        }
+#else
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
 		{
 			sDesiredDiscardBias -= discard_bias_delta;
 			sEvaluationTimer.reset();
 		}
+#endif
+    // TODO: Test
+#if 1
+    if (evaluated)
+    {
+        LL_WARNS() <<
+            "sDesiredDiscardBias: " << sDesiredDiscardBias <<
+            "sDesiredDiscardScale: " << sDesiredDiscardScale <<
+            "sCameraMovingBias: " << sCameraMovingBias <<
+            LL_ENDL;
+    }
+#endif
 	}
 	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
 

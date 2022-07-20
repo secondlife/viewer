@@ -102,6 +102,7 @@ public:
 	/*virtual*/ void setNativeAspectRatio(F32 ratio) override {}
 
     U32 getAvailableVRAMMegabytes() override { return 4096; }
+    U32 getTotalVRAMMegabytes() override { return 4096; }
 
 	/*virtual*/ void *getPlatformWindow() override { return 0; }
 	/*virtual*/ void bringToFront() override {}
