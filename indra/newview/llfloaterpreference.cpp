@@ -513,6 +513,7 @@ void LLFloaterPreference::saveSettings()
 		if (panel)
 			panel->saveSettings();
 	}
+    saveIgnoredNotifications();
 }	
 
 void LLFloaterPreference::apply()
@@ -629,6 +630,8 @@ void LLFloaterPreference::cancel()
 		gSavedSettings.setString("PresetGraphicActive", mSavedGraphicsPreset);
 		LLPresetsManager::getInstance()->triggerChangeSignal();
 	}
+
+    restoreIgnoredNotifications();
 }
 
 void LLFloaterPreference::onOpen(const LLSD& key)
@@ -3636,4 +3639,29 @@ void LLFloaterPreference::collectSearchableItems()
 		collectChildren( this, ll::prefs::PanelDataPtr(), pRootTabcontainer );
 	}
 	mSearchDataDirty = false;
+}
+
+void LLFloaterPreference::saveIgnoredNotifications()
+{
+    for (LLNotifications::TemplateMap::const_iterator iter = LLNotifications::instance().templatesBegin();
+            iter != LLNotifications::instance().templatesEnd();
+            ++iter)
+    {
+        LLNotificationTemplatePtr templatep = iter->second;
+        LLNotificationFormPtr formp = templatep->mForm;
+
+        LLNotificationForm::EIgnoreType ignore = formp->getIgnoreType();
+        if (ignore <= LLNotificationForm::IGNORE_NO)
+            continue;
+
+        mIgnorableNotifs[templatep->mName] = !formp->getIgnored();
+    }
+}
+
+void LLFloaterPreference::restoreIgnoredNotifications()
+{
+    for (std::map<std::string, bool>::iterator it = mIgnorableNotifs.begin(); it != mIgnorableNotifs.end(); ++it)
+    {
+        LLUI::getInstance()->mSettingGroups["ignores"]->setBOOL(it->first, it->second);
+    }
 }
