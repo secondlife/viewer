@@ -367,6 +367,7 @@ BOOL LLManipScale::handleMouseDownOnPart( S32 x, S32 y, MASK mask )
 	LLSelectMgr::getInstance()->saveSelectedObjectTransform(SELECT_ACTION_TYPE_SCALE);
 	// Route future Mouse messages here preemptively.  (Release on mouse up.)
 	setMouseCapture( TRUE );
+    mLatchFraction = TRUE;
 
 	mHelpTextTimer.reset();
 	sNumTimesHelpTextShown++;
@@ -1252,22 +1253,30 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 
             LLVector3d delta_pos_global;
             LLVector3 cur_pos = cur->getPositionEdit();
-            F32 fraction;
 
             // Origin/pivot might not be centered in bounding box.
             // Find the fraction of manipulator movement that we ought to apply to origin/pivot. 0.5 for centered bbox.
-            if( getUniform() )
-            {
-                fraction = start_center_local.mV[axis_index] / -desired_scale * axis.mV[axis_index];
+            // Do this only on the first tick after each mouse down, because otherwise it accumulates error that makes the drag unstable.
+            if (mLatchFraction) {
+                mLatchFraction = FALSE;
+                if( getUniform() )
+                {
+                    // E.g.: For an object whose origin is in the geometric center: 0 => don't reposition the object.
+                    // For a door whose hinge is on the same face as the one being dragged: 0.5 => reposition by half the movement vector
+                    // For a door whose hinge is on the opposite face: -0.5 => half the distance away from the direction of movement.
+                    mOriginAdjustmentFraction = start_center_local.mV[axis_index] / desired_scale * -axis.mV[axis_index];
+                }
+                else
+                {
+                    F32 manipulator_to_origin_distance = end_local.mV[axis_index] * axis[axis_index];
+                    // E.g., For an object whose origin is in the geometric center: 0.5 => reposition object by half the movement vector.
+                    // For a door whose hinge is on the same face as the one being dragged: 1 => move the hinge along with the drag.
+                    // For a door whose hinge is on the opposite face: 0 => don't reposition the object.
+                    mOriginAdjustmentFraction = 1.0f - (manipulator_to_origin_distance / desired_scale);
+               }
+                LL_DEBUGS("UserInput") << "Origin adjustment fraction: " << mOriginAdjustmentFraction << LL_ENDL;
             }
-            else
-			{
-                // Origin/pivot might not be centered in bounding box.
-                // Find the fraction of manipulator movement that we ought to apply to origin/pivot. 0.5 for centered bbox.
-                F32 manipulator_to_origin_distance = end_local.mV[axis_index] * axis[axis_index];
-                fraction = 1 - (manipulator_to_origin_distance / desired_scale);
-            }
-            LLVector3 delta_pos_local = axis * (fraction * desired_delta_size);
+            LLVector3 delta_pos_local = axis * (mOriginAdjustmentFraction * desired_delta_size);
             LLVector3 center_local = LLVector3::zero;
             // Convert to agent space.
             LLVector3 delta_pos_agent = cur_bbox.localToAgent( delta_pos_local );

@@ -174,6 +174,8 @@ private:
 	S32				mFirstClickX;
 	S32				mFirstClickY;
 	bool			mIsFirstClick;
+    bool            mLatchFraction;
+    F32             mOriginAdjustmentFraction;  // The fraction of scale along the drag axis that the items origin/pivot point should be moved during drag.
 };
 
 #endif  // LL_MANIPSCALE_H
