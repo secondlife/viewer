@@ -2421,6 +2421,13 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			//copy out indices
             S32 num_indices = idx.size() / 2;
+            const S32 indices_to_discard = num_indices % 3;
+            if (indices_to_discard > 0)
+            {
+                // Invalid number of triangle indices
+                LL_WARNS() << "Incomplete triangle discarded from face! Indices count " << num_indices << " was not divisible by 3. face index: " << i << " Total: " << face_count << LL_ENDL;
+                num_indices -= indices_to_discard;
+            }
             face.resizeIndices(num_indices);
 
             if (num_indices > 2 && !face.mIndices)
@@ -2436,8 +2443,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			}
 
 			U16* indices = (U16*) &(idx[0]);
-			U32 count = idx.size()/2;
-			for (U32 j = 0; j < count; ++j)
+            for (U32 j = 0; j < num_indices; ++j)
 			{
 				face.mIndices[j] = indices[j];
 			}
@@ -3829,8 +3835,8 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 #if DEBUG_SILHOUETTE_EDGE_MAP
 
 			//for each triangle
-			U32 count = face.mNumIndices;
-			for (U32 j = 0; j < count/3; j++) {
+            U32 tri_count = face.mNumIndices / 3;
+            for (U32 j = 0; j < tri_count; j++) {
 				//get vertices
 				S32 v1 = face.mIndices[j*3+0];
 				S32 v2 = face.mIndices[j*3+1];
@@ -3848,7 +3854,7 @@ void LLVolume::generateSilhouetteVertices(std::vector<LLVector3> &vertices,
 						continue;
 					}
 
-					if (nIndex >= (S32) count/3) {
+                    if (nIndex >= (S32)tri_count) {
 						continue;
 					}
 					//get neighbor vertices
@@ -5559,6 +5565,8 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 		return;
 	}
 
+    llassert(mNumIndices % 3 == 0);
+
     mOctree = new LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, NULL);
 	new LLVolumeOctreeListener(mOctree);
     // Clear old triangles, but keep the underlying storage pointer
@@ -5567,14 +5575,14 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
     // Initialize all the triangles we need
     mOctreeTriangles.resize(num_triangles);
 
-	for (U32 i = 0; i < mNumIndices; i+= 3)
+    for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
 	{ //for each triangle
-        const U32 triangle_index = i / 3;
+        const U32 index = triangle_index * 3;
         LLVolumeTriangle* tri = &mOctreeTriangles[triangle_index];
 				
-		const LLVector4a& v0 = mPositions[mIndices[i]];
-		const LLVector4a& v1 = mPositions[mIndices[i+1]];
-		const LLVector4a& v2 = mPositions[mIndices[i+2]];
+		const LLVector4a& v0 = mPositions[mIndices[index]];
+		const LLVector4a& v1 = mPositions[mIndices[index + 1]];
+		const LLVector4a& v2 = mPositions[mIndices[index + 2]];
 
 		//store pointers to vertex data
 		tri->mV[0] = &v0;
@@ -5582,9 +5590,9 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 		tri->mV[2] = &v2;
 
 		//store indices
-		tri->mIndex[0] = mIndices[i];
-		tri->mIndex[1] = mIndices[i+1];
-		tri->mIndex[2] = mIndices[i+2];
+		tri->mIndex[0] = mIndices[index];
+		tri->mIndex[1] = mIndices[index + 1];
+		tri->mIndex[2] = mIndices[index + 2];
 
 		//get minimum point
 		LLVector4a min = v0;
@@ -6498,6 +6506,7 @@ void LLVolumeFace::allocateJointIndices(S32 num_verts)
 void LLVolumeFace::resizeIndices(S32 num_indices)
 {
 	ll_aligned_free_16(mIndices);
+    llassert(num_indices % 3 == 0);
 	
 	if (num_indices)
 	{
