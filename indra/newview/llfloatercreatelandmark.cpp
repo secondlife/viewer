@@ -250,6 +250,10 @@ void LLFloaterCreateLandmark::populateFoldersList(const LLUUID &folder_id)
 
 void LLFloaterCreateLandmark::onCommitTextChanges()
 {
+    if (mItem.isNull())
+    {
+        return;
+    }
     std::string current_title_value = mLandmarkTitleEditor->getText();
     std::string item_title_value = mItem->getName();
     std::string current_notes_value = mNotesEditor->getText();
