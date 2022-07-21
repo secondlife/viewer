@@ -371,6 +371,8 @@ void LLModel::setVolumeFaceData(
 	U32 num_verts, 
 	U32 num_indices)
 {
+    llassert(num_indices % 3 == 0);
+
 	LLVolumeFace& face = mVolumeFaces[f];
 
 	face.resizeVertices(num_verts);
