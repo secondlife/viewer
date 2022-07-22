@@ -977,12 +977,13 @@ public:
     
     // This octree stores raw pointer references to triangles in mOctreeTriangles
     LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* mOctree;
-    std::vector<LLVolumeTriangle> mOctreeTriangles;
 
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
 
 private:
+    LLVolumeTriangle* mOctreeTriangles;
+
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createSide(LLVolume* volume, BOOL partial_build = FALSE);

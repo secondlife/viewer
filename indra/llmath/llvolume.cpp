@@ -4707,6 +4707,7 @@ LLVolumeFace::LLVolumeFace() :
 #endif
     mWeightsScrubbed(FALSE),
 	mOctree(NULL),
+    mOctreeTriangles(NULL),
 	mOptimized(FALSE)
 {
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
@@ -4736,8 +4737,9 @@ LLVolumeFace::LLVolumeFace(const LLVolumeFace& src)
     mJointIndices(NULL),
 #endif
     mWeightsScrubbed(FALSE),
-	mOctree(NULL)
-{ 
+    mOctree(NULL),
+    mOctreeTriangles(NULL)
+{
 	mExtents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*3);
 	mCenter = mExtents+2;
 	*this = src;
@@ -4879,8 +4881,8 @@ void LLVolumeFace::freeData()
 
 	delete mOctree;
 	mOctree = NULL;
-    mOctreeTriangles.clear();
-    mOctreeTriangles.shrink_to_fit();
+    delete[] mOctreeTriangles;
+	mOctreeTriangles = NULL;
 }
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
@@ -4890,8 +4892,8 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 	//tree for this face is no longer valid
 	delete mOctree;
 	mOctree = NULL;
-    mOctreeTriangles.clear();
-    mOctreeTriangles.shrink_to_fit();
+    delete[] mOctreeTriangles;
+	mOctreeTriangles = NULL;
 
 	LL_CHECK_MEMORY
 	BOOL ret = FALSE ;
@@ -5569,11 +5571,10 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 
     mOctree = new LLOctreeRoot<LLVolumeTriangle, LLVolumeTriangle*>(center, size, NULL);
 	new LLVolumeOctreeListener(mOctree);
-    // Clear old triangles, but keep the underlying storage pointer
-    mOctreeTriangles.clear();
     const U32 num_triangles = mNumIndices / 3;
     // Initialize all the triangles we need
-    mOctreeTriangles.resize(num_triangles);
+    delete[] mOctreeTriangles; // External code may delete mOctree
+    mOctreeTriangles = new LLVolumeTriangle[num_triangles];
 
     for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
 	{ //for each triangle
