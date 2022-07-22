@@ -27,6 +27,7 @@
 #define PBR_USE_GGX_EMS_HACK       0
 #define PBR_USE_IRRADIANCE_HACK    1
 
+#define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
@@ -477,6 +478,9 @@ void main()
     #endif
     #if DEBUG_PBR_SUN_CONTRIB
         color.rgb = sun_contrib;
+    #endif
+    #if DEBUG_PBR_LIGHT_TYPE
+        color.rgb = vec3(0);
     #endif
         frag_color.rgb = color.rgb; // PBR is done in linear
     }

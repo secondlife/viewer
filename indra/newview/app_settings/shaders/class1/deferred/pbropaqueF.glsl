@@ -25,6 +25,8 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+#define DEBUG_PBR_LIGHT_TYPE 0 // Output Diffuse=0.75, Emissive=0, ORM=0,0,0
+
 #define DEBUG_BASIC         0
 #define DEBUG_VERTEX        0
 #define DEBUG_NORMAL_MAP    0 // Output packed normal map "as is" to diffuse
@@ -120,7 +122,11 @@ void main()
     emissive *= texture2D(emissiveMap, vary_texcoord0.xy).rgb;
 #endif
 
-
+#if DEBUG_PBR_LIGHT_TYPE
+    col.rgb  = vec3(0.75);
+    emissive = vec3(0);
+    spec.rgb = vec3(0);
+#endif
 #if DEBUG_BASIC
     col.rgb = vec3( 1, 0, 1 );
 #endif

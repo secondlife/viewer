@@ -27,6 +27,8 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+#define DEBUG_PBR_LIGHT_TYPE         0
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -103,6 +105,10 @@ void main()
             colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }
+
+#if DEBUG_PBR_LIGHT_TYPE
+        colorDiffuse = vec3(0,0,0.5); colorSpec = vec3(0);
+#endif
 
         final_color = colorDiffuse + colorSpec;
     }
