@@ -26,6 +26,13 @@
 uniform sampler2DRect   normalMap;
 uniform sampler2DRect   depthMap;
 
+// projected lighted params
+uniform mat4 proj_mat; //screen space to light space projector
+uniform vec3 proj_n; // projector normal
+
+// light params
+uniform float size; // light_size
+
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
@@ -50,6 +57,33 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v,
     vh = clamp(dot(v, h), 0.0, 1.0);
 
     lightDist = length(lv);
+}
+
+// In:
+//   light_center
+//   pos
+// Out:
+//   dist
+//   l_dist
+//   lv
+//   proj_tc  Projector Textue Coordinates
+bool clipProjectedLightVars(vec3 light_center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc )
+{
+    lv = light_center - pos.xyz;
+    dist = length(lv);
+    bool clipped = (dist >= size);
+    if ( !clipped )
+    {
+        dist /= size;
+
+        l_dist = -dot(lv, proj_n);
+        vec4 projected_point = (proj_mat * vec4(pos.xyz, 1.0));
+        clipped = (projected_point.z < 0.0);
+        projected_point.xyz /= projected_point.w;
+        proj_tc = projected_point;
+    }
+
+    return clipped;
 }
 
 vec2 getScreenCoordinate(vec2 screenpos)

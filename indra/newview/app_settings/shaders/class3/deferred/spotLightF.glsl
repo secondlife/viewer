@@ -77,6 +77,7 @@ uniform mat4 inv_proj;
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
 vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec2 getScreenXY(vec4 clip_point);
@@ -135,13 +136,13 @@ void main()
     vec2 tc          = getScreenXY(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
 
-    vec3 lv = trans_center.xyz-pos.xyz;
-    float dist = length(lv);
-    if (dist >= size)
+    vec3 lv;
+    vec4 proj_tc;
+    float dist, l_dist;
+    if (clipProjectedLightVars(trans_center, pos, dist, l_dist, lv, proj_tc))
     {
         discard;
     }
-    dist /= size;
 
     float shadow = 1.0;
 
@@ -156,16 +157,6 @@ void main()
     float envIntensity;
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
-
-    float l_dist = -dot(lv, proj_n);
-
-    vec4 proj_tc = (proj_mat * vec4(pos.xyz, 1.0));
-    if (proj_tc.z < 0.0)
-    {
-        discard;
-    }
-
-    proj_tc.xyz /= proj_tc.w;
 
     float fa = falloff+1.0;
     float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
