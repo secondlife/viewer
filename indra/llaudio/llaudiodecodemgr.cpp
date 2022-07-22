@@ -607,36 +607,46 @@ void LLAudioDecodeMgr::Impl::startMoreDecodes()
 
         // Kick off a decode
         mDecodes[decode_id] = LLPointer<LLVorbisDecodeState>(NULL);
-        main_queue->postTo(
-            general_queue,
-            [decode_id]() // Work done on general queue
-            {
-                LLPointer<LLVorbisDecodeState> decode_state = beginDecodingAndWritingAudio(decode_id);
-
-                if (!decode_state)
+        try
+        {
+            main_queue->postTo(
+                general_queue,
+                [decode_id]() // Work done on general queue
                 {
-                    // Audio decode has errored
+                    LLPointer<LLVorbisDecodeState> decode_state = beginDecodingAndWritingAudio(decode_id);
+
+                    if (!decode_state)
+                    {
+                        // Audio decode has errored
+                        return decode_state;
+                    }
+
+                    // Disk write of decoded audio is now in progress off-thread
                     return decode_state;
-                }
+                },
+                [decode_id, this](LLPointer<LLVorbisDecodeState> decode_state) // Callback to main thread
+                mutable {
+                    if (!gAudiop)
+                    {
+                        // There is no LLAudioEngine anymore. This might happen if
+                        // an audio decode is enqueued just before shutdown.
+                        return;
+                    }
 
-                // Disk write of decoded audio is now in progress off-thread
-                return decode_state;
-            },
-            [decode_id, this](LLPointer<LLVorbisDecodeState> decode_state) // Callback to main thread
-            mutable {
-                if (!gAudiop)
-                {
-                    // There is no LLAudioEngine anymore. This might happen if
-                    // an audio decode is enqueued just before shutdown.
-                    return;
-                }
+                    // At this point, we can be certain that the pointer to "this"
+                    // is valid because the lifetime of "this" is dependent upon
+                    // the lifetime of gAudiop.
 
-                // At this point, we can be certain that the pointer to "this"
-                // is valid because the lifetime of "this" is dependent upon
-                // the lifetime of gAudiop.
-
-                enqueueFinishAudio(decode_id, decode_state);
-            });
+                    enqueueFinishAudio(decode_id, decode_state);
+                });
+        }
+        catch (const LLThreadSafeQueueInterrupt&)
+        {
+            // Shutdown
+            // Consider making processQueue() do a cleanup instead
+            // of starting more decodes
+            LL_WARNS() << "Tried to start decoding on shutdown" << LL_ENDL;
+        }
     }
 }
 
