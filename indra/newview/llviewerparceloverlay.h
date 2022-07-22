@@ -88,7 +88,9 @@ private:
 	// This is in parcel rows and columns, not grid rows and columns
 	// Stored in bottom three bits.
 	U8		ownership(S32 row, S32 col) const	
-				{ return 0x7 & mOwnership[row * mParcelGridsPerEdge + col]; }
+				{ return parcelFlags(row, col, (U8)0x7); }
+
+    U8		parcelFlags(S32 row, S32 col, U8 flags) const;
 
 	void	addPropertyLine(std::vector<LLVector3>& vertex_array,
 				std::vector<LLColor4U>& color_array,

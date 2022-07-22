@@ -264,7 +264,7 @@ BOOL LLViewerParcelOverlay::isSoundLocal(const LLVector3& pos) const
 {
 	S32 row =    S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
 	S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
-	return PARCEL_SOUND_LOCAL & mOwnership[row * mParcelGridsPerEdge + column];
+    return parcelFlags(row, column, PARCEL_SOUND_LOCAL);
 }
 
 U8 LLViewerParcelOverlay::ownership( const LLVector3& pos) const
@@ -278,12 +278,19 @@ U8 LLViewerParcelOverlay::parcelLineFlags(const LLVector3& pos) const
 {
     S32 row = S32(pos.mV[VY] / PARCEL_GRID_STEP_METERS);
     S32 column = S32(pos.mV[VX] / PARCEL_GRID_STEP_METERS);
-    return parcelLineFlags(row, column);
+    return parcelFlags(row, column, PARCEL_WEST_LINE | PARCEL_SOUTH_LINE);
 }
 U8 LLViewerParcelOverlay::parcelLineFlags(S32 row, S32 col) const
 {
-    U8 flags = PARCEL_WEST_LINE | PARCEL_SOUTH_LINE;
-    if (row > mParcelGridsPerEdge || col > mParcelGridsPerEdge)
+    return parcelFlags(row, col, PARCEL_WEST_LINE | PARCEL_SOUTH_LINE);
+}
+
+U8 LLViewerParcelOverlay::parcelFlags(S32 row, S32 col, U8 flags) const
+{
+    if (row >= mParcelGridsPerEdge
+        || col >= mParcelGridsPerEdge
+        || row < 0
+        || col < 0)
     {
         LL_WARNS() << "Attempted to get ownership out of region's overlay, row: " << row << " col: " << col << LL_ENDL;
         return flags;
