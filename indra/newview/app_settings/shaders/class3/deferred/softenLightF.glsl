@@ -179,8 +179,7 @@ void main()
     da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
-    vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy);
-
+    vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR sRGB Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
