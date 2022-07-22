@@ -28,6 +28,8 @@
 
 /*[EXTRA_CODE_HERE]*/
 
+#define DEBUG_PBR_LIGHT_TYPE         0
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -201,6 +203,10 @@ void main()
         vec3 colorSpec     = vec3(0);
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+
+  #if DEBUG_PBR_LIGHT_TYPE
+        colorDiffuse = vec3(0.5); colorSpec = vec3(0);
+  #endif
 
         final_color = colorDiffuse + colorSpec;
     }
