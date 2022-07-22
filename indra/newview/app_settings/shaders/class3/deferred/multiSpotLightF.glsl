@@ -44,7 +44,7 @@ uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, M
 uniform samplerCube environmentMap;
 uniform sampler2DRect lightMap;
 uniform sampler2D noiseMap;
-uniform sampler2D projectionMap;
+uniform sampler2D projectionMap; // rgba
 uniform sampler2D lightFunc;
 
 uniform mat4 proj_mat; //screen space to light space
