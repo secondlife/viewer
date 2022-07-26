@@ -86,25 +86,7 @@ vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 cs);
-
-vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
-{
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret.rgb = srgb_to_linear(ret.rgb);
-    vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
-
-    float det = min(lod/(proj_lod*0.5), 1.0);
-
-    float d = min(dist.x, dist.y);
-
-    d *= min(1, d * (proj_lod - lod));
-
-    float edge = 0.25*det;
-
-    ret *= clamp(d/edge, 0.0, 1.0);
-
-    return ret;
-}
+vec4 texture2DLodSpecular(vec2 tc, float lod);
 
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
@@ -261,7 +243,7 @@ void main()
                         stc.x > 0.0 &&
                         stc.y > 0.0)
                     {
-                        final_color += color.rgb * texture2DLodSpecular(projectionMap, stc.xy, (1 - spec.a) * (proj_lod * 0.6)).rgb * shadow * envIntensity;
+                        final_color += color.rgb * texture2DLodSpecular(stc.xy, (1 - spec.a) * (proj_lod * 0.6)).rgb * shadow * envIntensity;
                     }
                 }
             }
