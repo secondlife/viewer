@@ -80,6 +80,8 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
 vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
+vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip_point);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
@@ -93,20 +95,6 @@ vec4 texture2DLodSpecular(sampler2D projectionMap, vec2 tc, float lod)
     float det = min(lod/(proj_lod*0.5), 1.0);
     float d = min(dist.x, dist.y);
     d *= min(1, d * (proj_lod - lod));
-    float edge = 0.25*det;
-    ret *= clamp(d/edge, 0.0, 1.0);
-
-    return ret;
-}
-
-vec4 texture2DLodDiffuse(sampler2D projectionMap, vec2 tc, float lod)
-{
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret.rgb = srgb_to_linear(ret.rgb);
-
-    vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
-    float det = min(lod/(proj_lod*0.5), 1.0);
-    float d = min(dist.x, dist.y);
     float edge = 0.25*det;
     ret *= clamp(d/edge, 0.0, 1.0);
 
@@ -206,12 +194,7 @@ void main()
             {
                 lit = nl * dist_atten * noise;
 
-                float diff = clamp((l_dist-proj_focus)/proj_range, 0.0, 1.0);
-                float lod = diff * proj_lod;
-
-                vec4 plcol = texture2DLodDiffuse(projectionMap, proj_tc.xy, lod);
-
-                dlit = color.rgb * plcol.rgb * plcol.a;
+                dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
 
                 final_color = dlit*lit*diffuse*shadow;
 
