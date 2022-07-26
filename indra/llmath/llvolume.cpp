@@ -4146,13 +4146,13 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 			}
 			else
 			{
-				if (!face.mOctree)
+                if (!face.getOctree())
 				{
 					face.createOctree();
 				}
 			
 				LLOctreeTriangleRayIntersect intersect(start, dir, &face, &closest_t, intersection, tex_coord, normal, tangent_out);
-				intersect.traverse(face.mOctree);
+                intersect.traverse(face.getOctree());
 				if (intersect.mHitFace)
 				{
 					hit_face = i;
@@ -4879,10 +4879,7 @@ void LLVolumeFace::freeData()
 	mJustWeights = NULL;
 #endif
 
-	delete mOctree;
-	mOctree = NULL;
-    delete[] mOctreeTriangles;
-	mOctreeTriangles = NULL;
+    destroyOctree();
 }
 
 BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
@@ -4890,10 +4887,7 @@ BOOL LLVolumeFace::create(LLVolume* volume, BOOL partial_build)
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
 	//tree for this face is no longer valid
-	delete mOctree;
-	mOctree = NULL;
-    delete[] mOctreeTriangles;
-	mOctreeTriangles = NULL;
+    destroyOctree();
 
 	LL_CHECK_MEMORY
 	BOOL ret = FALSE ;
@@ -5562,7 +5556,7 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME
 
-	if (mOctree)
+    if (getOctree())
 	{
 		return;
 	}
@@ -5573,7 +5567,6 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 	new LLVolumeOctreeListener(mOctree);
     const U32 num_triangles = mNumIndices / 3;
     // Initialize all the triangles we need
-    delete[] mOctreeTriangles; // External code may delete mOctree
     mOctreeTriangles = new LLVolumeTriangle[num_triangles];
 
     for (U32 triangle_index = 0; triangle_index < num_triangles; ++triangle_index)
@@ -5634,6 +5627,19 @@ void LLVolumeFace::createOctree(F32 scaler, const LLVector4a& center, const LLVe
 		LLVolumeOctreeValidate validate;
 		validate.traverse(mOctree);
 	}
+}
+
+void LLVolumeFace::destroyOctree()
+{
+    delete mOctree;
+    mOctree = NULL;
+    delete[] mOctreeTriangles;
+    mOctreeTriangles = NULL;
+}
+
+const LLOctreeNode<LLVolumeTriangle, LLVolumeTriangle*>* LLVolumeFace::getOctree() const
+{
+    return mOctree;
 }
 
 

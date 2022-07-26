@@ -3223,14 +3223,14 @@ void renderRaycast(LLDrawable* drawablep)
 					{
 						F32 t = 1.f;
 
-						if (!face.mOctree)
+                        if (!face.getOctree())
 						{
 							((LLVolumeFace*) &face)->createOctree(); 
 						}
 
 						LLRenderOctreeRaycast render(start, dir, &t);
 					
-						render.traverse(face.mOctree);
+                        render.traverse(face.getOctree());
 					}
 
 					gGL.popMatrix();		

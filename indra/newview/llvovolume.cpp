@@ -4976,9 +4976,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
             if (rebuild_face_octrees)
 			{
-    			delete dst_face.mOctree;
-				dst_face.mOctree = NULL;
-
+                dst_face.destroyOctree();
                 dst_face.createOctree();
 			}
 		}
