@@ -290,7 +290,7 @@ vec2 getGGX( vec2 brdfPoint )
 float getLightAttenuationPointSpot(float range, float distance)
 {
 #if 1
-    return range;
+    return distance;
 #else
     float range2 = pow(range, 2.0);
 
