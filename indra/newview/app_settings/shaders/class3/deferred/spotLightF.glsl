@@ -29,6 +29,10 @@
 /*[EXTRA_CODE_HERE]*/
 
 #define DEBUG_PBR_LIGHT_TYPE         0
+#define DEBUG_PBR_SPOT               0
+#define DEBUG_PBR_NL                 0 // monochome area effected by light
+#define DEBUG_PBR_SPOT_DIFFUSE       0
+#define DEBUG_PBR_SPOT_SPECULAR      0
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -142,6 +146,7 @@ void main()
     vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
     vec4 spec    = texture2DRect(specularRect, tc);
     vec3 dlit    = vec3(0, 0, 0);
+    vec3 slit    = vec3(0, 0, 0);
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
