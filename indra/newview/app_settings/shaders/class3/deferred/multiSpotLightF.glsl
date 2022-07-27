@@ -28,7 +28,15 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE         0
+#define DEBUG_PBR_LIGHT_TYPE         0 // Ouput gray if PBR multiSpot lights object
+#define DEBUG_PBR_SPOT               0
+#define DEBUG_PBR_SPOT_DIFFUSE       0 // PBR diffuse lit
+#define DEBUG_PBR_SPOT_SPECULAR      0 // PBR spec lit
+
+#define DEBUG_SPOT_DIFFUSE           0
+#define DEBUG_SPOT_NL                0 // monochome area effected by light
+#define DEBUG_SPOT_SPEC_POS          0
+#define DEBUG_SPOT_REFLECTION        0
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -247,7 +255,21 @@ void main()
                     }
                 }
             }
+  #if DEBUG_SPOT_SPEC_POS
+            final_color = pos + ref * dot(pdelta, proj_n)/ds;
+  #endif
+  #if DEBUG_SPOT_REFLECTION
+            final_color = ref;
+  #endif
         }
+
+#if DEBUG_SPOT_NL
+    final_color =vec3(nl);
+#endif
+#if DEBUG_SPOT_DIFFUSE
+    final_color = vec3(nl * dist_atten * noise);
+#endif
+
     }
 
     //not sure why, but this line prevents MATBUG-194
