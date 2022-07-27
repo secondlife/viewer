@@ -1068,13 +1068,14 @@ void LLViewerParcelOverlay::renderPropertyLinesOnMinimap(F32 scale_pixels_per_me
     gGL.color4fv(parcel_outline_color);
     for (S32 i = 0; i < GRIDS_PER_EDGE + 1; i++)
     {
-        F32 bottom = region_bottom + (i * map_parcel_width);
-        F32 top    = bottom + map_parcel_width;
+        const F32 bottom = region_bottom + (i * map_parcel_width);
+        const F32 top    = bottom + map_parcel_width;
         for (S32 j = 0; j < GRIDS_PER_EDGE + 1; j++)
         {
-            F32 left    = region_left + (j * map_parcel_width);
-            F32 right   = left + map_parcel_width;
-            U8  overlay = mOwnership[(i * GRIDS_PER_EDGE) + j];
+            const F32  left               = region_left + (j * map_parcel_width);
+            const F32  right              = left + map_parcel_width;
+            const bool is_region_boundary = i == GRIDS_PER_EDGE || j == GRIDS_PER_EDGE;
+            const U8   overlay            = is_region_boundary ? 0 : mOwnership[(i * GRIDS_PER_EDGE) + j];
             // The property line vertices are three-dimensional, but here we only care about the x and y coordinates, as we are drawing on a
             // 2D map
             const bool has_left   = i != GRIDS_PER_EDGE && (j == GRIDS_PER_EDGE || (overlay & PARCEL_WEST_LINE));
