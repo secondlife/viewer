@@ -495,7 +495,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
     return (gpu < MIN_FREE_TEXTURE_MEMORY || gpu_change < MIN_TEXTURE_MEMORY_GAIN); // || (physical < MIN_FREE_MAIN_MEMORY);
 }
 
-float LLViewerTexture::getBiasRampupSteps()
+float LLViewerTexture::getBiasRampupSteps(bool& oom)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
     //const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20);
@@ -509,6 +509,7 @@ float LLViewerTexture::getBiasRampupSteps()
 
     if (gpu == 0)
     {
+        oom = true;
         return 5.0f;
     }
     else if (gpu_change >= 0)
@@ -517,7 +518,7 @@ float LLViewerTexture::getBiasRampupSteps()
     }
     else
     {
-        return llmax(5.0f, -gpu / float(gpu_change));
+        return llmax(5.0f, llmin(10.0f, -gpu / float(gpu_change)));
     }
 }
 
@@ -607,6 +608,9 @@ void LLViewerTexture::updateClass()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	sCurrentTime = gFrameTimeSeconds;
+    static F32 discard_bias_delta = 0;
+    F32 new_desired_discard_bias = sDesiredDiscardBias;
+    bool target_bias_changed = false;
 
 	LLTexturePipelineTester* tester = (LLTexturePipelineTester*)LLMetricPerformanceTesterBasic::getTester(sTesterName);
 	if (tester)
@@ -620,7 +624,8 @@ void LLViewerTexture::updateClass()
     bool evaluated = false;
 
     const F32 VRAM_USAGE_CHECK_INTERVAL = 3.0f;
-	if(isMemoryForTextureLow())
+    bool oom = false;
+    if(isMemoryForTextureLow())
 	{
 		// Note: updateVRAMUsage() uses 3s delay, make sure we waited enough for it to recheck
         if (sEvaluationTimer.getElapsedTimeF32() > VRAM_USAGE_CHECK_INTERVAL)
@@ -631,15 +636,16 @@ void LLViewerTexture::updateClass()
 #endif
             // TODO: Test
             const F32 available_bias = desired_discard_bias_max - sDesiredDiscardBias;
-            sDesiredDiscardBias += available_bias / getBiasRampupSteps();
-            //sDesiredDiscardBias += discard_bias_delta_free_per_sec * 10.0f / getBiasRampupSteps();
-            //sDesiredDiscardBias += discard_bias_delta_free_per_sec * VRAM_USAGE_CHECK_INTERVAL;
+            new_desired_discard_bias += available_bias / getBiasRampupSteps(oom);
+            //new_desired_discard_bias += discard_bias_delta_free_per_sec * 10.0f / getBiasRampupSteps();
+            //new_desired_discard_bias += discard_bias_delta_free_per_sec * VRAM_USAGE_CHECK_INTERVAL;
+            target_bias_changed = true;
 			sEvaluationTimer.reset();
 		}
 	}
     // TODO: Test
 #if 0
-	else if (sDesiredDiscardBias > 0.0f
+	else if (new_desired_discard_bias > 0.0f
 			 && isMemoryForTextureSuficientlyFree())
 #else
     else if (isMemoryForTextureSuficientlyFree())
@@ -655,30 +661,38 @@ void LLViewerTexture::updateClass()
         {
             evaluated = true;
             const F32 available_bias = sDesiredDiscardBias - desired_discard_bias_min;
-            sDesiredDiscardBias -= llmax(discard_bias_delta_allocate_per_sec, available_bias / getBiasRampdownSteps());
-            //sDesiredDiscardBias -= discard_bias_delta_allocate_per_sec * VRAM_USAGE_CHECK_INTERVAL;
+            new_desired_discard_bias -= llmax(discard_bias_delta_allocate_per_sec, available_bias / getBiasRampdownSteps());
+            //new_desired_discard_bias -= discard_bias_delta_allocate_per_sec * VRAM_USAGE_CHECK_INTERVAL;
+            target_bias_changed = true;
 			free_evaluation_timer.reset();
         }
 #else
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
 		{
-			sDesiredDiscardBias -= discard_bias_delta;
+			new_desired_discard_bias -= discard_bias_delta;
 			sEvaluationTimer.reset();
 		}
 #endif
     // TODO: Test
-#if 1
-    if (evaluated)
-    {
-        LL_WARNS() <<
-            "sDesiredDiscardBias: " << sDesiredDiscardBias <<
-            "sDesiredDiscardScale: " << sDesiredDiscardScale <<
-            "sCameraMovingBias: " << sCameraMovingBias <<
-            LL_ENDL;
-    }
-#endif
 	}
-	sDesiredDiscardBias = llclamp(sDesiredDiscardBias, desired_discard_bias_min, desired_discard_bias_max);
+    if (target_bias_changed)
+    {
+        new_desired_discard_bias = llclamp(new_desired_discard_bias, desired_discard_bias_min, desired_discard_bias_max);
+        if (!oom)
+        {
+            discard_bias_delta = (new_desired_discard_bias - sDesiredDiscardBias) / VRAM_USAGE_CHECK_INTERVAL;
+        }
+        else
+        {
+            discard_bias_delta = 0;
+            sDesiredDiscardBias = new_desired_discard_bias;
+        }
+    }
+    if (sCurrentTime > 0)
+    {
+        // Smooth out framerate changes due to texture resolution changes
+        sDesiredDiscardBias += discard_bias_delta / sCurrentTime;
+    }
 
 	LLViewerTexture::sFreezeImageUpdates = sDesiredDiscardBias > (desired_discard_bias_max - 1.0f);
 }

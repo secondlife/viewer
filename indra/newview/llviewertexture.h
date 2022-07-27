@@ -189,7 +189,7 @@ private:
 	virtual void switchToCachedImage();
 	
 	static bool isMemoryForTextureSuficientlyFree();
-    static float getBiasRampupSteps();
+    static float getBiasRampupSteps(bool& oom);
     static float getBiasRampdownSteps();
     static void getGPUMemoryForTextures(S32Megabytes &gpu, S32Megabytes &physical, S32Megabytes &gpu_total, S32Megabytes &gpu_change);
 
