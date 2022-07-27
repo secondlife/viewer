@@ -3581,7 +3581,20 @@ void LLViewerMediaImpl::calculateInterest()
 			LLVector3d global_delta = agent_global - obj_global ;
 			mProximityDistance = global_delta.magVecSquared();  // use distance-squared because it's cheaper and sorts the same.
 
-			LLVector3d camera_delta = gAgentCamera.getCameraPositionGlobal() - obj_global;
+            static LLUICachedControl<S32> mEarLocation("MediaSoundsEarLocation", 0);
+            LLVector3d ear_position;
+            switch(mEarLocation)
+            {
+            case 0:
+            default:
+                ear_position = gAgentCamera.getCameraPositionGlobal();
+                break;
+
+            case 1:
+                ear_position = agent_global;
+                break;
+            }
+            LLVector3d camera_delta = ear_position - obj_global;
 			mProximityCamera = camera_delta.magVec();
 		}
 	}
