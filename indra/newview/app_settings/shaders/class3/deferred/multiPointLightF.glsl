@@ -97,13 +97,16 @@ void main()
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
             vec3  lightColor = light_col[ light_idx ].rgb;
+            float falloff    = light_col[ light_idx ].a;
             float lightSize  = light    [ light_idx ].w;
             vec3  lv         =(light    [ light_idx ].xyz - pos);
             calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
             if (nl > 0.0 || nv > 0.0)
             {
-                vec3 intensity = getLightIntensityPoint(lightColor, lightSize, lightDist);
+                float dist = lightDist / lightSize;
+                float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+                vec3 intensity = dist_atten * getLightIntensityPoint(lightColor, lightSize, lightDist);
                 colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
                 colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
             }
