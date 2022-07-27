@@ -1625,7 +1625,14 @@ bool LLVivoxVoiceClient::requestParcelVoiceInfo()
     }
     else
     {
-        LL_WARNS("Voice") << "No voice credentials" << LL_ENDL;
+        if (LLViewerParcelMgr::getInstance()->allowAgentVoice())
+        {
+            LL_WARNS("Voice") << "No voice credentials" << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("Voice") << "No voice credentials" << LL_ENDL;
+        }
     }
 
     // set the spatial channel.  If no voice credentials or uri are 
