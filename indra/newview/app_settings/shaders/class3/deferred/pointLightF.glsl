@@ -88,6 +88,9 @@ void main()
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
+    float dist = lightDist / size;
+    float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         vec3 colorDiffuse  = vec3(0);
@@ -101,7 +104,7 @@ void main()
 
         if (nl > 0.0 || nv > 0.0)
         {
-            vec3 intensity = getLightIntensityPoint(color, size, lightDist);
+            vec3 intensity = dist_atten * getLightIntensityPoint(color, size, lightDist);
             colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }
@@ -126,8 +129,6 @@ void main()
             discard;
         }
 
-        float fa = falloff+1.0;
-        float dist_atten = clamp(1.0-(dist-1.0*(1.0-fa))/fa, 0.0, 1.0);
         dist_atten *= dist_atten;
         dist_atten *= 2.0;
 

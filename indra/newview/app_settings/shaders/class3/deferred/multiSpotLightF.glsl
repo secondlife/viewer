@@ -135,14 +135,7 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity);
 
-    float fa = falloff+1.0;
-    float dist_atten = min(1.0-(dist-1.0*(1.0-fa))/fa, 1.0);
-    dist_atten *= dist_atten;
-    dist_atten *= 2.0;
-    if (dist_atten <= 0.0)
-    {
-        discard;
-    }
+    float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
 
     lv = proj_origin-pos.xyz;
     vec3  h, l, v = -normalize(pos);
@@ -169,6 +162,13 @@ void main()
     }
     else
     {
+        dist_atten *= dist_atten;
+        dist_atten *= 2.0;
+        if (dist_atten <= 0.0)
+        {
+            discard;
+        }
+
         float noise = texture2D(noiseMap, tc/128.0).b;
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&
