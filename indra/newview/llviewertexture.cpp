@@ -518,7 +518,9 @@ float LLViewerTexture::getBiasRampupSteps(bool& oom)
     }
     else
     {
-        return llmax(5.0f, llmin(10.0f, -gpu / float(gpu_change)));
+        float overestimated_gpu_change = llmin(float(gpu_change), -0.005f * (float(gpu_total)));
+        return llmax(5.0f, -gpu / float(overestimated_gpu_change));
+        //return llmax(3.0f, llmin(10.0f, -gpu / float(overestimated_gpu_change)));
     }
 }
 
@@ -664,7 +666,7 @@ void LLViewerTexture::updateClass()
         {
             evaluated = true;
             const F32 available_bias = sDesiredDiscardBias - desired_discard_bias_min;
-            new_desired_discard_bias -= llmax(discard_bias_delta_allocate_per_sec, available_bias / getBiasRampdownSteps());
+            new_desired_discard_bias -= available_bias / getBiasRampdownSteps();
             //new_desired_discard_bias -= discard_bias_delta_allocate_per_sec * VRAM_USAGE_CHECK_INTERVAL;
             target_bias_changed = true;
 			free_evaluation_timer.reset();
