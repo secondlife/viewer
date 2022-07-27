@@ -161,7 +161,53 @@ void main()
         vec3 colorSpec     = vec3(0);
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+        float metal        = packedORM.b;
 
+//        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+//        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
+        if (nl > 0.0)
+        {
+            vec3 c_diff, reflect0, reflect90;
+            float alphaRough, specWeight;
+            initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+            dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
+            slit = getProjectedLightSpecularColor( pos, n );
+
+//          vec3 intensity = getLightIntensitySpot( color, size, lightDist, v );
+            colorDiffuse = shadow * dlit * nl * dist_atten;
+            colorSpec    = shadow * slit * nl * dist_atten;
+
+//          colorDiffuse *= BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
+//          colorSpec    *= BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+
+  #if DEBUG_PBR_SPOT_DIFFUSE
+            colorDiffuse = dlit.rgb; colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_SPOT_SPECULAR
+            colorDiffuse = vec3(0); colorSpec = slit.rgb;
+  #endif
+  #if DEBUG_PBR_SPOT
+            colorDiffuse = dlit; colorSpec = vec3(0);
+            colorDiffuse *= nl;
+            colorDiffuse *= shadow;
+  #endif
+
+  #if DEBUG_SPOT_SPEC_POS
+            colorDiffuse = pos + ref * dot(pdelta, proj_n)/ds; colorSpec = vec3(0);
+  #endif
+  #if DEBUG_SPOT_REFLECTION
+            colorDiffuse = ref; colorSpec = vec3(0);
+  #endif
+
+        }
+
+  #if DEBUG_SPOT_DIFFUSE
+        colorDiffuse = vec3(nl * dist_atten);
+  #endif
+  #if DEBUG_SPOT_NL
+        colorDiffuse = vec3(nl); colorSpec = vec3(0);
+  #endif
   #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0.5); colorSpec = vec3(0);
   #endif
