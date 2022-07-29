@@ -105,6 +105,17 @@ void LLModel::offsetMesh( const LLVector3& pivotPoint )
 			pos[i].add( pivot );
 		}
 	}
+    for (U32 hull_index = 0; hull_index < mPhysics.mHull.size(); ++hull_index)
+    {
+        for (U32 vertex_index = 0; vertex_index < mPhysics.mHull[hull_index].size(); ++vertex_index)
+        {
+            mPhysics.mHull[hull_index][vertex_index] += pivotPoint;
+        }
+    }
+    for (U32 vertex_index = 0; vertex_index < mPhysics.mBaseHull.size(); ++vertex_index)
+    {
+        mPhysics.mBaseHull[vertex_index] += pivotPoint;
+    }
 }
 
 void LLModel::optimizeVolumeFaces()
