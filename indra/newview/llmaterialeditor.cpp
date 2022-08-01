@@ -1343,18 +1343,26 @@ void LLMaterialEditor::importMaterial()
 
 void LLMaterialEditor::applyToSelection()
 {
-    // Todo: associate with a specific 'selection' instead
-    // of modifying something that is selected
-    // This should be disabled when working from agent's
-    // inventory and for initial upload
+    // Todo: fix this, this is a hack, not a proper live preview
     LLViewerObject* objectp = LLSelectMgr::instance().getSelection()->getFirstObject();
-    if (objectp && objectp->getVolume())
+    if (objectp && objectp->getVolume() && objectp->permModify())
     {
         LLGLTFMaterial* mat = new LLGLTFMaterial();
         getGLTFMaterial(mat);
         LLVOVolume* vobjp = (LLVOVolume*)objectp;
         for (int i = 0; i < vobjp->getNumTEs(); ++i)
         {
+            // this is here just to prevent material from immediately resetting
+            if (mAssetID.notNull())
+            {
+                vobjp->setRenderMaterialID(i, mAssetID);
+            }
+            else
+            {
+                const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
+                vobjp->setRenderMaterialID(i, placeholder);
+            }
+
             vobjp->getTE(i)->setGLTFMaterial(mat);
             vobjp->updateTEMaterialTextures(i);
         }
