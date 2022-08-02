@@ -6188,7 +6188,7 @@ void LLVivoxVoiceClient::clearSessionHandle(const sessionStatePtr_t &session)
 {
     if (session)
     {
-        if (session->mHandle.empty())
+        if (!session->mHandle.empty())
         {
             sessionMap::iterator iter = mSessionsByHandle.find(session->mHandle);
             if (iter != mSessionsByHandle.end())
