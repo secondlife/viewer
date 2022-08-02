@@ -555,8 +555,6 @@ private:
     virtual void clear();
     virtual void reset();
 
-
-
 private:
     // must precede mName; see LLEventPump::LLEventPump()
     LLHandle<LLEventPumps> mRegistry;

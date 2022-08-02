@@ -13,6 +13,7 @@
 #if ! defined(LL_LOCKSTATIC_H)
 #define LL_LOCKSTATIC_H
 
+#include "llerror.h"
 #include "mutex.h"                  // std::unique_lock
 
 namespace llthread
@@ -30,9 +31,14 @@ public:
         mData(getStatic()),
         mLock(mData->mMutex)
     {}
-    Static* get() const { return mData; }
+    Static* get() const
+    {
+        llassert(mData);
+        return mData;
+    }
     operator Static*() const { return get(); }
-    Static* operator->() const { return get(); }
+    Static* operator->() { return get(); }
+    Static& operator*() { return *get(); }
     // sometimes we must explicitly unlock...
     void unlock()
     {
