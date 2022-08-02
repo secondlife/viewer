@@ -245,7 +245,7 @@
              layout="topleft"
              left_delta="0"
              top_pad="5"
-             max_val="100"
+             max_val="1"
              name="metalness factor"
             width="64"
              />
@@ -270,7 +270,8 @@
                layout="topleft"
                left_delta="0"
                top_pad="5"
-               max_val="100"
+               
+               max_val="1"
                name="roughness factor"
               width="64"
              />
