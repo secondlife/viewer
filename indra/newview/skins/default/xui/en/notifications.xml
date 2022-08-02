@@ -9628,7 +9628,7 @@ Do you wish to continue?
     The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh.
     <tag>confirm</tag>
     <usetemplate
-     ignoretext="The selected object affects the navmesh.  Changing it to a Flexible Path will remove it from the navmesh."
+     ignoretext="The selected object affects the navmesh. Changing it to a Flexible Path will remove it from the navmesh."
      name="okcancelignore"
      notext="Cancel"
      yestext="OK"/>
