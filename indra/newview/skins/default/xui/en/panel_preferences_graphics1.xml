@@ -232,34 +232,6 @@
   </text>
 
   <check_box
-    control_name="WindLightUseAtmosShaders"
-    height="16"
-    initial_value="true"
-    label="Atmospheric shaders"
-    layout="topleft"
-    left="30"
-    name="WindLightUseAtmosShaders"
-    top_delta="24"
-    width="280">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
-  <check_box
-    control_name="RenderDeferred"
-    height="16"
-    initial_value="true"
-    label="Advanced Lighting Model"
-    layout="topleft"
-    left="30"
-    name="UseLightShaders"
-    top_delta="24"
-    width="256">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
-  <check_box
     control_name="RenderPBR"
     height="16"
     initial_value="true"

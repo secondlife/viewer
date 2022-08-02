@@ -9630,19 +9630,19 @@
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
 
   <key>RenderDeferred</key>
   <map>
     <key>Comment</key>
-    <string>Use deferred rendering pipeline (Advanced Lighting Model).</string>
+    <string>DEPRECATED (only true supported) - Use deferred rendering pipeline (Advanced Lighting Model).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Boolean</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1</integer>
   </map>
 
   <key>RenderDeferredSun</key>
@@ -10261,7 +10261,7 @@
     <key>RenderObjectBump</key>
     <map>
       <key>Comment</key>
-      <string>Show bumpmapping on primitives</string>
+      <string>DEPRECATED (only TRUE supported) Show bumpmapping on primitives</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -14944,7 +14944,7 @@
     <key>WindLightUseAtmosShaders</key>
     <map>
       <key>Comment</key>
-      <string>Whether to enable or disable WindLight atmospheric shaders.</string>
+      <string>DEPRECATED (only true supported) - Whether to enable or disable WindLight atmospheric shaders.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

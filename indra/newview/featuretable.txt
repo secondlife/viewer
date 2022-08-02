@@ -1,4 +1,4 @@
-version 34
+version 35
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -44,7 +44,6 @@ RenderGamma					1	0
 RenderGlowResolutionPow		1	9
 RenderGround				1	1
 RenderMaxPartCount			1	8192
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
@@ -63,6 +62,7 @@ Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
 RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
+RenderPBR                   1   1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
@@ -89,15 +89,13 @@ RenderFlexTimeFactor		1	0
 RenderGlowResolutionPow		1	8
 RenderLocalLights			1	0
 RenderMaxPartCount			1	0
-RenderObjectBump			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	0
 RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	0
-RenderDeferred				1	0
+RenderPBR                   1   0
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
@@ -117,7 +115,6 @@ RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	8
 RenderMaxPartCount			1	2048
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
@@ -125,8 +122,7 @@ RenderTerrainLODFactor		1	1.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	0
-RenderDeferred				1	0
+RenderPBR                   1   0
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
@@ -146,7 +142,6 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
@@ -154,8 +149,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	1
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
@@ -175,7 +168,6 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
@@ -183,8 +175,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	1
-RenderDeferred				1	1
 RenderDeferredSSAO			1	0
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
@@ -204,7 +194,6 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
@@ -212,8 +201,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	1
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	0
@@ -233,7 +220,6 @@ RenderFarClip				1	128
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
-RenderObjectBump			1	1
 RenderLocalLights			1	1
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
@@ -241,8 +227,6 @@ RenderTerrainLODFactor		1	2.0
 RenderTransparentWater		1	1
 RenderTreeLODFactor			1	0.5
 RenderVolumeLODFactor		1	1.125
-WindLightUseAtmosShaders	1	1
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
@@ -262,7 +246,6 @@ RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderLocalLights			1	1
 RenderMaxPartCount			1	8192
-RenderObjectBump			1	1
 RenderReflectionDetail		1	4
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	2.0
@@ -271,7 +254,6 @@ RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
 WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
-RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderUseAdvancedAtmospherics 1 0
 RenderShadowDetail			1	2
@@ -282,8 +264,8 @@ RenderFSAASamples			1	2
 //
 list Unknown
 RenderShadowDetail			1	0
-RenderDeferred				1	0
 RenderDeferredSSAO			1	0
+RenderPBR                   1   0
 RenderUseAdvancedAtmospherics 1 0
 
 //
@@ -300,15 +282,13 @@ RenderAnisotropic			1	0
 RenderAvatarCloth			0	0
 RenderAvatarMaxNonImpostors 1	16
 RenderAvatarMaxComplexity          1	80000
-RenderObjectBump			0	0
 RenderLocalLights			1	0
 RenderMaxPartCount			1	1024
 RenderTerrainDetail 		1	0
 RenderReflectionDetail		0	0
-WindLightUseAtmosShaders	0	0
-RenderDeferred				0	0
 RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
+RenderPBR                   1   0
 
 list Intel
 RenderAnisotropic			1	0

@@ -850,7 +850,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
         gCubeSnapshot = TRUE;
         mRT = &mAuxillaryRT;
         U32 res = LL_REFLECTION_PROBE_RESOLUTION * 2;
-        allocateScreenBuffer(res, res, 0);
+        allocateScreenBuffer(res, res, samples);
         mRT = &mMainRT;
         gCubeSnapshot = FALSE;
     }
