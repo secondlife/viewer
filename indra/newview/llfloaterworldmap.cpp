@@ -45,6 +45,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"		// getTypedInstance()
 #include "llfocusmgr.h"
+#include "lliconctrl.h"
 #include "llinventoryfunctions.h"
 #include "llinventorymodel.h"
 #include "llinventorymodelbackgroundfetch.h"
@@ -306,6 +307,8 @@ BOOL LLFloaterWorldMap::postBuild()
 	
     F32 slider_zoom = mMapView->getZoom();
     getChild<LLUICtrl>("zoom slider")->setValue(slider_zoom);
+    
+    getChild<LLPanel>("expand_btn_panel")->setMouseDownCallback(boost::bind(&LLFloaterWorldMap::onExpandCollapseBtn, this));
 	
 	setDefaultBtn(NULL);
 	
@@ -1296,6 +1299,22 @@ void LLFloaterWorldMap::onCopySLURL()
 	args["SLURL"] = mSLURL.getSLURLString();
 	
 	LLNotificationsUtil::add("CopySLURL", args);
+}
+
+void LLFloaterWorldMap::onExpandCollapseBtn()
+{
+    LLLayoutStack* floater_stack = getChild<LLLayoutStack>("floater_map_stack");
+    LLLayoutPanel* controls_panel = getChild<LLLayoutPanel>("controls_lp");
+    
+    bool toggle_collapse = !controls_panel->isCollapsed();
+    floater_stack->collapsePanel(controls_panel, toggle_collapse);
+    floater_stack->updateLayout();
+   
+    std::string image_name = getString(toggle_collapse ? "expand_icon" : "collapse_icon");
+    std::string tooltip = getString(toggle_collapse ? "expand_tooltip" : "collapse_tooltip");
+    getChild<LLIconCtrl>("expand_collapse_icon")->setImage(LLUI::getUIImage(image_name));
+    getChild<LLIconCtrl>("expand_collapse_icon")->setToolTip(tooltip);
+    getChild<LLPanel>("expand_btn_panel")->setToolTip(tooltip);
 }
 
 // protected

@@ -107,6 +107,14 @@ void LLModel::offsetMesh( const LLVector3& pivotPoint )
 	}
 }
 
+void LLModel::remapVolumeFaces()
+{
+    for (U32 i = 0; i < getNumVolumeFaces(); ++i)
+    {
+        mVolumeFaces[i].remap();
+    }
+}
+
 void LLModel::optimizeVolumeFaces()
 {
 	for (U32 i = 0; i < getNumVolumeFaces(); ++i)

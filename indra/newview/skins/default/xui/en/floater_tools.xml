@@ -2,7 +2,7 @@
 <floater
  positioning="cascading"
  legacy_header_height="18"
- height="600"
+ height="609"
  layout="topleft"
  bg_opaque_image="Window_NoTitle_Foreground"
  bg_alpha_image="Window_NoTitle_Background"
@@ -68,7 +68,7 @@
     </floater.string>
     <floater.string
      name="status_selectcount">
-        [OBJ_COUNT] objects selected, land impact [LAND_IMPACT]
+        [OBJ_COUNT] objects selected, land impact [LAND_IMPACT] [secondlife:///app/openfloater/object_weights More info]
     </floater.string>
     <floater.string
      name="status_remaining_capacity">
@@ -763,11 +763,12 @@
 	  font="SansSerifSmall"
 	  layout="topleft"
 	  left="10"
-	  name="selection_count"
+	  name="selection_faces"
 	  top_delta="0"
 	  visible="false"
 	  width="280">
-	</text>
+    Faces selected: [FACES_STRING]
+  </text>
 	<text
 	 text_color="LtGray_50"
 	  type="string"
@@ -777,11 +778,10 @@
 	  font="SansSerifSmall"
 	  layout="topleft"
 	  left="10"
-	  name="remaining_capacity"
+	  name="selection_count"
 	  top_pad="0"
 	  visible="false"
 	  width="280">
-	  [CAPACITY_STRING] [secondlife:///app/openfloater/object_weights More info]
 	</text>
     <!-- <text -->
     <!-- text_color="LtGray_50" -->
@@ -820,7 +820,7 @@
     width="282"/>
     <tab_container
      follows="left|top"
-     height="410"
+     height="426"
      halign="center"
      left="0"
      name="Object Info Tabs"
@@ -1430,16 +1430,40 @@ even though the user gets a free copy.
              tool_tip="Causes object to not collide with other objects or avatars"
              top_pad="0"
              width="123" />
-        <text
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             left_delta="0"
+             name="object_horizontal"
+             top_pad="10"
+             width="95" />
+            <menu_button
+             menu_filename="menu_copy_paste_pos.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_pos_btn"
+             tool_tip="Paste options"
+             width="19"/>
+            <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
              name="label position"
-             top_pad="10"
+             tool_tip="Position (meters)"
+             left_pad="8"
+             top_delta="0"
              width="121">
-                Position (meters)
+                Position (m)
             </text>
             <spinner
              follows="left|top"
@@ -1449,12 +1473,12 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-27"
              max_val="512"
              min_val="-256"
              name="Pos X"
              text_enabled_color="1 0 0.3 .7"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              follows="left|top"
@@ -1481,21 +1505,36 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="0"
              max_val="4096"
+             min_val="-32"
              name="Pos Z"
              text_enabled_color="0 0.8 1 .65"
              top_pad="3"
              width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_size.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_size_btn"
+             tool_tip="Paste options"
+             width="19"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left_pad="8"
+             top_delta="0"
              name="label size"
-             top_pad="6"
+             tool_tip="Size (meters)"
              width="121">
-                Size (meters)
+                Size (m)
             </text>
             <spinner
              follows="left|top"
@@ -1505,12 +1544,12 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-27"
              max_val="64"
              min_val="0.01"
              name="Scale X"
              text_enabled_color="1 1 1 1"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              follows="left|top"
@@ -1542,17 +1581,31 @@ even though the user gets a free copy.
              text_enabled_color="1 1 1 1"
              top_pad="3"
              width="87" />
+            <menu_button
+             menu_filename="menu_copy_paste_rot.xml"
+             follows="top|left"
+             height="11"
+             image_disabled="ClipboardSmallMenu_Disabled"
+             image_selected="ClipboardSmallMenu_Press"
+             image_unselected="ClipboardSmallMenu_Off"
+             layout="topleft"
+             left_delta="0"
+             top_pad="13"
+             name="clipboard_rot_btn"
+             tool_tip="Paste options"
+             width="19"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left_pad="8"
+             top_delta="0"
              name="label rotation"
-             top_pad="10"
+             tool_tip="Rotation (degrees)"
              width="121">
-                Rotation (degrees)
+                Rotation (°)
             </text>
             <spinner
              decimal_digits="2"
@@ -1563,12 +1616,12 @@ even though the user gets a free copy.
              label="X"
              label_width="10"
              layout="topleft"
-             left_delta="0"
+             left_delta="-27"
              max_val="9999"
              min_val="-9999"
              name="Rot X"
              text_enabled_color="1 1 1 1"
-             top_pad="5"
+             top_pad="8"
              width="87" />
             <spinner
              decimal_digits="2"
@@ -1614,13 +1667,23 @@ even though the user gets a free copy.
              width="150">
                 Prim Type
             </text>-->
+
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             layout="topleft"
+             name="object_vertical"
+             left="117"
+             top="6"
+             height="500"
+             width="0"/>
             <combo_box
              height="19"
              layout="topleft"
              name="comboBaseType"
              top="6"
              left="125"
-             width="150">
+             width="125">
                 <combo_box.item
                  label="Box"
                  name="Box"
@@ -1654,13 +1717,26 @@ even though the user gets a free copy.
                  name="Sculpted"
                  value="Sculpted" />
             </combo_box>
+            <menu_button
+              menu_filename="menu_copy_paste_object.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left_pad="8"
+              top_delta="2"
+              name="clipboard_obj_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
             <text
              type="string"
              length="1"
              follows="left|top"
              height="10"
              layout="topleft"
-             left_delta="0"
+             left="125"
              name="text cut"
              top_pad="5"
              width="150">
@@ -1700,7 +1776,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text hollow"
-             top_pad="6"
+             top_pad="7"
              width="68">
                 Hollow
             </text>
@@ -1748,7 +1824,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="Hollow Shape"
-             top_pad="4"
+             top_pad="7"
              width="150">
                 Hollow Shape
             </text>
@@ -1784,7 +1860,7 @@ even though the user gets a free copy.
              layout="topleft"
              left_delta="0"
              name="text twist"
-             top_pad="5"
+             top_pad="7"
              width="150">
                 Twist (begin/end)
             </text>
@@ -1826,12 +1902,12 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="scale_taper"
-             top_pad="3"
+             top_pad="7"
              width="150">
                 Taper
             </text>
             <text
-			 visible="false"
+             visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1879,7 +1955,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text topshear"
-             top_pad="3"
+             top_pad="5"
              width="141">
                 Top Shear
             </text>
@@ -1922,12 +1998,12 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="advanced_cut"
-             top_pad="3"
+             top_pad="7"
              width="150">
                 Profile Cut (begin/end)
             </text>
             <text
-			 visible="false"
+             visible="false"
              type="string"
              length="1"
              follows="left|top"
@@ -1986,7 +2062,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text taper2"
-             top_pad="3"
+             top_pad="7"
              width="150">
                 Taper
             </text>
@@ -2029,7 +2105,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="125"
              name="text radius delta"
-             top_pad="2"
+             top_pad="7"
              width="78">
                 Radius
             </text>
@@ -2157,6 +2233,19 @@ even though the user gets a free copy.
 	<panel.string name="None">None</panel.string>
 	<panel.string name="Prim">Prim</panel.string>
 	<panel.string name="Convex Hull">Convex Hull</panel.string>
+            <menu_button
+              menu_filename="menu_copy_paste_features.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left="258"
+              top="8"
+              name="clipboard_features_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
             <text
              type="string"
              length="1"
@@ -2309,6 +2398,15 @@ even though the user gets a free copy.
              name="FlexForceZ"
              top_pad="4"
              width="128" />
+            <view_border
+             bevel_style="none"
+             follows="top|left"
+             height="0"
+             layout="topleft"
+             left="8"
+             name="object_horizontal"
+             top_pad="10"
+             width="278" />
 
             <check_box
              height="16"
@@ -2317,7 +2415,7 @@ even though the user gets a free copy.
              left="10"
              name="Light Checkbox Ctrl"
              tool_tip="Causes object to emit light"
-             top_pad="15"
+             top_pad="8"
              width="60" />
             <color_swatch
              can_apply_immediately="true"
@@ -2344,6 +2442,19 @@ even though the user gets a free copy.
             name="light texture control"
             tool_tip="Click to choose a projection image (only has effect with deferred rendering enabled)"
             width="32" />
+         <menu_button
+              menu_filename="menu_copy_paste_light.xml"
+              follows="top|left"
+              height="15"
+              image_disabled="ClipboardMenu_Disabled"
+              image_selected="ClipboardMenu_Press"
+              image_unselected="ClipboardMenu_Off"
+              layout="topleft"
+              left="258"
+              top_delta="0"
+              name="clipboard_light_params_btn"
+              tool_tip="Paste options"
+              width="22"/>
           <spinner
              follows="left|top"
              height="19"
@@ -2353,7 +2464,7 @@ even though the user gets a free copy.
              layout="topleft"
              left="10"
              name="Light Intensity"
-             top_pad="3"
+             top_pad="26"
              width="128" />
           <spinner bottom_delta="0"
                    decimal_digits="3"
@@ -2575,7 +2686,7 @@ even though the user gets a free copy.
              border_visible="true"
              bevel_style="in"
              follows="left|top|right"
-             height="325"
+             height="335"
              layout="topleft"
              left="10"
              name="contents_inventory"

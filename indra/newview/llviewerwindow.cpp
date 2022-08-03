@@ -103,7 +103,6 @@
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
-#include "llfloaterbuildoptions.h"
 #include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
 #include "llfloaterland.h"

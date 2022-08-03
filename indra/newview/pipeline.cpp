@@ -3939,7 +3939,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	LL_PUSH_CALLSTACKS();
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
-	if (LLFloaterTelehub::renderBeacons())
+	if (LLFloaterTelehub::renderBeacons() && !sShadowRender)
 	{
 		LLFloaterTelehub::addBeacons();
 	}
