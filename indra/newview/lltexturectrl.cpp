@@ -81,6 +81,67 @@ static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
 //static const char NO_IMAGE_NAME[] = "None";
 
+
+
+//static
+bool get_is_predefined_texture(LLUUID asset_id)
+{
+    if (asset_id == LLUUID(gSavedSettings.getString("DefaultObjectTexture"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgWhiteUUID"))
+        || asset_id == LLUUID(gSavedSettings.getString("UIImgInvisibleUUID"))
+        || asset_id == LLUUID(SCULPT_DEFAULT_TEXTURE))
+    {
+        return true;
+    }
+    return false;
+}
+
+LLUUID get_copy_free_item_by_asset_id(LLUUID asset_id, bool no_trans_perm)
+{
+    LLViewerInventoryCategory::cat_array_t cats;
+    LLViewerInventoryItem::item_array_t items;
+    LLAssetIDMatches asset_id_matches(asset_id);
+    gInventory.collectDescendentsIf(LLUUID::null,
+        cats,
+        items,
+        LLInventoryModel::INCLUDE_TRASH,
+        asset_id_matches);
+    
+    LLUUID res;
+    if (items.size())
+    {
+        for (S32 i = 0; i < items.size(); i++)
+        {
+            LLViewerInventoryItem* itemp = items[i];
+            if (itemp)
+            {
+                LLPermissions item_permissions = itemp->getPermissions();
+                if (item_permissions.allowOperationBy(PERM_COPY,
+                    gAgent.getID(),
+                    gAgent.getGroupID()))
+                {
+                    bool allow_trans = item_permissions.allowOperationBy(PERM_TRANSFER, gAgent.getID(), gAgent.getGroupID());
+                    if (allow_trans != no_trans_perm)
+                    {
+                        return itemp->getUUID();
+                    }
+                    res = itemp->getUUID();
+                }
+            }
+        }
+    }
+    return res;
+}
+
+bool get_can_copy_texture(LLUUID asset_id)
+{
+    // User is allowed to copy a texture if:
+    // library asset or default texture,
+    // or copy perm asset exists in user's inventory
+
+    return get_is_predefined_texture(asset_id) || get_copy_free_item_by_asset_id(asset_id).notNull();
+}
+
 LLFloaterTexturePicker::LLFloaterTexturePicker(	
 	LLView* owner,
 	LLUUID image_asset_id,
