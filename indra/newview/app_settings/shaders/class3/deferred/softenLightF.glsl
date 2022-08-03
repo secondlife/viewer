@@ -27,6 +27,7 @@
 #define PBR_USE_GGX_EMS_HACK       0
 #define PBR_USE_IRRADIANCE_HACK    1
 
+#define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
@@ -54,6 +55,8 @@
 #define DEBUG_PBR_DOT_NV           0 // Output: grayscale dot(Normal   ,Vertex2Camera)
 #define DEBUG_PBR_BRDF_UV          0 // Output: red green BRDF UV         (GGX input)
 #define DEBUG_PBR_BRDF_SCALE_BIAS  0 // Output: red green BRDF Scale Bias (GGX output)
+#define DEBUG_PBR_BRDF_SCALE_ONLY  0 // Output: grayscale BRDF Scale
+#define DEBUG_PBR_BRDF_BIAS_ONLY   0 // Output: grayscale BRDER Bias
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_KSPEC            0 // Output: K spec
 #define DEBUG_PBR_REFLECTION_DIR   0 // Output: reflection dir
@@ -66,7 +69,7 @@
 #define DEBUG_PBR_IRRADIANCE_RAW   0 // Output: Diffuse Irradiance pre-mix
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
-#define DEBUG_PBR_EMS              0 // Output: Ems
+#define DEBUG_PBR_EMS              0 // Output: Ems = (1 - BRDF Scale + BRDF Bias)
 #define DEBUG_PBR_AVG              0 // Output: Avg
 #define DEBUG_PBR_FMS_EMS          0 // Output: FmsEms
 #define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
@@ -178,8 +181,7 @@ void main()
     da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
-    vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy);
-
+    vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR sRGB Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
@@ -306,10 +308,7 @@ void main()
 
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
-        float Ems           = (1.0 - vScaleBias.x + vScaleBias.y);
-#if PBR_USE_GGX_EMS_HACK
-              Ems           = alphaRough; // With GGX approximation Ems = 0 so use substitute
-#endif
+        float Ems           = 1.0 - (vScaleBias.x + vScaleBias.y);
         vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
         vec3  AvgEms        = avg * Ems;
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
@@ -389,6 +388,12 @@ void main()
     #endif
     #if DEBUG_PBR_DIFFUSE_C
         color.rgb = c_diff;
+    #endif
+    #if DEBUG_PBR_BRDF_SCALE_ONLY
+        color.rgb = vec3(vScaleBias.x);
+    #endif
+    #if DEBUG_PBR_BRDF_BIAS_ONLY
+        color.rgb = vec3(vScaleBias.y);
     #endif
     #if DEBUG_PBR_DIFFUSE_K
         color.rgb = kDiffuse;
@@ -477,6 +482,9 @@ void main()
     #endif
     #if DEBUG_PBR_SUN_CONTRIB
         color.rgb = sun_contrib;
+    #endif
+    #if DEBUG_PBR_LIGHT_TYPE
+        color.rgb = vec3(0);
     #endif
         frag_color.rgb = color.rgb; // PBR is done in linear
     }
