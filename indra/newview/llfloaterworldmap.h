@@ -130,6 +130,8 @@ protected:
 	void			onShowAgentBtn();
 	void			onCopySLURL();
 
+    void            onExpandCollapseBtn();
+
 	void			centerOnTarget(BOOL animate);
 	void			updateLocation();
 

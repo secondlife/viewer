@@ -948,6 +948,7 @@ void LLOcclusionCullingGroup::setOcclusionState(U32 state, S32 mode /* = STATE_M
         break;
 
     case STATE_MODE_DIFF:
+        if (mOctreeNode)
         {
             LLSpatialSetOcclusionStateDiff setter(state);
             setter.traverse(mOctreeNode);
@@ -955,6 +956,7 @@ void LLOcclusionCullingGroup::setOcclusionState(U32 state, S32 mode /* = STATE_M
         break;
 
     case STATE_MODE_BRANCH:
+        if (mOctreeNode)
         {
             LLSpatialSetOcclusionState setter(state);
             setter.traverse(mOctreeNode);
@@ -1024,6 +1026,7 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode /* = STATE
             break;
 
         case STATE_MODE_DIFF:
+            if (mOctreeNode)
             {
                 LLSpatialClearOcclusionStateDiff clearer(state);
                 clearer.traverse(mOctreeNode);
@@ -1031,6 +1034,7 @@ void LLOcclusionCullingGroup::clearOcclusionState(U32 state, S32 mode /* = STATE
             break;
 
         case STATE_MODE_BRANCH:
+            if (mOctreeNode)
             {
                 LLSpatialClearOcclusionState clearer(state);
                 clearer.traverse(mOctreeNode);

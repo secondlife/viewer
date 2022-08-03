@@ -232,7 +232,7 @@ public:
 
 				void	updateFaceFlags();
 				void	regenFaces();
-				BOOL	genBBoxes(BOOL force_global);
+                BOOL    genBBoxes(BOOL force_global, BOOL should_update_octree_bounds = TRUE);
 				void	preRebuild();
 	virtual		void	updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual		F32		getBinRadius();
@@ -386,13 +386,14 @@ protected:
 	static S32 mRenderComplexity_last;
 	static S32 mRenderComplexity_current;
 
+    void onDrawableUpdateFromServer();
 	void requestMediaDataUpdate(bool isNew);
 	void cleanUpMediaImpls();
 	void addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index) ;
 	void removeMediaImpl(S32 texture_index) ;
 
 private:
-	bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled);
+    bool lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled, BOOL &shouldUpdateOctreeBounds);
 
 public:
 
@@ -424,6 +425,7 @@ private:
 	LLPointer<LLViewerFetchedTexture> mLightTexture;
 	media_list_t mMediaImplList;
 	S32			mLastFetchedMediaVersion; // as fetched from the server, starts as -1
+    U32         mServerDrawableUpdateCount;
 	S32 mIndexInTex[LLRender::NUM_VOLUME_TEXTURE_CHANNELS];
 	S32 mMDCImplCount;
 
