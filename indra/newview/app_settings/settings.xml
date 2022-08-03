@@ -8806,13 +8806,13 @@
   <key>RenderAvatarCloth</key>
     <map>
       <key>Comment</key>
-      <string>Controls if avatars use wavy cloth</string>
+      <string>DEPRECATED - only false supported - Controls if avatars use wavy cloth</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
   <key>RenderComplexityColorMin</key>
     <map>
