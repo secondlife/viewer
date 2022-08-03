@@ -1269,11 +1269,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 		getChildView("texture compression")->setEnabled(FALSE);
 	}
 
-	// if no windlight shaders, turn off nighttime brightness, gamma, and fog distance
-	LLUICtrl* gamma_ctrl = getChild<LLUICtrl>("gamma");
-	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
 
 	// now turn off any features that are unavailable

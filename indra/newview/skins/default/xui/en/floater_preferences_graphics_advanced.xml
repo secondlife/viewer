@@ -289,52 +289,6 @@
     top_delta="16"
     width="335" />
 
-  <slider
-    control_name="RenderFogRatio"
-    follows="left|top"
-    height="16"
-    initial_value="4"
-    decimal_digits="1"
-    label="Fog Distance Ratio:"
-    label_width="185"
-    layout="topleft"
-    left="30"
-    name="fog"
-    min_val="0.5"
-    max_val="10"
-    increment="0.1"
-    top_delta="16"
-    width="332" />
-
-  <slider
-    control_name="RenderGamma"
-    follows="left|top"
-    height="16"
-    initial_value="1"
-    decimal_digits="2"
-    label="Gamma:"
-    label_width="185"
-    layout="topleft"
-    left="30"
-    name="gamma"
-    min_val="0"
-    max_val="2"
-    increment="0.01"
-    top_delta="16"
-    width="332" />
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="16"
-    layout="topleft"
-    left="30"
-    name="(brightness, lower is brighter)"
-    top_delta="16"
-    width="260">
-      (0 = default brightness, lower = brighter)
-  </text>
-
   <check_box
     control_name="RenderAnisotropic"
     height="16"

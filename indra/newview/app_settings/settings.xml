@@ -9857,7 +9857,7 @@
     <key>RenderFogRatio</key>
     <map>
       <key>Comment</key>
-      <string>Distance from camera where fog reaches maximum density (fraction or multiple of far clip distance)</string>
+      <string>DEPRECATED - Distance from camera where fog reaches maximum density (fraction or multiple of far clip distance)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -9868,7 +9868,7 @@
     <key>RenderGamma</key>
     <map>
       <key>Comment</key>
-      <string>Sets gamma exponent for renderer</string>
+      <string>DEPRECATED - Sets gamma exponent for renderer</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
