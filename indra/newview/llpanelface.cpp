@@ -334,16 +334,19 @@ LLPanelFace::LLPanelFace()
     mEnableCallbackRegistrar.add("PanelFace.menuEnable", boost::bind(&LLPanelFace::menuEnableItem, this, _2));
 }
 
-
 LLPanelFace::~LLPanelFace()
 {
     unloadMedia();
 }
 
-
 void LLPanelFace::draw()
 {
     updateCopyTexButton();
+
+    // grab media name/title and update the UI widget
+    // Todo: move it, it's preferable not to update
+    // labels inside draw
+    updateMediaTitle();
 
     LLPanel::draw();
 }
@@ -1793,17 +1796,6 @@ void LLPanelFace::unloadMedia()
     // destroy media source used to grab media title
     if (mTitleMedia)
         mTitleMedia->unloadMediaSource();
-}
-
-void LLPanelFace::draw()
-{
-    // grab media name/title and update the UI widget
-    // Todo: move it, it's preferable not to update
-    // labels inside draw
-    updateMediaTitle();
-
-    //	mCheckSelectIndividual->set(gSavedSettings.getBOOL("EditLinkedParts"));
-    LLPanel::draw();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -4210,14 +4202,6 @@ bool LLPanelFace::menuEnableItem(const LLSD& userdata)
     return false;
 }
 
-
-// TODO: I don't know who put these in or what these are for???
-void LLPanelFace::setMediaURL(const std::string& url)
-{
-}
-void LLPanelFace::setMediaType(const std::string& mime_type)
-{
-}
 
 // static
 void LLPanelFace::onCommitPlanarAlign(LLUICtrl* ctrl, void* userdata)
