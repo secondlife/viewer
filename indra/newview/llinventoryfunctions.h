@@ -93,6 +93,10 @@ LLUUID nested_parent_id(LLUUID cur_uuid, S32 depth);
 S32 compute_stock_count(LLUUID cat_uuid, bool force_count = false);
 
 void change_item_parent(const LLUUID& item_id, const LLUUID& new_parent_id);
+void move_items_to_new_subfolder(const uuid_vec_t& selected_uuids, const std::string& folder_name);
+void move_items_to_folder(const LLUUID& new_cat_uuid, const uuid_vec_t& selected_uuids);
+bool is_only_cats_selected(const uuid_vec_t& selected_uuids);
+bool is_only_items_selected(const uuid_vec_t& selected_uuids);
 
 /**                    Miscellaneous global functions
  **                                                                            **

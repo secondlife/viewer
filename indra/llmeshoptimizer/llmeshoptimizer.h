@@ -28,7 +28,8 @@
 
 #include "linden_common.h"
 
-#include "llmath.h"
+class LLVector4a;
+class LLVector2;
 
 class LLMeshOptimizer
 {
@@ -36,13 +37,85 @@ public:
     LLMeshOptimizer();
     ~LLMeshOptimizer();
 
-    static void generateShadowIndexBuffer(
+    static void generateShadowIndexBufferU32(
+        U32 *destination,
+        const U32 *indices,
+        U64 index_count,
+        const LLVector4a * vertex_positions,
+        const LLVector4a * normals,
+        const LLVector2 * text_coords,
+        U64 vertex_count);
+
+    static void generateShadowIndexBufferU16(
         U16 *destination,
         const U16 *indices,
         U64 index_count,
-        const LLVector4a *vertex_positions,
+        const LLVector4a * vertex_positions,
+        const LLVector4a * normals,
+        const LLVector2 * text_coords,
+        U64 vertex_count);
+
+    static void optimizeVertexCacheU32(
+        U32 *destination,
+        const U32 *indices,
+        U64 index_count,
+        U64 vertex_count);
+
+    static void optimizeVertexCacheU16(
+        U16 *destination,
+        const U16 *indices,
+        U64 index_count,
+        U64 vertex_count);
+
+    // Remap functions
+    // Welds indentical vertexes together.
+    // Removes unused vertices if indices were provided.
+
+    static size_t generateRemapMultiU32(
+        unsigned int* remap,
+        const U32 * indices,
+        U64 index_count,
+        const LLVector4a * vertex_positions,
+        const LLVector4a * normals,
+        const LLVector2 * text_coords,
+        U64 vertex_count);
+
+    static size_t generateRemapMultiU16(
+        unsigned int* remap,
+        const U16 * indices,
+        U64 index_count,
+        const LLVector4a * vertex_positions,
+        const LLVector4a * normals,
+        const LLVector2 * text_coords,
+        U64 vertex_count);
+
+    static void remapIndexBufferU32(U32 * destination_indices,
+        const U32 * indices,
+        U64 index_count,
+        const unsigned int* remap);
+
+    static void remapIndexBufferU16(U16 * destination_indices,
+        const U16 * indices,
+        U64 index_count,
+        const unsigned int* remap);
+
+
+    static void remapPositionsBuffer(LLVector4a * destination_vertices,
+        const LLVector4a * vertex_positions,
         U64 vertex_count,
-        U64 vertex_positions_stride);
+        const unsigned int* remap);
+
+    static void remapNormalsBuffer(LLVector4a * destination_normalss,
+        const LLVector4a * normals,
+        U64 mormals_count,
+        const unsigned int* remap);
+
+    static void remapUVBuffer(LLVector2 * destination_uvs,
+        const LLVector2 * uv_positions,
+        U64 uv_count,
+        const unsigned int* remap);
+
+    // Simplification
 
     // returns amount of indices in destiantion
     // sloppy engages a variant of a mechanizm that does not respect topology as much
