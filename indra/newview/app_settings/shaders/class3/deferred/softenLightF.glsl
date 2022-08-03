@@ -306,10 +306,7 @@ void main()
 
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
-        float Ems           = (1.0 - vScaleBias.x + vScaleBias.y);
-#if PBR_USE_GGX_EMS_HACK
-              Ems           = alphaRough; // With GGX approximation Ems = 0 so use substitute
-#endif
+        float Ems           = 1.0 - (vScaleBias.x + vScaleBias.y);
         vec3  avg           = specWeight * (reflect0 + (1.0 - reflect0) / 21.0);
         vec3  AvgEms        = avg * Ems;
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
