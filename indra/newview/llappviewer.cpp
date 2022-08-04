@@ -2716,19 +2716,14 @@ bool LLAppViewer::initConfiguration()
 
 	if (clp.hasOption("graphicslevel"))
 	{
-		// User explicitly requested --graphicslevel on the command line. We
-		// expect this switch has already set RenderQualityPerformance. Check
-		// that value for validity.
-		U32 graphicslevel = gSavedSettings.getU32("RenderQualityPerformance");
-		if (LLFeatureManager::instance().isValidGraphicsLevel(graphicslevel))
-        {
-			// graphicslevel is valid: save it and engage it later. Capture
-			// the requested value separately from the settings variable
-			// because, if this is the first run, LLViewerWindow's constructor
-			// will call LLFeatureManager::applyRecommendedSettings(), which
-			// overwrites this settings variable!
-			mForceGraphicsLevel = graphicslevel;
-        }
+        // User explicitly requested --graphicslevel on the command line. We
+        // expect this switch has already set RenderQualityPerformance. Check
+        // that value for validity later.
+        // Capture the requested value separately from the settings variable
+        // because, if this is the first run, LLViewerWindow's constructor
+        // will call LLFeatureManager::applyRecommendedSettings(), which
+        // overwrites this settings variable!
+        mForceGraphicsLevel = gSavedSettings.getU32("RenderQualityPerformance");
 	}
 
 	LLFastTimerView::sAnalyzePerformance = gSavedSettings.getBOOL("AnalyzePerformance");
@@ -3086,7 +3081,7 @@ bool LLAppViewer::initWindow()
 	// Initialize GL stuff
 	//
 
-	if (mForceGraphicsLevel)
+	if (mForceGraphicsLevel && (LLFeatureManager::instance().isValidGraphicsLevel(*mForceGraphicsLevel)))
 	{
 		LLFeatureManager::getInstance()->setGraphicsLevel(*mForceGraphicsLevel, false);
 		gSavedSettings.setU32("RenderQualityPerformance", *mForceGraphicsLevel);

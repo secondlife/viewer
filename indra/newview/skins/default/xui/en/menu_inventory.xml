@@ -912,6 +912,25 @@
                 function="Inventory.DoToSelected"
                 parameter="apply_settings_parcel" />
     </menu_item_call>
+  <menu_item_separator
+   layout="topleft"
+   name="Subfolder Separator" />
+  <menu_item_call
+   label="Create folder from selected"
+   layout="topleft"
+   name="New folder from selected">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="new_folder_from_selected" />
+  </menu_item_call>
+  <menu_item_call
+   label="Ungroup folder items"
+   layout="topleft"
+   name="Ungroup folder items">
+    <menu_item_call.on_click
+     function="Inventory.DoToSelected"
+     parameter="ungroup_folder_items" />
+  </menu_item_call>
 	<menu_item_separator
 	 layout="topleft"
 	 name="Marketplace Separator" />

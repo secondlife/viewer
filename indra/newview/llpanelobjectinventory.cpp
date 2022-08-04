@@ -618,7 +618,18 @@ const std::string& LLTaskCategoryBridge::getDisplayName() const
 
 	if (cat)
 	{
-		mDisplayName.assign(cat->getName());
+        std::string name = cat->getName();
+        if (mChildren.size() > 0)
+        {
+            // Add item count
+            // Normally we would be using getLabelSuffix for this
+            // but object's inventory just uses displaynames
+            LLStringUtil::format_map_t args;
+            args["[ITEMS_COUNT]"] = llformat("%d", mChildren.size());
+
+            name.append(" " + LLTrans::getString("InventoryItemsCount", args));
+        }
+		mDisplayName.assign(name);
 	}
 
 	return mDisplayName;
@@ -1522,6 +1533,8 @@ void LLPanelObjectInventory::createFolderViews(LLInventoryObject* inventory_root
 		{
 			createViewsForCategory(&contents, inventory_root, new_folder);
 		}
+        // Refresh for label to add item count
+        new_folder->refresh();
 	}
 }
 

@@ -816,8 +816,10 @@ void LLModelPreview::clearIncompatible(S32 lod)
     // at this point we don't care about sub-models,
     // different amount of sub-models means face count mismatch, not incompatibility
     U32 lod_size = countRootModels(mModel[lod]);
+    bool replaced_base_model = (lod == LLModel::LOD_HIGH);
     for (U32 i = 0; i <= LLModel::LOD_HIGH; i++)
-    { //clear out any entries that aren't compatible with this model
+    {
+        // Clear out any entries that aren't compatible with this model
         if (i != lod)
         {
             if (countRootModels(mModel[i]) != lod_size)
@@ -831,8 +833,46 @@ void LLModelPreview::clearIncompatible(S32 lod)
                     mBaseModel = mModel[lod];
                     mBaseScene = mScene[lod];
                     mVertexBuffer[5].clear();
+                    replaced_base_model = true;
                 }
             }
+        }
+    }
+
+    if (replaced_base_model && !mGenLOD)
+    {
+        // In case base was replaced, we might need to restart generation
+
+        // Check if already started
+        bool subscribe_for_generation = mLodsQuery.empty();
+        
+        // Remove previously scheduled work
+        mLodsQuery.clear();
+
+        LLFloaterModelPreview* fmp = LLFloaterModelPreview::sInstance;
+        if (!fmp) return;
+
+        // Schedule new work
+        for (S32 i = LLModel::LOD_HIGH; i >= 0; --i)
+        {
+            if (mModel[i].empty())
+            {
+                // Base model was replaced, regenerate this lod if applicable
+                LLComboBox* lod_combo = mFMP->findChild<LLComboBox>("lod_source_" + lod_name[i]);
+                if (!lod_combo) return;
+
+                S32 lod_mode = lod_combo->getCurrentIndex();
+                if (lod_mode != LOD_FROM_FILE)
+                {
+                    mLodsQuery.push_back(i);
+                }
+            }
+        }
+
+        // Subscribe if we have pending work and not subscribed yet
+        if (!mLodsQuery.empty() && subscribe_for_generation)
+        {
+            doOnIdleRepeating(lodQueryCallback);
         }
     }
 }
@@ -1221,8 +1261,9 @@ void LLModelPreview::restoreNormals()
 // Runs per object, but likely it is a better way to run per model+submodels
 // returns a ratio of base model indices to resulting indices
 // returns -1 in case of failure
-F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_decimator, F32 error_threshold, bool sloppy)
+F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *target_model, F32 indices_decimator, F32 error_threshold, eSimplificationMode simplification_mode)
 {
+    // I. Weld faces together
     // Figure out buffer size
     S32 size_indices = 0;
     S32 size_vertices = 0;
@@ -1257,20 +1298,21 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     {
         const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
 
-        // vertices
+        // Vertices
         S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
         LLVector4a::memcpyNonAliased16((F32*)(combined_positions + combined_positions_shift), (F32*)face.mPositions, copy_bytes);
 
-        // normals
+        // Normals
         LLVector4a::memcpyNonAliased16((F32*)(combined_normals + combined_positions_shift), (F32*)face.mNormals, copy_bytes);
 
-        // tex coords
+        // Tex coords
         copy_bytes = face.mNumVertices * sizeof(LLVector2);
         memcpy((void*)(combined_tex_coords + combined_positions_shift), (void*)face.mTexCoords, copy_bytes);
 
         combined_positions_shift += face.mNumVertices;
 
-        // indices, sadly can't do dumb memcpy for indices, need to adjust each value
+        // Indices
+        // Sadly can't do dumb memcpy for indices, need to adjust each value
         for (S32 i = 0; i < face.mNumIndices; ++i)
         {
             U16 idx = face.mIndices[i];
@@ -1281,10 +1323,42 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         indices_idx_shift += face.mNumVertices;
     }
 
-    // Now that we have buffers, optimize
+    // II. Generate a shadow buffer if nessesary.
+    // Welds together vertices if possible
+
+    U32* shadow_indices = NULL;
+    // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
+    // won't do anything new, model was remaped on a per face basis.
+    // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+    // since 'simplifySloppy' ignores all topology, including normals and uvs.
+    // Note: simplifySloppy can affect UVs significantly.
+    if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
+    {
+        // strip normals, reflections should restore relatively correctly
+        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, combined_tex_coords, size_vertices);
+    }
+    if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
+    {
+        // strip uvs, can heavily affect textures
+        shadow_indices = (U32*)ll_aligned_malloc_32(size_indices * sizeof(U32));
+        LLMeshOptimizer::generateShadowIndexBufferU32(shadow_indices, combined_indices, size_indices, combined_positions, NULL, NULL, size_vertices);
+    }
+
+    U32* source_indices = NULL;
+    if (shadow_indices)
+    {
+        source_indices = shadow_indices;
+    }
+    else
+    {
+        source_indices = combined_indices;
+    }
+
+    // III. Simplify
     S32 target_indices = 0;
     F32 result_error = 0; // how far from original the model is, 1 == 100%
-    S32 new_indices = 0;
+    S32 size_new_indices = 0;
 
     if (indices_decimator > 0)
     {
@@ -1294,38 +1368,43 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     {
         target_indices = 3;
     }
-    new_indices = LLMeshOptimizer::simplifyU32(
+
+    size_new_indices = LLMeshOptimizer::simplifyU32(
         output_indices,
-        combined_indices,
+        source_indices,
         size_indices,
         combined_positions,
         size_vertices,
         LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
         target_indices,
         error_threshold,
-        sloppy,
+        simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
         &result_error);
-
 
     if (result_error < 0)
     {
         LL_WARNS() << "Negative result error from meshoptimizer for model " << target_model->mLabel
             << " target Indices: " << target_indices
-            << " new Indices: " << new_indices
+            << " new Indices: " << size_new_indices
             << " original count: " << size_indices << LL_ENDL;
     }
 
-    if (new_indices < 3)
+    // free unused buffers
+    ll_aligned_free_32(combined_indices);
+    ll_aligned_free_32(shadow_indices);
+    combined_indices = NULL;
+    shadow_indices = NULL;
+
+    if (size_new_indices < 3)
     {
         // Model should have at least one visible triangle
         ll_aligned_free<64>(combined_positions);
         ll_aligned_free_32(output_indices);
-        ll_aligned_free_32(combined_indices);
 
         return -1;
     }
 
-    // repack back into individual faces
+    // IV. Repack back into individual faces
 
     LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 2 * size_vertices + tc_bytes_size);
     LLVector4a* buffer_normals = buffer_positions + size_vertices;
@@ -1356,7 +1435,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         }
 
         // Copy relevant indices and vertices
-        for (S32 i = 0; i < new_indices; ++i)
+        for (S32 i = 0; i < size_new_indices; ++i)
         {
             U32 idx = output_indices[i];
 
@@ -1379,19 +1458,19 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                         LL_WARNS() << "Over triangle limit. Failed to optimize in 'per object' mode, falling back to per face variant for"
                             << " model " << target_model->mLabel
                             << " target Indices: " << target_indices
-                            << " new Indices: " << new_indices
+                            << " new Indices: " << size_new_indices
                             << " original count: " << size_indices
                             << " error treshold: " << error_threshold
                             << LL_ENDL;
 
                         // U16 vertices overflow shouldn't happen, but just in case
-                        new_indices = 0;
+                        size_new_indices = 0;
                         valid_faces = 0;
                         for (U32 face_idx = 0; face_idx < base_model->getNumVolumeFaces(); ++face_idx)
                         {
-                            genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, false);
+                            genMeshOptimizerPerFace(base_model, target_model, face_idx, indices_decimator, error_threshold, simplification_mode);
                             const LLVolumeFace &face = target_model->getVolumeFace(face_idx);
-                            new_indices += face.mNumIndices;
+                            size_new_indices += face.mNumIndices;
                             if (face.mNumIndices >= 3)
                             {
                                 valid_faces++;
@@ -1399,7 +1478,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                         }
                         if (valid_faces)
                         {
-                            return (F32)size_indices / (F32)new_indices;
+                            return (F32)size_indices / (F32)size_new_indices;
                         }
                         else
                         {
@@ -1469,18 +1548,17 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     ll_aligned_free<64>(buffer_positions);
     ll_aligned_free_32(output_indices);
     ll_aligned_free_16(buffer_indices);
-    ll_aligned_free_32(combined_indices);
 
-    if (new_indices < 3 || valid_faces == 0)
+    if (size_new_indices < 3 || valid_faces == 0)
     {
         // Model should have at least one visible triangle
         return -1;
     }
 
-    return (F32)size_indices / (F32)new_indices;
+    return (F32)size_indices / (F32)size_new_indices;
 }
 
-F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_decimator, F32 error_threshold, bool sloppy)
+F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target_model, U32 face_idx, F32 indices_decimator, F32 error_threshold, eSimplificationMode simplification_mode)
 {
     const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
     S32 size_indices = face.mNumIndices;
@@ -1488,14 +1566,40 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     {
         return -1;
     }
-    // todo: do not allocate per each face, add one large buffer somewhere
-    // faces have limited amount of indices
+
     S32 size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
-    U16* output = (U16*)ll_aligned_malloc_16(size);
+    U16* output_indices = (U16*)ll_aligned_malloc_16(size);
+
+    U16* shadow_indices = NULL;
+    // if MESH_OPTIMIZER_FULL, just leave as is, since generateShadowIndexBufferU32
+    // won't do anything new, model was remaped on a per face basis.
+    // Similar for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+    // since 'simplifySloppy' ignores all topology, including normals and uvs.
+    if (simplification_mode == MESH_OPTIMIZER_NO_NORMALS)
+    {
+        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, face.mTexCoords, face.mNumVertices);
+    }
+    if (simplification_mode == MESH_OPTIMIZER_NO_UVS)
+    {
+        U16* shadow_indices = (U16*)ll_aligned_malloc_16(size);
+        LLMeshOptimizer::generateShadowIndexBufferU16(shadow_indices, face.mIndices, size_indices, face.mPositions, NULL, NULL, face.mNumVertices);
+    }
+    // Don't run ShadowIndexBuffer for MESH_OPTIMIZER_NO_TOPOLOGY, it's pointless
+
+    U16* source_indices = NULL;
+    if (shadow_indices)
+    {
+        source_indices = shadow_indices;
+    }
+    else
+    {
+        source_indices = face.mIndices;
+    }
 
     S32 target_indices = 0;
     F32 result_error = 0; // how far from original the model is, 1 == 100%
-    S32 new_indices = 0;
+    S32 size_new_indices = 0;
 
     if (indices_decimator > 0)
     {
@@ -1505,25 +1609,25 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     {
         target_indices = 3;
     }
-    new_indices = LLMeshOptimizer::simplify(
-        output,
-        face.mIndices,
+
+    size_new_indices = LLMeshOptimizer::simplify(
+        output_indices,
+        source_indices,
         size_indices,
         face.mPositions,
         face.mNumVertices,
         LLVertexBuffer::sTypeSize[LLVertexBuffer::TYPE_VERTEX],
         target_indices,
         error_threshold,
-        sloppy,
+        simplification_mode == MESH_OPTIMIZER_NO_TOPOLOGY,
         &result_error);
-
 
     if (result_error < 0)
     {
         LL_WARNS() << "Negative result error from meshoptimizer for face " << face_idx
             << " of model " << target_model->mLabel
             << " target Indices: " << target_indices
-            << " new Indices: " << new_indices
+            << " new Indices: " << size_new_indices
             << " original count: " << size_indices
             << " error treshold: " << error_threshold
             << LL_ENDL;
@@ -1534,10 +1638,9 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     // Copy old values
     new_face = face;
 
-
-    if (new_indices < 3)
+    if (size_new_indices < 3)
     {
-        if (!sloppy)
+        if (simplification_mode != MESH_OPTIMIZER_NO_TOPOLOGY)
         {
             // meshopt_optimizeSloppy() can optimize triangles away even if target_indices is > 2,
             // but optimize() isn't supposed to
@@ -1561,23 +1664,24 @@ F32 LLModelPreview::genMeshOptimizerPerFace(LLModel *base_model, LLModel *target
     else
     {
         // Assign new values
-        new_face.resizeIndices(new_indices); // will wipe out mIndices, so new_face can't substitute output
-        S32 idx_size = (new_indices * sizeof(U16) + 0xF) & ~0xF;
-        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output, idx_size);
+        new_face.resizeIndices(size_new_indices); // will wipe out mIndices, so new_face can't substitute output
+        S32 idx_size = (size_new_indices * sizeof(U16) + 0xF) & ~0xF;
+        LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)output_indices, idx_size);
 
-        // clear unused values
+        // Clear unused values
         new_face.optimize();
     }
 
-    ll_aligned_free_16(output);
+    ll_aligned_free_16(output_indices);
+    ll_aligned_free_16(shadow_indices);
      
-    if (new_indices < 3)
+    if (size_new_indices < 3)
     {
         // At least one triangle is needed
         return -1;
     }
 
-    return (F32)size_indices / (F32)new_indices;
+    return (F32)size_indices / (F32)size_new_indices;
 }
 
 void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 decimation, bool enforce_tri_limit)
@@ -1711,16 +1815,19 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             // Ideally this should run not per model,
             // but combine all submodels with origin model as well
-            if (model_meshopt_mode == MESH_OPTIMIZER_COMBINE)
+            if (model_meshopt_mode == MESH_OPTIMIZER_PRECISE)
             {
-                // Run meshoptimizer for each model/object, up to 8 faces in one model.
-
-                // Ideally this should run not per model,
-                // but combine all submodels with origin model as well
-                F32 res = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
-                if (res < 0)
+                // Run meshoptimizer for each face
+                for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
-                    target_model->copyVolumeFaces(base);
+                    F32 res = genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+                    if (res < 0)
+                    {
+                        // Mesh optimizer failed and returned an invalid model
+                        const LLVolumeFace &face = base->getVolumeFace(face_idx);
+                        LLVolumeFace &new_face = target_model->getVolumeFace(face_idx);
+                        new_face = face;
+                    }
                 }
             }
 
@@ -1729,19 +1836,29 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 // Run meshoptimizer for each face
                 for (U32 face_idx = 0; face_idx < base->getNumVolumeFaces(); ++face_idx)
                 {
-                    if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, true) < 0)
+                    if (genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY) < 0)
                     {
                         // Sloppy failed and returned an invalid model
-                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, false);
+                        genMeshOptimizerPerFace(base, target_model, face_idx, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
                     }
                 }
             }
 
             if (model_meshopt_mode == MESH_OPTIMIZER_AUTO)
             {
-                // Switches between 'combine' method and 'sloppy' based on combine's result.
-                F32 allowed_ratio_drift = 2.f;
-                F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                // Remove progressively more data if we can't reach the target.
+                F32 allowed_ratio_drift = 1.8f;
+                F32 precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
+
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
+                {
+                    precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_NORMALS);
+                }
+
+                if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
+                {
+                    precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_UVS);
+                }
                 
                 if (precise_ratio < 0 || (precise_ratio * allowed_ratio_drift < indices_decimator))
                 {
@@ -1749,10 +1866,11 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                     // Sloppy variant can fail entirely and has issues with precision,
                     // so code needs to do multiple attempts with different decimators.
                     // Todo: this is a bit of a mess, needs to be refined and improved
+
                     F32 last_working_decimator = 0.f;
                     F32 last_working_ratio = F32_MAX;
 
-                    F32 sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+                    F32 sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
 
                     if (sloppy_ratio > 0)
                     {
@@ -1775,13 +1893,13 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         // side due to overal lack of precision, and we don't need an ideal result, which
                         // likely does not exist, just a better one, so a partial correction is enough.
                         F32 sloppy_decimator = indices_decimator * (indices_decimator / sloppy_ratio + 1) / 2;
-                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, true);
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
                     }
 
                     if (last_working_decimator > 0 && sloppy_ratio < last_working_ratio)
                     {
                         // Compensation didn't work, return back to previous decimator
-                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, true);
+                        sloppy_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
                     }
 
                     if (sloppy_ratio < 0)
@@ -1814,7 +1932,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                                 && sloppy_decimator > precise_ratio
                                 && sloppy_decimator > 1)// precise_ratio isn't supposed to be below 1, but check just in case
                             {
-                                sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, true);
+                                sloppy_ratio = genMeshOptimizerPerModel(base, target_model, sloppy_decimator, lod_error_threshold, MESH_OPTIMIZER_NO_TOPOLOGY);
                                 sloppy_decimator = sloppy_decimator / sloppy_decimation_step;
                             }
                         }
@@ -1834,7 +1952,7 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                         else
                         {
                             // Fallback to normal method
-                            precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, false);
+                            precise_ratio = genMeshOptimizerPerModel(base, target_model, indices_decimator, lod_error_threshold, MESH_OPTIMIZER_FULL);
                         }
 
                         LL_INFOS() << "Model " << target_model->getName()
@@ -3745,7 +3863,7 @@ bool LLModelPreview::lodQueryCallback()
             }
 
             // return false to continue cycle
-            return false;
+            return preview->mLodsQuery.empty();
         }
     }
     // nothing to process
