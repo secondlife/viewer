@@ -1281,7 +1281,7 @@ void LLFloaterWorldMap::onShowTargetBtn()
 
 void LLFloaterWorldMap::onShowAgentBtn()
 {
-    mMapView->setPan(0, 0, false);  // false == animate
+    mMapView->setPanWithInterpTime(0, 0, false, 0.1f);  // false == animate
     // Set flag so user's location will be displayed if not tracking anything else
     mSetToUserPosition = true;
 }
