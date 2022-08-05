@@ -3766,6 +3766,7 @@ void LLPipeline::touchTextures(LLDrawInfo* info)
     touchTexture(info->mTexture, info->mVSize);
     touchTexture(info->mSpecularMap, info->mVSize);
     touchTexture(info->mNormalMap, info->mVSize);
+    touchTexture(info->mEmissiveMap, info->mVSize);
 }
 
 void LLPipeline::postSort(LLCamera& camera)
