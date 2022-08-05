@@ -99,13 +99,13 @@ static void set_from_model(LLGLTFMaterial* mat, tinygltf::Model& model)
     }
 
     mat->setAlphaMode(material_in.alphaMode);
-    mat->mAlphaCutoff = material_in.alphaCutoff;
+    mat->mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
 
     mat->mAlbedoColor = get_color(material_in.pbrMetallicRoughness.baseColorFactor);
     mat->mEmissiveColor = get_color(material_in.emissiveFactor);
 
-    mat->mMetallicFactor = material_in.pbrMetallicRoughness.metallicFactor;
-    mat->mRoughnessFactor = material_in.pbrMetallicRoughness.roughnessFactor;
+    mat->mMetallicFactor = llclamp((F32)material_in.pbrMetallicRoughness.metallicFactor, 0.f, 1.f);
+    mat->mRoughnessFactor = llclamp((F32)material_in.pbrMetallicRoughness.roughnessFactor, 0.f, 1.f);
 
     mat->mDoubleSided = material_in.doubleSided;
 }
