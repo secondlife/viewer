@@ -902,6 +902,10 @@ public:
 		typedef std::map<LLVector3, std::vector<VertexMapData>, VertexMapData::ComparePosition > PointMap;
 	};
 
+    // Eliminates non unique triangles, takes positions,
+    // normals and texture coordinates into account.
+    void remap();
+
 	void optimize(F32 angle_cutoff = 2.f);
 	bool cacheOptimize();
 
