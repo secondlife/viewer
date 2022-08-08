@@ -103,6 +103,8 @@ public:
 	BOOL postBuild() override;
     void onClickCloseBtn(bool app_quitting = false) override;
 
+    void onClose(bool app_quitting) override;
+
     LLUUID getAlbedoId();
     void setAlbedoId(const LLUUID& id);
     void setAlbedoUploadId(const LLUUID& id);

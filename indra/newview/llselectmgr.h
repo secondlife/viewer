@@ -187,6 +187,7 @@ public:
 	void saveColors();
 	void saveShinyColors();
 	void saveTextures(const uuid_vec_t& textures);
+    void savedGLTFMaterials(const uuid_vec_t& materials);
 	void saveTextureScaleRatios(LLRender::eTexIndex index_to_query);
 
 	BOOL allowOperationOnNode(PermissionBit op, U64 group_proxy_power) const;
@@ -224,6 +225,7 @@ public:
 	std::vector<LLColor4>	mSavedColors;
 	std::vector<LLColor4>	mSavedShinyColors;
 	uuid_vec_t		mSavedTextures;
+    uuid_vec_t		mSavedGLTFMaterials;
 	std::vector<LLVector3>  mTextureScaleRatios;
 	std::vector<LLVector3>	mSilhouetteVertices;	// array of vertices to render silhouette of object
 	std::vector<LLVector3>	mSilhouetteNormals;	// array of normals to render silhouette of object
@@ -609,6 +611,7 @@ public:
 	void selectionRevertColors();
 	void selectionRevertShinyColors();
 	BOOL selectionRevertTextures();
+    void selectionRevertGLTFMaterials();
 	void selectionSetBumpmap( U8 bumpmap, const LLUUID &image_id );
 	void selectionSetTexGen( U8 texgen );
 	void selectionSetShiny( U8 shiny, const LLUUID &image_id );

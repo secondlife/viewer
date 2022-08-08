@@ -165,6 +165,15 @@ void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
     }
 }
 
+void LLMaterialEditor::onClose(bool app_quitting)
+{
+    // todo: will only revert whatever was recently selected,
+    // Later should work based of tools floater
+    LLSelectMgr::getInstance()->selectionRevertGLTFMaterials();
+    
+    LLPreview::onClose(app_quitting);
+}
+
 LLUUID LLMaterialEditor::getAlbedoId()
 {
     return mAlbedoTextureCtrl->getValue().asUUID();
@@ -1362,17 +1371,17 @@ public:
         return true;
     }
 private:
-    LLGLTFMaterial *mMat;
+    LLPointer<LLGLTFMaterial> mMat;
     LLUUID mMatId;
 };
 
 void LLMaterialEditor::applyToSelection()
 {
-    LLGLTFMaterial* mat = new LLGLTFMaterial();
+    LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
     getGLTFMaterial(mat);
     const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
     LLUUID asset_id = mAssetID.notNull() ? mAssetID : placeholder;
-    LLRemderMaterialFunctor mat_func(mat, mAssetID);
+    LLRemderMaterialFunctor mat_func(mat, asset_id);
     LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
     selected_objects->applyToTEs(&mat_func);
 }
