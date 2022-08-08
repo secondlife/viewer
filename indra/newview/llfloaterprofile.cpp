@@ -137,6 +137,20 @@ bool LLFloaterProfile::isPickTabSelected()
     return mPanelProfile->isPickTabSelected();
 }
 
+void LLFloaterProfile::refreshName()
+{
+    if (!mNameCallbackConnection.connected())
+    {
+        mNameCallbackConnection = LLAvatarNameCache::get(mAvatarId, boost::bind(&LLFloaterProfile::onAvatarNameCache, this, _1, _2));
+    }
+
+    LLPanelProfileSecondLife *panel = findChild<LLPanelProfileSecondLife>("panel_profile_secondlife");
+    if (panel)
+    {
+        panel->refreshName();
+    }
+}
+
 void LLFloaterProfile::showClassified(const LLUUID& classified_id, bool edit)
 {
     mPanelProfile->showClassified(classified_id, edit);

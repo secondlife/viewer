@@ -973,6 +973,14 @@ void LLPanelProfileSecondLife::updateData()
     }
 }
 
+void LLPanelProfileSecondLife::refreshName()
+{
+    if (!mAvatarNameCacheConnection.connected())
+    {
+        mAvatarNameCacheConnection = LLAvatarNameCache::get(getAvatarId(), boost::bind(&LLPanelProfileSecondLife::onAvatarNameCache, this, _1, _2));
+    }
+}
+
 void LLPanelProfileSecondLife::resetData()
 {
     resetLoading();
@@ -2574,6 +2582,11 @@ void LLPanelProfile::updateData()
                 boost::bind(request_avatar_properties_coro, cap_url, avatar_id));
         }
     }
+}
+
+void LLPanelProfile::refreshName()
+{
+    mPanelSecondlife->refreshName();
 }
 
 void LLPanelProfile::createPick(const LLPickData &data)

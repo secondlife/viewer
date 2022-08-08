@@ -49,6 +49,7 @@ public:
     void createPick(const LLPickData &data);
     void showPick(const LLUUID& pick_id = LLUUID::null);
     bool isPickTabSelected();
+    void refreshName();
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
 
