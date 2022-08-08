@@ -493,12 +493,12 @@ void LLViewerShaderMgr::setShaders()
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
 
-    bool canRenderDeferred       = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
-    bool hasWindLightShaders     = LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
+    //bool canRenderDeferred = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
+    //bool hasWindLightShaders = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool pbr = gSavedSettings.getBOOL("RenderPBR");
-    bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-    bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
+    bool doingWindLight = true; //DEPRECATED -- hasWindLightShaders&& gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+    bool useRenderDeferred = true; //DEPRECATED -- doingWindLight&& canRenderDeferred&& gSavedSettings.getBOOL("RenderDeferred");
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -675,67 +675,24 @@ void LLViewerShaderMgr::setShaders()
 
         if (loadShadersObject())
         { //hardware skinning is enabled and rigged attachment shaders loaded correctly
-            BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-
             // cloth is a class3 shader
-            S32 avatar_class = avatar_cloth ? 3 : 1;
+            S32 avatar_class = 1;
                 
             // Set the actual level
             mShaderLevel[SHADER_AVATAR] = avatar_class;
 
             loaded = loadShadersAvatar();
             llassert(loaded);
-
-            if (mShaderLevel[SHADER_AVATAR] != avatar_class)
-            {
-                if(llmax(mShaderLevel[SHADER_AVATAR]-1,0) >= 3)
-                {
-                    avatar_cloth = true;
-                }
-                else
-                {
-                    avatar_cloth = false;
-                }
-                gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
-            }
         }
         else
         { //hardware skinning not possible, neither is deferred rendering
-            mShaderLevel[SHADER_AVATAR] = 0;
-            mShaderLevel[SHADER_DEFERRED] = 0;
-
-                gSavedSettings.setBOOL("RenderDeferred", FALSE);
-                gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-
-            loadShadersAvatar(); // unloads
-
-            loaded = loadShadersObject();
-            llassert(loaded);
+            llassert(false); // SHOULD NOT BE POSSIBLE
         }
     }
-
-    if (!loaded)
-    { //some shader absolutely could not load, try to fall back to a simpler setting
-        if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
-        { //disable windlight and try again
-            gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
-            LL_WARNS() << "Falling back to no windlight shaders." << LL_ENDL;
-            reentrance = false;
-            setShaders();
-            return;
-        }
-    }       
 
     llassert(loaded);
-
-    if (loaded && !loadShadersDeferred())
-    { //everything else succeeded but deferred failed, disable deferred and try again
-        gSavedSettings.setBOOL("RenderDeferred", FALSE);
-        LL_WARNS() << "Falling back to no deferred shaders." << LL_ENDL;
-        reentrance = false;
-        setShaders();
-        return;
-    }
+    loaded = loaded && loadShadersDeferred();
+    llassert(loaded);
 
     if (gViewerWindow)
     {
