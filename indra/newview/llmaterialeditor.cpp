@@ -62,6 +62,7 @@ const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
+
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
@@ -1341,34 +1342,39 @@ void LLMaterialEditor::importMaterial()
     (new LLMaterialFilePicker(this))->getFile();
 }
 
+class LLRemderMaterialFunctor : public LLSelectedTEFunctor
+{
+public:
+    LLRemderMaterialFunctor(LLGLTFMaterial *mat, const LLUUID &id)
+        : mMat(mat), mMatId(id)
+    {
+    }
+
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        if (objectp && objectp->permModify() && objectp->getVolume())
+        {
+            LLVOVolume* vobjp = (LLVOVolume*)objectp;
+            vobjp->setRenderMaterialID(te, mMatId);
+            vobjp->getTE(te)->setGLTFMaterial(mMat);
+            vobjp->updateTEMaterialTextures(te);
+        }
+        return true;
+    }
+private:
+    LLGLTFMaterial *mMat;
+    LLUUID mMatId;
+};
+
 void LLMaterialEditor::applyToSelection()
 {
-    // Todo: fix this, this is a hack, not a proper live preview
-    LLViewerObject* objectp = LLSelectMgr::instance().getSelection()->getFirstObject();
-    if (objectp && objectp->getVolume() && objectp->permModify())
-    {
-        LLGLTFMaterial* mat = new LLGLTFMaterial();
-        getGLTFMaterial(mat);
-        LLVOVolume* vobjp = (LLVOVolume*)objectp;
-        for (int i = 0; i < vobjp->getNumTEs(); ++i)
-        {
-            // this is here just to prevent material from immediately resetting
-            if (mAssetID.notNull())
-            {
-                vobjp->setRenderMaterialID(i, mAssetID);
-            }
-            else
-            {
-                const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-                vobjp->setRenderMaterialID(i, placeholder);
-            }
-
-            vobjp->getTE(i)->setGLTFMaterial(mat);
-            vobjp->updateTEMaterialTextures(i);
-        }
-
-        vobjp->markForUpdate(TRUE);
-    }
+    LLGLTFMaterial* mat = new LLGLTFMaterial();
+    getGLTFMaterial(mat);
+    const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
+    LLUUID asset_id = mAssetID.notNull() ? mAssetID : placeholder;
+    LLRemderMaterialFunctor mat_func(mat, mAssetID);
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+    selected_objects->applyToTEs(&mat_func);
 }
 
 void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
