@@ -167,15 +167,8 @@ void main()
             dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
             slit = getProjectedLightSpecularColor( pos, n );
 
-//          vec3 intensity = getLightIntensitySpot( color, size, lightDist, v );
-//          colorDiffuse = shadow * dlit * nl;
-//          colorSpec    = shadow * slit * nl;
-
-//            colorDiffuse *= BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
-//            colorSpec    *= BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
-
-            colorDiffuse = shadow * dlit * nl * dist_atten;
-            colorSpec    = shadow * slit * nl * dist_atten;
+            colorDiffuse = shadow * dist_atten * nl * (dlit*0.5 + BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh ));
+            colorSpec    = shadow * dist_atten * nl * (slit     + BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh ));
 
   #if DEBUG_PBR_SPOT_DIFFUSE
             colorDiffuse = dlit.rgb; colorSpec = vec3(0);
