@@ -102,7 +102,7 @@ void main()
         float alphaRough, specWeight;
         initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 
-        if (nl > 0.0 || nv > 0.0)
+        if (nl > 0.0)
         {
             vec3 intensity = dist_atten * getLightIntensityPoint(color, size, lightDist);
             colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);

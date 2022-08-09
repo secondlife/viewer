@@ -102,7 +102,7 @@ void main()
             vec3  lv         =(light    [ light_idx ].xyz - pos);
             calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-            if (nl > 0.0 || nv > 0.0)
+            if (nl > 0.0)
             {
                 float dist = lightDist / lightSize;
                 float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
