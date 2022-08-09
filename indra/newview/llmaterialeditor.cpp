@@ -62,7 +62,6 @@ const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
-
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
@@ -1406,13 +1405,13 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
         stripped_uri = stripped_uri.substr(0, max_texture_name_length - 1);
     }
 
-    // We intend to append the type of texture (Albedo, emissive etc.) to the 
+    // We intend to append the type of texture (albedo, emissive etc.) to the 
     // name of the texture but sometimes the creator already did that.  To try
     // to avoid repeats (not perfect), we look for the texture type in the name
     // and if we find it, do not append the type, later on. One way this fails
     // (and it's fine for now) is I see some texture/image uris have a name like
     // "metallic roughness" and of course, that doesn't match our predefined
-    // name "metallicroughness" - might fix later..
+    // name "metallicroughness" - consider fix later..
     bool name_includes_type = false;
     std::string stripped_uri_lower = stripped_uri;
     LLStringUtil::toLower(stripped_uri_lower);
@@ -1443,8 +1442,9 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
             );
         }
         else
-        // uri doesn't include the type (because the uri is empty) so 
-        // reorganize the string a bit to include the name and type
+        // uri doesn't include the type (because the uri is empty)
+        // so we must reorganize the string a bit to include the name
+        // and an explicit name type
         {
             // example "DamagedHelmet: (Emissive)"
             return STRINGIZE(
@@ -1470,8 +1470,9 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
 
 /**
  * Update the metadata for the material based on what we find in the loaded
- * data (along with some assumptions and interpretations...). Fields include
- * the name of the material and the names of the composite textures.
+ * file (along with some assumptions and interpretations...). Fields include
+ * the name of the material, a material description and the names of the 
+ * composite textures.
  */
 void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf::Model& model)
 {
