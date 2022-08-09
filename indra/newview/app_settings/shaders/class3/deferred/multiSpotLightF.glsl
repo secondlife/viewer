@@ -38,6 +38,21 @@
 #define DEBUG_SPOT_SPEC_POS          0
 #define DEBUG_SPOT_REFLECTION        0
 
+#define DEBUG_PBR_LIGHT_H              0 // Half vector
+#define DEBUG_PBR_LIHGT_L              0 // Light vector
+#define DEBUG_PBR_LIGHT_NH             0 // dot(n,h)
+#define DEBUG_PBR_LIGHT_NL             0 // doh(n,l)
+#define DEBUG_PBR_LIGHT_NV             0 // doh(n,v)
+#define DEBUG_PBR_LIGHT_VH             0 // doh(v,h)
+#define DEBUG_PBR_LIGHT_DIFFUSE_COLOR  0 // non PBR spotlight
+#define DEBUG_PBR_LIGHT_SPECULAR_COLOR 0 // non PBR spotlight
+#define DEBUG_PBR_LIGHT_INTENSITY      0 // Light intensity
+#define DEBUG_PBR_LIGHT_INTENSITY_NL   0 // Light intensity * dot(n,l)
+#define DEBUG_PBR_LIGHT_BRDF_DIFFUSE   0
+#define DEBUG_PBR_LIGHT_BRDF_SPECULAR  0
+#define DEBUG_PBR_LIGHT_BRDF_FINAL     0 // BRDF Diffuse + BRDF Specular
+#define DEBUG_PBR_SHADOW               0 // Show inverted shadow
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -95,6 +110,13 @@ vec2 getScreenXY(vec4 clip);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 cs);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
+
+vec3 colorized_dot(float x)
+{
+    if (x > 0.0) return vec3( 0, x, 0 );
+    if (x < 0.0) return vec3( x, 0, 0 );
+                 return vec3( 0, 0, 1 );
+}
 
 vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
 {
@@ -210,6 +232,65 @@ void main()
   #endif
   #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0.5); colorSpec = vec3(0);
+  #endif
+
+  #if DEBUG_PBR_LIGHT_H
+        colorDiffuse = h*0.5 + 0.5;  colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIHGT_L
+        colorDiffuse = l*0.5 + 0.5;  colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_NH
+        colorDiffuse = colorized_dot(nh); colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_NL
+        colorDiffuse = colorized_dot(nl); colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_NV
+        colorDiffuse = colorized_dot(nv); colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_VH
+        colorDiffuse = colorized_dot(vh); colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_DIFFUSE_COLOR
+        colorDiffuse = dlit;
+  #endif
+  #if DEBUG_PBR_LIGHT_SPECULAR_COLOR
+        colorDiffuse = slit;
+  #endif
+  #if DEBUG_PBR_LIGHT_INTENSITY
+        colorDiffuse = getLightIntensitySpot( color, size, lightDist, v ); colorSpec = vec3(0);
+//        colorDiffuse = nl * dist_atten;
+  #endif
+  #if DEBUG_PBR_LIGHT_INTENSITY_NL
+        colorDiffuse = getLightIntensitySpot( color, size, lightDist, v ) * nl; colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_BRDF_DIFFUSE
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+        colorDiffuse = BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
+        colorSpec = vec3(0);
+  #endif
+  #if DEBUG_PBR_LIGHT_BRDF_SPECULAR
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+        colorDiffuse = vec3(0);
+        colorSpec = BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+  #endif
+  #if DEBUG_PBR_LIGHT_BRDF_FINAL
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+        colorDiffuse = nl * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
+        colorSpec    = nl * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+  #endif
+  #if DEBUG_PBR_SHADOW
+        colorDiffuse = 1.0 - vec3(shadow);
+        colorSpec = vec3(0);
   #endif
 
         final_color = colorDiffuse + colorSpec;
