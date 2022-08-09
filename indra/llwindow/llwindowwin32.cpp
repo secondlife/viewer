@@ -4619,7 +4619,10 @@ void LLWindowWin32::LLWindowWin32Thread::initDX()
             }
         }
 
-        pFactory->Release();
+        if (pFactory)
+        {
+            pFactory->Release();
+        }
     }
 }
 
