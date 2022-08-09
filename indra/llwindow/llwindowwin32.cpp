@@ -4598,10 +4598,77 @@ private:
     std::string mPrev;
 };
 
+// Print hardware debug info about available graphics adapters in ordinal order
+void debugEnumerateGraphicsAdapters()
+{
+    LL_INFOS("Window") << "Enumerating graphics adapters..." << LL_ENDL;
+
+    IDXGIFactory1* factory;
+    HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+    if (FAILED(res) || !factory)
+    {
+        LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
+    }
+    else
+    {
+        UINT graphics_adapter_index = 0;
+        IDXGIAdapter3* dxgi_adapter;
+        while (true)
+        {
+            res = factory->EnumAdapters(graphics_adapter_index, reinterpret_cast<IDXGIAdapter**>(&dxgi_adapter));
+            if (FAILED(res))
+            {
+                if (graphics_adapter_index == 0)
+                {
+                    LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
+                }
+                else
+                {
+                    LL_INFOS("Window") << "Done enumerating graphics adapters" << LL_ENDL;
+                }
+            }
+            else
+            {
+                DXGI_ADAPTER_DESC desc;
+                dxgi_adapter->GetDesc(&desc);
+                std::wstring description_w((wchar_t*)desc.Description);
+                std::string description(description_w.begin(), description_w.end());
+                LL_INFOS("Window") << "Graphics adapter index: " << graphics_adapter_index << ", "
+                    << "Description: " << description << ", "
+                    << "DeviceId: " << desc.DeviceId << ", "
+                    << "SubSysId: " << desc.SubSysId << ", "
+                    << "AdapterLuid: " << desc.AdapterLuid.HighPart << "_" << desc.AdapterLuid.LowPart << ", "
+                    << "DedicatedVideoMemory: " << desc.DedicatedVideoMemory / 1024 / 1024 << ", "
+                    << "DedicatedSystemMemory: " << desc.DedicatedSystemMemory / 1024 / 1024 << ", "
+                    << "SharedSystemMemory: " << desc.SharedSystemMemory / 1024 / 1024 << LL_ENDL;
+            }
+
+            if (dxgi_adapter)
+            {
+                dxgi_adapter->Release();
+                dxgi_adapter = NULL;
+            }
+            else
+            {
+                break;
+            }
+
+            graphics_adapter_index++;
+        }
+    }
+
+    if (factory)
+    {
+        factory->Release();
+    }
+}
+
 void LLWindowWin32::LLWindowWin32Thread::initDX()
 {
     if (mDXGIAdapter == NULL)
     {
+        debugEnumerateGraphicsAdapters();
+
         IDXGIFactory4* pFactory = nullptr;
 
         HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
