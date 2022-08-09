@@ -847,7 +847,7 @@
              decouple_texture_size="true" />
       <button
        left="90"
-       top="222"
+       top="227"
        height="20"
        label="Save as Material"
        label_selected="Save current face as a Material"
@@ -866,7 +866,7 @@
              label="Material UUID"
              name="materialID"
              select_on_focus="true"
-             top="380"
+             top="405"
              width="200"
              tool_tip="UUID for a material asset"
              />

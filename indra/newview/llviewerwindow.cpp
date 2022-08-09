@@ -1912,7 +1912,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		gSavedSettings.getBOOL("RenderVSyncEnable"),
 		!gHeadlessClient,
 		p.ignore_pixel_depth,
-		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
+		0); //don't use window level anti-aliasing
 
 	if (NULL == mWindow)
 	{

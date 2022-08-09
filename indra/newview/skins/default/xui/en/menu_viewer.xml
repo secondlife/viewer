@@ -3120,18 +3120,6 @@ function="World.EnvPreset"
           <menu_item_separator />
 
           <menu_item_check
-                       label="Advanced Lighting Model"
-                       name="Advanced Lighting Model">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RenderDeferred" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RenderDeferred" />
-            <menu_item_check.on_enable
-                 function="Advanced.EnableRenderDeferred" />
-          </menu_item_check>
-          <menu_item_check
                        label="   Shadows from Sun/Moon/Projectors"
                        name="Shadows from Sun/Moon/Projectors">
             <menu_item_check.on_check

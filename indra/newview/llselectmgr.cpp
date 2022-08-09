@@ -1936,6 +1936,32 @@ BOOL LLSelectMgr::selectionRevertTextures()
 	return revert_successful;
 }
 
+void LLSelectMgr::selectionRevertGLTFMaterials()
+{
+    struct f : public LLSelectedTEFunctor
+    {
+        LLObjectSelectionHandle mSelectedObjects;
+        f(LLObjectSelectionHandle sel) : mSelectedObjects(sel) {}
+        bool apply(LLViewerObject* object, S32 te)
+        {
+            if (object->permModify())
+            {
+                LLSelectNode* nodep = mSelectedObjects->findNode(object);
+                if (nodep && te < (S32)nodep->mSavedGLTFMaterials.size())
+                {
+                    LLUUID id = nodep->mSavedGLTFMaterials[te];
+                    object->setRenderMaterialID(te, id);
+                }
+            }
+            return true;
+        }
+    } setfunc(mSelectedObjects);
+    getSelection()->applyToTEs(&setfunc);
+
+    LLSelectMgrSendFunctor sendfunc;
+    getSelection()->applyToObjects(&sendfunc);
+}
+
 void LLSelectMgr::selectionSetBumpmap(U8 bumpmap, const LLUUID &image_id)
 {
 	struct f : public LLSelectedTEFunctor
@@ -5526,6 +5552,17 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 					// this should be the only place that saved textures is called
 					node->saveTextures(texture_ids);
 				}
+
+                if (can_copy && can_transfer && node->getObject()->getVolume())
+                {
+                    uuid_vec_t material_ids;
+                    LLVOVolume* vobjp = (LLVOVolume*)node->getObject();
+                    for (int i = 0; i < vobjp->getNumTEs(); ++i)
+                    {
+                        material_ids.push_back(vobjp->getRenderMaterialID(i));
+                    }
+                    node->savedGLTFMaterials(material_ids);
+                }
 			}
 
 			node->mValid = TRUE;
@@ -6277,6 +6314,7 @@ LLSelectNode::LLSelectNode(const LLSelectNode& nodep)
 	}
 	
 	saveTextures(nodep.mSavedTextures);
+    savedGLTFMaterials(nodep.mSavedGLTFMaterials);
 }
 
 LLSelectNode::~LLSelectNode()
@@ -6390,6 +6428,20 @@ void LLSelectNode::saveTextures(const uuid_vec_t& textures)
 			mSavedTextures.push_back(*texture_it);
 		}
 	}
+}
+
+void LLSelectNode::savedGLTFMaterials(const uuid_vec_t& materials)
+{
+    if (mObject.notNull())
+    {
+        mSavedGLTFMaterials.clear();
+
+        for (uuid_vec_t::const_iterator materials_it = materials.begin();
+            materials_it != materials.end(); ++materials_it)
+        {
+            mSavedGLTFMaterials.push_back(*materials_it);
+        }
+    }
 }
 
 void LLSelectNode::saveTextureScaleRatios(LLRender::eTexIndex index_to_query)
