@@ -119,20 +119,6 @@ vec3 colorized_dot(float x)
                  return vec3( 0, 0, 1 );
 }
 
-vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
-{
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret.rgb = srgb_to_linear(ret.rgb);
-
-    vec2 dist = tc-vec2(0.5);
-
-    float d = dot(dist,dist);
-
-    ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
-
-    return ret;
-}
-
 vec4 getPosition(vec2 pos_screen);
 
 void main()
@@ -336,7 +322,7 @@ void main()
             proj_tc.x > 0.0 &&
             proj_tc.y > 0.0)
         {
-            float amb_da = proj_ambiance;
+            float amb_da = 0;
             float lit = 0.0;
 
             if (nl > 0.0)
@@ -351,15 +337,8 @@ void main()
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
         
-            //float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
-            vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
-
-            // use unshadowed for consistency between forward and deferred?
-            amb_da += (nl*nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
-            amb_da *= dist_atten * noise;
-            amb_da = min(amb_da, 1.0-lit);
-
-            final_color += amb_da*color.rgb*diffuse.rgb*amb_plcol.rgb*amb_plcol.a;
+            amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, noise, proj_tc.xy );
+            final_color += diffuse.rgb * amb_rgb;
         }
     
         if (spec.a > 0.0)
