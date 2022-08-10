@@ -156,6 +156,11 @@ void LLFloaterProfile::showClassified(const LLUUID& classified_id, bool edit)
     mPanelProfile->showClassified(classified_id, edit);
 }
 
+void LLFloaterProfile::createClassified()
+{
+    mPanelProfile->createClassified();
+}
+
 void LLFloaterProfile::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name)
 {
     mNameCallbackConnection.disconnect();

@@ -77,10 +77,10 @@ public:
             return true;
         }
 
-        // handle app/classified/create urls first
+        // handle app/pick/create urls first
         if (params.size() == 1 && params[0].asString() == "create")
         {
-            LLAvatarActions::showPicks(gAgent.getID());
+            LLAvatarActions::createPick();
             return true;
         }
 
@@ -317,7 +317,6 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
 
         if (selected_id == pick_id)
         {
-            mPickToSelectOnLoad = LLUUID::null;
             has_selection = true;
         }
     }
@@ -340,6 +339,8 @@ void LLPanelProfilePicks::processProperties(const LLAvatarPicks* avatar_picks)
         has_selection = true;
     }
 
+    // reset 'do on load' values
+    mPickToSelectOnLoad = LLUUID::null;
     mSheduledPickCreation.clear();
 
     if (getSelfProfile())

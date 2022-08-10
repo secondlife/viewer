@@ -98,7 +98,7 @@ public:
         // handle app/classified/create urls first
         if (params.size() == 1 && params[0].asString() == "create")
         {
-            LLAvatarActions::showClassifieds(gAgent.getID());
+            LLAvatarActions::createClassified();
             return true;
         }
 
@@ -199,6 +199,7 @@ LLPanelProfileClassifieds::LLPanelProfileClassifieds()
  : LLPanelProfilePropertiesProcessorTab()
  , mClassifiedToSelectOnLoad(LLUUID::null)
  , mClassifiedEditOnLoad(false)
+ , mSheduledClassifiedCreation(false)
 {
 }
 
@@ -251,6 +252,26 @@ void LLPanelProfileClassifieds::selectClassified(const LLUUID& classified_id, bo
     {
         mClassifiedToSelectOnLoad = classified_id;
         mClassifiedEditOnLoad = edit;
+    }
+}
+
+void LLPanelProfileClassifieds::createClassified()
+{
+    if (getIsLoaded())
+    {
+        mNoItemsLabel->setVisible(FALSE);
+        LLPanelProfileClassified* classified_panel = LLPanelProfileClassified::create();
+        classified_panel->onOpen(LLSD());
+        mTabContainer->addTabPanel(
+            LLTabContainer::TabPanelParams().
+            panel(classified_panel).
+            select_tab(true).
+            label(classified_panel->getClassifiedName()));
+        updateButtons();
+    }
+    else
+    {
+        mSheduledClassifiedCreation = true;
     }
 }
 
@@ -335,6 +356,7 @@ void LLPanelProfileClassifieds::processProperties(void* data, EAvatarProcessorTy
             // do not clear classified list in case we will receive two or more data packets.
             // list has been cleared in updateData(). (fix for EXT-6436)
             LLUUID selected_id = mClassifiedToSelectOnLoad;
+            bool has_selection = false;
 
             LLAvatarClassifieds::classifieds_list_t::const_iterator it = c_info->classifieds_list.begin();
             for (; c_info->classifieds_list.end() != it; ++it)
@@ -359,10 +381,26 @@ void LLPanelProfileClassifieds::processProperties(void* data, EAvatarProcessorTy
 
                 if (selected_id == c_data.classified_id)
                 {
-                    mClassifiedToSelectOnLoad = LLUUID::null;
-                    mClassifiedEditOnLoad = false;
+                    has_selection = true;
                 }
             }
+
+            if (mSheduledClassifiedCreation)
+            {
+                LLPanelProfileClassified* classified_panel = LLPanelProfileClassified::create();
+                classified_panel->onOpen(LLSD());
+                mTabContainer->addTabPanel(
+                    LLTabContainer::TabPanelParams().
+                    panel(classified_panel).
+                    select_tab(!has_selection).
+                    label(classified_panel->getClassifiedName()));
+                has_selection = true;
+            }
+
+            // reset 'do on load' values
+            mClassifiedToSelectOnLoad = LLUUID::null;
+            mClassifiedEditOnLoad = false;
+            mSheduledClassifiedCreation = false;
 
             // set even if not visible, user might delete own
             // calassified and this string will need to be shown
@@ -377,7 +415,7 @@ void LLPanelProfileClassifieds::processProperties(void* data, EAvatarProcessorTy
 
             bool has_data = mTabContainer->getTabCount() > 0;
             mNoItemsLabel->setVisible(!has_data);
-            if (has_data && selected_id.isNull())
+            if (has_data && !has_selection)
             {
                 mTabContainer->selectFirstTab();
             }

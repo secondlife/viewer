@@ -80,6 +80,8 @@ public:
 
     void selectClassified(const LLUUID& classified_id, bool edit);
 
+    void createClassified();
+
     void processProperties(void* data, EAvatarProcessorType type) override;
 
     void resetData() override;
@@ -108,6 +110,7 @@ private:
 
     LLUUID          mClassifiedToSelectOnLoad;
     bool            mClassifiedEditOnLoad;
+    bool            mSheduledClassifiedCreation;
 };
 
 

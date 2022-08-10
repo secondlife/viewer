@@ -99,8 +99,10 @@ public:
     static void showProfile(const LLUUID& avatar_id);
     static void showPicks(const LLUUID& avatar_id);
     static void showPick(const LLUUID& avatar_id, const LLUUID& pick_id);
+    static void createPick();
     static void showClassifieds(const LLUUID& avatar_id);
     static void showClassified(const LLUUID& avatar_id, const LLUUID& classified_id, bool edit = false);
+    static void createClassified();
     static void hideProfile(const LLUUID& avatar_id);
     static bool profileVisible(const LLUUID& avatar_id);
     static bool isPickTabSelected(const LLUUID& avatar_id);

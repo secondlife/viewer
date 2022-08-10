@@ -52,6 +52,7 @@ public:
     void refreshName();
 
     void showClassified(const LLUUID& classified_id = LLUUID::null, bool edit = false);
+    void createClassified();
 
 private:
     LLAvatarNameCache::callback_connection_t mNameCallbackConnection;
