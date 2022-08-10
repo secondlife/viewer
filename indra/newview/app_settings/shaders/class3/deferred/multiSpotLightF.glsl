@@ -104,6 +104,7 @@ void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float 
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
 vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip);
@@ -185,25 +186,54 @@ void main()
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
         float metal        = packedORM.b;
 
-//        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
-//        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
-        if (nl > 0.0)
+        // We need this additional test inside a light's frustum since a spotlight's ambiance can be applied
+        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
         {
-            vec3 c_diff, reflect0, reflect90;
-            float alphaRough, specWeight;
-            initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+            float lit = 0.0;
+            float amb_da = 0.0;
 
-            dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
-            slit = getProjectedLightSpecularColor( pos, n );
+            if (nl > 0.0)
+            {
+                amb_da += (nl*0.5 + 0.5) * proj_ambiance;
+                lit = nl * dist_atten;
 
-            colorDiffuse = shadow * dist_atten * nl * (dlit*0.5 + BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh ));
-            colorSpec    = shadow * dist_atten * nl * (slit     + BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh ));
+                vec3 c_diff, reflect0, reflect90;
+                float alphaRough, specWeight;
+                initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 
-  #if DEBUG_PBR_SPOT_DIFFUSE
-            colorDiffuse = dlit.rgb; colorSpec = vec3(0);
-  #endif
-  #if DEBUG_PBR_SPOT_SPECULAR
-            colorDiffuse = vec3(0); colorSpec = slit.rgb;
+                dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
+                slit = getProjectedLightSpecularColor( pos, n );
+
+                colorDiffuse = shadow * lit * (dlit*0.5 + BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh ));
+                colorSpec    = shadow * lit * (slit     + BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh ));
+
+      #if DEBUG_PBR_SPOT_DIFFUSE
+                colorDiffuse = dlit.rgb; colorSpec = vec3(0);
+      #endif
+      #if DEBUG_PBR_SPOT_SPECULAR
+                colorDiffuse = vec3(0); colorSpec = slit.rgb;
+      #endif
+      #if DEBUG_PBR_SPOT
+                colorDiffuse = dlit; colorSpec = vec3(0);
+                colorDiffuse *= nl;
+                colorDiffuse *= shadow;
+      #endif
+
+      #if DEBUG_SPOT_SPEC_POS
+                colorDiffuse = pos + ref * dot(pdelta, proj_n)/ds; colorSpec = vec3(0);
+      #endif
+      #if DEBUG_SPOT_REFLECTION
+                colorDiffuse = ref; colorSpec = vec3(0);
+      #endif
+
+            }
+
+            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
+            colorDiffuse += diffuse.rgb * amb_rgb;
+
+  #if DEBUG_LIGHT_FRUSTUM
+            colorDiffuse = vec3(0,1,0); colorSpec = vec3(0);
   #endif
   #if DEBUG_PBR_SPOT
             colorDiffuse = dlit; colorSpec = vec3(0);
@@ -217,7 +247,6 @@ void main()
   #if DEBUG_SPOT_REFLECTION
             colorDiffuse = ref; colorSpec = vec3(0);
   #endif
-
         }
 
   #if DEBUG_SPOT_DIFFUSE
