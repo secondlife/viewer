@@ -31,6 +31,7 @@
 #define DEBUG_VERTEX        0
 #define DEBUG_NORMAL_MAP    0 // Output packed normal map "as is" to diffuse
 #define DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
+#define DEBUG_ORM           0 // Output Occlusion Roughness Metal "as is" to diffuse
 #define DEBUG_POSITION      0
 
 uniform sampler2D diffuseMap;  //always in sRGB space
@@ -138,6 +139,9 @@ void main()
 #endif
 #if DEBUG_NORMAL_OUT
     col.rgb = vary_normal;
+#endif
+#if DEBUG_ORM
+    col.rgb = linear_to_srgb(spec);
 #endif
 #if DEBUG_POSITION
     col.rgb = vary_position.xyz;

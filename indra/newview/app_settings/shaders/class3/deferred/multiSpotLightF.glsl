@@ -29,29 +29,36 @@
 /*[EXTRA_CODE_HERE]*/
 
 #define DEBUG_PBR_LIGHT_TYPE         0 // Ouput gray if PBR multiSpot lights object
+#define DEBUG_PBR_SPOT_ZERO          0 // Output zero for spotlight
 #define DEBUG_PBR_SPOT               0
 #define DEBUG_PBR_SPOT_DIFFUSE       0 // PBR diffuse lit
 #define DEBUG_PBR_SPOT_SPECULAR      0 // PBR spec lit
 
-#define DEBUG_SPOT_DIFFUSE           0
-#define DEBUG_SPOT_NL                0 // monochome area effected by light
-#define DEBUG_SPOT_SPEC_POS          0
-#define DEBUG_SPOT_REFLECTION        0
+#define DEBUG_LIGHT_FRUSTUM            0 // If projected light effects a surface
+#define DEBUG_AMBIANCE_COLOR           0 // calculated ambiance color
+#define DEBUG_AMBIANCE_AOE             0 // area of effect using inverse ambiance color
+#define DEBUG_AMBIANCE_FINAL           0 // light color * ambiance color
+#define DEBUG_NOISE                    0 // monochrome noise
+#define DEBUG_SHADOW                   0 // Show inverted shadow
+#define DEBUG_SPOT_DIFFUSE             0 // dot(n,l) * dist_atten
+#define DEBUG_SPOT_NL                  0 // monochome area effected by light
+#define DEBUG_SPOT_SPEC_POS            0
+#define DEBUG_SPOT_REFLECTION          0 // color: pos reflected along n
 
 #define DEBUG_PBR_LIGHT_H              0 // Half vector
 #define DEBUG_PBR_LIHGT_L              0 // Light vector
-#define DEBUG_PBR_LIGHT_NH             0 // dot(n,h)
-#define DEBUG_PBR_LIGHT_NL             0 // doh(n,l)
-#define DEBUG_PBR_LIGHT_NV             0 // doh(n,v)
-#define DEBUG_PBR_LIGHT_VH             0 // doh(v,h)
+#define DEBUG_PBR_LIGHT_NH             0 // colorized dot(n,h)
+#define DEBUG_PBR_LIGHT_NL             0 // colorized dot(n,l)
+#define DEBUG_PBR_LIGHT_NV             0 // colorized dot(n,v)
+#define DEBUG_PBR_LIGHT_VH             0 // colorized dot(v,h)
 #define DEBUG_PBR_LIGHT_DIFFUSE_COLOR  0 // non PBR spotlight
 #define DEBUG_PBR_LIGHT_SPECULAR_COLOR 0 // non PBR spotlight
 #define DEBUG_PBR_LIGHT_INTENSITY      0 // Light intensity
 #define DEBUG_PBR_LIGHT_INTENSITY_NL   0 // Light intensity * dot(n,l)
-#define DEBUG_PBR_LIGHT_BRDF_DIFFUSE   0
+#define DEBUG_PBR_LIGHT_BRDF_DIFFUSE   0 // like "fullbright" if no "nl" factor
 #define DEBUG_PBR_LIGHT_BRDF_SPECULAR  0
 #define DEBUG_PBR_LIGHT_BRDF_FINAL     0 // BRDF Diffuse + BRDF Specular
-#define DEBUG_PBR_SHADOW               0 // Show inverted shadow
+
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -164,6 +171,8 @@ void main()
     vec3 dlit    = vec3(0, 0, 0);
     vec3 slit    = vec3(0, 0, 0);
 
+    vec3 amb_rgb = vec3(0);
+
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         vec3 colorDiffuse  = vec3(0);
@@ -205,42 +214,23 @@ void main()
                 colorDiffuse *= nl;
                 colorDiffuse *= shadow;
       #endif
-
-      #if DEBUG_SPOT_SPEC_POS
-                colorDiffuse = pos + ref * dot(pdelta, proj_n)/ds; colorSpec = vec3(0);
-      #endif
-      #if DEBUG_SPOT_REFLECTION
-                colorDiffuse = ref; colorSpec = vec3(0);
-      #endif
-
             }
 
-            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
+            amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
             colorDiffuse += diffuse.rgb * amb_rgb;
 
+  #if DEBUG_AMBIANCE_FINAL
+            colorDiffuse = diffuse.rgb * amb_rgb; colorSpec = vec3(0);
+  #endif
   #if DEBUG_LIGHT_FRUSTUM
             colorDiffuse = vec3(0,1,0); colorSpec = vec3(0);
   #endif
-  #if DEBUG_PBR_SPOT
-            colorDiffuse = dlit; colorSpec = vec3(0);
-            colorDiffuse *= nl;
-            colorDiffuse *= shadow;
-  #endif
-
-  #if DEBUG_SPOT_SPEC_POS
-            colorDiffuse = pos + ref * dot(pdelta, proj_n)/ds; colorSpec = vec3(0);
-  #endif
-  #if DEBUG_SPOT_REFLECTION
-            colorDiffuse = ref; colorSpec = vec3(0);
+  #if DEBUG_NOISE
+            float noise = texture2D(noiseMap, tc/128.0).b;
+            colorDiffuse = vec3(noise); colorSpec = vec3(0);
   #endif
         }
 
-  #if DEBUG_SPOT_DIFFUSE
-        colorDiffuse = vec3(nl * dist_atten);
-  #endif
-  #if DEBUG_SPOT_NL
-        colorDiffuse = vec3(nl); colorSpec = vec3(0);
-  #endif
   #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0.5); colorSpec = vec3(0);
   #endif
@@ -298,10 +288,6 @@ void main()
         initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
         colorDiffuse = nl * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
         colorSpec    = nl * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
-  #endif
-  #if DEBUG_PBR_SHADOW
-        colorDiffuse = 1.0 - vec3(shadow);
-        colorSpec = vec3(0);
   #endif
 
         final_color = colorDiffuse + colorSpec;
@@ -386,22 +372,55 @@ void main()
                     }
                 }
             }
-  #if DEBUG_SPOT_SPEC_POS
-            final_color = pos + ref * dot(pdelta, proj_n)/ds;
-  #endif
   #if DEBUG_SPOT_REFLECTION
             final_color = ref;
   #endif
         }
 
+#if DEBUG_LIGHT_FRUSTUM
+        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
+        {
+            final_color = vec3(0,0,1);
+        }
+#endif
+    }
+
+#if DEBUG_AMBIANCE_AOE
+    if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+    &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
+    {
+        final_color = 1.0 - amb_rgb;
+    }
+#endif
+#if DEBUG_AMBIANCE_COLOR
+    if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+    &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
+    {
+        final_color = amb_rgb;
+    }
+#endif
+#if DEBUG_SHADOW
+    final_color = 1.0 - vec3(shadow);
+#endif
+#if DEBUG_SPOT_DIFFUSE
+    final_color = vec3(nl * dist_atten);
+#endif
 #if DEBUG_SPOT_NL
     final_color =vec3(nl);
 #endif
-#if DEBUG_SPOT_DIFFUSE
-    final_color = vec3(nl * dist_atten * noise);
+#if DEBUG_SPOT_SPEC_POS
+    vec3 ref = reflect(normalize(pos), n);
+    vec3 pdelta = proj_p-pos;
+    float ds = dot(ref, proj_n);
+    final_color = pos + ref * dot(pdelta, proj_n)/ds;
 #endif
-
-    }
+#if DEBUG_SPOT_REFLECTION
+    final_color = reflect(normalize(pos), n);
+#endif
+#if DEBUG_SPOT_ZERO
+    final_color = vec3(0);
+#endif
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));

@@ -30,9 +30,10 @@
 
 #define DEBUG_PBR_LIGHT_TYPE         0
 #define DEBUG_PBR_SPOT               0
-#define DEBUG_PBR_NL                 0 // monochome area effected by light
 #define DEBUG_PBR_SPOT_DIFFUSE       0
 #define DEBUG_PBR_SPOT_SPECULAR      0
+
+#define DEBUG_SPOT_NL                  0 // monochome area effected by light
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -185,12 +186,6 @@ void main()
 
         }
 
-  #if DEBUG_SPOT_DIFFUSE
-        colorDiffuse = vec3(nl * dist_atten);
-  #endif
-  #if DEBUG_PBR_NL
-            colorDiffuse = vec3(nl); colorSpec = vec3(0);
-  #endif
   #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0.5,0,0); colorSpec = vec3(0.0);
   #endif
@@ -278,6 +273,13 @@ void main()
             }
         }
     }
+
+#if DEBUG_SPOT_DIFFUSE
+    final_color = vec3(nl * dist_atten);
+#endif
+#if DEBUG_SPOT_NL
+    final_color = vec3(nl);
+#endif
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));
