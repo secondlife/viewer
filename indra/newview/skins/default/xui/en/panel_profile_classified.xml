@@ -119,10 +119,10 @@
              tool_tip="Click to select an image"
              top="0"
              left="0"
-             height="197"
-             width="272"
+             height="161"
+             width="260"
              layout="topleft"
-             follows="left|top|right"
+             follows="left|top"
              image_name="spacer24.tga"
              visible="false"
             />
@@ -449,7 +449,7 @@
             </layout_stack>
             <panel
              name="edit_panel"
-             top="180"
+             top="145"
              left="0"
              height="420"
              width="320"

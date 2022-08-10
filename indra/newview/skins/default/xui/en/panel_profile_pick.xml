@@ -42,24 +42,56 @@
        layout="topleft"
        fallback_image="default_land_picture.j2c"
       />
+      <text
+       name="title_label"
+       top_pad="-15"
+       left="10"
+       height="15"
+       width="280"
+       follows="left|top"
+       layout="topleft"
+       font="SansSerifSmall"
+       font.style="BOLD"
+       length="1"
+       text_color="white"
+       type="string"
+                >
+        Title:
+      </text>
       <line_editor
        name="pick_name"
        enabled="false"
-       top_pad="-15"
+       top_pad="2"
        left="10"
        height="20"
        width="290"
        follows="left|right|top"
        layout="topleft"
       />
+      <text
+       name="description_label"
+       top_pad="10"
+       left="10"
+       height="15"
+       width="280"
+       follows="left|top"
+       layout="topleft"
+       font="SansSerifSmall"
+       font.style="BOLD"
+       length="1"
+       text_color="white"
+       type="string"
+                >
+        Description:
+      </text>
       <text_editor
        name="pick_desc"
        trusted_content="false"
        always_show_icons="true"
        enabled="false"
-       top_pad="8"
+       top_pad="2"
        left="10"
-       height="102"
+       height="45"
        width="290"
        follows="all"
        layout="topleft"
@@ -70,9 +102,26 @@
        v_pad="3"
        word_wrap="true"
       />
+      <text
+       name="location_label"
+       bottom="-25"
+       left="10"
+       height="15"
+       width="280"
+       follows="left|right|bottom"
+       layout="topleft"
+       font="SansSerifSmall"
+       font.style="BOLD"
+       length="1"
+       text_color="white"
+       type="string"
+                >
+        Location:
+      </text>
       <line_editor
        name="pick_location"
        enabled="false"
+       bottom="-1"
        left="10"
        height="23"
        width="290"
