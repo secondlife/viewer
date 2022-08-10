@@ -459,7 +459,6 @@ LLPanelProfilePick::LLPanelProfilePick()
  , mRequestedId(LLUUID::null)
  , mLocationChanged(false)
  , mNewPick(false)
- , mCurrentPickDescription("")
  , mIsEditing(false)
 {
 }
@@ -579,7 +578,6 @@ void LLPanelProfilePick::onDescriptionFocusReceived()
     {
         mIsEditing = true;
         mPickDescription->setParseHTML(false);
-        setPickDesc(mCurrentPickDescription);
     }
 }
 
@@ -614,7 +612,6 @@ void LLPanelProfilePick::processProperties(const LLPickData* pick_info)
     setPickName(pick_info->name);
     setPickDesc(pick_info->desc);
     setPosGlobal(pick_info->pos_global);
-    mCurrentPickDescription = pick_info->desc;
 
     // Send remote parcel info request to get parcel name and sim (region) name.
     sendParcelInfoRequest();

@@ -242,8 +242,6 @@ protected:
     bool mNewPick;
     bool                mIsEditing;
 
-    std::string mCurrentPickDescription;
-
     void onDescriptionFocusReceived();
 };
 
