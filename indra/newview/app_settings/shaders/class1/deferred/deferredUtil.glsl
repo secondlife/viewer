@@ -34,6 +34,7 @@ uniform vec3 proj_p; //plane projection is emitting from (in screen space)
 uniform float proj_focus; // distance from plane to begin blurring
 uniform float proj_lod  ; // (number of mips in proj map)
 uniform float proj_range; // range between near clip and far clip plane of projection
+uniform float proj_ambiance;
 
 // light params
 uniform vec3 color; // light_color
@@ -146,6 +147,18 @@ float getDepth(vec2 pos_screen)
     return depth;
 }
 
+vec4 getTexture2DLodAmbient(vec2 tc, float lod)
+{
+    vec4 ret = texture2DLod(projectionMap, tc, lod);
+    ret.rgb = srgb_to_linear(ret.rgb);
+
+    vec2 dist = tc-vec2(0.5);
+    float d = dot(dist,dist);
+    ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
+
+    return ret;
+}
+
 vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
 {
     vec4 ret = texture2DLod(projectionMap, tc, lod);
@@ -160,8 +173,24 @@ vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
     return ret;
 }
 
-// Returns projected light in Linear
+// lit     This is set by the caller: if (nl > 0.0) { lit = attenuation * nl * noise; }
 // Uses:
+//   color   Projected spotlight color
+vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv)
+{
+    vec4 amb_plcol = getTexture2DLodAmbient(projected_uv, proj_lod);
+    vec3 amb_rgb   = amb_plcol.rgb * amb_plcol.a;
+
+    amb_da += proj_ambiance;
+    amb_da += (nl*nl*0.5+0.5) * proj_ambiance;
+    amb_da *= attenuation * noise;
+    amb_da = min(amb_da, 1.0-lit);
+
+    return (amb_da * color.rgb * amb_rgb);
+}
+
+// Returns projected light in Linear
+// Uses global spotlight color:
 //  color
 // NOTE: projected.a will be pre-multiplied with projected.rgb
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv)
