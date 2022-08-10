@@ -4264,6 +4264,9 @@ name="Command_360_Capture_Tooltip">Capture a 360 equirectangular image</string>
   <string name="ExperiencePermissionShort16">Sit</string>
   <string name="ExperiencePermissionShort17">Environment</string>
 
+  <!-- PBR Materials -->
+  <string name="Material Texture Name Header">Textures present this material: </string>
+  
   <!-- Conversation log messages -->
   <string name="logging_calls_disabled_log_empty">
     Conversations are not being logged. To begin keeping a log, choose "Save: Log only" or "Save: Log and transcripts" under Preferences > Chat.
