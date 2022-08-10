@@ -42,6 +42,7 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llviewerinventory.h"
+#include "llinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
 #include "roles_constants.h"
@@ -692,6 +693,9 @@ const std::string LLMaterialEditor::buildMaterialDescription()
     {
         desc.str().erase(iter);
     }
+
+    // sanitize the material description so that it's compatible with the inventory
+    LLInventoryObject::correctInventoryName(desc.str());
 
     return desc.str();
 }
@@ -1531,6 +1535,10 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf
         mMaterialName = base_filename;
     }
 
+    // sanitize the material name so that it's compatible with the inventory
+    LLInventoryObject::correctInventoryName(mMaterialName);
+    LLInventoryObject::correctInventoryName(mMaterialNameShort);
+
     // We also set the title of the floater to match the 
     // name of the material
     setTitle(mMaterialName);
@@ -1547,31 +1555,43 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf
         const tinygltf::Material& first_material = model.materials[0];
 
         mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+        // note: unlike the other textures, albedo doesn't have its own entry 
+        // in the tinyGLTF Material struct. Rather, it is taken from a 
+        // sub-texture in the pbrMetallicRoughness member
         int index = first_material.pbrMetallicRoughness.baseColorTexture.index;
         if (index > -1 && index < model.images.size())
         {
-            mAlbedoName = getImageNameFromUri(model.images[index].uri, MATERIAL_ALBEDO_DEFAULT_NAME);
+            // sanitize the name we decide to use for each texture
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_ALBEDO_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mAlbedoName = texture_name;
         }
 
         mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
         index = first_material.emissiveTexture.index;
         if (index > -1 && index < model.images.size())
         {
-            mEmissiveName = getImageNameFromUri(model.images[index].uri, MATERIAL_EMISSIVE_DEFAULT_NAME);
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_EMISSIVE_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mEmissiveName = texture_name;
         }
 
         mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
         index = first_material.pbrMetallicRoughness.metallicRoughnessTexture.index;
         if (index > -1 && index < model.images.size())
         {
-            mMetallicRoughnessName = getImageNameFromUri(model.images[index].uri, MATERIAL_METALLIC_DEFAULT_NAME);
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_METALLIC_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mMetallicRoughnessName = texture_name;
         }
 
         mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
         index = first_material.normalTexture.index;
         if (index > -1 && index < model.images.size())
         {
-            mNormalName = getImageNameFromUri(model.images[index].uri, MATERIAL_NORMAL_DEFAULT_NAME);
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_NORMAL_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mNormalName = texture_name;
         }
     }
 }
