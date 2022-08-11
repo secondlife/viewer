@@ -319,6 +319,16 @@ void main()
     #endif
         colorDiffuse *= packedORM.r; // Occlusion -- NOTE: pbropaque will need occlusion_strength pre-multiplied into spec.r
 
+        // Add in sun/moon reflection
+        if (metal > 0.0)
+        {
+            vec3  r      = reflect(pos.xyz, norm.xyz);
+            float sa     = dot(normalize(r), light_dir.xyz);
+            float sun    = texture2D(lightFunc, vec2(sa, metal)).r;
+            vec3 sunSpec = sunlit * scol * sun;
+            colorSpec    += sunSpec;
+            bloom        = dot(sunSpec, sunSpec) / 6;
+        }
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
 
         vec3 sun_contrib = min(da, scol) * sunlit;
