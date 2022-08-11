@@ -106,6 +106,8 @@ void main()
             {
                 float dist = lightDist / lightSize;
                 float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+                dist_atten *= dist_atten;
+                dist_atten *= 2.0;
                 vec3 intensity = dist_atten * getLightIntensityPoint(lightColor, lightSize, lightDist);
                 colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
                 colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);

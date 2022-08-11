@@ -90,6 +90,8 @@ void main()
 
     float dist = lightDist / size;
     float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+    dist_atten *= dist_atten;
+    dist_atten *= 2.0;
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
@@ -128,9 +130,6 @@ void main()
         {
             discard;
         }
-
-        dist_atten *= dist_atten;
-        dist_atten *= 2.0;
 
         float noise = texture2D(noiseMap, tc/128.0).b;
         float lit = nl * dist_atten * noise;
