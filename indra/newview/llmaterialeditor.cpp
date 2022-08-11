@@ -42,6 +42,7 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llviewerinventory.h"
+#include "llinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
 #include "roles_constants.h"
@@ -658,6 +659,57 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
     return false;
 }
 
+/**
+ * Build a description of the material we just imported.
+ * Currently this means a list of the textures present but we
+ * may eventually want to make it more complete - will be guided
+ * by what the content creators say they need.
+ */
+const std::string LLMaterialEditor::buildMaterialDescription()
+{
+    std::ostringstream desc;
+    desc << LLTrans::getString("Material Texture Name Header");
+
+    // add the texture names for each just so long as the material
+    // we loaded has an entry for it (i think testing the texture 
+    // control UUI for NULL is a valid metric for if it was loaded
+    // or not but I suspect this code will change a lot so may need
+    // to revisit
+    if (!mAlbedoTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mAlbedoName;
+        desc << ", ";
+    }
+    if (!mMetallicTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mMetallicRoughnessName;
+        desc << ", ";
+    }
+    if (!mEmissiveTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mEmissiveName;
+        desc << ", ";
+    }
+    if (!mNormalTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mNormalName;
+    }
+
+    // trim last char if it's a ',' in case there is no normal texture
+    // present and the code above inserts one
+    // (no need to check for string length - always has initial string)
+    std::string::iterator iter = desc.str().end() - 1;
+    if (*iter == ',')
+    {
+        desc.str().erase(iter);
+    }
+
+    // sanitize the material description so that it's compatible with the inventory
+    LLInventoryObject::correctInventoryName(desc.str());
+
+    return desc.str();
+}
+
 bool LLMaterialEditor::saveIfNeeded()
 {
     if (mUploadingTexturesCount > 0)
@@ -703,7 +755,7 @@ bool LLMaterialEditor::saveIfNeeded()
         LLTransactionID tid;
         tid.generate();     // timestamp-based randomization + uniquification
         LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-        std::string res_desc = "Saved Material";
+        std::string res_desc = buildMaterialDescription();
         U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
         LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
         const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
@@ -1262,8 +1314,7 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
 
     mME->setFromGltfModel(model_in);
 
-    std::string new_material = LLTrans::getString("New Material");
-    mME->setMaterialName(new_material);
+    mME->setFromGltfMetaData(filename_lc, model_in);
 
     mME->setHasUnsavedChanges(true);
     mME->openFloater();
@@ -1344,6 +1395,215 @@ bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_texture
     }
 
     return true;
+}
+
+/**
+ * Build a texture name from the contents of the (in tinyGLFT parlance) 
+ * Image URI. This often is filepath to the original image on the users'
+ *  local file system.
+ */
+const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, const std::string texture_type)
+{
+    // getBaseFileName() works differently on each platform and file patchs 
+    // can contain both types of delimiter so unify them then extract the 
+    // base name (no path or extension)
+    std::replace(image_uri.begin(), image_uri.end(), '\\', gDirUtilp->getDirDelimiter()[0]);
+    std::replace(image_uri.begin(), image_uri.end(), '/', gDirUtilp->getDirDelimiter()[0]);
+    const bool strip_extension = true;
+    std::string stripped_uri = gDirUtilp->getBaseFileName(image_uri, strip_extension);
+
+    // sometimes they can be really long and unwieldy - 64 chars is enough for anyone :) 
+    const int max_texture_name_length = 64;
+    if (stripped_uri.length() > max_texture_name_length)
+    {
+        stripped_uri = stripped_uri.substr(0, max_texture_name_length - 1);
+    }
+
+    // We intend to append the type of texture (albedo, emissive etc.) to the 
+    // name of the texture but sometimes the creator already did that.  To try
+    // to avoid repeats (not perfect), we look for the texture type in the name
+    // and if we find it, do not append the type, later on. One way this fails
+    // (and it's fine for now) is I see some texture/image uris have a name like
+    // "metallic roughness" and of course, that doesn't match our predefined
+    // name "metallicroughness" - consider fix later..
+    bool name_includes_type = false;
+    std::string stripped_uri_lower = stripped_uri;
+    LLStringUtil::toLower(stripped_uri_lower);
+    stripped_uri_lower.erase(std::remove_if(stripped_uri_lower.begin(), stripped_uri_lower.end(), isspace), stripped_uri_lower.end());
+    std::string texture_type_lower = texture_type;
+    LLStringUtil::toLower(texture_type_lower);
+    texture_type_lower.erase(std::remove_if(texture_type_lower.begin(), texture_type_lower.end(), isspace), texture_type_lower.end());
+    if (stripped_uri_lower.find(texture_type_lower) != std::string::npos)
+    {
+        name_includes_type = true;
+    }
+
+    // uri doesn't include the type at all
+    if (name_includes_type == false)
+    {
+        // uri doesn't include the type and the uri is not empty
+        // so we can include everything
+        if (stripped_uri.length() > 0)
+        {
+            // example "DamagedHelmet: base layer (Albedo)"
+            return STRINGIZE(
+                mMaterialNameShort <<
+                ": " <<
+                stripped_uri <<
+                " (" <<
+                texture_type <<
+                ")"
+            );
+        }
+        else
+        // uri doesn't include the type (because the uri is empty)
+        // so we must reorganize the string a bit to include the name
+        // and an explicit name type
+        {
+            // example "DamagedHelmet: (Emissive)"
+            return STRINGIZE(
+                mMaterialNameShort <<
+                " (" <<
+                texture_type <<
+                ")"
+            );
+        }
+    }
+    else
+    // uri includes the type so just use it directly with the
+    // name of the material
+    {
+        return STRINGIZE(
+            // example: AlienBust: normal_layer
+            mMaterialNameShort <<
+            ": " <<
+            stripped_uri
+        );
+    }
+}
+
+/**
+ * Update the metadata for the material based on what we find in the loaded
+ * file (along with some assumptions and interpretations...). Fields include
+ * the name of the material, a material description and the names of the 
+ * composite textures.
+ */
+void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf::Model& model)
+{
+    // Use the name (without any path/extension) of the file that was 
+    // uploaded as the base of the material name. Then if the name of the 
+    // scene is present and not blank, append that and use the result as
+    // the name of the material. This is a first pass at creating a 
+    // naming scheme that is useful to real content creators and hopefully
+    // avoid 500 materials in your inventory called "scene" or "Default"
+    const bool strip_extension = true;
+    std::string base_filename = gDirUtilp->getBaseFileName(filename, strip_extension);
+
+    // Extract the name of the scene. Note it is often blank or some very
+    // generic name like "Scene" or "Default" so using this in the name
+    // is less useful than you might imagine.
+    std::string scene_name;
+    if (model.scenes.size() > 0)
+    {
+        tinygltf::Scene& scene_in = model.scenes[0];
+        if (scene_in.name.length())
+        {
+            scene_name = scene_in.name;
+        }
+        else
+        {
+            // scene name is empty so no point using it
+        }
+    }
+    else
+    {
+        // scene name isn't present so no point using it
+    }
+
+    // If we have a valid scene name, use it to build the short and 
+    // long versions of the material name. The long version is used 
+    // as you might expect, for the material name. The short version is
+    // used as part of the image/texture name - the theory is that will 
+    // allow content creators to track the material and the corresponding
+    // textures
+    if (scene_name.length())
+    {
+        mMaterialNameShort = base_filename;
+
+        mMaterialName = STRINGIZE(
+            base_filename << 
+            " " << 
+            "(" << 
+            scene_name << 
+            ")"
+        );
+    }
+    else
+    // otherwise, just use the trimmed filename as is
+    {
+        mMaterialNameShort = base_filename;
+        mMaterialName = base_filename;
+    }
+
+    // sanitize the material name so that it's compatible with the inventory
+    LLInventoryObject::correctInventoryName(mMaterialName);
+    LLInventoryObject::correctInventoryName(mMaterialNameShort);
+
+    // We also set the title of the floater to match the 
+    // name of the material
+    setTitle(mMaterialName);
+
+    /**
+     * Extract / derive the names of each composite texture. For each, the 
+     * index in the first material (we only support 1 material currently) is
+     * used to to determine which of the "Images" is used. If the index is -1
+     * then that texture type is not present in the material (Seems to be 
+     * quite common that a material is missing 1 or more types of texture)
+     */
+    if (model.materials.size() > 0)
+    {
+        const tinygltf::Material& first_material = model.materials[0];
+
+        mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+        // note: unlike the other textures, albedo doesn't have its own entry 
+        // in the tinyGLTF Material struct. Rather, it is taken from a 
+        // sub-texture in the pbrMetallicRoughness member
+        int index = first_material.pbrMetallicRoughness.baseColorTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            // sanitize the name we decide to use for each texture
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_ALBEDO_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mAlbedoName = texture_name;
+        }
+
+        mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
+        index = first_material.emissiveTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_EMISSIVE_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mEmissiveName = texture_name;
+        }
+
+        mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
+        index = first_material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_METALLIC_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mMetallicRoughnessName = texture_name;
+        }
+
+        mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
+        index = first_material.normalTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_NORMAL_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mNormalName = texture_name;
+        }
+    }
 }
 
 void LLMaterialEditor::importMaterial()

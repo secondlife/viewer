@@ -47,6 +47,8 @@ public:
 
     bool setFromGltfModel(tinygltf::Model& model, bool set_textures = false);
 
+    void setFromGltfMetaData(const std::string& filename, tinygltf::Model& model);
+
     // open a file dialog and select a gltf/glb file for import
     void importMaterial();
 
@@ -194,9 +196,17 @@ private:
     LLPointer<LLImageJ2C> mMetallicRoughnessJ2C;
     LLPointer<LLImageJ2C> mEmissiveJ2C;
 
+    // utility function for converting image uri into a texture name
+    const std::string getImageNameFromUri(std::string image_uri, const std::string texture_type);
+
+    // utility function for building a description of the imported material
+    // based on what we know about it.
+    const std::string buildMaterialDescription();
+
     bool mHasUnsavedChanges;
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
+    std::string mMaterialNameShort;
     std::string mMaterialName;
 };
 
