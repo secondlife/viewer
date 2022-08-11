@@ -182,8 +182,8 @@ BOOL LLFloaterSimpleOutfitSnapshot::postBuild()
 
     return TRUE;
 }
-const S32 PREVIEW_OFFSET_X = 2;
-const S32 PREVIEW_OFFSET_Y = 63;
+const S32 PREVIEW_OFFSET_X = 12;
+const S32 PREVIEW_OFFSET_Y = 70;
 
 void LLFloaterSimpleOutfitSnapshot::draw()
 {
@@ -216,7 +216,12 @@ void LLFloaterSimpleOutfitSnapshot::draw()
             gl_draw_scaled_image(offset_x, offset_y, 
                 thumbnail_w, thumbnail_h,
                 previewp->getThumbnailImage(), color % alpha);
+#if LL_DARWIN
+            std::string alpha_color = getTransparencyType() == TT_ACTIVE ? "OutfitSnapshotMacMask" : "OutfitSnapshotMacMask2";
+#else
             std::string alpha_color = getTransparencyType() == TT_ACTIVE ? "FloaterFocusBackgroundColor" : "DkGray";
+#endif
+
             previewp->drawPreviewRect(offset_x, offset_y, LLUIColorTable::instance().getColor(alpha_color));
 
             gGL.pushUIMatrix();
