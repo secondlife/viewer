@@ -326,7 +326,7 @@ void main()
             float sa     = dot(normalize(r), light_dir.xyz);
             float sun    = texture2D(lightFunc, vec2(sa, metal)).r;
             vec3 sunSpec = sunlit * scol * sun;
-            colorSpec    += sunSpec;
+            colorSpec    += sunSpec * metal;
             bloom        = dot(sunSpec, sunSpec) / 6;
         }
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
