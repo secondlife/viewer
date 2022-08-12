@@ -291,7 +291,7 @@ void main()
 #if DEBUG_PBR_IRRADIANCE_RAW
         vec3 debug_irradiance = irradiance;
 #endif
-        irradiance       = max(amblit,irradiance);
+        irradiance       = max(amblit,irradiance) * ambocc;
 #if PBR_USE_IRRADIANCE_HACK
         irradiance      += amblit*0.5*vec3(dot(n, light_dir));
 #endif
