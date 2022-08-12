@@ -79,6 +79,7 @@
 // Constants
 static const F32 PLACE_INFO_UPDATE_INTERVAL = 3.0;
 static const std::string AGENT_INFO_TYPE			= "agent";
+static const std::string NEARBY_PLACE_INFO_TYPE     = "nearby_place";
 static const std::string CREATE_LANDMARK_INFO_TYPE	= "create_landmark";
 static const std::string CREATE_PICK_TYPE			= "create_pick";
 static const std::string LANDMARK_INFO_TYPE			= "landmark";
@@ -426,7 +427,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
                 }
             }
         }
-		else // "create_landmark"
+		else
 		{
 			mFilterEditor->clear();
 			onFilterEdit("", false);
@@ -439,7 +440,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 			if (mPlaceInfoType == AGENT_INFO_TYPE)
 			{
-				mPlaceProfile->setInfoType(LLPanelPlaceInfo::AGENT);
+                mPlaceProfile->setInfoType(LLPanelPlaceInfo::NEARBY_PLACE);
 				if (gAgent.getRegion())
 				{
 					mRegionId = gAgent.getRegion()->getRegionID();
@@ -480,7 +481,7 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 
 				setItem(item);
 			}
-			else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
+            else if (mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
 			{
 				if (key.has("id"))
 				{
@@ -499,8 +500,15 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 					mPlaceProfile->displayParcelInfo(LLUUID(), mPosGlobal);
 				}
 
-				mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
+                mPlaceProfile->setInfoType(LLPanelPlaceInfo::PLACE);
 			}
+            else if (mPlaceInfoType == NEARBY_PLACE_INFO_TYPE)
+            {
+                mPosGlobal = LLVector3d(key["x"].asReal(),
+                                        key["y"].asReal(),
+                                        key["z"].asReal());
+                mPlaceProfile->setInfoType(LLPanelPlaceInfo::NEARBY_PLACE);
+            }
 			else if (mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 			{
 				S32 index = key["id"].asInteger();
@@ -527,14 +535,21 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 	// Start using LLViewerParcelMgr for land selection if
 	// information about nearby land is requested.
 	// Otherwise stop using land selection and deselect land.
-	if (mPlaceInfoType == AGENT_INFO_TYPE)
+    if (mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE)
 	{
 		// We don't know if we are already added to LLViewerParcelMgr observers list
 		// so try to remove observer not to add an extra one.
 		parcel_mgr->removeObserver(mParcelObserver);
-
 		parcel_mgr->addObserver(mParcelObserver);
-		parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
+
+        if (mPlaceInfoType == AGENT_INFO_TYPE)
+        {
+            parcel_mgr->selectParcelAt(gAgent.getPositionGlobal());
+        }
+        else
+        {
+            parcel_mgr->selectParcelAt(mPosGlobal);
+        }
 	}
 	else
 	{
@@ -696,6 +711,7 @@ void LLPanelPlaces::onTeleportButtonClicked()
 			LLNotificationsUtil::add("TeleportFromLandmark", args, payload);
 		}
 		else if (mPlaceInfoType == AGENT_INFO_TYPE ||
+                 mPlaceInfoType == NEARBY_PLACE_INFO_TYPE ||
 				 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
 				 mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 		{
@@ -866,17 +882,18 @@ void LLPanelPlaces::onOverflowButtonClicked()
 {
 	LLToggleableMenu* menu;
 
-	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
+    bool is_nearby_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE;
 
-	if ((is_agent_place_info_visible ||
+	if ((is_nearby_place_info_visible ||
 		 mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
+         mPlaceInfoType == NEARBY_PLACE_INFO_TYPE ||
 		 mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE) && mPlaceMenu != NULL)
 	{
 		menu = mPlaceMenu;
 
 		bool landmark_item_enabled = false;
 		LLViewerParcelMgr* parcel_mgr = LLViewerParcelMgr::getInstance();
-		if (is_agent_place_info_visible
+		if (is_nearby_place_info_visible
 			&& gAgent.getRegion()
 			&& mRegionId == gAgent.getRegion()->getRegionID()
 			&& parcel_mgr
@@ -1071,6 +1088,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 	mFilterContainer->setVisible(!visible);
 
 	if (mPlaceInfoType == AGENT_INFO_TYPE ||
+        mPlaceInfoType == NEARBY_PLACE_INFO_TYPE ||
 		mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
 		mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 	{
@@ -1186,6 +1204,9 @@ void LLPanelPlaces::changedParcelSelection()
 		mPlaceProfile->resetLocation();
 		mResetInfoTimer.setTimerExpirySec(PLACE_INFO_UPDATE_INTERVAL);
 	}
+
+    mRegionId = region->getRegionID();
+    mParcelLocalId = parcel->getLocalID();
 
 	mPlaceProfile->displaySelectedParcelInfo(parcel, region, mPosGlobal, is_current_parcel);
 
@@ -1338,7 +1359,7 @@ void LLPanelPlaces::updateVerbs()
 			mTeleportBtn->setEnabled(have_3d_pos &&
 									 !LLViewerParcelMgr::getInstance()->inAgentParcel(mPosGlobal));
 		}
-		else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE)
+        else if (mPlaceInfoType == LANDMARK_INFO_TYPE || mPlaceInfoType == REMOTE_PLACE_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE)
 		{
 			mTeleportBtn->setEnabled(have_3d_pos);
 		}
@@ -1353,6 +1374,7 @@ void LLPanelPlaces::updateVerbs()
 LLPanelPlaceInfo* LLPanelPlaces::getCurrentInfoPanel()
 {
 	if (mPlaceInfoType == AGENT_INFO_TYPE ||
+        mPlaceInfoType == NEARBY_PLACE_INFO_TYPE ||
 		mPlaceInfoType == REMOTE_PLACE_INFO_TYPE ||
 		mPlaceInfoType == TELEPORT_HISTORY_INFO_TYPE)
 	{

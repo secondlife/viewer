@@ -49,6 +49,7 @@
 #include "llappviewer.h" // for gDisconnected
 #include "llcallingcard.h" // LLAvatarTracker
 #include "llfloaterland.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfloaterworldmap.h"
 #include "llparcel.h"
 #include "lltracker.h"
@@ -132,6 +133,7 @@ BOOL LLNetMap::postBuild()
     commitRegistrar.add("Minimap.Center.Activate", boost::bind(&LLNetMap::activateCenterMap, this, _2));
     enableRegistrar.add("Minimap.MapOrientation.Check", boost::bind(&LLNetMap::isMapOrientationChecked, this, _2));
     commitRegistrar.add("Minimap.MapOrientation.Set", boost::bind(&LLNetMap::setMapOrientation, this, _2));
+    commitRegistrar.add("Minimap.PlaceProfile", boost::bind(&LLNetMap::popupShowPlaceProfile, this, _2));
     commitRegistrar.add("Minimap.AboutLand", boost::bind(&LLNetMap::popupShowAboutLand, this, _2));
 
     mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder,
@@ -208,7 +210,7 @@ void LLNetMap::draw()
 
     bool can_recenter_map = !(centered || mCentering || auto_centering);
     mPopupMenu->setItemEnabled("Re-center map", can_recenter_map);
-    updateAboutLandPopupButton();
+    updateLandButtons();
 
 	// Prepare a scissor region
 	F32 rotation = 0;
@@ -622,7 +624,7 @@ bool LLNetMap::isMouseOnPopupMenu()
     return false;
 }
 
-void LLNetMap::updateAboutLandPopupButton()
+void LLNetMap::updateLandButtons()
 {
     if (!mPopupMenu->isOpen())
     {
@@ -630,11 +632,8 @@ void LLNetMap::updateAboutLandPopupButton()
     }
 
     LLViewerRegion *region = LLWorld::getInstance()->getRegionFromPosGlobal(mPopupWorldPos);
-    if (!region)
-    {
-        mPopupMenu->setItemEnabled("About Land", false);
-    }
-    else
+    bool enable = false;
+    if (region)
     {
         // Check if the mouse is in the bounds of the popup. If so, it's safe to assume no other hover function will be called, so the hover
         // parcel can be used to check if location-sensitive tooltip options are available.
@@ -647,9 +646,12 @@ void LLNetMap::updateAboutLandPopupButton()
             {
                 valid_parcel = hover_parcel->getOwnerID().notNull();
             }
-            mPopupMenu->setItemEnabled("About Land", valid_parcel);
+            enable = valid_parcel;
         }
     }
+
+    mPopupMenu->setItemEnabled("About Place", enable);
+    mPopupMenu->setItemEnabled("About Land", enable);
 }
 
 LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
@@ -1219,6 +1221,16 @@ void LLNetMap::setMapOrientation(const LLSD &userdata)
     {
         gSavedSettings.setBOOL("MiniMapRotate", true);
     }
+}
+
+void LLNetMap::popupShowPlaceProfile(const LLSD &userdata)
+{
+    LLSD key;
+    key["type"] = "nearby_place";
+    key["x"] = mPopupWorldPos.mdV[VX];
+    key["y"] = mPopupWorldPos.mdV[VY];
+    key["z"] = mPopupWorldPos.mdV[VZ];
+    LLFloaterSidePanelContainer::showPanel("places", key);
 }
 
 void LLNetMap::popupShowAboutLand(const LLSD &userdata)

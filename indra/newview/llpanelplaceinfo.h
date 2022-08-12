@@ -53,7 +53,7 @@ public:
 	{
 		UNKNOWN,
 
-		AGENT,
+        NEARBY_PLACE,
 		CREATE_LANDMARK,
 		LANDMARK,
 		PLACE,

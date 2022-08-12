@@ -228,15 +228,15 @@ void LLPanelPlaceProfile::resetLocation()
 // virtual
 void LLPanelPlaceProfile::setInfoType(EInfoType type)
 {
-	bool is_info_type_agent = type == AGENT;
+    bool is_info_type_nearby_place = type == NEARBY_PLACE;
 
-	mMaturityRatingIcon->setVisible(!is_info_type_agent);
-	mMaturityRatingText->setVisible(!is_info_type_agent);
+	mMaturityRatingIcon->setVisible(!is_info_type_nearby_place);
+	mMaturityRatingText->setVisible(!is_info_type_nearby_place);
 
-	getChild<LLTextBox>("owner_label")->setVisible(is_info_type_agent);
-	mParcelOwner->setVisible(is_info_type_agent);
+	getChild<LLTextBox>("owner_label")->setVisible(is_info_type_nearby_place);
+	mParcelOwner->setVisible(is_info_type_nearby_place);
 
-	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_agent);
+	getChild<LLAccordionCtrl>("advanced_info_accordion")->setVisible(is_info_type_nearby_place);
 
 	// If we came from search we want larger description area, approx. 10 lines (see STORM-1311).
 	// Don't use the maximum available space because that leads to nasty artifacts
@@ -251,7 +251,7 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 		static const S32 sOrigMRTextVPad = mDescEditor->getRect().mBottom - mMaturityRatingText->getRect().mTop;
 
 		// Resize the description.
-		const S32 desc_height = is_info_type_agent ? sOrigDescHeight : SEARCH_DESC_HEIGHT;
+		const S32 desc_height = is_info_type_nearby_place ? sOrigDescHeight : SEARCH_DESC_HEIGHT;
 		const S32 desc_top = getChildView("owner_label")->getRect().mBottom - sOrigDescVPad;
 		LLRect desc_rect = mDescEditor->getRect();
 		desc_rect.setOriginAndSize(desc_rect.mLeft, desc_top - desc_height, desc_rect.getWidth(), desc_height);
@@ -268,7 +268,7 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 
 	switch(type)
 	{
-		case AGENT:
+        case NEARBY_PLACE:
 		case PLACE:
 		default:
 			mCurrentTitle = getString("title_place");
@@ -336,7 +336,9 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 													bool is_current_parcel)
 {
 	if (!region || !parcel)
+    {
 		return;
+    }
 
 	if (mLastSelectedRegionID != region->getRegionID()
 		|| mNextCovenantUpdateTime < LLTimer::getElapsedSeconds())

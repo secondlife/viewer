@@ -107,7 +107,7 @@ private:
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
     bool            isMouseOnPopupMenu();
-    void            updateAboutLandPopupButton();
+    void            updateLandButtons();
 	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
@@ -160,6 +160,7 @@ private:
     void activateCenterMap(const LLSD& userdata);
     bool isMapOrientationChecked(const LLSD& userdata);
     void setMapOrientation(const LLSD& userdata);
+    void popupShowPlaceProfile(const LLSD& userdata);
     void popupShowAboutLand(const LLSD& userdata);
 
 	LLMenuGL*		mPopupMenu;
