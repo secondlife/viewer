@@ -3058,18 +3058,43 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
                 {
                     LLMutexLock lock(&window_imp->mRawMouseMutex);
 
-                    S32 speed;
-                    const S32 DEFAULT_SPEED(10);
-                    SystemParametersInfo(SPI_GETMOUSESPEED, 0, &speed, 0);
-                    if (speed == DEFAULT_SPEED)
+                    bool absolute_coordinates = (raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE);
+
+                    if (absolute_coordinates)
                     {
-                        window_imp->mRawMouseDelta.mX += raw->data.mouse.lLastX;
-                        window_imp->mRawMouseDelta.mY -= raw->data.mouse.lLastY;
+                        bool v_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
+
+                        S32 width = GetSystemMetrics(v_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+                        S32 height = GetSystemMetrics(v_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+
+                        S32 absolute_x = (raw->data.mouse.lLastX / 65535.0f) * width;
+                        S32 absolute_y = (raw->data.mouse.lLastY / 65535.0f) * height;
+
+                        static S32 prev_absolute_x = 0;
+                        static S32 prev_absolute_y = 0;
+                        S32 delta_x = absolute_x - prev_absolute_x;
+                        S32 delta_y = absolute_y - prev_absolute_y;
+                        prev_absolute_x = absolute_x;
+                        prev_absolute_y = absolute_y;
+
+                        window_imp->mRawMouseDelta.mX += delta_x;
+                        window_imp->mRawMouseDelta.mY -= delta_y;
                     }
                     else
                     {
-                        window_imp->mRawMouseDelta.mX += round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
-                        window_imp->mRawMouseDelta.mY -= round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
+                        S32 speed;
+                        const S32 DEFAULT_SPEED(10);
+                        SystemParametersInfo(SPI_GETMOUSESPEED, 0, &speed, 0);
+                        if (speed == DEFAULT_SPEED)
+                        {
+                            window_imp->mRawMouseDelta.mX += raw->data.mouse.lLastX;
+                            window_imp->mRawMouseDelta.mY -= raw->data.mouse.lLastY;
+                        }
+                        else
+                        {
+                            window_imp->mRawMouseDelta.mX += round((F32)raw->data.mouse.lLastX * (F32)speed / DEFAULT_SPEED);
+                            window_imp->mRawMouseDelta.mY -= round((F32)raw->data.mouse.lLastY * (F32)speed / DEFAULT_SPEED);
+                        }
                     }
                 }
             }
