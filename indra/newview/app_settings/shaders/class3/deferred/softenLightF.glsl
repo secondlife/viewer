@@ -25,7 +25,6 @@
 
 #define PBR_USE_ATMOS              0
 #define PBR_USE_GGX_EMS_HACK       0
-#define PBR_USE_IRRADIANCE_HACK    1
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
@@ -292,9 +291,6 @@ void main()
         vec3 debug_irradiance = irradiance;
 #endif
         irradiance       = max(amblit,irradiance) * ambocc;
-#if PBR_USE_IRRADIANCE_HACK
-        irradiance      += amblit*0.5*vec3(dot(n, light_dir));
-#endif
         specLight        = srgb_to_linear(specLight);
 #if DEBUG_PBR_SPECLIGHT051
         specLight        = vec3(0,0.5,1.0);
