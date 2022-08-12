@@ -161,7 +161,6 @@ private:
     bool isMapOrientationChecked(const LLSD& userdata);
     void setMapOrientation(const LLSD& userdata);
     void popupShowPlaceProfile(const LLSD& userdata);
-    void popupShowAboutLand(const LLSD& userdata);
 
 	LLMenuGL*		mPopupMenu;
 	uuid_vec_t		gmSelected;

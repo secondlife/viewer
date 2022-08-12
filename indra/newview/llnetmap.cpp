@@ -134,7 +134,6 @@ BOOL LLNetMap::postBuild()
     enableRegistrar.add("Minimap.MapOrientation.Check", boost::bind(&LLNetMap::isMapOrientationChecked, this, _2));
     commitRegistrar.add("Minimap.MapOrientation.Set", boost::bind(&LLNetMap::setMapOrientation, this, _2));
     commitRegistrar.add("Minimap.PlaceProfile", boost::bind(&LLNetMap::popupShowPlaceProfile, this, _2));
-    commitRegistrar.add("Minimap.AboutLand", boost::bind(&LLNetMap::popupShowAboutLand, this, _2));
 
     mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLMenuGL>("menu_mini_map.xml", gMenuHolder,
                                                                           LLViewerMenuHolderGL::child_registry_t::instance());
@@ -1231,14 +1230,4 @@ void LLNetMap::popupShowPlaceProfile(const LLSD &userdata)
     key["y"] = mPopupWorldPos.mdV[VY];
     key["z"] = mPopupWorldPos.mdV[VZ];
     LLFloaterSidePanelContainer::showPanel("places", key);
-}
-
-void LLNetMap::popupShowAboutLand(const LLSD &userdata)
-{
-    // Update parcel selection. It's important to deselect land first so the "About Land" floater doesn't refresh with the old selection.
-    LLViewerParcelMgr::getInstance()->deselectLand();
-    LLParcelSelectionHandle selection = LLViewerParcelMgr::getInstance()->selectParcelAt(mPopupWorldPos);
-    gMenuHolder->setParcelSelection(selection);
-
-    LLFloaterReg::showInstance("about_land", LLSD(), false);
 }

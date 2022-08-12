@@ -111,12 +111,6 @@
          function="Minimap.PlaceProfile" />
     </menu_item_call>
     <menu_item_call
-     label="About Land"
-     name="About Land">
-        <menu_item_call.on_click
-         function="Minimap.AboutLand" />
-    </menu_item_call>
-    <menu_item_call
      label="World Map"
      name="World Map">
         <menu_item_call.on_click
