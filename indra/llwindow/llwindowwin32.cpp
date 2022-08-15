@@ -3062,23 +3062,34 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 
                     if (absolute_coordinates)
                     {
-                        bool v_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
-
-                        S32 width = GetSystemMetrics(v_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
-                        S32 height = GetSystemMetrics(v_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
-
-                        S32 absolute_x = (raw->data.mouse.lLastX / 65535.0f) * width;
-                        S32 absolute_y = (raw->data.mouse.lLastY / 65535.0f) * height;
-
                         static S32 prev_absolute_x = 0;
                         static S32 prev_absolute_y = 0;
-                        S32 delta_x = absolute_x - prev_absolute_x;
-                        S32 delta_y = absolute_y - prev_absolute_y;
+                        S32 absolute_x;
+                        S32 absolute_y;
+
+                        if ((raw->data.mouse.usFlags & 0x10) == 0x10) // touch screen? touch? Not defined in header
+                        {
+                            // touch screen spams (0,0) coordinates in a number of situations
+                            // (0,0) might need to be filtered
+                            absolute_x = raw->data.mouse.lLastX;
+                            absolute_y = raw->data.mouse.lLastY;
+                        }
+                        else
+                        {
+                            bool v_desktop = (raw->data.mouse.usFlags & MOUSE_VIRTUAL_DESKTOP) == MOUSE_VIRTUAL_DESKTOP;
+
+                            S32 width = GetSystemMetrics(v_desktop ? SM_CXVIRTUALSCREEN : SM_CXSCREEN);
+                            S32 height = GetSystemMetrics(v_desktop ? SM_CYVIRTUALSCREEN : SM_CYSCREEN);
+
+                            absolute_x = (raw->data.mouse.lLastX / 65535.0f) * width;
+                            absolute_y = (raw->data.mouse.lLastY / 65535.0f) * height;
+                        }
+
+                        window_imp->mRawMouseDelta.mX += absolute_x - prev_absolute_x;
+                        window_imp->mRawMouseDelta.mY -= absolute_y - prev_absolute_y;
+
                         prev_absolute_x = absolute_x;
                         prev_absolute_y = absolute_y;
-
-                        window_imp->mRawMouseDelta.mX += delta_x;
-                        window_imp->mRawMouseDelta.mY -= delta_y;
                     }
                     else
                     {
