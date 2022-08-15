@@ -1,5 +1,5 @@
 /** 
- * @file bumpV.glsl
+ * @file materialV.glsl
  *
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code

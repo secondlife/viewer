@@ -10264,7 +10264,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE,
-                    //LLRenderPass::PASS_PBR_OPAQUE_RIGGED,
+                    LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE_RIGGED,
 					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);
