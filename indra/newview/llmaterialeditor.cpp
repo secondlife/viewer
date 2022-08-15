@@ -705,9 +705,13 @@ const std::string LLMaterialEditor::buildMaterialDescription()
     }
 
     // sanitize the material description so that it's compatible with the inventory
-    LLInventoryObject::correctInventoryName(desc.str());
+    // note: split this up because clang doesn't like operating directly on the
+    // str() - error: lvalue reference to type 'basic_string<...>' cannot bind to a
+    // temporary of type 'basic_string<...>'
+    std::string inv_desc = desc.str();
+    LLInventoryObject::correctInventoryName(inv_desc);
 
-    return desc.str();
+    return inv_desc;
 }
 
 bool LLMaterialEditor::saveIfNeeded()
