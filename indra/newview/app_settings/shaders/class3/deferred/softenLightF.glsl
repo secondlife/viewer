@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
 
-#define PBR_USE_ATMOS              0
+#define PBR_USE_ATMOS              1
 #define PBR_USE_GGX_EMS_HACK       0
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
