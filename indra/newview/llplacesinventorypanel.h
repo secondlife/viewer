@@ -40,7 +40,7 @@ public:
 	{
 		Params()
 		{
-           filter_asset_type = "landmark";
+           filter_asset_types = "landmark";
        }
 	};
 

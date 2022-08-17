@@ -159,7 +159,7 @@
      name="inventory panel"
      top_pad="4"
      width="231"
-     filter_asset_type="texture"/>
+     filter_asset_types="texture|material"/>
      <check_box
      height="14"
      initial_value="false"
