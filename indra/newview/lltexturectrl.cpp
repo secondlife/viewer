@@ -417,8 +417,12 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetCommitCallback("show_folders_check", onShowFolders, this);
 	getChildView("show_folders_check")->setVisible( FALSE);
 
-	mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
-	mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
+    mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
+    mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
+
+    mTextureMaterialsCombo = getChild<LLComboBox>("textures_material_combo");
+    mTextureMaterialsCombo->setCommitCallback(onSelectTextureMaterials, this);
+    mTextureMaterialsCombo->selectByValue(0);
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
@@ -430,7 +434,7 @@ BOOL LLFloaterTexturePicker::postBuild()
 	{
 		U32 filter_types = 0x0;
 		filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
-		filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
 
 		mInventoryPanel->setFilterTypes(filter_types);
 		//mInventoryPanel->setFilterPermMask(getFilterPermMask());  //Commented out due to no-copy texture loss.
@@ -817,6 +821,7 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	self->getChild<LLButton>("Blank")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("None")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLButton>("Pipette")->setVisible(index == 0 ? TRUE : FALSE);
+    self->getChild<LLComboBox>("textures_material_combo")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == 0 ? TRUE : FALSE);
 
@@ -1134,6 +1139,38 @@ void LLFloaterTexturePicker::onFilterEdit(const std::string& search_string )
 	}
 
 	mInventoryPanel->setFilterSubString(search_string);
+}
+
+void LLFloaterTexturePicker::onSelectTextureMaterials(LLUICtrl* ctrl, void *userdata)
+{
+    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
+    int index = self->mTextureMaterialsCombo->getValue().asInteger();
+
+    // IMPORTANT: make sure these match the entries in floater_texture_ctrl.xml 
+    // for the textures_material_combo combo box
+    const int textures_and_materials = 0;
+    const int textures_only = 1;
+    const int materials_only = 2;
+
+    U32 filter_types = 0x0;
+
+    if (index == textures_and_materials)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
+        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+        filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
+    }
+    else if (index == textures_only)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
+        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+    }
+    else if (index == materials_only)
+    {
+        filter_types |= 0x1 << LLInventoryType::IT_MATERIAL;
+    }
+
+    self->mInventoryPanel->setFilterTypes(filter_types);
 }
 
 void LLFloaterTexturePicker::setLocalTextureEnabled(BOOL enabled)
