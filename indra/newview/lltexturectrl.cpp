@@ -420,11 +420,13 @@ BOOL LLFloaterTexturePicker::postBuild()
     mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
     mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
 
+	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
+
     mTextureMaterialsCombo = getChild<LLComboBox>("textures_material_combo");
     mTextureMaterialsCombo->setCommitCallback(onSelectTextureMaterials, this);
-    mTextureMaterialsCombo->selectByValue(0);
 
-	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
+    // set the combo box to the first entry in the list (currently textures and materials)
+    mTextureMaterialsCombo->selectByValue(0);
 
 	mModeSelector = getChild<LLComboBox>("mode_selection");
 	mModeSelector->setCommitCallback(onModeSelect, this);
@@ -432,12 +434,12 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	if(mInventoryPanel)
 	{
-		U32 filter_types = 0x0;
-		filter_types |= 0x1 << LLInventoryType::IT_TEXTURE;
-        filter_types |= 0x1 << LLInventoryType::IT_SNAPSHOT;
+        // to avoid having to make an assumption about which option is
+        // selected at startup, we call the same function that is triggered
+        // when a texture/materials/both choice is made and let it take care
+        // of setting the filters
+        onSelectTextureMaterials(0, this);
 
-		mInventoryPanel->setFilterTypes(filter_types);
-		//mInventoryPanel->setFilterPermMask(getFilterPermMask());  //Commented out due to no-copy texture loss.
 		mInventoryPanel->setFilterPermMask(mImmediateFilterPermMask);
 		mInventoryPanel->setSelectCallback(boost::bind(&LLFloaterTexturePicker::onSelectionChange, this, _1, _2));
 		mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
