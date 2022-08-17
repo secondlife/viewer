@@ -169,7 +169,7 @@
      name="inventory search editor"
      top="48"
      width="231" />
-    <asset_filtered_inv_panel
+    <inventory_panel
      allow_multi_select="false"
      bg_visible="true"
      bg_alpha_color="DkGray2"
