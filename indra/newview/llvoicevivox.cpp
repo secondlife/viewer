@@ -4527,9 +4527,7 @@ void LLVivoxVoiceClient::messageEvent(
 						IM_NOTHING_SPECIAL,		// default arg
 						0,						// default arg
 						LLUUID::null,			// default arg
-						LLVector3::zero,		// default arg
-						true);					// prepend name and make it a link to the user's profile
-
+						LLVector3::zero);		// default arg
 			}
 		}		
 	}

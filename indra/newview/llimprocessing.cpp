@@ -521,8 +521,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     dialog,
                     parent_estate_id,
                     region_id,
-                    position,
-                    true);
+                    position);
 
                 if (!gIMMgr->isDNDMessageSend(session_id))
                 {
@@ -1112,8 +1111,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
-                    position,
-                    true);
+                    position);
             }
             else
             {
@@ -1138,8 +1136,7 @@ void LLIMProcessing::processNewMessage(LLUUID from_id,
                     IM_SESSION_INVITE,
                     parent_estate_id,
                     region_id,
-                    position,
-                    true);
+                    position);
             }
             break;
 

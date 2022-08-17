@@ -3725,8 +3725,7 @@ public:
 				IM_SESSION_INVITE,
 				message_params["parent_estate_id"].asInteger(),
 				message_params["region_id"].asUUID(),
-				ll_vector3_from_sd(message_params["position"]),
-				true);
+				ll_vector3_from_sd(message_params["position"]));
 
 			if (LLMuteList::getInstance()->isMuted(from_id, name, LLMute::flagTextChat))
 			{
