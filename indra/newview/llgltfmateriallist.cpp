@@ -30,85 +30,12 @@
 #include "llassetstorage.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
+#include "lltinygltfhelper.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
 LLGLTFMaterialList gGLTFMaterialList;
-
-static LLColor4 get_color(const std::vector<double>& in)
-{
-    LLColor4 out;
-    for (S32 i = 0; i < llmin((S32)in.size(), 4); ++i)
-    {
-        out.mV[i] = in[i];
-    }
-
-    return out;
-}
-
-static void set_from_model(LLGLTFMaterial* mat, tinygltf::Model& model)
-{
-    
-    S32 index;
-    
-    auto& material_in = model.materials[0];
-
-    // get albedo texture
-    index = material_in.pbrMetallicRoughness.baseColorTexture.index;
-    if (index >= 0)
-    {
-        mat->mAlbedoId.set(model.images[index].uri);
-    }
-    else
-    {
-        mat->mAlbedoId.setNull();
-    }
-
-    // get normal map
-    index = material_in.normalTexture.index;
-    if (index >= 0)
-    {
-        mat->mNormalId.set(model.images[index].uri);
-    }
-    else
-    {
-        mat->mNormalId.setNull();
-    }
-
-    // get metallic-roughness texture
-    index = material_in.pbrMetallicRoughness.metallicRoughnessTexture.index;
-    if (index >= 0)
-    {
-        mat->mMetallicRoughnessId.set(model.images[index].uri);
-    }
-    else
-    {
-        mat->mMetallicRoughnessId.setNull();
-    }
-
-    // get emissive texture
-    index = material_in.emissiveTexture.index;
-    if (index >= 0)
-    {
-        mat->mEmissiveId.set(model.images[index].uri);
-    }
-    else
-    {
-        mat->mEmissiveId.setNull();
-    }
-
-    mat->setAlphaMode(material_in.alphaMode);
-    mat->mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
-
-    mat->mAlbedoColor = get_color(material_in.pbrMetallicRoughness.baseColorFactor);
-    mat->mEmissiveColor = get_color(material_in.emissiveFactor);
-
-    mat->mMetallicFactor = llclamp((F32)material_in.pbrMetallicRoughness.metallicFactor, 0.f, 1.f);
-    mat->mRoughnessFactor = llclamp((F32)material_in.pbrMetallicRoughness.roughnessFactor, 0.f, 1.f);
-
-    mat->mDoubleSided = material_in.doubleSided;
-}
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {
@@ -158,7 +85,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
                                 if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
                                 {
-                                    set_from_model(mat, model_in);
+                                    LLTinyGLTFHelper::setFromModel(mat, model_in);
                                 }
                                 else
                                 {
@@ -182,5 +109,15 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
     }
 
     return iter->second;
+}
+
+void LLGLTFMaterialList::addMaterial(const LLUUID& id, LLGLTFMaterial* material)
+{
+    mList[id] = material;
+}
+
+void LLGLTFMaterialList::removeMaterial(const LLUUID& id)
+{
+    mList.erase(id);
 }
 
