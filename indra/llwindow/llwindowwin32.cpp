@@ -48,8 +48,6 @@
 #include "llthreadsafequeue.h"
 #include "stringize.h"
 #include "llframetimer.h"
-#include "commoncontrol.h" // TODO: Remove after testing
-#include "llsd.h" // TODO: Remove after testing
 
 // System includes
 #include <commdlg.h>
@@ -418,9 +416,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
 
     std::atomic<U32> mAvailableVRAM;
 
-    bool mTryUseDXGIAdapter; // TODO: Remove after testing
     IDXGIAdapter3* mDXGIAdapter = nullptr;
-    bool mTryUseD3DDevice; // TODO: Remove after testing
     LPDIRECT3D9 mD3D = nullptr;
     LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
@@ -4553,14 +4549,6 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
     : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
 {
-    const LLSD skipDXGI{ LL::CommonControl::get("Global", "DisablePrimaryGraphicsMemoryAccounting") }; // TODO: Remove after testing
-    LL_WARNS() << "DisablePrimaryGraphicsMemoryAccounting: " << skipDXGI << ", as boolean: " << skipDXGI.asBoolean() << LL_ENDL;
-    mTryUseDXGIAdapter = !skipDXGI.asBoolean();
-    LL_WARNS() << "mTryUseDXGIAdapter: " << mTryUseDXGIAdapter << LL_ENDL;
-    const LLSD skipD3D{ LL::CommonControl::get("Global", "DisableSecondaryGraphicsMemoryAccounting") }; // TODO: Remove after testing
-    LL_WARNS() << "DisableSecondaryGraphicsMemoryAccounting: " << skipD3D << ", as boolean: " << skipD3D.asBoolean() << LL_ENDL;
-    mTryUseD3DDevice = !skipD3D.asBoolean();
-    LL_WARNS() << "mTryUseD3DDevice: " << mTryUseD3DDevice << LL_ENDL;
     ThreadPool::start();
 }
 
@@ -4677,7 +4665,7 @@ void debugEnumerateGraphicsAdapters()
 
 void LLWindowWin32::LLWindowWin32Thread::initDX()
 {
-    if (mDXGIAdapter == NULL && mTryUseDXGIAdapter)
+    if (mDXGIAdapter == NULL)
     {
         debugEnumerateGraphicsAdapters();
 
@@ -4711,7 +4699,7 @@ void LLWindowWin32::LLWindowWin32Thread::initDX()
 
 void LLWindowWin32::LLWindowWin32Thread::initD3D()
 {
-    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mTryUseD3DDevice && mWindowHandle != 0)
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
     {
         mD3D = Direct3DCreate9(D3D_SDK_VERSION);
         
