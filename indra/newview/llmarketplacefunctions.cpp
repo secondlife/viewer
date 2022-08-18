@@ -613,22 +613,21 @@ private:
     // doesn't hold just marketplace related ids
     static std::set<LLUUID> sAddQueue;
     static std::set<LLUUID> sStructureQueue;
+    static bool sProcessingQueue;
 };
 
 std::set<LLUUID> LLMarketplaceInventoryObserver::sAddQueue;
 std::set<LLUUID> LLMarketplaceInventoryObserver::sStructureQueue;
+bool LLMarketplaceInventoryObserver::sProcessingQueue = false;
 
 void LLMarketplaceInventoryObserver::changed(U32 mask)
 {
-    bool idle_running = !sAddQueue.empty() && !sStructureQueue.empty();
-    bool needs_idle = false;
 	if (mask & LLInventoryObserver::ADD && LLMarketplaceData::instance().hasValidationWaiting())
 	{
         // When things are added to the marketplace, we might need to re-validate and fix the containing listings
         // just add whole list even if it contains items and non-marketplace folders
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
         sAddQueue.insert(changed_items.begin(), changed_items.end());
-        needs_idle = true;
 	}
     
 	if (mask & (LLInventoryObserver::INTERNAL | LLInventoryObserver::STRUCTURE))
@@ -640,12 +639,13 @@ void LLMarketplaceInventoryObserver::changed(U32 mask)
         // once observers are called) we need to raise a flag in the inventory to signal that things have been dirtied.
         const std::set<LLUUID>& changed_items = gInventory.getChangedIDs();
         sStructureQueue.insert(changed_items.begin(), changed_items.end());
-        needs_idle = true;
 	}
 
-    if (!idle_running && needs_idle)
+    if (!sProcessingQueue && (!sAddQueue.empty() || !sStructureQueue.empty()))
     {
         gIdleCallbacks.addFunction(onIdleProcessQueue, NULL);
+        // can do without sProcessingQueue, but it's usufull for simplicity and reliability
+        sProcessingQueue = true;
     }
 }
 
@@ -657,8 +657,13 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
 
     if (!sAddQueue.empty())
     {
-        std::set<LLUUID>::const_iterator id_it = sAddQueue.begin();
-        std::set<LLUUID>::const_iterator id_end = sAddQueue.end();
+        // Make a copy of sAddQueue since decrementValidationWaiting
+        // can theoretically add more items
+        std::set<LLUUID> add_queue(sAddQueue);
+        sAddQueue.clear();
+
+        std::set<LLUUID>::const_iterator id_it = add_queue.begin();
+        std::set<LLUUID>::const_iterator id_end = add_queue.end();
         // First, count the number of items in this list...
         S32 count = 0;
         for (; id_it != id_end; ++id_it)
@@ -672,7 +677,7 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
         // Then, decrement the folders of that amount
         // Note that of all of those, only one folder will be a listing folder (if at all).
         // The other will be ignored by the decrement method.
-        id_it = sAddQueue.begin();
+        id_it = add_queue.begin();
         for (; id_it != id_end; ++id_it)
         {
             LLInventoryObject* obj = gInventory.getObject(*id_it);
@@ -682,12 +687,11 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
                 LLMarketplaceData::instance().decrementValidationWaiting(obj->getUUID(), count);
             }
         }
-        sAddQueue.clear();
     }
 
-    std::set<LLUUID>::const_iterator id_it = sStructureQueue.begin();
-    while (id_it != sStructureQueue.end() && LLTimer::getTotalTime() < stop_time)
+    while (!sStructureQueue.empty() && LLTimer::getTotalTime() < stop_time)
     {
+        std::set<LLUUID>::const_iterator id_it = sStructureQueue.begin();
         LLInventoryObject* obj = gInventory.getObject(*id_it);
         if (obj)
         {
@@ -713,13 +717,17 @@ void LLMarketplaceInventoryObserver::onIdleProcessQueue(void *userdata)
                 }
             }
         }
-        id_it = sStructureQueue.erase(id_it);
+
+        // sStructureQueue could have been modified in validate_marketplacelistings
+        // adding items does not invalidate existing iterator
+        sStructureQueue.erase(id_it);
     }
 
-    if (LLApp::isExiting() || sStructureQueue.empty())
+    if (LLApp::isExiting() || (sAddQueue.empty() && sStructureQueue.empty()))
     {
         // Nothing to do anymore
         gIdleCallbacks.deleteFunction(onIdleProcessQueue, NULL);
+        sProcessingQueue = false;
     }
 }
 
