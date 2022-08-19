@@ -41,12 +41,15 @@
 #include "llfolderviewmodel.h"
 #include "llinventory.h"
 #include "llinventoryfunctions.h"
+#include "llinventoryicon.h"
 #include "llinventorymodelbackgroundfetch.h"
 #include "llinventoryobserver.h"
 #include "llinventorypanel.h"
 #include "lllineeditor.h"
+#include "llmaterialeditor.h"
 #include "llui.h"
 #include "llviewerinventory.h"
+#include "llviewermenufile.h"	// LLFilePickerReplyThread
 #include "llpermissions.h"
 #include "llsaleinfo.h"
 #include "llassetstorage.h"
@@ -69,12 +72,14 @@
 #include "llradiogroup.h"
 #include "llfloaterreg.h"
 #include "lllocalbitmaps.h"
+#include "lllocalgltfmaterials.h"
 #include "llerror.h"
 
 #include "llavatarappearancedefines.h"
 
 
-static const S32 LOCAL_TRACKING_ID_COLUMN = 1;
+static const S32 LOCAL_ICON_ID_COLUMN = 0;
+static const S32 LOCAL_TRACKING_ID_COLUMN = 2;
 
 //static const char CURRENT_IMAGE_NAME[] = "Current Texture";
 //static const char WHITE_IMAGE_NAME[] = "Blank Texture";
@@ -472,7 +477,9 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mLocalScrollCtrl = getChild<LLScrollListCtrl>("l_name_list");
 	mLocalScrollCtrl->setCommitCallback(onLocalScrollCommit, this);
+    mLocalScrollCtrl->clearRows();
 	LLLocalBitmapMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
+    LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
 
 	mNoCopyTextureSelected = FALSE;
 
@@ -749,8 +756,21 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 	{
 		if (self->mLocalScrollCtrl->getVisible() && !self->mLocalScrollCtrl->getAllSelected().empty())
 		{
+            std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
 			LLUUID temp_id = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
-			local_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
+
+            std::string mat_icon_name = LLInventoryIcon::getIconName(
+                LLAssetType::AT_MATERIAL,
+                LLInventoryType::IT_NONE);
+
+            if (mat_icon_name == icon_name)
+            {
+                local_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(temp_id);
+            }
+            else
+            {
+                local_id = LLLocalBitmapMgr::getInstance()->getWorldID(temp_id);
+            }
 		}
 	}
 	
@@ -898,11 +918,9 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 // static
 void LLFloaterTexturePicker::onBtnAdd(void* userdata)
 {
-	if (LLLocalBitmapMgr::getInstance()->addUnit() == true)
-	{
-		LLFloaterTexturePicker* self = (LLFloaterTexturePicker*) userdata;
-		LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
-	}
+    LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
+
+    LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_ALL, true);
 }
 
 // static
@@ -913,22 +931,37 @@ void LLFloaterTexturePicker::onBtnRemove(void* userdata)
 
 	if (!selected_items.empty())
 	{
+        std::string mat_icon_name = LLInventoryIcon::getIconName(
+            LLAssetType::AT_MATERIAL,
+            LLInventoryType::IT_NONE);
+
 		for(std::vector<LLScrollListItem*>::iterator iter = selected_items.begin();
 			iter != selected_items.end(); iter++)
 		{
 			LLScrollListItem* list_item = *iter;
 			if (list_item)
 			{
-				LLUUID tracking_id = list_item->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
-				LLLocalBitmapMgr::getInstance()->delUnit(tracking_id);
+				std::string icon_name = list_item->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
+                LLUUID tracking_id = list_item->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+
+                // todo: works, but need a better way to distinguish material from texture
+                if (icon_name == mat_icon_name)
+                {
+                    LLLocalGLTFMaterialMgr::getInstance()->delUnit(tracking_id);
+                }
+                else
+                {
+                    LLLocalBitmapMgr::getInstance()->delUnit(tracking_id);
+                }
 			}
 		}
 
 		self->getChild<LLButton>("l_rem_btn")->setEnabled(false);
 		self->getChild<LLButton>("l_upl_btn")->setEnabled(false);
+        self->mLocalScrollCtrl->clearRows();
 		LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
 	}
-
 }
 
 // static
@@ -944,15 +977,34 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
 
 	/* currently only allows uploading one by one, picks the first item from the selection list.  (not the vector!)
 	   in the future, it might be a good idea to check the vector size and if more than one units is selected - opt for multi-image upload. */
-	
+
+    std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
 	LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
-	std::string filename = LLLocalBitmapMgr::getInstance()->getFilename(tracking_id);
 
-	if (!filename.empty())
-	{
-		LLFloaterReg::showInstance("upload_image", LLSD(filename));
-	}
+    std::string mat_icon_name = LLInventoryIcon::getIconName(
+        LLAssetType::AT_MATERIAL,
+        LLInventoryType::IT_NONE);
 
+    if (mat_icon_name == icon_name)
+    {
+        std::string filename = LLLocalGLTFMaterialMgr::getInstance()->getFilename(tracking_id);
+        if (!filename.empty())
+        {
+            LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+            if (me)
+            {
+                me->loadMaterialFromFile(filename);
+            }
+        }
+    }
+    else
+    {
+        std::string filename = LLLocalBitmapMgr::getInstance()->getFilename(tracking_id);
+        if (!filename.empty())
+        {
+            LLFloaterReg::showInstance("upload_image", LLSD(filename));
+        }
+    }
 }
 
 //static
@@ -968,8 +1020,23 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 
 	if (has_selection)
 	{
-		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN); 
-		LLUUID inworld_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
+		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
+        LLUUID inworld_id;
+
+        std::string mat_icon_name = LLInventoryIcon::getIconName(
+            LLAssetType::AT_MATERIAL,
+            LLInventoryType::IT_NONE);
+
+        if (icon_name == mat_icon_name)
+        {
+            inworld_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(tracking_id);
+        }
+        else
+        {
+            inworld_id = LLLocalBitmapMgr::getInstance()->getWorldID(tracking_id);
+        }
+
 		if (self->mSetImageAssetIDCallback)
 		{
 			self->mSetImageAssetIDCallback(inworld_id);
@@ -1200,6 +1267,36 @@ void LLFloaterTexturePicker::setBakeTextureEnabled(BOOL enabled)
 		}
 	}
 	onModeSelect(0, this);
+}
+
+void LLFloaterTexturePicker::onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle)
+{
+    std::vector<std::string>::const_iterator iter = filenames.begin();
+    while (iter != filenames.end())
+    {
+        if (!iter->empty())
+        {
+            std::string temp_exten = gDirUtilp->getExtension(*iter);
+            if (temp_exten == "gltf" || temp_exten == "glb")
+            {
+                LLLocalGLTFMaterialMgr::getInstance()->addUnit(*iter);
+            }
+            else
+            {
+                LLLocalBitmapMgr::getInstance()->addUnit(*iter);
+            }
+        }
+        iter++;
+    }
+
+    // Todo: this should referesh all pickers, not just a current one
+    if (!handle.isDead())
+    {
+        LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)handle.get();
+        self->mLocalScrollCtrl->clearRows();
+        LLLocalBitmapMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+        LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(self->mLocalScrollCtrl);
+    }
 }
 
 void LLFloaterTexturePicker::onTextureSelect( const LLTextureEntry& te )

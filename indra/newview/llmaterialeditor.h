@@ -50,7 +50,7 @@ public:
     void setFromGltfMetaData(const std::string& filename, tinygltf::Model& model);
 
     // open a file dialog and select a gltf/glb file for import
-    void importMaterial();
+    static void importMaterial();
 
     // for live preview, apply current material to currently selected object
     void applyToSelection();
@@ -60,6 +60,7 @@ public:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
 
     void loadAsset() override;
+    void loadMaterialFromFile(const std::string& filename);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 

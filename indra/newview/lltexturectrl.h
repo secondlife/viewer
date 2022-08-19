@@ -345,6 +345,8 @@ public:
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
+    static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
+
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
 	LLView*				mOwner;

@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LOCALRENDERMATERIALS_H
-#define LL_LOCALRENDERMATERIALS_H
+#ifndef LL_LOCALGLTFMATERIALS_H
+#define LL_LOCALGLTFMATERIALS_H
 
 #include "lleventtimer.h"
 #include "llpointer.h"
@@ -113,8 +113,9 @@ class LLLocalGLTFMaterialMgr : public LLSingleton<LLLocalGLTFMaterialMgr>
     ~LLLocalGLTFMaterialMgr();
 public:
     bool         addUnit();
+    bool         addUnit(const std::vector<std::string>& filenames);
+    bool         addUnit(const std::string& filename);
     void         delUnit(LLUUID tracking_id);
-    bool         checkTextureDimensions(std::string filename);
 
     LLUUID       getWorldID(LLUUID tracking_id);
     bool         isLocal(LLUUID world_id);
@@ -122,15 +123,12 @@ public:
 
     void         feedScrollList(LLScrollListCtrl* ctrl);
     void         doUpdates();
-    void         setNeedsRebake();
-    void         doRebake();
 
 private:
     std::list<LLLocalGLTFMaterial*>    mMaterialList;
     LLLocalGLTFMaterialTimer           mTimer;
-    bool                         mNeedsRebake;
     typedef std::list<LLLocalGLTFMaterial*>::iterator local_list_iter;
 };
 
-#endif // LL_LOCALRENDERMATERIALS_H
+#endif // LL_LOCALGLTFMATERIALS_H
 

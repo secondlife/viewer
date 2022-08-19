@@ -240,6 +240,7 @@
      multi_select="true"
      search_column="1"
      visible="false">
+        <column name="icon" label="" width="20" />
         <column name="unit_name" label="Name" dynamicwidth="true" />
         <column name="unit_id_HIDDEN" label="ID" width="0" />
     </scroll_list>

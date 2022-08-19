@@ -28,7 +28,7 @@
 #include "llviewerprecompiledheaders.h"
 
 /* own header */
-#include "lllocalrendermaterials.h"
+#include "lllocalgltfmaterials.h"
 
 /* boost: will not compile unless equivalent is undef'd, beware. */
 #include "fix_macros.h"
@@ -44,6 +44,7 @@
 #include "llfilepicker.h"
 #include "llgltfmateriallist.h"
 #include "llimagedimensionsinfo.h"
+#include "llinventoryicon.h"
 #include "lllocaltextureobject.h"
 #include "llmaterialmgr.h"
 #include "llnotificationsutil.h"
@@ -55,9 +56,6 @@
 #include "llviewerdisplay.h"
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"
-#include "llviewerwearable.h"
-#include "llvoavatarself.h"
-#include "llvovolume.h"
 #include "pipeline.h"
 #include "tinygltf/tiny_gltf.h"
 
@@ -111,13 +109,6 @@ LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename)
 
 LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
 {
-	// replace IDs with defaults, if set to do so.
-	if(LL_LOCAL_REPLACE_ON_DEL && mValid && gAgentAvatarp) // fix for STORM-1837
-	{
-		replaceIDs(mWorldID, IMG_DEFAULT);
-		LLLocalGLTFMaterialMgr::getInstance()->doRebake();
-	}
-
 	// delete self from material list
     gGLTFMaterialList.removeMaterial(mWorldID);
 }
@@ -312,10 +303,22 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
                 albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
                 mAlbedoFetched, mNormalFetched, mMRFetched, mEmissiveFetched);
 
-            mat->mAlbedoId = mAlbedoFetched->getID();
-            mat->mNormalId = mNormalFetched->getID();
-            mat->mMetallicRoughnessId = mMRFetched->getID();
-            mat->mEmissiveId = mEmissiveFetched->getID();
+            if (mAlbedoFetched)
+            {
+                mat->mAlbedoId = mAlbedoFetched->getID();
+            }
+            if (mNormalFetched)
+            {
+                mat->mNormalId = mNormalFetched->getID();
+            }
+            if (mMRFetched)
+            {
+                mat->mMetallicRoughnessId = mMRFetched->getID();
+            }
+            if (mEmissiveFetched)
+            {
+                mat->mEmissiveId = mEmissiveFetched->getID();
+            }
 
             break;
         }
@@ -533,39 +536,14 @@ bool LLLocalGLTFMaterialMgr::addUnit()
     bool add_successful = false;
 
     LLFilePicker& picker = LLFilePicker::instance();
-    if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
+    if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_MATERIAL))
     {
         mTimer.stopTimer();
 
         std::string filename = picker.getFirstFile();
         while (!filename.empty())
         {
-            if (!checkTextureDimensions(filename))
-            {
-                filename = picker.getNextFile();
-                continue;
-            }
-
-            LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename);
-
-            if (unit->getValid())
-            {
-                mMaterialList.push_back(unit);
-                add_successful = true;
-            }
-            else
-            {
-                LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
-                    << "Filename: " << filename << LL_ENDL;
-
-                LLSD notif_args;
-                notif_args["FNAME"] = filename;
-                LLNotificationsUtil::add("LocalBitmapsVerifyFail", notif_args);
-
-                delete unit;
-                unit = NULL;
-            }
-
+            add_successful |= addUnit(filename);
             filename = picker.getNextFile();
         }
 
@@ -575,35 +553,44 @@ bool LLLocalGLTFMaterialMgr::addUnit()
     return add_successful;
 }
 
-bool LLLocalGLTFMaterialMgr::checkTextureDimensions(std::string filename)
+bool LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
 {
-    std::string exten = gDirUtilp->getExtension(filename);
-    U32 codec = LLImageBase::getCodecFromExtension(exten);
-    std::string mImageLoadError;
-    LLImageDimensionsInfo image_info;
-    if (!image_info.load(filename, codec))
+    bool add_successful = false;
+    std::vector<std::string>::const_iterator iter = filenames.begin();
+    while (iter != filenames.end())
     {
-        return false;
+        if (!iter->empty())
+        {
+            add_successful |= addUnit(*iter);
+        }
+        iter++;
     }
+    return add_successful;
+}
 
-    S32 max_width = gSavedSettings.getS32("max_texture_dimension_X");
-    S32 max_height = gSavedSettings.getS32("max_texture_dimension_Y");
+bool LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
+{
+    LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename);
 
-    if ((image_info.getWidth() > max_width) || (image_info.getHeight() > max_height))
+    if (unit->getValid())
     {
-        LLStringUtil::format_map_t args;
-        args["WIDTH"] = llformat("%d", max_width);
-        args["HEIGHT"] = llformat("%d", max_height);
-        mImageLoadError = LLTrans::getString("texture_load_dimensions_error", args);
+        mMaterialList.push_back(unit);
+        return true;
+    }
+    else
+    {
+        LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
+            << "Filename: " << filename << LL_ENDL;
 
         LLSD notif_args;
-        notif_args["REASON"] = mImageLoadError;
-        LLNotificationsUtil::add("CannotUploadTexture", notif_args);
+        notif_args["FNAME"] = filename;
+        LLNotificationsUtil::add("LocalBitmapsVerifyFail", notif_args);
+
+        delete unit;
+        unit = NULL;
 
         return false;
     }
-
-    return true;
 }
 
 void LLLocalGLTFMaterialMgr::delUnit(LLUUID tracking_id)
@@ -680,21 +667,28 @@ void LLLocalGLTFMaterialMgr::feedScrollList(LLScrollListCtrl* ctrl)
 {
     if (ctrl)
     {
-        ctrl->clearRows();
-
         if (!mMaterialList.empty())
         {
+            std::string icon_name = LLInventoryIcon::getIconName(
+                LLAssetType::AT_MATERIAL,
+                LLInventoryType::IT_NONE);
+
             for (local_list_iter iter = mMaterialList.begin();
                 iter != mMaterialList.end(); iter++)
             {
                 LLSD element;
-                element["columns"][0]["column"] = "unit_name";
-                element["columns"][0]["type"] = "text";
-                element["columns"][0]["value"] = (*iter)->getShortName();
 
-                element["columns"][1]["column"] = "unit_id_HIDDEN";
+                element["columns"][0]["column"] = "icon";
+                element["columns"][0]["type"] = "icon";
+                element["columns"][0]["value"] = icon_name;
+
+                element["columns"][1]["column"] = "unit_name";
                 element["columns"][1]["type"] = "text";
-                element["columns"][1]["value"] = (*iter)->getTrackingID();
+                element["columns"][1]["value"] = (*iter)->getShortName();
+
+                element["columns"][2]["column"] = "unit_id_HIDDEN";
+                element["columns"][2]["type"] = "text";
+                element["columns"][2]["value"] = (*iter)->getTrackingID();
 
                 ctrl->addElement(element);
             }
@@ -707,28 +701,12 @@ void LLLocalGLTFMaterialMgr::doUpdates()
 {
     // preventing theoretical overlap in cases with huge number of loaded images.
     mTimer.stopTimer();
-    mNeedsRebake = false;
 
     for (local_list_iter iter = mMaterialList.begin(); iter != mMaterialList.end(); iter++)
     {
         (*iter)->updateSelf();
     }
 
-    doRebake();
     mTimer.startTimer();
-}
-
-void LLLocalGLTFMaterialMgr::setNeedsRebake()
-{
-    mNeedsRebake = true;
-}
-
-void LLLocalGLTFMaterialMgr::doRebake()
-{ /* separated that from doUpdates to insure a rebake can be called separately during deletion */
-    if (mNeedsRebake)
-    {
-        gAgentAvatarp->forceBakeAllTextures(LL_LOCAL_SLAM_FOR_DEBUG);
-        mNeedsRebake = false;
-    }
 }
 

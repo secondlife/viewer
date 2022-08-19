@@ -1019,18 +1019,15 @@ void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD&
 class LLMaterialFilePicker : public LLFilePickerThread
 {
 public:
-    LLMaterialFilePicker(LLMaterialEditor* me);
+    LLMaterialFilePicker();
     virtual void notify(const std::vector<std::string>& filenames);
-    void loadMaterial(const std::string& filename);
     static void	textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
-private:
-    LLMaterialEditor* mME;
+
 };
 
-LLMaterialFilePicker::LLMaterialFilePicker(LLMaterialEditor* me)
+LLMaterialFilePicker::LLMaterialFilePicker()
     : LLFilePickerThread(LLFilePicker::FFLOAD_MATERIAL)
 {
-    mME = me;
 }
 
 void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
@@ -1043,7 +1040,11 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
     
     if (filenames.size() > 0)
     {
-        loadMaterial(filenames[0]);
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        if (me)
+        {
+            me->loadMaterialFromFile(filenames[0]);
+        }
     }
 }
 
@@ -1114,7 +1115,7 @@ void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTe
 }
 
 
-void LLMaterialFilePicker::loadMaterial(const std::string& filename)
+void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
 {
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
@@ -1160,13 +1161,13 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     model_out.materials.resize(1);
 
     // get albedo texture
-    LLPointer<LLImageRaw> albedo_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mME->mAlbedoName);
+    LLPointer<LLImageRaw> albedo_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mAlbedoName);
     // get normal map
-    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, mME->mNormalName);
+    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, mNormalName);
     // get metallic-roughness texture
-    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, mME->mMetallicRoughnessName);
+    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, mMetallicRoughnessName);
     // get emissive texture
-    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index, mME->mEmissiveName);
+    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index, mEmissiveName);
     // get occlusion map if needed
     LLPointer<LLImageRaw> occlusion_img;
     if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
@@ -1176,75 +1177,75 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     }
 
     LLTinyGLTFHelper::initFetchedTextures(material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        mME->mAlbedoFetched, mME->mNormalFetched, mME->mMetallicRoughnessFetched, mME->mEmissiveFetched);
+        mAlbedoFetched, mNormalFetched, mMetallicRoughnessFetched, mEmissiveFetched);
     pack_textures(albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        mME->mAlbedoJ2C, mME->mNormalJ2C, mME->mMetallicRoughnessJ2C, mME->mEmissiveJ2C);
+        mAlbedoJ2C, mNormalJ2C, mMetallicRoughnessJ2C, mEmissiveJ2C);
     
     LLUUID albedo_id;
-    if (mME->mAlbedoFetched.notNull())
+    if (mAlbedoFetched.notNull())
     {
-        mME->mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
-        albedo_id = mME->mAlbedoFetched->getID();
+        mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
+        albedo_id = mAlbedoFetched->getID();
         
-        if (mME->mAlbedoName.empty())
+        if (mAlbedoName.empty())
         {
-            mME->mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+            mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
         }
     }
 
     LLUUID normal_id;
-    if (mME->mNormalFetched.notNull())
+    if (mNormalFetched.notNull())
     {
-        mME->mNormalFetched->forceToSaveRawImage(0, F32_MAX);
-        normal_id = mME->mNormalFetched->getID();
+        mNormalFetched->forceToSaveRawImage(0, F32_MAX);
+        normal_id = mNormalFetched->getID();
 
-        if (mME->mNormalName.empty())
+        if (mNormalName.empty())
         {
-            mME->mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
+            mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
         }
     }
 
     LLUUID mr_id;
-    if (mME->mMetallicRoughnessFetched.notNull())
+    if (mMetallicRoughnessFetched.notNull())
     {
-        mME->mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
-        mr_id = mME->mMetallicRoughnessFetched->getID();
+        mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
+        mr_id = mMetallicRoughnessFetched->getID();
 
-        if (mME->mMetallicRoughnessName.empty())
+        if (mMetallicRoughnessName.empty())
         {
-            mME->mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
+            mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
         }
     }
 
     LLUUID emissive_id;
-    if (mME->mEmissiveFetched.notNull())
+    if (mEmissiveFetched.notNull())
     {
-        mME->mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
-        emissive_id = mME->mEmissiveFetched->getID();
+        mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
+        emissive_id = mEmissiveFetched->getID();
 
-        if (mME->mEmissiveName.empty())
+        if (mEmissiveName.empty())
         {
-            mME->mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
+            mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
         }
     }
 
-    mME->setAlbedoId(albedo_id);
-    mME->setAlbedoUploadId(albedo_id);
-    mME->setMetallicRoughnessId(mr_id);
-    mME->setMetallicRoughnessUploadId(mr_id);
-    mME->setEmissiveId(emissive_id);
-    mME->setEmissiveUploadId(emissive_id);
-    mME->setNormalId(normal_id);
-    mME->setNormalUploadId(normal_id);
+    setAlbedoId(albedo_id);
+    setAlbedoUploadId(albedo_id);
+    setMetallicRoughnessId(mr_id);
+    setMetallicRoughnessUploadId(mr_id);
+    setEmissiveId(emissive_id);
+    setEmissiveUploadId(emissive_id);
+    setNormalId(normal_id);
+    setNormalUploadId(normal_id);
 
-    mME->setFromGltfModel(model_in);
+    setFromGltfModel(model_in);
 
-    mME->setFromGltfMetaData(filename_lc, model_in);
+    setFromGltfMetaData(filename_lc, model_in);
 
-    mME->setHasUnsavedChanges(true);
-    mME->openFloater();
+    setHasUnsavedChanges(true);
+    openFloater();
 
-    mME->applyToSelection();
+    applyToSelection();
 }
 
 bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_textures)
@@ -1533,7 +1534,7 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf
 
 void LLMaterialEditor::importMaterial()
 {
-    (new LLMaterialFilePicker(this))->getFile();
+    (new LLMaterialFilePicker())->getFile();
 }
 
 class LLRemderMaterialFunctor : public LLSelectedTEFunctor
