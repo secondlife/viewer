@@ -1533,9 +1533,9 @@ void LLTextureCtrl::onFloaterClose()
 
 void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 {
-	LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
+    LLFloaterTexturePicker* floaterp = (LLFloaterTexturePicker*)mFloaterHandle.get();
 
-	if( floaterp && getEnabled())
+    if( floaterp && getEnabled())
 	{
 		if (op == TEXTURE_CANCEL)
 			mViewModel->resetDirty();
@@ -1556,15 +1556,64 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 			}
 			else
 			{
-			mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-			LL_DEBUGS() << "mImageItemID: " << mImageItemID << LL_ENDL;
-			mImageAssetID = floaterp->getAssetID();
-			LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
+			    mImageItemID = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+			    LL_DEBUGS() << "mImageItemID: " << mImageItemID << LL_ENDL;
+			    mImageAssetID = floaterp->getAssetID();
+			    LL_DEBUGS() << "mImageAssetID: " << mImageAssetID << LL_ENDL;
 			}
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
 			{
-				mOnSelectCallback( this, LLSD() );
+                // determine if the selected item in inventory is a material
+                // by finding the item in inventory and inspecting its (IT_) type
+                LLUUID item_id = floaterp->findItemID(floaterp->getAssetID(), FALSE);
+                LLInventoryItem* item = gInventory.getItem(item_id);
+                if (item)
+                {
+                    if (item->getInventoryType() == LLInventoryType::IT_MATERIAL)
+                    {
+                        // ask the selection manager for the list of selected objects
+                        // to which the material will be applied.
+                        LLObjectSelectionHandle selectedObjectsHandle = LLSelectMgr::getInstance()->getSelection();
+                        if (selectedObjectsHandle.notNull())
+                        {
+                            LLObjectSelection* selectedObjects = selectedObjectsHandle.get();
+                            if (!selectedObjects->isEmpty())
+                            {
+                                // we have a selection - iterate over it
+                                for (LLObjectSelection::valid_iterator obj_iter = selectedObjects->valid_begin();
+                                        obj_iter != selectedObjects->valid_end();
+                                            ++obj_iter)
+                                {
+                                    LLSelectNode* object = *obj_iter;
+                                    LLViewerObject* viewer_object = object->getObject();
+                                    if (viewer_object)
+                                    {
+                                        // the asset ID of the material we want to apply
+                                        // the the selected objects
+                                        LLUUID asset_id = item->getAssetUUID();
+
+                                        // iterate over the faces in the object
+                                        // TODO: consider the case where user has 
+                                        // selected only certain faces
+                                        S32 num_faces = viewer_object->getNumTEs();
+                                        for (S32 face = 0; face < num_faces; face++)
+                                        {
+                                            viewer_object->setRenderMaterialID(face, asset_id);
+                                            dialog_refresh_all();
+                                        }
+                                        viewer_object->sendTEUpdate();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                // original behavior for textures, not materials
+                {
+                    mOnSelectCallback(this, LLSD());
+                }
 			}
 			else if (op == TEXTURE_CANCEL && mOnCancelCallback)
 			{
@@ -1575,8 +1624,10 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 				// If the "no_commit_on_selection" parameter is set
 				// we commit only when user presses OK in the picker
 				// (i.e. op == TEXTURE_SELECT) or texture changes via DnD.
-				if (mCommitOnSelection || op == TEXTURE_SELECT)
-					onCommit();
+                if (mCommitOnSelection || op == TEXTURE_SELECT)
+                {
+                    onCommit();
+                }
 			}
 		}
 	}
@@ -1709,7 +1760,7 @@ void LLTextureCtrl::draw()
 	}
 	else//mImageAssetID == LLUUID::null
 	{
-		mTexturep = NULL;
+		mTexturep = NULL; 
 	}
 	
 	// Border
