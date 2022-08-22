@@ -27,7 +27,10 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE      0
+#define DEBUG_ANY_LIGHT_TYPE      0 // Output red light cone
+#define DEBUG_PBR_LIGHT_TYPE      0 // Output PBR objects in red
+#define DEBUG_LEG_LIGHT_TYPE      0 // Show Legacy objects in red
+#define DEBUG_POINT_ZERO          0 // Output zero for spotlight
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -115,7 +118,7 @@ void main()
         }
 
   #if DEBUG_PBR_LIGHT_TYPE
-        colorDiffuse = vec3(0,0.5,0); colorSpec = vec3(0);
+        colorDiffuse = vec3(0.5,0,0); colorSpec = vec3(0);
   #endif
         final_color = colorDiffuse + colorSpec;
     }
@@ -175,7 +178,17 @@ void main()
                 }
             }
         }
+  #if DEBUG_LEG_LIGHT_TYPE
+        final_color.rgb = vec3(0.5,0,0.0);
+  #endif
     }
+
+#if DEBUG_POINT_ZERO
+    final_color = vec3(0);
+#endif
+#if DEBUG_ANY_LIGHT_TYPE
+    final_color = vec3(0.3333,0,0);
+#endif
 
     frag_color.rgb = final_color;
     frag_color.a   = 0.0;

@@ -28,12 +28,15 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE         0
+#define DEBUG_ANY_LIGHT_TYPE         0 // Output green light cone
+#define DEBUG_LEG_LIGHT_TYPE         0 // Show Legacy objects in green
+#define DEBUG_PBR_LIGHT_TYPE         0 // Show PBR objects in green
 #define DEBUG_PBR_SPOT               0
 #define DEBUG_PBR_SPOT_DIFFUSE       0
 #define DEBUG_PBR_SPOT_SPECULAR      0
 
 #define DEBUG_SPOT_NL                  0 // monochome area effected by light
+#define DEBUG_SPOT_ZERO                0 // Output zero for spotlight
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -223,6 +226,9 @@ void main()
 
             vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, noise, proj_tc.xy );
             final_color += diffuse.rgb*amb_rgb;
+  #if DEBUG_LEG_LIGHT_TYPE
+            final_color = vec3(0,0.5,0);
+  #endif
         }
 
         if (spec.a > 0.0)
@@ -277,6 +283,12 @@ void main()
 #endif
 #if DEBUG_SPOT_NL
     final_color = vec3(nl);
+#endif
+#if DEBUG_SPOT_ZERO
+    final_color = vec3(0,0,0);
+#endif
+#if DEBUG_ANY_LIGHT_TYPE
+    final_color = vec3(0,0.3333,0);
 #endif
 
     //not sure why, but this line prevents MATBUG-194

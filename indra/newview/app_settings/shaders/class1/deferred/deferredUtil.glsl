@@ -280,6 +280,22 @@ vec2 getScreenXY(vec4 clip)
     return screen;
 }
 
+// Color utils
+
+vec3 colorized_dot(float x)
+{
+    if (x > 0.0) return vec3( 0, x, 0 );
+    if (x < 0.0) return vec3(-x, 0, 0 );
+                 return vec3( 0, 0, 1 );
+}
+
+vec3 hue_to_rgb(float hue)
+{
+    if (hue > 1.0) return vec3(0.5);
+    vec3 rgb = abs(hue * 6. - vec3(3, 2, 4)) * vec3(1, -1, -1) + vec3(-1, 2, 2);
+    return clamp(rgb, 0.0, 1.0);
+}
+
 // PBR Utils
 
 vec3 fresnelSchlick( vec3 reflect0, vec3 reflect90, float vh)
