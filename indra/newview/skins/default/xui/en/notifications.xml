@@ -9804,6 +9804,15 @@ Attempt cancelled.
 
   <notification
    icon="alertmodal.tga"
+   name="LocalGLTFVerifyFail"
+   persist="true"
+   type="notify">
+Attempted to add an invalid or unreadable GLTF material [FNAME] which could not be opened or decoded.
+Attempt cancelled.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
    name="PathfindingReturnMultipleItems"
    type="alertmodal">
     You are returning [NUM_ITEMS] items.  Are you sure you want to continue?

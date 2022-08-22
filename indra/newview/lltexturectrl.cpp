@@ -78,15 +78,6 @@
 #include "llavatarappearancedefines.h"
 
 
-static const S32 LOCAL_ICON_ID_COLUMN = 0;
-static const S32 LOCAL_TRACKING_ID_COLUMN = 2;
-
-//static const char CURRENT_IMAGE_NAME[] = "Current Texture";
-//static const char WHITE_IMAGE_NAME[] = "Blank Texture";
-//static const char NO_IMAGE_NAME[] = "None";
-
-
-
 //static
 bool get_is_predefined_texture(LLUUID asset_id)
 {
@@ -756,14 +747,11 @@ void LLFloaterTexturePicker::onBtnSelect(void* userdata)
 	{
 		if (self->mLocalScrollCtrl->getVisible() && !self->mLocalScrollCtrl->getAllSelected().empty())
 		{
-            std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
-			LLUUID temp_id = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+            LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+            LLUUID temp_id = data["id"];
+            S32 asset_type = data["type"].asInteger();
 
-            std::string mat_icon_name = LLInventoryIcon::getIconName(
-                LLAssetType::AT_MATERIAL,
-                LLInventoryType::IT_NONE);
-
-            if (mat_icon_name == icon_name)
+            if (LLAssetType::AT_MATERIAL == asset_type)
             {
                 local_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(temp_id);
             }
@@ -931,9 +919,6 @@ void LLFloaterTexturePicker::onBtnRemove(void* userdata)
 
 	if (!selected_items.empty())
 	{
-        std::string mat_icon_name = LLInventoryIcon::getIconName(
-            LLAssetType::AT_MATERIAL,
-            LLInventoryType::IT_NONE);
 
 		for(std::vector<LLScrollListItem*>::iterator iter = selected_items.begin();
 			iter != selected_items.end(); iter++)
@@ -941,11 +926,11 @@ void LLFloaterTexturePicker::onBtnRemove(void* userdata)
 			LLScrollListItem* list_item = *iter;
 			if (list_item)
 			{
-				std::string icon_name = list_item->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
-                LLUUID tracking_id = list_item->getColumn(LOCAL_TRACKING_ID_COLUMN)->getValue().asUUID();
+                LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+                LLUUID tracking_id = data["id"];
+                S32 asset_type = data["type"].asInteger();
 
-                // todo: works, but need a better way to distinguish material from texture
-                if (icon_name == mat_icon_name)
+                if (LLAssetType::AT_MATERIAL == asset_type)
                 {
                     LLLocalGLTFMaterialMgr::getInstance()->delUnit(tracking_id);
                 }
@@ -978,14 +963,11 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
 	/* currently only allows uploading one by one, picks the first item from the selection list.  (not the vector!)
 	   in the future, it might be a good idea to check the vector size and if more than one units is selected - opt for multi-image upload. */
 
-    std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
-	LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
+    LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+    LLUUID tracking_id = data["id"];
+    S32 asset_type = data["type"].asInteger();
 
-    std::string mat_icon_name = LLInventoryIcon::getIconName(
-        LLAssetType::AT_MATERIAL,
-        LLInventoryType::IT_NONE);
-
-    if (mat_icon_name == icon_name)
+    if (LLAssetType::AT_MATERIAL == asset_type)
     {
         std::string filename = LLLocalGLTFMaterialMgr::getInstance()->getFilename(tracking_id);
         if (!filename.empty())
@@ -1020,15 +1002,12 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 
 	if (has_selection)
 	{
-        std::string icon_name = self->mLocalScrollCtrl->getFirstSelected()->getColumn(LOCAL_ICON_ID_COLUMN)->getValue().asString();
-		LLUUID tracking_id = (LLUUID)self->mLocalScrollCtrl->getSelectedItemLabel(LOCAL_TRACKING_ID_COLUMN);
+        LLSD data = self->mLocalScrollCtrl->getFirstSelected()->getValue();
+        LLUUID tracking_id = data["id"];
+        S32 asset_type = data["type"].asInteger();
         LLUUID inworld_id;
 
-        std::string mat_icon_name = LLInventoryIcon::getIconName(
-            LLAssetType::AT_MATERIAL,
-            LLInventoryType::IT_NONE);
-
-        if (icon_name == mat_icon_name)
+        if (LLAssetType::AT_MATERIAL == asset_type)
         {
             inworld_id = LLLocalGLTFMaterialMgr::getInstance()->getWorldID(tracking_id);
         }

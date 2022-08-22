@@ -1109,9 +1109,10 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
                 element["columns"][1]["type"] = "text";
                 element["columns"][1]["value"] = (*iter)->getShortName();
 
-                element["columns"][2]["column"] = "unit_id_HIDDEN";
-                element["columns"][2]["type"] = "text";
-                element["columns"][2]["value"] = (*iter)->getTrackingID();
+                LLSD data;
+                data["id"] = (*iter)->getTrackingID();
+                data["type"] = (S32)LLAssetType::AT_TEXTURE;
+                element["value"] = data;
 
 				ctrl->addElement(element);
 			}

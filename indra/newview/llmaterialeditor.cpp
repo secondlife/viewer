@@ -1048,36 +1048,6 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
     }
 }
 
-static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
-{
-    if (img->getComponents() == 4)
-    {
-        LLImageRaw* tmp = new LLImageRaw(img->getWidth(), img->getHeight(), 3);
-        tmp->copyUnscaled4onto3(img);
-        img = tmp;
-    }
-}
-
-// copy red channel from src_img to dst_img
-// PRECONDITIONS:
-// dst_img must be 3 component
-// src_img and dst_image must have the same dimensions
-static void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
-{
-    llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
-    llassert(dst_img->getComponents() == 3);
-
-    U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
-    U8* src = src_img->getData();
-    U8* dst = dst_img->getData();
-    S8 src_components = src_img->getComponents();
-
-    for (U32 i = 0; i < pixel_count; ++i)
-    {
-        dst[i * 3] = src[i * src_components];
-    }
-}
-
 static void pack_textures(
     LLPointer<LLImageRaw>& albedo_img,
     LLPointer<LLImageRaw>& normal_img,

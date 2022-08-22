@@ -39,24 +39,15 @@
 #include <ctime>
 
 /* misc headers */
-#include "llagentwearables.h"
-#include "llface.h"
 #include "llfilepicker.h"
 #include "llgltfmateriallist.h"
-#include "llimagedimensionsinfo.h"
+#include "llimage.h"
 #include "llinventoryicon.h"
-#include "lllocaltextureobject.h"
 #include "llmaterialmgr.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
-#include "lltexlayerparams.h"
 #include "lltinygltfhelper.h"
-#include "lltrans.h"
-#include "llviewercontrol.h"
-#include "llviewerdisplay.h"
-#include "llviewerobjectlist.h"
-#include "llviewerobject.h"
-#include "pipeline.h"
+#include "llviewertexture.h"
 #include "tinygltf/tiny_gltf.h"
 
 /*=======================================*/
@@ -64,10 +55,6 @@
 /*=======================================*/ 
 
 static const F32 LL_LOCAL_TIMER_HEARTBEAT   = 3.0;
-static const BOOL LL_LOCAL_USE_MIPMAPS      = true;
-static const S32 LL_LOCAL_DISCARD_LEVEL     = 0;
-static const bool LL_LOCAL_SLAM_FOR_DEBUG   = true;
-static const bool LL_LOCAL_REPLACE_ON_DEL   = true;
 static const S32 LL_LOCAL_UPDATE_RETRIES    = 5;
 
 /*=======================================*/
@@ -104,7 +91,7 @@ LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename)
 	/* next phase of unit creation is nearly the same as an update cycle.
 	   we're running updateSelf as a special case with the optional UT_FIRSTUSE
 	   which omits the parts associated with removing the outdated texture */
-	mValid = updateSelf(UT_FIRSTUSE);
+	mValid = updateSelf();
 }
 
 LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
@@ -140,7 +127,7 @@ bool LLLocalGLTFMaterial::getValid()
 }
 
 /* update functions */
-bool LLLocalGLTFMaterial::updateSelf(EUpdateType optional_firstupdate)
+bool LLLocalGLTFMaterial::updateSelf()
 {
 	bool updated = false;
 	
@@ -164,24 +151,14 @@ bool LLLocalGLTFMaterial::updateSelf(EUpdateType optional_firstupdate)
 				if (loadMaterial(raw_material))
 				{
 					// decode is successful, we can safely proceed.
-					LLUUID old_id = LLUUID::null;
-					if ((optional_firstupdate != UT_FIRSTUSE) && !mWorldID.isNull())
-					{
-						old_id = mWorldID;
-					}
-					mWorldID.generate();
+                    if (mWorldID.isNull())
+                    {
+                        mWorldID.generate();
+                    }
 					mLastModified = new_last_modified;
 
+                    // will replace material if it already exists
                     gGLTFMaterialList.addMaterial(mWorldID, raw_material);
-			
-					if (optional_firstupdate != UT_FIRSTUSE)
-					{
-						// seek out everything old_id uses and replace it with mWorldID
-						replaceIDs(old_id, mWorldID);
-
-						// remove old_id from material list
-                        gGLTFMaterialList.removeMaterial(old_id);
-					}
 
 					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
 					updated = true;
@@ -339,151 +316,6 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
     return decode_successful;
 }
 
-void LLLocalGLTFMaterial::replaceIDs(LLUUID old_id, LLUUID new_id)
-{
-    // checking for misuse.
-    if (old_id == new_id)
-    {
-        LL_INFOS() << "An attempt was made to replace a texture with itself. (matching UUIDs)" << "\n"
-            << "Texture UUID: " << old_id.asString() << LL_ENDL;
-        return;
-    }
-
-    // processing updates per channel; makes the process scalable.
-    // the only actual difference is in SetTE* call i.e. SetTETexture, SetTENormal, etc.
-    updateUserPrims(old_id, new_id, LLRender::DIFFUSE_MAP);
-    updateUserPrims(old_id, new_id, LLRender::NORMAL_MAP);
-    updateUserPrims(old_id, new_id, LLRender::SPECULAR_MAP);
-
-    // default safeguard image for layers
-    if (new_id == IMG_DEFAULT)
-    {
-        new_id = IMG_DEFAULT_AVATAR;
-    }
-}
-
-// this function sorts the faces from a getFaceList[getNumFaces] into a list of objects
-// in order to prevent multiple sendTEUpdate calls per object during updateUserPrims
-std::vector<LLViewerObject*> LLLocalGLTFMaterial::prepUpdateObjects(LLUUID old_id, U32 channel)
-{
-    std::vector<LLViewerObject*> obj_list;
-    // todo: find a way to update materials
-    /*
-    LLGLTFMaterial* old_material = gGLTFMaterialList.getMaterial(old_id);
-
-    for(U32 face_iterator = 0; face_iterator < old_texture->getNumFaces(channel); face_iterator++)
-    {
-        // getting an object from a face
-        LLFace* face_to_object = (*old_texture->getFaceList(channel))[face_iterator];
-
-        if(face_to_object)
-        {
-            LLViewerObject* affected_object = face_to_object->getViewerObject();
-
-            if(affected_object)
-            {
-
-                // we have an object, we'll take it's UUID and compare it to
-                // whatever we already have in the returnable object list.
-                // if there is a match - we do not add (to prevent duplicates)
-                LLUUID mainlist_obj_id = affected_object->getID();
-                bool add_object = true;
-
-                // begin looking for duplicates
-                std::vector<LLViewerObject*>::iterator objlist_iter = obj_list.begin();
-                for(; (objlist_iter != obj_list.end()) && add_object; objlist_iter++)
-                {
-                    LLViewerObject* obj = *objlist_iter;
-                    if (obj->getID() == mainlist_obj_id)
-                    {
-                        add_object = false; // duplicate found.
-                    }
-                }
-                // end looking for duplicates
-
-                if(add_object)
-                {
-                    obj_list.push_back(affected_object);
-                }
-
-            }
-
-        }
-
-    } // end of face-iterating for()
-
-    */
-    return obj_list;
-}
-
-void LLLocalGLTFMaterial::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
-{
-    /*std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id, channel);
-    for(std::vector<LLViewerObject*>::iterator object_iterator = objectlist.begin();
-        object_iterator != objectlist.end(); object_iterator++)
-    {
-        LLViewerObject* object = *object_iterator;
-
-        if(object)
-        {
-            bool update_tex = false;
-            bool update_mat = false;
-            S32 num_faces = object->getNumFaces();
-
-            for (U8 face_iter = 0; face_iter < num_faces; face_iter++)
-            {
-                if (object->mDrawable)
-                {
-                    LLFace* face = object->mDrawable->getFace(face_iter);
-                    if (face && face->getTexture(channel) && face->getTexture(channel)->getID() == old_id)
-                    {
-                        // these things differ per channel, unless there already is a universal
-                        // texture setting function to setTE that takes channel as a param?
-                        // p.s.: switch for now, might become if - if an extra test is needed to verify before touching normalmap/specmap
-                        switch(channel)
-                        {
-                            case LLRender::DIFFUSE_MAP:
-                    {
-                                object->setTETexture(face_iter, new_id);
-                                update_tex = true;
-                                break;
-                            }
-
-                            case LLRender::NORMAL_MAP:
-                            {
-                                object->setTENormalMap(face_iter, new_id);
-                                update_mat = true;
-                                update_tex = true;
-                                break;
-                            }
-
-                            case LLRender::SPECULAR_MAP:
-                            {
-                                object->setTESpecularMap(face_iter, new_id);
-                                update_mat = true;
-                                update_tex = true;
-                                break;
-                            }
-                        }
-                        // end switch
-
-                    }
-                }
-            }
-
-            if (update_tex)
-            {
-                object->sendTEUpdate();
-            }
-
-            if (update_mat)
-            {
-                object->mDrawable->getVOVolume()->faceMappingChanged();
-            }
-        }
-    }
-    */
-}
 
 /*=======================================*/
 /*  LLLocalGLTFMaterialTimer: timer class      */
@@ -584,7 +416,7 @@ bool LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 
         LLSD notif_args;
         notif_args["FNAME"] = filename;
-        LLNotificationsUtil::add("LocalBitmapsVerifyFail", notif_args);
+        LLNotificationsUtil::add("LocalGLTFVerifyFail", notif_args);
 
         delete unit;
         unit = NULL;
@@ -663,6 +495,7 @@ std::string LLLocalGLTFMaterialMgr::getFilename(LLUUID tracking_id)
     return filename;
 }
 
+// probably shouldn't be here, but at the moment this mirrors lllocalbitmaps
 void LLLocalGLTFMaterialMgr::feedScrollList(LLScrollListCtrl* ctrl)
 {
     if (ctrl)
@@ -686,9 +519,10 @@ void LLLocalGLTFMaterialMgr::feedScrollList(LLScrollListCtrl* ctrl)
                 element["columns"][1]["type"] = "text";
                 element["columns"][1]["value"] = (*iter)->getShortName();
 
-                element["columns"][2]["column"] = "unit_id_HIDDEN";
-                element["columns"][2]["type"] = "text";
-                element["columns"][2]["value"] = (*iter)->getTrackingID();
+                LLSD data;
+                data["id"] = (*iter)->getTrackingID();
+                data["type"] = (S32)LLAssetType::AT_MATERIAL;
+                element["value"] = data;
 
                 ctrl->addElement(element);
             }

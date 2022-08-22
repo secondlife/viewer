@@ -48,20 +48,11 @@ public: /* accessors */
     LLUUID		getWorldID();
     bool		getValid();
 
-public: /* self update public section */
-    enum EUpdateType
-    {
-        UT_FIRSTUSE,
-        UT_REGUPDATE
-    };
+public:
+    bool updateSelf();
 
-    bool updateSelf(EUpdateType = UT_REGUPDATE);
-
-private: /* self update private section */
+private:
     bool loadMaterial(LLPointer<LLGLTFMaterial> raw);
-    void replaceIDs(LLUUID old_id, LLUUID new_id);
-    std::vector<LLViewerObject*> prepUpdateObjects(LLUUID old_id, U32 channel);
-    void updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel);
 
 private: /* private enums */
     enum ELinkStatus
