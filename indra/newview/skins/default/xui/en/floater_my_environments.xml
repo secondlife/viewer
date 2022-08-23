@@ -119,7 +119,7 @@
                        follows="all"
                        layout="topleft"
                        name="pnl_settings"
-                       filter_asset_type="settings"/>
+                       filter_asset_types="settings"/>
             </panel>
         </layout_panel>
         <layout_panel

@@ -4667,8 +4667,8 @@ void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, BOOL force_picke
 		else
 			pick_type = LLFilePicker::FFSAVE_ALL;
 
-		(new LLFilePickerReplyThread(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
-										boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb)))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&LLViewerWindow::onDirectorySelected, this, _1, formatted_image, success_cb, failure_cb), pick_type, proposed_name,
+										boost::bind(&LLViewerWindow::onSelectionFailure, this, failure_cb));
 	}
 	else
 	{

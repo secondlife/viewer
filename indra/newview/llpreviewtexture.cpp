@@ -296,7 +296,7 @@ void LLPreviewTexture::saveAs()
 		return;
 
 	std::string filename = getItem() ? LLDir::getScrubbedFileName(getItem()->getName()) : LLStringUtil::null;
-	(new LLFilePickerReplyThread(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename))->getFile();
+	LLFilePickerReplyThread::startPicker(boost::bind(&LLPreviewTexture::saveTextureToFile, this, _1), LLFilePicker::FFSAVE_TGAPNG, filename);
 }
 
 void LLPreviewTexture::saveTextureToFile(const std::vector<std::string>& filenames)

@@ -340,8 +340,12 @@ public:
 	static void		onBakeTextureSelect(LLUICtrl* ctrl, void *userdata);
 	static void		onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *userdata);
 
+    static void     onSelectTextureMaterials(LLUICtrl* ctrl, void *userdata);
+
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
+
+    static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
 
 protected:
 	LLPointer<LLViewerTexture> mTexturep;
@@ -365,6 +369,7 @@ protected:
 	BOOL				mActive;
 
 	LLFilterEditor*		mFilterEdit;
+    LLComboBox*         mTextureMaterialsCombo;
 	LLInventoryPanel*	mInventoryPanel;
 	PermissionMask		mImmediateFilterPermMask;
 	PermissionMask		mDnDFilterPermMask;
