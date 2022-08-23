@@ -352,21 +352,98 @@ void main()
         colorSpec    *= ao;
 
         // Add in sun/moon reflection
-        if (metal > 0.0)
+        vec3  h, l;
+        float nh, nl, nv, vh, lightDist;
+        calcHalfVectors(light_dir, n, v, h, l, nh, nl, nv, vh, lightDist);
+
+        if (nl > 0.0 || nv > 0.0)
         {
-            vec3  r      = reflect(pos.xyz, norm.xyz);
-            float sa     = dot(normalize(r), light_dir.xyz);
-            float sun    = texture2D(lightFunc, vec2(sa, metal)).r;
-            vec3 sunSpec = sunlit * scol * sun;
-            colorSpec    += sunSpec * metal;
-            bloom        = dot(sunSpec, sunSpec) / 6;
+#if DEBUG_PBR_SUN_FULL_BRIGHT
+            vec3 sunlit = vec3(1);
+#endif
+            vec3 c_diff, reflect0, reflect90;
+            initMaterial( base, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+
+            // scol = sun shadow
+            vec3 intensity = ambocc * sunlit * nl * scol;
+            colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            bloom = dot(colorSpec, colorSpec) / 8.0;
+
+    #if DEBUG_PBR_SUN_SPEC_FRESNEL
+            colorDiffuse = vec3(0);
+            colorSpec = fresnelSchlick( reflect0, reflect90, vh );
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_D
+            colorDiffuse = vec3(0);
+            colorSpec = vec3(D_GGX( nh, alphaRough ));
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_V
+            colorDiffuse = vec3(0);
+            colorSpec = vec3(V_GGX( nl, nv, alphaRough ));
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_DF
+            colorDiffuse = vec3(0);
+            colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
+            colorSpec *= D_GGX( nh, alphaRough );
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_DV
+            colorDiffuse = vec3(0);
+            colorSpec  = vec3(D_GGX( nh, alphaRough ));
+            colorSpec *= vec3(V_GGX( nl, nv, alphaRough ));
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_FV
+            colorDiffuse = vec3(0);
+            colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
+            colorSpec *= V_GGX( nl, nv, alphaRough );
+    #endif
+    #if DEBUG_PBR_SUN_SPECULAR
+            colorDiffuse = vec3(0);
+            colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
+            colorSpec *= D_GGX( nh, alphaRough );
+            colorSpec *= V_GGX( nl, nv, alphaRough );
+    #endif
+    #if DEBUG_PBR_SUN_SPEC_FUNC
+            colorDiffuse = vec3(0);
+            colorSpec  = nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+    #endif
+
+    #if DEBUG_PBR_SUN_DIFFUSE
+            colorDiffuse = linear_to_srgb(diffuse.rgb);
+            colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_REFLECT0
+            colorDiffuse = reflect0;
+            colorSpec = vec3(0);
+    #endif
         }
+
+    #if DEBUG_PBR_SUN_H
+        colorDiffuse = h*0.5 + 0.5; colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_L
+        colorDiffuse = l*0.5 + 0.5; colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_V
+        colorDiffuse = v*0.5 + 0.5; colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_NH
+        colorDiffuse = colorize_dot(nh); colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_NL
+        colorDiffuse = colorize_dot(nl); colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_NV
+        colorDiffuse = colorize_dot(nv); colorSpec = vec3(0);
+    #endif
+    #if DEBUG_PBR_SUN_VH
+        colorDiffuse = colorize_dot(vh); colorSpec = vec3(0);
+    #endif
+
         color.rgb = colorDiffuse + colorEmissive + colorSpec;
 
-        vec3 sun_contrib = min(da, scol) * sunlit;
 #if PBR_USE_ATMOS
         color  = linear_to_srgb(color);
-        color += 2.0*sun_contrib;       // 2x = Undo legacy hack of calcAtmosphericVars() returning sunlight.rgb * 0.5;
         color *= atten.r;
         color += 2.0*additive;
         color  = scaleSoftClipFrag(color);
