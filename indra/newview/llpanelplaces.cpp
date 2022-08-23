@@ -1104,7 +1104,7 @@ void LLPanelPlaces::togglePlaceInfoPanel(BOOL visible)
 
 			mLandmarkInfo->setVisible(FALSE);
 		}
-		else if (mPlaceInfoType == AGENT_INFO_TYPE)
+        else if (mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE)
 		{
 			LLViewerParcelMgr::getInstance()->removeObserver(mParcelObserver);
 
@@ -1158,7 +1158,7 @@ void LLPanelPlaces::onVisibilityChange(BOOL new_visibility)
 {
 	LLPanel::onVisibilityChange(new_visibility);
 
-	if (!new_visibility && mPlaceInfoType == AGENT_INFO_TYPE)
+	if (!new_visibility && mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE)
 	{
 		LLViewerParcelMgr::getInstance()->removeObserver(mParcelObserver);
 
@@ -1328,7 +1328,7 @@ void LLPanelPlaces::updateVerbs()
 		is_place_info_visible = false;
 	}
 
-	bool is_agent_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE;
+    bool is_nearby_place_info_visible = mPlaceInfoType == AGENT_INFO_TYPE || mPlaceInfoType == NEARBY_PLACE_INFO_TYPE;
 	bool is_create_landmark_visible = mPlaceInfoType == CREATE_LANDMARK_INFO_TYPE;
 	bool is_pick_panel_visible = false;
 	if(mPickPanel)
@@ -1352,7 +1352,7 @@ void LLPanelPlaces::updateVerbs()
 	{
 		mShowOnMapBtn->setEnabled(have_3d_pos);
 
-		if (is_agent_place_info_visible)
+        if (is_nearby_place_info_visible)
 		{
 			// We don't need to teleport to the current location
 			// so check if the location is not within the current parcel.
