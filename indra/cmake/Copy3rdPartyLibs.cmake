@@ -151,6 +151,11 @@ elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
     set(SHARED_LIB_STAGING_DIR_RELEASE          "${SHARED_LIB_STAGING_DIR}/Release/Resources")
+    # Support our "@executable_path/../Resources" load path for executables
+    # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
+    # directories.
+    file(CREATE_LINK "Release/Resources" "${SHARED_LIB_STAGING_DIR}/Resources"
+         SYMBOLIC)
 
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(slvoice_files SLVoice)
