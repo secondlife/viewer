@@ -405,23 +405,31 @@ float V_GGX( float nl, float nv, float alphaRough )
     return 0.0;
 }
 
+// NOTE: Assumes a hard-coded IOR = 1.5
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight )
 {
     float metal      = packedORM.b;
-          c_diff     = mix(diffuse.rgb, vec3(0), metal);
+          c_diff     = mix(diffuse, vec3(0), metal);
     float IOR        = 1.5;                                // default Index Of Refraction 1.5 (dielectrics)
           reflect0   = vec3(0.04);                         // -> incidence reflectance 0.04
-          reflect0   = mix( reflect0, diffuse.rgb, metal); // reflect at 0 degrees
+//        reflect0   = vec3(calcF0(IOR));
+          reflect0   = mix(reflect0, diffuse, metal);      // reflect at 0 degrees
           reflect90  = vec3(1);                            // reflect at 90 degrees
           specWeight = 1.0;
 
-    float perceptualRough = packedORM.g;
-          alphaRough      = perceptualRough * perceptualRough;
+    // When roughness is zero blender shows a tiny specular
+    float perceptualRough = max(packedORM.g, 0.1);
+    alphaRough      = perceptualRough * perceptualRough;
+}
+
+vec3 BRDFDiffuse(vec3 color)
+{
+    return color / M_PI;
 }
 
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh )
 {
-    return (1.0 - specWeight * fresnelSchlick( reflect0, reflect90, vh)) * (c_diff / M_PI);
+    return (1.0 - specWeight * fresnelSchlick( reflect0, reflect90, vh)) * BRDFDiffuse(c_diff);
 }
 
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float specWeight, float vh, float nl, float nv, float nh )

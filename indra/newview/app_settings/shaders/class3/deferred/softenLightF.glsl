@@ -264,7 +264,6 @@ void main()
              packedORM        = vec3(1,1,1);
 #endif
         float IOR             = 1.5;         // default Index Of Refraction 1.5 (dielectrics)
-        vec3  reflect0        = vec3(0.04);  // -> incidence reflectance 0.04
 #if HAS_IOR
               reflect0        = vec3(calcF0(IOR));
 #endif
@@ -274,7 +273,6 @@ void main()
         float ao         = packedORM.r;
         float metal      = packedORM.b;
         vec3  c_diff     = mix(diffuse.rgb,vec3(0),metal);
-        vec3  reflect90  = vec3(0);
         vec3  v          = -normalize(pos.xyz);
 #if DEBUG_PBR_VERT2CAM1
               v = vec3(0,0,1);
@@ -292,11 +290,11 @@ void main()
         float dotBV = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
-        float perceptualRough = packedORM.g;
+        vec3  base            = linear_to_srgb(diffuse.rgb);
+        float perceptualRough = max(packedORM.g, 0.1);
         float alphaRough      = perceptualRough * perceptualRough;
-        vec3  colorDiff       = mix( diffuse.rgb, vec3(0)    , metal);
-              reflect0        = mix( reflect0   , diffuse.rgb, metal); // reflect at 0 degrees
-              reflect90       = vec3(1);                               // reflect at 90 degrees
+        vec3  reflect0        = mix(vec3(0.04), base, metal); // incidence reflectance 0.04 -> reflect at 0 degrees
+        vec3  reflect90       = vec3(1);                      // reflect at 90 degrees
 #if DEBUG_PBR_REFLECTANCE
         float reflectance     = max( max( reflect0.r, reflect0.g ), reflect0.b );
 #endif
