@@ -24,7 +24,6 @@
  */
 
 #define PBR_USE_ATMOS              1
-#define PBR_USE_GGX_EMS_HACK       0
 #define PBR_USE_IBL                1
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
@@ -544,7 +543,7 @@ else
     if (envIntensity > 0.0)
     {  // add environmentmap
         //fudge darker
-        legacyenv *= 0.5*diffuse.a+0.5;;
+        legacyenv *= 0.5*diffuse.a+0.5;
         applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
     }
 
