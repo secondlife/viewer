@@ -87,6 +87,25 @@
 #define DEBUG_PBR_SKY_ADDITIVE     0 // Output: additive
 #define DEBUG_PBR_SKY_ATTEN        0 // Output: greyscale atten.r
 
+// Sun
+#define DEBUG_PBR_SUN_FULL_BRIGHT  0 // Sunlit color = <1,1,1>
+#define DEBUG_PBR_SUN_H            0 // Half Vector
+#define DEBUG_PBR_SUN_L            0 // Light Vector
+#define DEBUG_PBR_SUN_V            0 // Surface to Light Vector
+#define DEBUG_PBR_SUN_NH           0 // dot(n,h)
+#define DEBUG_PBR_SUN_NL           0 // dot(n,l)
+#define DEBUG_PBR_SUN_NV           0 // dot(n,v)
+#define DEBUG_PBR_SUN_VH           0 // dot(v,h)
+#define DEBUG_PBR_SUN_REFLECT0     0 // reflect0 only
+#define DEBUG_PBR_SUN_SPEC_FRESNEL 0 // Fresnel
+#define DEBUG_PBR_SUN_SPEC_D       0 // D(h)
+#define DEBUG_PBR_SUN_SPEC_V       0 // V(l,v,h)
+#define DEBUG_PBR_SUN_SPEC_DF      0 // D() * F()
+#define DEBUG_PBR_SUN_SPEC_DV      0 // D() * V()
+#define DEBUG_PBR_SUN_SPEC_FV      0 // F() * V()
+#define DEBUG_PBR_SUN_SPECULAR     0 // D() * F() * V()
+#define DEBUG_PBR_SUN_SPEC_FUNC    0 // D() * F() * V()
+
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
 #define DEBUG_PBR_REFLECT0_MIX     0 // Output: diffuse reflect0 calculated from ior
@@ -320,7 +339,9 @@ void main()
         vec3  AvgEms        = avg * Ems;
         vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
         vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
+#if PBR_USE_IBL
         colorDiffuse       += (FmsEms + kDiffuse) * irradiance;
+#endif
     #if DEBUG_PBR_DIFFUSE_PRE_AO
         vec3 debug_diffuse  = colorDiffuse;
     #endif
