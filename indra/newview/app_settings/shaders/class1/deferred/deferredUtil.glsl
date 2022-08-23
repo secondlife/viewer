@@ -392,17 +392,35 @@ float D_GGX( float nh, float alphaRough )
 }
 
 // NOTE: This is different from the GGX texture
+// See:
+//   Real Time Rendering, 4th Edition
+//   Page 341
+//   Equation 9.43
+// Also see:
+//   https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)
+//   4.4.2 Geometric Shadowing (specular G)
 float V_GGX( float nl, float nv, float alphaRough )
 {
+#if 1
+    // Note: When roughness is zero, has discontuinity in the bottom hemisphere
     float rough2 = alphaRough * alphaRough;
     float ggxv   = nl * sqrt(nv * nv * (1.0 - rough2) + rough2);
     float ggxl   = nv * sqrt(nl * nl * (1.0 - rough2) + rough2);
+
     float ggx    = ggxv + ggxl;
     if (ggx > 0.0)
     {
         return 0.5 / ggx;
     }
     return 0.0;
+#else
+    // See: smithVisibility_GGXCorrelated, V_SmithCorrelated, etc.
+    float rough2 = alphaRough * alphaRough;
+    float ggxv = nl * sqrt(nv * (nv - rough2 * nv) + rough2);
+    float ggxl = nv * sqrt(nl * (nl - rough2 * nl) + rough2);
+    return 0.5 / (ggxv + ggxl);
+#endif
+
 }
 
 // NOTE: Assumes a hard-coded IOR = 1.5
