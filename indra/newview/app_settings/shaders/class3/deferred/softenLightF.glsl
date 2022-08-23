@@ -138,6 +138,9 @@ vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+float calcF0(float ior);
+void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+
 float getAmbientClamp();
 vec2 getGGX( vec2 brdfPoint );
 vec3  atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
@@ -154,17 +157,17 @@ void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
+// Debug Utils
+vec3 BRDFDiffuse(vec3 color);
+vec3 fresnelSchlick( vec3 reflect0, vec3 reflect90, float vh);
+float D_GGX( float nh, float alphaRough );
+float V_GGX( float nl, float nv, float alphaRough );
+
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
 uniform vec3 view_dir; // PBR
-
-vec3 calcBaseReflect0(float ior)
-{
-    vec3   reflect0 = vec3(pow((ior - 1.0) / (ior + 1.0), 2.0));
-    return reflect0;
-}
 
 void main()
 {
@@ -241,10 +244,10 @@ void main()
         float IOR             = 1.5;         // default Index Of Refraction 1.5 (dielectrics)
         vec3  reflect0        = vec3(0.04);  // -> incidence reflectance 0.04
 #if HAS_IOR
-              reflect0        = calcBaseReflect0(IOR);
+              reflect0        = vec3(calcF0(IOR));
 #endif
 #if DEBUG_PBR_REFLECT0_BASE
-        vec3  debug_reflect0  = reflect0;
+        vec3  debug_reflect0  = vec3(calcF0(IOR));
 #endif
 
         float metal      = packedORM.b;
