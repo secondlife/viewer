@@ -79,6 +79,7 @@
 #define DEBUG_PBR_DIFFUSE          0 // Output: diffuse post AO
 
 // Atmospheric Lighting
+#define DEBUG_PBR_AMBENV           0 // Output: ambient environment
 #define DEBUG_PBR_AMBOCC           0 // Output: ambient occlusion
 #define DEBUG_PBR_DA_RAW           0 // Output: da pre pow()
 #define DEBUG_PBR_DA_POW           0 // Output: da post pow()
@@ -476,9 +477,6 @@ void main()
         color.rgb = v*0.5 + vec3(0.5);
     #endif
 
-    #if DEBUG_PBR_AMBOCC
-        color.rgb = vec3(ambocc);
-    #endif
     #if DEBUG_PBR_DA_RAW
         color.rgb = vec3(debug_da);
     #endif
@@ -558,12 +556,20 @@ else
     color       = fogged.rgb;
     bloom       = fogged.a;
 #endif
+    #if DEBUG_PBR_LIGHT_TYPE
+        color.rgb = vec3(0);
+    #endif
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
-    //color = vec3(ambocc);
     //color = ambenv;
     //color.b = diffuse.a;
     frag_color.rgb = srgb_to_linear(color.rgb);
 }
+#if DEBUG_PBR_AMBOCC
+    frag_color.rgb = vec3(ambocc);
+#endif
+#if DEBUG_PBR_AMBENV
+    frag_color.rgb = ambenv;
+#endif
     frag_color.a = bloom;
 }
