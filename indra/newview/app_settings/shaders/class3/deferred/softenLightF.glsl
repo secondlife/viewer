@@ -25,6 +25,7 @@
 
 #define PBR_USE_ATMOS              1
 #define PBR_USE_GGX_EMS_HACK       0
+#define PBR_USE_IBL                1
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
@@ -59,6 +60,8 @@
 #define DEBUG_PBR_FRESNEL          0 // Output: roughness dependent fresnel
 #define DEBUG_PBR_KSPEC            0 // Output: K spec
 #define DEBUG_PBR_REFLECTION_DIR   0 // Output: reflection dir
+#define DEBUG_PBR_SPEC_IBL         0 // Output: IBL specularity
+#define DEBUG_PBR_SPEC_LEGACY      0 // Output: legacyenv
 #define DEBUG_PBR_SPEC_REFLECTION  0 // Output: environment reflection
 #define DEBUG_PBR_FSS_ESS_GGX      0 // Output: FssEssGGX
 #define DEBUG_PBR_SPEC             0 // Output: Final spec
@@ -300,7 +303,12 @@ void main()
         kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
 #endif
         vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
+#if DEBUG_PBR_SPEC_IBL
+        vec3 debug_color_spec = specWeight * specLight * FssEssGGX;
+#endif
+#if PBR_USE_IBL
         colorSpec += specWeight * specLight * FssEssGGX;
+#endif
 
         // Reference: getIBLRadianceLambertian
         vec3  FssEssLambert = specWeight * kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
