@@ -878,6 +878,7 @@ Kitty Barnett
 	STORM-2149
 	MAINT-7581
 	MAINT-7081
+    SL-17962
 Kolor Fall
 Komiko Okamoto
 Korvel Noh
@@ -1519,6 +1520,7 @@ TriloByte Zanzibar
 	STORM-1100
 Trinity Dechou
 Trinity Dejavu
+    SL-17962
 Tue Torok
 	CT-68
 	CT-69
