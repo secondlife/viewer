@@ -25,6 +25,7 @@
 
 #define PBR_USE_ATMOS              1
 #define PBR_USE_IBL                1
+#define PBR_USE_SUN                1
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
@@ -68,7 +69,7 @@
 // IBL Diffuse
 #define DEBUG_PBR_DIFFUSE_C        0 // Output: diffuse non metal mix
 #define DEBUG_PBR_IRRADIANCE_RAW   0 // Output: Diffuse Irradiance pre-mix
-#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance
+#define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance, NOTE: SSAO is factored in
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
 #define DEBUG_PBR_EMS              0 // Output: Ems = (1 - BRDF Scale + BRDF Bias)
 #define DEBUG_PBR_AVG              0 // Output: Avg
@@ -89,6 +90,10 @@
 
 // Sun
 #define DEBUG_PBR_SUN_FULL_BRIGHT  0 // Sunlit color = <1,1,1>
+#define DEBUG_PBR_SUN_OUT_DIFFUSE  0 // Final sun diffuse : intensity * nl * diffuse
+#define DEBUG_PBR_SUN_OUT_SPECULAR 0 // Final sun specular: intensity * nl * specular
+#define DEBUG_PBR_SUN_LAMBERT      0 // BRDF Diffuse: Lambertian Diffuse color
+#define DEBUG_PBR_SUN_LAMBERT_NL   0 // BRDF Diffuse: nl * Lambertian Diffuse color
 #define DEBUG_PBR_SUN_H            0 // Half Vector
 #define DEBUG_PBR_SUN_L            0 // Light Vector
 #define DEBUG_PBR_SUN_V            0 // Surface to Light Vector
@@ -103,8 +108,8 @@
 #define DEBUG_PBR_SUN_SPEC_DF      0 // D() * F()
 #define DEBUG_PBR_SUN_SPEC_DV      0 // D() * V()
 #define DEBUG_PBR_SUN_SPEC_FV      0 // F() * V()
-#define DEBUG_PBR_SUN_SPECULAR     0 // D() * F() * V()
-#define DEBUG_PBR_SUN_SPEC_FUNC    0 // D() * F() * V()
+#define DEBUG_PBR_SUN_SPEC_DFV     0 // D() * F() * V()
+#define DEBUG_PBR_SUN_SPEC_NL_DFV  0 // nl * D() * F() * V()
 
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
@@ -353,62 +358,95 @@ void main()
 
         if (nl > 0.0 || nv > 0.0)
         {
+            vec3 sunColor = sunlit * 2.0; // Midday should have strong sunlight
 #if DEBUG_PBR_SUN_FULL_BRIGHT
-            vec3 sunlit = vec3(1);
+            sunColor = vec3(1);
 #endif
             // scol = sun shadow
-            vec3 intensity = ambocc * sunlit * nl * scol;
-            colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-            colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
-            bloom = dot(colorSpec, colorSpec) / 8.0;
+            vec3 intensity  = ambocc * sunColor * nl * scol;
+            vec3 sunDiffuse = intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            vec3 sunSpec    = intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            bloom = dot(sunSpec, sunSpec) / 8.0;
 
     #if DEBUG_PBR_SUN_SPEC_FRESNEL
             colorDiffuse = vec3(0);
             colorSpec = fresnelSchlick( reflect0, reflect90, vh );
+            bloom = 0;
     #endif
     #if DEBUG_PBR_SUN_SPEC_D
             colorDiffuse = vec3(0);
             colorSpec = vec3(D_GGX( nh, alphaRough ));
+            bloom = 0;
     #endif
     #if DEBUG_PBR_SUN_SPEC_V
             colorDiffuse = vec3(0);
             colorSpec = vec3(V_GGX( nl, nv, alphaRough ));
+            bloom = 0;
     #endif
     #if DEBUG_PBR_SUN_SPEC_DF
             colorDiffuse = vec3(0);
             colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
             colorSpec *= D_GGX( nh, alphaRough );
+            bloom = 0;
     #endif
     #if DEBUG_PBR_SUN_SPEC_DV
             colorDiffuse = vec3(0);
             colorSpec  = vec3(D_GGX( nh, alphaRough ));
             colorSpec *= vec3(V_GGX( nl, nv, alphaRough ));
+            bloom = 0;
     #endif
     #if DEBUG_PBR_SUN_SPEC_FV
             colorDiffuse = vec3(0);
             colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
             colorSpec *= V_GGX( nl, nv, alphaRough );
+            bloom = 0;
     #endif
-    #if DEBUG_PBR_SUN_SPECULAR
+    #if DEBUG_PBR_SUN_SPEC_DFV
             colorDiffuse = vec3(0);
             colorSpec  = fresnelSchlick( reflect0, reflect90, vh );
             colorSpec *= D_GGX( nh, alphaRough );
             colorSpec *= V_GGX( nl, nv, alphaRough );
+            bloom = 0;
     #endif
-    #if DEBUG_PBR_SUN_SPEC_FUNC
+    #if DEBUG_PBR_SUN_SPEC_NL_DFV
             colorDiffuse = vec3(0);
             colorSpec  = nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
     #endif
+    #if DEBUG_PBR_SUN_FINAL
+            colorDiffuse = nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            colorSpec    = nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+    #endif
 
-    #if DEBUG_PBR_SUN_DIFFUSE
-            colorDiffuse = linear_to_srgb(diffuse.rgb);
+    #if DEBUG_PBR_SUN_OUT_DIFFUSE
+            colorDiffuse = linear_to_srgb(sunDiffuse);
+            colorSpec = vec3(0);
+            bloom = 0.0;
+    #endif
+    #if DEBUG_PBR_SUN_OUT_SPECULAR
+            colorDiffuse = linear_to_srgb(sunSpec);
             colorSpec = vec3(0);
     #endif
     #if DEBUG_PBR_SUN_REFLECT0
             colorDiffuse = reflect0;
             colorSpec = vec3(0);
     #endif
+
+#if PBR_USE_SUN
+             colorDiffuse += sunDiffuse;
+             colorSpec    += sunSpec;
+#endif
         }
+
+#if DEBUG_PBR_SUN_LAMBERT
+        colorDiffuse = BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+        colorSpec    = vec3(0);
+        bloom        = 0;
+#endif
+#if DEBUG_PBR_SUN_LAMBERT_NL
+        colorDiffuse = nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+        colorSpec    = vec3(0);
+        bloom        = 0;
+#endif
 
     #if DEBUG_PBR_SUN_H
         colorDiffuse = h*0.5 + 0.5; colorSpec = vec3(0);
