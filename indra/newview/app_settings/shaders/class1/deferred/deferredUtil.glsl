@@ -44,6 +44,7 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
 const float M_PI = 3.14159265;
+const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
 
@@ -442,7 +443,7 @@ void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 
 
 vec3 BRDFDiffuse(vec3 color)
 {
-    return color / M_PI;
+    return color * ONE_OVER_PI;
 }
 
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh )
