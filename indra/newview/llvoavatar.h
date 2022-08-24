@@ -66,12 +66,14 @@ extern const LLUUID ANIM_AGENT_HEAD_ROT;
 extern const LLUUID ANIM_AGENT_PELVIS_FIX;
 extern const LLUUID ANIM_AGENT_TARGET;
 extern const LLUUID ANIM_AGENT_WALK_ADJUST;
+extern const LLUUID ANIM_AGENT_PUPPET_MOTION;
 
 class LLViewerWearable;
 class LLVoiceVisualizer;
 class LLHUDNameTag;
 class LLHUDEffectSpiral;
 class LLTexGlobalColor;
+class LLPuppetMotion;
 
 struct LLAppearanceMessageContents;
 class LLViewerJointMesh;
@@ -194,8 +196,8 @@ public:
 	/*virtual*/ BOOL			stopMotion(const LLUUID& id, BOOL stop_immediate = FALSE);
 	virtual bool			hasMotionFromSource(const LLUUID& source_id);
 	virtual void			stopMotionFromSource(const LLUUID& source_id);
-	virtual void			requestStopMotion(LLMotion* motion);
-	LLMotion*				findMotion(const LLUUID& id) const;
+	virtual void			requestStopMotion(const LLMotion::ptr_t &motion);
+	LLMotion::ptr_t			findMotion(const LLUUID& id) const;
 	void					startDefaultMotions();
 	void					dumpAnimationState();
 
@@ -948,6 +950,12 @@ private:
 	LLVisualParam* 	mOohMorph; // cached pointers morphs for lip sync
 	LLVisualParam* 	mAahMorph; // cached pointers morphs for lip sync
 
+    //--------------------------------------------------------------------
+    // Puppetry
+    //--------------------------------------------------------------------
+public:
+	std::shared_ptr<LLPuppetMotion> getPuppetMotion();
+    
 	//--------------------------------------------------------------------
 	// Flight
 	//--------------------------------------------------------------------

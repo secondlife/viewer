@@ -845,8 +845,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 
 	std::sort(mFaceList.begin(), mFaceList.end(), LLFace::CompareDistanceGreater());
 
-	U32 index_count = 0;
-	U32 vertex_count = 0;
+	//U32 index_count = 0;
+	//U32 vertex_count = 0;
 
 	group->clearDrawMap();
 
@@ -913,8 +913,8 @@ void LLParticlePartition::getGeometry(LLSpatialGroup* group)
 		llassert(facep->getIndicesCount() == 6);
 
 
-		vertex_count += facep->getGeomCount();
-		index_count += facep->getIndicesCount();
+		//vertex_count += facep->getGeomCount();
+		//index_count += facep->getIndicesCount();
 
 		S32 idx = draw_vec.size()-1;
 

@@ -115,7 +115,8 @@ void LLJoint::init()
 }
 
 LLJoint::LLJoint() :
-	mJointNum(-1)
+	mJointNum(-1),
+    mIsBone(false)
 {
 	init();
 	touch();
@@ -230,6 +231,15 @@ void LLJoint::setJointNum(S32 joint_num)
         LL_ERRS() << "joint_num " << joint_num << " + 2 is too large for " << LL_CHARACTER_MAX_ANIMATED_JOINTS << LL_ENDL;
     }
 }
+
+//-----------------------------------------------------------------------------
+// setIsBone()
+//-----------------------------------------------------------------------------
+void LLJoint::setIsBone(bool is_bone)
+{
+    mIsBone=is_bone;
+}
+
 //-----------------------------------------------------------------------------
 // getRoot()
 //-----------------------------------------------------------------------------
@@ -316,6 +326,14 @@ void LLJoint::removeAllChildren()
     mChildren.clear();
 }
 
+//--------------------------------------------------------------------
+// getNumChildren()
+//--------------------------------------------------------------------
+U32 LLJoint::getNumChildren()
+{
+    //return of 0 indicates an end effector, > 1 a leaf and 1 a normal joint.
+    return mChildren.size();
+}
 
 //--------------------------------------------------------------------
 // getPosition()

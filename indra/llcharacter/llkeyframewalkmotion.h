@@ -58,7 +58,7 @@ public:
 	
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLKeyframeWalkMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLKeyframeWalkMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------
@@ -93,7 +93,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLWalkAdjustMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLWalkAdjustMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------
@@ -143,7 +143,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLFlyAdjustMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLFlyAdjustMotion>(id); }
 
 public:
 	//-------------------------------------------------------------------------

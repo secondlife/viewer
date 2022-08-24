@@ -206,7 +206,7 @@ bool LLUrlFloaterDispatchHandler::operator()(const LLDispatcher *, const std::st
         else
         {
             // A valid message, but no such flaoter
-            LL_WARNS("URLFloater") << "Recieved a command to open unknown floater: " << floater << LL_ENDL;
+            LL_WARNS("URLFloater") << "Received a command to open unknown floater: " << floater << LL_ENDL;
         }
     }
 

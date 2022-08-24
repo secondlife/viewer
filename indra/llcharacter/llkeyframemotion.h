@@ -60,6 +60,7 @@ class LLKeyframeMotion :
 {
 	friend class LLKeyframeDataCache;
 public:
+    typedef std::shared_ptr<LLKeyframeMotion> ptr_t;
 	// Constructor
 	LLKeyframeMotion(const LLUUID &id);
 
@@ -78,7 +79,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID& id);
+	static LLMotion::ptr_t create(const LLUUID& id);
 
 public:
 	//-------------------------------------------------------------------------
@@ -86,36 +87,36 @@ public:
 	//-------------------------------------------------------------------------
 
 	// motions must specify whether or not they loop
-	virtual BOOL getLoop() { 
-		if (mJointMotionList) return mJointMotionList->mLoop; 
+	virtual BOOL getLoop() override {
+		if (mJointMotionList) return mJointMotionList->mLoop;
 		else return FALSE;
 	}
 
 	// motions must report their total duration
-	virtual F32 getDuration() { 
-		if (mJointMotionList) return mJointMotionList->mDuration; 
+	virtual F32 getDuration() override {
+		if (mJointMotionList) return mJointMotionList->mDuration;
 		else return 0.f;
 	}
 
 	// motions must report their "ease in" duration
-	virtual F32 getEaseInDuration() { 
-		if (mJointMotionList) return mJointMotionList->mEaseInDuration; 
+	virtual F32 getEaseInDuration() override {
+		if (mJointMotionList) return mJointMotionList->mEaseInDuration;
 		else return 0.f;
 	}
 
 	// motions must report their "ease out" duration.
-	virtual F32 getEaseOutDuration() { 
-		if (mJointMotionList) return mJointMotionList->mEaseOutDuration; 
+	virtual F32 getEaseOutDuration() override {
+		if (mJointMotionList) return mJointMotionList->mEaseOutDuration;
 		else return 0.f;
 	}
 
 	// motions must report their priority
-	virtual LLJoint::JointPriority getPriority() { 
-		if (mJointMotionList) return mJointMotionList->mBasePriority; 
+	virtual LLJoint::JointPriority getPriority() override {
+		if (mJointMotionList) return mJointMotionList->mBasePriority;
 		else return LLJoint::LOW_PRIORITY;
 	}
 
-    virtual S32 getNumJointMotions()
+    virtual S32 getNumJointMotions() override
     {
         if (mJointMotionList)
         {
@@ -124,30 +125,30 @@ public:
         return 0;
     }
 
-	virtual LLMotionBlendType getBlendType() { return NORMAL_BLEND; }
+	virtual LLMotionBlendType getBlendType() override { return NORMAL_BLEND; }
 
 	// called to determine when a motion should be activated/deactivated based on avatar pixel coverage
-	virtual F32 getMinPixelArea() { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
+	virtual F32 getMinPixelArea() override { return MIN_REQUIRED_PIXEL_AREA_KEYFRAME; }
 
 	// run-time (post constructor) initialization,
 	// called after parameters have been set
 	// must return true to indicate success and be available for activation
-	virtual LLMotionInitStatus onInitialize(LLCharacter *character);
+	virtual LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
 	// called when a motion is activated
 	// must return TRUE to indicate success, or else
 	// it will be deactivated
-	virtual BOOL onActivate();
+	virtual BOOL onActivate() override;
 
 	// called per time step
 	// must return TRUE while it is active, and
 	// must return FALSE when the motion is completed.
-	virtual BOOL onUpdate(F32 time, U8* joint_mask);
+	virtual BOOL onUpdate(F32 time, U8* joint_mask) override;
 
 	// called when a motion is deactivated
-	virtual void onDeactivate();
+	virtual void onDeactivate() override;
 
-	virtual void setStopTime(F32 time);
+	virtual void setStopTime(F32 time) override;
 
 	static void onLoadComplete(const LLUUID& asset_uuid,
 							   LLAssetType::EType type,
@@ -171,7 +172,7 @@ public:
 	F32 getLoopOut() {
 		return (mJointMotionList) ? mJointMotionList->mLoopOutPoint : 0.f;
 	}
-	
+
 	void setLoopIn(F32 in_point);
 
 	void setLoopOut(F32 out_point);

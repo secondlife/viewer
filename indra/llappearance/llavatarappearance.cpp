@@ -675,6 +675,7 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 	{
 		joint->setSkinOffset( info->mPivot );
         joint->setJointNum(joint_num);
+        joint->setIsBone(true);
 		joint_num++;
 	}
 	else // collision volume

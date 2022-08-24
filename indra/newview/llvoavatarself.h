@@ -89,7 +89,7 @@ public:
 public:
 	/*virtual*/ bool 		hasMotionFromSource(const LLUUID& source_id);
 	/*virtual*/ void 		stopMotionFromSource(const LLUUID& source_id);
-	/*virtual*/ void 		requestStopMotion(LLMotion* motion);
+	/*virtual*/ void 		requestStopMotion(const LLMotion::ptr_t & motion);
 	/*virtual*/ LLJoint*	getJoint(const std::string &name);
 	
 	/*virtual*/ BOOL setVisualParamWeight(const LLVisualParam *which_param, F32 weight);

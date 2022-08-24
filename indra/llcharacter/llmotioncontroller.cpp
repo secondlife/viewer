@@ -99,10 +99,10 @@ void LLMotionRegistry::markBad( const LLUUID& id )
 //-----------------------------------------------------------------------------
 // createMotion()
 //-----------------------------------------------------------------------------
-LLMotion *LLMotionRegistry::createMotion( const LLUUID &id )
+LLMotion::ptr_t LLMotionRegistry::createMotion( const LLUUID &id )
 {
 	LLMotionConstructor constructor = get_if_there(mMotionTable, id, LLMotionConstructor(NULL));
-	LLMotion* motion = NULL;
+	LLMotion::ptr_t motion;
 
 	if ( constructor == NULL )
 	{
@@ -172,14 +172,12 @@ void LLMotionController::deleteAllMotions()
 	mLoadedMotions.clear();
 	mActiveMotions.clear();
 
-	for_each(mAllMotions.begin(), mAllMotions.end(), DeletePairedPointer());
 	mAllMotions.clear();
 
 	// stinson 05/12/20014 : Ownership of the LLMotion pointers is transferred from
 	// mAllMotions to mDeprecatedMotions in method
 	// LLMotionController::deprecateMotionInstance().  Thus, we should also clean
 	// up the mDeprecatedMotions list as well.
-	for_each(mDeprecatedMotions.begin(), mDeprecatedMotions.end(), DeletePointer());
 	mDeprecatedMotions.clear();
 }
 
@@ -195,7 +193,7 @@ void LLMotionController::purgeExcessMotions()
 			 deprecated_motion_it != mDeprecatedMotions.end(); )
 		{
 			motion_set_t::iterator cur_iter = deprecated_motion_it++;
-			LLMotion* cur_motionp = *cur_iter;
+			LLMotion::ptr_t cur_motionp(*cur_iter);
 			if (!isMotionActive(cur_motionp))
 			{
 				// Motion is deprecated so we know it's not cannonical,
@@ -215,7 +213,7 @@ void LLMotionController::purgeExcessMotions()
 			 loaded_motion_it != mLoadedMotions.end(); 
 			 ++loaded_motion_it)
 		{
-			LLMotion* cur_motionp = *loaded_motion_it;
+			LLMotion::ptr_t cur_motionp(*loaded_motion_it);
 			// motion isn't playing, delete it
 			if (!isMotionActive(cur_motionp))
 			{
@@ -232,7 +230,7 @@ void LLMotionController::purgeExcessMotions()
 		// look up the motion again by ID to get canonical instance
 		// and kill it only if that one is inactive
 		LLUUID motion_id = *motion_it;
-		LLMotion* motionp = findMotion(motion_id);
+		LLMotion::ptr_t motionp(findMotion(motion_id));
 		if (motionp && !isMotionActive(motionp))
 		{
 			removeMotion(motion_id);
@@ -257,7 +255,7 @@ void LLMotionController::deactivateStoppedMotions()
 		 iter != mActiveMotions.end(); )
 	{
 		motion_list_t::iterator curiter = iter++;
-		LLMotion* motionp = *curiter;
+		LLMotion::ptr_t motionp(*curiter);
 		if (motionp->isStopped())
 		{
 			deactivateMotionInstance(motionp);
@@ -278,7 +276,7 @@ void LLMotionController::setTimeStep(F32 step)
 		for (motion_list_t::iterator iter = mActiveMotions.begin();
 			 iter != mActiveMotions.end(); ++iter)
 		{
-			LLMotion* motionp = *iter;
+			LLMotion::ptr_t motionp(*iter);
 			F32 activation_time = motionp->mActivationTimestamp;
 			motionp->mActivationTimestamp = (F32)(llfloor(activation_time / step)) * step;
 			BOOL stopped = motionp->isStopped();
@@ -319,7 +317,7 @@ BOOL LLMotionController::registerMotion( const LLUUID& id, LLMotionConstructor c
 //-----------------------------------------------------------------------------
 void LLMotionController::removeMotion( const LLUUID& id)
 {
-	LLMotion* motionp = findMotion(id);
+	LLMotion::ptr_t motionp(findMotion(id));
 	mAllMotions.erase(id);
 	removeMotionInstance(motionp);
 }
@@ -327,7 +325,7 @@ void LLMotionController::removeMotion( const LLUUID& id)
 // removes instance of a motion from all runtime structures, but does
 // not erase entry by ID, as this could be a duplicate instance
 // use removeMotion(id) to remove all references to a given motion by id.
-void LLMotionController::removeMotionInstance(LLMotion* motionp)
+void LLMotionController::removeMotionInstance(LLMotion::ptr_t &motionp)
 {
 	if (motionp)
 	{
@@ -337,17 +335,17 @@ void LLMotionController::removeMotionInstance(LLMotion* motionp)
 		mLoadingMotions.erase(motionp);
 		mLoadedMotions.erase(motionp);
 		mActiveMotions.remove(motionp);
-		delete motionp;
+        motionp.reset();
 	}
 }
 
 //-----------------------------------------------------------------------------
 // createMotion()
 //-----------------------------------------------------------------------------
-LLMotion* LLMotionController::createMotion( const LLUUID &id )
+LLMotion::ptr_t LLMotionController::createMotion( const LLUUID &id )
 {
 	// do we have an instance of this motion for this character?
-	LLMotion *motion = findMotion(id);
+	LLMotion::ptr_t motion(findMotion(id));
 
 	// if not, we need to create one
 	if (!motion)
@@ -356,7 +354,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		motion = sRegistry.createMotion(id);
 		if (!motion)
 		{
-			return NULL;
+			return LLMotion::ptr_t();
 		}
 
 		// look up name for default motions
@@ -373,9 +371,9 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 		case LLMotion::STATUS_FAILURE:
 			LL_INFOS() << "Motion " << id << " init failed." << LL_ENDL;
 			sRegistry.markBad(id);
-			delete motion;
-			return NULL;
-		case LLMotion::STATUS_HOLD:
+			motion.reset();
+            return LLMotion::ptr_t();
+        case LLMotion::STATUS_HOLD:
 			mLoadingMotions.insert(motion);
 			break;
 		case LLMotion::STATUS_SUCCESS:
@@ -398,7 +396,7 @@ LLMotion* LLMotionController::createMotion( const LLUUID &id )
 BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 {
 	// do we have an instance of this motion for this character?
-	LLMotion *motion = findMotion(id);
+	LLMotion::ptr_t motion(findMotion(id));
 
 	// motion that is stopping will be allowed to stop but
 	// replaced by a new instance of that motion
@@ -410,7 +408,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	{
 		deprecateMotionInstance(motion);
 		// force creation of new instance
-		motion = NULL;
+		motion.reset();
 	}
 
 	// create new motion instance
@@ -440,12 +438,12 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 BOOL LLMotionController::stopMotionLocally(const LLUUID &id, BOOL stop_immediate)
 {
 	// if already inactive, return false
-	LLMotion *motion = findMotion(id);
+	LLMotion::ptr_t motion(findMotion(id));
     // SL-1290: always stop immediate if paused 
 	return stopMotionInstance(motion, stop_immediate||mPaused);
 }
 
-BOOL LLMotionController::stopMotionInstance(LLMotion* motion, BOOL stop_immediate)
+BOOL LLMotionController::stopMotionInstance(LLMotion::ptr_t &motion, BOOL stop_immediate)
 {
 	if (!motion)
 	{
@@ -501,7 +499,7 @@ void LLMotionController::resetJointSignatures()
 // updateIdleMotion()
 // minimal updates for active motions
 //-----------------------------------------------------------------------------
-void LLMotionController::updateIdleMotion(LLMotion* motionp)
+void LLMotionController::updateIdleMotion(LLMotion::ptr_t &motionp)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	if (motionp->isStopped() && mAnimTime > motionp->getStopTime() + motionp->getEaseOutDuration())
@@ -547,7 +545,7 @@ void LLMotionController::updateIdleActiveMotions()
 		 iter != mActiveMotions.end(); )
 	{
 		motion_list_t::iterator curiter = iter++;
-		LLMotion* motionp = *curiter;
+		LLMotion::ptr_t motionp(*curiter);
 		updateIdleMotion(motionp);
 	}
 }
@@ -568,7 +566,7 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 		 iter != mActiveMotions.end(); )
 	{
 		motion_list_t::iterator curiter = iter++;
-		LLMotion* motionp = *curiter;
+		LLMotion::ptr_t motionp(*curiter);
 		if (motionp->getBlendType() != anim_type)
 		{
 			continue;
@@ -713,6 +711,8 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 
 			// perform motion update
 			{
+//				LL_RECORD_BLOCK_TIME(FTM_MOTION_ON_UPDATE);
+                
 				update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
 			}
 		}
@@ -774,7 +774,7 @@ void LLMotionController::updateLoadingMotions()
 		 iter != mLoadingMotions.end(); )
 	{
 		motion_set_t::iterator curiter = iter++;
-		LLMotion* motionp = *curiter;
+		LLMotion::ptr_t motionp(*curiter);
 		if( !motionp)
 		{
 			continue; // maybe shouldn't happen but i've seen it -MG
@@ -802,7 +802,7 @@ void LLMotionController::updateLoadingMotions()
 				mDeprecatedMotions.erase(found_it);
 			}
 			mAllMotions.erase(motionp->getID());
-			delete motionp;
+			motionp.reset();
 		}
 	}
 }
@@ -859,7 +859,7 @@ void LLMotionController::updateMotions(bool force_update)
 			
 			// is calculating a new keyframe pose, make sure the last one gets applied
 			mPoseBlender.interpolate(1.f);
-			clearBlenders();
+	        mPoseBlender.clearBlenders();
 
 			mTimeStepCount = quantum_count;
 			mAnimTime = (F32)quantum_count * mTimeStep;
@@ -925,7 +925,7 @@ void LLMotionController::updateMotionsMinimal()
 //-----------------------------------------------------------------------------
 // activateMotionInstance()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
+BOOL LLMotionController::activateMotionInstance(const LLMotion::ptr_t &motion, F32 time)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
 	// It's not clear why the getWeight() line seems to be crashing this, but
@@ -990,7 +990,7 @@ BOOL LLMotionController::activateMotionInstance(LLMotion *motion, F32 time)
 //-----------------------------------------------------------------------------
 // deactivateMotionInstance()
 //-----------------------------------------------------------------------------
-BOOL LLMotionController::deactivateMotionInstance(LLMotion *motion)
+BOOL LLMotionController::deactivateMotionInstance(LLMotion::ptr_t &motion)
 {
 	motion->deactivate();
 
@@ -1010,7 +1010,7 @@ BOOL LLMotionController::deactivateMotionInstance(LLMotion *motion)
 	return TRUE;
 }
 
-void LLMotionController::deprecateMotionInstance(LLMotion* motion)
+void LLMotionController::deprecateMotionInstance(LLMotion::ptr_t &motion)
 {
 	mDeprecatedMotions.insert(motion);
 
@@ -1023,7 +1023,7 @@ void LLMotionController::deprecateMotionInstance(LLMotion* motion)
 //-----------------------------------------------------------------------------
 // isMotionActive()
 //-----------------------------------------------------------------------------
-bool LLMotionController::isMotionActive(LLMotion *motion)
+bool LLMotionController::isMotionActive(const LLMotion::ptr_t &motion)
 {
 	return (motion && motion->isActive());
 }
@@ -1031,7 +1031,7 @@ bool LLMotionController::isMotionActive(LLMotion *motion)
 //-----------------------------------------------------------------------------
 // isMotionLoading()
 //-----------------------------------------------------------------------------
-bool LLMotionController::isMotionLoading(LLMotion* motion)
+bool LLMotionController::isMotionLoading(const LLMotion::ptr_t &motion)
 {
 	return (mLoadingMotions.find(motion) != mLoadingMotions.end());
 }
@@ -1040,12 +1040,12 @@ bool LLMotionController::isMotionLoading(LLMotion* motion)
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
-LLMotion* LLMotionController::findMotion(const LLUUID& id) const
+LLMotion::ptr_t LLMotionController::findMotion(const LLUUID& id) const
 {
 	motion_map_t::const_iterator iter = mAllMotions.find(id);
 	if(iter == mAllMotions.end())
 	{
-		return NULL;
+		return LLMotion::ptr_t();
 	}
 	else
 	{
@@ -1064,7 +1064,7 @@ void LLMotionController::dumpMotions()
 	{
 		LLUUID id = iter->first;
 		std::string state_string;
-		LLMotion *motion = iter->second;
+		LLMotion::ptr_t motion(iter->second);
 		if (mLoadingMotions.find(motion) != mLoadingMotions.end())
 			state_string += std::string("l");
 		if (mLoadedMotions.find(motion) != mLoadedMotions.end())
@@ -1086,7 +1086,7 @@ void LLMotionController::deactivateAllMotions()
 	for (motion_map_t::iterator iter = mAllMotions.begin();
 		 iter != mAllMotions.end(); iter++)
 	{
-		LLMotion* motionp = iter->second;
+		LLMotion::ptr_t motionp(iter->second);
 		deactivateMotionInstance(motionp);
 	}
 }
@@ -1103,7 +1103,7 @@ void LLMotionController::flushAllMotions()
 		 iter != mActiveMotions.end(); )
 	{
 		motion_list_t::iterator curiter = iter++;
-		LLMotion* motionp = *curiter;
+		LLMotion::ptr_t motionp(*curiter);
 		F32 dtime = mAnimTime - motionp->mActivationTimestamp;
 		active_motions.push_back(std::make_pair(motionp->getID(),dtime));
 		motionp->deactivate(); // don't call deactivateMotionInstance() because we are going to reactivate it

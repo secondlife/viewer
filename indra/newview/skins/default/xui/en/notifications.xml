@@ -11820,6 +11820,17 @@ Packing: [PACK_TIME]s [PSIZE]KB
 Unpacking: [UNPACK_TIME]s [USIZE]KB
     <tag>fail</tag>
   </notification>
+
+  <notification
+    icon="alertmodal.tga"
+    name="LeapModuleFail"
+    persist="false"
+    type="notify">
+Failed to start puppetry module - is it installed?
+Command:  [COMMAND]
+Error:    [ERROR]
+    <tag>fail</tag>
+  </notification>
   
   <notification
    icon="alertmodal.tga"

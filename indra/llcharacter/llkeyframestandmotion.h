@@ -37,8 +37,7 @@
 //-----------------------------------------------------------------------------
 // class LLKeyframeStandMotion
 //-----------------------------------------------------------------------------
-LL_ALIGN_PREFIX(16)
-class LLKeyframeStandMotion :
+class alignas(16) LLKeyframeStandMotion :
 	public LLKeyframeMotion
 {
     LL_ALIGN_NEW
@@ -56,7 +55,7 @@ public:
 
 	// static constructor
 	// all subclasses must implement such a function and register it
-	static LLMotion *create(const LLUUID &id) { return new LLKeyframeStandMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return LLMotion::ptr_t( new LLKeyframeStandMotion(id)); }
 
 public:
 	//-------------------------------------------------------------------------

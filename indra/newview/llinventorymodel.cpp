@@ -3132,7 +3132,7 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 		gInventory.accountForUpdate(update);
 	}
 
-	U32 changes = 0x0;
+	//U32 changes = 0x0;
 	if (account)
 	{
 		mask |= LLInventoryObserver::CREATE;
@@ -3140,7 +3140,7 @@ bool LLInventoryModel::messageUpdateCore(LLMessageSystem* msg, bool account, U32
 	//as above, this loop never seems to loop more than once per call
 	for (item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{
-		changes |= gInventory.updateItem(*it, mask);
+        /*changes |= */ gInventory.updateItem(*it, mask);
 	}
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
@@ -4324,7 +4324,6 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 		}
 	}
 
-
 	if (cat_lock > 0 || item_lock > 0)
 	{
 		LL_INFOS("Inventory") << "Found locks on some categories: sub-cat arrays "
@@ -4551,13 +4550,13 @@ void LLInventoryModel::FetchItemHttpHandler::processData(LLSD & content, LLCore:
 	}
 
 	// as above, this loop never seems to loop more than once per call
-	U32 changes(0U);
+	//U32 changes(0U);
 	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{
-		changes |= gInventory.updateItem(*it);
+		/*changes |= */ gInventory.updateItem(*it);
 	}
-	// *HUH:  Have computed 'changes', nothing uses it.
-	
+    // *HUH:  Have computed 'changes', nothing uses it.
+
 	gInventory.notifyObservers();
 	gViewerWindow->getWindow()->decBusyCount();
 }

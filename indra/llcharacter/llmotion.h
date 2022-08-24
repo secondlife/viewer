@@ -66,6 +66,8 @@ public:
 	virtual ~LLMotion();
 
 public:
+    typedef std::shared_ptr<LLMotion>   ptr_t;
+
 	//-------------------------------------------------------------------------
 	// functions to support MotionController and MotionRegistry
 	//-------------------------------------------------------------------------
@@ -198,7 +200,7 @@ class LLTestMotion : public LLMotion
 public:
 	LLTestMotion(const LLUUID &id) : LLMotion(id){}
 	~LLTestMotion() {}
-	static LLMotion *create(const LLUUID& id) { return new LLTestMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID& id) { return std::make_shared<LLTestMotion>(id); }
 	BOOL getLoop() { return FALSE; }
 	F32 getDuration() { return 0.0f; }
 	F32 getEaseInDuration() { return 0.0f; }
@@ -222,7 +224,7 @@ class LLNullMotion : public LLMotion
 public:
 	LLNullMotion(const LLUUID &id) : LLMotion(id) {}
 	~LLNullMotion() {}
-	static LLMotion *create(const LLUUID &id) { return new LLNullMotion(id); }
+	static LLMotion::ptr_t create(const LLUUID &id) { return std::make_shared<LLNullMotion>(id); }
 
 	// motions must specify whether or not they loop
 	/*virtual*/ BOOL getLoop() { return TRUE; }

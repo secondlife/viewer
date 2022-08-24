@@ -2165,6 +2165,7 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 	{
 		gAgentAvatarp->stopMotion(ANIM_AGENT_BODY_NOISE);
 		gAgentAvatarp->stopMotion(ANIM_AGENT_BREATHE_ROT);
+        gAgentAvatarp->stopMotion(ANIM_AGENT_PUPPET_MOTION);
 	}
 
 	//gViewerWindow->stopGrab();
@@ -2259,6 +2260,7 @@ void LLAgentCamera::changeCameraToFollow(BOOL animate)
 			gAgentAvatarp->mPelvisp->setPosition(LLVector3::zero);
 			gAgentAvatarp->startMotion( ANIM_AGENT_BODY_NOISE );
 			gAgentAvatarp->startMotion( ANIM_AGENT_BREATHE_ROT );
+            gAgentAvatarp->startMotion( ANIM_AGENT_PUPPET_MOTION );
 		}
 
 		// unpause avatar animation
@@ -2301,6 +2303,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 		}
 		gAgentAvatarp->startMotion(ANIM_AGENT_BODY_NOISE);
 		gAgentAvatarp->startMotion(ANIM_AGENT_BREATHE_ROT);
+        gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
 	}
 
 	LLVector3 at_axis;
@@ -2389,7 +2392,7 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		gAgent.sendAnimationRequest(ANIM_AGENT_CUSTOMIZE, ANIM_REQUEST_START);
 		gAgent.setCustomAnim(TRUE);
 		gAgentAvatarp->startMotion(ANIM_AGENT_CUSTOMIZE);
-		LLMotion* turn_motion = gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE);
+		LLMotion::ptr_t turn_motion(gAgentAvatarp->findMotion(ANIM_AGENT_CUSTOMIZE));
 
 		if (turn_motion)
 		{
