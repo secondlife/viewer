@@ -264,15 +264,11 @@ void main()
              packedORM        = vec3(1,1,1);
 #endif
         float IOR             = 1.5;         // default Index Of Refraction 1.5 (dielectrics)
-#if HAS_IOR
-              reflect0        = vec3(calcF0(IOR));
-#endif
 #if DEBUG_PBR_REFLECT0_BASE
         vec3  debug_reflect0  = vec3(calcF0(IOR));
 #endif
         float ao         = packedORM.r;
         float metal      = packedORM.b;
-        vec3  c_diff     = mix(diffuse.rgb,vec3(0),metal);
         vec3  v          = -normalize(pos.xyz);
 #if DEBUG_PBR_VERT2CAM1
               v = vec3(0,0,1);
@@ -292,15 +288,14 @@ void main()
         // Reference: getMetallicRoughnessInfo
         vec3  base            = linear_to_srgb(diffuse.rgb);
         float perceptualRough = max(packedORM.g, 0.1);
-        float alphaRough      = perceptualRough * perceptualRough;
-        vec3  reflect0        = mix(vec3(0.04), base, metal); // incidence reflectance 0.04 -> reflect at 0 degrees
-        vec3  reflect90       = vec3(1);                      // reflect at 90 degrees
+        vec3 c_diff, reflect0, reflect90;
+        float alphaRough, specWeight;
+        initMaterial( base, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 #if DEBUG_PBR_REFLECTANCE
         float reflectance     = max( max( reflect0.r, reflect0.g ), reflect0.b );
 #endif
 
         // Common to RadianceGGX and RadianceLambertian
-        float specWeight = 1.0;
         vec2  brdfPoint  = clamp(vec2(dotNV, perceptualRough), vec2(0,0), vec2(1,1));
         vec2  vScaleBias = getGGX( brdfPoint); // Environment BRDF: scale and bias applied to reflect0
         vec3  fresnelR   = max(vec3(1.0 - perceptualRough), reflect0) - reflect0; // roughness dependent fresnel
@@ -361,9 +356,6 @@ void main()
 #if DEBUG_PBR_SUN_FULL_BRIGHT
             vec3 sunlit = vec3(1);
 #endif
-            vec3 c_diff, reflect0, reflect90;
-            initMaterial( base, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
-
             // scol = sun shadow
             vec3 intensity = ambocc * sunlit * nl * scol;
             colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
