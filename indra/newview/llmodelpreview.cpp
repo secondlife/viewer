@@ -2680,8 +2680,6 @@ void LLModelPreview::clearBuffers()
 
 void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 {
-    U32 tri_count = 0;
-    U32 vertex_count = 0;
     U32 mesh_count = 0;
 
 
@@ -2816,8 +2814,6 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 
             mVertexBuffer[lod][mdl].push_back(vb);
 
-            vertex_count += num_vertices;
-            tri_count += num_indices / 3;
             ++mesh_count;
 
         }

@@ -1625,9 +1625,6 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 			//genNGon(params, llfloor(MIN_DETAIL_FACES * detail), 4.f, 0.f);
 			genNGon(params, llfloor(MIN_DETAIL_FACES * detail));
 
-			F32 t     = 0.f;
-			F32 tStep = 1.0f / mPath.size();
-
 			F32 toggle = 0.5f;
 			for (S32 i=0;i<(S32)mPath.size();i++)
 			{
@@ -1636,7 +1633,6 @@ BOOL LLPath::generate(const LLPathParams& params, F32 detail, S32 split,
 					toggle = -0.5f;
 				else
 					toggle = 0.5f;
-				t += tStep;
 			}
 		}
 
