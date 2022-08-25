@@ -358,7 +358,8 @@ void main()
 
         if (nl > 0.0 || nv > 0.0)
         {
-            vec3 sunColor = srgb_to_linear(sunlit * 2.0); // NOTE: *2.0 Midday should have strong sunlight
+            float scale = 4.9;
+            vec3 sunColor = srgb_to_linear(sunlit * scale); // NOTE: Midday should have strong sunlight
 #if DEBUG_PBR_SUN_FULL_BRIGHT
             sunColor = vec3(1);
 #endif
@@ -366,7 +367,7 @@ void main()
             vec3 intensity  = ambocc * sunColor * nl * scol;
             vec3 sunDiffuse = intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             vec3 sunSpec    = intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
-            bloom = dot(sunSpec, sunSpec) / 8.0;
+            bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
 
     #if DEBUG_PBR_SUN_SPEC_FRESNEL
             colorDiffuse = vec3(0);
