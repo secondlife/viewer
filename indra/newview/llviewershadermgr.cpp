@@ -3789,7 +3789,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         }
     }
 
-    if (success)
+    if (success && gGLManager.mHasCubeMapArray)
     {
         gRadianceGenProgram.mName = "Radiance Gen Shader";
         gRadianceGenProgram.mShaderFiles.clear();
@@ -3799,7 +3799,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
         success = gRadianceGenProgram.createShader(NULL, NULL);
     }
 
-    if (success)
+    if (success && gGLManager.mHasCubeMapArray)
     {
         gIrradianceGenProgram.mName = "Irradiance Gen Shader";
         gIrradianceGenProgram.mShaderFiles.clear();
