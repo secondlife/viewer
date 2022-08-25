@@ -908,7 +908,11 @@ void LLFloaterTexturePicker::onBtnAdd(void* userdata)
 {
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
 
-    LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_ALL, true);
+    // todo: there will be changes to texture picker to forbid
+    // selection of materials in some cases, like landmarks, once
+    // it gets implemented, update code to select FLOAD_* filter
+    // based on picker's material/texture mode.
+    LLFilePickerReplyThread::startPicker(boost::bind(&onPickerCallback, _1, self->getHandle()), LLFilePicker::FFLOAD_MATERIAL_TEXTURE, true);
 }
 
 // static
