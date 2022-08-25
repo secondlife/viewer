@@ -60,6 +60,7 @@ VARYING vec4 vary_fragcoord;
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
@@ -108,12 +109,11 @@ void main()
             if (nl > 0.0)
             {
                 float dist = lightDist / lightSize;
-                float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
-                dist_atten *= dist_atten;
-                dist_atten *= 2.0;
-                vec3 intensity = dist_atten * getLightIntensityPoint(lightColor, lightSize, lightDist);
-                colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-                colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+                float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
+
+                vec3 intensity = dist_atten * nl * lightColor;
+                colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+                colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
             }
         }
 
@@ -146,13 +146,7 @@ void main()
                     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
                     float fa         = light_col[i].a + 1.0;
-                    float dist_atten = clamp(1.0 - (dist - 1.0 * (1.0 - fa)) / fa, 0.0, 1.0);
-                    dist_atten *= dist_atten;
-
-                    // Tweak falloff slightly to match pre-EEP attenuation
-                    // NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
-                    dist_atten *= 2.0;
-
+                    float dist_atten = calcLegacyDistanceAttenuation(dist, fa);
                     dist_atten *= noise;
 
                     float lit = nl * dist_atten;

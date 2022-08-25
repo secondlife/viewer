@@ -48,6 +48,14 @@ const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
 
+float calcLegacyDistanceAttenuation(float distance, float falloff)
+{
+    float dist_atten = 1.0 - clamp((distance + falloff)/(1.0 + falloff), 0.0, 1.0);
+    dist_atten *= dist_atten;
+    dist_atten *= 2.0;
+    return dist_atten;
+}
+
 // In:
 //   lv  unnormalized surface to light vector
 //   n   normal of the surface
