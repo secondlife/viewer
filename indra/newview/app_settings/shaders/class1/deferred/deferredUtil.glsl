@@ -446,7 +446,7 @@ void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 
 
     // When roughness is zero blender shows a tiny specular
     float perceptualRough = max(packedORM.g, 0.1);
-    alphaRough      = perceptualRough * perceptualRough;
+          alphaRough      = perceptualRough * perceptualRough;
 }
 
 vec3 BRDFDiffuse(vec3 color)
@@ -461,8 +461,8 @@ vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeigh
 
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float specWeight, float vh, float nl, float nv, float nh )
 {
-    vec3  fresnel    = fresnelSchlick( reflect0, reflect90, vh );
-    float vis       = V_GGX( nl, nv, alphaRough );
-    float d         = D_GGX( nh, alphaRough );
+    vec3 fresnel    = fresnelSchlick( reflect0, reflect90, vh ); // Fresnel
+    float vis       = V_GGX( nl, nv, alphaRough );               // Visibility
+    float d         = D_GGX( nh, alphaRough );                   // Distribution
     return specWeight * fresnel * vis * d;
 }
