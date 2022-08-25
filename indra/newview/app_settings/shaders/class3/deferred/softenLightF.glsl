@@ -358,7 +358,7 @@ void main()
 
         if (nl > 0.0 || nv > 0.0)
         {
-            vec3 sunColor = sunlit * 2.0; // Midday should have strong sunlight
+            vec3 sunColor = srgb_to_linear(sunlit * 2.0); // NOTE: *2.0 Midday should have strong sunlight
 #if DEBUG_PBR_SUN_FULL_BRIGHT
             sunColor = vec3(1);
 #endif
