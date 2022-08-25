@@ -106,7 +106,7 @@ void main()
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
         float lightSize    = size;
-        vec3 lightColor    = color;
+        vec3 lightColor    = color; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
 
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;

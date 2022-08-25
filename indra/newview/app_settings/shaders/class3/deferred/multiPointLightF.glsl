@@ -100,7 +100,7 @@ void main()
 
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
-            vec3  lightColor = light_col[ light_idx ].rgb;
+            vec3  lightColor = light_col[ light_idx ].rgb; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
             float falloff    = light_col[ light_idx ].a;
             float lightSize  = light    [ light_idx ].w;
             vec3  lv         =(light    [ light_idx ].xyz - pos);
