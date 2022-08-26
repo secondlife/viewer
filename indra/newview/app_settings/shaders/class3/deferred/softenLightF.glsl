@@ -186,6 +186,7 @@ vec3 srgb_to_linear(vec3 c);
 
 // Debug Utils
 vec3 BRDFDiffuse(vec3 color);
+vec3 colorize_dot(float x);
 vec3 fresnelSchlick( vec3 reflect0, vec3 reflect90, float vh);
 float D_GGX( float nh, float alphaRough );
 float V_GGX( float nl, float nv, float alphaRough );

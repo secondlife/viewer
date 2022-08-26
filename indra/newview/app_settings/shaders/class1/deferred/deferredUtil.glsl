@@ -291,7 +291,7 @@ vec2 getScreenXY(vec4 clip)
 
 // Color utils
 
-vec3 colorized_dot(float x)
+vec3 colorize_dot(float x)
 {
     if (x > 0.0) return vec3( 0, x, 0 );
     if (x < 0.0) return vec3(-x, 0, 0 );
