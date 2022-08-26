@@ -53,7 +53,10 @@ class LLImageGL : public LLRefCount
 	friend class LLTexUnit;
 public:
 
-    // For OS X use only -- get an estimate of how many bytes have been allocated in vram for textures
+    // Get an estimate of how many bytes have been allocated in vram for textures.
+    // Does not include mipmaps.
+    // NOTE: multiplying this number by two gives a good estimate for total
+    // video memory usage based on testing in lagland against an NVIDIA GPU.
     static U64 getTextureBytesAllocated();
 
 	// These 2 functions replace glGenTextures() and glDeleteTextures()

@@ -54,7 +54,6 @@ const F32 MIN_TEXTURE_LIFETIME = 10.f;
 U32 wpo2(U32 i);
 
 
-#if LL_DARWIN
 // texture memory accounting (for OS X)
 static LLMutex sTexMemMutex;
 static std::unordered_map<U32, U32> sTextureAllocs;
@@ -118,22 +117,6 @@ U64 LLImageGL::getTextureBytesAllocated()
 {
     return sTextureBytes;
 }
-
-#else
-
-#define alloc_tex_image(width, height, pixformat) (void) width; (void) height; (void) pixformat;
-#define free_tex_image(texName) (void) texName;
-#define free_tex_images(count, texNames) (void) count; (void) texNames;
-#define free_cur_tex_image()
-
-// static 
-U64 LLImageGL::getTextureBytesAllocated()
-{
-    // UNIMPLEMENTED OUTSIDE OF OS X, DO NOT CALL
-    llassert(false);
-    return 0;
-}
-#endif
 
 //statics
 

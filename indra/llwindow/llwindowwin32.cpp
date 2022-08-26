@@ -414,6 +414,7 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     HWND mWindowHandle = NULL;
     HDC mhDC = 0;
 
+    // best guess at available video memory in MB
     std::atomic<U32> mAvailableVRAM;
 
     IDXGIAdapter3* mDXGIAdapter = nullptr;
@@ -4644,44 +4645,68 @@ void LLWindowWin32::LLWindowWin32Thread::updateVRAMUsage()
     LL_PROFILE_ZONE_SCOPED;
     if (mDXGIAdapter != nullptr)
     {
+        // NOTE: what lies below is hand wavy math based on compatibility testing and observation against a variety of hardware
+        //  It doesn't make sense, but please don't refactor it to make sense. -- davep
+
         DXGI_QUERY_VIDEO_MEMORY_INFO info;
         mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
 
-        // try to use no more than the available reserve minus 10%
-        U32 target = info.Budget / 1024 / 1024;
+#if 0 // debug 0 budget and 0 CU
+        info.Budget = 0;
+        info.CurrentUsage = 0;
+#endif
 
-        // EXPERIMENTAL
-        // Trying to zero in on a good target usage, code here should be tuned against observed behavior
-        // of various hardware.
-        if (target > 4096)  // if 4GB are installed, try to leave 2GB free 
+        U32 budget_mb = info.Budget / 1024 / 1024;
+        U32 afr_mb = info.AvailableForReservation / 1024 / 1024;
+        // correct for systems that misreport budget
+        if (budget_mb == 0)
+        { 
+            // fall back to available for reservation clamped between 512MB and 2GB
+            budget_mb = llclamp(afr_mb, (U32) 512, (U32) 2048);
+        }
+
+        U32 cu_mb = info.CurrentUsage / 1024 / 1024;
+
+        // get an estimated usage based on texture bytes allocated
+        U32 eu_mb = LLImageGL::getTextureBytesAllocated() * 2 / 1024 / 1024;
+
+        if (cu_mb == 0)
+        { // current usage is sometimes unreliable on Intel GPUs, fall back to estimated usage
+            cu_mb = llmax((U32)1, eu_mb);
+        }
+        F32 eu_error = (F32)((S32)eu_mb - (S32)cu_mb) / (F32)cu_mb;
+
+        U32 target_mb = info.Budget / 1024 / 1024;
+
+        if (target_mb > 4096)  // if 4GB are installed, try to leave 2GB free 
         {
-            target -= 2048;
+            target_mb -= 2048;
         }
         else // if less than 4GB are installed, try not to use more than half of it
         {
-            target /= 2;
+            target_mb /= 2;
         }
 
-        U32 used_vram = info.CurrentUsage / 1024 / 1024;
-
-        mAvailableVRAM = used_vram < target ? target - used_vram : 0;
+        mAvailableVRAM = cu_mb < target_mb ? target_mb - cu_mb : 0;
 
         LL_INFOS("Window") << "\nLocal\nAFR: " << info.AvailableForReservation / 1024 / 1024
             << "\nBudget: " << info.Budget / 1024 / 1024
             << "\nCR: " << info.CurrentReservation / 1024 / 1024
-            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024
+            << "\nEU: " << eu_mb << llformat(" (%.2f)", eu_error)
+            << "\nTU: " << target_mb
+            << "\nAM: " << mAvailableVRAM << LL_ENDL;
 
-        mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
+        /*mDXGIAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_NON_LOCAL, &info);
         LL_INFOS("Window") << "\nNon-Local\nAFR: " << info.AvailableForReservation / 1024 / 1024
             << "\nBudget: " << info.Budget / 1024 / 1024
             << "\nCR: " << info.CurrentReservation / 1024 / 1024
-            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;
+            << "\nCU: " << info.CurrentUsage / 1024 / 1024 << LL_ENDL;*/
     }
     else if (mD3DDevice != NULL)
     { // fallback to D3D9
         mAvailableVRAM = mD3DDevice->GetAvailableTextureMem() / 1024 / 1024;
     }
-
 }
 
 void LLWindowWin32::LLWindowWin32Thread::run()
