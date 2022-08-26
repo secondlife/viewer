@@ -111,7 +111,7 @@
 #define DEBUG_PBR_SUN_SPEC_FV      0 // F() * V()
 #define DEBUG_PBR_SUN_SPEC_DFV     0 // D() * F() * V()
 #define DEBUG_PBR_SUN_SPEC_NL_DFV  0 // nl * D() * F() * V()
-#define DEBUG_PBR_SUN_FINAL        0 // LAMBERT_NL + NL_DFV ?
+#define DEBUG_PBR_SUN_FINAL        0 // LAMBERT_NL + BRDF()
 
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
@@ -325,10 +325,6 @@ void main()
         specLight        = vec3(0,0.5,1.0);
         irradiance       = specLight;
 #endif
-// TODO:
-//#if PBR_USE_IBL
-//        kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
-//#endif
         vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
 #if DEBUG_PBR_SPEC_IBL
         vec3 debug_color_spec = specWeight * specLight * FssEssGGX;
