@@ -287,9 +287,12 @@ void main()
         vec3  b          = cross( n,t);
         vec3  reflectVN  = normalize(reflect(-v,n));
 
-        float dotNV = clamp(dot(n,v),0,1);
-        float dotTV = clamp(dot(t,v),0,1);
-        float dotBV = clamp(dot(b,v),0,1);
+        vec3  h, l;
+        float nh, nl, nv, vh, lightDist;
+        calcHalfVectors(light_dir, n, v, h, l, nh, nl, nv, vh, lightDist);
+
+        float tv = clamp(dot(t,v),0,1);
+        float bv = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
         vec3  base            = diffuse.rgb;
@@ -302,10 +305,10 @@ void main()
 #endif
 
         // Common to RadianceGGX and RadianceLambertian
-        vec2  brdfPoint  = clamp(vec2(dotNV, perceptualRough), vec2(0,0), vec2(1,1));
+        vec2  brdfPoint  = clamp(vec2(nv, perceptualRough), vec2(0,0), vec2(1,1));
         vec2  vScaleBias = getGGX( brdfPoint); // Environment BRDF: scale and bias applied to reflect0
         vec3  fresnelR   = max(vec3(1.0 - perceptualRough), reflect0) - reflect0; // roughness dependent fresnel
-        vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - dotNV, 5.0);
+        vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - nv, 5.0);
 
         // Reference: getIBLRadianceGGX
         // https://forum.substance3d.com/index.php?topic=3243.0
@@ -353,10 +356,6 @@ void main()
         colorSpec    *= ao;
 
         // Add in sun/moon reflection
-        vec3  h, l;
-        float nh, nl, nv, vh, lightDist;
-        calcHalfVectors(light_dir, n, v, h, l, nh, nl, nv, vh, lightDist);
-
         if (nl > 0.0 || nv > 0.0)
         {
             float scale = 4.9;
@@ -518,13 +517,13 @@ void main()
         color.rgb = b;
     #endif
     #if DEBUG_PBR_DOT_NV
-        color.rgb = vec3(dotNV);
+        color.rgb = vec3(nv);
     #endif
     #if DEBUG_PBR_DOT_TV
-        color.rgb = vec3(dotTV);
+        color.rgb = vec3(tv);
     #endif
     #if DEBUG_PBR_DOT_BV
-        color.rgb = vec3(dotBV);
+        color.rgb = vec3(bv);
     #endif
 
     #if DEBUG_PBR_AVG
