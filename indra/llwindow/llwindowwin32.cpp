@@ -48,6 +48,8 @@
 #include "llthreadsafequeue.h"
 #include "stringize.h"
 #include "llframetimer.h"
+#include "commoncontrol.h" // TODO: Remove after testing
+#include "llsd.h" // TODO: Remove after testing
 
 // System includes
 #include <commdlg.h>
@@ -417,7 +419,9 @@ struct LLWindowWin32::LLWindowWin32Thread : public LL::ThreadPool
     // best guess at available video memory in MB
     std::atomic<U32> mAvailableVRAM;
 
+    bool mTryUseDXGIAdapter; // TODO: Remove after testing
     IDXGIAdapter3* mDXGIAdapter = nullptr;
+    bool mTryUseD3DDevice; // TODO: Remove after testing
     LPDIRECT3D9 mD3D = nullptr;
     LPDIRECT3DDEVICE9 mD3DDevice = nullptr;
 };
@@ -4550,6 +4554,14 @@ U32 LLWindowWin32::getAvailableVRAMMegabytes()
 inline LLWindowWin32::LLWindowWin32Thread::LLWindowWin32Thread()
     : ThreadPool("Window Thread", 1, MAX_QUEUE_SIZE)
 {
+    const LLSD skipDXGI{ LL::CommonControl::get("Global", "DisablePrimaryGraphicsMemoryAccounting") }; // TODO: Remove after testing
+    LL_WARNS() << "DisablePrimaryGraphicsMemoryAccounting: " << skipDXGI << ", as boolean: " << skipDXGI.asBoolean() << LL_ENDL;
+    mTryUseDXGIAdapter = !skipDXGI.asBoolean();
+    LL_WARNS() << "mTryUseDXGIAdapter: " << mTryUseDXGIAdapter << LL_ENDL;
+    const LLSD skipD3D{ LL::CommonControl::get("Global", "DisableSecondaryGraphicsMemoryAccounting") }; // TODO: Remove after testing
+    LL_WARNS() << "DisableSecondaryGraphicsMemoryAccounting: " << skipD3D << ", as boolean: " << skipD3D.asBoolean() << LL_ENDL;
+    mTryUseD3DDevice = !skipD3D.asBoolean();
+    LL_WARNS() << "mTryUseD3DDevice: " << mTryUseD3DDevice << LL_ENDL;
     ThreadPool::start();
 }
 
@@ -4599,10 +4611,77 @@ private:
     std::string mPrev;
 };
 
+// Print hardware debug info about available graphics adapters in ordinal order
+void debugEnumerateGraphicsAdapters()
+{
+    LL_INFOS("Window") << "Enumerating graphics adapters..." << LL_ENDL;
+
+    IDXGIFactory1* factory;
+    HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&factory);
+    if (FAILED(res) || !factory)
+    {
+        LL_WARNS() << "CreateDXGIFactory1 failed: 0x" << std::hex << res << LL_ENDL;
+    }
+    else
+    {
+        UINT graphics_adapter_index = 0;
+        IDXGIAdapter3* dxgi_adapter;
+        while (true)
+        {
+            res = factory->EnumAdapters(graphics_adapter_index, reinterpret_cast<IDXGIAdapter**>(&dxgi_adapter));
+            if (FAILED(res))
+            {
+                if (graphics_adapter_index == 0)
+                {
+                    LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
+                }
+                else
+                {
+                    LL_INFOS("Window") << "Done enumerating graphics adapters" << LL_ENDL;
+                }
+            }
+            else
+            {
+                DXGI_ADAPTER_DESC desc;
+                dxgi_adapter->GetDesc(&desc);
+                std::wstring description_w((wchar_t*)desc.Description);
+                std::string description(description_w.begin(), description_w.end());
+                LL_INFOS("Window") << "Graphics adapter index: " << graphics_adapter_index << ", "
+                    << "Description: " << description << ", "
+                    << "DeviceId: " << desc.DeviceId << ", "
+                    << "SubSysId: " << desc.SubSysId << ", "
+                    << "AdapterLuid: " << desc.AdapterLuid.HighPart << "_" << desc.AdapterLuid.LowPart << ", "
+                    << "DedicatedVideoMemory: " << desc.DedicatedVideoMemory / 1024 / 1024 << ", "
+                    << "DedicatedSystemMemory: " << desc.DedicatedSystemMemory / 1024 / 1024 << ", "
+                    << "SharedSystemMemory: " << desc.SharedSystemMemory / 1024 / 1024 << LL_ENDL;
+            }
+
+            if (dxgi_adapter)
+            {
+                dxgi_adapter->Release();
+                dxgi_adapter = NULL;
+            }
+            else
+            {
+                break;
+            }
+
+            graphics_adapter_index++;
+        }
+    }
+
+    if (factory)
+    {
+        factory->Release();
+    }
+}
+
 void LLWindowWin32::LLWindowWin32Thread::initDX()
 {
-    if (mDXGIAdapter == NULL)
+    if (mDXGIAdapter == NULL && mTryUseDXGIAdapter)
     {
+        debugEnumerateGraphicsAdapters();
+
         IDXGIFactory4* pFactory = nullptr;
 
         HRESULT res = CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&pFactory);
@@ -4618,15 +4697,22 @@ void LLWindowWin32::LLWindowWin32Thread::initDX()
             {
                 LL_WARNS() << "EnumAdapters failed: 0x" << std::hex << res << LL_ENDL;
             }
+            else
+            {
+                LL_INFOS() << "EnumAdapters success" << LL_ENDL;
+            }
         }
 
-        pFactory->Release();
+        if (pFactory)
+        {
+            pFactory->Release();
+        }
     }
 }
 
 void LLWindowWin32::LLWindowWin32Thread::initD3D()
 {
-    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mWindowHandle != 0)
+    if (mDXGIAdapter == NULL && mD3DDevice == NULL && mTryUseD3DDevice && mWindowHandle != 0)
     {
         mD3D = Direct3DCreate9(D3D_SDK_VERSION);
         
@@ -4636,7 +4722,16 @@ void LLWindowWin32::LLWindowWin32Thread::initD3D()
         d3dpp.Windowed = TRUE;
         d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 
-        mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandle, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+        HRESULT res = mD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, mWindowHandle, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &mD3DDevice);
+        
+        if (FAILED(res))
+        {
+            LL_WARNS() << "(fallback) CreateDevice failed: 0x" << std::hex << res << LL_ENDL;
+        }
+        else
+        {
+            LL_INFOS() << "(fallback) CreateDevice success" << LL_ENDL;
+        }
     }
 }
 
@@ -4723,6 +4818,7 @@ void LLWindowWin32::LLWindowWin32Thread::run()
         if (mWindowHandle != 0)
         {
             // lazily call initD3D inside this loop to catch when mWindowHandle has been set
+            // *TODO: Shutdown if this fails when mWindowHandle exists
             initD3D();
 
             MSG msg;
