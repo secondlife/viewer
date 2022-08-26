@@ -28,8 +28,8 @@
 #define PBR_USE_SUN                1
 
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
-#define DEBUG_PBR_PACKORM0         0 // Rough=0, Metal=0
-#define DEBUG_PBR_PACKORM1         0 // Rough=1, Metal=1
+#define DEBUG_PBR_PACK_ORM0        0 // Rough=0, Metal=0
+#define DEBUG_PBR_PACK_ORM1        0 // Rough=1, Metal=1
 #define DEBUG_PBR_TANGENT1         1 // Tangent = 1,0,0
 #define DEBUG_PBR_VERT2CAM1        0 // vertex2camera = 0,0,1
 #define DEBUG_PBR_SPECLIGHT051     0 // Force specLigh to be 0,0.5,1
@@ -72,6 +72,7 @@
 #define DEBUG_PBR_IRRADIANCE       0 // Output: Diffuse Irradiance, NOTE: SSAO is factored in
 #define DEBUG_PBR_FSS_ESS_LAMBERT  0 // Output: FssEssLambert
 #define DEBUG_PBR_EMS              0 // Output: Ems = (1 - BRDF Scale + BRDF Bias)
+#define DEBUG_PBR_EMS_AVG          0 // Output: Avg Ems
 #define DEBUG_PBR_AVG              0 // Output: Avg
 #define DEBUG_PBR_FMS_EMS          0 // Output: FmsEms
 #define DEBUG_PBR_DIFFUSE_K        0 // Output: diffuse FssEssLambert + FmsEms
@@ -110,6 +111,7 @@
 #define DEBUG_PBR_SUN_SPEC_FV      0 // F() * V()
 #define DEBUG_PBR_SUN_SPEC_DFV     0 // D() * F() * V()
 #define DEBUG_PBR_SUN_SPEC_NL_DFV  0 // nl * D() * F() * V()
+#define DEBUG_PBR_SUN_FINAL        0 // LAMBERT_NL + NL_DFV ?
 
 #define DEBUG_PBR_IOR              0 // Output: grayscale IOR
 #define DEBUG_PBR_REFLECT0_BASE    0 // Output: black reflect0 default from ior
@@ -323,9 +325,10 @@ void main()
         specLight        = vec3(0,0.5,1.0);
         irradiance       = specLight;
 #endif
-#if HAS_IBL
-        kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
-#endif
+// TODO:
+//#if PBR_USE_IBL
+//        kSpec          = mix( kSpec, iridescenceFresnel, iridescenceFactor);
+//#endif
         vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
 #if DEBUG_PBR_SPEC_IBL
         vec3 debug_color_spec = specWeight * specLight * FssEssGGX;
