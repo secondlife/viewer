@@ -595,11 +595,13 @@ bool LLGLManager::initGL()
 		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
 
 #if LL_DARWIN
+		// TODO maybe switch to using a core profile for GL 3.2?
+		// https://stackoverflow.com/a/19868861
 		//never use GLSL greater than 1.20 on OSX
-		if (mGLSLVersionMajor > 1 || mGLSLVersionMinor >= 30)
+		if (mGLSLVersionMajor > 1 || mGLSLVersionMinor > 30)
 		{
 			mGLSLVersionMajor = 1;
-			mGLSLVersionMinor = 20;
+			mGLSLVersionMinor = 30;
 		}
 #endif
 	}
@@ -1012,6 +1014,20 @@ void LLGLManager::initExtensions()
 	mHasPointParameters = FALSE;
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
+
+#if 0 && LL_DARWIN
+	// populate gGLHExts.mSysExts for core profile
+	GLint num_extensions;
+	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+	std::string all_extensions("GL_ARB_multitexture ");
+	for(GLint i = 0; i < num_extensions; ++i) {
+		char const * extension = (char const *)glGetStringi(GL_EXTENSIONS, i);
+		all_extensions += extension;
+		all_extensions += ' ';
+	}
+	gGLHExts.mSysExts = strdup(all_extensions.data());
+#endif
+
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
 	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);

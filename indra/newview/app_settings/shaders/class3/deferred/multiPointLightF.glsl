@@ -76,6 +76,10 @@ void main()
     vec3 final_color = vec3(0, 0, 0);
     vec2 tc          = getScreenXY(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
+    if (pos.z < far_z)
+    {
+        discard;
+    }
 
     float envIntensity; // not used for this shader
     vec3 n;
@@ -124,10 +128,6 @@ void main()
     }
     else
     {
-        if (pos.z < far_z)
-        {
-            discard;
-        }
 
         float noise = texture2D(noiseMap, tc/128.0).b;
 
