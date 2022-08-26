@@ -656,13 +656,11 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 	}
 
 	// call refresh from region on all panels
-	std::for_each(
-		mInfoPanels.begin(),
-		mInfoPanels.end(),
-		llbind2nd(
-			std::mem_fun(&LLPanelRegionInfo::refreshFromRegion),
-			region));
-    mEnvironmentPanel->refreshFromRegion(region);
+	for (const auto& infoPanel : mInfoPanels)
+	{
+		infoPanel->refreshFromRegion(region);
+	}
+	mEnvironmentPanel->refreshFromRegion(region);
 }
 
 // public
