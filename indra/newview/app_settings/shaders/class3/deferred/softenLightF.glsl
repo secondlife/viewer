@@ -291,7 +291,7 @@ void main()
         float dotBV = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
-        vec3  base            = linear_to_srgb(diffuse.rgb);
+        vec3  base            = diffuse.rgb;
         float perceptualRough = max(packedORM.g, 0.1);
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;
