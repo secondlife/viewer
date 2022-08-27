@@ -142,7 +142,7 @@ struct DeletePairedPointerArray
 //                     llselect2nd<map_type::value_type>()));
 
 template<typename T>
-struct DeletePointerFunctor : public std::unary_function<T*, bool>
+struct DeletePointerFunctor : public unary_function<T*, bool>
 {
 	bool operator()(T* ptr) const
 	{
@@ -153,7 +153,7 @@ struct DeletePointerFunctor : public std::unary_function<T*, bool>
 
 // See notes about DeleteArray for why you should consider avoiding this.
 template<typename T>
-struct DeleteArrayFunctor : public std::unary_function<T*, bool>
+struct DeleteArrayFunctor : public unary_function<T*, bool>
 {
 	bool operator()(T* ptr) const
 	{
@@ -395,14 +395,14 @@ OutputIter ll_transform_n(
 // select... with the stl. Look up usage on the sgi website.
 
 template <class _Pair>
-struct _LLSelect1st : public std::unary_function<_Pair, typename _Pair::first_type> {
+struct _LLSelect1st : public unary_function<_Pair, typename _Pair::first_type> {
   const typename _Pair::first_type& operator()(const _Pair& __x) const {
     return __x.first;
   }
 };
 
 template <class _Pair>
-struct _LLSelect2nd : public std::unary_function<_Pair, typename _Pair::second_type>
+struct _LLSelect2nd : public unary_function<_Pair, typename _Pair::second_type>
 {
   const typename _Pair::second_type& operator()(const _Pair& __x) const {
     return __x.second;
@@ -417,7 +417,7 @@ template <class _Pair> struct llselect2nd : public _LLSelect2nd<_Pair> {};
 
 template <class _Operation1, class _Operation2>
 class ll_unary_compose :
-	public std::unary_function<typename _Operation2::argument_type,
+	public unary_function<typename _Operation2::argument_type,
 							   typename _Operation1::result_type>
 {
 protected:
@@ -441,7 +441,7 @@ llcompose1(const _Operation1& __op1, const _Operation2& __op2)
 
 template <class _Operation1, class _Operation2, class _Operation3>
 class ll_binary_compose
-  : public std::unary_function<typename _Operation2::argument_type,
+  : public unary_function<typename _Operation2::argument_type,
 							   typename _Operation1::result_type> {
 protected:
   _Operation1 _M_op1;
@@ -470,7 +470,7 @@ llcompose2(const _Operation1& __op1, const _Operation2& __op2,
 // bind... with the stl. Again, this is from sgi.
 template <class _Operation>
 class llbinder1st :
-	public std::unary_function<typename _Operation::second_argument_type,
+	public unary_function<typename _Operation::second_argument_type,
 							   typename _Operation::result_type> {
 protected:
   _Operation op;
@@ -495,7 +495,7 @@ llbind1st(const _Operation& __oper, const _Tp& __x)
 
 template <class _Operation>
 class llbinder2nd
-	: public std::unary_function<typename _Operation::first_argument_type,
+	: public unary_function<typename _Operation::first_argument_type,
 								 typename _Operation::result_type> {
 protected:
 	_Operation op;
@@ -547,21 +547,30 @@ bool before(const std::type_info* lhs, const std::type_info* rhs)
  */
 namespace std
 {
+
+
+
 	template <>
-	struct less<const std::type_info*>:
-		public std::binary_function<const std::type_info*, const std::type_info*, bool>
+	struct less<const std::type_info*>
 	{
-		bool operator()(const std::type_info* lhs, const std::type_info* rhs) const
+        typedef std::type_info *first_argument_type;
+        typedef std::type_info *second_argument_type;
+        typedef bool            result_type;
+
+		bool                    operator()(const std::type_info *lhs, const std::type_info *rhs) const
 		{
 			return before(lhs, rhs);
 		}
 	};
 
 	template <>
-	struct less<std::type_info*>:
-		public std::binary_function<std::type_info*, std::type_info*, bool>
+	struct less<std::type_info*>
 	{
-		bool operator()(std::type_info* lhs, std::type_info* rhs) const
+        typedef std::type_info *first_argument_type;
+        typedef std::type_info *second_argument_type;
+        typedef bool            result_type;
+
+		bool                    operator()(std::type_info *lhs, std::type_info *rhs) const
 		{
 			return before(lhs, rhs);
 		}
