@@ -295,7 +295,7 @@ void main()
         float bv = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
-        vec3  base            = diffuse.rgb;
+        vec3  base            = linear_to_srgb(diffuse.rgb);
         float perceptualRough = max(packedORM.g, 0.1);
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;
@@ -365,8 +365,8 @@ void main()
 #endif
             // scol = sun shadow
             vec3 intensity  = ambocc * sunColor * nl * scol;
-            vec3 sunDiffuse = intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-            vec3 sunSpec    = intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            vec3 sunDiffuse = base * intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            vec3 sunSpec    =        intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
             bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
 
     #if DEBUG_PBR_SUN_SPEC_FRESNEL
