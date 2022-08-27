@@ -316,6 +316,7 @@ public:
 								plain_text,
 								wrap,
 								use_ellipses,
+								use_color,
 								parse_urls,
 								force_urls_external,
 								parse_highlights,
@@ -333,6 +334,8 @@ public:
 		Optional<S32>			max_text_length;
 
 		Optional<LLFontGL::ShadowType>	font_shadow;
+
+		Optional<LLFontGL::VAlign> text_valign;
 
 		Params();
 	};
@@ -391,6 +394,7 @@ public:
 	// used by LLTextSegment layout code
 	bool					getWordWrap() { return mWordWrap; }
 	bool					getUseEllipses() { return mUseEllipses; }
+	bool					getUseColor() { return mUseColor; }
 	bool					truncate(); // returns true of truncation occurred
 
 	bool					isContentTrusted() {return mTrustedContent;}
@@ -680,8 +684,9 @@ protected:
 	// configuration
 	S32							mHPad;				// padding on left of text
 	S32							mVPad;				// padding above text
-	LLFontGL::HAlign			mHAlign;
-	LLFontGL::VAlign			mVAlign;
+	LLFontGL::HAlign			mHAlign;			// horizontal alignment of the document in its entirety
+	LLFontGL::VAlign			mVAlign;			// vertical alignment of the document in its entirety
+	LLFontGL::VAlign			mTextVAlign;		// vertical alignment of a text segment within a single line of text
 	F32							mLineSpacingMult;	// multiple of line height used as space for a single line of text (e.g. 1.5 to get 50% padding)
 	S32							mLineSpacingPixels;	// padding between lines
 	bool						mBorderVisible;
@@ -690,6 +695,7 @@ protected:
 	bool						mParseHighlights;	// highlight user-defined keywords
 	bool                		mWordWrap;
 	bool						mUseEllipses;
+	bool						mUseColor;
 	bool						mTrackEnd;			// if true, keeps scroll position at end of document during resize
 	bool						mReadOnly;
 	bool						mBGVisible;			// render background?

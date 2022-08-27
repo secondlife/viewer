@@ -10,3 +10,4 @@ if (NOT USESYSTEMLIBS)
   use_prebuilt_binary(slvoice)
 endif(NOT USESYSTEMLIBS)
 
+use_prebuilt_binary(fonts)

@@ -29,6 +29,7 @@ set(cmake_SOURCE_FILES
     FindBerkeleyDB.cmake
     FindGLH.cmake
     FindHUNSPELL.cmake
+    FindICU4C.cmake
     FindJsonCpp.cmake
     FindNDOF.cmake
     FindOpenJPEG.cmake
@@ -45,6 +46,7 @@ set(cmake_SOURCE_FILES
     GoogleMock.cmake
     Havok.cmake
     Hunspell.cmake
+    ICU4C.cmake
     JPEG.cmake
     JsonCpp.cmake
     LLAddBuildTest.cmake

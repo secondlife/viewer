@@ -18,6 +18,7 @@ include(EXPAT)
 include(FMODSTUDIO)
 include(GLOD)
 include(Hunspell)
+include(ICU4C)
 include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
@@ -1497,6 +1498,12 @@ if (WINDOWS)
         set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
     endif(USE_PRECOMPILED_HEADERS)
 
+    message("Copying fonts")
+    file(GLOB FONT_FILE_GLOB_LIST
+      "${AUTOBUILD_INSTALL_DIR}/fonts/*"
+    )
+    file(COPY ${FONT_FILE_GLOB_LIST} DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}/fonts")
+
     # Replace the icons with the appropriate ones for the channel
     # ('test' is the default)
     set(ICON_PATH "test")
@@ -2042,6 +2049,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${NDOF_LIBRARY}
     ${NVAPI_LIBRARY}
     ${HUNSPELL_LIBRARY}
+    ${ICU4C_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}

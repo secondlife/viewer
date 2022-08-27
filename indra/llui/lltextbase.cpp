@@ -161,9 +161,11 @@ LLTextBase::Params::Params()
 	line_spacing("line_spacing"),
 	max_text_length("max_length", 255),
 	font_shadow("font_shadow"),
+	text_valign("text_valign"),
 	wrap("wrap"),
 	trusted_content("trusted_content", true),
 	use_ellipses("use_ellipses", false),
+	use_color("use_color", false),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
 	parse_highlights("parse_highlights", false)
@@ -206,6 +208,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
 	mVAlign(p.font_valign),
+	mTextVAlign(p.text_valign.isProvided() ? p.text_valign : p.font_valign),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClip(p.clip),
@@ -219,6 +222,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mPlainText ( p.plain_text ),
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
+	mUseColor(p.use_color),
 	mParseHTML(p.parse_urls),
 	mForceUrlsExternal(p.force_urls_external),
 	mParseHighlights(p.parse_highlights),
@@ -515,7 +519,7 @@ void LLTextBase::drawCursor()
 				fontp = segmentp->getStyle()->getFont();
 				fontp->render(text, mCursorPos, cursor_rect, 
 					LLColor4(1.f - text_color.mV[VRED], 1.f - text_color.mV[VGREEN], 1.f - text_color.mV[VBLUE], alpha),
-					LLFontGL::LEFT, mVAlign,
+					LLFontGL::LEFT, mTextVAlign,
 					LLFontGL::NORMAL,
 					LLFontGL::NO_SHADOW,
 					1);
@@ -1920,8 +1924,6 @@ LLTextBase::segment_set_t::iterator LLTextBase::getSegIterContaining(S32 index)
 		text_len = mLabel.getWString().length();
 	}
 
-	if (index > text_len) { return mSegments.end(); }
-
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
 
@@ -1944,8 +1946,6 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getSegIterContaining(S32 i
 	{
 		text_len = mLabel.getWString().length();
 	}
-
-	if (index > text_len) { return mSegments.end(); }
 
 	// when there are no segments, we return the end iterator, which must be checked by caller
 	if (mSegments.size() <= 1) { return mSegments.begin(); }
@@ -3239,12 +3239,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect, 
 				 color, 
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	
@@ -3258,12 +3259,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect,
 				 mStyle->getSelectedColor().get(),
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 LLFontGL::NO_SHADOW, 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
 	rect.mLeft = right_x;
 	if( selection_end < seg_end )
@@ -3275,12 +3277,13 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 		font->render(text, start, 
 				 rect, 
 				 color, 
-				 LLFontGL::LEFT, mEditor.mVAlign, 
+				 LLFontGL::LEFT, mEditor.mTextVAlign,
 				 LLFontGL::NORMAL, 
 				 mStyle->getShadowType(), 
 				 length,
 				 &right_x, 
-				 mEditor.getUseEllipses());
+				 mEditor.getUseEllipses(),
+				 mEditor.getUseColor());
 	}
     return right_x;
 }
