@@ -208,7 +208,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mVPad(p.v_pad),
 	mHAlign(p.font_halign),
 	mVAlign(p.font_valign),
-	mTextVAlign(p.text_valign.isProvided() ? p.text_valign : p.font_valign),
+	mTextVAlign(p.text_valign.isProvided() ? p.text_valign.getValue() : p.font_valign.getValue()),
 	mLineSpacingMult(p.line_spacing.multiple),
 	mLineSpacingPixels(p.line_spacing.pixels),
 	mClip(p.clip),

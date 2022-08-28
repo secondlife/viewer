@@ -31,17 +31,7 @@
 
 LLFontBitmapCache::LLFontBitmapCache()
 	: LLTrace::MemTrackable<LLFontBitmapCache>("LLFontBitmapCache")
-	, mBitmapWidth(0)
-	, mBitmapHeight(0)
-	, mMaxCharWidth(0)
-	, mMaxCharHeight(0)
 {
-	// *TODO: simplify with initializer after VS2017
-	for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
-	{
-		mCurrentOffsetX[idx] = 1;
-		mCurrentOffsetY[idx] = 1;
-	}
 }
 
 LLFontBitmapCache::~LLFontBitmapCache()
@@ -123,6 +113,9 @@ BOOL LLFontBitmapCache::nextOpenPos(S32 width, S32& pos_x, S32& pos_y, EFontGlyp
 			// Attach corresponding GL texture. (*TODO: is this needed?)
 			gGL.getTexUnit(0)->bind(image_gl);
 			image_gl->setFilteringOption(LLTexUnit::TFO_POINT); // was setMipFilterNearest(TRUE, TRUE);
+
+			claimMem(image_raw);
+			claimMem(image_gl);
 		}
 		else
 		{
@@ -145,29 +138,29 @@ void LLFontBitmapCache::destroyGL()
 {
 	for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
 	{
-		for (std::vector<LLPointer<LLImageGL> >::iterator it = mImageGLVec[idx].begin(); it != mImageGLVec[idx].end(); ++it)
+		for (LLImageGL* image_gl : mImageGLVec[idx])
 		{
-			(*it)->destroyGLTexture();
+			image_gl->destroyGLTexture();
 		}
 	}
 }
 
 void LLFontBitmapCache::reset()
 {
-	for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
+	for (U32 kitty = 0, cnt = static_cast<U32>(EFontGlyphType::Count); kitty < cnt; kitty++)
 	{
-		for (std::vector<LLPointer<LLImageRaw> >::iterator it = mImageRawVec[idx].begin(), end_it = mImageRawVec[idx].end(); it != end_it; ++it)
+		for (LLImageRaw* image_raw : mImageRawVec[kitty])
 		{
-			disclaimMem(**it);
+			disclaimMem(image_raw);
 		}
-		mImageRawVec[idx].clear();
+		mImageRawVec[kitty].clear();
 	}
 
 	for (U32 idx = 0, cnt = static_cast<U32>(EFontGlyphType::Count); idx < cnt; idx++)
 	{
-		for (std::vector<LLPointer<LLImageGL> >::iterator it = mImageGLVec[idx].begin(), end_it = mImageGLVec[idx].end(); it != end_it; ++it)
+		for (LLImageGL* image_gl : mImageGLVec[idx])
 		{
-			disclaimMem(**it);
+			disclaimMem(image_gl);
 		}
 		mImageGLVec[idx].clear();
 		mCurrentOffsetX[idx] = 1;

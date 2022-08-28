@@ -68,12 +68,12 @@ protected:
 	static U32 getNumComponents(EFontGlyphType bitmap_type);
 
 private:
-	S32 mBitmapWidth;
-	S32 mBitmapHeight;
-	S32 mCurrentOffsetX[static_cast<U32>(EFontGlyphType::Count)];
-	S32 mCurrentOffsetY[static_cast<U32>(EFontGlyphType::Count)];
-	S32 mMaxCharWidth;
-	S32 mMaxCharHeight;
+	S32 mBitmapWidth = 0;
+	S32 mBitmapHeight = 0;
+	S32 mCurrentOffsetX[static_cast<U32>(EFontGlyphType::Count)] = { 1 };
+	S32 mCurrentOffsetY[static_cast<U32>(EFontGlyphType::Count)] = { 1 };
+	S32 mMaxCharWidth = 0;
+	S32 mMaxCharHeight = 0;
 	std::vector<LLPointer<LLImageRaw>> mImageRawVec[static_cast<U32>(EFontGlyphType::Count)];
 	std::vector<LLPointer<LLImageGL>> mImageGLVec[static_cast<U32>(EFontGlyphType::Count)];
 };

@@ -958,9 +958,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aa8be83cdfcd5cda0343ea72e7d662ca</string>
+              <string>f3e63d80bd80da03aa7f87f7bd7c5f8b</string>
               <key>url</key>
-              <string>freetype-2.10.1.0-windows64-72.tar.bz2</string>
+              <string>freetype-2.10.1.0-windows64-222392239.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1510,9 +1510,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8b20cea748b90ea18bb63dfba06e059</string>
+              <string>340980c10153446b678625ec7af047c2</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/491/1075/icu4c-4.8.1-windows64-500388.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/ct2/55243/513658/icu4c-4.8.1-windows64-539138.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

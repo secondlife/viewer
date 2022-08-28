@@ -482,6 +482,8 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 	font_search_paths.push_back(LLFontGL::getFontPathSystem());
 #if LL_DARWIN
 	font_search_paths.push_back(MACOSX_FONT_PATH_LIBRARY);
+	font_search_paths.push_back(MACOSX_FONT_PATH_LIBRARY + MACOSX_FONT_SUPPLEMENTAL);
+	font_search_paths.push_back(sys_path + MACOSX_FONT_SUPPLEMENTAL);
 #endif
 
 	// The fontname string may contain multiple font file names separated by semicolons.
@@ -491,8 +493,6 @@ LLFontGL *LLFontRegistry::createFont(const LLFontDescriptor& desc)
 		++font_file_it)
 	{
 		LLFontGL *fontp = NULL;
-		font_paths.push_back(MACOSX_FONT_PATH_LIBRARY + MACOSX_FONT_SUPPLEMENTAL + *file_name_it);
-		font_paths.push_back(sys_path +  MACOSX_FONT_SUPPLEMENTAL + *file_name_it);
 
 		bool is_ft_collection = (std::find_if(font_collection_files.begin(), font_collection_files.end(),
 		                                      [&font_file_it](const LLFontFileInfo& ffi) { return font_file_it->FileName == ffi.FileName; }) != font_collection_files.end());
