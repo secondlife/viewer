@@ -52,6 +52,9 @@ float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
     float dist_atten = 1.0 - clamp((distance + falloff)/(1.0 + falloff), 0.0, 1.0);
     dist_atten *= dist_atten;
+
+    // Tweak falloff slightly to match pre-EEP attenuation
+    // NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
     dist_atten *= 2.0;
     return dist_atten;
 }
@@ -303,7 +306,7 @@ vec2 getScreenXY(vec4 clip)
 
 // Color utils
 
-vec3 colorized_dot(float x)
+vec3 colorize_dot(float x)
 {
     if (x > 0.0) return vec3( 0, x, 0 );
     if (x < 0.0) return vec3(-x, 0, 0 );

@@ -68,6 +68,9 @@ vec2 getScreenXY(vec4 clip);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
 
+// Util
+vec3 hue_to_rgb(float hue);
+
 void main()
 {
 #if defined(LOCAL_LIGHT_KILL)
