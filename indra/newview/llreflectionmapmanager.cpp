@@ -40,7 +40,7 @@ extern BOOL gTeleportDisplay;
 
 LLReflectionMapManager::LLReflectionMapManager()
 {
-    for (int i = 0; i < LL_REFLECTION_PROBE_COUNT; ++i)
+    for (int i = 0; i < LL_MAX_REFLECTION_PROBE_COUNT; ++i)
     {
         mCubeFree[i] = true;
     }
@@ -76,16 +76,7 @@ void LLReflectionMapManager::update()
     }
 
     // =============== TODO -- move to an init function  =================
-
-    if (mTexture.isNull())
-    {
-        mTexture = new LLCubeMapArray();
-        // store LL_REFLECTION_PROBE_COUNT+2 cube maps, final two cube maps are used for render target and radiance map generation source)
-        mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 3, LL_REFLECTION_PROBE_COUNT+2);
-
-        mIrradianceMaps = new LLCubeMapArray();
-        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, LL_REFLECTION_PROBE_COUNT);
-    }
+    initReflectionMaps();
 
     if (!mRenderTarget.isComplete())
     {
@@ -167,7 +158,7 @@ void LLReflectionMapManager::update()
         LLVector4a d;
         
         if (!did_update && 
-            i < LL_REFLECTION_PROBE_COUNT &&
+            i < mReflectionProbeCount &&
             (oldestProbe == nullptr || probe->mLastUpdateTime < oldestProbe->mLastUpdateTime))
         {
             oldestProbe = probe;
@@ -317,7 +308,7 @@ LLReflectionMap* LLReflectionMapManager::registerViewerObject(LLViewerObject* vo
 
 S32 LLReflectionMapManager::allocateCubeIndex()
 {
-    for (int i = 0; i < LL_REFLECTION_PROBE_COUNT; ++i)
+    for (int i = 0; i < mReflectionProbeCount; ++i)
     {
         if (mCubeFree[i])
         {
@@ -327,7 +318,7 @@ S32 LLReflectionMapManager::allocateCubeIndex()
     }
 
     // no cubemaps free, steal one from the back of the probe list
-    for (int i = mProbes.size() - 1; i >= LL_REFLECTION_PROBE_COUNT; --i)
+    for (int i = mProbes.size() - 1; i >= mReflectionProbeCount; --i)
     {
         if (mProbes[i]->mCubeIndex != -1)
         {
@@ -392,7 +383,7 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
     gPipeline.mRT = &gPipeline.mMainRT;
     mRenderTarget.flush();
 
-    S32 targetIdx = LL_REFLECTION_PROBE_COUNT;
+    S32 targetIdx = mReflectionProbeCount;
 
     if (probe != mUpdatingProbe)
     { // this is the "realtime" probe that's updating every frame, use the secondary scratch space channel
@@ -625,15 +616,15 @@ void LLReflectionMapManager::updateUniforms()
     // see class3/deferred/reflectionProbeF.glsl
     struct ReflectionProbeData
     {
-        LLMatrix4 refBox[LL_REFLECTION_PROBE_COUNT]; // object bounding box as needed
-        LLVector4 refSphere[LL_REFLECTION_PROBE_COUNT]; //origin and radius of refmaps in clip space
-        LLVector4 refParams[LL_REFLECTION_PROBE_COUNT]; //extra parameters (currently only ambiance)
-        GLint refIndex[LL_REFLECTION_PROBE_COUNT][4];
+        LLMatrix4 refBox[LL_MAX_REFLECTION_PROBE_COUNT]; // object bounding box as needed
+        LLVector4 refSphere[LL_MAX_REFLECTION_PROBE_COUNT]; //origin and radius of refmaps in clip space
+        LLVector4 refParams[LL_MAX_REFLECTION_PROBE_COUNT]; //extra parameters (currently only ambiance)
+        GLint refIndex[LL_MAX_REFLECTION_PROBE_COUNT][4];
         GLint refNeighbor[4096];
         GLint refmapCount;
     };
 
-    mReflectionMaps.resize(LL_REFLECTION_PROBE_COUNT);
+    mReflectionMaps.resize(mReflectionProbeCount);
     getReflectionMaps(mReflectionMaps);
 
     ReflectionProbeData rpd;
@@ -829,4 +820,20 @@ void LLReflectionMapManager::renderDebug()
     }
 
     gDebugProgram.unbind();
+}
+
+void LLReflectionMapManager::initReflectionMaps()
+{
+    if (mTexture.isNull())
+    {
+        mReflectionProbeCount = llclamp(gSavedSettings.getS32("RenderReflectionProbeCount"), 1, LL_MAX_REFLECTION_PROBE_COUNT);
+
+        mTexture = new LLCubeMapArray();
+
+        // store mReflectionProbeCount+2 cube maps, final two cube maps are used for render target and radiance map generation source)
+        mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 3, mReflectionProbeCount + 2);
+
+        mIrradianceMaps = new LLCubeMapArray();
+        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount);
+    }
 }
