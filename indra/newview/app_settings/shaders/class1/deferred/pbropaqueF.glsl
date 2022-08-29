@@ -104,15 +104,16 @@ void main()
     tnorm = normalize(tnorm.xyz);
 
     norm.xyz = normalize(tnorm.xyz);
+
     // RGB = Occlusion, Roughness, Metal
-    // default values
-    //   occlusion ?
-    //   roughness 1.0
-    //   metal     1.0
+    // default values, see LLViewerTexture::sDefaultPBRORMImagep
+    //   occlusion 1.0
+    //   roughness 0.0
+    //   metal     0.0
 #ifdef HAS_SPECULAR_MAP
     vec3 spec = texture2D(specularMap, vary_texcoord2.xy).rgb;
 #else
-    vec3 spec = vec3(1,1,1);
+    vec3 spec = vec3(1,0,0);
 #endif
     
     spec.g *= roughnessFactor;
