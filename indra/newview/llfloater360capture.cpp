@@ -889,8 +889,10 @@ const std::string LLFloater360Capture::generate_proposed_filename()
         // this looks complex but it's straightforward - removes all non-alpha chars from a string
         // which in this case is the SL region name - we use it as a proposed filename but the user is free to change
         std::string region_name = region->getName();
-        std::replace_if(region_name.begin(), region_name.end(), std::not1(std::ptr_fun(isalnum)), '_');
-        if (region_name.length() > 0)
+        std::replace_if(region_name.begin(), region_name.end(),
+                        [](char c){ return ! std::isalnum(c); },
+                        '_');
+        if (! region_name.empty())
         {
             filename << region_name;
             filename << "_";

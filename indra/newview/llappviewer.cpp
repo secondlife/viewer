@@ -1185,12 +1185,8 @@ bool LLAppViewer::init()
     {
         LL_WARNS("InitInfo") << "Skipping updater check." << LL_ENDL;
     }
+#endif //LL_RELEASE_FOR_DOWNLOAD
 
-    if (mUpdaterNotFound)
-    {
-        LL_WARNS("InitInfo") << "Failed to launch updater. Skipping Leap commands." << LL_ENDL;
-    }
-    else
     {
         // Iterate over --leap command-line options. But this is a bit tricky: if
         // there's only one, it won't be an array at all.
@@ -1223,7 +1219,6 @@ bool LLAppViewer::init()
                              << "lleventhost no longer supported as a dynamic library"
                              << LL_ENDL;
     }
-#endif //LL_RELEASE_FOR_DOWNLOAD
 
 	LLTextUtil::TextHelpers::iconCallbackCreationFunction = create_text_segment_icon_from_url_match;
 
