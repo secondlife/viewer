@@ -252,6 +252,7 @@ public:
 	static LLPointer<LLViewerTexture> sNullImagep; // Null texture for non-textured objects.
 	static LLPointer<LLViewerTexture> sBlackImagep;	// Texture to show NOTHING (pure black)
 	static LLPointer<LLViewerTexture> sCheckerBoardImagep;	// Texture to show NOTHING (pure black)
+	static LLPointer<LLViewerTexture> sDefaultPBRORMImagep; // PBR: When ORM is missing use 1,0,0
 };
 
 
