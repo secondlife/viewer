@@ -364,7 +364,7 @@ vec3 tapIrradianceMap(vec3 pos, vec3 dir, vec3 c, float r2, int i)
     v -= c;
     v = env_mat * v;
     {
-        return texture(irradianceProbes, vec4(v.xyz, refIndex[i].x)).rgb * refParams[i].x;
+        return textureLod(irradianceProbes, vec4(v.xyz, refIndex[i].x), 0).rgb * refParams[i].x;
     }
 }
 
