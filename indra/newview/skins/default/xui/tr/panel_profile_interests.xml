@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="İlgi alanları" name="panel_profile_interests">
+	<text name="I Want To:">
+		Şunu Yapmak İstiyorum:
+	</text>
+	<check_box label="İnşa Et" name="chk0"/>
+	<check_box label="Keşfet" name="chk1"/>
+	<check_box label="Tanış" name="chk2"/>
+	<check_box label="İşe Gir" name="chk6"/>
+	<check_box label="Gruplandır" name="chk3"/>
+	<check_box label="Satın Al" name="chk4"/>
+	<check_box label="Sat" name="chk5"/>
+	<check_box label="İşe Al" name="chk7"/>
+	<line_editor name="want_to_edit">
+		(yükleniyor...)
+	</line_editor>
+	<text name="Skills:">
+		Beceriler:
+	</text>
+	<check_box label="Dokular" name="schk0"/>
+	<check_box label="Mimari" name="schk1"/>
+	<check_box label="Modelleme" name="schk3"/>
+	<check_box label="Etkinlik Planlama" name="schk2"/>
+	<check_box label="Kodlama" name="schk4"/>
+	<check_box label="Özel Karakterler" name="schk5"/>
+	<line_editor name="skills_edit">
+		(yükleniyor...)
+	</line_editor>
+	<text name="Languages:">
+		Diller:
+	</text>
+	<line_editor name="languages_edit">
+		(yükleniyor...)
+	</line_editor>
+</panel>

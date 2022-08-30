@@ -38,6 +38,8 @@ class LLInventoryPanel;
 class LLFloater;
 class LLView;
 
+std::string getProfileURL(const std::string& agent_name, bool feed_only = false);
+
 /**
  * Friend-related actions (add, remove, offer teleport, etc)
  */
@@ -91,13 +93,20 @@ public:
 	 */
 	static void startConference(const uuid_vec_t& ids, const LLUUID& floater_id = LLUUID::null);
 
-	/**
-	 * Show avatar profile.
-	 */
-	static void showProfile(const LLUUID& id);
-	static void hideProfile(const LLUUID& id);
-	static bool profileVisible(const LLUUID& id);
-	static LLFloater* getProfileFloater(const LLUUID& id);
+    /**
+     * Show avatar profile.
+     */
+    static void showProfile(const LLUUID& avatar_id);
+    static void showPicks(const LLUUID& avatar_id);
+    static void showPick(const LLUUID& avatar_id, const LLUUID& pick_id);
+    static void createPick();
+    static void showClassifieds(const LLUUID& avatar_id);
+    static void showClassified(const LLUUID& avatar_id, const LLUUID& classified_id, bool edit = false);
+    static void createClassified();
+    static void hideProfile(const LLUUID& avatar_id);
+    static bool profileVisible(const LLUUID& avatar_id);
+    static bool isPickTabSelected(const LLUUID& avatar_id);
+    static LLFloater* getProfileFloater(const LLUUID& avatar_id);
 
 	/**
 	 * Show avatar on world map.
@@ -126,9 +135,10 @@ public:
 	static void shareWithAvatars(LLView * panel);
 
 	/**
-	 * Block/unblock the avatar.
+	 * Block/unblock the avatar by id.
+	 * Returns true if blocked, returns false if unblocked
 	 */
-	static void toggleBlock(const LLUUID& id);
+	static bool toggleBlock(const LLUUID& id);
 
 	/**
 	 * Mute/unmute avatar.

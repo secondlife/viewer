@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ can_resize="false"
+ show_title="false"
+ can_minimize="false"
+ can_close="false"
+ header_height="10"
+ bg_opaque_image="Window_NoTitle_Foreground"
+ bg_alpha_image="Window_NoTitle_Background"
+ height="115"
+ layout="topleft"
+ name="profile_permissions"
+ width="300">
+  <string
+   name="description_string"
+   value="Allow [AGENT_NAME] to:" />
+  <text
+   name="perm_description"
+   value="Allow agent to:"
+   top="1"
+   left="12"
+   right="-6"
+   height="16"
+   follows="top|left"
+   layout="topleft"
+   font.style="BOLD"
+    />
+  <check_box
+   name="online_check"
+   label="See when I am online"
+   top_pad="5"
+   left="16"
+   height="16"
+   width="293"
+   follows="top|left"
+   layout="topleft"
+    />
+  <check_box
+   name="map_check"
+   label="Find me on the world map"
+   top_pad="5"
+   left="16"
+   height="16"
+   width="293"
+   follows="top|left"
+   layout="topleft"
+    />
+  <check_box
+   name="objects_check"
+   label="Edit, delete or take my objects from my land"
+   top_pad="5"
+   left="16"
+   height="16"
+   width="293"
+   follows="top|left"
+   layout="topleft"
+    />
+  <button
+   name="perms_btn_ok"
+   label="OK"
+   top_pad="5"
+   left="42"
+   height="20"
+   width="100"
+   follows="top|left"
+   layout="topleft"/>
+  <button
+   name="perms_btn_cancel"
+   label="Cancel"
+   top_delta="0"
+   left_pad="12"
+   height="20"
+   width="100"
+   follows="top|left"
+   layout="topleft"/>
+</floater>

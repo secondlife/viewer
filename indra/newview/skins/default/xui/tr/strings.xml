@@ -357,6 +357,24 @@ Lütfen bir dakika içerisinde tekrar oturum açmayı deneyin.
 	<string name="TestingDisconnect">
 		Görüntüleyici bağlantısının kesilmesi test ediliyor
 	</string>
+	<string name="SocialFacebookConnecting">
+		Facebook ile bağlantı kuruluyor...
+	</string>
+	<string name="SocialFacebookPosting">
+		Yayınlanıyor...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Facebook bağlantısı kesiliyor...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Facebook ile bağlantı kurulurken sorun oluştu
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Facebook&apos;ta yayınlarken sorun oluştu
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Facebook bağlantısı kesilirken sorun oluştu
+	</string>
 	<string name="SocialFlickrConnecting">
 		Flickr bağlantısı kuruluyor...
 	</string>
@@ -2576,8 +2594,20 @@ Bu mesaj size gelmeye devam ederse lütfen http://support.secondlife.com adresin
 	<string name="NoPicksClassifiedsText">
 		Herhangi bir Seçme veya İlan oluşturmadınız. Bir Seçme veya İlan oluşturmak için aşağıdaki Artı düğmesine tıklayın.
 	</string>
+	<string name="NoPicksText">
+		Herhangi bir Favori oluşturmadınız. Bir Favori oluşturmak için Yeni düğmesine tıklayın.
+	</string>
+	<string name="NoClassifiedsText">
+		Herhangi bir İlan oluşturmadınız. Bir İlan oluşturmak için Yeni düğmesine tıklayın.
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		Kullanıcının herhangi bir seçmesi veya ilanı yok
+	</string>
+	<string name="NoAvatarPicksText">
+		Kullanıcının favorisi yok
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		Kullanıcının ilanı yok
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Yükleniyor...
@@ -4555,6 +4585,9 @@ Bu iletiyi almaya devam ederseniz, lütfen [SUPPORT_SITE] bölümüne başvurun.
 	</string>
 	<string name="share_alert">
 		Envanterinizden buraya öğeler sürükleyin
+	</string>
+	<string name="facebook_post_success">
+		Facebook&apos;ta yayınladınız.
 	</string>
 	<string name="flickr_post_success">
 		Flickr&apos;da yayınladınız.

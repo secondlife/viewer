@@ -191,6 +191,7 @@ with the same filename but different name
   <texture name="Conv_log_inbox" file_name="icons/Conv_log_inbox.png" preload="false" />
 
   <texture name="Copy" file_name="icons/Copy.png" preload="false" />
+  <texture name="CopyBright" file_name="icons/CopyBright.png" preload="false" />
   
   <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 
@@ -511,6 +512,19 @@ with the same filename but different name
   <texture name="Play_Off" file_name="icons/Play_Off.png" preload="false" />
   <texture name="Play_Over" file_name="icons/Play_Over.png" preload="false" />
   <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
+  
+  <texture name="Profile_Group_Visibility_Off" file_name="icons/profile_group_visibility_eye_off.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_Off_Pressed" file_name="icons/profile_group_visibility_eye_off_pressed.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_On" file_name="icons/profile_group_visibility_eye_on.png" preload="true"/>
+  <texture name="Profile_Group_Visibility_On_Pressed" file_name="icons/profile_group_visibility_eye_on_pressed.png" preload="true"/>
+  <texture name="Profile_Friend_Offline" file_name="icons/Profile_Friend_Offline.png" preload="true"/>
+  <texture name="Profile_Friend_Online" file_name="icons/Profile_Friend_Online.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Disabled" file_name="icons/Profile_Perm_Find_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Find_Enabled" file_name="icons/Profile_Perm_Find_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Disabled" file_name="icons/Profile_Perm_Objects_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Objects_Enabled" file_name="icons/Profile_Perm_Objects_Enabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Disabled" file_name="icons/Profile_Perm_Online_Disabled.png" preload="true"/>
+  <texture name="Profile_Perm_Online_Enabled" file_name="icons/Profile_Perm_Online_Enabled.png" preload="true"/>
   
   <texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
   <texture name="ProgressBarSolid" file_name="widgets/ProgressBarSolid.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />

@@ -13,7 +13,7 @@
 		</text>
 	</panel>
 	<text name="status_caption_label">
-		Was machst du gerade?
+		Was machen Sie gerade?
 	</text>
 	<button label="Posten" name="post_status_btn"/>
 	<button label="Abbrechen" name="cancel_status_btn"/>

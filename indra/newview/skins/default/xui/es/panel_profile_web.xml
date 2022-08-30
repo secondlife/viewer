@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Web" name="panel_profile_web">
+	<panel.string name="LoadTime" value="Tiempo de carga: [TIME] segundos"/>
+	<line_editor name="url_edit">
+		(cargando..)
+	</line_editor>
+	<flyout_button label="Cargar" name="load" tool_tip="Cargar esta página de perfil con el navegador incorporado.">
+		<flyout_button.item label="Abrir navegador in-viewer" name="open_item"/>
+		<flyout_button.item label="Abrir navegador externo" name="home_item"/>
+	</flyout_button>
+	<button name="web_profile_popout_btn" tool_tip="Perfil web emergente"/>
+</panel>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="興趣" name="panel_profile_interests">
+	<text name="I Want To:">
+		我想要：
+	</text>
+	<check_box label="建造" name="chk0"/>
+	<check_box label="探索" name="chk1"/>
+	<check_box label="見面" name="chk2"/>
+	<check_box label="受雇" name="chk6"/>
+	<check_box label="群組" name="chk3"/>
+	<check_box label="購買" name="chk4"/>
+	<check_box label="出售" name="chk5"/>
+	<check_box label="招人" name="chk7"/>
+	<line_editor name="want_to_edit">
+		（載入中...）
+	</line_editor>
+	<text name="Skills:">
+		技能：
+	</text>
+	<check_box label="材質" name="schk0"/>
+	<check_box label="架構" name="schk1"/>
+	<check_box label="建模" name="schk3"/>
+	<check_box label="計畫活動" name="schk2"/>
+	<check_box label="建腳本" name="schk4"/>
+	<check_box label="定製角色" name="schk5"/>
+	<line_editor name="skills_edit">
+		（載入中...）
+	</line_editor>
+	<text name="Languages:">
+		語言：
+	</text>
+	<line_editor name="languages_edit">
+		（載入中...）
+	</line_editor>
+</panel>
