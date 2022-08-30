@@ -69,7 +69,6 @@ const S32Megabytes gMaxVideoRam(512);
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
 LLPointer<LLViewerTexture>        LLViewerTexture::sBlackImagep = NULL;
 LLPointer<LLViewerTexture>        LLViewerTexture::sCheckerBoardImagep = NULL;
-LLPointer<LLViewerTexture>        LLViewerTexture::sDefaultPBRORMImagep = NULL; // PBR: When ORM is missing use 1,0,0
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
@@ -368,13 +367,6 @@ void LLViewerTextureManager::init()
 		LLViewerTexture::sNullImagep = LLViewerTextureManager::getLocalTexture(raw.get(), TRUE);
 	}
 
-	// Create Default PBR ORM Texture 1,0,0
-	{
-		LLPointer<LLImageRaw> red = new LLImageRaw(8,8,3);
-		red->clear(0xFF, 0x00, 0x00, 0xFF);
-		LLViewerTexture::sDefaultPBRORMImagep = LLViewerTextureManager::getLocalTexture(red.get(), TRUE);
-	}
-
 	const S32 dim = 128;
 	LLPointer<LLImageRaw> image_raw = new LLImageRaw(dim,dim,3);
 	U8* data = image_raw->getData();
@@ -459,9 +451,8 @@ void LLViewerTextureManager::cleanup()
 	LLImageGL::sDefaultGLTexture = NULL;
 	LLViewerTexture::sNullImagep = NULL;
 	LLViewerTexture::sBlackImagep = NULL;
-	LLViewerFetchedTexture::sDefaultPBRORMImagep = NULL;
 	LLViewerTexture::sCheckerBoardImagep = NULL;
-	LLViewerFetchedTexture::sDefaultImagep = NULL;
+	LLViewerFetchedTexture::sDefaultImagep = NULL;	
 	LLViewerFetchedTexture::sSmokeImagep = NULL;
 	LLViewerFetchedTexture::sMissingAssetImagep = NULL;
 	LLTexUnit::sWhiteTexture = 0;

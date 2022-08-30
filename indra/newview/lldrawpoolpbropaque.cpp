@@ -120,7 +120,7 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
             }
             else
             {
-                shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerTexture::sDefaultPBRORMImagep); // ORM 1,0,0
+                shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
             }
 
             if (pparams->mEmissiveMap)
