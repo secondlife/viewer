@@ -296,7 +296,7 @@ void main()
 
         // Reference: getMetallicRoughnessInfo
         vec3  base            = linear_to_srgb(diffuse.rgb);
-        float perceptualRough = max(packedORM.g, 0.1);
+        float perceptualRough = packedORM.g;  // NOTE: do NOT clamp here to be consistent with Blender, Blender is wrong and Substance is right
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;
         initMaterial( base, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
