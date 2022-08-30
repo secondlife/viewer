@@ -47,7 +47,6 @@
 
 /* misc headers */
 #include "llscrolllistctrl.h"
-#include "llfilepicker.h"
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
@@ -920,27 +919,6 @@ LLLocalBitmapMgr::~LLLocalBitmapMgr()
     mBitmapList.clear();
 }
 
-bool LLLocalBitmapMgr::addUnit()
-{
-	bool add_successful = false;
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
-	{
-		mTimer.stopTimer();
-
-		std::string filename = picker.getFirstFile();
-		while(!filename.empty())
-		{
-            add_successful |= addUnit(filename);
-			filename = picker.getNextFile();
-		}
-		
-		mTimer.startTimer();
-	}
-
-	return add_successful;
-}
 bool LLLocalBitmapMgr::addUnit(const std::vector<std::string>& filenames)
 {
     bool add_successful = false;

@@ -39,7 +39,6 @@
 #include <ctime>
 
 /* misc headers */
-#include "llfilepicker.h"
 #include "llgltfmateriallist.h"
 #include "llimage.h"
 #include "llinventoryicon.h"
@@ -361,28 +360,6 @@ LLLocalGLTFMaterialMgr::~LLLocalGLTFMaterialMgr()
 {
     std::for_each(mMaterialList.begin(), mMaterialList.end(), DeletePointer());
     mMaterialList.clear();
-}
-
-bool LLLocalGLTFMaterialMgr::addUnit()
-{
-    bool add_successful = false;
-
-    LLFilePicker& picker = LLFilePicker::instance();
-    if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_MATERIAL))
-    {
-        mTimer.stopTimer();
-
-        std::string filename = picker.getFirstFile();
-        while (!filename.empty())
-        {
-            add_successful |= addUnit(filename);
-            filename = picker.getNextFile();
-        }
-
-        mTimer.startTimer();
-    }
-
-    return add_successful;
 }
 
 bool LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
