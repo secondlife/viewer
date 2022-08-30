@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="プロフィール" name="panel_profile">
+	<string name="status_online">
+		オンライン中
+	</string>
+	<string name="status_offline">
+		オフライン中
+	</string>
+	<string name="CaptionTextAcctInfo">
+		[ACCTTYPE]
+[PAYMENTINFO]
+	</string>
+	<string name="payment_update_link_url">
+		http://www.secondlife.com/account/billing.php?lang=en
+	</string>
+	<string name="partner_edit_link_url">
+		http://www.secondlife.com/account/partners.php?lang=en
+	</string>
+	<string name="my_account_link_url" value="http://secondlife.com/account"/>
+	<string name="no_partner_text" value="なし"/>
+	<string name="no_group_text" value="なし"/>
+	<string name="RegisterDateFormat">
+		[REG_DATE]
+	</string>
+	<string name="name_text_args">
+		[NAME]
+	</string>
+	<string name="display_name_text_args">
+		[DISPLAY_NAME]
+	</string>
+	<string name="FSDev" value="開発者"/>
+	<string name="FSSupp" value="サポート"/>
+	<string name="FSQualityAssurance" value="バグハンター"/>
+	<string name="FSGW" value="ゲートウェイ"/>
+	<text name="name_label" value="名前："/>
+	<button label="名前：" name="set_name" tool_tip="表示名を設定"/>
+	<panel name="name_holder">
+		<text_editor name="complete_name" value="(ロード中...)"/>
+	</panel>
+	<layout_stack name="imagepositioner">
+		<layout_panel name="label_stack">
+			<text name="status" value="ステータス不明"/>
+			<text name="label" value="Second Life 生年月日："/>
+			<text name="label2" value="アカウント："/>
+			<text name="partner_label" value="パートナー："/>
+		</layout_panel>
+	</layout_stack>
+	<text name="Groups:" value="グループ："/>
+	<button label="+" label_selected="+" name="group_invite" tool_tip="グループに招待"/>
+	<layout_stack name="aboutpositioner">
+		<layout_panel name="about_stack">
+			<text name="About:" value="詳細："/>
+		</layout_panel>
+		<layout_panel name="give_stack">
+			<text name="Give item:" value="アイテムを渡す："/>
+			<text name="Give inventory" tool_tip="インベントリのアイテムをここにドロップしてこの人に渡します。">
+				インベントリのアイテムをここにドロップしてください。
+			</text>
+		</layout_panel>
+	</layout_stack>
+	<layout_stack name="buttonstack">
+		<layout_panel name="left_buttonstack">
+			<button label="地図上で見つける" label_selected="地図上で見つける" name="show_on_map_btn" tool_tip="住人を地図上で探す"/>
+			<button label="お金を払う" label_selected="お金を払う" name="pay" tool_tip="住人にお金を支払う"/>
+		</layout_panel>
+		<layout_panel name="middle_buttonstack">
+			<button label="テレポートを送る" label_selected="テレポートを送る" name="teleport" tool_tip="住人にテレポートを送る"/>
+			<button label="インスタントメッセージ" label_selected="インスタントメッセージ" name="im" tool_tip="インスタントメッセージを開きます"/>
+		</layout_panel>
+		<layout_panel name="right_buttonstack">
+			<button label="フレンド登録" label_selected="フレンド登録" name="add_friend" tool_tip="フレンド登録を申し出ます"/>
+			<button label="ブロック" name="block" tool_tip="この住人をブロックする"/>
+			<button label="ブロック解除" name="unblock" tool_tip="この住人のブロックを解除する"/>
+		</layout_panel>
+	</layout_stack>
+	<check_box label="検索に表示" name="show_in_search_checkbox"/>
+</panel>

@@ -104,7 +104,7 @@ class LLLocalGLTFMaterialMgr : public LLSingleton<LLLocalGLTFMaterialMgr>
     ~LLLocalGLTFMaterialMgr();
 public:
     bool         addUnit(const std::vector<std::string>& filenames);
-    bool         addUnit(const std::string& filename);
+    LLUUID       addUnit(const std::string& filename);
     void         delUnit(LLUUID tracking_id);
 
     LLUUID       getWorldID(LLUUID tracking_id);

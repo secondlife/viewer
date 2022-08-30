@@ -122,7 +122,7 @@ LLFloaterGesture::LLFloaterGesture(const LLSD& key)
 	mObserver = new LLFloaterGestureObserver(this);
 	LLGestureMgr::instance().addObserver(mObserver);
 
-	mCommitCallbackRegistrar.add("Gesture.Action.ToogleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
+	mCommitCallbackRegistrar.add("Gesture.Action.ToggleActiveState", boost::bind(&LLFloaterGesture::onActivateBtnClick, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.ShowPreview", boost::bind(&LLFloaterGesture::onClickEdit, this));
 	mCommitCallbackRegistrar.add("Gesture.Action.CopyPaste", boost::bind(&LLFloaterGesture::onCopyPasteAction, this, _2));
 	mCommitCallbackRegistrar.add("Gesture.Action.SaveToCOF", boost::bind(&LLFloaterGesture::addToCurrentOutFit, this));

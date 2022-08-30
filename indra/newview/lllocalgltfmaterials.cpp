@@ -368,23 +368,23 @@ bool LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
     std::vector<std::string>::const_iterator iter = filenames.begin();
     while (iter != filenames.end())
     {
-        if (!iter->empty())
+        if (!iter->empty() && addUnit(*iter).notNull())
         {
-            add_successful |= addUnit(*iter);
+            add_successful = true;
         }
         iter++;
     }
     return add_successful;
 }
 
-bool LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
+LLUUID LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 {
     LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename);
 
     if (unit->getValid())
     {
         mMaterialList.push_back(unit);
-        return true;
+        return unit->getTrackingID();
     }
     else
     {
@@ -397,9 +397,9 @@ bool LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 
         delete unit;
         unit = NULL;
-
-        return false;
     }
+
+    return LLUUID::null;
 }
 
 void LLLocalGLTFMaterialMgr::delUnit(LLUUID tracking_id)

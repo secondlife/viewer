@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="Avatar Profile Menu Self">
+  <menu_item_call
+   label="Edit Display Name"
+   layout="topleft"
+   name="edit_display_name">
+    <on_click
+     function="Profile.Commit"
+     parameter="edit_display_name"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Edit Partner"
+   layout="topleft"
+   name="edit_partner">
+    <on_click
+     function="Profile.Commit"
+     parameter="edit_partner"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Upload Photo"
+   layout="topleft"
+   name="upload_photo">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="upload_photo"/>
+    <menu_item_call.on_enable
+    function="Profile.EnableItem"
+     parameter="upload_photo"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Change Photo"
+   layout="topleft"
+   name="change_photo">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="change_photo"/>
+    <menu_item_call.on_enable
+    function="Profile.EnableItem"
+     parameter="change_photo"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Remove Photo"
+   layout="topleft"
+   name="remove_photo">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="remove_photo"/>
+    <menu_item_call.on_enable
+     function="Profile.EnableItem"
+     parameter="remove_photo"/>
+  </menu_item_call>
+  <menu_item_separator name="separator_copy_options"/>
+  <menu_item_call
+   label="Copy Display Name"
+   layout="topleft"
+   name="copy_display_name">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="copy_display_name"/>
+    <menu_item_call.on_enable
+     function="Profile.EnableItem"
+     parameter="copy_display_name"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Copy Agent Name"
+   layout="topleft"
+   name="copy_name">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="copy_username"/>
+    <menu_item_call.on_enable
+     function="Profile.EnableItem"
+     parameter="copy_username"/>
+  </menu_item_call>
+  <menu_item_call
+   label="Copy Agent Id"
+   layout="topleft"
+   name="copy_id">
+    <menu_item_call.on_click
+     function="Profile.Commit"
+     parameter="copy_user_id"/>
+  </menu_item_call>
+</toggleable_menu>

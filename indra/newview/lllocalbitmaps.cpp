@@ -925,20 +925,20 @@ bool LLLocalBitmapMgr::addUnit(const std::vector<std::string>& filenames)
     std::vector<std::string>::const_iterator iter = filenames.begin();
     while (iter != filenames.end())
     {
-        if (!iter->empty())
+        if (!iter->empty() && addUnit(*iter).notNull())
         {
-            add_successful |= addUnit(*iter);
+            add_successful = true;
         }
         iter++;
     }
     return add_successful;
 }
 
-bool LLLocalBitmapMgr::addUnit(const std::string& filename)
+LLUUID LLLocalBitmapMgr::addUnit(const std::string& filename)
 {
     if (!checkTextureDimensions(filename))
     {
-        return false;
+        return LLUUID::null;
     }
 
     LLLocalBitmap* unit = new LLLocalBitmap(filename);
@@ -946,7 +946,7 @@ bool LLLocalBitmapMgr::addUnit(const std::string& filename)
     if (unit->getValid())
     {
         mBitmapList.push_back(unit);
-        return true;
+        return unit->getTrackingID();
     }
     else
     {
@@ -959,8 +959,9 @@ bool LLLocalBitmapMgr::addUnit(const std::string& filename)
 
         delete unit;
         unit = NULL;
-        return false;
     }
+
+    return LLUUID::null;
 }
 
 bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)

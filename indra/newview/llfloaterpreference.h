@@ -100,9 +100,8 @@ public:
 	static void updateShowFavoritesCheckbox(bool val);
 
 	void processProperties( void* pData, EAvatarProcessorType type );
-	void processProfileProperties(const LLAvatarData* pAvatarData );
-	void storeAvatarProperties( const LLAvatarData* pAvatarData );
 	void saveAvatarProperties( void );
+    static void saveAvatarPropertiesCoro(const std::string url, bool allow_publish);
 	void selectPrivacyPanel();
 	void selectChatPanel();
 	void getControlNames(std::vector<std::string>& names);
@@ -213,7 +212,7 @@ private:
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;
 	
-	LLAvatarData mAvatarProperties;
+	bool mAllowPublish; // Allow showing agent in search
 	std::string mSavedCameraPreset;
 	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
