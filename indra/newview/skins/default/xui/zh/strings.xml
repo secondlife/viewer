@@ -353,6 +353,24 @@ http://secondlife.com/viewer-access-faq
 	<string name="TestingDisconnect">
 		測試瀏覽器斷線
 	</string>
+	<string name="SocialFacebookConnecting">
+		連通臉書中…
+	</string>
+	<string name="SocialFacebookPosting">
+		發佈中…
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		臉書連通中斷中…
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		連通臉書時出問題
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		發佈到臉書時出問題
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		試圖中斷臉書連通時出問題
+	</string>
 	<string name="SocialFlickrConnecting">
 		連通 Flickr 中…
 	</string>
@@ -2569,8 +2587,20 @@ http://secondlife.com/support 求助解決問題。
 	<string name="NoPicksClassifiedsText">
 		你尚未建立任何精選地點或個人廣告。 點按下面的 + 按鈕建立精選地點或個人廣告。
 	</string>
+	<string name="NoPicksText">
+		你尚未建立任何精選地點。 點按「新增」按鈕建立精選地點。
+	</string>
+	<string name="NoClassifiedsText">
+		你尚未建立任何分類廣告。 點按「新增」按鈕建立分類廣告。
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		使用者無精選地點或個人廣告
+	</string>
+	<string name="NoAvatarPicksText">
+		使用者沒有精選地點
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		使用者沒有分類廣告
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		載入中...
@@ -4548,6 +4578,9 @@ http://secondlife.com/support 求助解決問題。
 	</string>
 	<string name="share_alert">
 		將收納區物品拖曳到這裡
+	</string>
+	<string name="facebook_post_success">
+		成功發佈到臉書。
 	</string>
 	<string name="flickr_post_success">
 		成功發佈到 Flickr。

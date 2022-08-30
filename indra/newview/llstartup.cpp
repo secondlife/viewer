@@ -97,6 +97,7 @@
 #include "llfloateravatarpicker.h"
 #include "llcallbacklist.h"
 #include "llcallingcard.h"
+#include "llclassifiedinfo.h"
 #include "llconsole.h"
 #include "llcontainerview.h"
 #include "llconversationlog.h"
@@ -124,8 +125,6 @@
 #include "llpanellogin.h"
 #include "llmutelist.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llpanelclassified.h"
-#include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
 #include "llparcel.h"
@@ -194,6 +193,7 @@
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
 #include "llpathfindingmanager.h"
+#include "llremoteparcelrequest.h"
 
 #include "lllogin.h"
 #include "llevents.h"
@@ -2652,7 +2652,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFunc("EventInfoReply", LLEventNotifier::processEventInfoReply);
 	
 	msg->setHandlerFunc("PickInfoReply", &LLAvatarPropertiesProcessor::processPickInfoReply);
-//	msg->setHandlerFunc("ClassifiedInfoReply", LLPanelClassified::processClassifiedInfoReply);
 	msg->setHandlerFunc("ClassifiedInfoReply", LLAvatarPropertiesProcessor::processClassifiedInfoReply);
 	msg->setHandlerFunc("ParcelInfoReply", LLRemoteParcelInfoProcessor::processParcelInfoReply);
 	msg->setHandlerFunc("ScriptDialog", process_script_dialog);

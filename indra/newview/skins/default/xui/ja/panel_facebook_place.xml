@@ -5,5 +5,5 @@
 	</text>
 	<check_box initial_value="false" label="場所の俯瞰図を含める" name="add_place_view_cb"/>
 	<button label="投稿" name="post_place_btn"/>
-	<button label="取り消し" name="cancel_place_btn"/>
+	<button label="キャンセル" name="cancel_place_btn"/>
 </panel>

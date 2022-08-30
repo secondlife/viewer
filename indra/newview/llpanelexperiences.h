@@ -29,7 +29,6 @@
 
 #include "llaccordionctrltab.h"
 #include "llflatlistview.h"
-#include "llpanelavatar.h"
 
 class LLExperienceItem;
 class LLPanelProfile; 

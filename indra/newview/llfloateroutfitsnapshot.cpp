@@ -42,7 +42,6 @@
 #include "llviewercontrol.h"
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
-#include "llwebprofile.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
