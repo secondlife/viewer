@@ -35,6 +35,7 @@
 # include <sys/types.h>
 # include <mach/task.h>
 # include <mach/mach_init.h>
+#include <mach/mach_host.h>
 #elif LL_LINUX
 # include <unistd.h>
 #endif
@@ -109,6 +110,50 @@ void LLMemory::updateMemoryInfo()
 	{
 		sAvailPhysicalMemInKB = U32Kilobytes(0);
 	}
+
+#elif defined(LL_DARWIN)
+    task_vm_info info;
+    mach_msg_type_number_t  infoCount = TASK_VM_INFO_COUNT;
+    // MACH_TASK_BASIC_INFO reports the same resident_size, but does not tell us the reusable bytes or phys_footprint.
+    if (task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &infoCount) == KERN_SUCCESS)
+    {
+        // Our Windows definition of PagefileUsage is documented by Microsoft as "the total amount of
+        // memory that the memory manager has committed for a running process", which is rss.
+        sAllocatedPageSizeInKB = U32Bytes(info.resident_size);
+
+        // Activity Monitor => Inspect Process => Real Memory Size appears to report resident_size
+        // Activity monitor => main window memory column appears to report phys_footprint, which spot checks as at least 30% less.
+        //        I think that is because of compression, which isn't going to give us a consistent measurement. We want uncompressed totals.
+        //
+        // In between is resident_size - reusable. This is what Chrome source code uses, with source comments saying it is 'the "Real Memory" value
+        // reported for the app by the Memory Monitor in Instruments.' It is still about 8% bigger than phys_footprint.
+        //
+        // (On Windows, we use WorkingSetSize.)
+        sAllocatedMemInKB = U32Bytes(info.resident_size - info.reusable);
+     }
+    else
+    {
+        LL_WARNS() << "task_info failed" << LL_ENDL;
+    }
+
+    // Total installed and available physical memory are properties of the host, not just our process.
+    vm_statistics64_data_t vmstat;
+    mach_msg_type_number_t count = HOST_VM_INFO64_COUNT;
+    mach_port_t host = mach_host_self();
+    vm_size_t page_size;
+    host_page_size(host, &page_size);
+    kern_return_t result = host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info_t>(&vmstat), &count);
+    if (result == KERN_SUCCESS) {
+        // This is what Chrome reports as 'the "Physical Memory Free" value reported by the Memory Monitor in Instruments.'
+        // Note though that inactive pages are not included here and not yet free, but could become so under memory pressure.
+        sAvailPhysicalMemInKB = U32Bytes(vmstat.free_count * page_size);
+        sMaxPhysicalMemInKB = LLMemoryInfo::getHardwareMemSize();
+      }
+    else
+    {
+        LL_WARNS() << "task_info failed" << LL_ENDL;
+    }
+
 #else
 	//not valid for other systems for now.
 	sAllocatedMemInKB = U64Bytes(LLMemory::getCurrentRSS());

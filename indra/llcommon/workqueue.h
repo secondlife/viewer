@@ -162,9 +162,15 @@ namespace LL
                        CALLABLE&& callable);
 
         template <typename CALLABLE>
+        bool tryPost(const TimePoint& time, CALLABLE&& callable)
+        {
+            return mQueue.tryPush(TimedWork(time, std::move(callable)));
+        }
+
+        template <typename CALLABLE>
         bool tryPost(CALLABLE&& callable)
         {
-            return mQueue.tryPush(TimedWork(TimePoint::clock::now(), std::move(callable)));
+            return mQueue.tryPush(TimePoint::clock::now(), std::move(callable));
         }
 
         /*------------------------- handshake API --------------------------*/

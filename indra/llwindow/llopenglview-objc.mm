@@ -141,7 +141,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
     CGLError the_err = CGLQueryRendererInfo (CGDisplayIDToOpenGLDisplayMask(kCGDirectMainDisplay), &info, &num_renderers);
     if(0 == the_err)
     {
-        CGLDescribeRenderer (info, 0, kCGLRPTextureMemoryMegabytes, &vram_megabytes);
+        // The name, uses, and other platform definitions of gGLManager.mVRAM suggest that this is supposed to be total vram in MB,
+        // rather than, say, just the texture memory. The two exceptions are:
+        // 1. LLAppViewer::getViewerInfo() puts the value in a field labeled "TEXTURE_MEMORY"
+        // 2. For years, this present function used kCGLRPTextureMemoryMegabytes
+        // Now we use kCGLRPVideoMemoryMegabytes to bring it in line with everything else (except thatone label).
+        CGLDescribeRenderer (info, 0, kCGLRPVideoMemoryMegabytes, &vram_megabytes);
         CGLDestroyRendererInfo (info);
     }
     else

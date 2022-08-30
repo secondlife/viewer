@@ -797,8 +797,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLViewerTexture::updateClass();
 			}
 
-            LLImageGLThread::updateClass();
-
 			{
 				LL_RECORD_BLOCK_TIME(FTM_IMAGE_UPDATE_BUMP);
 				gBumpImageList.updateImages();  // must be called before gTextureList version so that it's textures are thrown out first.

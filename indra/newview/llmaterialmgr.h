@@ -141,7 +141,6 @@ private:
 	LLCore::HttpHeaders::ptr_t		mHttpHeaders;
 	LLCore::HttpOptions::ptr_t		mHttpOptions;
 	LLCore::HttpRequest::policy_t	mHttpPolicy;
-	LLCore::HttpRequest::priority_t	mHttpPriority;
 
 	U32 getMaxEntries(const LLViewerRegion* regionp);
 };

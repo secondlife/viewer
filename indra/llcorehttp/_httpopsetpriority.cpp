@@ -24,6 +24,7 @@
  * $/LicenseInfo$
  */
 
+#if 0 // DEPRECATED
 #include "_httpopsetpriority.h"
 
 #include "httpresponse.h"
@@ -61,3 +62,5 @@ void HttpOpSetPriority::stageFromRequest(HttpService * service)
 
 
 }   // end namespace LLCore
+
+#endif

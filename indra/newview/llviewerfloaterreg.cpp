@@ -132,7 +132,6 @@
 #include "llfloatertelehub.h"
 #include "llfloatertestinspectors.h"
 #include "llfloatertestlistview.h"
-#include "llfloatertexturefetchdebugger.h"
 #include "llfloatertools.h"
 #include "llfloatertopobjects.h"
 #include "llfloatertos.h"
@@ -284,10 +283,6 @@ void LLViewerFloaterReg::registerFloaters()
 	
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
 
-	if(gSavedSettings.getBOOL("TextureFetchDebuggerEnabled"))
-	{
-		LLFloaterReg::add("tex_fetch_debugger", "floater_texture_fetch_debugger.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterTextureFetchDebugger>);
-	}
 	LLFloaterReg::add("media_settings", "floater_media_settings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMediaSettings>);	
 	LLFloaterReg::add("marketplace_listings", "floater_marketplace_listings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceListings>);
 	LLFloaterReg::add("marketplace_validation", "floater_marketplace_validation.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMarketplaceValidation>);
