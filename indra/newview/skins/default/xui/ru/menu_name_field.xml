@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<toggleable_menu name="CopyMenu">
+	<menu_item_call label="Копировать отображаемое имя" name="copy_display"/>
+	<menu_item_call label="Копировать имя агента" name="copy_name"/>
+	<menu_item_call label="Копировать Id агента" name="copy_id"/>
+</toggleable_menu>

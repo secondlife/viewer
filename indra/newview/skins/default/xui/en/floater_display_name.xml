@@ -23,7 +23,7 @@
      use_ellipses="true"
      width="380"
      wrap="true">
-      The name you give your avatar is called your Display Name. You can change it once a week.
+      Your display name is what other people see above your head. It is different from your login name. You can change it once a week.
     </text>
 	<text
      type="string"
@@ -85,19 +85,10 @@
      width="120" />
     <button
      height="23"
-     label="Reset"
-     layout="topleft"
-     font="SansSerif"
-     left_pad="5"
-     name="reset_btn"
-     tool_tip="Make Display Name the same as Username"
-     width="120" />
-    <button
-     height="23"
      label="Cancel"
      font="SansSerif"
      layout="topleft"
-     left_pad="5"
+     left_pad="125"
      name="cancel_btn"
      width="120" />
 </floater>

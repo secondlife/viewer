@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_profile_classified">
+	<panel.string name="type_mature">
+		Modéré
+	</panel.string>
+	<panel.string name="type_pg">
+		Contenu Général
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		[TELEPORT] téléporter, [MAP] carte, [PROFILE] profile
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Activé
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Désactivé
+	</panel.string>
+	<panel.string name="location_notice">
+		(mise à jour après enregistrement)
+	</panel.string>
+	<string name="publish_label">
+		Publier
+	</string>
+	<string name="save_label">
+		Enregistrer
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="info_scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Cliquer pour sélectionner une image"/>
+			<layout_stack name="info_panel">
+				<layout_panel name="main_info_panel">
+					<text_editor name="classified_name">
+						[name]
+					</text_editor>
+					<text name="classified_location_label" value="Endroit :"/>
+					<text_editor name="classified_location" value="[loading...]"/>
+					<text name="content_type_label" value="Type de contenu :"/>
+					<text_editor name="content_type" value="[content type]"/>
+					<text name="category_label" value="Catégorie :"/>
+					<text_editor name="category" value="[category]"/>
+					<text name="creation_date_label" value="Date de création :"/>
+					<text_editor name="creation_date" tool_tip="Date de création" value="[date]"/>
+					<text name="price_for_listing_label" value="Coût de l&apos;annonce :"/>
+					<text_editor name="price_for_listing" tool_tip="Coût de l’annonce.">
+						[PRICE]
+					</text_editor>
+				</layout_panel>
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Clics :"/>
+					<text_editor name="click_through_text" tool_tip="Parcourir les données en cliquant" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="auto_renew_layout_panel">
+					<text name="auto_renew_label" value="Renouv. auto :"/>
+					<text name="auto_renew" value="Activé"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Description :"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
+			<panel name="edit_panel">
+				<text name="Name:">
+					Titre :
+				</text>
+				<text name="description_label">
+					Description :
+				</text>
+				<text name="location_label">
+					Endroit :
+				</text>
+				<text name="classified_location_edit">
+					en cours de chargement...
+				</text>
+				<button label="Définir sur l’emplacement actuel" name="set_to_curr_location_btn"/>
+				<text name="category_label" value="Catégorie :"/>
+				<text name="content_type_label" value="Type de contenu :"/>
+				<icons_combo_box label="Contenu Général" name="content_type_edit">
+					<icons_combo_box.item label="Contenu Modéré" name="mature_ci" value="Adulte"/>
+					<icons_combo_box.item label="Contenu Général" name="pg_ci" value="PG"/>
+				</icons_combo_box>
+				<check_box label="Renouvellement auto toutes les semaines" name="auto_renew_edit"/>
+				<text name="price_for_listing_edit_label" value="Coût de l&apos;annonce :"/>
+				<spinner label="L$" name="price_for_listing_edit" tool_tip="Coût de l’annonce." value="50"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<layout_stack name="edit_btns_pnl">
+		<layout_panel name="teleport_btn_lp">
+			<button label="Téléportation" name="teleport_btn"/>
+		</layout_panel>
+		<layout_panel name="map_btn_lp">
+			<button label="Carte" name="show_on_map_btn"/>
+		</layout_panel>
+		<layout_panel name="edit_btn_lp">
+			<button label="Modifier" name="edit_btn"/>
+		</layout_panel>
+		<layout_panel name="save_btn_lp">
+			<button label="[LABEL]" name="save_changes_btn"/>
+		</layout_panel>
+		<layout_panel name="cancel_btn_lp">
+			<button label="Annuler" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>

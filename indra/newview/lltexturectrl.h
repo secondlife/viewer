@@ -169,6 +169,8 @@ public:
 	void			setBlankImageAssetID( const LLUUID& id )	{ mBlankImageAssetID = id; }
 	const LLUUID&	getBlankImageAssetID() const { return mBlankImageAssetID; }
 
+	void			setOpenTexPreview(bool open_preview) { mOpenTexPreview = open_preview; }
+
 	void			setCaption(const std::string& caption);
 	void			setCanApplyImmediately(BOOL b);
 
@@ -248,6 +250,8 @@ private:
 	BOOL					 	mShowLoadingPlaceholder;
 	std::string				 	mLoadingPlaceholderString;
 	S32						 	mLabelWidth;
+	bool						mOpenTexPreview;
+	BOOL						mBakeTextureEnabled;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////

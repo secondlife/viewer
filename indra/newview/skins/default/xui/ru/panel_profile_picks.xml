@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Подборка" name="panel_picks">
+	<string name="no_picks" value="Нет подборки"/>
+	<text name="Tell everyone about your favorite places in Second Life.">
+		Сообщить всем о ваших избранных службах в Second Life.
+	</text>
+	<button label="Новый..." name="new_btn"/>
+	<button label="Удалить..." name="delete_btn"/>
+	<text name="picks_panel_text">
+		Загрузка...
+	</text>
+</panel>
