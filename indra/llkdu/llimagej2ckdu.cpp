@@ -379,6 +379,7 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 
 void LLImageJ2CKDU::cleanupCodeStream()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	mInputp.reset();
 	mDecodeState.reset();
 	mCodeStreamp.reset();
@@ -426,6 +427,7 @@ bool LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 // decodeImpl() usage matters for production.
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	base.resetLastError();
 
 	// *FIX: kdu calls our callback function if there's an error, and then bombs.
@@ -509,6 +511,7 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 // Returns true to mean done, whether successful or not.
 bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	ECodeStreamMode mode = MODE_FAST;
 
 	LLTimer decode_timer;
@@ -1332,6 +1335,7 @@ the `buf' pointer may actually point into a larger buffer representing
 multiple tiles.  For this reason, `row_gap' is needed to identify the
 separation between consecutive rows in the real buffer. */
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	S32 c;
 	// Now walk through the lines of the buffer, recovering them from the
 	// relevant tile-component processing engines.
@@ -1339,18 +1343,27 @@ separation between consecutive rows in the real buffer. */
 	LLTimer decode_timer;
 	while (mDims.size.y--)
 	{
-		for (c = 0; c < mNumComponents; c++)
-		{
-			mEngines[c].pull(mLines[c]);
-		}
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("kduptc - pull");
+            for (c = 0; c < mNumComponents; c++)
+            {
+                mEngines[c].pull(mLines[c]);
+            }
+        }
+
 		if ((mNumComponents >= 3) && mUseYCC)
 		{
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("kduptc - convert");
 			kdu_convert_ycc_to_rgb(mLines[0],mLines[1],mLines[2]);
 		}
-		for (c = 0; c < mNumComponents; c++)
-		{
-			transfer_bytes(mBuf+c,mLines[c],mNumComponents,mBitDepths[c]);
-		}
+
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("kduptc - transfer");
+            for (c = 0; c < mNumComponents; c++)
+            {
+                transfer_bytes(mBuf + c, mLines[c], mNumComponents, mBitDepths[c]);
+            }
+        }
 		mBuf += mRowGap;
 		if (mDims.size.y % 10)
 		{

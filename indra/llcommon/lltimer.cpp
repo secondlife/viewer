@@ -30,6 +30,9 @@
 
 #include "u64.h"
 
+#include <chrono>
+#include <thread>
+
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
 #elif LL_LINUX || LL_DARWIN
@@ -64,7 +67,13 @@ LLTimer* LLTimer::sTimer = NULL;
 #if LL_WINDOWS
 void ms_sleep(U32 ms)
 {
-	Sleep(ms);
+    LL_PROFILE_ZONE_SCOPED;
+    using TimePoint = std::chrono::steady_clock::time_point;
+    auto resume_time = TimePoint::clock::now() + std::chrono::milliseconds(ms);
+    while (TimePoint::clock::now() < resume_time)
+    {
+        std::this_thread::yield(); //note: don't use LLThread::yield here to avoid yielding for too long
+    }
 }
 
 U32 micro_sleep(U64 us, U32 max_yields)

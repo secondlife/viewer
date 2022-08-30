@@ -105,13 +105,11 @@ public:
 	/// Threading:  called by application thread
 	///
 	HttpStatus setupGet(HttpRequest::policy_t policy_id,
-						HttpRequest::priority_t priority,
 						const std::string & url,
 						const HttpOptions::ptr_t & options,
 						const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupGetByteRange(HttpRequest::policy_t policy_id,
-								 HttpRequest::priority_t priority,
 								 const std::string & url,
 								 size_t offset,
 								 size_t len,
@@ -119,40 +117,34 @@ public:
 								 const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPost(HttpRequest::policy_t policy_id,
-						 HttpRequest::priority_t priority,
 						 const std::string & url,
 						 BufferArray * body,
                          const HttpOptions::ptr_t & options,
 						 const HttpHeaders::ptr_t & headers);
 	
 	HttpStatus setupPut(HttpRequest::policy_t policy_id,
-						HttpRequest::priority_t priority,
 						const std::string & url,
 						BufferArray * body,
                         const HttpOptions::ptr_t & options,
 						const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupDelete(HttpRequest::policy_t policy_id,
-                        HttpRequest::priority_t priority,
                         const std::string & url,
                         const HttpOptions::ptr_t & options,
                         const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupPatch(HttpRequest::policy_t policy_id,
-                        HttpRequest::priority_t priority,
                         const std::string & url,
                         BufferArray * body,
                         const HttpOptions::ptr_t & options,
                         const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupCopy(HttpRequest::policy_t policy_id,
-                        HttpRequest::priority_t priority,
                         const std::string & url,
                         const HttpOptions::ptr_t & options,
                         const HttpHeaders::ptr_t & headers);
 
     HttpStatus setupMove(HttpRequest::policy_t policy_id,
-                        HttpRequest::priority_t priority,
                         const std::string & url,
                         const HttpOptions::ptr_t & options,
                         const HttpHeaders::ptr_t & headers);
@@ -172,7 +164,6 @@ protected:
 	// Threading:  called by application thread
 	//
 	void setupCommon(HttpRequest::policy_t policy_id,
-					 HttpRequest::priority_t priority,
 					 const std::string & url,
 					 BufferArray * body,
                      const HttpOptions::ptr_t & options,
@@ -237,19 +228,6 @@ public:
 	HttpTime			mPolicyMaxRetryBackoff;
 };  // end class HttpOpRequest
 
-
-
-/// HttpOpRequestCompare isn't an operation but a uniform comparison
-/// functor for STL containers that order by priority.  Mainly
-/// used for the ready queue container but defined here.
-class HttpOpRequestCompare
-{
-public:
-	bool operator()(const HttpOpRequest * lhs, const HttpOpRequest * rhs)
-		{
-			return lhs->mReqPriority > rhs->mReqPriority;
-		}
-};  // end class HttpOpRequestCompare
 
 
 // ---------------------------------------

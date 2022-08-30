@@ -36,6 +36,7 @@
 
 #include "llthread.h"
 #include "llsimplehash.h"
+#include "workqueue.h"
 
 //============================================================================
 // Note: ~LLQueuedThread is O(N) N=# of queued threads, assumed to be small
@@ -45,15 +46,6 @@ class LL_COMMON_API LLQueuedThread : public LLThread
 {
 	//------------------------------------------------------------------------
 public:
-	enum priority_t {
-		PRIORITY_IMMEDIATE = 0x7FFFFFFF,
-		PRIORITY_URGENT =    0x40000000,
-		PRIORITY_HIGH =      0x30000000,
-		PRIORITY_NORMAL =    0x20000000,
-		PRIORITY_LOW =       0x10000000,
-		PRIORITY_LOWBITS =   0x0FFFFFFF,
-		PRIORITY_HIGHBITS =  0x70000000
-	};
 	enum status_t {
 		STATUS_EXPIRED = -1,
 		STATUS_UNKNOWN = 0,
@@ -82,28 +74,17 @@ public:
 		virtual ~QueuedRequest(); // use deleteRequest()
 		
 	public:
-		QueuedRequest(handle_t handle, U32 priority, U32 flags = 0);
+		QueuedRequest(handle_t handle, U32 flags = 0);
 
 		status_t getStatus()
 		{
 			return mStatus;
 		}
-		U32 getPriority() const
-		{
-			return mPriority;
-		}
 		U32 getFlags() const
 		{
 			return mFlags;
 		}
-		bool higherPriority(const QueuedRequest& second) const
-		{
-			if ( mPriority == second.mPriority)
-				return mHashKey < second.mHashKey;
-			else
-				return mPriority > second.mPriority;
-		}
-
+		
 	protected:
 		status_t setStatus(status_t newstatus)
 		{
@@ -121,27 +102,10 @@ public:
 		virtual void finishRequest(bool completed); // Always called from thread after request has completed or aborted
 		virtual void deleteRequest(); // Only method to delete a request
 
-		void setPriority(U32 pri)
-		{
-			// Only do this on a request that is not in a queued list!
-			mPriority = pri;
-		};
-		
 	protected:
 		LLAtomicBase<status_t> mStatus;
-		U32 mPriority;
 		U32 mFlags;
 	};
-
-protected:
-	struct queued_request_less
-	{
-		bool operator()(const QueuedRequest* lhs, const QueuedRequest* rhs) const
-		{
-			return lhs->higherPriority(*rhs); // higher priority in front of queue (set)
-		}
-	};
-
 
 	//------------------------------------------------------------------------
 	
@@ -167,7 +131,7 @@ private:
 protected:
 	handle_t generateHandle();
 	bool addRequest(QueuedRequest* req);
-	S32  processNextRequest(void);
+	void processRequest(QueuedRequest* req);
 	void incQueue();
 
 public:
@@ -186,7 +150,6 @@ public:
 	status_t getRequestStatus(handle_t handle);
 	void abortRequest(handle_t handle, bool autocomplete);
 	void setFlags(handle_t handle, U32 flags);
-	void setPriority(handle_t handle, U32 priority);
 	bool completeRequest(handle_t handle);
 	// This is public for support classes like LLWorkerThread,
 	// but generally the methods above should be used.
@@ -200,8 +163,10 @@ protected:
 	BOOL mStarted;  // required when mThreaded is false to call startThread() from update()
 	LLAtomicBool mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
 	
-	typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;
-	request_queue_t mRequestQueue;
+	//typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;
+	//request_queue_t mRequestQueue;
+    LL::WorkQueue mRequestQueue;
+    LL::WorkQueue::weak_t mMainQueue;
 
 	enum { REQUEST_HASH_SIZE = 512 }; // must be power of 2
 	typedef LLSimpleHash<handle_t, REQUEST_HASH_SIZE> request_hash_t;

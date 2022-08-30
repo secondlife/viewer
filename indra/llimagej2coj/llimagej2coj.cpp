@@ -118,6 +118,7 @@ bool LLImageJ2COJ::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int block
 
 bool LLImageJ2COJ::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, S32 first_channel, S32 max_channel_count)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
 	//
 	// FIXME: Get the comment field out of the texture
 	//

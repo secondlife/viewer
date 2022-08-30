@@ -29,6 +29,7 @@ include_directories(
 #     ${LLCOMMON_LIBRARIES})
 
 set(llcommon_SOURCE_FILES
+    commoncontrol.cpp
     indra_constants.cpp
     llallocator.cpp
     llallocator_heap_profile.cpp
@@ -130,6 +131,7 @@ set(llcommon_HEADER_FILES
 
     chrono.h
     classic_callback.h
+    commoncontrol.h
     ctype_workaround.h
     fix_macros.h
     indra_constants.h

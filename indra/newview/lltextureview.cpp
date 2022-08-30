@@ -49,6 +49,8 @@
 #include "llviewerobjectlist.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
+#include "llviewerwindow.h"
+#include "llwindow.h"
 #include "llvovolume.h"
 #include "llviewerstats.h"
 #include "llworld.h"
@@ -117,8 +119,8 @@ public:
 			LLTextureBar* bar2p = (LLTextureBar*)i2;
 			LLViewerFetchedTexture *i1p = bar1p->mImagep;
 			LLViewerFetchedTexture *i2p = bar2p->mImagep;
-			F32 pri1 = i1p->getDecodePriority(); // i1p->mRequestedDownloadPriority
-			F32 pri2 = i2p->getDecodePriority(); // i2p->mRequestedDownloadPriority
+			F32 pri1 = i1p->getMaxVirtualSize();
+			F32 pri2 = i2p->getMaxVirtualSize();
 			if (pri1 > pri2)
 				return true;
 			else if (pri2 > pri1)
@@ -177,7 +179,7 @@ void LLTextureBar::draw()
 	{
 		color = LLColor4::magenta; // except none and alm
 	}
-	else if (mImagep->getDecodePriority() <= 0.0f)
+	else if (mImagep->getMaxVirtualSize() <= 0.0f)
 	{
 		color = LLColor4::grey; color[VALPHA] = .7f;
 	}
@@ -202,26 +204,13 @@ void LLTextureBar::draw()
 	std::string uuid_str;
 	mImagep->mID.toString(uuid_str);
 	uuid_str = uuid_str.substr(0,7);
-	if (mTextureView->mOrderFetch)
-	{
-		tex_str = llformat("%s %7.0f %d(%d) 0x%08x(%8.0f)",
-						   uuid_str.c_str(),
-						   mImagep->mMaxVirtualSize,
-						   mImagep->mDesiredDiscardLevel,
-						   mImagep->mRequestedDiscardLevel,
-						   mImagep->mFetchPriority,
-						   mImagep->getDecodePriority());
-	}
-	else
-	{
-		tex_str = llformat("%s %7.0f %d(%d) %8.0f(0x%08x)",
-						   uuid_str.c_str(),
-						   mImagep->mMaxVirtualSize,
-						   mImagep->mDesiredDiscardLevel,
-						   mImagep->mRequestedDiscardLevel,
-						   mImagep->getDecodePriority(),
-						   mImagep->mFetchPriority);
-	}
+	
+    tex_str = llformat("%s %7.0f %d(%d)",
+        uuid_str.c_str(),
+        mImagep->mMaxVirtualSize,
+        mImagep->mDesiredDiscardLevel,
+        mImagep->mRequestedDiscardLevel);
+
 
 	LLFontGL::getFontMonospace()->renderUTF8(tex_str, 0, title_x1, getRect().getHeight(),
 									 color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -500,10 +489,6 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
-	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
-	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
 	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
@@ -549,15 +534,10 @@ void LLGLTexMemBar::draw()
     U32 texFetchLatMed = U32(recording.getMean(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
     U32 texFetchLatMax = U32(recording.getMax(LLTextureFetch::sTexFetchLatency).value() * 1000.0f);
 
-	text = llformat("GL Tot: %d/%d MB GL Free: %d Sys Free: %d MB Bound: %4d/%4d MB FBO: %d MB Raw Tot: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
-					total_mem.value(),
-					max_total_mem.value(),
-                    LLImageGLThread::getFreeVRAMMegabytes(),
+    text = llformat("GL Free: %d MB Sys Free: %d MB FBO: %d MB Bias: %.2f Cache: %.1f/%.1f MB",
+                    gViewerWindow->getWindow()->getAvailableVRAMMegabytes(),
                     LLMemory::getAvailableMemKB()/1024,
-					bound_mem.value(),
-					max_bound_mem.value(),
 					LLRenderTarget::sBytesAllocated/(1024*1024),
-					LLImageRaw::sGlobalRawMemory >> 20,
 					discard_bias,
 					cache_usage,
 					cache_max_usage);
@@ -837,7 +817,7 @@ void LLTextureView::draw()
 				LL_INFOS() << imagep->getID()
 						<< "\t" << tex_mem
 						<< "\t" << imagep->getBoostLevel()
-						<< "\t" << imagep->getDecodePriority()
+						<< "\t" << imagep->getMaxVirtualSize()
 						<< "\t" << imagep->getWidth()
 						<< "\t" << imagep->getHeight()
 						<< "\t" << cur_discard
@@ -857,7 +837,7 @@ void LLTextureView::draw()
 			}
 			else
 			{
-				pri = imagep->getDecodePriority();
+				pri = imagep->getMaxVirtualSize();
 			}
 			pri = llclamp(pri, 0.0f, HIGH_PRIORITY-1.f);
 			

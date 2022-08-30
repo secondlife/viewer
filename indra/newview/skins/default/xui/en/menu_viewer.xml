@@ -2465,20 +2465,6 @@ function="World.EnvPreset"
                function="Advanced.ToggleConsole"
                parameter="scene monitor" />
             </menu_item_check>
-            <menu_item_call
-              enabled="false"
-              visible="false"
-              label="Texture Fetch Debug Console"
-              name="Texture Fetch Debug Console">
-              <menu_item_call.on_click
-                function="Floater.Show"
-                parameter="tex_fetch_debugger" />
-              <on_enable
-                function="Develop.SetTexFetchDebugger" />
-              <on_visible
-                function="Develop.SetTexFetchDebugger" />
-            </menu_item_call>
-          
             <menu_item_separator/>
 
             <menu_item_call

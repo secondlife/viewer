@@ -113,6 +113,7 @@ void HttpLibcurl::shutdown()
 
 void HttpLibcurl::start(int policy_count)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	llassert_always(policy_count <= HTTP_POLICY_CLASS_LIMIT);
 	llassert_always(! mMultiHandles);					// One-time call only
 	
@@ -143,6 +144,7 @@ void HttpLibcurl::start(int policy_count)
 // sleep otherwise ask for a normal polling interval.
 HttpService::ELoopSpeed HttpLibcurl::processTransport()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpService::ELoopSpeed	ret(HttpService::REQUEST_SLEEP);
 
 	// Give libcurl some cycles to do I/O & callbacks
@@ -168,6 +170,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 		CURLMcode status(CURLM_CALL_MULTI_PERFORM);
 		do
 		{
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("httppt - curl_multi_perform");
 			running = 0;
 			status = curl_multi_perform(mMultiHandles[policy_class], &running);
 		}
@@ -176,31 +179,34 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 		// Run completion on anything done
 		CURLMsg * msg(NULL);
 		int msgs_in_queue(0);
-		while ((msg = curl_multi_info_read(mMultiHandles[policy_class], &msgs_in_queue)))
-		{
-			if (CURLMSG_DONE == msg->msg)
-			{
-				CURL * handle(msg->easy_handle);
-				CURLcode result(msg->data.result);
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_NETWORK("httppt - curl_multi_info_read");
+            while ((msg = curl_multi_info_read(mMultiHandles[policy_class], &msgs_in_queue)))
+            {
+                if (CURLMSG_DONE == msg->msg)
+                {
+                    CURL* handle(msg->easy_handle);
+                    CURLcode result(msg->data.result);
 
-				completeRequest(mMultiHandles[policy_class], handle, result);
-				handle = NULL;					// No longer valid on return
-				ret = HttpService::NORMAL;		// If anything completes, we may have a free slot.
-												// Turning around quickly reduces connection gap by 7-10mS.
-			}
-			else if (CURLMSG_NONE == msg->msg)
-			{
-				// Ignore this... it shouldn't mean anything.
-				;
-			}
-			else
-			{
-				LL_WARNS_ONCE(LOG_CORE) << "Unexpected message from libcurl.  Msg code:  "
-										<< msg->msg
-										<< LL_ENDL;
-			}
-			msgs_in_queue = 0;
-		}
+                    completeRequest(mMultiHandles[policy_class], handle, result);
+                    handle = NULL;					// No longer valid on return
+                    ret = HttpService::NORMAL;		// If anything completes, we may have a free slot.
+                                                    // Turning around quickly reduces connection gap by 7-10mS.
+                }
+                else if (CURLMSG_NONE == msg->msg)
+                {
+                    // Ignore this... it shouldn't mean anything.
+                    ;
+                }
+                else
+                {
+                    LL_WARNS_ONCE(LOG_CORE) << "Unexpected message from libcurl.  Msg code:  "
+                        << msg->msg
+                        << LL_ENDL;
+                }
+                msgs_in_queue = 0;
+            }
+        }
 	}
 
 	if (! mActiveOps.empty())
@@ -214,6 +220,7 @@ HttpService::ELoopSpeed HttpLibcurl::processTransport()
 // Caller has provided us with a ref count on op.
 void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	llassert_always(op->mReqPolicy < mPolicyCount);
 	llassert_always(mMultiHandles[op->mReqPolicy] != NULL);
 	
@@ -257,6 +264,7 @@ void HttpLibcurl::addOp(const HttpOpRequest::ptr_t &op)
 // method to kill the request.
 bool HttpLibcurl::cancel(HttpHandle handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     HttpOpRequest::ptr_t op = HttpOpRequest::fromHandle<HttpOpRequest>(handle);
 	active_set_t::iterator it(mActiveOps.find(op));
 	if (mActiveOps.end() == it)
@@ -282,6 +290,7 @@ bool HttpLibcurl::cancel(HttpHandle handle)
 // op to the reply queue with refcount intact.
 void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	// Deactivate request
 	op->mCurlActive = false;
 
@@ -308,6 +317,7 @@ void HttpLibcurl::cancelRequest(const HttpOpRequest::ptr_t &op)
 // Keep them synchronized as necessary.
 bool HttpLibcurl::completeRequest(CURLM * multi_handle, CURL * handle, CURLcode status)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
     HttpHandle ophandle(NULL);
 
     CURLcode ccode(CURLE_OK);
@@ -445,6 +455,7 @@ int HttpLibcurl::getActiveCountInClass(int policy_class) const
 
 void HttpLibcurl::policyUpdated(int policy_class)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	if (policy_class < 0 || policy_class >= mPolicyCount || ! mMultiHandles)
 	{
 		return;

@@ -710,20 +710,28 @@ static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
 }
 #endif
 
+#if LL_DARWIN
+// static
+U32Kilobytes LLMemoryInfo::getHardwareMemSize()
+{
+    // This might work on Linux as well.  Someone check...
+    uint64_t phys = 0;
+    int mib[2] = { CTL_HW, HW_MEMSIZE };
+
+    size_t len = sizeof(phys);
+    sysctl(mib, 2, &phys, &len, NULL, 0);
+
+    return U64Bytes(phys);
+}
+#endif
+
 U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
 	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
 
 #elif LL_DARWIN
-	// This might work on Linux as well.  Someone check...
-	uint64_t phys = 0;
-	int mib[2] = { CTL_HW, HW_MEMSIZE };
-
-	size_t len = sizeof(phys);	
-	sysctl(mib, 2, &phys, &len, NULL, 0);
-	
-	return U64Bytes(phys);
+    return getHardwareMemSize();
 
 #elif LL_LINUX
 	U64 phys = 0;

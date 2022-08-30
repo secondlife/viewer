@@ -108,7 +108,9 @@ public:
 	/*virtual*/ F32 getPixelAspectRatio();
 	/*virtual*/ void setNativeAspectRatio(F32 ratio) { mOverrideAspectRatio = ratio; }
 
-	/*virtual*/	BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b );
+    U32 getAvailableVRAMMegabytes() override;
+	
+    /*virtual*/	BOOL dialogColorPicker(F32 *r, F32 *g, F32 *b );
 
 	/*virtual*/ void *getPlatformWindow();
 	/*virtual*/ void bringToFront();

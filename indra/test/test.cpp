@@ -401,7 +401,7 @@ public:
 	{
 		// Per http://confluence.jetbrains.net/display/TCD65/Build+Script+Interaction+with+TeamCity#BuildScriptInteractionwithTeamCity-ServiceMessages
 		std::string result;
-		BOOST_FOREACH(char c, str)
+		for (char c : str)
 		{
 			switch (c)
 			{
