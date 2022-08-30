@@ -2808,10 +2808,14 @@ If you continue to receive this message, please contact Second Life support for 
 	<string name="ClassifiedClicksTxt">Clicks: [TELEPORT] teleport, [MAP] map, [PROFILE] profile</string>
 	<string name="ClassifiedUpdateAfterPublish">(will update after publish)</string>
 
-  <!-- panel picks -->
-  <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
-  <string name="NoAvatarPicksClassifiedsText">User has no picks or classifieds</string>
-  <string name="PicksClassifiedsLoadingText">Loading...</string>
+    <!-- panel picks -->
+    <string name="NoPicksClassifiedsText">You haven't created any Picks or Classifieds. Click the Plus button below to create a Pick or Classified.</string>
+    <string name="NoPicksText">You haven't created any Picks. Click the New button to create a Pick.</string>
+    <string name="NoClassifiedsText">You haven't created any Classifieds. Click the New button to create a Classified.</string>
+    <string name="NoAvatarPicksClassifiedsText">User has no picks or classifieds</string>
+    <string name="NoAvatarPicksText">This person has no picks</string>
+    <string name="NoAvatarClassifiedsText">This person has no classifieds</string>
+    <string name="PicksClassifiedsLoadingText">Loading...</string>
 
 	<!-- Multi Preview Floater -->
 	<string name="MultiPreviewTitle">Preview</string>

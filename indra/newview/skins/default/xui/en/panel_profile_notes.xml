@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ name="panel_notes"
+ label="Notes &amp; Privacy"
+ top="0"
+ left="0"
+ height="480"
+ width="420"
+ follows="all"
+ layout="topleft"
+>
+    <loading_indicator
+     name="progress_indicator"
+     top="3"
+     right="-10"
+     height="23"
+     width="23"
+     follows="top|right"
+     layout="topleft"
+     visible="false"
+    />
+    <text
+     name="status_message"
+     value="Make notes about this person here. No one else can see your notes."
+     top="6"
+     left="6"
+     right="-6"
+     height="16"
+     follows="left|top|right"
+     layout="topleft"
+     font.style="BOLD"
+    />
+    <text_editor
+     name="notes_edit"
+     enabled="false"
+     top="28"
+     left="6"
+     right="-6"
+     bottom="-26"
+     follows="all"
+     layout="topleft"
+     max_length="65530"
+     word_wrap="true"
+    />
+    <button
+     name="notes_save_changes"
+     label="Save"
+     bottom="-1"
+     right="-108"
+     height="20"
+     width="80"
+     enabled="false"
+     follows="bottom|right"
+     layout="topleft"/>
+    <button
+     name="notes_discard_changes"
+     label="Discard"
+     bottom="-1"
+     right="-4"
+     height="20"
+     width="100"
+     enabled="false"
+     follows="bottom|right"
+     layout="topleft"/>
+</panel>

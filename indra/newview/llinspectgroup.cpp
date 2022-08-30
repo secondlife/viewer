@@ -38,7 +38,6 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "llresmgr.h"	// getMonetaryString()
-#include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 #include "lluictrl.h"
 #include "llgroupiconctrl.h"
@@ -124,17 +123,7 @@ void LLInspectGroup::onOpen(const LLSD& data)
 
 	setGroupID(data["group_id"]);
 
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned
-	// See LLToolTipMgr::createToolTip
-	if (data.has("pos"))
-	{
-		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
-	}
-	else
-	{
-		LLUI::getInstance()->positionViewNearMouse(this);
-	}
+	LLInspect::repositionInspector(data);
 
 	// can't call from constructor as widgets are not built yet
 	requestUpdate();

@@ -34,7 +34,6 @@
 #include "llinventorymodel.h"
 #include "lllandmarklist.h"
 #include "llpanelplacestab.h"
-#include "llpanelpick.h"
 #include "llremoteparcelrequest.h"
 
 class LLAccordionCtrlTab;
@@ -136,7 +135,6 @@ private:
 	 * For now it checks cut/rename/delete/paste actions.
 	 */
 	bool canItemBeModified(const std::string& command_name, LLFolderViewItem* item) const;
-	void onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params);
 
 	/**
 	 * Landmark actions callbacks. Fire when a landmark is loaded from the list.

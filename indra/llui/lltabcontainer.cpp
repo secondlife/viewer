@@ -402,9 +402,13 @@ void LLTabContainer::draw()
 	S32 cur_scroll_pos = getScrollPos();
 	if (cur_scroll_pos > 0)
 	{
-		S32 available_width_with_arrows = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + tabcntr_arrow_btn_size  + tabcntr_arrow_btn_size + 1);
-		if (!mIsVertical)
+		if (mIsVertical)
 		{
+			target_pixel_scroll = cur_scroll_pos * (BTN_HEIGHT + tabcntrv_pad);
+		}
+		else
+		{
+			S32 available_width_with_arrows = getRect().getWidth() - mRightTabBtnOffset - 2 * (LLPANEL_BORDER_WIDTH + tabcntr_arrow_btn_size  + tabcntr_arrow_btn_size + 1);
 			for(tuple_list_t::iterator iter = mTabList.begin(); iter != mTabList.end(); ++iter)
 			{
 				if (cur_scroll_pos == 0)
@@ -1189,13 +1193,15 @@ void LLTabContainer::addTabPanel(const TabPanelParams& panel)
 	sendChildToFront(mNextArrowBtn);
 	sendChildToFront(mJumpPrevArrowBtn);
 	sendChildToFront(mJumpNextArrowBtn);
-	
+
+	updateMaxScrollPos();
+
 	if( select )
 	{
 		selectLastTab();
+		mScrollPos = mMaxScrollPos;
 	}
 
-	updateMaxScrollPos();
 }
 
 void LLTabContainer::addPlaceholder(LLPanel* child, const std::string& label)
@@ -2079,9 +2085,9 @@ void LLTabContainer::updateMaxScrollPos()
 		if( tab_total_height > available_height )
 		{
 			static LLUICachedControl<S32> tabcntrv_arrow_btn_size ("UITabCntrvArrowBtnSize", 0);
-			S32 available_height_with_arrows = getRect().getHeight() - 2*(tabcntrv_arrow_btn_size + 3*tabcntrv_pad);
+			S32 available_height_with_arrows = getRect().getHeight() - 2*(tabcntrv_arrow_btn_size + 3*tabcntrv_pad) - mNextArrowBtn->getRect().mBottom;
 			S32 additional_needed = tab_total_height - available_height_with_arrows;
-			setMaxScrollPos((S32) ceil(additional_needed / float(BTN_HEIGHT) ) );
+			setMaxScrollPos((S32) ceil(additional_needed / float(BTN_HEIGHT + tabcntrv_pad) ) );
 			no_scroll = FALSE;
 		}
 	}

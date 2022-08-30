@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <panel name="panel_facebook_friends">
-	<string name="facebook_friends_empty" value="Şu an için aynı zamanda bir Second Life sakini olan hiçbir Facebook arkadaşınız yok. Facebook arkadaşlarınızı bugün Second Life&apos;a katılmaya davet edin!"/>
+	<string name="facebook_friends_empty" value="Şu anda aynı zamanda bir Second Life sakini olan hiçbir Facebook arkadaşınız yok. Facebook arkadaşlarınızdan bugün Second Life&apos;a katılmalarını isteyin!"/>
 	<string name="facebook_friends_no_connected" value="Şu anda Facebook&apos;a bağlı değilsiniz. Bağlanmak ve bu özelliği etkinleştirmek için lütfen Durum sekmesine gidin."/>
 	<accordion name="friends_accordion">
 		<accordion_tab name="tab_second_life_friends" title="SL arkadaşları"/>
 		<accordion_tab name="tab_suggested_friends" title="Bu kişileri SL arkadaşları olarak ekle"/>
 	</accordion>
 	<text name="facebook_friends_status">
-		Facebook&apos;a bağlanılmadı.
+		Facebook&apos;a bağlanılamadı.
 	</text>
 </panel>

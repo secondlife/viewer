@@ -38,28 +38,15 @@
   name="auto_renew_off">
     Disabled
  </panel.string>
-    <button
-     follows="top|left"
-     height="24"
-     image_hover_unselected="BackButton_Over"
-     image_pressed="BackButton_Press"
-     image_unselected="BackButton_Off"
-     layout="topleft"
-     name="back_btn"
-     left="10"
-     tab_stop="false"
-     top="2"
-     width="30"
-     use_draw_context_alpha="false" />
     <text
      follows="top|left|right"
      font="SansSerifHugeBold"
      height="26"
      layout="topleft"
-     left_pad="4"
+     left="12"
      name="title"
      text_color="LtGray"
-     top="0"
+     top="2"
      value="Classified Info"
      use_ellipses="true"
      width="275" />
@@ -420,7 +407,7 @@
 		         height="23"
 		         label="Teleport"
 		         layout="topleft"
-		         left="0"
+		         left="2"
 		         name="teleport_btn"
 		         top="0"
 		         width="101" />	
@@ -443,24 +430,6 @@
 		         top="0"
 		         width="100" />
 		  </layout_panel>	  
-		  
-		  <layout_panel
-			  follows="bottom|left|right"
-			  height="23"
-			  layout="bottomleft"
-			  left_pad="3"
-			  name="edit_btn_lp"
-		      auto_resize="true"
-			  width="101">
-			  <button
-		         follows="bottom|left|right"
-		         height="23"
-		         label="Edit"
-		         layout="topleft"
-		         name="edit_btn"
-		         top="0"
-		         width="101" />
-		  </layout_panel>
 	   </layout_stack>
     </panel>
 </panel>

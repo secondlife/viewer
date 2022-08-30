@@ -313,6 +313,24 @@ Aguarde um minuto antes que tentar logar-se novamente.
 	<string name="TestingDisconnect">
 		Teste de desconexão
 	</string>
+	<string name="SocialFacebookConnecting">
+		Conectando ao Facebook...
+	</string>
+	<string name="SocialFacebookPosting">
+		Publicando...
+	</string>
+	<string name="SocialFacebookDisconnecting">
+		Desconectando do Facebook...
+	</string>
+	<string name="SocialFacebookErrorConnecting">
+		Problema ao conectar ao Facebook
+	</string>
+	<string name="SocialFacebookErrorPosting">
+		Problema ao publicar no Facebook
+	</string>
+	<string name="SocialFacebookErrorDisconnecting">
+		Problema ao desconectar do Facebook
+	</string>
 	<string name="SocialFlickrConnecting">
 		Conectando ao Flickr...
 	</string>
@@ -2517,8 +2535,20 @@ Se você continuar a receber essa mensagem, entre em contato com o suporte do Se
 	<string name="NoPicksClassifiedsText">
 		Você não criou nenhum Destaque ou Anúncio.  Clique no botão &quot;+&quot; para criar um Destaque ou Anúncio.
 	</string>
+	<string name="NoPicksText">
+		Você não criou nenhuma Escolha. Clique em Novo Botão para criar um Escolher
+	</string>
+	<string name="NoClassifiedsText">
+		Você criou nenhum Anúncio. Clique em Novo Botão para criar um Classificado
+	</string>
 	<string name="NoAvatarPicksClassifiedsText">
 		O usuário não tem nenhum destaque ou anúncio
+	</string>
+	<string name="NoAvatarPicksText">
+		Usuário não tem escolha
+	</string>
+	<string name="NoAvatarClassifiedsText">
+		Usuário não tem anúncio
 	</string>
 	<string name="PicksClassifiedsLoadingText">
 		Carregando...
@@ -4432,6 +4462,9 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	</string>
 	<string name="inventory_folder_offered-im">
 		Pasta do inventário &apos;[ITEM_NAME]&apos; oferecida
+	</string>
+	<string name="facebook_post_success">
+		Você publicou no Facebook.
 	</string>
 	<string name="flickr_post_success">
 		Você publicou no Flickr.

@@ -111,17 +111,7 @@ void LLInspectRemoteObject::onOpen(const LLSD& data)
 	// update the inspector with the current object state
 	update();
 
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned
-	// See LLToolTipMgr::createToolTip
-	if (data.has("pos"))
-	{
-		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
-	}
-	else
-	{
-		LLUI::getInstance()->positionViewNearMouse(this);
-	}
+	LLInspect::repositionInspector(data);
 }
 
 void LLInspectRemoteObject::onClickMap()

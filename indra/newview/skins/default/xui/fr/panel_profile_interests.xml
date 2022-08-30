@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Centres d&apos;intérêt" name="panel_profile_interests">
+	<text name="I Want To:">
+		Je veux :
+	</text>
+	<check_box label="Construire" name="chk0"/>
+	<check_box label="Explorer" name="chk1"/>
+	<check_box label="Rencontrer" name="chk2"/>
+	<check_box label="Être recruté" name="chk6"/>
+	<check_box label="Grouper" name="chk3"/>
+	<check_box label="Acheter" name="chk4"/>
+	<check_box label="Vendre" name="chk5"/>
+	<check_box label="Louer" name="chk7"/>
+	<line_editor name="want_to_edit">
+		(en cours de chargement...)
+	</line_editor>
+	<text name="Skills:">
+		Compétences :
+	</text>
+	<check_box label="Textures" name="schk0"/>
+	<check_box label="Architecture" name="schk1"/>
+	<check_box label="Modèle" name="schk3"/>
+	<check_box label="Planification des événements" name="schk2"/>
+	<check_box label="Langage de scripts" name="schk4"/>
+	<check_box label="Personnages personnalisés" name="schk5"/>
+	<line_editor name="skills_edit">
+		(en cours de chargement...)
+	</line_editor>
+	<text name="Languages:">
+		Langues :
+	</text>
+	<line_editor name="languages_edit">
+		(en cours de chargement...)
+	</line_editor>
+</panel>

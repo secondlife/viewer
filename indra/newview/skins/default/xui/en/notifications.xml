@@ -1496,7 +1496,19 @@ Insufficient funds to create classified.
 
   <notification
    icon="alertmodal.tga"
-   name="DeleteAvatarPick"
+   name="ProfileDeleteClassified"
+   type="alertmodal">
+Delete classified &lt;nolink&gt;[CLASSIFIED]&lt;/nolink&gt;?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="ProfileDeletePick"
    type="alertmodal">
 Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
     <tag>confirm</tag>
@@ -1504,6 +1516,32 @@ Delete pick &lt;nolink&gt;[PICK]&lt;/nolink&gt;?
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnpublishedClassified"
+   type="alert">
+    You have unpublished classifieds. They will be lost if you close the window.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alert.tga"
+   name="ProfileUnsavedChanges"
+   type="alert">
+    You have usaved changes.
+    <tag>confirm</tag>
+    <tag>save</tag>
+    <usetemplate
+     canceltext="Cancel"
+     name="yesnocancelbuttons"
+     notext="Discard"
+     yestext="Save"/>
   </notification>
 
   <notification
