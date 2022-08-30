@@ -1868,7 +1868,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		setState(DECODE_IMAGE_UPDATE);
 		LL_DEBUGS(LOG_TXT) << mID << ": Decoding. Bytes: " << mFormattedImage->getDataSize() << " Discard: " << discard
 						   << " All Data: " << mHaveAllData << LL_ENDL;
-		mDecodeHandle = mFetcher->mImageDecodeThread->decodeImage(mFormattedImage, discard, mNeedsAux,
+		mDecodeHandle = LLAppViewer::getImageDecodeThread()->decodeImage(mFormattedImage, discard, mNeedsAux,
 																  new DecodeResponder(mFetcher, mID, this));
 		// fall though
 	}
@@ -2540,7 +2540,7 @@ std::string LLTextureFetch::getStateString(S32 state)
     return e_state_name[state];
 }
 
-LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode)
+LLTextureFetch::LLTextureFetch(LLTextureCache* cache, bool threaded, bool qa_mode)
 	: LLWorkerThread("TextureFetch", threaded, true),
 	  mDebugCount(0),
 	  mDebugPause(FALSE),
@@ -2549,7 +2549,6 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mQueueMutex(),
 	  mNetworkQueueMutex(),
 	  mTextureCache(cache),
-	  mImageDecodeThread(imagedecodethread),
 	  mTextureBandwidth(0),
 	  mHTTPTextureBits(0),
 	  mTotalHTTPRequests(0),
@@ -3169,18 +3168,6 @@ void LLTextureFetch::shutDownTextureCacheThread()
 	}
 }
 	
-// called in the MAIN thread after the ImageDecodeThread shuts down.
-//
-// Threads:  Tmain
-void LLTextureFetch::shutDownImageDecodeThread() 
-{
-	if(mImageDecodeThread)
-	{
-		delete mImageDecodeThread;
-		mImageDecodeThread = NULL ;
-	}
-}
-
 // Threads:  Ttf
 void LLTextureFetch::startThread()
 {

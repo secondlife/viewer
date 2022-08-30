@@ -2052,7 +2052,6 @@ bool LLAppViewer::cleanup()
 	}
 
 	sTextureFetch->shutDownTextureCacheThread() ;
-	sTextureFetch->shutDownImageDecodeThread() ;
     LLLFSThread::sLocal->shutdown();
 
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
@@ -2186,7 +2185,6 @@ bool LLAppViewer::initThreads()
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-													sImageDecodeThread,
 													enable_threads && true,
 													app_metrics_qa_mode);
 	LLAppViewer::sPurgeDiskCacheThread = new LLPurgeDiskCacheThread();

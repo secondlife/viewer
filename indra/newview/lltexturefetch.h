@@ -60,7 +60,7 @@ class LLTextureFetch : public LLWorkerThread
 public:
     static std::string getStateString(S32 state);
 
-	LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* imagedecodethread, bool threaded, bool qa_mode);
+	LLTextureFetch(LLTextureCache* cache, bool threaded, bool qa_mode);
 	~LLTextureFetch();
 
 	class TFRequest;
@@ -324,7 +324,6 @@ private:
 	LLMutex mNetworkQueueMutex; //to protect mNetworkQueue, mHTTPTextureQueue and mCancelQueue.
 
 	LLTextureCache* mTextureCache;
-	LLImageDecodeThread* mImageDecodeThread;
 	
 	// Map of all requests by UUID
 	typedef std::map<LLUUID,LLTextureFetchWorker*> map_t;
