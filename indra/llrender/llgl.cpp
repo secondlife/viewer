@@ -594,7 +594,7 @@ bool LLGLManager::initGL()
 	{
 		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
 
-#if LL_DARWIN
+#if 0 && LL_DARWIN
 		// TODO maybe switch to using a core profile for GL 3.2?
 		// https://stackoverflow.com/a/19868861
 		//never use GLSL greater than 1.20 on OSX
@@ -1015,72 +1015,108 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 
-#if 0 && LL_DARWIN
-	// populate gGLHExts.mSysExts for core profile
-	GLint num_extensions;
+#if LL_DARWIN
+    // Just reporting here. Nothing effecting setup.
+    LL_DEBUGS("HRS") << "Before any init, mSysExts reports NULL with any profiles: " << (!gGLHExts.mSysExts ? "NULL" : gGLHExts.mSysExts) << LL_ENDL;
+
+    LL_DEBUGS("HRS") << "The following fails on legacy profiles, and enumerates 46 extensions on 3.2/4.1" << LL_ENDL;
+	GLint num_extensions(0); // Must be initialized, because the next line may silently fail (which will cause crashes if we go on to glGetStringi
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
-	std::string all_extensions("GL_ARB_multitexture ");
+    std::string all_extensions(""); // "GL_ARB_multitexture "
 	for(GLint i = 0; i < num_extensions; ++i) {
 		char const * extension = (char const *)glGetStringi(GL_EXTENSIONS, i);
 		all_extensions += extension;
 		all_extensions += ' ';
 	}
-	gGLHExts.mSysExts = strdup(all_extensions.data());
+    LL_DEBUGS("HRS") << "Explicit enumeration of " << num_extensions << " ext, before calling glh_init_extensions: " << all_extensions << LL_ENDL;
+    // The following 3p code has the effect of initializing extensions in older versions, and does nothing on 3.2/4.1 on Mac.
 #endif
 
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
-	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
-	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
-	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
-	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
-	glh_init_extensions("GL_ARB_texture_cube_map");
-	mHasCubeMap = ExtensionExists("GL_ARB_texture_cube_map", gGLHExts.mSysExts);
-	mHasARBEnvCombine = ExtensionExists("GL_ARB_texture_env_combine", gGLHExts.mSysExts);
-	mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
-	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
-	mHasTimerQuery = ExtensionExists("GL_ARB_timer_query", gGLHExts.mSysExts);
-	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
-	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
-	mHasVertexArrayObject = ExtensionExists("GL_ARB_vertex_array_object", gGLHExts.mSysExts);
-	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
-	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
-	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
+    mHasCubeMap = glh_init_extensions("GL_ARB_texture_cube_map");
+    mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
+    mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
+    mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
+
+#if LL_DARWIN
+    LL_DEBUGS("HRS") << "After glh_init_extensions (" <<
+        " GL_ARB_multitexture:" << mHasMultitexture <<
+        " GL_ARB_texture_cube_map:" << mHasCubeMap <<
+        " GL_ARB_texture_compression:" << mHasCompressedTextures <<
+        " GL_EXT_separate_specular_color:" << mHasSeparateSpecularColor <<
+        " GL_EXT_texture_filter_anisotropic:" << mHasAnisotropic <<
+        "), mSysExts is initialized only on legacy: " << (!gGLHExts.mSysExts ? "NULL" : gGLHExts.mSysExts) <<
+       LL_ENDL;
+    num_extensions = 0; all_extensions.clear();
+    glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+    for(GLint i = 0; i < num_extensions; ++i) {
+        char const * extension = (char const *)glGetStringi(GL_EXTENSIONS, i);
+        all_extensions += extension;
+        all_extensions += ' ';
+    }
+    LL_DEBUGS("HRS") << "Explicit enumeration works after init, on 3.2/4.1 only, producing " << num_extensions << " exts: " << all_extensions << LL_ENDL;
+    if (num_extensions)
+    {
+        all_extensions += "GL_ARB_multitexture GL_ARB_texture_cube_map GL_ARB_texture_compression "; // These are in 3.2 core, but not listed by OSX
+        gGLHExts.mSysExts = strdup(all_extensions.data());
+    }
+#endif
+
+    // Recheck, because the glh_init_extensions might not have done anything.
+    mHasMultitexture = ExtensionExists("GL_ARB_multitexture", gGLHExts.mSysExts);
+    mHasCubeMap = ExtensionExists("GL_ARB_texture_cube_map", gGLHExts.mSysExts);
+    mHasCompressedTextures = ExtensionExists("GL_ARB_texture_compression", gGLHExts.mSysExts);
+    mHasSeparateSpecularColor = ExtensionExists("GL_EXT_separate_specular_color", gGLHExts.mSysExts);
+    mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
+
+    mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts); //Basic AMD method, also see mHasAMDAssociations
+    mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+    mHasCubeMap = ExtensionExists("GL_ARB_texture_cube_map", gGLHExts.mSysExts);
+    mHasARBEnvCombine = ExtensionExists("GL_ARB_texture_env_combine", gGLHExts.mSysExts);
+    mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
+    mHasTimerQuery = ExtensionExists("GL_ARB_timer_query", gGLHExts.mSysExts);
+    mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
+    mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+    mHasVertexArrayObject = ExtensionExists("GL_ARB_vertex_array_object", gGLHExts.mSysExts);
+    mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
+    mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
+    mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
     // NOTE: Using extensions breaks reflections when Shadows are set to projector.  See: SL-16727
     //mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
     mHasDepthClamp = FALSE;
-	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
+    // mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
-	mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
+    mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
 #else
-	mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts) &&
-							ExtensionExists("GL_EXT_framebuffer_blit", gGLHExts.mSysExts) &&
-							ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
-							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
+    mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts) &&
+                            ExtensionExists("GL_EXT_framebuffer_blit", gGLHExts.mSysExts) &&
+                            ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
+                            ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 #endif
 #ifdef GL_EXT_texture_sRGB
-	mHassRGBTexture = ExtensionExists("GL_EXT_texture_sRGB", gGLHExts.mSysExts);
+    mHassRGBTexture = ExtensionExists("GL_EXT_texture_sRGB", gGLHExts.mSysExts);
 #endif
-	
+    
 #ifdef GL_ARB_framebuffer_sRGB
-	mHassRGBFramebuffer = ExtensionExists("GL_ARB_framebuffer_sRGB", gGLHExts.mSysExts);
+    mHassRGBFramebuffer = ExtensionExists("GL_ARB_framebuffer_sRGB", gGLHExts.mSysExts);
 #else
-	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
+    mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
 #endif
-	
+    
 #ifdef GL_EXT_texture_sRGB_decode
     mHasTexturesRGBDecode = ExtensionExists("GL_EXT_texture_sRGB_decode", gGLHExts.mSysExts);
 #else
     mHasTexturesRGBDecode = ExtensionExists("GL_ARB_texture_sRGB_decode", gGLHExts.mSysExts);
 #endif
 
-	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
+    mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
-	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
-	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
-	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
-	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
-	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
-	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
+    mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
+    mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
+    mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
+    mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
+    mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
+    mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
     mHasUniformBufferObject = ExtensionExists("GL_ARB_uniform_buffer_object", gGLHExts.mSysExts);
     mHasCubeMapArray = ExtensionExists("GL_ARB_texture_cube_map_array", gGLHExts.mSysExts);
 #if !LL_DARWIN
