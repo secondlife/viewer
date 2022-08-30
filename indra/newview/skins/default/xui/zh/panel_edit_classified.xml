@@ -46,7 +46,7 @@
 			<layout_panel name="save_changes_btn_lp">
 				<button label="[LABEL]" name="save_changes_btn"/>
 			</layout_panel>
-			<layout_panel name="show_on_map_btn_lp">
+			<layout_panel name="cancel_btn_lp">
 				<button label="取消" name="cancel_btn"/>
 			</layout_panel>
 		</layout_stack>

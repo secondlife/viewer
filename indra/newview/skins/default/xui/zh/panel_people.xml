@@ -40,6 +40,7 @@
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="上線"/>
 				<accordion_tab name="tab_all" title="全部"/>
+				<accordion_tab name="tab_suggested_friends" title="你可能想要加為好友的人"/>
 			</accordion>
 		</panel>
 		<panel label="群組" name="groups_panel">
