@@ -166,7 +166,7 @@ void LLReflectionMapManager::update()
 
         if (realtime && 
             closestDynamic == nullptr && 
-            probe->mCubeArray.notNull() &&
+            probe->mCubeIndex != -1 &&
             probe->getIsDynamic())
         {
             closestDynamic = probe;
@@ -324,6 +324,7 @@ S32 LLReflectionMapManager::allocateCubeIndex()
         {
             S32 ret = mProbes[i]->mCubeIndex;
             mProbes[i]->mCubeIndex = -1;
+            mProbes[i]->mCubeArray = nullptr;
             return ret;
         }
     }

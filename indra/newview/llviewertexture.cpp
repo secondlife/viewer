@@ -78,7 +78,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL;
-F32 LLViewerFetchedTexture::sMaxVirtualSize = F32_MAX/2.f;
+F32 LLViewerFetchedTexture::sMaxVirtualSize = 8192.f*8192.f;
 
 const std::string sTesterName("TextureTester");
 
@@ -99,7 +99,6 @@ U32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 U32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 bool LLViewerTexture::sFreezeImageUpdates = false;
 F32 LLViewerTexture::sCurrentTime = 0.0f;
-F32  LLViewerTexture::sTexelPixelRatio = 1.0f;
 
 LLViewerTexture::EDebugTexels LLViewerTexture::sDebugTexelsMode = LLViewerTexture::DEBUG_TEXELS_OFF;
 
@@ -809,7 +808,7 @@ void LLViewerTexture::addTextureStats(F32 virtual_size, BOOL needs_gltexture) co
 		mNeedsGLTexture = TRUE;
 	}
 
-	virtual_size *= sTexelPixelRatio;
+    llassert(virtual_size <= LLViewerFetchedTexture::sMaxVirtualSize);
 
 	if (virtual_size > mMaxVirtualSize)
 	{

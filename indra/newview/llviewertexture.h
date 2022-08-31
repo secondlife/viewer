@@ -218,7 +218,6 @@ protected:
 	LL::WorkQueue::weak_t mMainQueue;
 	LL::WorkQueue::weak_t mImageQueue;
 
-	static F32 sTexelPixelRatio;
 public:
 	static const U32 sCurrentFileVersion;	
 	static S32 sImageCount;
