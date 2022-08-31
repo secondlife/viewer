@@ -76,6 +76,7 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
+LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultIrradiancePBRp;
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL;
 F32 LLViewerFetchedTexture::sMaxVirtualSize = 8192.f*8192.f;
@@ -457,6 +458,7 @@ void LLViewerTextureManager::cleanup()
 	LLViewerFetchedTexture::sWhiteImagep = NULL;
 	
 	LLViewerFetchedTexture::sFlatNormalImagep = NULL;
+	LLViewerFetchedTexture::sDefaultIrradiancePBRp = NULL;
 
 	LLViewerMediaTexture::cleanUpClass();	
 }

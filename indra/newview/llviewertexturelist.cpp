@@ -120,7 +120,10 @@ void LLViewerTextureList::doPreloadImages()
 
 	// Set the default flat normal map
 	LLViewerFetchedTexture::sFlatNormalImagep = LLViewerTextureManager::getFetchedTextureFromFile("flatnormal.tga", FTT_LOCAL_FILE, MIPMAP_NO, LLViewerFetchedTexture::BOOST_BUMP);
-	
+
+	// PBR: irradiance
+	LLViewerFetchedTexture::sDefaultIrradiancePBRp = LLViewerTextureManager::getFetchedTextureFromFile("default_irradiance.png", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+
 	image_list->initFromFile();
 	
 	// turn off clamping and bilinear filtering for uv picking images
