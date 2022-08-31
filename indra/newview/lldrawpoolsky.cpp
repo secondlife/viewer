@@ -51,7 +51,10 @@ LLDrawPoolSky::LLDrawPoolSky()
 void LLDrawPoolSky::prerender()
 {
 	mShaderLevel = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT); 
-	gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
+    if (gSky.mVOSkyp->mDrawable)
+    {
+        gSky.mVOSkyp->updateGeometry(gSky.mVOSkyp->mDrawable);
+    }
 }
 
 void LLDrawPoolSky::render(S32 pass)

@@ -605,6 +605,7 @@ public:
 	void selectionSetRestitution(F32 restitution);
 	void selectionSetMaterial(U8 material);
 	void selectionSetImage(const LLUUID& imageid); // could be item or asset id
+    void selectionSetGLTFMaterial(const LLUUID& mat_id); // could be item or asset id
 	void selectionSetColor(const LLColor4 &color);
 	void selectionSetColorOnly(const LLColor4 &color); // Set only the RGB channels
 	void selectionSetAlphaOnly(const F32 alpha); // Set only the alpha channel

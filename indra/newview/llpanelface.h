@@ -128,10 +128,14 @@ protected:
 	void			sendShiny(U32 shininess);			// applies and sends shininess
 	void			sendFullbright();		// applies and sends full bright
 	void        sendGlow();
-	void			sendMedia();
     void            alignTestureLayer();
 
     void            updateCopyTexButton();
+
+    void 	onCommitPbr(const LLSD& data);
+    void 	onCancelPbr(const LLSD& data);
+    void 	onSelectPbr(const LLSD& data);
+    static BOOL onDragPbr(LLUICtrl* ctrl, LLInventoryItem* item);
 
 	// this function is to return TRUE if the drag should succeed.
 	static BOOL onDragTexture(LLUICtrl* ctrl, LLInventoryItem* item);
@@ -200,6 +204,7 @@ protected:
 
 	static void		onCommitMaterialsMedia(	LLUICtrl* ctrl, void* userdata);
 	static void		onCommitMaterialType(	LLUICtrl* ctrl, void* userdata);
+    static void		onCommitPbrType(LLUICtrl* ctrl, void* userdata);
 	static void		onCommitBump(				LLUICtrl* ctrl, void* userdata);
 	static void		onCommitTexGen(			LLUICtrl* ctrl, void* userdata);
 	static void		onCommitShiny(				LLUICtrl* ctrl, void* userdata);
@@ -210,10 +215,6 @@ protected:
 	static void		onCommitRepeatsPerMeter(	LLUICtrl* ctrl, void* userinfo);
 	static void		onClickAutoFix(void*);
     static void		onAlignTexture(void*);
-
-    static void		onSaveMaterial(void*);
-    static LLSD     renderMaterialToLLSD(LLUUID uuid, void* userdata);
-    static void     applyMaterialUUID(LLUUID uuid, void*);
 
 public: // needs to be accessible to selection manager
     void            onCopyColor(); // records all selected faces
@@ -255,7 +256,6 @@ private:
 	F32		getCurrentShinyScaleV();
 	F32		getCurrentShinyOffsetU();
 	F32		getCurrentShinyOffsetV();
-	LLUUID	getCurrentMaterialID();
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -424,6 +424,7 @@ private:
 	 * all controls of the floater texture picker which allow to apply the texture will be disabled.
 	 */
     void onTextureSelectionChanged(LLInventoryItem* itemp);
+    void onPbrSelectionChanged(LLInventoryItem* itemp);
 
     LLMenuButton*   mMenuClipboardColor;
     LLMenuButton*   mMenuClipboardTexture;
@@ -535,6 +536,7 @@ public:
 		static void getFace(class LLFace*& face_to_return, bool& identical_face);
 		static void getImageFormat(LLGLenum& image_format_to_return, bool& identical_face);
 		static void getTexId(LLUUID& id, bool& identical);
+        static void getPbrMaterialId(LLUUID& id, bool& identical);
 		static void getObjectScaleS(F32& scale_s, bool& identical);
 		static void getObjectScaleT(F32& scale_t, bool& identical);
 		static void getMaxDiffuseRepeats(F32& repeats, bool& identical);
