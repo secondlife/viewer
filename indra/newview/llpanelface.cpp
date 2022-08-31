@@ -213,6 +213,7 @@ BOOL	LLPanelFace::postBuild()
         pbr_ctrl->setImmediateFilterPermMask(PERM_NONE);
         pbr_ctrl->setDnDFilterPermMask(PERM_COPY | PERM_TRANSFER);
         pbr_ctrl->setBakeTextureEnabled(false);
+        pbr_ctrl->setInventoryPickType(LLTextureCtrl::PICK_MATERIAL);
     }
 
 	mTextureCtrl = getChild<LLTextureCtrl>("texture control");
