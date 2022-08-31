@@ -390,7 +390,10 @@ void main()
             vec3 sunDiffuse = base * intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             vec3 sunSpec    =        intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
 #endif
-            bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
+            // Disabling PBR bloom due to two reasons:
+            //   1. The glTF 2.0 Specification does not specify bloom,
+            //   2. As the camera moves there are lots of bloom shimmering.
+            //bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
 
     #if DEBUG_PBR_SUN_SPEC_FRESNEL
             colorDiffuse = vec3(0);
