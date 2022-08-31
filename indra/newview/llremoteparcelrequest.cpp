@@ -213,7 +213,12 @@ void LLRemoteParcelInfoProcessor::regionParcelInfoCoro(std::string url,
 
     if (!status)
     {
-        observer->setErrorStatus(status.getStatus(), status.getMessage());
+        std::string message = status.getMessage();
+        if (message.empty())
+        {
+            message = status.toString();
+        }
+        observer->setErrorStatus(status.getStatus(), message);
     }
     else 
     {

@@ -45,7 +45,7 @@ Daha fazla yardım edinmek için farenizi seçeneklerin üzerine getirin.
 		<check_box label="Herkes katılabilir" name="open_enrollement" tool_tip="Bu grubun davet edilmeden yeni üyelerin katılmasına imkan tanıyıp tanımayacağını belirler."/>
 		<check_box label="Katılma ücreti" name="check_enrollment_fee" tool_tip="Bu gruba katılmak için bir kayıt ücretinin gerekip gerekmeyeceğini belirler"/>
 		<spinner label="L$" name="spin_enrollment_fee" tool_tip="Kayıt Ücreti işaretlendiğinde yeni üyeler gruba katılmak için bu ücreti ödemelidir."/>
-		<combo_box name="group_mature_check" tool_tip="Erişkinlik dereceleri bir grupta izin verilen içerik ve davranış türlerini belirler">
+		<combo_box name="group_mature_check" tool_tip="Grubunuzun Orta olarak sınıflandırılmış bilgiler içerip içermeyeceğini belirler">
 			<combo_item name="select_mature">
 				- Erişkinlik seviyesini seçin -
 			</combo_item>

@@ -333,60 +333,59 @@ void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType t
 		const LLAvatarData* pAvatarData = static_cast<const LLAvatarData*>( pData );
 		if (pAvatarData && (gAgent.getID() == pAvatarData->avatar_id) && (pAvatarData->avatar_id != LLUUID::null))
 		{
-			storeAvatarProperties( pAvatarData );
-			processProfileProperties( pAvatarData );
+            mAllowPublish = (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH);
+            mAvatarDataInitialized = true;
+            getChild<LLUICtrl>("online_searchresults")->setValue(mAllowPublish);
 		}
 	}	
 }
 
-void LLFloaterPreference::storeAvatarProperties( const LLAvatarData* pAvatarData )
-{
-	if (LLStartUp::getStartupState() == STATE_STARTED)
-	{
-		mAvatarProperties.avatar_id		= pAvatarData->avatar_id;
-		mAvatarProperties.image_id		= pAvatarData->image_id;
-		mAvatarProperties.fl_image_id   = pAvatarData->fl_image_id;
-		mAvatarProperties.about_text	= pAvatarData->about_text;
-		mAvatarProperties.fl_about_text = pAvatarData->fl_about_text;
-		mAvatarProperties.profile_url   = pAvatarData->profile_url;
-		mAvatarProperties.flags		    = pAvatarData->flags;
-		mAvatarProperties.allow_publish	= pAvatarData->flags & AVATAR_ALLOW_PUBLISH;
-
-		mAvatarDataInitialized = true;
-	}
-}
-
-void LLFloaterPreference::processProfileProperties(const LLAvatarData* pAvatarData )
-{
-	getChild<LLUICtrl>("online_searchresults")->setValue( (bool)(pAvatarData->flags & AVATAR_ALLOW_PUBLISH) );	
-}
-
 void LLFloaterPreference::saveAvatarProperties( void )
 {
-	const BOOL allowPublish = getChild<LLUICtrl>("online_searchresults")->getValue();
+    const bool allowPublish = getChild<LLUICtrl>("online_searchresults")->getValue();
 
-	if (allowPublish)
-	{
-		mAvatarProperties.flags |= AVATAR_ALLOW_PUBLISH;
-	}
+    if ((LLStartUp::getStartupState() == STATE_STARTED)
+        && mAvatarDataInitialized
+        && (allowPublish != mAllowPublish))
+    {
+        std::string cap_url = gAgent.getRegionCapability("AgentProfile");
+        if (!cap_url.empty())
+        {
+            mAllowPublish = allowPublish;
 
-	//
-	// NOTE: We really don't want to send the avatar properties unless we absolutely
-	//       need to so we can avoid the accidental profile reset bug, so, if we're
-	//       logged in, the avatar data has been initialized and we have a state change
-	//       for the "allow publish" flag, then set the flag to its new value and send
-	//       the properties update.
-	//
-	// NOTE: The only reason we can not remove this update altogether is because of the
-	//       "allow publish" flag, the last remaining profile setting in the viewer
-	//       that doesn't exist in the web profile.
-	//
-	if ((LLStartUp::getStartupState() == STATE_STARTED) && mAvatarDataInitialized && (allowPublish != mAvatarProperties.allow_publish))
-	{
-		mAvatarProperties.allow_publish = allowPublish;
+            LLCoros::instance().launch("requestAgentUserInfoCoro",
+                boost::bind(saveAvatarPropertiesCoro, cap_url, allowPublish));
+        }
+    }
+}
 
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarPropertiesUpdate( &mAvatarProperties );
-	}
+void LLFloaterPreference::saveAvatarPropertiesCoro(const std::string cap_url, bool allow_publish)
+{
+    LLCore::HttpRequest::policy_t httpPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID);
+    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
+        httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("put_avatar_properties_coro", httpPolicy));
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpHeaders::ptr_t httpHeaders;
+
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    httpOpts->setFollowRedirects(true);
+
+    std::string finalUrl = cap_url + "/" + gAgentID.asString();
+    LLSD data;
+    data["allow_publish"] = allow_publish;
+
+    LLSD result = httpAdapter->putAndSuspend(httpRequest, finalUrl, data, httpOpts, httpHeaders);
+
+    LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
+
+    if (!status)
+    {
+        LL_WARNS("Preferences") << "Failed to put agent information " << data << " for id " << gAgentID << LL_ENDL;
+        return;
+    }
+
+    LL_DEBUGS("Preferences") << "Agent id: " << gAgentID << " Data: " << data << " Result: " << httpResults << LL_ENDL;
 }
 
 BOOL LLFloaterPreference::postBuild()
@@ -938,7 +937,7 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 	else
 	{
 		// Show beep, pop up dialog, etc.
-		LL_INFOS() << "Can't close preferences!" << LL_ENDL;
+		LL_INFOS("Preferences") << "Can't close preferences!" << LL_ENDL;
 	}
 
 	LLPanelLogin::updateLocationSelectorsVisibility();	
@@ -1793,13 +1792,13 @@ bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map
 
     if (!LLXMLNode::parseFile(filename, root, NULL))
     {
-        LL_WARNS() << "Unable to parse file " << filename << LL_ENDL;
+        LL_WARNS("Preferences") << "Unable to parse file " << filename << LL_ENDL;
         return false;
     }
 
     if (!root->hasName("labels"))
     {
-        LL_WARNS() << filename << " is not a valid definition file" << LL_ENDL;
+        LL_WARNS("Preferences") << filename << " is not a valid definition file" << LL_ENDL;
         return false;
     }
 
@@ -1819,7 +1818,7 @@ bool LLFloaterPreference::loadFromFilename(const std::string& filename, std::map
     }
     else
     {
-        LL_WARNS() << filename << " failed to load" << LL_ENDL;
+        LL_WARNS("Preferences") << filename << " failed to load" << LL_ENDL;
         return false;
     }
 
@@ -2725,7 +2724,7 @@ bool LLPanelPreferenceControls::addControlTableColumns(const std::string &filena
     LLScrollListCtrl::Contents contents;
     if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
-        LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+        LL_WARNS("Preferences") << "Failed to load " << filename << LL_ENDL;
         return false;
     }
     LLXUIParser parser;
@@ -2752,7 +2751,7 @@ bool LLPanelPreferenceControls::addControlTableRows(const std::string &filename)
     LLScrollListCtrl::Contents contents;
     if (!LLUICtrlFactory::getLayeredXMLNode(filename, xmlNode))
     {
-        LL_WARNS() << "Failed to load " << filename << LL_ENDL;
+        LL_WARNS("Preferences") << "Failed to load " << filename << LL_ENDL;
         return false;
     }
     LLXUIParser parser;
@@ -2858,7 +2857,7 @@ void LLPanelPreferenceControls::populateControlTable()
         {
             // Either unknown mode or MODE_SAVED_SETTINGS
             // It doesn't have UI or actual settings yet
-            LL_WARNS() << "Unimplemented mode" << LL_ENDL;
+            LL_WARNS("Preferences") << "Unimplemented mode" << LL_ENDL;
 
             // Searchable columns were removed, mark searchables for an update
             LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
@@ -2898,7 +2897,7 @@ void LLPanelPreferenceControls::populateControlTable()
     }
     else
     {
-        LL_WARNS() << "Unimplemented mode" << LL_ENDL;
+        LL_WARNS("Preferences") << "Unimplemented mode" << LL_ENDL;
     }
 
     // explicit update to make sure table is ready for llsearchableui

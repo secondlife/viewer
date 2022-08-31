@@ -3,7 +3,7 @@
 	<text name="place_caption_label">
 		Cuenta algo del lugar donde te encuentras:
 	</text>
-	<check_box initial_value="false" label="Incluir una vista general del lugar" name="add_place_view_cb"/>
+	<check_box initial_value="false" label="Incluye una vista general del lugar" name="add_place_view_cb"/>
 	<button label="Publicar" name="post_place_btn"/>
 	<button label="Cancelar" name="cancel_place_btn"/>
 </panel>

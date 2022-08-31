@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<floater name="avatarinfo" title="Profil">
+	<panel name="panel_profile_view">
+		<tab_container name="panel_profile_tabs">
+			<panel label="Second Life" name="panel_profile_secondlife"/>
+			<panel label="Web" name="panel_profile_web"/>
+			<panel label="Centres d&apos;intérêt" name="panel_profile_interests"/>
+			<panel label="Favoris" name="panel_profile_picks"/>
+			<panel label="Petite annonce" name="panel_profile_classifieds"/>
+			<panel label="Vie réelle" name="panel_profile_firstlife"/>
+			<panel label="Remarques" name="panel_profile_notes"/>
+		</tab_container>
+		<button label="OK" name="ok_btn" tool_tip="Enregistrer les changements apportés au profil et fermer"/>
+		<button label="Annuler" label_selected="Annuler" name="cancel_btn"/>
+	</panel>
+</floater>

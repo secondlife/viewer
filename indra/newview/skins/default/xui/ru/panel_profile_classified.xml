@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_profile_classified">
+	<panel.string name="type_mature">
+		Умеренная
+	</panel.string>
+	<panel.string name="type_pg">
+		Общий контент
+	</panel.string>
+	<panel.string name="l$_price">
+		L$[PRICE]
+	</panel.string>
+	<panel.string name="click_through_text_fmt">
+		Телепорт [TELEPORT], карта [MAP], профиль [PROFILE]
+	</panel.string>
+	<panel.string name="date_fmt">
+		[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt]
+	</panel.string>
+	<panel.string name="auto_renew_on">
+		Включен
+	</panel.string>
+	<panel.string name="auto_renew_off">
+		Отключен
+	</panel.string>
+	<panel.string name="location_notice">
+		(будет обновлено после сохранения)
+	</panel.string>
+	<string name="publish_label">
+		Опубликовать
+	</string>
+	<string name="save_label">
+		Сохранить
+	</string>
+	<scroll_container name="profile_scroll">
+		<panel name="info_scroll_content_panel">
+			<icon label="" name="edit_icon" tool_tip="Щелкнуть для выбора изображения"/>
+			<layout_stack name="info_panel">
+				<layout_panel name="main_info_panel">
+					<text_editor name="classified_name">
+						[name]
+					</text_editor>
+					<text name="classified_location_label" value="Местоположение:"/>
+					<text_editor name="classified_location" value="[loading...]"/>
+					<text name="content_type_label" value="Тип контента:"/>
+					<text_editor name="content_type" value="[content type]"/>
+					<text name="category_label" value="Категория:"/>
+					<text_editor name="category" value="[category]"/>
+					<text name="creation_date_label" value="Дата создания:"/>
+					<text_editor name="creation_date" tool_tip="Дата создания" value="[date]"/>
+					<text name="price_for_listing_label" value="Стоимость размещения:"/>
+					<text_editor name="price_for_listing" tool_tip="Цена за размещение.">
+						[PRICE]
+					</text_editor>
+				</layout_panel>
+				<layout_panel name="clickthrough_layout_panel">
+					<text name="click_through_label" value="Клики:"/>
+					<text_editor name="click_through_text" tool_tip="Информация о переходах" value="[clicks]"/>
+				</layout_panel>
+				<layout_panel name="auto_renew_layout_panel">
+					<text name="auto_renew_label" value="Автоматическое продление:"/>
+					<text name="auto_renew" value="Включен"/>
+				</layout_panel>
+				<layout_panel name="descr_layout_panel">
+					<text name="classified_desc_label" value="Описание:"/>
+					<text_editor name="classified_desc" value="[description]"/>
+				</layout_panel>
+			</layout_stack>
+			<panel name="edit_panel">
+				<text name="Name:">
+					Название:
+				</text>
+				<text name="description_label">
+					Описание:
+				</text>
+				<text name="location_label">
+					Местоположение:
+				</text>
+				<text name="classified_location_edit">
+					загрузка...
+				</text>
+				<button label="Установить в текущее местоположение" name="set_to_curr_location_btn"/>
+				<text name="category_label" value="Категория:"/>
+				<text name="content_type_label" value="Тип контента:"/>
+				<icons_combo_box label="Общий контент" name="content_type_edit">
+					<icons_combo_box.item label="Умеренный контент" name="mature_ci" value="Возрастной"/>
+					<icons_combo_box.item label="Общий контент" name="pg_ci" value="C разрешения родителей"/>
+				</icons_combo_box>
+				<check_box label="Автоматическое обновление каждую неделю" name="auto_renew_edit"/>
+				<text name="price_for_listing_edit_label" value="Стоимость размещения:"/>
+				<spinner label="L$" name="price_for_listing_edit" tool_tip="Цена за размещение." value="50"/>
+			</panel>
+		</panel>
+	</scroll_container>
+	<layout_stack name="edit_btns_pnl">
+		<layout_panel name="teleport_btn_lp">
+			<button label="Телепорт" name="teleport_btn"/>
+		</layout_panel>
+		<layout_panel name="map_btn_lp">
+			<button label="Карта" name="show_on_map_btn"/>
+		</layout_panel>
+		<layout_panel name="edit_btn_lp">
+			<button label="Редактировать" name="edit_btn"/>
+		</layout_panel>
+		<layout_panel name="save_btn_lp">
+			<button label="[LABEL]" name="save_changes_btn"/>
+		</layout_panel>
+		<layout_panel name="cancel_btn_lp">
+			<button label="Отменить" name="cancel_btn"/>
+		</layout_panel>
+	</layout_stack>
+</panel>
