@@ -2685,6 +2685,9 @@ Prova a selezionare una parte di terreno più piccola.
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
+	<notification name="FacebookConnect">
+		[MESSAGE]
+	</notification>
 	<notification name="FlickrConnect">
 		[MESSAGE]
 	</notification>

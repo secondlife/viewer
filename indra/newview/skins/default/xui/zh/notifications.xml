@@ -2666,6 +2666,9 @@ SHA1 指紋：[MD5_DIGEST]
 	<notification name="SystemMessage">
 		[MESSAGE]
 	</notification>
+	<notification name="FacebookConnect">
+		[MESSAGE]
+	</notification>
 	<notification name="FlickrConnect">
 		[MESSAGE]
 	</notification>

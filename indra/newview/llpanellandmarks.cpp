@@ -29,6 +29,7 @@
 #include "llpanellandmarks.h"
 
 #include "llbutton.h"
+#include "llfloaterprofile.h"
 #include "llfloaterreg.h"
 #include "llnotificationsutil.h"
 #include "llsdutil.h"
@@ -1003,17 +1004,6 @@ bool LLLandmarksPanel::canItemBeModified(const std::string& command_name, LLFold
 	return can_be_modified;
 }
 
-void LLLandmarksPanel::onPickPanelExit( LLPanelPickEdit* pick_panel, LLView* owner, const LLSD& params)
-{
-	pick_panel->setVisible(FALSE);
-	owner->removeChild(pick_panel);
-	//we need remove  observer to  avoid  processParcelInfo in the future.
-	LLRemoteParcelInfoProcessor::getInstance()->removeObserver(params["parcel_id"].asUUID(), this);
-
-	delete pick_panel;
-	pick_panel = NULL;
-}
-
 bool LLLandmarksPanel::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, void* cargo_data , EAcceptance* accept)
 {
 	*accept = ACCEPT_NO;
@@ -1080,28 +1070,8 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 										   LLInventoryItem* inv_item,
 										   const LLParcelData& parcel_data)
 {
-	LLPanelPickEdit* panel_pick = LLPanelPickEdit::create();
 	LLVector3d landmark_global_pos;
 	landmark->getGlobalPos(landmark_global_pos);
-
-	// let's toggle pick panel into  panel places
-	LLPanel* panel_places = NULL;
-	LLFloaterSidePanelContainer* floaterp = LLFloaterReg::getTypedInstance<LLFloaterSidePanelContainer>("places");
-	if (floaterp)
-	{
-		panel_places = floaterp->findChild<LLPanel>("main_panel");
-	}
-
-	if (!panel_places)
-	{
-		llassert(NULL != panel_places);
-		return;
-	}
-	panel_places->addChild(panel_pick);
-	LLRect paren_rect(panel_places->getRect());
-	panel_pick->reshape(paren_rect.getWidth(),paren_rect.getHeight(), TRUE);
-	panel_pick->setRect(paren_rect);
-	panel_pick->onOpen(LLSD());
 
 	LLPickData data;
 	data.pos_global = landmark_global_pos;
@@ -1109,20 +1079,12 @@ void LLLandmarksPanel::doProcessParcelInfo(LLLandmark* landmark,
 	data.desc = inv_item->getDescription();
 	data.snapshot_id = parcel_data.snapshot_id;
 	data.parcel_id = parcel_data.parcel_id;
-	panel_pick->setPickData(&data);
 
-	LLSD params;
-	params["parcel_id"] = parcel_data.parcel_id;
-	/* set exit callback to get back onto panel places
-	 in callback we will make cleaning up( delete pick_panel instance,
-	 remove landmark panel from observer list
-	*/
-	panel_pick->setExitCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-			panel_pick, panel_places,params));
-	panel_pick->setSaveCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-		panel_pick, panel_places,params));
-	panel_pick->setCancelCallback(boost::bind(&LLLandmarksPanel::onPickPanelExit,this,
-					panel_pick, panel_places,params));
+    LLFloaterProfile* profile_floater = dynamic_cast<LLFloaterProfile*>(LLFloaterReg::showInstance("profile", LLSD().with("id", gAgentID)));
+    if (profile_floater)
+    {
+        profile_floater->createPick(data);
+    }
 }
 
 void LLLandmarksPanel::doCreatePick(LLLandmark* landmark, const LLUUID &item_id)
