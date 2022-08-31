@@ -410,10 +410,6 @@ BOOL LLFloaterTexturePicker::postBuild()
 	childSetAction("None", LLFloaterTexturePicker::onBtnNone,this);
 	childSetAction("Blank", LLFloaterTexturePicker::onBtnBlank,this);
 
-
-	childSetCommitCallback("show_folders_check", onShowFolders, this);
-	getChildView("show_folders_check")->setVisible( FALSE);
-
     mFilterEdit = getChild<LLFilterEditor>("inventory search editor");
     mFilterEdit->setCommitCallback(boost::bind(&LLFloaterTexturePicker::onFilterEdit, this, _2));
 
@@ -505,7 +501,6 @@ void LLFloaterTexturePicker::draw()
 	updateImageStats();
 
 	// if we're inactive, gray out "apply immediate" checkbox
-	getChildView("show_folders_check")->setEnabled(mActive && mCanApplyImmediately && !mNoCopyTextureSelected);
 	getChildView("Select")->setEnabled(mActive && mCanApply);
 	getChildView("Pipette")->setEnabled(mActive);
 	getChild<LLUICtrl>("Pipette")->setValue(LLToolMgr::getInstance()->getCurrentTool() == LLToolPipette::getInstance());
@@ -836,9 +831,6 @@ void LLFloaterTexturePicker::onModeSelect(LLUICtrl* ctrl, void *userdata)
 	self->getChild<LLFilterEditor>("inventory search editor")->setVisible(index == 0 ? TRUE : FALSE);
 	self->getChild<LLInventoryPanel>("inventory panel")->setVisible(index == 0 ? TRUE : FALSE);
 
-	/*self->getChild<LLCheckBox>("show_folders_check")->setVisible(mode);
-	  no idea under which conditions the above is even shown, needs testing. */
-
 	self->getChild<LLButton>("l_add_btn")->setVisible(index == 1 ? TRUE : FALSE);
 	self->getChild<LLButton>("l_rem_btn")->setVisible(index == 1 ? TRUE : FALSE);
 	self->getChild<LLButton>("l_upl_btn")->setVisible(index == 1 ? TRUE : FALSE);
@@ -1033,22 +1025,6 @@ void LLFloaterTexturePicker::onLocalScrollCommit(LLUICtrl* ctrl, void* userdata)
 				self->mOnFloaterCommitCallback(LLTextureCtrl::TEXTURE_CHANGE, inworld_id);
 			}
 		}
-	}
-}
-
-// static
-void LLFloaterTexturePicker::onShowFolders(LLUICtrl* ctrl, void *user_data)
-{
-	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-	LLFloaterTexturePicker* picker = (LLFloaterTexturePicker*)user_data;
-
-	if (check_box->get())
-	{
-		picker->mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
-	}
-	else
-	{
-		picker->mInventoryPanel->setShowFolderState(LLInventoryFilter::SHOW_NO_FOLDERS);
 	}
 }
 

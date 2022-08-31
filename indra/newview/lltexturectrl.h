@@ -329,9 +329,7 @@ public:
 	//static void		onBtnRevert( void* userdata );
 	static void		onBtnBlank(void* userdata);
 	static void		onBtnNone(void* userdata);
-	static void		onBtnClear(void* userdata);
 	void			onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action);
-	static void		onShowFolders(LLUICtrl* ctrl, void* userdata);
 	static void		onApplyImmediateCheck(LLUICtrl* ctrl, void* userdata);
 	void			onTextureSelect(const LLTextureEntry& te);
 

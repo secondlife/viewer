@@ -175,22 +175,13 @@
      bg_alpha_color="DkGray2"
      border="false"
      follows="all"
-     height="195"
+     height="200"
      layout="topleft"
      left_delta="0"
      name="inventory panel"
      top_pad="4"
      width="231"
      filter_asset_types="texture|material"/>
-     <check_box
-     height="14"
-     initial_value="false"
-     label="Show folders"
-     layout="topleft"
-     name="show_folders_check"
-     top_pad="0"
-     left_delta="-3"
-     width="200" />
 
 <!--  middle: local mode -->
     <button
