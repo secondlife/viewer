@@ -1,10 +1,10 @@
 /** 
- * @file llviewertexturelinumimagest.h
+ * @file llviewertexturelist.h
  * @brief Object for managing the list of images within a region
  *
- * $LicenseInfo:firstyear=2000&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2022, Linden Research, Inc.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -92,8 +92,11 @@ class LLViewerTextureList
 	friend class LLLocalBitmap;
 	
 public:
-	static BOOL createUploadFile(const std::string& filename, const std::string& out_filename, const U8 codec);
-	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image);
+    static BOOL createUploadFile(const std::string& filename,
+                                 const std::string& out_filename,
+                                 const U8 codec,
+                                 const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
+	static LLPointer<LLImageJ2C> convertToUploadFile(LLPointer<LLImageRaw> raw_image, const S32 max_image_dimentions = LLViewerFetchedTexture::MAX_IMAGE_SIZE_DEFAULT);
 	static void processImageNotInDatabase( LLMessageSystem *msg, void **user_data );
 	static void receiveImageHeader(LLMessageSystem *msg, void **user_data);
 	static void receiveImagePacket(LLMessageSystem *msg, void **user_data);
@@ -124,25 +127,20 @@ public:
 
 	void handleIRCallback(void **data, const S32 number);
 
-	S32Megabytes	getMaxResidentTexMem() const	{ return mMaxResidentTexMemInMegaBytes; }
-	S32Megabytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32Megabytes mem);
-	
 	void doPreloadImages();
 	void doPrefetchImages();
 
 	void clearFetchingRequests();
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
-	static S32Megabytes getMinVideoRamSetting();
-	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
-
-	static bool isPrioRequestsFetched();
-	
 private:
-	void updateImagesDecodePriorities();
+    // do some book keeping on the specified texture
+    // - updates decode priority
+    // - updates desired discard level
+    // - cleans up textures that haven't been referenced in awhile
+    void updateImageDecodePriority(LLViewerFetchedTexture* imagep);
 	F32  updateImagesCreateTextures(F32 max_time);
 	F32  updateImagesFetchTextures(F32 max_time);
 	void updateImagesUpdateStats();
@@ -215,17 +213,14 @@ private:
     typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
     uuid_map_t mUUIDMap;
     LLTextureKey mLastUpdateKey;
-    LLTextureKey mLastFetchKey;
 	
-	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
+    typedef std::set < LLPointer<LLViewerFetchedTexture> > image_priority_list_t;
 	image_priority_list_t mImageList;
 
 	// simply holds on to LLViewerFetchedTexture references to stop them from being purged too soon
 	std::set<LLPointer<LLViewerFetchedTexture> > mImagePreloads;
 
 	BOOL mInitialized ;
-	S32Megabytes	mMaxResidentTexMemInMegaBytes;
-	S32Megabytes mMaxTotalTextureMemInMegaBytes;
 	LLFrameTimer mForceDecodeTimer;
 	
 private:

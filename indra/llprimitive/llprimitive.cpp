@@ -1701,6 +1701,8 @@ BOOL LLNetworkData::isValid(U16 param_type, U32 size)
         return (size == 4);
     case PARAMS_RENDER_MATERIAL:
         return (size > 1);
+    case PARAMS_REFLECTION_PROBE:
+        return (size == 9);
 	}
 	
 	return FALSE;

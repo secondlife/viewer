@@ -1222,6 +1222,16 @@ F32 LLWindowMacOSX::getPixelAspectRatio()
 	return 1.f;
 }
 
+U32 LLWindowMacOSX::getAvailableVRAMMegabytes() {
+    // MTL (and MoltenVK) has some additional gpu data, such as recommendedMaxWorkingSetSize and currentAllocatedSize.
+    // But these are not available for OpenGL and/or our current mimimum OS version.
+    // So we will estimate.
+    static const U32 mb = 1024*1024;
+    // We're asked for total available gpu memory, but we only have allocation info on texture usage. So estimate by doubling that.
+    static const U32 total_factor = 2; // estimated total/textures
+    return gGLManager.mVRAM - (LLImageGL::getTextureBytesAllocated() * total_factor/mb);
+}
+
 //static SInt32 oldWindowLevel;
 
 // MBW -- XXX -- There's got to be a better way than this.  Find it, please...

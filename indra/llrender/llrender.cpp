@@ -224,7 +224,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 					enable(gl_tex->getTarget());
 					mCurrTexture = gl_tex->getTexName();
 					glBindTexture(sGLTextureType[gl_tex->getTarget()], mCurrTexture);
-					if(gl_tex->updateBindStats(gl_tex->mTextureMemory))
+					if(gl_tex->updateBindStats())
 					{
 						texture->setActive() ;
 						texture->updateBindStatsForTester() ;
@@ -303,7 +303,7 @@ bool LLTexUnit::bind(LLImageGL* texture, bool for_rendering, bool forceBind, S32
 		mCurrTexture = texname;
 		glBindTexture(sGLTextureType[texture->getTarget()], mCurrTexture);
 		stop_glerror();
-		texture->updateBindStats(texture->mTextureMemory);		
+        texture->updateBindStats();
 		mHasMipMaps = texture->mHasMipMaps;
 		if (texture->mTexOptionsDirty)
 		{
@@ -342,7 +342,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
             mCurrTexture = cubeMap->mImages[0]->getTexName();
 			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
 			mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
-			cubeMap->mImages[0]->updateBindStats(cubeMap->mImages[0]->mTextureMemory);
+			cubeMap->mImages[0]->updateBindStats();
 			if (cubeMap->mImages[0]->mTexOptionsDirty)
 			{
 				cubeMap->mImages[0]->mTexOptionsDirty = false;

@@ -442,6 +442,7 @@ void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
 
 void LLPipeline::init()
 {
+    LL_WARNS() << "Begin pipeline initialization" << LL_ENDL; // TODO: Remove after testing
 	refreshCachedSettings();
 
     mRT = &mMainRT;
@@ -449,7 +450,7 @@ void LLPipeline::init()
 	gOctreeMaxCapacity = gSavedSettings.getU32("OctreeMaxNodeCapacity");
 	gOctreeMinSize = gSavedSettings.getF32("OctreeMinimumNodeSize");
 	sDynamicLOD = gSavedSettings.getBOOL("RenderDynamicLOD");
-	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+    sRenderBump = TRUE; // DEPRECATED -- gSavedSettings.getBOOL("RenderObjectBump");
 	sUseTriStrips = gSavedSettings.getBOOL("RenderUseTriStrips");
 	LLVertexBuffer::sUseStreamDraw = gSavedSettings.getBOOL("RenderUseStreamVBO");
 	LLVertexBuffer::sUseVAO = gSavedSettings.getBOOL("RenderUseVAO");
@@ -460,6 +461,7 @@ void LLPipeline::init()
 	mInitialized = true;
 	
 	stop_glerror();
+    LL_WARNS() << "No GL errors yet. Pipeline initialization will continue." << LL_ENDL; // TODO: Remove after testing
 
 	//create render pass pools
 	getPool(LLDrawPool::POOL_ALPHA);
@@ -521,7 +523,9 @@ void LLPipeline::init()
 	
 	// Enable features
 		
+    LL_WARNS() << "Shader initialization start" << LL_ENDL; // TODO: Remove after testing
 	LLViewerShaderMgr::instance()->setShaders();
+    LL_WARNS() << "Shader initialization end" << LL_ENDL; // TODO: Remove after testing
 
 	stop_glerror();
 
@@ -548,8 +552,8 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAvatarMaxNonImpostors");
 	connectRefreshCachedSettingsSafe("RenderDelayVBUpdate");
 	connectRefreshCachedSettingsSafe("UseOcclusion");
-	connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
-	connectRefreshCachedSettingsSafe("RenderDeferred");
+	// DEPRECATED -- connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
+	// DEPRECATED -- connectRefreshCachedSettingsSafe("RenderDeferred");
     connectRefreshCachedSettingsSafe("RenderPBR");
 	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
 	connectRefreshCachedSettingsSafe("RenderFSAASamples");
@@ -1033,7 +1037,7 @@ void LLPipeline::updateRenderTransparentWater()
 //static
 void LLPipeline::updateRenderBump()
 {
-	sRenderBump = gSavedSettings.getBOOL("RenderObjectBump");
+    sRenderBump = TRUE; // DEPRECATED -- gSavedSettings.getBOOL("RenderObjectBump");
 }
 
 // static
@@ -1043,8 +1047,7 @@ void LLPipeline::updateRenderDeferred()
                       RenderDeferred &&
                       LLRenderTarget::sUseFBO &&
                       LLPipeline::sRenderBump &&
-                      WindLightUseAtmosShaders &&
-                      (bool) LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
+                      WindLightUseAtmosShaders;
     sRenderPBR = sRenderDeferred && gSavedSettings.getBOOL("RenderPBR");
 }
 
@@ -1065,8 +1068,8 @@ void LLPipeline::refreshCachedSettings()
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 	
-	WindLightUseAtmosShaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-	RenderDeferred = gSavedSettings.getBOOL("RenderDeferred");
+    WindLightUseAtmosShaders = TRUE; // DEPRECATED -- gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+    RenderDeferred = TRUE; // DEPRECATED -- gSavedSettings.getBOOL("RenderDeferred");
 	RenderDeferredSunWash = gSavedSettings.getF32("RenderDeferredSunWash");
 	RenderFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
@@ -3746,7 +3749,7 @@ void LLPipeline::touchTexture(LLViewerTexture* tex, F32 vsize)
     if (tex)
     {
         LLImageGL* gl_tex = tex->getGLTexture();
-        if (gl_tex && gl_tex->updateBindStats(gl_tex->mTextureMemory))
+        if (gl_tex && gl_tex->updateBindStats())
         {
             tex->setActive();
             tex->addTextureStats(vsize);
@@ -3766,6 +3769,7 @@ void LLPipeline::touchTextures(LLDrawInfo* info)
     touchTexture(info->mTexture, info->mVSize);
     touchTexture(info->mSpecularMap, info->mVSize);
     touchTexture(info->mNormalMap, info->mVSize);
+    touchTexture(info->mEmissiveMap, info->mVSize);
 }
 
 void LLPipeline::postSort(LLCamera& camera)
@@ -3815,25 +3819,47 @@ void LLPipeline::postSort(LLCamera& camera)
 			group->rebuildGeom();
 		}
 
-		for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
-		{
-			LLSpatialGroup::drawmap_elem_t& src_vec = j->second;	
-			if (!hasRenderType(j->first))
-			{
-				continue;
-			}
-			
-			for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
-			{
+        for (LLSpatialGroup::draw_map_t::iterator j = group->mDrawMap.begin(); j != group->mDrawMap.end(); ++j)
+        {
+            LLSpatialGroup::drawmap_elem_t& src_vec = j->second;
+            if (!hasRenderType(j->first))
+            {
+                continue;
+            }
+
+            // DEBUG -- force a texture virtual size update every frame
+            /*if (group->getSpatialPartition()->mDrawableType == LLPipeline::RENDER_TYPE_VOLUME)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("plps - update vsize");
+                auto& entries = group->getData();
+                for (auto& entry : entries)
+                {
+                    if (entry)
+                    {
+                        auto* data = entry->getDrawable();
+                        if (data)
+                        {
+                            LLVOVolume* volume = ((LLDrawable*)data)->getVOVolume();
+                            if (volume)
+                            {
+                                volume->updateTextureVirtualSize(true);
+                            }
+                        }
+                    }
+                }
+            }*/
+
+            for (LLSpatialGroup::drawmap_elem_t::iterator k = src_vec.begin(); k != src_vec.end(); ++k)
+            {
                 LLDrawInfo* info = *k;
-				
-				sCull->pushDrawInfo(j->first, info);
+
+                sCull->pushDrawInfo(j->first, info);
                 if (!sShadowRender && !sReflectionRender && !gCubeSnapshot)
                 {
                     touchTextures(info);
                     addTrianglesDrawn(info->mCount, info->mDrawMode);
                 }
-			}
+            }
 		}
 
 		if (hasRenderType(LLPipeline::RENDER_TYPE_PASS_ALPHA))
@@ -3976,7 +4002,7 @@ void LLPipeline::postSort(LLCamera& camera)
 	}
 	LL_PUSH_CALLSTACKS();
 	// If managing your telehub, draw beacons at telehub and currently selected spawnpoint.
-	if (LLFloaterTelehub::renderBeacons())
+	if (LLFloaterTelehub::renderBeacons() && !sShadowRender)
 	{
 		LLFloaterTelehub::addBeacons();
 	}
@@ -8617,6 +8643,11 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             soften_shader.uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
             soften_shader.uniform4fv(LLShaderMgr::LIGHTNORM, 1, environment.getClampedLightNorm().mV);
 
+            if (!LLPipeline::sUnderWaterRender && LLPipeline::sRenderPBR)
+            {
+                soften_shader.bindTexture(LLShaderMgr::ALTERNATE_DIFFUSE_MAP, LLViewerFetchedTexture::sDefaultIrradiancePBRp); // PBR: irradiance
+            }
+
             if(LLPipeline::sRenderPBR)
             {
                 LLVector3 cameraAtAxis = LLViewerCamera::getInstance()->getAtAxis();
@@ -10264,7 +10295,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_MASK_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_NORMSPEC_EMISSIVE_RIGGED,
                     LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE,
-                    //LLRenderPass::PASS_PBR_OPAQUE_RIGGED,
+                    LLPipeline::RENDER_TYPE_PASS_PBR_OPAQUE_RIGGED,
 					END_RENDER_TYPES);
 
 	gGL.setColorMask(false, false);

@@ -34,6 +34,7 @@ uniform vec3 proj_p; //plane projection is emitting from (in screen space)
 uniform float proj_focus; // distance from plane to begin blurring
 uniform float proj_lod  ; // (number of mips in proj map)
 uniform float proj_range; // range between near clip and far clip plane of projection
+uniform float proj_ambiance;
 
 // light params
 uniform vec3 color; // light_color
@@ -43,8 +44,20 @@ uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
 const float M_PI = 3.14159265;
+const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
+
+float calcLegacyDistanceAttenuation(float distance, float falloff)
+{
+    float dist_atten = 1.0 - clamp((distance + falloff)/(1.0 + falloff), 0.0, 1.0);
+    dist_atten *= dist_atten;
+
+    // Tweak falloff slightly to match pre-EEP attenuation
+    // NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
+    dist_atten *= 2.0;
+    return dist_atten;
+}
 
 // In:
 //   lv  unnormalized surface to light vector
@@ -146,6 +159,18 @@ float getDepth(vec2 pos_screen)
     return depth;
 }
 
+vec4 getTexture2DLodAmbient(vec2 tc, float lod)
+{
+    vec4 ret = texture2DLod(projectionMap, tc, lod);
+    ret.rgb = srgb_to_linear(ret.rgb);
+
+    vec2 dist = tc-vec2(0.5);
+    float d = dot(dist,dist);
+    ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
+
+    return ret;
+}
+
 vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
 {
     vec4 ret = texture2DLod(projectionMap, tc, lod);
@@ -160,8 +185,24 @@ vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
     return ret;
 }
 
-// Returns projected light in Linear
+// lit     This is set by the caller: if (nl > 0.0) { lit = attenuation * nl * noise; }
 // Uses:
+//   color   Projected spotlight color
+vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv)
+{
+    vec4 amb_plcol = getTexture2DLodAmbient(projected_uv, proj_lod);
+    vec3 amb_rgb   = amb_plcol.rgb * amb_plcol.a;
+
+    amb_da += proj_ambiance;
+    amb_da += (nl*nl*0.5+0.5) * proj_ambiance;
+    amb_da *= attenuation * noise;
+    amb_da = min(amb_da, 1.0-lit);
+
+    return (amb_da * color.rgb * amb_rgb);
+}
+
+// Returns projected light in Linear
+// Uses global spotlight color:
 //  color
 // NOTE: projected.a will be pre-multiplied with projected.rgb
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv)
@@ -251,7 +292,40 @@ vec2 getScreenXY(vec4 clip)
     return screen;
 }
 
+// Color utils
+
+vec3 colorize_dot(float x)
+{
+    if (x > 0.0) return vec3( 0, x, 0 );
+    if (x < 0.0) return vec3(-x, 0, 0 );
+                 return vec3( 0, 0, 1 );
+}
+
+vec3 hue_to_rgb(float hue)
+{
+    if (hue > 1.0) return vec3(0.5);
+    vec3 rgb = abs(hue * 6. - vec3(3, 2, 4)) * vec3(1, -1, -1) + vec3(-1, 2, 2);
+    return clamp(rgb, 0.0, 1.0);
+}
+
 // PBR Utils
+
+// ior Index of Refraction, normally 1.5
+// returns reflect0
+float calcF0(float ior)
+{
+    float f0 = (1.0 - ior) / (1.0 + ior);
+    return f0 * f0;
+}
+
+vec3 fresnel(float vh, vec3 f0, vec3 f90 )
+{
+    float x  = 1.0 - abs(vh);
+    float x2 = x*x;
+    float x5 = x2*x2*x;
+    vec3  fr = f0 + (f90 - f0)*x5;
+    return fr;
+}
 
 vec3 fresnelSchlick( vec3 reflect0, vec3 reflect90, float vh)
 {
@@ -330,42 +404,68 @@ float D_GGX( float nh, float alphaRough )
 }
 
 // NOTE: This is different from the GGX texture
+// See:
+//   Real Time Rendering, 4th Edition
+//   Page 341
+//   Equation 9.43
+// Also see:
+//   https://google.github.io/filament/Filament.md.html#materialsystem/specularbrdf/geometricshadowing(specularg)
+//   4.4.2 Geometric Shadowing (specular G)
 float V_GGX( float nl, float nv, float alphaRough )
 {
+#if 1
+    // Note: When roughness is zero, has discontuinity in the bottom hemisphere
     float rough2 = alphaRough * alphaRough;
     float ggxv   = nl * sqrt(nv * nv * (1.0 - rough2) + rough2);
     float ggxl   = nv * sqrt(nl * nl * (1.0 - rough2) + rough2);
+
     float ggx    = ggxv + ggxl;
     if (ggx > 0.0)
     {
         return 0.5 / ggx;
     }
     return 0.0;
+#else
+    // See: smithVisibility_GGXCorrelated, V_SmithCorrelated, etc.
+    float rough2 = alphaRough * alphaRough;
+    float ggxv = nl * sqrt(nv * (nv - rough2 * nv) + rough2);
+    float ggxl = nv * sqrt(nl * (nl - rough2 * nl) + rough2);
+    return 0.5 / (ggxv + ggxl);
+#endif
+
 }
 
+// NOTE: Assumes a hard-coded IOR = 1.5
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight )
 {
     float metal      = packedORM.b;
-          c_diff     = mix(diffuse.rgb, vec3(0), metal);
+          c_diff     = mix(diffuse, vec3(0), metal);
     float IOR        = 1.5;                                // default Index Of Refraction 1.5 (dielectrics)
           reflect0   = vec3(0.04);                         // -> incidence reflectance 0.04
-          reflect0   = mix( reflect0, diffuse.rgb, metal); // reflect at 0 degrees
+//        reflect0   = vec3(calcF0(IOR));
+          reflect0   = mix(reflect0, diffuse, metal);      // reflect at 0 degrees
           reflect90  = vec3(1);                            // reflect at 90 degrees
           specWeight = 1.0;
 
-    float perceptualRough = packedORM.g;
+    // When roughness is zero blender shows a tiny specular
+    float perceptualRough = max(packedORM.g, 0.1);
           alphaRough      = perceptualRough * perceptualRough;
+}
+
+vec3 BRDFDiffuse(vec3 color)
+{
+    return color * ONE_OVER_PI;
 }
 
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh )
 {
-    return (1.0 - specWeight * fresnelSchlick( reflect0, reflect90, vh)) * (c_diff / M_PI);
+    return (1.0 - specWeight * fresnelSchlick( reflect0, reflect90, vh)) * BRDFDiffuse(c_diff);
 }
 
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float specWeight, float vh, float nl, float nv, float nh )
 {
-    vec3  fresnel    = fresnelSchlick( reflect0, reflect90, vh );
-    float vis       = V_GGX( nl, nv, alphaRough );
-    float d         = D_GGX( nh, alphaRough );
+    vec3 fresnel    = fresnelSchlick( reflect0, reflect90, vh ); // Fresnel
+    float vis       = V_GGX( nl, nv, alphaRough );               // Visibility
+    float d         = D_GGX( nh, alphaRough );                   // Distribution
     return specWeight * fresnel * vis * d;
 }

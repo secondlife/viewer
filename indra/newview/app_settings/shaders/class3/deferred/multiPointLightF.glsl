@@ -27,7 +27,10 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE      0
+#define DEBUG_ANY_LIGHT_TYPE      0 // Output red light cone
+#define DEBUG_PBR_LIGHT_TYPE      0 // Output PBR objects in red
+#define DEBUG_LEG_LIGHT_TYPE      0 // Show Legacy objects in red
+#define DEBUG_POINT_ZERO          0 // Output zero for point lights
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -57,12 +60,16 @@ VARYING vec4 vary_fragcoord;
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance);
 vec4 getPosition(vec2 pos_screen);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec2 getScreenXY(vec4 clip);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
+
+// Util
+vec3 hue_to_rgb(float hue);
 
 void main()
 {
@@ -72,6 +79,10 @@ void main()
     vec3 final_color = vec3(0, 0, 0);
     vec2 tc          = getScreenXY(vary_fragcoord);
     vec3 pos         = getPosition(tc).xyz;
+    if (pos.z < far_z)
+    {
+        discard;
+    }
 
     float envIntensity; // not used for this shader
     vec3 n;
@@ -96,33 +107,29 @@ void main()
 
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
-            vec3  lightColor = light_col[ light_idx ].rgb;
+            vec3  lightColor = light_col[ light_idx ].rgb; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
             float falloff    = light_col[ light_idx ].a;
             float lightSize  = light    [ light_idx ].w;
             vec3  lv         =(light    [ light_idx ].xyz - pos);
             calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-            if (nl > 0.0 || nv > 0.0)
+            float dist = lightDist / lightSize;
+            if (dist <= 1.0 && nl > 0.0)
             {
-                float dist = lightDist / lightSize;
-                float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
-                vec3 intensity = dist_atten * getLightIntensityPoint(lightColor, lightSize, lightDist);
-                colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-                colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+                float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
+                vec3 intensity = dist_atten * nl * lightColor;
+                colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+                colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
             }
         }
 
   #if DEBUG_PBR_LIGHT_TYPE
-        colorDiffuse = vec3(0,0.5,0); colorSpec = vec3(0);
+        colorDiffuse = vec3(0.5,0,0); colorSpec = vec3(0);
   #endif
         final_color = colorDiffuse + colorSpec;
     }
     else
     {
-        if (pos.z < far_z)
-        {
-            discard;
-        }
 
         float noise = texture2D(noiseMap, tc/128.0).b;
 
@@ -140,14 +147,8 @@ void main()
                     float lightDist;
                     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-                    float fa         = light_col[i].a + 1.0;
-                    float dist_atten = clamp(1.0 - (dist - 1.0 * (1.0 - fa)) / fa, 0.0, 1.0);
-                    dist_atten *= dist_atten;
-
-                    // Tweak falloff slightly to match pre-EEP attenuation
-                    // NOTE: this magic number also shows up in a great many other places, search for dist_atten *= to audit
-                    dist_atten *= 2.0;
-
+                    float fa         = light_col[i].a;
+                    float dist_atten = calcLegacyDistanceAttenuation(dist, fa);
                     dist_atten *= noise;
 
                     float lit = nl * dist_atten;
@@ -173,7 +174,17 @@ void main()
                 }
             }
         }
+  #if DEBUG_LEG_LIGHT_TYPE
+        final_color.rgb = vec3(0.5,0,0.0);
+  #endif
     }
+
+#if DEBUG_POINT_ZERO
+    final_color = vec3(0);
+#endif
+#if DEBUG_ANY_LIGHT_TYPE
+    final_color = vec3(0.3333,0,0);
+#endif
 
     frag_color.rgb = final_color;
     frag_color.a   = 0.0;

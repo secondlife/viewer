@@ -493,12 +493,12 @@ void LLViewerShaderMgr::setShaders()
 
     llassert((gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10));
 
-    bool canRenderDeferred       = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
-    bool hasWindLightShaders     = LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
+    //bool canRenderDeferred = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred");
+    //bool hasWindLightShaders = true; // DEPRECATED -- LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders");
     S32 shadow_detail            = gSavedSettings.getS32("RenderShadowDetail");
     bool pbr = gSavedSettings.getBOOL("RenderPBR");
-    bool doingWindLight          = hasWindLightShaders && gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-    bool useRenderDeferred       = doingWindLight && canRenderDeferred && gSavedSettings.getBOOL("RenderDeferred");
+    bool doingWindLight = true; //DEPRECATED -- hasWindLightShaders&& gSavedSettings.getBOOL("WindLightUseAtmosShaders");
+    bool useRenderDeferred = true; //DEPRECATED -- doingWindLight&& canRenderDeferred&& gSavedSettings.getBOOL("RenderDeferred");
 
     S32 light_class = 3;
     S32 interface_class = 2;
@@ -569,15 +569,14 @@ void LLViewerShaderMgr::setShaders()
     mShaderLevel[SHADER_DEFERRED] = deferred_class;
     mShaderLevel[SHADER_TRANSFORM] = transform_class;
 
-    BOOL loaded = loadBasicShaders();
-    if (loaded)
+    std::string shader_name = loadBasicShaders();
+    if (shader_name.empty())
     {
         LL_INFOS() << "Loaded basic shaders." << LL_ENDL;
     }
     else
     {
-        LL_ERRS() << "Unable to load basic shaders, verify graphics driver installed and current." << LL_ENDL;
-        llassert(loaded);
+        LL_ERRS() << "Unable to load basic shader " << shader_name << ", verify graphics driver installed and current." << LL_ENDL;
         reentrance = false; // For hygiene only, re-try probably helps nothing 
         return;
     }
@@ -585,7 +584,7 @@ void LLViewerShaderMgr::setShaders()
     gPipeline.mShadersLoaded = true;
 
     // Load all shaders to set max levels
-    loaded = loadShadersEnvironment();
+    BOOL loaded = loadShadersEnvironment();
 
     if (loaded)
     {
@@ -675,67 +674,24 @@ void LLViewerShaderMgr::setShaders()
 
         if (loadShadersObject())
         { //hardware skinning is enabled and rigged attachment shaders loaded correctly
-            BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-
             // cloth is a class3 shader
-            S32 avatar_class = avatar_cloth ? 3 : 1;
+            S32 avatar_class = 1;
                 
             // Set the actual level
             mShaderLevel[SHADER_AVATAR] = avatar_class;
 
             loaded = loadShadersAvatar();
             llassert(loaded);
-
-            if (mShaderLevel[SHADER_AVATAR] != avatar_class)
-            {
-                if(llmax(mShaderLevel[SHADER_AVATAR]-1,0) >= 3)
-                {
-                    avatar_cloth = true;
-                }
-                else
-                {
-                    avatar_cloth = false;
-                }
-                gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
-            }
         }
         else
         { //hardware skinning not possible, neither is deferred rendering
-            mShaderLevel[SHADER_AVATAR] = 0;
-            mShaderLevel[SHADER_DEFERRED] = 0;
-
-                gSavedSettings.setBOOL("RenderDeferred", FALSE);
-                gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
-
-            loadShadersAvatar(); // unloads
-
-            loaded = loadShadersObject();
-            llassert(loaded);
+            llassert(false); // SHOULD NOT BE POSSIBLE
         }
     }
-
-    if (!loaded)
-    { //some shader absolutely could not load, try to fall back to a simpler setting
-        if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
-        { //disable windlight and try again
-            gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
-            LL_WARNS() << "Falling back to no windlight shaders." << LL_ENDL;
-            reentrance = false;
-            setShaders();
-            return;
-        }
-    }       
 
     llassert(loaded);
-
-    if (loaded && !loadShadersDeferred())
-    { //everything else succeeded but deferred failed, disable deferred and try again
-        gSavedSettings.setBOOL("RenderDeferred", FALSE);
-        LL_WARNS() << "Falling back to no deferred shaders." << LL_ENDL;
-        reentrance = false;
-        setShaders();
-        return;
-    }
+    loaded = loaded && loadShadersDeferred();
+    llassert(loaded);
 
     if (gViewerWindow)
     {
@@ -874,7 +830,7 @@ void LLViewerShaderMgr::unloadShaders()
 	gPipeline.mShadersLoaded = false;
 }
 
-BOOL LLViewerShaderMgr::loadBasicShaders()
+std::string LLViewerShaderMgr::loadBasicShaders()
 {
 	// Load basic dependency shaders first
 	// All of these have to load for any shaders to function
@@ -960,8 +916,8 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		// Note usage of GL_VERTEX_SHADER_ARB
 		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_VERTEX_SHADER_ARB, &attribs) == 0)
 		{
-			LL_SHADER_LOADING_WARNS() << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
-			return FALSE;
+			LL_WARNS("Shader") << "Failed to load vertex shader " << shaders[i].first << LL_ENDL;
+			return shaders[i].first;
 		}
 	}
 
@@ -1021,12 +977,12 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 		// Note usage of GL_FRAGMENT_SHADER_ARB
 		if (loadShaderFile(shaders[i].first, shaders[i].second, GL_FRAGMENT_SHADER_ARB, &attribs, index_channels[i]) == 0)
 		{
-			LL_SHADER_LOADING_WARNS() << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
-			return FALSE;
+			LL_WARNS("Shader") << "Failed to load fragment shader " << shaders[i].first << LL_ENDL;
+			return shaders[i].first;
 		}
 	}
 
-	return TRUE;
+	return std::string();
 }
 
 BOOL LLViewerShaderMgr::loadShadersEnvironment()

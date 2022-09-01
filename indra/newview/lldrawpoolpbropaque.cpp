@@ -54,18 +54,6 @@ void LLDrawPoolPBROpaque::render(S32 pass)
 {
 }
 
-// Deferred
-void LLDrawPoolPBROpaque::beginDeferredPass(S32 pass)
-{
-    gDeferredPBROpaqueProgram.bind();
-}
-
-void LLDrawPoolPBROpaque::endDeferredPass(S32 pass)
-{
-    gDeferredPBROpaqueProgram.unbind();
-    LLRenderPass::endRenderPass(pass);
-}
-
 void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 {
     if (!gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_MATERIALS))
@@ -84,63 +72,87 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
     LLGLDisable blend(GL_BLEND);
     LLGLDisable alpha_test(GL_ALPHA_TEST);
 
-    // TODO: handle HUDs?
-    //if (LLPipeline::sRenderingHUDs)
-    //    mShader->uniform1i(LLShaderMgr::NO_ATMO, 1);
-    //else
-    //    mShader->uniform1i(LLShaderMgr::NO_ATMO, 0);
+    LLVOAvatar* lastAvatar = nullptr;
+    U64 lastMeshId = 0;
 
-    // TODO: handle under water?
-    // if (LLPipeline::sUnderWaterRender)
-    LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type);
-    LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type);
-
-    for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
+    for (int i = 0; i < 2; ++i)
     {
-        LLDrawInfo& params = **i;
+        bool rigged = (i == 1);
+        LLGLSLShader* shader = &gDeferredPBROpaqueProgram;
+        U32 vertex_data_mask = getVertexDataMask();
 
-        //gGL.getTexUnit(0)->activate();
-
-        if (params.mTexture.notNull())
+        if (rigged)
         {
-            gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
-        }
-        else
-        {
-            gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+            shader = shader->mRiggedVariant;
+            vertex_data_mask |= LLVertexBuffer::MAP_WEIGHT4;
         }
 
-        if (params.mNormalMap)
-        {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
-        }
-        else
-        {
-            // TODO: bind default normal map (???? WTF is it ??? )
-        }
+        shader->bind();
 
-        if (params.mSpecularMap)
-        {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
-        }
-        else
-        {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-        }
+        LLCullResult::drawinfo_iterator begin = gPipeline.beginRenderMap(type+i);
+        LLCullResult::drawinfo_iterator end = gPipeline.endRenderMap(type+i);
 
-        if (params.mEmissiveMap)
+        for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
         {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);  // PBR sRGB Emissive
-        }
-        else
-        {
-            gDeferredPBROpaqueProgram.bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-        }
-        
-        gDeferredPBROpaqueProgram.uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
-        gDeferredPBROpaqueProgram.uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
-        gDeferredPBROpaqueProgram.uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
+            LLDrawInfo* pparams = *i;
 
-        LLRenderPass::pushBatch(params, getVertexDataMask(), FALSE, FALSE);
+            if (pparams->mTexture.notNull())
+            {
+                gGL.getTexUnit(0)->bindFast(pparams->mTexture); // diffuse
+            }
+            else
+            {
+                gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+            }
+
+            if (pparams->mNormalMap)
+            {
+                shader->bindTexture(LLShaderMgr::BUMP_MAP, pparams->mNormalMap);
+            }
+            else
+            {
+                shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+            }
+
+            if (pparams->mSpecularMap)
+            {
+                shader->bindTexture(LLShaderMgr::SPECULAR_MAP, pparams->mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
+            }
+            else
+            {
+                shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+            }
+
+            if (pparams->mEmissiveMap)
+            {
+                shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, pparams->mEmissiveMap);  // PBR sRGB Emissive
+            }
+            else
+            {
+                shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+            }
+
+            shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, pparams->mGLTFMaterial->mRoughnessFactor);
+            shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, pparams->mGLTFMaterial->mMetallicFactor);
+            shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, pparams->mGLTFMaterial->mEmissiveColor.mV);
+
+            if (rigged)
+            {
+                if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
+                {
+                    uploadMatrixPalette(*pparams);
+                    lastAvatar = pparams->mAvatar;
+                    lastMeshId = pparams->mSkinInfo->mHash;
+                }
+
+                pushBatch(*pparams, vertex_data_mask, FALSE, FALSE);
+            }
+            else
+            {
+                pushBatch(*pparams, vertex_data_mask, FALSE, FALSE);
+            }
+        }
     }
+
+    LLGLSLShader::sCurBoundShaderPtr->unbind();
 }

@@ -31,6 +31,7 @@
 #define DEBUG_VERTEX        0
 #define DEBUG_NORMAL_MAP    0 // Output packed normal map "as is" to diffuse
 #define DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
+#define DEBUG_ORM           0 // Output Occlusion Roughness Metal "as is" to diffuse
 #define DEBUG_POSITION      0
 
 uniform sampler2D diffuseMap;  //always in sRGB space
@@ -103,15 +104,16 @@ void main()
     tnorm = normalize(tnorm.xyz);
 
     norm.xyz = normalize(tnorm.xyz);
+
     // RGB = Occlusion, Roughness, Metal
-    // default values
-    //   occlusion ?
-    //   roughness 1.0
-    //   metal     1.0
+    // default values, see LLViewerTexture::sDefaultPBRORMImagep
+    //   occlusion 1.0
+    //   roughness 0.0
+    //   metal     0.0
 #ifdef HAS_SPECULAR_MAP
     vec3 spec = texture2D(specularMap, vary_texcoord2.xy).rgb;
 #else
-    vec3 spec = vec3(1,1,1);
+    vec3 spec = vec3(1,0,0);
 #endif
     
     spec.g *= roughnessFactor;
@@ -138,6 +140,9 @@ void main()
 #endif
 #if DEBUG_NORMAL_OUT
     col.rgb = vary_normal;
+#endif
+#if DEBUG_ORM
+    col.rgb = linear_to_srgb(spec);
 #endif
 #if DEBUG_POSITION
     col.rgb = vary_position.xyz;

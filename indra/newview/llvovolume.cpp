@@ -232,6 +232,7 @@ LLVOVolume::LLVOVolume(const LLUUID &id, const LLPCode pcode, LLViewerRegion *re
 
 	mMediaImplList.resize(getNumTEs());
 	mLastFetchedMediaVersion = -1;
+    mServerDrawableUpdateCount = 0;
 	memset(&mIndexInTex, 0, sizeof(S32) * LLRender::NUM_VOLUME_TEXTURE_CHANNELS);
 	mMDCImplCount = 0;
 	mLastRiggingInfoLOD = -1;
@@ -327,6 +328,9 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	 	
 	LLColor4U color;
 	const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
+    const bool previously_volume_changed = mVolumeChanged;
+    const bool previously_face_mapping_changed = mFaceMappingChanged;
+    const bool previously_color_changed = mColorChanged;
 
 	// Do base class updates...
 	U32 retval = LLViewerObject::processUpdateMessage(mesgsys, user_data, block_num, update_type, dp);
@@ -550,9 +554,31 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	// ...and clean up any media impls
 	cleanUpMediaImpls();
 
+    if ((
+            (mVolumeChanged && !previously_volume_changed) ||
+            (mFaceMappingChanged && !previously_face_mapping_changed) ||
+            (mColorChanged && !previously_color_changed)
+        )
+        && !mLODChanged) {
+        onDrawableUpdateFromServer();
+    }
+
 	return retval;
 }
 
+// Called when a volume, material, etc is updated by the server, possibly by a
+// script. If this occurs too often for this object, mark it as active so that
+// it doesn't disrupt the octree/render batches, thereby potentially causing a
+// big performance penalty.
+void LLVOVolume::onDrawableUpdateFromServer()
+{
+    constexpr U32 UPDATES_UNTIL_ACTIVE = 8;
+    ++mServerDrawableUpdateCount;
+    if (mDrawable && !mDrawable->isActive() && mServerDrawableUpdateCount > UPDATES_UNTIL_ACTIVE)
+    {
+        mDrawable->makeActive();
+    }
+}
 
 void LLVOVolume::animateTextures()
 {
@@ -670,12 +696,13 @@ void LLVOVolume::animateTextures()
 
 void LLVOVolume::updateTextures()
 {
-	const F32 TEXTURE_AREA_REFRESH_TIME = 5.f; // seconds
-	if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+	//const F32 TEXTURE_AREA_REFRESH_TIME = 1.f; // seconds
+	//if (mTextureUpdateTimer.getElapsedTimeF32() > TEXTURE_AREA_REFRESH_TIME)
 	{
 		updateTextureVirtualSize();
 
-		if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
+		/*if (mDrawable.notNull() && !isVisible() && !mDrawable->isActive())
 		{ //delete vertex buffer to free up some VRAM
 			LLSpatialGroup* group  = mDrawable->getSpatialGroup();
 			if (group && (group->mVertexBuffer.notNull() || !group->mBufferMap.empty() || !group->mDrawMap.empty()))
@@ -686,9 +713,7 @@ void LLVOVolume::updateTextures()
 				//it becomes visible
 				group->setState(LLSpatialGroup::GEOM_DIRTY | LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 			}
-		}
-
-
+		}*/
     }
 }
 
@@ -762,6 +787,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	const S32 num_faces = mDrawable->getNumFaces();
 	F32 min_vsize=999999999.f, max_vsize=0.f;
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
+    std::stringstream debug_text;
 	for (S32 i = 0; i < num_faces; i++)
 	{
 		LLFace* face = mDrawable->getFace(i);
@@ -788,10 +814,14 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 		else
 		{
 			vsize = face->getTextureVirtualSize();
+            imagep->addTextureStats(vsize);
 		}
 
-		mPixelArea = llmax(mPixelArea, face->getPixelArea());		
+		mPixelArea = llmax(mPixelArea, face->getPixelArea());
 
+        // if the face has gotten small enough to turn off texture animation and texture
+        // animation is running, rebuild the render batch for this face to turn off
+        // texture animation
 		if (face->mTextureMatrix != NULL)
 		{
 			if ((vsize < MIN_TEX_ANIM_SIZE && old_size > MIN_TEX_ANIM_SIZE) ||
@@ -811,10 +841,11 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 			LLViewerFetchedTexture* img = LLViewerTextureManager::staticCastToFetchedTexture(imagep) ;
 			if(img)
 			{
-				F32 pri = img->getDecodePriority();
+                debug_text << img->getDiscardLevel() << ":" << img->getDesiredDiscardLevel() << ":" << img->getWidth() << ":" << (S32) sqrtf(vsize) << ":" << (S32) sqrtf(img->getMaxVirtualSize()) << "\n";
+				/*F32 pri = img->getDecodePriority();
 				pri = llmax(pri, 0.0f);
 				if (pri < min_vsize) min_vsize = pri;
-				if (pri > max_vsize) max_vsize = pri;
+				if (pri > max_vsize) max_vsize = pri;*/
 			}
 		}
 		else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
@@ -846,14 +877,6 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 				F32 lodf = ((F32)(lod + 1.0f)/4.f);
 				F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
 				mSculptTexture->addTextureStats(2.f * tex_size * tex_size, FALSE);
-			
-				//if the sculpty very close to the view point, load first
-				{				
-					LLVector3 lookAt = getPositionAgent() - camera->getOrigin();
-					F32 dist = lookAt.normVec() ;
-					F32 cos_angle_to_view_dir = lookAt * camera->getXAxis() ;				
-					mSculptTexture->setAdditionalDecodePriority(0.8f * LLFace::calcImportanceToCamera(cos_angle_to_view_dir, dist)) ;
-				}
 			}
 	
 			S32 texture_discard = mSculptTexture->getCachedRawImageLevel(); //try to match the texture
@@ -897,7 +920,8 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	}
  	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
  	{
- 		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+ 		//setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+        setDebugText(debug_text.str());
  	}
 	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
 	{
@@ -1677,7 +1701,7 @@ void LLVOVolume::regenFaces()
 	}
 }
 
-BOOL LLVOVolume::genBBoxes(BOOL force_global)
+BOOL LLVOVolume::genBBoxes(BOOL force_global, BOOL should_update_octree_bounds)
 {
     LL_PROFILE_ZONE_SCOPED;
     BOOL res = TRUE;
@@ -1753,20 +1777,9 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
         }
     }
 
-    bool rigged = false;
-
-    if (!isAnimatedObject())
-    {
-        rigged = isRiggedMesh() && isAttachment();
-    }
-    else
-    {
-        rigged = isRiggedMesh() && getControlAvatar() && getControlAvatar()->mPlaying;
-    }
-
     if (any_valid_boxes)
     {
-        if (rebuild)
+        if (rebuild && should_update_octree_bounds)
         {
             //get the Avatar associated with this object if it's rigged
             LLVOAvatar* avatar = nullptr;
@@ -1928,7 +1941,7 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 	}
 }
 
-bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
+bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled, BOOL &should_update_octree_bounds)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	bool regen_faces = false;
@@ -1960,6 +1973,9 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
         }
 
 		compiled = TRUE;
+        // new_lod > old_lod breaks a feedback loop between LOD updates and
+        // bounding box updates.
+        should_update_octree_bounds = should_update_octree_bounds || mSculptChanged || new_lod > old_lod;
 		sNumLODChanges += new_num_faces;
 
 		if ((S32)getNumTEs() != getVolume()->getNumFaces())
@@ -2019,8 +2035,6 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		group->dirtyMesh();
 	}
 
-	BOOL compiled = FALSE;
-			
 	updateRelativeXform();
 	
 	if (mDrawable.isNull()) // Not sure why this is happening, but it is...
@@ -2028,48 +2042,54 @@ BOOL LLVOVolume::updateGeometry(LLDrawable *drawable)
 		return TRUE; // No update to complete
 	}
 
+	BOOL compiled = FALSE;
+    // This should be true in most cases, unless we're sure no octree update is
+    // needed.
+    BOOL should_update_octree_bounds = bool(getRiggedVolume()) || mDrawable->isState(LLDrawable::REBUILD_POSITION) || !mDrawable->getSpatialExtents()->isFinite3();
+
 	if (mVolumeChanged || mFaceMappingChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 
 		bool was_regen_faces = false;
+        should_update_octree_bounds = true;
 
 		if (mVolumeChanged)
 		{
-			was_regen_faces = lodOrSculptChanged(drawable, compiled);
+            was_regen_faces = lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 			drawable->setState(LLDrawable::REBUILD_VOLUME);
 		}
 		else if (mSculptChanged || mLODChanged || mColorChanged)
 		{
 			compiled = TRUE;
-			was_regen_faces = lodOrSculptChanged(drawable, compiled);
+            was_regen_faces = lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 		}
 
 		if (!was_regen_faces) {
 			regenFaces();
 		}
-
-		genBBoxes(FALSE);
 	}
 	else if (mLODChanged || mSculptChanged || mColorChanged)
 	{
 		dirtySpatialGroup(drawable->isState(LLDrawable::IN_REBUILD_Q1));
 		compiled = TRUE;
-		lodOrSculptChanged(drawable, compiled);
+        lodOrSculptChanged(drawable, compiled, should_update_octree_bounds);
 		
 		if(drawable->isState(LLDrawable::REBUILD_RIGGED | LLDrawable::RIGGED)) 
 		{
 			updateRiggedVolume(false);
 		}
-		genBBoxes(FALSE);
 	}
 	// it has its own drawable (it's moved) or it has changed UVs or it has changed xforms from global<->local
 	else
 	{
 		compiled = TRUE;
 		// All it did was move or we changed the texture coordinate offset
-		genBBoxes(FALSE);
 	}
+
+    // Generate bounding boxes if needed, and update the object's size in the
+    // octree
+    genBBoxes(FALSE, should_update_octree_bounds);
 
 	// Update face flags
 	updateFaceFlags();

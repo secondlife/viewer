@@ -47,8 +47,10 @@ public:
 
     bool setFromGltfModel(tinygltf::Model& model, bool set_textures = false);
 
+    void setFromGltfMetaData(const std::string& filename, tinygltf::Model& model);
+
     // open a file dialog and select a gltf/glb file for import
-    void importMaterial();
+    static void importMaterial();
 
     // for live preview, apply current material to currently selected object
     void applyToSelection();
@@ -58,6 +60,7 @@ public:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
 
     void loadAsset() override;
+    void loadMaterialFromFile(const std::string& filename);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
@@ -102,6 +105,8 @@ public:
 	// llpanel
 	BOOL postBuild() override;
     void onClickCloseBtn(bool app_quitting = false) override;
+
+    void onClose(bool app_quitting) override;
 
     LLUUID getAlbedoId();
     void setAlbedoId(const LLUUID& id);
@@ -156,6 +161,8 @@ public:
     void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
 
+    // initialize the UI from a default GLTF material
+    void loadDefaults();
 private:
     friend class LLMaterialFilePicker;
 
@@ -192,9 +199,17 @@ private:
     LLPointer<LLImageJ2C> mMetallicRoughnessJ2C;
     LLPointer<LLImageJ2C> mEmissiveJ2C;
 
+    // utility function for converting image uri into a texture name
+    const std::string getImageNameFromUri(std::string image_uri, const std::string texture_type);
+
+    // utility function for building a description of the imported material
+    // based on what we know about it.
+    const std::string buildMaterialDescription();
+
     bool mHasUnsavedChanges;
     S32 mUploadingTexturesCount;
     S32 mExpectedUploadCost;
+    std::string mMaterialNameShort;
     std::string mMaterialName;
 };
 

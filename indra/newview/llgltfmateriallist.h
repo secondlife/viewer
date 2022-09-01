@@ -41,6 +41,9 @@ public:
 
     LLGLTFMaterial* getMaterial(const LLUUID& id);
 
+    void addMaterial(const LLUUID& id, LLGLTFMaterial* material);
+    void removeMaterial(const LLUUID& id);
+
 };
 
 extern LLGLTFMaterialList gGLTFMaterialList;

@@ -35,7 +35,7 @@ class LLSpatialGroup;
 class LLViewerObject;
 
 // number of reflection probes to keep in vram
-#define LL_REFLECTION_PROBE_COUNT 256
+#define LL_MAX_REFLECTION_PROBE_COUNT 256
 
 // reflection probe resolution
 #define LL_REFLECTION_PROBE_RESOLUTION 256
@@ -88,6 +88,9 @@ public:
     // probe debug display is active
     void renderDebug();
 
+    // call once at startup to allocate cubemap arrays
+    void initReflectionMaps();
+
 private:
     friend class LLPipeline;
 
@@ -120,7 +123,7 @@ private:
     LLPointer<LLCubeMapArray> mIrradianceMaps;
 
     // array indicating if a particular cubemap is free
-    bool mCubeFree[LL_REFLECTION_PROBE_COUNT];
+    bool mCubeFree[LL_MAX_REFLECTION_PROBE_COUNT];
 
     // start tracking the given spatial group
     void trackGroup(LLSpatialGroup* group);
@@ -148,5 +151,8 @@ private:
 
     LLReflectionMap* mUpdatingProbe = nullptr;
     U32 mUpdatingFace = 0;
+
+    // number of reflection probes to use for rendering (based on saved setting RenderReflectionProbeCount)
+    U32 mReflectionProbeCount;
 };
 

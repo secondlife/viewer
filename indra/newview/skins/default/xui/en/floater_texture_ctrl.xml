@@ -137,7 +137,29 @@
      value="Preview Disabled"
      word_wrap="true"
      visible="false"
-     width="87" />
+     width="87" />  
+    <combo_box
+      follows="left|top|right"
+      height="23"
+      label="Choose Textures, Materials or LIFE!"
+      layout="topleft"
+      left="175"
+      name="textures_material_combo"
+      top="20"
+      width="231">
+      <combo_box.item
+       label="Materials &amp; Textures"
+       name="Materials_Textures"
+       value="0" />
+      <combo_box.item
+       label="Textures"
+       name="Textures"
+       value="1" />
+      <combo_box.item
+       label="Materials"
+       name="Materials"
+       value="2" />
+    </combo_box>
     <filter_editor
      follows="left|top|right"
      height="23"
@@ -145,21 +167,21 @@
      layout="topleft"
      left="175"
      name="inventory search editor"
-     top="20"
+     top="48"
      width="231" />
-    <asset_filtered_inv_panel
-     allow_multi_select="false"
+  <asset_filtered_inv_panel
+   allow_multi_select="false"
      bg_visible="true"
      bg_alpha_color="DkGray2"
      border="false"
      follows="all"
-     height="233"
+     height="195"
      layout="topleft"
      left_delta="0"
      name="inventory panel"
      top_pad="4"
      width="231"
-     filter_asset_type="texture"/>
+     filter_asset_types="texture|material"/>
      <check_box
      height="14"
      initial_value="false"
@@ -218,8 +240,8 @@
      multi_select="true"
      search_column="1"
      visible="false">
+        <column name="icon" label="" width="20" />
         <column name="unit_name" label="Name" dynamicwidth="true" />
-        <column name="unit_id_HIDDEN" label="ID" width="0" />
     </scroll_list>
 
 <!-- middle: bake mode -->

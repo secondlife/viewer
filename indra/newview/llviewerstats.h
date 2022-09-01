@@ -191,10 +191,8 @@ extern LLTrace::SampleStatHandle<>		FPS_SAMPLE,
 
 extern LLTrace::SampleStatHandle<LLUnit<F32, LLUnits::Percent> > PACKETS_LOST_PERCENT;
 
-extern LLTrace::SampleStatHandle<F64Megabytes >	GL_TEX_MEM,
-																	GL_BOUND_MEM,
-																	RAW_MEM,
-																	FORMATTED_MEM;
+extern LLTrace::SampleStatHandle<F64Megabytes > FORMATTED_MEM;
+
 extern LLTrace::SampleStatHandle<F64Kilobytes >	DELTA_BANDWIDTH,
 																	MAX_BANDWIDTH;
 extern SimMeasurement<F64Milliseconds >	SIM_FRAME_TIME,
@@ -296,7 +294,6 @@ void update_statistics();
 void send_viewer_stats(bool include_preferences);
 void update_texture_time();
 
-extern LLFrameTimer gTextureTimer;
 extern U32Bytes	gTotalTextureData;
 extern U32Bytes  gTotalObjectData;
 extern U32Bytes  gTotalTextureBytesPerBoostLevel[] ;

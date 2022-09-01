@@ -259,7 +259,7 @@ BOOL LLFloaterSpellCheckerImport::postBuild(void)
 
 void LLFloaterSpellCheckerImport::onBtnBrowse()
 {
-	(new LLFilePickerReplyThread(boost::bind(&LLFloaterSpellCheckerImport::importSelectedDictionary, this, _1), LLFilePicker::FFLOAD_DICTIONARY, false))->getFile();
+	LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterSpellCheckerImport::importSelectedDictionary, this, _1), LLFilePicker::FFLOAD_DICTIONARY, false);
 }
 
 void LLFloaterSpellCheckerImport::importSelectedDictionary(const std::vector<std::string>& filenames)

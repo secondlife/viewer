@@ -110,12 +110,6 @@ public:
 	/// Threading:  called by worker thread
     void retryOp(const opReqPtr_t &);
 
-	/// Attempt to change the priority of an earlier request.
-	/// Request that Shadows HttpService's method
-	///
-	/// Threading:  called by worker thread
-	bool changePriority(HttpHandle handle, HttpRequest::priority_t priority);
-
 	/// Attempt to cancel a previous request.
 	/// Shadows HttpService's method as well
 	///

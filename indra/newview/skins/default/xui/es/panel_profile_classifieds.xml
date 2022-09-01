@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="Clasificado" name="panel_profile_classifieds">
+	<string name="no_classifieds" value="No hay clasificados"/>
+	<button label="Nuevo..." name="new_btn"/>
+	<button label="Eliminar..." name="delete_btn"/>
+	<text name="classifieds_panel_text">
+		Cargando...
+	</text>
+</panel>

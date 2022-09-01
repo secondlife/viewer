@@ -80,6 +80,7 @@ HttpService::HttpService()
 
 HttpService::~HttpService()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	mExitRequested = 1U;
 	if (RUNNING == sState)
 	{
@@ -131,6 +132,7 @@ HttpService::~HttpService()
 
 void HttpService::init(HttpRequestQueue * queue)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	llassert_always(! sInstance);
 	llassert_always(NOT_INITIALIZED == sState);
 	sInstance = new HttpService();
@@ -145,6 +147,7 @@ void HttpService::init(HttpRequestQueue * queue)
 
 void HttpService::term()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	if (sInstance)
 	{
 		if (RUNNING == sState && sInstance->mThread)
@@ -196,6 +199,7 @@ bool HttpService::isStopped()
 /// Threading:  callable by consumer thread *once*.
 void HttpService::startThread()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	llassert_always(! mThread || STOPPED == sState);
 	llassert_always(INITIALIZED == sState || STOPPED == sState);
 
@@ -220,22 +224,6 @@ void HttpService::stopRequested()
 }
 
 
-/// Threading:  callable by worker thread.
-bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t priority)
-{
-	bool found(false);
-
-	// Skip the request queue as we currently don't leave earlier
-	// requests sitting there.  Start with the ready queue...
-	found = mPolicy->changePriority(handle, priority);
-
-	// If not there, we could try the transport/active queue but priority
-	// doesn't really have much effect there so we don't waste cycles.
-	
-	return found;
-}
-
-
 /// Try to find the given request handle on any of the request
 /// queues and cancel the operation.
 ///
@@ -244,6 +232,7 @@ bool HttpService::changePriority(HttpHandle handle, HttpRequest::priority_t prio
 /// Threading:  callable by worker thread.
 bool HttpService::cancel(HttpHandle handle)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	bool canceled(false);
 
 	// Request can't be on request queue so skip that.
@@ -264,6 +253,7 @@ bool HttpService::cancel(HttpHandle handle)
 /// Threading:  callable by worker thread.
 void HttpService::shutdown()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	// Disallow future enqueue of requests
 	mRequestQueue->stopQueue();
 
@@ -293,6 +283,8 @@ void HttpService::shutdown()
 // requested to stop.
 void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 {
+    LL_PROFILER_SET_THREAD_NAME("HttpService");
+
 	boost::this_thread::disable_interruption di;
 
 	LLThread::registerThreadID();
@@ -300,6 +292,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 	ELoopSpeed loop(REQUEST_SLEEP);
 	while (! mExitRequested)
 	{
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
         try
         {
 		    loop = processRequestQueue(loop);
@@ -344,6 +337,7 @@ void HttpService::threadRun(LLCoreInt::HttpThread * thread)
 
 HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpRequestQueue::OpContainer ops;
 	const bool wait_for_req(REQUEST_SLEEP == loop);
 	
@@ -384,6 +378,7 @@ HttpService::ELoopSpeed HttpService::processRequestQueue(ELoopSpeed loop)
 HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 										long * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
 		|| opt >= HttpRequest::PO_LAST													// ditto
 		|| (! sOptionDesc[opt].mIsLong)													// datatype is long
@@ -416,6 +411,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 										std::string * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
@@ -443,6 +439,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 	HttpRequest::policyCallback_t * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
@@ -472,6 +469,7 @@ HttpStatus HttpService::getPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 										long value, long * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 	
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
@@ -517,6 +515,7 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 										const std::string & value, std::string * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 	
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range
@@ -548,6 +547,7 @@ HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequ
 HttpStatus HttpService::setPolicyOption(HttpRequest::EPolicyOption opt, HttpRequest::policy_t pclass,
 	HttpRequest::policyCallback_t value, HttpRequest::policyCallback_t * ret_value)
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK;
 	HttpStatus status(HttpStatus::LLCORE, LLCore::HE_INVALID_ARG);
 
 	if (opt < HttpRequest::PO_CONNECTION_LIMIT											// option must be in range

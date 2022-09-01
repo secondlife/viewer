@@ -28,11 +28,15 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE         0
+#define DEBUG_ANY_LIGHT_TYPE         0 // Output green light cone
+#define DEBUG_LEG_LIGHT_TYPE         0 // Show Legacy objects in green
+#define DEBUG_PBR_LIGHT_TYPE         0 // Show PBR objects in green
 #define DEBUG_PBR_SPOT               0
-#define DEBUG_PBR_NL                 0 // monochome area effected by light
 #define DEBUG_PBR_SPOT_DIFFUSE       0
 #define DEBUG_PBR_SPOT_SPECULAR      0
+
+#define DEBUG_SPOT_NL                  0 // monochome area effected by light
+#define DEBUG_SPOT_ZERO                0 // Output zero for spotlight
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -81,27 +85,17 @@ uniform mat4 inv_proj;
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacyDistanceAttenuation(float distance, float falloff);
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
 vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
+vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip_point);
 void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
-
-vec4 texture2DLodAmbient(sampler2D projectionMap, vec2 tc, float lod)
-{
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
-    ret.rgb = srgb_to_linear(ret.rgb);
-
-    vec2 dist = tc-vec2(0.5);
-    float d = dot(dist,dist);
-    ret *= min(clamp((0.25-d)/0.25, 0.0, 1.0), 1.0);
-
-    return ret;
-}
 
 vec4 getPosition(vec2 pos_screen);
 
@@ -136,7 +130,11 @@ void main()
     vec3 n;
     vec4 norm = getNormalEnvIntensityFlags(tc, n, envIntensity); // need `norm.w` for GET_GBUFFER_FLAG()
 
-    float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+    float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
+    if (dist_atten <= 0.0)
+    {
+        discard;
+    }
 
     lv = proj_origin-pos.xyz; // NOTE: Re-using lv
     vec3  h, l, v = -normalize(pos);
@@ -156,47 +154,46 @@ void main()
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
         float metal        = packedORM.b;
 
-//        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
-//        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
-        if (nl > 0.0)
+        // We need this additional test inside a light's frustum since a spotlight's ambiance can be applied
+        if (proj_tc.x > 0.0 && proj_tc.x < 1.0
+        &&  proj_tc.y > 0.0 && proj_tc.y < 1.0)
         {
-            vec3 c_diff, reflect0, reflect90;
-            float alphaRough, specWeight;
-            initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+            float lit = 0.0;
+            float amb_da = 0.0;
 
-            dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
-            slit = getProjectedLightSpecularColor( pos, n );
+            if (nl > 0.0)
+            {
+                amb_da += (nl*0.5 + 0.5) * proj_ambiance;
+                lit = nl * dist_atten;
 
-//          vec3 intensity = getLightIntensitySpot( color, size, lightDist, v );
-//          colorDiffuse = shadow * dlit * nl;
-//          colorSpec    = shadow * slit * nl;
+                vec3 c_diff, reflect0, reflect90;
+                float alphaRough, specWeight;
+                initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 
-//            colorDiffuse *= BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
-//            colorSpec    *= BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+                dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
+                slit = getProjectedLightSpecularColor( pos, n );
 
-            colorDiffuse = shadow * dlit * nl * dist_atten;
-            colorSpec    = shadow * slit * nl * dist_atten;
+                colorDiffuse = shadow * dist_atten * nl * (dlit*0.5 + BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh ));
+                colorSpec    = shadow * dist_atten * nl * (slit     + BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh ));
 
   #if DEBUG_PBR_SPOT_DIFFUSE
-            colorDiffuse = dlit.rgb; colorSpec = vec3(0);
+                colorDiffuse = dlit.rgb; colorSpec = vec3(0);
   #endif
   #if DEBUG_PBR_SPOT_SPECULAR
-            colorDiffuse = vec3(0); colorSpec = slit.rgb;
+                colorDiffuse = vec3(0); colorSpec = slit.rgb;
   #endif
   #if DEBUG_PBR_SPOT
-            colorDiffuse = dlit; colorSpec = vec3(0);
-            colorDiffuse *= nl;
-            colorDiffuse *= shadow;
+                colorDiffuse = dlit; colorSpec = vec3(0);
+                colorDiffuse *= nl;
+                colorDiffuse *= shadow;
   #endif
+            }
+
+            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, 1.0, proj_tc.xy );
+            colorDiffuse += diffuse.rgb * amb_rgb;
 
         }
 
-  #if DEBUG_SPOT_DIFFUSE
-        colorDiffuse = vec3(nl * dist_atten);
-  #endif
-  #if DEBUG_PBR_NL
-            colorDiffuse = vec3(nl); colorSpec = vec3(0);
-  #endif
   #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0.5,0,0); colorSpec = vec3(0.0);
   #endif
@@ -205,14 +202,6 @@ void main()
     }
     else
     {
-        dist_atten *= dist_atten;
-        dist_atten *= 2.0;
-
-        if (dist_atten <= 0.0)
-        {
-            discard;
-        }
-
         float noise = texture2D(noiseMap, tc/128.0).b;
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&
@@ -234,14 +223,11 @@ void main()
                 amb_da += (nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
             }
 
-            //float diff = clamp((proj_range-proj_focus)/proj_range, 0.0, 1.0);
-            vec4 amb_plcol = texture2DLodAmbient(projectionMap, proj_tc.xy, proj_lod);
-
-            amb_da += (nl*nl*0.5+0.5) /* * (1.0-shadow) */ * proj_ambiance;
-            amb_da *= dist_atten * noise;
-            amb_da = min(amb_da, 1.0-lit);
-
-            final_color += amb_da*color.rgb*diffuse.rgb*amb_plcol.rgb*amb_plcol.a;
+            vec3 amb_rgb = getProjectedLightAmbiance( amb_da, dist_atten, lit, nl, noise, proj_tc.xy );
+            final_color += diffuse.rgb*amb_rgb;
+  #if DEBUG_LEG_LIGHT_TYPE
+            final_color = vec3(0,0.5,0);
+  #endif
         }
 
         if (spec.a > 0.0)
@@ -290,6 +276,19 @@ void main()
             }
         }
     }
+
+#if DEBUG_SPOT_DIFFUSE
+    final_color = vec3(nl * dist_atten);
+#endif
+#if DEBUG_SPOT_NL
+    final_color = vec3(nl);
+#endif
+#if DEBUG_SPOT_ZERO
+    final_color = vec3(0,0,0);
+#endif
+#if DEBUG_ANY_LIGHT_TYPE
+    final_color = vec3(0,0.3333,0);
+#endif
 
     //not sure why, but this line prevents MATBUG-194
     final_color = max(final_color, vec3(0.0));

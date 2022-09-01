@@ -249,6 +249,16 @@ LLFilePickerReplyThread::~LLFilePickerReplyThread()
 	delete mFailureSignal;
 }
 
+void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type & cb, LLFilePicker::ELoadFilter filter, bool get_multiple, const file_picked_signal_t::slot_type & failure_cb)
+{
+    (new LLFilePickerReplyThread(cb, filter, get_multiple, failure_cb))->getFile();
+}
+
+void LLFilePickerReplyThread::startPicker(const file_picked_signal_t::slot_type & cb, LLFilePicker::ESaveFilter filter, const std::string & proposed_name, const file_picked_signal_t::slot_type & failure_cb)
+{
+    (new LLFilePickerReplyThread(cb, filter, proposed_name, failure_cb))->getFile();
+}
+
 void LLFilePickerReplyThread::notify(const std::vector<std::string>& filenames)
 {
 	if (filenames.empty())
@@ -571,7 +581,7 @@ class LLFileUploadImage : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_IMAGE, false))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_IMAGE, false);
 		return true;
 	}
 };
@@ -589,11 +599,7 @@ class LLFileUploadMaterial : public view_listener_t
 {
     bool handleEvent(const LLSD& userdata)
     {
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-        if (me)
-        {
-            me->importMaterial();
-        }
+        LLMaterialEditor::importMaterial();
         return TRUE;
     }
 };
@@ -606,7 +612,7 @@ class LLFileUploadSound : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_WAV, false);
 		return true;
 	}
 };
@@ -619,7 +625,7 @@ class LLFileUploadAnim : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		(new LLFilePickerReplyThread(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_ANIM, false))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&upload_single_file, _1, _2), LLFilePicker::FFLOAD_ANIM, false);
 		return true;
 	}
 };
@@ -632,7 +638,7 @@ class LLFileUploadBulk : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-		(new LLFilePickerReplyThread(boost::bind(&upload_bulk, _1, _2), LLFilePicker::FFLOAD_ALL, true))->getFile();
+		LLFilePickerReplyThread::startPicker(boost::bind(&upload_bulk, _1, _2), LLFilePicker::FFLOAD_ALL, true);
 		return true;
 	}
 };

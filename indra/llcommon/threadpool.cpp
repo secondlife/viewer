@@ -17,14 +17,17 @@
 // std headers
 // external library headers
 // other Linden headers
+#include "commoncontrol.h"
 #include "llerror.h"
 #include "llevents.h"
+#include "llsd.h"
 #include "stringize.h"
 
 LL::ThreadPool::ThreadPool(const std::string& name, size_t threads, size_t capacity):
+    super(name),
     mQueue(name, capacity),
     mName("ThreadPool:" + name),
-    mThreadCount(threads)
+    mThreadCount(getConfiguredWidth(name, threads))
 {}
 
 void LL::ThreadPool::start()
@@ -85,4 +88,59 @@ void LL::ThreadPool::run(const std::string& name)
 void LL::ThreadPool::run()
 {
     mQueue.runUntilClose();
+}
+
+//static
+size_t LL::ThreadPool::getConfiguredWidth(const std::string& name, size_t dft)
+{
+    LLSD poolSizes;
+    try
+    {
+        poolSizes = LL::CommonControl::get("Global", "ThreadPoolSizes");
+        // "ThreadPoolSizes" is actually a map containing the sizes of
+        // interest -- or should be, if this process has an
+        // LLViewerControlListener instance and its settings include
+        // "ThreadPoolSizes". If we failed to retrieve it, perhaps we're in a
+        // program that doesn't define that, or perhaps there's no such
+        // setting, or perhaps we're asking too early, before the LLEventAPI
+        // itself has been instantiated. In any of those cases, it seems worth
+        // warning.
+        if (! poolSizes.isDefined())
+        {
+            // Note: we don't warn about absence of an override key for a
+            // particular ThreadPool name, that's fine. This warning is about
+            // complete absence of a ThreadPoolSizes setting, which we expect
+            // in a normal viewer session.
+            LL_WARNS("ThreadPool") << "No 'ThreadPoolSizes' setting for ThreadPool '"
+                                   << name << "'" << LL_ENDL;
+        }
+    }
+    catch (const LL::CommonControl::Error& exc)
+    {
+        // We don't want ThreadPool to *require* LLViewerControlListener.
+        // Just log it and carry on.
+        LL_WARNS("ThreadPool") << "Can't check 'ThreadPoolSizes': " << exc.what() << LL_ENDL;
+    }
+
+    LL_DEBUGS("ThreadPool") << "ThreadPoolSizes = " << poolSizes << LL_ENDL;
+    // LLSD treats an undefined value as an empty map when asked to retrieve a
+    // key, so we don't need this to be conditional.
+    LLSD sizeSpec{ poolSizes[name] };
+    // We retrieve sizeSpec as LLSD, rather than immediately as LLSD::Integer,
+    // so we can distinguish the case when it's undefined.
+    return sizeSpec.isInteger() ? sizeSpec.asInteger() : dft;
+}
+
+//static
+size_t LL::ThreadPool::getWidth(const std::string& name, size_t dft)
+{
+    auto instance{ getInstance(name) };
+    if (instance)
+    {
+        return instance->getWidth();
+    }
+    else
+    {
+        return getConfiguredWidth(name, dft);
+    }
 }

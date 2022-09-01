@@ -1523,7 +1523,7 @@ bool LLFloaterEditExtDayCycle::isAddingFrameAllowed()
 
 void LLFloaterEditExtDayCycle::doImportFromDisk()
 {   // Load a a legacy Windlight XML from disk.
-    (new LLFilePickerReplyThread(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLFloaterEditExtDayCycle::loadSettingFromFile, this, _1), LLFilePicker::FFLOAD_XML, false);
 }
 
 void LLFloaterEditExtDayCycle::loadSettingFromFile(const std::vector<std::string>& filenames)

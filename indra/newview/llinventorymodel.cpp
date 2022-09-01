@@ -222,8 +222,6 @@ LLInventoryModel::LLInventoryModel()
 	mHttpOptions(),
 	mHttpHeaders(),
 	mHttpPolicyClass(LLCore::HttpRequest::DEFAULT_POLICY_ID),
-	mHttpPriorityFG(0),
-	mHttpPriorityBG(0),
 	mCategoryLock(),
 	mItemLock(),
 	mValidationInfo(new LLInventoryValidationInfo)
@@ -2799,7 +2797,6 @@ LLCore::HttpHandle LLInventoryModel::requestPost(bool foreground,
 		
 	handle = LLCoreHttpUtil::requestPostWithLLSD(request,
 												 mHttpPolicyClass,
-												 (foreground ? mHttpPriorityFG : mHttpPriorityBG),
 												 url,
 												 body,
 												 mHttpOptions,

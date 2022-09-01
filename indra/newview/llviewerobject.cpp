@@ -4903,7 +4903,14 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     auto fetch_texture = [](const LLUUID& id)
     {
-        return LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
+        LLViewerFetchedTexture* img = nullptr;
+        if (id.notNull())
+        {
+            img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
+            img->addTextureStats(64.f * 64.f, TRUE);
+        }
+
+        return img;
     };
 
     LLGLTFMaterial* mat = getTE(te)->getGLTFMaterial();

@@ -1177,7 +1177,7 @@ void LLOutfitGallery::uploadPhoto(LLUUID outfit_id)
 	{
 		return;
 	}
-    (new LLFilePickerReplyThread(boost::bind(&LLOutfitGallery::uploadOutfitImage, this, _1, outfit_id), LLFilePicker::FFLOAD_IMAGE, false))->getFile();
+    LLFilePickerReplyThread::startPicker(boost::bind(&LLOutfitGallery::uploadOutfitImage, this, _1, outfit_id), LLFilePicker::FFLOAD_IMAGE, false);
 }
 
 void LLOutfitGallery::uploadOutfitImage(const std::vector<std::string>& filenames, LLUUID outfit_id)
@@ -1374,6 +1374,7 @@ void LLOutfitGallery::onSelectPhoto(LLUUID selected_outfit_id)
                 texture_floaterp->setOnFloaterCommitCallback(boost::bind(&LLOutfitGallery::onTexturePickerCommit, this, _1, _2));
                 texture_floaterp->setOnUpdateImageStatsCallback(boost::bind(&LLOutfitGallery::onTexturePickerUpdateImageStats, this, _1));
                 texture_floaterp->setLocalTextureEnabled(FALSE);
+                texture_floaterp->setBakeTextureEnabled(FALSE);
                 texture_floaterp->setCanApply(false, true);
             }
 

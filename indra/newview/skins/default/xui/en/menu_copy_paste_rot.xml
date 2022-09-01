@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<toggleable_menu
+ layout="topleft"
+ name="Copy Paste Rotation Menu">
+    <menu_item_call
+     label="Copy all"
+     layout="topleft"
+     name="psr_copy"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="psr_copy" />
+       <on_enable function="PanelObject.menuEnable" parameter="rot_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Copy rotation"
+     layout="topleft"
+     name="rot_copy"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="rot_copy" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste all"
+     layout="topleft"
+     name="psr_paste"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="psr_paste" />
+       <on_enable function="PanelObject.menuEnable" parameter="psr_paste" />
+    </menu_item_call>
+    <menu_item_call
+     label="Paste rotation"
+     layout="topleft"
+     name="rot_paste"
+     visible="true">
+       <on_click function="PanelObject.menuDoToSelected" parameter="rot_paste" />
+       <on_enable function="PanelObject.menuEnable" parameter="rot_paste" />
+    </menu_item_call>
+</toggleable_menu>
+

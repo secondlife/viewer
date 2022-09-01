@@ -42,6 +42,7 @@
 #include "llselectmgr.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "llviewerinventory.h"
+#include "llinventory.h"
 #include "llviewerregion.h"
 #include "llvovolume.h"
 #include "roles_constants.h"
@@ -54,6 +55,7 @@
 #include "llfloaterperms.h"
 
 #include "tinygltf/tiny_gltf.h"
+#include "lltinygltfhelper.h"
 #include <strstream>
 
 
@@ -61,6 +63,7 @@ const std::string MATERIAL_ALBEDO_DEFAULT_NAME = "Albedo";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
+
 
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
@@ -162,6 +165,15 @@ void LLMaterialEditor::onClickCloseBtn(bool app_quitting)
     {
         onClickCancel();
     }
+}
+
+void LLMaterialEditor::onClose(bool app_quitting)
+{
+    // todo: will only revert whatever was recently selected,
+    // Later should work based of tools floater
+    LLSelectMgr::getInstance()->selectionRevertGLTFMaterials();
+    
+    LLPreview::onClose(app_quitting);
 }
 
 LLUUID LLMaterialEditor::getAlbedoId()
@@ -648,6 +660,61 @@ bool LLMaterialEditor::decodeAsset(const std::vector<char>& buffer)
     return false;
 }
 
+/**
+ * Build a description of the material we just imported.
+ * Currently this means a list of the textures present but we
+ * may eventually want to make it more complete - will be guided
+ * by what the content creators say they need.
+ */
+const std::string LLMaterialEditor::buildMaterialDescription()
+{
+    std::ostringstream desc;
+    desc << LLTrans::getString("Material Texture Name Header");
+
+    // add the texture names for each just so long as the material
+    // we loaded has an entry for it (i think testing the texture 
+    // control UUI for NULL is a valid metric for if it was loaded
+    // or not but I suspect this code will change a lot so may need
+    // to revisit
+    if (!mAlbedoTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mAlbedoName;
+        desc << ", ";
+    }
+    if (!mMetallicTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mMetallicRoughnessName;
+        desc << ", ";
+    }
+    if (!mEmissiveTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mEmissiveName;
+        desc << ", ";
+    }
+    if (!mNormalTextureCtrl->getValue().asUUID().isNull())
+    {
+        desc << mNormalName;
+    }
+
+    // trim last char if it's a ',' in case there is no normal texture
+    // present and the code above inserts one
+    // (no need to check for string length - always has initial string)
+    std::string::iterator iter = desc.str().end() - 1;
+    if (*iter == ',')
+    {
+        desc.str().erase(iter);
+    }
+
+    // sanitize the material description so that it's compatible with the inventory
+    // note: split this up because clang doesn't like operating directly on the
+    // str() - error: lvalue reference to type 'basic_string<...>' cannot bind to a
+    // temporary of type 'basic_string<...>'
+    std::string inv_desc = desc.str();
+    LLInventoryObject::correctInventoryName(inv_desc);
+
+    return inv_desc;
+}
+
 bool LLMaterialEditor::saveIfNeeded()
 {
     if (mUploadingTexturesCount > 0)
@@ -693,7 +760,7 @@ bool LLMaterialEditor::saveIfNeeded()
         LLTransactionID tid;
         tid.generate();     // timestamp-based randomization + uniquification
         LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
-        std::string res_desc = "Saved Material";
+        std::string res_desc = buildMaterialDescription();
         U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
         LLUUID parent = gInventory.findCategoryUUIDForType(LLFolderType::FT_MATERIAL);
         const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
@@ -952,18 +1019,15 @@ void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD&
 class LLMaterialFilePicker : public LLFilePickerThread
 {
 public:
-    LLMaterialFilePicker(LLMaterialEditor* me);
+    LLMaterialFilePicker();
     virtual void notify(const std::vector<std::string>& filenames);
-    void loadMaterial(const std::string& filename);
     static void	textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
-private:
-    LLMaterialEditor* mME;
+
 };
 
-LLMaterialFilePicker::LLMaterialFilePicker(LLMaterialEditor* me)
+LLMaterialFilePicker::LLMaterialFilePicker()
     : LLFilePickerThread(LLFilePicker::FFLOAD_MATERIAL)
 {
-    mME = me;
 }
 
 void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
@@ -976,82 +1040,20 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
     
     if (filenames.size() > 0)
     {
-        loadMaterial(filenames[0]);
-    }
-}
-
-const tinygltf::Image* get_image_from_texture_index(const tinygltf::Model& model, S32 texture_index)
-{
-    if (texture_index >= 0)
-    {
-        S32 source_idx = model.textures[texture_index].source;
-        if (source_idx >= 0)
+        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+        if (me)
         {
-            return &(model.images[source_idx]);
+            me->loadMaterialFromFile(filenames[0]);
         }
     }
-
-    return nullptr;
 }
 
-static LLImageRaw* get_texture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name)
-{
-    const tinygltf::Image* image = get_image_from_texture_index(model, texture_index);
-    LLImageRaw* rawImage = nullptr;
-
-    if (image != nullptr && 
-        image->bits == 8 &&
-        !image->image.empty() &&
-        image->component <= 4)
-    {
-        name = image->name;
-        rawImage = new LLImageRaw(&image->image[0], image->width, image->height, image->component);
-        rawImage->verticalFlip();
-    }
-
-    return rawImage;
-}
-
-static void strip_alpha_channel(LLPointer<LLImageRaw>& img)
-{
-    if (img->getComponents() == 4)
-    {
-        LLImageRaw* tmp = new LLImageRaw(img->getWidth(), img->getHeight(), 3);
-        tmp->copyUnscaled4onto3(img);
-        img = tmp;
-    }
-}
-
-// copy red channel from src_img to dst_img
-// PRECONDITIONS:
-// dst_img must be 3 component
-// src_img and dst_image must have the same dimensions
-static void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst_img)
-{
-    llassert(src_img->getWidth() == dst_img->getWidth() && src_img->getHeight() == dst_img->getHeight());
-    llassert(dst_img->getComponents() == 3);
-
-    U32 pixel_count = dst_img->getWidth() * dst_img->getHeight();
-    U8* src = src_img->getData();
-    U8* dst = dst_img->getData();
-    S8 src_components = src_img->getComponents();
-
-    for (U32 i = 0; i < pixel_count; ++i)
-    {
-        dst[i * 3] = src[i * src_components];
-    }
-}
-
-static void pack_textures(tinygltf::Model& model, tinygltf::Material& material, 
+static void pack_textures(
     LLPointer<LLImageRaw>& albedo_img,
     LLPointer<LLImageRaw>& normal_img,
     LLPointer<LLImageRaw>& mr_img,
     LLPointer<LLImageRaw>& emissive_img,
     LLPointer<LLImageRaw>& occlusion_img,
-    LLPointer<LLViewerFetchedTexture>& albedo_tex,
-    LLPointer<LLViewerFetchedTexture>& normal_tex,
-    LLPointer<LLViewerFetchedTexture>& mr_tex,
-    LLPointer<LLViewerFetchedTexture>& emissive_tex,
     LLPointer<LLImageJ2C>& albedo_j2c,
     LLPointer<LLImageJ2C>& normal_j2c,
     LLPointer<LLImageJ2C>& mr_j2c,
@@ -1059,68 +1061,23 @@ static void pack_textures(tinygltf::Model& model, tinygltf::Material& material,
 {
     if (albedo_img)
     {
-        albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
         albedo_j2c = LLViewerTextureList::convertToUploadFile(albedo_img);
     }
 
     if (normal_img)
     {
-        strip_alpha_channel(normal_img);
-        normal_tex = LLViewerTextureManager::getFetchedTexture(normal_img, FTType::FTT_LOCAL_FILE, true);
         normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img);
     }
 
     if (mr_img)
     {
-        strip_alpha_channel(mr_img);
-
-        if (occlusion_img && material.pbrMetallicRoughness.metallicRoughnessTexture.index != material.occlusionTexture.index)
-        {
-            // occlusion is a distinct texture from pbrMetallicRoughness
-            // pack into mr red channel
-            int occlusion_idx = material.occlusionTexture.index;
-            int mr_idx = material.pbrMetallicRoughness.metallicRoughnessTexture.index;
-            if (occlusion_idx != mr_idx)
-            {
-                //scale occlusion image to match resolution of mr image
-                occlusion_img->scale(mr_img->getWidth(), mr_img->getHeight());
-             
-                copy_red_channel(occlusion_img, mr_img);
-            }
-        }
-    }
-    else if (occlusion_img)
-    {
-        //no mr but occlusion exists, make a white mr_img and copy occlusion red channel over
-        mr_img = new LLImageRaw(occlusion_img->getWidth(), occlusion_img->getHeight(), 3);
-        mr_img->clear(255, 255, 255);
-        copy_red_channel(occlusion_img, mr_img);
-
-    }
-
-    if (mr_img)
-    {
-        mr_tex = LLViewerTextureManager::getFetchedTexture(mr_img, FTType::FTT_LOCAL_FILE, true);
         mr_j2c = LLViewerTextureList::convertToUploadFile(mr_img);
     }
 
     if (emissive_img)
     {
-        strip_alpha_channel(emissive_img);
-        emissive_tex = LLViewerTextureManager::getFetchedTexture(emissive_img, FTType::FTT_LOCAL_FILE, true);
         emissive_j2c = LLViewerTextureList::convertToUploadFile(emissive_img);
     }
-}
-
-static LLColor4 get_color(const std::vector<double>& in)
-{
-    LLColor4 out;
-    for (S32 i = 0; i < llmin((S32) in.size(), 4); ++i)
-    {
-        out.mV[i] = in[i];
-    }
-
-    return out;
 }
 
 void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata)
@@ -1128,7 +1085,7 @@ void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTe
 }
 
 
-void LLMaterialFilePicker::loadMaterial(const std::string& filename)
+void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
 {
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
@@ -1174,91 +1131,91 @@ void LLMaterialFilePicker::loadMaterial(const std::string& filename)
     model_out.materials.resize(1);
 
     // get albedo texture
-    LLPointer<LLImageRaw> albedo_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mME->mAlbedoName);
+    LLPointer<LLImageRaw> albedo_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mAlbedoName);
     // get normal map
-    LLPointer<LLImageRaw> normal_img = get_texture(folder, model_in, material_in.normalTexture.index, mME->mNormalName);
+    LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, mNormalName);
     // get metallic-roughness texture
-    LLPointer<LLImageRaw> mr_img = get_texture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, mME->mMetallicRoughnessName);
+    LLPointer<LLImageRaw> mr_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.metallicRoughnessTexture.index, mMetallicRoughnessName);
     // get emissive texture
-    LLPointer<LLImageRaw> emissive_img = get_texture(folder, model_in, material_in.emissiveTexture.index, mME->mEmissiveName);
+    LLPointer<LLImageRaw> emissive_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.emissiveTexture.index, mEmissiveName);
     // get occlusion map if needed
     LLPointer<LLImageRaw> occlusion_img;
     if (material_in.occlusionTexture.index != material_in.pbrMetallicRoughness.metallicRoughnessTexture.index)
     {
         std::string tmp;
-        occlusion_img = get_texture(folder, model_in, material_in.occlusionTexture.index, tmp);
+        occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index, tmp);
     }
 
-    pack_textures(model_in, material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        mME->mAlbedoFetched, mME->mNormalFetched, mME->mMetallicRoughnessFetched, mME->mEmissiveFetched,
-        mME->mAlbedoJ2C, mME->mNormalJ2C, mME->mMetallicRoughnessJ2C, mME->mEmissiveJ2C);
+    LLTinyGLTFHelper::initFetchedTextures(material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
+        mAlbedoFetched, mNormalFetched, mMetallicRoughnessFetched, mEmissiveFetched);
+    pack_textures(albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
+        mAlbedoJ2C, mNormalJ2C, mMetallicRoughnessJ2C, mEmissiveJ2C);
     
     LLUUID albedo_id;
-    if (mME->mAlbedoFetched.notNull())
+    if (mAlbedoFetched.notNull())
     {
-        mME->mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
-        albedo_id = mME->mAlbedoFetched->getID();
+        mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
+        albedo_id = mAlbedoFetched->getID();
         
-        if (mME->mAlbedoName.empty())
+        if (mAlbedoName.empty())
         {
-            mME->mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+            mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
         }
     }
 
     LLUUID normal_id;
-    if (mME->mNormalFetched.notNull())
+    if (mNormalFetched.notNull())
     {
-        mME->mNormalFetched->forceToSaveRawImage(0, F32_MAX);
-        normal_id = mME->mNormalFetched->getID();
+        mNormalFetched->forceToSaveRawImage(0, F32_MAX);
+        normal_id = mNormalFetched->getID();
 
-        if (mME->mNormalName.empty())
+        if (mNormalName.empty())
         {
-            mME->mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
+            mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
         }
     }
 
     LLUUID mr_id;
-    if (mME->mMetallicRoughnessFetched.notNull())
+    if (mMetallicRoughnessFetched.notNull())
     {
-        mME->mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
-        mr_id = mME->mMetallicRoughnessFetched->getID();
+        mMetallicRoughnessFetched->forceToSaveRawImage(0, F32_MAX);
+        mr_id = mMetallicRoughnessFetched->getID();
 
-        if (mME->mMetallicRoughnessName.empty())
+        if (mMetallicRoughnessName.empty())
         {
-            mME->mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
+            mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
         }
     }
 
     LLUUID emissive_id;
-    if (mME->mEmissiveFetched.notNull())
+    if (mEmissiveFetched.notNull())
     {
-        mME->mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
-        emissive_id = mME->mEmissiveFetched->getID();
+        mEmissiveFetched->forceToSaveRawImage(0, F32_MAX);
+        emissive_id = mEmissiveFetched->getID();
 
-        if (mME->mEmissiveName.empty())
+        if (mEmissiveName.empty())
         {
-            mME->mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
+            mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
         }
     }
 
-    mME->setAlbedoId(albedo_id);
-    mME->setAlbedoUploadId(albedo_id);
-    mME->setMetallicRoughnessId(mr_id);
-    mME->setMetallicRoughnessUploadId(mr_id);
-    mME->setEmissiveId(emissive_id);
-    mME->setEmissiveUploadId(emissive_id);
-    mME->setNormalId(normal_id);
-    mME->setNormalUploadId(normal_id);
+    setAlbedoId(albedo_id);
+    setAlbedoUploadId(albedo_id);
+    setMetallicRoughnessId(mr_id);
+    setMetallicRoughnessUploadId(mr_id);
+    setEmissiveId(emissive_id);
+    setEmissiveUploadId(emissive_id);
+    setNormalId(normal_id);
+    setNormalUploadId(normal_id);
 
-    mME->setFromGltfModel(model_in);
+    setFromGltfModel(model_in);
 
-    std::string new_material = LLTrans::getString("New Material");
-    mME->setMaterialName(new_material);
+    setFromGltfMetaData(filename_lc, model_in);
 
-    mME->setHasUnsavedChanges(true);
-    mME->openFloater();
+    setHasUnsavedChanges(true);
+    openFloater();
 
-    mME->applyToSelection();
+    applyToSelection();
 }
 
 bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_textures)
@@ -1324,8 +1281,8 @@ bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_texture
         setAlphaMode(material_in.alphaMode);
         setAlphaCutoff(material_in.alphaCutoff);
 
-        setAlbedoColor(get_color(material_in.pbrMetallicRoughness.baseColorFactor));
-        setEmissiveColor(get_color(material_in.emissiveFactor));
+        setAlbedoColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
+        setEmissiveColor(LLTinyGLTFHelper::getColor(material_in.emissiveFactor));
 
         setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
         setRoughnessFactor(material_in.pbrMetallicRoughness.roughnessFactor);
@@ -1336,39 +1293,253 @@ bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_texture
     return true;
 }
 
+/**
+ * Build a texture name from the contents of the (in tinyGLFT parlance) 
+ * Image URI. This often is filepath to the original image on the users'
+ *  local file system.
+ */
+const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, const std::string texture_type)
+{
+    // getBaseFileName() works differently on each platform and file patchs 
+    // can contain both types of delimiter so unify them then extract the 
+    // base name (no path or extension)
+    std::replace(image_uri.begin(), image_uri.end(), '\\', gDirUtilp->getDirDelimiter()[0]);
+    std::replace(image_uri.begin(), image_uri.end(), '/', gDirUtilp->getDirDelimiter()[0]);
+    const bool strip_extension = true;
+    std::string stripped_uri = gDirUtilp->getBaseFileName(image_uri, strip_extension);
+
+    // sometimes they can be really long and unwieldy - 64 chars is enough for anyone :) 
+    const int max_texture_name_length = 64;
+    if (stripped_uri.length() > max_texture_name_length)
+    {
+        stripped_uri = stripped_uri.substr(0, max_texture_name_length - 1);
+    }
+
+    // We intend to append the type of texture (albedo, emissive etc.) to the 
+    // name of the texture but sometimes the creator already did that.  To try
+    // to avoid repeats (not perfect), we look for the texture type in the name
+    // and if we find it, do not append the type, later on. One way this fails
+    // (and it's fine for now) is I see some texture/image uris have a name like
+    // "metallic roughness" and of course, that doesn't match our predefined
+    // name "metallicroughness" - consider fix later..
+    bool name_includes_type = false;
+    std::string stripped_uri_lower = stripped_uri;
+    LLStringUtil::toLower(stripped_uri_lower);
+    stripped_uri_lower.erase(std::remove_if(stripped_uri_lower.begin(), stripped_uri_lower.end(), isspace), stripped_uri_lower.end());
+    std::string texture_type_lower = texture_type;
+    LLStringUtil::toLower(texture_type_lower);
+    texture_type_lower.erase(std::remove_if(texture_type_lower.begin(), texture_type_lower.end(), isspace), texture_type_lower.end());
+    if (stripped_uri_lower.find(texture_type_lower) != std::string::npos)
+    {
+        name_includes_type = true;
+    }
+
+    // uri doesn't include the type at all
+    if (name_includes_type == false)
+    {
+        // uri doesn't include the type and the uri is not empty
+        // so we can include everything
+        if (stripped_uri.length() > 0)
+        {
+            // example "DamagedHelmet: base layer (Albedo)"
+            return STRINGIZE(
+                mMaterialNameShort <<
+                ": " <<
+                stripped_uri <<
+                " (" <<
+                texture_type <<
+                ")"
+            );
+        }
+        else
+        // uri doesn't include the type (because the uri is empty)
+        // so we must reorganize the string a bit to include the name
+        // and an explicit name type
+        {
+            // example "DamagedHelmet: (Emissive)"
+            return STRINGIZE(
+                mMaterialNameShort <<
+                " (" <<
+                texture_type <<
+                ")"
+            );
+        }
+    }
+    else
+    // uri includes the type so just use it directly with the
+    // name of the material
+    {
+        return STRINGIZE(
+            // example: AlienBust: normal_layer
+            mMaterialNameShort <<
+            ": " <<
+            stripped_uri
+        );
+    }
+}
+
+/**
+ * Update the metadata for the material based on what we find in the loaded
+ * file (along with some assumptions and interpretations...). Fields include
+ * the name of the material, a material description and the names of the 
+ * composite textures.
+ */
+void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf::Model& model)
+{
+    // Use the name (without any path/extension) of the file that was 
+    // uploaded as the base of the material name. Then if the name of the 
+    // scene is present and not blank, append that and use the result as
+    // the name of the material. This is a first pass at creating a 
+    // naming scheme that is useful to real content creators and hopefully
+    // avoid 500 materials in your inventory called "scene" or "Default"
+    const bool strip_extension = true;
+    std::string base_filename = gDirUtilp->getBaseFileName(filename, strip_extension);
+
+    // Extract the name of the scene. Note it is often blank or some very
+    // generic name like "Scene" or "Default" so using this in the name
+    // is less useful than you might imagine.
+    std::string scene_name;
+    if (model.scenes.size() > 0)
+    {
+        tinygltf::Scene& scene_in = model.scenes[0];
+        if (scene_in.name.length())
+        {
+            scene_name = scene_in.name;
+        }
+        else
+        {
+            // scene name is empty so no point using it
+        }
+    }
+    else
+    {
+        // scene name isn't present so no point using it
+    }
+
+    // If we have a valid scene name, use it to build the short and 
+    // long versions of the material name. The long version is used 
+    // as you might expect, for the material name. The short version is
+    // used as part of the image/texture name - the theory is that will 
+    // allow content creators to track the material and the corresponding
+    // textures
+    if (scene_name.length())
+    {
+        mMaterialNameShort = base_filename;
+
+        mMaterialName = STRINGIZE(
+            base_filename << 
+            " " << 
+            "(" << 
+            scene_name << 
+            ")"
+        );
+    }
+    else
+    // otherwise, just use the trimmed filename as is
+    {
+        mMaterialNameShort = base_filename;
+        mMaterialName = base_filename;
+    }
+
+    // sanitize the material name so that it's compatible with the inventory
+    LLInventoryObject::correctInventoryName(mMaterialName);
+    LLInventoryObject::correctInventoryName(mMaterialNameShort);
+
+    // We also set the title of the floater to match the 
+    // name of the material
+    setTitle(mMaterialName);
+
+    /**
+     * Extract / derive the names of each composite texture. For each, the 
+     * index in the first material (we only support 1 material currently) is
+     * used to to determine which of the "Images" is used. If the index is -1
+     * then that texture type is not present in the material (Seems to be 
+     * quite common that a material is missing 1 or more types of texture)
+     */
+    if (model.materials.size() > 0)
+    {
+        const tinygltf::Material& first_material = model.materials[0];
+
+        mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+        // note: unlike the other textures, albedo doesn't have its own entry 
+        // in the tinyGLTF Material struct. Rather, it is taken from a 
+        // sub-texture in the pbrMetallicRoughness member
+        int index = first_material.pbrMetallicRoughness.baseColorTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            // sanitize the name we decide to use for each texture
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_ALBEDO_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mAlbedoName = texture_name;
+        }
+
+        mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
+        index = first_material.emissiveTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_EMISSIVE_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mEmissiveName = texture_name;
+        }
+
+        mMetallicRoughnessName = MATERIAL_METALLIC_DEFAULT_NAME;
+        index = first_material.pbrMetallicRoughness.metallicRoughnessTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_METALLIC_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mMetallicRoughnessName = texture_name;
+        }
+
+        mNormalName = MATERIAL_NORMAL_DEFAULT_NAME;
+        index = first_material.normalTexture.index;
+        if (index > -1 && index < model.images.size())
+        {
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_NORMAL_DEFAULT_NAME);
+            LLInventoryObject::correctInventoryName(texture_name);
+            mNormalName = texture_name;
+        }
+    }
+}
+
 void LLMaterialEditor::importMaterial()
 {
-    (new LLMaterialFilePicker(this))->getFile();
+    (new LLMaterialFilePicker())->getFile();
 }
+
+class LLRemderMaterialFunctor : public LLSelectedTEFunctor
+{
+public:
+    LLRemderMaterialFunctor(LLGLTFMaterial *mat, const LLUUID &id)
+        : mMat(mat), mMatId(id)
+    {
+    }
+
+    virtual bool apply(LLViewerObject* objectp, S32 te)
+    {
+        if (objectp && objectp->permModify() && objectp->getVolume())
+        {
+            LLVOVolume* vobjp = (LLVOVolume*)objectp;
+            vobjp->setRenderMaterialID(te, mMatId);
+            vobjp->getTE(te)->setGLTFMaterial(mMat);
+            vobjp->updateTEMaterialTextures(te);
+        }
+        return true;
+    }
+private:
+    LLPointer<LLGLTFMaterial> mMat;
+    LLUUID mMatId;
+};
 
 void LLMaterialEditor::applyToSelection()
 {
-    // Todo: fix this, this is a hack, not a proper live preview
-    LLViewerObject* objectp = LLSelectMgr::instance().getSelection()->getFirstObject();
-    if (objectp && objectp->getVolume() && objectp->permModify())
-    {
-        LLGLTFMaterial* mat = new LLGLTFMaterial();
-        getGLTFMaterial(mat);
-        LLVOVolume* vobjp = (LLVOVolume*)objectp;
-        for (int i = 0; i < vobjp->getNumTEs(); ++i)
-        {
-            // this is here just to prevent material from immediately resetting
-            if (mAssetID.notNull())
-            {
-                vobjp->setRenderMaterialID(i, mAssetID);
-            }
-            else
-            {
-                const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-                vobjp->setRenderMaterialID(i, placeholder);
-            }
-
-            vobjp->getTE(i)->setGLTFMaterial(mat);
-            vobjp->updateTEMaterialTextures(i);
-        }
-
-        vobjp->markForUpdate(TRUE);
-    }
+    LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
+    getGLTFMaterial(mat);
+    const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
+    LLUUID asset_id = mAssetID.notNull() ? mAssetID : placeholder;
+    LLRemderMaterialFunctor mat_func(mat, asset_id);
+    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+    selected_objects->applyToTEs(&mat_func);
 }
 
 void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
@@ -1434,6 +1605,7 @@ void LLMaterialEditor::loadAsset()
             if (mAssetID.isNull())
             {
                 mAssetStatus = PREVIEW_ASSET_LOADED;
+                loadDefaults();
                 setHasUnsavedChanges(false);
             }
             else
@@ -1734,3 +1906,9 @@ S32 LLMaterialEditor::saveTextures()
     return work_count;
 }
 
+void LLMaterialEditor::loadDefaults()
+{
+    tinygltf::Model model_in;
+    model_in.materials.resize(1);
+    setFromGltfModel(model_in, true);
+}

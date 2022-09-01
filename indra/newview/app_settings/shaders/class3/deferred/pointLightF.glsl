@@ -27,7 +27,10 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE         0
+#define DEBUG_ANY_LIGHT_TYPE         0 // Output magenta light cone
+#define DEBUG_LEG_LIGHT_TYPE         0 // Show Legacy objects in green
+#define DEBUG_PBR_LIGHT_TYPE         0 // Show PBR objects in blue
+#define DEBUG_POINT_ZERO             0 // Output zero for point light
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -62,6 +65,7 @@ uniform vec4 viewport;
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
+float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec4 getPosition(vec2 pos_screen);
@@ -88,8 +92,12 @@ void main()
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
+    if (lightDist >= size)
+    {
+        discard;
+    }
     float dist = lightDist / size;
-    float dist_atten = 1.0 - (dist + falloff)/(1.0 + falloff);
+    float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
@@ -97,40 +105,31 @@ void main()
         vec3 colorSpec     = vec3(0);
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
         vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+        float lightSize    = size;
+        vec3 lightColor    = color; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
 
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;
         initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
 
-        if (nl > 0.0 || nv > 0.0)
+        if (nl > 0.0)
         {
-            vec3 intensity = dist_atten * getLightIntensityPoint(color, size, lightDist);
-            colorDiffuse += intensity * nl * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-            colorSpec    += intensity * nl * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            vec3 intensity = dist_atten * nl * lightColor; // Legacy attenuation
+            colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }
 
 #if DEBUG_PBR_LIGHT_TYPE
         colorDiffuse = vec3(0,0,0.5); colorSpec = vec3(0);
 #endif
-
         final_color = colorDiffuse + colorSpec;
     }
     else
     {
-        float dist = lightDist;
-        if (dist >= size)
-        {
-            discard;
-        }
-        dist /= size;
-
         if (nl < 0.0)
         {
             discard;
         }
-
-        dist_atten *= dist_atten;
-        dist_atten *= 2.0;
 
         float noise = texture2D(noiseMap, tc/128.0).b;
         float lit = nl * dist_atten * noise;
@@ -157,7 +156,18 @@ void main()
         {
             discard;
         }
+
+#if DEBUG_LEG_LIGHT_TYPE
+        final_color.rgb = vec3(0,0.25,0);
+#endif
     }
+
+#if DEBUG_POINT_ZERO
+    final_color = vec3(0);
+#endif
+#if DEBUG_ANY_LIGHT_TYPE
+    final_color = vec3(0.25,0,0.25);
+#endif
 
     frag_color.rgb = final_color;
     frag_color.a = 0.0;

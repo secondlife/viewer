@@ -61,8 +61,10 @@ public:
     // get a UUID based on a hash of this LLGLTFMaterial
     LLUUID getHash() const
     {
+        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         LLMD5 md5;
         md5.update((unsigned char*) this, sizeof(this));
+        md5.finalize();
         LLUUID id;
         md5.raw_digest(id.mData);
         return id;

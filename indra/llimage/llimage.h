@@ -276,7 +276,6 @@ protected:
 	void setDataAndSize(U8 *data, S32 width, S32 height, S8 components) ;
 
 public:
-	static S32 sGlobalRawMemory;
 	static S32 sRawImageCount;
 
 private:

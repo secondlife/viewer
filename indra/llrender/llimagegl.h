@@ -52,6 +52,13 @@ class LLImageGL : public LLRefCount
 {
 	friend class LLTexUnit;
 public:
+
+    // Get an estimate of how many bytes have been allocated in vram for textures.
+    // Does not include mipmaps.
+    // NOTE: multiplying this number by two gives a good estimate for total
+    // video memory usage based on testing in lagland against an NVIDIA GPU.
+    static U64 getTextureBytesAllocated();
+
 	// These 2 functions replace glGenTextures() and glDeleteTextures()
 	static void generateTextures(S32 numTextures, U32 *textures);
 	static void deleteTextures(S32 numTextures, const U32 *textures);
@@ -61,7 +68,7 @@ public:
 	static S32 dataFormatBytes(S32 dataformat, S32 width, S32 height);
 	static S32 dataFormatComponents(S32 dataformat);
 
-	BOOL updateBindStats(S32Bytes tex_mem) const ;
+	BOOL updateBindStats() const ;
 	F32 getTimePassedSinceLastBound();
 	void forceUpdateBindStats(void) const;
 
@@ -73,9 +80,6 @@ public:
 	static void restoreGL();
 	static void dirtyTexOptions();
 
-	// Sometimes called externally for textures not using LLImageGL (should go away...)	
-	static S32 updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category) ;
-	
 	static bool checkSize(S32 width, S32 height);
 
 	//for server side use only.
@@ -165,7 +169,7 @@ public:
 	void updatePickMask(S32 width, S32 height, const U8* data_in);
 	BOOL getMask(const LLVector2 &tc);
 
-	void checkTexSize(bool forced = false) const ;
+    void checkTexSize(bool forced = false) const ;
 	
 	// Sets the addressing mode used to sample the texture 
 	//  (such as wrapping, mirrored wrapping, and clamp)
@@ -265,9 +269,6 @@ public:
 	static F32 sLastFrameTime;
 
 	// Global memory statistics
-	static S32Bytes sGlobalTextureMemory;	// Tracks main memory texmem
-	static S32Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
-	static S32Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
 	static U32 sBindCount;					// Tracks number of texture binds for current frame
 	static U32 sUniqueCount;				// Tracks number of unique texture binds for current frame
 	static BOOL sGlobalUseAnisotropic;
@@ -327,12 +328,6 @@ public:
     // follows gSavedSettings "RenderGLMultiThreaded"
     static bool sEnabled;
     
-    // app should call this function periodically
-    static void updateClass();
-
-    // free video memory in megabytes
-    static std::atomic<S32> sFreeVRAMMegabytes;
-
     LLImageGLThread(LLWindow* window);
 
     // post a function to be executed on the LLImageGL background thread
@@ -343,8 +338,6 @@ public:
     }
 
     void run() override;
-
-    static S32 getFreeVRAMMegabytes();
 
 private:
     LLWindow* mWindow;
