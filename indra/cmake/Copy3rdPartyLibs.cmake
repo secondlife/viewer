@@ -154,6 +154,7 @@ elseif(DARWIN)
     # Support our "@executable_path/../Resources" load path for executables
     # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
     # directories.
+    file(MAKE_DIRECTORY "${SHARED_LIB_STAGING_DIR}")
     file(CREATE_LINK "Release/Resources" "${SHARED_LIB_STAGING_DIR}/Resources"
          SYMBOLIC)
 
