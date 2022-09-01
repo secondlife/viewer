@@ -1605,6 +1605,7 @@ void LLMaterialEditor::loadAsset()
             if (mAssetID.isNull())
             {
                 mAssetStatus = PREVIEW_ASSET_LOADED;
+                loadDefaults();
                 setHasUnsavedChanges(false);
             }
             else
@@ -1905,3 +1906,9 @@ S32 LLMaterialEditor::saveTextures()
     return work_count;
 }
 
+void LLMaterialEditor::loadDefaults()
+{
+    tinygltf::Model model_in;
+    model_in.materials.resize(1);
+    setFromGltfModel(model_in, true);
+}

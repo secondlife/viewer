@@ -144,6 +144,10 @@
                  name="Materials"
                  value="Materials" />
                 <combo_box.item
+                 label="PBR"
+                 name="PBR"
+                 value="PBR" />
+                <combo_box.item
                  label="Media"
                  name="Media"
                  value="Media" />
@@ -174,6 +178,37 @@
                 <radio_item
                 label="Shininess (specular)"
                 name="Shininess (specular)"
+                height="16"
+                layout="topleft"
+                top_pad="1"
+                value="2"/>
+            </radio_group>
+            <radio_group
+            control_name="ComboMaterialType"
+            height="50"
+            layout="topleft"
+            left_delta="0"
+            top_delta="0"
+            width="150"
+            visible = "false"
+            name="radio_pbr_type">
+                <radio_item
+                label="Albedo/emissive"
+                name="Albedo/emissive"
+                top="0" 
+                layout="topleft"
+                height="16" 
+                value="0"/>
+                <radio_item
+                label="Normal"
+                layout="topleft"
+                top_pad="1" 
+                height="16" 
+                name="Normal"
+                value="1"/>
+                <radio_item
+                label="Metallic/roughness"
+                name="Metallic/roughness"
                 height="16"
                 layout="topleft"
                 top_pad="1"
@@ -216,6 +251,19 @@
              name="texture control"
              tool_tip="Click to choose a picture"
              top_pad="5"
+             width="64" />
+            <texture_picker
+             can_apply_immediately="true"
+             default_image_name="Default"
+             fallback_image="materials_ui_x_24.png"
+             follows="left|top"
+             height="80"
+             label="PBR       "
+             layout="topleft"
+             left="10"
+             name="pbr_control"
+             tool_tip="Click to choose a pbr material"
+             top_delta="0"
              width="64" />
             <text
              type="string"
@@ -845,29 +893,4 @@
              height="4"
              start_url="about:blank"
              decouple_texture_size="true" />
-      <button
-       left="90"
-       top="227"
-       height="20"
-       label="Save as Material"
-       label_selected="Save current face as a Material"
-       layout="topleft"
-       name="button save material"
-       top_delta="0"
-       tool_tip="Save material to inventory"
-       width="110" />
-
-            <line_editor
-             enabled="true"
-             follows="top|left"
-             height="16"
-             layout="topleft"
-             left="7"
-             label="Material UUID"
-             name="materialID"
-             select_on_focus="true"
-             top="405"
-             width="200"
-             tool_tip="UUID for a material asset"
-             />
 </panel>

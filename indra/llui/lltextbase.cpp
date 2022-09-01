@@ -163,6 +163,7 @@ LLTextBase::Params::Params()
 	font_shadow("font_shadow"),
 	wrap("wrap"),
 	trusted_content("trusted_content", true),
+	always_show_icons("always_show_icons", false),
 	use_ellipses("use_ellipses", false),
 	parse_urls("parse_urls", false),
 	force_urls_external("force_urls_external", false),
@@ -212,6 +213,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mClip(p.clip),
 	mClipPartial(p.clip_partial && !p.allow_scroll),
 	mTrustedContent(p.trusted_content),
+	mAlwaysShowIcons(p.always_show_icons),
 	mTrackEnd( p.track_end ),
 	mScrollIndex(-1),
 	mSelectionStart( 0 ),
@@ -448,8 +450,48 @@ void LLTextBase::drawSelectionBackground()
 			++rect_it)
 		{
 			LLRect selection_rect = *rect_it;
-			selection_rect = *rect_it;
-			selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+            if (mScroller)
+            {
+                // If scroller is On content_display_rect has correct rect and safe to use as is
+                // Note: we might need to account for border
+                selection_rect.translate(mVisibleTextRect.mLeft - content_display_rect.mLeft, mVisibleTextRect.mBottom - content_display_rect.mBottom);
+            }
+            else
+            {
+                // If scroller is Off content_display_rect will have rect from document, adjusted to text width, heigh and position
+                // and we have to acount for offset depending on position
+                S32 v_delta = 0;
+                S32 h_delta = 0;
+                switch (mVAlign)
+                {
+                case LLFontGL::TOP:
+                    v_delta = mVisibleTextRect.mTop - content_display_rect.mTop - mVPad;
+                    break;
+                case LLFontGL::VCENTER:
+                    v_delta = (llmax(mVisibleTextRect.getHeight() - content_display_rect.mTop, -content_display_rect.mBottom) + (mVisibleTextRect.mBottom - content_display_rect.mBottom)) / 2;
+                    break;
+                case LLFontGL::BOTTOM:
+                    v_delta = mVisibleTextRect.mBottom - content_display_rect.mBottom;
+                    break;
+                default:
+                    break;
+                }
+                switch (mHAlign)
+                {
+                case LLFontGL::LEFT:
+                    h_delta = mVisibleTextRect.mLeft - content_display_rect.mLeft + mHPad;
+                    break;
+                case LLFontGL::HCENTER:
+                    h_delta = (llmax(mVisibleTextRect.getWidth() - content_display_rect.mLeft, -content_display_rect.mRight) + (mVisibleTextRect.mRight - content_display_rect.mRight)) / 2;
+                    break;
+                case LLFontGL::RIGHT:
+                    h_delta = mVisibleTextRect.mRight - content_display_rect.mRight;
+                    break;
+                default:
+                    break;
+                }
+                selection_rect.translate(h_delta, v_delta);
+            }
 			gl_rect_2d(selection_rect, selection_color);
 		}
 	}
@@ -2116,7 +2158,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 		LLUrlMatch match;
 		std::string text = new_text;
 		while ( LLUrlRegistry::instance().findUrl(text, match,
-				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted()))
+				boost::bind(&LLTextBase::replaceUrl, this, _1, _2, _3),isContentTrusted() || mAlwaysShowIcons))
 		{
 			start = match.getStart();
 			end = match.getEnd()+1;
@@ -2141,7 +2183,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// add icon before url if need
-			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted());
+			LLTextUtil::processUrlMatch(&match, this, isContentTrusted() || match.isTrusted() || mAlwaysShowIcons);
 			if ((isContentTrusted() || match.isTrusted()) && !match.getIcon().empty() )
 			{
 				setLastSegmentToolTip(LLTrans::getString("TooltipSLIcon"));

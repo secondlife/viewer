@@ -47,7 +47,6 @@
 
 /* misc headers */
 #include "llscrolllistctrl.h"
-#include "llfilepicker.h"
 #include "lllocaltextureobject.h"
 #include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
@@ -920,47 +919,26 @@ LLLocalBitmapMgr::~LLLocalBitmapMgr()
     mBitmapList.clear();
 }
 
-bool LLLocalBitmapMgr::addUnit()
-{
-	bool add_successful = false;
-
-	LLFilePicker& picker = LLFilePicker::instance();
-	if (picker.getMultipleOpenFiles(LLFilePicker::FFLOAD_IMAGE))
-	{
-		mTimer.stopTimer();
-
-		std::string filename = picker.getFirstFile();
-		while(!filename.empty())
-		{
-            add_successful |= addUnit(filename);
-			filename = picker.getNextFile();
-		}
-		
-		mTimer.startTimer();
-	}
-
-	return add_successful;
-}
 bool LLLocalBitmapMgr::addUnit(const std::vector<std::string>& filenames)
 {
     bool add_successful = false;
     std::vector<std::string>::const_iterator iter = filenames.begin();
     while (iter != filenames.end())
     {
-        if (!iter->empty())
+        if (!iter->empty() && addUnit(*iter).notNull())
         {
-            add_successful |= addUnit(*iter);
+            add_successful = true;
         }
         iter++;
     }
     return add_successful;
 }
 
-bool LLLocalBitmapMgr::addUnit(const std::string& filename)
+LLUUID LLLocalBitmapMgr::addUnit(const std::string& filename)
 {
     if (!checkTextureDimensions(filename))
     {
-        return false;
+        return LLUUID::null;
     }
 
     LLLocalBitmap* unit = new LLLocalBitmap(filename);
@@ -968,7 +946,7 @@ bool LLLocalBitmapMgr::addUnit(const std::string& filename)
     if (unit->getValid())
     {
         mBitmapList.push_back(unit);
-        return true;
+        return unit->getTrackingID();
     }
     else
     {
@@ -981,8 +959,9 @@ bool LLLocalBitmapMgr::addUnit(const std::string& filename)
 
         delete unit;
         unit = NULL;
-        return false;
     }
+
+    return LLUUID::null;
 }
 
 bool LLLocalBitmapMgr::checkTextureDimensions(std::string filename)

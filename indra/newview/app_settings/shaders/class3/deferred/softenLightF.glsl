@@ -27,6 +27,10 @@
 #define PBR_USE_IBL                1
 #define PBR_USE_SUN                1
 
+#define PBR_USE_LINEAR_ALBEDO      1
+#define PBR_USE_DEFAULT_IRRADIANCE 0 // PBR: irradiance, skins/default/textures/default_irradiance.png
+#define PBR_USE_IRRADIANCE_HACK    1
+
 #define DEBUG_PBR_LIGHT_TYPE       0 // Output no global light to make it easier to see pointLight and spotLight
 #define DEBUG_PBR_PACK_ORM0        0 // Rough=0, Metal=0
 #define DEBUG_PBR_PACK_ORM1        0 // Rough=1, Metal=1
@@ -137,6 +141,9 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect normalMap;
 uniform sampler2DRect emissiveRect; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+uniform sampler2D altDiffuseMap; // PBR: irradiance, skins/default/textures/default_irradiance.png
+
+const float M_PI = 3.14159265;
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
 uniform sampler2DRect lightMap;
@@ -209,12 +216,7 @@ void main()
     norm.xyz           = getNorm(tc);
 
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-#if DEBUG_PBR_DA_RAW
-    float debug_da    = da;
-#endif
     float light_gamma = 1.0 / 1.3;
-    da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
     vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR sRGB Emissive
@@ -297,8 +299,12 @@ void main()
         float bv = clamp(dot(b,v),0,1);
 
         // Reference: getMetallicRoughnessInfo
+#if PBR_USE_LINEAR_ALBEDO
+        vec3  base            = diffuse.rgb;
+#else
         vec3  base            = linear_to_srgb(diffuse.rgb);
-        float perceptualRough = max(packedORM.g, 0.1);
+#endif
+        float perceptualRough = packedORM.g;  // NOTE: do NOT clamp here to be consistent with Blender, Blender is wrong and Substance is right
         vec3 c_diff, reflect0, reflect90;
         float alphaRough, specWeight;
         initMaterial( base, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
@@ -323,7 +329,14 @@ void main()
 #if DEBUG_PBR_IRRADIANCE_RAW
         vec3 debug_irradiance = irradiance;
 #endif
+
+#if PBR_USE_DEFAULT_IRRADIANCE
+        vec2 iruv  = vec2(0.5f + 0.5f * atan(reflectVN.z, reflectVN.x) / M_PI, 1.f - acos(reflectVN.y) / M_PI);
+        irradiance = texture2D(altDiffuseMap, iruv).rgb * ambocc;
+#endif
+#if PBR_USE_IRRADIANCE_HACK
         irradiance       = max(amblit,irradiance) * ambocc;
+#endif
         specLight        = srgb_to_linear(specLight);
 #if DEBUG_PBR_SPECLIGHT051
         specLight        = vec3(0,0.5,1.0);
@@ -364,9 +377,17 @@ void main()
 #endif
             // scol = sun shadow
             vec3 intensity  = ambocc * sunColor * nl * scol;
+#if PBR_USE_LINEAR_ALBEDO
+            vec3 sunDiffuse = intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
+            vec3 sunSpec    = intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+#else
             vec3 sunDiffuse = base * intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             vec3 sunSpec    =        intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
-            bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
+#endif
+            // Disabling PBR bloom due to two reasons:
+            //   1. The glTF 2.0 Specification does not specify bloom,
+            //   2. As the camera moves there are lots of bloom shimmering.
+            //bloom = dot(sunSpec, sunSpec) / (scale * scale * scale);
 
     #if DEBUG_PBR_SUN_SPEC_FRESNEL
             colorDiffuse = vec3(0);
@@ -576,9 +597,11 @@ void main()
     #endif
     #if DEBUG_PBR_IRRADIANCE_RAW
         color.rgb = debug_irradiance;
+        bloom = 0;
     #endif
     #if DEBUG_PBR_IRRADIANCE
         color.rgb = irradiance;
+        bloom = 0;
     #endif
     #if DEBUG_PBR_KSPEC
         color.rgb = kSpec;
@@ -632,10 +655,17 @@ void main()
     #if DEBUG_PBR_LIGHT_TYPE
         color.rgb = vec3(0);
     #endif
+
         frag_color.rgb = color.rgb; // PBR is done in linear
     }
 else
 {
+    float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
+#if DEBUG_PBR_DA_RAW
+    float debug_da    = da;
+#endif
+    da                = pow(da, light_gamma);
+
     diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
 
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);

@@ -30,7 +30,7 @@
 #define DEBUG_ANY_LIGHT_TYPE      0 // Output red light cone
 #define DEBUG_PBR_LIGHT_TYPE      0 // Output PBR objects in red
 #define DEBUG_LEG_LIGHT_TYPE      0 // Show Legacy objects in red
-#define DEBUG_POINT_ZERO          0 // Output zero for spotlight
+#define DEBUG_POINT_ZERO          0 // Output zero for point lights
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -113,11 +113,10 @@ void main()
             vec3  lv         =(light    [ light_idx ].xyz - pos);
             calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-            if (nl > 0.0)
+            float dist = lightDist / lightSize;
+            if (dist <= 1.0 && nl > 0.0)
             {
-                float dist = lightDist / lightSize;
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
-
                 vec3 intensity = dist_atten * nl * lightColor;
                 colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
                 colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
@@ -148,7 +147,7 @@ void main()
                     float lightDist;
                     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-                    float fa         = light_col[i].a + 1.0;
+                    float fa         = light_col[i].a;
                     float dist_atten = calcLegacyDistanceAttenuation(dist, fa);
                     dist_atten *= noise;
 

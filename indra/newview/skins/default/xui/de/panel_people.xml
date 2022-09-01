@@ -40,6 +40,7 @@ Sie suchen nach Leuten? Verwenden Sie die [secondlife:///app/worldmap Karte].
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Online"/>
 				<accordion_tab name="tab_all" title="Alle"/>
+				<accordion_tab name="tab_suggested_friends" title="Potenzielle Freunde"/>
 			</accordion>
 		</panel>
 		<panel label="GRUPPEN" name="groups_panel">

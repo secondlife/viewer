@@ -218,7 +218,6 @@ protected:
 	LL::WorkQueue::weak_t mMainQueue;
 	LL::WorkQueue::weak_t mImageQueue;
 
-	static F32 sTexelPixelRatio;
 public:
 	static const U32 sCurrentFileVersion;	
 	static S32 sImageCount;
@@ -531,6 +530,7 @@ public:
 	static LLPointer<LLViewerFetchedTexture> sDefaultImagep; // "Default" texture for error cases, the only case of fetched texture which is generated in local.
 	static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
 	static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
+	static LLPointer<LLViewerFetchedTexture> sDefaultIrradiancePBRp; // PBR: irradiance
 };
 
 //

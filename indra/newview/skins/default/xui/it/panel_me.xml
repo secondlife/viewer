@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<panel label="Il mio profilo" name="panel_me">
-	<panel label="I MIEI PREFERITI" name="panel_picks"/>
-</panel>

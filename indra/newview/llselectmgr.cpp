@@ -1760,6 +1760,89 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 }
 
 //-----------------------------------------------------------------------------
+// selectionSetGLTFMaterial()
+//-----------------------------------------------------------------------------
+void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
+{
+    // First for (no copy) textures and multiple object selection
+    LLViewerInventoryItem* item = gInventory.getItem(mat_id);
+    if (item
+        && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID())
+        && (mSelectedObjects->getNumNodes() > 1))
+    {
+        LL_WARNS() << "Attempted to apply no-copy material to multiple objects"
+            << LL_ENDL;
+        return;
+    }
+
+    struct f : public LLSelectedTEFunctor
+    {
+        LLViewerInventoryItem* mItem;
+        LLUUID mMatId;
+        f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mMatId(id) {}
+        bool apply(LLViewerObject* objectp, S32 te)
+        {
+            if (objectp && !objectp->permModify())
+            {
+                return false;
+            }
+            LLUUID asset_id = mMatId;
+            if (mItem)
+            {
+                asset_id = mItem->getAssetUUID();
+            }
+
+            if (te != -1)
+            {
+                objectp->setRenderMaterialID(te, asset_id);
+            }
+            else
+            {
+                S32 num_faces = objectp->getNumTEs();
+                for (S32 face = 0; face < num_faces; face++)
+                {
+                    objectp->setRenderMaterialID(face, asset_id);
+                }
+            }
+
+            return true;
+        }
+    };
+
+    if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
+    {
+        getSelection()->applyNoCopyTextureToTEs(item);
+    }
+    else
+    {
+        f setfunc(item, mat_id);
+        getSelection()->applyToTEs(&setfunc);
+    }
+
+
+    struct g : public LLSelectedObjectFunctor
+    {
+        LLViewerInventoryItem* mItem;
+        g(LLViewerInventoryItem* item) : mItem(item) {}
+        virtual bool apply(LLViewerObject* object)
+        {
+            if (!mItem)
+            {
+                object->sendTEUpdate();
+                // 1 particle effect per object				
+                LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+                effectp->setSourceObject(gAgentAvatarp);
+                effectp->setTargetObject(object);
+                effectp->setDuration(LL_HUD_DUR_SHORT);
+                effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+            }
+            return true;
+        }
+    } sendfunc(item);
+    getSelection()->applyToObjects(&sendfunc);
+}
+
+//-----------------------------------------------------------------------------
 // selectionSetColor()
 //-----------------------------------------------------------------------------
 void LLSelectMgr::selectionSetColor(const LLColor4 &color)

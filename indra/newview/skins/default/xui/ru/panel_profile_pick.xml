@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel name="panel_pick_info">
+	<panel.string name="location_notice">
+		(будет обновлено после сохранения)
+	</panel.string>
+	<line_editor name="pick_location">
+		Загрузка...
+	</line_editor>
+	<button label="Телепорт" name="teleport_btn"/>
+	<button label="Показать на карте" name="show_on_map_btn"/>
+	<button label="Указать местоположение" name="set_to_curr_location_btn" tool_tip="Установить в текущее местоположение"/>
+	<button label="Сохранить подборку" name="save_changes_btn"/>
+</panel>

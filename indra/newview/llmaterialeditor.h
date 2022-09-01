@@ -161,6 +161,8 @@ public:
     void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
 
+    // initialize the UI from a default GLTF material
+    void loadDefaults();
 private:
     friend class LLMaterialFilePicker;
 
