@@ -2071,6 +2071,7 @@ bool LLAppViewer::cleanup()
     if (sTextureFetch)
     {
         sTextureFetch->shutdown();
+        sTextureFetch->waitOnPending();
         delete sTextureFetch;
         sTextureFetch = NULL;
     }
