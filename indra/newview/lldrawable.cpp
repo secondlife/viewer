@@ -1252,7 +1252,7 @@ LLSpatialPartition* LLDrawable::getSpatialPartition()
 
 LLSpatialBridge::LLSpatialBridge(LLDrawable* root, BOOL render_by_group, U32 data_mask, LLViewerRegion* regionp) : 
 	LLDrawable(root->getVObj(), true),
-	LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW_ARB, regionp)
+	LLSpatialPartition(data_mask, render_by_group, GL_STREAM_DRAW, regionp)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWABLE
 

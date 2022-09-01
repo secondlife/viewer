@@ -83,11 +83,11 @@ const U32 LL_VBO_POOL_SEED_COUNT = vbo_block_index(LL_VBO_POOL_MAX_SEED_SIZE);
 //============================================================================
 
 //static
-LLVBOPool LLVertexBuffer::sStreamVBOPool(GL_STREAM_DRAW_ARB, GL_ARRAY_BUFFER_ARB);
-LLVBOPool LLVertexBuffer::sDynamicVBOPool(GL_DYNAMIC_DRAW_ARB, GL_ARRAY_BUFFER_ARB);
-LLVBOPool LLVertexBuffer::sDynamicCopyVBOPool(GL_DYNAMIC_COPY_ARB, GL_ARRAY_BUFFER_ARB);
-LLVBOPool LLVertexBuffer::sStreamIBOPool(GL_STREAM_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
-LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW_ARB, GL_ELEMENT_ARRAY_BUFFER_ARB);
+LLVBOPool LLVertexBuffer::sStreamVBOPool(GL_STREAM_DRAW, GL_ARRAY_BUFFER);
+LLVBOPool LLVertexBuffer::sDynamicVBOPool(GL_DYNAMIC_DRAW, GL_ARRAY_BUFFER);
+LLVBOPool LLVertexBuffer::sDynamicCopyVBOPool(GL_DYNAMIC_COPY, GL_ARRAY_BUFFER);
+LLVBOPool LLVertexBuffer::sStreamIBOPool(GL_STREAM_DRAW, GL_ELEMENT_ARRAY_BUFFER);
+LLVBOPool LLVertexBuffer::sDynamicIBOPool(GL_DYNAMIC_DRAW, GL_ELEMENT_ARRAY_BUFFER);
 
 U32 LLVBOPool::sBytesPooled = 0;
 U32 LLVBOPool::sIndexBytesPooled = 0;
@@ -183,7 +183,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			mMissCount[i]++;	
 		}
 
-		if (mType == GL_ARRAY_BUFFER_ARB)
+		if (mType == GL_ARRAY_BUFFER)
 		{
 			LLVertexBuffer::sAllocatedBytes += size;
 		}
@@ -192,10 +192,10 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			LLVertexBuffer::sAllocatedIndexBytes += size;
 		}
 
-		if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW_ARB)
+		if (LLVertexBuffer::sDisableVBOMapping || mUsage != GL_DYNAMIC_DRAW)
 		{
 			glBufferData(mType, size, 0, mUsage);
-			if (mUsage != GL_DYNAMIC_COPY_ARB)
+			if (mUsage != GL_DYNAMIC_COPY)
 			{ //data will be provided by application
 				ret = (U8*) ll_aligned_malloc<64>(size);
 				if (!ret)
@@ -212,7 +212,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		}
 		else
 		{ //always use a true hint of static draw when allocating non-client-backed buffers
-			glBufferData(mType, size, 0, GL_STATIC_DRAW_ARB);
+			glBufferData(mType, size, 0, GL_STATIC_DRAW);
 		}
 
 		glBindBuffer(mType, 0);
@@ -225,7 +225,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 			rec.mGLName = name;
 			rec.mClientData = ret;
 	
-			if (mType == GL_ARRAY_BUFFER_ARB)
+			if (mType == GL_ARRAY_BUFFER)
 			{
 				sBytesPooled += size;
 			}
@@ -241,7 +241,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 		name = mFreeList[i].front().mGLName;
 		ret = mFreeList[i].front().mClientData;
 
-		if (mType == GL_ARRAY_BUFFER_ARB)
+		if (mType == GL_ARRAY_BUFFER)
 		{
 			sBytesPooled -= size;
 		}
@@ -263,7 +263,7 @@ void LLVBOPool::release(U32 name, U8* buffer, U32 size)
 	deleteBuffer(name);
 	ll_aligned_free_fallback((U8*) buffer);
 
-	if (mType == GL_ARRAY_BUFFER_ARB)
+	if (mType == GL_ARRAY_BUFFER)
 	{
 		LLVertexBuffer::sAllocatedBytes -= size;
 	}
@@ -322,7 +322,7 @@ void LLVBOPool::cleanup()
 
 			l.pop_front();
 
-			if (mType == GL_ARRAY_BUFFER_ARB)
+			if (mType == GL_ARRAY_BUFFER)
 			{
 				sBytesPooled -= size;
 				LLVertexBuffer::sAllocatedBytes -= size;
@@ -763,12 +763,12 @@ void LLVertexBuffer::unbind()
 
 	if (sVBOActive)
 	{
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		sVBOActive = false;
 	}
 	if (sIBOActive)
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		sIBOActive = false;
 	}
 
@@ -801,32 +801,32 @@ S32 LLVertexBuffer::determineUsage(S32 usage)
 		ret_usage = 0;
 	}
 	
-	if (ret_usage == GL_STREAM_DRAW_ARB && !sUseStreamDraw)
+	if (ret_usage == GL_STREAM_DRAW && !sUseStreamDraw)
 	{
 		ret_usage = 0;
 	}
 	
-	if (ret_usage == GL_DYNAMIC_DRAW_ARB && sPreferStreamDraw)
+	if (ret_usage == GL_DYNAMIC_DRAW && sPreferStreamDraw)
 	{
-		ret_usage = GL_STREAM_DRAW_ARB;
+		ret_usage = GL_STREAM_DRAW;
 	}
 	
 	if (ret_usage == 0 && LLRender::sGLCoreProfile)
 	{ //MUST use VBOs for all rendering
-		ret_usage = GL_STREAM_DRAW_ARB;
+		ret_usage = GL_STREAM_DRAW;
 	}
 	
-	if (ret_usage && ret_usage != GL_STREAM_DRAW_ARB)
+	if (ret_usage && ret_usage != GL_STREAM_DRAW)
 	{ //only stream_draw and dynamic_draw are supported when using VBOs, dynamic draw is the default
-		if (ret_usage != GL_DYNAMIC_COPY_ARB)
+		if (ret_usage != GL_DYNAMIC_COPY)
 		{
 		    if (sDisableVBOMapping)
 		    { //always use stream draw if VBO mapping is disabled
-			    ret_usage = GL_STREAM_DRAW_ARB;
+			    ret_usage = GL_STREAM_DRAW;
 		    }
 		    else
 		    {
-			    ret_usage = GL_DYNAMIC_DRAW_ARB;
+			    ret_usage = GL_DYNAMIC_DRAW;
 		    }
 	    }
 	}
@@ -859,7 +859,7 @@ LLVertexBuffer::LLVertexBuffer(U32 typemask, S32 usage)
 	mMappable(false),
 	mFence(NULL)
 {
-	mMappable = (mUsage == GL_DYNAMIC_DRAW_ARB && !sDisableVBOMapping);
+	mMappable = (mUsage == GL_DYNAMIC_DRAW && !sDisableVBOMapping);
 
 	//zero out offsets
 	for (U32 i = 0; i < TYPE_MAX; i++)
@@ -982,11 +982,11 @@ void LLVertexBuffer::genBuffer(U32 size)
 {
 	mSize = vbo_block_size(size);
 
-	if (mUsage == GL_STREAM_DRAW_ARB)
+	if (mUsage == GL_STREAM_DRAW)
 	{
 		mMappedData = sStreamVBOPool.allocate(mGLBuffer, mSize);
 	}
-	else if (mUsage == GL_DYNAMIC_DRAW_ARB)
+	else if (mUsage == GL_DYNAMIC_DRAW)
 	{
 		mMappedData = sDynamicVBOPool.allocate(mGLBuffer, mSize);
 	}
@@ -1003,7 +1003,7 @@ void LLVertexBuffer::genIndices(U32 size)
 {
 	mIndicesSize = vbo_block_size(size);
 
-	if (mUsage == GL_STREAM_DRAW_ARB)
+	if (mUsage == GL_STREAM_DRAW)
 	{
 		mMappedIndexData = sStreamIBOPool.allocate(mGLIndices, mIndicesSize);
 	}
@@ -1017,7 +1017,7 @@ void LLVertexBuffer::genIndices(U32 size)
 
 void LLVertexBuffer::releaseBuffer()
 {
-	if (mUsage == GL_STREAM_DRAW_ARB)
+	if (mUsage == GL_STREAM_DRAW)
 	{
 		sStreamVBOPool.release(mGLBuffer, mMappedData, mSize);
 	}
@@ -1034,7 +1034,7 @@ void LLVertexBuffer::releaseBuffer()
 
 void LLVertexBuffer::releaseIndices()
 {
-	if (mUsage == GL_STREAM_DRAW_ARB)
+	if (mUsage == GL_STREAM_DRAW)
 	{
 		sStreamIBOPool.release(mGLIndices, mMappedIndexData, mIndicesSize);
 	}
@@ -1499,7 +1499,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 #ifdef GL_ARB_map_buffer_range
 						S32 offset = mOffsets[type] + sTypeSize[type]*index;
 						S32 length = (sTypeSize[type]*count+0xF) & ~0xF;
-						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, 
+						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER, offset, length,
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT | 
 							GL_MAP_INVALIDATE_RANGE_BIT);
@@ -1512,7 +1512,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 						if (gDebugGL)
 						{
 							GLint size = 0;
-							glGetBufferParameteriv(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+							glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 
 							if (size < mSize)
 							{
@@ -1520,7 +1520,7 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 							}
 						}
 
-						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, 
+						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER, 0, mSize,
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT);
 #endif
@@ -1531,20 +1531,20 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 					if (map_range)
 					{
 #ifndef LL_MESA_HEADLESS
-						glBufferParameteriAPPLE(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
-						glBufferParameteriAPPLE(GL_ARRAY_BUFFER_ARB, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ARRAY_BUFFER, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ARRAY_BUFFER, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
 #endif
-						src = (U8*) glMapBuffer(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+						src = (U8*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 					else
 					{
-						src = (U8*) glMapBuffer(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+						src = (U8*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 				}
 				else
 				{
 					map_range = false;
-					src = (U8*) glMapBuffer(GL_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+					src = (U8*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 				}
 
 				llassert(src != NULL);
@@ -1568,8 +1568,8 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 					//print out more debug info before crash
 					LL_INFOS() << "vertex buffer size: (num verts : num indices) = " << getNumVerts() << " : " << getNumIndices() << LL_ENDL;
 					GLint size;
-					glGetBufferParameteriv(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
-					LL_INFOS() << "GL_ARRAY_BUFFER_ARB size is " << size << LL_ENDL;
+					glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+					LL_INFOS() << "GL_ARRAY_BUFFER size is " << size << LL_ENDL;
 					//--------------------
 
 					GLint buff;
@@ -1684,7 +1684,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 #ifdef GL_ARB_map_buffer_range
 						S32 offset = sizeof(U16)*index;
 						S32 length = sizeof(U16)*count;
-						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, 
+						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, offset, length,
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT | 
 							GL_MAP_INVALIDATE_RANGE_BIT);
@@ -1693,7 +1693,7 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 					else
 					{
 #ifdef GL_ARB_map_buffer_range
-						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, 
+						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(U16)*mNumIndices,
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT);
 #endif
@@ -1704,20 +1704,20 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 					if (map_range)
 					{
 #ifndef LL_MESA_HEADLESS
-						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
-						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
+						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
 #endif
-						src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+						src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 					else
 					{
-						src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+						src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 				}
 				else
 				{
 					map_range = false;
-					src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
+					src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 				}
 
 				llassert(src != NULL);
@@ -1793,12 +1793,12 @@ void LLVertexBuffer::unmapBuffer()
 					S32 length = sTypeSize[region.mType]*region.mCount;
 					if (mSize >= length + offset)
 					{
-						glBufferSubData(GL_ARRAY_BUFFER_ARB, offset, length, (U8*)mMappedData + offset);
+						glBufferSubData(GL_ARRAY_BUFFER, offset, length, (U8*)mMappedData + offset);
 					}
 					else
 					{
 						GLint size = 0;
-						glGetBufferParameteriv(GL_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+						glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 						LL_WARNS() << "Attempted to map regions to a buffer that is too small, " 
 							<< "mapped size: " << mSize
 							<< ", gl buffer size: " << size
@@ -1814,7 +1814,7 @@ void LLVertexBuffer::unmapBuffer()
 			else
 			{
 				stop_glerror();
-				glBufferSubData(GL_ARRAY_BUFFER_ARB, 0, getSize(), (U8*) mMappedData);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, getSize(), (U8*) mMappedData);
 				stop_glerror();
 			}
 		}
@@ -1833,13 +1833,13 @@ void LLVertexBuffer::unmapBuffer()
 						if (gGLManager.mHasMapBufferRange)
 						{
 #ifdef GL_ARB_map_buffer_range
-							glFlushMappedBufferRange(GL_ARRAY_BUFFER_ARB, offset, length);
+							glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length);
 #endif
 						}
 						else if (gGLManager.mHasFlushBufferRange)
                         {
 #ifndef LL_MESA_HEADLESS
-							glFlushMappedBufferRangeAPPLE(GL_ARRAY_BUFFER_ARB, offset, length);
+							glFlushMappedBufferRangeAPPLE(GL_ARRAY_BUFFER, offset, length);
 #endif
 						}
 					}
@@ -1848,7 +1848,7 @@ void LLVertexBuffer::unmapBuffer()
 				}
 			}
 			stop_glerror();
-			glUnmapBuffer(GL_ARRAY_BUFFER_ARB);
+			glUnmapBuffer(GL_ARRAY_BUFFER);
 			stop_glerror();
 
 			mMappedData = NULL;
@@ -1873,12 +1873,12 @@ void LLVertexBuffer::unmapBuffer()
 					S32 length = sizeof(U16)*region.mCount;
 					if (mIndicesSize >= length + offset)
 					{
-						glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, (U8*) mMappedIndexData+offset);
+						glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, length, (U8*) mMappedIndexData+offset);
 					}
 					else
 					{
 						GLint size = 0;
-						glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_BUFFER_SIZE_ARB, &size);
+						glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 						LL_WARNS() << "Attempted to map regions to a buffer that is too small, " 
 							<< "mapped size: " << mIndicesSize
 							<< ", gl buffer size: " << size
@@ -1894,7 +1894,7 @@ void LLVertexBuffer::unmapBuffer()
 			else
 			{
 				stop_glerror();
-				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, getIndicesSize(), (U8*) mMappedIndexData);
+				glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, getIndicesSize(), (U8*) mMappedIndexData);
 				stop_glerror();
 			}
 		}
@@ -1913,14 +1913,14 @@ void LLVertexBuffer::unmapBuffer()
 						if (gGLManager.mHasMapBufferRange)
 						{
 #ifdef GL_ARB_map_buffer_range
-							glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+							glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER, offset, length);
 #endif
 						}
 						else if (gGLManager.mHasFlushBufferRange)
 						{
 #ifdef GL_APPLE_flush_buffer_range
 #ifndef LL_MESA_HEADLESS
-							glFlushMappedBufferRangeAPPLE(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
+							glFlushMappedBufferRangeAPPLE(GL_ELEMENT_ARRAY_BUFFER, offset, length);
 #endif
 #endif
 						}
@@ -1931,7 +1931,7 @@ void LLVertexBuffer::unmapBuffer()
 				}
 			}
 			
-            glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB);
+            glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
 
 			mMappedIndexData = NULL;
 		}
@@ -2085,7 +2085,7 @@ bool LLVertexBuffer::bindGLBuffer(bool force_bind)
 	if (useVBOs() && (force_bind || (mGLBuffer && (mGLBuffer != sGLRenderBuffer || !sVBOActive))))
 	{
         LL_PROFILE_ZONE_SCOPED_CATEGORY_VERTEX;
-		glBindBuffer(GL_ARRAY_BUFFER_ARB, mGLBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
 		sGLRenderBuffer = mGLBuffer;
 		sBindCount++;
 		sVBOActive = true;
@@ -2102,7 +2102,7 @@ bool LLVertexBuffer::bindGLBufferFast()
 {
     if (mGLBuffer != sGLRenderBuffer || !sVBOActive)
     {
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, mGLBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, mGLBuffer);
         sGLRenderBuffer = mGLBuffer;
         sBindCount++;
         sVBOActive = true;
@@ -2125,7 +2125,7 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 		{
 			LL_ERRS() << "VBO bound while another VBO mapped!" << LL_ENDL;
 		}*/
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, mGLIndices);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
 		sGLRenderIndices = mGLIndices;
 		stop_glerror();
 		sBindCount++;
@@ -2140,7 +2140,7 @@ bool LLVertexBuffer::bindGLIndicesFast()
 {
     if (mGLIndices != sGLRenderIndices || !sIBOActive)
     {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, mGLIndices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGLIndices);
         sGLRenderIndices = mGLIndices;
         sBindCount++;
         sIBOActive = true;
@@ -2302,7 +2302,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		{
 			if (sVBOActive)
 			{
-				glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				sBindCount++;
 				sVBOActive = false;
 				setup = true; // ... or a VBO is deactivated
@@ -2317,7 +2317,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 		{
 			if (sIBOActive)
 			{
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 				sBindCount++;
 				sIBOActive = false;
 			}

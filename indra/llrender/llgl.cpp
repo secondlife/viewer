@@ -1658,8 +1658,8 @@ void LLGLState::initClass()
 	// sStateMap[GL_TEXTURE_2D] = GL_TRUE;
 	
 	//make sure multisample defaults to disabled
-	sStateMap[GL_MULTISAMPLE_ARB] = GL_FALSE;
-	glDisable(GL_MULTISAMPLE_ARB);
+	sStateMap[GL_MULTISAMPLE] = GL_FALSE;
+	glDisable(GL_MULTISAMPLE);
 }
 
 //static
@@ -1766,7 +1766,7 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 	stop_glerror();
 
 	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
 	stop_glerror();
 
 	BOOL error = FALSE;
@@ -1794,12 +1794,12 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		"GL_TEXTURE_2D",
 		"GL_TEXTURE_COORD_ARRAY",
 		"GL_TEXTURE_1D",
-		"GL_TEXTURE_CUBE_MAP_ARB",
+		"GL_TEXTURE_CUBE_MAP",
 		"GL_TEXTURE_GEN_S",
 		"GL_TEXTURE_GEN_T",
 		"GL_TEXTURE_GEN_Q",
 		"GL_TEXTURE_GEN_R",
-		"GL_TEXTURE_RECTANGLE_ARB",
+		"GL_TEXTURE_RECTANGLE",
 		"GL_TEXTURE_2D_MULTISAMPLE"
 	};
 
@@ -1808,12 +1808,12 @@ void LLGLState::checkTextureChannels(const std::string& msg)
 		GL_TEXTURE_2D,
 		GL_TEXTURE_COORD_ARRAY,
 		GL_TEXTURE_1D,
-		GL_TEXTURE_CUBE_MAP_ARB,
+		GL_TEXTURE_CUBE_MAP,
 		GL_TEXTURE_GEN_S,
 		GL_TEXTURE_GEN_T,
 		GL_TEXTURE_GEN_Q,
 		GL_TEXTURE_GEN_R,
-		GL_TEXTURE_RECTANGLE_ARB,
+		GL_TEXTURE_RECTANGLE,
 		GL_TEXTURE_2D_MULTISAMPLE
 	};
 
