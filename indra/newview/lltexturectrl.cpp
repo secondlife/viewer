@@ -416,6 +416,9 @@ BOOL LLFloaterTexturePicker::postBuild()
 
 	mInventoryPanel = getChild<LLInventoryPanel>("inventory panel");
 
+    // if can select both materials and textures, set textures_material_combo's layout as visible
+    childSetVisible("combo_layout", mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL);
+
     mTextureMaterialsCombo = getChild<LLComboBox>("textures_material_combo");
     mTextureMaterialsCombo->setCommitCallback(onSelectTextureMaterials, this);
 
@@ -1207,16 +1210,11 @@ void LLFloaterTexturePicker::onSelectTextureMaterials(LLUICtrl* ctrl, void *user
     LLFloaterTexturePicker* self = (LLFloaterTexturePicker*)userdata;
     int index = self->mTextureMaterialsCombo->getValue().asInteger();
 
-    // IMPORTANT: make sure these match the entries in floater_texture_ctrl.xml 
-    // for the textures_material_combo combo box
-    const int textures_and_materials = 0;
-    const int textures_only = 1;
-    const int materials_only = 2;
-
     U32 filter_types = 0x0;
 
     if (self->mInventoryPickType != LLTextureCtrl::PICK_TEXTURE_MATERIAL)
     {
+        // mInventoryPickType overrides combo
         index = self->mInventoryPickType;
     }
 
@@ -1270,6 +1268,9 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
 {
     mInventoryPickType = type;
 
+    // if can select both materials and textures, set textures_material_combo's layout as visible
+    childSetVisible("combo_layout", mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL);
+
     mLocalScrollCtrl->clearRows();
     if (mInventoryPickType == LLTextureCtrl::PICK_TEXTURE_MATERIAL)
     {
@@ -1285,6 +1286,7 @@ void LLFloaterTexturePicker::setInventoryPickType(LLTextureCtrl::EPickInventoryT
         LLLocalGLTFMaterialMgr::getInstance()->feedScrollList(mLocalScrollCtrl);
     }
 
+    // refresh filters
     onSelectTextureMaterials(0, this);
 }
 
