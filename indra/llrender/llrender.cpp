@@ -123,7 +123,7 @@ void LLTexUnit::refreshState(void)
 
 	gGL.flush();
 	
-	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	glActiveTexture(GL_TEXTURE0 + mIndex);
 
 	if (mCurrTexType != TT_NONE)
 	{
@@ -144,7 +144,7 @@ void LLTexUnit::activate(void)
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
 		gGL.flush();
-		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+		glActiveTexture(GL_TEXTURE0 + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
 	}
 }
@@ -188,7 +188,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
 {
     LLImageGL* gl_tex = texture->getGLTexture();
 
-    glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+    glActiveTexture(GL_TEXTURE0 + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
     if (!mCurrTexture)
@@ -640,9 +640,9 @@ void LLTexUnit::debugTextureUnit(void)
 
 	GLint activeTexture;
 	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
-	if ((GL_TEXTURE0_ARB + mIndex) != activeTexture)
+	if ((GL_TEXTURE0 + mIndex) != activeTexture)
 	{
-		U32 set_unit = (activeTexture - GL_TEXTURE0_ARB);
+		U32 set_unit = (activeTexture - GL_TEXTURE0);
 		LL_WARNS() << "Incorrect Texture Unit!  Expected: " << set_unit << " Actual: " << mIndex << LL_ENDL;
 	}
 }
@@ -875,8 +875,8 @@ void LLRender::init()
 #if LL_WINDOWS
     if (gGLManager.mHasDebugOutput && gDebugGL)
     { //setup debug output callback
-        //glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-        glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
+        //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
+        glDebugMessageCallback((GLDEBUGPROCARB) gl_debug_callback, NULL);
         glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
     }
 #endif
@@ -1471,7 +1471,7 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 	llassert(color_dfactor < BF_UNDEF);
 	llassert(alpha_sfactor < BF_UNDEF);
 	llassert(alpha_dfactor < BF_UNDEF);
-	if (!gGLManager.mHasBlendFuncSeparate)
+	if (!LLRender::sGLCoreProfile && !gGLManager.mHasBlendFuncSeparate)
 	{
 		LL_WARNS_ONCE("render") << "no glBlendFuncSeparateEXT(), using color-only blend func" << LL_ENDL;
 		blendFunc(color_sfactor, color_dfactor);
@@ -1485,8 +1485,16 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 		mCurrBlendColorDFactor = color_dfactor;
 		mCurrBlendAlphaDFactor = alpha_dfactor;
 		flush();
-		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
+        if (LLRender::sGLCoreProfile)
+        {
+            glBlendFuncSeparate(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
+                           sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
+        }
+        else
+        {
+            glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
 				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
+        }
 	}
 }
 

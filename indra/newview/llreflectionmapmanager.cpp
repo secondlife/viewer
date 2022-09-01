@@ -724,14 +724,14 @@ void LLReflectionMapManager::updateUniforms()
     //copy rpd into uniform buffer object
     if (mUBO == 0)
     {
-        glGenBuffersARB(1, &mUBO);
+        glGenBuffers(1, &mUBO);
     }
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmsu - update buffer");
-        glBindBufferARB(GL_UNIFORM_BUFFER, mUBO);
-        glBufferDataARB(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeData), &rpd, GL_STREAM_DRAW);
-        glBindBufferARB(GL_UNIFORM_BUFFER, 0);
+        glBindBuffer(GL_UNIFORM_BUFFER, mUBO);
+        glBufferData(GL_UNIFORM_BUFFER, sizeof(ReflectionProbeData), &rpd, GL_STREAM_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 }
 

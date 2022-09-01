@@ -1674,7 +1674,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			}				
 		}
 
-		glBindBufferARB(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
+		glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
 		gGL.popMatrix();
 
 		if (cur_shader)

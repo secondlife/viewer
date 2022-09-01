@@ -731,7 +731,7 @@ void LLPipeline::destroyGL()
 
 	if (mMeshDirtyQueryObject)
 	{
-		glDeleteQueriesARB(1, &mMeshDirtyQueryObject);
+		glDeleteQueries(1, &mMeshDirtyQueryObject);
 		mMeshDirtyQueryObject = 0;
 	}
 }
@@ -1293,7 +1293,7 @@ void LLPipeline::createGLBuffers()
 			LLImageGL::generateTextures(1, &mNoiseMap);
 			
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F, noiseRes, noiseRes, GL_RGB, GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
@@ -1308,7 +1308,7 @@ void LLPipeline::createGLBuffers()
 
 			LLImageGL::generateTextures(1, &mTrueNoiseMap);
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, mTrueNoiseMap);
-			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F_ARB, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
+			LLImageGL::setManualImage(LLTexUnit::getInternalType(LLTexUnit::TT_TEXTURE), 0, GL_RGB16F, noiseRes, noiseRes, GL_RGB,GL_FLOAT, noise, false);
 			gGL.getTexUnit(0)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
 
@@ -3918,11 +3918,11 @@ void LLPipeline::postSort(LLCamera& camera)
 
 		if (!mMeshDirtyQueryObject)
 		{
-			glGenQueriesARB(1, &mMeshDirtyQueryObject);
+			glGenQueries(1, &mMeshDirtyQueryObject);
 		}
 
 		
-		glBeginQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
+		glBeginQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
 	}*/
 
 	//pack vertex buffers for groups that chose to delay their updates
@@ -3933,7 +3933,7 @@ void LLPipeline::postSort(LLCamera& camera)
 
 	/*if (use_transform_feedback)
 	{
-		glEndQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+		glEndQuery(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
 	}*/
 	
 	mMeshDirtyGroup.clear();
@@ -11333,7 +11333,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
 		if (LLPipeline::sRenderDeferred)
 		{
 			GLuint buff = GL_COLOR_ATTACHMENT0;
-			glDrawBuffersARB(1, &buff);
+			glDrawBuffers(1, &buff);
 		}
 
 		LLGLDisable blend(GL_BLEND);

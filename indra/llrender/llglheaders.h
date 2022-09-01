@@ -69,7 +69,7 @@
 # include "GL/glxext.h"
 // Use glXGetProcAddressARB instead of glXGetProcAddress - the ARB symbol
 // is considered 'legacy' but works on more machines.
-# define GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddressARB((const GLubyte*)(p))
+# define GLH_EXT_GET_PROC_ADDRESS(p) glXGetProcAddress((const GLubyte*)(p))
 #endif // LL_LINUX && !LL_MESA_HEADLESS
 
 #if LL_LINUX && defined(WINGDIAPI)
@@ -617,9 +617,6 @@ extern void glGenerateMipmapEXT(GLenum target) AVAILABLE_MAC_OS_X_VERSION_10_4_A
 #define glGenerateMipmap glGenerateMipmapEXT
 #define GL_MAX_SAMPLES	0x8D57
 #endif
-
-// GL_ARB_draw_buffers
-extern void glDrawBuffersARB(GLsizei n, const GLenum* bufs) AVAILABLE_MAC_OS_X_VERSION_10_4_AND_LATER;
 
 #ifdef __cplusplus
 extern "C" {
