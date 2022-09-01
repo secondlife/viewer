@@ -121,6 +121,8 @@ elseif (DARWIN)
   # executable. This SHOULD properly be "$<TARGET_FILE_DIR:lltest>/Resources",
   # but the CMake $<TARGET_FILE_DIR> generator expression isn't evaluated by
   # CREATE_LINK, so fudge it.
+  # Make sure the symlink's parent directory exists...
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/test")
   file(CREATE_LINK "../sharedlibs/Release/Resources" "${CMAKE_BINARY_DIR}/test/Resources"
        SYMBOLIC)
 endif (WINDOWS)
