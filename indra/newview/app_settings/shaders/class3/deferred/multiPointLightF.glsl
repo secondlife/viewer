@@ -148,7 +148,7 @@ void main()
                     float lightDist;
                     calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
 
-                    float fa         = light_col[i].a + 1.0;
+                    float fa         = light_col[i].a;
                     float dist_atten = calcLegacyDistanceAttenuation(dist, fa);
                     dist_atten *= noise;
 
