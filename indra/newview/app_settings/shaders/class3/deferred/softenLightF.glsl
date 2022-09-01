@@ -335,7 +335,6 @@ void main()
 #if PBR_USE_IRRADIANCE_HACK
         irradiance       = max(amblit,irradiance) * ambocc;
 #endif
-        specLight        = srgb_to_linear(specLight);
 #if DEBUG_PBR_SPECLIGHT051
         specLight        = vec3(0,0.5,1.0);
         irradiance       = specLight;
@@ -670,6 +669,9 @@ else
     diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
 
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+    ambenv.rgb = linear_to_srgb(ambenv.rgb); 
+    glossenv.rgb = linear_to_srgb(glossenv.rgb);
+    legacyenv.rgb = linear_to_srgb(legacyenv.rgb);
 
     amblit = max(ambenv, amblit);
     color.rgb = amblit*ambocc;

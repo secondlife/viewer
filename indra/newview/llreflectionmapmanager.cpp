@@ -80,7 +80,7 @@ void LLReflectionMapManager::update()
 
     if (!mRenderTarget.isComplete())
     {
-        U32 color_fmt = GL_RGBA;
+        U32 color_fmt = GL_SRGB8_ALPHA8;
         const bool use_depth_buffer = true;
         const bool use_stencil_buffer = true;
         U32 targetRes = LL_REFLECTION_PROBE_RESOLUTION * 2; // super sample
