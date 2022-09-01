@@ -214,12 +214,7 @@ void main()
     norm.xyz           = getNorm(tc);
 
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
-    float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
-#if DEBUG_PBR_DA_RAW
-    float debug_da    = da;
-#endif
     float light_gamma = 1.0 / 1.3;
-    da                = pow(da, light_gamma);
 
     vec4 diffuse     = texture2DRect(diffuseRect, tc);
     vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR sRGB Emissive
@@ -666,6 +661,12 @@ void main()
     }
 else
 {
+    float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
+#if DEBUG_PBR_DA_RAW
+    float debug_da    = da;
+#endif
+    da                = pow(da, light_gamma);
+
     diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
 
     sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
