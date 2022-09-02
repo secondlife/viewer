@@ -56,9 +56,16 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
                 }
 
                 LLFileSystem file(id, asset_type, LLFileSystem::READ);
+                auto size = file.getSize();
+                if (!size)
+                {
+                    LL_DEBUGS() << "Zero size material." << LL_ENDL;
+                    mat->unref();
+                    return;
+                }
 
                 std::vector<char> buffer;
-                buffer.resize(file.getSize());
+                buffer.resize(size);
                 file.read((U8*)&buffer[0], buffer.size());
 
                 LLSD asset;
