@@ -99,6 +99,8 @@ vec4 texture2DLodSpecular(vec2 tc, float lod);
 
 vec4 getPosition(vec2 pos_screen);
 
+const float M_PI = 3.14159265;
+
 void main()
 {
 #if defined(LOCAL_LIGHT_KILL)
@@ -173,8 +175,13 @@ void main()
                 dlit = getProjectedLightDiffuseColor( l_dist, proj_tc.xy );
                 slit = getProjectedLightSpecularColor( pos, n );
 
-                colorDiffuse = shadow * dist_atten * nl * (dlit*0.5 + BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh ));
-                colorSpec    = shadow * dist_atten * nl * (slit     + BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh ));
+                float exposure = M_PI;
+                dlit *= exposure;
+                slit *= exposure;
+
+                colorDiffuse = shadow * lit * dlit * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
+                colorSpec    = shadow * lit * slit * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+                colorSpec   += shadow * lit *        BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
 
   #if DEBUG_PBR_SPOT_DIFFUSE
                 colorDiffuse = dlit.rgb; colorSpec = vec3(0);

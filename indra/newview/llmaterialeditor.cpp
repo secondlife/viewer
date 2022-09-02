@@ -1059,24 +1059,39 @@ static void pack_textures(
     LLPointer<LLImageJ2C>& mr_j2c,
     LLPointer<LLImageJ2C>& emissive_j2c)
 {
+    // NOTE : remove log spam and lossless vs lossy comparisons when the logs are no longer useful
+
     if (albedo_img)
     {
         albedo_j2c = LLViewerTextureList::convertToUploadFile(albedo_img);
+        LL_INFOS() << "Albedo: " << albedo_j2c->getDataSize() << LL_ENDL;
     }
 
     if (normal_img)
     {
         normal_j2c = LLViewerTextureList::convertToUploadFile(normal_img);
+
+        LLPointer<LLImageJ2C> test;
+        test = LLViewerTextureList::convertToUploadFile(normal_img, 1024, true);
+
+        S32 lossy_bytes = normal_j2c->getDataSize();
+        S32 lossless_bytes = test->getDataSize();
+
+        LL_INFOS() << llformat("Lossless vs Lossy: (%d/%d) = %.2f", lossless_bytes, lossy_bytes, (F32)lossless_bytes / lossy_bytes) << LL_ENDL;
+
+        normal_j2c = test;
     }
 
     if (mr_img)
     {
         mr_j2c = LLViewerTextureList::convertToUploadFile(mr_img);
+        LL_INFOS() << "Metallic/Roughness: " << mr_j2c->getDataSize() << LL_ENDL;
     }
 
     if (emissive_img)
     {
         emissive_j2c = LLViewerTextureList::convertToUploadFile(emissive_img);
+        LL_INFOS() << "Emissive: " << emissive_j2c->getDataSize() << LL_ENDL;
     }
 }
 
