@@ -95,6 +95,16 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
         for (LLCullResult::drawinfo_iterator i = begin; i != end; ++i)
         {
             LLDrawInfo* pparams = *i;
+            LLGLTFMaterial *mat = pparams->mGLTFMaterial;
+
+            // glTF 2.0 Specification 3.9.4. Alpha Coverage
+            // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+            F32 min_alpha = -1.0;
+            if (mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+            {
+                min_alpha = mat->mAlphaCutoff;
+            }
+            shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
 
             if (pparams->mTexture.notNull())
             {

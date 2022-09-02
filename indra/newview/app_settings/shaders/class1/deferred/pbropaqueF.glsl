@@ -76,17 +76,23 @@ VARYING vec2 vary_texcoord1;
     VARYING vec2 vary_texcoord2;
 #endif
 
+uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
+
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
-
-const float M_PI = 3.141592653589793;
 
 void main()
 {
 // IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 //    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
 // else
-    vec3 col = vertex_color.rgb * texture2D(diffuseMap, vary_texcoord0.xy).rgb;
+    vec4 albedo = texture2D(diffuseMap, vary_texcoord0.xy).rgba;
+    if (albedo.a < minimum_alpha)
+    {
+        discard;
+    }
+
+    vec3 col = vertex_color.rgb * albedo.rgb;
 
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);

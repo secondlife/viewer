@@ -1574,6 +1574,7 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 
     mat->mDoubleSided = getDoubleSided();
     mat->setAlphaMode(getAlphaMode());
+    mat->mAlphaCutoff = getAlphaCutoff();
 }
 
 void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
@@ -1591,6 +1592,7 @@ void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 
     setDoubleSided(mat->mDoubleSided);
     setAlphaMode(mat->getAlphaMode());
+    setAlphaCutoff(mat->mAlphaCutoff);
 }
 
 void LLMaterialEditor::loadAsset()
