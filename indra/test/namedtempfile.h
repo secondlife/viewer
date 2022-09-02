@@ -12,16 +12,23 @@
 #if ! defined(LL_NAMEDTEMPFILE_H)
 #define LL_NAMEDTEMPFILE_H
 
+#include "apply.h"
 #include "llerror.h"
 #include "llapr.h"
 #include "apr_file_io.h"
+#include "stringize.h"
+#include "tuple.h"
 #include <string>
-#include <boost/function.hpp>
-#include <boost/phoenix/core/argument.hpp>
-#include <boost/phoenix/operator/bitwise.hpp>
 #include <boost/noncopyable.hpp>
+#include <functional>
 #include <iostream>
 #include <sstream>
+
+/*****************************************************************************
+*   TODO:
+*   - Reimplement in terms of std::filesystem (or boost::filesystem), not APR.
+*     One benefit will be streaming directly to ostream, instead of buffering.
+*****************************************************************************/
 
 /**
  * Create a text file with specified content "somewhere in the
@@ -31,26 +38,32 @@ class NamedTempFile: public boost::noncopyable
 {
     LOG_CLASS(NamedTempFile);
 public:
-    NamedTempFile(const std::string& pfx, const std::string& content, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
-    {
-        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
-    }
-
-    // Disambiguate when passing string literal
-    NamedTempFile(const std::string& pfx, const char* content, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
-    {
-        createFile(pfx, boost::phoenix::placeholders::arg1 << content);
-    }
-
     // Function that accepts an ostream ref and (presumably) writes stuff to
     // it, e.g.:
-    // (boost::phoenix::placeholders::arg1 << "the value is " << 17 << '\n')
-    typedef boost::function<void(std::ostream&)> Streamer;
+    // [](std::ostream& out){ out << "the value is " << 17 << '\n'; }
+    typedef std::function<void(std::ostream&)> Streamer;
 
-    NamedTempFile(const std::string& pfx, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
-        mPool(pool)
+    template <
+        typename FIRST,
+        typename... REST,
+        typename = typename std::enable_if<
+            ! std::is_convertible<FIRST, Streamer>::value
+        >::type>
+    NamedTempFile(const std::string& pfx, FIRST&& first, REST&&... rest)
+    {
+        // Can't bind an unexpanded parameter pack into a lambda, so make a
+        // tuple and then, in the lambda body, apply() it. Use VAPPLY()
+        // because it's hard to pass stream_to(), a variadic function, as a
+        // templated callable: it's ambiguous to the compiler.
+        createFile(pfx,
+                   [content = std::make_tuple(
+                           std::forward<FIRST>(first),
+                           std::forward<REST>(rest)...)]
+                   (std::ostream& out)
+                   { VAPPLY(stream_to, tuple_cons(out, content)); });
+    }
+
+    NamedTempFile(const std::string& pfx, const Streamer& func)
     {
         createFile(pfx, func);
     }
@@ -66,10 +79,8 @@ public:
     {
         std::cout << "File '" << mPath << "' contains:\n";
         std::ifstream reader(mPath.c_str());
-        std::string line;
-        while (std::getline(reader, line))
-            std::cout << line << '\n';
-        std::cout << "---\n";
+        std::cout << reader.rdbuf();
+        std::cout << "----\n";
     }
 
 protected:
@@ -97,6 +108,8 @@ protected:
         // now is it valid to capture as our mPath.
         mPath = tempname;
 
+        // TODO: Once we switch to std::filesystem, stream directly to the
+        // ostream instead of buffering here first.
         // Write desired content.
         std::ostringstream out;
         // Stream stuff to it.
@@ -110,7 +123,7 @@ protected:
     }
 
     std::string mPath;
-    apr_pool_t* mPool;
+    apr_pool_t* mPool{ gAPRPoolp };
 };
 
 /**
@@ -127,23 +140,23 @@ class NamedExtTempFile: public NamedTempFile
 {
     LOG_CLASS(NamedExtTempFile);
 public:
-    NamedExtTempFile(const std::string& ext, const std::string& content, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), content, pool),
+    NamedExtTempFile(const std::string& ext, const std::string& content):
+        NamedTempFile(remove_dot(ext), content),
         mLink(mPath + ensure_dot(ext))
     {
         linkto(mLink);
     }
 
     // Disambiguate when passing string literal
-    NamedExtTempFile(const std::string& ext, const char* content, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), content, pool),
+    NamedExtTempFile(const std::string& ext, const char* content):
+        NamedTempFile(remove_dot(ext), content),
         mLink(mPath + ensure_dot(ext))
     {
         linkto(mLink);
     }
 
-    NamedExtTempFile(const std::string& ext, const Streamer& func, apr_pool_t* pool=gAPRPoolp):
-        NamedTempFile(remove_dot(ext), func, pool),
+    NamedExtTempFile(const std::string& ext, const Streamer& func):
+        NamedTempFile(remove_dot(ext), func),
         mLink(mPath + ensure_dot(ext))
     {
         linkto(mLink);

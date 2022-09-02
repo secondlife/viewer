@@ -48,9 +48,6 @@ typedef U32 uint32_t;
 #include "boost/foreach.hpp"
 #include "boost/function.hpp"
 #include "boost/bind.hpp"
-#include "boost/phoenix/bind/bind_function.hpp"
-#include "boost/phoenix/core/argument.hpp"
-using namespace boost::phoenix;
 
 #include "../llsd.h"
 #include "../llsdserialize.h"
@@ -1697,13 +1694,6 @@ namespace tut
     struct TestPythonCompatible
     {
         TestPythonCompatible():
-            // Note the peculiar insertion of __FILE__ into this string. Since
-            // this script is being written into a platform-dependent temp
-            // directory, we can't locate indra/lib/python relative to
-            // Python's __file__. Use __FILE__ instead, navigating relative
-            // to this C++ source file. Use Python raw-string syntax so
-            // Windows pathname backslashes won't mislead Python's string
-            // scanner.
             import_llsd("import os.path\n"
                         "import sys\n"
                         "from llbase import llsd\n")
@@ -1712,13 +1702,19 @@ namespace tut
 
         std::string import_llsd;
 
-        template <typename CONTENT>
-        void python(const std::string& desc, const CONTENT& script, int expect=0)
+        template <typename... CONTENT>
+        void python(const std::string& desc, CONTENT&&... script)
+        {
+            python_expecting(desc, 0, std::forward<CONTENT>(script)...);
+        }
+
+        template <typename... CONTENT>
+        void python_expecting(const std::string desc, int expect, CONTENT&&... script)
         {
             auto PYTHON(LLStringUtil::getenv("PYTHON"));
             ensure("Set $PYTHON to the Python interpreter", !PYTHON.empty());
 
-            NamedTempFile scriptfile("py", script);
+            NamedTempFile scriptfile("py", std::forward<CONTENT>(script)...);
 
 #if LL_WINDOWS
             std::string q("\"");
@@ -1729,11 +1725,11 @@ namespace tut
             {
                 char buffer[256];
                 strerror_s(buffer, errno); // C++ can infer the buffer size!  :-O
-                ensure(STRINGIZE("Couldn't run Python " << desc << "script: " << buffer), false);
+                ensure(stringize("Couldn't run Python ", desc, "script: ", buffer), false);
             }
             else
             {
-                ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc), rc, expect);
+                ensure_equals(stringize(desc, " script terminated with rc ", rc), rc, expect);
             }
 
 #else  // LL_DARWIN, LL_LINUX
@@ -1741,15 +1737,15 @@ namespace tut
             params.executable = PYTHON;
             params.args.add(scriptfile.getName());
             LLProcessPtr py(LLProcess::create(params));
-            ensure(STRINGIZE("Couldn't launch " << desc << " script"), bool(py));
+            ensure(stringize("Couldn't launch ", desc, " script"), bool(py));
             // Implementing timeout would mean messing with alarm() and
             // catching SIGALRM... later maybe...
             int status(0);
             if (waitpid(py->getProcessID(), &status, 0) == -1)
             {
                 int waitpid_errno(errno);
-                ensure_equals(STRINGIZE("Couldn't retrieve rc from " << desc << " script: "
-                                        "waitpid() errno " << waitpid_errno),
+                ensure_equals(stringize("Couldn't retrieve rc from ", desc, " script: "
+                                        "waitpid() errno ", waitpid_errno),
                               waitpid_errno, ECHILD);
             }
             else
@@ -1757,17 +1753,17 @@ namespace tut
                 if (WIFEXITED(status))
                 {
                     int rc(WEXITSTATUS(status));
-                    ensure_equals(STRINGIZE(desc << " script terminated with rc " << rc),
+                    ensure_equals(stringize(desc, " script terminated with rc ", rc),
                                   rc, expect);
                 }
                 else if (WIFSIGNALED(status))
                 {
-                    ensure(STRINGIZE(desc << " script terminated by signal " << WTERMSIG(status)),
+                    ensure(stringize(desc, " script terminated by signal ", WTERMSIG(status)),
                            false);
                 }
                 else
                 {
-                    ensure(STRINGIZE(desc << " script produced impossible status " << status),
+                    ensure(stringize(desc, " script produced impossible status ", status),
                            false);
                 }
             }
@@ -1783,10 +1779,9 @@ namespace tut
     void TestPythonCompatibleObject::test<1>()
     {
         set_test_name("verify python()");
-        python("hello",
-               "import sys\n"
-               "sys.exit(17)\n",
-               17);                 // expect nonzero rc
+        python_expecting("hello", 17, // expect nonzero rc
+                         "import sys\n"
+                         "sys.exit(17)\n");
     }
 
     template<> template<>
@@ -1848,14 +1843,13 @@ namespace tut
                            boost::bind(writeLLSDArray, _1, cdata));
 
         python("read C++ notation",
-               placeholders::arg1 <<
-               import_llsd <<
+               import_llsd,
                "def parse_each(iterable):\n"
                "    for item in iterable:\n"
-               "        yield llsd.parse(item)\n" <<
-               pydata <<
+               "        yield llsd.parse(item)\n",
+               pydata,
                // Don't forget raw-string syntax for Windows pathnames.
-               "verify(parse_each(open(r'" << file.getName() << "', 'rb')))\n");
+               "verify(parse_each(open(r'''", file.getName(), "''', 'rb')))\n");
     }
 
     template<> template<>
@@ -1869,8 +1863,7 @@ namespace tut
         NamedTempFile file("llsd", "");
 
         python("write Python notation",
-               placeholders::arg1 <<
-               import_llsd <<
+               import_llsd,
                "DATA = [\n"
                "    17,\n"
                "    3.14,\n"
@@ -1881,7 +1874,7 @@ namespace tut
                "]\n"
                // Don't forget raw-string syntax for Windows pathnames.
                // N.B. Using 'print' implicitly adds newlines.
-               "with open(r'" << file.getName() << "', 'w') as f:\n"
+               "with open(r'''", file.getName(), "''', 'w') as f:\n"
                "    for item in DATA:\n"
                "        print(llsd.format_notation(item).decode(), file=f)\n");
 
