@@ -101,7 +101,9 @@ const S32 MATTYPE_SPECULAR = 2;		// Specular map
 const S32 ALPHAMODE_MASK = 2;		// Alpha masking mode
 const S32 BUMPY_TEXTURE = 18;		// use supplied normal map
 const S32 SHINY_TEXTURE = 4;		// use supplied specular map
-const S32 PBRTYPE_ALBEDO = 0;		// PBR ALBEDO
+const S32 PBRTYPE_ALBEDO = 0;		// PBR Albedo
+const S32 PBRTYPE_NORMAL = 1;		// PBR Normal
+const S32 PBRTYPE_METALLIC = 2;		// PBR Metallic
 
 BOOST_STATIC_ASSERT(MATTYPE_DIFFUSE == LLRender::DIFFUSE_MAP && MATTYPE_NORMAL == LLRender::NORMAL_MAP && MATTYPE_SPECULAR == LLRender::SPECULAR_MAP);
 
@@ -867,35 +869,26 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		getChildView("button align")->setEnabled(editable);
 		
 		LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
-		if (combobox_matmedia)
-		{
-			if (combobox_matmedia->getCurrentIndex() < MATMEDIA_MATERIAL)
-			{
-				combobox_matmedia->selectNthItem(MATMEDIA_MATERIAL);
-			}
-		}
-		else
-		{
-			LL_WARNS() << "failed getChild for 'combobox matmedia'" << LL_ENDL;
-		}
+        if (combobox_matmedia->getCurrentIndex() < MATMEDIA_MATERIAL)
+        {
+            combobox_matmedia->selectNthItem(MATMEDIA_MATERIAL);
+        }
         combobox_matmedia->setEnabled(editable);
 
 		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
-		if(radio_mat_type)
-		{
-		    if (radio_mat_type->getSelectedIndex() < MATTYPE_DIFFUSE)
-		    {
-		        radio_mat_type->selectNthItem(MATTYPE_DIFFUSE);
-		    }
+        if (radio_mat_type->getSelectedIndex() < MATTYPE_DIFFUSE)
+        {
+            radio_mat_type->selectNthItem(MATTYPE_DIFFUSE);
+        }
+        radio_mat_type->setEnabled(editable);
 
-		}
-		else
-		{
-		    LL_WARNS("Materials") << "failed getChild for 'radio_material_type'" << LL_ENDL;
-		}
+        LLRadioGroup* radio_pbr_type = getChild<LLRadioGroup>("radio_pbr_type");
+        if (radio_pbr_type->getSelectedIndex() < PBRTYPE_ALBEDO)
+        {
+            radio_pbr_type->selectNthItem(PBRTYPE_ALBEDO);
+        }
+        radio_pbr_type->setEnabled(editable);
 
-		getChildView("radio_material_type")->setEnabled(editable);
-        getChildView("radio_pbr_type")->setEnabled(editable);
 		getChildView("checkbox_sync_settings")->setEnabled(editable);
 		childSetValue("checkbox_sync_settings", gSavedSettings.getBOOL("SyncMaterialSettings"));
 		updateVisibility();
@@ -906,8 +899,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         bool identical_spec		= false;
 
         // pbr material
-        bool is_pbr_material = false;
-        LLTextureCtrl*	pbr_ctrl = getChild<LLTextureCtrl>("pbr_control");
+        bool has_pbr_material = false;
+        LLTextureCtrl*	pbr_ctrl = findChild<LLTextureCtrl>("pbr_control");
         if (pbr_ctrl)
         {
             LLUUID pbr_id;
@@ -918,7 +911,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
             pbr_ctrl->setTentative(identical_pbr ? FALSE : TRUE);
             pbr_ctrl->setEnabled(editable);
             pbr_ctrl->setImageAssetID(pbr_id);
-            is_pbr_material = pbr_id.notNull();
+            has_pbr_material = pbr_id.notNull();
         }
 
 		LLTextureCtrl*	texture_ctrl = getChild<LLTextureCtrl>("texture control");
@@ -931,9 +924,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		
 		// Color swatch
 		{
-			getChildView("color label")->setEnabled(editable && !is_pbr_material);
+			getChildView("color label")->setEnabled(editable && !has_pbr_material);
 		}
-		LLColorSwatchCtrl*	mColorSwatch = getChild<LLColorSwatchCtrl>("colorswatch");
+		LLColorSwatchCtrl*	mColorSwatch = findChild<LLColorSwatchCtrl>("colorswatch");
 
 		LLColor4 color					= LLColor4::white;
 		bool		identical_color	= false;
@@ -946,17 +939,17 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			mColorSwatch->setOriginal(color);
 			mColorSwatch->set(color, force_set_values || (prev_color != color) || !editable);
 
-			mColorSwatch->setValid(editable && !is_pbr_material);
-			mColorSwatch->setEnabled(editable && !is_pbr_material);
+			mColorSwatch->setValid(editable && !has_pbr_material);
+			mColorSwatch->setEnabled(editable && !has_pbr_material);
 			mColorSwatch->setCanApplyImmediately( editable );
 		}
 
 		// Color transparency
-		getChildView("color trans")->setEnabled(editable && !is_pbr_material);
+		getChildView("color trans")->setEnabled(editable && !has_pbr_material);
 
 		F32 transparency = (1.f - color.mV[VALPHA]) * 100.f;
 		getChild<LLUICtrl>("ColorTrans")->setValue(editable ? transparency : 0);
-		getChildView("ColorTrans")->setEnabled(editable && !is_pbr_material);
+		getChildView("ColorTrans")->setEnabled(editable && !has_pbr_material);
 
 		// Specular map
 		LLSelectedTEMaterial::getSpecularID(specmap_id, identical_spec);
@@ -1215,9 +1208,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyScaleU")->setValue(spec_scale_s);
 			getChild<LLUICtrl>("bumpyScaleU")->setValue(norm_scale_s);
 
-			getChildView("TexScaleU")->setEnabled(editable);
-			getChildView("shinyScaleU")->setEnabled(editable && specmap_id.notNull());
-			getChildView("bumpyScaleU")->setEnabled(editable && normmap_id.notNull());
+            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            {
+                getChildView("TexScaleU")->setEnabled(editable && has_pbr_material);
+                getChildView("shinyScaleU")->setEnabled(editable && has_pbr_material);
+                getChildView("bumpyScaleU")->setEnabled(editable && has_pbr_material);
+            }
+            else
+            {
+                getChildView("TexScaleU")->setEnabled(editable);
+                getChildView("shinyScaleU")->setEnabled(editable && specmap_id.notNull());
+                getChildView("bumpyScaleU")->setEnabled(editable && normmap_id.notNull());
+            }
 
 			BOOL diff_scale_tentative = !(identical && identical_diff_scale_s);
 			BOOL norm_scale_tentative = !(identical && identical_norm_scale_s);
@@ -1254,9 +1256,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			BOOL norm_scale_tentative = !identical_norm_scale_t;
 			BOOL spec_scale_tentative = !identical_spec_scale_t;
 
-			getChildView("TexScaleV")->setEnabled(editable);
-			getChildView("shinyScaleV")->setEnabled(editable && specmap_id.notNull());
-			getChildView("bumpyScaleV")->setEnabled(editable && normmap_id.notNull());
+            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            {
+                getChildView("TexScaleV")->setEnabled(editable && has_pbr_material);
+                getChildView("shinyScaleV")->setEnabled(editable && has_pbr_material);
+                getChildView("bumpyScaleV")->setEnabled(editable && has_pbr_material);
+            }
+            else
+            {
+                getChildView("TexScaleV")->setEnabled(editable);
+                getChildView("shinyScaleV")->setEnabled(editable && specmap_id.notNull());
+                getChildView("bumpyScaleV")->setEnabled(editable && normmap_id.notNull());
+            }
 
 			if (force_set_values)
 			{
@@ -1300,9 +1311,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetU")->setTentative(LLSD(norm_offset_u_tentative));
 			getChild<LLUICtrl>("bumpyOffsetU")->setTentative(LLSD(spec_offset_u_tentative));
 
-			getChildView("TexOffsetU")->setEnabled(editable);
-			getChildView("shinyOffsetU")->setEnabled(editable && specmap_id.notNull());
-			getChildView("bumpyOffsetU")->setEnabled(editable && normmap_id.notNull());
+            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            {
+                getChildView("TexOffsetU")->setEnabled(editable && has_pbr_material);
+                getChildView("shinyOffsetU")->setEnabled(editable && has_pbr_material);
+                getChildView("bumpyOffsetU")->setEnabled(editable && has_pbr_material);
+            }
+            else
+            {
+                getChildView("TexOffsetU")->setEnabled(editable);
+                getChildView("shinyOffsetU")->setEnabled(editable && specmap_id.notNull());
+                getChildView("bumpyOffsetU")->setEnabled(editable && normmap_id.notNull());
+            }
 		}
 
 		{
@@ -1330,9 +1350,18 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetV")->setTentative(LLSD(norm_offset_v_tentative));
 			getChild<LLUICtrl>("bumpyOffsetV")->setTentative(LLSD(spec_offset_v_tentative));
 
-			getChildView("TexOffsetV")->setEnabled(editable);
-			getChildView("shinyOffsetV")->setEnabled(editable && specmap_id.notNull());
-			getChildView("bumpyOffsetV")->setEnabled(editable && normmap_id.notNull());
+            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            {
+                getChildView("TexOffsetV")->setEnabled(editable && has_pbr_material);
+                getChildView("shinyOffsetV")->setEnabled(editable && has_pbr_material);
+                getChildView("bumpyOffsetV")->setEnabled(editable && has_pbr_material);
+            }
+            else
+            {
+                getChildView("TexOffsetV")->setEnabled(editable);
+                getChildView("shinyOffsetV")->setEnabled(editable && specmap_id.notNull());
+                getChildView("bumpyOffsetV")->setEnabled(editable && normmap_id.notNull());
+            }
 		}
 
 		// Texture rotation
@@ -1356,10 +1385,19 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			F32 diff_rot_deg = diff_rotation * RAD_TO_DEG;
 			F32 norm_rot_deg = norm_rotation * RAD_TO_DEG;
 			F32 spec_rot_deg = spec_rotation * RAD_TO_DEG;
-			
-			getChildView("TexRot")->setEnabled(editable);
-			getChildView("shinyRot")->setEnabled(editable && specmap_id.notNull());
-			getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
+
+            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            {
+                getChildView("TexRot")->setEnabled(editable && has_pbr_material);
+                getChildView("shinyRot")->setEnabled(editable && has_pbr_material);
+                getChildView("bumpyRot")->setEnabled(editable && has_pbr_material);
+            }
+            else
+            {
+                getChildView("TexRot")->setEnabled(editable);
+                getChildView("shinyRot")->setEnabled(editable && specmap_id.notNull());
+                getChildView("bumpyRot")->setEnabled(editable && normmap_id.notNull());
+            }
 
 			getChild<LLUICtrl>("TexRot")->setTentative(diff_rot_tentative);
 			getChild<LLUICtrl>("shinyRot")->setTentative(LLSD(norm_rot_tentative));
@@ -1376,8 +1414,8 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			LLSelectedTE::getGlow(glow,identical_glow);
 			getChild<LLUICtrl>("glow")->setValue(glow);
 			getChild<LLUICtrl>("glow")->setTentative(!identical_glow);
-			getChildView("glow")->setEnabled(editable && !is_pbr_material);
-			getChildView("glow label")->setEnabled(editable && !is_pbr_material);
+			getChildView("glow")->setEnabled(editable && !has_pbr_material);
+			getChildView("glow label")->setEnabled(editable && !has_pbr_material);
 		}
 
 		{
@@ -1425,42 +1463,61 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 
 			LLComboBox*	mComboTexGen = getChild<LLComboBox>("combobox texgen");
 			if (mComboTexGen)
-		{
+            {
 				S32 index = mComboTexGen ? mComboTexGen->getCurrentIndex() : 0;
-				BOOL enabled = editable && (index != 1);
-				BOOL identical_repeats = true;
+                bool enabled = editable && (index != 1);
+                bool identical_repeats = true;
+                S32 material_selection = combobox_matmedia->getCurrentIndex();
 				F32  repeats = 1.0f;
 
-				U32 material_type = (combobox_matmedia->getCurrentIndex() == MATMEDIA_MATERIAL) ? radio_mat_type->getSelectedIndex() : MATTYPE_DIFFUSE;
+                U32 material_type = MATTYPE_DIFFUSE;
+                if (material_selection == MATMEDIA_MATERIAL)
+                {
+                    material_type = radio_mat_type->getSelectedIndex();
+                }
+                else if (material_selection == MATMEDIA_PBR)
+                {
+                    enabled = editable && has_pbr_material;
+                    material_type = radio_pbr_type->getSelectedIndex();
+                }
 				LLSelectMgr::getInstance()->setTextureChannel(LLRender::eTexIndex(material_type));
 
-				switch (material_type)
-			{
-					default:
-					case MATTYPE_DIFFUSE:
-				{
-						enabled = editable && !id.isNull();
-						identical_repeats = identical_diff_repeats;
-						repeats = repeats_diff;
-				}
-					break;
+                switch (material_type)
+                {
+                default:
+                case MATTYPE_DIFFUSE:
+                {
+                    if (material_selection != MATMEDIA_PBR)
+                    {
+                        enabled = editable && !id.isNull();
+                    }
+                    identical_repeats = identical_diff_repeats;
+                    repeats = repeats_diff;
+                }
+                break;
 
-					case MATTYPE_SPECULAR:
-			{
-						enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
-						identical_repeats = identical_spec_repeats;
-						repeats = repeats_spec;
-			}
-					break;
+                case MATTYPE_SPECULAR:
+                {
+                    if (material_selection != MATMEDIA_PBR)
+                    {
+                        enabled = (editable && ((shiny == SHINY_TEXTURE) && !specmap_id.isNull()));
+                    }
+                    identical_repeats = identical_spec_repeats;
+                    repeats = repeats_spec;
+                }
+                break;
 
-					case MATTYPE_NORMAL:
-			{
-						enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
-						identical_repeats = identical_norm_repeats;
-						repeats = repeats_norm;
-					}
-					break;
-				}
+                case MATTYPE_NORMAL:
+                {
+                    if (material_selection != MATMEDIA_PBR)
+                    {
+                        enabled = (editable && ((bumpy == BUMPY_TEXTURE) && !normmap_id.isNull()));
+                    }
+                    identical_repeats = identical_norm_repeats;
+                    repeats = repeats_norm;
+                }
+                break;
+                }
 
 				BOOL repeats_tentative = !identical_repeats;
 
@@ -1731,25 +1788,32 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 
 // static
 void LLPanelFace::updateVisibility()
-{	
-	LLComboBox* combo_matmedia = getChild<LLComboBox>("combobox matmedia");
-	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
-	LLComboBox* combo_shininess = getChild<LLComboBox>("combobox shininess");
-	LLComboBox* combo_bumpiness = getChild<LLComboBox>("combobox bumpiness");
-	if (!radio_mat_type || !combo_matmedia || !combo_shininess || !combo_bumpiness)
+{
+    LLComboBox* combo_matmedia = findChild<LLComboBox>("combobox matmedia");
+    LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
+    LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
+    LLComboBox* combo_shininess = findChild<LLComboBox>("combobox shininess");
+    LLComboBox* combo_bumpiness = findChild<LLComboBox>("combobox bumpiness");
+	if (!radio_mat_type || !radio_pbr_type || !combo_matmedia || !combo_shininess || !combo_bumpiness)
 	{
 		LL_WARNS("Materials") << "Combo box not found...exiting." << LL_ENDL;
 		return;
 	}
 	U32 materials_media = combo_matmedia->getCurrentIndex();
 	U32 material_type = radio_mat_type->getSelectedIndex();
+    U32 pbr_type = radio_pbr_type->getSelectedIndex();
 	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
     bool show_material = materials_media == MATMEDIA_MATERIAL;
     bool show_pbr = materials_media == MATMEDIA_PBR;
 	bool show_texture = (show_media || (show_material && (material_type == MATTYPE_DIFFUSE) && combo_matmedia->getEnabled()));
 	bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && combo_matmedia->getEnabled();
 	bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
-	getChildView("radio_material_type")->setVisible(show_texture);
+    bool show_pbr_albedo = show_pbr && (pbr_type == PBRTYPE_ALBEDO) && combo_matmedia->getEnabled();
+    bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL) && combo_matmedia->getEnabled();
+    bool show_pbr_metallic = show_pbr && (pbr_type == PBRTYPE_METALLIC) && combo_matmedia->getEnabled();
+
+    radio_mat_type->setVisible(show_material);
+    radio_pbr_type->setVisible(show_pbr);
 
 	// Media controls
 	getChildView("media_info")->setVisible(show_media);
@@ -1759,19 +1823,20 @@ void LLPanelFace::updateVisibility()
 
 	// Diffuse texture controls
 	getChildView("texture control")->setVisible(show_texture && show_material);
-	getChildView("label alphamode")->setVisible(show_texture && (show_material || show_pbr));
-	getChildView("combobox alphamode")->setVisible(show_texture && (show_material || show_pbr));
+	getChildView("label alphamode")->setVisible((show_texture && show_material) || show_pbr);
+	getChildView("combobox alphamode")->setVisible((show_texture && show_material) || show_pbr);
 	getChildView("label maskcutoff")->setVisible(false);
 	getChildView("maskcutoff")->setVisible(false);
-	if (show_texture && show_material)
+	if ((show_texture && show_material) || show_pbr)
 	{
 		updateAlphaControls();
 	}
-	getChildView("TexScaleU")->setVisible(show_texture || show_pbr);
-	getChildView("TexScaleV")->setVisible(show_texture || show_pbr);
-	getChildView("TexRot")->setVisible(show_texture || show_pbr);
-	getChildView("TexOffsetU")->setVisible(show_texture || show_pbr);
-	getChildView("TexOffsetV")->setVisible(show_texture || show_pbr);
+    // texture scale and position controls are shared between bpr and non-pbr textures
+	getChildView("TexScaleU")->setVisible(show_texture || show_pbr_albedo);
+	getChildView("TexScaleV")->setVisible(show_texture || show_pbr_albedo);
+	getChildView("TexRot")->setVisible(show_texture || show_pbr_albedo);
+	getChildView("TexOffsetU")->setVisible(show_texture || show_pbr_albedo);
+	getChildView("TexOffsetV")->setVisible(show_texture || show_pbr_albedo);
 
 	// Specular map controls
 	getChildView("shinytexture control")->setVisible(show_shininess);
@@ -1787,11 +1852,11 @@ void LLPanelFace::updateVisibility()
 	{
 		updateShinyControls();
 	}
-	getChildView("shinyScaleU")->setVisible(show_shininess);
-	getChildView("shinyScaleV")->setVisible(show_shininess);
-	getChildView("shinyRot")->setVisible(show_shininess);
-	getChildView("shinyOffsetU")->setVisible(show_shininess);
-	getChildView("shinyOffsetV")->setVisible(show_shininess);
+	getChildView("shinyScaleU")->setVisible(show_shininess || show_pbr_normal);
+	getChildView("shinyScaleV")->setVisible(show_shininess || show_pbr_normal);
+	getChildView("shinyRot")->setVisible(show_shininess || show_pbr_normal);
+	getChildView("shinyOffsetU")->setVisible(show_shininess || show_pbr_normal);
+	getChildView("shinyOffsetV")->setVisible(show_shininess || show_pbr_normal);
 
 	// Normal map controls
 	if (show_bumpiness)
@@ -1801,15 +1866,14 @@ void LLPanelFace::updateVisibility()
 	getChildView("bumpytexture control")->setVisible(show_bumpiness);
 	getChildView("combobox bumpiness")->setVisible(show_bumpiness);
 	getChildView("label bumpiness")->setVisible(show_bumpiness);
-	getChildView("bumpyScaleU")->setVisible(show_bumpiness);
-	getChildView("bumpyScaleV")->setVisible(show_bumpiness);
-	getChildView("bumpyRot")->setVisible(show_bumpiness);
-	getChildView("bumpyOffsetU")->setVisible(show_bumpiness);
-	getChildView("bumpyOffsetV")->setVisible(show_bumpiness);
+	getChildView("bumpyScaleU")->setVisible(show_bumpiness || show_pbr_metallic);
+	getChildView("bumpyScaleV")->setVisible(show_bumpiness || show_pbr_metallic);
+	getChildView("bumpyRot")->setVisible(show_bumpiness || show_pbr_metallic);
+	getChildView("bumpyOffsetU")->setVisible(show_bumpiness || show_pbr_metallic);
+	getChildView("bumpyOffsetV")->setVisible(show_bumpiness || show_pbr_metallic);
 
     // PBR controls
     getChildView("pbr_control")->setVisible(show_pbr);
-    getChildView("radio_pbr_type")->setVisible(show_pbr);
 }
 
 // static
