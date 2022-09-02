@@ -607,7 +607,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 {
     LLViewerShaderMgr::sSkipReload = true;
-
+    flush_glerror(); // Whatever may have already happened (e.g., to cause us to change), don't let confuse it with new initializations.
     applyBaseMasks();
 
     // if we're passed an invalid level, default to "Low"
