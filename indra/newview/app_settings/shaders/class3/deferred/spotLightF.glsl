@@ -181,6 +181,7 @@ void main()
 
                 colorDiffuse = shadow * lit * dlit * BRDFLambertian ( reflect0, reflect90, c_diff    , specWeight, vh );
                 colorSpec    = shadow * lit * slit * BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
+                colorSpec   += shadow * lit *        BRDFSpecularGGX( reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh );
 
   #if DEBUG_PBR_SPOT_DIFFUSE
                 colorDiffuse = dlit.rgb; colorSpec = vec3(0);
