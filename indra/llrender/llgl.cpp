@@ -86,13 +86,13 @@ void APIENTRY gl_debug_callback(GLenum source,
                                 const GLchar* message,
                                 GLvoid* userParam)
 {
-    if (severity != GL_DEBUG_SEVERITY_HIGH_ARB // &&
-        //severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
-        //severity != GL_DEBUG_SEVERITY_LOW_ARB
+    /*if (severity != GL_DEBUG_SEVERITY_HIGH_ARB // &&
+        severity != GL_DEBUG_SEVERITY_MEDIUM_ARB &&
+        severity != GL_DEBUG_SEVERITY_LOW_ARB
         )
     { //suppress out-of-spec messages sent by nvidia driver (mostly vertexbuffer hints)
         return;
-    }
+    }*/
 
     if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
     {
@@ -1628,7 +1628,7 @@ void LLGLManager::initExtensions()
     mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
     mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
-    mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
+    mHasDebugOutput = mGLVersion >= 4.3f ? TRUE : FALSE;
     mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
 #endif
 

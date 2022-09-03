@@ -558,7 +558,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 //============================================================================
 // Load Shader
 
-static std::string get_object_log(GLuint ret)
+static std::string get_shader_log(GLuint ret)
 {
 	std::string res;
 	
@@ -569,11 +569,44 @@ static std::string get_object_log(GLuint ret)
 	{
 		//the log could be any size, so allocate appropriately
 		GLchar* log = new GLchar[length];
-        glGetProgramInfoLog(ret, length, &length, log);
+        glGetShaderInfoLog(ret, length, &length, log);
 		res = std::string((char *)log);
 		delete[] log;
 	}
 	return res;
+}
+
+static std::string get_program_log(GLuint ret)
+{
+    std::string res;
+
+    //get log length 
+    GLint length;
+    glGetProgramiv(ret, GL_INFO_LOG_LENGTH, &length);
+    if (length > 0)
+    {
+        //the log could be any size, so allocate appropriately
+        GLchar* log = new GLchar[length];
+        glGetProgramInfoLog(ret, length, &length, log);
+        res = std::string((char*)log);
+        delete[] log;
+    }
+    return res;
+}
+
+// get the info log for the given object, be it a shader or program object
+// NOTE: ret MUST be a shader OR a program object
+static std::string get_object_log(GLuint ret)
+{
+    if (glIsProgram(ret))
+    {
+        return get_program_log(ret);
+    }
+    else
+    {
+        llassert(glIsShader(ret));
+        return get_shader_log(ret);
+    }
 }
 
 //dump shader source for debugging
@@ -594,7 +627,8 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLchar** shader_code_t
 
 void LLShaderMgr::dumpObjectLog(GLuint ret, BOOL warns, const std::string& filename)
 {
-	std::string log = get_object_log(ret);
+    std::string log;
+    log = get_object_log(ret);
     std::string fname = filename;
     if (filename.empty())
     {
@@ -1078,7 +1112,7 @@ BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
         return success;
 	}
 
-	std::string log = get_object_log(obj);
+	std::string log = get_program_log(obj);
 	LLStringUtil::toLower(log);
 	if (log.find("software") != std::string::npos)
 	{
