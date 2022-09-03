@@ -96,7 +96,7 @@ void main()
 
 #ifdef HAS_NORMAL_MAP
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    norm.xyz = norm.xyz * 2 - 1;
+    norm.xyz = normalize(norm.xyz * 2 - 1);
 
 	vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
 			  dot(norm.xyz,vary_mat1),
