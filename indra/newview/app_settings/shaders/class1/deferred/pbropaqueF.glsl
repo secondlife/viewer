@@ -98,9 +98,9 @@ void main()
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
     norm.xyz = normalize(norm.xyz * 2 - 1);
 
-	vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
-			  dot(norm.xyz,vary_mat1),
-			  dot(norm.xyz,vary_mat2));
+    vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
+                      dot(norm.xyz,vary_mat1),
+                      dot(norm.xyz,vary_mat2));
 #else
     vec4 norm = vec4(0,0,0,1.0);
 //    vec3 tnorm = vary_normal;
@@ -108,8 +108,7 @@ void main()
 #endif
 
     tnorm = normalize(tnorm.xyz);
-
-    norm.xyz = normalize(tnorm.xyz);
+    norm.xyz = tnorm.xyz;
 
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerTexture::sDefaultPBRORMImagep
