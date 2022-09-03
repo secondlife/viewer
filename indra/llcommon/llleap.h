@@ -88,6 +88,13 @@ public:
 
     virtual ~LLLeap();
 
+    /**
+     * Get a non-const reference to the LLEventPump for this LLLeap plugin.
+     * Posting to the returned pump serializes the event data and sends it to
+     * the plugin.
+     */
+    virtual LLEventPump& getPump() = 0;
+
 protected:
     LLLeap();
 };

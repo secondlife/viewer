@@ -15,7 +15,9 @@
 #include "llleap.h"
 // STL headers
 // std headers
+#include <chrono>
 #include <functional>
+#include <thread>
 // external library headers
 //#include <boost/algorithm/string/join.hpp>
 #include <boost/assign/list_of.hpp>
@@ -26,6 +28,8 @@
 #include "wrapllerrs.h"             // CaptureLog
 #include "llevents.h"
 #include "llprocess.h"
+#include "llsd.h"
+#include "llsdutil.h"
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
@@ -41,57 +45,92 @@ StringVec sv(const StringVec& listof) { return listof; }
 // causes Windows abdominal pain such that it later fails code-signing in some
 // mysterious way. Entirely suppressing these LLLeap tests pushes the failure
 // rate MUCH lower. Can we re-enable them with a smaller data size on Windows?
-const size_t BUFFERED_LENGTH =  100*1024;
+const size_t BUFFERED_LENGTH = 1024*1024;
 
 #else // not Windows
 const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte of data
 
 #endif
 
+// generic waitfor() accepts predicate
+template <typename Rep, typename Period>
+std::chrono::milliseconds waitfor(
+    const std::function<bool()> predicate,
+    const std::string& fail_msg,
+    std::chrono::duration<Rep, Period> timeout=std::chrono::seconds(60))
+{
+    auto start = std::chrono::steady_clock::now();
+    auto limit = start + timeout;
+    for (std::chrono::steady_clock::time_point now;
+         (now = std::chrono::steady_clock::now()) < limit; )
+    {
+        if (predicate())
+        {
+            return std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
+        }
+        // Predicate isn't yet true. Wait and pump LLProcess.
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        LLEventPumps::instance().obtain("mainloop").post(LLSD());
+    }
+    tut::fail(fail_msg);
+    return timeout;
+}
+
 // capture std::weak_ptrs to LLLeap instances so we can tell when they expire
 typedef std::vector<std::weak_ptr<LLLeap>> LLLeapVector;
 
-void waitfor(const LLLeapVector& instances, int timeout=60)
+// predicate tests whether any LLLeap instance in LLLeapVector is alive
+bool still_running(const LLLeapVector& instances)
 {
-    int i;
-    for (i = 0; i < timeout; ++i)
+    // Test whether any of the passed LLLeap instances still exist (are still
+    // running).
+    for (auto& ptr : instances)
     {
-        // Every iteration, test whether any of the passed LLLeap instances
-        // still exist (are still running).
-        bool found = false;
-        for (auto& ptr : instances)
+        if (! ptr.expired())
         {
-            if (! ptr.expired())
-            {
-                found = true;
-                break;
-            }
+            return true;
         }
-        // If we made it through all of 'instances' without finding one that's
-        // still running, we're done.
-        if (! found)
-        {
-/*==========================================================================*|
-            std::cout << instances.size() << " LLLeap instances terminated in "
-                      << i << " seconds, proceeding" << std::endl;
-|*==========================================================================*/
-            return;
-        }
-        // Found an instance that's still running. Wait and pump LLProcess.
-        sleep(1);
-        LLEventPumps::instance().obtain("mainloop").post(LLSD());
     }
-    tut::ensure(stringize("at least 1 of ", instances.size(),
-                          " LLLeap instances timed out (",
-                          timeout, " seconds) without terminating"),
-                i < timeout);
+    // We made it through all of 'instances' without finding one that's still
+    // running.
+    return false;
 }
 
-void waitfor(LLLeap* instance, int timeout=60)
+// waitfor(all instances in LLLeapVector)
+template <typename Rep, typename Period>
+void waitfor(const LLLeapVector& instances, std::chrono::duration<Rep, Period> timeout)
 {
-    LLLeapVector instances;
-    instances.push_back(instance->getWeak());
-    waitfor(instances, timeout);
+    auto elapsed = waitfor(
+        [&instances](){ return ! still_running(instances); },
+        stringize("at least 1 of ", instances.size(),
+                  " LLLeap instances timed out (",
+                  std::chrono::duration_cast<std::chrono::seconds>(timeout).count(),
+                  " seconds) without terminating"),
+        timeout);
+/*==========================================================================*|
+    std::cout << instances.size() << " LLLeap instances terminated in "
+              << std::chrono::duration_cast<std::chrono::seconds>(elapsed).count()
+              << " seconds, proceeding" << std::endl;
+|*==========================================================================*/
+}
+
+// VS 2017 can't handle specifying default timeout for the overload above
+void waitfor(const LLLeapVector& instances)
+{
+    waitfor(instances, std::chrono::seconds(60));
+}
+
+// waitfor(one LLLeap instance)
+template <typename Rep, typename Period>
+void waitfor(LLLeap* instance, std::chrono::duration<Rep, Period> timeout)
+{
+    waitfor(LLLeapVector{ instance->getWeak() }, timeout);
+}
+
+// VS 2017 can't handle specifying default timeout for the overload above
+void waitfor(LLLeap* instance)
+{
+    waitfor(instance, std::chrono::seconds(60));
 }
 
 /*****************************************************************************
@@ -449,7 +488,7 @@ namespace tut
                              "        break\n"
                              "send(pump='", result.getName(), "', data=result)\n");
         waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
-                300);               // needs more realtime than most tests
+                std::chrono::seconds(300)); // needs more realtime than most tests
         result.ensure();
     }
 
@@ -518,7 +557,7 @@ namespace tut
                                   (PYTHON)
                                   (script.getName())
                                   (stringize(size)))),
-                180);               // try a longer timeout
+                std::chrono::seconds(180)); // try a longer timeout
         result.ensure();
     }
 
@@ -661,5 +700,127 @@ namespace tut
     {
         set_test_name("very large message");
         test_or_split(PYTHON, reader_module, get_test_name(), BUFFERED_LENGTH);
+    }
+
+    struct PushTest: public ListenerBase
+    {
+        PushTest():
+            ListenerBase("PushTest"),
+            mPushPump(nullptr),
+            mReceived(false)
+        {}
+
+        // Call this to send a blob of LLSD to the plugin
+        void send(const LLSD& data)
+        {
+            ensure("must set PushTest::mPushPump before calling send()", mPushPump);
+
+            // clear bool so caller can wait for response
+            mReceived = false;
+            mSentData = data;
+            mRecvData.clear();
+
+            // post data to the plugin
+            mPushPump->post(mSentData);
+        }
+
+        bool call(const LLSD& incoming) override
+        {
+            // got a response
+            mRecvData = incoming;
+            mReceived = true;
+            return false;
+        }
+
+        LLEventPump* mPushPump;
+        bool mReceived;
+        LLSD mSentData, mRecvData;
+    };
+
+    template<> template<>
+    void object::test<11>()
+    {
+        set_test_name("buffering despite pause");
+        // In August 2022, Aura discovered that trying to send a nontrivial
+        // message (e.g. 20K) to a plugin that sleeps (or is very busy for ~5
+        // seconds of realtime) can cause that message to be dropped. This
+        // test exercises that case.
+        PushTest pushTest;
+        NamedTempFile script(
+            "py",
+            "from ", reader_module, " import *\n"
+            "import time\n"
+            // Unusually for these tests, wait for push from C++. Actually two
+            // pushes: first we send the delay to test, then we send the
+            // actual data blob. Sending delay=-1 terminates cleanly.
+            "while True:\n"
+            "    instruction = get()\n"
+            "    delay = instruction['data']['delay']\n"
+            "    if delay < 0:\n"
+            "        break\n"
+            //   delay >= 0: sleep that long before even noticing the second push.
+            "    time.sleep(delay)\n"
+            "    resp = get()\n"
+            //   echo the same data back to us to verify correct receipt
+            "    send(pump='", pushTest.getName(), "', data=resp['data'])\n");
+        auto plugin{ LLLeap::create(get_test_name(),
+                                    StringVec{ PYTHON, script.getName() }) };
+        // We can't know the LLLeap instance's reply pump until we've created
+        // the LLLeap instance. Now that we know, it's essential to set it for
+        // pushTest to be able to send().
+        pushTest.mPushPump = &plugin->getPump();
+
+#if DEBUGGING
+        // Don't loop over all these combinations every time: even without the
+        // test overhead, delaying for (0 + 1 + 2 + 4) seconds times 4 would
+        // make this test take unacceptably long for every build.
+        std::vector<size_t> sizes{ 2048, 4096, 16384, 32768 };
+        std::vector<size_t> delays{   0,    1,     2,     4 };
+#else
+        std::vector<size_t> sizes{ 32768 };
+        std::vector<size_t> delays{    4 };
+#endif
+
+        for (auto delay: delays)
+        {
+            for (auto size: sizes)
+            {
+                try
+                {
+                    std::cerr << "delay: " << delay << ", size: " << size << std::endl;
+                    pushTest.send(llsd::map("delay", LLSD::Integer(delay)));
+                    // With notation serialization, a positive LLSD::Integer
+                    // gets an 'i' prefix for the decimal digits. Serializing
+                    // an LLSD::Array separates entries with a ','. So a
+                    // 6-digit Integer will take 8 bytes.
+                    LLSD data{ LLSD::emptyArray() };
+                    for (size_t i = 0; i < (size/8); ++i)
+                        data.append(LLSD::Integer(100000 + i));
+                    pushTest.send(data);
+                    // We know we need to wait at least 'delay' seconds; wait
+                    // another 30 before declaring failure.
+                    auto timeout{ delay + 30 };
+                    waitfor(
+                        // wait for the reply
+                        [&pushTest](){ return pushTest.mReceived; },
+                        stringize("failed to echo data after ", timeout, " seconds"),
+                        std::chrono::seconds(timeout));
+                    // If we did receive data, verify it's not corrupted.
+                    ensure_equals("echoed data corrupted",
+                                  pushTest.mRecvData, pushTest.mSentData);
+                }
+                catch (const tut::failure& error)
+                {
+                    tut::fail(stringize(
+                                  "Failed at delay ", delay, ", size ", size, ": ",
+                                  error.what()));
+                }
+            }
+        }
+        // Despite the amount of realtime taken by this test overall, we
+        // shouldn't need a super-long timeout because we don't even start the
+        // timer until we send this next message.
+        pushTest.send(llsd::map("delay", -1));
+        waitfor(plugin);
     }
 } // namespace tut

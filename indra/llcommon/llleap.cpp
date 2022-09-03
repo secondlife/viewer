@@ -166,6 +166,11 @@ public:
         LLError::removeRecorder(mRecorder);
     }
 
+    LLEventPump& getPump() override
+    {
+        return mReplyPump;
+    }
+
     // Listener for failed launch attempt
     bool bad_launch(const LLSD& data)
     {
