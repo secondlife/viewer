@@ -592,7 +592,7 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLchar** shader_code_t
     LL_CONT << LL_ENDL;
 }
 
-void LLShaderMgr::dumpObjectLog(GLuint ret, BOOL warns, const std::string& filename) 
+void LLShaderMgr::dumpObjectLog(GLuint ret, BOOL warns, const std::string& filename)
 {
 	std::string log = get_object_log(ret);
     std::string fname = filename;
@@ -985,11 +985,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 	fclose(file);
 
-    error = glGetError();
-    if (error != GL_NO_ERROR)
-    {
-        LL_WARNS("HRS") << "WTF? Should be no error here: " << error << LL_ENDL;
-    }
 	//create shader object
     GLuint ret = glCreateShader(type);
 
@@ -1069,7 +1064,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	return ret;
 }
 
-BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors) 
+BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
 {
 	//check for errors
 	glLinkProgram(obj);
@@ -1079,6 +1074,8 @@ BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
 	{
 		//an error occured, print log
 		LL_SHADER_LOADING_WARNS() << "GLSL Linker Error:" << LL_ENDL;
+        dumpObjectLog(obj, TRUE, "linker");
+        return success;
 	}
 
 	std::string log = get_object_log(obj);
@@ -1178,7 +1175,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
-    
+
 	mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
 	mReservedUniforms.push_back("specularMap");
