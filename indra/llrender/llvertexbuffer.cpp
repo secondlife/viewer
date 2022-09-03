@@ -1530,10 +1530,6 @@ U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, bool map_ran
 				{
 					if (map_range)
 					{
-#ifndef LL_MESA_HEADLESS
-						glBufferParameteriAPPLE(GL_ARRAY_BUFFER, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
-						glBufferParameteriAPPLE(GL_ARRAY_BUFFER, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
-#endif
 						src = (U8*) glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 					else
@@ -1703,10 +1699,6 @@ U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range)
 				{
 					if (map_range)
 					{
-#ifndef LL_MESA_HEADLESS
-						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SERIALIZED_MODIFY_APPLE, GL_FALSE);
-						glBufferParameteriAPPLE(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_FLUSHING_UNMAP_APPLE, GL_FALSE);
-#endif
 						src = (U8*) glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
 					}
 					else
@@ -1832,15 +1824,7 @@ void LLVertexBuffer::unmapBuffer()
 						S32 length = sTypeSize[region.mType]*region.mCount;
 						if (gGLManager.mHasMapBufferRange)
 						{
-#ifdef GL_ARB_map_buffer_range
 							glFlushMappedBufferRange(GL_ARRAY_BUFFER, offset, length);
-#endif
-						}
-						else if (gGLManager.mHasFlushBufferRange)
-                        {
-#ifndef LL_MESA_HEADLESS
-							glFlushMappedBufferRangeAPPLE(GL_ARRAY_BUFFER, offset, length);
-#endif
 						}
 					}
 
@@ -1912,17 +1896,7 @@ void LLVertexBuffer::unmapBuffer()
 						S32 length = sizeof(U16)*region.mCount;
 						if (gGLManager.mHasMapBufferRange)
 						{
-#ifdef GL_ARB_map_buffer_range
 							glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER, offset, length);
-#endif
-						}
-						else if (gGLManager.mHasFlushBufferRange)
-						{
-#ifdef GL_APPLE_flush_buffer_range
-#ifndef LL_MESA_HEADLESS
-							glFlushMappedBufferRangeAPPLE(GL_ELEMENT_ARRAY_BUFFER, offset, length);
-#endif
-#endif
 						}
 						stop_glerror();
 					}

@@ -969,7 +969,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
     {   // See slide 35 and more of https://docs.huihoo.com/apple/wwdc/2011/session_420__advances_in_opengl_for_mac_os_x_lion.pdf
         static const GLuint BLOCKBINDING = 1; //picked by us
         //Get the index, similar to a uniform location
-        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, "UBO");
+        GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, "ReflectionProbes");
         //Set this index to a binding index
         glUniformBlockBinding(mProgramObject, UBOBlockIndex, BLOCKBINDING);
     }
