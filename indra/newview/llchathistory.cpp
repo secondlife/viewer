@@ -119,6 +119,7 @@ public:
 		mSourceType(CHAT_SOURCE_UNKNOWN),
 		mFrom(),
 		mSessionID(),
+        mCreationTime(time_corrected()),
 		mMinUserNameWidth(0),
 		mUserNameFont(NULL),
 		mUserNameTextBox(NULL),
@@ -425,9 +426,24 @@ public:
             }
             else
             {
-                // From history. This might be not full.
-                // See LLChatLogParser::parse if it needs to include full date
+                // From history. This might be empty or not full.
+                // See LLChatLogParser::parse
                 time_string = getChild<LLTextBox>("time_box")->getValue().asString();
+
+                // Just add current date if not full.
+                // Should be fine since both times are supposed to be stl
+                if (!time_string.empty() && time_string.size() < 7)
+                {
+                    time_string = "[" + LLTrans::getString("TimeMonth") + "]/["
+                        + LLTrans::getString("TimeDay") + "]/["
+                        + LLTrans::getString("TimeYear") + "] " + time_string;
+
+                    LLSD substitution;
+                    // To avoid adding today's date to yesterday's timestamp,
+                    // use creation time instead of current time
+                    substitution["datetime"] = (S32)mCreationTime;
+                    LLStringUtil::format(time_string, substitution);
+                }
             }
             LLFloaterReporter::showFromChat(mAvatarID, mFrom, time_string, mText);
         }
@@ -1022,7 +1038,8 @@ protected:
 	std::string			mFrom;
 	LLUUID				mSessionID;
     std::string			mText;
-    F64					mTime;
+    F64					mTime; // IM's frame time
+    time_t				mCreationTime; // Views's time
 
 	S32					mMinUserNameWidth;
 	const LLFontGL*		mUserNameFont;
