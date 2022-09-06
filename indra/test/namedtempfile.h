@@ -52,15 +52,13 @@ public:
     NamedTempFile(const std::string& pfx, FIRST&& first, REST&&... rest)
     {
         // Can't bind an unexpanded parameter pack into a lambda, so make a
-        // tuple and then, in the lambda body, apply() it. Use VAPPLY()
-        // because it's hard to pass stream_to(), a variadic function, as a
-        // templated callable: it's ambiguous to the compiler.
+        // tuple and then, in the lambda body, apply() it.
         createFile(pfx,
                    [content = std::make_tuple(
                            std::forward<FIRST>(first),
                            std::forward<REST>(rest)...)]
                    (std::ostream& out)
-                   { VAPPLY(stream_to, tuple_cons(out, content)); });
+                   { LL::apply(stream_to_ostream(out), content); });
     }
 
     NamedTempFile(const std::string& pfx, const Streamer& func)

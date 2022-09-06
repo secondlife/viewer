@@ -57,6 +57,33 @@ void stream_to(std::basic_ostream<CHARTYPE>& out, T&& item, Items&&... items)
     stream_to(out, std::forward<Items>(items)...);
 }
 
+/**
+ * stream_to_ostream is for when we want to accept an arbitrary tuple and
+ * stream its elements to a passed ostream. The obvious solution would be to
+ * call LL::apply(stream_to, tuple_cons(out, the_tuple)) -- or the VAPPLY()
+ * wrapper macro, since stream_to() is a variadic function. But Xcode 13.4.1
+ * doesn't like that: apparently the std::ostream& doesn't reach stream_to()
+ * as an lvalue reference.
+ *
+ * stream_to_ostream makes the std::ostream& binding explicit.
+ */
+class stream_to_ostream
+{
+public:
+    stream_to_ostream(std::ostream& out):
+        mOut(out)
+    {}
+
+    template <typename... ARGS>
+    void operator()(ARGS&&... args)
+    {
+        stream_to(mOut, std::forward<ARGS>(args)...);
+    }
+
+private:
+    std::ostream& mOut;
+};
+
 // why we use function overloads, not function template specializations:
 // http://www.gotw.ca/publications/mill17.htm
 
