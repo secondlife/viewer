@@ -2300,6 +2300,11 @@ void LLViewerRegion::requestSimulatorFeatures()
         std::string coroname =
             LLCoros::instance().launch("LLViewerRegionImpl::requestSimulatorFeatureCoro",
                                        boost::bind(&LLViewerRegionImpl::requestSimulatorFeatureCoro, url, getHandle()));
+
+        // requestSimulatorFeatures can be called from other coros,
+        // launch() acts like a suspend()
+        // Make sure we are still good to do
+        LLCoros::checkStop();
         
         LL_INFOS("AppInit", "SimulatorFeatures") << "Launching " << coroname << " requesting simulator features from " << url << " for region " << getRegionID() << LL_ENDL;
     }
@@ -3121,6 +3126,12 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
         std::string coroname =
             LLCoros::instance().launch("LLEnvironmentRequest::requestBaseCapabilitiesCompleteCoro",
             boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCompleteCoro, getHandle()));
+
+        // setSeedCapability can be called from other coros,
+        // launch() acts like a suspend()
+        // Make sure we are still good to do
+        LLCoros::checkStop();
+
 		return;
     }
 	
@@ -3133,6 +3144,11 @@ void LLViewerRegion::setSeedCapability(const std::string& url)
     std::string coroname =
         LLCoros::instance().launch("LLViewerRegionImpl::requestBaseCapabilitiesCoro",
         boost::bind(&LLViewerRegionImpl::requestBaseCapabilitiesCoro, getHandle()));
+
+    // setSeedCapability can be called from other coros,
+    // launch() acts like a suspend()
+    // Make sure we are still good to do
+    LLCoros::checkStop();
 
     LL_INFOS("AppInit", "Capabilities") << "Launching " << coroname << " requesting seed capabilities from " << url << " for region " << getRegionID() << LL_ENDL;
 }
