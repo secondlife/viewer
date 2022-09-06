@@ -20,7 +20,6 @@
 #include <thread>
 // external library headers
 //#include <boost/algorithm/string/join.hpp>
-#include <boost/assign/list_of.hpp>
 // other Linden headers
 #include "../test/lltut.h"
 #include "../test/namedtempfile.h"
@@ -33,10 +32,6 @@
 #include "llstring.h"
 #include "stringize.h"
 #include "StringVec.h"
-
-using boost::assign::list_of;
-
-StringVec sv(const StringVec& listof) { return listof; }
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
@@ -55,9 +50,9 @@ const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte
 // generic waitfor() accepts predicate
 template <typename Rep, typename Period>
 std::chrono::milliseconds waitfor(
-    const std::function<bool()> predicate,
+    const std::function<bool()>& predicate,
     const std::string& fail_msg,
-    std::chrono::duration<Rep, Period> timeout=std::chrono::seconds(60))
+    std::chrono::duration<Rep, Period> timeout)
 {
     auto start = std::chrono::steady_clock::now();
     auto limit = start + timeout;
@@ -74,6 +69,14 @@ std::chrono::milliseconds waitfor(
     }
     tut::fail(fail_msg);
     return timeout;
+}
+
+// can't specify default timeout for the overload above
+std::chrono::milliseconds waitfor(
+    const std::function<bool()>& predicate,
+    const std::string& fail_msg)
+{
+    return waitfor(predicate, fail_msg, std::chrono::seconds(60));
 }
 
 // capture std::weak_ptrs to LLLeap instances so we can tell when they expire
@@ -115,7 +118,7 @@ void waitfor(const LLLeapVector& instances, std::chrono::duration<Rep, Period> t
 |*==========================================================================*/
 }
 
-// VS 2017 can't handle specifying default timeout for the overload above
+// can't specify default timeout for the overload above
 void waitfor(const LLLeapVector& instances)
 {
     waitfor(instances, std::chrono::seconds(60));
@@ -128,7 +131,7 @@ void waitfor(LLLeap* instance, std::chrono::duration<Rep, Period> timeout)
     waitfor(LLLeapVector{ instance->getWeak() }, timeout);
 }
 
-// VS 2017 can't handle specifying default timeout for the overload above
+// can't specify default timeout for the overload above
 void waitfor(LLLeap* instance)
 {
     waitfor(instance, std::chrono::seconds(60));
@@ -159,12 +162,12 @@ namespace tut
                    "    pass\n"
                    "\n"
                    "def get():\n"
-                   "    hdr = ''\n"
-                   "    while ':' not in hdr and len(hdr) < 20:\n"
-                   "        hdr += sys.stdin.read(1)\n"
+                   "    hdr = b''\n"
+                   "    while b':' not in hdr and len(hdr) < 20:\n"
+                   "        hdr += sys.stdin.buffer.read(1)\n"
                    "        if not hdr:\n"
                    "            sys.exit(0)\n"
-                   "    if not hdr.endswith(':'):\n"
+                   "    if not hdr.endswith(b':'):\n"
                    "        raise ProtocolError('Expected len:data, got %r' % hdr, hdr)\n"
                    "    try:\n"
                    "        length = int(hdr[:-1])\n"
@@ -173,12 +176,12 @@ namespace tut
                    "    parts = []\n"
                    "    received = 0\n"
                    "    while received < length:\n"
-                   "        parts.append(sys.stdin.read(length - received))\n"
+                   "        parts.append(sys.stdin.buffer.read(length - received))\n"
                    "        received += len(parts[-1])\n"
-                   "    data = ''.join(parts)\n"
+                   "    data = b''.join(parts)\n"
                    "    assert len(data) == length\n"
                    "    try:\n"
-                   "        return llsd.parse(data.encode())\n"
+                   "        return llsd.parse(data)\n"
                    //   Seems the old indra.base.llsd module didn't properly
                    //   convert IndexError (from running off end of string) to
                    //   LLSDParseError.
@@ -201,7 +204,7 @@ namespace tut
                    "            ellipsis = '... (%s more)' % (length - trunc)\n"
                    "        offset = -showmax\n"
                    "        for offset in range(0, len(data)-showmax, showmax):\n"
-                   "            print('%04d: %r +' % \\\n"
+                   "            print('%04d: %r +' %\n"
                    "                  (offset, data[offset:offset+showmax]), file=sys.stderr)\n"
                    "        offset += showmax\n"
                    "        print('%04d: %r%s' % \\\n"
@@ -257,9 +260,9 @@ namespace tut
                              "time.sleep(1)\n");
         LLLeapVector instances;
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         instances.push_back(LLLeap::create(get_test_name(),
-                                           sv(list_of(PYTHON)(script.getName())))->getWeak());
+                                           StringVec{PYTHON, script.getName()})->getWeak());
         // In this case we're simply establishing that two LLLeap instances
         // can coexist without throwing exceptions or bombing in any other
         // way. Wait for them to terminate.
@@ -290,7 +293,7 @@ namespace tut
                              "print('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "Hello from Python!");
     }
@@ -305,7 +308,7 @@ namespace tut
                              "sys.stdout.write('Hello from Python!')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("Discarding"), "Hello from Python!");
     }
@@ -319,7 +322,7 @@ namespace tut
                              "sys.stdout.write('5a2:something')\n");
         CaptureLog log(LLError::LEVEL_WARN);
         waitfor(LLLeap::create(get_test_name(),
-                               sv(list_of(PYTHON)(script.getName()))));
+                               StringVec{PYTHON, script.getName()}));
         ensure_contains("error log line",
                         log.messageWith("invalid protocol"), "5a2:");
     }
@@ -430,7 +433,7 @@ namespace tut
                              "result = '' if resp == dict(pump=replypump(), data='ack')\\\n"
                              "            else 'bad: ' + str(resp)\n"
                              "send(pump='", result.getName(), "', data=result)\n");
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))));
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}));
         result.ensure();
     }
 
@@ -488,7 +491,7 @@ namespace tut
                              "        result = 'expected reqid=%s in %s' % (i, resp)\n"
                              "        break\n"
                              "send(pump='", result.getName(), "', data=result)\n");
-        waitfor(LLLeap::create(get_test_name(), sv(list_of(PYTHON)(script.getName()))),
+        waitfor(LLLeap::create(get_test_name(), StringVec{PYTHON, script.getName()}),
                 std::chrono::seconds(300)); // needs more realtime than most tests
         result.ensure();
     }
@@ -554,10 +557,7 @@ namespace tut
                              "             (start, large[start:end], echoed[start:end]))\n"
                              "sys.exit(1)\n");
         waitfor(LLLeap::create(test_name,
-                               sv(list_of
-                                  (PYTHON)
-                                  (script.getName())
-                                  (stringize(size)))),
+                               StringVec{ PYTHON, script.getName(), stringize(size)}),
                 std::chrono::seconds(180)); // try a longer timeout
         result.ensure();
     }
@@ -788,7 +788,8 @@ namespace tut
             {
                 try
                 {
-                    std::cerr << "delay: " << delay << ", size: " << size << std::endl;
+                    std::cerr << get_test_name()
+                              << " delay: " << delay << ", size: " << size << std::endl;
                     pushTest.send(llsd::map("delay", LLSD::Integer(delay)));
                     // With notation serialization, a positive LLSD::Integer
                     // gets an 'i' prefix for the decimal digits. Serializing
@@ -823,5 +824,96 @@ namespace tut
         // timer until we send this next message.
         pushTest.send(llsd::map("delay", -1));
         waitfor(plugin);
+    }
+
+    class DataAPI: public ListenerBase
+    {
+    public:
+        DataAPI(size_t size):
+            ListenerBase("DataAPI"),
+            mSize(size)
+        {}
+
+        bool call(const LLSD& request) override
+        {
+            mCalled = true;
+            // With notation serialization, a positive LLSD::Integer gets an
+            // 'i' prefix for the decimal digits. Serializing an LLSD::Array
+            // separates entries with a ','. So a 6-digit Integer will take 8
+            // bytes.
+            LLSD array{ LLSD::emptyArray() };
+            for (size_t i = 0; i < (mSize/8); ++i)
+                array.append(LLSD::Integer(100000 + i));
+            LLEventPumps::instance().obtain(request["reply"]).post(
+                llsd::map("size", LLSD::Integer(mSize), "array", array));
+            return false;
+        }
+
+        bool mCalled{ false };
+
+    private:
+        size_t mSize;
+    };
+
+    template<> template<>
+    void object::test<12>()
+    {
+        set_test_name("buffering with initial pause");
+
+#if DEBUGGING
+        // Don't loop over all these combinations every time: even without the
+        // test overhead, delaying for (0 + 1 + 2 + 4) seconds times 4 would
+        // make this test take unacceptably long for every build.
+        std::vector<size_t> sizes{ 2048, 4096, 16384, 32768 };
+        std::vector<size_t> delays{   0,    1,     2,     4 };
+#else
+        std::vector<size_t> sizes{ 32768 };
+        std::vector<size_t> delays{    4 };
+#endif
+
+        for (auto delay: delays)
+        {
+            for (auto size: sizes)
+            {
+                try
+                {
+                    std::cerr << get_test_name()
+                              << " delay: " << delay << ", size: " << size << std::endl;
+                    DataAPI dataAPI(size);
+                    Result result;
+
+                    NamedTempFile script(
+                        "py",
+                        "from ", reader_module, " import *\n"
+                        "import sys\n"
+                        "import time\n"
+                        "request(pump='", dataAPI.getName(), "', data=dict(op='hit me'))\n"
+                        "time.sleep(", delay, ")\n"
+                        "got = get()\n"
+                        "if got['data'].get('size') == ", size, ":\n"
+                        "    send(pump='", result.getName(), "', data='')\n"
+                        "else:\n"
+                        "    send(pump='", result.getName(), "',\n"
+                        "         data='dropped message: %r' % got)\n");
+                    auto plugin{ LLLeap::create(get_test_name(),
+                                                StringVec{ PYTHON, script.getName() }) };
+                    // wait for the script to invoke dataAPI
+                    waitfor([&dataAPI](){ return dataAPI.mCalled; },
+                            "script never called DataAPI");
+                    // In case we actually do drive the problem of dropped
+                    // message, send another event to wake up the pending
+                    // get() call.
+                    plugin->getPump().post("bad");
+                    waitfor(plugin);
+                    result.ensure();
+                }
+                catch (const tut::failure& error)
+                {
+                    tut::fail(stringize(
+                                  "Failed at delay ", delay, ", size ", size, ": ",
+                                  error.what()));
+                }
+            }
+        }
     }
 } // namespace tut
