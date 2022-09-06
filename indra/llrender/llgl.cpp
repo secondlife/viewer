@@ -1530,50 +1530,19 @@ void LLGLManager::initExtensions()
 	mHasTextureRectangle = FALSE;
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 
-#if LL_DARWIN
-    // Just reporting here. Nothing effecting setup.
-    LL_DEBUGS("HRS") << "Before any init, mSysExts reports NULL with any profiles: " << (!gGLHExts.mSysExts ? "NULL" : gGLHExts.mSysExts) << LL_ENDL;
-
-    LL_DEBUGS("HRS") << "The following fails on legacy profiles, and enumerates 46 extensions on 3.2/4.1" << LL_ENDL;
-	GLint num_extensions(0); // Must be initialized, because the next line may silently fail (which will cause crashes if we go on to glGetStringi
-	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
-    std::string all_extensions(""); // "GL_ARB_multitexture "
-	for(GLint i = 0; i < num_extensions; ++i) {
-		char const * extension = (char const *)glGetStringi(GL_EXTENSIONS, i);
-		all_extensions += extension;
-		all_extensions += ' ';
-	}
-    LL_DEBUGS("HRS") << "Explicit enumeration of " << num_extensions << " ext, before calling glh_init_extensions: " << all_extensions << LL_ENDL;
-    // The following 3p code has the effect of initializing extensions in older versions, and does nothing on 3.2/4.1 on Mac.
-#endif
-    /* FIXME
-	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
-    mHasCubeMap = glh_init_extensions("GL_ARB_texture_cube_map");
-    mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
-    mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
-    mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
-     */
     mHasMultitexture = TRUE;
     mHasCubeMap = TRUE;
     mHasCompressedTextures = TRUE;
 
 #if LL_DARWIN
-    LL_DEBUGS("HRS") << "After glh_init_extensions (" <<
-        " GL_ARB_multitexture:" << mHasMultitexture <<
-        " GL_ARB_texture_cube_map:" << mHasCubeMap <<
-        " GL_ARB_texture_compression:" << mHasCompressedTextures <<
-        " GL_EXT_separate_specular_color:" << mHasSeparateSpecularColor <<
-        " GL_EXT_texture_filter_anisotropic:" << mHasAnisotropic <<
-        "), mSysExts is initialized only on legacy: " << (!gGLHExts.mSysExts ? "NULL" : gGLHExts.mSysExts) <<
-       LL_ENDL;
-    num_extensions = 0; all_extensions.clear();
+    GLint num_extensions = 0;
+    std::string all_extensions{""};
     glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
     for(GLint i = 0; i < num_extensions; ++i) {
         char const * extension = (char const *)glGetStringi(GL_EXTENSIONS, i);
         all_extensions += extension;
         all_extensions += ' ';
     }
-    LL_DEBUGS("HRS") << "Explicit enumeration works after init, on 3.2/4.1 only, producing " << num_extensions << " exts: " << all_extensions << LL_ENDL;
     if (num_extensions)
     {
         all_extensions += "GL_ARB_multitexture GL_ARB_texture_cube_map GL_ARB_texture_compression "; // These are in 3.2 core, but not listed by OSX
@@ -1581,10 +1550,6 @@ void LLGLManager::initExtensions()
     }
 #endif
 
-    // Recheck, because the glh_init_extensions might not have done anything.
-    //mHasMultitexture = ExtensionExists("GL_ARB_multitexture", gGLHExts.mSysExts);
-    //mHasCubeMap = ExtensionExists("GL_ARB_texture_cube_map", gGLHExts.mSysExts);
-    //mHasCompressedTextures = ExtensionExists("GL_ARB_texture_compression", gGLHExts.mSysExts);
     mHasSeparateSpecularColor = ExtensionExists("GL_EXT_separate_specular_color", gGLHExts.mSysExts);
     mHasAnisotropic = ExtensionExists("GL_EXT_texture_filter_anisotropic", gGLHExts.mSysExts);
 
