@@ -153,6 +153,8 @@ void main()
     col.rgb = vary_position.xyz;
 #endif
 
+    tnorm *= gl_FrontFacing ? 1.0 : -1.0;
+
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
     frag_data[1] = vec4(emissive, vertex_color.a);                                   // PBR sRGB Emissive

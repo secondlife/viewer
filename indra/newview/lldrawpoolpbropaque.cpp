@@ -146,6 +146,8 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
             shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, pparams->mGLTFMaterial->mMetallicFactor);
             shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, pparams->mGLTFMaterial->mEmissiveColor.mV);
 
+            LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
+
             if (rigged)
             {
                 if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
