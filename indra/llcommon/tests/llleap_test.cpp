@@ -100,7 +100,8 @@ bool still_running(const LLLeapVector& instances)
 template <typename Rep, typename Period>
 void waitfor(const LLLeapVector& instances, std::chrono::duration<Rep, Period> timeout)
 {
-    auto elapsed = waitfor(
+//  auto elapsed =
+    waitfor(
         [&instances](){ return ! still_running(instances); },
         stringize("at least 1 of ", instances.size(),
                   " LLLeap instances timed out (",
