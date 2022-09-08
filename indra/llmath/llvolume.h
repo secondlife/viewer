@@ -870,10 +870,10 @@ private:
 public:
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
-	void createTangents();
+	void createTangents(bool mikktspace = false);
 	
 	void resizeVertices(S32 num_verts);
-	void allocateTangents(S32 num_verts);
+	void allocateTangents(S32 num_verts, bool mikktspace = false);
 	void allocateWeights(S32 num_verts);
     void allocateJointIndices(S32 num_verts);
 	void resizeIndices(S32 num_indices);
@@ -947,6 +947,7 @@ public:
 	LLVector4a* mPositions; // Contains vertices, nortmals and texcoords
 	LLVector4a* mNormals; // pointer into mPositions
 	LLVector4a* mTangents;
+    LLVector4a* mMikktSpaceTangents = nullptr; // for GLTF rendering, use mikkt space tangents
 	LLVector2*  mTexCoords; // pointer into mPositions
 
 	// mIndices contains mNumIndices amount of elements.
@@ -1028,7 +1029,7 @@ public:
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
 	void regen();
-	void genTangents(S32 face);
+    void genTangents(S32 face, bool mikktspace = false);
 
 	BOOL isConvex() const;
 	BOOL isCap(S32 face);
