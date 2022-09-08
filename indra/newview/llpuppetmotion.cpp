@@ -723,8 +723,8 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
                 if (i < last_index)
                 {
                     mJointsToRemoveFromPose[i] = mJointsToRemoveFromPose[last_index];
-                    mJointsToRemoveFromPose.pop_back();
                 }
+                mJointsToRemoveFromPose.pop_back();
             }
             else
             {
