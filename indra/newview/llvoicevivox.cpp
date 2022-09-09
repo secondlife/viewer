@@ -1243,8 +1243,8 @@ bool LLVivoxVoiceClient::establishVoiceConnection()
 
         if (result.has("connector"))
         {
-            LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
             connected = LLSD::Boolean(result["connector"]);
+            LLVoiceVivoxStats::getInstance()->establishAttemptEnd(connected);
             if (!connected)
             {
                 if (result.has("retry") && ++retries <= CONNECT_RETRY_MAX && !sShuttingDown)
