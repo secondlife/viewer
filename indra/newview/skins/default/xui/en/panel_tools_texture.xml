@@ -252,8 +252,6 @@
              width="64" />
             <texture_picker
              can_apply_immediately="true"
-             default_image_name="Default"
-             fallback_image="materials_ui_x_24.png"
              follows="left|top"
              height="80"
              label="PBR       "

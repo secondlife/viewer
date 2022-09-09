@@ -42,6 +42,8 @@ uniform vec3 emissiveColor;
 
 #ifdef HAS_NORMAL_MAP
     uniform sampler2D bumpMap;
+    VARYING vec3 vary_tangent;
+    flat in float vary_sign;
 #endif
 
 #ifdef HAS_EMISSIVE_MAP
@@ -66,9 +68,6 @@ VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 #ifdef HAS_NORMAL_MAP
 VARYING vec3 vary_normal;
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
 VARYING vec2 vary_texcoord1;
 #endif
 
@@ -94,21 +93,14 @@ void main()
 
     vec3 col = vertex_color.rgb * albedo.rgb;
 
-#ifdef HAS_NORMAL_MAP
-    vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    norm.xyz = normalize(norm.xyz * 2 - 1);
+    // from mikktspace.com
+    vec4 vNt = texture2D(bumpMap, vary_texcoord1.xy)*2.0-1.0;
+    float sign = vary_sign;
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent.xyz;
 
-    vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
-                      dot(norm.xyz,vary_mat1),
-                      dot(norm.xyz,vary_mat2));
-#else
-    vec4 norm = vec4(0,0,0,1.0);
-//    vec3 tnorm = vary_normal;
-    vec3 tnorm = vec3(0,0,1);
-#endif
-
-    tnorm = normalize(tnorm.xyz);
-    norm.xyz = tnorm.xyz;
+    vec3 vB = sign * cross(vN, vT);
+    vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerTexture::sDefaultPBRORMImagep
@@ -153,6 +145,11 @@ void main()
     col.rgb = vary_position.xyz;
 #endif
 
+    tnorm *= gl_FrontFacing ? 1.0 : -1.0;
+
+    //col = vec3(0,0,0);
+    //emissive = vary_tangent.xyz*0.5+0.5;
+    //emissive = vec3(vary_sign*0.5+0.5);
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
     frag_data[1] = vec4(emissive, vertex_color.a);                                   // PBR sRGB Emissive

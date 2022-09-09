@@ -2166,14 +2166,19 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mVertexBuffer->getTangentStrider(tangent, mGeomIndex, mGeomCount, map_range);
 			F32* tangents = (F32*) tangent.get();
 			
-			mVObjp->getVolume()->genTangents(f);
+            LLGLTFMaterial* gltf_mat = tep->getGLTFMaterial();
+            static LLCachedControl<bool> use_mikktspace(gSavedSettings, "RenderUseMikktSpace");
+            bool mikktspace = use_mikktspace && gltf_mat != nullptr;
+
+			mVObjp->getVolume()->genTangents(f, mikktspace);
 			
 			LLVector4Logical mask;
 			mask.clear();
 			mask.setElement<3>();
 
-			LLVector4a* src = vf.mTangents;
-			LLVector4a* end = vf.mTangents+num_vertices;
+            LLVector4a* tbuff = mikktspace ? vf.mMikktSpaceTangents : vf.mTangents;
+			LLVector4a* src = tbuff;
+			LLVector4a* end = tbuff+num_vertices;
 
 			while (src < end)
 			{
