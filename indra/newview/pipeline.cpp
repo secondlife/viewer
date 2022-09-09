@@ -1684,7 +1684,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 		}
 	}
 	
-	if (alpha)
+	if (alpha || (gltf_mat && gltf_mat->mAlphaMode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND))
 	{
 		return LLDrawPool::POOL_ALPHA;
 	}
@@ -1692,7 +1692,7 @@ U32 LLPipeline::getPoolTypeFromTE(const LLTextureEntry* te, LLViewerTexture* ima
 	{
 		return LLDrawPool::POOL_BUMP;
 	}
-    else if (gltf_mat && !alpha)
+    else if (gltf_mat)
     {
         return LLDrawPool::POOL_PBR_OPAQUE;
     }

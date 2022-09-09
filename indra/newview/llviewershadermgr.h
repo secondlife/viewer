@@ -321,5 +321,6 @@ extern LLGLSLShader			gNormalMapGenProgram;
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 extern LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 
-extern LLGLSLShader			gDeferredPBROpaqueProgram;
+extern LLGLSLShader         gDeferredPBROpaqueProgram;
+extern LLGLSLShader         gDeferredPBRAlphaProgram[2]; // not skinned, skinned
 #endif
