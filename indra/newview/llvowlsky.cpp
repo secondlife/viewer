@@ -151,7 +151,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
     if (mFsSkyVerts.isNull())
     {
-        mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+        mFsSkyVerts = new LLVertexBuffer(LLDrawPoolWLSky::ADV_ATMO_SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW);
 
         if (!mFsSkyVerts->allocateBuffer(4, 6, TRUE))
 		{
@@ -216,7 +216,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 
 		for (U32 i = 0; i < strips_segments ;++i)
 		{
-			LLVertexBuffer * segment = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+			LLVertexBuffer * segment = new LLVertexBuffer(LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK, GL_STATIC_DRAW);
 			mStripsVerts[i] = segment;
 
 			U32 num_stacks_this_seg = stacks_per_seg;

@@ -75,7 +75,7 @@ public:
 		mLineStipple(GL_LINE_STIPPLE),
 		mNormalize(GL_NORMALIZE),
 		mPolygonSmooth(GL_POLYGON_SMOOTH),
-		mGLMultisample(GL_MULTISAMPLE_ARB)
+		mGLMultisample(GL_MULTISAMPLE)
 	{ }
 };
 

@@ -45,12 +45,12 @@
 // MUST match order of OpenGL face-layers
 GLenum LLCubeMapArray::sTargets[6] =
 {
-    GL_TEXTURE_CUBE_MAP_POSITIVE_X_ARB,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_X_ARB,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Y_ARB,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y_ARB,
-    GL_TEXTURE_CUBE_MAP_POSITIVE_Z_ARB,
-    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z_ARB
+    GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
 };
 
 LLVector3 LLCubeMapArray::sLookVecs[6] =
@@ -122,14 +122,14 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count)
 
     bind(0);
 
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY_ARB, 0, GL_RGB, resolution, resolution, count*6, 0,
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB, resolution, resolution, count*6, 0,
         GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);
 
     mImage->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
 
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY_ARB);
+    glGenerateMipmap(GL_TEXTURE_CUBE_MAP_ARRAY);
 
     unbind();
 }

@@ -284,7 +284,7 @@ void main()
         }
     }
 
-#if DEBUG_SPOT_DIFFUSE
+#if DEBUG_PBR_SPOT_DIFFUSE
     final_color = vec3(nl * dist_atten);
 #endif
 #if DEBUG_SPOT_NL

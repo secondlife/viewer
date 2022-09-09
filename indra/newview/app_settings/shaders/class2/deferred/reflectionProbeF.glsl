@@ -32,7 +32,7 @@
 
 uniform samplerCubeArray   reflectionProbes;
 
-layout (std140, binding = 1) uniform ReflectionProbes
+layout (std140) uniform ReflectionProbes
 {
     // list of OBBs for user override probes
     // box is a set of 3 planes outward facing planes and the depth of the box along that plane
