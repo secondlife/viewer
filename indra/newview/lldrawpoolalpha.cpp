@@ -613,6 +613,50 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 if (is_pbr && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                 {
                     target_shader = &gDeferredPBRAlphaProgram[rigged];
+                    if (current_shader != target_shader)
+                    {
+                        gPipeline.bindDeferredShader(*target_shader);
+                    }
+
+                    if (params.mTexture.notNull())
+                    {
+                        gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
+                    }
+                    else
+                    {
+                        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+                    }
+
+                    if (params.mNormalMap)
+                    {
+                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
+                    }
+                    else
+                    {
+                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+                    }
+
+                    if (params.mSpecularMap)
+                    {
+                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
+                    }
+                    else
+                    {
+                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+                    }
+
+                    if (params.mEmissiveMap)
+                    {
+                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);  // PBR sRGB Emissive
+                    }
+                    else
+                    {
+                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+                    }
+
+                    target_shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
+                    target_shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
+                    target_shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
                 }
                 else
                 {
@@ -682,56 +726,6 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 {// If we need shaders, and we're not ALREADY using the proper shader, then bind it
                 // (this way we won't rebind shaders unnecessarily).
                     target_shader->bind();
-                }
-
-                if (is_pbr)
-                {
-                    if (params.mTexture.notNull())
-                    {
-                        gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
-                    }
-                    else
-                    {
-                        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    if (params.mNormalMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-                    }
-
-                    if (params.mSpecularMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    if (params.mEmissiveMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);  // PBR sRGB Emissive
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    target_shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
-                    target_shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
-                    target_shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
-
-                    LLEnvironment& environment = LLEnvironment::instance();
-                    target_shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, environment.getIsSunUp() ? 1 : 0);
-
-                    // TODO? prepare_alpha_shader( target_shader, false, true );
-                    target_shader->uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, gPipeline.mTransformedSunDir.mV);
-                    target_shader->uniform3fv(LLShaderMgr::DEFERRED_MOON_DIR, 1, gPipeline.mTransformedMoonDir.mV);
                 }
 
                 LLVector4 spec_color(1, 1, 1, 1);
