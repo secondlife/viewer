@@ -734,15 +734,15 @@ void hide_context_entries(LLMenuGL& menu,
 		}
 
 		bool found = false;
-		menuentry_vec_t::const_iterator itor2;
-		for (itor2 = entries_to_show.begin(); itor2 != entries_to_show.end(); ++itor2)
-		{
-			if (*itor2 == name)
-			{
-				found = true;
-				break;
-			}
-		}
+
+        std::string myinput;
+        std::vector<std::string> mylist{ "a", "b", "c" };
+
+        menuentry_vec_t::const_iterator itor2 = std::find(entries_to_show.begin(), entries_to_show.end(), name);
+        if (itor2 != entries_to_show.end())
+        {
+            found = true;
+        }
 
 		// Don't allow multiple separators in a row (e.g. such as if there are no items
 		// between two separators).
@@ -760,7 +760,21 @@ void hide_context_entries(LLMenuGL& menu,
 				menu_item->setVisible(FALSE);
 			}
 
-			menu_item->setEnabled(FALSE);
+            if (menu_item->getEnabled())
+            {
+                // These should stay enabled unless specifically disabled
+                const menuentry_vec_t exceptions = {
+                    "Detach From Yourself",
+                    "Wearable And Object Wear",
+                    "Wearable Add",
+                };
+
+                menuentry_vec_t::const_iterator itor2 = std::find(exceptions.begin(), exceptions.end(), name);
+                if (itor2 == exceptions.end())
+                {
+                    menu_item->setEnabled(FALSE);
+                }
+            }
 		}
 		else
 		{
