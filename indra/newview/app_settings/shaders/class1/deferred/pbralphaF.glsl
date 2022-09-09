@@ -308,7 +308,7 @@ irradiance = vec3(amblit);
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( reflect0, c_diff, light_diffuse[i].rgb, albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
