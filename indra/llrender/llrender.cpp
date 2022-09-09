@@ -69,9 +69,9 @@ static const U32 LL_NUM_LIGHT_UNITS = 8;
 static const GLenum sGLTextureType[] =
 {
 	GL_TEXTURE_2D,
-	GL_TEXTURE_RECTANGLE_ARB,
-	GL_TEXTURE_CUBE_MAP_ARB,
-    GL_TEXTURE_CUBE_MAP_ARRAY_ARB,
+	GL_TEXTURE_RECTANGLE,
+	GL_TEXTURE_CUBE_MAP,
+    GL_TEXTURE_CUBE_MAP_ARRAY,
 	GL_TEXTURE_2D_MULTISAMPLE,
     GL_TEXTURE_3D
 };
@@ -123,7 +123,7 @@ void LLTexUnit::refreshState(void)
 
 	gGL.flush();
 	
-	glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+	glActiveTexture(GL_TEXTURE0 + mIndex);
 
 	if (mCurrTexType != TT_NONE)
 	{
@@ -144,7 +144,7 @@ void LLTexUnit::activate(void)
 	if ((S32)gGL.mCurrTextureUnitIndex != mIndex || gGL.mDirty)
 	{
 		gGL.flush();
-		glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+		glActiveTexture(GL_TEXTURE0 + mIndex);
 		gGL.mCurrTextureUnitIndex = mIndex;
 	}
 }
@@ -188,7 +188,7 @@ void LLTexUnit::bindFast(LLTexture* texture)
 {
     LLImageGL* gl_tex = texture->getGLTexture();
 
-    glActiveTextureARB(GL_TEXTURE0_ARB + mIndex);
+    glActiveTexture(GL_TEXTURE0 + mIndex);
     gGL.mCurrTextureUnitIndex = mIndex;
     mCurrTexture = gl_tex->getTexName();
     if (!mCurrTexture)
@@ -340,7 +340,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 			activate();
 			enable(LLTexUnit::TT_CUBE_MAP);
             mCurrTexture = cubeMap->mImages[0]->getTexName();
-			glBindTexture(GL_TEXTURE_CUBE_MAP_ARB, mCurrTexture);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, mCurrTexture);
 			mHasMipMaps = cubeMap->mImages[0]->mHasMipMaps;
 			cubeMap->mImages[0]->updateBindStats();
 			if (cubeMap->mImages[0]->mTexOptionsDirty)
@@ -470,7 +470,7 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 	glTexParameteri (sGLTextureType[mCurrTexType], GL_TEXTURE_WRAP_T, sGLAddressMode[mode]);
 	if (mCurrTexType == TT_CUBE_MAP)
 	{
-		glTexParameteri (GL_TEXTURE_CUBE_MAP_ARB, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
+		glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, sGLAddressMode[mode]);
 	}
 }
 
@@ -545,7 +545,7 @@ GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
 		case TBS_PREV_ALPHA:
 		case TBS_ONE_MINUS_PREV_COLOR:
 		case TBS_ONE_MINUS_PREV_ALPHA:
-			return GL_PREVIOUS_ARB;
+			return GL_PREVIOUS;
 
 		// All four cases should return the same value.
 		case TBS_TEX_COLOR:
@@ -559,18 +559,18 @@ GLint LLTexUnit::getTextureSource(eTextureBlendSrc src)
 		case TBS_VERT_ALPHA:
 		case TBS_ONE_MINUS_VERT_COLOR:
 		case TBS_ONE_MINUS_VERT_ALPHA:
-			return GL_PRIMARY_COLOR_ARB;
+			return GL_PRIMARY_COLOR;
 
 		// All four cases should return the same value.
 		case TBS_CONST_COLOR:
 		case TBS_CONST_ALPHA:
 		case TBS_ONE_MINUS_CONST_COLOR:
 		case TBS_ONE_MINUS_CONST_ALPHA:
-			return GL_CONSTANT_ARB;
+			return GL_CONSTANT;
 
 		default:
 			LL_WARNS() << "Unknown eTextureBlendSrc: " << src << ".  Using Vertex Color instead." << LL_ENDL;
-			return GL_PRIMARY_COLOR_ARB;
+			return GL_PRIMARY_COLOR;
 	}
 }
 
@@ -639,10 +639,10 @@ void LLTexUnit::debugTextureUnit(void)
 	if (mIndex < 0) return;
 
 	GLint activeTexture;
-	glGetIntegerv(GL_ACTIVE_TEXTURE_ARB, &activeTexture);
-	if ((GL_TEXTURE0_ARB + mIndex) != activeTexture)
+	glGetIntegerv(GL_ACTIVE_TEXTURE, &activeTexture);
+	if ((GL_TEXTURE0 + mIndex) != activeTexture)
 	{
-		U32 set_unit = (activeTexture - GL_TEXTURE0_ARB);
+		U32 set_unit = (activeTexture - GL_TEXTURE0);
 		LL_WARNS() << "Incorrect Texture Unit!  Expected: " << set_unit << " Actual: " << mIndex << LL_ENDL;
 	}
 }
@@ -875,9 +875,9 @@ void LLRender::init()
 #if LL_WINDOWS
     if (gGLManager.mHasDebugOutput && gDebugGL)
     { //setup debug output callback
-        //glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-        glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+        //glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
+        glDebugMessageCallback((GLDEBUGPROC) gl_debug_callback, NULL);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     }
 #endif
 
@@ -1471,7 +1471,7 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 	llassert(color_dfactor < BF_UNDEF);
 	llassert(alpha_sfactor < BF_UNDEF);
 	llassert(alpha_dfactor < BF_UNDEF);
-	if (!gGLManager.mHasBlendFuncSeparate)
+	if (!LLRender::sGLCoreProfile && !gGLManager.mHasBlendFuncSeparate)
 	{
 		LL_WARNS_ONCE("render") << "no glBlendFuncSeparateEXT(), using color-only blend func" << LL_ENDL;
 		blendFunc(color_sfactor, color_dfactor);
@@ -1485,8 +1485,9 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 		mCurrBlendColorDFactor = color_dfactor;
 		mCurrBlendAlphaDFactor = alpha_dfactor;
 		flush();
-		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
-				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
+        
+        glBlendFuncSeparate(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
+                           sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
 	}
 }
 

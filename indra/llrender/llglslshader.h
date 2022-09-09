@@ -146,7 +146,7 @@ public:
 	LLGLSLShader();
 	~LLGLSLShader();
 
-	static GLhandleARB sCurBoundShader;
+	static GLuint sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
 
@@ -168,8 +168,8 @@ public:
 						const char** varyings = NULL);
     BOOL attachFragmentObject(std::string object);
     BOOL attachVertexObject(std::string object);
-	void attachObject(GLhandleARB object);
-	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);
+	void attachObject(GLuint object);
+	void attachObjects(GLuint* objects = NULL, S32 count = 0);
 	BOOL mapAttributes(const std::vector<LLStaticHashedString> * attributes);
 	BOOL mapUniforms(const std::vector<LLStaticHashedString> *);
 	void mapUniform(GLint index, const std::vector<LLStaticHashedString> *);
@@ -243,7 +243,7 @@ public:
 	U32 mMatHash[LLRender::NUM_MATRIX_MODES];
 	U32 mLightHash;
 
-	GLhandleARB mProgramObject;
+	GLuint mProgramObject;
 #if LL_RELEASE_WITH_DEBUG_INFO
 	struct attr_name
 	{
