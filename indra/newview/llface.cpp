@@ -2177,6 +2177,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			mask.setElement<3>();
 
             LLVector4a* tbuff = mikktspace ? vf.mMikktSpaceTangents : vf.mTangents;
+            if (tbuff == nullptr)
+            { // non-mesh prims will not have mikktspace tangents
+                tbuff = vf.mTangents;
+            }
+
 			LLVector4a* src = tbuff;
 			LLVector4a* end = tbuff+num_vertices;
 
@@ -2184,7 +2189,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			{
 				LLVector4a tangent_out;
 				mat_normal.rotate(*src, tangent_out);
-				tangent_out.normalize3fast();
+				tangent_out.normalize3();
 				tangent_out.setSelectWithMask(mask, *src, tangent_out);
 				tangent_out.store4a(tangents);
 				

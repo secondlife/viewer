@@ -2102,7 +2102,12 @@ void LLVolume::regen()
 
 void LLVolume::genTangents(S32 face, bool mikktspace)
 {
-	mVolumeFaces[face].createTangents(mikktspace);
+    // generate legacy tangents for the specified face
+    // if mikktspace is true, only generate tangents if mikktspace tangents are not present (handles the case for non-mesh prims)
+    if (!mikktspace || mVolumeFaces[face].mMikktSpaceTangents == nullptr)
+    {
+        mVolumeFaces[face].createTangents();
+    }
 }
 
 LLVolume::~LLVolume()
@@ -5373,252 +5378,155 @@ public:
 	}
 };
 
+// data structures for tangent generation
+
+struct MikktData
+{
+    LLVolumeFace* face;
+    std::vector<LLVector3> p;
+    std::vector<LLVector3> n;
+    std::vector<LLVector2> tc;
+    std::vector<LLVector4> w;
+    std::vector<LLVector4> t;
+
+    MikktData(LLVolumeFace* f)
+        : face(f)
+    {
+        U32 count = face->mNumIndices;
+
+        p.resize(count);
+        n.resize(count);
+        tc.resize(count);
+        t.resize(count);
+
+        if (face->mWeights)
+        {
+            w.resize(count);
+        }
+
+        for (int i = 0; i < face->mNumIndices; ++i)
+        {
+            U32 idx = face->mIndices[i];
+
+            p[i].set(face->mPositions[idx].getF32ptr());
+            n[i].set(face->mNormals[idx].getF32ptr());
+            tc[i].set(face->mTexCoords[idx]);
+
+            if (face->mWeights)
+            {
+                w[i].set(face->mWeights[idx].getF32ptr());
+            }
+        }
+    }
+};
+
 
 bool LLVolumeFace::cacheOptimize()
 { //optimize for vertex cache according to Forsyth method: 
-  // http://home.comcast.net/~tom_forsyth/papers/fast_vert_cache_opt.html
-	
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	llassert(!mOptimized);
 	mOptimized = TRUE;
 
-	LLVCacheLRU cache;
+    allocateTangents(mNumVertices, true);
+
+    SMikkTSpaceInterface ms;
+
+    ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
+    {
+        MikktData* data = (MikktData*)pContext->m_pUserData;
+        LLVolumeFace* face = data->face;
+        return face->mNumIndices / 3;
+    };
+
+    ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
+    {
+        return 3;
+    };
+
+    ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
+    {
+        MikktData* data = (MikktData*)pContext->m_pUserData;
+        LLVolumeFace* face = data->face;
+        S32 idx = face->mIndices[iFace * 3 + iVert];
+        auto& vert = face->mPositions[idx];
+        F32* v = vert.getF32ptr();
+        fvPosOut[0] = v[0];
+        fvPosOut[1] = v[1];
+        fvPosOut[2] = v[2];
+    };
+
+    ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
+    {
+        MikktData* data = (MikktData*)pContext->m_pUserData;
+        LLVolumeFace* face = data->face;
+        S32 idx = face->mIndices[iFace * 3 + iVert];
+        auto& norm = face->mNormals[idx];
+        F32* n = norm.getF32ptr();
+        fvNormOut[0] = n[0];
+        fvNormOut[1] = n[1];
+        fvNormOut[2] = n[2];
+    };
+
+    ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
+    {
+        MikktData* data = (MikktData*)pContext->m_pUserData;
+        LLVolumeFace* face = data->face;
+        S32 idx = face->mIndices[iFace * 3 + iVert];
+        auto& tc = face->mTexCoords[idx];
+        fvTexcOut[0] = tc.mV[0];
+        fvTexcOut[1] = tc.mV[1];
+    };
+
+    ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+    {
+        MikktData* data = (MikktData*)pContext->m_pUserData;
+        LLVolumeFace* face = data->face;
+        S32 i = iFace * 3 + iVert;
+        S32 idx = face->mIndices[i];
+
+        LLVector3 p(face->mPositions[idx].getF32ptr());
+        LLVector3 n(face->mNormals[idx].getF32ptr());
+        LLVector3 t(fvTangent);
+
+        data->t[i].set(fvTangent);
+        data->t[i].mV[3] = fSign;
+    };
+
+    ms.m_setTSpace = nullptr;
+
+    MikktData data(this);
+
+    SMikkTSpaceContext ctx = { &ms, &data };
+
+    genTangSpaceDefault(&ctx);
 	
-	if (mNumVertices < 3 || mNumIndices < 3)
-	{ //nothing to do
-		return true;
-	}
+    resizeVertices(data.p.size());
+    resizeIndices(data.p.size());
+    
+    if (!data.w.empty())
+    {
+        allocateWeights(data.w.size());
+    }
 
-	//mapping of vertices to triangles and indices
-	std::vector<LLVCacheVertexData> vertex_data;
+    allocateTangents(mNumVertices, true);
 
-	//mapping of triangles do vertices
-	std::vector<LLVCacheTriangleData> triangle_data;
+    for (int i = 0; i < mNumIndices; ++i)
+    {
+        mIndices[i] = i;
 
-	try
-	{
-		triangle_data.resize(mNumIndices / 3);
-		vertex_data.resize(mNumVertices);
+        mPositions[i].load3(data.p[i].mV);
+        mNormals[i].load3(data.n[i].mV);
+        mTexCoords[i] = data.tc[i];
+       
+        mMikktSpaceTangents[i].loadua(data.t[i].mV);
 
-        for (U32 i = 0; i < mNumIndices; i++)
-        { //populate vertex data and triangle data arrays
-            U16 idx = mIndices[i];
-            U32 tri_idx = i / 3;
-
-            vertex_data[idx].mTriangles.push_back(&(triangle_data[tri_idx]));
-            vertex_data[idx].mIdx = idx;
-            triangle_data[tri_idx].mVertex[i % 3] = &(vertex_data[idx]);
+        if (mWeights)
+        {
+            mWeights[i].loadua(data.w[i].mV);
         }
     }
-    catch (std::bad_alloc&)
-    {
-        // resize or push_back failed
-        LL_WARNS("LLVOLUME") << "Resize for " << mNumVertices << " vertices failed" << LL_ENDL;
-        return false;
-    }
 
-	/*F32 pre_acmr = 1.f;
-	//measure cache misses from before rebuild
-	{
-		LLVCacheFIFO test_cache;
-		for (U32 i = 0; i < mNumIndices; ++i)
-		{
-			test_cache.addVertex(&vertex_data[mIndices[i]]);
-		}
-
-		for (U32 i = 0; i < mNumVertices; i++)
-		{
-			vertex_data[i].mCacheTag = -1;
-		}
-
-		pre_acmr = (F32) test_cache.mMisses/(mNumIndices/3);
-	}*/
-
-	for (U32 i = 0; i < mNumVertices; i++)
-	{ //initialize score values (no cache -- might try a fifo cache here)
-		LLVCacheVertexData& data = vertex_data[i];
-
-		data.mScore = find_vertex_score(data);
-		data.mActiveTriangles = data.mTriangles.size();
-
-		for (U32 j = 0; j < data.mActiveTriangles; ++j)
-		{
-			data.mTriangles[j]->mScore += data.mScore;
-		}
-	}
-
-	//sort triangle data by score
-	std::sort(triangle_data.begin(), triangle_data.end());
-
-	std::vector<U16> new_indices;
-
-	LLVCacheTriangleData* tri;
-
-	//prime pump by adding first triangle to cache;
-	tri = &(triangle_data[0]);
-	cache.addTriangle(tri);
-	new_indices.push_back(tri->mVertex[0]->mIdx);
-	new_indices.push_back(tri->mVertex[1]->mIdx);
-	new_indices.push_back(tri->mVertex[2]->mIdx);
-	tri->complete();
-
-	U32 breaks = 0;
-	for (U32 i = 1; i < mNumIndices/3; ++i)
-	{
-		cache.updateScores();
-		tri = cache.mBestTriangle;
-		if (!tri)
-		{
-			breaks++;
-			for (U32 j = 0; j < triangle_data.size(); ++j)
-			{
-				if (triangle_data[j].mActive)
-				{
-					tri = &(triangle_data[j]);
-					break;
-				}
-			}
-		}	
-		
-		cache.addTriangle(tri);
-		new_indices.push_back(tri->mVertex[0]->mIdx);
-		new_indices.push_back(tri->mVertex[1]->mIdx);
-		new_indices.push_back(tri->mVertex[2]->mIdx);
-		tri->complete();
-	}
-
-	for (U32 i = 0; i < mNumIndices; ++i)
-	{
-		mIndices[i] = new_indices[i];
-	}
-
-	/*F32 post_acmr = 1.f;
-	//measure cache misses from after rebuild
-	{
-		LLVCacheFIFO test_cache;
-		for (U32 i = 0; i < mNumVertices; i++)
-		{
-			vertex_data[i].mCacheTag = -1;
-		}
-
-		for (U32 i = 0; i < mNumIndices; ++i)
-		{
-			test_cache.addVertex(&vertex_data[mIndices[i]]);
-		}
-		
-		post_acmr = (F32) test_cache.mMisses/(mNumIndices/3);
-	}*/
-
-	//optimize for pre-TnL cache
-	
-	//allocate space for new buffer
-	S32 num_verts = mNumVertices;
-	S32 size = ((num_verts*sizeof(LLVector2)) + 0xF) & ~0xF;
-	LLVector4a* pos = (LLVector4a*) ll_aligned_malloc<64>(sizeof(LLVector4a)*2*num_verts+size);
-	if (pos == NULL)
-	{
-		LL_WARNS("LLVOLUME") << "Allocation of positions vector[" << sizeof(LLVector4a) * 2 * num_verts + size  << "] failed. " << LL_ENDL;
-		return false;
-	}
-	LLVector4a* norm = pos + num_verts;
-	LLVector2* tc = (LLVector2*) (norm + num_verts);
-
-	LLVector4a* wght = NULL;
-	if (mWeights)
-	{
-		wght = (LLVector4a*)ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		if (wght == NULL)
-		{
-			ll_aligned_free<64>(pos);
-			LL_WARNS("LLVOLUME") << "Allocation of weights[" << sizeof(LLVector4a) * num_verts << "] failed" << LL_ENDL;
-			return false;
-		}
-	}
-
-    llassert(mTangents == nullptr); // cache optimize called too late, tangents already generated
-    llassert(mMikktSpaceTangents == nullptr);
-
-    // =====================================================================================
-    // DEPRECATED -- cacheOptimize should always be called before tangents are generated
-    // =====================================================================================
-	LLVector4a* binorm = NULL;
-	if (mTangents)
-	{
-		binorm = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
-		if (binorm == NULL)
-		{
-			ll_aligned_free<64>(pos);
-			ll_aligned_free_16(wght);
-			LL_WARNS("LLVOLUME") << "Allocation of binormals[" << sizeof(LLVector4a)*num_verts << "] failed" << LL_ENDL;
-			return false;
-		}
-	}
-    // =====================================================================================
-
-    //allocate mapping of old indices to new indices
-	std::vector<S32> new_idx;
-    try
-	{
-		new_idx.resize(mNumVertices, -1);
-	}
-	catch (std::bad_alloc&)
-	{
-		ll_aligned_free<64>(pos);
-		ll_aligned_free_16(wght);
-		ll_aligned_free_16(binorm);
-		LL_WARNS("LLVOLUME") << "Resize failed: " << mNumVertices << LL_ENDL;
-		return false;
-	}
-
-	S32 cur_idx = 0;
-	for (U32 i = 0; i < mNumIndices; ++i)
-	{
-		U16 idx = mIndices[i];
-		if (new_idx[idx] == -1)
-		{ //this vertex hasn't been added yet
-			new_idx[idx] = cur_idx;
-
-			//copy vertex data
-			pos[cur_idx] = mPositions[idx];
-			norm[cur_idx] = mNormals[idx];
-			tc[cur_idx] = mTexCoords[idx];
-			if (mWeights)
-			{
-				wght[cur_idx] = mWeights[idx];
-			}
-			if (mTangents)
-			{
-				binorm[cur_idx] = mTangents[idx];
-			}
-
-			cur_idx++;
-		}
-	}
-
-	for (U32 i = 0; i < mNumIndices; ++i)
-	{
-		mIndices[i] = new_idx[mIndices[i]];
-	}
-	
-	ll_aligned_free<64>(mPositions);
-	// DO NOT free mNormals and mTexCoords as they are part of mPositions buffer
-	ll_aligned_free_16(mWeights);
-	ll_aligned_free_16(mTangents);
-#if USE_SEPARATE_JOINT_INDICES_AND_WEIGHTS
-    ll_aligned_free_16(mJointIndices);
-    ll_aligned_free_16(mJustWeights);
-    mJustWeights = NULL;
-    mJointIndices = NULL; // filled in later as necessary by skinning code for acceleration
-#endif
-
-	mPositions = pos;
-	mNormals = norm;
-	mTexCoords = tc;
-	mWeights = wght;    
-	mTangents = binorm;
-
-	//std::string result = llformat("ACMR pre/post: %.3f/%.3f  --  %d triangles %d breaks", pre_acmr, post_acmr, mNumIndices/3, breaks);
-	//LL_INFOS() << result << LL_ENDL;
-
+    
 	return true;
 }
 
@@ -6407,209 +6315,25 @@ BOOL LLVolumeFace::createCap(LLVolume* volume, BOOL partial_build)
 void CalculateTangentArray(U32 vertexCount, const LLVector4a *vertex, const LLVector4a *normal,
         const LLVector2 *texcoord, U32 triangleCount, const U16* index_array, LLVector4a *tangent);
 
-
-// data structures for tangent generation
-
-// key for summing tangents
-// We will blend tangents wherever a common position and normal is found
-struct MikktKey
-{
-    // Position
-    LLVector3 p;
-    // Normal
-    LLVector3 n;
-
-    bool operator==(const MikktKey& rhs) const { return p == rhs.p && n == rhs.n; }
-};
-
-// sum of tangents and list of signs and index array indices for a given position and normal combination
-// sign must be kept separate from summed tangent because a single position and normal may have a different
-// tangent facing where UV seams exist
-struct MikktTangent
-{
-    // tangent vector
-    LLVector3 t;
-    // signs
-    std::vector<F32> s;
-    // indices (in index array)
-    std::vector<S32> i;
-};
-
-// hash function for MikktTangent
-namespace boost
-{
-    template <>
-    struct hash<LLVector3>
-    {
-        std::size_t operator()(LLVector3 const& k) const
-        {
-            size_t seed = 0;
-            boost::hash_combine(seed, k.mV[0]);
-            boost::hash_combine(seed, k.mV[1]);
-            boost::hash_combine(seed, k.mV[2]);
-            return seed;
-        }
-    };
-
-    template <>
-    struct hash<MikktKey>
-    {
-        std::size_t operator()(MikktKey const& k) const
-        {
-            size_t seed = 0;
-            boost::hash_combine(seed, k.p);
-            boost::hash_combine(seed, k.n);
-            return seed;
-        }
-    };
-}
-
-// boost adapter
-namespace std
-{
-    template<>
-    struct hash<MikktKey>
-    {
-        std::size_t operator()(MikktKey const& k) const
-        {
-            return boost::hash<MikktKey>()(k);
-        }
-    };
-}
-
-struct MikktData
-{
-    LLVolumeFace* face;
-    std::unordered_map<MikktKey, MikktTangent > tangents;
-};
-
-
-void LLVolumeFace::createTangents(bool mikktspace)
+void LLVolumeFace::createTangents()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    auto& tangents = mikktspace ? mMikktSpaceTangents : mTangents;
-
-    if (!tangents)
+    
+    if (!mTangents)
     {
-        allocateTangents(mNumVertices, mikktspace);
+        allocateTangents(mNumVertices);
+        
+        //generate tangents
+        LLVector4a* ptr = (LLVector4a*)mTangents;
 
-        if (mikktspace)
+        LLVector4a* end = mTangents + mNumVertices;
+        while (ptr < end)
         {
-            LL_PROFILE_ZONE_NAMED_CATEGORY_VOLUME("mikktspace");
-            SMikkTSpaceInterface ms;
-
-            ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
-            {
-                MikktData* data = (MikktData*)pContext->m_pUserData;
-                LLVolumeFace* face = data->face;
-                return face->mNumIndices / 3;
-            };
-
-            ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
-            {
-                return 3;
-            };
-
-            ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
-            {
-                MikktData* data = (MikktData*)pContext->m_pUserData;
-                LLVolumeFace* face = data->face;
-                S32 idx = face->mIndices[iFace * 3 + iVert];
-                auto& vert = face->mPositions[idx];
-                F32* v = vert.getF32ptr();
-                fvPosOut[0] = v[0];
-                fvPosOut[1] = v[1];
-                fvPosOut[2] = v[2];
-            };
-
-            ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
-            {
-                MikktData* data = (MikktData*)pContext->m_pUserData;
-                LLVolumeFace* face = data->face;
-                S32 idx = face->mIndices[iFace * 3 + iVert];
-                auto& norm = face->mNormals[idx];
-                F32* n = norm.getF32ptr();
-                fvNormOut[0] = n[0];
-                fvNormOut[1] = n[1];
-                fvNormOut[2] = n[2];
-            };
-
-            ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
-            {
-                MikktData* data = (MikktData*)pContext->m_pUserData;
-                LLVolumeFace* face = data->face;
-                S32 idx = face->mIndices[iFace * 3 + iVert];
-                auto& tc = face->mTexCoords[idx];
-                fvTexcOut[0] = tc.mV[0];
-                fvTexcOut[1] = tc.mV[1];
-            };
-
-            ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
-            {
-                MikktData* data = (MikktData*)pContext->m_pUserData;
-                LLVolumeFace* face = data->face;
-                S32 i = iFace * 3 + iVert;
-                S32 idx = face->mIndices[i];
-                
-                LLVector3 p(face->mPositions[idx].getF32ptr());
-                LLVector3 n(face->mNormals[idx].getF32ptr());
-                LLVector3 t(fvTangent);
-
-                MikktKey key = { p, n };
-
-                MikktTangent& mt = data->tangents[key];
-                mt.t += t;
-                mt.s.push_back(fSign);
-                mt.i.push_back(i);
-            };
-
-            ms.m_setTSpace = nullptr;
-
-            MikktData data;
-            data.face = this;
-
-            SMikkTSpaceContext ctx = { &ms, &data };
-
-            genTangSpaceDefault(&ctx);
-
-            for (U32 i = 0; i < mNumVertices; ++i)
-            {
-                MikktKey key = { LLVector3(mPositions[i].getF32ptr()), LLVector3(mNormals[i].getF32ptr()) };
-                MikktTangent& t = data.tangents[key];
-
-                //set tangent
-                mMikktSpaceTangents[i].load3(t.t.mV);
-                mMikktSpaceTangents[i].normalize3fast();
-
-                //set sign
-                F32 sign = 0.f;
-                for (int j = 0; j < t.i.size(); ++j)
-                {
-                    if (mIndices[t.i[j]] == i)
-                    {
-                        sign = t.s[j];
-                        break;
-                    }
-                }
-
-                llassert(sign != 0.f);
-                mMikktSpaceTangents[i].getF32ptr()[3] = sign;
-            }
+            (*ptr++).clear();
         }
-        else
-        {
-            //generate tangents
-            LLVector4a* ptr = (LLVector4a*)tangents;
 
-            LLVector4a* end = mTangents + mNumVertices;
-            while (ptr < end)
-            {
-                (*ptr++).clear();
-            }
-
-            CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, tangents);
-        }
+        CalculateTangentArray(mNumVertices, mPositions, mNormals, mTexCoords, mNumIndices / 3, mIndices, mTangents);
 
         //normalize normals
         for (U32 i = 0; i < mNumVertices; i++)
@@ -6618,6 +6342,7 @@ void LLVolumeFace::createTangents(bool mikktspace)
             mNormals[i].normalize3fast();
         }
     }
+
 }
 
 void LLVolumeFace::resizeVertices(S32 num_verts)

@@ -25,60 +25,33 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_PBR_LIGHT_TYPE 0 // Output Diffuse=0.75, Emissive=0, ORM=0,0,0
-
-#define DEBUG_BASIC         0
-#define DEBUG_VERTEX        0
-#define DEBUG_NORMAL_MAP    0 // Output packed normal map "as is" to diffuse
-#define DEBUG_NORMAL_OUT    0 // Output unpacked normal to diffuse
-#define DEBUG_ORM           0 // Output Occlusion Roughness Metal "as is" to diffuse
-#define DEBUG_POSITION      0
-
 uniform sampler2D diffuseMap;  //always in sRGB space
 
 uniform float metallicFactor;
 uniform float roughnessFactor;
 uniform vec3 emissiveColor;
+uniform sampler2D bumpMap;
+uniform sampler2D emissiveMap;
+uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
 
-#ifdef HAS_NORMAL_MAP
-    uniform sampler2D bumpMap;
-    VARYING vec3 vary_tangent;
-    flat in float vary_sign;
-#endif
-
-#ifdef HAS_EMISSIVE_MAP
-    uniform sampler2D emissiveMap;
-#endif
-
-#ifdef HAS_SPECULAR_MAP
-    uniform sampler2D specularMap; // Packed: Occlusion, Metal, Roughness
-#endif
-
-uniform samplerCube environmentMap;
-uniform mat3        env_mat;
-
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_data[4];
-#else
-#define frag_data gl_FragData
-#endif
 
 VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-#ifdef HAS_NORMAL_MAP
 VARYING vec3 vary_normal;
-VARYING vec2 vary_texcoord1;
-#endif
+VARYING vec3 vary_tangent;
+flat in float vary_sign;
 
-#ifdef HAS_SPECULAR_MAP
-    VARYING vec2 vary_texcoord2;
-#endif
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
 
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
 
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
+
+uniform mat3 normal_matrix;
 
 void main()
 {
@@ -94,11 +67,11 @@ void main()
     vec3 col = vertex_color.rgb * albedo.rgb;
 
     // from mikktspace.com
-    vec4 vNt = texture2D(bumpMap, vary_texcoord1.xy)*2.0-1.0;
+    vec3 vNt = texture2D(bumpMap, vary_texcoord1.xy).xyz*2.0-1.0;
     float sign = vary_sign;
     vec3 vN = vary_normal;
     vec3 vT = vary_tangent.xyz;
-
+    
     vec3 vB = sign * cross(vN, vT);
     vec3 tnorm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
@@ -107,49 +80,20 @@ void main()
     //   occlusion 1.0
     //   roughness 0.0
     //   metal     0.0
-#ifdef HAS_SPECULAR_MAP
     vec3 spec = texture2D(specularMap, vary_texcoord2.xy).rgb;
-#else
-    vec3 spec = vec3(1,0,0);
-#endif
     
     spec.g *= roughnessFactor;
     spec.b *= metallicFactor;
 
     vec3 emissive = emissiveColor;
-#ifdef HAS_EMISSIVE_MAP
     emissive *= texture2D(emissiveMap, vary_texcoord0.xy).rgb;
-#endif
-
-#if DEBUG_PBR_LIGHT_TYPE
-    col.rgb  = vec3(0.75);
-    emissive = vec3(0);
-    spec.rgb = vec3(0);
-#endif
-#if DEBUG_BASIC
-    col.rgb = vec3( 1, 0, 1 );
-#endif
-#if DEBUG_VERTEX
-    col.rgb = vertex_color.rgb;
-#endif
-#if DEBUG_NORMAL_MAP
-    col.rgb = texture2D(bumpMap, vary_texcoord1.xy).rgb;
-#endif
-#if DEBUG_NORMAL_OUT
-    col.rgb = vary_normal;
-#endif
-#if DEBUG_ORM
-    col.rgb = linear_to_srgb(spec);
-#endif
-#if DEBUG_POSITION
-    col.rgb = vary_position.xyz;
-#endif
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
+    //spec.rgb = vec3(1,1,0);
     //col = vec3(0,0,0);
     //emissive = vary_tangent.xyz*0.5+0.5;
-    //emissive = vec3(vary_sign*0.5+0.5);
+    //emissive = vec3(sign*0.5+0.5);
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
     frag_data[1] = vec4(emissive, vertex_color.a);                                   // PBR sRGB Emissive

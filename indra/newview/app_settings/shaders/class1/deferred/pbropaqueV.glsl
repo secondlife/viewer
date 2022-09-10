@@ -37,41 +37,24 @@ uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 #endif
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-
-#if !defined(HAS_SKIN)
-uniform mat4 modelview_matrix;
-#endif
-
-VARYING vec3 vary_position;
-
-#endif
-
 uniform mat4 texture_matrix0;
 
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
-ATTRIBUTE vec2 texcoord0;
-
-
-#ifdef HAS_NORMAL_MAP
 ATTRIBUTE vec4 tangent;
+ATTRIBUTE vec2 texcoord0;
 ATTRIBUTE vec2 texcoord1;
-
-VARYING vec2 vary_texcoord1;
-#endif
-
-#ifdef HAS_SPECULAR_MAP
 ATTRIBUTE vec2 texcoord2;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
-#endif
  
 VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
+
 VARYING vec3 vary_tangent;
 flat out float vary_sign;
-
 VARYING vec3 vary_normal;
 
 void main()
@@ -83,64 +66,28 @@ void main()
 
 	vec3 pos = (mat*vec4(position.xyz,1.0)).xyz;
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-	vary_position = pos;
-#endif
-
 	gl_Position = projection_matrix*vec4(pos,1.0);
 
 #else
 	//transform vertex
 	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
-
 #endif
 	
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
-	
-#ifdef HAS_NORMAL_MAP
 	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
-#endif
-
-#ifdef HAS_SPECULAR_MAP
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
-#endif
 
 #ifdef HAS_SKIN
-	vec3 n = normalize((mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz);
-#ifdef HAS_NORMAL_MAP
-	vec3 t = normalize((mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz);
-	vec3 b = cross(n, t)*tangent.w;
-	
-	//vary_mat0 = vec3(t.x, b.x, n.x);
-	//vary_mat1 = vec3(t.y, b.y, n.y);
-	//vary_mat2 = vec3(t.z, b.z, n.z);
-#else //HAS_NORMAL_MAP
-vary_normal  = n;
-#endif //HAS_NORMAL_MAP
+	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
+	vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
 #else //HAS_SKIN
-	vec3 n = normalize(normal_matrix * normal);
-#ifdef HAS_NORMAL_MAP
-	vec3 t = normalize(normal_matrix * tangent.xyz);
-    vary_tangent = t;
-    vary_sign = tangent.w;
-    vary_normal = n;
+	vec3 n = normal_matrix * normal;
+	vec3 t = normal_matrix * tangent.xyz;
+#endif
 
-	//vec3 b = cross(n,t)*tangent.w;
-	//vec3 t = cross(b,n) * binormal.w;
-	
-	//vary_mat0 = vec3(t.x, b.x, n.x);
-	//vary_mat1 = vec3(t.y, b.y, n.y);
-	//vary_mat2 = vec3(t.z, b.z, n.z);
-#else //HAS_NORMAL_MAP
-	vary_normal = n;
-#endif //HAS_NORMAL_MAP
-#endif //HAS_SKIN
+    vary_tangent = normalize(t);
+    vary_sign = tangent.w;
+    vary_normal = normalize(n);
 	
 	vertex_color = diffuse_color;
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-#if !defined(HAS_SKIN)
-	vary_position = (modelview_matrix*vec4(position.xyz, 1.0)).xyz;
-#endif
-#endif
 }

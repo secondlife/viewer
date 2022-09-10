@@ -870,7 +870,7 @@ private:
 public:
 
 	BOOL create(LLVolume* volume, BOOL partial_build = FALSE);
-	void createTangents(bool mikktspace = false);
+	void createTangents();
 	
 	void resizeVertices(S32 num_verts);
 	void allocateTangents(S32 num_verts, bool mikktspace = false);
