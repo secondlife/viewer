@@ -1005,6 +1005,13 @@ LLFontGL::VAlign LLFontGL::vAlignFromName(const std::string& name)
 	return gl_vfont_align;
 }
 
+ //static
+LLFontGL* LLFontGL::getFontEmoji()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("Emoji", "Large", 0));
+	return fontp;;
+}
+
 //static
 LLFontGL* LLFontGL::getFontMonospace()
 {

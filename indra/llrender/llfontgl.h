@@ -191,6 +191,7 @@ public:
 
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
 		
+	static LLFontGL* getFontEmoji();
 	static LLFontGL* getFontMonospace();
 	static LLFontGL* getFontSansSerifSmall();
 	static LLFontGL* getFontSansSerif();
