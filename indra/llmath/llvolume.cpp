@@ -56,6 +56,8 @@
 #include "mikktspace/mikktspace.h"
 #include "mikktspace/mikktspace.c" // insert mikktspace implementation into llvolume object file
 
+#include "meshoptimizer/meshoptimizer.h"
+
 #define DEBUG_SILHOUETTE_BINORMALS 0
 #define DEBUG_SILHOUETTE_NORMALS 0 // TomY: Use this to display normals using the silhouette
 #define DEBUG_SILHOUETTE_EDGE_MAP 0 // DaveP: Use this to display edge map using the silhouette
@@ -5499,34 +5501,66 @@ bool LLVolumeFace::cacheOptimize()
     SMikkTSpaceContext ctx = { &ms, &data };
 
     genTangSpaceDefault(&ctx);
-	
-    resizeVertices(data.p.size());
-    resizeIndices(data.p.size());
-    
+
+    //re-weld
+    meshopt_Stream mos[] = 
+    {
+        { &data.p[0], sizeof(LLVector3), sizeof(LLVector3) },
+        { &data.n[0], sizeof(LLVector3), sizeof(LLVector3) },
+        { &data.t[0], sizeof(LLVector4), sizeof(LLVector4) },
+        { &data.tc[0], sizeof(LLVector2), sizeof(LLVector2) },
+        { data.w.empty() ? nullptr : &data.w[0], sizeof(LLVector4), sizeof(LLVector4) }
+    };
+
+    std::vector<U32> remap;
+    remap.resize(data.p.size());
+
+    U32 stream_count = data.w.empty() ? 4 : 5;
+
+    U32 vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
+
+    std::vector<U32> indices;
+    indices.resize(mNumIndices);
+
+    //copy results back into volume
+    resizeVertices(vert_count);
+
     if (!data.w.empty())
     {
-        allocateWeights(data.w.size());
+        allocateWeights(vert_count);
     }
 
     allocateTangents(mNumVertices, true);
 
     for (int i = 0; i < mNumIndices; ++i)
     {
-        mIndices[i] = i;
+        U32 src_idx = i;
+        U32 dst_idx = remap[i];
+        mIndices[i] = dst_idx;
 
-        mPositions[i].load3(data.p[i].mV);
-        mNormals[i].load3(data.n[i].mV);
-        mTexCoords[i] = data.tc[i];
+        mPositions[dst_idx].load3(data.p[src_idx].mV);
+        mNormals[dst_idx].load3(data.n[src_idx].mV);
+        mTexCoords[dst_idx] = data.tc[src_idx];
        
-        mMikktSpaceTangents[i].loadua(data.t[i].mV);
+        mMikktSpaceTangents[dst_idx].loadua(data.t[src_idx].mV);
 
         if (mWeights)
         {
-            mWeights[i].loadua(data.w[i].mV);
+            mWeights[dst_idx].loadua(data.w[src_idx].mV);
         }
     }
 
+    // cache optimize index buffer
+
+    // meshopt needs scratch space, do some pointer shuffling to avoid an extra index buffer copy
+    U16* src_indices = mIndices;
+    mIndices = nullptr;
+    resizeIndices(mNumIndices);
+
+    meshopt_optimizeVertexCache<U16>(mIndices, src_indices, mNumIndices, mNumVertices);
     
+    ll_aligned_free_16(src_indices);
+
 	return true;
 }
 

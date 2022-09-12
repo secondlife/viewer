@@ -2189,7 +2189,6 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			{
 				LLVector4a tangent_out;
 				mat_normal.rotate(*src, tangent_out);
-				tangent_out.normalize3();
 				tangent_out.setSelectWithMask(mask, *src, tangent_out);
 				tangent_out.store4a(tangents);
 				

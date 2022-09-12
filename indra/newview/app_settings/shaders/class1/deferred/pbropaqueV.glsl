@@ -76,7 +76,6 @@ void main()
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	vary_texcoord1 = (texture_matrix0 * vec4(texcoord1,0,1)).xy;
 	vary_texcoord2 = (texture_matrix0 * vec4(texcoord2,0,1)).xy;
-
 #ifdef HAS_SKIN
 	vec3 n = (mat*vec4(normal.xyz+position.xyz,1.0)).xyz-pos.xyz;
 	vec3 t = (mat*vec4(tangent.xyz+position.xyz,1.0)).xyz-pos.xyz;
