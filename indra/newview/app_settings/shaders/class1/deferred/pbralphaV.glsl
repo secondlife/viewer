@@ -46,6 +46,11 @@ uniform mat4 modelview_projection_matrix;
 
 uniform mat4 texture_matrix0;
 
+#ifdef HAS_SHADOW
+VARYING vec3 vary_fragcoord;
+uniform float near_clip;
+#endif
+
 ATTRIBUTE vec3 position;
 ATTRIBUTE vec4 diffuse_color;
 ATTRIBUTE vec3 normal;
@@ -82,12 +87,17 @@ void main()
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 	vary_position = pos;
 #endif
-	gl_Position = projection_matrix*vec4(pos,1.0);
+    vec4 vert = projection_matrix * vec4(pos,1.0);
 #else
 	//transform vertex
-	gl_Position = modelview_projection_matrix * vec4(position.xyz, 1.0); 
+    vec4 vert = modelview_projection_matrix * vec4(position.xyz, 1.0);
 #endif
-	
+    gl_Position = vert;
+
+#if HAS_SHADOW
+    vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
+#endif
+
 	vary_texcoord0 = (texture_matrix0 * vec4(texcoord0,0,1)).xy;
 	
 #ifdef HAS_NORMAL_MAP

@@ -76,10 +76,15 @@ uniform vec3 moon_dir;
   #endif
 #endif
 
+#ifdef HAS_SHADOW
+  VARYING vec3 vary_fragcoord;
+  uniform vec2 screen_res;
+#endif
 
 VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+
 #ifdef HAS_NORMAL_MAP
 VARYING vec3 vary_normal;
 VARYING vec3 vary_mat0;
@@ -116,6 +121,7 @@ float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec2 getGGX( vec2 brdfPoint );
 void initMaterial( vec3 diffuse, vec3 packedORM,
         out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
+float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);
 
@@ -164,15 +170,8 @@ void main()
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     vec3  pos         = vary_position;
 
-#if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-    vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-    scol_ambocc      = pow(scol_ambocc, vec2(light_gamma));
-    float scol       = max(scol_ambocc.r, diffuse.a);
-    float ambocc     = scol_ambocc.g;
-#else
     float scol = 1.0;
     float ambocc = 1.0;
-#endif
 
     vec3 sunlit;
     vec3 amblit;
@@ -210,6 +209,12 @@ void main()
 
     tnorm = normalize(tnorm.xyz);
     norm.xyz = tnorm.xyz;
+
+#if HAS_SHADOW
+    vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+    frag *= screen_res;
+    scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
+#endif
 
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerFetchedTexture::sWhiteImagep since roughnessFactor and metallicFactor are multiplied in
@@ -308,7 +313,7 @@ irradiance = vec3(amblit);
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += scol * calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
