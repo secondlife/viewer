@@ -558,26 +558,59 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 //============================================================================
 // Load Shader
 
-static std::string get_object_log(GLhandleARB ret)
+static std::string get_shader_log(GLuint ret)
 {
 	std::string res;
 	
 	//get log length 
 	GLint length;
-	glGetObjectParameterivARB(ret, GL_OBJECT_INFO_LOG_LENGTH_ARB, &length);
+    glGetShaderiv(ret, GL_INFO_LOG_LENGTH, &length);
 	if (length > 0)
 	{
 		//the log could be any size, so allocate appropriately
-		GLcharARB* log = new GLcharARB[length];
-		glGetInfoLogARB(ret, length, &length, log);
+		GLchar* log = new GLchar[length];
+        glGetShaderInfoLog(ret, length, &length, log);
 		res = std::string((char *)log);
 		delete[] log;
 	}
 	return res;
 }
 
+static std::string get_program_log(GLuint ret)
+{
+    std::string res;
+
+    //get log length 
+    GLint length;
+    glGetProgramiv(ret, GL_INFO_LOG_LENGTH, &length);
+    if (length > 0)
+    {
+        //the log could be any size, so allocate appropriately
+        GLchar* log = new GLchar[length];
+        glGetProgramInfoLog(ret, length, &length, log);
+        res = std::string((char*)log);
+        delete[] log;
+    }
+    return res;
+}
+
+// get the info log for the given object, be it a shader or program object
+// NOTE: ret MUST be a shader OR a program object
+static std::string get_object_log(GLuint ret)
+{
+    if (glIsProgram(ret))
+    {
+        return get_program_log(ret);
+    }
+    else
+    {
+        llassert(glIsShader(ret));
+        return get_shader_log(ret);
+    }
+}
+
 //dump shader source for debugging
-void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_code_text)
+void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLchar** shader_code_text)
 {
 	char num_str[16]; // U32 = max 10 digits
 
@@ -592,9 +625,10 @@ void LLShaderMgr::dumpShaderSource(U32 shader_code_count, GLcharARB** shader_cod
     LL_CONT << LL_ENDL;
 }
 
-void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& filename) 
+void LLShaderMgr::dumpObjectLog(GLuint ret, BOOL warns, const std::string& filename)
 {
-	std::string log = get_object_log(ret);
+    std::string log;
+    log = get_object_log(ret);
     std::string fname = filename;
     if (filename.empty())
     {
@@ -608,7 +642,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 	}
  }
 
-GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
+GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, std::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
 {
 
 // endsure work-around for missing GLSL funcs gets propogated to feature shader files (e.g. srgbF.glsl)
@@ -679,9 +713,9 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 	//we can't have any lines longer than 1024 characters 
 	//or any shaders longer than 4096 lines... deal - DaveP
-    GLcharARB buff[1024];
-    GLcharARB *extra_code_text[1024];
-    GLcharARB *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { NULL };
+    GLchar buff[1024];
+    GLchar *extra_code_text[1024];
+    GLchar *shader_code_text[4096 + LL_ARRAY_SIZE(extra_code_text)] = { NULL };
     GLuint extra_code_count = 0, shader_code_count = 0;
     BOOST_STATIC_ASSERT(LL_ARRAY_SIZE(extra_code_text) < LL_ARRAY_SIZE(shader_code_text));
     
@@ -763,7 +797,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 
 		extra_code_text[extra_code_count++] = strdup("#define ATTRIBUTE in\n");
 
-		if (type == GL_VERTEX_SHADER_ARB)
+		if (type == GL_VERTEX_SHADER)
 		{ //"varying" state is "out" in a vertex program, "in" in a fragment program 
 			// ("varying" is deprecated after version 1.20)
 			extra_code_text[extra_code_count++] = strdup("#define VARYING out\n");
@@ -800,7 +834,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		for (std::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
 		{
 			std::string define = "#define " + iter->first + " " + iter->second + "\n";
-			extra_code_text[extra_code_count++] = (GLcharARB *) strdup(define.c_str());
+			extra_code_text[extra_code_count++] = (GLchar *) strdup(define.c_str());
 		}
 	}
 
@@ -809,7 +843,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		extra_code_text[extra_code_count++] = strdup( "#define IS_AMD_CARD 1\n" );
 	}
 	
-	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER_ARB)
+	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER)
 	{
 		//use specified number of texture channels for indexed texture rendering
 
@@ -949,7 +983,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
         else
         {
-            shader_code_text[shader_code_count] = (GLcharARB *)strdup((char *)buff);
+            shader_code_text[shader_code_count] = (GLchar *)strdup((char *)buff);
 		
             if(flag_write_to_out_of_extra_block_area & flags)
             {
@@ -986,40 +1020,40 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	fclose(file);
 
 	//create shader object
-	GLhandleARB ret = glCreateShaderObjectARB(type);
+    GLuint ret = glCreateShader(type);
 
 	error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObjectARB: " << error << " for file: " << open_file_name << LL_ENDL;
+		LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShader: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
 
 	//load source
-	glShaderSourceARB(ret, shader_code_count, (const GLcharARB**) shader_code_text, NULL);
+	glShaderSource(ret, shader_code_count, (const GLchar**) shader_code_text, NULL);
 
 	error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSourceARB: " << error << " for file: " << open_file_name << LL_ENDL;
+		LL_WARNS("ShaderLoading") << "GL ERROR in glShaderSource: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
 
 	//compile source
-	glCompileShaderARB(ret);
+	glCompileShader(ret);
 
 	error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShaderARB: " << error << " for file: " << open_file_name << LL_ENDL;
+		LL_WARNS("ShaderLoading") << "GL ERROR in glCompileShader: " << error << " for file: " << open_file_name << LL_ENDL;
 	}
 
 	if (error == GL_NO_ERROR)
 	{
 		//check for errors
 		GLint success = GL_TRUE;
-		glGetObjectParameterivARB(ret, GL_OBJECT_COMPILE_STATUS_ARB, &success);
+        glGetShaderiv(ret, GL_COMPILE_STATUS, &success);
 
 		error = glGetError();
-		if (error != GL_NO_ERROR || success == GL_FALSE) 
+		if (error != GL_NO_ERROR || success == GL_FALSE)
 		{
 			//an error occured, print log
 			LL_WARNS("ShaderLoading") << "GLSL Compilation Error:" << LL_ENDL;
@@ -1044,10 +1078,10 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	if (ret)
 	{
 		// Add shader file to map
-        if (type == GL_VERTEX_SHADER_ARB) {
+        if (type == GL_VERTEX_SHADER) {
             mVertexShaderObjects[filename] = ret;
         }
-        else if (type == GL_FRAGMENT_SHADER_ARB) {
+        else if (type == GL_FRAGMENT_SHADER) {
             mFragmentShaderObjects[filename] = ret;
         }
 		shader_level = try_gpu_class;
@@ -1064,19 +1098,21 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	return ret;
 }
 
-BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors) 
+BOOL LLShaderMgr::linkProgramObject(GLuint obj, BOOL suppress_errors)
 {
 	//check for errors
-	glLinkProgramARB(obj);
+	glLinkProgram(obj);
 	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_LINK_STATUS_ARB, &success);
+    glGetProgramiv(obj, GL_LINK_STATUS, &success);
 	if (!suppress_errors && success == GL_FALSE) 
 	{
 		//an error occured, print log
 		LL_SHADER_LOADING_WARNS() << "GLSL Linker Error:" << LL_ENDL;
+        dumpObjectLog(obj, TRUE, "linker");
+        return success;
 	}
 
-	std::string log = get_object_log(obj);
+	std::string log = get_program_log(obj);
 	LLStringUtil::toLower(log);
 	if (log.find("software") != std::string::npos)
 	{
@@ -1087,12 +1123,12 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 	return success;
 }
 
-BOOL LLShaderMgr::validateProgramObject(GLhandleARB obj)
+BOOL LLShaderMgr::validateProgramObject(GLuint obj)
 {
 	//check program validity against current GL
-	glValidateProgramARB(obj);
+	glValidateProgram(obj);
 	GLint success = GL_TRUE;
-	glGetObjectParameterivARB(obj, GL_OBJECT_VALIDATE_STATUS_ARB, &success);
+    glGetProgramiv(obj, GL_LINK_STATUS, &success);
 	if (success == GL_FALSE)
 	{
 		LL_SHADER_LOADING_WARNS() << "GLSL program not valid: " << LL_ENDL;
@@ -1173,7 +1209,7 @@ void LLShaderMgr::initAttribsAndUniforms()
     mReservedUniforms.push_back("emissiveColor");
     mReservedUniforms.push_back("metallicFactor");
     mReservedUniforms.push_back("roughnessFactor");
-    
+
 	mReservedUniforms.push_back("diffuseMap");
     mReservedUniforms.push_back("altDiffuseMap");
 	mReservedUniforms.push_back("specularMap");

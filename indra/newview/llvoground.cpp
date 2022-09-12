@@ -93,7 +93,7 @@ BOOL LLVOGround::updateGeometry(LLDrawable *drawable)
 	if (!face->getVertexBuffer())
 	{
 		face->setSize(5, 12);
-		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolGround::VERTEX_DATA_MASK, GL_STREAM_DRAW_ARB);
+		LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolGround::VERTEX_DATA_MASK, GL_STREAM_DRAW);
 		if (!buff->allocateBuffer(face->getGeomCount(), face->getIndicesCount(), TRUE))
 		{
 			LL_WARNS() << "Failed to allocate Vertex Buffer for VOGround to "

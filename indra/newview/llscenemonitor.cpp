@@ -445,14 +445,14 @@ void LLSceneMonitor::calcDiffAggregate()
 
 	if(mDiffState == EXECUTE_DIFF)
 	{
-		glBeginQueryARB(GL_SAMPLES_PASSED_ARB, mQueryObject);
+		glBeginQuery(GL_SAMPLES_PASSED_ARB, mQueryObject);
 	}
 
 	gl_draw_scaled_target(0, 0, S32(mDiff->getWidth() * mDiffPixelRatio), S32(mDiff->getHeight() * mDiffPixelRatio), mDiff);
 
 	if(mDiffState == EXECUTE_DIFF)
 	{
-		glEndQueryARB(GL_SAMPLES_PASSED_ARB);
+		glEndQuery(GL_SAMPLES_PASSED_ARB);
 		mDiffState = WAIT_ON_RESULT;
 	}
 		
@@ -483,11 +483,11 @@ void LLSceneMonitor::fetchQueryResult()
 		mDiffState = WAITING_FOR_NEXT_DIFF;
 
 		GLuint available = 0;
-		glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+		glGetQueryObjectuiv(mQueryObject, GL_QUERY_RESULT_AVAILABLE_ARB, &available);
 		if(available)
 		{
 			GLuint count = 0;
-			glGetQueryObjectuivARB(mQueryObject, GL_QUERY_RESULT_ARB, &count);
+			glGetQueryObjectuiv(mQueryObject, GL_QUERY_RESULT_ARB, &count);
 	
 			mDiffResult = sqrtf(count * 0.5f / (mDiff->getWidth() * mDiff->getHeight() * mDiffPixelRatio * mDiffPixelRatio)); //0.5 -> (front face + back face)
 

@@ -5182,7 +5182,7 @@ U32 LLVOVolume::getPartitionType() const
 }
 
 LLVolumePartition::LLVolumePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW_ARB, regionp),
+: LLSpatialPartition(LLVOVolume::VERTEX_DATA_MASK, TRUE, GL_DYNAMIC_DRAW, regionp),
 LLVolumeGeometryManager()
 {
 	mLODPeriod = 32;
@@ -5190,7 +5190,7 @@ LLVolumeGeometryManager()
 	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME;
 	mPartitionType = LLViewerRegion::PARTITION_VOLUME;
 	mSlopRatio = 0.25f;
-	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
+	mBufferUsage = GL_DYNAMIC_DRAW;
 }
 
 LLVolumeBridge::LLVolumeBridge(LLDrawable* drawablep, LLViewerRegion* regionp)
@@ -5202,7 +5202,7 @@ LLVolumeGeometryManager()
 	mDrawableType = LLPipeline::RENDER_TYPE_VOLUME;
 	mPartitionType = LLViewerRegion::PARTITION_BRIDGE;
 	
-	mBufferUsage = GL_DYNAMIC_DRAW_ARB;
+	mBufferUsage = GL_DYNAMIC_DRAW;
 
 	mSlopRatio = 0.25f;
 }
@@ -5788,7 +5788,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	
 			if (drawablep->isAnimating())
 			{ //fall back to stream draw for animating verts
-				useage = GL_STREAM_DRAW_ARB;
+				useage = GL_STREAM_DRAW;
 			}
 
 			LLVOVolume* vobj = drawablep->getVOVolume();
@@ -5961,7 +5961,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 					BOOL force_simple = (facep->getPixelArea() < FORCE_SIMPLE_RENDER_AREA);
 					U32 type = gPipeline.getPoolTypeFromTE(te, tex);
-                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+                    if (is_pbr && gltf_mat && gltf_mat->mAlphaMode != LLGLTFMaterial::ALPHA_MODE_BLEND)
                     {
                         type = LLDrawPool::POOL_PBR_OPAQUE;
                     }
@@ -6408,10 +6408,10 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
 	if (use_transform_feedback &&
 		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
-		buffer_usage == GL_DYNAMIC_DRAW_ARB && //target buffer is in VRAM
+		buffer_usage == GL_DYNAMIC_DRAW && //target buffer is in VRAM
 		!(mask & LLVertexBuffer::MAP_WEIGHT4)) //TODO: add support for weights
 	{
-		buffer_usage = GL_DYNAMIC_COPY_ARB;
+		buffer_usage = GL_DYNAMIC_COPY;
 	}
 
 #if LL_DARWIN
@@ -6645,9 +6645,9 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 		}
 
 
-		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW_ARB)
+		if (flexi && buffer_usage && buffer_usage != GL_STREAM_DRAW)
 		{
-			buffer_usage = GL_STREAM_DRAW_ARB;
+			buffer_usage = GL_STREAM_DRAW;
 		}
 
 		//create vertex buffer
@@ -6781,7 +6781,7 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 
                 if (gltf_mat)
                 { // all other parameters ignored if gltf material is present
-                    if (gltf_mat->mAlphaMode == LLMaterial::DIFFUSE_ALPHA_MODE_BLEND)
+                    if (gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                         registerFace(group, facep, LLRenderPass::PASS_ALPHA);
                     else
                         registerFace(group, facep, LLRenderPass::PASS_PBR_OPAQUE);
@@ -7068,7 +7068,7 @@ void LLVolumeGeometryManager::addGeometryCount(LLSpatialGroup* group, U32& verte
 
         if (drawablep->isAnimating())
         { //fall back to stream draw for animating verts
-            usage = GL_STREAM_DRAW_ARB;
+            usage = GL_STREAM_DRAW;
         }
     }
 
@@ -7097,7 +7097,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 	
 		if (drawablep->isAnimating())
 		{ //fall back to stream draw for animating verts
-			usage = GL_STREAM_DRAW_ARB;
+			usage = GL_STREAM_DRAW;
 		}
 
 		//for each face

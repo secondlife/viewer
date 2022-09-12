@@ -76,10 +76,15 @@ uniform vec3 moon_dir;
   #endif
 #endif
 
+#ifdef HAS_SHADOW
+  VARYING vec3 vary_fragcoord;
+  uniform vec2 screen_res;
+#endif
 
 VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
+
 #ifdef HAS_NORMAL_MAP
 VARYING vec3 vary_normal;
 VARYING vec3 vary_mat0;
@@ -100,7 +105,7 @@ uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlpha
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8]; // spot direction
-uniform vec4 light_attenuation[8]; // linear, quadratic, ?, ?
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, unused, See: LLPipeline::setupHWLights() and syncLightState()
 uniform vec3 light_diffuse[8];
 
 vec2 encode_normal(vec3 n);
@@ -116,14 +121,16 @@ float calcLegacyDistanceAttenuation(float distance, float falloff);
 vec2 getGGX( vec2 brdfPoint );
 void initMaterial( vec3 diffuse, vec3 packedORM,
         out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
+float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);
 
 vec3 hue_to_rgb(float hue);
 
 // lp = light position
-// la = light radius
+// la = linear attenuation, light radius
 // fa = falloff
+// See: LLRender::syncLightState()
 vec3 calcPointLightOrSpotLight(vec3 reflect0, vec3 c_diff,
     vec3 lightColor, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln,
     float la, float fa, float is_pointlight, float ambiance)
@@ -164,15 +171,8 @@ void main()
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     vec3  pos         = vary_position;
 
-#if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
-    vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
-    scol_ambocc      = pow(scol_ambocc, vec2(light_gamma));
-    float scol       = max(scol_ambocc.r, diffuse.a);
-    float ambocc     = scol_ambocc.g;
-#else
     float scol = 1.0;
     float ambocc = 1.0;
-#endif
 
     vec3 sunlit;
     vec3 amblit;
@@ -210,6 +210,12 @@ void main()
 
     tnorm = normalize(tnorm.xyz);
     norm.xyz = tnorm.xyz;
+
+#if HAS_SHADOW
+    vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
+    frag *= screen_res;
+    scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
+#endif
 
     // RGB = Occlusion, Roughness, Metal
     // default values, see LLViewerFetchedTexture::sWhiteImagep since roughnessFactor and metallicFactor are multiplied in
@@ -304,11 +310,10 @@ irradiance = vec3(amblit);
 #endif
         }
     vec3 col = colorDiffuse + colorEmissive + colorSpec;
-
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += srgb_to_linear(vec3(scol)) * calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(2.2*light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

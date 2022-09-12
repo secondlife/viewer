@@ -83,6 +83,11 @@ void LLDrawPoolAlpha::prerender()
     // TODO: is this even necessay?  These are probably set to never discard
     LLViewerFetchedTexture::sFlatNormalImagep->addTextureStats(1024.f*1024.f);
     LLViewerFetchedTexture::sWhiteImagep->addTextureStats(1024.f * 1024.f);
+
+    if (LLPipeline::sRenderPBR)
+    {
+        gPipeline.setupHWLights(NULL);
+    }
 }
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
@@ -657,6 +662,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     target_shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
                     target_shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
                     target_shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
+
+                    target_shader->mLightHash = 0;
+                    gGL.syncLightState(); // Set light uniforms
                 }
                 else
                 {

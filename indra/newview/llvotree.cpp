@@ -921,7 +921,7 @@ void LLVOTree::updateMesh()
 
 	LLFace* facep = mDrawable->getFace(0);
 	if (!facep) return;
-	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW_ARB);
+	LLVertexBuffer* buff = new LLVertexBuffer(LLDrawPoolTree::VERTEX_DATA_MASK, GL_STATIC_DRAW);
 	if (!buff->allocateBuffer(vert_count, index_count, TRUE))
 	{
 		LL_WARNS() << "Failed to allocate Vertex Buffer on mesh update to "
@@ -1226,7 +1226,7 @@ U32 LLVOTree::getPartitionType() const
 }
 
 LLTreePartition::LLTreePartition(LLViewerRegion* regionp)
-: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW_ARB, regionp)
+: LLSpatialPartition(0, FALSE, GL_DYNAMIC_DRAW, regionp)
 {
 	mDrawableType = LLPipeline::RENDER_TYPE_TREE;
 	mPartitionType = LLViewerRegion::PARTITION_TREE;

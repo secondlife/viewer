@@ -490,7 +490,7 @@ void LLRenderTarget::bindTarget()
 									GL_COLOR_ATTACHMENT1,
 									GL_COLOR_ATTACHMENT2,
 									GL_COLOR_ATTACHMENT3};
-			glDrawBuffersARB(mTex.size(), drawbuffers);
+			glDrawBuffers(mTex.size(), drawbuffers);
 		}
 			
 		if (mTex.empty())

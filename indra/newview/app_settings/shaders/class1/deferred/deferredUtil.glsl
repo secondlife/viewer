@@ -161,7 +161,11 @@ float getDepth(vec2 pos_screen)
 
 vec4 getTexture2DLodAmbient(vec2 tc, float lod)
 {
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
+#ifndef FXAA_GLSL_120
+    vec4 ret = textureLod(projectionMap, tc, lod);
+#else
+    vec4 ret = texture2D(projectionMap, tc);
+#endif
     ret.rgb = srgb_to_linear(ret.rgb);
 
     vec2 dist = tc-vec2(0.5);
@@ -173,7 +177,11 @@ vec4 getTexture2DLodAmbient(vec2 tc, float lod)
 
 vec4 getTexture2DLodDiffuse(vec2 tc, float lod)
 {
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
+#ifndef FXAA_GLSL_120
+    vec4 ret = textureLod(projectionMap, tc, lod);
+#else
+    vec4 ret = texture2D(projectionMap, tc);
+#endif
     ret.rgb = srgb_to_linear(ret.rgb);
 
     vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
@@ -216,7 +224,11 @@ vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv)
 
 vec4 texture2DLodSpecular(vec2 tc, float lod)
 {
-    vec4 ret = texture2DLod(projectionMap, tc, lod);
+#ifndef FXAA_GLSL_120
+    vec4 ret = textureLod(projectionMap, tc, lod);
+#else
+    vec4 ret = texture2D(projectionMap, tc);
+#endif
     ret.rgb = srgb_to_linear(ret.rgb);
 
     vec2 dist = vec2(0.5) - abs(tc-vec2(0.5));
