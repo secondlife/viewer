@@ -1688,6 +1688,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             llassert(success);
 
             // Alpha Shader Hack
+            // See: LLRender::syncMatrices()
             shader->mFeatures.calculatesLighting = true;
             shader->mFeatures.hasLighting = true;
         }

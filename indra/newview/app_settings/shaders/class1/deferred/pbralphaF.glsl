@@ -105,7 +105,7 @@ uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlpha
 // See: LLRender::syncLightState()
 uniform vec4 light_position[8];
 uniform vec3 light_direction[8]; // spot direction
-uniform vec4 light_attenuation[8]; // linear, quadratic, ?, ?
+uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, unused, See: LLPipeline::setupHWLights() and syncLightState()
 uniform vec3 light_diffuse[8];
 
 vec2 encode_normal(vec3 n);
@@ -128,8 +128,9 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 l
 vec3 hue_to_rgb(float hue);
 
 // lp = light position
-// la = light radius
+// la = linear attenuation, light radius
 // fa = falloff
+// See: LLRender::syncLightState()
 vec3 calcPointLightOrSpotLight(vec3 reflect0, vec3 c_diff,
     vec3 lightColor, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln,
     float la, float fa, float is_pointlight, float ambiance)
@@ -309,11 +310,10 @@ irradiance = vec3(amblit);
 #endif
         }
     vec3 col = colorDiffuse + colorEmissive + colorSpec;
-
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += scol * calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += srgb_to_linear(vec3(scol)) * calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(2.2*light_diffuse[i].rgb), albedo.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
