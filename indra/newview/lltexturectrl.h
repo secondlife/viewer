@@ -78,8 +78,6 @@ public:
 		TEXTURE_CANCEL
 	} ETexturePickOp;
 
-    // Should match the entries in floater_texture_ctrl.xml 
-    // for the textures_material_combo combo box
     typedef enum e_pick_inventory_type
     {
         PICK_TEXTURE_MATERIAL = 0,
@@ -356,8 +354,6 @@ public:
 	static void		onBakeTextureSelect(LLUICtrl* ctrl, void *userdata);
 	static void		onHideBaseMeshRegionCheck(LLUICtrl* ctrl, void *userdata);
 
-    static void     onSelectTextureMaterials(LLUICtrl* ctrl, void *userdata);
-
 	void 			setLocalTextureEnabled(BOOL enabled);
 	void 			setBakeTextureEnabled(BOOL enabled);
 
@@ -366,6 +362,9 @@ public:
     static void		onPickerCallback(const std::vector<std::string>& filenames, LLHandle<LLFloater> handle);
 
 protected:
+    void refreshLocalList();
+    void refreshInventoryFilter();
+
 	LLPointer<LLViewerTexture> mTexturep;
 	LLView*				mOwner;
 
@@ -387,7 +386,6 @@ protected:
 	BOOL				mActive;
 
 	LLFilterEditor*		mFilterEdit;
-    LLComboBox*         mTextureMaterialsCombo;
 	LLInventoryPanel*	mInventoryPanel;
 	PermissionMask		mImmediateFilterPermMask;
 	PermissionMask		mDnDFilterPermMask;
