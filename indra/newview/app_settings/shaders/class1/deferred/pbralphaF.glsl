@@ -92,12 +92,14 @@ uniform vec4 light_position[8];
 uniform vec3 light_direction[8]; // spot direction
 uniform vec4 light_attenuation[8]; // linear, quadratic, is omni, unused, See: LLPipeline::setupHWLights() and syncLightState()
 uniform vec3 light_diffuse[8];
+uniform vec2 light_deferred_attenuation[8]; // light size and falloff
 
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 // These are in deferredUtil.glsl but we can't set: mFeatures.isDeferred to include it
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
+vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
 vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFrag(vec3 l);
@@ -139,29 +141,23 @@ void pbrIbl(out vec3 colorDiffuse, // diffuse color output
 // la = linear attenuation, light radius
 // fa = falloff
 // See: LLRender::syncLightState()
-vec3 calcPointLightOrSpotLight(vec3 reflect0, vec3 c_diff,
-    vec3 lightColor, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln,
-    float la, float fa, float is_pointlight, float ambiance)
+vec3 calcPointLightOrSpotLight(vec3 reflect0, vec3 reflect90, float alphaRough, vec3 c_diff,
+    vec3 lightColor, vec3 diffuse, vec3 p, vec3 v, vec3 n, vec4 lp, vec3 ln,
+    float lightSize, float lightFalloff, float is_pointlight, float ambiance)
 {
     vec3 intensity = vec3(0);
 
-    vec3 lv = lp.xyz - v;
+    vec3 lv = lp.xyz - p;
     vec3  h, l;
     float nh, nl, nv, vh, lightDist;
     calcHalfVectors(lv,n,v,h,l,nh,nl,nv,vh,lightDist);
 
-    if (lightDist > 0.0)
+    float dist = lightDist/lightSize;
+
+    if (dist <= 1.0 && nl > 0.0)
     {
-        float falloff_factor = (12.0 * fa) - 9.0;
-        float inverted_la = falloff_factor / la;
+        float dist_atten = calcLegacyDistanceAttenuation(dist,lightFalloff);
 
-        float dist = lightDist / inverted_la;
-
-        float dist_atten = calcLegacyDistanceAttenuation(dist,fa);
-        if (dist_atten <= 0.0)
-            return intensity;
-
-        vec3 reflect90 = vec3(1);
         float specWeight = 1.0;
 
         lv = normalize(lv);
@@ -169,7 +165,13 @@ vec3 calcPointLightOrSpotLight(vec3 reflect0, vec3 c_diff,
         nl *= spot * spot;
 
         if (nl > 0.0)
-            intensity = dist_atten * nl * lightColor * BRDFLambertian(reflect0, reflect90, c_diff, specWeight, vh);
+        {
+            vec3 color = vec3(0);
+            intensity = dist_atten * nl * lightColor; 
+            color += intensity * BRDFLambertian(reflect0, reflect90, c_diff, specWeight, vh);
+            color += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+            return color;
+        }
     }
     return intensity;
 }
@@ -270,7 +272,20 @@ void main()
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += srgb_to_linear(vec3(scol)) * calcPointLightOrSpotLight( reflect0, c_diff, srgb_to_linear(2.2*light_diffuse[i].rgb), base.rgb, pos.xyz, n, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( \
+                    reflect0, \
+                     reflect90, \
+                     alphaRough, \
+                     c_diff, \
+                     light_diffuse[i].rgb, \
+                     base.rgb, \
+                     pos.xyz, \
+                     v, \
+                     n, \
+                     light_position[i], \
+                     light_direction[i].xyz, \
+                     light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, \
+                     light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)
@@ -279,6 +294,8 @@ void main()
     LIGHT_LOOP(5)
     LIGHT_LOOP(6)
     LIGHT_LOOP(7)
+
+    col.rgb += light.rgb;
 
     col.rgb = linear_to_srgb(col.rgb);
     col *= atten.r;

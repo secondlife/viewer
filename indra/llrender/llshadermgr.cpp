@@ -1180,6 +1180,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("light_position");
 	mReservedUniforms.push_back("light_direction");
 	mReservedUniforms.push_back("light_attenuation");
+    mReservedUniforms.push_back("light_deferred_attenuation");
 	mReservedUniforms.push_back("light_diffuse");
 	mReservedUniforms.push_back("light_ambient");
 	mReservedUniforms.push_back("light_count");

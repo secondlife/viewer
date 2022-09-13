@@ -246,6 +246,8 @@ public:
 	void setSpotCutoff(const F32& cutoff);
 	void setSpotDirection(const LLVector3& direction);
     void setSunPrimary(bool v);
+    void setSize(F32 size);
+    void setFalloff(F32 falloff);
 
 protected:
 	friend class LLRender;
@@ -266,6 +268,8 @@ protected:
 
 	F32 mSpotExponent;
 	F32 mSpotCutoff;
+    F32 mSize = 0.f;
+    F32 mFalloff = 0.f;
 };
 
 class LLRender

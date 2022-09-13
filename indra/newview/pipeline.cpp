@@ -6381,6 +6381,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 			light_state->setDiffuse(light_color);
 			light_state->setAmbient(LLColor4::black);
 			light_state->setConstantAttenuation(0.f);
+            light_state->setSize(light->getLightRadius() * 1.5f);
+            light_state->setFalloff(light->getLightFalloff(DEFERRED_LIGHT_FALLOFF));
+
 			if (sRenderDeferred)
 			{
 				light_state->setLinearAttenuation(linatten);

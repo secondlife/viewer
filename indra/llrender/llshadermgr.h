@@ -55,6 +55,7 @@ public:
         LIGHT_POSITION,                     //  "light_position"
         LIGHT_DIRECTION,                    //  "light_direction"
         LIGHT_ATTENUATION,                  //  "light_attenuation"
+        LIGHT_DEFERRED_ATTENUATION,         //  "light_deferred_attenuation"
         LIGHT_DIFFUSE,                      //  "light_diffuse"
         LIGHT_AMBIENT,                      //  "light_ambient"
         MULTI_LIGHT_COUNT,                  //  "light_count"

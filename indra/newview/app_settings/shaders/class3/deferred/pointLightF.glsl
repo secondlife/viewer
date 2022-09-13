@@ -27,11 +27,6 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#define DEBUG_ANY_LIGHT_TYPE         0 // Output magenta light cone
-#define DEBUG_LEG_LIGHT_TYPE         0 // Show Legacy objects in green
-#define DEBUG_PBR_LIGHT_TYPE         0 // Show PBR objects in blue
-#define DEBUG_POINT_ZERO             0 // Output zero for point light
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -119,9 +114,6 @@ void main()
             colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }
 
-#if DEBUG_PBR_LIGHT_TYPE
-        colorDiffuse = vec3(0,0,0.5); colorSpec = vec3(0);
-#endif
         final_color = colorDiffuse + colorSpec;
     }
     else
@@ -156,18 +148,7 @@ void main()
         {
             discard;
         }
-
-#if DEBUG_LEG_LIGHT_TYPE
-        final_color.rgb = vec3(0,0.25,0);
-#endif
     }
-
-#if DEBUG_POINT_ZERO
-    final_color = vec3(0);
-#endif
-#if DEBUG_ANY_LIGHT_TYPE
-    final_color = vec3(0.25,0,0.25);
-#endif
 
     frag_color.rgb = final_color;
     frag_color.a = 0.0;
