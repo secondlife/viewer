@@ -302,5 +302,5 @@ void main()
     col += 2.0*additive;
     col  = scaleSoftClipFrag(col);
 
-    frag_color = vec4(col,albedo.a);
+    frag_color = vec4(col,albedo.a * vertex_color.a);
 }
