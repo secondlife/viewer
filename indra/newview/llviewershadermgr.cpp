@@ -265,7 +265,8 @@ LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];
 LLGLSLShader			gDeferredPBROpaqueProgram;
 LLGLSLShader            gDeferredSkinnedPBROpaqueProgram;
-LLGLSLShader            gDeferredPBRAlphaProgram[2]; // not skinned, skinned
+LLGLSLShader            gDeferredPBRAlphaProgram;
+LLGLSLShader            gDeferredSkinnedPBRAlphaProgram;
 
 //helper for making a rigged variant of a given shader
 bool make_rigged_variant(LLGLSLShader& shader, LLGLSLShader& riggedShader)
@@ -374,7 +375,10 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
     mShaderList.push_back(&gDeferredWLMoonProgram);
-    mShaderList.push_back(&gDeferredWLSunProgram);    
+    mShaderList.push_back(&gDeferredWLSunProgram);
+    mShaderList.push_back(&gDeferredPBRAlphaProgram);
+    mShaderList.push_back(&gDeferredSkinnedPBRAlphaProgram);
+
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -1284,8 +1288,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         gDeferredPBROpaqueProgram.unload();
         gDeferredSkinnedPBROpaqueProgram.unload();
-        gDeferredPBRAlphaProgram[0].unload();
-        gDeferredPBRAlphaProgram[1].unload();
+        gDeferredPBRAlphaProgram.unload();
+        gDeferredSkinnedPBRAlphaProgram.unload();
 
 		return TRUE;
 	}
@@ -1622,76 +1626,70 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-        for (int rigged = 0; rigged < 2 && success; ++rigged)
+        LLGLSLShader* shader = &gDeferredPBRAlphaProgram;
+        shader->mName = "Deferred PBR Alpha Shader";
+                          
+        shader->mFeatures.calculatesLighting = false;
+        shader->mFeatures.hasLighting = false;
+        shader->mFeatures.isAlphaLighting = true;
+        shader->mFeatures.hasSrgb = true;
+        shader->mFeatures.encodesNormal = true;
+        shader->mFeatures.calculatesAtmospherics = true;
+        shader->mFeatures.hasAtmospherics = true;
+        shader->mFeatures.hasGamma = true;
+        shader->mFeatures.hasTransport = true;
+        shader->mFeatures.hasShadows = use_sun_shadow;
+        shader->mFeatures.isDeferred = true; // include deferredUtils
+        shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
+
+        shader->mShaderFiles.clear();
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER_ARB));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER_ARB));
+
+        shader->clearPermutations();
+
+        U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
+        shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+        shader->addPermutation("HAS_NORMAL_MAP", "1");
+        shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
+        shader->addPermutation("HAS_EMISSIVE_MAP", "1");
+        shader->addPermutation("USE_VERTEX_COLOR", "1");
+
+        if (use_sun_shadow)
         {
-            LLGLSLShader* shader = &gDeferredPBRAlphaProgram[rigged];
-            shader->mName = rigged
-                          ? "Skinned Deferred PBR Alpha Shader"
-                          : "Deferred PBR Alpha Shader";
-            shader->mRiggedVariant = rigged
-                                   ? &gDeferredPBRAlphaProgram[1]
-                                   : nullptr;
-            shader->mFeatures.hasObjectSkinning = (bool)rigged;
-            shader->mFeatures.calculatesLighting = false;
-            shader->mFeatures.hasLighting = false;
-            shader->mFeatures.isAlphaLighting = true;
-            shader->mFeatures.hasSrgb = true;
-            shader->mFeatures.encodesNormal = true;
-            shader->mFeatures.calculatesAtmospherics = true;
-            shader->mFeatures.hasAtmospherics = true;
-            shader->mFeatures.hasGamma = true;
-            shader->mFeatures.hasTransport = true;
-            shader->mFeatures.hasShadows = use_sun_shadow;
-            shader->mFeatures.isDeferred = true; // include deferredUtils
-            shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
-
-            shader->mShaderFiles.clear();
-            shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER_ARB));
-            shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER_ARB));
-
-            shader->clearPermutations();
-
-            U32 alpha_mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
-            shader->addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-            shader->addPermutation("HAS_NORMAL_MAP", "1");
-            shader->addPermutation("HAS_SPECULAR_MAP", "1"); // PBR: Packed: Occlusion, Metal, Roughness
-            shader->addPermutation("HAS_EMISSIVE_MAP", "1");
-            shader->addPermutation("USE_VERTEX_COLOR", "1");
-            if (use_sun_shadow)
-            {
-                shader->addPermutation("HAS_SHADOW", "1");
-            }
-
-            if (ambient_kill)
-            {
-                shader->addPermutation("AMBIENT_KILL", "1");
-            }
-
-            if (sunlight_kill)
-            {
-                shader->addPermutation("SUNLIGHT_KILL", "1");
-            }
-
-            if (local_light_kill)
-            {
-                shader->addPermutation("LOCAL_LIGHT_KILL", "1");
-            }
-
-            if (rigged)
-            {
-                shader->addPermutation("HAS_SKIN", "1");
-            }
-
-            shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-
-            success = shader->createShader(NULL, NULL);
-            llassert(success);
-
-            // Alpha Shader Hack
-            // See: LLRender::syncMatrices()
-            shader->mFeatures.calculatesLighting = true;
-            shader->mFeatures.hasLighting = true;
+            shader->addPermutation("HAS_SHADOW", "1");
         }
+
+        if (ambient_kill)
+        {
+            shader->addPermutation("AMBIENT_KILL", "1");
+        }
+
+        if (sunlight_kill)
+        {
+            shader->addPermutation("SUNLIGHT_KILL", "1");
+        }
+
+        if (local_light_kill)
+        {
+            shader->addPermutation("LOCAL_LIGHT_KILL", "1");
+        }
+
+        shader->mShaderLevel = mShaderLevel[SHADER_DEFERRED];
+        success = make_rigged_variant(*shader, gDeferredSkinnedPBRAlphaProgram);
+        if (success)
+        {
+            success = shader->createShader(NULL, NULL);
+        }
+        llassert(success);
+
+        // Alpha Shader Hack
+        // See: LLRender::syncMatrices()
+        shader->mFeatures.calculatesLighting = true;
+        shader->mFeatures.hasLighting = true;
+
+        shader->mRiggedVariant->mFeatures.calculatesLighting = true;
+        shader->mRiggedVariant->mFeatures.hasLighting = true;
     }
 
 	

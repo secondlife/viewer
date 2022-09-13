@@ -471,7 +471,7 @@ vec3 BRDFDiffuse(vec3 color)
 
 vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh )
 {
-    return (1.0 - specWeight * fresnelSchlick( reflect0, reflect90, vh)) * BRDFDiffuse(c_diff);
+    return (1.0 - fresnelSchlick( reflect0, reflect90, vh)) * BRDFDiffuse(c_diff);
 }
 
 vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float specWeight, float vh, float nl, float nv, float nh )
@@ -479,5 +479,64 @@ vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float spe
     vec3 fresnel    = fresnelSchlick( reflect0, reflect90, vh ); // Fresnel
     float vis       = V_GGX( nl, nv, alphaRough );               // Visibility
     float d         = D_GGX( nh, alphaRough );                   // Distribution
-    return specWeight * fresnel * vis * d;
+    return fresnel * vis * d;
+}
+
+// set colorDiffuse and colorSpec to the results of GLTF PBR style IBL
+void pbrIbl(out vec3 colorDiffuse, // diffuse color output
+            out vec3 colorSpec, // specular color output,
+            vec3 radiance, // radiance map sample
+            vec3 irradiance, // irradiance map sample
+            float ao,       // ambient occlusion factor
+            float nv,       // normal dot view vector
+            float perceptualRough, // roughness factor
+            float gloss,        // 1.0 - roughness factor
+            vec3 reflect0,      // see also: initMaterial
+            vec3 c_diff)
+{
+    // Common to RadianceGGX and RadianceLambertian
+    vec2  brdfPoint  = clamp(vec2(nv, perceptualRough), vec2(0,0), vec2(1,1));
+    vec2  vScaleBias = getGGX( brdfPoint); // Environment BRDF: scale and bias applied to reflect0
+    vec3  fresnelR   = max(vec3(gloss), reflect0) - reflect0; // roughness dependent fresnel
+    vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - nv, 5.0);
+
+    vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
+    colorSpec = radiance * FssEssGGX;
+
+    // Reference: getIBLRadianceLambertian fs
+    vec3  FssEssLambert = kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
+    float Ems           = 1.0 - (vScaleBias.x + vScaleBias.y);
+    vec3  avg           = (reflect0 + (1.0 - reflect0) / 21.0);
+    vec3  AvgEms        = avg * Ems;
+    vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
+    vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
+    colorDiffuse        = (FmsEms + kDiffuse) * irradiance;
+
+    colorDiffuse *= ao;
+    colorSpec    *= ao;
+}
+
+void pbrDirectionalLight(inout vec3 colorDiffuse,
+    inout vec3 colorSpec,
+    vec3 sunlit,
+    float scol,
+    vec3 reflect0,
+    vec3 reflect90,
+    vec3 c_diff,
+    float alphaRough,
+    float vh,
+    float nl,
+    float nv,
+    float nh)
+{
+    float scale = 16.0;
+    vec3 sunColor = sunlit * scale;
+
+    // scol = sun shadow
+    vec3 intensity  = sunColor * nl * scol;
+    vec3 sunDiffuse = intensity * BRDFLambertian (reflect0, reflect90, c_diff    , 1.0, vh);
+    vec3 sunSpec    = intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, 1.0, vh, nl, nv, nh);
+
+    colorDiffuse += sunDiffuse;
+    colorSpec    += sunSpec;
 }

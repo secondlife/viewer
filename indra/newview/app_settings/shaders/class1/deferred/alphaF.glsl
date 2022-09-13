@@ -262,26 +262,14 @@ void main()
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
-#if !defined(AMBIENT_KILL)
     color.rgb = amblit;
     color.rgb *= ambient;
-#endif // !defined(AMBIENT_KILL)
 
-vec3 post_ambient = color.rgb;
-
-#if !defined(SUNLIGHT_KILL)
     color.rgb += sun_contrib;
-#endif // !defined(SUNLIGHT_KILL)
-
-vec3 post_sunlight = color.rgb;
 
     color.rgb *= diffuse_srgb.rgb;
 
-vec3 post_diffuse = color.rgb;
-
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
-
-vec3 post_atmo = color.rgb;
 
     vec4 light = vec4(0,0,0,0);
     
