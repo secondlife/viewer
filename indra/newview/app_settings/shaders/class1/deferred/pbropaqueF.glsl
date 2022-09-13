@@ -50,6 +50,7 @@ uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlpha
 
 vec2 encode_normal(vec3 n);
 vec3 linear_to_srgb(vec3 c);
+vec3 srgb_to_linear(vec3 c);
 
 uniform mat3 normal_matrix;
 
@@ -64,7 +65,7 @@ void main()
         discard;
     }
 
-    vec3 col = vertex_color.rgb * albedo.rgb;
+    vec3 col = vertex_color.rgb * srgb_to_linear(albedo.rgb);
 
     // from mikktspace.com
     vec3 vNt = texture2D(bumpMap, vary_texcoord1.xy).xyz*2.0-1.0;
@@ -86,7 +87,7 @@ void main()
     spec.b *= metallicFactor;
 
     vec3 emissive = emissiveColor;
-    emissive *= texture2D(emissiveMap, vary_texcoord0.xy).rgb;
+    emissive *= srgb_to_linear(texture2D(emissiveMap, vary_texcoord0.xy).rgb);
 
     tnorm *= gl_FrontFacing ? 1.0 : -1.0;
 
@@ -97,8 +98,8 @@ void main()
     //emissive = vNt * 0.5 + 0.5;
     //emissive = tnorm*0.5+0.5;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
-    frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
-    frag_data[1] = vec4(emissive, vertex_color.a);                                   // PBR sRGB Emissive
+    frag_data[0] = vec4(linear_to_srgb(col), 0.0);                                                   // Diffuse
+    frag_data[1] = vec4(linear_to_srgb(emissive), vertex_color.a);                                   // PBR sRGB Emissive
     frag_data[2] = vec4(encode_normal(tnorm), vertex_color.a, GBUFFER_FLAG_HAS_PBR); // normal, environment intensity, flags
     frag_data[3] = vec4(spec.rgb,0);                                                 // PBR linear packed Occlusion, Roughness, Metal.
 }

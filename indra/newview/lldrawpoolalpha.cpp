@@ -615,6 +615,8 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 LLGLTFMaterial *gltf_mat = params.mGLTFMaterial; // Also see: LLPipeline::getPoolTypeFromTE()
                 bool is_pbr = LLPipeline::sRenderPBR && gltf_mat;
 
+                LLGLDisable cull_face(is_pbr && gltf_mat->mDoubleSided ? GL_CULL_FACE : 0);
+
                 if (is_pbr && gltf_mat->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_BLEND)
                 {
                     target_shader = &gDeferredPBRAlphaProgram;

@@ -202,7 +202,7 @@ void main()
     }
 #endif
 
-    vec3 base = srgb_to_linear(vertex_color.rgb) * albedo.rgb;
+    vec3 base = vertex_color.rgb * albedo.rgb;
 
     vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
     norm.xyz = normalize(norm.xyz * 2 - 1);
@@ -212,6 +212,8 @@ void main()
                       dot(norm.xyz,vary_mat2));
 
     tnorm = normalize(tnorm.xyz);
+
+    tnorm *= gl_FrontFacing ? 1.0 : -1.0;
     norm.xyz = tnorm.xyz;
 
 #ifdef HAS_SHADOW
@@ -230,7 +232,9 @@ void main()
     packedORM.g *= roughnessFactor;
     packedORM.b *= metallicFactor;
 
-    vec3 colorEmissive = srgb_to_linear(emissiveColor);
+    // emissiveColor is the emissive color factor from GLTF and is already in linear space
+    vec3 colorEmissive = emissiveColor;
+    // emissiveMap here is a vanilla RGB texture encoded as sRGB, manually convert to linear
     colorEmissive *= srgb_to_linear(texture2D(emissiveMap, vary_texcoord0.xy).rgb);
 
     vec3 colorDiffuse     = vec3(0);
