@@ -94,6 +94,8 @@ void main()
     //col = vec3(0,0,0);
     //emissive = vary_tangent.xyz*0.5+0.5;
     //emissive = vec3(sign*0.5+0.5);
+    //emissive = vNt * 0.5 + 0.5;
+    //emissive = tnorm*0.5+0.5;
     // See: C++: addDeferredAttachments(), GLSL: softenLightF
     frag_data[0] = vec4(col, 0.0);                                                   // Diffuse
     frag_data[1] = vec4(emissive, vertex_color.a);                                   // PBR sRGB Emissive

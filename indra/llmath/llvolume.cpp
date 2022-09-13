@@ -2431,10 +2431,9 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 
 			LLSD::Binary pos = mdl[i]["Position"];
 			LLSD::Binary norm = mdl[i]["Normal"];
+            LLSD::Binary tangent = mdl[i]["Tangent"];
 			LLSD::Binary tc = mdl[i]["TexCoord0"];
 			LLSD::Binary idx = mdl[i]["TriangleList"];
-
-			
 
 			//copy out indices
             S32 num_indices = idx.size() / 2;
@@ -2533,6 +2532,33 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 					}
 				}
 			}
+
+            {
+                if (!tangent.empty())
+                {
+                    face.allocateTangents(face.mNumVertices, true);
+                    U16* t = (U16*)&(tangent[0]);
+
+                    // store incoming tangents in mMikktSpaceTangents
+                    // NOTE: tangents coming from the asset may not be mikkt space, but they should always be used by the CLTF shaders to 
+                    // maintain compliance with the GLTF spec
+                    LLVector4a* t_out = face.mMikktSpaceTangents; 
+
+                    for (U32 j = 0; j < num_verts; ++j)
+                    {
+                        t_out->set((F32)t[0], (F32)t[1], (F32)t[2], (F32) t[3]);
+                        t_out->div(65535.f);
+                        t_out->mul(2.f);
+                        t_out->sub(1.f);
+
+                        F32* tp = t_out->getF32ptr();
+                        tp[3] = tp[3] < 0.f ? -1.f : 1.f;
+
+                        t_out++;
+                        t += 4;
+                    }
+                }
+            }
 
 			{
 				if (!tc.empty())
@@ -5429,124 +5455,135 @@ bool LLVolumeFace::cacheOptimize()
 	llassert(!mOptimized);
 	mOptimized = TRUE;
 
-    allocateTangents(mNumVertices, true);
-
-    SMikkTSpaceInterface ms;
-
-    ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
-    {
-        MikktData* data = (MikktData*)pContext->m_pUserData;
-        LLVolumeFace* face = data->face;
-        return face->mNumIndices / 3;
-    };
-
-    ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
-    {
-        return 3;
-    };
-
-    ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
-    {
-        MikktData* data = (MikktData*)pContext->m_pUserData;
-        LLVolumeFace* face = data->face;
-        S32 idx = face->mIndices[iFace * 3 + iVert];
-        auto& vert = face->mPositions[idx];
-        F32* v = vert.getF32ptr();
-        fvPosOut[0] = v[0];
-        fvPosOut[1] = v[1];
-        fvPosOut[2] = v[2];
-    };
-
-    ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
-    {
-        MikktData* data = (MikktData*)pContext->m_pUserData;
-        LLVolumeFace* face = data->face;
-        S32 idx = face->mIndices[iFace * 3 + iVert];
-        auto& norm = face->mNormals[idx];
-        F32* n = norm.getF32ptr();
-        fvNormOut[0] = n[0];
-        fvNormOut[1] = n[1];
-        fvNormOut[2] = n[2];
-    };
-
-    ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
-    {
-        MikktData* data = (MikktData*)pContext->m_pUserData;
-        LLVolumeFace* face = data->face;
-        S32 idx = face->mIndices[iFace * 3 + iVert];
-        auto& tc = face->mTexCoords[idx];
-        fvTexcOut[0] = tc.mV[0];
-        fvTexcOut[1] = tc.mV[1];
-    };
-
-    ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
-    {
-        MikktData* data = (MikktData*)pContext->m_pUserData;
-        LLVolumeFace* face = data->face;
-        S32 i = iFace * 3 + iVert;
-        S32 idx = face->mIndices[i];
-
-        LLVector3 p(face->mPositions[idx].getF32ptr());
-        LLVector3 n(face->mNormals[idx].getF32ptr());
-        LLVector3 t(fvTangent);
-
-        data->t[i].set(fvTangent);
-        data->t[i].mV[3] = fSign;
-    };
-
-    ms.m_setTSpace = nullptr;
-
-    MikktData data(this);
-
-    SMikkTSpaceContext ctx = { &ms, &data };
-
-    genTangSpaceDefault(&ctx);
-
-    //re-weld
-    meshopt_Stream mos[] = 
-    {
-        { &data.p[0], sizeof(LLVector3), sizeof(LLVector3) },
-        { &data.n[0], sizeof(LLVector3), sizeof(LLVector3) },
-        { &data.t[0], sizeof(LLVector4), sizeof(LLVector4) },
-        { &data.tc[0], sizeof(LLVector2), sizeof(LLVector2) },
-        { data.w.empty() ? nullptr : &data.w[0], sizeof(LLVector4), sizeof(LLVector4) }
-    };
-
-    std::vector<U32> remap;
-    remap.resize(data.p.size());
-
-    U32 stream_count = data.w.empty() ? 4 : 5;
-
-    U32 vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
-
-    std::vector<U32> indices;
-    indices.resize(mNumIndices);
-
-    //copy results back into volume
-    resizeVertices(vert_count);
-
-    if (!data.w.empty())
-    {
-        allocateWeights(vert_count);
+    if (!mNormals || !mTexCoords)
+    { // can't perform this operation without normals and texture coordinates
+        return false;
     }
 
-    allocateTangents(mNumVertices, true);
+    if (mMikktSpaceTangents == nullptr)
+    { // make sure to generate mikkt space tangents for cache optimizing since the index buffer may change
+        allocateTangents(mNumVertices, true);
 
-    for (int i = 0; i < mNumIndices; ++i)
-    {
-        U32 src_idx = i;
-        U32 dst_idx = remap[i];
-        mIndices[i] = dst_idx;
+        SMikkTSpaceInterface ms;
 
-        mPositions[dst_idx].load3(data.p[src_idx].mV);
-        mNormals[dst_idx].load3(data.n[src_idx].mV);
-        mTexCoords[dst_idx] = data.tc[src_idx];
-       
-        mMikktSpaceTangents[dst_idx].loadua(data.t[src_idx].mV);
-
-        if (mWeights)
+        ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
         {
-            mWeights[dst_idx].loadua(data.w[src_idx].mV);
+            MikktData* data = (MikktData*)pContext->m_pUserData;
+            LLVolumeFace* face = data->face;
+            return face->mNumIndices / 3;
+        };
+
+        ms.m_getNumVerticesOfFace = [](const SMikkTSpaceContext* pContext, const int iFace)
+        {
+            return 3;
+        };
+
+        ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
+        {
+            MikktData* data = (MikktData*)pContext->m_pUserData;
+            LLVolumeFace* face = data->face;
+            S32 idx = face->mIndices[iFace * 3 + iVert];
+            auto& vert = face->mPositions[idx];
+            F32* v = vert.getF32ptr();
+            fvPosOut[0] = v[0];
+            fvPosOut[1] = v[1];
+            fvPosOut[2] = v[2];
+        };
+
+        ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
+        {
+            MikktData* data = (MikktData*)pContext->m_pUserData;
+            LLVolumeFace* face = data->face;
+            S32 idx = face->mIndices[iFace * 3 + iVert];
+            auto& norm = face->mNormals[idx];
+            F32* n = norm.getF32ptr();
+            fvNormOut[0] = n[0];
+            fvNormOut[1] = n[1];
+            fvNormOut[2] = n[2];
+        };
+
+        ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
+        {
+            MikktData* data = (MikktData*)pContext->m_pUserData;
+            LLVolumeFace* face = data->face;
+            S32 idx = face->mIndices[iFace * 3 + iVert];
+            auto& tc = face->mTexCoords[idx];
+            fvTexcOut[0] = tc.mV[0];
+            fvTexcOut[1] = tc.mV[1];
+        };
+
+        ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
+        {
+            MikktData* data = (MikktData*)pContext->m_pUserData;
+            LLVolumeFace* face = data->face;
+            S32 i = iFace * 3 + iVert;
+            S32 idx = face->mIndices[i];
+
+            LLVector3 p(face->mPositions[idx].getF32ptr());
+            LLVector3 n(face->mNormals[idx].getF32ptr());
+            LLVector3 t(fvTangent);
+
+            // assert that this tangent hasn't already been set
+            llassert(data->t[i].magVec() < 0.1f);
+
+            data->t[i].set(fvTangent);
+            data->t[i].mV[3] = fSign;
+        };
+
+        ms.m_setTSpace = nullptr;
+
+        MikktData data(this);
+
+        SMikkTSpaceContext ctx = { &ms, &data };
+
+        genTangSpaceDefault(&ctx);
+
+        //re-weld
+        meshopt_Stream mos[] =
+        {
+            { &data.p[0], sizeof(LLVector3), sizeof(LLVector3) },
+            { &data.n[0], sizeof(LLVector3), sizeof(LLVector3) },
+            { &data.t[0], sizeof(LLVector4), sizeof(LLVector4) },
+            { &data.tc[0], sizeof(LLVector2), sizeof(LLVector2) },
+            { data.w.empty() ? nullptr : &data.w[0], sizeof(LLVector4), sizeof(LLVector4) }
+        };
+
+        std::vector<U32> remap;
+        remap.resize(data.p.size());
+
+        U32 stream_count = data.w.empty() ? 4 : 5;
+
+        U32 vert_count = meshopt_generateVertexRemapMulti(&remap[0], nullptr, data.p.size(), data.p.size(), mos, stream_count);
+
+        std::vector<U32> indices;
+        indices.resize(mNumIndices);
+
+        //copy results back into volume
+        resizeVertices(vert_count);
+
+        if (!data.w.empty())
+        {
+            allocateWeights(vert_count);
+        }
+
+        allocateTangents(mNumVertices, true);
+
+        for (int i = 0; i < mNumIndices; ++i)
+        {
+            U32 src_idx = i;
+            U32 dst_idx = remap[i];
+            mIndices[i] = dst_idx;
+
+            mPositions[dst_idx].load3(data.p[src_idx].mV);
+            mNormals[dst_idx].load3(data.n[src_idx].mV);
+            mTexCoords[dst_idx] = data.tc[src_idx];
+
+            mMikktSpaceTangents[dst_idx].loadua(data.t[src_idx].mV);
+
+            if (mWeights)
+            {
+                mWeights[dst_idx].loadua(data.w[src_idx].mV);
+            }
         }
     }
 

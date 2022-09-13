@@ -187,6 +187,15 @@ void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remain
 	}
 }
 
+// generate mikkt space tangents and cache optimize
+void LLModel::preprocessVolumeFaces()
+{
+    for (auto& face : mVolumeFaces)
+    {
+        face.cacheOptimize();
+    }
+}
+
 // Shrink the model to fit
 // on a 1x1x1 cube centered at the origin.
 // The positions and extents
@@ -296,6 +305,7 @@ void LLModel::normalizeVolumeFaces()
 			// the positions to fit within the unit cube.
 			LLVector4a* pos = (LLVector4a*) face.mPositions;
 			LLVector4a* norm = (LLVector4a*) face.mNormals;
+            LLVector4a* t = (LLVector4a*)face.mMikktSpaceTangents;
 
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
@@ -306,6 +316,14 @@ void LLModel::normalizeVolumeFaces()
 					norm[j].mul(inv_scale);
 					norm[j].normalize3();
 				}
+
+                if (t)
+                {
+                    F32 w = t[j].getF32ptr()[3];
+                    t[j].mul(inv_scale);
+                    t[j].normalize3();
+                    t[j].getF32ptr()[3] = w;
+                }
 			}
 		}
 
@@ -726,10 +744,12 @@ LLSD LLModel::writeModel(
 				LLSD::Binary verts(face.mNumVertices*3*2);
 				LLSD::Binary tc(face.mNumVertices*2*2);
 				LLSD::Binary normals(face.mNumVertices*3*2);
+                LLSD::Binary tangents(face.mNumVertices * 4 * 2);
 				LLSD::Binary indices(face.mNumIndices*2);
 
 				U32 vert_idx = 0;
 				U32 norm_idx = 0;
+                U32 tan_idx = 0;
 				U32 tc_idx = 0;
 			
 				LLVector2* ftc = (LLVector2*) face.mTexCoords;
@@ -782,6 +802,22 @@ LLSD LLModel::writeModel(
 							normals[norm_idx++] = buff[1];
 						}
 					}
+
+                    if (face.mMikktSpaceTangents)
+                    { //normals
+                        F32* tangent = face.mMikktSpaceTangents[j].getF32ptr();
+
+                        for (U32 k = 0; k < 4; ++k)
+                        { //for each component
+                            //convert to 16-bit normalized
+                            U16 val = (U16)((tangent[k] + 1.f) * 0.5f * 65535);
+                            U8* buff = (U8*)&val;
+
+                            //write to binary buffer
+                            tangents[tan_idx++] = buff[0];
+                            tangents[tan_idx++] = buff[1];
+                        }
+                    }
 					
 					//texcoord
 					if (face.mTexCoords)
@@ -818,6 +854,11 @@ LLSD LLModel::writeModel(
 				{
 					mdl[model_names[idx]][i]["Normal"] = normals;
 				}
+
+                if (face.mMikktSpaceTangents)
+                {
+                    mdl[model_names[idx]][i]["Tangent"] = tangents;
+                }
 
 				if (face.mTexCoords)
 				{
