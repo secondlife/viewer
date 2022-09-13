@@ -212,7 +212,7 @@ void main()
     tnorm = normalize(tnorm.xyz);
     norm.xyz = tnorm.xyz;
 
-#if HAS_SHADOW
+#ifdef HAS_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
     frag *= screen_res;
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);

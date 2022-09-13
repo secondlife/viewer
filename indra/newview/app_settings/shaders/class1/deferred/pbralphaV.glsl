@@ -94,7 +94,7 @@ void main()
 #endif
     gl_Position = vert;
 
-#if HAS_SHADOW
+#ifdef HAS_SHADOW
     vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
 #endif
 
