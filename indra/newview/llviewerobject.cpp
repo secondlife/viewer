@@ -7057,7 +7057,12 @@ void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
     if (id.notNull())
     {
         getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
-        setHasRenderMaterialParams(true);
+
+        if (!hasRenderMaterialParams())
+        {
+            // make sure param section exists
+            setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an immediate update*/);
+        }
     }
     else
     {

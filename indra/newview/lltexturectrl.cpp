@@ -1665,56 +1665,7 @@ void LLTextureCtrl::onFloaterCommit(ETexturePickOp op, LLUUID id)
 
 			if (op == TEXTURE_SELECT && mOnSelectCallback)
 			{
-                // determine if the selected item in inventory is a material
-                // by finding the item in inventory and inspecting its (IT_) type
-                LLUUID item_id = floaterp->findItemID(floaterp->getAssetID(), FALSE);
-                LLInventoryItem* item = gInventory.getItem(item_id);
-                if (item)
-                {
-                    if (item->getInventoryType() == LLInventoryType::IT_MATERIAL)
-                    {
-                        // ask the selection manager for the list of selected objects
-                        // to which the material will be applied.
-                        LLObjectSelectionHandle selectedObjectsHandle = LLSelectMgr::getInstance()->getSelection();
-                        if (selectedObjectsHandle.notNull())
-                        {
-                            LLObjectSelection* selectedObjects = selectedObjectsHandle.get();
-                            if (!selectedObjects->isEmpty())
-                            {
-                                // we have a selection - iterate over it
-                                for (LLObjectSelection::valid_iterator obj_iter = selectedObjects->valid_begin();
-                                        obj_iter != selectedObjects->valid_end();
-                                            ++obj_iter)
-                                {
-                                    LLSelectNode* object = *obj_iter;
-                                    LLViewerObject* viewer_object = object->getObject();
-                                    if (viewer_object)
-                                    {
-                                        // the asset ID of the material we want to apply
-                                        // the the selected objects
-                                        LLUUID asset_id = item->getAssetUUID();
-
-                                        // iterate over the faces in the object
-                                        // TODO: consider the case where user has 
-                                        // selected only certain faces
-                                        S32 num_faces = viewer_object->getNumTEs();
-                                        for (S32 face = 0; face < num_faces; face++)
-                                        {
-                                            viewer_object->setRenderMaterialID(face, asset_id);
-                                            dialog_refresh_all();
-                                        }
-                                        viewer_object->sendTEUpdate();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                // original behavior for textures, not materials
-                {
-                    mOnSelectCallback(this, LLSD());
-                }
+                mOnSelectCallback(this, LLSD());
 			}
 			else if (op == TEXTURE_CANCEL && mOnCancelCallback)
 			{

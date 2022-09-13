@@ -1114,6 +1114,11 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
     for (S32 face = 0; face < num_faces; face++)
     {
         // update viewer side material in anticipation of update from simulator
+
+        // TODO: fix this!
+        // Calling setRenderMaterialID multiple times sends material param
+        // updates multiple times and can create race condition.
+        // Send update only once!
         hit_obj->setRenderMaterialID(face, asset_id);
         dialog_refresh_all();
     }
