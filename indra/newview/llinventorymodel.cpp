@@ -628,6 +628,11 @@ const LLUUID LLInventoryModel::findUserDefinedCategoryUUIDForType(LLFolderType::
         cat_id = LLUUID(gSavedPerAccountSettings.getString("AnimationUploadFolder"));
         break;
     }
+    case LLFolderType::FT_MATERIAL:
+    {
+        cat_id = LLUUID(gSavedPerAccountSettings.getString("PBRUploadFolder"));
+        break;
+    }
     default:
         break;
     }
