@@ -405,62 +405,76 @@ bool LLDrawPoolAlpha::TexSetup(LLDrawInfo* draw, bool use_material)
 {
     bool tex_setup = false;
 
-    if (deferred_render && use_material && current_shader)
+    if (draw->mGLTFMaterial)
     {
-        if (draw->mNormalMap)
-		{
-			draw->mNormalMap->addTextureStats(draw->mVSize);
-			current_shader->bindTexture(LLShaderMgr::BUMP_MAP, draw->mNormalMap);
-		} 
-
-		if (draw->mSpecularMap)
-		{
-			draw->mSpecularMap->addTextureStats(draw->mVSize);
-			current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, draw->mSpecularMap);
-		} 
+        if (draw->mTextureMatrix)
+        {
+            tex_setup = true;
+            gGL.getTexUnit(0)->activate();
+            gGL.matrixMode(LLRender::MM_TEXTURE);
+            gGL.loadMatrix((GLfloat*)draw->mTextureMatrix->mMatrix);
+            gPipeline.mTextureMatrixOps++;
+        }
     }
-    else if (current_shader == simple_shader || current_shader == simple_shader->mRiggedVariant)
+    else
     {
-        current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-	    current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-    }
-	if (draw->mTextureList.size() > 1)
-	{
-		for (U32 i = 0; i < draw->mTextureList.size(); ++i)
-		{
-			if (draw->mTextureList[i].notNull())
-			{
-				gGL.getTexUnit(i)->bindFast(draw->mTextureList[i]);
-			}
-		}
-	}
-	else
-	{ //not batching textures or batch has only 1 texture -- might need a texture matrix
-		if (draw->mTexture.notNull())
-		{
-			if (use_material)
-			{
-				current_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, draw->mTexture);
-			}
-			else
-			{
-			    gGL.getTexUnit(0)->bindFast(draw->mTexture);
-			}
+        if (deferred_render && use_material && current_shader)
+        {
+            if (draw->mNormalMap)
+            {
+                draw->mNormalMap->addTextureStats(draw->mVSize);
+                current_shader->bindTexture(LLShaderMgr::BUMP_MAP, draw->mNormalMap);
+            }
 
-			if (draw->mTextureMatrix)
-			{
-				tex_setup = true;
-				gGL.getTexUnit(0)->activate();
-				gGL.matrixMode(LLRender::MM_TEXTURE);
-				gGL.loadMatrix((GLfloat*) draw->mTextureMatrix->mMatrix);
-				gPipeline.mTextureMatrixOps++;
-			}
-		}
-		else
-		{
-			gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
-		}
-	}
+            if (draw->mSpecularMap)
+            {
+                draw->mSpecularMap->addTextureStats(draw->mVSize);
+                current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, draw->mSpecularMap);
+            }
+        }
+        else if (current_shader == simple_shader || current_shader == simple_shader->mRiggedVariant)
+        {
+            current_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+            current_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+        }
+        if (draw->mTextureList.size() > 1)
+        {
+            for (U32 i = 0; i < draw->mTextureList.size(); ++i)
+            {
+                if (draw->mTextureList[i].notNull())
+                {
+                    gGL.getTexUnit(i)->bindFast(draw->mTextureList[i]);
+                }
+            }
+        }
+        else
+        { //not batching textures or batch has only 1 texture -- might need a texture matrix
+            if (draw->mTexture.notNull())
+            {
+                if (use_material)
+                {
+                    current_shader->bindTexture(LLShaderMgr::DIFFUSE_MAP, draw->mTexture);
+                }
+                else
+                {
+                    gGL.getTexUnit(0)->bindFast(draw->mTexture);
+                }
+
+                if (draw->mTextureMatrix)
+                {
+                    tex_setup = true;
+                    gGL.getTexUnit(0)->activate();
+                    gGL.matrixMode(LLRender::MM_TEXTURE);
+                    gGL.loadMatrix((GLfloat*)draw->mTextureMatrix->mMatrix);
+                    gPipeline.mTextureMatrixOps++;
+                }
+            }
+            else
+            {
+                gGL.getTexUnit(0)->unbindFast(LLTexUnit::TT_TEXTURE);
+            }
+        }
+    }
     
     return tex_setup;
 }
@@ -727,36 +741,37 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                     {
                         target_shader = fullbright_shader;
                     }
-                }
-				
-                if (params.mAvatar != nullptr)
-                {
-                    target_shader = target_shader->mRiggedVariant;
-                }
 
-                if (current_shader != target_shader)
-                {// If we need shaders, and we're not ALREADY using the proper shader, then bind it
-                // (this way we won't rebind shaders unnecessarily).
-                    target_shader->bind();
-                }
 
-                LLVector4 spec_color(1, 1, 1, 1);
-                F32 env_intensity = 0.0f;
-                F32 brightness = 1.0f;
+                    if (params.mAvatar != nullptr)
+                    {
+                        target_shader = target_shader->mRiggedVariant;
+                    }
 
-                // We have a material.  Supply the appropriate data here.
-				if (mat && deferred_render)
-				{
-					spec_color    = params.mSpecColor;
-                    env_intensity = params.mEnvIntensity;
-                    brightness    = params.mFullbright ? 1.f : 0.f;
-                }
+                    if (current_shader != target_shader)
+                    {// If we need shaders, and we're not ALREADY using the proper shader, then bind it
+                    // (this way we won't rebind shaders unnecessarily).
+                        target_shader->bind();
+                    }
 
-                if (current_shader)
-                {
-                    current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[0], spec_color.mV[1], spec_color.mV[2], spec_color.mV[3]);
-				    current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
-					current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
+                    LLVector4 spec_color(1, 1, 1, 1);
+                    F32 env_intensity = 0.0f;
+                    F32 brightness = 1.0f;
+
+                    // We have a material.  Supply the appropriate data here.
+                    if (mat && deferred_render)
+                    {
+                        spec_color = params.mSpecColor;
+                        env_intensity = params.mEnvIntensity;
+                        brightness = params.mFullbright ? 1.f : 0.f;
+                    }
+
+                    if (current_shader)
+                    {
+                        current_shader->uniform4f(LLShaderMgr::SPECULAR_COLOR, spec_color.mV[0], spec_color.mV[1], spec_color.mV[2], spec_color.mV[3]);
+                        current_shader->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env_intensity);
+                        current_shader->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, brightness);
+                    }
                 }
 
 				if (params.mGroup)
