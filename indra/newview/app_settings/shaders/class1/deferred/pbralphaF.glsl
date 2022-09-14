@@ -69,18 +69,12 @@ uniform vec3 moon_dir;
 VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
-
-#ifdef HAS_NORMAL_MAP
-VARYING vec3 vary_normal;
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
 VARYING vec2 vary_texcoord1;
-#endif
+VARYING vec2 vary_texcoord2;
+VARYING vec3 vary_normal;
+VARYING vec3 vary_tangent;
+flat in float vary_sign;
 
-#ifdef HAS_SPECULAR_MAP
-    VARYING vec2 vary_texcoord2;
-#endif
 
 #ifdef HAS_ALPHA_MASK
 uniform float minimum_alpha; // PBR alphaMode: MASK, See: mAlphaCutoff, setAlphaCutoff()
@@ -204,17 +198,15 @@ void main()
 
     vec3 base = vertex_color.rgb * albedo.rgb;
 
-    vec4 norm = texture2D(bumpMap, vary_texcoord1.xy);
-    norm.xyz = normalize(norm.xyz * 2 - 1);
+    vec3 vNt = texture2D(bumpMap, vary_texcoord1.xy).xyz*2.0-1.0;
+    float sign = vary_sign;
+    vec3 vN = vary_normal;
+    vec3 vT = vary_tangent.xyz;
+    
+    vec3 vB = sign * cross(vN, vT);
+    vec3 norm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
-    vec3 tnorm = vec3(dot(norm.xyz,vary_mat0),
-                      dot(norm.xyz,vary_mat1),
-                      dot(norm.xyz,vary_mat2));
-
-    tnorm = normalize(tnorm.xyz);
-
-    tnorm *= gl_FrontFacing ? 1.0 : -1.0;
-    norm.xyz = tnorm.xyz;
+    norm *= gl_FrontFacing ? 1.0 : -1.0;
 
 #ifdef HAS_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
