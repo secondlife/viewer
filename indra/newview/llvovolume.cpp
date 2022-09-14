@@ -5243,6 +5243,11 @@ bool can_batch_texture(LLFace* facep)
 		return false;
 	}
 	
+    if (facep->getTextureEntry()->getGLTFMaterial() != nullptr)
+    { // PBR materials break indexed texture batching
+        return false;
+    }
+
 	return true;
 }
 
