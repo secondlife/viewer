@@ -112,11 +112,13 @@ void LLModalDialog::onOpen(const LLSD& key)
 		setFocus(TRUE);
 
         std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
-        if (iter == sModalStack.end())
+        if (iter != sModalStack.end())
         {
-            sModalStack.push_front(this);
+            // if already present, we want to move it to front.
+            sModalStack.erase(iter);
         }
-        // else act like it is a 'bring to front'
+
+        sModalStack.push_front(this);
 	}
 }
 
