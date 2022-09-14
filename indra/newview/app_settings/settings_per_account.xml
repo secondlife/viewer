@@ -370,6 +370,17 @@
         <key>Value</key>
         <string></string>
       </map>
+      <key>PBRUploadFolder</key>
+      <map>
+        <key>Comment</key>
+        <string>All pbr uploads will be stored in this directory (UUID)</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>String</string>
+        <key>Value</key>
+        <string></string>
+      </map>
       <key>TextureUploadFolder</key>
       <map>
         <key>Comment</key>

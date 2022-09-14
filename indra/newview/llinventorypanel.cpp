@@ -1612,6 +1612,10 @@ void LLInventoryPanel::fileUploadLocation(const LLSD& userdata)
     {
         gSavedPerAccountSettings.setString("AnimationUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
     }
+    else if (param == "pbr_material")
+    {
+        gSavedPerAccountSettings.setString("PBRUploadFolder", LLFolderBridge::sSelf.get()->getUUID().asString());
+    }
 }
 
 void LLInventoryPanel::purgeSelectedItems()
