@@ -577,6 +577,8 @@ void LLRenderPass::pushBatch(LLDrawInfo& params, U32 mask, BOOL texture, BOOL ba
         params.mGroup->rebuildMesh();
     }
 
+    LLGLDisable cull(params.mGLTFMaterial && params.mGLTFMaterial->mDoubleSided ? GL_CULL_FACE : 0);
+
     LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
     params.mVertexBuffer->setBufferFast(mask);

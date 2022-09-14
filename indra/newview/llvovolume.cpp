@@ -5539,6 +5539,14 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             draw_info->mNormalMap = vobj->getGLTFNormalMap(te);
             draw_info->mSpecularMap = vobj->getGLTFMetallicRoughnessMap(te);
             draw_info->mEmissiveMap = vobj->getGLTFEmissiveMap(te);
+            if (draw_info->mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+            {
+                draw_info->mAlphaMaskCutoff = gltf_mat->mAlphaCutoff * gltf_mat->mAlbedoColor.mV[3];
+            }
+            else
+            {
+                draw_info->mAlphaMaskCutoff = 1.f;
+            }
         }
         else if (mat)
 		{
