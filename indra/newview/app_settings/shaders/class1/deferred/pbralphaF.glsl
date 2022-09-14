@@ -268,20 +268,7 @@ void main()
     vec3 light = vec3(0);
 
     // Punctual lights
-#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( \
-                    reflect0, \
-                     reflect90, \
-                     alphaRough, \
-                     c_diff, \
-                     light_diffuse[i].rgb, \
-                     base.rgb, \
-                     pos.xyz, \
-                     v, \
-                     n, \
-                     light_position[i], \
-                     light_direction[i].xyz, \
-                     light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, \
-                     light_attenuation[i].z, light_attenuation[i].w );
+#define LIGHT_LOOP(i) light += calcPointLightOrSpotLight( reflect0, reflect90, alphaRough, c_diff, light_diffuse[i].rgb, base.rgb, pos.xyz, v, n, light_position[i], light_direction[i].xyz, light_deferred_attenuation[i].x, light_deferred_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
     LIGHT_LOOP(2)

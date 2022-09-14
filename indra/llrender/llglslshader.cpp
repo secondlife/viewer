@@ -977,8 +977,11 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
         static const GLuint BLOCKBINDING = 1; //picked by us
         //Get the index, similar to a uniform location
         GLuint UBOBlockIndex = glGetUniformBlockIndex(mProgramObject, "ReflectionProbes");
-        //Set this index to a binding index
-        glUniformBlockBinding(mProgramObject, UBOBlockIndex, BLOCKBINDING);
+        if (UBOBlockIndex != GL_INVALID_INDEX)
+        {
+            //Set this index to a binding index
+            glUniformBlockBinding(mProgramObject, UBOBlockIndex, BLOCKBINDING);
+        }
     }
 	unbind();
 
