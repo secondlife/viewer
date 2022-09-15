@@ -123,7 +123,7 @@ void LLSettingsVOBase::createNewInventoryItem(LLSettingsType::type_e stype, cons
 
 void LLSettingsVOBase::createInventoryItem(const LLSettingsBase::ptr_t &settings, const LLUUID &parent_id, std::string settings_name, inventory_result_fn callback)
 {
-    U32 nextOwnerPerm = LLPermissions::DEFAULT.getMaskNextOwner();
+    U32 nextOwnerPerm = LLFloaterPerms::getNextOwnerPerms("Settings");
     createInventoryItem(settings, nextOwnerPerm, parent_id, settings_name, callback);
 }
 

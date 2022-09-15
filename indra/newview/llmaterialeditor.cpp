@@ -761,7 +761,7 @@ bool LLMaterialEditor::saveIfNeeded()
         tid.generate();     // timestamp-based randomization + uniquification
         LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
         std::string res_desc = buildMaterialDescription();
-        U32 next_owner_perm = LLPermissions::DEFAULT.getMaskNextOwner();
+        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
         LLUUID parent = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL);
         const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 

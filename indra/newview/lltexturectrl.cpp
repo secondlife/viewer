@@ -508,6 +508,8 @@ void LLFloaterTexturePicker::draw()
 
 			if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(mImageAssetID))
 			{
+                // TODO: Fix this! Picker is not warrantied to be connected to a selection
+                // LLSelectMgr shouldn't be used in texture picker
 				LLViewerObject* obj = LLSelectMgr::getInstance()->getSelection()->getFirstObject();
 				if (obj)
 				{
