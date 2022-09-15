@@ -255,6 +255,7 @@ static bool mLoginStatePastUI = false;
 static bool mBenefitsSuccessfullyInit = false;
 
 const F32 STATE_AGENT_WAIT_TIMEOUT = 240; //seconds
+const S32 MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN = 3; // Give region 3 chances
 
 std::unique_ptr<LLEventPump> LLStartUp::sStateWatcher(new LLEventStream("StartupState"));
 std::unique_ptr<LLStartupListener> LLStartUp::sListener(new LLStartupListener());
@@ -927,6 +928,12 @@ bool idle_startup()
 			LLPersistentNotificationStorage::initParamSingleton();
 			LLDoNotDisturbNotificationStorage::initParamSingleton();
 		}
+        else
+        {
+            // reinitialize paths in case user switched grids or accounts
+            LLPersistentNotificationStorage::getInstance()->reset();
+            LLDoNotDisturbNotificationStorage::getInstance()->reset();
+        }
 
 		// Set PerAccountSettingsFile to the default value.
 		std::string settings_per_account = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, LLAppViewer::instance()->getSettingsFilename("Default", "PerAccount"));
@@ -1388,10 +1395,21 @@ bool idle_startup()
 		{
 			LLStartUp::setStartupState( STATE_SEED_CAP_GRANTED );
 		}
+        else if (regionp->capabilitiesError())
+        {
+            // Try to connect despite capabilities' error state
+            LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+        }
 		else
 		{
 			U32 num_retries = regionp->getNumSeedCapRetries();
-			if (num_retries > 0)
+            if (num_retries > MAX_SEED_CAP_ATTEMPTS_BEFORE_LOGIN)
+            {
+                // Region will keep trying to get capabilities,
+                // but for now continue as if caps were granted
+                LLStartUp::setStartupState(STATE_SEED_CAP_GRANTED);
+            }
+			else if (num_retries > 0)
 			{
 				LLStringUtil::format_map_t args;
 				args["[NUMBER]"] = llformat("%d", num_retries + 1);
@@ -2385,6 +2403,11 @@ void login_callback(S32 option, void *userdata)
 void show_release_notes_if_required()
 {
     static bool release_notes_shown = false;
+    // We happen to know that instantiating LLVersionInfo implicitly
+    // instantiates the LLEventMailDrop named "relnotes", which we (might) use
+    // below. If viewer release notes stop working, might be because that
+    // LLEventMailDrop got moved out of LLVersionInfo and hasn't yet been
+    // instantiated.
     if (!release_notes_shown && (LLVersionInfo::instance().getChannelAndVersion() != gLastRunVersion)
         && LLVersionInfo::instance().getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
         && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")

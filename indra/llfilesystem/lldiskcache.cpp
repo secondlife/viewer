@@ -354,6 +354,38 @@ void LLDiskCache::clearCache()
     }
 }
 
+void LLDiskCache::removeOldVFSFiles()
+{
+    //VFS files won't be created, so consider removing this code later
+    static const char CACHE_FORMAT[] = "inv.llsd";
+    static const char DB_FORMAT[] = "db2.x";
+
+    boost::system::error_code ec;
+#if LL_WINDOWS
+    std::wstring cache_path(utf8str_to_utf16str(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "")));
+#else
+    std::string cache_path(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""));
+#endif
+    if (boost::filesystem::is_directory(cache_path, ec) && !ec.failed())
+    {
+        for (auto& entry : boost::make_iterator_range(boost::filesystem::directory_iterator(cache_path, ec), {}))
+        {
+            if (boost::filesystem::is_regular_file(entry, ec) && !ec.failed())
+            {
+                if ((entry.path().string().find(CACHE_FORMAT) != std::string::npos) ||
+                    (entry.path().string().find(DB_FORMAT) != std::string::npos))
+                {
+                    boost::filesystem::remove(entry, ec);
+                    if (ec.failed())
+                    {
+                        LL_WARNS() << "Failed to delete cache file " << entry << ": " << ec.message() << LL_ENDL;
+                    }
+                }
+            }
+        }
+    }
+}
+
 uintmax_t LLDiskCache::dirFileSize(const std::string dir)
 {
     uintmax_t total_file_size = 0;

@@ -597,6 +597,11 @@ LLCPUInfo::LLCPUInfo()
 	// proc.WriteInfoTextFile("procInfo.txt");
 	mHasSSE = proc.hasSSE();
 	mHasSSE2 = proc.hasSSE2();
+    mHasSSE3 = proc.hasSSE3();
+    mHasSSE3S = proc.hasSSE3S();
+    mHasSSE41 = proc.hasSSE41();
+    mHasSSE42 = proc.hasSSE42();
+    mHasSSE4a = proc.hasSSE4a();
 	mHasAltivec = proc.hasAltivec();
 	mCPUMHz = (F64)proc.getCPUFrequency();
 	mFamily = proc.getCPUFamilyName();
@@ -609,6 +614,35 @@ LLCPUInfo::LLCPUInfo()
 	}
 	mCPUString = out.str();
 	LLStringUtil::trim(mCPUString);
+
+    if (mHasSSE)
+    {
+        mSSEVersions.append("1");
+    }
+    if (mHasSSE2)
+    {
+        mSSEVersions.append("2");
+    }
+    if (mHasSSE3)
+    {
+        mSSEVersions.append("3");
+    }
+    if (mHasSSE3S)
+    {
+        mSSEVersions.append("3S");
+    }
+    if (mHasSSE41)
+    {
+        mSSEVersions.append("4.1");
+    }
+    if (mHasSSE42)
+    {
+        mSSEVersions.append("4.2");
+    }
+    if (mHasSSE4a)
+    {
+        mSSEVersions.append("4a");
+    }
 }
 
 bool LLCPUInfo::hasAltivec() const
@@ -626,6 +660,31 @@ bool LLCPUInfo::hasSSE2() const
 	return mHasSSE2;
 }
 
+bool LLCPUInfo::hasSSE3() const
+{
+    return mHasSSE3;
+}
+
+bool LLCPUInfo::hasSSE3S() const
+{
+    return mHasSSE3S;
+}
+
+bool LLCPUInfo::hasSSE41() const
+{
+    return mHasSSE41;
+}
+
+bool LLCPUInfo::hasSSE42() const
+{
+    return mHasSSE42;
+}
+
+bool LLCPUInfo::hasSSE4a() const
+{
+    return mHasSSE4a;
+}
+
 F64 LLCPUInfo::getMHz() const
 {
 	return mCPUMHz;
@@ -634,6 +693,11 @@ F64 LLCPUInfo::getMHz() const
 std::string LLCPUInfo::getCPUString() const
 {
 	return mCPUString;
+}
+
+const LLSD& LLCPUInfo::getSSEVersions() const
+{
+    return mSSEVersions;
 }
 
 void LLCPUInfo::stream(std::ostream& s) const
@@ -645,6 +709,11 @@ void LLCPUInfo::stream(std::ostream& s) const
 	// CPU's attributes regardless of platform
 	s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;
 	s << "->mHasSSE2:    " << (U32)mHasSSE2 << std::endl;
+    s << "->mHasSSE3:    " << (U32)mHasSSE3 << std::endl;
+    s << "->mHasSSE3S:    " << (U32)mHasSSE3S << std::endl;
+    s << "->mHasSSE41:    " << (U32)mHasSSE41 << std::endl;
+    s << "->mHasSSE42:    " << (U32)mHasSSE42 << std::endl;
+    s << "->mHasSSE4a:    " << (U32)mHasSSE4a << std::endl;
 	s << "->mHasAltivec: " << (U32)mHasAltivec << std::endl;
 	s << "->mCPUMHz:     " << mCPUMHz << std::endl;
 	s << "->mCPUString:  " << mCPUString << std::endl;

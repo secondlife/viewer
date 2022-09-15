@@ -595,13 +595,6 @@ void LLPanelVolume::refresh()
 		mRootObject = NULL;
 	}
 
-	BOOL visible = LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_DEFERRED) > 0 ? TRUE : FALSE;
-
-	getChildView("Light FOV")->setVisible( visible);
-	getChildView("Light Focus")->setVisible( visible);
-	getChildView("Light Ambiance")->setVisible( visible);
-	getChildView("light texture control")->setVisible( visible);
-
 	bool enable_mesh = false;
 
 	LLSD sim_features;

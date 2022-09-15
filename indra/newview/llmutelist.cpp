@@ -352,7 +352,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 
 void LLMuteList::updateAdd(const LLMute& mute)
 {
-	// External mutes (e.g. Avaline callers) are local only, don't send them to the server.
+	// External mutes are local only, don't send them to the server.
 	if (mute.mType == LLMute::EXTERNAL)
 	{
 		return;

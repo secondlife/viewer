@@ -76,22 +76,6 @@ void LLTextUtil::textboxSetGreyedVal(LLTextBox *txtbox, const LLStyle::Params& n
     txtbox->appendText(text.substr(greyed_begin + greyed_len),  false, normal_style);
 }
 
-const std::string& LLTextUtil::formatPhoneNumber(const std::string& phone_str)
-{
-	static const std::string PHONE_SEPARATOR = LLUI::getInstance()->mSettingGroups["config"]->getString("AvalinePhoneSeparator");
-	static const S32 PHONE_PART_LEN = 2;
-
-	static std::string formatted_phone_str;
-	formatted_phone_str = phone_str;
-	S32 separator_pos = (S32)(formatted_phone_str.size()) - PHONE_PART_LEN;
-	for (; separator_pos >= PHONE_PART_LEN; separator_pos -= PHONE_PART_LEN)
-	{
-		formatted_phone_str.insert(separator_pos, PHONE_SEPARATOR);
-	}
-
-	return formatted_phone_str;
-}
-
 bool LLTextUtil::processUrlMatch(LLUrlMatch* match,LLTextBase* text_base, bool is_content_trusted)
 {
 	if (match == 0 || text_base == 0)

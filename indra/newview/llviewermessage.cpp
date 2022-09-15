@@ -3334,13 +3334,6 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
-    // Rotation into both directions should cancel out
-    U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
-    if ((control_flags & mask) == mask)
-    {
-        control_flags &= ~mask;
-    }
-
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
 
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)

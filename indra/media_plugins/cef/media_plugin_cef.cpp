@@ -34,6 +34,7 @@
 #include "llplugininstance.h"
 #include "llpluginmessage.h"
 #include "llpluginmessageclasses.h"
+#include "llstring.h"
 #include "volume_catcher.h"
 #include "media_plugin_base.h"
 
@@ -616,9 +617,9 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 // dir as the executable that loaded it (SLPlugin.exe). The code in 
                 // Dullahan that tried to figure out the location automatically uses 
                 // the location of the exe which isn't helpful so we tell it explicitly.
-                char cur_dir_str[MAX_PATH];
-                GetCurrentDirectoryA(MAX_PATH, cur_dir_str);
-                settings.host_process_path = std::string(cur_dir_str);
+                std::vector<wchar_t> buffer(MAX_PATH + 1);
+                GetCurrentDirectoryW(MAX_PATH, &buffer[0]);
+                settings.host_process_path = ll_convert_wide_to_string(&buffer[0]);
 #endif
                 settings.accept_language_list = mHostLanguage;
 

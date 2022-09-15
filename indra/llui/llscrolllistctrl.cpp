@@ -1388,6 +1388,84 @@ BOOL LLScrollListCtrl::selectItemByPrefix(const LLWString& target, BOOL case_sen
 	return found;
 }
 
+U32 LLScrollListCtrl::searchItems(const std::string& substring, bool case_sensitive, bool focus)
+{
+    return searchItems(utf8str_to_wstring(substring), case_sensitive, focus);
+}
+
+U32 LLScrollListCtrl::searchItems(const LLWString& substring, bool case_sensitive, bool focus)
+{
+    U32 found = 0;
+
+    LLWString substring_trimmed(substring);
+    S32 len = substring_trimmed.size();
+
+    if (0 == len)
+    {
+        // at the moment search for empty element is not supported
+        return 0;
+    }
+    else
+    {
+        deselectAllItems(TRUE);
+        if (!case_sensitive)
+        {
+            // do comparisons in lower case
+            LLWStringUtil::toLower(substring_trimmed);
+        }
+
+        for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
+        {
+            LLScrollListItem* item = *iter;
+            // Only select enabled items with matching names
+            if (!item->getEnabled())
+            {
+                continue;
+            }
+            LLScrollListCell* cellp = item->getColumn(getSearchColumn());
+            if (!cellp)
+            {
+                continue;
+            }
+            LLWString item_label = utf8str_to_wstring(cellp->getValue().asString());
+            if (!case_sensitive)
+            {
+                LLWStringUtil::toLower(item_label);
+            }
+            // remove extraneous whitespace from searchable label
+            LLWStringUtil::trim(item_label);
+
+            size_t found_iter = item_label.find(substring_trimmed);
+
+            if (found_iter != std::string::npos)
+            {
+                // find offset of matching text
+                cellp->highlightText(found_iter, substring_trimmed.size());
+                selectItem(item, -1, FALSE);
+
+                found++;
+
+                if (!mAllowMultipleSelection)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    if (focus && found != 0)
+    {
+        mNeedsScroll = true;
+    }
+
+    if (mCommitOnSelectionChange)
+    {
+        commitIfChanged();
+    }
+
+    return found;
+}
+
 const std::string LLScrollListCtrl::getSelectedItemLabel(S32 column) const
 {
 	LLScrollListItem* item;
@@ -1912,6 +1990,7 @@ BOOL LLScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 			registrar.add("Url.SendIM", boost::bind(&LLScrollListCtrl::sendIM, id));
 			registrar.add("Url.AddFriend", boost::bind(&LLScrollListCtrl::addFriend, id));
 			registrar.add("Url.RemoveFriend", boost::bind(&LLScrollListCtrl::removeFriend, id));
+            registrar.add("Url.ReportAbuse", boost::bind(&LLScrollListCtrl::reportAbuse, id, is_group));
 			registrar.add("Url.Execute", boost::bind(&LLScrollListCtrl::showNameDetails, id, is_group));
 			registrar.add("Url.CopyLabel", boost::bind(&LLScrollListCtrl::copyNameToClipboard, id, is_group));
 			registrar.add("Url.CopyUrl", boost::bind(&LLScrollListCtrl::copySLURLToClipboard, id, is_group));
@@ -1973,6 +2052,15 @@ void LLScrollListCtrl::removeFriend(std::string id)
 {
 	std::string slurl = "secondlife:///app/agent/" + id + "/about";
 	LLUrlAction::removeFriend(slurl);
+}
+
+void LLScrollListCtrl::reportAbuse(std::string id, bool is_group)
+{
+    if (!is_group)
+    {
+        std::string slurl = "secondlife:///app/agent/" + id + "/about";
+        LLUrlAction::reportAbuse(slurl);
+    }
 }
 
 void LLScrollListCtrl::showNameDetails(std::string id, bool is_group)

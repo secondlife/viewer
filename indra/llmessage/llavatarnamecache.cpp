@@ -196,6 +196,10 @@ void LLAvatarNameCache::requestAvatarNameCache_(std::string url, std::vector<LLU
             LLAvatarNameCache::getInstance()->handleAvNameCacheSuccess(results, httpResults);
         }
     }
+    catch (const LLCoros::Stop&)
+    {
+        LL_DEBUGS("AvNameCache") << "Received a shutdown exception" << LL_ENDL;
+    }
     catch (...)
     {
         LOG_UNHANDLED_EXCEPTION(STRINGIZE("coroutine " << LLCoros::getName()

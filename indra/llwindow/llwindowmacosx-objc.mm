@@ -100,13 +100,13 @@ const unsigned short *copyFromPBoard()
 CursorRef createImageCursor(const char *fullpath, int hotspotX, int hotspotY)
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	// extra retain on the NSCursor since we want it to live for the lifetime of the app.
 	NSCursor *cursor =
 	[[[NSCursor alloc]
 	  initWithImage:
 	  [[[NSImage alloc] initWithContentsOfFile:
-		[NSString stringWithFormat:@"%s", fullpath]
+		[NSString stringWithUTF8String:fullpath]
 		]autorelease]
 	  hotSpot:NSMakePoint(hotspotX, hotspotY)
 	  ]retain];

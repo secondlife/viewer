@@ -245,14 +245,6 @@ public:
 	bool isSpeakerToBeRemoved(const LLUUID& speaker_id);
 
 	/**
-	 * Removes avaline speaker.
-	 *
-	 * This is a HACK due to server does not send information that Avaline caller ends call.
-	 * It can be removed when server is updated. See EXT-4301 for details
-	 */
-	bool removeAvalineSpeaker(const LLUUID& speaker_id) { return removeSpeaker(speaker_id); }
-
-	/**
 	 * Initializes mVoiceModerated depend on LLSpeaker::mModeratorMutedVoice of agent's participant.
 	 *
 	 * Is used only to implement workaround to initialize mVoiceModerated on first join to group chat. See EXT-6937
