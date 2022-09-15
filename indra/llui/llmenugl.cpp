@@ -3960,8 +3960,8 @@ void LLTearOffMenu::draw()
 	{
 		// animate towards target height
         reshape(getRect().getWidth(), llceil(lerp((F32)getRect().getHeight(), (F32)mTargetHeight, LLSmoothInterpolation::getInterpolant(0.05f))));
-        mMenu->needsArrange();
 	}
+	mMenu->needsArrange();
 	LLFloater::draw();
 }
 

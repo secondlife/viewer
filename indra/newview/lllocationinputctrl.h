@@ -109,6 +109,8 @@ public:
 	LLLineEditor*			getTextEntry() const { return mTextEntry; }
 	void					handleLoginComplete();
 
+    bool isNavMeshDirty() { return mIsNavMeshDirty; }
+
 private:
 
 	enum EParcelIcon

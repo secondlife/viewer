@@ -224,6 +224,8 @@ private:
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
+    LLVector3   mGroundPlane[4];
+	void		renderGroundPlane(float z_offset = 0.0f);
     /// Indicates whether we should warn of high-lod meshes that do not have a corresponding physics mesh.
     /// Reset when resetting the modelpreview (i.e., when the uploader dialog is created or reset), and when
     /// about to process a physics file. Set to true immediately after the file is loaded (before rebuildUploadData()).

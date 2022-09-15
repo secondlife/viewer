@@ -59,18 +59,6 @@ namespace LLTextUtil
 	        const std::string& greyed);
 
 	/**
-	 * Formats passed phone number to be more human readable.
-	 *
-	 * It just divides the number on parts by two digits from right to left. The first left part
-	 * can have 2 or 3 digits, i.e. +44-33-33-44-55-66 or 12-34-56-78-90. Separator is set in
-	 * application settings (AvalinePhoneSeparator)
-	 *
-	 * @param[in] phone_str string with original phone number
-	 * @return reference to string with formatted phone number
-	 */
-	const std::string& formatPhoneNumber(const std::string& phone_str);
-
-	/**
 	 * Adds icon before url if need.
 	 *
 	 * @param[in] match an object with results of matching

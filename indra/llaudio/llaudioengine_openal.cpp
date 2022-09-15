@@ -297,7 +297,7 @@ void LLAudioChannelOpenAL::update3DPosition()
 	{
 		return;
 	}
-	if (mCurrentSourcep->isAmbient())
+	if (mCurrentSourcep->isForcedPriority())
 	{
 		alSource3f(mALSource, AL_POSITION, 0.0, 0.0, 0.0);
 		alSource3f(mALSource, AL_VELOCITY, 0.0, 0.0, 0.0);

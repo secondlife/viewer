@@ -116,6 +116,7 @@ private:
 	}
 
 	const LLUUID& findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& nonLocalizedName) const;
+    const LLUUID& findFirstCallingCardSubfolder(const LLUUID &parent_id) const;
 	const LLUUID& findFriendFolderUUIDImpl() const;
 	const LLUUID& findFriendAllSubfolderUUIDImpl() const;
 	const LLUUID& findFriendCardInventoryUUIDImpl(const LLUUID& avatarID);

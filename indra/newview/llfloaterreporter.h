@@ -93,6 +93,7 @@ public:
 
 	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
 	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
+    static void showFromChat(const LLUUID& avatar_id, const std::string& avatar_name, const std::string& time, const std::string& description);
 	static void showFromExperience(const LLUUID& experience_id);
 
 	static void onClickSend			(void *userdata);
@@ -101,8 +102,6 @@ public:
 	void onClickSelectAbuser ();
 	static void closePickTool	(void *userdata);
 	static void uploadDoneCallback(const LLUUID &uuid, void* user_data, S32 result, LLExtStat ext_status);
-	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
-	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 
 	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
 
@@ -114,10 +113,8 @@ private:
 	static void show(const LLUUID& object_id, const std::string& avatar_name = LLStringUtil::null, const LLUUID& experience_id = LLUUID::null);
 
 	void takeScreenshot(bool use_prev_screenshot = false);
-	void sendReportViaCaps(std::string url);
 	void uploadImage();
 	bool validateReport();
-	void setReporterID();
 	LLSD gatherReport();
 	void sendReportViaLegacy(const LLSD & report);
 	void sendReportViaCaps(std::string url, std::string sshot_url, const LLSD & report);
@@ -144,7 +141,6 @@ private:
 	BOOL 			mPicking;
 	LLVector3		mPosition;
 	BOOL			mCopyrightWarningSeen;
-	std::list<LLMeanCollisionData*> mMCDList;
 	std::string		mDefaultSummary;
 	LLResourceData* mResourceDatap;
 	boost::signals2::connection mAvatarNameCacheConnection;

@@ -102,6 +102,8 @@ public:
 
 	int getDefNavBarHeight();
 	int getDefFavBarHeight();
+
+    bool isRebakeNavMeshAvailable();
 	
 private:
 	// the distance between navigation panel and favorites panel in pixels

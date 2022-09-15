@@ -96,6 +96,13 @@
      name="Pay">
        <on_click function="AvatarIcon.Action" parameter="pay" />
     </menu_item_call>
+    <menu_item_call
+     label="Report Abuse"
+     layout="topleft"
+     name="Report Abuse">
+       <on_click function="AvatarIcon.Action" parameter="report_abuse" />
+       <on_enable function="AvatarIcon.Enable" parameter="report_abuse" />
+    </menu_item_call>
     <menu_item_check
      label="Block Voice"
      layout="topleft"

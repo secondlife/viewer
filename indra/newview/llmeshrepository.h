@@ -554,6 +554,9 @@ public:
 	static U32 sLODProcessing;
 	static U32 sCacheBytesRead;
 	static U32 sCacheBytesWritten;
+    static U32 sCacheBytesHeaders;
+    static U32 sCacheBytesSkins;
+    static U32 sCacheBytesDecomps;
 	static U32 sCacheReads;						
 	static U32 sCacheWrites;
 	static U32 sMaxLockHoldoffs;				// Maximum sequential locking failures
@@ -643,8 +646,6 @@ public:
 	std::queue<LLUUID> mPendingPhysicsShapeRequests;
 	
 	U32 mMeshThreadCount;
-
-	void cacheOutgoingMesh(LLMeshUploadData& data, LLSD& header);
 	
 	LLMeshRepoThread* mThread;
 	std::vector<LLMeshUploadThread*> mUploads;

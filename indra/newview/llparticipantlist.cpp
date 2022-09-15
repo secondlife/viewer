@@ -38,154 +38,11 @@
 #pragma warning (disable : 4355) // 'this' used in initializer list: yes, intentionally
 #endif
 
-// See EXT-4301.
-/**
- * class LLAvalineUpdater - observe the list of voice participants in session and check
- *  presence of Avaline Callers among them.
- *
- * LLAvalineUpdater is a LLVoiceClientParticipantObserver. It provides two kinds of validation:
- *	- whether Avaline caller presence among participants;
- *	- whether watched Avaline caller still exists in voice channel.
- * Both validations have callbacks which will notify subscriber if any of event occur.
- *
- * @see findAvalineCaller()
- * @see checkIfAvalineCallersExist()
- */
-class LLAvalineUpdater : public LLVoiceClientParticipantObserver
-{
-public:
-	typedef boost::function<void(const LLUUID& speaker_id)> process_avaline_callback_t;
-
-	LLAvalineUpdater(process_avaline_callback_t found_cb, process_avaline_callback_t removed_cb)
-		: mAvalineFoundCallback(found_cb)
-		, mAvalineRemovedCallback(removed_cb)
-	{
-		LLVoiceClient::getInstance()->addObserver(this);
-	}
-	~LLAvalineUpdater()
-	{
-		if (LLVoiceClient::instanceExists())
-		{
-			LLVoiceClient::getInstance()->removeObserver(this);
-		}
-	}
-
-	/**
-	 * Adds UUID of Avaline caller to watch.
-	 *
-	 * @see checkIfAvalineCallersExist().
-	 */
-	void watchAvalineCaller(const LLUUID& avaline_caller_id)
-	{
-		mAvalineCallers.insert(avaline_caller_id);
-	}
-
-	void onParticipantsChanged()
-	{
-		uuid_set_t participant_uuids;
-		LLVoiceClient::getInstance()->getParticipantList(participant_uuids);
-
-
-		// check whether Avaline caller exists among voice participants
-		// and notify Participant List
-		findAvalineCaller(participant_uuids);
-
-		// check whether watched Avaline callers still present among voice participant
-		// and remove if absents.
-		checkIfAvalineCallersExist(participant_uuids);
-	}
-
-private:
-	typedef std::set<LLUUID> uuid_set_t;
-
-	/**
-	 * Finds Avaline callers among voice participants and calls mAvalineFoundCallback.
-	 *
-	 * When Avatar is in group call with Avaline caller and then ends call Avaline caller stays
-	 * in Group Chat floater (exists in LLSpeakerMgr). If Avatar starts call with that group again
-	 * Avaline caller is added to voice channel AFTER Avatar is connected to group call.
-	 * But Voice Control Panel (VCP) is filled from session LLSpeakerMgr and there is no information
-	 * if a speaker is Avaline caller.
-	 *
-	 * In this case this speaker is created as avatar and will be recreated when it appears in
-	 * Avatar's Voice session.
-	 *
-	 * @see LLParticipantList::onAvalineCallerFound()
-	 */
-	void findAvalineCaller(const uuid_set_t& participant_uuids)
-	{
-		uuid_set_t::const_iterator it = participant_uuids.begin(), it_end = participant_uuids.end();
-
-		for(; it != it_end; ++it)
-		{
-			const LLUUID& participant_id = *it;
-			if (!LLVoiceClient::getInstance()->isParticipantAvatar(participant_id))
-			{
-				LL_DEBUGS("Avaline") << "Avaline caller found among voice participants: " << participant_id << LL_ENDL;
-
-				if (mAvalineFoundCallback)
-				{
-					mAvalineFoundCallback(participant_id);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Finds Avaline callers which are not anymore among voice participants and calls mAvalineRemovedCallback.
-	 *
-	 * The problem is when Avaline caller ends a call it is removed from Voice Client session but
-	 * still exists in LLSpeakerMgr. Server does not send such information.
-	 * This method implements a HUCK to notify subscribers that watched Avaline callers by class
-	 * are not anymore in the call.
-	 *
-	 * @see LLParticipantList::onAvalineCallerRemoved()
-	 */
-	void checkIfAvalineCallersExist(const uuid_set_t& participant_uuids)
-	{
-		uuid_set_t::iterator it = mAvalineCallers.begin();
-		uuid_set_t::const_iterator participants_it_end = participant_uuids.end();
-
-		while (it != mAvalineCallers.end())
-		{
-			const LLUUID participant_id = *it;
-			LL_DEBUGS("Avaline") << "Check avaline caller: " << participant_id << LL_ENDL;
-			bool not_found = participant_uuids.find(participant_id) == participants_it_end;
-			if (not_found)
-			{
-				LL_DEBUGS("Avaline") << "Watched Avaline caller is not found among voice participants: " << participant_id << LL_ENDL;
-
-				// notify Participant List
-				if (mAvalineRemovedCallback)
-				{
-					mAvalineRemovedCallback(participant_id);
-				}
-
-				// remove from the watch list
-				mAvalineCallers.erase(it++);
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
-
-	process_avaline_callback_t mAvalineFoundCallback;
-	process_avaline_callback_t mAvalineRemovedCallback;
-
-	uuid_set_t mAvalineCallers;
-};
-
 LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewModelInterface& root_view_model) :
 	LLConversationItemSession(data_source->getSessionID(), root_view_model),
 	mSpeakerMgr(data_source),
 	mValidateSpeakerCallback(NULL)
 {
-
-	mAvalineUpdater = new LLAvalineUpdater(boost::bind(&LLParticipantList::onAvalineCallerFound, this, _1),
-										   boost::bind(&LLParticipantList::onAvalineCallerRemoved, this, _1));
-
 	mSpeakerAddListener = new SpeakerAddListener(*this);
 	mSpeakerRemoveListener = new SpeakerRemoveListener(*this);
 	mSpeakerClearListener = new SpeakerClearListener(*this);
@@ -243,32 +100,6 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewMode
 
 LLParticipantList::~LLParticipantList()
 {
-	delete mAvalineUpdater;
-}
-
-/*
-  Seems this method is not necessary after onAvalineCallerRemoved was implemented;
-
-  It does nothing because list item is always created with correct class type for Avaline caller.
-  For now Avaline Caller is removed from the LLSpeakerMgr List when it is removed from the Voice Client
-  session.
-  This happens in two cases: if Avaline Caller ends call itself or if Resident ends group call.
-
-  Probably Avaline caller should be removed from the LLSpeakerMgr list ONLY if it ends call itself.
-  Asked in EXT-4301.
-*/
-void LLParticipantList::onAvalineCallerFound(const LLUUID& participant_id)
-{
-	removeParticipant(participant_id);
-	// re-add avaline caller with a correct class instance.
-	addAvatarIDExceptAgent(participant_id);
-}
-
-void LLParticipantList::onAvalineCallerRemoved(const LLUUID& participant_id)
-{
-	LL_DEBUGS("Avaline") << "Removing avaline caller from the list: " << participant_id << LL_ENDL;
-
-	mSpeakerMgr->removeAvalineSpeaker(participant_id);
 }
 
 void LLParticipantList::setValidateSpeakerCallback(validate_speaker_callback_t cb)
@@ -386,7 +217,6 @@ void LLParticipantList::addAvatarIDExceptAgent(const LLUUID& avatar_id)
 		std::string display_name = LLVoiceClient::getInstance()->getDisplayName(avatar_id);
 		// Create a participant view model instance
 		participant = new LLConversationItemParticipant(display_name.empty() ? LLTrans::getString("AvatarNameWaiting") : display_name, avatar_id, mRootViewModel);
-		mAvalineUpdater->watchAvalineCaller(avatar_id);
 	}
 
 	// *TODO : Need to update the online/offline status of the participant

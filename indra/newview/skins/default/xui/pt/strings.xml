@@ -47,7 +47,7 @@ Placa de vídeo: [GRAPHICS_CARD_VENDOR]
 Placa gráfica: [GRAPHICS_CARD]
 	</string>
 	<string name="AboutDriver">
-		Versão do driver de vídeo Windows: [GRAPHICS_CARD_VENDOR]
+		Versão do driver de vídeo Windows: [GRAPHICS_DRIVER_VERSION]
 	</string>
 	<string name="AboutOGL">
 		Versão do OpenGL: [OPENGL_VERSION]
@@ -644,9 +644,6 @@ ser anexado às anotações.
 	</string>
 	<string name="GroupNameNone">
 		(nenhum)
-	</string>
-	<string name="AvalineCaller">
-		Interlocutor Avaline [ORDER]
 	</string>
 	<string name="AssetErrorNone">
 		Nenhum erro

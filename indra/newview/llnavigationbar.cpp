@@ -713,7 +713,7 @@ void LLNavigationBar::resizeLayoutPanel()
 }
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
-	LLFloaterReg::showInstance("search", LLSD().with("category", "all").with("query", LLSD(search_text)));
+	LLFloaterReg::showInstance("search", LLSD().with("category", "standard").with("query", LLSD(search_text)));
 }
 
 void LLNavigationBar::clearHistoryCache()
@@ -732,4 +732,9 @@ int LLNavigationBar::getDefNavBarHeight()
 int LLNavigationBar::getDefFavBarHeight()
 {
 	return mDefaultFpRect.getHeight();
+}
+
+bool LLNavigationBar::isRebakeNavMeshAvailable()
+{
+    return mCmbLocation->isNavMeshDirty();
 }

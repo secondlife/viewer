@@ -57,10 +57,10 @@ public:
 		const size_t parts = tokens.size();
 
 		// get the (optional) category for the search
-		std::string category;
+		std::string collection;
 		if (parts > 0)
 		{
-			category = tokens[0].asString();
+            collection = tokens[0].asString();
 		}
 
 		// get the (optional) search string
@@ -72,7 +72,7 @@ public:
 
 		// create the LLSD arguments for the search floater
 		LLFloaterSearch::Params p;
-		p.search.category = category;
+		p.search.collection = collection;
 		p.search.query = LLURI::unescape(search_text);
 
 		// open the search floater and perform the requested search
@@ -83,8 +83,9 @@ public:
 LLSearchHandler gSearchHandler;
 
 LLFloaterSearch::SearchQuery::SearchQuery()
-:	category("category", ""),
-	query("query")
+:   category("category", ""),
+    collection("collection", ""),
+    query("query")
 {}
 
 LLFloaterSearch::LLFloaterSearch(const Params& key) :
@@ -93,16 +94,16 @@ LLFloaterSearch::LLFloaterSearch(const Params& key) :
 {
 	// declare a map that transforms a category name into
 	// the URL suffix that is used to search that category
-	mCategoryPaths = LLSD::emptyMap();
-	mCategoryPaths["all"]          = "search";
-	mCategoryPaths["people"]       = "search/people";
-	mCategoryPaths["places"]       = "search/places";
-	mCategoryPaths["events"]       = "search/events";
-	mCategoryPaths["groups"]       = "search/groups";
-	mCategoryPaths["wiki"]         = "search/wiki";
-	mCategoryPaths["land"]         = "land";
-	mCategoryPaths["destinations"] = "destinations";
-	mCategoryPaths["classifieds"]  = "classifieds";
+
+    mSearchType.insert("standard");
+    mSearchType.insert("land");
+    mSearchType.insert("classified");
+
+    mCollectionType.insert("events");
+    mCollectionType.insert("destinations");
+    mCollectionType.insert("places");
+    mCollectionType.insert("groups");
+    mCollectionType.insert("people");
 }
 
 BOOL LLFloaterSearch::postBuild()
@@ -157,31 +158,49 @@ void LLFloaterSearch::search(const SearchQuery &p)
 
 	// work out the subdir to use based on the requested category
 	LLSD subs;
-	if (mCategoryPaths.has(p.category))
+	if (mSearchType.find(p.category) != mSearchType.end())
 	{
-		subs["CATEGORY"] = mCategoryPaths[p.category].asString();
+		subs["TYPE"] = p.category;
 	}
 	else
 	{
-		subs["CATEGORY"] = mCategoryPaths["all"].asString();
+		subs["TYPE"] = "standard";
 	}
 
 	// add the search query string
 	subs["QUERY"] = LLURI::escape(p.query);
 
+    subs["COLLECTION"] = "";
+    if (subs["TYPE"] == "standard")
+    {
+        if (mCollectionType.find(p.collection) != mCollectionType.end())
+        {
+            subs["COLLECTION"] = "&collection_chosen=" + std::string(p.collection);
+        }
+        else
+        {
+            std::string collection_args("");
+            for (std::set<std::string>::iterator it = mCollectionType.begin(); it != mCollectionType.end(); ++it)
+            {
+                collection_args += "&collection_chosen=" + std::string(*it);
+            }
+            subs["COLLECTION"] = collection_args;
+        }
+    }
+
 	// add the user's preferred maturity (can be changed via prefs)
 	std::string maturity;
 	if (gAgent.prefersAdult())
 	{
-		maturity = "42";  // PG,Mature,Adult
+		maturity = "gma";  // PG,Mature,Adult
 	}
 	else if (gAgent.prefersMature())
 	{
-		maturity = "21";  // PG,Mature
+		maturity = "gm";  // PG,Mature
 	}
 	else
 	{
-		maturity = "13";  // PG
+		maturity = "g";  // PG
 	}
 	subs["MATURITY"] = maturity;
 
