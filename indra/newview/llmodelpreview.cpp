@@ -1843,6 +1843,15 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
 
             LLModel* target_model = mModel[lod][mdl_idx];
 
+            // carry over normalized transform into simplified model
+            for (int i = 0; i < base->getNumVolumeFaces(); ++i)
+            {
+                LLVolumeFace& src = base->getVolumeFace(i);
+                LLVolumeFace& dst = target_model->getVolumeFace(i);
+                dst.mNormalizedScale = src.mNormalizedScale;
+                dst.mNormalizedTranslation = src.mNormalizedTranslation;
+            }
+
             S32 model_meshopt_mode = meshopt_mode;
 
             // Ideally this should run not per model,

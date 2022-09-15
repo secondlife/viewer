@@ -984,6 +984,12 @@ public:
 	//whether or not face has been cache optimized
 	BOOL mOptimized;
 
+    // if this is a mesh asset, scale and translation that were applied
+    // when encoding the source mesh into a unit cube
+    // used for regenerating tangents
+    LLVector3 mNormalizedScale = LLVector3(1,1,1);
+    LLVector3 mNormalizedTranslation;
+
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
 	BOOL createCap(LLVolume* volume, BOOL partial_build = FALSE);

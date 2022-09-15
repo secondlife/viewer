@@ -2483,6 +2483,24 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 			min_tc.setValue(mdl[i]["TexCoord0Domain"]["Min"]);
 			max_tc.setValue(mdl[i]["TexCoord0Domain"]["Max"]);
 
+            //unpack normalized scale/translation
+            if (mdl[i].has("NormalizedScale"))
+            {
+                face.mNormalizedScale.setValue(mdl[i]["NormalizedScale"]);
+            }
+            else
+            {
+                face.mNormalizedScale.set(1, 1, 1);
+            }
+            if (mdl[i].has("NormalizedTranslation"))
+            {
+                face.mNormalizedTranslation.setValue(mdl[i]["NormalizedTranslation"]);
+            }
+            else
+            {
+                face.mNormalizedTranslation.set(1, 1, 1);
+            }
+
 			LLVector4a pos_range;
 			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range2 = max_tc - min_tc;
@@ -2533,6 +2551,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 			}
 
+#if 0
             {
                 if (!tangent.empty())
                 {
@@ -2559,6 +2578,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
                     }
                 }
             }
+#endif
 
 			{
 				if (!tc.empty())
@@ -4888,7 +4908,9 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
     }
 
 	mOptimized = src.mOptimized;
-
+    mNormalizedScale = src.mNormalizedScale;
+    mNormalizedTranslation = src.mNormalizedTranslation;
+    
 	//delete 
 	return *this;
 }
@@ -5432,12 +5454,19 @@ struct MikktData
             w.resize(count);
         }
 
+
+        LLVector3 inv_scale(1.f / face->mNormalizedScale.mV[0], 1.f / face->mNormalizedScale.mV[1], 1.f / face->mNormalizedScale.mV[2]);
+        
+
         for (int i = 0; i < face->mNumIndices; ++i)
         {
             U32 idx = face->mIndices[i];
 
             p[i].set(face->mPositions[idx].getF32ptr());
+            p[i].scaleVec(face->mNormalizedScale); //put mesh in original coordinate frame when reconstructing tangents
             n[i].set(face->mNormals[idx].getF32ptr());
+            n[i].scaleVec(inv_scale);
+            n[i].normalize();
             tc[i].set(face->mTexCoords[idx]);
 
             if (face->mWeights)
@@ -5481,10 +5510,7 @@ bool LLVolumeFace::cacheOptimize()
         ms.m_getPosition = [](const SMikkTSpaceContext* pContext, float fvPosOut[], const int iFace, const int iVert)
         {
             MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
-            S32 idx = face->mIndices[iFace * 3 + iVert];
-            auto& vert = face->mPositions[idx];
-            F32* v = vert.getF32ptr();
+            F32* v = data->p[iFace * 3 + iVert].mV;
             fvPosOut[0] = v[0];
             fvPosOut[1] = v[1];
             fvPosOut[2] = v[2];
@@ -5493,10 +5519,7 @@ bool LLVolumeFace::cacheOptimize()
         ms.m_getNormal = [](const SMikkTSpaceContext* pContext, float fvNormOut[], const int iFace, const int iVert)
         {
             MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
-            S32 idx = face->mIndices[iFace * 3 + iVert];
-            auto& norm = face->mNormals[idx];
-            F32* n = norm.getF32ptr();
+            F32* n = data->n[iFace * 3 + iVert].mV;
             fvNormOut[0] = n[0];
             fvNormOut[1] = n[1];
             fvNormOut[2] = n[2];
@@ -5505,27 +5528,16 @@ bool LLVolumeFace::cacheOptimize()
         ms.m_getTexCoord = [](const SMikkTSpaceContext* pContext, float fvTexcOut[], const int iFace, const int iVert)
         {
             MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
-            S32 idx = face->mIndices[iFace * 3 + iVert];
-            auto& tc = face->mTexCoords[idx];
-            fvTexcOut[0] = tc.mV[0];
-            fvTexcOut[1] = tc.mV[1];
+            F32* tc = data->tc[iFace * 3 + iVert].mV;
+            fvTexcOut[0] = tc[0];
+            fvTexcOut[1] = tc[1];
         };
 
         ms.m_setTSpaceBasic = [](const SMikkTSpaceContext* pContext, const float fvTangent[], const float fSign, const int iFace, const int iVert)
         {
             MikktData* data = (MikktData*)pContext->m_pUserData;
-            LLVolumeFace* face = data->face;
             S32 i = iFace * 3 + iVert;
-            S32 idx = face->mIndices[i];
-
-            LLVector3 p(face->mPositions[idx].getF32ptr());
-            LLVector3 n(face->mNormals[idx].getF32ptr());
-            LLVector3 t(fvTangent);
-
-            // assert that this tangent hasn't already been set
-            llassert(data->t[i].magVec() < 0.1f);
-
+            
             data->t[i].set(fvTangent);
             data->t[i].mV[3] = fSign;
         };
@@ -5584,6 +5596,24 @@ bool LLVolumeFace::cacheOptimize()
             {
                 mWeights[dst_idx].loadua(data.w[src_idx].mV);
             }
+        }
+
+
+        // put back in normalized coordinate frame
+        LLVector4a inv_scale(1.f/mNormalizedScale.mV[0], 1.f / mNormalizedScale.mV[1], 1.f / mNormalizedScale.mV[2]);
+        LLVector4a scale;
+        scale.load3(mNormalizedScale.mV);
+        scale.getF32ptr()[3] = 1.f;
+
+        for (int i = 0; i < mNumVertices; ++i)
+        {
+            mPositions[i].mul(inv_scale);
+            mNormals[i].mul(scale);
+            mNormals[i].normalize3();
+            F32 w = mMikktSpaceTangents[i].getF32ptr()[3];
+            mMikktSpaceTangents[i].mul(scale);
+            mMikktSpaceTangents[i].normalize3();
+            mMikktSpaceTangents[i].getF32ptr()[3] = w;
         }
     }
 

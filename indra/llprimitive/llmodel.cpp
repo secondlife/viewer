@@ -337,6 +337,12 @@ void LLModel::normalizeVolumeFaces()
 		mNormalizedScale.set(normalized_scale.getF32ptr());
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
+
+        for (auto& face : mVolumeFaces)
+        {
+            face.mNormalizedScale = mNormalizedScale;
+            face.mNormalizedTranslation = mNormalizedTranslation;
+        }
 	}
 }
 
@@ -749,7 +755,7 @@ LLSD LLModel::writeModel(
 
 				U32 vert_idx = 0;
 				U32 norm_idx = 0;
-                U32 tan_idx = 0;
+                //U32 tan_idx = 0;
 				U32 tc_idx = 0;
 			
 				LLVector2* ftc = (LLVector2*) face.mTexCoords;
@@ -803,6 +809,7 @@ LLSD LLModel::writeModel(
 						}
 					}
 
+#if 0
                     if (face.mMikktSpaceTangents)
                     { //normals
                         F32* tangent = face.mMikktSpaceTangents[j].getF32ptr();
@@ -818,6 +825,7 @@ LLSD LLModel::writeModel(
                             tangents[tan_idx++] = buff[1];
                         }
                     }
+#endif
 					
 					//texcoord
 					if (face.mTexCoords)
@@ -848,6 +856,9 @@ LLSD LLModel::writeModel(
 				//write out face data
 				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
 				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
+                mdl[model_names[idx]][i]["NormalizedScale"] = face.mNormalizedScale.getValue();
+                mdl[model_names[idx]][i]["NormalizedTranslation"] = face.mNormalizedTranslation.getValue();
+
 				mdl[model_names[idx]][i]["Position"] = verts;
 				
 				if (face.mNormals)
