@@ -2154,6 +2154,7 @@ namespace LLInitParam
 		declare(LLFolderType::lookup(LLFolderType::FT_OUTBOX)           , LLFolderType::FT_OUTBOX);
 		declare(LLFolderType::lookup(LLFolderType::FT_BASIC_ROOT)       , LLFolderType::FT_BASIC_ROOT);
         declare(LLFolderType::lookup(LLFolderType::FT_SETTINGS)         , LLFolderType::FT_SETTINGS);
+        declare(LLFolderType::lookup(LLFolderType::FT_MATERIAL)         , LLFolderType::FT_MATERIAL);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_LISTINGS)   , LLFolderType::FT_MARKETPLACE_LISTINGS);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_STOCK), LLFolderType::FT_MARKETPLACE_STOCK);
 		declare(LLFolderType::lookup(LLFolderType::FT_MARKETPLACE_VERSION), LLFolderType::FT_MARKETPLACE_VERSION);
