@@ -266,8 +266,8 @@ public:
 
 	void addAudioData(LLAudioData *adp, bool set_current = TRUE);
 
-	void setAmbient(const bool ambient)						{ mAmbient = ambient; }
-	bool isAmbient() const									{ return mAmbient; }
+	void setForcedPriority(const bool ambient)						{ mForcedPriority = ambient; }
+	bool isForcedPriority() const									{ return mForcedPriority; }
 
 	void setLoop(const bool loop)							{ mLoop = loop; }
 	bool isLoop() const										{ return mLoop; }
@@ -326,7 +326,7 @@ protected:
 	F32				mPriority;
 	F32				mGain;
 	bool			mSourceMuted;
-	bool			mAmbient;
+	bool			mForcedPriority; // ignore mute, set high priority, researved for sound preview and UI
 	bool			mLoop;
 	bool			mSyncMaster;
 	bool			mSyncSlave;

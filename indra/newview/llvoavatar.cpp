@@ -1,4 +1,4 @@
-﻿/** 
+/**
  * @File llvoavatar.cpp
  * @brief Implementation of LLVOAvatar class which is a derivation of LLViewerObject
  *
@@ -182,8 +182,6 @@ const F32 MAX_STANDOFF_DISTANCE_CHANGE = 32;
 // Discard level at which to switch to baked textures
 // Should probably be 4 or 3, but didn't want to change it while change other logic - SJB
 const S32 SWITCH_TO_BAKED_DISCARD = 5;
-
-const F32 FOOT_COLLIDE_FUDGE = 0.04f;
 
 const F32 HOVER_EFFECT_MAX_SPEED = 3.f;
 const F32 HOVER_EFFECT_STRENGTH = 0.f;
@@ -585,7 +583,6 @@ private:
 //-----------------------------------------------------------------------------
 // Static Data
 //-----------------------------------------------------------------------------
-S32 LLVOAvatar::sFreezeCounter = 0;
 U32 LLVOAvatar::sMaxNonImpostors = 12; // Set from RenderAvatarMaxNonImpostors
 bool LLVOAvatar::sLimitNonImpostors = false; // True unless RenderAvatarMaxNonImpostors is 0 (unlimited)
 F32 LLVOAvatar::sRenderDistance = 256.f;
@@ -610,7 +607,6 @@ S32 LLVOAvatar::sNumVisibleChatBubbles = 0;
 BOOL LLVOAvatar::sDebugInvisible = FALSE;
 BOOL LLVOAvatar::sShowAttachmentPoints = FALSE;
 BOOL LLVOAvatar::sShowAnimationDebug = FALSE;
-BOOL LLVOAvatar::sShowFootPlane = FALSE;
 BOOL LLVOAvatar::sVisibleInFirstPerson = FALSE;
 F32 LLVOAvatar::sLODFactor = 1.f;
 F32 LLVOAvatar::sPhysicsLODFactor = 1.f;
@@ -779,6 +775,13 @@ std::string LLVOAvatar::avString() const
 
 void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string comment)
 {
+    if (gDisconnected)
+    {
+        // If we disconected, these values are likely to be invalid and
+        // avString() might crash due to a dead sAvatarDictionary
+        return;
+    }
+
 	LL_INFOS("Avatar") << "REZTIME: [ " << (U32)mDebugExistenceTimer.getElapsedTimeF32()
 					   << "sec ]"
 					   << avString() 
@@ -4105,8 +4108,7 @@ void LLVOAvatar::computeUpdatePeriod()
         && (!isSelf() || visually_muted)
         && !isUIAvatar()
         && (sLimitNonImpostors || visually_muted)
-        && !mNeedsAnimUpdate 
-        && !sFreezeCounter)
+        && !mNeedsAnimUpdate)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
@@ -5079,42 +5081,6 @@ U32 LLVOAvatar::renderSkinned()
 		return num_indices;
 	}
 
-	// render collision normal
-	// *NOTE: this is disabled (there is no UI for enabling sShowFootPlane) due
-	// to DEV-14477.  the code is left here to aid in tracking down the cause
-	// of the crash in the future. -brad
-	if (sShowFootPlane && mDrawable.notNull())
-	{
-		LLVector3 slaved_pos = mDrawable->getPositionAgent();
-		LLVector3 foot_plane_normal(mFootPlane.mV[VX], mFootPlane.mV[VY], mFootPlane.mV[VZ]);
-		F32 dist_from_plane = (slaved_pos * foot_plane_normal) - mFootPlane.mV[VW];
-		LLVector3 collide_point = slaved_pos;
-		collide_point.mV[VZ] -= foot_plane_normal.mV[VZ] * (dist_from_plane + COLLISION_TOLERANCE - FOOT_COLLIDE_FUDGE);
-
-		gGL.begin(LLRender::LINES);
-		{
-			F32 SQUARE_SIZE = 0.2f;
-			gGL.color4f(1.f, 0.f, 0.f, 1.f);
-			
-			gGL.vertex3f(collide_point.mV[VX] - SQUARE_SIZE, collide_point.mV[VY] - SQUARE_SIZE, collide_point.mV[VZ]);
-			gGL.vertex3f(collide_point.mV[VX] + SQUARE_SIZE, collide_point.mV[VY] - SQUARE_SIZE, collide_point.mV[VZ]);
-
-			gGL.vertex3f(collide_point.mV[VX] + SQUARE_SIZE, collide_point.mV[VY] - SQUARE_SIZE, collide_point.mV[VZ]);
-			gGL.vertex3f(collide_point.mV[VX] + SQUARE_SIZE, collide_point.mV[VY] + SQUARE_SIZE, collide_point.mV[VZ]);
-			
-			gGL.vertex3f(collide_point.mV[VX] + SQUARE_SIZE, collide_point.mV[VY] + SQUARE_SIZE, collide_point.mV[VZ]);
-			gGL.vertex3f(collide_point.mV[VX] - SQUARE_SIZE, collide_point.mV[VY] + SQUARE_SIZE, collide_point.mV[VZ]);
-			
-			gGL.vertex3f(collide_point.mV[VX] - SQUARE_SIZE, collide_point.mV[VY] + SQUARE_SIZE, collide_point.mV[VZ]);
-			gGL.vertex3f(collide_point.mV[VX] - SQUARE_SIZE, collide_point.mV[VY] - SQUARE_SIZE, collide_point.mV[VZ]);
-			
-			gGL.vertex3f(collide_point.mV[VX], collide_point.mV[VY], collide_point.mV[VZ]);
-			gGL.vertex3f(collide_point.mV[VX] + mFootPlane.mV[VX], collide_point.mV[VY] + mFootPlane.mV[VY], collide_point.mV[VZ] + mFootPlane.mV[VZ]);
-
-		}
-		gGL.end();
-		gGL.flush();
-	}
 	//--------------------------------------------------------------------
 	// render all geometry attached to the skeleton
 	//--------------------------------------------------------------------
@@ -7238,6 +7204,14 @@ void LLVOAvatar::dirtyMesh(S32 priority)
 LLViewerJoint*	LLVOAvatar::getViewerJoint(S32 idx)
 {
 	return dynamic_cast<LLViewerJoint*>(mMeshLOD[idx]);
+}
+
+//-----------------------------------------------------------------------------
+// hideHair()
+//-----------------------------------------------------------------------------
+void LLVOAvatar::hideHair()
+{
+    mMeshLOD[MESH_ID_HAIR]->setVisible(FALSE, TRUE);
 }
 
 //-----------------------------------------------------------------------------
@@ -10242,23 +10216,6 @@ LLHost LLVOAvatar::getObjectHost() const
 	else
 	{
 		return LLHost();
-	}
-}
-
-//static
-void LLVOAvatar::updateFreezeCounter(S32 counter)
-{
-	if(counter)
-	{
-		sFreezeCounter = counter;
-	}
-	else if(sFreezeCounter > 0)
-	{
-		sFreezeCounter--;
-	}
-	else
-	{
-		sFreezeCounter = 0;
 	}
 }
 

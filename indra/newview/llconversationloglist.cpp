@@ -391,7 +391,8 @@ bool LLConversationLogList::isActionEnabled(const LLSD& userdata)
 			 "can_invite_to_group"	== command_name ||
 			 "can_share"			== command_name ||
 			 "can_block"			== command_name ||
-			 "can_pay"				== command_name)
+			 "can_pay"				== command_name ||
+			 "report_abuse"			== command_name)
 	{
 		return is_p2p;
 	}

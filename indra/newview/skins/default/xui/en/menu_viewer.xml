@@ -422,7 +422,9 @@
         </menu_item_call>       
         <menu_item_call
          label="Stop animations"
-         name="Stop Animating My Avatar">
+         name="Stop Animating My Avatar"
+         allow_key_repeat="true"
+         shortcut="alt|shift|A">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
@@ -2644,6 +2646,12 @@ function="World.EnvPreset"
              name="Force Bad Memory Access">
                 <menu_item_call.on_click
                  function="Advanced.ForceErrorBadMemoryAccess" />
+            </menu_item_call>
+            <menu_item_call
+             label="Force Bad Memory Access in Coroutine"
+             name="Force Bad Memory Access in Coroutine">
+                <menu_item_call.on_click
+                 function="Advanced.ForceErrorBadMemoryAccessCoro" />
             </menu_item_call>
             <menu_item_call
              label="Force Infinite Loop"

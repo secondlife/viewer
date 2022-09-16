@@ -2952,10 +2952,15 @@ void LLPanelPreferenceControls::cancel()
         if (mConflictHandler[i].hasUnsavedChanges())
         {
             mConflictHandler[i].clear();
+            if (mEditingMode == i)
+            {
+                // cancel() can be called either when preferences floater closes
+                // or when child floater closes (like advanced graphical settings)
+                // in which case we need to clear and repopulate table
+                regenerateControls();
+            }
         }
     }
-    pControlsTable->clearRows();
-    pControlsTable->clearColumns();
 }
 
 void LLPanelPreferenceControls::saveSettings()

@@ -544,17 +544,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>AvalinePhoneSeparator</key>
-    <map>
-      <key>Comment</key>
-      <string>Separator of phone parts to have Avaline numbers human readable in Voice Control Panel</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>-</string>
-    </map>
     <key>AvatarAxisDeadZone0</key>
     <map>
       <key>Comment</key>
@@ -4758,7 +4747,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>https://search.[GRID]/viewer/[CATEGORY]/?q=[QUERY]&amp;r=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
+      <string>https://search.[GRID]/?query_term=[QUERY]&amp;search_type=[TYPE][COLLECTION]&amp;maturity=[MATURITY]&amp;lang=[LANGUAGE]&amp;g=[GODLIKE]&amp;sid=[SESSION_ID]&amp;rid=[REGION_ID]&amp;pid=[PARCEL_ID]&amp;channel=[CHANNEL]&amp;version=[VERSION]&amp;major=[VERSION_MAJOR]&amp;minor=[VERSION_MINOR]&amp;patch=[VERSION_PATCH]&amp;build=[VERSION_BUILD]</string>
     </map>
     <key>GuidebookURL</key>
     <map>
@@ -5799,6 +5788,17 @@
     <map>
       <key>Comment</key>
       <string>Version number of cache</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>DiskCacheVersion</key>
+    <map>
+      <key>Comment</key>
+      <string>Version number of disk cache</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -15736,6 +15736,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
+    </map>
+    <key>AllowSelectAvatar</key>
+    <map>
+      <key>Comment</key>
+      <string>Allows user to select and move avatars, move is viewer sided, does not propagate to server, also supresses avatar position updates while avatars are selected</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
      <key>WebProfileFloaterRect</key>
     <map>

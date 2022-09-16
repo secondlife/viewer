@@ -148,6 +148,22 @@ void LLKeyboard::addKeyName(KEY key, const std::string& name)
 	sNamesToKeys[nameuc] = key;
 }
 
+void LLKeyboard::resetKeyDownAndHandle()
+{
+    MASK mask = currentMask(FALSE);
+    for (S32 i = 0; i < KEY_COUNT; i++)
+    {
+        if (mKeyLevel[i])
+        {
+            mKeyDown[i] = FALSE;
+            mKeyLevel[i] = FALSE;
+            mKeyUp[i] = TRUE;
+            mCurTranslatedKey = (KEY)i;
+            mCallbacks->handleTranslatedKeyUp(i, mask);
+        }
+    }
+}
+
 // BUG this has to be called when an OS dialog is shown, otherwise modifier key state
 // is wrong because the keyup event is never received by the main window. JC
 void LLKeyboard::resetKeys()

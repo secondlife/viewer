@@ -532,7 +532,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	mSessionInitialized(false),
 	mCallBackEnabled(true),
 	mTextIMPossible(true),
-	mOtherParticipantIsAvatar(true),
 	mStartCallOnInitialize(false),
 	mStartedAsIMCall(voice),
 	mIsDNDsend(false),
@@ -544,13 +543,6 @@ LLIMModel::LLIMSession::LLIMSession(const LLUUID& session_id, const std::string&
 	if (IM_NOTHING_SPECIAL == mType || IM_SESSION_P2P_INVITE == mType)
 	{
 		mVoiceChannel  = new LLVoiceChannelP2P(session_id, name, other_participant_id);
-		mOtherParticipantIsAvatar = LLVoiceClient::getInstance()->isParticipantAvatar(mSessionID);
-
-		// check if it was AVALINE call
-		if (!mOtherParticipantIsAvatar)
-		{
-			mSessionType = AVALINE_SESSION;
-		} 
 	}
 	else
 	{
@@ -651,9 +643,6 @@ void LLIMModel::LLIMSession::onVoiceChannelStateChanged(const LLVoiceChannel::ES
 
 	switch(mSessionType)
 	{
-	case AVALINE_SESSION:
-		// no text notifications
-		break;
 	case P2P_SESSION:
 		LLAvatarNameCache::get(mOtherParticipantID, &av_name);
 		other_avatar_name = av_name.getUserName();
@@ -911,11 +900,6 @@ bool LLIMModel::LLIMSession::isP2P()
 bool LLIMModel::LLIMSession::isGroupChat()
 {
 	return IM_SESSION_GROUP_START == mType || (IM_SESSION_INVITE == mType && gAgent.isInGroup(mSessionID, TRUE));
-}
-
-bool LLIMModel::LLIMSession::isOtherParticipantAvaline()
-{
-	return !mOtherParticipantIsAvatar;
 }
 
 LLUUID LLIMModel::LLIMSession::generateOutgoingAdHocHash() const
@@ -1795,7 +1779,6 @@ LLIMMgr::onConfirmForceCloseError(
 
 LLCallDialogManager::LLCallDialogManager():
 mPreviousSessionlName(""),
-mPreviousSessionType(LLIMModel::LLIMSession::P2P_SESSION),
 mCurrentSessionlName(""),
 mSession(NULL),
 mOldState(LLVoiceChannel::STATE_READY)
@@ -1826,12 +1809,6 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 		mCurrentSessionlName = ""; // Empty string results in "Nearby Voice Chat" after substitution
 		return;
 	}
-	
-	if (mSession)
-	{
-		// store previous session type to process Avaline calls in dialogs
-		mPreviousSessionType = mSession->mSessionType;
-	}
 
 	mSession = session;
 
@@ -1857,7 +1834,6 @@ void LLCallDialogManager::onVoiceChannelChangedInt(const LLUUID &session_id)
 		mCallDialogPayload["session_name"] = mSession->mName;
 		mCallDialogPayload["other_user_id"] = mSession->mOtherParticipantID;
 		mCallDialogPayload["old_channel_name"] = mPreviousSessionlName;
-		mCallDialogPayload["old_session_type"] = mPreviousSessionType;
 		mCallDialogPayload["state"] = LLVoiceChannel::STATE_CALL_STARTED;
 		mCallDialogPayload["disconnected_channel_name"] = mSession->mName;
 		mCallDialogPayload["session_type"] = mSession->mSessionType;
@@ -1893,7 +1869,6 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 	mCallDialogPayload["session_name"] = mSession->mName;
 	mCallDialogPayload["other_user_id"] = mSession->mOtherParticipantID;
 	mCallDialogPayload["old_channel_name"] = mPreviousSessionlName;
-	mCallDialogPayload["old_session_type"] = mPreviousSessionType;
 	mCallDialogPayload["state"] = new_state;
 	mCallDialogPayload["disconnected_channel_name"] = mSession->mName;
 	mCallDialogPayload["session_type"] = mSession->mSessionType;
@@ -1910,8 +1885,7 @@ void LLCallDialogManager::onVoiceChannelStateChangedInt(const LLVoiceChannel::ES
 		break;
 
 	case LLVoiceChannel::STATE_HUNG_UP:
-		// this state is coming before session is changed, so, put it into payload map
-		mCallDialogPayload["old_session_type"] = mSession->mSessionType;
+		// this state is coming before session is changed
 		break;
 
 	case LLVoiceChannel::STATE_CONNECTED :
@@ -2031,7 +2005,6 @@ void LLCallDialog::onOpen(const LLSD& key)
 
 void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 {
-	// *NOTE: 12/28/2009: check avaline calls: LLVoiceClient::isParticipantAvatar returns false for them
 	bool participant_is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 
 	bool is_group = participant_is_avatar && gAgent.isInGroup(session_id, TRUE);
@@ -2052,8 +2025,8 @@ void LLCallDialog::setIcon(const LLSD& session_id, const LLSD& participant_id)
 	}
 	else
 	{
-		avatar_icon->setValue("Avaline_Icon");
-		avatar_icon->setToolTip(std::string(""));
+        LL_WARNS() << "Participant neither avatar nor group" << LL_ENDL;
+        group_icon->setValue(session_id);
 	}
 }
 
@@ -2097,13 +2070,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	// tell the user which voice channel they are leaving
 	if (!mPayload["old_channel_name"].asString().empty())
 	{
-		bool was_avaline_call = LLIMModel::LLIMSession::AVALINE_SESSION == mPayload["old_session_type"].asInteger();
-
 		std::string old_caller_name = mPayload["old_channel_name"].asString();
-		if (was_avaline_call)
-		{
-			old_caller_name = LLTextUtil::formatPhoneNumber(old_caller_name);
-		}
 
 		getChild<LLUICtrl>("leaving")->setTextArg("[CURRENT_CHAT]", old_caller_name);
 		show_oldchannel = true;
@@ -2116,10 +2083,6 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	if (!mPayload["disconnected_channel_name"].asString().empty())
 	{
 		std::string channel_name = mPayload["disconnected_channel_name"].asString();
-		if (LLIMModel::LLIMSession::AVALINE_SESSION == mPayload["session_type"].asInteger())
-		{
-			channel_name = LLTextUtil::formatPhoneNumber(channel_name);
-		}
 		getChild<LLUICtrl>("nearby")->setTextArg("[VOICE_CHANNEL_NAME]", channel_name);
 
 		// skipping "You will now be reconnected to nearby" in notification when call is ended by disabling voice,
@@ -2135,15 +2098,10 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 	std::string callee_name = mPayload["session_name"].asString();
 
 	LLUUID session_id = mPayload["session_id"].asUUID();
-	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 
-	if (callee_name == "anonymous")
+	if (callee_name == "anonymous") // obsolete? Likely was part of avaline support
 	{
 		callee_name = getString("anonymous");
-	}
-	else if (!is_avatar)
-	{
-		callee_name = LLTextUtil::formatPhoneNumber(callee_name);
 	}
 	
 	LLSD callee_id = mPayload["other_user_id"];
@@ -2344,16 +2302,9 @@ BOOL LLIncomingCallDialog::postBuild()
 		call_type = getString(notify_box_type);
 	}
 
-	// check to see if this is an Avaline call
-	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
-	if (caller_name == "anonymous")
+	if (caller_name == "anonymous") // obsolete?  Likely was part of avaline support
 	{
 		caller_name = getString("anonymous");
-		setCallerName(caller_name, caller_name, call_type);
-	}
-	else if (!is_avatar)
-	{
-		caller_name = LLTextUtil::formatPhoneNumber(caller_name);
 		setCallerName(caller_name, caller_name, call_type);
 	}
 	else
@@ -2375,7 +2326,7 @@ BOOL LLIncomingCallDialog::postBuild()
 
 	if(notify_box_type != "VoiceInviteGroup" && notify_box_type != "VoiceInviteAdHoc")
 	{
-		// starting notification's timer for P2P and AVALINE invitations
+		// starting notification's timer for P2P invitations
 		mLifetimeTimer.start();
 	}
 	else
@@ -2384,7 +2335,7 @@ BOOL LLIncomingCallDialog::postBuild()
 	}
 
 	//it's not possible to connect to existing Ad-Hoc/Group chat through incoming ad-hoc call
-	//and no IM for avaline
+	bool is_avatar = LLVoiceClient::getInstance()->isParticipantAvatar(session_id);
 	getChildView("Start IM")->setVisible( is_avatar && notify_box_type != "VoiceInviteAdHoc" && notify_box_type != "VoiceInviteGroup");
 
 	setCanDrag(FALSE);

@@ -1320,6 +1320,7 @@ void LLPanelRegionDebugInfo::onClickDebugConsole(void* data)
 
 BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 {
+    static const S32 MAX_TERRAIN_TEXTURE_SIZE = 1024;
 	for(S32 i = 0; i < TERRAIN_TEXTURE_COUNT; ++i)
 	{
 		std::string buffer;
@@ -1341,17 +1342,19 @@ BOOL LLPanelRegionTerrainInfo::validateTextureSizes()
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_BIT_DEPTH"] = llformat("%d",components * 8);
+            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
 			LLNotificationsUtil::add("InvalidTerrainBitDepth", args);
 			return FALSE;
 		}
 
-		if (width > 512 || height > 512)
+		if (width > MAX_TERRAIN_TEXTURE_SIZE || height > MAX_TERRAIN_TEXTURE_SIZE)
 		{
 
 			LLSD args;
 			args["TEXTURE_NUM"] = i+1;
 			args["TEXTURE_SIZE_X"] = width;
 			args["TEXTURE_SIZE_Y"] = height;
+            args["MAX_SIZE"] = MAX_TERRAIN_TEXTURE_SIZE;
 			LLNotificationsUtil::add("InvalidTerrainSize", args);
 			return FALSE;
 			
@@ -3681,7 +3684,7 @@ void LLPanelEstateAccess::searchAgent(LLNameListCtrl* listCtrl, const std::strin
 	if (!search_string.empty())
 	{
 		listCtrl->setSearchColumn(0); // name column
-		listCtrl->selectItemByPrefix(search_string, FALSE);
+		listCtrl->searchItems(search_string, false, true);
 	}
 	else
 	{
