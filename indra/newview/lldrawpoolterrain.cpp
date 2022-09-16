@@ -165,19 +165,6 @@ void LLDrawPoolTerrain::render(S32 pass)
 
 	LLOverrideFaceColor override(this, 1.f, 1.f, 1.f, 1.f);
 
-	if (!gGLManager.mHasMultitexture)
-	{
-		// No multitexture, render simple land.
-		renderSimple(); // Render without multitexture
-		return;
-	}
-	// Render simplified land if video card can't do sufficient multitexturing
-	if (!gGLManager.mHasARBEnvCombine || (gGLManager.mNumTextureUnits < 2))
-	{
-		renderSimple(); // Render without multitexture
-		return;
-	}
-
 	LLGLSPipeline gls;
 	
 	if (mShaderLevel > 1 && sShader->mShaderLevel > 0)
@@ -193,10 +180,6 @@ void LLDrawPoolTerrain::render(S32 pass)
 		if (sDetailMode == 0)
 		{
 			renderSimple();
-		} 
-		else if (gGLManager.mNumTextureUnits < 4)
-		{
-			renderFull2TU();
 		} 
 		else 
 		{

@@ -104,7 +104,7 @@ void LLDrawPoolWater::restoreGL()
 
 void LLDrawPoolWater::prerender()
 {
-	mShaderLevel = (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps) ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
+	mShaderLevel = LLCubeMap::sUseCubeMaps ? LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WATER) : 0;
 }
 
 S32 LLDrawPoolWater::getNumPasses()
@@ -187,12 +187,6 @@ void LLDrawPoolWater::render(S32 pass)
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
 	stop_glerror();
-
-	if (!gGLManager.mHasMultitexture)
-	{
-		// Ack!  No multitexture!  Bail!
-		return;
-	}
 
 	LLFace* refl_face = voskyp->getReflFace();
 

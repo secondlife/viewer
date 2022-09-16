@@ -67,7 +67,7 @@ void LLCubeMap::initGL()
 {
 	llassert(gGLManager.mInited);
 
-	if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
+	if (LLCubeMap::sUseCubeMaps)
 	{
 		// Not initialized, do stuff.
 		if (mImages[0].isNull())
@@ -252,7 +252,7 @@ void LLCubeMap::enable(S32 stage)
 void LLCubeMap::enableTexture(S32 stage)
 {
 	mTextureStage = stage;
-	if (gGLManager.mHasCubeMap && stage >= 0 && LLCubeMap::sUseCubeMaps)
+	if (stage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
 		gGL.getTexUnit(stage)->enable(LLTexUnit::TT_CUBE_MAP);
 	}
@@ -265,7 +265,7 @@ void LLCubeMap::disable(void)
 
 void LLCubeMap::disableTexture(void)
 {
-	if (gGLManager.mHasCubeMap && mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
+	if (mTextureStage >= 0 && LLCubeMap::sUseCubeMaps)
 	{
 		gGL.getTexUnit(mTextureStage)->disable();
 		if (mTextureStage == 0)

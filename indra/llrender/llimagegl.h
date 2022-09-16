@@ -219,7 +219,7 @@ private:
 	U16 mPickMaskHeight;
 	S8 mUseMipMaps;
 	BOOL mHasExplicitFormat; // If false (default), GL format is f(mComponents)
-	S8 mAutoGenMips;
+	bool mAutoGenMips = false;
 
 	BOOL mIsMask;
 	BOOL mNeedsAlphaAndPickMask;

@@ -917,15 +917,12 @@ void LLOcclusionCullingGroup::handleChildAddition(const OctreeNode* parent, Octr
 
 void LLOcclusionCullingGroup::releaseOcclusionQueryObjectNames()
 {
-	if (gGLManager.mHasOcclusionQuery)
+	for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; ++i)
 	{
-		for (U32 i = 0; i < LLViewerCamera::NUM_CAMERAS; ++i)
+		if (mOcclusionQuery[i])
 		{
-			if (mOcclusionQuery[i])
-			{
-				releaseOcclusionQueryObjectName(mOcclusionQuery[i]);
-				mOcclusionQuery[i] = 0;
-			}
+			releaseOcclusionQueryObjectName(mOcclusionQuery[i]);
+			mOcclusionQuery[i] = 0;
 		}
 	}
 }
@@ -1129,7 +1126,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
             GLuint available;
             {
                 LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query available");
-                glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE_ARB, &available);
+                glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_AVAILABLE, &available);
             }
 
             if (available)
@@ -1137,7 +1134,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
                 GLuint query_result;    // Will be # samples drawn, or a boolean depending on mHasOcclusionQuery2 (both are type GLuint)
                 {
                     LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("co - query result");
-                    glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT_ARB, &query_result);
+                    glGetQueryObjectuiv(mOcclusionQuery[LLViewerCamera::sCurCameraID], GL_QUERY_RESULT, &query_result);
                 }
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
                 sPendingQueries.erase(mOcclusionQuery[LLViewerCamera::sCurCameraID]);
@@ -1197,7 +1194,6 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 			OCCLUSION_FUDGE_Z = 1.;
 		}
 
-		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
 		if (earlyFail(camera, bounds))
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_OCTREE("doOcclusion - early fail");
@@ -1221,17 +1217,12 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 					// Depth clamp all water to avoid it being culled as a result of being
 					// behind the far clip plane, and in the case of edge water to avoid
 					// it being culled while still visible.
-					bool const use_depth_clamp = gGLManager.mHasDepthClamp &&
-												(mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_WATER ||
+					bool const use_depth_clamp = (mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_WATER ||
 												mSpatialPartition->mDrawableType == LLPipeline::RENDER_TYPE_VOIDWATER);
 
-					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);				
+					LLGLEnable clamp(use_depth_clamp ? GL_DEPTH_CLAMP : 0);
 						
-#if !LL_DARWIN					
-					U32 mode = gGLManager.mHasOcclusionQuery2 ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED_ARB;
-#else
-					U32 mode = GL_SAMPLES_PASSED_ARB;
-#endif
+					U32 mode = gGLManager.mGLVersion >= 3.3f ? GL_ANY_SAMPLES_PASSED : GL_SAMPLES_PASSED;
 					
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 					sPendingQueries.insert(mOcclusionQuery[LLViewerCamera::sCurCameraID]);

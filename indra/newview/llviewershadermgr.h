@@ -62,7 +62,6 @@ public:
 	BOOL loadShadersWater();
 	BOOL loadShadersInterface();
 	BOOL loadShadersWindLight();
-	BOOL loadTransformShaders();
 
 	std::vector<S32> mShaderLevel;
 	S32	mMaxAvatarShaderLevel;
@@ -78,7 +77,6 @@ public:
 		SHADER_WINDLIGHT,
 		SHADER_WATER,
 		SHADER_DEFERRED,
-		SHADER_TRANSFORM,
 		SHADER_COUNT
 	};
 
@@ -149,15 +147,6 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
 }
 
 extern LLVector4			gShinyOrigin;
-
-//transform shaders
-extern LLGLSLShader			gTransformPositionProgram;
-extern LLGLSLShader			gTransformTexCoordProgram;
-extern LLGLSLShader			gTransformNormalProgram;
-extern LLGLSLShader			gTransformColorProgram;
-extern LLGLSLShader			gTransformTangentProgram;
-
-
 
 //utility shaders
 extern LLGLSLShader			gOcclusionProgram;

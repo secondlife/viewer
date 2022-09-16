@@ -987,9 +987,8 @@ private:
 //-----------------------------------------------------------------------------
 F32 gpu_benchmark()
 {
-	if (!gGLManager.mHasTimerQuery)
+	if (gGLManager.mGLVersion < 3.3f)
 	{ // don't bother benchmarking venerable drivers which don't support accurate timing anyway
-      // and are likely to be correctly identified by the GPU table already.
 		return -1.f;
 	}
 
@@ -1115,16 +1114,6 @@ F32 gpu_benchmark()
 	// ensure matched pair of bind() and unbind() calls
 	ShaderBinder binder(gBenchmarkProgram);
 
-#ifdef GL_ARB_vertex_array_object
-    U32 glarray = 0;
-
-    if (LLRender::sGLCoreProfile)
-    {
-        glGenVertexArrays(1, &glarray);
-        glBindVertexArray(glarray);
-    }
-#endif
-
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
 
@@ -1156,15 +1145,6 @@ F32 gpu_benchmark()
 			results.push_back(gbps);
 		}
 	}
-
-#ifdef GL_ARB_vertex_array_object
-    if (LLRender::sGLCoreProfile)
-    {
-        glBindVertexArray(0);
-        glDeleteVertexArrays(1, &glarray);
-    }
-#endif
-
 
 	std::sort(results.begin(), results.end());
 

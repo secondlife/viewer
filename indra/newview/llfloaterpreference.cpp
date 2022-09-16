@@ -1198,7 +1198,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
 	// Reflections
-    BOOL reflections = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps;
+    BOOL reflections = LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
 	reflections_text->setEnabled(reflections);
 
@@ -1227,14 +1227,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	// Hardware settings
 	
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
-		!gGLManager.mHasVertexBufferObject)
-	{
-		getChildView("vbo")->setEnabled(FALSE);
-	}
-
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
-		!gGLManager.mHasVertexBufferObject)
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures"))
 	{
 		getChildView("texture compression")->setEnabled(FALSE);
 	}

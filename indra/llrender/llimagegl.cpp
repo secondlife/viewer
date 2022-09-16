@@ -352,7 +352,7 @@ void LLImageGL::updateStats(F32 current_time)
 //static 
 void LLImageGL::destroyGL(BOOL save_state)
 {
-	for (S32 stage = 0; stage < gGLManager.mNumTextureUnits; stage++)
+	for (S32 stage = 0; stage < gGLManager.mNumTextureImageUnits; stage++)
 	{
 		gGL.getTexUnit(stage)->unbind(LLTexUnit::TT_TEXTURE);
 	}
@@ -520,7 +520,6 @@ void LLImageGL::init(BOOL usemipmaps)
 	mPickMaskHeight = 0;
 	mUseMipMaps = usemipmaps;
 	mHasExplicitFormat = FALSE;
-	mAutoGenMips = FALSE;
 
 	mIsMask = FALSE;
 	mNeedsAlphaAndPickMask = TRUE ;
@@ -1069,30 +1068,12 @@ BOOL LLImageGL::preAddToAtlas(S32 discard_level, const LLImageRaw* raw_image)
                 mFormatType     = GL_UNSIGNED_BYTE;
                 break;
             case 3:
-#if USE_SRGB_DECODE
-                if (gGLManager.mHasTexturesRGBDecode)
-                {
-                    mFormatInternal = GL_SRGB8;
-                }
-                else
-#endif
-                {
-                    mFormatInternal = GL_RGB8;
-                }
+                mFormatInternal = GL_RGB8;
                 mFormatPrimary = GL_RGB;
                 mFormatType    = GL_UNSIGNED_BYTE;
                 break;
             case 4:
-#if USE_SRGB_DECODE
-                if (gGLManager.mHasTexturesRGBDecode)
-                {
-                    mFormatInternal = GL_SRGB8_ALPHA8;
-                }
-                else
-#endif
-                {
-                    mFormatInternal = GL_RGBA8;
-                }
+                mFormatInternal = GL_RGBA8;
                 mFormatPrimary = GL_RGBA;
                 mFormatType    = GL_UNSIGNED_BYTE;
                 break;
@@ -1525,30 +1506,12 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const LLImageRaw* imageraw, S
             mFormatType = GL_UNSIGNED_BYTE;
             break;
         case 3:
-        #if USE_SRGB_DECODE
-            if (gGLManager.mHasTexturesRGBDecode)
-            {
-                mFormatInternal = GL_SRGB8;
-            }
-            else
-        #endif
-            {
-                mFormatInternal = GL_RGB8;
-            }
+            mFormatInternal = GL_RGB8;
             mFormatPrimary = GL_RGB;
             mFormatType = GL_UNSIGNED_BYTE;
             break;
         case 4:
-        #if USE_SRGB_DECODE
-            if (gGLManager.mHasTexturesRGBDecode)
-            {
-                mFormatInternal = GL_SRGB8_ALPHA8;
-            }
-            else
-        #endif
-            {
-                mFormatInternal = GL_RGBA8;
-            }
+            mFormatInternal = GL_RGBA8;
             mFormatPrimary = GL_RGBA;
             mFormatType = GL_UNSIGNED_BYTE;
             break;
@@ -1637,7 +1600,7 @@ BOOL LLImageGL::createGLTexture(S32 discard_level, const U8* data_in, BOOL data_
 
     if (mUseMipMaps)
     {
-        mAutoGenMips = gGLManager.mHasMipMapGeneration;
+        mAutoGenMips = true;
     }
 
     mCurrentDiscardLevel = discard_level;
@@ -1694,44 +1657,37 @@ void LLImageGL::syncToMainThread(LLGLuint new_tex_name)
 
     {
         LL_PROFILE_ZONE_NAMED("cglt - sync");
-        if (gGLManager.mHasSync)
+        if (gGLManager.mIsNVIDIA)
         {
-            if (gGLManager.mIsNVIDIA)
-            {
-                // wait for texture upload to finish before notifying main thread
-                // upload is complete
-                auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-                glFlush();
-                glClientWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
-                glDeleteSync(sync);
-            }
-            else
-            {
-                // post a sync to the main thread (will execute before tex name swap lambda below)
-                // glFlush calls here are partly superstitious and partly backed by observation
-                // on AMD hardware
-                glFlush();
-                auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-                glFlush();
-                LL::WorkQueue::postMaybe(
-                    mMainQueue,
-                    [=]()
-                    {
-                        LL_PROFILE_ZONE_NAMED("cglt - wait sync");
-                        {
-                            LL_PROFILE_ZONE_NAMED("glWaitSync");
-                            glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
-                        }
-                        {
-                            LL_PROFILE_ZONE_NAMED("glDeleteSync");
-                            glDeleteSync(sync);
-                        }
-                    });
-            }
+            // wait for texture upload to finish before notifying main thread
+            // upload is complete
+            auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+            glFlush();
+            glClientWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+            glDeleteSync(sync);
         }
         else
         {
-            glFinish();
+            // post a sync to the main thread (will execute before tex name swap lambda below)
+            // glFlush calls here are partly superstitious and partly backed by observation
+            // on AMD hardware
+            glFlush();
+            auto sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+            glFlush();
+            LL::WorkQueue::postMaybe(
+                mMainQueue,
+                [=]()
+                {
+                    LL_PROFILE_ZONE_NAMED("cglt - wait sync");
+                    {
+                        LL_PROFILE_ZONE_NAMED("glWaitSync");
+                        glWaitSync(sync, 0, GL_TIMEOUT_IGNORED);
+                    }
+                    {
+                        LL_PROFILE_ZONE_NAMED("glDeleteSync");
+                        glDeleteSync(sync);
+                    }
+                });
         }
     }
 

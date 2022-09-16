@@ -76,52 +76,27 @@ public:
 	BOOL mInited;
 	BOOL mIsDisabled;
 
-	// Extensions used by everyone
-	BOOL mHasMultitexture;
-	BOOL mHasATIMemInfo;
-	BOOL mHasAMDAssociations;
-	BOOL mHasNVXMemInfo;
-	S32	 mNumTextureUnits;
-	BOOL mHasMipMapGeneration;
-	BOOL mHasCompressedTextures;
-	BOOL mHasFramebufferObject;
+	// OpenGL limits
 	S32 mMaxSamples;
-	BOOL mHasBlendFuncSeparate;
-		
-	// ARB Extensions
-	BOOL mHasVertexBufferObject;
-	BOOL mHasVertexArrayObject;
-	BOOL mHasSync;
-	BOOL mHasMapBufferRange;
-	BOOL mHasFlushBufferRange;
-	BOOL mHasPBuffer;
-	S32  mNumTextureImageUnits;
-	BOOL mHasOcclusionQuery;
-	BOOL mHasTimerQuery;
-	BOOL mHasOcclusionQuery2;
-	BOOL mHasPointParameters;
-	BOOL mHasDrawBuffers;
-	BOOL mHasDepthClamp;
-	BOOL mHasTextureRectangle;
-	BOOL mHasTextureMultisample;
-	BOOL mHasTransformFeedback;
-    BOOL mHasUniformBufferObject;
+	S32 mNumTextureImageUnits;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;
 	S32 mMaxIntegerSamples;
+    S32 mGLMaxVertexRange;
+    S32 mGLMaxIndexRange;
+    S32 mGLMaxTextureSize;
+    F32 mMaxAnisotropy = 0.f;
 
-	// Other extensions.
-	BOOL mHasAnisotropic;
-	BOOL mHasARBEnvCombine;
-	BOOL mHasCubeMap;
-	BOOL mHasCubeMapArray;
-	BOOL mHasDebugOutput;
-	BOOL mHassRGBTexture;
-	BOOL mHassRGBFramebuffer;
-    BOOL mHasTexturesRGBDecode;
-
+	// GL 4.x capabilities
+	bool mHasCubeMapArray = false;
+	bool mHasDebugOutput = false;
+    bool mHasTransformFeedback = false;
+    bool mHasAnisotropic = false;
+	
 	// Vendor-specific extensions
+    bool mHasAMDAssociations = false;
+
 	BOOL mIsAMD;
 	BOOL mIsNVIDIA;
 	BOOL mIsIntel;
@@ -134,9 +109,6 @@ public:
 	// Whether this version of GL is good enough for SL to use
 	BOOL mHasRequirements;
 
-	// Misc extensions
-	BOOL mHasSeparateSpecularColor;
-
 	S32 mDriverVersionMajor;
 	S32 mDriverVersionMinor;
 	S32 mDriverVersionRelease;
@@ -147,9 +119,6 @@ public:
 	std::string mGLVersionString;
 
 	S32 mVRAM; // VRAM in MB
-	S32 mGLMaxVertexRange;
-	S32 mGLMaxIndexRange;
-	S32 mGLMaxTextureSize;
 	
 	void getPixelFormat(); // Get the best pixel format
 
@@ -415,9 +384,7 @@ public:
 class LLGLSyncFence : public LLGLFence
 {
 public:
-#ifdef GL_ARB_sync
 	GLsync mSync;
-#endif
 	
 	LLGLSyncFence();
 	virtual ~LLGLSyncFence();

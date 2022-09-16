@@ -907,7 +907,7 @@ public:
     void remap();
 
 	void optimize(F32 angle_cutoff = 2.f);
-	bool cacheOptimize();
+	bool cacheOptimize(bool gen_tangents = false);
 
 	void createOctree(F32 scaler = 0.25f, const LLVector4a& center = LLVector4a(0,0,0), const LLVector4a& size = LLVector4a(0.5f,0.5f,0.5f));
 
@@ -956,10 +956,6 @@ public:
     // are two triangles {0, 2, 3} and {1, 2, 4} with values being
     // indexes for mPositions/mNormals/mTexCoords
 	U16* mIndices;
-
-	// vertex buffer filled in by LLFace to cache this volume face geometry in vram 
-	// (declared as a LLPointer to LLRefCount to avoid dependency on LLVertexBuffer)
-	mutable LLPointer<LLRefCount> mVertexBuffer; 
 
 	std::vector<S32>	mEdge;
 
@@ -1089,7 +1085,10 @@ public:
 	void copyVolumeFaces(const LLVolume* volume);
 	void copyFacesTo(std::vector<LLVolumeFace> &faces) const;
 	void copyFacesFrom(const std::vector<LLVolumeFace> &faces);
-	bool cacheOptimize();
+
+    // use meshoptimizer to optimize index buffer for vertex shader cache
+    //  gen_tangents - if true, generate MikkTSpace tangents if needed before optimizing index buffer
+	bool cacheOptimize(bool gen_tangents = false);
 
 private:
 	void sculptGenerateMapVertices(U16 sculpt_width, U16 sculpt_height, S8 sculpt_components, const U8* sculpt_data, U8 sculpt_type);

@@ -2783,7 +2783,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 		}
 	}
 
-	if (!cacheOptimize())
+	if (!cacheOptimize(true))
 	{
 		// Out of memory?
 		LL_WARNS() << "Failed to optimize!" << LL_ENDL;
@@ -2824,11 +2824,11 @@ void LLVolume::copyVolumeFaces(const LLVolume* volume)
 	mSculptLevel = 0;
 }
 
-bool LLVolume::cacheOptimize()
+bool LLVolume::cacheOptimize(bool gen_tangents)
 {
 	for (S32 i = 0; i < mVolumeFaces.size(); ++i)
 	{
-		if (!mVolumeFaces[i].cacheOptimize())
+		if (!mVolumeFaces[i].cacheOptimize(gen_tangents))
 		{
 			return false;
 		}
@@ -5478,18 +5478,13 @@ struct MikktData
 };
 
 
-bool LLVolumeFace::cacheOptimize()
+bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 { //optimize for vertex cache according to Forsyth method: 
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 	llassert(!mOptimized);
 	mOptimized = TRUE;
 
-    if (!mNormals || !mTexCoords)
-    { // can't perform this operation without normals and texture coordinates
-        return false;
-    }
-
-    if (mMikktSpaceTangents == nullptr)
+    if (mMikktSpaceTangents == nullptr && gen_tangents && mNormals && mTexCoords)
     { // make sure to generate mikkt space tangents for cache optimizing since the index buffer may change
         allocateTangents(mNumVertices, true);
 

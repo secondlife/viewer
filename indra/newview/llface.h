@@ -81,8 +81,6 @@ public:
 		PARTICLE		= 0x0080,
 	};
 
-	static void cacheFaceInVRAM(const LLVolumeFace& vf);
-
 public:
 	LLFace(LLDrawable* drawablep, LLViewerObject* objp)
 	{

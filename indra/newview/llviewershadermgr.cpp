@@ -70,13 +70,6 @@ bool				LLViewerShaderMgr::sSkipReload = false;
 
 LLVector4			gShinyOrigin;
 
-//transform shaders
-LLGLSLShader			gTransformPositionProgram;
-LLGLSLShader			gTransformTexCoordProgram;
-LLGLSLShader			gTransformNormalProgram;
-LLGLSLShader			gTransformColorProgram;
-LLGLSLShader			gTransformTangentProgram;
-
 //utility shaders
 LLGLSLShader	gOcclusionProgram;
 LLGLSLShader    gSkinnedOcclusionProgram;
@@ -469,7 +462,7 @@ void LLViewerShaderMgr::setShaders()
     initAttribsAndUniforms();
     gPipeline.releaseGLBuffers();
 
-    LLPipeline::sWaterReflections = gGLManager.mHasCubeMap && LLPipeline::sRenderTransparentWater;
+    LLPipeline::sWaterReflections = LLPipeline::sRenderTransparentWater;
     LLPipeline::sRenderGlow = gSavedSettings.getBOOL("RenderGlow"); 
     LLPipeline::updateRenderDeferred();
     
@@ -513,13 +506,6 @@ void LLViewerShaderMgr::setShaders()
     S32 wl_class = 1;
     S32 water_class = 2;
     S32 deferred_class = 0;
-    S32 transform_class = gGLManager.mHasTransformFeedback ? 1 : 0;
-
-    static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
-    if (!use_transform_feedback)
-    {
-        transform_class = 0;
-    }
 
     if (useRenderDeferred)
     {
@@ -572,7 +558,6 @@ void LLViewerShaderMgr::setShaders()
     mShaderLevel[SHADER_EFFECT] = effect_class;
     mShaderLevel[SHADER_WINDLIGHT] = wl_class;
     mShaderLevel[SHADER_DEFERRED] = deferred_class;
-    mShaderLevel[SHADER_TRANSFORM] = transform_class;
 
     std::string shader_name = loadBasicShaders();
     if (shader_name.empty())
@@ -653,20 +638,6 @@ void LLViewerShaderMgr::setShaders()
         else
         {
             LL_WARNS() << "Failed to load interface shaders." << LL_ENDL;
-            llassert(loaded);
-        }
-    }
-
-    if (loaded)
-    {
-        loaded = loadTransformShaders();
-        if (loaded)
-        {
-            LL_INFOS() << "Loaded transform shaders." << LL_ENDL;
-        }
-        else
-        {
-            LL_WARNS() << "Failed to load transform shaders." << LL_ENDL;
             llassert(loaded);
         }
     }
@@ -816,12 +787,6 @@ void LLViewerShaderMgr::unloadShaders()
 	gDeferredSkinnedDiffuseProgram.unload();
 	gDeferredSkinnedBumpProgram.unload();
 	
-	gTransformPositionProgram.unload();
-	gTransformTexCoordProgram.unload();
-	gTransformNormalProgram.unload();
-	gTransformColorProgram.unload();
-	gTransformTangentProgram.unload();
-
 	mShaderLevel[SHADER_LIGHTING] = 0;
 	mShaderLevel[SHADER_OBJECT] = 0;
 	mShaderLevel[SHADER_AVATAR] = 0;
@@ -830,7 +795,6 @@ void LLViewerShaderMgr::unloadShaders()
 	mShaderLevel[SHADER_INTERFACE] = 0;
 	mShaderLevel[SHADER_EFFECT] = 0;
 	mShaderLevel[SHADER_WINDLIGHT] = 0;
-	mShaderLevel[SHADER_TRANSFORM] = 0;
 
 	gPipeline.mShadersLoaded = false;
 }
@@ -1643,8 +1607,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         shader->mFeatures.hasReflectionProbes = mShaderLevel[SHADER_DEFERRED];
 
         shader->mShaderFiles.clear();
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER_ARB));
-        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER_ARB));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaV.glsl", GL_VERTEX_SHADER));
+        shader->mShaderFiles.push_back(make_pair("deferred/pbralphaF.glsl", GL_FRAGMENT_SHADER));
 
         shader->clearPermutations();
 
@@ -2437,10 +2401,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredShadowProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
+		// gDeferredShadowProgram.addPermutation("DEPTH_CLAMP", "1"); // disable depth clamp for now
         gDeferredShadowProgram.mRiggedVariant = &gDeferredSkinnedShadowProgram;
 		success = gDeferredShadowProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2456,10 +2417,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowSkinnedV.glsl", GL_VERTEX_SHADER));
         gDeferredSkinnedShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER));
         gDeferredSkinnedShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        if (gGLManager.mHasDepthClamp)
-        {
-            gDeferredSkinnedShadowProgram.addPermutation("DEPTH_CLAMP", "1");
-        }
+        // gDeferredSkinnedShadowProgram.addPermutation("DEPTH_CLAMP", "1"); // disable depth clamp for now
         success = gDeferredSkinnedShadowProgram.createShader(NULL, NULL);
         llassert(success);
     }
@@ -2472,10 +2430,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowCubeProgram.mShaderFiles.clear();
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowCubeV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER));
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredShadowCubeProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
+		// gDeferredShadowCubeProgram.addPermutation("DEPTH_CLAMP", "1");
 		gDeferredShadowCubeProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredShadowCubeProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2491,10 +2446,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
 
         gDeferredShadowFullbrightAlphaMaskProgram.clearPermutations();
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
+		gDeferredShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
         gDeferredShadowFullbrightAlphaMaskProgram.addPermutation("IS_FULLBRIGHT", "1");
 		gDeferredShadowFullbrightAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredShadowFullbrightAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowFullbrightAlphaMaskProgram;
@@ -2512,10 +2464,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
 
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.clearPermutations();
-        if (gGLManager.mHasDepthClamp)
-        {
-            gDeferredSkinnedShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
-        }
+        gDeferredSkinnedShadowFullbrightAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.addPermutation("IS_FULLBRIGHT", "1");
         gDeferredSkinnedShadowFullbrightAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredSkinnedShadowFullbrightAlphaMaskProgram.createShader(NULL, NULL);
@@ -2530,10 +2479,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredShadowAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
 		gDeferredShadowAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         gDeferredShadowAlphaMaskProgram.mRiggedVariant = &gDeferredSkinnedShadowAlphaMaskProgram;
 		success = gDeferredShadowAlphaMaskProgram.createShader(NULL, NULL);
@@ -2548,10 +2493,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.clear();
         gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskSkinnedV.glsl", GL_VERTEX_SHADER));
         gDeferredSkinnedShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
-        if (gGLManager.mHasDepthClamp)
-        {
-            gDeferredSkinnedShadowAlphaMaskProgram.addPermutation("DEPTH_CLAMP", "1");
-        }
         gDeferredSkinnedShadowAlphaMaskProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
         success = gDeferredSkinnedShadowAlphaMaskProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2565,10 +2506,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarShadowProgram.mShaderFiles.clear();
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowF.glsl", GL_FRAGMENT_SHADER));
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredAvatarShadowProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
 		gDeferredAvatarShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarShadowProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2581,7 +2518,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaShadowProgram.mShaderFiles.clear();
 		gDeferredAvatarAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAvatarAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAvatarAlphaShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAvatarAlphaShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarAlphaShadowProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2594,7 +2530,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.clear();
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAvatarAlphaMaskShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAvatarAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarAlphaMaskShadowProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2608,10 +2543,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentShadowProgram.mShaderFiles.clear();
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowF.glsl", GL_FRAGMENT_SHADER));
-		if (gGLManager.mHasDepthClamp)
-		{
-			gDeferredAttachmentShadowProgram.addPermutation("DEPTH_CLAMP", "1");
-		}
 		gDeferredAttachmentShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAttachmentShadowProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2624,7 +2555,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.clear();
 		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAttachmentAlphaShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentAlphaShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAttachmentAlphaShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAttachmentAlphaShadowProgram.createShader(NULL, NULL);
         llassert(success);
@@ -2637,7 +2567,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.clear();
 		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAttachmentAlphaMaskShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentAlphaMaskShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentAlphaMaskShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAttachmentAlphaMaskShadowProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAttachmentAlphaMaskShadowProgram.createShader(NULL, NULL);
         llassert(success);
@@ -3973,95 +3902,6 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         success = gWLMoonProgram.createShader(NULL, NULL);
     }
 
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadTransformShaders()
-{
-	BOOL success = TRUE;
-	
-	if (mShaderLevel[SHADER_TRANSFORM] < 1)
-	{
-		gTransformPositionProgram.unload();
-		gTransformTexCoordProgram.unload();
-		gTransformNormalProgram.unload();
-		gTransformColorProgram.unload();
-		gTransformTangentProgram.unload();
-		return TRUE;
-	}
-
-	if (success)
-	{
-        gTransformPositionProgram.mName = "Position Transform Shader";
-		gTransformPositionProgram.mShaderFiles.clear();
-		gTransformPositionProgram.mShaderFiles.push_back(make_pair("transform/positionV.glsl", GL_VERTEX_SHADER));
-		gTransformPositionProgram.mShaderLevel = mShaderLevel[SHADER_TRANSFORM];
-
-		const char* varyings[] = {
-			"position_out",
-			"texture_index_out",
-		};
-	
-		success = gTransformPositionProgram.createShader(NULL, NULL, 2, varyings);
-	}
-
-	if (success)
-	{
-		gTransformTexCoordProgram.mName = "TexCoord Transform Shader";
-		gTransformTexCoordProgram.mShaderFiles.clear();
-		gTransformTexCoordProgram.mShaderFiles.push_back(make_pair("transform/texcoordV.glsl", GL_VERTEX_SHADER));
-		gTransformTexCoordProgram.mShaderLevel = mShaderLevel[SHADER_TRANSFORM];
-
-		const char* varyings[] = {
-			"texcoord_out",
-		};
-	
-		success = gTransformTexCoordProgram.createShader(NULL, NULL, 1, varyings);
-	}
-
-	if (success)
-	{
-		gTransformNormalProgram.mName = "Normal Transform Shader";
-		gTransformNormalProgram.mShaderFiles.clear();
-		gTransformNormalProgram.mShaderFiles.push_back(make_pair("transform/normalV.glsl", GL_VERTEX_SHADER));
-		gTransformNormalProgram.mShaderLevel = mShaderLevel[SHADER_TRANSFORM];
-
-		const char* varyings[] = {
-			"normal_out",
-		};
-	
-		success = gTransformNormalProgram.createShader(NULL, NULL, 1, varyings);
-	}
-
-	if (success)
-	{
-		gTransformColorProgram.mName = "Color Transform Shader";
-		gTransformColorProgram.mShaderFiles.clear();
-		gTransformColorProgram.mShaderFiles.push_back(make_pair("transform/colorV.glsl", GL_VERTEX_SHADER));
-		gTransformColorProgram.mShaderLevel = mShaderLevel[SHADER_TRANSFORM];
-
-		const char* varyings[] = {
-			"color_out",
-		};
-	
-		success = gTransformColorProgram.createShader(NULL, NULL, 1, varyings);
-	}
-
-	if (success)
-	{
-		gTransformTangentProgram.mName = "Binormal Transform Shader";
-		gTransformTangentProgram.mShaderFiles.clear();
-		gTransformTangentProgram.mShaderFiles.push_back(make_pair("transform/binormalV.glsl", GL_VERTEX_SHADER));
-        gTransformTangentProgram.mShaderLevel = mShaderLevel[SHADER_TRANSFORM];
-
-		const char* varyings[] = {
-			"tangent_out",
-		};
-	
-		success = gTransformTangentProgram.createShader(NULL, NULL, 1, varyings);
-	}
-
-	
 	return success;
 }
 

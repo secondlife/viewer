@@ -182,7 +182,6 @@ public:
 	void addFace(const LLVolumeFace& face);
 
 	void sortVolumeFacesByMaterialName();
-    void preprocessVolumeFaces();
 	void normalizeVolumeFaces();
 	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
     void remapVolumeFaces();

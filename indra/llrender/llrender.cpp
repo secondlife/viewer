@@ -335,7 +335,7 @@ bool LLTexUnit::bind(LLCubeMap* cubeMap)
 
 	if (mCurrTexture != cubeMap->mImages[0]->getTexName())
 	{
-		if (gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps)
+		if (LLCubeMap::sUseCubeMaps)
 		{
 			activate();
 			enable(LLTexUnit::TT_CUBE_MAP);
@@ -516,22 +516,15 @@ void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions optio
 		}
 	}
 
-	if (gGLManager.mHasAnisotropic)
+	if (gGLManager.mGLVersion >= 4.59f)
 	{
 		if (LLImageGL::sGlobalUseAnisotropic && option == TFO_ANISOTROPIC)
 		{
-			if (gGL.mMaxAnisotropy < 1.f)
-			{
-				glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &gGL.mMaxAnisotropy);
-
-				LL_INFOS() << "gGL.mMaxAnisotropy: " << gGL.mMaxAnisotropy << LL_ENDL ;
-				gGL.mMaxAnisotropy = llmax(1.f, gGL.mMaxAnisotropy) ;
-			}
-			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, gGL.mMaxAnisotropy);
+			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY, gGLManager.mMaxAnisotropy);
 		}
 		else
 		{
-			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.f);
+			glTexParameterf(sGLTextureType[mCurrTexType], GL_TEXTURE_MAX_ANISOTROPY, 1.f);
 		}
 	}
 }
@@ -650,29 +643,6 @@ void LLTexUnit::debugTextureUnit(void)
 void LLTexUnit::setTextureColorSpace(eTextureColorSpace space)
 {
     mTexColorSpace = space;
-
-#if USE_SRGB_DECODE
-    if (gGLManager.mHasTexturesRGBDecode)
-    {
-        if (space == TCS_SRGB)
-        {
-            glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_DECODE_EXT);
-        }
-        else
-        {
-            glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
-        }
-
-        if (gDebugGL)
-        {
-            assert_glerror();
-        }
-    }
-    else
-    {
-        glTexParameteri(sGLTextureType[mCurrTexType], GL_TEXTURE_SRGB_DECODE_EXT, GL_SKIP_DECODE_EXT);
-    }
-#endif
 }
 
 LLLightState::LLLightState(S32 index)
@@ -846,8 +816,7 @@ LLRender::LLRender()
     mCount(0),
 	mQuadCycle(0),
     mMode(LLRender::TRIANGLES),
-    mCurrTextureUnitIndex(0),
-    mMaxAnisotropy(0.f) 
+    mCurrTextureUnitIndex(0)
 {	
 	mTexUnits.reserve(LL_NUM_TEXTURE_LAYERS);
 	for (U32 i = 0; i < LL_NUM_TEXTURE_LAYERS; i++)
@@ -912,11 +881,9 @@ void LLRender::init()
 
 	if (sGLCoreProfile && !LLVertexBuffer::sUseVAO)
 	{ //bind a dummy vertex array object so we're core profile compliant
-#ifdef GL_ARB_vertex_array_object
 		U32 ret;
 		glGenVertexArrays(1, &ret);
 		glBindVertexArray(ret);
-#endif
 	}
 
 
@@ -1492,12 +1459,7 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 	llassert(color_dfactor < BF_UNDEF);
 	llassert(alpha_sfactor < BF_UNDEF);
 	llassert(alpha_dfactor < BF_UNDEF);
-	if (!LLRender::sGLCoreProfile && !gGLManager.mHasBlendFuncSeparate)
-	{
-		LL_WARNS_ONCE("render") << "no glBlendFuncSeparateEXT(), using color-only blend func" << LL_ENDL;
-		blendFunc(color_sfactor, color_dfactor);
-		return;
-	}
+	
 	if (mCurrBlendColorSFactor != color_sfactor || mCurrBlendColorDFactor != color_dfactor ||
 	    mCurrBlendAlphaSFactor != alpha_sfactor || mCurrBlendAlphaDFactor != alpha_dfactor)
 	{

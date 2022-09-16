@@ -1121,27 +1121,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			}
 		}
 
-		static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
-
-		bool cache_in_vram = use_transform_feedback && gTransformPositionProgram.mProgramObject &&
-			(!mVolumeImpl || !mVolumeImpl->isVolumeUnique());
-
-		if (cache_in_vram)
-		{ //this volume might be used as source data for a transform object, put it in vram
-			LLVolume* volume = getVolume();
-			for (S32 i = 0; i < volume->getNumFaces(); ++i)
-			{
-				const LLVolumeFace& face = volume->getVolumeFace(i);
-				if (face.mVertexBuffer.notNull())
-				{ //already cached
-					break;
-				}
-				volume->genTangents(i);
-				LLFace::cacheFaceInVRAM(face);
-			}
-		}
-
-		return TRUE;
+        return TRUE;
 	}
 	else if (NO_LOD == lod) 
 	{
@@ -6417,16 +6397,6 @@ U32 LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace
 	U32 geometryBytes = 0;
 	U32 buffer_usage = group->mBufferUsage;
 	
-	static LLCachedControl<bool> use_transform_feedback(gSavedSettings, "RenderUseTransformFeedback", false);
-
-	if (use_transform_feedback &&
-		gTransformPositionProgram.mProgramObject && //transform shaders are loaded
-		buffer_usage == GL_DYNAMIC_DRAW && //target buffer is in VRAM
-		!(mask & LLVertexBuffer::MAP_WEIGHT4)) //TODO: add support for weights
-	{
-		buffer_usage = GL_DYNAMIC_COPY;
-	}
-
 #if LL_DARWIN
 	// HACK from Leslie:
 	// Disable VBO usage for alpha on Mac OS X because it kills the framerate

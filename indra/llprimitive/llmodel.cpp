@@ -187,15 +187,6 @@ void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remain
 	}
 }
 
-// generate mikkt space tangents and cache optimize
-void LLModel::preprocessVolumeFaces()
-{
-    for (auto& face : mVolumeFaces)
-    {
-        face.cacheOptimize();
-    }
-}
-
 // Shrink the model to fit
 // on a 1x1x1 cube centered at the origin.
 // The positions and extents

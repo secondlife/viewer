@@ -2309,44 +2309,6 @@ class LLAdvancedCheckViewAdminOptions : public view_listener_t
 	}
 };
 
-/////////////////////////////////////
-// Enable Object Object Occlusion ///
-/////////////////////////////////////
-class LLAdvancedEnableObjectObjectOcclusion: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-	
-		bool new_value = gGLManager.mHasOcclusionQuery; // && LLFeatureManager::getInstance()->isFeatureAvailable(userdata.asString());
-		return new_value;
-}
-};
-
-/////////////////////////////////////
-// Enable Framebuffer Objects	  ///
-/////////////////////////////////////
-class LLAdvancedEnableRenderFBO: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gGLManager.mHasFramebufferObject;
-		return new_value;
-	}
-};
-
-/////////////////////////////////////
-// Enable Deferred Rendering	  ///
-/////////////////////////////////////
-class LLAdvancedEnableRenderDeferred: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		bool new_value = gGLManager.mHasFramebufferObject && LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1 &&
-			LLViewerShaderMgr::instance()->getShaderLevel(LLViewerShaderMgr::SHADER_AVATAR) > 0;
-		return new_value;
-	}
-};
-
 //////////////////
 // ADMIN STATUS //
 //////////////////
@@ -9367,8 +9329,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleWireframe(), "Advanced.ToggleWireframe");
 	view_listener_t::addMenu(new LLAdvancedCheckWireframe(), "Advanced.CheckWireframe");
 	// Develop > Render
-	view_listener_t::addMenu(new LLAdvancedEnableObjectObjectOcclusion(), "Advanced.EnableObjectObjectOcclusion");
-	
 	view_listener_t::addMenu(new LLAdvancedToggleRandomizeFramerate(), "Advanced.ToggleRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedCheckRandomizeFramerate(), "Advanced.CheckRandomizeFramerate");
 	view_listener_t::addMenu(new LLAdvancedTogglePeriodicSlowFrame(), "Advanced.TogglePeriodicSlowFrame");
