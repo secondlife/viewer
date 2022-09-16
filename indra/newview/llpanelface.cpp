@@ -326,11 +326,11 @@ BOOL	LLPanelFace::postBuild()
 		mComboTexGen->setFollows(FOLLOWS_LEFT | FOLLOWS_TOP);	
 	}
 
-    LLComboBox* combo_mat_media = findChild<LLComboBox>("combobox matmedia");
-	if(combo_mat_media)
+    mComboMatMedia = getChild<LLComboBox>("combobox matmedia");
+	if(mComboMatMedia)
 	{
-        combo_mat_media->setCommitCallback(LLPanelFace::onCommitMaterialsMedia,this);
-        combo_mat_media->selectNthItem(MATMEDIA_MATERIAL);
+        mComboMatMedia->setCommitCallback(LLPanelFace::onCommitMaterialsMedia,this);
+        mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
 	}
 
 	LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
@@ -883,12 +883,11 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 		// only turn on auto-adjust button if there is a media renderer and the media is loaded
         childSetEnabled("button align", editable);
 		
-		LLComboBox* combobox_matmedia = getChild<LLComboBox>("combobox matmedia");
-        if (combobox_matmedia->getCurrentIndex() < MATMEDIA_MATERIAL)
+        if (mComboMatMedia->getCurrentIndex() < MATMEDIA_MATERIAL)
         {
-            combobox_matmedia->selectNthItem(MATMEDIA_MATERIAL);
+            mComboMatMedia->selectNthItem(MATMEDIA_MATERIAL);
         }
-        combobox_matmedia->setEnabled(editable);
+        mComboMatMedia->setEnabled(editable);
 
 		LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
         if (radio_mat_type->getSelectedIndex() < MATTYPE_DIFFUSE)
@@ -1223,7 +1222,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyScaleU")->setValue(spec_scale_s);
 			getChild<LLUICtrl>("bumpyScaleU")->setValue(norm_scale_s);
 
-            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
             {
                 getChildView("TexScaleU")->setEnabled(editable && has_pbr_material);
                 getChildView("shinyScaleU")->setEnabled(editable && has_pbr_material);
@@ -1271,7 +1270,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			BOOL norm_scale_tentative = !identical_norm_scale_t;
 			BOOL spec_scale_tentative = !identical_spec_scale_t;
 
-            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
             {
                 getChildView("TexScaleV")->setEnabled(editable && has_pbr_material);
                 getChildView("shinyScaleV")->setEnabled(editable && has_pbr_material);
@@ -1326,7 +1325,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetU")->setTentative(LLSD(norm_offset_u_tentative));
 			getChild<LLUICtrl>("bumpyOffsetU")->setTentative(LLSD(spec_offset_u_tentative));
 
-            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
             {
                 getChildView("TexOffsetU")->setEnabled(editable && has_pbr_material);
                 getChildView("shinyOffsetU")->setEnabled(editable && has_pbr_material);
@@ -1365,7 +1364,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			getChild<LLUICtrl>("shinyOffsetV")->setTentative(LLSD(norm_offset_v_tentative));
 			getChild<LLUICtrl>("bumpyOffsetV")->setTentative(LLSD(spec_offset_v_tentative));
 
-            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
             {
                 getChildView("TexOffsetV")->setEnabled(editable && has_pbr_material);
                 getChildView("shinyOffsetV")->setEnabled(editable && has_pbr_material);
@@ -1401,7 +1400,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 			F32 norm_rot_deg = norm_rotation * RAD_TO_DEG;
 			F32 spec_rot_deg = spec_rotation * RAD_TO_DEG;
 
-            if (combobox_matmedia->getCurrentIndex() == MATMEDIA_PBR)
+            if (mComboMatMedia->getCurrentIndex() == MATMEDIA_PBR)
             {
                 getChildView("TexRot")->setEnabled(editable && has_pbr_material);
                 getChildView("shinyRot")->setEnabled(editable && has_pbr_material);
@@ -1482,7 +1481,7 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
 				S32 index = mComboTexGen ? mComboTexGen->getCurrentIndex() : 0;
                 bool enabled = editable && (index != 1);
                 bool identical_repeats = true;
-                S32 material_selection = combobox_matmedia->getCurrentIndex();
+                S32 material_selection = mComboMatMedia->getCurrentIndex();
 				F32  repeats = 1.0f;
 
                 U32 material_type = MATTYPE_DIFFUSE;
@@ -2553,12 +2552,11 @@ void LLPanelFace::onCommitMaterialsMedia(LLUICtrl* ctrl, void* userdata)
 
 void LLPanelFace::updateVisibility()
 {
-    LLComboBox* combo_matmedia = findChild<LLComboBox>("combobox matmedia");
     LLRadioGroup* radio_mat_type = findChild<LLRadioGroup>("radio_material_type");
     LLRadioGroup* radio_pbr_type = findChild<LLRadioGroup>("radio_pbr_type");
     LLComboBox* combo_shininess = findChild<LLComboBox>("combobox shininess");
     LLComboBox* combo_bumpiness = findChild<LLComboBox>("combobox bumpiness");
-	if (!radio_mat_type || !radio_pbr_type || !combo_matmedia || !combo_shininess || !combo_bumpiness)
+	if (!radio_mat_type || !radio_pbr_type || !mComboMatMedia || !combo_shininess || !combo_bumpiness)
 	{
 		LL_WARNS("Materials") << "Combo box not found...exiting." << LL_ENDL;
 		return;
@@ -2566,15 +2564,15 @@ void LLPanelFace::updateVisibility()
 	U32 materials_media = mComboMatMedia->getCurrentIndex();
 	U32 material_type = radio_mat_type->getSelectedIndex();
     U32 pbr_type = radio_pbr_type->getSelectedIndex();
-	bool show_media = (materials_media == MATMEDIA_MEDIA) && combo_matmedia->getEnabled();
+	bool show_media = (materials_media == MATMEDIA_MEDIA) && mComboMatMedia->getEnabled();
     bool show_material = materials_media == MATMEDIA_MATERIAL;
     bool show_pbr = materials_media == MATMEDIA_PBR;
-	bool show_texture = (show_media || (show_material && (material_type == MATTYPE_DIFFUSE) && combo_matmedia->getEnabled()));
-	bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && combo_matmedia->getEnabled();
-	bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && combo_matmedia->getEnabled();
-    bool show_pbr_albedo = show_pbr && (pbr_type == PBRTYPE_ALBEDO) && combo_matmedia->getEnabled();
-    bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL) && combo_matmedia->getEnabled();
-    bool show_pbr_metallic = show_pbr && (pbr_type == PBRTYPE_METALLIC) && combo_matmedia->getEnabled();
+	bool show_texture = (show_media || (show_material && (material_type == MATTYPE_DIFFUSE) && mComboMatMedia->getEnabled()));
+	bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && mComboMatMedia->getEnabled();
+	bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
+    bool show_pbr_albedo = show_pbr && (pbr_type == PBRTYPE_ALBEDO) && mComboMatMedia->getEnabled();
+    bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL) && mComboMatMedia->getEnabled();
+    bool show_pbr_metallic = show_pbr && (pbr_type == PBRTYPE_METALLIC) && mComboMatMedia->getEnabled();
 
     radio_mat_type->setVisible(show_material);
     radio_pbr_type->setVisible(show_pbr);
