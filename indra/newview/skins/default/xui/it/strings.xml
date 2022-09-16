@@ -685,9 +685,6 @@ possono essere allegati ai biglietti.
 	<string name="GroupNameNone">
 		(nessuno)
 	</string>
-	<string name="AvalineCaller">
-		Chiamante Avaline [ORDER]
-	</string>
 	<string name="AssetErrorNone">
 		Nessun errore
 	</string>

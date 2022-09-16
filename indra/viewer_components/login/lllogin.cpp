@@ -257,21 +257,25 @@ void LLLogin::Impl::loginCoro(std::string uri, LLSD login_params)
                 if (printable_params["wait_for_updater"].asBoolean())
                 {
                     std::string reason_response = responses["data"]["reason"].asString();
-                    if (reason_response == "update") // No point waiting if not an update
+                    // Timeout should produce the isUndefined() object passed here.
+                    if (reason_response == "update")
                     {
-                        // Timeout should produce the isUndefined() object passed here.
                         LL_INFOS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
                         updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 10, LLSD());
-
-                        if (updater.isUndefined())
-                        {
-                            LL_WARNS("LLLogin") << "Failed to hear from updater, proceeding with fail.login"
-                                << LL_ENDL;
-                        }
-                        else
-                        {
-                            LL_DEBUGS("LLLogin") << "Got responses from updater and login.cgi" << LL_ENDL;
-                        }
+                    }
+                    else
+                    {
+                        LL_DEBUGS("LLLogin") << "Login failure, waiting for sync from updater" << LL_ENDL;
+                        updater = llcoro::suspendUntilEventOnWithTimeout(sSyncPoint, 3, LLSD());
+                    }
+                    if (updater.isUndefined())
+                    {
+                        LL_WARNS("LLLogin") << "Failed to hear from updater, proceeding with fail.login"
+                                            << LL_ENDL;
+                    }
+                    else
+                    {
+                        LL_DEBUGS("LLLogin") << "Got responses from updater and login.cgi" << LL_ENDL;
                     }
                 }
 

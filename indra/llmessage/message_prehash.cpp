@@ -1386,6 +1386,7 @@ char const* const _PREHASH_RegionAllowAccessBlock = LLMessageStringTable::getIns
 char const* const _PREHASH_RegionAllowAccessOverride = LLMessageStringTable::getInstance()->getString("RegionAllowAccessOverride");
 char const* const _PREHASH_ParcelEnvironmentBlock = LLMessageStringTable::getInstance()->getString("ParcelEnvironmentBlock");
 char const* const _PREHASH_ParcelEnvironmentVersion = LLMessageStringTable::getInstance()->getString("ParcelEnvironmentVersion");
+char const* const _PREHASH_ParcelExtendedFlags = LLMessageStringTable::getInstance()->getString("ParcelExtendedFlags");
 char const* const _PREHASH_RegionAllowEnvironmentOverride = LLMessageStringTable::getInstance()->getString("RegionAllowEnvironmentOverride");
 char const* const _PREHASH_UCoord = LLMessageStringTable::getInstance()->getString("UCoord");
 char const* const _PREHASH_VCoord = LLMessageStringTable::getInstance()->getString("VCoord");

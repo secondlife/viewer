@@ -692,9 +692,6 @@ peuvent être joints aux notes.
 	<string name="GroupNameNone">
 		(aucun)
 	</string>
-	<string name="AvalineCaller">
-		Appelant Avaline [ORDER]
-	</string>
 	<string name="AssetErrorNone">
 		Aucune erreur
 	</string>

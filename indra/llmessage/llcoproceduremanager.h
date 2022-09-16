@@ -32,7 +32,6 @@
 #include "llcoros.h"
 #include "llcorehttputil.h"
 #include "lluuid.h"
-#include <boost/smart_ptr/shared_ptr.hpp>
 
 class LLCoprocedurePool;
 
@@ -84,7 +83,7 @@ public:
     
 private:
 
-    typedef boost::shared_ptr<LLCoprocedurePool> poolPtr_t;
+    typedef std::shared_ptr<LLCoprocedurePool> poolPtr_t;
     typedef std::map<std::string, poolPtr_t> poolMap_t;
 
     poolMap_t mPoolMap;

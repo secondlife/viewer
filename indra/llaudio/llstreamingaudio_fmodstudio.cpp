@@ -70,7 +70,11 @@ mRetryCount(0)
     // Must be larger than the usual Second Life frame stutter time.
     const U32 buffer_seconds = 10;		//sec
     const U32 estimated_bitrate = 128;	//kbit/sec
-    mSystem->setStreamBufferSize(estimated_bitrate * buffer_seconds * 128/*bytes/kbit*/, FMOD_TIMEUNIT_RAWBYTES);
+    FMOD_RESULT result = mSystem->setStreamBufferSize(estimated_bitrate * buffer_seconds * 128/*bytes/kbit*/, FMOD_TIMEUNIT_RAWBYTES);
+    if (result != FMOD_OK)
+    {
+        LL_WARNS("FMOD") << "setStreamBufferSize error: " << FMOD_ErrorString(result) << LL_ENDL;
+    }
 
     // Here's where we set the size of the network buffer and some buffering 
     // parameters.  In this case we want a network buffer of 16k, we want it 
@@ -134,7 +138,7 @@ void LLStreamingAudio_FMODSTUDIO::killDeadStreams()
         {
             LL_INFOS("FMOD") << "Closed dead stream" << LL_ENDL;
             delete streamp;
-            mDeadStreams.erase(iter++);
+            iter = mDeadStreams.erase(iter);
         }
         else
         {
@@ -404,7 +408,11 @@ FMOD::Channel *LLAudioStreamManagerFMODSTUDIO::startStream()
     if (mStreamChannel)
         return mStreamChannel;	//Already have a channel for this stream.
 
-    mSystem->playSound(mInternetStream, NULL, true, &mStreamChannel);
+    FMOD_RESULT result = mSystem->playSound(mInternetStream, NULL, true, &mStreamChannel);
+    if (result != FMOD_OK)
+    {
+        LL_WARNS("FMOD") << FMOD_ErrorString(result) << LL_ENDL;
+    }
     return mStreamChannel;
 }
 
@@ -445,16 +453,29 @@ bool LLAudioStreamManagerFMODSTUDIO::stopStream()
 FMOD_OPENSTATE LLAudioStreamManagerFMODSTUDIO::getOpenState(unsigned int* percentbuffered, bool* starving, bool* diskbusy)
 {
     FMOD_OPENSTATE state;
-    mInternetStream->getOpenState(&state, percentbuffered, starving, diskbusy);
+    FMOD_RESULT result = mInternetStream->getOpenState(&state, percentbuffered, starving, diskbusy);
+    if (result != FMOD_OK)
+    {
+        LL_WARNS("FMOD") << FMOD_ErrorString(result) << LL_ENDL;
+    }
     return state;
 }
 
 void LLStreamingAudio_FMODSTUDIO::setBufferSizes(U32 streambuffertime, U32 decodebuffertime)
 {
-    mSystem->setStreamBufferSize(streambuffertime / 1000 * 128 * 128, FMOD_TIMEUNIT_RAWBYTES);
+    FMOD_RESULT result = mSystem->setStreamBufferSize(streambuffertime / 1000 * 128 * 128, FMOD_TIMEUNIT_RAWBYTES);
+    if (result != FMOD_OK)
+    {
+        LL_WARNS("FMOD") << "setStreamBufferSize error: " << FMOD_ErrorString(result) << LL_ENDL;
+        return;
+    }
     FMOD_ADVANCEDSETTINGS settings;
     memset(&settings, 0, sizeof(settings));
     settings.cbSize = sizeof(settings);
     settings.defaultDecodeBufferSize = decodebuffertime;//ms
-    mSystem->setAdvancedSettings(&settings);
+    result = mSystem->setAdvancedSettings(&settings);
+    if (result != FMOD_OK)
+    {
+        LL_WARNS("FMOD") << "setAdvancedSettings error: " << FMOD_ErrorString(result) << LL_ENDL;
+    }
 }

@@ -601,7 +601,10 @@ bool LLScriptEdCore::loadScriptText(const std::string& filename)
 	buffer[nread] = '\0';
 	fclose(file);
 
-	mEditor->setText(LLStringExplicit(buffer));
+    std::string text = std::string(buffer);
+    LLStringUtil::replaceTabsWithSpaces(text, LLTextEditor::spacesPerTab());
+
+    mEditor->setText(text);
 	delete[] buffer;
 
 	return true;

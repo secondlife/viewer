@@ -61,6 +61,7 @@
 #include "llcommandhandler.h"
 #include "llfloaterprofiletexture.h"
 #include "llfloaterreg.h"
+#include "llfloaterreporter.h"
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llgroupactions.h"
@@ -582,6 +583,22 @@ public:
 			}
 			return true;
 		}
+
+        // reportAbuse is here due to convoluted avatar handling
+        // in LLScrollListCtrl and LLTextBase
+        if (verb == "reportAbuse" && web == NULL) 
+        {
+            LLAvatarName av_name;
+            if (LLAvatarNameCache::get(avatar_id, &av_name))
+            {
+                LLFloaterReporter::showFromAvatar(avatar_id, av_name.getCompleteName());
+            }
+            else
+            {
+                LLFloaterReporter::showFromAvatar(avatar_id, "not avaliable");
+            }
+            return true;
+        }
 		return false;
 	}
 };
@@ -1934,23 +1951,6 @@ void LLPanelProfileSecondLife::onCommitProfileImage(const LLUUID& id)
     {
         LL_WARNS("AvatarProperties") << "Failed to update profile data, no cap found" << LL_ENDL;
     }
-}
-
-void LLPanelProfileSecondLife::onOpenNotes()
-{
-    LLFloater* parent_floater = gFloaterView->getParentFloater(this);
-    if (!parent_floater)
-    {
-        return;
-    }
-
-    LLTabContainer* tab_container = parent_floater->findChild<LLTabContainer>("panel_profile_tabs", TRUE);
-    if (!tab_container)
-    {
-        return;
-    }
-
-    tab_container->selectTabByName(PANEL_NOTES);
 }
 
 //////////////////////////////////////////////////////////////////////////

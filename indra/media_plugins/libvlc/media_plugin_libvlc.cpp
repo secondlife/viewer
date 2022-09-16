@@ -73,6 +73,7 @@ private:
 	static void display(void* data, void* id);
 
 	/*virtual*/ void setDirty(int left, int top, int right, int bottom) /* override, but that is not supported in gcc 4.6 */;
+    void setDurationDirty();
 
 	static void eventCallbacks(const libvlc_event_t* event, void* ptr);
 
@@ -93,8 +94,8 @@ private:
 
 	bool mIsLooping;
 
-	float mCurTime;
-	float mDuration;
+	F64 mCurTime;
+	F64 mDuration;
 	EStatus mVlcStatus;
 };
 
@@ -214,6 +215,19 @@ void MediaPluginLibVLC::setDirty(int left, int top, int right, int bottom)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+// *virtual*
+void MediaPluginLibVLC::setDurationDirty()
+{
+    LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "updated");
+
+    message.setValueReal("current_time", mCurTime);
+    message.setValueReal("duration", mDuration);
+    message.setValueReal("current_rate", 1.0f);
+
+    sendMessage(message);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 //
 void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 {
@@ -233,6 +247,7 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 		parent->mDuration = (float)(libvlc_media_get_duration(parent->mLibVLCMedia)) / 1000.0f;
 		parent->mVlcStatus = STATUS_PLAYING;
 		parent->setVolumeVLC();
+        parent->setDurationDirty();
 		break;
 
 	case libvlc_MediaPlayerPaused:
@@ -245,6 +260,8 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 
 	case libvlc_MediaPlayerEndReached:
 		parent->mVlcStatus = STATUS_DONE;
+        parent->mCurTime = parent->mDuration;
+        parent->setDurationDirty();
 		break;
 
 	case libvlc_MediaPlayerEncounteredError:
@@ -253,6 +270,11 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 
 	case libvlc_MediaPlayerTimeChanged:
 		parent->mCurTime = (float)libvlc_media_player_get_time(parent->mLibVLCMediaPlayer) / 1000.0f;
+        if (parent->mVlcStatus == STATUS_DONE && libvlc_media_player_is_playing(parent->mLibVLCMediaPlayer))
+        {
+            parent->mVlcStatus = STATUS_PLAYING;
+        }
+        parent->setDurationDirty();
 		break;
 
 	case libvlc_MediaPlayerPositionChanged:
@@ -260,6 +282,7 @@ void MediaPluginLibVLC::eventCallbacks(const libvlc_event_t* event, void* ptr)
 
 	case libvlc_MediaPlayerLengthChanged:
 		parent->mDuration = (float)libvlc_media_get_duration(parent->mLibVLCMedia) / 1000.0f;
+        parent->setDurationDirty();
 		break;
 
 	case libvlc_MediaPlayerTitleChanged:
@@ -562,7 +585,24 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 						mTextureWidth = texture_width;
 						mTextureHeight = texture_height;
 
+                        libvlc_time_t time = 1000.0 * mCurTime;
+
 						playMedia();
+
+                        if (mLibVLCMediaPlayer)
+                        {
+                            libvlc_media_player_set_time(mLibVLCMediaPlayer, time);
+                            time = libvlc_media_player_get_time(mLibVLCMediaPlayer);
+                            if (time < 0)
+                            {
+                                // -1 if there is no media
+                                mCurTime = 0;
+                            }
+                            else
+                            {
+                                mCurTime = (F64)time / 1000.0;
+                            }
+                        }
 					};
 				};
 
@@ -594,6 +634,13 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				{
 					if (mLibVLCMediaPlayer)
 					{
+                        if (mVlcStatus == STATUS_DONE && !libvlc_media_player_is_playing(mLibVLCMediaPlayer))
+                        {
+                            // stop or vlc will ignore 'play', it will just
+                            // make an MediaPlayerEndReached event even if
+                            // seek was used
+                            libvlc_media_player_stop(mLibVLCMediaPlayer);
+                        }
 						libvlc_media_player_play(mLibVLCMediaPlayer);
 					}
 				}
@@ -606,15 +653,32 @@ void MediaPluginLibVLC::receiveMessage(const char* message_string)
 				}
 				else if (message_name == "seek")
 				{
-					if (mDuration > 0)
-					{
-						F64 normalized_offset = message_in.getValueReal("time") / mDuration;
-						libvlc_media_player_set_position(mLibVLCMediaPlayer, normalized_offset);
-					}
+                    if (mLibVLCMediaPlayer)
+                    {
+                        libvlc_time_t time = 1000.0 * message_in.getValueReal("time");
+                        libvlc_media_player_set_time(mLibVLCMediaPlayer, time);
+                        time = libvlc_media_player_get_time(mLibVLCMediaPlayer);
+                        if (time < 0)
+                        {
+                            // -1 if there is no media
+                            mCurTime = 0;
+                        }
+                        else
+                        {
+                            mCurTime = (F64)time / 1000.0;
+                        }
+
+                        if (!libvlc_media_player_is_playing(mLibVLCMediaPlayer))
+                        {
+                            // if paused, won't trigger update, update now
+                            setDurationDirty();
+                        }
+                    }
 				}
 				else if (message_name == "set_loop")
 				{
-					mIsLooping = true;
+					bool loop = message_in.getValueBoolean("loop");
+					mIsLooping = loop;
 				}
 				else if (message_name == "set_volume")
 				{

@@ -120,7 +120,7 @@ void LLPanelProfileTab::setApplyProgress(bool started)
         }
     }
 
-    LLPanel* panel = findChild<LLPanel>("indicator_stack");
+    LLView* panel = findChild<LLView>("indicator_stack");
     if (panel)
     {
         panel->setVisible(started);

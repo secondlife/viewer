@@ -762,17 +762,13 @@ void LLFloater::closeFloater(bool app_quitting)
 		for(handle_set_iter_t dependent_it = mDependents.begin();
 			dependent_it != mDependents.end(); )
 		{
-			
 			LLFloater* floaterp = dependent_it->get();
-			if (floaterp)
-			{
-				++dependent_it;
-				floaterp->closeFloater(app_quitting);
-			}
-			else
-			{
-				mDependents.erase(dependent_it++);
-			}
+            dependent_it = mDependents.erase(dependent_it);
+            if (floaterp)
+            {
+                floaterp->mDependeeHandle = LLHandle<LLFloater>();
+                floaterp->closeFloater(app_quitting);
+            }
 		}
 		
 		cleanupHandles();
@@ -1443,7 +1439,7 @@ void LLFloater::cleanupHandles()
 		LLFloater* floaterp = dependent_it->get();
 		if (!floaterp)
 		{
-			mDependents.erase(dependent_it++);
+            dependent_it = mDependents.erase(dependent_it);
 		}
 		else
 		{

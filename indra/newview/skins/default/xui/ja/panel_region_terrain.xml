@@ -10,8 +10,8 @@
 	<spinner label="地形の上昇限度" name="terrain_raise_spin"/>
 	<spinner label="地形の下降限度" name="terrain_lower_spin"/>
 	<text name="detail_texture_text">
-		地形テクスチャ（512x512 の 24 bit .tga ファイル）
-	</text>
+    地形テクスチャ（1024x1024 の 24 bit .tga ファイル）
+  </text>
 	<text name="height_text_lbl">
 		1（低）
 	</text>
