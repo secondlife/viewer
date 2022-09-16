@@ -1659,9 +1659,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da57838d80cf332f4a3026713a13f086</string>
+              <string>e51c6f5dfd76eb148348a44ff57e66c2</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/90708/824484/llphysicsextensions_source-1.0.565754-darwin64-565754.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104810/918016/llphysicsextensions_source-1.0.575107-darwin64-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -1683,9 +1683,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>28ad884012aa0bb70cf4101853af2f9a</string>
+              <string>dbbe4cc568ac149d862e421cdda4dd48</string>
               <key>url</key>
-              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/90733/824570/llphysicsextensions_source-1.0.565768-windows-565768.tar.bz2</string>
+              <string>https://s3-proxy.lindenlab.com/private-builds-secondlife-com/ct2/104809/918011/llphysicsextensions_source-1.0.575107-windows-575107.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
