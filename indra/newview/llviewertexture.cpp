@@ -2115,7 +2115,7 @@ bool LLViewerFetchedTexture::updateFetch()
     desired_discard = llmin(desired_discard, getMaxDiscardLevel());
 
 	bool make_request = true;	
-	/*if (decode_priority <= 0)
+	if (decode_priority <= 0)
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - priority <= 0");
 		make_request = false;
@@ -2125,7 +2125,7 @@ bool LLViewerFetchedTexture::updateFetch()
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - desired > max");
 		make_request = false;
 	}
-	else */ if (mNeedsCreateTexture || mIsMissingAsset)
+	else  if (mNeedsCreateTexture || mIsMissingAsset)
 	{
         LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - create or missing");
 		make_request = false;
