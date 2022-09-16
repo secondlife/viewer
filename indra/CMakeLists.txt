@@ -128,7 +128,7 @@ add_subdirectory(${VIEWER_PREFIX}doxygen EXCLUDE_FROM_ALL)
 set_property(
         DIRECTORY ${VIEWER_PREFIX}
         PROPERTY VS_STARTUP_PROJECT ${VIEWER_BINARY_NAME}
-		)
+        )
 
 if (LL_TESTS)
   # Define after the custom targets are created so

@@ -8,8 +8,8 @@ if (LINUX)
   target_compile_definitions(ll::uilibraries INTERFACE LL_GTK=1 LL_X11=1 )
 
   if( USE_CONAN )
-	target_link_libraries( ll::uilibraries INTERFACE CONAN_PKG::gtk )
-	return()
+    target_link_libraries( ll::uilibraries INTERFACE CONAN_PKG::gtk )
+    return()
   endif()
   use_prebuilt_binary(gtk-atk-pango-glib)
   

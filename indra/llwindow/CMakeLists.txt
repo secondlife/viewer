@@ -54,8 +54,8 @@ set(llwindow_LINK_LIBRARIES
         llrender
         llfilesystem
         llxml
-		ll::glh_linear
-		ll::glext
+        ll::glh_linear
+        ll::glext
         ll::uilibraries
         ll::SDL
         )
