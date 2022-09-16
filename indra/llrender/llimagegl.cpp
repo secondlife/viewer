@@ -1303,7 +1303,12 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (pixels != nullptr)
             {
                 use_scratch = true;
-                scratch = new U32[width * height];
+                scratch = new(std::nothrow) U32[width * height];
+                if (!scratch)
+                {
+                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                              << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                }
 
                 U32 pixel_count = (U32)(width * height);
                 for (U32 i = 0; i < pixel_count; i++)
@@ -1323,7 +1328,12 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (pixels != nullptr)
             {
                 use_scratch = true;
-                scratch = new U32[width * height];
+                scratch = new(std::nothrow) U32[width * height];
+                if (!scratch)
+                {
+                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                        << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                }
 
                 U32 pixel_count = (U32)(width * height);
                 for (U32 i = 0; i < pixel_count; i++)
@@ -1346,7 +1356,12 @@ void LLImageGL::setManualImage(U32 target, S32 miplevel, S32 intformat, S32 widt
             if (pixels != nullptr)
             {
                 use_scratch = true;
-                scratch = new U32[width * height];
+                scratch = new(std::nothrow) U32[width * height];
+                if (!scratch)
+                {
+                    LL_ERRS() << "Failed to allocate " << (U32)(width * height * sizeof(U32))
+                        << " bytes for a manual image W" << width << " H" << height << LL_ENDL;
+                }
 
                 U32 pixel_count = (U32)(width * height);
                 for (U32 i = 0; i < pixel_count; i++)

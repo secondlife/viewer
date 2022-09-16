@@ -306,6 +306,7 @@ public:
 	void	setRestrictPushObject(BOOL b) { setParcelFlag(PF_RESTRICT_PUSHOBJECT, b); }
 	void	setAllowGroupAVSounds(BOOL b)	{ mAllowGroupAVSounds = b;		}
 	void	setAllowAnyAVSounds(BOOL b)		{ mAllowAnyAVSounds = b;		}
+    void    setObscureMOAP(bool b)  { mObscureMOAP = b; }
 
 	void	setDrawDistance(F32 dist)	{ mDrawDistance = dist; }
 	void	setSalePrice(S32 price)		{ mSalePrice = price; }
@@ -517,6 +518,8 @@ public:
 
 	BOOL	getAllowGroupAVSounds()	const	{ return mAllowGroupAVSounds;	} 
 	BOOL	getAllowAnyAVSounds()	const	{ return mAllowAnyAVSounds;		}
+ 
+    bool    getObscureMOAP() const { return mObscureMOAP; }
 
 	F32		getDrawDistance() const			{ return mDrawDistance; }
 	S32		getSalePrice() const			{ return mSalePrice; }
@@ -670,6 +673,7 @@ protected:
     BOOL                mRegionAllowEnvironmentOverride;
 	BOOL				mAllowGroupAVSounds;
 	BOOL				mAllowAnyAVSounds;
+    bool                mObscureMOAP;
     S32                 mCurrentEnvironmentVersion;
 	
     bool                mIsDefaultDayCycle;

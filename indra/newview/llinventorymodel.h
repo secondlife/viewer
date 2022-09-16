@@ -65,15 +65,19 @@ public:
 	void toOstream(std::ostream& os) const;
 	void asLLSD(LLSD& sd) const;
 	
+	bool mInitialized{false};
+	S32 mWarningCount{0};
+	std::map<std::string,U32> mWarnings;
 
-	S32 mFatalErrorCount;
-	S32 mWarningCount;
-    S32 mLoopCount; // Presence of folders whose ansestors loop onto themselves
-    S32 mOrphanedCount; // Missing or orphaned items, links and folders
-	bool mInitialized;
-	bool mFatalNoRootFolder;
-	bool mFatalNoLibraryRootFolder;
-	bool mFatalQADebugMode;
+    S32 mLoopCount{0}; // Presence of folders whose ancestors loop onto themselves
+    S32 mOrphanedCount{0}; // Missing or orphaned items, links and folders
+
+	S32 mFatalErrorCount{0};
+	bool mFatalNoRootFolder{false};
+	S32 mFatalSystemDuplicate{0};
+	bool mFatalNoLibraryRootFolder{false};
+	bool mFatalQADebugMode{false};
+
 	std::set<LLFolderType::EType> mMissingRequiredSystemFolders;
 	std::set<LLFolderType::EType> mDuplicateRequiredSystemFolders;
 };
@@ -286,13 +290,13 @@ public:
 	// Check if one object has a parent chain up to the category specified by UUID.
 	BOOL isObjectDescendentOf(const LLUUID& obj_id, const LLUUID& cat_id) const;
     
-    enum EAnscestorResult{
-        ANSCESTOR_OK = 0,
-        ANSCESTOR_MISSING = 1,
-        ANSCESTOR_LOOP = 2,
+    enum EAncestorResult{
+        ANCESTOR_OK = 0,
+        ANCESTOR_MISSING = 1,
+        ANCESTOR_LOOP = 2,
     };
 	// Follow parent chain to the top.
-    EAnscestorResult getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
+    EAncestorResult getObjectTopmostAncestor(const LLUUID& object_id, LLUUID& result) const;
 
 	//--------------------------------------------------------------------
 	// Find

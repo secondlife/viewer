@@ -691,9 +691,6 @@ nächsten Eigentümer angehängt werden.
 	<string name="GroupNameNone">
 		(keiner)
 	</string>
-	<string name="AvalineCaller">
-		Avaline-Anfrufer [ORDER]
-	</string>
 	<string name="AssetErrorNone">
 		Kein Fehler
 	</string>

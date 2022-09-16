@@ -196,7 +196,7 @@ LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
 // static
 void LLGroupActions::search()
 {
-	LLFloaterReg::showInstance("search");
+	LLFloaterReg::showInstance("search", LLSD().with("collection", "groups"));
 }
 
 // static

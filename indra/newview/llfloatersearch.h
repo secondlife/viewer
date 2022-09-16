@@ -49,6 +49,7 @@ public:
 	struct SearchQuery : public LLInitParam::Block<SearchQuery>
 	{
 		Optional<std::string> category;
+        Optional<std::string> collection;
 		Optional<std::string> query;
 
 		SearchQuery();
@@ -84,7 +85,8 @@ public:
 private:
 	/*virtual*/ BOOL postBuild();
 
-	LLSD        mCategoryPaths;
+    std::set<std::string> mSearchType;
+    std::set<std::string> mCollectionType;
 	U8          mSearchGodLevel;
 };
 

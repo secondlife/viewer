@@ -465,6 +465,7 @@ protected:
 	void participantAddedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString, std::string &displayNameString, int participantType);
 	void participantRemovedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, std::string &nameString);
 	void participantUpdatedEvent(std::string &sessionHandle, std::string &sessionGroupHandle, std::string &uriString, std::string &alias, bool isModeratorMuted, bool isSpeaking, int volume, F32 energy);
+	void voiceServiceConnectionStateChangedEvent(int statusCode, std::string &statusString, std::string &build_id);
 	void auxAudioPropertiesEvent(F32 energy);
 	void messageEvent(std::string &sessionHandle, std::string &uriString, std::string &alias, std::string &messageHeader, std::string &messageBody, std::string &applicationString);
 	void sessionNotificationEvent(std::string &sessionHandle, std::string &uriString, std::string &notificationType);
@@ -969,6 +970,7 @@ protected:
 	std::string		actionString;
 	std::string		connectorHandle;
 	std::string		versionID;
+	std::string		mBuildID;
 	std::string		accountHandle;
 	std::string		sessionHandle;
 	std::string		sessionGroupHandle;

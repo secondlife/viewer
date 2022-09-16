@@ -98,9 +98,6 @@ BOOL LLPanelMediaSettingsGeneral::postBuild()
 	childSetCommitCallback( LLMediaEntry::HOME_URL_KEY, onCommitHomeURL, this);
 	childSetCommitCallback( "current_url_reset_btn",onBtnResetCurrentUrl, this);
 
-	// interrogates controls and updates widgets as required
-	updateMediaPreview();
-
 	return true;
 }
 
@@ -313,9 +310,6 @@ void LLPanelMediaSettingsGeneral::initValues( void* userdata, const LLSD& _media
 			data_set[ i ].ctrl_ptr->setTentative( media_settings[ tentative_key ].asBoolean() );
 		};
 	};
-
-	// interrogates controls and updates widgets as required
-	self->updateMediaPreview();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
