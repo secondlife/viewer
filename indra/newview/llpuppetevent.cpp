@@ -43,11 +43,22 @@ U8      PUPPET_WRITE_BUFFER[PUPPET_MAX_EVENT_BYTES]; //HACK move this somewhere 
 size_t pack_vec3(U8* wptr, const LLVector3 &vec)
 {
     size_t offset(0);
-    for (const F32 &val : vec.mV)
-    {
-        htolememcpy(wptr + offset, &val, MVT_F32, sizeof(F32));
-        offset += sizeof(F32);
-    }
+
+    // pack F32 components into 16 bits
+    U16 x, y, z;
+    LLVector3 quant_vec = vec;
+    quant_vec.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    x = F32_to_U16(quant_vec.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    y = F32_to_U16(quant_vec.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    z = F32_to_U16(quant_vec.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+
+    htolememcpy(wptr + offset, &x, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(wptr + offset, &y, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(wptr + offset, &z, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+
     return offset;
 }
 
@@ -69,11 +80,21 @@ size_t pack_quat(U8* wptr, const LLQuaternion& quat)
     }
     // store the imaginary part
     size_t offset(0);
-    for (S32 idx(0); idx < 3; ++idx)
-    {
-        htolememcpy(wptr + offset, &q.mQ[idx], MVT_F32, sizeof(F32));
-        offset += sizeof(F32);
-    }
+
+    // pack F32 components into 16 bits
+    LLQuaternion quant_quat = quat;
+    quant_quat.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 x = F32_to_U16(quant_quat.mQ[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 y = F32_to_U16(quant_quat.mQ[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 z = F32_to_U16(quant_quat.mQ[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+
+    htolememcpy(wptr + offset, &x, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(wptr + offset, &y, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(wptr + offset, &z, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+
     return offset;
 }
 
@@ -81,11 +102,19 @@ size_t pack_quat(U8* wptr, const LLQuaternion& quat)
 size_t unpack_vec3(U8* wptr, LLVector3* vec)
 {
     U32 offset(0);
-    for (U32 i = 0; i < 3; ++i)
-    {
-        htolememcpy(&vec->mV[i], wptr + offset, MVT_F32, sizeof(F32));
-        offset += sizeof(F32);
-    }
+    U16 x, y, z;    // F32 data is packed in 16 bits
+
+    htolememcpy(&x, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(&y, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(&z, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+
+    vec->mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec->mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec->mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+
     return offset;
 }
 
@@ -96,11 +125,18 @@ size_t unpack_quat(U8* wptr, LLQuaternion& quat)
     // real part (W) is obtained with the formula:
     // W = sqrt(1.0 - X*X + Y*Y + Z*Z)
     size_t offset(0);
-    for (S32 idx(0); idx < 3; ++idx)
-    {
-        htolememcpy(&quat.mQ[idx], wptr + offset, MVT_F32, sizeof(F32));
-        offset += sizeof(F32);
-    }
+
+    U16 x, y, z;    // F32 data is packed into 16 bits
+    htolememcpy(&x, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(&y, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+    htolememcpy(&z, wptr + offset, MVT_U16, sizeof(U16));
+    offset += sizeof(U16);
+
+    quat.mQ[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    quat.mQ[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    quat.mQ[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 
     F32 imaginary_length_squared = quat.mQ[VX] * quat.mQ[VX]
             + quat.mQ[VY] * quat.mQ[VY] + quat.mQ[VZ] * quat.mQ[VZ];
