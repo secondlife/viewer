@@ -31,9 +31,6 @@ set(llimage_libtest_HEADER_FILES
     llimage_libtest.h
     )
 
-set_source_files_properties(${llimage_libtest_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND llimage_libtest_SOURCE_FILES ${llimage_libtest_HEADER_FILES})
 
 add_executable(llimage_libtest
@@ -48,37 +45,21 @@ set_target_properties(llimage_libtest
     FALSE
 )
 
-# OS-specific libraries
-if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(COREFOUNDATION_LIBRARY CoreFoundation)
-  set(OS_LIBRARIES ${COREFOUNDATION_LIBRARY})
-elseif (WINDOWS)
-  set(OS_LIBRARIES)
-elseif (LINUX)
-  set(OS_LIBRARIES)
-else (DARWIN)
-  message(FATAL_ERROR "Unknown platform")
-endif (DARWIN)
-
 # Libraries on which this application depends on
 # Sort by high-level to low-level
 target_link_libraries(llimage_libtest
-    ${LEGACY_STDIO_LIBS}
-    ${LLCOMMON_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLIMAGE_LIBRARIES}
-    ${LLKDU_LIBRARIES}
-    ${KDU_LIBRARY}
-    ${LLIMAGEJ2COJ_LIBRARIES}
-    ${OS_LIBRARIES}
-    )
+        llcommon
+        llfilesystem
+        llmath
+        llimage
+        llkdu
+        llimagej2coj
+        )
     
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LLIMAGE_LIBTEST_DESTINATION_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/llimage_libtest.app/Contents/Resources
+    ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/llimage_libtest.app/Contents/Resources
   )
   # Create the Contents/Resources directory
   add_custom_command(

@@ -5,34 +5,11 @@ project (lltest)
 include(00-Common)
 include(LLCommon)
 include(LLCoreHttp)
-include(LLInventory)
-include(LLMath)
-include(LLMessage)
-include(LLFileSystem)
-include(LLXML)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
 include(bugsplat)
 include(GoogleMock)
-
-include_directories(
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    ${LLDATABASE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLINVENTORY_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LSCRIPT_INCLUDE_DIRS}
-    ${GOOGLEMOCK_INCLUDE_DIRS}
-    ${TUT_INCLUDE_DIR}
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
 
 set(test_SOURCE_FILES
     io.cpp
@@ -76,39 +53,20 @@ if (NOT WINDOWS)
        )
 endif (NOT WINDOWS)
 
-set_source_files_properties(${test_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
-
 list(APPEND test_SOURCE_FILES ${test_HEADER_FILES})
 
 add_executable(lltest ${test_SOURCE_FILES})
 
-if (USE_BUGSPLAT)
-  set_target_properties(lltest PROPERTIES COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
-endif (USE_BUGSPLAT)
-
 target_link_libraries(lltest
-    ${LEGACY_STDIO_LIBS}
-    ${LLDATABASE_LIBRARIES}
-    ${LLINVENTORY_LIBRARIES}
-    ${LLMESSAGE_LIBRARIES}
-    ${LLMATH_LIBRARIES}
-    ${LLFILESYSTEM_LIBRARIES}
-    ${LLXML_LIBRARIES}
-    ${LSCRIPT_LIBRARIES}
-    ${LLCOMMON_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
-    ${EXPAT_LIBRARIES}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    ${WINDOWS_LIBRARIES}
-    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
-    ${BOOST_REGEX_LIBRARY}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${DL_LIBRARY}
-    )
+        llinventory
+        llmessage
+        llmath
+        llfilesystem
+        llxml
+        llcommon
+        llcorehttp
+        ll::googlemock
+        )
 
 if (WINDOWS)
   set_target_properties(lltest

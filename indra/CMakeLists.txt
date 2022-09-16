@@ -4,22 +4,39 @@
 # other commands to guarantee full compatibility
 # with the version specified
 ## 3.8 added VS_DEBUGGER_WORKING_DIRECTORY support
+## 3.13/12 is needed for add_link_options/add_compile_definitions
 ## 3.14 added FILE CREATE_LINK
-cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
+## 3.16 is needed for target_precompile_headers
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake"  "${CMAKE_CURRENT_BINARY_DIR}")
+
+include(conanbuildinfo OPTIONAL RESULT_VARIABLE USE_CONAN )
+if( USE_CONAN )
+    set( USE_CONAN ON )
+    set( USE_AUTOBUILD_3P OFF )
+    conan_basic_setup(TARGETS NO_OUTPUT_DIRS)
+    add_compile_definitions(LL_USESYSTEMLIBS USE_CONAN NO_AUTOBUILD_3P)
+else()
+  set( USE_CONAN OFF )
+  set( USE_AUTOBUILD_3P ON )
+endif()
+
+# The viewer code base can now be successfully compiled with -std=c++14. But
+# turning that on in the generic viewer-build-variables/variables file would
+# potentially require tweaking each of our ~50 third-party library builds.
+# Until we decide to set -std=c++14 in viewer-build-variables/variables, set
+# it locally here: we want to at least prevent inadvertently reintroducing
+# viewer code that would fail with C++14.
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(Variables)
 include(BuildVersion)
-
-set(LEGACY_STDIO_LIBS)
-if (WINDOWS)
-      set(LEGACY_STDIO_LIBS legacy_stdio_definitions)
-endif (WINDOWS)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -60,8 +77,10 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
+if( LL_TESTS )
 # Legacy C++ tests. Build always, run if LL_TESTS is true.
 add_subdirectory(${VIEWER_PREFIX}test)
+endif()
 
 if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
@@ -73,7 +92,6 @@ if (LINUX)
       include(LLAppearanceUtility)
       add_subdirectory(${LLAPPEARANCEUTILITY_SRC_DIR} ${LLAPPEARANCEUTILITY_BIN_DIR})
   endif (INSTALL_PROPRIETARY)
-  add_dependencies(viewer linux-crash-logger-strip-target)
 elseif (WINDOWS)
   # cmake EXISTS requires an absolute path, see indra/cmake/Variables.cmake
   if (EXISTS ${VIEWER_DIR}win_setup)

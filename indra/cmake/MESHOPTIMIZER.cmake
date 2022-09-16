@@ -3,14 +3,19 @@
 include(Linking)
 include(Prebuilt)
 
+include_guard()
+add_library( ll::meshoptimizer INTERFACE IMPORTED )
+
+use_system_binary(meshoptimizer)
 use_prebuilt_binary(meshoptimizer)
 
 if (WINDOWS)
-  set(MESHOPTIMIZER_LIBRARIES meshoptimizer.lib)
+  target_link_libraries( ll::meshoptimizer INTERFACE meshoptimizer.lib)
+  set(MESHOPTIMIZER_LIBRARIES )
 elseif (LINUX)
-  set(MESHOPTIMIZER_LIBRARIES meshoptimizer.o)
+  target_link_libraries( ll::meshoptimizer INTERFACE meshoptimizer.o)
 elseif (DARWIN)
-  set(MESHOPTIMIZER_LIBRARIES libmeshoptimizer.a)
+  target_link_libraries( ll::meshoptimizer INTERFACE libmeshoptimizer.a)
 endif (WINDOWS)
 
-set(MESHOPTIMIZER_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/meshoptimizer)
+target_include_directories( ll::meshoptimizer SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/meshoptimizer)

@@ -36,30 +36,26 @@ INCLUDE(GoogleMock)
     )
   SET(alltest_DEP_TARGETS
     # needed by the test harness itself
-    ${APRUTIL_LIBRARIES}
-    ${APR_LIBRARIES}
     llcommon
     )
+
+  SET(alltest_INCLUDE_DIRS
+          ${LIBS_OPEN_DIR}/test
+          )
+  SET(alltest_LIBRARIES
+          llcommon
+          ll::googlemock
+          )
   IF(NOT "${project}" STREQUAL "llmath")
     # add llmath as a dep unless the tested module *is* llmath!
     LIST(APPEND alltest_DEP_TARGETS
-      llmath
-      )
+            llmath
+            )
+    LIST(APPEND alltest_LIBRARIES
+            llmath
+            )
   ENDIF(NOT "${project}" STREQUAL "llmath")
-  SET(alltest_INCLUDE_DIRS
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LIBS_OPEN_DIR}/test
-    ${GOOGLEMOCK_INCLUDE_DIRS}
-    )
-  SET(alltest_LIBRARIES
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    ${WINDOWS_LIBRARIES}
-    )
+
   # Headers, for convenience in targets.
   SET(alltest_HEADER_FILES
     ${CMAKE_SOURCE_DIR}/test/test.h
@@ -88,15 +84,9 @@ INCLUDE(GoogleMock)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_SOURCE_FILES ${${name}_test_SOURCE_FILES}")
     ENDIF(LL_TEST_VERBOSE)
 
-    if (USE_BUGSPLAT)
-      SET_PROPERTY(SOURCE ${${name}_test_SOURCE_FILES}
-          APPEND PROPERTY COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
-    endif (USE_BUGSPLAT)
-
     # Headers
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_HEADER_FILES ${source} LL_TEST_ADDITIONAL_HEADER_FILES)
     SET(${name}_test_HEADER_FILES ${name}.h ${${name}_test_additional_HEADER_FILES})
-    set_source_files_properties(${${name}_test_HEADER_FILES} PROPERTIES HEADER_FILE_ONLY TRUE)
     LIST(APPEND ${name}_test_SOURCE_FILES ${${name}_test_HEADER_FILES})
     IF(LL_TEST_VERBOSE)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_HEADER_FILES ${${name}_test_HEADER_FILES}")
@@ -126,7 +116,8 @@ INCLUDE(GoogleMock)
       MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_LIBRARIES ${${name}_test_additional_LIBRARIES}")
     ENDIF(LL_TEST_VERBOSE)
     # Add to project
-    TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${alltest_DEP_TARGETS} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
+    TARGET_LINK_LIBRARIES(PROJECT_${project}_TEST_${name} ${alltest_LIBRARIES} ${${name}_test_additional_PROJECTS} ${${name}_test_additional_LIBRARIES} )
+    add_dependencies( PROJECT_${project}_TEST_${name} ${alltest_DEP_TARGETS})
     # Compile-time Definitions
     GET_OPT_SOURCE_FILE_PROPERTY(${name}_test_additional_CFLAGS ${source} LL_TEST_ADDITIONAL_CFLAGS)
     SET_TARGET_PROPERTIES(PROJECT_${project}_TEST_${name}
@@ -206,14 +197,9 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     )
 
   SET(libraries
-    ${LEGACY_STDIO_LIBS}
-    ${library_dependencies}
-    ${BOOST_FIBER_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_SYSTEM_LIBRARY}
-    ${GOOGLEMOCK_LIBRARIES}
-    ${PTHREAD_LIBRARY}
-    )
+          ${library_dependencies}
+          ll::googlemock
+          )
 
   # Add test executable build target
   if(TEST_DEBUG)
@@ -225,15 +211,6 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     RUNTIME_OUTPUT_DIRECTORY "${EXE_STAGING_DIR}"
     COMPILE_DEFINITIONS "LL_TEST=${testname};LL_TEST_${testname}"
     )
-
-  if(USESYSTEMLIBS)
-    SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
-  endif(USESYSTEMLIBS)
-
-  if (USE_BUGSPLAT)
-      SET_PROPERTY(SOURCE ${source_files}
-          APPEND PROPERTY COMPILE_DEFINITIONS "${BUGSPLAT_DEFINE}")
-  endif (USE_BUGSPLAT)
 
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
   # Any changes made here should be replicated there.
@@ -299,18 +276,14 @@ MACRO(SET_TEST_PATH LISTVAR)
     # We typically build/package only Release variants of third-party
     # libraries, so append the Release staging dir in case the library being
     # sought doesn't have a debug variant.
-    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR} ${SHARED_LIB_STAGING_DIR}/Release)
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} ${SHARED_LIB_STAGING_DIR}/Release)
   ELSEIF(DARWIN)
     # We typically build/package only Release variants of third-party
     # libraries, so append the Release staging dir in case the library being
     # sought doesn't have a debug variant.
-    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/Resources ${SHARED_LIB_STAGING_DIR}/Release/Resources /usr/lib)
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} ${SHARED_LIB_STAGING_DIR}/Release/Resources /usr/lib)
   ELSE(WINDOWS)
     # Linux uses a single staging directory anyway.
-    IF (USESYSTEMLIBS)
-      set(${LISTVAR} ${CMAKE_BINARY_DIR}/llcommon /usr/lib /usr/local/lib)
-    ELSE (USESYSTEMLIBS)
-      set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)
-    ENDIF (USESYSTEMLIBS)
+    set(${LISTVAR} ${SHARED_LIB_STAGING_DIR} /usr/lib)
   ENDIF(WINDOWS)
 ENDMACRO(SET_TEST_PATH)

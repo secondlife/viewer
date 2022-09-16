@@ -10,18 +10,11 @@ include(NGHTTP2)
 include(ZLIBNG)
 include(LLCoreHttp)
 include(LLAddBuildTest)
-include(LLMessage)
 include(LLCommon)
 include(Tut)
 include(bugsplat)
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR})
-
-include_directories(
-    ${LLMESSAGE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLCOREHTTP_INCLUDE_DIRS}
-    )
+include_directories (${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage )
 
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
@@ -80,8 +73,6 @@ set(llcorehttp_HEADER_FILES
     _thread.h
     )
 
-set_source_files_properties(${llcorehttp_HEADER_FILES}
-                            PROPERTIES HEADER_FILE_ONLY TRUE)
 if (DARWIN OR LINUX)
   # Boost headers define unused members in condition_variable so...
   set_source_files_properties(${llcorehttp_SOURCE_FILES}
@@ -92,14 +83,14 @@ list(APPEND llcorehttp_SOURCE_FILES ${llcorehttp_HEADER_FILES})
 
 add_library (llcorehttp ${llcorehttp_SOURCE_FILES})
 target_link_libraries(
-  llcorehttp
-  ${CURL_LIBRARIES}
-  ${OPENSSL_LIBRARIES}
-  ${CRYPTO_LIBRARIES}
-  ${NGHTTP2_LIBRARIES}
-  ${BOOST_THREAD_LIBRARY}
-  ${BOOST_SYSTEM_LIBRARY}
+        llcorehttp
+        llcommon
+        ll::libcurl
+        ll::openssl
+        ll::nghttp2
   )
+target_include_directories( llcorehttp  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
+
 
 # tests
 set(LLCOREHTTP_TESTS ON CACHE BOOL
@@ -119,26 +110,15 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
       tests/test_bufferstream.hpp
       )
 
-  set_source_files_properties(${llcorehttp_TEST_HEADER_FILES}
-                              PROPERTIES HEADER_FILE_ONLY TRUE)
-
   list(APPEND llcorehttp_TEST_SOURCE_FILES ${llcorehttp_TEST_HEADER_FILES})
 
   # LL_ADD_PROJECT_UNIT_TESTS(llcorehttp "${llcorehttp_TEST_SOURCE_FILES}")
 
   #    set(TEST_DEBUG on)
   set(test_libs
-      ${LLCOREHTTP_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
-      ${CURL_LIBRARIES}
-      ${OPENSSL_LIBRARIES}
-      ${CRYPTO_LIBRARIES}
-      ${NGHTTP2_LIBRARIES}
-      ${BOOST_THREAD_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
+          llcorehttp
+          llmessage
+          llcommon
       )
 
   # If http_proxy is in the current environment (e.g. to fetch s3-proxy
@@ -155,7 +135,7 @@ if (LL_TESTS AND LLCOREHTTP_TESTS)
 if (DARWIN)
   # Path inside the app bundle where we'll need to copy libraries
   set(LL_TEST_DESTINATION_DIR
-    ${CMAKE_BINARY_DIR}/sharedlibs/Resources
+    ${CMAKE_BINARY_DIR}/sharedlibs/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,,../>Resources
   )
 
   # Create the Contents/Resources directory
@@ -200,18 +180,9 @@ endif (DARWIN)
       )
 
   set(example_libs
-      ${LEGACY_STDIO_LIBS}
-      ${LLCOREHTTP_LIBRARIES}
-      ${WINDOWS_LIBRARIES}
-      ${LLMESSAGE_LIBRARIES}
-      ${LLCOMMON_LIBRARIES}
-      ${GOOGLEMOCK_LIBRARIES}
-      ${CURL_LIBRARIES}
-      ${OPENSSL_LIBRARIES}
-      ${CRYPTO_LIBRARIES}
-      ${NGHTTP2_LIBRARIES}
-      ${BOOST_THREAD_LIBRARY}
-      ${BOOST_SYSTEM_LIBRARY}
+          llcorehttp
+          llmessage
+          llcommon
       )
 
   add_executable(http_texture_load

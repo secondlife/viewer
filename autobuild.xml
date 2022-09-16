@@ -331,6 +331,16 @@
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ac54672e0b38f52726f5c99047c913e4</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89306/815431/cubemaptoequirectangular-1.1.0-windows64-564841.tar.bz2</string>
+            </map>
+          </map>
         </map>
         <key>version</key>
         <string>1.1.0</string>
@@ -1076,6 +1086,16 @@
             </map>
             <key>name</key>
             <string>windows64</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e70898903475d8ac2e81ff33278fc987</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89309/815433/jpegencoderbasic-1.0-windows64-564842.tar.bz2</string>
+            </map>
           </map>
         </map>
         <key>version</key>
@@ -2488,6 +2508,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>name</key>
             <string>windows64</string>
           </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>46edf0f55417f8ef0d33a5c007bc3644</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/89310/815451/threejs-0.132.2-windows64-564843.tar.bz2</string>
+            </map>
+          </map>
         </map>
         <key>version</key>
         <string>0.132.2</string>
@@ -2991,6 +3021,68 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
           <key>name</key>
           <string>common</string>
         </map>
+        <key>linux64</key>
+        <map>
+          <key>build_directory</key>
+          <string>build-linux-x86_64</string>
+          <key>configurations</key>
+          <map>
+            <key>Release</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>default</key>
+              <string>True</string>
+              <key>name</key>
+              <string>Release</string>
+            </map>
+            <key>ReleaseOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>command</key>
+                <string>ninja</string>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>Ninja</string>
+                  <string>-DLL_TESTS=Off</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>ReleaseOS</string>
+            </map>
+            <key>default</key>
+            <map>
+              <key>build</key>
+              <map>
+              </map>
+              <key>name</key>
+              <string>default</string>
+            </map>
+          </map>
+          <key>name</key>
+          <string>linux64</string>
+        </map>
         <key>darwin64</key>
         <map>
           <key>build_directory</key>
@@ -3183,7 +3275,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>${AUTOBUILD_WIN_CMAKE_GEN|NOTWIN}</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DOPENAL:BOOL=ON</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
@@ -3254,7 +3346,7 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
-                  <string>-DOPENAL:BOOL=ON</string>
+                  <string>-DUSE_OPENAL:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
