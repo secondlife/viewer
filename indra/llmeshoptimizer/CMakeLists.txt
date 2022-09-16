@@ -2,7 +2,7 @@
 
 project(llmeshoptimizer)
 
-include(MESHOPTIMIZER)
+include(Meshoptimizer)
 
 include(00-Common)
 include(LLCommon)

@@ -11,7 +11,6 @@ use_prebuilt_binary(meshoptimizer)
 
 if (WINDOWS)
   target_link_libraries( ll::meshoptimizer INTERFACE meshoptimizer.lib)
-  set(MESHOPTIMIZER_LIBRARIES )
 elseif (LINUX)
   target_link_libraries( ll::meshoptimizer INTERFACE meshoptimizer.o)
 elseif (DARWIN)

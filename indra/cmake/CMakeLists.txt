@@ -43,7 +43,7 @@ set(cmake_SOURCE_FILES
         LLTestCommand.cmake
         LLWindow.cmake
         Linking.cmake
-        MESHOPTIMIZER.cmake
+        Meshoptimizer.cmake
         NDOF.cmake
         OPENAL.cmake
         OpenGL.cmake
