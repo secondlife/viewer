@@ -2060,7 +2060,7 @@ bool LLViewerFetchedTexture::updateFetch()
 		
 		if (!mIsFetching)
 		{
-			if ((decode_priority > 0) && (mRawDiscardLevel < 0))
+			if ((decode_priority > 0) && (mRawDiscardLevel < 0 || mRawDiscardLevel == INVALID_DISCARD_LEVEL))
 			{
 				// We finished but received no data
 				if (getDiscardLevel() < 0)
