@@ -1310,8 +1310,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     S32 tc_bytes_size = ((size_vertices * sizeof(LLVector2)) + 0xF) & ~0xF;
     LLVector4a* combined_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size);
     LLVector4a* combined_normals = combined_positions + size_vertices;
-    LLVector4a* combined_tangents = combined_normals + size_vertices;
-    LLVector2* combined_tex_coords = (LLVector2*)(combined_tangents + size_vertices);
+    LLVector2* combined_tex_coords = (LLVector2*)(combined_normals + size_vertices);
 
     // copy indices and vertices into new buffers
     S32 combined_positions_shift = 0;
@@ -1321,18 +1320,12 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
     {
         const LLVolumeFace &face = base_model->getVolumeFace(face_idx);
 
-        // ensure tangents have been generated or loaded
-        llassert(face.mMikktSpaceTangents);
-
         // Vertices
         S32 copy_bytes = face.mNumVertices * sizeof(LLVector4a);
         LLVector4a::memcpyNonAliased16((F32*)(combined_positions + combined_positions_shift), (F32*)face.mPositions, copy_bytes);
 
         // Normals
         LLVector4a::memcpyNonAliased16((F32*)(combined_normals + combined_positions_shift), (F32*)face.mNormals, copy_bytes);
-
-        // Tangents
-        LLVector4a::memcpyNonAliased16((F32*)(combined_tangents + combined_positions_shift), (F32*)face.mMikktSpaceTangents, copy_bytes);
 
         // Tex coords
         copy_bytes = face.mNumVertices * sizeof(LLVector2);
@@ -1437,8 +1430,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
     LLVector4a* buffer_positions = (LLVector4a*)ll_aligned_malloc<64>(sizeof(LLVector4a) * 3 * size_vertices + tc_bytes_size);
     LLVector4a* buffer_normals = buffer_positions + size_vertices;
-    LLVector4a* buffer_tangents = buffer_normals + size_vertices;
-    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_tangents + size_vertices);
+    LLVector2* buffer_tex_coords = (LLVector2*)(buffer_normals + size_vertices);
     S32 buffer_idx_size = (size_indices * sizeof(U16) + 0xF) & ~0xF;
     U16* buffer_indices = (U16*)ll_aligned_malloc_16(buffer_idx_size);
     S32* old_to_new_positions_map = new S32[size_vertices];
@@ -1519,7 +1511,6 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
                     // Copy vertice, normals, tcs
                     buffer_positions[buf_positions_copied] = combined_positions[idx];
                     buffer_normals[buf_positions_copied] = combined_normals[idx];
-                    buffer_tangents[buf_positions_copied] = combined_tangents[idx];
                     buffer_tex_coords[buf_positions_copied] = combined_tex_coords[idx];
 
                     old_to_new_positions_map[idx] = buf_positions_copied;
@@ -1564,7 +1555,6 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
 
             LLVector4a::memcpyNonAliased16((F32*)new_face.mPositions, (F32*)buffer_positions, buf_positions_copied * sizeof(LLVector4a));
             LLVector4a::memcpyNonAliased16((F32*)new_face.mNormals, (F32*)buffer_normals, buf_positions_copied * sizeof(LLVector4a));
-            LLVector4a::memcpyNonAliased16((F32*)new_face.mMikktSpaceTangents, (F32*)buffer_tangents, buf_positions_copied * sizeof(LLVector4a));
 
             U32 tex_size = (buf_positions_copied * sizeof(LLVector2) + 0xF)&~0xF;
             LLVector4a::memcpyNonAliased16((F32*)new_face.mTexCoords, (F32*)buffer_tex_coords, tex_size);
