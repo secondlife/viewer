@@ -115,8 +115,6 @@ void main()
 
         vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
-        vec3 v = -normalize(pos.xyz);
-        
         vec3 intensity = dist_atten * color * 3.0; // Legacy attenuation
         final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, normalize(lv));
     }
