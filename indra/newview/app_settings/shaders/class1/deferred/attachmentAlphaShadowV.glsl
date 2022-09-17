@@ -1,5 +1,5 @@
 /** 
- * @file attachmentShadowV.glsl
+ * @file attachmentAlphaShadowV.glsl
  * $LicenseInfo:firstyear=2007&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2007, Linden Research, Inc.
@@ -35,7 +35,7 @@ ATTRIBUTE vec2 texcoord0;
 mat4 getObjectSkinnedTransform();
 void passTextureIndex();
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 VARYING vec4 post_pos;
 #endif
 VARYING vec2 vary_texcoord0;
@@ -61,7 +61,7 @@ void main()
 
 	vertex_color = diffuse_color;
 
-#if !DEPTH_CLAMP
+#if !defined(DEPTH_CLAMP)
 	p.z = max(p.z, -p.w+0.01);
     post_pos = p;
 	gl_Position = p;
