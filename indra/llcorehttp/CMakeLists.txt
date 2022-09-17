@@ -14,8 +14,6 @@ include(LLCommon)
 include(Tut)
 include(bugsplat)
 
-include_directories (${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage )
-
 set(llcorehttp_SOURCE_FILES
     bufferarray.cpp
     bufferstream.cpp
@@ -89,8 +87,11 @@ target_link_libraries(
         ll::openssl
         ll::nghttp2
   )
-target_include_directories( llcorehttp  INTERFACE   ${CMAKE_CURRENT_SOURCE_DIR})
-
+target_include_directories( llcorehttp INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+# llmessage depends on llcorehttp, yet llcorehttp also depends on llmessage (at least for includes).
+# Cannot/Should not use target_link_libraries here to add llmessage to the dependencies, as that would
+# lead to circular dependencies (or in case of cmake, the first project declaring it's dependencies wins)
+target_include_directories( llcorehttp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../llmessage)
 
 # tests
 set(LLCOREHTTP_TESTS ON CACHE BOOL
