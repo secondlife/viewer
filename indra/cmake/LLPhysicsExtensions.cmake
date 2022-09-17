@@ -11,7 +11,7 @@ if (INSTALL_PROPRIETARY)
 endif (INSTALL_PROPRIETARY)
 
 include_guard()
-add_library( llphysicsextensions INTERFACE IMPORTED )
+add_library( llphysicsextensions_impl INTERFACE IMPORTED )
 
 
 # Note that the use_prebuilt_binary macros below do not in fact include binaries;
@@ -22,14 +22,14 @@ if (HAVOK)
    include(Havok)
    use_prebuilt_binary(llphysicsextensions_source)
    set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/src)
-   target_link_libraries( llphysicsextensions INTERFACE llphysicsextensions)
+   target_link_libraries( llphysicsextensions_impl INTERFACE llphysicsextensions)
 elseif (HAVOK_TPV)
    use_prebuilt_binary(llphysicsextensions_tpv)
-   target_link_libraries( llphysicsextensions INTERFACE llphysicsextensions_tpv)
+   target_link_libraries( llphysicsextensions_impl INTERFACE llphysicsextensions_tpv)
 else (HAVOK)
    use_prebuilt_binary(llphysicsextensions_stub)
    set(LLPHYSICSEXTENSIONS_SRC_DIR ${LIBS_PREBUILT_DIR}/llphysicsextensions/stub)
-   target_link_libraries( llphysicsextensions INTERFACE llphysicsextensionsstub)
+   target_link_libraries( llphysicsextensions_impl INTERFACE llphysicsextensionsstub)
 endif (HAVOK)
 
-target_include_directories( llphysicsextensions  INTERFACE   ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
+target_include_directories( llphysicsextensions_impl INTERFACE   ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)

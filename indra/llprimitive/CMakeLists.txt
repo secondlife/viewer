@@ -60,7 +60,7 @@ target_link_libraries(llprimitive
         llcorehttp
         llxml
         llcharacter
-        llphysicsextensions
+        llphysicsextensions_impl
         ll::colladadom
         ll::pcre
 		ll::glh_linear

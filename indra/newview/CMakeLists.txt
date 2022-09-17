@@ -61,7 +61,12 @@ if (NOT HAVOK_TPV)
 
    # Another hack that works with newer cmake versions:
    cmake_policy( SET CMP0079 NEW)
-   target_link_libraries(llphysicsextensionsstub llcommon llmath)
+   if( TARGET llphysicsextensionsstub )
+      target_link_libraries(llphysicsextensionsstub llcommon llmath)
+   endif()
+   if( TARGET llphysicsextensions )
+      target_link_libraries(llphysicsextensions llrender )
+   endif()
 endif (NOT HAVOK_TPV)
 
 
