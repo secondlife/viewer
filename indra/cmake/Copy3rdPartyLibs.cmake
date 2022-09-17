@@ -152,15 +152,6 @@ if(WINDOWS)
     endforeach()
 
 elseif(DARWIN)
-    # Support our "@executable_path/../Resources" load path for executables
-    # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
-    # directories.
-    # Cannot use ${SHARED_LIB_STAGING_DIR} here as it used a generator expression and tha this not
-    # supported by file(...)
-    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/sharedlibs/Release/Resources")
-    file(CREATE_LINK "${CMAKE_BINARY_DIR}/sharedlibs/Release/Resources" "${CMAKE_BINARY_DIR}/sharedlibs/Resources"
-         SYMBOLIC)
-
     set(vivox_lib_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(slvoice_files SLVoice)
     set(vivox_libs
@@ -299,3 +290,12 @@ add_custom_target(
         stage_third_party_libs ALL
         DEPENDS ${third_party_targets}
 )
+
+if(DARWIN)
+    # Support our "@executable_path/../Resources" load path for executables
+    # that end up in any of the above SHARED_LIB_STAGING_DIR_MUMBLE
+    # directories.
+    add_custom_command( TARGET stage_third_party_libs POST_BUILD
+            COMMAND cmake -E create_symlink ${SHARED_LIB_STAGING_DIR} ${CMAKE_BINARY_DIR}/sharedlibs/Resources
+            )
+endif()
