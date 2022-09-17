@@ -66,6 +66,14 @@ vec3 srgb_to_linear(vec3 c);
 // Util
 vec3 hue_to_rgb(float hue);
 
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
+                    float perceptualRoughness, 
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l); //surface point to light
+
+
 void main()
 {
 #if defined(LOCAL_LIGHT_KILL)
@@ -87,38 +95,43 @@ void main()
     vec3 diffuse = texture2DRect(diffuseRect, tc).rgb;
 
     vec3  h, l, v = -normalize(pos);
-    float nh, nl, nv, vh, lightDist;
+    float nh, nv, vh, lightDist;
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorDiffuse  = vec3(0);
-        vec3 colorSpec     = vec3(0);
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
-        vec3 packedORM     = texture2DRect(emissiveRect, tc).rgb; // PBR linear packed Occlusion, Roughness, Metal. See: pbropaqueF.glsl
+        vec3 orm = texture2DRect(emissiveRect, tc).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
+        float perceptualRoughness = orm.g;
+        float metallic = orm.b;
+        vec3 f0 = vec3(0.04);
+        vec3 baseColor = diffuse.rgb;
+        
+        vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
+        diffuseColor *= 1.0 - metallic;
 
-        vec3 c_diff, reflect0, reflect90;
-        float alphaRough, specWeight;
-        initMaterial( diffuse, packedORM, alphaRough, c_diff, reflect0, reflect90, specWeight );
+        vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
         for (int light_idx = 0; light_idx < LIGHT_COUNT; ++light_idx)
         {
             vec3  lightColor = light_col[ light_idx ].rgb; // Already in linear, see pipeline.cpp: volume->getLightLinearColor();
             float falloff    = light_col[ light_idx ].a;
-            float lightSize  = light    [ light_idx ].w;
-            vec3  lv         =(light    [ light_idx ].xyz - pos);
-            calcHalfVectors(lv, n, v, h, l, nh, nl, nv, vh, lightDist);
+            float lightSize  = light[ light_idx ].w;
+            vec3  lv         = light[ light_idx ].xyz - pos;
+
+            lightDist = length(lv);
 
             float dist = lightDist / lightSize;
-            if (dist <= 1.0 && nl > 0.0)
+            if (dist <= 1.0)
             {
+                lv /= lightDist;
+
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
-                vec3 intensity = dist_atten * nl * lightColor * 2.0;
-                colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
-                colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
+
+                vec3 intensity = dist_atten * lightColor * 3.0;
+
+                final_color += intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
             }
         }
-
-        final_color = colorDiffuse + colorSpec;
     }
     else
     {
