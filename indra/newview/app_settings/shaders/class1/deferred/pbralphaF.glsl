@@ -98,9 +98,6 @@ vec3 scaleSoftClipFrag(vec3 l);
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
-vec2 getGGX( vec2 brdfPoint );
-void initMaterial( vec3 diffuse, vec3 packedORM,
-        out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);

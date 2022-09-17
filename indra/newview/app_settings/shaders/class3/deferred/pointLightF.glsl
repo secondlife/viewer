@@ -57,15 +57,11 @@ uniform vec2 screen_res;
 uniform mat4 inv_proj;
 uniform vec4 viewport;
 
-vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
-vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRoughness, float specWeight, float vh, float nl, float nv, float nh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
-vec3 getLightIntensityPoint(vec3 lightColor, float lightRange, float lightDistance);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec4 getPosition(vec2 pos_screen);
 vec2 getScreenXY(vec4 clip);
-void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 

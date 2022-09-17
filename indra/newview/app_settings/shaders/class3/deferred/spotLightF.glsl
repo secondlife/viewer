@@ -82,23 +82,27 @@ uniform vec2 screen_res;
 
 uniform mat4 inv_proj;
 
-vec3 BRDFLambertian( vec3 reflect0, vec3 reflect90, vec3 c_diff, float specWeight, float vh );
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
 bool clipProjectedLightVars(vec3 center, vec3 pos, out float dist, out float l_dist, out vec3 lv, out vec4 proj_tc );
-vec3 getLightIntensitySpot(vec3 lightColor, float lightRange, float lightDistance, vec3 v);
 vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensity);
 vec3 getProjectedLightAmbiance(float amb_da, float attenuation, float lit, float nl, float noise, vec2 projected_uv);
 vec3 getProjectedLightDiffuseColor(float light_distance, vec2 projected_uv );
 vec3 getProjectedLightSpecularColor(vec3 pos, vec3 n);
 vec2 getScreenXY(vec4 clip_point);
-void initMaterial( vec3 diffuse, vec3 packedORM, out float alphaRough, out vec3 c_diff, out vec3 reflect0, out vec3 reflect90, out float specWeight );
 vec3 srgb_to_linear(vec3 c);
 vec4 texture2DLodSpecular(vec2 tc, float lod);
 
 vec4 getPosition(vec2 pos_screen);
 
 const float M_PI = 3.14159265;
+
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
+                    float perceptualRoughness, 
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l); //surface point to light
 
 void main()
 {
@@ -147,6 +151,7 @@ void main()
     vec3 dlit    = vec3(0, 0, 0);
     vec3 slit    = vec3(0, 0, 0);
 
+    vec3 amb_rgb = vec3(0);
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
