@@ -120,7 +120,7 @@ void pbrDirectionalLight(inout vec3 colorDiffuse,
     float nv,
     float nh);
 
-void pbrIbl(out vec3 colorDiffuse, // diffuse color output
+/*void pbrIbl(out vec3 colorDiffuse, // diffuse color output
             out vec3 colorSpec, // specular color output,
             vec3 radiance, // radiance map sample
             vec3 irradiance, // irradiance map sample
@@ -129,7 +129,7 @@ void pbrIbl(out vec3 colorDiffuse, // diffuse color output
             float perceptualRough, // roughness factor
             float gloss,        // 1.0 - roughness factor
             vec3 reflect0,
-            vec3 c_diff);
+            vec3 c_diff);*/
 
 // lp = light position
 // la = linear attenuation, light radius
@@ -255,7 +255,7 @@ void main()
     sampleReflectionProbes(irradiance, radiance, legacyenv, pos.xyz, norm.xyz, gloss, 0.0);
     irradiance       = max(amblit,irradiance) * ambocc;
 
-    pbrIbl(colorDiffuse, colorSpec, radiance, irradiance, ao, nv, perceptualRough, gloss, reflect0, c_diff);
+    //pbrIbl(colorDiffuse, colorSpec, radiance, irradiance, ao, nv, perceptualRough, gloss, reflect0, c_diff);
     
     // Sun/Moon Lighting
     if (nl > 0.0 || nv > 0.0)

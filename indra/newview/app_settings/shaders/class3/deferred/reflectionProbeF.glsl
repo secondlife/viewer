@@ -524,14 +524,14 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 l
         vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
     // TODO - don't hard code lods
-    float reflection_lods = 8;
+    float reflection_lods = 7;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
     ambenv = sampleProbeAmbient(pos, norm);
 
-    if (glossiness > 0.0)
+    //if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod, 1.f);

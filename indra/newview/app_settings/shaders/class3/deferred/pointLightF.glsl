@@ -109,7 +109,7 @@ void main()
 
         if (nl > 0.0)
         {
-            vec3 intensity = dist_atten * nl * lightColor; // Legacy attenuation
+            vec3 intensity = dist_atten * nl * lightColor * 2.0; // Legacy attenuation
             colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
             colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
         }

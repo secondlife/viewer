@@ -305,6 +305,7 @@ extern LLGLSLShader			gDeferredWLMoonProgram;
 extern LLGLSLShader			gDeferredStarProgram;
 extern LLGLSLShader			gDeferredFullbrightShinyProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
+extern LLGLSLShader         gDeferredGenBrdfLutProgram;
 
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];

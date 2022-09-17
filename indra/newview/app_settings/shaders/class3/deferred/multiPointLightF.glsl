@@ -112,7 +112,7 @@ void main()
             if (dist <= 1.0 && nl > 0.0)
             {
                 float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
-                vec3 intensity = dist_atten * nl * lightColor;
+                vec3 intensity = dist_atten * nl * lightColor * 2.0;
                 colorDiffuse += intensity * BRDFLambertian (reflect0, reflect90, c_diff    , specWeight, vh);
                 colorSpec    += intensity * BRDFSpecularGGX(reflect0, reflect90, alphaRough, specWeight, vh, nl, nv, nh);
             }

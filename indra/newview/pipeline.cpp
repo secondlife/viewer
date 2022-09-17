@@ -1182,6 +1182,8 @@ void LLPipeline::releaseLUTBuffers()
 		LLImageGL::deleteTextures(1, &mLightFunc);
 		mLightFunc = 0;
 	}
+
+    mPbrBrdfLut.release();
 }
 
 void LLPipeline::releaseShadowBuffers()
@@ -1363,6 +1365,21 @@ void LLPipeline::createLUTBuffers()
 			
 			delete [] ls;
 		}
+
+        mPbrBrdfLut.allocate(512, 512, GL_RGB16, false, false);
+        mPbrBrdfLut.bindTarget();
+        gDeferredGenBrdfLutProgram.bind();
+
+        gGL.begin(LLRender::TRIANGLE_STRIP);
+        gGL.vertex2f(-1, -1);
+        gGL.vertex2f(-1, 1);
+        gGL.vertex2f(1, -1);
+        gGL.vertex2f(1, 1);
+        gGL.end();
+        gGL.flush();
+
+        gDeferredGenBrdfLutProgram.unbind();
+        mPbrBrdfLut.flush();
 	}
 }
 
@@ -8165,6 +8182,13 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
         deferred_target->bindTexture(3, channel, LLTexUnit::TFO_POINT); // frag_data[3]
     }
 
+    channel = shader.enableTexture(LLShaderMgr::DEFERRED_BRDF_LUT, LLTexUnit::TT_TEXTURE);
+    if (channel > -1)
+    {
+        mPbrBrdfLut.bindTexture(0, channel);
+    }
+
+
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
 	if (channel > -1)
 	{
@@ -8304,7 +8328,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
 	}
 
     bindReflectionProbes(shader);
-    
+
     if (gAtmosphere)
     {
         // bind precomputed textures necessary for calculating sun and sky luminance
@@ -9212,6 +9236,7 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
     shader.disableTexture(LLShaderMgr::DEFERRED_DIFFUSE, deferred_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_SPECULAR, deferred_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_EMISSIVE, deferred_target->getUsage());
+    shader.disableTexture(LLShaderMgr::DEFERRED_BRDF_LUT);
     shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_LIGHT, deferred_light_target->getUsage());
 	shader.disableTexture(LLShaderMgr::DIFFUSE_MAP);

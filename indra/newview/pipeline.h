@@ -682,6 +682,7 @@ public:
 
     LLRenderTarget			mHighlight;
     LLRenderTarget			mPhysicsDisplay;
+    LLRenderTarget          mPbrBrdfLut;
 
     LLCullResult            mSky;
     LLCullResult            mReflectedObjects;

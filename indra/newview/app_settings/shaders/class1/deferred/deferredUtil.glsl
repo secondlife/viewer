@@ -23,9 +23,38 @@
  * $/LicenseInfo$
  */
 
+
+
+
+
+/*  Parts of this file are taken from Sascha Willem's Vulkan GLTF refernce implementation
+MIT License
+
+Copyright (c) 2018 Sascha Willems
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
 uniform sampler2DRect   normalMap;
 uniform sampler2DRect   depthMap;
 uniform sampler2D projectionMap; // rgba
+uniform sampler2D brdfLut;
 
 // projected lighted params
 uniform mat4 proj_mat; //screen space to light space projector
@@ -482,38 +511,227 @@ vec3 BRDFSpecularGGX( vec3 reflect0, vec3 reflect90, float alphaRough, float spe
     return fresnel * vis * d;
 }
 
+// Based omn http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+float random(vec2 co)
+{
+	float a = 12.9898;
+	float b = 78.233;
+	float c = 43758.5453;
+	float dt= dot(co.xy ,vec2(a,b));
+	float sn= mod(dt,3.14);
+	return fract(sin(sn) * c);
+}
+
+vec2 hammersley2d(uint i, uint N) 
+{
+	// Radical inverse based on http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+	uint bits = (i << 16u) | (i >> 16u);
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+	float rdi = float(bits) * 2.3283064365386963e-10;
+	return vec2(float(i) /float(N), rdi);
+}
+
+// Based on http://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_slides.pdf
+vec3 importanceSample_GGX(vec2 Xi, float roughness, vec3 normal) 
+{
+	// Maps a 2D point to a hemisphere with spread based on roughness
+	float alpha = roughness * roughness;
+	float phi = 2.0 * M_PI * Xi.x + random(normal.xz) * 0.1;
+	float cosTheta = sqrt((1.0 - Xi.y) / (1.0 + (alpha*alpha - 1.0) * Xi.y));
+	float sinTheta = sqrt(1.0 - cosTheta * cosTheta);
+	vec3 H = vec3(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+
+	// Tangent space
+	vec3 up = abs(normal.z) < 0.999 ? vec3(0.0, 0.0, 1.0) : vec3(1.0, 0.0, 0.0);
+	vec3 tangentX = normalize(cross(up, normal));
+	vec3 tangentY = normalize(cross(normal, tangentX));
+
+	// Convert to world Space
+	return normalize(tangentX * H.x + tangentY * H.y + normal * H.z);
+}
+
+// Geometric Shadowing function
+float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
+{
+	float k = (roughness * roughness) / 2.0;
+	float GL = dotNL / (dotNL * (1.0 - k) + k);
+	float GV = dotNV / (dotNV * (1.0 - k) + k);
+	return GL * GV;
+}
+
+#define NUM_SAMPLES 16
+
+vec2 BRDF(float NoV, float roughness)
+{
+#if 0
+	// Normal always points along z-axis for the 2D lookup 
+	const vec3 N = vec3(0.0, 0.0, 1.0);
+	vec3 V = vec3(sqrt(1.0 - NoV*NoV), 0.0, NoV);
+
+	vec2 LUT = vec2(0.0);
+	for(uint i = 0u; i < NUM_SAMPLES; i++) {
+		vec2 Xi = hammersley2d(i, NUM_SAMPLES);
+		vec3 H = importanceSample_GGX(Xi, roughness, N);
+		vec3 L = 2.0 * dot(V, H) * H - V;
+
+		float dotNL = max(dot(N, L), 0.0);
+		float dotNV = max(dot(N, V), 0.0);
+		float dotVH = max(dot(V, H), 0.0); 
+		float dotNH = max(dot(H, N), 0.0);
+
+		if (dotNL > 0.0) {
+			float G = G_SchlicksmithGGX(dotNL, dotNV, roughness);
+			float G_Vis = (G * dotVH) / (dotNH * dotNV);
+			float Fc = pow(1.0 - dotVH, 5.0);
+			LUT += vec2((1.0 - Fc) * G_Vis, Fc * G_Vis);
+		}
+	}
+	return LUT / float(NUM_SAMPLES);
+#else
+    return texture(brdfLut, vec2(NoV, roughness)).rg;
+#endif
+}
+
 // set colorDiffuse and colorSpec to the results of GLTF PBR style IBL
-void pbrIbl(out vec3 colorDiffuse, // diffuse color output
-            out vec3 colorSpec, // specular color output,
+vec3 pbrIbl(vec3 diffuseColor,
+            vec3 specularColor,
             vec3 radiance, // radiance map sample
             vec3 irradiance, // irradiance map sample
             float ao,       // ambient occlusion factor
             float nv,       // normal dot view vector
-            float perceptualRough, // roughness factor
-            float gloss,        // 1.0 - roughness factor
-            vec3 reflect0,      // see also: initMaterial
-            vec3 c_diff)
+            float perceptualRough)
 {
-    // Common to RadianceGGX and RadianceLambertian
-    vec2  brdfPoint  = clamp(vec2(nv, perceptualRough), vec2(0,0), vec2(1,1));
-    vec2  vScaleBias = getGGX( brdfPoint); // Environment BRDF: scale and bias applied to reflect0
-    vec3  fresnelR   = max(vec3(gloss), reflect0) - reflect0; // roughness dependent fresnel
-    vec3  kSpec      = reflect0 + fresnelR*pow(1.0 - nv, 5.0);
+    // retrieve a scale and bias to F0. See [1], Figure 3
+	vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
+	vec3 diffuseLight = irradiance;
+	vec3 specularLight = radiance;
 
-    vec3 FssEssGGX = kSpec*vScaleBias.x + vScaleBias.y;
-    colorSpec = radiance * FssEssGGX;
+	vec3 diffuse = diffuseLight * diffuseColor;
+	vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
-    // Reference: getIBLRadianceLambertian fs
-    vec3  FssEssLambert = kSpec * vScaleBias.x + vScaleBias.y; // NOTE: Very similar to FssEssRadiance but with extra specWeight term
-    float Ems           = 1.0 - (vScaleBias.x + vScaleBias.y);
-    vec3  avg           = (reflect0 + (1.0 - reflect0) / 21.0);
-    vec3  AvgEms        = avg * Ems;
-    vec3  FmsEms        = AvgEms * FssEssLambert / (1.0 - AvgEms);
-    vec3  kDiffuse      = c_diff * (1.0 - FssEssLambert + FmsEms);
-    colorDiffuse        = (FmsEms + kDiffuse) * irradiance;
+	
+	return (diffuse + specular) * ao;
+}
 
-    colorDiffuse *= ao;
-    colorSpec    *= ao;
+// Encapsulate the various inputs used by the various functions in the shading equation
+// We store values in this struct to simplify the integration of alternative implementations
+// of the shading terms, outlined in the Readme.MD Appendix.
+struct PBRInfo
+{
+	float NdotL;                  // cos angle between normal and light direction
+	float NdotV;                  // cos angle between normal and view direction
+	float NdotH;                  // cos angle between normal and half vector
+	float LdotH;                  // cos angle between light direction and half vector
+	float VdotH;                  // cos angle between view direction and half vector
+	float perceptualRoughness;    // roughness value, as authored by the model creator (input to shader)
+	float metalness;              // metallic value at the surface
+	vec3 reflectance0;            // full reflectance color (normal incidence angle)
+	vec3 reflectance90;           // reflectance color at grazing angle
+	float alphaRoughness;         // roughness mapped to a more linear change in the roughness (proposed by [2])
+	vec3 diffuseColor;            // color contribution from diffuse lighting
+	vec3 specularColor;           // color contribution from specular lighting
+};
+
+// Basic Lambertian diffuse
+// Implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog
+// See also [1], Equation 1
+vec3 diffuse(PBRInfo pbrInputs)
+{
+	return pbrInputs.diffuseColor / M_PI;
+}
+
+// The following equation models the Fresnel reflectance term of the spec equation (aka F())
+// Implementation of fresnel from [4], Equation 15
+vec3 specularReflection(PBRInfo pbrInputs)
+{
+	return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 5.0);
+}
+
+// This calculates the specular geometric attenuation (aka G()),
+// where rougher material will reflect less light back to the viewer.
+// This implementation is based on [1] Equation 4, and we adopt their modifications to
+// alphaRoughness as input as originally proposed in [2].
+float geometricOcclusion(PBRInfo pbrInputs)
+{
+	float NdotL = pbrInputs.NdotL;
+	float NdotV = pbrInputs.NdotV;
+	float r = pbrInputs.alphaRoughness;
+
+	float attenuationL = 2.0 * NdotL / (NdotL + sqrt(r * r + (1.0 - r * r) * (NdotL * NdotL)));
+	float attenuationV = 2.0 * NdotV / (NdotV + sqrt(r * r + (1.0 - r * r) * (NdotV * NdotV)));
+	return attenuationL * attenuationV;
+}
+
+// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())
+// Implementation from "Average Irregularity Representation of a Roughened Surface for Ray Reflection" by T. S. Trowbridge, and K. P. Reitz
+// Follows the distribution function recommended in the SIGGRAPH 2013 course notes from EPIC Games [1], Equation 3.
+float microfacetDistribution(PBRInfo pbrInputs)
+{
+	float roughnessSq = pbrInputs.alphaRoughness * pbrInputs.alphaRoughness;
+	float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;
+	return roughnessSq / (M_PI * f * f);
+}
+
+vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
+                    float perceptualRoughness, 
+                    float metallic,
+                    vec3 n, // normal
+                    vec3 v, // surface point to camera
+                    vec3 l) //surface point to light
+{
+	float alphaRoughness = perceptualRoughness * perceptualRoughness;
+
+	// Compute reflectance.
+	float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);
+
+	// For typical incident reflectance range (between 4% to 100%) set the grazing reflectance to 100% for typical fresnel effect.
+	// For very low reflectance range on highly diffuse objects (below 4%), incrementally reduce grazing reflecance to 0%.
+	float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);
+	vec3 specularEnvironmentR0 = specularColor.rgb;
+	vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;
+
+	vec3 h = normalize(l+v);                        // Half vector between both l and v
+	vec3 reflection = -normalize(reflect(v, n));
+	reflection.y *= -1.0f;
+
+	float NdotL = clamp(dot(n, l), 0.001, 1.0);
+	float NdotV = clamp(abs(dot(n, v)), 0.001, 1.0);
+	float NdotH = clamp(dot(n, h), 0.0, 1.0);
+	float LdotH = clamp(dot(l, h), 0.0, 1.0);
+	float VdotH = clamp(dot(v, h), 0.0, 1.0);
+
+	PBRInfo pbrInputs = PBRInfo(
+		NdotL,
+		NdotV,
+		NdotH,
+		LdotH,
+		VdotH,
+		perceptualRoughness,
+		metallic,
+		specularEnvironmentR0,
+		specularEnvironmentR90,
+		alphaRoughness,
+		diffuseColor,
+		specularColor
+	);
+
+	// Calculate the shading terms for the microfacet specular shading model
+	vec3 F = specularReflection(pbrInputs);
+	float G = geometricOcclusion(pbrInputs);
+	float D = microfacetDistribution(pbrInputs);
+
+	const vec3 u_LightColor = vec3(1.0);
+
+	// Calculation of analytical lighting contribution
+	vec3 diffuseContrib = (1.0 - F) * diffuse(pbrInputs);
+	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
+	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
+	vec3 color = NdotL * u_LightColor * (diffuseContrib + specContrib);
+
+    return color;
 }
 
 void pbrDirectionalLight(inout vec3 colorDiffuse,
@@ -529,7 +747,7 @@ void pbrDirectionalLight(inout vec3 colorDiffuse,
     float nv,
     float nh)
 {
-    float scale = 16.0;
+    float scale = 32.0;
     vec3 sunColor = sunlit * scale;
 
     // scol = sun shadow

@@ -204,14 +204,14 @@ void LLMaterialEditor::setAlbedoUploadId(const LLUUID& id)
 
 LLColor4 LLMaterialEditor::getAlbedoColor()
 {
-    LLColor4 ret = LLColor4(childGetValue("albedo color"));
+    LLColor4 ret = linearColor4(LLColor4(childGetValue("albedo color")));
     ret.mV[3] = getTransparency();
     return ret;
 }
 
 void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
 {
-    childSetValue("albedo color", color.getValue());
+    childSetValue("albedo color", srgbColor4(color).getValue());
     setTransparency(color.mV[3]);
 }
 
