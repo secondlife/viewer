@@ -47,8 +47,6 @@ include(ZLIBNG)
 include(URIPARSER)
 include(LLPrimitive)
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
-
 if (NOT HAVOK_TPV)
    # When using HAVOK_TPV, the library is precompiled, so no need for this
 

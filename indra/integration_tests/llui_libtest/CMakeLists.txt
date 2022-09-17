@@ -22,23 +22,6 @@ include(Hunspell)
 include(Linking)
 # include(Tut)
 
-include_directories(
-    ${FREETYPE_INCLUDE_DIRS}
-    ${LLCOMMON_INCLUDE_DIRS}
-    ${LLIMAGE_INCLUDE_DIRS}
-    ${LLMATH_INCLUDE_DIRS}
-    ${LLRENDER_INCLUDE_DIRS}
-    ${LLUI_INCLUDE_DIRS}
-    ${LLFILESYSTEM_INCLUDE_DIRS}
-    ${LLWINDOW_INCLUDE_DIRS}
-    ${LLXML_INCLUDE_DIRS}
-    ${LIBS_PREBUILD_DIR}/include/hunspell
-    )
-include_directories(SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    ${LLXML_SYSTEM_INCLUDE_DIRS}
-    )
-
 set(llui_libtest_SOURCE_FILES
     llui_libtest.cpp
     llwidgetreg.cpp
