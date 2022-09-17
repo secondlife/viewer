@@ -351,23 +351,6 @@ vec3 hue_to_rgb(float hue)
 
 // PBR Utils
 
-// ior Index of Refraction, normally 1.5
-// returns reflect0
-float calcF0(float ior)
-{
-    float f0 = (1.0 - ior) / (1.0 + ior);
-    return f0 * f0;
-}
-
-vec3 fresnel(float vh, vec3 f0, vec3 f90 )
-{
-    float x  = 1.0 - abs(vh);
-    float x2 = x*x;
-    float x5 = x2*x2*x;
-    vec3  fr = f0 + (f90 - f0)*x5;
-    return fr;
-}
-
 vec3 fresnelSchlick( vec3 reflect0, vec3 reflect90, float vh)
 {
     return reflect0 + (reflect90 - reflect0) * pow(clamp(1.0 - vh, 0.0, 1.0), 5.0);
@@ -682,6 +665,9 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
                     vec3 v, // surface point to camera
                     vec3 l) //surface point to light
 {
+    // make sure specular highlights from punctual lights don't fall off of polished surfaces
+    perceptualRoughness = max(perceptualRoughness, 8.0/255.0);
+    
 	float alphaRoughness = perceptualRoughness * perceptualRoughness;
 
 	// Compute reflectance.
