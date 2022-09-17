@@ -40,17 +40,18 @@ constexpr U32 PUPPET_MAX_EVENT_BYTES = 200;
 U8      PUPPET_WRITE_BUFFER[PUPPET_MAX_EVENT_BYTES]; //HACK move this somewhere better.
 
 
-size_t pack_vec3(U8* wptr, const LLVector3 &vec)
+// Helper function
+// Note that the passed in vector is quantized
+size_t pack_vec3(U8* wptr, LLVector3 &vec)
 {
     size_t offset(0);
 
     // pack F32 components into 16 bits
     U16 x, y, z;
-    LLVector3 quant_vec = vec;
-    quant_vec.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    x = F32_to_U16(quant_vec.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    y = F32_to_U16(quant_vec.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    z = F32_to_U16(quant_vec.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    x = F32_to_U16(vec.mV[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    y = F32_to_U16(vec.mV[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    z = F32_to_U16(vec.mV[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 
     htolememcpy(wptr + offset, &x, MVT_U16, sizeof(U16));
     offset += sizeof(U16);
@@ -62,8 +63,9 @@ size_t pack_vec3(U8* wptr, const LLVector3 &vec)
     return offset;
 }
 
-// helper function
-size_t pack_quat(U8* wptr, const LLQuaternion& quat)
+// Helper function
+// Note that the passed in quaternion is quantized and possibly negated
+size_t pack_quat(U8* wptr, LLQuaternion& quat)
 {
     // A Quaternion is a 4D object but the group isomorphic with rotations is
     // limited to the surface of the unit hypersphere (radius = 1). Consequently
@@ -72,21 +74,19 @@ size_t pack_quat(U8* wptr, const LLQuaternion& quat)
     // real component (W) is positive by negating the Quaternion as necessary
     // and then we store only the imaginary part (XYZ).  The real part can be
     // obtained with the formula: W = sqrt(1.0 - X*X + Y*Y + Z*Z)
-    LLQuaternion q(quat);
-    if (q.mQ[VW] < 0.0f)
+    if (quat.mQ[VW] < 0.0f)
     {
         // negate the quaternion to keep its real part positive
-        q = -1.0f * q;
+        quat = -1.0f * quat;
     }
     // store the imaginary part
     size_t offset(0);
 
     // pack F32 components into 16 bits
-    LLQuaternion quant_quat = quat;
-    quant_quat.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    U16 x = F32_to_U16(quant_quat.mQ[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    U16 y = F32_to_U16(quant_quat.mQ[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    U16 z = F32_to_U16(quant_quat.mQ[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    quat.quantize16(-LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 x = F32_to_U16(quat.mQ[VX], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 y = F32_to_U16(quat.mQ[VY], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    U16 z = F32_to_U16(quat.mQ[VZ], -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 
     htolememcpy(wptr + offset, &x, MVT_U16, sizeof(U16));
     offset += sizeof(U16);
@@ -98,8 +98,8 @@ size_t pack_quat(U8* wptr, const LLQuaternion& quat)
     return offset;
 }
 
-// helper function
-size_t unpack_vec3(U8* wptr, LLVector3* vec)
+// helper function - read LLVector3 from data
+size_t unpack_vec3(U8* wptr, LLVector3& vec)
 {
     U32 offset(0);
     U16 x, y, z;    // F32 data is packed in 16 bits
@@ -111,9 +111,9 @@ size_t unpack_vec3(U8* wptr, LLVector3* vec)
     htolememcpy(&z, wptr + offset, MVT_U16, sizeof(U16));
     offset += sizeof(U16);
 
-    vec->mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    vec->mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
-    vec->mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec.mV[VX] = U16_to_F32(x, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec.mV[VY] = U16_to_F32(y, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
+    vec.mV[VZ] = U16_to_F32(z, -LL_MAX_PELVIS_OFFSET, LL_MAX_PELVIS_OFFSET);
 
     return offset;
 }
@@ -230,7 +230,7 @@ size_t LLPuppetJointEvent::getSize() const
     return num_bytes;
 }
 
-size_t LLPuppetJointEvent::pack(U8* wptr) const
+size_t LLPuppetJointEvent::pack(U8* wptr)
 {
     //Stuff everything into a binary blob to save overhead.
     size_t offset(0);
@@ -282,11 +282,11 @@ size_t LLPuppetJointEvent::unpack(U8* wptr)
     }
     if (mMask & EF_POSITION)
     {
-        offset += unpack_vec3(wptr+offset, &mPosition);
+        offset += unpack_vec3(wptr+offset, mPosition);
     }
     if (mMask & EF_SCALE)
     {
-        offset += unpack_vec3(wptr+offset, &mScale);
+        offset += unpack_vec3(wptr+offset, mScale);
     }
 
     LL_DEBUGS("PUPPET_SPAM") << "Unpacked event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " from " << offset << " bytes.";
