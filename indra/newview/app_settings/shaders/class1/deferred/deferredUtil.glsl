@@ -595,7 +595,8 @@ vec3 pbrIbl(vec3 diffuseColor,
 	vec3 diffuse = diffuseLight * diffuseColor;
 	vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
-	
+	specular *= 1.75;
+
 	return (diffuse + specular) * ao;
 }
 

@@ -151,7 +151,7 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
 			//float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
-			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mipLevel).rgb * dotNL;
+			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mipLevel+0.75).rgb * dotNL;
 			totalWeight += dotNL;
 
 		}
