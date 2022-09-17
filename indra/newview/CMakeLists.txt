@@ -1420,15 +1420,6 @@ if (WINDOWS)
          llwindebug.h
          )
 
-    # precompiled header configuration
-    # llviewerprecompiledheaders.cpp generates
-    # the .pch file.
-    # All sources added to viewer_SOURCE_FILES
-    # at this point use it.
-    if(USE_PRECOMPILED_HEADERS)
-       set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
-    endif(USE_PRECOMPILED_HEADERS)
-
     # Replace the icons with the appropriate ones for the channel
     # ('test' is the default)
     set(ICON_PATH "test")
@@ -2263,26 +2254,9 @@ if (LL_TESTS)
           LL_TEST_ADDITIONAL_LIBRARIES ${test_libs}
   )
 
-  ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
-  ##################################################
-  # if(USE_PRECOMPILED_HEADERS)
-  #     set_source_files_properties(
-  #       ${viewer_TEST_SOURCE_FILES}
-  #       PROPERTIES
-  #         LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
-  #       )
-  # endif(USE_PRECOMPILED_HEADERS)
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  ##################################################
-  # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
-  ##################################################
-  # if(USE_PRECOMPILED_HEADERS)
-  #     set(test_sources "${test_sources}" llviewerprecompiledheaders.cpp)
-  # endif(USE_PRECOMPILED_HEADERS)
-
 
   set(test_libs
           llfilesystem
