@@ -1830,7 +1830,7 @@ if (WINDOWS)
         )
 
       add_custom_target(llpackage ALL DEPENDS
-              ${CMAKE_CURRENT_BINARY_DIR}/$<IF:$<BOOL:${LL_GENERATOR_IS_MULTI_CONFIG}>,$<CONFIG>,>/touched.bat
+              ${CMAKE_CFG_INTDIR}/touched.bat
         )
         # temporarily disable packaging of event_host until hg subrepos get
         # sorted out on the parabuild cluster...
