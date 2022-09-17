@@ -19,6 +19,7 @@ if (USE_BUGSPLAT)
         target_link_libraries( ll::bugsplat INTERFACE
                 ${ARCH_PREBUILT_DIRS_RELEASE}/bugsplat.lib
                 )
+        target_include_directories( ll::bugsplat SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/bugsplat)
     elseif (DARWIN)
         find_library(BUGSPLAT_LIBRARIES BugsplatMac REQUIRED
                 NO_DEFAULT_PATH PATHS "${ARCH_PREBUILT_DIRS_RELEASE}")
@@ -33,7 +34,6 @@ if (USE_BUGSPLAT)
         message( FATAL_ERROR "You need to set BUGSPLAT_DB when setting USE_BUGSPLAT" )
     endif()
 
-    target_include_directories( ll::bugsplat SYSTEM INTERFACE ${LIBS_PREBUILT_DIR}/include/bugsplat)
     set_property( TARGET ll::bugsplat APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS LL_BUGSPLAT)
 else()
     set(BUGSPLAT_DB "" CACHE STRING "BugSplat crash database name")
