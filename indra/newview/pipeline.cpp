@@ -1366,7 +1366,7 @@ void LLPipeline::createLUTBuffers()
 			delete [] ls;
 		}
 
-        mPbrBrdfLut.allocate(512, 512, GL_RGB16, false, false);
+        mPbrBrdfLut.allocate(512, 512, GL_RG16F, false, false);
         mPbrBrdfLut.bindTarget();
         gDeferredGenBrdfLutProgram.bind();
 
