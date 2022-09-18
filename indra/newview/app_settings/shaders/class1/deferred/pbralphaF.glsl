@@ -73,7 +73,7 @@ VARYING vec2 vary_texcoord1;
 VARYING vec2 vary_texcoord2;
 VARYING vec3 vary_normal;
 VARYING vec3 vary_tangent;
-VARYING float vary_sign;
+flat in float vary_sign;
 
 
 #ifdef HAS_ALPHA_MASK
