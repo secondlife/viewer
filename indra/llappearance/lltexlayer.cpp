@@ -1509,7 +1509,14 @@ void LLTexLayer::renderMorphMasks(S32 x, S32 y, S32 width, S32 height, const LLC
                 }
                 else
                 { // platforms with working drivers...
-				    glReadPixels(x, y, width, height, GL_ALPHA, GL_UNSIGNED_BYTE, alpha_data);                
+                    // We just want GL_ALPHA, but that isn't supported in OGL core profile 4.
+                    static const size_t TEMP_BYTES_PER_PIXEL = 4;
+                    U8* temp_data = (U8*)ll_aligned_malloc_32(mem_size * TEMP_BYTES_PER_PIXEL);
+                    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, temp_data);
+                    for (size_t pixel = 0; pixel < pixels; pixel++) {
+                        alpha_data[pixel] = temp_data[(pixel * TEMP_BYTES_PER_PIXEL) + 3];
+                    }
+                    ll_aligned_free_32(temp_data);
                 }
 			}
             else
