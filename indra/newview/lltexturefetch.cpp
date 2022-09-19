@@ -2430,13 +2430,13 @@ LLTextureFetch::~LLTextureFetch()
 	// ~LLQueuedThread() called here
 }
 
-bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
+S32 LLTextureFetch::createRequest(FTType f_type, const std::string& url, const LLUUID& id, const LLHost& host, F32 priority,
 								   S32 w, S32 h, S32 c, S32 desired_discard, bool needs_aux, bool can_use_http)
 {
     LL_PROFILE_ZONE_SCOPED;
 	if (mDebugPause)
 	{
-		return false;
+		return -1;
 	}
 
 	if (f_type == FTT_SERVER_BAKE)
@@ -2452,7 +2452,7 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 							  << host << " != " << worker->mHost << LL_ENDL;
 			removeRequest(worker, true);
 			worker = NULL;
-			return false;
+			return -1;
 		}
 	}
 
@@ -2505,13 +2505,13 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 	{
 		if (worker->wasAborted())
 		{
-			return false; // need to wait for previous aborted request to complete
+			return -1; // need to wait for previous aborted request to complete
 		}
 		worker->lockWorkMutex();										// +Mw
         if (worker->mState == LLTextureFetchWorker::DONE && worker->mDesiredSize == llmax(desired_size, TEXTURE_CACHE_ENTRY_SIZE) && worker->mDesiredDiscard == desired_discard) {
 			worker->unlockWorkMutex();									// -Mw
 
-            return false; // similar request has failed or is in a transitional state
+            return -1; // similar request has failed or is in a transitional state
         }
 		worker->mActiveCount++;
 		worker->mNeedsAux = needs_aux;
@@ -2546,10 +2546,10 @@ bool LLTextureFetch::createRequest(FTType f_type, const std::string& url, const 
 		worker->setCanUseHTTP(can_use_http) ;
 		worker->unlockWorkMutex();										// -Mw
 	}
-	
+
  	LL_DEBUGS(LOG_TXT) << "REQUESTED: " << id << " f_type " << fttype_to_string(f_type)
 					   << " Discard: " << desired_discard << " size " << desired_size << LL_ENDL;
-	return true;
+	return desired_discard;
 }
 
 

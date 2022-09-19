@@ -2206,16 +2206,18 @@ bool LLViewerFetchedTexture::updateFetch()
 		}
 		
 		// bypass texturefetch directly by pulling from LLTextureCache
-		bool fetch_request_created = false;
-		fetch_request_created = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
+		S32 fetch_request_discard = -1;
+        fetch_request_discard = LLAppViewer::getTextureFetch()->createRequest(mFTType, mUrl, getID(), getTargetHost(), decode_priority,
 																			  w, h, c, desired_discard, needsAux(), mCanUseHTTP);
 		
-		if (fetch_request_created)
+		if (fetch_request_discard >= 0)
 		{
             LL_PROFILE_ZONE_NAMED_CATEGORY_TEXTURE("vftuf - request created");
 			mHasFetcher = TRUE;
 			mIsFetching = TRUE;
-			mRequestedDiscardLevel = desired_discard;
+            // in some cases createRequest can modify discard, as an example
+            // bake textures are always at discard 0
+            mRequestedDiscardLevel = llmin(desired_discard, fetch_request_discard);
 			mFetchState = LLAppViewer::getTextureFetch()->getFetchState(mID, mDownloadProgress, mRequestedDownloadPriority,
 													   mFetchPriority, mFetchDeltaTime, mRequestDeltaTime, mCanUseHTTP);
 		}
