@@ -66,7 +66,7 @@ SOFTWARE.
 // =============================================================================================================
 
 
-uniform float roughness;
+//uniform float roughness;
 
 uniform float mipLevel;
 
@@ -123,14 +123,18 @@ float D_GGX(float dotNH, float roughness)
 	return (alpha2)/(PI * denom*denom); 
 }
 
-vec3 prefilterEnvMap(vec3 R, float roughness)
+vec3 prefilterEnvMap(vec3 R)
 {
 	vec3 N = R;
 	vec3 V = R;
 	vec3 color = vec3(0.0);
 	float totalWeight = 0.0;
 	float envMapDim = 256.0;
-    int numSamples = 32/max(int(mipLevel), 1);
+    int numSamples = 8;
+    
+    float numMips = 7.0;
+
+    float roughness = (mipLevel+1)/numMips;
 
 	for(uint i = 0u; i < numSamples; i++) {
 		vec2 Xi = hammersley2d(i, numSamples);
@@ -150,8 +154,9 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 			// Solid angle of 1 pixel across all cube faces
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
-			//float mipLevel = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
-			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mipLevel).rgb * dotNL;
+			//float mip = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
+            float mip = clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
+			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mip).rgb * dotNL;
 			totalWeight += dotNL;
 
 		}
@@ -162,7 +167,7 @@ vec3 prefilterEnvMap(vec3 R, float roughness)
 void main()
 {		
 	vec3 N = normalize(vary_dir);
-	frag_color = vec4(prefilterEnvMap(N, roughness), 1.0);
+	frag_color = vec4(prefilterEnvMap(N), 1.0);
 }
 // =============================================================================================================
 

@@ -366,7 +366,7 @@ vec3 pbrIbl(vec3 diffuseColor,
 	vec2 brdf = BRDF(clamp(nv, 0, 1), 1.0-perceptualRough);
 	vec3 diffuseLight = irradiance;
 	vec3 specularLight = radiance;
-
+    
 	vec3 diffuse = diffuseLight * diffuseColor;
 	vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 

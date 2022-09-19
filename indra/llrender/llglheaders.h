@@ -1061,13 +1061,6 @@ extern void glGetBufferPointervARB (GLenum, GLenum, GLvoid* *);
 #endif
 
 #if defined(TRACY_ENABLE) && LL_PROFILER_ENABLE_TRACY_OPENGL
-    // Tracy uses the following:
-    //    glGenQueries
-    //    glGetQueryiv
-    //    glGetQueryObjectiv
-    #define glGenQueries        glGenQueriesARB
-    #define glGetQueryiv        glGetQueryivARB
-    #define glGetQueryObjectiv  glGetQueryObjectivARB
     #include <tracy/TracyOpenGL.hpp>
 #endif
     

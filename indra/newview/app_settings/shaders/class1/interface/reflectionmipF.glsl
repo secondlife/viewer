@@ -39,6 +39,7 @@ VARYING vec2 vary_texcoord0;
 
 void main() 
 {
+#if 0
     float w[9];
 
     float c = 1.0/16.0;  //corner weight
@@ -72,4 +73,7 @@ void main()
     //color /= wsum;
 
     frag_color = vec4(color, 1.0);
+#else
+    frag_color = vec4(texture2DRect(screenMap, vary_texcoord0.xy).rgb, 1.0);
+#endif
 }
