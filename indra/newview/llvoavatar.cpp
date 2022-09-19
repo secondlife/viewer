@@ -2813,6 +2813,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	if (detailed_update)
 	{
         U32 draw_order = 0;
+        S32 attachment_selected = LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment();
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
 			 iter != mAttachmentPoints.end();
 			 ++iter)
@@ -2852,7 +2853,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
                     }
 
                     // if selecting any attachments, update all of them as non-damped
-                    if (LLSelectMgr::getInstance()->getSelection()->getObjectCount() && LLSelectMgr::getInstance()->getSelection()->isAttachment())
+                    if (attachment_selected)
                     {
                         gPipeline.updateMoveNormalAsync(attached_object->mDrawable);
                     }
@@ -10621,7 +10622,7 @@ void LLVOAvatar::updateVisualComplexity()
 // with an avatar. This will be either an attached object or an animated
 // object.
 void LLVOAvatar::accountRenderComplexityForObject(
-    const LLViewerObject *attached_object,
+    LLViewerObject *attached_object,
     const F32 max_attachment_complexity,
     LLVOVolume::texture_cost_t& textures,
     U32& cost,
@@ -10693,7 +10694,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                     && attached_object->mDrawable)
                 {
                     textures.clear();
-
+                    BOOL is_rigged_mesh = attached_object->isRiggedMesh();
         mAttachmentSurfaceArea += attached_object->recursiveGetScaledSurfaceArea();
 
                     const LLVOVolume* volume = attached_object->mDrawable->getVOVolume();
@@ -10714,6 +10715,7 @@ void LLVOAvatar::accountRenderComplexityForObject(
                             iter != child_list.end(); ++iter)
                         {
                             LLViewerObject* childp = *iter;
+                            is_rigged_mesh |= childp->isRiggedMesh();
                             const LLVOVolume* chld_volume = dynamic_cast<LLVOVolume*>(childp);
                             if (chld_volume)
                             {
@@ -10721,6 +10723,16 @@ void LLVOAvatar::accountRenderComplexityForObject(
                                 hud_object_complexity.objectsCost += chld_volume->getRenderCost(textures);
                                 hud_object_complexity.objectsCount++;
                             }
+                        }
+                        if (is_rigged_mesh && !attached_object->mRiggedAttachedWarned)
+                        {
+                            LLSD args;                            
+                            LLViewerInventoryItem* itemp = gInventory.getItem(attached_object->getAttachmentItemID());
+                            args["NAME"] = itemp ? itemp->getName() : LLTrans::getString("Unknown");
+                            args["POINT"] = LLTrans::getString(getTargetAttachmentPoint(attached_object)->getName());
+                            LLNotificationsUtil::add("RiggedMeshAttachedToHUD", args);
+
+                            attached_object->mRiggedAttachedWarned = true;
                         }
 
                         hud_object_complexity.texturesCount += textures.size();
@@ -10826,7 +10838,7 @@ void LLVOAvatar::calculateUpdateRenderComplexity()
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
 			{
-                const LLViewerObject* attached_object = attachment_iter->get();
+                LLViewerObject* attached_object = attachment_iter->get();
                 accountRenderComplexityForObject(attached_object, max_attachment_complexity,
                                                  textures, cost, hud_complexity_list);
 			}

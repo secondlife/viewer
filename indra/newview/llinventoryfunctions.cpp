@@ -2583,8 +2583,62 @@ void LLInventoryAction::doToSelected(LLInventoryModel* model, LLFolderView* root
 	}
 
 	std::set<LLUUID> selected_uuid_set = LLAvatarActions::getInventorySelectedUUIDs();
+
+    // copy list of applicable items into a vector for bulk handling
     uuid_vec_t ids;
-    std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+    if (action == "wear" || action == "wear_add")
+    {
+        const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
+        const LLUUID mp_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
+        std::copy_if(selected_uuid_set.begin(),
+            selected_uuid_set.end(),
+            std::back_inserter(ids),
+            [trash_id, mp_id](LLUUID id)
+        {
+            if (get_is_item_worn(id)
+                || LLAppearanceMgr::instance().getIsInCOF(id)
+                || gInventory.isObjectDescendentOf(id, trash_id))
+            {
+                return false;
+            }
+            if (mp_id.notNull() && gInventory.isObjectDescendentOf(id, mp_id))
+            {
+                return false;
+            }
+            LLInventoryObject* obj = (LLInventoryObject*)gInventory.getObject(id);
+            if (!obj)
+            {
+                return false;
+            }
+            if (obj->getIsLinkType() && gInventory.isObjectDescendentOf(obj->getLinkedUUID(), trash_id))
+            {
+                return false;
+            }
+            if (obj->getIsLinkType() && LLAssetType::lookupIsLinkType(obj->getType()))
+            {
+                // missing
+                return false;
+            }
+            return true;
+        }
+        );
+    }
+    else if (isRemoveAction(action))
+    {
+        std::copy_if(selected_uuid_set.begin(),
+            selected_uuid_set.end(),
+            std::back_inserter(ids),
+            [](LLUUID id)
+        {
+            return get_is_item_worn(id);
+        }
+        );
+    }
+    else
+    {
+        std::copy(selected_uuid_set.begin(), selected_uuid_set.end(), std::back_inserter(ids));
+    }
+
     // Check for actions that get handled in bulk
     if (action == "wear")
     {
