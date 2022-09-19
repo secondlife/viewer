@@ -4334,7 +4334,11 @@ LLPointer<LLInventoryValidationInfo> LLInventoryModel::validate() const
 			{
 				LL_WARNS("Inventory") << "Fatal inventory corruption: system folder type has excess copies under root, type " << ft << " count " << count_under_root << LL_ENDL;
 				validation_info->mDuplicateRequiredSystemFolders.insert(folder_type);
-                if (!is_automatic && folder_type != LLFolderType::FT_SETTINGS)
+                if (!is_automatic
+                    && folder_type != LLFolderType::FT_SETTINGS
+                    // FT_MATERIAL might need to be automatic like the rest of upload folders
+                    && folder_type != LLFolderType::FT_MATERIAL
+                    )
                 {
                     // It is a fatal problem or can lead to fatal problems for COF,
                     // outfits, trash and other non-automatic folders.
