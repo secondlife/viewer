@@ -95,22 +95,24 @@ public:
 
 	BOOL isStopped() const { return mStopped; }
 
-	void setStopped(BOOL stopped) { mStopped = stopped; }
+	void setStopped(BOOL stopped);
 
-	BOOL isBlending();
+	BOOL isBlending() const;
+
+	virtual bool needsUpdate() const;
 
 	// Activation functions.
 	// It is OK for other classes to activate a motion,
 	// but only the controller can deactivate it.
 	// Thus, if mActive == TRUE, the motion *may* be on the controllers active list,
 	// but if mActive == FALSE, the motion is gauranteed not to be on the active list.
+	BOOL isActive() const { return mActive; }
 protected:
 	// Used by LLMotionController only
 	void deactivate();
-	BOOL isActive() { return mActive; }
 public:
 	void activate(F32 time);
-	
+
 public:
 	//-------------------------------------------------------------------------
 	// animation callbacks to be implemented by subclasses

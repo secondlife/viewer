@@ -2260,7 +2260,6 @@ void LLAgentCamera::changeCameraToFollow(BOOL animate)
 			gAgentAvatarp->mPelvisp->setPosition(LLVector3::zero);
 			gAgentAvatarp->startMotion( ANIM_AGENT_BODY_NOISE );
 			gAgentAvatarp->startMotion( ANIM_AGENT_BREATHE_ROT );
-            gAgentAvatarp->startMotion( ANIM_AGENT_PUPPET_MOTION );
 		}
 
 		// unpause avatar animation
@@ -2303,7 +2302,7 @@ void LLAgentCamera::changeCameraToThirdPerson(BOOL animate)
 		}
 		gAgentAvatarp->startMotion(ANIM_AGENT_BODY_NOISE);
 		gAgentAvatarp->startMotion(ANIM_AGENT_BREATHE_ROT);
-        gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
+
 	}
 
 	LLVector3 at_axis;

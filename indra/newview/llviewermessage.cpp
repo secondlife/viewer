@@ -4061,6 +4061,10 @@ static void  handle_puppetry_data(LLMessageSystem * mesgsys, LLVOAvatar * avatar
                 puppet_motion->unpackEvents(mesgsys, i);
             }
         }
+        if (!puppet_motion->isActive() && puppet_motion->needsUpdate())
+        {
+            avatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
+        }
     }
 }
 

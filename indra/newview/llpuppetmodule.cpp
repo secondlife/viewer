@@ -186,6 +186,10 @@ void processLeapData(const LLSD& data)
         }
         if (!joint_event.isEmpty())
         {
+            if (!motion->isActive())
+            {
+                gAgentAvatarp->startMotion(ANIM_AGENT_PUPPET_MOTION);
+            }
             std::static_pointer_cast<LLPuppetMotion>(motion)->addExpressionEvent(joint_event);
         }
     }
@@ -281,7 +285,8 @@ void LLPuppetModule::clearLeapModule()
     sendCommand("stop");
     enableHeadMotion();
     mActiveJoints.clear();
-    //mLeapModule.reset();
+    bool immediate = false;
+    gAgentAvatarp->stopMotion(ANIM_AGENT_PUPPET_MOTION, immediate);
 }
 
 void LLPuppetModule::sendCommand(const std::string& command, const LLSD& args) const
