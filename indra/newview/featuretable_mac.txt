@@ -1,4 +1,4 @@
-version 39
+version 40
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -70,7 +70,7 @@ RenderShadowDetail			1	2
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-RenderGLContextCoreProfile         1   0
+RenderGLContextCoreProfile         1   1
 RenderGLMultiThreaded       1   0
 
 //
