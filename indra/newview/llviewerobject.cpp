@@ -6236,6 +6236,14 @@ void LLViewerObject::parameterChanged(U16 param_type, LLNetworkData* data, BOOL 
 			LL_WARNS() << "Failed to send object extra parameters: " << param_type << LL_ENDL;
 		}
 	}
+    else
+    {
+        if (param_type == LLNetworkData::PARAMS_RENDER_MATERIAL)
+        {
+            const LLRenderMaterialParams* params = in_use ? (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL) : nullptr;
+            setRenderMaterialIDs(params, local_origin);
+        }
+    }
 }
 
 void LLViewerObject::setDrawableState(U32 state, BOOL recursive)
@@ -7100,6 +7108,29 @@ void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
         {
             parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
         }
+    }
+}
+
+void LLViewerObject::setRenderMaterialIDs(const LLRenderMaterialParams* material_params, bool local_origin)
+{
+    if (!local_origin)
+    {
+        const S32 num_tes = llmin((S32)getNumTEs(), (S32)getNumFaces()); // avatars have TEs but no faces
+        for (S32 te = 0; te < num_tes; ++te)
+        {
+            const LLUUID& id = material_params ? material_params->getMaterial(te) : LLUUID::null;
+            if (id.notNull())
+            {
+                getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
+                setHasRenderMaterialParams(true);
+            }
+            else
+            {
+                getTE(te)->setGLTFMaterial(nullptr);
+            }
+        }
+        faceMappingChanged();
+        gPipeline.markTextured(mDrawable);
     }
 }
 
