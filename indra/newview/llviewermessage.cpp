@@ -122,6 +122,7 @@
 #include "llexperiencecache.h"
 
 #include "llexperiencecache.h"
+#include "lluiusage.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -261,6 +262,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    {
 	    case 0:
 	    {
+			LLUIUsage::instance().logCommand("Avatar.AcceptFriendship");
 		    // accept
 		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
@@ -303,6 +305,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // fall-through
 	    case 2: // Send IM - decline and start IM session
 		    {
+				LLUIUsage::instance().logCommand("Avatar.DeclineFriendship");
 			    // decline
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.
