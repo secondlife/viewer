@@ -9924,7 +9924,7 @@
     <key>RenderGLContextCoreProfile</key>
     <map>
       <key>Comment</key>
-      <string>Don't use a compatibility profile OpenGL context.  Requires restart.  Basic shaders MUST be enabled.</string>
+      <string>Don't use a compatibility profile OpenGL context.  Requires restart.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

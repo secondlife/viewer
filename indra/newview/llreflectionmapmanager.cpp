@@ -846,6 +846,6 @@ void LLReflectionMapManager::initReflectionMaps()
         mTexture->allocate(LL_REFLECTION_PROBE_RESOLUTION, 3, mReflectionProbeCount + 2);
 
         mIrradianceMaps = new LLCubeMapArray();
-        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount);
+        mIrradianceMaps->allocate(LL_IRRADIANCE_MAP_RESOLUTION, 3, mReflectionProbeCount, FALSE);
     }
 }
