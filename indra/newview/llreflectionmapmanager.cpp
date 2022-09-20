@@ -534,8 +534,9 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
             }
         }
 
-        for (int i = start_mip; i < mMipChain.size(); ++i)
+        //for (int i = start_mip; i < mMipChain.size(); ++i)
         {
+            int i = start_mip;
             LL_PROFILE_GPU_ZONE("probe irradiance gen");
             glViewport(0, 0, mMipChain[i].getWidth(), mMipChain[i].getHeight());
             for (int cf = 0; cf < 6; ++cf)
