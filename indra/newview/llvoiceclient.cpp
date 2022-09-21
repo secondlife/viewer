@@ -602,6 +602,10 @@ void LLVoiceClient::setMuteMic(bool muted)
 
 void LLVoiceClient::setUserPTTState(bool ptt)
 {
+	if (ptt)
+	{
+		LLUIUsage::instance().logCommand("Agent.EnableMicrophone");
+	}
 	mUserPTTState = ptt;
 	updateMicMuteLogic();
 	mMicroChangedSignal();

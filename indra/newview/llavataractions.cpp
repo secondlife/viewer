@@ -1419,7 +1419,7 @@ bool LLAvatarActions::handleUnfreeze(const LLSD& notification, const LLSD& respo
 void LLAvatarActions::requestFriendship(const LLUUID& target_id, const std::string& target_name, const std::string& message)
 {
 	const LLUUID calling_card_folder_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
-	LLUIUsage::instance().logCommand("Avatar.SendFriendRequest");
+	LLUIUsage::instance().logCommand("Agent.SendFriendRequest");
 
 	send_improved_im(target_id,
 					 target_name,

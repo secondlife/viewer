@@ -262,7 +262,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    {
 	    case 0:
 	    {
-			LLUIUsage::instance().logCommand("Avatar.AcceptFriendship");
+			LLUIUsage::instance().logCommand("Agent.AcceptFriendship");
 		    // accept
 		    LLAvatarTracker::formFriendship(payload["from_id"]);
 
@@ -305,7 +305,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // fall-through
 	    case 2: // Send IM - decline and start IM session
 		    {
-				LLUIUsage::instance().logCommand("Avatar.DeclineFriendship");
+				LLUIUsage::instance().logCommand("Agent.DeclineFriendship");
 			    // decline
 			    // We no longer notify other viewers, but we DO still send
                 // the rejection to the simulator to delete the pending userop.

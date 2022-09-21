@@ -3973,6 +3973,8 @@ void LLAppearanceMgr::makeNewOutfitLinks(const std::string& new_folder_name, boo
 {
 	if (!isAgentAvatarValid()) return;
 
+	LLUIUsage::instance().logCommand("Avatar.CreateNewOutfit");
+
 	LL_DEBUGS("Avatar") << "creating new outfit" << LL_ENDL;
 
 	gAgentWearables.notifyLoadingStarted();
@@ -4493,6 +4495,8 @@ public:
 																			  "Quick Appearance");
 			if ( gInventory.getCategory( folder_uuid ) != NULL )
 			{
+				// Assume this is coming from the predefined avatars web floater
+				LLUIUsage::instance().logCommand("Avatar.WearPredefinedAppearance");
 				LLAppearanceMgr::getInstance()->wearInventoryCategory(category, true, false);
 				
 				// *TODOw: This may not be necessary if initial outfit is chosen already -- josh
