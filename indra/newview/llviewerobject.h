@@ -184,8 +184,8 @@ public:
     void setHasRenderMaterialParams(bool has_params);
 
     const LLUUID& getRenderMaterialID(U8 te) const;
-    void setRenderMaterialID(U8 te, const LLUUID& id);
-    void setRenderMaterialIDs(const LLRenderMaterialParams* material_params, bool local_origin);
+    void setRenderMaterialID(U8 te, const LLUUID& id, bool update_server = true);
+    void setRenderMaterialIDs(const LLUUID& id);
 
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual BOOL	isTempAttachment() const;
@@ -220,6 +220,7 @@ public:
 	F32					getRotTime() { return mRotTime; }
 private:
 	void				resetRotTime();
+    void				setRenderMaterialIDs(const LLRenderMaterialParams* material_params, bool local_origin);
 public:
 	void				resetRot();
 	void				applyAngularVelocity(F32 dt);

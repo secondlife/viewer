@@ -3632,10 +3632,31 @@ private:
 
 struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
 {
-    LLPanelFaceUpdateFunctor(bool update_media) : mUpdateMedia(update_media) {}
+    LLPanelFaceUpdateFunctor(bool update_media, bool update_pbr)
+        : mUpdateMedia(update_media)
+        , mUpdatePbr(update_pbr)
+    {}
+
     virtual bool apply(LLViewerObject* object)
     {
+        if (mUpdatePbr)
+        {
+            LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)object->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+            if (param_block)
+            {
+                if (param_block->isEmpty())
+                {
+                    object->setHasRenderMaterialParams(false);
+                }
+                else
+                {
+                    object->parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+                }
+            }
+        }
+
         object->sendTEUpdate();
+
         if (mUpdateMedia)
         {
             LLVOVolume *vo = dynamic_cast<LLVOVolume*>(object);
@@ -3648,6 +3669,7 @@ struct LLPanelFaceUpdateFunctor : public LLSelectedObjectFunctor
     }
 private:
     bool mUpdateMedia;
+    bool mUpdatePbr;
 };
 
 struct LLPanelFaceNavigateHomeFunctor : public LLSelectedTEFunctor
@@ -3783,7 +3805,7 @@ void LLPanelFace::onPasteColor()
     LLPanelFacePasteTexFunctor paste_func(this, PASTE_COLOR);
     selected_objects->applyToTEs(&paste_func);
 
-    LLPanelFaceUpdateFunctor sendfunc(false);
+    LLPanelFaceUpdateFunctor sendfunc(false, false);
     selected_objects->applyToObjects(&sendfunc);
 }
 
@@ -3886,6 +3908,7 @@ void LLPanelFace::onCopyTexture()
                 te_data["te"]["bumpmap"] = tep->getBumpmap();
                 te_data["te"]["bumpshiny"] = tep->getBumpShiny();
                 te_data["te"]["bumpfullbright"] = tep->getBumpShinyFullbright();
+                te_data["te"]["pbr"] = objectp->getRenderMaterialID(te);
 
                 if (te_data["te"].has("imageid"))
                 {
@@ -4139,7 +4162,7 @@ void LLPanelFace::onPasteTexture()
     LLPanelFacePasteTexFunctor paste_func(this, PASTE_TEXTURE);
     selected_objects->applyToTEs(&paste_func);
 
-    LLPanelFaceUpdateFunctor sendfunc(true);
+    LLPanelFaceUpdateFunctor sendfunc(true, true);
     selected_objects->applyToObjects(&sendfunc);
 
     LLPanelFaceNavigateHomeFunctor navigate_home_func;
@@ -4272,6 +4295,14 @@ void LLPanelFace::onPasteTexture(LLViewerObject* objectp, S32 te)
             if (te_data["te"].has("bumpfullbright"))
             {
                 objectp->setTEBumpShinyFullbright(te, (U8)te_data["te"]["bumpfullbright"].asInteger());
+            }
+            if (te_data["te"].has("pbr"))
+            {
+                objectp->setRenderMaterialID(te, te_data["te"]["pbr"].asUUID(), false);
+            }
+            else
+            {
+                objectp->setRenderMaterialID(te, LLUUID::null, false);
             }
 
             // Texture map

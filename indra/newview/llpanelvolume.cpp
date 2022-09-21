@@ -1091,6 +1091,14 @@ void LLPanelVolume::onCopyLight()
         }
     }
 
+    if (volobjp && volobjp->isReflectionProbe())
+    {
+        clipboard["reflection_probe"]["is_box"] = volobjp->getReflectionProbeIsBox();
+        clipboard["reflection_probe"]["ambiance"] = volobjp->getReflectionProbeAmbiance();
+        clipboard["reflection_probe"]["near_clip"] = volobjp->getReflectionProbeNearClip();
+        clipboard["reflection_probe"]["dynamic"] = volobjp->getReflectionProbeIsDynamic();
+    }
+
     mClipboardParams["light"] = clipboard;
 }
 
@@ -1137,6 +1145,19 @@ void LLPanelVolume::onPasteLight()
             spot_params.mV[1] = (F32)clipboard["spot"]["focus"].asReal();
             spot_params.mV[2] = (F32)clipboard["spot"]["ambiance"].asReal();
             volobjp->setSpotLightParams(spot_params);
+        }
+
+        if (clipboard.has("reflection_probe"))
+        {
+            volobjp->setIsReflectionProbe(TRUE);
+            volobjp->setReflectionProbeIsBox(clipboard["reflection_probe"]["is_box"].asBoolean());
+            volobjp->setReflectionProbeAmbiance((F32)clipboard["reflection_probe"]["ambiance"].asReal());
+            volobjp->setReflectionProbeNearClip((F32)clipboard["reflection_probe"]["near_clip"].asReal());
+            volobjp->setReflectionProbeIsDynamic(clipboard["reflection_probe"]["dynamic"].asBoolean());
+        }
+        else
+        {
+            volobjp->setIsReflectionProbe(false);
         }
     }
 }
