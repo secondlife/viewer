@@ -244,11 +244,6 @@ void main()
     }
 #endif
 
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-	vec3 gamma_diff = diffcol.rgb;
-	diffcol.rgb = srgb_to_linear(diffcol.rgb);
-#endif
-
 #ifdef HAS_SPECULAR_MAP
     vec4 spec = texture2D(specularMap, vary_texcoord2.xy);
     spec.rgb *= specular_color.rgb;
@@ -293,7 +288,7 @@ void main()
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
-    //forward rendering, output just lit sRGBA
+    //forward rendering, output lit linear color
     vec3 pos = vary_position;
 
     float shadow = 1.0f;
@@ -355,7 +350,7 @@ void main()
 
     color += sun_contrib;
 
-    color *= gamma_diff.rgb;
+    color *= diffcol.rgb;
 
     float glare = 0.0;
 
@@ -377,9 +372,6 @@ void main()
         applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
 #endif
     }
-
-
-    color = mix(color.rgb, diffcol.rgb, diffuse.a);
 
 #ifdef HAS_REFLECTION_PROBES
     if (envIntensity > 0.0)
@@ -439,12 +431,13 @@ void main()
     al = temp.a;
 #endif
 
+    color = mix(color.rgb, srgb_to_linear(diffcol.rgb), diffuse.a);
     frag_color = vec4(color, al);
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
 
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
-    frag_data[0] = final_color;    // gbuffer is sRGB
+    frag_data[0] = final_color;    // gbuffer is sRGB for legacy materials
     frag_data[1] = final_specular; // XYZ = Specular color. W = Specular exponent.
     frag_data[2] = final_normal;   // XY = Normal.  Z = Env. intensity. W = 1 skip atmos (mask off fog)
 #endif
