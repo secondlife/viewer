@@ -52,6 +52,7 @@ public:
 
 	void saveNotifications();
 	void loadNotifications();
+    void reset();
 
 protected:
 

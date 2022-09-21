@@ -100,7 +100,10 @@ void LLModalDialog::onOpen(const LLSD& key)
 		if (!sModalStack.empty())
 		{
 			LLModalDialog* front = sModalStack.front();
-			front->setVisible(FALSE);
+            if (front != this)
+            {
+                front->setVisible(FALSE);
+            }
 		}
 	
 		// This is a modal dialog.  It sucks up all mouse and keyboard operations.
@@ -108,7 +111,14 @@ void LLModalDialog::onOpen(const LLSD& key)
 		LLUI::getInstance()->addPopup(this);
 		setFocus(TRUE);
 
-		sModalStack.push_front( this );
+        std::list<LLModalDialog*>::iterator iter = std::find(sModalStack.begin(), sModalStack.end(), this);
+        if (iter != sModalStack.end())
+        {
+            // if already present, we want to move it to front.
+            sModalStack.erase(iter);
+        }
+
+        sModalStack.push_front(this);
 	}
 }
 

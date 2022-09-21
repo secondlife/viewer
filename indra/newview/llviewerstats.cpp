@@ -506,6 +506,7 @@ void send_viewer_stats(bool include_preferences)
 	system["ram"] = (S32) gSysMemory.getPhysicalMemoryKB().value();
 	system["os"] = LLOSInfo::instance().getOSStringSimple();
 	system["cpu"] = gSysCPU.getCPUString();
+    system["cpu_sse"] = gSysCPU.getSSEVersions();
 	system["address_size"] = ADDRESS_SIZE;
 	system["os_bitness"] = LLOSInfo::instance().getOSBitness();
 	unsigned char MACAddress[MAC_ADDRESS_BYTES];

@@ -507,6 +507,15 @@ void LLFloaterModelPreview::onClickCalculateBtn()
 
 	toggleCalculateButton(false);
 	mUploadBtn->setEnabled(false);
+ 
+    //disable "simplification" UI
+    LLPanel* simplification_panel = getChild<LLPanel>("physics simplification");
+    LLView* child = simplification_panel->getFirstChild();
+    while (child)
+    {
+        child->setEnabled(false);
+        child = simplification_panel->findNextSibling(child);
+    }
 }
 
 // Modified cell_params, make sure to clear values if you have to reuse cell_params outside of this function

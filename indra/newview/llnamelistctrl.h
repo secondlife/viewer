@@ -180,6 +180,8 @@ public:
 
 	/*virtual*/ void mouseOverHighlightNthItem( S32 index );
 
+    /*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+
     bool isSpecialType() { return (mNameListType == SPECIAL); }
 
     void setNameListType(e_name_type type) { mNameListType = type; }

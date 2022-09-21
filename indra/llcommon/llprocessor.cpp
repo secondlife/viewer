@@ -118,7 +118,11 @@ namespace
 		eMONTIOR_MWAIT=33,
 		eCPLDebugStore=34,
 		eThermalMonitor2=35,
-		eAltivec=36
+		eAltivec=36,
+        eSSE3S_Features = 37,
+        eSSE4_1_Features = 38,
+        eSSE4_2_Features = 39,
+        eSSE4a_Features = 40,
 	};
 
 	const char* cpu_feature_names[] =
@@ -161,7 +165,11 @@ namespace
 		"CPL Qualified Debug Store",
 		"Thermal Monitor 2",
 
-		"Altivec"
+		"Altivec",
+        "SSE3S Instructions",
+        "SSE4.1 Instructions",
+        "SSE4.2 Instructions",
+        "SSE4a Instructions",
 	};
 
 	std::string intel_CPUFamilyName(int composed_family) 
@@ -249,6 +257,31 @@ public:
 	{ 
 		return hasExtension(cpu_feature_names[eSSE2_Ext]);
 	}
+
+    bool hasSSE3() const
+    {
+        return hasExtension(cpu_feature_names[eSSE3_Features]);
+    }
+
+    bool hasSSE3S() const
+    {
+        return hasExtension(cpu_feature_names[eSSE3S_Features]);
+    }
+
+    bool hasSSE41() const
+    {
+        return hasExtension(cpu_feature_names[eSSE4_1_Features]);
+    }
+
+    bool hasSSE42() const
+    {
+        return hasExtension(cpu_feature_names[eSSE4_2_Features]);
+    }
+
+    bool hasSSE4a() const
+    {
+        return hasExtension(cpu_feature_names[eSSE4a_Features]);
+    }
 
 	bool hasAltivec() const 
 	{
@@ -473,6 +506,12 @@ private:
 		*((int*)(cpu_vendor+4)) = cpu_info[3];
 		*((int*)(cpu_vendor+8)) = cpu_info[2];
 		setInfo(eVendor, cpu_vendor);
+        std::string cmp_vendor(cpu_vendor);
+        bool is_amd = false;
+        if (cmp_vendor == "AuthenticAMD")
+        {
+            is_amd = true;
+        }
 
 		// Get the information associated with each valid Id
 		for(unsigned int i=0; i<=ids; ++i)
@@ -504,6 +543,7 @@ private:
 
 				if(cpu_info[2] & 0x8)
 				{
+                    // intel specific SSE3 suplements
 					setExtension(cpu_feature_names[eMONTIOR_MWAIT]);
 				}
 				
@@ -516,7 +556,22 @@ private:
 				{
 					setExtension(cpu_feature_names[eThermalMonitor2]);
 				}
-						
+
+                if (cpu_info[2] & 0x200)
+                {
+                    setExtension(cpu_feature_names[eSSE3S_Features]);
+                }
+
+                if (cpu_info[2] & 0x80000)
+                {
+                    setExtension(cpu_feature_names[eSSE4_1_Features]);
+                }
+
+                if (cpu_info[2] & 0x100000)
+                {
+                    setExtension(cpu_feature_names[eSSE4_2_Features]);
+                }
+
 				unsigned int feature_info = (unsigned int) cpu_info[3];
 				for(unsigned int index = 0, bit = 1; index < eSSE3_Features; ++index, bit <<= 1)
 				{
@@ -543,8 +598,17 @@ private:
 			__cpuid(cpu_info, i);
 
 			// Interpret CPU brand string and cache information.
-			if  (i == 0x80000002)
-				memcpy(cpu_brand_string, cpu_info, sizeof(cpu_info));
+            if (i == 0x80000001)
+            {
+                if (is_amd)
+                {
+                    setExtension(cpu_feature_names[eSSE4a_Features]);
+                }
+            }
+            else if (i == 0x80000002)
+            {
+                memcpy(cpu_brand_string, cpu_info, sizeof(cpu_info));
+            }
 			else if  (i == 0x80000003)
 				memcpy(cpu_brand_string + 16, cpu_info, sizeof(cpu_info));
 			else if  (i == 0x80000004)
@@ -690,6 +754,41 @@ private:
 		uint64_t ext_feature_info = getSysctlInt64("machdep.cpu.extfeature_bits");
 		S32 *ext_feature_infos = (S32*)(&ext_feature_info);
 		setConfig(eExtFeatureBits, ext_feature_infos[0]);
+
+
+        char cpu_features[1024];
+        len = sizeof(cpu_features);
+        memset(cpu_features, 0, len);
+        sysctlbyname("machdep.cpu.features", (void*)cpu_features, &len, NULL, 0);
+
+        std::string cpu_features_str(cpu_features);
+        cpu_features_str = " " + cpu_features_str + " ";
+
+        if (cpu_features_str.find(" SSE3 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE3_Features]);
+        }
+
+        if (cpu_features_str.find(" SSSE3 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE3S_Features]);
+        }
+
+        if (cpu_features_str.find(" SSE4.1 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE4_1_Features]);
+        }
+
+        if (cpu_features_str.find(" SSE4.2 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE4_2_Features]);
+        }
+
+        if (cpu_features_str.find(" SSE4A ") != std::string::npos)
+        {
+            // Not supposed to happen?
+            setExtension(cpu_feature_names[eSSE4a_Features]);
+        }
 	}
 };
 
@@ -800,6 +899,31 @@ private:
 		{
 			setExtension(cpu_feature_names[eSSE2_Ext]);
 		}
+
+        if (flags.find(" pni ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE3_Features]);
+        }
+
+        if (flags.find(" ssse3 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE3S_Features]);
+        }
+
+        if (flags.find(" sse4_1 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE4_1_Features]);
+        }
+
+        if (flags.find(" sse4_2 ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE4_2_Features]);
+        }
+
+        if (flags.find(" sse4a ") != std::string::npos)
+        {
+            setExtension(cpu_feature_names[eSSE4a_Features]);
+        }
 	
 # endif // LL_X86
 	}
@@ -860,6 +984,11 @@ LLProcessorInfo::~LLProcessorInfo() {}
 F64MegahertzImplicit LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
 bool LLProcessorInfo::hasSSE() const { return mImpl->hasSSE(); }
 bool LLProcessorInfo::hasSSE2() const { return mImpl->hasSSE2(); }
+bool LLProcessorInfo::hasSSE3() const { return mImpl->hasSSE3(); }
+bool LLProcessorInfo::hasSSE3S() const { return mImpl->hasSSE3S(); }
+bool LLProcessorInfo::hasSSE41() const { return mImpl->hasSSE41(); }
+bool LLProcessorInfo::hasSSE42() const { return mImpl->hasSSE42(); }
+bool LLProcessorInfo::hasSSE4a() const { return mImpl->hasSSE4a(); }
 bool LLProcessorInfo::hasAltivec() const { return mImpl->hasAltivec(); }
 std::string LLProcessorInfo::getCPUFamilyName() const { return mImpl->getCPUFamilyName(); }
 std::string LLProcessorInfo::getCPUBrandName() const { return mImpl->getCPUBrandName(); }

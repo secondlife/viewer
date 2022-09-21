@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<panel label="精選地點" name="panel_picks">
+	<string name="no_picks" value="無精選地點"/>
+	<text name="Tell everyone about your favorite places in Second Life.">
+		告訴大家你在Second Life中最愛的去處。
+	</text>
+	<button label="新增…" name="new_btn"/>
+	<button label="刪除…" name="delete_btn"/>
+	<text name="picks_panel_text">
+		載入中…
+	</text>
+</panel>

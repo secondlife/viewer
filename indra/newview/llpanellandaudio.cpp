@@ -97,6 +97,9 @@ BOOL LLPanelLandAudio::postBuild()
 	mCheckAVSoundGroup = getChild<LLCheckBoxCtrl>("group av sound check");
 	childSetCommitCallback("group av sound check", onCommitAny, this);
 
+    mCheckObscureMOAP = getChild<LLCheckBoxCtrl>("obscure_moap");
+    childSetCommitCallback("obscure_moap", onCommitAny, this);
+
 	return TRUE;
 }
 
@@ -157,6 +160,9 @@ void LLPanelLandAudio::refresh()
 
 		mCheckAVSoundGroup->set(parcel->getAllowGroupAVSounds() || parcel->getAllowAnyAVSounds());	// On if "Everyone" is on
 		mCheckAVSoundGroup->setEnabled(can_change_av_sounds && !parcel->getAllowAnyAVSounds());		// Enabled if "Everyone" is off
+
+        mCheckObscureMOAP->set(parcel->getObscureMOAP());
+        mCheckObscureMOAP->setEnabled(can_change_media);
 	}
 }
 // static
@@ -184,6 +190,8 @@ void LLPanelLandAudio::onCommitAny(LLUICtrl*, void *userdata)
 		group_av_sound = self->mCheckAVSoundGroup->get();
 	}
 
+    bool obscure_moap = self->mCheckObscureMOAP->get();
+
 	// Remove leading/trailing whitespace (common when copying/pasting)
 	LLStringUtil::trim(music_url);
 
@@ -194,6 +202,7 @@ void LLPanelLandAudio::onCommitAny(LLUICtrl*, void *userdata)
 	parcel->setMusicURL(music_url);
 	parcel->setAllowAnyAVSounds(any_av_sound);
 	parcel->setAllowGroupAVSounds(group_av_sound);
+    parcel->setObscureMOAP(obscure_moap);
 
 	// Send current parcel data upstream to server
 	LLViewerParcelMgr::getInstance()->sendParcelPropertiesUpdate( parcel );

@@ -45,7 +45,6 @@
 #include "llfloater.h"
 #include "llfloaterreg.h"
 #include "lltextbox.h"
-#include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 
 class LLFetchAvatarData;
@@ -202,17 +201,7 @@ void LLInspectAvatar::onOpen(const LLSD& data)
 	// Extract appropriate avatar id
 	mAvatarID = data["avatar_id"];
 
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned
-	// See LLToolTipMgr::createToolTip
-	if (data.has("pos"))
-	{
-		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
-	}
-	else
-	{
-		LLUI::getInstance()->positionViewNearMouse(this);
-	}
+	LLInspect::repositionInspector(data);
 
 	// Generate link to avatar profile.
 	LLTextBase* avatar_profile_link = getChild<LLTextBase>("avatar_profile_link");

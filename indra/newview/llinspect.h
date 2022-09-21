@@ -49,6 +49,8 @@ public:
 	
 	/// Inspectors close themselves when they lose focus
 	/*virtual*/ void onFocusLost();
+
+	void repositionInspector(const LLSD& data);
 	
 protected:
 

@@ -999,7 +999,7 @@ void LLPluginProcessParent::poll(F64 timeout)
     while (itClean != sInstances.end())
     {
         if ((*itClean).second->isDone())
-            sInstances.erase(itClean++);
+            itClean = sInstances.erase(itClean);
         else
             ++itClean;
     }

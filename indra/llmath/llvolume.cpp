@@ -684,7 +684,7 @@ LLProfile::Face* LLProfile::addHole(const LLProfileParams& params, BOOL flat, F3
 
 	Face *face = addFace(mTotalOut, mTotal-mTotalOut,0,LL_FACE_INNER_SIDE, flat);
 
-	static LLAlignedArray<LLVector4a,64> pt;
+	static thread_local LLAlignedArray<LLVector4a,64> pt;
 	pt.resize(mTotal) ;
 
 	for (S32 i=mTotalOut;i<mTotal;i++)
@@ -6674,13 +6674,19 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 			else
 			{
 				// Get s value for tex-coord.
-				if (!flat)
+                S32 index = mBeginS + s;
+                if (index >= profile.size())
+                {
+                    // edge?
+                    ss = flat ? 1.f - begin_stex : 1.f;
+                }
+				else if (!flat)
 				{
-					ss = profile[mBeginS + s][2];
+					ss = profile[index][2];
 				}
 				else
 				{
-					ss = profile[mBeginS + s][2] - begin_stex;
+					ss = profile[index][2] - begin_stex;
 				}
 			}
 
@@ -6866,7 +6872,7 @@ BOOL LLVolumeFace::createSide(LLVolume* volume, BOOL partial_build)
 
 	LLVector4a* norm = mNormals;
 
-	static LLAlignedArray<LLVector4a, 64> triangle_normals;
+    static thread_local LLAlignedArray<LLVector4a, 64> triangle_normals;
     try
     {
         triangle_normals.resize(count);

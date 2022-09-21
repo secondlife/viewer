@@ -140,6 +140,8 @@ class LLDiskCache :
          */
         const std::string getCacheInfo();
 
+        void removeOldVFSFiles();
+
     private:
         /**
          * Utility function to gather the total size the files in a given

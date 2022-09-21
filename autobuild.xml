@@ -482,9 +482,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2653c3627fd8687ff9e003425fd14834</string>
+              <string>439d92ec73f0500ba1671faad2bd8090</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90199/821852/dullahan-1.12.3.202111032211_91.1.21_g9dd45fe_chromium-91.0.4472.114-darwin64-565428.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104637/916643/dullahan-1.12.4.202209142017_91.1.21_g9dd45fe_chromium-91.0.4472.114-darwin64-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -494,9 +494,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b4003772562a5dd40bc112eec7cba5f5</string>
+              <string>2a7c01da15de77bc1fd1863327174d5e</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90201/821871/dullahan-1.12.3.202111032221_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows-565428.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104638/916654/dullahan-1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -506,16 +506,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d9030d7a7390b3bda7de2adcc27e535a</string>
+              <string>d06bee9b2517fbb09ba1a65e6d675361</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/90200/821876/dullahan-1.12.3.202111032221_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows64-565428.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104639/916659/dullahan-1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114-windows64-575005.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.12.3.202111032221_91.1.21_g9dd45fe_chromium-91.0.4472.114</string>
+        <string>1.12.4.202209142021_91.1.21_g9dd45fe_chromium-91.0.4472.114</string>
       </map>
       <key>expat</key>
       <map>
@@ -2393,9 +2393,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6ce3cbaed968a69fb7a2cca80220874d</string>
+              <string>b583668b28fde0490e6953f10e93e4ab</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80380/758537/slvoice-4.10.0000.32327.5fc3fe7c.558436-darwin64-558436.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98681/871545/slvoice-4.10.0000.32327.5fc3fe7c.571099-darwin64-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -2417,9 +2417,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2eb38c5eff4d0f18fbb89d0c30c4f0a4</string>
+              <string>6e0ed41653955afe8eeb8945776cf07b</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80382/758550/slvoice-4.10.0000.32327.5fc3fe7c.558436-windows-558436.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98683/871560/slvoice-4.10.0000.32327.5fc3fe7c.571099-windows-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2429,16 +2429,16 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9ee8f3cbc5369c598a998c61961ed16d</string>
+              <string>c39735851fd05c194d0be09b8f9e8cb7</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/80381/758551/slvoice-4.10.0000.32327.5fc3fe7c.558436-windows64-558436.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/98682/871552/slvoice-4.10.0000.32327.5fc3fe7c.571099-windows64-571099.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.10.0000.32327.5fc3fe7c.558436</string>
+        <string>4.10.0000.32327.5fc3fe7c.571099</string>
       </map>
       <key>threejs</key>
       <map>

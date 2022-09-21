@@ -33,10 +33,11 @@
 #include "llviewermenu.h" 
 
 // linden library includes
-#include "llavatarnamecache.h"	// IDEVO
+#include "llavatarnamecache.h"  // IDEVO (I Are Not Men!)
+#include "llcombobox.h"
+#include "llcoros.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
-#include "llcombobox.h"
 #include "llinventorypanel.h"
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
@@ -93,6 +94,7 @@
 #include "llmarketplacefunctions.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
+#include "llnavigationbar.h"
 #include "llparcel.h"
 #include "llrootview.h"
 #include "llsceneview.h"
@@ -2407,6 +2409,7 @@ class LLAdvancedForceErrorLlerror : public view_listener_t
 		return true;
 	}
 };
+
 class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -2414,6 +2417,22 @@ class LLAdvancedForceErrorBadMemoryAccess : public view_listener_t
 		force_error_bad_memory_access(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorBadMemoryAccessCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorBadMemoryAccessCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_bad_memory_access(NULL);
+            });
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorInfiniteLoop : public view_listener_t
@@ -2432,6 +2451,22 @@ class LLAdvancedForceErrorSoftwareException : public view_listener_t
 		force_error_software_exception(NULL);
 		return true;
 	}
+};
+
+class LLAdvancedForceErrorSoftwareExceptionCoro : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLCoros::instance().launch(
+            "AdvancedForceErrorSoftwareExceptionCoro",
+            [](){
+                // Wait for one mainloop() iteration, letting the enclosing
+                // handleEvent() method return.
+                llcoro::suspend();
+                force_error_software_exception(NULL);
+            });
+        return true;
+    }
 };
 
 class LLAdvancedForceErrorDriverCrash : public view_listener_t
@@ -3635,6 +3670,11 @@ bool my_profile_visible()
 {
 	LLFloater* floaterp = LLAvatarActions::getProfileFloater(gAgentID);
 	return floaterp && floaterp->isInVisibleChain();
+}
+
+bool picks_tab_visible()
+{
+    return my_profile_visible() && LLAvatarActions::isPickTabSelected(gAgentID);
 }
 
 bool enable_freeze_eject(const LLSD& avatar_id)
@@ -5362,12 +5402,10 @@ class LLToolsEnablePathfindingRebakeRegion : public view_listener_t
 	{
 		bool returnValue = false;
 
-		if (LLPathfindingManager::getInstance() != NULL)
-		{
-			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
-			returnValue = (rebakeInstance->canRebakeRegion() &&
-				(rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available));
-		}
+        if (LLNavigationBar::instanceExists())
+        {
+            returnValue = LLNavigationBar::getInstance()->isRebakeNavMeshAvailable();
+        }
 		return returnValue;
 	}
 };
@@ -6330,6 +6368,29 @@ class LLAvatarToggleMyProfile : public view_listener_t
 	}
 };
 
+class LLAvatarTogglePicks : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLFloater * instance = LLAvatarActions::getProfileFloater(gAgent.getID());
+        if (LLFloater::isMinimized(instance) || (instance && !instance->hasFocus() && !instance->getIsChrome()))
+        {
+            instance->setMinimized(FALSE);
+            instance->setFocus(TRUE);
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        else if (picks_tab_visible())
+        {
+            instance->closeFloater();
+        }
+        else
+        {
+            LLAvatarActions::showPicks(gAgent.getID());
+        }
+        return true;
+    }
+};
+
 class LLAvatarToggleSearch : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -6798,6 +6859,15 @@ class LLShowAgentProfile : public view_listener_t
 		}
 		return true;
 	}
+};
+
+class LLShowAgentProfilePicks : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+        LLAvatarActions::showPicks(gAgent.getID());
+        return true;
+    }
 };
 
 class LLToggleAgentProfile : public view_listener_t
@@ -9447,8 +9517,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
 	view_listener_t::addMenu(new LLAdvancedForceErrorLlerror(), "Advanced.ForceErrorLlerror");
 	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccess(), "Advanced.ForceErrorBadMemoryAccess");
+	view_listener_t::addMenu(new LLAdvancedForceErrorBadMemoryAccessCoro(), "Advanced.ForceErrorBadMemoryAccessCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorInfiniteLoop(), "Advanced.ForceErrorInfiniteLoop");
 	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareException(), "Advanced.ForceErrorSoftwareException");
+	view_listener_t::addMenu(new LLAdvancedForceErrorSoftwareExceptionCoro(), "Advanced.ForceErrorSoftwareExceptionCoro");
 	view_listener_t::addMenu(new LLAdvancedForceErrorDriverCrash(), "Advanced.ForceErrorDriverCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorCoroutineCrash(), "Advanced.ForceErrorCoroutineCrash");
     view_listener_t::addMenu(new LLAdvancedForceErrorThreadCrash(), "Advanced.ForceErrorThreadCrash");
@@ -9523,12 +9595,14 @@ void initialize_menus()
 	enable.add("Avatar.EnableCall", boost::bind(&LLAvatarActions::canCall));
 	view_listener_t::addMenu(new LLAvatarReportAbuse(), "Avatar.ReportAbuse");
 	view_listener_t::addMenu(new LLAvatarToggleMyProfile(), "Avatar.ToggleMyProfile");
+	view_listener_t::addMenu(new LLAvatarTogglePicks(), "Avatar.TogglePicks");
 	view_listener_t::addMenu(new LLAvatarToggleSearch(), "Avatar.ToggleSearch");
 	view_listener_t::addMenu(new LLAvatarResetSkeleton(), "Avatar.ResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarEnableResetSkeleton(), "Avatar.EnableResetSkeleton");
 	view_listener_t::addMenu(new LLAvatarResetSkeletonAndAnimations(), "Avatar.ResetSkeletonAndAnimations");
 	view_listener_t::addMenu(new LLAvatarResetSelfSkeletonAndAnimations(), "Avatar.ResetSelfSkeletonAndAnimations");
 	enable.add("Avatar.IsMyProfileOpen", boost::bind(&my_profile_visible));
+    enable.add("Avatar.IsPicksTabOpen", boost::bind(&picks_tab_visible));
 
 	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 	
@@ -9605,6 +9679,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLToggleSpeak(), "ToggleSpeak");
 	view_listener_t::addMenu(new LLPromptShowURL(), "PromptShowURL");
 	view_listener_t::addMenu(new LLShowAgentProfile(), "ShowAgentProfile");
+    view_listener_t::addMenu(new LLShowAgentProfilePicks(), "ShowAgentProfilePicks");
 	view_listener_t::addMenu(new LLToggleAgentProfile(), "ToggleAgentProfile");
 	view_listener_t::addMenu(new LLToggleControl(), "ToggleControl");
     view_listener_t::addMenu(new LLToggleShaderControl(), "ToggleShaderControl");

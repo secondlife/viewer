@@ -716,6 +716,9 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
     U32 mask = AGENT_CONTROL_YAW_POS | AGENT_CONTROL_YAW_NEG;
     if ((getControlFlags() & mask) == mask)
     {
+        // Rotation into both directions should cancel out
+        // But keep sending controls to simulator,
+        // it's needed for script based controls
         gAgentCamera.setYawKey(0);
     }
 
