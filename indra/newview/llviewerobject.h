@@ -185,6 +185,7 @@ public:
 
     const LLUUID& getRenderMaterialID(U8 te) const;
     void setRenderMaterialID(U8 te, const LLUUID& id);
+    void setRenderMaterialIDs(const LLRenderMaterialParams* material_params, bool local_origin);
 
 	virtual BOOL	isHUDAttachment() const { return FALSE; }
 	virtual BOOL	isTempAttachment() const;
