@@ -1864,6 +1864,18 @@
             <key>name</key>
             <string>darwin64</string>
           </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0a016b9c0c1e2c0b557e0124094da6c5</string>
+              <key>url</key>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/104407/914918/mikktspace-1-windows-574859.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
