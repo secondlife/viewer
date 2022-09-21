@@ -95,8 +95,8 @@ void main()
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
-        vec3 orm = texture2DRect(emissiveRect, tc).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
+        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb;
+        vec3 orm = spec.rgb;
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
@@ -133,6 +133,9 @@ void main()
     {
 
         float noise = texture2D(noiseMap, tc/128.0).b;
+
+        diffuse = srgb_to_linear(diffuse);
+        spec.rgb = srgb_to_linear(spec.rgb);
 
         // As of OSX 10.6.7 ATI Apple's crash when using a variable size loop
         for (int i = 0; i < LIGHT_COUNT; ++i)

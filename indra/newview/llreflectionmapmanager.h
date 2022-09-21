@@ -119,6 +119,9 @@ private:
     // storage for reflection probe radiance maps (plus two scratch space cubemaps)
     LLPointer<LLCubeMapArray> mTexture;
 
+    // vertex buffer for pushing verts to filter shaders
+    LLPointer<LLVertexBuffer> mVertexBuffer;
+
     // storage for reflection probe irradiance maps
     LLPointer<LLCubeMapArray> mIrradianceMaps;
 

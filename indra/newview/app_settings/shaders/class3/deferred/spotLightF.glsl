@@ -154,8 +154,8 @@ void main()
     vec3 amb_rgb = vec3(0);
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        vec3 colorEmissive = spec.rgb; // PBR sRGB Emissive.  See: pbropaqueF.glsl
-        vec3 orm = texture2DRect(emissiveRect, tc).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
+        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb;
+        vec3 orm = spec.rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         vec3 f0 = vec3(0.04);
@@ -189,6 +189,9 @@ void main()
     }
     else
     {
+        diffuse = srgb_to_linear(diffuse);
+        spec.rgb = srgb_to_linear(spec.rgb);
+        
         float noise = texture2D(noiseMap, tc/128.0).b;
         if (proj_tc.z > 0.0 &&
             proj_tc.x < 1.0 &&

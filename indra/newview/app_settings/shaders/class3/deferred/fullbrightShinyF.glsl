@@ -115,8 +115,8 @@ void main()
 */
 
 	color.a = 1.0;
-	//color.rgb = linear_to_srgb(color.rgb);
 
+    color.rgb = srgb_to_linear(color.rgb);
 	frag_color = color;
 }
 

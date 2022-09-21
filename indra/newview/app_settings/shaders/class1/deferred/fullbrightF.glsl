@@ -82,7 +82,7 @@ void main()
     color.a   = final_alpha;
 #endif
 
-	frag_color.rgb = color.rgb;
+	frag_color.rgb = srgb_to_linear(color.rgb);
 	frag_color.a   = color.a;
 }
 

@@ -292,19 +292,6 @@ void main()
 #if !defined(LOCAL_LIGHT_KILL)
     color.rgb += light.rgb;
 #endif // !defined(LOCAL_LIGHT_KILL)
-    // back to sRGB as we're going directly to the final RT post-deferred gamma correction
-    color.rgb = linear_to_srgb(color.rgb);
-
-//color.rgb = amblit;
-//color.rgb = vec3(ambient);
-//color.rgb = sunlit;
-//color.rgb = vec3(final_da);
-//color.rgb = post_ambient;
-//color.rgb = post_sunlight;
-//color.rgb = sun_contrib;
-//color.rgb = diffuse_srgb.rgb;
-//color.rgb = post_diffuse;
-//color.rgb = post_atmo;
 
 #ifdef WATER_FOG
     color = applyWaterFogView(pos.xyz, color);

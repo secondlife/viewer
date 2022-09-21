@@ -402,9 +402,6 @@ void main()
     glare = min(glare, 1.0);
     float al = max(diffcol.a, glare)*vertex_color.a;
 
-    //convert to srgb as this color is being written post gamma correction
-    color = linear_to_srgb(color);
-
 #ifdef WATER_FOG
     vec4 temp = applyWaterFogView(pos, vec4(color, al));
     color = temp.rgb;

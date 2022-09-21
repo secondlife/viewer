@@ -145,12 +145,12 @@ void main()
     if (hasPBR)
     {
         norm.xyz           = getNorm(tc);
-        vec3 orm = texture2DRect(emissiveRect, tc).rgb; //orm is packed into "emissiveRect" to keep the data in linear color space
+        vec3 orm = texture2DRect(specularRect, tc).rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
         float ao = orm.r * ambocc;
 
-        vec3 colorEmissive = texture2DRect(specularRect, tc).rgb; //specularRect is sRGB sampler, result is in linear space
+        vec3 colorEmissive = texture2DRect(emissiveRect, tc).rgb;
 
         // PBR IBL
         float gloss      = 1.0 - perceptualRoughness;
@@ -164,7 +164,6 @@ void main()
         
         //baseColor.rgb = vec3(0,0,0);
         //colorEmissive = srgb_to_linear(norm.xyz*0.5+0.5);
-
 
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
@@ -195,7 +194,7 @@ void main()
         float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
         da                = pow(da, light_gamma);
 
-        diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
+        //diffuse.rgb = linear_to_srgb(diffuse.rgb); // SL-14035
 
         sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
         ambenv.rgb = linear_to_srgb(ambenv.rgb); 

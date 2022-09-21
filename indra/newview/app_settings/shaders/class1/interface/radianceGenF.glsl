@@ -37,6 +37,10 @@ uniform int sourceIdx;
 
 VARYING vec3 vary_dir;
 
+//uniform float roughness;
+
+uniform float mipLevel;
+
 // =============================================================================================================
 // Parts of this file are (c) 2018 Sascha Willems
 // SNIPPED FROM https://github.com/SaschaWillems/Vulkan-glTF-PBR/blob/master/data/shaders/prefilterenvmap.frag
@@ -64,11 +68,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 // =============================================================================================================
-
-
-//uniform float roughness;
-
-uniform float mipLevel;
 
 const float PI = 3.1415926536;
 
@@ -130,11 +129,13 @@ vec3 prefilterEnvMap(vec3 R)
 	vec3 color = vec3(0.0);
 	float totalWeight = 0.0;
 	float envMapDim = 256.0;
-    int numSamples = 8;
+    int numSamples = 4;
     
     float numMips = 7.0;
 
-    float roughness = (mipLevel+1)/numMips;
+    float roughness = mipLevel/numMips;
+
+    numSamples = max(int(numSamples*roughness), 1);
 
 	for(uint i = 0u; i < numSamples; i++) {
 		vec2 Xi = hammersley2d(i, numSamples);
@@ -154,8 +155,8 @@ vec3 prefilterEnvMap(vec3 R)
 			// Solid angle of 1 pixel across all cube faces
 			float omegaP = 4.0 * PI / (6.0 * envMapDim * envMapDim);
 			// Biased (+1.0) mip level for better result
-			//float mip = roughness == 0.0 ? 0.0 : max(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f);
-            float mip = clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
+			float mip = roughness == 0.0 ? 0.0 : clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
+            //float mip = clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
 			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mip).rgb * dotNL;
 			totalWeight += dotNL;
 
@@ -170,4 +171,3 @@ void main()
 	frag_color = vec4(prefilterEnvMap(N), 1.0);
 }
 // =============================================================================================================
-
