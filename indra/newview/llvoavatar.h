@@ -350,6 +350,18 @@ public:
 	//--------------------------------------------------------------------
 public:
 	BOOL			isFullyLoaded() const;
+
+    // check and return current state relative to limits
+    // default will test only the geometry (combined=false).
+    // this allows us to disable shadows separately on complex avatars.
+    inline bool 	isTooSlowWithShadows() const {return mTooSlow;};
+    inline bool 	isTooSlowWithoutShadows() const {return mTooSlowWithoutShadows;};
+    inline bool 	isTooSlow(bool combined = false) const 
+    {
+        return(combined?mTooSlow:mTooSlowWithoutShadows);
+    }
+    void 			updateTooSlow();
+
 	bool 			isTooComplex() const;
 	bool 			visualParamWeightsAreDefault();
 	virtual bool	getIsCloud() const;
@@ -369,6 +381,7 @@ public:
 	void 			logMetricsTimerRecord(const std::string& phase_name, F32 elapsed, bool completed);
 
     void            calcMutedAVColor();
+    void            markARTStale();
 
 protected:
 	LLViewerStats::PhaseMap& getPhases() { return mPhases; }
@@ -389,6 +402,15 @@ private:
 	LLColor4		mMutedAVColor;
 	LLFrameTimer	mFullyLoadedTimer;
 	LLFrameTimer	mRuthTimer;
+
+    U32				mLastARTUpdateFrame{0};
+    U64				mRenderTime{0};
+    U64				mGeomTime{0};
+    bool			mARTStale{true};
+    bool			mARTCapped{false};
+    // variables to hold "slowness" status
+    bool			mTooSlow{false};
+    bool			mTooSlowWithoutShadows{false};
 
 private:
 	LLViewerStats::PhaseMap mPhases;
@@ -1144,6 +1166,8 @@ public:
 
 	// COF version of last appearance message received for this av.
 	S32 mLastUpdateReceivedCOFVersion;
+
+    U64 getLastART() const { return mRenderTime; }
 
 /**                    Diagnostics
  **                                                                            **

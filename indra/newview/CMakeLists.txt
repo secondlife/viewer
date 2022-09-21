@@ -1383,6 +1383,9 @@ set(viewer_HEADER_FILES
     VorbisFramework.h
     )
 
+  list(APPEND viewer_SOURCE_FILES llperfstats.cpp)
+  list(APPEND viewer_HEADER_FILES llperfstats.h)
+
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
 #build_data.json creation moved to viewer_manifest.py MAINT-6413

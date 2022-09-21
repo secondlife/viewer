@@ -99,16 +99,19 @@ BOOL LLFloaterPerformance::postBuild()
     mComplexityPanel = getChild<LLPanel>("panel_performance_complexity");
     mSettingsPanel = getChild<LLPanel>("panel_performance_preferences");
     mHUDsPanel = getChild<LLPanel>("panel_performance_huds");
+    mAutoadjustmentsPanel = getChild<LLPanel>("panel_performance_autoadjustments");
 
     getChild<LLPanel>("nearby_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mNearbyPanel));
     getChild<LLPanel>("complexity_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mComplexityPanel));
     getChild<LLPanel>("settings_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mSettingsPanel));
     getChild<LLPanel>("huds_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mHUDsPanel));
+    getChild<LLPanel>("autoadjustments_subpanel")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::showSelectedPanel, this, mAutoadjustmentsPanel));
 
     initBackBtn(mNearbyPanel);
     initBackBtn(mComplexityPanel);
     initBackBtn(mSettingsPanel);
     initBackBtn(mHUDsPanel);
+    initBackBtn(mAutoadjustmentsPanel);
 
     mHUDList = mHUDsPanel->getChild<LLNameListCtrl>("hud_list");
     mHUDList->setNameListType(LLNameListCtrl::SPECIAL);
@@ -197,6 +200,7 @@ void LLFloaterPerformance::hidePanels()
     mComplexityPanel->setVisible(FALSE);
     mHUDsPanel->setVisible(FALSE);
     mSettingsPanel->setVisible(FALSE);
+    mAutoadjustmentsPanel->setVisible(FALSE);
 }
 
 void LLFloaterPerformance::initBackBtn(LLPanel* panel)

@@ -277,6 +277,52 @@
        top="19"
        right="-20"/>
     </panel>
+    <panel
+     bg_alpha_color="PanelGray"
+     background_visible="true"
+     background_opaque="false"
+     border="true"
+     bevel_style="none"
+     follows="left|top"
+     height="50"
+     width="560"
+     name="autoadjustments_subpanel"
+     layout="topleft"
+     top_pad="10">
+      <text
+       follows="left|top"
+       font="SansSerifLarge"
+       text_color="White"
+       height="20"
+       layout="topleft"
+       left="10"
+       name="auto_adj_lbl"
+       top="7"
+       width="175">
+        Preferred frame rate
+      </text>
+      <text
+       follows="left|top"
+       font="SansSerif"
+       text_color="White"
+       height="20"
+       layout="topleft"
+       left="10"
+       name="auto_adj_desc"
+       top_pad="0"
+       width="485">
+        Allow automatic adjustments to reach your preferred frame rate (advanced).
+      </text>
+      <icon
+       height="16"
+       width="16"
+       image_name="Arrow_Right_Off"
+       mouse_opaque="true"
+       name="icon_arrow4"
+       follows="right|top"
+       top="19"
+       right="-20"/>
+    </panel>
   </panel>
   <panel
     filename="panel_performance_nearby.xml"
@@ -308,6 +354,14 @@
     layout="topleft"
     left="0"
     name="panel_performance_huds"
+    visible="false"
+    top="55" />
+  <panel
+    filename="panel_performance_autoadjustments.xml"
+    follows="all"
+    layout="topleft"
+    left="0"
+    name="panel_performance_autoadjustments"
     visible="false"
     top="55" />
 </floater>

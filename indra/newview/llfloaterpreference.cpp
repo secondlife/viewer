@@ -115,6 +115,7 @@
 #include "llpresetsmanager.h"
 
 #include "llsearchableui.h"
+#include "llperfstats.h"
 
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
@@ -1479,6 +1480,23 @@ void LLAvatarComplexityControls::setText(U32 value, LLTextBox* text_box, bool sh
         std::string text_value = short_val ? llformat("%d", value / 1000) : llformat("%d", value);
         text_box->setText(text_value);
 	}
+}
+
+void LLAvatarComplexityControls::updateMaxRenderTime(LLSliderCtrl* slider, LLTextBox* value_label, bool short_val)
+{
+    setRenderTimeText((F32)(LLPerfStats::renderAvatarMaxART_ns/1000), value_label, short_val);
+}
+
+void LLAvatarComplexityControls::setRenderTimeText(F32 value, LLTextBox* text_box, bool short_val)
+{
+    if (0 == value)
+    {
+        text_box->setText(LLTrans::getString("no_limit"));
+    }
+    else
+    {
+        text_box->setText(llformat("%.0f", value));
+    }
 }
 
 void LLFloaterPreference::updateMaxComplexity()

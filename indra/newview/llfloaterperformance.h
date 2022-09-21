@@ -76,6 +76,7 @@ private:
     LLPanel* mComplexityPanel;
     LLPanel* mHUDsPanel;
     LLPanel* mSettingsPanel;
+    LLPanel* mAutoadjustmentsPanel;
     LLNameListCtrl* mHUDList;
     LLNameListCtrl* mObjectList;
     LLNameListCtrl* mNearbyList;

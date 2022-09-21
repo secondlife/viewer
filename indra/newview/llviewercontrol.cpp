@@ -75,6 +75,7 @@
 #include "llspellcheck.h"
 #include "llslurl.h"
 #include "llstartup.h"
+#include "llperfstats.h"
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
@@ -643,6 +644,66 @@ bool toggle_show_object_render_cost(const LLSD& newvalue)
 }
 
 void handleRenderAutoMuteByteLimitChanged(const LLSD& new_value);
+
+void handleTargetFPSChanged(const LLSD& newValue)
+{
+    const auto targetFPS = gSavedSettings.getU32("TargetFPS");
+    LLPerfStats::tunables.userTargetFPS = targetFPS;
+}
+
+void handleAutoTuneLockChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getBOOL("AutoTuneLock");
+    LLPerfStats::tunables.userAutoTuneLock = newval;
+}
+
+void handleAutoTuneFPSChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getBOOL("AutoTuneFPS");
+    LLPerfStats::tunables.userAutoTuneEnabled = newval;
+    if(newval && LLPerfStats::renderAvatarMaxART_ns == 0) // If we've enabled autotune we override "unlimited" to max
+    {
+        gSavedSettings.setF32("RenderAvatarMaxART",log10(LLPerfStats::ART_UNLIMITED_NANOS-1000));//triggers callback to update static var
+    }
+}
+
+void handleRenderAvatarMaxARTChanged(const LLSD& newValue)
+{
+    LLPerfStats::tunables.updateRenderCostLimitFromSettings();
+}
+
+void handleUserTargetDrawDistanceChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getF32("AutoTuneRenderFarClipTarget");
+    LLPerfStats::tunables.userTargetDrawDistance = newval;
+}
+
+void handleUserTargetReflectionsChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getS32("UserTargetReflections");
+    LLPerfStats::tunables.userTargetReflections = newval;
+}
+
+void handlePerformanceStatsEnabledChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getBOOL("PerfStatsCaptureEnabled");
+    LLPerfStats::StatsRecorder::setEnabled(newval);
+}
+void handleUserImpostorByDistEnabledChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getBOOL("AutoTuneImpostorByDistEnabled");
+    LLPerfStats::tunables.userImpostorDistanceTuningEnabled = newval;
+}
+void handleUserImpostorDistanceChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getF32("AutoTuneImpostorFarAwayDistance");
+    LLPerfStats::tunables.userImpostorDistance = newval;
+}
+void handleFPSTuningStrategyChanged(const LLSD& newValue)
+{
+    const auto newval = gSavedSettings.getU32("TuningFPSStrategy");
+    LLPerfStats::tunables.userFPSTuningStrategy = newval;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -796,6 +857,17 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
 	gSavedSettings.getControl("RenderAutoMuteByteLimit")->getSignal()->connect(boost::bind(&handleRenderAutoMuteByteLimitChanged, _2));
 	gSavedPerAccountSettings.getControl("AvatarHoverOffsetZ")->getCommitSignal()->connect(boost::bind(&handleAvatarHoverOffsetChanged, _2));
+
+    gSavedSettings.getControl("TargetFPS")->getSignal()->connect(boost::bind(&handleTargetFPSChanged, _2));
+    gSavedSettings.getControl("AutoTuneFPS")->getSignal()->connect(boost::bind(&handleAutoTuneFPSChanged, _2));
+    gSavedSettings.getControl("AutoTuneLock")->getSignal()->connect(boost::bind(&handleAutoTuneLockChanged, _2));
+    gSavedSettings.getControl("RenderAvatarMaxART")->getSignal()->connect(boost::bind(&handleRenderAvatarMaxARTChanged, _2));
+    gSavedSettings.getControl("PerfStatsCaptureEnabled")->getSignal()->connect(boost::bind(&handlePerformanceStatsEnabledChanged, _2));
+    gSavedSettings.getControl("UserTargetReflections")->getSignal()->connect(boost::bind(&handleUserTargetReflectionsChanged, _2));
+    gSavedSettings.getControl("AutoTuneRenderFarClipTarget")->getSignal()->connect(boost::bind(&handleUserTargetDrawDistanceChanged, _2));
+    gSavedSettings.getControl("AutoTuneImpostorFarAwayDistance")->getSignal()->connect(boost::bind(&handleUserImpostorDistanceChanged, _2));
+    gSavedSettings.getControl("AutoTuneImpostorByDistEnabled")->getSignal()->connect(boost::bind(&handleUserImpostorByDistEnabledChanged, _2));
+    gSavedSettings.getControl("TuningFPSStrategy")->getSignal()->connect(boost::bind(&handleFPSTuningStrategyChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
