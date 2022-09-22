@@ -32,6 +32,9 @@
 #include "llagentbenefits.h"
 #include "llappviewer.h"
 #include "llcombobox.h"
+#include "llfloaterreg.h"
+#include "llfilesystem.h"
+#include "llgltfmateriallist.h"
 #include "llinventorymodel.h"
 #include "llnotificationsutil.h"
 #include "lltexturectrl.h"
@@ -47,8 +50,6 @@
 #include "llvovolume.h"
 #include "roles_constants.h"
 #include "llviewerobjectlist.h"
-#include "llfloaterreg.h"
-#include "llfilesystem.h"
 #include "llsdserialize.h"
 #include "llimagej2c.h"
 #include "llviewertexturelist.h"
@@ -1525,8 +1526,8 @@ void LLMaterialEditor::importMaterial()
 class LLRemderMaterialFunctor : public LLSelectedTEFunctor
 {
 public:
-    LLRemderMaterialFunctor(LLGLTFMaterial *mat, const LLUUID &id)
-        : mMat(mat), mMatId(id)
+    LLRemderMaterialFunctor(const LLUUID &id)
+        : mMatId(id)
     {
     }
 
@@ -1535,24 +1536,23 @@ public:
         if (objectp && objectp->permModify() && objectp->getVolume())
         {
             LLVOVolume* vobjp = (LLVOVolume*)objectp;
-            vobjp->setRenderMaterialID(te, mMatId);
-            vobjp->getTE(te)->setGLTFMaterial(mMat);
+            vobjp->setRenderMaterialID(te, mMatId, false /*preview only*/);
             vobjp->updateTEMaterialTextures(te);
         }
         return true;
     }
 private:
-    LLPointer<LLGLTFMaterial> mMat;
     LLUUID mMatId;
 };
 
 void LLMaterialEditor::applyToSelection()
 {
+    // Placehodler. Will be removed once override systems gets finished.
     LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
     getGLTFMaterial(mat);
     const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-    LLUUID asset_id = mAssetID.notNull() ? mAssetID : placeholder;
-    LLRemderMaterialFunctor mat_func(mat, asset_id);
+    gGLTFMaterialList.addMaterial(placeholder, mat);
+    LLRemderMaterialFunctor mat_func(placeholder);
     LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
     selected_objects->applyToTEs(&mat_func);
 }

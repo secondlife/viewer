@@ -2198,30 +2198,7 @@ void LLSelectMgr::selectionRevertGLTFMaterials()
             if (nodep && te < (S32)nodep->mSavedGLTFMaterials.size())
             {
                 LLUUID asset_id = nodep->mSavedGLTFMaterials[te];
-                LLTextureEntry* tep = objectp->getTE(te);
-                if (asset_id.notNull())
-                {
-                    tep->setGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
-
-                    if (!objectp->hasRenderMaterialParams())
-                    {
-                        // make sure param section exists
-                        objectp->setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an immediate update*/);
-                    }
-                }
-                else
-                {
-                    tep->setGLTFMaterial(nullptr);
-                }
-
-                objectp->faceMappingChanged();
-                gPipeline.markTextured(objectp->mDrawable);
-
-                LLRenderMaterialParams* param_block = (LLRenderMaterialParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
-                if (param_block)
-                {
-                    param_block->setMaterial(te, asset_id);
-                }
+                objectp->setRenderMaterialID(te, asset_id, false /*wait for bulk update*/);
             }
             return true;
         }

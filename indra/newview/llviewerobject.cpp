@@ -7075,7 +7075,7 @@ const LLUUID& LLViewerObject::getRenderMaterialID(U8 te) const
     return LLUUID::null;
 }
 
-void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
+void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id, bool update_server)
 {
     if (id.notNull())
     {
@@ -7084,7 +7084,12 @@ void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
         if (!hasRenderMaterialParams())
         {
             // make sure param section exists
-            setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, TRUE, false /*prevent an immediate update*/);
+            // but do not update server to avoid race conditions
+            ExtraParameter* param = getExtraParameterEntryCreate(LLNetworkData::PARAMS_RENDER_MATERIAL);
+            if (param)
+            {
+                param->in_use = true;
+            }
         }
     }
     else
@@ -7102,6 +7107,71 @@ void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id)
 
         if (param_block->isEmpty())
         { // might be empty if id is null
+            if (hasRenderMaterialParams())
+            {
+                if (update_server)
+                {
+                    setParameterEntryInUse(LLNetworkData::PARAMS_RENDER_MATERIAL, FALSE, true);
+                }
+                else
+                {
+                    ExtraParameter* param = getExtraParameterEntryCreate(LLNetworkData::PARAMS_RENDER_MATERIAL);
+                    if (param)
+                    {
+                        param->in_use = false;
+                    }
+                }
+            }
+        }
+        else if (update_server)
+        {
+            parameterChanged(LLNetworkData::PARAMS_RENDER_MATERIAL, true);
+        }
+    }
+}
+
+void LLViewerObject::setRenderMaterialIDs(const LLUUID& id)
+{
+    if (id.notNull())
+    {
+        if (!hasRenderMaterialParams())
+        {
+            // make sure param section exists
+            // but do not update server to avoid race conditions
+            ExtraParameter* param = getExtraParameterEntryCreate(LLNetworkData::PARAMS_RENDER_MATERIAL);
+            if (param)
+            {
+                param->in_use = true;
+            }
+        }
+    }
+
+    LLRenderMaterialParams* param_block = nullptr;
+    if (hasRenderMaterialParams())
+    {
+        param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
+    }
+
+    LLGLTFMaterial* material = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
+    const S32 num_tes = llmin((S32)getNumTEs(), (S32)getNumFaces());
+
+    for (S32 te = 0; te < num_tes; te++)
+    {
+        getTE(te)->setGLTFMaterial(material);
+
+        if (param_block)
+        {
+            param_block->setMaterial(te, id);
+        }
+    }
+
+    faceMappingChanged();
+    gPipeline.markTextured(mDrawable);
+
+    if (param_block)
+    {
+        if (param_block->isEmpty())
+        {
             setHasRenderMaterialParams(false);
         }
         else
