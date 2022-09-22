@@ -38,6 +38,7 @@
 #include "llfloaterreg.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
+#include "llperfstats.h"
 #include "llradiogroup.h"
 #include "llsliderctrl.h"
 #include "lltextbox.h"
@@ -53,6 +54,11 @@ const F32 REFRESH_INTERVAL = 1.0f;
 const S32 BAR_LEFT_PAD = 2;
 const S32 BAR_RIGHT_PAD = 5;
 const S32 BAR_BOTTOM_PAD = 9;
+
+constexpr auto AvType       {LLPerfStats::ObjType_t::OT_AVATAR};
+constexpr auto AttType      {LLPerfStats::ObjType_t::OT_ATTACHMENT};
+constexpr auto HudType      {LLPerfStats::ObjType_t::OT_HUD};
+constexpr auto SceneType    {LLPerfStats::ObjType_t::OT_GENERAL};
 
 class LLExceptionsContextMenu : public LLListContextMenu
 {
@@ -87,7 +93,7 @@ LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
 
 LLFloaterPerformance::~LLFloaterPerformance()
 {
-    mComplexityChangedSignal.disconnect();
+    mMaxARTChangedSignal.disconnect();
     delete mContextMenu;
     delete mUpdateTimer;
 }
@@ -135,11 +141,15 @@ BOOL LLFloaterPerformance::postBuild()
     mNearbyList = mNearbyPanel->getChild<LLNameListCtrl>("nearby_list");
     mNearbyList->setRightMouseDownCallback(boost::bind(&LLFloaterPerformance::onAvatarListRightClick, this, _1, _2, _3));
 
-    updateComplexityText();
-    mComplexityChangedSignal = gSavedSettings.getControl("RenderAvatarMaxComplexity")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateComplexityText, this));
-    mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxComplexity, this));
+    mMaxARTChangedSignal = gSavedSettings.getControl("RenderAvatarMaxART")->getCommitSignal()->connect(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
+    mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART")->setCommitCallback(boost::bind(&LLFloaterPerformance::updateMaxRenderTime, this));
 
-    LLAvatarComplexityControls::setIndirectMaxArc();
+    // store the current setting as the users desired reflection detail and DD
+    gSavedSettings.setS32("UserTargetReflections", LLPipeline::RenderReflectionDetail);
+    if(!LLPerfStats::tunables.userAutoTuneEnabled)
+    {
+        gSavedSettings.setF32("AutoTuneRenderFarClipTarget", LLPipeline::RenderFarClip);
+    }
 
     return TRUE;
 }
@@ -224,16 +234,13 @@ void LLFloaterPerformance::populateHUDList()
     hud_complexity_list_t::iterator iter = complexity_list.begin();
     hud_complexity_list_t::iterator end = complexity_list.end();
 
-    U32 max_complexity = 0;
-    for (; iter != end; ++iter)
-    {
-        max_complexity = llmax(max_complexity, (*iter).objectsCost);
-    }
-   
+    auto huds_max_render_time_raw = LLPerfStats::StatsRecorder::getMax(HudType, LLPerfStats::StatType_t::RENDER_GEOMETRY);
     for (iter = complexity_list.begin(); iter != end; ++iter)
     {
-        LLHUDComplexity hud_object_complexity = *iter;        
-        S32 obj_cost_short = llmax((S32)hud_object_complexity.objectsCost / 1000, 1);
+        LLHUDComplexity hud_object_complexity = *iter;
+
+        auto hud_render_time_raw = LLPerfStats::StatsRecorder::get(HudType, hud_object_complexity.objectId, LLPerfStats::StatType_t::RENDER_GEOMETRY);
+
         LLSD item;
         item["special_id"] = hud_object_complexity.objectId;
         item["target"] = LLNameListCtrl::SPECIAL;
@@ -241,14 +248,14 @@ void LLFloaterPerformance::populateHUDList()
         row[0]["column"] = "complex_visual";
         row[0]["type"] = "bar";
         LLSD& value = row[0]["value"];
-        value["ratio"] = (F32)obj_cost_short / max_complexity * 1000;
+        value["ratio"] = (F32)hud_render_time_raw / huds_max_render_time_raw;
         value["bottom"] = BAR_BOTTOM_PAD;
         value["left_pad"] = BAR_LEFT_PAD;
         value["right_pad"] = BAR_RIGHT_PAD;
 
         row[1]["column"] = "complex_value";
         row[1]["type"] = "text";
-        row[1]["value"] = std::to_string(obj_cost_short);
+        row[1]["value"] = llformat( "%.f",LLPerfStats::raw_to_us(hud_render_time_raw) );
         row[1]["font"]["name"] = "SANSSERIF";
  
         row[2]["column"] = "name";
@@ -283,45 +290,46 @@ void LLFloaterPerformance::populateObjectList()
     object_complexity_list_t::iterator iter = complexity_list.begin();
     object_complexity_list_t::iterator end = complexity_list.end();
 
-    U32 max_complexity = 0;
-    for (; iter != end; ++iter)
+    // for consistency we lock the buffer while we build the list. In theory this is uncontended as the buffer should only toggle on end of frame
     {
-        max_complexity = llmax(max_complexity, (*iter).objectCost);
-    }
+        std::lock_guard<std::mutex> guard{ LLPerfStats::bufferToggleLock };
+        auto att_max_render_time_raw = LLPerfStats::StatsRecorder::getMax(AttType, LLPerfStats::StatType_t::RENDER_COMBINED);
 
-    for (iter = complexity_list.begin(); iter != end; ++iter)
-    {
-        LLObjectComplexity object_complexity = *iter;        
-        S32 obj_cost_short = llmax((S32)object_complexity.objectCost / 1000, 1);
-        LLSD item;
-        item["special_id"] = object_complexity.objectId;
-        item["target"] = LLNameListCtrl::SPECIAL;
-        LLSD& row = item["columns"];
-        row[0]["column"] = "complex_visual";
-        row[0]["type"] = "bar";
-        LLSD& value = row[0]["value"];
-        value["ratio"] = (F32)obj_cost_short / max_complexity * 1000;
-        value["bottom"] = BAR_BOTTOM_PAD;
-        value["left_pad"] = BAR_LEFT_PAD;
-        value["right_pad"] = BAR_RIGHT_PAD;
-
-        row[1]["column"] = "complex_value";
-        row[1]["type"] = "text";
-        row[1]["value"] = std::to_string(obj_cost_short);
-        row[1]["font"]["name"] = "SANSSERIF";
-
-        row[2]["column"] = "name";
-        row[2]["type"] = "text";
-        row[2]["value"] = object_complexity.objectName;
-        row[2]["font"]["name"] = "SANSSERIF";
-
-        LLScrollListItem* obj = mObjectList->addElement(item);
-        if (obj)
+        for (iter = complexity_list.begin(); iter != end; ++iter)
         {
-            LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
-            if (value_text)
+            LLObjectComplexity object_complexity = *iter;
+
+            auto attach_render_time_raw = LLPerfStats::StatsRecorder::get(AttType, object_complexity.objectId, LLPerfStats::StatType_t::RENDER_COMBINED);
+            LLSD item;
+            item["special_id"] = object_complexity.objectId;
+            item["target"] = LLNameListCtrl::SPECIAL;
+            LLSD& row = item["columns"];
+            row[0]["column"] = "complex_visual";
+            row[0]["type"] = "bar";
+            LLSD& value = row[0]["value"];
+            value["ratio"] = ((F32)attach_render_time_raw) / att_max_render_time_raw;
+            value["bottom"] = BAR_BOTTOM_PAD;
+            value["left_pad"] = BAR_LEFT_PAD;
+            value["right_pad"] = BAR_RIGHT_PAD;
+
+            row[1]["column"] = "complex_value";
+            row[1]["type"] = "text";
+            row[1]["value"] = llformat("%.f", LLPerfStats::raw_to_us(attach_render_time_raw));
+            row[1]["font"]["name"] = "SANSSERIF";
+
+            row[2]["column"] = "name";
+            row[2]["type"] = "text";
+            row[2]["value"] = object_complexity.objectName;
+            row[2]["font"]["name"] = "SANSSERIF";
+
+            LLScrollListItem* obj = mObjectList->addElement(item);
+            if (obj)
             {
-                value_text->setAlignment(LLFontGL::HCENTER);
+                LLScrollListText* value_text = dynamic_cast<LLScrollListText*>(obj->getColumn(1));
+                if (value_text)
+                {
+                    value_text->setAlignment(LLFontGL::HCENTER);
+                }
             }
         }
     }
@@ -332,6 +340,7 @@ void LLFloaterPerformance::populateObjectList()
 
 void LLFloaterPerformance::populateNearbyList()
 {
+    static LLCachedControl<bool> showTunedART(gSavedSettings, "ShowTunedART");
     S32 prev_pos = mNearbyList->getScrollPos();
     LLUUID prev_selected_id = mNearbyList->getStringUUIDSelectedItem();
     mNearbyList->clearRows();
@@ -342,26 +351,44 @@ void LLFloaterPerformance::populateNearbyList()
     mNearbyMaxComplexity = LLWorld::getInstance()->getNearbyAvatarsAndCompl(valid_nearby_avs);
 
     std::vector<LLCharacter*>::iterator char_iter = valid_nearby_avs.begin();
+
+    LLPerfStats::bufferToggleLock.lock();
+    auto av_render_max_raw = LLPerfStats::StatsRecorder::getMax(AvType, LLPerfStats::StatType_t::RENDER_COMBINED);
+    LLPerfStats::bufferToggleLock.unlock();
+
     while (char_iter != valid_nearby_avs.end())
     {
         LLVOAvatar* avatar = dynamic_cast<LLVOAvatar*>(*char_iter);
         if (avatar && (LLVOAvatar::AOA_INVISIBLE != avatar->getOverallAppearance()))
         {
-            S32 complexity_short = llmax((S32)avatar->getVisualComplexity() / 1000, 1);;
+            LLPerfStats::bufferToggleLock.lock();
+            auto render_av_raw  = LLPerfStats::StatsRecorder::get(AvType, avatar->getID(),LLPerfStats::StatType_t::RENDER_COMBINED);
+            LLPerfStats::bufferToggleLock.unlock();
+
+            auto is_slow = avatar->isTooSlowWithShadows();
             LLSD item;
             item["id"] = avatar->getID();
             LLSD& row = item["columns"];
             row[0]["column"] = "complex_visual";
             row[0]["type"] = "bar";
             LLSD& value = row[0]["value"];
-            value["ratio"] = (F32)complexity_short / mNearbyMaxComplexity * 1000;
+            // The ratio used in the bar is the current cost, as soon as we take action this changes so we keep the 
+            // pre-tune value for the numerical column and sorting.
+            value["ratio"] = (double)render_av_raw / av_render_max_raw;
             value["bottom"] = BAR_BOTTOM_PAD;
             value["left_pad"] = BAR_LEFT_PAD;
             value["right_pad"] = BAR_RIGHT_PAD;
 
             row[1]["column"] = "complex_value";
             row[1]["type"] = "text";
-            row[1]["value"] = std::to_string(complexity_short);
+            if (is_slow && !showTunedART)
+            {
+                row[1]["value"] = llformat( "%.f", LLPerfStats::raw_to_us( avatar->getLastART() ) );
+            }
+            else
+            {
+                row[1]["value"] = llformat( "%.f", LLPerfStats::raw_to_us( render_av_raw ) );
+            }
             row[1]["font"]["name"] = "SANSSERIF";
 
             row[2]["column"] = "name";
@@ -387,7 +414,7 @@ void LLFloaterPerformance::populateNearbyList()
                     else
                     {
                         std::string color = "white";
-                        if (LLVOAvatar::AOA_JELLYDOLL == avatar->getOverallAppearance())
+                        if (is_slow || LLVOAvatar::AOA_JELLYDOLL == avatar->getOverallAppearance())
                         {
                             color = "LabelDisabledColor";
                             LLScrollListBar* bar = dynamic_cast<LLScrollListBar*>(av_item->getColumn(0));
@@ -462,18 +489,11 @@ void LLFloaterPerformance::onClickExceptions()
     LLFloaterReg::showInstance("avatar_render_settings");
 }
 
-void LLFloaterPerformance::updateMaxComplexity()
+void LLFloaterPerformance::updateMaxRenderTime()
 {
-    LLAvatarComplexityControls::updateMax(
-        mNearbyPanel->getChild<LLSliderCtrl>("IndirectMaxComplexity"),
-        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText"), 
-        true);
-}
-
-void LLFloaterPerformance::updateComplexityText()
-{
-    LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"),
-        mNearbyPanel->getChild<LLTextBox>("IndirectMaxComplexityText", true), 
+    LLAvatarComplexityControls::updateMaxRenderTime(
+        mNearbyPanel->getChild<LLSliderCtrl>("RenderAvatarMaxART"),
+        mNearbyPanel->getChild<LLTextBox>("RenderAvatarMaxARTText"), 
         true);
 }
 

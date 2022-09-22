@@ -66,8 +66,7 @@ private:
     void onClickShadows();
     void onClickAdvancedLighting();
 
-    void updateMaxComplexity();
-    void updateComplexityText();
+    void updateMaxRenderTime();
 
     static void changeQualityLevel(const std::string& notif);
 
@@ -87,7 +86,7 @@ private:
 
     S32 mNearbyMaxComplexity;
 
-    boost::signals2::connection	mComplexityChangedSignal;
+    boost::signals2::connection	mMaxARTChangedSignal;
 };
 
 #endif // LL_LLFLOATERPERFORMANCE_H

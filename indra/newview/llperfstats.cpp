@@ -76,15 +76,15 @@ namespace LLPerfStats
     void Tunables::updateRenderCostLimitFromSettings()
     {
         assert_main_thread();
-	    const auto newval = gSavedSettings.getF32("RenderAvatarMaxART");
-	    if(newval < log10(LLPerfStats::ART_UNLIMITED_NANOS/1000))
-	    {
-    		LLPerfStats::renderAvatarMaxART_ns = pow(10,newval)*1000;
-    	}
-    	else
-    	{
-		    LLPerfStats::renderAvatarMaxART_ns = 0;
-	    };        
+        const auto newval = gSavedSettings.getF32("RenderAvatarMaxART");
+        if(newval < log10(LLPerfStats::ART_UNLIMITED_NANOS/1000))
+        {
+            LLPerfStats::renderAvatarMaxART_ns = pow(10,newval)*1000;
+        }
+        else
+        {
+            LLPerfStats::renderAvatarMaxART_ns = 0;
+        }
     }
 
     // static 
