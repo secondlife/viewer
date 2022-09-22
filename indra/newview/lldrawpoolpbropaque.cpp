@@ -148,6 +148,16 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
 
             LLGLDisable cull_face(mat->mDoubleSided ? GL_CULL_FACE : 0);
 
+            bool tex_setup = false;
+            if (pparams->mTextureMatrix)
+            { //special case implementation of texture animation here because of special handling of textures for PBR batches
+                tex_setup = true;
+                gGL.getTexUnit(0)->activate();
+                gGL.matrixMode(LLRender::MM_TEXTURE);
+                gGL.loadMatrix((GLfloat*)pparams->mTextureMatrix->mMatrix);
+                gPipeline.mTextureMatrixOps++;
+            }
+
             if (rigged)
             {
                 if (pparams->mAvatar.notNull() && (lastAvatar != pparams->mAvatar || lastMeshId != pparams->mSkinInfo->mHash))
@@ -162,6 +172,13 @@ void LLDrawPoolPBROpaque::renderDeferred(S32 pass)
             else
             {
                 pushBatch(*pparams, vertex_data_mask, FALSE, FALSE);
+            }
+
+            if (tex_setup)
+            {
+                gGL.matrixMode(LLRender::MM_TEXTURE0);
+                gGL.loadIdentity();
+                gGL.matrixMode(LLRender::MM_MODELVIEW);
             }
         }
     }
