@@ -1291,10 +1291,14 @@ bool LLTextureFetchWorker::doWork(S32 param)
 		if ( use_http && mCanUseHTTP && mUrl.empty())//get http url.
 		{
 			LLViewerRegion* region = NULL;
-			if (mHost.isInvalid())
-				region = gAgent.getRegion();
-			else
-				region = LLWorld::getInstance()->getRegion(mHost);
+            if (mHost.isInvalid())
+            {
+                region = gAgent.getRegion();
+            }
+            else if (LLWorld::instanceExists())
+            {
+                region = LLWorld::getInstance()->getRegion(mHost);
+            }
 
 			if (region)
 			{

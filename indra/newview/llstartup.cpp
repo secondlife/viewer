@@ -1286,9 +1286,6 @@ bool idle_startup()
 		// Initialize classes w/graphics stuff.
 		//
 		LLViewerStatsRecorder::instance(); // Since textures work in threads
-		gTextureList.doPrefetchImages();		
-		display_startup();
-
 		LLSurface::initClasses();
 		display_startup();
 
@@ -1433,6 +1430,12 @@ bool idle_startup()
 	if (STATE_SEED_CAP_GRANTED == LLStartUp::getStartupState())
 	{
 		display_startup();
+
+        // These textures are not warrantied to be cached, so needs
+        // to hapen with caps granted
+        gTextureList.doPrefetchImages();
+
+        display_startup();
 		update_texture_fetch();
 		display_startup();
 

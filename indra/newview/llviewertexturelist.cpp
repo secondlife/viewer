@@ -50,6 +50,7 @@
 #include "llviewercontrol.h"
 #include "llviewertexture.h"
 #include "llviewermedia.h"
+#include "llviewernetwork.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "pipeline.h"
@@ -155,12 +156,6 @@ void LLViewerTextureList::doPreloadImages()
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
-	image = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
-	if (image) 
-	{
-		image->setAddressMode(LLTexUnit::TAM_WRAP);	
-		mImagePreloads.insert(image);
-	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
 		0, 0, IMG_TRANSPARENT);
 	if (image) 
@@ -193,12 +188,30 @@ void LLViewerTextureList::doPreloadImages()
 
 static std::string get_texture_list_name()
 {
-	return gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
+    if (LLGridManager::getInstance()->isInProductionGrid())
+    {
+        return gDirUtilp->getExpandedFilename(LL_PATH_CACHE,
+            "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + ".xml");
+    }
+    else
+    {
+        const std::string& grid_id_str = LLGridManager::getInstance()->getGridId();
+        const std::string& grid_id_lower = utf8str_tolower(grid_id_str);
+        return gDirUtilp->getExpandedFilename(LL_PATH_CACHE,
+            "texture_list_" + gSavedSettings.getString("LoginLocation") + "." + gDirUtilp->getUserName() + "." + grid_id_lower + ".xml");
+    }
 }
 
 void LLViewerTextureList::doPrefetchImages()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
+
+    LLViewerFetchedTexture* imagep = LLViewerTextureManager::getFetchedTexture(DEFAULT_WATER_NORMAL, FTT_DEFAULT, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
+    if (imagep)
+    {
+        imagep->setAddressMode(LLTexUnit::TAM_WRAP);
+        mImagePreloads.insert(imagep);
+    }
 
     if (LLAppViewer::instance()->getPurgeCache())
 	{
