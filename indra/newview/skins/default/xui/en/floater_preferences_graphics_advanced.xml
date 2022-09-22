@@ -720,6 +720,10 @@
    name="ReflectionDetial"
    width="150">
     <combo_box.item
+      label="Disabled"
+      name="0"
+      value="-1"/>
+    <combo_box.item
       label="Static Only"
       name="0"
       value="0"/>

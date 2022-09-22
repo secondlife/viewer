@@ -64,12 +64,10 @@ out vec4 frag_color;
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
-#ifdef HAS_REFLECTION_PROBES
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
-#endif
 
 uniform samplerCube environmentMap;
 uniform sampler2D     lightFunc;
@@ -326,27 +324,12 @@ void main()
     da = pow(da, 1.0 / 1.3);
     vec3 sun_contrib = min(da, shadow) * sunlit;
 
-#ifdef HAS_REFLECTION_PROBES
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
     amblit = max(ambenv, amblit);
     color.rgb = amblit;
-#else
-
-    color = amblit;
-
-    //darken ambient for normals perpendicular to light vector so surfaces in shadow 
-    // and facing away from light still have some definition to them.
-    // do NOT gamma correct this dot product so ambient lighting stays soft
-    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
-    ambient *= 0.5;
-    ambient *= ambient;
-    ambient = (1.0 - ambient);
-
-    color *= ambient;
-#endif
 
     color += sun_contrib;
 
@@ -368,37 +351,14 @@ void main()
 
         color += spec_contrib;
 
-#ifdef HAS_REFLECTION_PROBES
         applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
-#endif
     }
-
-#ifdef HAS_REFLECTION_PROBES
-    if (envIntensity > 0.0)
-    {  // add environmentmap
-        //fudge darker
-        legacyenv *= 0.5*diffuse.a+0.5;
-        
-        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
-    }
-#else
-    if (envIntensity > 0.0)
-    {
-        //add environmentmap
-        vec3 env_vec = env_mat * refnormpersp;
-
-        vec3 reflected_color = textureCube(environmentMap, env_vec).rgb;
-
-        color = mix(color, reflected_color, envIntensity);
-
-        float cur_glare = max(reflected_color.r, reflected_color.g);
-        cur_glare = max(cur_glare, reflected_color.b);
-        cur_glare *= envIntensity*4.0;
-        glare += cur_glare;
-    }
-#endif
 
     color = atmosFragLighting(color, additive, atten);
+    if (envIntensity > 0.0)
+    {  // add environmentmap
+        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
+    }
     color = scaleSoftClipFrag(color);
 
     //convert to linear before adding local lights
@@ -409,6 +369,8 @@ void main()
     vec3 light = vec3(0, 0, 0);
     
     final_specular.rgb = srgb_to_linear(final_specular.rgb); // SL-14035
+
+    color = mix(color.rgb, srgb_to_linear(diffcol.rgb), diffuse.a);
 
 #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 
@@ -431,7 +393,6 @@ void main()
     al = temp.a;
 #endif
 
-    color = mix(color.rgb, srgb_to_linear(diffcol.rgb), diffuse.a);
     frag_color = vec4(color, al);
 
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 

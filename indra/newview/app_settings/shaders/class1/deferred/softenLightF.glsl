@@ -156,12 +156,6 @@ void main()
 
     }
 
-// linear debuggables
-//color.rgb = vec3(final_da);
-//color.rgb = vec3(ambient);
-//color.rgb = vec3(scol);
-//color.rgb = diffuse_srgb.rgb;
-
     // convert to linear as fullscreen lights need to sum in linear colorspace
     // and will be gamma (re)corrected downstream...
     

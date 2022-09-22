@@ -51,6 +51,7 @@ class LLVOAvatar;
 class LLVOPartGroup;
 class LLGLSLShader;
 class LLDrawPoolAlpha;
+class LLSettingsSky;
 
 typedef enum e_avatar_skinning_method
 {
@@ -297,8 +298,13 @@ public:
 
 	void unbindDeferredShader(LLGLSLShader& shader);
 
+    // set env_mat parameter in given shader
+    void setEnvMat(LLGLSLShader& shader);
+
     void bindReflectionProbes(LLGLSLShader& shader);
     void unbindReflectionProbes(LLGLSLShader& shader);
+
+    
 
 	void renderDeferredLighting(LLRenderTarget* light_target);
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
@@ -326,6 +332,7 @@ public:
 	S32  getLightCount() const { return mLights.size(); }
 
 	void calcNearbyLights(LLCamera& camera);
+    void adjustAmbient(const LLSettingsSky* sky, LLColor4& ambient);
 	void setupHWLights(LLDrawPool* pool);
 	void setupAvatarLights(bool for_edit = false);
 	void enableLights(U32 mask);
@@ -640,6 +647,7 @@ public:
 	static bool				sRenderAttachedLights;
 	static bool				sRenderAttachedParticles;
 	static bool				sRenderDeferred;
+    static bool				sReflectionProbesEnabled;
     static bool				sRenderPBR;
 	static S32				sVisibleLightCount;
 	static bool				sRenderingHUDs;

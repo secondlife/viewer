@@ -708,6 +708,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::SCENE_LIGHT_STRENGTH, mSceneLightStrength);
 
     LLColor4 ambient(getTotalAmbient());
+
+    gPipeline.adjustAmbient(this, ambient);
+    
     shader->uniform4fv(LLShaderMgr::AMBIENT, LLVector4(ambient.mV));
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);

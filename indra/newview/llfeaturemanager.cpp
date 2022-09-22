@@ -651,14 +651,10 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("VRAMGT512");
 	}
-
-#if LL_DARWIN
-	const LLOSInfo& osInfo = LLOSInfo::instance();
-	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
-	{
-		maskFeatures("OSX_10_6_8");
-	}
-#endif
+    if (gGLManager.mGLVersion < 3.99f)
+    {
+        maskFeatures("GL3");
+    }
 
 	// now mask by gpu string
 	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces

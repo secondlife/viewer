@@ -902,6 +902,8 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 		ch = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
 	}
 
+    bool has_reflection_probes = gSavedSettings.getS32("RenderReflectionProbeDetail") >= 0 && gGLManager.mGLVersion > 3.99f;
+
 	std::vector<S32> index_channels;    
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsF.glsl",      mShaderLevel[SHADER_WINDLIGHT] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "windlight/atmosphericsVarsWaterF.glsl",     mShaderLevel[SHADER_WINDLIGHT] ) );
@@ -916,7 +918,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/deferredUtil.glsl",                    1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/shadowUtil.glsl",                      1) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/aoUtil.glsl",                          1) );
-    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                llmax(mShaderLevel[SHADER_DEFERRED], 1)) );
+    index_channels.push_back(-1);    shaders.push_back( make_pair( "deferred/reflectionProbeF.glsl",                has_reflection_probes ? 3 : 2) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightNonIndexedF.glsl",                    mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightAlphaMaskNonIndexedF.glsl",                   mShaderLevel[SHADER_LIGHTING] ) );
 	index_channels.push_back(-1);    shaders.push_back( make_pair( "lighting/lightFullbrightNonIndexedF.glsl",          mShaderLevel[SHADER_LIGHTING] ) );
@@ -1448,12 +1450,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             gDeferredMaterialProgram[i].mFeatures.hasAtmospherics = true;
             gDeferredMaterialProgram[i].mFeatures.hasGamma = true;
             gDeferredMaterialProgram[i].mFeatures.hasShadows = use_sun_shadow;
-            
-            if (mShaderLevel[SHADER_DEFERRED] > 2)
-            {
-                gDeferredMaterialProgram[i].mFeatures.hasReflectionProbes = true;
-                gDeferredMaterialProgram[i].addPermutation("HAS_REFLECTION_PROBES", "1");
-            }
+            gDeferredMaterialProgram[i].mFeatures.hasReflectionProbes = true;
 
             if (has_skin)
             {
@@ -1530,6 +1527,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
                 gDeferredMaterialWaterProgram[i].addPermutation("LOCAL_LIGHT_KILL", "1");
             }
 
+            gDeferredMaterialWaterProgram[i].mFeatures.hasReflectionProbes = true;
             gDeferredMaterialWaterProgram[i].mFeatures.hasWaterFog = true;
             gDeferredMaterialWaterProgram[i].mFeatures.hasSrgb = true;
             gDeferredMaterialWaterProgram[i].mFeatures.encodesNormal = true;
@@ -2229,11 +2227,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredFullbrightShinyProgram.mShaderLevel = mShaderLevel[SHADER_DEFERRED];
-        if (gDeferredFullbrightShinyProgram.mShaderLevel > 2)
-        {
-            gDeferredFullbrightShinyProgram.addPermutation("HAS_REFLECTION_PROBES", "1");
-            gDeferredFullbrightShinyProgram.mFeatures.hasReflectionProbes = true;
-        }
+        gDeferredFullbrightShinyProgram.mFeatures.hasReflectionProbes = true;
         success = make_rigged_variant(gDeferredFullbrightShinyProgram, gDeferredSkinnedFullbrightShinyProgram);
 		success = success && gDeferredFullbrightShinyProgram.createShader(NULL, NULL);
 		llassert(success);
@@ -2701,7 +2695,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		llassert(success);
 	}
 
-	if (success)
+	if (success && gGLManager.mGLVersion > 3.9f)
 	{
 		gFXAAProgram.mName = "FXAA Shader";
 		gFXAAProgram.mFeatures.isDeferred = true;
@@ -2858,7 +2852,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gNormalMapGenProgram.createShader(NULL, NULL);
 	}
 
-    if (success && gGLManager.mHasCubeMapArray)
+    if (success)
     {
         gDeferredGenBrdfLutProgram.mName = "Brdf Gen Shader";
         gDeferredGenBrdfLutProgram.mShaderFiles.clear();

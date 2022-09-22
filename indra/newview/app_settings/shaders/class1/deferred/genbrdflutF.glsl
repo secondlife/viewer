@@ -53,7 +53,7 @@ VARYING vec2 vary_uv;
 
 out vec4 outColor;
 
-#define NUM_SAMPLES 1024
+#define NUM_SAMPLES 1024u
 
 const float PI = 3.1415926536;
 

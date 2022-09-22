@@ -355,6 +355,7 @@ bool	LLPipeline::sRenderFrameTest = false;
 bool	LLPipeline::sRenderAttachedLights = true;
 bool	LLPipeline::sRenderAttachedParticles = true;
 bool	LLPipeline::sRenderDeferred = false;
+bool	LLPipeline::sReflectionProbesEnabled = false;
 bool    LLPipeline::sRenderPBR = false;
 S32		LLPipeline::sVisibleLightCount = 0;
 bool	LLPipeline::sRenderingHUDs;
@@ -371,11 +372,10 @@ void validate_framebuffer_object();
 // target -- RenderTarget to add attachments to
 bool addDeferredAttachments(LLRenderTarget& target, bool for_impostor = false)
 {
-    bool pbr = gSavedSettings.getBOOL("RenderPBR");
     bool valid = true
         && target.addColorAttachment(GL_RGBA) // frag-data[1] specular OR PBR ORM
         && target.addColorAttachment(GL_RGB10_A2)                              // frag_data[2] normal+z+fogmask, See: class1\deferred\materialF.glsl & softenlight
-        && (pbr ? target.addColorAttachment(GL_RGBA) : true);                  // frag_data[3] PBR emissive
+        && target.addColorAttachment(GL_RGBA);                  // frag_data[3] PBR emissive
     return valid;
 }
 
@@ -553,7 +553,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("UseOcclusion");
 	// DEPRECATED -- connectRefreshCachedSettingsSafe("WindLightUseAtmosShaders");
 	// DEPRECATED -- connectRefreshCachedSettingsSafe("RenderDeferred");
-    connectRefreshCachedSettingsSafe("RenderPBR");
 	connectRefreshCachedSettingsSafe("RenderDeferredSunWash");
 	connectRefreshCachedSettingsSafe("RenderFSAASamples");
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
@@ -1033,12 +1032,10 @@ void LLPipeline::updateRenderBump()
 // static
 void LLPipeline::updateRenderDeferred()
 {
-    sRenderDeferred = !gUseWireframe &&
-                      RenderDeferred &&
-                      LLRenderTarget::sUseFBO &&
-                      LLPipeline::sRenderBump &&
-                      WindLightUseAtmosShaders;
-    sRenderPBR = sRenderDeferred && gSavedSettings.getBOOL("RenderPBR");
+    sRenderDeferred = !gUseWireframe;
+    sRenderPBR = sRenderDeferred;
+    static LLCachedControl<S32> sProbeDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
+    sReflectionProbesEnabled = sProbeDetail >= 0 && gGLManager.mGLVersion > 3.99f;
 }
 
 // static
@@ -6238,6 +6235,22 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 	}
 }
 
+void LLPipeline::adjustAmbient(const LLSettingsSky* sky, LLColor4& ambient)
+{
+    //bump ambient based on reflection probe ambiance of probes are disabled 
+    // so sky settings that rely on probes for ambiance don't go completely dark
+    // on low end hardware
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        F32 ambiance = linearTosRGB(sky->getReflectionProbeAmbiance());
+
+        for (int i = 0; i < 3; ++i)
+        {
+            ambient.mV[i] = llmax(ambient.mV[i], ambiance);
+        }
+    }
+}
+
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -6248,7 +6261,9 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
     // Ambient
     LLColor4 ambient = psky->getTotalAmbient();
-		gGL.setAmbientLightColor(ambient);
+    adjustAmbient(psky.get(), ambient);
+    
+	gGL.setAmbientLightColor(ambient);
 
     bool sun_up  = environment.getIsSunUp();
     bool moon_up = environment.getIsMoonUp();
@@ -9281,8 +9296,24 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 	shader.unbind();
 }
 
+void LLPipeline::setEnvMat(LLGLSLShader& shader)
+{
+    F32* m = gGLModelView;
+
+    F32 mat[] = { m[0], m[1], m[2],
+                    m[4], m[5], m[6],
+                    m[8], m[9], m[10] };
+
+    shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+}
+
 void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
 {
+    if (!sReflectionProbesEnabled)
+    {
+        return;
+    }
+
     S32 channel = shader.enableTexture(LLShaderMgr::REFLECTION_PROBES, LLTexUnit::TT_CUBE_MAP_ARRAY);
     bool bound = false;
     if (channel > -1 && mReflectionMapManager.mTexture.notNull())
@@ -9302,13 +9333,7 @@ void LLPipeline::bindReflectionProbes(LLGLSLShader& shader)
     {
         mReflectionMapManager.setUniforms();
 
-        F32* m = gGLModelView;
-
-        F32 mat[] = { m[0], m[1], m[2],
-                      m[4], m[5], m[6],
-                      m[8], m[9], m[10] };
-
-        shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+        setEnvMat(shader);
     }
 }
 

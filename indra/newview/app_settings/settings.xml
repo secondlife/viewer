@@ -9647,7 +9647,7 @@
   <key>RenderPBR</key>
   <map>
     <key>Comment</key>
-    <string>Use PBR rendering pipeline (Physically Based Rendering).</string>
+    <string>DEPRECATED - only true supported - Use PBR rendering pipeline (Physically Based Rendering).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10328,7 +10328,7 @@
   <key>RenderReflectionProbeDetail</key>
   <map>
     <key>Comment</key>
-    <string>Detail of reflections.</string>
+    <string>Detail of reflections. (-1 - Disabled, 0 - Static Only, 1 - Static + Dynamic, 2 - Realtime)</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>

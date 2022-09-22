@@ -465,9 +465,13 @@ void LLDrawPoolBump::beginFullbrightShiny()
 		shader->uniform4fv(LLViewerShaderMgr::SHINY_ORIGIN, 1, vec4.mV);
 
         cube_map->setMatrix(1);
-        if (shader->mFeatures.hasReflectionProbes)
+        if (LLPipeline::sReflectionProbesEnabled)
         {
             gPipeline.bindReflectionProbes(*shader);
+        }
+        else
+        {
+            gPipeline.setEnvMat(*shader);
         }
 
 		// Make sure that texture coord generation happens for tex unit 1, as that's the one we use for 

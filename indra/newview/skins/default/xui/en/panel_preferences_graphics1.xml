@@ -231,20 +231,6 @@
      m
   </text>
 
-  <check_box
-    control_name="RenderPBR"
-    height="16"
-    initial_value="true"
-    label="Physically Based Rendering"
-    layout="topleft"
-    left="30"
-    name="UsePBRShaders"
-    top_delta="24"
-    width="256">
-    <check_box.commit_callback
-      function="Pref.RenderOptionUpdate" />
-  </check_box>
-
   <slider
     control_name="IndirectMaxComplexity"
     tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"

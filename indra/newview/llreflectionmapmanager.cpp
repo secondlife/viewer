@@ -63,7 +63,7 @@ struct CompareProbeDistance
 // helper class to seed octree with probes
 void LLReflectionMapManager::update()
 {
-    if (!LLPipeline::sRenderPBR || gTeleportDisplay)
+    if (!LLPipeline::sReflectionProbesEnabled || gTeleportDisplay)
     {
         return;
     }
@@ -130,8 +130,9 @@ void LLReflectionMapManager::update()
     }
 
     bool did_update = false;
-
-    bool realtime = gSavedSettings.getS32("RenderReflectionProbeDetail") >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
+    
+    static LLCachedControl<S32> sDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
+    bool realtime = sDetail >= (S32)LLReflectionMapManager::DetailLevel::REALTIME;
     
     LLReflectionMap* closestDynamic = nullptr;
 
@@ -613,6 +614,11 @@ void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
 
 void LLReflectionMapManager::updateUniforms()
 {
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        return;
+    }
+
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
 
     // structure for packing uniform buffer object
@@ -740,7 +746,11 @@ void LLReflectionMapManager::updateUniforms()
 
 void LLReflectionMapManager::setUniforms()
 {
-    llassert(LLPipeline::sRenderPBR);
+    if (!LLPipeline::sReflectionProbesEnabled)
+    {
+        return;
+    }
+
     if (mUBO == 0)
     { 
         updateUniforms();

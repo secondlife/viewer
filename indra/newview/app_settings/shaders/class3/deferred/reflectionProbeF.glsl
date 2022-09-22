@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-#extension GL_ARB_shader_texture_lod : enable
-
 #define FLT_MAX 3.402823466e+38
 
 #define REFMAP_COUNT 256
@@ -32,6 +30,8 @@
 
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
+
+vec3 linear_to_srgb(vec3 col);
 
 layout (std140) uniform ReflectionProbes
 {
@@ -520,7 +520,22 @@ vec3 brighten(vec3 c)
 }
 
 
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+        vec3 pos, vec3 norm, float glossiness)
+{
+    // TODO - don't hard code lods
+    float reflection_lods = 7;
+    preProbeSample(pos);
+
+    vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
+
+    ambenv = sampleProbeAmbient(pos, norm);
+
+    float lod = (1.0-glossiness)*reflection_lods;
+    glossenv = sampleProbes(pos, normalize(refnormpersp), lod, 1.f);
+}
+
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
         vec3 pos, vec3 norm, float glossiness, float envIntensity)
 {
     // TODO - don't hard code lods
@@ -531,16 +546,22 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 l
 
     ambenv = sampleProbeAmbient(pos, norm);
 
-    //if (glossiness > 0.0)
+    if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod, 1.f);
+        glossenv = linear_to_srgb(glossenv);
     }
 
     if (envIntensity > 0.0)
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, 1.f);
+        legacyenv = linear_to_srgb(legacyenv);
     }
+
+    // legacy expects values in sRGB space for now
+    ambenv = linear_to_srgb(ambenv);
+
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)
@@ -555,7 +576,7 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
 
  void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity)
  {
-    vec3 reflected_color = legacyenv; //*0.5; //fudge darker
+    vec3 reflected_color = legacyenv;
     vec3 lookAt = normalize(pos);
     float fresnel = 1.0+dot(lookAt, norm.xyz);
     fresnel *= fresnel;

@@ -55,13 +55,11 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
-#ifdef HAS_REFLECTION_PROBES
 // reflection probe interface
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyEnv, 
         vec3 pos, vec3 norm, float glossiness, float envIntensity);
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm);
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity);
-#endif
 
 // See:
 //   class1\deferred\fullbrightShinyF.glsl
@@ -87,35 +85,21 @@ void main()
         calcAtmosphericVars(pos.xyz, vec3(0), 1.0, sunlit, amblit, additive, atten, false);
 
         float env_intensity = vertex_color.a;
-#ifndef HAS_REFLECTION_PROBES
-        vec3 envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;	
-        color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
-#else
+
         vec3 ambenv;
         vec3 glossenv;
         vec3 legacyenv;
         vec3 norm = normalize(vary_texcoord1.xyz);
         vec4 spec = vec4(0,0,0,0);
-        sampleReflectionProbes(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, env_intensity);
-        legacyenv *= 1.5; // fudge brighter
+        sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, env_intensity);
         applyLegacyEnv(color.rgb, legacyenv, spec, pos, norm, env_intensity);
-#endif
+
         color.rgb = fullbrightAtmosTransportFrag(color.rgb, additive, atten);
         color.rgb = fullbrightScaleSoftClip(color.rgb);
 	}
 
-/*
-	// NOTE: HUD objects will be full bright. Uncomment if you want "some" environment lighting effecting these HUD objects.
-	else
-	{
-		vec3  envColor = textureCube(environmentMap, vary_texcoord1.xyz).rgb;
-		float env_intensity = vertex_color.a;
-		color.rgb = mix(color.rgb, envColor.rgb, env_intensity);
-	}
-*/
-
 	color.a = 1.0;
-
+    
     color.rgb = srgb_to_linear(color.rgb);
 	frag_color = color;
 }
