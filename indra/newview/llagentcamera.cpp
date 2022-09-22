@@ -2165,7 +2165,6 @@ void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 	{
 		gAgentAvatarp->stopMotion(ANIM_AGENT_BODY_NOISE);
 		gAgentAvatarp->stopMotion(ANIM_AGENT_BREATHE_ROT);
-        gAgentAvatarp->stopMotion(ANIM_AGENT_PUPPET_MOTION);
 	}
 
 	//gViewerWindow->stopGrab();
