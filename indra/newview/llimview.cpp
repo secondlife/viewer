@@ -69,7 +69,7 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
-
+#include "lluiusage.h"
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
@@ -769,6 +769,23 @@ void LLIMModel::LLIMSession::addMessage(const std::string& from, const LLUUID& f
 	message["time"] = time; 
 	message["index"] = (LLSD::Integer)mMsgs.size(); 
 	message["is_history"] = is_history;
+
+	LL_DEBUGS("UIUsage") << "addMessage " << " from " << from << " from_id " << from_id << " utf8_text " << utf8_text << " time " << time << " is_history " << is_history << " session mType " << mType << LL_ENDL;
+	if (from_id == gAgent.getID())
+	{
+		if (mType == IM_SESSION_GROUP_START)
+		{
+			LLUIUsage::instance().logCommand("Chat.SendGroup");
+		}
+		else if (mType == IM_NOTHING_SPECIAL)
+		{
+			LLUIUsage::instance().logCommand("Chat.SendIM");
+		}
+		else
+		{
+			LLUIUsage::instance().logCommand("Chat.SendOther");
+		}
+	}
 
 	mMsgs.push_front(message); 
 
