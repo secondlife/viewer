@@ -131,7 +131,9 @@ public:
 
 	void updateMaxResidentTexMem(S32Megabytes mem);
 	
+    // Local UI images
 	void doPreloadImages();
+    // Network images. Needs caps and cache to work
 	void doPrefetchImages();
 
 	void clearFetchingRequests();
