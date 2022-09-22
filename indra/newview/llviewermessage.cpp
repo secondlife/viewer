@@ -836,6 +836,11 @@ void send_join_group_response(LLUUID group_id, LLUUID transaction_id, bool accep
 
         EInstantMessage type = accept_invite ? IM_GROUP_INVITATION_ACCEPT : IM_GROUP_INVITATION_DECLINE;
 
+		if (accept_invite)
+		{
+			LLUIUsage::instance().logCommand("Group.Join");
+		}
+
         send_improved_im(group_id,
             std::string("name"),
             std::string("message"),
