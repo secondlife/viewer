@@ -63,7 +63,7 @@ void main()
     diff.rgb = linear_to_srgb(diff.rgb);
     vec3 seed = diff.rgb*vec3(vary_fragcoord.xy, vary_fragcoord.x+vary_fragcoord.y)*2048;
     vec3 nz = vec3(noise(seed.r), noise(seed.g), noise(seed.b));
-    diff.rgb += nz*0.008;
+    diff.rgb += nz*0.005;
     frag_color = diff;
 }
 
