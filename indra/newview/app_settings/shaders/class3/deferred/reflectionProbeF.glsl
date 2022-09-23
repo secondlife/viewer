@@ -506,20 +506,6 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
     return col;
 }
 
-// brighten a color so that at least one component is 1
-vec3 brighten(vec3 c)
-{
-    float m = max(max(c.r, c.g), c.b);
-
-    if (m == 0)
-    {
-        return vec3(1,1,1);
-    }
-
-    return c * 1.0/m;
-}
-
-
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec3 pos, vec3 norm, float glossiness)
 {
@@ -581,7 +567,7 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
     float fresnel = 1.0+dot(lookAt, norm.xyz);
     fresnel *= fresnel;
     fresnel = min(fresnel+envIntensity, 1.0);
-    reflected_color *= (envIntensity*fresnel)*brighten(spec.rgb);
+    reflected_color *= (envIntensity*fresnel);
     color = mix(color.rgb, reflected_color, envIntensity);
  }
 
