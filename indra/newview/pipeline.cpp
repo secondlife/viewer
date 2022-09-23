@@ -409,8 +409,7 @@ LLPipeline::LLPipeline() :
 	mLightMovingMask(0),
 	mLightingDetail(0),
 	mScreenWidth(0),
-	mScreenHeight(0),
-    mUpdateTimer(new LLTimer())
+	mScreenHeight(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -615,12 +614,10 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraDoFResScale");
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 	gSavedSettings.getControl("RenderAutoHideSurfaceAreaLimit")->getCommitSignal()->connect(boost::bind(&LLPipeline::refreshCachedSettings));
-    gSavedSettings.getControl("AutoFPS")->getCommitSignal()->connect(boost::bind(&LLPipeline::onToggleAutoFPS));
 }
 
 LLPipeline::~LLPipeline()
 {
-    delete mUpdateTimer;
 }
 
 void LLPipeline::cleanup()
@@ -11522,141 +11519,3 @@ void LLPipeline::handleShadowDetailChanged()
     }
 }
 
-const F32 MIN_DRAW_DISTANCE = 64;
-const F32 MAX_DRAW_DISTANCE = 256;
-
-void update_far_clip(F32 fps_dif)
-{
-    F32 DIST_PER_FRAME_DIF = 16;
-
-    F32 new_far_clip = llclamp(LLPipeline::RenderFarClip - llmin(fps_dif * DIST_PER_FRAME_DIF, (F32)128), MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE);
-    gSavedSettings.setF32("RenderFarClip", new_far_clip);
-}
-
-void update_max_non_impostors(F32 fps_dif, S32 max_avatars)
-{
-    const F32 IMPOSTORS_PER_FRAME_DIF = 0.5;
-
-    U32 new_non_imp = (U32)llclamp((S32)(LLVOAvatar::sMaxNonImpostors - llmin((S32)(fps_dif / IMPOSTORS_PER_FRAME_DIF), 10)), 1, max_avatars);
-    gSavedSettings.setU32("RenderAvatarMaxNonImpostors", new_non_imp);
-}
-
-void LLPipeline::autoAdjustSettings()
-{
-    static LLCachedControl<bool> use_auto_adjustment(gSavedSettings,"AutoFPS");
-    if (!use_auto_adjustment)
-    {
-        return;
-    }
-    
-    if (LLStartUp::getStartupState() < STATE_STARTED || LLApp::isExiting())
-    {
-        return;
-    }
-
-    static LLCachedControl<F32> adjustment_timeout(gSavedSettings, "AutoAdjustmentTimeout");
-    static LLCachedControl<F32> initial_adjustment_timeout(gSavedSettings, "InitialAdjustmentTimeout");
- 
-    static LLCachedControl<S32> fps_lower_boundary(gSavedSettings, "AutoFPSLowerBoundary");
-    static LLCachedControl<S32> fps_upper_boundary(gSavedSettings, "AutoFPSUpperBoundary");
-
-    if (gViewerWindow && gViewerWindow->getWindow()->getVisible()
-        && gFocusMgr.getAppHasFocus() && !gTeleportDisplay)
-    {
-        static bool is_init = false;
-        if (!is_init)
-        {
-            //wait for FPS to stabilize after login in-world
-            mUpdateTimer->setTimerExpirySec((F32)initial_adjustment_timeout);
-            is_init = true;
-        }
-        if (mUpdateTimer->hasExpired())
-        {
-            mUpdateTimer->setTimerExpirySec((F32)adjustment_timeout);
-
-            const S32 FPS_STAT_PERIODS = 50;
-            S32 fps = (S32)llround(LLTrace::get_frame_recording().getPeriodMedianPerSec(LLStatViewer::FPS, FPS_STAT_PERIODS));
-            if (fps < fps_lower_boundary)
-            {
-                S32 fps_dif = fps_lower_boundary - fps;
-                
-                if (sWaterReflections && RenderReflectionDetail > WATER_REFLECT_NONE_WATER_OPAQUE)
-                {
-                    S32 reflection_detail = llclamp(RenderReflectionDetail - 1, WATER_REFLECT_NONE_WATER_OPAQUE, WATER_REFLECT_MINIMAL);
-                    gSavedSettings.setS32("RenderReflectionDetail", reflection_detail);
-                    return;
-                }
-                
-                if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0 && RenderShadowSplits > 0)
-                {
-                    S32 shadow_splits = llclamp(RenderShadowSplits - 1, 0, 3);
-                    gSavedSettings.setS32("RenderShadowSplits", shadow_splits);
-                    return;
-                }
-                
-                if (RenderFarClip > MIN_DRAW_DISTANCE)
-                {
-                    update_far_clip(fps_dif);
-                }
-
-                std::vector<LLCharacter*> valid_nearby_avs;
-                LLWorld::getInstance()->getNearbyAvatarsAndCompl(valid_nearby_avs);
-
-                if (valid_nearby_avs.size() > 1 && LLVOAvatar::sMaxNonImpostors > 1) 
-                {
-                    update_max_non_impostors(fps_dif, valid_nearby_avs.size());
-                }
-            }
-            else if (fps > fps_upper_boundary)
-            {
-                S32 fps_dif = fps_upper_boundary - fps;
-
-                std::vector<LLCharacter*> valid_nearby_avs;
-                LLWorld::getInstance()->getNearbyAvatarsAndCompl(valid_nearby_avs);
-                if (valid_nearby_avs.size() > 1 && (LLVOAvatar::sMaxNonImpostors < valid_nearby_avs.size()))
-                {
-                    update_max_non_impostors(fps_dif, valid_nearby_avs.size());
-                    return;
-                }
-                
-                if (RenderFarClip < MAX_DRAW_DISTANCE)
-                {
-                    update_far_clip(fps_dif);
-                }
-
-                if (LLPipeline::sRenderDeferred && RenderShadowDetail > 0 && RenderShadowSplits < 3)
-                {
-                    S32 shadow_splits = llclamp(RenderShadowSplits + 1, 0, 3);
-                    gSavedSettings.setS32("RenderShadowSplits", shadow_splits);
-                    return;
-                }
-
-                if (sWaterReflections && RenderReflectionDetail < WATER_REFLECT_MINIMAL)
-                {
-                    S32 reflection_detail = llclamp(RenderReflectionDetail + 1, WATER_REFLECT_NONE_WATER_OPAQUE, WATER_REFLECT_MINIMAL);
-                    gSavedSettings.setS32("RenderReflectionDetail", reflection_detail);
-                }
-            }
-        }
-    }
-    else
-    {
-        //wait for FPS to stabilize if the window was minimized or not focused before
-        mUpdateTimer->setTimerExpirySec((F32)initial_adjustment_timeout);
-    }
-}
-
-void LLPipeline::setAdjustmentTimerExpiry(F32 expiration)
-{
-    mUpdateTimer->setTimerExpirySec(expiration);
-}
-
-void LLPipeline::onToggleAutoFPS()
-{
-    if (!gSavedSettings.getBOOL("AutoFPS"))
-    {
-        //reset the number of shadow map splits rendered, when disabling auto-fps
-        //probably should be removed, if we'll have actual UI control for this setting
-        gSavedSettings.setS32("RenderShadowSplits", 3);
-    }
-}

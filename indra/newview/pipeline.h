@@ -418,8 +418,6 @@ public:
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
-    static void onToggleAutoFPS();
-
 	void addDebugBlip(const LLVector3& position, const LLColor4& color);
 
 	void hidePermanentObjects( std::vector<U32>& restoreList );
@@ -428,9 +426,6 @@ public:
 	void hideObject( const LLUUID& id );
 	void restoreHiddenObject( const LLUUID& id );
     void handleShadowDetailChanged();
-
-    void autoAdjustSettings();
-    void setAdjustmentTimerExpiry(F32 expiration);
 
 private:
 	void unloadShaders();
@@ -723,8 +718,6 @@ protected:
 	U64						mRenderDebugMask;
 	U64						mOldRenderDebugMask;
 	std::stack<U32>			mRenderDebugFeatureStack;
-
-    LLTimer* mUpdateTimer;
 
 	/////////////////////////////////////////////
 	//

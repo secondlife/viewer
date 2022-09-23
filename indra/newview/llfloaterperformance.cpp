@@ -58,7 +58,6 @@ const S32 BAR_BOTTOM_PAD = 9;
 constexpr auto AvType       {LLPerfStats::ObjType_t::OT_AVATAR};
 constexpr auto AttType      {LLPerfStats::ObjType_t::OT_ATTACHMENT};
 constexpr auto HudType      {LLPerfStats::ObjType_t::OT_HUD};
-constexpr auto SceneType    {LLPerfStats::ObjType_t::OT_GENERAL};
 
 class LLExceptionsContextMenu : public LLListContextMenu
 {
@@ -87,8 +86,6 @@ LLFloaterPerformance::LLFloaterPerformance(const LLSD& key)
     mNearbyMaxComplexity(0)
 {
     mContextMenu = new LLExceptionsContextMenu(this);
-
-    mCommitCallbackRegistrar.add("Pref.AutoAdjustWarning", boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
 }
 
 LLFloaterPerformance::~LLFloaterPerformance()
@@ -133,7 +130,6 @@ BOOL LLFloaterPerformance::postBuild()
     mSettingsPanel->getChild<LLRadioGroup>("graphics_quality")->setCommitCallback(boost::bind(&LLFloaterPerformance::onChangeQuality, this, _2));
     mSettingsPanel->getChild<LLCheckBoxCtrl>("advanced_lighting_model")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::onClickAdvancedLighting, this));
     mSettingsPanel->getChild<LLComboBox>("ShadowDetail")->setMouseDownCallback(boost::bind(&LLFloaterPerformance::onClickShadows, this));
-    mSettingsPanel->getChild<LLComboBox>("Reflections")->setMouseDownCallback(boost::bind(&LLFloaterPreference::showAutoAdjustWarning));
 
     mNearbyPanel->getChild<LLButton>("exceptions_btn")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickExceptions, this));
     mNearbyPanel->getChild<LLCheckBoxCtrl>("hide_avatars")->setCommitCallback(boost::bind(&LLFloaterPerformance::onClickHideAvatars, this));
@@ -623,16 +619,10 @@ void LLFloaterPerformance::onClickAdvancedLighting()
 
 void LLFloaterPerformance::onClickShadows()
 {
-    if (gSavedSettings.getBOOL("AutoFPS"))
+    if (!is_ALM_available() || !gSavedSettings.getBOOL("RenderDeferred"))
     {
-        LLFloaterPreference::showAutoAdjustWarning();
+        changeQualityLevel("ShadowsConfirm");
     }
-    else
-    {
-        if (!is_ALM_available() || !gSavedSettings.getBOOL("RenderDeferred"))
-        {
-            changeQualityLevel("ShadowsConfirm");
-        }
-    }
+
 }
 // EOF

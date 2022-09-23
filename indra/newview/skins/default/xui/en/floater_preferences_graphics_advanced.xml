@@ -40,8 +40,6 @@
     name="DrawDistance"
     top_delta="16"
     width="330">
-    <slider.mouse_down_callback
-      function="Pref.AutoAdjustWarning" />
     </slider>
   <text
     type="string"
@@ -185,8 +183,6 @@
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxNonImpostors"
       parameter="IndirectNonImpostorsText" />
-    <slider.mouse_down_callback
-      function="Pref.AutoAdjustWarning" />
   </slider>
   <text
     type="string"

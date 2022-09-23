@@ -30,28 +30,7 @@
     width="120">
       (None)
   </text>
-  <view_border
-    bevel_style="in"
-    height="0"
-    layout="topleft"
-    name="border1"
-    left="12"
-    top_pad="12"
-    width="477"/>
-  <check_box
-    control_name="AutoFPS"
-    height="16"
-    initial_value="true"
-    label="Allow system to choose settings for best experience"
-    label_text.text_color="White"
-    label_text.v_pad="-1"
-    label_text.h_pad="5"
-    layout="topleft"
-    left="10"
-    name="AutoFPS"
-    top_delta="15"
-    width="256">
-  </check_box>
+
   <text
     type="string"
     length="1"
@@ -60,7 +39,7 @@
     layout="topleft"
     left="10"
     name="QualitySpeed"
-    top_delta="30" 
+    top_delta="35" 
     width="400">
       Quality &amp; speed:
   </text>
@@ -238,10 +217,7 @@
     max_val="512"
     name="DrawDistance"
     top_delta="40"
-    width="330">
-    <slider.mouse_down_callback
-      function="Pref.AutoAdjustWarning" />
-  </slider>
+    width="330" />
   <text
     type="string"
     length="1"
@@ -282,7 +258,7 @@
     <check_box.commit_callback
       function="Pref.RenderOptionUpdate" />
   </check_box>
-
+  
   <slider
     control_name="IndirectMaxComplexity"
     tool_tip="Controls at what point a visually complex avatar is drawn as a JellyDoll"
@@ -298,7 +274,7 @@
     max_val="101"
     name="IndirectMaxComplexity"
     show_text="false"
-    top_delta="34"
+    top_delta="60"
     width="300">
     <slider.commit_callback
       function="Pref.UpdateIndirectMaxComplexity"

@@ -67,39 +67,6 @@
    text_color="White"
    height="18"
    layout="topleft"
-   top_pad="20"
-   left="20"
-   name="auto_lbl"
-   width="105">
-    Automatic settings
-  </text>
-  <check_box
-   control_name="AutoFPS"
-   height="16"
-   initial_value="true"
-   label="Allow system to choose settings for best experience"
-   label_text.text_color="White"
-   label_text.v_pad="-1"
-   label_text.h_pad="3"
-   layout="topleft"
-   left_pad="30"
-   name="AutoFPS"
-   width="256">
-  </check_box>
-  <view_border
-   bevel_style="in"
-   height="0"
-   layout="topleft"
-   name="border1"
-   left="20"
-   top_pad="12"
-   width="540"/>
-  <text
-   follows="left|top"
-   font="SansSerifSmall"
-   text_color="White"
-   height="18"
-   layout="topleft"
    top_pad="30"
    name="quality_lbl"
    width="100">
@@ -240,8 +207,6 @@
     name="draw_distance"
     left_pad="5"
     width="250">
-    <slider.mouse_down_callback
-      function="Pref.AutoAdjustWarning" />
   </slider>
   <text
     type="string"
@@ -520,7 +485,7 @@
    font="SansSerifSmall"
    height="18"
    layout="topleft"
-   top="130"
+   top="80"
    left="213"
    name="1_lbl"
    width="7">
