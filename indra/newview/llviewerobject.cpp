@@ -415,7 +415,7 @@ void LLViewerObject::deleteTEImages()
 		mTESpecularMaps = NULL;
 	}	
 
-    mGLTFAlbedoMaps.clear();
+    mGLTFBaseColorMaps.clear();
     mGLTFNormalMaps.clear();
     mGLTFMetallicRoughnessMaps.clear();
     mGLTFEmissiveMaps.clear();
@@ -4753,7 +4753,7 @@ void LLViewerObject::setNumTEs(const U8 num_tes)
 			mTENormalMaps = new_normmaps;
 			mTESpecularMaps = new_specmaps;
 
-            mGLTFAlbedoMaps.resize(num_tes);
+            mGLTFBaseColorMaps.resize(num_tes);
             mGLTFNormalMaps.resize(num_tes);
             mGLTFMetallicRoughnessMaps.resize(num_tes);
             mGLTFEmissiveMaps.resize(num_tes);
@@ -4943,14 +4943,14 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     if (mat != nullptr)
     {
-        mGLTFAlbedoMaps[te] = fetch_texture(mat->mAlbedoId);
+        mGLTFBaseColorMaps[te] = fetch_texture(mat->mBaseColorId);
         mGLTFNormalMaps[te] = fetch_texture(mat->mNormalId);
         mGLTFMetallicRoughnessMaps[te] = fetch_texture(mat->mMetallicRoughnessId);
         mGLTFEmissiveMaps[te] = fetch_texture(mat->mEmissiveId);
     }
     else
     {
-        mGLTFAlbedoMaps[te] = nullptr;
+        mGLTFBaseColorMaps[te] = nullptr;
         mGLTFNormalMaps[te] = nullptr;
         mGLTFMetallicRoughnessMaps[te] = nullptr;
         mGLTFEmissiveMaps[te] = nullptr;

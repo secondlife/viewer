@@ -42,12 +42,12 @@ namespace LLTinyGLTFHelper
     LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index);
 
     void initFetchedTextures(tinygltf::Material& material,
-        LLPointer<LLImageRaw>& albedo_img,
+        LLPointer<LLImageRaw>& base_color_img,
         LLPointer<LLImageRaw>& normal_img,
         LLPointer<LLImageRaw>& mr_img,
         LLPointer<LLImageRaw>& emissive_img,
         LLPointer<LLImageRaw>& occlusion_img,
-        LLPointer<LLViewerFetchedTexture>& albedo_tex,
+        LLPointer<LLViewerFetchedTexture>& base_color_tex,
         LLPointer<LLViewerFetchedTexture>& normal_tex,
         LLPointer<LLViewerFetchedTexture>& mr_tex,
         LLPointer<LLViewerFetchedTexture>& emissive_tex);

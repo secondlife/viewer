@@ -60,7 +60,7 @@
 #include <strstream>
 
 
-const std::string MATERIAL_ALBEDO_DEFAULT_NAME = "Albedo";
+const std::string MATERIAL_BASE_COLOR_DEFAULT_NAME = "Base Color";
 const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
@@ -101,12 +101,12 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
 
 BOOL LLMaterialEditor::postBuild()
 {
-    mAlbedoTextureCtrl = getChild<LLTextureCtrl>("albedo_texture");
+    mBaseColorTextureCtrl = getChild<LLTextureCtrl>("base_color_texture");
     mMetallicTextureCtrl = getChild<LLTextureCtrl>("metallic_roughness_texture");
     mEmissiveTextureCtrl = getChild<LLTextureCtrl>("emissive_texture");
     mNormalTextureCtrl = getChild<LLTextureCtrl>("normal_texture");
 
-    mAlbedoTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitAlbedoTexture, this, _1, _2));
+    mBaseColorTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitBaseColorTexture, this, _1, _2));
     mMetallicTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitMetallicTexture, this, _1, _2));
     mEmissiveTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitEmissiveTexture, this, _1, _2));
     mNormalTextureCtrl->setCommitCallback(boost::bind(&LLMaterialEditor::onCommitNormalTexture, this, _1, _2));
@@ -116,7 +116,7 @@ BOOL LLMaterialEditor::postBuild()
     childSetAction("cancel", boost::bind(&LLMaterialEditor::onClickCancel, this));
 
     S32 upload_cost = LLAgentBenefitsMgr::current().getTextureUploadCost();
-    getChild<LLUICtrl>("albedo_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
+    getChild<LLUICtrl>("base_color_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
     getChild<LLUICtrl>("metallic_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
     getChild<LLUICtrl>("emissive_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
     getChild<LLUICtrl>("normal_upload_fee")->setTextArg("[FEE]", llformat("%d", upload_cost));
@@ -130,8 +130,8 @@ BOOL LLMaterialEditor::postBuild()
  
     childSetCommitCallback("double sided", changes_callback, NULL);
 
-    // Albedo
-    childSetCommitCallback("albedo color", changes_callback, NULL);
+    // BaseColor
+    childSetCommitCallback("base color", changes_callback, NULL);
     childSetCommitCallback("transparency", changes_callback, NULL);
     childSetCommitCallback("alpha mode", changes_callback, NULL);
     childSetCommitCallback("alpha cutoff", changes_callback, NULL);
@@ -177,18 +177,18 @@ void LLMaterialEditor::onClose(bool app_quitting)
     LLPreview::onClose(app_quitting);
 }
 
-LLUUID LLMaterialEditor::getAlbedoId()
+LLUUID LLMaterialEditor::getBaseColorId()
 {
-    return mAlbedoTextureCtrl->getValue().asUUID();
+    return mBaseColorTextureCtrl->getValue().asUUID();
 }
 
-void LLMaterialEditor::setAlbedoId(const LLUUID& id)
+void LLMaterialEditor::setBaseColorId(const LLUUID& id)
 {
-    mAlbedoTextureCtrl->setValue(id);
-    mAlbedoTextureCtrl->setDefaultImageAssetID(id);
+    mBaseColorTextureCtrl->setValue(id);
+    mBaseColorTextureCtrl->setDefaultImageAssetID(id);
 }
 
-void LLMaterialEditor::setAlbedoUploadId(const LLUUID& id)
+void LLMaterialEditor::setBaseColorUploadId(const LLUUID& id)
 {
     // Might be better to use local textures and
     // assign a fee in case of a local texture
@@ -196,23 +196,23 @@ void LLMaterialEditor::setAlbedoUploadId(const LLUUID& id)
     {
         // todo: this does not account for posibility of texture
         // being from inventory, need to check that
-        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+        childSetValue("base_color_upload_fee", getString("upload_fee_string"));
         // Only set if we will need to upload this texture
-        mAlbedoTextureUploadId = id;
+        mBaseColorTextureUploadId = id;
     }
     setHasUnsavedChanges(true);
 }
 
-LLColor4 LLMaterialEditor::getAlbedoColor()
+LLColor4 LLMaterialEditor::getBaseColor()
 {
-    LLColor4 ret = linearColor4(LLColor4(childGetValue("albedo color")));
+    LLColor4 ret = linearColor4(LLColor4(childGetValue("base color")));
     ret.mV[3] = getTransparency();
     return ret;
 }
 
-void LLMaterialEditor::setAlbedoColor(const LLColor4& color)
+void LLMaterialEditor::setBaseColor(const LLColor4& color)
 {
-    childSetValue("albedo color", srgbColor4(color).getValue());
+    childSetValue("base color", srgbColor4(color).getValue());
     setTransparency(color.mV[3]);
 }
 
@@ -370,7 +370,7 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
     }
 
     S32 upload_texture_count = 0;
-    if (mAlbedoTextureUploadId.notNull() && mAlbedoTextureUploadId == getAlbedoId())
+    if (mBaseColorTextureUploadId.notNull() && mBaseColorTextureUploadId == getBaseColorId())
     {
         upload_texture_count++;
     }
@@ -401,23 +401,23 @@ void LLMaterialEditor::setCanSave(BOOL value)
     childSetEnabled("save", value);
 }
 
-void LLMaterialEditor::onCommitAlbedoTexture(LLUICtrl * ctrl, const LLSD & data)
+void LLMaterialEditor::onCommitBaseColorTexture(LLUICtrl * ctrl, const LLSD & data)
 {
     // might be better to use arrays, to have a single callback
     // and not to repeat the same thing for each tecture control
-    LLUUID new_val = mAlbedoTextureCtrl->getValue().asUUID();
-    if (new_val == mAlbedoTextureUploadId && mAlbedoTextureUploadId.notNull())
+    LLUUID new_val = mBaseColorTextureCtrl->getValue().asUUID();
+    if (new_val == mBaseColorTextureUploadId && mBaseColorTextureUploadId.notNull())
     {
-        childSetValue("albedo_upload_fee", getString("upload_fee_string"));
+        childSetValue("base_color_upload_fee", getString("upload_fee_string"));
     }
     else
     {
         // Texture picker has 'apply now' with 'cancel' support.
-        // Keep mAlbedoJ2C and mAlbedoFetched, it's our storage in
+        // Keep mBaseColorJ2C and mBaseColorFetched, it's our storage in
         // case user decides to cancel changes.
-        // Without mAlbedoFetched, viewer will eventually cleanup
+        // Without mBaseColorFetched, viewer will eventually cleanup
         // the texture that is not in use
-        childSetValue("albedo_upload_fee", getString("no_upload_fee_string"));
+        childSetValue("base_color_upload_fee", getString("no_upload_fee_string"));
     }
     setHasUnsavedChanges(true);
     applyToSelection();
@@ -547,19 +547,19 @@ void LLMaterialEditor::getGLTFModel(tinygltf::Model& model)
     model.materials.resize(1);
     tinygltf::PbrMetallicRoughness& pbrMaterial = model.materials[0].pbrMetallicRoughness;
 
-    // write albedo
-    LLColor4 albedo_color = getAlbedoColor();
-    albedo_color.mV[3] = getTransparency();
-    write_color(albedo_color, pbrMaterial.baseColorFactor);
+    // write base color
+    LLColor4 base_color = getBaseColor();
+    base_color.mV[3] = getTransparency();
+    write_color(base_color, pbrMaterial.baseColorFactor);
 
     model.materials[0].alphaCutoff = getAlphaCutoff();
     model.materials[0].alphaMode = getAlphaMode();
 
-    LLUUID albedo_id = getAlbedoId();
+    LLUUID base_color_id = getBaseColorId();
 
-    if (albedo_id.notNull())
+    if (base_color_id.notNull())
     {
-        U32 texture_idx = write_texture(albedo_id, model);
+        U32 texture_idx = write_texture(base_color_id, model);
 
         pbrMaterial.baseColorTexture.index = texture_idx;
     }
@@ -677,9 +677,9 @@ const std::string LLMaterialEditor::buildMaterialDescription()
     // control UUI for NULL is a valid metric for if it was loaded
     // or not but I suspect this code will change a lot so may need
     // to revisit
-    if (!mAlbedoTextureCtrl->getValue().asUUID().isNull())
+    if (!mBaseColorTextureCtrl->getValue().asUUID().isNull())
     {
-        desc << mAlbedoName;
+        desc << mBaseColorName;
         desc << ", ";
     }
     if (!mMetallicTextureCtrl->getValue().asUUID().isNull())
@@ -1050,22 +1050,22 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
 }
 
 static void pack_textures(
-    LLPointer<LLImageRaw>& albedo_img,
+    LLPointer<LLImageRaw>& base_color_img,
     LLPointer<LLImageRaw>& normal_img,
     LLPointer<LLImageRaw>& mr_img,
     LLPointer<LLImageRaw>& emissive_img,
     LLPointer<LLImageRaw>& occlusion_img,
-    LLPointer<LLImageJ2C>& albedo_j2c,
+    LLPointer<LLImageJ2C>& base_color_j2c,
     LLPointer<LLImageJ2C>& normal_j2c,
     LLPointer<LLImageJ2C>& mr_j2c,
     LLPointer<LLImageJ2C>& emissive_j2c)
 {
     // NOTE : remove log spam and lossless vs lossy comparisons when the logs are no longer useful
 
-    if (albedo_img)
+    if (base_color_img)
     {
-        albedo_j2c = LLViewerTextureList::convertToUploadFile(albedo_img);
-        LL_INFOS() << "Albedo: " << albedo_j2c->getDataSize() << LL_ENDL;
+        base_color_j2c = LLViewerTextureList::convertToUploadFile(base_color_img);
+        LL_INFOS() << "BaseColor: " << base_color_j2c->getDataSize() << LL_ENDL;
     }
 
     if (normal_img)
@@ -1146,8 +1146,8 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
     model_out.asset.version = "2.0";
     model_out.materials.resize(1);
 
-    // get albedo texture
-    LLPointer<LLImageRaw> albedo_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mAlbedoName);
+    // get base color texture
+    LLPointer<LLImageRaw> base_color_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index, mBaseColorName);
     // get normal map
     LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index, mNormalName);
     // get metallic-roughness texture
@@ -1162,20 +1162,20 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
         occlusion_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.occlusionTexture.index, tmp);
     }
 
-    LLTinyGLTFHelper::initFetchedTextures(material_in, albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        mAlbedoFetched, mNormalFetched, mMetallicRoughnessFetched, mEmissiveFetched);
-    pack_textures(albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-        mAlbedoJ2C, mNormalJ2C, mMetallicRoughnessJ2C, mEmissiveJ2C);
+    LLTinyGLTFHelper::initFetchedTextures(material_in, base_color_img, normal_img, mr_img, emissive_img, occlusion_img,
+        mBaseColorFetched, mNormalFetched, mMetallicRoughnessFetched, mEmissiveFetched);
+    pack_textures(base_color_img, normal_img, mr_img, emissive_img, occlusion_img,
+        mBaseColorJ2C, mNormalJ2C, mMetallicRoughnessJ2C, mEmissiveJ2C);
     
-    LLUUID albedo_id;
-    if (mAlbedoFetched.notNull())
+    LLUUID base_color_id;
+    if (mBaseColorFetched.notNull())
     {
-        mAlbedoFetched->forceToSaveRawImage(0, F32_MAX);
-        albedo_id = mAlbedoFetched->getID();
+        mBaseColorFetched->forceToSaveRawImage(0, F32_MAX);
+        base_color_id = mBaseColorFetched->getID();
         
-        if (mAlbedoName.empty())
+        if (mBaseColorName.empty())
         {
-            mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
+            mBaseColorName = MATERIAL_BASE_COLOR_DEFAULT_NAME;
         }
     }
 
@@ -1215,8 +1215,8 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
         }
     }
 
-    setAlbedoId(albedo_id);
-    setAlbedoUploadId(albedo_id);
+    setBaseColorId(base_color_id);
+    setBaseColorUploadId(base_color_id);
     setMetallicRoughnessId(mr_id);
     setMetallicRoughnessUploadId(mr_id);
     setEmissiveId(emissive_id);
@@ -1245,16 +1245,16 @@ bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_texture
             S32 index;
             LLUUID id;
 
-            // get albedo texture
+            // get base color texture
             index = material_in.pbrMetallicRoughness.baseColorTexture.index;
             if (index >= 0)
             {
                 id.set(model.images[index].uri);
-                setAlbedoId(id);
+                setBaseColorId(id);
             }
             else
             {
-                setAlbedoId(LLUUID::null);
+                setBaseColorId(LLUUID::null);
             }
 
             // get normal map
@@ -1297,7 +1297,7 @@ bool LLMaterialEditor::setFromGltfModel(tinygltf::Model& model, bool set_texture
         setAlphaMode(material_in.alphaMode);
         setAlphaCutoff(material_in.alphaCutoff);
 
-        setAlbedoColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
+        setBaseColor(LLTinyGLTFHelper::getColor(material_in.pbrMetallicRoughness.baseColorFactor));
         setEmissiveColor(LLTinyGLTFHelper::getColor(material_in.emissiveFactor));
 
         setMetalnessFactor(material_in.pbrMetallicRoughness.metallicFactor);
@@ -1331,7 +1331,7 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
         stripped_uri = stripped_uri.substr(0, max_texture_name_length - 1);
     }
 
-    // We intend to append the type of texture (albedo, emissive etc.) to the 
+    // We intend to append the type of texture (base color, emissive etc.) to the 
     // name of the texture but sometimes the creator already did that.  To try
     // to avoid repeats (not perfect), we look for the texture type in the name
     // and if we find it, do not append the type, later on. One way this fails
@@ -1357,7 +1357,7 @@ const std::string LLMaterialEditor::getImageNameFromUri(std::string image_uri, c
         // so we can include everything
         if (stripped_uri.length() > 0)
         {
-            // example "DamagedHelmet: base layer (Albedo)"
+            // example "DamagedHelmet: base layer"
             return STRINGIZE(
                 mMaterialNameShort <<
                 ": " <<
@@ -1476,17 +1476,17 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, tinygltf
     {
         const tinygltf::Material& first_material = model.materials[0];
 
-        mAlbedoName = MATERIAL_ALBEDO_DEFAULT_NAME;
-        // note: unlike the other textures, albedo doesn't have its own entry 
+        mBaseColorName = MATERIAL_BASE_COLOR_DEFAULT_NAME;
+        // note: unlike the other textures, base color doesn't have its own entry 
         // in the tinyGLTF Material struct. Rather, it is taken from a 
         // sub-texture in the pbrMetallicRoughness member
         int index = first_material.pbrMetallicRoughness.baseColorTexture.index;
         if (index > -1 && index < model.images.size())
         {
             // sanitize the name we decide to use for each texture
-            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_ALBEDO_DEFAULT_NAME);
+            std::string texture_name = getImageNameFromUri(model.images[index].uri, MATERIAL_BASE_COLOR_DEFAULT_NAME);
             LLInventoryObject::correctInventoryName(texture_name);
-            mAlbedoName = texture_name;
+            mBaseColorName = texture_name;
         }
 
         mEmissiveName = MATERIAL_EMISSIVE_DEFAULT_NAME;
@@ -1559,9 +1559,9 @@ void LLMaterialEditor::applyToSelection()
 
 void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 {
-    mat->mAlbedoColor = getAlbedoColor();
-    mat->mAlbedoColor.mV[3] = getTransparency();
-    mat->mAlbedoId = getAlbedoId();
+    mat->mBaseColor = getBaseColor();
+    mat->mBaseColor.mV[3] = getTransparency();
+    mat->mBaseColorId = getBaseColorId();
 
     mat->mNormalId = getNormalId();
 
@@ -1579,8 +1579,8 @@ void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
 
 void LLMaterialEditor::setFromGLTFMaterial(LLGLTFMaterial* mat)
 {
-    setAlbedoColor(mat->mAlbedoColor);
-    setAlbedoId(mat->mAlbedoId);
+    setBaseColor(mat->mBaseColor);
+    setBaseColorId(mat->mBaseColorId);
     setNormalId(mat->mNormalId);
 
     setMetallicRoughnessId(mat->mMetallicRoughnessId);
@@ -1801,23 +1801,23 @@ S32 LLMaterialEditor::saveTextures()
 {
     S32 work_count = 0;
     LLSD key = getKey(); // must be locally declared for lambda's capture to work
-    if (mAlbedoTextureUploadId == getAlbedoId() && mAlbedoTextureUploadId.notNull())
+    if (mBaseColorTextureUploadId == getBaseColorId() && mBaseColorTextureUploadId.notNull())
     {
         mUploadingTexturesCount++;
         work_count++;
-        saveTexture(mAlbedoJ2C, mAlbedoName, mAlbedoTextureUploadId, [key](LLUUID newAssetId, LLSD response)
+        saveTexture(mBaseColorJ2C, mBaseColorName, mBaseColorTextureUploadId, [key](LLUUID newAssetId, LLSD response)
         {
             LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", key);
             if (me)
             {
                 if (response["success"].asBoolean())
                 {
-                    me->setAlbedoId(newAssetId);
+                    me->setBaseColorId(newAssetId);
                 }
                 else
                 {
                     // To make sure that we won't retry (some failures can cb immediately)
-                    me->setAlbedoId(LLUUID::null);
+                    me->setBaseColorId(LLUUID::null);
                 }
                 me->mUploadingTexturesCount--;
 
@@ -1902,17 +1902,17 @@ S32 LLMaterialEditor::saveTextures()
     }
 
     // discard upload buffers once textures have been saved
-    mAlbedoJ2C = nullptr;
+    mBaseColorJ2C = nullptr;
     mNormalJ2C = nullptr;
     mEmissiveJ2C = nullptr;
     mMetallicRoughnessJ2C = nullptr;
 
-    mAlbedoFetched = nullptr;
+    mBaseColorFetched = nullptr;
     mNormalFetched = nullptr;
     mMetallicRoughnessFetched = nullptr;
     mEmissiveFetched = nullptr;
 
-    mAlbedoTextureUploadId.setNull();
+    mBaseColorTextureUploadId.setNull();
     mNormalTextureUploadId.setNull();
     mMetallicTextureUploadId.setNull();
     mEmissiveTextureUploadId.setNull();

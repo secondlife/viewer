@@ -43,12 +43,12 @@ public:
         ALPHA_MODE_MASK
     };
 
-    LLUUID mAlbedoId;
+    LLUUID mBaseColorId;
     LLUUID mNormalId;
     LLUUID mMetallicRoughnessId;
     LLUUID mEmissiveId;
 
-    LLColor4 mAlbedoColor = LLColor4(1,1,1,1);
+    LLColor4 mBaseColor = LLColor4(1,1,1,1);
     LLColor3 mEmissiveColor = LLColor3(0,0,0);
 
     F32 mMetallicFactor = 0.f;

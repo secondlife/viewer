@@ -79,7 +79,7 @@ private: /* members */
     S32         mUpdateRetries;
 
     // material needs to maintain textures
-    LLPointer<LLViewerFetchedTexture> mAlbedoFetched;
+    LLPointer<LLViewerFetchedTexture> mBaseColorFetched;
     LLPointer<LLViewerFetchedTexture> mNormalFetched;
     LLPointer<LLViewerFetchedTexture> mMRFetched;
     LLPointer<LLViewerFetchedTexture> mEmissiveFetched;

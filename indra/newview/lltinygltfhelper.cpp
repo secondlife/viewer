@@ -62,19 +62,19 @@ void copy_red_channel(LLPointer<LLImageRaw>& src_img, LLPointer<LLImageRaw>& dst
 }
 
 void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
-    LLPointer<LLImageRaw>& albedo_img,
+    LLPointer<LLImageRaw>& base_color_img,
     LLPointer<LLImageRaw>& normal_img,
     LLPointer<LLImageRaw>& mr_img,
     LLPointer<LLImageRaw>& emissive_img,
     LLPointer<LLImageRaw>& occlusion_img,
-    LLPointer<LLViewerFetchedTexture>& albedo_tex,
+    LLPointer<LLViewerFetchedTexture>& base_color_tex,
     LLPointer<LLViewerFetchedTexture>& normal_tex,
     LLPointer<LLViewerFetchedTexture>& mr_tex,
     LLPointer<LLViewerFetchedTexture>& emissive_tex)
 {
-    if (albedo_img)
+    if (base_color_img)
     {
-        albedo_tex = LLViewerTextureManager::getFetchedTexture(albedo_img, FTType::FTT_LOCAL_FILE, true);
+        base_color_tex = LLViewerTextureManager::getFetchedTexture(base_color_img, FTType::FTT_LOCAL_FILE, true);
     }
 
     if (normal_img)
@@ -128,15 +128,15 @@ void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
 
     auto& material_in = model.materials[0];
 
-    // get albedo texture
+    // get base color texture
     index = material_in.pbrMetallicRoughness.baseColorTexture.index;
     if (index >= 0)
     {
-        mat->mAlbedoId.set(model.images[index].uri);
+        mat->mBaseColorId.set(model.images[index].uri);
     }
     else
     {
-        mat->mAlbedoId.setNull();
+        mat->mBaseColorId.setNull();
     }
 
     // get normal map
@@ -175,7 +175,7 @@ void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
     mat->setAlphaMode(material_in.alphaMode);
     mat->mAlphaCutoff = llclamp((F32)material_in.alphaCutoff, 0.f, 1.f);
 
-    mat->mAlbedoColor = getColor(material_in.pbrMetallicRoughness.baseColorFactor);
+    mat->mBaseColor= getColor(material_in.pbrMetallicRoughness.baseColorFactor);
     mat->mEmissiveColor = getColor(material_in.emissiveFactor);
 
     mat->mMetallicFactor = llclamp((F32)material_in.pbrMetallicRoughness.metallicFactor, 0.f, 1.f);

@@ -1336,7 +1336,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 
     if (tep->getGLTFMaterial())
     {
-        color = tep->getGLTFMaterial()->mAlbedoColor;
+        color = tep->getGLTFMaterial()->mBaseColor;
     }
 
 	if (rebuild_color)

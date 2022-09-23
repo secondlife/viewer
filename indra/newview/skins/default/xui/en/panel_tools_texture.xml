@@ -191,8 +191,8 @@
             visible = "false"
             name="radio_pbr_type">
                 <radio_item
-                label="Albedo/emissive"
-                name="Albedo/emissive"
+                label="Color/emissive"
+                name="Color/emissive"
                 top="0" 
                 layout="topleft"
                 height="16" 

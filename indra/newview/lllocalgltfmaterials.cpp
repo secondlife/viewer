@@ -259,8 +259,8 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
             std::string folder = gDirUtilp->getDirName(filename_lc);
             tinygltf::Material material_in = model_in.materials[0];
 
-            // get albedo texture
-            LLPointer<LLImageRaw> albedo_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
+            // get base color texture
+            LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
             // get normal map
             LLPointer<LLImageRaw> normal_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.normalTexture.index);
             // get metallic-roughness texture
@@ -276,12 +276,12 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
 
             // todo: pass it into local bitmaps?
             LLTinyGLTFHelper::initFetchedTextures(material_in,
-                albedo_img, normal_img, mr_img, emissive_img, occlusion_img,
-                mAlbedoFetched, mNormalFetched, mMRFetched, mEmissiveFetched);
+                base_img, normal_img, mr_img, emissive_img, occlusion_img,
+                mBaseColorFetched, mNormalFetched, mMRFetched, mEmissiveFetched);
 
-            if (mAlbedoFetched)
+            if (mBaseColorFetched)
             {
-                mat->mAlbedoId = mAlbedoFetched->getID();
+                mat->mBaseColorId= mBaseColorFetched->getID();
             }
             if (mNormalFetched)
             {

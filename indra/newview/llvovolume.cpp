@@ -5520,13 +5520,13 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
             LLViewerObject* vobj = facep->getViewerObject();
             U8 te = facep->getTEOffset();
 
-            draw_info->mTexture = vobj->getGLTFAlbedoMap(te);
+            draw_info->mTexture = vobj->getGLTFBaseColorMap(te);
             draw_info->mNormalMap = vobj->getGLTFNormalMap(te);
             draw_info->mSpecularMap = vobj->getGLTFMetallicRoughnessMap(te);
             draw_info->mEmissiveMap = vobj->getGLTFEmissiveMap(te);
             if (draw_info->mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
             {
-                draw_info->mAlphaMaskCutoff = gltf_mat->mAlphaCutoff * gltf_mat->mAlbedoColor.mV[3];
+                draw_info->mAlphaMaskCutoff = gltf_mat->mAlphaCutoff * gltf_mat->mBaseColor.mV[3];
             }
             else
             {

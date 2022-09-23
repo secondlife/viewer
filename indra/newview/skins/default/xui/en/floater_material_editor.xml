@@ -50,7 +50,7 @@
              layout="topleft"
              left="1"
              mouse_opaque="false"
-             name="albedo_texture_pnl"
+             name="base_color_texture_pnl"
              top_pad="5"
          >
         <text
@@ -62,8 +62,8 @@
                    layout="topleft"
                    left="10"
                    top="5"
-                   width="64">
-          Albedo:
+                   width="128">
+          Base Color:
         </text>
         <texture_picker
                  can_apply_immediately="true"
@@ -75,8 +75,8 @@
                  height="151"
                  layout="topleft"
                  left="10"
-                 name="albedo_texture"
-                 tool_tip="Albedo map.  Alpha channel is optional and used for transparency."
+                 name="base_color_texture"
+                 tool_tip="Base Color map.  Alpha channel is optional and used for transparency."
                  width="128" />
         <text
                    type="string"
@@ -88,7 +88,7 @@
                    layout="topleft"
                    left="10"
                    top_pad="-17"
-                   name="albedo_upload_fee"
+                   name="base_color_upload_fee"
              >
           No upload fee
         </text>
@@ -111,7 +111,7 @@
                           layout="topleft"
                           left_delta="0"
                           top_pad="5"
-                          name="albedo color"
+                          name="base color"
                           width="40" />
         <text
                  type="string"

@@ -108,14 +108,14 @@ public:
 
     void onClose(bool app_quitting) override;
 
-    LLUUID getAlbedoId();
-    void setAlbedoId(const LLUUID& id);
-    void setAlbedoUploadId(const LLUUID& id);
+    LLUUID getBaseColorId();
+    void setBaseColorId(const LLUUID& id);
+    void setBaseColorUploadId(const LLUUID& id);
 
-    LLColor4 getAlbedoColor();
+    LLColor4 getBaseColor();
 
-    // sets both albedo color and transparency
-    void    setAlbedoColor(const LLColor4& color);
+    // sets both base color and transparency
+    void    setBaseColor(const LLColor4& color);
 
     F32     getTransparency();
     void     setTransparency(F32 transparency);
@@ -156,7 +156,7 @@ public:
     void setCanSaveAs(BOOL value);
     void setCanSave(BOOL value);
 
-    void onCommitAlbedoTexture(LLUICtrl* ctrl, const LLSD& data);
+    void onCommitBaseColorTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitEmissiveTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitNormalTexture(LLUICtrl* ctrl, const LLSD& data);
@@ -169,32 +169,32 @@ private:
     LLUUID mAssetID;
     LLUUID mObjectID;
 
-    LLTextureCtrl* mAlbedoTextureCtrl;
+    LLTextureCtrl* mBaseColorTextureCtrl;
     LLTextureCtrl* mMetallicTextureCtrl;
     LLTextureCtrl* mEmissiveTextureCtrl;
     LLTextureCtrl* mNormalTextureCtrl;
 
     // 'Default' texture, unless it's null or from inventory is the one with the fee
-    LLUUID mAlbedoTextureUploadId;
+    LLUUID mBaseColorTextureUploadId;
     LLUUID mMetallicTextureUploadId;
     LLUUID mEmissiveTextureUploadId;
     LLUUID mNormalTextureUploadId;
 
     // last known name of each texture
-    std::string mAlbedoName;
+    std::string mBaseColorName;
     std::string mNormalName;
     std::string mMetallicRoughnessName;
     std::string mEmissiveName;
 
     // keep pointers to fetched textures or viewer will remove them
     // if user temporary selects something else with 'apply now'
-    LLPointer<LLViewerFetchedTexture> mAlbedoFetched;
+    LLPointer<LLViewerFetchedTexture> mBaseColorFetched;
     LLPointer<LLViewerFetchedTexture> mNormalFetched;
     LLPointer<LLViewerFetchedTexture> mMetallicRoughnessFetched;
     LLPointer<LLViewerFetchedTexture> mEmissiveFetched;
 
     // J2C versions of packed buffers for uploading
-    LLPointer<LLImageJ2C> mAlbedoJ2C;
+    LLPointer<LLImageJ2C> mBaseColorJ2C;
     LLPointer<LLImageJ2C> mNormalJ2C;
     LLPointer<LLImageJ2C> mMetallicRoughnessJ2C;
     LLPointer<LLImageJ2C> mEmissiveJ2C;

@@ -105,7 +105,7 @@ const S32 MATTYPE_SPECULAR = 2;		// Specular map
 const S32 ALPHAMODE_MASK = 2;		// Alpha masking mode
 const S32 BUMPY_TEXTURE = 18;		// use supplied normal map
 const S32 SHINY_TEXTURE = 4;		// use supplied specular map
-const S32 PBRTYPE_ALBEDO = 0;		// PBR Albedo
+const S32 PBRTYPE_BASE_COLOR = 0;		// PBR Base Color
 const S32 PBRTYPE_NORMAL = 1;		// PBR Normal
 const S32 PBRTYPE_METALLIC = 2;		// PBR Metallic
 
@@ -344,7 +344,7 @@ BOOL	LLPanelFace::postBuild()
     if (radio_pbr_type)
     {
         radio_pbr_type->setCommitCallback(LLPanelFace::onCommitPbrType, this);
-        radio_pbr_type->selectNthItem(PBRTYPE_ALBEDO);
+        radio_pbr_type->selectNthItem(PBRTYPE_BASE_COLOR);
     }
 
 	mCtrlGlow = getChild<LLSpinCtrl>("glow");
@@ -897,9 +897,9 @@ void LLPanelFace::updateUI(bool force_set_values /*false*/)
         radio_mat_type->setEnabled(editable);
 
         LLRadioGroup* radio_pbr_type = getChild<LLRadioGroup>("radio_pbr_type");
-        if (radio_pbr_type->getSelectedIndex() < PBRTYPE_ALBEDO)
+        if (radio_pbr_type->getSelectedIndex() < PBRTYPE_BASE_COLOR)
         {
-            radio_pbr_type->selectNthItem(PBRTYPE_ALBEDO);
+            radio_pbr_type->selectNthItem(PBRTYPE_BASE_COLOR);
         }
         radio_pbr_type->setEnabled(editable);
 
@@ -2570,7 +2570,7 @@ void LLPanelFace::updateVisibility()
 	bool show_texture = (show_media || (show_material && (material_type == MATTYPE_DIFFUSE) && mComboMatMedia->getEnabled()));
 	bool show_bumpiness = show_material && (material_type == MATTYPE_NORMAL) && mComboMatMedia->getEnabled();
 	bool show_shininess = show_material && (material_type == MATTYPE_SPECULAR) && mComboMatMedia->getEnabled();
-    bool show_pbr_albedo = show_pbr && (pbr_type == PBRTYPE_ALBEDO) && mComboMatMedia->getEnabled();
+    bool show_pbr_base_color = show_pbr && (pbr_type == PBRTYPE_BASE_COLOR) && mComboMatMedia->getEnabled();
     bool show_pbr_normal = show_pbr && (pbr_type == PBRTYPE_NORMAL) && mComboMatMedia->getEnabled();
     bool show_pbr_metallic = show_pbr && (pbr_type == PBRTYPE_METALLIC) && mComboMatMedia->getEnabled();
 
@@ -2594,11 +2594,11 @@ void LLPanelFace::updateVisibility()
 		updateAlphaControls();
 	}
     // texture scale and position controls are shared between bpr and non-pbr textures
-	getChildView("TexScaleU")->setVisible(show_texture || show_pbr_albedo);
-	getChildView("TexScaleV")->setVisible(show_texture || show_pbr_albedo);
-	getChildView("TexRot")->setVisible(show_texture || show_pbr_albedo);
-	getChildView("TexOffsetU")->setVisible(show_texture || show_pbr_albedo);
-	getChildView("TexOffsetV")->setVisible(show_texture || show_pbr_albedo);
+	getChildView("TexScaleU")->setVisible(show_texture || show_pbr_base_color);
+	getChildView("TexScaleV")->setVisible(show_texture || show_pbr_base_color);
+	getChildView("TexRot")->setVisible(show_texture || show_pbr_base_color);
+	getChildView("TexOffsetU")->setVisible(show_texture || show_pbr_base_color);
+	getChildView("TexOffsetV")->setVisible(show_texture || show_pbr_base_color);
 
 	// Specular map controls
 	getChildView("shinytexture control")->setVisible(show_shininess);
