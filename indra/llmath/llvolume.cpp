@@ -2102,14 +2102,11 @@ void LLVolume::regen()
 	createVolumeFaces();
 }
 
-void LLVolume::genTangents(S32 face, bool mikktspace)
+void LLVolume::genTangents(S32 face)
 {
     // generate legacy tangents for the specified face
-    // if mikktspace is true, only generate tangents if mikktspace tangents are not present (handles the case for non-mesh prims)
-    if (!mikktspace || mVolumeFaces[face].mMikktSpaceTangents == nullptr)
-    {
-        mVolumeFaces[face].createTangents();
-    }
+    llassert(!isMeshAssetLoaded() || mVolumeFaces[face].mTangents != nullptr); // if this is a complete mesh asset, we should already have tangents
+    mVolumeFaces[face].createTangents();
 }
 
 LLVolume::~LLVolume()
@@ -2492,15 +2489,7 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
             {
                 face.mNormalizedScale.set(1, 1, 1);
             }
-            if (mdl[i].has("NormalizedTranslation"))
-            {
-                face.mNormalizedTranslation.setValue(mdl[i]["NormalizedTranslation"]);
-            }
-            else
-            {
-                face.mNormalizedTranslation.set(1, 1, 1);
-            }
-
+            
 			LLVector4a pos_range;
 			pos_range.setSub(max_pos, min_pos);
 			LLVector2 tc_range2 = max_tc - min_tc;
@@ -2551,17 +2540,16 @@ bool LLVolume::unpackVolumeFaces(std::istream& is, S32 size)
 				}
 			}
 
-#if 0
+#if 0 // keep this code for now in case we decide to add support for on-the-wire tangents
             {
                 if (!tangent.empty())
                 {
-                    face.allocateTangents(face.mNumVertices, true);
+                    face.allocateTangents(face.mNumVertices);
                     U16* t = (U16*)&(tangent[0]);
 
-                    // store incoming tangents in mMikktSpaceTangents
-                    // NOTE: tangents coming from the asset may not be mikkt space, but they should always be used by the CLTF shaders to 
+                    // NOTE: tangents coming from the asset may not be mikkt space, but they should always be used by the GLTF shaders to 
                     // maintain compliance with the GLTF spec
-                    LLVector4a* t_out = face.mMikktSpaceTangents; 
+                    LLVector4a* t_out = face.mTangents; 
 
                     for (U32 j = 0; j < num_verts; ++j)
                     {
@@ -4111,7 +4099,7 @@ S32 LLVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& en
 		{
 			if (tangent_out != NULL) // if the caller wants tangents, we may need to generate them
 			{
-				genTangents(i);
+                genTangents(i);
 			}
 
 			if (isUnique())
@@ -4854,15 +4842,15 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 			mTangents = NULL;
 		}
 
-        if (src.mMikktSpaceTangents)
+        if (src.mTangents)
         {
-            allocateTangents(src.mNumVertices, true);
-            LLVector4a::memcpyNonAliased16((F32*)mMikktSpaceTangents, (F32*)src.mMikktSpaceTangents, vert_size);
+            allocateTangents(src.mNumVertices);
+            LLVector4a::memcpyNonAliased16((F32*)mTangents, (F32*)src.mTangents, vert_size);
         }
         else
         {
-            ll_aligned_free_16(mMikktSpaceTangents);
-            mMikktSpaceTangents = nullptr;
+            ll_aligned_free_16(mTangents);
+            mTangents = nullptr;
         }
 
 		if (src.mWeights)
@@ -4909,8 +4897,7 @@ LLVolumeFace& LLVolumeFace::operator=(const LLVolumeFace& src)
 
 	mOptimized = src.mOptimized;
     mNormalizedScale = src.mNormalizedScale;
-    mNormalizedTranslation = src.mNormalizedTranslation;
-    
+
 	//delete 
 	return *this;
 }
@@ -4937,8 +4924,6 @@ void LLVolumeFace::freeData()
 	mIndices = NULL;
 	ll_aligned_free_16(mTangents);
 	mTangents = NULL;
-    ll_aligned_free_16(mMikktSpaceTangents);
-    mMikktSpaceTangents = nullptr;
 	ll_aligned_free_16(mWeights);
 	mWeights = NULL;
 
@@ -5059,9 +5044,6 @@ void LLVolumeFace::remap()
     // Tangets are now invalid
     ll_aligned_free_16(mTangents);
     mTangents = NULL;
-
-    ll_aligned_free_16(mMikktSpaceTangents);
-    mMikktSpaceTangents = nullptr;
 
     // Assign new values
     mIndices = remap_indices;
@@ -5484,10 +5466,10 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
 	llassert(!mOptimized);
 	mOptimized = TRUE;
 
-    if (mMikktSpaceTangents == nullptr && gen_tangents && mNormals && mTexCoords)
-    { // make sure to generate mikkt space tangents for cache optimizing since the index buffer may change
-        allocateTangents(mNumVertices, true);
-
+    if (gen_tangents && mNormals && mTexCoords)
+    { // generate mikkt space tangents before cache optimizing since the index buffer may change
+        // a bit of a hack to do this here, but this function gets called exactly once for the lifetime of a mesh
+        // and is executed on a background thread
         SMikkTSpaceInterface ms;
 
         ms.m_getNumFaces = [](const SMikkTSpaceContext* pContext)
@@ -5573,7 +5555,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             allocateWeights(vert_count);
         }
 
-        allocateTangents(mNumVertices, true);
+        allocateTangents(mNumVertices);
 
         for (int i = 0; i < mNumIndices; ++i)
         {
@@ -5585,7 +5567,7 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             mNormals[dst_idx].load3(data.n[src_idx].mV);
             mTexCoords[dst_idx] = data.tc[src_idx];
 
-            mMikktSpaceTangents[dst_idx].loadua(data.t[src_idx].mV);
+            mTangents[dst_idx].loadua(data.t[src_idx].mV);
 
             if (mWeights)
             {
@@ -5605,10 +5587,10 @@ bool LLVolumeFace::cacheOptimize(bool gen_tangents)
             mPositions[i].mul(inv_scale);
             mNormals[i].mul(scale);
             mNormals[i].normalize3();
-            F32 w = mMikktSpaceTangents[i].getF32ptr()[3];
-            mMikktSpaceTangents[i].mul(scale);
-            mMikktSpaceTangents[i].normalize3();
-            mMikktSpaceTangents[i].getF32ptr()[3] = w;
+            F32 w = mTangents[i].getF32ptr()[3];
+            mTangents[i].mul(scale);
+            mTangents[i].normalize3();
+            mTangents[i].getF32ptr()[3] = w;
         }
     }
 
@@ -5703,7 +5685,6 @@ void LLVolumeFace::swapData(LLVolumeFace& rhs)
 	llswap(rhs.mPositions, mPositions);
 	llswap(rhs.mNormals, mNormals);
 	llswap(rhs.mTangents, mTangents);
-    llswap(rhs.mMikktSpaceTangents, mMikktSpaceTangents);
 	llswap(rhs.mTexCoords, mTexCoords);
 	llswap(rhs.mIndices,mIndices);
 	llswap(rhs.mNumVertices, mNumVertices);
@@ -6415,7 +6396,6 @@ void LLVolumeFace::createTangents()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_VOLUME;
 
-    
     if (!mTangents)
     {
         allocateTangents(mNumVertices);
@@ -6539,11 +6519,10 @@ void LLVolumeFace::pushVertex(const LLVector4a& pos, const LLVector4a& norm, con
 	mNumVertices++;	
 }
 
-void LLVolumeFace::allocateTangents(S32 num_verts, bool mikktspace)
+void LLVolumeFace::allocateTangents(S32 num_verts)
 {
-    auto& buff = mikktspace ? mMikktSpaceTangents : mTangents;
-	ll_aligned_free_16(buff);
-	buff = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
+	ll_aligned_free_16(mTangents);
+	mTangents = (LLVector4a*) ll_aligned_malloc_16(sizeof(LLVector4a)*num_verts);
 }
 
 void LLVolumeFace::allocateWeights(S32 num_verts)

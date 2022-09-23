@@ -873,7 +873,7 @@ public:
 	void createTangents();
 	
 	void resizeVertices(S32 num_verts);
-	void allocateTangents(S32 num_verts, bool mikktspace = false);
+	void allocateTangents(S32 num_verts);
 	void allocateWeights(S32 num_verts);
     void allocateJointIndices(S32 num_verts);
 	void resizeIndices(S32 num_indices);
@@ -947,7 +947,6 @@ public:
 	LLVector4a* mPositions; // Contains vertices, nortmals and texcoords
 	LLVector4a* mNormals; // pointer into mPositions
 	LLVector4a* mTangents;
-    LLVector4a* mMikktSpaceTangents = nullptr; // for GLTF rendering, use mikkt space tangents
 	LLVector2*  mTexCoords; // pointer into mPositions
 
 	// mIndices contains mNumIndices amount of elements.
@@ -984,7 +983,6 @@ public:
     // when encoding the source mesh into a unit cube
     // used for regenerating tangents
     LLVector3 mNormalizedScale = LLVector3(1,1,1);
-    LLVector3 mNormalizedTranslation;
 
 private:
 	BOOL createUnCutCubeCap(LLVolume* volume, BOOL partial_build = FALSE);
@@ -1031,7 +1029,7 @@ public:
 	void setDirty() { mPathp->setDirty(); mProfilep->setDirty(); }
 
 	void regen();
-    void genTangents(S32 face, bool mikktspace = false);
+    void genTangents(S32 face);
 
 	BOOL isConvex() const;
 	BOOL isCap(S32 face);

@@ -53,7 +53,6 @@ const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
 	: LLVolume(params, detail), 
       mNormalizedScale(1,1,1), 
-      mNormalizedTranslation(0,0,0), 
       mPelvisOffset( 0.0f ), 
       mStatus(NO_ERRORS), 
       mSubmodelID(0)
@@ -296,7 +295,7 @@ void LLModel::normalizeVolumeFaces()
 			// the positions to fit within the unit cube.
 			LLVector4a* pos = (LLVector4a*) face.mPositions;
 			LLVector4a* norm = (LLVector4a*) face.mNormals;
-            LLVector4a* t = (LLVector4a*)face.mMikktSpaceTangents;
+            LLVector4a* t = (LLVector4a*)face.mTangents;
 
 			for (U32 j = 0; j < face.mNumVertices; ++j)
 			{
@@ -329,10 +328,10 @@ void LLModel::normalizeVolumeFaces()
 		mNormalizedTranslation.set(trans.getF32ptr());
 		mNormalizedTranslation *= -1.f; 
 
+        // remember normalized scale so original dimensions can be recovered for mesh processing (i.e. tangent generation)
         for (auto& face : mVolumeFaces)
         {
             face.mNormalizedScale = mNormalizedScale;
-            face.mNormalizedTranslation = mNormalizedTranslation;
         }
 	}
 }
@@ -800,10 +799,10 @@ LLSD LLModel::writeModel(
 						}
 					}
 
-#if 0
-                    if (face.mMikktSpaceTangents)
+#if 0 // keep this code for now in case we want to support transporting tangents with mesh assets
+                    if (face.mTangents)
                     { //normals
-                        F32* tangent = face.mMikktSpaceTangents[j].getF32ptr();
+                        F32* tangent = face.mTangents[j].getF32ptr();
 
                         for (U32 k = 0; k < 4; ++k)
                         { //for each component
@@ -848,7 +847,6 @@ LLSD LLModel::writeModel(
 				mdl[model_names[idx]][i]["PositionDomain"]["Min"] = min_pos.getValue();
 				mdl[model_names[idx]][i]["PositionDomain"]["Max"] = max_pos.getValue();
                 mdl[model_names[idx]][i]["NormalizedScale"] = face.mNormalizedScale.getValue();
-                mdl[model_names[idx]][i]["NormalizedTranslation"] = face.mNormalizedTranslation.getValue();
 
 				mdl[model_names[idx]][i]["Position"] = verts;
 				
@@ -857,10 +855,12 @@ LLSD LLModel::writeModel(
 					mdl[model_names[idx]][i]["Normal"] = normals;
 				}
 
-                if (face.mMikktSpaceTangents)
+#if 0 // keep this code for now in case we decide to transport tangents with mesh assets
+                if (face.mTangents)
                 {
                     mdl[model_names[idx]][i]["Tangent"] = tangents;
                 }
+#endif
 
 				if (face.mTexCoords)
 				{

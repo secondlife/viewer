@@ -1549,7 +1549,7 @@ F32 LLModelPreview::genMeshOptimizerPerModel(LLModel *base_model, LLModel *targe
         {
             new_face.resizeIndices(buf_indices_copied);
             new_face.resizeVertices(buf_positions_copied);
-            new_face.allocateTangents(buf_positions_copied, true);
+            new_face.allocateTangents(buf_positions_copied);
             S32 idx_size = (buf_indices_copied * sizeof(U16) + 0xF) & ~0xF;
             LLVector4a::memcpyNonAliased16((F32*)new_face.mIndices, (F32*)buffer_indices, idx_size);
 
@@ -1839,7 +1839,6 @@ void LLModelPreview::genMeshOptimizerLODs(S32 which_lod, S32 meshopt_mode, U32 d
                 LLVolumeFace& src = base->getVolumeFace(i);
                 LLVolumeFace& dst = target_model->getVolumeFace(i);
                 dst.mNormalizedScale = src.mNormalizedScale;
-                dst.mNormalizedTranslation = src.mNormalizedTranslation;
             }
 
             S32 model_meshopt_mode = meshopt_mode;
