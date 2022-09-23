@@ -41,12 +41,29 @@ uniform float display_gamma;
 
 vec3 linear_to_srgb(vec3 cl);
 
+//=================================
+// borrowed noise from:
+//	<https://www.shadertoy.com/view/4dS3Wd>
+//	By Morgan McGuire @morgan3d, http://graphicscodex.com
+//
+float hash(float n) { return fract(sin(n) * 1e4); }
+
+float noise(float x) {
+	float i = floor(x);
+	float f = fract(x);
+	float u = f * f * (3.0 - 2.0 * f);
+	return mix(hash(i), hash(i + 1.0), u);
+}
+//=============================
+
 void main() 
 {
     //this is the one of the rare spots where diffuseRect contains linear color values (not sRGB)
     vec4 diff = texture2DRect(diffuseRect, vary_fragcoord);
-    //diff.rgb = pow(diff.rgb, vec3(display_gamma));
     diff.rgb = linear_to_srgb(diff.rgb);
+    vec3 seed = diff.rgb*vec3(vary_fragcoord.xy, vary_fragcoord.x+vary_fragcoord.y)*2048;
+    vec3 nz = vec3(noise(seed.r), noise(seed.g), noise(seed.b));
+    diff.rgb += nz*0.008;
     frag_color = diff;
 }
 

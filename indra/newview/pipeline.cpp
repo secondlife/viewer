@@ -7731,7 +7731,7 @@ void LLPipeline::renderFinalize()
                            RenderDepthOfField &&
                             !gCubeSnapshot;
 
-        bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete();
+        bool multisample = RenderFSAASamples > 1 && mRT->fxaaBuffer.isComplete() && !gCubeSnapshot;
 
         gViewerWindow->setup3DViewport();
 
