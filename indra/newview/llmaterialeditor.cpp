@@ -1551,7 +1551,7 @@ void LLMaterialEditor::applyToSelection()
     LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
     getGLTFMaterial(mat);
     const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-    gGLTFMaterialList.addMaterial(placeholder, mat);
+    LLGLTFMaterialList::instance().addMaterial(placeholder, mat);
     LLRemderMaterialFunctor mat_func(placeholder);
     LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
     selected_objects->applyToTEs(&mat_func);

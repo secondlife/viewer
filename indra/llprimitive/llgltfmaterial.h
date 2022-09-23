@@ -70,6 +70,8 @@ public:
         return id;
     }
 
+    bool updateFromStrings(const std::vector<std::string>& strings);
+
     // set mAlphaMode from string.
     // Anything otherthan "MASK" or "BLEND" sets mAlphaMode to ALPHA_MODE_OPAQUE
     void setAlphaMode(const std::string& mode)

@@ -1906,7 +1906,7 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                 LLTextureEntry* tep = objectp->getTE(te);
                 if (asset_id.notNull())
                 {
-                    tep->setGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+                    tep->setGLTFMaterial(LLGLTFMaterialList::instance().getMaterial(asset_id));
                 }
                 else
                 {
@@ -1930,7 +1930,7 @@ void LLSelectMgr::selectionSetGLTFMaterial(const LLUUID& mat_id)
                     LLTextureEntry* tep = objectp->getTE(face);
                     if (asset_id.notNull())
                     {
-                        tep->setGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+                        tep->setGLTFMaterial(LLGLTFMaterialList::instance().getMaterial(asset_id));
                     }
                     else
                     {

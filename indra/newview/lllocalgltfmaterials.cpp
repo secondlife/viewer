@@ -96,7 +96,7 @@ LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename)
 LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
 {
 	// delete self from material list
-    gGLTFMaterialList.removeMaterial(mWorldID);
+    LLGLTFMaterialList::instance().removeMaterial(mWorldID);
 }
 
 /* accessors */
@@ -157,7 +157,7 @@ bool LLLocalGLTFMaterial::updateSelf()
 					mLastModified = new_last_modified;
 
                     // will replace material if it already exists
-                    gGLTFMaterialList.addMaterial(mWorldID, raw_material);
+                    LLGLTFMaterialList::instance().addMaterial(mWorldID, raw_material);
 
 					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
 					updated = true;

@@ -30,12 +30,31 @@
 #include "llassetstorage.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
+#include "lldispatcher.h"
+#include "llviewergenericmessage.h"
 #include "lltinygltfhelper.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
 
-LLGLTFMaterialList gGLTFMaterialList;
+// Update handling
+class LLPushDispatchHandler : public LLDispatchHandler
+{
+public:
+    virtual bool operator()(const LLDispatcher *, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
+    {
+        LLGLTFMaterial* material = LLGLTFMaterialList::instance().getMaterial(invoice);
+        if (!material) {
+            LL_WARNS() << "No GLTF Material " << invoice << LL_ENDL;
+            return false;
+        }
+        return material->updateFromStrings(strings);
+    }
+};
+static LLPushDispatchHandler push_dispatch_handler;
+LLGLTFMaterialList::LLGLTFMaterialList() {
+    gGenericDispatcher.addHandler("PushGLTFMaterial", &push_dispatch_handler);
+}
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {

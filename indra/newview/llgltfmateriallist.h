@@ -31,10 +31,10 @@
 
 #include <unordered_map>
 
-class LLGLTFMaterialList
+class LLGLTFMaterialList : public LLSingleton<LLGLTFMaterialList>
 {
+    LLSINGLETON(LLGLTFMaterialList); // Being an LLSingleton is mostly just doc/clean-living, but also to get the init timing right.
 public:
-    LLGLTFMaterialList() {}
 
     typedef std::unordered_map<LLUUID, LLPointer<LLGLTFMaterial > > List;
     List mList;
@@ -45,7 +45,4 @@ public:
     void removeMaterial(const LLUUID& id);
 
 };
-
-extern LLGLTFMaterialList gGLTFMaterialList;
-
 

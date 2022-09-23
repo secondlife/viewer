@@ -33,6 +33,7 @@ include_directories(SYSTEM
 set(llprimitive_SOURCE_FILES
     lldaeloader.cpp
     llgltfloader.cpp
+    llgltfmaterial.cpp
     llmaterialid.cpp
     llmaterial.cpp
     llmaterialtable.cpp

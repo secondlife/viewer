@@ -4932,7 +4932,7 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
     LLUUID mat_id = getRenderMaterialID(te);
     if (mat == nullptr && mat_id.notNull())
     {
-        mat = gGLTFMaterialList.getMaterial(mat_id);
+        mat = LLGLTFMaterialList::instance().getMaterial(mat_id);
         getTE(te)->setGLTFMaterial(mat);
     }
     else if (mat_id.isNull() && mat != nullptr)
@@ -7079,7 +7079,7 @@ void LLViewerObject::setRenderMaterialID(U8 te, const LLUUID& id, bool update_se
 {
     if (id.notNull())
     {
-        getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
+        getTE(te)->setGLTFMaterial(LLGLTFMaterialList::instance().getMaterial(id));
 
         if (!hasRenderMaterialParams())
         {
@@ -7152,7 +7152,7 @@ void LLViewerObject::setRenderMaterialIDs(const LLUUID& id)
         param_block = (LLRenderMaterialParams*)getParameterEntry(LLNetworkData::PARAMS_RENDER_MATERIAL);
     }
 
-    LLGLTFMaterial* material = id.isNull() ? nullptr : gGLTFMaterialList.getMaterial(id);
+    LLGLTFMaterial* material = id.isNull() ? nullptr : LLGLTFMaterialList::instance().getMaterial(id);
     const S32 num_tes = llmin((S32)getNumTEs(), (S32)getNumFaces());
 
     for (S32 te = 0; te < num_tes; te++)
@@ -7191,7 +7191,7 @@ void LLViewerObject::setRenderMaterialIDs(const LLRenderMaterialParams* material
             const LLUUID& id = material_params ? material_params->getMaterial(te) : LLUUID::null;
             if (id.notNull())
             {
-                getTE(te)->setGLTFMaterial(gGLTFMaterialList.getMaterial(id));
+                getTE(te)->setGLTFMaterial(LLGLTFMaterialList::instance().getMaterial(id));
                 setHasRenderMaterialParams(true);
             }
             else
