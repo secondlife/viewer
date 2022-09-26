@@ -628,6 +628,18 @@ void LLPuppetMotion::setAvatar(LLVOAvatar* avatar)
     mIsSelf = mAvatar && mAvatar->getID() == gAgentID;
 }
 
+void LLPuppetMotion::clearAll()
+{
+    //mJointStates.clear();   This kills puppetry - need a correct way to reset joint data when module restarts
+    mEventQueues.clear();
+    mOutgoingEvents.clear();
+    mJointStateExpiries.clear();
+    mJointsToRemoveFromPose.clear();
+    mIKSolver.resetRotations();
+}
+
+
+
 void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
 {
     //TODO this is a bit sloppy.  We're updating asynchonously
@@ -1155,6 +1167,7 @@ void    LLPuppetMotion::packEvents()
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
     S32 msgblock_count(0);
+    S32 joint_count(0);
 
     auto event = mOutgoingEvents.begin();
     while(event != mOutgoingEvents.end())
@@ -1165,7 +1178,11 @@ void    LLPuppetMotion::packEvents()
         while ((event != mOutgoingEvents.end()) &&
             ((dataPacker.getCurrentSize() + event->getMinEventSize()) < dataPacker.getBufferSize()))
         {
-            if (!event->pack(dataPacker))
+            S32 packed_joints(0);
+            bool all_done = event->pack(dataPacker, packed_joints);
+            joint_count += packed_joints;
+            msgblock_count++;
+            if (!all_done)
             {   // pack was not able to fit everything into this buffer
                 // it's full so time to send it.
                 break;
@@ -1178,9 +1195,13 @@ void    LLPuppetMotion::packEvents()
         {
             if ((msg->getCurrentSendTotal() + dataPacker.getCurrentSize() + 16) >= MTUBYTES)
             {   // send the old message and get a new one ready.
-                LL_DEBUGS("PUPPET_SPAM") << "Message would overflow MTU, sending message with " << msgblock_count << " blocks." << LL_ENDL;
+                LL_DEBUGS("PUPPET_SPAM") << "Message would overflow MTU, sending message with " << msgblock_count << " blocks and "
+                        << joint_count << " joints in frame " << (S32) gFrameCount << LL_ENDL;
+                joint_count = 0;
+
                 gAgent.sendMessage();
 
+                // Create the next message header
                 msgblock_count = 0;
                 msg->newMessageFast(_PREHASH_AgentAnimation);
                 msg->nextBlockFast(_PREHASH_AgentData);
@@ -1188,7 +1209,6 @@ void    LLPuppetMotion::packEvents()
                 msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
             }
 
-            ++msgblock_count;
             msg->nextBlockFast(_PREHASH_PhysicalAvatarEventList);
             msg->addBinaryDataFast(_PREHASH_TypeData, puppet_pack_buffer.data(), dataPacker.getCurrentSize());
         }
@@ -1198,8 +1218,13 @@ void    LLPuppetMotion::packEvents()
 
     if (msgblock_count)
     {   // there are some events that weren't sent above.  Send them along.
-        LL_DEBUGS("PUPPET_SPAM") << "Sending message with " << msgblock_count << " blocks." << LL_ENDL;
+        LL_DEBUGS("PUPPET_SPAM") << "Sending message with " << msgblock_count << " blocks and "
+            << joint_count << " joints in frame " << (S32) gFrameCount << LL_ENDL;
         gAgent.sendMessage();
+    }
+    else
+    {   // clean up message we started
+        msg->clearMessage();
     }
 }
 
@@ -1213,7 +1238,7 @@ void LLPuppetMotion::unpackEvents(LLMessageSystem *mesgsys,int blocknum)
     S32 data_size = mesgsys->getSizeFast(_PREHASH_PhysicalAvatarEventList, blocknum, _PREHASH_TypeData);
     mesgsys->getBinaryDataFast(_PREHASH_PhysicalAvatarEventList, _PREHASH_TypeData, puppet_pack_buffer.data(), data_size , blocknum,PUPPET_MAX_MSG_BYTES);
 
-    LL_DEBUGS_IF(data_size > 0, "PUPPET_SPAM") << "Have puppet buffer " << data_size << " bytes." << LL_ENDL;
+    LL_DEBUGS_IF(data_size > 0, "PUPPET_SPAM") << "Have puppet buffer " << data_size << " bytes in frame " << (S32) gFrameCount << LL_ENDL;
 
     LLPuppetEvent event;
     if (event.unpack(dataPacker))

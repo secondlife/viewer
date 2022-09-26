@@ -93,10 +93,10 @@ public:
     void collectJoints(LLJoint* joint);
     void addExpressionEvent(const LLPuppetJointEvent& event);
     void queueOutgoingEvent(const LLPuppetEvent& event);
-    void flushEvents() { mOutgoingEvents.clear(); }
     void unpackEvents(LLMessageSystem *mesgsys,int blocknum);
 
     void setAvatar(LLVOAvatar* avatar);
+    void clearAll();
 
 public:
     //-------------------------------------------------------------------------
@@ -185,7 +185,6 @@ private:
     std::map<S16, JointStateExpiry> mJointStateExpiries;        // recently animated joints and their expiries
     LLCharacter*            mCharacter;
     update_deq_t            mOutgoingEvents;   // LLPuppetEvents to broadcast.
-    update_deq_t            mIncomingEvents;   // LLPuppetEvents received.
     std::vector< LLPointer<LLJointState> > mJointsToRemoveFromPose;
     LLFrameTimer            mBroadcastTimer;   // When to broadcast events.
     LLFrameTimer            mPlaybackTimer;    // Playback what was broadcast

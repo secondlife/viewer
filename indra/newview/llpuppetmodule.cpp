@@ -239,6 +239,9 @@ void LLPuppetModule::setLeapModule(std::weak_ptr<LLLeap> mod, const std::string 
 {
     mLeapModule = mod;
     mModuleName = module_name;
+    mActiveJoints.clear();      // Make sure data is cleared
+    if (gAgentAvatarp->getPuppetMotion())
+        gAgentAvatarp->getPuppetMotion()->clearAll();
 };
 
 
