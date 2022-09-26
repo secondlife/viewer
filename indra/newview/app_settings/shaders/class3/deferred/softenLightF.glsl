@@ -157,7 +157,8 @@ void main()
         vec3  irradiance = vec3(0);
         vec3  radiance  = vec3(0);
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
-        irradiance       = max(amblit*1.725,irradiance*ambocc);
+        
+        irradiance       = max(amblit*1.725,irradiance);
 
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
