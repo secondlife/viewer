@@ -110,7 +110,7 @@ public:
 public:
     LLPuppetEvent() {}
     void addJointEvent(const LLPuppetJointEvent& joint_event);
-    bool pack(LLDataPackerBinaryBuffer& buffer);
+    bool pack(LLDataPackerBinaryBuffer& buffer, S32& out_num_joints);
     bool unpack(LLDataPackerBinaryBuffer& mesgsys);
 
     // for outbound LLPuppetEvents

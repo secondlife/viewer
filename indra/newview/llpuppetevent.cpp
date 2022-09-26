@@ -255,14 +255,14 @@ size_t LLPuppetJointEvent::pack(U8* wptr)
         offset += pack_vec3(wptr+offset, mScale);
     }
 
-    LL_DEBUGS("PUPPET_SPAM") << "Packed event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " into " << offset << " bytes.";
+    LL_DEBUGS("PUPPET_SPAM_PACK") << "Packed event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " into " << offset << " bytes.";
     if (mMask & EF_ROTATION)
         LL_CONT << " rot=" << mRotation;
     if (mMask & EF_POSITION)
         LL_CONT << " pos=" << mPosition;
     if (mMask & EF_SCALE)
         LL_CONT << " scale=" << mScale;
-    LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << LL_ENDL;
+    LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 
     return offset;
 }
@@ -289,14 +289,14 @@ size_t LLPuppetJointEvent::unpack(U8* wptr)
         offset += unpack_vec3(wptr+offset, mScale);
     }
 
-    LL_DEBUGS("PUPPET_SPAM") << "Unpacked event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " from " << offset << " bytes.";
+    LL_DEBUGS("PUPPET_SPAM_UNPACK") << "Unpacked event for joint " << mJointID << " with flags 0x" << std::hex << static_cast<S32>(mMask) << std::dec << " from " << offset << " bytes.";
     if (mMask & EF_ROTATION)
         LL_CONT << " rot=" << mRotation;
     if (mMask & EF_POSITION)
         LL_CONT << " pos=" << mPosition;
     if (mMask & EF_SCALE)
         LL_CONT << " scale=" << mScale;
-    LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << LL_ENDL;
+    LL_CONT << " raw=" << LLError::arraylogger(wptr, offset) << " in frame " << (S32)gFrameCount << LL_ENDL;
 
     return offset;
 }
@@ -320,10 +320,10 @@ void LLPuppetEvent::addJointEvent(const LLPuppetJointEvent& joint_event)
     mJointEvents.push_back(joint_event);
 }
 
-bool  LLPuppetEvent::pack(LLDataPackerBinaryBuffer& buffer)
+bool  LLPuppetEvent::pack(LLDataPackerBinaryBuffer& buffer, S32& out_num_joints)
 {
     //A PuppetEvent contains a timestamp and one or more joints with one or more actions applied to it.
-    //Return value is true if we packed all joints into this event.
+    //Return value is true if we packed all joints into this event.    num_packed is set to number of joint events packed ok
     S16 num_joints(0);
     size_t buffer_size(buffer.getBufferSize() - buffer.getCurrentSize());
     bool result(true);
@@ -359,8 +359,9 @@ bool  LLPuppetEvent::pack(LLDataPackerBinaryBuffer& buffer)
     buffer.packS16(num_joints, "num");
     buffer.packBinaryData(scratch_buffer.data(), buf_sz, "data");
 
-    LL_DEBUGS("PUPPET_SPAM") << "Packed " << num_joints << " joint events (of " << total << ") into " << len << " bytes. " <<
-        "Event data size is " << buf_sz << "bytes. Buffer now contains " << buffer.getCurrentSize() << " bytes." << LL_ENDL;
+    out_num_joints = num_joints;
+    LL_DEBUGS("PUPPET_SPAM") << "Packed " << num_joints << " joint events (of " << total << " to pack) into " << len << " byte block. " <<
+        "Event data size is " << buf_sz << " in frame " << (S32) gFrameCount << LL_ENDL;
 
     return result;
 }
@@ -402,6 +403,6 @@ bool LLPuppetEvent::unpack(LLDataPackerBinaryBuffer& buffer)
     LL_DEBUGS_IF(index != num_joints, "Puppet") << "Unexpected joint count unpacking puppetry, expecting " << num_joints << ", only read " << index << LL_ENDL;
     LL_DEBUGS_IF(offset != buff_sz, "Puppet") << "Unread data in buffer. " << buff_sz << " bytes received, but only " << offset << " bytes used." << LL_ENDL;
 
-    LL_DEBUGS("PUPPET_SPAM") << "Unpacked " << mJointEvents.size() << " joint events. event buffer size=" << buff_sz << " last offset=" << offset << LL_ENDL;
+    LL_DEBUGS("PUPPET_SPAM") << "Unpacked " << mJointEvents.size() << " joint events. event buffer size=" << buff_sz << " last offset=" << offset << " in frame " << (S32)gFrameCount << LL_ENDL;
     return (index == num_joints) && (offset == buff_sz);
 }
