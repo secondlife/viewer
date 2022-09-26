@@ -6235,22 +6235,6 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 	}
 }
 
-void LLPipeline::adjustAmbient(const LLSettingsSky* sky, LLColor4& ambient)
-{
-    //bump ambient based on reflection probe ambiance of probes are disabled 
-    // so sky settings that rely on probes for ambiance don't go completely dark
-    // on low end hardware
-    if (!LLPipeline::sReflectionProbesEnabled)
-    {
-        F32 ambiance = linearTosRGB(sky->getReflectionProbeAmbiance());
-
-        for (int i = 0; i < 3; ++i)
-        {
-            ambient.mV[i] = llmax(ambient.mV[i], ambiance);
-        }
-    }
-}
-
 void LLPipeline::setupHWLights(LLDrawPool* pool)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
@@ -6261,8 +6245,7 @@ void LLPipeline::setupHWLights(LLDrawPool* pool)
 
     // Ambient
     LLColor4 ambient = psky->getTotalAmbient();
-    adjustAmbient(psky.get(), ambient);
-    
+
 	gGL.setAmbientLightColor(ambient);
 
     bool sun_up  = environment.getIsSunUp();

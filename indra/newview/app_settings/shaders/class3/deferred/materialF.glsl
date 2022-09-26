@@ -287,6 +287,9 @@ void main()
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
 
     //forward rendering, output lit linear color
+    diffcol.rgb = srgb_to_linear(diffcol.rgb);
+    spec.rgb = srgb_to_linear(spec.rgb);
+
     vec3 pos = vary_position;
 
     float shadow = 1.0f;
@@ -318,20 +321,23 @@ void main()
 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
 
-    //we're in sRGB space, so gamma correct this dot product so 
-    // lighting from the sun stays sharp
-    float da = clamp(dot(normalize(norm.xyz), light_dir.xyz), 0.0, 1.0);
-    da = pow(da, 1.0 / 1.3);
-    vec3 sun_contrib = min(da, shadow) * sunlit;
-
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
     sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
-    amblit = max(ambenv, amblit);
-    color.rgb = amblit;
+    // use sky settings ambient or irradiance map sample, whichever is brighter
+    color = max(amblit, ambenv);
 
-    color += sun_contrib;
+    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+    ambient *= 0.5;
+    ambient *= ambient;
+    ambient = (1.0 - ambient);
+    color.rgb *= ambient;
+
+    float da          = clamp(dot(norm.xyz, sun_dir.xyz), 0.0, 1.0);
+    vec3 sun_contrib = min(da, shadow) * sunlit;
+    color.rgb += sun_contrib;
+    color.rgb *= diffuse.rgb;
 
     color *= diffcol.rgb;
 
@@ -359,18 +365,14 @@ void main()
     {  // add environmentmap
         applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
     }
-    color = scaleSoftClipFrag(color);
-
-    //convert to linear before adding local lights
-    color = srgb_to_linear(color);
 
     vec3 npos = normalize(-pos.xyz);
 
     vec3 light = vec3(0, 0, 0);
     
-    final_specular.rgb = srgb_to_linear(final_specular.rgb); // SL-14035
+    final_specular.rgb = final_specular.rgb; // SL-14035
 
-    color = mix(color.rgb, srgb_to_linear(diffcol.rgb), diffuse.a);
+    color = mix(color.rgb, diffcol.rgb, diffuse.a);
 
 #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
 

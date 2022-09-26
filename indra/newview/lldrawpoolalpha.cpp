@@ -150,7 +150,7 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
 
     fullbright_shader   = (LLPipeline::sImpostorRender) ? &gDeferredFullbrightAlphaMaskProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredFullbrightWaterProgram : &gDeferredFullbrightAlphaMaskProgram;
-    prepare_alpha_shader(fullbright_shader, true, false);
+    prepare_alpha_shader(fullbright_shader, true, true);
 
     simple_shader   = (LLPipeline::sImpostorRender) ? &gDeferredAlphaImpostorProgram :
         (LLPipeline::sUnderWaterRender) ? &gDeferredAlphaWaterProgram : &gDeferredAlphaProgram;

@@ -709,9 +709,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     LLColor4 ambient(getTotalAmbient());
 
-    gPipeline.adjustAmbient(this, ambient);
-    
     shader->uniform4fv(LLShaderMgr::AMBIENT, LLVector4(ambient.mV));
+    shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getReflectionProbeAmbiance());
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
     shader->uniform1f(LLShaderMgr::SUN_MOON_GLOW_FACTOR, getSunMoonGlowFactor());

@@ -88,6 +88,9 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 
 float getAmbientClamp();
 
+void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
+        vec3 pos, vec3 norm, float glossiness, float envIntensity);
+
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 diffuse, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
     // SL-14895 inverted attenuation work-around
@@ -242,11 +245,14 @@ void main()
 
     calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
-    vec2 abnormal = encode_normal(norm.xyz);
+    vec3 ambenv;
+    vec3 glossenv;
+    vec3 legacyenv;
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, 0.0, 0.0);
+    
 
     float da = dot(norm.xyz, light_dir.xyz);
           da = clamp(da, -1.0, 1.0);
-          da = pow(da, 1.0/1.3);
  
     float final_da = da;
           final_da = clamp(final_da, 0.0f, 1.0f);
@@ -262,22 +268,17 @@ void main()
 
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
-    color.rgb = amblit;
+    color.rgb = max(amblit, ambenv);
     color.rgb *= ambient;
 
     color.rgb += sun_contrib;
 
-    color.rgb *= diffuse_srgb.rgb;
+    color.rgb *= diffuse_linear.rgb;
 
     color.rgb = atmosFragLighting(color.rgb, additive, atten);
 
     vec4 light = vec4(0,0,0,0);
     
-    color.rgb = scaleSoftClipFrag(color.rgb);
-
-    //convert to linear before applying local lights
-    color.rgb = srgb_to_linear(color.rgb);
-
    #define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, diffuse_linear.rgb, pos.xyz, norm, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w);
 
     LIGHT_LOOP(1)

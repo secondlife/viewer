@@ -1913,6 +1913,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasGamma = true;
             shader->mFeatures.hasTransport = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
+            shader->mFeatures.hasReflectionProbes = true;
 
             if (mShaderLevel[SHADER_DEFERRED] < 1)
             {
@@ -1989,6 +1990,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.isAlphaLighting = true;
             shader->mFeatures.encodesNormal = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
+            shader->mFeatures.hasReflectionProbes = true;
 
             if (mShaderLevel[SHADER_DEFERRED] < 1)
             {
@@ -2060,6 +2062,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader[i]->mFeatures.hasGamma = true;
             shader[i]->mFeatures.hasTransport = true;
             shader[i]->mFeatures.hasShadows = use_sun_shadow;
+            shader[i]->mFeatures.hasReflectionProbes = true;
 
             if (mShaderLevel[SHADER_DEFERRED] < 1)
             {
@@ -2646,6 +2649,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
         gDeferredAvatarAlphaProgram.mFeatures.hasGamma = true;
         gDeferredAvatarAlphaProgram.mFeatures.isDeferred = true;
 		gDeferredAvatarAlphaProgram.mFeatures.hasShadows = true;
+        gDeferredAvatarAlphaProgram.mFeatures.hasReflectionProbes = true;
 
 		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
         gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));

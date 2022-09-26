@@ -31,8 +31,6 @@
 uniform samplerCubeArray   reflectionProbes;
 uniform samplerCubeArray   irradianceProbes;
 
-vec3 linear_to_srgb(vec3 col);
-
 layout (std140) uniform ReflectionProbes
 {
     // list of OBBs for user override probes
@@ -531,32 +529,28 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
     ambenv = sampleProbeAmbient(pos, norm);
+    ambenv /= 1.725;
 
     if (glossiness > 0.0)
     {
         float lod = (1.0-glossiness)*reflection_lods;
         glossenv = sampleProbes(pos, normalize(refnormpersp), lod, 1.f);
-        glossenv = linear_to_srgb(glossenv);
     }
 
     if (envIntensity > 0.0)
     {
         legacyenv = sampleProbes(pos, normalize(refnormpersp), 0.0, 1.f);
-        legacyenv = linear_to_srgb(legacyenv);
     }
-
-    // legacy expects values in sRGB space for now
-    ambenv = linear_to_srgb(ambenv);
-
 }
 
 void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 norm)
 {
-    glossenv *= 0.35; // fudge darker
-    float fresnel = 1.0+dot(normalize(pos.xyz), norm.xyz);
-    float minf = spec.a * 0.1;
-    fresnel = fresnel * (1.0-minf) + minf;
-    glossenv *= spec.rgb*min(fresnel, 1.0);
+    glossenv *= 0.5; // fudge darker
+    float fresnel = clamp(1.0+dot(normalize(pos.xyz), norm.xyz), 0.3, 1.0);
+    fresnel *= fresnel;
+    fresnel *= spec.a;
+    glossenv *= spec.rgb*fresnel;
+    glossenv *= vec3(1.0) - color; // fake energy conservation
     color.rgb += glossenv;
 }
 
