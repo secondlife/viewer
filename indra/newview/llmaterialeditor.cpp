@@ -149,6 +149,8 @@ BOOL LLMaterialEditor::postBuild()
 
     childSetVisible("unsaved_changes", mHasUnsavedChanges);
 
+    getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", 0));
+
     // Todo:
     // Disable/enable setCanApplyImmediately() based on
     // working from inventory, upload or editing inworld
@@ -391,14 +393,41 @@ void LLMaterialEditor::setHasUnsavedChanges(bool value)
     getChild<LLUICtrl>("total_upload_fee")->setTextArg("[FEE]", llformat("%d", mExpectedUploadCost));
 }
 
-void LLMaterialEditor::setCanSaveAs(BOOL value)
+void LLMaterialEditor::setCanSaveAs(bool value)
 {
     childSetEnabled("save_as", value);
 }
 
-void LLMaterialEditor::setCanSave(BOOL value)
+void LLMaterialEditor::setCanSave(bool value)
 {
     childSetEnabled("save", value);
+}
+
+void LLMaterialEditor::setEnableEditing(bool can_modify)
+{
+    childSetEnabled("double sided", can_modify);
+
+    // BaseColor
+    childSetEnabled("base color", can_modify);
+    childSetEnabled("transparency", can_modify);
+    childSetEnabled("alpha mode", can_modify);
+    childSetEnabled("alpha cutoff", can_modify);
+
+    // Metallic-Roughness
+    childSetEnabled("metalness factor", can_modify);
+    childSetEnabled("roughness factor", can_modify);
+
+    // Metallic-Roughness
+    childSetEnabled("metalness factor", can_modify);
+    childSetEnabled("roughness factor", can_modify);
+
+    // Emissive
+    childSetEnabled("emissive color", can_modify);
+
+    mBaseColorTextureCtrl->setEnabled(can_modify);
+    mMetallicTextureCtrl->setEnabled(can_modify);
+    mEmissiveTextureCtrl->setEnabled(can_modify);
+    mNormalTextureCtrl->setEnabled(can_modify);
 }
 
 void LLMaterialEditor::onCommitBaseColorTexture(LLUICtrl * ctrl, const LLSD & data)
@@ -1624,6 +1653,7 @@ void LLMaterialEditor::loadAsset()
                 mAssetStatus = PREVIEW_ASSET_LOADED;
                 loadDefaults();
                 setHasUnsavedChanges(false);
+                setEnableEditing(allow_modify && !source_library);
             }
             else
             {
@@ -1644,6 +1674,7 @@ void LLMaterialEditor::loadAsset()
                         mAssetID.setNull();
                         mAssetStatus = PREVIEW_ASSET_LOADED;
                         setHasUnsavedChanges(false);
+                        setEnableEditing(allow_modify && !source_library);
                         return;
                     }
                     user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
@@ -1652,6 +1683,8 @@ void LLMaterialEditor::loadAsset()
                 {
                     user_data = new LLSD(mItemUUID);
                 }
+
+                setEnableEditing(false); // wait for it to load
 
                 gAssetStorage->getInvItemAsset(source_sim,
                     gAgent.getID(),
@@ -1724,8 +1757,9 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
 
             editor->decodeAsset(buffer);
 
-            BOOL modifiable = editor->canModify(editor->mObjectID, editor->getItem());
-            editor->setEnabled(modifiable);
+            BOOL allow_modify = editor->canModify(editor->mObjectID, editor->getItem());
+            BOOL source_library = editor->mObjectID.isNull() && gInventory.isObjectDescendentOf(editor->mItemUUID, gInventory.getLibraryRootFolderID());
+            editor->setEnableEditing(allow_modify && !source_library);
             editor->setHasUnsavedChanges(false);
             editor->mAssetStatus = PREVIEW_ASSET_LOADED;
         }
@@ -1744,6 +1778,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             {
                 LLNotificationsUtil::add("UnableToLoadMaterial");
             }
+            editor->setEnableEditing(false);
 
             LL_WARNS() << "Problem loading material: " << status << LL_ENDL;
             editor->mAssetStatus = PREVIEW_ASSET_ERROR;

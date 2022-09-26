@@ -153,8 +153,9 @@ public:
     void setDoubleSided(bool double_sided);
 
     void setHasUnsavedChanges(bool value);
-    void setCanSaveAs(BOOL value);
-    void setCanSave(BOOL value);
+    void setCanSaveAs(bool value);
+    void setCanSave(bool value);
+    void setEnableEditing(bool can_modify);
 
     void onCommitBaseColorTexture(LLUICtrl* ctrl, const LLSD& data);
     void onCommitMetallicTexture(LLUICtrl* ctrl, const LLSD& data);
