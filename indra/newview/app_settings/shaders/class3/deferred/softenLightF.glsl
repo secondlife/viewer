@@ -176,7 +176,7 @@ void main()
 
         //color = atmosFragLighting(color, additive, atten);
         color *= atten.r;
-        color += additive;
+        color += additive*2.0;
         
     }
     else
@@ -195,7 +195,6 @@ void main()
 
         // use sky settings ambient or irradiance map sample, whichever is brighter
         color = max(amblit, ambenv*ambocc);
-        color = ambenv;
 
         float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
         ambient *= 0.5;
