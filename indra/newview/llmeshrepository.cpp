@@ -1911,19 +1911,7 @@ EMeshProcessingResult LLMeshRepoThread::lodReceived(const LLVolumeParams& mesh_p
 	}
 
 	LLPointer<LLVolume> volume = new LLVolume(mesh_params, LLVolumeLODGroup::getVolumeScaleFromDetail(lod));
-	std::istringstream stream;
-	try
-	{
-		std::string mesh_string((char*)data, data_size);
-		stream.str(mesh_string);
-	}
-	catch (std::bad_alloc&)
-	{
-		// out of memory, we won't be able to process this mesh
-		return MESH_OUT_OF_MEMORY;
-	}
-
-	if (volume->unpackVolumeFaces(stream, data_size))
+	if (volume->unpackVolumeFaces(data, data_size))
 	{
 		if (volume->getNumFaces() > 0)
 		{
@@ -1953,10 +1941,7 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 	{
         try
         {
-            std::string res_str((char*)data, data_size);
-            std::istringstream stream(res_str);
-
-            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, stream, data_size);
+            U32 uzip_result = LLUZipHelper::unzip_llsd(skin, data, data_size);
             if (uzip_result != LLUZipHelper::ZR_OK)
             {
                 LL_WARNS(LOG_MESH) << "Mesh skin info parse error.  Not a valid mesh asset!  ID:  " << mesh_id
@@ -1994,10 +1979,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
     {
         try
         {
-            std::string res_str((char*)data, data_size);
-            std::istringstream stream(res_str);
-
-            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, stream, data_size);
+            U32 uzip_result = LLUZipHelper::unzip_llsd(decomp, data, data_size);
             if (uzip_result != LLUZipHelper::ZR_OK)
             {
                 LL_WARNS(LOG_MESH) << "Mesh decomposition parse error.  Not a valid mesh asset!  ID:  " << mesh_id
@@ -2006,7 +1988,7 @@ bool LLMeshRepoThread::decompositionReceived(const LLUUID& mesh_id, U8* data, S3
                 return false;
             }
         }
-        catch (std::bad_alloc&)
+        catch (const std::bad_alloc&)
         {
             LL_WARNS(LOG_MESH) << "Out of memory for mesh ID " << mesh_id << " of size: " << data_size << LL_ENDL;
             return false;
@@ -2043,32 +2025,8 @@ EMeshProcessingResult LLMeshRepoThread::physicsShapeReceived(const LLUUID& mesh_
 		volume_params.setSculptID(mesh_id, LL_SCULPT_TYPE_MESH);
 		LLPointer<LLVolume> volume = new LLVolume(volume_params,0);
 
-        std::istringstream stream;
-        try
-        {
-            std::string mesh_string((char*)data, data_size);
-            stream.str(mesh_string);
-        }
-        catch (std::bad_alloc&)
-        {
-            // out of memory, we won't be able to process this mesh
-            delete d;
-            return MESH_OUT_OF_MEMORY;
-        }
-
-		if (volume->unpackVolumeFaces(stream, data_size))
+		if (volume->unpackVolumeFaces(data, data_size))
 		{
-			//load volume faces into decomposition buffer
-			S32 vertex_count = 0;
-			S32 index_count = 0;
-
-			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
-			{
-				const LLVolumeFace& face = volume->getVolumeFace(i);
-				vertex_count += face.mNumVertices;
-				index_count += face.mNumIndices;
-			}
-
 			d->mPhysicsShapeMesh.clear();
 
 			std::vector<LLVector3>& pos = d->mPhysicsShapeMesh.mPositions;
