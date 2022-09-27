@@ -1193,8 +1193,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 	else
 	{ 
 		HeaderRequest req(mesh_params);
-		
-		pending_lod_map::iterator pending = mPendingLOD.find(mesh_params);
+		pending_lod_map::iterator pending = mPendingLOD.find(mesh_id);
 
 		if (pending != mPendingLOD.end())
 		{ //append this lod request to existing header request
@@ -1204,7 +1203,7 @@ void LLMeshRepoThread::loadMeshLOD(const LLVolumeParams& mesh_params, S32 lod)
 		else
 		{ //if no header request is pending, fetch header
 			mHeaderReqQ.push(req);
-			mPendingLOD[mesh_params].push_back(lod);
+			mPendingLOD[mesh_id].push_back(lod);
 		}
 	}
 }
@@ -1805,16 +1804,19 @@ bool LLMeshRepoThread::fetchMeshLOD(const LLVolumeParams& mesh_params, S32 lod, 
 				}
 				else
 				{
+					LLMutexLock lock(mMutex);
 					mUnavailableQ.push(LODRequest(mesh_params, lod));
 				}
 			}
 			else
 			{
+				LLMutexLock lock(mMutex);
 				mUnavailableQ.push(LODRequest(mesh_params, lod));
 			}
 		}
 		else
 		{
+			LLMutexLock lock(mMutex);
 			mUnavailableQ.push(LODRequest(mesh_params, lod));
 		}
 	}
@@ -1899,7 +1901,7 @@ EMeshProcessingResult LLMeshRepoThread::headerReceived(const LLVolumeParams& mes
 		LLMutexLock lock(mMutex); // make sure only one thread access mPendingLOD at the same time.
 
 		//check for pending requests
-		pending_lod_map::iterator iter = mPendingLOD.find(mesh_params);
+		pending_lod_map::iterator iter = mPendingLOD.find(mesh_id);
 		if (iter != mPendingLOD.end())
 		{
 			for (U32 i = 0; i < iter->second.size(); ++i)
@@ -3605,15 +3607,19 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 	{
 		LLMutexLock lock(mMeshMutex);
 		//add volume to list of loading meshes
-		mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_params);
+		const auto& mesh_id = mesh_params.getSculptID();
+		mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_id);
 		if (iter != mLoadingMeshes[detail].end())
 		{ //request pending for this mesh, append volume id to list
-			iter->second.insert(vobj->getID());
+			auto it = std::find(iter->second.begin(), iter->second.end(), vobj->getID());
+			if (it == iter->second.end()) {
+				iter->second.push_back(vobj->getID());
+			}
 		}
 		else
 		{
 			//first request for this mesh
-			mLoadingMeshes[detail][mesh_params].insert(vobj->getID());
+			mLoadingMeshes[detail][mesh_id].push_back(vobj->getID());
 			mPendingRequests.push_back(LLMeshRepoThread::LODRequest(mesh_params, detail));
 			LLMeshRepository::sLODPending++;
 		}
@@ -3840,7 +3846,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 					for (mesh_load_map::iterator iter = mLoadingMeshes[i].begin();  iter != mLoadingMeshes[i].end(); ++iter)
 					{
 						F32 max_score = 0.f;
-						for (std::set<LLUUID>::iterator obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
+						for (std::vector<LLUUID>::iterator obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
 						{
 							LLViewerObject* object = gObjectList.findObject(*obj_iter);
 							
@@ -3855,7 +3861,7 @@ void LLMeshRepository::notifyLoadedMeshes()
 							}
 						}
 				
-						score_map[iter->first.getSculptID()] = max_score;
+						score_map[iter->first] = max_score;
 					}
 				}
 
@@ -3953,14 +3959,15 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 	S32 detail = LLVolumeLODGroup::getVolumeDetailFromScale(volume->getDetail());
 
 	//get list of objects waiting to be notified this mesh is loaded
-	mesh_load_map::iterator obj_iter = mLoadingMeshes[detail].find(mesh_params);
+	const auto& mesh_id = mesh_params.getSculptID();
+	mesh_load_map::iterator obj_iter = mLoadingMeshes[detail].find(mesh_id);
 
 	if (volume && obj_iter != mLoadingMeshes[detail].end())
 	{
 		//make sure target volume is still valid
 		if (volume->getNumVolumeFaces() <= 0)
 		{
-			LL_WARNS(LOG_MESH) << "Mesh loading returned empty volume.  ID:  " << mesh_params.getSculptID()
+			LL_WARNS(LOG_MESH) << "Mesh loading returned empty volume.  ID:  " << mesh_id
 							   << LL_ENDL;
 		}
 		
@@ -3974,13 +3981,13 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			}
 			else
 			{
-				LL_WARNS(LOG_MESH) << "Couldn't find system volume for mesh " << mesh_params.getSculptID()
+				LL_WARNS(LOG_MESH) << "Couldn't find system volume for mesh " << mesh_id
 								   << LL_ENDL;
 			}
 		}
 
 		//notify waiting LLVOVolume instances that their requested mesh is available
-		for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		for (std::vector<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
 		{
 			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
 			if (vobj)
@@ -3989,20 +3996,20 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 			}
 		}
 		
-		mLoadingMeshes[detail].erase(mesh_params);
+		mLoadingMeshes[detail].erase(obj_iter);
 	}
 }
 
 void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, S32 lod)
 { //called from main thread
 	//get list of objects waiting to be notified this mesh is loaded
-	mesh_load_map::iterator obj_iter = mLoadingMeshes[lod].find(mesh_params);
-
-	F32 detail = LLVolumeLODGroup::getVolumeScaleFromDetail(lod);
-
+	const auto& mesh_id = mesh_params.getSculptID();
+	mesh_load_map::iterator obj_iter = mLoadingMeshes[lod].find(mesh_id);
 	if (obj_iter != mLoadingMeshes[lod].end())
 	{
-		for (std::set<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		F32 detail = LLVolumeLODGroup::getVolumeScaleFromDetail(lod);
+
+		for (std::vector<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
 		{
 			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
 			if (vobj)
@@ -4018,7 +4025,7 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 			}
 		}
 		
-		mLoadingMeshes[lod].erase(mesh_params);
+		mLoadingMeshes[lod].erase(obj_iter);
 	}
 }
 

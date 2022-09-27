@@ -308,7 +308,7 @@ public:
 	std::queue<LoadedMesh> mLoadedQ;
 
 	//map of pending header requests and currently desired LODs
-	typedef std::map<LLVolumeParams, std::vector<S32> > pending_lod_map;
+	typedef boost::unordered_map<LLUUID, std::vector<S32> > pending_lod_map;
 	pending_lod_map mPendingLOD;
 
 	// llcorehttp library interface objects.
@@ -611,7 +611,7 @@ public:
 	static void metricsProgress(unsigned int count);
 	static void metricsUpdate();
 	
-	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
+	typedef boost::unordered_map<LLUUID, std::vector<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	
 	typedef std::unordered_map<LLUUID, LLMeshSkinInfo> skin_map;
