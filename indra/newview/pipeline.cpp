@@ -132,7 +132,7 @@
 
 // NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
 // NOTE: Unused consts are commented out since some compilers (on macOS) may complain about unused variables.
-    const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
+//  const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
     const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
     const S32 WATER_REFLECT_MINIMAL                 =  0;
 //  const S32 WATER_REFLECT_TERRAIN                 =  1;
@@ -5993,7 +5993,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			LLDrawable* drawable = light->drawable;
             const LLViewerObject *vobj = light->drawable->getVObj();
             if(vobj && vobj->getAvatar() 
-               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList())
+               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList() || vobj->getAvatar()->isTooSlowWithShadows())
                )
             {
                 drawable->clearState(LLDrawable::NEARBY_LIGHT);
@@ -6072,7 +6072,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 				continue;
 			}
             LLVOAvatar * av = light->getAvatar();
-            if (av && (av->isTooComplex() || av->isInMuteList()))
+            if (av && (av->isTooComplex() || av->isInMuteList() || av->isTooSlowWithShadows()))
             {
                 // avatars that are already in the list will be removed by removeMutedAVsLights
                 continue;
@@ -10850,7 +10850,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar, bool preview_avatar)
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
 
-    bool too_slow = avatar->isTooSlowWithoutShadows(); // only if we really have to do we imposter.
+    bool too_slow = avatar->isTooSlowWithShadows();
 
     pushRenderTypeMask();
 

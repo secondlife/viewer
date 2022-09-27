@@ -44,6 +44,7 @@ public:
     void showSelectedPanel(LLPanel* selected_panel);
     void showMainPanel();
     void hidePanels();
+    void showAutoadjustmentsPanel();
 
     void detachItem(const LLUUID& item_id);
 

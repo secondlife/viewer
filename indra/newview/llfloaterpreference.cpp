@@ -51,6 +51,7 @@
 #include "llfloaterabout.h"
 #include "llfavoritesbar.h"
 #include "llfloaterpreferencesgraphicsadvanced.h"
+#include "llfloaterperformance.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
 #include "llkeyboard.h"
@@ -287,6 +288,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ClickDisablePopup",		boost::bind(&LLFloaterPreference::onClickDisablePopup, this));	
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.RenderExceptions",       boost::bind(&LLFloaterPreference::onClickRenderExceptions, this));
+	mCommitCallbackRegistrar.add("Pref.AutoAdjustments",         boost::bind(&LLFloaterPreference::onClickAutoAdjustments, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
@@ -726,13 +728,15 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	LLButton* save_btn = findChild<LLButton>("PrefSaveButton");
 	LLButton* delete_btn = findChild<LLButton>("PrefDeleteButton");
 	LLButton* exceptions_btn = findChild<LLButton>("RenderExceptionsButton");
+    LLButton* auto_adjustments_btn = findChild<LLButton>("AutoAdjustmentsButton");
 
-	if (load_btn && save_btn && delete_btn && exceptions_btn)
+	if (load_btn && save_btn && delete_btn && exceptions_btn && auto_adjustments_btn)
 	{
 		load_btn->setEnabled(started);
 		save_btn->setEnabled(started);
 		delete_btn->setEnabled(started);
 		exceptions_btn->setEnabled(started);
+        auto_adjustments_btn->setEnabled(started);
 	}
 
     collectSearchableItems();
@@ -1653,6 +1657,15 @@ void LLFloaterPreference::onClickSpellChecker()
 void LLFloaterPreference::onClickRenderExceptions()
 {
     LLFloaterReg::showInstance("avatar_render_settings");
+}
+
+void LLFloaterPreference::onClickAutoAdjustments()
+{
+    LLFloaterPerformance* performance_floater = LLFloaterReg::showTypedInstance<LLFloaterPerformance>("performance");
+    if (performance_floater)
+    {
+        performance_floater->showAutoadjustmentsPanel();
+    }
 }
 
 void LLFloaterPreference::onClickAdvanced()

@@ -170,6 +170,11 @@ void LLFloaterPerformance::showSelectedPanel(LLPanel* selected_panel)
     }
 }
 
+void LLFloaterPerformance::showAutoadjustmentsPanel()
+{
+    showSelectedPanel(mAutoadjustmentsPanel);
+}
+
 void LLFloaterPerformance::draw()
 {
     if (mUpdateTimer->hasExpired())

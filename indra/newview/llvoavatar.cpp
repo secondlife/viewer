@@ -3136,7 +3136,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 																 LLPartData::LL_PART_TARGET_POS_MASK );
 			
 			// do not generate particles for dummy or overly-complex avatars
-			if (!mIsDummy && !isTooComplex())
+			if (!mIsDummy && !isTooComplex() && !isTooSlowWithShadows())
 			{
 				setParticleSource(particle_parameters, getID());
 			}
@@ -3717,7 +3717,7 @@ bool LLVOAvatar::isVisuallyMuted()
         }
 		else 
 		{
-			muted = isTooComplex();
+			muted = isTooComplex() || isTooSlowWithShadows();
 		}
 	}
 
@@ -11174,7 +11174,7 @@ LLVOAvatar::AvatarOverallAppearance LLVOAvatar::getOverallAppearance() const
 		{	// Always want to see this AV as an impostor
 			result = AOA_JELLYDOLL;
 		}
-		else if (isTooComplex())
+		else if (isTooComplex() || isTooSlowWithShadows())
 		{
 			result = AOA_JELLYDOLL;
 		}
@@ -11201,7 +11201,7 @@ void LLVOAvatar::calcMutedAVColor()
         new_color = LLColor4::grey4;
         change_msg = " blocked: color is grey4";
     }
-    else if (!isTooComplex())
+    else if (!isTooComplex() && !isTooSlowWithShadows())
     {
         new_color = LLColor4::white;
         change_msg = " simple imposter ";
