@@ -3600,6 +3600,22 @@ S32 LLMeshRepository::update()
 	return size ;
 }
 
+void LLMeshRepository::unregisterMesh(LLVOVolume* vobj)
+{
+	for (auto& lod : mLoadingMeshes)
+	{
+		for (auto& param : lod)
+		{
+			vector_replace_with_last(param.second, vobj);
+		}
+	}
+
+	for (auto& skin_pair : mLoadingSkins)
+	{
+		vector_replace_with_last(skin_pair.second, vobj);
+	}
+}
+
 S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_params, S32 detail, S32 last_lod)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_NETWORK; //LL_LL_RECORD_BLOCK_TIME(FTM_MESH_FETCH);
@@ -3619,15 +3635,15 @@ S32 LLMeshRepository::loadMesh(LLVOVolume* vobj, const LLVolumeParams& mesh_para
 		mesh_load_map::iterator iter = mLoadingMeshes[detail].find(mesh_id);
 		if (iter != mLoadingMeshes[detail].end())
 		{ //request pending for this mesh, append volume id to list
-			auto it = std::find(iter->second.begin(), iter->second.end(), vobj->getID());
+			auto it = std::find(iter->second.begin(), iter->second.end(), vobj);
 			if (it == iter->second.end()) {
-				iter->second.push_back(vobj->getID());
+				iter->second.push_back(vobj);
 			}
 		}
 		else
 		{
 			//first request for this mesh
-			mLoadingMeshes[detail][mesh_id].push_back(vobj->getID());
+			mLoadingMeshes[detail][mesh_id].push_back(vobj);
 			mPendingRequests.push_back(LLMeshRepoThread::LODRequest(mesh_params, detail));
 			LLMeshRepository::sLODPending++;
 		}
@@ -3876,10 +3892,9 @@ void LLMeshRepository::notifyLoadedMeshes()
 					for (mesh_load_map::iterator iter = mLoadingMeshes[i].begin();  iter != mLoadingMeshes[i].end(); ++iter)
 					{
 						F32 max_score = 0.f;
-						for (std::vector<LLUUID>::iterator obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
+						for (auto obj_iter = iter->second.begin(); obj_iter != iter->second.end(); ++obj_iter)
 						{
-							LLViewerObject* object = gObjectList.findObject(*obj_iter);
-							
+							LLVOVolume* object = *obj_iter;						
 							if (object)
 							{
 								LLDrawable* drawable = object->mDrawable;
@@ -3952,9 +3967,8 @@ void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo* info)
 	skin_load_map::iterator iter = mLoadingSkins.find(info->mMeshID);
 	if (iter != mLoadingSkins.end())
 	{
-		for (std::set<LLUUID>::iterator obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
+		for (LLVOVolume* vobj : iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*obj_id);
 			if (vobj)
 			{
 				vobj->notifySkinInfoLoaded(info);
@@ -3969,9 +3983,8 @@ void LLMeshRepository::notifySkinInfoUnavailable(const LLUUID& mesh_id)
 	skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
 	if (iter != mLoadingSkins.end())
 	{
-		for (std::set<LLUUID>::iterator obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
+		for (LLVOVolume* vobj : iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*obj_id);
 			if (vobj)
 			{
 				vobj->notifySkinInfoUnavailable();
@@ -4034,9 +4047,8 @@ void LLMeshRepository::notifyMeshLoaded(const LLVolumeParams& mesh_params, LLVol
 		}
 
 		//notify waiting LLVOVolume instances that their requested mesh is available
-		for (std::vector<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		for (LLVOVolume* vobj : obj_iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
 			if (vobj)
 			{
 				vobj->notifyMeshLoaded();
@@ -4056,9 +4068,8 @@ void LLMeshRepository::notifyMeshUnavailable(const LLVolumeParams& mesh_params, 
 	{
 		F32 detail = LLVolumeLODGroup::getVolumeScaleFromDetail(lod);
 
-		for (std::vector<LLUUID>::iterator vobj_iter = obj_iter->second.begin(); vobj_iter != obj_iter->second.end(); ++vobj_iter)
+		for (LLVOVolume* vobj : obj_iter->second)
 		{
-			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*vobj_iter);
 			if (vobj)
 			{
 				LLVolume* obj_volume = vobj->getVolume();
@@ -4081,7 +4092,7 @@ S32 LLMeshRepository::getActualMeshLOD(const LLVolumeParams& mesh_params, S32 lo
 	return mThread->getActualMeshLOD(mesh_params, lod);
 }
 
-const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const LLVOVolume* requesting_obj)
+const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, LLVOVolume* requesting_obj)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_AVATAR;
     if (mesh_id.notNull())
@@ -4098,11 +4109,19 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
             LLMutexLock lock(mMeshMutex);
             //add volume to list of loading meshes
             skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
-            if (iter == mLoadingSkins.end())
-            { //no request pending for this skin info
+			if (iter != mLoadingSkins.end())
+			{ //request pending for this mesh, append volume id to list
+				auto it = std::find(iter->second.begin(), iter->second.end(), requesting_obj);
+				if (it == iter->second.end()) {
+					iter->second.push_back(requesting_obj);
+				}
+			}
+			else
+			{
+				//first request for this mesh
+				mLoadingSkins[mesh_id].push_back(requesting_obj);
                 mPendingSkinRequests.push(mesh_id);
             }
-            mLoadingSkins[mesh_id].insert(requesting_obj->getID());
         }
     }
 	return nullptr;

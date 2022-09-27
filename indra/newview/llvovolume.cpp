@@ -247,6 +247,8 @@ LLVOVolume::~LLVOVolume()
 	delete mVolumeImpl;
 	mVolumeImpl = NULL;
 
+	gMeshRepo.unregisterMesh(this);
+
 	if(!mMediaImplList.empty())
 	{
 		for(U32 i = 0 ; i < mMediaImplList.size() ; i++)
