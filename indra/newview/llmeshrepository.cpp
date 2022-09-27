@@ -1972,8 +1972,16 @@ bool LLMeshRepoThread::skinInfoReceived(const LLUUID& mesh_id, U8* data, S32 dat
 	}
 	
 	{
-		LLMeshSkinInfo info(skin);
-		info.mMeshID = mesh_id;
+		LLMeshSkinInfo* info = nullptr;
+		try
+		{
+			info = new LLMeshSkinInfo(mesh_id, skin);
+		}
+		catch (const std::bad_alloc& ex)
+		{
+			LL_WARNS() << "Failed to allocate skin info with exception: " << ex.what()  << LL_ENDL;
+			return false;
+		}
 
         // LL_DEBUGS(LOG_MESH) << "info pelvis offset" << info.mPelvisOffset << LL_ENDL;
 		{
@@ -2898,7 +2906,7 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 	{
 		if (mMutex->trylock())
 		{
-			std::list<LLMeshSkinInfo> skin_info_q;
+			std::list<LLMeshSkinInfo*> skin_info_q;
 			std::list<LLModel::Decomposition*> decomp_q;
 
 			if (! mSkinInfoQ.empty())
@@ -3491,7 +3499,7 @@ LLMeshRepository::LLMeshRepository()
   mMeshThreadCount(0),
   mThread(NULL)
 {
-
+	mSkinInfoCullTimer.resetWithExpiry(10.f);
 }
 
 void LLMeshRepository::init()
@@ -3776,6 +3784,28 @@ void LLMeshRepository::notifyLoadedMeshes()
 	//call completed callbacks on finished decompositions
 	mDecompThread->notifyCompleted();
 
+	if (mSkinInfoCullTimer.checkExpirationAndReset(10.f)) 
+	{
+		//// Clean up dead skin info
+		//U64Bytes skinbytes(0);
+		for (auto iter = mSkinMap.begin(), ender = mSkinMap.end(); iter != ender;)
+		{
+			auto copy_iter = iter++;
+
+			//skinbytes += U64Bytes(sizeof(LLMeshSkinInfo));
+			//skinbytes += U64Bytes(copy_iter->second->mJointNames.size() * sizeof(std::string));
+			//skinbytes += U64Bytes(copy_iter->second->mJointNums.size() * sizeof(S32));
+			//skinbytes += U64Bytes(copy_iter->second->mJointNames.size() * sizeof(LLMatrix4a));
+			//skinbytes += U64Bytes(copy_iter->second->mJointNames.size() * sizeof(LLMatrix4));
+
+			if (copy_iter->second->getNumRefs() == 1)
+			{
+				mSkinMap.erase(copy_iter);
+			}
+		}
+		//LL_INFOS() << "Skin info cache elements:" << mSkinMap.size() << " Memory: " << U64Kilobytes(skinbytes) << LL_ENDL;
+	}
+
 	// For major operations, attempt to get the required locks
 	// without blocking and punt if they're not available.  The
 	// longest run of holdoffs is kept in sMaxLockHoldoffs just
@@ -3913,13 +3943,13 @@ void LLMeshRepository::notifyLoadedMeshes()
 	mThread->mSignal->signal();
 }
 
-void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
+void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo* info)
 {
-	mSkinMap[info.mMeshID] = info;
+	mSkinMap[info->mMeshID] = info; // Cache into LLPointer
     // Alternative: We can get skin size from header
-    sCacheBytesSkins += info.sizeBytes();
+    sCacheBytesSkins += info->sizeBytes();
 
-	skin_load_map::iterator iter = mLoadingSkins.find(info.mMeshID);
+	skin_load_map::iterator iter = mLoadingSkins.find(info->mMeshID);
 	if (iter != mLoadingSkins.end())
 	{
 		for (std::set<LLUUID>::iterator obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
@@ -3927,10 +3957,27 @@ void LLMeshRepository::notifySkinInfoReceived(LLMeshSkinInfo& info)
 			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*obj_id);
 			if (vobj)
 			{
-				vobj->notifyMeshLoaded();
+				vobj->notifySkinInfoLoaded(info);
 			}
 		}
-		mLoadingSkins.erase(info.mMeshID);
+		mLoadingSkins.erase(iter);
+	}
+}
+
+void LLMeshRepository::notifySkinInfoUnavailable(const LLUUID& mesh_id)
+{
+	skin_load_map::iterator iter = mLoadingSkins.find(mesh_id);
+	if (iter != mLoadingSkins.end())
+	{
+		for (std::set<LLUUID>::iterator obj_id = iter->second.begin(); obj_id != iter->second.end(); ++obj_id)
+		{
+			LLVOVolume* vobj = (LLVOVolume*) gObjectList.findObject(*obj_id);
+			if (vobj)
+			{
+				vobj->notifySkinInfoUnavailable();
+			}
+		}
+		mLoadingSkins.erase(iter);
 	}
 }
 
@@ -4042,7 +4089,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
         skin_map::iterator iter = mSkinMap.find(mesh_id);
         if (iter != mSkinMap.end())
         {
-            return &(iter->second);
+            return iter->second;
         }
 
         //no skin info known about given mesh, try to fetch it
@@ -4058,7 +4105,7 @@ const LLMeshSkinInfo* LLMeshRepository::getSkinInfo(const LLUUID& mesh_id, const
             mLoadingSkins[mesh_id].insert(requesting_obj->getID());
         }
     }
-	return NULL;
+	return nullptr;
 }
 
 void LLMeshRepository::fetchPhysicsShape(const LLUUID& mesh_id)
