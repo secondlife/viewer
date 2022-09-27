@@ -281,10 +281,13 @@ public:
 	};
 
 	//set of requested skin info
-	std::set<UUIDBasedRequest> mSkinRequests;
+	std::deque<UUIDBasedRequest> mSkinRequests;
 	
 	// list of completed skin info requests
-	std::list<LLMeshSkinInfo*> mSkinInfoQ;
+	std::deque<LLMeshSkinInfo*> mSkinInfoQ;
+
+	// list of skin info requests that have failed or are unavailaibe
+	std::deque<UUIDBasedRequest> mSkinUnavailableQ;
 
 	//set of requested decompositions
 	std::set<UUIDBasedRequest> mDecompositionRequests;
@@ -352,7 +355,7 @@ public:
 
 	//send request for skin info, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)
-	bool fetchMeshSkinInfo(const LLUUID& mesh_id);
+	bool fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry = true);
 
 	//send request for decomposition, returns true if header info exists 
 	//  (should hold onto mesh_id and try again later if header info does not exist)

@@ -857,6 +857,12 @@ LLMeshRepoThread::~LLMeshRepoThread()
 	mHttpRequestSet.clear();
     mHttpHeaders.reset();
 
+	while (!mSkinInfoQ.empty())
+    {
+        delete mSkinInfoQ.front();
+        mSkinInfoQ.pop_front();
+    }
+
     while (!mDecompositionQ.empty())
     {
         delete mDecompositionQ.front();
@@ -946,6 +952,7 @@ void LLMeshRepoThread::run()
                     else
                     {
                         // too many fails
+						LLMutexLock lock(mMutex);
                         mUnavailableQ.push(req);
                         LL_WARNS() << "Failed to load " << req.mMeshParams << " , skip" << LL_ENDL;
                     }
@@ -1022,37 +1029,42 @@ void LLMeshRepoThread::run()
 
             if (!mSkinRequests.empty())
             {
-                std::set<UUIDBasedRequest> incomplete;
-                while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
-                {
-                    mMutex->lock();
-                    std::set<UUIDBasedRequest>::iterator iter = mSkinRequests.begin();
-                    UUIDBasedRequest req = *iter;
-                    mSkinRequests.erase(iter);
-                    mMutex->unlock();
-                    if (req.isDelayed())
-                    {
-                        incomplete.insert(req);
-                    }
-                    else if (!fetchMeshSkinInfo(req.mId))
-                    {
-                        if (req.canRetry())
-                        {
-                            req.updateTime();
-                            incomplete.insert(req);
-                        }
-                        else
-                        {
-                            LL_DEBUGS() << "mSkinRequests failed: " << req.mId << LL_ENDL;
-                        }
-                    }
-                }
+				std::list<UUIDBasedRequest> incomplete;
+				while (!mSkinRequests.empty() && mHttpRequestSet.size() < sRequestHighWater)
+				{
 
-                if (!incomplete.empty())
-                {
-                    LLMutexLock locker(mMutex);
-                    mSkinRequests.insert(incomplete.begin(), incomplete.end());
-                }
+					mMutex->lock();
+					auto req = mSkinRequests.front();
+					mSkinRequests.pop_front();
+					mMutex->unlock();
+					if (req.isDelayed())
+					{
+						incomplete.emplace_back(req);
+					}
+					else if (!fetchMeshSkinInfo(req.mId, req.canRetry()))
+					{
+						if (req.canRetry())
+						{
+							req.updateTime();
+							incomplete.emplace_back(req);
+						}
+						else
+						{
+							LLMutexLock locker(mMutex);
+							mSkinUnavailableQ.push_back(req);
+							LL_DEBUGS() << "mSkinReqQ failed: " << req.mId << LL_ENDL;
+						}
+					}
+				}
+
+				if (!incomplete.empty())
+				{
+					LLMutexLock locker(mMutex);
+					for (const auto& req : incomplete)
+					{
+						mSkinRequests.push_back(req);
+					}
+				}
             }
 
             // holding lock, try next list
@@ -1151,7 +1163,7 @@ void LLMeshRepoThread::run()
 // Mutex:  LLMeshRepoThread::mMutex must be held on entry
 void LLMeshRepoThread::loadMeshSkinInfo(const LLUUID& mesh_id)
 {
-	mSkinRequests.insert(UUIDBasedRequest(mesh_id));
+	mSkinRequests.push_back(UUIDBasedRequest(mesh_id));
 }
 
 // Mutex:  LLMeshRepoThread::mMutex must be held on entry
@@ -1308,7 +1320,7 @@ LLCore::HttpHandle LLMeshRepoThread::getByteRange(const std::string & url,
 }
 
 
-bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
+bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id, bool can_retry)
 {
 	
 	if (!mHeaderMutex)
@@ -1390,12 +1402,27 @@ bool LLMeshRepoThread::fetchMeshSkinInfo(const LLUUID& mesh_id)
 									   << LL_ENDL;
 					ret = false;
 				}
-				else
+				else if(can_retry)
 				{
 					handler->mHttpHandle = handle;
 					mHttpRequestSet.insert(handler);
 				}
+				else
+				{
+					LLMutexLock locker(mMutex);
+					mSkinUnavailableQ.emplace_back(mesh_id);
+				}
 			}
+			else
+			{
+				LLMutexLock locker(mMutex);
+				mSkinUnavailableQ.emplace_back(mesh_id);
+			}
+		}
+		else
+		{
+			LLMutexLock locker(mMutex);
+			mSkinUnavailableQ.emplace_back(mesh_id);
 		}
 	}
 	else
@@ -2906,13 +2933,20 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 	{
 		if (mMutex->trylock())
 		{
-			std::list<LLMeshSkinInfo*> skin_info_q;
+			std::deque<LLMeshSkinInfo*> skin_info_q;
+			std::deque<UUIDBasedRequest> skin_info_unavail_q;
 			std::list<LLModel::Decomposition*> decomp_q;
 
 			if (! mSkinInfoQ.empty())
 			{
 				skin_info_q.swap(mSkinInfoQ);
 			}
+
+			if (! mSkinUnavailableQ.empty())
+			{
+				skin_info_unavail_q.swap(mSkinUnavailableQ);
+			}
+
 			if (! mDecompositionQ.empty())
 			{
 				decomp_q.swap(mDecompositionQ);
@@ -2925,6 +2959,11 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 			{
 				gMeshRepo.notifySkinInfoReceived(skin_info_q.front());
 				skin_info_q.pop_front();
+			}
+			while (! skin_info_unavail_q.empty())
+			{
+				gMeshRepo.notifySkinInfoUnavailable(skin_info_unavail_q.front().mId);
+				skin_info_unavail_q.pop_front();
 			}
 
 			while (! decomp_q.empty())
@@ -3357,9 +3396,8 @@ void LLMeshSkinInfoHandler::processFailure(LLCore::HttpStatus status)
 					   << ", Reason:  " << status.toString()
 					   << " (" << status.toTerseString() << ").  Not retrying."
 					   << LL_ENDL;
-
-	// *TODO:  Mark mesh unavailable on error.  For now, simply leave
-	// request unfulfilled rather than retry forever.
+		LLMutexLock lock(gMeshRepo.mThread->mMutex);
+		gMeshRepo.mThread->mSkinUnavailableQ.emplace_back(mMeshID);
 }
 
 void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /* body_offset */,
@@ -3390,7 +3428,8 @@ void LLMeshSkinInfoHandler::processData(LLCore::BufferArray * /* body */, S32 /*
 		LL_WARNS(LOG_MESH) << "Error during mesh skin info processing.  ID:  " << mMeshID
 						   << ", Unknown reason.  Not retrying."
 						   << LL_ENDL;
-		// *TODO:  Mark mesh unavailable on error
+		LLMutexLock lock(gMeshRepo.mThread->mMutex);
+		gMeshRepo.mThread->mSkinUnavailableQ.emplace_back(mMeshID);
 	}
 }
 
