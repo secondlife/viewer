@@ -3498,11 +3498,11 @@ void LLViewerObject::removeInventory(const LLUUID& item_id)
 	++mExpectedInventorySerialNum;
 }
 
-bool LLViewerObject::isTextureInInventory(LLViewerInventoryItem* item)
+bool LLViewerObject::isAssetInInventory(LLViewerInventoryItem* item)
 {
 	bool result = false;
 
-	if (item && LLAssetType::AT_TEXTURE == item->getType())
+	if (item)
 	{
 		std::list<LLUUID>::iterator begin = mPendingInventoryItemsIDs.begin();
 		std::list<LLUUID>::iterator end = mPendingInventoryItemsIDs.end();
@@ -3516,13 +3516,27 @@ bool LLViewerObject::isTextureInInventory(LLViewerInventoryItem* item)
 	return result;
 }
 
-void LLViewerObject::updateTextureInventory(LLViewerInventoryItem* item, U8 key, bool is_new)
+void LLViewerObject::updateMaterialInventory(LLViewerInventoryItem* item, U8 key, bool is_new)
 {
-	if (item && !isTextureInInventory(item))
-	{
-		mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
-		updateInventory(item, key, is_new);
-	}
+    if (!item)
+    {
+        return;
+    }
+    if (LLAssetType::AT_TEXTURE != item->getType()
+        && LLAssetType::AT_MATERIAL != item->getType())
+    {
+        // Not supported
+        return;
+    }
+
+    if (isAssetInInventory(item))
+    {
+        // already there
+        return;
+    }
+
+    mPendingInventoryItemsIDs.push_back(item->getAssetUUID());
+    updateInventory(item, key, is_new);
 }
 
 void LLViewerObject::updateInventory(

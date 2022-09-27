@@ -923,17 +923,17 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 }
 
 // static
-BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
+BOOL LLToolDragAndDrop::handleDropMaterialProtections(LLViewerObject* hit_obj,
 													 LLInventoryItem* item,
 													 LLToolDragAndDrop::ESource source,
 													 const LLUUID& src_id)
 {
 	// Always succeed if....
-	// texture is from the library 
+	// material is from the library 
 	// or already in the contents of the object
 	if (SOURCE_LIBRARY == source)
 	{
-		// dropping a texture from the library always just works.
+		// dropping a material from the library always just works.
 		return TRUE;
 	}
 
@@ -964,15 +964,15 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 	LLPointer<LLViewerInventoryItem> new_item = new LLViewerInventoryItem(item);
 	if (!item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
 	{
-		// Check that we can add the texture as inventory to the object
+		// Check that we can add the material as inventory to the object
 		if (willObjectAcceptInventory(hit_obj,item) < ACCEPT_YES_COPY_SINGLE )
 		{
 			return FALSE;
 		}
-		// make sure the object has the texture in it's inventory.
+		// make sure the object has the material in it's inventory.
 		if (SOURCE_AGENT == source)
 		{
-			// Remove the texture from local inventory. The server
+			// Remove the material from local inventory. The server
 			// will actually remove the item from agent inventory.
 			gInventory.deleteObject(item->getUUID());
 			gInventory.notifyObservers();
@@ -994,10 +994,11 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 			}
 		}
 		// Add the texture item to the target object's inventory.
-		if (LLAssetType::AT_TEXTURE == new_item->getType())
-		{
-			hit_obj->updateTextureInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
-		}
+        if (LLAssetType::AT_TEXTURE == new_item->getType()
+            || LLAssetType::AT_MATERIAL == new_item->getType())
+        {
+            hit_obj->updateMaterialInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+        }
 		else
 		{
 			hit_obj->updateInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
@@ -1016,9 +1017,10 @@ BOOL LLToolDragAndDrop::handleDropTextureProtections(LLViewerObject* hit_obj,
 		// *FIX: may want to make sure agent can paint hit_obj.
 
 		// Add the texture item to the target object's inventory.
-		if (LLAssetType::AT_TEXTURE == new_item->getType())
+		if (LLAssetType::AT_TEXTURE == new_item->getType()
+            || LLAssetType::AT_MATERIAL == new_item->getType())
 		{
-			hit_obj->updateTextureInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
+			hit_obj->updateMaterialInventory(new_item, TASK_INVENTORY_ITEM_KEY, true);
 		}
 		else
 		{
@@ -1045,7 +1047,7 @@ void LLToolDragAndDrop::dropTextureAllFaces(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if (!success)
 	{
 		return;
@@ -1078,7 +1080,7 @@ void LLToolDragAndDrop::dropMaterialOneFace(LLViewerObject* hit_obj,
         return;
     }
     LLUUID asset_id = item->getAssetUUID();
-    BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+    BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
     if (!success)
     {
         return;
@@ -1104,7 +1106,7 @@ void LLToolDragAndDrop::dropMaterialAllFaces(LLViewerObject* hit_obj,
         return;
     }
     LLUUID asset_id = item->getAssetUUID();
-    BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+    BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
     if (!success)
     {
         return;
@@ -1128,7 +1130,7 @@ void LLToolDragAndDrop::dropMesh(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if(!success)
 	{
 		return;
@@ -1165,7 +1167,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 		return;
 	}
 	LLUUID asset_id = item->getAssetUUID();
-	BOOL success = handleDropTextureProtections(hit_obj, item, source, src_id);
+	BOOL success = handleDropMaterialProtections(hit_obj, item, source, src_id);
 	if (!success)
 	{
 		return;

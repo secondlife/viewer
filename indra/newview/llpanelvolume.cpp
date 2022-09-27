@@ -1334,7 +1334,7 @@ void LLPanelVolume::setLightTextureID(const LLUUID &asset_id, const LLUUID &item
         LLViewerInventoryItem* item = gInventory.getItem(item_id);
         if (item && !item->getPermissions().allowOperationBy(PERM_COPY, gAgent.getID()))
         {
-            LLToolDragAndDrop::handleDropTextureProtections(volobjp, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
+            LLToolDragAndDrop::handleDropMaterialProtections(volobjp, item, LLToolDragAndDrop::SOURCE_AGENT, LLUUID::null);
         }    
         volobjp->setLightTextureID(asset_id);
     }

@@ -94,7 +94,7 @@ public:
 
 	// deal with permissions of object, etc. returns TRUE if drop can
 	// proceed, otherwise FALSE.
-	static BOOL handleDropTextureProtections(LLViewerObject* hit_obj,
+	static BOOL handleDropMaterialProtections(LLViewerObject* hit_obj,
 						 LLInventoryItem* item,
 						 LLToolDragAndDrop::ESource source,
 						 const LLUUID& src_id);

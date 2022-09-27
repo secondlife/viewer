@@ -368,6 +368,7 @@ public:
 	 * Then this only texture is used for all selected faces.
 	 */
 	void applyNoCopyTextureToTEs(LLViewerInventoryItem* item);
+    void applyNoCopyPbrMaterialToTEs(LLViewerInventoryItem* item);
 
 	ESelectType getSelectType() const { return mSelectType; }
 
