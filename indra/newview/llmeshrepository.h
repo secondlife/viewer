@@ -305,10 +305,10 @@ public:
 	std::queue<LODRequest> mLODReqQ;
 
 	//queue of unavailable LODs (either asset doesn't exist or asset doesn't have desired LOD)
-	std::queue<LODRequest> mUnavailableQ;
+	std::deque<LODRequest> mUnavailableQ;
 
 	//queue of successfully loaded meshes
-	std::queue<LoadedMesh> mLoadedQ;
+	std::deque<LoadedMesh> mLoadedQ;
 
 	//map of pending header requests and currently desired LODs
 	typedef boost::unordered_map<LLUUID, std::vector<S32> > pending_lod_map;
