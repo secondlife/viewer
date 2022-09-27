@@ -858,9 +858,12 @@ public:
         ZR_SIZE_ERROR,
         ZR_DATA_ERROR,
         ZR_PARSE_ERROR,
+		ZR_BUFFER_ERROR,
+		ZR_VERSION_ERROR
     } EZipRresult;
     // return OK or reason for failure
     static EZipRresult unzip_llsd(LLSD& data, std::istream& is, S32 size);
+	static EZipRresult unzip_llsd(LLSD& data, const U8* in, S32 size);
 };
 
 //dirty little zip functions -- yell at davep
@@ -868,4 +871,7 @@ LL_COMMON_API std::string zip_llsd(LLSD& data);
 
 
 LL_COMMON_API U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize,std::istream& is, S32 size);
+
+// returns a pointer to the array or past the array if the deprecated header exists
+LL_COMMON_API char* strip_deprecated_header(char* in, U32& cur_size, U32* header_size = nullptr);
 #endif // LL_LLSDSERIALIZE_H
