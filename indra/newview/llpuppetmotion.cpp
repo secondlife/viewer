@@ -32,8 +32,9 @@
 #include <set>
 #include <limits>
 
-#include "llagent.h"            //gAgent
-#include "llagentdata.h"        //gAgentID  (The agent running this viewer)
+#include "llagent.h"
+#include "llagentcamera.h"
+#include "llagentdata.h"
 #include "llcharacter.h"
 #include "llpuppetevent.h"
 #include "llpuppetmotion.h"
@@ -574,6 +575,24 @@ LLPuppetMotion::LLPuppetMotion(const LLUUID &id) :
     mRemoteToLocalClockOffset = std::numeric_limits<F32>::min();
 }
 
+// override
+bool LLPuppetMotion::needsUpdate() const
+{
+    return mNeedsUpdate || LLMotion::needsUpdate();
+}
+
+F32 LLPuppetMotion::getEaseInDuration()
+{
+    constexpr F32 PUPPETRY_EASE_IN_DURATION = 1.0;
+    return PUPPETRY_EASE_IN_DURATION;
+}
+
+F32 LLPuppetMotion::getEaseOutDuration()
+{
+    constexpr F32 PUPPETRY_EASE_OUT_DURATION = 1.0;
+    return PUPPETRY_EASE_OUT_DURATION;
+}
+
 LLJoint::JointPriority LLPuppetMotion::getPriority()
 {
     // Note: LLMotion::getPriority() is only used to delegate motion-wide priority
@@ -646,12 +665,7 @@ void LLPuppetMotion::addExpressionEvent(const LLPuppetJointEvent& event)
     //There should only be one captured frame from the expression
     //controller but just in case, use a map so we don't overflow events
     mExpressionEvents[event.getJointID()] = event;
-
-    // HACK: set mPose weight < 1.0 to trigger non-idle updates in MotionController
-    if (mPose.getWeight() == 1.0f && mPose.getNumJointStates() == 0)
-    {
-        mPose.setWeight(0.999f);
-    }
+    mNeedsUpdate = true;
 }
 
 void LLPuppetMotion::addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, const LLVector3& parent_rel_pos, const LLVector3& tip_rel_end_pos)
@@ -756,6 +770,16 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
 
 void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now)
 {
+    if (mIsSelf)
+    {
+        auto camera_mode = gAgentCamera.getCameraMode();
+        if (camera_mode == CAMERA_MODE_MOUSELOOK || camera_mode == CAMERA_MODE_CUSTOMIZE_AVATAR)
+        {
+            // don't actually apply Puppetry when local agent is in mouselook
+            return;
+        }
+    }
+
     mIKSolver.solveForTargets(targets);
 
     // copy results
@@ -832,15 +856,11 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
         }
         mExpressionEvents.clear();
 
-        // undo non-idle update HACK: set weight back to 1.0
-        if (mPose.getWeight() < 1.0f)
-        {
-            mPose.setWeight(1.0f);
-        }
         if (targets.size() > 0 && local_puppetry)
         {
             solveForTargetsAndHarvestResults(targets, now);
         }
+        mNeedsUpdate = false;
     }
 }
 
@@ -972,6 +992,7 @@ void LLPuppetMotion::queueEvent(const LLPuppetEvent& puppet_event)
         }
         DelayedEventQueue& queue = mEventQueues[joint_id];
         queue.addEvent(remote_timestamp, local_timestamp, joint_event);
+        mNeedsUpdate = true;
     }
 }
 
@@ -990,6 +1011,14 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     if (mJointStates.empty())
     {
         return FALSE;
+    }
+
+    // On each update we push mStopTimestamp into the future.
+    // If the updates stop happening then this Motion will be stopped.
+    constexpr F32 INACTIVITY_TIMEOUT = 2.0f; // seconds
+    if (!mStopped)
+    {
+        mStopTimestamp = mActivationTimestamp + time + INACTIVITY_TIMEOUT;
     }
 
     Timestamp now = (S32)(LLFrameTimer::getElapsedSeconds() * MSEC_PER_SEC);
@@ -1055,6 +1084,24 @@ BOOL LLPuppetMotion::onUpdate(F32 time, U8* joint_mask)
     // reduce its idle load.  Also will need to plumb LLPuppetModule to be able to
     // reintroduce this motion to the controller when puppetry restarts.
     return TRUE;
+}
+
+BOOL LLPuppetMotion::onActivate()
+{
+    // LLMotionController calls this when it adds this motion
+    // to its active list.  As of 2022.04.21 the return value
+    // is never checked.
+
+    // Reset mStopTimestamp to zero to indicate it should run forever.
+    // It will be pushed to a future non-zero value in onUpdate().
+    mStopTimestamp = 0.0f;
+    return TRUE;
+}
+
+void LLPuppetMotion::onDeactivate()
+{
+    // LLMotionController calls this when it removes
+    // this motion from its active list.
 }
 
 void LLPuppetMotion::collectJoints(LLJoint* joint)
@@ -1248,12 +1295,6 @@ void LLPuppetMotion::unpackEvents(LLMessageSystem *mesgsys,int blocknum)
     else
     {
         LL_WARNS_ONCE("Puppet") << "Invalid puppetry packet received. Rejecting!" << LL_ENDL;
-    }
-
-    // HACK: set mPose weight < 1.0 to trigger non-idle updates in MotionController
-    if (mPose.getWeight() == 1.0f && mPose.getNumJointStates() == 0)
-    {
-        mPose.setWeight(0.999f);
     }
 }
 

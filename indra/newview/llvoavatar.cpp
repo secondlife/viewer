@@ -1984,7 +1984,6 @@ void LLVOAvatar::startDefaultMotions()
 	startMotion( ANIM_AGENT_PHYSICS_MOTION );
 	startMotion( ANIM_AGENT_HAND_MOTION );
 	startMotion( ANIM_AGENT_PELVIS_FIX );
-    startMotion( ANIM_AGENT_PUPPET_MOTION );
 
 	//-------------------------------------------------------------------------
 	// restart any currently active motions

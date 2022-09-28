@@ -423,7 +423,7 @@ BOOL LLMotionController::startMotion(const LLUUID &id, F32 start_offset)
 	}
 	//if the motion is already active and allows deprecation, then let it keep playing
 	else if (motion->canDeprecate() && isMotionActive(motion))
-	{	
+	{
 		return TRUE;
 	}
 
@@ -450,7 +450,6 @@ BOOL LLMotionController::stopMotionInstance(LLMotion::ptr_t &motion, BOOL stop_i
 		return FALSE;
 	}
 
-	
 	// If on active list, stop it
 	if (isMotionActive(motion) && !motion->isStopped())
 	{
@@ -572,41 +571,40 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			continue;
 		}
 
-		BOOL update_motion = FALSE;
-
-		if (motionp->getPose()->getWeight() < 1.f)
+		if (!motionp->needsUpdate())
 		{
-			update_motion = TRUE;
-		}
-		else
-		{
+			// as far as the motion knows: it doesn't need an update
+			// but we still update it if its "joint signature"
+			// causes a change to the accumulated signature stored in
+			// 2D arraymJointSignature[][] (whatever that means)
+			BOOL update_motion = FALSE;
 			for (S32 i = 0; i < NUM_JOINT_SIGNATURE_STRIDES; i++)
 			{
+				// position = 0
 		 		U32 *current_signature = (U32*)&(mJointSignature[0][i * 4]);
 				U32 test_signature = *(U32*)&(motionp->mJointSignature[0][i * 4]);
-				
 				if ((*current_signature | test_signature) > (*current_signature))
 				{
 					*current_signature |= test_signature;
 					update_motion = TRUE;
 				}
 
+				// rotation  = 1
 				*((U32*)&last_joint_signature[i * 4]) = *(U32*)&(mJointSignature[1][i * 4]);
 				current_signature = (U32*)&(mJointSignature[1][i * 4]);
 				test_signature = *(U32*)&(motionp->mJointSignature[1][i * 4]);
-
 				if ((*current_signature | test_signature) > (*current_signature))
 				{
 					*current_signature |= test_signature;
 					update_motion = TRUE;
 				}
 			}
-		}
 
-		if (!update_motion)
-		{
-			updateIdleMotion(motionp);
-			continue;
+			if (!update_motion)
+			{
+				updateIdleMotion(motionp);
+				continue;
+			}
 		}
 
 		LLPose *posep = motionp->getPose();
@@ -653,7 +651,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			if (mLastTime <= motionp->getStopTime())
 			{
 				// if not, let's stop it this time through and deactivate it the next
-
 				posep->setWeight(motionp->getFadeWeight());
 				motionp->onUpdate(motionp->getStopTime() - motionp->mActivationTimestamp, last_joint_signature);
 			}
@@ -712,7 +709,6 @@ void LLMotionController::updateMotionsByType(LLMotion::LLMotionBlendType anim_ty
 			// perform motion update
 			{
 //				LL_RECORD_BLOCK_TIME(FTM_MOTION_ON_UPDATE);
-                
 				update_result = motionp->onUpdate(mAnimTime - motionp->mActivationTimestamp, last_joint_signature);
 			}
 		}
@@ -1012,6 +1008,7 @@ BOOL LLMotionController::deactivateMotionInstance(LLMotion::ptr_t &motion)
 
 void LLMotionController::deprecateMotionInstance(LLMotion::ptr_t &motion)
 {
+	llassert(motion);
 	mDeprecatedMotions.insert(motion);
 
 	//fade out deprecated motion

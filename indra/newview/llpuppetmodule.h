@@ -86,7 +86,7 @@ public:
     void sendEnabledParts();
     void send_skeleton(const LLSD& sd=LLSD::emptyMap());
 
-    bool getEcho()   const   { return mPlayServerEcho; };
+    bool getEcho() const { return mPlayServerEcho; };
     void setEcho(bool play_server_echo);
 
     bool isSending() const   { return mIsSending; };
@@ -101,7 +101,7 @@ public:
     typedef std::map<std::string, F64> active_joint_map_t;     // Map of used joints and last time
     void addActiveJoint(const std::string & joint_name);
     bool isActiveJoint(const std::string & joint_name);
-    const active_joint_map_t & getActiveJoints()   { return mActiveJoints; }
+    const active_joint_map_t & getActiveJoints() const { return mActiveJoints; }
 
     void parsePuppetryResponse(LLSD response);
 private:

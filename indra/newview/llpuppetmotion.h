@@ -87,6 +87,8 @@ public:
     // Constructor
     LLPuppetMotion(const LLUUID &id);
 
+    bool needsUpdate() const override;
+
     // Destructor
     virtual ~LLPuppetMotion() {}
 
@@ -126,10 +128,10 @@ public:
     virtual F32 getDuration() override { return 0.0f; }
 
     // motions must report their "ease in" duration
-    virtual F32 getEaseInDuration() override { return 0.0f; }
+    virtual F32 getEaseInDuration() override;
 
     // motions must report their "ease out" duration.
-    virtual F32 getEaseOutDuration() override { return 0.0f; }
+    virtual F32 getEaseOutDuration() override;
 
     // motions must report their priority
     virtual LLJoint::JointPriority getPriority() override;
@@ -145,23 +147,14 @@ public:
     // must return true to indicate success and be available for activation
     virtual LLMotionInitStatus onInitialize(LLCharacter *character) override;
 
-    virtual BOOL onActivate() override
-    {
-        // LLMotionController calls this when it adds this motion
-        // to its active list.  As of 2022.04.21 the return value
-        // is never checked.
-        return TRUE;
-    }
+    virtual BOOL onActivate() override;
 
     // called per time step
     // must return TRUE while it is active, and
     // must return FALSE when the motion is completed.
     virtual BOOL onUpdate(F32 time, U8* joint_mask) override;
 
-    virtual void onDeactivate() override {
-        // LLMotionController calls this when it removes
-        // this motion from its active list.
-    }
+    virtual void onDeactivate() override;
 
     BOOL canDeprecate() override { return FALSE; }
     void addJointToSkeletonData(LLSD& skeleton_sd, LLJoint* joint, const LLVector3& parent_rel_pos, const LLVector3& tip_rel_end_pos);
@@ -195,6 +188,7 @@ private:
     F32                     mRemoteToLocalClockOffset; // msec
     F32                     mArmSpan = 2.0f;
     bool                    mIsSelf = false;
+    bool                    mNeedsUpdate = false;
 
     LLJoint::JointPriority  mMotionPriority = LLJoint::PUPPET_PRIORITY;
 
