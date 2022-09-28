@@ -1007,11 +1007,15 @@ void LLMaterialEditor::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, L
 
 void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId)
 {
-    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(itemId));
+    LLSD floater_key;
+    floater_key["taskid"] = taskId;
+    floater_key["itemid"] = itemId;
+    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", floater_key);
     if (me)
     {
         me->setAssetId(newAssetId);
         me->refreshFromInventory();
+        me->setEnabled(true);
     }
 }
 
@@ -1048,7 +1052,17 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
     if (new_item_id.notNull())
     {
         mItemUUID = new_item_id;
-        setKey(LLSD(new_item_id));
+        if (mObjectUUID.isNull())
+        {
+            setKey(LLSD(new_item_id));
+        }
+        else
+        {
+            LLSD floater_key;
+            floater_key["taskid"] = new_item_id;
+            floater_key["itemid"] = mObjectUUID;
+            setKey(floater_key);
+        }
     }
     LL_DEBUGS() << "LLPreviewNotecard::refreshFromInventory()" << LL_ENDL;
     loadAsset();
