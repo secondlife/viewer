@@ -51,7 +51,7 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
     vec3 env_vec = env_mat * refnormpersp;
 
-    legacyenv = textureCube(environmentMap, env_vec).rgb;
+    legacyenv = srgb_to_linear(textureCube(environmentMap, env_vec).rgb);
 
     glossenv = legacyenv;
 }
@@ -63,6 +63,6 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
 
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity)
 {
-    color = mix(color.rgb, legacyenv, envIntensity);
+    color = mix(color.rgb, legacyenv*0.5, envIntensity);
 }
 
