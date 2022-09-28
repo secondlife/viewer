@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<floater
+ legacy_header_height="18"
+ height="130"
+ min_height="130"
+ width="270"
+ min_width="270"
+ layout="topleft"
+ name="floater_combo"
+ title="floater_combo"
+ help_topic="floater_combo"
+ can_resize="false"
+ can_minimize="false">
+    <text
+     follows="top|left|right"
+     height="10"
+     layout="topleft"
+     left="20"
+     name="combo_text"
+     top="30"
+     width="200">
+     Select an option:
+    </text>
+    <combo_box
+     follows="top|left"
+     layout="topleft"
+     left="20"
+     name="combo_options"
+     top_delta="20"
+     width="230"/>
+    <button
+     follows="top|left"
+     height="23"
+     label="OK"
+     layout="topleft"
+     top_delta="40"
+     left="20"
+     name="combo_ok"
+     width="90"/>
+    <button
+     follows="top|left"
+     height="23"
+     label="Cancel"
+     layout="topleft"
+     left_pad="50"
+     name="combo_cancel"
+     width="90"/>
+</floater>

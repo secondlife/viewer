@@ -32,22 +32,63 @@
 #include "llviewertexture.h"
 
 class LLTextureCtrl;
+class LLGLTFMaterial;
+class LLButton;
+class LLComboBox;
+class LLTextBox;
 
 namespace tinygltf
 {
     class Model;
 }
 
-class LLGLTFMaterial;
+// todo: Consider making into a notification or just merging with
+// presets. Layout is identical to camera/graphics presets so there
+// is no point in having multiple separate xmls and classes.
+class LLFloaterComboOptions : public LLFloater
+{
+public:
+    typedef std::function<void(const std::string&, S32)> combo_callback;
+    LLFloaterComboOptions();
+
+    virtual ~LLFloaterComboOptions();
+    /*virtual*/	BOOL	postBuild();
+
+    static LLFloaterComboOptions* showUI(
+        combo_callback callback,
+        const std::string &title,
+        const std::string &description,
+        const std::list<std::string> &options);
+
+    static LLFloaterComboOptions* showUI(
+        combo_callback callback,
+        const std::string &title,
+        const std::string &description,
+        const std::string &ok_text,
+        const std::string &cancel_text,
+        const std::list<std::string> &options);
+
+private:
+    void onConfirm();
+    void onCancel();
+
+protected:
+    combo_callback mCallback;
+
+    LLButton *mConfirmButton;
+    LLButton *mCancelButton;
+    LLComboBox *mComboOptions;
+    LLTextBox *mComboText;
+};
 
 class LLMaterialEditor : public LLPreview, public LLVOInventoryListener
 {
 public:
 	LLMaterialEditor(const LLSD& key);
 
-    bool setFromGltfModel(tinygltf::Model& model, bool set_textures = false);
+    bool setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures = false);
 
-    void setFromGltfMetaData(const std::string& filename, tinygltf::Model& model);
+    void setFromGltfMetaData(const std::string& filename, const  tinygltf::Model& model, S32 index);
 
     // open a file dialog and select a gltf/glb file for import
     static void importMaterial();
@@ -165,6 +206,8 @@ public:
     // initialize the UI from a default GLTF material
     void loadDefaults();
 private:
+    void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
+
     friend class LLMaterialFilePicker;
 
     LLUUID mAssetID;
