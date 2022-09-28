@@ -2923,7 +2923,7 @@ void LLMeshRepoThread::notifyLoadedMeshes()
 		}
 	}
 
-	if (! mSkinInfoQ.empty() || ! mDecompositionQ.empty())
+	if (!mSkinInfoQ.empty() || !mSkinUnavailableQ.empty() || ! mDecompositionQ.empty())
 	{
 		if (mMutex->trylock())
 		{
