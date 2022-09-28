@@ -32,6 +32,9 @@ vec3 getAtmosAttenuation();
 
 uniform int no_atmo;
 
+vec3 srgb_to_linear(vec3 col);
+vec3 linear_to_srgb(vec3 col);
+
 vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 {
     light *= atten.r;
@@ -42,6 +45,16 @@ vec3 atmosTransportFrag(vec3 light, vec3 additive, vec3 atten)
 vec3 atmosTransport(vec3 light)
 {
      return atmosTransportFrag(light, getAdditiveColor(), getAtmosAttenuation());
+}
+
+vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten)
+{
+    light = linear_to_srgb(light);
+    additive = linear_to_srgb(additive);
+    atten = linear_to_srgb(atten);
+
+    float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;    
+    return srgb_to_linear(mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness));
 }
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)

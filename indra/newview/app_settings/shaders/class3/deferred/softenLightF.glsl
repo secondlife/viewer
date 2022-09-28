@@ -69,11 +69,10 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
-vec3  atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3  scaleSoftClipFrag(vec3 l);
-vec3  fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
-vec3  fullbrightScaleSoftClip(vec3 light);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+vec3  atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
+vec3  scaleSoftClipFragLinear(vec3 l);
+vec3  fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 // reflection probe interface
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
@@ -135,7 +134,7 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVars(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
+    calcAtmosphericVarsLinear(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
 
     vec3 ambenv;
     vec3 glossenv;
@@ -158,7 +157,7 @@ void main()
         vec3  radiance  = vec3(0);
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
         
-        irradiance       = max(amblit*1.725,irradiance);
+        irradiance       = max(amblit*ao,irradiance);
 
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
@@ -172,17 +171,14 @@ void main()
         float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
         
         color.rgb += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
-        color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit*8.0 * scol;
+        color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit*2.75 * scol;
         color.rgb += colorEmissive;
 
-        //color = atmosFragLighting(color, additive, atten);
-        color *= atten.r;
-        color += additive*2.0;
-        
+        color = atmosFragLightingLinear(color, additive, atten);
+        color  = scaleSoftClipFragLinear(color);
     }
     else
     {
-
         // legacy shaders are still writng sRGB to gbuffer
         diffuse.rgb = srgb_to_linear(diffuse.rgb);
         spec.rgb = srgb_to_linear(spec.rgb);
@@ -197,7 +193,7 @@ void main()
         // use sky settings ambient or irradiance map sample, whichever is brighter
         color = max(amblit, ambenv*ambocc);
 
-        float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+        float ambient = min(abs(dot(norm.xyz, light_dir.xyz)), 1.0);
         ambient *= 0.5;
         ambient *= ambient;
         ambient = (1.0 - ambient);
@@ -216,32 +212,30 @@ void main()
 
             // add the two types of shiny together
             vec3 spec_contrib = dumbshiny * spec.rgb;
-            bloom             = dot(spec_contrib, spec_contrib) / 6;
             color.rgb += spec_contrib;
 
-            // add reflection map - EXPERIMENTAL WORK IN PROGRESS
+            // add radiance map
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
         }
 
         color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
-
+        
+        if (envIntensity > 0.0)
+        {  // add environment map
+            applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
+        }    
         if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
         {
-            color = mix(atmosFragLighting(color, additive, atten), fullbrightAtmosTransportFrag(color, additive, atten), diffuse.a);
-            if (envIntensity > 0.0)
-            {  // add environmentmap
-                applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
-            }
-            color = mix(color, fullbrightScaleSoftClip(color), diffuse.a);
+            color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a);    
+            color = scaleSoftClipFragLinear(color);
         }
     }
 
     #ifdef WATER_FOG
         vec4 fogged = applyWaterFogView(pos.xyz, vec4(color, bloom));
         color       = fogged.rgb;
-        bloom       = fogged.a;
     #endif
 
     frag_color.rgb = color.rgb; //output linear since local lights will be added to this shader's results
-    frag_color.a = bloom;
+    frag_color.a = 0.0;
 }

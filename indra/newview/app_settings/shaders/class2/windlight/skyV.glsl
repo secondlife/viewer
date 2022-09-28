@@ -55,8 +55,6 @@ uniform float max_y;
 uniform vec4  glow;
 uniform float sun_moon_glow_factor;
 
-uniform vec4 cloud_color;
-
 void main()
 {
     // World / view / projection

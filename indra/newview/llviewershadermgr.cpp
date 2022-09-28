@@ -849,6 +849,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "lighting/lightSpecularV.glsl",           mShaderLevel[SHADER_LIGHTING] ) );
     shaders.push_back( make_pair( "windlight/atmosphericsFuncs.glsl",       mShaderLevel[SHADER_WINDLIGHT] ) );
 	shaders.push_back( make_pair( "windlight/atmosphericsV.glsl",           mShaderLevel[SHADER_WINDLIGHT] ) );
+    shaders.push_back( make_pair( "environment/srgbF.glsl",                 1 ) );
 	shaders.push_back( make_pair( "avatar/avatarSkinV.glsl",                1 ) );
 	shaders.push_back( make_pair( "avatar/objectSkinV.glsl",                1 ) );
 	if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
@@ -959,6 +960,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 BOOL LLViewerShaderMgr::loadShadersEnvironment()
 {
+#if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 
 	if (mShaderLevel[SHADER_ENVIRONMENT] == 0)
@@ -994,12 +996,13 @@ BOOL LLViewerShaderMgr::loadShadersEnvironment()
 	}
 	
 	LLWorld::getInstance()->updateWaterObjects();
-	
+#endif
 	return TRUE;
 }
 
 BOOL LLViewerShaderMgr::loadShadersWater()
 {
+#if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 	BOOL terrainWaterSuccess = TRUE;
 
@@ -1112,6 +1115,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 	
 	LLWorld::getInstance()->updateWaterObjects();
 
+#endif
 	return TRUE;
 }
 
@@ -2874,7 +2878,83 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 {
 	BOOL success = TRUE;
 
-	if (success)
+    if (success)
+    {
+        gObjectBumpProgram.mName = "Bump Shader";
+        gObjectBumpProgram.mFeatures.encodesNormal = true;
+        gObjectBumpProgram.mShaderFiles.clear();
+        gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpV.glsl", GL_VERTEX_SHADER));
+        gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpF.glsl", GL_FRAGMENT_SHADER));
+        gObjectBumpProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = make_rigged_variant(gObjectBumpProgram, gSkinnedObjectBumpProgram);
+        success = success && gObjectBumpProgram.createShader(NULL, NULL);
+        if (success)
+        { //lldrawpoolbump assumes "texture0" has channel 0 and "texture1" has channel 1
+            LLGLSLShader* shader[] = { &gObjectBumpProgram, &gSkinnedObjectBumpProgram };
+            for (int i = 0; i < 2; ++i)
+            {
+                shader[i]->bind();
+                shader[i]->uniform1i(sTexture0, 0);
+                shader[i]->uniform1i(sTexture1, 1);
+                shader[i]->unbind();
+            }
+        }
+    }
+
+    if (success)
+    {
+        gObjectSimpleProgram.mName = "Simple Shader";
+        gObjectSimpleProgram.mFeatures.calculatesLighting = true;
+        gObjectSimpleProgram.mFeatures.calculatesAtmospherics = true;
+        gObjectSimpleProgram.mFeatures.hasGamma = true;
+        gObjectSimpleProgram.mFeatures.hasAtmospherics = true;
+        gObjectSimpleProgram.mFeatures.hasLighting = true;
+        gObjectSimpleProgram.mFeatures.mIndexedTextureChannels = 0;
+        gObjectSimpleProgram.mShaderFiles.clear();
+        gObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleV.glsl", GL_VERTEX_SHADER));
+        gObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER));
+        gObjectSimpleProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = make_rigged_variant(gObjectSimpleProgram, gSkinnedObjectSimpleProgram);
+        success = success && gObjectSimpleProgram.createShader(NULL, NULL);
+    }
+
+    if (success)
+    {
+        gObjectFullbrightProgram.mName = "Fullbright Shader";
+        gObjectFullbrightProgram.mFeatures.calculatesAtmospherics = true;
+        gObjectFullbrightProgram.mFeatures.hasGamma = true;
+        gObjectFullbrightProgram.mFeatures.hasTransport = true;
+        gObjectFullbrightProgram.mFeatures.isFullbright = true;
+        gObjectFullbrightProgram.mFeatures.hasSrgb = true;
+        gObjectFullbrightProgram.mFeatures.mIndexedTextureChannels = 0;
+        gObjectFullbrightProgram.mShaderFiles.clear();
+        gObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightV.glsl", GL_VERTEX_SHADER));
+        gObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightF.glsl", GL_FRAGMENT_SHADER));
+        gObjectFullbrightProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        success = make_rigged_variant(gObjectFullbrightProgram, gSkinnedObjectFullbrightProgram);
+        success = success && gObjectFullbrightProgram.createShader(NULL, NULL);
+    }
+
+    if (success)
+    {
+        gObjectFullbrightShinyWaterProgram.mName = "Fullbright Shiny Water Shader";
+        gObjectFullbrightShinyWaterProgram.mFeatures.calculatesAtmospherics = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.isFullbright = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.isShiny = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.hasGamma = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.hasTransport = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.hasWaterFog = true;
+        gObjectFullbrightShinyWaterProgram.mFeatures.mIndexedTextureChannels = 0;
+        gObjectFullbrightShinyWaterProgram.mShaderFiles.clear();
+        gObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyV.glsl", GL_VERTEX_SHADER));
+        gObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyWaterF.glsl", GL_FRAGMENT_SHADER));
+        gObjectFullbrightShinyWaterProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
+        gObjectFullbrightShinyWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+        success = make_rigged_variant(gObjectFullbrightShinyWaterProgram, gSkinnedObjectFullbrightShinyWaterProgram);
+        success = success && gObjectFullbrightShinyWaterProgram.createShader(NULL, NULL);
+    }
+
+    if (success)
 	{
 		gObjectSimpleNonIndexedTexGenProgram.mName = "Non indexed tex-gen Shader";
 		gObjectSimpleNonIndexedTexGenProgram.mFeatures.calculatesLighting = true;
@@ -2906,6 +2986,8 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleNonIndexedTexGenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
 		success = gObjectSimpleNonIndexedTexGenWaterProgram.createShader(NULL, NULL);
 	}
+
+#if 1 // DEPRECATED -- forward rendering is deprecated
 
 	if (success)
 	{
@@ -3094,23 +3176,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 	if (success)
 	{
-		gObjectSimpleProgram.mName = "Simple Shader";
-		gObjectSimpleProgram.mFeatures.calculatesLighting = true;
-		gObjectSimpleProgram.mFeatures.calculatesAtmospherics = true;
-		gObjectSimpleProgram.mFeatures.hasGamma = true;
-		gObjectSimpleProgram.mFeatures.hasAtmospherics = true;
-		gObjectSimpleProgram.mFeatures.hasLighting = true;
-		gObjectSimpleProgram.mFeatures.mIndexedTextureChannels = 0;
-		gObjectSimpleProgram.mShaderFiles.clear();
-		gObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleV.glsl", GL_VERTEX_SHADER));
-		gObjectSimpleProgram.mShaderFiles.push_back(make_pair("objects/simpleF.glsl", GL_FRAGMENT_SHADER));
-		gObjectSimpleProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
-        success = make_rigged_variant(gObjectSimpleProgram, gSkinnedObjectSimpleProgram);
-		success = success && gObjectSimpleProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
 		gObjectSimpleImpostorProgram.mName = "Simple Impostor Shader";
 		gObjectSimpleImpostorProgram.mFeatures.calculatesLighting = true;
 		gObjectSimpleImpostorProgram.mFeatures.calculatesAtmospherics = true;
@@ -3150,30 +3215,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 	
 	if (success)
 	{
-		gObjectBumpProgram.mName = "Bump Shader";
-		gObjectBumpProgram.mFeatures.encodesNormal = true;
-		gObjectBumpProgram.mShaderFiles.clear();
-		gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpV.glsl", GL_VERTEX_SHADER));
-		gObjectBumpProgram.mShaderFiles.push_back(make_pair("objects/bumpF.glsl", GL_FRAGMENT_SHADER));
-		gObjectBumpProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
-        success = make_rigged_variant(gObjectBumpProgram, gSkinnedObjectBumpProgram);
-		success = success && gObjectBumpProgram.createShader(NULL, NULL);
-		if (success)
-		{ //lldrawpoolbump assumes "texture0" has channel 0 and "texture1" has channel 1
-            LLGLSLShader* shader[] = { &gObjectBumpProgram, &gSkinnedObjectBumpProgram };
-            for (int i = 0; i < 2; ++i)
-            {
-                shader[i]->bind();
-                shader[i]->uniform1i(sTexture0, 0);
-                shader[i]->uniform1i(sTexture1, 1);
-                shader[i]->unbind();
-            }
-		}
-	}
-	
-	
-	if (success)
-	{
 		gObjectSimpleAlphaMaskProgram.mName = "Simple Alpha Mask Shader";
 		gObjectSimpleAlphaMaskProgram.mFeatures.calculatesLighting = true;
 		gObjectSimpleAlphaMaskProgram.mFeatures.calculatesAtmospherics = true;
@@ -3207,23 +3248,6 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		gObjectSimpleWaterAlphaMaskProgram.mShaderGroup = LLGLSLShader::SG_WATER;
         success = make_rigged_variant(gObjectSimpleWaterAlphaMaskProgram, gSkinnedObjectSimpleWaterAlphaMaskProgram);
 		success = success && gObjectSimpleWaterAlphaMaskProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gObjectFullbrightProgram.mName = "Fullbright Shader";
-		gObjectFullbrightProgram.mFeatures.calculatesAtmospherics = true;
-		gObjectFullbrightProgram.mFeatures.hasGamma = true;
-		gObjectFullbrightProgram.mFeatures.hasTransport = true;
-		gObjectFullbrightProgram.mFeatures.isFullbright = true;
-		gObjectFullbrightProgram.mFeatures.hasSrgb = true;
-		gObjectFullbrightProgram.mFeatures.mIndexedTextureChannels = 0;
-		gObjectFullbrightProgram.mShaderFiles.clear();
-		gObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightV.glsl", GL_VERTEX_SHADER));
-		gObjectFullbrightProgram.mShaderFiles.push_back(make_pair("objects/fullbrightF.glsl", GL_FRAGMENT_SHADER));
-		gObjectFullbrightProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
-        success = make_rigged_variant(gObjectFullbrightProgram, gSkinnedObjectFullbrightProgram);
-        success = success && gObjectFullbrightProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -3365,36 +3389,20 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 		success = success && gObjectFullbrightShinyProgram.createShader(NULL, NULL);
 	}
 
-	if (success)
-	{
-		gObjectFullbrightShinyWaterProgram.mName = "Fullbright Shiny Water Shader";
-		gObjectFullbrightShinyWaterProgram.mFeatures.calculatesAtmospherics = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.isFullbright = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.isShiny = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.hasGamma = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.hasTransport = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.hasWaterFog = true;
-		gObjectFullbrightShinyWaterProgram.mFeatures.mIndexedTextureChannels = 0;
-		gObjectFullbrightShinyWaterProgram.mShaderFiles.clear();
-		gObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyV.glsl", GL_VERTEX_SHADER));
-		gObjectFullbrightShinyWaterProgram.mShaderFiles.push_back(make_pair("objects/fullbrightShinyWaterF.glsl", GL_FRAGMENT_SHADER));
-		gObjectFullbrightShinyWaterProgram.mShaderLevel = mShaderLevel[SHADER_OBJECT];
-		gObjectFullbrightShinyWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-        success = make_rigged_variant(gObjectFullbrightShinyWaterProgram, gSkinnedObjectFullbrightShinyWaterProgram);
-		success = success && gObjectFullbrightShinyWaterProgram.createShader(NULL, NULL);
-	}
+#endif
+    
+    if (!success)
+    {
+        mShaderLevel[SHADER_OBJECT] = 0;
+        return FALSE;
+    }
 
-	if( !success )
-	{
-		mShaderLevel[SHADER_OBJECT] = 0;
-		return FALSE;
-	}
-	
 	return TRUE;
 }
 
 BOOL LLViewerShaderMgr::loadShadersAvatar()
 {
+#if 1 // DEPRECATED -- forward rendering is deprecated
 	BOOL success = TRUE;
 
 	if (mShaderLevel[SHADER_AVATAR] == 0)
@@ -3486,7 +3494,7 @@ BOOL LLViewerShaderMgr::loadShadersAvatar()
 		mMaxAvatarShaderLevel = 0;
 		return FALSE;
 	}
-	
+#endif
 	return TRUE;
 }
 
@@ -3838,7 +3846,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 BOOL LLViewerShaderMgr::loadShadersWindLight()
 {	
 	BOOL success = TRUE;
-
+#if 1 // DEPRECATED -- forward rendering is deprecated
 	if (mShaderLevel[SHADER_WINDLIGHT] < 2)
 	{
 		gWLSkyProgram.unload();
@@ -3913,7 +3921,7 @@ BOOL LLViewerShaderMgr::loadShadersWindLight()
         gWLMoonProgram.mShaderGroup = LLGLSLShader::SG_SKY;
         success = gWLMoonProgram.createShader(NULL, NULL);
     }
-
+#endif
 	return success;
 }
 

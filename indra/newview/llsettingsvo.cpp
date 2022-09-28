@@ -710,6 +710,7 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLColor4 ambient(getTotalAmbient());
 
     shader->uniform4fv(LLShaderMgr::AMBIENT, LLVector4(ambient.mV));
+    shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3(linearColor3(LLColor3(ambient.mV)).mV));
     shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getReflectionProbeAmbiance());
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);

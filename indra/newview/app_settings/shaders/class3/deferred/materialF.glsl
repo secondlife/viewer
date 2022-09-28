@@ -41,13 +41,10 @@ uniform int sun_up_factor;
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
 
-vec3 atmosFragLighting(vec3 l, vec3 additive, vec3 atten);
-vec3 scaleSoftClipFrag(vec3 l);
-
-vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten);
-vec3 fullbrightScaleSoftClip(vec3 light);
-
-void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+vec3 atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
+vec3 scaleSoftClipFragLinear(vec3 l);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 vec3 srgb_to_linear(vec3 cs);
 vec3 linear_to_srgb(vec3 cs);
@@ -94,7 +91,7 @@ uniform vec3 light_diffuse[8];
 
 float getAmbientClamp();
 
-vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare, float ambiance)
+vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
     // SL-14895 inverted attenuation work-around
     // This routine is tweaked to match deferred lighting, but previously used an inverted la value. To reconstruct
@@ -172,11 +169,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
                 vec3 speccol = lit*scol*light_col.rgb*spec.rgb;
                 speccol = clamp(speccol, vec3(0), vec3(1));
                 col += speccol;
-
-                float cur_glare = max(speccol.r, speccol.g);
-                cur_glare = max(cur_glare, speccol.b);
-                glare = max(glare, speccol.r);
-                glare += max(cur_glare, 0.0);
             }
         }
     }
@@ -288,7 +280,7 @@ void main()
 
     //forward rendering, output lit linear color
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
-    spec.rgb = srgb_to_linear(spec.rgb);
+    final_specular.rgb = srgb_to_linear(final_specular.rgb);
 
     vec3 pos = vary_position;
 
@@ -298,9 +290,7 @@ void main()
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, pos_screen);
 #endif
 
-    spec = final_specular;
     vec4 diffuse = final_color;
-    float envIntensity = final_normal.z;
 
     vec3 color = vec3(0,0,0);
 
@@ -311,70 +301,62 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
-
-    calcAtmosphericVars(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVarsLinear(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
     
-        // This call breaks the Mac GLSL compiler/linker for unknown reasons (17Mar2020)
-        // The call is either a no-op or a pure (pow) gamma adjustment, depending on GPU level
-        // TODO: determine if we want to re-apply the gamma adjustment, and if so understand & fix Mac breakage
-        //color = fullbrightScaleSoftClip(color);
-
-    vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
-
     vec3 ambenv;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, final_specular.a, env_intensity);
+    
     // use sky settings ambient or irradiance map sample, whichever is brighter
     color = max(amblit, ambenv);
 
-    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
+    float ambient = min(abs(dot(norm.xyz, light_dir.xyz)), 1.0);
     ambient *= 0.5;
     ambient *= ambient;
     ambient = (1.0 - ambient);
     color.rgb *= ambient;
 
-    float da          = clamp(dot(norm.xyz, sun_dir.xyz), 0.0, 1.0);
+    float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
     vec3 sun_contrib = min(da, shadow) * sunlit;
     color.rgb += sun_contrib;
-    color.rgb *= diffuse.rgb;
-
     color *= diffcol.rgb;
 
-    float glare = 0.0;
+    vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
-    if (spec.a > 0.0)  // specular reflection
+    if (final_specular.a > 0.0)  // specular reflection
     {
-        float sa        = dot(refnormpersp, sun_dir.xyz);
-        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, spec.a)).r);
+        float sa        = dot(normalize(refnormpersp), light_dir.xyz);
+        vec3  dumbshiny = sunlit * shadow * (texture2D(lightFunc, vec2(sa, final_specular.a)).r);
 
         // add the two types of shiny together
-        vec3 spec_contrib = dumbshiny * spec.rgb;
+        vec3 spec_contrib = dumbshiny * final_specular.rgb;
         bloom             = dot(spec_contrib, spec_contrib) / 6;
-
-        glare = max(spec_contrib.r, spec_contrib.g);
-        glare = max(glare, spec_contrib.b);
 
         color += spec_contrib;
 
-        applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
+        applyGlossEnv(color, glossenv, final_specular, pos.xyz, norm.xyz);
     }
-
-    color = atmosFragLighting(color, additive, atten);
-    if (envIntensity > 0.0)
-    {  // add environmentmap
-        applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
-    }
-
-    vec3 npos = normalize(-pos.xyz);
-
-    vec3 light = vec3(0, 0, 0);
-    
-    final_specular.rgb = final_specular.rgb; // SL-14035
 
     color = mix(color.rgb, diffcol.rgb, diffuse.a);
 
-#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, glare, light_attenuation[i].w );
+    if (env_intensity > 0.0)
+    {  // add environmentmap
+        applyLegacyEnv(color, legacyenv, final_specular, pos.xyz, norm.xyz, env_intensity);
+    }
+
+    color.rgb = mix(atmosFragLightingLinear(color.rgb, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a); 
+    color.rgb = scaleSoftClipFragLinear(color.rgb);
+
+#ifdef WATER_FOG
+    vec4 temp = applyWaterFogView(pos, vec4(color, 0.0));
+    color = temp.rgb;
+#endif
+
+    vec3 npos = normalize(-pos.xyz);
+    vec3 light = vec3(0, 0, 0);
+
+#define LIGHT_LOOP(i) light.rgb += calcPointLightOrSpotLight(light_diffuse[i].rgb, npos, diffuse.rgb, final_specular, pos.xyz, norm.xyz, light_position[i], light_direction[i].xyz, light_attenuation[i].x, light_attenuation[i].y, light_attenuation[i].z, light_attenuation[i].w );
 
     LIGHT_LOOP(1)
         LIGHT_LOOP(2)
@@ -386,17 +368,9 @@ void main()
 
     color += light;
 
-    glare = min(glare, 1.0);
-    float al = max(diffcol.a, glare)*vertex_color.a;
-
-#ifdef WATER_FOG
-    vec4 temp = applyWaterFogView(pos, vec4(color, al));
-    color = temp.rgb;
-    al = temp.a;
-#endif
+    float al = diffcol.a*vertex_color.a;
 
     frag_color = vec4(color, al);
-
 #else // mode is not DIFFUSE_ALPHA_MODE_BLEND, encode to gbuffer 
 
     // deferred path               // See: C++: addDeferredAttachment(), shader: softenLightF.glsl
