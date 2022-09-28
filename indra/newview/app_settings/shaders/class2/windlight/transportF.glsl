@@ -49,12 +49,9 @@ vec3 atmosTransport(vec3 light)
 
 vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten)
 {
-    light = linear_to_srgb(light);
-    additive = linear_to_srgb(additive);
-    atten = linear_to_srgb(atten);
-
+    // same as non-linear version, probably fine
     float brightness = dot(light.rgb * 0.5, vec3(0.3333)) + 0.1;    
-    return srgb_to_linear(mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness));
+    return mix(atmosTransportFrag(light.rgb, additive, atten), light.rgb + additive, brightness * brightness);
 }
 
 vec3 fullbrightAtmosTransportFrag(vec3 light, vec3 additive, vec3 atten)

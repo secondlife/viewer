@@ -32,16 +32,15 @@ vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
 vec3 scaleSoftClipFragLinear(vec3 light)
-{
+{ // identical to non-linear version and that's probably close enough
     if (no_atmo == 1)
     {
         return light;
     }
-    light = linear_to_srgb(light);
     //soft clip effect:
     light = 1. - clamp(light, vec3(0.), vec3(1.));
     light = 1. - pow(light, vec3(gamma)); // s/b inverted already CPU-side
-    return srgb_to_linear(light);
+    return light;
 }
 
 vec3 scaleSoftClipFrag(vec3 light)
