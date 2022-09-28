@@ -50,6 +50,7 @@
 #include "llinventoryicon.h"
 #include "llinventoryfilter.h"
 #include "llinventoryfunctions.h"
+#include "llmaterialeditor.h"
 #include "llpreviewanim.h"
 #include "llpreviewgesture.h"
 #include "llpreviewnotecard.h"
@@ -1197,17 +1198,17 @@ void LLTaskMaterialBridge::openItem()
         LLSD floater_key;
         floater_key["taskid"] = mPanel->getTaskUUID();
         floater_key["itemid"] = mUUID;
-        LLPreviewNotecard* preview = LLFloaterReg::showTypedInstance<LLPreviewNotecard>("preview_notecard", floater_key, TAKE_FOCUS_YES);
-        if (preview)
+        LLMaterialEditor* mat = LLFloaterReg::showTypedInstance<LLMaterialEditor>("material_editor", floater_key, TAKE_FOCUS_YES);
+        if (mat)
         {
-            preview->setObjectID(mPanel->getTaskUUID());
+            mat->setObjectID(mPanel->getTaskUUID());
         }
     }
 }
 
 BOOL LLTaskMaterialBridge::removeItem()
 {
-    LLFloaterReg::hideInstance("preview_notecard", LLSD(mUUID));
+    LLFloaterReg::hideInstance("material_editor", LLSD(mUUID));
     return LLTaskInvFVBridge::removeItem();
 }
 
