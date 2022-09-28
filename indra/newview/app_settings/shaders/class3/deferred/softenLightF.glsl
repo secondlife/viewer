@@ -140,8 +140,7 @@ void main()
     vec3 glossenv;
     vec3 legacyenv;
 
-    bool hasPBR = GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR);
-    if (hasPBR)
+    if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
         norm.xyz           = getNorm(tc);
         vec3 orm = texture2DRect(specularRect, tc).rgb; 
@@ -157,7 +156,7 @@ void main()
         vec3  radiance  = vec3(0);
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
         
-        irradiance       = max(amblit*ao,irradiance);
+        irradiance       = max(amblit*2.0*ao,irradiance);
 
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
@@ -170,12 +169,18 @@ void main()
         vec3 v = -normalize(pos.xyz);
         float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
         
-        color.rgb += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
         color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit*2.75 * scol;
         color.rgb += colorEmissive;
+        
+        color.rgb += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
 
         color = atmosFragLightingLinear(color, additive, atten);
         color  = scaleSoftClipFragLinear(color);
+    }
+    else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
+    {
+        //should only be true of WL sky, just port over diffuse value
+        color = srgb_to_linear(diffuse.rgb);
     }
     else
     {
@@ -223,12 +228,10 @@ void main()
         if (envIntensity > 0.0)
         {  // add environment map
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
-        }    
-        if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
-        {
-            color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a);    
-            color = scaleSoftClipFragLinear(color);
         }
+
+        color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a);
+        color = scaleSoftClipFragLinear(color);
     }
 
     #ifdef WATER_FOG

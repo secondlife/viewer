@@ -551,7 +551,7 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
     fresnel *= spec.a;
     glossenv *= spec.rgb*fresnel;
     glossenv *= vec3(1.0) - color; // fake energy conservation
-    color.rgb += glossenv;
+    color.rgb += glossenv*0.5;
 }
 
  void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity)
@@ -562,6 +562,6 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
     fresnel *= fresnel;
     fresnel = min(fresnel+envIntensity, 1.0);
     reflected_color *= (envIntensity*fresnel);
-    color = mix(color.rgb, reflected_color, envIntensity);
+    color = mix(color.rgb, reflected_color*0.5, envIntensity);
  }
 

@@ -196,7 +196,7 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
-    irradiance       = max(amblit,irradiance);
+    irradiance       = max(amblit*2.0,irradiance);
 
     vec3 f0 = vec3(0.04);
     
@@ -212,6 +212,9 @@ void main()
     color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, light_dir) * sunlit*2.75 * scol;
     color += colorEmissive;
     
+    color = atmosFragLightingLinear(color, additive, atten);
+    color  = scaleSoftClipFragLinear(color);
+
     vec3 light = vec3(0);
 
     // Punctual lights
@@ -227,8 +230,6 @@ void main()
 
     color.rgb += light.rgb;
 
-    color = atmosFragLightingLinear(color, additive, atten);
-    color  = scaleSoftClipFragLinear(color);
-
+    
     frag_color = vec4(color.rgb,albedo.a * vertex_color.a);
 }

@@ -52,7 +52,7 @@ vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten)
     
     light *= atten.r;
     light += additive;
-    return light;
+    return light*2.0;
 }
 
 vec3 atmosLighting(vec3 light)

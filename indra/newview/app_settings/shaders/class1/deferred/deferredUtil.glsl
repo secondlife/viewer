@@ -370,9 +370,7 @@ vec3 pbrIbl(vec3 diffuseColor,
 	vec3 diffuse = diffuseLight * diffuseColor;
 	vec3 specular = specularLight * (specularColor * brdf.x + brdf.y);
 
-	//specular *= 1.5;
-
-	return (diffuse + specular) * ao;
+	return (diffuse + specular) * ao * 0.5;  //reduce by half to place in appropriate color space for atmospherics
 }
 
 // Encapsulate the various inputs used by the various functions in the shading equation
