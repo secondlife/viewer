@@ -143,6 +143,9 @@ public:
     void onClickCancel();
     void onCancelMsgCallback(const LLSD& notification, const LLSD& response);
 
+    // llpreview
+    void setObjectID(const LLUUID& object_id) override;
+
 	// llpanel
 	BOOL postBuild() override;
     void onClickCloseBtn(bool app_quitting = false) override;
@@ -211,7 +214,6 @@ private:
     friend class LLMaterialFilePicker;
 
     LLUUID mAssetID;
-    LLUUID mObjectID;
 
     LLTextureCtrl* mBaseColorTextureCtrl;
     LLTextureCtrl* mMetallicTextureCtrl;
