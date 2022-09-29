@@ -723,6 +723,10 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
 
     shader->uniform1f(LLShaderMgr::GAMMA, g);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, display_gamma);
+
+    shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon()));
+    shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity()));
+    shader->uniform1f(LLShaderMgr::HAZE_DENSITY_LINEAR, sRGBtoLinear(getHazeDensity()));
 }
 
 LLSettingsSky::parammapping_t LLSettingsVOSky::getParameterMap() const

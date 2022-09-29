@@ -979,6 +979,10 @@ void LLRender::syncLightState()
         shader->uniform4fv(LLShaderMgr::AMBIENT, 1, mAmbientLightColor.mV);
         shader->uniform4fv(LLShaderMgr::SUNLIGHT_COLOR, 1, diffuse[0].mV);
         shader->uniform4fv(LLShaderMgr::MOONLIGHT_COLOR, 1, diffuse_b[0].mV);
+        
+        shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, 1, linearColor3(mAmbientLightColor).mV);
+        shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, 1, linearColor3(diffuse[0]).mV);
+        shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR, 1, linearColor3(diffuse_b[0]).mV);
     }
 }
 
