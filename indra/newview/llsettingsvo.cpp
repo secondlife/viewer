@@ -710,7 +710,9 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     LLColor4 ambient(getTotalAmbient());
 
     shader->uniform4fv(LLShaderMgr::AMBIENT, LLVector4(ambient.mV));
-    shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, LLVector3(linearColor3(LLColor3(ambient.mV)).mV));
+    shader->uniform3fv(LLShaderMgr::AMBIENT_LINEAR, linearColor3v(getAmbientColor()/3.f)); // note magic number 3.f comes from SLIDER_SCALE_SUN_AMBIENT
+    shader->uniform3fv(LLShaderMgr::SUNLIGHT_LINEAR, linearColor3v(getSunlightColor()));
+    shader->uniform3fv(LLShaderMgr::MOONLIGHT_LINEAR,linearColor3v(getMoonlightColor()));
     shader->uniform1f(LLShaderMgr::REFLECTION_PROBE_AMBIANCE, getReflectionProbeAmbiance());
 
     shader->uniform1i(LLShaderMgr::SUN_UP_FACTOR, getIsSunUp() ? 1 : 0);
@@ -724,8 +726,8 @@ void LLSettingsVOSky::applySpecial(void *ptarget, bool force)
     shader->uniform1f(LLShaderMgr::GAMMA, g);
     shader->uniform1f(LLShaderMgr::DISPLAY_GAMMA, display_gamma);
 
-    shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon()));
-    shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity()));
+    shader->uniform3fv(LLShaderMgr::BLUE_HORIZON_LINEAR, linearColor3v(getBlueHorizon()/2.f)); // note magic number of 2.f comes from SLIDER_SCALE_BLUE_HORIZON_DENSITY
+    shader->uniform3fv(LLShaderMgr::BLUE_DENSITY_LINEAR, linearColor3v(getBlueDensity()/2.f));
     shader->uniform1f(LLShaderMgr::HAZE_DENSITY_LINEAR, sRGBtoLinear(getHazeDensity()));
 }
 

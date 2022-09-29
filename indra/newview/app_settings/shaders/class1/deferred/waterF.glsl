@@ -178,9 +178,9 @@ void main()
     // TODO: The non-obvious assignment below is copied from the pre-EEP WL shader code
     //       Unfortunately, fixing it causes a mismatch for EEP, and so it remains...  for now
     //       SL-12975 (unfix pre-EEP broken alpha)
-    frag_data[0] = vec4(srgb_to_linear(color.rgb), 0.0);  // Effectively, color.rgbr
+    frag_data[0] = vec4(srgb_to_linear(color.rgb), 0.0);
     
-    frag_data[1] = vec4(1.0, 0.2, 0.0, 0.0);		// speccolor, spec
+    frag_data[1] = vec4(1.0, 0.1, 0.0, 0.0);		// occlusion, roughness, metalness
 	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.0, GBUFFER_FLAG_HAS_PBR);// normalxy, env intens, flags (atmo kill)
     frag_data[3] = vec4(srgb_to_linear(refcol.rgb),0);
 

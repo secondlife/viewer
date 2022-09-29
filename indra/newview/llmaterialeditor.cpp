@@ -413,12 +413,12 @@ void LLMaterialEditor::setEmissiveUploadId(const LLUUID& id)
 
 LLColor4 LLMaterialEditor::getEmissiveColor()
 {
-    return LLColor4(childGetValue("emissive color"));
+    return linearColor4(LLColor4(childGetValue("emissive color")));
 }
 
 void LLMaterialEditor::setEmissiveColor(const LLColor4& color)
 {
-    childSetValue("emissive color", color.getValue());
+    childSetValue("emissive color", srgbColor4(color).getValue());
 }
 
 LLUUID LLMaterialEditor::getNormalId()

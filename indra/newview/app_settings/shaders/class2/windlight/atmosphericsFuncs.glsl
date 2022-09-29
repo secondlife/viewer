@@ -142,7 +142,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 }
 
 
-
+vec3 srgb_to_linear(vec3 col);
 
 // return colors in linear space
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
@@ -155,19 +155,17 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFact
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_linear : moonlight_linear;
+    vec4  sunlight     = (sun_up_factor == 1) ? vec4(sunlight_linear, 0.0) : vec4(moonlight_linear, 0.0);
 
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
-    vec3 light_atten = (blue_density_linear + vec3(haze_density_linear * 0.25)) * (density_multiplier * max_y);
+    vec4 light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
     // I had thought blue_density and haze_density should have equal weighting,
     // but attenuation due to haze_density tends to seem too strong
 
-    
-    vec3 combined_haze_linear = blue_density_linear + vec3(haze_density_linear);
-    vec3 combined_haze = blue_density.rgb + vec3(haze_density);
-    vec3 blue_weight   = blue_density_linear / combined_haze_linear;
-    vec3 haze_weight   = vec3(haze_density_linear) / combined_haze_linear;
+    vec4 combined_haze = blue_density + vec4(haze_density);
+    vec4 blue_weight   = blue_density / combined_haze;
+    vec4 haze_weight   = vec4(haze_density) / combined_haze;
 
     //(TERRAIN) compute sunlight from lightnorm y component. Factor is roughly cosecant(sun elevation) (for short rays like terrain)
     float above_horizon_factor = 1.0 / max(1e-6, lightnorm.y);
@@ -180,7 +178,7 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFact
     // ATI Bugfix -- can't store combined_haze*density_dist*distance_multiplier in a variable because the ati
     // compiler gets confused.
     combined_haze = exp(-combined_haze * density_dist * distance_multiplier);
-    combined_haze_linear = exp(-combined_haze_linear * density_dist * distance_multiplier);
+
     // final atmosphere attenuation factor
     atten = combined_haze.rgb;
 
@@ -205,24 +203,26 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFact
 
     haze_glow *= sun_moon_glow_factor;
 
-    vec3 amb_color = ambient_linear;
+    //vec4 amb_color = vec4(ambient_linear, 0.0);
+    vec4 amb_color = ambient_color;
 
     // increase ambient when there are more clouds
-    vec3 tmpAmbient = amb_color + (vec3(1.) - amb_color) * cloud_shadow * 0.5;
+    vec4 tmpAmbient = amb_color + (vec4(1.) - amb_color) * cloud_shadow * 0.5;
 
     // Similar/Shared Algorithms:
     //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()
     //     indra\newview\app_settings\shaders\class1\windlight\atmosphericsFuncs.glsl -- calcAtmosphericVars()
     // haze color
     vec3 cs = sunlight.rgb * (1. - cloud_shadow);
-    additive = (blue_horizon_linear.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
+    additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     // brightness of surface both sunlight and ambient
     sunlit = sunlight.rgb;
     amblit = tmpAmbient.rgb;
-    additive *= vec3(1.0 - combined_haze_linear);
+    additive *= vec3(1.0 - combined_haze);
 
-    sunlit *= 0.8;
-    amblit *= 0.05;
-    additive *= 0.25;
+    //sunlit = srgb_to_linear(sunlit);
+    amblit = ambient_linear;
+    additive = srgb_to_linear(additive*1.5);
+
 }

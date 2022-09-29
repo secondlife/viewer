@@ -156,7 +156,7 @@ void main()
         vec3  radiance  = vec3(0);
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
         
-        irradiance       = max(amblit*2.0*ao,irradiance);
+        irradiance       = max(amblit*0.75,irradiance);
 
         vec3 f0 = vec3(0.04);
         vec3 baseColor = diffuse.rgb;
@@ -169,8 +169,8 @@ void main()
         vec3 v = -normalize(pos.xyz);
         float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
         
-        color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit*2.75 * scol;
-        color.rgb += colorEmissive;
+        color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit * 2.75 * scol;
+        color.rgb += colorEmissive*0.5;
         
         color.rgb += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
 
