@@ -38,6 +38,8 @@
 #include "llinstancetracker.h"
 #include <boost/function.hpp>
 #include <string>
+#include <exception>
+#include <queue>
 
 // e.g. #include LLCOROS_MUTEX_HEADER
 #define LLCOROS_MUTEX_HEADER   <boost/fiber/mutex.hpp>
@@ -156,6 +158,19 @@ public:
      * LLCoros::launch()).
      */
     static std::string getName();
+    
+    /**
+     * rethrow() is called by the thread's main fiber to propagate an
+     * exception from any coroutine into the main fiber, where it can engage
+     * the normal unhandled-exception machinery, up to and including crash
+     * reporting.
+     *
+     * LLCoros maintains a queue of otherwise-uncaught exceptions from
+     * terminated coroutines. Each call to rethrow() pops the first of those
+     * and rethrows it. When the queue is empty (normal case), rethrow() is a
+     * no-op.
+     */
+    void rethrow();
 
     /**
      * This variation returns a name suitable for log messages: the explicit
@@ -292,13 +307,27 @@ public:
 
 private:
     std::string generateDistinctName(const std::string& prefix) const;
-#if LL_WINDOWS
-    void winlevel(const std::string& name, const callable_t& callable);
-#endif
     void toplevelTryWrapper(const std::string& name, const callable_t& callable);
-    void toplevel(std::string name, callable_t callable);
+#if LL_WINDOWS
+    void sehHandle(const std::string& name, const callable_t& callable); // calls toplevelTryWrapper
+#endif
+    void toplevel(std::string name, callable_t callable); // calls sehHandle or toplevelTryWrapper
     struct CoroData;
     static CoroData& get_CoroData(const std::string& caller);
+    void saveException(const std::string& name, std::exception_ptr exc);
+
+    struct ExceptionData
+    {
+        ExceptionData(const std::string& nm, std::exception_ptr exc):
+            name(nm),
+            exception(exc)
+        {}
+        // name of coroutine that originally threw this exception
+        std::string name;
+        // the thrown exception
+        std::exception_ptr exception;
+    };
+    std::queue<ExceptionData> mExceptionQueue;
 
     S32 mStackSize;
 

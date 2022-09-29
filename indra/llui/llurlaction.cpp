@@ -222,6 +222,15 @@ void LLUrlAction::removeFriend(std::string url)
 	}
 }
 
+void LLUrlAction::reportAbuse(std::string url)
+{
+    std::string id_str = getUserID(url);
+    if (LLUUID::validate(id_str))
+    {
+        executeSLURL("secondlife:///app/agent/" + id_str + "/reportAbuse");
+    }
+}
+
 void LLUrlAction::blockObject(std::string url)
 {
 	std::string object_id = getObjectId(url);

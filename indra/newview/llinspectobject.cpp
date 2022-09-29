@@ -50,7 +50,6 @@
 #include "lltextbox.h"			// for description truncation
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
-#include "llui.h"				// positionViewNearMouse()
 #include "lluictrl.h"
 
 class LLViewerObject;
@@ -198,17 +197,8 @@ void LLInspectObject::onOpen(const LLSD& data)
 	{
 		mObjectFace = data["object_face"];
 	}
-	// Position the inspector relative to the mouse cursor
-	// Similar to how tooltips are positioned
-	// See LLToolTipMgr::createToolTip
-	if (data.has("pos"))
-	{
-		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
-	}
-	else
-	{
-		LLUI::getInstance()->positionViewNearMouse(this);
-	}
+
+	LLInspect::repositionInspector(data);
 
 	// Promote hovered object to a complete selection, which will also force
 	// a request for selected object data off the network

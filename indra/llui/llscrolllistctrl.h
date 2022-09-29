@@ -267,6 +267,14 @@ public:
 	const std::string	getSelectedItemLabel(S32 column = 0) const;
 	LLSD			getSelectedValue();
 
+    // If multi select is on, select all element that include substring,
+    // otherwise select first match only.
+    // If focus is true will scroll to selection.
+    // Returns number of results.
+    // Note: at the moment search happens in one go and is expensive
+    U32			searchItems(const std::string& substring, bool case_sensitive = false, bool focus = true);
+    U32			searchItems(const LLWString& substring, bool case_sensitive = false, bool focus = true);
+
 	// DEPRECATED: Use LLSD versions of setCommentText() and getSelectedValue().
 	// "StringUUID" interface: use this when you're creating a list that contains non-unique strings each of which
 	// has an associated, unique UUID, and only one of which can be selected at a time.
@@ -325,6 +333,7 @@ public:
 	// support right-click context menus for avatar/group lists
 	enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
 	void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
+    ContextMenuType getContextMenuType() { return mContextMenuType; }
 
 	// Overridden from LLView
 	/*virtual*/ void    draw();
@@ -460,6 +469,7 @@ private:
 	static void		sendIM(std::string id);
 	static void		addFriend(std::string id);
 	static void		removeFriend(std::string id);
+    static void		reportAbuse(std::string id, bool is_group);
 	static void		showNameDetails(std::string id, bool is_group);
 	static void		copyNameToClipboard(std::string id, bool is_group);
 	static void		copySLURLToClipboard(std::string id, bool is_group);

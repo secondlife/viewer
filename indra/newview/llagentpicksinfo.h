@@ -74,9 +74,9 @@ public:
 
 	void decrementNumberOfPicks() { --mNumberOfPicks; }
 
-private:
-
 	void onServerRespond(LLAvatarPicks* picks);
+
+private:
 
 	/**
 	* Sets number of Picks.

@@ -327,22 +327,63 @@ void LLFriendCardsManager::syncFriendCardsFolders()
 /************************************************************************/
 /*		Private Methods                                                 */
 /************************************************************************/
+const LLUUID& LLFriendCardsManager::findFirstCallingCardSubfolder(const LLUUID &parent_id) const
+{
+    if (parent_id.isNull())
+    {
+        return LLUUID::null;
+    }
+
+    LLInventoryModel::cat_array_t* cats;
+    LLInventoryModel::item_array_t* items;
+    gInventory.getDirectDescendentsOf(parent_id, cats, items);
+
+    if (!cats || !items || cats->size() == 0)
+    {
+        // call failed
+        return LLUUID::null;
+    }
+
+    if (cats->size() > 1)
+    {
+        const LLViewerInventoryCategory* friendFolder = gInventory.getCategory(parent_id);
+        if (friendFolder)
+        {
+            LL_WARNS_ONCE() << friendFolder->getName() << " folder contains more than one folder" << LL_ENDL;
+        }
+    }
+
+    for (LLInventoryModel::cat_array_t::const_iterator iter = cats->begin();
+        iter != cats->end();
+        ++iter)
+    {
+        const LLInventoryCategory* category = (*iter);
+        if (category->getPreferredType() == LLFolderType::FT_CALLINGCARD)
+        {
+            return category->getUUID();
+        }
+    }
+
+    return LLUUID::null;
+}
+
+// Inventorry ->
+//   Calling Cards - >
+//     Friends - > (the only expected folder)
+//       All (the only expected folder)
+
 const LLUUID& LLFriendCardsManager::findFriendFolderUUIDImpl() const
 {
-	const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
+    const LLUUID callingCardsFolderID = gInventory.findCategoryUUIDForType(LLFolderType::FT_CALLINGCARD);
 
-	std::string friendFolderName = get_friend_folder_name();
-
-	return findChildFolderUUID(callingCardsFolderID, friendFolderName);
+    return findFirstCallingCardSubfolder(callingCardsFolderID);
 }
 
 const LLUUID& LLFriendCardsManager::findFriendAllSubfolderUUIDImpl() const
 {
-	LLUUID friendFolderUUID = findFriendFolderUUIDImpl();
+    LLUUID friendFolderUUID = findFriendFolderUUIDImpl();
 
-	std::string friendAllSubfolderName = get_friend_all_subfolder_name();
-
-	return findChildFolderUUID(friendFolderUUID, friendAllSubfolderName);
+    return findFirstCallingCardSubfolder(friendFolderUUID);
 }
 
 const LLUUID& LLFriendCardsManager::findChildFolderUUID(const LLUUID& parentFolderUUID, const std::string& nonLocalizedName) const

@@ -157,6 +157,18 @@ void LLFloaterMediaSettings::apply()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+void LLFloaterMediaSettings::onOpen(const LLSD& key)
+{
+    if (mPanelMediaSettingsGeneral)
+    {
+        // media is expensive, so only load it when nessesary.
+        // If we need to preload it, set volume to 0 and any pause
+        // if applicable, then unpause here
+        mPanelMediaSettingsGeneral->updateMediaPreview();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 void LLFloaterMediaSettings::onClose(bool app_quitting)
 {
 	if(mPanelMediaSettingsGeneral)

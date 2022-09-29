@@ -147,3 +147,19 @@ bool LLInspect::childHasVisiblePopupMenu()
 	}
 	return false;
 }
+
+void LLInspect::repositionInspector(const LLSD& data)
+{
+	// Position the inspector relative to the mouse cursor
+	// Similar to how tooltips are positioned
+	// See LLToolTipMgr::createToolTip
+	if (data.has("pos"))
+	{
+		LLUI::getInstance()->positionViewNearMouse(this, data["pos"]["x"].asInteger(), data["pos"]["y"].asInteger());
+	}
+	else
+	{
+		LLUI::getInstance()->positionViewNearMouse(this);
+	}
+	applyRectControl();
+}

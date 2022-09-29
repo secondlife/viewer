@@ -72,7 +72,7 @@ struct LLGiveMoneyInfo
 		mFloater(floater), mAmount(amount){}
 };
 
-typedef boost::shared_ptr<LLGiveMoneyInfo> give_money_ptr;
+typedef std::shared_ptr<LLGiveMoneyInfo> give_money_ptr;
 
 ///----------------------------------------------------------------------------
 /// Class LLFloaterPay

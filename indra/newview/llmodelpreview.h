@@ -224,6 +224,8 @@ private:
     LLVOAvatar* getPreviewAvatar(void) { return mPreviewAvatar; }
     // Count amount of original models, excluding sub-models
     static U32 countRootModels(LLModelLoader::model_list models);
+    LLVector3   mGroundPlane[4];
+	void		renderGroundPlane(float z_offset = 0.0f);
 
     typedef enum
     {

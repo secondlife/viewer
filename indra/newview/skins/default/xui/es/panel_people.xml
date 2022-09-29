@@ -40,6 +40,7 @@
 			<accordion name="friends_accordion">
 				<accordion_tab name="tab_online" title="Conectado"/>
 				<accordion_tab name="tab_all" title="Todos"/>
+				<accordion_tab name="tab_suggested_friends" title="Personas de las que podrías querer ser amigo"/>
 			</accordion>
 		</panel>
 		<panel label="GRUPOS" name="groups_panel">
