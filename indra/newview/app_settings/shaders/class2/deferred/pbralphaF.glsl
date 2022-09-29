@@ -196,7 +196,7 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
-    irradiance       = max(amblit*2.0,irradiance);
+    irradiance       = max(amblit*0.75,irradiance);
 
     vec3 f0 = vec3(0.04);
     
@@ -209,8 +209,8 @@ void main()
     float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
 
     color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, light_dir) * sunlit*2.75 * scol;
-    color += colorEmissive;
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, light_dir) * sunlit * scol;
+    color += colorEmissive*0.5;
     
     color = atmosFragLightingLinear(color, additive, atten);
     color  = scaleSoftClipFragLinear(color);

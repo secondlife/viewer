@@ -33,7 +33,7 @@ vec3 srgb_to_linear(vec3 col);
 vec3 linear_to_srgb(vec3 col);
 
 vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
-{
+{ 
     if (no_atmo == 1)
     {
         return light;
@@ -45,14 +45,7 @@ vec3 atmosFragLighting(vec3 light, vec3 additive, vec3 atten)
 
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten)
 {
-    if (no_atmo == 1)
-    {
-        return light;
-    }
-    
-    light *= atten.r;
-    light += additive;
-    return light*2.0;
+    return atmosFragLighting(light, additive, atten);
 }
 
 vec3 atmosLighting(vec3 light)

@@ -50,6 +50,8 @@ uniform float sun_moon_glow_factor;
 
 float getAmbientClamp() { return 1.0f; }
 
+vec3 srgb_to_linear(vec3 col);
+
 // return colors in sRGB space
 void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten, bool use_ao)
@@ -148,6 +150,14 @@ vec3 srgb_to_linear(vec3 col);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
                          out vec3 atten, bool use_ao)
 {
+#if 1
+    calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+    sunlit = srgb_to_linear(sunlit);
+    additive = srgb_to_linear(additive);
+    amblit = ambient_linear;
+#else 
+
+    //EXPERIMENTAL -- attempt to factor out srgb_to_linear conversions above
     vec3 rel_pos = inPositionEye;
 
     //(TERRAIN) limit altitude
@@ -217,12 +227,11 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFact
     additive = (blue_horizon.rgb * blue_weight.rgb) * (cs + tmpAmbient.rgb) + (haze_horizon * haze_weight.rgb) * (cs * haze_glow + tmpAmbient.rgb);
 
     // brightness of surface both sunlight and ambient
-    sunlit = sunlight.rgb;
+    sunlit = min(sunlight.rgb, vec3(1));
     amblit = tmpAmbient.rgb;
     additive *= vec3(1.0 - combined_haze);
 
-    //sunlit = srgb_to_linear(sunlit);
-    amblit = ambient_linear;
-    additive = srgb_to_linear(additive*1.5);
-
+    //sunlit = sunlight_linear;
+    amblit = ambient_linear*0.8;
+#endif
 }

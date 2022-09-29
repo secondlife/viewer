@@ -63,6 +63,6 @@ void applyGlossEnv(inout vec3 color, vec3 glossenv, vec4 spec, vec3 pos, vec3 no
 
 void applyLegacyEnv(inout vec3 color, vec3 legacyenv, vec4 spec, vec3 pos, vec3 norm, float envIntensity)
 {
-    color = mix(color.rgb, legacyenv*0.5, envIntensity);
+    color = mix(color.rgb, legacyenv*1.5, envIntensity);
 }
 
