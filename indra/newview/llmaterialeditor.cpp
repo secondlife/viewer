@@ -1152,40 +1152,6 @@ void LLMaterialEditor::onCancelMsgCallback(const LLSD& notification, const LLSD&
     }
 }
 
-class LLMaterialFilePicker : public LLFilePickerThread
-{
-public:
-    LLMaterialFilePicker();
-    virtual void notify(const std::vector<std::string>& filenames);
-    static void	textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata);
-
-};
-
-LLMaterialFilePicker::LLMaterialFilePicker()
-    : LLFilePickerThread(LLFilePicker::FFLOAD_MATERIAL)
-{
-}
-
-void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
-{
-    if (LLAppViewer::instance()->quitRequested())
-    {
-        return;
-    }
-
-    
-    if (filenames.size() > 0)
-    {
-        // Todo: there is no point creating LLMaterialEditor before
-        // loading material, just creates unnessesary work if decode fails
-        LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-        if (me)
-        {
-            me->loadMaterialFromFile(filenames[0]);
-        }
-    }
-}
-
 static void pack_textures(
     LLPointer<LLImageRaw>& base_color_img,
     LLPointer<LLImageRaw>& normal_img,
@@ -1233,10 +1199,6 @@ static void pack_textures(
     }
 }
 
-void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTexture* src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata)
-{
-}
-
 void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index)
 {
     tinygltf::TinyGLTF loader;
@@ -1266,22 +1228,31 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
         return;
     }
 
-    if (model_in.materials.empty() || (index >= model_in.materials.size()))
+    if (model_in.materials.empty())
     {
         // materials are missing
         LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
+    if (index >= 0 && model_in.materials.size() <= index)
+    {
+        // material is missing
+        LLNotificationsUtil::add("CannotUploadMaterial");
+        return;
+    }
+
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+
     if (index >= 0)
     {
         // Prespecified material
-        loadMaterial(model_in, filename_lc, index);
+        me->loadMaterial(model_in, filename_lc, index);
     }
     else if (model_in.materials.size() == 1)
     {
         // Only one, just load it
-        loadMaterial(model_in, filename_lc, 0);
+        me->loadMaterial(model_in, filename_lc, 0);
     }
     else
     {
@@ -1302,12 +1273,12 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
             }
         }
         LLFloaterComboOptions::showUI(
-            [this, model_in, filename_lc](const std::string& option, S32 index)
+            [me, model_in, filename_lc](const std::string& option, S32 index)
         {
-            loadMaterial(model_in, filename_lc, index);
+            me->loadMaterial(model_in, filename_lc, index);
         },
-            getString("material_selection_title"),
-            getString("material_selection_text"),
+            me->getString("material_selection_title"),
+            me->getString("material_selection_text"),
             material_list
             );
     }
@@ -1315,7 +1286,7 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
 
 void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index)
 {
-    if (model_in.materials.size() < index)
+    if (model_in.materials.size() <= index)
     {
         return;
     }
@@ -1410,7 +1381,9 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     setFromGltfMetaData(filename_lc, model_in, index);
 
     setHasUnsavedChanges(true);
+
     openFloater();
+    setFocus(TRUE);
 
     applyToSelection();
 }
@@ -1704,7 +1677,20 @@ void LLMaterialEditor::setFromGltfMetaData(const std::string& filename, const ti
 
 void LLMaterialEditor::importMaterial()
 {
-    (new LLMaterialFilePicker())->getFile();
+    LLFilePickerReplyThread::startPicker(
+        [](const std::vector<std::string>& filenames, LLFilePicker::ELoadFilter load_filter, LLFilePicker::ESaveFilter save_filter)
+            {
+                if (LLAppViewer::instance()->quitRequested())
+                {
+                    return;
+                }
+                if (filenames.size() > 0)
+                {
+                    LLMaterialEditor::loadMaterialFromFile(filenames[0], -1);
+                }
+            },
+        LLFilePicker::FFLOAD_MATERIAL,
+        true);
 }
 
 class LLRemderMaterialFunctor : public LLSelectedTEFunctor

@@ -267,7 +267,7 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
 
             if (!material_in.name.empty())
             {
-                mShortName = material_in.name;
+                mShortName = gDirUtilp->getBaseFileName(filename_lc, true) + " (" + material_in.name + ")";
             }
 
             // get base color texture

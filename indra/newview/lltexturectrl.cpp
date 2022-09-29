@@ -970,12 +970,7 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
         LLLocalGLTFMaterialMgr::getInstance()->getFilenameAndIndex(tracking_id, filename, index);
         if (!filename.empty())
         {
-            LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-            if (me)
-            {
-                me->loadMaterialFromFile(filename, index);
-                me->setFocus(TRUE);
-            }
+            LLMaterialEditor::loadMaterialFromFile(filename, index);
         }
     }
     else
