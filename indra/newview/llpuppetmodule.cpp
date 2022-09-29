@@ -82,6 +82,12 @@ void processLeapData(const LLSD& data)
         return;
     }
 
+    if (!isAgentAvatarValid())
+    {
+        LL_WARNS("Puppet") << "Agent avatar is not valid" << LL_ENDL;
+        return;
+    }
+
     LLVOAvatar* voa = static_cast<LLVOAvatar*>(gObjectList.findObject(gAgentID));
     if (!voa)
     {
@@ -243,7 +249,7 @@ void LLPuppetModule::setLeapModule(std::weak_ptr<LLLeap> mod, const std::string 
     mLeapModule = mod;
     mModuleName = module_name;
     mActiveJoints.clear();      // Make sure data is cleared
-    if (gAgentAvatarp->getPuppetMotion())
+    if (isAgentAvatarValid() && gAgentAvatarp->getPuppetMotion())
         gAgentAvatarp->getPuppetMotion()->clearAll();
 };
 
@@ -263,21 +269,27 @@ bool LLPuppetModule::havePuppetModule() const
 
 void LLPuppetModule::disableHeadMotion() const
 {
-    LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_HEAD_ROT));
-    LLHeadRotMotion* head_rot_motion = static_cast<LLHeadRotMotion*>(motion.get());
-    if (head_rot_motion)
+    if (isAgentAvatarValid())
     {
-        head_rot_motion->disable();
+        LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_HEAD_ROT));
+        LLHeadRotMotion* head_rot_motion = static_cast<LLHeadRotMotion*>(motion.get());
+        if (head_rot_motion)
+        {
+            head_rot_motion->disable();
+        }
     }
 }
 
 void LLPuppetModule::enableHeadMotion() const
 {
-    LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_HEAD_ROT));
-    LLHeadRotMotion* head_rot_motion = static_cast<LLHeadRotMotion*>(motion.get());
-    if (head_rot_motion)
+    if (isAgentAvatarValid())
     {
-        head_rot_motion->enable();
+        LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_HEAD_ROT));
+        LLHeadRotMotion* head_rot_motion = static_cast<LLHeadRotMotion*>(motion.get());
+        if (head_rot_motion)
+        {
+            head_rot_motion->enable();
+        }
     }
 }
 
@@ -347,15 +359,18 @@ void LLPuppetModule::sendCameraNumber()
 
 void LLPuppetModule::send_skeleton(const LLSD& sd)  //Named per nat's request
 {
-    LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_PUPPET_MOTION));
-    if (!motion)
+    if (isAgentAvatarValid())
     {
-        LL_WARNS("Puppet") << "No puppet motion found on self" << LL_ENDL;
-        return;
-    }
+        LLMotion::ptr_t motion(gAgentAvatarp->findMotion(ANIM_AGENT_PUPPET_MOTION));
+        if (!motion)
+        {
+            LL_WARNS("Puppet") << "No puppet motion found on self" << LL_ENDL;
+            return;
+        }
 
-    LLSD skeleton_sd = std::static_pointer_cast<LLPuppetMotion>(motion)->getSkeletonData();
-    sendCommand("set_skeleton", skeleton_sd);
+        LLSD skeleton_sd = std::static_pointer_cast<LLPuppetMotion>(motion)->getSkeletonData();
+        sendCommand("set_skeleton", skeleton_sd);
+    }
 }
 
 void LLPuppetModule::sendEnabledParts()
