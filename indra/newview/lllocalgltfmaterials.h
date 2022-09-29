@@ -38,7 +38,7 @@ class LLViewerFetchedTexture;
 class LLLocalGLTFMaterial
 {
 public: /* main */
-    LLLocalGLTFMaterial(std::string filename);
+    LLLocalGLTFMaterial(std::string filename, S32 index);
     ~LLLocalGLTFMaterial();
 
 public: /* accessors */
@@ -46,13 +46,14 @@ public: /* accessors */
     std::string	getShortName();
     LLUUID		getTrackingID();
     LLUUID		getWorldID();
+    S32			getIndexInFile();
     bool		getValid();
 
 public:
     bool updateSelf();
 
 private:
-    bool loadMaterial(LLPointer<LLGLTFMaterial> raw);
+    bool loadMaterial(LLPointer<LLGLTFMaterial> raw, S32 index);
 
 private: /* private enums */
     enum ELinkStatus
@@ -77,6 +78,7 @@ private: /* members */
     EExtension  mExtension;
     ELinkStatus mLinkStatus;
     S32         mUpdateRetries;
+    S32         mMaterialIndex; // Single file can have more than one
 
     // material needs to maintain textures
     LLPointer<LLViewerFetchedTexture> mBaseColorFetched;
@@ -103,13 +105,13 @@ class LLLocalGLTFMaterialMgr : public LLSingleton<LLLocalGLTFMaterialMgr>
     LLSINGLETON(LLLocalGLTFMaterialMgr);
     ~LLLocalGLTFMaterialMgr();
 public:
-    bool         addUnit(const std::vector<std::string>& filenames);
-    LLUUID       addUnit(const std::string& filename);
+    S32          addUnit(const std::vector<std::string>& filenames);
+    S32          addUnit(const std::string& filename); // file can hold multiple materials
     void         delUnit(LLUUID tracking_id);
 
     LLUUID       getWorldID(LLUUID tracking_id);
     bool         isLocal(LLUUID world_id);
-    std::string  getFilename(LLUUID tracking_id);
+    void         getFilenameAndIndex(LLUUID tracking_id, std::string &filename, S32 &index);
 
     void         feedScrollList(LLScrollListCtrl* ctrl);
     void         doUpdates();

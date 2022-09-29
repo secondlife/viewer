@@ -1176,6 +1176,8 @@ void LLMaterialFilePicker::notify(const std::vector<std::string>& filenames)
     
     if (filenames.size() > 0)
     {
+        // Todo: there is no point creating LLMaterialEditor before
+        // loading material, just creates unnessesary work if decode fails
         LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
         if (me)
         {
@@ -1235,7 +1237,7 @@ void LLMaterialFilePicker::textureLoadedCallback(BOOL success, LLViewerFetchedTe
 {
 }
 
-void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
+void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 index)
 {
     tinygltf::TinyGLTF loader;
     std::string        error_msg;
@@ -1264,19 +1266,26 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename)
         return;
     }
 
-    if (model_in.materials.empty())
+    if (model_in.materials.empty() || (index >= model_in.materials.size()))
     {
         // materials are missing
         LLNotificationsUtil::add("CannotUploadMaterial");
         return;
     }
 
-    if (model_in.materials.size() == 1)
+    if (index >= 0)
     {
+        // Prespecified material
+        loadMaterial(model_in, filename_lc, index);
+    }
+    else if (model_in.materials.size() == 1)
+    {
+        // Only one, just load it
         loadMaterial(model_in, filename_lc, 0);
     }
     else
     {
+        // Promt user to select material
         std::list<std::string> material_list;
         std::vector<tinygltf::Material>::const_iterator mat_iter = model_in.materials.begin();
         std::vector<tinygltf::Material>::const_iterator mat_end = model_in.materials.end();

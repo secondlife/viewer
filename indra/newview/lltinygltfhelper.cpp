@@ -122,17 +122,20 @@ void LLTinyGLTFHelper::initFetchedTextures(tinygltf::Material& material,
     }
 }
 
-void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
+void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model, S32 mat_index)
 {
-    S32 index;
+    if (model.materials.size() <= mat_index)
+    {
+        return;
+    }
 
-    auto& material_in = model.materials[0];
+    tinygltf::Material& material_in = model.materials[mat_index];
 
     // get base color texture
-    index = material_in.pbrMetallicRoughness.baseColorTexture.index;
-    if (index >= 0)
+    S32 tex_index = material_in.pbrMetallicRoughness.baseColorTexture.index;
+    if (tex_index >= 0)
     {
-        mat->mBaseColorId.set(model.images[index].uri);
+        mat->mBaseColorId.set(model.images[tex_index].uri);
     }
     else
     {
@@ -140,10 +143,10 @@ void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
     }
 
     // get normal map
-    index = material_in.normalTexture.index;
-    if (index >= 0)
+    tex_index = material_in.normalTexture.index;
+    if (tex_index >= 0)
     {
-        mat->mNormalId.set(model.images[index].uri);
+        mat->mNormalId.set(model.images[tex_index].uri);
     }
     else
     {
@@ -151,10 +154,10 @@ void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
     }
 
     // get metallic-roughness texture
-    index = material_in.pbrMetallicRoughness.metallicRoughnessTexture.index;
-    if (index >= 0)
+    tex_index = material_in.pbrMetallicRoughness.metallicRoughnessTexture.index;
+    if (tex_index >= 0)
     {
-        mat->mMetallicRoughnessId.set(model.images[index].uri);
+        mat->mMetallicRoughnessId.set(model.images[tex_index].uri);
     }
     else
     {
@@ -162,10 +165,10 @@ void LLTinyGLTFHelper::setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model)
     }
 
     // get emissive texture
-    index = material_in.emissiveTexture.index;
-    if (index >= 0)
+    tex_index = material_in.emissiveTexture.index;
+    if (tex_index >= 0)
     {
-        mat->mEmissiveId.set(model.images[index].uri);
+        mat->mEmissiveId.set(model.images[tex_index].uri);
     }
     else
     {
