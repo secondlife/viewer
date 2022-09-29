@@ -33,6 +33,7 @@ class LLVector4;
 #include "llerror.h"
 #include "llmath.h"
 #include "llsd.h"
+#include "v3math.h"  // needed for linearColor3v implemtation below
 #include <string.h>
 
 //  LLColor3 = |r g b|
@@ -496,6 +497,11 @@ inline const LLColor3 linearColor3(const F32* v) {
 template<class T>
 inline const LLColor3 linearColor3(const T& a) {
     return linearColor3(a.mV);
+}
+
+template<class T>
+inline const LLVector3 linearColor3v(const T& a) {
+    return LLVector3(linearColor3(a.mV).mV);
 }
 
 #endif

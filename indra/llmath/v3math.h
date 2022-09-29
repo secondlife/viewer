@@ -609,9 +609,4 @@ inline std::ostream& operator<<(std::ostream& s, const LLVector3 &a)
 	return s;
 }
 
-template<class T>
-inline const LLVector3 linearColor3v(const T& a) {
-    return LLVector3(linearColor3(a.mV).mV);
-}
-
 #endif
