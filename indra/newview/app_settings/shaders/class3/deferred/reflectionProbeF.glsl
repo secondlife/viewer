@@ -529,7 +529,6 @@ void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
     ambenv = sampleProbeAmbient(pos, norm);
-    ambenv /= 1.725;
 
     if (glossiness > 0.0)
     {

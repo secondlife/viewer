@@ -80,7 +80,7 @@ vec2 encode_normal (vec3 n);
 vec3 scaleSoftClipFragLinear(vec3 l);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive, bool use_ao);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
 #ifdef HAS_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
@@ -243,12 +243,12 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVarsLinear(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-    vec3 ambenv;
+    vec3 irradiance;
     vec3 glossenv;
     vec3 legacyenv;
-    sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, 0.0, 0.0);
+    sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, pos.xyz, norm.xyz, 0.0, 0.0);
     
 
     float da = dot(norm.xyz, light_dir.xyz);
@@ -261,15 +261,9 @@ void main()
 
     color.a   = final_alpha;
 
-    float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
-    ambient *= 0.5;
-    ambient *= ambient;
-    ambient = (1.0 - ambient);
-
     vec3 sun_contrib = min(final_da, shadow) * sunlit;
 
-    color.rgb = max(amblit, ambenv);
-    color.rgb *= ambient;
+    color.rgb = max(amblit, irradiance);
 
     color.rgb += sun_contrib;
 

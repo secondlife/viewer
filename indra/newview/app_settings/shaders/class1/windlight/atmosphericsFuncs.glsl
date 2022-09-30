@@ -37,8 +37,8 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
     atten = vec3(1,0,1);
 }
 
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
-                         out vec3 atten, bool use_ao)
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 additive,
+                         out vec3 atten)
 {
     amblit = vec3(0.2, 0, 0.2);
     sunlit = vec3(1,0,1);

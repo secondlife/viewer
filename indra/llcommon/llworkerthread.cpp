@@ -73,6 +73,7 @@ void LLWorkerThread::clearDeleteList()
 		{
 			(*iter)->mRequestHandle = LLWorkerThread::nullHandle();
 			(*iter)->clearFlags(LLWorkerClass::WCF_HAVE_WORK);
+            (*iter)->clearFlags(LLWorkerClass::WCF_WORKING);
 			delete *iter ;
 		}
 		mDeleteList.clear() ;

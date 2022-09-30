@@ -43,7 +43,7 @@ vec4 applyWaterFogView(vec3 pos, vec4 color);
 
 vec3 atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFragLinear(vec3 l);
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec3 fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
 
 vec3 srgb_to_linear(vec3 cs);
@@ -301,7 +301,7 @@ void main()
     vec3 amblit;
     vec3 additive;
     vec3 atten;
-    calcAtmosphericVarsLinear(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
+    calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
     
     vec3 ambenv;
     vec3 glossenv;
@@ -310,12 +310,6 @@ void main()
     
     // use sky settings ambient or irradiance map sample, whichever is brighter
     color = max(amblit, ambenv);
-
-    float ambient = min(abs(dot(norm.xyz, light_dir.xyz)), 1.0);
-    ambient *= 0.5;
-    ambient *= ambient;
-    ambient = (1.0 - ambient);
-    color.rgb *= ambient;
 
     float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
     vec3 sun_contrib = min(da, shadow) * sunlit;

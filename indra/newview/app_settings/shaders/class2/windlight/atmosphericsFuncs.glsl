@@ -146,15 +146,29 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
 vec3 srgb_to_linear(vec3 col);
 
+// provide a touch of lighting in the opposite direction of the sun light 
+    // so areas in shadow don't lose all detail
+float ambientLighting(vec3 norm, vec3 light_dir)
+{
+    float ambient = min(abs(dot(norm.xyz, light_dir.xyz)), 1.0);
+    ambient *= 0.56;
+    ambient *= ambient;
+    ambient = (1.0 - ambient);
+    return ambient;
+}
+
+
 // return colors in linear space
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive,
-                         out vec3 atten, bool use_ao)
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 additive,
+                         out vec3 atten)
 {
 #if 1
     calcAtmosphericVars(inPositionEye, light_dir, 1.0, sunlit, amblit, additive, atten, false);
     sunlit = srgb_to_linear(sunlit);
     additive = srgb_to_linear(additive);
     amblit = ambient_linear;
+
+    amblit *= ambientLighting(norm, light_dir);
 #else 
 
     //EXPERIMENTAL -- attempt to factor out srgb_to_linear conversions above

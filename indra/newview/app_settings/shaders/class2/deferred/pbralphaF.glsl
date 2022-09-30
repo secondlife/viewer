@@ -74,8 +74,7 @@ uniform vec2 light_deferred_attenuation[8]; // light size and falloff
 vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
-// These are in deferredUtil.glsl but we can't set: mFeatures.isDeferred to include it
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 vec3 scaleSoftClipFragLinear(vec3 l);
 
@@ -140,15 +139,6 @@ void main()
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     vec3  pos         = vary_position;
 
-    float scol = 1.0;
-    float ambocc = 1.0;
-
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
-    calcAtmosphericVarsLinear(pos.xyz, light_dir, ambocc, sunlit, amblit, additive, atten, true);
-
 
 // IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 //    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;
@@ -173,6 +163,13 @@ void main()
     vec3 norm = normalize( vNt.x * vT + vNt.y * vB + vNt.z * vN );
 
     norm *= gl_FrontFacing ? 1.0 : -1.0;
+
+    float scol = 1.0;
+    vec3 sunlit;
+    vec3 amblit;
+    vec3 additive;
+    vec3 atten;
+    calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
 #ifdef HAS_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;

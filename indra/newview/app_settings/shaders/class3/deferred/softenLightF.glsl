@@ -69,7 +69,7 @@ uniform vec2 screen_res;
 vec3 getNorm(vec2 pos_screen);
 vec4 getPositionWithDepth(vec2 pos_screen, float depth);
 
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 light_dir, float ambFactor, out vec3 sunlit, out vec3 amblit, out vec3 additive, out vec3 atten, bool use_ao);
+void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 vec3  atmosFragLightingLinear(vec3 l, vec3 additive, vec3 atten);
 vec3  scaleSoftClipFragLinear(vec3 l);
 vec3  fullbrightAtmosTransportFragLinear(vec3 light, vec3 additive, vec3 atten);
@@ -112,9 +112,11 @@ void main()
     float depth        = texture2DRect(depthMap, tc.xy).r;
     vec4  pos          = getPositionWithDepth(tc, depth);
     vec4  norm         = texture2DRect(normalMap, tc);
+    float envIntensity = norm.z;
+    norm.xyz           = getNorm(tc);
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
 
-    vec4 diffuse     = texture2DRect(diffuseRect, tc);
+    vec4 baseColor     = texture2DRect(diffuseRect, tc);
     vec4 spec        = texture2DRect(specularRect, vary_fragcoord.xy); // NOTE: PBR linear Emissive
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
@@ -122,7 +124,7 @@ void main()
 #endif
 
 #if defined(HAS_SUN_SHADOW)
-    float scol       = max(scol_ambocc.r, diffuse.a);
+    float scol       = max(scol_ambocc.r, baseColor.a);
 #else
     float scol = 1.0;
 #endif
@@ -140,15 +142,10 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVarsLinear(pos.xyz, light_dir, 1.0, sunlit, amblit, additive, atten, false);
-
-    vec3 ambenv;
-    vec3 glossenv;
-    vec3 legacyenv;
+    calcAtmosphericVarsLinear(pos.xyz, norm.xyz, light_dir, sunlit, amblit, additive, atten);
 
     if (GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_PBR))
     {
-        norm.xyz           = getNorm(tc);
         vec3 orm = texture2DRect(specularRect, tc).rgb; 
         float perceptualRoughness = orm.g;
         float metallic = orm.b;
@@ -162,11 +159,11 @@ void main()
         vec3  radiance  = vec3(0);
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
         
-        irradiance       = max(amblit*0.75,irradiance);
+        // Take maximium of legacy ambient vs irradiance sample as irradiance
+        // NOTE: ao is applied in pbrIbl, do not apply here
+        irradiance       = max(amblit,irradiance);
 
         vec3 f0 = vec3(0.04);
-        vec3 baseColor = diffuse.rgb;
-
         vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
         diffuseColor *= 1.0 - metallic;
 
@@ -185,35 +182,33 @@ void main()
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {
-        //should only be true of WL sky, just port over diffuse value
-        color = srgb_to_linear(diffuse.rgb);
+        //should only be true of WL sky, just port over base color value
+        color = srgb_to_linear(baseColor.rgb);
     }
     else
     {
         // legacy shaders are still writng sRGB to gbuffer
-        diffuse.rgb = srgb_to_linear(diffuse.rgb);
+        baseColor.rgb = srgb_to_linear(baseColor.rgb);
         spec.rgb = srgb_to_linear(spec.rgb);
-
-        float envIntensity = norm.z;
-        norm.xyz           = getNorm(tc);
 
         float da          = clamp(dot(norm.xyz, light_dir.xyz), 0.0, 1.0);
 
-        sampleReflectionProbesLegacy(ambenv, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+        vec3 irradiance = vec3(0);
+        vec3 glossenv = vec3(0);
+        vec3 legacyenv = vec3(0);
 
+        sampleReflectionProbesLegacy(irradiance, glossenv, legacyenv, pos.xyz, norm.xyz, spec.a, envIntensity);
+        
         // use sky settings ambient or irradiance map sample, whichever is brighter
-        color = max(amblit, ambenv*ambocc);
+        irradiance = max(amblit, irradiance);
 
-        float ambient = min(abs(dot(norm.xyz, light_dir.xyz)), 1.0);
-        ambient *= 0.5;
-        ambient *= ambient;
-        ambient = (1.0 - ambient);
-        color.rgb *= ambient;
+        // apply lambertian IBL only (see pbrIbl)
+        color.rgb = irradiance * ambocc;
 
         vec3 sun_contrib = min(da, scol) * sunlit;
         color.rgb += sun_contrib;
-        color.rgb *= diffuse.rgb;
-
+        color.rgb *= baseColor.rgb;
+        
         vec3 refnormpersp = reflect(pos.xyz, norm.xyz);
 
         if (spec.a > 0.0)  // specular reflection
@@ -229,14 +224,14 @@ void main()
             applyGlossEnv(color, glossenv, spec, pos.xyz, norm.xyz);
         }
 
-        color.rgb = mix(color.rgb, diffuse.rgb, diffuse.a);
+        color.rgb = mix(color.rgb, baseColor.rgb, baseColor.a);
         
         if (envIntensity > 0.0)
         {  // add environment map
             applyLegacyEnv(color, legacyenv, spec, pos.xyz, norm.xyz, envIntensity);
         }
 
-        color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), diffuse.a);
+        color = mix(atmosFragLightingLinear(color, additive, atten), fullbrightAtmosTransportFragLinear(color, additive, atten), baseColor.a);
         color = scaleSoftClipFragLinear(color);
     }
 
