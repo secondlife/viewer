@@ -119,10 +119,16 @@ void main()
 
 #if defined(HAS_SUN_SHADOW) || defined(HAS_SSAO)
     vec2 scol_ambocc = texture2DRect(lightMap, vary_fragcoord.xy).rg;
+#endif
+
+#if defined(HAS_SUN_SHADOW)
     float scol       = max(scol_ambocc.r, diffuse.a);
-    float ambocc     = scol_ambocc.g;
 #else
     float scol = 1.0;
+#endif
+#if defined(HAS_SSAO)
+    float ambocc     = scol_ambocc.g;
+#else
     float ambocc = 1.0;
 #endif
 
