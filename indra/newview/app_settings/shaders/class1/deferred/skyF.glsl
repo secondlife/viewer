@@ -54,6 +54,13 @@ vec3 rainbow(float d)
     // Unfortunately the texture is inverted, so we need to invert the y coord, but keep the 'interesting'
     // part within the same 0.175..0.250 range, i.e. d = (1 - d) - 1.575
     d         = clamp(-0.575 - d, 0.0, 1.0);
+
+    // With the colors in the lower 1/4 of the texture, inverting the coords leaves most of it inaccessible.
+    // So, we can stretch the texcoord above the colors (ie > 0.25) to fill the entire remaining coordinate
+    // space. This improves gradation, reduces banding within the rainbow interior. (1-0.25) / (0.425/0.25) = 4.2857
+    float interior_coord = max(0.0, d - 0.25) * 4.2857;
+    d = clamp(d, 0.0, 0.25) + interior_coord;
+
     float rad = (droplet_radius - 5.0f) / 1024.0f;
     return pow(texture2D(rainbow_map, vec2(rad+0.5, d)).rgb, vec3(1.8)) * moisture_level;
 }
