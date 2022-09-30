@@ -35,7 +35,7 @@ class LLViewerFetchedTexture;
 
 namespace LLTinyGLTFHelper
 {
-    void setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model);
+    void setFromModel(LLGLTFMaterial* mat, tinygltf::Model& model, S32 index);
     LLColor4 getColor(const std::vector<double>& in);
     const tinygltf::Image* getImageFromTextureIndex(const tinygltf::Model& model, S32 texture_index);
     LLImageRaw* getTexture(const std::string& folder, const tinygltf::Model& model, S32 texture_index, std::string& name);

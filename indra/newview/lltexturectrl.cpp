@@ -965,14 +965,12 @@ void LLFloaterTexturePicker::onBtnUpload(void* userdata)
 
     if (LLAssetType::AT_MATERIAL == asset_type)
     {
-        std::string filename = LLLocalGLTFMaterialMgr::getInstance()->getFilename(tracking_id);
+        std::string filename;
+        S32 index;
+        LLLocalGLTFMaterialMgr::getInstance()->getFilenameAndIndex(tracking_id, filename, index);
         if (!filename.empty())
         {
-            LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-            if (me)
-            {
-                me->loadMaterialFromFile(filename);
-            }
+            LLMaterialEditor::loadMaterialFromFile(filename, index);
         }
     }
     else

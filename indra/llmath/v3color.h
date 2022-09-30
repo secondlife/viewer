@@ -33,6 +33,7 @@ class LLVector4;
 #include "llerror.h"
 #include "llmath.h"
 #include "llsd.h"
+#include "v3math.h"  // needed for linearColor3v implemtation below
 #include <string.h>
 
 //  LLColor3 = |r g b|

@@ -59,70 +59,76 @@ static const S32 LL_LOCAL_UPDATE_RETRIES    = 5;
 /*=======================================*/
 /*  LLLocalGLTFMaterial: unit class            */
 /*=======================================*/ 
-LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename)
-	: mFilename(filename)
-	, mShortName(gDirUtilp->getBaseFileName(filename, true))
-	, mValid(false)
-	, mLastModified()
-	, mLinkStatus(LS_ON)
-	, mUpdateRetries(LL_LOCAL_UPDATE_RETRIES)
+LLLocalGLTFMaterial::LLLocalGLTFMaterial(std::string filename, S32 index)
+    : mFilename(filename)
+    , mShortName(gDirUtilp->getBaseFileName(filename, true))
+    , mValid(false)
+    , mLastModified()
+    , mLinkStatus(LS_ON)
+    , mUpdateRetries(LL_LOCAL_UPDATE_RETRIES)
+    , mMaterialIndex(index)
 {
-	mTrackingID.generate();
+    mTrackingID.generate();
 
-	/* extension */
-	std::string temp_exten = gDirUtilp->getExtension(mFilename);
+    /* extension */
+    std::string temp_exten = gDirUtilp->getExtension(mFilename);
 
-	if (temp_exten == "gltf")
-	{ 
-		mExtension = ET_MATERIAL_GLTF;
-	}
-	else if (temp_exten == "glb")
-	{
-		mExtension = ET_MATERIAL_GLB;
-	}
-	else
-	{
-		LL_WARNS() << "File of no valid extension given, local material creation aborted." << "\n"
-			    << "Filename: " << mFilename << LL_ENDL;
-		return; // no valid extension.
-	}
+    if (temp_exten == "gltf")
+    {
+        mExtension = ET_MATERIAL_GLTF;
+    }
+    else if (temp_exten == "glb")
+    {
+        mExtension = ET_MATERIAL_GLB;
+    }
+    else
+    {
+        LL_WARNS() << "File of no valid extension given, local material creation aborted." << "\n"
+            << "Filename: " << mFilename << LL_ENDL;
+        return; // no valid extension.
+    }
 
-	/* next phase of unit creation is nearly the same as an update cycle.
-	   we're running updateSelf as a special case with the optional UT_FIRSTUSE
-	   which omits the parts associated with removing the outdated texture */
-	mValid = updateSelf();
+    /* next phase of unit creation is nearly the same as an update cycle.
+       we're running updateSelf as a special case with the optional UT_FIRSTUSE
+       which omits the parts associated with removing the outdated texture */
+    mValid = updateSelf();
 }
 
 LLLocalGLTFMaterial::~LLLocalGLTFMaterial()
 {
-	// delete self from material list
+    // delete self from material list
     gGLTFMaterialList.removeMaterial(mWorldID);
 }
 
 /* accessors */
 std::string LLLocalGLTFMaterial::getFilename()
 {
-	return mFilename;
+    return mFilename;
 }
 
 std::string LLLocalGLTFMaterial::getShortName()
 {
-	return mShortName;
+    return mShortName;
 }
 
 LLUUID LLLocalGLTFMaterial::getTrackingID()
 {
-	return mTrackingID;
+    return mTrackingID;
 }
 
 LLUUID LLLocalGLTFMaterial::getWorldID()
 {
-	return mWorldID;
+    return mWorldID;
+}
+
+S32 LLLocalGLTFMaterial::getIndexInFile()
+{
+    return mMaterialIndex;
 }
 
 bool LLLocalGLTFMaterial::getValid()
 {
-	return mValid;
+    return mValid;
 }
 
 /* update functions */
@@ -147,7 +153,7 @@ bool LLLocalGLTFMaterial::updateSelf()
 			if (mLastModified.asString() != new_last_modified.asString())
 			{
 				LLPointer<LLGLTFMaterial> raw_material = new LLGLTFMaterial();
-				if (loadMaterial(raw_material))
+				if (loadMaterial(raw_material, mMaterialIndex))
 				{
 					// decode is successful, we can safely proceed.
                     if (mWorldID.isNull())
@@ -207,7 +213,7 @@ bool LLLocalGLTFMaterial::updateSelf()
 	return updated;
 }
 
-bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
+bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
 {
     bool decode_successful = false;
 
@@ -238,26 +244,31 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat)
 
             if (!decode_successful)
             {
-                LL_WARNS() << "Cannot Upload Material, error: " << error_msg
+                LL_WARNS() << "Cannot load Material, error: " << error_msg
                     << ", warning:" << warn_msg
                     << " file: " << mFilename
                     << LL_ENDL;
                 break;
             }
 
-            if (model_in.materials.empty())
+            if (model_in.materials.size() <= index)
             {
                 // materials are missing
-                LL_WARNS() << "Cannot Upload Material, Material missing, " << mFilename << LL_ENDL;
+                LL_WARNS() << "Cannot load Material, Material " << index << " is missing, " << mFilename << LL_ENDL;
                 decode_successful = false;
                 break;
             }
 
             // sets everything, but textures will have inaccurate ids
-            LLTinyGLTFHelper::setFromModel(mat, model_in);
+            LLTinyGLTFHelper::setFromModel(mat, model_in, index);
 
             std::string folder = gDirUtilp->getDirName(filename_lc);
-            tinygltf::Material material_in = model_in.materials[0];
+            tinygltf::Material material_in = model_in.materials[index];
+
+            if (!material_in.name.empty())
+            {
+                mShortName = gDirUtilp->getBaseFileName(filename_lc, true) + " (" + material_in.name + ")";
+            }
 
             // get base color texture
             LLPointer<LLImageRaw> base_img = LLTinyGLTFHelper::getTexture(folder, model_in, material_in.pbrMetallicRoughness.baseColorTexture.index);
@@ -362,44 +373,95 @@ LLLocalGLTFMaterialMgr::~LLLocalGLTFMaterialMgr()
     mMaterialList.clear();
 }
 
-bool LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
+S32 LLLocalGLTFMaterialMgr::addUnit(const std::vector<std::string>& filenames)
 {
-    bool add_successful = false;
+    S32 add_count = 0;
     std::vector<std::string>::const_iterator iter = filenames.begin();
     while (iter != filenames.end())
     {
-        if (!iter->empty() && addUnit(*iter).notNull())
+        if (!iter->empty())
         {
-            add_successful = true;
+            add_count += addUnit(*iter);
         }
         iter++;
     }
-    return add_successful;
+    return add_count;
 }
 
-LLUUID LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
+S32 LLLocalGLTFMaterialMgr::addUnit(const std::string& filename)
 {
-    LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename);
+    std::string exten = gDirUtilp->getExtension(filename);
+    S32 materials_in_file = 0;
 
-    if (unit->getValid())
+    if (exten == "gltf" || exten == "glb")
     {
-        mMaterialList.push_back(unit);
-        return unit->getTrackingID();
+        tinygltf::TinyGLTF loader;
+        std::string        error_msg;
+        std::string        warn_msg;
+
+        tinygltf::Model model_in;
+
+        std::string filename_lc = filename;
+        LLStringUtil::toLower(filename_lc);
+
+        // Load a tinygltf model fom a file. Assumes that the input filename has already been
+        // been sanitized to one of (.gltf , .glb) extensions, so does a simple find to distinguish.
+        bool decode_successful = false;
+        if (std::string::npos == filename_lc.rfind(".gltf"))
+        {  // file is binary
+            decode_successful = loader.LoadBinaryFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+        }
+        else
+        {  // file is ascii
+            decode_successful = loader.LoadASCIIFromFile(&model_in, &error_msg, &warn_msg, filename_lc);
+        }
+
+        if (!decode_successful)
+        {
+            LL_WARNS() << "Cannot load, error: Failed to decode" << error_msg
+                << ", warning:" << warn_msg
+                << " file: " << filename
+                << LL_ENDL;
+            return 0;
+        }
+
+        if (model_in.materials.empty())
+        {
+            // materials are missing
+            LL_WARNS() << "Cannot load. File has no materials " << filename << LL_ENDL;
+            return 0;
+        }
+        materials_in_file = model_in.materials.size();
     }
-    else
+
+    S32 loaded_materials = 0;
+    for (S32 i = 0; i < materials_in_file; i++)
     {
-        LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
-            << "Filename: " << filename << LL_ENDL;
+        // Todo: this is rather inefficient, files will be spammed with
+        // separate loads and date checks, find a way to improve this.
+        // May be doUpdates() should be checking individual files.
+        LLLocalGLTFMaterial* unit = new LLLocalGLTFMaterial(filename, i);
 
-        LLSD notif_args;
-        notif_args["FNAME"] = filename;
-        LLNotificationsUtil::add("LocalGLTFVerifyFail", notif_args);
+        if (unit->getValid())
+        {
+            mMaterialList.push_back(unit);
+            loaded_materials++;
+        }
+        else
+        {
+            LL_WARNS() << "Attempted to add invalid or unreadable image file, attempt cancelled.\n"
+                << "Filename: " << filename << LL_ENDL;
 
-        delete unit;
-        unit = NULL;
+            LLSD notif_args;
+            notif_args["FNAME"] = filename;
+            LLNotificationsUtil::add("LocalGLTFVerifyFail", notif_args);
+
+            delete unit;
+            unit = NULL;
+        }
     }
 
-    return LLUUID::null;
+    return loaded_materials;
 }
 
 void LLLocalGLTFMaterialMgr::delUnit(LLUUID tracking_id)
@@ -456,9 +518,10 @@ bool LLLocalGLTFMaterialMgr::isLocal(const LLUUID world_id)
     return false;
 }
 
-std::string LLLocalGLTFMaterialMgr::getFilename(LLUUID tracking_id)
+void LLLocalGLTFMaterialMgr::getFilenameAndIndex(LLUUID tracking_id, std::string &filename, S32 &index)
 {
-    std::string filename = "";
+    filename = "";
+    index = 0;
 
     for (local_list_iter iter = mMaterialList.begin(); iter != mMaterialList.end(); iter++)
     {
@@ -466,10 +529,9 @@ std::string LLLocalGLTFMaterialMgr::getFilename(LLUUID tracking_id)
         if (unit->getTrackingID() == tracking_id)
         {
             filename = unit->getFilename();
+            index = unit->getIndexInFile();
         }
     }
-
-    return filename;
 }
 
 // probably shouldn't be here, but at the moment this mirrors lllocalbitmaps

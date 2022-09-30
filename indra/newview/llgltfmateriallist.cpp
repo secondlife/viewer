@@ -92,7 +92,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 
                                 if (loader.LoadASCIIFromString(&model_in, &error_msg, &warn_msg, data.c_str(), data.length(), ""))
                                 {
-                                    LLTinyGLTFHelper::setFromModel(mat, model_in);
+                                    LLTinyGLTFHelper::setFromModel(mat, model_in, 0);
                                 }
                                 else
                                 {

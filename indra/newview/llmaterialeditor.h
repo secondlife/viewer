@@ -101,7 +101,9 @@ public:
     void setFromGLTFMaterial(LLGLTFMaterial* mat);
 
     void loadAsset() override;
-    void loadMaterialFromFile(const std::string& filename);
+    // @index if -1 and file contains more than one material,
+    // will promt to select specific one
+    static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
