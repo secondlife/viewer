@@ -49,6 +49,8 @@ BOOL gHiDPISupport = TRUE;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;
 
+const S32   DEFAULT_REFRESH_RATE = 60;
+
 namespace
 {
     NSKeyEventRef mRawKeyEvent = NULL;
@@ -661,6 +663,11 @@ BOOL LLWindowMacOSX::createContext(int x, int y, int width, int height, int bits
 	}
 
     mRefreshRate = CGDisplayModeGetRefreshRate(CGDisplayCopyDisplayMode(mDisplay));
+    if(mRefreshRate == 0)
+    {
+        //consider adding more appropriate fallback later
+        mRefreshRate = DEFAULT_REFRESH_RATE;
+    }
 
 	// Disable vertical sync for swap
     toggleVSync(enable_vsync);
