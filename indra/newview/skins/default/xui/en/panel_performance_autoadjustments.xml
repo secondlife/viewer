@@ -115,7 +115,7 @@
    left_pad="10"
    name="AutoTuneContinuous"
    top_delta="0"
-   tool_tip="The viewer will continually adapt the settings to meet the target FPS until stopped even with the floater closed. When disabled clicking the Auto Tune button will adjust for the current settings then stop."
+   tool_tip="The viewer will continually adapt the settings to meet the target FPS until stopped even with the floater closed. When disabled clicking the Start button will adjust for the current settings then stop."
    width="64">
   </check_box>
   <text
