@@ -698,9 +698,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8865739d8e530199dacb3c3042c1bc01</string>
+              <string>73c70c9e29b805b25d1df551e2c4f751</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87777/805782/freetype-2.4.4.563848-darwin64-563848.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105443/922863/freetype-2.12.1.575484-darwin64-575484.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin64</string>
@@ -722,9 +722,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0b3601e997553931cadc7d7ee94168b</string>
+              <string>2fbb9e2b35d38676d9cea5dd4b659609</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87779/805814/freetype-2.4.4.563848-windows-563848.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105444/922870/freetype-2.12.1.575484-windows-575484.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -734,16 +734,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e98e1e088cdcd20442e05e9abecdadf9</string>
+              <string>dc7f61388f375ead1395fd0189214ab3</string>
               <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/87778/805815/freetype-2.4.4.563848-windows64-563848.tar.bz2</string>
+              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/ct2/105441/922858/freetype-2.12.1.575484-windows64-575484.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.4.4.563848</string>
+        <string>2.12.1.575484</string>
       </map>
       <key>glext</key>
       <map>
