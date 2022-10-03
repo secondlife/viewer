@@ -153,6 +153,49 @@
    bevel_style="in"
    height="0"
    layout="topleft"
+   name="border_vsync"
+   top_pad="20"
+   left="20"
+   width="540"/>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   left="20"
+   top_pad="20"
+   name="vsync_desc"
+   width="580">
+    Synchronize the refresh rate and frame rate of a monitor,
+  </text>
+  <text
+   follows="left|top"
+   font="SansSerifSmall"
+   text_color="White"
+   height="18"
+   layout="topleft"
+   top_pad="3"
+   left="20"
+   name="vsync_desc2"
+   width="580">
+    which can result in smoother performance.
+  </text>
+  <check_box
+   control_name="RenderVSyncEnable"
+   height="16"
+   initial_value="true"
+   label="Enable VSync"
+   label_text.text_color="White"
+   layout="topleft"
+   top_pad="15"
+   name="vsync"
+   tool_tip="Enable Vertical synchronization to reduce screen tearing and stuttering."
+   width="315" />
+  <view_border
+   bevel_style="in"
+   height="0"
+   layout="topleft"
    name="border1"
    top_pad="20"
    left="20"
