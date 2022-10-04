@@ -171,19 +171,28 @@ static OPJ_OFF_T opj_skip(OPJ_OFF_T bytes, void* user_data)
 {
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
     jpeg_codec->offset += bytes;
+
     if (jpeg_codec->offset > jpeg_codec->size)
     {
         jpeg_codec->offset = jpeg_codec->size;
         // Indicate end of stream
         return (OPJ_OFF_T)-1;
     }
+
+    if (jpeg_codec->offset < 0)
+    {
+        // Shouldn't be possible?
+        jpeg_codec->offset = 0;
+        return (OPJ_OFF_T)-1;
+    }
+
     return bytes;
 }
 
 static OPJ_BOOL opj_seek(OPJ_OFF_T bytes, void * user_data)
 {
     JPEG2KBase* jpeg_codec = static_cast<JPEG2KBase*>(user_data);
-    jpeg_codec->offset += bytes;
+    jpeg_codec->offset = bytes;
     jpeg_codec->offset = llclamp(U32(jpeg_codec->offset), U32(0), U32(jpeg_codec->size));
     return OPJ_TRUE;
 }
@@ -420,7 +429,7 @@ public:
         event_mgr.info_handler = info_callback;
 
         opj_set_default_encoder_parameters(&parameters);
-        parameters.cod_format = 0;
+        parameters.cod_format = OPJ_CODEC_J2K;
         parameters.cp_disto_alloc = 1;
         parameters.max_cs_size = (1 << 15);
 
@@ -486,11 +495,13 @@ public:
 
         parameters.tcp_mct = (image->numcomps >= 3) ? 1 : 0;
         parameters.cod_format = OPJ_CODEC_J2K;
-        parameters.numresolution = MAX_ENCODED_DISCARD_LEVELS;
         parameters.prog_order = OPJ_RLCP;
         parameters.cp_disto_alloc = 1;
 
-        opj_setup_encoder(encoder, &parameters, image);
+        if (!opj_setup_encoder(encoder, &parameters, image))
+        {
+            return false;
+        }
 
         opj_set_info_handler(encoder, opj_info, this);
         opj_set_warning_handler(encoder, opj_warn, this);
@@ -504,9 +515,7 @@ public:
         size = data_size_guess;
         offset = 0;
 
-#if LL_DEBUG
         memset(buffer, 0, data_size_guess);
-#endif
 
         if (stream)
         {
@@ -804,8 +813,8 @@ bool LLImageJ2COJ::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, con
     {
         LL_WARNS() << "Openjpeg encoding implementation isn't complete, returning false" << LL_ENDL;
     }
-    //return encoded;
-    return false;
+    return encoded;
+    //return false;
 }
 
 bool LLImageJ2COJ::getMetadata(LLImageJ2C &base)
