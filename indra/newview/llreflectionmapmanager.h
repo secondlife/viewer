@@ -62,7 +62,7 @@ public:
     void update();
 
     // add a probe for the given spatial group
-    LLReflectionMap* addProbe(LLSpatialGroup* group);
+    LLReflectionMap* addProbe(LLSpatialGroup* group = nullptr);
     
     // Populate "maps" with the N most relevant Reflection Maps where N is no more than maps.size()
     // If less than maps.size() ReflectionMaps are available, will assign trailing elements to nullptr.

@@ -34,6 +34,7 @@
 #include "llviewershadermgr.h"
 #include "llviewercontrol.h"
 #include "llenvironment.h"
+#include "llstartup.h"
 
 extern BOOL gCubeSnapshot;
 extern BOOL gTeleportDisplay;
@@ -63,7 +64,7 @@ struct CompareProbeDistance
 // helper class to seed octree with probes
 void LLReflectionMapManager::update()
 {
-    if (!LLPipeline::sReflectionProbesEnabled || gTeleportDisplay)
+    if (!LLPipeline::sReflectionProbesEnabled || gTeleportDisplay || LLStartUp::getStartupState() < STATE_PRECACHE)
     {
         return;
     }
@@ -212,7 +213,11 @@ LLReflectionMap* LLReflectionMapManager::addProbe(LLSpatialGroup* group)
 {
     LLReflectionMap* probe = new LLReflectionMap();
     probe->mGroup = group;
-    probe->mOrigin = group->getOctreeNode()->getCenter();
+
+    if (group)
+    {
+        probe->mOrigin = group->getOctreeNode()->getCenter();
+    }
 
     if (gCubeSnapshot)
     { //snapshot is in progress, mProbes is being iterated over, defer insertion until next update
@@ -272,7 +277,9 @@ LLReflectionMap* LLReflectionMapManager::registerSpatialGroup(LLSpatialGroup* gr
             return addProbe(group);
         }
     }
-    
+#endif
+
+#if 0
     if (group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_TERRAIN)
     {
         OctreeNode* node = group->getOctreeNode();

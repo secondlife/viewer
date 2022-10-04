@@ -117,16 +117,20 @@ S32 LLDrawPoolWater::getNumPasses()
 	return 0;
 }
 
-void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
+S32 LLDrawPoolWater::getNumPostDeferredPasses()
 {
-	beginRenderPass(pass);
-	deferred_render = TRUE;
+    return 1;
 }
 
-void LLDrawPoolWater::endPostDeferredPass(S32 pass)
+void LLDrawPoolWater::renderPostDeferred(S32 pass) 
 {
-	endRenderPass(pass);
-	deferred_render = FALSE;
+    renderWater();
+}
+
+
+S32 LLDrawPoolWater::getNumDeferredPasses() 
+{ 
+    return 0;
 }
 
 //===============================
@@ -152,6 +156,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 
 void LLDrawPoolWater::render(S32 pass)
 {
+#if 0
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 	if (mDrawFace.empty() || LLDrawable::getCurrentFrame() <= 1)
 	{
@@ -323,11 +328,13 @@ void LLDrawPoolWater::render(S32 pass)
 		glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
 		renderReflection(refl_face);
 	}
+#endif
 }
 
 // for low end hardware
 void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
     LLVOSky *voskyp = gSky.mVOSkyp;
 
@@ -432,11 +439,13 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	}
 
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+#endif
 }
 
 
 void LLDrawPoolWater::renderReflection(LLFace* face)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL;
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
@@ -462,6 +471,7 @@ void LLDrawPoolWater::renderReflection(LLFace* face)
 
 	LLOverrideFaceColor override(this, LLColor4(face->getFaceColor().mV));
 	face->renderIndexed();
+#endif
 }
 
 void LLDrawPoolWater::renderWater()
@@ -535,7 +545,8 @@ void LLDrawPoolWater::renderWater()
                 shader = deferred_render ? &gDeferredWaterProgram : &gWaterProgram;
             }
         }
-        shader->bind();
+
+        gPipeline.bindDeferredShader(*shader);
 
         // bind textures for water rendering
         S32 reftex = shader->enableTexture(LLShaderMgr::WATER_REFTEX);
@@ -683,7 +694,8 @@ void LLDrawPoolWater::renderWater()
         shader->disableTexture(LLShaderMgr::WATER_SCREENDEPTH);
 
         // clean up
-        shader->unbind();
+        gPipeline.unbindDeferredShader(*shader);
+
         gGL.getTexUnit(bumpTex)->unbind(LLTexUnit::TT_TEXTURE);
         gGL.getTexUnit(bumpTex2)->unbind(LLTexUnit::TT_TEXTURE);
     }

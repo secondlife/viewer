@@ -35,7 +35,7 @@ class LLHeavenBody;
 class LLWaterSurface;
 class LLGLSLShader;
 
-class LLDrawPoolWater: public LLFacePool
+class LLDrawPoolWater final: public LLFacePool
 {
 protected:
 	LLPointer<LLViewerTexture> mWaterImagep[2];	
@@ -63,19 +63,17 @@ public:
 
 	static void restoreGL();
 	
-	/*virtual*/ S32 getNumPostDeferredPasses() { return 0; } //getNumPasses(); }
-	/*virtual*/ void beginPostDeferredPass(S32 pass);
-	/*virtual*/ void endPostDeferredPass(S32 pass);
-	/*virtual*/ void renderPostDeferred(S32 pass) { render(pass); }
-	/*virtual*/ S32 getNumDeferredPasses() { return 1; }
-	/*virtual*/ void renderDeferred(S32 pass = 0);
+    S32 getNumPostDeferredPasses() override;
+    void renderPostDeferred(S32 pass) override;
+    S32 getNumDeferredPasses() override;
+	void renderDeferred(S32 pass = 0) override;
 
-	/*virtual*/ S32 getNumPasses();
-	/*virtual*/ void render(S32 pass = 0);
-	/*virtual*/ void prerender();
+	S32 getNumPasses() override;
+	void render(S32 pass = 0) override;
+	void prerender() override;
 
-	/*virtual*/ LLViewerTexture *getDebugTexture();
-	/*virtual*/ LLColor3 getDebugColor() const; // For AGP debug display
+	LLViewerTexture *getDebugTexture();
+	LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderReflection(LLFace* face);
 	void renderWater();

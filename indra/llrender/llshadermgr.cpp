@@ -214,7 +214,7 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 	}
 
     // we want this BEFORE shadows and AO because those facilities use pos/norm access
-    if (features->isDeferred)
+    if (features->isDeferred || features->hasReflectionProbes)
 	{
         if (!shader->attachFragmentObject("deferred/deferredUtil.glsl"))
 		{

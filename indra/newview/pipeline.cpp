@@ -1032,7 +1032,6 @@ void LLPipeline::updateRenderBump()
 // static
 void LLPipeline::updateRenderDeferred()
 {
-    sRenderDeferred = !gUseWireframe;
     sRenderPBR = sRenderDeferred;
     static LLCachedControl<S32> sProbeDetail(gSavedSettings, "RenderReflectionProbeDetail", -1);
     sReflectionProbesEnabled = sProbeDetail >= 0 && gGLManager.mGLVersion > 3.99f;
@@ -4326,6 +4325,7 @@ U32 LLPipeline::sCurRenderPoolType = 0 ;
 
 void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 {
+#if 0
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
     LL_PROFILE_GPU_ZONE("renderGeom");
 	assertInitialized();
@@ -4575,6 +4575,7 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 	LLGLState::checkStates();
 //	LLGLState::checkTextureChannels();
 //	LLGLState::checkClientArrays();
+#endif
 }
 
 void LLPipeline::renderGeomDeferred(LLCamera& camera)
@@ -4774,6 +4775,16 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.loadMatrix(gGLModelView);
 	}
+
+    if (!gCubeSnapshot)
+    {
+        // debug displays
+        renderHighlights();
+        mHighlightFaces.clear();
+
+        renderDebug();
+    }
+
 }
 
 void LLPipeline::renderGeomShadow(LLCamera& camera)
@@ -8692,6 +8703,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             unbindDeferredShader(LLPipeline::sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);
         }
 
+#if 0
         {  // render non-deferred geometry (fullbright, alpha, etc)
             LLGLDisable blend(GL_BLEND);
             LLGLDisable stencil(GL_STENCIL_TEST);
@@ -8707,6 +8719,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
             renderGeomPostDeferred(*LLViewerCamera::getInstance(), false);
             gPipeline.popRenderTypeMask();
         }
+#endif
 
         bool render_local = RenderLocalLights; // && !gCubeSnapshot;
 
@@ -8970,10 +8983,6 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
         gGL.setColorMask(true, true);
     }
 
-    screen_target->flush();
-
-    screen_target->bindTarget();
-
     {  // render non-deferred geometry (alpha, fullbright, glow)
         LLGLDisable blend(GL_BLEND);
         LLGLDisable stencil(GL_STENCIL_TEST);
@@ -9001,6 +9010,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
                           LLPipeline::RENDER_TYPE_CONTROL_AV,
                           LLPipeline::RENDER_TYPE_ALPHA_MASK,
                           LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
+                          LLPipeline::RENDER_TYPE_WATER,
                           END_RENDER_TYPES);
 
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
@@ -9065,16 +9075,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
         gGL.popMatrix();
         gGL.matrixMode(LLRender::MM_MODELVIEW);
         gGL.popMatrix();
-    }
-
-    if (!gCubeSnapshot)
-    {
-        // render highlights, etc.
-        renderHighlights();
-        mHighlightFaces.clear();
-
-        renderDebug();
-
+    
         LLVertexBuffer::unbind();
 
         if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
@@ -9346,6 +9347,7 @@ inline float sgn(float a)
 
 void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("generateWaterReflection");
 
@@ -9684,6 +9686,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
             gPipeline.popRenderTypeMask();
         }
     }
+#endif
 }
 
 glh::matrix4f look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)

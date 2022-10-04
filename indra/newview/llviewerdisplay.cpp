@@ -1062,11 +1062,9 @@ void display_cube_face()
 
     llassert(!gSnapshot);
     llassert(!gTeleportDisplay);
-    llassert(LLPipeline::sRenderDeferred);
     llassert(LLStartUp::getStartupState() >= STATE_PRECACHE);
     llassert(!LLAppViewer::instance()->logoutRequestSent());
     llassert(!gRestoreGL);
-    llassert(!gUseWireframe);
 
     bool rebuild = false;
 
