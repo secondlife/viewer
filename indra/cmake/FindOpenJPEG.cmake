@@ -9,7 +9,7 @@
 # also defined, but not for general use are
 #  OPENJPEG_LIBRARY, where to find the OpenJPEG library.
 
-FIND_PATH(OPENJPEG_INCLUDE_DIR openjp2.h
+FIND_PATH(OPENJPEG_INCLUDE_DIR openjpeg.h
 /usr/local/include/openjpeg
 /usr/local/include
 /usr/include/openjpeg
