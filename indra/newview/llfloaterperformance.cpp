@@ -194,6 +194,12 @@ void LLFloaterPerformance::draw()
             populateObjectList();
         }
 
+        auto button = getChild<LLButton>("AutoTuneFPS");
+        if((bool)button->getToggleState() != LLPerfStats::tunables.userAutoTuneEnabled)
+        {
+            button->toggleState();
+        }
+
         mUpdateTimer->setTimerExpirySec(REFRESH_INTERVAL);
     }
     LLFloater::draw();
