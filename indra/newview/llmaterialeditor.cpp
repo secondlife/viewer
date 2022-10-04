@@ -1903,6 +1903,7 @@ void LLMaterialEditor::onLoadComplete(const LLUUID& asset_uuid,
             editor->setEnableEditing(allow_modify && !source_library);
             editor->setHasUnsavedChanges(false);
             editor->mAssetStatus = PREVIEW_ASSET_LOADED;
+            editor->setEnabled(true); // ready for use
         }
         else
         {
