@@ -4930,13 +4930,21 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 		mTESpecularMaps[te] = LLViewerTextureManager::getFetchedTexture(spec_id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
 	}
 
-    auto fetch_texture = [](const LLUUID& id)
+    auto fetch_texture = [](const LLUUID& id, LLViewerObject *obj)
     {
         LLViewerFetchedTexture* img = nullptr;
         if (id.notNull())
         {
-            img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
-            img->addTextureStats(64.f * 64.f, TRUE);
+            if (LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary::isBakedImageId(id))
+            {
+                LLViewerTexture* viewerTexture = obj->getBakedTextureForMagicId(id);
+                img = viewerTexture ? dynamic_cast<LLViewerFetchedTexture*>(viewerTexture) : nullptr;
+            }
+            else
+            {
+                img = LLViewerTextureManager::getFetchedTexture(id, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_ALM, LLViewerTexture::LOD_TEXTURE);
+                img->addTextureStats(64.f * 64.f, TRUE);
+            }
         }
 
         return img;
@@ -4957,10 +4965,10 @@ void LLViewerObject::updateTEMaterialTextures(U8 te)
 
     if (mat != nullptr)
     {
-        mGLTFBaseColorMaps[te] = fetch_texture(mat->mBaseColorId);
-        mGLTFNormalMaps[te] = fetch_texture(mat->mNormalId);
-        mGLTFMetallicRoughnessMaps[te] = fetch_texture(mat->mMetallicRoughnessId);
-        mGLTFEmissiveMaps[te] = fetch_texture(mat->mEmissiveId);
+        mGLTFBaseColorMaps[te] = fetch_texture(mat->mBaseColorId, this);
+        mGLTFNormalMaps[te] = fetch_texture(mat->mNormalId, this);
+        mGLTFMetallicRoughnessMaps[te] = fetch_texture(mat->mMetallicRoughnessId, this);
+        mGLTFEmissiveMaps[te] = fetch_texture(mat->mEmissiveId, this);
     }
     else
     {
