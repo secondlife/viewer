@@ -830,9 +830,6 @@ void LLViewerRegion::sendReliableMessage()
 void LLViewerRegion::setWaterHeight(F32 water_level)
 {
 	mImpl->mLandp->setWaterHeight(water_level);
-
-    // reflection probes move with the water height
-    updateReflectionProbes();
 }
 
 F32 LLViewerRegion::getWaterHeight() const

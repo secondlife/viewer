@@ -32,6 +32,7 @@ out vec4 frag_color;
 vec3 scaleSoftClipFragLinear(vec3 l);
 vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 
 // PBR interface
 vec3 pbrIbl(vec3 diffuseColor,
@@ -53,6 +54,8 @@ uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
 uniform float     blend_factor;
 uniform sampler2D screenTex;
+uniform sampler2D screenDepth;
+
 uniform sampler2D refTex;
 
 uniform float sunAngle;
@@ -100,6 +103,8 @@ vec3 transform_normal(vec3 vNt)
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
     vec3 pos, vec3 norm, float glossiness);
 
+vec3 getPositionWithNDC(vec3 ndc);
+
 void main() 
 {
 	vec4 color;
@@ -110,7 +115,7 @@ void main()
 
     vec3 pos = vary_position.xyz;
 
-	float dist = length(view.xy);
+	float dist = length(pos.xyz);
 	
 	//normalize view vector
 	vec3 viewVec = normalize(pos.xyz);
@@ -120,7 +125,6 @@ void main()
     vec3 wave1_a = texture2D(bumpMap, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
     vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
-
 
     vec3 wave1_b = texture2D(bumpMap2, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
@@ -142,11 +146,11 @@ void main()
 
 	//get base fresnel components	
 	
-	/*vec3 df = vec3(
+	vec3 df = vec3(
 					dot(viewVec, wave1),
 					dot(viewVec, (wave2 + wave3) * 0.5),
 					dot(viewVec, wave3)
-				 ) * fresnelScale + fresnelOffset;*/
+				 ) * fresnelScale + fresnelOffset;
 		    
 	vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 	
@@ -157,20 +161,33 @@ void main()
 	
 	vec2 dmod_scale = vec2(dmod*dmod, dmod);
 	
-    //float df1 = df.x + df.y + df.z;
+    float df1 = df.x + df.y + df.z;
 
-    vec4 refcol = vec4(0, 0, 0, 0);
+    wavef = normalize(wavef + vary_normal);
+    //wavef = vary_normal;
 
-	//get specular component
-	float spec = clamp(dot(vary_light_dir, (reflect(viewVec,wavef))),0.0,1.0);
-		
-	//harden specular
-	spec = pow(spec, 128.0);
+    vec3 waver = reflect(viewVec, -wavef)*3;
 
 	//figure out distortion vector (ripply)   
-	//vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
-		
-	//vec4 fb = texture2D(screenTex, distort2);
+    vec2 distort2 = distort + waver.xy * refScale / max(dmod * df1, 1.0);
+    distort2 = clamp(distort2, vec2(0), vec2(0.99));
+ 
+    vec4 fb = texture2D(screenTex, distort2);
+    float depth = texture2D(screenDepth, distort2).r;
+    vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
+
+#if 1
+    if (refPos.z > pos.z-0.05)
+    {
+        //we sampled an above water sample, don't distort
+        distort2 = distort;
+        fb = texture2D(screenTex, distort2);
+        depth = texture2D(screenDepth, distort2).r;
+        refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
+    }
+#endif
+
+    fb = applyWaterFogViewLinear(refPos, fb);
 
     vec3 sunlit;
     vec3 amblit;
@@ -186,48 +203,43 @@ void main()
     float roughness = 0.08;
     float gloss = 1.0 - roughness;
 
-    vec3 baseColor = vec3(0);
+    vec3 baseColor = vec3(0.25);
     vec3 f0 = vec3(0.04);
     vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
     diffuseColor *= gloss;
 
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
+    //vec3 refnorm = normalize(wavef + vary_normal);
+    vec3 refnorm = wavef;
     
-    vec3 refnorm = normalize(wavef + vary_normal);
-
+   
     vec3 irradiance = vec3(0);
     vec3 radiance = vec3(0);
     sampleReflectionProbes(irradiance, radiance, pos, refnorm, gloss);
-    
-    // fudge -- use refracted color as irradiance
-    irradiance = srgb_to_linear(waterFogColor.rgb);
+    radiance *= 0.5;
+    irradiance = fb.rgb;
 
     color.rgb = pbrIbl(diffuseColor, specularColor, radiance, irradiance, gloss, NdotV, 0.0);
 
-    //vec4 fb = waterFogColor;
-    //fb.rgb = srgb_to_linear(fb.rgb);
-	
-    //refcol.rgb = vec3(0, 1, 0);
-
-	//mix with reflection
-	//color.rgb = mix(fb.rgb, refcol.rgb, df1);
-	
-    //color.rgb += spec * specular;
-
+    
     // fudge -- for punctual lighting, pretend water is metallic
     diffuseColor = vec3(0);
     specularColor = vec3(1);
     roughness = 0.1;
-    color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir);
+    float scol = 1.0; // TODO -- incorporate shadow map
+
+    //color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir) * sunlit * 2.75 * scol;
 	color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
 	color.rgb = scaleSoftClipFragLinear(color.rgb);
 
     color.a = 0.f;
-
-	//color.a = spec * sunAngle2;
-
-    frag_color = color;
+    //color.rgb = fb.rgb;
+    //color.rgb = vec3(depth*depth*depth*depth);
+    //color.rgb = srgb_to_linear(normalize(refPos) * 0.5 + 0.5);
+    //color.rgb = srgb_to_linear(normalize(pos) * 0.5 + 0.5);
+    //color.rgb = srgb_to_linear(wavef * 0.5 + 0.5);
+	frag_color = color;
 
 #if defined(WATER_EDGE)
     gl_FragDepth = 0.9999847f;

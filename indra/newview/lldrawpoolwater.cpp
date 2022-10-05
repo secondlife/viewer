@@ -122,6 +122,19 @@ S32 LLDrawPoolWater::getNumPostDeferredPasses()
     return 1;
 }
 
+void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
+{
+    // copy framebuffer contents so far to a texture to be used for
+    // reflections and refractions
+    LLRenderTarget& src = gPipeline.mRT->screen;
+    LLRenderTarget& dst = gPipeline.mWaterDis;
+    dst.copyContents(src, 
+        0, 0, src.getWidth(), src.getHeight(), 
+        0, 0, dst.getWidth(), dst.getHeight(), 
+        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, 
+        GL_NEAREST);
+}
+
 void LLDrawPoolWater::renderPostDeferred(S32 pass) 
 {
     renderWater();
@@ -587,6 +600,8 @@ void LLDrawPoolWater::renderWater()
 
         // bind reflection texture from RenderTarget
         S32 screentex   = shader->enableTexture(LLShaderMgr::WATER_SCREENTEX);
+        S32 screenDepth = shader->enableTexture(LLShaderMgr::WATER_SCREENDEPTH);
+
         F32 screenRes[] = {1.f / gGLViewport[2], 1.f / gGLViewport[3]};
 
         S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);
@@ -611,6 +626,11 @@ void LLDrawPoolWater::renderWater()
         {
             shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, fog_density);
             gGL.getTexUnit(screentex)->bind(&gPipeline.mWaterDis);
+        }
+
+        if (screenDepth > -1)
+        {
+            gGL.getTexUnit(screenDepth)->bind(&gPipeline.mWaterDis, true);
         }
 
         if (mShaderLevel == 1)

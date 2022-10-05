@@ -1021,6 +1021,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterProgram.mName = "Water Shader";
 		gWaterProgram.mFeatures.calculatesAtmospherics = true;
         gWaterProgram.mFeatures.hasAtmospherics = true;
+        gWaterProgram.mFeatures.hasWaterFog = true;
 		gWaterProgram.mFeatures.hasGamma = true;
 		gWaterProgram.mFeatures.hasTransport = true;
         gWaterProgram.mFeatures.hasSrgb = true;
@@ -1040,6 +1041,7 @@ BOOL LLViewerShaderMgr::loadShadersWater()
 		gWaterEdgeProgram.mName = "Water Edge Shader";
 		gWaterEdgeProgram.mFeatures.calculatesAtmospherics = true;
         gWaterEdgeProgram.mFeatures.hasAtmospherics = true;
+        gWaterEdgeProgram.mFeatures.hasWaterFog = true;
 		gWaterEdgeProgram.mFeatures.hasGamma = true;
 		gWaterEdgeProgram.mFeatures.hasTransport = true;
         gWaterEdgeProgram.mFeatures.hasSrgb = true;

@@ -63,7 +63,9 @@ public:
 
 	static void restoreGL();
 	
+    
     S32 getNumPostDeferredPasses() override;
+    void beginPostDeferredPass(S32 pass) override;
     void renderPostDeferred(S32 pass) override;
     S32 getNumDeferredPasses() override;
 	void renderDeferred(S32 pass = 0) override;

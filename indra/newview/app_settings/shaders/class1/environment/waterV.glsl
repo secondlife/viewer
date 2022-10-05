@@ -46,6 +46,7 @@ out vec3 vary_position;
 out vec3 vary_light_dir;
 out vec3 vary_tangent;
 out vec3 vary_normal;
+out vec2 vary_fragcoord;
 
 float wave(vec2 v, float t, float f, vec2 d, float s) 
 {

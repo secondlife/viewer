@@ -306,7 +306,7 @@ public:
 
     
 
-	void renderDeferredLighting(LLRenderTarget* light_target);
+	void renderDeferredLighting();
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
 	void generateWaterReflection(LLCamera& camera);

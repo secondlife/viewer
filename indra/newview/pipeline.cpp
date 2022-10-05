@@ -8442,7 +8442,7 @@ LLVector4 pow4fsrgb(LLVector4 v, F32 f)
 	return v;
 }
 
-void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
+void LLPipeline::renderDeferredLighting()
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("renderDeferredLighting");
@@ -8451,6 +8451,7 @@ void LLPipeline::renderDeferredLighting(LLRenderTarget *screen_target)
         return;
     }
 
+    LLRenderTarget *screen_target         = &mRT->screen;
     LLRenderTarget *deferred_target       = &mRT->deferredScreen;
     LLRenderTarget *deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget *deferred_light_target = &mRT->deferredLight;
