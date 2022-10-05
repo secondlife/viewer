@@ -198,6 +198,142 @@ public:
 		NUM_RENDER_TYPES,
 	};
 
+	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+    static std::string lookupPassName(U32 pass)
+    {
+        switch (pass)
+        {
+            case PASS_SIMPLE:
+                return "PASS_SIMPLE";
+            case PASS_SIMPLE_RIGGED:
+                return "PASS_SIMPLE_RIGGED";
+            case PASS_GRASS:
+                return "PASS_GRASS";
+            case PASS_FULLBRIGHT:
+                return "PASS_FULLBRIGHT";
+            case PASS_FULLBRIGHT_RIGGED:
+                return "PASS_FULLBRIGHT_RIGGED";
+            case PASS_INVISIBLE:
+                return "PASS_INVISIBLE";
+            case PASS_INVISIBLE_RIGGED:
+                return "PASS_INVISIBLE_RIGGED";
+            case PASS_INVISI_SHINY:
+                return "PASS_INVISI_SHINY";
+            case PASS_INVISI_SHINY_RIGGED:
+                return "PASS_INVISI_SHINY_RIGGED";
+            case PASS_FULLBRIGHT_SHINY:
+                return "PASS_FULLBRIGHT_SHINY";
+            case PASS_FULLBRIGHT_SHINY_RIGGED:
+                return "PASS_FULLBRIGHT_SHINY_RIGGED";
+            case PASS_SHINY:
+                return "PASS_SHINY";
+            case PASS_SHINY_RIGGED:
+                return "PASS_SHINY_RIGGED";
+            case PASS_BUMP:
+                return "PASS_BUMP";
+            case PASS_BUMP_RIGGED:
+                return "PASS_BUMP_RIGGED";
+            case PASS_POST_BUMP:
+                return "PASS_POST_BUMP";
+            case PASS_POST_BUMP_RIGGED:
+                return "PASS_POST_BUMP_RIGGED";
+            case PASS_MATERIAL:
+                return "PASS_MATERIAL";
+            case PASS_MATERIAL_RIGGED:
+                return "PASS_MATERIAL_RIGGED";
+            case PASS_MATERIAL_ALPHA:
+                return "PASS_MATERIAL_ALPHA";
+            case PASS_MATERIAL_ALPHA_RIGGED:
+                return "PASS_MATERIAL_ALPHA_RIGGED";
+            case PASS_MATERIAL_ALPHA_MASK:
+                return "PASS_MATERIAL_ALPHA_MASK";
+            case PASS_MATERIAL_ALPHA_MASK_RIGGED:
+                return "PASS_MATERIAL_ALPHA_MASK_RIGGED";
+            case PASS_MATERIAL_ALPHA_EMISSIVE:
+                return "PASS_MATERIAL_ALPHA_EMISSIVE";
+            case PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED:
+                return "PASS_MATERIAL_ALPHA_EMISSIVE_RIGGED";
+            case PASS_SPECMAP:
+                return "PASS_SPECMAP";
+            case PASS_SPECMAP_RIGGED:
+                return "PASS_SPECMAP_RIGGED";
+            case PASS_SPECMAP_BLEND:
+                return "PASS_SPECMAP_BLEND";
+            case PASS_SPECMAP_BLEND_RIGGED:
+                return "PASS_SPECMAP_BLEND_RIGGED";
+            case PASS_SPECMAP_MASK:
+                return "PASS_SPECMAP_MASK";
+            case PASS_SPECMAP_MASK_RIGGED:
+                return "PASS_SPECMAP_MASK_RIGGED";
+            case PASS_SPECMAP_EMISSIVE:
+                return "PASS_SPECMAP_EMISSIVE";
+            case PASS_SPECMAP_EMISSIVE_RIGGED:
+                return "PASS_SPECMAP_EMISSIVE_RIGGED";
+            case PASS_NORMMAP:
+                return "PASS_NORMAMAP";
+            case PASS_NORMMAP_RIGGED:
+                return "PASS_NORMMAP_RIGGED";
+            case PASS_NORMMAP_BLEND:
+                return "PASS_NORMMAP_BLEND";
+            case PASS_NORMMAP_BLEND_RIGGED:
+                return "PASS_NORMMAP_BLEND_RIGGED";
+            case PASS_NORMMAP_MASK:
+                return "PASS_NORMMAP_MASK";
+            case PASS_NORMMAP_MASK_RIGGED:
+                return "PASS_NORMMAP_MASK_RIGGED";
+            case PASS_NORMMAP_EMISSIVE:
+                return "PASS_NORMMAP_EMISSIVE";
+            case PASS_NORMMAP_EMISSIVE_RIGGED:
+                return "PASS_NORMMAP_EMISSIVE_RIGGED";
+            case PASS_NORMSPEC:
+                return "PASS_NORMSPEC";
+            case PASS_NORMSPEC_RIGGED:
+                return "PASS_NORMSPEC_RIGGED";
+            case PASS_NORMSPEC_BLEND:
+                return "PASS_NORMSPEC_BLEND";
+            case PASS_NORMSPEC_BLEND_RIGGED:
+                return "PASS_NORMSPEC_BLEND_RIGGED";
+            case PASS_NORMSPEC_MASK:
+                return "PASS_NORMSPEC_MASK";
+            case PASS_NORMSPEC_MASK_RIGGED:
+                return "PASS_NORMSPEC_MASK_RIGGED";
+            case PASS_NORMSPEC_EMISSIVE:
+                return "PASS_NORMSPEC_EMISSIVE";
+            case PASS_NORMSPEC_EMISSIVE_RIGGED:
+                return "PASS_NORMSPEC_EMISSIVE_RIGGED";
+            case PASS_GLOW:
+                return "PASS_GLOW";
+            case PASS_GLOW_RIGGED:
+                return "PASS_GLOW_RIGGED";
+            case PASS_ALPHA:
+                return "PASS_ALPHA";
+            case PASS_ALPHA_RIGGED:
+                return "PASS_ALPHA_RIGGED";
+            case PASS_ALPHA_MASK:
+                return "PASS_ALPHA_MASK";
+            case PASS_ALPHA_MASK_RIGGED:
+                return "PASS_ALPHA_MASK_RIGGED";
+            case PASS_FULLBRIGHT_ALPHA_MASK:
+                return "PASS_FULLBRIGHT_ALPHA_MASK";
+            case PASS_FULLBRIGHT_ALPHA_MASK_RIGGED:
+                return "PASS_FULLBRIGHT_ALPHA_MASK_RIGGED";
+            case PASS_ALPHA_INVISIBLE:
+                return "PASS_ALPHA_INVISIBLE";
+            case PASS_ALPHA_INVISIBLE_RIGGED:
+                return "PASS_ALPHA_INVISIBLE_RIGGED";
+            case PASS_PBR_OPAQUE:
+                return "PASS_PBR_OPAQUE";
+            case PASS_PBR_OPAQUE_RIGGED:
+                return "PASS_PBR_OPAQUE_RIGGED";
+
+            default:
+                return "Unknown pass";
+        }
+	}
+	#else
+    static std::string lookupPass(U32 pass) { return ""; }
+	#endif
+
 	LLRenderPass(const U32 type);
 	virtual ~LLRenderPass();
 	/*virtual*/ LLViewerTexture* getDebugTexture() { return NULL; }

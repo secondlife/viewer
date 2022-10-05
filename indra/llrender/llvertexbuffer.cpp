@@ -175,7 +175,7 @@ U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 	{
 		//make a new buffer
 		name = genBuffer();
-		
+
 		glBindBuffer(mType, name);
 
 		if (!for_seed && i < LL_VBO_POOL_SEED_COUNT)
@@ -572,6 +572,10 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 			}
 		}
 	}
+}
+
+void LLVertexBuffer::setLabel(std::string label) {
+	LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, label.length(), label.c_str());
 }
 
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
@@ -1068,6 +1072,7 @@ bool LLVertexBuffer::createGLBuffer(U32 size)
 	{
 		static int gl_buffer_idx = 0;
 		mGLBuffer = ++gl_buffer_idx;
+
 		mMappedData = (U8*)ll_aligned_malloc_16(size);
 		mSize = size;
 	}
