@@ -56,7 +56,7 @@ public:
 							LLVertexBuffer::MAP_TEXCOORD0	
 	};
 
-	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
+	virtual U32 getVertexDataMask() override { return VERTEX_DATA_MASK; }
 
 	LLDrawPoolWater();
 	/*virtual*/ ~LLDrawPoolWater();
@@ -74,7 +74,7 @@ public:
 	void render(S32 pass = 0) override;
 	void prerender() override;
 
-	LLViewerTexture *getDebugTexture();
+	LLViewerTexture *getDebugTexture() override;
 	LLColor3 getDebugColor() const; // For AGP debug display
 
 	void renderReflection(LLFace* face);
