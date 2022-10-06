@@ -24,6 +24,7 @@
  */
 
 uniform mat4 modelview_matrix;
+uniform mat3 normal_matrix;
 uniform mat4 modelview_projection_matrix;
 
 ATTRIBUTE vec3 position;
@@ -36,10 +37,16 @@ uniform vec2 waveDir2;
 uniform float time;
 uniform vec3 eyeVec;
 uniform float waterHeight;
+uniform vec3 lightDir;
 
 VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
+out vec3 vary_position;
+out vec3 vary_light_dir;
+out vec3 vary_tangent;
+out vec3 vary_normal;
+out vec2 vary_fragcoord;
 
 float wave(vec2 v, float t, float f, vec2 d, float s) 
 {
@@ -52,6 +59,11 @@ void main()
 	vec4 pos = vec4(position.xyz, 1.0);
 	mat4 modelViewProj = modelview_projection_matrix;
 	
+    vary_position = (modelview_matrix * pos).xyz;
+    vary_light_dir = normal_matrix * lightDir;
+    vary_normal = normal_matrix * vec3(0, 0, 1);
+    vary_tangent = normal_matrix * vec3(1, 0, 0);
+
 	vec4 oPosition;
 		    
 	//get view vector
@@ -63,12 +75,13 @@ void main()
 	
 	pos.xy = eyeVec.xy + oEyeVec.xy/d*ld;
 	view.xyz = oEyeVec;
-		
+
 	d = clamp(ld/1536.0-0.5, 0.0, 1.0);	
 	d *= d;
 		
 	oPosition = vec4(position, 1.0);
 	oPosition.z = mix(oPosition.z, max(eyeVec.z*0.75, 0.0), d);
+
 	oPosition = modelViewProj * oPosition;
 	
 	refCoord.xyz = oPosition.xyz + vec3(0,0,0.2);
@@ -83,8 +96,7 @@ void main()
 	pos = modelview_matrix*pos;
 	
 	calcAtmospherics(pos.xyz);
-	
-	
+		
 	//pass wave parameters to pixel shader
 	vec2 bigWave =  (v.xy) * vec2(0.04,0.04)  + waveDir1 * time * 0.055;
 	//get two normal map (detail map) texture coordinates

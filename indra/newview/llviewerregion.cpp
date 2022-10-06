@@ -1233,6 +1233,45 @@ U32 LLViewerRegion::getNumOfVisibleGroups() const
 	return mImpl ? mImpl->mVisibleGroups.size() : 0;
 }
 
+void LLViewerRegion::updateReflectionProbes()
+{
+    const F32 probe_spacing = 32.f;
+    const F32 probe_radius = sqrtf((probe_spacing * 0.5f) * (probe_spacing * 0.5f) * 3.f);
+    const F32 hover_height = 2.f;
+
+    F32 start = probe_spacing * 0.5f;
+
+    U32 grid_width = REGION_WIDTH_METERS / probe_spacing;
+
+    mReflectionMaps.resize(grid_width * grid_width);
+
+    F32 water_height = getWaterHeight();
+    LLVector3 origin = getOriginAgent();
+
+    for (U32 i = 0; i < grid_width; ++i)
+    {
+        F32 x = i * probe_spacing + start;
+        for (U32 j = 0; j < grid_width; ++j)
+        {
+            F32 y = j * probe_spacing + start;
+
+            U32 idx = i * grid_width + j;
+
+            if (mReflectionMaps[idx].isNull())
+            {
+                mReflectionMaps[idx] = gPipeline.mReflectionMapManager.addProbe();
+            }
+
+            LLVector3 probe_origin = LLVector3(x,y, llmax(water_height, mImpl->mLandp->resolveHeightRegion(x,y)));
+            probe_origin.mV[2] += hover_height;
+            probe_origin += origin;
+
+            mReflectionMaps[idx]->mOrigin.load3(probe_origin.mV);
+            mReflectionMaps[idx]->mRadius = probe_radius;
+        }
+    }
+}
+
 void LLViewerRegion::addToVOCacheTree(LLVOCacheEntry* entry)
 {
 	if(!sVOCacheCullingEnabled)

@@ -623,6 +623,8 @@ void LLRenderTarget::flush(bool fetch_depth)
 void LLRenderTarget::copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
 						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter)
 {
+    LL_PROFILE_GPU_ZONE("LLRenderTarget::copyContents");
+
 	GLboolean write_depth = mask & GL_DEPTH_BUFFER_BIT ? TRUE : FALSE;
 
 	LLGLDepthTest depth(write_depth, write_depth);

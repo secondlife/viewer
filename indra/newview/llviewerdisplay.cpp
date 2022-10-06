@@ -1007,7 +1007,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
         if (LLPipeline::sRenderDeferred)
         {
-			gPipeline.renderDeferredLighting(&gPipeline.mRT->screen);
+			gPipeline.renderDeferredLighting();
 		}
 
 		LLPipeline::sUnderWaterRender = FALSE;
@@ -1062,11 +1062,9 @@ void display_cube_face()
 
     llassert(!gSnapshot);
     llassert(!gTeleportDisplay);
-    llassert(LLPipeline::sRenderDeferred);
     llassert(LLStartUp::getStartupState() >= STATE_PRECACHE);
     llassert(!LLAppViewer::instance()->logoutRequestSent());
     llassert(!gRestoreGL);
-    llassert(!gUseWireframe);
 
     bool rebuild = false;
 
@@ -1148,7 +1146,7 @@ void display_cube_face()
 
     gPipeline.mRT->deferredScreen.flush();
        
-    gPipeline.renderDeferredLighting(&gPipeline.mRT->screen);
+    gPipeline.renderDeferredLighting();
 
     LLPipeline::sUnderWaterRender = FALSE;
 

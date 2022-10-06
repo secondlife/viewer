@@ -48,6 +48,9 @@ public:
 	enum
 	{
 		// Correspond to LLPipeline render type
+        // Also controls render order, so passes that don't use alpha masking/blending should come before
+        // other passes and occlusion culling should happen just before rendering alpha masked passes
+        // in order to take advantage of hierarchical Z
         // NOTE: Keep in sync with gPoolNames
 		POOL_SIMPLE = 1,
 		POOL_GROUND,

@@ -1688,6 +1688,14 @@ set_source_files_properties(${viewer_XUI_FILES}
 
 list(APPEND viewer_SOURCE_FILES ${viewer_XUI_FILES})
 
+file(GLOB_RECURSE viewer_SHADER_FILES LIST_DIRECTORIES TRUE
+    ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders/*.glsl)
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/app_settings/shaders PREFIX "Shaders" FILES ${viewer_SHADER_FILES})
+set_source_files_properties(${viewer_SHADER_FILES} 
+                            PROPERTIES HEADER_FILE_ONLY TRUE)
+list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
+
+
 set(viewer_APPSETTINGS_FILES
     app_settings/anim.ini
     app_settings/cmd_line.xml
