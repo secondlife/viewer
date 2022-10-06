@@ -574,9 +574,11 @@ void LLVertexBuffer::validateRange(U32 start, U32 end, U32 count, U32 indices_of
 	}
 }
 
-void LLVertexBuffer::setLabel(std::string label) {
-	LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, label.length(), label.c_str());
+#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+void LLVertexBuffer::setLabel(const char* label) {
+	LL_LABEL_OBJECT_GL(GL_BUFFER, mGLBuffer, strlen(label), label);
 }
+#endif
 
 void LLVertexBuffer::drawRange(U32 mode, U32 start, U32 end, U32 count, U32 indices_offset) const
 {

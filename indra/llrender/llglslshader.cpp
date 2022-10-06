@@ -505,7 +505,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     }
 
 #ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
-    setLabel(mName);
+    setLabel(mName.c_str());
 #endif
 
     return success;
@@ -1792,8 +1792,8 @@ void LLShaderUniforms::apply(LLGLSLShader* shader)
 }
 
 #ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
-void LLGLSLShader::setLabel(std::string label) {
-    LL_LABEL_OBJECT_GL(GL_PROGRAM, mProgramObject, label.length(), label.c_str());
+void LLGLSLShader::setLabel(const char* label) {
+    LL_LABEL_OBJECT_GL(GL_PROGRAM, mProgramObject, strlen(label), label);
 }
 
 #endif

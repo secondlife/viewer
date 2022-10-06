@@ -199,7 +199,7 @@ public:
 	};
 
 	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
-    static std::string lookupPassName(U32 pass)
+    static inline const char* lookupPassName(U32 pass)
     {
         switch (pass)
         {
@@ -331,7 +331,7 @@ public:
         }
 	}
 	#else
-    static std::string lookupPass(U32 pass) { return ""; }
+    static inline const char* lookupPass(U32 pass) { return ""; }
 	#endif
 
 	LLRenderPass(const U32 type);

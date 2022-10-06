@@ -295,7 +295,7 @@ public:
     LLGLSLShader* mRiggedVariant = nullptr;
 
 	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
-    void setLabel(std::string label);
+    void setLabel(const char* label);
 	#endif
 
 private:
