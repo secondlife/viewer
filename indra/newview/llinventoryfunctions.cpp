@@ -862,6 +862,9 @@ LLUUID create_folder_for_item(LLInventoryItem* item, const LLUUID& destFolderId)
 S32 depth_nesting_in_marketplace(LLUUID cur_uuid)
 {
     // Get the marketplace listings root, exit with -1 (i.e. not under the marketplace listings root) if none
+    // Todo: findCategoryUUIDForType is somewhat expensive with large
+    // flat root folders yet we use depth_nesting_in_marketplace at
+    // every turn, find a way to correctly cache this id.
     const LLUUID marketplace_listings_uuid = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
     if (marketplace_listings_uuid.isNull())
     {
@@ -1504,7 +1507,12 @@ void dump_trace(std::string& message, S32 depth, LLError::ELevel log_level)
 // This function does no deletion of listings but a mere audit and raises issues to the user (through the
 // optional callback cb). It also returns a boolean, true if things validate, false if issues are raised.
 // The only inventory changes that are done is to move and sort folders containing no-copy items to stock folders.
-bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_t cb, bool fix_hierarchy, S32 depth)
+bool validate_marketplacelistings(
+    LLInventoryCategory* cat,
+    validation_callback_t cb,
+    bool fix_hierarchy,
+    S32 depth,
+    bool notify_observers)
 {
 #if 0
     // Used only for debug
@@ -1570,7 +1578,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             LLUUID folder_uuid = gInventory.createNewCategory(parent_uuid, LLFolderType::FT_NONE, cat->getName());
             LLInventoryCategory* new_cat = gInventory.getCategory(folder_uuid);
             gInventory.changeCategoryParent(viewer_cat, folder_uuid, false);
-            result &= validate_marketplacelistings(new_cat, cb, fix_hierarchy, depth + 1);
+            result &= validate_marketplacelistings(new_cat, cb, fix_hierarchy, depth + 1, notify_observers);
             return result;
         }
         else
@@ -1740,7 +1748,10 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     // Next type
                     update_marketplace_category(parent_uuid);
                     update_marketplace_category(folder_uuid);
-                    gInventory.notifyObservers();
+                    if (notify_observers)
+                    {
+                        gInventory.notifyObservers();
+                    }
                     items_vector_it++;
                 }
             }
@@ -1754,7 +1765,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 {
                     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (*iter);
                     gInventory.changeCategoryParent(viewer_cat, parent_uuid, false);
-                    result &= validate_marketplacelistings(viewer_cat, cb, fix_hierarchy, depth);
+                    result &= validate_marketplacelistings(viewer_cat, cb, fix_hierarchy, depth, false);
                 }
             }
         }
@@ -1826,7 +1837,10 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 cb(message,depth,LLError::LEVEL_WARN);
             }
             gInventory.removeCategory(cat->getUUID());
-            gInventory.notifyObservers();
+            if (notify_observers)
+            {
+                gInventory.notifyObservers();
+            }
             return result && !has_bad_items;
         }
     }
@@ -1840,11 +1854,14 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
 	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
 	{
 		LLInventoryCategory* category = *iter;
-		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);
+		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1, false);
 	}
     
     update_marketplace_category(cat->getUUID(), true, true);
-    gInventory.notifyObservers();
+    if (notify_observers)
+    {
+        gInventory.notifyObservers();
+    }
     return result && !has_bad_items;
 }
 
