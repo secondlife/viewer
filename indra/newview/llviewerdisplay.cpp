@@ -161,7 +161,7 @@ void display_startup()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 	LLGLSUIDefault gls_ui;
 	gPipeline.disableLights();
 
@@ -763,7 +763,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLGLState::checkTextureChannels();
 
 			}
-			glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 		}
 
 		LLGLState::checkStates();
@@ -998,12 +998,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
         LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mRT->deferredScreen : gPipeline.mRT->screen);
         rt.flush();
 
-        if (rt.sUseFBO)
+        /*if (rt.sUseFBO)
         {
             LLRenderTarget::copyContentsToFramebuffer(rt, 0, 0, rt.getWidth(), rt.getHeight(), 0, 0, rt.getWidth(),
                                                       rt.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
                                                       GL_NEAREST);
-        }
+        }*/
 
         if (LLPipeline::sRenderDeferred)
         {
@@ -1106,7 +1106,7 @@ void display_cube_face()
     glClearColor(0, 0, 0, 0);
     gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
         
-    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 
     {
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
@@ -1151,7 +1151,7 @@ void display_cube_face()
     LLPipeline::sUnderWaterRender = FALSE;
 
     // Finalize scene
-    gPipeline.renderFinalize();
+    //gPipeline.renderFinalize();
 
     LLSpatialGroup::sNoDelete = FALSE;
     gPipeline.clearReferences();

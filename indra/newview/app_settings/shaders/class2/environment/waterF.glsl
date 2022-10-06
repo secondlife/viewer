@@ -163,7 +163,7 @@ void main()
 	
     float df1 = df.x + df.y + df.z;
 
-    wavef = normalize(wavef + vary_normal);
+    //wavef = normalize(wavef - vary_normal);
     //wavef = vary_normal;
 
     vec3 waver = reflect(viewVec, -wavef)*3;
@@ -194,13 +194,13 @@ void main()
     vec3 additive;
     vec3 atten;
 
-    calcAtmosphericVarsLinear(pos.xyz, wavef, lightDir, sunlit, amblit, additive, atten);
-    
+    calcAtmosphericVarsLinear(pos.xyz, wavef, vary_light_dir, sunlit, amblit, additive, atten);
+    sunlit = vec3(1); // TODO -- figure out why sunlit is breaking at some view angles
     vec3 v = -viewVec;
     float NdotV = clamp(abs(dot(wavef.xyz, v)), 0.001, 1.0);
 
     float metallic = fresnelOffset * 0.1; // fudge -- use fresnelOffset as metalness
-    float roughness = 0.08;
+    float roughness = 0.1;
     float gloss = 1.0 - roughness;
 
     vec3 baseColor = vec3(0.25);
@@ -210,8 +210,8 @@ void main()
 
     vec3 specularColor = mix(f0, baseColor.rgb, metallic);
 
-    //vec3 refnorm = normalize(wavef + vary_normal);
-    vec3 refnorm = wavef;
+    vec3 refnorm = normalize(wavef + vary_normal);
+    //vec3 refnorm = wavef;
     
    
     vec3 irradiance = vec3(0);
@@ -221,7 +221,6 @@ void main()
     irradiance = fb.rgb;
 
     color.rgb = pbrIbl(diffuseColor, specularColor, radiance, irradiance, gloss, NdotV, 0.0);
-
     
     // fudge -- for punctual lighting, pretend water is metallic
     diffuseColor = vec3(0);
@@ -229,7 +228,7 @@ void main()
     roughness = 0.1;
     float scol = 1.0; // TODO -- incorporate shadow map
 
-    //color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir) * sunlit * 2.75 * scol;
+    color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir) * sunlit * 2.75 * scol;
 	color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
 	color.rgb = scaleSoftClipFragLinear(color.rgb);
 
@@ -239,6 +238,8 @@ void main()
     //color.rgb = srgb_to_linear(normalize(refPos) * 0.5 + 0.5);
     //color.rgb = srgb_to_linear(normalize(pos) * 0.5 + 0.5);
     //color.rgb = srgb_to_linear(wavef * 0.5 + 0.5);
+
+    //color.rgb = radiance;
 	frag_color = color;
 
 #if defined(WATER_EDGE)

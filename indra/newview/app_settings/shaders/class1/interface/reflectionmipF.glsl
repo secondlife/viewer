@@ -33,9 +33,19 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-uniform sampler2DRect screenMap;
+// NOTE screenMap should always be texture channel 0 and 
+// depthmap should always be channel 1
+uniform sampler2DRect diffuseRect;
+uniform sampler2DRect depthMap;
+
+uniform float resScale;
+uniform float znear;
+uniform float zfar;
 
 VARYING vec2 vary_texcoord0;
+
+// get linear depth value given a depth buffer sample d and znear and zfar values
+float linearDepth(float d, float znear, float zfar);
 
 void main() 
 {
@@ -74,6 +84,18 @@ void main()
 
     frag_color = vec4(color, 1.0);
 #else
-    frag_color = vec4(texture2DRect(screenMap, vary_texcoord0.xy).rgb, 1.0);
+    vec2 depth_tc = vary_texcoord0.xy * resScale;
+    float depth = texture(depthMap, depth_tc).r;
+    float dist = linearDepth(depth, znear, zfar);
+
+    // convert linear depth to distance
+    vec3 v;
+    v.xy = depth_tc / 512.0 * 2.0 - 1.0;
+    v.z = 1.0;
+    v = normalize(v);
+    dist /= v.z;
+
+    vec3 col = texture2DRect(diffuseRect, vary_texcoord0.xy).rgb;
+    frag_color = vec4(col, dist/256.0); 
 #endif
 }

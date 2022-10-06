@@ -179,6 +179,13 @@ vec4 getNormalEnvIntensityFlags(vec2 screenpos, out vec3 n, out float envIntensi
     return packedNormalEnvIntensityFlags;
 }
 
+// get linear depth value given a depth buffer sample d and znear and zfar values
+float linearDepth(float d, float znear, float zfar)
+{
+    d = d * 2.0 - 1.0;
+    return znear * 2.0 * zfar / (zfar + znear - d * (zfar - znear));
+}
+
 float getDepth(vec2 pos_screen)
 {
     float depth = texture2DRect(depthMap, pos_screen).r;

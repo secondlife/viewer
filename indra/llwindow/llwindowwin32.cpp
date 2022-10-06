@@ -1376,8 +1376,8 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen& size, BO
 		attrib_list[cur_attrib++] = WGL_DEPTH_BITS_ARB;
 		attrib_list[cur_attrib++] = 24;
 
-		attrib_list[cur_attrib++] = WGL_STENCIL_BITS_ARB;
-		attrib_list[cur_attrib++] = 8;
+		//attrib_list[cur_attrib++] = WGL_STENCIL_BITS_ARB; //stencil buffer is deprecated (performance penalty)
+		//attrib_list[cur_attrib++] = 8;
 
 		attrib_list[cur_attrib++] = WGL_DRAW_TO_WINDOW_ARB;
 		attrib_list[cur_attrib++] = GL_TRUE;

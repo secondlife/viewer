@@ -4845,7 +4845,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// PRE SNAPSHOT
 	gDisplaySwapBuffers = FALSE;
 	
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
 	setCursor(UI_CURSOR_WAIT);
 
 	// Hide all the UI widgets first and draw a frame
@@ -5144,7 +5144,7 @@ BOOL LLViewerWindow::simpleSnapshot(LLImageRaw* raw, S32 image_width, S32 image_
     LL_PROFILE_ZONE_SCOPED_CATEGORY_APP;
     gDisplaySwapBuffers = FALSE;
 
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
     setCursor(UI_CURSOR_WAIT);
 
     BOOL prev_draw_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI) ? TRUE : FALSE;
@@ -5248,10 +5248,10 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     llassert(LLPipeline::sRenderDeferred);
     llassert(!gCubeSnapshot); //assert a snapshot isn't already in progress
     
-    U32 res = LLRenderTarget::sCurResX;
+    U32 res = gPipeline.mRT->deferredScreen.getWidth();
 
-    llassert(res <= gPipeline.mRT->deferredScreen.getWidth());
-    llassert(res <= gPipeline.mRT->deferredScreen.getHeight());
+    //llassert(res <= gPipeline.mRT->deferredScreen.getWidth());
+    //llassert(res <= gPipeline.mRT->deferredScreen.getHeight());
 
     // save current view/camera settings so we can restore them afterwards
     S32 old_occlusion = LLPipeline::sUseOcclusion;
@@ -5271,7 +5271,7 @@ BOOL LLViewerWindow::cubeSnapshot(const LLVector3& origin, LLCubeMapArray* cubea
     camera->setOrigin(origin);
     camera->setNear(near_clip);
 
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // stencil buffer is deprecated | GL_STENCIL_BUFFER_BIT);
     
     U32 dynamic_render_types[] = {
         LLPipeline::RENDER_TYPE_AVATAR,

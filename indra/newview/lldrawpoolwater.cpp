@@ -255,7 +255,7 @@ void LLDrawPoolWater::render(S32 pass)
 	
 	glClearStencil(1);
 	glClear(GL_STENCIL_BUFFER_BIT);
-	LLGLEnable gls_stencil(GL_STENCIL_TEST);
+	//LLGLEnable gls_stencil(GL_STENCIL_TEST);
 	glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);
 	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 

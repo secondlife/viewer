@@ -3807,6 +3807,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
     if (success)
     {
         gReflectionMipProgram.mName = "Reflection Mip Shader";
+        gReflectionMipProgram.mFeatures.isDeferred = true;
         gReflectionMipProgram.mShaderFiles.clear();
         gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER));
         gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/reflectionmipF.glsl", GL_FRAGMENT_SHADER));

@@ -79,7 +79,7 @@ void LLHUDIcon::render()
 {
 	LLGLSUIDefault texture_state;
 	LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLDisable gls_stencil(GL_STENCIL_TEST);
+	//LLGLDisable gls_stencil(GL_STENCIL_TEST);
 	
 	if (mHidden)
 		return;
