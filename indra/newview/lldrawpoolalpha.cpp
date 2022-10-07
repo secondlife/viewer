@@ -184,8 +184,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, 
             true); // <--- discard mostly transparent faces
 
-        gPipeline.mRT->deferredDepth.flush();
-        gPipeline.mRT->screen.bindTarget();
+        //gPipeline.mRT->deferredDepth.flush();
+        //gPipeline.mRT->screen.bindTarget();
         gGL.setColorMask(true, false);
     }
 
