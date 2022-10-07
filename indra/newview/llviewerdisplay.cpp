@@ -1374,10 +1374,10 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.popMatrix();
 	}
 
-	// Finalize scene
-	gPipeline.renderFinalize();
-
 	{
+        // draw hud and 3D ui elements into screen render target so they'll be able to use 
+        // the depth buffer (avoids extra copy of depth buffer per frame)
+        gPipeline.mRT->screen.bindTarget();
 		// SL-15709
 		// NOTE: Tracy only allows one ZoneScoped per function.
 		// Solutions are:
@@ -1394,41 +1394,46 @@ void render_ui(F32 zoom_factor, int subfield)
 			gPipeline.disableLights();
 		}
 
-		{
-			gGL.color4f(1,1,1,1);
-			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-			{
-				if (!gDisconnected)
-				{
-					LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
-					render_ui_3d();
-					LLGLState::checkStates();
-				}
-				else
-				{
-					render_disconnected_background();
-				}
+        gGL.color4f(1,1,1,1);
 
-				LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
-				render_ui_2d();
-				LLGLState::checkStates();
-			}
-			gGL.flush();
+        bool render_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+        if (render_ui)
+        {
+            if (!gDisconnected)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
+                render_ui_3d();
+                LLGLState::checkStates();
+            }
+            else
+            {
+                render_disconnected_background();
+            }
+        }
 
-			gViewerWindow->setup2DRender();
-			gViewerWindow->updateDebugText();
-			gViewerWindow->drawDebugText();
+        gPipeline.mRT->screen.flush();
 
-			LLVertexBuffer::unbind();
-		}
+        // apply gamma correction and post effects before rendering 2D UI
+        gPipeline.renderFinalize();
 
-		if (!gSnapshot)
-		{
-			set_current_modelview(saved_view);
-			gGL.popMatrix();
-		}
+        if (render_ui)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
+            render_ui_2d();
+            LLGLState::checkStates();
+            gGL.flush();
+        }
 
-	} // Tracy integration
+        gViewerWindow->setup2DRender();
+        gViewerWindow->updateDebugText();
+        gViewerWindow->drawDebugText();
+	}
+
+	if (!gSnapshot)
+	{
+		set_current_modelview(saved_view);
+		gGL.popMatrix();
+	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");

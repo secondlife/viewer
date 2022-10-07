@@ -7599,6 +7599,76 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
+    if (!gCubeSnapshot)
+    {
+        // gamma correct lighting
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+
+        {
+            LL_PROFILE_GPU_ZONE("gamma correct");
+
+            LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+            LLRenderTarget* screen_target = &mRT->screen;
+
+            LLVector2 tc1(0, 0);
+            LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
+
+            screen_target->bindTarget();
+            // Apply gamma correction to the frame here.
+            gDeferredPostGammaCorrectProgram.bind();
+            // mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            S32 channel = 0;
+            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screen_target->getUsage());
+            if (channel > -1)
+            {
+                screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
+            }
+
+            gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screen_target->getWidth(), screen_target->getHeight());
+
+            F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+
+            gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
+
+            gGL.begin(LLRender::TRIANGLE_STRIP);
+            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+            gGL.vertex2f(-1, -1);
+
+            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+            gGL.vertex2f(-1, 3);
+
+            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+            gGL.vertex2f(3, -1);
+
+            gGL.end();
+
+            gGL.getTexUnit(channel)->unbind(screen_target->getUsage());
+            gDeferredPostGammaCorrectProgram.unbind();
+            screen_target->flush();
+        }
+
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+
+        LLVertexBuffer::unbind();
+
+        if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+        {
+            // Render debugging beacons.
+            gObjectList.renderObjectBeacons();
+            gObjectList.resetObjectBeacons();
+            gSky.addSunMoonBeacons();
+        }
+    }
+
     if (sRenderGlow)
     {
         LL_PROFILE_GPU_ZONE("glow");
@@ -9034,76 +9104,6 @@ void LLPipeline::renderDeferredLighting()
 
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
         popRenderTypeMask();
-    }
-
-    screen_target->flush();
-
-    if (!gCubeSnapshot)
-    {
-        // gamma correct lighting
-        gGL.matrixMode(LLRender::MM_PROJECTION);
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-
-        {
-            LL_PROFILE_GPU_ZONE("gamma correct");
-
-            LLGLDepthTest depth(GL_FALSE, GL_FALSE);
-
-            LLVector2 tc1(0, 0);
-            LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
-
-            screen_target->bindTarget();
-            // Apply gamma correction to the frame here.
-            gDeferredPostGammaCorrectProgram.bind();
-            // mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-            S32 channel = 0;
-            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screen_target->getUsage());
-            if (channel > -1)
-            {
-                screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
-            }
-
-            gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screen_target->getWidth(), screen_target->getHeight());
-
-            F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-
-            gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
-
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-            gGL.vertex2f(-1, -1);
-
-            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-            gGL.vertex2f(-1, 3);
-
-            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-            gGL.vertex2f(3, -1);
-
-            gGL.end();
-
-            gGL.getTexUnit(channel)->unbind(screen_target->getUsage());
-            gDeferredPostGammaCorrectProgram.unbind();
-            screen_target->flush();
-        }
-
-        gGL.matrixMode(LLRender::MM_PROJECTION);
-        gGL.popMatrix();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.popMatrix();
-    
-        LLVertexBuffer::unbind();
-
-        if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-        {
-            // Render debugging beacons.
-            gObjectList.renderObjectBeacons();
-            gObjectList.resetObjectBeacons();
-            gSky.addSunMoonBeacons();
-        }
     }
 
     screen_target->flush();
