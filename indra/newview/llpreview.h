@@ -83,7 +83,7 @@ public:
 	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
 	virtual void onOpen(const LLSD& key);
 	
-	void setAuxItem( const LLInventoryItem* item );
+	virtual void setAuxItem( const LLInventoryItem* item );
 
 	static void			onBtnCopyToInv(void* userdata);
 
