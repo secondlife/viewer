@@ -1013,11 +1013,11 @@ public:
 	virtual void processGroup(LLViewerOctreeGroup* base_group)
 	{
 		LLSpatialGroup* group = (LLSpatialGroup*)base_group;
-		if (group->needsUpdate() ||
+		/*if (group->needsUpdate() ||
 			group->getVisible(LLViewerCamera::sCurCameraID) < LLDrawable::getCurrentFrame() - 1)
 		{
 			group->doOcclusion(mCamera);
-		}
+		}*/
 		gPipeline.markNotCulled(group, *mCamera);
 	}
 };

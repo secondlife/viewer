@@ -2538,6 +2538,13 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		sCull->pushVisibleGroup(group);
 	}
 
+    if (group->needsUpdate() ||
+        group->getVisible(LLViewerCamera::sCurCameraID) < LLDrawable::getCurrentFrame() - 1)
+    {
+        // include this group in occlusion groups, not because it is an occluder, but because we want to run
+        // an occlusion query to find out if it's an occluder
+        markOccluder(group);
+    }
 	mNumVisibleNodes++;
 }
 
@@ -4585,11 +4592,13 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 #endif
 }
 
-void LLPipeline::renderGeomDeferred(LLCamera& camera)
+void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
     LL_PROFILE_GPU_ZONE("renderGeomDeferred");
+
+    bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
@@ -4629,6 +4638,17 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			LLDrawPool *poolp = *iter1;
 		
 			cur_type = poolp->getType();
+
+            if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
+            {
+                llassert(!gCubeSnapshot); // never do occlusion culling on cube snapshots
+                occlude = false;
+                gGLLastMatrix = NULL;
+                gGL.loadMatrix(gGLModelView);
+                LLGLSLShader::bindNoShader();
+                doOcclusion(camera);
+                gGL.setColorMask(true, false);
+            }
 
 			pool_set_t::iterator iter2 = iter1;
 			if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
@@ -4686,7 +4706,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	} // Tracy ZoneScoped
 }
 
-void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
+void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
@@ -4703,25 +4723,12 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	gGL.setColorMask(true, false);
 
 	pool_set_t::iterator iter1 = mPools.begin();
-	bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	while ( iter1 != mPools.end() )
 	{
 		LLDrawPool *poolp = *iter1;
 		
 		cur_type = poolp->getType();
-
-		if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
-		{
-            llassert(!gCubeSnapshot); // never do occlusion culling on cube snapshots
-			occlude = false;
-			gGLLastMatrix = NULL;
-			gGL.loadMatrix(gGLModelView);
-			LLGLSLShader::bindNoShader();
-			//doOcclusion(camera, mRT->screen, mRT->occlusionDepth, &mRT->deferredDepth);
-            doOcclusion(camera, mRT->screen, mRT->occlusionDepth);
-			gGL.setColorMask(true, false);
-		}
 
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
@@ -4773,16 +4780,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	gGLLastMatrix = NULL;
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.loadMatrix(gGLModelView);
-
-	if (occlude)
-	{
-		occlude = false;
-		LLGLSLShader::bindNoShader();
-		doOcclusion(camera);
-		gGLLastMatrix = NULL;
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		gGL.loadMatrix(gGLModelView);
-	}
 
     if (!gCubeSnapshot)
     {
