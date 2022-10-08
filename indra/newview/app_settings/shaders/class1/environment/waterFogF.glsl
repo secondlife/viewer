@@ -75,10 +75,16 @@ vec4 applyWaterFogView(vec3 pos, vec4 color)
 
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color)
 {
+    if (dot(pos, waterPlane.xyz) + waterPlane.w > 0.0)
+    {
+        return color;
+    }
+
     vec3 view = normalize(pos);
     //normalize view vector
     float es = -(dot(view, waterPlane.xyz));
 
+    
     //find intersection point with water plane and eye vector
 
     //get eye depth
