@@ -136,7 +136,11 @@ public:
 
     static void finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId);
 
-    static void finishSaveAs(const LLUUID &oldItemId, const LLUUID &newItemId, const std::string &buffer);
+    static void finishSaveAs(
+        const LLSD &oldKey,
+        const LLUUID &newItemId,
+        const std::string &buffer,
+        bool has_unsaved_changes);
 
     void refreshFromInventory(const LLUUID& new_item_id = LLUUID::null);
 
@@ -147,6 +151,7 @@ public:
 
     // llpreview
     void setObjectID(const LLUUID& object_id) override;
+    void setAuxItem(const LLInventoryItem* item) override;
 
 	// llpanel
 	BOOL postBuild() override;

@@ -1,6 +1,6 @@
 /** 
  * @file llmaterialeditor.cpp
- * @brief Implementation of the notecard editor
+ * @brief Implementation of the gltf material editor
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -150,16 +150,44 @@ void LLFloaterComboOptions::onCancel()
 class LLMaterialEditorCopiedCallback : public LLInventoryCallback
 {
 public:
-    LLMaterialEditorCopiedCallback(const std::string &buffer, const LLUUID &old_item_id) : mBuffer(buffer), mOldItemId(old_item_id) {}
+    LLMaterialEditorCopiedCallback(
+        const std::string &buffer,
+        const LLSD &old_key,
+        bool has_unsaved_changes)
+        : mBuffer(buffer),
+          mOldKey(old_key),
+          mHasUnsavedChanges(has_unsaved_changes)
+    {}
+
+    LLMaterialEditorCopiedCallback(
+        const LLSD &old_key,
+        const std::string &new_name)
+        : mOldKey(old_key),
+          mNewName(new_name),
+          mHasUnsavedChanges(false)
+    {}
 
     virtual void fire(const LLUUID& inv_item_id)
     {
-        LLMaterialEditor::finishSaveAs(mOldItemId, inv_item_id, mBuffer);
+        if (!mNewName.empty())
+        {
+            // making a copy from a notecard doesn't change name, do it now
+            LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
+            if (item->getName() != mNewName)
+            {
+                LLSD updates;
+                updates["name"] = mNewName;
+                update_inventory_item(inv_item_id, updates, NULL);
+            }
+        }
+        LLMaterialEditor::finishSaveAs(mOldKey, inv_item_id, mBuffer, mHasUnsavedChanges);
     }
 
 private:
     std::string mBuffer;
-    LLUUID mOldItemId;
+    LLSD mOldKey;
+    std::string mNewName;
+    bool mHasUnsavedChanges;
 };
 
 ///----------------------------------------------------------------------------
@@ -184,6 +212,15 @@ void LLMaterialEditor::setObjectID(const LLUUID& object_id)
 {
     LLPreview::setObjectID(object_id);
     const LLInventoryItem* item = getItem();
+    if (item)
+    {
+        mAssetID = item->getAssetUUID();
+    }
+}
+
+void LLMaterialEditor::setAuxItem(const LLInventoryItem* item)
+{
+    LLPreview::setAuxItem(item);
     if (item)
     {
         mAssetID = item->getAssetUUID();
@@ -456,10 +493,25 @@ void LLMaterialEditor::setDoubleSided(bool double_sided)
 
 void LLMaterialEditor::setHasUnsavedChanges(bool value)
 {
-    if (value != mHasUnsavedChanges)
+    mHasUnsavedChanges = value;
+    childSetVisible("unsaved_changes", value);
+
+    if (mHasUnsavedChanges)
     {
-        mHasUnsavedChanges = value;
-        childSetVisible("unsaved_changes", value);
+        const LLInventoryItem* item = getItem();
+        if (item)
+        {
+            LLPermissions perm(item->getPermissions());
+            bool allow_modify = canModify(mObjectUUID, item);
+            bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+            bool source_notecard = mNotecardInventoryID.notNull();
+
+            setCanSave(allow_modify && !source_library && !source_notecard);
+        }
+    }
+    else
+    {
+        setCanSave(false);
     }
 
     S32 upload_texture_count = 0;
@@ -1019,23 +1071,39 @@ void LLMaterialEditor::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID
     }
 }
 
-void LLMaterialEditor::finishSaveAs(const LLUUID &oldItemId, const LLUUID &newItemId, const std::string &buffer)
+void LLMaterialEditor::finishSaveAs(
+    const LLSD &oldKey,
+    const LLUUID &newItemId,
+    const std::string &buffer,
+    bool has_unsaved_changes)
 {
-    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", LLSD(oldItemId));
+    LLMaterialEditor* me = LLFloaterReg::findTypedInstance<LLMaterialEditor>("material_editor", oldKey);
     LLViewerInventoryItem* item = gInventory.getItem(newItemId);
     if (item)
     {
         if (me)
         {
             me->mItemUUID = newItemId;
+            me->mObjectUUID = LLUUID::null;
+            me->mNotecardInventoryID = LLUUID::null;
+            me->mNotecardObjectID = LLUUID::null;
+            me->mAuxItem = nullptr;
             me->setKey(LLSD(newItemId)); // for findTypedInstance
             me->setMaterialName(item->getName());
-            if (!saveToInventoryItem(buffer, newItemId, LLUUID::null))
+            if (has_unsaved_changes)
             {
+                if (!saveToInventoryItem(buffer, newItemId, LLUUID::null))
+                {
+                    me->setEnabled(true);
+                }
+            }
+            else
+            {
+                me->loadAsset();
                 me->setEnabled(true);
             }
         }
-        else
+        else if(has_unsaved_changes)
         {
             saveToInventoryItem(buffer, newItemId, LLUUID::null);
         }
@@ -1052,16 +1120,23 @@ void LLMaterialEditor::refreshFromInventory(const LLUUID& new_item_id)
     if (new_item_id.notNull())
     {
         mItemUUID = new_item_id;
-        if (mObjectUUID.isNull())
+        if (mNotecardInventoryID.notNull())
         {
-            setKey(LLSD(new_item_id));
+            LLSD floater_key;
+            floater_key["objectid"] = mNotecardObjectID;
+            floater_key["notecardid"] = mNotecardInventoryID;
+            setKey(floater_key);
         }
-        else
+        else if (mObjectUUID.notNull())
         {
             LLSD floater_key;
             floater_key["taskid"] = new_item_id;
             floater_key["itemid"] = mObjectUUID;
             setKey(floater_key);
+        }
+        else
+        {
+            setKey(LLSD(new_item_id));
         }
     }
     LL_DEBUGS() << "LLPreviewNotecard::refreshFromInventory()" << LL_ENDL;
@@ -1094,7 +1169,15 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
         LLInventoryObject::correctInventoryName(new_name);
         if (!new_name.empty())
         {
-            const LLInventoryItem* item = getItem();
+            const LLInventoryItem* item;
+            if (mNotecardInventoryID.notNull())
+            {
+                item = mAuxItem.get();
+            }
+            else
+            {
+                item = getItem();
+            }
             if (item)
             {
                 const LLUUID &marketplacelistings_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_MARKETPLACE_LISTINGS, false);
@@ -1105,15 +1188,27 @@ void LLMaterialEditor::onSaveAsMsgCallback(const LLSD& notification, const LLSD&
                 }
 
                 // A two step process, first copy an existing item, then create new asset
-                std::string buffer = getEncodedAsset();
-                LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(buffer, item->getUUID());
-                copy_inventory_item(
-                    gAgent.getID(),
-                    item->getPermissions().getOwner(),
-                    item->getUUID(),
-                    parent_id,
-                    new_name,
-                    cb);
+                if (mNotecardInventoryID.notNull())
+                {
+                    LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(getKey(), new_name);
+                    copy_inventory_from_notecard(parent_id,
+                        mNotecardObjectID,
+                        mNotecardInventoryID,
+                        mAuxItem.get(),
+                        gInventoryCallbacks.registerCB(cb));
+                }
+                else
+                {
+                    std::string buffer = getEncodedAsset();
+                    LLPointer<LLInventoryCallback> cb = new LLMaterialEditorCopiedCallback(buffer, getKey(), mHasUnsavedChanges);
+                    copy_inventory_item(
+                        gAgent.getID(),
+                        item->getPermissions().getOwner(),
+                        item->getUUID(),
+                        parent_id,
+                        new_name,
+                        cb);
+                }
 
                 mAssetStatus = PREVIEW_ASSET_LOADING;
                 setEnabled(false);
@@ -1772,19 +1867,26 @@ void LLMaterialEditor::loadAsset()
     // TODO: see commented out "editor" references and make them do something appropriate to the UI
    
     // request the asset.
-    const LLInventoryItem* item = getItem();
+    const LLInventoryItem* item;
+    if (mNotecardInventoryID.notNull())
+    {
+        item = mAuxItem.get();
+    }
+    else
+    {
+        item = getItem();
+    }
     
     bool fail = false;
 
     if (item)
     {
         LLPermissions perm(item->getPermissions());
-        BOOL allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
-        BOOL allow_modify = canModify(mObjectUUID, item);
-        BOOL source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
+        bool allow_copy = gAgent.allowOperation(PERM_COPY, perm, GP_OBJECT_MANIPULATE);
+        bool allow_modify = canModify(mObjectUUID, item);
+        bool source_library = mObjectUUID.isNull() && gInventory.isObjectDescendentOf(mItemUUID, gInventory.getLibraryRootFolderID());
 
         setCanSaveAs(allow_copy);
-        setCanSave(allow_modify && !source_library);
         setMaterialName(item->getName());
 
         {
@@ -1801,7 +1903,11 @@ void LLMaterialEditor::loadAsset()
                 LLHost source_sim = LLHost();
                 LLSD* user_data = new LLSD();
 
-                if (mObjectUUID.notNull())
+                if (mNotecardInventoryID.notNull())
+                {
+                    user_data->with("objectid", mNotecardObjectID).with("notecardid", mNotecardInventoryID);
+                }
+                else if (mObjectUUID.notNull())
                 {
                     LLViewerObject* objectp = gObjectList.findObject(mObjectUUID);
                     if (objectp && objectp->getRegion())
