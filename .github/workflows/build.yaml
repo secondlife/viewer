@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: ["actions"]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-2019, macos-11]
+        configuration: [RelWithDebInfoOS]
+        arch: [64]
+        include:
+          - os: windows-2019
+            configuration: RelWithDebInfoOS
+            arch: 32
+    runs-on: ${{ matrix.os }}
+    env:
+      AUTOBUILD_ADDRSIZE: ${{ matrix.arch }}
+      AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
+      AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/checkout@v3
+        with:
+          repository: secondlife/build-variables
+          ref: viewer
+          token: ${{ secrets.SHARED_GITHUB_TOKEN }}
+          path: .build-variables
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      
+      - name: Install autobuild 
+        run: pip install autobuild<4
+
+      - uses: actions/cache@v3
+        id: cache-installables
+        with:
+          path: .autobuild-installables
+          key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
+
+      - name: Build
+        shell: bash
+        run: |
+          autobuild install
+          autobuild configure -c ${{ matrix.configuration }}
+          autobuild build --no-configure
