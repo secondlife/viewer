@@ -45,6 +45,10 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
       - name: Build
+        shell: bash
         run: |
-          autobuild configure -c ${{ matrix.configuration }}
+          autobuild --quiet source_environment > .env 
+          source .env
+
+          autobuild configure
           autobuild build --no-configure
