@@ -161,7 +161,7 @@ void display_startup()
 	LLGLState::checkStates();
 	LLGLState::checkTextureChannels();
 
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 	LLGLSUIDefault gls_ui;
 	gPipeline.disableLights();
 
@@ -763,7 +763,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLGLState::checkTextureChannels();
 
 			}
-			glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 		}
 
 		LLGLState::checkStates();
@@ -962,7 +962,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gGL.setColorMask(true, false);
 			if (LLPipeline::sRenderDeferred)
 			{
-				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance());
+				gPipeline.renderGeomDeferred(*LLViewerCamera::getInstance(), true);
 			}
 			else
 			{
@@ -998,12 +998,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
         LLRenderTarget &rt = (gPipeline.sRenderDeferred ? gPipeline.mRT->deferredScreen : gPipeline.mRT->screen);
         rt.flush();
 
-        if (rt.sUseFBO)
+        /*if (rt.sUseFBO)
         {
             LLRenderTarget::copyContentsToFramebuffer(rt, 0, 0, rt.getWidth(), rt.getHeight(), 0, 0, rt.getWidth(),
                                                       rt.getHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
                                                       GL_NEAREST);
-        }
+        }*/
 
         if (LLPipeline::sRenderDeferred)
         {
@@ -1106,7 +1106,7 @@ void display_cube_face()
     glClearColor(0, 0, 0, 0);
     gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
         
-    glClear(GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT); // | GL_STENCIL_BUFFER_BIT);
 
     {
         LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
@@ -1151,7 +1151,7 @@ void display_cube_face()
     LLPipeline::sUnderWaterRender = FALSE;
 
     // Finalize scene
-    gPipeline.renderFinalize();
+    //gPipeline.renderFinalize();
 
     LLSpatialGroup::sNoDelete = FALSE;
     gPipeline.clearReferences();
@@ -1374,10 +1374,10 @@ void render_ui(F32 zoom_factor, int subfield)
 		gGL.popMatrix();
 	}
 
-	// Finalize scene
-	gPipeline.renderFinalize();
-
 	{
+        // draw hud and 3D ui elements into screen render target so they'll be able to use 
+        // the depth buffer (avoids extra copy of depth buffer per frame)
+        gPipeline.mRT->screen.bindTarget();
 		// SL-15709
 		// NOTE: Tracy only allows one ZoneScoped per function.
 		// Solutions are:
@@ -1394,41 +1394,46 @@ void render_ui(F32 zoom_factor, int subfield)
 			gPipeline.disableLights();
 		}
 
-		{
-			gGL.color4f(1,1,1,1);
-			if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-			{
-				if (!gDisconnected)
-				{
-					LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
-					render_ui_3d();
-					LLGLState::checkStates();
-				}
-				else
-				{
-					render_disconnected_background();
-				}
+        gGL.color4f(1,1,1,1);
 
-				LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
-				render_ui_2d();
-				LLGLState::checkStates();
-			}
-			gGL.flush();
+        bool render_ui = gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
+        if (render_ui)
+        {
+            if (!gDisconnected)
+            {
+                LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 3D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_3D);
+                render_ui_3d();
+                LLGLState::checkStates();
+            }
+            else
+            {
+                render_disconnected_background();
+            }
+        }
 
-			gViewerWindow->setup2DRender();
-			gViewerWindow->updateDebugText();
-			gViewerWindow->drawDebugText();
+        gPipeline.mRT->screen.flush();
 
-			LLVertexBuffer::unbind();
-		}
+        // apply gamma correction and post effects before rendering 2D UI
+        gPipeline.renderFinalize();
 
-		if (!gSnapshot)
-		{
-			set_current_modelview(saved_view);
-			gGL.popMatrix();
-		}
+        if (render_ui)
+        {
+            LL_PROFILE_ZONE_NAMED_CATEGORY_UI("UI 2D"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_UI_2D);
+            render_ui_2d();
+            LLGLState::checkStates();
+            gGL.flush();
+        }
 
-	} // Tracy integration
+        gViewerWindow->setup2DRender();
+        gViewerWindow->updateDebugText();
+        gViewerWindow->drawDebugText();
+	}
+
+	if (!gSnapshot)
+	{
+		set_current_modelview(saved_view);
+		gGL.popMatrix();
+	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_SWAP("Swap");

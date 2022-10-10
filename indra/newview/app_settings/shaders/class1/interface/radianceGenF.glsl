@@ -26,11 +26,7 @@
 
 /*[EXTRA_CODE_HERE]*/
 
-#ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
 
 uniform samplerCubeArray   reflectionProbes;
 uniform int sourceIdx;
@@ -122,11 +118,11 @@ float D_GGX(float dotNH, float roughness)
 	return (alpha2)/(PI * denom*denom); 
 }
 
-vec3 prefilterEnvMap(vec3 R)
+vec4 prefilterEnvMap(vec3 R)
 {
 	vec3 N = R;
 	vec3 V = R;
-	vec3 color = vec3(0.0);
+	vec4 color = vec4(0.0);
 	float totalWeight = 0.0;
 	float envMapDim = 256.0;
     int numSamples = 4;
@@ -157,7 +153,7 @@ vec3 prefilterEnvMap(vec3 R)
 			// Biased (+1.0) mip level for better result
 			float mip = roughness == 0.0 ? 0.0 : clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
             //float mip = clamp(0.5 * log2(omegaS / omegaP) + 1.0, 0.0f, 7.f);
-			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mip).rgb * dotNL;
+			color += textureLod(reflectionProbes, vec4(L,sourceIdx), mip) * dotNL;
 			totalWeight += dotNL;
 
 		}
@@ -168,6 +164,6 @@ vec3 prefilterEnvMap(vec3 R)
 void main()
 {		
 	vec3 N = normalize(vary_dir);
-	frag_color = vec4(prefilterEnvMap(N), 1.0);
+	frag_color = prefilterEnvMap(N);
 }
 // =============================================================================================================

@@ -132,12 +132,12 @@
 // NOTE: Keep in sync with indra/newview/skins/default/xui/en/floater_preferences_graphics_advanced.xml
 // NOTE: Unused consts are commented out since some compilers (on macOS) may complain about unused variables.
 //  const S32 WATER_REFLECT_NONE_WATER_OPAQUE       = -2;
-    const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
-    const S32 WATER_REFLECT_MINIMAL                 =  0;
+    //const S32 WATER_REFLECT_NONE_WATER_TRANSPARENT  = -1;
+    //const S32 WATER_REFLECT_MINIMAL                 =  0;
 //  const S32 WATER_REFLECT_TERRAIN                 =  1;
-    const S32 WATER_REFLECT_STATIC_OBJECTS          =  2;
-    const S32 WATER_REFLECT_AVATARS                 =  3;
-    const S32 WATER_REFLECT_EVERYTHING              =  4;
+    //const S32 WATER_REFLECT_STATIC_OBJECTS          =  2;
+    //const S32 WATER_REFLECT_AVATARS                 =  3;
+    //const S32 WATER_REFLECT_EVERYTHING              =  4;
 
 bool gShiftFrame = false;
 
@@ -885,14 +885,17 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		const U32 occlusion_divisor = 3;
 
 		//allocate deferred rendering color buffers
-		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		if (!mRT->deferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		if (!mRT->deferredScreen.allocate(resX, resY, GL_RGBA, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+		//if (!mRT->deferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mRT->occlusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mRT->deferredScreen)) return false;
 	
 		GLuint screenFormat = GL_RGBA16;
         
 		if (!mRT->screen.allocate(resX, resY, screenFormat, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
+
+        mRT->deferredScreen.shareDepthBuffer(mRT->screen);
+
 		if (samples > 0)
 		{
 			if (!mRT->fxaaBuffer.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_TEXTURE, FALSE, samples)) return false;
@@ -929,17 +932,12 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		mRT->fxaaBuffer.release();
 		mRT->screen.release();
 		mRT->deferredScreen.release(); //make sure to release any render targets that share a depth buffer with mRT->deferredScreen first
-		mRT->deferredDepth.release();
+		//mRT->deferredDepth.release();
 		mRT->occlusionDepth.release();
 						
 		if (!mRT->screen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
 	
-	if (LLPipeline::sRenderDeferred)
-	{ //share depth buffer between deferred targets
-		mRT->deferredScreen.shareDepthBuffer(mRT->screen);
-	}
-
 	gGL.getTexUnit(0)->disable();
 
 	stop_glerror();
@@ -2540,6 +2538,13 @@ void LLPipeline::markNotCulled(LLSpatialGroup* group, LLCamera& camera)
 		sCull->pushVisibleGroup(group);
 	}
 
+    if (group->needsUpdate() ||
+        group->getVisible(LLViewerCamera::sCurCameraID) < LLDrawable::getCurrentFrame() - 1)
+    {
+        // include this group in occlusion groups, not because it is an occluder, but because we want to run
+        // an occlusion query to find out if it's an occluder
+        markOccluder(group);
+    }
 	mNumVisibleNodes++;
 }
 
@@ -2575,6 +2580,7 @@ void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& d
 	if (scratch_space)
 	{
         GLint bits = 0;
+        llassert(!source.hasStencil()); // stencil buffer usage is deprecated
         bits |= (source.hasStencil() && dest.hasStencil()) ? GL_STENCIL_BUFFER_BIT : 0;
         bits |= GL_DEPTH_BUFFER_BIT;
 		scratch_space->copyContents(source, 
@@ -2632,10 +2638,17 @@ void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderT
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     llassert(!gCubeSnapshot);
+#if 0
 	downsampleDepthBuffer(source, dest, scratch_space);
 	dest.bindTarget();
 	doOcclusion(camera);
 	dest.flush();
+#else
+    // none of the above shenanigans should matter (enough) because we've preserved hierarchical Z before issuing occlusion queries
+    //source.bindTarget();
+    doOcclusion(camera);
+    //source.flush();
+#endif
 }
 
 void LLPipeline::doOcclusion(LLCamera& camera)
@@ -4052,10 +4065,10 @@ void render_hud_elements()
 	LLGLDisable fog(GL_FOG);
 	LLGLSUIDefault gls_ui;
 
-	LLGLEnable stencil(GL_STENCIL_TEST);
-	glStencilFunc(GL_ALWAYS, 255, 0xFFFFFFFF);
-	glStencilMask(0xFFFFFFFF);
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	//LLGLEnable stencil(GL_STENCIL_TEST);
+	//glStencilFunc(GL_ALWAYS, 255, 0xFFFFFFFF);
+	//glStencilMask(0xFFFFFFFF);
+	//glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 	
 	gGL.color4f(1,1,1,1);
 	
@@ -4112,14 +4125,15 @@ void LLPipeline::renderHighlights()
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 		LLGLDisable test(GL_ALPHA_TEST);
 
-		LLGLEnable stencil(GL_STENCIL_TEST);
+		//LLGLEnable stencil(GL_STENCIL_TEST);
 		gGL.flush();
-		glStencilMask(0xFFFFFFFF);
-		glClearStencil(1);
-		glClear(GL_STENCIL_BUFFER_BIT);
+        // stencil ops are deprecated
+		//glStencilMask(0xFFFFFFFF);
+		//glClearStencil(1);
+		//glClear(GL_STENCIL_BUFFER_BIT);
 
-		glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
+		//glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
+		//glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
 
 		gGL.setColorMask(false, false);
 
@@ -4131,8 +4145,8 @@ void LLPipeline::renderHighlights()
 		}
 		gGL.setColorMask(true, false);
 
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
+		//glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); // deprecated
+		//glStencilFunc(GL_NOTEQUAL, 0, 0xFFFFFFFF);
 		
 		//gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 
@@ -4578,11 +4592,13 @@ void LLPipeline::renderGeom(LLCamera& camera, bool forceVBOUpdate)
 #endif
 }
 
-void LLPipeline::renderGeomDeferred(LLCamera& camera)
+void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LLAppViewer::instance()->pingMainloopTimeout("Pipeline:RenderGeomDeferred");
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
     LL_PROFILE_GPU_ZONE("renderGeomDeferred");
+
+    bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	{
 		LL_PROFILE_ZONE_NAMED_CATEGORY_DRAWPOOL("deferred pools"); //LL_RECORD_BLOCK_TIME(FTM_DEFERRED_POOLS);
@@ -4622,6 +4638,17 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			LLDrawPool *poolp = *iter1;
 		
 			cur_type = poolp->getType();
+
+            if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
+            {
+                llassert(!gCubeSnapshot); // never do occlusion culling on cube snapshots
+                occlude = false;
+                gGLLastMatrix = NULL;
+                gGL.loadMatrix(gGLModelView);
+                LLGLSLShader::bindNoShader();
+                doOcclusion(camera);
+                gGL.setColorMask(true, false);
+            }
 
 			pool_set_t::iterator iter2 = iter1;
 			if (hasRenderType(poolp->getType()) && poolp->getNumDeferredPasses() > 0)
@@ -4679,7 +4706,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	} // Tracy ZoneScoped
 }
 
-void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
+void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
@@ -4696,24 +4723,12 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	gGL.setColorMask(true, false);
 
 	pool_set_t::iterator iter1 = mPools.begin();
-	bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	while ( iter1 != mPools.end() )
 	{
 		LLDrawPool *poolp = *iter1;
 		
 		cur_type = poolp->getType();
-
-		if (occlude && cur_type >= LLDrawPool::POOL_GRASS)
-		{
-            llassert(!gCubeSnapshot); // never do occlusion culling on cube snapshots
-			occlude = false;
-			gGLLastMatrix = NULL;
-			gGL.loadMatrix(gGLModelView);
-			LLGLSLShader::bindNoShader();
-			doOcclusion(camera, mRT->screen, mRT->occlusionDepth, &mRT->deferredDepth);
-			gGL.setColorMask(true, false);
-		}
 
 		pool_set_t::iterator iter2 = iter1;
 		if (hasRenderType(poolp->getType()) && poolp->getNumPostDeferredPasses() > 0)
@@ -4765,16 +4780,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	gGLLastMatrix = NULL;
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.loadMatrix(gGLModelView);
-
-	if (occlude)
-	{
-		occlude = false;
-		LLGLSLShader::bindNoShader();
-		doOcclusion(camera);
-		gGLLastMatrix = NULL;
-		gGL.matrixMode(LLRender::MM_MODELVIEW);
-		gGL.loadMatrix(gGLModelView);
-	}
 
     if (!gCubeSnapshot)
     {
@@ -4990,7 +4995,7 @@ void LLPipeline::renderDebug()
 						const LLColor4 clearColor = gSavedSettings.getColor4("PathfindingNavMeshClear");
 						gGL.setColorMask(true, true);
 						glClearColor(clearColor.mV[0],clearColor.mV[1],clearColor.mV[2],0);
-						glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);					
+                        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT); // no stencil -- deprecated | GL_STENCIL_BUFFER_BIT);
 						gGL.setColorMask(true, false);
 						glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );	
 					}
@@ -7594,6 +7599,76 @@ void LLPipeline::renderFinalize()
     gGL.setColorMask(true, true);
     glClearColor(0, 0, 0, 0);
 
+    if (!gCubeSnapshot)
+    {
+        // gamma correct lighting
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.pushMatrix();
+        gGL.loadIdentity();
+
+        {
+            LL_PROFILE_GPU_ZONE("gamma correct");
+
+            LLGLDepthTest depth(GL_FALSE, GL_FALSE);
+
+            LLRenderTarget* screen_target = &mRT->screen;
+
+            LLVector2 tc1(0, 0);
+            LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
+
+            screen_target->bindTarget();
+            // Apply gamma correction to the frame here.
+            gDeferredPostGammaCorrectProgram.bind();
+            // mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+            S32 channel = 0;
+            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screen_target->getUsage());
+            if (channel > -1)
+            {
+                screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
+            }
+
+            gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screen_target->getWidth(), screen_target->getHeight());
+
+            F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
+
+            gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
+
+            gGL.begin(LLRender::TRIANGLE_STRIP);
+            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+            gGL.vertex2f(-1, -1);
+
+            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+            gGL.vertex2f(-1, 3);
+
+            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+            gGL.vertex2f(3, -1);
+
+            gGL.end();
+
+            gGL.getTexUnit(channel)->unbind(screen_target->getUsage());
+            gDeferredPostGammaCorrectProgram.unbind();
+            screen_target->flush();
+        }
+
+        gGL.matrixMode(LLRender::MM_PROJECTION);
+        gGL.popMatrix();
+        gGL.matrixMode(LLRender::MM_MODELVIEW);
+        gGL.popMatrix();
+
+        LLVertexBuffer::unbind();
+
+        if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
+        {
+            // Render debugging beacons.
+            gObjectList.renderObjectBeacons();
+            gObjectList.resetObjectBeacons();
+            gSky.addSunMoonBeacons();
+        }
+    }
+
     if (sRenderGlow)
     {
         LL_PROFILE_GPU_ZONE("glow");
@@ -8063,6 +8138,7 @@ void LLPipeline::renderFinalize()
             shader->unbind();
         }
     }
+#if 0 // DEPRECATED
     else // not deferred
     {
         U32 mask = LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1;
@@ -8105,7 +8181,7 @@ void LLPipeline::renderFinalize()
 
         gGlowCombineProgram.unbind();
     }
-
+#endif
     gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
     if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
@@ -8139,12 +8215,12 @@ void LLPipeline::renderFinalize()
         gSplatTextureRectProgram.unbind();
     }
 
-    if (LLRenderTarget::sUseFBO && !gCubeSnapshot)
+    /*if (LLRenderTarget::sUseFBO && !gCubeSnapshot)
     { // copy depth buffer from mRT->screen to framebuffer
         LLRenderTarget::copyContentsToFramebuffer(mRT->screen, 0, 0, mRT->screen.getWidth(), mRT->screen.getHeight(), 0, 0,
                                                   mRT->screen.getWidth(), mRT->screen.getHeight(),
                                                   GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-    }
+    }*/
 
     gGL.matrixMode(LLRender::MM_PROJECTION);
     gGL.popMatrix();
@@ -8162,7 +8238,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
     LL_PROFILE_GPU_ZONE("bindDeferredShader");
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
-    LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
+    //LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
 	shader.bind();
@@ -8198,12 +8274,21 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* light_
     }
 
 
+#if 0
     channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
 	if (channel > -1)
 	{
         gGL.getTexUnit(channel)->bind(deferred_depth_target, TRUE);
 		stop_glerror();
     }
+#else
+    channel = shader.enableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_target->getUsage());
+    if (channel > -1)
+    {
+        gGL.getTexUnit(channel)->bind(deferred_target, TRUE);
+        stop_glerror();
+    }
+#endif
 		
     glh::matrix4f projection = get_current_projection();
 		glh::matrix4f inv_proj = projection.inverse();
@@ -8452,13 +8537,15 @@ void LLPipeline::renderDeferredLighting()
     }
 
     LLRenderTarget *screen_target         = &mRT->screen;
-    LLRenderTarget *deferred_target       = &mRT->deferredScreen;
-    LLRenderTarget *deferred_depth_target = &mRT->deferredDepth;
-    LLRenderTarget *deferred_light_target = &mRT->deferredLight;
+    //LLRenderTarget *deferred_target       = &mRT->deferredScreen;
+    //LLRenderTarget *deferred_depth_target = &mRT->deferredDepth;
+    LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
     {
         LL_PROFILE_ZONE_NAMED_CATEGORY_PIPELINE("deferred"); //LL_RECORD_BLOCK_TIME(FTM_RENDER_DEFERRED);
         LLViewerCamera *camera = LLViewerCamera::getInstance();
+        
+#if 0
         {
             LLGLDepthTest depth(GL_TRUE);
             deferred_depth_target->copyContents(*deferred_target,
@@ -8473,6 +8560,7 @@ void LLPipeline::renderDeferredLighting()
                                                 GL_DEPTH_BUFFER_BIT,
                                                 GL_NEAREST);
         }
+#endif
 
         LLGLEnable multisample(RenderFSAASamples > 0 ? GL_MULTISAMPLE : 0);
 
@@ -8482,7 +8570,7 @@ void LLPipeline::renderDeferredLighting()
         }
 
         // ati doesn't seem to love actually using the stencil buffer on FBO's
-        LLGLDisable stencil(GL_STENCIL_TEST);
+        //LLGLDisable stencil(GL_STENCIL_TEST);
         // glStencilFunc(GL_EQUAL, 1, 0xFFFFFFFF);
         // glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
@@ -8707,7 +8795,7 @@ void LLPipeline::renderDeferredLighting()
 #if 0
         {  // render non-deferred geometry (fullbright, alpha, etc)
             LLGLDisable blend(GL_BLEND);
-            LLGLDisable stencil(GL_STENCIL_TEST);
+            //LLGLDisable stencil(GL_STENCIL_TEST);
             gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
             gPipeline.pushRenderTypeMask();
@@ -8986,7 +9074,7 @@ void LLPipeline::renderDeferredLighting()
 
     {  // render non-deferred geometry (alpha, fullbright, glow)
         LLGLDisable blend(GL_BLEND);
-        LLGLDisable stencil(GL_STENCIL_TEST);
+        //LLGLDisable stencil(GL_STENCIL_TEST);
 
         pushRenderTypeMask();
         andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
@@ -9016,76 +9104,6 @@ void LLPipeline::renderDeferredLighting()
 
         renderGeomPostDeferred(*LLViewerCamera::getInstance());
         popRenderTypeMask();
-    }
-
-    screen_target->flush();
-
-    if (!gCubeSnapshot)
-    {
-        // gamma correct lighting
-        gGL.matrixMode(LLRender::MM_PROJECTION);
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.pushMatrix();
-        gGL.loadIdentity();
-
-        {
-            LL_PROFILE_GPU_ZONE("gamma correct");
-
-            LLGLDepthTest depth(GL_FALSE, GL_FALSE);
-
-            LLVector2 tc1(0, 0);
-            LLVector2 tc2((F32)screen_target->getWidth() * 2, (F32)screen_target->getHeight() * 2);
-
-            screen_target->bindTarget();
-            // Apply gamma correction to the frame here.
-            gDeferredPostGammaCorrectProgram.bind();
-            // mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-            S32 channel = 0;
-            channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, screen_target->getUsage());
-            if (channel > -1)
-            {
-                screen_target->bindTexture(0, channel, LLTexUnit::TFO_POINT);
-            }
-
-            gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, screen_target->getWidth(), screen_target->getHeight());
-
-            F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-
-            gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f / 2.2f));
-
-            gGL.begin(LLRender::TRIANGLE_STRIP);
-            gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-            gGL.vertex2f(-1, -1);
-
-            gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-            gGL.vertex2f(-1, 3);
-
-            gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-            gGL.vertex2f(3, -1);
-
-            gGL.end();
-
-            gGL.getTexUnit(channel)->unbind(screen_target->getUsage());
-            gDeferredPostGammaCorrectProgram.unbind();
-            screen_target->flush();
-        }
-
-        gGL.matrixMode(LLRender::MM_PROJECTION);
-        gGL.popMatrix();
-        gGL.matrixMode(LLRender::MM_MODELVIEW);
-        gGL.popMatrix();
-    
-        LLVertexBuffer::unbind();
-
-        if (gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI))
-        {
-            // Render debugging beacons.
-            gObjectList.renderObjectBeacons();
-            gObjectList.resetObjectBeacons();
-            gSky.addSunMoonBeacons();
-        }
     }
 
     screen_target->flush();
@@ -9234,7 +9252,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
 {
     LLRenderTarget* deferred_target       = &mRT->deferredScreen;
-    LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
+    //LLRenderTarget* deferred_depth_target = &mRT->deferredDepth;
     LLRenderTarget* deferred_light_target = &mRT->deferredLight;
 
 	stop_glerror();
@@ -9243,7 +9261,8 @@ void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
     shader.disableTexture(LLShaderMgr::DEFERRED_SPECULAR, deferred_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_EMISSIVE, deferred_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_BRDF_LUT);
-    shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
+    //shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_depth_target->getUsage());
+    shader.disableTexture(LLShaderMgr::DEFERRED_DEPTH, deferred_target->getUsage());
     shader.disableTexture(LLShaderMgr::DEFERRED_LIGHT, deferred_light_target->getUsage());
 	shader.disableTexture(LLShaderMgr::DIFFUSE_MAP);
 	shader.disableTexture(LLShaderMgr::DEFERRED_BLOOM);

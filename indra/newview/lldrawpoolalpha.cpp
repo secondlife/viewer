@@ -167,10 +167,10 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
     if (!LLPipeline::sImpostorRender && gSavedSettings.getBOOL("RenderDepthOfField") && !gCubeSnapshot)
     { 
         //update depth buffer sampler
-        gPipeline.mRT->screen.flush();
+        /*gPipeline.mRT->screen.flush();
         gPipeline.mRT->deferredDepth.copyContents(gPipeline.mRT->deferredScreen, 0, 0, gPipeline.mRT->deferredScreen.getWidth(), gPipeline.mRT->deferredScreen.getHeight(),
             0, 0, gPipeline.mRT->deferredDepth.getWidth(), gPipeline.mRT->deferredDepth.getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        gPipeline.mRT->deferredDepth.bindTarget();
+        gPipeline.mRT->deferredDepth.bindTarget();*/
         simple_shader = fullbright_shader = &gObjectFullbrightAlphaMaskProgram;
 
         simple_shader->bind();
@@ -184,8 +184,8 @@ void LLDrawPoolAlpha::renderPostDeferred(S32 pass)
         renderAlpha(getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX | LLVertexBuffer::MAP_TANGENT | LLVertexBuffer::MAP_TEXCOORD1 | LLVertexBuffer::MAP_TEXCOORD2, 
             true); // <--- discard mostly transparent faces
 
-        gPipeline.mRT->deferredDepth.flush();
-        gPipeline.mRT->screen.bindTarget();
+        //gPipeline.mRT->deferredDepth.flush();
+        //gPipeline.mRT->screen.bindTarget();
         gGL.setColorMask(true, false);
     }
 
@@ -798,7 +798,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                 bool tex_setup = TexSetup(&params, (mat != nullptr));
 
 				{
-					LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
+					//LLGLEnableFunc stencil_test(GL_STENCIL_TEST, params.mSelected, &LLGLCommonFunc::selected_stencil_test);
 
 					gGL.blendFunc((LLRender::eBlendFactor) params.mBlendFuncSrc, (LLRender::eBlendFactor) params.mBlendFuncDst, mAlphaSFactor, mAlphaDFactor);
 

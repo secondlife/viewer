@@ -505,7 +505,7 @@ void LLViewerShaderMgr::setShaders()
     S32 obj_class = 2;
     S32 effect_class = 2;
     S32 wl_class = 1;
-    S32 water_class = 2;
+    S32 water_class = 3;
     S32 deferred_class = 0;
 
     if (useRenderDeferred)
@@ -3807,6 +3807,7 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
     if (success)
     {
         gReflectionMipProgram.mName = "Reflection Mip Shader";
+        gReflectionMipProgram.mFeatures.isDeferred = true;
         gReflectionMipProgram.mShaderFiles.clear();
         gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/splattexturerectV.glsl", GL_VERTEX_SHADER));
         gReflectionMipProgram.mShaderFiles.push_back(make_pair("interface/reflectionmipF.glsl", GL_FRAGMENT_SHADER));

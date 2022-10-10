@@ -177,10 +177,10 @@ float computeLod(float pdf)
     return lod;
 }
 
-vec3 filterColor(vec3 N)
+vec4 filterColor(vec3 N)
 {
     //return  textureLod(uCubeMap, N, 3.0).rgb;
-    vec3 color = vec3(0.f);
+    vec4 color = vec4(0.f);
     float weight = 0.0f;
 
     for(int i = 0; i < u_sampleCount; ++i)
@@ -198,7 +198,7 @@ vec3 filterColor(vec3 N)
 
         lod = clamp(lod, 0, 7);
         // sample lambertian at a lower resolution to avoid fireflies
-        vec3 lambertian = textureLod(reflectionProbes, vec4(H, sourceIdx), lod).rgb;
+        vec4 lambertian = textureLod(reflectionProbes, vec4(H, sourceIdx), lod);
 
         color += lambertian;
     }
@@ -212,16 +212,16 @@ vec3 filterColor(vec3 N)
         color /= float(u_sampleCount);
     }
 
-    return color.rgb ;
+    return color;
 }
 
 // entry point
 void main()
 {
-    vec3 color = vec3(0);
+    vec4 color = vec4(0);
 
     color = filterColor(vary_dir);
     
-    frag_color = vec4(color,1.0);
+    frag_color = color;
 }
 

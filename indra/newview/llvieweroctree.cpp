@@ -1169,7 +1169,7 @@ void LLOcclusionCullingGroup::checkOcclusion()
     else if (mSpatialPartition->isOcclusionEnabled() && isOcclusionState(LLOcclusionCullingGroup::OCCLUDED))
     {	//check occlusion has been issued for occluded node that has not had a query issued
         assert_states_valid(this);
-        clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
+        //clearOcclusionState(LLOcclusionCullingGroup::OCCLUDED, LLOcclusionCullingGroup::STATE_MODE_DIFF);
         assert_states_valid(this);
     }
 }

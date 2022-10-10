@@ -108,6 +108,7 @@ private:
 	void			openEmbeddedLandmark( LLPointer<LLInventoryItem> item_ptr, llwchar wc );
 	void			openEmbeddedCallingcard( LLInventoryItem* item, llwchar wc);
 	void			openEmbeddedSetting(LLInventoryItem* item, llwchar wc);
+    void			openEmbeddedGLTFMaterial(LLInventoryItem* item, llwchar wc);
 	void			showCopyToInvDialog( LLInventoryItem* item, llwchar wc );
 	void			showUnsavedAlertDialog( LLInventoryItem* item );
 

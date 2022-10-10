@@ -757,7 +757,7 @@ void LLManipScale::renderBoxHandle( F32 x, F32 y, F32 z )
 {
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLGLDepthTest gls_depth(GL_FALSE);
-	LLGLDisable gls_stencil(GL_STENCIL_TEST);
+	//LLGLDisable gls_stencil(GL_STENCIL_TEST);
 
 	gGL.pushMatrix();
 	{

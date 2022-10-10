@@ -22,40 +22,22 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
- 
+
+//class2/environment/waterF.glsl
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
 #define frag_color gl_FragColor
 #endif
 
-vec3 scaleSoftClipFragLinear(vec3 l);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
-void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
-
-// PBR interface
-vec3 pbrIbl(vec3 diffuseColor,
-    vec3 specularColor,
-    vec3 radiance, // radiance map sample
-    vec3 irradiance, // irradiance map sample
-    float ao,       // ambient occlusion factor
-    float nv,       // normal dot view vector
-    float perceptualRoughness);
-
-vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
-    float perceptualRoughness,
-    float metallic,
-    vec3 n, // normal
-    vec3 v, // surface point to camera
-    vec3 l); //surface point to light
+vec3 scaleSoftClip(vec3 inColor);
+vec3 atmosTransport(vec3 inColor);
 
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
 uniform float     blend_factor;
 uniform sampler2D screenTex;
-uniform sampler2D screenDepth;
-
 uniform sampler2D refTex;
 
 uniform float sunAngle;
@@ -70,17 +52,12 @@ uniform vec3 normScale;
 uniform float fresnelScale;
 uniform float fresnelOffset;
 uniform float blurMultiplier;
-uniform vec4 waterFogColor;
 
 
 //bigWave is (refCoord.w, view.w);
 VARYING vec4 refCoord;
 VARYING vec4 littleWave;
 VARYING vec4 view;
-in vec3 vary_position;
-in vec3 vary_normal;
-in vec3 vary_tangent;
-in vec3 vary_light_dir;
 
 vec3 BlendNormal(vec3 bump1, vec3 bump2)
 {
@@ -88,43 +65,22 @@ vec3 BlendNormal(vec3 bump1, vec3 bump2)
     return n;
 }
 
-vec3 srgb_to_linear(vec3 col);
-
-void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv,
-    vec3 pos, vec3 norm, float glossiness, float envIntensity);
-
-vec3 vN, vT, vB;
-
-vec3 transform_normal(vec3 vNt)
-{
-    return normalize(vNt.x * vT + vNt.y * vB + vNt.z * vN);
-}
-
-void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec3 pos, vec3 norm, float glossiness);
-
-vec3 getPositionWithNDC(vec3 ndc);
 
 void main() 
 {
 	vec4 color;
-
-    vN = vary_normal;
-    vT = vary_tangent;
-    vB = cross(vN, vT);
-
-    vec3 pos = vary_position.xyz;
-
-	float dist = length(pos.xyz);
+	
+	float dist = length(view.xy);
 	
 	//normalize view vector
-	vec3 viewVec = normalize(pos.xyz);
+	vec3 viewVec = normalize(view.xyz);
 	
 	//get wave normals
     vec2 bigwave = vec2(refCoord.w, view.w);
     vec3 wave1_a = texture2D(bumpMap, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_a = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
     vec3 wave3_a = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;
+
 
     vec3 wave1_b = texture2D(bumpMap2, bigwave      ).xyz*2.0-1.0;
     vec3 wave2_b = texture2D(bumpMap2, littleWave.xy).xyz*2.0-1.0;
@@ -134,15 +90,6 @@ void main()
     vec3 wave2 = BlendNormal(wave2_a, wave2_b);
     vec3 wave3 = BlendNormal(wave3_a, wave3_b);
 
-    wave1 = transform_normal(wave1);
-    wave2 = transform_normal(wave2);
-    wave3 = transform_normal(wave3);
-
-    vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
-
-    wavef.z *= max(-viewVec.z, 0.1);
-
-    wavef = normalize(wavef);
 
 	//get base fresnel components	
 	
@@ -151,6 +98,7 @@ void main()
 					dot(viewVec, (wave2 + wave3) * 0.5),
 					dot(viewVec, wave3)
 				 ) * fresnelScale + fresnelOffset;
+	df *= df;
 		    
 	vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 	
@@ -161,84 +109,57 @@ void main()
 	
 	vec2 dmod_scale = vec2(dmod*dmod, dmod);
 	
-    float df1 = df.x + df.y + df.z;
+	//get reflected color
+	vec2 refdistort1 = wave1.xy*normScale.x;
+	vec2 refvec1 = distort+refdistort1/dmod_scale;
+	vec4 refcol1 = texture2D(refTex, refvec1);
+	
+	vec2 refdistort2 = wave2.xy*normScale.y;
+	vec2 refvec2 = distort+refdistort2/dmod_scale;
+	vec4 refcol2 = texture2D(refTex, refvec2);
+	
+	vec2 refdistort3 = wave3.xy*normScale.z;
+	vec2 refvec3 = distort+refdistort3/dmod_scale;
+	vec4 refcol3 = texture2D(refTex, refvec3);
 
-    wavef = normalize(wavef + vary_normal);
-    //wavef = vary_normal;
+	vec4 refcol = refcol1 + refcol2 + refcol3;
+	float df1 = df.x + df.y + df.z;
+	refcol *= df1 * 0.333;
+	
+	vec3 wavef = (wave1 + wave2 * 0.4 + wave3 * 0.6) * 0.5;
+	
+	wavef.z *= max(-viewVec.z, 0.1);
+	wavef = normalize(wavef);
+	
+	float df2 = dot(viewVec, wavef) * fresnelScale+fresnelOffset;
+	
+	vec2 refdistort4 = wavef.xy*0.125;
+	refdistort4.y -= abs(refdistort4.y);
+	vec2 refvec4 = distort+refdistort4/dmod;
+	float dweight = min(dist2*blurMultiplier, 1.0);
+	vec4 baseCol = texture2D(refTex, refvec4);
+	refcol = mix(baseCol*df2, refcol, dweight);
 
-    vec3 waver = reflect(viewVec, -wavef)*3;
+	//get specular component
+	float spec = clamp(dot(lightDir, (reflect(viewVec,wavef))),0.0,1.0);
+		
+	//harden specular
+	spec = pow(spec, 128.0);
 
 	//figure out distortion vector (ripply)   
-    vec2 distort2 = distort + waver.xy * refScale / max(dmod * df1, 1.0);
-    distort2 = clamp(distort2, vec2(0), vec2(0.99));
- 
-    vec4 fb = texture2D(screenTex, distort2);
-    float depth = texture2D(screenDepth, distort2).r;
-    vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
-
-#if 1
-    if (refPos.z > pos.z-0.05)
-    {
-        //we sampled an above water sample, don't distort
-        distort2 = distort;
-        fb = texture2D(screenTex, distort2);
-        depth = texture2D(screenDepth, distort2).r;
-        refPos = getPositionWithNDC(vec3(distort2 * 2.0 - vec2(1.0), depth * 2.0 - 1.0));
-    }
-#endif
-
-    fb = applyWaterFogViewLinear(refPos, fb);
-
-    vec3 sunlit;
-    vec3 amblit;
-    vec3 additive;
-    vec3 atten;
-
-    calcAtmosphericVarsLinear(pos.xyz, wavef, lightDir, sunlit, amblit, additive, atten);
-    
-    vec3 v = -viewVec;
-    float NdotV = clamp(abs(dot(wavef.xyz, v)), 0.001, 1.0);
-
-    float metallic = fresnelOffset * 0.1; // fudge -- use fresnelOffset as metalness
-    float roughness = 0.08;
-    float gloss = 1.0 - roughness;
-
-    vec3 baseColor = vec3(0.25);
-    vec3 f0 = vec3(0.04);
-    vec3 diffuseColor = baseColor.rgb * (vec3(1.0) - f0);
-    diffuseColor *= gloss;
-
-    vec3 specularColor = mix(f0, baseColor.rgb, metallic);
-
-    //vec3 refnorm = normalize(wavef + vary_normal);
-    vec3 refnorm = wavef;
-    
-   
-    vec3 irradiance = vec3(0);
-    vec3 radiance = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, pos, refnorm, gloss);
-    radiance *= 0.5;
-    irradiance = fb.rgb;
-
-    color.rgb = pbrIbl(diffuseColor, specularColor, radiance, irradiance, gloss, NdotV, 0.0);
-
-    
-    // fudge -- for punctual lighting, pretend water is metallic
-    diffuseColor = vec3(0);
-    specularColor = vec3(1);
-    roughness = 0.1;
-    float scol = 1.0; // TODO -- incorporate shadow map
-
-    //color.rgb += pbrPunctual(diffuseColor, specularColor, roughness, metallic, wavef, v, vary_light_dir) * sunlit * 2.75 * scol;
-	color.rgb = atmosFragLightingLinear(color.rgb, additive, atten);
-	color.rgb = scaleSoftClipFragLinear(color.rgb);
-
-    color.a = 0.f;
-    //color.rgb = fb.rgb;
-    //color.rgb = vec3(depth*depth*depth*depth);
-    //color.rgb = srgb_to_linear(normalize(refPos) * 0.5 + 0.5);
-    //color.rgb = srgb_to_linear(normalize(pos) * 0.5 + 0.5);
-    //color.rgb = srgb_to_linear(wavef * 0.5 + 0.5);
+	vec2 distort2 = distort+wavef.xy*refScale/max(dmod*df1, 1.0);
+		
+	vec4 fb = texture2D(screenTex, distort2);
+	
+	//mix with reflection
+	// Note we actually want to use just df1, but multiplying by 0.999999 gets around and nvidia compiler bug
+	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
+	color.rgb += spec * specular;
+	
+	color.rgb = atmosTransport(color.rgb);
+	color.rgb = scaleSoftClip(color.rgb);
+	color.a = spec * sunAngle2;
+	
 	frag_color = color;
 
 #if defined(WATER_EDGE)

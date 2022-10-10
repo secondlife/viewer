@@ -1467,11 +1467,11 @@ void LLDrawPoolInvisible::render(S32 pass)
 	}
 
 	U32 invisi_mask = LLVertexBuffer::MAP_VERTEX;
-	glStencilMask(0);
+	//glStencilMask(0); //deprecated
 	gGL.setColorMask(false, false);
 	pushBatches(LLRenderPass::PASS_INVISIBLE, invisi_mask, FALSE);
 	gGL.setColorMask(true, false);
-	glStencilMask(0xFFFFFFFF);
+	//glStencilMask(0xFFFFFFFF); //deprecated
 
 	if (gPipeline.shadersLoaded())
 	{

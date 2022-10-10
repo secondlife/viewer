@@ -86,7 +86,7 @@ vec3 linear_to_srgb(vec3 c);
 vec3 srgb_to_linear(vec3 c);
 
 #ifdef WATER_FOG
-vec4 applyWaterFogView(vec3 pos, vec4 color);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 #endif
 
 // PBR interface
@@ -236,7 +236,7 @@ void main()
     }
 
     #ifdef WATER_FOG
-        vec4 fogged = applyWaterFogView(pos.xyz, vec4(color, bloom));
+        vec4 fogged = applyWaterFogViewLinear(pos.xyz, vec4(color, bloom));
         color       = fogged.rgb;
     #endif
 

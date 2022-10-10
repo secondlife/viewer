@@ -122,7 +122,9 @@ void LLCubeMapArray::allocate(U32 resolution, U32 components, U32 count, BOOL us
 
     bind(0);
 
-    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, GL_RGB16F, resolution, resolution, count*6, 0,
+    U32 format = components == 4 ? GL_RGBA12 : GL_RGB10;
+    
+    glTexImage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 0, format, resolution, resolution, count*6, 0,
         GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
     mImage->setAddressMode(LLTexUnit::TAM_CLAMP);

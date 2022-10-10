@@ -239,7 +239,7 @@ bool intersect(const Ray &ray) const
         return true; 
 } */
 
-// adapted -- assume that origin is inside sphere, return distance from origin to edge of sphere
+// adapted -- assume that origin is inside sphere, return intersection of ray with edge of sphere
 vec3 sphereIntersect(vec3 origin, vec3 dir, vec3 center, float radius2)
 { 
         float t0, t1; // solutions for t if the ray intersects 
@@ -310,17 +310,19 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
 // Tap a reflection probe
 // pos - position of pixel
 // dir - pixel normal
+// vi - return value of intersection point with influence volume
+// wi - return value of approximate world space position of sampled pixel
 // lod - which mip to bias towards (lower is higher res, sharper reflections)
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-// vi - point at which reflection vector struck the influence volume, in clip space
-vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i)
+vec3 tapRefMap(vec3 pos, vec3 dir, out vec3 vi, out vec3 wi, float lod, vec3 c, float r2, int i)
 {
     //lod = max(lod, 1);
     // parallax adjustment
 
     vec3 v;
+
     if (refIndex[i].w < 0)
     {
         v = boxIntersect(pos, dir, i);
@@ -330,11 +332,18 @@ vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i)
         v = sphereIntersect(pos, dir, c, r2);
     }
 
+    vi = v;
+
     v -= c;
+    vec3 d = normalize(v);
+
     v = env_mat * v;
-    {
-        return textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod).rgb;
-    }
+    
+    vec4 ret = textureLod(reflectionProbes, vec4(v.xyz, refIndex[i].x), lod);
+
+    wi = d * ret.a * 256.0+c;
+
+    return ret.rgb;
 }
 
 // Tap an irradiance map
@@ -343,7 +352,6 @@ vec3 tapRefMap(vec3 pos, vec3 dir, float lod, vec3 c, float r2, int i)
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-// vi - point at which reflection vector struck the influence volume, in clip space
 vec3 tapIrradianceMap(vec3 pos, vec3 dir, vec3 c, float r2, int i)
 {
     //lod = max(lod, 1);
@@ -383,26 +391,48 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, float minweight)
         float p = float(abs(refIndex[i].w)); // priority
         
         float rr = r*r; // radius squred
-        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
+        float r1 = r * 0.1; // 90% of radius (outer sphere to start interpolating down)
         vec3 delta = pos.xyz-refSphere[i].xyz;
         float d2 = dot(delta,delta);
         float r2 = r1*r1; 
         
         {
-            vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, rr, i);
-            
-            float w = 1.0/d2;
+            vec3 vi, wi;
+
+            vec3 refcol = tapRefMap(pos, dir, vi, wi, lod, refSphere[i].xyz, rr, i);
 
             float atten = 1.0-max(d2-r2, 0.0)/(rr-r2);
-            w *= atten;
-            //w *= p; // boost weight based on priority
-            col += refcol*w;
+
+            if (refIndex[i].w >= 0)
+            {
+                //adjust lookup by distance result
+                float d = length(vi - wi);
+                vi += dir * d;
+
+                vi -= refSphere[i].xyz;
+
+                vi = env_mat * vi;
+
+                refcol = textureLod(reflectionProbes, vec4(vi, refIndex[i].x), lod).rgb;
+            }
+
+            //float w = 1.0 / max(d3, 1.0);
+            vec3 pi = normalize(wi - pos);
+            float w = max(dot(pi, dir), 0.1);
+            w = pow(w, 32.0);
             
+            w *= atten;
+
+
+            //w *= p; // boost weight based on priority
+            col += refcol.rgb*w;
+
             wsum += w;
         }
     }
 
-    if (probeInfluences <= 1)
+#if 1
+    if (probeInfluences < 1)
     { //edge-of-scene probe or no probe influence, mix in with embiggened version of probes closest to camera 
         for (int idx = 0; idx < 8; ++idx)
         {
@@ -415,15 +445,17 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, float minweight)
             float d2 = dot(delta,delta);
             
             {
-                vec3 refcol = tapRefMap(pos, dir, lod, refSphere[i].xyz, d2, i);
-                
+                vec3 vi, wi;
+                vec3 refcol = tapRefMap(pos, dir, vi, wi, lod, refSphere[i].xyz, d2, i);
+
                 float w = 1.0/d2;
                 w *= w;
-                col += refcol*w;
+                col += refcol.rgb*w;
                 wsum += w;
             }
         }
     }
+#endif
 
     if (wsum > 0.0)
     {
