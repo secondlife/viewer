@@ -12,14 +12,15 @@ jobs:
       matrix:
         os: [windows-2019, macos-11]
         configuration: [RelWithDebInfoOS]
-        arch: [64]
+        addrsize: [64]
         include:
           - os: windows-2019
             configuration: RelWithDebInfoOS
-            arch: 32
+            addrsize: 32
     runs-on: ${{ matrix.os }}
     env:
-      AUTOBUILD_ADDRSIZE: ${{ matrix.arch }}
+      AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
+      AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
     steps:
@@ -45,9 +46,10 @@ jobs:
           path: .autobuild-installables
           key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
+      - name: Install autobuild packages 
+        run: autobuild install 
+
       - name: Build
-        shell: bash
         run: |
-          autobuild install
           autobuild configure -c ${{ matrix.configuration }}
           autobuild build --no-configure
