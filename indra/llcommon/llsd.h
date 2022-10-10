@@ -421,42 +421,42 @@ public:
 	static std::string		typeString(Type type);		// Return human-readable type as a string
 };
 
-struct llsd_select_bool : public std::unary_function<LLSD, LLSD::Boolean>
+struct llsd_select_bool
 {
 	LLSD::Boolean operator()(const LLSD& sd) const
 	{
 		return sd.asBoolean();
 	}
 };
-struct llsd_select_integer : public std::unary_function<LLSD, LLSD::Integer>
+struct llsd_select_integer
 {
 	LLSD::Integer operator()(const LLSD& sd) const
 	{
 		return sd.asInteger();
 	}
 };
-struct llsd_select_real : public std::unary_function<LLSD, LLSD::Real>
+struct llsd_select_real
 {
 	LLSD::Real operator()(const LLSD& sd) const
 	{
 		return sd.asReal();
 	}
 };
-struct llsd_select_float : public std::unary_function<LLSD, F32>
+struct llsd_select_float
 {
 	F32 operator()(const LLSD& sd) const
 	{
 		return (F32)sd.asReal();
 	}
 };
-struct llsd_select_uuid : public std::unary_function<LLSD, LLSD::UUID>
+struct llsd_select_uuid
 {
 	LLSD::UUID operator()(const LLSD& sd) const
 	{
 		return sd.asUUID();
 	}
 };
-struct llsd_select_string : public std::unary_function<LLSD, LLSD::String>
+struct llsd_select_string
 {
 	LLSD::String operator()(const LLSD& sd) const
 	{

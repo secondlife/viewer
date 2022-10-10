@@ -374,7 +374,6 @@ BOOL LLThrottleGroup::dynamicAdjust()
 	}
 	mDynamicAdjustTime = mt_sec;
 
-	S32 total = 0;
 	// Update historical information
 	for (i = 0; i < TC_EOF; i++)
 	{
@@ -391,7 +390,6 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		}
 
 		mBitsSentThisPeriod[i] = 0;
-		total += ll_round(mBitsSentHistory[i]);
 	}
 
 	// Look for busy channels
@@ -437,12 +435,6 @@ BOOL LLThrottleGroup::dynamicAdjust()
 		{
 			channel_over_nominal[i] = FALSE;
 		}
-
-		//if (total)
-		//{
-		//	LL_INFOS() << i << ": B" << channel_busy[i] << " I" << channel_idle[i] << " N" << channel_over_nominal[i];
-		//	LL_CONT << " Nom: " << mNominalBPS[i] << " Cur: " << mCurrentBPS[i] << " BS: " << mBitsSentHistory[i] << LL_ENDL;
-		//}
 	}
 
 	if (channels_busy)
