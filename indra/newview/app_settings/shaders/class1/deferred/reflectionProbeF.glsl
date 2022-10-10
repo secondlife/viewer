@@ -25,10 +25,17 @@
 
 // fallback stub -- will be used if actual reflection probe shader failed to load (output pink so it's obvious)
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec3 pos, vec3 norm, float glossiness)
+        vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     ambenv = vec3(1,0,1);
     glossenv = vec3(1,0,1);
+}
+
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+    vec3 pos, vec3 norm, float glossiness)
+{
+    sampleReflectionProbes(ambenv, glossenv,
+        pos, norm, glossiness, false);
 }
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 

@@ -103,7 +103,7 @@ vec3 transform_normal(vec3 vNt)
 }
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-    vec3 pos, vec3 norm, float glossiness);
+    vec3 pos, vec3 norm, float glossiness, bool errorCorrect);
 
 vec3 getPositionWithNDC(vec3 ndc);
 
@@ -215,7 +215,7 @@ void main()
     
     vec3 irradiance = vec3(0);
     vec3 radiance = vec3(0);
-    sampleReflectionProbes(irradiance, radiance, pos, refnorm, gloss);
+    sampleReflectionProbes(irradiance, radiance, pos, refnorm, gloss, true);
     radiance *= 0.5;
     irradiance = fb.rgb;
 

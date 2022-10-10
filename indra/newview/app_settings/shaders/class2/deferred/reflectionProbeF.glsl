@@ -34,13 +34,20 @@ uniform mat3 env_mat;
 vec3 srgb_to_linear(vec3 c);
 
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
-        vec3 pos, vec3 norm, float glossiness)
+        vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     ambenv = vec3(reflection_probe_ambiance * 0.25);
     
     vec3 refnormpersp = normalize(reflect(pos.xyz, norm.xyz));
     vec3 env_vec = env_mat * refnormpersp;
     glossenv = srgb_to_linear(textureCube(environmentMap, env_vec).rgb);
+}
+
+void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
+    vec3 pos, vec3 norm, float glossiness)
+{
+    sampleReflectionProbes(ambenv, glossenv,
+        pos, norm, glossiness, false);
 }
 
 void sampleReflectionProbesLegacy(inout vec3 ambenv, inout vec3 glossenv, inout vec3 legacyenv, 
