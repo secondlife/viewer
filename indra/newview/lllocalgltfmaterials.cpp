@@ -134,83 +134,93 @@ bool LLLocalGLTFMaterial::getValid()
 /* update functions */
 bool LLLocalGLTFMaterial::updateSelf()
 {
-	bool updated = false;
-	
-	if (mLinkStatus == LS_ON)
-	{
-		// verifying that the file exists
-		if (gDirUtilp->fileExists(mFilename))
-		{
-			// verifying that the file has indeed been modified
+    bool updated = false;
+
+    if (mLinkStatus == LS_ON)
+    {
+        // verifying that the file exists
+        if (gDirUtilp->fileExists(mFilename))
+        {
+            // verifying that the file has indeed been modified
 
 #ifndef LL_WINDOWS
-			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
+            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(mFilename));
 #else
-			const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(utf8str_to_utf16str(mFilename)));
+            const std::time_t temp_time = boost::filesystem::last_write_time(boost::filesystem::path(utf8str_to_utf16str(mFilename)));
 #endif
-			LLSD new_last_modified = asctime(localtime(&temp_time));
+            LLSD new_last_modified = asctime(localtime(&temp_time));
 
-			if (mLastModified.asString() != new_last_modified.asString())
-			{
-				LLPointer<LLGLTFMaterial> raw_material = new LLGLTFMaterial();
-				if (loadMaterial(raw_material, mMaterialIndex))
-				{
-					// decode is successful, we can safely proceed.
+            if (mLastModified.asString() != new_last_modified.asString())
+            {
+                LLPointer<LLGLTFMaterial> raw_material;
+                if (mWorldID.notNull())
+                {
+                    // update existing material
+                    // will create a new one if material doesn't exist yet
+                    raw_material = gGLTFMaterialList.getMaterial(mWorldID);
+                }
+                else
+                {
+                    raw_material = new LLGLTFMaterial();
+                }
+                if (loadMaterial(raw_material, mMaterialIndex))
+                {
+                    // decode is successful, we can safely proceed.
                     if (mWorldID.isNull())
                     {
                         mWorldID.generate();
                     }
-					mLastModified = new_last_modified;
+                    mLastModified = new_last_modified;
 
                     // will replace material if it already exists
                     gGLTFMaterialList.addMaterial(mWorldID, raw_material);
 
-					mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
-					updated = true;
-				}
+                    mUpdateRetries = LL_LOCAL_UPDATE_RETRIES;
+                    updated = true;
+                }
 
-				// if decoding failed, we get here and it will attempt to decode it in the next cycles
-				// until mUpdateRetries runs out. this is done because some software lock the material while writing to it
-				else
-				{
-					if (mUpdateRetries)
-					{
-						mUpdateRetries--;
-					}
-					else
-					{
-						LL_WARNS() << "During the update process the following file was found" << "\n"
-							    << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
-								<< "Filename: " << mFilename << "\n"
-								<< "Disabling further update attempts for this file." << LL_ENDL;
+                // if decoding failed, we get here and it will attempt to decode it in the next cycles
+                // until mUpdateRetries runs out. this is done because some software lock the material while writing to it
+                else
+                {
+                    if (mUpdateRetries)
+                    {
+                        mUpdateRetries--;
+                    }
+                    else
+                    {
+                        LL_WARNS() << "During the update process the following file was found" << "\n"
+                            << "but could not be opened or decoded for " << LL_LOCAL_UPDATE_RETRIES << " attempts." << "\n"
+                            << "Filename: " << mFilename << "\n"
+                            << "Disabling further update attempts for this file." << LL_ENDL;
 
-						LLSD notif_args;
-						notif_args["FNAME"] = mFilename;
-						notif_args["NRETRIES"] = LL_LOCAL_UPDATE_RETRIES;
-						LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
+                        LLSD notif_args;
+                        notif_args["FNAME"] = mFilename;
+                        notif_args["NRETRIES"] = LL_LOCAL_UPDATE_RETRIES;
+                        LLNotificationsUtil::add("LocalBitmapsUpdateFailedFinal", notif_args);
 
-						mLinkStatus = LS_BROKEN;
-					}
-				}		
-			}
-			
-		} // end if file exists
+                        mLinkStatus = LS_BROKEN;
+                    }
+                }
+            }
 
-		else
-		{
-			LL_WARNS() << "During the update process, the following file was not found." << "\n" 
-			        << "Filename: " << mFilename << "\n"
-				    << "Disabling further update attempts for this file." << LL_ENDL;
+        } // end if file exists
 
-			LLSD notif_args;
-			notif_args["FNAME"] = mFilename;
-			LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
+        else
+        {
+            LL_WARNS() << "During the update process, the following file was not found." << "\n"
+                << "Filename: " << mFilename << "\n"
+                << "Disabling further update attempts for this file." << LL_ENDL;
 
-			mLinkStatus = LS_BROKEN;
-		}
-	}
+            LLSD notif_args;
+            notif_args["FNAME"] = mFilename;
+            LLNotificationsUtil::add("LocalBitmapsUpdateFileNotFound", notif_args);
 
-	return updated;
+            mLinkStatus = LS_BROKEN;
+        }
+    }
+
+    return updated;
 }
 
 bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
