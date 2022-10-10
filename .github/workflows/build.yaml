@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-2019, macos-11]
+        os: [windows-2022, macos-11]
         configuration: [RelWithDebInfoOS]
         addrsize: [64]
         include:
@@ -46,5 +46,5 @@ jobs:
 
       - name: Build
         run: |
-          autobuild configure
+          autobuild configure -c ${{ matrix.configuration }}
           autobuild build --no-configure
