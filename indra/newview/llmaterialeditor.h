@@ -215,6 +215,10 @@ public:
 
     // initialize the UI from a default GLTF material
     void loadDefaults();
+
+    void modifyMaterialCoro(std::string cap_url, LLSD overrides);
+    void setOverrideTarget(const LLUUID& object_id, S32 face_id);
+
 private:
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
 
@@ -264,5 +268,8 @@ private:
     S32 mExpectedUploadCost;
     std::string mMaterialNameShort;
     std::string mMaterialName;
+
+    LLUUID mOverrideObjectId;
+    S32 mOverrideFace;
 };
 
