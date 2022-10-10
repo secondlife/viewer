@@ -33,21 +33,16 @@ jobs:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
-
-      - name: Install python 
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
       
       - name: Install autobuild 
-        run: pip install autobuild
+        run: pip3 install autobuild
 
       - name: Cache autobuild packages
         uses: actions/cache@v3
         id: cache-installables
         with:
           path: .autobuild-installables
-          key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
+          key: ${{ matrix.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
       - name: Build
         run: |
