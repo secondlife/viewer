@@ -47,14 +47,6 @@ jobs:
 
       - name: Build
         shell: bash
-        env:
-          WINDOWS: ${{ runner.os == 'Windows' }}
         run: |
-          autobuild --quiet source_environment > .env 
-          source .env
-          if [[ "$WINDOWS" == "true" ]]; then
-            load_vsvars
-          fi
-
           autobuild configure
           autobuild build --no-configure
