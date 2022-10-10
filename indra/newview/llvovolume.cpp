@@ -4212,7 +4212,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 			}
 		}
 
-		if (face->getPoolType() == LLDrawPool::POOL_ALPHA)
+		if (face->isInAlphaPool())
 		{
 			alpha = 1;
 		}
@@ -4576,7 +4576,7 @@ F32 LLVOVolume::getBinRadius()
 		{
 			LLFace* face = mDrawable->getFace(i);
 			if (!face) continue;
-			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
+			if (face->isInAlphaPool() &&
 			    !face->canRenderAsMask())
 			{
 				alpha_wrap = TRUE;

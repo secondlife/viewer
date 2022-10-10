@@ -90,6 +90,7 @@ uniform vec4 light_attenuation[8];
 uniform vec3 light_diffuse[8];
 
 float getAmbientClamp();
+void waterClip(vec3 pos);
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, float ambiance)
 {
@@ -219,6 +220,10 @@ vec2 encode_normal(vec3 n);
 
 void main()
 {
+#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
+    waterClip(vary_position.xyz);
+#endif
+
     vec2 pos_screen = vary_texcoord0.xy;
 
     vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
@@ -277,7 +282,6 @@ void main()
 #endif
 
 #if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-
     //forward rendering, output lit linear color
     diffcol.rgb = srgb_to_linear(diffcol.rgb);
     final_specular.rgb = srgb_to_linear(final_specular.rgb);

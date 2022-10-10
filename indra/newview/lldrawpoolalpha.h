@@ -35,9 +35,13 @@ class LLFace;
 class LLColor4;
 class LLGLSLShader;
 
-class LLDrawPoolAlpha: public LLRenderPass
+class LLDrawPoolAlpha final: public LLRenderPass
 {
 public:
+
+    // set by llsettingsvo so lldrawpoolalpha has quick access to the water plane in eye space
+    static LLVector4 sWaterPlane;
+
 	enum
 	{
 		VERTEX_DATA_MASK =	LLVertexBuffer::MAP_VERTEX |
@@ -47,7 +51,7 @@ public:
 	};
 	virtual U32 getVertexDataMask() { return VERTEX_DATA_MASK; }
 
-	LLDrawPoolAlpha(U32 type = LLDrawPool::POOL_ALPHA);
+	LLDrawPoolAlpha(U32 type);
 	/*virtual*/ ~LLDrawPoolAlpha();
 
 	/*virtual*/ S32 getNumPostDeferredPasses();
@@ -89,13 +93,6 @@ private:
 
     // if true, we're executing a rigged render pass
     bool mRigged = false;
-};
-
-class LLDrawPoolAlphaPostWater : public LLDrawPoolAlpha
-{
-public:
-	LLDrawPoolAlphaPostWater();
-	virtual void render(S32 pass = 0);
 };
 
 #endif // LL_LLDRAWPOOLALPHA_H

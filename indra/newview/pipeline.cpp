@@ -281,33 +281,6 @@ static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
 
 //----------------------------------------
-#if 0
-std::string gPoolNames[LLDrawPool::NUM_POOL_TYPES] =
-{
-	// Correspond to LLDrawpool enum render type
-	  "NONE"
-	, "POOL_SIMPLE"
-	, "POOL_GROUND"
-	, "POOL_FULLBRIGHT"
-	, "POOL_BUMP"
-	, "POOL_MATERIALS"
-	, "POOL_TERRAIN"
-	, "POOL_SKY"
-	, "POOL_WL_SKY"
-	, "POOL_TREE"
-	, "POOL_ALPHA_MASK"
-	, "POOL_FULLBRIGHT_ALPHA_MASK"
-	, "POOL_GRASS"
-	, "POOL_INVISIBLE"
-	, "POOL_AVATAR"
-	, "POOL_CONTROL_AV" // Animesh
-	, "POOL_VOIDWATER"
-	, "POOL_WATER"
-	, "POOL_GLOW"
-	, "POOL_ALPHA"
-	, "POOL_PBR_OPAQUE"
-};
-#endif
 
 void drawBox(const LLVector4a& c, const LLVector4a& r);
 void drawBoxOutline(const LLVector3& pos, const LLVector3& size);
@@ -397,21 +370,6 @@ LLPipeline::LLPipeline() :
 	mGroupQ2Locked(false),
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
-	mAlphaPool(NULL),
-	mSkyPool(NULL),
-	mTerrainPool(NULL),
-	mWaterPool(NULL),
-	mGroundPool(NULL),
-	mSimplePool(NULL),
-	mGrassPool(NULL),
-	mAlphaMaskPool(NULL),
-	mFullbrightAlphaMaskPool(NULL),
-	mFullbrightPool(NULL),
-	mInvisiblePool(NULL),
-	mGlowPool(NULL),
-	mBumpPool(NULL),
-	mMaterialsPool(NULL),
-	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
 	mLightingDetail(0)
@@ -463,7 +421,8 @@ void LLPipeline::init()
     LL_WARNS() << "No GL errors yet. Pipeline initialization will continue." << LL_ENDL; // TODO: Remove after testing
 
 	//create render pass pools
-	getPool(LLDrawPool::POOL_ALPHA);
+	getPool(LLDrawPool::POOL_ALPHA_PRE_WATER);
+    getPool(LLDrawPool::POOL_ALPHA_POST_WATER);
 	getPool(LLDrawPool::POOL_SIMPLE);
 	getPool(LLDrawPool::POOL_ALPHA_MASK);
 	getPool(LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK);
@@ -671,8 +630,10 @@ void LLPipeline::cleanup()
 		LL_WARNS() << "Tree Pools not cleaned up" << LL_ENDL;
 	}
 		
-	delete mAlphaPool;
-	mAlphaPool = NULL;
+	delete mAlphaPoolPreWater;
+    mAlphaPoolPreWater = nullptr;
+    delete mAlphaPoolPostWater;
+    mAlphaPoolPostWater = nullptr;
 	delete mSkyPool;
 	mSkyPool = NULL;
 	delete mTerrainPool;
@@ -1589,9 +1550,12 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 	case LLDrawPool::POOL_MATERIALS:
 		poolp = mMaterialsPool;
 		break;
-	case LLDrawPool::POOL_ALPHA:
-		poolp = mAlphaPool;
+	case LLDrawPool::POOL_ALPHA_PRE_WATER:
+		poolp = mAlphaPoolPreWater;
 		break;
+    case LLDrawPool::POOL_ALPHA_POST_WATER:
+        poolp = mAlphaPoolPostWater;
+        break;
 
 	case LLDrawPool::POOL_AVATAR:
 	case LLDrawPool::POOL_CONTROL_AV:
@@ -5733,17 +5697,28 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 			mMaterialsPool = new_poolp;
 		}
 		break;
-	case LLDrawPool::POOL_ALPHA:
-		if( mAlphaPool )
+	case LLDrawPool::POOL_ALPHA_PRE_WATER:
+		if( mAlphaPoolPreWater )
 		{
 			llassert(0);
-			LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate Alpha pool" << LL_ENDL;
+			LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate Alpha pre-water pool" << LL_ENDL;
 		}
 		else
 		{
-			mAlphaPool = (LLDrawPoolAlpha*) new_poolp;
+			mAlphaPoolPreWater = (LLDrawPoolAlpha*) new_poolp;
 		}
 		break;
+    case LLDrawPool::POOL_ALPHA_POST_WATER:
+        if (mAlphaPoolPostWater)
+        {
+            llassert(0);
+            LL_WARNS() << "LLPipeline::addPool(): Ignoring duplicate Alpha post-water pool" << LL_ENDL;
+        }
+        else
+        {
+            mAlphaPoolPostWater = (LLDrawPoolAlpha*)new_poolp;
+        }
+        break;
 
 	case LLDrawPool::POOL_AVATAR:
 	case LLDrawPool::POOL_CONTROL_AV:
@@ -5901,10 +5876,15 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 		mMaterialsPool = NULL;
 		break;
 			
-	case LLDrawPool::POOL_ALPHA:
-		llassert( poolp == mAlphaPool );
-		mAlphaPool = NULL;
+	case LLDrawPool::POOL_ALPHA_PRE_WATER:
+		llassert( poolp == mAlphaPoolPreWater );
+		mAlphaPoolPreWater = nullptr;
 		break;
+    
+    case LLDrawPool::POOL_ALPHA_POST_WATER:
+        llassert(poolp == mAlphaPoolPostWater);
+        mAlphaPoolPostWater = nullptr;
+        break;
 
 	case LLDrawPool::POOL_AVATAR:
 	case LLDrawPool::POOL_CONTROL_AV:
@@ -9078,6 +9058,8 @@ void LLPipeline::renderDeferredLighting()
 
         pushRenderTypeMask();
         andRenderTypeMask(LLPipeline::RENDER_TYPE_ALPHA,
+                          LLPipeline::RENDER_TYPE_ALPHA_PRE_WATER,
+                          LLPipeline::RENDER_TYPE_ALPHA_POST_WATER,
                           LLPipeline::RENDER_TYPE_FULLBRIGHT,
                           LLPipeline::RENDER_TYPE_VOLUME,
                           LLPipeline::RENDER_TYPE_GLOW,
@@ -10296,6 +10278,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	pushRenderTypeMask();
 	andRenderTypeMask(LLPipeline::RENDER_TYPE_SIMPLE,
 					LLPipeline::RENDER_TYPE_ALPHA,
+                    LLPipeline::RENDER_TYPE_ALPHA_PRE_WATER,
+                    LLPipeline::RENDER_TYPE_ALPHA_POST_WATER,
 					LLPipeline::RENDER_TYPE_GRASS,
 					LLPipeline::RENDER_TYPE_FULLBRIGHT,
 					LLPipeline::RENDER_TYPE_BUMP,

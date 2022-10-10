@@ -49,29 +49,32 @@ public:
 	{
 		// Correspond to LLPipeline render type
         // Also controls render order, so passes that don't use alpha masking/blending should come before
-        // other passes and occlusion culling should happen just before rendering alpha masked passes
-        // in order to take advantage of hierarchical Z
-        // NOTE: Keep in sync with gPoolNames
+        // other passes to preserve hierarchical Z for occlusion queries.  Occlusion queries happen just
+        // before grass, so grass should be the first alpha masked pool.  Other ordering should be done
+        // based on fill rate and likelihood to occlude future passes (faster, large occluders first).
+        //  
 		POOL_SIMPLE = 1,
 		POOL_GROUND,
 		POOL_FULLBRIGHT,
 		POOL_BUMP,
-		POOL_MATERIALS,
-		POOL_TERRAIN,	
-		POOL_SKY,
-		POOL_WL_SKY,
+		POOL_TERRAIN,
+        POOL_MATERIALS,
+        POOL_GRASS,
 		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
-		POOL_GRASS,
+        POOL_SKY,
+        POOL_WL_SKY,
 		POOL_INVISIBLE, // see below *
 		POOL_AVATAR,
 		POOL_CONTROL_AV, // Animesh
-		POOL_VOIDWATER,
-		POOL_WATER,
 		POOL_GLOW,
-		POOL_ALPHA,
+		POOL_ALPHA_PRE_WATER,
+        POOL_VOIDWATER,
+        POOL_WATER,
+        POOL_ALPHA_POST_WATER,
 		POOL_PBR_OPAQUE,
+        POOL_ALPHA, // note there is no actual "POOL_ALPHA" but pre-water and post-water pools consume POOL_ALPHA faces
 		NUM_POOL_TYPES,
 		// * invisiprims work by rendering to the depth buffer but not the color buffer, occluding anything rendered after them
 		// - and the LLDrawPool types enum controls what order things are rendered in

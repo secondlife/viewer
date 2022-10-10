@@ -237,6 +237,8 @@ public:
     void setDrawOrderIndex(U32 index) { mDrawOrderIndex = index; }
     U32 getDrawOrderIndex() const { return mDrawOrderIndex; }
 
+    // return true if this face is in an alpha draw pool
+    bool isInAlphaPool() const;
 public: //aligned members
 	LLVector4a		mExtents[2];
 

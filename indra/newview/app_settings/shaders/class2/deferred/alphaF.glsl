@@ -69,6 +69,8 @@ uniform vec3 light_direction[8];
 uniform vec4 light_attenuation[8]; 
 uniform vec3 light_diffuse[8];
 
+void waterClip(vec3 pos);
+
 #ifdef WATER_FOG
 vec4 applyWaterFogView(vec3 pos, vec4 color);
 #endif
@@ -181,6 +183,7 @@ void main()
     frag *= screen_res;
     
     vec4 pos = vec4(vary_position, 1.0);
+    waterClip(pos.xyz);
     vec3 norm = vary_norm;
 
     float shadow = 1.0f;
@@ -295,6 +298,7 @@ void main()
 
 #endif // #else // FOR_IMPOSTOR
 
+    //color.rgb = waterPlane.xyz * 0.5 + 0.5;
     frag_color = color;
 }
 

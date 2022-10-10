@@ -882,7 +882,7 @@ void LLDrawable::updateDistance(LLCamera& camera, bool force_update)
 				{
 					LLFace* facep = getFace(i);
 					if (facep && 
-						(force_update || facep->getPoolType() == LLDrawPool::POOL_ALPHA))
+						(force_update || facep->isInAlphaPool()))
 					{
 						LLVector4a box;
 						box.setSub(facep->mExtents[1], facep->mExtents[0]);

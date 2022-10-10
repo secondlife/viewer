@@ -84,6 +84,8 @@ float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv, 
         vec3 pos, vec3 norm, float glossiness);
 
+void waterClip(vec3 pos);
+
 // PBR interface
 vec3 pbrIbl(vec3 diffuseColor,
             vec3 specularColor,
@@ -139,6 +141,7 @@ void main()
     vec3  light_dir   = (sun_up_factor == 1) ? sun_dir : moon_dir;
     vec3  pos         = vary_position;
 
+    waterClip(pos);
 
 // IF .mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 //    vec3 col = vertex_color.rgb * diffuseLookup(vary_texcoord0.xy).rgb;

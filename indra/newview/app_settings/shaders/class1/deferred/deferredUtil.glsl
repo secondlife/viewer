@@ -505,3 +505,28 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 
     return color;
 }
+
+uniform vec4 waterPlane;
+uniform float waterSign;
+
+// discard if given position in eye space is on the wrong side of the waterPlane according to waterSign
+void waterClip(vec3 pos)
+{
+    // TODO: make this less branchy
+    if (waterSign > 0)
+    {
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) < -0.1)
+        {
+            discard;
+        }
+    }
+    else
+    {
+        if ((dot(pos.xyz, waterPlane.xyz) + waterPlane.w) > -0.1)
+        {
+            discard;
+        }
+    }
+
+}
+

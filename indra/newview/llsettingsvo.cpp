@@ -949,6 +949,8 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
 
         LLVector4 waterPlane(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
+        LLDrawPoolAlpha::sWaterPlane = waterPlane;
+
         shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, waterPlane.mV);
 
         LLVector4 light_direction = env.getClampedLightNorm();

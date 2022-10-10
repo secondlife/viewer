@@ -1924,6 +1924,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasTransport = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
             shader->mFeatures.hasReflectionProbes = true;
+            shader->mFeatures.hasWaterFog = true;
 
             if (mShaderLevel[SHADER_DEFERRED] < 1)
             {
