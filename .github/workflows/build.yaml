@@ -37,7 +37,7 @@ jobs:
           python-version: 3.x
       
       - name: Install autobuild 
-        run: pip install autobuild<4
+        run: pip install autobuild
 
       - uses: actions/cache@v3
         id: cache-installables
