@@ -5319,6 +5319,8 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		return;
 	}
 
+	LL_LABEL_VERTEX_BUFFER(facep->getVertexBuffer(), LLRenderPass::lookupPassName(type));
+
     U32 passType = type;
 
     bool rigged = facep->isState(LLFace::RIGGED);

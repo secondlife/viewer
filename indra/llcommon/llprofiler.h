@@ -153,11 +153,15 @@ extern thread_local bool gProfilerEnabled;
 // disable memory tracking (incompatible with GPU tracing
 #define LL_PROFILE_ALLOC(ptr, size)             (void)(ptr); (void)(size);
 #define LL_PROFILE_FREE(ptr)                    (void)(ptr);
+
+#define LL_LABEL_OBJECT_GL(type, name, length, label) glObjectLabel(type, name, length, label)
 #else
 #define LL_PROFILE_GPU_ZONE(name)        (void)name;
 #define LL_PROFILE_GPU_ZONEC(name,color) (void)name;(void)color;
 #define LL_PROFILER_GPU_COLLECT
 #define LL_PROFILER_GPU_CONTEXT
+
+#define LL_LABEL_OBJECT_GL(type, name, length, label)
 
 #if LL_PROFILER_CONFIG > 1
 #define LL_PROFILE_ALLOC(ptr, size)             TracyAlloc(ptr, size)
