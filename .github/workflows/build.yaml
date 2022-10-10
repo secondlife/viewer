@@ -35,22 +35,6 @@ jobs:
           ref: viewer
           path: .build-variables
       
-      - name: Install cygwin
-        if: runner.os == 'Windows'
-        uses: secondlife/setup-cygwin@v1
-
-      - name: Determine shell
-        id: shell
-        shell: bash
-        env:
-          WINDOWS: ${{ runner.os == 'Windows' }}
-        run: |
-          if [[ $WINDOWS == 'true' ]]; then
-            echo "::set-output name=shell::C:\cygwin64\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'"
-          else
-            echo '::set-output name=shell::bash'
-          fi
-      
       - name: Install autobuild 
         run: pip3 install autobuild
 
@@ -62,14 +46,15 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
       - name: Build
-        shell: ${{ steps.shell.outputs.shell }} 
+        shell: bash
         env:
-          WORKSPACE: ${{ github.workspace }}
+          WINDOWS: ${{ runner.os == 'Windows' }}
         run: |
-          cd "$WORKSPACE"
-
           autobuild --quiet source_environment > .env 
           source .env
+          if [[ "$WINDOWS" == "true" ]]; then
+            load_vsvars
+          fi
 
           autobuild configure
           autobuild build --no-configure
