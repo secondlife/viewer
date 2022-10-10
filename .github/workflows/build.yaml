@@ -30,7 +30,6 @@ jobs:
         with:
           repository: secondlife/build-variables
           ref: viewer
-          token: ${{ secrets.SHARED_GITHUB_TOKEN }}
           path: .build-variables
 
       - uses: actions/setup-python@v4
@@ -47,7 +46,7 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
       - name: Install autobuild packages 
-        run: autobuild install 
+        run: autobuild install -c ${{ matrix.configuration }}
 
       - name: Build
         run: |
