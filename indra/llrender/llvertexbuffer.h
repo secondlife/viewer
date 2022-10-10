@@ -300,6 +300,9 @@ public:
 	//for debugging, validate data in given range is valid
 	void validateRange(U32 start, U32 end, U32 count, U32 offset) const;
 
+	#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+	void setLabel(const char* label);
+	#endif
 	
 
 protected:	
@@ -369,6 +372,12 @@ public:
 	static U32 sBindCount;
 	static U32 sSetCount;
 };
+
+#ifdef LL_PROFILER_ENABLE_TRACY_OPENGL
+#define LL_LABEL_VERTEX_BUFFER(buf, name) buf->setLabel(name)
+#else
+#define LL_LABEL_VERTEX_BUFFER(buf, name)
+#endif
 
 
 #endif // LL_LLVERTEXBUFFER_H
