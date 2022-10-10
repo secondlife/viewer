@@ -24,31 +24,32 @@ jobs:
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - uses: actions/checkout@v3
+      - name: Checkout build variables
+        uses: actions/checkout@v3
         with:
           repository: secondlife/build-variables
           ref: viewer
           path: .build-variables
 
-      - uses: actions/setup-python@v4
+      - name: Install python 
+        uses: actions/setup-python@v4
         with:
           python-version: 3.x
       
       - name: Install autobuild 
         run: pip install autobuild
 
-      - uses: actions/cache@v3
+      - name: Cache autobuild packages
+        uses: actions/cache@v3
         id: cache-installables
         with:
           path: .autobuild-installables
           key: ${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
-      - name: Install autobuild packages 
-        run: autobuild install -c ${{ matrix.configuration }}
-
       - name: Build
         run: |
-          autobuild configure -c ${{ matrix.configuration }}
+          autobuild configure
           autobuild build --no-configure
