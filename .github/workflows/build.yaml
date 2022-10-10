@@ -23,6 +23,7 @@ jobs:
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
       AUTOBUILD_INSTALLABLE_CACHE: ${{ github.workspace }}/.autobuild-installables
       AUTOBUILD_VARIABLES_FILE: ${{ github.workspace }}/.build-variables/variables
+      AUTOBUILD_VSVER: "170"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
