@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-2022, macos-11]
+        os: [windows-2022]
         configuration: [RelWithDebInfoOS]
         addrsize: [64]
         include:
