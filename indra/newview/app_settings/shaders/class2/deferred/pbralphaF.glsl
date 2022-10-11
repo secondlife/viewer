@@ -126,7 +126,12 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-        vec3 intensity = dist_atten * lightColor * 3.0;
+        // spotlight coefficient.
+        float spot = max(dot(-ld, lv), is_pointlight);
+        // spot*spot => GL_SPOT_EXPONENT=2
+        float spot_atten = spot*spot;
+
+        vec3 intensity = spot_atten * dist_atten * lightColor * 3.0;
 
         color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
     }
