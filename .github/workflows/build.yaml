@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-2022]
+        os: [windows-2022, macos-11]
         configuration: [RelWithDebInfoOS]
         addrsize: [64]
         include:
@@ -48,5 +48,6 @@ jobs:
       - name: Build
         shell: bash
         run: |
+          pip install llsd # Required by viewer tests
           autobuild configure
           autobuild build --no-configure
