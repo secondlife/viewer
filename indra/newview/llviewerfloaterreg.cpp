@@ -176,11 +176,11 @@ public:
 	// requires trusted browser to trigger or an explicit click
 	LLFloaterOpenHandler() : LLCommandHandler("openfloater", UNTRUSTED_THROTTLE) { }
 
-    virtual bool canHandleUntrusted(
+    bool canHandleUntrusted(
         const LLSD& params,
         const LLSD& query_map,
         LLMediaCtrl* web,
-        const std::string& nav_type)
+        const std::string& nav_type) override
     {
         if (params.size() != 1)
         {
