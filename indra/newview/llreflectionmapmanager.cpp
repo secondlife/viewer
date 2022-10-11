@@ -41,10 +41,13 @@ extern BOOL gTeleportDisplay;
 
 LLReflectionMapManager::LLReflectionMapManager()
 {
-    for (int i = 0; i < LL_MAX_REFLECTION_PROBE_COUNT; ++i)
+    for (int i = 1; i < LL_MAX_REFLECTION_PROBE_COUNT; ++i)
     {
         mCubeFree[i] = true;
     }
+
+    // cube index 0 is reserved for the fallback probe
+    mCubeFree[0] = false;
 }
 
 struct CompareReflectionMapDistance
@@ -102,6 +105,15 @@ void LLReflectionMapManager::update()
     }
 
 
+    if (mDefaultProbe.isNull())
+    {
+        mDefaultProbe = addProbe();
+        mDefaultProbe->mDistance = -4096.f; // hack to make sure the default probe is always first in sort order
+        mDefaultProbe->mRadius = 4096.f;
+    }
+
+    mDefaultProbe->mOrigin.load3(LLViewerCamera::getInstance()->getOrigin().mV);
+    
     LLVector4a camera_pos;
     camera_pos.load3(LLViewerCamera::instance().getOrigin().mV);
 
@@ -174,8 +186,11 @@ void LLReflectionMapManager::update()
             closestDynamic = probe;
         }
 
-        d.setSub(camera_pos, probe->mOrigin);
-        probe->mDistance = d.getLength3().getF32()-probe->mRadius;
+        if (probe != mDefaultProbe)
+        {
+            d.setSub(camera_pos, probe->mOrigin);
+            probe->mDistance = d.getLength3().getF32() - probe->mRadius;
+        }
     }
 
     if (realtime && closestDynamic != nullptr)
@@ -196,7 +211,8 @@ void LLReflectionMapManager::update()
         if (probe->mCubeIndex == -1)
         {
             probe->mCubeArray = mTexture;
-            probe->mCubeIndex = allocateCubeIndex();
+
+            probe->mCubeIndex = probe == mDefaultProbe ? 0 : allocateCubeIndex();
         }
 
         probe->autoAdjustOrigin();
@@ -346,6 +362,8 @@ void LLReflectionMapManager::deleteProbe(U32 i)
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
     LLReflectionMap* probe = mProbes[i];
 
+    llassert(probe != mDefaultProbe);
+
     if (probe->mCubeIndex != -1)
     { // mark the cube index used by this probe as being free
         mCubeFree[probe->mCubeIndex] = true;
@@ -429,7 +447,6 @@ void LLReflectionMapManager::updateProbeFace(LLReflectionMap* probe, U32 face)
         {
             LL_PROFILE_GPU_ZONE("probe mip");
             mMipChain[i].bindTarget();
-
             if (i == 0)
             {
                 
@@ -607,6 +624,10 @@ void LLReflectionMapManager::shift(const LLVector4a& offset)
 void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
 {
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DISPLAY;
+    if (mDefaultProbe == probe)
+    {
+        return;
+    }
 
     //remove from existing neighbors
     {
@@ -627,7 +648,7 @@ void LLReflectionMapManager::updateNeighbors(LLReflectionMap* probe)
         LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("rmmun - search");
         for (auto& other : mProbes)
         {
-            if (other != probe)
+            if (other != mDefaultProbe && other != probe)
             {
                 if (probe->intersects(other))
                 {

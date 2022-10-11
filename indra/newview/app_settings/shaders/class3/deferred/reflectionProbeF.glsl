@@ -114,8 +114,7 @@ bool shouldSampleProbe(int i, vec3 pos)
 void preProbeSample(vec3 pos)
 {
     // TODO: make some sort of structure that reduces the number of distance checks
-
-    for (int i = 0; i < refmapCount; ++i)
+    for (int i = 1; i < refmapCount; ++i)
     {
         // found an influencing probe
         if (shouldSampleProbe(i, pos))
@@ -199,6 +198,12 @@ void preProbeSample(vec3 pos)
                 return;
             }
         }
+    }
+
+    if (probeInfluences == 0)
+    { // probe at index 0 is a special fallback probe
+        probeIndex[0] = 0;
+        probeInfluences = 1;
     }
 }
 
@@ -316,7 +321,7 @@ vec3 boxIntersect(vec3 origin, vec3 dir, int i)
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-vec3 tapRefMap(vec3 pos, vec3 dir, out vec3 vi, out vec3 wi, float lod, vec3 c, float r2, int i)
+vec3 tapRefMap(vec3 pos, vec3 dir, out float w, out vec3 vi, out vec3 wi, float lod, vec3 c, int i)
 {
     //lod = max(lod, 1);
     // parallax adjustment
@@ -326,10 +331,26 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out vec3 vi, out vec3 wi, float lod, vec3 c, 
     if (refIndex[i].w < 0)
     {
         v = boxIntersect(pos, dir, i);
+        w = 1.0;
     }
     else
     {
-        v = sphereIntersect(pos, dir, c, r2);
+        float r = refSphere[i].w; // radius of sphere volume
+        float rr = r * r; // radius squared
+
+        v = sphereIntersect(pos, dir, c, rr);
+
+        float p = float(abs(refIndex[i].w)); // priority
+ 
+        float r1 = r * 0.1; // 90% of radius (outer sphere to start interpolating down)
+        vec3 delta = pos.xyz - refSphere[i].xyz;
+        float d2 = max(dot(delta, delta), 0.001);
+        float r2 = r1 * r1;
+
+        float atten = 1.0 - max(d2 - r2, 0.0) / max((rr - r2), 0.001);
+
+        w = 1.0 / d2;
+        w *= atten;
     }
 
     vi = v;
@@ -352,19 +373,32 @@ vec3 tapRefMap(vec3 pos, vec3 dir, out vec3 vi, out vec3 wi, float lod, vec3 c, 
 // c - center of probe
 // r2 - radius of probe squared
 // i - index of probe 
-vec3 tapIrradianceMap(vec3 pos, vec3 dir, vec3 c, float r2, int i)
+vec3 tapIrradianceMap(vec3 pos, vec3 dir, out float w, vec3 c, int i)
 {
-    //lod = max(lod, 1);
     // parallax adjustment
-
     vec3 v;
     if (refIndex[i].w < 0)
     {
         v = boxIntersect(pos, dir, i);
+        w = 1.0;
     }
     else
     {
-        v = sphereIntersect(pos, dir, c, r2);
+        float r = refSphere[i].w; // radius of sphere volume
+        float p = float(abs(refIndex[i].w)); // priority
+        float rr = r * r; // radius squred
+
+        v = sphereIntersect(pos, dir, c, rr);
+
+        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
+        vec3 delta = pos.xyz - refSphere[i].xyz;
+        float d2 = dot(delta, delta);
+        float r2 = r1 * r1;
+
+        w = 1.0 / d2;
+
+        float atten = 1.0 - max(d2 - r2, 0.0) / (rr - r2);
+        w *= atten;
     }
 
     v -= c;
@@ -387,26 +421,17 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
         {
             continue;
         }
-        float r = refSphere[i].w; // radius of sphere volume
-        float p = float(abs(refIndex[i].w)); // priority
-        
-        float rr = r*r; // radius squred
-        float r1 = r * 0.1; // 90% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz-refSphere[i].xyz;
-        float d2 = dot(delta,delta);
-        float r2 = r1*r1; 
+
+        float w;
+        vec3 vi, wi;
+        vec3 refcol;
+
         
         {
-            vec3 vi, wi;
-
-            float atten = 1.0 - max(d2 - r2, 0.0) / (rr - r2);
-            float w;
-            vec3 refcol;
-
             if (errorCorrect && refIndex[i].w >= 0)
             { // error correction is on and this probe is a sphere
               //take a sample to get depth value, then error correct
-                refcol = tapRefMap(pos, dir, vi, wi, abs(lod + 2), refSphere[i].xyz, rr, i);
+                refcol = tapRefMap(pos, dir, w, vi, wi, abs(lod + 2), refSphere[i].xyz, i);
 
                 //adjust lookup by distance result
                 float d = length(vi - wi);
@@ -425,40 +450,12 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
             }
             else
             {
-                w = 1.0 / d2;
-                refcol = tapRefMap(pos, dir, vi, wi, lod, refSphere[i].xyz, rr, i);
+                refcol = tapRefMap(pos, dir, w, vi, wi, lod, refSphere[i].xyz, i);
             }
 
-            w *= atten;
-
-            //w *= p; // boost weight based on priority
             col += refcol.rgb*w;
 
             wsum += w;
-        }
-    }
-
-    if (probeInfluences < 1)
-    { //edge-of-scene probe or no probe influence, mix in with embiggened version of probes closest to camera 
-        for (int idx = 0; idx < 8; ++idx)
-        {
-            if (refIndex[idx].w < 0)
-            { // don't fallback to box probes, they are *very* specific
-                continue;
-            }
-            int i = idx;
-            vec3 delta = pos.xyz-refSphere[i].xyz;
-            float d2 = dot(delta,delta);
-            
-            {
-                vec3 vi, wi;
-                vec3 refcol = tapRefMap(pos, dir, vi, wi, lod, refSphere[i].xyz, d2, i);
-
-                float w = 1.0/d2;
-                w *= w;
-                col += refcol.rgb*w;
-                wsum += w;
-            }
         }
     }
 
@@ -487,49 +484,14 @@ vec3 sampleProbeAmbient(vec3 pos, vec3 dir)
         {
             continue;
         }
-        float r = refSphere[i].w; // radius of sphere volume
-        float p = float(abs(refIndex[i].w)); // priority
-        
-        float rr = r*r; // radius squred
-        float r1 = r * 0.1; // 75% of radius (outer sphere to start interpolating down)
-        vec3 delta = pos.xyz-refSphere[i].xyz;
-        float d2 = dot(delta,delta);
-        float r2 = r1*r1; 
         
         {
-            vec3 refcol = tapIrradianceMap(pos, dir, refSphere[i].xyz, rr, i);
-            
-            float w = 1.0/d2;
+            float w;
+            vec3 refcol = tapIrradianceMap(pos, dir, w, refSphere[i].xyz, i);
 
-            float atten = 1.0-max(d2-r2, 0.0)/(rr-r2);
-            w *= atten;
-            //w *= p; // boost weight based on priority
             col += refcol*w;
             
             wsum += w;
-        }
-    }
-
-    if (probeInfluences <= 1)
-    { //edge-of-scene probe or no probe influence, mix in with embiggened version of probes closest to camera 
-        for (int idx = 0; idx < 8; ++idx)
-        {
-            if (refIndex[idx].w < 0)
-            { // don't fallback to box probes, they are *very* specific
-                continue;
-            }
-            int i = idx;
-            vec3 delta = pos.xyz-refSphere[i].xyz;
-            float d2 = dot(delta,delta);
-            
-            {
-                vec3 refcol = tapIrradianceMap(pos, dir, refSphere[i].xyz, d2, i);
-                
-                float w = 1.0/d2;
-                w *= w;
-                col += refcol*w;
-                wsum += w;
-            }
         }
     }
 
