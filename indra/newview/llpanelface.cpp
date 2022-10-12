@@ -125,12 +125,12 @@ LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
     if (mComboMatMedia)
     {
         U32 matmedia_selection = mComboMatMedia->getCurrentIndex();
-        if (matmedia_selection = MATMEDIA_MATERIAL)
+        if (matmedia_selection == MATMEDIA_MATERIAL)
         {
             LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
             channel_to_edit = (LLRender::eTexIndex)radio_mat_type->getSelectedIndex();
         }
-        if (matmedia_selection = MATMEDIA_PBR)
+        if (matmedia_selection == MATMEDIA_PBR)
         {
             LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_pbr_type");
             channel_to_edit = (LLRender::eTexIndex)radio_mat_type->getSelectedIndex();
