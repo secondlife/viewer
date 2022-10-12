@@ -200,7 +200,7 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     , mHasUnsavedChanges(false)
     , mExpectedUploadCost(0)
     , mUploadingTexturesCount(0)
-    , mOverrideObjectId(LLUUID::null)
+    , mOverrideLocalId(0)
     , mOverrideFace(0)
 {
     const LLInventoryItem* item = getItem();
@@ -2259,7 +2259,7 @@ void LLMaterialEditor::modifyMaterialCoro(std::string cap_url, LLSD overrides)
 
     httpOpts->setFollowRedirects(true);
     LLSD body = llsd::map(
-        "local_id", mOverrideObjectId,
+        "local_id", S32(mOverrideLocalId),
         "face", mOverrideFace,
         "overrides", overrides
     );
@@ -2279,8 +2279,8 @@ void LLMaterialEditor::modifyMaterialCoro(std::string cap_url, LLSD overrides)
     }
 }
 
-void LLMaterialEditor::setOverrideTarget(const LLUUID& object_id, S32 face)
+void LLMaterialEditor::setOverrideTarget(U32 local_id, S32 face)
 {
-    mOverrideObjectId = object_id;
+    mOverrideLocalId = local_id;
     mOverrideFace = face;
 }

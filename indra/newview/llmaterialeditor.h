@@ -217,7 +217,7 @@ public:
     void loadDefaults();
 
     void modifyMaterialCoro(std::string cap_url, LLSD overrides);
-    void setOverrideTarget(const LLUUID& object_id, S32 face_id);
+    void setOverrideTarget(U32 local_id, S32 face_id);
 
 private:
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
@@ -269,7 +269,7 @@ private:
     std::string mMaterialNameShort;
     std::string mMaterialName;
 
-    LLUUID mOverrideObjectId;
+    U32 mOverrideLocalId;
     S32 mOverrideFace;
 };
 

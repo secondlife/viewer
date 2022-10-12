@@ -4603,7 +4603,7 @@ void LLPanelFace::onPbrStartEditing() {
         editor->setTitle("Editing material on "s + object_id.asString());
         editor->setAssetId(material_id);
         editor->setFromGLTFMaterial(material);
-        editor->setOverrideTarget(object_id, face);
+        editor->setOverrideTarget(objectp->getLocalID(), face);
     }
 }
 
