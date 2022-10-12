@@ -10,11 +10,11 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-2022-public-003]
+        runner: [windows-2022, macos-11]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
-          - runner: windows-2022-public-003
+          - runner: windows-2022
             configuration: ReleaseOS
             addrsize: 32
     runs-on: ${{ matrix.runner }}
@@ -52,15 +52,19 @@ jobs:
       - name: Build
         id: build
         shell: bash
+        env:
+          RUNNER_OS: ${{ runner.os }}
         run: |
           pip install llsd # Required by viewer tests
           autobuild configure
           autobuild build --no-configure
 
-          installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
-          installer_name="$(basename $installer_path)"
-          echo "::set-output name=installer_path::$installer_path"
-          echo "::set-output name=installer_name::$installer_name"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
+            installer_name="$(basename $installer_path)"
+            echo "::set-output name=installer_path::$installer_path"
+            echo "::set-output name=installer_name::$installer_name"
+          fi
       
       - name: Upload installer
         if: runner.os == 'Windows'
