@@ -118,6 +118,11 @@ public:
         mVector3s.push_back({ index, value });
     }
 
+    void uniform3fv(S32 index, const F32* value)
+    {
+        mVector3s.push_back({ index, LLVector3(value) });
+    }
+
     void apply(LLGLSLShader* shader);
    
 

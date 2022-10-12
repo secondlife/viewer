@@ -32,18 +32,18 @@ ATTRIBUTE vec3 position;
 ///////////////////////////////////////////////////////////////////////////////
 
 // Output parameters
-VARYING vec4 vary_HazeColor;
+VARYING vec3 vary_HazeColor;
 
 // Inputs
 uniform vec3 camPosLocal;
 
-uniform vec4  lightnorm;
-uniform vec4  sunlight_color;
-uniform vec4  moonlight_color;
+uniform vec3  lightnorm;
+uniform vec3  sunlight_color;
+uniform vec3  moonlight_color;
 uniform int   sun_up_factor;
-uniform vec4  ambient_color;
-uniform vec4  blue_horizon;
-uniform vec4  blue_density;
+uniform vec3  ambient_color;
+uniform vec3  blue_horizon;
+uniform vec3  blue_density;
 uniform float haze_horizon;
 uniform float haze_density;
 
@@ -52,7 +52,7 @@ uniform float density_multiplier;
 uniform float distance_multiplier;
 uniform float max_y;
 
-uniform vec4  glow;
+uniform vec3  glow;
 uniform float sun_moon_glow_factor;
 
 void main()
@@ -81,17 +81,17 @@ void main()
     float rel_pos_len = length(rel_pos);
 
     // Initialize temp variables
-    vec4 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
-    vec4 light_atten;
+    vec3 sunlight = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+    vec3 light_atten;
 
     // Sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
-    light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+    light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
 
     // Calculate relative weights
-    vec4 combined_haze = abs(blue_density) + vec4(abs(haze_density));
-    vec4 blue_weight   = blue_density / combined_haze;
-    vec4 haze_weight   = haze_density / combined_haze;
+    vec3 combined_haze = abs(blue_density) + vec3(abs(haze_density));
+    vec3 blue_weight   = blue_density / combined_haze;
+    vec3 haze_weight   = haze_density / combined_haze;
 
     // Compute sunlight from rel_pos & lightnorm (for long rays like sky)
     float off_axis = 1.0 / max(1e-6, max(0., rel_pos_norm.y) + lightnorm.y);
@@ -119,21 +119,21 @@ void main()
     // For sun, add to glow.  For moon, remove glow entirely. SL-13768
     haze_glow = (sun_moon_glow_factor < 1.0) ? 0.0 : (haze_glow + 0.25);
 
-    vec4 color =
+    vec3 color =
         (blue_horizon * blue_weight * (sunlight + ambient_color) + (haze_horizon * haze_weight) * (sunlight * haze_glow + ambient_color));
 
     // Final atmosphere additive
     color *= (1. - combined_haze);
 
     // Increase ambient when there are more clouds
-    vec4 tmpAmbient = ambient_color;
-    tmpAmbient += max(vec4(0), (1. - ambient_color)) * cloud_shadow * 0.5;
+    vec3 tmpAmbient = ambient_color;
+    tmpAmbient += max(vec3(0), (1. - ambient_color)) * cloud_shadow * 0.5;
 
     // Dim sunlight by cloud shadow percentage
     sunlight *= max(0.0, (1. - cloud_shadow));
 
     // Haze color below cloud
-    vec4 additiveColorBelowCloud =
+    vec3 additiveColorBelowCloud =
         (blue_horizon * blue_weight * (sunlight + tmpAmbient) + (haze_horizon * haze_weight) * (sunlight * haze_glow + tmpAmbient));
 
     // Attenuate cloud color by atmosphere

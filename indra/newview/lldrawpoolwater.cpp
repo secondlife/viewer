@@ -670,7 +670,7 @@ void LLDrawPoolWater::renderWater()
         shader->uniform1i(LLShaderMgr::WATER_EDGE_FACTOR, edge ? 1 : 0);
 
         LLVector4 rotated_light_direction = LLEnvironment::instance().getRotatedLightNorm();
-        shader->uniform4fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
+        shader->uniform3fv(LLViewerShaderMgr::LIGHTNORM, 1, rotated_light_direction.mV);
         shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()->getOrigin().mV);
 
         if (LLViewerCamera::getInstance()->cameraUnderWater())

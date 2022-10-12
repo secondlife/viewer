@@ -23,17 +23,17 @@
  * $/LicenseInfo$
  */
 
-uniform vec4  lightnorm;
-uniform vec4  sunlight_color;
+uniform vec3  lightnorm;
+uniform vec3  sunlight_color;
 uniform vec3 sunlight_linear;
-uniform vec4  moonlight_color;
+uniform vec3  moonlight_color;
 uniform vec3 moonlight_linear;
 uniform int   sun_up_factor;
-uniform vec4  ambient_color;
+uniform vec3  ambient_color;
 uniform vec3 ambient_linear;
-uniform vec4  blue_horizon;
+uniform vec3  blue_horizon;
 uniform vec3 blue_horizon_linear;
-uniform vec4  blue_density;
+uniform vec3  blue_density;
 uniform vec3 blue_density_linear;
 uniform float haze_horizon;
 uniform float haze_density;
@@ -42,7 +42,7 @@ uniform float cloud_shadow;
 uniform float density_multiplier;
 uniform float distance_multiplier;
 uniform float max_y;
-uniform vec4  glow;
+uniform vec3  glow;
 uniform float scene_light_strength;
 uniform mat3  ssao_effect_mat;
 uniform int   no_atmo;
@@ -63,17 +63,17 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    vec4  sunlight     = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
+    vec3  sunlight     = (sun_up_factor == 1) ? sunlight_color : moonlight_color;
 
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
-    vec4 light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+    vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
     // I had thought blue_density and haze_density should have equal weighting,
     // but attenuation due to haze_density tends to seem too strong
 
-    vec4 combined_haze = blue_density + vec4(haze_density);
-    vec4 blue_weight   = blue_density / combined_haze;
-    vec4 haze_weight   = vec4(haze_density) / combined_haze;
+    vec3 combined_haze = blue_density + vec3(haze_density);
+    vec3 blue_weight   = blue_density / combined_haze;
+    vec3 haze_weight   = vec3(haze_density) / combined_haze;
 
     //(TERRAIN) compute sunlight from lightnorm y component. Factor is roughly cosecant(sun elevation) (for short rays like terrain)
     float above_horizon_factor = 1.0 / max(1e-6, lightnorm.y);
@@ -111,10 +111,10 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
 
     haze_glow *= sun_moon_glow_factor;
 
-    vec4 amb_color = ambient_color;
+    vec3 amb_color = ambient_color;
 
     // increase ambient when there are more clouds
-    vec4 tmpAmbient = amb_color + (vec4(1.) - amb_color) * cloud_shadow * 0.5;
+    vec3 tmpAmbient = amb_color + (vec3(1.) - amb_color) * cloud_shadow * 0.5;
 
     /*  decrease value and saturation (that in HSV, not HSL) for occluded areas
      * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
@@ -127,7 +127,7 @@ void calcAtmosphericVars(vec3 inPositionEye, vec3 light_dir, float ambFactor, ou
      */
     if (use_ao)
     {
-        tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
+        tmpAmbient = mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor);
     }
 
     // Similar/Shared Algorithms:
@@ -179,17 +179,17 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 
     vec3  rel_pos_norm = normalize(rel_pos);
     float rel_pos_len  = length(rel_pos);
-    vec4  sunlight     = (sun_up_factor == 1) ? vec4(sunlight_linear, 0.0) : vec4(moonlight_linear, 0.0);
+    vec3  sunlight     = (sun_up_factor == 1) ? vec3(sunlight_linear, 0.0) : vec3(moonlight_linear, 0.0);
 
     // sunlight attenuation effect (hue and brightness) due to atmosphere
     // this is used later for sunlight modulation at various altitudes
-    vec4 light_atten = (blue_density + vec4(haze_density * 0.25)) * (density_multiplier * max_y);
+    vec3 light_atten = (blue_density + vec3(haze_density * 0.25)) * (density_multiplier * max_y);
     // I had thought blue_density and haze_density should have equal weighting,
     // but attenuation due to haze_density tends to seem too strong
 
-    vec4 combined_haze = blue_density + vec4(haze_density);
-    vec4 blue_weight   = blue_density / combined_haze;
-    vec4 haze_weight   = vec4(haze_density) / combined_haze;
+    vec3 combined_haze = blue_density + vec3(haze_density);
+    vec3 blue_weight   = blue_density / combined_haze;
+    vec3 haze_weight   = vec3(haze_density) / combined_haze;
 
     //(TERRAIN) compute sunlight from lightnorm y component. Factor is roughly cosecant(sun elevation) (for short rays like terrain)
     float above_horizon_factor = 1.0 / max(1e-6, lightnorm.y);
@@ -227,11 +227,11 @@ void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, ou
 
     haze_glow *= sun_moon_glow_factor;
 
-    //vec4 amb_color = vec4(ambient_linear, 0.0);
-    vec4 amb_color = ambient_color;
+    //vec3 amb_color = vec4(ambient_linear, 0.0);
+    vec3 amb_color = ambient_color;
 
     // increase ambient when there are more clouds
-    vec4 tmpAmbient = amb_color + (vec4(1.) - amb_color) * cloud_shadow * 0.5;
+    vec3 tmpAmbient = amb_color + (vec3(1.) - amb_color) * cloud_shadow * 0.5;
 
     // Similar/Shared Algorithms:
     //     indra\llinventory\llsettingssky.cpp                                        -- LLSettingsSky::calculateLightSettings()

@@ -34,8 +34,7 @@ out vec4 frag_color;
 #endif
 
 uniform vec4 color;
-uniform vec4 sunlight_color;
-uniform vec4 moonlight_color;
+uniform vec3 moonlight_color;
 uniform vec3 moon_dir;
 uniform float moon_brightness;
 uniform sampler2D diffuseMap;

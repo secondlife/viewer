@@ -35,15 +35,15 @@ out vec4 frag_color;
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-VARYING vec4 vary_CloudColorSun;
-VARYING vec4 vary_CloudColorAmbient;
+VARYING vec3 vary_CloudColorSun;
+VARYING vec3 vary_CloudColorAmbient;
 VARYING float vary_CloudDensity;
 
 uniform sampler2D cloud_noise_texture;
 uniform sampler2D cloud_noise_texture_next;
 uniform float blend_factor;
-uniform vec4 cloud_pos_density1;
-uniform vec4 cloud_pos_density2;
+uniform vec3 cloud_pos_density1;
+uniform vec3 cloud_pos_density2;
 uniform float cloud_scale;
 uniform float cloud_variance;
 
@@ -70,8 +70,8 @@ void main()
     vec2 uv1 = vary_texcoord0.xy;
     vec2 uv2 = vary_texcoord1.xy;
 
-    vec4 cloudColorSun = vary_CloudColorSun;
-    vec4 cloudColorAmbient = vary_CloudColorAmbient;
+    vec3 cloudColorSun = vary_CloudColorSun;
+    vec3 cloudColorAmbient = vary_CloudColorAmbient;
     float cloudDensity = vary_CloudDensity;
     vec2 uv3 = vary_texcoord2.xy;
     vec2 uv4 = vary_texcoord3.xy;
@@ -120,7 +120,7 @@ void main()
     alpha2 = 1. - alpha2 * alpha2;  
 
     // Combine
-    vec4 color;
+    vec3 color;
     color = (cloudColorSun*(1.-alpha2) + cloudColorAmbient);
     color.rgb *= 2.;
     color.rgb = scaleSoftClip(color.rgb);
