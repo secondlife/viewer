@@ -119,10 +119,23 @@ std::string USE_TEXTURE;
 
 LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 {
-	LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
 
-	LLRender::eTexIndex channel_to_edit = (mComboMatMedia && mComboMatMedia->getCurrentIndex() == MATMEDIA_MATERIAL) ?
-	                                                    (radio_mat_type ? (LLRender::eTexIndex)radio_mat_type->getSelectedIndex() : LLRender::DIFFUSE_MAP) : LLRender::DIFFUSE_MAP;
+
+    LLRender::eTexIndex channel_to_edit = LLRender::DIFFUSE_MAP;
+    if (mComboMatMedia)
+    {
+        U32 matmedia_selection = mComboMatMedia->getCurrentIndex();
+        if (matmedia_selection == MATMEDIA_MATERIAL)
+        {
+            LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_material_type");
+            channel_to_edit = (LLRender::eTexIndex)radio_mat_type->getSelectedIndex();
+        }
+        if (matmedia_selection == MATMEDIA_PBR)
+        {
+            LLRadioGroup* radio_mat_type = getChild<LLRadioGroup>("radio_pbr_type");
+            channel_to_edit = (LLRender::eTexIndex)radio_mat_type->getSelectedIndex();
+        }
+    }
 
 	channel_to_edit = (channel_to_edit == LLRender::NORMAL_MAP)		? (getCurrentNormalMap().isNull()		? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
 	channel_to_edit = (channel_to_edit == LLRender::SPECULAR_MAP)	? (getCurrentSpecularMap().isNull()		? LLRender::DIFFUSE_MAP : channel_to_edit) : channel_to_edit;
@@ -517,20 +530,42 @@ struct LLPanelFaceSetTEFunctor : public LLSelectedTEFunctor
 	{
 		BOOL valid;
 		F32 value;
-
-        LLRadioGroup * radio_mat_type = mPanel->getChild<LLRadioGroup>("radio_material_type");
         std::string prefix;
-        switch (radio_mat_type->getSelectedIndex())
+        U32 materials_media = mPanel->getChild<LLComboBox>("combobox matmedia")->getCurrentIndex();
+
+        if (MATMEDIA_PBR == materials_media)
         {
-        case MATTYPE_DIFFUSE:
-            prefix = "Tex";
-            break;
-        case MATTYPE_NORMAL:
-            prefix = "bumpy";
-            break;
-        case MATTYPE_SPECULAR:
-            prefix = "shiny";
-            break;
+            LLRadioGroup * radio_pbr_type = mPanel->getChild<LLRadioGroup>("radio_pbr_type");
+            switch (radio_pbr_type->getSelectedIndex())
+            {
+            case PBRTYPE_BASE_COLOR:
+                prefix = "Tex";
+                break;
+            case PBRTYPE_NORMAL:
+                prefix = "bumpy";
+                break;
+            case PBRTYPE_METALLIC:
+                prefix = "shiny";
+                break;
+            }
+        }
+        else
+        {
+            // Effectively the same as MATMEDIA_PBR sans using different radio,
+            // separate for the sake of clarity
+            LLRadioGroup * radio_mat_type = mPanel->getChild<LLRadioGroup>("radio_material_type");
+            switch (radio_mat_type->getSelectedIndex())
+            {
+            case MATTYPE_DIFFUSE:
+                prefix = "Tex";
+                break;
+            case MATTYPE_NORMAL:
+                prefix = "bumpy";
+                break;
+            case MATTYPE_SPECULAR:
+                prefix = "shiny";
+                break;
+            }
         }
         
         LLSpinCtrl * ctrlTexScaleS = mPanel->getChild<LLSpinCtrl>(prefix + "ScaleU");
@@ -3468,11 +3503,20 @@ void LLPanelFace::onCommitRepeatsPerMeter(LLUICtrl* ctrl, void* userdata)
 	LLPanelFace* self = (LLPanelFace*) userdata;
 	
 	LLUICtrl*	repeats_ctrl	= self->getChild<LLUICtrl>("rptctrl");
-	LLRadioGroup* radio_mat_type = self->getChild<LLRadioGroup>("radio_material_type");
 	
 	U32 materials_media = self->mComboMatMedia->getCurrentIndex();
+    U32 material_type = 0;
+    if (materials_media == MATMEDIA_PBR)
+    {
+        LLRadioGroup* radio_mat_type = self->getChild<LLRadioGroup>("radio_pbr_type");
+        material_type = radio_mat_type->getSelectedIndex();
+    }
+    if (materials_media == MATMEDIA_MATERIAL)
+    {
+        LLRadioGroup* radio_mat_type = self->getChild<LLRadioGroup>("radio_material_type");
+        material_type = radio_mat_type->getSelectedIndex();
+    }
 
-	U32 material_type           = (materials_media == MATMEDIA_MATERIAL) ? radio_mat_type->getSelectedIndex() : 0;
 	F32 repeats_per_meter	= repeats_ctrl->getValue().asReal();
 	
    F32 obj_scale_s = 1.0f;
