@@ -10,14 +10,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [windows-2022, macos-11]
-        configuration: [RelWithDebInfoOS]
+        runner: [windows_2022_public]
+        configuration: [ReleaseOS]
         addrsize: [64]
         include:
-          - os: windows-2022
-            configuration: RelWithDebInfoOS
+          - runner: windows_2022_public
+            configuration: ReleaseOS
             addrsize: 32
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
@@ -45,9 +45,26 @@ jobs:
           path: .autobuild-installables
           key: ${{ matrix.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }} 
 
+      - name: Install windows dependencies
+        if: runner.os == 'Windows'
+        run: choco install nsis-unicode
+
       - name: Build
+        id: build
         shell: bash
         run: |
           pip install llsd # Required by viewer tests
           autobuild configure
           autobuild build --no-configure
+
+          installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
+          installer_name="$(basename $installer_path)"
+          echo "::set-output name=installer_path::$installer_path"
+          echo "::set-output name=installer_name::$installer_name"
+      
+      - name: Upload installer
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.build.outputs.installer_name }}
+          path: ${{ steps.build.outputs.installer_path }}
