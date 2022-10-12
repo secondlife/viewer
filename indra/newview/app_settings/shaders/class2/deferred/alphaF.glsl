@@ -72,7 +72,7 @@ uniform vec3 light_diffuse[8];
 void waterClip(vec3 pos);
 
 #ifdef WATER_FOG
-vec4 applyWaterFogView(vec3 pos, vec4 color);
+vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 #endif
 
 vec3 srgb_to_linear(vec3 c);
@@ -293,7 +293,7 @@ void main()
 #endif // !defined(LOCAL_LIGHT_KILL)
 
 #ifdef WATER_FOG
-    color = applyWaterFogView(pos.xyz, color);
+    color = applyWaterFogViewLinear(pos.xyz, color);
 #endif // WATER_FOG
 
 #endif // #else // FOR_IMPOSTOR
