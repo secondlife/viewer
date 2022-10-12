@@ -968,7 +968,7 @@ void LLSettingsVOWater::applySpecial(void *ptarget, bool force)
         LLColor4 fog_color(env.getCurrentWater()->getWaterFogColor());
         shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, fog_color.mV);
 
-        shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, linearColor3(fog_color.mV).mV);
+        shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, linearColor3(fog_color).mV);
 
         F32 blend_factor = env.getCurrentWater()->getBlendFactor();
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
