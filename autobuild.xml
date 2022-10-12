@@ -3099,6 +3099,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3130,6 +3133,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>RelWithDebInfo</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3155,6 +3161,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
@@ -3184,6 +3193,9 @@ Copyright (c) 2012, 2014, 2015, 2016 nghttp2 contributors</string>
                 <array>
                   <string>-configuration</string>
                   <string>Release</string>
+                  <string>-parallelizeTargets</string>
+                  <string>-jobs</string>
+                  <string>${AUTOBUILD_CPU_COUNT}</string>
                   <string>-project</string>
                   <string>SecondLife.xcodeproj</string>
                 </array>
