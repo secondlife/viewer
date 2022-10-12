@@ -17,7 +17,7 @@ jobs:
           - runner: windows-2022-large
             configuration: ReleaseOS
             addrsize: 32
-    runs-on: [${{ matrix.runner }}]
+    runs-on: ${{ matrix.runner }}
     env:
       AUTOBUILD_CONFIGURATION: ${{ matrix.configuration }}
       AUTOBUILD_ADDRSIZE: ${{ matrix.addrsize }}
