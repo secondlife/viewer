@@ -10,11 +10,11 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-2022-public-005]
+        runner: [windows-2022, macos-11]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
-          - runner: windows-2022-public-005
+          - runner: windows-2022
             configuration: ReleaseOS
             addrsize: 32
     runs-on: ${{ matrix.runner }}
@@ -43,7 +43,7 @@ jobs:
         id: cache-installables
         with:
           path: .autobuild-installables
-          key: ${{ matrix.runner }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
+          key: ${{ runner.os }}-${{ matrix.addrsize }}-${{ matrix.configuration }}-${{ hashFiles('autobuild.xml') }}
 
       - name: Install windows dependencies
         if: runner.os == 'Windows'
@@ -62,12 +62,14 @@ jobs:
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             installer_path=$(find ./build-*/newview/ | grep '_Setup\.exe')
             installer_name="$(basename $installer_path)"
-            echo "::set-output name=installer_path::$installer_path"
-            echo "::set-output name=installer_name::$installer_name"
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            installer_path=$(find ./build-*/newview/ | grep '\.dmg')
+            installer_name="$(basename $installer_path)"
           fi
+          echo "::set-output name=installer_path::$installer_path"
+          echo "::set-output name=installer_name::$installer_name"
       
       - name: Upload installer
-        if: runner.os == 'Windows'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.build.outputs.installer_name }}
