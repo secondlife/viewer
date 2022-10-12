@@ -309,7 +309,6 @@ public:
 	void renderDeferredLighting();
 	void postDeferredGammaCorrect(LLRenderTarget* screen_target);
 
-	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
     LLRenderTarget* getSunShadowTarget(U32 i);
     LLRenderTarget* getSpotShadowTarget(U32 i);
@@ -634,7 +633,6 @@ public:
 	static bool				sUseTriStrips;
 	static bool				sUseFarClip;
 	static bool				sShadowRender;
-	static bool				sWaterReflections;
 	static bool				sDynamicLOD;
 	static bool				sPickAvatar;
 	static bool				sReflectionRender;
@@ -1015,7 +1013,6 @@ public:
 	static LLVector3 RenderShadowGaussian;
 	static F32 RenderShadowBlurDistFactor;
 	static bool RenderDeferredAtmospheric;
-	static S32 RenderReflectionDetail;
 	static F32 RenderHighlightFadeTime;
 	static LLVector3 RenderShadowClipPlanes;
 	static LLVector3 RenderShadowOrthoClipPlanes;

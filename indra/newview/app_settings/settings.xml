@@ -10306,7 +10306,7 @@
     <key>RenderReflectionDetail</key>
     <map>
       <key>Comment</key>
-      <string>Detail of reflection render pass.</string>
+      <string>DEPRECATED -- use RenderTransparentWater and RenderReflectionProbeDetail -- Detail of reflection render pass.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

@@ -55,8 +55,10 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 uniform sampler2D bumpMap;
 uniform sampler2D bumpMap2;
 uniform float     blend_factor;
+#ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
 uniform sampler2D screenDepth;
+#endif
 
 uniform sampler2D refTex;
 
@@ -73,6 +75,7 @@ uniform float fresnelScale;
 uniform float fresnelOffset;
 uniform float blurMultiplier;
 uniform vec4 waterFogColor;
+uniform vec3 waterFogColorLinear;
 
 
 //bigWave is (refCoord.w, view.w);
@@ -174,6 +177,7 @@ void main()
     vec2 distort2 = distort + waver.xy * refScale / max(dmod * df1, 1.0);
     distort2 = clamp(distort2, vec2(0), vec2(0.99));
  
+#ifdef TRANSPARENT_WATER
     vec4 fb = texture2D(screenTex, distort2);
     float depth = texture2D(screenDepth, distort2).r;
     vec3 refPos = getPositionWithNDC(vec3(distort2*2.0-vec2(1.0), depth*2.0-1.0));
@@ -188,6 +192,9 @@ void main()
     }
 
     fb = applyWaterFogViewLinear(refPos, fb);
+#else
+    vec4 fb = vec4(waterFogColorLinear.rgb, 0.0);
+#endif
 
     vec3 sunlit;
     vec3 amblit;

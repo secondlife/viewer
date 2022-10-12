@@ -26,10 +26,12 @@
 out vec4 frag_color;
 
 uniform sampler2D diffuseMap;
-uniform sampler2D bumpMap;   
+uniform sampler2D bumpMap;
+
+#ifdef TRANSPARENT_WATER
 uniform sampler2D screenTex;
-uniform sampler2D refTex;
 uniform sampler2D screenDepth;
+#endif
 
 uniform vec4 fogCol;
 uniform vec3 lightDir;
@@ -43,6 +45,7 @@ uniform float kd;
 uniform vec4 waterPlane;
 uniform vec3 eyeVec;
 uniform vec4 waterFogColor;
+uniform vec3 waterFogColorLinear;
 uniform float waterFogKS;
 uniform vec2 screenRes;
 
@@ -57,8 +60,8 @@ vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 void main() 
 {
 	vec4 color;
-	    
-	//get detail normals
+
+    //get detail normals
 	vec3 wave1 = texture2D(bumpMap, vec2(refCoord.w, view.w)).xyz*2.0-1.0;
 	vec3 wave2 = texture2D(bumpMap, littleWave.xy).xyz*2.0-1.0;
 	vec3 wave3 = texture2D(bumpMap, littleWave.zw).xyz*2.0-1.0;    
@@ -67,8 +70,12 @@ void main()
 	//figure out distortion vector (ripply)   
 	vec2 distort = (refCoord.xy/refCoord.z) * 0.5 + 0.5;
 	distort = distort+wavef.xy*refScale;
-		
+
+#ifdef TRANSPARENT_WATER
 	vec4 fb = texture2D(screenTex, distort);
-	
+#else
+    vec4 fb = vec4(waterFogColorLinear, 0.0);
+#endif
+    
 	frag_color = applyWaterFogViewLinear(vary_position, fb);
 }

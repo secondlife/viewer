@@ -57,6 +57,8 @@ BOOL LLDrawPoolWater::sNeedsReflectionUpdate = TRUE;
 BOOL LLDrawPoolWater::sNeedsDistortionUpdate = TRUE;
 F32 LLDrawPoolWater::sWaterFogEnd = 0.f;
 
+extern BOOL gCubeSnapshot;
+
 LLDrawPoolWater::LLDrawPoolWater() : LLFacePool(POOL_WATER)
 {
 }
@@ -124,15 +126,19 @@ S32 LLDrawPoolWater::getNumPostDeferredPasses()
 
 void LLDrawPoolWater::beginPostDeferredPass(S32 pass)
 {
-    // copy framebuffer contents so far to a texture to be used for
-    // reflections and refractions
-    LLRenderTarget& src = gPipeline.mRT->screen;
-    LLRenderTarget& dst = gPipeline.mWaterDis;
-    dst.copyContents(src, 
-        0, 0, src.getWidth(), src.getHeight(), 
-        0, 0, dst.getWidth(), dst.getHeight(), 
-        GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, 
-        GL_NEAREST);
+    LL_PROFILE_GPU_ZONE("water beginPostDeferredPass")
+    if (LLPipeline::sRenderTransparentWater && !gCubeSnapshot)
+    {
+        // copy framebuffer contents so far to a texture to be used for
+        // reflections and refractions
+        LLRenderTarget& src = gPipeline.mRT->screen;
+        LLRenderTarget& dst = gPipeline.mWaterDis;
+        dst.copyContents(src,
+            0, 0, src.getWidth(), src.getHeight(),
+            0, 0, dst.getWidth(), dst.getHeight(),
+            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT,
+            GL_NEAREST);
+    }
 }
 
 void LLDrawPoolWater::renderPostDeferred(S32 pass) 
@@ -151,6 +157,7 @@ S32 LLDrawPoolWater::getNumDeferredPasses()
 //===============================
 void LLDrawPoolWater::renderDeferred(S32 pass)
 {
+#if 0
     LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_WATER);
 
     if (!LLPipeline::sRenderTransparentWater)
@@ -163,6 +170,7 @@ void LLDrawPoolWater::renderDeferred(S32 pass)
 	deferred_render = TRUE;
 	renderWater();
 	deferred_render = FALSE;
+#endif
 }
 
 //=========================================
@@ -508,6 +516,8 @@ void LLDrawPoolWater::renderWater()
     bool                   moon_up         = environment.getIsMoonUp();
     bool                   has_normal_mips = gSavedSettings.getBOOL("RenderWaterMipNormal");
     bool                   underwater      = LLViewerCamera::getInstance()->cameraUnderWater();
+    LLColor4               fog_color       = LLColor4(pwater->getWaterFogColor(), 0.f);
+    LLColor3               fog_color_linear = linearColor3(fog_color);
 
     if (sun_up)
     {
@@ -543,7 +553,7 @@ void LLDrawPoolWater::renderWater()
     for( int edge = 0 ; edge < 2; edge++ )
     {
         // select shader
-        if (underwater && LLPipeline::sWaterReflections)
+        if (underwater)
         {
             shader = deferred_render ? &gDeferredUnderWaterProgram : &gUnderWaterProgram;
         }
@@ -619,7 +629,6 @@ void LLDrawPoolWater::renderWater()
         shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
         shader->uniform1f(LLShaderMgr::BLEND_FACTOR, blend_factor);
 
-        LLColor4 fog_color(pwater->getWaterFogColor(), 0.0f);
         F32      fog_density = pwater->getModifiedWaterFogDensity(underwater);
 
         if (screentex > -1)
@@ -646,6 +655,7 @@ void LLDrawPoolWater::renderWater()
 
         shader->uniform4fv(LLShaderMgr::SPECULAR_COLOR, 1, specular.mV);
         shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, fog_color.mV);
+        shader->uniform3fv(LLShaderMgr::WATER_FOGCOLOR_LINEAR, 1, fog_color_linear.mV);
 
         shader->uniform3fv(LLShaderMgr::WATER_SPECULAR, 1, light_diffuse.mV);
         shader->uniform1f(LLShaderMgr::WATER_SPECULAR_EXP, light_exp);

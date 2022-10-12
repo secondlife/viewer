@@ -1194,14 +1194,6 @@ void LLFloaterPreference::refreshEnabledState()
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
-	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
-	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
-
-	// Reflections
-    BOOL reflections = LLCubeMap::sUseCubeMaps;
-	ctrl_reflections->setEnabled(reflections);
-	reflections_text->setEnabled(reflections);
-
     // WindLight
     LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
     LLTextBox* sky_text = getChild<LLTextBox>("SkyMeshDetailText");
@@ -1282,8 +1274,6 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 
 void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 {	
-	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
-	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
 	LLTextBox* shadows_text = getChild<LLTextBox>("RenderShadowDetailText");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
@@ -1291,25 +1281,17 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
     // disabled deferred SSAO
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO"))
 	{
-		ctrl_ssao->setEnabled(FALSE);
+		ctrl_ssao->setEnabled(FALSE);   
 		ctrl_ssao->setValue(FALSE);
 	}
 	
 	// disabled deferred shadows
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
-	{
-		ctrl_shadows->setEnabled(FALSE);
-		ctrl_shadows->setValue(0);
-		shadows_text->setEnabled(FALSE);
-	}
-
-	// disabled reflections
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
-	{
-		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
-		reflections_text->setEnabled(FALSE);
-	}
+    if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+    {
+        ctrl_shadows->setEnabled(FALSE);
+        ctrl_shadows->setValue(0);
+        shadows_text->setEnabled(FALSE);
+    }
 }
 
 void LLFloaterPreference::refresh()

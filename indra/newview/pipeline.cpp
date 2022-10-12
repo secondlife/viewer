@@ -203,7 +203,6 @@ F32 LLPipeline::RenderEdgeNormCutoff;
 LLVector3 LLPipeline::RenderShadowGaussian;
 F32 LLPipeline::RenderShadowBlurDistFactor;
 bool LLPipeline::RenderDeferredAtmospheric;
-S32 LLPipeline::RenderReflectionDetail;
 F32 LLPipeline::RenderHighlightFadeTime;
 LLVector3 LLPipeline::RenderShadowClipPlanes;
 LLVector3 LLPipeline::RenderShadowOrthoClipPlanes;
@@ -316,7 +315,6 @@ bool	LLPipeline::sNoAlpha = false;
 bool	LLPipeline::sUseTriStrips = true;
 bool	LLPipeline::sUseFarClip = true;
 bool	LLPipeline::sShadowRender = false;
-bool	LLPipeline::sWaterReflections = false;
 bool	LLPipeline::sRenderGlow = false;
 bool	LLPipeline::sReflectionRender = false;
 bool    LLPipeline::sDistortionRender = false;
@@ -570,7 +568,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderShadowGaussian");
 	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
 	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
-	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
 	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
 	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
 	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
@@ -1072,7 +1069,6 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowGaussian = gSavedSettings.getVector3("RenderShadowGaussian");
 	RenderShadowBlurDistFactor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
 	RenderDeferredAtmospheric = gSavedSettings.getBOOL("RenderDeferredAtmospheric");
-	RenderReflectionDetail = gSavedSettings.getS32("RenderReflectionDetail");
 	RenderHighlightFadeTime = gSavedSettings.getF32("RenderHighlightFadeTime");
 	RenderShadowClipPlanes = gSavedSettings.getVector3("RenderShadowClipPlanes");
 	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("RenderShadowOrthoClipPlanes");
@@ -1193,10 +1189,9 @@ void LLPipeline::createGLBuffers()
 	assertInitialized();
 
 	updateRenderDeferred();
-	if (LLPipeline::sWaterReflections)
+	if (LLPipeline::sRenderTransparentWater)
 	{ //water reflection texture
 		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
-		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
         mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE);
 	}
 
@@ -2427,17 +2422,6 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, LLPlane* pla
 		stop_glerror();
 	}
 
-	if (hasRenderType(LLPipeline::RENDER_TYPE_GROUND) && 
-		!gPipeline.canUseWindLightShaders() &&
-		gSky.mVOGroundp.notNull() && 
-		gSky.mVOGroundp->mDrawable.notNull() &&
-		!LLPipeline::sWaterReflections)
-	{
-		gSky.mVOGroundp->mDrawable->setVisible(camera);
-		sCull->pushDrawable(gSky.mVOGroundp->mDrawable);
-	}
-	
-	
     if (hasRenderType(LLPipeline::RENDER_TYPE_WL_SKY) && 
         gPipeline.canUseWindLightShaders() &&
         gSky.mVOWLSkyp.notNull() && 
@@ -9345,350 +9329,6 @@ inline float sgn(float a)
     if (a > 0.0F) return (1.0F);
     if (a < 0.0F) return (-1.0F);
     return (0.0F);
-}
-
-void LLPipeline::generateWaterReflection(LLCamera& camera_in)
-{
-#if 0
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_PIPELINE;
-    LL_PROFILE_GPU_ZONE("generateWaterReflection");
-
-    if (!assertInitialized() || gCubeSnapshot)
-    {
-        return;
-    }
-
-    if (LLPipeline::sWaterReflections && LLDrawPoolWater::sNeedsReflectionUpdate)
-    {
-        //disable occlusion culling for reflection/refraction passes (save setting to restore later)
-        S32 occlude = LLPipeline::sUseOcclusion;
-        LLPipeline::sUseOcclusion = 0;
-
-        bool skip_avatar_update = false;
-        if (!isAgentAvatarValid() || gAgentCamera.getCameraAnimating() || gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK || !LLVOAvatar::sVisibleInFirstPerson)
-        {
-            skip_avatar_update = true;
-        }
-
-        LLCamera camera = camera_in;
-        camera.setFar(camera_in.getFar() * 0.75f);
-
-        bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
-
-        LLPipeline::sReflectionRender = true;
-
-        gPipeline.pushRenderTypeMask();
-
-        glh::matrix4f saved_modelview  = get_current_modelview();
-        glh::matrix4f saved_projection = get_current_projection();
-        glh::matrix4f mat;
-
-#if 1 // relies on forward rendering, which is deprecated -- TODO - make a deferred implementation of transparent/reflective water
-        S32 reflection_detail  = RenderReflectionDetail;
-#else
-        S32 reflection_detail = WATER_REFLECT_NONE_WATER_TRANSPARENT;
-#endif
-
-        F32 water_height      = gAgent.getRegion()->getWaterHeight(); 
-        F32 camera_height     = camera_in.getOrigin().mV[VZ];
-        F32 distance_to_water = (water_height < camera_height) ? (camera_height - water_height) : (water_height - camera_height);
-
-        LLVector3 reflection_offset      = LLVector3(0, 0, distance_to_water * 2.0f);
-        LLVector3 camera_look_at         = camera_in.getAtAxis();
-        LLVector3 reflection_look_at     = LLVector3(camera_look_at.mV[VX], camera_look_at.mV[VY], -camera_look_at.mV[VZ]);
-        LLVector3 reflect_origin         = camera_in.getOrigin() - reflection_offset;
-        LLVector3 reflect_interest_point = reflect_origin + (reflection_look_at * 5.0f);
-
-        camera.setOriginAndLookAt(reflect_origin, LLVector3::z_axis, reflect_interest_point);
-
-        //plane params
-        LLPlane plane;
-        LLVector3 pnorm;
-
-        if (camera_is_underwater)
-        {
-            //camera is below water, cull above water
-            pnorm.setVec(0, 0, 1);
-        }
-        else
-        {
-            //camera is above water, cull below water
-            pnorm = LLVector3(0, 0, -1);
-        }
-
-        plane.setVec(LLVector3(0, 0, water_height), pnorm);
-
-        if (!camera_is_underwater)
-        {
-            //generate planar reflection map
-            LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER0;
-
-            gGL.matrixMode(LLRender::MM_MODELVIEW);
-            gGL.pushMatrix();
-
-            mat.set_scale(glh::vec3f(1, 1, -1));
-            mat.set_translate(glh::vec3f(0,0,water_height*2.f));
-            mat = saved_modelview * mat;
-
-
-            mReflectionModelView = mat;
-
-            set_current_modelview(mat);
-            gGL.loadMatrix(mat.m);
-
-            LLViewerCamera::updateFrustumPlanes(camera, FALSE, TRUE);
-
-            glh::vec3f    origin(0, 0, 0);
-            glh::matrix4f inv_mat = mat.inverse();
-            inv_mat.mult_matrix_vec(origin);
-
-            camera.setOrigin(origin.v);
-
-            glCullFace(GL_FRONT);
-
-            if (LLDrawPoolWater::sNeedsReflectionUpdate)
-            {
-                gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-                glClearColor(0,0,0,0);
-                mWaterRef.bindTarget();
-
-                gGL.setColorMask(true, true);
-                mWaterRef.clear();
-                gGL.setColorMask(true, false);
-                mWaterRef.getViewport(gGLViewport);
-
-                //initial sky pass (no user clip plane)
-                //mask out everything but the sky
-                gPipeline.pushRenderTypeMask();
-                {
-                    if (reflection_detail >= WATER_REFLECT_MINIMAL)
-                    {
-                        gPipeline.andRenderTypeMask(
-                            LLPipeline::RENDER_TYPE_SKY,
-                            LLPipeline::RENDER_TYPE_WL_SKY,
-                            LLPipeline::RENDER_TYPE_CLOUDS,
-                            LLPipeline::END_RENDER_TYPES);
-                    }
-                    else
-                    {
-                        gPipeline.andRenderTypeMask(
-                            LLPipeline::RENDER_TYPE_SKY,
-                            LLPipeline::RENDER_TYPE_WL_SKY,
-                            LLPipeline::END_RENDER_TYPES);
-                    }
-
-                    updateCull(camera, mSky);
-                    stateSort(camera, mSky);
-                    renderGeom(camera, TRUE);
-                }
-                gPipeline.popRenderTypeMask();
-
-                if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
-                {
-                    gPipeline.pushRenderTypeMask();
-                    {
-                        clearRenderTypeMask(
-                            LLPipeline::RENDER_TYPE_WATER,
-                            LLPipeline::RENDER_TYPE_VOIDWATER,
-                            LLPipeline::RENDER_TYPE_GROUND,
-                            LLPipeline::RENDER_TYPE_SKY,
-                            LLPipeline::RENDER_TYPE_CLOUDS,
-                            LLPipeline::END_RENDER_TYPES);
-
-                        if (reflection_detail > WATER_REFLECT_MINIMAL)
-                        { //mask out selected geometry based on reflection detail
-                            if (reflection_detail < WATER_REFLECT_EVERYTHING)
-                            {
-                                clearRenderTypeMask(LLPipeline::RENDER_TYPE_PARTICLES, END_RENDER_TYPES);
-                                if (reflection_detail < WATER_REFLECT_AVATARS)
-                                {
-                                    clearRenderTypeMask(
-                                        LLPipeline::RENDER_TYPE_AVATAR,
-                                        LLPipeline::RENDER_TYPE_CONTROL_AV,
-                                        END_RENDER_TYPES);
-                                    if (reflection_detail < WATER_REFLECT_STATIC_OBJECTS)
-                                    {
-                                        clearRenderTypeMask(LLPipeline::RENDER_TYPE_VOLUME, END_RENDER_TYPES);
-                                    }
-                                }
-                            }
-
-                            LLGLUserClipPlane clip_plane(plane, mReflectionModelView, saved_projection);
-                            LLGLDisable cull(GL_CULL_FACE);
-                            updateCull(camera, mReflectedObjects, &plane);
-                            stateSort(camera, mReflectedObjects);
-                            renderGeom(camera);
-                        }
-                    }
-                    gPipeline.popRenderTypeMask();
-                }
-
-                mWaterRef.flush();
-            }
-
-            glCullFace(GL_BACK);
-            gGL.matrixMode(LLRender::MM_MODELVIEW);
-            gGL.popMatrix();
-
-            set_current_modelview(saved_modelview);
-        }
-
-        camera.setOrigin(camera_in.getOrigin());
-        //render distortion map
-        static bool last_update = true;
-        if (last_update)
-        {
-            gPipeline.pushRenderTypeMask();
-
-            camera.setFar(camera_in.getFar());
-            clearRenderTypeMask(
-                LLPipeline::RENDER_TYPE_WATER,
-                LLPipeline::RENDER_TYPE_VOIDWATER,
-                LLPipeline::RENDER_TYPE_GROUND,
-                END_RENDER_TYPES);
-
-            // intentionally inverted so that distortion map contents (objects under the water when we're above it)
-            // will properly include water fog effects
-            LLPipeline::sUnderWaterRender = !camera_is_underwater;
-
-            if (LLPipeline::sUnderWaterRender)
-            {
-                clearRenderTypeMask(
-                    LLPipeline::RENDER_TYPE_GROUND,
-                    LLPipeline::RENDER_TYPE_SKY,
-                    LLPipeline::RENDER_TYPE_CLOUDS,
-                    LLPipeline::RENDER_TYPE_WL_SKY,
-                    END_RENDER_TYPES);
-            }
-            LLViewerCamera::updateFrustumPlanes(camera);
-
-            gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-            if (LLPipeline::sUnderWaterRender || LLDrawPoolWater::sNeedsDistortionUpdate)
-            {
-                LLPipeline::sDistortionRender = true;
-
-                LLColor3 col = LLEnvironment::instance().getCurrentWater()->getWaterFogColor();
-                glClearColor(col.mV[0], col.mV[1], col.mV[2], 0.f);
-
-                // HACK FIX -- pretend underwater camera is the world camera to fix weird visibility artifacts
-                // during distortion render (doesn't break main render because the camera is the same perspective
-                // as world camera and occlusion culling is disabled for this pass)
-                //LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WATER1;
-                LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
-
-                mWaterDis.bindTarget();
-                mWaterDis.getViewport(gGLViewport);
-
-                gGL.setColorMask(true, true);
-                mWaterDis.clear();
-                gGL.setColorMask(true, false);
-
-                F32 water_dist = water_height;
-
-                //clip out geometry on the same side of water as the camera w/ enough margin to not include the water geo itself,
-                // but not so much as to clip out parts of avatars that should be seen under the water in the distortion map
-                LLPlane plane;
-
-                if (camera_is_underwater)
-                {
-                    //nudge clip plane below water to avoid visible holes in objects intersecting water surface
-                    water_dist /= LLPipeline::sDistortionWaterClipPlaneMargin;
-                    //camera is below water, clip plane points up
-                    pnorm.setVec(0, 0, -1);
-                }
-                else
-                {
-                    //nudge clip plane above water to avoid visible holes in objects intersecting water surface
-                    water_dist *= LLPipeline::sDistortionWaterClipPlaneMargin;
-                    //camera is above water, clip plane points down
-                    pnorm = LLVector3(0, 0, 1);
-                }
-
-                plane.setVec(LLVector3(0, 0, water_dist), pnorm);
-
-                LLGLUserClipPlane clip_plane(plane, saved_modelview, saved_projection);
-
-                gGL.setColorMask(true, true);
-                mWaterDis.clear();
-                gGL.setColorMask(true, false);
-
-#if 0  // DEPRECATED - requires forward rendering, TODO - make a deferred implementation
-                if (reflection_detail >= WATER_REFLECT_NONE_WATER_TRANSPARENT)
-                {
-                    updateCull(camera, mRefractedObjects, &plane);
-                    stateSort(camera, mRefractedObjects);
-                    renderGeom(camera);
-                }
-#endif
-
-
-                gUIProgram.bind();
-
-                LLWorld::getInstance()->renderPropertyLines();
-
-                gUIProgram.unbind();
-
-                mWaterDis.flush();
-            }
-
-            LLPipeline::sDistortionRender = false;
-
-            gPipeline.popRenderTypeMask();
-        }
-        last_update = LLDrawPoolWater::sNeedsReflectionUpdate && LLDrawPoolWater::sNeedsDistortionUpdate;
-
-        gPipeline.popRenderTypeMask();
-
-        LLPipeline::sUnderWaterRender = false;
-        LLPipeline::sReflectionRender = false;
-
-        LLDrawPoolWater::sNeedsReflectionUpdate = FALSE;
-        LLDrawPoolWater::sNeedsDistortionUpdate = FALSE;
-
-        if (!LLRenderTarget::sUseFBO)
-        {
-            glClear(GL_DEPTH_BUFFER_BIT);
-        }
-        glClearColor(0.f, 0.f, 0.f, 0.f);
-        gViewerWindow->setup3DViewport();
-
-        LLGLState::checkStates();
-
-        if (!skip_avatar_update)
-        {
-            gAgentAvatarp->updateAttachmentVisibility(gAgentCamera.getCameraMode());
-        }
-
-        LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
-
-        // restore occlusion culling
-        LLPipeline::sUseOcclusion = occlude;
-    }
-    else
-    {
-        // Initial sky pass is still needed even if water reflection is not rendering
-        bool camera_is_underwater = LLViewerCamera::getInstance()->cameraUnderWater();
-        if (!camera_is_underwater)
-        {
-            gPipeline.pushRenderTypeMask();
-            {
-                gPipeline.andRenderTypeMask(
-                    LLPipeline::RENDER_TYPE_SKY,
-                    LLPipeline::RENDER_TYPE_WL_SKY,
-                    LLPipeline::END_RENDER_TYPES);
-
-                LLCamera camera = camera_in;
-                camera.setFar(camera_in.getFar() * 0.75f);
-
-                updateCull(camera, mSky);
-                stateSort(camera, mSky);
-                renderGeom(camera, TRUE);
-            }
-            gPipeline.popRenderTypeMask();
-        }
-    }
-#endif
 }
 
 glh::matrix4f look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)

@@ -772,7 +772,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			LL_PROFILE_ZONE_NAMED_CATEGORY_DISPLAY("display - 3")
 			LLAppViewer::instance()->pingMainloopTimeout("Display:Imagery");
-			gPipeline.generateWaterReflection(*LLViewerCamera::getInstance());
 			gPipeline.generateHighlight(*LLViewerCamera::getInstance());
 			gPipeline.renderPhysicsDisplay();
 		}

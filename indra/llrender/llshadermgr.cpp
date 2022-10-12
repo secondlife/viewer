@@ -1357,6 +1357,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("specular");
 	mReservedUniforms.push_back("lightExp");
 	mReservedUniforms.push_back("waterFogColor");
+    mReservedUniforms.push_back("waterFogColorLinear");
 	mReservedUniforms.push_back("waterFogDensity");
 	mReservedUniforms.push_back("waterFogKS");
 	mReservedUniforms.push_back("refScale");

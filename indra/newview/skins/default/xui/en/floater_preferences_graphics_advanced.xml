@@ -550,57 +550,6 @@
     top_delta="16"
     width="300" />
 
-  <text
-    type="string"
-    length="1"
-    follows="left|top"
-    height="16"
-    layout="topleft"
-    name="ReflectionsText"
-    text_readonly_color="LabelDisabledColor"
-    top_delta="16"
-    left="420"
-    width="128">
-       Water Reflections:
-  </text>
-  <combo_box
-    control_name="RenderReflectionDetail"
-    height="18"
-    layout="topleft"
-    left_delta="170"
-    top_delta="0"
-    name="Reflections"
-    width="150">
-      <combo_box.item
-        label="None; opaque"
-        name="0"
-        value="-2"/>
-      <combo_box.item
-        label="None; transparent"
-        name="0"
-        value="-1"/>
-      <combo_box.item
-        label="Minimal"
-        name="0"
-        value="0"/>
-      <combo_box.item
-        label="Terrain and trees"
-        name="1"
-        value="1"/>
-      <combo_box.item
-        label="All static objects"
-        name="2"
-        value="2"/>
-      <combo_box.item
-        label="All avatars and objects"
-        name="3"
-        value="3"/>
-      <combo_box.item
-        label="Everything"
-        name="4"
-        value="4"/>
-  </combo_box>
-
   <slider
     control_name="WLSkyDetail"
     decimal_digits="0"

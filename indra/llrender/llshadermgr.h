@@ -205,6 +205,7 @@ public:
         WATER_SPECULAR,                     //  "specular"
         WATER_SPECULAR_EXP,                 //  "lightExp"
         WATER_FOGCOLOR,                     //  "waterFogColor"
+        WATER_FOGCOLOR_LINEAR,              //  "waterFogColorLinear"
         WATER_FOGDENSITY,                   //  "waterFogDensity"
         WATER_FOGKS,                        //  "waterFogKS"
         WATER_REFSCALE,                     //  "refScale"
