@@ -941,7 +941,27 @@ bool LLMaterialEditor::saveIfNeeded()
 
         create_inventory_item(gAgent.getID(), gAgent.getSessionID(), parent, tid, mMaterialName, res_desc,
             LLAssetType::AT_MATERIAL, LLInventoryType::IT_MATERIAL, subtype, next_owner_perm,
-            new LLBoostFuncInventoryCallback([output = buffer](LLUUID const& inv_item_id) {
+            new LLBoostFuncInventoryCallback([output = buffer](LLUUID const& inv_item_id)
+            {
+                LLViewerInventoryItem* item = gInventory.getItem(inv_item_id);
+                if (item)
+                {
+                    // create_inventory_item doesn't allow presetting some permissions, fix it now
+                    LLPermissions perm = item->getPermissions();
+                    if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Uploads")
+                        || perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Uploads"))
+                    {
+                        perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Uploads"));
+                        perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Uploads"));
+
+                        item->setPermissions(perm);
+
+                        item->updateServer(FALSE);
+                        gInventory.updateItem(item);
+                        gInventory.notifyObservers();
+                    }
+                }
+
                 // from reference in LLSettingsVOBase::createInventoryItem()/updateInventoryItem()
                 LLResourceUploadInfo::ptr_t uploadInfo =
                     std::make_shared<LLBufferedAssetUploadInfo>(
@@ -966,7 +986,7 @@ bool LLMaterialEditor::saveIfNeeded()
                     }
                     LLViewerAssetUpload::EnqueueInventoryUpload(agent_url, uploadInfo);
                 }
-                })
+            })
         );
 
         // We do not update floater with uploaded asset yet, so just close it.
