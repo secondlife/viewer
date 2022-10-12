@@ -148,7 +148,13 @@ void LLWebProfile::uploadImageCoro(LLPointer<LLImageFormatted> image, std::strin
     httpHeaders->append(HTTP_OUT_HEADER_COOKIE, getAuthCookie());
     httpHeaders->remove(HTTP_OUT_HEADER_CONTENT_TYPE);
     httpHeaders->append(HTTP_OUT_HEADER_CONTENT_TYPE, "multipart/form-data; boundary=" + boundary);
-    
+
+    // Give the upload one long shot instead of several short attempts.
+    // Uploading the big snapshot images can take a while. The resident can also
+    // retry the upload themselves by clicking Post again.
+    httpOpts->setRetries(0);
+    httpOpts->setTimeout(600);
+
     LLCore::BufferArray::ptr_t body = LLWebProfile::buildPostData(data, image, boundary);
 
     result = httpAdapter->postAndSuspend(httpRequest, uploadUrl, body, httpOpts, httpHeaders);
