@@ -10,11 +10,11 @@ jobs:
   build:
     strategy:
       matrix:
-        runner: [windows-2022, macos-11]
+        runner: [windows-2022-public-005]
         configuration: [ReleaseOS]
         addrsize: [64]
         include:
-          - runner: windows-2022
+          - runner: windows-2022-public-005
             configuration: ReleaseOS
             addrsize: 32
     runs-on: ${{ matrix.runner }}
