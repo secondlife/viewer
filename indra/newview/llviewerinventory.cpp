@@ -999,6 +999,21 @@ void create_notecard_cb(const LLUUID& inv_item)
 	}
 }
 
+void create_gltf_material_cb(const LLUUID& inv_item)
+{
+    if (!inv_item.isNull())
+    {
+        LLViewerInventoryItem* item = gInventory.getItem(inv_item);
+        if (item)
+        {
+            set_default_permissions(item, "Materials");
+
+            gInventory.updateItem(item);
+            gInventory.notifyObservers();
+        }
+    }
+}
+
 LLInventoryCallbackManager gInventoryCallbacks;
 
 void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
@@ -1623,6 +1638,13 @@ void create_new_item(const std::string& name,
 			next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Notecards");
 			break;
 		}
+
+        case LLInventoryType::IT_MATERIAL:
+        {
+            cb = new LLBoostFuncInventoryCallback(create_gltf_material_cb);
+            next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
+            break;
+        }
 		default:
 			break;
 	}

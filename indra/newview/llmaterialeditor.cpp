@@ -935,7 +935,7 @@ bool LLMaterialEditor::saveIfNeeded()
         tid.generate();     // timestamp-based randomization + uniquification
         LLAssetID new_asset_id = tid.makeAssetID(gAgent.getSecureSessionID());
         std::string res_desc = buildMaterialDescription();
-        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Uploads");
+        U32 next_owner_perm = LLFloaterPerms::getNextOwnerPerms("Materials");
         LLUUID parent = gInventory.findUserDefinedCategoryUUIDForType(LLFolderType::FT_MATERIAL);
         const U8 subtype = NO_INV_SUBTYPE;  // TODO maybe use AT_SETTINGS and LLSettingsType::ST_MATERIAL ?
 
@@ -948,11 +948,11 @@ bool LLMaterialEditor::saveIfNeeded()
                 {
                     // create_inventory_item doesn't allow presetting some permissions, fix it now
                     LLPermissions perm = item->getPermissions();
-                    if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Uploads")
-                        || perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Uploads"))
+                    if (perm.getMaskEveryone() != LLFloaterPerms::getEveryonePerms("Materials")
+                        || perm.getMaskGroup() != LLFloaterPerms::getGroupPerms("Materials"))
                     {
-                        perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Uploads"));
-                        perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Uploads"));
+                        perm.setMaskEveryone(LLFloaterPerms::getEveryonePerms("Materials"));
+                        perm.setMaskGroup(LLFloaterPerms::getGroupPerms("Materials"));
 
                         item->setPermissions(perm);
 

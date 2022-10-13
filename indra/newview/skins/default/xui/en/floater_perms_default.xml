@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
- height="250"
+ height="266"
  layout="topleft"
  name="perms default"
  help_topic="perms_default"
@@ -10,7 +10,7 @@
  width="700">
   <panel
    follows="left|top|right|bottom"
-   height="200"
+   height="216"
    label="Default Permissions"
    layout="topleft"
    left="10"
@@ -546,6 +546,70 @@
        height="16"
        layout="topleft"
        name="env_settings_e"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <text
+       name="label_14"
+       type="string"
+       length="1"
+       follows="left|top"
+       height="16"
+       layout="topleft"
+       left="0"
+       tool_tip="Set default permissions for when GLTF Materials are created"
+       width="100">
+          Materials
+      </text>
+      <icon
+       follows="left|top"
+       height="16"
+       image_name="Inv_Material"
+       layout="topleft"
+       left_pad="2"
+       width="18"/>
+      <check_box
+       control_name="MaterialsNextOwnerCopy"
+       height="16"
+       layout="topleft"
+       name="env_material_c"
+       left_pad="45"
+       top_delta="0"
+       width="100">
+        <check_box.commit_callback
+         function="PermsDefault.Copy"
+         parameter="Materials" />
+      </check_box>
+      <check_box
+       control_name="MaterialsNextOwnerModify"
+       height="16"
+       layout="topleft"
+       name="env_materials_m"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       enabled_control="MaterialsNextOwnerCopy"
+       control_name="MaterialsNextOwnerTransfer"
+       height="16"
+       layout="topleft"
+       name="env_materials_t"
+       left_pad="0"
+       top_delta="0"
+       width="100" />
+      <check_box
+       control_name="MaterialsShareWithGroup"
+       height="16"
+       layout="topleft"
+       name="env_materials_s"
+       left_pad="0"
+       top_delta="0"
+       width="120" />
+      <check_box
+       control_name="MaterialsEveryoneCopy"
+       height="16"
+       layout="topleft"
+       name="env_materials_e"
        left_pad="0"
        top_delta="0"
        width="100" />
