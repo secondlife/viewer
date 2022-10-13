@@ -183,7 +183,10 @@ void main()
     frag *= screen_res;
     
     vec4 pos = vec4(vary_position, 1.0);
+#ifndef IS_AVATAR_SKIN
+    // clip against water plane unless this is a legacy avatar skin
     waterClip(pos.xyz);
+#endif
     vec3 norm = vary_norm;
 
     float shadow = 1.0f;
@@ -298,7 +301,6 @@ void main()
 
 #endif // #else // FOR_IMPOSTOR
 
-    //color.rgb = waterPlane.xyz * 0.5 + 0.5;
     frag_color = color;
 }
 
