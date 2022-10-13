@@ -33,7 +33,7 @@ out vec4 frag_color;
 // The fragment shader for the sky
 /////////////////////////////////////////////////////////////////////////
 
-VARYING vec4 vary_HazeColor;
+VARYING vec3 vary_HazeColor;
 
 /// Soft clips the light with a gamma correction
 vec3 scaleSoftClip(vec3 light);
@@ -45,7 +45,7 @@ void main()
 	// the fragment) if the sky wouldn't show up because the clouds 
 	// are fully opaque.
 
-	vec4 color;
+	vec3 color;
 	color = vary_HazeColor;
 	color.rgb *= 2.;
 	/// Gamma correct for WL (soft clip effect).
