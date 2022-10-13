@@ -445,8 +445,8 @@ vec3 sampleProbes(vec3 pos, vec3 dir, float lod, bool errorCorrect)
 
                 // weight by vector correctness
                 vec3 pi = normalize(wi - pos);
-                w = max(dot(pi, dir), 0.1);
-                w = pow(w, 32.0);
+                w *= max(dot(pi, dir), 0.1);
+                //w = pow(w, 32.0);
             }
             else
             {
