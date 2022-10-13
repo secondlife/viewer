@@ -440,16 +440,9 @@ void LLViewerShaderMgr::setShaders()
     }
 
     static LLCachedControl<U32> max_texture_index(gSavedSettings, "RenderMaxTextureIndex", 16);
-    LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits, (S32) max_texture_index), 1);
-
-    //NEVER use more than 16 texture channels (work around for prevalent driver bug)
-    LLGLSLShader::sIndexedTextureChannels = llmin(LLGLSLShader::sIndexedTextureChannels, 16);
-
-    if (gGLManager.mGLSLVersionMajor < 1 ||
-        (gGLManager.mGLSLVersionMajor == 1 && gGLManager.mGLSLVersionMinor <= 20))
-    { //NEVER use indexed texture rendering when GLSL version is 1.20 or earlier
-        LLGLSLShader::sIndexedTextureChannels = 1;
-    }
+    
+    // when using indexed texture rendering, leave 8 texture units available for shadow and reflection maps
+    LLGLSLShader::sIndexedTextureChannels = llmax(llmin(gGLManager.mNumTextureImageUnits-8, (S32) max_texture_index), 1);
 
     reentrance = true;
 
@@ -899,7 +892,7 @@ std::string LLViewerShaderMgr::loadBasicShaders()
 
 	if (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 30)
 	{ //use indexed texture rendering for GLSL >= 1.30
-		ch = llmax(LLGLSLShader::sIndexedTextureChannels-1, 1);
+		ch = llmax(LLGLSLShader::sIndexedTextureChannels, 1);
 	}
 
     bool has_reflection_probes = gSavedSettings.getS32("RenderReflectionProbeDetail") >= 0 && gGLManager.mGLVersion > 3.99f;
@@ -1939,15 +1932,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.hasShadows = use_sun_shadow;
             shader->mFeatures.hasReflectionProbes = true;
             shader->mFeatures.hasWaterFog = true;
-
-            if (mShaderLevel[SHADER_DEFERRED] < 1)
-            {
-                shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-            }
-            else
-            { //shave off some texture units for shadow maps
-                shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-            }
+            shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 
             shader->mShaderFiles.clear();
             shader->mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
@@ -2016,15 +2001,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->mFeatures.encodesNormal = true;
             shader->mFeatures.hasShadows = use_sun_shadow;
             shader->mFeatures.hasReflectionProbes = true;
-
-            if (mShaderLevel[SHADER_DEFERRED] < 1)
-            {
-                shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-            }
-            else
-            { //shave off some texture units for shadow maps
-                shader->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-            }
+            shader->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 
             shader->mShaderFiles.clear();
             shader->mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
@@ -2088,15 +2065,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader[i]->mFeatures.hasTransport = true;
             shader[i]->mFeatures.hasShadows = use_sun_shadow;
             shader[i]->mFeatures.hasReflectionProbes = true;
-
-            if (mShaderLevel[SHADER_DEFERRED] < 1)
-            {
-                shader[i]->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-            }
-            else
-            { //shave off some texture units for shadow maps
-                shader[i]->mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-            }
+            shader[i]->mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
             shader[i]->mShaderGroup = LLGLSLShader::SG_WATER;
             shader[i]->mShaderFiles.clear();
             shader[i]->mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
@@ -2250,7 +2219,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasTransport = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasSrgb = true;
-		gDeferredFullbrightShinyProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels-2;
+		gDeferredFullbrightShinyProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
 		gDeferredFullbrightShinyProgram.mShaderFiles.clear();
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyV.glsl", GL_VERTEX_SHADER));
 		gDeferredFullbrightShinyProgram.mShaderFiles.push_back(make_pair("deferred/fullbrightShinyF.glsl", GL_FRAGMENT_SHADER));
