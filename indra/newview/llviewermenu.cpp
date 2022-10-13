@@ -5613,6 +5613,7 @@ class LLToolsSelectNextPartFace : public view_listener_t
                     }
                 }
                 LLSelectMgr::getInstance()->selectObjectOnly(to_select, new_te);
+                LLSelectMgr::getInstance()->addAsIndividual(to_select, new_te, false);
             }
             else
             {
