@@ -44,7 +44,7 @@ uniform vec3 moon_dir;
 
 out vec4 frag_color;
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
   VARYING vec3 vary_fragcoord;
   uniform vec2 screen_res;
 #endif
@@ -186,7 +186,7 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
     frag *= screen_res;
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);

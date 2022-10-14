@@ -1632,7 +1632,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
         if (use_sun_shadow)
         {
-            shader->addPermutation("HAS_SHADOW", "1");
+            shader->addPermutation("HAS_SUN_SHADOW", "1");
         }
 
         if (ambient_kill)
@@ -1945,7 +1945,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader->addPermutation("USE_INDEXED_TEX", "1");
             if (use_sun_shadow)
             {
-                shader->addPermutation("HAS_SHADOW", "1");
+                shader->addPermutation("HAS_SUN_SHADOW", "1");
             }
 
             if (ambient_kill)
@@ -2029,7 +2029,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
             if (use_sun_shadow)
             {
-                shader->addPermutation("HAS_SHADOW", "1");
+                shader->addPermutation("HAS_SUN_SHADOW", "1");
             }
 
             shader->mRiggedVariant = &gDeferredSkinnedAlphaImpostorProgram;
@@ -2095,7 +2095,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
             shader[i]->addPermutation("HAS_ALPHA_MASK", "1");
             if (use_sun_shadow)
             {
-                shader[i]->addPermutation("HAS_SHADOW", "1");
+                shader[i]->addPermutation("HAS_SUN_SHADOW", "1");
             }
 
             if (ambient_kill)
@@ -2671,7 +2671,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
 		if (use_sun_shadow)
 		{
-			gDeferredAvatarAlphaProgram.addPermutation("HAS_SHADOW", "1");
+			gDeferredAvatarAlphaProgram.addPermutation("HAS_SUN_SHADOW", "1");
 		}
 
         if (ambient_kill)
