@@ -270,7 +270,7 @@ bool LLLocalGLTFMaterial::loadMaterial(LLPointer<LLGLTFMaterial> mat, S32 index)
             }
 
             // sets everything, but textures will have inaccurate ids
-            LLTinyGLTFHelper::setFromModel(mat, model_in, index);
+            mat->setFromModel(model_in, index);
 
             std::string folder = gDirUtilp->getDirName(filename_lc);
             tinygltf::Material material_in = model_in.materials[index];

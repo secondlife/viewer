@@ -32,6 +32,13 @@
 #include "lluuid.h"
 #include "llmd5.h"
 
+#include <string>
+
+namespace tinygltf
+{
+    class Model;
+}
+
 class LLGLTFMaterial : public LLRefCount
 {
 public:
@@ -48,8 +55,8 @@ public:
     LLUUID mMetallicRoughnessId;
     LLUUID mEmissiveId;
 
-    LLColor4 mBaseColor = LLColor4(1,1,1,1);
-    LLColor3 mEmissiveColor = LLColor3(0,0,0);
+    LLColor4 mBaseColor = LLColor4(1, 1, 1, 1);
+    LLColor3 mEmissiveColor = LLColor3(0, 0, 0);
 
     F32 mMetallicFactor = 0.f;
     F32 mRoughnessFactor = 0.f;
@@ -63,7 +70,7 @@ public:
     {
         LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
         LLMD5 md5;
-        md5.update((unsigned char*) this, sizeof(this));
+        md5.update((unsigned char*)this, sizeof(this));
         md5.finalize();
         LLUUID id;
         md5.raw_digest(id.mData);
@@ -88,7 +95,7 @@ public:
         }
     }
 
-    const char* getAlphaMode()
+    const char* getAlphaMode() const
     {
         switch (mAlphaMode)
         {
@@ -97,7 +104,24 @@ public:
         default: return "OPAQUE";
         }
     }
+
+    // set the contents of this LLGLTFMaterial from the given json
+    // returns true if successful
+    // json - the json text to load from
+    // warn_msg - warning message from TinyGLTF if any
+    // error_msg - error_msg from TinyGLTF if any
+    bool fromJSON(const std::string& json, std::string& warn_msg, std::string& error_msg);
+
+    // get the contents of this LLGLTFMaterial as a json string
+    std::string asJSON(bool prettyprint = false) const;
+
+    // initialize from given tinygltf::Model
+    // model - the model to reference
+    // mat_index - index of material in model's material array
+    void setFromModel(const tinygltf::Model& model, S32 mat_index);
+
+    // write to given tinygltf::Model
+    void writeToModel(tinygltf::Model& model, S32 mat_index) const;
+
 };
-
-
 
