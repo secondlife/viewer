@@ -438,6 +438,7 @@ private:
 	 */
     void onTextureSelectionChanged(LLInventoryItem* itemp);
     void onPbrSelectionChanged(LLInventoryItem* itemp);
+    void onPbrStartEditing();
 
     LLMenuButton*   mMenuClipboardColor;
     LLMenuButton*   mMenuClipboardTexture;

@@ -60,6 +60,7 @@
 #include "llfloatergridstatus.h"
 #include "llfloaterimsession.h"
 #include "lllocationhistory.h"
+#include "llgltfmateriallist.h"
 #include "llimageworker.h"
 
 #include "llloginflags.h"
@@ -1471,6 +1472,9 @@ bool idle_startup()
 		display_startup();
 
 		gXferManager->registerCallbacks(gMessageSystem);
+		display_startup();
+
+		LLGLTFMaterialList::registerCallbacks();
 		display_startup();
 
 		LLStartUp::initNameCache();

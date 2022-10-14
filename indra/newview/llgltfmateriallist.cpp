@@ -28,12 +28,35 @@
 #include "llgltfmateriallist.h"
 
 #include "llassetstorage.h"
+#include "lldispatcher.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
+#include "llviewergenericmessage.h"
 
 #include "tinygltf/tiny_gltf.h"
 #include <strstream>
+
+namespace
+{
+    class LLGLTFOverrideDispatchHandler : public LLDispatchHandler
+    {
+    public:
+        LLGLTFOverrideDispatchHandler() = default;
+        ~LLGLTFOverrideDispatchHandler() override = default;
+
+        bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
+        {
+            LL_DEBUGS() << "strings: ";
+            for (std::string const & s : strings) {
+                LL_CONT << " " << s;
+            }
+            LL_CONT << LL_ENDL;
+            return true;
+        }
+    };
+    LLGLTFOverrideDispatchHandler handle_gltf_override_message;
+}
 
 LLGLTFMaterialList gGLTFMaterialList;
 
@@ -119,3 +142,8 @@ void LLGLTFMaterialList::removeMaterial(const LLUUID& id)
     mList.erase(id);
 }
 
+// static
+void LLGLTFMaterialList::registerCallbacks()
+{
+    gGenericDispatcher.addHandler("GLTF", &handle_gltf_override_message);
+}
