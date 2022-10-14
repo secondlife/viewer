@@ -860,7 +860,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			glClearColor(0.5f, 0.5f, 0.5f, 0.f);
 			glClear(GL_COLOR_BUFFER_BIT);
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		}
 
 		LLAppViewer::instance()->pingMainloopTimeout("Display:RenderStart");
@@ -913,7 +912,15 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
         if (LLPipeline::sRenderDeferred)
         {
             gPipeline.mRT->deferredScreen.bindTarget();
-            glClearColor(1, 0, 1, 1);
+            if (gUseWireframe)
+            {
+                F32 g = 0.5f;
+                glClearColor(g, g, g, 1.f);
+            }
+            else
+            {
+                glClearColor(1, 0, 1, 1);
+            }
             gPipeline.mRT->deferredScreen.clear();
         }
         else
@@ -1102,6 +1109,7 @@ void display_cube_face()
     gPipeline.updateCull(*LLViewerCamera::getInstance(), result);
 
     gGL.setColorMask(true, true);
+
     glClearColor(0, 0, 0, 0);
     gPipeline.generateSunShadow(*LLViewerCamera::getInstance());
         
@@ -1132,7 +1140,14 @@ void display_cube_face()
     gGL.setColorMask(true, true);
 
     gPipeline.mRT->deferredScreen.bindTarget();
-    glClearColor(1, 0, 1, 1);
+    if (gUseWireframe)
+    {
+        glClearColor(0.5f, 0.5f, 0.5f, 1.f);
+    }
+    else
+    {
+        glClearColor(1, 0, 1, 1);
+    }
     gPipeline.mRT->deferredScreen.clear();
         
     gGL.setColorMask(true, false);

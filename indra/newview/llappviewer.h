@@ -392,7 +392,6 @@ extern BOOL		gDisconnected;
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern bool		gUseWireframe;
-extern bool		gInitialDeferredModeForWireframe;
 
 extern LLMemoryInfo gSysMemory;
 extern U64Bytes gMemoryAllocated;

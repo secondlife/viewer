@@ -4541,6 +4541,11 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
     LL_PROFILE_GPU_ZONE("renderGeomDeferred");
 
+    if (gUseWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+
     bool occlude = LLPipeline::sUseOcclusion > 1 && do_occlusion;
 
 	{
@@ -4647,12 +4652,22 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera, bool do_occlusion)
 		gGL.setColorMask(true, false);
 
 	} // Tracy ZoneScoped
+
+    if (gUseWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
 {
 	LL_PROFILE_ZONE_SCOPED_CATEGORY_DRAWPOOL; //LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
     LL_PROFILE_GPU_ZONE("renderGeomPostDeferred");
+
+    if (gUseWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
 
 	U32 cur_type = 0;
 
@@ -4733,6 +4748,10 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera)
         renderDebug();
     }
 
+    if (gUseWireframe)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
 }
 
 void LLPipeline::renderGeomShadow(LLCamera& camera)
@@ -7527,11 +7546,6 @@ void LLPipeline::renderFinalize()
     LLGLState::checkTextureChannels();
 
     assertInitialized();
-
-    if (gUseWireframe)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
 
     LLVector2 tc1(0, 0);
     LLVector2 tc2((F32) mRT->screen.getWidth() * 2, (F32) mRT->screen.getHeight() * 2);

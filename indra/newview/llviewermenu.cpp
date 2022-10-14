@@ -1210,6 +1210,7 @@ class LLAdvancedCheckFrameTest : public view_listener_t
 
 ///////////////////////////
 // SELECTED TEXTURE INFO //
+// 
 ///////////////////////////
 
 
@@ -1231,24 +1232,6 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		gUseWireframe = !(gUseWireframe);
-		gWindowResized = TRUE;
-
-		LLPipeline::updateRenderDeferred();
-
-		if (gUseWireframe)
-		{
-			gInitialDeferredModeForWireframe = LLPipeline::sRenderDeferred;
-		}
-
-		gPipeline.resetVertexBuffers();
-
-		if (!gUseWireframe && !gInitialDeferredModeForWireframe && LLPipeline::sRenderDeferred != bool(gInitialDeferredModeForWireframe) && gPipeline.isInit())
-		{
-			LLPipeline::refreshCachedSettings();
-			gPipeline.releaseGLBuffers();
-			gPipeline.createGLBuffers();
-			LLViewerShaderMgr::instance()->setShaders();
-		}
 
 		return true;
 	}
@@ -1258,8 +1241,7 @@ class LLAdvancedCheckWireframe : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gUseWireframe;
-		return new_value;
+		return gUseWireframe;
 	}
 };
 	
