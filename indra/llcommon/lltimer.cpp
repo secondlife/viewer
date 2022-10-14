@@ -65,6 +65,9 @@ LLTimer* LLTimer::sTimer = NULL;
 //---------------------------------------------------------------------------
 
 #if LL_WINDOWS
+
+
+#if 0
 void ms_sleep(U32 ms)
 {
     LL_PROFILE_ZONE_SCOPED;
@@ -83,6 +86,31 @@ U32 micro_sleep(U64 us, U32 max_yields)
 	ms_sleep((U32)(us / 1000));
     return 0;
 }
+
+#else
+
+U32 micro_sleep(U64 us, U32 max_yields)
+{
+    LL_PROFILE_ZONE_SCOPED
+    LARGE_INTEGER ft;
+    ft.QuadPart = -static_cast<S64>(us * 10);  // '-' using relative time
+
+    HANDLE timer = CreateWaitableTimer(NULL, TRUE, NULL);
+    SetWaitableTimer(timer, &ft, 0, NULL, NULL, 0);
+    WaitForSingleObject(timer, INFINITE);
+    CloseHandle(timer);
+
+    return 0;
+}
+
+void ms_sleep(U32 ms)
+{
+    LL_PROFILE_ZONE_SCOPED
+    micro_sleep(ms * 1000, 0);
+}
+
+#endif
+
 #elif LL_LINUX || LL_DARWIN
 static void _sleep_loop(struct timespec& thiswait)
 {
