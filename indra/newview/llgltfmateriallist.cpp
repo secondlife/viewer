@@ -47,11 +47,22 @@ namespace
 
         bool operator()(const LLDispatcher* dispatcher, const std::string& key, const LLUUID& invoice, const sparam_t& strings) override
         {
-            LL_DEBUGS() << "strings: ";
             for (std::string const & s : strings) {
-                LL_CONT << " " << s;
+                LL_DEBUGS() << "received override: " << s << LL_ENDL;
+
+#if 0
+                // for now messages are coming in llsd
+                LLSD override_data;
+                std::istringstream input(s);
+                LLSDSerialize::deserialize(override_data, input, s.length());
+                LL_DEBUGS() << "deserialized override: " << override_data << LL_ENDL;
+#else
+                std::string warn_msg, error_msg;
+                LLGLTFMaterial override_data;
+                override_data.fromJSON(s, warn_msg, error_msg);
+#endif
             }
-            LL_CONT << LL_ENDL;
+
             return true;
         }
     };

@@ -200,8 +200,6 @@ LLMaterialEditor::LLMaterialEditor(const LLSD& key)
     , mHasUnsavedChanges(false)
     , mExpectedUploadCost(0)
     , mUploadingTexturesCount(0)
-    , mOverrideLocalId(0)
-    , mOverrideFace(0)
 {
     const LLInventoryItem* item = getItem();
     if (item)
@@ -1875,10 +1873,10 @@ void LLMaterialEditor::importMaterial()
         true);
 }
 
-class LLRemderMaterialFunctor : public LLSelectedTEFunctor
+class LLRenderMaterialFunctor : public LLSelectedTEFunctor
 {
 public:
-    LLRemderMaterialFunctor(const LLUUID &id)
+    LLRenderMaterialFunctor(const LLUUID &id)
         : mMatId(id)
     {
     }
@@ -1897,29 +1895,59 @@ private:
     LLUUID mMatId;
 };
 
+class LLRenderMaterialOverrideFunctor : public LLSelectedTEFunctor
+{
+public:
+    LLRenderMaterialOverrideFunctor(LLMaterialEditor * me, std::string const & url)
+    : mEditor(me), mCapUrl(url)
+    {
+
+    }
+
+    bool apply(LLViewerObject* objectp, S32 te) override
+    {
+        if (objectp && objectp->permModify() && objectp->getVolume())
+        {
+            //LLVOVolume* vobjp = (LLVOVolume*)objectp;
+            S32 local_id = objectp->getLocalID();
+
+            LLSD overrides = llsd::map(
+                "local_id", local_id,
+                "side", te,
+                "overrides", LLSD::emptyMap()
+            );
+            LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLMaterialEditor::modifyMaterialCoro, mEditor, mCapUrl, overrides));
+        }
+        return true;
+    }
+
+private:
+    LLMaterialEditor * mEditor;
+    std::string mCapUrl;
+};
+
 void LLMaterialEditor::applyToSelection()
 {
-#if 0 // local preview placeholder hack
-    // Placehodler. Will be removed once override systems gets finished.
-    LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
-    getGLTFMaterial(mat);
-    const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
-    gGLTFMaterialList.addMaterial(placeholder, mat);
-    LLRemderMaterialFunctor mat_func(placeholder);
-    LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-    //selected_objects->applyToTEs(&mat_func);
-#else 
     std::string url = gAgent.getRegionCapability("ModifyMaterialParams");
     if (!url.empty())
     {
-        LLSDMap overrides;
-        LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLMaterialEditor::modifyMaterialCoro, this, url, overrides));
+        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+        LLRenderMaterialOverrideFunctor override_func(this, url);
+        selected_objects->applyToTEs(&override_func);
     }
     else
     {
         LL_WARNS() << "not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
+
+        // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
+        LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
+        getGLTFMaterial(mat);
+        static const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
+        gGLTFMaterialList.addMaterial(placeholder, mat);
+        LLRenderMaterialFunctor mat_func(placeholder);
+        LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
+        selected_objects->applyToTEs(&mat_func);
     }
-#endif
 }
 
 void LLMaterialEditor::getGLTFMaterial(LLGLTFMaterial* mat)
@@ -2323,13 +2351,10 @@ void LLMaterialEditor::modifyMaterialCoro(std::string cap_url, LLSD overrides)
     LLCore::HttpHeaders::ptr_t httpHeaders;
 
     httpOpts->setFollowRedirects(true);
-    LLSD body = llsd::map(
-        "local_id", S32(mOverrideLocalId),
-        "face", mOverrideFace,
-        "overrides", overrides
-    );
 
-    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, body, httpOpts, httpHeaders);
+    LL_DEBUGS() << "Applying override via ModifyMaterialParams cap: " << overrides << LL_ENDL;
+
+    LLSD result = httpAdapter->postAndSuspend(httpRequest, cap_url, overrides, httpOpts, httpHeaders);
 
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
@@ -2342,10 +2367,4 @@ void LLMaterialEditor::modifyMaterialCoro(std::string cap_url, LLSD overrides)
     {
         LL_WARNS() << "Failed to modify material: " << result["message"] << LL_ENDL;
     }
-}
-
-void LLMaterialEditor::setOverrideTarget(U32 local_id, S32 face)
-{
-    mOverrideLocalId = local_id;
-    mOverrideFace = face;
 }
