@@ -1537,7 +1537,28 @@ void LLMaterialEditor::loadMaterial(LLGLTFMaterial * material, bool make_copy)
     {
         setTitle(LLTrans::getString("New Material"));
     }
-    // else ??? Think of a name for live editing
+    else
+    {
+        setTitle(getString("material_override_title"));
+        // TODO: Save whole selection
+
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+        LLViewerObject* object = selection->getFirstNode()->getObject();
+        if (object)
+        {
+            const S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces()); // avatars have TEs but no faces
+            for (S32 face = 0; face < num_tes; ++face)
+            {
+                LLTextureEntry *te = object->getTE(face);
+                if (te->isSelected())
+                {
+                    // TEMP
+                    setOverrideTarget(object->getLocalID(), face);
+                    break;
+                }
+            }
+        }
+    }
 
     // Todo: At the moment it always makes a 'copy'
     // Will need a way to expand existing material
