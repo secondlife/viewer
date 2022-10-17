@@ -92,6 +92,7 @@
 #include "llpanelblockedlist.h"
 #include "llpanelmaininventory.h"
 #include "llmarketplacefunctions.h"
+#include "llmaterialeditor.h"
 #include "llmenuoptionpathfindingrebakenavmesh.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
@@ -2781,6 +2782,50 @@ void handle_object_open()
 	LLFloaterReg::showInstance("openobject");
 }
 
+bool enable_object_edit_gltf_material()
+{
+    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
+    {
+        LLSelectedTEGetmatId() : mCanModify(true) {}
+        LLUUID get(LLViewerObject* object, S32 te_index)
+        {
+            mCanModify &= (bool)object->permModify();
+            // Todo: probabnly should compare material
+            // pointers instead
+            return object->getRenderMaterialID(te_index);
+        }
+        bool mCanModify;
+    } func;
+    LLUUID mat_id;
+    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
+    LL_INFOS() << " Placeholder " << identical << " " << mat_id << LL_ENDL;
+    // Todo: this is a placeholder for overrides,
+    // it will have to make sure all selection is identical
+    return func.mCanModify;
+}
+
+bool enable_object_save_gltf_material()
+{
+    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
+    {
+        LLSelectedTEGetmatId() : mCanCopy(true) {}
+        LLUUID get(LLViewerObject* object, S32 te_index)
+        {
+            mCanCopy &= (bool)object->permCopy();
+            // permTransfer probably should be passed to editor instead
+            mCanCopy &= (bool)object->permTransfer();
+            return object->getRenderMaterialID(te_index);
+        }
+        bool mCanCopy;
+    } func;
+    LLUUID mat_id;
+    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
+    LL_INFOS() << " Placeholder " << identical << " " << mat_id << LL_ENDL;
+    // Todo: this is a placeholder for overrides,
+    // it will have to make sure all selection is identical
+    return func.mCanCopy;
+}
+
 bool enable_object_open()
 {
 	// Look for contents in root object, which is all the LLFloaterOpenObject
@@ -2846,37 +2891,42 @@ class LLObjectBuild : public view_listener_t
 	}
 };
 
+void update_camera()
+{
+    LLViewerParcelMgr::getInstance()->deselectLand();
+
+    if (gAgentCamera.getFocusOnAvatar() && !LLToolMgr::getInstance()->inEdit())
+    {
+        LLFloaterTools::sPreviousFocusOnAvatar = true;
+        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+
+        if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
+        {
+            // always freeze camera in space, even if camera doesn't move
+            // so, for example, follow cam scripts can't affect you when in build mode
+            gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
+            gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+        }
+        else
+        {
+            gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
+            LLViewerObject* selected_objectp = selection->getFirstRootObject();
+            if (selected_objectp)
+            {
+                // zoom in on object center instead of where we clicked, as we need to see the manipulator handles
+                gAgentCamera.setFocusGlobal(selected_objectp->getPositionGlobal(), selected_objectp->getID());
+                gAgentCamera.cameraZoomIn(0.666f);
+                gAgentCamera.cameraOrbitOver(30.f * DEG_TO_RAD);
+                gViewerWindow->moveCursorToCenter();
+            }
+        }
+    }
+}
+
 void handle_object_edit()
 {
-	LLViewerParcelMgr::getInstance()->deselectLand();
+    update_camera();
 
-	if (gAgentCamera.getFocusOnAvatar() && !LLToolMgr::getInstance()->inEdit())
-	{
-		LLFloaterTools::sPreviousFocusOnAvatar = true;
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-
-		if (selection->getSelectType() == SELECT_TYPE_HUD || !gSavedSettings.getBOOL("EditCameraMovement"))
-		{
-			// always freeze camera in space, even if camera doesn't move
-			// so, for example, follow cam scripts can't affect you when in build mode
-			gAgentCamera.setFocusGlobal(gAgentCamera.calcFocusPositionTargetGlobal(), LLUUID::null);
-			gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
-		}
-		else
-		{
-			gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);
-			LLViewerObject* selected_objectp = selection->getFirstRootObject();
-			if (selected_objectp)
-			{
-			  // zoom in on object center instead of where we clicked, as we need to see the manipulator handles
-			  gAgentCamera.setFocusGlobal(selected_objectp->getPositionGlobal(), selected_objectp->getID());
-			  gAgentCamera.cameraZoomIn(0.666f);
-			  gAgentCamera.cameraOrbitOver( 30.f * DEG_TO_RAD );
-			  gViewerWindow->moveCursorToCenter();
-			}
-		}
-	}
-	
 	LLFloaterReg::showInstance("build");
 	
 	LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
@@ -2888,6 +2938,54 @@ void handle_object_edit()
 	// Could be first use
 	//LLFirstUse::useBuild();
 	return;
+}
+
+void load_life_gltf_material(bool copy)
+{
+    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+    // All materials are supposed to be identical, so pcik any node
+    LLViewerObject* object = selection->getFirstNode()->getObject();
+    if (!object)
+    {
+        return;
+    }
+
+    // This functionality is a plcaholder for overrides
+    // so id doesn't load object by id, but instead gets material directly
+    LLGLTFMaterial * mat = NULL;
+
+    const S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces()); // avatars have TEs but no faces
+    for (S32 face = 0; face < num_tes; ++face)
+    {
+        LLTextureEntry *te = object->getTE(face);
+        if (te->isSelected())
+        {
+            mat = te->getGLTFMaterial();
+            break;
+        }
+    }
+
+    if (mat == NULL)
+    {
+        return;
+    }
+
+    update_camera();
+
+    LLMaterialEditor::loadLiveMaterial(mat, copy);
+
+    LLViewerJoystick::getInstance()->moveObjects(true);
+    LLViewerJoystick::getInstance()->setNeedsReset(true);
+}
+
+void handle_object_edit_gltf_material()
+{
+    load_life_gltf_material(false);
+}
+
+void handle_object_save_gltf_material()
+{
+    load_life_gltf_material(true);
 }
 
 void handle_attachment_edit(const LLUUID& inv_item_id)
@@ -9560,10 +9658,15 @@ void initialize_menus()
 
 	commit.add("Object.Buy", boost::bind(&handle_buy));
 	commit.add("Object.Edit", boost::bind(&handle_object_edit));
+    commit.add("Object.Edit", boost::bind(&handle_object_edit));
+    commit.add("Object.EditGLTFMaterial", boost::bind(&handle_object_edit_gltf_material));
+    commit.add("Object.SaveGLTFMaterial", boost::bind(&handle_object_save_gltf_material));
 	commit.add("Object.Inspect", boost::bind(&handle_object_inspect));
 	commit.add("Object.Open", boost::bind(&handle_object_open));
 	commit.add("Object.Take", boost::bind(&handle_take));
 	commit.add("Object.ShowInspector", boost::bind(&handle_object_show_inspector));
+    enable.add("Object.EnableEditGLTFMaterial", boost::bind(&enable_object_edit_gltf_material));
+    enable.add("Object.EnableSaveGLTFMaterial", boost::bind(&enable_object_save_gltf_material));
 	enable.add("Object.EnableOpen", boost::bind(&enable_object_open));
 	enable.add("Object.EnableTouch", boost::bind(&enable_object_touch, _1));
 	enable.add("Object.EnableDelete", boost::bind(&enable_object_delete));

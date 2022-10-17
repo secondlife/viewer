@@ -104,6 +104,7 @@ public:
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
+    static void loadLiveMaterial(LLGLTFMaterial * material, bool make_copy);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
@@ -221,6 +222,9 @@ public:
 
 private:
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
+    // if make_copy is set, will make a copy for saving,
+    // otherwise will edit existing material
+    void loadMaterial(LLGLTFMaterial * material, bool make_copy);
 
     friend class LLMaterialFilePicker;
 

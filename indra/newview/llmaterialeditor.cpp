@@ -1401,6 +1401,16 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     }
 }
 
+void LLMaterialEditor::loadLiveMaterial(LLGLTFMaterial * material, bool make_copy)
+{
+    if (!material)
+    {
+        return;
+    }
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
+    me->loadMaterial(material, make_copy);
+}
+
 void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index)
 {
     if (model_in.materials.size() <= index)
@@ -1503,6 +1513,40 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     setFocus(TRUE);
 
     applyToSelection();
+}
+
+void LLMaterialEditor::loadMaterial(LLGLTFMaterial * material, bool make_copy)
+{
+    setBaseColorId(material->mBaseColorId);
+    setMetallicRoughnessId(material->mMetallicRoughnessId);
+    setEmissiveId(material->mEmissiveId);
+    setNormalId(material->mNormalId);
+
+    setAlphaMode(material->getAlphaMode());
+    setAlphaCutoff(material->mAlphaCutoff);
+
+    setBaseColor(material->mBaseColor);
+    setEmissiveColor(material->mEmissiveColor);
+
+    setMetalnessFactor(material->mMetallicFactor);
+    setRoughnessFactor(material->mRoughnessFactor);
+
+    setDoubleSided(material->mDoubleSided);
+
+    if (make_copy)
+    {
+        setTitle(LLTrans::getString("New Material"));
+    }
+    // else ??? Think of a name for live editing
+
+    // Todo: At the moment it always makes a 'copy'
+    // Will need a way to expand existing material
+    // once overrides are done
+
+    setHasUnsavedChanges(make_copy);
+
+    openFloater();
+    setFocus(TRUE);
 }
 
 bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures)
