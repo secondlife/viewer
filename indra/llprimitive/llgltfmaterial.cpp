@@ -197,3 +197,97 @@ void LLGLTFMaterial::writeToModel(tinygltf::Model& model, S32 mat_index) const
     material_out.doubleSided = mDoubleSided;
 }
 
+void LLGLTFMaterial::writeOverridesToModel(tinygltf::Model & model, S32 mat_index, LLGLTFMaterial const * base_material) const
+{
+    if (model.materials.size() < mat_index+1)
+    {
+        model.materials.resize(mat_index + 1);
+    }
+
+    tinygltf::Material& material_out = model.materials[mat_index];
+
+    // TODO - fix handling of resetting to null/default values
+
+    // set base color texture
+    if (mBaseColorId.notNull() && mBaseColorId != base_material->mBaseColorId)
+    {
+        U32 idx = model.images.size();
+        model.images.resize(idx + 1);
+        model.textures.resize(idx + 1);
+
+        material_out.pbrMetallicRoughness.baseColorTexture.index = idx;
+        model.textures[idx].source = idx;
+        model.images[idx].uri = mBaseColorId.asString();
+    }
+
+    // set normal texture
+    if (mNormalId.notNull() && mNormalId != base_material->mNormalId)
+    {
+        U32 idx = model.images.size();
+        model.images.resize(idx + 1);
+        model.textures.resize(idx + 1);
+
+        material_out.normalTexture.index = idx;
+        model.textures[idx].source = idx;
+        model.images[idx].uri = mNormalId.asString();
+    }
+
+    // set metallic-roughness texture
+    if (mMetallicRoughnessId.notNull() && mMetallicRoughnessId != base_material->mMetallicRoughnessId)
+    {
+        U32 idx = model.images.size();
+        model.images.resize(idx + 1);
+        model.textures.resize(idx + 1);
+
+        material_out.pbrMetallicRoughness.metallicRoughnessTexture.index = idx;
+        model.textures[idx].source = idx;
+        model.images[idx].uri = mMetallicRoughnessId.asString();
+    }
+
+    // set emissive texture
+    if (mEmissiveId.notNull() && mEmissiveId != base_material->mEmissiveId)
+    {
+        U32 idx = model.images.size();
+        model.images.resize(idx + 1);
+        model.textures.resize(idx + 1);
+
+        material_out.emissiveTexture.index = idx;
+        model.textures[idx].source = idx;
+        model.images[idx].uri = mEmissiveId.asString();
+    }
+
+    if(mAlphaMode != base_material->mAlphaMode)
+    {
+        material_out.alphaMode = getAlphaMode();
+    }
+
+    if(mAlphaCutoff != base_material->mAlphaCutoff)
+    {
+        material_out.alphaCutoff = mAlphaCutoff;
+    }
+
+    if(mBaseColor != base_material->mBaseColor)
+    {
+        mBaseColor.write(material_out.pbrMetallicRoughness.baseColorFactor);
+    }
+
+    if(mEmissiveColor != base_material->mEmissiveColor)
+    {
+        mEmissiveColor.write(material_out.emissiveFactor);
+    }
+
+    if(mMetallicFactor != base_material->mMetallicFactor)
+    {
+        material_out.pbrMetallicRoughness.metallicFactor = mMetallicFactor;
+    }
+
+    if(mRoughnessFactor != base_material->mRoughnessFactor)
+    {
+        material_out.pbrMetallicRoughness.roughnessFactor = mRoughnessFactor;
+    }
+
+    if(mDoubleSided != base_material->mDoubleSided)
+    {
+        material_out.doubleSided = mDoubleSided;
+    }
+}
