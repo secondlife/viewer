@@ -89,14 +89,23 @@ vec3 srgb_to_linear(vec3 c);
 vec4 applyWaterFogViewLinear(vec3 pos, vec4 color);
 #endif
 
-// PBR interface
-vec3 pbrIbl(vec3 diffuseColor,
-            vec3 specularColor,
-            vec3 radiance, // radiance map sample
-            vec3 irradiance, // irradiance map sample
-            float ao,       // ambient occlusion factor
-            float nv,       // normal dot view vector
-            float perceptualRoughness);
+void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+
+vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
@@ -160,25 +169,15 @@ void main()
         sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
         
         // Take maximium of legacy ambient vs irradiance sample as irradiance
-        // NOTE: ao is applied in pbrIbl, do not apply here
+        // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
         irradiance       = max(amblit,irradiance);
 
-        vec3 f0 = vec3(0.04);
-        vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
-        diffuseColor *= 1.0 - metallic;
-
-        vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+        vec3 diffuseColor;
+        vec3 specularColor;
+        calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
         vec3 v = -normalize(pos.xyz);
-        float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
-        
-        color.rgb += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, normalize(light_dir)) * sunlit * 2.75 * scol;
-        color.rgb += colorEmissive*0.5;
-        
-        color.rgb += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
-
-        color = atmosFragLightingLinear(color, additive, atten);
-        color  = scaleSoftClipFragLinear(color);
+        color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
     }
     else if (!GET_GBUFFER_FLAG(GBUFFER_FLAG_HAS_ATMOS))
     {

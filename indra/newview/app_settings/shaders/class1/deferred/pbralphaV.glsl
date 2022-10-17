@@ -46,7 +46,7 @@ uniform mat4 modelview_projection_matrix;
 
 uniform mat4 texture_matrix0;
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
 VARYING vec3 vary_fragcoord;
 uniform float near_clip;
 #endif
@@ -85,7 +85,7 @@ void main()
 #endif
     gl_Position = vert;
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
     vary_fragcoord.xyz = vert.xyz + vec3(0,0,near_clip);
 #endif
 

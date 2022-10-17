@@ -73,6 +73,8 @@ const float M_PI = 3.14159265;
 const float ONE_OVER_PI = 0.3183098861;
 
 vec3 srgb_to_linear(vec3 cs);
+vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
+vec3 scaleSoftClipFragLinear(vec3 light);
 
 float calcLegacyDistanceAttenuation(float distance, float falloff)
 {
@@ -502,6 +504,31 @@ vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor,
 	vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);
 	// Obtain final intensity as reflectance (BRDF) scaled by the energy of the light (cosine law)
 	vec3 color = NdotL * u_LightColor * (diffuseContrib + specContrib);
+
+    return color;
+}
+
+void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor)
+{
+    vec3 f0 = vec3(0.04);
+    diffuseColor = baseColor*(vec3(1.0)-f0);
+    diffuseColor *= 1.0 - metallic;
+    specularColor = mix(f0, baseColor, metallic);
+}
+
+vec3 pbrBaseLight(vec3 diffuseColor, vec3 specularColor, float metallic, vec3 v, vec3 norm, float perceptualRoughness, vec3 light_dir, vec3 sunlit, float scol, vec3 radiance, vec3 irradiance, vec3 colorEmissive, float ao, vec3 additive, vec3 atten)
+{
+    vec3 color = vec3(0);
+
+    float NdotV = clamp(abs(dot(norm, v)), 0.001, 1.0);
+    
+    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
+    
+    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm, v, normalize(light_dir)) * sunlit * 2.75 * scol;
+    color += colorEmissive*0.5;
+
+    color = atmosFragLightingLinear(color, additive, atten);
+    color = scaleSoftClipFragLinear(color);
 
     return color;
 }

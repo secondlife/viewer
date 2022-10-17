@@ -44,7 +44,7 @@ uniform vec3 moon_dir;
 
 out vec4 frag_color;
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
   VARYING vec3 vary_fragcoord;
   uniform vec2 screen_res;
 #endif
@@ -75,8 +75,6 @@ vec3 srgb_to_linear(vec3 c);
 vec3 linear_to_srgb(vec3 c);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
-vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
-vec3 scaleSoftClipFragLinear(vec3 l);
 
 void calcHalfVectors(vec3 lv, vec3 n, vec3 v, out vec3 h, out vec3 l, out float nh, out float nl, out float nv, out float vh, out float lightDist);
 float calcLegacyDistanceAttenuation(float distance, float falloff);
@@ -86,14 +84,23 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
 
 void waterClip(vec3 pos);
 
-// PBR interface
-vec3 pbrIbl(vec3 diffuseColor,
-            vec3 specularColor,
-            vec3 radiance, // radiance map sample
-            vec3 irradiance, // irradiance map sample
-            float ao,       // ambient occlusion factor
-            float nv,       // normal dot view vector
-            float perceptualRoughness);
+void calcDiffuseSpecular(vec3 baseColor, float metallic, inout vec3 diffuseColor, inout vec3 specularColor);
+
+vec3 pbrBaseLight(vec3 diffuseColor,
+                  vec3 specularColor,
+                  float metallic,
+                  vec3 pos,
+                  vec3 norm,
+                  float perceptualRoughness,
+                  vec3 light_dir,
+                  vec3 sunlit,
+                  float scol,
+                  vec3 radiance,
+                  vec3 irradiance,
+                  vec3 colorEmissive,
+                  float ao,
+                  vec3 additive,
+                  vec3 atten);
 
 vec3 pbrPunctual(vec3 diffuseColor, vec3 specularColor, 
                     float perceptualRoughness, 
@@ -126,7 +133,12 @@ vec3 calcPointLightOrSpotLight(vec3 diffuseColor, vec3 specularColor,
 
         float dist_atten = calcLegacyDistanceAttenuation(dist, falloff);
 
-        vec3 intensity = dist_atten * lightColor * 3.0;
+        // spotlight coefficient.
+        float spot = max(dot(-ld, lv), is_pointlight);
+        // spot*spot => GL_SPOT_EXPONENT=2
+        float spot_atten = spot*spot;
+
+        vec3 intensity = spot_atten * dist_atten * lightColor * 3.0;
 
         color = intensity*pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, n.xyz, v, lv);
     }
@@ -174,7 +186,7 @@ void main()
     vec3 atten;
     calcAtmosphericVarsLinear(pos.xyz, norm, light_dir, sunlit, amblit, additive, atten);
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
     vec2 frag = vary_fragcoord.xy/vary_fragcoord.z*0.5+0.5;
     frag *= screen_res;
     scol = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
@@ -196,24 +208,16 @@ void main()
     vec3  irradiance = vec3(0);
     vec3  radiance  = vec3(0);
     sampleReflectionProbes(irradiance, radiance, pos.xyz, norm.xyz, gloss);
-    irradiance       = max(amblit*0.75,irradiance);
+    // Take maximium of legacy ambient vs irradiance sample as irradiance
+    // NOTE: ao is applied in pbrIbl (see pbrBaseLight), do not apply here
+    irradiance       = max(amblit,irradiance);
 
-    vec3 f0 = vec3(0.04);
-    
-    vec3 diffuseColor = baseColor.rgb*(vec3(1.0)-f0);
-    diffuseColor *= 1.0 - metallic;
-
-    vec3 specularColor = mix(f0, baseColor.rgb, metallic);
+    vec3 diffuseColor;
+    vec3 specularColor;
+    calcDiffuseSpecular(baseColor.rgb, metallic, diffuseColor, specularColor);
 
     vec3 v = -normalize(pos.xyz);
-    float NdotV = clamp(abs(dot(norm.xyz, v)), 0.001, 1.0);
-
-    color += pbrIbl(diffuseColor, specularColor, radiance, irradiance, ao, NdotV, perceptualRoughness);
-    color += pbrPunctual(diffuseColor, specularColor, perceptualRoughness, metallic, norm.xyz, v, light_dir) * sunlit * scol;
-    color += colorEmissive*0.5;
-    
-    color = atmosFragLightingLinear(color, additive, atten);
-    color  = scaleSoftClipFragLinear(color);
+    color = pbrBaseLight(diffuseColor, specularColor, metallic, v, norm.xyz, perceptualRoughness, light_dir, sunlit, scol, radiance, irradiance, colorEmissive, ao, additive, atten);
 
     vec3 light = vec3(0);
 

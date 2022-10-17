@@ -84,7 +84,7 @@ vec3 atmosFragLightingLinear(vec3 light, vec3 additive, vec3 atten);
 
 void calcAtmosphericVarsLinear(vec3 inPositionEye, vec3 norm, vec3 light_dir, out vec3 sunlit, out vec3 amblit, out vec3 atten, out vec3 additive);
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
 float sampleDirectionalShadow(vec3 pos, vec3 norm, vec2 pos_screen);
 #endif
 
@@ -191,7 +191,7 @@ void main()
 
     float shadow = 1.0f;
 
-#ifdef HAS_SHADOW
+#ifdef HAS_SUN_SHADOW
     shadow = sampleDirectionalShadow(pos.xyz, norm.xyz, frag);
 #endif
 
