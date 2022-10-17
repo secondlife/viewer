@@ -1538,24 +1538,6 @@ void LLMaterialEditor::loadMaterial(LLGLTFMaterial * material, bool make_copy)
     else
     {
         setTitle(getString("material_override_title"));
-        // TODO: Save whole selection
-
-        LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-        LLViewerObject* object = selection->getFirstNode()->getObject();
-        if (object)
-        {
-            const S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces()); // avatars have TEs but no faces
-            for (S32 face = 0; face < num_tes; ++face)
-            {
-                LLTextureEntry *te = object->getTE(face);
-                if (te->isSelected())
-                {
-                    // TEMP
-                    setOverrideTarget(object->getLocalID(), face);
-                    break;
-                }
-            }
-        }
     }
 
     // Todo: At the moment it always makes a 'copy'
@@ -1898,8 +1880,8 @@ private:
 class LLRenderMaterialOverrideFunctor : public LLSelectedTEFunctor
 {
 public:
-    LLRenderMaterialOverrideFunctor(LLMaterialEditor * me, std::string const & url)
-    : mEditor(me), mCapUrl(url)
+    LLRenderMaterialOverrideFunctor(LLMaterialEditor * me, std::string const & url, LLUUID const & asset_id)
+    : mEditor(me), mCapUrl(url), mAssetID(asset_id)
     {
 
     }
@@ -1911,10 +1893,37 @@ public:
             //LLVOVolume* vobjp = (LLVOVolume*)objectp;
             S32 local_id = objectp->getLocalID();
 
+            LLPointer<LLGLTFMaterial> material = new LLGLTFMaterial();
+            LLPointer<LLGLTFMaterial> base;
+            mEditor->getGLTFMaterial(material);
+
+            tinygltf::Model model_out;
+
+            if(mAssetID != LLUUID::null)
+            {
+                base = gGLTFMaterialList.getMaterial(mAssetID);
+                material->writeOverridesToModel(model_out, 0, base);
+            }
+            else
+            {
+                material->writeToModel(model_out, 0);
+            }
+
+            std::string overrides_json;
+            {
+                tinygltf::TinyGLTF gltf;
+                std::ostringstream str;
+
+                gltf.WriteGltfSceneToStream(&model_out, str, false, false);
+
+                overrides_json = str.str();
+                LL_DEBUGS() << "overrides_json " << overrides_json << LL_ENDL;
+            }
+
             LLSD overrides = llsd::map(
                 "local_id", local_id,
                 "side", te,
-                "overrides", LLSD::emptyMap()
+                "overrides", overrides_json
             );
             LLCoros::instance().launch("modifyMaterialCoro", std::bind(&LLMaterialEditor::modifyMaterialCoro, mEditor, mCapUrl, overrides));
         }
@@ -1924,6 +1933,7 @@ public:
 private:
     LLMaterialEditor * mEditor;
     std::string mCapUrl;
+    LLUUID mAssetID;
 };
 
 void LLMaterialEditor::applyToSelection()
@@ -1932,7 +1942,8 @@ void LLMaterialEditor::applyToSelection()
     if (!url.empty())
     {
         LLObjectSelectionHandle selected_objects = LLSelectMgr::getInstance()->getSelection();
-        LLRenderMaterialOverrideFunctor override_func(this, url);
+        // TODO figure out how to get the right asset id in cases where we don't have a good one
+        LLRenderMaterialOverrideFunctor override_func(this, url, mAssetID);
         selected_objects->applyToTEs(&override_func);
     }
     else

@@ -4593,8 +4593,8 @@ void LLPanelFace::onPbrStartEditing() {
 
         LL_DEBUGS() << "loading material live editor with asset " << material_id << LL_ENDL;
 
-        LLGLTFMaterial* material = gGLTFMaterialList.getMaterial(material_id);
-        editor->setTitle("Editing material on selection"s);
+        LLPointer<LLGLTFMaterial> material = gGLTFMaterialList.getMaterial(material_id);
+        editor->setTitle(editor->getString("material_override_title"));
         editor->setAssetId(material_id);
         editor->setFromGLTFMaterial(material);
     }
