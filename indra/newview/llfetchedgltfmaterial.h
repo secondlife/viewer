@@ -43,6 +43,3 @@ protected:
     bool mFetching;
 };
 
-extern LLGLTFMaterialList gGLTFMaterialList;
-
-
