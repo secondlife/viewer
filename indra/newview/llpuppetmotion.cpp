@@ -768,7 +768,7 @@ void LLPuppetMotion::rememberPosedJoint(S16 joint_id, LLPointer<LLJointState> jo
     }
 }
 
-void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now)
+void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t& targets, Timestamp now,bool something_changed)
 {
     if (mIsSelf)
     {
@@ -780,16 +780,44 @@ void LLPuppetMotion::solveForTargetsAndHarvestResults(LLIK::Solver::target_map_t
         }
     }
 
+    bool local_puppetry = !LLPuppetModule::instance().getEcho();
+
     mIKSolver.solveForTargets(targets);
+
+	//Create a broadcast event from post IK rotations per SL-18363
+	LLPuppetEvent broadcast_event;
+	broadcast_event.updateTimestamp();
+	//bool local_puppetry = !LLPuppetModule::instance().getEcho();
+    LLIK::Solver::target_map_t output_targets;
 
     // copy results
     const LLIK::Solver::S16_vec_t& active_ids = mIKSolver.getActiveIDs();
     for (S16 id : active_ids)
     {
-        LLPointer<LLJointState> joint_state = mJointStates[id];
-        joint_state->setRotation(mIKSolver.getJointLocalRot(id));
-        rememberPosedJoint(id, joint_state, now);
+        if (local_puppetry)
+        {
+            LLPointer<LLJointState> joint_state = mJointStates[id];
+            joint_state->setRotation(mIKSolver.getJointLocalRot(id));
+            rememberPosedJoint(id, joint_state, now);
+        }
+
+		if (something_changed)
+		{
+			//Add a joint event for broadcast per SL-18363
+			LLPuppetJointEvent joint_event;
+			joint_event.setJointID(id);
+			joint_event.disableConstraint();
+			joint_event.setRotation(mIKSolver.getJointLocalRot(id), LLPuppetJointEvent::PARENT_FRAME);
+
+			broadcast_event.addJointEvent(joint_event);
+		}
     }
+	if (something_changed &&
+        LLPuppetModule::instance().isSending())
+	{
+
+		queueOutgoingEvent(broadcast_event);
+	}
 }
 
 void LLPuppetMotion::applyEvent(const LLPuppetJointEvent& event, U64 now, LLIK::Solver::target_map_t& targets)
@@ -831,8 +859,7 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
         bool something_changed = false;
 
         LLIK::Solver::target_map_t targets;
-        LLPuppetEvent broadcast_event;
-        broadcast_event.updateTimestamp();
+
         for(const auto& data_pair : mExpressionEvents)
         {
             S16 joint_id = data_pair.first;
@@ -846,21 +873,40 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
             {
                 applyEvent(event, now, targets);
             }
-            broadcast_event.addJointEvent(event);
             something_changed = true;
         }
-        if (something_changed && LLPuppetModule::instance().isSending())
-        {
-            broadcast_event.updateTimestamp();
-            queueOutgoingEvent(broadcast_event);
-        }
+
         mExpressionEvents.clear();
 
         if (targets.size() > 0 && local_puppetry)
         {
-            solveForTargetsAndHarvestResults(targets, now);
+            solveForTargetsAndHarvestResults(targets, now, something_changed);
         }
         mNeedsUpdate = false;
+    }
+}
+
+void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry)
+{
+    if (mIsSelf && !local_puppetry)
+    {
+        return;
+    }
+    
+    S16 joint_id = event.getJointID();
+    state_map_t::iterator state_iter = mJointStates.find(joint_id);
+    if (state_iter != mJointStates.end())
+    {
+        if (event.hasRotation())
+        {
+            state_iter->second->setRotation(event.getRotation());
+        }
+        if (event.hasPosition())
+        {
+            state_iter->second->setPosition(event.getPosition());
+            // Scale set by broadcaster 0.5*mArmSpan
+        }
+        rememberPosedJoint(joint_id, state_iter->second, now);
     }
 }
 
@@ -872,8 +918,8 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
         return;
     }
 
-    LLIK::Solver::target_map_t targets;
-
+    bool local_puppetry = !LLPuppetModule::instance().getEcho();
+    
     // We walk the queue looking for the two bounding events: the last previous
     // and the next pending: we will interpolate between them.  If we don't
     // find bounding events we'll use whatever we've got.
@@ -890,7 +936,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
             {
                 // first available event is in the future
                 // we have no choice but to apply what we have
-                applyEvent(event, now, targets);
+                applyBroadcastEvent(event, now, local_puppetry);
                 break;
             }
 
@@ -910,7 +956,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
                 {
                     // presumeably we already interpolated close to this event
                     // but just in case we didn't quite reach it yet: apply
-                    applyEvent(event, now, targets);
+                    applyBroadcastEvent(event, now, local_puppetry);
                 }
                 break;
             }
@@ -931,7 +977,7 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
             LLPuppetJointEvent interpolated_event;
             const LLPuppetJointEvent& next_event = event_itr->second;
             interpolated_event.interpolate(del, event, next_event);
-            applyEvent(interpolated_event, now, targets);
+            applyBroadcastEvent(interpolated_event, now, local_puppetry);
             break;
         }
         if (queue.empty())
@@ -942,10 +988,6 @@ void LLPuppetMotion::updateFromBroadcast(Timestamp now)
         {
             ++queue_itr;
         }
-    }
-    if (targets.size() > 0)
-    {
-        solveForTargetsAndHarvestResults(targets, now);
     }
 }
 
