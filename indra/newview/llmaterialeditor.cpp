@@ -65,6 +65,8 @@ const std::string MATERIAL_NORMAL_DEFAULT_NAME = "Normal";
 const std::string MATERIAL_METALLIC_DEFAULT_NAME = "Metallic Roughness";
 const std::string MATERIAL_EMISSIVE_DEFAULT_NAME = "Emissive";
 
+const LLUUID LIVE_MATERIAL_EDITOR_KEY("6cf97162-8b68-49eb-b627-79886c9fd17d");
+
 LLFloaterComboOptions::LLFloaterComboOptions()
     : LLFloater(LLSD())
 {
@@ -1399,14 +1401,24 @@ void LLMaterialEditor::loadMaterialFromFile(const std::string& filename, S32 ind
     }
 }
 
-void LLMaterialEditor::loadLiveMaterial(LLGLTFMaterial * material, bool make_copy)
+void LLMaterialEditor::loadLiveMaterial(LLUUID &asset_id)
 {
-    if (!material)
-    {
-        return;
-    }
+    LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
+    me->setTitle(me->getString("material_override_title"));
+    me->setAssetId(asset_id);
+    me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+    me->openFloater();
+    me->setFocus(TRUE);
+}
+
+void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
+{
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-    me->loadMaterial(material, make_copy);
+    me->setTitle(LLTrans::getString("New Material"));
+    me->setHasUnsavedChanges(true);
+    me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+    me->openFloater();
+    me->setFocus(TRUE);
 }
 
 void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::string &filename_lc, S32 index)
@@ -1511,43 +1523,6 @@ void LLMaterialEditor::loadMaterial(const tinygltf::Model &model_in, const std::
     setFocus(TRUE);
 
     applyToSelection();
-}
-
-void LLMaterialEditor::loadMaterial(LLGLTFMaterial * material, bool make_copy)
-{
-    setBaseColorId(material->mBaseColorId);
-    setMetallicRoughnessId(material->mMetallicRoughnessId);
-    setEmissiveId(material->mEmissiveId);
-    setNormalId(material->mNormalId);
-
-    setAlphaMode(material->getAlphaMode());
-    setAlphaCutoff(material->mAlphaCutoff);
-
-    setBaseColor(material->mBaseColor);
-    setEmissiveColor(material->mEmissiveColor);
-
-    setMetalnessFactor(material->mMetallicFactor);
-    setRoughnessFactor(material->mRoughnessFactor);
-
-    setDoubleSided(material->mDoubleSided);
-
-    if (make_copy)
-    {
-        setTitle(LLTrans::getString("New Material"));
-    }
-    else
-    {
-        setTitle(getString("material_override_title"));
-    }
-
-    // Todo: At the moment it always makes a 'copy'
-    // Will need a way to expand existing material
-    // once overrides are done
-
-    setHasUnsavedChanges(make_copy);
-
-    openFloater();
-    setFocus(TRUE);
 }
 
 bool LLMaterialEditor::setFromGltfModel(const tinygltf::Model& model, S32 index, bool set_textures)
@@ -1863,7 +1838,7 @@ public:
     {
     }
 
-    virtual bool apply(LLViewerObject* objectp, S32 te)
+    bool apply(LLViewerObject* objectp, S32 te) override
     {
         if (objectp && objectp->permModify() && objectp->getVolume())
         {
@@ -1938,6 +1913,15 @@ private:
 
 void LLMaterialEditor::applyToSelection()
 {
+    if (!mKey.isUUID() || mKey.asUUID() != LIVE_MATERIAL_EDITOR_KEY)
+    {
+        // Only apply if working with 'live' materials
+        // Might need a better way to distinguish 'live' mode.
+        // But only one live edit is supposed to work at a time
+        // as a pair to tools floater.
+        return;
+    }
+
     std::string url = gAgent.getRegionCapability("ModifyMaterialParams");
     if (!url.empty())
     {

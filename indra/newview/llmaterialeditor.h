@@ -98,13 +98,14 @@ public:
 
     void getGLTFMaterial(LLGLTFMaterial* mat);
 
-    void setFromGLTFMaterial(LLGLTFMaterial* mat);
-
     void loadAsset() override;
     // @index if -1 and file contains more than one material,
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
-    static void loadLiveMaterial(LLGLTFMaterial * material, bool make_copy);
+
+    static void LLMaterialEditor::loadLiveMaterial(LLUUID &asset_id);
+
+    static void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
@@ -220,10 +221,9 @@ public:
     void modifyMaterialCoro(std::string cap_url, LLSD overrides);
 
 private:
+    void setFromGLTFMaterial(LLGLTFMaterial* mat);
+
     void loadMaterial(const tinygltf::Model &model, const std::string &filename_lc, S32 index);
-    // if make_copy is set, will make a copy for saving,
-    // otherwise will edit existing material
-    void loadMaterial(LLGLTFMaterial * material, bool make_copy);
 
     friend class LLMaterialFilePicker;
 

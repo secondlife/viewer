@@ -2782,47 +2782,36 @@ void handle_object_open()
 	LLFloaterReg::showInstance("openobject");
 }
 
+struct LLSelectedTEGetmatIdAndPermissions : public LLSelectedTEGetFunctor<LLUUID>
+{
+    LLSelectedTEGetmatIdAndPermissions() : mCanCopy(true), mCanModify(true), mCanTransfer(true) {}
+    LLUUID get(LLViewerObject* object, S32 te_index)
+    {
+        mCanCopy &= (bool)object->permCopy();
+        mCanTransfer &= (bool)object->permTransfer();
+        mCanModify &= (bool)object->permModify();
+        // return true if all ids are identical
+        return object->getRenderMaterialID(te_index);
+    }
+    bool mCanCopy;
+    bool mCanModify;
+    bool mCanTransfer;
+};
+
 bool enable_object_edit_gltf_material()
 {
-    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
-    {
-        LLSelectedTEGetmatId() : mCanModify(true) {}
-        LLUUID get(LLViewerObject* object, S32 te_index)
-        {
-            mCanModify &= (bool)object->permModify();
-            // Todo: probabnly should compare material
-            // pointers instead
-            return object->getRenderMaterialID(te_index);
-        }
-        bool mCanModify;
-    } func;
+    LLSelectedTEGetmatIdAndPermissions func;
     LLUUID mat_id;
-    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-    LL_INFOS() << " Placeholder " << identical << " " << mat_id << LL_ENDL;
-    // Todo: this is a placeholder for overrides,
-    // it will have to make sure all selection is identical
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
+
     return func.mCanModify;
 }
 
 bool enable_object_save_gltf_material()
 {
-    struct LLSelectedTEGetmatId : public LLSelectedTEGetFunctor<LLUUID>
-    {
-        LLSelectedTEGetmatId() : mCanCopy(true) {}
-        LLUUID get(LLViewerObject* object, S32 te_index)
-        {
-            mCanCopy &= (bool)object->permCopy();
-            // permTransfer probably should be passed to editor instead
-            mCanCopy &= (bool)object->permTransfer();
-            return object->getRenderMaterialID(te_index);
-        }
-        bool mCanCopy;
-    } func;
+    LLSelectedTEGetmatIdAndPermissions func;
     LLUUID mat_id;
-    bool identical = LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-    LL_INFOS() << " Placeholder " << identical << " " << mat_id << LL_ENDL;
-    // Todo: this is a placeholder for overrides,
-    // it will have to make sure all selection is identical
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
     return func.mCanCopy;
 }
 
@@ -2942,37 +2931,20 @@ void handle_object_edit()
 
 void load_life_gltf_material(bool copy)
 {
-    LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-    // All materials are supposed to be identical, so pcik any node
-    LLViewerObject* object = selection->getFirstNode()->getObject();
-    if (!object)
-    {
-        return;
-    }
-
-    // This functionality is a plcaholder for overrides
-    // so id doesn't load object by id, but instead gets material directly
-    LLGLTFMaterial * mat = NULL;
-
-    const S32 num_tes = llmin((S32)object->getNumTEs(), (S32)object->getNumFaces()); // avatars have TEs but no faces
-    for (S32 face = 0; face < num_tes; ++face)
-    {
-        LLTextureEntry *te = object->getTE(face);
-        if (te->isSelected())
-        {
-            mat = te->getGLTFMaterial();
-            break;
-        }
-    }
-
-    if (mat == NULL)
-    {
-        return;
-    }
-
     update_camera();
 
-    LLMaterialEditor::loadLiveMaterial(mat, copy);
+    LLSelectedTEGetmatIdAndPermissions func;
+    LLUUID mat_id;
+    LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
+
+    if (copy)
+    {
+        LLMaterialEditor::loadFromGLTFMaterial(mat_id);
+    }
+    else
+    {
+        LLMaterialEditor::loadLiveMaterial(mat_id);
+    }
 
     LLViewerJoystick::getInstance()->moveObjects(true);
     LLViewerJoystick::getInstance()->setNeedsReset(true);

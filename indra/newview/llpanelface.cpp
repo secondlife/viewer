@@ -4580,24 +4580,15 @@ void LLPanelFace::onPbrSelectionChanged(LLInventoryItem* itemp)
     }
 }
 
-void LLPanelFace::onPbrStartEditing() {
-    LL_DEBUGS() << "begin live editing material" << LL_ENDL;
+void LLPanelFace::onPbrStartEditing()
+{
+    bool   identical;
+    LLUUID material_id;
+    LLSelectedTE::getPbrMaterialId(material_id, identical);
 
-    LLMaterialEditor *editor =
-        dynamic_cast<LLMaterialEditor *>(LLFloaterReg::showInstance("material_editor", LLSD(LLUUID::null), TAKE_FOCUS_YES));
-    if (editor)
-    {
-        bool   identical;
-        LLUUID material_id;
-        LLSelectedTE::getPbrMaterialId(material_id, identical);
+    LL_DEBUGS() << "loading material live editor with asset " << material_id << LL_ENDL;
 
-        LL_DEBUGS() << "loading material live editor with asset " << material_id << LL_ENDL;
-
-        LLPointer<LLGLTFMaterial> material = gGLTFMaterialList.getMaterial(material_id);
-        editor->setTitle(editor->getString("material_override_title"));
-        editor->setAssetId(material_id);
-        editor->setFromGLTFMaterial(material);
-    }
+    LLMaterialEditor::loadLiveMaterial(material_id);
 }
 
 bool LLPanelFace::isIdenticalPlanarTexgen()
