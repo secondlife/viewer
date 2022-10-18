@@ -1422,7 +1422,8 @@ void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
         return;
     }
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
-    me->setTitle(LLTrans::getString("New Material"));
+    me->mMaterialName = LLTrans::getString("New Material");
+    me->setTitle(me->mMaterialName);
     me->setHasUnsavedChanges(true);
     me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
     me->openFloater();
@@ -1943,7 +1944,7 @@ void LLMaterialEditor::applyToSelection()
         LL_WARNS() << "not connected to materials capable region, missing ModifyMaterialParams cap" << LL_ENDL;
 
         // Fallback local preview. Will be removed once override systems is finished and new cap is deployed everywhere.
-        LLPointer<LLGLTFMaterial> mat = new LLGLTFMaterial();
+        LLPointer<LLFetchedGLTFMaterial> mat = new LLFetchedGLTFMaterial();
         getGLTFMaterial(mat);
         static const LLUUID placeholder("984e183e-7811-4b05-a502-d79c6f978a98");
         gGLTFMaterialList.addMaterial(placeholder, mat);

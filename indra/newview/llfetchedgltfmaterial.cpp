@@ -1,5 +1,5 @@
 /**
- * @file   llgltfmateriallist.h
+ * @file   llfetchedgltfmaterial.cpp
  *
  * $LicenseInfo:firstyear=2022&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -23,38 +23,20 @@
  * $/LicenseInfo$
  */
 
-
-#pragma once
+#include "llviewerprecompiledheaders.h"
 
 #include "llfetchedgltfmaterial.h"
-#include "llgltfmaterial.h"
-#include "llpointer.h"
 
-#include <unordered_map>
-
-class LLFetchedGLTFMaterial;
-
-class LLGLTFMaterialList
+LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
+    : LLGLTFMaterial()
+    , mExpectedFlusTime(0.f)
+    , mActive(true)
+    , mFetching(false)
 {
-public:
-    LLGLTFMaterialList() {}
 
+}
 
-    LLGLTFMaterial* getMaterial(const LLUUID& id);
+LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
+{
 
-    void addMaterial(const LLUUID& id, LLFetchedGLTFMaterial* material);
-    void removeMaterial(const LLUUID& id);
-
-    void flushMaterials();
-
-    static void registerCallbacks();
-private:
-    typedef std::unordered_map<LLUUID, LLPointer<LLFetchedGLTFMaterial > > uuid_mat_map_t;
-    uuid_mat_map_t mList;
-
-    LLUUID mLastUpdateKey;
-};
-
-extern LLGLTFMaterialList gGLTFMaterialList;
-
-
+}

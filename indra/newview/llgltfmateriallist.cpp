@@ -29,9 +29,11 @@
 
 #include "llassetstorage.h"
 #include "lldispatcher.h"
+#include "llfetchedgltfmaterial.h"
 #include "llfilesystem.h"
 #include "llsdserialize.h"
 #include "lltinygltfhelper.h"
+#include "llviewercontrol.h"
 #include "llviewergenericmessage.h"
 
 #include "tinygltf/tiny_gltf.h"
@@ -73,19 +75,25 @@ LLGLTFMaterialList gGLTFMaterialList;
 
 LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
 {
-    List::iterator iter = mList.find(id);
+    uuid_mat_map_t::iterator iter = mList.find(id);
     if (iter == mList.end())
     {
-        LLGLTFMaterial* mat = new LLGLTFMaterial();
+        LLFetchedGLTFMaterial* mat = new LLFetchedGLTFMaterial();
         mList[id] = mat;
 
-        mat->ref();
+        if (!mat->mFetching)
+        {
+            // if we do multiple getAssetData calls,
+            // some will get distched, messing ref counter
+            // Todo: get rid of mat->ref()
+            mat->mFetching = true;
+            mat->ref();
 
-        gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL,
-            [=](const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
+            gAssetStorage->getAssetData(id, LLAssetType::AT_MATERIAL,
+                [=](const LLUUID& id, LLAssetType::EType asset_type, void* user_data, S32 status, LLExtStat ext_status)
             {
                 if (status)
-                { 
+                {
                     LL_WARNS() << "Error getting material asset data: " << LLAssetStorage::getErrorString(status) << " (" << status << ")" << LL_ENDL;
                 }
 
@@ -94,6 +102,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
                 if (!size)
                 {
                     LL_DEBUGS() << "Zero size material." << LL_ENDL;
+                    mat->mFetching = false;
                     mat->unref();
                     return;
                 }
@@ -134,8 +143,10 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
                     LL_WARNS() << "Failed to deserialize material LLSD" << LL_ENDL;
                 }
 
+                mat->mFetching = false;
                 mat->unref();
             }, nullptr);
+        }
         
         return mat;
     }
@@ -143,7 +154,7 @@ LLGLTFMaterial* LLGLTFMaterialList::getMaterial(const LLUUID& id)
     return iter->second;
 }
 
-void LLGLTFMaterialList::addMaterial(const LLUUID& id, LLGLTFMaterial* material)
+void LLGLTFMaterialList::addMaterial(const LLUUID& id, LLFetchedGLTFMaterial* material)
 {
     mList[id] = material;
 }
@@ -151,6 +162,61 @@ void LLGLTFMaterialList::addMaterial(const LLUUID& id, LLGLTFMaterial* material)
 void LLGLTFMaterialList::removeMaterial(const LLUUID& id)
 {
     mList.erase(id);
+}
+
+void LLGLTFMaterialList::flushMaterials()
+{
+    // Similar variant to what textures use
+    static const S32 MIN_UPDATE_COUNT = gSavedSettings.getS32("TextureFetchUpdateMinCount");       // default: 32
+    //update MIN_UPDATE_COUNT or 5% of materials, whichever is greater
+    U32 update_count = llmax((U32)MIN_UPDATE_COUNT, (U32)mList.size() / 20);
+    update_count = llmin(update_count, (U32)mList.size());
+
+    const F64 MAX_INACTIVE_TIME = 30.f;
+    F64 cur_time = LLTimer::getTotalSeconds();
+
+    uuid_mat_map_t::iterator iter = mList.upper_bound(mLastUpdateKey);
+    while (update_count-- > 0)
+    {
+        if (iter == mList.end())
+        {
+            iter = mList.begin();
+        }
+
+        LLPointer<LLFetchedGLTFMaterial> material = iter->second;
+        if (material->getNumRefs() == 2) // this one plus one from the list
+        {
+
+            if (!material->mActive
+                && cur_time > material->mExpectedFlusTime)
+            {
+                iter = mList.erase(iter);
+            }
+            else
+            {
+                if (material->mActive)
+                {
+                    material->mExpectedFlusTime = cur_time + MAX_INACTIVE_TIME;
+                    material->mActive = false;
+                }
+                ++iter;
+            }
+        }
+        else
+        {
+            material->mActive = true;
+            ++iter;
+        }
+    }
+
+    if (iter != mList.end())
+    {
+        mLastUpdateKey = iter->first;
+    }
+    else
+    {
+        mLastUpdateKey.setNull();
+    }
 }
 
 // static
