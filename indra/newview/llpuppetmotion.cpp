@@ -855,7 +855,6 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
 {
     if (!mExpressionEvents.empty())
     {
-        bool local_puppetry = !LLPuppetModule::instance().getEcho();
         bool something_changed = false;
 
         LLIK::Solver::target_map_t targets;
@@ -869,16 +868,13 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
                 continue;
             }
             const LLPuppetJointEvent& event = data_pair.second;
-            if (local_puppetry)
-            {
-                applyEvent(event, now, targets);
-            }
+            applyEvent(event, now, targets);
             something_changed = true;
         }
 
         mExpressionEvents.clear();
 
-        if (targets.size() > 0 && local_puppetry)
+        if (targets.size())
         {
             solveForTargetsAndHarvestResults(targets, now, something_changed);
         }
