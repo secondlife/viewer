@@ -884,7 +884,7 @@ void LLPuppetMotion::updateFromExpression(Timestamp now)
 
 void LLPuppetMotion::applyBroadcastEvent(const LLPuppetJointEvent& event, Timestamp now, bool local_puppetry)
 {
-    if (mIsSelf && !local_puppetry)
+    if (mIsSelf && local_puppetry)
     {
         return;
     }
