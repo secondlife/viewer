@@ -2812,7 +2812,7 @@ bool enable_object_save_gltf_material()
     LLSelectedTEGetmatIdAndPermissions func;
     LLUUID mat_id;
     LLSelectMgr::getInstance()->getSelection()->getSelectedTEValue(&func, mat_id);
-    return func.mCanCopy;
+    return func.mCanCopy && mat_id.notNull();
 }
 
 bool enable_object_open()

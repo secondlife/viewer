@@ -1406,13 +1406,21 @@ void LLMaterialEditor::loadLiveMaterial(LLUUID &asset_id)
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor", LLSD(LIVE_MATERIAL_EDITOR_KEY));
     me->setTitle(me->getString("material_override_title"));
     me->setAssetId(asset_id);
-    me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+    if (asset_id.notNull())
+    {
+        me->setFromGLTFMaterial(gGLTFMaterialList.getMaterial(asset_id));
+    }
     me->openFloater();
     me->setFocus(TRUE);
 }
 
 void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id)
 {
+    if (asset_id.isNull())
+    {
+        LL_WARNS() << "Trying to open material with null id" << LL_ENDL;
+        return;
+    }
     LLMaterialEditor* me = (LLMaterialEditor*)LLFloaterReg::getInstance("material_editor");
     me->setTitle(LLTrans::getString("New Material"));
     me->setHasUnsavedChanges(true);

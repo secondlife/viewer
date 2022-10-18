@@ -103,9 +103,9 @@ public:
     // will promt to select specific one
     static void loadMaterialFromFile(const std::string& filename, S32 index = -1);
 
-    static void LLMaterialEditor::loadLiveMaterial(LLUUID &asset_id);
+    static void loadLiveMaterial(LLUUID &asset_id);
 
-    static void LLMaterialEditor::loadFromGLTFMaterial(LLUUID &asset_id);
+    static void loadFromGLTFMaterial(LLUUID &asset_id);
 
     static void onLoadComplete(const LLUUID& asset_uuid, LLAssetType::EType type, void* user_data, S32 status, LLExtStat ext_status);
 
