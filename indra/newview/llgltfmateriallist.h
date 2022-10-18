@@ -30,7 +30,7 @@
 #include "llgltfmaterial.h"
 #include "llpointer.h"
 
-#include <unordered_map>
+#include <map>
 
 class LLFetchedGLTFMaterial;
 
