@@ -27,6 +27,10 @@
 
 #include "llfetchedgltfmaterial.h"
 
+#include "llviewertexturelist.h"
+#include "llavatarappearancedefines.h"
+#include "llshadermgr.h"
+
 LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
     : LLGLTFMaterial()
     , mExpectedFlusTime(0.f)
@@ -38,5 +42,62 @@ LLFetchedGLTFMaterial::LLFetchedGLTFMaterial()
 
 LLFetchedGLTFMaterial::~LLFetchedGLTFMaterial()
 {
+    
+}
+
+void LLFetchedGLTFMaterial::bind(LLGLSLShader* shader)
+{
+    // glTF 2.0 Specification 3.9.4. Alpha Coverage
+    // mAlphaCutoff is only valid for LLGLTFMaterial::ALPHA_MODE_MASK
+    F32 min_alpha = -1.0;
+
+    if (mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
+    {
+        min_alpha = mAlphaCutoff;
+    }
+    shader->uniform1f(LLShaderMgr::MINIMUM_ALPHA, min_alpha);
+
+    if (mBaseColorTexture.notNull())
+    {
+        gGL.getTexUnit(0)->bindFast(mBaseColorTexture);
+    }
+    else
+    {
+        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
+    }
+
+
+    if (mNormalTexture.notNull())
+    {
+        shader->bindTexture(LLShaderMgr::BUMP_MAP, mNormalTexture);
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
+    }
+
+    if (mMetallicRoughnessTexture.notNull())
+    {
+        shader->bindTexture(LLShaderMgr::SPECULAR_MAP, mMetallicRoughnessTexture); // PBR linear packed Occlusion, Roughness, Metal.
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
+    }
+
+    if (mEmissiveTexture.notNull())
+    {
+        shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, mEmissiveTexture);  // PBR sRGB Emissive
+    }
+    else
+    {
+        shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
+    }
+
+    // NOTE: base color factor is baked into vertex stream
+
+    shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, mRoughnessFactor);
+    shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, mMetallicFactor);
+    shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, mEmissiveColor.mV);
 
 }

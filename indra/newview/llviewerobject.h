@@ -371,12 +371,6 @@ public:
 	LLViewerTexture		*getTENormalMap(const U8 te) const;
 	LLViewerTexture		*getTESpecularMap(const U8 te) const;
 
-    LLViewerTexture* getGLTFBaseColorMap(U8 te) const { return mGLTFBaseColorMaps[te]; }
-    LLViewerTexture* getGLTFNormalMap(U8 te) const { return mGLTFNormalMaps[te]; }
-    LLViewerTexture* getGLTFEmissiveMap(U8 te) const { return mGLTFEmissiveMaps[te]; }
-    LLViewerTexture* getGLTFMetallicRoughnessMap(U8 te) const { return mGLTFMetallicRoughnessMaps[te]; }
-
-	
 	bool 						isImageAlphaBlended(const U8 te) const;
 
 	void fitFaceTexture(const U8 face);
@@ -693,13 +687,6 @@ public:
 	LLPointer<LLViewerTexture> *mTENormalMaps;
 	LLPointer<LLViewerTexture> *mTESpecularMaps;
     
-    std::vector<LLPointer<LLViewerTexture> > mGLTFBaseColorMaps;
-    std::vector<LLPointer<LLViewerTexture> > mGLTFNormalMaps;
-    std::vector<LLPointer<LLViewerTexture> > mGLTFMetallicRoughnessMaps;
-    std::vector<LLPointer<LLViewerTexture> > mGLTFEmissiveMaps;
-
-
-
     // true if user can select this object by clicking under any circumstances (even if pick_unselectable is true)
     // can likely be factored out
     BOOL			mbCanSelect;

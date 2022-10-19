@@ -27,8 +27,10 @@
 #pragma once
 
 #include "llrefcount.h"
+#include "llmemory.h"
 #include "v4color.h"
 #include "v3color.h"
+#include "v2math.h"
 #include "lluuid.h"
 #include "llmd5.h"
 
@@ -43,12 +45,24 @@ class LLGLTFMaterial : public LLRefCount
 {
 public:
 
+    struct TextureTransform
+    {
+        LLVector2 mOffset = { 0.f, 0.f };
+        LLVector2 mScale = { 1.f, 1.f };
+        F32 mRotation = 0.f;
+    };
+
     enum AlphaMode
     {
         ALPHA_MODE_OPAQUE = 0,
         ALPHA_MODE_BLEND,
         ALPHA_MODE_MASK
     };
+
+    LLGLTFMaterial() {}
+    LLGLTFMaterial(const LLGLTFMaterial& rhs);
+
+    LLGLTFMaterial& operator=(const LLGLTFMaterial& rhs);
 
     LLUUID mBaseColorId;
     LLUUID mNormalId;
@@ -65,17 +79,41 @@ public:
     bool mDoubleSided = false;
     AlphaMode mAlphaMode = ALPHA_MODE_OPAQUE;
 
-    // get a UUID based on a hash of this LLGLTFMaterial
-    LLUUID getHash() const
+    enum TextureTransformIdx : U32
     {
-        LL_PROFILE_ZONE_SCOPED_CATEGORY_TEXTURE;
-        LLMD5 md5;
-        md5.update((unsigned char*)this, sizeof(this));
-        md5.finalize();
-        LLUUID id;
-        md5.raw_digest(id.mData);
-        return id;
-    }
+        TEXTURE_TRANSFORM_DIFFUSE_EMISSIVE,
+        TEXTURE_TRANSFORM_NORMAL,
+        TEXTURE_TRANSFORM_METALLIC_ROUGHNESS
+    };
+    TextureTransform mTextureTransform[3];
+
+    //setters for various members (will clamp to acceptable ranges)
+
+    void setBaseColorId(const LLUUID& id);
+    void setNormalId(const LLUUID& id);
+    void setMetallicRoughnessId(const LLUUID& id);
+    void setEmissiveId(const LLUUID& id);
+
+    void setBaseColorFactor(const LLColor3& baseColor, F32 transparency);
+    void setAlphaCutoff(F32 cutoff);
+    void setEmissiveColorFactor(const LLColor3& emissiveColor);
+    void setMetallicFactor(F32 metallic);
+    void setRoughnessFactor(F32 roughness);
+    void setAlphaMode(S32 mode);
+    void setDoubleSided(bool double_sided);
+
+    // Default value accessors
+    static LLUUID getDefaultBaseColorId();
+    static LLUUID getDefaultNormalId();
+    static LLUUID getDefaultEmissiveId();
+    static LLUUID getDefaultMetallicRoughnessId();
+    static F32 getDefaultAlphaCutoff();
+    static S32 getDefaultAlphaMode();
+    static F32 getDefaultMetallicFactor();
+    static F32 getDefaultRoughnessFactor();
+    static LLColor4 getDefaultBaseColor();
+    static LLColor3 getDefaultEmissiveColor();
+    static bool getDefaultDoubleSided();
 
     // set mAlphaMode from string.
     // Anything otherthan "MASK" or "BLEND" sets mAlphaMode to ALPHA_MODE_OPAQUE
@@ -123,7 +161,18 @@ public:
     // write to given tinygltf::Model
     void writeToModel(tinygltf::Model& model, S32 mat_index) const;
 
+    // get a UUID based on a hash of this LLGLTFMaterial
+    LLUUID getHash() const
+    {
+        LLMD5 md5;
+        md5.update((unsigned char*)this, sizeof(this));
+        md5.finalize();
+        LLUUID id;
+        md5.raw_digest(id.mData);
+        return id;
+    }
+
     // calculate the fields in this material that differ from a base material and write them out to a given tinygltf::Model
-    void writeOverridesToModel(tinygltf::Model & model, S32 mat_index, LLGLTFMaterial const * base_material) const;
+    void writeOverridesToModel(tinygltf::Model& model, S32 mat_index, LLGLTFMaterial const* base_material) const;
 };
 

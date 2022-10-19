@@ -286,9 +286,9 @@ RenderFSAASamples			1	0
 RenderGLMultiThreaded       1   0
 RenderGLContextCoreProfile  1   0
 
-// HACK: Current AMD drivers have bugged cubemap arrays, limit number of reflection probes to 16
+// HACK: Current AMD drivers have bugged cubemap arrays, limit number of reflection probes to 32
 list AMD
-RenderReflectionProbeCount  1   16
+RenderReflectionProbeCount  1   32
 
 list GL3
 RenderFSAASamples           0   0

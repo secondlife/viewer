@@ -28,13 +28,25 @@
 
 #include "llgltfmaterial.h"
 #include "llpointer.h"
+#include "llviewertexture.h"
 
-class LLFetchedGLTFMaterial : public LLGLTFMaterial
+class LLGLSLShader;
+
+class LLFetchedGLTFMaterial: public LLGLTFMaterial
 {
     friend class LLGLTFMaterialList; // for lifetime management
 public:
     LLFetchedGLTFMaterial();
     virtual ~LLFetchedGLTFMaterial();
+
+    // bind this material for rendering
+    void bind(LLGLSLShader* shader);
+
+    // Textures used for fetching/rendering
+    LLPointer<LLViewerFetchedTexture> mBaseColorTexture;
+    LLPointer<LLViewerFetchedTexture> mNormalTexture;
+    LLPointer<LLViewerFetchedTexture> mMetallicRoughnessTexture;
+    LLPointer<LLViewerFetchedTexture> mEmissiveTexture;
 
 protected:
     //Lifetime management

@@ -41,6 +41,7 @@
 #include "llviewercamera.h"
 #include "llvector4a.h"
 #include "llvoavatar.h"
+#include "llfetchedgltfmaterial.h"
 
 #include <queue>
 #include <unordered_map>
@@ -114,9 +115,11 @@ public:
 	F32 mDistance;
 	U32 mDrawMode;
 
-    // Material points here are likely for debugging only and are immaterial (zing!)
+    // Material pointer here is likely for debugging only and are immaterial (zing!)
     LLMaterialPtr mMaterial; 
-    LLPointer<LLGLTFMaterial> mGLTFMaterial;
+    
+    // PBR material parameters
+    LLPointer<LLFetchedGLTFMaterial> mGLTFMaterial;
 	
     LLUUID mMaterialID; // id of LLGLTFMaterial or LLMaterial applied to this draw info
 
@@ -128,7 +131,6 @@ public:
 	const LLMatrix4* mSpecularMapMatrix;
 	LLPointer<LLViewerTexture> mNormalMap;
 	const LLMatrix4* mNormalMapMatrix;
-    LLPointer<LLViewerTexture> mEmissiveMap;
 
 	LLVector4 mSpecColor; // XYZ = Specular RGB, W = Specular Exponent
 	F32  mEnvIntensity;

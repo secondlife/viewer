@@ -5390,7 +5390,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
     
     LLUUID mat_id;
 
-    LLGLTFMaterial* gltf_mat = facep->getTextureEntry()->getGLTFMaterial();
+    auto* gltf_mat = (LLFetchedGLTFMaterial*) facep->getTextureEntry()->getGLTFMaterial();
     if (gltf_mat != nullptr)
     {
         mat_id = gltf_mat->getHash(); // TODO: cache this hash
@@ -5519,21 +5519,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 
         if (gltf_mat)
         {
-            LLViewerObject* vobj = facep->getViewerObject();
-            U8 te = facep->getTEOffset();
-
-            draw_info->mTexture = vobj->getGLTFBaseColorMap(te);
-            draw_info->mNormalMap = vobj->getGLTFNormalMap(te);
-            draw_info->mSpecularMap = vobj->getGLTFMetallicRoughnessMap(te);
-            draw_info->mEmissiveMap = vobj->getGLTFEmissiveMap(te);
-            if (draw_info->mGLTFMaterial->mAlphaMode == LLGLTFMaterial::ALPHA_MODE_MASK)
-            {
-                draw_info->mAlphaMaskCutoff = gltf_mat->mAlphaCutoff * gltf_mat->mBaseColor.mV[3];
-            }
-            else
-            {
-                draw_info->mAlphaMaskCutoff = 1.f;
-            }
+            // nothing to do, render pools will reference the GLTF material
         }
         else if (mat)
 		{

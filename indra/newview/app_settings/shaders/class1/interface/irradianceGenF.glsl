@@ -196,7 +196,7 @@ vec4 filterColor(vec3 N)
         // apply the bias to the lod
         lod += u_lodBias;
 
-        lod = clamp(lod, 0, 7);
+        lod = clamp(lod, 0, 6);
         // sample lambertian at a lower resolution to avoid fireflies
         vec4 lambertian = textureLod(reflectionProbes, vec4(H, sourceIdx), lod);
 

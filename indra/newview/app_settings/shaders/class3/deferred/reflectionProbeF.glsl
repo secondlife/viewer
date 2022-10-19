@@ -507,7 +507,7 @@ void sampleReflectionProbes(inout vec3 ambenv, inout vec3 glossenv,
         vec3 pos, vec3 norm, float glossiness, bool errorCorrect)
 {
     // TODO - don't hard code lods
-    float reflection_lods = 7;
+    float reflection_lods = 6;
     preProbeSample(pos);
 
     vec3 refnormpersp = reflect(pos.xyz, norm.xyz);

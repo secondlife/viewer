@@ -675,45 +675,7 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, bool depth_only, bool rigged)
                         gPipeline.bindDeferredShader(*target_shader);
                     }
 
-                    if (params.mTexture.notNull())
-                    {
-                        gGL.getTexUnit(0)->bindFast(params.mTexture); // diffuse
-                    }
-                    else
-                    {
-                        gGL.getTexUnit(0)->bindFast(LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    if (params.mNormalMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, params.mNormalMap);
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::BUMP_MAP, LLViewerFetchedTexture::sFlatNormalImagep);
-                    }
-
-                    if (params.mSpecularMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, params.mSpecularMap); // PBR linear packed Occlusion, Roughness, Metal.
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::SPECULAR_MAP, LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    if (params.mEmissiveMap)
-                    {
-                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, params.mEmissiveMap);  // PBR sRGB Emissive
-                    }
-                    else
-                    {
-                        target_shader->bindTexture(LLShaderMgr::EMISSIVE_MAP, LLViewerFetchedTexture::sWhiteImagep);
-                    }
-
-                    target_shader->uniform1f(LLShaderMgr::ROUGHNESS_FACTOR, params.mGLTFMaterial->mRoughnessFactor);
-                    target_shader->uniform1f(LLShaderMgr::METALLIC_FACTOR, params.mGLTFMaterial->mMetallicFactor);
-                    target_shader->uniform3fv(LLShaderMgr::EMISSIVE_COLOR, 1, params.mGLTFMaterial->mEmissiveColor.mV);
+                    params.mGLTFMaterial->bind(target_shader);
                 }
                 else
                 {
